@@ -61,7 +61,7 @@ def test_retained_data_art_choices_are_separate_from_ten_night_themes():
     assert len({theme.palette_for(key)["accent"] for key in expected}) == len(expected)
 
 
-@pytest.mark.parametrize("key", set(ambient.SPACEOUT_ONLY_THEMES) & set(catalog.DATA_ART_THEME_KEYS))
+@pytest.mark.parametrize("key", sorted(set(ambient.SPACEOUT_ONLY_THEMES) & set(catalog.DATA_ART_THEME_KEYS)))
 def test_saved_spaceout_preset_falls_back_in_an_ordinary_launch(private_store, key):
     settings = private_store._settings()
     settings.setValue(private_store._KEY_THEME, key)
@@ -262,4 +262,4 @@ def test_requested_animation_order_and_default_reach_the_actual_dialog(
     assert tuple(combo.itemText(index) for index in range(5)) == labels
     assert combo.currentData() == "data_art_impulse_lens"
     assert combo.itemData(combo.count() - 1) == "none"
-    assert private_store._ambient_gravity_radius() == pytest.approx(0.15)
+    assert private_store._ambient_gravity_radius() == pytest.approx(0.10)

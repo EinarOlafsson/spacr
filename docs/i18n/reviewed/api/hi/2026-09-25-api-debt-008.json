@@ -34,7 +34,9 @@
       "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
       "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
       "translation": "प्रतिक्रिया गिरने से पहले **सबसे निचली खुराक पर ऊपर उठती है** — हॉर्मेसिस। सलाह ज़ोर देकर यह है कि उन खुराकों को न हटाएँ, क्योंकि यह उठान ही निष्कर्ष है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#32",
@@ -50,7 +52,9 @@
       "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
       "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
       "translation": "यह परीक्षण किसी भी ऐसी शृंखला पर चलता है जिसका कम-खुराक सिरा प्रवृत्ति के विपरीत कंट्रोल से हटता है, केवल उन पर नहीं जिन्हें :func:`monotonicity` अस्वीकार करता है — **एक उभार प्रतिक्रिया-परास का पाँचवाँ हिस्सा लेकर भी इस सीमा के भीतर रह सकता है:** :data:`MAX_REVERSAL`, और उस स्थिति में आज का फ़िट सफल होता है, उभार से विस्थापित EC50 बताता है, और कुछ नहीं कहता। ऐसे फ़िट अब यह निष्कर्ष :attr:`DoseResponseResult.hormesis` में और अपनी चेतावनियों में रखते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
@@ -202,7 +206,9 @@
       "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
       "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
       "translation": ":data:`MODEL_4PL` (डिफ़ॉल्ट) या :data:`MODEL_5PL`। असममित मॉडल एक ऐसा विकल्प है जो उपयोगकर्ता चुनता है, डेटा उसके लिए कभी नहीं चुनता: इसे इसलिए प्रस्तुत किया जाता है क्योंकि वास्तविक असममिति होती है और 4PL उसे विस्थापित EC50 में समा लेता है, और यह डिफ़ॉल्ट इसलिए नहीं है क्योंकि एक प्लेट पर वास्तव में मौजूद आठ या दस सांद्रताओं पर पाँचवें पैरामीटर की पहचान कमज़ोर होती है। जिस फ़िट ने 5PL चुना, वह रिपोर्ट करता है कि अतिरिक्त पैरामीटर ने अपनी जगह कमाई या नहीं — :attr:`DoseResponseResult.asymmetry_p` देखें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
@@ -658,7 +664,9 @@
       "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
       "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
       "translation": "**वह स्केल गुणक ही इस फ़ंक्शन का पूरा उद्देश्य है।** जिस तरह 5PL आमतौर पर लिखा जाता है —",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#3",
@@ -682,7 +690,9 @@
       "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
       "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
       "translation": "इस मॉड्यूल का हर डाउनस्ट्रीम नियम — परिबद्धता परीक्षण, प्रोफ़ाइल अंतराल, वापस-रूपांतरित रिपोर्टिंग — दोनों मॉडलों के अंतर्गत ``log10_ec50`` को एक ही राशि के रूप में पढ़ता रहता है, और उनमें से किसी को दूसरा अर्थ नहीं सीखना पड़ा।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
@@ -722,7 +732,9 @@
       "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
       "context": "Is the low-dose end of this series stimulated, or is it noise?",
       "translation": "क्या इस शृंखला का कम-खुराक सिरा उत्तेजित है, या यह शोर है?",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#1",
@@ -794,7 +806,9 @@
       "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
       "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
       "translation": "**F परीक्षण द्वि-पक्षीय है और परिकल्पना एक-पक्षीय**, क्योंकि केवल धनात्मक उत्तेजना ही हॉर्मेसिस है। मानदंड 1 एक-पक्षीय हिस्से को p मान आधा करने के बजाय निरीक्षण से पूरा करता है, इसलिए रिपोर्ट किया गया p लगभग दो के गुणक से रूढ़िवादी है। इसे सुधारा नहीं, बताया गया है: जो जाँच पहले से इस डेटा को अस्वीकार करती है, उस पर रूढ़िवादी p गलत होने की सही दिशा है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#6",
@@ -866,7 +880,9 @@
       "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
       "context": "Progress line. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
       "translation": "प्रगति पंक्ति। :class:`ProgressLine` एक पतली प्रगति पट्टी है जिसकी संख्याएँ उसके बगल में रहती हैं, जहाँ कुछ भी उन्हें काट नहीं सकता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#3",
@@ -910,7 +926,9 @@
       "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
       "context": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
       "translation": "इसके बगल की गिनती (चरण और प्रतिशत, वे संख्याएँ जिन पर व्यक्ति नज़र रखता है) एक सादा लेबल है जिसे कभी संक्षिप्त नहीं किया जाता -- इसकी क्षैतिज आकार नीति ``Minimum`` है, इसलिए लेआउट इसे इसके पाठ की ज़रूरत से कम जगह नहीं दे सकता;",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#8",
@@ -918,7 +936,9 @@
       "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
       "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
       "translation": "नीचे की एक वैकल्पिक विवरण पंक्ति वह हिस्सा दिखाती है जो बदलता है और लंबा हो सकता है (फ़ाइल नाम, गति, शेष समय); वह हिस्सा संक्षिप्त होता है, और :meth:`ProgressLine.displayed_text` बताता है कि वास्तव में क्या पेंट किया गया है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#9",
@@ -1030,7 +1050,9 @@
       "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
       "context": "What is really painted: the count, then the detail as elided.",
       "translation": "वास्तव में क्या पेंट किया गया है: गिनती, फिर संक्षिप्त किया गया विवरण।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#1",
@@ -1774,7 +1796,9 @@
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
       "context": "The event type is read first, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to execute for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "translation": "इवेंट प्रकार पहले पढ़ा जाता है, और जीवितता जाँचें उसके बाद होती हैं। यह फ़िल्टर QApplication पर है, इसलिए दोनों `_still_alive` कॉल पहले प्रक्रिया के हर इवेंट के लिए चलती थीं -- एक Regression खोलने के दौरान उनमें से 94,431, और एक प्रोफ़ाइल ने एक Mask खोलने में इस जोड़ी को 839,906 कॉल पर गिना। जिस ऑब्जेक्ट का C++ हिस्सा जा चुका है उसका प्रकार पढ़ना त्रुटि उठाता है, जिसका उत्तर नीचे का `except` पहले से उसी `False` से देता है, इसलिए इस क्रम की कोई लागत नहीं है और जाँचें अब केवल संदर्भ मेनू के लिए चलती हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.feature_dictionary.FeatureHelpFilter.eventFilter#4",
@@ -2680,7 +2704,10 @@
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
       "context": "key-value mapping as :meth:`plot_state` returns it; structured-data names it lacks keep their current value. Nothing applies when it is not a key-value mapping or no table is loaded.",
       "translation": "dict, जैसा :meth:`plot_state` लौटाता है; जो कुंजियाँ इसमें नहीं हैं वे अपना वर्तमान मान रखती हैं। dict न होने पर या कोई तालिका लोड न होने पर कुछ भी लागू नहीं होता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state#2",
@@ -2800,7 +2827,10 @@
       "source_sha256": "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04",
       "context": "the close event; passed on unchanged to the base class after the workers are shut down.",
       "translation": "close इवेंट; वर्कर बंद होने के बाद बिना बदलाव के बेस क्लास को आगे दिया जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Row-exclusion path, restore and lifecycle documentation corrected in ae9fe9df94b. Replacement exact-source review is2026-10-15-row-exclusion-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source#2",
@@ -3112,7 +3142,9 @@
       "source_sha256": "23edbf6a4e9531d947e2b1cefbfc35acf7368c6a86644d2f947c00c7c63dd07b",
       "context": "One widget, two owners. A segmentation preview has four things worth looking at: the image with the outlines on it, the label masks alone, the flow microscope field of view the masks were pooled from, and the cell probability the flow was thresholded at. Mask generation's live preview showed three of them through a dropdown; the plaque preview showed its own four through tabs, drawn by its own code. This module is the one place both can draw them from, so that a change to how a cell probability is coloured reaches both previews at once.",
       "translation": "एक विजेट, दो स्वामी। सेगमेंटेशन पूर्वावलोकन में देखने लायक चार चीज़ें होती हैं: रूपरेखाओं वाली छवि, केवल लेबल मास्क, वह प्रवाह क्षेत्र जिससे मास्क एकत्र किए गए, और वह कोशिका प्रायिकता जिस पर प्रवाह को थ्रेशोल्ड किया गया। मास्क निर्माण का लाइव पूर्वावलोकन इनमें से तीन ड्रॉपडाउन के माध्यम से दिखाता था; plaque पूर्वावलोकन अपने चार टैब के माध्यम से दिखाता था, अपने ही कोड से बनाकर। यह मॉड्यूल वह एक जगह है जहाँ से दोनों इन्हें बना सकते हैं, ताकि कोशिका प्रायिकता को रंगने के तरीके में बदलाव एक साथ दोनों पूर्वावलोकनों तक पहुँचे।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#2",
@@ -3120,7 +3152,9 @@
       "source_sha256": "73126bf99b9a4ee19e74a0ccb04e35f7d2ed4efd87428e521b30fa5b7001d496",
       "context": "The widget knows arrays, not modules. It is handed an image, label masks, flow pictures and cell probability maps -- each either one array or one per object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here names the Mask module, Cellpose settings or a plaque.",
       "translation": "विजेट ऐरे जानता है, मॉड्यूल नहीं। इसे एक छवि, लेबल मास्क, प्रवाह चित्र और कोशिका प्रायिकता मानचित्र सौंपे जाते हैं -- हर एक या तो एक ऐरे या प्रति ऑब्जेक्ट एक -- और यह :data:`VIEWS` में से जो भी चुना गया हो, उसे बनाता है। यहाँ कुछ भी Mask मॉड्यूल, Cellpose सेटिंग्स या plaque का नाम नहीं लेता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#3",
@@ -3128,7 +3162,9 @@
       "source_sha256": "9e1ba76a10b44b4b3b23b6204855d096d06de5a02a8bc6675fb1b0ce997ddbf7",
       "context": "What an owner can change. The default renderers draw a plain overlay, categorical masks, the flows as Cellpose hands them and the probability on the magma scale. An owner with its own idea of an outline -- the live preview's colour choice and thickness -- registers a renderer for that view with :meth:`SegmentationViews.set_renderer` and keeps the other three. A renderer answers with a picture, with a sentence to show in the picture's place, or with ``None`` for the widget's own \"nothing yet\" sentence.",
       "translation": "स्वामी क्या बदल सकता है। डिफ़ॉल्ट रेंडरर एक सादा ओवरले, श्रेणीगत मास्क, Cellpose द्वारा सौंपे गए रूप में प्रवाह, और magma स्केल पर प्रायिकता बनाते हैं। जिस स्वामी के पास रूपरेखा का अपना विचार है -- लाइव पूर्वावलोकन का रंग चयन और मोटाई -- वह :meth:`SegmentationViews.set_renderer` से उस व्यू के लिए एक रेंडरर पंजीकृत करता है और अन्य तीन रखता है। रेंडरर एक चित्र, चित्र के स्थान पर दिखाने के लिए एक वाक्य, या विजेट के अपने \"nothing yet\" वाक्य के लिए ``None`` से उत्तर देता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#4",
@@ -3136,7 +3172,9 @@
       "source_sha256": "1307cb97112239c8e143a983363574d13fd6013433056103ee0de9fd2d47a3ab",
       "context": "The canvas is pluggable. An owner that already has a canvas with a ruler and a hover line on it (the live preview's ``_ZoomView``) hands it in; otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and saves on a right click like every other picture in the program.",
       "translation": "कैनवास बदला जा सकता है। जिस स्वामी के पास पहले से रूलर और होवर रेखा वाला कैनवास है (लाइव पूर्वावलोकन का ``_ZoomView``), वह उसे सौंप देता है; अन्यथा एक :class:`PictureCanvas` बनाया जाता है, जो प्रोग्राम के हर दूसरे चित्र की तरह फ़िट, ज़ूम, पैन करता है और राइट क्लिक पर सहेजता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP#0",
@@ -3808,7 +3846,9 @@
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
       "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "translation": "यह वर्बोज़ लॉगिंग क्यों नहीं है। वर्बोज़ लॉगिंग केवल यह तय करती है कि कौन-से लॉग रिकॉर्ड रखे जाएँ, इसलिए उसके पास मेमोरी का कोई हिसाब देने को नहीं है। उसने एक समय जो फ़ंक्शन ट्रेसर स्थापित किया था, वह हर कॉल और हर रिटर्न पर सक्रिय होता था, और स्टार्टअप का बीस गुना समय लेता था। ट्रेसर के माध्यम से लिया गया हिसाब वास्तविक प्रोग्राम के बजाय ट्रेस किए गए प्रोग्राम का वर्णन करेगा, और ठीक उसी प्रोग्राम को कोई मापना नहीं चाहता। इसलिए यह इसके बजाय नमूने लेता है: प्रति सेकंड एक psutil रीडिंग, एक daemon थ्रेड पर जो कभी GUI थ्रेड नहीं होता, अन्यथा अप्रभावित रन पर। चेकबॉक्स के बजाय तीन अवस्थाएँ, क्योंकि उपयोगी डिफ़ॉल्ट \"off\" नहीं है -- संसाधनों का सबसे मूल्यवान डेटा उन रनों से आता है जिनके विफल होने की किसी को अपेक्षा नहीं थी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.completed_fields_in_merged#5",
@@ -4024,7 +4064,9 @@
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
       "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "translation": "``size outliers`` उन ऑब्जेक्ट का अंश जिनका समतुल्य व्यास ``median ± seg_qc_outlier_mad * 1.4826 * MAD`` से बाहर पड़ता है। माध्यिका और MAD, माध्य और मानक विचलन नहीं: मलबे के पाँच टुकड़े मानक विचलन को तब तक फुला देते हैं जब तक कुछ भी बाहरी मान न रहे, और ठीक यही वह स्थिति है जिसे पकड़ने के लिए यह जाँच बनी है (``tests/test_seg_qc.py`` दोनों की तुलना करता है)। *k* = 5 जानबूझकर ढीला है — वास्तविक आकार वितरण lognormal होते हैं और Gaussian से भारी पूँछ वाले होते हैं, इसलिए 3 sigma एक पूरी तरह अच्छे फ़ील्ड के भी कुछ प्रतिशत को चिह्नित कर देता है। फ़्लैग तब सक्रिय होता है जब ``seg_qc_outlier_fraction`` (0.15) से अधिक ऑब्जेक्ट उस सीमा से बाहर हों। भारी पूँछ, मिश्रित आबादी और सेगमेंटेशन दोष सभी इसे सक्रिय कर सकते हैं; फ़्लैग यह नहीं बताता कि इनमें से कौन मौजूद है। किनारे वाले ऑब्जेक्ट हर आकार सांख्यिकी से बाहर रखे जाते हैं, ठीक वैसे ही जैसे ``diameter._region_diameters`` उन्हें बाहर रखता है, क्योंकि कटे हुए ऑब्जेक्ट का क्षेत्रफल झूठा होता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#17",
@@ -4040,7 +4082,9 @@
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
       "translation": "``measure_crop`` spaCR का महँगा चरण है: यह हर मास्क खोलता है, हर चैनल से हर ऑब्जेक्ट काटता है, प्रति ऑब्जेक्ट सैकड़ों फ़ीचर की गणना करता है और उन्हें SQLite में लिखता है। पूरी प्लेट पर इसमें घंटों लगते हैं। जिस प्लेट का सेगमेंटेशन ढह गया हो — कोई चैनल फ़ोकस से बाहर, व्यास दो गुना गलत, कोई संगम मोनोलेयर जो पट्टियों में जुड़ गई — उसमें भी ठीक उतने ही घंटे लगते हैं और फिर एक ऐसी माप तालिका बनती है जिसे फेंकना पड़ता है। विफलता केवल मास्क से ही स्पष्ट है; कोई देखता नहीं, क्योंकि देखने का अर्थ है हाथ से हज़ार ``.npy`` फ़ाइलें खोलना। मास्क सांख्यिकी संदिग्ध फ़ील्डों को उजागर कर सकती है, लेकिन उनका कारण स्थापित नहीं कर सकती या जैविक व्याख्या को मान्य नहीं कर सकती।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#3",
@@ -4048,7 +4092,9 @@
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
       "translation": "इसलिए यह मॉड्यूल देखता है। यह :mod:`spacr.object` द्वारा अभी-अभी लिखे गए लेबल मास्क पढ़ता है, हर फ़ील्ड को कुछ मज़बूत सांख्यिकी के आधार पर स्कोर करता है, और एक स्कोरकार्ड प्रिंट करता है जिसमें कॉन्फ़िगर की गई सीमाओं से आगे जाने वाले फ़ील्डों के नाम होते हैं। यह कुछ नहीं बदलता: ``seg_qc='report'`` (डिफ़ॉल्ट) फ़्लैग सामने लाता है, यह चुपचाप फ़ील्ड नहीं हटाता। कौन-से फ़ील्ड रखने हैं, यह तय करना उपयोगकर्ता का काम है और उसके लिए प्रमाण चाहिए, फ़िल्टर नहीं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#7",
@@ -4179,7 +4225,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#3",
+      "label": "spacr.sra.fetch_reads#4",
       "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
       "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
       "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
@@ -4187,7 +4233,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#4",
+      "label": "spacr.sra.fetch_reads#5",
       "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
       "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
       "context": "folder the ``.fastq.gz`` file is written into; created if missing.",
@@ -4360,7 +4406,9 @@
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
       "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "translation": "जिस छवि में डिटेक्टर को कुछ नहीं मिलता, उसे बिना ज्यामिति के पूरी की पूरी विभाजित फ़ोल्डर में कॉपी किया जाता है, इसलिए उसका विश्लेषण फिर भी होता है और बस उसका कोई रूलर नहीं होता। जो चेतावनी \"passed through whole\" कहती है और फिर छवि को छोड़ देती है, वह कुछ भी आगे नहीं भेजती: जब किसी फ़ोल्डर की कुछ छवियाँ विभाजित हुईं और अन्य नहीं, तो अन्य छवियाँ न कोई क्रॉप देतीं न कोई पंक्ति, और कुछ भी नहीं बताता कि वे मौजूद थीं। सब-या-कुछ-नहीं वाली स्थिति -- जहाँ फ़ंक्शन ``src`` पर लौट आता है -- ही एकमात्र स्थिति है जो संदेश के वादे के अनुसार व्यवहार करती।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#0",
@@ -4522,7 +4570,9 @@
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
       "translation": "केवल वे क्रॉप लौटाए जाते हैं जिन्हें एनोटेटर ने उसके बाद से लेबल नहीं किया है: अस्वीकृति के बाद दिया गया लेबल अधिक मज़बूत कथन है और फ़िट उसे स्तंभ से ही पढ़ता है, इसलिए अस्वीकृति को भी सौंपने से क्रॉप दो बार गिना जाएगा।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#5",
@@ -4538,7 +4588,9 @@
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
       "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "translation": "सामूहिक KEEP अपने द्वारा रखे गए हर सुझाव की पुष्टि है, इसलिए इसे निर्णय स्तंभ में भी दर्ज किया जाता है (जब स्तंभ मौजूद हो): तब क्रॉप पर वही चिह्न लगता है जो एक-एक करके पुष्टि किए गए क्रॉप पर लगता है, और पेज द्वारा दिखाई गई गिनती वास्तव में हुई घटना से मेल खाती है। सामूहिक THROW कोई निर्णय नहीं है -- \"मैं इनकी समीक्षा नहीं करना चाहता\" का अर्थ \"these are wrong\" नहीं है -- इसलिए यह कुछ भी दर्ज नहीं करता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#0",
@@ -4570,7 +4622,9 @@
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
       "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "translation": "वह साधारण जोड़ने वाला (stitcher) जिसे timeflows फ़ोर्क को पीछे छोड़ना है, और वह स्कोर जो यह बताता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#1",
@@ -4578,7 +4632,9 @@
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
       "context": "What it is for",
       "translation": "यह किसलिए है",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#10",
@@ -4586,7 +4642,9 @@
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
       "context": "How a tracking is represented",
       "translation": "ट्रैकिंग को कैसे दर्शाया जाता है",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#11",
@@ -4594,7 +4652,9 @@
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "translation": "Cell Tracking Challenge की परिपाटी, क्योंकि मेट्रिक उसी के हैं: एक लेबल स्टैक जिसमें लेबल ही ट्रैक id है, इसलिए कोई ऑब्जेक्ट तब तक अपना लेबल रखता है जब तक वह वही ऑब्जेक्ट है, साथ में एक वैकल्पिक वंशावली जो हर लेबल को उसके पैरेंट लेबल से मैप करती है। इसलिए विभाजन दो नए लेबल हैं जिनका पैरेंट पुराना लेबल है; जो ट्रैकर विभाजन व्यक्त नहीं कर सकता वह कोई वंशावली पास नहीं करता और दो अनुपस्थित पैरेंट एज की कीमत चुकाता है, जो साधारण जोड़ने वाले की ईमानदार कीमत है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#12",
@@ -4602,7 +4662,9 @@
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
       "context": "Why it does not call ``spacr.timelapse``",
       "translation": "यह ``spacr.timelapse`` को कॉल क्यों नहीं करता",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#13",
@@ -4628,7 +4690,9 @@
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
       "context": "What is in here",
       "translation": "इसमें क्या है",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#4",
@@ -4668,7 +4732,9 @@
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
       "context": "Why the operation counts are public",
       "translation": "संक्रिया गिनतियाँ सार्वजनिक क्यों हैं",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#9",

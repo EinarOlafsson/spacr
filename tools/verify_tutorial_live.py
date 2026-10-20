@@ -19,7 +19,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
-EXPECTED_CACHE_KEY = json.loads((ROOT / "tools/tutorials/release_candidate/publication-receipt.json").read_text())["pages"]["cache_key"]
+
+
+def _catalog_cache_key(receipt: dict) -> str:
+    """The catalog's published asset key; unchanged assets retain older keys."""
+    pages = receipt["pages"]
+    if "versioned_assets" in pages:
+        return pages["versioned_assets"]["lesson_catalog.js"]
+    return pages["cache_key"]
+
+
+EXPECTED_CACHE_KEY = _catalog_cache_key(json.loads(
+    (ROOT / "tools/tutorials/release_candidate/publication-receipt.json").read_text()))
 EXPECTED_VOICE_KEY = "20260811-50-voices"
 EXPECTED_APP_KEY = re.search(r'app_v2\.js\?v=([^"\s]+)', (LOCAL / 'index.html').read_text())[1]
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}

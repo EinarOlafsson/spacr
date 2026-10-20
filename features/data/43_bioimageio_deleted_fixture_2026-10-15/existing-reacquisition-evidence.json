@@ -1,0 +1,8 @@
+{
+  "file_sha256": {
+    "tests/test_n702_missing_laptop_model_path.py": "ac2f5d8495b5a0f15988ef5df466051defa74f0be09030399b58264ccec1399d",
+    "tests/test_n702_legacy_missing_consumer_paths.py": "350ee3b59ea001afb03a175d8f9259cdd81c48ffc689228634ef131187e8be89"
+  },
+  "read_only_source_evidence": "Existing actual exact-basename mirror file reacquisition tests already preserve N702 intended path. They cover Unix/Windows paths, exact checksummed model bytes, no stock fallback, unknown paths refused, cached acquisition and actual consumer paths. Not rerun in this component.",
+  "reason_for_no_new_test": "Current repair isolates unavailable-provider scenario, does not alter provider/model acquisition behavior."
+}

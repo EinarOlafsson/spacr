@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Farðu yfir allar núverandi einingar á Home frá vinstri til hægri. Lærðu síðan á sameiginleg stjórntæki með Mask og stilltu leiðsögn, hjálp og útlit.",
+      "description": "Skoðaðu Home-yfirlitið og flokkaflipana, kynntu þér síðan sameiginlegar stjórnir eininga með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Þekkja allar einingarnar í núverandi röðunum Core, Data, Tools og Organism.",
+        "Finndu einingar með flipunum Home, Core, Data, Tools og Organism.",
         "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
         "Fara aftur á Home, nota leit og raða spjöldum.",
         "Velja stillingar fyrir útlit og afköst."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data, Tools og Organism. Hver reitur opnar sína einingu. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
+          "narration": "Home er upphafspunkturinn. Yfirlitið flokkar einingar undir Core, Data, Tools og Organism. Flokkafliparnir þrengja sýnina. Hver reitur opnar eininguna sem hann er nefndur eftir. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
           "hold_after": 0.7
         },
         {
@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify lærir af yfirförnum merkingum og gefur öðrum hlutum stig með mynd- eða töfluaðferðum.",
+          "narration": "Classify þjálfar líkan á yfirförnum merkingum og gefur öðrum hlutum stig út frá útskurðsmyndum eða mældum eiginleikum.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -581,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings kóðar myndútskurði hluta sem töluleg einkenni til skoðunar og samanburðar.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare safnar vistuðum niðurstöðum keyrslna svo þú getir skoðað muninn.",
           "hold_after": 0.7,
@@ -603,17 +592,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design raðar skilyrðum, brunnum og auðkennum sýna fyrir tilraun.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design skoðar forsendur um úrtaksstærð og tölfræðilegt afl við skipulagningu samanburðar.",
           "hold_after": 0.7,
@@ -622,28 +600,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response fellir líkan að svörun yfir styrkleika og heldur valinni útkomumælingu og viðmiðum skýrum.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC sameinar gæðaprófanir og sýnir hvaða gögn eru fyrir hendi eða vantar.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -677,17 +633,6 @@
           ],
           "related_lessons": [
             "15_image_umap"
-          ]
-        },
-        {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor skilgreinir val á raunverulegum gagnadálkum. Yfirfarðu valda hluti áður en vali er breytt í merkingar.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
           ]
         },
         {
@@ -810,7 +755,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum og Popup wave frequency setur af stað bylgjur frá opnum sprettigluggum í spaCR field. Field ripples stjórnar bylgjum frá smellum, opnun eða lokun íláta og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar. Þegar slökkt er á því stöðvast sjálfvirkar bylgjur frá sprettigluggum líka. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
+          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum. Field ripples stillir styrk bylgna frá smellum, opnun eða lokun íláta, sprettigluggum og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar; núll slekkur á bylgjunum, líka sjálfvirkum bylgjum frá sprettigluggum. Click ripples ræður því hvort smellur á bakgrunninn sendir bylgju. Popup wave frequency stillir hve margar bylgjur á mínútu breiðast út frá opnum sprettiglugga í spaCR field. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -861,11 +806,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Í Spaceout-ham inniheldur Preferences spaCR field-stjórntæki fyrir átta óháð áhrif. Kveiktu eða slökktu á hverju fyrir sig. Venjuleg stjórntæki fyrir útlit og hreyfimyndir stillingagluggans eru áfram tiltæk. Apply forskoðar breytingu, Keep samþykkir hana og Revert endurheimtir fyrra val.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -962,12 +902,11 @@
             650
           ],
           "narration": "Virkjaðu Python-umhverfið sem þú settir spaCR upp í. Fluttu inn spacr og prentaðu útgáfu þess með skipuninni sem sést. Geymdu útgáfuna með greiningarglósunum svo þú getir endurtekið sömu keyrslu síðar.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -989,11 +928,11 @@
             900
           ],
           "narration": "Keyrðu spacr-run --describe regression. Lestu nauðsynleg inntök, sjálfgefin gildi og heiti fallsins. Hér kallar runuskipunin á perform_regression í spacr.ml. Opnaðu það fall í API-tilvísuninni til að lesa stika þess og niðurstöðurnar sem það skilar.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1026,11 +965,11 @@
             900
           ],
           "narration": "Til að framkvæma greininguna keyrirðu sömu skipun án --dry-run. Fylgstu með stjórnborðinu þar til skipuninni lýkur og skoðaðu svo úttakið sem lýst er í kennslu og API-síðu einingarinnar. Geymdu stillingaskrána, inntakstöflurnar, útgáfu pakkans og annál stjórnborðsins með niðurstöðunum.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -1171,7 +1110,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1564,7 +1526,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í þremur brunnum og Next vistar þær.",
           "focus": [
             360,
             380,
@@ -1576,7 +1538,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú bera ómerktar úrklippur á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
           "focus": [
             350,
             250,
@@ -1587,7 +1549,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
+          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin bíða vistunar þar til Next vistar þau; höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
           "focus": [
             350,
             250,
@@ -1618,7 +1580,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2001,7 +1986,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2355,7 +2363,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear masks, beint vinstra megin við Discard, biður um staðfestingu áður en allar grímur í núverandi mynd eru fjarlægðar.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear all objects, beint vinstra megin við Discard, biður um staðfestingu áður en allir hlutir í núverandi mynd eru fjarlægðir.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2885,7 +2893,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu. Þú getur kannað PCA með tengdu tóli þess þegar þú vilt línulegt ofanvarp og hleðslur eiginleika.",
+          "narration": "Veldu UMAP sem smækkunaraðferð. Hver punktur táknar hlut með tveimur hnitum á grafinu.",
           "hold_after": 0.7
         },
         {
@@ -2934,19 +2942,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Opnaðu Image Scatter úr haus Image UMAP til að bera valda eiginleika beint saman, eða opnaðu PCA fyrir línulegt ofanvarp. Haltu áfram með tengdu kennsluefnin til að sjá inntaksstillingar þeirra og vistað úttak.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Skoðaðu fullgerðu vörpunina og berðu saman myndútskurði valinna hluta. Geymdu inntaksmælingarnar, valdar stillingar og vistaðar niðurstöður saman svo hægt sé að rekja hvern punkt til uppruna síns.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3698,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Opnaðu undirmöppuna masks í Source. Hver mynd hefur TIFF-grímu með sama stofni skráarheitis. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
+          "narration": "Undirmappan masks í Source inniheldur TIFF-grímu með sama stofni skráarheitis fyrir hverja mynd. Skoðaðu myndritin við hlið upprunalegu myndanna og taktu eftir hlutum sem misstust og samrunnum frumum. Flæðispjaldið sýnir stefnurnar sem líkanið notar við aðgreininguna.",
           "focus": [
             1000,
             450,
@@ -3709,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Kveiktu á Live preview og veldu mynd með myndavalinu. Opnaðu Live settings og athugaðu stýringar fyrir rás og stöðlun. Leggðu saman Console og System til að gefa forskoðuninni meira pláss ef þörf er á.",
+          "narration": "Leggðu saman hin niðurstöðuspjöldin til að gefa forskoðuninni meira pláss. Kveiktu á Live preview og veldu mynd með myndavalinu. Flettu að meðfylgjandi dæmamynd.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Berðu forskoðunina saman við vistuðu grímuna úr rununni. Forskoðunin og Apply nota ólíkar vinnsluleiðir í þessu dæmi, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
+          "narration": "Athugaðu rás og stöðlun í Live settings og keyrðu síðan forskoðunina. Forskoðunin og Apply vinna þessar myndir á ólíkan hátt, svo mörk og fjöldi geta verið ólík. Skoðaðu vistuðu TIFF-skrárnar þegar þú metur hvort úttak rununnar henti til mælinga.",
           "focus": [
             1000,
             1160,
@@ -3725,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk og þysjaðu svo út til að athuga allt sjónsviðið.",
+          "narration": "Notaðu músarhjólið til að stækka svæði á báðum forskoðunarflötunum. Skoðaðu hluti sem snertast og dauf mörk í stækkuðu myndinni.",
           "focus": [
             1010,
             1280,
@@ -3768,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4180,7 +4229,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5332,7 +5404,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6031,7 +6126,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6176,7 +6294,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6472,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7047,7 +7211,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7277,7 +7464,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8092,7 +8302,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8264,7 +8497,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8447,7 +8703,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15092,7 +15371,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify lærir af valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
+          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify þjálfar líkan á valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15694,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Skýringarmyndin er til að kanna. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
+          "narration": "Skýringarmyndin er gagnvirk. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15704,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Analysis lýsir öllu vinnuferlinu.",
+          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Assay lýsir öllu vinnuferlinu.",
           "hold_after": 0.7
         },
         {

@@ -76,31 +76,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "intensity_calibration",
-      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
-      "translation": "Calibra intensidades entre sessões de aquisição antes da medição: cada placa é uma sessão, as microesferas ou poços de referência imageados em cada placa são medidos, e os canais de intensidade de cada placa são escalados para que seus poços de referência coincidam com os da primeira placa. Isso corrige a deriva de exposição, lâmpada e detector entre dias no nível da imagem, ao contrário da correção de lote de tabelas. Os ganhos são registrados em measurements.db:intensity_rescale. Padrão False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "intensity_calibration_offset",
       "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
       "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
       "translation": "O deslocamento de escuro da câmera, nas unidades de intensidade usadas pelo Measure, subtraído antes da estatística de referência e mantido na escala: um pixel passa a ser deslocamento + (valor - deslocamento) x ganho. Leia-o em um quadro escuro; 100 é comum em câmeras sCMOS. Deixe 0 quando as imagens já estiverem corrigidas. Padrão 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_statistic",
-      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
-      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
-      "translation": "Como a intensidade de cada campo de referência é resumida, após subtrair intensity_calibration_offset. foreground: a mediana dos pixels acima de um limiar de Otsu, para microesferas esparsas em fundo escuro. median: a mediana de todos os pixels, para um poço de referência corado de forma uniforme. Cada placa usa a mediana dos seus campos de referência. Padrão foreground."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_wells",
-      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
-      "translation": "Os poços com a amostra de calibração, imageada em cada placa com a mesma amostra: microesferas fluorescentes ou uma coloração de referência, como ['A01'] ou ['A01', 'P24']. Cada placa precisa ter pelo menos um campo neles, ou a execução para. Eles são medidos e calibrados como qualquer outro poço. Padrão None."
     },
     {
       "table": "setting_tooltips",
@@ -320,6 +299,24 @@
       "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
       "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
       "translation": "O que colore cada célula nas árvores de linhagem: generation_time, generation, start_frame ou n_frames, ou o nome de uma coluna numérica da tabela de trajetórias, com média sobre os quadros da célula. Um nome desconhecido volta para generation_time com uma mensagem. Ignorado a menos que timelapse_lineage esteja ativado. Padrão generation_time."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "Como a intensidade de cada campo de referência é resumida, após subtrair intensity_calibration_offset. foreground: a mediana dos pixels acima de um limiar de Otsu, para microesferas esparsas em fundo escuro. median: a mediana de todos os pixels, para um poço de referência corado de forma uniforme. Cada placa usa a mediana dos seus campos de referência. Padrão foreground.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "Os poços com a amostra de calibração, imageada em cada placa com a mesma amostra: microesferas fluorescentes ou uma coloração de referência, como ['A01'] ou ['A01', 'P24']. Cada placa precisa ter pelo menos um campo neles, ou a execução para. Eles são medidos e calibrados como qualquer outro poço. Padrão None.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
     }
   ],
   "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",

@@ -135,7 +135,7 @@ def test_cli_trains_with_pair_weights_and_records_them(tmp_path, monkeypatch, mi
     assert tm.main(["--movies", "ctc-example", "--out", str(target), "--device", "cpu"]) == 0
     expected = [1 / 12] * 6 + [1 / 2]
     np.testing.assert_allclose(seen["weights"], expected)
-    record = json.loads(target.with_suffix(".pt.json").read_text())
+    record = json.loads(target.with_suffix(".pt.json").read_text(encoding="utf-8"))
     assert record["sampling"]["strategy"] == "inverse_frequency_displacement_bins"
     assert record["sampling"]["bins"] == 5
     assert record["window_supervision"] == {

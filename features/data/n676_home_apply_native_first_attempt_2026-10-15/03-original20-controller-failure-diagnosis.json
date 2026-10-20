@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "controller_startup_failure_source_supported_no_Apply_observation",
+  "accepted": false,
+  "native_accepted": false,
+  "attempt_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "first_attempt_result": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/diagnostic-result.json",
+    "bytes": 67,
+    "sha256": "881e414d2189adccbad4b4fdde8fc196264a56f9f194bb0dbdc4b7bd30ea76d2"
+  },
+  "actual_result": {
+    "status": "diagnostic_incomplete",
+    "error": "TimeoutError"
+  },
+  "bindings": {
+    "application_info": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/logs/spacr-info.log",
+      "bytes": 888,
+      "sha256": "a726b9aa19f18a9ebcba92361532a6a62d2a74193efcc598efd713d3a22c6845"
+    },
+    "application_debug": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/logs/spacr-debug.log",
+      "bytes": 114,
+      "sha256": "34bf9a6bb2f7f0eb4a087746e01cfe126ad06b5423592fcb2b56c0d9c5f6e1a6"
+    },
+    "human_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/logs/human-private.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/logs/native-private.log",
+      "bytes": 22124,
+      "sha256": "a4a8861a7be78fd8c25bf68432451c151daad01f59c65431236411ea7fe68201"
+    },
+    "owner_cleanup": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/owner-cleanup.json",
+      "bytes": 112,
+      "sha256": "06533f5f87359342eed170a7edc775ba8310f988b266e45a57de6ab757cb5950"
+    },
+    "host_cleanup": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-apply-native-20261015/gh/cleanup.json",
+      "bytes": 54,
+      "sha256": "75c9ae32733b323c48b654979ccd7d383e654d187b7c4ce6e2b9b705e009dfad"
+    }
+  },
+  "timing_evidence": {
+    "application_launched_local": "17:30:41.003",
+    "window_width_measured_local": "17:30:42.664",
+    "renderer_ready_log_local": "17:30:43.184",
+    "closing_window_log_local": "17:30:43.224",
+    "root_reported_total_seconds": 10,
+    "outer_17s_TERM_reached": false
+  },
+  "source_supported_diagnosis": "Worker begins before spacr.qt.run. Initial wait(current_window) calls queued GuiCaller with min(2s,remaining17s). Normal application initialization occupies over2s before renderer readiness; GuiCaller raises if Qt has not delivered a request. The immediate closing and absence of a6s settle/observations strongly support initial readiness dispatch timeout. Original result lacks phase/traceback, so exact throwing call is inferred, not directly captured.",
+  "not_supported": [
+    "No evidence that Apply ran.",
+    "No product performance cause or repair established.",
+    "Portal warnings alone do not establish this Python TimeoutError cause."
+  ],
+  "minimal_v3_change": "Initial window-readiness queued call may wait the remaining ORIGINAL global budget; ordinary post-readiness2s calls and17TERM+3KILL unchanged. Add sanitized phase/elapsed/timeout-origin fields.",
+  "v3_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/native-apply-observation-v3/preparation-manifest.json",
+    "bytes": 3384,
+    "sha256": "1b6a4235fb21b0915f834f1dec42f70e2f2eae7027b1a642c60aac9b42ce7e3f"
+  },
+  "limits": [
+    "Source-only read/AST/shell syntax; no app/test/GUI/native/GPU execution.",
+    "Private logs are bound locally; no private values or log dumps copied into this report.",
+    "Original first attempt/preparations preserved; v2 remains blocked on separate owner supersession."
+  ]
+}

@@ -8,7 +8,7 @@
       "key": "Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.",
       "source": "Enter the measured kernel pixel spacing. It must match the image; no resampling is performed.",
       "source_sha256": "574fd172a1dad29dbc5e32cad321335bdaf0970701e8c93f28f2f0da0992ca87",
-      "translation": "Introduza o espaçamento dos píxeis do núcleo medido. Tem de corresponder ao da imagem; não é efetuada reamostragem."
+      "translation": "Introduza o espaçamento dos pixels do núcleo medido. Tem de corresponder ao da imagem; não é efetuada reamostragem."
     },
     {
       "table": "ui",
@@ -22,14 +22,14 @@
       "key": "Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.",
       "source": "Load a 2D TIFF or NPY kernel, up to 64 MiB. File and normalized-kernel hashes identify the captured data. Reload to read changed file contents.",
       "source_sha256": "259ae344e708c9e3fd2b72e19353df48af840a47727f3fb15323cd2df567bd16",
-      "translation": "Carregue um núcleo 2D TIFF ou NPY, até 64 MiB. Os hashes do ficheiro e do núcleo normalizado identificam os dados carregados. Volte a carregar para ler o conteúdo alterado do ficheiro."
+      "translation": "Carregue um núcleo 2D TIFF ou NPY, até 64 MiB. Os hashes do arquivo e do núcleo normalizado identificam os dados carregados. Volte a carregar para ler o conteúdo alterado do arquivo."
     },
     {
       "table": "ui",
       "key": "Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.",
       "source": "Read the kernel file again. A file changed on disk does not silently alter an already loaded kernel.",
       "source_sha256": "927dbe2f53b7cd6b789961c2eca3873eb4e0f95b662009a2dafb0f3dd567fee2",
-      "translation": "Leia novamente o ficheiro do núcleo. Uma alteração do ficheiro no disco não modifica silenciosamente um núcleo já carregado."
+      "translation": "Leia novamente o arquivo do núcleo. Uma alteração do arquivo no disco não modifica silenciosamente um núcleo já carregado."
     },
     {
       "table": "ui",
@@ -43,7 +43,7 @@
       "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
       "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
       "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
-      "translation": "Ordem: expansão por percentis (Visualização) → fundo → PSF → restauração → redução de ruído → contraste → nitidez → deteção → morfologia → divisão."
+      "translation": "Ordem: expansão por percentis (Visualização) → fundo → PSF → restauração → redução de ruído → contraste → nitidez → detecção → morfologia → divisão."
     },
     {
       "table": "ui",
@@ -64,7 +64,7 @@
       "key": "Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.",
       "source": "Apply a calibrated measured PSF or an explicit Gaussian approximation to segmentation channels before normalization. Convolution adds blur; Richardson–Lucy attempts deconvolution and can amplify noise. Raw images and measurement intensities remain unchanged. Leave this off unless the same kernel and pixel calibration fit every selected channel.",
       "source_sha256": "1d82ed921610db9d2f793be4dc119116d5b5556b78d901afe08c60a879e3edeb",
-      "translation": "Aplique uma PSF medida e calibrada ou uma aproximação gaussiana explícita aos canais de segmentação antes da normalização. A convolução acrescenta desfocagem; Richardson–Lucy tenta a deconvolução e pode amplificar o ruído. As imagens originais e as intensidades medidas permanecem inalteradas. Deixe desativado, salvo se o mesmo núcleo e a calibração dos píxeis forem adequados a todos os canais selecionados."
+      "translation": "Aplique uma PSF medida e calibrada ou uma aproximação gaussiana explícita aos canais de segmentação antes da normalização. A convolução acrescenta desfocagem; Richardson–Lucy tenta a deconvolução e pode amplificar o ruído. As imagens originais e as intensidades medidas permanecem inalteradas. Deixe desativado, salvo se o mesmo núcleo e a calibração dos pixels forem adequados a todos os canais selecionados."
     },
     {
       "table": "ui",

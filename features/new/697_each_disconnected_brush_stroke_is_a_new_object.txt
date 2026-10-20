@@ -1,0 +1,141 @@
+================================================================================
+MAKE MASKS: EACH NEW DISCONNECTED BRUSH STROKE IS A NEW OBJECT LABEL
+================================================================================
+
+Status:    built; nine-language translations current; release pending
+Requested: maintainer, 2026-10-13: "in make mask when using the brush tool,
+           each new disconnected brush stroke should be a new object label."
+Owner:     Home (build); WS (tutorial lesson 14 brush clips, translations)
+Related:   Make Masks editor brush tool (spacr/qt/screens/make_masks.py),
+           wand/divide/merge tools, undo stack, lesson 14 drawing clips 07-08.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. A brush stroke (press, drag, release) that does not touch any existing
+   object paints a NEW label: the next free label id in the mask.
+2. A stroke that starts on, or touches, an existing object extends that
+   object (same label), as today. Decide and document the rule for a stroke
+   that touches two objects: it extends the object the stroke started on and
+   never merges labels silently (merge stays an explicit tool).
+3. Two strokes are "disconnected" when their painted pixels share no 8-
+   connected (2-D) / 26-connected (3-D) neighbour with each other or an
+   existing object. Holding a modifier (e.g. Shift) continues the current
+   label even across gaps, so one object can still be drawn in pieces; show
+   the modifier in the hint strip and the shortcut overlay (tr()).
+4. Erase never creates labels; undo/redo restore the label ids exactly.
+5. 3-D volumes: the rule applies per stroke in the current slice, and a
+   stroke touching the same label in the adjacent slice extends it.
+6. Label colours follow the existing palette so new objects are visibly
+   distinct immediately.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- Three separate strokes on empty ground give three labels; a stroke from
+  inside object 5 outward stays 5; Shift-strokes across a gap stay one label.
+- Undo after each case restores the previous mask byte-for-byte.
+- Saved masks and the object table show the new objects; tests cover 2-D
+  and 3-D.
+
+--------------------------------------------------------------------------------
+BUILT 2026-10-13 (Home, branch feat-697-brush-labels on makemasks-paint; not
+pushed, ships after 1.5.1.5)
+--------------------------------------------------------------------------------
+
+THE RULE, in _MaskCanvas._begin_brush_stroke / _stamp / _end_brush_stroke:
+- A stroke that starts on an object paints that object's id.
+- A stroke that starts on background paints the next free id (2-D: one past
+  the mask's maximum, engine.next_label; volume: the first id the volume does
+  not use) until its painted pixels first touch an object, 8-connected in
+  2-D and 26-connected in a volume (the sections either side of the shown one
+  count); from then on the whole stroke is that object.
+- Two objects touched: the stroke extends the first one it met (nearest to
+  the segment start on a tie) and paints over the other's edge; it never
+  merges them. Merge stays the Divide / Merge tool.
+- Shift + drag with the Brush paints the current label across a gap: the
+  last stroke's label on a 2-D field, the chosen object in a volume. A 2-D
+  Shift piece that never reaches its object sets manual_ids, like a merge,
+  so saving keeps the pieces as one id (undo restores the flag by digest).
+- A binary 255 mask is numbered by connected component at the first brush
+  press, as saving would, so a stroke bridging two blobs cannot merge them.
+- Erase never creates labels; undo/redo restore the exact array, dtype and
+  ids (MaskHistory copies, volume history for 3-D).
+- In a volume, commit_plane keeps the stroke's id (replace_plane keep=) and
+  selects it, so a later Shift stroke continues it.
+- New objects take their colour from the existing label palette, so each is
+  distinct as soon as it is painted.
+
+DECISION FOR THE MAINTAINER: Shift + left drag used to pan from every tool.
+With the Brush it now continues the label; Alt + drag pans from every tool
+and Shift + drag still pans with every other tool. The existing panel row
+"Shift or Alt + drag / Pan, from any tool" and the zoom-per-notch tooltip
+are left word for word, because reviewed fr/pt/sv runtime records bind that
+source and changing it makes the catalog build refuse them as stale; a new
+row under it, "Brush: Shift + drag / Keep painting the last object across a
+gap", states the exception. Rewording the pan row is for the translation
+lane. Lesson 14 clips that pan with Shift while the Brush is held need
+re-recording (WS).
+
+NEW STRINGS (tr, need translating): the Brush button tooltip, shown in the
+hint strip, "Each separate stroke paints a new object; a stroke that starts
+on or touches an object extends it. Hold Shift to keep painting the last
+object across a gap."; shortcut row "Brush: Shift + drag" and "Keep
+painting the last object across a gap".
+
+TESTS: tests/qt/test_697_brush_strokes_are_new_objects.py (2-D rule, corner
+touch against a one-pixel gap, two-object touch, Shift continuation and
+grouping, Erase, binary masks, screen undo/redo byte-identity, saved mask
+and object table, 3-D per-section and adjacent-section rule, 3-D undo/redo);
+the old 255 and Shift-pan expectations are updated in
+test_make_masks_canvas.py, test_make_masks_ported_tools.py,
+test_make_masks_shortcuts_otsu_and_object_edits.py,
+test_make_masks_draw_divide.py and test_673_make_masks_3d_in_container.py
+(its slice-7 stroke two sections from object 1 now uses Shift).
+
+
+2026-10-14 — Home: current-source integration and reviewed runtime help
+
+The held brush implementation is integrated after the validated Make Masks
+lifecycle/hash fix and refreshed on current nightly in a private WD tree.
+Disconnected strokes use separate IDs, touching strokes extend the first
+object, Shift with Brush keeps the previous ID across a gap, and Alt pans.
+The old unconditional Shift-pan row and zoom hint are replaced with the
+actual tool-dependent behavior. Nine changed/new runtime sources (including
+the inherited Wand notices) have authored reviews in all nine locales and
+normal catalog regeneration. Obsolete source-bound reviews are retired by
+deleting their records; the original 99 reviewed UI vocabulary is unchanged.
+
+The normal caption-arrival --refresh command reconstructs the current delta
+from actual source/catalog/review bytes and preserves the immutable 9,833-row
+historical baseline. Its negative contracts reject changed source bodies,
+missing records and drifted hashes. No translation pin or coverage ceiling
+was increased. Private canvas/volume helpers are excluded from the public
+API extractor; no new public API signatures are introduced.
+
+Validation is recorded in WD scratch/n697-current-integration-20261014.
+The original seven-file cohort had 331 passes, one optional mrcfile skip,
+and 11 failures: ten new help
+tests used the wrong HTML/label target and were corrected; all ten then pass,
+along with the strict runtime contracts. The remaining unchanged field-flush
+performance test failed its 1.35 bound in that covered context. A separate
+state-attribution execution passed, but does not establish the earlier cause
+or constitute a performance repair. Keep this acceptance limitation explicit.
+Final focused branch closure checks stationary brush events, first/last volume
+sections without wraparound, adjacent-section extension, and a retired volume
+callback. Exact undo/save IDs and legacy blending/hash tests remain preserved.
+
+Remaining: root review/publication and fresh full CI; Work owns fresh current-
+layout lesson 14 recording/publication. No native-platform/performance/tutorial
+completion is inferred from the private behavioral and translation checks.
+
+Final private closure: 30 owning cases plus one neighboring-volume tie/no-merge
+case PASS, with zero uncovered statements or branches across all seven new
+brush/volume helpers. Source stayed byte-identical during the owning run.
+
+2026-10-15 Original Home integration update: approved four-widget source and attribute-docstring patch integrated; 235 merged diameter/brush/export/Toggle owning checks passed. AUTO_TEXT exact owner reviews and normal API writer completed in all nine locales. Original unmodified 1.35 backing-store paint gate passed (1 test,10.04s); native tutorial acceptance remains separate. Public Work recorder files restored exactly, historical owner review patch preserved. Global N700 review/CI/release gates are not claimed closed.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

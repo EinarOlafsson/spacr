@@ -1,0 +1,173 @@
+================================================================================
+MAGNIFICATION SETS THE DEFAULT CELLPOSE DIAMETER AGAIN; 0 AND "auto" MEAN
+CELLPOSE ESTIMATES IT
+================================================================================
+
+Status:    built; nine-language translations current; release pending
+Requested: maintainer, 2026-10-13: "in older versions of spacr we had an
+           equation use magnification to calculate what the default cellpose
+           diameter is. i'd like to start using this again. also now it is not
+           possible to set diameter to 0, which should mean that cellpose
+           automatically calculates diameter. so 0 should be the same as
+           typing in auto in the object settings. and now the user cannot type
+           in auto because the field gets a px suffix. remove that and make
+           sure auto and 0 are equivalent and possible to type in."
+Owner:     Home (build); WS (translations, tutorial re-record if the object
+           settings layout changes)
+Related:   spacr/utils.py _get_diam (2*mag+80 cell, 2*mag+120 cell_large,
+           0.75*mag+45 nucleus, mag pathogen), _get_object_settings,
+           spacr/object.py default_diameter (V1's Cellpose-SAM call does not
+           read it), spacr/pipeline_v2.py:492, spacr/validate.py:2100, the
+           Mask object settings grid (ObjectSettingsGrid).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+_get_diam still exists, but the Cellpose-SAM path ignores the magnification
+diameter, so the default diameter no longer follows the magnification
+setting. The object settings' diameter field carries a "px" suffix, rejects
+0 and cannot take the text "auto".
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. Default diameter from magnification. When an object's diameter is not
+   set by the user, it is _get_diam(magnification, object) for every model
+   path that takes a diameter, Cellpose-SAM included. Changing magnification
+   updates the shown default (as a placeholder or greyed value) until the
+   user types their own value.
+2. 0 and "auto" are the same value. Either means "let Cellpose estimate the
+   diameter" (diameter=None or 0 passed to Cellpose, as its API expects). The
+   field accepts typing 0, "auto" or "Auto"; both are stored canonically as
+   "auto" and shown as "auto". Settings files and the CLI accept 0, "auto"
+   and an empty value the same way (document which of empty and auto wins
+   if they ever differ: they must not).
+3. Remove the "px" suffix from the diameter field (put the unit in the
+   label or tooltip instead) so free text can be typed. Validation accepts
+   a positive number, 0 or "auto"; anything else is refused with a tr()
+   message.
+4. The Live preview and batch runs use the same resolution rule, so the
+   preview never shows a different diameter from the run (see test
+   test_the_preview_uses_the_model_the_run_will_use).
+5. The run journal and the settings export record which diameter was used,
+   including "auto (Cellpose estimated N px)" when Cellpose returns its
+   estimate.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- Magnification 20 -> cell default 120, nucleus 60, pathogen 20; 40 -> 160,
+  75, 40; the field shows them until edited.
+- Typing 0 and typing auto give the same stored setting and the same Cellpose
+  call; both survive save/load and export/import.
+- No suffix blocks typing; the unit is still visible.
+- Tests cover the GUI field, settings files, CLI and the preview/run parity.
+
+--------------------------------------------------------------------------------
+2026-10-13 - BUILT (Home, worktree feat-696-auto-diameter; not pushed, ships
+after the 1.5.1.5 release)
+--------------------------------------------------------------------------------
+
+One rule, in spacr/object_settings_table.py (light, so the GUI shares it):
+_diameter_setting stores a diameter as None (blank), "auto" (0, 0.0, "0",
+"auto" in any case) or a positive number, and refuses anything else;
+_resolved_diameter turns it into what a run uses: the number, "auto", or for
+blank the magnification default. The formula lives in
+_diameter_from_magnification and spacr.utils._get_diam returns it.
+Blank and auto never mean the same thing: blank is the magnification default,
+auto is Cellpose estimating the size.
+
+1. Default from magnification on every path. V1's Cellpose-SAM eval (2-D and
+   z/t), the Cellpose-DINO/StarDist/InstanSeg/Omnipose route, the Cellpose 3
+   route, the v2 pipeline and the robustness report all segment a blank
+   diameter at _get_diam. 20x: 120/60/20; 40x: 160/75/40.
+2. 0 and auto: stored as "auto"; Cellpose 3 gets 0 (its size model
+   estimates), Cellpose-SAM gets None (it has no size model, native scale).
+   Accepted by set_default_settings_preprocess_generate_masks, the settings
+   panel (CANONICAL_READERS), the grid, settings files and --set on the CLI
+   (resolve_settings/coerce_value), and validation (_check_object_diameters;
+   negative or non-numeric text is an error).
+3. No suffix: the Live preview and Timelapse preview boxes are a
+   _DiameterSpinBox that reads "auto" at 0 and takes "auto"/"Auto"/0 typed;
+   the unit is in the label tr("Diameter (px)") and the tooltip. The Mask
+   grid labels the row "Diameter (px)", shows a blank cell/nucleus/pathogen
+   diameter as the magnification default (greyed, italic), follows the
+   magnification field through the binding, and refuses bad text with a tr()
+   sentence under the table.
+4. Preview = run: the preview boxes open at _resolved_diameter (reseeded on
+   an object switch), hand 0 to the backend routes as "auto", and propagate
+   back "auto", the number, or blank when the default was not touched.
+   tests/qt/test_the_preview_uses_the_model_the_run_will_use.py pins it for
+   blank/auto/0/75 on cell, nucleus and pathogen.
+5. Journal: manifest.json gets "diameters", e.g. "120 px (magnification 20x
+   default)" or "auto (Cellpose estimated 57.3 px)"; the Cellpose 3 backend
+   worker now returns its size-model estimates (estimated_diameters) and the
+   median over batches is recorded. The dry-run plan names the same text.
+   The settings export keeps the canonical value (blank or "auto") so a
+   magnification change still moves the default; the used diameter is in
+   the manifest rather than an extra key in the settings CSV, which Import
+   would report as unreadable.
+
+Generated: settings_flow.rst/settings_flow_index, i18n_catalogs/en.py,
+api/en.json + api_source_history.json via their tools. No new public
+callable (inventory unchanged; Run.diameters is init=False).
+
+FOR WS: changed English to translate in nine locales: the cell/nucleus/
+pathogen_diameter, magnification and robustness_diameter_factors tooltips,
+DIAMETER_TOOLTIP, "Diameter (px)", the grid's refusal sentence and its
+diameter tooltip line, the MaskConfig, Run and follow_the_form docstrings.
+Until then tests/test_documentation_i18n.py and test_runtime_i18n_syntax.py
+report stale reviewed runtime sources for those keys. The Mask Live settings
+and object grid look changed slightly (label, greyed defaults): re-record
+lessons that show them.
+
+
+2026-10-14 — Home: integrated current-source diameter behavior and locales
+
+Normal integration follows validated Make Masks lifecycle/hash and N697
+brush labels; original held commit 7a93f9216 and its clean worktree remain
+preserved. Blank/None uses the magnification default; explicit 0 and auto
+are one canonical stored value, auto. Cellpose 3 requests size estimation;
+Cellpose-SAM has no size model and uses native scale for auto. This explicit
+blank-versus-auto distinction restores the requested default equation.
+
+An actual Timelapse parity defect was reproduced in two tests: an explicit
+500 px diameter and a magnification-derived 520 px diameter were both
+silently clamped to 400 px. The control now expands to the resolved positive
+setting, preserving display, segmentation parameters and saved settings.
+No maximum or performance assertion was relaxed in tests.
+
+Validation: ten owning files 425 PASS, one existing data-dependent skip;
+two new clamp regressions FAIL before the source fix, then the focused
+current-source cohort 102 PASS, two no-default fallback cases PASS, and
+14 caption/scoped-writer integrity contracts PASS. Seventeen explicitly
+scoped new diameter helper functions have no uncovered statements/arcs in
+the focused trace; this is not a whole-module or hosted-CI coverage claim.
+
+Eight runtime source changes have authored reviews in all nine locales and
+normal catalog generation. Eight changed/new API paragraphs in seven symbols
+(including the three inherited Make Masks/stall-watch freshness gaps) have
+exact-source AI technical reviews in all nine locales, explicitly no human
+or native-speaker signoff. Normal review/history-aware API generation used
+no model inputs, retained untouched paragraphs and unrelated records, and
+passed source/context validation. Nineteen obsolete API review records are
+retained as retired history, without inventing a review for rewritten text.
+English API generation/audit, settings-flow and caption-arrival regeneration
+are normal tool outputs; immutable 9,833-row baseline and 99 reviewed UI
+terms are unchanged.
+
+Remaining: root normal merge/regeneration with concurrent N693/N703 records,
+required fresh full CI, platform/native acceptance and Work-owned current-
+layout tutorial publication. The unchanged Make Masks field-flush assertion
+failed once in the earlier N697 covered context; its diagnostic pass does
+not establish a fix. No native model-quality/GPU acceptance is claimed.
+
+2026-10-15 Original Home integration update: approved four-widget source and attribute-docstring patch integrated; 235 merged diameter/brush/export/Toggle owning checks passed. AUTO_TEXT exact owner reviews and normal API writer completed in all nine locales. Original unmodified 1.35 backing-store paint gate passed (1 test,10.04s); native tutorial acceptance remains separate. Public Work recorder files restored exactly, historical owner review patch preserved. Global N700 review/CI/release gates are not claimed closed.
+
+2026-10-15 API/Help follow-up: owner callback docstrings now public; normal English API generation/audit13478symbols and actual Help index generation completed, publishedd3812e82dde. Nine-locale AUTO_TEXT generation remains included; Home-B owns its separate callback/download prose review refresh. Global N700/native tutorial/final CI gates remain open.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

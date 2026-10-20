@@ -9,7 +9,7 @@
     "spacr-1.5.1.0/tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json",
     "spacr-1.5.1.0/tests/data/release_contracts/424_detector_transfer_merged_2026-09-21.json",
     "spacr-1.5.1.0/tests/data/release_contracts/435_inversion_help_2026-09-22.json",
-    "spacr-1.5.1.0/tests/data/release_contracts/474_starplast_integration_2026-09-22.json",
+    "spacr-1.5.1.0/tests/data/release_contracts/474_parascape_integration_2026-09-22.json",
     "spacr-1.5.1.0/tests/data/release_contracts/491_default_claim_census_2026-09-23.json"
   ],
   "artifacts": {

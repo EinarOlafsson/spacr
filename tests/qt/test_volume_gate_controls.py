@@ -101,7 +101,8 @@ def test_choosing_a_shape_arms_drawing(panel):
 # ---------------------------------------------------------------------------
 
 def test_both_drag_modes_are_offered(panel):
-    assert set(panel._drag_buttons) == {"spin", "draw"}
+    # 672 adds a third tool, Edit, so rotating never moves an anchor.
+    assert set(panel._drag_buttons) == {"spin", "draw", "edit"}
 
 
 def test_spin_is_the_default(panel):
@@ -226,7 +227,8 @@ def test_shape_then_depth_are_two_real_mouse_gestures(panel, monkeypatch):
     assert canvas._volume_release(_Event())
     assert drawn == []
     assert isinstance(canvas._pending_volume_gate, CylinderGate)
-    assert "Drag once more" in panel.status()
+    # 672 moved gesture instructions to the Actions help line under the panel.
+    assert "Drag once more" in panel._action_help.text()
 
     assert canvas._volume_press(_Event())
     monkeypatch.setattr(

@@ -232,3 +232,54 @@ call says so, that one well per class is refused, and that a missing group is
 refused. Confirmed failing against the previous code.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_every_split_goes_through_the_shared_splitter.py).
+
+2026-10-14 — Cell-cycle tabular route brought under the shared split contract.
+The later-added Measure XGBoost phase helper privately shuffled fields, allowing
+sibling fields from a well on both sides. Measure now resolves default well
+identities (or explicit cv_group_by) with split_group_values and evaluates with
+shared grouped_split, recording actual split sizes/rule. Unsupported holdout
+designs yield an explicit unavailable diagnostic and no fabricated score; the
+final all-label fit remains available. Actual classifier row capture and caller
+checks10PASS/actualexit0/4.41s prove requested identity separation and no shared
+wells. The image/Torch phase path remains a separate owner scope; this note does
+not claim all later callers or all scientific efficacy accepted. Exact one-source
+nine-locale reviews pass normal candidate gates; normal owner extraction/runtime
+integration pending. Receipt:features/data/535_tabular_grouped_split_2026-10-14/.
+
+2026-10-15 — Original Home: remaining image/Torch cell-cycle route repaired
+in _phases_by_torch. Private field split and hardcoded downstream field setting
+replaced by shared requested/default-well grouping; actual SplitReport is
+persisted beside the model and returned.27 targeted cases PASS (7.98s, exit0),
+including intercepted actual dataset/trainer boundaries, strict unavailable
+holdout refusal,9actual localized callbacks, native synthetic independent
+outer/inner well proof and5existing tabular checks. Slow actual training/GPU
+not run; biological phase acceptance and full release CI remain open. Exact
+source/translation-owner review pending; no whole94 closure inferred.
+Evidence:data/535_torch_grouped_split_2026-10-15/.
+
+2026-10-15 — Original split-policy contract reconciled against current source
+All selected owning source ASTs match hosted8fc: the shared splitter/report,
+ML, crop dataset, augmentation, surrogate, active learning, control UMAP,
+both Measure phase routes and the actual Qt retrain worker. The obsolete
+gui_elements module is removed; the current GUI routes through shared active
+learning. The only actual train_test_split call in spacr remains in the shared
+engine. All three owning test files are byte-identical to that hosted source;
+the retained hosted log records22 grouped-split,5 invariant/UMAP and21 Torch
+boundary/refusal PASS nodes, with no failure in these files. This is source-
+bound existing evidence, not a new test run.
+
+The last dated owner dependency is now resolved: the normal measure diagnostic
+extractor explicitly includes both _phases_by_torch and _phases_by_xgboost.
+Both use the same existing class-inadequacy tr template; exact source hashes,
+all nine compiled targets and ordinary scoped review/candidate gates agree.
+Requested grouping, downstream trainer settings and actual SplitReport
+provenance remain preserved. The shared choices/defaults/strict refusal and
+realised group-versus-cell reporting fulfill the original N94 contract.
+
+No original clause requires real-data model training, biological phase
+accuracy, GPU or native-platform certification; those are separate F535/
+release obligations and are not claimed here. No code, tests or global
+localization artifacts changed in this reconciliation. Evidence:
+data/94_current_original_contract_reconciliation_2026-10-15/.
+
+Whole original item accepted by Original Home after independent source/evidence review.

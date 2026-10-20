@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import QPushButton, QWidget
 
 from spacr.qt.widgets import ambient
@@ -30,6 +30,7 @@ def test_manual_stop_releases_gravity_click_filter_until_restart(qtbot):
     assert backdrop._interaction_app is None
     qtbot.mouseClick(button, Qt.LeftButton)
     assert clicks == [True]
+    qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(40, 200))
     assert not backdrop._pending_art_impulses
 
     backdrop.start()
@@ -38,6 +39,8 @@ def test_manual_stop_releases_gravity_click_filter_until_restart(qtbot):
     before = len(backdrop.engine._gravity_impulses)
     qtbot.mouseClick(button, Qt.LeftButton)
     assert clicks == [True, True]
+    assert not backdrop._pending_art_impulses
+    qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(40, 200))
     qtbot.waitUntil(lambda: any(
         strength == 1.0 for _stamp, _origin, strength
         in backdrop.engine._gravity_impulses[before:]))
@@ -49,7 +52,7 @@ def test_manual_stop_releases_gravity_click_filter_until_restart(qtbot):
 
 
 def test_gravity_filter_ignores_outside_clicks_and_deduplicates_one_point(qtbot):
-    """Only a hit in the backdrop queues one impulse before the next tick."""
+    """Only a background hit in the backdrop queues one impulse before the next tick."""
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(360, 240)
@@ -67,9 +70,11 @@ def test_gravity_filter_ignores_outside_clicks_and_deduplicates_one_point(qtbot)
     assert backdrop._interaction_app is not None
 
     qtbot.mouseClick(outside, Qt.LeftButton)
+    qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(300, 200))
+    qtbot.mouseClick(inside, Qt.LeftButton)
     assert not backdrop._pending_art_impulses
-    qtbot.mouseClick(inside, Qt.LeftButton)
-    qtbot.mouseClick(inside, Qt.LeftButton)
+    qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(10, 80))
+    qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(10, 80))
     assert len(backdrop._pending_art_impulses) == 1
     backdrop.stop()
     host.close()

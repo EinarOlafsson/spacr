@@ -58,7 +58,7 @@ Item 291: Open Sans as matplotlib's DEFAULT -- in the app and in pipeline runs, 
 
 Decided 2026-09-15, verbatim: "Global in the app only (Recommended)". The option read: "The spaCR GUI and spaCR's pipeline runs set Open Sans as matplotlib's default; plain `import spacr` in a notebook leaves the user's matplotlib alone."
 
-So nothing below runs on import (`use_open_sans_for_figures` above still changes no rcParam). The ENTRY POINTS call it: `spacr.qt.run`, which every GUI console script goes through; `spacr.cli.cmd_run`, which is `spacr-run` and also what every batch-queue job executes; `spacr-repro`; `spacr-tutorial`; and the parameter sweep's worker processes.
+So nothing below runs on import (`use_open_sans_for_figures` above still changes no rcParam). The ENTRY POINTS call it: `spacr.qt.run`, which every GUI console script goes through; `spacr.cli.cmd_run`, which is `spacr-run` and also what every batch-queue job executes; `spacr-repro`; and the parameter sweep's worker processes.
 
 HELD FOR THE RUN, NOT WRITTEN BARE. In those processes the run IS the process, so an `rc_context` held for the whole run is the process default. But `spacr.cli.main` and `spacr.batch.inprocess_runner` are also called in-process -- by the test suite, and by a frozen build -- and a bare `rcParams.update` there would restyle every later figure of whoever called it. The context hands the caller its matplotlib back when the run ends.
 

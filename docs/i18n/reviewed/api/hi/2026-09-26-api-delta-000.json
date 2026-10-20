@@ -324,7 +324,9 @@
       "source_sha256": "00e560bd83aeacfeaeac75702e507610c4f9219d532dc1ecd38bccfaa5c5e788",
       "context": "the residuals that were permuted.",
       "translation": "वे रेज़िडुअल जिन्हें परम्यूट किया गया था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#10",
@@ -332,7 +334,9 @@
       "source_sha256": "9f149917ae6736dad86f2a8144ba2da03b23b41c4c789e694ac447004c6ec36d",
       "context": "A gradient across the laboratory microplate is what this shows and no other panel does. Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that row A sits above row P inside one laboratory microplate, which is exactly what makes the microplate sample positions in that laboratory microplate not swappable.",
       "translation": "पूरी प्लेट में फैला ग्रेडिएंट ही वह है जो यह दिखाता है और कोई अन्य पैनल नहीं दिखाता। Residuals-vs-fitted फैलाव दिखाता है और Q-Q आकार; इनमें से कोई भी यह नहीं दिखाता कि एक प्लेट के भीतर पंक्ति A पंक्ति P से ऊपर बैठती है, और ठीक यही उस प्लेट के वेल को आपस में अदला-बदली योग्य नहीं रहने देता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#2",
@@ -956,10 +960,10 @@
     },
     {
       "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "82832c2a46f1a1c9f982c197d15fc93d90c3d9ef8cfa5732314ffd7225a507b4",
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "translation": "हर रिकॉर्ड एक प्रदर्शन नाम, विवरण, जीवविज्ञान स्रोत URL, बंडल किया गया आरेख फ़ाइल नाम और आरेख टिप्पणी देता है। ``sections`` में शीर्षक, गद्य और लिंक की गई परख-कुंजी के त्रिक होते हैं; ``links`` में प्रदर्शन-लेबल और URL के जोड़े होते हैं। ``modules`` में रूट-कुंजी, शीर्षक, विवरण और आइकन-कुंजी के टपल होते हैं। ``None`` रूट ऐसी जीव-विशिष्ट परख दर्शाता है जिसकी अपनी कोई पाइपलाइन नहीं है। ``workflows`` ऐसी टाइल की आइकन कुंजी को उस मौजूदा मॉड्यूल से मैप करता है जो उसका रीडआउट मापता है, साथ में खोलते समय लागू होने वाला सेटिंग्स प्रीसेट और उसके उपयोग पर एक टिप्पणी; ``None`` टाइल जो ``workflows`` में नहीं है, Coming soon होती है। ``starplast`` Toxoplasma पेज से एक बाहरी ऐप लॉन्च करता है; यह spaCR विश्लेषण रजिस्ट्री कुंजी या सेगमेंटेशन बैकएंड नहीं है। प्रदर्शन गद्य उपयोग के समय अनुवादित होता है; रूट कुंजियाँ, URL और एसेट नाम स्थिर रहते हैं।",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "cf8e6751da9db404ab186e6bdb1dc1717d006580421624421f6f374bf5b259d6",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "हर रिकॉर्ड एक प्रदर्शन नाम, विवरण, जीवविज्ञान स्रोत URL, बंडल किया गया आरेख फ़ाइल नाम और आरेख टिप्पणी देता है। ``sections`` में शीर्षक, गद्य और लिंक की गई परख-कुंजी के त्रिक होते हैं; ``links`` में प्रदर्शन-लेबल और URL के जोड़े होते हैं। ``modules`` में रूट-कुंजी, शीर्षक, विवरण और आइकन-कुंजी के टपल होते हैं। ``None`` रूट ऐसी जीव-विशिष्ट परख दर्शाता है जिसकी अपनी कोई पाइपलाइन नहीं है। ``workflows`` ऐसी टाइल की आइकन कुंजी को उस मौजूदा मॉड्यूल से मैप करता है जो उसका रीडआउट मापता है, साथ में खोलते समय लागू होने वाला सेटिंग्स प्रीसेट और उसके उपयोग पर एक टिप्पणी; ``None`` टाइल जो ``workflows`` में नहीं है, Coming soon होती है। ``parascape`` Toxoplasma पेज से एक बाहरी ऐप लॉन्च करता है; यह spaCR विश्लेषण रजिस्ट्री कुंजी या सेगमेंटेशन बैकएंड नहीं है। प्रदर्शन गद्य उपयोग के समय अनुवादित होता है; रूट कुंजियाँ, URL और एसेट नाम स्थिर रहते हैं।",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
       "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
@@ -1144,7 +1148,9 @@
       "source_sha256": "0c3ad3552d6d5f86522bcb500ecb5ed91473f58914a3be8de7443a23b9fa9431",
       "context": "It lives in a :class:`DiameterDialog`, opened from the Model zoo popup, so the last measurement is kept on the application view it was made for and shown again the next time the popup opens: closing a window is not a reason to measure twice.",
       "translation": "यह :class:`DiameterDialog` में रहता है, जो Model zoo पॉपअप से खुलता है, इसलिए अंतिम माप उसी पेज पर रखा जाता है जिसके लिए वह किया गया था और अगली बार पॉपअप खुलने पर फिर दिखाया जाता है: विंडो बंद करना दो बार मापने का कारण नहीं है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_dialog#0",
@@ -1176,7 +1182,9 @@
       "source_sha256": "eef42107a5013005e126f8ea142ea70fa02274265a1cfe4d3b6d3bf356cbc3bd",
       "context": "the dialog, or None when the screen has no diameter setting or the popup could not be built. Never throws: a Model zoo that opens without this button's popup is better than one that does not open.",
       "translation": "संवाद, या None जब पेज में कोई व्यास सेटिंग न हो या पॉपअप न बन सके। कभी कोई अपवाद उत्पन्न नहीं करता: इस बटन के पॉपअप के बिना खुलने वाला Model zoo न खुलने वाले से बेहतर है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_screen_of#0",
@@ -1238,6 +1246,8 @@
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
       "source_sha256": "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
       "context": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
@@ -1320,10 +1330,10 @@
     },
     {
       "label": "spacr.qt.screens.organism_screen#3",
-      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "source_sha256": "f692528df9f9c6e05be0dbe36c197d0d40844c50405a184520563729094986c1",
-      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "translation": "Home > Toxoplasma खोलें और Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay या Replication Assay चुनें। चुना गया मॉड्यूल अपने इनपुट चयनकर्ता, सेटिंग्स, पूर्वावलोकन और Run नियंत्रण देता है। उदाहरण उपलब्ध होने पर उसका Test data नियंत्रण उपयोग करें। Plaque Assay छवियों से शुरू होता है; अन्य परख संबंधित मापन तालिकाओं और ऑब्जेक्ट संबंधों का उपयोग करती हैं। चलाने से पहले हर मॉड्यूल की इनपुट सहायता का पालन करें, फिर उसके चुने गए आउटपुट फ़ोल्डर में परिणाम खोलें। Starplast Toxoplasma ज्ञान मानचित्र देखने के लिए एक अलग एप्लिकेशन खोलता है; पहली बार लॉन्च होने पर यह इंस्टॉलेशन की पेशकश करता है। Gliding motility संक्रमण QC बंद करके Motility Assay खोलता है। Egress, Bradyzoite conversion और Host cell damage पर Coming soon लिखा है और वे अक्षम हैं।",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "source_sha256": "fa59d6c776f5143afeda0752e74eec805a678674558bda44a36ee64d6a0d9c07",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "translation": "Home > Toxoplasma खोलें और Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay या Replication Assay चुनें। चुना गया मॉड्यूल अपने इनपुट चयनकर्ता, सेटिंग्स, पूर्वावलोकन और Run नियंत्रण देता है। उदाहरण उपलब्ध होने पर उसका Test data नियंत्रण उपयोग करें। Plaque Assay छवियों से शुरू होता है; अन्य परख संबंधित मापन तालिकाओं और ऑब्जेक्ट संबंधों का उपयोग करती हैं। चलाने से पहले हर मॉड्यूल की इनपुट सहायता का पालन करें, फिर उसके चुने गए आउटपुट फ़ोल्डर में परिणाम खोलें। ParaScape Toxoplasma ज्ञान मानचित्र देखने के लिए एक अलग एप्लिकेशन खोलता है; पहली बार लॉन्च होने पर यह इंस्टॉलेशन की पेशकश करता है। Gliding motility संक्रमण QC बंद करके Motility Assay खोलता है। Egress, Bradyzoite conversion और Host cell damage पर Coming soon लिखा है और वे अक्षम हैं।",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -1602,7 +1612,9 @@
       "source_sha256": "46b9fefd90e27ab69e88f7019f6e19912340faff06a381decc3d81292e15f514",
       "context": "The width the column wears: the one the user dragged, else fitting.",
       "translation": "वह चौड़ाई जो कॉलम पहनता है: उपयोगकर्ता द्वारा खींची गई, अन्यथा फ़िटिंग।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.column_width#1",
@@ -2686,7 +2698,9 @@
       "source_sha256": "0be25596494e43d96924f2dd9e25e173e0d1ac6e391c66e539358f5ff8b1ff4a",
       "context": "Build the list, the editor area, the conscience and Upload.",
       "translation": "सूची, संपादक क्षेत्र, विवेक टेक्स्ट और Upload बनाएँ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.ContributeDialog#2",
@@ -3142,7 +3156,9 @@
       "source_sha256": "9bf0a721bee209ee7c2f38344206ff0aca4f9a67b2311f03504634967c799463",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work. In place, each adjusted mask's SHA-256 is recorded in :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes still match its record is left alone on the next run: adjusting an adjusted mask merges it again, so a repeat execution used to change the result every time. A cell mask segmented again no longer matches and is adjusted afresh.",
       "translation": "समायोजित मास्क के लिए वैकल्पिक अलग फ़ोल्डर। None ऐतिहासिक इन-प्लेस व्यवहार बनाए रखता है। अलग फ़ोल्डर सभी स्रोत मास्क को बाइट-समान रखता है, और हर चयनित फ़ील्ड हर आह्वान पर अपने स्रोत से फिर से बनाया जाता है, बाधित कार्य के बाद भी। इन-प्लेस में, हर समायोजित मास्क का SHA-256 उसके लिखे जाते ही :data:`ADJUSTED_CELLS_LEDGER` में दर्ज किया जाता है, और जिस मास्क के बाइट अब भी उसके रिकॉर्ड से मेल खाते हैं उसे अगले रन में छोड़ दिया जाता है: समायोजित मास्क को फिर से समायोजित करने पर वह फिर से मर्ज होता है, इसलिए पहले दोबारा चलाने पर हर बार परिणाम बदल जाता था। फिर से सेगमेंट किया गया सेल मास्क अब मेल नहीं खाता और नए सिरे से समायोजित होता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

@@ -644,3 +644,173 @@ def test_the_palette_opens_even_if_the_menu_bar_raises(window, monkeypatch,
     qtbot.addWidget(pal)
     assert not [c for c in pal._commands if c.section == "Menu"]
     assert any("Preferences" in c.label for c in pal._commands)
+
+
+def _rows(palette):
+    return [palette._list.item(i).text() for i in range(palette._list.count())]
+
+
+def _cmd(label, section="Test"):
+    return CP.Command(label=label, section=section, action=lambda: None)
+
+
+def _inside_the_build(palette, monkeypatch, step):
+    """Run ``step`` each time the palette builds rows, before it builds them."""
+    build = palette._rows_for
+
+    def built(cmds):
+        step()
+        return build(cmds)
+
+    monkeypatch.setattr(palette, "_rows_for", built)
+
+
+def test_a_render_asked_for_inside_a_render_waits_and_then_draws(palette,
+                                                                  monkeypatch):
+    """The rows are mid-way when the nested call lands; it only leaves its
+    commands, and the list ends with them, whole, not two lists mixed."""
+    first, second, third = [_cmd("One")], [_cmd("Two")], [_cmd("Three")]
+    asked = []
+
+    def nested():
+        if not asked:
+            asked.append(1)
+            palette._render(second)
+            palette._render(third)
+
+    _inside_the_build(palette, monkeypatch, nested)
+    palette._render(first)
+
+    assert asked == [1]
+    assert _rows(palette) == ["TEST", "Three"]
+    assert palette._pending is None and palette._rendering is False
+
+
+def test_the_list_says_nothing_while_it_is_rebuilt(palette):
+    rows = []
+    palette._list.currentRowChanged.connect(rows.append)
+    palette._render([_cmd("One"), _cmd("Two")])
+    assert rows == []
+    assert palette._list.currentRow() == 1
+    assert palette._list.updatesEnabled()
+    assert not palette._list.signalsBlocked()
+
+
+def test_a_palette_closed_inside_a_render_stops_there(palette, monkeypatch):
+    def close_and_ask():
+        palette._render([_cmd("Later")])
+        palette.reject()
+
+    _inside_the_build(palette, monkeypatch, close_and_ask)
+    palette._render([_cmd("Now")])
+
+    assert _rows(palette) == ["TEST", "Now"]
+    assert palette._pending is None
+
+
+def test_a_closed_palette_ignores_late_typing(palette):
+    before = _rows(palette)
+    palette.reject()
+    palette._input.setText("zzzz-no-such-command-zzzz")
+    assert _rows(palette) == before
+    assert palette._closed
+
+
+def test_a_row_answers_like_a_list_item():
+    heading, row = CP._Row("APPS"), CP._Row("Go", _cmd("Go"))
+    assert heading.flags() == Qt.NoItemFlags
+    assert heading.data(Qt.UserRole) is None
+    assert heading.data(Qt.DisplayRole) == "APPS"
+    assert row.flags() == Qt.ItemIsEnabled | Qt.ItemIsSelectable
+    assert row.data(Qt.UserRole).label == "Go"
+    assert row.data(Qt.ToolTipRole) is None
+
+
+def test_the_row_model_shows_text_greys_headings_and_has_no_children():
+    from PySide6.QtCore import QModelIndex
+    from PySide6.QtGui import QBrush
+
+    model = CP._RowModel([CP._Row("APPS"), CP._Row("Go", _cmd("Go"))])
+    heading, row = model.index(0, 0), model.index(1, 0)
+    assert model.rowCount() == 2
+    assert model.rowCount(heading) == 0
+    assert model.data(heading) == "APPS"
+    assert isinstance(model.data(heading, Qt.ForegroundRole), QBrush)
+    assert model.data(row, Qt.ForegroundRole) is None
+    assert model.data(row, Qt.ToolTipRole) is None
+    assert model.data(QModelIndex()) is None
+    assert model.flags(heading) == Qt.NoItemFlags
+    assert model.flags(row) == Qt.ItemIsEnabled | Qt.ItemIsSelectable
+    assert model.flags(QModelIndex()) == Qt.NoItemFlags
+    assert model.row(2) is None and model.row(-1) is None
+
+
+def test_activating_a_row_in_the_view_runs_its_command(palette, window):
+    _select_label(palette, "Home")
+    row = palette._list.currentRow()
+    palette._list.activated.emit(palette._list.model().index(row, 0))
+    assert window.navigated == ["__home__"]
+
+
+def test_the_current_row_is_reported_outside_a_render(palette):
+    rows = []
+    palette._list.currentRowChanged.connect(rows.append)
+    palette._list.setCurrentRow(3)
+    assert rows == [3]
+    assert palette._list.currentItem() is palette._list.item(3)
+
+
+def test_a_row_the_list_does_not_show_cannot_be_made_current(palette):
+    before = palette._list.currentRow()
+    palette._list.setCurrentItem(CP._Row("Somewhere else", _cmd("x")))
+    assert palette._list.currentRow() == before
+    palette._on_filter("zzzz-no-such-command-zzzz")
+    assert palette._list.currentItem() is None
+
+
+def test_a_fill_releases_the_model_and_selection_it_replaced(palette):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    model, selection = palette._list.model(), palette._list.selectionModel()
+    palette._render([_cmd("One")])
+    assert palette._list.model() is not model
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(model)
+    assert not isValid(selection)
+    assert _rows(palette) == ["TEST", "One"]
+
+
+def test_text_typed_while_the_rows_are_built_is_filtered_afterwards(
+        palette, monkeypatch):
+    """The input is silent during the fill, so the key reaches no filter
+    there; the fill sees the new text when it is done and shows its rows."""
+    seen = []
+
+    def type_now():
+        if not seen:
+            seen.append(palette._input.signalsBlocked())
+            palette._input.setText("preferences")
+
+    _inside_the_build(palette, monkeypatch, type_now)
+    palette._render(palette._commands)
+
+    assert seen == [True]
+    assert not palette._input.signalsBlocked()
+    labels = _rows(palette)
+    assert any("Preferences" in text for text in labels)
+    assert len(labels) < len(palette._commands)
+    assert palette._pending is None and palette._rendering is False
+
+
+def test_a_palette_destroyed_while_its_rows_are_built_stops_there(window,
+                                                                   monkeypatch):
+    from shiboken6 import delete, isValid
+
+    pal = CP.CommandPalette(window)
+    _inside_the_build(pal, monkeypatch, lambda: delete(pal))
+    pal._render([_cmd("Never")])
+
+    assert not isValid(pal)
+    assert pal._closed
+    assert pal._pending is None and pal._rendering is False

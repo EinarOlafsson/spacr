@@ -82,6 +82,6 @@ def test_a_settings_value_json_cannot_hold_is_recorded_as_its_text(tmp_path):
 
     out = bundle.save(str(tmp_path), "graph", render=lambda p: Path(p).touch(),
                       settings={"gate": _Opaque(), "keep": {1, 2}})
-    payload = json.loads((Path(out) / "settings.json").read_text())
+    payload = json.loads((Path(out) / "settings.json").read_text(encoding="utf-8"))
     assert payload["gate"] == "threshold=0.5"
     assert isinstance(payload["keep"], str)

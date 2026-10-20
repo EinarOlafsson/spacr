@@ -76,6 +76,70 @@ _QT_INOTIFY = re.compile(r"inotify_add_watch.*No space left on device")
 _SAID_IT_ONCE = False
 
 
+
+def _after(msec: int, owner, callback):
+    """Call ``callback`` once after ``msec`` milliseconds unless ``owner`` is deleted first.
+
+    ``QTimer.singleShot(msec, owner, callable)`` is not accepted by the oldest
+    PySide6 spaCR supports (6.6), which only takes an owner with a slot name.
+    This builds the same behaviour from a single-shot timer parented to
+    ``owner``: deleting ``owner`` deletes the timer, so the call never runs
+    against a destroyed widget.
+
+    :param msec: delay in milliseconds.
+    :param owner: the ``QObject`` whose lifetime bounds the call.
+    :param callback: the function to call, with no arguments.
+    :returns: the started ``QTimer``, or ``None`` when ``owner`` is already
+        gone. A callback that reschedules itself -- a poll waiting on a worker
+        thread -- can run once more while its widget is being torn down, and
+        a ``QTimer`` parented to a deleted object crashes PySide
+        (``Sbk_QTimer_Init``, macOS acceptance 2026-10-19).
+
+    The callback is released after the timer's signal has returned, never
+    inside it: a callback holding the last reference to a Python-owned
+    ``owner`` would otherwise delete ``owner``, and with it the emitting
+    timer, in the middle of the emission (a segfault in ``processEvents``).
+    """
+    from functools import partial
+
+    from PySide6.QtCore import QTimer
+    from shiboken6 import isValid
+
+    if owner is None or not isValid(owner):
+        return None
+    timer = QTimer(owner)
+    timer.setSingleShot(True)
+    timer.timeout.connect(partial(_fire_after, timer, [callback]))
+    timer.start(int(msec))
+    return timer
+
+
+def _fire_after(timer, box) -> None:
+    """Run the callback held in ``box`` once, then let it go outside ``timer``'s emission.
+
+    :param timer: the single-shot timer that fired; it is deleted later.
+    :param box: a one-item list with the callback, emptied on the first call.
+    """
+    from functools import partial
+
+    from PySide6.QtCore import QTimer
+
+    timer.deleteLater()
+    if not box:
+        return
+    callback = box.pop()
+    try:
+        callback()
+    finally:
+        QTimer.singleShot(0, partial(_release_after_callback, callback))
+
+
+def _release_after_callback(callback) -> None:
+    """Hold ``callback`` until a later event-loop turn drops it; does nothing else.
+
+    :param callback: the spent callback whose references are released here.
+    """
+
 def _explain_the_inotify_line() -> None:
     """Say what ENOSPC from inotify really means, once per process."""
     global _SAID_IT_ONCE

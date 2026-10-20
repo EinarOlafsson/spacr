@@ -1,10 +1,10 @@
-"""A shared selection and filter model, so the views can talk to each other.
+"""Selection, filter and object-request model shared by linked data views.
 
-spaCR ships four views over the same measurement table — the UMAP, the plate
-heatmap, the database browser and the annotation grid — and until now none of
-them knew the others existed. Lassoing a cluster in the UMAP told you nothing
-about where those cells sat on the plate, and narrowing to high-count wells in
-one view narrowed nothing anywhere else.
+spaCR has four views over the same measurement table — the UMAP, the plate
+heatmap, the database browser and the annotation grid. This module holds the
+selection and filter state they share, so that a cluster lassoed in the UMAP
+can be located on the plate and a filter set in one view can narrow the
+others.
 
 This module is the piece underneath that. It is deliberately **pure pandas and
 numpy**, with no Qt anywhere:
@@ -49,14 +49,14 @@ with the schema separator. That is the one identity every table in
 ``measurements.db`` already agrees on, so a key from the UMAP means the same
 row in the plate view without a lookup table in between.
 
-**The object type is part of that identity.** It did not used to be, and the
-collapse was real: object tables are one type per table, so a nucleus
-labelled 1 and a pathogen labelled 1 in the same field composed to the
-*identical* key. A cell's own children are exactly the objects most likely to
-collide, which is where object linking is most useful — four objects opened
-as three crops, and which one you got depended on the row order of
-``png_list`` (:func:`spacr.active_learning.crops_for_object_keys` keeps the
-first). The type now goes into the object component of the key, exactly as
+**The object type is part of that identity.** Object tables are one type per
+table, so without the type a nucleus labelled 1 and a pathogen labelled 1 in
+the same field compose to the *identical* key. A cell's own children are
+exactly the objects most likely to collide, which is where object linking is
+most useful — four objects would open as three crops, and which one you got
+would depend on the row order of ``png_list``
+(:func:`spacr.active_learning.crops_for_object_keys` keeps the first). The type
+now goes into the object component of the key, exactly as
 :func:`spacr.schema.object_id` writes it::
 
     plate1_r1_c1_f1_7          # type not stated  (what spaCR always wrote)
@@ -358,7 +358,7 @@ def object_keys(df: pd.DataFrame, *, timelapse: bool = False,
 
 def untyped_object_keys(df: pd.DataFrame,
                         *, timelapse: bool = False) -> pd.Index:
-    """The keys ``df`` would have had before object types existed.
+    """Return the untyped object keys of ``df``, one per row.
 
     :param df: object rows whose legacy untyped keys are requested.
 
@@ -408,9 +408,9 @@ def key_object_type(key: Any) -> Optional[str]:
 
     :param key: object key to inspect.
 
-    ``None`` means *not stated*. It does not mean "cell", and nothing here
-    will ever guess: every key spaCR wrote before today is untyped, so a
-    default would put a type on the whole world's existing data.
+    ``None`` means *not stated*. It does not mean "cell", and no type is
+    inferred: keys written before object types were added are untyped, and a
+    default would assign a type to all of them.
     """
     split = _split_key(key)
     return None if split is None else split[1]
@@ -587,7 +587,7 @@ class DataFilter:
         return df.loc[self.mask(df)]
 
     def describe(self) -> str:
-        """One human line, for the header of whatever view is filtered.
+        """Return a one-line description of this filter for a view header.
 
         A filtered view that does not say it is filtered is how someone
         reports a result computed on a fifth of their data.
@@ -644,12 +644,12 @@ def match_keys(keys: Any, wanted: Iterable[Any]) -> np.ndarray:
 
     The key-to-key form of :meth:`Selection.mask_for`, for a view that holds
     an array of keys rather than the frame they came from — a scatter plot, a
-    UMAP that derived its point identity once at load, a tree. Those views
-    reached for a bare ``Index.isin``, which asks for exact equality, and
-    exact equality is the wrong question the moment one side of a link states
-    an object type and the other does not: a table publishing ``…_f1_cell1``
-    highlighted **nothing at all** in a UMAP whose points are keyed
-    ``…_f1_1``. Silence, in the one place a linked view has to be loud.
+    UMAP that derived its point identity once at load, a tree. A bare
+    ``Index.isin`` tests exact equality, which fails when one side of a link
+    states an object type and the other does not: a table publishing
+    ``…_f1_cell1`` would match **nothing at all** in a UMAP whose points are
+    keyed ``…_f1_1``. This function applies the same type-specificity rules
+    as :meth:`Selection.mask_for` instead.
 
     :param keys: the view's own keys, in its own order.
     :param wanted: the keys to match against — a selection's, a request's.
@@ -854,9 +854,9 @@ def as_key_index(keys: Any, *, timelapse: bool = False,
     to whatever opens them, and a duplicated key would draw the same crop
     twice in the grid.
 
-    Key **strings are passed through untouched**, including untyped ones. It
-    is tempting to normalise them here, and it would be wrong: a caller may
-    legitimately hand over a ``prcfo``, a crop path or a file name (see
+    Key **strings are passed through untouched**, including untyped ones,
+    because a caller may legitimately hand over a ``prcfo``, a crop path or a
+    file name (see
     :func:`spacr.active_learning.crops_for_object_keys`), and rewriting those
     into something that looks like an object key would break the resolution
     they were relying on. Untyped and typed keys are reconciled where they are
@@ -894,7 +894,7 @@ def as_key_index(keys: Any, *, timelapse: bool = False,
 
 @dataclass(frozen=True, eq=False)
 class ObjectRequest:
-    """One "open exactly these objects" act, on its way to whatever shows them.
+    """Request to open a specific set of objects in another view.
 
     Built by the view that asked and routed to the opener
     registered for :attr:`kind` — see
@@ -1013,11 +1013,10 @@ class ObjectRequest:
     def as_selection(self) -> Selection:
         """The same objects as a :class:`Selection`, to publish as a highlight.
 
-        Opening a subset and highlighting it everywhere else are two acts, and
-        this is the seam between them: a receiver that wants the plate view to
-        light up the crops it just opened publishes this, rather than the
-        router doing it behind the user's back and wiping the lasso they made
-        it with.
+        Opening a subset and highlighting it in other views are separate
+        actions. A receiver that wants the plate view to highlight the crops it
+        opened publishes this selection; the router does not publish it, so
+        the user's existing selection is not replaced.
         """
         return Selection(keys=self.keys, source=self.source)
 

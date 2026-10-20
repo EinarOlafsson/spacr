@@ -1,0 +1,6 @@
+Started 2026-10-15T10:55:40.681072-04:00
+['/media/carruthers/mnt3/claude/spacr-player-readiness-port-20261015/tools/run_capped.sh', '4G', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python', '/media/carruthers/mnt3/claude/n676_stages/work/player-readiness-port-20261015/run_pytest.py', '-q', '-s', 'tools/tutorials/tests/test_player_audio_readiness.py', 'tools/tutorials/tests/test_player_complete_native_clips.py', '--junitxml=/media/carruthers/mnt3/claude/n676_stages/work/player-readiness-port-20261015/browser-tests-r2.xml']
+...........
+11 passed in 82.86s (0:01:22)
+
+Terminal exit status: 0

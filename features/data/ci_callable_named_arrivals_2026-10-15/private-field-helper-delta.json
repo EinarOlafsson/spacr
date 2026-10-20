@@ -1,0 +1,279 @@
+{
+  "helper_change": "b8984d5e45",
+  "identical_source": "4108d3f99dbe326837aa45a222a1b023609ca81b",
+  "changes": [
+    {
+      "symbol": "spacr.crop_loader.CropPlan",
+      "added": [
+        "_source"
+      ],
+      "removed": [],
+      "before_parameters": [
+        "empty_reason",
+        "matched",
+        "query",
+        "rows",
+        "selected",
+        "source_label"
+      ],
+      "after_parameters": [
+        "_source",
+        "empty_reason",
+        "matched",
+        "query",
+        "rows",
+        "selected",
+        "source_label"
+      ],
+      "before_required": [
+        "query"
+      ],
+      "after_required": [
+        "query"
+      ],
+      "category": "dataclass_constructor",
+      "prose_unchanged": true
+    },
+    {
+      "symbol": "spacr.model_zoo.ModelEntry",
+      "added": [
+        "_curated_card"
+      ],
+      "removed": [],
+      "before_parameters": [
+        "key",
+        "kind",
+        "licence",
+        "metrics",
+        "name",
+        "notes",
+        "path",
+        "settings_path",
+        "sha256",
+        "size_bytes",
+        "source",
+        "trained_by",
+        "trained_on",
+        "uri",
+        "verified",
+        "version"
+      ],
+      "after_parameters": [
+        "_curated_card",
+        "key",
+        "kind",
+        "licence",
+        "metrics",
+        "name",
+        "notes",
+        "path",
+        "settings_path",
+        "sha256",
+        "size_bytes",
+        "source",
+        "trained_by",
+        "trained_on",
+        "uri",
+        "verified",
+        "version"
+      ],
+      "before_required": [
+        "key",
+        "name"
+      ],
+      "after_required": [
+        "key",
+        "name"
+      ],
+      "category": "dataclass_constructor",
+      "prose_unchanged": true
+    },
+    {
+      "symbol": "spacr.ome_zarr.OmeZarrImage",
+      "added": [
+        "_store"
+      ],
+      "removed": [],
+      "before_parameters": [
+        "axes",
+        "channel_names",
+        "levels",
+        "multiscale",
+        "name",
+        "ngff_version",
+        "omero",
+        "path",
+        "units_declared"
+      ],
+      "after_parameters": [
+        "_store",
+        "axes",
+        "channel_names",
+        "levels",
+        "multiscale",
+        "name",
+        "ngff_version",
+        "omero",
+        "path",
+        "units_declared"
+      ],
+      "before_required": [
+        "axes",
+        "levels",
+        "path"
+      ],
+      "after_required": [
+        "axes",
+        "levels",
+        "path"
+      ],
+      "category": "dataclass_constructor",
+      "prose_unchanged": true
+    },
+    {
+      "symbol": "spacr.ops_stitch.StitchedWell",
+      "added": [
+        "_residuals"
+      ],
+      "removed": [],
+      "before_parameters": [
+        "edges",
+        "layout",
+        "overlap",
+        "placements",
+        "tile_shape"
+      ],
+      "after_parameters": [
+        "_residuals",
+        "edges",
+        "layout",
+        "overlap",
+        "placements",
+        "tile_shape"
+      ],
+      "before_required": [
+        "edges",
+        "layout",
+        "placements",
+        "tile_shape"
+      ],
+      "after_required": [
+        "edges",
+        "layout",
+        "placements",
+        "tile_shape"
+      ],
+      "category": "dataclass_constructor",
+      "prose_unchanged": true
+    },
+    {
+      "symbol": "spacr.run_journal.Run",
+      "added": [
+        "_baseline",
+        "_ledgers",
+        "_path_candidates",
+        "_start_cpu_s"
+      ],
+      "removed": [],
+      "before_parameters": [
+        "app_key",
+        "dir",
+        "end_ts",
+        "environment",
+        "error_traceback",
+        "input_hashes",
+        "model_files",
+        "model_hashes",
+        "output_hashes",
+        "provenance_warnings",
+        "run_warnings",
+        "seeds",
+        "settings",
+        "stages",
+        "start_ts",
+        "status",
+        "stdout_path"
+      ],
+      "after_parameters": [
+        "_baseline",
+        "_ledgers",
+        "_path_candidates",
+        "_start_cpu_s",
+        "app_key",
+        "dir",
+        "end_ts",
+        "environment",
+        "error_traceback",
+        "input_hashes",
+        "model_files",
+        "model_hashes",
+        "output_hashes",
+        "provenance_warnings",
+        "run_warnings",
+        "seeds",
+        "settings",
+        "stages",
+        "start_ts",
+        "status",
+        "stdout_path"
+      ],
+      "before_required": [
+        "app_key",
+        "dir",
+        "settings"
+      ],
+      "after_required": [
+        "app_key",
+        "dir",
+        "settings"
+      ],
+      "category": "dataclass_constructor",
+      "prose_unchanged": true
+    },
+    {
+      "symbol": "spacr.runctx.RunContext",
+      "added": [
+        "_resource_sampler"
+      ],
+      "removed": [],
+      "before_parameters": [
+        "ledger",
+        "log_path",
+        "module",
+        "policy",
+        "resource_artifact_id",
+        "resource_log_path",
+        "run_id",
+        "seed",
+        "seed_report",
+        "settings",
+        "started_utc"
+      ],
+      "after_parameters": [
+        "_resource_sampler",
+        "ledger",
+        "log_path",
+        "module",
+        "policy",
+        "resource_artifact_id",
+        "resource_log_path",
+        "run_id",
+        "seed",
+        "seed_report",
+        "settings",
+        "started_utc"
+      ],
+      "before_required": [
+        "run_id"
+      ],
+      "after_required": [
+        "run_id"
+      ],
+      "category": "dataclass_constructor",
+      "prose_unchanged": true
+    }
+  ],
+  "added_count": 9,
+  "removed_count": 0,
+  "package_runtime_imports": []
+}

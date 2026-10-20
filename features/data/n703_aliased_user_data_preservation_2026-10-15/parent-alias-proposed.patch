@@ -1,0 +1,12 @@
+--- a/spacr/install_cleanup.py
++++ b/spacr/install_cleanup.py
+@@ -1515,6 +1515,9 @@
+         report.skipped.append((record.root, "kept: part of the new installation"))
+         return report
+     preserved = list(keep) + _user_data(machine)
++    physical_root = os.path.realpath(record.root)
++    preserved.extend(os.path.join(record.root, os.path.relpath(path, physical_root))
++                     for path in tuple(preserved) if _inside(path, physical_root))
+     preserved.extend(path for name in (
+         "cache", "test_data", "models", "outputs", "projects", "runs")
+         if _exists(path := os.path.join(record.root, name)))

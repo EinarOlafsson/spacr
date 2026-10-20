@@ -6,14 +6,18 @@
       "label": "spacr.crop_loader.CropLoadError#0",
       "source": "A set of crops that cannot be loaded, and why.",
       "source_sha256": "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
-      "translation": "Eine Menge von Bildausschnitten, die sich nicht laden lassen, und der Grund dafür."
+      "translation": "Eine Menge von Bildausschnitten, die sich nicht laden lassen, und der Grund dafür.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
       "label": "spacr.crop_loader.CropLoadError#1",
       "source": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
       "source_sha256": "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778",
-      "translation": "Enthält einen für die Statusleiste geeigneten Satz: Jede in diesem Modul ausgelöste Ausnahme nennt den auslösenden Pfad, die Klasse oder das Auswahlkriterium. Die aufrufende Komponente ist eine Ansicht der Benutzeroberfläche und kann den Fehler nur durch Wiedergabe dieses Textes erklären."
+      "translation": "Enthält einen für die Statusleiste geeigneten Satz: Jede in diesem Modul ausgelöste Ausnahme nennt den auslösenden Pfad, die Klasse oder das Auswahlkriterium. Die aufrufende Komponente ist eine Ansicht der Benutzeroberfläche und kann den Fehler nur durch Wiedergabe dieses Textes erklären.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Default ``selected`` to the rows, for a plan built without a join.",
@@ -41,14 +45,18 @@
       "label": "spacr.crop_loader.CropPlan.capped#1",
       "source": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- running backwards.",
       "source_sha256": "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140",
-      "translation": "Der Vergleich erfolgt mit :attr:`selected`, niemals mit :attr:`count`: Wenn beim Laden über zusammengeführte Daten Zeilen durch den Join verloren gehen, gilt ``matched > count``, auch ohne jede Obergrenze. Dies als Begrenzung auszugeben, würde dem Versprechen dieses Moduls widersprechen, den Einfluss der Obergrenze korrekt anzugeben."
+      "translation": "Der Vergleich erfolgt mit :attr:`selected`, niemals mit :attr:`count`: Wenn beim Laden über zusammengeführte Daten Zeilen durch den Join verloren gehen, gilt ``matched > count``, auch ohne jede Obergrenze. Dies als Begrenzung auszugeben, würde dem Versprechen dieses Moduls widersprechen, den Einfluss der Obergrenze korrekt anzugeben.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One line a status bar can show the moment planning returns.",
       "label": "spacr.crop_loader.CropPlan.describe#0",
       "source": "One line a status bar can show the moment planning returns.",
       "source_sha256": "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
-      "translation": "Eine Zeile für die Statusleiste, sobald die Planung abgeschlossen ist."
+      "translation": "Eine Zeile für die Statusleiste, sobald die Planung abgeschlossen ist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole laboratory microplate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
@@ -104,7 +112,9 @@
       "label": "spacr.crop_loader.object_classes#0",
       "source": "Which object classes this database actually has crops for.",
       "source_sha256": "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
-      "translation": "Für welche Objektklassen diese Datenbank tatsächlich Bildausschnitte enthält."
+      "translation": "Für welche Objektklassen diese Datenbank tatsächlich Bildausschnitte enthält.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
@@ -139,7 +149,9 @@
       "label": "spacr.crop_loader.plan_crops#0",
       "source": "Answer ``query`` without reading a pixel.",
       "source_sha256": "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
-      "translation": "Beantwortet ``query``, ohne Pixeldaten zu lesen."
+      "translation": "Beantwortet ``query``, ohne Pixeldaten zu lesen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what to select.",
@@ -153,7 +165,9 @@
       "label": "spacr.crop_loader.plan_crops#2",
       "source": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
       "source_sha256": "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
-      "translation": "ein :class:`CropPlan`. Vor dem Laden :attr:`CropPlan.is_empty` prüfen — ein leerer Plan ist ein Ergebnis, kein Fehler, und enthält den erklärenden Satz."
+      "translation": "ein :class:`CropPlan`. Vor dem Laden :attr:`CropPlan.is_empty` prüfen — ein leerer Plan ist ein Ergebnis, kein Fehler, und enthält den erklärenden Satz.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an unknown source, or a path that is not there.",

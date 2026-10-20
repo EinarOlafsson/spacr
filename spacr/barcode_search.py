@@ -1,6 +1,6 @@
-"""Decide which barcode tables a sequencing run really contains.
+"""Detect which barcode tables a sequencing run contains, and where they sit.
 
-WHAT IT IS FOR
+What it is for
 ==============
 Map Barcodes has to be told three things it cannot guess: which mate carries
 each barcode, whether the reference table is stored in the same orientation as
@@ -12,20 +12,20 @@ orientations, and turns the measurements into settings the mapping run can use.
 It holds no graphical code and opens no dialogs, so the same engine serves the
 live search in the interface, a notebook, and the tests.
 
-WHY A RAW HIT RATE IS NOT EVIDENCE
-==================================
+Chance matches
+==============
 A short barcode turns up in a long read by pure coincidence.  Thirty-two
 distinct eight base barcodes scanned across a hundred and fifty base read have
 about a seven percent chance of a spurious match, so a table that is genuinely
-absent still reports roughly seven percent of reads as hits.  A detector that
-announced a finding at that rate would send someone hunting for a bug that does
-not exist, or would quietly configure a mapping that yields nothing.  Every rate
+absent still reports roughly seven percent of reads as hits.  Reporting that
+rate as a finding would misidentify the table as present and could configure a
+mapping that yields nothing.  Every rate
 this module reports therefore arrives with the rate expected by chance for that
 table against those reads, and with the ratio between them.  Nothing is called
 present unless it stands well clear of its own coincidence rate.
 
-WHY A LARGE ENRICHMENT IS STILL NOT ENOUGH
-==========================================
+Match position
+==============
 Enrichment over chance answers whether the sequences are in the reads.  It does
 not answer whether they are the plate barcodes.  Sequencing adapters are fixed
 sequences repeated in every read, and a handful of barcodes in any table will
@@ -37,7 +37,7 @@ almost every read, which is exactly why an extraction window can be proposed for
 it at all.  A match scattered across the read cannot yield a window and is not
 treated as a finding, however enriched it is.
 
-WHAT IT PRODUCES
+What it produces
 ================
 A report carrying one finding per combination of reference table, orientation
 and input file.  Each finding holds the observed rate, the chance rate, the
@@ -47,7 +47,7 @@ verdict with a sentence saying why that verdict was reached.  The report can be
 rendered as a table for a log, and it can be folded into the settings that
 :func:`spacr.sequencing.generate_barecode_mapping` reads.
 
-WHAT TO DO NEXT
+What to do next
 ===============
 Read the verdicts before the proposed settings.
 
@@ -254,13 +254,12 @@ class BarcodeTable:
         :raises ValueError: when the orientation label is not one of the two,
             or when the table is not DNA and so cannot be complemented at all.
 
-        A NON-NUCLEOTIDE TABLE IS REFUSED RATHER THAN MANGLED. Peptide tags
+        A non-nucleotide table raises instead of being reversed. Peptide tags
         and amino-acid barcodes pass through `reverse_complement` unchanged
         -- it maps only the four bases and N -- so a flipped table would be
-        the same letters reversed, searched for, and never found. Saying no
-        is the honest answer; silently searching for a sequence that cannot
-        match reports "this reference is absent from the reads", which is a
-        conclusion about the data rather than about the request.
+        the same letters reversed, searched for, and never found. Searching
+        for a sequence that cannot match would report "this reference is
+        absent from the reads", which describes the request, not the data.
         """
         if orientation == AS_GIVEN:
             return self
@@ -376,8 +375,8 @@ def load_barcode_tables(paths):
     """Read several reference tables at once.
 
     Any number of tables may be supplied, so a run that carries more than the
-    three barcode kinds spaCR grew up with is handled the same way as one that
-    carries fewer.
+    three barcode kinds spaCR originally supported is handled the same way as
+    one that carries fewer.
 
     :param paths: paths of the reference tables, or a mapping from the label a
         table should carry to its path.
@@ -622,17 +621,14 @@ class _Matcher:
 
 @dataclass(frozen=True)
 class SearchThresholds:
-    """The numbers a barcode search judges by, and what each one judges.
+    """Thresholds that decide the verdict of each barcode-search finding.
 
-    THESE WERE MODULE CONSTANTS. They were chosen against one screen's data,
-    which is exactly the kind of number that is right until someone runs a
-    different assay -- a shorter read, a smaller reference, a library where
-    10% of reads carrying the barcode is a good day rather than a failure.
-    The values here are those same numbers, so a caller who passes nothing
-    gets the behaviour that already existed; what changes is that the numbers
-    can now be said out loud by someone whose data disagrees with them.
+    The defaults were chosen against one screen's data. A different assay --
+    a shorter read, a smaller reference, a library where 10% of reads
+    carrying the barcode is a normal result -- may need other values, which
+    can be passed here.
 
-    Each field judges a DIFFERENT question, and they are asked in this order:
+    Each field tests a different question, and they are asked in this order:
     is the sample big enough to say anything, is the hit rate distinguishable
     from coincidence, is it big enough to map from, and do the hits sit at one
     place in the read. A verdict of INDETERMINATE names which question it was
@@ -664,7 +660,7 @@ class SearchThresholds:
     offset_window_coverage: float = OFFSET_WINDOW_COVERAGE
 
     def __post_init__(self):
-        """Refuse thresholds that cannot decide anything.
+        """Raise when a threshold is outside the range that can give a verdict.
 
         A threshold out of range does not fail loudly at the point it is set;
         it produces a report in which every table is PRESENT, or every table
@@ -704,11 +700,10 @@ DEFAULT_THRESHOLDS = SearchThresholds()
 
 @dataclass(frozen=True)
 class OrientationFinding:
-    """What one reference table did against one file in one orientation.
+    """Search result for one reference table, read file and orientation.
 
-    Everything needed to judge the finding travels with it, so a caller never
-    has to recompute the coincidence rate in order to decide whether the
-    observed rate means anything.
+    The finding carries the chance rate and enrichment alongside the observed
+    rate, so a caller does not have to recompute the coincidence rate.
 
     :param table: label of the reference table this finding is about.
     :param role: the role that table fills, or None when it was searched
@@ -801,7 +796,7 @@ class OrientationFinding:
 
 @dataclass(frozen=True)
 class BarcodeSearchReport:
-    """Every finding from one search, plus how much was read to get them.
+    """Findings of one barcode search, with the reads examined per file.
 
     A report from a partly finished search has the same shape as a finished
     one and is meant to be shown, so a live display can render each refinement
@@ -871,9 +866,8 @@ class BarcodeSearchReport:
     def format_table(self):
         """Render the findings as fixed width text for a log or a console.
 
-        The expected rate sits beside the observed one on purpose.  A reader
-        who sees only the observed column will believe a coincidence, and the
-        whole point of the module is that the two numbers are never separated.
+        The expected (chance) rate is printed beside the observed rate so
+        that the observed rate is never read on its own.
 
         :returns: the rendered table, as a string.
         """
@@ -1277,15 +1271,15 @@ def _flip(orientation):
 
 @dataclass(frozen=True)
 class ProposedMapping:
-    """Settings the search believes a mapping run should use, and why.
+    """Settings proposed for a barcode mapping run, with supporting details.
 
     Every key in the proposal is one the mapping run already reads. The run
     can take the proposal as it stands.
 
     What the search learned that has no matching key is carried alongside.
 
-    A caller that quietly dropped the orientation would bring back the very
-    failure this module exists to prevent.
+    Callers must apply the orientations as well as the settings; a run that
+    searches a table in the wrong orientation maps nothing.
 
     A screen that decodes a barcode beyond the plate column, the guide and the
     plate row has no settings key waiting for it. The table chosen for every
@@ -1301,8 +1295,8 @@ class ProposedMapping:
     :param orientations: mapping from table label to the orientation the run
         should search that table in.
     :param reference_tables: the table chosen for each role, listed whether or
-        not a settings key exists to carry it -- which is the point, because a
-        role with no key is exactly the one that would otherwise be lost.
+        not a settings key exists to carry it, so a role with no key is not
+        lost.
     :param reverse_complement_needed: tables the run has to reverse complement
         to recognise, because they were found in the second mate as stored.
     :param unresolved_roles: roles no table established. Named rather than
@@ -1520,9 +1514,8 @@ class BarcodeHit:
 def annotate_read(read, tables, orientations=None):
     """Locate every barcode inside one read so a display can colour them.
 
-    The reads a search looked at are the evidence behind its verdicts, and the
-    quickest way for someone to believe or disbelieve a verdict is to see the
-    barcodes sitting in the reads.  This returns the stretches to paint, left to
+    Showing the barcodes in the sampled reads lets a user check the search
+    verdicts directly.  This returns the stretches to paint, left to
     right, with overlaps resolved in favour of whichever table is listed first.
 
     :param read: the read sequence.

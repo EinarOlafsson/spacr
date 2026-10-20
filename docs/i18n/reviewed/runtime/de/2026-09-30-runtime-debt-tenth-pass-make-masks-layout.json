@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "Upload data",
-      "source": "Upload data",
-      "source_sha256": "4c834956be9d6ee730f4a5672c24331d581652faa3cc984a0b632427b6de231d",
-      "translation": "Daten hochladen"
-    },
-    {
-      "table": "ui",
       "key": "Upload data: send images and their masks to a community training dataset.",
       "source": "Upload data: send images and their masks to a community training dataset.",
       "source_sha256": "7285ee14f2ea26b0a020c0ea0faa91ba0ffd672d659caeadda659434cf02b7f3",
@@ -54,6 +47,14 @@
       "source": "Map where the segmentation of this field is least sure, or rank the open fields with the most uncertain first. The same menu as the Uncertainty button on the bottom row; four detection runs per field.",
       "source_sha256": "efe26d769933eee393d2278c47e64fc6b01b83ccde576d3ae0b5166a8d2559d7",
       "translation": "Zeigt, wo die Segmentierung dieses Bildfelds am unsichersten ist, oder ordnet die geöffneten Bildfelder mit den unsichersten zuerst. Dasselbe Menü wie die Schaltfläche Unsicherheit in der unteren Zeile; vier Detektionsläufe pro Bildfeld."
+    },
+    {
+      "table": "ui",
+      "key": "Upload data",
+      "source": "Upload data",
+      "source_sha256": "4c834956be9d6ee730f4a5672c24331d581652faa3cc984a0b632427b6de231d",
+      "translation": "Daten hochladen",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."

@@ -1,56 +1,50 @@
 """Explain unavailable options and offer an applicable next step.
 
-A control whose entry is unavailable has three jobs it
-cannot do while it is honestly dead: say WHY, link the documentation, and --
-where it is possible in this environment -- offer to make itself available.
-This module is where all three live, once, because the regression backend
-picker and the Image UMAP's GPU acceleration ask exactly the same question
-and a second interactive tooltip is a second set of hover, focus and
-dismissal bugs.
+For an unavailable entry this module states why, links the documentation and --
+where this environment allows it -- offers to make the entry available. The
+code is shared because the regression backend picker and the Image UMAP's GPU
+acceleration need the same panel, and a second interactive tooltip would need
+its own hover, focus and dismissal handling.
 
 Why this is not a ``QToolTip``: PySide6 reports::
 
     QToolTip has a linkActivated signal:  False
     QToolTip is a QWidget:                False
 
-``QToolTip`` is a STATIC PAINTER. It renders rich text and nothing inside it
-can be clicked, hovered or focused, so an "install link in the tooltip" drawn
-with it is a link that looks pressable and is not. What works is a frameless
-tooltip-styled ``QLabel`` with ``Qt.TextBrowserInteraction``: its
-``linkActivated`` carries the href, so ``api`` opens the documentation and
-``install`` opens the offer.
+``QToolTip`` only paints. It renders rich text and nothing inside it can be
+clicked, hovered or focused, so a link drawn in it cannot be pressed. What
+works is a frameless tooltip-styled ``QLabel`` with
+``Qt.TextBrowserInteraction``: its ``linkActivated`` carries the href, so
+``api`` opens the documentation and ``install`` opens the offer.
 
-THE ROW ITSELF STAYS DEAD. ``QStandardItem.setEnabled(False)`` leaves
-``ItemIsSelectable`` SET -- Qt will not ACTIVATE a disabled row, but a
-model-level selection can still land on it -- so a caller must clear that
-flag too. :func:`disable_combo_row` does both and is what the callers use.
+The row itself stays disabled. ``QStandardItem.setEnabled(False)`` leaves
+``ItemIsSelectable`` set -- Qt will not activate a disabled row, but a
+model-level selection can still land on it -- so a caller must clear that flag
+too. :func:`disable_combo_row` does both and is what the callers use.
 
-THE THREE THINGS AN INTERACTIVE TOOLTIP HAS TO GET RIGHT, and how each is
-answered here:
+An interactive tooltip has three requirements, handled here as follows:
 
-* IT MUST NOT VANISH WHILE THE POINTER MOVES TOWARD IT. The pointer has to
+* It must not disappear while the pointer moves toward it. The pointer has to
   cross the gap between the row and the panel, and a plain leave-event
   dismissal closes it mid-journey, which makes the Install link unreachable.
-  The hide is a timer, the timer is cancelled on entry, and while it is
-  pending the cursor is checked against the CORRIDOR -- the union of the
-  anchor's rectangle and the panel's -- so travelling through the gap
-  re-arms the timer instead of firing it. See :meth:`AvailabilityPanel.
-  _maybe_hide`.
-* IT MUST BE DISMISSABLE. Escape, a click anywhere outside it, and moving
-  well clear of the corridor all close it.
-* IT MUST BE REACHABLE BY KEYBOARD, and that cannot be inherited from the row
+  The hide is a timer, the timer is cancelled on entry, and while it is pending
+  the cursor is checked against the corridor -- the union of the anchor's
+  rectangle and the panel's -- so travelling through the gap re-arms the timer
+  instead of firing it. See :meth:`AvailabilityPanel. _maybe_hide`.
+* It must be dismissable. Escape, a click anywhere outside it, and moving well
+  clear of the corridor all close it.
+* It must be reachable by keyboard, and that cannot be inherited from the row
   because the row is disabled. :meth:`AvailabilityPanel.open_for` is the
-  explicit keyboard route: it shows the panel ACTIVATED with the first link
+  explicit keyboard route: it shows the panel activated with the first link
   focused, Up/Down move between the unavailable entries, Escape closes it and
-  returns focus to wherever it came from. A keyboard-opened panel is pinned
-  and never closes on a hover timer, because a reader who is not holding the
-  mouse must not have the panel taken away from them.
+  returns focus to wherever it came from. A keyboard-opened panel is pinned and
+  never closes on a hover timer.
 
-WHAT PRESSING INSTALL DOES is :func:`run_install_offer`, and it has THREE
-answers rather than two -- see :class:`spacr.updater.InstallOffer`. The
-dry-run report is shown BEFORE anything is installed, and a plan that would
-move numpy, torch, pandas or scikit-learn is refused by default and needs a
-second confirmation naming what moves.
+Pressing Install runs :func:`run_install_offer`, which has three outcomes --
+see :class:`spacr.updater.InstallOffer`. The dry-run report is shown before
+anything is installed, and a plan that would move numpy, torch, pandas or
+scikit-learn is refused by default and needs a second confirmation naming what
+moves.
 """
 from __future__ import annotations
 
@@ -223,14 +217,14 @@ class AvailabilityPanel(QFrame):
         self._apply_theme()
 
     def set_install_handler(self, slot) -> None:
-        """Make ``slot`` the ONLY receiver of :attr:`install_requested`.
+        """Make ``slot`` the only receiver of :attr:`install_requested`.
 
         The panel is a process-wide singleton with two callers. A plain
         ``connect`` on every show accumulates receivers, so one press would
-        eventually run the regression picker's install AND the Image UMAP's;
-        a plain ``disconnect()`` warns when nothing is connected yet. Holding
-        the current slot and replacing it does neither. A previous slot bound
-        to a widget that has since been deleted is simply dropped.
+        eventually run the regression picker's install and the Image UMAP's; a
+        plain ``disconnect()`` warns when nothing is connected yet. Holding the
+        current slot and replacing it does neither. A previous slot bound to a
+        widget that has since been deleted is simply dropped.
 
         :param slot: callable taking the current entry's ``offer``, or
             ``None`` to leave the signal with no receiver.
@@ -299,7 +293,8 @@ class AvailabilityPanel(QFrame):
         return self._body
 
     def is_pinned(self) -> bool:
-        """Was this opened by keyboard? A pinned panel ignores hover timers."""
+        """Whether the panel was opened by keyboard. A pinned panel ignores
+        hover timers."""
         return self._pinned
 
 
@@ -354,11 +349,11 @@ class AvailabilityPanel(QFrame):
 
     def open_for(self, anchor: QWidget, entries, index: int = 0, *,
                  anchor_rect: Optional[QRect] = None) -> None:
-        """The KEYBOARD route: show the panel pinned, activated and focused.
+        """The keyboard route: show the panel pinned, activated and focused.
 
         The row that would normally carry this help is disabled, so it cannot
         be tabbed to and nothing can be inherited from it. A caller wires this
-        to a key on the control that IS focusable -- the combo itself -- and
+        to a key on the control that is focusable -- the combo itself -- and
         the panel takes it from there: Tab moves between **API** and
         **Install**, Enter presses one, Up/Down move to the next unavailable
         entry, Escape closes and hands focus back.
@@ -486,10 +481,10 @@ class AvailabilityPanel(QFrame):
     def corridor(self) -> Optional[QRect]:
         """The rectangle the pointer is allowed to be inside while travelling.
 
-        The union of the anchor's rectangle and the panel's, which is exactly
-        the region a pointer moving from one to the other passes through. A
-        naive implementation hides on the anchor's leave event and the pointer
-        never arrives.
+        The union of the anchor's rectangle and the panel's, the region a
+        pointer moving from one to the other passes through. Hiding on the
+        anchor's leave event would close the panel before the pointer reaches
+        it.
         """
         rect = self._anchor_global_rect()
         if rect is None:
@@ -684,18 +679,17 @@ def run_install_offer(parent, offer, *, confirm=None, inform=None,
                       dry_run=None, install=None) -> str:
     """Handle the three outcomes of an install offer in one place.
 
-    1. INSTALLABLE HERE -- the dry-run report is shown FIRST, in full, and
-       the install runs only on confirmation. A plan that would move numpy,
-       torch, pandas or scikit-learn is refused by default and needs a
-       second confirmation naming what moves.
-    2. NOT HERE, BUT POSSIBLE ELSEWHERE -- the environment that would take it
-       is described and NOTHING IS RUN.
-    3. NOT POSSIBLE -- said plainly, with the recipe, and nothing is run.
+    1. Installable here -- the dry-run report is shown first, in full, and the
+       install runs only on confirmation. A plan that would move numpy, torch,
+       pandas or scikit-learn is refused by default and needs a second
+       confirmation naming what moves.
+    2. Not here, but possible elsewhere -- the environment that would take it
+       is described and nothing is run.
+    3. Not possible -- stated, with the recipe, and nothing is run.
 
     Every side effect is an injected callable so the whole flow can be driven
     without a screen: ``tests/qt/conftest.py`` makes a static modal raise on
-    purpose, and a flow that could only be tested through one could not be
-    tested at all.
+    purpose.
 
     :param parent: the widget dialogs are parented to.
     :param offer: a :class:`spacr.updater.InstallOffer`.
@@ -704,9 +698,8 @@ def run_install_offer(parent, offer, *, confirm=None, inform=None,
     :param inform: ``(title, text) -> None``. Defaults to
         ``QMessageBox.information``.
     :param dry_run: ``(requirement) -> DryRun``. Defaults to
-        :func:`spacr.updater.dry_run_install` behind a progress dialog --
-        the resolver talks to the network and has been measured taking
-        minutes, and a frozen window is indistinguishable from a crash.
+        :func:`spacr.updater.dry_run_install` behind a progress dialog -- the
+        resolver talks to the network and has been measured taking minutes.
     :param install: ``(command) -> (code, output)``. Defaults to
         :func:`spacr.updater.run_install_command`.
     :returns: one of ``'ready'``, ``'explained'``, ``'declined'``,
@@ -854,7 +847,7 @@ def explain(anchor, entries, index: int = 0, *, pinned: bool = False,
     """Open the shared panel on ``entries[index]`` with Install already wired.
 
     The two-line form for a caller that has one control and one entry -- the
-    Image UMAP's GPU acceleration is exactly that::
+    Image UMAP's GPU acceleration is one::
 
         from spacr.gpu_reduce import availability_entry
         explain(self._gpu_button, [availability_entry()], parent=self)

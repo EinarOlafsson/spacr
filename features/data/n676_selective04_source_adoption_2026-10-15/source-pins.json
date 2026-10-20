@@ -1,0 +1,36 @@
+{
+  "base": "98db7ac93e5ba4e5adc14c7a885939b40b35d344",
+  "files": [
+    {
+      "file": "tools/tutorials/authoring/web/app_v2.js",
+      "sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+      "owner_snapshot_exact": true
+    },
+    {
+      "file": "tools/tutorials/render_installation_route_cards.py",
+      "sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c",
+      "owner_snapshot_exact": true
+    },
+    {
+      "file": "tools/tutorials/retained_visual_refresh.py",
+      "sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3",
+      "owner_snapshot_exact": true
+    },
+    {
+      "file": "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "sha256": "f76a317f79f9e3d634a675063ebd48e5c7dd6698896b503164ce57833dbc6115",
+      "owner_snapshot_exact": true
+    },
+    {
+      "file": "tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+      "sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842",
+      "owner_snapshot_exact": true
+    },
+    {
+      "file": "tools/tutorials/verify_staged_lesson.py",
+      "sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04",
+      "owner_snapshot_exact": true
+    }
+  ],
+  "media_selectors_unchanged": true
+}

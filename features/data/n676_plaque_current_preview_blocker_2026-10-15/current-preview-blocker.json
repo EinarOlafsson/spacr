@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "status": "blocked; source-only interface finding, no whole-lesson acceptance",
+  "lesson": "24_plaque",
+  "turn": 43,
+  "captured_source_commit": "8363f57c87c38fe8a6599e8a27a6efe47e13a1d4",
+  "root_decision": {
+    "lesson24_blocked": true,
+    "turn44_queued": false,
+    "action": "Preserve tested batch lifecycle observer and backend API fix; request Home-owned current-preview recorder/interface adaptation before another whole24 capture. Root may move to26 separately."
+  },
+  "actual_turn43": {
+    "start_edT": "2026-10-15 00:30:23",
+    "finish_edT": "2026-10-15 00:34:30",
+    "workflow_exit": 1,
+    "raw_scenes": [
+      "01_module",
+      "03_setting_src",
+      "04_setting_masks",
+      "05_setting_plaque_model",
+      "08_setting_well_diameter_mm",
+      "09_actual_completion"
+    ],
+    "app_exit_code": 0,
+    "recorder_rc": null,
+    "final_clips": {},
+    "observed_exception": "AttributeError reading screen._worker after the Run click; AppScreen assigns it after deferred import and clears it after completion, so this does not establish a removed backend API.",
+    "cleanup": {
+      "exit_code": 1,
+      "survivors_after_cleanup": [],
+      "exact_gnome_pid": 309631,
+      "pid_absent": "Verified previously with exact ps -p309631; no new process probe",
+      "own_turn_lease_absent": "Verified previously for codex-ws-turn43-lesson24 prefix"
+    },
+    "receipts": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r43/host-run.json",
+        "bytes": 1252,
+        "sha256": "3555b4daf02c2f950e1a9c0dd8b25da1132317c011a7496065f7e363fd7b18b4"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r43/gnome-host/cleanup.json",
+        "bytes": 54,
+        "sha256": "75c9ae32733b323c48b654979ccd7d383e654d187b7c4ce6e2b9b705e009dfad"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r43/gnome-host/host.json",
+        "bytes": 600,
+        "sha256": "c756932a73e5aaa3b3f526aaa6b795b24e772adbf0912e5a25d059d6d4d02adf"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson24-r43/exact-source.json",
+        "bytes": 54675,
+        "sha256": "b91c5f0d09c77ceec66033da6aa45931b4c68a1570a9ba5aeba438f18d1d2fca"
+      }
+    ]
+  },
+  "next_definite_blocker": {
+    "legacy_driver": "tools/tutorials/capture_plaque.py requires screen._registry_preview after batch completion, then host.toggle/host.panel.current_params and old raw-mask preview APIs.",
+    "current_app": "Plaque is owned_by_screen; normal install deliberately provides no registry host. AppScreen builds screen._live_preview as PlaquePreviewPanel. Current panel uses current_settings/current_path, job-backed preview_running, and _plaque_result / figure results, rather than old generic LivePreviewPanel mask APIs.",
+    "conclusion": "A successful batch observer alone cannot complete the legacy main recorder. No normal current-Plaque path assigning a shadow _registry_preview was found in the bounded source reads.",
+    "home_request": "Provide or own a coherent current-Plaque preview adapter and exact main/current scene mapping preserving genuine UI actions and scientific checks; do not turn alpha on or weaken privacy/smoothness gates."
+  },
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/preview_registry.py",
+      "bytes": 24936,
+      "sha256": "6d7ad250e22e3f98ab657e7bc7e27b7993f9618aeaa2030f2eee0799e1c30a3f",
+      "line_start": 112,
+      "line_end": 114,
+      "claim": "Plaque preview is owned_by_screen=True"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/preview_registry.py",
+      "bytes": 24936,
+      "sha256": "6d7ad250e22e3f98ab657e7bc7e27b7993f9618aeaa2030f2eee0799e1c30a3f",
+      "line_start": 323,
+      "line_end": 345,
+      "claim": "install returns None for screen-owned previews; no registry host is assigned"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/app_screen.py",
+      "bytes": 602981,
+      "sha256": "78414f53ef896e71238a52de2cd8adbbbfc9adcc04acacf349271766c0761eca",
+      "line_start": 7683,
+      "line_end": 7693,
+      "claim": "AppScreen builds PlaquePreviewPanel into _live_preview"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plaque_preview.py",
+      "bytes": 263408,
+      "sha256": "fd64b45dfa063aad961cc6007aca1af6da5413514cd91c68dca3819f559c6cb1",
+      "line_start": 4000,
+      "line_end": 4000,
+      "claim": "current_path"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plaque_preview.py",
+      "bytes": 263408,
+      "sha256": "fd64b45dfa063aad961cc6007aca1af6da5413514cd91c68dca3819f559c6cb1",
+      "line_start": 4167,
+      "line_end": 4167,
+      "claim": "current_settings"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plaque_preview.py",
+      "bytes": 263408,
+      "sha256": "fd64b45dfa063aad961cc6007aca1af6da5413514cd91c68dca3819f559c6cb1",
+      "line_start": 4242,
+      "line_end": 4244,
+      "claim": "preview_running tracks job ownership"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plaque_preview.py",
+      "bytes": 263408,
+      "sha256": "fd64b45dfa063aad961cc6007aca1af6da5413514cd91c68dca3819f559c6cb1",
+      "line_start": 4281,
+      "line_end": 4340,
+      "claim": "run_preview generation/job submission and _on_result stores _plaque_result"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py",
+      "bytes": 140874,
+      "sha256": "ffcd7eba0fc8fc987b84e9b0042f67200de54e767a4d20fe6942ba104139cdbe",
+      "line_start": 1093,
+      "line_end": 1100,
+      "claim": "--plaque-current-tour selects current driver; main zoo-model role selects legacy driver"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plaque_current.py",
+      "bytes": 15756,
+      "sha256": "b7b07f258fe9529cf35fdbd655ec5a0f9a7a416121cec584aeebdc2f363390b2",
+      "line_start": 129,
+      "line_end": 168,
+      "claim": "existing separate current-preview role uses _live_preview and _preview_switch"
+    }
+  ],
+  "terminal_frame": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24-r43/09_actual_completion_terminal.png",
+    "bytes": 1464945,
+    "sha256": "60e03adf71262775cc89f9aeb7e247ed65aced74899a65a304cce1f82a89b2b0",
+    "interpretation": "One sealed end frame shows Finished and four analyzed masks; may postdate the immediate recorder exception, so it does not prove completion before the failed attribute read or native acceptance."
+  },
+  "useful_tested_fixes": {
+    "batch_observer": "33 passed in1.89s; restored exact passed source/test hashes independently checked separately",
+    "backend_alias": "Installed skimage0.26 exact old/new equivalent-diameter aliases for five geometries; old-code regression failed the real deprecation warning; narrow replacement passes3 tests in3.73s, preserving equivalent_diameter_px output field.",
+    "bindings": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24-r43/completion-tests.log",
+        "bytes": 124,
+        "sha256": "48077a91fd09bad82489316e0a6798addc9359af39a4629034f12b2c407cdd47"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24-r43/diameter-alias-proof.json",
+        "bytes": 1896,
+        "sha256": "347cdd1a3be4bc60afd9c26b238e89d1834274138776109b7afbab268a2d5caf"
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24-r43/final-diameter-tests.log",
+        "bytes": 98,
+        "sha256": "683fa99019bcf32276181b14d19c81a9385ec743c0834b5dcead7d3bad05ef2c"
+      }
+    ]
+  },
+  "limits": [
+    "No accepted native/scientific/gate evidence for whole24; raw failure reports remain untouched.",
+    "No capture, GPU, app execution, new tests or source edits performed for this receipt.",
+    "Removed download/old generic-preview helper experiments and their44-pass log are preserved externally only; they do not validate the actual current Plaque preview.",
+    "Lesson09 standard publication remains completed; actual public Nightly Space deployment is a separate unresolved receipt."
+  ]
+}

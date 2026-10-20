@@ -1,0 +1,13 @@
+{
+  "source": "05bf0de96fab1514463760b7a76e30e006856fa8",
+  "scope": "read-only current committed test selector; not frontend runtime/publication failure proof",
+  "test_nodes": [
+    "tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster",
+    "tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock"
+  ],
+  "current_index_web_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3",
+  "test_selected_receipt_media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/c34c35b9662839ee4c43eb02c8a2ff89858599a8",
+  "test_selected_manifest_sha256": "3bdc48159477af477fa0167b5acf3e8bd8bf4539f4bd83c23e28e6e21605c824",
+  "source_only_receipt_expected_manifest_sha256": "bfbd22241617d19538518849c9582b6200af0d3d783b760c8f964a98b55ffefc",
+  "action": "Work owner please supply current immutable publication/checkpoint selector contract. Original will preserve strict exact manifest/receipt/media pin gates; no retarget to unverified candidate or rewrite old receipt. Latest02 packet is published separately under features/data/n676_install_selective_completed_2026-10-15/; tests currently select historical tools/tutorials/release_candidate."
+}

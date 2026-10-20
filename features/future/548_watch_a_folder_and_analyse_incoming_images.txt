@@ -1,6 +1,17 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-06 — raw/vendor acquisition completion and general native
+Status: DONE (alpha) 2026-10-10 — real-acquisition GPU acceptance passed on the workstation (see the trailing note); second-pass description follows.
+Previous status: OPEN 2026-10-10 (second pass) — every vendor acquisition kind now
+        watches without a map: self-describing TIFF/OME-TIFF stacks, ND2/CZI/LIF
+        files (one field per position, completed by their own dimension
+        metadata) and per-plane series described by Micro-Manager metadata.txt,
+        OME *.companion.ome or Opera/Operetta Index.xml. Left: the maintainer's
+        real-acquisition GPU run (workstation) only (see the second 2026-10-10
+        note).
+        Earlier 2026-10-10: self-describing TIFF/OME-TIFF vendor stacks (T, Z and
+        T-by-Z, one field per file) watch without a map, completed by their
+        declared plane count; 2048x2048x200 memory/latency measured.
+        Earlier (2026-10-06): raw/vendor acquisition completion and general native
         series remain. Closed static fixed-map pooled normalization and native
         T>1 fixed-map Mask batch ingest are locally accepted alpha subsets;
         native T>1 fixed-map Mask watch is locally accepted. Projected Z, fixed-map
@@ -948,3 +959,279 @@ data/548_final_acquired_TYX_CUDA_2026-10-07_r3.json and its archive.
 This closes the actual-model parity child for acquired flat TYX only.
 Vendor-native T/Z volumes, arbitrary large volumes and biological accuracy
 remain open. No improved speed or whole-memory claim; alpha scope unchanged.
+
+2026-10-10 — VENDOR-NATIVE T/Z STACKS, COMPLETION SIGNAL AND LARGE VOLUMES (partial)
+    What is new. Without conversion_map.csv, a timelapse, z_stack or t_stack
+    watch no longer refuses. Each TIFF/OME-TIFF in the folder is one whole
+    field (key and plate token = its stem, letters and digits only). The
+    vendor completion signal is the file's own OME, ImageJ or shaped
+    metadata: the field is taken only once every declared plane has its own
+    page in the file and decodes (one page at a time), after the usual settle.
+    A file without declared axes, with several series, or whose axes do not
+    fit the mode (timelapse needs T>=2; z_stack Z>=2 and T1; t_stack T>=2 and
+    Z>=2) waits with its reason. The ready stack is snapshot-copied to
+    .watch_vendor/ (hash bound), split into exact Convert-named planes, and
+    then runs the existing mapped routes unchanged: projected timelapse,
+    native T1 Z (.watch_planar -> ZYX staging) or native T-by-Z (scoped map
+    written beside the planes). The vendor copy hash is part of the
+    collection checkpoint; a changed copy refuses resume. Ledger records
+    vendor_stacks; a workspace of another ingest kind is refused. Per-plane
+    CellVoyager-pattern files with no map stop the watch (before the
+    workspace when present at start, otherwise when they arrive), with the
+    old fixed-map instruction. Code: spacr/core.py _watch_vendor_key,
+    _watch_vendor_layout, _watch_vendor_unreadable, _watch_vendor_stage.
+    No new setting, public API or UI caption.
+
+    Large-volume fixes. (1) The legacy normalisation loop rescaled a whole
+    Z-stack in one float64 call per field; it now rescales one YX plane at a
+    time (elementwise, bit-identical; new test compares every plane). (2)
+    _watch_stage_volumes fills one preallocated volume instead of a list plus
+    np.stack.
+
+    Measured, CPU, model forward pass stubbed, CUDA hidden, run_capped 40G.
+    Live writer: tifffile OME writer, 2048x2048x200 uint16 ZYX (1.68 GB),
+    10 planes/s (20.7 s), settle 2 s, poll 1 s, mask pipeline.
+      - No premature pickup while the file grew (0 ready checks before close).
+      - Completion check (decode all 200 pages): 0.11-0.22 s.
+      - Analysis started 2.5 s after the writer closed (settle + poll).
+      - Phases: snapshot copy 1.3 s, split 1.5 s, ZYX staging 1.5 s,
+        Make Masks 81.6 s, checkpoint hashing 4.3 s, collect 0.1 s.
+        Result published 92.8 s after the writer closed.
+      - Peak RSS: before the fixes 26.5 GB (rescale_intensity on the whole
+        volume, 15.8x the raw stack), after 10.5 GB (6.2x raw; peak now in
+        _concatenate_and_normalize_impl). ZYX staging 4.05 -> 2.48 GB.
+    Native T-by-Z, same writer, TZYX 4x50x2048x2048 (1.68 GB), t_stack:
+      start 2.6 s after close, done 108.2 s after close, peak RSS 5.7 GB
+      (3.4x raw; the disk-backed native path), four 50x2048x2048 model calls.
+    Disk: each vendor field keeps the vendor copy, the planes and (Z) the ZYX
+    volume, about 3x the stack, plus Make Masks outputs (3.2 GB merged here).
+
+    Pooled-normalisation latency, measured. Real preprocessing, six fields,
+    one field every 3 s, settle 0.5 s, poll 0.2 s: per_field publishes each
+    field 0.9-1.5 s after its arrival; fixed_map publishes field i only with
+    the cohort, (6 - i) x 3 s + 1.1 s after its own arrival (16.1 s for the
+    first field, 1.1 s for the last). Latency of the closed pool is therefore
+    the remaining acquisition time plus one cohort run, as the 2026-10-05
+    analysis predicted; prompt exact pooled parity for an open stream stays
+    impossible. A reference-calibrated opt-in mode is still not built.
+
+    Tests: tests/test_watch_vendor_stacks_f548.py (13 cases: completion
+    signal for OME, partial OME, truncated ImageJ, undeclared, wrong mode,
+    non-TIFF; split order for OME and ImageJ TZCYX; T-by-Z waits on a partial
+    OME then matches the mapped batch merged arrays and skips on resume; Z
+    vendor stack matches the raw-volume batch merged arrays and cell/nucleus
+    Measure rows; ImageJ timelapse matches the projected batch merged arrays;
+    per-plane refusal at start and on arrival; convention guard; token
+    collision; collection resume binds the vendor copy; per-plane
+    normalisation parity). Watch/native/normalisation cohorts: 375 and 459
+    passed, CUDA hidden. Two older tests changed with the behaviour: an empty
+    unmapped timelapse watch now runs, and the refusal-by-name case uses
+    timelapse with t_stack. Evidence, scripts and reports:
+    features/data/548_vendor_stacks_large_volume_2026-10-10/.
+
+    LEFT (F548 stays OPEN):
+      - Per-plane raw vendor Z/T series without a map (e.g. Micro-Manager
+        per-plane files with metadata.txt, Opera Index.xml): no sidecar-based
+        completion rule; a fixed Convert map is still required.
+      - CZI, LIF and ND2 containers and multi-series (multi-position) files
+        are not live-ingested; convert first.
+      - Real acquired vendor OME-TIFF with real Cellpose (GPU) through the
+        vendor-stack path: not run; needs a gpu_turn acceptance by the
+        maintainer. The 3-D model's own memory is not in these numbers.
+      - Make Masks native T1 Z still holds about 6x the raw stack in RAM;
+        volumes near the RAM limit are not supported.
+      - Reference-calibrated (prompt) pooled normalisation: not built.
+
+2026-10-10 — PER-PLANE VENDOR SERIES AND ND2/CZI/LIF CONTAINERS (second pass)
+    Maintainer decision (2026-10-10): live watch of (a) per-plane raw vendor
+    Z/T series without a conversion map (Micro-Manager metadata.txt / OME
+    companion, Opera/Operetta Index.xml) and (b) CZI, LIF and ND2 files,
+    including multi-position files.
+
+    What is new. Without conversion_map.csv a timelapse, z_stack or t_stack
+    watch now also takes:
+      - ND2, CZI and LIF files. Each position is one field of well A01,
+        numbered from 1, plate token = file stem (letters and digits): ND2
+        P positions, CZI scenes, LIF images and their mosaic tiles (M).
+        Completion signal = the file's own dimension metadata: an ND2 must
+        hold every frame its experiment loops declare (sequenceCount), a CZI
+        every scene and T/Z/C size its ImageDocument declares, and every
+        declared plane of the field must decode (one plane at a time). A file
+        that is still changing within the settle window is not even opened
+        for description; a truncated or unopenable file waits with its reason.
+      - Per-plane series described by a companion. Micro-Manager metadata.txt
+        (Summary Frames/Slices/Channels or IntendedDimensions; FrameKey-t-c-z
+        with FileName, the img_<t>_<channel>_<z>.tif rule when FileName is
+        absent, or 2.0 Coords-<file>); one field per position, plate token =
+        the acquisition folder (parent of Pos<n>/Default). OME *.companion.ome:
+        one field per Image, planes placed by TiffData (file, IFD, First Z/T/C,
+        PlaneCount in DimensionOrder); a Plate gives the real well and field.
+        Opera/Operetta Harmony Index.xml or Index.idx.xml: one field per row,
+        column and FieldID with its real well, plate token = PlateID. A field
+        is taken once every plane the companion declares has its file present
+        and decodes; incomplete JSON/XML waits. Fields of one export are
+        independent, so complete fields run while others still wait.
+      - TIFFs beside a companion are read only through it; an unlisted one is
+        reported once and not analysed. CellVoyager-named per-plane files with
+        no companion still stop the watch (message now names the companions).
+    Each field's members (container or companion plus its planes) are copied
+    into .watch_vendor and hash-bound as before; the container or companion
+    copy is described again there and must give the same planes, which are
+    then split into exact Convert names (real well/field for Harmony and plate
+    companions) and run through the existing projected timelapse, native Z or
+    native T-by-Z routes. A multi-position container is copied once and its
+    private copy hard-linked into the other positions' staging (never a link
+    to the acquired file). Code: spacr/core.py _watch_vendor_groups,
+    _watch_vendor_describe (_watch_container_fields,
+    _watch_micromanager_fields, _watch_ome_companion_fields,
+    _watch_harmony_fields), _watch_described_ready/_unreadable/_stage,
+    _watch_vendor_emit (shared with the TIFF stack path), _watch_linked_snapshot.
+    No new setting, public API or UI caption.
+
+    Readers (evaluated 2026-10-10; spaCR is BSD-3-Clause):
+      - ND2: nd2 0.12 (BSD-3-Clause, maintained). Chosen. nd2reader (GPLv3+,
+        already a core dependency) misreads header_test2.nd2 as T1 Z20 instead
+        of T4 Z5 and its raw parser fails on it, so it was not used.
+      - CZI: czifile >= 2026.3.12 (BSD-3-Clause, Gohlke, rewritten 2026 with
+        a scenes interface). Chosen; already a core dependency, the watch
+        requires the 2026 API (Python 3.12+). pylibCZIrw is LGPLv3,
+        aicspylibczi and bioio-czi GPLv3: not used.
+      - LIF: liffile 2026 (BSD-3-Clause, Gohlke). Chosen. readlif and
+        bioio-lif's readlif are GPLv3.
+      - bioio (BSD) and aicsimageio (BSD, superseded by bioio) pull dask,
+        xarray and ome-types and their CZI/LIF plugins are GPL; not used.
+    New optional extra vendor-watch = nd2 (Python 3.10+), liffile (Python
+    3.12+); imported lazily, a missing or too-old reader is a translated
+    waiting reason naming the install command. CI's main test job installs it.
+
+    Licence and data notes. Committed test data (tests/data/watch_vendor_f548,
+    692 KB, PROVENANCE.txt + CC BY 4.0 text): Micro-Manager 2.0 sample (Thomas
+    Julou), OME multi-file and plate companions (OME Consortium), Leica
+    PR2729 TileScan LIF (Michael Goelzer), all CC BY 4.0 from
+    downloads.openmicroscopy.org; two synthetic multi-scene CZI files written
+    by the committed write_czi.py (pylibCZIrw) with a known plane formula.
+    Downloaded by the tests into a cache, skipped offline: header_test2.nd2
+    (Jonas Dorn), MeOh_high_fluo_003.nd2 (Aryeh Weiss), FRAP.lif (Sean
+    Warren), Micro-Manager 1.4 test_sep (Thomas Julou), the omer Harmony
+    Index.idx.xml (Omer Bayraktar); all CC BY 4.0.
+    Finding: on PR2729 liffile and readlif (Convert's reader) disagree on the
+    tile/Z frame order; the watch follows liffile (the declared dimension
+    order). Convert's ND2/LIF batch path inherits the nd2reader/readlif
+    issues above; not changed here.
+
+    Tests: tests/test_watch_vendor_formats_f548.py (17 cases, all pass with
+    the readers installed; CPU, CUDA hidden). Batch parity (live merged
+    arrays equal a batch run on the finished acquisition's planes, read
+    independently of the watcher): Micro-Manager 2.0 timelapse (waits on
+    planes, on truncated metadata.txt and on a missing plane), OME companion
+    Z volume (waits on a missing and a truncated plane), synthetic Harmony
+    export with two fields (one complete field runs while the other waits),
+    two-scene CZI T-by-Z (waits on a half-written file; scenes share one
+    hard-linked private copy; staged planes equal the written formula),
+    two-scene CZI timelapse, four-tile LIF T-by-Z (waits on a half file),
+    real eight-series FRAP LIF timelapse, real ND2 T-by-Z (waits on a
+    truncated file) and real ND2 13-frame timelapse. Also: a live writer
+    growing a CZI is taken only after it settles; MM 1.4 real metadata and
+    the FileName-less naming rule; real Harmony index (29 fields of T1 Z18
+    C6); plate companion wells; two-position ND2 via a reader double
+    (positions, plane locators, missing frames wait); missing-reader message;
+    unlisted TIFF beside a companion. Watch cohort tests/test_watch_*.py +
+    native T-by-Z batch: 372 passed. The one failure in
+    test_every_callable_in_the_package_is_documented is pre-existing on
+    nightly (spacr/qt/screens/settings_model.py:7185 __init__).
+
+    LEFT (F548 stays OPEN only for):
+      - The maintainer's real-acquisition GPU run on the workstation (real
+        Cellpose through the vendor paths). Not run here (CPU only).
+    Not covered by a real file: multi-position ND2 (no small public sample;
+    covered by the reader double) and real CZI (no small public sample;
+    synthetic files). A local read-only check of a lab SIM ND2 on the NAS was
+    requested but not run in this session (permission refused); the
+    workstation run will cover it.
+
+
+2026-10-10 — WORKSTATION REAL-ACQUISITION GPU ACCEPTANCE (WS, RTX 3090 Ti)
+    Two real Nikon N-SIM ND2 Z-stacks from the lab NAS (hargk_SIM nd024.nd2 and
+    nd025.nd2: 405/488/561 nm 3D-SIM, Z 11 x C 3 x 768 x 1280 uint16, voxel
+    0.065 x 0.065 x 0.2 um, 65 MB each; read only from the NAS) were written into
+    an empty watch folder in eleven chunks two seconds apart, the way a microscope
+    grows a file, while the live watcher ran (z_stack=True, volumetric, z_axis=0,
+    nucleus channel 0, cell channel 1, watch_pipeline 'mask', poll 1 s, settle 3 s,
+    idle 1.5 min). Real Cellpose on the GPU, through tools/gpu_turn.sh.
+    Readers: nd2 0.12.0 and liffile installed into the WS spacr env with the
+    maintainer's approval (not pip install -e, which would repoint the env's
+    editable spaCR away from the shared checkout).
+      Result: both fields done, none failed or incomplete; merged arrays carry
+        the nucleus and cell label planes (11 x 768 x 1280 x 5).
+      Pickup latency (watcher start minus the moment the file stopped growing):
+        nd024 1.1 s. nd025 started 787 s after completion only because fields
+        are analysed one at a time and nd024 was still running.
+      Analysis time per field: 818 s and 722 s (3-D Cellpose on full-resolution
+        SIM volumes). Total run 1,664 s.
+      Peak RAM 7.0 GiB (process tree); peak GPU memory 2,792 MiB (process,
+        nvidia-smi), torch max allocated 2,354 MiB.
+    Findings:
+      - The watch did not take the voxel size from the ND2, which declares it;
+        a z_stack watch refuses to run until voxel_size_z_um/voxel_size_xy_um
+        (or anisotropy) are set. Reading them from vendor metadata would remove
+        a manual step.
+      - z_stack also requires z_segmentation_mode='volumetric' and z_axis=0;
+        the error says so, but the defaults do not provide them.
+      - Segmentation quality on SIM data is NOT validated: 104/113 nucleus and
+        198/284 cell labels per 50 x 83 um field are far more than the field can
+        hold, i.e. default object sizes over-segment 65 nm/px super-resolution
+        volumes. The acceptance covers the watch path, completion detection and
+        GPU segmentation running end to end, not mask quality on SIM.
+      - Fields run serially, so a second stack waits for the first; at ~13 min
+        per SIM volume this dominates latency for a busy acquisition.
+    Receipt (sources named, local paths removed), runner and per-field QC:
+    features/data/548_nd2_live_acceptance_2026-10-10/.
+
+
+2026-10-10 — FOLLOW-UPS FROM THE WORKSTATION ND2 RUN (status unchanged: DONE (alpha))
+    1. Voxel size from the file. Without conversion_map.csv, a z_stack or
+       t_stack watch now takes an unset voxel_size_z_um / voxel_size_xy_um
+       from each field's own metadata: ND2 voxel_size() (only axes the file
+       marks calibrated; Z only with Z planes), CZI Scaling distances (metres;
+       0 = undeclared), LIF image coordinates (metres) and OME-TIFF
+       PhysicalSize* (um, nm, mm, m). X and Y differing by more than 1 % count
+       as undeclared (voxel_size_xy_um assumes square pixels). A value in the
+       settings always wins, per axis; a Measure recipe without its own voxel
+       size takes the field's. The run log prints each field's z/xy values and
+       their source ("ND2 metadata", "settings", "not declared"), and the
+       ledger records them under voxel_size. The start-time anisotropy check
+       is deferred to each field for vendor watches; a field whose file
+       declares nothing and whose settings give nothing fails before analysis
+       with "the file declares no voxel size" (retried on the next start).
+       Helpers: _watch_nd2_voxel, _watch_czi_voxel, _watch_lif_voxel,
+       _watch_tiff_voxel, _watch_field_voxel, _watch_check_field_voxel.
+    2. Volumetric recipe defaults. _watch_vendor_recipe fills, for a vendor
+       z_stack/t_stack watch (no map): z_segmentation_mode='volumetric' when
+       unset or the Make Masks default 'project' (which cannot run such a
+       watch), z_axis=0 for Z, t_axis_order='TZYX' for T-by-Z when no axis
+       is given. Other explicit values (e.g. 'stitch', z_axis=2, 'ZTYX') are
+       kept and the existing check explains them. The log names what was
+       filled. The workstation recipe now needs only z_stack=True.
+    3. Fields stay serial (documented in _watch_folder_and_analyse). The
+       per-field staging itself is private and could run concurrently, but
+       the analysis cannot safely move to worker threads: Stop
+       (cancellation token), pause, GUI log routing, the run journal and the
+       RAM guard are all thread-local, so a worker thread would ignore Stop
+       and log to the terminal; mask_measure forks Measure pools (fork from a
+       threaded torch process can deadlock); worker processes would each load
+       their own Cellpose model on the one GPU and cannot take the in-process
+       analyse callables. Each field's Cellpose run already uses the GPU and
+       n_jobs workers. Parallel fields would need those per-thread contexts
+       propagated first; left for a separate item.
+    Tests: tests/test_watch_vendor_voxel_f548.py (11): real header_test2.nd2
+    (z 0.5, xy 0.1286) and MeOh ND2 (no Z), committed PR2729 LIF and cached
+    FRAP.lif, committed CZI fixtures (Scaling 0) plus a Scaling parse, OME
+    units; settings win per axis; recipe defaults; end to end, the real ND2
+    T-by-Z watch with no voxel, anisotropy, mode or axis order set gives
+    merged arrays and Cellpose anisotropy equal to a batch run given
+    0.5/0.1286 um by hand; an OME-TIFF Z watch needs only z_stack; an
+    undeclared stack fails before analysis; three ready fields never overlap.
+    tests/test_watch_folder_and_analyse.py: the z_stack refusal case now sets
+    z_segmentation_mode='stitch' (a bare z_stack is no longer refused). Watch
+    cohort tests/test_watch_*.py + native T-by-Z batch, CPU, nd2/liffile/
+    czifile 2026 installed: 381 passed after the fixes.

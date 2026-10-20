@@ -1,0 +1,156 @@
+{
+  "schema": 1,
+  "checked_at_utc": "2026-10-15T10:47:37.748854+00:00",
+  "scope": "Read-only current N689 publication checks, no service mutation/build/test/dispatch/download of full site or artifact.",
+  "space": {
+    "repository": "einarolafsson/spacr-docs-nightly",
+    "sdk": "static",
+    "stage": "RUNNING",
+    "commit": "6185b7581aeee978c501e50f07fb61c19e030d33",
+    "last_modified": "2026-10-15T02:47:22.000Z",
+    "used_storage_bytes": 988829585,
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space",
+    "served_source": "0b94804723836c42274bb13f71f59a95461b562c",
+    "served_site_size_bytes": 455793473,
+    "public_receipts_match": true,
+    "public_homepage_matches_immutable_revision": true,
+    "host_envelope_bytes": 101
+  },
+  "github_current_nightly": {
+    "date": "2026-10-15T10:29:55Z",
+    "sha": "207bb4adea49932d0c857f19c408170a1e962d5f"
+  },
+  "latest_completed_failed_docs_run": {
+    "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38716311619",
+    "source": "8e0a1fdbead894e544b3c55a7e7d2efbd84df851",
+    "build": "success",
+    "assemble_size_bytes": 459831917,
+    "failure_step": "Upload one complete site and verify its public deployment",
+    "failure_time_utc": "2026-10-15T10:30:07Z",
+    "failure": "403 Forbidden: Storage limit reached for this space (Max: 1 GB).",
+    "atomic_commit_failure": true,
+    "verification_not_reached": true,
+    "artifact": {
+      "expired": false,
+      "expires_at": "2026-10-16T10:14:08Z",
+      "id": 11963807254,
+      "name": "docs-channel-nightly",
+      "size_in_bytes": 226845632
+    }
+  },
+  "pages": {
+    "url": "https://einarolafsson.github.io/spacr/",
+    "schema": 1,
+    "size_bytes": 974730784,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "87ff67a085d9764c4f76a8110d2ab8b552ca1dde",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "c138911fb6d0b3d556c1e56aee6024bf5a8ed57e",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "legacy_nightly_url": "https://einarolafsson.github.io/spacr/nightly/",
+    "legacy_nightly_status": 200,
+    "legacy_nightly_still_full_old_html": true
+  },
+  "next_actionable_requirements": [
+    "Resolve the Space repository storage quota at the owner/service level before retrying upload; current code/readback does not bypass the provider refusal.",
+    "An owner-approved history compaction/removal policy is a documented way to reclaim old-version storage, but it is irreversible and quota update may take up to36hours; no such action has been authorized or performed in this read-only task.",
+    "Once quota is available, rerun only the failed deployment job while docs-channel-nightly artifact11963807254 remains available through2026-10-16T10:14:08Z, then verify receipts and index against the intended source. Do not claim current-nightly publication from the older live site.",
+    "Main-only Pages publication and actual legacy/nightly redirect remain separate pending approved main promotion/deployment."
+  ],
+  "official_storage_reference": {
+    "url": "https://huggingface.co/docs/hub/storage-limits#super-squash-your-repository-using-the-api",
+    "summary": "Deleting only LFS pointers does not free stored data. Super-squash removes commit/LFS history irreversibly; documented quota reflection delay up to36hours. This is a candidate owner action, not a performed action or guaranteed immediate remedy."
+  },
+  "evidence": {
+    "read_live.py": {
+      "path": "read_live.py.gz",
+      "sha256": "b1e279e869eef894efc5507f7b89db5cca78cf167c2fb9a4ff29ba76d4e50004",
+      "bytes": 1827
+    },
+    "initial-readback.json": {
+      "path": "initial-readback.json.gz",
+      "sha256": "ac9af33aa66230156820b1deadf82ba01fe403b8659acbd54b1a0588e5b99345",
+      "bytes": 305890
+    },
+    "index-readback.json": {
+      "path": "index-readback.json.gz",
+      "sha256": "1ddd5bb7ad10490164e0d779029d99c886056f5de867f2dea3168d16423ac148",
+      "bytes": 473
+    },
+    "latest-failed-run.json": {
+      "path": "latest-failed-run.json.gz",
+      "sha256": "550795458ec69ea066b72bbe839e3ceca30a0f26a91327b3e1e9cd4b05ff0eb3",
+      "bytes": 6848
+    },
+    "latest-failure.log": {
+      "path": "latest-failure.log.gz",
+      "sha256": "017460a3f97ee998387b2fc584c5e249c9cf55024d3191576cbd493125f69345",
+      "bytes": 161188
+    },
+    "recent-docs-runs.json": {
+      "path": "recent-docs-runs.json.gz",
+      "sha256": "2b053e6d2dfc7a99cefd6d5eb7a847d5bc1bd0de4fc5e0ca54f63dafb8334934",
+      "bytes": 16048
+    },
+    "github-nightly.json": {
+      "path": "github-nightly.json.gz",
+      "sha256": "8315ffdd948d953ca7526405af8a9b14906d29365fa64bf0d7723f2338dda749",
+      "bytes": 81
+    },
+    "latest-run-artifacts.json": {
+      "path": "latest-run-artifacts.json.gz",
+      "sha256": "5019b748e084f1e03c9e8d2d01d61b8df938e7bd5020bcc1445d9e634a311afa",
+      "bytes": 264
+    },
+    "deployment-size-excerpt.log": {
+      "path": "deployment-size-excerpt.log.gz",
+      "sha256": "a4737bee2e1171b35b5d2e6725b13da5865426adf064415553d5ab8ecc89dc7c",
+      "bytes": 1065
+    },
+    "hf-publication.body": {
+      "path": "hf-publication.body.gz",
+      "sha256": "bd09ad0f310661d156993983715ad907ec5483daa34bf6cb2672619bba2b0b16",
+      "bytes": 179
+    },
+    "hf-channels.body": {
+      "path": "hf-channels.body.gz",
+      "sha256": "78718a4dd99850adddac4a2fbea1736147903635b4aabb2f79aa908c98bd498b",
+      "bytes": 401
+    },
+    "hf-index.body": {
+      "path": "hf-index.body.gz",
+      "sha256": "62b866c6be21214ac487e9f29272425c57d2d7911a0b48bbf9cb43cbc1868c11",
+      "bytes": 238274
+    },
+    "immutable-index.body": {
+      "path": "immutable-index.body.gz",
+      "sha256": "508425e1d17ea89767af2b6d229c204ad3cc12b68c9efc74cfd1b6a3079c6e8b",
+      "bytes": 238173
+    },
+    "pages-channels.body": {
+      "path": "pages-channels.body.gz",
+      "sha256": "a77a099cfe1a80a61382350f264a38c8bf487946962fe32631e48ee67c9bb2dd",
+      "bytes": 539
+    },
+    "pages-nightly.body": {
+      "path": "pages-nightly.body.gz",
+      "sha256": "ed68b65245b50ee25aa5c08710be9e02e24b3930c8545f38af22eb8f8e39b537",
+      "bytes": 236962
+    }
+  },
+  "limitations": [
+    "No secret value read or printed; public HF endpoints and ordinary authenticated GitHub read-only CLI only.",
+    "No proof of whole-site route/media health; exact homepage and receipts verified only.",
+    "No paid option selected, history rewritten, repo recreated, deploy dispatched, artifact downloaded, or Work recording/publication modified.",
+    "Current quota refusal is established by latest actual deployment log; storage-history contribution is not separately measured."
+  ]
+}

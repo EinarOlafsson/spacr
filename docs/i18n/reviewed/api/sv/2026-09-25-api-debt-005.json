@@ -210,7 +210,9 @@
       "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
       "context": "label mask; an empty array gives 1.",
       "translation": "etikettmask; en tom array ger 1.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.normalise_filters#0",
@@ -682,7 +684,9 @@
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
       "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "translation": "behåll exakta primära/sekundära ID:n utan att tolka masker med ett enda värde som binära eller dela frånkopplade delar. Det uttryckliga läget validerar icke-negativa 2-D-heltalsetiketter och vägrar ID:n över 65535 före skrivningen; det numrerar aldrig om dem i tysthet.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.save_seg_bundle#0",
@@ -1460,7 +1464,9 @@
       "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
       "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
       "translation": "MÅLET ÄNDRADES, INTE GESTEN. En nedtonad rad installerar sig själv när den väljs. Den brukade köra ``pip install \"spacr[<backend>]\"`` mot den miljö som spaCR körs i; varje backend får nu en isolerad miljö, så installationen går i stället via Model Zoos egen dialog: utanför GUI-tråden, med förlopp och Cancel, till ``~/.spacr/backends/<name>``, och spaCR:s egen miljö ändras aldrig.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
@@ -2054,7 +2060,9 @@
       "source_sha256": "80634c939fda60cc8ead24e8c2c975eba56823da9be0122ba3450b8f6ab3934f",
       "context": "Test data for OPS and for Align & Stitch, one button away in each.",
       "translation": "Testdata för OPS och för Align & Stitch, en knapp bort i vardera.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#1",
@@ -2070,7 +2078,9 @@
       "source_sha256": "e63dd35277cf175b680fde5212d3ffc2d52211a7b158bf2b7d6938870d694dac",
       "context": "Two samples of one published screen. Both are cut from laboratory microplate ``20200202_6W-LaC024A``, microplate sample position A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
       "translation": "TVÅ URVAL UR EN PUBLICERAD SCREENING. Båda är utskurna ur platta ``20200202_6W-LaC024A``, brunn A1, i Funk et al. 2022 (BioImage Archive S-BIAD394), oförändrade:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#3",
@@ -2094,7 +2104,9 @@
       "source_sha256": "e4e99262add6368878a0209aa268ebe08f254686a7e0b2196a9092a5cbefacff",
       "context": "Why the ops sample is the well's last two sites. The engine takes a well's microscope field of view count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-microscope field of view layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-microscope field of view sample cannot supply.",
       "translation": "VARFÖR OPS-URVALET ÄR BRUNNENS TVÅ SISTA POSITIONER. Motorn tar en brunns antal synfält som dess högsta positionsnummer plus ett och anpassar den runda brunnen till det antalet, så ett urval måste innehålla den sista positionen för att behålla den uppmätta layouten med 333 synfält; se :func:`spacr.ops_engine.run_ops`. Och det bär inga fenotypbilder, eftersom fenotypfasen justerar ankare utspridda över hela brunnen, vilket ett urval med två synfält inte kan tillhandahålla.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#6",
@@ -2102,7 +2114,9 @@
       "source_sha256": "cd641607642cb1f90def1fc67f167d3abb1a3018f08138c0e56e84effdc87a19",
       "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
       "translation": "SAMMA MÖNSTER SOM ALLA ANDRA EXEMPELUPPSÄTTNINGAR. En okomprimerad ``.tar`` per repositorium, strömmad bakom den delade förloppsdialogen och uppackad genom tar-datafiltret av :class:`spacr.qt.hf_download._TarExampleWorker`, till en egen mapp bredvid den delade exempelplattan (:func:`example_folder`). En cachad kopia används utan begäran.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#7",
@@ -2110,7 +2124,9 @@
       "source_sha256": "99b835de8e84af9254722809fb93dca52f5a74ff83d46031d4d68d3beeded25b",
       "context": "WHAT \"FILLS THE SETTINGS\" means here. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its microscope image field folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
       "translation": "VAD \"FILLS THE SETTINGS\" BETYDER HÄR. OPS-panelen får sin källa, utdatamapp, sitt bibliotek och plattnamn; Align & Stitch får sin rutmapp, blockets 3 x 3-rutnät, sin ordning, sitt överlapp och en plats att skriva till. Run -- eller Plan -- är sedan nästa åtgärd.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.example_folder#0",
@@ -2174,7 +2190,9 @@
       "source_sha256": "653f71a874206fdd57502212dc20f15d8e898fe283e907faab6e98cb3102f71a",
       "context": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
       "translation": "True endast när manifestet finns och varje fil som det listar finns där. Ett halvt uppackat urval läses som frånvarande, vilket är det svar som gör att det laddas ned igen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.listed_files#0",
@@ -4202,7 +4220,9 @@
       "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
       "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
       "translation": "Ett inställningsresultat i Help-sökfältet måste landa på den rad som användaren bad om, och dialogen det landar i byggs av sjutusen rader procedurkod utan något schema att adressera. Därför navigerar den här modulen i den BYGGDA dialogen, via de två handtag som bygget lämnar efter sig:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#2",
@@ -4226,7 +4246,9 @@
       "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
       "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
       "translation": "Att matcha den VISADE bildtexten mot en engelsk literal var versionen före den här, och den fungerade på exakt ett språk.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#5",
@@ -4274,7 +4296,9 @@
       "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
       "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
       "translation": "En STATISK inramning i några sekunder i stället för något som rör sig: en markering som pulserar skulle vara skyldig Animation-inställningarna ett svar, och den här är inte skyldig något och går inte förlorad för en läsare som har stängt av rörelse.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation.reveal_row#2",
@@ -4434,7 +4458,9 @@
       "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
       "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
       "translation": "``\"module:function\"`` som tar ``(host, card)`` och bygger panelen i kortet och returnerar den. Om den anges bygger en förhandsvisning som KOPPLAS via det här registret bara sitt kort vid installationen -- ``builder`` anropas med ``panel_later=True`` -- och panelen första gången kortet visas eller panelen efterfrågas, så att en dold förhandsvisning inte kostar något när en modul öppnas.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preview_registry.install#2",
@@ -4466,7 +4492,10 @@
       "source_sha256": "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
       "context": "Settings templates — named bundles you can reuse and share.",
       "translation": "Inställningsmallar — namngivna paket som du kan återanvända och dela.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.recipes#1",

@@ -37,25 +37,11 @@
       "translation": "<b>Rapportera fel som GitHub-ärenden</b><br><span style='color:gray;'>Rapporterna skickas till det offentliga spaCR-projektet på GitHub, med sökvägar, namn och autentiseringsuppgifter maskerade. Om felrapportering är inställd på always, som är standard, skickar en misslyckad körning rapporten automatiskt en gång per fel när GitHub är inloggat nedan. Med ask visas knappen \"File as issue\" under konsolen, och rapporten skickas först när du trycker på Skicka rapport i förhandsgranskningen. Ändra detta under Hjälp → Konfigurera spaCR igen….</span>"
     },
     {
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "table": "ui",
-      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad."
-    },
-    {
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
       "table": "ui",
       "translation": "En egen WAV-fil att spela som bakgrundsmusik i stället för spaCR:s. Lämna tomt för spaCR:s egen musik. Ingenting laddas upp eller kopieras: filen läses där den ligger, och även bakgrunden Resonance rör sig till denna musik."
-    },
-    {
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
-      "table": "ui",
-      "translation": "En klar natt: indigo, violett, isblått och den bleka blåvioletta nyans som himlen behåller långt efter solnedgången."
     },
     {
       "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
@@ -86,32 +72,11 @@
       "translation": "Ett lågmält, loopat musikstycke i ljuduppsättningens tonart: syntmattor, ett plockat arpeggio med punkterat åttondelseko, mjuk subbas samt en diskret bastrumma på varje fjärdedel och en shaker som kommer och går i arrangemanget. Musiken är separat från övriga ljud, så du kan ha ljudåterkoppling utan musik. Den är avstängd på nivåerna Laptop och Extra Performance."
     },
     {
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "table": "ui",
-      "translation": "Ett stigande arpeggio som landar på tonartens grundton när en modulkörning lyckas, så att du märker det även när spaCR ligger i ett annat fönster."
-    },
-    {
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "table": "ui",
-      "translation": "En kort, lågmäld plockton i ljuduppsättningens tonart när du trycker på en knapp, omkopplare, flik, lista eller skjutreglage. Bekräftar att tryckningen registrerades, mer som en känsla än ett tydligt ljud."
-    },
-    {
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
       "table": "ui",
       "translation": "En långsammare fallande tonföljd när en körning avbryts med ett fel, så att en lyckad och en misslyckad körning aldrig låter likadant. En körning som du stoppar själv är tyst."
-    },
-    {
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
-      "table": "ui",
-      "translation": "En sol nära horisonten och det material som ljuset passerar genom: guld, bärnstensgult, blekt guld och mossgrönt."
     },
     {
       "key": "Add a model",
@@ -126,13 +91,6 @@
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
       "table": "ui",
       "translation": "Lägg till fält"
-    },
-    {
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "table": "ui",
-      "translation": "Lägger till spaCR:s DEBUG-meddelanden i loggfilerna i ~/.spacr/logs. Det låter också cellpose rapportera vilken modell som lästes in och registrerar vilka knappar du tryckte på. Denna information gör en felrapport användbar.\n\nAtt starta spaCR och öppna dess skärmar tog inte längre tid med detta på. Mätningen gjordes på en arbetsstation genom att öppna varje modul med funktionen på respektive av. Home var redo efter cirka 4 sekunder från kallstart i båda fallen. Den långsammaste modulen öppnades efter cirka 7 sekunder i båda fallen. Tiden för analyskörningar mättes inte.\n\nKonsolen visar fortfarande bara de nivåer du väljer för den på fliken Loggning. Denna omkopplare spårar inte varje funktionsanrop. Den spåraren är ett separat utvecklarverktyg och aktiveras inte här."
     },
     {
       "key": "Add…",
@@ -457,13 +415,6 @@
       "translation": "Hitta databasen eller mappen med bildutsnitt"
     },
     {
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "table": "ui",
-      "translation": "Slutför inloggningen till {label} i fönstret som öppnades och tryck sedan på Klar."
-    },
-    {
       "key": "Five-parameter logistic (asymmetric)",
       "source": "Five-parameter logistic (asymmetric)",
       "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736",
@@ -581,13 +532,6 @@
       "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e",
       "table": "ui",
       "translation": "Installera {name}?"
-    },
-    {
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
-      "table": "ui",
-      "translation": "Installerar {label}…"
     },
     {
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
@@ -800,13 +744,6 @@
       "translation": "Avstängt som standard. När ljudet är avstängt laddar spaCR inget ljudbibliotek och spelar ingenting. När det är på spelar spaCR de ljud som aktiveras nedan genom datorns förvalda ljudutgång."
     },
     {
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "table": "ui",
-      "translation": "Erbjuder installation av GitHub CLI och startar sedan inloggningen. Utan det går det fortfarande att skicka ett ärende: det öppnas i webbläsaren där du redan är inloggad."
-    },
-    {
       "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
@@ -861,13 +798,6 @@
       "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
       "table": "ui",
       "translation": "Öppnar {name}"
-    },
-    {
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "table": "ui",
-      "translation": "Öppnar registreringssidan för GitHub i webbläsaren. Kom tillbaka hit efteråt för att installera GitHub CLI och logga in."
     },
     {
       "key": "Otsu",
@@ -1031,13 +961,6 @@
       "translation": "Kortkommandon"
     },
     {
-      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
-      "table": "ui",
-      "translation": "Visa eller dölj inställningarna som en grupp: pensel, trollstav, visning, autofilter, objektoperationer, Otsu, objektdetektering och det levande förstoringsglaset. Bildytan tar över bredden som frigörs."
-    },
-    {
       "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
@@ -1064,27 +987,6 @@
       "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca",
       "table": "ui",
       "translation": "Krymp"
-    },
-    {
-      "key": "Sign in",
-      "source": "Sign in",
-      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
-      "table": "ui",
-      "translation": "Logga in"
-    },
-    {
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "table": "ui",
-      "translation": "Logga in till {label} i fönstret som öppnades. spaCR upptäcker när du är klar."
-    },
-    {
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "table": "ui",
-      "translation": "Inloggningen till {label} slutfördes inte inom {minutes} minuter. Tryck på Logga in för att försöka igen."
     },
     {
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
@@ -1122,13 +1024,6 @@
       "translation": "Startar…"
     },
     {
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "table": "ui",
-      "translation": "Slutade vänta på inloggningen. Tryck på Logga in för att börja igen, eller på Klar när du har loggat in."
-    },
-    {
       "key": "Stopping after this page…",
       "source": "Stopping after this page…",
       "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
@@ -1136,25 +1031,11 @@
       "translation": "Stoppar efter denna sida…"
     },
     {
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
-      "table": "ui",
-      "translation": "Stoppar installationsprogrammet…"
-    },
-    {
       "key": "Test on my folder",
       "source": "Test on my folder",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
       "table": "ui",
       "translation": "Testa på min mapp"
-    },
-    {
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "table": "ui",
-      "translation": "Kommandot spaCR kör. Kopiera det för att köra det i en terminal själv istället."
     },
     {
       "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
@@ -1169,20 +1050,6 @@
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
       "table": "ui",
       "translation": "Filerna"
-    },
-    {
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
-      "table": "ui",
-      "translation": "Installationsprogrammet kunde inte köras: {error}"
-    },
-    {
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
-      "table": "ui",
-      "translation": "Himlens sista färger: rosa och magenta över dämpat guld, med den plommonlila nyans som horisonten får strax före mörkret."
     },
     {
       "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
@@ -1204,13 +1071,6 @@
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3",
       "table": "ui",
       "translation": "Rapporten skickades: {url}"
-    },
-    {
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "table": "ui",
-      "translation": "Inloggningen kunde inte startas härifrån. Kör kommandot nedan i en terminal och tryck sedan på Klar."
     },
     {
       "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
@@ -1302,13 +1162,6 @@
       "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777",
       "table": "ui",
       "translation": "Prova varje namnkonvention på källmappen och rangordna dem efter hur många filnamn de kan tolka. Detta visar bara ett resultat; inställningen ändras inte automatiskt."
-    },
-    {
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
-      "table": "ui",
-      "translation": "Under ytan: havsgrönt, mintgrönt och den blågröna färg som återstår när alla varma färger har absorberats."
     },
     {
       "key": "Uninstall",
@@ -1430,13 +1283,6 @@
       "translation": "Vilka modellvikter som segmenterar detta bildfält och det levande förstoringsglasets ruta i Cellpose-läge. Listan innehåller den Cellpose-version som är installerad på datorn och alla Cellpose-modeller i Model Zoo. En modell därifrån som inte har laddats ner är inaktiverad. Om du väljer den laddas den ner och aktiveras."
     },
     {
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "table": "ui",
-      "translation": "När utförlig loggning är på under fliken Moduler skrivs DEBUG alltid till loggfilerna, så denna inställning förblir på. Stäng av utförlig loggning för att kunna välja själv. Ditt eget val sparas tills dess."
-    },
-    {
       "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "source_sha256": "147130125966f3373bbf16413f3447b8e93d5e59819f787418670ec517373fe9",
@@ -1535,13 +1381,6 @@
       "translation": "varje platta"
     },
     {
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "table": "ui",
-      "translation": "npm fick inte skriva till sin globala mapp. Kör `npm config set prefix ~/.local` en gång i en terminal så att npm installerar i en mapp som du äger, och tryck sedan på Försök igen."
-    },
-    {
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438",
@@ -1596,20 +1435,6 @@
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e",
       "table": "ui",
       "translation": "{key} finns inte i denna moduls formulär."
-    },
-    {
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
-      "table": "ui",
-      "translation": "{label} är installerad."
-    },
-    {
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
-      "table": "ui",
-      "translation": "{label} är inloggat och klart."
     },
     {
       "key": "{name} in {where}",
@@ -1856,6 +1681,236 @@
         "table": "ui",
         "translation": "Vad ett nytt objekt gör där masken redan innehåller ett objekt. Clip behåller bara de pixlar som saknar etikett, så inget befintligt objekt förlorar någon pixel. Skip utelämnar varje objekt som vidrör ett befintligt objekt. Replace låter det nya objektet ta alla pixlar som det täcker. Under Region under musen visar rutan resultatet av regeln: det som ett klick skulle lägga till visas heltäckande, och det som skulle tas bort visas genomskinligt."
       }
+    },
+    {
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "table": "ui",
+      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "table": "ui",
+        "translation": "Slutför inloggningen till {label} i fönstret som öppnades och tryck sedan på Klar."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+        "table": "ui",
+        "translation": "Installerar {label}…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "table": "ui",
+        "translation": "Erbjuder installation av GitHub CLI och startar sedan inloggningen. Utan det går det fortfarande att skicka ett ärende: det öppnas i webbläsaren där du redan är inloggad."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "table": "ui",
+        "translation": "Öppnar registreringssidan för GitHub i webbläsaren. Kom tillbaka hit efteråt för att installera GitHub CLI och logga in."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in",
+        "source": "Sign in",
+        "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+        "table": "ui",
+        "translation": "Logga in"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "table": "ui",
+        "translation": "Logga in till {label} i fönstret som öppnades. spaCR upptäcker när du är klar."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "table": "ui",
+        "translation": "Inloggningen till {label} slutfördes inte inom {minutes} minuter. Tryck på Logga in för att försöka igen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "table": "ui",
+        "translation": "Slutade vänta på inloggningen. Tryck på Logga in för att börja igen, eller på Klar när du har loggat in."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+        "table": "ui",
+        "translation": "Stoppar installationsprogrammet…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "table": "ui",
+        "translation": "Kommandot spaCR kör. Kopiera det för att köra det i en terminal själv istället."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+        "table": "ui",
+        "translation": "Installationsprogrammet kunde inte köras: {error}"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "table": "ui",
+        "translation": "Inloggningen kunde inte startas härifrån. Kör kommandot nedan i en terminal och tryck sedan på Klar."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "table": "ui",
+        "translation": "npm fick inte skriva till sin globala mapp. Kör `npm config set prefix ~/.local` en gång i en terminal så att npm installerar i en mapp som du äger, och tryck sedan på Försök igen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+        "table": "ui",
+        "translation": "{label} är installerad."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+        "table": "ui",
+        "translation": "{label} är inloggat och klart."
+      }
+    },
+    {
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "table": "ui",
+      "translation": "Visa eller dölj inställningarna som en grupp: pensel, trollstav, visning, autofilter, objektoperationer, Otsu, objektdetektering och det levande förstoringsglaset. Bildytan tar över bredden som frigörs.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "table": "ui",
+      "translation": "En klar natt: indigo, violett, isblått och den bleka blåvioletta nyans som himlen behåller långt efter solnedgången.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "table": "ui",
+      "translation": "Ett stigande arpeggio som landar på tonartens grundton när en modulkörning lyckas, så att du märker det även när spaCR ligger i ett annat fönster.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "table": "ui",
+      "translation": "En kort, lågmäld plockton i ljuduppsättningens tonart när du trycker på en knapp, omkopplare, flik, lista eller skjutreglage. Bekräftar att tryckningen registrerades, mer som en känsla än ett tydligt ljud.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "table": "ui",
+      "translation": "En sol nära horisonten och det material som ljuset passerar genom: guld, bärnstensgult, blekt guld och mossgrönt.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "table": "ui",
+      "translation": "Lägger till spaCR:s DEBUG-meddelanden i loggfilerna i ~/.spacr/logs. Det låter också cellpose rapportera vilken modell som lästes in och registrerar vilka knappar du tryckte på. Denna information gör en felrapport användbar.\n\nAtt starta spaCR och öppna dess skärmar tog inte längre tid med detta på. Mätningen gjordes på en arbetsstation genom att öppna varje modul med funktionen på respektive av. Home var redo efter cirka 4 sekunder från kallstart i båda fallen. Den långsammaste modulen öppnades efter cirka 7 sekunder i båda fallen. Tiden för analyskörningar mättes inte.\n\nKonsolen visar fortfarande bara de nivåer du väljer för den på fliken Loggning. Denna omkopplare spårar inte varje funktionsanrop. Den spåraren är ett separat utvecklarverktyg och aktiveras inte här.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "table": "ui",
+      "translation": "Himlens sista färger: rosa och magenta över dämpat guld, med den plommonlila nyans som horisonten får strax före mörkret.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "table": "ui",
+      "translation": "Under ytan: havsgrönt, mintgrönt och den blågröna färg som återstår när alla varma färger har absorberats.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "table": "ui",
+      "translation": "När utförlig loggning är på under fliken Moduler skrivs DEBUG alltid till loggfilerna, så denna inställning förblir på. Stäng av utförlig loggning för att kunna välja själv. Ditt eget val sparas tills dess.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

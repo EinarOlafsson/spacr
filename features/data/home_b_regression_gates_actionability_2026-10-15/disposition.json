@@ -1,0 +1,1027 @@
+{
+  "schema": 1,
+  "created_date": "2026-10-15",
+  "scope": "Only20 regression_figure_results and9 gate_table_exploration records from published Home-B115 assignment. No UI44/documentation32 repeat audit.",
+  "source_commit": "4d09bbfcbf91ccf10c8e641f13fea16a879dc48e",
+  "origin_nightly": "61ea1120036f4a4c3eb531d32f940b0de50d4e8f",
+  "manifest": {
+    "path": "features/data/home_split_2026-10-14/progress-and-assignments.json",
+    "sha256": "e7c7a3a51a6f86b1161d353da95e37c4a9045cd68f2c75d5bc7f6889b1bc114c"
+  },
+  "method": "Read original requirements plus effective later maintainer decisions and trailing notes, inspect selected actual code paths and retained owning contracts. Static source and file-hash evidence only; no tests/builds/native rendering/hardware measurements/live publication or scientific data validation. Source anchors locate inspected implementation, not a claim of exhaustive behavioral proof.",
+  "counts": {
+    "delivered_implementation_present": 25,
+    "implementation_present_dependent_publication_gate": 2,
+    "implementation_present_optional_scientific_output_decision": 1,
+    "maintainer_closed_without_reproduced_fix": 1
+  },
+  "confirmed_new_software_defects": 0,
+  "highest_actionable_next_item": {
+    "id": "N41/N79 via N615",
+    "action": "Complete source-current API/catalog/tutorial publication under its existing owner and final publication schedule. Shared merge engine/UI already exists; no replacement implementation indicated.",
+    "owner": "Original Home integration, N615 documentation, Work tutorials",
+    "kind": "dependent_publication_gate",
+    "deferred_by_current_instruction": true
+  },
+  "optional_decision": {
+    "id": "N214",
+    "action": "Only after an explicit scientific-output decision, wire compare_normalisations into normal run output and choose threshold definition; no decision is inferred here.",
+    "owner": "Maintainer and Original Home ML owner"
+  },
+  "non_actions": [
+    "Do not turn N314 withdrawn report into a new performance bug hunt or a claimed software fix.",
+    "Do not implement alternative N141 scientific backends expressly outside the accepted scope.",
+    "Do not use old passes, DONE headers or stale partial flags as fresh full-item acceptance.",
+    "Do not edit shared core/schema/settings/Make Masks/ML files without ownership coordination.",
+    "Final CI, release and blocked external publication remain deferred by the current overnight instruction."
+  ],
+  "items": [
+    {
+      "id": "N27",
+      "item_path": "features/new/27_umap_resizable_figure_container.txt",
+      "item_sha256": "f1ff145b7f84c26b8d431c0329e5fb6c7df80b3bcf4ea36981e0f9700c0dd5a7",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Resize the plot container independently of image thumbnail zoom; remove arbitrary sidebar minimums.",
+      "current_source_observation": "Current viewer uses eliding action controls, separate img_zoom and installed preview scaling; owning drag contract remains.",
+      "remaining": [
+        "No missing software requirement demonstrated. Native appearance is not newly verified by this source audit."
+      ],
+      "source_checks": [
+        "umap_container",
+        "umap_container_contract"
+      ],
+      "scope_limits_and_overrides": [
+        "Content-limited minimum width is intentional; a narrower window need not shrink real content to zero."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-06",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_umap_figure_container_drag.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N39",
+      "item_path": "features/new/39_gate_editor_round_two.txt",
+      "item_sha256": "1f82a341a2488f10b878351e25a2da2880f3541d65a5c2e3711d6842626a214f",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Gate settings, line width/colour/modes, colour-coded tree, multi-gate annotation and console.",
+      "current_source_observation": "Gate changes/mode changes and annotation actions reach the current filters annotation implementation.",
+      "remaining": [
+        "No missing named implementation found. Latest item notes retain historical visual evidence for cmap/hexbin/density; no fresh screenshots claimed."
+      ],
+      "source_checks": [
+        "gate_actions"
+      ],
+      "scope_limits_and_overrides": [
+        "First vertex closes polygons; retired Close polygon/Apply filter controls are not required to return."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-07",
+          "2026-08-26",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_gates.py",
+          "tests/test_filters.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N41",
+      "item_path": "features/new/41_working_table_set_and_merge_rules.txt",
+      "item_sha256": "f609bbd1ba96ae1d8b30deb8b900418e0de3e6e477c790fed6196c3e331fad77",
+      "manifest_status": "P",
+      "disposition": "implementation_present_dependent_publication_gate",
+      "effective_requirement": "Shared named Merge tables workflow with default/custom modes, repeated/time identities, saved definitions, provenance-safe annotation/export.",
+      "current_source_observation": "Gate Editor consumes derived_tables, preserves merge_definition, reconstructs named merges and checks image provenance; shared popup/engine and time_id contract exist.",
+      "remaining": [
+        "API/catalog/tutorial publication is recorded under N615 and Work; native Mac/Windows appearance was not established by this audit."
+      ],
+      "source_checks": [
+        "gate_merge",
+        "merge_engine",
+        "merge_dialog",
+        "merge_contract"
+      ],
+      "scope_limits_and_overrides": [
+        "2026-10-01 shared merge scope supersedes the older chip-only design."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-07",
+          "2026-08-26",
+          "2026-10-01",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_a_gate_on_a_removed_table_says_so.py",
+          "tests/qt/test_gates.py",
+          "tests/qt/test_requested_gate_table_merges.py",
+          "tests/test_merge_tables.py"
+        ]
+      },
+      "followup_owner": "Original Home integration; N615 docs owner; Work tutorials",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N79",
+      "item_path": "features/new/79_merge_keys_duplicate_columns_and_aggregation.txt",
+      "item_sha256": "0e2d32bd632a5a16149debd538e763eed120a7eb61b2c8adeb79f83a22270e56",
+      "manifest_status": "P",
+      "disposition": "implementation_present_dependent_publication_gate",
+      "effective_requirement": "Default merge preserves spaCR science; custom merge requires acknowledgement and validates keys/cardinality/types, repeated identities and sources.",
+      "current_source_observation": "Shared engine validates sources, persists definitions, and is used by the named-merge dialog/Gate Editor.",
+      "remaining": [
+        "N615 API/catalog/tutorial publication and final integrated acceptance remain owner gates, not evidence of a missing merge engine."
+      ],
+      "source_checks": [
+        "merge_engine",
+        "merge_dialog",
+        "merge_contract"
+      ],
+      "scope_limits_and_overrides": [
+        "No ad hoc table-schema rewrite or identifier averaging is authorized."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-11",
+          "2026-10-01",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_merge_duplicate_columns.py"
+        ]
+      },
+      "followup_owner": "Original Home core/schema owner; N615/Work publication",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N95",
+      "item_path": "features/new/95_image_umap_rebuilt_the_parascape_way.txt",
+      "item_sha256": "e379185250d2931f43e2e45424d8f19fb724d1b6601425fdb19d9008cc2285e0",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Recipe search/grid and 2D/3D viewer, reducer-specific settings, explicit supported GPU routing and appearance without refitting.",
+      "current_source_observation": "UmapRecipe, reducer factories, stored-coordinate viewer and separate set_appearance remain in current source.",
+      "remaining": [
+        "No missing software requirement demonstrated; no new physical-GPU throughput or native visual acceptance claim."
+      ],
+      "source_checks": [
+        "umap_search",
+        "reducers",
+        "umap_appearance"
+      ],
+      "scope_limits_and_overrides": [
+        "Unsupported GPU combinations must refuse; silent CPU fallback is not the requested behavior."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-13",
+          "2026-08-14",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": []
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N109",
+      "item_path": "features/new/109_modules_take_more_than_one_database_and_merge_them.txt",
+      "item_sha256": "e9153b0e89d9628f82357eda1680a398ee6ffcfea092ea199c71cc4a8b03c872",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Multiple-database inputs for the named modules, with shared describe/decision merge planning.",
+      "current_source_observation": "DatabaseSetWidget, Gate Editor cross-database reader and shared describe_merge/decision_for are present.",
+      "remaining": [
+        "No residual implementation identified within the final agreed module scope."
+      ],
+      "source_checks": [
+        "database_control",
+        "gate_merge",
+        "multi_database"
+      ],
+      "scope_limits_and_overrides": [
+        "Final item decision explicitly rejects adding a multi-database widget to every module without a module-specific audit."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-20",
+          "2026-08-27",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_a_dropped_folder_joins_the_source_set.py",
+          "tests/qt/test_the_databases_are_a_working_set.py",
+          "tests/test_multi_database.py",
+          "tests/test_the_databases_in_the_measurements_tab.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N115",
+      "item_path": "features/new/115_every_regression_diagnostic_graph_saved_and_scored.txt",
+      "item_sha256": "b00073db8cbd2a24aa63283596beef0c5dcdeb5fbc90e61ed86cb3b92353b4b2",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Normal runs save the diagnostic suite and trial scores expose design/inference/worst verdicts.",
+      "current_source_observation": "ml calls the diagnostic writer on actual run paths; trial_metrics retains qc_verdicts, design/inference scoring and metric-column registry.",
+      "remaining": [
+        "No current missing diagnostic/score implementation demonstrated."
+      ],
+      "source_checks": [
+        "ml_diagnostics",
+        "diagnostic_writer",
+        "trial_quality"
+      ],
+      "scope_limits_and_overrides": [
+        "Sweep residuals are deliberately not rescored where the row has no residual report; old sweep prose is not a new requirement."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-20",
+          "2026-08-25",
+          "2026-08-27",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_the_qc_verdict_reaches_the_screen.py",
+          "tests/test_every_regression_diagnostic_is_scored.py",
+          "tests/test_regression_qc_wiring.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N119",
+      "item_path": "features/new/119_the_regression_figure_surface.txt",
+      "item_sha256": "eb21853996a29863a768498c78daf7f55369c3339fbbf0fa8caff72b48d71875",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Regression figure grid, live plot and result table share exact row identity, highlighting, editing and saving.",
+      "current_source_observation": "Current result panel constructs live plot classes, structured summary and tested_family filtering; grid supports live tiles.",
+      "remaining": [
+        "No specific unfinished N119 implementation demonstrated; sibling features retain their own acceptance records."
+      ],
+      "source_checks": [
+        "results_surface",
+        "figure_grid"
+      ],
+      "scope_limits_and_overrides": [
+        "Historical source integration is not evidence of fresh native capture."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-16",
+          "2026-08-17",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": []
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N129",
+      "item_path": "features/new/129_every_plot_in_pyqtgraph_with_a_tab_each.txt",
+      "item_sha256": "953373d5b54ec0c36853d6339f918dc6bbfa11ed9b66dec653c8aa9768d8a6fa",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Expose the requested diagnostic/effect/gene plots as interactive tabs and bound live-grid lifetime.",
+      "current_source_observation": "Effect rank/distribution and the existing results/tab surface use pyqtgraph classes; figure grid owns live tiles.",
+      "remaining": [
+        "No requested tab implementation shown missing; final GUI acceptance can reuse owning contracts."
+      ],
+      "source_checks": [
+        "results_surface",
+        "figure_grid"
+      ],
+      "scope_limits_and_overrides": [
+        "The old volcano setting was deliberately removed; legacy_volcano is a distinct setting."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-17",
+          "2026-08-20",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": []
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N136",
+      "item_path": "features/new/136_the_old_matplotlib_figures_get_the_house_style.txt",
+      "item_sha256": "151d8bc93300c93b3f671c04981ae96f9199d9f247817453c07bf05d114b1ea5",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Old Matplotlib figures use shared house styling without global library-import side effects.",
+      "current_source_observation": "Shared style context and user-style application exist; owning AST guard retains zero unstyled ceiling and library-import rcParam guard.",
+      "remaining": [
+        "No demonstrated new styling defect. The source audit does not claim a new whole-tree AST/test pass."
+      ],
+      "source_checks": [
+        "house_style",
+        "house_style_guard"
+      ],
+      "scope_limits_and_overrides": [
+        "GUI/run font default is permitted under the later app-only decision; notebook imports must not change global rcParams."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-18",
+          "2026-08-20",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_one_visual_system_not_twelve.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N139",
+      "item_path": "features/new/139_every_regression_graph_in_pyqtgraph_and_box_not_bar.txt",
+      "item_sha256": "ae95cbaf9112d7d2ea8d12fef6a3f19775886f5ebb9c07e2a7189b74bbff79ea",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Regression plots use the shared scene renderer with box+jitter where requested; preserve saved-format and save=False contracts.",
+      "current_source_observation": "Diagnostic writer routes through figures.scene.write_figure; the common scene-renderer path remains available to current plot writers.",
+      "remaining": [
+        "No current missing implementation proven; final figure rendering remains a bounded acceptance concern."
+      ],
+      "source_checks": [
+        "scene_renderer",
+        "diagnostic_writer"
+      ],
+      "scope_limits_and_overrides": [
+        "Matplotlib creation/imports still exist and are not misreported as zero. Unsupported scene artists intentionally retain Matplotlib fallback."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-08-22",
+          "2026-08-27",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_a_bar_at_a_mean_hides_the_spread.py",
+          "tests/test_regression_qc.py",
+          "tests/test_the_generated_graphs_are_the_screens_renderer.py",
+          "tests/test_the_permutation_null_is_published_too.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N141",
+      "item_path": "features/new/141_the_user_picks_the_backend_and_is_told_what_it_costs.txt",
+      "item_sha256": "44d3ac2d9603efc79c7e52819c99fece63daaccd8f36d83f7a864b5fcbcabe8d",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Offer registered regression backends with availability, compatibility, hardware labels, costs/refusals and run provenance.",
+      "current_source_observation": "Current registry-driven status/menu/description paths and summary pipeline remain.",
+      "remaining": [
+        "No additional backend implementation authorized by current effective requirements."
+      ],
+      "source_checks": [
+        "backend_menu",
+        "summary_data"
+      ],
+      "scope_limits_and_overrides": [
+        "Pyfixest Poisson extension, penalized cuML/glum coefficients and NumPyro/GPyTorch posterior methods are explicitly unowed alternatives with different scientific answers."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-18",
+          "2026-08-20",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_regression_panel_is_one_page.py",
+          "tests/qt/test_the_backend_box_is_on_screen.py",
+          "tests/test_mixed_gpu_backend.py",
+          "tests/test_regression_entry_points.py",
+          "tests/test_tooltips_are_on_the_setting_not_the_field.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N148",
+      "item_path": "features/new/148_the_axes_behave_as_expected_logged_or_not.txt",
+      "item_sha256": "a75c0b8570edda0e4d8317c2e952c0d14e39b164ad7f3b9b08d9ecb18921a406",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Log/linear coordinates, labels, raw user limits, invalid-axis reasons and plot-owned menu state behave consistently.",
+      "current_source_observation": "Current fast plot has the owning set_log_axes path and the item retains its specific axes contract.",
+      "remaining": [
+        "No missing software requirement demonstrated."
+      ],
+      "source_checks": [
+        "axes"
+      ],
+      "scope_limits_and_overrides": [
+        "Recorded intentional non-goals are not reclassified as unfinished work."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-20",
+          "2026-08-27",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_fast_plots.py",
+          "tests/test_the_axes_behave_as_expected.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N150",
+      "item_path": "features/new/150_a_saved_figure_is_for_paper_not_for_the_screen.txt",
+      "item_sha256": "1b54fd04faf1d91b77a9b17a5834b07015e230e262946751e4af28d6f9a144f4",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Saved PNG/PDF/SVG gets readable print chrome while preserving data colours and screen appearance.",
+      "current_source_observation": "Current plot wraps export in print-look handling; shared export_colour/saved_figure_appearance and styled export route remain.",
+      "remaining": [
+        "No demonstrated export-style gap; do not recolour scientific series to solve chrome."
+      ],
+      "source_checks": [
+        "axes",
+        "print_style"
+      ],
+      "scope_limits_and_overrides": [
+        "Preference/per-figure controls have separate owning items; screen snapshots preserve screen appearance."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-20",
+          "2026-08-27",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_a_saved_pyqtgraph_figure_is_for_paper.py",
+          "tests/test_a_saved_figure_is_for_paper.py",
+          "tests/test_the_save_decision_is_shared_by_both_renderers.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N152",
+      "item_path": "features/new/152_the_axis_and_text_colour_follow_the_theme_and_the_user.txt",
+      "item_sha256": "c7301edb66b4ecc0f7b0c8598fc06f2f3333e404fd587fd42bb0dfa974de7e29",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Theme-following or explicitly chosen text and line colours apply across renderers without recolouring data.",
+      "current_source_observation": "Shared chosen_ink/chosen_line_ink and user-style application remain, with screen/print handling in fast plots.",
+      "remaining": [
+        "No missing implementation demonstrated."
+      ],
+      "source_checks": [
+        "house_style",
+        "axes",
+        "print_style"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-18",
+          "2026-08-20",
+          "2026-08-27",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_figure_colour_tokens.py",
+          "tests/qt/test_the_line_and_the_font_are_two_colours.py",
+          "tests/test_the_house_style_lines_and_text_are_two_colours.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N156",
+      "item_path": "features/new/156_every_regression_mode_gets_a_summary.txt",
+      "item_sha256": "9f76e80663b8afb895e211766a0479c6e946ece93f93b0656f3eb352d78f554f",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Every regression mode writes a scientific run summary, including nonparametric paths and honest exclusion counts.",
+      "current_source_observation": "ml calls write_run_summary on both recorded run paths; summary builder and diagnostics-backed recommendations remain.",
+      "remaining": [
+        "No absent summary path demonstrated; no new data fit performed."
+      ],
+      "source_checks": [
+        "summary_pipeline",
+        "summary_data"
+      ],
+      "scope_limits_and_overrides": [
+        "Live statsmodels detail can coexist with the saved spaCR run summary; they serve distinct views."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-19",
+          "2026-08-27",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_the_summary_tab_shows_every_mode.py",
+          "tests/test_every_regression_mode_gets_a_summary.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N166",
+      "item_path": "features/new/166_restyling_a_figure_while_a_run_draws_it.txt",
+      "item_sha256": "afd5cf6e9564b24ba779d1441705998cc2e5c675bab25119610fb23d2f04a3cf",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Avoid draw/restyle races by locking figure mutation and render/save/preview operations.",
+      "current_source_observation": "Figure queue defines an RLock and acquires it in style, normal rendering and preview save operations.",
+      "remaining": [
+        "No uncovered named race demonstrated by this audit; no native crash reproduction claim."
+      ],
+      "source_checks": [
+        "figure_lock"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-19",
+          "2026-08-25",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_a_restyle_during_a_run_does_not_crash.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N177a",
+      "item_path": "features/new/177_one_parse_per_input_file.txt",
+      "item_sha256": "31fc3dd279d7784ae603461d241d51c323b4393b5f14fdcbffb9a7fcfc257085",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Parse each input once while available, hand actual frames across views, and safely fall back after provider lifetime ends.",
+      "current_source_observation": "Producer stages/holds/releases frames; frame_handoff exposes lifetime operations and ml consults held(path).",
+      "remaining": [
+        "No missing handoff implementation demonstrated; original timing receipts remain historical."
+      ],
+      "source_checks": [
+        "frame_handoff",
+        "frame_producer",
+        "frame_consumer"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-19",
+          "2026-09-13",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_one_parse_per_file.py",
+          "tests/test_the_measurements_tab_reaches_a_regression.py",
+          "tests/test_the_merged_frame_is_handed_over.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N178",
+      "item_path": "features/new/178_every_figure_reads_in_both_themes_and_the_summary_is_a_table.txt",
+      "item_sha256": "a537882429c7bfd42a6a30b106a572df1bf12f86c4f5757b7d95301b69f62062",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Figures read in both themes; structured summary rows and styled saving remain readable.",
+      "current_source_observation": "Current summary reconstructs label/value rows and renders them as an HTML table; errors use active palette; shared style and saved print chrome remain.",
+      "remaining": [
+        "No missing software requirement demonstrated; no fresh pixel/native comparison."
+      ],
+      "source_checks": [
+        "summary_display",
+        "house_style",
+        "print_style"
+      ],
+      "scope_limits_and_overrides": [
+        "Later Save styled action supersedes the retired old Export route; do not restore duplicate commands."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-19",
+          "2026-08-20",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_a_pyqtgraph_plot_is_styled_for_the_file_too.py",
+          "tests/qt/test_the_seven_plot_types_the_ask_named.py",
+          "tests/qt/test_the_tab_arrows_are_gone_and_the_bar_is_still_navigable.py",
+          "tests/test_no_figure_is_invisible_at_either_theme.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N202",
+      "item_path": "features/new/202_the_measurements_table_columns_say_what_they_control.txt",
+      "item_sha256": "44d0bfda18745fbf2cfa298ab1142f140f85af64dc2b23549a6e4b83340f3a38",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Five measurement-control headings explain their own fields and survive visible caption renaming.",
+      "current_source_observation": "HEADING_HELP is keyed by field; measurement dialog retrieves it through field identity.",
+      "remaining": [
+        "No missing field-help implementation demonstrated; shared tooltip delivery defects belong to their active widget owner."
+      ],
+      "source_checks": [
+        "headings",
+        "measurement_controls"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_the_measurements_columns_say_what_they_control.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N212",
+      "item_path": "features/new/212_the_nonparametric_regressions_are_offered.txt",
+      "item_sha256": "c6440034d1b2e9f201899b5fcc2de04da5224f500601f9b43fa62b0d8589b30f",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Offer supported nonparametric regression families consistently to Qt/headless and include generated menu captions in localization sources.",
+      "current_source_observation": "Settings model builds _regression_type_menu and _REGRESSION_MENU_UI_SOURCES; catalog builder consumes that source inventory.",
+      "remaining": [
+        "No missing menu-caption collection remains; an older trailing note saying it was absent is superseded by actual current source."
+      ],
+      "source_checks": [
+        "regression_menu",
+        "menu_catalog"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-08-25",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_external_i18n_catalogs.py",
+          "tests/test_a_settings_panel_does_not_import_torch.py",
+          "tests/test_analysis_mode_is_a_dropdown.py",
+          "tests/test_the_permutation_can_use_ranks.py",
+          "tests/test_the_qt_menu_reads_one_family_table.py",
+          "tests/test_the_regression_menu_says_what_it_assumes.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N213",
+      "item_path": "features/new/213_the_merge_offers_png_list_and_the_dependent_variable.txt",
+      "item_sha256": "45044c16fd74d0f6cf713a926fdeb40c9462ac894dac98640ce9664220ff13ba",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Merge offers png_list and optional dependent variables; robust identity/path/well joins report route and reject no matches.",
+      "current_source_observation": "png_list defaults checked and reaches merge reads; dependent checkbox reaches dependent_join, whose schema OBJECT_KEY and named routes report matched rows.",
+      "remaining": [
+        "No remaining named software requirement found."
+      ],
+      "source_checks": [
+        "headings",
+        "measurement_controls",
+        "dependent_join"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": []
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N214",
+      "item_path": "features/new/214_the_positive_control_calibrates_the_fractions.txt",
+      "item_sha256": "5a1b94b05a753c307b868e3cb6031820a0fdffcfadbaccf91a81a2534434a766",
+      "manifest_status": "P",
+      "disposition": "implementation_present_optional_scientific_output_decision",
+      "effective_requirement": "Opt-in held-out mixed-ratio calibration, minimum-support/refusal diagnostics, raw/normalized comparison and correct penetrance interpretation.",
+      "current_source_observation": "Calibration module contains minimum-eight support, training-well accounting and compare_normalisations; normal pipeline still sweeps the configured definition.",
+      "remaining": [
+        "Optional decision remains: whether normal run output should print both slopes/ratio and which definition then determines the threshold. The latest item explicitly leaves this decision to the maintainer; no unilateral scientific/pipeline edit is warranted."
+      ],
+      "source_checks": [
+        "calibration",
+        "calibration_pipeline"
+      ],
+      "scope_limits_and_overrides": [
+        "WHAT WAS SAID BACK supersedes the original product-of-bias-and-penetrance target: mixed-ratio pure references isolate bias. PC/NC calibration does not demonstrate six-guide assignment; that remains simulation/data validation.",
+        "Sequencing-only counts path intentionally does not read the imaging calibration switch."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-08-26",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_the_sequencing_sweep_answers_its_own_question.py",
+          "tests/test_the_threshold_is_measured_per_screen.py"
+        ]
+      },
+      "followup_owner": "Maintainer scientific-output decision; Original Home ML owner",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N219",
+      "item_path": "features/new/219_a_unit_that_constrains_says_so_before_the_run.txt",
+      "item_sha256": "45a3d0e983525dc432cb37ed30b6772bff40e30605db592d5d4fab6b5069f9aa",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Analysis unit visibly sets/disables forced settings with reasons before a run and releases them when applicable.",
+      "current_source_observation": "Settings model reads shared requirements_for_unit, assigns forced values, disables owned controls and re-enables released controls.",
+      "remaining": [
+        "No missing constraint/UI implementation demonstrated; shared registry remains the source of truth."
+      ],
+      "source_checks": [
+        "unit_lock",
+        "unit_requirements"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_the_analysis_unit_locks_the_panel.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N222",
+      "item_path": "features/new/222_colour_by_takes_more_than_one_column.txt",
+      "item_sha256": "f46722416f9c3f2ff289a365bdda92a5600cf537a63b8c80d1c4877855ef5851",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Up to three ordered colour encodings: hue, shape, opacity, with matching legends and correct reset/enable behavior.",
+      "current_source_observation": "Current fast plot uses shared opacity calculation and multi-channel legend construction.",
+      "remaining": [
+        "No missing software behavior demonstrated; no new screen rendering claimed."
+      ],
+      "source_checks": [
+        "multi_colour"
+      ],
+      "scope_limits_and_overrides": [
+        "Three encodings are the intended limit, not a request for a fourth."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-08-26",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_colour_by_takes_more_than_one_column.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N225",
+      "item_path": "features/new/225_the_summary_flags_broken_assumptions_and_recommends.txt",
+      "item_sha256": "579afaf632316c38e235dfbc4d9424f6ff054470684dc22c8dccd9c3d6f07242",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Summary marks failed assumptions and offers recommendations derived from measured run diagnostics.",
+      "current_source_observation": "Summary accumulates diagnostics and passes them to recommend; folded display uses active theme error colour.",
+      "remaining": [
+        "No missing recommendation implementation demonstrated; no new inference-quality claim."
+      ],
+      "source_checks": [
+        "summary_data",
+        "summary_display",
+        "recommendations"
+      ],
+      "scope_limits_and_overrides": [
+        "No assumptions are fabricated for permutation methods that do not make them."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-08-21",
+          "2026-08-26",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_cov_2_run_recommendations.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N314",
+      "item_path": "features/new/314_regression_hangs_and_preferences_is_slow_again.txt",
+      "item_sha256": "193b336502c16ea6f4e729d6b365971680fb073d2e549ff56fa3e6aa8aae101c",
+      "manifest_status": "P",
+      "disposition": "maintainer_closed_without_reproduced_fix",
+      "effective_requirement": "Reported native Regression hang/Preferences latency; maintainer later withdrew the defect because the symptom disappeared.",
+      "current_source_observation": "Item explicitly says CLOSED, never reproduced on the reporting machine, and never fixed; the old sampled stall is retained as historical evidence.",
+      "remaining": [
+        "No reopening, timing campaign or claimed fix without a new concrete report. Broader performance items retain independent scope."
+      ],
+      "source_checks": [
+        "results_surface"
+      ],
+      "scope_limits_and_overrides": [
+        "2026-09-04 maintainer: cloase 314, i never get that problem any more!",
+        "No old pass/timing or source cleanup is counted as fixing this withdrawn report."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-09-01",
+          "2026-09-03",
+          "2026-09-04",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_no_backdrop_thread_outlives_a_test.py",
+          "tests/qt/test_opening_things_does_not_hang.py",
+          "tests/qt/test_walkthrough_does_not_renavigate.py",
+          "tests/test_the_event_filter_survives_a_dead_wrapper.py"
+        ]
+      },
+      "followup_owner": "Maintainer only if symptom is reported again",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N343",
+      "item_path": "features/new/343_the_regression_module_writes_submission_panel_packages.txt",
+      "item_sha256": "bc46b7c4f4ee283a6b74c7dd4ee99a668b66c393c3bf93d3a015091bfc268ecc",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Manifest-driven publication panel packages with PDF/PNG/stats/point data, shared thresholds/limits and pipeline integration.",
+      "current_source_observation": "regression_panels builds manifest packages and shared guide threshold; ml invokes package writing from final result CSVs through its public regression wrapper.",
+      "remaining": [
+        "No missing manifest/package integration demonstrated; no new publication-quality or real-data acceptance claimed."
+      ],
+      "source_checks": [
+        "panel_writer",
+        "panel_pipeline"
+      ],
+      "scope_limits_and_overrides": [
+        "Optional typed/programmatic manifest is deliberate; a Qt manifest widget was not required."
+      ],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-09-01",
+          "2026-09-02",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/test_regression_panel_packages.py"
+        ]
+      },
+      "followup_owner": "Original Home ML owner; Home-B figure acceptance",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    },
+    {
+      "id": "N392",
+      "item_path": "features/new/392_the_regression_table_should_not_need_the_plate_in_the_filename.txt",
+      "item_sha256": "0a6a054109534cb66f2de24e3c416287c1d7e28a4b390b0a237b4f9ed5be5f00",
+      "manifest_status": "P",
+      "disposition": "delivered_implementation_present",
+      "effective_requirement": "Input pairing/plate labels work without plate tokens in filenames, and preserve typed labels across moves/removals.",
+      "current_source_observation": "File-list move/remove paths capture labels and repropose through named helpers.",
+      "remaining": [
+        "No missing pairing/label behavior demonstrated."
+      ],
+      "source_checks": [
+        "input_labels"
+      ],
+      "scope_limits_and_overrides": [],
+      "dated_item_evidence": {
+        "source": "Dated trailing notes and effective decisions in the item file; historical tests are not rerun by this audit.",
+        "latest_named_dates": [
+          "2026-09-10",
+          "2026-09-12",
+          "2026-09-25",
+          "2026-10-04"
+        ],
+        "referenced_test_files_present": [
+          "tests/qt/test_the_regression_table_names_plates_without_the_filename.py"
+        ]
+      },
+      "followup_owner": "Home-B final acceptance; Original Home integration",
+      "new_software_defect_proven": false,
+      "completion_claim": "No new full-item completion or test pass is asserted."
+    }
+  ]
+}

@@ -53,7 +53,7 @@ def test_preferences_save_the_channel_proxy_and_bundle(qtbot, tmp_path):
     ca.setText(str(bundle))
     _save(dlg)
     assert P._get_update_channel() == "nightly"
-    saved = json.loads((tmp_path / "network.json").read_text())
+    saved = json.loads((tmp_path / "network.json").read_text(encoding="utf-8"))
     assert saved == {"proxy": "http://proxy.example.org:3128", "ca_bundle": str(bundle)}
     assert os.environ["HTTPS_PROXY"] == "http://proxy.example.org:3128"
     assert os.environ["SSL_CERT_FILE"] == str(bundle)

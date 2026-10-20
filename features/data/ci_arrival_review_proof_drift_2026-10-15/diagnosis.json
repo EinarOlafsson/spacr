@@ -1,0 +1,50 @@
+{
+  "docs/i18n/reviewed/runtime/de/2026-10-14-n699-ssh-config-mfa.json": {
+    "expected": [
+      "51feb770c833fba99e874d52bae3dc347c672e7d931619126b714ee8392beb51"
+    ],
+    "references": 41,
+    "missing_records": [],
+    "actual": "db154ebe24aebc066445ba6550943ee6b0b07462f563b83d0f2297daad00ece0"
+  },
+  "docs/i18n/reviewed/runtime/es/2026-10-14-n699-ssh-config-mfa.json": {
+    "expected": [
+      "d5b3cbbb6bdbc60d8e580d1d25d00bd8e950a4351ef3bb408c2aea24ca372e5a"
+    ],
+    "references": 41,
+    "missing_records": [],
+    "actual": "9e9841481541ac507a309a14e6bfafbfa28758566b6d9ee8c1228aadfdfbe037"
+  },
+  "docs/i18n/reviewed/runtime/fr/2026-10-14-n699-ssh-config-mfa.json": {
+    "expected": [
+      "79bbb34adfb7b7988786f0fb658a9a607cf8cd056eef9fb1d8dcc6d86cb33130"
+    ],
+    "references": 41,
+    "missing_records": [],
+    "actual": "92d785487a2f84ef3ded60f7e8169f3cf71d8b7321d365336c3e2f0937299f56"
+  },
+  "docs/i18n/reviewed/runtime/hi/2026-10-14-n699-ssh-config-mfa.json": {
+    "expected": [
+      "dbef173b8986fb4fee0f7a2325ab4c8ce25eb579ccf85de52f9bd35df5f8bc61"
+    ],
+    "references": 41,
+    "missing_records": [],
+    "actual": "055d07f896ec3e246f22fdbfdbda60abda2feb5861dad31500d802f09c6930c7"
+  },
+  "docs/i18n/reviewed/runtime/pt/2026-10-14-n699-ssh-config-mfa.json": {
+    "expected": [
+      "4cf5e503a41a6499d50864ebc1cc8f098161a192b6a209a01a1ca4c7ab17f73a"
+    ],
+    "references": 41,
+    "missing_records": [],
+    "actual": "8f7986136f9aafd4a15216f0186aed9eb8fcaedc59092ee079d5ad4e7c2f2745"
+  },
+  "docs/i18n/reviewed/runtime/sv/2026-10-14-n699-ssh-config-mfa.json": {
+    "expected": [
+      "825f0c0ad5d0d1edfb04a3f451ffd471669e6fa3656b2f34078d5dc42a9cddbb"
+    ],
+    "references": 41,
+    "missing_records": [],
+    "actual": "0a63f1e9b0d445a4afd7bf9ac92c828f9e06241b5be61b799ed79f7bb143d441"
+  }
+}

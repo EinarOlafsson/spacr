@@ -1,12 +1,11 @@
 """``spacr-run`` — run any spaCR module from a settings file, with no GUI.
 
-Every spaCR pipeline has, until now, been reachable only through a GUI: the
-PySide6 app (``spacr`` / ``spacr-qt``) or the classic Tk app (``spacr-tk``).
-That is fine on a workstation and impossible on a cluster — importing either
-entry point pulls Qt or Tk, and a compute node has no display to give them.
+The GUI entry points — the PySide6 app (``spacr`` / ``spacr-qt``) and the
+classic Tk app (``spacr-tk``) — import Qt or Tk, which cannot run on a compute
+node without a display.
 
-This module is the headless path. It is deliberately, testably light: importing
-``spacr.cli`` must not pull Qt, Tk, torch, cellpose, numpy or pandas. Everything
+This module runs pipelines without a GUI. Importing ``spacr.cli`` does not
+import Qt, Tk, torch, cellpose, numpy or pandas. Everything
 heavy is imported inside the command that needs it, so ``spacr-run --help`` and
 ``spacr-run --list`` answer instantly on a login node, and ``--dry-run``
 validates a 40-plate settings file without touching a GPU.
@@ -26,8 +25,8 @@ each run-journal folder. So the round trip is: click through the GUI once on a
 laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and
 ``sbatch`` it unchanged.
 
-Exit codes (a cluster job that exits 0 after failing is the classic headless
-footgun, so spaCR's own codes are exact):
+Exit codes (a failed run never exits with 0, so a cluster scheduler sees
+the failure):
 
   0  the module ran to completion, or the dry run / validation found no errors
   1  the module raised
@@ -53,6 +52,7 @@ import logging
 import os
 import sys
 import time
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -67,6 +67,7 @@ __all__ = [
     "resolve_module",
     "module_defaults",
     "load_settings_file",
+    "write_settings_file",
     "coerce_value",
     "apply_overrides",
     "resolve_settings",
@@ -82,7 +83,7 @@ LOG = logging.getLogger("spacr.cli")
 
 
 class SettingsError(Exception):
-    """A settings file, an override or a module name the user got wrong.
+    """Raised for an invalid settings file, override or module name.
 
     Always maps to exit code 2: the run never started, so it is an argument
     problem rather than a runtime failure.
@@ -221,6 +222,40 @@ _MODULE_LIST: Tuple[Module, ...] = (
              "372 PART 14-M). It does not place the phenotype acquisition, "
              "and the base channels, read threshold and raster overlap are "
              "that plate's.",
+    ),
+    Module(
+        key="spatial_masks",
+        summary="Segment a whole Xenium morphology or Visium HD H&E slide "
+                "in overlapping tiles into Measure-ready fields.",
+        entry="spacr.ops_engine:run_spatial_masks",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:spatial_mask_defaults",
+        validate_key="",
+        requires=("spatial_source \u2014 a Xenium output folder or a "
+                  "Visium HD output folder with its full-resolution image",),
+        writes=("<spatial_dst>/merged/ \u2014 one field per window with its "
+                "masks, the layout Measure reads",
+                "<spatial_dst>/measurements/measurements.db \u2014 the "
+                "fields' places on the slide"),
+        note="ALPHA (F534). Reached in the GUI from the Spatial switch in "
+             "Mask Generation's actions row, behind Show alpha features.",
+    ),
+    Module(
+        key="spatial_map",
+        summary="Count every Xenium transcript or Visium HD bin into the "
+                "cells Spatial Mask Generation segmented.",
+        entry="spacr.ops_engine:run_spatial_map",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:spatial_map_defaults",
+        validate_key="",
+        requires=("spatial_source \u2014 the Xenium or Visium HD output "
+                  "folder that was segmented",
+                  "spatial_masks_dir \u2014 the spatial_dst Spatial Mask "
+                  "Generation wrote"),
+        writes=("<spatial_masks_dir>/measurements/measurements.db \u2014 "
+                "per-object expression and infection calls",),
+        note="ALPHA (F534). Reached in the GUI from the Spatial switch in "
+             "Map Barcodes' actions row, behind Show alpha features.",
     ),
     Module(
         key="foreign",
@@ -851,16 +886,12 @@ def module_defaults(module: Module) -> Dict[str, Any]:
 
     :param module: the module whose defaults are wanted.
     :returns: dict of defaults; empty when the pipeline has no helper.
-    :raises SettingsError: when the defaults module will not import. This used
-        to return ``{}`` so that ``--describe`` survived a missing optional
-        dependency, but :func:`resolve_settings` is the **run** path, not just
-        the describe path: convert, illumination, foreign, external_masks,
-        barcode_qc, anndata_export and every plugin app then ran on a settings
-        dict with no defaults in it, and ``spacr-run convert --set
-        z_handling=max`` was rejected with "names a setting that does not exist
-        for module 'convert'" — pointing the user at their own command line
-        instead of at the dependency that is actually missing. ``--describe``
-        is unaffected: it has its own guard around this call.
+    :raises SettingsError: when the defaults module will not import. No
+        empty ``{}`` is returned in that case, because :func:`resolve_settings`
+        uses this function on the run path: with empty defaults, a valid
+        override such as ``spacr-run convert --set z_handling=max`` would be
+        rejected as an unknown setting instead of reporting the missing
+        dependency. ``--describe`` has its own guard around this call.
     """
     fn = None
     if module.defaults_entry:
@@ -957,7 +988,8 @@ def _load_settings_csv(path: str) -> Dict[str, Any]:
                 f"  Export the settings again from the GUI, or use the "
                 f"settings.csv written into <src>/settings/ by any run.")
         key_col, value_col = pair
-        out: Dict[str, Any] = {}
+        raw_values: Dict[str, Any] = {}
+        conflicts = set()
         for row in reader:
             key = row.get(key_col)
             if key is None or not str(key).strip():
@@ -966,8 +998,35 @@ def _load_settings_csv(path: str) -> Dict[str, Any]:
             overflow = row.get(None)
             if overflow and value_col == fieldnames[-1]:
                 raw = ",".join([str(raw)] + [str(x) for x in overflow])
-            out[str(key).strip()] = _parse_csv_value(raw)
-    return out
+            name = str(key).strip()
+            if name in raw_values and raw_values[name] != raw:
+                conflicts.add(name)
+            raw_values[name] = raw
+    if "model_metadata" not in raw_values:
+        return {name: _parse_csv_value(value) for name, value in raw_values.items()}
+    from .model_zoo import ModelZooError, _bad_model_metadata, _validate_model_metadata
+
+    metadata = raw_values["model_metadata"]
+    if isinstance(metadata, str):
+        for parser in (json.loads, ast.literal_eval):
+            try:
+                metadata = parser(raw_values["model_metadata"])
+                break
+            except (ValueError, SyntaxError, TypeError, RecursionError):
+                pass
+    supplied = dict(raw_values)
+    supplied["model_metadata"] = metadata
+    try:
+        metadata = _validate_model_metadata(supplied)
+        pinned_names = set(metadata["settings"])
+        conflicting = conflicts & (pinned_names | {"model_metadata"})
+        if conflicting:
+            _bad_model_metadata(sorted(conflicting)[0], "one CSV value")
+    except ModelZooError as error:
+        raise SettingsError(str(error)) from error
+    return {name: metadata if name == "model_metadata" else value
+            if name in pinned_names else _parse_csv_value(value)
+            for name, value in raw_values.items()}
 
 
 def _load_settings_json(path: str) -> Dict[str, Any]:
@@ -1004,9 +1063,16 @@ def load_settings_file(path: Any) -> Dict[str, Any]:
             f"--settings expects a file, but {path} is a folder.\n"
             f"  A run writes its settings to <src>/settings/*.csv — point at one of those.")
     try:
-        if path.lower().endswith(".json"):
-            return _load_settings_json(path)
-        return _load_settings_csv(path)
+        values = (_load_settings_json(path) if path.lower().endswith(".json")
+                  else _load_settings_csv(path))
+        if "model_metadata" in values:
+            from .model_zoo import ModelZooError, _validate_model_metadata
+
+            try:
+                values["model_metadata"] = _validate_model_metadata(values)
+            except ModelZooError as exc:
+                raise SettingsError(str(exc)) from exc
+        return values
     except SettingsError:
         raise
     except (OSError, UnicodeDecodeError) as exc:
@@ -1015,11 +1081,142 @@ def load_settings_file(path: Any) -> Dict[str, Any]:
         raise SettingsError(f"could not parse {path}: {exc}") from exc
 
 
+def _settings_csv_cell(value: Any) -> str:
+    """One settings value as the text :func:`spacr.utils.save_settings` writes.
+
+    ``None`` is an empty cell and every other value is its ``str``, as
+    pandas writes them. The one change is a float whose ``str`` has an
+    exponent and no decimal point, such as ``1e-05``: it is written in
+    positional form, ``0.00001``, because the loaders read text without a
+    point as an integer or a word, and would give the float back as the
+    string ``'1e-05'``.
+
+    :param value: a settings value.
+    :returns: the cell text.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    if isinstance(value, float) and "e" in text and "." not in text:
+        from decimal import Decimal
+
+        positional = format(Decimal(text), "f")
+        return positional if "." in positional else positional + ".0"
+    return text
+
+
+def _settings_json_value(value: Any) -> Any:
+    """A settings value as something JSON can hold, or its ``repr``.
+
+    :param value: a settings value.
+    :returns: ``None``, a bool, number or string, a list or dict of those,
+        or the ``repr`` of anything else.
+    """
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, dict):
+        return {str(k): _settings_json_value(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_settings_json_value(v) for v in value]
+    item = getattr(value, "item", None)
+    if callable(item):
+        try:
+            return _settings_json_value(item())
+        except (TypeError, ValueError):
+            pass
+    return repr(value)
+
+
+def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
+    """Write a settings dict to a CSV that the GUI and ``spacr-run`` read back.
+
+    The inverse of :func:`load_settings_file`, and the file the GUI's
+    "Export settings…" button writes. The layout is the one
+    :func:`spacr.utils.save_settings` writes next to every run: a
+    ``Key,Value`` header, one row per setting in the dict's order, ``None``
+    as an empty cell, booleans as ``True`` / ``False``, and lists, tuples and
+    dicts in Python literal form. The settings are written as given: unlike
+    ``save_settings``, ``test_mode`` and ``plot`` are not turned off, and
+    nothing is listed, scanned or opened except the files written.
+
+    A ``.json`` copy is written beside the CSV, as ``save_settings`` writes
+    one, so the types survive exactly; ``spacr-run --settings`` reads either.
+
+    :param settings: the settings to write.
+    :param path: the CSV to write; ``~`` and ``$VARS`` are expanded and the
+        folder is created.
+    :returns: the CSV and JSON paths written, in that order.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.cli import load_settings_file, write_settings_file
+            write_settings_file({"src": "/data/plate1", "channels": [0, 1]},
+                                "measure_settings.csv")
+            load_settings_file("measure_settings.csv")
+    """
+    values = dict(settings)
+    if "model_metadata" in values:
+        from .model_zoo import ModelZooError, _validate_model_metadata
+
+        try:
+            values["model_metadata"] = _validate_model_metadata(values)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
+    import pandas as pd
+
+    from . import tabular
+
+    rows = [(str(key), _settings_csv_cell(value))
+            for key, value in values.items()]
+    frame = pd.DataFrame(rows, columns=["Key", "Value"])
+    import errno
+    import stat
+    import tempfile
+    from contextlib import ExitStack
+    from pathlib import Path
+
+    written = tabular.resolve_path(path)
+    sibling = os.path.splitext(written)[0] + ".json"
+    Path(written).parent.mkdir(parents=True, exist_ok=True)
+    with ExitStack() as staging:
+        prepared = []
+        for name in (written, sibling):
+            target = Path(name)
+            if target.is_symlink():
+                target = target.resolve()
+            if target.exists() and not os.access(target, os.W_OK):
+                raise PermissionError(str(target))
+            directory = tempfile.mkdtemp(prefix=".spacr-settings-export-", dir=target.parent)
+            staging.callback(os.rmdir, directory)
+            staged = Path(directory) / ("settings" + "".join(Path(name).suffixes))
+            staging.callback(staged.unlink, missing_ok=True)
+            if name == written:
+                if os.fspath(tabular.resolve_path(staged)) != os.fspath(staged):
+                    raise OSError(errno.EINVAL, os.strerror(errno.EINVAL), str(target))
+                tabular.write_table(frame, staged, canonicalise=False)
+            else:
+                with open(staged, "w", encoding="utf-8") as out:
+                    json.dump({str(k): _settings_json_value(v)
+                               for k, v in values.items()},
+                              out, indent=2, sort_keys=True)
+            mode = stat.S_IMODE(target.stat().st_mode if target.exists() else staged.stat().st_mode)
+            with staged.open("r+b") as stream:
+                os.fsync(stream.fileno())
+            staged.chmod(mode)
+            prepared.append((staged, target))
+        for staged, target in prepared:
+            os.replace(staged, target)
+    return [written, sibling]
+
+
 _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
     "src": (str, list),
     "normalize": (bool, list),
     "save": (bool, list),
 }
+
+_PATH_LIST_KEYS = frozenset({"src"})
 
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
     "foreign": {"masks": (str, list)},
@@ -1116,13 +1313,34 @@ def coerce_value(key: str, text: str, current: Any,
     :returns: the coerced value.
     :raises SettingsError: when ``text`` is not a legal value for ``key``.
     """
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS, _diameter_setting
+
     types = _allowed_types(key, current, expected_types, app)
     stripped = text.strip()
     lowered = stripped.lower()
     allow = (lambda t: True) if not types else (lambda t: t in types)
 
+    if key in _OBJECT_DIAMETER_KEYS:
+        if lowered in _NONE_WORDS:
+            return None
+        try:
+            return _diameter_setting(stripped)
+        except ValueError:
+            raise SettingsError(
+                f"--set {key}={text!r} is not a diameter.\n"
+                f"  {key} takes a positive number of pixels, 0 or auto "
+                f"(Cellpose estimates it), or none for the magnification "
+                f"default.") from None
+
     if lowered in _NONE_WORDS and (not types or type(None) in types):
         return None
+
+    if key in _PATH_LIST_KEYS:
+        from .portable_paths import _parse_path_list
+
+        paths = _parse_path_list(text)
+        if all(isinstance(path, str) for path in paths) and paths:
+            return paths[0] if len(paths) == 1 else paths
 
     if stripped.startswith("{") and allow(dict):
         try:
@@ -1217,13 +1435,34 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     :raises SettingsError: on an unknown key, a key nothing reads, or an
         uncoercible value.
     """
+    metadata = None
+    if "model_metadata" in settings:
+        from .model_zoo import (
+            ModelZooError, _invalidate_model_metadata, _model_input_kinds,
+            _validate_model_metadata,
+        )
+
+        try:
+            metadata = _validate_model_metadata(
+                settings, model_kinds=_model_input_kinds(module, settings)
+                if module is not None else None)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
     if not overrides:
         return settings
     from .settings import expected_types
 
-    known = set(settings) | set(expected_types)
+    original = deepcopy(settings) if metadata is not None else None
+    working = deepcopy(settings) if metadata is not None else settings
+    changed = set()
+    known = set(working) | set(expected_types)
     for item in overrides:
         key, text = _split_override(item)
+        if key == "model_metadata" or key.startswith("model_metadata."):
+            from .qt.i18n import tr
+
+            raise SettingsError(tr("Bad settings") + f": --set {key}; "
+                                + tr("Choose a settings file") + " (--settings)")
         if key not in known:
             close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.6)
             hint = f" Did you mean '{close[0]}'?" if close else ""
@@ -1233,8 +1472,25 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
                 f"'{key}'.{hint}\n"
                 f"  Run 'spacr-run --describe {module.key if module else '<module>'}' "
                 f"to list the settings this module accepts.")
-        settings[key] = coerce_value(key, text, settings.get(key), expected_types,
-                                     module.key if module is not None else "")
+        working[key] = coerce_value(key, text, working.get(key), expected_types,
+                                   module.key if module is not None else "")
+        changed.add(key)
+    if metadata is not None:
+        try:
+            working["model_metadata"] = _invalidate_model_metadata(
+                original, changed)["model_metadata"]
+            _validate_model_metadata(
+                working, model_kinds=_model_input_kinds(module, working)
+                if module is not None else None)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
+        settings.clear()
+        settings.update(working)
+        from .qt.i18n import tr
+
+        for key in sorted(changed & set(metadata["settings"])):
+            LOG.warning("%s: model_metadata.settings[%r]",
+                        tr("Removed {count} item(s).", count=1), key)
     return settings
 
 
@@ -1283,6 +1539,29 @@ def _under_todays_names(settings: Dict[str, Any],
                            _fold_renamed_settings, _fold_toxoplasma)
     from .validate import _check_retired_keys
 
+    metadata = None
+    if "model_metadata" in settings:
+        from .model_zoo import ModelZooError, _validate_model_metadata
+        from .settings import surviving_setting_name
+        from .qt.i18n import tr
+
+        try:
+            metadata = _validate_model_metadata(settings)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
+        migrated = {}
+        for key, record in metadata["settings"].items():
+            targets = surviving_setting_name(key)
+            if len(targets) > 1:
+                raise SettingsError(tr("Bad settings")
+                                    + f": model_metadata.settings[{key!r}] → {targets!r}")
+            target = targets[0] if targets else key
+            if target in migrated and migrated[target] != record:
+                raise SettingsError(tr("Bad settings")
+                                    + f": model_metadata.settings[{key!r}] → [{target!r}]"
+                                    + f": {migrated[target]!r} != {record!r}")
+            migrated[target] = record
+        metadata["settings"] = migrated
     before = set(settings)
     said = {problem.setting: problem for problem in
             _check_retired_keys(settings)}
@@ -1290,6 +1569,17 @@ def _under_todays_names(settings: Dict[str, Any],
     _fold_toxoplasma(settings)
     _fold_gradient_accumulation(settings)
     _fold_object_bounds(settings)
+    legacy_png_dims = settings.get('png_dims')
+    if ('png_channel_mapping' not in settings
+            and isinstance(legacy_png_dims, (list, tuple)) and legacy_png_dims):
+        from .crops import png_dims_to_channel_mapping
+        settings['png_channel_mapping'] = png_dims_to_channel_mapping(legacy_png_dims)
+    if metadata is not None:
+        settings["model_metadata"] = metadata
+        try:
+            _validate_model_metadata(settings)
+        except ModelZooError as exc:
+            raise SettingsError(str(exc)) from exc
     for key in sorted(before - set(settings), key=str):
         problem = said.get(key)
         if problem is None:
@@ -1304,12 +1594,14 @@ def _under_todays_names(settings: Dict[str, Any],
 def resolve_settings(module: Module, settings_path: Optional[str],
                      overrides: Sequence[str] = (),
                      moved: Optional[List[Any]] = None) -> Dict[str, Any]:
-    """Build the settings dict the pipeline will actually receive.
+    """Build the settings dict that the pipeline receives.
 
     Layered lowest-to-highest: the module's own defaults, the settings file,
     then the ``--set`` overrides. The file is read under today's names first
     -- see :func:`_under_todays_names`, without which a value the file set
     under an old name lost to the default already sitting under the new one.
+    An object diameter of 0 or "auto" comes out as "auto", the one form
+    both are stored in (item 696).
 
     :param module: module being run.
     :param settings_path: path to the settings file, or None for defaults only.
@@ -1326,7 +1618,8 @@ def resolve_settings(module: Module, settings_path: Optional[str],
         resolved.update(
             _under_todays_names(load_settings_file(settings_path), moved))
     apply_overrides(resolved, overrides, module)
-    return resolved
+    from .object_settings_table import _canonical_diameters
+    return _canonical_diameters(resolved)
 
 
 
@@ -1343,7 +1636,7 @@ def use_agg_if_headless() -> bool:
 
     Called before the first spaCR import that could pull pyplot. An explicit
     ``MPLBACKEND`` in the environment always wins, and interactive local use
-    (a display is present) is left alone, so this only bites on a compute node.
+    (a display is present) is left alone, so this applies only without a display.
 
     :returns: True when Agg was forced.
     """
@@ -1665,7 +1958,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    """``<module> --settings f`` — the real thing, or ``--dry-run`` for the plan."""
+    """``<module> --settings f`` — run the module, or print the plan with ``--dry-run``."""
     module = resolve_module(args.module)
     if module is None:
         print(_unknown_module_message(args.module), file=sys.stderr)
@@ -1731,6 +2024,19 @@ def cmd_run(args: argparse.Namespace) -> int:
     if _quiet_progress_bars():
         log.debug("stdout is not a tty — tty-only progress output disabled")
 
+    resolved_model_files = {}
+    if "model_metadata" in settings:
+        from .model_zoo import ModelZooError, _model_input_kinds, _resolve_pinned_model_file
+
+        kinds = _model_input_kinds(module, settings)
+        try:
+            for name in settings["model_metadata"]["settings"]:
+                resolved_model_files[name] = _resolve_pinned_model_file(
+                    settings, name, kinds=kinds.get(name, ()))
+        except (ModelZooError, OSError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return EXIT_USAGE
+
     try:
         func = import_entry(module)
     except SettingsError as exc:
@@ -1746,6 +2052,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             log.info("recording reproducibility input hashes")
             with open_run(module.key, settings) as run:
                 log.info("reproducibility manifest %s", run.dir)
+                for name, model_path in resolved_model_files.items():
+                    run.record_model(name, model_path)
                 lock = getattr(run, "_analysis_lock", None)
                 if lock:
                     (log.info if lock.get("status") == "verified"

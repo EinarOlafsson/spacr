@@ -1,0 +1,44 @@
+{
+ "item": "F586",
+ "checked": "2026-10-10T22:50-04:00",
+ "cpu_only": true,
+ "ghcr_spacr_anonymous": {
+  "tags_list_http": 200,
+  "tags": 19,
+  "has": [
+   "1.5.1.4",
+   "1.5.1.4-cpu",
+   "1.5.1.4-cuda12.4",
+   "latest",
+   "cpu",
+   "cuda",
+   "cuda12.4"
+  ],
+  "manifest_1.5.1.4-cpu": "sha256:9f64ee867a7d443de7a14962317ea9d1bb37bdea6be22131148eee3e1d7d0157",
+  "manifest_1.5.1.4-cuda12.4": "sha256:c79c884b4df5b0c8189228258d79aa1d2801d295edc78b2982408f6c687bc800"
+ },
+ "ghcr_spacr_sif_anonymous": "token DENIED: package absent or private; local gh token has no read:packages so it cannot list; no workflow has ever pushed it",
+ "apptainer_workflow_in_github": false,
+ "local_rehearsal_of_proposed_workflow": {
+  "apptainer": "1.5.4 user space, --ignore-subuid",
+  "definition": "packaging/apptainer/spacr.def at tag v1.5.1.4 (444fdbf88bdf4891a130d68347cb4d98cb06d07a)",
+  "base_image": "ghcr.io/einarolafsson/spacr:1.5.1.4-cpu (anonymous pull)",
+  "build_wall": "4:35",
+  "build_percent_test": "PASS (7 checks)",
+  "build_max_rss_kb": 3631864,
+  "sif_bytes": 1566740480,
+  "sif_sha256": "0f0f61a9a2b0709288dcc79bd60b3bd18fa6fea080874e64746f75ea51de0a85",
+  "version_in_sif": "1.5.1.4",
+  "smoke_mask_measure": {
+   "cmd": "apptainer exec --cleanenv spacr-cpu.sif python /opt/spacr/smoke_pipeline.py --mask",
+   "rc": 0,
+   "accelerator": "cpu",
+   "cells": "3/3",
+   "nuclei": "3/3",
+   "wall_s": 185.55,
+   "max_rss_kb": 3164880
+  },
+  "cuda_sif": "not rebuilt today"
+ },
+ "proposed_workflow_fix": "release.yml wiring comment now names the real jobs (bump, container-images); actions/checkout v4 -> v7 like every other workflow"
+}

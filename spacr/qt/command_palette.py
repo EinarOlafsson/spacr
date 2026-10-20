@@ -20,8 +20,8 @@ Commands are:
 * an "Open Preferences…" shortcut
 * an "Open Providers…" shortcut
 
-Fuzzy match is a plain substring case-insensitive scan — good
-enough for the ~30 commands the palette will ever hold.
+Matching is a case-insensitive substring search over each command's
+label and keywords; there is no fuzzy or ranked matching.
 """
 from __future__ import annotations
 
@@ -29,12 +29,15 @@ import logging
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import (
-    QDialog, QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
-    QVBoxLayout,
+from PySide6.QtCore import (
+    QAbstractListModel, QItemSelectionModel, QModelIndex, QSignalBlocker, Qt,
+    Signal,
 )
+from PySide6.QtGui import QBrush, QKeyEvent
+from PySide6.QtWidgets import (
+    QApplication, QDialog, QLineEdit, QListView, QMainWindow, QVBoxLayout,
+)
+from shiboken6 import isValid
 
 LOG = logging.getLogger("spacr.qt.command_palette")
 
@@ -54,6 +57,211 @@ class Command:
     section:  str
     action:   Callable[[], None]
     keywords: List[str] = field(default_factory=list)
+
+
+class _Row:
+    """One row of the palette: a section heading or a command.
+
+    Read back the way a list-widget item is, so callers can ask a row for its
+    text, its flags and the command it runs.
+
+    :param text: the text the row shows.
+    :param command: the command the row runs; ``None`` for a heading.
+    """
+
+    __slots__ = ("_text", "_command")
+
+    def __init__(self, text: str, command: Optional[Command] = None):
+        """Hold the row's text and command.
+
+        :param text: the text the row shows.
+        :param command: the command the row runs; ``None`` for a heading.
+        """
+        self._text = text
+        self._command = command
+
+    def text(self) -> str:
+        """The text the row shows."""
+        return self._text
+
+    def flags(self):
+        """``NoItemFlags`` for a heading; enabled and selectable otherwise."""
+        if self._command is None:
+            return Qt.NoItemFlags
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+    def data(self, role: int = Qt.UserRole):
+        """The command for ``Qt.UserRole``, the text for the display role.
+
+        :param role: the item data role asked for.
+        """
+        if role == Qt.UserRole:
+            return self._command
+        if role == Qt.DisplayRole:
+            return self._text
+        return None
+
+
+class _RowModel(QAbstractListModel):
+    """A fixed list of palette rows.
+
+    A model is never changed once a view shows it. A new filter builds a new
+    model and the view is pointed at it in one step, so nothing a view is
+    showing is ever cleared or deleted while the view still reads it, and no
+    row is a C++ object that Python has to keep track of.
+
+    :param rows: the rows, in display order.
+    :param parent: the view the model belongs to.
+    """
+
+    def __init__(self, rows, parent=None):
+        """Hold ``rows``; they never change afterwards.
+
+        :param rows: the rows, in display order.
+        :param parent: the view the model belongs to.
+        """
+        super().__init__(parent)
+        self._rows = tuple(rows)
+        self._heading = QBrush(Qt.gray)
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        """How many rows there are; a row has no children.
+
+        :param parent: the parent index; only the root has rows.
+        """
+        return 0 if parent.isValid() else len(self._rows)
+
+    def row(self, index: int) -> Optional[_Row]:
+        """The row at ``index``, or ``None`` past either end.
+
+        :param index: the row number.
+        """
+        if 0 <= index < len(self._rows):
+            return self._rows[index]
+        return None
+
+    def data(self, index, role=Qt.DisplayRole):
+        """The text of a row, and grey for a heading.
+
+        :param index: the model index asked about.
+        :param role: the item data role asked for.
+        """
+        row = self.row(index.row()) if index.isValid() else None
+        if row is None:
+            return None
+        if role == Qt.DisplayRole:
+            return row.text()
+        if role == Qt.ForegroundRole and row.data() is None:
+            return self._heading
+        return None
+
+    def flags(self, index):
+        """The row's flags: a heading cannot be selected.
+
+        :param index: the model index asked about.
+        """
+        row = self.row(index.row()) if index.isValid() else None
+        return Qt.NoItemFlags if row is None else row.flags()
+
+
+class _RowList(QListView):
+    """The palette's result list.
+
+    A list view that answers the way the list widget it replaced did --
+    ``count``, ``item``, ``currentRow``, ``setCurrentRow``, ``currentItem``,
+    ``currentRowChanged`` and ``itemActivated`` -- and whose rows are only
+    ever replaced whole by :meth:`show_rows`.
+    """
+
+    currentRowChanged = Signal(int)
+    itemActivated = Signal(object)
+
+    def __init__(self, parent=None):
+        """Start empty.
+
+        :param parent: the widget the list sits in.
+        """
+        super().__init__(parent)
+        self.setModel(_RowModel((), self))
+        self._watch_current()
+        self.activated.connect(self._on_activated)
+
+    def show_rows(self, rows) -> None:
+        """Show ``rows`` in place of every row shown now.
+
+        The rows go into a new model that no view has seen, and the view is
+        pointed at it in one call. The old model and its selection are
+        released only after the view has let go of them.
+
+        :param rows: the rows, in display order.
+        """
+        model = _RowModel(rows, self)
+        old_model, old_selection = self.model(), self.selectionModel()
+        self.setModel(model)
+        self._watch_current()
+        old_selection.deleteLater()
+        old_model.deleteLater()
+
+    def _watch_current(self) -> None:
+        """Report the current row of the selection the view has now."""
+        self.selectionModel().currentRowChanged.connect(self._on_current)
+
+    def _on_current(self, current, _previous) -> None:
+        """Pass a new current row on as ``currentRowChanged``.
+
+        :param current: the new current index.
+        :param _previous: the index that was current; unused.
+        """
+        self.currentRowChanged.emit(current.row())
+
+    def _on_activated(self, index) -> None:
+        """Pass an activated row on as ``itemActivated``.
+
+        :param index: the index activated.
+        """
+        self.itemActivated.emit(self.item(index.row()))
+
+    def count(self) -> int:
+        """How many rows the list shows."""
+        return self.model().rowCount()
+
+    def item(self, index: int) -> Optional[_Row]:
+        """The row at ``index``, or ``None`` past either end.
+
+        :param index: the row number.
+        """
+        return self.model().row(index)
+
+    def currentRow(self) -> int:
+        """The current row's number, or -1 when there is none."""
+        return self.currentIndex().row()
+
+    def currentItem(self) -> Optional[_Row]:
+        """The current row, or ``None`` when there is none."""
+        return self.item(self.currentRow())
+
+    def setCurrentRow(self, index: int) -> None:
+        """Make row ``index`` current and selected, as a list widget does.
+
+        A heading can be made current this way, as it can on a list widget;
+        the arrow keys and the first selection never put it there.
+
+        :param index: the row number.
+        """
+        self.selectionModel().setCurrentIndex(
+            self.model().index(index, 0),
+            QItemSelectionModel.ClearAndSelect)
+
+    def setCurrentItem(self, row: _Row) -> None:
+        """Make ``row`` current; a row the list does not show is ignored.
+
+        :param row: a row the list shows.
+        """
+        model = self.model()
+        for index in range(model.rowCount()):
+            if model.row(index) is row:
+                self.setCurrentRow(index)
+                return
 
 
 class CommandPalette(QDialog):
@@ -96,19 +304,23 @@ class CommandPalette(QDialog):
         )
         outer.addWidget(self._input)
 
-        self._list = QListWidget()
+        self._list = _RowList()
         self._list.setStyleSheet(
-            "QListWidget { border: none; padding: 6px 0; }"
-            "QListWidget::item { padding: 8px 18px; }"
+            "QListView { border: none; padding: 6px 0; }"
+            "QListView::item { padding: 8px 18px; }"
         )
         outer.addWidget(self._list, 1)
 
         self._commands: List[Command] = []
+        self._rendering = False
+        self._pending: Optional[List[Command]] = None
+        self._closed = False
         self._collect_commands()
         self._render(self._commands)
 
         self._input.textChanged.connect(self._on_filter)
         self._input.returnPressed.connect(self._on_activate)
+        self.finished.connect(self._stop_rendering)
         self._list.itemActivated.connect(lambda _i: self._on_activate())
 
     def _collect_commands(self) -> None:
@@ -303,48 +515,123 @@ class CommandPalette(QDialog):
             pass
 
     def _render(self, cmds: List[Command]) -> None:
-        """Fill the list with commands, grouped under section headers.
+        """Show ``cmds``, grouped under section headings.
 
-        The headers are not selectable, and the auto-selection skips past the
-        first one -- otherwise Return on a freshly opened palette would activate
-        a heading. Every command follows a heading, so the first command is
-        always the second row.
+        The headings are not selectable, and the first selection skips past
+        the first one -- otherwise Return on a freshly opened palette would
+        activate a heading. Every command follows a heading, so the first
+        command is always the second row.
+
+        A render never runs inside another one. A render asked for while one
+        is running only records its commands, and the running render shows
+        them once it has finished. Text typed while the rows are being built
+        reaches no filter, because the input is silent then; the running
+        render sees that the text changed and shows what it now selects. A
+        palette that has closed renders nothing.
 
         :param cmds: the commands to show, in section order.
         """
-        self._list.clear()
+        if self._closed:
+            return
+        if self._rendering:
+            self._pending = list(cmds)
+            return
+        self._rendering = True
+        try:
+            while True:
+                typed = self._input.text()
+                self._fill(cmds)
+                if self._closed:
+                    break
+                if self._input.text() != typed:
+                    self._pending = self._matching(self._input.text())
+                if self._pending is None:
+                    break
+                cmds, self._pending = self._pending, None
+        finally:
+            self._pending = None
+            self._rendering = False
+
+    def _rows_for(self, cmds: List[Command]) -> List[_Row]:
+        """The rows that show ``cmds``: a heading before each new section.
+
+        Plain Python objects; building them touches no widget.
+
+        :param cmds: the commands to show, in section order.
+        """
+        rows: List[_Row] = []
         current_section = None
         for cmd in cmds:
             if cmd.section != current_section:
-                header = QListWidgetItem(cmd.section.upper())
-                header.setFlags(Qt.NoItemFlags)
-                header.setForeground(Qt.gray)
-                self._list.addItem(header)
+                rows.append(_Row(cmd.section.upper()))
                 current_section = cmd.section
-            item = QListWidgetItem(cmd.label)
-            item.setData(Qt.UserRole, cmd)
-            self._list.addItem(item)
-        if self._list.count() > 1:
-            self._list.setCurrentRow(1)
+            rows.append(_Row(cmd.label, cmd))
+        return rows
 
-    def _on_filter(self, needle: str) -> None:
-        """Narrow the list to commands matching the typed text.
+    def _fill(self, cmds: List[Command]) -> None:
+        """Replace the rows with the rows for ``cmds``, in one step.
 
-        Matched case-insensitively against the label and the keywords, so a
-        command can be found by what it does as well as by what it is called.
+        The rows are built first, off screen, as plain Python objects. The
+        input and the list are silent while that happens and while the list
+        takes the new rows, so a key typed meanwhile only changes the text and
+        cannot start a filter. A palette destroyed while the rows were being
+        built counts as closed and touches nothing it held.
 
-        :param needle: the typed text; empty shows everything.
+        :param cmds: the commands to show, in section order.
+        """
+        quiet = QSignalBlocker(self._input)
+        try:
+            rows = self._rows_for(cmds)
+            if not isValid(self._list):
+                self._closed = True
+                return
+            hushed = QSignalBlocker(self._list)
+            try:
+                self._list.show_rows(rows)
+                if self._list.count() > 1:
+                    self._list.setCurrentRow(1)
+            finally:
+                hushed.unblock()
+        finally:
+            if isValid(self._input):
+                quiet.unblock()
+            else:
+                quiet.dismiss()
+
+    def _matching(self, needle: str) -> List[Command]:
+        """The commands whose label or keywords hold ``needle``.
+
+        Matched case-insensitively, so a command can be found by what it does
+        as well as by what it is called.
+
+        :param needle: the typed text; empty matches every command.
         """
         needle = (needle or "").strip().lower()
         if not needle:
-            self._render(self._commands)
-            return
-        filtered = [
+            return list(self._commands)
+        return [
             c for c in self._commands
             if needle in c.label.lower()
                or any(needle in k.lower() for k in c.keywords)
         ]
-        self._render(filtered)
+
+    def _stop_rendering(self, _result: int = 0) -> None:
+        """Stop the palette from rendering once it has closed.
+
+        Typing still queued behind the closing key would otherwise rebuild
+        the list of a dialog that is going away.
+
+        :param _result: the dialog result ``finished`` carries; unused.
+        """
+        self._closed = True
+        self._pending = None
+
+    def _on_filter(self, needle: str) -> None:
+        """Narrow the list to commands matching the typed text.
+
+        :param needle: the typed text; empty shows everything.
+        """
+        self._render(self._matching(needle))
 
     def _on_activate(self) -> None:
         """Run the selected command and close the palette.
@@ -360,7 +647,24 @@ class CommandPalette(QDialog):
         cmd: Optional[Command] = item.data(Qt.UserRole)
         if cmd is None:
             return
+        modal = QApplication.activeModalWidget() is self
         self.accept()
+        if modal:
+            self._pending_command = cmd
+            return
+        self._run_command(cmd)
+
+    def _run_command(self, cmd: "Command") -> None:
+        """Run one command, logging rather than raising its failure.
+
+        Called straight away when the palette is not in its own ``exec()``,
+        and by :func:`spacr.qt.shortcuts._open_palette` after ``exec()`` has
+        returned when it is: a command that opens a dialog, rebuilds a screen
+        or quits must not run inside a modal session that is already ending,
+        which is what crashed in AppKit's modal cleanup on macOS.
+
+        :param cmd: the command to run.
+        """
         try:
             cmd.action()
         except Exception as e:

@@ -5,11 +5,11 @@ CSV, its count CSV and now its measurements database. This module is the
 headless half of that feature -- given ``{plate: database path}``, the tables
 the user ticked and the anchor they chose, it returns the merged frame.
 
-NOTHING HERE IS NEW MERGE LOGIC, AND THAT IS THE POINT. spaCR already has
-four places that join measurement tables and one of them
-(``io._read_and_join_tables``) aggregates every numeric column with ``mean``,
-which turns four pathogens' total area into an average area and a MINIMUM
-into a mean of minima. A fifth would be a fifth answer. So:
+This module adds no merge logic of its own. spaCR already has four places
+that join measurement tables, and one of them (``io._read_and_join_tables``)
+aggregates every numeric column with ``mean``, which turns four pathogens'
+total area into an average area and a minimum into a mean of minima. This
+module composes existing functions instead:
 
 * :func:`spacr.multi_database.describe_merge` / :func:`~spacr.multi_database.read_merged`
   stack the databases -- one table at a time, carrying ``source_database`` and
@@ -24,7 +24,7 @@ into a mean of minima. A fifth would be a fifth answer. So:
 There is no ``sum()`` or ``mean()`` of a measurement column written in this
 file, and there must never be one.
 
-WHY THE TWO EXISTING FUNCTIONS DO NOT COMPOSE BY THEMSELVES
+Why the two existing functions do not compose by themselves
 -----------------------------------------------------------
 ``read_merged`` is *many databases, one table*. ``merge_tables`` is *one
 database, many tables* -- and it takes a PATH, so it cannot be handed a frame
@@ -32,14 +32,13 @@ that has already been stacked across databases. This feature needs both, so
 the composition is: read each chosen table across every database, then roll
 the children onto the anchor.
 
-The roll-up keys are the load-bearing detail. They are the identity columns
-PLUS ``screenID`` PLUS ``source_database`` PLUS the child's anchor column.
-Leave ``screenID`` out and two screens that legitimately share ``plate1``
-(which :func:`~spacr.multi_database.describe_merge` deliberately permits)
-collapse into one parent -- reintroducing, one layer up,
-exactly the pooling ``multi_database`` exists to prevent.
+The roll-up keys are the identity columns plus ``screenID``,
+``source_database`` and the child's anchor column. Without ``screenID``, two
+screens that share ``plate1`` (which
+:func:`~spacr.multi_database.describe_merge` permits) would collapse into one
+parent, which is the pooling ``multi_database`` prevents.
 
-WHAT A CALLER MUST SHOW THE USER
+What a caller must show the user
 --------------------------------
 A merge that silently changed how a measurement was combined produces a number
 that is wrong and looks fine, so :class:`PlateMerge` carries what the panel has
@@ -229,7 +228,7 @@ class PlateMerge:
 
     @property
     def rows_read_per_source(self) -> Dict[str, int]:
-        """Anchor rows each database HELD, before any join dropped any."""
+        """Anchor rows each database held, before any join removed rows."""
         for entry in self.tables:
             if entry.table == self.anchor:
                 return {source.label: int(source.rows)
@@ -238,7 +237,7 @@ class PlateMerge:
 
     @property
     def rows_per_source(self) -> Dict[str, int]:
-        """Anchor rows each database contributed to the FINAL frame.
+        """Anchor rows each database contributed to the final frame.
 
         Less than :attr:`rows_read_per_source` wherever an inner join removed
         objects -- a nucleus-less cell, or a pathogen-less one when
@@ -269,10 +268,9 @@ class PlateMerge:
     def default_aggregation_columns(self) -> Tuple[str, ...]:
         """Merged columns whose aggregation is the default, no rule matching.
 
-        :data:`spacr.merge_tables.DEFAULT_AGGREGATION` is MEAN and the comment
-        beside it says why -- but a measurement nobody thought about is exactly
-        the one worth naming, because it is the one where the default is most
-        likely to be answering a different question.
+        :data:`spacr.merge_tables.DEFAULT_AGGREGATION` is ``mean``. Columns
+        that no rule matched are listed because a mean may not be the
+        appropriate aggregation for them.
         """
         return tuple(sorted(
             entry.merged_column(column)
@@ -280,12 +278,12 @@ class PlateMerge:
 
     @property
     def shared_plates_across_screens(self) -> Dict[str, Tuple[str, ...]]:
-        """Plate ids that appear in more than one screen. NOT a collision.
+        """Plate ids that appear in more than one screen.
 
-        Two screens sharing a guide library both have ``plate1``, and once
-        ``screenID`` is in the frame those are two identities. Reported anyway,
-        because a user who did not mean to run two screens still needs to see
-        that they did.
+        Two screens sharing a guide library both have ``plate1``; with
+        ``screenID`` in the frame those are two identities, so this is not a
+        collision. They are reported so that a user can see that two screens
+        were merged.
         """
         for entry in self.tables:
             if entry.table == self.anchor:
@@ -357,7 +355,7 @@ def _rows(attachments: Any) -> List[PlateDatabase]:
 
 
 def plate_databases(attachments: Any) -> Tuple[PlateDatabase, ...]:
-    """The plate rows that HAVE a database, in the order the table lists them.
+    """Return the plate rows that have a database, in input-table order.
 
     :param attachments: ``{plate: path}``, a sequence of :class:`PlateDatabase`,
         a sequence of ``(plate, path)`` pairs, or the input table's own rows
@@ -370,15 +368,14 @@ def plate_databases(attachments: Any) -> Tuple[PlateDatabase, ...]:
 
 
 def unattached_plates(attachments: Any) -> Tuple[str, ...]:
-    """The plates with no database, which is legal and must be said out loud.
+    """Return the plates that have no database attached.
 
     :param attachments: input-table attachment rows in any shape accepted by
         :func:`plate_databases`.
 
-    The regression runs on scores and counts; the database is what makes the
-    Measurements tab possible for that plate. Its absence disables that plate
-    there rather than failing the run -- so the plate is listed, and the
-    listing is what stops it looking like an omission.
+    The regression runs on scores and counts; the database is needed only for
+    the Measurements tab. A plate without one is unavailable there but does
+    not fail the run, and it is listed so that the omission is visible.
     """
     return tuple(row.plate for row in _rows(attachments) if not row.path)
 
@@ -393,21 +390,20 @@ def missing_databases(attachments: Any) -> Tuple[PlateDatabase, ...]:
 
 
 def available_tables(attachments: Any) -> Tuple[str, ...]:
-    """The object tables present in EVERY attached database.
+    """Return the object tables present in every attached database.
 
     :param attachments: input-table attachment rows whose existing databases
         define the table intersection.
 
-    The intersection, not the union, and this is not a nicety:
+    The intersection is returned, not the union, because
     :func:`spacr.multi_database.describe_merge` raises a bare
     ``sqlite3.OperationalError: no such table`` when one database lacks the
-    chosen table, which reaches a user as a crash rather than as a choice they
-    were never offered.
+    chosen table.
 
     :returns: the tables in :data:`spacr.merge_tables.OBJECT_TABLES` order, so
         the picker's order is the registry's order rather than sqlite's, and
         so a sixth object kind reaches this list by being declared once.
-        ``png_list`` is not offered: it holds one row per CROP rather than per
+        ``png_list`` is not offered: it holds one row per crop rather than per
         object, and a crop is not a measurement to aggregate.
     """
     attached = plate_databases(attachments)
@@ -421,7 +417,7 @@ def available_tables(attachments: Any) -> Tuple[str, ...]:
 def default_aggregated_columns(
         plan: Mapping[str, str], *,
         overrides: Optional[Mapping[str, str]] = None) -> Tuple[str, ...]:
-    """The columns in ``plan`` that got the default because NO rule matched.
+    """Return the columns in ``plan`` that got the default because no rule matched.
 
     Recomputed by re-walking :data:`spacr.merge_tables.AGGREGATION_RULES`, so
     this cannot drift out of step with them: a rule added for a measurement
@@ -466,7 +462,7 @@ def classify_default_columns(
         kinds: Optional[Mapping[str, str]] = None, *,
         overrides: Optional[Mapping[str, str]] = None
 ) -> Dict[str, Tuple[str, ...]]:
-    """Split the columns no rule names into what will ACTUALLY happen to them.
+    """Split the columns no rule names by the aggregation they will receive.
 
     :param columns: the column names about to be aggregated.
     :param kinds: ``{column: 'numeric' | 'text' | 'unknown'}``, as
@@ -481,14 +477,12 @@ def classify_default_columns(
             :data:`spacr.merge_tables.DEFAULT_AGGREGATION` is what it takes.
         ``identifier``
             text. It takes :data:`spacr.merge_tables.TEXT_AGGREGATION`, not a
-            mean, and whether it is CARRIED or REFUSED depends on the data --
-            see :func:`ambiguous_identifiers`, which can only be answered by
-            reading the rows.
+            mean, and whether it is carried or refused depends on the data
+            -- see :func:`ambiguous_identifiers`, which reads the rows.
         ``unknown``
-            the database declared no type, so neither can be promised. Named
-            separately rather than folded into either: an absent answer that
-            reads as a definite one is the failure this module exists to
-            avoid.
+            the database declared no type, so neither aggregation can be
+            stated in advance. Listed separately so that a column of unknown
+            type is not reported as numeric or text.
     """
     chosen = dict(overrides or {})
     kinds = dict(kinds or {})
@@ -515,28 +509,26 @@ def ambiguous_identifiers(child: pd.DataFrame, keys: Sequence[str], *,
                           plan: Optional[Mapping[str, str]] = None,
                           overrides: Optional[Mapping[str, str]] = None,
                           examples: int = 1) -> Dict[str, Dict[str, Any]]:
-    """Text identifiers that are NOT constant within their roll-up group.
+    """Return the text identifiers that vary within their roll-up group.
 
-    arrived at from the other side: when two things
-    that must agree do not, that is a real inconsistency and it is named
-    rather than silently resolved. A cell with three pathogens has ONE
-    ``path_name`` if all three came off the same image; if it has three,
-    ``first`` names one of them and the merged row then claims a provenance
-    the data does not support.
+    A text identifier that takes ``first`` must have one value per group.
+    When it has more, the column is reported rather than resolved silently.
+    A cell with three pathogens has one ``path_name`` if all three came from
+    the same image; if it has three, ``first`` would name one of them and the
+    merged row would claim a provenance the data does not support.
 
-    Only TEXT columns are examined, and this is deliberate. ``object_label``
-    also takes ``first``, by the identity rule, and it is SUPPOSED to differ
-    across the children -- :data:`spacr.merge_tables.AGGREGATION_RULES` says
-    so in as many words: the label is carried verbatim only so a row can be
-    traced back. A numeric label that varies is the normal case; a text
-    identifier that varies is the ambiguity.
+    Only text columns are examined. ``object_label`` also takes ``first``, by
+    the identity rule, and is expected to differ across the children:
+    :data:`spacr.merge_tables.AGGREGATION_RULES` carries the label only so a
+    row can be traced back. A numeric label that varies is the normal case; a
+    text identifier that varies is ambiguous.
 
     :param child: the many-per-parent table, before the roll-up.
     :param keys: the group keys the roll-up will use.
     :param plan: the aggregation plan, from
         :func:`spacr.merge_tables.aggregation_plan`. Recomputed when omitted.
-    :param overrides: the caller's explicit choices. A column they set is
-        theirs, and is not second-guessed here.
+    :param overrides: the caller's explicit choices. A column set here is
+        not examined.
     :param examples: how many offending group keys to record per column.
     :returns: ``{column: {'groups': n, 'examples': [(key, [values])]}}`` --
         empty when every identifier is constant, which is the normal case.
@@ -669,9 +661,9 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
     :param attachments: any shape :func:`plate_databases` accepts. Plates with
         no database are skipped, not fatal.
     :param tables: the object tables to join. The anchor is added if absent.
-    :param anchor: the object a row of the result MEANS. ``cell`` by default
-        (:data:`spacr.merge_tables.DEFAULT_PRIMARY`), overriding
-        ``policy.primary`` when both are given.
+    :param anchor: the object type one row of the result represents.
+        ``cell`` by default (:data:`spacr.merge_tables.DEFAULT_PRIMARY`),
+        overriding ``policy.primary`` when both are given.
     :param policy: the aggregation and join policy -- ``na``, ``overrides``,
         ``consolidate_on_cell``, ``keep_uninfected``.
     :param screens: optional screen label per plate: a mapping keyed by plate,
@@ -681,10 +673,9 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
         named.
     :param on_ambiguous_identifier: ``'refuse'`` (default) leaves out a text
         identifier that differs within a roll-up group and names it on
-        ``report``; ``'first'`` restores the old silent pick. See
-        :func:`ambiguous_identifiers` -- and note that this is the same
-        default the Measurements tab applies, because two answers to one
-        question is how two merges of one screen come to disagree.
+        ``report``; ``'first'`` keeps the first value without a report. See
+        :func:`ambiguous_identifiers`. The Measurements tab applies the same
+        default, so the headless and Qt merges of one screen agree.
     :returns: the :class:`PlateMerge`.
     :raises MergeRefused: nothing attached, a database that has moved, one
         database attached to two plates, an anchor that is not one row per

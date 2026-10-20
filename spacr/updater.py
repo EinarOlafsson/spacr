@@ -266,7 +266,7 @@ def fetch_release_notes(timeout: float = 4.0,
                         max_age: float = NEWS_MAX_AGE_S) -> list:
     """The repository's releases, newest first, or ``[]``.
 
-    NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News
+    Do not call this on the GUI thread: it opens a socket. Home's News
     panel asks for it through the same :class:`_UpdateWorker` the manual
     update check runs on, after the page has been shown.
 
@@ -373,7 +373,7 @@ def _network_config_path() -> Path:
     override = os.environ.get(_ENV_NETWORK_CONFIG)
     if override:
         return Path(override)
-    return Path.home() / ".spacr" / "network.json"
+    return _spacr_home() / "network.json"
 
 
 def _read_network_config() -> dict:
@@ -403,7 +403,9 @@ def _write_network_config(proxy: str = "", ca_bundle: str = "") -> None:
     if wanted != _read_network_config():
         path = _network_config_path()
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(wanted), encoding="utf-8")
+        from .run_journal import _atomic_write_text
+
+        _atomic_write_text(path, json.dumps(wanted))
     _apply_network_settings()
 
 
@@ -498,14 +500,10 @@ def _apply_network_settings() -> dict:
 def _installed_version() -> str:
     """Return the running ``spacr`` version, or ``"unknown"``."""
     try:
-        from importlib.metadata import version
-        return version("spacr")
+        from .version import get_version
+        return get_version()
     except Exception:
-        try:
-            from importlib.metadata import version
-            return version("spacr-nightly")
-        except Exception:
-            return "unknown"
+        return "unknown"
 
 
 def _lt(a: str, b: str) -> bool:
@@ -550,7 +548,12 @@ def find_uv() -> Optional[str]:
 
 
 def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
-    """Upgrade this interpreter, optionally to the exact version offered.
+    """Return the command that upgrades spaCR in this environment.
+
+    An install that left wgpu out (its installer profile records
+    ``without_wgpu``) is upgraded with uv's ``--override`` of
+    :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it
+    out too.
 
     :param pre_release: allow prerelease packages.
     :param target_version: explicit version selected by the update check.
@@ -560,14 +563,32 @@ def upgrade_command(pre_release: bool = False, *, target_version=None) -> list:
             "A frozen spaCR application is not a Python environment. "
             "Update it with its installer instead of pip."
         )
+    from .install_profile import no_wgpu_override, read_profile
+
+    profile = read_profile()
+    without_wgpu = bool(profile and profile.get("without_wgpu"))
     uv = find_uv()
+    if without_wgpu and not uv:
+        from .qt.i18n import tr
+
+        raise RuntimeError(tr(
+            "spaCR was installed without wgpu. Restore uv before updating "
+            "so that choice is preserved."))
     if uv:
         args = [uv, "pip", "install", "--upgrade",
                 "--python", sys.executable]
-        from .install_profile import read_profile
-        profile = read_profile()
         if profile is not None:
             args.extend(["--torch-backend", profile["requested_backend"]])
+            override = no_wgpu_override(profile)
+            if without_wgpu and override is None:
+                from .qt.i18n import tr
+
+                raise RuntimeError(tr(
+                    "spaCR was installed without wgpu. The update could not "
+                    "write its dependency override. Check the install profile "
+                    "folder permissions and try again."))
+            if override is not None:
+                args.extend(["--override", str(override)])
     else:
         args = [sys.executable, "-m", "pip", "install", "--upgrade"]
     if pre_release:
@@ -650,16 +671,26 @@ def run_pip_upgrade(pre_release: bool = False, *, target_version=None):
             f"is nothing to upgrade: that folder IS the package, and pip "
             f"would replace it with a release build. Update it with `git "
             f"pull` there instead.\n"))
+    if target_version is not None:
+        from packaging.version import InvalidVersion, Version
+        try:
+            if Version(_installed_version()) > Version(str(target_version)):
+                from .qt.i18n import tr
+                return 2, tr("The running spaCR is newer than the requested release. Nothing was changed.")
+        except InvalidVersion:
+            pass
     result = run_install_command(upgrade_command(pre_release, target_version=target_version))
     if result[0] != 0 or target_version is None:
         return result
-    probe = [sys.executable, "-I", "-c",
-             "from importlib.metadata import version; print(version('spacr'))"]
+    from .install_cleanup import _runtime_identity_command
+    probe = _runtime_identity_command(sys.executable, str(target_version), prefix=sys.prefix)
     code, output = run_install_command(probe, timeout=30)
     from packaging.version import InvalidVersion, Version
     try:
-        verified = code == 0 and Version(output.strip()) == Version(str(target_version))
-    except InvalidVersion:
+        receipt = json.loads(output)
+        verified = (code == 0 and receipt.get("verified") is True
+                    and Version(receipt["version"]) == Version(str(target_version)))
+    except (InvalidVersion, ValueError, TypeError, KeyError, AttributeError):
         verified = False
     if not verified:
         return 1, (result[1] + "\nThe installer finished but the active interpreter "
@@ -675,7 +706,14 @@ def launch_updated_app() -> int:
     """
     from .install_cleanup import _spawn_detached
     from .restart_state import command
-    return _spawn_detached(command(), cwd=os.path.expanduser("~"))
+    argv = command()
+    if not getattr(sys, "frozen", False):
+        argv.insert(1, "-I")
+    else:
+        environment = dict(os.environ)
+        environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+        return _spawn_detached(argv, env=environment, cwd=os.path.expanduser("~"))
+    return _spawn_detached(argv, cwd=os.path.expanduser("~"))
 
 
 def run_install_command(args, timeout: float = 1800.0):
@@ -747,7 +785,7 @@ def installed_version(name) -> Optional[str]:
 
 
 def pip_available() -> bool:
-    """Is ``python -m pip`` usable in this interpreter?
+    """Whether ``python -m pip`` is usable in this interpreter.
 
     ``uv venv`` does not seed pip, which is the case :func:`find_uv` exists
     for. It matters here because pip is the only one of the two that can
@@ -814,24 +852,24 @@ class PackageChange:
 
     @property
     def is_addition(self) -> bool:
-        """Nothing is installed under this name today."""
+        """True when no package is currently installed under this name."""
         return self.current is None
 
     @property
     def is_move(self) -> bool:
-        """A version already here would change."""
+        """True when an installed version would change."""
         return (self.current is not None
                 and self.proposed is not None
                 and self.current != self.proposed)
 
     @property
     def is_removal(self) -> bool:
-        """A distribution installed today would be removed."""
+        """True when an installed distribution would be removed."""
         return self.current is not None and self.proposed is None
 
     @property
     def protected(self) -> bool:
-        """Is this one of :data:`PROTECTED_PACKAGES`?"""
+        """Whether this package is one of :data:`PROTECTED_PACKAGES`."""
         return canonical_package_name(self.name) in {
             canonical_package_name(p) for p in PROTECTED_PACKAGES}
 
@@ -872,7 +910,7 @@ class DryRun:
 
     @property
     def additions(self) -> Tuple[PackageChange, ...]:
-        """Packages that are not here at all today."""
+        """Packages that are not currently installed."""
         return tuple(c for c in self.changes if c.is_addition)
 
     @property

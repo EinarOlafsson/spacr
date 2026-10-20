@@ -26,7 +26,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "AUKNINGARKEÐJAN FER SÖMU LEIÐ. Keðja Make Masks (:mod:`spacr.qt.detect_chain`) er skrifuð í stillingaskrá sem ``enhance_*`` lyklarnir og lesin aftur hér af :func:`prepare_chain`, þar sem ``psf_*`` stillingunum er bætt inn sem PSF-stigi keðjunnar, svo keyrsla á einni plötu beitir nákvæmlega þeim skrefum sem yfirferðaraðili stillti, í eigin röð keðjunnar: bakgrunnur, PSF, afsuðun, birtuskil, skerping. Lotan beitir henni á hverja valda rás á því stigi sem PSF keyrði þegar -- eftir lýsingarleiðréttingu og fyrir stöðlun -- og uppruni hennar fer í sömu ``psf/segmentation_application.json`` færslu, svo breyttri keðju er hafnað við framhald á sama hátt og breyttum kjarna. Þegar ekkert keðjuskref er virkt er keyrsla bæti fyrir bæti eins og hún var áður en keðjan var til.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",
@@ -34,7 +36,9 @@
       "source_sha256": "a70d5a05a1903f3914e8c32c84e38377d2c6719451f1845b0d59c8b5241e38ad",
       "context": "Immutable calibrated processing configuration, safe to pass to workers.",
       "translation": "Óbreytanleg kvörðuð vinnslustilling, örugg til að senda vinnsluþráðum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#1",
@@ -74,7 +78,9 @@
       "source_sha256": "68ac1b39adc72386e6454c1fe0fa80ba408cab1acc4beb9b2d05c92e2c12c045",
       "context": "Process one spatial image with an explicit last image data channel axis.",
       "translation": "Vinna eina rúmfræðilega mynd með sérstaklega tilgreindum aftasta rásaás.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan.apply#1",
@@ -106,7 +112,9 @@
       "source_sha256": "efb77f06832e71d5baaadb98a2ec944094b4c3ba0f2adf13fb1211c3e0db877b",
       "context": "Return JSON-safe identity of every scientifically relevant setting.",
       "translation": "Skila JSON-öruggu auðkenni hverrar vísindalega viðeigandi stillingar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#0",
@@ -114,7 +122,9 @@
       "source_sha256": "78bd44a4e983becfd25a2add09d6bb239e3a8bf7971e9b508bf7a65b74ebe9ca",
       "context": "Run ``chain`` over every channel of one YXC microscope field of view, strictly.",
       "translation": "Keyra ``chain`` yfir hverja rás eins YXC-sjónsviðs, stranglega.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.apply_chain#1",
@@ -154,7 +164,9 @@
       "source_sha256": "d71cf452f30968a7d649d6d66867c5b2ff0fd15e87f6dd7cedb796e3148116f4",
       "context": "Every ``enhance_*`` value the chain cannot run with, as ``(setting, message)``.",
       "translation": "Hvert ``enhance_*`` gildi sem keðjan getur ekki keyrt með, sem ``(setting, message)``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.chain_problems#1",
@@ -186,7 +198,9 @@
       "source_sha256": "7528bfbfe1ca8e9d961f3f2021d235b97679074a2d0963e6321829ee00e7beaf",
       "context": "The enhancement chain a processing session applies, read from its ``enhance_*`` settings.",
       "translation": "Aukningarkeðjan sem keyrsla beitir, lesin úr ``enhance_*`` stillingum hennar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_chain#1",
@@ -234,7 +248,9 @@
       "source_sha256": "8021585a712bee27b6910717266643dd30d94637ba46fe2a164d6133baa07ed9",
       "context": "Capture and validate an optional PSF before processing starts.",
       "translation": "Skrá og staðfesta valfrjálst PSF áður en vinnsla hefst.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.prepare_psf#1",
@@ -274,7 +290,9 @@
       "source_sha256": "264ee25f9242e2db6f8a2b5c761f5fd5b3321d464424dffaf144495d25df75b2",
       "context": "Whether these settings ask for a PSF or an enhancement step at all.",
       "translation": "Hvort þessar stillingar biðja yfirhöfuð um PSF eða aukningarskref.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#1",
@@ -310,7 +328,9 @@
       "source_sha256": "c1f7b5174c2808b71bea08eb0a8510803b699e504e9582d1ecb273dcad39c5c1",
       "context": "Refuse V1 archive reuse after a PSF change or incomplete processing.",
       "translation": "Hafna endurnýtingu V1-skjalasafns eftir breytingu á PSF eða ófullkomna vinnslu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.validate_psf_resume#1",
@@ -384,7 +404,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "SKIPANIRNAR ERU EKKI HÉR. ``install_methods`` hvers tóls í :mod:`spacr.qt.ai.providers` eru raðirnar sem ``install_hint`` þess er byggt úr, og :func:`plan_install` velur fyrstu röðina þar sem forritin eru á ``PATH``. Skipunin sem Install-hnappurinn keyrir og skipunin sem skjámyndin sýnir eru því ein skilgreining.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -1167,7 +1189,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.ai.providers#6",
+      "label": "spacr.qt.ai.providers#7",
       "source": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` a screen shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
       "source_sha256": "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a",
       "context": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` an application view shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
@@ -1932,7 +1954,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "FLOKKSHEITI UNDANTEKNINGARINNAR ER AÐEINS SETT FRAMAN VIÐ ÞEGAR ÞAÐ SEGIR EITTHVAÐ. Skipanaglugginn skrifar þennan texta á eftir \"[AI error] \", svo fyrir :class:`~spacr.qt.ai.providers.ProviderFailed` -- þar sem öll skilaboðin eru skrifuð til að vera lesin þar, allt niður í innskráningarskipunina sem á að keyra -- breytti forskeytið setningu sem notandinn gat brugðist við í \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Hver önnur undantekning heldur flokki sínum, sem er oft það eina sem nefnir hvað fór úrskeiðis: bert ``[Errno 2] No such file or directory`` segir ekki að það sé FileNotFoundError.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -2222,10 +2246,12 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "Fundið eftir HLUTARHEITI frekar en eftir vísi eða yfirskrift flipa. Vísir færist hvenær sem flipa er bætt við, og yfirskrift er þýdd -- kóreskt viðmót hefði ekki passað við neitt. Hver síða stillir eigið ``PreferencesTab*`` heiti, og ``tools/build_help_search_index.py`` les sömu heitin úr kóða þessa glugga, svo báðir endar afhendingarinnar eru sami strengurinn frá grunni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
       "source": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
       "source_sha256": "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
       "context": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
@@ -2233,7 +2259,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
       "source": "the row caption to mark; ``\"\"`` marks nothing.",
       "source_sha256": "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
       "context": "the row caption to mark; ``\"\"`` marks nothing.",
@@ -2241,7 +2267,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#6",
       "source": "True when the named tab was found and shown.",
       "source_sha256": "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7",
       "context": "True when the named tab was found and shown.",
@@ -2408,7 +2434,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "EIGIN MAPPA FYRIR HVERT SAFN. Bæði innihalda ``measurements/measurements.db``, eins og Annotate-dæmið í sameiginlegu plötunni, svo hvort um sig er afþjappað við hlið þeirrar plötu (:func:`spacr.example_archives.example_set_folder`) frekar en inn í hana.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -2416,7 +2444,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "SAMA MYNSTUR OG Í HINUM DÆMUNUM. Ein óþjöppuð ``.tar`` skrá streymd í ``.part`` skrá á vinnsluþræði á bak við sameiginlega framvindugluggann, afþjöppuð í gegnum gagnasíu tar, ``<dataset>`` í stillingunum skipt út fyrir staðinn sem hún lenti á, og vistuð í skyndiminni: annar smellur notar afritið á diski.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",
@@ -2768,7 +2798,9 @@
       "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
       "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
       "translation": "Þröskuldsreikniritin hér eru því HEITI Á STIGI OG EKKERT ANNAÐ. Hvert þeirra er ein lína í :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` eða :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, og allt í kringum stigið -- mýkingin, leiðrétting þröskuldsins, bjarta eða dökka hliðin, fylling gata, vatnaskilaskiptingin, jaðarreglan, lágmarksflatarmálið -- er kóðinn sem Otsu fór þegar í gegnum. Að velja Li í stað Otsu breytir því hvaðan ein tala kemur og engu öðru, sem er nákvæmlega það sem það ætti að breyta.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes#3",
@@ -2784,7 +2816,9 @@
       "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
       "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
       "translation": "HVAÐ ER EKKI HÉR, OG HVERS VEGNA. Staðbundin MEAN- og staðbundin GAUSSIAN-þröskuldun eru ekki boðnar aftur: þær eru Adaptive-þröskuldshamurinn, sem keyrir ``adaptive`` grein frumulíffæravélarinnar með blokkastærð og hliðrun. Staðbundið OTSU er heldur ekki boðið aftur: það er rofinn „Staðbundinn þröskuldur (ójöfn lýsing)“ í einfalda Otsu-hamnum, notaður af greiningu á allri myndinni. Aðrir nefndir þröskuldar hunsa vistaðar stillingar staðbundins Otsu og fjölda flokka; aðeins Multi-Otsu notar valinn fjölda flokka og band í báðum umfangum. Einfalt Otsu heldur eldri forvinnslu stækkunarglersins, en hinir þröskuldarnir nota vél fyrir alla myndina á umbeðnum myndskurði. Niblack notar ``T = m - k*s``; Sauvola notar ``T = m*(1 + k*(s/R - 1))``, þar sem ``m`` og ``s`` eru staðbundið meðaltal og staðalfrávik. Vélin afhendir float32-gildi án þess að endurkvarða bil þeirra, svo sjálfgefið ``R`` Sauvola í scikit-image er 1. Þessar formúlur eru ólíkar, og breyting á styrkleikakvarða getur breytt niðurstöðu Sauvola.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#0",
@@ -2832,7 +2866,9 @@
       "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
       "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
       "translation": "Gauss-mýkingin áður en hágildin eru fundin, í pixlum. AÐSKILIN FRÁ AFSUÐUN MYNDAUKNINGARKEÐJUNNAR, sem hefur þegar keyrt þegar greinir sér myndina: þessi er til því mýkingin sem lætur einn hlut hafa eina miðju er yfirleitt miklu sterkari en sú mýking sem nokkur vill mæla BRÚN hlutarins í gegnum, og útbreiðslan mælir brúnina á sömu mýktu myndinni. Hafðu afsuðun keðjunnar óvirka nema sjónsviðið sé raunverulega suðugt, annars leggjast mýkingarnar tvær saman.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#4",
@@ -3256,7 +3292,9 @@
       "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
       "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
       "translation": "SAMA KEÐJAN NÆR TIL GRÍMUGERÐAR. Myndskrefin -- allt á undan ``detect`` -- eru skrifuð sem Mask-stillingar af :func:`chain_settings`, einn ``enhance_<field>`` lykill fyrir hverja færslu í :data:`SETTINGS_FIELDS`, og lesin aftur af :func:`spacr.psf_pipeline.prepare_chain`, sem V1- og V2-vinnsluferli Mask og lifandi forsýn Mask beita á hverja valda hlutunarrás eftir lýsingarleiðréttingu og fyrir stöðlun, á því stigi sem PSF keyrði þegar. Formfræði og skipting verka á merki greinis og tilheyra Make Masks; Cellpose-merkjum plötukeyrslu er ekki breytt af þeim. Mask-stillingarnar ``remove_background``, ``background`` og ``signal_to_noise`` eru styrkleikagólf fyrir hverja rás sem stöðlun beitir á eftir, og :func:`spacr.object._preprocess_batch` er eigin rúllandi kúla og CLAHE frumulíffæralotanna; hvorugt er stillt hér.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.Chain#0",
@@ -3600,7 +3638,9 @@
       "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
       "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
       "translation": "Formfræði og skipting eru báðar spurningar um HVAÐA PIXLAR ERU EINN HLUTUR, svo báðar eru spurðar um greininguna í heild: merkin eru lesin sem forgrunnur, mótuð upp á nýtt og merkt aftur. Auðkennin breytast því, sem kostar ekkert hér -- Make Masks endurnúmerar hvern hlut sem það límir inn í grímu (:func:`spacr.qt.mask_engine._paste_region_objects`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.finish#2",
@@ -3752,7 +3792,9 @@
       "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
       "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
       "translation": "AÐEINS SKREFIN SEM KEYRÐU, auk röðarinnar sem þau keyrðu í, svo færsla segi hvað var gert frekar en að telja upp fjórtán sjálfgefin gildi í kringum það; keðja þar sem ekkert er virkt skráir ekkert nema rofann sem var óvirkur. Röðin er skrifuð út því hún er það sem gerir færsluna nægilega til að endurgera grímuna: sömu skref í annarri röð eru önnur gríma.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.provenance#2",
@@ -4530,7 +4572,9 @@
       "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
       "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
       "translation": "Kvarði alls GUI, beitt jafnóðum: einn stuðull fyrir hverja stærð sem spaCR stillir (471).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#1",
@@ -4538,7 +4582,9 @@
       "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
       "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
       "translation": "HVAÐ ÞETTA ER. \"GUI scale\" í Preferences (10 % til 200 %, sjálfgefið 100 %) kvarðar stærðir græja, fastar stærðir, spássíur, bil, stærðir í stílblöðum (leturgerðir og fyllingar meðtaldar), tákn, stærðir skipta og dpi mynda -- og gerir það á meðan spaCR keyrir, án endurræsingar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#10",
@@ -4546,7 +4592,9 @@
       "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
       "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
       "translation": "HVAÐ FYLGIR EKKI JAFNÓÐUM. Stærðir sem kvarðinn sér ekki því þær fara ekki í gegnum stillifall: texti og form sem græja teiknar sjálf á föstum pixlahnitum, myndir sem græja kvarðar að tölu sem hún reiknaði, ``setFont`` með skýrt tilgreindri stærð, ``move``/``setGeometry`` staðsetningar, stærðir hausreita, Python ``sizeHint`` yfirskrift sem skilar fasta, eigin mælistærðir Fusion-stílsins sem stílblað þemans endurtekur ekki, og ásatexti pyqtgraph. Stærðir sem reiknaðar eru út frá letursmælingum eru þegar kvarðaðar einu sinni af letrinu og eru kvarðaðar aftur af stillifallinu -- eina leiðin sem lagið getur minnkað of mikið. Eigin stærð aðalgluggans er látin í friði, svo rýmið sem vinnst fer til innihaldsins.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#2",
@@ -4554,7 +4602,9 @@
       "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
       "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
       "translation": "HVERNIG, ÁN ÞESS AÐ SNERTA 1,420 KALLSTAÐI. Talið á nightly 2026-09-22 yfir þær 328 einingar sem eru undir ``spacr/qt``: um 1,420 harðkóðuð rúmfræðiköll í 181 skrá (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) og 486 ``px`` fastar í stílblaðatexta í 64 skrám. Að beina hverju þeirra í höndunum væri breyting á hverri skjámynd, og hver stærð sem bætt væri við síðar þyrfti að muna eftir því. Í staðinn skiptir :func:`install_scaling_layer` -- kallað einu sinni frá :func:`spacr.qt.app.launch` áður en fyrsta græjan er til -- út stillifallunum sjálfum á Qt-klösunum (stærðarstillum ``QWidget`` og ``setStyleSheet``, stillum uppsetninga fyrir spássíur og bil, hverju ``setIconSize``, ``QSplitter.setSizes``). Hver staðgengill",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#3",
@@ -4586,7 +4636,9 @@
       "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
       "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
       "translation": "Breyting á kvarða (:func:`set_gui_scale_live`) fer yfir hverja lifandi græju og uppsetningu, setur hvert munað gildi aftur á nýja kvarðanum, og biður gluggana að raða upp aftur. Græja sem byggð er síðar er kvörðuð um leið og hún er byggð. Rúður skiptingar halda því rými sem þær hafa á skjánum -- það sem minnkar er það sem er inni í þeim -- og ``sizes()`` svarar í 100 % einingum, svo stærðirnar sem sneið B vistar lifa af breytingu á kvarða.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#7",
@@ -4594,7 +4646,9 @@
       "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
       "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
       "translation": "HVERNIG ÞETTA SPILAR SAMAN VIÐ LETURKVARÐA. Leturkvarði helst þar sem hann er: hann skrifar leturstærðirnar inn í stílblað þemans. Það blað fer í gegnum ``setStyleSheet`` staðgengilinn eins og hvert annað, svo leturstærð endar sem grunnur x leturkvarði x GUI-kvarði. 50 % GUI við 200 % letur eru græjur í hálfri stærð með texta í venjulegri stærð á skjánum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#8",
@@ -4602,7 +4656,9 @@
       "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
       "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
       "translation": "EIGIÐ ``QT_SCALE_FACTOR`` NOTANDA er ekki snert og margfaldast að utan, eins og Qt hefur alltaf gert.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#9",
@@ -4610,7 +4666,9 @@
       "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "HALDA EÐA AFTURKALLA. Hver breyting á GUI-kvarða eða leturkvarða tekur gildi strax og spyr síðan „Halda þessum stillingum?“ (:class:`KeepOrRevertDialog`), með niðurtalningu í 15 s; niðurtalningin, Esc og lokun gluggans setja öll gömlu gildin aftur. Glugginn er undanþeginn kvarðanum og stillir eigin textastærð, svo hann er læsilegur jafnt við 10 % GUI og 10 % letur. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) er áfram varaleiðin.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale.add_listener#0",

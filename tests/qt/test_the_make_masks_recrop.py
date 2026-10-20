@@ -45,6 +45,7 @@ import numpy as np
 import pytest
 from PySide6.QtCore import QEvent, QPointF, Qt
 from PySide6.QtGui import QMouseEvent
+from PySide6.QtWidgets import QWidget
 
 from spacr.curation import CurationLog, is_curated
 from spacr.qt import mask_engine as engine
@@ -355,7 +356,7 @@ def test_the_manifest_records_what_moved_and_which_boxes_were_cut(folder):
     # Ordinary JSON, so recovery never needs this module.
     raw = json.loads(
         (folder / engine.RECROP_ARCHIVE_DIRNAME
-         / engine.RECROP_MANIFEST).read_text())
+         / engine.RECROP_MANIFEST).read_text(encoding="utf-8"))
     assert raw == manifest
 
 
@@ -427,7 +428,8 @@ def test_recrop_is_one_of_the_tools_in_the_one_row(qtbot, qt_theme_applied, fold
     button.click()
     assert screen._canvas.mode == MODE_RECROP
     ruler = screen._mode_buttons[MODE_RULER]
-    assert screen._tool_row_layout.indexOf(ruler) > screen._tool_row_layout.indexOf(button)
+    controls = screen.findChild(QWidget, "MakeMasksViewControls")
+    assert controls.layout().indexOf(ruler) >= 0
     ruler.click()
     assert screen._canvas.mode == MODE_RULER
 
@@ -657,7 +659,7 @@ def test_restoring_skips_records_and_moves_it_cannot_honour(folder):
                                      boxes=[(10, 10, 90, 90)])
     archive = folder / engine.RECROP_ARCHIVE_DIRNAME
     manifest_path = archive / engine.RECROP_MANIFEST
-    records = json.loads(manifest_path.read_text())
+    records = json.loads(manifest_path.read_text(encoding="utf-8"))
     # A malformed pair (a record hand-trimmed in the JSON) and a move whose
     # archived file somebody has already deleted.
     record = next(r for r in records if r["original"] == "field_a.tif")

@@ -1,0 +1,38 @@
+{
+  "schema": "spacr.n700.home-preparatory-draft-scope.v1",
+  "source_commit": "cfb10b89e0ceafa8fd766973919e55e237cc52f8",
+  "original_proposal_path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/data/700_work_zero_cost_future_notices_2026-10-13/n700_zero_cost_future_notices_corrected_final_20261013.json",
+  "exact_original_proposal_sha256": "cd8851c2ee3f4fb1853829bb8c34a8aa1451204717be47e9e5ea7a041d431cbb",
+  "original_requirements_before_use_preserved_verbatim": [
+    "Continuously verify actual owner zero-cost accounts/plans/resources/model allowlist under declared validity policy; stale/changed/failed/incompatible verification disables managed routes. Managed paid subscriptions/credits/fallback/plans/domains/hosting/GPU rental are forbidden even with user consent. No current price research or verification occurred.",
+    "Home approves exact future English only after client/relay behavior lands; placeholders must be resolved by implemented policy, not prose.",
+    "Atomic shared quota/retry/deduplication must refuse capacity-exhausted work, or queue only under implemented explicitly disclosed bounded content/location/retention/deletion/retry limits, valid purpose-specific consent and reconciled request identity. Reporting and AI remain independent, with separate limits.",
+    "Queue notices require actual disclosed bounded retention, consent and removal rules; refusal/unknown outcomes remain distinct. No retry after unknown submission until identity reconciled.",
+    "Public/cloud purpose-specific disclosures/settings/consent and opt-outs are independent. Public approval does not authorize cloud AI; cloud choice does not authorize public filing. No network for disabled purpose; reused advice and new transfer distinguished. No zero-retention/anonymity promise or false cancellation.",
+    "Keep optional existing CLI accounts and pricing/transport terms separate. Do not automatically select them as paid fallback or alter unrelated configured services.",
+    "No translations/source/catalog changes during freeze. These notices are unapproved drafts and do not certify current service free or deployed."
+  ],
+  "original_notice_texts_or_metadata_overwritten": false,
+  "exact_text_bindings": {
+    "ZC01": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+    "ZC02": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+    "ZC03": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+    "ZC04": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+    "ZC05": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+    "ZC06": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+    "ZC07": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+    "ZC08": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+    "ZC09": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+    "ZC10": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+    "ZC11": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+    "ZC12": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+    "ZC13": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+    "ZC14": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2"
+  },
+  "scoped_preparatory_allowance_for_root_to_record": "Root may accept the exact fourteen future English notices as design wording and separately instruct isolated nine-locale proposal drafts bound to these text hashes. This narrow draft-only allowance does not assert historical activation gates fulfilled and does not authorize canonical source/catalog/review/generator edits, UI display, relay deployment, accounts or service activation.",
+  "unchanged_activation_gate": "Final UI/service approval still requires implemented and validated client/relay behavior, each notice display predicate, declared currently valid account/plan/model/resource eligibility and actual free-plan verification. Any stale/failed/changed/incompatible verification leaves routes disabled; no managed paid resource even with user consent.",
+  "canonical_and_deployment_hold": true,
+  "root_acceptance_note_and_Work_instruction_owned_by": "/root",
+  "root_acceptance_note_written_by_this_review": false,
+  "notice_texts_changed": []
+}

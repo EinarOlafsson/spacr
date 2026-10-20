@@ -133,7 +133,7 @@ class TestNotebookExport:
         out = notebook_export.export_run(
             run_dir, out_path=tmp_path / "out.ipynb")
         assert out.exists()
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         # nbformat v4 shape
         assert nb["nbformat"] == 4
         assert "cells" in nb and len(nb["cells"]) >= 4
@@ -155,7 +155,7 @@ class TestNotebookExport:
         run_dir = self._make_run(tmp_path, "measure")
         out = notebook_export.export_run(
             run_dir, out_path=tmp_path / "measure.ipynb")
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         code = "\n".join(
             "".join(c["source"])
             for c in nb["cells"] if c["cell_type"] == "code"
@@ -172,7 +172,7 @@ class TestNotebookExport:
         run_dir = self._make_run(tmp_path, "definitely_not_a_real_app")
         out = notebook_export.export_run(
             run_dir, out_path=tmp_path / "unknown.ipynb")
-        nb = json.loads(out.read_text())
+        nb = json.loads(out.read_text(encoding="utf-8"))
         code = "\n".join(
             "".join(c["source"])
             for c in nb["cells"] if c["cell_type"] == "code"

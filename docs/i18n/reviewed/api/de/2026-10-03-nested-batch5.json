@@ -65,7 +65,9 @@
       "source_sha256": "99e6bba433d48f7471afca510b38ea967267d17505c05bd5805e6f3cf635487b",
       "context": "The escaped spelling first — it is the one a producer emits today.",
       "translation": "Zuerst die maskierte Schreibweise — sie ist die, die ein Erzeuger heute ausgibt.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.active_learning.predict_probabilities._run#0",
@@ -233,7 +235,9 @@
       "source_sha256": "f598fb53451f0a945729ff58c8c7eb7ca50a4cc89b006a085e84b632594dc880",
       "context": "The `finally` is the whole point: `_SHARED_CATALOGUE_FETCHING` is what stops a second refresh being started while this one is in flight, so a fetch that raises must still clear it or no later refresh can ever begin.",
       "translation": "Das `finally` ist der ganze Sinn: `_SHARED_CATALOGUE_FETCHING` verhindert, dass eine zweite Aktualisierung startet, während diese läuft; ein Abruf, der eine Ausnahme auslöst, muss es also trotzdem zurücksetzen, sonst kann nie wieder eine Aktualisierung beginnen.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.benchmark._tick#0",
@@ -353,7 +357,9 @@
       "source_sha256": "b3f6f307c7905d81b8efa4374e1320fd38117090015c4c40e605ff2d16963e4b",
       "context": "A well is not opened to compose a window of it. Six anchors need about nine microscope image fields each; testing readability over every placement instead pulled all 333 of the reference well's sequencing microscope image fields, and ``tifffile`` reads the whole five-image layer 1,480 px file for one image layer of it -- 22 MB each, about 7 GB over NFS per well, before ``compose_window`` then re-read the nine it wanted. The overlap test is the same rounding ``compose_window`` uses, so a microscope image field is offered here exactly when it would have been used there; a microscope image field that will not read is dropped so the composer never sees a None.",
       "translation": "EIN WELL WIRD NICHT GEÖFFNET, UM EIN FENSTER DARAUS ZUSAMMENZUSETZEN. Sechs Anker brauchen je etwa neun Kacheln; stattdessen die Lesbarkeit über jede Platzierung zu prüfen, holte alle 333 Sequenzierkacheln des Referenz-Wells, und ``tifffile`` liest die ganze fünfebenige 1,480-px-Datei für eine ihrer Ebenen -- je 22 MB, etwa 7 GB über NFS pro Well, bevor ``compose_window`` dann die neun, die es wollte, erneut las. Der Überlappungstest ist dieselbe Rundung, die ``compose_window`` verwendet, daher wird eine Kachel hier genau dann angeboten, wenn sie dort verwendet worden wäre; eine nicht lesbare Kachel wird verworfen, damit der Zusammensetzer nie ein None sieht.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine._st_register_intensity.shrink#0",
@@ -377,7 +383,9 @@
       "source_sha256": "733354dd50a54aec08441e9789ba0a1c71f3162a1edafb39f07612d55b1fb698",
       "context": "Returns the COMPLAINT rather than a bool, so the caller can show the reason instead of a bare refusal.",
       "translation": "Gibt die BEANSTANDUNG statt eines bool zurück, damit der Aufrufer den Grund statt einer bloßen Ablehnung zeigen kann.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ask_for_the_path.ask_for_a_database_column.chooser#0",
@@ -649,7 +657,9 @@
       "source_sha256": "6c7949c82aed8f86eacefb853525a4be0d1d775b43a0e296f00bc884cc197f76",
       "context": "The isdir the guard above can no longer do lives here, where the independent execution path waiting on it is a worker and waiting is free. The sentence it raises is the one the guard has always said, because a root that is not a folder has to read the same to the user however spaCR found out.",
       "translation": "Das isdir, das die Prüfung oben nicht mehr leisten kann, steht hier, wo der darauf wartende Thread ein Worker ist und Warten nichts kostet. Der Satz, den es auslöst, ist derselbe, den die Prüfung immer gesagt hat, denn eine Wurzel, die kein Ordner ist, muss sich für den Benutzer gleich lesen, egal wie spaCR es herausgefunden hat.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.db_browser.DbBrowserScreen._fetch_chunk._job#0",
@@ -937,7 +947,9 @@
       "source_sha256": "2fa5ae63e5f0e8f06abf5b347d7a70bf1ad679f20b55fdbf1f0459149de09750",
       "context": "The pending flag is cleared FIRST, so a draw that itself schedules another does not lose it.",
       "translation": "Das Ausstehend-Flag wird ZUERST zurückgesetzt, damit ein Zeichnen, das selbst ein weiteres einplant, es nicht verliert.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer._build_ui._OwnedTimerFigureCanvas.cancel_pending_draw#0",
@@ -953,7 +965,9 @@
       "source_sha256": "2efbddc7516ab569e7e527b901babcd1f79ef949eb9f353806cacd96a9ac93ae",
       "context": "Schedule a redraw on the canvas's OWN timer.",
       "translation": "Reiht ein Neuzeichnen auf dem EIGENEN Timer der Zeichenfläche ein.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

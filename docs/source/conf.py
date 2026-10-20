@@ -313,6 +313,12 @@ html_theme_options = {
     'source_directory':   'docs/source/',
     'footer_icons': [
         {
+            'name': 'Website',
+            'url':  'https://einarolafsson.github.io/projects/spacr/',
+            'html': '<svg stroke="currentColor" fill="none" stroke-width="1.6" viewBox="0 0 24 24" height="1.4em" width="1.4em" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>',
+            'class': '',
+        },
+        {
             'name': 'GitHub',
             'url':  'https://github.com/EinarOlafsson/spacr',
             'html': '',
@@ -362,7 +368,38 @@ def _qualify_helper_annotations(app, doctree):
             node.attributes.pop('refspecific', None)
 
 
+def _omit_unused_viewcode_catalog_version(app, pagename, templatename, context, doctree):
+    """Keep viewcode HTML stable when it cannot consume API translations.
+
+    The frontend retains guide navigation on source pages, but only fetches
+    catalogs for an API path or Python description list. Keep the digest for
+    custom templates, doctrees and any description-list markup conservatively.
+    Sphinx shares immutable script objects across pages: replace the selected
+    object in this context instead of changing its attributes in place.
+    """
+    import re
+
+    if (not pagename.startswith('_modules/') or 'api' in pagename.split('/')
+            or templatename != 'page.html' or doctree is not None):
+        return
+    body = context.get('body')
+    if not isinstance(body, str) or re.search(r'<\s*dl(?:\s|/?>)', body, re.IGNORECASE):
+        return
+    scripts = []
+    for script in context.get('script_files', ()):
+        attributes = getattr(script, 'attributes', {})
+        filename = getattr(script, 'filename', '')
+        if (str(filename).rsplit('/', 1)[-1] == 'api_i18n.js'
+                and 'data-api-catalog-version' in attributes):
+            attributes = {key: value for key, value in attributes.items()
+                          if key != 'data-api-catalog-version'}
+            script = type(script)(filename, priority=script.priority, **attributes)
+        scripts.append(script)
+    context['script_files'] = scripts
+
+
 def setup(app):
+    app.connect('html-page-context', _omit_unused_viewcode_catalog_version)
     app.connect('doctree-read', _qualify_helper_annotations)
     app.add_config_value('spacr_nested_helper_modules', (), 'env')
     app.add_config_value('spacr_explicit_api_modules', (), 'env')

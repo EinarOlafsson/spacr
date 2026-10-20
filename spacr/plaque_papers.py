@@ -6,8 +6,9 @@ around each image, works out which condition each image shows, segments and
 measures the plaques, and writes everything to a SQLite database together
 with where every value came from.
 
-THE CONDITION IS THE HARD PART, and it is read two independent ways, always
-both, because two readings that agree are evidence and one is a guess:
+The condition each image shows is read two independent ways, always both,
+because two readings that agree support each other and a single reading
+does not:
 
 * **the label** -- the text nearest the image inside the figure: the column
   header above it, the row label beside it, anything printed beneath it. A
@@ -28,7 +29,7 @@ reading being preferred. When neither is present the image is named by its
 figure and its row and column in the panel, and marked ``weak`` so a dataset
 can leave those rows out.
 
-SIZES. A plaque area in pixels depends on the paper's printing, so every
+**Sizes.** A plaque area in pixels depends on the paper's printing, so every
 plaque also carries its area relative to the median plaque in the same panel,
 and an area in mm^2 only when there is a ruler: a scale bar read in or under
 the image (its length from the label beside it, or from the legend's "scale
@@ -37,18 +38,18 @@ state. A stated magnification is recorded but is never a ruler, because a
 printed figure has been rescaled since the picture was taken. Rows with no
 ruler say their sizes are in pixels.
 
-DUPLICATES. A figure is identified by its paper (the DOI when there is one)
+**Duplicates.** A figure is identified by its paper (the DOI when there is one)
 and its image hash. The same image seen again -- the same bytes, or the same
 pixels in another file format, under another name or another paper, such as a
 preprint and its published version -- is measured once and recorded in the
 ``duplicates`` table against the copy that was measured. A paper already
 measured from one source (Europe PMC) is not measured again from another (its
-PDF). An image that merely LOOKS the same (a near-identical perceptual hash,
+PDF). An image that only looks the same (a near-identical perceptual hash,
 as a re-encoded or resized copy would have) is recorded as a possible
-duplicate and still measured, because on figures that is a resemblance, not
-a proof.
+duplicate and still measured, because a similar hash does not prove that two
+figures are the same image.
 
-TEXT. A PDF's own text layer is used for legends and labels before any OCR;
+**Text.** A PDF's own text layer is used for legends and labels before any OCR;
 OCR is asked only when the text layer has nothing near the plaque images,
 which is what a figure pasted into the PDF as one picture looks like.
 
@@ -121,7 +122,7 @@ FORMAT_RANK = {".scn": 0, ".tiff": 0, ".tif": 0, ".png": 1, ".webp": 2, ".jpg": 
                ".jpeg": 2, ".gif": 3, ".bmp": 3}
 
 DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
-DEFAULT_SEGMENTER = "toxoplasma_plaque_v2"
+DEFAULT_SEGMENTER = "toxoplasma_plaque_v5"
 DEFAULT_IMGSZ: Tuple[int, ...] = (640, 1280)
 
 INSTALL_HINT = 'pip install "spacr[papers]"'
@@ -335,7 +336,7 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def parse_reference(ref: Any) -> Dict[str, str]:
-    """Say what kind of reference a user typed.
+    """Classify a reference as a DOI, PMC id, PMID or PDF path.
 
     :param ref: a DOI (bare, ``doi:`` or a doi.org URL), a PMC id, a PMID,
         or a path to a PDF.
@@ -568,8 +569,8 @@ def fetch_figures(paper: Paper, dest: Any, *,
 
     The images come from the ``supplementaryFiles`` bundle, which carries the
     main figures as well as the supplements; one file per figure survives,
-    the largest, because journals also ship thumbnails and a detector shown
-    a thumbnail has not been asked the question. Legends come from the
+    the largest, because journals also ship thumbnails, which are too small
+    for the detector to measure the figure. Legends come from the
     full-text XML.
 
     :param paper: a paper with a PMC id.
@@ -959,7 +960,7 @@ def _reader_request(op: str, image: Any, **payload: Any) -> Dict[str, Any]:
 
 def reader_detect(image: np.ndarray, weights: str, *, confidence: float = 0.25,
                   imgsz: int = 640, min_axis_ratio: float = 0.0) -> List[Any]:
-    """:func:`spacr.plaque.detect_wells`, answered by the reader's environment.
+    """Run :func:`spacr.plaque.detect_wells` in the figure reader's environment.
 
     :param image: the figure, RGB.
     :param weights: the detector checkpoint.
@@ -1264,8 +1265,9 @@ def text_near(region: Region, words: Sequence[Word], *,
       grid, including a label printed rotated.
     * **below** -- the nearest line under the image's column.
     * **panel** -- a panel letter above and to the left of the grid's top-left
-      corner, within one image size of it. Further than that is another
-      panel's letter, and no letter is better than the wrong one.
+      corner, within one image size of it (``panel_reach``, 1.0 by
+      default). A letter further away is taken
+      to belong to another panel and is not used.
 
     Text inside any plaque image (a scale bar, an inset label) is not a
     label and is left out.
@@ -1947,7 +1949,7 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
 
 def console_legend_prompt(figure: Figure, annotations: Sequence[Annotation], *,
                           ask: Callable[[str], str] = input) -> Optional[str]:
-    """Ask at the terminal for a legend nobody could fetch.
+    """Prompt at the terminal for a figure legend that could not be fetched.
 
     :param figure: the figure whose legend is missing.
     :param annotations: what was read so far, to show which panels matter.
@@ -2232,7 +2234,7 @@ def _find_duplicate(connection: sqlite3.Connection, paper: Paper, figure: Figure
     name = Path(str(figure.path)).name
 
     def same_figure(row) -> bool:
-        """The row is this very file of this very paper."""
+        """Return whether the row is this file of this paper."""
         return row[1] == paper.key and Path(str(row[2])).name == name
 
     def found(row, match, distance=0, skip=True) -> Dict[str, Any]:
@@ -2323,21 +2325,25 @@ def _image_pixels_per_um(path: Any) -> Optional[float]:
         return None
 
 
-def _zoo_path(key: str, cache: Path) -> Tuple[str, str]:
+def _zoo_path(key: str, cache: Path, *, kind=None, setting=None) -> Tuple[str, str]:
     """A zoo model's local path and a description to record with results.
 
     :param key: a zoo key, or a path to a checkpoint.
-    :param cache: where a downloaded model is kept.
+    :param cache: legacy destination argument; the shared verified cache is used.
+    :param kind: checkpoint kind required by the actual consumer, when known.
+    :param setting: actual caller input name; direct helper calls use ``key``.
     :returns: ``(path, 'name sha256')``.
     """
-    if Path(str(key)).exists():
+    if Path(str(key)).is_file():
         return str(key), f"{Path(str(key)).name}"
     from . import model_zoo as zoo
 
-    entry = zoo.resolve(key, zoo.catalogue())
-    path = entry.path if getattr(entry, "path", None) and Path(entry.path).exists() \
-        else zoo.fetch(entry, cache)
-    return str(path), f"{entry.name} {entry.sha256 or ''}".strip()
+    field = setting if setting is not None else "key"
+    resolved = zoo._ensure_model_file(str(key), kinds=(kind,) if kind else (), setting=field)
+    if resolved is None:
+        raise zoo.ModelUnreadable(zoo._model_resolution_context(
+            str(key), setting=field, kinds=(kind,) if kind else ()))
+    return str(resolved), f"{resolved.name} {zoo.sha256_file(resolved)}"
 
 
 def _cellpose_segmenter(path: str, *, return_metrics: bool = False) -> Callable:
@@ -2458,10 +2464,10 @@ def measure_plaques_from_papers(
     review = review or console_review
     read_text = read_text or read_words
     detector_path, detector_id = (detector, str(detector)) if detect else \
-        _zoo_path(detector, dst / "models")
+        _zoo_path(detector, dst / "models", kind="detector", setting="detector")
     segmenter_id = str(segmenter)
     if segment is None:
-        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
+        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose", setting="segmenter")
         segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
     references = list(references)
     run_id = _start_run(
@@ -3148,7 +3154,7 @@ def measure_figure_folder(
         text_options: Optional[TextOptions] = None) -> Dict[str, Any]:
     """Figure mode of Plaque Assay: find, read, annotate and measure a folder.
 
-    Nothing here stops to ask. Legends come from ``legends`` (default
+    The function does not prompt. Legends come from ``legends`` (default
     ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``,
     the paper from ``<src>/paper.json``, and a person's edits and approvals
     from ``annotations`` (default ``<src>/figure_annotations.csv``), which the
@@ -3200,10 +3206,10 @@ def measure_figure_folder(
     database = dst / "plaque_figures.db"
     connection = open_database(database)
     detector_path, detector_id = (detector, str(detector)) if detect else \
-        _zoo_path(detector, dst / "models")
+        _zoo_path(detector, dst / "models", kind="detector", setting="detector")
     segmenter_id = str(segmenter)
     if segment is None:
-        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
+        segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models", kind="cellpose", setting="segmenter")
         segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
     run_id = _start_run(
         connection, entry="folder", source=str(src.resolve()),

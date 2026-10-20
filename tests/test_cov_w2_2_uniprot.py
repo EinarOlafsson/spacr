@@ -147,7 +147,7 @@ def test_a_cache_that_cannot_be_written_does_not_stop_the_answer(tmp_path):
     blocked = tmp_path / "not_a_directory"
     blocked.write_text("in the way")
     _write_cache(str(blocked), "key", [{"a": 1}])     # must not raise
-    assert blocked.read_text() == "in the way"
+    assert blocked.read_text(encoding="utf-8") == "in the way"
 
 
 def test_an_unreadable_cache_entry_is_a_miss_not_a_crash(tmp_path):
@@ -209,7 +209,7 @@ def test_every_page_is_followed_and_the_answer_is_cached(tmp_path,
     # and it is on disk, so the next run is offline
     cached = tmp_path / "uniprot_tax_9606_sp.json"
     assert cached.is_file()
-    assert len(json.loads(cached.read_text())) == 2
+    assert len(json.loads(cached.read_text(encoding="utf-8"))) == 2
 
 
 def test_an_empty_page_ends_the_paging(monkeypatch):

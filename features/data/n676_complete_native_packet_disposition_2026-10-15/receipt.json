@@ -1,0 +1,157 @@
+{
+  "status": "FINITE SOURCE DISPOSITION ONLY; original packet not silently marked complete",
+  "public_reference": "755c62d0e075aa980b17793de474b2d2bfa5d604",
+  "current04_private_reference": "f53d6dce5d26a3f13677acb0b41e6c735e4fdc92",
+  "held_author_commit": "e257c1f3c3e04408968f656eade6a452dbe0bfc0",
+  "held_author_parent": "fb281b62f2085c9b86db1363eb3029c08a3cb305",
+  "held_patch_sha256": "3fe5b809a441af028f021a4d5e3db103ae6f218dbabfba8e7013e8e384951927",
+  "instruction_bindings": [
+    {
+      "path": "features/data/n676_complete_native_clips_fix_2026-10-14/README.md",
+      "meaning": "Explicit held review artifact: no source push/integration authorized by packet; Home owns later source integration.",
+      "sha256": "3e343bdec95c78274af6a59ef38f2b01eac61580b41e9d4baffe14b822905909"
+    },
+    {
+      "path": "features/HANDOFF.md",
+      "spans": [
+        "2026-10-14 19:44 native-tail diagnosis and Work ownership",
+        "2026-10-14 20:03 concrete tested seven-file fix for Home review",
+        "2026-10-15 portable player narrow source adoption",
+        "2026-10-15 bounded Work04 prerequisite approval"
+      ],
+      "meaning": "Later deliveries explicitly scope runtime player and04 dependency integration; none withdraws generic planner correctness remainder.",
+      "sha256": "ced6562477558c16c0c4e6525e676d4bce0d7b6a6bd24bd4a474e22302273e74"
+    },
+    {
+      "path": "features/data/n676_portable_player_readiness_owner_2026-10-15/README.md",
+      "meaning": "Three-file player/readiness package includes c163/e257 runtime dependencies and explicitly needs no renderer/producer/verifier merge for THAT delivery.",
+      "sha256": "bc760774d92af2cc0ab449dbcb692a99732ccc8e0a2d85714549097882e546ae"
+    },
+    {
+      "path": "features/data/n676_selective04_source_prerequisite_2026-10-15/plan.json",
+      "meaning": "Reviewed six-file K4/K5/K6 owner adoption excludes generic native planner; exact missing frame helper added in privatef53 only as required operational dependency.",
+      "sha256": "91acd3186e0de69914bb131edde35ba3faa21a6045b963f6b40a11a4a2932b77"
+    }
+  ],
+  "parts": [
+    {
+      "path": "tools/tutorials/authoring/web/app_v2.js",
+      "author_preimage_blob": "30a83959369ab97d1bcecd7cb647dc66327016d5",
+      "author_postimage_blob": "4f1055e10ebf44cc2df280bc2993e3748b1d620c",
+      "public_blob": "e155bc99a52be05abd253974d4534c33909f5902",
+      "public_sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+      "current04_private_blob": "46c963a803110c719b5a909054f03a874c54d277",
+      "current04_private_sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+      "disposition": "SUPERSEDED/DELIVERED through later exact portable readiness owner packet (6e4) and newer04 K4/K5/K6; do not apply obsolete whole player postimage."
+    },
+    {
+      "path": "tools/tutorials/native_live_timing.py",
+      "author_preimage_blob": "1d37097497ad78e59c6a0eccb777010fb4f7debe",
+      "author_postimage_blob": "481c57de0a9e9473183ac644353c68d651ca534c",
+      "public_blob": "1d37097497ad78e59c6a0eccb777010fb4f7debe",
+      "public_sha256": "97565538fe70e1f49e06ac61da23373cdde853a576f3589977d6880e16583e5f",
+      "current04_private_blob": "0433027e003a2872c0d0ab8ead2c77bd95075491",
+      "current04_private_sha256": "3cf5164132d080d9e26c2e76c88c47f5cb61e4c14b0cdb5dd2317acf4f58f578",
+      "disposition": "PARTIAL: exact duration helper adopted privately; generic planner remains held/unintegrated",
+      "current_planner_exact_original_preimage_AST": true,
+      "duration_helper_private_AST_exact_author_postimage": true,
+      "remaining_symbols": [
+        "longest_scene_timing(lesson, tracks, native_scenes, *, fps=30, native_durations=None)",
+        "plan(stage, identity)"
+      ],
+      "remaining_behavior": [
+        "Scene duration=max(longest accepted voice, verified complete native clip) rounded to whole frames.",
+        "Plan verifies decoded frame-clock duration for every native input before constructing shared timing.",
+        "Plan passes native_durations, sets complete_native_clips True, retains native_clip_sources and uses exact duration gap test."
+      ],
+      "current_behavior": "Public file is exact old1d370 preimage; private f53 only adds helper/Fraction import. Both named planner functions stay old narration-only AST."
+    },
+    {
+      "path": "tools/tutorials/tests/test_native_live_timing.py",
+      "author_preimage_blob": "360725ea32a7086d977771295c0288978bc7cfb2",
+      "author_postimage_blob": "f4a834ee6cf139dd1b2ba1d670fc638814fd702d",
+      "public_blob": "360725ea32a7086d977771295c0288978bc7cfb2",
+      "public_sha256": "867e63e3115ac8233c6f04262665439cb03f09ebce3f8aeb778b2e789d6c8c7b",
+      "current04_private_blob": "a63712e37b8ba102046fcd1695f424520f9152be",
+      "current04_private_sha256": "7f2ab1069d6c4852fca7a2b9d80689fded90dfa2b82ea95c8abbf5f8024eda27",
+      "disposition": "PARTIAL: f53 adds actual author duration helper cases plus explicit boundaries, but complete-capture longest-scene/plan regressions and updated native receipt fixtures from old packet remain unadopted.",
+      "remaining_author_added_functions": [
+        "test_native_reference_preserves_complete_source_and_apply_actions_after_short_speech"
+      ]
+    },
+    {
+      "path": "tools/tutorials/tests/test_player_complete_native_clips.py",
+      "author_preimage_blob": "0000000000000000000000000000000000000000",
+      "author_postimage_blob": "fec157a78ada1bedb0fb6e00292ee8abf742afed",
+      "public_blob": "fec157a78ada1bedb0fb6e00292ee8abf742afed",
+      "public_sha256": "f9bcf1e8312bc981f405bb2f74bd70e6cdcdbd72c05e252e2304915306939d63",
+      "current04_private_blob": "fec157a78ada1bedb0fb6e00292ee8abf742afed",
+      "current04_private_sha256": "f9bcf1e8312bc981f405bb2f74bd70e6cdcdbd72c05e252e2304915306939d63",
+      "disposition": "DELIVERED/SUPERSEDED via6e4 portable runtime packet; current fixture/test bytes evolved, all original named functions present.",
+      "author_named_functions": [
+        "complete_fixture",
+        "open_player",
+        "test_complete_native_seek_pause_resume_chapter_and_track_reload",
+        "test_complete_native_tails_run_without_automatic_seeks_and_final_audio_cannot_skip"
+      ],
+      "additional_current_functions": []
+    },
+    {
+      "path": "tools/tutorials/tests/test_player_native_live_video.py",
+      "author_preimage_blob": "f9885e4684f90b531fcb38649f8a8ff1a6dc59b1",
+      "author_postimage_blob": "442d625201a7464c53f70185a2679c7d1977d118",
+      "public_blob": "f9885e4684f90b531fcb38649f8a8ff1a6dc59b1",
+      "public_sha256": "c7e29f35bbedfc062a4135f6e865dbb77a2279195b6718217a222a237b135aed",
+      "current04_private_blob": "f9885e4684f90b531fcb38649f8a8ff1a6dc59b1",
+      "current04_private_sha256": "c7e29f35bbedfc062a4135f6e865dbb77a2279195b6718217a222a237b135aed",
+      "disposition": "HELD/unintegrated one test-only Chrome --disable-accelerated-video-decode flag; public/private file remains exact author preimage. Not a newly diagnosed product defect."
+    },
+    {
+      "path": "tools/tutorials/tests/test_staged_complete_native_boundary.py",
+      "author_preimage_blob": "0000000000000000000000000000000000000000",
+      "author_postimage_blob": "fd6966768b5d0f7f805db60160e244e83631d9ff",
+      "public_blob": null,
+      "current04_private_blob": null,
+      "disposition": "HELD/unintegrated independent strict trace/old-skip-negative/browser EOF test module; absent public and current04 private source. No claim current04 validation absent: its separately scoped owning evidence remains independent."
+    },
+    {
+      "path": "tools/tutorials/verify_staged_lesson.py",
+      "author_preimage_blob": "b94047a5deaf797b0e3b6b845d3ba9d8f73f26dd",
+      "author_postimage_blob": "36701a52626cd021bb7ea40caf6494be03ab2b73",
+      "public_blob": "a19fd9cd202ffea6cd879442c03f363fc64a3d64",
+      "public_sha256": "9992fabc5ddc6db81df6b4b4507c4825cca14b177f7ea9dffe61db8d07312696",
+      "current04_private_blob": "099373c8d9b61bca100411080ac44e81cd89c07e",
+      "current04_private_sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04",
+      "disposition": "SUPERSEDED/PARTIAL RECOVERY via explicitly granted04 prerequisite: private65d/f53 has newer strict complete-native trace/boundary helpers plus mixed preserve-visual dispatch. Author full36701 postimage is obsolete; preserve later owner clauses and source-path bootstrap."
+    }
+  ],
+  "conclusion": [
+    "Original author handoff requests Home review, not unconditional application. Current Root explicitly keeps old planner separate; no implementation is started or newly inferred by this audit.",
+    "Do not reapply the seven-file old packet wholesale: player/verifier are later author-approved successors.",
+    "Generic native timing producer remains an unintegrated held review remainder, not proven superseded/cancelled; exact current function ASTs still implement the reported narration-only behavior.",
+    "Concrete next source obligation if Root activates that held producer scope: narrow current-base longest_scene_timing/plan rebase plus coherent complete-native timing fixtures; retain all50-track/media/decoded-frame/coverage fail-closed guards.",
+    "Standalone staged-boundary test module and single browser decode-disable flag remain unintegrated old test hunks; Root may separately approve needed tests without replacing current owner implementations.",
+    "04 source/media/publication receipts do not by themselves certify that the generic native producer was integrated."
+  ],
+  "limits": [
+    "No application/source edits, tests/imports/collector/writer, rendering/encoding/recording/browser/model/GPU or intended network action.",
+    "One unneeded missing-object existence lookup was issued with GIT_NO_LAZY_FETCH=1 using a noncanonical guessed ID; it yielded no evidence and is excluded. No fetch subprocess observed at inspection; no remote outcome claimed. All accepted postimages were instead reconstructed in memory from actual pinned patch and verified against actual header Git blob IDs.",
+    "No new runtime truncation replay or whole N676/tutorial completion claimed. Accepted affected37/source peer for selective04 belongs to Root/Hard, not this source-only audit."
+  ],
+  "current04_final_root_reference": "b39706cd22588dfe14fc8c7e1d88be3bba008ad0",
+  "final_root_same_source_proof": {
+    "tools/tutorials/authoring/web/app_v2.js": "same Git blob or same absent file as reviewed privatef53",
+    "tools/tutorials/native_live_timing.py": "same Git blob or same absent file as reviewed privatef53",
+    "tools/tutorials/tests/test_native_live_timing.py": "same Git blob or same absent file as reviewed privatef53",
+    "tools/tutorials/tests/test_player_complete_native_clips.py": "same Git blob or same absent file as reviewed privatef53",
+    "tools/tutorials/tests/test_player_native_live_video.py": "same Git blob or same absent file as reviewed privatef53",
+    "tools/tutorials/tests/test_staged_complete_native_boundary.py": "same Git blob or same absent file as reviewed privatef53",
+    "tools/tutorials/verify_staged_lesson.py": "same Git blob or same absent file as reviewed privatef53"
+  },
+  "authorization_disposition": {
+    "original_Work_direction": "Concrete tested fix for Home review; held review artifact, Home owns source integration. Explicit no source push/integration authorized by this packet.",
+    "later_runtime_owner_direction": "Adopt exact three-file player dependency; no renderer/producer/verifier merge needed for that narrow runtime delivery.",
+    "current_Root_direction": "The older full-native planner remains deliberately separate; current request is read-only disposition/preimages so Root can decide whether further source work is requested.",
+    "result": "No unconditional outstanding instruction to apply the older producer or entire seven-file packet is established. Remaining generic producer/test changes are intentionally held review candidates. They address the original reported defect if separately granted; they are not required retroactively to certify the scoped selective04 adoption."
+  }
+}

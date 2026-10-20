@@ -1,0 +1,46 @@
+SOURCE-ONLY preparation. No runtime or root approval created.
+Exact ROOT87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9; ONE fresh stage lesson05-worker-apply-r2.
+Source prior-tour checklist: capture_home_live.record_preferences_live through Animation;
+no Modules/Storage before Apply. Uses actual public controls/actions, omits old unrecorded
+scene-length holds only. Same6s startup settle; complete Apply slot minimum968/30s from
+actual old native capture, including reopenTheme/change60to55/Apply/confirmation/default
+Revert/hoverbuttons/hold/physicalRevert/60restoration. No trim/loop/speed.
+No observational app wrappers. HostRuntime and its full sampler/start/end/postprocess/gate
+are unchanged owning code. QTestAdapter instance is NOT installed; only camera lifecycle
+uses it while worker waits. Actual Apply runs workerHumanProcess with ordinary Qt loop.
+Postprocess starts only after recording has ended and app quits. Full native/video/receipt/
+gate/poster/pointer/host/frames+focus/provenance/exact502+externalhashes are retained.
+Private profile paths are explicit; no claim neutral bind mount. No product fix or causal
+proof follows from one pass. Only an actual strict gate can qualify this selected clip.
+
+Before lease/GPU root creates actualapproval JSON:
+ schema1/source_commit87ff.../root_launch_approvedtrue/recording_comparison_authorizedtrue/
+ only_scene13h_preferences_apply/execution_timeout_seconds300/cleanup_grace_seconds30/
+ automatic_retryfalse. No such approval authored by preparation.
+Root invokes:
+ env -u DISPLAY SPACR_FINAL_CAPTURE_REVISION=87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9 \
+ SPACR_WORKER_APPLY_APPROVAL_PATH=<actualapproval> SPACR_WORKER_APPLY_APPROVAL_SHA256=<actualSHA> \
+ /media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r2/run_with_lease.sh
+DefaultGPUidle360/gap600/poll15,12GBownlease. Supervisor300s plus ONE30s shared termination/
+cleanup grace, nativeTERM5thenKILL and bounded markedcleanup remainder. No automaticretry.
+
+PRESTATE ADDENDUM: exact captured f9 LIVE source prefix through Apply is bound in
+captured-prefix-source.json and copied text. Current ROOT prefix bytes equal it;
+old actual runtime state is NOT available. Equivalence covers controls/order,
+not original wall holds/cache. Immediately before physical Apply, read ONLY
+known tab/folds/scroll geometry/pending-modal booleans, opacity/font/current
+Performance index and original fixed animation restore readbacks. Keep in memory
+and write with result after clip or failure; no disk IO/QSS/config/titles/private
+values in the action snapshot. No lookup that materializes new preference pages.
+This is a Work-owned RECORDING comparison300+shared30, distinct from Home's
+nonrecording diagnostic180/20/shared30 addendum. No product/cause claim.
+
+R2 VISIBILITY CORRECTION: r1 stopped at a strict disabled-animation hover,
+not Apply. Same physical wheel sign/target as original; no sign bug established.
+Original mouseMove checked isVisible only, whereas this comparison retains the
+stronger strict reachable guard. Before each disabled-animation hover, use the
+existing real-pointer reveal(settings) to put its center inside the viewport;
+then the unchanged strict hit-test must pass. This is a necessary public reveal,
+not a claim the old historical scroll position is reproduced. Any failure logs
+only static hit classification and viewport/enabled booleans, not raw why text,
+private object names or titles. R1 raw stage and all source files are preserved.

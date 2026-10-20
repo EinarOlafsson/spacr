@@ -80,10 +80,578 @@ from ..curation import LOG_SUFFIX, CurationLog
 from ..curation_queue import SEG_SUFFIX
 from ..tiff_io import write_tiff
 
+MAX_MASK_LABEL = 2**32 - 1
+LINEAGE_SCHEMA = "spacr.lineage/v1"
 
-IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn")
+
+def validate_lineage(state: Optional[dict] = None) -> dict:
+    """Copy and validate a versioned lineage graph without recursive traversal."""
+    from uuid import UUID, NAMESPACE_URL, uuid5
+    from .i18n import tr
+
+    if state is None:
+        return {"schema": LINEAGE_SCHEMA, "cells": {}, "frames": {},
+                "frame_revisions": {}, "deleted_cells": {}, "frame_ids": {}}
+    try:
+        result = json.loads(json.dumps(state, allow_nan=False))
+        if result["schema"] != LINEAGE_SCHEMA:
+            raise ValueError("schema")
+        cells, frames = result["cells"], result["frames"]
+        if not isinstance(cells, dict) or not isinstance(frames, dict):
+            raise ValueError("graph")
+        frame_ids = result.setdefault("frame_ids", {})
+        if not isinstance(frame_ids, dict):
+            raise ValueError("frame identities")
+        paths = set(frames)
+        for cell in cells.values():
+            paths.update(cell.get(field) for field in ("born_frame", "division_frame")
+                         if cell.get(field) is not None)
+        for path in paths:
+            if not isinstance(path, str) or not path:
+                raise ValueError("frame path")
+            frame_ids.setdefault(path, str(uuid5(NAMESPACE_URL, "spacr-frame:" + path)))
+        for path, identity in frame_ids.items():
+            if not isinstance(path, str) or not path or str(UUID(identity)) != identity:
+                raise ValueError("frame identity")
+        revisions = result.setdefault("frame_revisions", {})
+        deleted = result.setdefault("deleted_cells", {})
+        if not isinstance(revisions, dict):
+            raise ValueError("revisions")
+        if not isinstance(deleted, dict):
+            raise ValueError("deleted cells")
+        for identity, revision in deleted.items():
+            if str(UUID(identity)) != identity or not isinstance(revision, int) \
+                    or isinstance(revision, bool) or revision < 0:
+                raise ValueError("deleted cell revision")
+        for key, cell in cells.items():
+            if str(UUID(key)) != key or not isinstance(cell, dict):
+                raise ValueError("UUID")
+            if not isinstance(cell.get("name"), str) or not cell["name"].strip():
+                raise ValueError("name")
+            parent = cell.get("parent_uuid")
+            if parent is not None and (parent not in cells or parent == key):
+                raise ValueError("parent")
+            if parent is not None and key not in cells[parent].get("children", []):
+                raise ValueError("parent division")
+            children = cell.get("children", [])
+            if not isinstance(children, list) or (children and len(children) != 2) \
+                    or len(set(children)) != len(children):
+                raise ValueError("children")
+            for child in children:
+                if child not in cells or cells[child].get("parent_uuid") != key:
+                    raise ValueError("daughter")
+            if bool(children) != bool(cell.get("division_frame")):
+                raise ValueError("division")
+            for field in ("born_frame", "division_frame"):
+                expected = frame_ids.get(cell.get(field))
+                cell.setdefault(field + "_id", expected)
+                if cell[field + "_id"] != expected:
+                    raise ValueError("ancestry frame identity")
+            label = cell.get("label", 1)
+            if isinstance(label, bool) or not isinstance(label, int) \
+                    or not 1 <= label <= MAX_MASK_LABEL:
+                raise ValueError("label")
+            revision = cell.get("revision", 0)
+            if isinstance(revision, bool) or not isinstance(revision, int) or revision < 0:
+                raise ValueError("revision")
+            if key in deleted and deleted[key] >= revision:
+                raise ValueError("deleted cell")
+        checked = set()
+        for key in cells:
+            pending = set()
+            cursor = key
+            while cursor is not None and cursor not in checked:
+                if cursor in pending:
+                    raise ValueError("cycle")
+                pending.add(cursor)
+                cursor = cells[cursor].get("parent_uuid")
+            checked.update(pending)
+        for frame, mapping in frames.items():
+            if not isinstance(frame, str) or not frame or not isinstance(mapping, dict):
+                raise ValueError("frame mapping")
+            if len(set(mapping.values())) != len(mapping):
+                raise ValueError("duplicate identity")
+            for label, identity in mapping.items():
+                if str(int(label)) != label or not 1 <= int(label) <= MAX_MASK_LABEL \
+                        or identity not in cells:
+                    raise ValueError("frame label")
+            revision = revisions.get(frame, 0)
+            if isinstance(revision, bool) or not isinstance(revision, int) or revision < 0:
+                raise ValueError("frame revision")
+        return result
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
+        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}",
+                            reason=str(error))) from error
+
+
+def _next_lineage_revision(state: dict) -> int:
+    """Advance beyond persisted edits even if the current machine clock is earlier."""
+    from time import time_ns
+
+    revisions = [cell.get("revision", 0) for cell in state["cells"].values()]
+    revisions.extend(state.get("deleted_cells", {}).values())
+    revisions.extend(state.get("frame_revisions", {}).values())
+    return max(time_ns(), max(revisions, default=0) + 1)
+
+
+def assign_lineage_label(state: dict, frame: str, label: int,
+                         cell_uuid: Optional[str] = None,
+                         old_label: Optional[int] = None) -> dict:
+    """Map an observed frame label to a persistent segment, or remove a mapping.
+
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param label: The local uint32 pixel ID, or zero to remove ``old_label``.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    stamp = _next_lineage_revision(result)
+    if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 0 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295."))
+    frame = os.path.abspath(os.fspath(frame))
+    mapping = result["frames"].setdefault(frame, {})
+    if label:
+        if cell_uuid not in result["cells"]:
+            raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
+        occupied = mapping.get(str(int(label)))
+        if occupied is not None and occupied != cell_uuid:
+            raise ValueError(tr("This frame label already belongs to another lineage cell."))
+    if old_label is not None:
+        mapping.pop(str(int(old_label)), None)
+    if label:
+        mapping = {key: value for key, value in mapping.items() if value != cell_uuid}
+        mapping[str(int(label))] = cell_uuid
+        result["frames"][frame] = mapping
+        result["cells"][cell_uuid]["label"] = int(label)
+        result["cells"][cell_uuid]["revision"] = stamp
+    result["frame_revisions"][frame] = stamp
+    return validate_lineage(result)
+
+
+def new_lineage_cell(state: Optional[dict], name: str, label: int,
+                     frame: str) -> Tuple[dict, str]:
+    """Create an unplaced founder without claiming any existing mask pixels.
+
+    :param state: The lineage graph to extend, or ``None`` for an empty graph.
+    :param name: The nonempty display name for the new founder.
+    :param label: The preferred nonzero uint32 pixel ID, without assigning pixels.
+    :param frame: The source image path where the founder is introduced.
+    """
+    from uuid import uuid4
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if not isinstance(name, str) or not name.strip() \
+            or isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 1 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("A lineage cell needs a name and a nonzero uint32 label."))
+    stamp = _next_lineage_revision(result)
+    identity = str(uuid4())
+    result["cells"][identity] = {
+        "name": name.strip(), "parent_uuid": None, "born_frame": os.path.abspath(frame),
+        "division_frame": None, "children": [], "label": int(label), "revision": stamp}
+    return validate_lineage(result), identity
+
+
+def assign_tracked_object(mask: np.ndarray, x: int, y: int, state: dict,
+                          frame: str, cell_uuid: str,
+                          preferred_label: Optional[int] = None):
+    """Give the hovered object the selected identity, letting one division branch continue it.
+
+    :param mask: The current two-dimensional integer label mask.
+    :param x: The hovered pixel column.
+    :param y: The hovered pixel row.
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param cell_uuid: The persistent UUID of the segment to assign.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if cell_uuid not in result["cells"]:
+        raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
+    if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+           for value in (x, y)):
+        raise ValueError(tr("Object coordinates must be integer pixels."))
+    labels = canonical_labels(mask, preserve_ids=True)
+    if not (0 <= y < labels.shape[0] and 0 <= x < labels.shape[1]):
+        return labels, result, 0, 0
+    original = int(labels[y, x])
+    if not original:
+        return labels, result, 0, 0
+    frame = os.path.abspath(frame)
+    cells = result["cells"]
+    selected = cells[cell_uuid]
+    mapping = result["frames"].get(frame, {})
+    assigned = mapping.get(str(original))
+    identity, retire = cell_uuid, None
+    if assigned is not None and assigned != cell_uuid:
+        other = cells[assigned]
+        if other.get("parent_uuid") == cell_uuid or selected.get("parent_uuid") == assigned:
+            if other.get("parent_uuid") == cell_uuid:
+                mother, branch, claimed = selected, assigned, selected["name"]
+            else:
+                mother, branch = other, cell_uuid
+                claimed = mother["name"] if mother["name"] != selected["name"] else None
+            if any(child != branch and cells[child]["name"] == claimed
+                   for child in mother["children"]):
+                raise ValueError(tr(
+                    "{name} already continues through its other daughter; undo that "
+                    "first or select the other daughter.", name=mother["name"]))
+            identity = assigned
+        else:
+            retire = assigned
+    if any(value == identity and int(local) != original and np.any(labels == int(local))
+           for local, value in mapping.items()):
+        raise ValueError(tr(
+            "{name} already labels another object in this frame; one identity can "
+            "mark only one object per frame.", name=selected["name"]))
+    target = selected["label"] if preferred_label is None else preferred_label
+    if isinstance(target, (bool, np.bool_)) or not isinstance(target, Integral) \
+            or not 1 <= int(target) <= MAX_MASK_LABEL:
+        raise ValueError(tr("A lineage cell needs a nonzero uint32 label."))
+    target = int(target)
+    if target != original and (np.any(labels == target) or str(target) in mapping):
+        target = original
+    if target == original and assigned == cell_uuid:
+        return labels, result, original, original
+    if retire is not None:
+        result["frames"][frame] = {
+            key: value for key, value in mapping.items() if key != str(original)}
+    if identity != cell_uuid:
+        stamp = _next_lineage_revision(result)
+        cells[identity].update(name=selected["name"], label=int(target), revision=stamp)
+    labels, _ = assign_object_label(labels, x, y, target)
+    result = assign_lineage_label(result, frame, target, identity, old_label=original)
+    if retire is not None:
+        cell = result["cells"][retire]
+        if not cell.get("parent_uuid") and not cell.get("children") and not any(
+                retire in frame_mapping.values() for frame_mapping in result["frames"].values()):
+            result["deleted_cells"][retire] = _next_lineage_revision(result)
+            del result["cells"][retire]
+            result = validate_lineage(result)
+    return labels, result, original, target
+
+
+def _merge_continuation(state: dict, mother: str, daughter: str) -> dict:
+    """Make a founder that continues a childless cell part of it, division included.
+
+    Every frame of ``daughter`` maps to ``mother``, its daughters become
+    daughters of ``mother`` and ``daughter`` is retired. A pair that shares a
+    frame, a daughter with a parent or a mother that already divided is
+    refused, since one cell cannot be both.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    cells = result["cells"]
+    keep, gone = cells[mother], cells[daughter]
+    if mother == daughter or gone.get("parent_uuid") is not None or keep.get("children") \
+            or any(mother in mapping.values() and daughter in mapping.values()
+                   for mapping in result["frames"].values()):
+        raise ValueError(tr(
+            "{old} cannot become part of {name}: one cell cannot appear twice in a "
+            "frame or divide twice.", old=gone["name"], name=keep["name"]))
+    stamp = _next_lineage_revision(result)
+    for frame, mapping in result["frames"].items():
+        if daughter in mapping.values():
+            result["frames"][frame] = {
+                local: mother if identity == daughter else identity
+                for local, identity in mapping.items()}
+            result["frame_revisions"][frame] = stamp
+    keep.update(children=list(gone["children"]), division_frame=gone.get("division_frame"),
+                revision=stamp)
+    keep.pop("division_frame_id", None)
+    for child in gone["children"]:
+        cells[child].update(parent_uuid=mother, revision=stamp)
+    del cells[daughter]
+    result["deleted_cells"][daughter] = stamp
+    return validate_lineage(result)
+
+
+def rename_lineage_cell(state: dict, cell_uuid: str, name: str) -> dict:
+    """Rename a segment while retaining its identity and parent links.
+
+    :param state: The lineage graph to copy and update.
+    :param cell_uuid: The persistent UUID of the segment to rename.
+    :param name: The new nonempty display name.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if cell_uuid not in result["cells"] or not isinstance(name, str) or not name.strip():
+        raise ValueError(tr("Choose a lineage cell and enter a nonempty name."))
+    result["cells"][cell_uuid]["name"] = name.strip()
+    result["cells"][cell_uuid]["revision"] = _next_lineage_revision(result)
+    return result
+
+
+def divide_lineage_cell(state: dict, parent_uuid: str, frame: str,
+                        daughter_names, labels) -> Tuple[dict, Tuple[str, str]]:
+    """End a segment and create two distinct daughter segments at one frame.
+
+    :param state: The lineage graph to copy and update.
+    :param parent_uuid: The persistent UUID of the undivided parent segment.
+    :param frame: The source image path where the division is recorded.
+    :param daughter_names: Two nonempty display names in daughter order.
+    :param labels: Two distinct nonzero uint32 preferred pixel IDs in daughter order.
+    """
+    from uuid import uuid4
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if parent_uuid not in result["cells"] or result["cells"][parent_uuid].get("children"):
+        raise ValueError(tr("Choose a lineage cell that has not already divided."))
+    if len(daughter_names) != 2 or len(labels) != 2 or labels[0] == labels[1]:
+        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels."))
+    if any(not isinstance(name, str) or not name.strip() for name in daughter_names) \
+            or any(isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral)
+                   or not 1 <= int(label) <= MAX_MASK_LABEL for label in labels):
+        raise ValueError(tr("A division needs two daughter names and distinct nonzero labels."))
+    frame = os.path.abspath(frame)
+    parent = result["cells"][parent_uuid]
+    children = (str(uuid4()), str(uuid4()))
+    stamp = _next_lineage_revision(result)
+    parent.update(division_frame=frame, children=list(children), revision=stamp)
+    parent.pop("division_frame_id", None)
+    result["frames"][frame] = {
+        key: value for key, value in result["frames"].get(frame, {}).items()
+        if value != parent_uuid}
+    for child, name, label in zip(children, daughter_names, labels):
+        result["cells"][child] = {
+            "name": name.strip(), "parent_uuid": parent_uuid, "born_frame": frame,
+            "division_frame": None, "children": [], "label": int(label), "revision": stamp}
+    result["frame_revisions"][frame] = stamp
+    return validate_lineage(result), children
+
+
+def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
+                          frame: Optional[str] = None) -> dict:
+    """Merge embedded snapshots, preserving newer edits and immutable ancestry.
+
+    :param active: The active lineage graph, or ``None`` for an empty graph.
+    :param incoming: The incoming snapshot, or ``None`` for an empty graph.
+    """
+    from .i18n import tr
+
+    result, source = validate_lineage(active), validate_lineage(incoming)
+    current = os.path.abspath(frame) if frame is not None else None
+    known = {identity: path for path, identity in result["frame_ids"].items()}
+    active_paths, source_paths = {}, {}
+    for path, identity in source["frame_ids"].items():
+        if identity in known:
+            if path == current:
+                active_paths[known[identity]] = path
+            else:
+                source_paths[path] = known[identity]
+        elif path in result["frame_ids"] and result["frame_ids"][path] != identity:
+            raise ValueError(tr("Embedded lineage snapshots disagree about a frame's identity."))
+    result = _remap_lineage_frames(result, active_paths)
+    source = _remap_lineage_frames(source, source_paths)
+    result["frame_ids"].update(source["frame_ids"])
+    for identity, revision in source["deleted_cells"].items():
+        result["deleted_cells"][identity] = max(
+            revision, result["deleted_cells"].get(identity, 0))
+    for identity, cell in source["cells"].items():
+        old = result["cells"].get(identity)
+        if old is None:
+            result["cells"][identity] = cell
+            continue
+        if old.get("born_frame_id") != cell.get("born_frame_id") or (
+                old.get("revision", 0) == cell.get("revision", 0) and any(
+                    old.get(key) != cell.get(key) for key in (
+                        "parent_uuid", "children", "division_frame_id"))):
+            raise ValueError(tr("Embedded lineage snapshots disagree about a cell's ancestry."))
+        newer = cell if cell.get("revision", 0) > old.get("revision", 0) else old
+        result["cells"][identity] = dict(newer)
+    for identity, revision in result["deleted_cells"].items():
+        if identity in result["cells"] and revision >= result["cells"][identity].get("revision", 0):
+            del result["cells"][identity]
+    for name, mapping in source["frames"].items():
+        if name not in result["frames"] or ((current is None or name == current)
+                and source["frame_revisions"].get(name, 0)
+                > result["frame_revisions"].get(name, 0)):
+            result["frames"][name] = mapping
+            result["frame_revisions"][name] = source["frame_revisions"].get(name, 0)
+    for mapping in result["frames"].values():
+        for label, identity in list(mapping.items()):
+            if identity not in result["cells"] and identity in result["deleted_cells"]:
+                del mapping[label]
+    return validate_lineage(result)
+
+
+def restore_lineage_state(restored: Optional[dict], current: Optional[dict]) -> dict:
+    """Make undo or redo an explicit newer edit that survives older TIFF snapshots.
+
+    :param restored: The undo or redo snapshot to restore, or ``None`` for an empty graph.
+    :param current: The current graph, or ``None``, used to preserve revision ordering.
+    """
+    result, previous = validate_lineage(restored), validate_lineage(current)
+    stamp = max(_next_lineage_revision(result), _next_lineage_revision(previous))
+    result["frame_ids"].update(previous["frame_ids"])
+    for identity, revision in previous["deleted_cells"].items():
+        result["deleted_cells"][identity] = max(
+            revision, result["deleted_cells"].get(identity, 0))
+    for identity in previous["cells"].keys() - result["cells"].keys():
+        result["deleted_cells"][identity] = stamp
+    for identity, cell in result["cells"].items():
+        if cell != previous["cells"].get(identity):
+            cell["revision"] = stamp
+    for frame in result["frames"].keys() | previous["frames"].keys():
+        if result["frames"].get(frame) != previous["frames"].get(frame):
+            result["frames"].setdefault(frame, {})
+            result["frame_revisions"][frame] = stamp
+    return validate_lineage(result)
+
+
+def prune_lineage_frame(state: dict, frame: str, mask: np.ndarray) -> dict:
+    """Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.
+
+    :param state: The lineage graph to copy and update.
+    :param frame: The source image path for this frame.
+    :param mask: The current label mask used to identify surviving pixel IDs.
+    """
+    result = validate_lineage(state)
+    frame = os.path.abspath(frame)
+    present = set(map(str, np.unique(np.asarray(mask)[np.asarray(mask) > 0])))
+    previous = result["frames"].get(frame)
+    mapping = {key: value for key, value in (previous or {}).items() if key in present}
+    result["frames"][frame] = mapping
+    if mapping != previous:
+        result["frame_revisions"][frame] = _next_lineage_revision(result)
+    return validate_lineage(result)
+
+
+def _remap_lineage_frames(state: dict, paths: dict) -> dict:
+    """Change descriptive frame paths while retaining embedded frame identities."""
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    frames, revisions, identities = {}, {}, {}
+    for path, identity in result["frame_ids"].items():
+        target = paths.get(path, path)
+        if target in identities and identities[target] != identity:
+            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity."))
+        identities[target] = identity
+    for frame, mapping in result["frames"].items():
+        target = paths.get(frame, frame)
+        if target in frames and frames[target] != mapping:
+            raise ValueError(tr("Moved lineage frames would share an incompatible frame identity."))
+        frames[target] = mapping
+        revisions[target] = result["frame_revisions"].get(frame, 0)
+    result.update(frames=frames, frame_revisions=revisions, frame_ids=identities)
+    for cell in result["cells"].values():
+        for field in ("born_frame", "division_frame"):
+            cell[field] = paths.get(cell.get(field), cell.get(field))
+    return validate_lineage(result)
+
+
+def _relocate_lineage_frame(state: dict, original: str, current: str) -> dict:
+    """Rebind moved Windows or POSIX frame aliases without reading their old paths."""
+    import ntpath
+    import posixpath
+
+    result = validate_lineage(state)
+    original_path = original.replace("\\", "/")
+    old_folder = posixpath.dirname(original_path)
+    windows = bool(ntpath.splitdrive(original)[0])
+    compare = str.casefold if windows else str
+    paths = {}
+    for path in result["frame_ids"]:
+        portable = path.replace("\\", "/")
+        if compare(portable) == compare(original_path):
+            paths[path] = current
+        elif compare(posixpath.dirname(portable)) == compare(old_folder):
+            paths[path] = os.path.join(os.path.dirname(current), posixpath.basename(portable))
+    return _remap_lineage_frames(result, paths)
+
+
+def load_mask_metadata(folder: str, filename: str,
+                        masks_dir: Optional[str] = None) -> dict:
+    """Read identity semantics and lineage from the mask itself, without a sidecar.
+
+    :param folder: The source image folder used to locate the matching mask.
+    :param filename: The source image filename whose mask metadata is read.
+    """
+    import tifffile
+    from .i18n import tr
+
+    path = mask_save_path(folder, filename, masks_dir)
+    if not os.path.isfile(path) and not is_seg_bundle(filename):
+        stem = os.path.splitext(filename)[0]
+        candidates = [os.path.join(masks_folder(folder, masks_dir), filename),
+                      os.path.join(masks_folder(folder, masks_dir), stem + ".tiff")]
+        path = next((candidate for candidate in candidates if os.path.isfile(candidate)), path)
+    if not os.path.isfile(path):
+        return {}
+    if is_seg_bundle(filename):
+        metadata = read_seg_bundle(path).get("spacr_mask", {})
+    else:
+        with open(path, "rb") as source:
+            byte_order = source.read(2)
+        if not path.lower().endswith((".tif", ".tiff")) and byte_order not in (
+                b"II", b"MM", b"EP"):
+            return {}
+        with tifffile.TiffFile(path) as handle:
+            description = handle.pages[0].description or ""
+        try:
+            metadata = json.loads(description).get("spacr_mask", {})
+        except (ValueError, AttributeError) as error:
+            if "spacr_mask" in description:
+                raise ValueError(tr("The embedded mask metadata cannot be read.")) from error
+            return {}
+    if not isinstance(metadata, dict) or (metadata and metadata.get("schema") != "spacr.mask/v1"):
+        raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
+    if metadata.get("lineage") is not None:
+        metadata["lineage"] = validate_lineage(metadata["lineage"])
+        original = metadata.get("frame")
+        current = os.path.abspath(os.path.join(folder, filename))
+        if metadata.get("frame_id") is not None and metadata["frame_id"] \
+                != metadata["lineage"]["frame_ids"].get(original):
+            raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
+        if isinstance(original, str) and original != current:
+            metadata["lineage"] = _relocate_lineage_frame(metadata["lineage"], original, current)
+        metadata["frame"] = current
+        metadata["frame_id"] = metadata["lineage"]["frame_ids"].get(current)
+    return metadata
+
+
+def load_mask_lineage(folder: str, filename: str,
+                       masks_dir: Optional[str] = None) -> dict:
+    """Read an independent lineage graph from a TIFF mask or return an empty graph.
+
+    :param folder: The source image folder used to locate the matching mask.
+    :param filename: The source image filename whose mask lineage is read.
+    """
+    return validate_lineage(load_mask_metadata(folder, filename, masks_dir).get("lineage"))
+
+
+def _label_boxes(labels: np.ndarray) -> dict:
+    """Index observed labels without allocating by the largest numeric identity."""
+    if not labels.size:
+        return {}
+    if int(labels.max()) <= 65535:
+        return {index + 1: box for index, box in enumerate(_ndimage().find_objects(labels))
+                if box is not None}
+    values, inverse = np.unique(labels, return_inverse=True)
+    dense = inverse.reshape(labels.shape) + 1
+    boxes = _ndimage().find_objects(dense)
+    return {int(value): box for value, box in zip(values, boxes) if value and box is not None}
+
+IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn",
+              ".dm3", ".dm4", ".mrc", ".rec")
 YOLO_ANNOTATIONS_NAME = ".spacr_yolo_annotations.json"
 YOLO_CLASSES_NAME = ".classes.json"
+
+
+_PIXEL_SIZES: Dict[str, Optional[float]] = {}
+"""Pixel sizes in nm of the TEM files :func:`read_image` has read, by path,
+so saving a mask does not decode the image a second time to find it."""
+
+#: Electron-microscopy formats, read by :func:`spacr.io.read_tem_image`.
+TEM_SUFFIXES = (".dm3", ".dm4", ".mrc", ".rec")
 
 
 def read_image(path: str) -> np.ndarray:
@@ -96,11 +664,83 @@ def read_image(path: str) -> np.ndarray:
     :param path: the image file.
     :returns: the pixels.
     """
-    if str(path).lower().endswith(".scn"):
+    lower = str(path).lower()
+    if lower.endswith(".scn"):
         from ..convert import read_scn
 
         return read_scn(path)[0]
+    if lower.endswith(TEM_SUFFIXES):
+        from ..io import read_tem_image
+
+        image, meta = read_tem_image(path)
+        _PIXEL_SIZES[os.path.abspath(os.fspath(path))] = meta["pixel_size_nm"]
+        return image
     return imageio.imread(path)
+
+
+def pixel_size_nm(path) -> Optional[float]:
+    """The physical pixel size of an image file, in nanometres, or None.
+
+    TEM files (``.dm3``, ``.dm4``, ``.mrc``, ``.rec``) are read by
+    :func:`spacr.io.read_tem_image` inside :func:`read_image`, which keeps
+    their pixel size here so a save does not read the image again. An MRC
+    file needs the optional ``mrcfile`` package; without it
+    :func:`read_image` raises :class:`spacr.io.MissingTEMReader`.
+
+    :param path: the source image. A TEM file read by :func:`read_image`
+        answers from memory; a TIFF from its resolution tags; DM and MRC
+        files not yet read are read for their calibration.
+    """
+    key = os.path.abspath(os.fspath(path))
+    if key in _PIXEL_SIZES:
+        return _PIXEL_SIZES[key]
+    from ..io import image_pixel_size_nm
+
+    size = image_pixel_size_nm(path)
+    if str(path).lower().endswith(TEM_SUFFIXES):
+        _PIXEL_SIZES[key] = size
+    return size
+
+
+#: Display settings Make Masks' "Contrast preset" box applies in one step.
+#:
+#: ``tem`` is for transmission electron micrographs: one greyscale channel
+#: whose few saturated pixels (holes in the section, stain precipitate) would
+#: take the whole range, so the window is the 0.5th to 99.5th percentile, and
+#: CLAHE on 128 px tiles evens out the uneven section thickness. Membranes
+#: stay dark. ``tem_inverted`` is the same with Invert on, so dark membranes
+#: and organelles are drawn bright and Otsu and the magnifier find them.
+#: Measured on the ten fields of ``spacr-example-tem``, which EMPIAR ships
+#: already stretched to 8 bits: Upper % at 99.5 rather than the default 99.9
+#: sets white 2 to 16 grey levels lower, so the brightest cytoplasm is no
+#: longer drawn as a flat grey below a few saturated pixels.
+CONTRAST_PRESETS: Dict[str, Dict[str, object]] = {
+    "tem": {"lower": 0.5, "upper": 99.5, "invert": False, "clahe": True,
+            "clahe_tile": 128, "clahe_clip": 0.01},
+    "tem_inverted": {"lower": 0.5, "upper": 99.5, "invert": True,
+                     "clahe": True, "clahe_tile": 128, "clahe_clip": 0.01},
+}
+
+
+def _resolution_for(pixel_size: Optional[float]) -> dict:
+    """``tifffile`` keywords recording ``pixel_size`` nm per pixel, or none.
+
+    Two records. The resolution tags in pixels per centimetre, the one TIFF
+    resolution unit that is a length, which other software reads; their
+    32-bit rational is chosen with the largest denominator that fits, so
+    0.85 nm comes back as 0.85 to nine digits rather than 0.8498. And the
+    exact value as ``pixel_size_nm`` in tifffile's JSON description, which
+    :func:`spacr.io.tiff_pixel_size_nm` reads first.
+    """
+    if not pixel_size or pixel_size <= 0:
+        return {}
+    per_cm = 1e7 / float(pixel_size)
+    top = 2 ** 32 - 1
+    denominator = max(1, min(top, int(top // per_cm))) if per_cm >= 1 else top
+    numerator = min(top, max(1, int(round(per_cm * denominator))))
+    rational = (numerator, denominator)
+    return {"resolution": (rational, rational), "resolutionunit": "CENTIMETER",
+            "metadata": {"pixel_size_nm": float(pixel_size)}}
 
 
 def _yolo_shape(image_shape) -> tuple:
@@ -771,10 +1411,10 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
     :param shape: the 2-D shape of the image they label.
     :param mask_path: where they came from, for the messages.
     :param filename: the field's name, for the shape-mismatch message.
-    :returns: the labels as uint8 or uint16, whichever holds the largest id.
+    :returns: unsigned labels wide enough for every ID, retaining existing uint32 storage.
     :raises ValueError: for a mask that is not 2-D, does not match the
-        image, holds non-integer or negative labels, or needs more than 16
-        bits.
+        image, holds non-integer or negative labels, or needs more than 32
+        bits in uint32 storage.
     """
     if mask.ndim == 3 and mask.shape[-1] == 1:
         mask = np.squeeze(mask, axis=-1)
@@ -795,12 +1435,20 @@ def _as_field_mask(mask: np.ndarray, shape, mask_path: str,
             raise ValueError(
                 f"Mask must contain non-negative integer labels: {mask_path}"
             )
+    if np.issubdtype(mask.dtype, np.signedinteger) and np.any(mask < 0):
+        from .i18n import tr
+
+        raise ValueError(tr(
+            "Mask must contain non-negative integer labels: {path}", path=mask_path))
     maximum = int(mask.max()) if mask.size else 0
-    if maximum > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"Mask label {maximum} exceeds uint16 capacity: {mask_path}"
-        )
-    return mask.astype(np.uint8 if maximum <= 255 else np.uint16)
+    if maximum > MAX_MASK_LABEL:
+        from .i18n import tr
+
+        raise ValueError(tr("Mask label {label} exceeds uint32 capacity: {path}",
+                            label=maximum, path=mask_path))
+    dtype = np.uint32 if maximum > 65535 or mask.dtype == np.uint32 else (
+        np.uint8 if maximum <= 255 else np.uint16)
+    return mask.astype(dtype)
 
 
 def load_image_and_mask(folder: str, filename: str,
@@ -810,7 +1458,7 @@ def load_image_and_mask(folder: str, filename: str,
 
     - Multi-channel images are collapsed to grayscale via BT.601 weights.
     - Missing masks are created as zeros of the image shape.
-    - Images are returned as uint16; masks preserve uint8/uint16 label IDs.
+    - Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.
     - A mask saved by :func:`save_mask` is found even when the source image
       had a non-TIFF extension. Its canonical TIFF takes precedence over
       an older mask under the source image's extension.
@@ -1017,6 +1665,10 @@ def save_seg_bundle(path: str, mask: np.ndarray, *, preserve_ids: bool = False) 
     """
     payload = read_seg_bundle(path)
     labels = canonical_labels(mask, preserve_ids=preserve_ids)
+    if int(labels.max(initial=0)) > 65535:
+        from .i18n import tr
+
+        raise ValueError(tr("Save 32-bit manual identities as TIFF masks, not Cellpose bundles."))
     payload["masks"] = labels
     outlines = payload.get("outlines")
     if outlines is not None and np.shape(outlines) == labels.shape:
@@ -1120,7 +1772,11 @@ def curation_verdict(folder: str, image_path: str) -> Optional[bool]:
     :param image_path: the field.
     :returns: True for keep, False for discard, None for no row.
     """
-    row = read_curation(folder).get(os.fspath(image_path))
+    return _row_verdict(read_curation(folder).get(os.fspath(image_path)))
+
+
+def _row_verdict(row) -> Optional[bool]:
+    """Keep (True), Discard (False) or no verdict (None) from one CSV row."""
     if row is None:
         return None
     value = str(row.get(CURATION_COLUMNS[3], "")).strip().lower()
@@ -1129,6 +1785,863 @@ def curation_verdict(folder: str, image_path: str) -> Optional[bool]:
     if value in ("false", "0", "no", "discard"):
         return False
     return None
+
+
+def _first_unreviewed(fields) -> Optional[int]:
+    """The queue position of the first field with neither Keep nor Discard.
+
+    Reads the persisted ``keep_discard.csv`` of each field's folder once, so
+    verdicts recorded in an earlier session count (item 685).
+
+    :param fields: ``(folder, image path)`` pairs in queue order.
+    :returns: the zero-based index, or None when every field has a verdict
+        or there are none.
+    """
+    verdicts = {}
+    for index, (folder, image_path) in enumerate(fields):
+        if folder not in verdicts:
+            verdicts[folder] = read_curation(folder)
+        if _row_verdict(verdicts[folder].get(os.fspath(image_path))) is None:
+            return index
+    return None
+
+
+VVVV_EXPORT_FORMAT = "spacr-vvvv-export"
+VVVV_EXPORT_VERSION = 1
+
+
+def _vvvv_object_table(labels: np.ndarray, image: Optional[np.ndarray] = None,
+                      channel_names=None, classes=None, scores=None):
+    """One row per object of ``labels`` for the vvvv export (item 685).
+
+    Coordinates are image pixels with the origin at the top-left pixel's
+    corner, x to the right and y down; a centroid is the mean pixel centre
+    (``index + 0.5``) and the bounding box is half-open, ``[x0, x1)``.
+    Mean intensity is reported per channel of ``image`` as loaded, in its
+    own units.
+
+    :param labels: 2-D integer label image; 0 is background.
+    :param image: the field, 2-D or ``(height, width, channels)``, or None.
+    :param channel_names: one name per channel; ``channel_1`` ... otherwise.
+    :param classes: optional ``{label: class name}``.
+    :param scores: optional ``{label: score}``.
+    :returns: a :class:`pandas.DataFrame`.
+    """
+    import pandas as pd
+    from scipy import ndimage
+
+    labels = np.asarray(labels)
+    ids = [int(v) for v in np.unique(labels) if int(v) > 0]
+    columns = ["label", "centroid_x", "centroid_y", "area",
+               "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1"]
+    channels = []
+    if image is not None:
+        stack = np.asarray(image, dtype=np.float64)
+        if stack.ndim == 2:
+            stack = stack[..., None]
+        names = list(channel_names or ())
+        names += [f"channel_{index + 1}"
+                  for index in range(len(names), stack.shape[-1])]
+        channels = [(f"mean_intensity_{names[index]}", stack[..., index])
+                    for index in range(stack.shape[-1])]
+    table = {name: [] for name in columns}
+    for name, _plane in channels:
+        table[name] = []
+    if ids:
+        areas = ndimage.sum_labels(np.ones(labels.shape), labels, ids)
+        centres = ndimage.center_of_mass(np.ones(labels.shape), labels, ids)
+        slices = _label_boxes(labels)
+        means = [ndimage.mean(plane, labels, ids) for _name, plane in channels]
+        for row, label in enumerate(ids):
+            box = slices[label]
+            table["label"].append(label)
+            table["centroid_x"].append(float(centres[row][1]) + 0.5)
+            table["centroid_y"].append(float(centres[row][0]) + 0.5)
+            table["area"].append(int(areas[row]))
+            table["bbox_x0"].append(int(box[1].start))
+            table["bbox_y0"].append(int(box[0].start))
+            table["bbox_x1"].append(int(box[1].stop))
+            table["bbox_y1"].append(int(box[0].stop))
+            for (name, _plane), values in zip(channels, means):
+                table[name].append(float(np.atleast_1d(values)[row]))
+    frame = pd.DataFrame(table)
+    if classes:
+        frame["class"] = [classes.get(label, "") for label in ids]
+    if scores:
+        frame["score"] = [scores.get(label) for label in ids]
+    return frame
+
+
+def _vvvv_outlines(labels: np.ndarray) -> np.ndarray:
+    """Opaque white object outlines on a transparent RGBA background."""
+    from skimage.segmentation import find_boundaries
+
+    edge = find_boundaries(np.asarray(labels), mode="inner")
+    rgba = np.zeros(labels.shape[:2] + (4,), dtype=np.uint8)
+    rgba[edge] = (255, 255, 255, 255)
+    return rgba
+
+
+_VVVV_GAMMA_VERSION = "7.4"
+_VVVV_LANGUAGE_VERSION = "2025.7.4"
+_VL_ID_DIGITS = ("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                 "abcdefghijklmnopqrstuvwxyz0123456789")
+
+
+def _vvvv_display_image(image: np.ndarray) -> np.ndarray:
+    """The field as 8-bit RGB for the vvvv patch to draw.
+
+    Each channel is stretched between its 1st and 99.9th percentile, as
+    Make Masks draws it; one channel is grey, two or three channels fill
+    red, green and blue in order and only the first three are used.
+    """
+    stack = np.asarray(image, dtype=np.float64)
+    if stack.ndim == 2:
+        stack = stack[..., None]
+    planes = []
+    for index in range(min(stack.shape[-1], 3)):
+        plane = stack[..., index]
+        finite = plane[np.isfinite(plane)]
+        lo = float(np.percentile(finite, 1.0)) if finite.size else 0.0
+        hi = float(np.percentile(finite, 99.9)) if finite.size else 1.0
+        if hi <= lo:
+            hi = lo + 1.0
+        scaled = (np.clip(np.nan_to_num(plane, nan=lo), lo, hi) - lo) / (hi - lo)
+        planes.append(np.round(scaled * 255.0).astype(np.uint8))
+    if len(planes) == 1:
+        planes = planes * 3
+    while len(planes) < 3:
+        planes.append(np.zeros_like(planes[0]))
+    return np.stack(planes, axis=-1)
+
+
+class _VlWriter:
+    """Builds a vvvv gamma ``.vl`` document (item 685, alpha).
+
+    The element and attribute forms copy the documents vvvv gamma 7.4
+    ships in its ``packs/*/help`` folders. An id is a version-4 GUID in
+    vvvv's encoding: the GUID's 16 bytes as two 64-bit halves, each
+    written as 11 base-62 digits over ``A-Z a-z 0-9``. The GUIDs are
+    derived from ``seed``, so the same export writes the same file.
+    """
+
+    def __init__(self, seed: str):
+        """Start a document whose element ids derive from ``seed``.
+
+        :param seed: text that makes the ids of this export reproducible.
+        """
+        import xml.etree.ElementTree as ElementTree
+
+        self.et = ElementTree
+        self.seed = seed
+        self.count = 0
+        self.links = []
+
+    def new_id(self) -> str:
+        """The next reproducible version-4 GUID for an element of this document.
+
+        :returns: the GUID text.
+        """
+        self.count += 1
+        raw = bytearray(hashlib.sha256(
+            f"{self.seed}/{self.count}".encode("utf-8")).digest()[:16])
+        raw[7] = (raw[7] & 0x0F) | 0x40
+        raw[8] = (raw[8] & 0x3F) | 0x80
+        text = ""
+        for half in (raw[:8], raw[8:]):
+            value = int.from_bytes(half, "big")
+            digits = []
+            for _ in range(11):
+                value, digit = divmod(value, 62)
+                digits.append(_VL_ID_DIGITS[digit])
+            text += "".join(reversed(digits))
+        return text
+
+    def sub(self, parent, tag: str, **attrs):
+        """Append a child element, leaving out attributes whose value is None.
+
+        :param parent: the parent element.
+        :param tag: the child tag.
+        :returns: the new element.
+        """
+        return self.et.SubElement(parent, tag, {k: str(v) for k, v in attrs.items()
+                                                if v is not None})
+
+    def type_annotation(self, parent, category: str, dependency: str,
+                        name: str):
+        """Annotate ``parent`` with the vvvv type it carries.
+
+        :param parent: the element to annotate.
+        :param category: the type's category.
+        :param dependency: the library the type comes from.
+        :param name: the type name.
+        :returns: the annotation element.
+        """
+        note = self.sub(parent, "{property}TypeAnnotation",
+                        LastCategoryFullName=category,
+                        LastDependency=dependency)
+        self.sub(note, "Choice", Kind="TypeFlag", Name=name)
+        return note
+
+    def node(self, parent, bounds: str, category: str, dependency: str,
+             kind: str, name: str, pins, *, fixed: bool = True,
+             position_pin: bool = False):
+        """A node and its pins.
+
+        ``pins`` holds ``(name, kind, hidden)``, optionally followed by a
+        default value and its ``(category, dependency, type)``.
+
+        :returns: ``{pin name: pin id}``.
+        """
+        node = self.sub(parent, "Node", Bounds=bounds, Id=self.new_id())
+        ref = self.sub(node, "{property}NodeReference",
+                       LastCategoryFullName=category,
+                       LastDependency=dependency)
+        if fixed:
+            self.sub(ref, "Choice", Kind="NodeFlag", Name="Node", Fixed="true")
+        self.sub(ref, "Choice", Kind=kind, Name=name)
+        if position_pin:
+            self.sub(ref, "PinReference", Kind="InputPin", Name="Position")
+        ids = {}
+        for pin_name, pin_kind, hidden, *default in pins:
+            ids[pin_name] = self.new_id()
+            pin = self.sub(node, "Pin", Id=ids[pin_name], Name=pin_name,
+                           Kind=pin_kind,
+                           DefaultValue=default[0] if default else None,
+                           IsHidden="true" if hidden else None)
+            if len(default) > 1:
+                self.type_annotation(pin, *default[1])
+        return ids
+
+    def pad(self, parent, bounds: str, value: str, category: str,
+            dependency: str, type_name: str, comment: Optional[str] = None,
+            *, note_size: Optional[int] = None) -> str:
+        """An IOBox holding ``value``; a note when ``note_size`` is set."""
+        pad_id = self.new_id()
+        pad = self.sub(parent, "Pad", Id=pad_id, Comment=comment,
+                       Bounds=bounds, ShowValueBox="true", isIOBox="true",
+                       Value=value)
+        self.type_annotation(pad, category, dependency, type_name)
+        if note_size is not None:
+            settings = self.sub(pad, "{property}ValueBoxSettings")
+            size = self.sub(settings, "{property}fontsize",
+                            **{"{property}Type": "Int32"})
+            size.text = str(note_size)
+            kind = self.sub(settings, "{property}stringtype",
+                            **{"{property}Assembly": "VL.Core",
+                               "{property}Type": "VL.Core.StringType"})
+            kind.text = "Comment"
+        return pad_id
+
+    def link(self, source: str, sink: str) -> None:
+        """Remember one link from an output pin to an input pin.
+
+        :param source: the output pin id.
+        :param sink: the input pin id.
+        """
+        self.links.append((source, sink))
+
+
+def _vvvv_project_document(stem: str, width: int, height: int,
+                           names: Dict[str, str], columns) -> str:
+    """The vvvv gamma patch that shows one exported field (item 685).
+
+    The patch runs as the document's Application: it draws
+    ``names["image"]`` with ``names["outlines"]`` on top in a Skia
+    Renderer window, marks every row of ``names["objects"]`` with a circle
+    at its centroid and its label (and class, when the table has one), and
+    reads ``manifest.json`` and the table every frame and reloads the
+    images whenever the manifest changes. Paths are relative to the
+    document, so the folder can be moved or copied whole.
+
+    :param stem: the field's stem, for the window title.
+    :param width: image width in pixels.
+    :param height: image height in pixels.
+    :param names: the export's file names, keyed as in the manifest.
+    :param columns: the objects table's column names, in order.
+    :returns: the document as UTF-8 text with a byte-order mark.
+    """
+    vl = _VlWriter(f"spacr-vvvv/{stem}/{width}x{height}/{','.join(columns)}")
+    et = vl.et
+    et.register_namespace("p", "property")
+    columns = list(columns)
+    height = max(int(height), 1)
+    width = max(int(width), 1)
+    scale = 2.0 / height
+    marker = max(3.0, height / 100.0)
+    font = max(8.0, height / 45.0)
+    stroke = max(1.0, height / 400.0)
+    core, basics, skia = "VL.CoreLib.vl", "CoreLibBasics.vl", "VL.Skia.vl"
+
+    def num(value: float) -> str:
+        """A number as vvvv writes it.
+
+        :param value: the number.
+        :returns: the text.
+        """
+        return f"{value:.9g}"
+
+    def vec(x: float, y: float) -> str:
+        """A 2-D vector as vvvv writes it.
+
+        :param x: horizontal component.
+        :param y: vertical component.
+        :returns: the text.
+        """
+        return f"{num(x)}, {num(y)}"
+
+    doc = et.Element("Document", {"xmlns:r": "reflection",
+                                  "Id": vl.new_id(),
+                                  "LanguageVersion": _VVVV_LANGUAGE_VERSION,
+                                  "Version": "0.128"})
+    vl.sub(doc, "NugetDependency", Id=vl.new_id(), Location="VL.CoreLib",
+           Version=_VVVV_LANGUAGE_VERSION)
+    vl.sub(doc, "NugetDependency", Id=vl.new_id(), Location="VL.Skia",
+           Version=_VVVV_LANGUAGE_VERSION)
+    top = vl.sub(doc, "Patch", Id=vl.new_id())
+    vl.sub(top, "Canvas", Id=vl.new_id(), DefaultCategory="Main",
+           CanvasType="FullCategory")
+    app = vl.sub(top, "Node", Name="Application", Bounds="100,100",
+                 Id=vl.new_id())
+    ref = vl.sub(app, "{property}NodeReference")
+    vl.sub(ref, "Choice", Kind="ContainerDefinition", Name="Process")
+    vl.sub(ref, "FullNameCategoryReference", ID="Primitive")
+    patch = vl.sub(app, "Patch", Id=vl.new_id())
+    canvas = vl.sub(patch, "Canvas", Id=vl.new_id(), CanvasType="Group")
+
+    flag = "ProcessAppFlag"
+    call = "OperationCallFlag"
+    hidden_context = ("Node Context", "InputPin", True)
+
+    vl.pad(canvas, "40,30,620,60",
+           f"spaCR export of {stem}: the image with object outlines and one "
+           "marker per row of the objects table. The patch reads "
+           "manifest.json and the objects table every frame and reloads the "
+           "images when the manifest changes, so a new spaCR export shows "
+           "at once.", "Primitive", core, "String", note_size=9)
+
+    manifest_path = vl.pad(canvas, "60,110,160,15", "manifest.json", "IO",
+                           basics, "Path", "manifest")
+    reader_pins = [hidden_context, ("File Path", "InputPin", False),
+                   ("Encoding", "InputPin", False),
+                   ("Read", "InputPin", False, "True",
+                    ("Primitive", basics, "Boolean")),
+                   ("Output", "OutputPin", False)]
+    manifest = vl.node(canvas, "60,180,110,19", "IO", core, flag,
+                       "FileReader (String)", reader_pins)
+    vl.link(manifest_path, manifest["File Path"])
+    changed = vl.node(canvas, "60,220,65,19", "Control", core, flag,
+                      "Changed", [
+                          hidden_context,
+                          ("Changed On Create", "InputPin", True),
+                          ("Value", "InputPin", False),
+                          ("Result", "OutputPin", False),
+                          ("Unchanged", "OutputPin", False)])
+    vl.link(manifest["Output"], changed["Value"])
+
+    image_pins = [hidden_context, ("Filename", "InputPin", False),
+                  ("Load", "InputPin", False), ("Output", "OutputPin", False)]
+    draw_pins = [hidden_context, ("Image", "InputPin", False),
+                 ("Position", "InputPin", False), ("Size", "InputPin", False),
+                 ("Size Mode", "InputPin", False),
+                 ("Anchor", "InputPin", False), ("Paint", "InputPin", False),
+                 ("Enabled", "InputPin", False), ("Output", "OutputPin", False),
+                 ("Actual Bounds", "OutputPin", False)]
+    origin = vl.pad(canvas, "300,300,60,22", vec(0, 0), "2D", basics,
+                    "Vector2", "Position")
+    extent = vl.pad(canvas, "370,300,80,22", vec(width, height), "2D",
+                    basics, "Vector2", "Size")
+    size_mode = vl.pad(canvas, "460,300,84,15", "Size", "Graphics.Skia",
+                       skia, "SizeMode", "Size Mode")
+    top_left = vl.pad(canvas, "550,300,85,15", "TopLeft", "2D", basics,
+                      "RectangleAnchor", "Anchor")
+    layers = []
+    for index, key in enumerate(("image", "outlines")):
+        x = 60 + 140 * index
+        path = vl.pad(canvas, f"{x},260,150,15", names[key], "IO", basics,
+                      "Path", key)
+        reader = vl.node(canvas, f"{x},290,85,19", "Graphics.Skia.IO", skia,
+                         flag, "ImageReader", image_pins)
+        vl.link(path, reader["Filename"])
+        vl.link(changed["Result"], reader["Load"])
+        draw = vl.node(canvas, f"{x},340,125,19", "Graphics.Skia.Layers",
+                       skia, flag, "DrawImage", draw_pins, position_pin=True)
+        vl.link(reader["Output"], draw["Image"])
+        vl.link(origin, draw["Position"])
+        vl.link(extent, draw["Size"])
+        vl.link(size_mode, draw["Size Mode"])
+        vl.link(top_left, draw["Anchor"])
+        layers.append(draw["Output"])
+
+    table_path = vl.pad(canvas, "660,110,170,15", names["objects"], "IO",
+                        basics, "Path", "objects")
+    table = vl.node(canvas, "660,180,110,19", "IO", core, flag,
+                    "FileReader (String)", reader_pins)
+    vl.link(table_path, table["File Path"])
+    lines = vl.node(canvas, "660,220,75,19", "Primitive.String", core, call,
+                    "SplitToLines", [("Input", "StateInputPin", False),
+                                     ("Remove Empty Lines", "InputPin", False),
+                                     ("Output", "StateOutputPin", False)])
+    vl.link(table["Output"], lines["Input"])
+    no_empty = vl.pad(canvas, "760,200,35,15", "True", "Primitive", core,
+                      "Boolean", "Remove Empty Lines")
+    vl.link(no_empty, lines["Remove Empty Lines"])
+    skip = vl.node(canvas, "660,250,45,19", "Collections.Spread", core, call,
+                   "Skip", [("Input", "StateInputPin", False),
+                            ("Count", "InputPin", False),
+                            ("Output", "StateOutputPin", False)])
+    vl.link(lines["Output"], skip["Input"])
+    header = vl.pad(canvas, "720,240,35,15", "1", "Primitive", core,
+                    "Integer32", "Count")
+    vl.link(header, skip["Count"])
+
+    region = vl.sub(canvas, "Node", Bounds="650,290,600,370", Id=vl.new_id())
+    ref = vl.sub(region, "{property}NodeReference",
+                 LastCategoryFullName="Primitive", LastDependency="Builtin")
+    vl.sub(ref, "Choice", Kind="StatefulRegion", Name="Region (Stateful)",
+           Fixed="true")
+    vl.sub(ref, "Choice", Kind="ApplicationStatefulRegion", Name="ForEach")
+    vl.sub(ref, "CategoryReference", Kind="Category", Name="Primitive")
+    vl.sub(region, "Pin", Id=vl.new_id(), Name="Break", Kind="OutputPin")
+    row_in = vl.new_id()
+    vl.sub(region, "ControlPoint", Id=row_in, Bounds="664,296",
+           Alignment="Top")
+    row_out = vl.new_id()
+    vl.sub(region, "ControlPoint", Id=row_out, Bounds="664,654",
+           Alignment="Bottom")
+    body = vl.sub(region, "Patch", Id=vl.new_id(), ManuallySortedPins="true")
+    for part in ("Create", "Update", "Dispose"):
+        vl.sub(body, "Patch", Id=vl.new_id(), Name=part,
+               ManuallySortedPins="true")
+    vl.link(skip["Output"], row_in)
+
+    split = vl.node(body, "662,330,55,19", "Primitive.String", basics, call,
+                    "Split (String)", [("Input", "StateInputPin", False),
+                                       ("Separator", "InputPin", False),
+                                       ("Options", "InputPin", False),
+                                       ("Output", "StateOutputPin", False)])
+    vl.link(row_in, split["Input"])
+    comma = vl.pad(body, "720,310,35,15", ",", "Primitive", core, "String",
+                   "Separator")
+    vl.link(comma, split["Separator"])
+    slice_pins = [("Input", "StateInputPin", False),
+                  ("Default Value", "InputPin", False),
+                  ("Index", "InputPin", False), ("Result", "OutputPin", False)]
+
+    def cell(column: str, x: int):
+        """Patch the node that reads one column of the current row.
+
+        :param column: the column name.
+        :param x: the node's horizontal position.
+        :returns: the slice node's result pin.
+        """
+        index = vl.pad(body, f"{x + 40},360,35,15", str(columns.index(column)),
+                       "Primitive", core, "Integer32", "Index")
+        node = vl.node(body, f"{x},380,55,19", "Collections.Spread", core,
+                       call, "GetSlice", slice_pins)
+        vl.link(split["Output"], node["Input"])
+        vl.link(index, node["Index"])
+        return node["Result"]
+
+    def number(column: str, x: int):
+        """Patch the parse of one numeric column of the current row.
+
+        :param column: the column name.
+        :param x: the node's horizontal position.
+        :returns: the parsed value pin.
+        """
+        parse = vl.node(body, f"{x},410,55,19", "System.Conversion", core,
+                        call, "TryParse", [("String", "InputPin", False),
+                                           ("Value", "OutputPin", False),
+                                           ("Success", "OutputPin", False)])
+        vl.link(cell(column, x), parse["String"])
+        return parse["Value"]
+
+    label = cell("label", 662)
+    centre_x = number("centroid_x", 760)
+    centre_y = number("centroid_y", 860)
+    join = vl.node(body, "760,450,85,19", "2D.Vector2", core, call,
+                   "Vector (Join)", [("X", "InputPin", False),
+                                     ("Y", "InputPin", False),
+                                     ("Output", "StateOutputPin", False)])
+    vl.link(centre_x, join["X"])
+    vl.link(centre_y, join["Y"])
+
+    ring = vl.node(body, "960,440,65,19", "Graphics.Skia.Paint", skia, flag,
+                   "Stroke", [hidden_context, ("Input", "InputPin", False),
+                              ("Color", "InputPin", False),
+                              ("Stroke Width", "InputPin", False),
+                              ("Join", "InputPin", False),
+                              ("Cap", "InputPin", False),
+                              ("Miter", "InputPin", False),
+                              ("Output", "OutputPin", False)])
+    vl.link(vl.pad(body, "990,400,110,15", "1, 0.85, 0, 1", "Color", core,
+                   "RGBA", "Color"), ring["Color"])
+    vl.link(vl.pad(body, "1110,400,40,15", num(stroke), "Primitive", core,
+                   "Float32", "Stroke Width"), ring["Stroke Width"])
+    circle = vl.node(body, "760,500,85,19", "Graphics.Skia.Layers", skia, flag,
+                     "Circle", [hidden_context,
+                                ("Position", "InputPin", False),
+                                ("Radius", "InputPin", False),
+                                ("Anchor", "InputPin", False),
+                                ("Paint", "InputPin", False),
+                                ("Enabled", "InputPin", False),
+                                ("Output", "OutputPin", False)])
+    vl.link(join["Output"], circle["Position"])
+    vl.link(vl.pad(body, "860,480,40,15", num(marker), "Primitive", core,
+                   "Float32", "Radius"), circle["Radius"])
+    vl.link(ring["Output"], circle["Paint"])
+
+    text_pins = [hidden_context,
+                 ("Position", "InputPin", False), ("Size", "InputPin", False),
+                 ("Anchor", "InputPin", False), ("Text", "InputPin", False),
+                 ("Paint", "InputPin", False), ("Enabled", "InputPin", False),
+                 ("Output", "OutputPin", False),
+                 ("Baseline Position", "OutputPin", False)]
+    font_pins = [hidden_context, ("Input", "InputPin", False),
+                 ("Family Name", "InputPin", False),
+                 ("Style", "InputPin", False), ("Size", "InputPin", False),
+                 ("Color", "InputPin", False),
+                 ("Line Height in em", "InputPin", False),
+                 ("Horizontal Alignment", "InputPin", False),
+                 ("Vertical Alignment", "InputPin", False),
+                 ("Show Helpers", "InputPin", False),
+                 ("Output", "OutputPin", False)]
+    enums = "Graphics.Skia.Unwrapped.Enums"
+    font_size = vl.pad(body, "960,480,40,15", num(font), "Primitive", core,
+                       "Float32", "Size")
+    ink = vl.pad(body, "1010,480,110,15", "1, 0.85, 0, 1", "Color", core,
+                 "RGBA", "Color")
+    left = vl.pad(body, "1130,480,60,15", "Left", enums, skia, "SKTextAlign",
+                  "Horizontal Alignment")
+    no_box = vl.pad(body, "900,560,60,22", vec(0, 0), "2D", basics,
+                    "Vector2", "Size")
+    group_inputs = [circle["Output"]]
+    for index, (column, vertical) in enumerate((("label", "Bottom"),
+                                                ("class", "Top"))):
+        if column not in columns:
+            continue
+        x = 900 + 160 * index
+        font_node = vl.node(body, f"{x},530,125,19", "Graphics.Skia.Text",
+                            skia, flag, "FontAndParagraph", font_pins)
+        vl.link(font_size, font_node["Size"])
+        vl.link(ink, font_node["Color"])
+        vl.link(left, font_node["Horizontal Alignment"])
+        vl.link(vl.pad(body, f"{x + 60},510,62,15", vertical, enums, skia,
+                       "VerticalTextAlignment", "Vertical Alignment"),
+                font_node["Vertical Alignment"])
+        text = vl.node(body, f"{x},580,85,19", "Graphics.Skia.Layers.Text",
+                       skia, flag, "Text", text_pins, position_pin=True)
+        vl.link(join["Output"], text["Position"])
+        vl.link(no_box, text["Size"])
+        vl.link(label if column == "label" else cell(column, 1110),
+                text["Text"])
+        vl.link(font_node["Output"], text["Paint"])
+        group_inputs.append(text["Output"])
+    group_pins = [hidden_context] + [
+        ("Input" if i == 0 else f"Input {i + 1}", "InputPin", False)
+        for i in range(len(group_inputs))] + [
+        ("Debug", "InputPin", False), ("Enabled", "InputPin", False),
+        ("Output", "OutputPin", False)]
+    marker_group = vl.node(body, "760,620,85,19", "Graphics.Skia", skia, flag,
+                           "Group", group_pins)
+    for i, source in enumerate(group_inputs):
+        vl.link(source, marker_group["Input" if i == 0 else f"Input {i + 1}"])
+    vl.link(marker_group["Output"], row_out)
+
+    markers = vl.node(canvas, "650,680,105,19", "Graphics.Skia", skia, flag,
+                      "Group (Spectral)", [hidden_context,
+                                           ("Input", "InputPin", False),
+                                           ("Debug", "InputPin", False),
+                                           ("Enabled", "InputPin", False),
+                                           ("Output", "OutputPin", False)])
+    vl.link(row_out, markers["Input"])
+    layers.append(markers["Output"])
+    scene = vl.node(canvas, "60,680,145,19", "Graphics.Skia", skia, flag,
+                    "Group", [hidden_context] + [
+                        ("Input" if i == 0 else f"Input {i + 1}", "InputPin",
+                         False) for i in range(len(layers))] + [
+                        ("Debug", "InputPin", False),
+                        ("Enabled", "InputPin", False),
+                        ("Output", "OutputPin", False)])
+    for i, source in enumerate(layers):
+        vl.link(source, scene["Input" if i == 0 else f"Input {i + 1}"])
+    fit = vl.node(canvas, "60,730,105,19", "Graphics.Skia.Transform", skia,
+                  flag, "TransformSRT", [hidden_context,
+                                         ("Input", "InputPin", False),
+                                         ("Scaling", "InputPin", False),
+                                         ("Rotation", "InputPin", False),
+                                         ("Translation", "InputPin", False),
+                                         ("Output", "OutputPin", False)])
+    vl.link(scene["Output"], fit["Input"])
+    vl.link(vl.pad(canvas, "120,710,110,22", vec(scale, scale), "2D", basics,
+                   "Vector2", "Scaling"), fit["Scaling"])
+    vl.link(vl.pad(canvas, "240,710,110,22", vec(-width / height, -1.0), "2D",
+                   basics, "Vector2", "Translation"), fit["Translation"])
+
+    window = max(320, min(900, height))
+    window_width = max(320, min(1400, int(round(window * width / height))))
+    bounds = f"100, 100, {window_width}, {window}"
+    renderer = vl.node(canvas, "60,790,185,19", "Graphics.Skia", skia, flag,
+                       "Renderer", [
+                           hidden_context,
+                           ("Bounds", "InputPin", False, bounds,
+                            ("System.Drawing", "System.Drawing.dll",
+                             "Rectangle")),
+                           ("Save Bounds", "InputPin", True),
+                           ("Bound to Document", "InputPin", False, "True",
+                            ("Primitive", basics, "Boolean")),
+                           ("Dialog If Document Changed", "InputPin", True),
+                           ("Always On Top", "InputPin", True),
+                           ("Extend Into Title Bar", "InputPin", True),
+                           ("Input", "InputPin", False),
+                           ("Title", "InputPin", False),
+                           ("Title Bar Interaction Width", "InputPin", True),
+                           ("Color", "InputPin", False),
+                           ("Clear", "InputPin", False),
+                           ("Space", "InputPin", False),
+                           ("Show Cursor", "InputPin", False),
+                           ("VSync", "InputPin", False),
+                           ("Commands", "InputPin", True),
+                           ("Enable Keyboard Shortcuts", "InputPin", True),
+                           ("Enabled", "InputPin", False),
+                           ("Form Bounds Notifications", "OutputPin", True),
+                           ("Form", "OutputPin", False),
+                           ("ClientBounds", "OutputPin", False),
+                           ("Render Time", "OutputPin", False)])
+    vl.link(fit["Output"], renderer["Input"])
+    vl.link(vl.pad(canvas, "250,770,160,15", f"spaCR - {stem}", "Primitive",
+                   core, "String", "Title"), renderer["Title"])
+    vl.link(vl.pad(canvas, "420,770,110,15", "0.1, 0.1, 0.1, 1", "Color",
+                   core, "RGBA", "Color"), renderer["Color"])
+    vl.link(vl.pad(canvas, "540,770,90,15", "Normalized", "VL.Skia",
+                   "VL.Skia.dll", "CommonSpace", "Space"), renderer["Space"])
+
+    create = vl.new_id()
+    update = vl.new_id()
+    vl.sub(patch, "Patch", Id=create, Name="Create")
+    vl.sub(patch, "Patch", Id=update, Name="Update")
+    process = vl.sub(patch, "ProcessDefinition", Id=vl.new_id())
+    vl.sub(process, "Fragment", Id=vl.new_id(), Patch=create, Enabled="true")
+    vl.sub(process, "Fragment", Id=vl.new_id(), Patch=update, Enabled="true")
+    for source, sink in vl.links:
+        vl.sub(patch, "Link", Id=vl.new_id(), Ids=f"{source},{sink}")
+    et.indent(doc, space="  ")
+    text = et.tostring(doc, encoding="unicode")
+    return "﻿<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + text + "\n"
+
+
+def _vvvv_publisher(tabular):
+    """``tabular._publish`` that waits out a reader holding the target.
+
+    On Windows a file vvvv is reading cannot be replaced for that moment;
+    the rename is retried for about a second before the error is raised.
+    """
+    import time
+
+    def publish(target, write):
+        """Publish ``target``, retrying while another process holds it.
+
+        :param target: the destination path.
+        :param write: writes the temporary file that replaces it.
+        :returns: what the publish returns.
+        """
+        for attempt in range(20):
+            try:
+                return tabular._publish(target, write)
+            except PermissionError:
+                if attempt == 19:
+                    raise
+                time.sleep(0.05)
+        return target
+
+    return publish
+
+
+def _vvvv_readme(stem: str, project: str, origin: str = "Make Masks") -> str:
+    """How to open an export in vvvv gamma, for its README.txt.
+
+    :param stem: the field's stem.
+    :param project: the ``.vl`` file name.
+    :param origin: the spaCR module that wrote the export.
+    """
+    extra = ("" if origin == "Make Masks" else
+             ",\n                     then the module's own measurements")
+    return f"""spaCR export for vvvv gamma (alpha)
+====================================
+
+This folder holds one image exported from spaCR {origin} and a vvvv
+gamma project that shows it.
+
+Open it
+-------
+1. Install vvvv gamma {_VVVV_GAMMA_VERSION} or later for Windows from
+   https://vvvv.org/download (free for non-commercial use).
+2. Start vvvv gamma, choose File > Open and select {project}
+   in this folder (or drag the file onto the vvvv window).
+3. A window titled "spaCR - {stem}" opens. It shows the image with white
+   object outlines on top and, for every object, a yellow circle at its
+   centroid with the object's label number next to it (and its class,
+   when the table has one).
+4. The patch itself opens in the vvvv editor; a note at its top says
+   what it does, and every value (colours, marker size) can be edited.
+
+Live updates
+------------
+With "Export on save" switched on in spaCR, every mask save rewrites this
+folder. The project reads manifest.json and the objects table every frame
+and reloads the images when the manifest changes, so the window follows
+your edits.
+
+Files
+-----
+{stem}_image.png     the image as 8-bit RGB (display only)
+{stem}_labels.png    16-bit labels; 0 is background, ids match the mask
+{stem}_outlines.png  white object outlines on a transparent background
+{stem}_objects.csv   one row per object: label, centroid_x, centroid_y,
+                     area, bounding box, mean intensity per channel{extra}
+manifest.json        image size, pixel size, channels and file names;
+                     written last, so its change means the set is complete
+{project}            the vvvv gamma project
+
+Coordinates are pixels with the origin at the image's top-left corner,
+x to the right and y down; centroids are pixel centres.
+"""
+
+
+def _export_vvvv(root: str, image_name: str, labels: np.ndarray,
+                image: Optional[np.ndarray] = None, *,
+                source_path: str = "", pixel_size=None, unit: str = "µm",
+                channel_names=None, classes=None, scores=None,
+                table=None, origin: str = "Make Masks") -> str:
+    """Write one field for a vvvv patch watching ``root`` (item 685, alpha).
+
+    The folder ``<root>/<stem>/`` holds ``<stem>_labels.png`` (16-bit
+    labels), ``<stem>_outlines.png`` (RGBA outlines on transparency),
+    ``<stem>_image.png`` (the field as 8-bit RGB, when ``image`` is given;
+    :func:`_vvvv_display_image`), ``<stem>_objects.csv``
+    (:func:`_vvvv_object_table`), ``<stem>.vl`` (a vvvv gamma project that
+    shows them; :func:`_vvvv_project_document`), ``README.txt`` and
+    ``manifest.json``. Every file is written to a hidden sibling and
+    renamed into place, so a watcher never reads half a file; the manifest
+    goes last, so its change means the set is complete. The project and
+    README are rewritten only when their text changes, so vvvv does not
+    reload an open project after every save. The source image and mask
+    are only read.
+
+    :param root: export folder; created when missing.
+    :param image_name: the field's file name; its stem names everything.
+    :param labels: 2-D label image; ids above 65535 are refused.
+    :param image: the field as loaded, for intensities and channel count.
+    :param source_path: the field's path, recorded in the manifest.
+    :param pixel_size: ``(x, y)`` physical size of a pixel, or None.
+    :param unit: the unit of ``pixel_size``.
+    :param channel_names: names for the image's channels.
+    :param classes: optional ``{label: class name}``.
+    :param scores: optional ``{label: score}``.
+    :param table: optional per-object frame with a ``label`` column, such
+        as Measure's measurements; its other columns are appended to the
+        objects table by label, after the columns listed above, and a
+        column that repeats one of those is left out.
+    :param origin: the spaCR module named in README.txt.
+    :returns: the field's export folder.
+    :raises ValueError: for labels that are not 2-D or exceed 16 bits.
+    """
+    import datetime
+    import time
+
+    from .. import tabular
+
+    labels = np.asarray(labels)
+    if labels.ndim != 2:
+        raise ValueError("vvvv export needs a 2-D label image")
+    if labels.size and (int(labels.min()) < 0 or int(labels.max()) > 65535):
+        raise ValueError("vvvv export stores labels as 16-bit PNG; "
+                         "ids must lie between 0 and 65535")
+    stem = field_stem(os.path.basename(image_name))
+    folder = os.path.join(os.fspath(root), stem)
+    os.makedirs(folder, exist_ok=True)
+    frame = _vvvv_object_table(labels, image, channel_names, classes, scores)
+    if table is not None and "label" in getattr(table, "columns", ()):
+        table = table.loc[:, ~table.columns.duplicated()]
+        extra = table.loc[:, [column for column in table.columns
+                              if column == "label"
+                              or column not in frame.columns]]
+        extra = extra.drop_duplicates("label").astype({"label": np.int64})
+        frame = frame.astype({"label": np.int64}).merge(
+            extra, on="label", how="left")
+    names = {
+        "labels": f"{stem}_labels.png",
+        "outlines": f"{stem}_outlines.png",
+        "objects": f"{stem}_objects.csv",
+    }
+    publish = _vvvv_publisher(tabular)
+    publish(os.path.join(folder, names["labels"]),
+            lambda pending: imageio.imwrite(
+                pending, labels.astype(np.uint16), format="PNG"))
+    publish(os.path.join(folder, names["outlines"]),
+            lambda pending: imageio.imwrite(
+                pending, _vvvv_outlines(labels), format="PNG"))
+    image_name_png = f"{stem}_image.png"
+    if image is not None:
+        publish(os.path.join(folder, image_name_png),
+                lambda pending: imageio.imwrite(
+                    pending, _vvvv_display_image(image), format="PNG"))
+        names["image"] = image_name_png
+    publish(os.path.join(folder, names["objects"]),
+            lambda pending: tabular.write_table(
+                frame, pending, canonicalise=False))
+    project = _vvvv_project_document(
+        stem, int(labels.shape[1]), int(labels.shape[0]),
+        dict(names, image=image_name_png), list(frame.columns))
+    texts = {f"{stem}.vl": project,
+             "README.txt": _vvvv_readme(stem, f"{stem}.vl", origin)}
+    for file_name, text in texts.items():
+        target = os.path.join(folder, file_name)
+        try:
+            unchanged = Path(target).read_text(encoding="utf-8") == text
+        except (OSError, UnicodeDecodeError):
+            unchanged = False
+        if not unchanged:
+            publish(target, lambda pending, text=text: Path(pending)
+                    .write_text(text, encoding="utf-8", newline="\r\n"))
+    names["project"] = f"{stem}.vl"
+    names["readme"] = "README.txt"
+    channels = [column[len("mean_intensity_"):] for column in frame.columns
+                if column.startswith("mean_intensity_")]
+    try:
+        from .. import __version__ as version
+    except ImportError:
+        version = ""
+    spacing = None
+    if pixel_size is not None:
+        spacing = {"x": float(pixel_size[0]), "y": float(pixel_size[1]),
+                   "unit": str(unit)}
+    manifest = {
+        "format": VVVV_EXPORT_FORMAT,
+        "version": VVVV_EXPORT_VERSION,
+        "image": os.path.basename(image_name),
+        "source_path": os.fspath(source_path),
+        "spacr_version": str(version),
+        "exported_at": datetime.datetime.now(datetime.timezone.utc)
+        .isoformat(timespec="seconds"),
+        "width": int(labels.shape[1]),
+        "height": int(labels.shape[0]),
+        "pixel_size": spacing,
+        "channel_names": channels,
+        "objects": int(len(frame)),
+        "coordinates": ("pixels; origin at the top-left corner of the image, "
+                        "x right, y down; centroids are pixel centres, "
+                        "bounding boxes are half-open [x0, x1)"),
+        "export_id": time.time_ns(),
+        "vvvv_gamma": _VVVV_GAMMA_VERSION,
+        "files": names,
+    }
+    publish(os.path.join(folder, "manifest.json"),
+            lambda pending: Path(pending).write_text(
+                json.dumps(manifest, indent=2, ensure_ascii=False),
+                encoding="utf-8"))
+    return folder
 
 
 def record_curation(folder: str, image_path: str, mask_path: str,
@@ -1174,7 +2687,7 @@ def record_curation(folder: str, image_path: str, mask_path: str,
 
 
 def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
-    """Return ``mask`` as uint16 labels, keeping every id it already had.
+    """Return validated labels, retaining explicit uint32 identities.
 
     The old behaviour here was ``label(mask > 0)``, which renumbers the
     connected components 1..N on every save. That throws away the identity
@@ -1205,16 +2718,22 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
         Use for primary/secondary relationships: a lone cell 900 remains 900,
         and separated pieces with the same primary ID remain one label.
         Requires a nonempty 2-D nonnegative integer array, not a boolean mask.
-    :returns: the labels as ``uint16``.
-    :raises ValueError: when an id does not fit in ``uint16``, or exact-ID
-        mode receives invalid labels. Oversized IDs are never truncated.
+    :returns: uint16 labels for ordinary segmentation, or uint32 for explicit
+        identities requiring that width. Existing uint32 masks retain their
+        exact IDs even without the explicit flag.
+    :raises ValueError: when ordinary segmentation exceeds uint16 capacity,
+        exact IDs exceed uint32 capacity, or exact-ID mode receives invalid
+        labels. Oversized IDs are never truncated.
     """
     m = np.asarray(mask)
-    if preserve_ids:
+    if preserve_ids or m.dtype == np.uint32:
         m = _primary_label_image(m, "Mask")
-        if int(m.max()) > np.iinfo(np.uint16).max:
-            raise ValueError("Exact mask IDs must fit in uint16; labels were not renumbered.")
-        return m.astype(np.uint16, copy=True)
+        if int(m.max()) > MAX_MASK_LABEL:
+            from .i18n import tr
+
+            raise ValueError(tr("Exact mask IDs must fit in uint16 or uint32; labels were not renumbered."))
+        dtype = np.uint32 if int(m.max()) > 65535 or m.dtype == np.uint32 else np.uint16
+        return m.astype(dtype, copy=True)
     boxes = None
     top = int(m.max()) if m.size and np.issubdtype(m.dtype, np.integer) \
         else None
@@ -1265,9 +2784,19 @@ def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndar
     return out.astype(np.uint16)
 
 
+_MASK_SAVE_WAIT_SECONDS: Optional[float] = 0.1
+"""How long Make Masks waits on the GUI thread for a mask save to land.
+
+A save written in this time is reported, and its follow-up steps run, as
+before; a slower one (3.1 s on a busy disk in lesson 14) finishes on the mask
+writer thread and reports when it lands. ``None`` waits for every save.
+"""
+
+
 def save_mask(folder: str, filename: str, mask: np.ndarray,
               log: Optional[CurationLog] = None,
-              masks_dir: Optional[str] = None, *, preserve_ids: bool = False) -> str:
+              masks_dir: Optional[str] = None, *, preserve_ids: bool = False,
+              lineage: Optional[dict] = None) -> str:
     """Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.
 
     Object ids are preserved -- see :func:`canonical_labels` for what that
@@ -1296,20 +2825,127 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
     :param preserve_ids: retain exact primary/secondary IDs without interpreting
         single-valued masks as binary or splitting disconnected pieces. The
         explicit mode validates nonnegative 2-D integer labels and refuses
-        IDs above 65535 before writing; it never silently renumbers them.
-    :returns: the path written.
+        IDs above 4294967295 before writing; it never silently renumbers them.
+    :param lineage: versioned UUID graph and per-frame pixel mappings to embed
+        in the TIFF. Even an empty graph requests uint32 storage. Existing
+        embedded lineage and exact-ID semantics survive ordinary later saves.
+    :returns: the path written. The TIFF carries the source image's pixel
+        size (:func:`pixel_size_nm`) as its resolution, in pixels per
+        centimetre, when the source records one.
     """
     save_path = mask_save_path(folder, filename, masks_dir)
+    metadata = load_mask_metadata(folder, filename, masks_dir)
+    if lineage is None:
+        lineage = metadata.get("lineage")
+    preserve_ids = bool(preserve_ids or metadata.get("preserve_ids")
+                        or lineage is not None or np.asarray(mask).dtype == np.uint32)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
+    if lineage is not None:
+        from .i18n import tr
+
+        if is_seg_bundle(filename):
+            raise ValueError(tr("Time labels require TIFF masks with embedded lineage."))
+        frame = os.path.abspath(os.path.join(folder, filename))
+        lineage = prune_lineage_frame(lineage, frame, labels)
+        labels = labels.astype(np.uint32, copy=False)
+        metadata["lineage"] = lineage
+        metadata["frame"] = frame
+        metadata["frame_id"] = lineage["frame_ids"][frame]
+    metadata.update(schema="spacr.mask/v1", preserve_ids=preserve_ids)
     if is_seg_bundle(filename):
-        save_seg_bundle(save_path, mask, preserve_ids=preserve_ids)
+        save_seg_bundle(save_path, labels, preserve_ids=preserve_ids)
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        write_tiff(save_path, canonical_labels(mask, preserve_ids=preserve_ids))
+        size = pixel_size_nm(os.path.join(folder, filename))
+        resolution = _resolution_for(size)
+        description_metadata = resolution.pop("metadata", {})
+        description_metadata.update(shape=labels.shape, spacr_mask=metadata)
+        description = json.dumps(description_metadata, ensure_ascii=True, allow_nan=False)
+        descriptor, temporary = tempfile.mkstemp(
+            prefix=".spacr-mask-", suffix=".tif", dir=os.path.dirname(save_path))
+        os.close(descriptor)
+        try:
+            write_tiff(temporary, labels, metadata=None, description=description,
+                       bigtiff=labels.nbytes + len(description) >= 2**32 - 2**25,
+                       **resolution)
+            with open(temporary, "r+b") as handle:
+                os.fsync(handle.fileno())
+            if os.path.isfile(save_path):
+                os.chmod(temporary, stat.S_IMODE(os.stat(save_path).st_mode))
+            os.replace(temporary, save_path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
     if log is not None and len(log):
         if not log.artifact:
             log.artifact = save_path
         log.write_beside(save_path)
     return save_path
+
+
+def _percentile_bounds(image: np.ndarray, lower_pct: float = 1.0,
+                      upper_pct: float = 99.9) -> Tuple[float, float]:
+    """The two intensities :func:`normalize_uint16` maps to black and white.
+
+    :param image: a non-empty image.
+    :param lower_pct: the percentile mapped to black.
+    :param upper_pct: the percentile mapped to white.
+    :returns: ``(lo, hi)``, with ``hi`` raised to ``lo + 1`` when the two
+        percentiles meet, so a flat field does not divide by zero.
+    """
+    lo = np.percentile(image, lower_pct)
+    hi = np.percentile(image, upper_pct)
+    if hi <= lo:
+        hi = lo + 1
+    return lo, hi
+
+
+def _stretch_between(image: np.ndarray, lo, hi) -> np.ndarray:
+    """``image`` clipped to ``lo..hi`` and rescaled to its dtype's range.
+
+    Pixel by pixel, so stretching a crop gives the same pixels as cropping
+    the stretched field: the canvas stretches only what it draws.
+
+    :param image: integer-typed image.
+    :param lo: the intensity mapped to 0.
+    :param hi: the intensity mapped to the dtype's maximum; above ``lo``.
+    An 8- or 16-bit field larger than its value range is stretched through
+    a table of every value, built by the same formula, so each pixel is the
+    same byte: one look-up instead of four float passes, about a third of
+    the time on a 2,000 px field the canvas redraws after every edit.
+
+    :returns: the stretched image, in ``image``'s dtype.
+    """
+    if (image.dtype in (np.uint8, np.uint16)
+            and image.size > 4 * (np.iinfo(image.dtype).max + 1)):
+        values = np.arange(np.iinfo(image.dtype).max + 1, dtype=image.dtype)
+        return _stretch_between(values, lo, hi)[image]
+    out = np.clip(image, lo, hi)
+    out = (out - lo) / (hi - lo)
+    max_val = float(np.iinfo(image.dtype).max)
+    return (out * max_val).astype(image.dtype)
+
+
+def _display_step(width: int, height: int, target_width: float,
+                 target_height: float) -> int:
+    """The pixel stride at which a ``width`` x ``height`` view is composed.
+
+    The canvas scales what it composes down to the widget anyway, so a
+    region larger than the widget's device pixels is composed from every
+    ``step``-th pixel instead: the largest whole stride that still leaves at
+    least the widget's resolution on both axes. Measured on a 4,096 px TEM
+    field: composing all of it took about 4 s per refresh, and a refresh
+    follows every brush point; at the stride a 1,000 px canvas needs (4) it
+    is 16 times fewer pixels.
+
+    :param width: the viewed region's width, in image pixels.
+    :param height: its height.
+    :param target_width: the widget's width, in device pixels.
+    :param target_height: its height.
+    :returns: 1 or more.
+    """
+    return max(1, int(min(width / max(1.0, float(target_width)),
+                          height / max(1.0, float(target_height)))))
 
 
 def normalize_uint16(image: np.ndarray,
@@ -1323,14 +2959,8 @@ def normalize_uint16(image: np.ndarray,
     """
     if not image.size:
         return image
-    lo = np.percentile(image, lower_pct)
-    hi = np.percentile(image, upper_pct)
-    if hi <= lo:
-        hi = lo + 1
-    out = np.clip(image, lo, hi)
-    out = (out - lo) / (hi - lo)
-    max_val = float(np.iinfo(image.dtype).max)
-    return (out * max_val).astype(image.dtype)
+    lo, hi = _percentile_bounds(image, lower_pct, upper_pct)
+    return _stretch_between(image, lo, hi)
 
 
 def normalize_for_detection(image: np.ndarray, lower_pct: float = 1.0,
@@ -1575,6 +3205,107 @@ def invert_for_detection(image: np.ndarray, *, bounds=None) -> np.ndarray:
     return out.astype(arr.dtype)
 
 
+_OVERLAY_BLEND_TABLES: dict = {}
+
+
+def _overlay_blend_table(alpha) -> np.ndarray:
+    """``table[grey, colour]``: the byte :func:`overlay_mask` blends the pair to.
+
+    Built by :func:`overlay_mask`'s own expression over every pair of bytes,
+    with the same operand types, so a look-up gives exactly its result.
+
+    :param alpha: the colour's weight.
+    :returns: a ``(256, 256)`` uint8 table.
+    """
+    key = (type(alpha), alpha)
+    table = _OVERLAY_BLEND_TABLES.get(key)
+    if table is None:
+        grey = np.arange(256, dtype=np.uint8)[:, None]
+        colour = np.arange(256, dtype=np.uint8)[None, :]
+        table = np.clip(grey * (1 - alpha) + colour * alpha, 0, 255).astype(np.uint8)
+        if len(_OVERLAY_BLEND_TABLES) > 8:
+            _OVERLAY_BLEND_TABLES.clear()
+        _OVERLAY_BLEND_TABLES[key] = table
+    return table
+
+
+def _overlay_mask_fast(image: np.ndarray, mask: np.ndarray, alpha):
+    """:func:`overlay_mask` for a grey 8/16-bit field, or None for any other.
+
+    A grey 8- or 16-bit image under a nonnegative 8-, 16- or 32-bit integer
+    mask is blended only where an object is: at ``alpha`` 0.5 as the
+    carry-free byte average of packed pixels (the floor of the mean, which
+    is what the float formula gives), otherwise through a table of every
+    grey and colour byte pair built by the same formula. Either way the
+    result is the same byte for byte. The float blend over all three
+    channels of every pixel took 184 ms on a 2,000 px field, 41 ms this way.
+
+    :param image: the field.
+    :param mask: its labels.
+    :param alpha: the colour's weight.
+    :returns: the ``(h, w, 3)`` uint8 picture, or None when the general
+        path must run.
+    """
+    image = np.asarray(image)
+    mask = np.asarray(mask)
+    if (image.ndim != 2 or image.dtype not in (np.uint8, np.uint16)
+            or mask.shape != image.shape
+            or mask.dtype not in (np.uint8, np.uint16, np.uint32, np.int8, np.int16, np.int32)):
+        return None
+    if mask.dtype.kind == "i" and mask.size and int(mask.min()) < 0:
+        return None
+    max_label = int(np.max(mask)) if mask.size else 0
+    if max_label > 65535:
+        return None
+    flat = np.ascontiguousarray(mask).reshape(-1)
+    inside = np.flatnonzero(flat)
+    rng = np.random.default_rng(0)
+    colors = rng.integers(30, 255, size=(max_label + 1, 3), dtype=np.uint8)
+    if max_label >= 0:
+        colors[0] = [0, 0, 0]
+    if image.dtype == np.uint16:
+        grey = (image >> 8).astype(np.uint8)
+    else:
+        grey = np.zeros(image.shape, dtype=np.uint8)
+    if isinstance(alpha, float) and alpha == 0.5:
+        packed = grey.astype(np.uint32) * np.uint32(0x010101)
+        pixels = packed.reshape(-1)
+        if inside.size:
+            paint = ((colors[:, 0].astype(np.uint32) << 16)
+                     | (colors[:, 1].astype(np.uint32) << 8) | colors[:, 2])
+            under = pixels[inside]
+            colour = paint[flat[inside]]
+            pixels[inside] = (under & colour) + (
+                ((under ^ colour) >> 1) & np.uint32(0x7F7F7F))
+        out = np.empty(image.shape + (3,), dtype=np.uint8)
+        out[..., 0] = packed >> 16
+        out[..., 1] = (packed >> 8) & 0xFF
+        out[..., 2] = packed & 0xFF
+        return out
+    out = np.empty(image.shape + (3,), dtype=np.uint8)
+    out[...] = grey[..., None]
+    if inside.size:
+        pixels = out.reshape(-1, 3)
+        pixels[inside] = _overlay_blend_table(alpha)[
+            pixels[inside], colors[flat[inside]]]
+    return out
+
+
+def _label_colors(values: np.ndarray) -> np.ndarray:
+    """Give each original ID a stable color with a bounded legacy lookup table."""
+    values = np.asarray(values, dtype=np.uint64)
+    flat = values.reshape(-1)
+    hashed = flat[:, None] * np.array([2654435761, 2246822519, 3266489917], dtype=np.uint64)
+    colors = (30 + ((hashed ^ (hashed >> 16)) % 225)).astype(np.uint8)
+    small = flat <= 65535
+    if small.any():
+        legacy = np.random.default_rng(0).integers(
+            30, 255, size=(int(flat[small].max()) + 1, 3), dtype=np.uint8)
+        colors[small] = legacy[flat[small]]
+    colors[flat == 0] = 0
+    return colors.reshape(values.shape + (3,))
+
+
 def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.ndarray:
     """Blend a colorized label mask onto a grayscale image, uint8 RGB.
 
@@ -1583,15 +3314,22 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.
     :param mask: label mask with the image's height and width; each label
         gets a fixed pseudo-random colour and 0 stays unblended.
     """
+    fast = _overlay_mask_fast(image, mask, alpha)
+    if fast is not None:
+        return fast
     if image.ndim == 2:
         image = np.stack((image,) * 3, axis=-1)
-    m = mask.astype(np.int32)
+    m = mask.astype(np.int64)
     max_label = int(np.max(m)) if m.size else 0
-    rng = np.random.default_rng(0)
-    colors = rng.integers(30, 255, size=(max_label + 1, 3), dtype=np.uint8)
-    if max_label >= 0:
+    if max_label > 65535:
+        values, inverse = np.unique(m, return_inverse=True)
+        colors = _label_colors(values)
+        colored = colors[inverse].reshape(m.shape + (3,))
+    else:
+        rng = np.random.default_rng(0)
+        colors = rng.integers(30, 255, size=(max_label + 1, 3), dtype=np.uint8)
         colors[0] = [0, 0, 0]
-    colored = colors[m]
+        colored = colors[m]
     image_8bit = (image.astype(np.float32) / 256.0).clip(0, 255).astype(np.uint8)
     combined = np.where(
         m[..., None] > 0,
@@ -1666,18 +3404,35 @@ def paint_line(mask: np.ndarray, x0: int, y0: int, x1: int, y1: int,
 DIVIDE_CUT_WIDTH = 1.5
 
 
+def _available_labels(mask: np.ndarray):
+    """Yield unused uint32 IDs above the maximum, wrapping only at capacity."""
+    from .i18n import tr
+
+    used = set(map(int, np.unique(mask))) - {0}
+    largest = max(used, default=0)
+    if largest > MAX_MASK_LABEL or min(used, default=0) < 0:
+        raise ValueError(tr("Mask IDs must be non-negative uint32 integers."))
+    candidate = largest + 1 if largest < MAX_MASK_LABEL else 1
+    while len(used) < MAX_MASK_LABEL:
+        while candidate in used:
+            candidate = candidate + 1 if candidate < MAX_MASK_LABEL else 1
+        used.add(candidate)
+        yield candidate
+        candidate = candidate + 1 if candidate < MAX_MASK_LABEL else 1
+    raise ValueError(tr("No unused 32-bit label remains."))
+
+
 def next_label(mask: np.ndarray) -> int:
-    """The id to give the next object drawn on ``mask``: one past its top.
+    """Prefer the next highest ID, using an unused local ID at uint32 capacity.
 
-    Above the maximum rather than the lowest free id, because ids are what
-    the ledger, the measurements and the crops name objects by. Handing a
-    new object the id of one that was deleted makes two different cells
-    share a name across a session, and nothing downstream can tell them
-    apart afterwards.
+    Persistent lineage uses independent UUIDs, so a free local pixel ID can
+    be reused without merging cell identities. Allocation visits observed
+    labels only and never constructs a table of every possible uint32 ID.
 
-    :param mask: label mask; an empty array gives 1.
+    :param mask: The integer label mask whose observed IDs are already in use.
     """
-    return (int(mask.max()) if mask.size else 0) + 1
+    largest = int(mask.max()) if mask.size else 0
+    return largest + 1 if largest < MAX_MASK_LABEL else next(_available_labels(mask))
 
 
 def _fit_label_width(out: np.ndarray, like: np.ndarray) -> np.ndarray:
@@ -1688,12 +3443,14 @@ def _fit_label_width(out: np.ndarray, like: np.ndarray) -> np.ndarray:
     to 0 and the new object would vanish into the background.
     """
     top = int(out.max()) if out.size else 0
-    if top > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"mask needs label {top}, past what a uint16 mask can hold.")
+    if top > MAX_MASK_LABEL or (out.size and int(out.min()) < 0):
+        from .i18n import tr
+
+        raise ValueError(tr("Mask label {label} is outside unsigned uint32 capacity.", label=top))
     if np.issubdtype(like.dtype, np.integer) and top <= np.iinfo(like.dtype).max:
         return out.astype(like.dtype)
-    return out.astype(np.uint8 if top <= 255 else np.uint16)
+    return out.astype(np.uint8 if top <= 255 else (
+        np.uint16 if top <= 65535 else np.uint32))
 
 
 def fill_polygon(mask: np.ndarray, points, label_value: Optional[int] = None):
@@ -1800,7 +3557,7 @@ def divide_object(mask: np.ndarray, p0, p1,
     if not crossed:
         return mask.copy(), []
     out = mask.astype(np.int64, copy=True)
-    free_id = next_label(mask)
+    free_ids = _available_labels(mask)
     splits = []
     for source in crossed:
         body = out == source
@@ -1815,12 +3572,77 @@ def divide_object(mask: np.ndarray, p0, p1,
         for piece in range(1, count + 1):
             if piece == keeps:
                 continue
+            free_id = next(free_ids)
             out[pieces == piece] = free_id
             splits.append((source, free_id))
-            free_id += 1
     if not splits:
         return mask.copy(), []
     return _fit_label_width(out, mask), splits
+
+
+def _divide_or_cut(mask: np.ndarray, p0, p1,
+                  width: float = DIVIDE_CUT_WIDTH):
+    """Divide what the segment separates and keep the cut through the rest.
+
+    Make Masks' Divide stroke (item 685). An object the line crosses
+    without separating keeps a background groove along the line, so the
+    next stroke continues the earlier one and several strokes can finish a
+    division together. An object the band would remove completely is left
+    alone, so a cut never deletes an object. Separated objects follow
+    :func:`divide_object`: the larger piece keeps its id.
+
+    :param mask: 2-D label mask; it is not modified.
+    :param p0: first end of the cut as ``(x, y)`` in pixels.
+    :param p1: second end of the cut as ``(x, y)`` in pixels.
+    :returns: ``(mask, splits, cut)``: ``splits`` as for
+        :func:`divide_object`, ``cut`` the ids that received only a groove.
+        Both empty means the mask is an unchanged copy.
+
+    Each crossed object is cut and numbered inside its own bounding box,
+    which gives the same pieces in the same order as the whole field: a
+    component lies inside its object's box, and labelling numbers
+    components in raster order, which a box keeps. 0.3 s less on the GUI
+    thread per stroke on a 2,000 px field.
+    """
+    if tuple(int(v) for v in p0) == tuple(int(v) for v in p1):
+        return mask.copy(), [], []
+    band = _segment_band(mask.shape, p0, p1, width)
+    if not band.any():
+        return mask.copy(), [], []
+    crossed = [int(v) for v in np.unique(mask[band]) if int(v) > 0]
+    if not crossed:
+        return mask.copy(), [], []
+    out = mask.astype(np.int64, copy=True)
+    free_ids = _available_labels(mask)
+    splits, cut = [], []
+    for source in crossed:
+        rows, cols = np.nonzero(mask == source)
+        box = (slice(int(rows.min()), int(rows.max()) + 1),
+               slice(int(cols.min()), int(cols.max()) + 1))
+        part, strip = out[box], band[box]
+        body = part == source
+        remainder = body & ~strip
+        pieces, count = _ndimage().label(remainder, structure=_EIGHT)
+        if count == 0:
+            continue
+        part[body & strip] = 0
+        if count < 2:
+            cut.append(source)
+            continue
+        areas = np.bincount(pieces.ravel())
+        keeps = int(np.argmax(areas[1:])) + 1
+        part[body] = 0
+        part[pieces == keeps] = source
+        for piece in range(1, count + 1):
+            if piece == keeps:
+                continue
+            free_id = next(free_ids)
+            part[pieces == piece] = free_id
+            splits.append((source, free_id))
+    if not splits and not cut:
+        return mask.copy(), [], []
+    return _fit_label_width(out, mask), splits, cut
+
 
 def _merge_objects_along_line(mask: np.ndarray, p0, p1):
     """Join crossed labels under the first touched ID without painting pixels.
@@ -1860,7 +3682,7 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
 
     :param mask: label image to fill.
     :param preserve_ids: validate the ids as exact primary IDs first
-        (uint16-compatible, via :func:`canonical_labels`). Either way every
+        (unsigned labels, via :func:`canonical_labels`). Either way every
         id is kept. By default a mask with a single foreground value -- a
         brush-painted binary mask, which carries no ids -- is numbered by
         connectivity first, as :func:`canonical_labels` numbers it.
@@ -1876,6 +3698,49 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
         if int(np.min(m, where=m > 0, initial=top)) == top:
             labels = canonical_labels(m)
     return _fit_label_width(fill_label_holes(labels), m)
+
+
+def assign_object_label(mask: np.ndarray, x: int, y: int,
+                        label: int) -> Tuple[np.ndarray, int]:
+    """Assign one explicit uint32 identity without joining different objects.
+
+    All pixels bearing the clicked object's existing ID move together,
+    including disconnected pieces deliberately sharing that identity. Zero
+    removes that object. A nonzero target already belonging to another
+    object is refused before any pixel changes.
+
+    :param mask: nonempty 2-D nonnegative integer labels; never modified.
+    :param x: integer column; outside the field changes nothing.
+    :param y: integer row; outside the field changes nothing.
+    :param label: integer in 0 through 4294967295, with zero reserved for background.
+    :returns: an unsigned label copy and the original ID under the pointer, or zero
+        for background or an outside position. The same ID is a no-op.
+    :raises ValueError: for invalid labels, coordinates, or an occupied ID.
+    """
+    from .i18n import tr
+
+    if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 0 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("Labels must be whole numbers from 0 through 4294967295."))
+    if any(isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+           for value in (x, y)):
+        raise ValueError(tr("Object coordinates must be integer pixels."))
+    labels = canonical_labels(mask, preserve_ids=True)
+    if int(label) > 65535:
+        labels = labels.astype(np.uint32, copy=False)
+    height, width = labels.shape
+    if not (0 <= int(y) < height and 0 <= int(x) < width):
+        return labels, 0
+    original = int(labels[int(y), int(x)])
+    target = int(label)
+    if not original or original == target:
+        return labels, original
+    if target and np.any(labels == target):
+        raise ValueError(tr(
+            "Label {label} already belongs to another object in this frame.",
+            label=target))
+    labels[labels == original] = target
+    return labels, original
 
 
 def relabel_objects(mask: np.ndarray) -> np.ndarray:
@@ -2003,10 +3868,8 @@ def shrink_objects(mask: np.ndarray, distance: int = 1) -> np.ndarray:
     if steps <= 0 or not out.size:
         return out
     ndimage = _ndimage()
-    boxes = ndimage.find_objects(out.astype(np.int64, copy=False))
-    for value, box in enumerate(boxes, start=1):
-        if box is None:
-            continue
+    boxes = _label_boxes(out)
+    for value, box in boxes.items():
         window = out[box]
         inside = window == value
         core = tuple(slice(steps, steps + n) for n in inside.shape)
@@ -2136,14 +3999,14 @@ def split_object_at(mask: np.ndarray, x: int, y: int, *,
     areas = {piece: int(np.count_nonzero(pieces == piece)) for piece in found}
     keeps = max(found, key=lambda piece: (areas[piece], -piece))
     out = mask.astype(np.int64, copy=True)
-    free_id = next_label(mask)
+    free_ids = _available_labels(mask)
     new_ids: List[int] = []
     for piece in found:
         if piece == keeps:
             continue
+        free_id = next(free_ids)
         out[y0:y1, x0:x1][pieces == piece] = free_id
         new_ids.append(free_id)
-        free_id += 1
     return _fit_label_width(out, mask), new_ids
 
 
@@ -2547,9 +4410,16 @@ def filter_removals(labels: np.ndarray, filters, intensity=None, *,
     names = list(dict.fromkeys([entry["property"] for entry in active] + extra))
     from skimage.measure import regionprops_table
 
+    observed = None
+    if int(lab.max()) > 65535:
+        observed, inverse = np.unique(lab, return_inverse=True)
+        compact = inverse.reshape(lab.shape) + 1
+        compact[lab == 0] = 0
+    else:
+        compact = lab if np.issubdtype(lab.dtype, np.integer) else lab.astype(np.int32)
     try:
         table = regionprops_table(
-            lab if np.issubdtype(lab.dtype, np.integer) else lab.astype(np.int32),
+            compact,
             intensity_image=grey, properties=["label"] + names)
     except NotImplementedError as error:
         raise ValueError(
@@ -2560,7 +4430,9 @@ def filter_removals(labels: np.ndarray, filters, intensity=None, *,
             if not np.all(np.isfinite(np.asarray(table[name], dtype=float))):
                 raise ValueError(
                     "Intensity filtering requires finite object mean intensities")
-    ids = np.asarray(table["label"]).astype(np.int64)
+    ids = np.asarray(table["label"], dtype=np.int64)
+    if observed is not None:
+        ids = observed[ids - 1]
     columns = {name: np.asarray(table[name], dtype=float) for name in names}
     failures: Dict[int, List[FailedBound]] = {}
     for index, entry in enumerate(rules):
@@ -2615,7 +4487,7 @@ def apply_filters(mask: np.ndarray, image, filters, *,
         grey = np.asarray(image, dtype=np.float32)
         if grey.ndim == 3 and np.ndim(mask) == 2:
             grey = grey.mean(axis=2)
-    labels = canonical_labels(mask, preserve_ids=preserve_ids).astype(np.int32)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
     extra = tuple(report or ()) + (("intensity_mean",) if grey is not None else ())
     removals = filter_removals(labels, filters, grey, report=extra)
     if not removals:
@@ -2765,9 +4637,7 @@ class ObjectLookup:
         if grey.ndim == 3:
             grey = grey.mean(axis=2)
         self._grey = grey
-        has_objects = bool(self.labels.size) and bool(self.labels.max())
-        self._boxes = (_ndimage().find_objects(self.labels)
-                       if has_objects else [])
+        self._boxes = _label_boxes(self.labels)
         self._measured: dict = {}
 
     def measure(self, label: int) -> Optional[Tuple[int, float]]:
@@ -2779,10 +4649,9 @@ class ObjectLookup:
         label = int(label)
         if label in self._measured:
             return self._measured[label]
-        if not 1 <= label <= len(self._boxes) \
-                or self._boxes[label - 1] is None:
+        if label not in self._boxes:
             return None
-        box = self._boxes[label - 1]
+        box = self._boxes[label]
         inside = self.labels[box] == label
         found = (int(np.count_nonzero(inside)),
                  float(np.mean(self._grey[box][inside])))
@@ -2808,24 +4677,33 @@ class ObjectLookup:
         return PixelReadout(x, y, intensity, label, *measured)
 
 
+def _full_connectivity(ndim: int) -> np.ndarray:
+    """The structuring element joining every face, edge and corner neighbour.
+
+    :param ndim: 2 for a field (8-connected), 3 for a volume (26-connected).
+    :returns: :data:`_EIGHT` for a field, ``ones((3,) * ndim)`` otherwise.
+    """
+    return _EIGHT if int(ndim) == 2 else np.ones((3,) * int(ndim), dtype=np.uint8)
+
+
 def connected_instances(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
     """Label every separated foreground region as its own object.
 
     :param binary: array whose truthy pixels are foreground. Regions touching
-        diagonally are connected under the editor's eight-neighbour rule.
-    :param min_area: regions smaller than this are dropped rather than
-        labelled, so a detection does not hand back a field of single-pixel
-        speckles for the user to delete by hand.
+        diagonally are connected under the editor's eight-neighbour rule; in
+        a volume, voxels sharing a face, edge or corner are 26-connected.
+    :param min_area: regions smaller than this (pixels, or voxels in a
+        volume) are dropped rather than labelled, so a detection does not
+        hand back a field of single-pixel speckles to delete by hand.
     """
-    components, count = _ndimage().label(np.asarray(binary, dtype=bool), structure=_EIGHT)
-    out = np.zeros(components.shape, dtype=np.int32)
-    next_id = 1
-    for old in range(1, count + 1):
-        region = components == old
-        if int(region.sum()) >= int(min_area):
-            out[region] = next_id
-            next_id += 1
-    return out
+    foreground = np.asarray(binary, dtype=bool)
+    components, _count = _ndimage().label(foreground, structure=_full_connectivity(foreground.ndim))
+    sizes = np.bincount(components.ravel(), minlength=1)
+    keep = sizes >= int(min_area)
+    keep[0] = False
+    lookup = np.zeros(sizes.size, dtype=np.int32)
+    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    return lookup[components]
 
 
 def otsu_instances(image: np.ndarray, *, bright: bool = True,
@@ -3289,15 +5167,23 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
     else:
         base = int(old.max()) if old.size else 0
         out = old.astype(np.int64, copy=True)
-        added = np.where(incoming > 0, incoming + base, 0)
+        if base + int(incoming.max(initial=0)) > MAX_MASK_LABEL:
+            added = np.zeros_like(incoming)
+            free_ids = _available_labels(old)
+            for value in np.unique(incoming[incoming > 0]):
+                added[incoming == value] = next(free_ids)
+        else:
+            added = np.where(incoming > 0, incoming + base, 0)
         free = out == 0
         out[free] = added[free]
     top = int(out.max()) if out.size else 0
-    if top > np.iinfo(np.uint16).max:
-        raise ValueError(
-            f"combined mask needs label {top}, past uint16; "
-            "raise the minimum area so the detection makes fewer objects.")
-    return out.astype(np.uint8 if top <= 255 else np.uint16)
+    if top > MAX_MASK_LABEL:
+        from .i18n import tr
+
+        raise ValueError(tr("Combined mask needs label {label}, past uint32; "
+                            "raise the minimum area so the detection makes fewer objects.", label=top))
+    return out.astype(np.uint32 if top > 65535 or old.dtype == np.uint32 else (
+        np.uint8 if top <= 255 else np.uint16))
 
 
 #: The rules a live-magnifier commit knows for an object that lands on one
@@ -3427,7 +5313,7 @@ def _split_touching_objects(binary: np.ndarray, min_area: int = 0) -> np.ndarray
         return empty
     distance = ndimage.gaussian_filter(
         ndimage.distance_transform_edt(mask), 1.0)
-    components, count = ndimage.label(mask, structure=_EIGHT)
+    components, count = ndimage.label(mask, structure=_full_connectivity(mask.ndim))
     spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
     peaks = peak_local_max(distance, min_distance=spacing, labels=components,
                            exclude_border=False)
@@ -3900,13 +5786,13 @@ def fill_label_holes(labels: np.ndarray) -> np.ndarray:
         return out
     if not np.issubdtype(out.dtype, np.integer):
         raise ValueError("fill_label_holes needs an integer label image.")
-    boxes = ndimage.find_objects(out)
+    boxes = _label_boxes(out)
     order = sorted(
-        (index for index, box in enumerate(boxes) if box is not None),
+        boxes,
         key=lambda index: int(np.prod([s.stop - s.start for s in boxes[index]])))
     for index in order:
         box = boxes[index]
-        value = index + 1
+        value = index
         window = out[box]
         own = window == value
         holes = ndimage.binary_fill_holes(own) & ~own & (window == 0)
@@ -4095,7 +5981,7 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
         applied is not added.
     :param preserve_ids: paste the supplied IDs, not newly allocated IDs.
         Same-ID pixels do not conflict under Clip or Skip. Disconnected
-        pieces retain their shared identity. Exact-ID masks must fit uint16.
+        pieces retain their shared identity. Exact-ID masks must fit uint32.
     :param replace_whole: under ``replace``, remove each overlapping old
         object in full before pasting. Same-ID pixels remain when preserving
         IDs. Under ``merge``, fuse overlapping objects into their smallest
@@ -4137,7 +6023,7 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
     window = out[y0:y1, x0:x1]
     if overlap == "merge":
         added = []
-        new_id = next_label(mask)
+        free_ids = _available_labels(mask)
         for value in values:
             body = kept == value
             touching = np.unique(window[body])
@@ -4147,9 +6033,7 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
                 if touching.size > 1:
                     out[np.isin(out, touching[1:])] = target
             else:
-                target = value if preserve_ids else new_id
-                if not preserve_ids:
-                    new_id += 1
+                target = value if preserve_ids else next(free_ids)
             window[body] = target
             added.append(target)
         added = list(dict.fromkeys(int(out[y0:y1, x0:x1][kept == value][0])
@@ -4166,15 +6050,10 @@ def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,
         body = kept > 0
         window[body] = kept[body]
         return _fit_label_width(out, mask), values
-    new_id = next_label(mask)
-    added: List[int] = []
-    renumber = np.zeros(int(kept.max()) + 1, dtype=np.int64)
-    for value in values:
-        renumber[value] = new_id
-        added.append(new_id)
-        new_id += 1
+    free_ids = _available_labels(mask)
+    added = [next(free_ids) for value in values]
     body = kept > 0
-    window[body] = renumber[kept[body]]
+    window[body] = np.asarray(added, dtype=np.int64)[np.searchsorted(values, kept[body])]
     return _fit_label_width(out, mask), added
 
 
@@ -4246,7 +6125,7 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
     :param min_area: an object left smaller than this by the rule does not
         survive. 0 and 1 both mean "at least one pixel".
     :param preserve_ids: retain disconnected pieces sharing an ID; ``occupied``
-        must exclude existing same-ID pixels. Validate labels as uint16 IDs.
+        must exclude existing same-ID pixels. Validate labels as uint32 IDs.
     :returns: a copy of ``labels`` with everything the rule takes away set
         to 0. The surviving objects keep the ids they came in with.
     :raises ValueError: for an unknown ``overlap`` rule.
@@ -4365,6 +6244,785 @@ def magic_wand(
                 q.append((nx, ny))
     return out
 
+
+
+class VolumeMaskSession:
+    """Edit native spatial labels using the same boundary as the 3-D gate view.
+
+    Coordinates are physical X/Y/Z distances from the image's outer origin;
+    voxel centres lie at ``(index + 0.5) * spacing``. Arrays retain their
+    declared spatial axis order, source dtype and existing object identities.
+    At most 16,777,216 voxels and 256 MiB of source intensities are accepted;
+    larger fields are refused explicitly. Sparse undo deltas have a combined
+    64 MiB budget rather than retaining a volume for every edit.
+
+    :param image: finite real numeric three-dimensional source intensities.
+    :param mask: nonnegative integer labels of exactly the source shape.
+    :param axes: a permutation of the three spatial axes ``XYZ``.
+    :param spacing: positive finite distances in that same array axis order.
+    :param unit: the physical distance unit, or ``pixel`` when unspecified.
+    :param channels: every channel of a multichannel volume, each shaped
+        like ``image`` (which the slice views show); the 3-D view draws each
+        as its own layer. Together they share the 256 MiB budget.
+    """
+
+    MAX_VOXELS = 16_777_216
+    MAX_HISTORY_BYTES = 64 * 1024 * 1024
+
+    def __init__(self, image, mask, *, axes='ZYX', spacing=(1., 1., 1.),
+                 unit='pixel', channels=None):
+        """Validate one spatial image and own its mutable label array.
+
+        :param image: finite real numeric source intensities.
+        :param mask: nonnegative integer object labels matching the image.
+        :param axes: spatial storage-axis order, a permutation of XYZ.
+        :param spacing: three positive finite distances in storage order.
+        :param unit: the common distance unit.
+        :param channels: every channel of a multichannel volume, each shaped
+            like ``image``; ``None`` means ``image`` is the only channel.
+        """
+        from .i18n import tr
+
+        image, labels = np.asarray(image), np.asarray(mask)
+        axes = str(axes)
+        if (image.ndim != 3 or sorted(axes) != ['X', 'Y', 'Z']
+                or image.size == 0 or image.size > self.MAX_VOXELS
+                or image.nbytes > 256 * 1024 * 1024
+                or image.dtype.kind not in 'uif' or not np.isfinite(image).all()):
+            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+        try:
+            distances = tuple(float(value) for value in spacing)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(tr('Voxel spacing must contain three positive finite distances.')) from exc
+        if (len(distances) != 3 or not all(np.isfinite(value) and value > 0 for value in distances)
+                or any(isinstance(value, (bool, np.bool_)) for value in spacing)):
+            raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+        if not all(np.isfinite(float(length) * distance) for length, distance in zip(image.shape, distances)):
+            raise ValueError(tr('The physical image bounds must be finite.'))
+        if (labels.shape != image.shape or labels.dtype.kind not in 'ui'
+                or labels.min() < 0 or labels.max() > 65535):
+            raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+        stack = (image,) if channels is None else tuple(np.asarray(plane) for plane in channels)
+        if (not stack or any(plane.shape != image.shape or plane.dtype.kind not in 'uif'
+                             or not np.isfinite(plane).all() for plane in stack)
+                or sum(plane.nbytes for plane in stack) > 256 * 1024 * 1024):
+            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+        self.image = image
+        self.channels = stack
+        self.mask = np.array(labels, copy=True, order="C")
+        self.axes, self.spacing, self.unit = axes, distances, str(unit)
+        self.geometries = {}
+        self._undo, self._redo = [], []
+        self._history_bytes = 0
+        self._cancelled = None
+        self._editor_controls = {'anchor_density': 2, 'show_anchors': True}
+        self.source_path = self.source_sha256 = None
+        self.mask_path = None
+        self._saved_mask_sha256 = self._saved_geometry_sha256 = None
+
+    @property
+    def xyz_spacing(self):
+        """Voxel distances in physical X/Y/Z order, independent of storage."""
+        return tuple(self.spacing[self.axes.index(axis)] for axis in 'XYZ')
+
+    @property
+    def limits(self):
+        """The exact physical outer image bounds in X/Y/Z order."""
+        return tuple((0., self.image.shape[self.axes.index(axis)] * distance)
+                     for axis, distance in zip('XYZ', self.xyz_spacing))
+
+    def next_label(self):
+        """Return the first unused positive ID without renumbering any object."""
+        from .i18n import tr
+
+        occupied = set(map(int, np.unique(self.mask)))
+        maximum = min(65535, np.iinfo(self.mask.dtype).max)
+        for value in range(1, maximum + 1):
+            if value not in occupied:
+                return value
+        raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+
+    def geometry_for_label(self, label):
+        """Return saved geometry or an exact closed voxel-boundary mesh.
+
+        Corner-touching, disconnected or excessively detailed labels that
+        cannot satisfy the shared mesh's bounds/topology are refused rather
+        than replaced by a bounding box. Merely previewing this mesh does not
+        change voxels, history or saved geometry.
+
+        :param label: an existing positive object identifier.
+        :returns: a validated shared editable volume in physical coordinates.
+        """
+        from .i18n import tr
+        from .widgets.gate_spec import EditableVolumeGate
+
+        if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                or label <= 0):
+            raise ValueError(tr('Choose an existing positive object label.'))
+        label = int(label)
+        if label in self.geometries:
+            return self.geometries[label]
+        volume = np.transpose(self.mask, tuple(self.axes.index(axis) for axis in 'XYZ'))
+        positions = np.argwhere(volume == label)
+        if label <= 0 or not len(positions):
+            raise ValueError(tr('Choose an existing positive object label.'))
+        corners = [(x, y, z) for z in (0, 1) for y in (0, 1) for x in (0, 1)]
+        quads = [(0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4),
+                 (2, 6, 7, 3), (0, 4, 6, 2), (1, 3, 7, 5)]
+        offsets = [(0, 0, -1), (0, 0, 1), (0, -1, 0),
+                   (0, 1, 0), (-1, 0, 0), (1, 0, 0)]
+        indices, vertices, faces, groups = {}, [], [], []
+        for position in positions:
+            for quad, offset in zip(quads, offsets):
+                neighbour = position + offset
+                if (np.all(neighbour >= 0) and np.all(neighbour < volume.shape)
+                        and volume[tuple(neighbour)] == label):
+                    continue
+                shared = []
+                for corner in quad:
+                    key = tuple(map(int, position + corners[corner]))
+                    if key not in indices:
+                        indices[key] = len(vertices)
+                        vertices.append(tuple(value * distance for value, distance in zip(key, self.xyz_spacing)))
+                    shared.append(indices[key])
+                a, b, c, d = shared
+                groups.extend([len(faces) // 2] * 2)
+                faces.extend([(a, b, c), (a, c, d)])
+                if len(vertices) > 8192 or len(faces) > 16384:
+                    raise ValueError(tr('This label has too much boundary detail for editable volume geometry.'))
+        return EditableVolumeGate(name=str(label), x_column='X', y_column='Y',
+                                  z_column='Z', vertices=tuple(vertices),
+                                  faces=tuple(faces), surface_groups=tuple(groups))
+
+    def _paint_geometry(self, output, label, gate):
+        """Voxelize only the physical boundary's bounding region in 4096-point chunks."""
+        import pandas as pd
+        from .i18n import tr
+
+        vertices = np.asarray(gate.vertices)
+        xyz_low, xyz_high = vertices.min(axis=0), vertices.max(axis=0)
+        xyz_spacing = np.asarray(self.xyz_spacing)
+        xyz_shape = np.asarray([self.mask.shape[self.axes.index(axis)] for axis in 'XYZ'])
+        xyz_low = np.maximum(0., xyz_low)
+        xyz_high = np.minimum(xyz_shape * xyz_spacing, xyz_high)
+        if np.any(xyz_high < xyz_low):
+            return
+        low = np.maximum(0, np.ceil(xyz_low / xyz_spacing - .5).astype(int))
+        high = np.minimum(xyz_shape, np.floor(xyz_high / xyz_spacing - .5).astype(int) + 1)
+        if np.any(high <= low):
+            return
+        order = ['XYZ'.index(axis) for axis in self.axes]
+        start, shape = low[order], (high - low)[order]
+        for offset in range(0, int(np.prod(shape)), 4096):
+            if self._cancelled is not None and self._cancelled():
+                raise InterruptedError(tr('Volume editing was cancelled; no labels were changed.'))
+            count = min(4096, int(np.prod(shape)) - offset)
+            coordinates = np.asarray(np.unravel_index(np.arange(offset, offset + count), tuple(shape))) + start[:, None]
+            frame = pd.DataFrame({axis: (coordinates[self.axes.index(axis)] + .5) * self.xyz_spacing[i]
+                                  for i, axis in enumerate('XYZ')})
+            inside = gate.mask(frame)
+            selected = tuple(coordinates[:, inside])
+            existing = output[selected]
+            if np.any((existing != 0) & (existing != label)):
+                raise ValueError(tr('The edited volume overlaps another object; no labels were changed.'))
+            output[selected] = label
+
+    def apply_geometry(self, label, gate):
+        """Commit one validated shared boundary and its exact mask voxels.
+
+        Other object IDs are protected. Invalid motion, collisions or a delta
+        exceeding the history budget leave arrays, geometry and history intact.
+
+        :param label: positive ID representable by the current mask dtype.
+        :param gate: shared ``EditableVolumeGate`` with physical X/Y/Z columns.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+        from .widgets.gate_spec import EditableVolumeGate
+
+        if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)
+                or not isinstance(gate, EditableVolumeGate) or gate.columns != ('X', 'Y', 'Z')
+                or gate.parent is not None or gate.name != str(label)):
+            raise ValueError(tr('Volume geometry needs one valid object ID and physical X/Y/Z coordinates.'))
+        output = self.mask.copy()
+        output[output == label] = 0
+        self._paint_geometry(output, label, gate)
+        if self._cancelled is not None and self._cancelled():
+            raise InterruptedError(tr('Volume editing was cancelled; no labels were changed.'))
+        after = dict(self.geometries)
+        after[int(label)] = gate
+        return self._commit(output, after)
+
+    def _commit(self, output, after=None):
+        """Record one sparse voxel delta and its geometry as one undo step.
+
+        :param output: the complete edited label array.
+        :param after: the geometry after the edit; ``None`` drops the saved
+            boundary of every label whose voxels changed.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+
+        changed = np.flatnonzero(output.ravel() != self.mask.ravel()).astype(np.uint32)
+        old = self.mask.ravel()[changed].copy()
+        new = output.ravel()[changed].copy()
+        cost = changed.nbytes + old.nbytes + new.nbytes
+        if cost > self.MAX_HISTORY_BYTES:
+            raise ValueError(tr('This edit exceeds the volume undo memory budget; no labels were changed.'))
+        before = dict(self.geometries)
+        if after is None:
+            touched = set(map(int, np.unique(np.concatenate((old, new)))))
+            after = {key: value for key, value in before.items() if key not in touched}
+        if not len(changed) and before == after:
+            return 0
+        self._redo.clear()
+        while self._undo and self._history_bytes + cost > self.MAX_HISTORY_BYTES:
+            removed = self._undo.pop(0)
+            self._history_bytes -= sum(value.nbytes for value in removed[:3])
+        self._undo.append((changed, old, new, before, after))
+        self._history_bytes += cost
+        if len(self._undo) > 25:
+            removed = self._undo.pop(0)
+            self._history_bytes -= sum(value.nbytes for value in removed[:3])
+        self.mask, self.geometries = output, after
+        return len(changed)
+
+    def undo(self):
+        """Restore the preceding sparse voxel delta and immutable geometry."""
+        if not self._undo:
+            return False
+        record = self._undo.pop()
+        self._history_bytes -= sum(value.nbytes for value in record[:3])
+        self.mask.ravel()[record[0]] = record[1]
+        self.geometries = dict(record[3])
+        self._redo.append(record)
+        return True
+
+    def redo(self):
+        """Reapply the most recently undone voxel delta and geometry."""
+        if not self._redo:
+            return False
+        record = self._redo.pop()
+        self.mask.ravel()[record[0]] = record[2]
+        self.geometries = dict(record[4])
+        self._undo.append(record)
+        self._history_bytes += sum(value.nbytes for value in record[:3])
+        return True
+
+    def _section(self, array, axis, index):
+        """A writable view of one section: Z gives Y x X, Y gives Z x X, X gives Z x Y."""
+        from .i18n import tr
+
+        if axis not in ('X', 'Y', 'Z'):
+            raise ValueError(tr('Choose the X, Y or Z axis for a volume section.'))
+        position = self.axes.index(axis)
+        if (not isinstance(index, Integral) or isinstance(index, (bool, np.bool_))
+                or not 0 <= index < array.shape[position]):
+            raise ValueError(tr('The section index lies outside the volume.'))
+        key = [slice(None)] * 3
+        key[position] = int(index)
+        section = array[tuple(key)]
+        remaining = [name for name in self.axes if name != axis]
+        wanted = {'Z': ['Y', 'X'], 'Y': ['Z', 'X'], 'X': ['Z', 'Y']}[axis]
+        return section if remaining == wanted else section.T
+
+    def section_count(self, axis):
+        """Number of sections along one spatial axis.
+
+        :param axis: ``X``, ``Y`` or ``Z``.
+        :returns: the volume's length along that axis.
+        """
+        return int(self.image.shape[self.axes.index(axis)])
+
+    def plane(self, axis, index):
+        """Return one orthogonal section of the image and its labels.
+
+        :param axis: the axis held fixed. ``Z`` gives the XY section (rows Y,
+            columns X), ``Y`` the XZ section (rows Z, columns X) and ``X`` the
+            YZ section (rows Z, columns Y).
+        :param index: the section's index along ``axis``.
+        :returns: ``(image, labels)``, copies of that section.
+        """
+        return (np.array(self._section(self.image, axis, index)),
+                np.array(self._section(self.mask, axis, index)))
+
+    def _check_label(self, label):
+        """Refuse an object ID the label dtype cannot hold."""
+        from .i18n import tr
+
+        if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)):
+            raise ValueError(tr('Choose a positive object ID that the mask can store.'))
+        return int(label)
+
+    def paint_plane(self, axis, index, label, paint=None, erase=None):
+        """Draw or erase one object on one section as a single undo step.
+
+        Painting fills only background and the object's own voxels, so other
+        objects are never overwritten. Erasing clears every label under the
+        erased pixels. A label whose voxels change loses any saved anchor
+        boundary, which no longer describes it.
+
+        :param axis: the axis held fixed, as for :meth:`plane`.
+        :param index: the section's index along ``axis``.
+        :param label: the object ID to draw.
+        :param paint: boolean pixels to assign to ``label``, shaped as the section.
+        :param erase: boolean pixels to clear, shaped as the section.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+
+        label = self._check_label(label)
+        output = self.mask.copy()
+        view = self._section(output, axis, index)
+        for pixels in (erase, paint):
+            if pixels is not None and np.shape(pixels) != view.shape:
+                raise ValueError(tr('The drawn section does not match the volume section.'))
+        if erase is not None:
+            view[np.asarray(erase, dtype=bool)] = 0
+        if paint is not None:
+            view[np.asarray(paint, dtype=bool) & ((view == 0) | (view == label))] = label
+        return self._commit(output)
+
+    def replace_plane(self, axis, index, labels, keep=()):
+        """Write one edited section back as a single undo step.
+
+        This is how the two-dimensional Make Masks tools edit a volume: they
+        change a section, and the section is written back whole. An object
+        already on this section keeps its ID, and so does any ID in ``keep``
+        (the object being drawn). An ID new to this section that belongs to
+        another object elsewhere in the volume is given the next unused ID
+        instead, so a tool that numbered its own objects never joins them to
+        a distant 3-D object.
+
+        :param axis: the axis held fixed, as for :meth:`plane`.
+        :param index: the section's index along ``axis``.
+        :param labels: the edited section, shaped as :meth:`plane` returns it.
+        :param keep: object IDs that may enter the section unchanged.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+
+        output = self.mask.copy()
+        view = self._section(output, axis, index)
+        edited = np.asarray(labels)
+        if edited.shape != view.shape or edited.dtype.kind not in 'uib':
+            raise ValueError(tr('The drawn section does not match the volume section.'))
+        edited = edited.astype(np.int64)
+        if edited.min(initial=0) < 0 or edited.max(initial=0) > min(65535, np.iinfo(self.mask.dtype).max):
+            raise ValueError(tr('Choose a positive object ID that the mask can store.'))
+        allowed = set(map(int, np.unique(view))) | {int(value) for value in keep} | {0}
+        extra = sorted(set(map(int, np.unique(edited))) - allowed)
+        if extra:
+            occupied = set(map(int, np.flatnonzero(np.bincount(self.mask.ravel()))))
+            clashes = [value for value in extra if value in occupied]
+            occupied.update(extra)
+            maximum = min(65535, np.iinfo(self.mask.dtype).max)
+            candidate = 1
+            for value in clashes:
+                while candidate in occupied:
+                    candidate += 1
+                if candidate > maximum:
+                    raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+                edited[edited == value] = candidate
+                occupied.add(candidate)
+        view[...] = edited
+        return self._commit(output)
+
+    def replace_labels(self, labels):
+        """Make ``labels`` the whole volume's mask as one undo step.
+
+        :param labels: nonnegative integer labels of exactly the volume's
+            shape, such as a whole-volume detection.
+        :returns: number of changed voxels.
+        :raises ValueError: for another shape, or an identifier the mask's
+            dtype cannot hold; the volume is left unchanged.
+        """
+        from .i18n import tr
+
+        incoming = np.asarray(labels)
+        if (incoming.shape != self.mask.shape or incoming.dtype.kind not in 'uib'
+                or (incoming.size and int(incoming.min()) < 0)):
+            raise ValueError(tr('The detected labels do not match the volume.'))
+        top = int(incoming.max()) if incoming.size else 0
+        if top > min(65535, np.iinfo(self.mask.dtype).max):
+            raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+        return self._commit(np.ascontiguousarray(incoming, dtype=self.mask.dtype))
+
+    def delete_label(self, label):
+        """Remove one object from every section as a single undo step.
+
+        :param label: the object ID to remove.
+        :returns: number of changed voxels.
+        """
+        label = self._check_label(label)
+        output = self.mask.copy()
+        output[output == label] = 0
+        return self._commit(output)
+
+    def interpolate(self, label, axis='Z'):
+        """Fill the empty sections between drawn sections of one object.
+
+        Each gap between two sections that contain ``label`` is filled by
+        blending their signed distance maps, measured in physical units, so
+        the outline changes shape smoothly from one drawn section to the
+        next. Only background voxels are filled.
+
+        :param label: the object to interpolate.
+        :param axis: the axis the sections are stacked along.
+        :returns: number of changed voxels.
+        """
+        from scipy import ndimage
+
+        label = self._check_label(label)
+        count = self.section_count(axis)
+        rows, columns = {'Z': 'YX', 'Y': 'ZX', 'X': 'ZY'}[axis]
+        sampling = (self.xyz_spacing['XYZ'.index(rows)], self.xyz_spacing['XYZ'.index(columns)])
+        drawn = [index for index in range(count)
+                 if np.any(self._section(self.mask, axis, index) == label)]
+        output = self.mask.copy()
+        for low, high in zip(drawn, drawn[1:]):
+            if high - low < 2:
+                continue
+            first, last = (ndimage.distance_transform_edt(region != label, sampling=sampling)
+                           - ndimage.distance_transform_edt(region == label, sampling=sampling)
+                           for region in (self._section(self.mask, axis, low),
+                                          self._section(self.mask, axis, high)))
+            for index in range(low + 1, high):
+                weight = (index - low) / (high - low)
+                inside = (1 - weight) * first + weight * last < 0
+                view = self._section(output, axis, index)
+                view[inside & (view == 0)] = label
+        return self._commit(output)
+
+    def assign_objects(self):
+        """Split every label into its 3-D connected objects.
+
+        The largest connected part of each label keeps its ID; every other
+        part, touching it neither by face, edge nor corner, receives the next
+        unused ID. Drawing many objects with one ID and then assigning them
+        gives each its own ID.
+
+        :returns: ``(changed voxels, objects after assigning)``.
+        """
+        from scipy import ndimage
+        from .i18n import tr
+
+        output = self.mask.copy()
+        occupied = set(map(int, np.unique(output)))
+        maximum = min(65535, np.iinfo(output.dtype).max)
+        candidate = 1
+        for label in sorted(occupied - {0}):
+            parts, number = ndimage.label(self.mask == label, structure=np.ones((3, 3, 3), dtype=bool))
+            if number < 2:
+                continue
+            sizes = np.bincount(parts.ravel())[1:]
+            for part in [index + 1 for index in np.argsort(-sizes, kind='stable')][1:]:
+                while candidate in occupied:
+                    candidate += 1
+                if candidate > maximum:
+                    raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+                output[parts == part] = candidate
+                occupied.add(candidate)
+        changed = self._commit(output)
+        return changed, int(np.count_nonzero(np.unique(self.mask)))
+
+    def _validate_boundaries(self):
+        """Refuse saved geometry that disagrees with its actual labelled voxels."""
+        from .i18n import tr
+        from .widgets.gate_spec import EditableVolumeGate
+
+        for label, gate in self.geometries.items():
+            if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                    or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)
+                    or not isinstance(gate, EditableVolumeGate)
+                    or gate.name != str(label) or gate.columns != ('X', 'Y', 'Z')
+                    or gate.parent is not None):
+                raise ValueError(tr('The volume sidecar contains invalid object geometry.'))
+            output = self.mask.copy()
+            output[output == label] = 0
+            self._paint_geometry(output, label, gate)
+            if not np.array_equal(output, self.mask):
+                raise ValueError(tr('The saved boundary does not match its object voxels.'))
+
+
+_VOLUME_MRC_SUFFIXES = ('.mrc', '.rec', '.map')
+
+
+def _spatial_page_axes(axes):
+    """Read a plain three-dimensional page stack's page axis as Z."""
+    return 'ZYX' if axes in ('QYX', 'IYX') else axes
+
+
+def _is_volume_file(path):
+    """Whether ``path`` holds a 3-D spatial volume, read from its header only.
+
+    TIFFs with three spatial axes (plain page stacks count as Z) and MRC
+    files with more than one section are volumes; anything unreadable is not.
+    """
+    path = Path(path)
+    try:
+        if path.suffix.lower() in _VOLUME_MRC_SUFFIXES:
+            import mrcfile
+
+            with mrcfile.open(str(path), header_only=True, permissive=True) as handle:
+                return int(handle.header.nz) > 1
+        if path.suffix.lower() not in ('.tif', '.tiff'):
+            return False
+        import tifffile
+
+        with tifffile.TiffFile(path) as handle:
+            series = handle.series[0]
+            axes = _spatial_page_axes(series.axes)
+            return (len(series.shape) == len(axes) and sorted(axes.replace('C', '', 1)) == ['X', 'Y', 'Z']
+                    and len(series.shape) in (3, 4))
+    except Exception:
+        return False
+
+
+def _read_tiff_volume(source):
+    """Read one spatial TIFF as ``(image, axes, spacing, unit)``.
+
+    A TIFF with one channel axis besides X, Y and Z (``CZYX``, ``ZCYX``)
+    gives ``image`` with the channels first.
+    """
+    import tifffile
+    from .i18n import tr
+
+    with tifffile.TiffFile(source) as handle:
+        series = handle.series[0]
+        stored = _spatial_page_axes(series.axes)
+        channel = stored.find('C') if len(series.shape) == 4 and len(stored) == 4 else -1
+        axes = stored.replace('C', '', 1) if channel >= 0 else stored
+        if channel >= 0 and series.shape[channel] > 16:
+            channel, axes = -1, stored
+        metadata = (handle.shaped_metadata or ({},))[0] or {}
+        spacing = metadata.get('voxel_spacing', (1., 1., 1.))
+        unit = metadata.get('unit', 'pixel')
+        if 'voxel_spacing' not in metadata and handle.ome_metadata:
+            import xml.etree.ElementTree as ET
+
+            pixels = next(node for node in ET.fromstring(handle.ome_metadata).iter()
+                          if node.tag.rsplit('}', 1)[-1] == 'Pixels')
+            factors = {'nm': .001, 'µm': 1., 'um': 1., 'mm': 1000., 'm': 1_000_000.}
+            if any('PhysicalSize' + axis in pixels.attrib for axis in 'XYZ'):
+                try:
+                    spacing = tuple(float(pixels.attrib['PhysicalSize' + axis])
+                                    * factors[pixels.attrib.get('PhysicalSize' + axis + 'Unit', 'µm')]
+                                    for axis in axes)
+                except (KeyError, ValueError) as exc:
+                    raise ValueError(tr('OME volumes need complete supported physical spacing for X, Y and Z.')) from exc
+                unit = 'um'
+        elif 'voxel_spacing' not in metadata and handle.imagej_metadata:
+            metadata = handle.imagej_metadata
+            unit = metadata.get('unit', 'pixel')
+            distances = {'Z': metadata.get('spacing', 1.)}
+            for axis in 'XY':
+                value = handle.pages[0].tags[axis + 'Resolution'].value
+                if value[0] <= 0 or value[1] <= 0:
+                    raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+                distances[axis] = value[1] / value[0]
+            spacing = tuple(distances[axis] for axis in axes)
+        if len(series.shape) != 3 + (channel >= 0) or sorted(axes) != ['X', 'Y', 'Z']:
+            raise ValueError(tr('Choose a TIFF explicitly declaring three spatial axes; time, channels and RGB are not 3D fields.'))
+        spatial = math.prod(series.shape) // (series.shape[channel] if channel >= 0 else 1)
+        if spatial > VolumeMaskSession.MAX_VOXELS or math.prod(series.shape) * series.dtype.itemsize > 256 * 1024 * 1024:
+            raise ValueError(tr('This TIFF exceeds the native volume memory budget.'))
+        image = series.asarray()
+    if channel >= 0:
+        image = np.moveaxis(image, channel, 0)
+        if len(spacing) == 4:
+            spacing = tuple(value for index, value in enumerate(spacing) if index != channel)
+    return image, axes, spacing, unit
+
+
+def _read_mrc_volume(source):
+    """Read one MRC volume as ZYX with its voxel size in nanometres."""
+    from .i18n import tr
+
+    try:
+        import mrcfile
+    except ImportError as exc:
+        raise ValueError(tr('MRC volumes need the optional mrcfile package: pip install "spacr[tem]"')) from exc
+    with mrcfile.mmap(str(source), permissive=True, mode='r') as handle:
+        data = handle.data
+        if data is None or data.ndim != 3 or 1 in data.shape:
+            raise ValueError(tr('This MRC file holds one section, not a volume; open it as a 2D image.'))
+        if data.size > VolumeMaskSession.MAX_VOXELS or data.nbytes > 256 * 1024 * 1024:
+            raise ValueError(tr('This volume exceeds the native volume memory budget.'))
+        if data.dtype.kind not in 'uif':
+            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+        image = np.array(data, dtype=data.dtype.newbyteorder('='))
+        size = handle.voxel_size
+        angstrom = (float(size.z), float(size.y), float(size.x))
+    if all(np.isfinite(value) and value > 0 for value in angstrom):
+        return image, 'ZYX', tuple(value / 10. for value in angstrom), 'nm'
+    return image, 'ZYX', (1., 1., 1.), 'pixel'
+
+
+def load_volume_image_and_mask(folder, filename, masks_dir=None):
+    """Open a spatial volume, one channel or several, for native 3-D editing.
+
+    TIFF volumes need exactly three spatial axes, in any order. A plain
+    three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over
+    ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved.
+    One channel axis (``CZYX``, ``ZCYX``, at most 16 channels) is kept as
+    :attr:`VolumeMaskSession.channels`; the slice views show the first
+    channel. Time and colour axes are refused. ``voxel_spacing`` metadata is
+    read in storage-axis order. OME physical sizes are converted to micrometres;
+    ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,
+    ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;
+    they need the optional ``mrcfile`` package. Absent physical metadata
+    means pixel coordinates.
+    Labels retain dtype and identity. A saved geometry sidecar is bound to
+    the exact source file and mask pixels and is refused when stale.
+
+    :param folder: source image directory.
+    :param filename: spatial TIFF or MRC volume filename.
+    :param masks_dir: optional existing sibling mask directory.
+    :returns: a ``VolumeMaskSession`` owning the labels and source metadata.
+    """
+    import tifffile
+    from .i18n import tr
+    from .widgets.gate_spec import GateSet, EditableVolumeGate
+
+    source = Path(folder) / filename
+    digest = _yolo_source_hash(source)
+    if source.suffix.lower() in _VOLUME_MRC_SUFFIXES:
+        image, axes, spacing, unit = _read_mrc_volume(source)
+    else:
+        image, axes, spacing, unit = _read_tiff_volume(source)
+    channels = None
+    if image.ndim == 4:
+        channels, image = tuple(image), image[0]
+    mask_path = Path(mask_save_path(folder, filename, masks_dir))
+    if mask_path.exists():
+        with tifffile.TiffFile(mask_path) as handle:
+            mask_series = handle.series[0]
+            if _spatial_page_axes(mask_series.axes) != axes:
+                raise ValueError(tr('The saved mask axes do not match the spatial source.'))
+            if (mask_series.shape != image.shape or mask_series.dtype.kind not in 'ui'
+                    or math.prod(mask_series.shape) * mask_series.dtype.itemsize > 256 * 1024 * 1024):
+                raise ValueError(tr('The saved spatial mask shape, integer dtype or decoded size does not match this volume.'))
+            labels = mask_series.asarray()
+    else:
+        labels = np.zeros(image.shape, dtype=np.uint16)
+    session = VolumeMaskSession(image, labels, axes=axes, spacing=spacing, unit=unit, channels=channels)
+    session.source_path, session.source_sha256, session.mask_path = str(source), digest, str(mask_path)
+    if _yolo_source_hash(source) != digest:
+        raise ValueError(tr('The source volume changed while opening it.'))
+    sidecar = mask_path.with_suffix(mask_path.suffix + '.volume.json')
+    session._saved_mask_sha256 = _yolo_source_hash(mask_path) if mask_path.exists() else None
+    session._saved_geometry_sha256 = _yolo_source_hash(sidecar) if sidecar.exists() else None
+    if sidecar.exists():
+        record = json.loads(sidecar.read_text())
+        expected = {'source_sha256': digest, 'shape': list(image.shape), 'axes': axes,
+                    'spacing': list(session.spacing), 'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest()}
+        if any(record.get(key) != value for key, value in expected.items()) or record.get('version') != 1:
+            raise ValueError(tr('The saved volume geometry does not match these source and mask pixels.'))
+        geometries = GateSet.from_dict(record.get('geometry', {}))
+        for gate in geometries.gates:
+            if (not isinstance(gate, EditableVolumeGate) or not gate.name.isdecimal()
+                    or not 0 < int(gate.name) <= 65535 or gate.columns != ('X', 'Y', 'Z')
+                    or gate.parent is not None):
+                raise ValueError(tr('The volume sidecar contains invalid object geometry.'))
+            session.geometries[int(gate.name)] = gate
+        controls = record.get('editor_controls', session._editor_controls)
+        if (not isinstance(controls, dict) or set(controls) != {'anchor_density', 'show_anchors'}
+                or type(controls['anchor_density']) is not int or not 1 <= controls['anchor_density'] <= 8
+                or type(controls['show_anchors']) is not bool):
+            raise ValueError(tr('The saved volume anchor controls are invalid.'))
+        session._editor_controls = dict(controls)
+        session._validate_boundaries()
+    return session
+
+
+def _volume_file_stamp(path):
+    """Return one file's device, inode, length and modification identity."""
+    try:
+        value = Path(path).stat()
+    except FileNotFoundError:
+        return None
+    return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns
+
+
+def save_volume_mask(session):
+    """Write native labels and their source-bound shared boundary sidecar.
+
+    Both artifacts are prepared before replacing either destination. A failed
+    second replacement restores the previous pair. Source/output identities
+    are rechecked after staging. Two filenames cannot form a fully atomic
+    transaction against an uncooperative concurrent writer; interrupted or
+    mismatched publications are refused by the source/mask-bound sidecar on
+    loading. Source axes, spacing, label dtype and IDs are preserved.
+
+    :param session: a volume session loaded through the existing mask paths.
+    :returns: the canonical TIFF mask path.
+    """
+    import shutil
+    from .i18n import tr
+    from .widgets.gate_spec import GateSet
+
+    if (not isinstance(session, VolumeMaskSession) or not session.source_path
+            or _yolo_source_hash(Path(session.source_path)) != session.source_sha256):
+        raise ValueError(tr('The source volume changed; no mask was saved.'))
+    session._validate_boundaries()
+    target = Path(session.mask_path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    sidecar = target.with_suffix(target.suffix + '.volume.json')
+    if target.resolve() == Path(session.source_path).resolve():
+        raise ValueError(tr('The mask output must not overwrite the source volume.'))
+    record = {'version': 1, 'source_sha256': session.source_sha256,
+              'mask_sha256': hashlib.sha256(session.mask.tobytes(order='C')).hexdigest(),
+              'shape': list(session.mask.shape), 'axes': session.axes,
+              'spacing': list(session.spacing), 'unit': session.unit,
+              'geometry': GateSet(list(session.geometries.values())).to_dict(),
+              'editor_controls': dict(session._editor_controls)}
+    lock = sidecar.with_suffix(sidecar.suffix + '.lock')
+    try:
+        descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError as exc:
+        raise ValueError(tr('This volume is already being saved.')) from exc
+    try:
+        if ((_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
+                or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
+            raise ValueError(tr('The saved volume changed outside this session; no mask was overwritten.'))
+        stamps = {path: _volume_file_stamp(path) for path in (Path(session.source_path), target, sidecar)}
+        with tempfile.TemporaryDirectory(dir=target.parent, prefix='.spacr-volume-') as folder:
+            folder = Path(folder)
+            staged_mask, staged_json = folder / 'mask.tif', folder / 'geometry.json'
+            write_tiff(staged_mask, session.mask, metadata={'axes': session.axes,
+                        'voxel_spacing': list(session.spacing), 'unit': session.unit},
+                       resolution=(1. / session.xyz_spacing[0], 1. / session.xyz_spacing[1]))
+            staged_json.write_bytes(_yolo_json_bytes(record))
+            backups = {}
+            for path in (target, sidecar):
+                if path.exists():
+                    backup = folder / (path.name + '.backup')
+                    shutil.copyfile(path, backup)
+                    backups[path] = backup
+            if (any(_volume_file_stamp(path) != stamp for path, stamp in stamps.items())
+                    or _yolo_source_hash(Path(session.source_path)) != session.source_sha256
+                    or (_yolo_source_hash(target) if target.exists() else None) != session._saved_mask_sha256
+                    or (_yolo_source_hash(sidecar) if sidecar.exists() else None) != session._saved_geometry_sha256):
+                raise ValueError(tr('The volume files changed during saving; no output was replaced.'))
+            os.replace(staged_mask, target)
+            try:
+                os.replace(staged_json, sidecar)
+            except BaseException:
+                for path in (target, sidecar):
+                    if path in backups:
+                        os.replace(backups[path], path)
+                    else:
+                        path.unlink(missing_ok=True)
+                raise
+    finally:
+        os.close(descriptor)
+        lock.unlink(missing_ok=True)
+    session._saved_mask_sha256 = _yolo_source_hash(target)
+    session._saved_geometry_sha256 = _yolo_source_hash(sidecar)
+    return str(target)
 
 
 class MaskHistory:

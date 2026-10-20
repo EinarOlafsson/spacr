@@ -4,11 +4,13 @@
 The published lesson library at ``docs/source/_extra/tutorials/`` carries a
 ``lesson_catalog.js`` of 73 lessons, 67 of which name the module they teach.
 The application needs the reverse of that -- given a module, which lesson --
-so a **Tutorial** link can sit beside the **API** link in the hover strip.
+so a **Tutorial** link can sit beside the **API** link in the hover strip,
+and ``spacr-tutorial`` needs the lesson list itself: number, title, slug and
+the screen each lesson covers.
 
 WHY A SEPARATE, SMALLER FILE. ``lesson_catalog.js`` is a JavaScript file for
 the docs site, several hundred KB, holding objectives, descriptions and media
-references for every lesson. The application needs two strings per module.
+references for every lesson. The application needs a few strings per lesson.
 Shipping the catalog to get them would put the docs build's output in the
 wheel and make the GUI parse JS at startup.
 
@@ -42,22 +44,34 @@ def read_catalog(path: Path = CATALOG) -> dict:
 
 
 def build(path: Path = CATALOG) -> dict:
-    """``{app_key: {"lesson": id, "title": title}}``, first lesson wins.
+    """The bundled table: ``lessons`` by module, and the whole ``catalog``.
 
-    FIRST WINS because the catalog is ordered as the library presents it and
-    several modules are taught by more than one lesson; the first is the one
-    that introduces the module, which is what a reader following a link from
-    the module itself is asking for.
+    ``lessons`` is ``{app_key: {"lesson": id, "title": title}}``, first lesson
+    wins. FIRST WINS because the catalog is ordered as the library presents
+    it and several modules are taught by more than one lesson; the first is
+    the one that introduces the module, which is what a reader following a
+    link from the module itself is asking for.
+
+    ``catalog`` is every lesson in library order, as ``{"number", "lesson",
+    "slug", "title", "app_key"}``. ``spacr-tutorial`` lists it and resolves a
+    lesson number, slug or screen name against it, so the command offers
+    exactly the lessons the library and the in-app links offer.
     """
     catalog = read_catalog(path)
     index: dict = {}
+    rows: list = []
     for lesson in catalog.get("lessons") or []:
-        key = lesson.get("app_key")
+        key = lesson.get("app_key") or ""
+        title = (lesson.get("title") or "").strip()
+        rows.append({"number": int(lesson.get("number") or 0),
+                     "lesson": lesson.get("id") or "",
+                     "slug": lesson.get("slug") or "",
+                     "title": title,
+                     "app_key": key})
         if not key or key in index:
             continue
-        index[key] = {"lesson": lesson.get("id") or "",
-                      "title": (lesson.get("title") or "").strip()}
-    return {"schema": 1, "lessons": index}
+        index[key] = {"lesson": lesson.get("id") or "", "title": title}
+    return {"schema": 2, "lessons": index, "catalog": rows}
 
 
 def main(argv=None) -> int:

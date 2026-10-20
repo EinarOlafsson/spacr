@@ -53,8 +53,8 @@ O(n log n) algorithm is a page of intricate code to maintain for a path that
 is only ever reached when the MAD has *already* collapsed. The mean absolute
 deviation has a 0% breakdown point and that is stated plainly rather than
 glossed: it is a stopgap that keeps a degenerate column from flagging its
-whole tail, not a robust estimator. If the fallback fires, the honest reading
-is that the column is not continuous enough for this test.
+whole tail, not a robust estimator. If the fallback fires, the column is
+probably not continuous enough for this test.
 
 A column with **no** variation at all (mean absolute deviation zero too) is
 scored 0 everywhere and flagged nowhere. One value cannot be an outlier from
@@ -167,7 +167,7 @@ then 5.6 robust SDs and the well is unmistakable. The two tests have wildly
 different power against the same defect, which is why both are run and both
 are reported.
 
-So the well pass is emphatically **not** "the well contains many flagged
+So the well pass is **not** "the well contains many flagged
 objects". That statistic exists — it is reported as ``flagged_share`` — and it
 answers a different question: it finds a well containing a few *catastrophic*
 objects (a segmentation blow-up, a piece of dust measured as a cell) while
@@ -249,7 +249,7 @@ __all__ = [
 
 
 class OutlierError(ValueError):
-    """An outlier test that cannot mean anything, with the reason in the message.
+    """Raised when an outlier test cannot give a meaningful result; the message says why.
 
     Raised rather than returned as an empty result. Every one of these is a
     sentence the user can act on — "``cell_area`` has 412 non-positive values
@@ -390,7 +390,7 @@ def robust_scale(values: Sequence[float]) -> Tuple[float, float, str]:
     tail, so the estimate falls back to :data:`MEAN_AD_TO_SIGMA` times the mean
     absolute deviation from the median and ``note`` says ``"mad-zero"``. See
     the module docstring for why that fallback and not Rousseeuw–Croux ``Sn``,
-    and for the honest reading of it.
+    and for how to read it.
 
     :param values: the feature's values; they are converted to float and every
         non-finite entry is ignored.
@@ -938,7 +938,7 @@ class OutlierResult:
         return f"mahalanobis(mcd, alpha={self.alpha:g})"
 
     def headline(self) -> str:
-        """One sentence with the counts, including the bad news."""
+        """One sentence with the flagged and scored counts of objects and wells."""
         parts = [
             f"{self.method_label()} over {self.n_features} feature(s) flagged "
             f"{self.n_flagged:,} of {self.n_scored:,} scored objects "
@@ -950,13 +950,14 @@ class OutlierResult:
             if flagged and self.flagged_share < 0.01:
                 parts.append(
                     "— a well shifted as a whole barely moves its individual "
-                    "objects, which is exactly why the well pass exists")
+                    "objects, so per-object flags miss it and the well pass "
+                    "finds it")
         elif self.well_keys:
             parts.append("and no well was scored")
         return " ".join(parts) + "."
 
     def caveats(self) -> Tuple[str, ...]:
-        """Everything a reader needs before believing the flags."""
+        """The caveats that apply to these flags, one sentence each."""
         out: List[str] = []
         if self.method == METHOD_MAHALANOBIS:
             expected = self.n_scored * self.alpha
@@ -1029,7 +1030,7 @@ class OutlierResult:
         return tuple(out)
 
     def report(self) -> str:
-        """The whole story, as the panel shows it and a report file writes it."""
+        """The full text report, as the panel shows it and a report file writes it."""
         lines = [
             f"Outlier scan of {self.n_rows_in:,} objects × "
             f"{self.n_features} feature(s)"

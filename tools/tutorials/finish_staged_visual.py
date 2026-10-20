@@ -16,7 +16,7 @@ from native_live_timing import checked_native_timing
 from stage_web_renditions import probe, stage_one, timestamps
 
 
-def finish(stage, identity):
+def finish(stage, identity, *, retain_visual_from=None):
     root = stage / 'production' / identity
     spec_path = root / 'scenes.json'
     spec, english = read(spec_path), read(root / 'lesson.en.json')
@@ -24,7 +24,11 @@ def finish(stage, identity):
     if english != canonical or [row['narration'] for row in spec['scenes']] != [
             row['narration'] for row in english['scenes']]:
         raise ValueError('Visual specification and current authored narration differ')
-    native = checked_native_timing(stage, identity)
+    if retain_visual_from is not None:
+        from retained_visual_refresh import checked_retained_visual_timing
+        native = checked_retained_visual_timing(stage, identity, retain_visual_from)
+    else:
+        native = checked_native_timing(stage, identity)
     timing_path = native or root / 'audio/en/af_heart.json'
     timing = read(timing_path)
     for scene in spec['scenes']:
@@ -68,7 +72,8 @@ def finish(stage, identity):
         english, sort_keys=True, ensure_ascii=False).encode()).hexdigest(),
         'scene_specification_sha256': hashlib.sha256(spec_path.read_bytes()).hexdigest(),
         'timing_sha256': hashlib.sha256(timing_path.read_bytes()).hexdigest(),
-        'native_fifty_voice_timeline': native is not None,
+        'native_fifty_voice_timeline': native is not None and retain_visual_from is None,
+        'retained_visual_timing': retain_visual_from is not None,
         'master_sha256': master_hash, 'master_probe': metadata, 'master_full_decode_passed': True,
         'master_frame_count_matches_scene_boundaries': True, 'master_all_presentation_times_checked': True,
         'poster_sha256': hashlib.sha256((root / 'poster.jpg').read_bytes()).hexdigest(),
@@ -81,8 +86,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, required=True)
     parser.add_argument('--lesson', required=True)
+    parser.add_argument('--retain-visual-from', type=Path,
+                        help='Validate an explicit bounded refresh against published scene clocks')
     args = parser.parse_args()
-    receipt = finish(args.stage.resolve(), args.lesson)
+    receipt = finish(args.stage.resolve(), args.lesson, retain_visual_from=args.retain_visual_from)
     print(f"{args.lesson}: complete master decode and PTS checks, normal poster and web copy; browser acceptance remains open")
 
 

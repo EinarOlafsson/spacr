@@ -104,7 +104,7 @@
       "source": "Annotations changed on disk; reopen the field or choose a new CSV.",
       "source_sha256": "13a0e35936e97272e56949fe47b47a47998ff18ed7f17fd366620a52d044cbf0",
       "table": "ui",
-      "translation": "नोट्स डिस्क पर बदल गए हैं; फ़ील्ड को फिर से खोलें या एक नया CSV चुनें।"
+      "translation": "एनोटेशन डिस्क पर बदल गए हैं; फ़ील्ड को फिर से खोलें या एक नया CSV चुनें।"
     },
     {
       "key": "Annotations changed while they were being read.",
@@ -118,7 +118,7 @@
       "source": "Annotations must be saved as a CSV file.",
       "source_sha256": "07c5244278e12dcb2f6aa9529316ff7917f1759d4f401cc14a2ba4aa3de52cae",
       "table": "ui",
-      "translation": "नोट्स को CSV फ़ाइल के रूप में संग्रहीत किया जाना चाहिए।"
+      "translation": "एनोटेशन को CSV फ़ाइल के रूप में संग्रहीत किया जाना चाहिए।"
     },
     {
       "key": "CSV (*.csv)",
@@ -258,14 +258,14 @@
       "source": "Existing annotations for this field have no object identity.",
       "source_sha256": "a055d0e43ebf9859e82e370109e2330c23e0b6910fb67f475f9b5f86461e0a23",
       "table": "ui",
-      "translation": "इस क्षेत्र के लिए मौजूदा नोटों में कोई वस्तु पहचान नहीं है।"
+      "translation": "इस क्षेत्र के लिए मौजूदा एनोटेशन में कोई वस्तु पहचान नहीं है।"
     },
     {
       "key": "Existing annotations for this field need an object column before editing.",
       "source": "Existing annotations for this field need an object column before editing.",
       "source_sha256": "4b67d6904d11fe810d34d4e07d34e0bf6f6d56e400d4d2cb230b3a89e113bcd7",
       "table": "ui",
-      "translation": "इस फ़ील्ड के लिए मौजूदा नोटों को संपादित करने से पहले एक ऑब्जेक्ट स्तंभ की आवश्यकता होती है।"
+      "translation": "इस फ़ील्ड के लिए मौजूदा एनोटेशन को संपादित करने से पहले एक ऑब्जेक्ट स्तंभ की आवश्यकता होती है।"
     },
     {
       "key": "Existing event labels belong to another tracker CSV.",
@@ -433,7 +433,7 @@
       "source": "The existing annotation table has incomplete event rows.",
       "source_sha256": "1edf80282f82d6257394c2a78ea0d492528ec2d53458c4209521103577ece92d",
       "table": "ui",
-      "translation": "मौजूदा नोटिस तालिका में अपूर्ण घटना पंक्तियां हैं।"
+      "translation": "मौजूदा एनोटेशन तालिका में अपूर्ण घटना पंक्तियां हैं।"
     },
     {
       "key": "The existing annotation table labels one track frame more than once.",
@@ -524,7 +524,7 @@
       "source": "Track event annotations",
       "source_sha256": "a2c54e1269f4ab052e61a96f727f7ad2662bee19e3d82a2cdad18c02106dd72b",
       "table": "ui",
-      "translation": "ट्रैक घटना नोट्स"
+      "translation": "ट्रैक इवेंट एनोटेशन"
     },
     {
       "key": "Track positions must be finite numbers.",

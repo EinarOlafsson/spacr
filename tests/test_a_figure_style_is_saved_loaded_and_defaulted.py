@@ -260,7 +260,7 @@ def test_the_save_entry_actually_writes_a_file(qtbot, prefs, tmp_path):
     menu.actions()[0].trigger()
 
     assert target.exists()
-    assert json.loads(target.read_text())["fields"]["line_width"] == 5.0
+    assert json.loads(target.read_text(encoding="utf-8"))["fields"]["line_width"] == 5.0
     assert said and str(target) in said[0]
 
 

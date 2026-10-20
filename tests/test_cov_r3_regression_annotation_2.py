@@ -341,7 +341,7 @@ def test_a_result_writes_only_the_tables_it_has(tmp_path, annotated):
     written = blank.write(str(tmp_path / "blank"))
     assert set(written) == {"report"}
     assert "Nothing chosen" in (tmp_path / "blank"
-                                / "annotation_report.txt").read_text()
+                                / "annotation_report.txt").read_text(encoding="utf-8")
 
     filled = ra._selection_frame(prepared, {"queue": prepared.selectable[:3]})
     full = ra.AnnotationResult(strategy="k", title="Something chosen",

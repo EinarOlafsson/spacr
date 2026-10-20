@@ -118,6 +118,35 @@ def best_ms(step, iterations: int, runs: int = 8,
     return best
 
 
+def paired_ratio(step, calibrate, iterations: int, runs: int = 8,
+                 target_ratio: float = 0.0):
+    """Best per-run ratio of ``step`` to ``calibrate``, timed back to back.
+
+    The fill and the frame react differently to a busy machine -- the fill is
+    memory-bandwidth-bound, the engines compute-bound -- so a fill measured
+    seconds after the frames can come from a quieter (or busier) moment than
+    the frames it divides. The N47 serial run, beside other agents, measured
+    aurora at 275x once that way, against 59x quiet. Here every run times the
+    fill immediately before and after its frames and divides by their mean, so
+    each ratio compares costs taken under the same load, and the best run is
+    kept. A real regression raises every run's ratio and still fails.
+
+    :returns: ``(frame ms, fill ms, ratio)`` of the best run.
+    """
+    best = (float("inf"), float("inf"), float("inf"))
+    for _ in range(runs):
+        before = best_ms(calibrate, iterations, runs=1)
+        frame_ms = best_ms(step, iterations, runs=1)
+        after = best_ms(calibrate, iterations, runs=1)
+        fill_ms = (before + after) / 2.0
+        ratio = frame_ms / fill_ms
+        if ratio < best[2]:
+            best = (frame_ms, fill_ms, ratio)
+        if best[2] < target_ratio:
+            break
+    return best
+
+
 def raster_calibration_ms() -> float:
     """Cost of one full-page ``fillRect`` at 1920x1080, measured here and now.
 
@@ -257,14 +286,17 @@ def test_one_ambient_frame_costs_what_the_module_says_it_does(
         painter.fillRect(canvas.rect(), fill)
         engine.paint(painter, FRAME_W, FRAME_H)
 
+    def fill_once():
+        painter.fillRect(canvas.rect(), fill)
+
     try:
         for _ in range(20):      # size the buffer, warm the caches
             frame()
-        per_frame = best_ms(frame, FRAMES, target=ceiling_ms)
+            fill_once()
+        per_frame, calibration, ratio = paired_ratio(
+            frame, fill_once, FRAMES, target_ratio=ceiling_ratio)
     finally:
         painter.end()
-    calibration = raster_calibration_ms()
-    ratio = per_frame / calibration
 
     assert ratio < ceiling_ratio, (
         f"an ambient '{theme}' frame costs {per_frame:.2f} ms against "

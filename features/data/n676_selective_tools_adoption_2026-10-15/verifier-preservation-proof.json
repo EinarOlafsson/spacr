@@ -1,0 +1,9 @@
+{
+  "base": "8f7ef2bb35e04aa9f9e91f2fc4d0932303db7fbf",
+  "verifier_sha256": "9992fabc5ddc6db81df6b4b4507c4825cca14b177f7ea9dffe61db8d07312696",
+  "outside_main_AST_exact": true,
+  "all_added_removed_lines_exactly_match_advertised_patch1_verifier_hunks": true,
+  "packet_snapshot_not_copied": true,
+  "verifier_expected_to_differ_packet_snapshot": true,
+  "no_source_changed_by_proof": true
+}

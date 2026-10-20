@@ -85,6 +85,17 @@ def _row(*values: str) -> tuple[str, ...]:
 
 
 _ROWS: Dict[str, tuple[str, ...]] = {
+    "The running spaCR is newer than the requested release. Nothing was changed.": (
+        "Den spaCR-version som körs är nyare än den begärda versionen. Inget har ändrats.",
+        "Die laufende spaCR-Version ist neuer als die angeforderte Version. Es wurde nichts geändert.",
+        "La versión de spaCR en ejecución es más reciente que la solicitada. No se ha cambiado nada.",
+        "正在运行的 spaCR 版本比请求安装的版本更新。未作任何更改。",
+        "A versão do spaCR em execução é mais recente do que a versão solicitada. Nada foi alterado.",
+        "चल रहा spaCR अनुरोधित संस्करण से नया है। कोई बदलाव नहीं किया गया।",
+        "실행 중인 spaCR 버전이 요청한 버전보다 최신입니다. 아무것도 변경하지 않았습니다.",
+        "spaCR-útgáfan sem er í gangi er nýrri en umbeðin útgáfa. Engu var breytt.",
+        "La version de spaCR en cours d’exécution est plus récente que la version demandée. Rien n’a été modifié.",
+    ),
     "High contrast": _row(
         "Hög kontrast", "Hoher Kontrast", "Alto contraste", "高对比度",
         "Alto contraste", "उच्च कंट्रास्ट", "고대비", "Mikil birtuskil",
@@ -117,16 +128,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Däggdjursceller", "Säugetierzellen", "Células de mamífero", "哺乳动物细胞",
         "Células de mamífero", "स्तनधारी कोशिकाएँ", "포유류 세포", "Spendýrafrumur",
         "Cellules de mammifères"),
-    "What may leave this machine, and under whose name. With issue filing set to always, the default, a failed run files a redacted report on the public spaCR GitHub repository automatically, once per error, under the GitHub account signed in below. With ask, you see each report first and it is sent only when you press Send. With never, nothing is sent.": _row(
-        "Vad som får lämna den här datorn och i vems namn. Med always, standardvalet för felrapportering, skickar en misslyckad körning automatiskt en rapport med känsliga uppgifter borttagna till spaCR:s offentliga GitHub-arkiv, en gång per fel, från det GitHub-konto som är inloggat nedan. Med ask får du först se varje rapport, och den skickas bara när du trycker på Skicka. Med never skickas ingenting.",
-        "Was diesen Rechner verlassen darf und unter wessen Namen. Mit always, der Standardeinstellung für Fehlermeldungen, veröffentlicht ein fehlgeschlagener Lauf automatisch einmal pro Fehler einen Bericht mit entfernten sensiblen Angaben im öffentlichen GitHub-Repository von spaCR, unter dem unten angemeldeten GitHub-Konto. Mit ask sehen Sie jeden Bericht zuerst; er wird erst gesendet, wenn Sie auf Senden klicken. Mit never wird nichts gesendet.",
-        "Qué puede salir de este equipo y a nombre de quién. Con always, la opción predeterminada para informar de errores, una ejecución fallida publica automáticamente un informe con los datos sensibles eliminados en el repositorio público de spaCR en GitHub, una vez por error, desde la cuenta de GitHub conectada abajo. Con ask, primero ve cada informe y solo se envía al pulsar Enviar. Con never, no se envía nada.",
-        "哪些内容可以离开本机，以及以谁的名义发送。错误报告设为默认值 always 时，运行失败会自动在 spaCR 的公开 GitHub 仓库中提交已隐去敏感信息的报告，每个错误提交一次，使用下方登录的 GitHub 账户。设为 ask 时，您会先看到每份报告，只有点击发送后才会提交。设为 never 时，不发送任何内容。",
-        "O que pode sair deste computador e em nome de quem. Com always, a opção padrão de relato de erros, uma execução com falha publica automaticamente um relatório com os dados sensíveis removidos no repositório público do spaCR no GitHub, uma vez por erro, pela conta do GitHub conectada abaixo. Com ask, você vê cada relatório primeiro, e ele só é enviado ao clicar em Enviar. Com never, nada é enviado.",
-        "इस कंप्यूटर से क्या बाहर जा सकता है और किसके नाम से। त्रुटि रिपोर्टिंग के डिफ़ॉल्ट विकल्प always पर, असफल रन संवेदनशील जानकारी हटाकर सार्वजनिक spaCR GitHub रिपॉज़िटरी में अपने आप रिपोर्ट दर्ज करता है, हर त्रुटि के लिए एक बार, नीचे साइन इन किए गए GitHub खाते से। ask पर आप पहले हर रिपोर्ट देखते हैं और वह केवल भेजें दबाने पर भेजी जाती है। never पर कुछ नहीं भेजा जाता।",
-        "이 컴퓨터에서 어떤 내용이 누구의 이름으로 전송될 수 있는지 정합니다. 오류 보고를 기본값인 always로 설정하면 실행 실패 시 민감한 정보를 가린 보고서가 공개 spaCR GitHub 저장소에 오류마다 한 번씩 자동으로 등록되며, 아래에 로그인한 GitHub 계정을 사용합니다. ask에서는 각 보고서를 먼저 확인하고 보내기를 눌러야 전송됩니다. never에서는 아무것도 전송되지 않습니다.",
-        "Hvað má fara af þessari tölvu og í hvers nafni. Þegar villutilkynningar eru stilltar á always, sem er sjálfgefið, sendir keyrsla sem bregst sjálfkrafa skýrslu með viðkvæmum upplýsingum fjarlægðum í opinbera GitHub-kóðageymslu spaCR, einu sinni fyrir hverja villu, með GitHub-reikningnum sem er innskráður hér fyrir neðan. Með ask sérðu hverja skýrslu fyrst og hún er aðeins send þegar þú ýtir á Senda. Með never er ekkert sent.",
-        "Ce qui peut quitter cet ordinateur et au nom de qui. Avec always, le réglage par défaut du signalement des erreurs, une exécution échouée dépose automatiquement un rapport dont les informations sensibles ont été masquées dans le dépôt public spaCR sur GitHub, une fois par erreur, au nom du compte GitHub connecté ci-dessous. Avec ask, vous voyez d'abord chaque rapport et il n'est envoyé que lorsque vous cliquez sur Envoyer. Avec never, rien n'est envoyé."),
     "How much of this machine spaCR keeps between runs: processes, caches and GPU memory. Laptop keeps the least — for 8 GB or on battery; Workstation the most. The same spaCR code runs at every level, and the reproducibility hash records what each run used.": _row(
         "Hur mycket av den här maskinen spaCR behåller mellan körningar: processer, cacheminne och GPU-minne. Bärbar dator behåller minst — för 8 GB eller på batteri; Arbetsstation mest. Samma spaCR-kod körs på alla nivåer, och reproducerbarhetshashen registrerar vad varje körning använde.",
         "Wie viel von diesem Rechner spaCR zwischen Läufen behält: Prozesse, Caches und GPU-Speicher. Laptop behält am wenigsten — für 8 GB oder im Akkubetrieb; Arbeitsstation am meisten. Derselbe spaCR-Code läuft auf jeder Stufe, und der Reproduzierbarkeits-Hash hält fest, was jeder Lauf verwendet hat.",
@@ -137,16 +138,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "spaCR가 실행 사이에 이 컴퓨터의 자원을 얼마나 유지하는지: 프로세스, 캐시, GPU 메모리. 노트북은 가장 적게 유지하며 — 8 GB이거나 배터리 사용 시 — 워크스테이션은 가장 많이 유지합니다. 모든 수준에서 동일한 spaCR 코드가 실행되며, 재현성 해시가 각 실행이 사용한 자원을 기록합니다.",
         "Hversu mikið af þessari vél spaCR heldur milli keyrslna: ferli, skyndiminni og GPU-minni. Fartölva heldur minnstu — fyrir 8 GB eða á rafhlöðu; Vinnustöð mestu. Sami spaCR-kóði keyrir á öllum stigum og samsvörðunarkennitalan skráir hvað hver keyrsla notaði.",
         "Quelle part de cette machine spaCR conserve entre les exécutions : processus, caches et mémoire GPU. Ordinateur portable en conserve le moins — pour 8 Go ou sur batterie ; Station de travail le plus. Le même code spaCR s’exécute à chaque niveau, et le hachage de reproductibilité enregistre ce que chaque exécution a utilisé."),
-    "Primary modules are grouped here into Core, Data, Tools and Assays; related workflows are reached from their host module. Click any name to open it. Ctrl+1 through Ctrl+9 opens the first nine apps in sidebar order.": _row(
-        "Primära moduler grupperas här i Core, Data, Tools och Assays; relaterade arbetsflöden nås från sin värdmodul. Klicka på ett namn för att öppna det. Ctrl+1 till Ctrl+9 öppnar de nio första apparna i sidofältets ordning.",
-        "Hauptmodule sind hier in Core, Data, Tools und Assays gruppiert; zugehörige Arbeitsabläufe werden über ihr Hostmodul erreicht. Klicken Sie auf einen Namen, um ihn zu öffnen. Ctrl (Strg)+1 bis Ctrl+9 öffnen die ersten neun Apps in der Reihenfolge der Seitenleiste.",
-        "Los módulos principales se agrupan aquí en Core, Data, Tools y Assays; los flujos de trabajo relacionados se abren desde su módulo anfitrión. Haga clic en cualquier nombre para abrirlo. Ctrl+1 a Ctrl+9 abren las nueve primeras aplicaciones en el orden de la barra lateral.",
-        "主要模块在此分组为 Core、Data、Tools 和 Assays；相关工作流可从其宿主模块打开。点击任意名称即可打开。Ctrl+1 至 Ctrl+9 按侧边栏顺序打开前九个应用。",
-        "Os módulos principais estão agrupados aqui em Core, Data, Tools e Assays; os fluxos de trabalho relacionados são abertos a partir do seu módulo anfitrião. Clique em qualquer nome para o abrir. Ctrl+1 a Ctrl+9 abrem as nove primeiras aplicações pela ordem da barra lateral.",
-        "मुख्य मॉड्यूल यहाँ Core, Data, Tools और Assays में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। खोलने के लिए किसी भी नाम पर क्लिक करें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
-        "기본 모듈은 여기에서 Core, Data, Tools, Assays로 그룹화됩니다. 관련 워크플로는 해당 호스트 모듈에서 열립니다. 이름을 클릭하면 열립니다. Ctrl+1 부터 Ctrl+9 까지는 사이드바 순서대로 처음 아홉 개의 앱을 엽니다.",
-        "Aðaleiningar eru flokkaðar hér í Core, Data, Tools og Assays; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
-        "Les modules principaux sont regroupés ici en Core, Data, Tools et Assays ; les flux de travail associés s’ouvrent depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
+    "Primary modules are grouped here into Core, Data, Tools and Organism; related workflows are reached from their host module. Click any name to open it. Ctrl+1 through Ctrl+9 opens the first nine apps in sidebar order.": _row(
+        "Primära moduler grupperas här i Kärna, Data, Verktyg och Organism; relaterade arbetsflöden nås från sin värdmodul. Klicka på ett namn för att öppna det. Ctrl+1 till Ctrl+9 öppnar de nio första apparna i sidofältets ordning.",
+        "Hauptmodule sind hier in Kern, Daten, Werkzeuge und Organismus gruppiert; zugehörige Arbeitsabläufe werden über ihr Hostmodul erreicht. Klicken Sie auf einen Namen, um ihn zu öffnen. Ctrl (Strg)+1 bis Ctrl+9 öffnen die ersten neun Apps in der Reihenfolge der Seitenleiste.",
+        "Los módulos principales se agrupan aquí en Principal, Datos, Herramientas y Organismo; los flujos de trabajo relacionados se abren desde su módulo anfitrión. Haga clic en cualquier nombre para abrirlo. Ctrl+1 a Ctrl+9 abren las nueve primeras aplicaciones en el orden de la barra lateral.",
+        "主要模块在此分组为核心、数据、工具和生物体；相关工作流可从其宿主模块打开。点击任意名称即可打开。Ctrl+1 至 Ctrl+9 按侧边栏顺序打开前九个应用。",
+        "Os módulos principais estão agrupados aqui em Principal, Dados, Ferramentas e Organismo; os fluxos de trabalho relacionados são abertos a partir do seu módulo anfitrião. Clique em qualquer nome para o abrir. Ctrl+1 a Ctrl+9 abrem as nove primeiras aplicações pela ordem da barra lateral.",
+        "प्राथमिक मॉड्यूल यहाँ मुख्य, डेटा, उपकरण और जीव में समूहित हैं; संबंधित वर्कफ़्लो उनके होस्ट मॉड्यूल से खोले जाते हैं। खोलने के लिए किसी भी नाम पर क्लिक करें। Ctrl+1 से Ctrl+9 साइडबार क्रम में पहले नौ ऐप खोलते हैं।",
+        "기본 모듈은 여기에서 핵심, 데이터, 도구, 생물체로 그룹화됩니다. 관련 워크플로는 해당 호스트 모듈에서 열립니다. 이름을 클릭하면 열립니다. Ctrl+1 부터 Ctrl+9 까지는 사이드바 순서대로 처음 아홉 개의 앱을 엽니다.",
+        "Aðaleiningar eru flokkaðar hér í Kjarna, Gögn, Verkfæri og Lífveru; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
+        "Les modules principaux sont regroupés ici en Cœur, Données, Outils et Organisme ; les flux de travail associés s’ouvrent depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
     "none detected": _row(
         "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
     "detected, not used by spaCR": _row(
@@ -431,6 +432,46 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "o Navegador de campos de QC", "QC फ़ील्ड ब्राउज़र",
         "QC 필드 브라우저", "QC-reitavafrinn",
         "l’Explorateur de champs QC"),
+    "X plane, or X spin after Shift+S": _row(
+        "X-plan, eller X-rotation efter Shift+S",
+        "X-Ebene oder X-Drehung nach Shift+S",
+        "Plano X, o giro en X tras Shift+S",
+        "X 平面，或 Shift+S 之后绕 X 旋转",
+        "Plano X, ou giro em X após Shift+S",
+        "X तल, या Shift+S के बाद X घुमाव",
+        "X 평면 또는 Shift+S 후 X축 회전",
+        "X-flötur, eða X-snúningur eftir Shift+S",
+        "Plan X, ou rotation X après Shift+S"),
+    "Y plane, or Y spin after Shift+S": _row(
+        "Y-plan, eller Y-rotation efter Shift+S",
+        "Y-Ebene oder Y-Drehung nach Shift+S",
+        "Plano Y, o giro en Y tras Shift+S",
+        "Y 平面，或 Shift+S 之后绕 Y 旋转",
+        "Plano Y, ou giro em Y após Shift+S",
+        "Y तल, या Shift+S के बाद Y घुमाव",
+        "Y 평면 또는 Shift+S 후 Y축 회전",
+        "Y-flötur, eða Y-snúningur eftir Shift+S",
+        "Plan Y, ou rotation Y après Shift+S"),
+    "Z plane, or Z spin after Shift+S": _row(
+        "Z-plan, eller Z-rotation efter Shift+S",
+        "Z-Ebene oder Z-Drehung nach Shift+S",
+        "Plano Z, o giro en Z tras Shift+S",
+        "Z 平面，或 Shift+S 之后绕 Z 旋转",
+        "Plano Z, ou giro em Z após Shift+S",
+        "Z तल, या Shift+S के बाद Z घुमाव",
+        "Z 평면 또는 Shift+S 후 Z축 회전",
+        "Z-flötur, eða Z-snúningur eftir Shift+S",
+        "Plan Z, ou rotation Z après Shift+S"),
+    "the Gate Editor screen": _row(
+        "skärmen Gate-redigerare",
+        "der Bildschirm Gate-Editor",
+        "la pantalla Editor de compuertas",
+        "门控编辑器屏幕",
+        "a tela Editor de gates",
+        "गेट संपादक स्क्रीन",
+        "게이트 편집기 화면",
+        "skjárinn Gate-ritill",
+        "l’écran Éditeur de gates"),
     "Field browser": _row(
         "Fältbläddrare", "Feldbrowser", "Explorador de campos", "视野浏览器",
         "Navegador de campos", "फ़ील्ड ब्राउज़र", "필드 브라우저",
@@ -668,6 +709,8 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Cancel": _row(
         "Avbryt", "Abbrechen", "Cancelar", "取消", "Cancelar",
         "रद्द करें", "취소", "Hætta við", "Annuler"),
+    "Yes": _row(
+        "Ja", "Ja", "Sí", "是", "Sim", "हाँ", "예", "Já", "Oui"),
     "Settings": _row(
         "Inställningar", "Einstellungen", "Configuración", "设置",
         "Configurações", "सेटिंग्स", "설정", "Stillingar", "Paramètres"),
@@ -1684,7 +1727,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "AI 콘솔은 각 제공업체의 <b>코딩 에이전트 CLI</b>와 채팅 구독(Claude.ai Pro, ChatGPT Plus/Pro/Team, Google 계정)을 통해 통신합니다.<br><br>사용할 제공업체별로 CLI를 설치한 다음 <em>한 번</em> 로그인하세요. 아래 명령을 터미널에 복사하세요.",
         "Gervigreindarstjórnborðið hefur samskipti við <b>CLI-forritunaraðstoð hvers veitanda</b> og notar spjalláskriftina þína (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google-reikning).<br><br>Settu upp CLI fyrir hvern veitanda sem þú vilt nota og skráðu þig svo inn <em>einu sinni</em>. Afritaðu skipanirnar hér fyrir neðan í skjáhermi.",
         "La console IA communique avec la <b>CLI de l’agent de programmation du fournisseur</b> et utilise votre abonnement de chat (Claude.ai Pro, ChatGPT Plus/Pro/Team, compte Google).<br><br>Pour chaque fournisseur souhaité, installez la CLI puis connectez-vous <em>une seule fois</em>. Copiez les commandes ci-dessous dans un terminal."),
-    "Once a CLI is installed <em>and</em> you're logged in, hit <b>Refresh</b> below and it will appear in the provider dropdown.": _row(
+    "Once a CLI is installed <em>and</em> you're logged in, press <b>Refresh</b> below and it will appear in the provider dropdown.": _row(
         "När ett CLI är installerat <em>och</em> du är inloggad klickar du på <b>Uppdatera</b> nedan, så visas det i leverantörslistan.",
         "Sobald eine CLI installiert ist <em>und</em> Sie angemeldet sind, klicken Sie unten auf <b>Aktualisieren</b>; sie erscheint dann in der Anbieterliste.",
         "Cuando la CLI esté instalada <em>y</em> haya iniciado sesión, pulse <b>Actualizar</b> y aparecerá en la lista de proveedores.",
@@ -1694,16 +1737,16 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "CLI를 설치하고 <em>로그인한</em> 다음 아래의 <b>새로 고침</b>을 누르면 제공업체 목록에 표시됩니다.",
         "Þegar CLI er uppsett <em>og</em> þú ert innskráð/ur skaltu smella á <b>Endurnýja</b> hér fyrir neðan; það birtist þá í veitalistanum.",
         "Une fois la CLI installée <em>et</em> la connexion effectuée, cliquez sur <b>Actualiser</b> ci-dessous ; elle apparaîtra dans la liste des fournisseurs."),
-    "<b>Response speed</b><br><span style='color:gray;'>Same three levels for every provider. Faster = snappier + cheaper; Deep = more thorough reasoning.</span>": _row(
-        "<b>Svarshastighet</b><br><span style='color:gray;'>Samma tre nivåer för alla leverantörer. Snabbare = rappare + billigare; Djup = grundligare resonemang.</span>",
-        "<b>Antwortgeschwindigkeit</b><br><span style='color:gray;'>Dieselben drei Stufen für jeden Anbieter. Schneller = zügiger + günstiger; Tief = gründlichere Schlussfolgerungen.</span>",
-        "<b>Velocidad de respuesta</b><br><span style='color:gray;'>Los mismos tres niveles para todos los proveedores. Más rápida = más ágil + económica; Profunda = razonamiento más exhaustivo.</span>",
-        "<b>响应速度</b><br><span style='color:gray;'>所有提供商均使用相同的三个级别。更快 = 响应更迅速且成本更低；深入 = 推理更周密。</span>",
-        "<b>Velocidade da resposta</b><br><span style='color:gray;'>Os mesmos três níveis para todos os provedores. Mais rápida = mais ágil + econômica; Profunda = raciocínio mais completo.</span>",
-        "<b>उत्तर की गति</b><br><span style='color:gray;'>हर प्रदाता के लिए वही तीन स्तर। तेज़ = झटपट + सस्ता; गहरा = अधिक संपूर्ण तर्क।</span>",
-        "<b>응답 속도</b><br><span style='color:gray;'>모든 제공업체에 동일한 세 단계를 적용합니다. 빠름 = 민첩하고 저렴함; 심층 = 더 철저한 추론.</span>",
-        "<b>Svarhraði</b><br><span style='color:gray;'>Sömu þrjú stig fyrir alla veitendur. Hraðara = snöggvara + ódýrara; Djúpt = ítarlegri röksemdafærsla.</span>",
-        "<b>Vitesse de réponse</b><br><span style='color:gray;'>Les trois mêmes niveaux pour chaque fournisseur. Plus rapide = plus réactif + moins cher ; Approfondi = raisonnement plus complet.</span>"),
+    "<b>Response speed</b><br><span style='color:gray;'>Same three levels for every provider. Each level selects one of the provider's models: Fast the smallest and quickest, Deep the largest.</span>": _row(
+        "<b>Svarshastighet</b><br><span style='color:gray;'>Samma tre nivåer för alla leverantörer. Varje nivå väljer en av leverantörens modeller: Snabb den minsta och snabbaste, Djup den största.</span>",
+        "<b>Antwortgeschwindigkeit</b><br><span style='color:gray;'>Dieselben drei Stufen für jeden Anbieter. Jede Stufe wählt eines der Modelle des Anbieters: Schnell das kleinste und schnellste, Tief das größte.</span>",
+        "<b>Velocidad de respuesta</b><br><span style='color:gray;'>Los mismos tres niveles para todos los proveedores. Cada nivel selecciona uno de los modelos del proveedor: Rápida, el más pequeño y rápido; Profunda, el más grande.</span>",
+        "<b>响应速度</b><br><span style='color:gray;'>所有提供商均使用相同的三个级别。每个级别选择该提供商的一个模型：快速为最小、最快的模型，深入为最大的模型。</span>",
+        "<b>Velocidade da resposta</b><br><span style='color:gray;'>Os mesmos três níveis para todos os provedores. Cada nível seleciona um dos modelos do provedor: Rápida, o menor e mais rápido; Profunda, o maior.</span>",
+        "<b>उत्तर की गति</b><br><span style='color:gray;'>हर प्रदाता के लिए वही तीन स्तर। हर स्तर प्रदाता का एक मॉडल चुनता है: तेज़ सबसे छोटा और सबसे तेज़, गहरा सबसे बड़ा।</span>",
+        "<b>응답 속도</b><br><span style='color:gray;'>모든 제공업체에 동일한 세 단계를 적용합니다. 각 단계는 제공업체의 모델 하나를 선택합니다. 빠름은 가장 작고 빠른 모델, 심층은 가장 큰 모델입니다.</span>",
+        "<b>Svarhraði</b><br><span style='color:gray;'>Sömu þrjú stig fyrir alla veitendur. Hvert stig velur eitt af líkönum veitandans: Hratt það minnsta og fljótasta, Djúpt það stærsta.</span>",
+        "<b>Vitesse de réponse</b><br><span style='color:gray;'>Les trois mêmes niveaux pour chaque fournisseur. Chaque niveau sélectionne l’un des modèles du fournisseur : Rapide le plus petit et le plus rapide, Approfondi le plus grand.</span>"),
     "Fast — snappy replies, smallest model": _row(
         "Snabb — rappa svar, minsta modellen",
         "Schnell – zügige Antworten, kleinstes Modell",
@@ -1892,7 +1935,7 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "AI 콘솔은 제공업체의 코딩 에이전트 CLI인 `claude`, `codex` 또는 `gemini`를 통해 채팅 구독을 사용합니다. 하나를 설치하고 로그인하세요. 제공업체 열기 ▸ 명령을 복사하여 터미널에 붙여넣으세요.",
         "Gervigreindarstjórnborðið notar spjalláskriftina þína í gegnum CLI-forritunaraðstoð veitenda: `claude`, `codex` eða `gemini`. Settu eitt þeirra upp og skráðu þig inn. Opnaðu Veitendur ▸ Afritaðu skipanirnar og límdu í skjáhermi.",
         "La console IA utilise votre abonnement de chat via les CLI d’agents de programmation des fournisseurs : `claude`, `codex` ou `gemini`. Installez-en une et connectez-vous. Ouvrez Fournisseurs ▸ Copiez les commandes et collez-les dans un terminal."),
-    "A response is already streaming — hit Cancel to interrupt.": _row(
+    "A response is already streaming — press Cancel to interrupt.": _row(
         "Ett svar strömmas redan — klicka på Avbryt för att avbryta.",
         "Eine Antwort wird bereits gestreamt – klicken Sie zum Unterbrechen auf Abbrechen.",
         "Ya se está recibiendo una respuesta — pulse Cancelar para interrumpirla.",
@@ -1919,15 +1962,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Installez d’abord une CLI de fournisseur (Fournisseurs…)."),
 
     "How it runs": _row("Hur den körs", "Wie es läuft", "Cómo se ejecuta", "运行方式", "Como funciona", "यह कैसे चलता है", "실행 방식", "Hvernig hún keyrir", "Comment il s’exécute"),
-    "The assistant": _row("Assistenten", "Der Assistent", "El asistente", "助手", "O assistente", "सहायक", "어시스턴트", "Aðstoðarmaðurinn", "L’assistant"),
-    "When something breaks": _row("När något går fel", "Wenn etwas schiefgeht", "Cuando algo falla", "出现问题时", "Quando algo falha", "जब कुछ गड़बड़ हो", "문제가 생겼을 때", "Þegar eitthvað bilar", "Quand quelque chose casse"),
     "Done": _row("Klart", "Fertig", "Listo", "完成", "Concluído", "पूर्ण", "완료", "Lokið", "Terminé"),
     "spaCR mode": _row("spaCR-läge", "spaCR-Modus", "Modo spaCR", "spaCR 模式", "Modo spaCR", "spaCR मोड", "spaCR 모드", "spaCR-hamur", "Mode spaCR"),
     "Reproducibility hash": _row("Reproducerbarhetshash", "Reproduzierbarkeits-Hash", "Hash de reproducibilidad", "可复现性哈希", "Hash de reprodutibilidade", "पुनरुत्पादन हैश", "재현성 해시", "Endurgerðarhash", "Empreinte de reproductibilité"),
-    "One-click issue filing": _row("Felrapport med ett klick", "Fehlermeldung mit einem Klick", "Informe de problemas con un clic", "一键提交问题", "Relato de problemas com um clique", "एक-क्लिक समस्या रिपोर्ट", "원클릭 이슈 등록", "Villutilkynning með einum smelli", "Signalement en un clic"),
-    "AI assistant on at launch": _row("AI-assistent på vid start", "KI-Assistent beim Start aktiv", "Asistente de IA activo al iniciar", "启动时开启 AI 助手", "Assistente de IA ativo ao iniciar", "शुरू होते ही AI सहायक चालू", "시작 시 AI 어시스턴트 켜기", "AI-aðstoð virk við ræsingu", "Assistant IA actif au démarrage"),
-    "Include recent logs in a report": _row("Inkludera senaste loggarna i en rapport", "Aktuelle Protokolle in den Bericht aufnehmen", "Incluir registros recientes en el informe", "在报告中附上最近的日志", "Incluir os registos recentes no relatório", "रिपोर्ट में हाल के लॉग शामिल करें", "보고서에 최근 로그 포함", "Hafa nýlegar annálar með í skýrslu", "Inclure les journaux récents dans un rapport"),
-    "AI provider": _row("AI-leverantör", "KI-Anbieter", "Proveedor de IA", "AI 提供方", "Fornecedor de IA", "AI प्रदाता", "AI 제공자", "AI-veita", "Fournisseur d’IA"),
     "{n} of {total}": _row("{n} av {total}", "{n} von {total}", "{n} de {total}", "第 {n} / {total} 步", "{n} de {total}", "{total} में से {n}", "{total} 중 {n}", "{n} af {total}", "{n} sur {total}"),
     "Every label, tooltip and message spaCR shows you. You can change it later in Preferences, and nothing about your data depends on it.": _row(
         "Varje etikett, verktygstips och meddelande som spaCR visar. Du kan ändra det senare i Inställningar, och inget i dina data beror på det.",
@@ -1970,26 +2007,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "이 모드는 spaCR가 이 컴퓨터를 얼마나 차지할지 정합니다: 백그라운드 프로세스를 몇 개나 띄워 두는지, 실행 사이에 캐시와 GPU 메모리를 반납하는지입니다. 균형은 그대로 유지해 가장 빠르고, 나머지 둘은 반납해 컴퓨터의 다른 작업에 여유를 줍니다. 재현성 해시는 실행에 들어간 것을 기록하므로, 결과를 그것을 만든 정확한 입력까지 되짚을 수 있습니다.",
         "Hamurinn ræður hversu mikið af þessari vél spaCR heldur eftir: hversu mörg bakgrunnsferli það ræsir og heldur, og hvort það skilar skyndiminni og GPU-minni milli keyrslna. Jafnvægi heldur þeim, sem er hraðast; hinir tveir sleppa þeim svo restin af vélinni hafi meira svigrúm. Endurgerðarhashið skráir hvað fór inn í keyrslu, svo rekja megi niðurstöðu til nákvæmlega þeirra gagna sem bjuggu hana til.",
         "Le mode décide de la part de cette machine que spaCR garde pour lui : combien de processus d’arrière-plan il lance et conserve, et s’il rend ses caches et la mémoire GPU entre les exécutions. Équilibré les conserve, ce qui est le plus rapide ; les deux autres les rendent pour laisser plus de ressources au reste de la machine. L’empreinte de reproductibilité enregistre ce qui est entré dans une exécution, afin qu’un résultat puisse être retracé jusqu’aux entrées exactes qui l’ont produit."),
-    "spaCR can explain an error or a result through a coding assistant you already subscribe to. It uses the vendor's own command-line tool, so nothing is sent anywhere you have not already logged in to.": _row(
-        "spaCR kan förklara ett fel eller ett resultat genom en kodassistent du redan prenumererar på. Den använder leverantörens eget kommandoradsverktyg, så ingenting skickas någonstans du inte redan är inloggad hos.",
-        "spaCR kann einen Fehler oder ein Ergebnis über einen Coding-Assistenten erklären, den Sie bereits abonniert haben. Es nutzt das Kommandozeilenwerkzeug des Anbieters, sodass nichts irgendwohin geht, wo Sie nicht bereits angemeldet sind.",
-        "spaCR puede explicar un error o un resultado mediante un asistente de código al que ya está suscrito. Utiliza la herramienta de línea de comandos del proveedor, así que nada se envía a ningún servicio en el que no haya iniciado sesión.",
-        "spaCR 可以通过你已订阅的编程助手来解释错误或结果。它使用厂商自己的命令行工具，因此不会把任何内容发往你尚未登录的地方。",
-        "O spaCR pode explicar um erro ou um resultado através de um assistente de código que já subscreve. Usa a ferramenta de linha de comandos do próprio fornecedor, pelo que nada é enviado para onde ainda não tenha sessão iniciada.",
-        "spaCR किसी त्रुटि या परिणाम को उस कोडिंग सहायक के जरिए समझा सकता है जिसकी सदस्यता आपके पास पहले से है। यह विक्रेता के अपने कमांड-लाइन टूल का उपयोग करता है, इसलिए कुछ भी वहाँ नहीं भेजा जाता जहाँ आप पहले से लॉग इन न हों।",
-        "spaCR는 이미 구독 중인 코딩 어시스턴트를 통해 오류나 결과를 설명할 수 있습니다. 공급업체의 명령줄 도구를 그대로 사용하므로, 이미 로그인한 곳 외에는 아무것도 전송되지 않습니다.",
-        "spaCR getur útskýrt villu eða niðurstöðu í gegnum kóðunaraðstoð sem þú ert þegar áskrifandi að. Það notar skipanalínutól framleiðandans sjálfs, svo ekkert er sent neitt þangað sem þú ert ekki þegar innskráð(ur).",
-        "spaCR peut expliquer une erreur ou un résultat via un assistant de code auquel vous êtes déjà abonné. Il utilise l’outil en ligne de commande de l’éditeur, donc rien n’est envoyé là où vous n’êtes pas déjà connecté."),
-    "What may leave this machine, and under whose name. Nothing is ever sent without you seeing it first and pressing send yourself.": _row(
-        "Vad som får lämna den här datorn, och i vems namn. Ingenting skickas någonsin utan att du först ser det och själv trycker på skicka.",
-        "Was diesen Rechner verlassen darf und unter wessen Namen. Nichts wird jemals gesendet, ohne dass Sie es zuvor sehen und selbst auf Senden drücken.",
-        "Qué puede salir de esta máquina y a nombre de quién. Nunca se envía nada sin que lo vea primero y pulse personalmente Enviar.",
-        "什么内容可以离开这台机器，以及以谁的名义。任何内容都不会在你先看到并亲自点击发送之前被发送。",
-        "O que pode sair desta máquina, e em nome de quem. Nada é enviado sem que o veja primeiro e carregue em enviar você mesmo.",
-        "इस मशीन से क्या बाहर जा सकता है, और किसके नाम से। कुछ भी तब तक नहीं भेजा जाता जब तक आप उसे देख कर स्वयं भेजें न दबाएँ।",
-        "이 컴퓨터에서 무엇이 나갈 수 있는지, 그리고 누구의 이름으로 나가는지입니다. 먼저 내용을 보고 직접 보내기를 누르기 전에는 아무것도 전송되지 않습니다.",
-        "Hvað má fara af þessari vél og í hvers nafni. Ekkert er nokkurn tímann sent nema þú sjáir það fyrst og ýtir sjálf(ur) á senda.",
-        "Ce qui peut quitter cette machine, et sous quel nom. Rien n’est jamais envoyé sans que vous l’ayez d’abord vu et appuyé vous-même sur envoyer."),
 
     "spaCR tasks are GPU accelerated and are compatible with NVIDIA, AMD, Apple, and Intel GPUs. GPU acceleration is orders of magnitude faster than CPU for matrix multiplication tasks.": _row(
         "spaCR-uppgifter är GPU-accelererade och fungerar med GPU:er från NVIDIA, AMD, Apple och Intel. GPU-acceleration är flera storleksordningar snabbare än CPU för matrismultiplikation.",
@@ -2173,26 +2190,12 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Ignorar — manter tudo desativado", "छोड़ें — सब कुछ बंद रखें",
         "건너뛰기 — 모두 끈 상태로 유지", "Sleppa — hafa allt óvirkt",
         "Passer — tout laisser désactivé"),
-    "whatever is available": _row(
-        "det som är tillgängligt", "was verfügbar ist", "lo que esté disponible",
-        "任意可用项", "o que estiver disponível", "जो उपलब्ध हो",
-        "사용 가능한 항목", "það sem er tiltækt", "ce qui est disponible"),
     "Sidebar — apps by category": _row(
         "Sidofält — appar efter kategori", "Seitenleiste – Module nach Kategorie",
         "Barra lateral — aplicaciones por categoría", "侧边栏 — 按类别列出应用",
         "Barra lateral — aplicações por categoria", "साइडबार — श्रेणी के अनुसार ऐप",
         "사이드바 — 카테고리별 앱", "Hliðarstika — forrit eftir flokki",
         "Barre latérale — applications par catégorie"),
-    "spaCR privacy and optional account setup": _row(
-        "spaCR-integritet och valfri kontokonfiguration",
-        "spaCR-Datenschutz und optionale Kontoeinrichtung",
-        "Privacidad de spaCR y configuración opcional de cuentas",
-        "spaCR 隐私与可选账户设置",
-        "Privacidade do spaCR e configuração opcional de contas",
-        "spaCR गोपनीयता और वैकल्पिक खाता सेटअप",
-        "spaCR 개인정보 보호 및 선택적 계정 설정",
-        "Persónuvernd spaCR og valfrjáls reikningsuppsetning",
-        "Confidentialité de spaCR et configuration facultative des comptes"),
     "Enable the public GitHub issue-report action": _row(
         "Aktivera åtgärden för offentliga GitHub-felrapporter",
         "Aktion zum öffentlichen GitHub-Problembericht aktivieren",
@@ -2203,16 +2206,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "공개 GitHub 이슈 신고 작업 활성화",
         "Virkja opinbera GitHub-villutilkynningu",
         "Activer l’action de signalement public sur GitHub"),
-    "Set up GitHub, Claude, GPT/Codex, and Gemini now": _row(
-        "Konfigurera GitHub, Claude, GPT/Codex och Gemini nu",
-        "GitHub, Claude, GPT/Codex und Gemini jetzt einrichten",
-        "Configurar GitHub, Claude, GPT/Codex y Gemini ahora",
-        "立即设置 GitHub、Claude、GPT/Codex 和 Gemini",
-        "Configurar GitHub, Claude, GPT/Codex e Gemini agora",
-        "GitHub, Claude, GPT/Codex और Gemini अभी सेट करें",
-        "지금 GitHub, Claude, GPT/Codex 및 Gemini 설정",
-        "Stilla GitHub, Claude, GPT/Codex og Gemini núna",
-        "Configurer GitHub, Claude, GPT/Codex et Gemini maintenant"),
     "Include redacted diagnostic logs in report previews": _row(
         "Ta med rensade diagnostikloggar i rapportförhandsvisningar",
         "Bereinigte Diagnoseprotokolle in Berichtsvorschauen aufnehmen",
@@ -2263,16 +2256,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "주요 모듈은 핵심, 데이터, 결과 및 QC, 탐색, 어세이 및 설계로 그룹화되어 있습니다. 관련 워크플로는 호스트 모듈에서 열 수 있습니다. 이름을 클릭하면 열립니다. Ctrl+1부터 Ctrl+9까지는 사이드바 순서대로 처음 아홉 개 앱을 엽니다.",
         "Aðaleiningar eru flokkaðar hér í Kjarna, Gögn, Niðurstöður og gæðaeftirlit, Kanna, Prófanir og Hönnun; tengd vinnsluferli eru opnuð úr hýsingareiningunni. Smelltu á heiti til að opna það. Ctrl+1 til Ctrl+9 opnar fyrstu níu forritin í röð hliðarstikunnar.",
         "Les modules principaux sont regroupés ici dans Cœur, Données, Résultats et CQ, Explorer, Essais et Conception ; les flux associés sont accessibles depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. De Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
-    "Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. A report is redacted, shown in an editable preview, and sent only when you press Send for that specific report. Account setup uses the official GitHub, Claude, Codex (GPT), and Gemini CLIs; spaCR does not store their passwords or tokens. All choices are optional and revocable in Preferences.": _row(
-        "Kraschrapporter skickas till spaCR:s OFFENTLIGA GitHub-arkiv. De kan läsas av alla, indexeras och kan inte tas bort på ett tillförlitligt sätt. Rapporten rensas, visas i en redigerbar förhandsvisning och skickas bara när du trycker på Skicka för just den rapporten. Kontokonfigurationen använder de officiella kommandoradsverktygen för GitHub, Claude, Codex (GPT) och Gemini; spaCR lagrar inte deras lösenord eller token. Alla val är frivilliga och kan återkallas i Inställningar.",
-        "Absturzberichte werden an das ÖFFENTLICHE spaCR-Repository auf GitHub gesendet. Sie sind weltweit lesbar, werden indexiert und können nicht zuverlässig zurückgenommen werden. Ein Bericht wird bereinigt, in einer bearbeitbaren Vorschau angezeigt und nur gesendet, wenn Sie bei diesem Bericht auf Senden klicken. Die Kontoeinrichtung verwendet die offiziellen CLIs von GitHub, Claude, Codex (GPT) und Gemini; spaCR speichert weder Passwörter noch Token. Alle Optionen sind freiwillig und können in den Einstellungen widerrufen werden.",
-        "Los informes de fallos se envían al repositorio PÚBLICO de spaCR en GitHub. Cualquiera puede leerlos, se indexan y no se pueden retirar de forma fiable. El informe se censura, se muestra en una vista previa editable y solo se envía cuando pulse Enviar para ese informe concreto. La configuración de cuentas usa las CLI oficiales de GitHub, Claude, Codex (GPT) y Gemini; spaCR no almacena sus contraseñas ni tokens. Todas las opciones son voluntarias y se pueden revocar en Preferencias.",
-        "崩溃报告会提交到公开的 spaCR GitHub 仓库。任何人都能阅读，搜索引擎也会收录，而且无法保证彻底撤回。报告会先脱敏并显示在可编辑的预览中；只有当你为该报告按下“发送”时才会提交。账户设置使用 GitHub、Claude、Codex（GPT）和 Gemini 的官方命令行工具；spaCR 不存储其密码或令牌。所有选项均为自愿选择，并可在首选项中撤销。",
-        "Os relatórios de falhas são enviados para o repositório PÚBLICO do spaCR no GitHub. Podem ser lidos por qualquer pessoa, são indexados e não podem ser retirados de forma fiável. O relatório é editado, mostrado numa pré-visualização alterável e só é enviado quando carrega em Enviar nesse relatório específico. A configuração de contas usa as CLI oficiais do GitHub, Claude, Codex (GPT) e Gemini; o spaCR não guarda palavras-passe nem tokens. Todas as opções são voluntárias e podem ser revogadas nas Preferências.",
-        "क्रैश रिपोर्ट सार्वजनिक spaCR GitHub रिपॉज़िटरी में जाती हैं। उन्हें दुनिया भर में पढ़ा और अनुक्रमित किया जा सकता है तथा उनका प्रकाशन भरोसेमंद तरीके से वापस नहीं लिया जा सकता। रिपोर्ट से संवेदनशील जानकारी हटाकर संपादन योग्य पूर्वावलोकन दिखाया जाता है और वह तभी भेजी जाती है जब आप उसी रिपोर्ट के लिए भेजें दबाते हैं। खाता सेटअप आधिकारिक GitHub, Claude, Codex (GPT) और Gemini CLI का उपयोग करता है; spaCR उनके पासवर्ड या टोकन संग्रहीत नहीं करता। सभी विकल्प वैकल्पिक हैं और प्राथमिकताओं में वापस लिए जा सकते हैं।",
-        "충돌 보고서는 공개 spaCR GitHub 저장소로 전송됩니다. 누구나 읽을 수 있고 검색에 노출되며, 게시 후 완전히 회수된다고 보장할 수 없습니다. 보고서는 민감 정보가 제거된 뒤 편집 가능한 미리보기에 표시되며, 해당 보고서에서 보내기를 눌렀을 때만 전송됩니다. 계정 설정에는 공식 GitHub, Claude, Codex(GPT), Gemini CLI를 사용하며 spaCR는 비밀번호나 토큰을 저장하지 않습니다. 모든 선택 사항은 선택적이며 환경설정에서 철회할 수 있습니다.",
-        "Hrunskýrslur fara í OPINBERT spaCR-safn á GitHub. Allir geta lesið þær, þær eru skráðar í leitarvélum og ekki er hægt að tryggja að þær verði afturkallaðar. Skýrslan er hreinsuð, sýnd í breytanlegri forskoðun og aðeins send þegar þú ýtir á Senda fyrir þá tilteknu skýrslu. Reikningsuppsetning notar opinber skipanalínuverkfæri GitHub, Claude, Codex (GPT) og Gemini; spaCR geymir hvorki lykilorð né aðgangslykla þeirra. Öll val eru valfrjáls og má afturkalla í Stillingum.",
-        "Les rapports de plantage sont envoyés au dépôt GitHub PUBLIC de spaCR. Ils sont lisibles partout, indexés et ne peuvent pas être retirés de manière fiable. Le rapport est expurgé, affiché dans un aperçu modifiable et envoyé uniquement lorsque vous cliquez sur Envoyer pour ce rapport précis. La configuration des comptes utilise les interfaces en ligne de commande officielles de GitHub, Claude, Codex (GPT) et Gemini ; spaCR ne conserve ni mots de passe ni jetons. Tous les choix sont facultatifs et révocables dans les Préférences."),
 
     "Hit List": _row(
         "Träfflista", "Trefferliste", "Lista de candidatos", "命中列表",
@@ -2284,6 +2267,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "विधियाँ और परिणाम", "방법 및 결과", "Aðferðir og niðurstöður",
         "Méthodes et résultats"),
     "Assays": _row("Analyser", "Assays", "Ensayos", "实验分析", "Ensaios", "एसे", "어세이", "Prófanir", "Essais"),
+    "Box tool": _row(
+        "Rutverktyg", "Rahmenwerkzeug", "Herramienta de cuadro", "边界框工具",
+        "Ferramenta de caixa", "बॉक्स टूल", "상자 도구", "Rammaverkfæri",
+        "Outil boîte"),
     "Organism": _row(
         "Organism", "Organismus", "Organismo", "生物体", "Organismo",
         "जीव", "생물체", "Lífvera", "Organisme"),
@@ -3422,14 +3409,15 @@ _CATALOG_GENERATION = 0
 def add_translation(source: str, values: Iterable[str]) -> bool:
     """Add one parallel translation row after the catalogs are built.
 
-    The half of the app-registration seam that lands here. Every app name
-    and every section name has to appear in every one of the nine
-    catalogs — ``tests/qt/test_i18n.py`` walks ``spacr.qt.app.APPS`` and
-    asserts it — so an app registered from its own module used to need
-    nine hand-edits in this file. It now gives its translations once, to
-    :func:`spacr.qt.app.register_app`, and they arrive here.
+    Receives the translations an app passes to
+    :func:`spacr.qt.app.register_app`. Every app name and every section name
+    has to appear in every one of the nine catalogs —
+    ``tests/qt/test_i18n.py`` walks ``spacr.qt.app.APPS`` and asserts it —
+    so an app registered from its own module supplies its translations
+    once, to :func:`spacr.qt.app.register_app`, instead of editing this
+    file.
 
-    :data:`_ROWS` and :data:`CATALOGS` are both updated IN PLACE.
+    :data:`_ROWS` and :data:`CATALOGS` are both updated in place.
     Rebinding either would strand every module that imported the name,
     and ``retranslate_widget_tree`` holds one for the life of a window.
 
@@ -3532,16 +3520,16 @@ def ui_language_resolved_once():
     **346 times**, through 415 ``QSettings`` reads, for one dialog; the Mask
     screen's panel build had the same shape at 3,516.
 
-    THE SCOPE IS THE UNIT, not the process. A permanent cache would keep a
-    language the user has just changed, which is the one moment the answer
-    must be re-read; inside a single synchronous build it cannot change,
-    because nothing runs between the calls. Nested scopes share the
-    outermost dict and only the outermost discards it, so a screen that
-    wraps its whole build and a helper that wraps itself do not fight.
+    The cached value lasts for one scope, not for the process. A permanent
+    cache would keep a language the user has just changed; inside a single
+    synchronous build the language cannot change, because nothing else runs
+    between the calls. Nested scopes share the outermost dict and only the
+    outermost discards it, so a screen that wraps its whole build and a
+    helper that wraps itself use the same cached value.
 
-    This is the ContextVar arm of :func:`current_language`, which was
-    declared and read but set nowhere until this existed. The environment
-    override still wins: it is consulted before the scope is filled.
+    This sets the ContextVar that :func:`current_language` reads. The
+    environment override still takes precedence: it is consulted before the
+    scope is filled.
     """
     scope = _RESOLVED_LANGUAGE.get()
     if scope is not None:
@@ -3760,7 +3748,8 @@ def _composite_translation(source: str, language: str) -> Optional[str]:
     return _COMPOSITE_SEPARATOR.join(rendered)
 
 
-def tr(text: object, language: Optional[str] = None, **values: object) -> str:
+def tr(text: object, /, language: Optional[str] = None,
+       **values: object) -> str:
     """Translate one English UI string.
 
     Missing entries intentionally remain English. Keyword values are applied
@@ -3850,8 +3839,10 @@ def _translate_qt_text(obj, getter_name: str, setter_name: str,
                 return
             source = current
         rendered = tr(source, language)
-        setter(rendered)
-        obj.setProperty(rendered_property, rendered)
+        if rendered != current:
+            setter(rendered)
+        if last_rendered != rendered:
+            obj.setProperty(rendered_property, rendered)
     except (AttributeError, RuntimeError, TypeError):
         return
 
@@ -4019,6 +4010,15 @@ def _pass_stamp(code: str) -> str:
 _A11Y_DERIVED_NAME = "_spacr_a11y_derived_name"
 _A11Y_DERIVED_DESCRIPTION = "_spacr_a11y_derived_description"
 
+#: The pass stamp a control's derived name was last computed under. A pass
+#: asked for ``only_new`` leaves a control carrying the current stamp alone,
+#: since neither its language nor its catalog has changed since.
+_A11Y_NAMED_STAMP = "_spacr_a11y_named"
+
+#: How many widgets the scroll-area fallback looks at before settling for
+#: the caption it found or the shared "Details".
+_A11Y_SCROLL_SEARCH = 64
+
 _A11Y_TAG = re.compile(r"<[^>]+>")
 _A11Y_SPACE = re.compile(r"\s+")
 _A11Y_CAMEL = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
@@ -4061,13 +4061,14 @@ def _a11y_interactive_types():
         QLineEdit,
         QListView,
         QPlainTextEdit,
+        QScrollArea,
         QTextEdit,
         QTableView,
         QTreeView,
     )
     return (QAbstractButton, QComboBox, QLineEdit, QAbstractSpinBox,
             QAbstractSlider, QTextEdit, QPlainTextEdit,
-            QListView, QTableView, QTreeView)
+            QListView, QTableView, QTreeView, QScrollArea)
 
 
 def _a11y_layout_holding(layout, child):
@@ -4111,22 +4112,21 @@ def _a11y_label_beside(widget):
             return None
         found = None
         index = layout.indexOf(current)
-        if index >= 0:
-            if isinstance(layout, QFormLayout):
-                found = layout.labelForField(current)
-            elif isinstance(layout, QGridLayout):
-                row, column, _rs, _cs = layout.getItemPosition(index)
-                for left in range(column - 1, -1, -1):
-                    item = layout.itemAtPosition(row, left)
-                    if item is not None and item.widget() is not None:
-                        found = item.widget()
-                        break
-            elif isinstance(layout, QBoxLayout):
-                for before in range(index - 1, -1, -1):
-                    item = layout.itemAt(before)
-                    if item is not None and item.widget() is not None:
-                        found = item.widget()
-                        break
+        if isinstance(layout, QFormLayout):
+            found = layout.labelForField(current)
+        elif isinstance(layout, QGridLayout):
+            row, column, _rs, _cs = layout.getItemPosition(index)
+            for left in range(column - 1, -1, -1):
+                item = layout.itemAtPosition(row, left)
+                if item is not None and item.widget() is not None:
+                    found = item.widget()
+                    break
+        elif isinstance(layout, QBoxLayout):
+            for before in range(index - 1, -1, -1):
+                item = layout.itemAt(before)
+                if item is not None and item.widget() is not None:
+                    found = item.widget()
+                    break
         if isinstance(found, QLabel) and _a11y_plain(found.text()):
             return found
         if found is not None:
@@ -4177,6 +4177,7 @@ def _a11y_source(widget, labels_by_key):
     from PySide6.QtWidgets import (
         QAbstractSpinBox,
         QComboBox,
+        QScrollArea,
         QTableView,
         QTabWidget,
     )
@@ -4219,8 +4220,70 @@ def _a11y_source(widget, labels_by_key):
                 "Storage cache table": "Cache",
             }
             name = tr(shared_labels.get(caption, caption))
+    if not name and isinstance(widget, QScrollArea):
+        name = _a11y_scroll_area_name(widget)
     description = "" if tip else label_help
     return name, description
+
+
+def _a11y_scroll_area_name(area) -> str:
+    """Name a scroll area after its first titled group or caption.
+
+    The search runs breadth first from the scrolled content and stops after
+    :data:`_A11Y_SCROLL_SEARCH` widgets, so a settings panel with hundreds of
+    rows costs the same few visits as a small one: the title that describes
+    the area sits near its top, never deep inside one of its rows.
+
+    :param area: a ``QScrollArea`` with no other source of a name.
+    :returns: that title or caption, or the shared "Details" when it holds
+        neither.
+    """
+    from PySide6.QtWidgets import QGroupBox, QLabel, QWidget
+
+    content = area.widget()
+    level = [content] if content is not None else []
+    caption = ""
+    visited = 0
+    while level and visited < _A11Y_SCROLL_SEARCH:
+        below = []
+        for child in level:
+            visited += 1
+            if visited > _A11Y_SCROLL_SEARCH:
+                break
+            if isinstance(child, QGroupBox):
+                title = _a11y_plain(child.title(), 80)
+                if title:
+                    return title
+            elif not caption and isinstance(child, QLabel):
+                caption = _a11y_plain(child.text(), 80)
+            below.extend(item for item in child.children()
+                         if isinstance(item, QWidget))
+        level = below
+    return caption or tr("Details")
+
+
+def _a11y_qt_may_name(widget, buddies) -> bool:
+    """Whether Qt could name ``widget`` itself once a derived name is cleared.
+
+    Qt names a button after its caption, and any widget after the label it
+    is the buddy of, the titled group box holding it or its window title.
+    When none of those has text, clearing a derived name only to read the
+    empty result back would send assistive technology two name changes for
+    nothing on every pass.
+
+    :param widget: a control carrying a name this pass derived.
+    :param buddies: the buddies of the captioned labels seen in this pass.
+    """
+    from PySide6.QtWidgets import QAbstractButton, QGroupBox
+
+    if isinstance(widget, QAbstractButton) and _a11y_plain(widget.text()):
+        return True
+    if widget.isWindow() and widget.windowTitle():
+        return True
+    parent = widget.parentWidget()
+    if isinstance(parent, QGroupBox) and parent.title():
+        return True
+    return widget in buddies
 
 
 def _keep_tab_moving_focus(widget) -> None:
@@ -4244,7 +4307,7 @@ def _keep_tab_moving_focus(widget) -> None:
             widget.setTabKeyNavigation(False)
 
 
-def _name_for_assistive_tech(widgets) -> int:
+def _name_for_assistive_tech(widgets, stamp=None, only_new=False) -> int:
     """Give each unnamed control in ``widgets`` an accessible name.
 
     A control a screen reader would announce with no name -- an icon-only
@@ -4257,33 +4320,76 @@ def _name_for_assistive_tech(widgets) -> int:
     control (see :func:`_keep_tab_moving_focus`).
 
     A name or description set by application code is never replaced. One this
-    pass set is recomputed on every pass, so it follows a language change.
+    pass set is recomputed on every full pass, so it follows a language
+    change, and it is written back only when it differs: every write is an
+    event a screen reader is sent, and rewriting several hundred unchanged
+    names is what froze a module screen while assistive technology listened.
 
     :param widgets: the widgets of one language pass.
+    :param stamp: the pass stamp (see :func:`_pass_stamp`) each control
+        named here is marked with.
+    :param only_new: leave alone a control already marked with ``stamp``;
+        its language and catalog are the ones it was named under. A scroll
+        area is always looked at again, since its contents may have arrived
+        after it.
     :returns: how many names or descriptions were set or refreshed.
     """
     try:
-        from PySide6.QtWidgets import QAbstractItemView, QLabel
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import (
+            QAbstractItemView,
+            QLabel,
+            QMenu,
+            QScrollArea,
+            QTabWidget,
+        )
         interactive = _a11y_interactive_types()
     except Exception:
         return 0
     labels_by_key = {}
+    buddies = set()
     targets = []
+    menus = []
     for widget in widgets:
         try:
-            if isinstance(widget, QLabel):
+            if isinstance(widget, QMenu):
+                menus.append(widget)
+            elif isinstance(widget, QLabel):
                 key = widget.property("settingKey")
                 if key and widget.text():
                     labels_by_key.setdefault(str(key), widget)
+                buddy = widget.buddy()
+                if buddy is not None and widget.text():
+                    buddies.add(buddy)
             elif isinstance(widget, interactive):
                 targets.append(widget)
             if isinstance(widget, interactive + (QAbstractItemView,)):
                 _keep_tab_moving_focus(widget)
+            elif (isinstance(widget, QTabWidget)
+                  and not widget.tabBar().isVisibleTo(widget)
+                  and widget.focusPolicy() != Qt.NoFocus):
+                widget.setFocusPolicy(Qt.NoFocus)
         except (AttributeError, RuntimeError):
             continue
     changed = 0
+    for menu in menus:
+        try:
+            current = str(menu.accessibleName() or "")
+            if current and current != menu.property(_A11Y_DERIVED_NAME):
+                continue
+            title = _a11y_plain(menu.title())
+            if title != current:
+                menu.setAccessibleName(title)
+                if title:
+                    menu.setProperty(_A11Y_DERIVED_NAME, title)
+                changed += 1
+        except (AttributeError, RuntimeError):
+            continue
     for widget in targets:
         try:
+            if (only_new and stamp is not None
+                    and widget.property(_A11Y_NAMED_STAMP) == stamp):
+                continue
             current = str(widget.accessibleName() or "")
             derived = widget.property(_A11Y_DERIVED_NAME)
             owned = bool(current) and current != derived
@@ -4294,20 +4400,30 @@ def _name_for_assistive_tech(widgets) -> int:
                                  != derived_description)
             if owned and owned_description:
                 continue
-            if not owned and derived:
-                widget.setAccessibleName("")
-            needs_name = not owned and not _a11y_effective_name(widget).strip()
+            kept = False
+            if not owned and derived and current:
+                if _a11y_qt_may_name(widget, buddies):
+                    widget.setAccessibleName("")
+                    current = ""
+                else:
+                    kept = True
+            needs_name = not owned and (
+                kept or not _a11y_effective_name(widget).strip())
             if not needs_name and owned_description:
                 continue
             name, description = _a11y_source(widget, labels_by_key)
-            if needs_name and name:
+            if needs_name and name != current:
                 widget.setAccessibleName(name)
-                widget.setProperty(_A11Y_DERIVED_NAME, name)
+                if name:
+                    widget.setProperty(_A11Y_DERIVED_NAME, name)
                 changed += 1
             if not owned_description and description != current_description:
                 widget.setAccessibleDescription(description)
                 widget.setProperty(_A11Y_DERIVED_DESCRIPTION, description)
                 changed += 1
+            if (stamp is not None and not isinstance(widget, QScrollArea)
+                    and widget.property(_A11Y_NAMED_STAMP) != stamp):
+                widget.setProperty(_A11Y_NAMED_STAMP, stamp)
         except (AttributeError, RuntimeError, TypeError):
             continue
     return changed
@@ -4321,9 +4437,9 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     line-edit contents, text editors, table cells, model data, filenames or
     console output.
 
-    Qt's OWN text follows too -- see :func:`_follow_qt_own_catalogs` -- so a
-    language chosen after launch reaches the right-click menu of every text
-    field, not only the captions spaCR wrote.
+    Qt's own text is retranslated too -- see :func:`_follow_qt_own_catalogs`
+    -- so a language chosen after launch reaches the right-click menu of
+    every text field, not only the captions spaCR wrote.
 
     ``only_new`` skips widgets this pass would translate to exactly what they
     already say. Every visited widget is stamped with the language it was
@@ -4332,12 +4448,12 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
     language change changes the stamp, and so does a catalog gaining a row,
     so neither can be missed.
 
-    IT IS OFF BY DEFAULT AND THAT IS DELIBERATE. A caller that has just
-    replaced a caption itself wants the full pass -- `_translate_qt_text`
-    detects an outside setter by comparing the rendered value, and a skipped
-    widget is not compared. The one caller that asks for it is
-    `_LateCaptionTranslator`, where three near-root passes an event turn
-    apart re-walk the same tree while a module screen is being assembled.
+    ``only_new`` is off by default. A caller that has just replaced a caption
+    itself needs the full pass -- `_translate_qt_text` detects an outside
+    setter by comparing the rendered value, and a skipped widget is not
+    compared. The one caller that asks for it is `_LateCaptionTranslator`,
+    where three near-root passes an event turn apart re-walk the same tree
+    while a module screen is being assembled.
 
     :param root: the widget (or other ``QObject``) whose child widgets and
         actions are walked; it is included itself when it is a ``QWidget``.
@@ -4377,12 +4493,15 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
 
     stamp = _pass_stamp(code)
     collections = (QTabWidget, QComboBox, QTableWidget, QTreeWidget)
+    unstamped = []
     for widget in widgets:
         if only_new:
             try:
-                if (widget.property(_PASS_STAMP) == stamp
-                        and not isinstance(widget, collections)):
-                    continue
+                if widget.property(_PASS_STAMP) == stamp:
+                    if not isinstance(widget, collections):
+                        continue
+                else:
+                    unstamped.append(widget)
             except (AttributeError, RuntimeError):
                 continue
         _translate_qt_text(
@@ -4522,8 +4641,6 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         except (AttributeError, RuntimeError):
             pass
 
-    _name_for_assistive_tech(widgets)
-
     actions = []
     try:
         actions = root.findChildren(QAction)
@@ -4540,11 +4657,16 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 "_spacr_i18n_status_tip", code)
         _refresh_module_help(action, code)
 
+    _name_for_assistive_tech(widgets, stamp, only_new)
+
     if "spacr.qt.screens.settings_model" not in sys.modules:
         return
     try:
-        from .screens.settings_model import refresh_api_tooltips
-        refresh_api_tooltips(root, code)
+        from .screens import settings_model
+        if only_new:
+            settings_model._refresh_api_tooltips_of(unstamped, code)
+        else:
+            settings_model.refresh_api_tooltips(root, code)
     except (ImportError, AttributeError, RuntimeError, TypeError, ValueError):
         pass
 
@@ -4609,6 +4731,15 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
         return False
 
 
+#: The dynamic property a kept dialog sets so that showing it again in the
+#: same language does not walk its tree again; see
+#: :func:`install_dialog_translation`.
+TRANSLATE_ONCE_PER_LANGUAGE = "spacrTranslateOncePerLanguage"
+
+#: The language such a dialog was last walked in.
+_TRANSLATED_FOR = "spacrTranslatedFor"
+
+
 def install_dialog_translation(app) -> None:
     """Translate transient Qt dialogs when they are shown.
 
@@ -4650,9 +4781,21 @@ def install_dialog_translation(app) -> None:
         """
 
         def eventFilter(self, watched, event):  # noqa: N802
-            """Retranslate a dialog's tree the first time it is shown."""
+            """Retranslate a dialog's tree as it is shown.
+
+            A dialog carrying :data:`TRANSLATE_ONCE_PER_LANGUAGE` is walked
+            once per language rather than on every show: it is kept and
+            shown again, its text does not change between shows, and the
+            walk was the largest part of showing it again.
+            """
             if event.type() == shown and isinstance(watched, QDialog):
+                once = bool(watched.property(TRANSLATE_ONCE_PER_LANGUAGE))
+                language = current_language() if once else None
+                if once and watched.property(_TRANSLATED_FOR) == language:
+                    return False
                 retranslate_widget_tree(watched)
+                if once:
+                    watched.setProperty(_TRANSLATED_FOR, language)
             return False
 
     event_filter = _DialogTranslationFilter(app)
@@ -4669,6 +4812,7 @@ __all__ = [
     "LANGUAGES",
     "LANGUAGE_BY_CODE",
     "Language",
+    "TRANSLATE_ONCE_PER_LANGUAGE",
     "TERM_CATALOGS",
     "VALID_LANGUAGE_CODES",
     "catalog_coverage",

@@ -1,0 +1,15 @@
+{
+  "reason": "Correct pre-existing unsupported-organelle claim and describe actual tabular Classify table selection",
+  "records": [
+    {
+      "input_path": "docs/i18n/reviewed/runtime/hi/2026-10-01-runtime-review-twelfth-pass-tooltips.json",
+      "record": {
+        "table": "setting_tooltips",
+        "key": "tables",
+        "source": "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+        "source_sha256": "44096ea3a7b8d7e090e0212cca3a4d967d9e997c3bf214063dc3b195bc410828",
+        "translation": "हर प्लेट के डेटाबेस से पढ़ी गई और एक विश्लेषण फ़्रेम में मर्ज की गई माप तालिकाएँ। केवल 'cell', 'nucleus', 'pathogen', 'cytoplasm' और 'png_list' मर्ज होती हैं। कोई अन्य तालिका, 'organelle' सहित, लोड होती है लेकिन बिना चेतावनी मर्ज परिणाम से छोड़ दी जाती है। डिफ़ॉल्ट ['cell', 'nucleus', 'pathogen', 'cytoplasm']।"
+      }
+    }
+  ]
+}

@@ -1,21 +1,20 @@
-"""``spacr-doctor`` — diagnose a spaCR installation and say how to fix it.
+"""``spacr-doctor`` — check a spaCR installation and print a fix for each problem found.
 
 One command, one line per check, and for every line that is not ``PASS`` a
-concrete command the user can copy and run. A diagnostic that says
-"GPU not available" without saying what to do about it is not a diagnostic,
-so :class:`Result` makes ``fix`` a first-class field rather than an optional
-afterthought, and :func:`format_report` always prints it.
+concrete command the user can copy and run. :class:`Result` carries ``fix``
+as a field of its own, and :func:`format_report` prints it for every
+non-``PASS`` row.
 
-The checks exist because these failures actually happened:
+The checks cover failures that have occurred in practice:
 
 * **A stale editable install.** This repository is checked out more than once
   on the same machine, and an editable install points at exactly one of them.
-  Editing checkout A while ``import spacr`` resolves to checkout B costs hours
-  before anyone thinks to print ``spacr.__file__``. :func:`check_running_checkout`
-  is the single most valuable function in this module.
+  Edits to checkout A have no effect while ``import spacr`` resolves to
+  checkout B, and nothing reports it until ``spacr.__file__`` is printed.
+  :func:`check_running_checkout` detects this case.
 * **A broken GUI dependency install.** PySide6 ships with the core package,
   but a missing or incomplete wheel can still make the ``spacr`` command
-  fail on import. :mod:`spacr.qt` has a friendly path for that;
+  fail on import. :mod:`spacr.qt` reports that case with an install message;
   :func:`check_qt_extra` reuses its logic so the two cannot drift.
 * **A GPU that is present but unusable.** A CPU-only torch build on a machine
   with an NVIDIA card, or a driver older than the CUDA runtime torch was built
@@ -25,19 +24,18 @@ The checks exist because these failures actually happened:
   Cellpose 3 lingering in an environment breaks at the first ``CellposeModel``
   call, deep inside a run that has already spent an hour on masks.
 * **A project database that is corrupt, locked, or from a newer spaCR.**
-* **Settings whose combination cannot work**, which
-  :func:`spacr.validate.validate_settings` already knows how to name.
+* **Settings whose combination cannot work**, as reported by
+  :func:`spacr.validate.validate_settings`.
 
-Design rules, all of them load-bearing:
+Design rules:
 
 * Every check is an independent module-level function taking a
   :class:`Context` and returning a :class:`Result` (or a sequence of them),
   so each one is callable and assertable on its own.
 * :func:`run_checks` wraps every call, so a check that raises becomes an
-  ``ERROR`` row rather than taking down the report. A diagnostic tool that
-  crashes while diagnosing is worse than no diagnostic tool.
-* Nothing heavy is imported at module scope. ``spacr-doctor --help`` must not
-  pay for torch.
+  ``ERROR`` row rather than ending the report.
+* Nothing heavy is imported at module scope, so ``spacr-doctor --help`` does
+  not import torch.
 """
 from __future__ import annotations
 
@@ -97,9 +95,9 @@ class Result:
     :param status: one of :data:`PASS`, :data:`WARN`, :data:`FAIL`,
         :data:`ERROR`, :data:`SKIP`.
     :param message: what was found, in the user's terms.
-    :param fix: a command or action the user can actually carry out. Required
-        in spirit for every non-``PASS`` row; :func:`format_report` prints it
-        verbatim, including newlines.
+    :param fix: a command or action the user can carry out. Expected for
+        every non-``PASS`` row; :func:`format_report` prints it verbatim,
+        including newlines.
     :param details: supporting facts worth showing but not worth a verdict.
     """
 
@@ -117,16 +115,17 @@ class Result:
 
 @dataclass
 class Context:
-    """Everything the checks are allowed to know about the invocation.
+    """Invocation inputs passed to every check.
 
     :param checkout: the directory the user believes they are editing.
-        Defaults to the current working directory, which is the whole point:
-        "am I running the code I am looking at" is a question about *here*.
+        Defaults to the current working directory, because the checkout check
+        compares the code that runs with the code in that directory.
     :param db: optional project database to inspect.
     :param settings: optional settings file (csv or json) to validate.
     :param app: app key the settings file is for (``mask``, ``measure``, ...).
-    :param probe_gpu: allocate a tensor on the GPU to prove it really works.
-        A driver/runtime mismatch is invisible until something is allocated.
+    :param probe_gpu: allocate a tensor on the GPU to confirm it can be used.
+        A driver/runtime mismatch is not detected until something is
+        allocated.
     """
 
     checkout: Path = field(default_factory=Path.cwd)
@@ -515,7 +514,7 @@ FALLBACK_REQUIRES_PYTHON = ">=3.9,<3.15,!=3.14.1"
 
 @_register("python")
 def check_python(ctx: Context) -> Result:
-    """The running interpreter is one spaCR supports.
+    """Check that the running Python version is one spaCR supports.
 
     :param ctx: not read. The verdict comes from ``sys.version_info`` and the
         ``Requires-Python`` field of the installed metadata, falling back to
@@ -575,7 +574,7 @@ def _import_spacr() -> Any:
 
 @_register("spacr package")
 def check_spacr_package(ctx: Context) -> Result:
-    """``import spacr`` works, and reports where from.
+    """Check that ``import spacr`` works and report its path and version.
 
     :param ctx: not read. The row describes the interpreter this process is
         running in — it imports ``spacr`` and reports ``__file__`` and
@@ -619,12 +618,11 @@ def check_spacr_package(ctx: Context) -> Result:
 
 @_register("running checkout")
 def check_running_checkout(ctx: Context) -> Result:
-    """The checkout you are standing in is the one that actually runs.
+    """Check that the checkout containing ``ctx.checkout`` is the one ``import spacr`` loads.
 
-    The failure this exists for: two clones of spaCR on one machine, an
-    editable install pointing at the first, and a developer editing the
-    second. Every test passes, every edit does nothing, and nothing in the
-    output says so.
+    This detects two clones of spaCR on one machine with an editable install
+    pointing at the first while the second is being edited: tests pass and
+    edits have no effect, and no other output reports it.
 
     :param ctx: only ``ctx.checkout`` is read, and it need not be the checkout
         root: the check walks *up* from it for the first directory holding
@@ -728,7 +726,7 @@ def check_running_checkout(ctx: Context) -> Result:
 
 @_register("duplicate installs")
 def check_duplicate_installs(ctx: Context) -> Result:
-    """Exactly one importable ``spacr`` package directory exists.
+    """Check that exactly one importable ``spacr`` package directory exists.
 
     :param ctx: not read, and deliberately so: the candidates come from the
         import machinery and ``sys.path`` of the running process, which is
@@ -768,7 +766,7 @@ def check_duplicate_installs(ctx: Context) -> Result:
 
 @_register("distributions")
 def check_conflicting_distributions(ctx: Context) -> Result:
-    """Exactly one metadata directory claims to be spaCR.
+    """Check that exactly one installed metadata directory claims to be spaCR.
 
     Two shapes of the same problem. ``spacr`` and ``spacr-nightly`` installed
     together share one package directory and overwrite each other's files. A
@@ -832,7 +830,7 @@ def check_conflicting_distributions(ctx: Context) -> Result:
 
 @_register("console scripts")
 def check_console_scripts(ctx: Context) -> Result:
-    """Every installed ``spacr-*`` command points at a module that exists.
+    """Check that every installed ``spacr-*`` command points at a module that exists.
 
     ``sim=spacr.app_sim:gui_sim`` outlived the file it named, so the installed
     ``sim`` command died with ImportError. A partially upgraded install
@@ -893,7 +891,7 @@ def check_console_scripts(ctx: Context) -> Result:
 
 @_register("PATH")
 def check_command_on_path(ctx: Context) -> Result:
-    """The ``spacr`` you type belongs to the Python you are running.
+    """Check that the ``spacr`` command on ``PATH`` belongs to the running Python environment.
 
     A second environment earlier on ``PATH`` is the other half of "which spacr
     am I actually running": the import can be right while the command is not.
@@ -938,7 +936,7 @@ def _import_qt_app() -> Any:
 
 @_register("qt extra")
 def check_qt_extra(ctx: Context) -> Result:
-    """The GUI dependencies import in this interpreter.
+    """Check that the GUI dependencies import in this interpreter.
 
     Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and
     ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the
@@ -983,7 +981,7 @@ def check_qt_extra(ctx: Context) -> Result:
 
 @_register("display")
 def check_display(ctx: Context) -> Result:
-    """A GUI can actually open a window here.
+    """Check whether the environment provides a display for the GUI.
 
     :param ctx: not read. The inputs are ``sys.platform`` and this process's
         ``QT_QPA_PLATFORM``, ``DISPLAY`` and ``WAYLAND_DISPLAY`` environment
@@ -1043,7 +1041,7 @@ CORE_MODULES: Tuple[Tuple[str, str], ...] = (
 
 @_register("core imports")
 def check_core_dependencies(ctx: Context) -> Result:
-    """Every core dependency imports.
+    """Check that every core dependency imports.
 
     :param ctx: not read. The list is the fixed :data:`CORE_MODULES` table,
         and each entry is genuinely imported rather than merely looked up in
@@ -1096,7 +1094,7 @@ OPTIONAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
 
 @_register("optional extras")
 def check_optional_extras(ctx: Context) -> Result:
-    """No optional extra is half-installed.
+    """Check that no optional extra is partly installed.
 
     A missing extra is fine and expected. An extra with some of its
     distributions present and others not is a resolve that went wrong, and it
@@ -1253,7 +1251,7 @@ def _import_torch() -> Any:
 
 @_register("torch")
 def check_torch(ctx: Context) -> Result:
-    """torch imports, and says whether it was built with CUDA at all.
+    """Check that torch imports and report whether it was built with CUDA.
 
     :param ctx: not read — in particular ``ctx.probe_gpu`` belongs to
         :func:`check_gpu`, not here. This row only imports torch and reports
@@ -1277,7 +1275,7 @@ def check_torch(ctx: Context) -> Result:
 
 @_register("gpu")
 def check_gpu(ctx: Context) -> Result:
-    """CUDA is not merely reported as present but is actually usable.
+    """Check that CUDA is usable, not only reported as available.
 
     :param ctx: ``probe_gpu=True`` permits explicit CUDA initialization and
         an 8x8 tensor allocation/multiplication probe. False reports metadata
@@ -1440,6 +1438,119 @@ def check_gpu(ctx: Context) -> Result:
     )
 
 
+WGPU_MIN_PYTHON = (3, 10)
+"""The first Python version setup.py installs wgpu on by default."""
+WGPU_MACHINES = ("x86_64", "AMD64", "aarch64", "arm64", "ARM64")
+"""The CPUs setup.py installs wgpu on by default."""
+
+
+def _wgpu_expected() -> Tuple[bool, str]:
+    """Whether a default install puts wgpu on this computer, and why not."""
+    import platform
+    from .qt.i18n import tr
+
+    if sys.version_info[:2] < WGPU_MIN_PYTHON:
+        return False, tr("wgpu needs Python 3.10 or newer")
+    if platform.machine() not in WGPU_MACHINES:
+        return False, tr("wgpu publishes no wheel for {machine}",
+                         machine=platform.machine() or tr("this CPU"))
+    if sys.platform.startswith("linux"):
+        libc, version = platform.libc_ver()
+        parts = re.findall(r"\d+", version)[:2] if libc == "glibc" else []
+        if len(parts) == 2 and tuple(int(part) for part in parts) < (2, 28):
+            return False, tr("wgpu's Linux wheels need glibc 2.28 (this has {version})",
+                             version=version)
+    return True, ""
+
+
+@_register("3D backends")
+def check_3d_backends(ctx: Context) -> Result:
+    """Report what can draw the True 3D view: wgpu, OpenGL and the CPU.
+
+    wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a
+    computer without it is a supported install: the view then draws with
+    OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only
+    a wgpu that is installed and cannot be imported is a ``WARN``.
+
+    :param ctx: ``probe_gpu=True`` lets wgpu list its adapters, which loads
+        the graphics drivers but draws nothing; it is skipped when
+        ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty,
+        as the True 3D view skips the GPU then.
+    """
+    import importlib
+    from importlib.util import find_spec
+
+    from .layers import gpu_render_refusal
+    from .qt.i18n import tr
+
+    version = _distribution_version("wgpu")
+    _expected, why_not = _wgpu_expected()
+    opengl = find_spec("vispy") is not None and find_spec("OpenGL") is not None
+    fallback = tr("OpenGL (VisPy), then the CPU") if opengl else tr("the CPU")
+    label = tr("3D backends")
+    details: List[str] = [tr("OpenGL (VisPy): available") if opengl else
+                          tr("OpenGL (VisPy): not installed"),
+                          tr("CPU: always available")]
+    if version is None:
+        reason = why_not or tr("installed without wgpu")
+        details.insert(0, tr("wgpu: not installed ({reason})", reason=reason))
+        return Result(
+            label,
+            PASS,
+            tr("wgpu is not installed; the True 3D view draws with {fallback}. "
+               "This is a supported install.", fallback=fallback),
+            details=tuple(details),
+        )
+    try:
+        importlib.import_module("wgpu")
+    except Exception as exc:
+        return Result(
+            label,
+            WARN,
+            tr("wgpu {version} is installed but cannot be imported "
+               "({error}); the True 3D view draws with {fallback}.",
+               version=version, error=f"{type(exc).__name__}: {exc}", fallback=fallback),
+            fix=tr("Run {command}, or reinstall spaCR.",
+                   command="python -m pip uninstall -y wgpu rendercanvas"),
+            details=tuple(details),
+        )
+    refusal = gpu_render_refusal()
+    if refusal or not ctx.probe_gpu:
+        why = refusal or "--no-gpu-probe"
+        details.insert(0, tr("wgpu {version}: installed; adapters not listed ({why})",
+                             version=version, why=why))
+        return Result(
+            label,
+            PASS,
+            tr("wgpu {version} is installed; the True 3D view prefers it, then {fallback}.",
+               version=version, fallback=fallback),
+            details=tuple(details),
+        )
+    from .layers import wgpu_adapters
+
+    adapters = wgpu_adapters(refresh=True)
+    for info in adapters:
+        details.insert(0, tr("wgpu {backend}: {name} ({adapter_type})", **info))
+    if not adapters:
+        details.insert(0, tr("wgpu {version}: installed, but no Vulkan, Metal or "
+                             "Direct3D 12 adapter was found", version=version))
+        return Result(
+            label,
+            PASS,
+            tr("wgpu {version} found no adapter; the True 3D view draws with {fallback}.",
+               version=version, fallback=fallback),
+            details=tuple(details),
+        )
+    backends = ", ".join(sorted({info["backend"] for info in adapters}))
+    return Result(
+        label,
+        PASS,
+        tr("wgpu {version} can draw the True 3D view ({backends}); then {fallback}.",
+           version=version, backends=backends, fallback=fallback),
+        details=tuple(details),
+    )
+
+
 #: The Cellpose major version spaCR's code is written against. spaCR calls
 #: ``CellposeModel(pretrained_model=...)`` and the ``cpsam`` weights; the
 #: Cellpose 3 wrapper class ``models.Cellpose`` is called nowhere.
@@ -1449,7 +1560,7 @@ FALLBACK_CELLPOSE_SPECIFIER = ">=4.0,<5.0"
 
 @_register("cellpose")
 def check_cellpose(ctx: Context) -> Result:
-    """The installed Cellpose is the 4.x / SAM API spaCR calls.
+    """Check that the installed Cellpose provides the 4.x / SAM API spaCR calls.
 
     :param ctx: not read. The version bound comes from spaCR's own installed
         metadata, falling back to :data:`FALLBACK_CELLPOSE_SPECIFIER` when
@@ -1533,7 +1644,7 @@ def check_cellpose(ctx: Context) -> Result:
 
 @_register("declared pins")
 def check_declared_pins(ctx: Context) -> Result:
-    """A checkout's environment.yaml does not contradict its setup.py.
+    """Check that a checkout's environment.yaml does not contradict its setup.py.
 
     Only meaningful inside a source checkout, and it is there that it matters:
     ``conda env create -f environment.yaml`` is how a new user builds an
@@ -1656,7 +1767,7 @@ def _parse_environment_pins(env_yaml: Path) -> Dict[str, str]:
 
 @_register("database")
 def check_database(ctx: Context) -> Union[Result, List[Result]]:
-    """A project database is readable, intact, unlocked, and the right schema.
+    """Check that a project database is readable, intact, unlocked and of a supported schema.
 
     :param ctx: only ``ctx.db`` is read. ``None`` — the usual case — makes the
         whole check one SKIP row rather than a failure, since most
@@ -1918,10 +2029,10 @@ def _database_lock_rows(path: Path) -> List[Result]:
 
 @_register("settings")
 def check_settings(ctx: Context) -> Union[Result, List[Result]]:
-    """A settings file names a combination that can actually run.
+    """Check that a settings file describes a combination of settings that can run.
 
-    Delegates to :func:`spacr.validate.validate_settings`, which already knows
-    every combination this project has seen fail — ``normalize=True`` with
+    Delegates to :func:`spacr.validate.validate_settings`, which checks the
+    known invalid combinations — ``normalize=True`` with
     ``measure``, a ``crop_mode`` naming an object with no mask dimension, a
     mask run with all four object channels unset.
 
@@ -2000,11 +2111,9 @@ def run_checks(
 ) -> List[Result]:
     """Run the selected checks and return their rows.
 
-    A check that raises becomes an ``ERROR`` row and the run continues: the
-    whole value of this command is the rows it does produce, and losing all of
-    them because one probe hit an unexpected filesystem would be absurd.
-    ``KeyboardInterrupt`` is the one exception — the user asking to stop is not
-    a diagnostic finding.
+    A check that raises becomes an ``ERROR`` row and the run continues, so one
+    failing probe does not discard the rows of the other checks.
+    ``KeyboardInterrupt`` is re-raised and stops the run.
 
     :param ctx: invocation context passed unchanged to every selected check,
         including the checkout, optional project inputs and GPU-probe choice.
@@ -2061,7 +2170,7 @@ def exit_code(results: Iterable[Result], strict: bool = False) -> int:
     :param results: diagnostic rows to inspect. ``FAIL`` and ``ERROR`` always
         make the result non-zero; other statuses remain healthy unless strict
         warning handling applies.
-    :param strict: also fail on ``WARN``, for CI that wants a clean bill.
+    :param strict: also fail on ``WARN``, for CI that requires no warnings.
     """
     rows = list(results)
     if any(row.is_failure for row in rows):

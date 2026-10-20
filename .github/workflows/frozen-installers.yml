@@ -1,5 +1,13 @@
 name: legacy native installer acceptance
 on:
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
+      release_version:
+        required: true
+        type: string
   workflow_dispatch:
   push:
     branches: [nightly]
@@ -11,12 +19,15 @@ on:
       - packaging/spacr.spec
       - packaging/spacr_launcher.py
       - spacr/install_cleanup.py
+      - spacr/run_journal.py
       - packaging/verify_claude_native_install.ps1
       - packaging/verify_claude_native_install.sh
       - spacr/qt/startup_benchmark.py
 permissions:
   contents: read
 env:
+  SPACR_ACCEPTANCE_REF: ${{ inputs.source_ref || github.sha }}
+  SPACR_RELEASE_VERSION: ${{ inputs.release_version }}
   SPACR_DEVICE: cpu
   CUDA_VISIBLE_DEVICES: ''
   HIP_VISIBLE_DEVICES: ''
@@ -25,7 +36,7 @@ env:
   OPENBLAS_NUM_THREADS: '2'
   MKL_NUM_THREADS: '2'
 concurrency:
-  group: legacy-native-${{ github.ref }}
+  group: legacy-native-${{ inputs.source_ref || github.ref }}
   cancel-in-progress: false
 jobs:
   build-frozen:
@@ -41,6 +52,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -55,7 +68,11 @@ jobs:
           python -m pip install .
           python -m pip check
           mkdir -p acceptance
+          test "$(git rev-parse HEAD)" = "$SPACR_ACCEPTANCE_REF"
           git rev-parse HEAD > acceptance/source-commit.txt
+          version=$(python packaging/release.py verify)
+          test -z "$SPACR_RELEASE_VERSION" || test "$version" = "$SPACR_RELEASE_VERSION"
+          printf '%s\n' "$version" > acceptance/version.txt
           python -m pip freeze > acceptance/build-dependencies.txt
       - name: Build Windows onedir and NSIS installer
         if: matrix.platform == 'windows'
@@ -72,7 +89,7 @@ jobs:
           $installer = Join-Path $stage 'nsis-3.13-setup.exe'
           $evidence = 'acceptance/nsis-acquisition'
           [void](New-Item -ItemType Directory -Force -Path $evidence)
-          $receipt = [ordered]@{status='failed'; version=$version; expected_sha256=$expected; source_commit=$env:GITHUB_SHA; attempts=[Collections.Generic.List[object]]::new()}
+          $receipt = [ordered]@{status='failed'; version=$version; expected_sha256=$expected; source_commit=$env:SPACR_ACCEPTANCE_REF; attempts=[Collections.Generic.List[object]]::new()}
           try {
             for ($index = 0; $index -lt $urls.Count; $index++) {
               $number = $index + 1
@@ -458,6 +475,8 @@ jobs:
         shell: [cmd, powershell51]
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/download-artifact@v8
         with:
           name: legacy-smoke-windows
@@ -471,7 +490,7 @@ jobs:
           $Script = Join-Path $env:GITHUB_WORKSPACE 'packaging/verify_claude_native_install.ps1'
           $Receipt = Join-Path $env:GITHUB_WORKSPACE 'native-receipt/smoke.json'
           Set-Location $Clean
-          & $Script -NativeReceipt $Receipt -Shell '${{ matrix.shell }}' -Output $Output
+          & $Script -NativeReceipt $Receipt -Shell '${{ matrix.shell }}' -Output $Output -SourceCommit $env:SPACR_ACCEPTANCE_REF
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -491,6 +510,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/download-artifact@v8
         with:
           name: legacy-smoke-0-debian
@@ -502,7 +523,7 @@ jobs:
           output="$RUNNER_TEMP/claude-command-receipt"
           mkdir -p "$output"
           docker run --rm --pull always \
-            -e ACCEPTANCE_COMMIT="$GITHUB_SHA" \
+            -e ACCEPTANCE_COMMIT="$SPACR_ACCEPTANCE_REF" \
             -v "$GITHUB_WORKSPACE/packaging/verify_claude_native_install.sh:/acceptance/verify.sh:ro" \
             -v "$GITHUB_WORKSPACE/native-receipt:/acceptance/native-receipt:ro" \
             -v "$output:/acceptance/output" \
@@ -530,6 +551,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/download-artifact@v8
         with:
           name: legacy-smoke-macos
@@ -540,7 +563,7 @@ jobs:
           set -euo pipefail
           /bin/bash "$GITHUB_WORKSPACE/packaging/verify_claude_native_install.sh" \
             "$GITHUB_WORKSPACE/native-receipt/smoke.json" \
-            "$RUNNER_TEMP/claude-command-receipt" "$GITHUB_SHA" macos-hosted
+            "$RUNNER_TEMP/claude-command-receipt" "$SPACR_ACCEPTANCE_REF" macos-hosted
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -557,14 +580,20 @@ jobs:
       - name: Prepare clean minimum-version builder
         run: apt-get update && apt-get install -y git ca-certificates
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - name: Build the self-contained Debian artifact on Ubuntu 22.04
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p acceptance
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "$SPACR_ACCEPTANCE_REF"
           git rev-parse HEAD > acceptance/source-commit.txt
           PATH=/usr/bin:/bin packaging/build_debian.sh 2>&1 | tee acceptance/debian-build.log
+          version=$(dpkg-deb -f dist/*.deb Version)
+          test -z "$SPACR_RELEASE_VERSION" || test "$version" = "$SPACR_RELEASE_VERSION"
+          printf '%s\n' "$version" > acceptance/version.txt
           dpkg-deb -I dist/*.deb > acceptance/debian-control.txt
           sha256sum dist/*.deb > acceptance/SHA256SUMS
       - uses: actions/upload-artifact@v7

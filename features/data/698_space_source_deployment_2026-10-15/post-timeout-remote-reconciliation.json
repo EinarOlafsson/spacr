@@ -1,0 +1,37 @@
+{
+  "head": "a020b17c09b277739e56f0be0ee4de63c5e454f9",
+  "id": "einarolafsson/spacr-mask-generator",
+  "sdk": "gradio",
+  "private": false,
+  "siblings": [
+    ".gitattributes",
+    "README.md"
+  ],
+  "runtime": {
+    "stage": "NO_APP_FILE",
+    "hardware": {
+      "current": null,
+      "requested": "zero-a10g"
+    }
+  },
+  "tree": [
+    {
+      "type": "file",
+      "path": ".gitattributes",
+      "size": 1519,
+      "oid": "a6344aac8c09253b3b630fb776ae94478aa0275b",
+      "lfs": null
+    },
+    {
+      "type": "file",
+      "path": "README.md",
+      "size": 266,
+      "oid": "54e40d5683ec2f6b94341e8c401e1953c0774183",
+      "lfs": null
+    }
+  ],
+  "tree_next_page": null,
+  "observed_at_utc": "2026-10-15T15:30:54.247240+00:00",
+  "read_only": true,
+  "additional_upload_attempts": 0
+}

@@ -324,7 +324,9 @@
       "source_sha256": "00e560bd83aeacfeaeac75702e507610c4f9219d532dc1ecd38bccfaa5c5e788",
       "context": "the residuals that were permuted.",
       "translation": "los residuos que SE PERMUTARON.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#10",
@@ -332,7 +334,9 @@
       "source_sha256": "9f149917ae6736dad86f2a8144ba2da03b23b41c4c789e694ac447004c6ec36d",
       "context": "A gradient across the laboratory microplate is what this shows and no other panel does. Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that row A sits above row P inside one laboratory microplate, which is exactly what makes the microplate sample positions in that laboratory microplate not swappable.",
       "translation": "UN GRADIENTE A LO LARGO DE LA PLACA ES LO QUE ESTO MUESTRA Y NINGÚN OTRO PANEL. Residuos frente a ajustados muestra la dispersión y Q-Q muestra la forma; ninguno muestra que la fila A queda por encima de la fila P dentro de una placa, que es exactamente lo que hace que los pocillos de esa placa no sean intercambiables.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#2",
@@ -956,10 +960,10 @@
     },
     {
       "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "82832c2a46f1a1c9f982c197d15fc93d90c3d9ef8cfa5732314ffd7225a507b4",
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "translation": "Cada registro aporta un nombre visible, una descripción, la URL de la fuente biológica, el nombre del archivo de diagrama incluido y una nota sobre el diagrama. ``sections`` contiene tripletes de encabezado, texto y clave de ensayo enlazada; ``links`` contiene pares de etiqueta visible y URL. ``modules`` contiene tuplas de clave de ruta, título, descripción y clave de icono. Una ruta ``None`` denota un ensayo específico del organismo sin pipeline propio. ``workflows`` asigna a la clave de icono de ese mosaico el módulo existente que mide su lectura, un preajuste de ajustes que se aplica al abrir y una nota sobre cómo usarlo; un mosaico ``None`` ausente de ``workflows`` es Próximamente. ``starplast`` lanza una aplicación externa desde la página de Toxoplasma; no es una clave del registro de análisis de spaCR ni un motor de segmentación. El texto visible se traduce al usarse; las claves de ruta, las URL y los nombres de recursos no cambian.",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "cf8e6751da9db404ab186e6bdb1dc1717d006580421624421f6f374bf5b259d6",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "Cada registro aporta un nombre visible, una descripción, la URL de la fuente biológica, el nombre del archivo de diagrama incluido y una nota sobre el diagrama. ``sections`` contiene tripletes de encabezado, texto y clave de ensayo enlazada; ``links`` contiene pares de etiqueta visible y URL. ``modules`` contiene tuplas de clave de ruta, título, descripción y clave de icono. Una ruta ``None`` denota un ensayo específico del organismo sin pipeline propio. ``workflows`` asigna a la clave de icono de ese mosaico el módulo existente que mide su lectura, un preajuste de ajustes que se aplica al abrir y una nota sobre cómo usarlo; un mosaico ``None`` ausente de ``workflows`` es Próximamente. ``parascape`` lanza una aplicación externa desde la página de Toxoplasma; no es una clave del registro de análisis de spaCR ni un motor de segmentación. El texto visible se traduce al usarse; las claves de ruta, las URL y los nombres de recursos no cambian.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
       "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
@@ -1144,7 +1148,9 @@
       "source_sha256": "0c3ad3552d6d5f86522bcb500ecb5ed91473f58914a3be8de7443a23b9fa9431",
       "context": "It lives in a :class:`DiameterDialog`, opened from the Model zoo popup, so the last measurement is kept on the application view it was made for and shown again the next time the popup opens: closing a window is not a reason to measure twice.",
       "translation": "Vive en un :class:`DiameterDialog`, abierto desde la ventana emergente del zoo de modelos, de modo que la última medición se conserva en la pantalla para la que se hizo y se vuelve a mostrar la próxima vez que se abre la ventana emergente: cerrar una ventana no es motivo para medir dos veces.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_dialog#0",
@@ -1176,7 +1182,9 @@
       "source_sha256": "eef42107a5013005e126f8ea142ea70fa02274265a1cfe4d3b6d3bf356cbc3bd",
       "context": "the dialog, or None when the screen has no diameter setting or the popup could not be built. Never throws: a Model zoo that opens without this button's popup is better than one that does not open.",
       "translation": "el diálogo, o None cuando la pantalla no tiene ajuste de diámetro o no se pudo construir la ventana emergente. Nunca genera una excepción: un zoo de modelos que se abre sin la ventana emergente de este botón es mejor que uno que no se abre.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_screen_of#0",
@@ -1238,6 +1246,8 @@
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
       "source_sha256": "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
       "context": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
@@ -1320,10 +1330,10 @@
     },
     {
       "label": "spacr.qt.screens.organism_screen#3",
-      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "source_sha256": "f692528df9f9c6e05be0dbe36c197d0d40844c50405a184520563729094986c1",
-      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "translation": "Abra Home > Toxoplasma y elija Plaque Assay, Recruitment, Huésped–patógeno, Invasion Assay o Replication Assay. El módulo seleccionado ofrece sus selectores de entrada, ajustes, vista previa y controles de Run. Use su control Test data cuando haya un ejemplo disponible. Plaque Assay parte de imágenes; los demás ensayos usan las tablas de medición y las relaciones entre objetos correspondientes. Siga la ayuda de entrada de cada módulo antes de ejecutarlo y después abra los resultados en la carpeta de salida seleccionada. Starplast abre una aplicación aparte para explorar el mapa de conocimiento de Toxoplasma; en su primer inicio ofrece la instalación. Motilidad por deslizamiento abre el Motility Assay con el QC de infección desactivado. Egreso, Conversión a bradizoítos y Daño de células hospedadoras indican Próximamente y están desactivados.",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "source_sha256": "fa59d6c776f5143afeda0752e74eec805a678674558bda44a36ee64d6a0d9c07",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "translation": "Abra Home > Toxoplasma y elija Plaque Assay, Recruitment, Huésped–patógeno, Invasion Assay o Replication Assay. El módulo seleccionado ofrece sus selectores de entrada, ajustes, vista previa y controles de Run. Use su control Test data cuando haya un ejemplo disponible. Plaque Assay parte de imágenes; los demás ensayos usan las tablas de medición y las relaciones entre objetos correspondientes. Siga la ayuda de entrada de cada módulo antes de ejecutarlo y después abra los resultados en la carpeta de salida seleccionada. ParaScape abre una aplicación aparte para explorar el mapa de conocimiento de Toxoplasma; en su primer inicio ofrece la instalación. Motilidad por deslizamiento abre el Motility Assay con el QC de infección desactivado. Egreso, Conversión a bradizoítos y Daño de células hospedadoras indican Próximamente y están desactivados.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -1602,7 +1612,9 @@
       "source_sha256": "46b9fefd90e27ab69e88f7019f6e19912340faff06a381decc3d81292e15f514",
       "context": "The width the column wears: the one the user dragged, else fitting.",
       "translation": "El ancho que lleva la columna: el que arrastró el usuario o, si no, el ajustado.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.column_width#1",
@@ -2686,7 +2698,9 @@
       "source_sha256": "0be25596494e43d96924f2dd9e25e173e0d1ac6e391c66e539358f5ff8b1ff4a",
       "context": "Build the list, the editor area, the conscience and Upload.",
       "translation": "Construye la lista, el área del editor, el texto de conciencia y Subir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.ContributeDialog#2",
@@ -3142,7 +3156,9 @@
       "source_sha256": "9bf0a721bee209ee7c2f38344206ff0aca4f9a67b2311f03504634967c799463",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work. In place, each adjusted mask's SHA-256 is recorded in :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes still match its record is left alone on the next run: adjusting an adjusted mask merges it again, so a repeat execution used to change the result every time. A cell mask segmented again no longer matches and is adjusted afresh.",
       "translation": "carpeta separada opcional para las máscaras ajustadas. None conserva el comportamiento histórico de modificación in situ. Una carpeta separada mantiene todas las máscaras de origen idénticas byte a byte, y cada campo seleccionado se reconstruye a partir de su origen en cada invocación, también después de un trabajo interrumpido. In situ, el SHA-256 de cada máscara ajustada se registra en :data:`ADJUSTED_CELLS_LEDGER` al escribirse, y una máscara cuyos bytes aún coinciden con su registro se deja intacta en la siguiente ejecución: ajustar una máscara ya ajustada la vuelve a fusionar, así que una repetición cambiaba antes el resultado cada vez. Una máscara celular segmentada de nuevo ya no coincide y se ajusta desde cero.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

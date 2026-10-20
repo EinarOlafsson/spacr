@@ -33,7 +33,8 @@ def api_issues(english: dict, localized: dict) -> list[dict]:
             issues.append({"kind": "obsolete", "symbol": key})
         else:
             record = actual[key]
-            if not isinstance(record, dict) or not str(record.get("text", "")).strip():
+            text = record.get("text") if isinstance(record, dict) else None
+            if not isinstance(text, str) or not text.strip():
                 issues.append({"kind": "empty_or_malformed", "symbol": key})
                 continue
             for field in ("source_sha256", "source_blocks_sha256"):

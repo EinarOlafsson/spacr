@@ -1,0 +1,22 @@
+[
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/work/remake_inventory_20261013.json",
+    "copied_to": "features/data/n676_remake_preflight_2026-10-13/remake_inventory.json",
+    "sha256": "344cb43f3f707cd7e9a15cf52a03dda08642a0733049379544f211cae151e4eb"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/work/staging-boundary-tests-20261013-reviewed.log",
+    "copied_to": "features/data/n676_remake_preflight_2026-10-13/staging-tests.log",
+    "sha256": "c078c6dbd64bca511b3a52df7145e537cb15901ccd9e7b1438bd06dbdf24aba5"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/work/queue-preflight-20261013/tests-followup.log",
+    "copied_to": "features/data/n676_remake_preflight_2026-10-13/queue-tests.log",
+    "sha256": "1e7a2b94a32f949d284e67d2078d58730be5434f1e92caa42f6fbbb78b1816a2"
+  },
+  {
+    "source": "/media/carruthers/mnt3/claude/n676_stages/work/queue-preflight-20261013/actual-catalog-validation.json",
+    "copied_to": "features/data/n676_remake_preflight_2026-10-13/queue-catalog-validation.json",
+    "sha256": "ea794848d27d812412c071a3aacfdb4725ebac686491782dd2bd442ef5eda11a"
+  }
+]

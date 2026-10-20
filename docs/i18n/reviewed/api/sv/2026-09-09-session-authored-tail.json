@@ -7,7 +7,9 @@
       "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
       "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
       "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
-      "translation": "Upptäckt och användbar rapporteras var för sig. En inställningsskärm som tillkännager en accelerator som spaCR aldrig kommer att skicka arbete till är sämre än en som inget säger, eftersom användaren då skyller CPU-hastigheten på sin hårdvara. Neurala motorer är hela skälet till att den skillnaden finns här: Apple Neural Engine, Intel AI Boost och Qualcomm Hexagon är alla verkligt kisel utan någon portabel torch-enhet, så de namnges som UPPTÄCKTA och väljs aldrig."
+      "translation": "Upptäckt och användbar rapporteras var för sig. En inställningsskärm som tillkännager en accelerator som spaCR aldrig kommer att skicka arbete till är sämre än en som inget säger, eftersom användaren då skyller CPU-hastigheten på sin hårdvara. Neurala motorer är hela skälet till att den skillnaden finns här: Apple Neural Engine, Intel AI Boost och Qualcomm Hexagon är alla verkligt kisel utan någon portabel torch-enhet, så de namnges som UPPTÄCKTA och väljs aldrig.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.active_learning.retrain_round#27",
@@ -15,7 +17,9 @@
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "translation": "hur många oannoterade bildutsnitt som ska dras slumpmässigt och anpassas som klassen FRÅNVARANDE när endast en klass har annoterats. ``None`` (standard) vägrar i stället, som tidigare.",
-      "rebound_from": "spacr.active_learning.retrain_round#26"
+      "rebound_from": "spacr.active_learning.retrain_round#26",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.cancellation.CancellationToken#2",
@@ -29,7 +33,9 @@
       "source_sha256": "dad43e0a552e5659deb0d505a6df7d393a9d778d4a16fd6e56d4e7568508ab7e",
       "source": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means LOAD IMAGES, which is the default everywhere the question is asked.",
       "context": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means load images, which is the default everywhere the question is asked.",
-      "translation": "Varje stavning i :data:`CROP_SOURCE_ALIASES` går att lösa upp, så en inställningsfil från vilken panel som helst som spaCR har levererat besvarar den här frågan. Osatt betyder läs in bilder, vilket är standard överallt där frågan ställs."
+      "translation": "Varje stavning i :data:`CROP_SOURCE_ALIASES` går att lösa upp, så en inställningsfil från vilken panel som helst som spaCR har levererat besvarar den här frågan. Osatt betyder läs in bilder, vilket är standard överallt där frågan ställs.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.macro.Recording#3",
@@ -85,7 +91,10 @@
       "source_sha256": "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
       "source": "TWO REASONS, APPLIED IN ORDER. Anything idle longer than the timeout goes because nothing is using it. Then, if what remains is still over the ceiling, the least recently used go until it fits -- so a cache under pressure gives up what it is least likely to want next rather than whatever it happens to reach first.",
       "context": "Two reasons, applied in order. Anything idle longer than the timeout goes because nothing is using it. Then, if what remains is still over the ceiling, the least recently used go until it fits -- so a cache under pressure gives up what it is least likely to want next rather than whatever it happens to reach first.",
-      "translation": "Två skäl, tillämpade i tur och ordning. Allt som varit overksamt längre än tidsgränsen får gå, eftersom ingen använder det. Om det som återstår ändå ligger över taket får därefter de minst nyligen använda gå tills det får plats -- så att en cache under press ger upp det den minst troligt vill ha härnäst i stället för det den råkar nå först."
+      "translation": "Två skäl, tillämpade i tur och ordning. Allt som varit overksamt längre än tidsgränsen får gå, eftersom ingen använder det. Om det som återstår ändå ligger över taket får därefter de minst nyligen använda gå tills det får plats -- så att en cache under press ger upp det den minst troligt vill ha härnäst i stället för det den råkar nå först.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Memory/laptop source documentation corrected in a48984fffa7 + a8457f61cf0. Replacement exact-source review is2026-10-15-memory-laptop-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.preferences.get_news_height#1",
@@ -106,7 +115,9 @@
       "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
       "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
       "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
-      "translation": "Ingen användare ser en bokstav, efterfrågat i just så många ord den 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Platserna lagras med bokstav -- ``organelle``, ``organelleb``, ``organellec`` -- eftersom ett rollnamn är prefixet i varje inställningsnamn det äger och ``organelle2`` inte kan ta sig fram och tillbaka genom en ``prcfo``-nyckel utan att krocka med objektet MÄRKT 2. Det är ett lagringsbeslut och det har inget på skärmen att göra, där en plats är ett NUMMER: Organelle 1, Organelle 2."
+      "translation": "Ingen användare ser en bokstav, efterfrågat i just så många ord den 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Platserna lagras med bokstav -- ``organelle``, ``organelleb``, ``organellec`` -- eftersom ett rollnamn är prefixet i varje inställningsnamn det äger och ``organelle2`` inte kan ta sig fram och tillbaka genom en ``prcfo``-nyckel utan att krocka med objektet MÄRKT 2. Det är ett lagringsbeslut och det har inget på skärmen att göra, där en plats är ett NUMMER: Organelle 1, Organelle 2.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
@@ -120,7 +131,9 @@
       "source_sha256": "826834f37631d3c1c613d95dab3a85ea0611314346d43b570a154e1b7d60b4f6",
       "source": "DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one rather than a design one: a \"spaCR warning\" heading would need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the COMPACT caption ratchet. Amber under the existing translated \"spaCR output\" heading already achieves the point -- warnings out of the ERROR pane, errors still in it -- without reaching into that machinery. A dedicated banner would be the nicer end state.",
       "context": "Deliberately not its own banner, and the reason is a coordination one rather than a design one: a \"spaCR warning\" heading would need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the COMPACT caption ratchet. Amber under the existing translated \"spaCR output\" heading already achieves the point -- warnings out of the ERROR pane, errors still in it -- without reaching into that machinery. A dedicated banner would be the nicer end state.",
-      "translation": "Medvetet ingen egen banderoll, och skälet är samordning snarare än formgivning: en rubrik \"spaCR warning\" skulle kräva en ny rad i ``spacr.qt.i18n._ROWS`` med nio översättningar, vilket flyttar spärren för KOMPAKTA bildtexter. Bärnstensfärg under den befintliga översatta rubriken \"spaCR output\" åstadkommer redan poängen -- varningar ut ur ERROR-rutan, fel kvar i den -- utan att gripa in i den maskineriet. En egen banderoll vore det trevligare sluttillståndet."
+      "translation": "Medvetet ingen egen banderoll, och skälet är samordning snarare än formgivning: en rubrik \"spaCR warning\" skulle kräva en ny rad i ``spacr.qt.i18n._ROWS`` med nio översättningar, vilket flyttar spärren för KOMPAKTA bildtexter. Bärnstensfärg under den befintliga översatta rubriken \"spaCR output\" åstadkommer redan poängen -- varningar ut ur ERROR-rutan, fel kvar i den -- utan att gripa in i den maskineriet. En egen banderoll vore det trevligare sluttillståndet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent#2",
@@ -134,14 +147,18 @@
       "source_sha256": "643611f23c11726dcc78f1e05a0b676b69c79f90ed79959287f66b85d559007e",
       "source": "``np.load(..., mmap_mode=\"r\")`` sounds free and is not. Before it maps anything it OPENS the file and reads the ``.npy`` header, so it is a filesystem round trip on a path the user supplied -- and an open is no cheaper than the stat that started this exercise. Measured on one workstation, one stat under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had not returned after twenty seconds.",
       "context": "``np.load(..., mmap_mode=\"r\")`` sounds free and is not. Before it maps anything it OPENS the file and reads the ``.npy`` header, so it is a filesystem round trip on a path the user supplied -- and an open is no cheaper than the stat that started this exercise. Measured on one workstation, one stat under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had not returned after twenty seconds.",
-      "translation": "``np.load(..., mmap_mode=\"r\")`` låter gratis och är det inte. Innan något mappas ÖPPNAS filen och ``.npy``-huvudet läses, så det är en tur och retur till filsystemet på en sökväg som användaren angett -- och en öppning är inte billigare än den stat som startade den här övningen. Mätt på en arbetsstation: en stat under ``/nas_mnt`` -- en ``autofs``-montering vars utdelning sov -- hade inte återvänt efter tjugo sekunder."
+      "translation": "``np.load(..., mmap_mode=\"r\")`` låter gratis och är det inte. Innan något mappas ÖPPNAS filen och ``.npy``-huvudet läses, så det är en tur och retur till filsystemet på en sökväg som användaren angett -- och en öppning är inte billigare än den stat som startade den här övningen. Mätt på en arbetsstation: en stat under ``/nas_mnt`` -- en ``autofs``-montering vars utdelning sov -- hade inte återvänt efter tjugo sekunder.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
       "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
       "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
       "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
-      "translation": "Resten BEHÅLLS, kastas inte: :meth:`settings` returnerar den oförändrad vid sidan av tabellens egna nycklar, så att den här widgeten kan redigera ett hörn av en inställningsfil utan att hålla hela filen som gisslan."
+      "translation": "Resten BEHÅLLS, kastas inte: :meth:`settings` returnerar den oförändrad vid sidan av tabellens egna nycklar, så att den här widgeten kan redigera ett hörn av en inställningsfil utan att hålla hela filen som gisslan.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.train_compare.TrainingRun#9",

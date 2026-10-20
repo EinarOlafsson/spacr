@@ -1,0 +1,16 @@
+{
+  "scope": "Only _InstallerCleanupDialog.__init__ shared sorting installation and parent/child tree_item construction",
+  "baseline": "Actual two current hosted sorting nodes fail,2FAIL14.94s",
+  "final": "Same two plus all18 existing cleanup-dialog cases20PASS19.24s zero skips",
+  "tests_unchanged": true,
+  "source_pins": {
+    "base": "330271f9d6a6190e2e20b921b4a125fcdb525851",
+    "source_sha256": "d8eef9d7d74a891b8fd55729d62276af3bf4e49ab2fbba0c159dd9a0cdb7fc02",
+    "old_source_sha256": "43b3deb3a7ea2cea88e663f3c22f347059c2a5db3d5719bd7b9157fb7e68c0d1",
+    "patch_sha256": "9d0a7777276a30289b61f39ee186c141758e9958f49767af630cc17a90c03f2f",
+    "outside_exact_constructor_ast_unchanged": true,
+    "all_tr_calls_unchanged": true,
+    "test_file_unchanged": true
+  },
+  "limits": "Uses existing shared sorting semantics; no numerical unit parsing change, no deletion authorization or installer policy change, no native-platform acceptance claim. Original insertion order restored by shared three-state contract."
+}

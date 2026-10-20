@@ -1,0 +1,32 @@
+[
+  {
+    "path": "spacr/cli.py",
+    "symbol": "_parse_csv_value",
+    "line": 929,
+    "source_excerpt_sha256": "d3f0ae91ced8b9035b7f927a9ec1179994ddf92f5198edda6ac20c7a0a8c4159",
+    "static_branch_trace": [
+      "CSV text starts with { and ast.literal_eval yields outer metadata dict.",
+      "Outer dict comprehension reparses direct values schema_version=int and settings=dict.",
+      "Those direct values are already non-string objects, so the early non-string return applies.",
+      "The settings mapping and its per-setting records are never recursively reparsed.",
+      "Consequently nested version 001 and all-digit SHA256 remain strings.",
+      "Flattening version as a direct scalar value would instead reach numeric coercion."
+    ],
+    "production_function_executed": false
+  },
+  {
+    "path": "spacr/tabular.py",
+    "symbol": "_parse_setting_value",
+    "line": 272,
+    "source_excerpt_sha256": "48e449f00914ec20c342f3b0ee8562af83d82910efd8b1b70ba22a14f2b740ae",
+    "static_branch_trace": [
+      "CSV text starts with { and ast.literal_eval yields outer metadata dict.",
+      "Outer dict comprehension reparses direct values schema_version=int and settings=dict.",
+      "Those direct values are already non-string objects, so the early non-string return applies.",
+      "The settings mapping and its per-setting records are never recursively reparsed.",
+      "Consequently nested version 001 and all-digit SHA256 remain strings.",
+      "Flattening version as a direct scalar value would instead reach numeric coercion."
+    ],
+    "production_function_executed": false
+  }
+]

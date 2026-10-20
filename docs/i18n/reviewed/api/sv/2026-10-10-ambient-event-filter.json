@@ -1,0 +1,13 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "the event; resize, window-state, hide, show, move and application view-change types are acted on. Every event is passed on unfiltered: the filter returns False instead of calling the base class, because as an application-wide filter it can be handed a wrapper of the wrong type for an object being deleted, which made the base-class call raise and then crash the process.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.eventFilter#2",
+      "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on. Every event is passed on unfiltered: the filter returns False instead of calling the base class, because as an application-wide filter it can be handed a wrapper of the wrong type for an object being deleted, which made the base-class call raise and then crash the process.",
+      "source_sha256": "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430",
+      "translation": "händelsen; typerna storleksändring, fönstertillstånd, dölj, visa, flytta och skärmbyte hanteras. Varje händelse skickas vidare ofiltrerad: filtret returnerar False i stället för att anropa basklassen, eftersom det som programövergripande filter kan få en omslutare av fel typ för ett objekt som håller på att tas bort, vilket fick basklassanropet att kasta ett undantag och sedan krascha processen."
+    }
+  ],
+  "schema": 1
+}

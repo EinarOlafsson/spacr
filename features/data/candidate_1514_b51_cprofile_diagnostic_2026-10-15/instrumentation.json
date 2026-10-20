@@ -1,0 +1,9 @@
+{
+  "patched": [
+    "mask-build",
+    "preferences-open"
+  ],
+  "import_hook_restored": true,
+  "entrypoint": "unchanged original driver WORKER suffix",
+  "scope": "Only synchronous original callback duration; deferred work after return is not profiled."
+}

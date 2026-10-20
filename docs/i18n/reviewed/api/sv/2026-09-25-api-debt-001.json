@@ -66,7 +66,9 @@
       "source_sha256": "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
       "context": "The channel token is ranked, not read as a number, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
       "translation": "KANALTOKEN RANGORDNAS, DEN LÄSES INTE SOM ETT TAL, och det är det enda beslutet här som är värt att känna till. ``C1``/``C2``/``C3`` och ``w1``/``w2`` och ``0``/``1``/``2`` måste alla bli kanal 0, 1, 2, och det finns ingen tolkning av ``C1`` som är rätt för alla tre -- en bokstavlig tolkning gör att den första uppsättningen börjar på kanal 1 och lämnar kanal 0 tom för alltid. Därför sorteras de DISTINKTA kanaltoken (numeriskt efter sina avslutande siffror) och mappas på 0, 1, 2 ... i den ordningen. Mappningen är alltså en egenskap hos mängden filer, inte hos någon enskild fil, vilket är skälet till att fönstret visar tilldelningen i stället för att beskriva regeln.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.assign_paths_by_regex#6",
@@ -74,7 +76,9 @@
       "source_sha256": "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
       "context": "The set is the table's, not the drop's. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second microscope field of view's ``C2`` in column 0 beside a first microscope field of view's ``C1``, and the only sign of it would be in the database.",
       "translation": "MÄNGDEN TILLHÖR TABELLEN, INTE SLÄPPET. ``table`` minns vilken token som äger vilken kolumn i :attr:`FieldTable.channel_tokens`, och ett senare släpp rangordnas mot unionen av det som det för med sig och det som redan finns där. En token som rangordnas före en redan placerad numrerar om kolumnerna och FLYTTAR filerna som redan finns i dem (:func:`_renumber_channels`), så att alla rader är överens om vad kanal 0 är. Att i stället rangordna varje släpp för sig skulle lägga ett andra synfälts ``C2`` i kolumn 0 bredvid ett första synfälts ``C1``, och det enda tecknet på det skulle finnas i databasen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.assign_paths_by_regex#7",
@@ -106,7 +110,9 @@
       "source_sha256": "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
       "context": "``(width, height)`` to resize every extracted image region to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized the way the processing session resizes -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a processing session will write. Without it the preview showed bounding boxes while the processing session wrote squares, and the extracted image region-size setting looked like it did nothing.",
       "translation": "``(width, height)`` som varje utsnitt ska storleksändras till, eller ``None`` för att returnera varje objekts egen omslutande ruta. Detta är ``measure_crop``s ``png_size``, storleksändrat PÅ SAMMA SÄTT SOM KÖRNINGEN STORLEKSÄNDRAR -- samma anrop av ``PIL.Image.resize`` med dess standardomsampling -- eftersom detta matar Measure-förhandsvisningen, vars syfte är att visa vad en körning kommer att skriva. Utan det visade förhandsvisningen omslutande rutor medan körningen skrev kvadrater, och inställningen för utsnittsstorlek såg ut att inte göra någonting.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_destination#0",
@@ -122,7 +128,9 @@
       "source_sha256": "cbd15fed09cbe3ab02bb5efce0266b7836fc0d792e48d6ac3f8b64a8d6dd6584",
       "context": "One answer, so that the window and the processing session cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the processing session wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
       "translation": "ETT ENDA SVAR, så att fönstret och körningen inte kan vara oense om det. ``src`` är en av :data:`FIELD_TABLE_DECIDED_KEYS`, så FEATURES-fönstret visar den ifylld och inaktiverad; innan detta fanns härledde fönstret den bara när det hade fått ett mål, och ett fönster som öppnades utan mål visade inställningsspecifikationens platshållare ``path`` medan körningen skrev bredvid den första kanalfilen. En inaktiverad ruta med rubriken \"the table decides this\" som namnger fel mapp är värre än ingen ruta alls -- det är fönstret som talar om för användaren var resultaten inte finns.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.field_table_destination#2",
@@ -258,7 +266,9 @@
       "source_sha256": "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
       "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",
       "translation": "Den andra vägen in i den här modulen. :func:`measure_crop` utgår från en ``merged/``-mapp som en pipeline redan har byggt; denna utgår från en tabell som en användare fyllde i genom att släppa filer på den, skriver den mappen och anropar sedan :func:`measure_crop` SJÄLV -- oförändrad, utan någon flagga som anger var synfälten kom ifrån. Databasen, utsnitten och mappträdet är därför Measure-modulens, eftersom de skapas av den.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.measure_from_field_table#2",
@@ -370,7 +380,9 @@
       "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
       "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
       "translation": "Detta är allt som FEATURES-knappen tillför Measure: den omvandlar en tabell med handplockade filer till ``stack/``, ``masks/`` och ``merged/`` exakt som :func:`spacr.core.preprocess_generate_masks` skulle ha lämnat dem, ända ned till manifestet för planlayout, så att körningen som följer är en VANLIG Measure-körning och inte en andra kodväg som måste hållas i takt med den här.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#2",
@@ -458,7 +470,9 @@
       "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
       "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
       "translation": "sekvens av mappningar med tabellsökvägarna ``'score'`` och ``'count'`` (vilken som helst kan vara tom), så som de returneras av :func:`normalize_regression_input_pairs`. Varje mappnings ``'plate'`` skrivs över med den upplösta plattetiketten.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.ml_analysis#15",
@@ -690,7 +704,9 @@
       "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
       "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
       "translation": "De visas bara när användaren ber om dem, eftersom en ogranskad kontrollpunkt bredvid en uppmätt inbjuder läsaren att behandla dem lika. Varje rad bär :data:`COMMUNITY_WARNING`, och kontrollsumman kommer från uppladdarens egen inskickningspost -- den bevisar att filen inte har ändrats sedan den laddades upp, INTE att den är bra.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#2",
@@ -778,7 +794,9 @@
       "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
       "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
       "translation": "En backend som saknas i modellzoot lär ingen att den finns, så var och en listas, och dess ``source`` anger hur den står sig -- ``installed``, ``installable``, ``installing`` eller ``not installable here`` -- med orsaken som första anteckning och sin licens på raden. Att installera en bygger en egen miljö åt den under ``~/.spacr/backends`` och lämnar spaCR:s egen miljö orörd.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#0",
@@ -794,7 +812,9 @@
       "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
       "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
       "translation": "Ett stycke prosa är vad ett verktygstips brukade visa, och en läsare som jämförde två modeller fick tolka två stycken för att hitta två tal. Samma tabell som modellkortet skriver ut besvarar det med en blick. Faller tillbaka på prosan när en post inte publicerar några mått, eftersom en tom tabell är sämre än en mening.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#2",
@@ -802,7 +822,9 @@
       "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
       "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
       "translation": "Mått som inte innehåller någon av resultatkortets nycklar -- en fritextanteckning, en träningsförlust under ett eget namn -- är inte heller ett resultatkort och returnerar inte heller något: en tabell med elva rader \"not recorded\" skulle ersätta en tvåradig anteckning som faktiskt sade något.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#3",
@@ -810,7 +832,9 @@
       "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
       "context": "a catalogue entry, or anything with ``metrics`` and a name.",
       "translation": "en katalogpost, eller vad som helst med ``metrics`` och ett namn.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#4",
@@ -818,7 +842,9 @@
       "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
       "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "translation": "HTML-tabellen, eller ``\"\"`` när det inte finns något resultatkort att visa.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.source_of#0",
@@ -834,7 +860,9 @@
       "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
       "context": "Decided from the row, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
       "translation": "Avgörs UTIFRÅN RADEN, aldrig från en namnlista som förvaras någon annanstans: en handskriven lista blir inaktuell första gången en modell läggs till, och felet den ger är en modell som finns i katalogen men under ingen rubrik, vilket är en modell som ingen kan se.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#2",
@@ -842,18 +870,22 @@
       "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
       "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
       "translation": "Testernas ordning är regeln, och den spelar roll på ett ställe: en Cellpose 3-kontrollpunkt som publicerats på bioimage.io är en bioimage.io-rad, inte en Cellpose 3-rad. ``cellpose3`` betyder backendens EGNA modeller -- cyto, cyto2, cyto3, nuclei -- och backendpaketet som kör dem.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.model_zoo.source_of#3",
+      "label": "spacr.model_zoo.source_of#4",
       "source": "A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "translation": "En rad som inte matchar något arkiveras under ``spaCR`` OCH SÄGS HÖGT. Det är reservläget i stället för en sjätte rubrik, eftersom en modell under fel rubrik är ett irritationsmoment och en modell utan rubrik är en bugg som användaren upplever som en saknad modell.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.model_zoo.source_of#4",
+      "label": "spacr.model_zoo.source_of#5",
       "source": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
       "source_sha256": "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
       "context": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
@@ -861,7 +893,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.model_zoo.source_of#5",
+      "label": "spacr.model_zoo.source_of#6",
       "source": "one of :data:`ZOO_SOURCES`.",
       "source_sha256": "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec",
       "context": "one of :data:`ZOO_SOURCES`.",
@@ -882,7 +914,9 @@
       "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
       "context": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
       "translation": "Detta är inte spaCR:s filer och de bär ingen kontrollsumma från oss: Cellpose laddar ned och verifierar dem, och namnet ÄR sökvägen -- att skicka \"cpsam\" till Cellpose löser upp det. De listas så att modellzoot svarar på \"vad kan jag segmentera med\" i stället för \"what has Einar trained\", vilket är den fråga som en ny användare faktiskt har.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks#2",
@@ -940,7 +974,9 @@
       "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
       "context": "Say what each object in a mask is, after any segmenter has made it.",
       "translation": "Säg vad varje objekt i en mask är, efter att någon segmenterare har skapat den.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#1",
@@ -956,7 +992,9 @@
       "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
       "context": "Two ways in:",
       "translation": "TVÅ VÄGAR IN:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#3",
@@ -980,7 +1018,9 @@
       "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
       "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "translation": "VAD ETT HUVUD ÄR. Ett huvud är en tränad klassificerare: den får en batch utsnitt och returnerar en klass och en sannolikhet för vart och ett. Det är ett protokoll snarare än en basklass, så en adapter runt en torch-modul eller en scikit-learn-estimator kan tillhandahålla det. Två tillämpningar är planerade -- parasiter per vakuol, och vad varje objekt är -- och PV-tillämpningen är i praktiken tre huvuden, tränade separat på Hoechst, parasitfärgningen och CellMask, så att en platta räknas med den färgning som den har.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#6",
@@ -996,7 +1036,9 @@
       "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
       "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
       "translation": "ID:N NUMRERAS ALDRIG OM. Allt här är nycklat på de etikett-id:n som masken kom med, och varje mask som returneras behåller dem. `canonical_labels` i `mask_engine` beskriver vad omnumrering kostar: mätningarna, utsnitten och spåren är alla nycklade på de id:na.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#0",
@@ -1068,7 +1110,9 @@
       "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
       "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
       "translation": "INTERVALLET ÄR ETT VISNINGSVAL, INTE ETT TRÄNAT. Huvudet predikterar hur många parasiter det ser; detta är bara hur det talet visas. Det spelar roll eftersom regeln nedan kan ändras -- eller ersättas med en annan per rapport -- utan att något behöver tränas om.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#2",
@@ -1076,7 +1120,9 @@
       "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
       "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
       "translation": "LIKA AVSTÅND AVRUNDAS NEDÅT, och 12 är fallet: det är fyra från 8 och fyra från 16. En vakuol med 12 har fullbordat åtta och är på väg mot sexton, så den rapporteras som den omgång som den har fullbordat snarare än den som den inte har.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#3",
@@ -1212,7 +1258,9 @@
       "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
       "context": "What can be said about every object without a trained head at all.",
       "translation": "Vad som kan sägas om varje objekt helt utan tränat huvud.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.describe_objects#1",
@@ -1526,7 +1574,9 @@
       "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
       "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
       "translation": "VARDERA MAPPEN KAN VARA FÖRÄLDER TILL BÅDA HALVORNA, och varje inställning läser ändå sin egen: ``genotype_source`` indexerar endast namn som bär en cykel och ``phenotype_source`` endast namn som inte gör det, med reserv till cykelnamn för en fenotypinsamling som bär sådana. Att peka båda mot ``20200202_6W-LaC024A`` kör därför plattan, i stället för att arkivera 1,281 fenotypsynfält och 333 sekvenseringssynfält som en enda insamling -- se :func:`_index_tiles`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#4",
@@ -1558,7 +1608,9 @@
       "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
       "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
       "translation": "``(top, left, bottom, right)`` i pixlar i brunnens ram, alla INKLUDERANDE -- ``bottom`` och ``right`` är den sista rad och kolumn som masken upptar, så dess höjd är ``bottom - top + 1``. Den här docstringen sade exkluderande fram till 2026-09-19 och koden har alltid varit inkluderande (`_label_extents` reducerar med ``np.maximum``), vilket kostade alla som mätte en utsträckning utifrån den en pixel i varje riktning.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#0",
@@ -1574,7 +1626,9 @@
       "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
       "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
       "translation": "VARFÖR DETTA INTE ÄR AVSLAGSMEDDELANDET. :func:`_unseen_report` namnger den STÖRSTA gruppen och åtgärden, vilket är vad en operatör som läser en rad behöver. Det är också allt som överlevde körningen för brunn A1: 54 grupper släpptes och rapporten behöll en ruta och ett antal, så frågan som körningen väckte -- är detta Cellpose-fragment utan motsvarighet, eller avklippta objekt vars fullständiga observation joinen missade? -- kunde inte besvaras i efterhand utan att segmentera brunnen igen. Dessa poster är den billiga halvan av det svaret, skrivna medan observationerna fortfarande finns i minnet.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#2",
@@ -1582,7 +1636,9 @@
       "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
       "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
       "translation": "Den andra halvan hör till :func:`spacr.ops_engine.run_ops`, som jämför varje ruta med de objekt som FAKTISKT numrerades: ett avslag med ett numrerat objekt över sig är en join som missade, och ett med tom brunnsram runt sig är ett fragment.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#3",
@@ -1734,7 +1790,9 @@
       "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
       "context": "What ``method`` suits, as one sentence a picker can show.",
       "translation": "Vad ``method`` passar för, som en mening som en väljare kan visa.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.method_guidance#1",
@@ -1822,7 +1880,9 @@
       "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
       "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
       "translation": "En OMDÖPT nyckel flyttas i stället för att släppas: ``img_size`` blev ``crop_size`` den 2026-09-19, och en sparad körning som valde en storlek behåller den. Namnbytet läses från :func:`spacr.settings.surviving_setting_name`, den upplösare som inställningsfilerna använder, och bara till en nyckel som den här panelen erbjuder. Det nya namnet vinner när en blob bär båda.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
@@ -1960,7 +2020,9 @@
       "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
       "translation": "Bilden går till Cellpose som den är, RGB eller grå, och Cellpose normaliserar den. Den skickas INTE genom körningens historiska inläsare (``_load_normalized_images_and_labels`` med ``background=200``): på ett 8-bitars utsnitt mättade den inläsaren varje pixel till 1.0 -- uppmätt på ``malnio__2.tif``, min = max = 1.0 i varje kanal -- så körningen hittade inga plack medan förhandsvisningen, som läste bilden som den är, hittade 67. En enda funktion för båda är det som hindrar dem från att bli oense igen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#2",
@@ -2153,7 +2215,9 @@
       "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
       "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
       "translation": "VILLKORET ÄR DEN SVÅRA DELEN, och det läses på två oberoende sätt, alltid båda, eftersom två avläsningar som stämmer överens är belägg och en enda är en gissning:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#3",
@@ -2185,7 +2249,9 @@
       "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
       "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
       "translation": "STORLEKAR. En plackarea i pixlar beror på artikelns tryck, så varje plack bär också sin area relativt medianplacket i samma panel, och en area i mm^2 endast när det finns en linjal: en skalstapel som läses i eller under bilden (dess längd från etiketten bredvid den, eller från figurtextens \"scale bar, 1 mm\"), eller en hel brunn i ett plattformat som inställningarna eller figurtexten anger. En angiven förstoring registreras men är aldrig en linjal, eftersom en tryckt figur har skalats om sedan bilden togs. Rader utan linjal anger att deras storlekar är i pixlar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#7",
@@ -2193,7 +2259,9 @@
       "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
       "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
       "translation": "DUBBLETTER. En figur identifieras av sin artikel (DOI när en sådan finns) och sin bildhash. Samma bild som ses igen -- samma byte, eller samma pixlar i ett annat filformat, under ett annat namn eller i en annan artikel, som ett preprint och dess publicerade version -- mäts en gång och registreras i tabellen ``duplicates`` mot den kopia som mättes. En artikel som redan mätts från en källa (Europe PMC) mäts inte igen från en annan (dess PDF). En bild som bara SER likadan ut (en nästan identisk perceptuell hash, som en omkodad eller storleksändrad kopia skulle ha) registreras som en möjlig dubblett och mäts ändå, eftersom det för figurer är en likhet, inte ett bevis.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#8",
@@ -2201,7 +2269,9 @@
       "source_sha256": "50a1e664ffd77bee0330eeaf2f96f65df2a7cc880a567ee003de372746390f1c",
       "context": "TEXT. A PDF's own text layer is used for legends and labels before any OCR; OCR is asked only when the text layer has nothing near the plaque images, which is what a figure pasted into the PDF as one picture looks like.",
       "translation": "TEXT. En PDF:s eget textlager används för figurtexter och etiketter före all OCR; OCR anlitas bara när textlagret inte har något nära plackbilderna, vilket är hur en figur som klistrats in i PDF:en som en enda bild ser ut.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#9",
@@ -2923,7 +2993,9 @@
       "source_sha256": "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
       "context": "Ask at the terminal for a legend nobody could fetch.",
       "translation": "Fråga i terminalen efter en figurtext som ingen kunde hämta.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_legend_prompt#1",
@@ -3019,7 +3091,9 @@
       "source_sha256": "89bca07c87b373de37b4f7f41175f0a7ac98d01f74e21453d1cf2a4bfe68197a",
       "context": "The images come from the ``supplementaryFiles`` bundle, which carries the main figures as well as the supplements; one file per figure survives, the largest, because journals also ship thumbnails and a detector shown a thumbnail has not been asked the question. Legends come from the full-text XML.",
       "translation": "Bilderna kommer från paketet ``supplementaryFiles``, som innehåller huvudfigurerna såväl som tilläggen; en fil per figur överlever, den största, eftersom tidskrifter också levererar miniatyrbilder och en detektor som visas en miniatyrbild inte har fått frågan. Figurtexterna kommer från fulltext-XML:en.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#2",
@@ -3339,7 +3413,9 @@
       "source_sha256": "b76a7b49e3f4a48f3459c5998d43d05deb181232c09f5f74eaff887c652f4b36",
       "context": "Nothing here stops to ask. Legends come from ``legends`` (default ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``, the paper from ``<src>/paper.json``, and a person's edits and approvals from ``annotations`` (default ``<src>/figure_annotations.csv``), which the Figure preview writes. With ``confirm_each`` on, only approved images are measured and the rest are counted as waiting. A figure measured again replaces its earlier rows; the same image under a second name is measured once and recorded as a duplicate -- the copy with a legend is the one measured, since figures with legends are taken first.",
       "translation": "Ingenting här stannar för att fråga. Figurtexter kommer från ``legends`` (standard ``<src>/legends.csv``), en PDF:s textlager från ``<src>/text_layer.json``, artikeln från ``<src>/paper.json``, och en persons redigeringar och godkännanden från ``annotations`` (standard ``<src>/figure_annotations.csv``), som Figure-förhandsvisningen skriver. Med ``confirm_each`` påslaget mäts endast godkända bilder och resten räknas som väntande. En figur som mäts igen ersätter sina tidigare rader; samma bild under ett andra namn mäts en gång och registreras som en dubblett -- kopian med figurtext är den som mäts, eftersom figurer med figurtext tas först.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#10",
@@ -4141,7 +4217,9 @@
       "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
       "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
       "translation": "Skalan för hela GUI:t, tillämpad direkt: en faktor för varje storlek som spaCR anger (471).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#1",
@@ -4149,7 +4227,9 @@
       "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
       "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
       "translation": "VAD DET ÄR. \"GUI scale\" i Inställningar (10 % till 200 %, standard 100 %) skalar widgetstorlekar, fasta storlekar, marginaler, avstånd, storlekar i stilmallar (inklusive teckensnitt och utfyllnad), ikoner, splitterstorlekar och figurers dpi -- och det gör det medan spaCR körs, utan omstart.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#10",
@@ -4157,7 +4237,9 @@
       "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
       "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
       "translation": "VAD SOM INTE FÖLJER MED DIREKT. Storlekar som skalan inte kan se eftersom de inte passerar genom en setter: text och former som en widget själv målar på fasta pixelkoordinater, pixmaps som en widget skalar till ett tal den har beräknat, ``setFont`` med en uttrycklig storlek, positioner från ``move``/``setGeometry``, storlekar på rubriksektioner, en Python-åsidosättning av ``sizeHint`` som returnerar en konstant, Fusion-stilens egna mått som temats stilmall inte anger på nytt, och axeltext i pyqtgraph. Storlekar som beräknas från teckensnittsmått är redan skalade en gång av teckensnittet och skalas igen av settern -- det enda sätt på vilket lagret kan krympa för mycket. Huvudfönstrets egen storlek lämnas orörd, så det vunna utrymmet går till innehållet.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#2",
@@ -4165,7 +4247,9 @@
       "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
       "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
       "translation": "HUR, UTAN ATT RÖRA 1,420 ANROPSPLATSER. Räknat på nightly 2026-09-22 över de 328 modulerna under ``spacr/qt``: omkring 1,420 hårdkodade geometrianrop i 181 filer (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) och 486 ``px``-literaler i stilmallstext i 64 filer. Att dirigera var och en för hand är en ändring av varje programvy, och varje storlek som läggs till senare skulle behöva komma ihåg det. I stället ersätter :func:`install_scaling_layer` -- som anropas en gång från :func:`spacr.qt.app.launch` innan den första widgeten finns -- själva setter-metoderna på Qt-klasserna (``QWidget``:s storlekssättare och ``setStyleSheet``, layouternas sättare för marginal och avstånd, varje ``setIconSize``, ``QSplitter.setSizes``). Varje ersättning",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#3",
@@ -4197,7 +4281,9 @@
       "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
       "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
       "translation": "En ändring av skalan (:func:`set_gui_scale_live`) går igenom varje befintlig widget och layout, sätter tillbaka varje ihågkommet värde med den nya skalan och ber fönstren att göra om layouten. En widget som byggs senare skalas när den byggs. En splitters paneler behåller det utrymme de har på skärmen -- det som krymper är det som finns inuti dem -- och ``sizes()`` svarar i 100 %-enheter, så de storlekar som del B sparar överlever en ändring av skalan.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#7",
@@ -4205,7 +4291,9 @@
       "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
       "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
       "translation": "HUR DEN SAMVERKAR MED TECKENSNITTSSKALAN. Teckensnittsskalan stannar där den är: den skriver teckenstorlekarna i temats stilmall. Den stilmallen går genom ersättningen av ``setStyleSheet`` som alla andra, så en teckenstorlek blir bas x teckensnittsskala x GUI-skala. 50 % GUI vid 200 % teckensnitt ger widgetar i halv storlek med text i vanlig storlek på skärmen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#8",
@@ -4213,7 +4301,9 @@
       "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
       "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
       "translation": "EN ANVÄNDARES EGEN ``QT_SCALE_FACTOR`` rörs inte och multipliceras på utsidan, som Qt alltid har gjort.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#9",
@@ -4221,7 +4311,9 @@
       "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "BEHÅLL ELLER ÅTERSTÄLL. Varje ändring av GUI-skalan eller teckensnittsskalan tillämpas direkt och frågar sedan \"Behålla de här inställningarna?\" (:class:`KeepOrRevertDialog`), med en nedräkning från 15 s; nedräkningen, Esc och att stänga dialogen återställer alla de gamla värdena. Dialogen är undantagen från skalan och anger sin egen textstorlek, så den är läsbar vid både 10 % GUI och 10 % teckensnitt. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) förblir reservvägen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale.add_listener#0",
@@ -4653,7 +4745,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "Allt i spaCR som kan adresseras med namn, och hur det ska rangordnas.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -4661,7 +4755,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "Sökfältet bredvid Hjälp-menyn är bara så bra som detta: en användare som vet vad en sak HETER ska nå den utan att veta vilken modul som äger den eller under vilken hopfälld rubrik den arkiverades.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#10",
@@ -4669,7 +4765,9 @@
       "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
       "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
       "translation": "ATT LÄGGA TILL EN TYP ÄR ATT REGISTRERA EN LEVERANTÖR, inte att redigera en switch-sats. En leverantör är ``() -> Iterable[HelpEntry]``; :func:`register_provider` lägger till en och :func:`build_index` anropar var och en av dem bakom sitt eget skydd, så en leverantör som genererar ett undantag kostar sina egna rader och inget annat. Vad ett resultat GÖR när det öppnas registreras på samma sätt, i :mod:`spacr.qt.help_search`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#11",
@@ -4677,7 +4775,9 @@
       "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
       "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
       "translation": "ATT IMPORTERA DETTA KOSTAR INGENTING; ATT BYGGA INDEXET KOSTAR EN SEKUND. Varje register importeras inuti leverantören som läser det, så modulen själv drar in varken Qt eller ``spacr.settings``. Byggandet uppmättes till 1.1 s och 13,000 rader i det här trädet, vilket är alldeles för mycket för GUI-tråden -- :mod:`spacr.qt.help_search` kör :func:`build_index` i en arbetstråd och den här modulen förblir testbar utan skärm.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -4685,7 +4785,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "INDEXET ÄR ALDRIG EN HANDSKRIVEN LISTA. Varje rad här härleds från något som redan avgör svaret:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",
@@ -4741,7 +4843,9 @@
       "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
       "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
       "translation": "En inställning som inte går att hitta är då ett faktum om en generator snarare än om huruvida någon kom ihåg att lägga till en rad, vilket är hela poängen med instruktionen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#0",
@@ -4765,7 +4869,9 @@
       "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
       "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
       "translation": "VARFÖR EN MALL OCH INTE DEN FÄRDIGA STRÄNGEN. ``subtitle`` och ``description`` är det som sökningen MATCHAR mot, så de förblir engelska: frågan och sökmängden måste vara på samma språk, och indexet byggs en gång per session medan gränssnittsspråket kan ändras efteråt. Det användaren LÄSER återges från mallen i samma ögonblick som en rad ritas, av :func:`rendered_subtitle` och :func:`rendered_description` med :func:`spacr.qt.i18n.tr` inskickad -- så ett språkbyte plockas upp vid nästa tangenttryckning och den här modulen importerar ändå varken Qt eller någon katalog. \"API reference\" är underrubriken för tiotusen av raderna; en färdig engelsk sträng här blir en helt engelsk resultatlista för varje läsare som inte arbetar på engelska.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#2",
@@ -4789,7 +4895,9 @@
       "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
       "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
       "translation": "vad den gör, på det språk som användaren tänker i. Den matchas mot, vilket är det som gör att \"touching\" hittar ``merge_edge_pathogen_cells``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#5",

@@ -49,7 +49,7 @@
       "sha256": "a040c8cbf832ab08097c7e7e3325bcc36fd6b06ce00ff363299097c19b678a21"
     },
     {
-      "path": "spacr/_starplast.py",
+      "path": "spacr/_parascape.py",
       "sha256": "966560566f6c0a8f26e076f46c847e57259b5da854673cfd222e1c8338118ab9"
     },
     {
@@ -1629,7 +1629,7 @@
       "sha256": "273cb4b73c09a38663483a076668b19a5c7e6fa70b98cc68a115a785bc026c9c"
     },
     {
-      "path": "spacr/qt/starplast.py",
+      "path": "spacr/qt/parascape.py",
       "sha256": "06d7fdde84d722068da77a866305db5d23274cd8b925b7b969b046c7e8d5e72f"
     },
     {

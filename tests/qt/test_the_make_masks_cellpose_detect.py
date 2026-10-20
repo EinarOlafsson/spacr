@@ -277,7 +277,9 @@ def test_the_two_intermediates_are_tabs_beside_the_mask(screen):
     assert isinstance(tabs, QTabWidget)
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
         "Mask", "Cell probability", "Flows"]
-    assert tabs.widget(0) is screen._canvas
+    # 2026-10-12 (N673): the Mask tab holds the canvas inside the volume stage.
+    assert tabs.widget(0) is screen._mask_stage
+    assert screen._mask_stage.isAncestorOf(screen._canvas)
     # Enabled, not greyed out: a disabled tab cannot be opened to read
     # the sentence that says why it is empty.
     assert tabs.isTabEnabled(1) and tabs.isTabEnabled(2)
@@ -302,11 +304,10 @@ def test_the_settings_are_cellposes_own_defaults(screen):
     assert screen._cp_model.currentData() in names
 
 
-def test_the_detect_button_is_in_the_one_tool_row(screen):
-    """The action rides in the toolbar, so hiding the settings keeps it."""
-    assert screen._tool_row_layout.indexOf(screen._btn_cellpose) >= 0
-    screen._btn_settings.setChecked(False)
-    assert not screen._settings_scroll.isVisible()
+def test_the_detect_button_is_in_object_operations(screen):
+    """Object detection opens the Object operations settings (2026-10-16)."""
+    assert screen._object_ops_layout.indexOf(screen._btn_cellpose) == 0
+    assert screen._settings_scroll.isAncestorOf(screen._btn_cellpose)
     assert screen._btn_cellpose.isEnabled()
 
 
@@ -336,7 +337,7 @@ def test_a_run_replaces_the_mask_and_fills_both_panes(screen):
     assert edit.detail["flow_threshold"] == pytest.approx(0.7)
     assert edit.detail["n_objects"] == 2
     # And it is one undo step.
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
 
 
 def test_merge_keeps_what_was_curated_by_hand(screen):

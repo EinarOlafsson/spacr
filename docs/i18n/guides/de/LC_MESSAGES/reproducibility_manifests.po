@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -37,8 +37,9 @@ msgstr "Die vollständigen aufgelösten Einstellungen, die von der Pipeline verw
 msgid "``manifest.json``"
 msgstr "``manifest.json``"
 
-msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and an exception traceback."
-msgstr "Einen versionierten, atomar geschriebenen Datensatz mit Modul, Zeitstempeln, Status, Einstellungs-Hash, deklarierten Zufalls-Seeds, Kennungen der Zufallszustände von Python/NumPy/Torch, spaCR- und Git-Versionen, allen installierten Paketversionen, Modell-Hashes, Eingabe-Hashes, Ausgabe-Hashes, Warnungen und einem Exception-Traceback."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A versioned, atomically written record of the module, timestamps, status, settings hash, declared random seeds, Python/NumPy/Torch random-state identifiers, spaCR and Git versions, all installed package versions, model hashes, input hashes, output hashes, warnings, and, for a failed run, the exception traceback."
+msgstr "Einen versionierten, atomar geschriebenen Datensatz mit Modul, Zeitstempeln, Status, Einstellungs-Hash, deklarierten Zufalls-Seeds, Kennungen der Zufallszustände von Python/NumPy/Torch, spaCR- und Git-Versionen, allen installierten Paketversionen, Modell-Hashes, Eingabe-Hashes, Ausgabe-Hashes, Warnungen und, bei einer fehlgeschlagenen Ausführung, dem Exception-Traceback."
 
 msgid "``log.txt``"
 msgstr "``log.txt``"
@@ -67,8 +68,9 @@ msgstr "Dateiprovenienz"
 msgid "spaCR recursively discovers existing paths in settings, including paths nested inside plate lists. Every regular input file receives a full SHA-256 digest, size, modification timestamp, and the setting key that selected it. Files that are created or modified under those roots during the run are recorded as outputs. Symlinks, version-control folders, caches, and the run journal itself are excluded."
 msgstr "spaCR ermittelt rekursiv vorhandene Pfade in den Einstellungen, einschließlich Pfaden, die in Plattenlisten verschachtelt sind. Jede reguläre Eingabedatei erhält einen vollständigen SHA-256-Digest, ihre Größe, den Änderungszeitstempel und den Einstellungsschlüssel, der sie ausgewählt hat. Dateien, die während der Ausführung unterhalb dieser Wurzeln erstellt oder geändert werden, werden als Ausgaben erfasst. Symbolische Links, Versionskontrollordner, Caches und das Ausführungsjournal selbst sind ausgenommen."
 
-msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. These make it cheap to establish whether two complete sets match while retaining the per-file records needed to locate a difference."
-msgstr "Das Manifest enthält außerdem deterministische Gesamtwerte ``input_tree_sha256`` und ``output_tree_sha256``. Damit lässt sich mit geringem Aufwand feststellen, ob zwei vollständige Dateisätze übereinstimmen, während die dateibezogenen Einträge erhalten bleiben, die zum Auffinden eines Unterschieds nötig sind."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The manifest also includes deterministic aggregate ``input_tree_sha256`` and ``output_tree_sha256`` values. Comparing these single digests shows whether two complete sets match; the per-file records identify which files differ."
+msgstr "Das Manifest enthält außerdem deterministische Gesamtwerte ``input_tree_sha256`` und ``output_tree_sha256``. Der Vergleich dieser einzelnen Digests zeigt, ob zwei vollständige Dateisätze übereinstimmen; die dateibezogenen Einträge zeigen, welche Dateien sich unterscheiden."
 
 msgid "Crash and failure behavior"
 msgstr "Verhalten bei Abstürzen und Fehlern"

@@ -1,23 +1,21 @@
 """Report — the Tools module that turns a run folder into one shareable file.
 
-The screen is deliberately thin. Everything it knows about a run folder it
-learns from :mod:`spacr.report`, which is headless, read-only and testable
-without Qt. This file is the part that has to be a GUI: pick a folder, say
-what was found and — just as loudly — what was **not**, choose a format,
-and write the file off the GUI thread.
+The screen is a thin layer over :mod:`spacr.report`, which is headless,
+read-only and testable without Qt. This file holds the GUI part: pick a folder,
+show what was found and what was **not**, choose a format, and write the file
+off the GUI thread.
 
-Two decisions are worth stating, because both are visible to the user:
+Two design decisions are visible to the user:
 
 * **Missing sections are shown, greyed, with the reason.** The section list
-  is not "here is what you will get"; it is "here is what exists and here is
-  what does not". A run with no segmentation QC shows *Segmentation QC —
-  not available* before you generate anything, so you find out before your
-  collaborator does.
-* **No modal dialogs, ever.** Every failure — a folder that is not a folder,
-  an unwritable output path, a crash inside collection — lands in the inline
-  status label and in :attr:`ReportScreen.last_error`. A ``QMessageBox``
-  hangs a headless run (it did, in ``MakeMasksScreen``), and this screen is
-  exercised headlessly.
+  shows the sections that exist and the ones that do not. A run with no
+  segmentation QC shows *Segmentation QC — not available* before anything is
+  generated.
+* **No modal dialogs.** Every failure — a folder that is not a folder, an
+  unwritable output path, a crash inside collection — lands in the inline
+  status label and in :attr:`ReportScreen.last_error`. A ``QMessageBox`` hangs
+  a headless run (it did, in ``MakeMasksScreen``), and this screen is exercised
+  headlessly.
 
 Collection walks the folder and base64-encodes figures, which is slow enough
 on a full plate to freeze the window, so both scanning and generating go
@@ -52,6 +50,7 @@ from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.measurements_example import install_test_data_button
+from ..widgets.sortable_table import _reuse_list_items
 
 __all__ = ["ReportScreen", "FORMATS", "FIGURE_CAP_RANGE"]
 
@@ -404,9 +403,10 @@ class ReportScreen(QWidget):
 
     def _render_sections(self) -> None:
         """Fill the section list — found in normal text, missing greyed."""
-        self._sections.clear()
-        self._verdict.setText("")
         report = self._report
+        sections = list(report.sections) if report is not None else []
+        items = _reuse_list_items(self._sections, len(sections))
+        self._verdict.setText("")
         if report is None:
             return
         palette = active_palette()
@@ -414,14 +414,14 @@ class ReportScreen(QWidget):
                              palette["fg_muted"])
         self._verdict.setStyleSheet(f"color: {colour}; font-weight: 600;")
         self._verdict.setText(report.status_detail)
-        for section in report.sections:
+        for item, section in zip(items, sections):
             if section.status == rep.STATUS_MISSING:
                 text = f"{section.title} — not available"
             elif section.status == rep.STATUS_PROBLEM:
                 text = f"{section.title} — needs attention"
             else:
                 text = section.title
-            item = QListWidgetItem(text)
+            item.setText(text)
             item.setData(Qt.UserRole, section.key)
             item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
             if section.status == rep.STATUS_MISSING:
@@ -431,7 +431,6 @@ class ReportScreen(QWidget):
                     "what was looked for and not found.")
             elif section.status == rep.STATUS_PROBLEM:
                 item.setForeground(_brush(active_palette()["error"]))
-            self._sections.addItem(item)
 
 
     def generate(self) -> bool:

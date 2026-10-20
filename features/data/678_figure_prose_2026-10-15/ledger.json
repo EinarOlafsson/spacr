@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-15",
+  "source_base": "e751d0aa7a2af1d41edbc671461d48ad4a89737f",
+  "scope": "Five specific factual docstring corrections in two owned figure widgets; not complete files/package review",
+  "code_evidence": [
+    "FigureQueue._cache_pixmap compares len(_ram) with _ram_cap, moves entries to LRU end, evicts oldest; constructor default RAM_CAP=100.",
+    "figure_text_items returns every non-None collected item without identity de-duplication.",
+    "CellMontageView._cap uses MAX_OBJECTS=2000 from spacr/cell_montage.py; load uses request.cap or MAX_OBJECTS; GUI cap supports user override."
+  ],
+  "records": [
+    {
+      "path": "spacr/qt/widgets/figure_queue.py",
+      "before_sha256": "b8b3bae7379bd4aebe8d6caa31d60752bb91a0b9593bba9035ff899532fbb929",
+      "after_sha256": "d718f67355b30421e34e718b1a08f5df7bb644a6c0fa726a991ccf0cda7df8c2",
+      "behavior_ast_unchanged": true,
+      "changes": [
+        {
+          "before": "temporary PNG. The newest 100 full-resolution ``QPixmap`` objects remain in\nmemory; older entries reload their PNG on demand, while thumbnails stay in\nmemory. Clearing the queue or destroying its owner removes the temporary\ndirectory.",
+          "after": "temporary PNG. Full-resolution ``QPixmap`` objects use a least-recently-used\ncache, limited by the ``ram_cap`` entry count (100 by default). Evicted entries\nreload their PNG on demand, while thumbnails stay in memory. Clearing the\nqueue or destroying its owner removes the temporary directory."
+        },
+        {
+          "before": ":returns: Text objects in traversal order, with duplicate objects removed.",
+          "after": ":returns: Text objects in traversal order, omitting missing entries.\n        Repeated references are retained."
+        },
+        {
+          "before": ":param ram_cap: how many bytes of figures the gallery may hold. Older\n        figures are dropped to stay under it, which is what \"RAM-bounded\"\n        above means -- a pipeline emitting hundreds of figures must not grow\n        without limit.",
+          "after": ":param ram_cap: maximum number of full-resolution pixmaps in the RAM\n        cache, 100 by default. Least-recently-used entries are evicted;\n        their PNG files remain available for reloading. This is an entry\n        count, not a byte limit or a limit on all process memory."
+        },
+        {
+          "before": ":param ram_cap: how many bytes of full-resolution pixmaps to keep in\n            memory; older ones are evicted by least-recent use.",
+          "after": ":param ram_cap: maximum number of full-resolution pixmaps to cache\n            in memory, 100 by default; entries are evicted by least-recent use."
+        }
+      ]
+    },
+    {
+      "path": "spacr/qt/widgets/cell_montage_view.py",
+      "before_sha256": "7b91998c05c9da7b8ea1ebfe86127fff87fd601fe1738151482ee416e7742103",
+      "after_sha256": "e75a7094a23b269283fcacd054517e851a346f884907170289e9999dc6f11625",
+      "behavior_ast_unchanged": true,
+      "changes": [
+        {
+          "before": "GUI-thread completion handler updates widgets. Converting at most 300 crops to\n``QPixmap`` remains on the GUI thread because QPixmap is not transferable\nacross threads; the recorded 224-pixel thumbnail conversion takes about\n21 milliseconds for 300 crops.",
+          "after": "GUI-thread completion handler updates widgets. The montage cap limits the\nselected objects and defaults to :data:`spacr.cell_montage.MAX_OBJECTS`\n(2,000). Converting image arrays to ``QPixmap`` occurs on the GUI thread;\nimage loading and crop selection occur in the worker."
+        }
+      ]
+    }
+  ],
+  "checks": "AST identical excluding docstrings; diffcheck. No behavior change, test run, benchmark or global semantic completion claimed.",
+  "derived_artifacts": "Normal API reviews/generation required separately."
+}

@@ -21,7 +21,7 @@ def test_organism_labels_tooltips_and_compartment_keys(
 
     targets = {}
     for review in sorted((ROOT / 'docs/i18n/reviewed/runtime' / language).glob('*.json')):
-        payload = json.loads(review.read_text())
+        payload = json.loads(review.read_text(encoding="utf-8"))
         for record in payload.get('records', []):
             if record.get('table') == 'ui' and not record.get('retired'):
                 targets[record.get('source', record['key'])] = record['translation']

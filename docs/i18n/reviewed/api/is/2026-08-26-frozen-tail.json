@@ -28,7 +28,9 @@
       "source_sha256": "d0040697eb775a8a4dd009fc225ef4f67a1b98ea69a60147e8eac0e3b180f59e",
       "source": "The one-based slot number a role prefix stands for.",
       "context": "The one-based slot number a role prefix stands for.",
-      "translation": "Númer sætisins, talið frá einum, sem forskeyti hlutverksins táknar."
+      "translation": "Númer sætisins, talið frá einum, sem forskeyti hlutverksins táknar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.activation#1",

@@ -1,4 +1,4 @@
-"""One choice a biologist recognises, in front of fifty-three they do not.
+"""Named organelle-type presets that fill the organelle segmentation settings.
 
 `organelle` is the most over-configured object class in spaCR: 53 settings
 reach the mask pipeline, and a user who knows they are imaging lysosomes has
@@ -6,9 +6,9 @@ to know what a ridge filter is, which of `organelle_method`'s seven values
 are legal for which morphology, and what `organelle_network_threshold` does
 when they are not segmenting a network.
 
-WHAT THIS IS NOT. It is not a taxonomy compiled into a pipeline. The nine
-cell-biology categories do not map one-to-one onto the four
-``organelle_morphology`` values:
+A type is not a fixed pipeline per category. The nine cell-biology
+categories do not map one-to-one onto the four ``organelle_morphology``
+values:
 
     'spots'      punctate (vesicles, lipid droplets)
     'network'    filamentous (mitochondria, ER tubules)
@@ -30,7 +30,7 @@ and hard-coding one morphology per type would be wrong for half the entries
 in the request's own list, silently: the user picks Vesicular, gets a spot
 detector, and their lysosomes come out as rings of holes.
 
-WHAT THIS IS. A named PRESET that sets several settings at once and says
+Each type is a named preset that sets several settings at once and reports
 what it set and why. Choosing a type fills the advanced settings with
 recommended values and leaves every one of them editable. Nothing here
 overrides a value the user chose; :func:`preset_for` returns a
@@ -85,10 +85,9 @@ class OrganelleType:
     :param method: the recommended `organelle_method`, which must be legal
         for the resulting morphology.
     :param params: further recommended settings.
-    :param caveat: what is honestly weak about this preset. Shown to the
-        user rather than hidden, because a preset that quietly does
-        something adjacent to what its name says is worse than one that
-        admits it.
+    :param caveat: the known limitation of this preset, shown to the user
+        so that a preset whose behaviour differs from what its name suggests
+        says so.
     """
 
     label: str
@@ -304,7 +303,7 @@ def morphologies_for_method(method: str) -> Tuple[str, ...]:
 
 
 def method_guidance(method: str) -> str:
-    """What ``method`` suits, as one sentence a picker can show.
+    """Return one sentence naming the object shapes ``method`` is legal for.
 
     :param method: an ``organelle_method`` value.
     :returns: an English sentence naming the shapes the method is legal
@@ -345,7 +344,7 @@ def resolve_type(name: Optional[str]) -> OrganelleType:
 
 def preset_for(name: Optional[str],
                diameter_px: Optional[float] = None) -> Dict[str, object]:
-    """What this type RECOMMENDS. It does not apply anything.
+    """Return the settings a type recommends, without applying them.
 
     :param name: organelle type name resolved by :func:`resolve_type`; blank
         or ``custom`` yields no recommended settings, while an unknown name
@@ -511,12 +510,12 @@ def organelle_role(number: int) -> str:
         This is the prefix every one of that slot's settings carries.
     :raises ValueError: outside ``1..MAX_ORGANELLES``, naming the bound.
 
-    SLOTS 1..26 ARE BYTE-IDENTICAL to what they have always been, which is
-    how the arbitrary count is reached without migrating anything: no
+    Slots 1..26 keep the prefixes they have always had, so the count can
+    grow without migrating anything: no
     measurement database, settings CSV or run journal moves, because none of
     the names they contain change.
 
-    ``organellea`` IS NEVER MINTED -- slot 1 is the bare word -- so a
+    ``organellea`` is never produced -- slot 1 is the bare word -- so a
     single-letter suffix can never be confused with the first letter of a
     carried one, and :data:`_ROLE_MATCH` (longest first) does the rest.
     """
@@ -746,7 +745,7 @@ def organelle_count(settings: Mapping[str, object]) -> int:
         return _count_implied_by_the_slots(settings)
     try:
         count = int(float(str(raw).strip()))
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return _count_implied_by_the_slots(settings)
     return max(0, min(count, MAX_ORGANELLES))
 

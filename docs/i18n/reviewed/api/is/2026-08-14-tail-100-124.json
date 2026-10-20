@@ -42,21 +42,27 @@
       "label": "spacr.merge_tables.missingness_leak#10",
       "source": "Measured on a synthetic infected/uninfected table with twelve pathogen columns, the median fill produced a centroid gap of 0.06 -- almost nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE WOULD HAVE MISSED IT, because a median fill puts the missing objects in the middle of the present ones rather than away from them. Both are reported, and ``severity`` is whichever is worse.",
       "source_sha256": "656bc177d9be0a838f6e76d6b4a0189960e5295a1000c4c6d9c9911e105ab28f",
-      "translation": "Mæld á tilbúnum sýktum/ósýktum borði með tólf sýkla dálkum, framkallaði miðgildisfylling miðpunktabil upp á 0,06 -- næstum ekkert -- og dreifihlutfall upp á 0,11. EINSKILT CENTROID-TÖLVUNARMÆLIGIL MYNDI HAFNAÐ ÞVÍ, veitandi vegna þess að miðgildi fyllirinn setur vantar hlutina í miðjuna á milli þeirra sem eru til staðar frekar en frá þeim. Bæði eru skýrð, og ``severity`` er það sem er verra."
+      "translation": "Mæld á tilbúnum sýktum/ósýktum borði með tólf sýkla dálkum, framkallaði miðgildisfylling miðpunktabil upp á 0,06 -- næstum ekkert -- og dreifihlutfall upp á 0,11. EINSKILT CENTROID-TÖLVUNARMÆLIGIL MYNDI HAFNAÐ ÞVÍ, veitandi vegna þess að miðgildi fyllirinn setur vantar hlutina í miðjuna á milli þeirra sem eru til staðar frekar en frá þeim. Bæði eru skýrð, og ``severity`` er það sem er verra.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Parse spaCR extracted-image-region file names into the metadata ``prcfo`` is built from.",
       "label": "spacr.predictions.crop_name_metadata#0",
       "source": "Parse spaCR crop file names into the metadata ``prcfo`` is built from.",
       "source_sha256": "bbfaee94a5d5ceda2498128edf0825404ee9586b8ac36ff847567d983c2c8d86",
-      "translation": "Greindu nöfn skrárinnar spaCR fyrir útdregna myndasvæðið í þau gagnalausnarmerki ``prcfo`` sem eru byggð úr."
+      "translation": "Greindu nöfn skrárinnar spaCR fyrir útdregna myndasvæðið í þau gagnalausnarmerki ``prcfo`` sem eru byggð úr.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",
       "label": "spacr.anndata_export#1",
       "source": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",
       "source_sha256": "cd26d74898e73b5ae6fc5767d887ad478656ed541da51a8c2da2aced41943bf7",
-      "translation": "spaCR framleiðir þegar nákvæmlega þann form AnnData var hannað fyrir: N hluti x M eiginleikar, auk persónugreindrar upplýsingagjafar fyrir hvern hlut og innbyggingar. Að skrifa það út sem ``.h5ad`` gerir scanpy, scvi-tools og squidpy aðgengileg fyrir spaCR notanda á kostnað eins fallskalls, í stað sérsniðinna sameiningarskrifa fyrir hvert rannsóknarstofu."
+      "translation": "spaCR framleiðir þegar nákvæmlega þann form AnnData var hannað fyrir: N hluti x M eiginleikar, auk persónugreindrar upplýsingagjafar fyrir hvern hlut og innbyggingar. Að skrifa það út sem ``.h5ad`` gerir scanpy, scvi-tools og squidpy aðgengileg fyrir spaCR notanda á kostnað eins fallskalls, í stað sérsniðinna sameiningarskrifa fyrir hvert rannsóknarstofu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The database half of the object-routing contract in :mod:`spacr.qt.linked_selection`: a scatter plot or a confusion-matrix cell names objects by :data:`spacr.selection.OBJECT_KEY_COLUMNS` structured-data name, and the Annotate application view has to turn those into the extracted image regions it paginates. Kept here rather than in the Qt application view so it is testable without a display, and so a second consumer does not have to reimplement the ``'o5'``-versus-``5`` trap in :func:`_object_label`.",

@@ -1,0 +1,22 @@
+[
+  {
+    "domain": "distributed_execution",
+    "msgid": "Model checkpoints on the execution target",
+    "msgstr": "Líkansstöðupunktar á keyrslustaðnum"
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames.",
+    "msgstr": "Útfluttar stillingar varðveita slóð líkansins og skráðan lykil í líkanasafni, útgáfu útgefanda og SHA-256, ef þessar upplýsingar eru skráðar. Fyrirliggjandi skrár með skráða auðkenningu verða að samsvara þeirri gátsummu. Skrár sem vantar eru aðeins fundnar með nákvæmlega skráðri auðkenningu eða, ef engin auðkenning er skráð, nákvæmum lykli eða skráarheiti í líkanasafninu; engin nálgunarsamsvörun er notuð í staðinn. Líkön eru í skyndiminni undir heimamöppu spaCR (venjulega ``~/.spacr/models``), nema ``SPACR_MODEL_CACHE`` velji aðra möppu. Ferli deila niðurhalslás og sannreyna stöðupunkta í skyndiminni áður en hlaðið er niður. Á ótengdri vél skal stilla ``SPACR_MODEL_DOWNLOAD=off`` áður en ``spacr-run`` er keyrt: hvorki lýsigögnum líkana né vigtum er þá hlaðið niður. Fyrirliggjandi staðbundnar skrár og sannreynd líkön í skyndiminni eru áfram nothæf; fyrir þekkt líkan sem vantar í skyndiminnið birtast gátsumman og slóðin í skyndiminnið sem afrita á í. Óþekktum beiðnum er hafnað með skýrum hætti. Sérsniðnar slóðir fá ekki trausta auðkenningu í líkanaskránni út frá skráarheitunum."
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+    "msgstr": "nota staðfesta, viðvarandi SSH-tengingu með grafískum spurningum fyrir gagnvirka auðkenningu með lyklaborði í stað ytri OpenSSH-skipunarinnar."
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+    "msgstr": "óleyndar yfirskriftir SSH-stillinga, svo sem notandi, gátt, slóð auðkennisskrár og millihýsill; lykilorð og einnota kóðar eru bönnuð."
+  }
+]

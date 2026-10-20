@@ -203,8 +203,11 @@ selected population into that buffer or directly at full Detail.
 """
 from __future__ import annotations
 
+import atexit
 import logging
+from .. import _after
 import math
+import os
 import random
 import sys
 import threading
@@ -216,11 +219,18 @@ from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple, Union)
 
 from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
-                            QRect, QRectF, Qt, QTimer)
+                            QRect, QRectF, Qt, QTimer, Signal, Slot)
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
-                           QPixmap, QPolygonF, QRadialGradient, QTransform)
-from PySide6.QtWidgets import QApplication, QFrame, QSizePolicy, QWidget
+                           QPicture, QPixmap, QPolygonF, QRadialGradient,
+                           QRegion, QTransform)
+from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
+                               QAbstractSlider, QAbstractSpinBox, QApplication,
+                               QComboBox, QFrame, QGraphicsView, QLabel,
+                               QLineEdit, QMenu, QMenuBar, QPlainTextEdit,
+                               QSizePolicy, QSplitterHandle, QStyle,
+                               QStyleOption, QTabBar, QTextEdit, QWidget)
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -357,13 +367,11 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "pastel": PaletteSpec(
         "Pastel",
         ("#A8D8EA", "#FFB5E8", "#B5EAD7", "#FFDAC1"),
-        "Pale and low contrast, for when the backdrop should be barely "
-        "there."),
+        "Pale, low-contrast colours for a faint backdrop."),
     "mono": PaletteSpec(
         "Monochrome",
         ("#A3A3A3", "#CFCFCF", "#707070"),
-        "Greys only — motion without colour, for when colour is a "
-        "distraction."),
+        "Greys only: the backdrop moves without colour."),
     "okabe": PaletteSpec(
         "Colour-blind safe",
         ("#0072B2", "#E69F00", "#009E73", "#56B4E9", "#D55E00", "#F0E442"),
@@ -373,9 +381,9 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "borealis": PaletteSpec(
         "Aurora borealis",
         ("#7CFC9E", "#FF3C5A", "#5B6BFF", "#D9FFA8"),
-        "The real thing's emission lines: atomic oxygen at 557.7 nm (the "
-        "dominant green), atomic oxygen at 630.0 nm (the red that only "
-        "appears high up), ionised nitrogen at 427.8 nm (the blue-violet "
+        "Auroral emission lines: atomic oxygen at 557.7 nm (the dominant "
+        "green), atomic oxygen at 630.0 nm (the red that appears only at "
+        "high altitude), ionised nitrogen at 427.8 nm (the blue-violet "
         "lower fringe), and the pale yellow-green where the green and the "
         "red overlap."),
     "rainbow": PaletteSpec(
@@ -387,29 +395,25 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "fluor": PaletteSpec(
         "Fluorescence",
         ("#3AA0FF", "#3DFF6E", "#FF5A3C", "#FFD24A"),
-        "The standard filter set as the eyepiece sees it: DAPI at 461 nm "
+        "Emission colours of a standard filter set: DAPI at 461 nm "
         "(blue), FITC at 519 nm (green), TRITC at 576 nm (orange-red), and "
         "the yellow where green and red overlap."),
     "midnight": PaletteSpec(
         "Midnight",
         ("#7185F4", "#B775F0", "#5EC8F8", "#C9CFFF"),
-        "A clear night: indigo, violet, ice blue and the pale periwinkle "
-        "a sky keeps long after the sun has gone."),
+        "Indigo, violet, ice blue and pale periwinkle."),
     "dusk": PaletteSpec(
         "Dusk",
         ("#EE779F", "#E87DDA", "#F6B98A", "#8C5BC7"),
-        "The last colour in the sky — rose and magenta over dusty gold, "
-        "with the plum the horizon goes just before dark."),
+        "Rose, magenta, dusty gold and plum."),
     "lowsun": PaletteSpec(
         "Low sun",
         ("#F6D46F", "#F2A65A", "#E2D583", "#A8C46A"),
-        "A sun close to the horizon and the matter it shines through: "
-        "gold, amber, pale gold and moss."),
+        "Gold, amber, pale gold and moss green."),
     "deepwater": PaletteSpec(
         "Deep water",
         ("#3CD296", "#7EE7BD", "#2AA5C4", "#17A08A"),
-        "Under the surface: sea green, mint, and the teal that is the last "
-        "colour left when everything warm has been absorbed."),
+        "Sea green, mint and teal."),
 }
 
 _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
@@ -645,17 +649,39 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
     return theme, palette
 
 
+#: Frame-rate cap: 30, the rate the tutorial capture records the field at.
+DEFAULT_FPS = 30
+FIELD_FPS = 60
 
-#: Frame-rate cap. Nothing here moves fast enough to need more, and this
-#: matches the DNA rain so the app has one animation cadence.
-DEFAULT_FPS = 24
-_RUN_FPS = 4
+#: Frame cap while a run goes: a pipeline holding
+#: :func:`spacr.qt.gil_priority.active`, or a CPU-heavy job the Dynamic
+#: animation policy yields to. Half the field's rate and the rate the
+#: tutorial capture records at, so the backdrop keeps moving smoothly instead
+#: of freezing (4 fps, and a stopped field for CPU jobs, read as a frozen
+#: backdrop in lessons 07 and 08). Measured on lesson 08's Measure run, see
+#: ``tests/qt/test_the_field_keeps_moving_during_a_run_20261013.py``.
+_RUN_FPS = 30
 MIN_FPS = 1
+
+#: GUI-thread time, in ms, a field frame may take during a run before the
+#: next one waits. Over the field every widget on screen repaints with each
+#: frame; at 3840x2105 that is 17-28 ms idle and a median 39 ms during
+#: lesson 13's run, where every return to Python then also waits for the
+#: pipeline's hold on the interpreter lock. Idle frames are never held back.
+_FRAME_BUDGET_MS = 20.0
+
+#: The share of the GUI thread a frame over :data:`_FRAME_BUDGET_MS` may
+#: keep: the next tick waits until the frame's own cost has been matched by
+#: free time, so input, the console and progress get the rest. The field's
+#: clock is wall time, so it moves at the same speed in fewer steps; frames
+#: within budget keep the normal rate. During lesson 13's run this cut the
+#: GUI thread's time in gaps over 50 ms by 14% and gaps over 200 ms by 41%.
+_OVER_BUDGET_SHARE = 0.5
 MAX_FPS = 60
 
 #: The ordinary application installs a backdrop on every live screen.  Its
 #: motion is deliberately slow and diffuse, so spending the direct widget's
-#: full 24-frame budget while the application is otherwise idle only feeds
+#: full frame budget while the application is otherwise idle only feeds
 #: repaints that are visually redundant.  Keep ``AmbientWidget``'s public
 #: default unchanged for callers that explicitly construct one; the shared
 #: production installer uses this lower idle budget unless a caller asks for
@@ -695,6 +721,23 @@ BUFFER_EDGE_CEILING = 2048
 #: what an engine built with no widget behind it gets: the tests, the theme
 #: preview, and anything constructed before there is a window to ask.
 BUFFER_MAX_PIXELS = 1920 * 1080
+
+
+def _display_hz(widget: Optional[QWidget] = None, cap: float = FIELD_FPS) -> float:
+    """The highest rate at or below ``cap`` that divides the screen's refresh.
+
+    A whole number of refreshes per frame keeps every frame on screen for the
+    same time; 60 on a 75 Hz panel would hold one frame in four twice.
+    """
+    try:
+        from ..hidpi import screen_for_widget
+        screen = screen_for_widget(widget)
+        refresh = float(screen.refreshRate()) if screen is not None else 0.0
+    except Exception:
+        refresh = 0.0
+    if not math.isfinite(refresh) or refresh < 20.0 or refresh > 1000.0:
+        refresh = 60.0
+    return refresh / max(1, math.ceil(refresh / max(1.0, float(cap)) - 1e-6))
 
 
 def screen_pixels(widget: Optional[QWidget] = None) -> int:
@@ -786,14 +829,14 @@ DEFAULT_DRIFT_DIRECTION = "up"
 _DRIFT_DIRECTION_LABELS = {
     "up": "Up",
     "down": "Down",
-    "random": "Every which way",
+    "random": "Random",
 }
 
 _DRIFT_DIRECTION_NOTES = {
-    "up": "Everything rises, the way the shipped starfield always did.",
-    "down": "Everything falls, like snow.",
-    "random": ("Each speck goes its own way and wanders as it goes — "
-               "Brownian motion rather than one shared current."),
+    "up": "All specks move upward, as in the original starfield.",
+    "down": "All specks move downward.",
+    "random": ("Each speck moves in its own random direction (Brownian "
+               "motion) instead of one shared direction."),
 }
 
 
@@ -884,6 +927,21 @@ def _as_pixmap(value) -> Optional[QPixmap]:
     except Exception:
         return None
     return None if pixmap.isNull() else pixmap
+
+
+def _covers_opaquely(pixmap: Optional[QPixmap]) -> bool:
+    """Whether a backdrop leaves nothing under it showing through.
+
+    ``None`` (the flat page colour) does, and so does a picture without an
+    alpha channel or with every pixel at full alpha. A picture with any
+    translucent pixel lets whatever is under the field show there.
+    """
+    if pixmap is None or not pixmap.hasAlphaChannel():
+        return True
+    alpha = pixmap.toImage().convertToFormat(QImage.Format_Alpha8)
+    full = QImage(alpha.size(), QImage.Format_Alpha8)
+    full.fill(QColor(0, 0, 0, 255))
+    return alpha == full
 
 
 def _mix(a: QColor, b: QColor, t: float) -> QColor:
@@ -993,6 +1051,60 @@ def _numpy():
         import numpy
         _NUMPY = numpy
     return _NUMPY
+
+
+def _smoothstep(np, low, high, value):
+    """Hermite ease from 0 at ``low`` to 1 at ``high``, clamped outside."""
+    t = np.clip((np.asarray(value, dtype=np.float32) - low) / (high - low), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def _outside_outline(np, segments, x, y, distance, aspect):
+    """Weight an outline's wave so it never meets itself inside the outline.
+
+    Waves from opposite edges of a box meet on its centre lines and draw a
+    shrinking box there. A closed or moved window, popup or panel therefore
+    sends its wave outward only: weight 1 outside the box its segments
+    enclose, 0 inside. When the box is the whole canvas (the backdrop's own
+    window was moved or resized) there is no outside, so the wave goes
+    inward and fades out halfway to the nearest centre line. A single edge
+    encloses nothing and keeps both sides.
+
+    :param segments: axis-aligned ``(x0, y0, x1, y1)`` edges, normalised.
+    :param x: normalised lattice x.
+    :param y: normalised lattice y.
+    :param distance: aspect-corrected distance to the nearest segment.
+    :param aspect: ``(aspect_x, aspect_y)`` canvas scale to the shorter edge.
+    :returns: a float32 array shaped like ``x``.
+    """
+    xs = [value for part in segments for value in (part[0], part[2])]
+    ys = [value for part in segments for value in (part[1], part[3])]
+    left, right, top, bottom = min(xs), max(xs), min(ys), max(ys)
+    inside = (x > left) & (x < right) & (y > top) & (y < bottom)
+    if left <= 0.0 and top <= 0.0 and right >= 1.0 and bottom >= 1.0:
+        half = 0.5 * min((right - left) * aspect[0], (bottom - top) * aspect[1])
+        kept = 1.0 - _smoothstep(np, 0.25 * half, 0.5 * half, distance)
+        return np.where(inside, kept, 1.0).astype(np.float32)
+    return np.where(inside, 0.0, 1.0).astype(np.float32)
+
+
+RIPPLE_AMPLITUDE = 0.0095
+RIPPLE_WAVENUMBER = 30.0
+RIPPLE_SPEED = 0.26
+RIPPLE_PACKET_WIDTH = 0.10
+RIPPLE_GLOW = 0.15
+RIPPLE_FLOOR = 0.25
+RIPPLE_SOURCE_CALM = 0.10
+RIPPLE_EASE_IN_S = 0.30
+RIPPLE_LIFETIME_S = 5.0
+RIPPLE_COLUMN_SOFTNESS = 0.03
+FOLD_RINGS = 3
+FOLD_RING_GAP_S = 0.24
+FOLD_SPEED = 0.40
+FOLD_LIFETIME_S = 2.6
+FOLD_PACKET_WIDTH = 0.10
+FOLD_GATHER = 0.92
+FOLD_GLOW = 0.12
 
 
 
@@ -1556,6 +1668,266 @@ class _BufferedEngine(AmbientEngine):
 
 
 
+#: Measured shading cost per theme, ``(pixels, density, cpu ms, gpu ms)``,
+#: from the workstation audit features/data/684_animation_gpu_audit_r5_2026-10-11
+#: (RTX 3090 Ti, tools/audit_animation_performance.py --gpu, median of 24
+#: frames). Regenerate from the newest audit receipt with
+#: ``tools/audit_animation_performance.py --cost-table RECEIPT``; a test
+#: holds this table to that receipt. Automatic follows the nearest row.
+_GRAPHICS_COST = {
+    'data_art_impulse_lens': (
+        (2073600, 0.25, 6.057, 0.82),
+        (2073600, 1.0, 1.869, 0.975),
+        (8294400, 0.25, 7.225, 2.717),
+        (8294400, 1.0, 6.032, 9.186),
+    ),
+    'data_art_genetic_advection': (
+        (2073600, 0.1, 0.685, 1.195),
+        (2073600, 1.0, 6.806, 8.203),
+        (8294400, 0.1, 1.4, 3.013),
+        (8294400, 1.0, 9.417, 12.686),
+    ),
+    'data_art_point_atlas': (
+        (2073600, 0.1, 0.408, 0.806),
+        (2073600, 1.0, 2.236, 1.984),
+        (8294400, 0.1, 7.21, 2.616),
+        (8294400, 1.0, 12.684, 3.436),
+    ),
+    'blobs': (
+        (2073600, 0.1, 0.044, 0.039),
+        (2073600, 1.0, 0.253, 0.052),
+        (8294400, 0.1, 0.028, 0.041),
+        (8294400, 1.0, 0.274, 0.051),
+    ),
+    'drift': (
+        (2073600, 0.1, 0.059, 0.675),
+        (2073600, 1.0, 0.464, 0.905),
+        (8294400, 0.1, 0.183, 12.717),
+        (8294400, 1.0, 1.343, 13.246),
+    ),
+    'data_art_spaceout_field': (
+        (2073600, 0.1, 0.276, 0.747),
+        (2073600, 1.0, 0.61, 0.952),
+        (8294400, 0.1, 0.842, 2.542),
+        (8294400, 1.0, 5.181, 3.601),
+    ),
+    'data_art_fungal_growth': (
+        (2073600, 0.1, 0.334, 1.249),
+        (2073600, 1.0, 0.532, 1.488),
+        (8294400, 0.1, 0.696, 2.982),
+        (8294400, 1.0, 1.698, 3.158),
+    ),
+    'aurora': (
+        (2073600, 0.1, 5.818, 0.882),
+        (2073600, 1.0, 16.202, 1.293),
+        (8294400, 0.1, 15.159, 2.631),
+        (8294400, 1.0, 41.852, 3.078),
+    ),
+    'data_art_tissue_facets': (
+        (2073600, 0.1, 3.868, 0.771),
+        (2073600, 1.0, 10.57, 1.444),
+        (8294400, 0.1, 14.64, 2.435),
+        (8294400, 1.0, 26.518, 3.142),
+    ),
+}
+
+#: Automatic takes the graphics path only when it measured at least this
+#: much faster than the CPU, so a near tie keeps the GPU free for analysis.
+_GRAPHICS_GAIN = 0.9
+
+
+def _measured_graphics_win(theme, pixels, density):
+    """Whether the nearest measured row says the GPU is faster, or ``None``.
+
+    Canvases under half the smallest measured size stay on the CPU: the
+    measurements do not reach down to small widgets.
+    """
+    rows = _GRAPHICS_COST.get(theme)
+    if not rows or pixels <= 0 or density <= 0:
+        return None
+    if pixels < 0.5 * min(row[0] for row in rows):
+        return False
+    nearest = min(rows, key=lambda row: abs(math.log(pixels / row[0]))
+                  + abs(math.log(density / row[1])))
+    return nearest[3] < _GRAPHICS_GAIN * nearest[2]
+
+
+class _GraphicsBackend:
+    """Optional N679 graphics renderer for one theme, with CPU fallback.
+
+    ``_graphics_backend`` holds the Performance > Animation GPU choice:
+    ``"cpu"`` never touches a graphics driver, ``"gpu"`` asks for the
+    renderer on every frame it supports, and ``"auto"`` asks only where
+    :meth:`_graphics_automatic` says the graphics path is expected to beat
+    the CPU. Every refusal keeps the CPU picture: a frame shaded off the
+    producer thread, a canvas above 3840 x 2160, Dynamic animation holding
+    decorative GPU work, a failed isolated probe, another process computing
+    on the GPU, a constructor error or a draw error. The last three are
+    remembered for the engine's lifetime as ``_graphics_failed``.
+
+    The renderer is :class:`_FlowPointGraphics`, created, used and released
+    on the producer thread that owns its context.
+    """
+
+    _graphics_backend = 'cpu'
+    _point_graphics = None
+    _graphics_failed = False
+    _graphics_idle_until = 0.0
+    _graphics_idle = False
+    _graphics_refusal = None
+
+    def _graphics_automatic(self, width, height, work=0) -> bool:
+        """Whether Automatic picks the graphics path for this frame.
+
+        The measured cost table decides where the theme has been measured
+        (:data:`_GRAPHICS_COST`); otherwise :meth:`_graphics_unmeasured`.
+        """
+        measured = _measured_graphics_win(getattr(self, "name", ""), width * height,
+                                          float(getattr(self, "density", 1.0)))
+        if measured is not None:
+            return measured
+        return self._graphics_unmeasured(width, height, work)
+
+    def _graphics_unmeasured(self, width, height, work=0) -> bool:
+        """Automatic's choice before a theme has GPU measurements: CPU.
+
+        The CPU frame is already cheap for most themes, and a full-frame
+        readback is not free.
+        """
+        return False
+
+    def _release_point_graphics(self):
+        """Release this producer's renderer without crossing thread ownership."""
+        renderer = self._point_graphics
+        if renderer is not None and renderer._owner == threading.get_ident():
+            renderer._close()
+            self._point_graphics = None
+
+    def _refuse(self, reason):
+        """Record why this frame stays on the CPU; log each new reason once.
+
+        The warning names the renderer too: ``<theme> animation stays on the
+        CPU: <reason>``.
+        """
+        if reason != self._graphics_refusal:
+            self._graphics_refusal = reason
+            key = (getattr(self, "name", type(self).__name__), reason)
+            if key not in _GRAPHICS_REFUSALS_LOGGED:
+                _GRAPHICS_REFUSALS_LOGGED.add(key)
+                LOG.warning('%s animation stays on the CPU: %s', *key)
+        return None
+
+    def _graphics_renderer(self, width, height, work=0):
+        """Return the producer's renderer for this frame, or ``None`` for CPU.
+
+        Every ``None`` leaves its reason in ``_graphics_refusal``.
+        """
+        mode = self._graphics_backend
+        if mode not in ('auto', 'gpu'):
+            self._release_point_graphics()
+            self._graphics_refusal = None
+            _log_renderer(self, 'CPU (Animation GPU is off)')
+            return None
+        if threading.current_thread().name != 'spacr-ambient-shade':
+            return None
+        if self._graphics_failed:
+            return None
+        if width * height > 3840 * 2160 or sys.byteorder != 'little':
+            self._release_point_graphics()
+            return self._refuse('canvas larger than 3840x2160 or big-endian host')
+        if mode == 'auto' and not self._graphics_automatic(width, height, work):
+            self._release_point_graphics()
+            self._graphics_refusal = 'automatic chose the CPU'
+            _log_renderer(self, 'CPU (Automatic chose the CPU)')
+            return None
+        if _decorative_gpu_blocked():
+            self._release_point_graphics()
+            return self._refuse('Dynamic animation holds the GPU for analysis')
+        if self._point_graphics is None and not _flow_graphics_preflight():
+            self._graphics_failed = True
+            return self._refuse('no hardware OpenGL 4.3 context (probe failed)')
+        now = time.monotonic()
+        if now >= self._graphics_idle_until:
+            self._graphics_idle = (not _dynamic_animation_on()
+                                   or _flow_compute_idle())
+            self._graphics_idle_until = now + 2.0
+        if not self._graphics_idle:
+            self._release_point_graphics()
+            return self._refuse('another process is computing on the GPU')
+        if self._point_graphics is None:
+            try:
+                self._point_graphics = _FlowPointGraphics()
+                _log_renderer(self, 'GPU (moderngl over %s, %s)' % (
+                    _graphics_context_options().get('backend', 'the platform context'),
+                    getattr(self._point_graphics, 'renderer', 'unknown renderer')))
+            except Exception as error:
+                LOG.debug('flow graphics unavailable; retaining CPU material',
+                          exc_info=True)
+                self._graphics_failed = True
+                return self._refuse(f'context creation failed: '
+                                    f'{type(error).__name__}: {error}')
+        self._graphics_refusal = None
+        return self._point_graphics
+
+    def _graphics_frame(self, method, width, height, *args, work=0, build=None):
+        """Draw one frame with renderer ``method``, or return ``None`` for CPU.
+
+        ``build``, when given, returns the arguments; it runs only once a
+        renderer has accepted the frame, so the CPU path pays nothing for
+        graphics-only preparation.
+        """
+        renderer = self._graphics_renderer(width, height, work)
+        if renderer is None:
+            return None
+        try:
+            if build is not None:
+                args = tuple(build())
+            return getattr(renderer, method)(width, height, *args)
+        except Exception as error:
+            LOG.debug('flow graphics unavailable; retaining CPU material', exc_info=True)
+            self._release_point_graphics()
+            self._graphics_failed = True
+            import traceback
+
+            where = traceback.extract_tb(error.__traceback__)[-1]
+            return self._refuse(f'{method} failed in {where.name} line {where.lineno}: '
+                                f'{type(error).__name__}: {str(error)[:600]}')
+
+
+#: ``(theme, reason)`` pairs already logged, so each is reported once.
+_GRAPHICS_REFUSALS_LOGGED: set = set()
+
+#: ``(theme, renderer)`` pairs already logged by :func:`_log_renderer`.
+_RENDERERS_LOGGED: set = set()
+
+
+def _log_renderer(engine, renderer: str) -> None:
+    """Write which renderer ``engine``'s animation uses to ``spacr.log``, once.
+
+    :param engine: the engine whose theme is named in the line.
+    :param renderer: ``"GPU (...)"`` or ``"CPU (...)"`` with the reason.
+    """
+    key = (getattr(engine, "name", type(engine).__name__), renderer)
+    if key not in _RENDERERS_LOGGED:
+        _RENDERERS_LOGGED.add(key)
+        LOG.info("%s animation renderer: %s", *key)
+
+
+def _flow_graphics_possible() -> bool:
+    """Cheap check whether a graphics renderer could exist in this process.
+
+    False once the isolated probe has failed or when moderngl is missing.
+    Used where the CPU path would otherwise change shape (the stratified
+    theme only gets a shading thread for its graphics path).
+    """
+    if _FLOW_GRAPHICS_PROBE is False or os.environ.get("SPACR_NO_GL"):
+        return False
+    import importlib.util
+
+    return importlib.util.find_spec("moderngl") is not None
+
+
+
 #: How many blobs. Cheap enough to raise (the shading happens over 37 000
 #: buffer pixels), but past about twenty the fields merge into a single wash
 #: and the individual motion stops being readable.
@@ -1608,7 +1980,7 @@ class Blob:
     color: int
 
 
-class BlobsEngine(_BufferedEngine):
+class BlobsEngine(_GraphicsBackend, _BufferedEngine):
     """Diffuse colour blobs, drifting and pulsing.
 
     Motion is two independent sines per blob rather than a random walk, so
@@ -1680,6 +2052,29 @@ class BlobsEngine(_BufferedEngine):
             out.append((cx, cy, max(1.0, radius)))
         return tuple(out)
 
+    def _shade(self, width: int, height: int) -> QImage:
+        """Shade on the optional graphics renderer, else on the CPU buffer."""
+        bw, bh = self.buffer_size(width, height)
+        image = self._graphics_frame(
+            '_draw_blobs', bw, bh,
+            build=lambda: (self._blob_rows(bw, bh), BLOB_FALLOFF, self.dark))
+        if image is None:
+            return super()._shade(width, height)
+        return self._soften(image, width, height)
+
+    def _blob_rows(self, width: int, height: int) -> list:
+        """``cx, cy, radius, alpha, r, g, b`` per blob, as the CPU paints them."""
+        peak = (BLOB_ALPHA_DARK if self.dark else BLOB_ALPHA_LIGHT) \
+            * self._fractional_alpha_scale(BLOB_COUNT)
+        colors = self.paint_colors
+        rows = []
+        for blob, (cx, cy, radius) in zip(self.blobs,
+                                          self.geometry(width, height)):
+            color = colors[blob.color % len(colors)]
+            rows.append((cx, cy, radius, max(0.0, min(1.0, peak)),
+                         color.redF(), color.greenF(), color.blueF()))
+        return rows
+
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Draw one frame's field of shapes.
 
@@ -1706,6 +2101,9 @@ class BlobsEngine(_BufferedEngine):
 AURORA_CURTAINS = 3
 
 AURORA_BUFFER_EDGE = 960
+
+#: Rows of the per-curtain ray texture, from its top (row 0) to its base.
+_AURORA_TEXTURE_ROWS = 192
 
 #: Ray length — how far up the sheet is lit — as a fraction of the canvas
 #: height, scaled by the size setting. Comfortably deeper than the fold
@@ -1943,7 +2341,7 @@ class Curtain:
     color: int
 
 
-class AuroraEngine(_BufferedEngine):
+class AuroraEngine(_GraphicsBackend, _BufferedEngine):
     """Folded curtains of vertical rays, rippling along their own length.
 
     Rays rise from an irregular folded lower edge, fan gently toward the
@@ -1987,8 +2385,18 @@ class AuroraEngine(_BufferedEngine):
         return max(1.0, width / bw, height / bh)
 
     def _shade(self, width: int, height: int) -> QImage:
-        """Clear the owned raster before painting the current curtains."""
+        """Clear the owned raster before painting the current curtains.
+
+        The optional graphics renderer generates the same ray textures and
+        warps them along the same strips; any refusal paints on the CPU.
+        """
         bw, bh = self.buffer_size(width, height)
+        image = self._graphics_frame(
+            '_draw_aurora', bw, bh,
+            build=lambda: ([self._aurora_gpu_layer(layer)
+                            for layer in self._aurora_layers(bw, bh)], self.dark))
+        if image is not None:
+            return self._soften(image, width, height)
         buf = QImage(bw, bh, QImage.Format_RGB32)
         buf.fill(self.identity)
         inner = QPainter(buf)
@@ -1999,6 +2407,14 @@ class AuroraEngine(_BufferedEngine):
         finally:
             inner.end()
         return self._soften(buf, width, height)
+
+    def _graphics_unmeasured(self, width, height, work=0) -> bool:
+        """Until aurora's GPU cost is measured, Automatic takes 4K frames.
+
+        The 2026-10-10 audits measured 20-99 ms per 4K CPU frame, over the
+        frame budget; smaller frames stay on the CPU.
+        """
+        return width * height >= 3840 * 2160
 
     def _configure(self, rng: random.Random) -> None:
         """Roll this theme's constants from the seed.
@@ -2388,14 +2804,21 @@ class AuroraEngine(_BufferedEngine):
         emission profile. Affine strips bend it along the sheet without
         painting hundreds of separate full-height gradients.
         """
+        self._paint_layers(painter, self._aurora_layers(width, height))
+
+    def _aurora_layers(self, width: int, height: int) -> list:
+        """Per curtain: the ray material, its colour table and its strips.
+
+        Everything here is one-dimensional (per texture column or per
+        sampled fold column); the two-dimensional ray texture is built by
+        :meth:`_aurora_texture` on the CPU or by the graphics renderer.
+        """
         np = _numpy()
         peak = (0.80 if self.dark else 0.65) * self.alpha_scale() * math.sqrt(
             min(1.0, AURORA_CURTAINS * self.effective_density()))
         samples = self.geometry(width, height)
         stride = AURORA_COLUMNS + 1
-        texture_height = 192
-        vertical = np.linspace(1.0, 0.0, texture_height, dtype=np.float32)[:, None]
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        layers = []
         for index, curtain in enumerate(self.curtains[:self.count()]):
             columns = samples[index * stride:(index + 1) * stride]
             if len(columns) < 2:
@@ -2427,17 +2850,10 @@ class AuroraEngine(_BufferedEngine):
             coordinates, distance, constants = material
             length, weight, phase, rate = constants.T
             ray_length = length * (0.82 + 0.18 * np.sin(self.time * rate + phase))
-            rise = vertical / ray_length[None, :]
-            beam_width = 0.14 + 0.28 * (1.0 - np.clip(rise, 0.0, 1.0))
-            rays = np.exp(-(distance[None, :] / beam_width) ** 2)
-            emission = (0.15 + 0.85 * np.maximum(0.0, 1.0 - rise) ** 0.8)
-            emission *= np.clip((1.0 - rise) / 0.12, 0.0, 1.0)
-            emission *= np.minimum(1.0, rise / 0.045)
             shimmer = 0.72 + 0.28 * np.sin(self.time * rate * 1.7 + phase)
             surge = np.interp(coordinates, np.linspace(0.0, 1.0, stride),
                               [column[3] for column in columns]).astype(np.float32)
-            alpha = emission * (0.20 + 0.80 * rays) * (
-                peak * weight * shimmer * surge * np.sin(math.pi * coordinates) ** 0.65)[None, :]
+            gain = peak * weight * shimmer * surge * np.sin(math.pi * coordinates) ** 0.65
             roles = self.ramp_colors(curtain, quantised=False)
             if self._spacr_palette:
                 roles = {"main": QColor("#6dff9d"), "blend": QColor("#b6ffc8"),
@@ -2449,30 +2865,19 @@ class AuroraEngine(_BufferedEngine):
             values = np.arange(256, dtype=np.float32) / 255.0
             lookup = np.stack([np.interp(values, ramp_positions, ramp[:, channel])
                                for channel in range(3)], axis=1).astype(np.float32)
-            color_index = np.clip(rise * 255.0, 0, 255).astype(np.uint8)
             if not self.dark:
                 lookup = 255.0 - lookup
+            color_ids = None
             if self._random_palette:
                 colors = np.array([[color.red(), color.green(), color.blue()]
                                    for color in self.paint_colors], dtype=np.float32)
                 color_ids = (phase * 1000).astype(np.int32) % len(colors)
                 lookup = colors
-                color_index = np.broadcast_to(color_ids, alpha.shape)
                 if not self.dark:
                     lookup = 255.0 - lookup
-            levels = np.arange(256, dtype=np.float32) / 255.0
-            rgb = (lookup[None, :, :] * levels[:, None, None]).astype(np.uint32)
-            packed = (np.uint32(0xff000000) | (rgb[:, :, 0] << 16)
-                      | (rgb[:, :, 1] << 8) | rgb[:, :, 2])
-            if not self.dark:
-                packed = packed ^ np.uint32(0x00ffffff)
-            alpha_index = np.clip(alpha * 255.0, 0, 255).astype(np.uint8)
-            words = packed[alpha_index, color_index]
-            words = np.ascontiguousarray(words)
-            texture = QImage(words.data, texture_width, texture_height,
-                             words.strides[0], QImage.Format_RGB32)
             _, ray_height = self.anchor(curtain, height)
             lean = width * 0.12 * math.sin(curtain.phase + self.time * 0.04)
+            strips = []
             for first, second in zip(columns, columns[1:]):
                 x0, bottom0 = first[:2]
                 x1, bottom1 = second[:2]
@@ -2480,14 +2885,81 @@ class AuroraEngine(_BufferedEngine):
                 shear = (bottom1 - bottom0) / extent
                 source_x = (x0 - left) / (right - left) * texture_width
                 source_width = extent / (right - left) * texture_width
+                strips.append((extent / source_width, shear * extent / source_width,
+                               -lean / _AURORA_TEXTURE_ROWS,
+                               ray_height / _AURORA_TEXTURE_ROWS,
+                               x0 + lean, bottom0 - ray_height,
+                               source_x, source_width))
+            layers.append({"width": texture_width, "distance": distance,
+                           "ray_length": ray_length, "gain": gain,
+                           "lookup": lookup, "color_ids": color_ids,
+                           "strips": strips})
+        return layers
+
+    def _aurora_texture(self, layer: dict):
+        """The CPU ray texture for one layer, with the array it borrows."""
+        np = _numpy()
+        vertical = np.linspace(1.0, 0.0, _AURORA_TEXTURE_ROWS,
+                               dtype=np.float32)[:, None]
+        rise = vertical / layer["ray_length"][None, :]
+        beam_width = 0.14 + 0.28 * (1.0 - np.clip(rise, 0.0, 1.0))
+        rays = np.exp(-(layer["distance"][None, :] / beam_width) ** 2)
+        emission = (0.15 + 0.85 * np.maximum(0.0, 1.0 - rise) ** 0.8)
+        emission *= np.clip((1.0 - rise) / 0.12, 0.0, 1.0)
+        emission *= np.minimum(1.0, rise / 0.045)
+        alpha = emission * (0.20 + 0.80 * rays) * layer["gain"][None, :]
+        lookup = layer["lookup"]
+        if layer["color_ids"] is None:
+            color_index = np.clip(rise * 255.0, 0, 255).astype(np.uint8)
+        else:
+            color_index = np.broadcast_to(layer["color_ids"], alpha.shape)
+        levels = np.arange(256, dtype=np.float32) / 255.0
+        rgb = (lookup[None, :, :] * levels[:, None, None]).astype(np.uint32)
+        packed = (np.uint32(0xff000000) | (rgb[:, :, 0] << 16)
+                  | (rgb[:, :, 1] << 8) | rgb[:, :, 2])
+        if not self.dark:
+            packed = packed ^ np.uint32(0x00ffffff)
+        alpha_index = np.clip(alpha * 255.0, 0, 255).astype(np.uint8)
+        words = np.ascontiguousarray(packed[alpha_index, color_index])
+        texture = QImage(words.data, layer["width"], _AURORA_TEXTURE_ROWS,
+                         words.strides[0], QImage.Format_RGB32)
+        return texture, words
+
+    def _paint_layers(self, painter: QPainter, layers: list) -> None:
+        """Warp each CPU ray texture along its fold strips."""
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        rows = _AURORA_TEXTURE_ROWS
+        for layer in layers:
+            texture, words = self._aurora_texture(layer)
+            for (m11, m12, m21, m22, dx, dy, source_x,
+                 source_width) in layer["strips"]:
                 painter.save()
-                painter.setTransform(QTransform(
-                    extent / source_width, shear * extent / source_width,
-                    -lean / texture_height, ray_height / texture_height,
-                    x0 + lean, bottom0 - ray_height), True)
-                painter.drawImage(QRectF(0.0, 0.0, source_width + 0.5, texture_height),
-                                  texture, QRectF(source_x, 0.0, source_width + 0.5, texture_height))
+                painter.setTransform(QTransform(m11, m12, m21, m22, dx, dy), True)
+                painter.drawImage(QRectF(0.0, 0.0, source_width + 0.5, rows),
+                                  texture, QRectF(source_x, 0.0, source_width + 0.5, rows))
                 painter.restore()
+            del texture, words
+
+    @staticmethod
+    def _aurora_gpu_layer(layer: dict) -> tuple:
+        """Columns, colour table and strip vertices for the graphics renderer."""
+        np = _numpy()
+        columns = np.empty((layer["width"], 4), dtype=np.float32)
+        columns[:, 0] = layer["distance"]
+        columns[:, 1] = layer["ray_length"]
+        columns[:, 2] = layer["gain"]
+        columns[:, 3] = 0.0 if layer["color_ids"] is None else layer["color_ids"]
+        rows = float(_AURORA_TEXTURE_ROWS)
+        vertices = []
+        for m11, m12, m21, m22, dx, dy, source_x, source_width in layer["strips"]:
+            span = source_width + 0.5
+            corners = [(m11 * u + m21 * v + dx, m12 * u + m22 * v + dy,
+                        source_x + u, v)
+                       for u, v in ((0.0, 0.0), (span, 0.0), (0.0, rows), (span, rows))]
+            vertices.extend((corners[0], corners[1], corners[2],
+                             corners[2], corners[1], corners[3]))
+        return (columns, layer["lookup"], layer["color_ids"] is not None,
+                np.asarray(vertices, dtype=np.float32).reshape(-1, 4))
 
     @staticmethod
     def _sheet(columns, top: float) -> QPainterPath:
@@ -2712,7 +3184,67 @@ class Particle:
     wander_phase: float = 0.0
 
 
-class DriftEngine(AmbientEngine):
+class _StarsOnGraphics:
+    """The stratified theme's optional shading-thread half (N684).
+
+    Kept off :class:`DriftEngine` itself: the theme's public drawing call
+    stays :meth:`DriftEngine.paint`, and only a widget with Animation GPU
+    On hands it to a shading thread through these methods.
+    """
+
+    def shade(self, width: int, height: int) -> Optional[QImage]:
+        """One transparent premultiplied frame for the graphics shading thread.
+
+        Only used when Animation GPU asks for the graphics renderer (see
+        :meth:`AmbientWidget._start_producer`); :meth:`paint` stays the CPU
+        path. The frame holds the dots alone, drawn source-over onto
+        transparency, so :meth:`blit` composites them onto the page exactly
+        as :meth:`paint` draws them. A refused renderer gives the same
+        frame from QPainter.
+        """
+        if width <= 0 or height <= 0:
+            return None
+        bw, bh = self.buffer_size(width, height)
+        passes = self._dot_passes(width, height)
+        image = self._graphics_frame(
+            '_draw_stars', bw, bh,
+            build=partial(self._star_rows, passes, (bw / width, bh / height)))
+        if image is not None:
+            return image
+        image = QImage(bw, bh, QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        inner = QPainter(image)
+        try:
+            if (bw, bh) != (width, height):
+                inner.scale(bw / width, bh / height)
+            self._paint_dots(inner, width, height, passes)
+        finally:
+            inner.end()
+        return image
+
+    def blit(self, painter: QPainter, image: Optional[QImage],
+             width: int, height: int) -> None:
+        """Composite a :meth:`shade` frame onto the page. **GUI thread only.**"""
+        if image is None or image.isNull() or width <= 0 or height <= 0:
+            return
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        painter.drawImage(QRect(0, 0, int(width), int(height)), image)
+
+    def _star_rows(self, passes, scale) -> tuple:
+        """Disc rows, scale and edge mode for the graphics renderer."""
+        rows = []
+        for pen, points in passes:
+            color = pen.color()
+            radius = pen.widthF() * 0.5
+            red, green, blue = color.redF(), color.greenF(), color.blueF()
+            alpha = color.alphaF()
+            rows.extend((point.x(), point.y(), radius, red, green, blue, alpha)
+                        for point in points)
+        return rows, scale, self.resolution > DRIFT_HARD_EDGE_RESOLUTION
+
+
+class DriftEngine(_StarsOnGraphics, _GraphicsBackend, AmbientEngine):
     """A slow starfield in three parallax layers.
 
     At full Detail dots are drawn directly and stay crisp. Lower Detail
@@ -2941,10 +3473,8 @@ class DriftEngine(AmbientEngine):
         painter.drawImage(QRect(0, 0, int(width), int(height)), image)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
-    def _paint_dots(self, painter: QPainter, width: int, height: int) -> None:
-        """Batch dots in canvas coordinates so Detail never changes population."""
-        painter.setRenderHint(QPainter.Antialiasing,
-                              self.resolution > DRIFT_HARD_EDGE_RESOLUTION)
+    def _dot_passes(self, width: int, height: int) -> list:
+        """The ordered ``(pen, points)`` batches :meth:`_paint_dots` draws."""
         n_colors = len(self.paint_colors)
         steps = [self._alpha_step(i) for i in range(len(DRIFT_LAYERS))]
         buckets: Dict[Tuple[int, int, int], List[QPointF]] = {}
@@ -2959,17 +3489,26 @@ class DriftEngine(AmbientEngine):
             key = (particle.color % n_colors, particle.layer,
                    steps[particle.layer])
             buckets.setdefault(key, []).append(QPointF(x, y))
+        passes = []
         if self.blur > 0.0:
             for key, points in buckets.items():
-                painter.setPen(self._pen(*key, halo=True))
-                painter.drawPoints(points)
+                passes.append((self._pen(*key, halo=True), points))
         for key, points in buckets.items():
-            painter.setPen(self._pen(*key))
-            painter.drawPoints(points)
+            passes.append((self._pen(*key), points))
         for layer, points in flashes.items():
             pen = QPen(QColor("white"))
             pen.setWidthF(self.dot_size(layer))
             pen.setCapStyle(Qt.RoundCap)
+            passes.append((pen, points))
+        return passes
+
+    def _paint_dots(self, painter: QPainter, width: int, height: int,
+                    passes: Optional[list] = None) -> None:
+        """Batch dots in canvas coordinates so Detail never changes population."""
+        painter.setRenderHint(QPainter.Antialiasing,
+                              self.resolution > DRIFT_HARD_EDGE_RESOLUTION)
+        for pen, points in (self._dot_passes(width, height)
+                            if passes is None else passes):
             painter.setPen(pen)
             painter.drawPoints(points)
 
@@ -4502,10 +5041,10 @@ class ResonanceEngine(_BufferedEngine):
     def energy(self) -> float:
         """How hard the plate is being driven, 0 to 1.
 
-        The louder of what is playing and the idle breath, so a quiet
-        passage never takes the picture below what silence would have
-        drawn. That is the rule that makes "it idles beautifully in
-        silence" and "it reacts to the music" the same code path.
+        The larger of the current drive level and the idle oscillation, so a
+        quiet passage never drives the picture below what silence would
+        have drawn. Idle animation and the response to audio therefore
+        use the same code path.
         """
         idle = RESONANCE_IDLE + RESONANCE_IDLE_SWELL * math.sin(
             2.0 * math.pi * self.time / RESONANCE_IDLE_PERIOD)
@@ -4654,6 +5193,7 @@ class ResonanceEngine(_BufferedEngine):
 _PACKED_SCATTER = None
 _COLORED_SCATTER = None
 _COLORED_SCATTER_FAILED = False
+_COLOR_BLEND = None
 _PACKED_SCATTER_STARTED = False
 _PACKED_SCATTER_FAILED = False
 _PACKED_SCATTER_LOCK = threading.Lock()
@@ -4732,6 +5272,182 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
                     flat[destination] = color
 
 
+def _blend_colored_words(output, base, blend):
+    """Mix ``blend`` of 255 of ``output`` into ``base`` per channel, in place.
+
+    The colour-wave crossfade, rounded exactly as its NumPy twin in
+    :meth:`_SpaceoutFieldEngine._point_material` rounds it. ``output`` is the
+    coloured frame with its rank bytes still in the alpha channel and
+    ``base`` the ordinary opaque frame, which becomes the result. A word
+    equal in both mixes to itself, so only the few words a grain touched are
+    written. Red and blue share one product in 16-bit lanes; every lane sum
+    stays below 65280, where ``(sum + 1 + (sum >> 8)) >> 8`` equals
+    ``sum // 255`` and no lane carries into the next.
+    """
+    keep = 255 - blend
+    for i in range(base.size):
+        colored = int(output[i]) | 0xff000000
+        previous = int(base[i])
+        if colored == previous:
+            continue
+        pair = (previous & 0xff00ff) * keep + (colored & 0xff00ff) * blend + 0x7f007f
+        pair = (pair + 0x10001 + (pair >> 8 & 0xff00ff)) >> 8 & 0xff00ff
+        green = (previous >> 8 & 255) * keep + (colored >> 8 & 255) * blend + 127
+        green = (green + 1 + (green >> 8)) >> 8
+        base[i] = 0xff000000 | pair | green << 8
+
+
+_SUBPIXEL_SCATTER = None
+_GRAIN_KNOTS = (0.0, 1.0, math.sqrt(2.0), 2.0)
+_GRAIN_WEIGHTS = (1.0, 0.68, 0.24, 0.0)
+_GRAIN_ENERGY = 1.0 + 4 * 0.68 + 4 * 0.24
+
+
+def _scatter_subpixel_grains(flat, xs, ys, values, lookup, width, height, dark,
+                             weights):
+    """Stamp round grains at fractional centres with a constant-energy 4x4 kernel.
+
+    A centre on a pixel centre reproduces the nine-sample grain; between
+    pixels the same radial profile is sampled and renormalised to the same
+    total, so a grain glides instead of hopping a whole pixel.
+    """
+    root2 = 1.4142135623730951
+    for i in range(xs.size):
+        fx = xs[i] - 0.5
+        fy = ys[i] - 0.5
+        jx = int(math.floor(fx))
+        jy = int(math.floor(fy))
+        ox = fx - jx
+        oy = fy - jy
+        total = 0.0
+        for a in range(4):
+            dy = (a - 1) - oy
+            for b in range(4):
+                dx = (b - 1) - ox
+                r = math.sqrt(dx * dx + dy * dy)
+                if r < 1.0:
+                    w = 1.0 - 0.32 * r
+                elif r < root2:
+                    w = 0.68 + (r - 1.0) * (0.24 - 0.68) / (root2 - 1.0)
+                elif r < 2.0:
+                    w = 0.24 + (r - root2) * (0.0 - 0.24) / (2.0 - root2)
+                else:
+                    w = 0.0
+                weights[a * 4 + b] = w
+                total += w
+        scale = values[i] * 255.0 * 4.68 / total
+        for a in range(4):
+            ny = jy + a - 1
+            if ny < 0 or ny >= height:
+                continue
+            for b in range(4):
+                nx = jx + b - 1
+                if nx < 0 or nx >= width:
+                    continue
+                level = int(math.floor(weights[a * 4 + b] * scale + 0.5))
+                if level <= 0:
+                    continue
+                if level > 255:
+                    level = 255
+                color = lookup[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
+def _subpixel_grains_numpy(np, flat, xs, ys, values, lookup, width, height, dark):
+    """The NumPy twin of :func:`_scatter_subpixel_grains`, used until it compiles."""
+    if not len(xs):
+        return
+    fx = np.asarray(xs, dtype=np.float64) - 0.5
+    fy = np.asarray(ys, dtype=np.float64) - 0.5
+    jx, jy = np.floor(fx), np.floor(fy)
+    offsets = np.arange(-1.0, 3.0)
+    dx = offsets[None, :] - (fx - jx)[:, None]
+    dy = offsets[None, :] - (fy - jy)[:, None]
+    r = np.sqrt(dy[:, :, None] ** 2 + dx[:, None, :] ** 2)
+    weights = np.interp(r, _GRAIN_KNOTS, _GRAIN_WEIGHTS, right=0.0)
+    total = weights.sum(axis=(1, 2))
+    scale = np.where(total > 0.0, np.asarray(values, dtype=np.float64) * 255.0
+                     * _GRAIN_ENERGY / np.maximum(total, 1e-12), 0.0)
+    levels = np.minimum(np.floor(weights * scale[:, None, None] + 0.5), 255.0)
+    columns = (jx.astype(np.int64)[:, None] + offsets.astype(np.int64)[None, :])
+    rows = (jy.astype(np.int64)[:, None] + offsets.astype(np.int64)[None, :])
+    columns = np.broadcast_to(columns[:, None, :], levels.shape)
+    rows = np.broadcast_to(rows[:, :, None], levels.shape)
+    keep = ((levels > 0) & (columns >= 0) & (columns < width)
+            & (rows >= 0) & (rows < height))
+    destinations = rows[keep] * width + columns[keep]
+    colors = lookup[levels[keep].astype(np.int64)]
+    (np.maximum.at if dark else np.minimum.at)(flat, destinations, colors)
+
+
+def _ready_subpixel_scatter():
+    """The compiled fractional-grain kernel once the shared warmup has built it."""
+    if _SUBPIXEL_SCATTER is None:
+        _ready_packed_scatter()
+    return _SUBPIXEL_SCATTER
+
+
+_NUMBA_IMPORT_LOCK = threading.Lock()
+
+
+def _import_numba():
+    """Import numba once at a time, so two first importers cannot interleave.
+
+    The start-up warm thread and the kernel warmup thread can both be the
+    first to import it; numba imports itself in a cycle, and two threads
+    inside that cycle can see a half-initialised package.
+    """
+    with _NUMBA_IMPORT_LOCK:
+        import numba
+        return numba
+
+
+def _numba_cache_directory():
+    """A writable per-user folder for compiled kernels, or ``None``.
+
+    ``NUMBA_CACHE_DIR`` wins when the user set it; otherwise the folder is
+    ``numba`` under spaCR's cache location, never beside the package source,
+    so frozen and read-only installs work. An unwritable folder means no
+    cache, silently.
+    """
+    import os
+    from pathlib import Path
+
+    try:
+        configured = os.environ.get("NUMBA_CACHE_DIR", "").strip()
+        if configured:
+            folder = Path(configured).expanduser()
+        else:
+            from ...logging_util import _spacr_home
+            folder = _spacr_home() / "cache" / "numba"
+        folder.mkdir(parents=True, exist_ok=True)
+        if not os.access(folder, os.W_OK):
+            return None
+        os.environ["NUMBA_CACHE_DIR"] = str(folder)
+        import sys
+        if "numba.core.config" in sys.modules:
+            sys.modules["numba.core.config"].CACHE_DIR = str(folder)
+        return folder
+    except Exception:
+        return None
+
+
+def _compiled_kernel(function):
+    """``function`` as a nogil numba kernel, cached on disk when it can be."""
+    cached = _numba_cache_directory() is not None
+    njit = _import_numba().njit
+
+    if cached:
+        try:
+            return njit(nogil=True, cache=True)(function)
+        except Exception:
+            pass
+    return njit(nogil=True, cache=False)(function)
+
+
 def _warm_packed_scatter():
     """Compile once using tiny owned CPU arrays, without Qt or package writes.
 
@@ -4740,20 +5456,19 @@ def _warm_packed_scatter():
     import/compiler phases hold the GIL briefly; this is not a no-stall claim.
     """
     global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
-    global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
+    global _COLORED_SCATTER, _COLORED_SCATTER_FAILED, _SUBPIXEL_SCATTER
+    global _COLOR_BLEND
     if not _AMBIENT_STARTUP_READY.is_set():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_STARTED = False
         return
     try:
-        from numba import njit
-
         np = _numpy()
         flat = np.zeros(1, dtype=np.uint32)
         coordinates = np.zeros(1, dtype=np.int32)
         intensity = np.zeros(1, dtype=np.uint8)
         lookup = np.arange(256, dtype=np.uint32)
-        kernel = njit(nogil=True, cache=False)(_scatter_packed_grains)
+        kernel = _compiled_kernel(_scatter_packed_grains)
         kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
                1, 1, True)
         if not getattr(kernel, 'nopython_signatures', ()):
@@ -4761,7 +5476,25 @@ def _warm_packed_scatter():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER = kernel
         try:
-            colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
+            subpixel = _compiled_kernel(_scatter_subpixel_grains)
+            subpixel(flat, np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32),
+                     np.zeros(1, dtype=np.float32), lookup, 1, 1, True,
+                     np.zeros(16, dtype=np.float64))
+            if getattr(subpixel, 'nopython_signatures', ()):
+                with _PACKED_SCATTER_LOCK:
+                    _SUBPIXEL_SCATTER = subpixel
+        except Exception:
+            pass
+        try:
+            blender = _compiled_kernel(_blend_colored_words)
+            blender(flat, flat.copy(), 1)
+            if getattr(blender, 'nopython_signatures', ()):
+                with _PACKED_SCATTER_LOCK:
+                    _COLOR_BLEND = blender
+        except Exception:
+            pass
+        try:
+            colored = _compiled_kernel(_scatter_colored_grains)
             table = lookup
             colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
                     np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
@@ -4794,7 +5527,7 @@ def _ready_packed_scatter():
                 _PACKED_SCATTER_STARTED = True
                 try:
                     threading.Thread(target=_warm_packed_scatter,
-                                     name='spacr-grain-compile', daemon=True).start()
+                                     name='spacr-grain-compile', daemon=False).start()
                 except Exception:
                     _PACKED_SCATTER_FAILED = True
         finally:
@@ -4809,6 +5542,18 @@ def _ready_colored_scatter():
     if _COLORED_SCATTER is None:
         _ready_packed_scatter()
     return _COLORED_SCATTER
+
+
+def _ready_color_blend():
+    """The compiled colour-wave crossfade once the shared warmup has built it.
+
+    Without it a colour wave mixes two whole 2560x1440 frames in NumPy
+    chunks, 6-9 plain frames of shading; compiled, it writes only the words
+    a grain touched, without the interpreter lock.
+    """
+    if _COLOR_BLEND is None:
+        _ready_colored_scatter()
+    return _COLOR_BLEND
 
 
 def _warp_satin_columns(source, target, shifts, tops, bottoms, padding):
@@ -4899,10 +5644,8 @@ class _SatinCompiler:
                 self.started = False
             return
         try:
-            from numba import njit
-
             np = _numpy()
-            kernel = njit(nogil=True, cache=False)(_warp_satin_columns)
+            kernel = _compiled_kernel(_warp_satin_columns)
             source = np.zeros((1, 1), dtype=np.uint32)
             coordinates = np.zeros(1, dtype=np.int32)
             kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
@@ -4929,7 +5672,7 @@ class _SatinCompiler:
                 self.started = True
                 try:
                     threading.Thread(target=self._warm, name="spacr-satin-compile",
-                                     daemon=True).start()
+                                     daemon=False).start()
                 except Exception:
                     self.failed = True
         finally:
@@ -4963,7 +5706,949 @@ class _SatinCompiler:
 _SATIN_COMPILER = _SatinCompiler()
 
 
-class _DataArtEngine(_BufferedEngine):
+_FLOW_GRAPHICS_PROBE = None
+_FLOW_GRAPHICS_PROBE_LOCK = threading.Lock()
+
+#: Renderer names that are software rasterisers, refused as "GPU".
+_SOFTWARE_RENDERERS = ("llvmpipe", "softpipe", "software", "swrast",
+                       "microsoft basic render", "apple software")
+
+#: Selectable decorative-animation renderers, in slider order.
+GRAPHICS_BACKENDS: Tuple[str, ...] = ("cpu", "auto", "gpu")
+DEFAULT_GRAPHICS_BACKEND = "gpu"
+
+#: Per-theme density defaults for profiles that never saved a density.
+#: spaCR field asked for 25 % (N684); every other theme keeps DEFAULT_DENSITY.
+_THEME_DEFAULT_DENSITY = {"data_art_impulse_lens": 0.25}
+
+
+def _default_density_for(theme) -> float:
+    """Return the shipped density for ``theme`` when nothing was saved."""
+    return _THEME_DEFAULT_DENSITY.get(theme, DEFAULT_DENSITY)
+
+
+def _graphics_context_options():
+    """Return moderngl standalone options for this platform.
+
+    Linux uses headless EGL, which needs no window or X connection.
+    Windows (WGL) and macOS (CGL) use the default standalone backend;
+    macOS caps desktop OpenGL at 4.1, so the 4.3 storage-buffer shader
+    is refused there and the CPU renderer stays in use.
+    """
+    if sys.platform.startswith("linux"):
+        return {"standalone": True, "require": 430, "backend": "egl"}
+    return {"standalone": True, "require": 430}
+
+
+def _flow_graphics_preflight():
+    """Probe an optional hardware OpenGL context in a separate process.
+
+    The result is cached for this application process. A missing
+    dependency, unsupported driver, software renderer, timeout or failed
+    child keeps the CPU renderer. The probe runs in a child so a driver
+    crash during context creation cannot take the application down.
+    ``SPACR_NO_GL`` (safe mode, crash recovery) keeps it without probing.
+
+    macOS is never probed. Its OpenGL stops at 4.1, so the 4.3 context can
+    only fail, and creating one at start-up preceded three WindowServer
+    watchdog kills ("Display not ready") on an Intel Iris Mac running
+    macOS 26 on 2026-10-19.
+    """
+    global _FLOW_GRAPHICS_PROBE
+    import importlib.util
+    import subprocess
+
+    with _FLOW_GRAPHICS_PROBE_LOCK:
+        if _FLOW_GRAPHICS_PROBE is None and (
+                sys.platform == "darwin"
+                or os.environ.get("SPACR_NO_GL")
+                or importlib.util.find_spec("moderngl") is None):
+            _FLOW_GRAPHICS_PROBE = False
+        if _FLOW_GRAPHICS_PROBE is None:
+            script = (
+                "import moderngl; "
+                f"c=moderngl.create_context(**{_graphics_context_options()!r}); "
+                "r=str(c.info['GL_RENDERER']).lower(); "
+                f"assert not any(x in r for x in {_SOFTWARE_RENDERERS!r}); "
+                "c.release(); print('hardware-gl-ok')"
+            )
+            try:
+                result = subprocess.run(
+                    [sys.executable, '-c', script], capture_output=True,
+                    text=True, timeout=5, check=False)
+                _FLOW_GRAPHICS_PROBE = (
+                    result.returncode == 0
+                    and result.stdout.strip() == 'hardware-gl-ok')
+            except (OSError, subprocess.TimeoutExpired):
+                _FLOW_GRAPHICS_PROBE = False
+        return _FLOW_GRAPHICS_PROBE
+
+
+def _flow_compute_idle():
+    """Whether no OTHER process is running compute work on an NVIDIA GPU.
+
+    This is the external-process half of Dynamic animation. NVML lists
+    compute processes on every device without importing PyTorch, so a
+    headless spaCR command line, a training script or another
+    application's CUDA job is seen even though spaCR did not start it.
+    This spaCR process is excluded: its own analysis jobs are tracked
+    through the run registry instead, and a CUDA context kept alive after
+    a finished job must not hold decoration off forever.
+
+    Without NVML (no NVIDIA driver, or the binding is not installed)
+    nothing external can be observed and the answer is True. A query
+    that fails after NVML started answers False, keeping the GPU for
+    analysis.
+    """
+    import os
+
+    try:
+        import pynvml
+    except Exception:
+        return True
+    try:
+        pynvml.nvmlInit()
+    except Exception:
+        return True
+    own = os.getpid()
+    try:
+        for index in range(pynvml.nvmlDeviceGetCount()):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(index)
+            for process in pynvml.nvmlDeviceGetComputeRunningProcesses(handle):
+                if getattr(process, "pid", None) != own:
+                    return False
+        return True
+    except Exception:
+        return False
+    finally:
+        try:
+            pynvml.nvmlShutdown()
+        except Exception:
+            pass
+
+
+_GL_QUAD = '''
+    vec2 quad_corner() {
+        return vec2(float(gl_VertexID & 1), float(gl_VertexID >> 1));
+    }
+    vec4 canvas_position(vec2 point, vec2 canvas) {
+        return vec4(point / canvas * 2.0 - 1.0, 0.0, 1.0);
+    }
+'''
+
+_GL_GRAIN_WEIGHT = '''
+    float grain_weight(vec2 d) {
+        const float root2 = 1.4142135623730951;
+        float r = sqrt(d.x * d.x + d.y * d.y);
+        if (r < 1.0) return 1.0 - 0.32 * r;
+        if (r < root2) return 0.68 + (r - 1.0) * (0.24 - 0.68) / (root2 - 1.0);
+        if (r < 2.0) return 0.24 + (r - root2) * (0.0 - 0.24) / (2.0 - root2);
+        return 0.0;
+    }
+'''
+
+_GL_HAIRLINE_VERTEX = '''
+        #version 430
+        in vec4 segment;
+        in float half_width;
+        in float caps;
+        uniform vec2 canvas;
+        flat out vec4 ends;
+        flat out float reach;
+        flat out float capped;
+    ''' + _GL_QUAD + '''
+        void main() {
+            vec2 a = segment.xy;
+            vec2 b = segment.zw;
+            float span = length(b - a);
+            vec2 along = span > 1e-6 ? (b - a) / span : vec2(1.0, 0.0);
+            vec2 across = vec2(-along.y, along.x);
+            float extent = half_width + 1.5;
+            vec2 corner = quad_corner();
+            vec2 point = mix(a - along * extent, b + along * extent, corner.x)
+                + across * extent * (corner.y * 2.0 - 1.0);
+            gl_Position = canvas_position(point, canvas);
+            ends = segment;
+            reach = half_width;
+            capped = caps;
+        }
+    '''
+
+#: GLSL for the graphics paths of the CPU-only themes (N684). Coordinates
+#: are QPainter canvas pixels with pixel centres at +0.5, and framebuffer
+#: row ``r`` is image row ``r``, so the readback is the QImage unchanged.
+#: Colours are written blue-green-red so the RGBA8 bytes are the RGB32 /
+#: ARGB32 words Qt expects on a little-endian host.
+_GL_SHADERS = {
+    'blobs': ('''
+        #version 430
+        in vec4 shape;
+        in vec3 tint;
+        uniform vec2 canvas;
+        flat out vec4 disc;
+        flat out vec3 colour;
+    ''' + _GL_QUAD + '''
+        void main() {
+            vec2 point = shape.xy + (quad_corner() * 2.0 - 1.0) * (shape.z + 1.0);
+            gl_Position = canvas_position(point, canvas);
+            disc = shape;
+            colour = tint;
+        }
+    ''', '''
+        #version 430
+        uniform vec2 stops[4];
+        flat in vec4 disc;
+        flat in vec3 colour;
+        out vec4 result;
+        void main() {
+            float d = distance(gl_FragCoord.xy, disc.xy) / disc.z;
+            if (d > 1.0) discard;
+            float a = stops[3].y;
+            for (int i = 1; i < 4; ++i) {
+                if (d <= stops[i].x) {
+                    float f = (d - stops[i - 1].x) / max(1e-6, stops[i].x - stops[i - 1].x);
+                    a = mix(stops[i - 1].y, stops[i].y, f);
+                    break;
+                }
+            }
+            a *= disc.w;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'discs': ('''
+        #version 430
+        in vec3 disc;
+        in vec4 tint;
+        uniform vec2 canvas;
+        uniform vec2 scale;
+        flat out vec3 shape;
+        flat out vec4 colour;
+    ''' + _GL_QUAD + '''
+        void main() {
+            float radius = disc.z * scale.x;
+            vec2 centre = disc.xy * scale;
+            vec2 point = centre + (quad_corner() * 2.0 - 1.0) * (radius + 1.5);
+            gl_Position = canvas_position(point, canvas);
+            shape = vec3(centre, radius);
+            colour = tint;
+        }
+    ''', '''
+        #version 430
+        uniform bool smooth_edge;
+        flat in vec3 shape;
+        flat in vec4 colour;
+        out vec4 result;
+        void main() {
+            float cover = 0.0;
+            if (smooth_edge) {
+                for (int i = 0; i < 4; ++i) {
+                    for (int j = 0; j < 4; ++j) {
+                        vec2 sample_at = floor(gl_FragCoord.xy)
+                            + (vec2(float(i), float(j)) + 0.5) / 4.0;
+                        cover += distance(sample_at, shape.xy) <= shape.z ? 0.0625 : 0.0;
+                    }
+                }
+            } else {
+                cover = distance(gl_FragCoord.xy, shape.xy) <= shape.z ? 1.0 : 0.0;
+            }
+            if (cover <= 0.0) discard;
+            float a = colour.a * cover;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'aurora_texture': ('''
+        #version 430
+        void main() {
+            vec2 corner = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
+            gl_Position = vec4(corner * 2.0 - 1.0, 0.0, 1.0);
+        }
+    ''', '''
+        #version 430
+        layout(std430, binding=3) readonly buffer Columns { vec4 columns[]; };
+        layout(std430, binding=4) readonly buffer Lookup { vec4 lookup[]; };
+        uniform bool per_column;
+        uniform bool dark;
+        uniform float rows;
+        out vec4 texel;
+        void main() {
+            int x = int(gl_FragCoord.x);
+            float row = floor(gl_FragCoord.y);
+            vec4 column = columns[x];
+            float vertical = 1.0 - row / (rows - 1.0);
+            float rise = vertical / column.y;
+            float beam = 0.14 + 0.28 * (1.0 - clamp(rise, 0.0, 1.0));
+            float spread = column.x / beam;
+            float rays = exp(-(spread * spread));
+            float emission = 0.15 + 0.85 * pow(max(0.0, 1.0 - rise), 0.8);
+            emission *= clamp((1.0 - rise) / 0.12, 0.0, 1.0);
+            emission *= min(1.0, rise / 0.045);
+            float alpha = emission * (0.20 + 0.80 * rays) * column.z;
+            uint level = uint(clamp(alpha * 255.0, 0.0, 255.0));
+            uint index = per_column ? uint(column.w)
+                                    : uint(clamp(rise * 255.0, 0.0, 255.0));
+            uvec3 rgb = uvec3(lookup[index].rgb * (float(level) / 255.0));
+            if (!dark) rgb = uvec3(255u) - rgb;
+            texel = vec4(vec3(rgb.bgr) / 255.0, 1.0);
+        }
+    '''),
+    'strips': ('''
+        #version 430
+        in vec4 vertex;
+        uniform vec2 canvas;
+        uniform vec2 source;
+        out vec2 uv;
+        void main() {
+            gl_Position = vec4(vertex.xy / canvas * 2.0 - 1.0, 0.0, 1.0);
+            uv = vertex.zw / source;
+        }
+    ''', '''
+        #version 430
+        uniform sampler2D material;
+        in vec2 uv;
+        out vec4 result;
+        void main() {
+            result = vec4(texture(material, uv).rgb, 1.0);
+        }
+    '''),
+    'capsules': (_GL_HAIRLINE_VERTEX, '''
+        #version 430
+        flat in vec4 ends;
+        flat in float reach;
+        out float cover;
+        void main() {
+            vec2 p = gl_FragCoord.xy - ends.xy;
+            vec2 d = ends.zw - ends.xy;
+            float t = clamp(dot(p, d) / max(dot(d, d), 1e-12), 0.0, 1.0);
+            float r = length(p - d * t);
+            cover = clamp(min(r + reach, 0.5) - max(r - reach, -0.5), 0.0, 1.0);
+        }
+    '''),
+    'hairlines': (_GL_HAIRLINE_VERTEX, '''
+        #version 430
+        uniform vec4 colour;
+        flat in vec4 ends;
+        flat in float reach;
+        flat in float capped;
+        out vec4 result;
+        void main() {
+            vec2 d = ends.zw - ends.xy;
+            bool across = abs(d.x) >= abs(d.y);
+            float major = across ? d.x : d.y;
+            if (abs(major) < 1e-6) discard;
+            vec2 p = gl_FragCoord.xy;
+            float t = ((across ? p.x : p.y) - (across ? ends.x : ends.y)) / major;
+            if (t < 0.0 || t >= 1.0) discard;
+            int flags = int(capped + 0.5);
+            bool forward = major > 0.0;
+            bool low_capped = forward ? (flags & 1) != 0 : (flags & 2) != 0;
+            if (low_capped) {
+                float low = forward ? (across ? ends.x : ends.y) : (across ? ends.z : ends.w);
+                t += (fract(low) >= 0.5 ? 0.5 : -0.5) / major;
+            }
+            float line = (across ? ends.y : ends.x) + t * (across ? d.y : d.x);
+            float cover = max(0.0, 1.0 - abs((across ? p.y : p.x) - line));
+            float a = colour.a * cover * min(1.0, reach * 2.0);
+            if (a <= 0.0) discard;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'coverage': ('''
+        #version 430
+        uniform vec4 bounds;
+        uniform vec2 canvas;
+    ''' + _GL_QUAD + '''
+        void main() {
+            gl_Position = canvas_position(mix(bounds.xy, bounds.zw, quad_corner()), canvas);
+        }
+    ''', '''
+        #version 430
+        uniform sampler2D coverage;
+        uniform vec4 colour;
+        out vec4 result;
+        void main() {
+            float a = colour.a * texelFetch(coverage, ivec2(gl_FragCoord.xy), 0).r;
+            result = vec4(colour.bgr * a, a);
+        }
+    '''),
+    'tiles': ('''
+        #version 430
+        in vec3 place;
+        in vec4 rect;
+        in vec2 offset;
+        uniform vec2 canvas;
+        out vec2 texel;
+        flat out vec4 bounds;
+    ''' + _GL_QUAD + '''
+        void main() {
+            vec2 corner = quad_corner() * rect.zw;
+            vec2 local = offset + corner;
+            float c = cos(place.z);
+            float s = sin(place.z);
+            vec2 point = place.xy + vec2(c * local.x - s * local.y, s * local.x + c * local.y);
+            gl_Position = canvas_position(point, canvas);
+            texel = rect.xy + corner;
+            bounds = vec4(rect.xy + 0.5, rect.xy + rect.zw - 0.5);
+        }
+    ''', '''
+        #version 430
+        uniform sampler2D atlas;
+        in vec2 texel;
+        flat in vec4 bounds;
+        out vec4 result;
+        void main() {
+            vec2 at = clamp(texel, bounds.xy, bounds.zw);
+            result = vec4(texture(atlas, at / vec2(textureSize(atlas, 0))).rgb, 1.0);
+        }
+    '''),
+    'subpixel_grains': ('''
+        #version 430
+        in vec3 grain;
+        uniform vec2 canvas;
+        flat out vec2 base;
+        flat out vec2 offset;
+        flat out float scale;
+    ''' + _GL_QUAD + _GL_GRAIN_WEIGHT + '''
+        void main() {
+            vec2 centre = grain.xy - 0.5;
+            base = floor(centre);
+            offset = centre - base;
+            float total = 0.0;
+            for (int a = 0; a < 4; ++a) {
+                for (int b = 0; b < 4; ++b) {
+                    total += grain_weight(vec2(float(b - 1), float(a - 1)) - offset);
+                }
+            }
+            scale = grain.z * 255.0 * 4.68 / total;
+            gl_Position = canvas_position(base - 1.0 + quad_corner() * 4.0, canvas);
+        }
+    ''', '''
+        #version 430
+        layout(std430,binding=2) readonly buffer Palette { uint palette[]; };
+        flat in vec2 base;
+        flat in vec2 offset;
+        flat in float scale;
+        out vec4 colour;
+    ''' + _GL_GRAIN_WEIGHT + '''
+        void main() {
+            vec2 d = (floor(gl_FragCoord.xy) - base) - offset;
+            float level = floor(grain_weight(d) * scale + 0.5);
+            if (level <= 0.0) discard;
+            uint word = palette[uint(min(level, 255.0))];
+            colour = vec4(float(word & 255u), float((word >> 8u) & 255u),
+                float((word >> 16u) & 255u), float((word >> 24u) & 255u)) / 255.0;
+        }
+    '''),
+}
+
+
+class _FlowPointGraphics:
+    """Render monotonic packed grains in a producer-owned OpenGL framebuffer.
+
+    The context, buffers and framebuffer belong to the constructing thread.
+    Each returned RGB32 image owns its pixels; later frames cannot modify it.
+    """
+
+    def __init__(self):
+        """Create the optional EGL context after a successful isolated probe."""
+        import moderngl
+
+        self._owner = threading.get_ident()
+        self._gl = moderngl
+        self._resources = []
+        self._context = None
+        self._framebuffer = None
+        self._texture = None
+        self._size = None
+        self._lookup_bytes = None
+        try:
+            self._context = moderngl.create_context(
+                **_graphics_context_options())
+            self._program = self._context.program(vertex_shader='''
+                #version 430
+                in ivec3 position;
+                uniform vec2 canvas;
+                uniform bool spread;
+                flat out uint level;
+                void main() {
+                    gl_Position = vec4((vec2(position.xy) + vec2(0.5)) /
+                        canvas * 2.0 - 1.0, 0.0, 1.0);
+                    gl_PointSize = spread ? 3.0 : 1.0;
+                    level = uint(position.z);
+                }
+            ''', fragment_shader='''
+                #version 430
+                layout(std430,binding=2) readonly buffer Palette { uint palette[]; };
+                uniform bool spread;
+                flat in uint level;
+                out vec4 colour;
+                void main() {
+                    ivec2 delta = spread ? ivec2(floor(gl_PointCoord * 3.0)) -
+                        ivec2(1) : ivec2(0);
+                    uint offset = (delta.x == 0 && delta.y == 0) ? 0u :
+                        ((delta.x != 0 && delta.y != 0) ? 512u : 256u);
+                    uint word = palette[offset + level];
+                    colour = vec4(float(word & 255u), float((word >> 8u) & 255u),
+                        float((word >> 16u) & 255u), float((word >> 24u) & 255u)) / 255.0;
+                }
+            ''')
+            self._resources.append(self._program)
+            self._vertices = self._context.buffer(reserve=12)
+            self._resources.append(self._vertices)
+            self._palette = self._context.buffer(reserve=768 * 4)
+            self._resources.append(self._palette)
+            self._vao = self._context.vertex_array(
+                self._program, [(self._vertices, '3i', 'position')])
+            self._resources.append(self._vao)
+            self._context.enable(moderngl.PROGRAM_POINT_SIZE | moderngl.BLEND)
+            try:
+                self.renderer = str(self._context.info.get('GL_RENDERER', 'unknown renderer'))
+            except Exception:
+                self.renderer = 'unknown renderer'
+        except Exception:
+            self._close()
+            raise
+
+    def _draw(self, width, height, px, py, intensities, lookup, spread, dark):
+        """Stamp grains and read them directly into a newly owned QImage."""
+        if threading.get_ident() != self._owner:
+            raise RuntimeError('flow graphics context belongs to another thread')
+        np = _numpy()
+        if self._size != (width, height):
+            if self._framebuffer is not None:
+                self._framebuffer.release()
+                self._texture.release()
+            self._texture = self._context.texture((width, height), 4, dtype='f1')
+            self._framebuffer = self._context.framebuffer([self._texture])
+            self._size = width, height
+        levels = np.arange(256, dtype=np.uint8)
+        table = np.concatenate((lookup, lookup[np.rint(levels * .68).astype(np.uint8)],
+                                lookup[np.rint(levels * .24).astype(np.uint8)]))
+        raw = table.tobytes()
+        if raw != self._lookup_bytes:
+            self._palette.write(raw)
+            self._lookup_bytes = raw
+        points = np.empty((len(px), 3), dtype=np.int32)
+        points[:, 0], points[:, 1], points[:, 2] = px, py, intensities
+        raw = points.tobytes()
+        if len(raw) > self._vertices.size:
+            self._vertices.orphan(len(raw))
+        if raw:
+            self._vertices.write(raw)
+        self._palette.bind_to_storage_buffer(2)
+        self._framebuffer.use()
+        self._context.viewport = (0, 0, width, height)
+        self._context.blend_equation = self._gl.MAX if dark else self._gl.MIN
+        background = 0.0 if dark else 1.0
+        self._framebuffer.clear(background, background, background, 1.0)
+        self._program['canvas'].value = float(width), float(height)
+        self._program['spread'].value = bool(spread)
+        if len(points):
+            self._vao.render(mode=self._gl.POINTS, vertices=len(points))
+        image = QImage(width, height, QImage.Format_RGB32)
+        self._framebuffer.read_into(image.bits(), components=4, alignment=1)
+        return image
+
+    def _draw_subpixel(self, width, height, xs, ys, values, lookup, dark):
+        """Stamp grains at fractional centres like :func:`_scatter_subpixel_grains`.
+
+        Each grain is one 4x4-pixel quad over the CPU kernel's footprint,
+        weighted by the same radial profile and renormalised to the same
+        total, so a rippling grain glides on both paths. Colours come from
+        ``lookup`` by rounded level and overlap by brightest (dark) or
+        darkest (light) channel, the CPU kernel's ordering for these
+        monotonic tables.
+        """
+        np = _numpy()
+        background = 0.0 if dark else 1.0
+        self._target(width, height, (background, background, background, 1.0))
+        rows = np.empty((len(xs), 3), dtype=np.float32)
+        rows[:, 0], rows[:, 1], rows[:, 2] = xs, ys, values
+        program = self._shader('subpixel_grains')
+        self._context.blend_equation = self._gl.MAX if dark else self._gl.MIN
+        self._uniform(program, 'canvas', (float(width), float(height)))
+        self._stream('subpixel_palette', np.ascontiguousarray(lookup, dtype=np.uint32)
+                     ).bind_to_storage_buffer(2)
+        array = self._array(program, self._stream('subpixel_grains', rows), '3f/i', 'grain')
+        array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+        return self._read(width, height)
+
+    def _shader(self, name):
+        """Compile one theme program from :data:`_GL_SHADERS` on first use."""
+        programs = self.__dict__.setdefault('_programs', {})
+        program = programs.get(name)
+        if program is None:
+            vertex, fragment = _GL_SHADERS[name]
+            program = self._context.program(vertex_shader=vertex.strip(),
+                                            fragment_shader=fragment.strip())
+            self._resources.append(program)
+            programs[name] = program
+        return program
+
+    @staticmethod
+    def _uniform(program, name, value):
+        """Set a uniform the compiler kept; optimised-out names are ignored."""
+        try:
+            member = program[name]
+        except KeyError:
+            return
+        if isinstance(value, (bytes, bytearray)):
+            member.write(value)
+        else:
+            member.value = value
+
+    def _stream(self, name, data):
+        """Write ``data`` into a reusable named buffer and return it."""
+        buffers = self.__dict__.setdefault('_streams', {})
+        raw = data.tobytes()
+        buffer = buffers.get(name)
+        if buffer is None:
+            buffer = self._context.buffer(reserve=max(64, len(raw)))
+            self._resources.append(buffer)
+            buffers[name] = buffer
+        if len(raw) > buffer.size:
+            buffer.orphan(len(raw))
+        if raw:
+            buffer.write(raw)
+        return buffer
+
+    @staticmethod
+    def _active_layout(program, layout, names):
+        """Drop attributes the shader linker removed, keeping the stride.
+
+        A driver may optimise away an input whose value never reaches the
+        output, and a binding should not depend on that choice. Each such
+        attribute becomes padding.
+        """
+        formats, _slash, divisor = layout.partition('/')
+        parts = formats.split()
+        kept, active = [], []
+        for part, name in zip(parts, names):
+            if name in program:
+                kept.append(part)
+                active.append(name)
+            else:
+                count = int(part[:-1] or 1)
+                size = {'f': 4, 'i': 4, 'u': 4}.get(part[-1], 4)
+                kept.append(f'{count * size}x')
+        layout = ' '.join(kept) + (f'/{divisor}' if divisor else '')
+        return layout, tuple(active)
+
+    def _array(self, program, buffer, layout, *names):
+        """A vertex array over one stream, cached per program and layout."""
+        arrays = self.__dict__.setdefault('_arrays', {})
+        key = (id(program), id(buffer), layout, names)
+        array = arrays.get(key)
+        if array is None:
+            layout, names = self._active_layout(program, layout, names)
+            array = self._context.vertex_array(program, [(buffer, layout, *names)])
+            self._resources.append(array)
+            arrays[key] = array
+        return array
+
+    def _bare(self, program):
+        """An attribute-free vertex array for a program that uses gl_VertexID."""
+        arrays = self.__dict__.setdefault('_arrays', {})
+        array = arrays.get((id(program), None))
+        if array is None:
+            array = self._context.vertex_array(program, [])
+            self._resources.append(array)
+            arrays[(id(program), None)] = array
+        return array
+
+    def _scratch(self, name, size, components=4, filtered=False):
+        """A reusable named texture and framebuffer of ``size``."""
+        targets = self.__dict__.setdefault('_scratch_targets', {})
+        entry = targets.get(name)
+        if entry is None or entry[0].size != tuple(size):
+            if entry is not None:
+                entry[1].release()
+                entry[0].release()
+            texture = self._context.texture(tuple(size), components, dtype='f1')
+            texture.repeat_x = texture.repeat_y = False
+            linear = self._gl.LINEAR if filtered else self._gl.NEAREST
+            texture.filter = linear, linear
+            entry = texture, self._context.framebuffer([texture])
+            targets[name] = entry
+        return entry
+
+    def _target(self, width, height, clear):
+        """Bind the shared frame target at this size and clear it to ``clear``."""
+        if threading.get_ident() != self._owner:
+            raise RuntimeError('flow graphics context belongs to another thread')
+        if self._size != (width, height):
+            if self._framebuffer is not None:
+                self._framebuffer.release()
+                self._texture.release()
+            self._texture = self._context.texture((width, height), 4, dtype='f1')
+            self._framebuffer = self._context.framebuffer([self._texture])
+            self._size = width, height
+        self._framebuffer.use()
+        self._context.viewport = (0, 0, width, height)
+        self._context.scissor = None
+        self._framebuffer.clear(*clear)
+        self._context.blend_equation = self._gl.FUNC_ADD
+
+    def _blend(self, composition):
+        """Match a QPainter composition mode on premultiplied BGRA output.
+
+        ``plus`` and ``multiply`` keep the opaque destination alpha of an
+        RGB32 frame; anything else is premultiplied source-over.
+        """
+        gl = self._gl
+        self._context.blend_equation = gl.FUNC_ADD
+        if composition == 'plus':
+            self._context.blend_func = gl.ONE, gl.ONE, gl.ZERO, gl.ONE
+        elif composition == 'multiply':
+            self._context.blend_func = (gl.DST_COLOR, gl.ONE_MINUS_SRC_ALPHA,
+                                        gl.ZERO, gl.ONE)
+        else:
+            self._context.blend_func = (gl.ONE, gl.ONE_MINUS_SRC_ALPHA,
+                                        gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+
+    def _read(self, width, height, image_format=QImage.Format_RGB32):
+        """Copy the frame target into a newly owned QImage."""
+        image = QImage(width, height, image_format)
+        self._framebuffer.read_into(image.bits(), components=4, alignment=1)
+        return image
+
+    def _discs(self, width, height, rows, scale=(1.0, 1.0), smooth=True):
+        """Blend rows of ``x, y, radius, r, g, b, alpha`` discs in row order."""
+        np = _numpy()
+        rows = np.ascontiguousarray(rows, dtype=np.float32).reshape(-1, 7)
+        if not len(rows):
+            return
+        program = self._shader('discs')
+        self._uniform(program, 'canvas', (float(width), float(height)))
+        self._uniform(program, 'scale', (float(scale[0]), float(scale[1])))
+        self._uniform(program, 'smooth_edge', bool(smooth))
+        array = self._array(program, self._stream('discs', rows), '3f 4f/i',
+                            'disc', 'tint')
+        array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+
+    def _draw_blobs(self, width, height, blobs, stops, dark):
+        """Shade radial-gradient blobs from rows of ``cx, cy, radius, alpha, r, g, b``."""
+        np = _numpy()
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        rows = np.ascontiguousarray(blobs, dtype=np.float32).reshape(-1, 7)
+        if len(rows):
+            program = self._shader('blobs')
+            self._blend('plus' if dark else 'multiply')
+            self._uniform(program, 'canvas', (float(width), float(height)))
+            self._uniform(program, 'stops', np.asarray(stops, dtype=np.float32).tobytes())
+            array = self._array(program, self._stream('blobs', rows), '4f 3f/i',
+                                'shape', 'tint')
+            array.render(mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+        return self._read(width, height)
+
+    def _draw_stars(self, width, height, rows, scale, smooth):
+        """Draw ordered star discs onto a transparent premultiplied frame."""
+        self._target(width, height, (0.0, 0.0, 0.0, 0.0))
+        self._blend('over')
+        self._discs(width, height, rows, scale, smooth)
+        return self._read(width, height, QImage.Format_ARGB32_Premultiplied)
+
+    def _draw_aurora(self, width, height, curtains, dark):
+        """Generate each curtain's ray texture, then warp it along its folds.
+
+        ``curtains`` holds ``(columns, lookup, per_column, strips)`` per
+        curtain: ``columns`` rows of ``distance, ray length, gain, colour``,
+        ``lookup`` the colour table, and ``strips`` six vertices per strip
+        of ``x, y, source x, source y`` in texture pixels.
+        """
+        np = _numpy()
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        generator = self._shader('aurora_texture')
+        strips = self._shader('strips')
+        for index, (columns, lookup, per_column, vertices) in enumerate(curtains):
+            columns = np.ascontiguousarray(columns, dtype=np.float32).reshape(-1, 4)
+            vertices = np.ascontiguousarray(vertices, dtype=np.float32).reshape(-1, 4)
+            if not len(columns) or not len(vertices):
+                continue
+            size = len(columns), _AURORA_TEXTURE_ROWS
+            texture, framebuffer = self._scratch('aurora', size, filtered=True)
+            table = np.zeros((len(lookup), 4), dtype=np.float32)
+            table[:, :3] = lookup
+            self._stream('aurora_columns', columns).bind_to_storage_buffer(3)
+            self._stream('aurora_lookup', table).bind_to_storage_buffer(4)
+            framebuffer.use()
+            self._context.viewport = (0, 0) + size
+            self._context.disable(self._gl.BLEND)
+            self._uniform(generator, 'per_column', bool(per_column))
+            self._uniform(generator, 'dark', bool(dark))
+            self._uniform(generator, 'rows', float(_AURORA_TEXTURE_ROWS))
+            self._bare(generator).render(mode=self._gl.TRIANGLES, vertices=3)
+            self._context.enable(self._gl.BLEND)
+            self._framebuffer.use()
+            self._context.viewport = (0, 0, width, height)
+            self._blend('plus' if dark else 'multiply')
+            texture.use(location=0)
+            self._uniform(strips, 'material', 0)
+            self._uniform(strips, 'canvas', (float(width), float(height)))
+            self._uniform(strips, 'source', (float(size[0]), float(size[1])))
+            self._array(strips, self._stream('aurora_strips', vertices), '4f',
+                        'vertex').render(mode=self._gl.TRIANGLES, vertices=len(vertices))
+        return self._read(width, height)
+
+    def _draw_filaments(self, width, height, groups, segments, tips, dark):
+        """Stroke each filament group as one union, then the live tips.
+
+        ``segments`` rows are ``x0, y0, x1, y1, half width, caps`` (caps:
+        1 when the first end starts a subpath, 2 when the second ends one,
+        already extended half a pixel as Qt's hairline caps are); each group is
+        ``(first, count, left, top, right, bottom, r, g, b, alpha)`` over
+        them. A group's capsules are combined with MAX into a coverage
+        target first, so overlapping pieces of one QPainterPath are blended
+        once, as QPainter strokes a path.
+        """
+        np = _numpy()
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        composition = 'plus' if dark else 'multiply'
+        segments = np.ascontiguousarray(segments, dtype=np.float32).reshape(-1, 6)
+        if len(segments) and groups:
+            capsules = self._shader('capsules')
+            combine = self._shader('coverage')
+            hairlines = self._shader('hairlines')
+            coverage, cover_target = self._scratch('filaments', (width, height), 1)
+            quad = self._bare(combine)
+            self._uniform(capsules, 'canvas', (float(width), float(height)))
+            self._uniform(combine, 'canvas', (float(width), float(height)))
+            self._uniform(combine, 'coverage', 0)
+            for first, count, left, top, right, bottom, red, green, blue, alpha in groups:
+                piece = segments[int(first):int(first) + int(count)]
+                if len(piece) and piece[0, 4] * 2.0 <= 1.0:
+                    self._framebuffer.use()
+                    self._context.scissor = None
+                    self._blend(composition)
+                    self._uniform(hairlines, 'canvas', (float(width), float(height)))
+                    self._uniform(hairlines, 'colour', (red, green, blue, alpha))
+                    self._array(hairlines, self._stream('filaments', piece), '4f 1f 1f/i',
+                                'segment', 'half_width', 'caps').render(
+                        mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(piece))
+                    continue
+                left, top = max(0, int(left)), max(0, int(top))
+                right, bottom = min(width, int(math.ceil(right))), min(height, int(math.ceil(bottom)))
+                if right <= left or bottom <= top or count <= 0:
+                    continue
+                box = left, top, right - left, bottom - top
+                cover_target.use()
+                self._context.scissor = box
+                cover_target.clear(0.0, 0.0, 0.0, 0.0)
+                self._context.blend_equation = self._gl.MAX
+                self._context.blend_func = self._gl.ONE, self._gl.ONE
+                self._array(capsules, self._stream('filaments', piece), '4f 1f 1f/i',
+                            'segment', 'half_width', 'caps').render(
+                    mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(piece))
+                self._framebuffer.use()
+                self._context.scissor = box
+                self._blend(composition)
+                coverage.use(location=0)
+                self._uniform(combine, 'bounds', (float(left), float(top),
+                                                  float(right), float(bottom)))
+                self._uniform(combine, 'colour', (red, green, blue, alpha))
+                quad.render(mode=self._gl.TRIANGLE_STRIP, vertices=4)
+            self._context.scissor = None
+        self._framebuffer.use()
+        self._blend(composition)
+        self._discs(width, height, tips)
+        return self._read(width, height)
+
+    def _draw_tiles(self, width, height, material, placements, dark):
+        """Place cached paper tiles, rotated where the pointer spun them.
+
+        ``material`` is the engine's tuple of cells (its QImage tiles are
+        packed into one atlas texture, rebuilt only when that tuple is
+        replaced); ``placements`` holds ``(index, x, y, degrees)``.
+        """
+        np = _numpy()
+        atlas = self.__dict__.get('_atlas')
+        if atlas is None or atlas[0] is not material:
+            if atlas is not None:
+                atlas[1].release()
+                self.__dict__['_atlas'] = None
+            self.__dict__['_atlas'] = atlas = (material, *self._pack_tiles(material, dark))
+        _material, texture, rects = atlas
+        identity = 0.0 if dark else 1.0
+        self._target(width, height, (identity, identity, identity, 1.0))
+        rows = np.empty((len(placements), 9), dtype=np.float32)
+        for row, (index, x, y, degrees) in zip(rows, placements):
+            extent_x, extent_y = material[index][6], material[index][7]
+            left, top, tile_width, tile_height = rects[index]
+            if degrees == 0.0:
+                row[:] = (math.floor(x - extent_x + 0.5), math.floor(y - extent_y + 0.5),
+                          0.0, left, top, tile_width, tile_height, 0.0, 0.0)
+            else:
+                row[:] = (x, y, math.radians(degrees), left, top, tile_width,
+                          tile_height, -extent_x, -extent_y)
+        if len(rows):
+            program = self._shader('tiles')
+            self._blend('plus' if dark else 'multiply')
+            texture.use(location=0)
+            self._uniform(program, 'atlas', 0)
+            self._uniform(program, 'canvas', (float(width), float(height)))
+            self._array(program, self._stream('tiles', rows), '3f 4f 2f/i',
+                        'place', 'rect', 'offset').render(
+                mode=self._gl.TRIANGLE_STRIP, vertices=4, instances=len(rows))
+        return self._read(width, height)
+
+    def _pack_tiles(self, material, dark):
+        """Shelf-pack every cell tile into one bilinear atlas texture."""
+        np = _numpy()
+        limit = min(16384, int(self._context.info.get('GL_MAX_TEXTURE_SIZE', 8192)))
+        sizes = [(cell[5].width(), cell[5].height()) for cell in material]
+        if not sizes:
+            sizes = [(1, 1)]
+        shelf = max(max(w for w, _ in sizes) + 2, min(limit, 4096))
+        rects, x, y, line = [], 0, 0, 0
+        for tile_width, tile_height in sizes:
+            if x + tile_width + 2 > shelf:
+                x, y, line = 0, y + line, 0
+            rects.append((x + 1, y + 1, tile_width, tile_height))
+            x += tile_width + 2
+            line = max(line, tile_height + 2)
+        height = y + line
+        if shelf > limit or height > limit or shelf * height > 64 * 1024 ** 2:
+            raise RuntimeError('paper tiles exceed the graphics atlas budget')
+        fill = 0 if dark else 255
+        pixels = np.full((height, shelf, 4), fill, dtype=np.uint8)
+        pixels[:, :, 3] = 255
+        for cell, (left, top, tile_width, tile_height) in zip(material, rects):
+            tile = cell[5].convertToFormat(QImage.Format_RGB32)
+            raw = np.frombuffer(tile.constBits(), dtype=np.uint8).reshape(
+                tile_height, tile.bytesPerLine())[:, :tile_width * 4]
+            pixels[top:top + tile_height, left:left + tile_width] = raw.reshape(
+                tile_height, tile_width, 4)
+        texture = self._context.texture((shelf, height), 4, pixels.tobytes(), dtype='f1')
+        texture.repeat_x = texture.repeat_y = False
+        texture.filter = self._gl.LINEAR, self._gl.LINEAR
+        return texture, rects
+
+    def _close(self):
+        """Release all graphics resources on the constructing thread."""
+        if threading.get_ident() != self._owner:
+            raise RuntimeError('flow graphics release belongs to another thread')
+        extras = [resource for pair in
+                  self.__dict__.pop('_scratch_targets', {}).values()
+                  for resource in reversed(pair)]
+        atlas = self.__dict__.pop('_atlas', None)
+        if atlas is not None:
+            extras.append(atlas[1])
+        for resource in (self._framebuffer, self._texture, *extras,
+                         *reversed(self._resources), self._context):
+            if resource is not None:
+                try:
+                    resource.release()
+                except Exception:
+                    LOG.debug('could not release a flow graphics resource', exc_info=True)
+        for name in ('_programs', '_streams', '_arrays'):
+            self.__dict__.pop(name, None)
+        self._resources = []
+        self._context = self._framebuffer = self._texture = None
+
+
+class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
     The existing producer owns every shade pass. Reusable coordinates and
@@ -4990,7 +6675,28 @@ class _DataArtEngine(_BufferedEngine):
         self.gravity_radius = 0.0
         self.ripples_enabled = True
         self._ripple_intensity = 1.0
+        self._graphics_backend = 'cpu'
+        self._point_graphics = None
+        self._graphics_failed = False
+        self._graphics_idle_until = 0.0
+        self._graphics_idle = False
         super().__init__(*args, **kwargs)
+
+    def _graphics_unmeasured(self, width, height, work=0) -> bool:
+        """Automatic before measurements: dense 4K points, or 4K spinning paper.
+
+        Spinn under a moving pointer cost 62 ms per 4K CPU frame in the
+        2026-10-10 audit; its resting frame is reused and costs nothing.
+        """
+        if self.family == "tissue_facets":
+            return width * height >= 3840 * 2160
+        return width * height >= 3840 * 2160 and work >= 100000
+
+    def _graphics_point_image(self, width, height, px, py, intensities,
+                              lookup, spread):
+        """Use optional graphics only for supported producer-thread material."""
+        return self._graphics_frame('_draw', width, height, px, py, intensities,
+                                    lookup, spread, self.dark, work=len(px))
 
     def _configure(self, rng: random.Random) -> None:
         """Keep a bounded seed pool and stable material identity."""
@@ -5001,6 +6707,8 @@ class _DataArtEngine(_BufferedEngine):
         self._gravity_impulses = []
         self._gravity_ripple_impulses = {}
         self._popup_waves = []
+        self._column_waves = []
+        self._fold_waves = []
         self._popup_wave_origin = None
         self._popup_wave_window = None
         self._popup_wave_elapsed = 0.0
@@ -5138,8 +6846,13 @@ class _DataArtEngine(_BufferedEngine):
                 self._pointer_impulse_time = self.time
                 self._pointer_impulse_origin = self.pointer
 
-    def _add_impulse(self, point, strength: float = 1.0) -> None:
-        """Remember a bounded, finite gravity burst in animation time."""
+    def _add_impulse(self, point, strength: float = 1.0, ripple: bool = True) -> None:
+        """Remember a bounded, finite gravity burst in animation time.
+
+        ``ripple`` false keeps the burst without its travelling wave; click
+        waves are published separately so a container's own wave can
+        replace them.
+        """
         if (self.gravity_radius <= 0.0 or self.family != "impulse_lens"
                 or point is None):
             return
@@ -5158,7 +6871,7 @@ class _DataArtEngine(_BufferedEngine):
         self._gravity_ripple_impulses = {
             id(event): event for event in self._gravity_impulses
             if id(event) in self._gravity_ripple_impulses}
-        if self.ripples_enabled:
+        if self.ripples_enabled and ripple:
             self._gravity_ripple_impulses[id(impulse)] = impulse
 
     def _normalise_wave_origin(self, point):
@@ -5208,6 +6921,10 @@ class _DataArtEngine(_BufferedEngine):
         super().advance(dt)
         self._popup_waves = [wave for wave in self._popup_waves
                              if 0.0 <= self.time - wave[0] < 5.0]
+        self._column_waves = [wave for wave in self._column_waves
+                              if 0.0 <= self.time - wave[0] < RIPPLE_LIFETIME_S]
+        self._fold_waves = [wave for wave in getattr(self, "_fold_waves", ())
+                            if self.time - wave[0] < FOLD_LIFETIME_S]
         if (dt <= 0.0 or not self.ripples_enabled or self.family != "impulse_lens"
                 or self.popup_wave_frequency <= 0.0
                 or self._popup_wave_origin is None):
@@ -5223,6 +6940,17 @@ class _DataArtEngine(_BufferedEngine):
         """Emit a bounded field wave independently of pointer gravity."""
         if not self.ripples_enabled or self.family != "impulse_lens" or point is None:
             return
+        if len(point) == 3 and point[0] == "rings":
+            try:
+                x, y = float(point[1]), float(point[2])
+            except (TypeError, ValueError):
+                return
+            if math.isfinite(x) and math.isfinite(y):
+                origin = (max(0.0, min(1.0, x)), max(0.0, min(1.0, y)))
+                self._fold_waves = (self._fold_waves + [
+                    (self.time + ring * FOLD_RING_GAP_S, origin)
+                    for ring in range(FOLD_RINGS)])[-3 * FOLD_RINGS:]
+            return
         if len(point) == 2 and not isinstance(point[0], (tuple, list)):
             x, y = point
             if not all(math.isfinite(value) for value in (x, y)):
@@ -5235,11 +6963,72 @@ class _DataArtEngine(_BufferedEngine):
             return
         self._popup_waves = (self._popup_waves + [(self.time, origin)])[-6:]
 
+    def _add_column_wave(self, column) -> None:
+        """Emit a wave that travels only up and down a settings column.
+
+        :param column: ``(left, right, edge)`` in normalised units: the
+            column's horizontal extent and the row the wave starts from.
+        """
+        if not self.ripples_enabled or self.family != "impulse_lens" or column is None:
+            return
+        try:
+            left, right, edge = (float(value) for value in column)
+        except (TypeError, ValueError):
+            return
+        if not all(math.isfinite(value) for value in (left, right, edge)):
+            return
+        left, right = sorted((max(0.0, min(1.0, left)), max(0.0, min(1.0, right))))
+        if right <= left:
+            return
+        self._column_waves = (self._column_waves + [
+            (self.time, (left, right, max(0.0, min(1.0, edge))))])[-6:]
+
+    def _ripple_wave(self, distance, age, strength=1.0):
+        """Shape one travelling wave as a gentle refraction of the field.
+
+        Units are fractions of the shorter canvas edge and seconds. The
+        ``RIPPLE_*`` constants set amplitude, wavenumber, speed, packet width,
+        brightness change, the still zone at the source, ease-in, lifetime and
+        a column wave's soft side margin.
+
+        The wave moves dots along its own direction by at most a few pixels,
+        with a slope well below one so neighbouring dots never cross and no
+        gap opens. The source itself is still: the displacement grows in
+        smoothly over the first :data:`RIPPLE_SOURCE_CALM` of travel, so no
+        hole forms where the wave starts. It eases in over
+        :data:`RIPPLE_EASE_IN_S`, spreads out as it travels and fades out
+        before :data:`RIPPLE_LIFETIME_S`. Brightness follows the local
+        compression, lightening crests and dimming troughs alike, so the mean
+        field brightness does not change.
+
+        :param distance: aspect-corrected distance from the source.
+        :param age: seconds since the wave started.
+        :param strength: per-wave scale.
+        :returns: ``(shift, glow)``: outward displacement and brightness change.
+        """
+        np = _numpy()
+        if not 0.0 <= age < RIPPLE_LIFETIME_S:
+            return 0.0, 0.0
+        ease = (_smoothstep(np, 0.0, RIPPLE_EASE_IN_S, age)
+                * (1.0 - _smoothstep(np, 0.45 * RIPPLE_LIFETIME_S, RIPPLE_LIFETIME_S, age)))
+        travelled = age * RIPPLE_SPEED
+        gain = self._ripple_intensity * strength * ease / math.sqrt(1.0 + travelled / 0.18)
+        front = distance - travelled
+        packet = np.exp(-(front / RIPPLE_PACKET_WIDTH) ** 2)
+        calm = _smoothstep(np, 0.0, RIPPLE_SOURCE_CALM, distance)
+        phase = front * RIPPLE_WAVENUMBER
+        envelope = gain * packet * calm
+        shift = RIPPLE_AMPLITUDE * envelope * np.sin(phase)
+        glow = RIPPLE_GLOW * envelope * np.cos(phase)
+        return shift, glow
+
     def set_ripples_enabled(self, enabled: bool) -> None:
         """Enable field waves without changing gravity or the held field patch."""
         self.ripples_enabled = bool(enabled)
         if not self.ripples_enabled:
             self._popup_waves.clear()
+            self._column_waves.clear()
+            self._fold_waves.clear()
             self._gravity_ripple_impulses.clear()
             self._popup_wave_elapsed = 0.0
             for key, material in self._material_cache.items():
@@ -5310,12 +7099,21 @@ class _DataArtEngine(_BufferedEngine):
                         spread: bool = False) -> QImage:
         """Stamp circular antialiased grains without a full-size float field."""
         if self._random_palette:
+            self._release_point_graphics()
             image = self._colored_point_material(width, height, x, y, light, spread)
             self._flicker_field_dots(image, x, y)
             return image
         np = _numpy()
-        px = np.asarray(x, dtype=np.int32)
-        py = np.asarray(y, dtype=np.int32)
+        subpixel = spread and self.family == "impulse_lens"
+        if subpixel:
+            fx = np.asarray(x, dtype=np.float32).reshape(-1)
+            fy = np.asarray(y, dtype=np.float32).reshape(-1)
+            px, py = np.floor(fx).astype(np.int32), np.floor(fy).astype(np.int32)
+            exact = np.clip(np.broadcast_to(np.asarray(light, dtype=np.float32)
+                                            * self.alpha_scale(), fx.shape), 0.0, 1.0)
+        else:
+            px = np.asarray(x, dtype=np.int32)
+            py = np.asarray(y, dtype=np.int32)
         values = np.clip(np.asarray(light, dtype=np.float32)
                          * self.alpha_scale(), 0.0, 1.0)
         inside = ((px >= 0) & (px < width) & (py >= 0) & (py < height))
@@ -5330,10 +7128,31 @@ class _DataArtEngine(_BufferedEngine):
             ink = 0.78 * primary + 0.22 * accent
             value = ink * levels if self.dark else 255.0 - (255.0 - ink) * levels
             lookup |= np.asarray(value, dtype=np.uint32) << shift
+        if subpixel:
+            near = (fx > -2.0) & (fx < width + 2.0) & (fy > -2.0) & (fy < height + 2.0)
+            fx, fy, exact = fx[near], fy[near], np.ascontiguousarray(exact[near])
+            image = self._graphics_frame('_draw_subpixel', width, height, fx, fy, exact,
+                                         lookup, self.dark, work=len(fx))
+        else:
+            image = self._graphics_point_image(
+                width, height, px, py, intensities, lookup, spread)
+        if image is not None:
+            self._flicker_field_dots(image, px, py)
+            return image
         image = QImage(width, height, QImage.Format_RGB32)
         flat = np.frombuffer(image.bits(), dtype=np.uint32,
                              count=width * height)
         flat.fill(lookup[0])
+        if subpixel:
+            kernel = _ready_subpixel_scatter()
+            if kernel is not None:
+                kernel(flat, fx, fy, exact, lookup, width, height, self.dark,
+                       np.zeros(16, dtype=np.float64))
+            else:
+                _subpixel_grains_numpy(np, flat, fx, fy, exact, lookup,
+                                       width, height, self.dark)
+            self._flicker_field_dots(image, px, py)
+            return image
         if spread:
             kernel = _ready_packed_scatter()
             if kernel is not None:
@@ -5454,15 +7273,20 @@ class _DataArtEngine(_BufferedEngine):
                 self._material_cache[rotation_key] = (self.time, angles)
                 return self._soften(QImage(previous), width, height)
             self._material_cache.pop(key, None)
-            image = QImage(bw, bh, QImage.Format_RGB32)
-            inner = QPainter(image)
-            try:
-                inner.fillRect(image.rect(), self.identity)
-                inner.setCompositionMode(self.mode)
-                inner.setPen(Qt.NoPen)
-                self._paint_field(inner, bw, bh)
-            finally:
-                inner.end()
+            layout = self._tissue_layout(bw, bh)
+            image = self._graphics_frame('_draw_tiles', bw, bh, *layout, self.dark)
+            if image is None:
+                image = QImage(bw, bh, QImage.Format_RGB32)
+                inner = QPainter(image)
+                self._tissue_pending = layout
+                try:
+                    inner.fillRect(image.rect(), self.identity)
+                    inner.setCompositionMode(self.mode)
+                    inner.setPen(Qt.NoPen)
+                    self._paint_field(inner, bw, bh)
+                finally:
+                    self._tissue_pending = None
+                    inner.end()
             self._buffer = image
             if resting:
                 self._material_cache[key] = True
@@ -5555,8 +7379,34 @@ class _DataArtEngine(_BufferedEngine):
             width, height, sx, sy, light * gain, spread=True)
 
     def _paint_tissue_facets(self, painter: QPainter, width: int,
-                             height: int) -> None:
+                             height: int, layout: Optional[tuple] = None) -> None:
         """Spin crisp cached paper locally while mouse gravity is enabled."""
+        if layout is None:
+            layout = getattr(self, '_tissue_pending', None)
+            self._tissue_pending = None
+        material, placements = (self._tissue_layout(width, height)
+                                if layout is None else layout)
+        for index, x, y, angle in placements:
+            _cx, _cy, _rx, _ry, _phase, tile, extent_x, extent_y = material[index]
+            if angle == 0.0:
+                painter.drawImage(QPointF(x - extent_x, y - extent_y), tile)
+            else:
+                painter.save()
+                try:
+                    painter.translate(x, y)
+                    painter.rotate(angle)
+                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+                    painter.drawImage(QPointF(-extent_x, -extent_y), tile)
+                finally:
+                    painter.restore()
+
+    def _tissue_layout(self, width: int, height: int) -> tuple:
+        """Build or reuse the paper tiles and advance this frame's spin.
+
+        Returns ``(material, placements)`` with one ``(index, x, y,
+        degrees)`` per cell; called once per frame, since it advances the
+        stored rotation.
+        """
         key = ("tissue_facets", width, height, self.size, self.density)
         material = self._material_cache.get(key)
         if material is None:
@@ -5641,6 +7491,7 @@ class _DataArtEngine(_BufferedEngine):
         if not active or self.time < previous_time:
             angles[:] = [0.0] * len(material)
         self._material_cache[rotation_key] = (self.time, angles)
+        placements = []
         for index, cell in enumerate(material):
             cx, cy, rx, ry, phase, tile, extent_x, extent_y = cell
             dx = dy = 0.0
@@ -5656,18 +7507,8 @@ class _DataArtEngine(_BufferedEngine):
                     dy = -distance_y * ry * lift - ry * 0.28 * reach
                     proximity = max(0.0, 1.0 - math.sqrt(squared) / self.gravity_radius)
                     angles[index] = (angles[index] + step * 240.0 * proximity ** 2) % 360.0
-            if angles[index] == 0.0:
-                painter.drawImage(QPointF(cx + dx - extent_x,
-                                          cy + dy - extent_y), tile)
-            else:
-                painter.save()
-                try:
-                    painter.translate(cx + dx, cy + dy)
-                    painter.rotate(angles[index])
-                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-                    painter.drawImage(QPointF(-extent_x, -extent_y), tile)
-                finally:
-                    painter.restore()
+            placements.append((index, cx + dx, cy + dy, angles[index]))
+        return material, placements
 
 
 
@@ -5958,13 +7799,13 @@ class _DataArtEngine(_BufferedEngine):
             packet = np.exp(-(front / 0.075) ** 2) * reach
             has_ripple = (self.ripples_enabled
                           and id(impulse) in self._gravity_ripple_impulses)
-            ripple = (0.045 * self._ripple_intensity * decay * packet * np.sin(front * 58.0)
-                      if has_ripple else 0.0)
-            displacement = burst + ripple / np.maximum(distance, 0.055)
-            px[selected] += ex * displacement
-            py[selected] += ey * displacement
+            px[selected] += ex * burst
+            py[selected] += ey * burst
             if has_ripple:
-                energy[selected] += self._ripple_intensity * decay * packet * 0.40
+                shift, glow = self._ripple_wave(distance, age, strength * reach)
+                px[selected] += ex / distance * shift
+                py[selected] += ey / distance * shift
+                energy[selected] += glow
         active_popups = {origin for started, origin in self._popup_waves
                          if 0.0 <= self.time - started < 5.0}
         for origin in tuple(popup_fields):
@@ -5996,40 +7837,76 @@ class _DataArtEngine(_BufferedEngine):
                                        np.where(chosen, ey, old_ey))
                     squared, ex, ey = nearest
                     distance = np.sqrt(squared + 1e-6)
+                    outside = _outside_outline(np, origin, x, y, distance,
+                                               (aspect_x, aspect_y))
                 else:
                     ex = (x - origin[0]) * aspect_x
                     ey = (y - origin[1]) * aspect_y
                     distance = np.sqrt(ex * ex + ey * ey + 1e-6)
-                field = (ex / aspect_x, ey / aspect_y, distance)
+                    outside = 1.0
+                field = (ex / aspect_x, ey / aspect_y, distance, outside)
                 popup_fields[origin] = field
-            ex, ey, distance = field
-            front = distance - age * 0.26
-            packet = np.exp(-(front / 0.06) ** 2)
-            decay = math.exp(-age * 0.65)
-            displacement = (0.025 * self._ripple_intensity * decay * packet * np.sin(front * 58.0)
-                            / np.maximum(distance, 0.055))
-            px += ex * displacement
-            py += ey * displacement
-            energy += self._ripple_intensity * decay * packet * 0.30
+            ex, ey, distance, outside = field
+            shift, glow = self._ripple_wave(distance, age)
+            shift, glow = shift * outside, glow * outside
+            px += ex / distance * shift
+            py += ey / distance * shift
+            energy += glow
+        for started, (left, right, edge) in (self._column_waves
+                                             if self.ripples_enabled else ()):
+            age = self.time - started
+            if not 0.0 <= age < RIPPLE_LIFETIME_S:
+                continue
+            across = np.minimum(x - left, right - x) * aspect_x
+            weight = _smoothstep(np, -RIPPLE_COLUMN_SOFTNESS, RIPPLE_COLUMN_SOFTNESS, across)
+            offset = (y - edge) * aspect_y
+            shift, glow = self._ripple_wave(np.abs(offset) + 1e-6, age)
+            py += np.sign(offset) * shift * weight / aspect_y
+            energy += glow * weight
+        for started, (fold_x, fold_y) in (getattr(self, "_fold_waves", ())
+                                          if self.ripples_enabled else ()):
+            age = self.time - started
+            if not 0.0 <= age < FOLD_LIFETIME_S:
+                continue
+            ex, ey = (x - fold_x) * aspect_x, (y - fold_y) * aspect_y
+            distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+            travelled = age * FOLD_SPEED
+            ease = float(_smoothstep(np, 0.0, 0.12, age)
+                         * (1.0 - _smoothstep(np, 0.45 * FOLD_LIFETIME_S,
+                                              FOLD_LIFETIME_S, age)))
+            intensity = self._ripple_intensity
+            gain = intensity * ease / math.sqrt(1.0 + travelled / 1.2)
+            front = distance - travelled
+            reach = FOLD_PACKET_WIDTH * math.sqrt(max(1.0, intensity))
+            packet = (np.exp(-(front / reach) ** 2)
+                      * _smoothstep(np, 0.0, 0.04, distance))
+            gather = FOLD_GATHER * gain / max(1.0, intensity)
+            pull = min(0.94, gather) * front * packet
+            px -= ex / distance * pull / aspect_x
+            py -= ey / distance * pull / aspect_y
+            energy += FOLD_GLOW * gain * packet
         if self._field_grab_offset != (0.0, 0.0):
             center_x, center_y = self._field_grab_center
             gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
             reach = np.maximum(0.0, 1.0 - (gx * gx + gy * gy) / 0.34 ** 2) ** 3
             px += self._field_grab_offset[0] / aspect_x * reach
             py += self._field_grab_offset[1] / aspect_y * reach
-        brilliance = np.clip(0.57 + energy, 0.48, 1.0)
+        brilliance = np.clip(0.57 + energy, RIPPLE_FLOOR, 1.0)
         gain = max(1.0, self.effective_density())
         image = self._point_material(
             width, height, px * width, py * height, brilliance * gain,
             spread=True)
         return image
 
-    def _flicker_field_dots(self, image, x, y) -> None:
+    def _flicker_field_dots(self, image, x, y, opaque: bool = True) -> None:
         """Flash the selected percentage of visible point-theme dots white.
 
         Fractional expected counts are sampled rather than rounded up to one
         dot. Very low percentages therefore give rare flashes, even in a
         sparse field. Selection changes at four ticks per animation second.
+        ``opaque=False`` is for a frame whose alpha bytes still hold grain
+        ranks: each word a flash compares against is made opaque first, so
+        the flash lands exactly as it does after a whole-frame opaque pass.
         """
         np = _numpy()
         width, height = image.width(), image.height()
@@ -6057,7 +7934,10 @@ class _DataArtEngine(_BufferedEngine):
                             (-1, 1, 0xff3d3d3d), (1, 1, 0xff3d3d3d)):
             nx, ny = px + dx, py + dy
             inside = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
-            np.maximum.at(flat, ny[inside] * width + nx[inside], np.uint32(ink))
+            index = ny[inside] * width + nx[inside]
+            if not opaque:
+                flat[index] |= np.uint32(0xff000000)
+            np.maximum.at(flat, index, np.uint32(ink))
 
 
 class _SpaceoutFieldEngine(_DataArtEngine):
@@ -6334,10 +8214,47 @@ class _SpaceoutFieldEngine(_DataArtEngine):
         inside = (px >= 0) & (px < width) & (py >= 0) & (py < height)
         indices = hues[inside] * np.uint16(256) + np.rint(values[inside] * 255).astype(np.uint16)
         px, py = px[inside], py[inside]
-        image = QImage(width, height, QImage.Format_RGB32)
+        mixer = _ready_color_blend() if blend < 255 else None
+        if mixer is not None:
+            frame_key = ("spaceout_colour_frame", width, height)
+            image = self._material_cache.get(frame_key)
+            if image is None:
+                image = QImage(width, height, QImage.Format_RGB32)
+                self._material_cache[frame_key] = image
+        else:
+            image = QImage(width, height, QImage.Format_RGB32)
         output = np.frombuffer(image.bits(), np.uint32, count=width * height)
         table, axial, diagonal = tables
-        output.fill(table[0])
+        destinations = None
+        if mixer is not None:
+            if spread and not self._random_palette:
+                fx = np.asarray(x, np.float32).reshape(-1)
+                fy = np.asarray(y, np.float32).reshape(-1)
+                bx = np.floor(fx - .5).astype(np.int32)
+                by = np.floor(fy - .5).astype(np.int32)
+                offsets = np.arange(-1, 3, dtype=np.int32)
+                nx = np.broadcast_to(bx[None, None, :] + offsets[None, :, None],
+                                     (4, 4, bx.size))
+                ny = np.broadcast_to(by[None, None, :] + offsets[:, None, None], nx.shape)
+                valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                destinations = ny[valid] * width + nx[valid]
+                boundary = (px == 0) | (py == 0)
+                cx, cy = px[boundary], py[boundary]
+            else:
+                destinations = np.empty(0, np.int32)
+                cx, cy = px, py
+            if spread or self.blink_percent:
+                offsets = np.arange(-1, 2, dtype=np.int32)
+                nx = np.broadcast_to(cx[None, None, :] + offsets[None, :, None],
+                                     (3, 3, cx.size))
+                ny = np.broadcast_to(cy[None, None, :] + offsets[:, None, None], nx.shape)
+                valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                destinations = np.concatenate((destinations, ny[valid] * width + nx[valid]))
+            else:
+                destinations = np.concatenate((destinations, cy * width + cx))
+            output[destinations] = table[0]
+        else:
+            output.fill(table[0])
         kernel = None if self._phenomena_kernel_failed else _ready_colored_scatter()
         if kernel is not None:
             try:
@@ -6347,7 +8264,10 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                 self._phenomena_kernel_failed = True
                 kernel = None
         if kernel is None:
-            output.fill(table[0])
+            if destinations is None:
+                output.fill(table[0])
+            else:
+                output[destinations] = table[0]
             combine = np.maximum.at if self.dark else np.minimum.at
             combine(output, py * width + px, table[indices])
             if spread:
@@ -6357,6 +8277,14 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                     valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
                     selected = diagonal if dx and dy else axial
                     combine(output, ny[valid] * width + nx[valid], selected[indices[valid]])
+        if mixer is not None:
+            self._flicker_field_dots(image, px, py, opaque=False)
+            ordinary = super()._point_material(width, height, x, y, light, spread)
+            base = np.frombuffer(ordinary.bits(), np.uint32, count=width * height)
+            previous = base[destinations]
+            mixer(output[destinations], previous, blend)
+            base[destinations] = previous
+            return ordinary
         np.bitwise_or(output, np.uint32(0xff000000), out=output)
         self._flicker_field_dots(image, px, py)
         if blend < 255:
@@ -6374,7 +8302,38 @@ class _SpaceoutFieldEngine(_DataArtEngine):
         return image
 
 
-class _FungalGrowthEngine(_BufferedEngine):
+def _flatten_quadratic(x0, y0, cx, cy, x1, y1, level=5) -> list:
+    """Points along a quadratic Bézier, split where QPainter's hairline splits.
+
+    The curve is raised to a cubic, as QPainterPath stores it, and halved
+    only while a control point lies a quarter of the chord's L1 length or
+    more from the chord, up to ``level`` times; a nearly straight curve
+    stays one line, which is how Qt's cosmetic stroker draws it.
+    """
+    first = (x0 + 2.0 / 3.0 * (cx - x0), y0 + 2.0 / 3.0 * (cy - y0))
+    second = (x1 + 2.0 / 3.0 * (cx - x1), y1 + 2.0 / 3.0 * (cy - y1))
+    out = [(x0, y0)]
+    pending = [((x0, y0), first, second, (x1, y1), level)]
+    while pending:
+        a, b, c, d, depth = pending.pop()
+        dx, dy = d[0] - a[0], d[1] - a[1]
+        reach = 0.25 * (abs(dx) + abs(dy))
+        if depth and (abs(dx * (a[1] - c[1]) - dy * (a[0] - c[0])) >= reach
+                      or abs(dx * (a[1] - b[1]) - dy * (a[0] - b[0])) >= reach):
+            ab = ((a[0] + b[0]) * 0.5, (a[1] + b[1]) * 0.5)
+            bc = ((b[0] + c[0]) * 0.5, (b[1] + c[1]) * 0.5)
+            cd = ((c[0] + d[0]) * 0.5, (c[1] + d[1]) * 0.5)
+            abc = ((ab[0] + bc[0]) * 0.5, (ab[1] + bc[1]) * 0.5)
+            bcd = ((bc[0] + cd[0]) * 0.5, (bc[1] + cd[1]) * 0.5)
+            middle = ((abc[0] + bcd[0]) * 0.5, (abc[1] + bcd[1]) * 0.5)
+            pending.append((middle, bcd, cd, d, depth - 1))
+            pending.append((a, ab, abc, middle, depth - 1))
+        else:
+            out.append(d)
+    return out
+
+
+class _FungalGrowthEngine(_GraphicsBackend, _BufferedEngine):
     """Fine connected mycelial fans branch from common origins continuously.
 
     Bright tips advance along irregular filaments and fork progressively.
@@ -6389,8 +8348,16 @@ class _FungalGrowthEngine(_BufferedEngine):
     _edge_lifetime = 75.0
 
     def _shade(self, width: int, height: int) -> QImage:
-        """Render the unchanged native field into a freshly owned image."""
+        """Render the unchanged native field into a freshly owned image.
+
+        The optional graphics renderer strokes the same partial Béziers and
+        tips; any refusal keeps the QPainter path below.
+        """
         bw, bh = self.buffer_size(width, height)
+        image = self._graphics_frame('_draw_filaments', bw, bh,
+                                     build=lambda: self._fungal_strokes(bw, bh))
+        if image is not None:
+            return self._soften(image, width, height)
         image = QImage(bw, bh, QImage.Format_RGB32)
         painter = QPainter(image)
         self._owned_fungal_image = image
@@ -6403,6 +8370,72 @@ class _FungalGrowthEngine(_BufferedEngine):
             self._owned_fungal_image = None
             painter.end()
         return self._soften(image, width, height)
+
+    def _fungal_strokes(self, width: int, height: int) -> tuple:
+        """Flattened filament groups and tips for the graphics renderer.
+
+        Groups follow :meth:`_fungal_paths` (same keys, same order, same
+        colours); each partial quadratic Bézier is split into lines as Qt
+        splits it (:func:`_flatten_quadratic`).
+        """
+        np = _numpy()
+        colors = self.paint_colors
+        curves: Dict[tuple, list] = {}
+        tips = []
+        for (x0, y0, cx, cy, x1, y1, progress,
+             alpha, stroke, hue) in self.geometry(width, height):
+            control_x = x0 + progress * (cx - x0)
+            control_y = y0 + progress * (cy - y0)
+            end_x = ((1.0 - progress) ** 2 * x0
+                     + 2.0 * (1.0 - progress) * progress * cx
+                     + progress ** 2 * x1)
+            end_y = ((1.0 - progress) ** 2 * y0
+                     + 2.0 * (1.0 - progress) * progress * cy
+                     + progress ** 2 * y1)
+            curves.setdefault((hue % len(colors), stroke, alpha), []).append(
+                (x0, y0, control_x, control_y, end_x, end_y))
+            if progress < 1.0:
+                tip = _with_alpha(colors[(hue + 1) % len(colors)],
+                                  min(0.85, alpha * 1.8))
+                tips.append((end_x, end_y, max(0.45, stroke * 0.8), tip.redF(),
+                             tip.greenF(), tip.blueF(), tip.alphaF()))
+        groups, pieces, first = [], [], 0
+        for (hue, stroke, alpha), group in curves.items():
+            rows = []
+            for curve in group:
+                points = _flatten_quadratic(*curve)
+                last = len(points) - 2
+                for index in range(last + 1):
+                    rows.append((*points[index], *points[index + 1], stroke * 0.5,
+                                 (1.0 if index == 0 else 0.0)
+                                 + (2.0 if index == last else 0.0)))
+            segment = np.asarray(rows, dtype=np.float32).reshape(-1, 6)
+            if stroke <= 1.0 and len(segment):
+                for flag, head in ((1.0, 0), (2.0, 2)):
+                    rows_ = np.flatnonzero(np.fmod(segment[:, 5], 2.0 * flag) >= flag)
+                    delta = segment[rows_, 2:4] - segment[rows_, 0:2]
+                    major = np.maximum(np.abs(delta).max(axis=1), 1e-6)
+                    push = 0.5 * delta / major[:, None]
+                    if head == 0:
+                        segment[rows_, 0:2] -= push
+                    else:
+                        segment[rows_, 2:4] += push
+            margin = stroke * 0.5 + 2.0
+            color = _with_alpha(colors[hue], alpha)
+            xs = segment[:, 0:4:2]
+            ys = segment[:, 1:4:2]
+            groups.append((first, len(segment),
+                           math.floor(float(xs.min()) - margin),
+                           math.floor(float(ys.min()) - margin),
+                           math.ceil(float(xs.max()) + margin),
+                           math.ceil(float(ys.max()) + margin),
+                           color.redF(), color.greenF(), color.blueF(),
+                           color.alphaF()))
+            pieces.append(segment)
+            first += len(segment)
+        segments = (np.concatenate(pieces) if pieces
+                    else np.zeros((0, 6), dtype=np.float32))
+        return groups, segments, tips, self.dark
 
     def _configure(self, rng: random.Random) -> None:
         """Roll the first common origin and a seed for all indexed colonies."""
@@ -7020,7 +9053,7 @@ class Motion(NamedTuple):
     direction: str
 
 
-def preferred_motion() -> Motion:
+def preferred_motion(theme: Optional[str] = None) -> Motion:
     """The animation controls, from the user's preferences.
 
     Read here rather than passed in by every install site, for the same
@@ -7028,9 +9061,12 @@ def preferred_motion() -> Motion:
     widgets are a module screen and Home, and neither of them has any
     business knowing what the animation's knobs are called. Falls back to
     the shipped defaults if preferences cannot be read at all.
+
+    :param theme: the theme being built, whose own default density applies
+        while no density was saved.
     """
     fallback = Motion(DEFAULT_BLUR, DEFAULT_SPEED, DEFAULT_SIZE,
-                      DEFAULT_RESOLUTION, DEFAULT_DENSITY,
+                      DEFAULT_RESOLUTION, _default_density_for(theme),
                       DEFAULT_DRIFT_DIRECTION)
     try:
         from ..preferences import (get_ambient_density,
@@ -7039,7 +9075,7 @@ def preferred_motion() -> Motion:
                                    get_ambient_speed)
         return Motion(DEFAULT_BLUR, get_ambient_speed(),
                       get_ambient_size(), get_ambient_resolution(),
-                      get_ambient_density(), get_ambient_drift_direction())
+                      get_ambient_density(theme), get_ambient_drift_direction())
     except Exception:
         return fallback
 
@@ -7146,7 +9182,12 @@ class _QueuedArtInput:
             else:
                 for wave_serial, point in self._boundary_waves:
                     if wave_serial > self._applied_boundary_serial:
-                        engine._add_ripple(point)
+                        if point and point[0] == "column":
+                            engine._add_column_wave(point[1:])
+                        elif point and point[0] == "rings":
+                            engine._add_ripple(point)
+                        else:
+                            engine._add_ripple(point)
                         self._applied_boundary_serial = wave_serial
             popup_serial, popup_origin, popup_id = self._popup_snapshot
             if discard_clicks and not preserve_grab:
@@ -7170,8 +9211,7 @@ class _QueuedArtInput:
         for click_serial, point in clicks:
             if (click_serial > self._applied_click_serial and not discard_clicks
                     and engine.name in _FIELD_THEMES):
-                engine._add_impulse(point, strength=1.0)
-                engine._add_ripple(point)
+                engine._add_impulse(point, strength=1.0, ripple=False)
         if clicks:
             self._applied_click_serial = clicks[-1][0]
         self._applied_elapsed = elapsed
@@ -7239,7 +9279,21 @@ class _FrameProducer:
         self._frame_lock = threading.Lock()
         self._frame: Optional[QImage] = None
         self._stop = threading.Event()
+        self._wake = threading.Event()
+        self.doorbell = None
+        self._doorbell_lock = threading.Lock()
+        self.tick_driven = False
+        self.urgent = False
         self._thread: Optional[threading.Thread] = None
+        #: The card plan (:class:`_CardPlan`) each frame is composited
+        #: with, or ``None``. Set by the GUI thread; read once per frame.
+        self.cards: Optional[_CardPlan] = None
+        #: ``(plan, composited image, frame)`` for the newest published
+        #: frame, or ``None`` when it was published without cards.
+        self.composed = None
+        #: The owning backdrop's one-element producer box, or ``None``;
+        #: :func:`_retire_shading_threads` empties it when it retires this.
+        self.box: Optional[List[Optional["_FrameProducer"]]] = None
 
     def start(self) -> None:
         """Begin shading. A second call is a no-op."""
@@ -7247,7 +9301,23 @@ class _FrameProducer:
             return
         self._thread = threading.Thread(
             target=self._run, name="spacr-ambient-shade", daemon=True)
+        _LIVE_PRODUCERS.add(self)
         self._thread.start()
+
+    def _ring_doorbell(self) -> None:
+        """Ask the GUI thread to repaint, unless the doorbell has been taken.
+
+        Rung under the doorbell lock that :meth:`stop` takes to drop it, so
+        the shading thread never emits on a doorbell the widget has let go.
+        """
+        with self._doorbell_lock:
+            bell = self.doorbell
+            if bell is None:
+                return
+            try:
+                bell.objectNameChanged.emit("")
+            except RuntimeError:
+                self.doorbell = None
 
     def stop(self) -> None:
         """Ask the thread to finish the frame it is on and exit, then wait
@@ -7260,7 +9330,10 @@ class _FrameProducer:
         restarted (:meth:`AmbientWidget._start_producer` builds a new one), so
         there is nothing to gain by forgetting it.
         """
+        with self._doorbell_lock:
+            self.doorbell = None
         self._stop.set()
+        self._wake.set()
         thread = self._thread
         if thread is not None and thread.is_alive():
             thread.join(timeout=PRODUCER_JOIN_S)
@@ -7275,10 +9348,15 @@ class _FrameProducer:
         the frame in flight."""
         self._interval = 1.0 / max(1, int(fps))
 
-    def publish(self, image: QImage) -> None:
-        """Make ``image`` the frame the next paint will use."""
+    def publish(self, image: QImage, composed=None) -> None:
+        """Make ``image`` the frame the next paint will use.
+
+        :param composed: the same frame with the card plan composited into
+            it, as :func:`_compose_cards` returns it, or ``None``.
+        """
         with self._frame_lock:
             self._frame = image
+            self.composed = composed
 
     def latest(self) -> Optional[QImage]:
         """The newest published frame, or ``None``. **Never blocks.**
@@ -7305,20 +9383,178 @@ class _FrameProducer:
         fast as it can rather than falling further behind a schedule it cannot
         keep.
         """
-        while not self._stop.is_set():
-            started = time.monotonic()
-            width, height = self.size
-            image = None
-            if width > 0 and height > 0:
-                with self._engine_lock:
-                    if self._queued_input is not None:
-                        self._queued_input._consume(self._engine)
-                    image = self._engine.shade(width, height)
-            if image is not None:
-                self.publish(image)
-                self.frames_shaded += 1
-            remaining = self._interval - (time.monotonic() - started)
-            self._stop.wait(remaining if remaining > 0 else 0.0)
+        try:
+            if getattr(self._engine, "_graphics_backend", "cpu") == "gpu":
+                _flow_graphics_preflight()
+            woken, woken_at = False, -math.inf
+            while not self._stop.is_set():
+                started = time.monotonic()
+                urgent, self.urgent = self.urgent, False
+                width, height = self.size
+                image = composed = None
+                if width > 0 and height > 0:
+                    with self._engine_lock:
+                        if self._queued_input is not None:
+                            self._queued_input._consume(self._engine)
+                        image = self._engine.shade(width, height)
+                        plan = self.cards
+                        if image is not None and plan is not None:
+                            composed = _compose_cards(self._engine, image,
+                                                      plan)
+                        if self.tick_driven and self._queued_input is not None:
+                            self._queued_input._consume(self._engine)
+                if image is not None:
+                    self.publish(image, composed)
+                    self.frames_shaded += 1
+                    if woken and (urgent or not self.tick_driven):
+                        self._ring_doorbell()
+                if woken:
+                    woken_at = started
+                if self.tick_driven:
+                    woken = self._wake.wait(2.0 * self._interval)
+                else:
+                    remaining = self._interval - (time.monotonic() - started)
+                    woken = self._wake.wait(remaining if remaining > 0 else 0.0)
+                self._wake.clear()
+                if woken and not self._stop.is_set():
+                    gap = (0.75 if self.tick_driven else 1.0) / MAX_FPS
+                    spacing = gap - (time.monotonic() - woken_at)
+                    if spacing > 0:
+                        self._stop.wait(spacing)
+        finally:
+            with self._engine_lock:
+                release = getattr(self._engine, '_release_point_graphics', None)
+                if release is not None:
+                    release()
+
+
+#: Every shading thread started in this process that may still be running.
+#: A running thread holds its producer through its target, so a producer
+#: leaves this set only once its thread has ended and nothing else keeps it.
+_LIVE_PRODUCERS: "weakref.WeakSet[_FrameProducer]" = weakref.WeakSet()
+
+#: Every backdrop and every spaceout fractal built in this process. The run
+#: policy reads these instead of walking ``QApplication.allWidgets()``: that
+#: walk wraps every widget of a 3840x2160 window in Python on each job
+#: change, and it was a fifth of the GUI thread's samples in the seconds
+#: after lesson 13's run ended.
+_LIVE_AMBIENT_WIDGETS: "weakref.WeakSet[QWidget]" = weakref.WeakSet()
+_LIVE_SPACEOUT_FRACTALS: "weakref.WeakSet[QWidget]" = weakref.WeakSet()
+
+
+def _still_alive(widgets) -> list:
+    """The widgets of a registry whose Qt object still exists."""
+    from shiboken6 import isValid
+
+    found = []
+    for widget in list(widgets):
+        try:
+            if isValid(widget):
+                found.append(widget)
+        except Exception:                                    # noqa: BLE001
+            continue
+    return found
+
+#: Set once the application is quitting: no backdrop starts a shading thread
+#: (and with it a graphics context) after that.
+_SHADING_RETIRED = [False]
+
+#: How long the quit path waits, in all, for every shading thread to end.
+SHADING_EXIT_BUDGET_S = 3.0
+
+
+def _retire_shading_threads(timeout_s: float = SHADING_EXIT_BUDGET_S,
+                            final: bool = False) -> int:
+    """Stop every backdrop shading thread before the application is torn down.
+
+    Each thread releases its own GPU renderer (:class:`_FlowPointGraphics`:
+    the moderngl context over EGL, its framebuffer, textures and programs)
+    as it ends, on the thread that created and owns that context. Doing this
+    while ``QApplication`` and the interpreter are still whole is the point:
+    left to interpreter finalization, a daemon shading thread can still be
+    inside the driver, or the context is collected on another thread after
+    the GL libraries started unloading, and the process ends with SIGSEGV
+    ("<no Python frame>") after a clean quit.
+
+    Called from ``aboutToQuit``, from :func:`spacr.qt.app.launch` once the
+    event loop has returned, and, ``final``, from an ``atexit`` hook
+    registered after PySide6's own, so it runs before Qt's teardown. Each
+    retired thread is taken out of its backdrop, so a backdrop that is still
+    shown afterwards (a test that emitted ``aboutToQuit``) shades on demand
+    or starts a new thread when it is next started; after the final call no
+    backdrop starts one.
+
+    :param timeout_s: total wait, in seconds, shared by every thread.
+    :param final: the interpreter is exiting: no shading thread starts again.
+    :returns: how many shading threads are still running afterwards.
+    """
+    if final:
+        _SHADING_RETIRED[0] = True
+    producers = list(_LIVE_PRODUCERS)
+    for producer in producers:
+        producer._stop.set()
+        producer._wake.set()
+        box = producer.box
+        if box is not None and box and box[0] is producer:
+            box[0] = None
+    deadline = time.monotonic() + max(0.0, float(timeout_s))
+    current = threading.current_thread()
+    for producer in producers:
+        thread = producer._thread
+        if thread is not None and thread is not current and thread.is_alive():
+            thread.join(max(0.0, deadline - time.monotonic()))
+    alive = sum(1 for producer in producers if producer.is_alive())
+    if alive:
+        LOG.warning("%d backdrop shading thread(s) did not stop before exit",
+                    alive)
+    return alive
+
+
+def _retire_shading_at_exit() -> None:
+    """``atexit`` hook: the final :func:`_retire_shading_threads`, never raising."""
+    try:
+        _retire_shading_threads(final=True)
+    except Exception:
+        pass
+
+
+def _retire_shading_on_about_to_quit() -> None:
+    """``aboutToQuit`` slot: :func:`_retire_shading_threads`, never raising."""
+    try:
+        _retire_shading_threads()
+    except Exception:
+        pass
+
+
+atexit.register(_retire_shading_at_exit)
+
+_QUIT_HOOKED = [None]
+
+
+def _retire_shading_on_quit(app) -> None:
+    """Connect :func:`_retire_shading_threads` to ``app``'s ``aboutToQuit`` once."""
+    if app is None or _QUIT_HOOKED[0] is app:
+        return
+    try:
+        app.aboutToQuit.connect(_retire_shading_on_about_to_quit)
+        _QUIT_HOOKED[0] = app
+    except (RuntimeError, TypeError, AttributeError):
+        pass
+
+
+def _repaint_if_alive(owner) -> None:
+    """Repaint the field a weak reference points at, if it still exists.
+
+    The shading thread's doorbell can ring after the widget's C++ half has
+    gone and before its producer is stopped, so the queued call checks both.
+
+    :param owner: a weak reference to the :class:`AmbientWidget`.
+    """
+    from shiboken6 import isValid
+
+    widget = owner()
+    if widget is not None and isValid(widget):
+        widget.repaint()
 
 
 def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
@@ -7336,6 +9572,717 @@ def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
         box[0] = None
     if producer is not None:
         producer.stop()
+
+
+#: The application's events a field listens to: the pointer and its clicks.
+_APPLICATION_EVENTS = (QEvent.MouseMove, QEvent.MouseButtonPress,
+                       QEvent.MouseButtonRelease)
+
+#: The event types :meth:`AmbientWidget.eventFilter` acts on, from the
+#: application, the window it is in and its parent. Every widget above the
+#: field is sent a paint event on every frame, so anything else returns at
+#: once.
+_FILTERED_EVENTS = frozenset((
+    QEvent.MouseMove, QEvent.MouseButtonPress, QEvent.MouseButtonRelease,
+    QEvent.WindowDeactivate, QEvent.Resize, QEvent.WindowStateChange,
+    QEvent.Hide, QEvent.Show, QEvent.Move, QEvent.ScreenChangeInternal))
+
+
+class _CardPlan(NamedTuple):
+    """The translucent card backgrounds the shading thread composites.
+
+    ``items`` holds ``(thread picture, GUI picture, x, y, clip)`` per card
+    background or static part (:func:`_static_part`), in paint order.
+    Built on the GUI thread by :class:`_CardTints` from the
+    widgets' current geometry and style, and read-only after that, so the
+    shading thread can paint from it without touching a widget.
+
+    ``origin`` is the backdrop's top left in its window. The composite is
+    painted at that place in an image the window's size up to the
+    backdrop's far edge (``base`` is that image's page), so every layer
+    is drawn at the device coordinates Qt draws it at in the window: a
+    gradient (the Glass theme's card bodies) is sampled from its device
+    position and differs by one level here and there when drawn elsewhere.
+    """
+
+    width: int
+    height: int
+    base: QImage
+    items: tuple
+    origin: QPoint = QPoint()
+
+
+#: Events that can move, resize, show, hide or restyle a composited card.
+_CARD_EVENTS = frozenset((
+    QEvent.Move, QEvent.Resize, QEvent.Show, QEvent.Hide, QEvent.StyleChange,
+    QEvent.PaletteChange, QEvent.DynamicPropertyChange, QEvent.EnabledChange,
+    QEvent.ZOrderChange, QEvent.ParentChange))
+
+#: The subset of :data:`_CARD_EVENTS` after which a background is redrawn.
+_CARD_RESTYLES = frozenset((
+    QEvent.StyleChange, QEvent.PaletteChange, QEvent.DynamicPropertyChange,
+    QEvent.EnabledChange))
+
+#: Ticks without a card event before the plan is rebuilt.
+_CARD_SETTLE_TICKS = 2
+
+#: Smallest visible area, in pixels, worth compositing.
+_CARD_MIN_AREA = 8192
+
+#: Edge of the probe a background is classified on.
+_CARD_PROBE = 64
+
+#: Widget states a composited background must not depend on.
+_CARD_STATES = (QStyle.State_MouseOver, QStyle.State_HasFocus,
+                QStyle.State_Active)
+
+#: Events after which a field's chrome may be drawn for another focus. They
+#: reach the widget that takes the focus, which for an editable combo box
+#: is the editor inside it, so any widget inside a planned part counts.
+_CARD_FOCUS = frozenset((QEvent.FocusIn, QEvent.FocusOut))
+
+
+class _ImagePlay:
+    """An image played at the origin, the way a ``QPicture`` plays.
+
+    Field chrome is a raster the fade draws with ``drawPixmap``; drawn from
+    the same pixels with ``drawImage`` it takes the same blend. A
+    ``QPicture`` would not do: copied for the second thread, it keeps only
+    the index of an image it holds, not the image.
+    """
+
+    __slots__ = ("image",)
+
+    def __init__(self, image: QImage):
+        """Hold ``image``; each thread gets its own instance and copy."""
+        self.image = image
+
+    def play(self, painter: QPainter) -> None:
+        """Draw the image with its top left at the painter's origin."""
+        painter.drawImage(0, 0, self.image)
+
+
+def _card_background(card, device, width: int, height: int, flip=None):
+    """Paint ``card``'s stylesheet background onto ``device``.
+
+    The same primitive :class:`QWidget` draws before its paint event, with
+    the same option. Recorded into a ``QPicture`` and played back over the
+    page it gives exactly the pixels the widget paints there itself; an
+    image of it blended over the page does not, by one or two levels where
+    the border overlaps the fill.
+
+    :param flip: style state bits to invert, to ask whether the background
+        depends on them.
+    :returns: ``device``.
+    """
+    painter = QPainter(device)
+    try:
+        option = QStyleOption()
+        option.initFrom(card)
+        option.rect = QRect(0, 0, width, height)
+        if flip is not None:
+            option.state ^= flip
+        card.style().drawPrimitive(QStyle.PE_Widget, option, painter, card)
+    finally:
+        painter.end()
+    return device
+
+
+def _card_probe(card, width: int, height: int, flip=None) -> QImage:
+    """:func:`_card_background` on a transparent image, to classify it."""
+    image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+    image.fill(0)
+    return _card_background(card, image, width, height, flip)
+
+
+def _own_picture(picture: QPicture) -> QPicture:
+    """A ``QPicture`` with its own data: two threads never play one."""
+    own = QPicture()
+    own.setData(picture.data())
+    return own
+
+
+def _draw_cards(painter: QPainter, plan: _CardPlan, which: int) -> None:
+    """Play every background in ``plan`` at its place, clipped as Qt would.
+
+    :param which: 0 for the shading thread's pictures, 1 for the GUI's.
+    """
+    origin = painter.transform()
+    for item in plan.items:
+        x, y, clip = item[2:]
+        painter.setClipRect(clip)
+        painter.translate(x, y)
+        item[which].play(painter)
+        painter.setTransform(origin)
+    painter.setClipping(False)
+
+
+def _compose_cards(engine, frame: QImage, plan: _CardPlan):
+    """The page, ``frame`` and the cards of ``plan``, as one opaque image.
+
+    **Any thread**: the plan holds images, not widgets. Called with the
+    engine lock held, because :meth:`_BufferedEngine.blit` reads the
+    engine's composition mode.
+
+    :returns: ``(plan, image, frame)``, which is what a paint checks
+        against the plan and frame it is showing; ``image`` is laid out as
+        ``plan.base``, with the backdrop at ``plan.origin``.
+    """
+    image = plan.base.copy()
+    painter = QPainter(image)
+    try:
+        painter.translate(plan.origin.x(), plan.origin.y())
+        engine.blit(painter, frame, plan.width, plan.height)
+        _draw_cards(painter, plan, 0)
+    finally:
+        painter.end()
+    return plan, image, frame
+
+
+def _static_part(widget):
+    """The part of ``widget``'s paint the field may composite, if any.
+
+    Two kinds, both drawn before the widget's own paint and changed only by
+    events the plan watches: the chrome :mod:`spacr.qt.widgets.field_fade`
+    paints under a form field, and the track and knob of a widget that
+    offers them as a picture through ``_spacr_static_picture`` (the settings
+    switch, :class:`spacr.qt.widgets.toggle.Toggle`).
+
+    None under the spaceout dressing: both are painted from the palette of
+    the moment, which the spaceout drift re-hues as the clock runs, with no
+    event a plan could watch.
+
+    :returns: ``(thread player, GUI player)``, or ``None``.
+    """
+    from .field_fade import _chrome_image
+
+    if spaceout_enabled():
+        return None
+    image = _chrome_image(widget)
+    if image is not None:
+        return _ImagePlay(image), _ImagePlay(image.copy())
+    offer = getattr(widget, "_spacr_static_picture", None)
+    picture = offer() if callable(offer) else None
+    if picture is None:
+        return None
+    return _own_picture(picture), _own_picture(picture)
+
+
+def _lend_part(widget, give_back) -> None:
+    """Take ``widget``'s static part off its own paint; see
+    :func:`_static_part`."""
+    from .field_fade import FIELD_TYPES, _lend_chrome
+
+    if isinstance(widget, FIELD_TYPES):
+        _lend_chrome(widget, give_back)
+    else:
+        widget._spacr_lend_static(give_back)
+
+
+def _take_back_part(widget) -> None:
+    """Let ``widget`` paint its static part again; a destroyed one is
+    skipped."""
+    from shiboken6 import isValid
+
+    from .field_fade import FIELD_TYPES, _take_back_chrome
+
+    if isinstance(widget, FIELD_TYPES):
+        _take_back_chrome(widget)
+    elif isValid(widget):
+        widget._spacr_take_back_static()
+
+
+def _restore_card_backgrounds(cards: list, parts: list) -> None:
+    """Let every card in ``cards`` paint its own background again, and every
+    widget in ``parts`` its static part."""
+    from shiboken6 import isValid
+
+    for card in cards:
+        if isValid(card):
+            card.setAttribute(Qt.WA_NoSystemBackground, False)
+    del cards[:]
+    for widget in parts:
+        _take_back_part(widget)
+    del parts[:]
+
+
+#: The internal preference that turns card compositing on; see
+#: :func:`_composite_cards_on`.
+_COMPOSITE_CARDS_KEY = "prefs/composite_cards"
+
+#: The environment variable that overrides :data:`_COMPOSITE_CARDS_KEY`.
+_COMPOSITE_CARDS_ENV = "SPACR_COMPOSITE_CARDS"
+
+
+def _composite_cards_on() -> bool:
+    """Whether a new field composites its cards on the shading thread.
+
+    Off by default. On the workstation's GNOME capture host (2560x1440, a
+    real display, 2026-10-12) the composite cost 8-10 painted frames a
+    second: Home 48-50 fps with it against 57-58 without, Mask 41-43
+    against 51-52. The likely cause is the GIL: playing the plan's pictures
+    and drawing the frame on the shading thread do not release it, so the
+    GUI thread waits for them, which an offscreen CPU-per-frame measurement
+    does not show. Off, the field builds no plan and hears no card events,
+    and the cards, field chrome and switches paint themselves.
+
+    ``SPACR_COMPOSITE_CARDS=1`` turns it on and any other value off, for
+    experiments and captures; without it the internal preference
+    ``prefs/composite_cards`` decides. Read once, when a field is made.
+    """
+    flag = os.environ.get(_COMPOSITE_CARDS_ENV, "").strip()
+    if flag:
+        return flag == "1"
+    try:
+        from ..preferences import _as_bool, _settings
+
+        return _as_bool(_settings().value(_COMPOSITE_CARDS_KEY, False), False)
+    except Exception:
+        return False
+
+
+class _CardTints(QObject):
+    """Moves the field's translucent card backgrounds off the GUI thread.
+
+    Made only while :func:`_composite_cards_on`; otherwise the field keeps
+    the classic paint and none of this runs.
+
+    Qt paints every widget above the field on every field frame, and the
+    rounded translucent card backgrounds are a per-pixel alpha blend over
+    the whole card: about 3.2 megapixels a frame on Mask Generation and 1.0
+    on Home, 5-6 ms of a loaded frame. Caching their shape does not help;
+    the blend is the cost.
+
+    So the backgrounds are recorded once into pictures, with their geometry,
+    clip and paint order, into a :class:`_CardPlan` that the shading
+    thread composites into each frame together with the page under the
+    field. Once a frame composited with the current plan is published the
+    cards stop painting their own backgrounds (``WA_NoSystemBackground``)
+    and the GUI thread draws one opaque image under the card contents.
+
+    Correctness is by invalidation. Any move, resize, show, hide or restyle
+    of a card, of a widget between it and the backdrop, or of the backdrop
+    puts the cards back to painting themselves *before* the next paint, and
+    the plan is rebuilt only after :data:`_CARD_SETTLE_TICKS` quiet ticks,
+    so a scroll, a fold or a theme change is painted classically until it
+    settles. Composited and classic frames are pixel-identical.
+
+    Only widgets whose background ignores hover, focus and window activation
+    are composited, and none under a widget that fills its background
+    opaquely. A backdrop with rounded corners or a device pixel ratio other
+    than one keeps the classic paint.
+
+    The ramped chrome :mod:`spacr.qt.widgets.field_fade` draws under each
+    form field, and the track and knob of each settings switch, are
+    composited the same way, at the widget's place in the paint order
+    (:func:`_static_part`), and the widget stops drawing them while they
+    are. The chrome is composited for fields without the focus, and the
+    fade's filter is taken off the field meanwhile
+    (:func:`spacr.qt.widgets.field_fade._lend_chrome`). A focus change, a
+    switch being flipped or dragged, or the fade being switched off, puts
+    them back before the next paint. Small fields and switches are
+    composited too, as long as nothing of their own is painted under them.
+    """
+
+    #: Off keeps the classic paint, for comparing the two.
+    enabled = True
+
+    def __init__(self, backdrop: QWidget):
+        """Watch the application for card events on behalf of ``backdrop``."""
+        super().__init__(backdrop)
+        self.plan: Optional[_CardPlan] = None
+        self.active = False
+        self._producer = None
+        self._quiet = 0
+        self._cards: list = []
+        self._parts: list = []
+        self._watched = frozenset()
+        self._images: dict = {}
+        shown = self._shown = []
+        lent = self._lent = []
+        backdrop.destroyed.connect(
+            lambda *_: _restore_card_backgrounds(shown, lent))
+        from ..gil_priority import _watch_application_events
+
+        _watch_application_events(QApplication.instance(), self,
+                                  _CARD_EVENTS | _CARD_FOCUS)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Invalidate on any event that can change what a card looks like."""
+        kind = event.type()
+        if kind in _CARD_FOCUS:
+            if self._holds_a_part(watched):
+                self.invalidate()
+            return False
+        if watched in self._watched or (
+                kind == QEvent.Show and self._may_hold_a_card(watched)):
+            if kind in _CARD_RESTYLES:
+                self._images.clear()
+            self.invalidate()
+        return False
+
+    def _holds_a_part(self, widget) -> bool:
+        """Whether ``widget`` is, or is inside, a widget whose static part
+        the plan holds."""
+        return widget.isWidgetType() and any(
+            part is widget or part.isAncestorOf(widget)
+            for part in self._parts)
+
+    def _may_hold_a_card(self, widget) -> bool:
+        """Whether a widget being shown could be or hold a new card."""
+        host = self.parent().parentWidget()
+        return bool(host is not None and widget.isWidgetType()
+                    and (widget.testAttribute(Qt.WA_StyledBackground)
+                         or self._paints_over(widget))
+                    and host.isAncestorOf(widget))
+
+    def invalidate(self) -> None:
+        """Back to classic painting now; rebuild once things settle."""
+        self._quiet = 0
+        self.plan = None
+        if self._producer is not None:
+            self._producer.cards = None
+        if self.active:
+            self.active = False
+            _restore_card_backgrounds(self._shown, self._lent)
+            self.parent().update()
+
+    def tick(self, producer) -> None:
+        """Advance on a field tick: settle, rebuild, or switch over.
+
+        :param producer: the backdrop's shading thread, or ``None``.
+        """
+        backdrop = self.parent()
+        usable = bool(producer is not None and self.enabled
+                      and backdrop._corner_radius == 0
+                      and backdrop.devicePixelRatioF() == 1.0
+                      and backdrop.parentWidget() is not None)
+        if producer is not self._producer or not usable:
+            self.invalidate()
+            self._producer = producer
+        if not usable:
+            return
+        if self.plan is not None and self.plan.origin != backdrop.mapTo(
+                backdrop.window(), QPoint(0, 0)):
+            self.invalidate()
+        if self.plan is None:
+            self._quiet += 1
+            if self._quiet > _CARD_SETTLE_TICKS:
+                self._rebuild(backdrop, producer)
+            return
+        composed = producer.composed
+        if (not self.active and composed is not None
+                and composed[0] is self.plan):
+            for card in self._cards:
+                card.setAttribute(Qt.WA_NoSystemBackground, True)
+            self._shown[:] = self._cards
+            for widget in self._parts:
+                _lend_part(widget, self.invalidate)
+            self._lent[:] = self._parts
+            self.active = True
+            backdrop.update()
+
+    def _rebuild(self, backdrop: QWidget, producer) -> None:
+        """Plan the cards from the widgets as they are now."""
+        host = backdrop.parentWidget()
+        width, height = backdrop.width(), backdrop.height()
+        items, cards, parts, images = [], [], [], {}
+        watched = {backdrop, host}
+        self._walk(host, backdrop, -backdrop.pos(), QRect(0, 0, width, height),
+                   (), (items, cards, parts, watched, images, [QRegion()]))
+        origin = backdrop.mapTo(backdrop.window(), QPoint(0, 0))
+        base = QImage(origin.x() + width, origin.y() + height,
+                      QImage.Format_ARGB32_Premultiplied)
+        base.fill(0)
+        painter = QPainter(base)
+        try:
+            painter.translate(origin.x(), origin.y())
+            backdrop._paint_base(painter, QRect(0, 0, width, height))
+        finally:
+            painter.end()
+        self.plan = _CardPlan(width, height, base, tuple(items), origin)
+        self._cards = cards
+        self._parts = parts
+        self._watched = frozenset(watched)
+        self._images = images
+        producer.cards = self.plan if items else None
+
+    def _walk(self, parent, backdrop, offset, clip, lineage, out) -> None:
+        """Collect the cards under ``parent`` in the order Qt paints them.
+
+        ``out[5]`` holds the region, in backdrop coordinates, that something
+        painted on the GUI thread already covers at this point of the paint
+        order: a widget that paints its whole area (:meth:`_paints_over`,
+        such as the DNA rain), or a background left classic. Nothing that
+        overlaps it is composited, since the field is under it and the
+        composite would land below what Qt paints first.
+        """
+        items, cards, parts, watched, images, covered = out
+        for child in parent.children():
+            if (not child.isWidgetType() or child is backdrop
+                    or child.isWindow() or not child.isVisible()):
+                continue
+            rect = child.geometry().translated(offset)
+            visible = clip.intersected(rect)
+            below = lineage + (child,)
+            if self._paints_over(child):
+                covered[0] = covered[0].united(visible)
+                watched.update(below)
+                continue
+            if visible.width() * visible.height() < _CARD_MIN_AREA:
+                if not visible.isEmpty():
+                    self._add_part(child, rect, visible, below, out)
+                continue
+            image = self._background_of(child, rect.width(), rect.height(),
+                                        images)
+            if image is not None and (image is False
+                                      or covered[0].intersects(visible)):
+                covered[0] = covered[0].united(visible)
+                watched.update(below)
+                if image is False:
+                    continue
+            elif image is not None:
+                items.append((_own_picture(image), _own_picture(image),
+                              rect.x(), rect.y(), visible))
+                cards.append(child)
+                watched.update(below)
+            self._add_part(child, rect, visible, below, out, image)
+            self._walk(child, backdrop, rect.topLeft(), visible, below, out)
+
+    @staticmethod
+    def _paints_over(widget) -> bool:
+        """Whether ``widget`` paints its whole area itself, hiding the field
+        and everything planned before it there.
+
+        A widget that fills its background or claims opaque painting does;
+        so does one that says so with ``_spacr_covers_its_area``, which the
+        DNA rain does because it clears every rect it paints whether or not
+        Qt sees it as opaque. A masked widget is counted too, being
+        unknown.
+        """
+        return bool(widget.autoFillBackground()
+                    or widget.testAttribute(Qt.WA_OpaquePaintEvent)
+                    or not widget.mask().isEmpty()
+                    or getattr(widget, "_spacr_covers_its_area", False))
+
+    def _add_part(self, widget, rect, visible, lineage, out,
+                  background=None) -> None:
+        """Plan ``widget``'s static part (:func:`_static_part`), if it has
+        one, nothing of its own is painted under it and nothing painted
+        before it covers it.
+
+        :param background: its background as :meth:`_background_of` answered,
+            or ``None`` to ask here.
+        """
+        items, _cards, parts, watched, images, covered = out
+        part = _static_part(widget)
+        if part is None:
+            return
+        if covered[0].intersects(visible) or (
+                background is None and self._background_of(
+                    widget, rect.width(), rect.height(), images) is not None):
+            covered[0] = covered[0].united(visible)
+            watched.update(lineage)
+            return
+        items.append(part + (rect.x(), rect.y(), visible))
+        parts.append(widget)
+        watched.update(lineage)
+
+    def _background_of(self, widget, width: int, height: int, images):
+        """The background to composite for ``widget``, which does not
+        :meth:`_paints_over`.
+
+        :returns: its ``QPicture``; ``None`` when it paints no background;
+            ``False`` when it paints one that cannot be composited, which
+            also keeps everything inside it classic.
+        """
+        if (not widget.testAttribute(Qt.WA_StyledBackground)
+                or widget.testAttribute(Qt.WA_NoSystemBackground)):
+            return None
+        key = (width, height)
+        known = self._images.get(widget)
+        if known is None or known[0] != key:
+            known = (key, self._classify(widget, width, height))
+        images[widget] = known
+        return known[1]
+
+    @staticmethod
+    def _classify(widget, width: int, height: int):
+        """Render and classify ``widget``'s background; see
+        :meth:`_background_of` for the answers."""
+        size = (min(width, _CARD_PROBE), min(height, _CARD_PROBE))
+        probe = _card_probe(widget, *size)
+        blank = QImage(probe.size(), probe.format())
+        blank.fill(0)
+        if probe == blank:
+            return None
+        if any(_card_probe(widget, *size, flip) != probe
+               for flip in _CARD_STATES):
+            return False
+        return _card_background(widget, QPicture(), width, height)
+
+
+#: Field ticks with no widget shown in the window before
+#: :class:`_QuietBackgrounds` looks for backgrounds that paint nothing.
+_QUIET_SETTLE_TICKS = 30
+
+#: Field ticks between two checks that every quieted widget is still quiet.
+_QUIET_RECHECK_TICKS = 60
+
+#: The events :class:`_QuietBackgrounds` hears. Neither is part of the
+#: storm a style sheet sets off (palette, font, property, style changes),
+#: which no watcher of the event hub may hear.
+_QUIET_EVENTS = frozenset((QEvent.Show, QEvent.ParentChange))
+
+#: Style states a quieted background paints nothing in, either way.
+_QUIET_STATES = _CARD_STATES + (QStyle.State_Enabled,)
+
+
+def _restyled_by_its_sheet(widget) -> bool:
+    """Whether the style sheet sets ``WA_StyledBackground`` on ``widget``
+    again whenever it polishes it with a background to draw.
+
+    ``QStyleSheetStyle::polish`` does that for a plain ``QWidget`` and for
+    the frames, tab bars and menu bars among the classes it lists, not for
+    a subclass of ``QWidget`` that set the attribute itself.
+    """
+    return (widget.metaObject().className() == "QWidget"
+            or isinstance(widget, (QFrame, QTabBar, QMenuBar)))
+
+
+def _paints_no_background(widget) -> bool:
+    """Whether ``widget``'s style sheet background paints no pixel, in its
+    state now and with each of :data:`_QUIET_STATES` flipped."""
+    size = (min(widget.width(), _CARD_PROBE), min(widget.height(), _CARD_PROBE))
+    if size[0] <= 0 or size[1] <= 0:
+        return False
+    blank = QImage(size[0], size[1], QImage.Format_ARGB32_Premultiplied)
+    blank.fill(0)
+    return all(_card_probe(widget, *size, flip) == blank
+               for flip in (None,) + _QUIET_STATES)
+
+
+def _hand_backgrounds_back(quieted: dict) -> None:
+    """Let every widget in ``quieted`` paint its background again."""
+    from shiboken6 import isValid
+
+    for widget in quieted.values():
+        if isValid(widget):
+            widget.setAttribute(Qt.WA_StyledBackground, True)
+    quieted.clear()
+
+
+class _QuietBackgrounds(QObject):
+    """Stops the widgets over the field painting backgrounds that paint
+    nothing.
+
+    Qt paints every widget above the field on every field frame, and before
+    a widget with a style-sheet background paints it opens a painter and
+    asks the style for the background, even where the sheet says
+    ``background: transparent``: the page's layout containers, scroll areas
+    and labels. Measured at 2560x1440 on 2026-10-12: 173 of the 184 styled
+    backgrounds on Home and 100 of 117 on Make Masks painted no pixel, and
+    not asking for them saved 0.48 ms of a 4.3 ms Home frame and of a 6.8 ms
+    Mask frame (cheapest GUI-thread CPU of a synchronous field frame, median
+    of six interleaved rounds).
+
+    So once the window has settled (:data:`_QUIET_SETTLE_TICKS` field ticks
+    with nothing shown in it), every visible widget whose background paints
+    nothing, in its state now and with hover, focus, window activation and
+    the enabled state flipped (:func:`_paints_no_background`), has
+    ``WA_StyledBackground`` cleared, and Qt does not ask. Pixel-identical by
+    construction: what is left out is a background that draws nothing.
+
+    Only widgets whose attribute the style sheet sets again on every polish
+    that finds a background to draw (:func:`_restyled_by_its_sheet`), so a
+    restyle that gives one a background hands it back by itself, before the
+    paint that shows it; a restyle reaches a widget only through a polish.
+    A parent change hands it back too. Every :data:`_QUIET_RECHECK_TICKS`
+    ticks the quieted widgets are checked, and when a restyle has handed one
+    back or one is gone the window is looked at again once it settles.
+    """
+
+    def __init__(self, backdrop: QWidget):
+        """Watch the application for the window's shows on behalf of
+        ``backdrop``."""
+        super().__init__(backdrop)
+        self._quiet = 0
+        self._settled = False
+        quieted = self._quieted = {}
+        backdrop.destroyed.connect(lambda *_: _hand_backgrounds_back(quieted))
+        from ..gil_priority import _watch_application_events
+
+        _watch_application_events(QApplication.instance(), self,
+                                  _QUIET_EVENTS)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Look again once a widget is shown in the window; hand a moved
+        widget's background back.
+
+        :param watched: the widget the event is for.
+        :param event: a show or a parent change.
+        :returns: ``False``; nothing is consumed.
+        """
+        if event.type() == QEvent.Show:
+            if (watched.isWidgetType()
+                    and watched.window() is self.parent().window()):
+                self._unsettle()
+            return False
+        widget = self._quieted.pop(id(watched), None)
+        if widget is not None:
+            widget.setAttribute(Qt.WA_StyledBackground, True)
+            self._unsettle()
+        return False
+
+    def _unsettle(self) -> None:
+        """Start counting quiet ticks again."""
+        self._quiet = 0
+        self._settled = False
+
+    def tick(self) -> None:
+        """Count a field tick: quiet the window once it has settled, and
+        check the quieted widgets every :data:`_QUIET_RECHECK_TICKS`."""
+        self._quiet += 1
+        if not self._settled:
+            if self._quiet > _QUIET_SETTLE_TICKS:
+                self._settled = True
+                self._quiet = 0
+                self._quiet_the_window()
+            return
+        if self._quiet >= _QUIET_RECHECK_TICKS:
+            self._quiet = 0
+            if not self._all_still_quiet():
+                self._unsettle()
+
+    def _all_still_quiet(self) -> bool:
+        """Whether every quieted widget still exists and is still quiet."""
+        from shiboken6 import isValid
+
+        return all(isValid(widget)
+                   and not widget.testAttribute(Qt.WA_StyledBackground)
+                   for widget in self._quieted.values())
+
+    def _quiet_the_window(self) -> None:
+        """Clear ``WA_StyledBackground`` on every widget over the field
+        whose background paints nothing."""
+        from shiboken6 import isValid
+
+        backdrop = self.parent()
+        window = backdrop.window()
+        for key, widget in list(self._quieted.items()):
+            if (not isValid(widget)
+                    or widget.testAttribute(Qt.WA_StyledBackground)):
+                del self._quieted[key]
+        if window is backdrop:
+            return
+        for widget in window.findChildren(QWidget):
+            if (widget is not backdrop
+                    and widget.testAttribute(Qt.WA_StyledBackground)
+                    and widget.isVisible() and widget.window() is window
+                    and _restyled_by_its_sheet(widget)
+                    and _paints_no_background(widget)):
+                widget.setAttribute(Qt.WA_StyledBackground, False)
+                self._quieted[id(widget)] = widget
 
 
 class AmbientWidget(QWidget):
@@ -7405,6 +10352,7 @@ class AmbientWidget(QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
+        _LIVE_AMBIENT_WIDGETS.add(self)
         #: Corner radius the backdrop is clipped to; 0 leaves it square.
         #:
         #: A backdrop normally fills a rectangular screen and wants no
@@ -7423,6 +10371,23 @@ class AmbientWidget(QWidget):
         #: The frame currently on screen. Held so a paint with nothing new
         #: to show can put it up again instead of waiting for one.
         self._last_frame: Optional[QImage] = None
+        self._partial_frame = None
+        #: The frame a stopped backdrop on screen shows again, as
+        #: ``(key, image)`` (:meth:`_paint_still`), or ``None``.
+        self._still = None
+        #: Whether this backdrop stopped on screen and so paints a still.
+        self._holds_still = False
+        #: ``_last_frame`` with the cards composited in, as
+        #: :func:`_compose_cards` returns it, or ``None``.
+        self._last_composed = None
+        #: The translucent card backgrounds the shading thread composites,
+        #: or ``None`` while card compositing is off
+        #: (:func:`_composite_cards_on`).
+        self._card_tints = (_CardTints(self) if _composite_cards_on()
+                            else None)
+        #: The widgets over the field whose backgrounds paint nothing, which
+        #: are kept from being asked for them (:class:`_QuietBackgrounds`).
+        self._quiet_backgrounds = _QuietBackgrounds(self)
         #: Paints that showed the previous frame again because the shading
         #: thread had not finished a new one. This counter *is* the
         #: "degrade rather than stutter" promise: it is what rises when the
@@ -7434,6 +10399,10 @@ class AmbientWidget(QWidget):
         self._legacy_input = _QueuedArtInput()
         self._art_input = None
         self._pending_art_impulses: List[Tuple[float, float]] = []
+        self._click_candidate = None
+        self._click_press = QPoint()
+        self._popup_was_open = False
+        self._explicit_popup_seen = None
         self._interaction_app = None
         self._field_grab = None
         self._separate_theme = bool(
@@ -7447,7 +10416,7 @@ class AmbientWidget(QWidget):
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
         asked = (blur, speed, size, resolution, density, direction)
-        stored = preferred_motion() if None in asked else None
+        stored = preferred_motion(self._theme) if None in asked else None
         self._blur = DEFAULT_BLUR
         self._speed = _clamp(stored.speed if speed is None else speed,
                              *SPEED_RANGE)
@@ -7469,9 +10438,13 @@ class AmbientWidget(QWidget):
         from ..preferences import _field_ripple_intensity
 
         self._ripple_intensity = _field_ripple_intensity()
-        from ..preferences import _spaceout_field_effects
+        from ..preferences import _field_click_ripples
+
+        self._click_ripples = _field_click_ripples()
+        from ..preferences import _spaceout_field_effects, _flow_graphics_backend
 
         self._field_effects = _spaceout_field_effects()
+        self._graphics_backend = _flow_graphics_backend()
         if blink_percent is None:
             from ..preferences import _ambient_blink_percent
 
@@ -7496,7 +10469,8 @@ class AmbientWidget(QWidget):
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+        self._opaque_backdrop = _covers_opaquely(self._backdrop)
+        self._claim_opaque_paint()
         self.setFocusPolicy(Qt.NoFocus)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
@@ -7509,6 +10483,8 @@ class AmbientWidget(QWidget):
                                    blink_percent=self._blink_percent,
                                    popup_wave_frequency=self._popup_wave_frequency,
                                    direction=self._direction)
+        if isinstance(self._engine, _GraphicsBackend):
+            self._engine._graphics_backend = self._graphics_backend
         radius_setter = getattr(self._engine, "set_gravity_radius", None)
         if radius_setter is not None:
             radius_setter(self._gravity_radius)
@@ -7532,12 +10508,24 @@ class AmbientWidget(QWidget):
         self.frames_painted = 0
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._auto_art_fps = False
+        self._exact_fps = None
         self._run_paced = False
         self._clock = QElapsedTimer()
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
-        self._timer.timeout.connect(self._on_tick)
+        self._tick_period_ms = 1000.0 / self._fps
+        self._tick_interval = self._timer.interval()
+        self._tick_due = None
+        owner, timer = weakref.ref(self), self._timer
+        self._timer.timeout.connect(
+            lambda: owner()._on_tick()
+            if owner() is not None and vars(owner()).get("_timer") is timer
+            else timer.stop())
+        self._doorbell = QObject()
+        self._doorbell.objectNameChanged.connect(
+            lambda _name: _repaint_if_alive(owner),
+            Qt.QueuedConnection)
         self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
@@ -7615,6 +10603,21 @@ class AmbientWidget(QWidget):
         self._mutate_engine(
             lambda: self._engine.set_colors(palette_colors(self._theme, name)))
 
+    def _set_graphics_backend(self, mode):
+        """Offer a backend choice; the producer owns context creation/retirement."""
+        mode = str(mode).lower()
+        self._graphics_backend = mode if mode in ('cpu', 'auto', 'gpu') else 'cpu'
+        with self._engine_lock:
+            if isinstance(self._engine, _GraphicsBackend):
+                self._engine._graphics_backend = self._graphics_backend
+        if isinstance(self._engine, DriftEngine) and self._timer.isActive():
+            _retire_producer(self._producer_box)
+            self._partial_frame = None
+            self._last_frame = None
+            self._last_composed = None
+            self._start_producer()
+            self.update()
+
     def _mutate_engine(self, change: Callable[[], None]) -> None:
         """Apply ``change`` to the engine with the shading thread locked out,
         re-shade once, and repaint.
@@ -7652,17 +10655,24 @@ class AmbientWidget(QWidget):
     def _republish(self) -> None:
         """Re-shade the current clock and make it the frame on screen.
 
-        Called with :attr:`_engine_lock` held. A no-op with no shading
-        thread, where the next ``paintEvent`` shades synchronously anyway.
+        Called with :attr:`_engine_lock` held. With no shading thread it
+        only drops the still (:meth:`_paint_still`), so the next
+        ``paintEvent`` shades the changed engine.
         """
+        self._partial_frame = None
+        self._still = None
         producer = self._producer_box[0]
         if producer is None:
             return
         width, height = producer.size
         fresh = self._engine.shade(width, height)
         if fresh is not None:
-            producer.publish(fresh)
+            plan = producer.cards
+            composed = (None if plan is None
+                        else _compose_cards(self._engine, fresh, plan))
+            producer.publish(fresh, composed)
             self._last_frame = fresh
+            self._last_composed = composed
 
     def _rebuild_engine(self) -> None:
         """Replace the engine, preserving the clock. The old one is dropped
@@ -7674,6 +10684,7 @@ class AmbientWidget(QWidget):
         happens when somebody picks a different animation from a menu, not
         per frame.
         """
+        self._partial_frame = None
         running = self._producer_box[0] is not None
         _retire_producer(self._producer_box)
         with self._engine_lock:
@@ -7702,18 +10713,21 @@ class AmbientWidget(QWidget):
         with self._engine_lock:
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
+            if isinstance(engine, _GraphicsBackend):
+                engine._graphics_backend = self._graphics_backend
             self._engine = engine
             self._art_input = (_QueuedArtInput()
                                if self._theme.startswith("data_art_") else None)
             self._legacy_input = _QueuedArtInput()
             self._pending_dt = 0.0
         self._last_frame = None
+        self._last_composed = None
+        self._still = None
         self._pending_art_impulses.clear()
         self._field_grab = None
         self._sync_interaction_filter()
         if self._auto_art_fps:
-            self._fps = DEFAULT_FPS if self._theme.startswith("data_art_") else _INSTALLED_FPS
-            self._apply_rate()
+            self._choose_auto_rate()
         if running:
             self._start_producer()
         self.update()
@@ -7794,6 +10808,8 @@ class AmbientWidget(QWidget):
         """Apply finite wave amplitude without changing gravity or reach."""
         value = float(value)
         value = max(0.0, min(2.0, value)) if math.isfinite(value) else 1.0
+        if value == getattr(self, "_ripple_intensity", None):
+            return
         self._ripple_intensity = value
         self._mutate_engine(lambda: setattr(self._engine, "_ripple_intensity", value))
 
@@ -7968,6 +10984,7 @@ class AmbientWidget(QWidget):
         self._background = _as_color(color, self._background)
         if explicit:
             self._background_explicit = True
+        self._drop_card_plan()
         self._mutate_engine(
             lambda: self._engine.set_background(self._background))
 
@@ -7986,8 +11003,30 @@ class AmbientWidget(QWidget):
             anything that does not load as a non-null pixmap also gives the
             flat fill.
         """
+        self._partial_frame = None
         self._backdrop = _as_pixmap(source)
+        self._opaque_backdrop = _covers_opaquely(self._backdrop)
+        self._claim_opaque_paint()
+        self._drop_card_plan()
         self.update()
+
+    def _claim_opaque_paint(self) -> None:
+        """Tell Qt this widget paints every pixel of itself, when it does.
+
+        With ``WA_OpaquePaintEvent`` Qt leaves the field's area out of what
+        the window and the containers between fill before their children,
+        so a field frame no longer has the window fill its whole background
+        first (15-17 % of a frame on Home and Mask alike). The application
+        stylesheet's polish clears the attribute from any widget a rule
+        reaches, so it is claimed again after every polish and restyle.
+
+        Claimed only while it is true: square corners (rounded ones leave
+        the corners to what is underneath) and a backdrop with no
+        translucent pixel. Otherwise the window keeps filling under the
+        field, as it always did.
+        """
+        self.setAttribute(Qt.WA_OpaquePaintEvent,
+                          self._corner_radius == 0 and self._opaque_backdrop)
 
     def changeEvent(self, event) -> None:
         """Follow a live theme switch when nobody else is going to.
@@ -7997,11 +11036,16 @@ class AmbientWidget(QWidget):
         also has to re-resolve the wallpaper). A host that did not gets this
         for free instead of a stale dark rectangle on a white page.
 
+        A restyle claims opaque painting again (:meth:`_claim_opaque_paint`).
+
         :param event: the change event; it goes to the base class first, and
-            only an ``ApplicationPaletteChange`` is acted on.
+            only a ``StyleChange`` and an ``ApplicationPaletteChange`` are
+            acted on.
         """
         super().changeEvent(event)
-        if event.type() == QEvent.ApplicationPaletteChange \
+        if event.type() == QEvent.StyleChange:
+            self._claim_opaque_paint()
+        elif event.type() == QEvent.ApplicationPaletteChange \
                 and not self._background_explicit:
             self._apply_background(_preferred_background(), explicit=False)
 
@@ -8024,7 +11068,24 @@ class AmbientWidget(QWidget):
             :data:`MIN_FPS` to :data:`MAX_FPS`.
         """
         self._auto_art_fps = False
+        self._exact_fps = None
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
+        self._apply_rate()
+
+    def _choose_auto_rate(self) -> None:
+        """Pick the rate for a backdrop whose caller left the rate to it.
+
+        The field runs at a whole divisor of the screen refresh up to
+        :data:`FIELD_FPS`; other data art keeps :data:`DEFAULT_FPS` and the
+        classic themes the idle budget.
+        """
+        if self._theme in _FIELD_THEMES:
+            self._exact_fps = _display_hz(self, FIELD_FPS)
+            self._fps = _clamp_int(round(self._exact_fps), MIN_FPS, MAX_FPS)
+        else:
+            self._exact_fps = None
+            self._fps = (DEFAULT_FPS if self._theme.startswith("data_art_")
+                         else _INSTALLED_FPS)
         self._apply_rate()
 
     def _rate(self) -> int:
@@ -8041,16 +11102,52 @@ class AmbientWidget(QWidget):
     def _apply_rate(self) -> None:
         """Set the timer and the shading thread to :meth:`_rate`."""
         rate = self._rate()
-        self._timer.setInterval(max(1, 1000 // rate))
+        exact = getattr(self, "_exact_fps", None)
+        hz = exact if exact and not self._run_paced and rate == self._fps else rate
+        self._tick_period_ms = 1000.0 / hz
+        self._tick_due = None
+        self._tick_interval = max(1, int(self._tick_period_ms))
+        self._timer.setInterval(self._tick_interval)
         producer = self._producer_box[0]
         if producer is not None:
             producer.set_fps(rate)
 
+    def _schedule_next_tick(self) -> None:
+        """Hold the average tick period to the exact rate, not a whole millisecond.
+
+        ``QTimer`` takes whole milliseconds, so 60 Hz as 16 ms runs at 62.5 Hz
+        and slips a refresh every 0.4 s. Each tick sets the next interval from
+        a fractional deadline instead.
+        """
+        period = getattr(self, "_tick_period_ms", 0.0)
+        if (not period or not self._timer.isActive()
+                or self._timer.interval() != getattr(self, "_tick_interval", None)):
+            return
+        now = time.perf_counter() * 1000.0
+        due = self._tick_due
+        due = now + period if due is None else due + period
+        if due < now - period or due > now + 1.25 * period:
+            due = now + period
+        spent = self.__dict__.get("_frame_cost_ms", 0.0)
+        if self._run_paced and spent > _FRAME_BUDGET_MS:
+            due = max(due, now + spent * (1.0 / _OVER_BUDGET_SHARE - 1.0))
+        self._tick_due = due
+        interval = max(1, int(round(due - now)))
+        self._tick_interval = interval
+        if interval != self._timer.interval():
+            self._timer.setInterval(interval)
+
     def _follow_the_run(self) -> None:
-        """Slow down when a run starts and speed up when it ends."""
+        """Slow down when a run starts and speed up when it ends.
+
+        A run is a pipeline holding the responsive-GUI claim or a CPU-heavy
+        job the Dynamic animation policy yields to
+        (:func:`_animation_paused_for_work`); either paces the backdrop to
+        :data:`_RUN_FPS` rather than stopping it.
+        """
         from ..gil_priority import active
 
-        paced = bool(active())
+        paced = bool(active() or _animation_paused_for_work())
         if paced != self._run_paced:
             self._run_paced = paced
             self._apply_rate()
@@ -8102,10 +11199,26 @@ class AmbientWidget(QWidget):
         each keep a slot warm behind a tab nobody is on, which is 2 MiB apiece
         for the aurora. The next :meth:`start` shades a replacement before it
         starts the thread, so there is nothing to show for it.
+
+        The one exception is a backdrop that stops while it is still on
+        screen -- a CPU-heavy run pausing the animation
+        (:func:`_animation_paused_for_work`), reduced motion, or the
+        animation switched off. Its frame on screen is kept as the still
+        (:meth:`_paint_still`), because every console line and figure the
+        window paints over it asks it for a whole frame again, and shading
+        that frame on the GUI thread against the run's worker took 250-350 ms
+        on lesson 08's Measure run. Hidden, it keeps nothing.
         """
+        self._partial_frame = None
         self._field_grab = None
         self._timer.stop()
         self._sync_interaction_filter()
+        producer = self._producer_box[0]
+        self._holds_still = bool(self.isVisible()
+                                 and isinstance(self._engine, _BufferedEngine))
+        keep = (self._last_frame if producer is not None and self._holds_still
+                else None)
+        size = None if producer is None else tuple(producer.size)
         _retire_producer(self._producer_box)
         if self._art_input is not None:
             if self._engine_lock.acquire(blocking=False):
@@ -8122,7 +11235,17 @@ class AmbientWidget(QWidget):
                     self._engine_lock.release()
             self._legacy_input = _QueuedArtInput()
             self._pending_dt = 0.0
+        self._still = None if keep is None else (self._still_key(size), keep)
         self._last_frame = None
+        self._last_composed = None
+        self._drop_card_plan()
+
+    def _drop_card_plan(self) -> None:
+        """Give the cards their own paint back, when they are composited."""
+        self._partial_frame = None
+        tints = self._card_tints
+        if tints is not None:
+            tints.invalidate()
 
     def _start_producer(self) -> None:
         """Put the shading on its own thread, if this engine has a frame to
@@ -8140,11 +11263,13 @@ class AmbientWidget(QWidget):
         That is the pass the first ``paintEvent`` used to do anyway, moved a
         few microseconds earlier.
         """
-        if self._producer_box[0] is not None:
+        self._partial_frame = None
+        if self._producer_box[0] is not None or _SHADING_RETIRED[0]:
             return
         engine = self._engine
-        if not isinstance(engine, _BufferedEngine):
+        if not isinstance(engine, _BufferedEngine) and not self._stars_on_graphics():
             return
+        _retire_shading_on_quit(QApplication.instance())
         size = self._art_render_size(self.width(), self.height())
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
                                   size, queued_input=self._art_input or self._legacy_input)
@@ -8156,8 +11281,27 @@ class AmbientWidget(QWidget):
             if first is not None:
                 producer.publish(first)
         self._last_frame = None
+        self._last_composed = None
+        self._still = None
+        self._holds_still = False
+        producer.doorbell = self.__dict__.get("_doorbell")
+        producer.tick_driven = (producer.doorbell is not None
+                                and self.__dict__.get("_art_input") is not None)
         self._producer_box[0] = producer
+        producer.box = self._producer_box
         producer.start()
+
+    def _stars_on_graphics(self) -> bool:
+        """Whether the stratified theme should shade on a graphics thread.
+
+        Only with Animation GPU on, a renderer that could exist and no
+        earlier failure: otherwise it keeps its synchronous CPU paint.
+        """
+        engine = self._engine
+        return (isinstance(engine, DriftEngine)
+                and engine._graphics_backend == 'gpu'
+                and not engine._graphics_failed
+                and _flow_graphics_possible())
 
     def shading_thread_alive(self) -> bool:
         """Whether a shading thread is running for this backdrop.
@@ -8183,11 +11327,16 @@ class AmbientWidget(QWidget):
 
         FALSE WHEN HIDDEN OR OFF-SCREEN. This is a backdrop: it must not take
         frames from whatever the user is doing in front of it, and a widget
-        nobody can see has nothing to show for the cost.
+        nobody can see has nothing to show for the cost. A run does not stop
+        it: :meth:`_follow_the_run` paces it to :data:`_RUN_FPS` instead.
 
         :returns: True when the timer should keep firing.
         """
         if not self._animating or not self.isVisible():
+            return False
+        from ..preferences import get_reduce_motion
+
+        if get_reduce_motion():
             return False
         window = self.window()
         if window is not None and window.isMinimized():
@@ -8195,7 +11344,12 @@ class AmbientWidget(QWidget):
         return True
 
     def _sync_run_state(self) -> None:
-        """Start or stop the timer to match visibility. The CPU guarantee."""
+        """Start or stop the timer to match visibility. The CPU guarantee.
+
+        The frame cap follows the run first, so a CPU-heavy job starting
+        slows a running backdrop at once rather than at its next tick.
+        """
+        self._follow_the_run()
         if self._should_run():
             self.start()
         else:
@@ -8208,18 +11362,29 @@ class AmbientWidget(QWidget):
         return max(0, round(width * ratio)), max(0, round(height * ratio))
 
     def _sync_interaction_filter(self) -> None:
-        """Observe unconsumed field input while its visible animation runs."""
+        """Observe unconsumed field input while its visible animation runs.
+
+        Behind the application's event hub, for the three mouse events it
+        acts on: as a filter of its own it was asked about every event in
+        the application, among them a paint event per widget on screen on
+        every field frame.
+        """
+        from ..gil_priority import (_stop_watching_application_events,
+                                    _watch_application_events)
+
         app = QApplication.instance()
-        wanted = (self._theme in _FIELD_THEMES
+        wanted = ((self._theme in _FIELD_THEMES
+                   or (self._theme.startswith("data_art_")
+                       and self._gravity_radius > 0.0))
                   and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
-            app.installEventFilter(self)
+            _watch_application_events(app, self, _APPLICATION_EVENTS)
             self._interaction_app = weakref.ref(app)
         elif not wanted and self._interaction_app is not None:
             observed = self._interaction_app()
             if observed is not None:
-                observed.removeEventFilter(self)
+                _stop_watching_application_events(observed, self)
             self._interaction_app = None
             self._pending_art_impulses.clear()
             self._field_grab = None
@@ -8237,6 +11402,47 @@ class AmbientWidget(QWidget):
             finally:
                 self._engine_lock.release()
         self.update()
+
+    def _schedule_click_ripple(self) -> None:
+        """Commit the pending click ripple once the click has settled."""
+        candidate = self._click_candidate
+        if candidate is None:
+            return
+        _after(CLICK_RIPPLE_SETTLE_MS, self,
+               partial(self._commit_click_ripple, candidate))
+
+    def _commit_click_ripple(self, candidate) -> bool:
+        """Emit one click ripple unless its click produced a container ripple.
+
+        :param candidate: ``(point, container count at press)``.
+        :returns: whether the click ripple was published.
+        """
+        if candidate is not self._click_candidate:
+            return False
+        self._click_candidate = None
+        point, seen = candidate
+        if (seen != _CONTAINER_RIPPLES[0] or not self._ripples_enabled
+                or not self._click_ripples or self._ripple_intensity <= 0.0
+                or self._art_input is None or self._theme not in _FIELD_THEMES
+                or not self._should_run()):
+            return False
+        self._art_input._offer_boundary_waves((point,))
+        if self._engine_lock.acquire(blocking=False):
+            try:
+                self._art_input._consume(self._engine)
+            finally:
+                self._engine_lock.release()
+        self.update()
+        return True
+
+    def set_click_ripples(self, enabled: bool) -> None:
+        """Switch ripples at mouse-click positions; other ripples are unchanged.
+
+        :param enabled: whether a background click sends a ripple.
+        """
+        self._click_ripples = bool(enabled)
+        if not self._click_ripples:
+            self._click_candidate = None
 
     def _ripple_from_edge(self, edge, strength=1.0) -> None:
         """Send field waves inward from a settled window edge."""
@@ -8276,14 +11482,43 @@ class AmbientWidget(QWidget):
         self._publish_boundary_ripples(
             self._visible_boundary_segments(rect, edge=edge), strength)
 
-    def _publish_boundary_ripples(self, segments, strength) -> None:
-        """Queue release feedback even with mouse gravity disabled."""
-        if (not self._ripples_enabled or self._theme not in _FIELD_THEMES
+    def _ripple_column(self, rect, edge="bottom", strength=1.0) -> None:
+        """Send one wave up and down the column ``rect`` spans.
+
+        The wave starts on the row of ``rect``'s ``edge`` and moves the field
+        only vertically, within the column's width, so opening or closing a
+        settings category reads as a disturbance along the column rather than
+        as rings.
+
+        :param rect: the widget's rectangle in this backdrop's coordinates.
+        :param edge: ``"top"`` or ``"bottom"``: the row the wave starts on.
+        :param strength: positive enables the wave; zero disables it.
+        """
+        rect, bounds = QRectF(rect), QRectF(self.rect())
+        if rect.isEmpty() or not rect.intersects(bounds):
+            return
+        row = rect.top() if edge == "top" else rect.bottom()
+        if not bounds.top() <= row <= bounds.bottom():
+            return
+        width, height = max(1, self.width()), max(1, self.height())
+        left = max(rect.left(), bounds.left()) / width
+        right = min(rect.right(), bounds.right()) / width
+        self._publish_boundary_ripples((("column", left, right, row / height),),
+                                       strength, wrapped=True)
+
+    def _publish_boundary_ripples(self, segments, strength, *, wrapped=False) -> None:
+        """Queue release feedback even with mouse gravity disabled.
+
+        :param segments: one wave's boundary segments, or with ``wrapped``
+            a tuple of ready wave descriptions.
+        """
+        if (not self._ripples_enabled or self._ripple_intensity <= 0.0
+                or self._theme not in _FIELD_THEMES
                 or not self._should_run()
                 or self._art_input is None or not math.isfinite(strength)
                 or strength <= 0.0 or not segments):
             return
-        self._art_input._offer_boundary_waves((segments,))
+        self._art_input._offer_boundary_waves(segments if wrapped else (segments,))
         if self._engine_lock.acquire(blocking=False):
             try:
                 self._art_input._consume(self._engine)
@@ -8309,15 +11544,20 @@ class AmbientWidget(QWidget):
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
 
+        It is polished by then, so opaque painting is claimed again
+        (:meth:`_claim_opaque_paint`).
+
         :param event: the Qt show event.
         """
         super().showEvent(event)
+        self._claim_opaque_paint()
+        _animation_resource_policy()
         window = self.window()
         watched = self._watched() if self._watched is not None else None
         if window is not None and window is not watched:
             if watched is not None:
-                watched.removeEventFilter(self)
-            window.installEventFilter(self)
+                _stop_watching_object_events(watched, self)
+            _watch_object_events(window, self, _FILTERED_EVENTS)
             self._watched = weakref.ref(window)
         self._follow_screen()
         self._sync_run_state()
@@ -8351,6 +11591,7 @@ class AmbientWidget(QWidget):
         :param event: the hide event; passed on to the base class before the
             animation stops.
         """
+        self._partial_frame = None
         super().hideEvent(event)
         if getattr(self, "_timer", None) is not None:
             self.stop()
@@ -8362,18 +11603,55 @@ class AmbientWidget(QWidget):
         :param obj: the object the event is for — the parent (whose resize
             this widget follows) or the watched top-level window.
         :param event: the event; resize, window-state, hide, show, move and
-            screen-change types are acted on, and every event is still passed
-            on to the base-class filter.
+            screen-change types are acted on. Every event is passed on
+            unfiltered: the filter returns False instead of calling the base
+            class, because as an application-wide filter it can be handed a
+            wrapper of the wrong type for an object being deleted, which made
+            the base-class call raise and then crash the process.
         """
         etype = event.type()
+        if etype not in _FILTERED_EVENTS:
+            return False
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
         grab = getattr(self, "_field_grab", None)
+        art = self.__dict__.get("_art_input")
+        if (etype == QEvent.MouseMove and art is not None
+                and self._gravity_radius > 0.0 and not self._run_paced
+                and isinstance(self._engine, _DataArtEngine)
+                and self._engine.interactive and self._animating
+                and ((isinstance(obj, QWidget) and obj.window() is self.window())
+                     or obj is self.window().windowHandle())):
+            local = self.mapFromGlobal(event.globalPosition().toPoint())
+            pointer = (((local.x() + 0.5) / max(1, self.width()),
+                        (local.y() + 0.5) / max(1, self.height()))
+                       if self.rect().contains(local) else None)
+            if pointer is not None and art._snapshot[2] != pointer:
+                if self._clock.isValid() and self._timer.isActive():
+                    step = min(MAX_DT, max(0.0, self._clock.restart() / 1000.0))
+                    art._elapsed += step
+                    advance_spaceout_drift(step)
+                art._serial += 1
+                art._popup_snapshot = (art._serial,) + tuple(art._popup_snapshot[1:])
+                art._snapshot = (art._serial, art._elapsed, pointer, art._clicks)
+                if self._engine_lock.acquire(blocking=False):
+                    try:
+                        art._consume(self._engine)
+                    finally:
+                        self._engine_lock.release()
+                producer = self._producer_box[0]
+                if producer is not None:
+                    producer.urgent = True
+                    producer._wake.set()
+                else:
+                    self.update()
         if (etype == QEvent.MouseButtonPress
                 and getattr(self, "_interaction_app", None) is not None
+                and self._theme in _FIELD_THEMES
                 and isinstance(obj, QWidget) and obj.window() is self.window()
                 and self._should_run() and event.button() == Qt.LeftButton):
             local = self.mapFromGlobal(event.globalPosition().toPoint())
+            self._click_candidate = None
             if self.rect().contains(local):
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
@@ -8381,10 +11659,31 @@ class AmbientWidget(QWidget):
                     self.window().mapFromGlobal(event.globalPosition().toPoint()))
                 background = (self._field_grab_background(obj) and
                               self._field_grab_background(hit if hit is not None else obj))
-                if (background and (self._ripples_enabled or self._gravity_radius > 0.0)
+                if (background and self._gravity_radius > 0.0
                         and (not self._pending_art_impulses
                         or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
+                surface, host = (hit if hit is not None else obj), self.parentWidget()
+                passive = True
+                while passive and surface is not None and surface is not host:
+                    passive = not (
+                        isinstance(surface, _CLICK_CONTROLS)
+                        or (isinstance(surface, QLabel)
+                            and bool(surface.textInteractionFlags()
+                                     & Qt.LinksAccessibleByMouse)
+                            and "href" in surface.text())
+                        or any(name in vars(klass)
+                               for klass in type(surface).__mro__
+                               if not klass.__module__.startswith(
+                                   ("PySide6", "shiboken6", "Shiboken", "builtins"))
+                               for name in _CLICK_HANDLERS))
+                    surface = surface.parentWidget()
+                if (passive and surface is host and host is not None
+                        and self._ripples_enabled and self._click_ripples
+                        and not _ripples_are_explicit(obj)
+                        and self._ripple_intensity > 0.0):
+                    self._click_candidate = (point, _CONTAINER_RIPPLES[0])
+                    self._click_press = event.globalPosition().toPoint()
                 if background:
                     self._field_grab = (point, (0.0, 0.0))
                     self._offer_field_grab()
@@ -8401,15 +11700,22 @@ class AmbientWidget(QWidget):
             else:
                 self._field_grab = None
             self._offer_field_grab()
-        elif (etype == QEvent.MouseButtonRelease and grab is not None
+        elif (etype == QEvent.MouseButtonRelease
+              and (grab is not None or self.__dict__.get("_click_candidate") is not None)
               and event.button() == Qt.LeftButton):
-            self._field_grab = None
-            self._offer_field_grab()
+            if grab is not None:
+                self._field_grab = None
+                self._offer_field_grab()
+            moved = event.globalPosition().toPoint() - self._click_press
+            if moved.manhattanLength() > QApplication.startDragDistance():
+                self._click_candidate = None
+            self._schedule_click_ripple()
         elif (etype == QEvent.WindowDeactivate and obj is watched
               and grab is not None):
             self._field_grab = None
             self._offer_field_grab()
         elif etype == QEvent.Resize and obj is self.parent():
+            self._partial_frame = None
             if grab is not None:
                 self._field_grab = None
                 self._offer_field_grab()
@@ -8419,14 +11725,15 @@ class AmbientWidget(QWidget):
             self._sync_run_state()
         elif watched is not None and obj is watched and etype in (
                 QEvent.Move, QEvent.ScreenChangeInternal):
+            self._partial_frame = None
             self._follow_screen()
-        return super().eventFilter(obj, event)
+        return False
 
     def follow_parent(self) -> None:
         """Track the parent's geometry and sit below its other children."""
         parent = self.parent()
         if isinstance(parent, QWidget):
-            parent.installEventFilter(self)
+            _watch_object_events(parent, self, _FILTERED_EVENTS)
             self.setGeometry(parent.rect())
         self.lower()
 
@@ -8462,6 +11769,8 @@ class AmbientWidget(QWidget):
         if popup is None:
             active = QApplication.activeWindow()
             popup = active if isinstance(active, QDialog) else None
+        if popup is None:
+            self._explicit_popup_seen = None
         if popup is None or not popup.isVisible() or popup is self.window():
             return None
         parent = popup.parentWidget()
@@ -8473,9 +11782,15 @@ class AmbientWidget(QWidget):
         segments = self._visible_boundary_segments(QRect(origin, popup.size()))
         if not segments:
             return None
+        if _ripples_are_explicit(popup):
+            if self._explicit_popup_seen is None:
+                self._explicit_popup_seen = id(popup)
+                self._publish_boundary_ripples(segments, 1.0)
+            return None
         self._popup_wave_popup_id = id(popup)
         return segments
 
+    @Slot()
     def _on_tick(self) -> None:
         """One beat: step the clock, ask for a repaint. Never waits.
 
@@ -8501,9 +11816,13 @@ class AmbientWidget(QWidget):
                    if isinstance(self._engine, _DataArtEngine)
                    and self._engine.interactive and self._gravity_radius > 0.0 else None)
         if self._art_input is not None:
+            popup_origin = self._popup_wave_origin_for_tick()
+            if self._popup_was_open and popup_origin is None:
+                _note_container_ripple()
+            self._popup_was_open = popup_origin is not None
             self._art_input._offer(step, pointer, tuple(self._pending_art_impulses),
                                    grab=self._field_grab,
-                                   popup_origin=self._popup_wave_origin_for_tick(),
+                                   popup_origin=popup_origin,
                                    popup_id=self._popup_wave_popup_id)
             self._pending_art_impulses.clear()
             if self._engine_lock.acquire(blocking=False):
@@ -8520,7 +11839,21 @@ class AmbientWidget(QWidget):
                     self._pending_dt = 0.0
                 finally:
                     self._engine_lock.release()
-        self.update()
+        self._schedule_next_tick()
+        producer = self._producer_box[0]
+        tints = self._card_tints
+        if tints is not None:
+            tints.tick(producer)
+        self._quiet_backgrounds.tick()
+        if producer is not None and producer.tick_driven and producer.is_alive():
+            fresh = producer.latest()
+            if fresh is None or fresh is not self._last_frame:
+                started = time.perf_counter()
+                self.repaint()
+                self._frame_cost_ms = (time.perf_counter() - started) * 1000.0
+            producer._wake.set()
+        else:
+            self.update()
 
     def advance_frame(self, dt: float) -> None:
         """Step the animation by ``dt`` seconds and schedule a repaint.
@@ -8584,6 +11917,164 @@ class AmbientWidget(QWidget):
         offset = self.mapTo(window, QPoint(0, 0))
         return QPoint(x - offset.x(), y - offset.y())
 
+    def _still_key(self, size) -> tuple:
+        """What a kept still frame is valid for: size, engine and clock.
+
+        :param size: the shading size, as :meth:`_art_render_size` gives it.
+        """
+        engine = self._engine
+        return (tuple(size), id(engine), getattr(engine, "time", None))
+
+    def _paint_still(self, painter: QPainter, width: int, height: int) -> bool:
+        """Blit the stopped backdrop's still frame; False when it has none.
+
+        A stopped backdrop on screen does not move, yet Qt asks it for a
+        whole frame each time something over it repaints. The frame on
+        screen when it stopped (:meth:`stop`), or the first one shaded after,
+        is kept and blitted again for as long as the size, the engine and its
+        clock are those it was shaded for; every engine change drops it
+        (:meth:`_republish`). The pixels are those
+        :meth:`AmbientEngine.paint` would draw: the same shade, the same blit.
+
+        Only a buffered engine that stopped on screen keeps one. A backdrop
+        never started (tests drive those frame by frame), a hidden one and
+        the unbuffered engines paint as before.
+
+        :param painter: the widget painter, the page already drawn.
+        :param width: the widget width.
+        :param height: the widget height.
+        """
+        engine = self._engine
+        if (not self.__dict__.get("_holds_still")
+                or not isinstance(engine, _BufferedEngine)):
+            return False
+        key = self._still_key(self._art_render_size(width, height))
+        still = self.__dict__.get("_still")
+        if still is None or still[0] != key:
+            if not self._engine_lock.acquire(blocking=False):
+                return False
+            try:
+                frame = engine.shade(*key[0])
+            finally:
+                self._engine_lock.release()
+            if frame is None:
+                return False
+            still = (key, frame)
+            self._still = still
+        engine.blit(painter, still[1], width, height)
+        return True
+
+    def _paint_partial_frame(self, painter, event, width, height) -> bool:
+        """Reuse an exact presentation raster on repeated partial frame paints."""
+        engine = self._engine
+        frame = self._last_frame
+        tints = self._card_tints
+        if (event.rect().contains(self.rect())
+                or self._producer_box[0] is None
+                or not isinstance(engine, _BufferedEngine)
+                or frame is None or frame.isNull()
+                or self._backdrop is not None
+                or self._background.alpha() != 255
+                or self._corner_radius
+                or (tints is not None and tints.active)):
+            self._partial_frame = None
+            return False
+        device = painter.device()
+        if device is None:
+            self._partial_frame = None
+            return False
+        try:
+            if isinstance(device, QWidget):
+                screen = device.screen()
+                if screen is None or screen.depth() not in (24, 32):
+                    self._partial_frame = None
+                    return False
+                paint_engine = painter.paintEngine()
+                target = None if paint_engine is None else paint_engine.paintDevice()
+            else:
+                target = device
+            if (not isinstance(target, QImage)
+                    or target.format() not in (
+                        QImage.Format_RGB32, QImage.Format_ARGB32,
+                        QImage.Format_ARGB32_Premultiplied)):
+                self._partial_frame = None
+                return False
+            target_format = target.format()
+            ratio = float(target.devicePixelRatioF())
+        except Exception:
+            self._partial_frame = None
+            return False
+        if (not math.isfinite(ratio) or ratio <= 0
+                or ratio != math.floor(ratio)):
+            self._partial_frame = None
+            return False
+        try:
+            transform = painter.deviceTransform()
+            if (not painter.worldTransform().isIdentity()
+                    or transform.m11() != ratio or transform.m22() != ratio
+                    or transform.m12() or transform.m21()
+                    or transform.m13() or transform.m23()
+                    or transform.m33() != 1
+                    or transform.dx() != math.floor(transform.dx())
+                    or transform.dy() != math.floor(transform.dy())):
+                self._partial_frame = None
+                return False
+            region = QRegion(event.region())
+            paint_engine = painter.paintEngine()
+            system_clip = None if paint_engine is None else paint_engine.systemClip()
+            if (system_clip is None
+                    or (not system_clip.isEmpty()
+                        and system_clip != transform.map(region))
+                    or (painter.hasClipping() and painter.clipRegion() != region)
+                    or (system_clip.isEmpty() and not painter.hasClipping())):
+                self._partial_frame = None
+                return False
+        except Exception:
+            self._partial_frame = None
+            return False
+        pixels = (int(math.ceil(width * ratio)),
+                  int(math.ceil(height * ratio)))
+        if min(pixels) <= 0 or pixels[0] * pixels[1] > (48 << 20) // 4:
+            self._partial_frame = None
+            return False
+        key = (id(engine), getattr(engine, "mode", None), id(frame),
+               frame.cacheKey(), width, height, ratio, target_format,
+               self._background.rgba(), region, QTransform(transform))
+        held = self.__dict__.get("_partial_frame")
+        if held is None or held[0] != key:
+            self._partial_frame = (key, None, frame)
+            return False
+        image = held[1]
+        if image is False:
+            return False
+        if image is None:
+            surface = None
+            try:
+                image = QImage(*pixels, QImage.Format_RGB32)
+                if image.isNull():
+                    self._partial_frame = (key, False, frame)
+                    return False
+                image.setDevicePixelRatio(ratio)
+                image.fill(self._background)
+                surface = QPainter(image)
+                if not surface.isActive():
+                    self._partial_frame = (key, False, frame)
+                    return False
+                surface.setClipRegion(region)
+                self._paint_base(surface, QRect(0, 0, width, height))
+                engine.blit(surface, frame, width, height)
+            except Exception:
+                self._partial_frame = (key, False, frame)
+                return False
+            finally:
+                if surface is not None and surface.isActive():
+                    surface.end()
+            self._partial_frame = (key, image, frame)
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
+        painter.drawImage(QPoint(0, 0), image)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        return True
+
     def paintEvent(self, event) -> None:
         """Paint, timed on the timing timeline when timing is on.
 
@@ -8638,21 +12129,43 @@ class AmbientWidget(QWidget):
                 path.addRoundedRect(QRectF(rect), self._corner_radius,
                                     self._corner_radius)
                 painter.setClipPath(path)
-            self._paint_base(painter, rect)
             width, height = rect.width(), rect.height()
-
             producer = self._producer_box[0]
-            if producer is None:
-                self._engine.paint(painter, width, height)
-                return
+            tints = self._card_tints
+            if (event.rect().contains(rect)
+                    or (tints is not None and tints.active)):
+                self._partial_frame = None
+            if producer is not None:
+                producer.size = self._art_render_size(width, height)
+                whole = event.rect().contains(rect)
+                fresh = producer.latest() if whole else None
+                if fresh is not None and fresh is not self._last_frame:
+                    self._last_frame = fresh
+                    if tints is not None:
+                        composed = getattr(producer, "composed", None)
+                        self._last_composed = (
+                            composed if composed is not None
+                            and composed[2] is fresh else None)
+                else:
+                    self.repeated_frames += 1
+                shown = self._last_composed
+                if (tints is not None and tints.active and shown is not None
+                        and shown[0] is tints.plan
+                        and shown[0].origin == self.mapTo(self.window(),
+                                                          QPoint(0, 0))):
+                    painter.setCompositionMode(
+                        QPainter.CompositionMode_Source)
+                    painter.drawImage(QPoint(0, 0), shown[1],
+                                      QRect(shown[0].origin, rect.size()))
+                    return
 
-            producer.size = self._art_render_size(width, height)
-            whole = event.rect().contains(rect)
-            fresh = producer.latest() if whole else None
-            if fresh is not None and fresh is not self._last_frame:
-                self._last_frame = fresh
-            else:
-                self.repeated_frames += 1
+            if self._paint_partial_frame(painter, event, width, height):
+                return
+            self._paint_base(painter, rect)
+            if producer is None:
+                if not self._paint_still(painter, width, height):
+                    self._engine.paint(painter, width, height)
+                return
             if self._last_frame is not None:
                 self._engine.blit(painter, self._last_frame, width, height)
             elif self._engine_lock.acquire(blocking=False):
@@ -8660,6 +12173,8 @@ class AmbientWidget(QWidget):
                     self._engine.paint(painter, width, height)
                 finally:
                     self._engine_lock.release()
+            if tints is not None and tints.active:
+                _draw_cards(painter, tints.plan, 1)
         finally:
             painter.end()
 
@@ -8835,16 +12350,23 @@ def _build_the_spaceout_fractal(values: dict, controls=None):
     )
     widget._spaceout_controls = controls
     widget._spaceout_built_from = _built_from(values)
+    _LIVE_SPACEOUT_FRACTALS.add(widget)
     return widget
 
 
 def _place_the_spaceout_fractal(widget, host) -> None:
     """Parent ``widget`` to ``host``, fill it, lower it and keep it filling."""
+    _LIVE_SPACEOUT_FRACTALS.add(widget)
     widget.setParent(host)
     widget.setGeometry(host.rect())
     widget.lower()
     widget.show()
     host.installEventFilter(_FractalTracksItsHost(widget, host))
+
+
+def _live_ambient_widgets() -> list:
+    """Every backdrop widget whose Qt object still exists."""
+    return _still_alive(_LIVE_AMBIENT_WIDGETS)
 
 
 def _live_spaceout_fractals() -> list:
@@ -8854,7 +12376,7 @@ def _live_spaceout_fractals() -> list:
     if QApplication.instance() is None:
         return []
     found = []
-    for widget in QApplication.allWidgets():
+    for widget in _still_alive(_LIVE_SPACEOUT_FRACTALS):
         try:
             if (getattr(widget, "_spaceout_built_from", None) is not None
                     and widget.parentWidget() is not None):
@@ -9012,6 +12534,316 @@ class _FractalTracksItsHost(QObject):
         return False
 
 
+#: Container, window-edge and popup ripples published so far. A click
+#: ripple is committed only if this did not change during its interaction.
+_CONTAINER_RIPPLES = [0]
+
+_CLICK_CONTROLS = (QAbstractButton, QAbstractItemView, QAbstractSlider,
+                   QAbstractSpinBox, QComboBox, QGraphicsView, QLineEdit, QMenu,
+                   QMenuBar, QPlainTextEdit, QSplitterHandle, QTabBar, QTextEdit)
+
+_CLICK_HANDLERS = ("mousePressEvent", "mouseReleaseEvent",
+                   "mouseDoubleClickEvent")
+
+#: Milliseconds after a release before a click ripple is committed. Long
+#: enough for the click's own handlers and their zero-delay container
+#: ripples and for the next animation tick to notice a closed popup.
+CLICK_RIPPLE_SETTLE_MS = 120
+
+
+def _note_container_ripple() -> None:
+    """Record that some container produced its own ripple just now."""
+    _CONTAINER_RIPPLES[0] += 1
+
+
+#: Pipeline keys whose analysis runs on the GPU when one is present.
+_GPU_JOB_KEYS = frozenset((
+    "mask", "timelapse", "cellpose_masks", "train_cellpose", "classify",
+    "classify_merged", "activation", "make_masks", "sam", "train",
+    "embeddings", "deep_spacr", "spatial_masks"))
+
+#: Pipeline keys whose analysis is CPU bound.
+_CPU_JOB_KEYS = frozenset((
+    "measure", "motility", "illumination", "umap", "map_barcodes",
+    "ml_analyze", "regression", "recruitment", "foreign", "align", "ops",
+    "convert", "invasion", "replication", "analyze_plaques", "barcode_qc",
+    "explain_cv", "anndata_export", "external_masks", "spatial_map"))
+
+_RESOURCE_POLICY = None
+
+
+def _analysis_gpu_present() -> bool:
+    """Whether analysis jobs here can run on a GPU at all.
+
+    PyTorch is consulted only when something already imported it; NVML is
+    used otherwise, so asking never pulls a deep-learning stack into the
+    GUI. Without either, GPU-capable jobs run on the CPU and count as
+    CPU-heavy work.
+    """
+    torch = sys.modules.get("torch")
+    if torch is not None:
+        try:
+            if torch.cuda.is_available():
+                return True
+            mps = getattr(getattr(torch, "backends", None), "mps", None)
+            return bool(mps is not None and mps.is_available())
+        except Exception:
+            return False
+    try:
+        import pynvml
+
+        pynvml.nvmlInit()
+        try:
+            return pynvml.nvmlDeviceGetCount() > 0
+        finally:
+            pynvml.nvmlShutdown()
+    except Exception:
+        return False
+
+
+def _job_resource(app_key, gpu_present: bool) -> Optional[str]:
+    """Classify one running job as ``"cpu"``, ``"gpu"`` or ``None``."""
+    key = str(app_key or "").split(":", 1)[0].strip().lower()
+    if key in _GPU_JOB_KEYS:
+        return "gpu" if gpu_present else "cpu"
+    if key in _CPU_JOB_KEYS:
+        return "cpu"
+    return None
+
+
+class _AnimationResourcePolicy(QObject):
+    """Dynamic animation: yield decorative work to running analysis.
+
+    Signals covered: every job started through
+    :func:`spacr.qt.bridge.make_thread` and every external job tracked with
+    ``_track_external_job`` is registered in the process-wide run registry
+    and removed when it finishes, fails or is cancelled. The policy
+    recomputes from the full set on each ``changed`` signal, so one job
+    ending never releases a guard another job still holds. Housekeeping
+    jobs (``user_visible`` false) and unknown keys are ignored.
+
+    A CPU-heavy job pauses the spaceout fractals and paces every backdrop
+    to :data:`_RUN_FPS` (it keeps moving; a frozen backdrop reads as a hung
+    application); a GPU job switches decorative rendering to the CPU and
+    pauses GPU-backed spaceout fractals. CPU work
+    takes precedence when both run. Nothing is written to Preferences:
+    the user's saved theme and backend come back when the jobs end.
+    External or headless processes are seen only on NVIDIA hardware,
+    through NVML's compute-process list (see :func:`_flow_compute_idle`);
+    CPU load from other processes is not observed.
+    """
+
+    changed = Signal()
+
+    def __init__(self, parent=None):
+        """Read the saved switch and start with nothing running."""
+        super().__init__(parent)
+        try:
+            from ..preferences import _dynamic_animation_enabled
+
+            self.enabled = bool(_dynamic_animation_enabled())
+        except Exception:
+            self.enabled = True
+        self.cpu_busy = False
+        self.gpu_busy = False
+        self._attached = False
+        self._paused_fractals = []
+
+    def attach(self) -> None:
+        """Follow the run registry; idempotent."""
+        if self._attached:
+            return
+        try:
+            from ..bridge import registry
+
+            registry().changed.connect(self._recompute)
+            self._attached = True
+        except Exception:
+            LOG.debug("could not follow the run registry", exc_info=True)
+        self._recompute()
+
+    def set_enabled(self, enabled: bool) -> None:
+        """Turn the workload policy on or off and apply it at once."""
+        enabled = bool(enabled)
+        if enabled != self.enabled:
+            self.enabled = enabled
+            self._apply()
+
+    def pauses_animation(self) -> bool:
+        """Whether CPU-heavy work currently pauses every animation."""
+        return self.enabled and self.cpu_busy
+
+    def blocks_gpu(self) -> bool:
+        """Whether decorative GPU rendering must step aside right now."""
+        return self.enabled and (self.cpu_busy or self.gpu_busy)
+
+    @staticmethod
+    def _visible_handles() -> list:
+        """The user-visible jobs running now."""
+        try:
+            from ..bridge import registry
+
+            handles = registry().active()
+        except Exception:
+            return []
+        return [handle for handle in handles
+                if getattr(handle, "user_visible", True)]
+
+    def _kinds(self, visible=None):
+        """Resource kinds of the user-visible jobs running now.
+
+        :param visible: those jobs, when the caller has them already.
+        """
+        if visible is None:
+            visible = self._visible_handles()
+        if not visible:
+            return set()
+        gpu_present = _analysis_gpu_present()
+        return {kind for kind in (_job_resource(getattr(handle, "app_key", ""),
+                                                gpu_present)
+                                  for handle in visible) if kind}
+
+    def _recompute(self, *_args) -> None:
+        """Recount running work and apply any change.
+
+        A change that leaves the user-visible jobs as they were -- a
+        housekeeping job starting or ending, such as the figure gallery
+        refining the figure on show -- changes nothing here and is not
+        acted on. Walking every widget for fractals to hold on each one
+        took 115 ms of the GUI thread when a figure arrived during lesson
+        08's Measure run.
+        """
+        visible = self._visible_handles()
+        seen = frozenset(id(handle) for handle in visible)
+        unchanged = seen == self.__dict__.get("_seen_jobs")
+        self._seen_jobs = seen
+        kinds = self._kinds(visible)
+        cpu, gpu = "cpu" in kinds, "gpu" in kinds
+        if (cpu, gpu) != (self.cpu_busy, self.gpu_busy):
+            self.cpu_busy, self.gpu_busy = cpu, gpu
+            self._apply()
+        elif self.blocks_gpu() and not unchanged:
+            self._hold_fractals()
+
+    def _apply(self) -> None:
+        """Push the current decision to every live animation."""
+        app = QApplication.instance()
+        if app is not None:
+            for widget in _live_ambient_widgets():
+                if isinstance(widget, AmbientWidget):
+                    try:
+                        widget._sync_run_state()
+                    except RuntimeError:
+                        continue
+        if self.blocks_gpu():
+            self._hold_fractals()
+        else:
+            self._release_fractals()
+        self.changed.emit()
+
+    def _hold_fractals(self) -> None:
+        """Pause fractals the current work forbids; remember only those."""
+        for widget in _live_spaceout_fractals():
+            try:
+                wanted = (self.pauses_animation()
+                          or getattr(widget, "backend_name", "") == "gpu")
+                if (wanted and widget not in self._paused_fractals
+                        and not widget.is_paused() and widget.pause()):
+                    self._paused_fractals.append(widget)
+            except RuntimeError:
+                continue
+            except Exception:
+                LOG.debug("could not pause a fractal for a job", exc_info=True)
+
+    def _release_fractals(self) -> None:
+        """Resume exactly the fractals this policy paused."""
+        held, self._paused_fractals = self._paused_fractals, []
+        for widget in held:
+            try:
+                widget.resume()
+            except RuntimeError:
+                continue
+            except Exception:
+                LOG.debug("could not resume a fractal", exc_info=True)
+
+
+def _animation_resource_policy() -> Optional[_AnimationResourcePolicy]:
+    """The process-wide Dynamic animation policy, once Qt is running."""
+    global _RESOURCE_POLICY
+    if _RESOURCE_POLICY is None:
+        app = QApplication.instance()
+        if app is None:
+            return None
+        _RESOURCE_POLICY = _AnimationResourcePolicy(app)
+        _RESOURCE_POLICY.attach()
+    return _RESOURCE_POLICY
+
+
+def _dynamic_animation_on() -> bool:
+    """Whether the workload policy is switched on, without creating it."""
+    policy = _RESOURCE_POLICY
+    return True if policy is None else policy.enabled
+
+
+def _decorative_gpu_blocked() -> bool:
+    """Whether running analysis currently forbids decorative GPU work."""
+    policy = _RESOURCE_POLICY
+    return bool(policy is not None and policy.blocks_gpu())
+
+
+def _animation_paused_for_work() -> bool:
+    """Whether CPU-heavy analysis currently pauses every animation."""
+    policy = _RESOURCE_POLICY
+    return bool(policy is not None and policy.pauses_animation())
+
+
+EXPLICIT_RIPPLES_PROPERTY = "spacrExplicitRipples"
+
+
+def _ripples_are_explicit(widget) -> bool:
+    """Whether ``widget`` belongs to a window that ripples only on request.
+
+    Such a window has :data:`EXPLICIT_RIPPLES_PROPERTY` set: it ripples the
+    field when it opens and when it calls :func:`_field_ripple_for_popup`
+    (Preferences: Apply, Cancel, Save), and not for clicks inside it, its
+    close or the recurring popup waves.
+
+    A combo box's list or a sub-dialog is a window of its own, so the walk
+    continues through each window's owner.
+    """
+    try:
+        current = widget if isinstance(widget, QWidget) else None
+        while current is not None:
+            window = current.window()
+            if window.property(EXPLICIT_RIPPLES_PROPERTY):
+                return True
+            current = window.parentWidget()
+        return False
+    except RuntimeError:
+        return False
+
+
+def _field_ripple_for_popup(dialog, strength=1.0) -> None:
+    """Send one wave from ``dialog``'s outline into its owner's backdrop.
+
+    :param dialog: a dialog parented to a window with a field backdrop.
+    :param strength: positive enables the wave; zero disables it.
+    :returns: None.
+    """
+    _note_container_ripple()
+    try:
+        owner = dialog.parentWidget()
+        if owner is None:
+            return
+        for backdrop in owner.window().findChildren(AmbientWidget):
+            if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
+                continue
+            origin = backdrop.mapFromGlobal(dialog.mapToGlobal(dialog.rect().topLeft()))
+            backdrop._ripple_from_rect(QRect(origin, dialog.size()), strength)
+    except RuntimeError:
+        return
+
+
 def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     """Publish settled window or panel feedback to its visible field backdrop.
 
@@ -9021,17 +12853,46 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
     :param strength: positive enables release feedback; zero disables it.
     :returns: None.
     """
+    _publish_widget_ripple(widget, edge, rect, strength, vertical=False)
+
+
+def _field_column_ripple_for_widget(widget, edge="bottom", strength=1.0) -> None:
+    """Send one wave up and down ``widget``'s column (a settings category).
+
+    :param widget: the opened or closed category.
+    :param edge: ``"top"`` or ``"bottom"``: the row the wave starts on.
+    :param strength: positive enables the wave; zero disables it.
+    """
+    _publish_widget_ripple(widget, edge, None, strength, vertical=True)
+
+
+def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
+                           rings=False) -> None:
+    """Send ``widget``'s ripple to every running field backdrop of its window."""
+    _note_container_ripple()
     try:
         window = widget.window()
         backdrops = window.findChildren(AmbientWidget)
         for backdrop in backdrops:
             if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
                 continue
-            if edge is not None and widget is window:
+            if rings:
+                centre = backdrop.mapFromGlobal(widget.mapToGlobal(widget.rect().center()))
+                if backdrop.rect().contains(centre):
+                    backdrop._publish_boundary_ripples((
+                        ("rings", (centre.x() + 0.5) / max(1, backdrop.width()),
+                         (centre.y() + 0.5) / max(1, backdrop.height())),),
+                        strength, wrapped=True)
+                continue
+            if edge is not None and widget is window and not vertical:
                 backdrop._ripple_from_edge(edge, strength)
+                continue
+            local = QRect(widget.rect() if rect is None else rect)
+            origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
+            if vertical:
+                backdrop._ripple_column(QRect(origin, local.size()),
+                                        edge or "bottom", strength)
             else:
-                local = QRect(widget.rect() if rect is None else rect)
-                origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
                 backdrop._ripple_from_rect(QRect(origin, local.size()), strength,
                                            edge=edge)
     except RuntimeError:
@@ -9146,6 +13007,9 @@ def install_ambient(host: QWidget, layout=None, *,
     """
     replacement = _the_spaceout_fractal(host, theme)
     if replacement is not None:
+        from ..preferences import _hold_still_when_motion_is_reduced
+
+        _hold_still_when_motion_is_reduced(replacement)
         return replacement
 
     auto_art_fps = "fps" not in kwargs
@@ -9154,6 +13018,8 @@ def install_ambient(host: QWidget, layout=None, *,
                            backdrop=backdrop, corner_radius=corner_radius,
                            **kwargs)
     widget._auto_art_fps = auto_art_fps
+    if auto_art_fps and theme in _FIELD_THEMES:
+        widget._choose_auto_rate()
     widget.follow_parent()
     widget.show()
     return widget

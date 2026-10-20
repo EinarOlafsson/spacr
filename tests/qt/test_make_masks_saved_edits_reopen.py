@@ -48,15 +48,13 @@ def test_saved_mouse_edits_replace_legacy_mask_on_reopen(
     np.testing.assert_array_equal(imageio.imread(folder / ("field_00" + extension)), image)
 
 
-def test_clear_masks_is_immediately_left_of_discard_and_confirmed(
+def test_clear_masks_is_in_object_operations_and_confirmed(
         qtbot, qt_theme_applied, tmp_path, monkeypatch):
     imageio.imwrite(tmp_path / "field.tif", np.ones((32, 32), np.uint16))
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     assert screen._open_folder(str(tmp_path))
-    layout = screen._btn_discard.parentWidget().layout()
-    assert layout.indexOf(screen._btn_clear) >= 0
-    assert layout.indexOf(screen._btn_clear) + 1 == layout.indexOf(screen._btn_discard)
+    assert screen._object_ops_layout.indexOf(screen._btn_clear) >= 0
     screen._canvas.mask[3:8, 3:8] = 3
     screen._canvas.mask[15:20, 15:20] = 9
     original = screen._canvas.mask.copy()

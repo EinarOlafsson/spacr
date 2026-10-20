@@ -16,8 +16,8 @@ into classification and regression as an effect that looks entirely real and
 is entirely an artefact of the optics.
 
 It is also the root cause of the plate-scale edge effects
-:mod:`spacr.plate_qc` already detects and reports. Detecting them is useful;
-removing them is what changes the answer.
+:mod:`spacr.plate_qc` already detects and reports. That module reports them;
+this module removes the bias from the measured intensities.
 
 The model
 ---------
@@ -68,9 +68,9 @@ separately identifiable at all: multiplying ``flat`` by a constant and
 absorbing it into the per-field brightness leaves every observation
 unchanged. Estimating a dark-field anyway -- for instance from the per-pixel
 minimum across fields, which is the usual shortcut -- returns *dark plus the
-dimmest background*, and subtracting it removes real signal. So spaCR does
-not guess: ``dark`` is 0 unless you supply the camera offset you measured
-from a dark frame, via ``illumination_dark``.
+dimmest background*, and subtracting it removes real signal. ``dark`` is
+therefore not estimated: it is 0 unless you supply the camera offset you
+measured from a dark frame, via ``illumination_dark``.
 
 Reaching the worker processes
 -----------------------------
@@ -78,10 +78,9 @@ Reaching the worker processes
 :func:`spacr.measure.measure_crop` measures fields in a
 :class:`multiprocessing.Pool`. Under ``spawn`` / ``forkserver`` each worker is
 a fresh interpreter with an empty hook registry, so a correction registered
-only in the parent applies to **nothing** while the run looks perfectly
-normal -- the single worst outcome for this feature, because the user then
-believes their numbers are corrected. :func:`enable_illumination_correction`
-therefore does not merely register the hook: it writes the model path to
+only in the parent is applied to no field, and the run completes without an
+error while every number is uncorrected. :func:`enable_illumination_correction`
+therefore does more than register the hook: it writes the model path to
 :data:`MODEL_ENV_VAR` and appends ``spacr.illumination:install`` to
 ``SPACR_MEASURE_HOOKS``, which every start method inherits, so each worker
 installs the correction for itself. :func:`worker_delivery_status` reports
@@ -112,11 +111,11 @@ Nothing in this module runs unless one of those calls is made, and
 ``measure_crop`` measures exactly what it measured before.
 
 In the GUI the same two routes exist and end here: the "Illumination
-Correction" category on the Measure panel, which is the switch thrown on the
-run whose numbers it changes, and the Illumination button on that screen's
-masthead, which opens this module's own settings form and Run button so the
-field can be estimated and QC'd without measuring the plate. Neither is a
-tile: the module folded into Measure and left the app registry with it.
+Correction" category on the Measure panel, which turns the correction on for
+that Measure run, and the Illumination button on that screen's masthead,
+which opens this module's own settings form and Run button so the field can
+be estimated and QC'd without measuring the plate. Neither route is a tile:
+the module has no tile of its own.
 """
 
 from __future__ import annotations
@@ -214,14 +213,13 @@ _MAX_CLIP_WARNINGS = 5
 
 
 class IlluminationError(ConfigurationError):
-    """Illumination correction was asked for and could not be delivered.
+    """Raised when requested illumination correction cannot be applied.
 
     A :class:`spacr.errors.ConfigurationError`, not a per-field data error:
     every failure this class reports (no fields to estimate from, a model that
     does not cover the plate being measured, a channel the model was never
-    estimated for) is wrong for the whole run, and the alternative -- measuring
-    on quietly uncorrected pixels -- is the outcome this module exists to
-    prevent.
+    estimated for) is wrong for the whole run, so the run stops instead of
+    measuring uncorrected pixels without notice.
     """
 
 
@@ -245,8 +243,9 @@ class IlluminationField:
     :param estimator: ``'polynomial'`` or ``'smooth'``.
     :param degree: polynomial degree, or 0 for the smooth estimator.
     :param bin_size: the binning factor the per-pixel median was computed at.
-        Illumination is low-frequency, so binning costs nothing and buys both
-        the memory to hold many fields at once and a quieter statistic.
+        Illumination is low-frequency, so binning loses little of the field's
+        structure, lets many fields fit in memory at once and reduces noise
+        in the median.
     :param floored: pixels the fitted surface had to be floored at (see
         :data:`FLAT_FLOOR_FRACTION`). Non-zero means the fit went negative
         somewhere and the estimate should be looked at before it is trusted.
@@ -330,7 +329,7 @@ class IlluminationField:
     def nonuniformity(self) -> Dict[int, float]:
         """Per channel, ``(p98 - p2) / mean`` of the field, as a fraction.
 
-        The headline "how uneven is this microscope" number: 0.30 means the
+        A single measure of how uneven the illumination is: 0.30 means the
         bright and dim ends of the field of view differ by 30 % of the mean,
         and therefore so does the same cell measured in those two places.
         """
@@ -366,7 +365,7 @@ class IlluminationModel:
         which matches every plate.
     :param meta: provenance -- source folders, channels, when it was estimated,
         the settings it was estimated with. Written into the ``.npz`` and read
-        back, so a model on disk can always say what produced it.
+        back, so a model on disk records what produced it.
     """
 
     fields: Dict[str, IlluminationField]
@@ -381,10 +380,10 @@ class IlluminationModel:
         """The :class:`IlluminationField` that applies to ``plate``.
 
         :param plate: plate key whose estimated illumination field is needed.
-        :raises IlluminationError: when nothing in the model covers it. This
-            is deliberately not a fall back to "some other plate's field":
-            illumination differs between acquisition sessions, which is the
-            whole reason the default is one field per plate.
+        :raises IlluminationError: when nothing in the model covers it. There
+            is no fallback to another plate's field: illumination differs
+            between acquisition sessions, which is why the default is one
+            field per plate.
         """
         if ALL_PLATES in self.fields:
             return self.fields[ALL_PLATES]
@@ -446,8 +445,8 @@ class IlluminationModel:
 
         :param path: the ``.npz`` file.
         :raises IlluminationError: when the file is missing or is not a
-            spaCR illumination model. A worker that cannot load the model must
-            say so rather than measure uncorrected pixels.
+            spaCR illumination model, so a worker that cannot load the model
+            stops instead of measuring uncorrected pixels.
         """
         if not os.path.isfile(path):
             raise IlluminationError(
@@ -719,8 +718,9 @@ def estimate_illumination(src, channels: Sequence[int], *,
                           verbose: bool = True) -> IlluminationModel:
     """Estimate the illumination field from the merged fields in ``src``.
 
-    Retrospective: the data corrects itself. See the module docstring for what
-    is estimated and why.
+    Retrospective: the field is estimated from the same images it corrects,
+    with no calibration image. See the module docstring for what is estimated
+    and why.
 
     :param src: the merged field folder ``measure_crop`` reads, or a list of
         them (``settings['src']`` accepts both).
@@ -739,8 +739,9 @@ def estimate_illumination(src, channels: Sequence[int], *,
         across-field median stops moving, and bounds the memory.
     :param grid: the per-pixel median is computed on a binned grid whose long
         side is at most this. Illumination is low-frequency, so binning loses
-        nothing, quiets the photon noise and is what makes 50 fields fit in
-        memory. The fitted surface is returned at full resolution.
+        little of the field's structure, reduces photon noise and is what makes
+        50 fields fit in memory. The fitted surface is returned at full
+        resolution.
     :param dark: additive camera offset subtracted before dividing, in raw
         counts. Not estimated -- see the module docstring.
     :param verbose: print one line per estimated field.
@@ -884,11 +885,12 @@ def _lenient_profile_json(text: str) -> Dict[str, Any]:
     def _value(match):
         """Quote a bare profile value while preserving JSON booleans and null."""
         word = match.group(2).strip()
-        if word in ('true', 'false', 'null'):
+        if word in ('true', 'false', 'null') or re.fullmatch(
+                r'-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?', word):
             return match.group(0)
         return f'{match.group(1)}"{word}"'
 
-    quoted = re.sub(r'(:\s*)([A-Za-z_][^,}\]"]*?)\s*(?=[,}])', _value, quoted)
+    quoted = re.sub(r'(:\s*)([^\s,{}\[\]"][^,}\]"]*?)\s*(?=[,}])', _value, quoted)
     quoted = re.sub(r':\s*(?=[,}])', ': ""', quoted)
     try:
         return json.loads(quoted)
@@ -964,7 +966,12 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
     :returns: Harmony channel number -> ``{'foreground', 'background',
         'degree', 'name'}``, the surfaces evaluated. A background-only
         profile with a ``Mean`` becomes a unit foreground and the additive
-        offset ``Mean * (B - 1)``.
+        offset ``Mean * (B - 1)``. A foreground ``F`` with a normalised
+        background ``B`` and its ``Mean`` becomes the offset
+        ``Mean * (B - F)``, so the correction is
+        ``(raw - Mean * B) / F + Mean``: the background is flattened at its
+        mean level and the foreground divided by its gain. A background
+        polynomial without a ``Mean`` is taken to be in raw counts.
     :raises IlluminationError: when the file holds no profile.
     """
     import xml.etree.ElementTree as ElementTree
@@ -991,6 +998,11 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
         background = _harmony_surface(blob.get('Background'))
         if foreground is not None:
             coefficients = blob['Foreground']['Profile']['Coefficients']
+            mean = _harmony_background_mean(blob.get('Background'))
+            if (background is not None and mean is not None
+                    and background.shape == foreground.shape):
+                with np.errstate(over='ignore', invalid='ignore'):
+                    background = mean * (background - foreground)
         else:
             mean = _harmony_background_mean(blob.get('Background'))
             if background is None or mean is None:
@@ -1109,10 +1121,12 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
 
     * **Harmony XML** (PerkinElmer/Revvity Operetta and Opera Phenix). Merged
       channel ``c`` takes Harmony channel ``c + 1``, the order Harmony's
-      ``-ch1``, ``-ch2`` file names merge in. The foreground polynomial is the
-      gain and the background polynomial the spatial offset, both kept at
-      Harmony's own scale, so ``(observed - background) / foreground`` is
-      exactly what Harmony applies. A profile with only a background
+      ``-ch1``, ``-ch2`` file names merge in. The foreground polynomial ``F``
+      is the gain. Harmony normalises the background polynomial ``B`` to
+      about 1 and stores its level as ``Mean``; the correction is then
+      ``(observed - Mean * B) / F + Mean``. A background polynomial without
+      a ``Mean`` is a raw-count offset, ``(observed - B) / F``. A profile
+      with only a background
       polynomial and its ``Mean`` is applied additively as
       ``observed - Mean * (background - 1)``, as Harmony does. ``dark`` is
       added to the background.
@@ -1260,8 +1274,7 @@ class IlluminationCorrector:
     ``settings['channels']``, selected out of the merged stack, before a
     single feature is computed.
 
-    **The dtype round trip is this class's decision, and it is made here
-    rather than in the hook machinery on purpose** (see
+    This class, not the hook machinery, handles the dtype round trip (see
     :func:`spacr.measure_hooks.apply_preprocessing_hooks`). Integer input is
     corrected in float32 and returned by *rounding to nearest* and then
     clipping to the dtype's range:
@@ -1272,19 +1285,19 @@ class IlluminationCorrector:
       kind this feature exists to remove. Rounding is unbiased.
     * **clip, and count.** A gain above 1 at the edge of the field can push a
       near-full-scale pixel past the top of a uint16. Clipping is the only
-      option that keeps the dtype the hook contract requires, but silently
-      clipping real signal is a lie about the data, so every pixel that was
-      *below* full scale before the correction and lands *at* full scale after
-      it is counted and reported. Pixels that were already saturated are not
-      counted: they were destroyed by the microscope, not by this class.
+      option that keeps the dtype the hook contract requires, and it removes
+      real signal, so every pixel that was *below* full scale before the
+      correction and lands *at* full scale after it is counted and reported.
+      Pixels that were already saturated are not counted: they were saturated
+      at acquisition, not by the correction.
 
     Float input is returned in its own float dtype with no rounding and no
     clipping at all -- there is nothing to round to and no range to leave.
 
     :param model: the estimated :class:`IlluminationModel`.
     :param on_missing: ``'error'`` (default) or ``'skip'`` for a field whose
-        plate the model does not cover. The default is to fail the field:
-        a half-corrected table is worse than a failed one.
+        plate the model does not cover. The default fails the field, so a
+        results table never mixes corrected and uncorrected fields.
     :param verbose: print the clipping reports.
     """
 
@@ -1731,7 +1744,7 @@ def load_segmentation_illumination_resume(
 def validate_measurement_illumination_inputs(
         settings: Mapping[str, Any], *, src=None
         ) -> Dict[str, Dict[str, Any]]:
-    """Fail closed before Measure corrects pixels a second time.
+    """Raise before Measure corrects pixels that segmentation already corrected.
 
     Segmentation is allowed to correct only its private model input.  If a
     mask run ever records that it instead changed the persisted intensities,
@@ -1837,8 +1850,8 @@ class SegmentationIlluminationSession:
         :param resume: continue a previous session, reading back which fields it
             already completed. Without it a fresh record is written stating that
             no field has yet been corrected -- a new preprocessing run
-            invalidates any earlier completion claim, and saying so explicitly
-            is what stops a half-finished run being read as a finished one.
+            invalidates any earlier completion claim, and the explicit record
+            keeps a half-finished run from being read as a finished one.
         """
         _validate_segmentation_model(prepared)
         pipeline_style = _segmentation_pipeline_style(pipeline_style)
@@ -2054,8 +2067,8 @@ def install() -> str:
 
     :returns: the registry key the hook was registered under.
     :raises IlluminationError: if the environment does not name a readable
-        model. Refusing loudly is the point -- a worker that cannot load the
-        model must not go on to measure uncorrected pixels.
+        model, so a worker that cannot load the model stops instead of
+        measuring uncorrected pixels.
     """
     path = os.environ.get(MODEL_ENV_VAR, '').strip()
     if not path:
@@ -2076,7 +2089,8 @@ def enable_illumination_correction(model, *, path: Optional[str] = None,
                                    verbose: bool = True) -> str:
     """Turn the correction on, here and in every worker process.
 
-    Three things happen, and the third is the one that matters:
+    Three things happen; the third is what makes worker processes install
+    the hook:
 
     1. the model is saved to disk if it is not already there -- a ``spawn``
        worker can only reach it through the file system;
@@ -2149,10 +2163,9 @@ def worker_delivery_status(start_method: Optional[str] = None
                            ) -> Tuple[bool, str]:
     """Whether the correction will actually reach ``measure_crop``'s workers.
 
-    The failure this answers is silent by construction: a hook registered only
-    in the parent process is a no-op in every ``spawn`` worker, the run
-    completes, and the numbers are uncorrected while the user believes they
-    are not.
+    The failure checked for raises no error: a hook registered only in the
+    parent process is a no-op in every ``spawn`` worker, the run completes,
+    and the numbers are uncorrected although correction was enabled.
 
     :param start_method: the pool start method to judge against. Defaults to
         whatever ``SPACR_START_METHOD`` selects, falling back to the platform
@@ -2194,10 +2207,10 @@ def position_intensity_slope(intensities: Sequence[float],
                              shape: Tuple[int, int]) -> float:
     """Least-squares slope of intensity against distance from the field centre.
 
-    This is the number illumination correction exists to drive to zero, and
-    the same statistic is used on pixels (the QC images) and on objects (the
-    scientific claim: the same cell must not measure brighter in the middle of
-    the field).
+    A successful illumination correction brings this slope close to zero. The
+    same statistic is used on pixels (the QC images) and on objects (the
+    requirement that the same cell not measure brighter in the middle of the
+    field).
 
     Intensities are divided by their own mean and the radius is normalised so
     that 0 is the centre of the field and 1 is a corner, so the slope reads as
@@ -2242,7 +2255,7 @@ def illumination_qc(model: IlluminationModel, src, *,
                     max_fields: int = 25,
                     verbose: bool = True,
                     stage: Optional[str] = None) -> Dict[str, Any]:
-    """Show that the correction worked, and say by how much.
+    """Plot and quantify the position-dependent bias before and after correction.
 
     Three things, per plate and per channel:
 
@@ -2524,18 +2537,17 @@ def prepare_illumination_correction(settings: Mapping[str, Any], *,
                                     verbose: Optional[bool] = None):
     """Estimate, save, enable and QC the Measure correction.
 
-    The one call a pipeline makes before ``measure_crop``, and the one the
-    Illumination button on the Measure masthead runs on its own -- the model
-    and its QC figures in minutes, before committing hours to the measure run
-    that will reuse them through ``illumination_model``.
+    A pipeline calls this before ``measure_crop``. The Illumination button on
+    the Measure masthead runs it on its own, which writes the model and its QC
+    figures without a measure run; a later measure run can reuse the model
+    through ``illumination_model``.
 
-    It does nothing at all -- and returns None -- unless
-    ``settings['illumination_correction']`` is True, which is NOT the shipped
-    default: the correction is opt-in, so a run that never mentions it is
-    measured uncorrected. Being asked to run with the switch off is a
-    no-op worth hearing about rather than a silent one, because from a
-    settings form it looks exactly like a Run button that does nothing, so a
-    verbose call says which switch was not thrown.
+    It does nothing and returns None unless
+    ``settings['illumination_correction']`` is True. The shipped default is
+    False: the correction is opt-in, so a run that does not set it is
+    measured uncorrected. When verbose, a call with the setting off prints
+    that ``illumination_correction`` is False, because from a settings form
+    the no-op otherwise looks like a Run button that does nothing.
 
     :param settings: a ``measure_crop`` settings dict. Reads
         ``illumination_correction``, ``illumination_model``,
@@ -2596,7 +2608,7 @@ def prepare_segmentation_illumination(
 
 
 def illumination_settings(settings=None):
-    """Defaults for illumination correction. Registered through the seam.
+    """Return a copy of ``settings`` with the illumination defaults filled in.
 
     :param settings: values to seed, exactly like every ``set_default_*`` in
         :mod:`spacr.settings`.
@@ -2623,10 +2635,9 @@ _TOOLTIPS = {
     'illumination_correction': (
         '(bool) - Estimate the uneven illumination of the microscope from the '
         'fields themselves and divide it out of the pixels at every '
-        'enabled stage. Off by default. On, the same cell looks and measures '
-        'the same wherever it sits in the field of view, which is what '
-        'removes the position-dependent bias behind plate edge effects. '
-        'Default False.'),
+        'enabled stage. On, intensities are corrected for the position in the '
+        'field of view, which removes position-dependent intensity bias such '
+        'as vignetting. Default False.'),
     'illumination_model': (
         '(str) - Path to an illumination model saved earlier. Empty means '
         'estimate a fresh one from the fields in src, which is what you want '
@@ -2705,8 +2716,8 @@ _TYPES = {
 _DESCRIPTION = (
     'Illumination / flat-field correction. Estimates the microscope\'s '
     'uneven illumination once from the fields of a plate and divides it '
-    'out of the pixels at every enabled stage, so the same cell looks '
-    'and measures the same wherever it sat in the field of view.'
+    'out of the pixels at every enabled stage, which removes '
+    'position-dependent intensity bias across the field of view.'
 )
 
 
@@ -2717,15 +2728,15 @@ def register_illumination_settings(replace: bool = False) -> bool:
     :func:`spacr.settings.register_defaults` rather than appending to
     ``spacr/settings.py``, so this module owns its own knobs.
 
-    Types, tooltips and the module description are contributed; **categories
-    deliberately are not**. ``spacr.settings.categories`` is one shared,
+    Types, tooltips and the module description are contributed; categories
+    are not. ``spacr.settings.categories`` is one shared,
     ordered map that every settings panel walks, and its growth is guarded by
     an exact-equality test against a hand-kept list. A key contributed at
     *import* time is in that map only in a session that imported this module,
     so contributing categories would make that test's result depend on which
     files pytest was pointed at.
 
-    The illumination keys ARE filed under a heading -- "Illumination Correction" in
+    The illumination keys are still filed under a heading -- "Illumination Correction" in
     ``spacr.settings.categories`` -- and Measure's panel offers every one of
     them, because ``measure_crop`` calls
     :func:`prepare_illumination_correction` itself and these are the keys

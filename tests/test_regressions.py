@@ -34,7 +34,7 @@ PKG_ROOT = Path(__file__).resolve().parent.parent / "spacr"
 # ---------------------------------------------------------------------------
 
 def test_measure_has_no_broken_build_import():
-    src = (PKG_ROOT / "measure.py").read_text()
+    src = (PKG_ROOT / "measure.py").read_text(encoding="utf-8")
     assert "spacr.build" not in src, (
         "measure.py should not import from the sdist build tree (spacr.build.*)"
     )
@@ -139,7 +139,7 @@ def test_dead_variants_are_gone(mod_name, gone):
 )
 def test_no_duplicate_top_level_defs(mod_name, name):
     """The earlier of every shadowed pair was removed — exactly one def now."""
-    src = (PKG_ROOT / f"{mod_name}.py").read_text()
+    src = (PKG_ROOT / f"{mod_name}.py").read_text(encoding="utf-8")
     tree = ast.parse(src)
     defs = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name]
     assert len(defs) == 1, f"expected 1 def of {name} in {mod_name}.py, found {len(defs)}"
@@ -182,7 +182,7 @@ def test_kept_sibling_survives(mod_name, name):
 def test_no_is_int_literal_comparisons():
     """`x is <int>` is a CPython-implementation quirk and a SyntaxWarning."""
     for py in PKG_ROOT.glob("*.py"):
-        tree = ast.parse(py.read_text())
+        tree = ast.parse(py.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Compare):
                 for op, comp in zip(node.ops, node.comparators):
@@ -203,7 +203,7 @@ def test_no_is_int_literal_comparisons():
 # ---------------------------------------------------------------------------
 
 def test_no_deprecated_scipy_ndimage_filters_import():
-    src = (PKG_ROOT / "utils.py").read_text()
+    src = (PKG_ROOT / "utils.py").read_text(encoding="utf-8")
     assert "scipy.ndimage.filters" not in src, (
         "scipy.ndimage.filters is deprecated; import from scipy.ndimage instead"
     )
@@ -216,7 +216,7 @@ def test_no_deprecated_scipy_ndimage_filters_import():
 def test_no_bare_except_clauses():
     offenders = []
     for py in PKG_ROOT.glob("*.py"):
-        tree = ast.parse(py.read_text())
+        tree = ast.parse(py.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.ExceptHandler) and node.type is None:
                 offenders.append(f"{py.name}:{node.lineno}")
@@ -230,7 +230,7 @@ def test_no_bare_except_clauses():
 def test_no_mutable_default_args():
     offenders = []
     for py in PKG_ROOT.glob("*.py"):
-        tree = ast.parse(py.read_text())
+        tree = ast.parse(py.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 for d in node.args.defaults + [x for x in node.args.kw_defaults if x is not None]:
@@ -265,7 +265,7 @@ def test_newly_exposed_submodules_reachable_via_getattr(name):
 
 def test_init_does_not_call_download_models_at_import():
     """The bottom-of-file eager `download_models()` line must stay gone."""
-    src = (PKG_ROOT / "__init__.py").read_text()
+    src = (PKG_ROOT / "__init__.py").read_text(encoding="utf-8")
     # It's fine for __init__ to reference download_models inside __getattr__.
     # It is NOT fine for the module to call it at top level.
     tree = ast.parse(src)

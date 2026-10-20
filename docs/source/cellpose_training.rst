@@ -30,8 +30,8 @@ A mask filename can match its image or add ``_masks`` before the extension,
 such as ``field_01_masks.tif``. Keep one matching mask per image.
 
 Use Make Masks to inspect and correct object boundaries before training.
-Keep separate fields for validation. You can reuse a legacy project containing
-``train/images`` and ``train/masks`` by selecting that project as Source.
+Keep separate fields for validation. A project containing ``train/images``
+and ``train/masks`` can also be selected as Source.
 
 Choose inputs and settings
 --------------------------
@@ -66,7 +66,7 @@ with optional channels.
      - Images per training minibatch. Larger batches require more memory.
    * - ``learning_rate``
      - 0.00001
-     - Size of the model's training updates.
+     - Optimizer step size.
    * - ``weight_decay``
      - 0.1
      - Strength of weight regularization during training.

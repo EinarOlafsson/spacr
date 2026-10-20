@@ -1,13 +1,13 @@
-"""Guides grouped by gene, selected or dropped as a set.
+"""Group lasso over guides grouped by gene, selected or dropped as a set.
 
 This model estimates which guides and genes are associated with a response
 while respecting the grouping of guides within genes.
 
-WHAT IT IS. Ordinary lasso penalises each guide on its own, so from a gene's
-four correlated guides it keeps whichever one happens to fit best and drops
-the rest -- which reads as "one guide works and three do not" when the truth
-is "the gene matters and the four guides are four measurements of it". Group
-lasso penalises the gene's guides as a BLOCK:
+Ordinary lasso penalises each guide on its own, so from a gene's four
+correlated guides it keeps whichever one happens to fit best and drops the
+rest -- which reads as "one guide works and three do not" when the four
+guides are four measurements of the same gene. Group lasso penalises the
+gene's guides as a block:
 
     minimise  ||y - Xb||^2 / (2n)  +  lambda * sum_g sqrt(p_g) * ||b_g||_2
 
@@ -16,28 +16,27 @@ ball rather than a point, and the whole block goes to exactly zero or none of
 it does. sqrt(p_g) is the standard correction that stops a gene with six
 guides being penalised more than one with three purely for having more.
 
-WHY IT IS RECOMMENDED FOR A CRISPR SCREEN. It is the penalised analogue of
-what the mixed model says with random effects -- "which GENES are involved,
-where each gene is measured by several guides" -- and it reaches the same
-question with no random effects, no REML fit, and no `gene_fraction` column.
-That last part matters: `gene_fraction` is the sum of a gene's guide
-fractions, so a design carrying both blocks is singular by construction.
-Here the gene enters as a GROUPING of the guide columns,
-never as a column of its own, so the design stays full rank.
+For a CRISPR screen it is the penalised analogue of the mixed model with
+random effects -- "which genes are involved, where each gene is measured by
+several guides" -- and it addresses that question with no random effects, no
+REML fit, and no `gene_fraction` column. `gene_fraction` is the sum of a
+gene's guide fractions, so a design carrying both blocks is singular by
+construction. Here the gene enters as a grouping of the guide columns, never
+as a column of its own, so the design stays full rank.
 
 It also fits where OLS is undefined. This screen is 610 wells and 823 guides;
-the penalty is what makes the answer well posed at p > n, and it is honest
-about that -- a penalised fit is a statement about the assumption that most
-guides do nothing, not new information.
+the penalty is what makes the answer well posed at p > n. A penalised fit
+therefore rests on the assumption that most guides have no effect; the
+penalty adds no new information.
 
-WHAT IT DOES NOT GIVE YOU IS A P VALUE. A penalised coefficient's sampling
-distribution is not the OLS one and a naive P value from it is wrong in a
-direction that flatters the fit. :func:`stability_selection` is the answer:
-re-fit on many subsamples and report the FRACTION of them in which a gene
-survives, which is an error-controlled statement (Meinshausen & Buhlmann)
-that needs no distributional assumption at all.
+The model gives no P value. A penalised coefficient's sampling distribution
+is not the OLS one, and a naive P value from it is biased toward
+significance. :func:`stability_selection` instead re-fits on many subsamples
+and reports the fraction of them in which a gene is selected, an
+error-controlled statement (Meinshausen & Buhlmann) that needs no
+distributional assumption.
 
-THE SOLVER is block coordinate descent with the exact group-soft-threshold
+The solver is block coordinate descent with the exact group-soft-threshold
 proximal step, in numpy. No new dependency: scikit-learn has no group lasso,
 and the two packages that do are unmaintained.
 """
@@ -103,12 +102,12 @@ def fit(X, y, labels, *, lam: float = 0.05, max_iterations: int = MAX_ITERATIONS
 
     :param X: the design, one column per guide.
     :param y: the response, one entry per well.
-    :param labels: the gene each COLUMN belongs to, length ``X.shape[1]``.
+    :param labels: the gene each column belongs to, length ``X.shape[1]``.
     :param lam: the penalty. Zero is ordinary least squares and is allowed --
         it is how a caller checks the solver against a known answer.
     :param fit_intercept: centre both sides, so the intercept is never
-        penalised. Penalising it would shrink the response's mean toward zero,
-        which is not a claim anybody wants to make.
+        penalised. Penalising it would shrink the response's mean toward
+        zero.
     :returns: ``coefficients`` (one per column), ``intercept``, and whether
         the sweep converged inside ``max_iterations``.
 
@@ -225,7 +224,7 @@ def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
     :param labels: group label for every column of ``X``; guides sharing a
         label are selected or dropped as one block.
     :param folds: how many held-out splits. Wells, not guides.
-    :param required: optional boolean mask over COLUMNS. A penalty counts as
+    :param required: optional boolean mask over columns. A penalty counts as
         selecting only when one of these columns is non-zero. Defaults to
         every column.
     :param seed: fixes the split, so two runs of one screen agree.
@@ -250,13 +249,13 @@ def choose_lambda(X, y, labels, *, folds: int = PATH_FOLDS,
     def score(candidates):
         """(errors, selects) for one path, both aligned to ``candidates``.
 
-        THE ERROR IS HELD-OUT AND THE SELECTION IS NOT. Whether a penalty
+        The error is held out and the selection is not. Whether a penalty
         predicts well is a question about unseen wells; whether it selects
-        anything is a question about THE FIT THE CALLER WILL GET, which is
-        fitted on every well. Reading selection off the folds instead picked
-        a penalty at which four fifths of the wells kept a gene and all of
-        them together kept none -- measured on the tsg101 screen, where it
-        chose 0.000183 and the full fit was empty.
+        anything is a question about the fit the caller will get, which is
+        fitted on every well. Reading selection off the folds can choose a
+        penalty at which most folds keep a gene while the full fit keeps
+        none (on the tsg101 screen it chose 0.000183 and the full fit was
+        empty).
         """
         errors = np.full(candidates.size, np.inf)
         selects = np.zeros(candidates.size, dtype=bool)
@@ -301,9 +300,9 @@ def gene_effects(X, y, labels, **kwargs):
     :param labels: gene label for each design column.
 
     The block is zero or it is not, so the norm is the natural per-gene effect
-    size -- and unlike a coefficient it is never negative, which is honest:
-    group lasso says a gene's guides move the response TOGETHER, not in which
-    direction each one does.
+    size. Unlike a coefficient it is never negative: group lasso indicates
+    that a gene's guides move the response together, not in which direction
+    each one does.
     """
     import pandas as pd
 
@@ -322,24 +321,23 @@ def gene_effects(X, y, labels, **kwargs):
 def stability_selection(X, y, labels, *, lam: float = 0.05,
                         n_boot: int = 100, fraction: float = 0.5,
                         seed: int = 0, **kwargs):
-    """How often each gene survives a re-fit on half the wells.
+    """Fraction of subsample re-fits in which each gene is selected.
 
     :param X: two-dimensional design matrix with wells in rows and guides in
         columns.
     :param y: response values aligned to the rows of ``X``.
     :param labels: gene or other group label for every guide column.
     :param n_boot: subsamples.
-    :param fraction: the share of ROWS in each subsample. Half is
+    :param fraction: the share of rows in each subsample. Half is
         Meinshausen & Buhlmann's choice and the one their error bound is
         stated for.
     :returns: a DataFrame with a ``selection_frequency`` per gene, sorted.
 
-    THIS IS THE HONEST ANSWER TO "WHAT IS THE P VALUE". There is not one --
-    the sampling distribution of a penalised coefficient is not the OLS one,
-    and a P value computed as though it were is wrong in the direction that
-    flatters the fit. A selection frequency is a statement about how
-    reproducible the selection is, which is what a screen actually wants to
-    know, and it needs no distributional assumption at all.
+    This replaces a P value, which the group lasso does not provide: the
+    sampling distribution of a penalised coefficient is not the OLS one, and
+    a P value computed as though it were is biased toward significance. A
+    selection frequency states how reproducible the selection is and needs
+    no distributional assumption.
     """
     import pandas as pd
 
@@ -371,7 +369,7 @@ def stability_selection(X, y, labels, *, lam: float = 0.05,
 
 
 def describe(lam: float = 0.05) -> str:
-    """The formula and what is modelled, for the model tab's text box."""
+    """Return the formula and model description shown in the model tab."""
     return (
         "Group lasso. The gene's guides are penalised as a block:\n\n"
         "    minimise  ||y - Xb||^2 / (2n)  +  lambda * sum_g sqrt(p_g) * "

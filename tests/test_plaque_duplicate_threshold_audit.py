@@ -40,7 +40,7 @@ def test_real_encodings_are_measured_without_changing_the_sources(corpus, monkey
     manifest, images, output = corpus
     before = {path: path.read_bytes() for path in [manifest, *images.rglob("*.png")]}
     invoke(monkeypatch, corpus)
-    result = json.loads(output.read_text())
+    result = json.loads(output.read_text(encoding="utf-8"))
     assert len(result["references"]) == 2
     assert len(result["controls"]) == 16
     assert result["distinct_source_ordered_pairs"] == 2
@@ -81,7 +81,7 @@ def test_output_cannot_overwrite_an_input(corpus, monkeypatch, target):
 def test_altered_or_missing_sources_leave_existing_evidence_intact(corpus, monkeypatch, damage):
     manifest, images, output = corpus
     source = next(images.rglob("*.png"))
-    data = json.loads(manifest.read_text())
+    data = json.loads(manifest.read_text(encoding="utf-8"))
     if damage == "bytes":
         Image.new("RGB", (131, 97), "black").save(source)
     elif damage == "shape":
@@ -96,7 +96,7 @@ def test_altered_or_missing_sources_leave_existing_evidence_intact(corpus, monke
     with pytest.raises(SystemExit) as exc:
         invoke(monkeypatch, corpus)
     assert exc.value.code == 2
-    assert output.read_text() == "prior measurement\n"
+    assert output.read_text(encoding="utf-8") == "prior measurement\n"
 
 
 def test_symlink_cannot_import_an_image_outside_the_source_root(corpus, monkeypatch):

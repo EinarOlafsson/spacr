@@ -124,7 +124,7 @@ def test_checksums_cover_every_file_but_themselves(builder, tmp_path):
     (tmp_path / "wheels").mkdir()
     (tmp_path / "wheels" / "a.whl").write_bytes(b"a")
     (tmp_path / "bundle.json").write_text("{}")
-    sums = builder.write_checksums(tmp_path).read_text().splitlines()
+    sums = builder.write_checksums(tmp_path).read_text(encoding="utf-8").splitlines()
     assert [line.split("  ")[1] for line in sums] == ["bundle.json", "wheels/a.whl"]
     result = subprocess.run(["sha256sum", "--check", "--quiet", "SHA256SUMS"],
                             cwd=tmp_path, capture_output=True, text=True)

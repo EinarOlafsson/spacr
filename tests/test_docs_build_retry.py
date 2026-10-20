@@ -13,7 +13,7 @@ import yaml
 ])
 def test_strict_build_retries_only_inventory_fetch_failure(tmp_path, mode, attempts, success):
     root = Path(__file__).resolve().parents[1]
-    workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text())
+    workflow = yaml.safe_load((root / '.github/workflows/docs.yml').read_text(encoding="utf-8"))
     script = next(step['run'] for step in workflow['jobs']['build']['steps']
                   if step.get('name') == 'Build docs')
     script = script.replace('/tmp/sphinx', str(tmp_path / 'sphinx'))
@@ -50,6 +50,6 @@ exit 0
                             env={**os.environ, 'PATH': str(binary) + os.pathsep + os.environ['PATH'],
                                  'DOCS_BRANCH': 'nightly', 'MODE': mode,
                                  'COUNT_FILE': str(tmp_path / 'attempts')})
-    assert int((tmp_path / 'attempts').read_text()) == attempts, result.stdout
+    assert int((tmp_path / 'attempts').read_text(encoding="utf-8")) == attempts, result.stdout
     assert (result.returncode == 0) is success, result.stdout + result.stderr
     assert (tmp_path / 'docs/_build/html/.nojekyll').exists() is success

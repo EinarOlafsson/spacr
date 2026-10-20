@@ -76,10 +76,22 @@ def test_the_inner_field_is_still_what_the_panel_collects(plaque_screen):
 
 def test_choosing_a_model_writes_the_path_into_the_field(plaque_screen,
                                                          monkeypatch):
+    from PySide6.QtWidgets import QDialog
     import spacr.qt.widgets.model_zoo_picker as picker
 
-    monkeypatch.setattr(picker, "choose_model",
-                        lambda *a, **k: "/models/cpsam_plaque_r3")
+    class Picker:
+        _chosen_reference = None
+
+        def __init__(self, kinds, parent):
+            assert parent is plaque_screen
+
+        def exec(self):
+            return QDialog.Accepted
+
+        def chosen_path(self):
+            return "/models/cpsam_plaque_r3"
+
+    monkeypatch.setattr(picker, "ModelZooPicker", Picker)
     field = plaque_screen._settings_model._widgets["plaque_model"]
     plaque_screen._choose_a_model_for(field)
 
@@ -89,12 +101,25 @@ def test_choosing_a_model_writes_the_path_into_the_field(plaque_screen,
 
 def test_a_cancelled_picker_leaves_the_field_alone(plaque_screen, monkeypatch):
     """Cancel must not erase a path the user already typed."""
+    from PySide6.QtWidgets import QDialog
     import spacr.qt.widgets.model_zoo_picker as picker
+
+    class Picker:
+        _chosen_reference = None
+
+        def __init__(self, kinds, parent):
+            assert parent is plaque_screen
+
+        def exec(self):
+            return QDialog.Rejected
+
+        def chosen_path(self):
+            raise AssertionError("a rejected picker must not supply a path")
 
     field = plaque_screen._settings_model._widgets["plaque_model"]
     if hasattr(field, "setText"):
         field.setText("/already/typed/by/hand")
-    monkeypatch.setattr(picker, "choose_model", lambda *a, **k: None)
+    monkeypatch.setattr(picker, "ModelZooPicker", Picker)
     plaque_screen._choose_a_model_for(field)
 
     value = field.text() if hasattr(field, "text") else field.get_value()
@@ -105,11 +130,24 @@ def test_only_cellpose_models_are_offered(plaque_screen, monkeypatch):
     """kinds is a rule, not a parameter. The zoo also carries the YOLO well
     detector, and offering it where CellposeModel consumes the value produces
     a run that fails minutes later naming a file we showed the user."""
+    from PySide6.QtWidgets import QDialog
     import spacr.qt.widgets.model_zoo_picker as picker
 
     seen = {}
-    monkeypatch.setattr(picker, "choose_model",
-                        lambda parent=None, kinds=None: seen.update(kinds=kinds))
+    class Picker:
+        _chosen_reference = None
+
+        def __init__(self, kinds, parent):
+            seen.update(kinds=kinds)
+            assert parent is plaque_screen
+
+        def exec(self):
+            return QDialog.Rejected
+
+        def chosen_path(self):
+            raise AssertionError("a rejected picker must not supply a path")
+
+    monkeypatch.setattr(picker, "ModelZooPicker", Picker)
     plaque_screen._choose_a_model_for(
         plaque_screen._settings_model._widgets["plaque_model"])
     assert seen["kinds"] == ("cellpose",)

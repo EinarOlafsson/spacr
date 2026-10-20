@@ -1,0 +1,24 @@
+{
+  "space_commit": "f457356bbffa1c3166f01ea3e7a40c6ab44fca35",
+  "source_build": "35aeaa9ddc1f09cbd85fe75617a68df81adade0f",
+  "read_only": true,
+  "build_result": "Image pushed16:12:34UTC; runtimeAPP_STARTING16:14:20, no runtimeerror observed.",
+  "normal_package_built": true,
+  "installed_versions_from_actual_success_line": {
+    "spacr": "1.5.1.4",
+    "cellpose": "4.2.1.1",
+    "ultralytics": "8.4.177",
+    "torchvision": "0.28.0",
+    "PySide6": "6.12.0",
+    "gradio": "6.17.3",
+    "gradio-client": "2.5.0",
+    "spaces": "0.51.3",
+    "huggingface-hub": "0.36.2",
+    "pypdfium2": "5.13.0"
+  },
+  "build_log_sha256": "12f9af596ef0e39d77aef6346b62709cd525435029515cd55e60e8038e0d7f70",
+  "runtime_log_sha256": "08f4bc28840ad46661da4eeef7fd95e4f31cff7ce4e22146ab8660187aa6f76a",
+  "runtime_observation": "Only providerstartup header and pip-root warning so far; no app/provisionprogress/memorymeasurement or error visible. Do not infer17weights acquired or modelready fromsilence.",
+  "inference_attempted": false,
+  "schema_read": false
+}

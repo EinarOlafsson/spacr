@@ -1,0 +1,23 @@
+{
+  "scope": "N652 interrupted network preference write durability",
+  "baseline": {
+    "failed": 1,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 24,
+    "seconds": 9.11,
+    "exit": 0
+  },
+  "sha256": {
+    "spacr/updater.py": "056a942500fd36f3dca134913f362981f569e43c4d170c1b0f09e99b5aec59d0",
+    "tests/test_n652_interrupted_network_save_preserves_preferences.py": "b15c47dd59ae625a42e7c631dd2e3f30047da7aec4e0b9e421e33909d36eeb6d",
+    "/mnt/wd4tb/scratch/n652-network-write-20261014/owning.log": "8279442e4663c91b37b6fab79d0b5d17cde7ee314949124a6331e59efc863406",
+    "/mnt/wd4tb/scratch/n652-network-write-20261014/owning.xml": "70211a654267fbbb6cc28285b1f70c20f755504b820476a7f226fe3bfc3bd99b"
+  },
+  "limits": [
+    "Native temporary partial writes under controlled ENOSPC injection",
+    "No real full disk experiment",
+    "No native macOS/Windows/full CI/live network"
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "status": "PASS",
+  "source_sha256": "719e985de25d06a72560ae4758eb8c033a8b20aa293bc3bfae58ad3ba0c6baea",
+  "actual_button_cases": 45,
+  "dialog_languages": 9,
+  "progress_controls": 9,
+  "runtime_lookups": 486,
+  "controls": [
+    {
+      "language": "sv",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "Träna klassificerare…"
+    },
+    {
+      "language": "sv",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "Stoppa klassificeraren"
+    },
+    {
+      "language": "sv",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "Tillämpa sparad klassificerare…"
+    },
+    {
+      "language": "sv",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "Avbryt klassificeringsresultatet"
+    },
+    {
+      "language": "sv",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "Klassificeringsresultat…"
+    },
+    {
+      "language": "de",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "Klassifikator trainieren…"
+    },
+    {
+      "language": "de",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "Klassifikator stoppen"
+    },
+    {
+      "language": "de",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "Gespeicherten Klassifikator anwenden…"
+    },
+    {
+      "language": "de",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "Klassifikationsergebnis verwerfen"
+    },
+    {
+      "language": "de",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "Klassifikationsergebnisse…"
+    },
+    {
+      "language": "es",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "Entrenar clasificador…"
+    },
+    {
+      "language": "es",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "Detener el clasificador"
+    },
+    {
+      "language": "es",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "Aplicar clasificador guardado…"
+    },
+    {
+      "language": "es",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "Cancelar resultado de clasificación"
+    },
+    {
+      "language": "es",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "Resultados de clasificación…"
+    },
+    {
+      "language": "pt",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "Treinar classificador…"
+    },
+    {
+      "language": "pt",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "Parar o classificador"
+    },
+    {
+      "language": "pt",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "Aplicar classificador salvo…"
+    },
+    {
+      "language": "pt",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "Cancelar resultado da classificação"
+    },
+    {
+      "language": "pt",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "Resultados de classificação…"
+    },
+    {
+      "language": "hi",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "वर्गीकरण मॉडल प्रशिक्षित करें…"
+    },
+    {
+      "language": "hi",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "वर्गीकरण मॉडल रोकें"
+    },
+    {
+      "language": "hi",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "सहेजा गया वर्गीकारक लागू करें…"
+    },
+    {
+      "language": "hi",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "वर्गीकरण परिणाम रद्द करें"
+    },
+    {
+      "language": "hi",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "वर्गीकरण परिणाम…"
+    },
+    {
+      "language": "ko",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "분류기 학습…"
+    },
+    {
+      "language": "ko",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "분류기 중지"
+    },
+    {
+      "language": "ko",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "저장된 분류기 적용…"
+    },
+    {
+      "language": "ko",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "분류 결과 취소"
+    },
+    {
+      "language": "ko",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "분류 결과…"
+    },
+    {
+      "language": "is",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "Þjálfa flokkara…"
+    },
+    {
+      "language": "is",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "Stöðva flokkara"
+    },
+    {
+      "language": "is",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "Beita vistuðum flokkara…"
+    },
+    {
+      "language": "is",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "Hætta við flokkunarniðurstöðu"
+    },
+    {
+      "language": "is",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "Flokkunarniðurstöður…"
+    },
+    {
+      "language": "fr",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "Entraîner un classificateur…"
+    },
+    {
+      "language": "fr",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "Arrêter le classificateur"
+    },
+    {
+      "language": "fr",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "Appliquer un classificateur enregistré…"
+    },
+    {
+      "language": "fr",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "Annuler le résultat de classification"
+    },
+    {
+      "language": "fr",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "Résultats de classification…"
+    },
+    {
+      "language": "zh_CN",
+      "control": "EmbeddingsDinoClassifierButton",
+      "text": "训练分类器…"
+    },
+    {
+      "language": "zh_CN",
+      "control": "EmbeddingsDinoClassifierStop",
+      "text": "停止分类器"
+    },
+    {
+      "language": "zh_CN",
+      "control": "EmbeddingsDinoClassifierApply",
+      "text": "应用已保存的分类器…"
+    },
+    {
+      "language": "zh_CN",
+      "control": "EmbeddingsDinoClassifierApplyCancel",
+      "text": "取消分类结果"
+    },
+    {
+      "language": "zh_CN",
+      "control": "EmbeddingsDinoClassifierResults",
+      "text": "分类结果…"
+    }
+  ],
+  "isolation": "Private preferences, offscreen, CPU only. Only unrelated ConsolePanel allowance refresh is isolated. No trainer/model loading or scientific acceptance replay."
+}

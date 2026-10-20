@@ -1,0 +1,80 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________________ test_zoom_reaches_the_text_toggles[AI] ____________________
+
+text = 'AI', qtbot = <pytestqt.qtbot.QtBot object at 0x721252d20cb0>
+app_theme_restored = None
+
+    @pytest.mark.parametrize("text", ["Live", "AI"])
+    def test_zoom_reaches_the_text_toggles(text, qtbot, app_theme_restored):
+        """Measured twice: by font metrics, and by counting rows of ink.
+    
+        ``AiToggleLabel`` built its sheet once, in ``__init__``, from
+        ``FONT_SIZE['body']`` — so it was pinned at 13 px *and* would not have
+        picked a new size up on a preferences save even if the number had been
+        right. Both halves are asserted: the size, and that saving preferences
+        with the widget already on screen moves it.
+        """
+        from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+    
+        _at(SMALL)
+        toggle = AiToggleLabel(text=text)
+        qtbot.addWidget(toggle)
+        toggle.show()
+        QApplication.processEvents()
+        small_height, small_ink = _text_height(toggle), _ink_rows(toggle)
+    
+        # The SAME widget, still on screen — this is the live-update half.
+        _at(LARGE)
+        QApplication.processEvents()
+        large_height, large_ink = _text_height(toggle), _ink_rows(toggle)
+    
+        _grew(small_height, large_height, f"the {text} toggle's text")
+>       assert large_ink > small_ink, (
+            f"the {text} toggle renders {small_ink} rows of ink at {SMALL:.0%} "
+            f"and {large_ink} at {LARGE:.0%} — the glyphs did not actually grow")
+E       AssertionError: the AI toggle renders 26 rows of ink at 100% and 26 at 150% — the glyphs did not actually grow
+E       assert 26 > 26
+
+tests/qt/test_zoom_reaches_text.py:274: AssertionError
+___________________ test_zoom_reaches_the_text_toggles[Live] ___________________
+
+text = 'Live', qtbot = <pytestqt.qtbot.QtBot object at 0x72125de4d460>
+app_theme_restored = None
+
+    @pytest.mark.parametrize("text", ["Live", "AI"])
+    def test_zoom_reaches_the_text_toggles(text, qtbot, app_theme_restored):
+        """Measured twice: by font metrics, and by counting rows of ink.
+    
+        ``AiToggleLabel`` built its sheet once, in ``__init__``, from
+        ``FONT_SIZE['body']`` — so it was pinned at 13 px *and* would not have
+        picked a new size up on a preferences save even if the number had been
+        right. Both halves are asserted: the size, and that saving preferences
+        with the widget already on screen moves it.
+        """
+        from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+    
+        _at(SMALL)
+        toggle = AiToggleLabel(text=text)
+        qtbot.addWidget(toggle)
+        toggle.show()
+        QApplication.processEvents()
+        small_height, small_ink = _text_height(toggle), _ink_rows(toggle)
+    
+        # The SAME widget, still on screen — this is the live-update half.
+        _at(LARGE)
+        QApplication.processEvents()
+        large_height, large_ink = _text_height(toggle), _ink_rows(toggle)
+    
+        _grew(small_height, large_height, f"the {text} toggle's text")
+>       assert large_ink > small_ink, (
+            f"the {text} toggle renders {small_ink} rows of ink at {SMALL:.0%} "
+            f"and {large_ink} at {LARGE:.0%} — the glyphs did not actually grow")
+E       AssertionError: the Live toggle renders 26 rows of ink at 100% and 26 at 150% — the glyphs did not actually grow
+E       assert 26 > 26
+
+tests/qt/test_zoom_reaches_text.py:274: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_zoom_reaches_text.py::test_zoom_reaches_the_text_toggles[AI]
+FAILED tests/qt/test_zoom_reaches_text.py::test_zoom_reaches_the_text_toggles[Live]
+2 failed in 2.70s

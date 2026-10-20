@@ -68,7 +68,7 @@ class TestTheActionRowSurvivesARebuild:
 
         written = summary.save_to_file(str(tmp_path / "summary.txt"))
 
-        assert written and (tmp_path / "summary.txt").read_text().strip()
+        assert written and (tmp_path / "summary.txt").read_text(encoding="utf-8").strip()
 
     def test_nothing_is_stranded_when_there_is_no_summary(self, summary):
         """An unfoldable summary takes the early return in `_rebuild`, which

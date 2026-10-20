@@ -1,0 +1,42 @@
+{
+  "source_commits": [
+    "288f17d7a2",
+    "bf9b5dd0ba"
+  ],
+  "input_commit": "c9e3dfadf3",
+  "source_peer": "88849e953b",
+  "producer_peer": "1b7e18ddf4",
+  "preparation_head": "08405c50da40b23fa614cd068485a50313cd61a6",
+  "producer_plan_sha256": "9f08b253280dfbaf5bdc74fc1b7b96b21608aded935b051fe5f0ea6c94433554",
+  "producer_sha256": "a1c299fdced00502ac47886222a6002a07440ce8a0400e9577a18e67646ded06",
+  "terminal_exit": 0,
+  "wall_seconds": 180.71,
+  "peak_rss_kib": 1056640,
+  "changed_generated_files": 22,
+  "api_targets": 63,
+  "runtime_targets": 9,
+  "all_nine_preflight_before_catalog_writes": true,
+  "api_history_unchanged": true,
+  "normal_runtime_audit": 0,
+  "normal_help_exit": 0,
+  "model_decode_requests": 0,
+  "full_api_collection_requests": 0,
+  "normal_runtime_canonical_captures": 2,
+  "limitations": [
+    "This is selected API generation and complete runtime audit, not a full API audit.",
+    "Actual consumers and the strict named two-symbol API arrival fixture are separate owner checks.",
+    "No whole-item N180 completion or publication claim."
+  ],
+  "files": {
+    "before-help_api_index.py.gz": "dd03c1038e1f1f7d36c8684752efda0a55c0da9cb523e5d59de21165206e19ca",
+    "canonical-snapshot.json.gz": "99ded9e3ba028badfaa273f06f1e2bc969322bfd37c369f63afb886dfe023d61",
+    "frozen-output-hashes.json": "9eb8b81a2ed6974c3a3c40835e56b99dd199dc13e78a14697cb11d30189d918c",
+    "generate.py": "a1c299fdced00502ac47886222a6002a07440ce8a0400e9577a18e67646ded06",
+    "plan.json.gz": "1404fb396fc51abb07d2ddfbf76c07eb477b60b3752e8eb33ce56c13c924eada",
+    "prepare_plan.py": "3467a2792b0833ef46367daca55c208662529113b841f44b544031c64154faf7",
+    "producer.log.gz": "679fadd99cdd134f6659c10fef6b6438ae40af5010e776ec719c43115d7aadc9",
+    "receipt.json": "99cc08c286eedfa01a8dba49c7a49994448d78b7042872a3e65529f26614f757",
+    "run.json": "6326c3c75e87271fd366d940d89f0de439a7e19b7149b016d3629a50dde71acd",
+    "help-generation.log.gz": "658b02b0f03d5cb8c6e26764ab8afd3d3b7bc600ca79c03a587f4a002a46943d"
+  }
+}

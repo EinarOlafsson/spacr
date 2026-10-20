@@ -36,7 +36,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .sortable_table import install_sorting, table_item
+from ..i18n import tr
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _reuse_list_items,
+    _spare_table_item)
 from ...object_roles import ORGANELLE_ROLES, organelle_label
 
 #: What the regex box starts with. It reads the shape hand-drawn exports
@@ -272,16 +275,16 @@ class MeasureInputTable(QWidget):
     def add_dropped(self, paths: Sequence[Any]) -> None:
         """Add every file under ``paths``, once a worker has expanded them.
 
-        SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen
-        application. Everything here is a list of strings; the ``isdir`` and
+        Split from :meth:`add_paths` so the GUI thread does not block on the
+        filesystem. Everything here is a list of strings; the ``isdir`` and
         ``listdir`` that turn a dropped folder into files run on this
         widget's own worker (:func:`files_under`), because a drop is a path
         the user chose and on a microscope rig that is the share the images
         live on -- one stat under a sleeping ``autofs`` mount was measured at
         over twenty seconds, on the thread that paints.
 
-        NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read
-        the table from :attr:`table_changed`, not from the line after this.
+        Nothing has been added when this returns. Read the table from
+        :attr:`table_changed`, not from the line after this.
 
         :param paths: files and folders from a drop or a file dialog.
         :returns: ``None``. The count does not exist yet.
@@ -289,7 +292,7 @@ class MeasureInputTable(QWidget):
         wanted = [str(path) for path in paths or ()]
         if not wanted:
             return
-        self._regex_status.setText("Looking at what was dropped...")
+        self._regex_status.setText(tr("Looking at what was dropped..."))
         if not self._scanner.submit(lambda: _walk(wanted), self._files_found):
             self.add_paths(wanted)
 
@@ -302,7 +305,7 @@ class MeasureInputTable(QWidget):
         found, trouble = answer if answer else ((), "")
         if trouble:
             self._regex_status.setText(
-                f"Some of what was dropped could not be read: {trouble}")
+                tr("Some of what was dropped could not be read: {trouble}", trouble=trouble))
         self.add_paths(list(found or ()))
 
     def _scan_failed(self, message: str) -> None:
@@ -316,7 +319,7 @@ class MeasureInputTable(QWidget):
         """
         try:
             self._regex_status.setText(
-                f"What was dropped could not be read: {message}")
+                tr("What was dropped could not be read: {message}", message=message))
         except RuntimeError:
             pass
 
@@ -450,14 +453,14 @@ class MeasureInputTable(QWidget):
 
         self._grid.blockSignals(True)
         self._grid.setSortingEnabled(False)
-        self._grid.clear()
+        _retire_table_cells(self._grid, headers=True)
         self._grid.setColumnCount(len(headings))
         self._grid.setHorizontalHeaderLabels(headings)
         self._grid.setRowCount(len(self._table.rows))
         for index, row in enumerate(self._table.rows):
             for column, text in enumerate(
                     (row.label, row.well, str(row.field))):
-                item = table_item(str(text))
+                item = _spare_table_item(self._grid, str(text))
                 item.setData(Qt.UserRole, index)
                 if column == 0:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -470,7 +473,8 @@ class MeasureInputTable(QWidget):
                     path = row.channels.get(int(key.split(':', 1)[1]))
                 else:
                     path = row.masks.get(key)
-                item = table_item(
+                item = _spare_table_item(
+                    self._grid,
                     _basename(path) if path else "double-click to browse")
                 item.setData(Qt.UserRole, index)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -487,9 +491,9 @@ class MeasureInputTable(QWidget):
         self._grid.setSortingEnabled(True)
         self._grid.blockSignals(False)
 
-        self._left_over.clear()
-        for path, reason in self._unassigned:
-            self._left_over.addItem(f"{_basename(path)} -- {reason}")
+        shown = _reuse_list_items(self._left_over, len(self._unassigned))
+        for item, (path, reason) in zip(shown, self._unassigned):
+            item.setText(f"{_basename(path)} -- {reason}")
         self._left_over_caption.setText(
             "Nothing was left over." if not self._unassigned
             else f"{len(self._unassigned)} file(s) went nowhere:")
@@ -513,7 +517,24 @@ class MeasureInputTable(QWidget):
     def _on_plate_changed(self, text: str) -> None:
         """Rename the plate every row's stem starts with."""
         self._table.plate = str(text) or 'drawn'
-        self._rebuild()
+        self._retitle_stems()
+        self.table_changed.emit()
+
+    def _retitle_stems(self) -> None:
+        """Refresh each row's "Written and measured as" tooltip in place.
+
+        Renaming the plate changes only that tooltip, so the grid keeps its
+        items rather than deleting and re-creating them on each keystroke.
+        """
+        for view_row in range(self._grid.rowCount()):
+            item = self._grid.item(view_row, 0)
+            if item is None:
+                continue
+            index = self._model_row(view_row)
+            if 0 <= index < len(self._table.rows):
+                item.setToolTip(
+                    f"Written and measured as "
+                    f"{self._table.rows[index].stem(self._table.plate)}")
 
     def _on_channels_changed(self, value: int) -> None:
         """Add or drop channel columns, keeping the files that still fit.
@@ -671,7 +692,7 @@ def files_under(paths: Sequence[str]) -> List[str]:
     A user who drew masks for six fields drops the folder, not the files, so
     a drop that refused a directory would refuse the ordinary case.
 
-    NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a
+    Not for the GUI thread. Every path here is one the user chose, which on a
     microscope rig means a network share, and the ``isdir`` is what wakes the
     automount. :meth:`MeasureInputTable.add_dropped` is the only caller and
     it runs this on a worker. Looked up through the module global so a test

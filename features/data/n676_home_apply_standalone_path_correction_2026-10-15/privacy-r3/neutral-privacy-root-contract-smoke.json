@@ -1,0 +1,9 @@
+{
+  "old_mounted_root_rejected": true,
+  "actual_empty_neutral_root_accepted": true,
+  "owned_temp_removed": true,
+  "window_count": 0,
+  "QApplication_created": false,
+  "scope": "Input-contract smoke only; not actual visible-window scan or native acceptance",
+  "elapsed_s": 0.05687290313653648
+}

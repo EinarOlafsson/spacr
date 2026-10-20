@@ -8,6 +8,7 @@ from __future__ import annotations
 import gc
 
 import os
+import sys
 from importlib.util import find_spec
 
 import pytest
@@ -768,6 +769,28 @@ def _skip_first_launch_tour():
 
 
 @pytest.fixture(autouse=True)
+def _mask_saves_land_before_save_returns(monkeypatch):
+    """Make Masks saves finish before Save returns, unless a test says otherwise.
+
+    The app waits 0.1 s for a mask save and lets a slower one finish on the
+    mask writer thread (``mask_engine._MASK_SAVE_WAIT_SECONDS``). A test that
+    saves and then reads the file must not depend on how fast its runner's
+    disk is, so the wait is unlimited here; the writer tests set it back.
+    Any save still in flight is waited for before the next test starts.
+    """
+    try:
+        from spacr.qt import mask_engine
+    except Exception:
+        yield
+        return
+    monkeypatch.setattr(mask_engine, "_MASK_SAVE_WAIT_SECONDS", None)
+    yield
+    screens = sys.modules.get("spacr.qt.screens.make_masks")
+    if screens is not None:
+        screens._wait_for_mask_writes(timeout=30)
+
+
+@pytest.fixture(autouse=True)
 def _issue_prompt_does_not_block():
     """Every Qt test starts with issue reporting set to 'ask'.
 
@@ -1093,7 +1116,8 @@ def immediate_hover_help(monkeypatch, qtbot):
     Hidden anchors are rejected by the production policy, so content witnesses
     must expose their actual control before entering it.
     """
-    from PySide6.QtCore import QEvent
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QEnterEvent
     from PySide6.QtWidgets import QApplication
 
     monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms", lambda: 0)
@@ -1101,7 +1125,12 @@ def immediate_hover_help(monkeypatch, qtbot):
     def hover(widget, ready):
         """Deliver Enter to a visible anchor and await its real callback."""
         assert widget.isVisible(), "hover content needs a visible anchor"
-        QApplication.sendEvent(widget, QEvent(QEvent.Type.Enter))
+        point = widget.rect().center()
+        event = QEnterEvent(
+            QPointF(point), QPointF(widget.mapTo(widget.window(), point)),
+            QPointF(widget.mapToGlobal(point)),
+        )
+        QApplication.sendEvent(widget, event)
         qtbot.waitUntil(ready, timeout=1000)
 
     return hover

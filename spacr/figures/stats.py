@@ -1,6 +1,6 @@
-"""Pick the right test from the data, and show the working.
+"""Select a group-comparison test from the data, run it, and report the choice.
 
-The choice is mechanical, so the software makes it:
+The test is selected by fixed rules:
 
     groups  variance   distribution   test
     2       equal      ~normal        Student's t (two-sided)
@@ -10,32 +10,31 @@ The choice is mechanical, so the software makes it:
     >2      unequal    ~normal        Welch's ANOVA
     >2      any        not normal     Kruskal-Wallis
 
-TWO THINGS THAT MAKE THIS EASY TO GET QUIETLY WRONG, and neither raises an
-error when you get it wrong -- they hand back a confident number instead.
+Two common errors in test selection return a plausible p-value instead of
+raising an error.
 
-**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no
-power, so "p = 0.7, variances are equal" actually means "we could not tell".
-Reading that as licence to use Student's t is how a screen reports a
+**Assumption tests have their own power.** With n = 3, Levene's test has
+almost no power, so "p = 0.7" means the variances could not be compared, not
+that they are equal. Using that result to select Student's t can report a
 difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module
-records the check as UNINFORMATIVE and selects Welch's t-test or
-Mann-Whitney, which costs a little power when the assumption did hold and
-protects the result when it did not. That asymmetry is the whole argument:
-one direction loses a bit of sensitivity, the other publishes a false
-positive.
+records both checks as uninformative, treats the data as not normal, and
+selects a rank test (Mann-Whitney U, Wilcoxon signed-rank when paired, or
+Kruskal-Wallis for more than two groups). This loses some power when the
+assumptions hold and avoids false positives when they do not.
 
-**THE UNIT OF REPLICATION.** spaCR measures thousands of cells across a
-handful of wells. A test across CELLS when the replicate is the WELL is
-pseudoreplication and will return p < 1e-10 on pure noise, because n is
-inflated by a factor of a thousand. Every result here states what n counted,
-and :func:`compare` takes a ``unit`` so a caller can aggregate first.
+**Unit of replication.** spaCR measures thousands of cells across a
+handful of wells. Testing across cells when the replicate is the well is
+pseudoreplication and can return p < 1e-10 on pure noise, because n is
+inflated about a thousandfold. Every result states what n counted, and
+:func:`compare` takes a ``unit`` so a caller can aggregate first.
 
 A p-value alone is not reportable. Every result carries the test by name, n
 per group, an effect size, and the assumption checks with their own numbers.
 
-THIS IS THE ONE ENGINE THAT CHOOSES A TEST. :mod:`spacr.sp_stats` used to
-choose its own and disagreed with this one on three of five inputs, always by
-taking the parametric branch where the checks had no power to refuse it. It is
-now a translation layer onto :func:`compare`,
+This is the only module in spaCR that selects a test. :mod:`spacr.sp_stats`
+previously selected its own and disagreed with this one on three of five
+inputs, each time choosing the parametric branch where the checks lacked
+power. It is now a translation layer onto :func:`compare`,
 :func:`check_normality` and :func:`check_equal_variance` that keeps its older
 signatures and result keys. Change the choices here and both entry points move
 together; ``tests/test_one_engine_decides_which_test_applies.py`` fails if they
@@ -64,11 +63,12 @@ CONVENTION = "*p<0.05, **p<0.01, ***p<0.001, ****p<0.0001"
 
 
 def stars(p) -> str:
-    """The asterisks for a p-value, or ``n.s.`` written out.
+    """Return the asterisks for a p-value, or ``n.s.``.
 
-    Non-significant comparisons are SHOWN rather than omitted, which is what
-    the published figures do -- a missing bracket reads as a comparison
-    nobody made.
+    Non-significant comparisons are shown as ``n.s.`` rather than omitted,
+    as in the published figures; a missing bracket would read as a
+    comparison that was not made. Non-numeric and non-finite values also
+    return ``n.s.``.
 
     :param p: p-value to translate into the reporting convention.
     """
@@ -87,7 +87,7 @@ def stars(p) -> str:
 
 @dataclass
 class Assumption:
-    """One assumption check, and whether it could see anything.
+    """Result of one assumption check, including whether it was informative.
 
     :param name: name of the assumption test.
     :param statistic: test statistic, or ``nan`` when it could not be computed.
@@ -120,7 +120,7 @@ class Assumption:
 
 @dataclass
 class Comparison:
-    """One test, everything needed to report it, and how it was chosen.
+    """Result of one statistical test, with the fields needed to report it.
 
     :ivar test: name of the selected statistical test.
     :ivar statistic: statistic returned by that test.
@@ -165,10 +165,9 @@ class Comparison:
     def marks(self) -> str:
         """The significance stars for this comparison.
 
-        FROM THE ADJUSTED P WHEN THERE IS ONE. Starring an unadjusted p in a
-        figure that made many comparisons is how a multiple-testing problem
-        becomes a claim; the raw value is used only when no adjustment was
-        made.
+        Computed from the adjusted p-value when one exists, so a figure with
+        many comparisons is not starred on unadjusted values; the raw
+        p-value is used only when no adjustment was made.
 
         :returns: the stars, or an empty string.
         """
@@ -176,7 +175,7 @@ class Comparison:
                      else self.p_value)
 
     def sentence(self) -> str:
-        """The legend line: test, n, convention. Never a bare p."""
+        """Return the legend sentence: test, n, p, effect size and convention."""
         counts = ", ".join(f"n={value}" for value in self.n)
         text = (f"{self.test}, {counts} {self.unit}s; "
                 f"p = {self.p_value:.3g}")
@@ -201,7 +200,7 @@ def _clean(values) -> np.ndarray:
 
 
 def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
-    """Shapiro-Wilk per group, and whether it could see anything.
+    """Run Shapiro-Wilk per group; report the worst p, Bonferroni-corrected.
 
     :param groups: numeric sample array for each group being compared.
     """
@@ -249,7 +248,7 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
 
 
 def check_equal_variance(groups: Sequence[np.ndarray]) -> Assumption:
-    """Levene, MEDIAN-centred.
+    """Run Levene's test for equal variance, median-centred (Brown-Forsythe).
 
     The median-centred Brown-Forsythe form is less sensitive to non-normal
     data than the mean-centred form. This function is called before the
@@ -329,18 +328,18 @@ def _eta_squared(groups: Sequence[np.ndarray]) -> tuple:
 
 def compare(groups: Mapping[str, Sequence], *, unit: str = "observation",
             paired: bool = False, force: Optional[str] = None) -> Comparison:
-    """Choose and run the right test for these groups.
+    """Select a test from the normality and variance checks, then run it.
 
     :param groups: ``{label: values}``. Two or more.
-    :param unit: what ONE observation is -- 'well', 'cell', 'guide'. Stated
+    :param unit: what one observation is -- 'well', 'cell', 'guide'. Stated
         in the result, because a test across cells when the replicate is the
-        well is pseudoreplication and returns p < 1e-10 on noise.
+        well is pseudoreplication and can return p < 1e-10 on noise.
     :param paired: the groups are matched (the same wells before and after).
     :param force: a test name to use instead of the chosen one.
     :returns: a :class:`Comparison`.
     :raises ValueError: with fewer than two groups, or a group too small to
-        test. Refused rather than returned as NaN: a comparison that could not
-        be made is not a comparison with an unknown answer.
+        test. An error is raised rather than NaN returned, so a comparison
+        that could not be made is not reported as one with an unknown result.
     """
     labels = list(groups)
     if len(labels) < 2:
@@ -479,11 +478,11 @@ def _difference_ci(a: np.ndarray, b: np.ndarray, *, equal: bool,
 
 
 def table(comparisons: Sequence[Comparison], *, correction: str = "fdr_bh"):
-    """Every comparison as one frame, corrected across them.
+    """Return all comparisons as one DataFrame, with p-values corrected across them.
 
-    Correcting ACROSS the comparisons is the part a hand-written stats table
-    always forgets: six pairwise tests at 0.05 is a 26% chance of at least one
-    false positive, and the individual p-values give no hint of it.
+    The correction is applied across the comparisons because, for example,
+    six independent tests at 0.05 have a 26% chance of at least one false
+    positive, which the individual p-values do not show.
 
     :param comparisons: completed comparison results to tabulate and correct
         as one family.

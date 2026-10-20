@@ -22,6 +22,8 @@ import json
 import logging
 import os
 import sys
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence
@@ -168,12 +170,15 @@ def save(*, module: str, settings: Optional[Mapping[str, Any]] = None,
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(document, indent=2, default=str),
-                       encoding="utf-8")
+        serialized = json.dumps(document, indent=2, default=str)
+        tmp.write_text(serialized, encoding="utf-8")
         os.replace(tmp, path)
-        read_back = json.loads(path.read_text(encoding="utf-8"))
+        persisted = path.read_text(encoding="utf-8")
+        read_back = json.loads(persisted)
         if read_back.get("module") != document["module"]:
             raise ValueError("the state read back as a different module")
+        if persisted != serialized:
+            raise ValueError("the state read back with different contents")
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not save the restart state: %s", exc)
         return None
@@ -297,10 +302,11 @@ def _write_json(key: str, document: Mapping[str, Any]) -> bool:
         store = _store()
         store.setValue(key, json.dumps(_jsonable(document), default=str))
         store.sync()
+        status = store.status()
+        return getattr(status, "value", status) == 0
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not store %s: %s", key, exc)
         return False
-    return True
 
 
 def _read_json(key: str) -> Optional[Dict[str, Any]]:
@@ -367,16 +373,96 @@ def _save_drafts(drafts: Mapping[str, Mapping[str, Any]]) -> bool:
     })
 
 
+_WRITES = threading.Condition()
+_WRITE_STATE: Dict[str, Any] = {"pending": None, "busy": False, "thread": None}
+
+
+def _write_later(job) -> None:
+    """Run ``job`` on the settings writer thread instead of the caller's.
+
+    Storing the session and the drafts ends in ``QSettings.sync``, which
+    rewrites the preference file; on a busy disk that held the GUI thread
+    for 1.2 to 4.4 seconds in lesson 13. Only the newest snapshot matters,
+    so a job still waiting when another arrives is replaced, not queued.
+    :func:`_flush_writes` waits for the writer before a clean exit.
+
+    :param job: a callable with no arguments; an exception it raises is
+        logged and the writer carries on.
+    """
+    with _WRITES:
+        _WRITE_STATE["pending"] = job
+        thread = _WRITE_STATE["thread"]
+        if thread is None or not thread.is_alive():
+            thread = threading.Thread(target=_run_writes,
+                                      name="spacr-settings-writer",
+                                      daemon=True)
+            _WRITE_STATE["thread"] = thread
+            thread.start()
+        _WRITES.notify_all()
+
+
+def _run_one_write(job) -> None:
+    """Run one queued write, logging rather than raising its failure."""
+    try:
+        job()
+    except Exception as exc:
+        LOG.warning("a settings write failed: %s", exc)
+
+
+def _run_writes() -> None:
+    """The writer thread: run the newest waiting job, then wait for the next."""
+    while True:
+        with _WRITES:
+            while _WRITE_STATE["pending"] is None:
+                _WRITES.wait()
+            job, _WRITE_STATE["pending"] = _WRITE_STATE["pending"], None
+            _WRITE_STATE["busy"] = True
+        try:
+            _run_one_write(job)
+        finally:
+            with _WRITES:
+                _WRITE_STATE["busy"] = False
+                _WRITES.notify_all()
+
+
+def _flush_writes(timeout: float = 30.0) -> bool:
+    """Wait until the writer has stored the newest snapshot.
+
+    A job that is still waiting once the writer has gone quiet runs on the
+    caller's thread, so nothing queued is lost at exit.
+
+    :param timeout: longest wait, in seconds, for a write in progress.
+    :returns: whether nothing is left waiting or running.
+    """
+    deadline = time.monotonic() + max(0.0, float(timeout))
+    with _WRITES:
+        while _WRITE_STATE["pending"] is not None or _WRITE_STATE["busy"]:
+            thread = _WRITE_STATE["thread"]
+            left = deadline - time.monotonic()
+            if left <= 0 or thread is None or not thread.is_alive():
+                break
+            _WRITES.wait(left)
+        job = None
+        if not _WRITE_STATE["busy"]:
+            job, _WRITE_STATE["pending"] = _WRITE_STATE["pending"], None
+        finished = not _WRITE_STATE["busy"]
+    if job is not None:
+        _run_one_write(job)
+    return finished
+
+
 def _take_drafts() -> Dict[str, Dict[str, Any]]:
     """Consume the stored drafts and return them as module to settings.
 
     The drafts are removed before this returns, so a draft is offered once.
     """
     document = _read_json(_DRAFTS_KEY)
-    _clear_drafts()
-    modules = (document or {}).get("modules")
+    if document is None:
+        return {}
+    modules = document.get("modules")
     if not isinstance(modules, dict):
         return {}
+    _clear_drafts()
     return {str(k): v for k, v in modules.items() if isinstance(v, dict)}
 
 
@@ -386,22 +472,24 @@ def _clear_drafts() -> bool:
         store = _store()
         store.remove(_DRAFTS_KEY)
         store.sync()
+        status = store.status()
+        return getattr(status, "value", status) == 0
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not clear the settings drafts: %s", exc)
         return False
-    return True
 
 
 def command() -> List[str]:
     """Return the command used to restart the PySide6 application.
 
-    The command uses the active Python interpreter and the explicit
-    :mod:`spacr.qt` entry point, so a forced restart returns to the same GUI
-    without depending on an executable found through ``PATH``.
+    A frozen application restarts its bundled executable directly, without
+    Python interpreter flags. An unfrozen installation uses the active Python
+    interpreter and the explicit :mod:`spacr.qt` entry point. Both routes return
+    to the same GUI without depending on an executable found through ``PATH``.
 
     Returns
     -------
     list of str
         Command arguments suitable for :class:`subprocess.Popen`.
     """
-    return [sys.executable, "-m", "spacr.qt"]
+    return [sys.executable] if getattr(sys, "frozen", False) else [sys.executable, "-m", "spacr.qt"]

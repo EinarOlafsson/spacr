@@ -1,28 +1,24 @@
-"""What the application actually did, and when, with nothing inferred.
+"""Record what the running application did, and when.
 
 Switched on with ``SPACR_TIMING=1``. Off, every function here is a few
 attribute lookups and nothing is imported, allocated or written.
 
-WHY THIS EXISTS. Every measurement of spaCR's start-up so far was taken in
-a script that imitated the application -- built a MainWindow, called a
-method, timed it -- and each one answered a question next to the one being
-asked. A script cannot see the preloader thread competing with a click, a
-stylesheet reapplied four times, or a lazy import that fires the first time
-a user opens a panel. This records the real process.
+A script that imitates the application -- builds a MainWindow, calls a method,
+times it -- cannot see the preloader thread competing with a click, a
+stylesheet reapplied four times, or a lazy import that fires the first time a
+user opens a panel. This records the real process.
 
-FOUR THINGS ARE RECORDED, all with real wall-clock times:
+Four things are recorded, all with wall-clock times:
 
 * SPANS -- named, nested regions of work. ``with span("build mask"):``
 * IMPORTS -- every module import over a threshold, with the importing frame,
   through a `sys.meta_path` finder rather than by patching ``__import__``.
-* GUI STALLS -- a timer that should fire every 16 ms, recording every time
-  it is late. This is the only honest measure of "the app froze": it is the
-  event loop reporting on itself.
+* GUI STALLS -- a timer that should fire every 16 ms, recording every time it
+  is late. This measures freezes directly: the event loop reports on itself.
 * MARKS -- instants worth a line, like "window shown".
 
-The report is a TIMELINE, not a profile. A profile says which function used
-the CPU; this says what the user was waiting for and for how long, which is
-a different question and the one being asked.
+The report is a timeline, not a profile. A profile says which function used the
+CPU; this says what the user was waiting for and for how long.
 """
 from __future__ import annotations
 
@@ -155,7 +151,7 @@ def stalls_between(started_at: float, ended_at: float,
     A watchdog beat can begin before a click and end after it. Charging that
     whole gap to the click can report a multi-second freeze for an interaction
     that lasted only a few hundred milliseconds. Preserve the raw interval in
-    ``late_ms`` and add the honest in-window portion as ``overlap_ms``.
+    ``late_ms`` and add the portion inside the interval as ``overlap_ms``.
 
     :param started_at: start of the interval, in seconds on the
         instrumentation clock (the clock of the stall rows' ``at`` values).
@@ -416,10 +412,9 @@ def _install_import_timer() -> None:
 def watch_the_gui_thread(parent=None):
     """Start the stall watchdog. Returns the timer, or None when off.
 
-    A QTimer asked for 16 ms records how late it actually was. THIS IS THE
-    ONLY HONEST FREEZE MEASUREMENT: it is the event loop reporting on
-    itself, from inside the real application, so it cannot miss a stall the
-    way an outside script can.
+    A QTimer asked for 16 ms records how late it actually was. The event loop
+    reports on itself from inside the real application, so it does not miss a
+    stall the way an outside script can.
     """
     if not ENABLED:
         return None
@@ -654,7 +649,7 @@ def watch_interactive(
 
         @staticmethod
         def _usable(control) -> bool:
-            """Whether a control is really there to be pressed.
+            """Whether a control can be pressed.
 
             Enabled, visible AND non-empty. A widget with a zero size is laid out but
             not yet given room, and counting it as usable reports a screen ready
@@ -1022,7 +1017,7 @@ def write_report(path: str = "") -> str:
     target = path or os.environ.get("SPACR_TIMING_LOG", "") or os.path.join(
         os.getcwd(), "spacr-timing.log")
     try:
-        with open(target, "w") as handle:
+        with open(target, "w", encoding="utf-8") as handle:
             handle.write(report())
     except OSError:
         return ""

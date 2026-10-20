@@ -1,0 +1,135 @@
+{
+  "result": "PASS",
+  "exact_source_pin": "098f3edabb7712b66ef43df0ccfa4f5d8dc26a37",
+  "checked_symbols": [
+    {
+      "symbol": "spacr.qt.bridge.make_thread",
+      "module": "spacr.qt.bridge",
+      "summary": "Return ``(thread, worker)`` \u2014 the caller connects the worker's signals and calls ``thread.start()``.",
+      "local_doc_sha256": "16fcc33ff93d94c44e3587bc9585e1d9f2839d04170fc6394604a75acfce7060",
+      "local_prose_equals_full_direct_AST_docstring": true,
+      "English_equals_current_normal_AST_rendering": true,
+      "class_constructor_prose_appended_in_English": false,
+      "production_provider_rows": 1,
+      "rankings": [
+        {
+          "query": "spacr.qt.bridge.make_thread",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.bridge.make_thread"
+          ]
+        },
+        {
+          "query": "bridge make_thread",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.bridge.make_thread",
+            "spacr.qt.bridge.RunRegistry"
+          ]
+        }
+      ],
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/bridge/index.html#spacr.qt.bridge.make_thread",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/bridge/index.html?lang=ko#spacr.qt.bridge.make_thread"
+    },
+    {
+      "symbol": "spacr.qt.bridge.RunRegistry",
+      "module": "spacr.qt.bridge",
+      "summary": "Track jobs created by :func:`make_thread` until their handles retire.",
+      "local_doc_sha256": "55e4c7b34c9677bf639c4293d393c1ea0cb7e897d9cafb34ce73645dbf5e4fa1",
+      "local_prose_equals_full_direct_AST_docstring": true,
+      "English_equals_current_normal_AST_rendering": true,
+      "class_constructor_prose_appended_in_English": true,
+      "production_provider_rows": 1,
+      "rankings": [
+        {
+          "query": "spacr.qt.bridge.RunRegistry",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.bridge.RunRegistry",
+            "spacr.qt.bridge.RunRegistry.clear",
+            "spacr.qt.bridge.RunRegistry.active"
+          ]
+        },
+        {
+          "query": "bridge RunRegistry",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.bridge.RunRegistry",
+            "spacr.qt.bridge.RunRegistry.active",
+            "spacr.qt.bridge.RunRegistry.cancel_all"
+          ]
+        }
+      ],
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/bridge/index.html#spacr.qt.bridge.RunRegistry",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/bridge/index.html?lang=ko#spacr.qt.bridge.RunRegistry"
+    },
+    {
+      "symbol": "spacr.qt.bridge.RunRegistry.active",
+      "module": "spacr.qt.bridge",
+      "summary": "Return registered handles in registration order.",
+      "local_doc_sha256": "5209ff65983748fa01cb46e8ada8a10547f5dda4fd48c043acae9e585d1d9910",
+      "local_prose_equals_full_direct_AST_docstring": true,
+      "English_equals_current_normal_AST_rendering": true,
+      "class_constructor_prose_appended_in_English": false,
+      "production_provider_rows": 1,
+      "rankings": [
+        {
+          "query": "spacr.qt.bridge.RunRegistry.active",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.bridge.RunRegistry.active"
+          ]
+        },
+        {
+          "query": "bridge RunRegistry active",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.bridge.RunRegistry.active",
+            "spacr.qt.bridge.RunRegistry.cancel_all"
+          ]
+        }
+      ],
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/bridge/index.html#spacr.qt.bridge.RunRegistry.active",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/bridge/index.html?lang=ko#spacr.qt.bridge.RunRegistry.active"
+    },
+    {
+      "symbol": "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning",
+      "module": "spacr.qt.widgets.activity_spinner",
+      "summary": "Whether the animation timer is actually running.",
+      "local_doc_sha256": "bb3ca13a7abaeccea8dccb98a8453fe974893d3ee00ee105c0d249a7f604172c",
+      "local_prose_equals_full_direct_AST_docstring": true,
+      "English_equals_current_normal_AST_rendering": true,
+      "class_constructor_prose_appended_in_English": false,
+      "production_provider_rows": 1,
+      "rankings": [
+        {
+          "query": "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning"
+          ]
+        },
+        {
+          "query": "activity_spinner ActivitySpinner is_spinning",
+          "rank": 1,
+          "top_three": [
+            "spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning"
+          ]
+        }
+      ],
+      "english_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/activity_spinner/index.html#spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning",
+      "korean_url": "https://einarolafsson.github.io/spacr/api/spacr/qt/widgets/activity_spinner/index.html?lang=ko#spacr.qt.widgets.activity_spinner.ActivitySpinner.is_spinning"
+    }
+  ],
+  "help_index_sha256": "7c84afd77466338a55ce7436bdb0f6ece8022a96e40f1c51479397d7e97c7c98",
+  "source_files_sha256": {
+    "spacr/qt/bridge.py": "79c9b2e72259fcd18ac7d02707c4bffcba588bd55b154e2026e089863772df5d",
+    "spacr/qt/widgets/activity_spinner.py": "909e079fafe5cecd461abe0f404c57f0a4f9faa1d2cbd0d520ccdb6987806bae"
+  },
+  "actual_production_api_rows": 13259,
+  "exact_ranking_queries": 8,
+  "target_modules_imported_before_URLs": [],
+  "target_modules_imported_after_URL_dependency_loading": [],
+  "scope": "Actual production api_entries/search across complete provider; four unique rows, current full direct-AST local prose, exact current English summaries, normal class-plus-constructor English rendering and en/ko module/class/function links. No provider fabrication, generator execution, canonical collection, model, network, Sphinx or native GUI claim.",
+  "reviewer_boundary": "Consumer execution by API-target author, not independent source or target semantic review; those have separate existing source and target peers."
+}

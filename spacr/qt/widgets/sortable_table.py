@@ -38,6 +38,8 @@ from PySide6.QtCore import (
     Slot,
 )
 from PySide6.QtWidgets import (
+    QListWidget,
+    QListWidgetItem,
     QTableView,
     QTableWidget,
     QTableWidgetItem,
@@ -66,6 +68,11 @@ SORT_KEY_ROLE = Qt.UserRole + 90
 
 _SERIAL = 0
 
+_DISPLAY_ROLE = Qt.ItemDataRole.DisplayRole
+_EDIT_ROLE = Qt.ItemDataRole.EditRole
+_ROLE_TYPE = type(_DISPLAY_ROLE)
+_TEXT_ROLE_VALUES = (_DISPLAY_ROLE.value, _EDIT_ROLE.value)
+
 _RESTORING = False
 
 _STATE_ATTR = "_spacr_sort_state"
@@ -78,7 +85,10 @@ def is_missing(value) -> bool:
     """Return whether ``value`` is empty or a recognized missing sentinel.
 
     This includes ``None``, blank strings, ``NaN``, pandas ``NA``, and
-    ``NaT``. Array-like values are not treated as individual missing cells.
+    ``NaT``. After the ``None`` and string checks, the result of
+    ``pandas.isna`` is converted to ``bool``. A single-element array containing
+    a missing value can therefore return ``True``; ambiguous multi-element
+    results return ``False``.
 
     :param value: a cell value of any type.
     """
@@ -86,6 +96,16 @@ def is_missing(value) -> bool:
         return True
     if isinstance(value, str):
         return not value.strip()
+    if isinstance(value, float):
+        return value != value
+    if isinstance(value, int):
+        return False
+    if getattr(value, "ndim", None) == 0:
+        kind = getattr(getattr(value, "dtype", None), "kind", "")
+        if kind in ("i", "u", "b"):
+            return False
+        if kind == "f":
+            return bool(value != value)
     try:
         import pandas as _pd
 
@@ -275,8 +295,11 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
         :param value: the data stored for ``role``.
         """
         QTableWidgetItem.setData(self, role, value)
-        if role in (Qt.DisplayRole, Qt.EditRole) and hasattr(
-                self, "_sort_serial"):
+        if role is not _DISPLAY_ROLE and role is not _EDIT_ROLE and (
+                type(role) is _ROLE_TYPE
+                or getattr(role, "value", role) not in _TEXT_ROLE_VALUES):
+            return
+        if hasattr(self, "_sort_serial"):
             override = self.data(SORT_KEY_ROLE)
             serial = self._sort_serial
             if override is None:
@@ -417,6 +440,199 @@ class SortableTreeItem(_SortableMixin, QTreeWidgetItem):
 def table_item(value="", key=None) -> SortableTableItem:
     """Return a :class:`SortableTableItem` for ``value`` and optional key."""
     return SortableTableItem(value, key=key)
+
+
+_SPARE_ATTR = "_spacr_spare_items"
+
+
+def _spare_items(view) -> list:
+    """The items ``view`` has taken out of its rows and keeps for reuse.
+
+    :param view: a list, table or tree widget.
+    :returns: the view's spare list, created empty the first time.
+    """
+    return view.__dict__.setdefault(_SPARE_ATTR, [])
+
+
+def _wipe(view, item, columns: int = 1) -> None:
+    """Make an item that is still in ``view`` look newly built.
+
+    Every data role it holds, in every column, is cleared through the view's
+    own model (which reports exactly the roles an item carries), its flags
+    go back to a new item's, and it is shown and unselected. A sortable item
+    also takes a fresh arrival serial, so "natural order" follows the order
+    rows are written in again.
+
+    :param view: the list, table or tree the item is in.
+    :param item: the item to wipe.
+    :param columns: columns to clear, for a tree item.
+    """
+    model = view.model()
+    tree = isinstance(view, QTreeWidget)
+    for column in range(columns if tree else 1):
+        index = view.indexFromItem(item, column) if tree else view.indexFromItem(item)
+        for role in list(model.itemData(index)):
+            if tree:
+                item.setData(column, role, None)
+            else:
+                item.setData(role, None)
+    item.setFlags(_DEFAULT_FLAGS.get(_base_kind(item), item.flags()))
+    item.setSelected(False)
+    if hasattr(item, "setHidden"):
+        item.setHidden(False)
+    if isinstance(item, _SortableMixin):
+        global _SERIAL
+        _SERIAL += 1
+        item._sort_serial = _SERIAL
+        item._sort_cache = None
+        if isinstance(item, SortableTableItem):
+            item._sort_missing, item._sort_number = sort_key_of("")
+
+
+def _base_kind(item) -> str:
+    """Which Qt item class ``item`` is: ``list``, ``table`` or ``tree``."""
+    if isinstance(item, QTableWidgetItem):
+        return "table"
+    if isinstance(item, QTreeWidgetItem):
+        return "tree"
+    return "list"
+
+
+_DEFAULT_FLAGS: dict = {}
+
+
+def _remember_default_flags() -> None:
+    """Note the flags Qt gives a new list, table and tree item."""
+    if not _DEFAULT_FLAGS:
+        _DEFAULT_FLAGS["list"] = QListWidgetItem().flags()
+        _DEFAULT_FLAGS["table"] = QTableWidgetItem().flags()
+        _DEFAULT_FLAGS["tree"] = QTreeWidgetItem().flags()
+
+
+def _reuse_list_items(listing: QListWidget, count: int,
+                      make=QListWidgetItem) -> list:
+    """The first ``count`` rows of ``listing``, as wiped items to rewrite.
+
+    For a redraw that used to ``clear()`` the list and add new items. No
+    item is deleted: surplus rows are taken out and kept for a later redraw,
+    because deleting Python-made items while assistive technology may still
+    hold wrappers of them is how lessons 39, 42 and 44 segfaulted. Selection
+    and the current row are cleared, as ``clear()`` cleared them.
+
+    :param listing: the list to redraw.
+    :param count: how many rows it should have.
+    :param make: builds a new item when no spare one is left.
+    :returns: its items in row order; set every attribute each one needs.
+    """
+    _remember_default_flags()
+    spare = _spare_items(listing)
+    listing.clearSelection()
+    listing.setCurrentItem(None)
+    while listing.count() > count:
+        last = listing.count() - 1
+        _wipe(listing, listing.item(last))
+        spare.append(listing.takeItem(last))
+    for row in range(listing.count()):
+        _wipe(listing, listing.item(row))
+    while listing.count() < count:
+        listing.addItem(spare.pop() if spare else make())
+    return [listing.item(row) for row in range(count)]
+
+
+def _retire_table_cells(table: QTableWidget, *, headers: bool = False) -> None:
+    """Empty ``table`` the way ``setRowCount(0)`` did, deleting no item.
+
+    The cells are wiped and kept for :func:`_spare_table_item`; with
+    ``headers`` the header items are taken out too, as ``clear()`` removed
+    them, and the row and column counts are left alone as ``clear()`` left
+    them. Without it the table ends with no rows.
+
+    :param table: the table to empty.
+    :param headers: behave like ``clear()`` rather than ``setRowCount(0)``.
+    """
+    _remember_default_flags()
+    spare = _spare_items(table)
+    sorting = table.isSortingEnabled()
+    table.setSortingEnabled(False)
+    try:
+        for row in range(table.rowCount()):
+            for column in range(table.columnCount()):
+                item = table.item(row, column)
+                if item is not None:
+                    _wipe(table, item)
+                    spare.append(table.takeItem(row, column))
+        if headers:
+            keep = table.__dict__.setdefault("_spacr_spare_headers", [])
+            for column in range(table.columnCount()):
+                item = table.takeHorizontalHeaderItem(column)
+                if item is not None:
+                    keep.append(item)
+            for row in range(table.rowCount()):
+                item = table.takeVerticalHeaderItem(row)
+                if item is not None:
+                    keep.append(item)
+        else:
+            table.setRowCount(0)
+    finally:
+        table.setSortingEnabled(sorting)
+
+
+def _spare_table_item(table: QTableWidget, value="", make=None):
+    """A cell for ``table``: a kept one rewritten, or a new one.
+
+    :param table: the table the cell is for.
+    :param value: what the cell should show.
+    :param make: builds a new item from ``value`` when no spare one is
+        left; :func:`table_item` by default.
+    :returns: an item not yet in the table.
+    """
+    spare = _spare_items(table)
+    if not spare:
+        return (make or table_item)(value)
+    item = spare.pop()
+    item.setText("" if is_missing(value) else str(value))
+    if isinstance(item, SortableTableItem):
+        item._init_sort_key(value)
+    return item
+
+
+def _reuse_tree_items(parent, count: int, make=None) -> list:
+    """The first ``count`` children of ``parent``, as wiped items to rewrite.
+
+    ``parent`` is a tree (its top-level items) or a tree item (its
+    children). Surplus children are taken out with their own children and
+    kept; call this again on each returned item for its children, which
+    wipes or trims what it carried before. Deletes no item.
+
+    :param parent: a ``QTreeWidget`` or a ``QTreeWidgetItem`` in one.
+    :param count: how many children it should have.
+    :param make: builds a new item when no spare one is left;
+        :func:`tree_item` by default.
+    :returns: the children in order; set every attribute each one needs.
+    """
+    _remember_default_flags()
+    tree = parent if isinstance(parent, QTreeWidget) else parent.treeWidget()
+    columns = max(1, tree.columnCount()) if tree is not None else 1
+    spare = _spare_items(tree) if tree is not None else []
+    top = isinstance(parent, QTreeWidget)
+    size = parent.topLevelItemCount if top else parent.childCount
+    child = parent.topLevelItem if top else parent.child
+    take = parent.takeTopLevelItem if top else parent.takeChild
+    add = parent.addTopLevelItem if top else parent.addChild
+    if top:
+        parent.clearSelection()
+        parent.setCurrentItem(None)
+    while size() > count:
+        last = size() - 1
+        if tree is not None:
+            _wipe(tree, child(last), columns)
+        spare.append(take(last))
+    for row in range(size()):
+        if tree is not None:
+            _wipe(tree, child(row), columns)
+    while size() < count:
+        add(spare.pop() if spare else (make or tree_item)())
+    return [child(row) for row in range(count)]
 
 
 def tree_item(*args, **kwargs) -> SortableTreeItem:
@@ -615,9 +831,11 @@ def install_sorting(view):
     """Install three-state semantic sorting on ``view`` and return it.
 
     Accepts a ``QTableWidget``, ``QTreeWidget``, or ``QTableView``. A
-    ``QTableView`` is wrapped in :class:`SortableProxyModel`; call this
-    function immediately after ``setModel`` and obtain the view's selection
-    model afterwards.
+    ``QTableView`` with a non-proxy model is wrapped in
+    :class:`SortableProxyModel`. An existing ``QSortFilterProxyModel`` is
+    preserved with its own comparison behavior; a view without a model is
+    not wrapped. Call this function immediately after ``setModel`` and
+    obtain the view's selection model afterwards.
 
     :param view: the view to make sortable; a view with no header is
         returned untouched, and one already installed only has its initial
@@ -693,10 +911,10 @@ class SortableProxyModel(QSortFilterProxyModel):
         return super().headerData(section, orientation, role)
 
     def lessThan(self, left, right):
-        """Order two cells, comparing what they MEAN rather than how they read.
+        """Order two cells by their values rather than by their text.
 
         A column of numbers rendered as text sorts 10 before 9 under a string
-        comparison, which is the bug this exists to prevent.
+        comparison; this compares the values instead.
 
         :param left: the left cell's index.
         :param right: the right cell's index.

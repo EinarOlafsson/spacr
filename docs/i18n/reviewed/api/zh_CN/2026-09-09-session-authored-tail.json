@@ -20,7 +20,9 @@
       "label": "spacr.measure#2",
       "source": "WHAT IT NEEDS. A ``merged/`` folder written by :func:`spacr.core.preprocess_generate_masks`: the intensity channels and the label masks for one field, saved together as ``.npy``. Which masks to measure is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask dimension is simply not measured, rather than measured as empty.",
       "source_sha256": "e5cc930071641f4a21c565f1d31565508d9d87cc34d80859e47d3b2417682f38",
-      "translation": "它需要什么。一个 ``merged/`` 文件夹，由 :func:`spacr.core.preprocess_generate_masks` 写出：某一个视野的强度图像通道与标签掩膜，一起保存为 ``.npy``。要测量哪些掩膜按对象逐一指定 —— ``cell_mask_dim``、``nucleus_mask_dim``、``pathogen_mask_dim`` 以及各个细胞器槽位 —— 没有掩膜维度的对象根本不会被测量，而不是被当作空对象测量。"
+      "translation": "它需要什么。一个 ``merged/`` 文件夹，由 :func:`spacr.core.preprocess_generate_masks` 写出：某一个视野的强度图像通道与标签掩膜，一起保存为 ``.npy``。要测量哪些掩膜按对象逐一指定 —— ``cell_mask_dim``、``nucleus_mask_dim``、``pathogen_mask_dim`` 以及各个细胞器槽位 —— 没有掩膜维度的对象根本不会被测量，而不是被当作空对象测量。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``measurements/measurements.db``, one SQLite table per object type, one row per object, keyed by the laboratory microplate/row/column/microscope field of view/object identity :mod:`spacr.schema` composes. The columns are shape, intensity, texture and SPATIAL features -- how many neighbours an object has within a radius, how far the nearest one is, what fraction of its border touches another.",
@@ -55,7 +57,9 @@
       "label": "spacr.qt.dnd_handlers.ForeignProjectDropHandler.apply#1",
       "source": "A CSV IS READ BEFORE IT IS PLACED. A mapping and a measurement table are both CSVs, and only the header says which -- so the header is checked rather than the extension trusted.",
       "source_sha256": "becbb88cb86112ce27b9e271454d4e13541ccd63000b2d09116f2478d16f2fcb",
-      "translation": "CSV 会在放置之前先被读取。映射表和测量表都是 CSV，只有表头能区分二者 —— 因此检查的是表头，而不是轻信扩展名。"
+      "translation": "CSV 会在放置之前先被读取。映射表和测量表都是 CSV，只有表头能区分二者 —— 因此检查的是表头，而不是轻信扩展名。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set the source and scan it, raising the screen's own reason on failure.",
@@ -77,28 +81,36 @@
       "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog#2",
       "source": "IT FILLS IN TWO STAGES, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of crops must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the GUI thread, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on screen — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
       "source_sha256": "a79b163d9e4318d469b9aaca2e21e2193c849ad9a65c46db8c3604758c144003",
-      "translation": "它分两个阶段填充，其中的原因正是这项工作的全部要点。文件清单并不存放在计划里：每次调用 ``file_list`` 都会对每一个候选目录执行 ``os.walk``，因为一个包含数百万张裁剪图的项目，其计划不可以携带数百万个字符串。把这件事放进 ``__init__`` 就等于把对用户项目的一次完整递归遍历放到了 GUI 主线程上，而那正是他们在等待窗口出现的时刻 —— 并且在一个已休眠的共享盘上，花掉二十秒去唤醒挂载的是遍历的第一次 stat，而不是遍历本身。因此对话框先以不需要磁盘的那一半打开（总计、每个候选项、每个保留项及其原因），文件清单随后到达。没有任何东西被丢弃：用户在删除任何内容之前仍会读到每一条路径，这也正是确认按钮要一直保持禁用、直到清单出现在界面上的原因 —— 或者在遍历失败时，直到 :meth:`_on_listing_failed` 在清单的位置说明了这一点。唯一绝不会发生的，是那个复选框在占位内容之上被启用。"
+      "translation": "它分两个阶段填充，其中的原因正是这项工作的全部要点。文件清单并不存放在计划里：每次调用 ``file_list`` 都会对每一个候选目录执行 ``os.walk``，因为一个包含数百万张裁剪图的项目，其计划不可以携带数百万个字符串。把这件事放进 ``__init__`` 就等于把对用户项目的一次完整递归遍历放到了 GUI 主线程上，而那正是他们在等待窗口出现的时刻 —— 并且在一个已休眠的共享盘上，花掉二十秒去唤醒挂载的是遍历的第一次 stat，而不是遍历本身。因此对话框先以不需要磁盘的那一半打开（总计、每个候选项、每个保留项及其原因），文件清单随后到达。没有任何东西被丢弃：用户在删除任何内容之前仍会读到每一条路径，这也正是确认按钮要一直保持禁用、直到清单出现在界面上的原因 —— 或者在遍历失败时，直到 :meth:`_on_listing_failed` 在清单的位置说明了这一点。唯一绝不会发生的，是那个复选框在占位内容之上被启用。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Walks the project, and the dialog no longer calls it. :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over every candidate each time it is asked, which is the twenty seconds this exercise removed, so nothing on the main GUI execution path may call this. The dialog builds the same string in two pieces instead: :meth:`_heading` at once, then :meth:`_with_the_files` on the walk that :meth:`_start_the_file_list` sent to a worker.",
       "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.describe#1",
       "source": "WALKS THE PROJECT, AND THE DIALOG NO LONGER CALLS IT. :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over every candidate each time it is asked, which is the twenty seconds this exercise removed, so nothing on the GUI thread may call this. The dialog builds the same string in two pieces instead: :meth:`_heading` at once, then :meth:`_with_the_files` on the walk that :meth:`_start_the_file_list` sent to a worker.",
       "source_sha256": "57d1820232b0d7dff5cd447d3956a9cb6f06f76ff14d3748566793e6796d4252",
-      "translation": "遍历整个项目，而对话框已不再调用它。:meth:`spacr.data_manager.PrunePlan.file_list` 每次被询问都会对每个候选目录执行 ``os.walk``，那正是这项工作所消除的二十秒，因此 GUI 主线程上任何代码都不得调用它。对话框改为分两段构建同一个字符串：先是 :meth:`_heading`，随后是 :meth:`_with_the_files`，后者建立在 :meth:`_start_the_file_list` 交给工作线程的那次遍历之上。"
+      "translation": "遍历整个项目，而对话框已不再调用它。:meth:`spacr.data_manager.PrunePlan.file_list` 每次被询问都会对每个候选目录执行 ``os.walk``，那正是这项工作所消除的二十秒，因此 GUI 主线程上任何代码都不得调用它。对话框改为分两段构建同一个字符串：先是 :meth:`_heading`，随后是 :meth:`_with_the_files`，后者建立在 :meth:`_start_the_file_list` 交给工作线程的那次遍历之上。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
       "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
-      "translation": "删除与取消都会走到这里，而且两者都不会发送关闭事件 —— ``QDialog.done`` 只是隐藏了控件 —— 因此模态对话框的清理必须写在这里，而不是 ``closeEvent`` 里。如果一个正在执行的 ``QThread`` 随其所有者一起被销毁，Qt 会直接中止进程，而当用户取消时，那次遍历可能仍在进行。"
+      "translation": "删除与取消都会走到这里，而且两者都不会发送关闭事件 —— ``QDialog.done`` 只是隐藏了控件 —— 因此模态对话框的清理必须写在这里，而不是 ``closeEvent`` 里。如果一个正在执行的 ``QThread`` 随其所有者一起被销毁，Qt 会直接中止进程，而当用户取消时，那次遍历可能仍在进行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
       "label": "spacr.qt.screens.foreign.object_label#1",
       "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
       "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
-      "translation": "用户看不到字母，这是 2026-09-02 明确提出的要求：“i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles”。槽位在存储时带字母 —— ``organelle``、``organelleb``、``organellec`` —— 因为角色名是它所拥有的每一个设置名的前缀，而 ``organelle2`` 无法在 ``prcfo`` 键中往返而不与标号为 2 的对象相撞。那是一个存储上的决定，它与界面无关；在界面上，槽位是一个数字：Organelle 1、Organelle 2。"
+      "translation": "用户看不到字母，这是 2026-09-02 明确提出的要求：“i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles”。槽位在存储时带字母 —— ``organelle``、``organelleb``、``organellec`` —— 因为角色名是它所拥有的每一个设置名的前缀，而 ``organelle2`` 无法在 ``prcfo`` 键中往返而不与标号为 2 的对象相撞。那是一个存储上的决定，它与界面无关；在界面上，槽位是一个数字：Organelle 1、Organelle 2。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the hit's folder, gene, effect and guides.",
@@ -112,7 +124,9 @@
       "label": "spacr.qt.widgets.annotation_umap_tab#2",
       "source": "THE EMBEDDING IS DRAWN THROUGH THE SAME PLOT EVERY OTHER PANEL USES -- :class:`spacr.qt.widgets.fast_plots.FastPlot` beside :class:`~spacr.qt.widgets.fast_plots.ResultsTable` -- rather than on a canvas of its own. A scatter here needs exactly what those already carry: hovering a point to see which guide it came from, the right-click restyle menu, the export, and a table whose rows can be read against the picture. A second canvas would be a second set of all of that, drifting from the first.",
       "source_sha256": "1ba043a9b2ec2a52078315843114427e6a4706c7f8c0c38cceb6045d6f658a8d",
-      "translation": "该嵌入图通过其他每个面板都在用的同一套绘图组件绘制 —— :class:`spacr.qt.widgets.fast_plots.FastPlot` 搭配 :class:`~spacr.qt.widgets.fast_plots.ResultsTable` —— 而不是画在自己的画布上。这里的散点图所需要的，正是那两者已经具备的：悬停某个点即可看到它来自哪条向导序列、右键重设样式菜单、导出，以及一张可以对照图形逐行阅读的表。再来一块画布，就意味着再来一整套这些东西，并且会与第一套逐渐分道扬镳。"
+      "translation": "该嵌入图通过其他每个面板都在用的同一套绘图组件绘制 —— :class:`spacr.qt.widgets.fast_plots.FastPlot` 搭配 :class:`~spacr.qt.widgets.fast_plots.ResultsTable` —— 而不是画在自己的画布上。这里的散点图所需要的，正是那两者已经具备的：悬停某个点即可看到它来自哪条向导序列、右键重设样式菜单、导出，以及一张可以对照图形逐行阅读的表。再来一块画布，就意味着再来一整套这些东西，并且会与第一套逐渐分道扬镳。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "None of that is here. A row is a button with an icon and its name, always both. The only thing the pointer changes is the colour.",
@@ -126,35 +140,45 @@
       "label": "spacr.qt.widgets.home.RecentRunsPanel#1",
       "source": "\"Real module\" is doing work here. The panel used to list whatever the run journal's newest manifests said, and those rows were clickable without representing runs -- they opened a ``_job`` module. On one machine the journal held 11,046 run folders of which 7,323 were written under the app_key ``_job`` or ``job``: a test fixture's key, written straight into the real `~/.spacr/runs` because nothing sandboxed it (fixed in ``tests/conftest.py``). So most rows named a module that does not exist, and clicking one asked the window to open it.",
       "source_sha256": "bed05b0be9fb725825d7211d1fc0f894339ac0717ccf4174ef4634a2401f2f3c",
-      "translation": "\"Real module\" 在这里是有分量的说法。该面板过去会列出运行日志中最新清单所说的任何内容，而那些行虽然可以点击，却并不代表任何运行 —— 它们打开的是一个 ``_job`` 模块。在某台机器上，日志里有 11,046 个运行文件夹，其中 7,323 个是以 app_key ``_job`` 或 ``job`` 写入的：一个测试夹具的键，因为没有任何沙箱拦住它而被直接写进了真实的 `~/.spacr/runs`（已在 ``tests/conftest.py`` 中修复）。于是大多数行指名了一个并不存在的模块，点击其中一行就是在要求窗口去打开它。"
+      "translation": "\"Real module\" 在这里是有分量的说法。该面板过去会列出运行日志中最新清单所说的任何内容，而那些行虽然可以点击，却并不代表任何运行 —— 它们打开的是一个 ``_job`` 模块。在某台机器上，日志里有 11,046 个运行文件夹，其中 7,323 个是以 app_key ``_job`` 或 ``job`` 写入的：一个测试夹具的键，因为没有任何沙箱拦住它而被直接写进了真实的 `~/.spacr/runs`（已在 ``tests/conftest.py`` 中修复）。于是大多数行指名了一个并不存在的模块，点击其中一行就是在要求窗口去打开它。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The walk over dropped paths executes on its own worker. A drop is a path the user chose, and a laboratory microplate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a processing session, and it is safe to do so because that runner carries nothing but the walk.",
       "label": "spacr.qt.widgets.import_workbench.ImportWorkbench#5",
       "source": "The walk over dropped paths runs on its own worker. A drop is a path the user chose, and a plate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a run, and it is safe to do so because that runner carries nothing but the walk.",
       "source_sha256": "c0fa4551e350a749322c8e6093f5669f8e1c78e0fbcad710e0f292d537eb0ac4",
-      "translation": "对拖入路径的遍历运行在它自己的工作线程上。一次拖放就是用户选定的一条路径，而板存放在显微镜的共享盘上：在一个休眠的 autofs 挂载下，一次 ``os.path.exists`` 二十秒都没有返回，而一次遍历是成千上万次这样的调用。若放在内联执行，拖放会让整个应用冻结且没有任何回溯 —— 事件循环停滞并不是崩溃，它被报告成了悬停闪烁和瞥见其他界面。该运行器被标记为对用户不可见，因为拖入一个文件夹并不是启动一次运行；这样做是安全的，因为那个运行器除了这次遍历之外什么也不承载。"
+      "translation": "对拖入路径的遍历运行在它自己的工作线程上。一次拖放就是用户选定的一条路径，而板存放在显微镜的共享盘上：在一个休眠的 autofs 挂载下，一次 ``os.path.exists`` 二十秒都没有返回，而一次遍历是成千上万次这样的调用。若放在内联执行，拖放会让整个应用冻结且没有任何回溯 —— 事件循环停滞并不是崩溃，它被报告成了悬停闪烁和瞥见其他界面。该运行器被标记为对用户不可见，因为拖入一个文件夹并不是启动一次运行；这样做是安全的，因为那个运行器除了这次遍历之外什么也不承载。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The move executes on a worker. It did not until 2026-09-04, and that made the whole `path_probe` data-selection boundary in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
       "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.toggle_quarantine#1",
       "source": "THE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made the whole `path_probe` gate in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
       "source_sha256": "3d6bda99c6f2909ff21d1d7b1055b3270eaf203bff04d0e38d69935ceeaf6561",
-      "translation": "移动操作运行在工作线程上。在 2026-09-04 之前并非如此，这使得 `path_probe` 在 `_sync_action` 里的整个边界形同虚设：这个按钮前面的轮询不再冻结，而按钮本身仍然会冻结，因为 `quarantine_dir_for` 是一次 `Path.resolve()` 真实路径遍历，紧随其后的重命名还要再加上一次 mkdir、一次 stat、一次 link、一次带 ``fsync`` 的账本写入和一次 unlink —— 全都发生在用户选定的板路径上，而按假设那正是休眠的 ``autofs`` 共享盘。参见 `_move_field`。"
+      "translation": "移动操作运行在工作线程上。在 2026-09-04 之前并非如此，这使得 `path_probe` 在 `_sync_action` 里的整个边界形同虚设：这个按钮前面的轮询不再冻结，而按钮本身仍然会冻结，因为 `quarantine_dir_for` 是一次 `Path.resolve()` 真实路径遍历，紧随其后的重命名还要再加上一次 mkdir、一次 stat、一次 link、一次带 ``fsync`` 的账本写入和一次 unlink —— 全都发生在用户选定的板路径上，而按假设那正是休眠的 ``autofs`` 共享盘。参见 `_move_field`。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing on this tab touches a processing-session folder from the main GUI execution path. Measured on one workstation: one ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had not returned after twenty seconds. Every row here carries a folder the user chose, and this panel used to walk, stat, read and delete those folders in the click that asked for it: the chooser's start directory, the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu was being built. Each of those is a frozen application with no traceback for as long as the mount takes to wake -- reported as \"opening map barcodes crashes spacr\", as hover flicker, and as glimpses of other application views. They run on a :class:`spacr.qt.job_runner.JobRunner` now, and the one bare existence question left -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
       "label": "spacr.qt.widgets.sweep_runs#3",
       "source": "NOTHING ON THIS TAB TOUCHES A RUN FOLDER FROM THE GUI THREAD. Measured on one workstation: one ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had NOT RETURNED AFTER TWENTY SECONDS. Every row here carries a folder the user chose, and this panel used to walk, stat, read and delete those folders in the click that asked for it: the chooser's start directory, the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu was being built. Each of those is a frozen application with no traceback for as long as the mount takes to wake -- reported as \"opening map barcodes crashes spacr\", as hover flicker, and as glimpses of other screens. They run on a :class:`spacr.qt.job_runner.JobRunner` now, and the one bare existence question left -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
       "source_sha256": "1a8b1fbb0ef2dbfd40d78893e0172ee74b3b90ff82c339216f868a8822b1d2f6",
-      "translation": "本标签页上没有任何东西会从 GUI 主线程去碰一个运行文件夹。在一台工作站上实测：一次 ``os.path.exists``，针对的是 ``/nas_mnt`` 下的某条路径 —— 那是一个共享盘已休眠的 ``autofs`` 挂载 —— 二十秒都没有返回。这里的每一行都带着用户选定的一个文件夹，而这块面板过去会在请求它的那一次点击里遍历、stat、读取并删除这些文件夹：选择器的起始目录、切换标签页时读取的扫描表、删除确认里 ``describe_folder`` 的 ``os.walk``、其后的 ``shutil.rmtree``，以及构建行菜单时的 ``workspace.has_workspace``。只要挂载还没醒来，其中每一项都是一个冻结且没有回溯的应用 —— 被报告为“打开 map barcodes 会让 spacr 崩溃”、悬停闪烁，以及瞥见其他界面。它们现在运行在 :class:`spacr.qt.job_runner.JobRunner` 上，而仅剩的那一个裸的存在性问题 —— 该在哪个文件夹里打开选择器 —— 由 :mod:`spacr.qt.path_probe` 的缓存来回答。"
+      "translation": "本标签页上没有任何东西会从 GUI 主线程去碰一个运行文件夹。在一台工作站上实测：一次 ``os.path.exists``，针对的是 ``/nas_mnt`` 下的某条路径 —— 那是一个共享盘已休眠的 ``autofs`` 挂载 —— 二十秒都没有返回。这里的每一行都带着用户选定的一个文件夹，而这块面板过去会在请求它的那一次点击里遍历、stat、读取并删除这些文件夹：选择器的起始目录、切换标签页时读取的扫描表、删除确认里 ``describe_folder`` 的 ``os.walk``、其后的 ``shutil.rmtree``，以及构建行菜单时的 ``workspace.has_workspace``。只要挂载还没醒来，其中每一项都是一个冻结且没有回溯的应用 —— 被报告为“打开 map barcodes 会让 spacr 崩溃”、悬停闪烁，以及瞥见其他界面。它们现在运行在 :class:`spacr.qt.job_runner.JobRunner` 上，而仅剩的那一个裸的存在性问题 —— 该在哪个文件夹里打开选择器 —— 由 :mod:`spacr.qt.path_probe` 的缓存来回答。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The environment is asked first, before spaCR's own wiring, because the answer a user can act on is about their machine. \"cuML needs Python 3.11 and this is 3.10\" is a thing they can go and do; \"spaCR routes no fit through it yet\" is a thing only spaCR can fix, and saying that instead would hide the part they could have acted on.",
       "label": "spacr.regression_backends.backend_install_offer#1",
       "source": "THE ENVIRONMENT IS ASKED FIRST, before spaCR's own wiring, because the answer a user can act on is about their machine. \"cuML needs Python 3.11 and this is 3.10\" is a thing they can go and do; \"spaCR routes no fit through it yet\" is a thing only spaCR can fix, and saying that instead would hide the part they could have acted on.",
       "source_sha256": "e03502892ce75e12531bab2fc94b067b1e553d9e649bf785263f032097e34d33",
-      "translation": "先问环境，再问 spaCR 自己的接线，因为用户能据以行动的答案是关于他们机器的。“cuML 需要 Python 3.11，而这是 3.10”是他们可以去动手解决的事；“spaCR 还没有把任何拟合路由到它”则只有 spaCR 能修，改说后者就会把他们本可以着手的那一部分藏起来。"
+      "translation": "先问环境，再问 spaCR 自己的接线，因为用户能据以行动的答案是关于他们机器的。“cuML 需要 Python 3.11，而这是 3.10”是他们可以去动手解决的事；“spaCR 还没有把任何拟合路由到它”则只有 spaCR 能修，改说后者就会把他们本可以着手的那一部分藏起来。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",

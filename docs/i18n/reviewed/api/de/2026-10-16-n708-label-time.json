@@ -1,0 +1,210 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Map an observed frame label to a persistent segment, or remove a mapping.",
+      "label": "spacr.qt.mask_engine.assign_lineage_label#0",
+      "source": "Map an observed frame label to a persistent segment, or remove a mapping.",
+      "source_sha256": "0a916b0df090bc5220aa26a4407a05f7b70638a509b82036a785451a3025c355",
+      "translation": "Ein beobachtetes Einzelbildlabel einem dauerhaften Segment zuordnen oder eine Zuordnung entfernen."
+    },
+    {
+      "context": "Assign one explicit uint32 identity without joining different objects.",
+      "label": "spacr.qt.mask_engine.assign_object_label#0",
+      "source": "Assign one explicit uint32 identity without joining different objects.",
+      "source_sha256": "ed632c22679c20274e9bd71d7731f8122a50904429de631894960dc85ddf311c",
+      "translation": "Eine explizite uint32-Identität zuweisen, ohne unterschiedliche Objekte zu verbinden."
+    },
+    {
+      "context": "All pixels bearing the clicked object's existing ID move together, including disconnected pieces deliberately sharing that identity. Zero removes that object. A nonzero target already belonging to another object is refused before any pixel changes.",
+      "label": "spacr.qt.mask_engine.assign_object_label#1",
+      "source": "All pixels bearing the clicked object's existing ID move together, including disconnected pieces deliberately sharing that identity. Zero removes that object. A nonzero target already belonging to another object is refused before any pixel changes.",
+      "source_sha256": "010eed10cf7324c917088578f2dea9bf647fa88a56d56b572180920265a2e10a",
+      "translation": "Alle Pixel mit der vorhandenen ID des angeklickten Objekts wechseln gemeinsam, einschließlich getrennter Teile, die diese Identität absichtlich teilen. Null entfernt dieses Objekt. Eine Ziel-ID ungleich null, die bereits zu einem anderen Objekt gehört, wird abgelehnt, bevor sich ein Pixel ändert."
+    },
+    {
+      "context": "nonempty 2-D nonnegative integer labels; never modified.",
+      "label": "spacr.qt.mask_engine.assign_object_label#2",
+      "source": "nonempty 2-D nonnegative integer labels; never modified.",
+      "source_sha256": "854eea82c6c7a38ae4639ce286b9fe72e219caf46e4dd1c2d25c306272277152",
+      "translation": "nicht leere, nicht negative ganzzahlige 2-D-Labels; werden niemals verändert."
+    },
+    {
+      "context": "integer column; outside the field changes nothing.",
+      "label": "spacr.qt.mask_engine.assign_object_label#3",
+      "source": "integer column; outside the field changes nothing.",
+      "source_sha256": "35fa40c51b5be26f6a5acdf52adcd12c771df1f2732ab1c4fd29d98e7205dba4",
+      "translation": "ganzzahlige Spalte; außerhalb des Bildfelds ändert sich nichts."
+    },
+    {
+      "context": "integer row; outside the field changes nothing.",
+      "label": "spacr.qt.mask_engine.assign_object_label#4",
+      "source": "integer row; outside the field changes nothing.",
+      "source_sha256": "c7036dc22b5719adbf8a2f8afb64d9aa909679f87aae3a3cdd3cd7959a80533c",
+      "translation": "ganzzahlige Zeile; außerhalb des Bildfelds ändert sich nichts."
+    },
+    {
+      "context": "integer in 0 through 4294967295, with zero reserved for background.",
+      "label": "spacr.qt.mask_engine.assign_object_label#5",
+      "source": "integer in 0 through 4294967295, with zero reserved for background.",
+      "source_sha256": "410bf676223f4c51a2eb728dbd840df98aac74c0b880aead8c6dc362b4f6b1bd",
+      "translation": "Ganzzahl von 0 bis einschließlich 4294967295, wobei null für den Hintergrund reserviert ist."
+    },
+    {
+      "context": "an unsigned label copy and the original ID under the pointer, or zero for background or an outside position. The same ID is a no-op.",
+      "label": "spacr.qt.mask_engine.assign_object_label#6",
+      "source": "an unsigned label copy and the original ID under the pointer, or zero for background or an outside position. The same ID is a no-op.",
+      "source_sha256": "c90d3cdc5ec7541e11dbe89c8ba501266f9619ee5ff587b0d56d5792ceb8d90a",
+      "translation": "eine Kopie der Labels mit vorzeichenlosem Datentyp und die ursprüngliche ID unter dem Mauszeiger, oder null für Hintergrund oder eine Position außerhalb des Bildfelds. Dieselbe ID bewirkt keine Änderung."
+    },
+    {
+      "context": "for invalid labels, coordinates, or an occupied ID.",
+      "label": "spacr.qt.mask_engine.assign_object_label#7",
+      "source": "for invalid labels, coordinates, or an occupied ID.",
+      "source_sha256": "09ed95bbd5c37d0e2af604a30118ed202c19cc7057aab96bd2f3fc04ffdcd7c9",
+      "translation": "bei ungültigen Labels, Koordinaten oder einer bereits belegten ID."
+    },
+    {
+      "context": "Give the hovered object the selected identity, letting one division branch continue it.",
+      "label": "spacr.qt.mask_engine.assign_tracked_object#0",
+      "source": "Give the hovered object the selected identity, letting one division branch continue it.",
+      "source_sha256": "383e070c1e1376f56c9df849e5e06e7396d14a8e19c0de776e9dd539213e220c",
+      "translation": "Dem Objekt unter dem Mauszeiger die ausgewählte Identität geben, sodass ein Zweig einer Teilung sie fortführen kann."
+    },
+    {
+      "context": "Return validated labels, retaining explicit uint32 identities.",
+      "label": "spacr.qt.mask_engine.canonical_labels#0",
+      "source": "Return validated labels, retaining explicit uint32 identities.",
+      "source_sha256": "3cc814a2d5962130662f52667baa9862fa65e324d11a2109105780341c502b77",
+      "translation": "Validierte Labels zurückgeben und dabei explizite uint32-Identitäten beibehalten."
+    },
+    {
+      "context": "uint16 labels for ordinary segmentation, or uint32 for explicit identities requiring that width. Existing uint32 masks retain their exact IDs even without the explicit flag.",
+      "label": "spacr.qt.mask_engine.canonical_labels#8",
+      "source": "uint16 labels for ordinary segmentation, or uint32 for explicit identities requiring that width. Existing uint32 masks retain their exact IDs even without the explicit flag.",
+      "source_sha256": "5dfd101b6689c4a8a37dc29acf367bed6e0d29e3c0cbd8ad486e3baf115d400d",
+      "translation": "uint16-Labels für gewöhnliche Segmentierung oder uint32 für explizite Identitäten, die diese Breite benötigen. Vorhandene uint32-Masken behalten ihre exakten IDs auch ohne die explizite Option bei."
+    },
+    {
+      "context": "when ordinary segmentation exceeds uint16 capacity, exact IDs exceed uint32 capacity, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
+      "label": "spacr.qt.mask_engine.canonical_labels#9",
+      "source": "when ordinary segmentation exceeds uint16 capacity, exact IDs exceed uint32 capacity, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
+      "source_sha256": "05ac7f9d8cb54b4bca466d9fcef968203d6f401bec1eb083decf12f82f8e7d05",
+      "translation": "wenn gewöhnliche Segmentierung den uint16-Wertebereich überschreitet, exakte IDs den uint32-Wertebereich überschreiten oder der Modus für exakte IDs ungültige Labels erhält. Zu große IDs werden niemals abgeschnitten."
+    },
+    {
+      "context": "End a segment and create two distinct daughter segments at one frame.",
+      "label": "spacr.qt.mask_engine.divide_lineage_cell#0",
+      "source": "End a segment and create two distinct daughter segments at one frame.",
+      "source_sha256": "a29fc3212fa7d8d89d05ecc38f2fda134873320bfbbf241922053c24bca42beb",
+      "translation": "Ein Segment beenden und in einem Einzelbild zwei unterschiedliche Tochtersegmente anlegen."
+    },
+    {
+      "context": "validate the ids as exact primary IDs first (unsigned labels, via :func:`canonical_labels`). Either way every id is kept. By default a mask with a single foreground value -- a brush-painted binary mask, which carries no ids -- is numbered by connectivity first, as :func:`canonical_labels` numbers it.",
+      "label": "spacr.qt.mask_engine.fill_holes#3",
+      "source": "validate the ids as exact primary IDs first (unsigned labels, via :func:`canonical_labels`). Either way every id is kept. By default a mask with a single foreground value -- a brush-painted binary mask, which carries no ids -- is numbered by connectivity first, as :func:`canonical_labels` numbers it.",
+      "source_sha256": "89195b3832c55cad5986ede8105a823b9c906ca9e6c5c42390a9a879bf221e29",
+      "translation": "die IDs zuerst als exakte primäre IDs validieren (vorzeichenlose Labels, über :func:`canonical_labels`). In beiden Fällen bleibt jede ID erhalten. Standardmäßig wird eine Maske mit einem einzigen Vordergrundwert -- eine mit dem Pinsel gemalte Binärmaske, die keine IDs trägt -- zuerst nach Zusammenhang nummeriert, so wie :func:`canonical_labels` sie nummeriert."
+    },
+    {
+      "context": "Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.",
+      "label": "spacr.qt.mask_engine.load_image_and_mask#3",
+      "source": "Images are returned as uint16; masks preserve uint8/uint16/uint32 label IDs.",
+      "source_sha256": "55aeb27b47d2d9508adab03978b7889b221d9514fc8a1dbfc1ced2b28d58c4ae",
+      "translation": "Bilder werden als uint16 zurückgegeben; Masken behalten uint8/uint16/uint32-Label-IDs bei."
+    },
+    {
+      "context": "Read an independent lineage graph from a TIFF mask or return an empty graph.",
+      "label": "spacr.qt.mask_engine.load_mask_lineage#0",
+      "source": "Read an independent lineage graph from a TIFF mask or return an empty graph.",
+      "source_sha256": "363d4ababdbc23672448e3eceb68ffc2b5c811d1ae66828969573787f2fcaab4",
+      "translation": "Einen unabhängigen Stammbaumgraphen aus einer TIFF-Maske lesen oder einen leeren Graphen zurückgeben."
+    },
+    {
+      "context": "Read identity semantics and lineage from the mask itself, without a sidecar.",
+      "label": "spacr.qt.mask_engine.load_mask_metadata#0",
+      "source": "Read identity semantics and lineage from the mask itself, without a sidecar.",
+      "source_sha256": "fd48f8029f2eb072e768b857656382ee5ae11161601eaca59c7d1b212e626682",
+      "translation": "Identitätssemantik und Stammbaum direkt aus der Maske lesen, ohne Begleitdatei."
+    },
+    {
+      "context": "Merge embedded snapshots, preserving newer edits and immutable ancestry.",
+      "label": "spacr.qt.mask_engine.merge_lineage_states#0",
+      "source": "Merge embedded snapshots, preserving newer edits and immutable ancestry.",
+      "source_sha256": "a6ec761637c869239509658c5dd5b5173c8ae4a964fe7b41054f2b309075a80b",
+      "translation": "Eingebettete Schnappschüsse zusammenführen und dabei neuere Änderungen und unveränderliche Abstammung beibehalten."
+    },
+    {
+      "context": "Create an unplaced founder without claiming any existing mask pixels.",
+      "label": "spacr.qt.mask_engine.new_lineage_cell#0",
+      "source": "Create an unplaced founder without claiming any existing mask pixels.",
+      "source_sha256": "7e5303339f8f195d48fee89440043f196a92f098d7af4191bdadc87ddf148b84",
+      "translation": "Eine noch nicht platzierte Gründerzelle anlegen, ohne vorhandene Maskenpixel zu beanspruchen."
+    },
+    {
+      "context": "Prefer the next highest ID, using an unused local ID at uint32 capacity.",
+      "label": "spacr.qt.mask_engine.next_label#0",
+      "source": "Prefer the next highest ID, using an unused local ID at uint32 capacity.",
+      "source_sha256": "2f98ffced82cc6ac6ce571c8521526be0f10ee32ff3228f3f171bfad622f43e1",
+      "translation": "Die nächsthöhere ID bevorzugen und bei Erreichen der uint32-Kapazität eine unbenutzte lokale ID verwenden."
+    },
+    {
+      "context": "Persistent lineage uses independent UUIDs, so a free local pixel ID can be reused without merging cell identities. Allocation visits observed labels only and never constructs a table of every possible uint32 ID.",
+      "label": "spacr.qt.mask_engine.next_label#1",
+      "source": "Persistent lineage uses independent UUIDs, so a free local pixel ID can be reused without merging cell identities. Allocation visits observed labels only and never constructs a table of every possible uint32 ID.",
+      "source_sha256": "298b1acf4681eb8bcbf4df848687531e2a556adb6555e70a55e4a9910c89e528",
+      "translation": "Der dauerhafte Stammbaum verwendet unabhängige UUIDs, sodass eine freie lokale Pixel-ID ohne Zusammenführen von Zellidentitäten wiederverwendet werden kann. Die Zuweisung berücksichtigt nur beobachtete Labels und erstellt niemals eine Tabelle aller möglichen uint32-IDs."
+    },
+    {
+      "context": "Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.",
+      "label": "spacr.qt.mask_engine.prune_lineage_frame#0",
+      "source": "Remove absent pixel mappings as a revisioned edit, retaining cell ancestry.",
+      "source_sha256": "551c9de4a6a4bedc234ce4e2ce21bccd392d4fe994f91b5d3dde74e01782e44f",
+      "translation": "Zuordnungen nicht mehr vorhandener Pixel als versionierte Änderung entfernen und dabei die Zellabstammung beibehalten."
+    },
+    {
+      "context": "Rename a segment while retaining its identity and parent links.",
+      "label": "spacr.qt.mask_engine.rename_lineage_cell#0",
+      "source": "Rename a segment while retaining its identity and parent links.",
+      "source_sha256": "d6f77f0bb1c4d8e2eeda14aa47fe012ce448cade1ba7400bfe7a4587e9dd948a",
+      "translation": "Ein Segment umbenennen und dabei seine Identität und Elternverknüpfungen beibehalten."
+    },
+    {
+      "context": "Make undo or redo an explicit newer edit that survives older TIFF snapshots.",
+      "label": "spacr.qt.mask_engine.restore_lineage_state#0",
+      "source": "Make undo or redo an explicit newer edit that survives older TIFF snapshots.",
+      "source_sha256": "f6bc465629677bfdcb83e5a4f14482b89a0d27299cf122c635cc737ecd1e6b2c",
+      "translation": "Rückgängig oder Wiederholen als explizite neuere Änderung festhalten, die ältere TIFF-Schnappschüsse überdauert."
+    },
+    {
+      "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 4294967295 before writing; it never silently renumbers them.",
+      "label": "spacr.qt.mask_engine.save_mask#7",
+      "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 4294967295 before writing; it never silently renumbers them.",
+      "source_sha256": "625af900c771823ab53d2c8ed63b36580f48756caf079f3361393b3f58172262",
+      "translation": "exakte primäre/sekundäre IDs beibehalten, ohne einwertige Masken als binär zu interpretieren oder getrennte Teile aufzuteilen. Der explizite Modus validiert nicht negative ganzzahlige 2-D-Labels und lehnt IDs über 4294967295 vor dem Schreiben ab; er nummeriert sie nie stillschweigend um."
+    },
+    {
+      "context": "versioned UUID graph and per-frame pixel mappings to embed in the TIFF. Even an empty graph requests uint32 storage. Existing embedded lineage and exact-ID semantics survive ordinary later saves.",
+      "label": "spacr.qt.mask_engine.save_mask#8",
+      "source": "versioned UUID graph and per-frame pixel mappings to embed in the TIFF. Even an empty graph requests uint32 storage. Existing embedded lineage and exact-ID semantics survive ordinary later saves.",
+      "source_sha256": "31317539b1c498a9731dccc7a11be3bd9e9ac62a722b8432450c9548ffd4bf10",
+      "translation": "versionierter UUID-Graph und pixelweise Zuordnungen je Einzelbild, die in die TIFF-Datei eingebettet werden. Selbst ein leerer Graph fordert uint32-Speicherung an. Vorhandener eingebetteter Stammbaum und die Semantik exakter IDs bleiben bei gewöhnlichen späteren Speichervorgängen erhalten."
+    },
+    {
+      "context": "Copy and validate a versioned lineage graph without recursive traversal.",
+      "label": "spacr.qt.mask_engine.validate_lineage#0",
+      "source": "Copy and validate a versioned lineage graph without recursive traversal.",
+      "source_sha256": "2004dbae3bf75d8052b61da7dc4b0be1c19df5d6b8a33302eb5a878b7e8a88d9",
+      "translation": "Einen versionierten Stammbaumgraphen ohne rekursiven Durchlauf kopieren und validieren."
+    },
+    {
+      "context": "Install validated lineage and refresh cell controls after the mask update.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit#0",
+      "source": "Install validated lineage and refresh cell controls after the mask update.",
+      "source_sha256": "066deda27a4a19e008ba2afc5c7296d5fb6f4e5ce3d6b5a4754eb3ad487db727",
+      "translation": "Nach der Maskenaktualisierung den validierten Stammbaum übernehmen und die Zellsteuerelemente aktualisieren."
+    }
+  ],
+  "review_kind": "AI technical source and target-language review with independent peer review; no native-speaker signoff",
+  "schema": 1
+}

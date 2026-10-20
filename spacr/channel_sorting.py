@@ -1,6 +1,6 @@
 """Sort a folder of images (and their masks) into channels, rename, and merge.
 
-The case this module exists for: masks were drawn in Make Masks on a folder
+Typical input: masks were drawn in Make Masks on a folder
 holding two kinds of image at once -- nucleus-stain images with nucleus
 masks and cell-stain images with cell masks, say -- and those have to become
 one multi-channel field per position, in the layout spaCR's Mask/Measure
@@ -45,6 +45,7 @@ import difflib
 import os
 import re
 import shutil
+import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -112,11 +113,12 @@ def list_folder_images(folder: str) -> List[str]:
     """
     if not folder or not os.path.isdir(folder):
         return []
-    return sorted((name for name in os.listdir(folder)
-                   if not name.startswith(".")
-                   and name.lower().endswith(IMAGE_EXTS)
-                   and os.path.isfile(os.path.join(folder, name))),
-                  key=natural_key)
+    with os.scandir(folder) as entries:
+        return sorted((entry.name for entry in entries
+                       if not entry.name.startswith(".")
+                       and entry.name.lower().endswith(IMAGE_EXTS)
+                       and entry.is_file()),
+                      key=natural_key)
 
 
 def masks_folder(folder: str, masks_dir: Optional[str] = None) -> str:
@@ -232,6 +234,34 @@ def image_shape(path: str) -> Optional[Tuple[int, ...]]:
     return tuple(n for n in shape if n != 1) or (1,)
 
 
+def _plain_tiff_plane(path: str) -> Optional[np.ndarray]:
+    """A one-page, one-sample TIFF's plane, read by tifffile; else None.
+
+    Pillow builds the array through ``tobytes`` in small encoder steps that
+    hold the interpreter lock; for a 2000 x 2000 16-bit plane that is about
+    35 ms, during which a popup's GUI thread waits for its thumbnails.
+    tifffile reads the same plane in a few milliseconds and lets go of the
+    lock while it reads. Only a file where both give the same array is read
+    here: one page of one sample. Anything else, or anything tifffile cannot
+    read, answers None and is read as before.
+
+    :param path: the TIFF file.
+    :returns: the plane, or None.
+    """
+    try:
+        import tifffile
+
+        with tifffile.TiffFile(path) as tif:
+            if len(tif.pages) != 1:
+                return None
+            page = tif.pages[0]
+            if page.samplesperpixel != 1 or len(page.shape) != 2:
+                return None
+            return page.asarray()
+    except Exception:
+        return None
+
+
 def thumbnail(path: str, size: int = 96) -> Optional[np.ndarray]:
     """A small 8-bit grey preview of an image, contrast-stretched.
 
@@ -244,6 +274,9 @@ def thumbnail(path: str, size: int = 96) -> Optional[np.ndarray]:
             from .convert import read_scn
 
             array = read_scn(path)[0]
+        elif (path.lower().endswith((".tif", ".tiff"))
+              and (plane := _plain_tiff_plane(path)) is not None):
+            array = plane
         else:
             from PIL import Image
 
@@ -396,23 +429,31 @@ class SetReport:
 
     def summary(self) -> str:
         """A few plain lines saying what is and is not right."""
-        lines = [f"{len(self.complete)} complete set(s) across "
-                 f"{len(self.channels)} channel(s)."]
+        from .qt.i18n import tr
+
+        lines = [tr("{sets} complete set(s) across {channels} channel(s).",
+                    sets=len(self.complete), channels=len(self.channels))]
         if self.unmatched:
-            lines.append(f"{len(self.unmatched)} file(s) not matched: "
-                         + _few(self.unmatched))
+            lines.append(tr("{count} file(s) not matched: {names}",
+                            count=len(self.unmatched), names=_few(self.unmatched)))
         if self.no_channel:
-            lines.append(f"{len(self.no_channel)} file(s) have no channel: "
-                         + _few(self.no_channel))
+            lines.append(tr("{count} file(s) have no channel: {names}",
+                            count=len(self.no_channel), names=_few(self.no_channel)))
         if self.incomplete:
-            lines.append(f"{len(self.incomplete)} set(s) incomplete: "
-                         + _few([f"{set_label(key)} lacks channel(s) "
-                                 + ", ".join(str(c) for c in missing)
-                                 for key, missing in self.incomplete.items()]))
+            lines.append(tr("{count} set(s) incomplete: {sets}",
+                            count=len(self.incomplete),
+                            sets=_few([tr("{name} lacks channel(s) {channels}",
+                                          name=set_label(key),
+                                          channels=", ".join(str(c) for c in missing))
+                                       for key, missing in self.incomplete.items()])))
         if self.duplicated:
-            lines.append(f"{len(self.duplicated)} duplicate(s): " + _few(
-                [f"{set_label(key)} channel {channel}: " + " / ".join(names)
-                 for (key, channel), names in self.duplicated.items()]))
+            lines.append(tr("{count} duplicate(s): {duplicates}",
+                            count=len(self.duplicated),
+                            duplicates=_few([
+                                tr("{name} channel {channel}: {names}",
+                                   name=set_label(key), channel=channel,
+                                   names=" / ".join(names))
+                                for (key, channel), names in self.duplicated.items()])))
         return "\n".join(lines)
 
 
@@ -424,7 +465,11 @@ def _few(items: Sequence[str], limit: int = 3) -> str:
     """
     shown = ", ".join(str(item) for item in list(items)[:limit])
     more = len(items) - limit
-    return shown + (f" and {more} more" if more > 0 else "")
+    if more > 0:
+        from .qt.i18n import tr
+
+        return tr("{shown} and {more} more", shown=shown, more=more)
+    return shown
 
 
 def set_label(key: Optional[SetKey]) -> str:
@@ -744,15 +789,16 @@ def infer_regex(names: Sequence[str],
     follow the channel are set aside -- and the rest must identify a set
     that holds exactly one image per channel. Each candidate is checked with
     :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is
-    tried first, and :func:`spacr.regex_infer.propose` last. Of the
-    candidates that pass, the one with the FEWEST channels wins: any name can
-    be read as a channel of its own in a single set, which passes and means
-    nothing.
+    tried first and returned when it passes; :func:`spacr.regex_infer.propose`
+    is tried last. Of the other candidates that pass, the one with the fewest
+    channels is returned, the earliest on a tie, because a regex that reads
+    each name as its own channel in a single set also passes the check.
 
     :param names: image file names.
     :param channels: ``{name: channel}`` from the selection strategy; when
         every name has one, the regex needs no ``chanID`` group.
-    :returns: the first regex that passes, or None.
+    :returns: the Yokogawa pattern when it passes, otherwise the passing
+        candidate with the fewest channels, or None.
     """
     names = [n for n in names if n]
     if not names:
@@ -1383,13 +1429,15 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
         :attr:`SortPlan.convertible` so the caller can ask.
     :returns: a :class:`SortPlan`.
     """
+    from .qt.i18n import tr
+
     plan = SortPlan(folder=folder,
                     dest=dest or unused_folder(folder, DEFAULT_DEST_NAME))
     if not sets:
-        plan.problems.append("There are no complete sets to sort.")
+        plan.problems.append(tr("There are no complete sets to sort."))
         return plan
     if os.path.exists(plan.dest):
-        plan.problems.append(f"{plan.dest} already exists.")
+        plan.problems.append(tr("{folder} already exists.", folder=plan.dest))
     try:
         names = name_sets(sets)
     except ValueError as exc:
@@ -1410,8 +1458,8 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                            if r in MASK_ROLES and int(c) in plan.channels}
     doubled = [r for r, n in Counter(plan.mask_roles.values()).items() if n > 1]
     if doubled:
-        plan.problems.append("Two channels cannot both give the "
-                             + ", ".join(doubled) + " mask.")
+        plan.problems.append(tr("Two channels cannot both give the {roles} mask.",
+                                roles=", ".join(tr(role) for role in doubled)))
 
     lacking: Dict[int, int] = Counter()
     for key in sorted(sets, key=lambda k: natural_key(set_label(k))):
@@ -1450,28 +1498,31 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
                         shape = _converted_shape(shape, kind)
                 set_shapes[image] = shape
                 if shape is None:
-                    plan.problems.append(f"{image} cannot be read.")
+                    plan.problems.append(tr("{image} cannot be read.", image=image))
                 elif len(shape) != 2:
                     plan.problems.append(
-                        f"{image} is {shape}, not a single 2-D plane.")
+                        tr("{image} is {shape}, not a single 2-D plane.",
+                           image=image, shape=shape))
                 if mask and shape is not None:
                     mask_shape = image_shape(mask)
                     if mask_shape != shape:
                         plan.problems.append(
-                            f"The mask of {image} is {mask_shape}; the image "
-                            f"is {shape}.")
+                            tr("The mask of {image} is {mask_shape}; the image is {shape}.",
+                               image=image, mask_shape=mask_shape, shape=shape))
             plan.rows.append(row)
         if check_shapes and len({s for s in set_shapes.values()}) > 1:
             plan.problems.append(
-                f"The images of set {set_label(key)} differ in size: "
-                + ", ".join(f"{n} {s}" for n, s in set_shapes.items()))
+                tr("The images of set {name} differ in size: {sizes}",
+                   name=set_label(key),
+                   sizes=", ".join(f"{n} {s}" for n, s in set_shapes.items())))
     for channel, count in sorted(lacking.items()):
         plan.warnings.append(
-            f"{count} set(s) have no mask in channel {channel} "
-            f"({plan.mask_roles[channel]}); they get no merged array.")
+            tr("{count} set(s) have no {role} mask in channel {channel}. "
+               "Those sets cannot be merged when merging is requested.",
+               count=count, role=tr(plan.mask_roles[channel]), channel=channel))
     if not plan.mask_roles:
-        plan.warnings.append("No channel has masks, so merged/ will not be "
-                             "written; stack/ still will.")
+        plan.warnings.append(tr("No channel has masks. When merging is requested, "
+                                "stack/ is written but merged/ is not."))
     return plan
 
 
@@ -1497,7 +1548,7 @@ MANIFEST_COLUMNS = ("kind", "channel", "plate", "well", "field", "time",
                     "set", "original_path", "new_path", "status", "error")
 
 
-def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
+def _write_converted(source: str, target: str, kind: str, dest: str) -> str:
     """Write ``source`` as one converted 2-D plane, then keep the original.
 
     The original is moved to ``<dest>/originals/`` rather than deleted, so a
@@ -1530,12 +1581,26 @@ def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
     write_tiff(target, _convert_plane(np.squeeze(np.asarray(array)), kind))
     originals = os.path.join(dest, "originals")
     os.makedirs(originals, exist_ok=True)
-    shutil.move(source, os.path.join(originals, os.path.basename(source)))
+    private = tempfile.mkdtemp(prefix="spacr-original-",
+                               dir=originals)
+    created = os.stat(private, follow_symlinks=False)
+    saved_original = os.path.join(private, os.path.basename(source))
+    try:
+        shutil.move(source, saved_original)
+    except BaseException:
+        try:
+            current = os.stat(private, follow_symlinks=False)
+            if os.path.samestat(current, created):
+                os.rmdir(private)
+        except OSError:
+            pass
+        raise
+    return saved_original
 
 
 def apply_plan(plan: SortPlan, *, merge: bool = True,
                log: Optional[Callable[[str], None]] = None) -> ApplyResult:
-    """MOVE the images and masks as planned, then merge.
+    """Move the images and masks as planned, then merge the channels.
 
     Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it
     happens, so a run that stops half-way still says which file went where.
@@ -1585,7 +1650,11 @@ def apply_plan(plan: SortPlan, *, merge: bool = True,
             try:
                 os.makedirs(os.path.dirname(target), exist_ok=True)
                 if kind == "image" and row.convert:
-                    _write_converted(source, target, row.convert, plan.dest)
+                    saved_original = _write_converted(
+                        source, target, row.convert, plan.dest)
+                    writer.writerow(["original"] + base[1:8]
+                                    + [saved_original, "moved", ""])
+                    handle.flush()
                     status = f"converted {row.convert}"
                 else:
                     shutil.move(source, target)

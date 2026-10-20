@@ -1,0 +1,11 @@
+{
+  "pid": 3010670,
+  "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68098.scope",
+  "memory_max": "2147483648",
+  "memory_swap_max": "0",
+  "cpus_allowed": [
+    0
+  ],
+  "pyside6": "6.12.0",
+  "qt": "6.12.0"
+}

@@ -1,0 +1,176 @@
+--- a/spacr/measure.py
++++ b/spacr/measure.py
+@@ -4669,6 +4669,32 @@
+     return phases, confidence, three
+ 
+ 
++def _measurement_channel_index(value):
++    """Normalize a physical image-channel identity without truncating it.
++
++    :param value: Numeric scalar or integer string/bytes; zero-dimensional
++        arrays are unboxed before checking their scalar value.
++    :returns: a nonnegative Python integer with the same identity.
++    :raises ValueError: boolean, nonintegral, nonfinite, nonscalar, negative
++        or malformed channel identities.
++    """
++    try:
++        if np.ndim(value) != 0:
++            raise ValueError
++        if isinstance(value, np.ndarray):
++            value = value.item()
++        if isinstance(value, (bool, np.bool_, complex, np.complexfloating, np.ndarray)):
++            raise ValueError
++        index = int(value)
++        if index < 0 or (not isinstance(value, (str, bytes)) and value != index):
++            raise ValueError
++    except (TypeError, ValueError, OverflowError):
++        from .qt.i18n import tr
++
++        raise ValueError(tr("Measurement channels must be nonnegative integer indices.")) from None
++    return index
++
++
+ def _cell_cycle_channel(settings):
+     """The merged-array channel the cell-cycle phase is read from.
+ 
+@@ -4679,9 +4705,9 @@
+     for key in ('cell_cycle_channel', 'nucleus_channel'):
+         value = settings.get(key)
+         if value is not None and value != '':
+-            return int(value)
++            return _measurement_channel_index(value)
+     channels = settings.get('channels') or [0]
+-    return int(channels[0])
++    return _measurement_channel_index(channels[0])
+ 
+ 
+ def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
+@@ -4695,14 +4721,15 @@
+     :returns: the position of ``channel`` in ``channels``.
+     :raises ValueError: the channel was not measured.
+     """
+-    measured = [int(c) for c in (settings.get('channels') or [])]
++    channel = _measurement_channel_index(channel)
++    measured = [_measurement_channel_index(c) for c in (settings.get('channels') or [])]
+     if not measured:
+-        return int(channel)
+-    if int(channel) not in measured:
++        return channel
++    if channel not in measured:
+         raise ValueError(
+             f"Channel {channel} was not measured (channels is {measured}); "
+             f"add it to channels or pick a measured {setting}.")
+-    return measured.index(int(channel))
++    return measured.index(channel)
+ 
+ 
+ def _nucleus_dna(nuclei, column):
+@@ -5621,6 +5648,10 @@
+     """
+     from .tabular import database_tables, read_table, write_database
+ 
++    channel = _cell_cycle_channel(settings)
++    column = _measured_channel_column(settings, channel)
++    fucci = settings.get('cell_cycle_fucci_channels')
++    fucci_columns = [_measured_channel_column(settings, c) for c in (fucci or [])]
+     if 'nucleus' not in database_tables(db_path):
+         raise ValueError(
+             f"{db_path} has no nucleus table; cell-cycle phases are called "
+@@ -5628,8 +5659,6 @@
+     methods = _resolve_cell_cycle_methods(settings.get('cell_cycle_method'))
+     nuclei = read_table(db_path, table='nucleus', report=None)
+     nuclei = nuclei.reset_index(drop=True)
+-    channel = _cell_cycle_channel(settings)
+-    column = _measured_channel_column(settings, channel)
+     ratio = settings.get('cell_cycle_mitotic_ratio', 1.8)
+     measured, fits = _phases_by_measurements(
+         nuclei, column=column, gates=settings.get('cell_cycle_gates') or None,
+@@ -5658,9 +5687,7 @@
+         report['labels'] = source
+         report['labelled'] = int(labels.notna().sum())
+     if 'xgboost' in methods:
+-        fucci = settings.get('cell_cycle_fucci_channels') or []
+-        columns = [column] + [_measured_channel_column(settings, c)
+-                              for c in fucci]
++        columns = [column] + fucci_columns
+         features = _phase_features(nuclei, measured, columns)
+         from .classifier_evaluation import split_group_values
+ 
+@@ -5683,7 +5710,6 @@
+         table['phase_torch'] = _keep_content_calls(phases, measured)
+         table['confidence_torch'] = confidence
+         report['torch'] = torch_report
+-    fucci = settings.get('cell_cycle_fucci_channels')
+     if fucci:
+         table['fucci_state'] = _fucci_states(nuclei, settings, fucci)
+     table['infected'] = _nucleus_infection(db_path, nuclei)
+@@ -8120,6 +8146,23 @@
+ 
+     manual_dead, manual_live = _viability_manual(
+         settings.get('viability_thresholds'))
++    dead_channel = settings.get('viability_dead_channel')
++    live_channel = settings.get('viability_live_channel')
++    dead_channel = None if dead_channel in (None, '') else _measurement_channel_index(dead_channel)
++    live_channel = None if live_channel in (None, '') else _measurement_channel_index(live_channel)
++    method = ('stain' if dead_channel is not None or live_channel is not None
++              else 'morphology')
++    if method == 'morphology':
++        channel = settings.get('nucleus_channel')
++        if channel in (None, ''):
++            channel = (settings.get('channels') or [0])[0]
++        morphology_column = _measured_channel_column(settings, channel,
++                                                     setting='nucleus_channel')
++    else:
++        dead_column = (None if dead_channel is None else _measured_channel_column(
++            settings, dead_channel, setting='viability_dead_channel'))
++        live_column = (None if live_channel is None else _measured_channel_column(
++            settings, live_channel, setting='viability_live_channel'))
+     tables = database_tables(db_path)
+     if 'nucleus' in tables:
+         unit = 'nucleus'
+@@ -8131,12 +8174,6 @@
+             f"made on measured nuclei or cells.")
+     objects = read_table(db_path, table=unit, report=None)
+     objects = objects.reset_index(drop=True)
+-    dead_channel = settings.get('viability_dead_channel')
+-    live_channel = settings.get('viability_live_channel')
+-    dead_channel = None if dead_channel in (None, '') else int(dead_channel)
+-    live_channel = None if live_channel in (None, '') else int(live_channel)
+-    method = ('stain' if dead_channel is not None or live_channel is not None
+-              else 'morphology')
+     table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
+                                  'object_label', 'cell_id', 'file_name')
+                      if k in objects.columns]].copy()
+@@ -8154,11 +8191,7 @@
+                 "live and dead are called from nucleus morphology, which "
+                 "needs measured nuclei; set nucleus_mask_dim or name a "
+                 "viability stain channel.")
+-        channel = settings.get('nucleus_channel')
+-        if channel in (None, ''):
+-            channel = (settings.get('channels') or [0])[0]
+-        column = _measured_channel_column(settings, int(channel),
+-                                          setting='nucleus_channel')
++        column = morphology_column
+         signal = _condensation_score(objects, column)
+         dead_positive, thresholds, cuts['dead'] = _split_by_plate(
+             objects, signal, single_is_positive=False, log_scale=True,
+@@ -8167,8 +8200,7 @@
+         table['dead_threshold'] = thresholds
+     else:
+         if dead_channel is not None:
+-            column = _measured_channel_column(
+-                settings, dead_channel, setting='viability_dead_channel')
++            column = dead_column
+             signal = _object_signal(objects, unit, column)
+             dead_positive, thresholds, cuts['dead'] = _split_by_plate(
+                 objects, signal, single_is_positive=False,
+@@ -8177,8 +8209,7 @@
+             table['dead_signal'] = signal
+             table['dead_threshold'] = thresholds
+         if live_channel is not None:
+-            column = _measured_channel_column(
+-                settings, live_channel, setting='viability_live_channel')
++            column = live_column
+             signal = _object_signal(objects, unit, column)
+             live_positive, thresholds, cuts['live'] = _split_by_plate(
+                 objects, signal, single_is_positive=True,

@@ -1,0 +1,15 @@
+RELEASE 1.5.1.4 VERSION AND MAIN PROMOTION
+
+Status: COMPLETE 100% 2026-10-09 for bump/merge/retrigger scope.
+Owner: Home
+Description: Version1.5.1.4 pushed to nightly and main; release workflow dispatched and verified queued. Release publication itself remains pending.
+
+2026-10-09 — Explicit user request overrides usual nightly-only publishing
+for this one main promotion. Normal release helper updated setup/CITATION/
+package version and generated information deck. Metadata verify1.5.1.4;
+owning69PASS2SKIP, expected pre-publication DOI/sdist checks. Main and nightly
+were normal-fast-forwarded to f89f089481a9dfbd8dc4ffaaebddb24b279f1672.
+Main push queued tests/docs/compat but did not expose a release run; explicit
+workflow_dispatch version1.5.1.4/targetmain returned run37941159752, verified
+queued with Prepare repository version job. No tag/PyPI/assets success claim.
+https://github.com/EinarOlafsson/spacr/actions/runs/37941159752

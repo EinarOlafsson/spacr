@@ -1,0 +1,41 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "This object moved from {old} to {name} in this frame.",
+      "source": "This object moved from {old} to {name} in this frame.",
+      "source_sha256": "b369755d5c2b41510ab48fdfe744f193579d6022fc43d7047a3d5748ad78a44b",
+      "table": "ui",
+      "translation": "Þessi hlutur færðist frá {old} til {name} í þessum ramma."
+    },
+    {
+      "key": "{name} already continues through its other daughter; undo that first or select the other daughter.",
+      "source": "{name} already continues through its other daughter; undo that first or select the other daughter.",
+      "source_sha256": "479b98bc1357d902a912c3a4315d37f13a1048b34de6b2b3434f5b4f33cc49d6",
+      "table": "ui",
+      "translation": "{name} heldur nú þegar áfram í gegnum hina dótturfrumuna; afturkallaðu það fyrst eða veldu hina dótturfrumuna."
+    },
+    {
+      "key": "{name} already labels another object in this frame; one identity can mark only one object per frame.",
+      "source": "{name} already labels another object in this frame; one identity can mark only one object per frame.",
+      "source_sha256": "a969acb029fd3e9f5cb498d549786eeae617045d2fda2bdb2a5310370f6cd625",
+      "table": "ui",
+      "translation": "{name} merkir nú þegar annan hlut í þessum ramma; eitt auðkenni getur aðeins merkt einn hlut í hverjum ramma."
+    },
+    {
+      "key": "{old} now carries {name} through the division; Undo restores it.",
+      "source": "{old} now carries {name} through the division; Undo restores it.",
+      "source_sha256": "93b210dd52acfc3c8c2948690c8bc7b06758624740ce6b72939996ba5d1ead74",
+      "table": "ui",
+      "translation": "{old} ber nú {name} áfram í gegnum skiptinguna; Afturkalla endurheimtir það."
+    },
+    {
+      "key": "{old} was merged into {name}; Undo restores it.",
+      "source": "{old} was merged into {name}; Undo restores it.",
+      "source_sha256": "c9c3ff58b21510733a9df201f5b5d4b8863631f63a56c00ec5345c332c87e9f8",
+      "table": "ui",
+      "translation": "{old} var sameinað {name}; Afturkalla endurheimtir það."
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,13 @@
+{
+    "schema": 1,
+    "language": "sv",
+    "review_method": "N687 website link: label translated, link text and URL kept literal. Written by Claude; no native-speaker signoff.",
+    "records": [
+        {
+            "label": "website-link",
+            "source_sha256": "d06d4f324a92712d41085e1ee4cc2a3ea32474d9e54cef9809f42a907c03c29f",
+            "source": "Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_",
+            "translation": "Webbplats: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_"
+        }
+    ]
+}

@@ -16,6 +16,7 @@ def remote_model(tmp_path, monkeypatch):
         uri="https://models.example.test/cells", source="community",
         sha256=hashlib.sha256(payload).hexdigest())
     monkeypatch.setattr(zoo, "catalogue", lambda **_kwargs: [entry])
+    monkeypatch.setattr(zoo, "_planning_model_entries", lambda: [entry])
     monkeypatch.setattr(zoo, "_spacr_home", lambda: tmp_path)
     monkeypatch.setattr(zoo, "_on_the_qt_gui_thread", lambda: False)
     requests = []
@@ -70,7 +71,7 @@ def test_wrong_model_kind_never_downloads(remote_model):
 
 def test_missing_local_path_is_not_replaced_by_an_unrelated_model(remote_model):
     _entry, _payload, requests = remote_model
-    assert zoo._ensure_model_file("/missing/remote_cells.CP_model") is None
+    assert zoo._ensure_model_file("/missing/unrelated_cells.CP_model") is None
     assert zoo._ensure_model_file("unknown_model") is None
     assert requests == []
 
@@ -128,8 +129,9 @@ def test_prefixed_model_validation_does_not_download(remote_model, monkeypatch):
     entry, payload, requests = remote_model
     from dataclasses import replace
     from spacr._segmentation_backends import _prefixed_model, _prefixed_model_ok
-    monkeypatch.setattr(zoo, "catalogue", lambda **_kwargs: [
-        replace(entry, kind="stardist")])
+    converted = replace(entry, kind="stardist")
+    monkeypatch.setattr(zoo, "catalogue", lambda **_kwargs: [converted])
+    monkeypatch.setattr(zoo, "_planning_model_entries", lambda: [converted])
     assert _prefixed_model_ok("stardist:" + entry.key)
     assert requests == []
     assert Path(_prefixed_model("stardist", entry.key)).read_bytes() == payload

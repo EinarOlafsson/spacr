@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical translation and self-review; independent peer pending; no native/human signoff",
+  "review": "Operator startup refuses a configured key absent from the trusted public registry, preserving the exact key placeholder; no model substitution.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Unknown provisioned model key: {key}",
+      "source": "Unknown provisioned model key: {key}",
+      "source_sha256": "c4fea128ee2e515d246b0829b30b7ea3bde2f536d54bebdc1e4db46baaa08402",
+      "translation": "구성된 모델의 알 수 없는 키: {key}"
+    }
+  ]
+}

@@ -44,7 +44,9 @@
       "source_sha256": "63761be06eebc630e97a2e9a9b37d9ce1c0a796aaa0eebfb198db26b01cab849",
       "source": "The end-of-run block: what landed, and everything that did not.",
       "context": "The end-of-run block: what landed, and everything that did not.",
-      "translation": "Lokasamantekt keyrslunnar: hvað tókst að flytja inn og allt sem ekki tókst."
+      "translation": "Lokasamantekt keyrslunnar: hvað tókst að flytja inn og allt sem ekki tókst.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.linked_selection.open_objects#1",
@@ -65,7 +67,9 @@
       "source_sha256": "08505441d5e9225adca26e5642917fa98875ab14b8edaf924d6dc6bb99b231f5",
       "source": "Retain a distinct warning for the run-history dashboard.",
       "context": "Retain a distinct warning for the run-history dashboard.",
-      "translation": "Geyma sérstaka viðvörun fyrir mælaborð keyrslusögunnar."
+      "translation": "Geyma sérstaka viðvörun fyrir mælaborð keyrslusögunnar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_editor.GateCanvas.snap_to_nearest_axis#1",
@@ -114,7 +118,9 @@
       "source_sha256": "619a7c997ffc55cd836f533a76b4aa9b5355b27a3bc3876abc3d784d81cdcbbf",
       "source": "The ``uv`` the desktop installers bootstrap, if this is such an install.",
       "context": "The ``uv`` the desktop installers bootstrap, if this is such an install.",
-      "translation": "``uv``-forritið sem skjáborðsuppsetningarforritin setja upp, ef um slíka uppsetningu er að ræða."
+      "translation": "``uv``-forritið sem skjáborðsuppsetningarforritin setja upp, ef um slíka uppsetningu er að ræða.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_editor.GateCanvas.gate_at#0",
@@ -163,7 +169,9 @@
       "source_sha256": "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
       "source": "Apply a gate to EVERY object, reading only the columns it needs.",
       "context": "Apply a data-selection boundary to EVERY object, reading only the columns it needs.",
-      "translation": "Beita gagnavalsmörkum á HVERT hlut og lesa aðeins dálkana sem þarf."
+      "translation": "Beita gagnavalsmörkum á HVERT hlut og lesa aðeins dálkana sem þarf.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.chaining#6",

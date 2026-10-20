@@ -16,9 +16,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-from PySide6.QtCore import QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import (QAccessible, QAccessibleActionInterface, QColor,
+                          QPainter, QPalette, QPen, QPixmap)
 from PySide6.QtWidgets import (
+    QAccessibleWidget,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -29,7 +31,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..hidpi import follow_device_ratio, logical_size, scaled_for
+from ..hidpi import device_ratio, follow_device_ratio, logical_size, scaled_for
+from .. import _after
 
 #: Below this, a cell is too small to read anything in.
 MIN_CELL_PX = 220
@@ -42,6 +45,16 @@ MAX_CELL_PX = 520
 #: a wide figure simply sits shorter in its slot, which is what a small
 #: multiple should do.
 CELL_SPAN = 1
+
+
+def _strong_focus_style():
+    """Resolve the optional custom-control outline when its style changes."""
+    from ..preferences import get_strong_focus, resolve_effective_theme
+    from ..theme import FOCUS_RING_PX, focus_ring_colour
+
+    if not get_strong_focus():
+        return None
+    return FOCUS_RING_PX, focus_ring_colour(resolve_effective_theme())
 
 
 def _letter_for(position: int) -> str:
@@ -201,10 +214,12 @@ class _SectionHeader(QFrame):
         its own so the grid shows through.
         """
         super().__init__(parent)
+        self._strong_focus_ring = _strong_focus_style()
         self.setObjectName("FigureGridSectionHeader")
         self.section_key = key
         self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(str(label))
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setStyleSheet("_SectionHeader { background: transparent; }")
 
@@ -258,6 +273,37 @@ class _SectionHeader(QFrame):
         if view is not None:
             view.toggle_section(self)
 
+    def paintEvent(self, event):
+        """Draw the heading and its current keyboard-focus outline."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def changeEvent(self, event):
+        """Refresh the cached outline when the live preference style changes."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
+
+    def focusInEvent(self, event):
+        """Repaint the section heading when keyboard focus enters."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Remove the outline when keyboard focus leaves the heading."""
+        super().focusOutEvent(event)
+        self.update()
+
     def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
         """Fold or unfold this run's section on a click inside the bar.
 
@@ -280,6 +326,50 @@ class _SectionHeader(QFrame):
             self._activate()
             return
         super().keyPressEvent(event)
+
+
+class _AccessibleSectionHeader(QAccessibleWidget):
+    """Expose a figure section's existing fold control and expansion state."""
+
+    def __init__(self, widget):
+        """Retain normal widget accessibility with a button role."""
+        super().__init__(widget, QAccessible.Button)
+
+    def state(self):
+        """Describe the current header; a relayout creates its replacement."""
+        state = super().state()
+        state.expandable = True
+        state.expanded = self.widget().is_expanded()
+        state.collapsed = not state.expanded
+        return state
+
+    def actionNames(self):
+        """Offer Press and normal widget actions only while enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.pressAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Use the existing reach-first, fold-second route for enabled Press."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.pressAction():
+            widget._activate()
+            return
+        super().doAction(action)
+
+
+def _section_header_accessible_factory(_key, widget):
+    """Supply only section-header adapters, retaining their Python wrappers."""
+    if isinstance(widget, _SectionHeader):
+        interface = _AccessibleSectionHeader(widget)
+        widget._accessible_section = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_section_header_accessible_factory)
 
 
 class _FigureCell(QFrame):
@@ -322,6 +412,9 @@ class _FigureCell(QFrame):
         self.letter = letter
         self.live_key = live_key
         self._pixmap = pixmap
+        self._strong_focus_ring = _strong_focus_style()
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAccessibleName(str(title or letter.upper() or live_key or index + 1))
         #: The last width :meth:`fit_to` was given, so the cell can be drawn
         #: again at a new pixel density without the grid re-measuring.
         self._fit_width = 0
@@ -376,19 +469,29 @@ class _FigureCell(QFrame):
         return self._pixmap.width() / self._pixmap.height()
 
     def fit_to(self, width: int) -> None:
-        """Scale the figure into ``width`` LOGICAL px, keeping its shape."""
+        """Scale the figure into ``width`` LOGICAL px, keeping its shape.
+
+        A tile already drawn at this width and pixel density is left as it
+        is: a relayout that only adds a figure would otherwise smooth-scale
+        every figure already on the grid again.
+        """
         if self._pixmap.isNull() or width <= 0:
             return
         self._fit_width = int(width)
+        fitted = (self._fit_width, device_ratio(self._image))
+        if getattr(self, "_fitted", None) == fitted:
+            return
         scaled = scaled_for(
             self._pixmap, self._image,
             QSize(width, int(width / max(self.aspect(), 0.05))))
         self._image.setPixmap(scaled)
         self._image.setFixedHeight(logical_size(scaled).height())
+        self._fitted = fitted
 
     def _refit(self) -> None:
         """Draw the figure again at the width it was last fitted to."""
         if self._fit_width > 0:
+            self._fitted = None
             self.fit_to(self._fit_width)
 
     def _request_menu(self, point) -> None:
@@ -399,6 +502,45 @@ class _FigureCell(QFrame):
         place on every cell but the first.
         """
         self.menu_requested.emit(self.index, self.mapToGlobal(point))
+
+    def paintEvent(self, event):
+        """Draw the tile and its visible keyboard-focus border.
+
+        :param event: paint request delivered to the figure tile.
+        """
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def changeEvent(self, event):
+        """Refresh the cached outline when the live preference style changes."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
+
+    def keyPressEvent(self, event):
+        """Open the focused tile with an unmodified activation key.
+
+        :param event: key event delivered to the figure tile.
+        """
+        if (self.hasFocus()
+                and (event.modifiers() == Qt.NoModifier
+                     or (event.key() == Qt.Key_Enter
+                         and event.modifiers() == Qt.KeypadModifier))
+                and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
+            self.clicked.emit(self.index)
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
         """Open the figure on a left click; leave a right click to the menu.
@@ -674,23 +816,37 @@ class FigureGridView(QScrollArea):
             ``(label, start, count)`` entries describing runs. Panel lettering
             restarts within each section.
         """
-        self.clear()
+        reusable = {}
+        for cell in self._cells:
+            reusable.setdefault(getattr(cell, "_reuse_key", None), []).append(cell)
         titles = list(titles or [])
         self._sections = list(sections or [])
         starts = {start: label for label, start, _count in self._sections}
         letter_at = 0
+        cells = []
         for index, pixmap in enumerate(pixmaps):
             if index in starts:
                 letter_at = 0
             if pixmap is None or pixmap.isNull():
                 continue
             title = titles[index] if index < len(titles) else ""
-            cell = _FigureCell(index, pixmap, title, self._body,
-                               letter=_letter_for(letter_at))
+            letter = _letter_for(letter_at)
             letter_at += 1
+            key = (index, pixmap.cacheKey(), title, letter)
+            kept = reusable.get(key)
+            if kept:
+                cells.append(kept.pop())
+                continue
+            cell = _FigureCell(index, pixmap, title, self._body, letter=letter)
+            cell._reuse_key = key
             cell.clicked.connect(self.figure_activated)
             cell.menu_requested.connect(self.figure_menu_requested)
-            self._cells.append(cell)
+            cells.append(cell)
+        kept_ids = set(map(id, cells))
+        for cell in self._cells:
+            if id(cell) not in kept_ids:
+                self._discard(cell)
+        self._cells = cells
         self._relayout()
         return len(self._cells)
 
@@ -857,7 +1013,7 @@ class FigureGridView(QScrollArea):
             return False
         self._collapsed.discard(key)
         self._relayout()
-        QTimer.singleShot(0, lambda: self._scroll_section_to_top(key))
+        _after(0, self, lambda: self._scroll_section_to_top(key))
         return True
 
     def _relayout(self) -> None:

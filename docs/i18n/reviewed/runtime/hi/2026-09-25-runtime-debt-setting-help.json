@@ -307,13 +307,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_library",
-      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
-      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
-      "translation": "गाइड बारकोड की एक CSV, जिसमें उन्हें रखने वाले स्तंभ का नाम prefix, barcode या sequence हो। यह देने पर प्रत्येक नाभिक का पहचाना गया बारकोड उसके निकटतम गाइड से भी मिलाया जाता है, और रन बताता है कि कितने स्पॉट लाइब्रेरी से सटीक मेल खाते हैं -- यही एक संख्या बताती है कि डिकोड काम किया भी या नहीं। खाली होने पर भी बारकोड पहचाने जाते हैं, बस उनका स्कोर नहीं बन सकता। डिफ़ॉल्ट None।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "ops_raster_overlap",
       "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
       "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
@@ -325,13 +318,6 @@
       "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
       "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
       "translation": "किसी स्पॉट को रीड माने जाने के लिए उसे अपने आसपास से कितना अधिक चमकीला होना चाहिए। कम मान अधिक रीड और अधिक मलबा पकड़ता है, जो त्रुटि के रूप में नहीं बल्कि घटती लाइब्रेरी-मिलान दर के रूप में दिखता है; अधिक मान असली रीड खो देता है और नाभिकों के पास मतदान के लिए बहुत कम रीड बचते हैं। डिफ़ॉल्ट 315, इस प्लेट के लिए संदर्भ रन का अपना मान।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_store_reads",
-      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
-      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
-      "translation": "बारकोड के पीछे का हर रीड ops_reads तालिका में लिखें: प्रति चक्र प्रति रीड एक पंक्ति, पहचाने गए बेस, उसके मार्जिन और उन चार तीव्रताओं के साथ जिनसे वह पहचाना गया। इसी से किसी संदिग्ध बारकोड को उसके पिक्सेल तक खोजा जाता है। यह डिफ़ॉल्ट रूप से बंद है क्योंकि यह बड़ा है -- संदर्भ प्लेट का एक पूरा वेल लगभग तीन करोड़ पंक्तियाँ है -- इसलिए इसे पूरी प्लेट के बजाय एक-दो वेल के लिए चालू करें। डिफ़ॉल्ट False।"
     },
     {
       "table": "setting_tooltips",
@@ -696,6 +682,24 @@
       "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
       "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7",
       "translation": "प्रतिगमन पाइपलाइन द्वारा बनाए गए Toxoplasma वोल्केनो प्लॉट के गुणांक (x) अक्ष पर दो-तत्व [min, max] सीमाएँ, जब annotation_source बंडल किया गया Toxoplasma एनोटेशन हो। शून्य के पास एकत्रित हिट्स पर ज़ूम करने के लिए इसे संकरा करें, बड़े प्रभाव वाले जीन प्लॉट पर रखने के लिए चौड़ा करें। इसे None छोड़ने पर [-0.5, 0.5] उपयोग होता है, स्वचालित स्केलिंग नहीं। डिफ़ॉल्ट None।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "translation": "गाइड बारकोड की एक CSV, जिसमें उन्हें रखने वाले स्तंभ का नाम prefix, barcode या sequence हो। यह देने पर प्रत्येक नाभिक का पहचाना गया बारकोड उसके निकटतम गाइड से भी मिलाया जाता है, और रन बताता है कि कितने स्पॉट लाइब्रेरी से सटीक मेल खाते हैं -- यही एक संख्या बताती है कि डिकोड काम किया भी या नहीं। खाली होने पर भी बारकोड पहचाने जाते हैं, बस उनका स्कोर नहीं बन सकता। डिफ़ॉल्ट None।",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "translation": "बारकोड के पीछे का हर रीड ops_reads तालिका में लिखें: प्रति चक्र प्रति रीड एक पंक्ति, पहचाने गए बेस, उसके मार्जिन और उन चार तीव्रताओं के साथ जिनसे वह पहचाना गया। इसी से किसी संदिग्ध बारकोड को उसके पिक्सेल तक खोजा जाता है। यह डिफ़ॉल्ट रूप से बंद है क्योंकि यह बड़ा है -- संदर्भ प्लेट का एक पूरा वेल लगभग तीन करोड़ पंक्तियाँ है -- इसलिए इसे पूरी प्लेट के बजाय एक-दो वेल के लिए चालू करें। डिफ़ॉल्ट False।",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

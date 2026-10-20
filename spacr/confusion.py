@@ -1,13 +1,12 @@
-"""``C8`` — the confusion matrix as a set of live queries rather than a picture.
+"""Resolve confusion-matrix cells to the objects they count.
 
-A confusion matrix is the most-looked-at and least-acted-on artefact a
-classifier run produces. It says "43 uninfected objects were called infected"
-and then stops: the 43 are anonymous, so the only thing anyone can do with the
-number is feel bad about it. This module is the part that turns each cell back
-into the objects it counted, so the number becomes a question you can open.
+A confusion matrix reports counts such as "43 uninfected objects were called
+infected" without identifying the 43 objects. This module maps each cell back
+to the objects it counted, so they can be ordered, split and opened for
+review.
 
-Three ideas, and they are separate on purpose
----------------------------------------------
+Design
+------
 
 **A cell is a set of objects.** :func:`cell_rows` is the whole primitive: the
 rows of the out-of-fold prediction table whose true class is *this* and whose
@@ -80,7 +79,7 @@ __all__ = [
 
 
 class ConfusionError(ValueError):
-    """A prediction table that cannot answer the question being asked of it.
+    """Raised when a prediction table lacks the columns or rows a query needs.
 
     Raised rather than returning an empty result. "No rows in that cell" and
     "this frame has no ``true_class`` column" look identical to a caller that
@@ -113,7 +112,7 @@ BREAKDOWN_LEVELS: Tuple[str, ...] = ("field", "well", "plate")
 
 
 def confidence_threshold(n_classes: int) -> float:
-    """Where "the model was sure" starts, for a ``n_classes``-way problem.
+    """Return the default high-confidence threshold for ``n_classes`` classes.
 
     :param n_classes: number of mutually exclusive classifier classes.
 
@@ -124,10 +123,10 @@ def confidence_threshold(n_classes: int) -> float:
     two-class error nothing at all, which is the sort of default that makes a
     feature look broken on somebody else's data.
 
-    The midpoint between chance and certainty is the honest default: 0.75 for
-    two classes, 0.55 for ten. It is a *default*, not a law — every function
-    here takes an explicit ``threshold``, and the screen exposes it, because
-    where "sure" starts is a property of the assay and not of arithmetic.
+    The default is the midpoint between chance and certainty: 0.75 for two
+    classes, 0.55 for ten. Every function here also takes an explicit
+    ``threshold``, and the screen exposes it, because the appropriate cut
+    depends on the assay.
 
     :raises ConfusionError: for fewer than two classes.
     """
@@ -361,7 +360,7 @@ class Confusion:
     rate_within_true: float
 
     def describe(self) -> str:
-        """One line, in the words a person would use."""
+        """Return a one-line text description of this confusion."""
         return (f"{self.true_class} → {self.predicted_class}: {self.count} "
                 f"object(s), {self.share_of_errors:.0%} of all errors and "
                 f"{self.rate_within_true:.0%} of everything truly "
@@ -413,11 +412,10 @@ def rank_confusions(counts: pd.DataFrame) -> List[Confusion]:
 
 
 def describe_confusions(counts: pd.DataFrame, *, limit: int = 3) -> str:
-    """The off-diagonal mass in words, worst first.
+    """Describe the off-diagonal confusions in words, largest first.
 
-    A matrix of numbers makes the reader do the ranking, and the ranking is
-    the only part of it anybody acts on. This says it: *"Your worst confusion
-    is uninfected → infected: 43 object(s), 45% of all errors…"*
+    Example output: *"Your worst confusion is uninfected → infected:
+    43 object(s), 45% of all errors…"*
 
     :param counts: square true-by-predicted count table accepted by
         :func:`rank_confusions`.
@@ -443,7 +441,7 @@ def describe_confusions(counts: pd.DataFrame, *, limit: int = 3) -> str:
 
 
 def breakdown_by(rows: pd.DataFrame, level: str) -> pd.DataFrame:
-    """Where one cell's objects came from, most concentrated first.
+    """Count one cell's objects per identity level, most concentrated first.
 
     :param rows: a cell, from :func:`cell_rows`.
     :param level: an identity column — ``"plate"``, ``"well"`` or
@@ -485,16 +483,15 @@ _CONCENTRATION_FLOOR = 5
 
 
 def describe_breakdown(rows: pd.DataFrame, level: str) -> str:
-    """One cell's origin, in words, with the verdict spelled out.
+    """Describe in words how one cell's objects are spread over ``level``.
 
     :param rows: evaluated-object rows belonging to one confusion cell.
     :param level: identity column, such as ``well`` or ``plate``, used to
         group the rows.
 
-    The point of this line is to stop wasted work. If all 43 errors come from
-    well A01, re-labelling any of them corrects nothing that will recur — the
-    fix is a staining or a focus problem at the bench, and the crops are
-    evidence for that conversation rather than a re-annotation queue.
+    If all 43 errors come from well A01, re-labelling them does not address
+    the cause, which is more likely a staining or focus problem in that well;
+    the text states this concentration so it is seen before re-annotation.
 
     :returns: one or two lines, no trailing newline.
     """
@@ -523,11 +520,11 @@ def describe_breakdown(rows: pd.DataFrame, level: str) -> str:
 
 @dataclass(frozen=True)
 class ConfusionCell:
-    """One clicked cell, already split and already counted.
+    """One confusion-matrix cell, split into high- and low-confidence rows.
 
-    Built by :meth:`build` so that the screen does one call and gets
-    everything it draws — the two lists, the keys to route, and the sentences
-    — rather than orchestrating five functions in a mouse handler.
+    Built by :meth:`build` so that the screen makes one call and gets
+    everything it draws — the two lists, the keys to route, and the
+    sentences.
 
     :param true_class: annotated class naming the confusion-matrix row.
     :param predicted_class: model class naming the confusion-matrix column.
@@ -628,7 +625,7 @@ class ConfusionCell:
         return head
 
     def describe(self) -> str:
-        """The cell in words: the split, and what each half means."""
+        """Describe the cell's confidence split and what each half suggests."""
         if not len(self.rows):
             return (f"No objects were annotated {self.true_class} and "
                     f"predicted {self.predicted_class}.")

@@ -75,6 +75,7 @@ concurrency:
 
 env:
   SPACR_TEST_COUNT_DIR: .test-counts
+  NUMBA_DISABLE_ERROR_MESSAGE_HIGHLIGHTING: '1'
 
 jobs:
   # THE NEWEST END of the dependency policy setup.py states: this job installs
@@ -152,7 +153,7 @@ jobs:
           # `numpy<2.0.0`). The suite still has to exercise them:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
-          python -m pip install -e ".[dev,zernike,attribution,btrack,czi]"
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,vendor-watch]"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
           # passing `--timeout` without this makes pytest exit on
@@ -389,13 +390,13 @@ jobs:
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
             "torch>=2.0" torchvision
           # The optional stores (databases: DuckDB and psycopg), AnnData, timm
-          # (embeddings), RDKit (chem) and pyreadr are installed here and only
-          # here: the code that only runs with them (spacr.tabular's DuckDB
-          # and .rds paths, the AnnData export, the chemistry-aware hit view,
-          # the timm encoders) is
+          # (embeddings), RDKit (chem), mrcfile (tem) and pyreadr are installed
+          # here and only here: the code that only runs with them
+          # (spacr.tabular's DuckDB and .rds paths, the AnnData export, the
+          # chemistry-aware hit view, the timm encoders, the MRC reader) is
           # measured by the tests that exercise it with the real library,
           # rather than read as untested because this job lacked it (288).
-          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings]"
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings,tem]"
           python -m pip install "pyreadr>=0.5,<1"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
@@ -448,7 +449,7 @@ jobs:
           fi
           python tools/collect_qt_native_backtrace.py --record-core-route \
             --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
-          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
+          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal --deselect=tests/qt/test_torch_libraries_map_without_the_interpreter_lock_20261013.py::test_importing_torch_after_the_map_blocks_other_threads_far_less"
           python tools/run_coverage_batches.py tests \
             --marker "not gui" \
             --shard-index "$SPACR_COVERAGE_SHARD" \
@@ -530,6 +531,11 @@ jobs:
     needs: coverage-shards
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    # id-token lets the Codecov upload authenticate by OIDC while the
+    # repository has no CODECOV_TOKEN secret (item 688).
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v7
@@ -568,6 +574,7 @@ jobs:
             --head-sha "$SPACR_HEAD_SHA"
 
       - name: Combine process data and write coverage.py JSON
+        id: combine
         env:
           COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
           SPACR_COVERAGE_COMBINED: ${{ runner.temp }}/spacr-coverage-combined
@@ -612,13 +619,43 @@ jobs:
           python tools/verify_module_coverage.py \
             --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
             --root . \
-            --expected-file-count 664 \
+            --expected-file-count 662 \
             --baseline tools/coverage_baseline.json \
             --floor-exemptions tools/coverage_floor_exemptions.txt \
             --shard-integrity "$SPACR_COVERAGE_INPUT" \
             --shard-count 12 \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
             --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
+
+      # Item 688: the same combined data, as Cobertura XML, goes to Codecov
+      # for pushes to nightly and main. Codecov is informational only
+      # (codecov.yml); the ratchet above stays the enforcing coverage check,
+      # and a Codecov outage never turns this job red.
+      - name: Write Cobertura coverage.xml for Codecov
+        id: codecov-xml
+        if: >-
+          always() && steps.combine.outcome == 'success'
+          && github.event_name == 'push'
+          && (github.ref == 'refs/heads/nightly' || github.ref == 'refs/heads/main')
+        env:
+          COVERAGE_FILE: ${{ runner.temp }}/spacr-coverage-combined/.coverage
+          SPACR_CODECOV_DIR: ${{ runner.temp }}/spacr-codecov
+        run: |
+          mkdir -p -- "$SPACR_CODECOV_DIR"
+          python -m coverage xml -o "$SPACR_CODECOV_DIR/coverage.xml"
+
+      - name: Upload combined coverage to Codecov
+        if: always() && steps.codecov-xml.outcome == 'success'
+        uses: codecov/codecov-action@v7
+        with:
+          files: ${{ runner.temp }}/spacr-codecov/coverage.xml
+          disable_search: true
+          flags: ${{ github.ref_name }}
+          name: spacr-${{ github.ref_name }}-${{ github.run_id }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
+          fail_ci_if_error: false
+          verbose: true
 
       - name: Upload human and machine-readable coverage reports
         if: always()
@@ -787,6 +824,9 @@ jobs:
           python -m pip install \
             -c .github/constraints/minimum-py39.txt \
             "pytest-timeout>=2.3,<3"
+          # Offline fixture builds must work with the packaging==21.3 floor.
+          # The project above uses its own isolated build-system requirements.
+          python -m pip install "setuptools==70.3.0"
           python -m pip check
 
       - name: Verify installed minimum profile

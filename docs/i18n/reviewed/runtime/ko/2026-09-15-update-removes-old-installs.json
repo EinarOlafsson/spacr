@@ -98,13 +98,6 @@
       "source_sha256": "602d85f0f9609220ee6ae6615b0f3b11f2a9abb50c608a3f4be7071ed140d59c",
       "table": "ui",
       "translation": "거부됨: spaCR 설치로 확인되지 않음; 설치가 맞다면 직접 삭제하세요"
-    },
-    {
-      "key": "spaCR will close, remove the older copies, install {version} and start again.",
-      "source": "spaCR will close, remove the older copies, install {version} and start again.",
-      "source_sha256": "ad8df605d10cb920d15682ec33f04880f11d15b85304ec05a0edfb47f1a8193a",
-      "table": "ui",
-      "translation": "spaCR 종료 후 이전 사본을 제거하고 {version} 버전을 설치한 다음 다시 시작합니다."
     }
   ],
   "schema": 1

@@ -1,0 +1,48 @@
+{
+  "observed_at": "2026-10-14T08:04:08.446513-04:00",
+  "source_head": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+  "app_candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "tasks": [
+    {
+      "item": "N703",
+      "owner": "contracts_701",
+      "effort": "high",
+      "state": "active_source_only",
+      "scope": "Exact current question/default and GUI/Terminal lifetime inventory; future macOS GUI flow and English"
+    },
+    {
+      "item": "N702",
+      "owner": "model_schema_702",
+      "effort": "high",
+      "state": "active_source_only",
+      "scope": "Exact CSV/JSON model-reference schema, writer/consumer compatibility and static fixtures"
+    },
+    {
+      "item": "GitHub #147",
+      "owner": "review_701",
+      "effort": "high",
+      "state": "active_source_only",
+      "scope": "Provider/version approval and cancellation protocols from primary docs and static local evidence"
+    }
+  ],
+  "root_work": "Acceptance binding, source review and progress delivery",
+  "accepted_notices_rechecked": 14,
+  "accepted_helpers_rechecked": 2,
+  "helper_locale_records_authorized": false,
+  "notice_locale_stage": "Allowed after three assignments; not started",
+  "canonical_or_capture_cleared": false,
+  "Home_inputs": [
+    {
+      "path": "features/data/700_home_future_notice_design_acceptance_2026-10-14/accepted-future-design-english.json",
+      "sha256": "9e2f2511745a8e692cb8172c18eebc79c6755468a2798bd0e60336a33850b72a",
+      "bytes": 12134
+    },
+    {
+      "path": "features/data/n615_home_helper_english_acceptance_2026-10-14/accepted-future-private-helper-english.json",
+      "sha256": "4f8a22c718fd16999b04f6259953162853d8ce40eef6f7ff06475630c8dda58c",
+      "bytes": 3143
+    }
+  ],
+  "release_status": "Home A744 run38512120776 terminal24pass6fail; pixel repair/fresh full CI still required",
+  "implementation_or_native_acceptance": false
+}

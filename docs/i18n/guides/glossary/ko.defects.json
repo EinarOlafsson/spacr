@@ -2,33 +2,6 @@
  "schema": 1,
  "language": "ko",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {
-  "Colormap": "'컬러' means 'colour'; the setting is '컬러맵'",
-  "Error bars": "'오류 바' means 'mistake bar'; the setting is '오차 막대'",
-  "Jitter width": "'Jitter 광범위' means 'jitter wide-ranging'; the setting is 'Jitter 너비'",
-  "Logging": "'로그인' means log in; the tab is '로깅'",
-  "Counts": "'계산하기' means 'to calculate'; the statistics label is '개수'"
- },
- "snapshot": {
-  "Colormap": {
-   "runtime": "컬러",
-   "guide": "컬러맵"
-  },
-  "Error bars": {
-   "runtime": "오류 바",
-   "guide": "오차 막대"
-  },
-  "Jitter width": {
-   "runtime": "Jitter 광범위",
-   "guide": "Jitter 너비"
-  },
-  "Logging": {
-   "runtime": "로그인",
-   "guide": "로깅"
-  },
-  "Counts": {
-   "runtime": "계산하기",
-   "guide": "개수"
-  }
- }
+ "defects": {},
+ "snapshot": {}
 }

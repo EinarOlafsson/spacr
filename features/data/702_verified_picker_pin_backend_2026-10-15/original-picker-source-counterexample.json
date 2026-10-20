@@ -1,0 +1,48 @@
+{
+  "source_pin": "2d5dd8788d542e9d98929d90a59c69235bfaee65",
+  "model_zoo_sha256": "614c7056fdcbbe2e935592b759a268984da853a225f6a900b42f0ead45ef76f8",
+  "method": "Five actual selected source AST bodies; actual one literal trusted bundled row, exact KINDS base tuple (cellpose case only; prefixed kind extension irrelevant). Only standard-library globals; no full module/test execution.",
+  "setup_limits": "Two initial literal extraction errors for unrelated symbolic catalogue row then dynamic prefixed KINDS preserved in transcript; narrowed exact row/base tuple, no production edits.",
+  "cases": [
+    {
+      "request": "toxoplasma_plaque_v4",
+      "result": {
+        "plaque_model": "toxoplasma_plaque_v4",
+        "model_metadata": {
+          "schema_version": 1,
+          "settings": {
+            "plaque_model": {
+              "requested_value": "toxoplasma_plaque_v4",
+              "key": "toxoplasma_plaque_v4",
+              "version": null,
+              "version_status": "unspecified",
+              "sha256": "744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f",
+              "kind": "cellpose",
+              "filename": "cpsam_plaque_r6"
+            }
+          }
+        }
+      }
+    },
+    {
+      "request": "/laptop/.spacr/models/cpsam_plaque_r6",
+      "result": {
+        "plaque_model": "/laptop/.spacr/models/cpsam_plaque_r6"
+      }
+    },
+    {
+      "request": "/laptop/.spacr/models/cpsam_plaque_r6_v2",
+      "result": {
+        "plaque_model": "/laptop/.spacr/models/cpsam_plaque_r6_v2"
+      }
+    }
+  ],
+  "finding": "Normal GUI picker returns a local path; export capture intentionally skips every path, leaving no exact pin. Bare trusted key control records same identity.",
+  "control": "No custom same-basename file declared verified; existing owning test properly rejects guessed pin.",
+  "ui_source_seam": [
+    "ModelZooPicker._accept_selected emits only local string",
+    "choose_model returns chosen_path only",
+    "AppScreen._choose_a_model_for sets field only",
+    "_capture_model_metadata skips slash/backslash/tilde requests"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "base_commit": "b98c78afbcccf54fb237b7826cf3ce59f0e59118",
+  "source_sha256": {
+    "tests/qt/test_home_v2.py": "75b43cdacbb451602e4afbe0b01981dc1f33f728571231ee07e859ff43f307b5",
+    "spacr/qt/app.py": "512630cb15f2c7f25d6b9d2cf5ef838c3374367ee373712ec45a4fab1c689561",
+    "spacr/qt/maturity.py": "ad78070083d58c0fd3a2440ff5b7bc0c8fefcc40324f3f4857716eb5d9da0553"
+  },
+  "baseline": "Exact existing original invariant on untouched public15938:1FAIL2.84s exit1. Intentional Toxoplasma explicit stable registration violates old runtime alpha/beta-only assertion. Exact node AST/register_app executable body unchanged; baseline reused, not rerun.",
+  "repair": "Test-only: inspect the single literal APP_STAGE declaration, unique string keys and only alpha/beta stage constants. Keep valid-stage/registered-app runtime guards; explicit register_app stable is allowed by its existing API, not by static overrides.",
+  "owning": "8PASS5.38s actualexit0/no skips/errors: revised original invariant, new actual stable/default-alpha/idempotence probe, existing nonToxo alpha species/Toxo visibility, existing omitted-stage default and all3Classify public routes.",
+  "production_docs_tools_packaging_changed": false,
+  "global_cleanup": "Probe registrations removed in finally. Existing species preferences use disposable QSettings.",
+  "limits": [
+    "No production maturity/organism/gating change or API/runtime artifact regeneration.",
+    "No full suite/full CI/native GUI or whole N03 completion claim."
+  ]
+}

@@ -20,10 +20,13 @@ ID-based styles can intentionally keep an opaque fill and hide the ramp.
 from __future__ import annotations
 
 import logging
+import math
+import weakref
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QRectF, Qt
-from PySide6.QtGui import QBrush, QColor, QLinearGradient, QPainter, QPen
+from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
+                           QPen, QPixmap)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QAbstractSpinBox,
@@ -38,6 +41,8 @@ from ..theme import (
     FIELD_FADE_STOPS,
     field_chrome,
     field_fade_alpha,
+    _forget_painting_theme,
+    _painting_theme,
     register_widget_qss,
 )
 
@@ -93,6 +98,9 @@ def invalidate_field_fade() -> None:
     """Forget the cached preference so the next read hits ``QSettings``."""
     global _enabled
     _enabled = None
+    _forget_painting_theme()
+    _CHROME.clear()
+    _recall_chrome()
 
 
 def fades(widget) -> bool:
@@ -166,6 +174,54 @@ def _ramped(colour: str, alpha: float, left: float, right: float
     return gradient
 
 
+#: Rasterised chrome, keyed by size, pixel ratio, radius and the two
+#: state colours. A field repaints whenever the backdrop under it moves,
+#: sixty times a second, and two antialiased rounded rectangles with
+#: seventeen-stop gradients cost more than the field's own text; the
+#: pixels only ever depend on this key. Dropped wholesale at the cap.
+_CHROME: dict = {}
+_CHROME_CAP = 256
+
+
+def _chrome_pixmap(width: int, height: int, ratio: float, radius: float,
+                   fill: tuple, line: tuple) -> QPixmap:
+    """The ramped container and outline of a ``width`` x ``height`` field.
+
+    Painted exactly as a direct paint would draw it, into a transparent
+    pixmap at the painter's pixel ratio, so drawing the pixmap over the
+    field leaves the same pixels.
+    """
+    key = (width, height, round(ratio, 4), radius, fill, line)
+    cached = _CHROME.get(key)
+    if cached is not None:
+        return cached
+    pixmap = QPixmap(max(1, math.ceil(width * ratio)),
+                     max(1, math.ceil(height * ratio)))
+    pixmap.setDevicePixelRatio(ratio)
+    pixmap.fill(Qt.transparent)
+    inset = FIELD_BORDER_PX / 2.0
+    rect = QRectF(0.0, 0.0, width, height).adjusted(inset, inset,
+                                                     -inset, -inset)
+    painter = QPainter(pixmap)
+    try:
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(_ramped(fill[0], fill[1],
+                                        rect.left(), rect.right())))
+        painter.drawRoundedRect(rect, radius, radius)
+        painter.setBrush(Qt.NoBrush)
+        painter.setPen(QPen(QBrush(_ramped(line[0], line[1],
+                                           rect.left(), rect.right())),
+                            FIELD_BORDER_PX))
+        painter.drawRoundedRect(rect, radius, radius)
+    finally:
+        painter.end()
+    if len(_CHROME) >= _CHROME_CAP:
+        _CHROME.clear()
+    _CHROME[key] = pixmap
+    return pixmap
+
+
 def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
                      ) -> None:
     """Draw ``widget``'s ramped container and outline with ``painter``.
@@ -179,19 +235,29 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
     :param painter: an active painter whose coordinates are the widget's.
     :param theme: theme name; ``None`` resolves the effective one.
     """
+    pixmap = _chrome_of(widget, painter.device().devicePixelRatioF(), theme)
+    if pixmap is not None:
+        painter.drawPixmap(0, 0, pixmap)
+
+
+def _chrome_of(widget, ratio: float, theme: Optional[str] = None
+               ) -> Optional[QPixmap]:
+    """The pixmap :func:`paint_field_fade` draws under ``widget``.
+
+    :param widget: the field.
+    :param ratio: the device pixel ratio it is painted at.
+    :param theme: theme name; ``None`` resolves the effective one.
+    :returns: ``None`` when the field is too small to have chrome.
+    """
     if theme is None:
-        try:
-            from ..preferences import resolve_effective_theme
-            theme = resolve_effective_theme()
-        except Exception:
-            theme = "dark"
+        theme = _painting_theme()
     chrome = field_chrome(theme)
     radius = float(chrome["radius"])
 
     inset = FIELD_BORDER_PX / 2.0
     rect = QRectF(widget.rect()).adjusted(inset, inset, -inset, -inset)
     if rect.width() <= 0.0 or rect.height() <= 0.0:
-        return
+        return None
 
     enabled = widget.isEnabled()
     if not enabled:
@@ -200,34 +266,94 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
         fill_key, border_key = "fill", "border_focus"
     else:
         fill_key, border_key = "fill", "border"
-    fill_colour, fill_alpha = chrome[fill_key]
-    line_colour, line_alpha = chrome[border_key]
+    size = widget.size()
+    return _chrome_pixmap(
+        size.width(), size.height(), ratio,
+        radius, tuple(chrome[fill_key]), tuple(chrome[border_key]))
 
-    painter.save()
-    painter.setRenderHint(QPainter.Antialiasing, True)
-    painter.setPen(Qt.NoPen)
-    painter.setBrush(QBrush(_ramped(fill_colour, fill_alpha,
-                                    rect.left(), rect.right())))
-    painter.drawRoundedRect(rect, radius, radius)
-    painter.setBrush(Qt.NoBrush)
-    painter.setPen(QPen(QBrush(_ramped(line_colour, line_alpha,
-                                       rect.left(), rect.right())),
-                        FIELD_BORDER_PX))
-    painter.drawRoundedRect(rect, radius, radius)
-    painter.restore()
+
+#: Fields whose chrome is painted elsewhere for now, each with the call that
+#: hands it back. The window's field composites the chrome of a field that
+#: has no focus into its frames, off the GUI thread, with the card
+#: backgrounds (:class:`spacr.qt.widgets.ambient._CardTints`), and the fade's
+#: filter is taken off the field meanwhile: over a moving field every field
+#: on screen repaints on every frame, and the filter was a Python call, a
+#: painter and a blend for each of them.
+_LENT: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+
+
+def _chrome_image(widget) -> Optional[QImage]:
+    """What the fade paints under ``widget`` now, for compositing it.
+
+    :param widget: any widget.
+    :returns: the chrome at a pixel ratio of one, the same pixels the filter
+        draws; ``None`` when the fade paints nothing under it, or when it has
+        focus, whose ring follows the pointer and the keyboard.
+    """
+    if (_filter is None or not isinstance(widget, FIELD_TYPES)
+            or not field_fade_enabled() or not fades(widget)
+            or widget.hasFocus()):
+        return None
+    pixmap = _chrome_of(widget, 1.0)
+    return None if pixmap is None else pixmap.toImage()
+
+
+def _lend_chrome(widget, give_back) -> None:
+    """Stop painting ``widget``'s chrome; someone else paints it.
+
+    :param widget: a field :func:`_chrome_image` answered for.
+    :param give_back: called when the chrome may have changed in a way no
+        event of the field's says, such as the fade being switched off or
+        uninstalled; it must hand the field back with
+        :func:`_take_back_chrome` before the next paint.
+    """
+    _LENT[widget] = give_back
+    if _filter is not None:
+        widget.removeEventFilter(_filter)
+
+
+def _take_back_chrome(widget) -> None:
+    """Paint ``widget``'s chrome here again.
+
+    :param widget: a field given to :func:`_lend_chrome`; one already
+        destroyed is skipped.
+    """
+    from shiboken6 import isValid
+
+    _LENT.pop(widget, None)
+    if _filter is not None and isValid(widget):
+        widget.installEventFilter(_filter)
+
+
+def _recall_chrome() -> None:
+    """Ask for every lent field back."""
+    for give_back in set(_LENT.values()):
+        give_back()
 
 
 class _FieldFadeFilter(QObject):
-    """Paints the ramp under every field, just before the field paints."""
+    """Paints the ramp under every field, just before the field paints.
+
+    The application tells it about each widget once, when the widget is
+    polished, and it filters the fields among them directly. It is not
+    asked about every paint event in the application: over an animated
+    backdrop every widget on screen repaints on every frame, and asking a
+    Python filter about each of them cost more than painting the ramps.
+    """
 
     def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
-        """Start the fade when the watched field changes.
+        """Watch a field as it is polished; paint its ramp before it paints.
 
-        :param obj: the field.
+        :param obj: the field, or on a polish any widget.
         :param event: the event.
         :returns: ``False`` -- observed, never consumed.
         """
-        if event.type() != QEvent.Type.Paint:
+        kind = event.type()
+        if kind == QEvent.Type.Polish:
+            if isinstance(obj, FIELD_TYPES) and obj not in _LENT:
+                obj.installEventFilter(self)
+            return False
+        if kind != QEvent.Type.Paint:
             return False
         if not field_fade_enabled() or not fades(obj):
             return False
@@ -247,6 +373,14 @@ class _FieldFadeFilter(QObject):
         return False
 
 
+def _watch_fields(app) -> None:
+    """Hear every widget's polish, and filter the fields that already exist."""
+    _watch_application_events(app, _filter, (QEvent.Type.Polish,))
+    for widget in app.allWidgets():
+        if isinstance(widget, FIELD_TYPES) and widget not in _LENT:
+            widget.installEventFilter(_filter)
+
+
 def install_field_fade(app=None) -> bool:
     """Install the application-wide paint hook. Idempotent.
 
@@ -259,10 +393,10 @@ def install_field_fade(app=None) -> bool:
     if app is None:
         return False
     if _filter is not None:
-        _watch_application_events(app, _filter, (QEvent.Type.Paint,))
+        _watch_fields(app)
         return False
     _filter = _FieldFadeFilter()
-    _watch_application_events(app, _filter, (QEvent.Type.Paint,))
+    _watch_fields(app)
     return True
 
 
@@ -271,9 +405,12 @@ def uninstall_field_fade(app=None) -> bool:
     global _filter
     if _filter is None:
         return False
+    _recall_chrome()
     app = app or QApplication.instance()
     if app is not None:
         _stop_watching_application_events(app, _filter)
+        for widget in app.allWidgets():
+            widget.removeEventFilter(_filter)
     _filter = None
     return True
 

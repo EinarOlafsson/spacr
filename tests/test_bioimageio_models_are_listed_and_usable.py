@@ -283,7 +283,7 @@ def test_a_refresh_fetches_the_collection_and_measures_the_weights(
     monkeypatch.setattr(zoo, "_weights_size", measure)
     rows = _rows(allow_network=True, url=served.as_uri())
     cache = tmp_path / "home" / ".spacr" / "bioimageio_children.json"
-    assert json.loads(cache.read_text()) == COLLECTION
+    assert json.loads(cache.read_text(encoding="utf-8")) == COLLECTION
     assert sorted(asked) == sorted([
         FILES.format("famous-fish", "cyto3.pth"),
         FILES.format("thoughtful-chipmunk", "cellpose_model"),
@@ -414,12 +414,19 @@ def test_a_downloaded_cellpose3_model_is_a_cellpose3_setting(tmp_path):
     assert SB._cellpose3_is_chosen({"cell_model_name": value})
 
 
-def test_a_deleted_download_is_refused_not_run_as_cyto3(tmp_path):
+def test_a_deleted_download_is_refused_not_run_as_cyto3(tmp_path, monkeypatch):
     _row, path = _downloaded(tmp_path, "bioimageio_cellpose_cyto3")
     value = SB._cellpose3_value(str(path))
     path.unlink()
-    with pytest.raises(FileNotFoundError, match="not there"):
+    monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
+    monkeypatch.setattr(zoo, "fetch", lambda *args, **kwargs:
+                        pytest.fail("an unavailable deleted model must not be fetched"))
+    with pytest.raises(zoo.ModelZooError) as refused:
         SB._cellpose3_model(value, object_type="cell")
+    assert "model_name" in str(refused.value)
+    assert repr(value) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
+    assert not path.exists()
 
 
 def test_a_downloaded_cellpose_sam_model_is_its_path(tmp_path):

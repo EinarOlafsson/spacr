@@ -176,6 +176,27 @@ def test_only_an_accepted_close_ends_the_session(win, monkeypatch):
     assert quits == ["quit"]
 
 
+def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(win, monkeypatch):
+    """2026-10-19 macOS acceptance: Dock Quit or logout closes the window from
+    inside Cocoa's terminate; a second terminate from ``quit()`` made AppKit
+    call ``exit()`` and PySide crashed in its static destructors."""
+    calls = []
+    monkeypatch.setattr(app_mod.sys, "platform", "darwin")
+    application = types.SimpleNamespace(
+        quit=lambda: calls.append("quit"),
+        closeAllWindows=lambda: calls.append("close all"),
+        exit=lambda code: calls.append(("exit", code)))
+    monkeypatch.setattr(app_mod, "QApplication",
+                        types.SimpleNamespace(instance=lambda: application))
+
+    win.closeEvent(_RefusedClose())
+    assert calls == []
+
+    win.closeEvent(QCloseEvent())
+    win.closeEvent(QCloseEvent())
+    assert calls == ["close all", ("exit", 0)], "the loop is left once"
+
+
 def test_a_wheel_that_carried_no_notch_is_handed_on(win, monkeypatch):
     """A scroll the backdrop did not use must keep travelling.
 
@@ -207,7 +228,7 @@ def test_a_wheel_that_carried_no_notch_is_handed_on(win, monkeypatch):
 
 
 def test_the_cellpose_workbench_is_wired_to_the_window_that_built_it(
-        win, monkeypatch):
+        win, monkeypatch, qtbot):
     """Train Cellpose is built by hand so its two signals stay visible.
 
     The screen reports a failed training run and asks to be submitted to a
@@ -222,6 +243,7 @@ def test_the_cellpose_workbench_is_wired_to_the_window_that_built_it(
         lambda key, settings: submissions.append((key, settings)))
 
     screen = win._build_screen("train_cellpose")
+    qtbot.addWidget(screen)
 
     from spacr.qt.screens.train_cellpose import CellposeWorkbenchScreen
     assert isinstance(screen, CellposeWorkbenchScreen)
@@ -341,8 +363,11 @@ def test_only_font_files_in_the_bundle_are_handed_to_qt(monkeypatch):
 
     app_mod._load_bundled_fonts()
 
-    assert [os.path.basename(p) for p in handed] == [
-        "OpenSans-Regular.ttf", "OpenSans.otf"]
+    fonts = ["OpenSans-Regular.ttf", "OpenSans.otf"]
+    assert [os.path.basename(p) for p in handed] == fonts + fonts, (
+        "Open Sans and the symbol fonts are each listed the same way")
+    assert {os.path.basename(os.path.dirname(p)) for p in handed} == {
+        "static", "glyphs"}
 
 
 # ---------------------------------------------------------------------------

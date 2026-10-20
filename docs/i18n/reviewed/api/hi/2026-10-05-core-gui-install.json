@@ -15,7 +15,9 @@
       "source_sha256": "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
       "context": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
       "translation": "**GUI निर्भरताओं का खराब इंस्टॉलेशन।** PySide6 मूल पैकेज के साथ आता है, लेकिन कोई wheel गायब या अधूरा होने पर ``spacr`` कमांड का इम्पोर्ट फिर भी विफल हो सकता है। :mod:`spacr.qt` इसके लिए समझने योग्य निदान देता है; :func:`check_qt_extra` उसी तर्क का उपयोग करता है ताकि दोनों अलग-अलग न हों।",
-      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.doctor.check_qt_extra#0",
@@ -23,7 +25,9 @@
       "source_sha256": "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
       "context": "The GUI dependencies import in this interpreter.",
       "translation": "GUI निर्भरताएँ इस इंटरप्रेटर में इम्पोर्ट की जा सकती हैं।",
-      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.doctor.check_qt_extra#1",

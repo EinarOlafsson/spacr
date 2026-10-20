@@ -32,6 +32,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence
 
+from .qt.i18n import tr
+
 __all__ = [
     "ACTIVE_STATES",
     "TERMINAL_STATES",
@@ -93,6 +95,8 @@ def _run_command(
     timeout message must name -- reporting the raw request would print a
     number the user cannot reconcile with the wall clock.
     """
+    if argv and argv[0] == "__spacr_interactive_ssh__":
+        return _SSH_SESSIONS.run(json.loads(argv[1]), argv[2], input_text=input_text, timeout=max(1.0, float(timeout)))
     waited = max(1.0, float(timeout))
     try:
         result = subprocess.run(
@@ -220,6 +224,12 @@ class ExecutionProfile:
         ``id``, first capture, or full match from submission output.
     :param poll_seconds: recommended client polling interval, from 2 through
         3600 seconds.
+    :param ssh_options: non-secret SSH configuration overrides, such as user,
+        port, identity-file path and jump host; passwords and OTPs are forbidden.
+    :param ssh_interactive: use a verified persistent SSH session with GUI
+        keyboard-interactive prompts instead of the external OpenSSH command.
+    :param ssh_keychain: remember the login password, never one-time codes or
+        push answers, in the operating-system keychain; off by default.
     """
 
     name: str
@@ -236,6 +246,9 @@ class ExecutionProfile:
     log_command: str = ""
     job_id_pattern: str = ""
     poll_seconds: int = 10
+    ssh_options: Dict[str, str] = field(default_factory=dict)
+    ssh_interactive: bool = False
+    ssh_keychain: bool = False
 
     def validate(self) -> "ExecutionProfile":
         """Validate the profile and return ``self`` for fluent callers."""
@@ -253,6 +266,25 @@ class ExecutionProfile:
         if not 2 <= int(self.poll_seconds) <= 3600:
             raise RemoteExecutionError("Poll interval must be 2–3600 seconds.")
 
+        if not isinstance(self.ssh_options, dict) or any(
+                key not in {"config", "hostname", "user", "port", "identityfile", "proxyjump", "proxycommand",
+                            "controlmaster", "controlpersist", "controlpath", "userknownhostsfile"}
+                or not isinstance(value, str) or "\n" in value or "\r" in value or "\0" in value
+                for key, value in self.ssh_options.items()):
+            raise RemoteExecutionError(tr("SSH options must contain only supported non-secret connection fields."))
+        if "port" in self.ssh_options:
+            try:
+                valid_port = 1 <= int(self.ssh_options["port"]) <= 65535
+            except ValueError:
+                valid_port = False
+            if not valid_port:
+                raise RemoteExecutionError(tr("SSH port must be between 1 and 65535."))
+        if self.ssh_options.get("proxyjump") and self.ssh_options.get("proxycommand"):
+            raise RemoteExecutionError(tr("Choose ProxyJump or ProxyCommand, not both."))
+        if not isinstance(self.ssh_interactive, bool):
+            raise RemoteExecutionError(tr("SSH interactive authentication must be a boolean."))
+        if not isinstance(self.ssh_keychain, bool):
+            raise RemoteExecutionError(tr("SSH keychain storage must be a boolean."))
         if self.backend in {"ssh", "slurm"}:
             if self.host:
                 host = _safe_text(self.host, "SSH host")
@@ -401,15 +433,25 @@ def _file_lock(path: Path):
         ) from exc
     try:
         try:
-            import fcntl
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            if os.name == "nt":
+                import msvcrt
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         except (ImportError, OSError):
             pass
         yield
     finally:
         try:
-            import fcntl
-            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            if os.name == "nt":
+                import msvcrt
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         except (ImportError, OSError):
             pass
         handle.close()
@@ -739,6 +781,473 @@ def _render_template(
     return rendered
 
 
+def _ssh_config_directives(paths):
+    """Read bounded static SSH directives; never execute Match or local commands."""
+    import glob
+
+    directives = []
+    count = 0
+
+    def visit(path, base, stack):
+        """Read one bounded config file and expand its static Include directives."""
+        nonlocal count
+        path = Path(path).expanduser()
+        canonical = path.resolve()
+        if canonical in stack or len(stack) >= 16 or count >= 128:
+            raise RemoteExecutionError(tr('SSH Include cycle or file limit exceeded.'))
+        if not path.is_file():
+            return
+        if path.name in {"id_rsa", "id_dsa", "id_ecdsa", "id_ed25519", "id_ecdsa_sk", "id_ed25519_sk"}:
+            return
+        count += 1
+        if path.stat().st_size > 1024 * 1024:
+            raise RemoteExecutionError(tr('SSH configuration file is too large.'))
+        with path.open(encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                if "PRIVATE KEY-----" in line:
+                    raise RemoteExecutionError(tr('A private-key file cannot be used as SSH configuration.'))
+                lexer = shlex.shlex(line, posix=True)
+                lexer.whitespace_split = True
+                lexer.commenters = "#"
+                lexer.escape = ""
+                parts = list(lexer)
+                if not parts:
+                    continue
+                key, separator, first = parts[0].partition("=")
+                values = ([first] if separator and first else []) + parts[1:]
+                if values and values[0].startswith("="):
+                    first_value = values[0][1:]
+                    values = ([first_value] if first_value else []) + values[1:]
+                keyword = key.casefold()
+                if keyword == "include":
+                    for pattern in values:
+                        expanded = os.path.expanduser(os.path.expandvars(pattern))
+                        if not os.path.isabs(expanded):
+                            expanded = str(base / expanded)
+                        for included in sorted(glob.glob(expanded)):
+                            directives.append((None, "include_start"))
+                            visit(included, base, stack | {canonical})
+                            directives.append((None, "include_end"))
+                else:
+                    directives.append((keyword, values))
+    for candidate in paths:
+        path = Path(candidate)
+        directives.append((None, "top"))
+        visit(path, path.parent, set())
+    return directives
+
+
+def _ssh_host_matches(host, patterns):
+    """Use SSH's positive and negated wildcard host selection."""
+    import fnmatch
+
+    positive = False
+    for pattern in patterns:
+        negative = pattern.startswith("!")
+        token = pattern[1:] if negative else pattern
+        if fnmatch.fnmatchcase(host.casefold(), token.casefold()):
+            if negative:
+                return False
+            positive = True
+    return positive
+
+
+def _ssh_lookup(host, directives, *, home=None, default_port="22"):
+    """Apply first-value precedence without evaluating Match conditions."""
+    selected = {}
+    active = True
+    include_active = []
+    allowed = {"hostname", "user", "port", "identityfile", "proxyjump", "proxycommand",
+               "controlmaster", "controlpersist", "controlpath", "userknownhostsfile"}
+    for keyword, values in directives:
+        if keyword is None:
+            if values == "top":
+                active = True
+            elif values == "include_start":
+                include_active.append(active)
+            elif values == "include_end":
+                active = include_active.pop()
+        elif keyword == "host":
+            active = all(include_active) and _ssh_host_matches(host, values)
+        elif keyword == "match":
+            active = False
+        elif active and keyword in allowed and values:
+            if keyword in {"proxyjump", "proxycommand"} and ({"proxyjump", "proxycommand"} & selected.keys()):
+                continue
+            if keyword not in selected:
+                selected[keyword] = " ".join(values)
+    selected.setdefault("hostname", host)
+    selected["hostname"] = re.sub(
+        r"%[%h]", lambda match: "%" if match.group(0) == "%%" else host,
+        selected["hostname"])
+    selected.setdefault("port", str(default_port))
+    user_home = str(home or Path.home())
+    for key in ("identityfile", "userknownhostsfile"):
+        if key in selected:
+            selected[key] = selected[key].replace("%d", user_home)
+            if selected[key].startswith("~/") or selected[key].startswith("~\\"):
+                selected[key] = os.path.join(user_home, selected[key][2:])
+    return selected
+
+
+def _discover_ssh_settings(folder=None, *, home=None, environ=None, system_config=None):
+    """Discover non-secret aliases from configuration and public host names."""
+    environment = os.environ if environ is None else environ
+    home = Path(home or Path.home())
+    folders = [Path(folder)] if folder is not None else [home / ".ssh"]
+    if folder is None and environment.get("USERPROFILE"):
+        candidate = Path(environment["USERPROFILE"]) / ".ssh"
+        if candidate not in folders:
+            folders.append(candidate)
+    paths = [path / "config" for path in folders]
+    system = Path(system_config) if system_config is not None else Path("/etc/ssh/ssh_config")
+    if folder is None:
+        paths.append(system)
+    directives = _ssh_config_directives(paths)
+    hosts = set()
+    known_ports = {}
+    for key, values in directives:
+        if key == "host":
+            hosts.update(value for value in values if not any(mark in value for mark in "!*?[]")
+                         and _HOST_RE.fullmatch(value) and not value.startswith("-"))
+    for directory in folders:
+        known = directory / "known_hosts"
+        if not known.is_file():
+            continue
+        if known.stat().st_size > 4 * 1024 * 1024:
+            raise RemoteExecutionError(tr('SSH known-hosts file is too large.'))
+        for line in known.read_text(encoding="utf-8", errors="replace").splitlines():
+            fields = line.split()
+            if fields and fields[0].startswith("@"):
+                fields = fields[1:]
+            if not fields or fields[0].startswith(("#", "|")):
+                continue
+            for token in fields[0].split(","):
+                host = token
+                if host.startswith("[") and "]:" in host:
+                    host, _, port = host[1:].partition("]:")
+                    if port.isdigit() and 1 <= int(port) <= 65535:
+                        known_ports.setdefault(host, port)
+                if _HOST_RE.fullmatch(host) and not host.startswith("-"):
+                    hosts.add(host)
+    source = next((str(path) for path in paths if path.is_file()), "")
+    return [{"alias": host, "config": source, **_ssh_lookup(host, directives, home=home, default_port=known_ports.get(host, "22"))}
+            for host in sorted(hosts, key=str.casefold)]
+
+
+def _ssh_overrides(profile):
+    """Render validated connection overrides as separate OpenSSH arguments."""
+    names = {"hostname": "HostName", "user": "User", "port": "Port", "identityfile": "IdentityFile",
+             "proxyjump": "ProxyJump", "proxycommand": "ProxyCommand", "controlmaster": "ControlMaster",
+             "controlpersist": "ControlPersist", "controlpath": "ControlPath",
+             "userknownhostsfile": "UserKnownHostsFile"}
+    arguments = []
+    if profile.ssh_options.get("config"):
+        arguments.extend(["-F", profile.ssh_options["config"]])
+    for key, name in names.items():
+        if profile.ssh_options.get(key):
+            value = profile.ssh_options[key]
+            if key in {"identityfile", "controlpath"} and any(character.isspace() or character == '"' for character in value):
+                value = '"' + value.replace('"', '\\"') + '"'
+            arguments.extend(["-o", name + "=" + value])
+    return arguments
+
+
+_KEYCHAIN_SERVICE = "spaCR SSH"
+
+
+def _keychain_available():
+    """Report whether the optional keyring package can reach an OS keychain."""
+    import importlib.util
+
+    return importlib.util.find_spec("keyring") is not None
+
+
+def _keychain_password(action, account, secret=None):
+    """Get, set or delete one stored login password; failures store nothing."""
+    try:
+        import keyring
+
+        if action == "get":
+            return keyring.get_password(_KEYCHAIN_SERVICE, account)
+        if action == "set":
+            keyring.set_password(_KEYCHAIN_SERVICE, account, secret)
+        elif action == "delete":
+            keyring.delete_password(_KEYCHAIN_SERVICE, account)
+    except Exception:
+        return None
+    return None
+
+
+def _ssh_resolve(host, options):
+    """Resolve one target from static SSH files plus explicit profile overrides."""
+    import getpass
+
+    alias = host.rsplit("@", 1)[-1]
+    config = options.get("config")
+    paths = [Path(config)] if config else [Path.home() / ".ssh/config", Path("/etc/ssh/ssh_config")]
+    resolved = _ssh_lookup(alias, _ssh_config_directives(paths))
+    resolved.update({key: value for key, value in options.items() if value})
+    if "@" in host:
+        resolved["user"] = host.rsplit("@", 1)[0]
+    resolved.setdefault("user", getpass.getuser())
+    return resolved
+
+
+def _keychain_account(host, options):
+    """Name the keychain entry by user, host name and port, never by secret."""
+    resolved = _ssh_resolve(host, options)
+    return f'{resolved["user"]}@{resolved.get("hostname", host)}:{resolved.get("port", "22")}'
+
+
+def _is_password_prompt(text, echo):
+    """Recognise a hidden password prompt; passcodes and push choices never match."""
+    text = str(text)
+    return not echo and ("password" in text.casefold() or text == tr("Password:"))
+
+
+class _SSHSessionPool:
+    """Keep verified SSH transports for this application session only."""
+
+    def __init__(self):
+        """Initialize the prompt hook, verified-session cache and reentrant lock."""
+        self.prompt = None
+        self._sessions = {}
+        self._lock = threading.RLock()
+
+    def _answers(self, title, instructions, prompts):
+        """Obtain ephemeral responses without logging or persistence."""
+        if self.prompt is None:
+            raise RemoteExecutionError(tr('SSH authentication needs an open spaCR window.'))
+        responses = self.prompt(title, instructions, prompts)
+        if responses is None or len(responses) != len(prompts):
+            raise RemoteExecutionError(tr('SSH authentication was cancelled or timed out.'))
+        return responses
+
+    def _respond(self, login, title, instructions, prompts):
+        """Answer one server challenge, using a remembered password at most once."""
+        if login["stored"] and len(prompts) == 1 and _is_password_prompt(*prompts[0]):
+            answer = [login["stored"]]
+            login["stored"] = None
+            login["used_stored"] = True
+            return answer
+        responses = self._answers(title, instructions, prompts)
+        if login["keychain"]:
+            entered = [answer for (text, echo), answer in zip(prompts, responses) if _is_password_prompt(text, echo)]
+            login["entered"] = entered[:1] or login["entered"]
+        return responses
+
+    def _connect(self, host, options, timeout, chain=(), upstream=None, keychain=False):
+        """Verify each host key before key or keyboard-interactive authentication."""
+        import functools
+        import socket
+
+        import paramiko
+
+        if host in chain or len(chain) >= 8:
+            raise RemoteExecutionError(tr('SSH jump-host cycle or hop limit exceeded.'))
+        alias = host.rsplit("@", 1)[-1]
+        config = options.get("config")
+        resolved = _ssh_resolve(host, options)
+        hostname = resolved.get("hostname", alias)
+        username = resolved["user"]
+        port = int(resolved.get("port", "22"))
+        account = f"{username}@{hostname}:{port}"
+        login = {"keychain": keychain, "stored": _keychain_password("get", account) if keychain else None,
+                 "used_stored": False, "entered": []}
+        respond = functools.partial(self._respond, login)
+        sock = None
+        transport = None
+        parents = []
+        try:
+            jump = resolved.get("proxyjump", "none")
+            proxy = resolved.get("proxycommand", "none")
+            if upstream is not None:
+                sock = upstream.open_channel("direct-tcpip", (hostname, port), ("127.0.0.1", 0), timeout=timeout)
+            elif jump.casefold() != "none":
+                hops = jump.split(",")
+                if len(hops) + len(chain) >= 8:
+                    raise RemoteExecutionError(tr('SSH jump-host cycle or hop limit exceeded.'))
+                previous = None
+                visited = [*chain, host]
+                for hop in hops:
+                    jump_options = {"config": config} if config else {}
+                    if ":" in hop and not hop.endswith("]"):
+                        hop, jump_port = hop.rsplit(":", 1)
+                        jump_options["port"] = jump_port
+                    parent, ancestors = self._connect(hop, jump_options, timeout, tuple(visited), upstream=previous)
+                    parents.extend([parent, *ancestors])
+                    previous = parent
+                    visited.append(hop)
+                sock = previous.open_channel("direct-tcpip", (hostname, port), ("127.0.0.1", 0), timeout=timeout)
+            elif proxy.casefold() != "none":
+                substitutions = {"h": hostname, "p": str(port), "r": username, "n": alias, "%": "%"}
+                command = re.sub(r"%([hprn%])", lambda match: substitutions[match[1]], proxy)
+                sock = paramiko.ProxyCommand(command)
+            else:
+                sock = socket.create_connection((hostname, port), timeout=timeout)
+            transport = paramiko.Transport(sock)
+            transport.banner_timeout = timeout
+            transport.auth_timeout = max(timeout, 120.0)
+            transport.start_client(timeout=timeout)
+            key = transport.get_remote_server_key()
+            known = paramiko.HostKeys()
+            lexer = shlex.shlex(resolved.get("userknownhostsfile", ""), posix=True)
+            lexer.whitespace_split = True
+            lexer.escape = ""
+            known_paths = list(lexer) or [
+                str(Path.home() / ".ssh/known_hosts"), "/etc/ssh/ssh_known_hosts"]
+            for path in known_paths:
+                if Path(path).is_file():
+                    known.load(path)
+            key_host = hostname if port == 22 else f"[{hostname}]:{port}"
+            if not known.check(key_host, key):
+                raise RemoteExecutionError(tr('SSH host key is unknown or changed; verify it with your administrator before connecting.'))
+            agent = paramiko.Agent()
+            try:
+                keys = list(agent.get_keys())
+                identity = resolved.get("identityfile")
+                if identity and identity.casefold() != "none":
+                    try:
+                        keys.insert(0, paramiko.PKey.from_path(Path(identity)))
+                    except paramiko.PasswordRequiredException:
+                        answer = self._answers(tr("SSH authentication"), "", [(tr("Private-key passphrase:"), False)])
+                        try:
+                            keys.insert(0, paramiko.PKey.from_path(Path(identity), passphrase=answer[0]))
+                        finally:
+                            answer.clear()
+                for candidate in keys:
+                    try:
+                        remaining = transport.auth_publickey(username, candidate)
+                    except paramiko.AuthenticationException:
+                        continue
+                    if transport.is_authenticated() or remaining:
+                        break
+            finally:
+                agent.close()
+            if not transport.is_authenticated():
+                try:
+                    try:
+                        transport.auth_interactive(username, respond)
+                    except paramiko.BadAuthenticationType as exc:
+                        if "password" not in exc.allowed_types:
+                            raise
+                        answer = respond(tr("SSH authentication"), "", [(tr("Password:"), False)])
+                        try:
+                            remaining = transport.auth_password(username, answer[0], fallback=False)
+                        finally:
+                            answer.clear()
+                        if not transport.is_authenticated() and "keyboard-interactive" in (remaining or ()):
+                            transport.auth_interactive(username, respond)
+                except paramiko.AuthenticationException as exc:
+                    if "timeout" in str(exc).casefold():
+                        raise RemoteExecutionError(_auth_timeout_message()) from None
+                    raise RemoteExecutionError(_auth_denied_message()) from None
+            if not transport.is_authenticated():
+                raise RemoteExecutionError(_auth_denied_message())
+            if keychain and login["entered"]:
+                _keychain_password("set", account, login["entered"][0])
+            login["entered"] = []
+            return transport, parents
+        except BaseException:
+            login["entered"] = []
+            if login["used_stored"]:
+                _keychain_password("delete", account)
+            if transport is not None:
+                transport.close()
+            elif sock is not None:
+                sock.close()
+            for parent in parents:
+                parent.close()
+            raise
+
+    def run(self, target, command, *, input_text=None, timeout=60.0):
+        """Execute once on a separate command channel, never the MFA channel."""
+        import time
+
+        identifier = json.dumps(target, sort_keys=True)
+        with self._lock:
+            session = self._sessions.get(identifier)
+            if session is not None and not session[0].is_active():
+                self._discard(identifier)
+                session = None
+            channel = None
+            try:
+                if session is None:
+                    session = self._connect(target["host"], target["options"], timeout,
+                                            keychain=bool(target.get("keychain")))
+                    self._sessions[identifier] = session
+                channel = session[0].open_session(timeout=timeout)
+                channel.settimeout(timeout)
+                channel.exec_command(command)
+                if input_text is not None:
+                    channel.sendall(input_text.encode("utf-8"))
+                channel.shutdown_write()
+                output, errors = bytearray(), bytearray()
+                deadline = time.monotonic() + timeout
+                while True:
+                    progressed = False
+                    for ready, receive, buffer in (
+                        (channel.recv_ready, channel.recv, output),
+                        (channel.recv_stderr_ready, channel.recv_stderr, errors),
+                    ):
+                        if ready():
+                            buffer.extend(receive(65536))
+                            progressed = True
+                    if len(output) + len(errors) > 4 * 1024 * 1024:
+                        raise RemoteExecutionError(tr('SSH command output exceeded the capture limit.'))
+                    if channel.exit_status_ready() and not channel.recv_ready() and not channel.recv_stderr_ready():
+                        return CommandResult(channel.recv_exit_status(), output.decode("utf-8", "replace"),
+                                             errors.decode("utf-8", "replace"))
+                    if time.monotonic() >= deadline:
+                        raise RemoteExecutionError(tr('SSH command timed out; it was not submitted again.'))
+                    if not progressed:
+                        time.sleep(0.01)
+            except RemoteExecutionError:
+                self._discard(identifier)
+                raise
+            except Exception as exc:
+                self._discard(identifier)
+                raise RemoteExecutionError(tr("SSH connection or authentication failed ({error}); test the connection to retry.").format(error=type(exc).__name__)) from None
+            finally:
+                if channel is not None:
+                    channel.close()
+
+    def _discard(self, identifier):
+        """Close a failed session and every jump transport it owns."""
+        session = self._sessions.pop(identifier, None)
+        if session is not None:
+            for transport in [session[0], *session[1]]:
+                transport.close()
+
+    def close(self):
+        """Release all session resources when the application exits."""
+        with self._lock:
+            for identifier in list(self._sessions):
+                self._discard(identifier)
+
+
+_SSH_SESSIONS = _SSHSessionPool()
+
+
+def _auth_denied_message():
+    """Explain a rejected password, code or push without retrying anything."""
+    return tr("The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.")
+
+
+def _auth_timeout_message():
+    """Explain an unanswered push or code without retrying anything."""
+    return tr("The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.")
+
+
+def _interactive_ssh(profile, command):
+    """Render a private runner envelope containing non-secret fields only."""
+    target = {"host": profile.host, "options": profile.ssh_options}
+    if profile.ssh_keychain:
+        target["keychain"] = True
+    return ["__spacr_interactive_ssh__", json.dumps(target), command]
+
+
 def _remote_argv(profile: ExecutionProfile, argv: Sequence[str]) -> List[str]:
     """Wrap an argument vector in an ssh invocation, if the profile has a host.
 
@@ -752,7 +1261,10 @@ def _remote_argv(profile: ExecutionProfile, argv: Sequence[str]) -> List[str]:
     """
     if not profile.host:
         return list(argv)
-    return ["ssh", profile.host, shlex.join([str(item) for item in argv])]
+    command = shlex.join([str(item) for item in argv])
+    if profile.ssh_interactive:
+        return _interactive_ssh(profile, command)
+    return ["ssh", *_ssh_overrides(profile), profile.host, command]
 
 
 def _remote_script(profile: ExecutionProfile, script: str) -> List[str]:
@@ -765,7 +1277,10 @@ def _remote_script(profile: ExecutionProfile, script: str) -> List[str]:
     """
     if not profile.host:
         return ["sh", "-c", script]
-    return ["ssh", profile.host, "sh -c " + shlex.quote(script)]
+    command = "sh -c " + shlex.quote(script)
+    if profile.ssh_interactive:
+        return _interactive_ssh(profile, command)
+    return ["ssh", *_ssh_overrides(profile), profile.host, command]
 
 
 def _require_ok(result: CommandResult, operation: str) -> str:

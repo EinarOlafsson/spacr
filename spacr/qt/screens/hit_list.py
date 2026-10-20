@@ -1,22 +1,22 @@
-"""Hit List — the deliverable at the end of a screen.
+"""Hit List: a ranked, filtered and annotated gene table from a regression run.
 
 A regression run leaves a folder of plots and four CSVs, and none of them is
-the thing the experiment was for. ``results_significant.csv`` is
+a ranked gene list. ``results_significant.csv`` is
 ``p <= 0.05`` with no multiple-testing correction, no gene names, and no
-indication of whether a gene's own guides agree with each other. What the
-user wants is one table they can sort, narrow and send to a collaborator.
+indication of whether a gene's own guides agree with each other.
 
-This screen is that table. Point it at a results folder and it builds the
+This screen builds one table that can be sorted, narrowed and sent to a
+collaborator. Point it at a results folder and it builds the
 list through :mod:`spacr.hits`, which does the work that makes a hit list
 interpretable rather than merely present:
 
 * the **effect size** with its standard error and 95% interval;
-* a **q-value** across the genes actually tested, so a 0.05 on two thousand
-  genes stops meaning what it does not mean;
+* a **q-value** across the genes actually tested, so a 0.05 threshold
+  controls the false discovery rate over all of them rather than the error
+  rate of each gene;
 * **gRNA agreement** — how many of the gene's own guides push the same way.
   A gene called by one guide of six is the commonest way a pooled screen
-  produces a confident artefact, and it was invisible in every table spaCR
-  wrote before this one;
+  produces a confident artefact;
 * the **metadata join**, collapsed to one row per gene before it is joined.
 
 The filters across the top are the ones a user actually applies: FDR,
@@ -28,7 +28,7 @@ anonymous subset.
 
 Three exports, because the three uses are different: **CSV** to re-analyse,
 **Markdown** to paste into an email or an issue, **HTML** to open on a
-machine that has never heard of spaCR. The HTML is self-contained — no
+machine without spaCR. The HTML is self-contained — no
 stylesheet, no script, no network — which is what makes it safe to send.
 
 Building the list reads several CSVs and joins them, so it runs through
@@ -129,7 +129,8 @@ APP_TRANSLATIONS = (
 )
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import (
+    _reuse_tree_items, install_sorting)
 
 #: The table's columns, so the drawing code and the tests cannot disagree.
 COLUMNS = ("#", "Gene", "Name", "Effect", "95% CI", "p", "q", "Guides",
@@ -499,24 +500,26 @@ class HitListScreen(QWidget):
         """Redraw the table from a list."""
         from ...hits import FLAG_MEANING
 
-        self._table.clear()
-        for hit in hit_list:
+        hits = list(hit_list)
+        rows = _reuse_tree_items(self._table, len(hits))
+        for item, hit in zip(rows, hits):
             interval = ("—" if math.isnan(hit.ci_low)
                         else f"{hit.ci_low:.3g} … {hit.ci_high:.3g}")
             agreement = ("—" if math.isnan(hit.agreement)
                          else f"{hit.agreement:.0%}")
-            item = tree_item([
+            texts = [
                 str(hit.rank), hit.gene, hit.name, _number(hit.effect),
                 interval, _number(hit.p_value), _number(hit.q_value),
                 f"{hit.n_agree}/{hit.n_guides}", agreement,
                 hit.condition or "—", ", ".join(hit.flags) or "",
-            ])
+            ]
+            for column, text in enumerate(texts):
+                item.setText(column, text)
             item.setData(0, Qt.UserRole, hit.gene)
             if hit.flags:
                 item.setToolTip(len(COLUMNS) - 1, "\n".join(
                     f"{flag}: {FLAG_MEANING.get(flag, flag)}"
                     for flag in hit.flags))
-            self._table.addTopLevelItem(item)
 
 
     def export(self, path: str, fmt: str = "csv") -> str:

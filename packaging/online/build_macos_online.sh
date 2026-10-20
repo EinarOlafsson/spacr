@@ -47,10 +47,18 @@ cp packaging/online/generated/installer_messages.sh \
     "$SUPPORT/installer_messages.sh"
 
 xcrun clang -Wall -Wextra -Werror -O2 -arch arm64 -arch x86_64 \
-    -mmacosx-version-min=11.0 packaging/online/macos_launcher.c \
+    -mmacosx-version-min=11.0 "-DSPACR_PACKAGE_VERSION=\"$VERSION\"" packaging/online/macos_launcher.c \
     -o "$APP/Contents/MacOS/spaCR"
 lipo "$APP/Contents/MacOS/spaCR" -verify_arch arm64 x86_64
 chmod 755 "$APP/Contents/MacOS/spaCR"
+xcrun clang -Wall -Wextra -Werror -O2 -fobjc-arc -arch arm64 -arch x86_64 \
+    -mmacosx-version-min=11.0 -framework Cocoa packaging/online/macos_installer.m \
+    packaging/online/macos_gui_process.c -o "$APP/Contents/MacOS/install-spacr-gui"
+lipo "$APP/Contents/MacOS/install-spacr-gui" -verify_arch arm64 x86_64
+mkdir -p "$APP/Contents/Resources/installer-i18n"
+cp packaging/i18n/*.json "$APP/Contents/Resources/installer-i18n/"
+printf '%s\n' '{"native_uninstall_schema":1}' > "$APP/Contents/Resources/uninstall-capabilities.json"
+
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -99,43 +107,22 @@ spacr_say removed
 EOF
 chmod 755 "$SUPPORT/uninstall-spacr.sh"
 
-cat > "$SUPPORT/install-for-user.sh" <<'EOF'
-#!/bin/sh
-set -eu
-
-. "/Library/Application Support/spaCR/installer_messages.sh"
-
-RUNTIME_ROOT="${SPACR_USER_INSTALL_ROOT:-$HOME/Library/Application Support/spaCR}"
-INSTALLER="/Library/Application Support/spaCR/install-online.sh"
-LOCK_DIR="$RUNTIME_ROOT/.installing"
-
-mkdir -p "$RUNTIME_ROOT"
-if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-    spacr_say already_running
-    exit 0
-fi
-cleanup() {
-    rmdir "$LOCK_DIR" 2>/dev/null || true
-}
-trap cleanup EXIT INT TERM
-
-"$INSTALLER" \
-  --platform macos \
-  --install-root "$RUNTIME_ROOT" \
-  --no-command-launcher \
-  --no-launch
-
-echo
-spacr_say ready_opening
-if [ "${SPACR_NO_RELAUNCH:-0}" != "1" ]; then
-    open -a "/Applications/spaCR.app"
-fi
-EOF
+cp spacr/install_cleanup.py "$SUPPORT/verify_runtime.py"
+cp packaging/online/install_for_macos_user.sh "$SUPPORT/install-for-user.sh"
 chmod 755 "$SUPPORT/install-for-user.sh"
 
-cat > "$SCRIPTS/postinstall" <<EOF
+# 1.4.9.9 installed one system-wide runtime into the support folder; every
+# later layout keeps only helper scripts there. That runtime is obsolete
+# application code nothing launches, so it goes. Its uv cache is kept.
+cat > "$SCRIPTS/postinstall" <<'EOF'
 #!/bin/sh
 set -eu
+legacy="/Library/Application Support/spaCR"
+for part in venv python bootstrap; do
+    if [ -d "$legacy/$part" ] && [ ! -L "$legacy/$part" ]; then
+        rm -rf "$legacy/$part"
+    fi
+done
 mkdir -p /usr/local/bin
 ln -sfn "/Applications/spaCR.app/Contents/MacOS/spaCR" /usr/local/bin/spacr
 exit 0
@@ -143,8 +130,18 @@ EOF
 chmod 755 "$SCRIPTS/postinstall"
 
 python3 "$SIGNING_HELPER" sign-app "$APP"
+# Installer relocates a relocatable bundle to any copy with the same bundle
+# identifier that Spotlight knows of -- a backup, a Downloads copy, a second
+# drive -- and leaves /Applications/spaCR.app old or missing. Pin it.
+COMPONENTS="$WORK/components.plist"
+pkgbuild --analyze --root "$ROOT" "$COMPONENTS"
+count="$(python3 -c 'import plistlib,sys; print(len(plistlib.load(open(sys.argv[1],"rb"))))' "$COMPONENTS")"
+for ((index = 0; index < count; index++)); do
+    plutil -replace "$index.BundleIsRelocatable" -bool NO "$COMPONENTS"
+done
 pkgbuild \
     --root "$ROOT" \
+    --component-plist "$COMPONENTS" \
     --scripts "$SCRIPTS" \
     --identifier "com.einarolafsson.spacr.online" \
     --version "$VERSION" \

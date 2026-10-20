@@ -5,7 +5,7 @@ Owner: implementation lane; documentation/API/translations in Codex lane.
 
 The module dropdown now shares the organism catalog used by the home pages:
 Toxoplasma, Plasmodium and Candida have their own submenus, overview action,
-available modules and disabled planned entries. Starplast is the first
+available modules and disabled planned entries. ParaScape is the first
 Toxoplasma module and opens through its isolated installer/launcher. Assays
 no longer appear a second time as loose root menu actions. Visibility follows
 the parent organism and individual module preferences.

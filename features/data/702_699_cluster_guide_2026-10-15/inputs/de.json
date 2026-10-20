@@ -1,0 +1,22 @@
+[
+  {
+    "domain": "distributed_execution",
+    "msgid": "Model checkpoints on the execution target",
+    "msgstr": "Modellprüfpunkte auf dem Ausführungsziel"
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames.",
+    "msgstr": "Exportierte Einstellungen behalten den Modellpfad sowie einen gegebenenfalls aufgezeichneten Zoo-Schlüssel, die Herausgeberversion und SHA-256 bei. Vorhandene Dateien mit aufgezeichneter Identität müssen dieser Prüfsumme entsprechen. Fehlende Dateien werden nur anhand der exakt aufgezeichneten Identität aufgelöst oder, wenn keine Identität aufgezeichnet ist, anhand eines exakten Zoo-Schlüssels beziehungsweise Dateinamens; es erfolgt keine unscharfe Ersetzung. Modelle werden unterhalb des spaCR-Basisverzeichnisses zwischengespeichert (normalerweise ``~/.spacr/models``), sofern ``SPACR_MODEL_CACHE`` kein anderes Verzeichnis festlegt. Prozesse teilen sich eine Downloadsperre und prüfen zwischengespeicherte Prüfpunkte vor dem Herunterladen. Setzen Sie auf einem Offline-Knoten vor ``spacr-run`` die Variable ``SPACR_MODEL_DOWNLOAD=off``: Modellmetadaten und Gewichte werden dann nicht heruntergeladen. Vorhandene lokale Dateien und verifizierte zwischengespeicherte Modelle bleiben verwendbar; für ein bekanntes, nicht zwischengespeichertes Modell werden die Prüfsumme und der Cache-Pfad zum Kopieren angegeben. Unbekannte Anforderungen werden klar abgelehnt. Benutzerdefinierte Pfade erhalten durch ihre Dateinamen keine vertrauenswürdige Katalogidentität."
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+    "msgstr": "eine verifizierte, dauerhafte SSH-Sitzung mit grafischen Abfragen zur tastaturinteraktiven Authentifizierung statt des externen OpenSSH-Befehls verwenden."
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+    "msgstr": "nicht geheime SSH-Konfigurationsüberschreibungen, etwa Benutzer, Port, Pfad zur Identitätsdatei und Sprunghost; Passwörter und Einmalcodes sind verboten."
+  }
+]

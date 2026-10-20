@@ -1,0 +1,22 @@
+{
+  "source_before_sha256": "f4fa6c499fcae7d519d6df6afd7fdcedcd0b2d9a7254066d50f711d867e2bc46",
+  "source_after_sha256": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd",
+  "existing_changed_methods": [
+    "setChecked",
+    "mousePressEvent"
+  ],
+  "existing_method_signatures_and_docs_unchanged": true,
+  "all_existing_comments_unchanged": true,
+  "new_definitions": [
+    "private _AccessibleAiToggle class and its overrides",
+    "private _ai_toggle_accessible_factory"
+  ],
+  "module_installation": "QAccessible.installFactory(_ai_toggle_accessible_factory)",
+  "complete_module_scope_proof": "Restoring only two method bodies, removing the private adapter/factory/registration, and restoring two accessibility imports restores the complete baseline module AST.",
+  "status": "static source technical PASS; final corrected-fixture baseline and owning logs pending",
+  "references": [
+    "https://doc.qt.io/qt-6/qaccessible.html#queryAccessibleInterface",
+    "https://doc.qt.io/qt-6/qaccessiblewidget.html",
+    "https://doc.qt.io/qt-6/qaccessibleactioninterface.html#actionNames"
+  ]
+}

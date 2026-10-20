@@ -81,46 +81,46 @@ class _ProvidersDialog:
         return _ProvidersDialog.answer
 
 
-def test_the_provider_list_is_refreshed_after_the_providers_dialog(
+def test_the_choice_is_applied_again_after_the_providers_dialog(
         private_store, qtbot, monkeypatch):
-    import spacr.qt.ai as ai
+    """Item 700: the AI page lists every provider as a switch, set up or
+    not. After the Providers dialog sets one up, the switch already on is
+    applied again, so a newly signed-in CLI answers at once."""
+    from PySide6.QtWidgets import QRadioButton
+
+    from spacr.qt.ai import providers
     from spacr.qt.widgets import ai_chat_panel
 
-    monkeypatch.setattr(ai, "configured_providers",
-                        lambda: [_provider("Claude", "claude")])
+    applied = []
+    monkeypatch.setattr(providers, "apply_provider_choice",
+                        lambda name: applied.append(name) or True)
     monkeypatch.setattr(ai_chat_panel, "_ProvidersDialog", _ProvidersDialog)
     dialog = _dialog(qtbot)
-    combo = dialog.findChild(QComboBox, "AiProvider")
     button = dialog.findChild(QPushButton, "AiProvidersButton")
-    assert _items(combo) == ["", "claude"]
-    combo.setCurrentIndex(1)
+    dialog.findChild(QRadioButton, "AiProvider_claude").setChecked(True)
+    assert applied == ["claude"]
 
-    monkeypatch.setattr(ai, "configured_providers",
-                        lambda: [_provider("Codex", "codex"),
-                                 _provider("Claude", "claude")])
     _ProvidersDialog.answer = QDialog.Rejected
     button.click()
-    assert _items(combo) == ["", "claude"], "a cancelled dialog changes nothing"
+    assert applied == ["claude"], "a cancelled dialog changes nothing"
 
     _ProvidersDialog.answer = QDialog.Accepted
     button.click()
-    assert _items(combo) == ["", "codex", "claude"]
-    assert combo.currentData() == "claude"
-
-    monkeypatch.setattr(ai, "configured_providers", _boom)
-    button.click()
-    assert _items(combo) == [""]
-    assert combo.currentIndex() == 0
+    assert applied == ["claude", "claude"]
 
 
-def test_a_provider_list_that_cannot_be_read_offers_automatic_only(
+def test_a_provider_list_that_cannot_be_read_still_offers_every_choice(
         private_store, qtbot, monkeypatch):
     import spacr.qt.ai as ai
+    from PySide6.QtWidgets import QRadioButton
 
     monkeypatch.setattr(ai, "configured_providers", _boom)
     dialog = _dialog(qtbot)
 
-    assert _items(dialog.findChild(QComboBox, "AiProvider")) == [""]
+    names = [r.property("providerName")
+             for r in dialog.findChildren(QRadioButton)
+             if r.objectName().startswith("AiProvider_")]
+    assert names == ["spacr_hosted", "claude", "codex", "gemini"]
 
 
 # ---------------------------------------------------------------------------

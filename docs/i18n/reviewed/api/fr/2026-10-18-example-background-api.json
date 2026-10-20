@@ -1,0 +1,29 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "check, download and verify the files on a background execution unit and fill the slots when they arrive, so the window keeps painting through a download. The buttons use this; the mapping is then empty and the slots fill on completion.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen#2",
+      "source": "check, download and verify the files on a worker thread and fill the slots when they arrive, so the window keeps painting through a download. The buttons use this; the mapping is then empty and the slots fill on completion.",
+      "source_sha256": "219da7ad429c0b493045d72574142cf2eea467ec1c1ab3be8b970b33fc4efab1",
+      "translation": "Vérifier, télécharger et valider les fichiers dans un thread de travail, puis remplir les champs à leur arrivée pour que la fenêtre continue à se redessiner pendant le téléchargement. Les boutons utilisent ce mode ; le dictionnaire renvoyé est alors vide et les champs se remplissent à la fin."
+    },
+    {
+      "context": "The first fold makes the page strip in a turn of its own. Making it moves this application view's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#2",
+      "retired": true,
+      "retired_reason": "Superseded by the independently reviewed published 40af1413c first-fold translation; original source, context and translation retained as review history.",
+      "source": "THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it moves this screen's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "source_sha256": "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
+      "translation": "LA PREMIÈRE OUVERTURE D’UN MODULE REPLIÉ CRÉE LA BARRE DE PAGES DANS UN TOUR DISTINCT DE LA BOUCLE D’ÉVÉNEMENTS. Sa création déplace tout le contenu de cette vue dans la barre, et Qt réapplique le style à chaque widget du contenu déplacé. Cette opération et l’ajout de la page à la barre formaient un seul blocage. Traiter les événements entre les deux permet à la fenêtre de répondre."
+    },
+    {
+      "context": "A run whose plot state is remembered is drawn once, by the restore of that state, rather than drawn and then drawn again. A state first recorded while this call draws -- a workspace save reading the panel mid-draw -- holds what is being drawn and is not restored over it.",
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame#2",
+      "source": "A run whose plot state is remembered is drawn once, by the restore of that state, rather than drawn and then drawn again. A state first recorded while this call draws -- a workspace save reading the panel mid-draw -- holds what is being drawn and is not restored over it.",
+      "source_sha256": "76b4dab058038e23b7547652beaf6513c1d5198baa07ef46321803fb42090a12",
+      "translation": "Une exécution dont l’état des graphiques est mémorisé est dessinée une seule fois, par la restauration de cet état, au lieu d’être dessinée puis redessinée. Un état enregistré pour la première fois pendant que cet appel dessine — lors d’une sauvegarde de l’espace de travail qui lit le panneau en cours de dessin — contient ce qui est en train d’être dessiné et n’est pas restauré par-dessus."
+    }
+  ],
+  "schema": 1
+}

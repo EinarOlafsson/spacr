@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import logging
 import math
+import sys
 import warnings
 import weakref
 from contextlib import contextmanager
@@ -39,11 +40,14 @@ from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
-from PySide6.QtGui import QColor, QPalette
+from PySide6.QtGui import QColor, QGuiApplication, QPalette
 from PySide6.QtWidgets import QApplication
 
 from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
 from .night_themes import palettes as night_palettes
+
+QSS_FONT_FAMILY = ('"Open Sans", "Segoe UI", "Helvetica Neue", sans-serif'
+                   if sys.platform.startswith("win") else '"Open Sans", "Helvetica Neue", sans-serif')
 
 LOG = logging.getLogger(__name__)
 
@@ -874,7 +878,9 @@ def field_chrome(theme: str = "dark") -> Dict[str, object]:
     }
 
 
-_SPLASH_DIM_ALPHAS: dict = {}
+#: The splash roles, keyed by ``(ink, bg)``. :func:`palette_for` derives
+#: them on every call, and paint code calls it on every frame.
+_SPLASH_ROLES: dict = {}
 
 
 def _splash_roles(palette: dict) -> dict:
@@ -899,19 +905,19 @@ def _splash_roles(palette: dict) -> dict:
     """
     ink = str(palette.get("fg", "#ffffff"))
     bg = str(palette.get("bg", "#000000"))
-    dim = _SPLASH_DIM_ALPHAS.get((ink, bg))
-    if dim is None:
-        if len(_SPLASH_DIM_ALPHAS) >= 256:
-            _SPLASH_DIM_ALPHAS.clear()
-        dim = _SPLASH_DIM_ALPHAS[(ink, bg)] = splash_dim_alpha(
-            ink, bg, target=7.0)
-    return {
-        "splash_bg": bg,
-        "splash_ink": ink,
-        "splash_ink_dim": _composite(ink, bg, dim),
-        "splash_track": _composite(ink, bg, 45),
-        "splash_fill": _composite(ink, bg, 200),
-    }
+    roles = _SPLASH_ROLES.get((ink, bg))
+    if roles is None:
+        if len(_SPLASH_ROLES) >= 256:
+            _SPLASH_ROLES.clear()
+        dim = splash_dim_alpha(ink, bg, target=7.0)
+        roles = _SPLASH_ROLES[(ink, bg)] = {
+            "splash_bg": bg,
+            "splash_ink": ink,
+            "splash_ink_dim": _composite(ink, bg, dim),
+            "splash_track": _composite(ink, bg, 45),
+            "splash_fill": _composite(ink, bg, 200),
+        }
+    return dict(roles)
 
 
 def splash_dim_alpha(ink: str, bg: str, *, target: float = 3.0,
@@ -1904,6 +1910,51 @@ def active_palette() -> dict:
 
 
 
+#: ``[application palette key, theme name]`` for :func:`_painting_theme`.
+_PAINTING_THEME: list = [None, None]
+
+
+def _application_palette_key():
+    """The running application's palette ``cacheKey``, or ``None``."""
+    app = QGuiApplication.instance()
+    return app.palette().cacheKey() if app is not None else None
+
+
+def _forget_painting_theme() -> None:
+    """Drop the theme :func:`_painting_theme` resolved; preferences moved."""
+    _PAINTING_THEME[:] = [None, None]
+
+
+def _painting_theme() -> str:
+    """The effective theme, for code that runs on every paint event.
+
+    :func:`active_palette` reads the preference store each call, which is
+    right for a widget build and wrong for a paint hook that runs for every
+    field and switch on every frame of an animated backdrop. This answer is
+    kept until the application palette changes or
+    :func:`_forget_painting_theme` is called, both of which a theme change
+    does through :func:`spacr.qt.preferences.apply_preferences_to_app`.
+    Falls back to dark, uncached, if the preferences cannot be read.
+    """
+    key = _application_palette_key()
+    if _PAINTING_THEME[1] is None or _PAINTING_THEME[0] != key:
+        try:
+            from .preferences import resolve_effective_theme
+            name = resolve_effective_theme()
+        except Exception:
+            return "dark"
+        _PAINTING_THEME[:] = [key, name]
+    return _PAINTING_THEME[1]
+
+
+def _painting_palette() -> dict:
+    """:func:`active_palette` for a paint event; see :func:`_painting_theme`.
+
+    The palette itself is built fresh, so the spaceout drift still moves.
+    """
+    return palette_for(_painting_theme())
+
+
 def page_colour(theme: str = "dark") -> str:
     """The flat colour the page is painted with under ``theme``.
 
@@ -2470,12 +2521,47 @@ def font_px(role_or_px, scale: Optional[float] = None) -> int:
         except (TypeError, ValueError):
             base = FONT_SIZE["body"]
     if scale is None:
+        scale = _PINNED_FONT_SCALE[0]
+    if scale is None:
         try:
             from .preferences import get_font_scale
             scale = get_font_scale()
         except Exception:
             scale = 1.0
     return max(_QT_MIN_FONT_PX, int(round(float(base) * float(scale))))
+
+
+#: The font scale :func:`font_px` uses while :func:`_font_scale_pinned` is
+#: in force, or None to read the preference each time.
+_PINNED_FONT_SCALE: list = [None]
+
+
+@contextmanager
+def _font_scale_pinned():
+    """Read the font scale once for a block that restyles many widgets.
+
+    Putting a sheet on a window sends every close mark in it a
+    ``StyleChange``, and each re-measures itself through :func:`font_px`,
+    which opened the preference store to read the scale: one store per
+    mark, the innermost frames of a whole-window restyle in lesson 07. The
+    scale cannot change inside one ``setStyleSheet``, so it is read once at
+    the start and forgotten at the end; nested blocks keep the outer one.
+
+    :yields: the scale in force for the block.
+    """
+    if _PINNED_FONT_SCALE[0] is not None:
+        yield _PINNED_FONT_SCALE[0]
+        return
+    try:
+        from .preferences import get_font_scale
+        scale = float(get_font_scale())
+    except Exception:
+        scale = 1.0
+    _PINNED_FONT_SCALE[0] = scale
+    try:
+        yield scale
+    finally:
+        _PINNED_FONT_SCALE[0] = None
 
 
 TYPOGRAPHY = {
@@ -2824,7 +2910,12 @@ def make_transparent(*widgets) -> None:
     eye; leave the cards, panels and inputs alone and they stay the
     readable surface on top of it. Safe to call on a widget that is
     already visible — the style is re-polished so the change takes
-    effect immediately rather than at the next theme switch.
+    effect immediately rather than at the next theme switch. A widget no
+    stylesheet reaches yet, or one in a window whose sheet is held
+    (:func:`_one_sheet_for`), is only tagged: nothing reads the tag until
+    a sheet arrives, and putting a sheet on polishes every widget it
+    reaches. Glassing Preferences tags about 400 containers, and polishing
+    each one before its sheet went on cost 53-64 ms for nothing.
 
     A ``QScrollArea``'s ``viewport()`` is tagged automatically along
     with it: they are two widgets, the viewport is the one that
@@ -2846,6 +2937,10 @@ def make_transparent(*widgets) -> None:
                     and target.testAttribute(Qt.WA_StyleSheetTarget)):
                 continue
             target.setProperty(TRANSPARENT_PROPERTY, True)
+            if not target.testAttribute(Qt.WA_StyleSheet):
+                continue
+            if _owe_the_polish_to_a_held_sheet(target):
+                continue
             style = target.style()
             if style is not None:
                 style.unpolish(target)
@@ -2968,6 +3063,66 @@ def _the_backdrop_is_on() -> bool:
         return False
 
 
+#: How thick the Accessibility focus ring is, in pixels.
+FOCUS_RING_PX = 3
+
+#: The least contrast the focus ring keeps against the surfaces it is drawn
+#: on: WCAG 2.2's 3:1 for user-interface components (1.4.11).
+FOCUS_RING_MIN_CONTRAST = 3.0
+
+
+def focus_ring_colour(theme: str = "dark") -> str:
+    """The colour of the thick focus ring for ``theme``.
+
+    The theme's accent, which is what its own thin focus border already
+    uses, while the accent clears :data:`FOCUS_RING_MIN_CONTRAST` against
+    the page and the field surface; otherwise the theme's ink.
+
+    :param theme: one of :data:`THEMES`.
+    :returns: a ``#rrggbb`` colour.
+    """
+    base = palette_for(theme)
+    accent = base["accent"]
+    if min(contrast_ratio(accent, base["bg"]),
+           contrast_ratio(accent, base["surface_alt"])) >= FOCUS_RING_MIN_CONTRAST:
+        return accent
+    return base["fg"]
+
+
+def focus_ring_qss(theme: str = "dark") -> str:
+    """The rules that put a thick ring round the keyboard-focused control.
+
+    Preferences > Appearance > Accessibility > Stronger focus outlines.
+    These rules replace the listed widgets' normal focus borders with a
+    :data:`FOCUS_RING_PX`-pixel border in :func:`focus_ring_colour`.
+
+    :param theme: one of :data:`THEMES`.
+    :returns: QSS, appended last by :func:`stylesheet` while the
+        preference is on.
+    """
+    ring = f"{FOCUS_RING_PX}px solid {focus_ring_colour(theme)}"
+    return f"""
+QAbstractButton:focus, QLineEdit:focus, QAbstractSpinBox:focus,
+QComboBox:focus, QAbstractSlider:focus, QPlainTextEdit:focus,
+QTextEdit:focus, QAbstractItemView:focus,
+QPushButton#AppTile:focus, QPushButton#Tile:focus,
+QPushButton#HTile:focus {{
+    border: {ring};
+}}
+"""
+
+
+def _the_focus_ring(theme: str) -> str:
+    """The focus ring rules when the user asked for them, else nothing.
+
+    Read here, as :func:`_the_backdrop_is_on` is, because
+    :func:`stylesheet`'s callers do not know about the preference.
+    """
+    from .preferences import get_strong_focus
+
+    return focus_ring_qss(theme) if get_strong_focus() else ""
+
+
 def _window_block(theme: str, P: dict, background, body_px: int,
                   backdrop: bool = False) -> str:
     """The base + top-level-window rules, which image themes rewrite.
@@ -3021,7 +3176,7 @@ def _window_block(theme: str, P: dict, background, body_px: int,
         return f"""QWidget {{
     background-color: {P["bg"]};
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {body_px}px;
     outline: none;
 }}
@@ -3056,7 +3211,7 @@ QMainWindow, QDialog {{
 QWidget {{
     background-color: transparent;
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {body_px}px;
     outline: none;
 }}
@@ -3556,7 +3711,7 @@ def _a_window_for_want_of_a_parent(widget) -> bool:
           `WA_WState_Created` clause. The home-screen version art renders
           exactly as before; this is the one that would have been
           expensive to get wrong.
-      `gate_editor`, `app_screen`, `setup_dialog`, `tutorial.engine`
+      `gate_editor`, `app_screen`, `setup_dialog`
           all grab a parented widget or a shown window, so the
           `parent() is None` clause excludes them.
 
@@ -3633,6 +3788,155 @@ def _sheets_itself_before_it_shows(widget) -> bool:
     return True
 
 
+#: Marks a window whose sheet is held back while something decorates it:
+#: the rules it gains meanwhile are written down, and the sheet goes on
+#: once, when :func:`_one_sheet_for` lets go.
+_SHEET_HELD = "_spacr_sheet_held"
+
+#: Tests, each answering whether a window is about to be decorated by
+#: something that will sheet it itself, through :func:`_one_sheet_for`.
+_DECORATORS_THAT_SHEET: list = []
+
+
+def _let_a_decorator_sheet(wants) -> None:
+    """Leave the windows ``wants`` accepts to the decorator that sheets them.
+
+    WHY A DECORATOR SHEETS ITS OWN WINDOWS. The glass treatment of a dialog
+    restyles it three times when the sheet is already on: its own rule
+    (one more sheet), the frameless window flags (Qt repolishes every
+    widget of a styled window it reparents) and the transparent containers
+    (one polish per container). Measured on Preferences, 967 widgets,
+    offscreen: 425-484 ms in one ``Polish``, and 610-680 ms when this
+    filter had sheeted it first. With the sheet held until the decorator is
+    done it is one sheet, put on last.
+
+    :param wants: a callable taking a window and answering ``True`` when
+        the decorator will sheet it. Added once however often it is passed.
+    """
+    if wants not in _DECORATORS_THAT_SHEET:
+        _DECORATORS_THAT_SHEET.append(wants)
+
+
+def _stop_letting_a_decorator_sheet(wants) -> None:
+    """Undo :func:`_let_a_decorator_sheet`; unknown callables are ignored.
+
+    :param wants: the callable that was passed.
+    """
+    while wants in _DECORATORS_THAT_SHEET:
+        _DECORATORS_THAT_SHEET.remove(wants)
+
+
+def _a_decorator_sheets_it(window) -> bool:
+    """Whether a decorator will sheet ``window`` itself, now or already is.
+
+    :param window: a window being polished or shown.
+    :returns: ``True`` to leave its sheet to the decorator.
+    """
+    if window.property(_SHEET_HELD):
+        return True
+    for wants in _DECORATORS_THAT_SHEET:
+        try:
+            if wants(window):
+                return True
+        except Exception:                                    # noqa: BLE001
+            continue
+    return False
+
+
+#: Marks a held window one of whose widgets skipped a polish it was owed,
+#: so the sheet goes on at the release even if its text is unchanged.
+_SHEET_OWES_A_POLISH = "_spacr_sheet_owes_a_polish"
+
+
+def _owe_the_polish_to_a_held_sheet(widget) -> bool:
+    """Leave ``widget``'s repolish to its window's held sheet, if it has one.
+
+    :param widget: a widget whose QSS-visible state has just changed.
+    :returns: ``True`` when its window's sheet is held and will repolish
+        it at the release; the window is marked so that it does.
+    """
+    try:
+        window = widget.window()
+        if window is None or not window.property(_SHEET_HELD):
+            return False
+        window.setProperty(_SHEET_OWES_A_POLISH, True)
+    except (AttributeError, RuntimeError):
+        return False
+    return True
+
+
+@contextmanager
+def _one_sheet_for(window):
+    """Hold ``window``'s sheet back for the block, then put it on once.
+
+    Inside the block a rule given to the window through
+    :func:`set_a_sheeted_widgets_own_rule` is written down and not
+    applied, and :func:`_sheet_one_window` leaves the window alone. On the
+    way out the sheet in force goes on with every rule written down, the
+    same text it would have worn had each been applied as it came, so the
+    window looks the same and is restyled once. It goes on even when the
+    block raised, so a window is never left unsheeted. A parentless window
+    nobody has shown yet is left for its first ``Show`` instead, as
+    :func:`set_a_sheeted_widgets_own_rule` leaves it.
+
+    Nested blocks for the same window sheet it once, at the outer exit.
+
+    :param window: the window being decorated.
+    :yields: ``window``.
+    """
+    try:
+        held_already = bool(window.property(_SHEET_HELD))
+    except (AttributeError, RuntimeError):
+        yield window
+        return
+    if held_already:
+        yield window
+        return
+    window.setProperty(_SHEET_HELD, True)
+    try:
+        yield window
+    finally:
+        try:
+            window.setProperty(_SHEET_HELD, None)
+            owed = bool(window.property(_SHEET_OWES_A_POLISH))
+            window.setProperty(_SHEET_OWES_A_POLISH, None)
+            if window_stylesheet() is None:
+                if owed:
+                    _repolish_the_tagged(window)
+            elif _the_sheet_can_wait_for_the_show(window):
+                window.setProperty(_WINDOW_SHEET_SERIAL, None)
+                window.setProperty(_WINDOW_SHEET_DIGEST,
+                                   _sheet_digest(window.styleSheet()))
+                window.setProperty(_WINDOW_SHEET_WAITS, True)
+                mark_as_a_sheet_target(window)
+            else:
+                if owed:
+                    window.setProperty(_WINDOW_SHEET_SERIAL, None)
+                _sheet_one_window(window)
+        except (AttributeError, RuntimeError):
+            pass
+
+
+def _repolish_the_tagged(window) -> None:
+    """Polish the widgets of ``window`` that a held sheet left untouched.
+
+    Only reached when no window sheet is in force -- the styling is an
+    application sheet or the window's own -- so nothing goes on at the
+    release to repolish them.
+
+    :param window: the window whose transparent containers are repolished.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    for target in [window, *window.findChildren(QWidget)]:
+        if (target.property(TRANSPARENT_PROPERTY) is True
+                and target.testAttribute(Qt.WA_StyleSheet)):
+            style = target.style()
+            if style is not None:
+                style.unpolish(target)
+                style.polish(target)
+
+
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
 
@@ -3680,6 +3984,8 @@ class _SheetsEveryWindowThatAppears(QObject):
         if kind in _SHEETING_MOMENTS:
             try:
                 if watched.isWindow():
+                    if _a_decorator_sheets_it(watched):
+                        return False
                     if kind == QEvent.Polish:
                         if _a_window_for_want_of_a_parent(watched):
                             return False
@@ -3692,6 +3998,11 @@ class _SheetsEveryWindowThatAppears(QObject):
             except (AttributeError, RuntimeError):
                 pass
         return False
+
+
+#: Marks a window that, while hidden, is sheeted at its next ``Show``
+#: rather than at every theme change; see :func:`apply_stylesheet_per_window`.
+SHEETED_WHEN_SHOWN = "spacrSheetedWhenShown"
 
 
 #: Marks a widget that is NOT a window but is sheeted as if it were: a
@@ -3754,6 +4065,8 @@ def _sheet_one_window(window) -> bool:
         return False
     serial = getattr(app, _WINDOW_SHEET_SERIAL, 0)
     try:
+        if window.property(_SHEET_HELD):
+            return False
         if (window.property(_WINDOW_SHEET_SERIAL) == serial
                 and window.property(_WINDOW_SHEET_DIGEST)
                 == _sheet_digest(window.styleSheet())):
@@ -3761,7 +4074,8 @@ def _sheet_one_window(window) -> bool:
         window.setProperty(_WINDOW_SHEET_SERIAL, serial)
         own = _the_windows_own_stylesheet(window)
         text = preserve_widget_qss_overlay(window, sheet + own)
-        window.setStyleSheet(text)
+        with _font_scale_pinned():
+            window.setStyleSheet(text)
         window.setProperty(_WINDOW_SHEET_DIGEST, _sheet_digest(text))
         window.setProperty(_WINDOW_SHEET_BASE_LEN, len(sheet))
         window.setProperty(_WINDOW_SHEET_BASE_DIGEST, _sheet_digest(sheet))
@@ -3865,6 +4179,9 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
     try:
         widget.setProperty(_WINDOW_OWN_SHEET, rule)
         widget.setProperty(_WINDOW_SHEET_SERIAL, None)
+        if (widget.property(_SHEET_HELD)
+                and window_stylesheet() is not None):
+            return
         if _the_sheet_can_wait_for_the_show(widget):
             widget.setProperty(_WINDOW_SHEET_DIGEST,
                                _sheet_digest(widget.styleSheet()))
@@ -4036,7 +4353,8 @@ def _the_windows_own_stylesheet(window) -> str:
     return current
 
 
-def apply_stylesheet_per_window(app, sheet: str) -> int:
+def apply_stylesheet_per_window(app, sheet: str, *,
+                                in_slices: bool = False) -> int:
     """Install ``sheet`` on every top-level window instead of on ``app``.
 
     WHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every
@@ -4061,7 +4379,18 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
         an application does not have to check first.
     :param sheet: the complete application stylesheet, as
         :func:`stylesheet` composes it.
-    :returns: the number of windows the sheet was put on.
+    :param in_slices: put the sheet on nothing now: the windows on show
+        get it one per pass of the event loop, after the next paint, and the
+        hidden ones after them (:func:`_sheet_the_windows_in_slices`). A
+        window that polishes or shows before its turn is sheeted then, as
+        any window is. Preferences' Apply asks for this.
+    :returns: the number of windows the sheet was put on; with
+        ``in_slices``, the number waiting for their slice.
+
+    A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next
+    ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before
+    it paints: the Preferences window kept for the next open is ~750
+    widgets nobody can see.
 
     A settings category's body that is waiting off the page is parentless,
     so Qt lists it among the top-level widgets, but it is not a window: it
@@ -4088,16 +4417,115 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
     _watch_application_events(app, _WINDOW_SHEET_FILTER, _SHEETING_MOMENTS)
 
     sheeted = 0
+    owed = []
     for window in list(app.topLevelWidgets()):
         if (_sheets_itself_before_it_shows(window)
                 and not window.isVisible()):
             continue
+        if window.property(SHEETED_WHEN_SHOWN) and not window.isVisible():
+            continue
         if getattr(window, "_spacr_detached_from", None) is not None:
             continue
         for root in _roots_for(window):
-            if _sheet_one_window(root):
+            if in_slices:
+                owed.append(root)
+            elif _sheet_one_window(root):
                 sheeted += 1
+    if in_slices:
+        return _sheet_the_windows_in_slices(owed)
     return sheeted
+
+
+#: The roots still owed the sheet of an Apply, on show first, and the timer
+#: that pays them. See :func:`_sheet_the_windows_in_slices`.
+_SLICED_SHEETING = {"owed": [], "timer": None}
+
+#: How long the first slice waits, so the click that asked for the sheet is
+#: painted first; and the wait between hidden windows' slices.
+_SLICE_FIRST_MS = 20
+_SLICE_HIDDEN_GAP_MS = 15
+
+
+def _sheet_the_windows_in_slices(roots) -> int:
+    """Sheet ``roots`` one per pass of the event loop: visible ones first.
+
+    WHY, WITH THE NUMBER. Apply in Preferences put the sheet on every root
+    in one call: on a loaded box (load 60) 2.2-4.7 s of the GUI thread,
+    of which the visible Preferences window and Home were 0.2-1.3 s each and
+    some fifty hidden combo-box popups and parked windows 10-50 ms each.
+    One root per slice lets the frames in between be drawn, and the hidden
+    ones, which nobody sees, go last.
+
+    NOTHING IS SHEETED TWICE. Each slice asks :func:`_sheet_one_window`,
+    which does nothing for a root that already wears the current sheet -- a
+    window that polished or showed before its turn, or a root a newer
+    sheet's slices reached first. A newer call replaces the queue, since it
+    names every root again.
+
+    :param roots: the roots to sheet, in the order :func:`_roots_for` gave.
+    :returns: how many are waiting.
+    """
+    visible, hidden = [], []
+    for root in roots:
+        try:
+            (visible if root.isVisible() else hidden).append(root)
+        except (AttributeError, RuntimeError):
+            continue
+    _SLICED_SHEETING["owed"] = visible + hidden
+    timer = _SLICED_SHEETING["timer"]
+    if timer is None:
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(_sheet_the_next_window)
+        _SLICED_SHEETING["timer"] = timer
+    timer.start(_SLICE_FIRST_MS)
+    return len(_SLICED_SHEETING["owed"])
+
+
+def _sheet_the_next_window() -> None:
+    """Pay one owed root its sheet, then wait for the next pass."""
+    owed = _SLICED_SHEETING["owed"]
+    while owed:
+        root = owed.pop(0)
+        try:
+            shown = root.isVisible()
+        except (AttributeError, RuntimeError):
+            continue
+        if _sheet_one_window(root):
+            break
+    else:
+        return
+    if owed:
+        try:
+            later = not owed[0].isVisible()
+        except (AttributeError, RuntimeError):
+            later = True
+        _SLICED_SHEETING["timer"].start(
+            _SLICE_HIDDEN_GAP_MS if later or not shown else 0)
+
+
+def finish_the_sliced_sheeting() -> int:
+    """Pay every root still owed its sheet now. For tests and shutdown.
+
+    :returns: how many roots were sheeted.
+    """
+    timer = _SLICED_SHEETING["timer"]
+    if timer is not None:
+        timer.stop()
+    done = 0
+    owed, _SLICED_SHEETING["owed"] = _SLICED_SHEETING["owed"], []
+    for root in owed:
+        if _sheet_one_window(root):
+            done += 1
+    return done
+
+
+def sliced_sheeting_owed() -> int:
+    """How many roots are still waiting for a sliced sheet.
+
+    :returns: the length of the queue.
+    """
+    return len(_SLICED_SHEETING["owed"])
 
 
 def clear_widget_qss_overlays(app=None) -> int:
@@ -4618,7 +5046,7 @@ QMenu::separator {{
 }}
 #SidebarTitle {{
     color: {P["accent"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {font_px(24, font_scale)}px;
     font-weight: 300;                 /* Light */
     letter-spacing: -0.5px;
@@ -4733,6 +5161,21 @@ QLabel#CardSubtitle {{
     font-size: {F["small"]}px;
     background: transparent;
 }}
+/* Make Masks' four titled button groups around the image: TOOLS,
+   ANNOTATION, IO and NAVIGATION, each a card with its title top left. */
+QFrame[makeMasksGroup="true"] {{
+    background-color: {P["surface_alt"]};
+    border: 1px solid {P["border_soft"]};
+    border-radius: {R["md"]}px;
+}}
+QLabel#MakeMasksGroupTitle {{
+    color: {P["fg_muted"]};
+    font-size: {F["small"]}px;
+    font-weight: 600;
+    border: none;
+    padding: 0px;
+    background: transparent;
+}}
 QFrame#Divider {{
     background: {P["border"]};
     max-height: 1px;
@@ -4787,7 +5230,7 @@ QPushButton#HTile {{
     border-radius: {R["lg"]}px;
     padding: 12px 14px 12px 20px;
     text-align: left;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
 }}
 QPushButton#HTile:hover {{
     background-color: {css_color(STAGE_HOVER["stable"], 0.22)};
@@ -4816,7 +5259,7 @@ QPushButton#AppTile {{
     min-height: {TILE_MIN_H}px;
     min-width: {TILE_MIN_W_PX}px;
     text-align: center;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
 }}
 /* Fallback hover, for a tile whose `stage` property was never set. The
    three stage rules below win over it wherever it was. */
@@ -4839,7 +5282,7 @@ QPushButton#AppTile:focus {{
 }}
 QLabel#HTileName {{
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {F["subtitle"]}px;
     font-weight: 400;                 /* Open Sans Regular */
     background: transparent;
@@ -4847,7 +5290,7 @@ QLabel#HTileName {{
 }}
 QLabel#HTileDesc {{
     color: {P["fg_muted"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {F["small"]}px;
     font-weight: 300;                 /* Open Sans Light */
     background: transparent;
@@ -4859,7 +5302,7 @@ QLabel#HTileDesc {{
    as ordinary paragraph text; it still moves with the font preference. */
 QLabel#HeroSubtitle {{
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-size: {F["subtitle"]}px;
     font-weight: 300;
     background: transparent;
@@ -4871,7 +5314,7 @@ QLabel#HintBar {{
     background-color: {P["surface_alt"]};
     border-top: 1px solid {P["border_soft"]};
     color: {P["fg"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["body"]}px;
     padding: 8px 12px;
@@ -5149,11 +5592,14 @@ QPushButton#IconButton:hover {{
 }}
 /* SQL column pickers are QToolButtons, so they do not inherit the normal
    QPushButton treatment.  Keep them visually part of the settings card:
-   a dark card-coloured face, a light neutral rim and white text. */
+   a dark card-coloured face, a light neutral rim and white text.  The row
+   exclusion editor's "+ Add exclusion" is the same kind of button; unstyled,
+   Qt 6.10 filled it black. */
 QWidget#ColumnPickerRow {{
     background: transparent;
 }}
-QToolButton#ColumnPickerButton {{
+QToolButton#ColumnPickerButton,
+QToolButton#RowExclusionAdd {{
     background-color: {P["surface"]};
     color: {P["fg"]};
     border: 1px solid {P["fg_muted"]};
@@ -5162,17 +5608,20 @@ QToolButton#ColumnPickerButton {{
     min-height: 22px;
     font-weight: 500;
 }}
-QToolButton#ColumnPickerButton:hover {{
+QToolButton#ColumnPickerButton:hover,
+QToolButton#RowExclusionAdd:hover {{
     background-color: {P["accent_soft"]};
     color: {P["fg"]};
     border-color: {P["accent"]};
 }}
-QToolButton#ColumnPickerButton:pressed {{
+QToolButton#ColumnPickerButton:pressed,
+QToolButton#RowExclusionAdd:pressed {{
     background-color: {P["accent_lo"]};
     color: {P["fg"]};
     border-color: {P["accent_hi"]};
 }}
-QToolButton#ColumnPickerButton:disabled {{
+QToolButton#ColumnPickerButton:disabled,
+QToolButton#RowExclusionAdd:disabled {{
     background-color: {P["surface"]};
     color: {P["fg_dim"]};
     border-color: {P["border"]};
@@ -5195,7 +5644,7 @@ QPlainTextEdit#Console {{
     background-color: {CONSOLE_BG};
     color: #d4d7dc;
     border: 1px solid {P["border_soft"]};
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px;
@@ -5674,7 +6123,7 @@ QPlainTextEdit#ConsoleStdoutBlock {{
     color: {P["fg"]};
     background-color: {P["surface_alt"]};
     border: none;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px {S["md"]}px;
@@ -5683,7 +6132,7 @@ QPlainTextEdit#ConsoleStdoutBlockError {{
     color: {P["error"]};
     background-color: {P["surface_alt"]};
     border: none;
-    font-family: "Open Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+    font-family: {QSS_FONT_FAMILY};
     font-weight: 300;
     font-size: {F["small"]}px;
     padding: {S["sm"]}px {S["md"]}px;
@@ -5835,7 +6284,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
     background: transparent;
     border-top: 1px solid {base["button_accent"]};
 }}
-{GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}
+{GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}{_the_focus_ring(theme)}
 """
 
 
@@ -5979,7 +6428,10 @@ def apply_close_mark(button, *, tooltip: Optional[str] = None,
     if getattr(button, "_spacr_close_mark_resizer", None) is None:
         resizer = _CloseMarkResizer(button, body_px)
         button._spacr_close_mark_resizer = resizer
-        button.installEventFilter(resizer)
+        from .gil_priority import _watch_object_events
+
+        _watch_object_events(button, resizer,
+                             (QEvent.FontChange, QEvent.StyleChange))
     button.setCursor(Qt.PointingHandCursor)
     set_auto_raise = getattr(button, "setAutoRaise", None)
     if callable(set_auto_raise):

@@ -1,0 +1,23 @@
+{
+  "base_commit": "cc5c2c019b42f22c6c0cf3edffcf9ba3be0b642f",
+  "test_before_sha256": "588d409ec7eb9384daaa1e1fbe0a989d72ea030012c1de63a26b1731745654ce",
+  "test_after_sha256": "57531bfc303e4d45e33238243811a9a357549800324b06a1c053c9cac54d0022",
+  "scope": "Only target function receives qtbot, waits on real model_chosen using existing5000ms convention, and asserts final request/thread cleared.",
+  "whole_original_module_AST_restored_after_removing_exact_wait_and_two_new_assertions": true,
+  "production_unchanged": {
+    "spacr/model_zoo.py": "db5f8916766b6416c4c97e4596354b7c3b0c2903df486d1d94783054f85a3583",
+    "spacr/qt/widgets/model_zoo_picker.py": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8"
+  },
+  "hosted_source": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+  "hosted_run": 38774384694,
+  "hosted_job": 116568856169,
+  "file_hashes_at_hosted": {
+    "tests/qt/test_bioimageio_rows_in_the_picker.py": "588d409ec7eb9384daaa1e1fbe0a989d72ea030012c1de63a26b1731745654ce",
+    "spacr/model_zoo.py": "ef29bd7b9ab91e8b2456fd4eb4d98a4cb5d106d0239736d8319a5a06d8269e08",
+    "spacr/qt/widgets/model_zoo_picker.py": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8"
+  },
+  "model_zoo_module_changed_since_hosted": true,
+  "exact_verifier_AST_unchanged_since_hosted": true,
+  "full_ruff_three_E402_preexisting_exact_output": true,
+  "fatal_ruff": "PASS"
+}

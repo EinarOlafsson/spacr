@@ -1,0 +1,32 @@
+{
+  "reproduce-offline.py.gz": {
+    "original_sha256": "ec5090fe8975c31e5569efa8dae9f107d0d32753325f7e2dd4e24fd0c71c0e0e",
+    "original_bytes": 5585,
+    "gzip_sha256": "b72751c14d6fb527b53230d48357ca1b5481975c12fc90858ac14d15436794d6"
+  },
+  "reproduction.log.gz": {
+    "original_sha256": "d4bcb42a7b5babb78aafdb728d22af85f063e892690c89324cf2693b321a5411",
+    "original_bytes": 248,
+    "gzip_sha256": "c9e87fb070d2344928a7c155e420b749b890cd4576f08fc163a99586912b0c0b"
+  },
+  "reproduce-offline-v2.py.gz": {
+    "original_sha256": "917e96cffd375ce1d5b33aff61236ae888aa098138846283b3ce49f738335129",
+    "original_bytes": 5586,
+    "gzip_sha256": "33fed189ffd9e5eae9e1eb2bfba55d334c89ee2e8cb01fa307baaca37166eeca"
+  },
+  "reproduction-v2.log.gz": {
+    "original_sha256": "8eff1639b46cbb6b422b6315097b4a38e6ac40c28f4d5b58d2821d86435c66e7",
+    "original_bytes": 1292,
+    "gzip_sha256": "26cd1428fb42a76251c89d8ce887bd3770c4b4bf0ce9ac048e9faec817d3ed55"
+  },
+  "receipt.json.gz": {
+    "original_sha256": "44e56ac3543f321db6e6a4ab60af9cdeea5524fa2da1dce5edaad24a8cde72c2",
+    "original_bytes": 2842,
+    "gzip_sha256": "cfdb5634881c40039e3295d8b1e05a6b68bf67ca462d670632a4dea0854e5f14"
+  },
+  "source-path-map.json.gz": {
+    "original_sha256": "b59b0b6d3911c362ddf732aa3bbda2ab4379bb1ab70e662078f63c34c7b03f0a",
+    "original_bytes": 1601,
+    "gzip_sha256": "42adf407ff9a1957ddb704c02016b9ef852aa4f34484c57d530c7d27db283129"
+  }
+}

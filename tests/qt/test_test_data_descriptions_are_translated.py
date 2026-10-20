@@ -36,7 +36,7 @@ def test_class_owned_hover_prose_enters_the_english_inventory(monkeypatch):
 def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(
         qtbot, qt_theme_applied, monkeypatch, language, hover_now):
     monkeypatch.setenv('SPACR_LANGUAGE', language)
-    reviewed = json.loads((ROOT/f'docs/i18n/reviewed/runtime/{language}/2026-09-21-test-data-chooser.json').read_text())
+    reviewed = json.loads((ROOT/f'docs/i18n/reviewed/runtime/{language}/2026-09-21-test-data-chooser.json').read_text(encoding="utf-8"))
     targets = {}
     for record in reviewed['records']:
         assert record['source_sha256'] == hashlib.sha256(record['source'].encode()).hexdigest()

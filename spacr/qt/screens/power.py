@@ -1,10 +1,10 @@
 """
-Power / Design — how many cells per well, and how many wells, do I need?
+Power / Design — estimate how many cells per well, and how many wells, a screen needs.
 
 The science has been in the tree since the spaCRPower port landed:
-:mod:`spacr.power_simulate` builds a screen you know the truth for, and
+:mod:`spacr.power_simulate` builds a screen with known true hits, and
 :mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how
-well the fit recovered the hits you planted. What has never existed is the
+well the fit recovered the simulated hits. What has never existed is the
 surface where a screener asks the question they actually have, which is not
 "what is the AUROC of a design with well_abundance_factor_mu = 4.6" but::
 
@@ -50,7 +50,7 @@ Design notes:
   rest are one click below it.
 * **Off the GUI thread, and the thread actually retires.** A full sweep is
   minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every
-  ``thread.finished`` slot is a BOUND METHOD — see
+  ``thread.finished`` slot is a bound method — see
   :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and
   why it is not a style preference.
 * **No modal dialogs.** Every failure lands in the inline status line.
@@ -113,7 +113,8 @@ from ..widgets.power_design import (
     wells_grid,
 )
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from .app_screen import ModuleHeader
 
 __all__ = [
@@ -540,10 +541,9 @@ class CaveatPanel(QWidget):
     """The port's departures from spaCRPower, rendered where they are read.
 
     The ones flagged ``changes_the_number`` are always visible; the rest are
-    behind a "show all" toggle. That split is the panel's whole job: a list
-    where the COM-Poisson third moment sits at the same weight as "the R
-    version overstates power" is a list that gets skimmed, and the one line
-    that would have changed somebody's plate count goes with it.
+    behind a "show all" toggle, so a caveat that changes the result, such
+    as "the R version overstates power", is not listed at the same weight
+    as a minor one such as the COM-Poisson third moment.
 
     :param parent: parent widget.
     """
@@ -1136,7 +1136,7 @@ class PowerScreen(QWidget):
         except Exception as exc:
             self._plan_summary.setText(
                 tr("Could not read the pilot: {error}", error=exc))
-            self._plan_table.setRowCount(0)
+            _retire_table_cells(self._plan_table)
             return None
         effect = self._plan_effect.value()
         paired = self._plan_paired.isChecked()
@@ -1156,7 +1156,7 @@ class PowerScreen(QWidget):
         except ValueError as exc:
             self._plan_summary.setText(
                 tr("Could not plan the design: {error}", error=exc))
-            self._plan_table.setRowCount(0)
+            _retire_table_cells(self._plan_table)
             return None
         variances = tr(
             "Mean {mean:.4g}; variance between replicates {rep}, wells "
@@ -1221,14 +1221,15 @@ class PowerScreen(QWidget):
         :param designs: the design table, cheapest first.
         :param summary: the summary line under the form.
         """
-        self._plan_table.setRowCount(0)
+        _retire_table_cells(self._plan_table)
         self._plan_table.setRowCount(min(10, len(designs)))
         for row, design in enumerate(designs.head(10).itertuples()):
             for col, text in enumerate((
                     str(design.replicates), str(design.wells),
                     str(design.fields), f"{design.power:.3f}",
                     f"{design.cost:.4g}")):
-                self._plan_table.setItem(row, col, table_item(text))
+                self._plan_table.setItem(
+                    row, col, _spare_table_item(self._plan_table, text))
         self._plan_summary.setText(summary)
 
     def _validate_arrayed_plan(self, plan):
@@ -1507,9 +1508,9 @@ class PowerScreen(QWidget):
             self._library_note.setText(
                 f"{units} constructs get their own coefficient "
                 f"({spec.n_genes} genes x {spec.n_grnas_per_gene} guides). "
-                "Every guide of a hit gene is itself a hit — this prices the "
-                "dilution of a bigger library, not the insurance of several "
-                "guides.")
+                "Every guide of a hit gene is itself a hit, so this measures "
+                "the cost of a larger library, not the benefit of several "
+                "guides per gene.")
         else:
             self._library_note.setText(
                 f"{units} genes get a coefficient; the "
@@ -1719,6 +1720,7 @@ class PowerScreen(QWidget):
             for _, row in wells.iterrows():
                 rows.append((f"{spec.cells_per_well:g}",
                              f"{row['value']:g}", row))
+        _retire_table_cells(self._table)
         self._table.setRowCount(len(rows))
         for index, (cell_text, well_text, row) in enumerate(rows):
             values = [
@@ -1733,7 +1735,7 @@ class PowerScreen(QWidget):
                 str(int(row["n_failed"])),
             ]
             for column, text in enumerate(values):
-                item = table_item(text)
+                item = _spare_table_item(self._table, text)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self._table.setItem(index, column, item)
 

@@ -1,0 +1,63 @@
+{
+  "reviewer": "Original Home root",
+  "kind": "Independent AI technical source/translation peer; no native-speaker signoff",
+  "source": "Track {track} has conflicting known parent IDs in the lineage table.",
+  "source_file_sha256": "dafe129bf5968a5e62cd9eb663496a04df012088c7967963c4bb4c6e53e922c0",
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-lineage-parent-identity.json",
+      "sha256": "a8b40b405f234399e9c3c95b7f488778c2c50321b9fc1335d4d9d1ffe3bca14f",
+      "translation": "Spur {track} hat widersprüchliche bekannte Eltern-IDs in der Abstammungstabelle.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-lineage-parent-identity.json",
+      "sha256": "732e9955eb40a792450adfa796e2ff94700fc76d1327eedd43d143a4a08a7866",
+      "translation": "La trayectoria {track} tiene identificadores de progenitor conocidos contradictorios en la tabla de linajes.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-lineage-parent-identity.json",
+      "sha256": "c7b4d33a21b37f93a75eda3e8bb2a906627068b8111819653cf7a48bccac1201",
+      "translation": "La trajectoire {track} présente des identifiants de parent connus contradictoires dans la table de lignées.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-lineage-parent-identity.json",
+      "sha256": "b3040cab600c9c2ed15e0f104953fa6b381319e72dd88674d4a3e3e03a094f48",
+      "translation": "वंशावली तालिका में ट्रैक {track} के ज्ञात जनक आईडी परस्पर विरोधी हैं।",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-lineage-parent-identity.json",
+      "sha256": "a67c144d53bb594cab0578ac55ff584ef316905ae794cd2b22d2b265b4f6e1dd",
+      "translation": "Ferill {track} hefur ósamræmanleg þekkt auðkenni móðurferils í ættartöflunni.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-lineage-parent-identity.json",
+      "sha256": "4592c7622affdcc0a0a66a4639f30c8b16f47699f09a49bc8242619c9c8033a4",
+      "translation": "계보 표에서 트랙 {track}의 알려진 부모 ID가 서로 충돌합니다.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-lineage-parent-identity.json",
+      "sha256": "06162048a322ac6d1bfd97c7824c7b402e0570dc7e97b6a1b36e138f31b27d51",
+      "translation": "A trajetória {track} tem identificadores de progenitor conhecidos conflitantes na tabela de linhagens.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-lineage-parent-identity.json",
+      "sha256": "8fb9306d859dab198f03e697a1f0e309242fb9abe33266a80571000a63e585c3",
+      "translation": "Spår {track} har motstridiga kända ID:n för moderspår i härstamningstabellen.",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-lineage-parent-identity.json",
+      "sha256": "702ada0900c399c3dd15694574de656e59816fadc87a39ec0610bc7570604b56",
+      "translation": "谱系表中轨迹 {track} 的已知父轨迹 ID 存在冲突。",
+      "decision": "approved: one track has contradictory known parent IDs in lineage table, exact track placeholder retained"
+    }
+  ],
+  "limits": "Exact semantic/placeholder review, not biological lineage acceptance; normal loaders/extractor/source/preservation/catalog/arrival gates and actual locale callbacks remain required."
+}

@@ -162,8 +162,11 @@ class FigureSettingsDialog(QDialog):
         :param figure: the matplotlib figure to restyle.
         :param parent: parent widget, or ``None``.
         :param on_change: called to redraw; takes ``preview`` when it can.
-        :param propagate_callback: writes the values into the owning module's
-            settings panel. ``None`` disables Propagate and says why.
+        :param propagate_callback: receives the current Image UMAP control
+            values to write into the owning module's settings panel. Other
+            figure-style edits are not included; a figure without Image UMAP
+            controls supplies an empty dictionary. ``None`` disables Propagate
+            and says why.
         """
         super().__init__(parent)
         self.setWindowTitle("Figure settings")
@@ -745,12 +748,14 @@ class FigureSettingsDialog(QDialog):
             ("Y scale", axis.get_yscale, axis.set_yscale),
         ):
             combo = QComboBox()
-            combo.addItems(AXIS_SCALES)
+            for scale in AXIS_SCALES:
+                combo.addItem(scale, scale)
             current = getter()
             if current in AXIS_SCALES:
-                combo.setCurrentText(current)
-            combo.currentTextChanged.connect(
-                lambda value, s=setter: (s(value), self._changed()))
+                combo.setCurrentIndex(list(AXIS_SCALES).index(current))
+            combo.currentIndexChanged.connect(
+                lambda _index, c=combo, s=setter: (
+                    s(c.currentData()), self._changed()))
             form.addRow(label, combo)
 
         for label, getter, setter in (
@@ -812,7 +817,8 @@ class FigureSettingsDialog(QDialog):
         grid.setChecked(any(line.get_visible()
                             for line in axis.get_xgridlines()))
         grid_axis = QComboBox()
-        grid_axis.addItems(("both", "x", "y"))
+        for which in ("both", "x", "y"):
+            grid_axis.addItem(which, which)
         grid_width = QDoubleSpinBox()
         grid_width.setRange(0.1, 6.0)
         grid_width.setSingleStep(0.1)
@@ -828,14 +834,14 @@ class FigureSettingsDialog(QDialog):
             off, which is the opposite of what it says.
             """
             if grid.isChecked():
-                axis.grid(True, axis=grid_axis.currentText(),
+                axis.grid(True, axis=grid_axis.currentData(),
                           color=grid_colour["value"],
                           linewidth=grid_width.value())
             else:
-                axis.grid(False, axis=grid_axis.currentText())
+                axis.grid(False, axis=grid_axis.currentData())
             self._changed()
         grid.toggled.connect(apply_grid)
-        grid_axis.currentTextChanged.connect(apply_grid)
+        grid_axis.currentIndexChanged.connect(apply_grid)
         grid_width.valueChanged.connect(apply_grid)
         form.addRow("Grid", grid)
         form.addRow("Grid axis", grid_axis)
@@ -887,7 +893,8 @@ class FigureSettingsDialog(QDialog):
             legend_on.setChecked(axis.get_legend() is not None
                                  and axis.get_legend().get_visible())
             legend_where = QComboBox()
-            legend_where.addItems(LEGEND_LOCATIONS)
+            for where in LEGEND_LOCATIONS:
+                legend_where.addItem(where, where)
             legend_size = QSpinBox()
             legend_size.setRange(4, 32)
             legend_size.setValue(9)
@@ -906,7 +913,7 @@ class FigureSettingsDialog(QDialog):
                     return
                 handles, _labels = axis.get_legend_handles_labels()
                 if handles:
-                    axis.legend(loc=legend_where.currentText(),
+                    axis.legend(loc=legend_where.currentData(),
                                 ncol=legend_cols.value(),
                                 frameon=legend_frame.isChecked(),
                                 prop={"size": legend_size.value()})
@@ -918,7 +925,7 @@ class FigureSettingsDialog(QDialog):
                 self._changed()
             for control in (legend_on, legend_frame):
                 control.toggled.connect(apply_legend)
-            legend_where.currentTextChanged.connect(apply_legend)
+            legend_where.currentIndexChanged.connect(apply_legend)
             legend_size.valueChanged.connect(apply_legend)
             legend_cols.valueChanged.connect(apply_legend)
             form.addRow("Legend", legend_on)
@@ -1148,7 +1155,7 @@ def graph_style_as_dict(general=None, per_graph=None) -> dict:
     -------
     dict
         Style data with ``spacr_style_kind``, ``general``, and ``per_graph``
-        keys. Per-graph values that are not mappings are omitted.
+        keys. Per-graph values that are not dictionaries are omitted.
 
     Notes
     -----
@@ -1264,7 +1271,7 @@ def apply_graph_style(general, per_graph) -> None:
     general : mapping
         General style overrides.
     per_graph : mapping of str to mapping
-        Style overrides keyed by graph type. Values that are not mappings are
+        Style overrides keyed by graph type. Values that are not dictionaries are
         omitted.
     """
     from ..preferences import set_figure_style, set_figure_style_per_graph
@@ -2315,6 +2322,48 @@ def _show_canvas_menu(canvas, position):
     return menu
 
 
+def _rendered_figure_changed(figure, repaint, preview=False) -> None:
+    """Redraw a rendered figure after a menu edit.
+
+    A house "Graph type" replacement figure is not swapped in: its recipe is
+    drawn onto ``figure``, as on a canvas.
+
+    :param figure: the live figure behind the picture.
+    :param repaint: called with ``figure`` once it is redrawn.
+    :param preview: a toggle flag, or the replacement figure.
+    """
+    if preview is not None and not isinstance(preview, bool):
+        recipe = getattr(preview, "_spacr_replot", None) or {}
+        figure._spacr_replot = recipe
+        figure._spacr_data = None
+        _retype(figure, _house_kind(recipe.get("graph_type")), None)
+    repaint(figure)
+
+
+def _show_rendered_figure_menu(widget, figure, position, repaint):
+    """Open the shared figure menu for a figure shown as a rendered picture.
+
+    For a figure a screen shows as a pixmap on a label (a search's trial
+    thumbnails, its summary panel) rather than on a canvas: the menu edits
+    the live figure, and ``repaint`` puts the new rendering on screen after
+    every change. A house "Graph type" replacement is drawn onto the same
+    figure, as on a canvas.
+
+    :param widget: the widget showing the picture; parent of the menu.
+    :param figure: the live matplotlib figure behind the picture.
+    :param position: global position the menu opens at.
+    :param repaint: called with ``figure`` after each change.
+    :returns: the menu.
+    """
+    menu = build_figure_context_menu(
+        widget, figure,
+        on_change=partial(_rendered_figure_changed, figure, repaint),
+        open_settings=partial(_open_editor, figure, widget,
+                              lambda **_k: repaint(figure)))
+    _exec_menu(menu, position)
+    return menu
+
+
 def _exec_menu(menu, position) -> None:
     """Show ``menu`` modally at ``position``."""
     menu.exec(position)
@@ -2443,9 +2492,10 @@ def save_figure_as(parent, figure, path: str = "") -> str:
 
     extension = os.path.splitext(path)[1].lower().lstrip(".")
     try:
-        from ...plot import FIGURE_FORMATS, print_ready, save_figure
+        from ...plot import FIGURE_FORMATS, _checked_savefig, print_ready, save_figure
     except Exception:
         FIGURE_FORMATS, print_ready, save_figure = (), None, None
+        _checked_savefig = None
 
     if save_figure is not None and extension in FIGURE_FORMATS:
         try:
@@ -2474,9 +2524,12 @@ def save_figure_as(parent, figure, path: str = "") -> str:
     try:
         vector = extension in ("pdf", "svg", "eps")
         ink = print_ready(figure) if print_ready is not None else nullcontext()
+        write = (_checked_savefig if _checked_savefig is not None
+                 else lambda target, where, **options: target.savefig(
+                     where, **options))
         with ink:
-            figure.savefig(
-                path, bbox_inches="tight", facecolor=background,
+            write(
+                figure, path, bbox_inches="tight", facecolor=background,
                 transparent=figure_bg_is_transparent(background),
                 **({} if vector else {"dpi": dpi}))
     except Exception as error:           # noqa: BLE001 - report, do not raise
@@ -2558,7 +2611,7 @@ def export_sidecars(figure, path) -> list:
     if caption:
         try:
             target = f"{base}_legend.txt"
-            with open(target, "w") as handle:
+            with open(target, "w", encoding="utf-8") as handle:
                 handle.write(caption + "\n")
             written.append(target)
         except Exception as error:       # noqa: BLE001

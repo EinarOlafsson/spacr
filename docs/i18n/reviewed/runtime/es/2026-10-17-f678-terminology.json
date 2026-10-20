@@ -1,0 +1,692 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "(int) Image channel index used for cell segmentation.",
+      "source": "(int) Image channel index used for cell segmentation.",
+      "source_sha256": "1770384fc04e04effee1a850c55f9239d67bc17628e1b3c62451ce9d10aa69f9",
+      "table": "ui",
+      "translation": "(int) Índice de canales de imágenes utilizado para la segmentación de células."
+    },
+    {
+      "key": "(int) Rows in the acquisition grid. 0 infers it from the tile count.",
+      "source": "(int) Rows in the acquisition grid. 0 infers it from the tile count.",
+      "source_sha256": "c244f7b6b1fd996bf7d805839a0bac26d9df139fa235d3099c53dcaa26118bfc",
+      "table": "ui",
+      "translation": "(int) Filas en la cuadrícula de adquisición. 0 lo infiere del recuento de teselas."
+    },
+    {
+      "key": "(str) feather ramps each tile's weight across the overlap; none is a hard cut and leaves a visible seam.",
+      "source": "(str) feather ramps each tile's weight across the overlap; none is a hard cut and leaves a visible seam.",
+      "source_sha256": "f9b459160f269a78922efa6bf50cf36a94d1542c4c9514f08bab7240d71a0320",
+      "table": "ui",
+      "translation": "(str) plumas rampas de cada peso de la tesela a través de la superposición; ninguno es un corte duro y deja una costura visible."
+    },
+    {
+      "key": "<b>Applies on the next run</b><br><span style='color:gray;'>These decide what gets drawn, so they need the run that draws it.</span>",
+      "source": "<b>Applies on the next run</b><br><span style='color:gray;'>These decide what gets drawn, so they need the run that draws it.</span>",
+      "source_sha256": "0c8542d1bc2ed1ab6058dfadaa20928a9d41d89e745986a1637351921179f7a2",
+      "table": "ui",
+      "translation": "<b>Aplica en la siguiente ejecución</b><br><span style='color:gray;'>Estos deciden lo que se dibuja, por lo que necesitan la ejecución que lo dibuja.</span>"
+    },
+    {
+      "key": "A suggestion run is already going.",
+      "source": "A suggestion run is already going.",
+      "source_sha256": "ffeeb5e7af257995b30d03c743a0568230e64cf9e696ae85f3c7d88478a4aff8",
+      "table": "ui",
+      "translation": "Una ejecución de sugerencias ya está en marcha."
+    },
+    {
+      "key": "Axis lines, ticks and text.",
+      "source": "Axis lines, ticks and text.",
+      "source_sha256": "e1498afa889ee4b2d99ef41aa64c957e882ee22a25a4056d0559e4be7f690c73",
+      "table": "ui",
+      "translation": "Líneas del eje, marcas y texto."
+    },
+    {
+      "key": "Back to the grid of every figure this run produced.",
+      "source": "Back to the grid of every figure this run produced.",
+      "source_sha256": "b6fb4ef95123aa73915caa24324fdff72e49a7d909eaa2215a7f624d4d50a12e",
+      "table": "ui",
+      "translation": "De vuelta a la cuadrícula de cada figura producida por esta ejecución."
+    },
+    {
+      "key": "Base font size for saved figures. Title, label and tick sizes are scaled relative to this value.",
+      "source": "Base font size for saved figures. Title, label and tick sizes are scaled relative to this value.",
+      "source_sha256": "bee86981bf8b993a03bfc4c2c5ccdd3c2a194ce2322327d9feea69eee8321327",
+      "table": "ui",
+      "translation": "Tamaño de fuente base para figuras guardadas. Título, etiqueta y tamaños de marcas se escalan en relación con este valor."
+    },
+    {
+      "key": "Builds a containment tree from the cell_id links written during measurement. Selecting a node highlights the corresponding object in other open views; selecting it with its contents also highlights all descendants. Child objects whose cell_id does not identify a measured cell are listed separately as potential segmentation or linking discrepancies.",
+      "source": "Builds a containment tree from the cell_id links written during measurement. Selecting a node highlights the corresponding object in other open views; selecting it with its contents also highlights all descendants. Child objects whose cell_id does not identify a measured cell are listed separately as potential segmentation or linking discrepancies.",
+      "source_sha256": "70f323f0a5347a87e67ec58db03b81f3724715793fc625785bee3edf2abf2b74",
+      "table": "ui",
+      "translation": "Crea un árbol de contención a partir de los enlaces cell_id escritos durante la medición. Seleccionar un nodo resalta el objeto correspondiente en otras vistas abiertas; seleccionarlo con su contenido también resalta todos los descendientes. Los objetos hijos cuya cell_id no identifica una célula medida se enumeran por separado como posibles segmentación o discrepancias de enlace."
+    },
+    {
+      "key": "Cells per montage row",
+      "source": "Cells per montage row",
+      "source_sha256": "6216f195f3b83f3cc2c13487b84f8472f73ab30fef21f8a1644c2e778129694e",
+      "table": "ui",
+      "translation": "Células por fila de montaje"
+    },
+    {
+      "key": "Centred puts the middle of the lit run under the pointer; trailing puts its leading end there and drags the rest of the light behind.",
+      "source": "Centred puts the middle of the lit run under the pointer; trailing puts its leading end there and drags the rest of the light behind.",
+      "source_sha256": "37b2f409276e4146ed62eccbe857afc0bac212c78608e8a39384b9327447cfb4",
+      "table": "ui",
+      "translation": "Centrado pone el centro del tramo iluminado bajo el puntero; el seguimiento pone su extremo principal allí y arrastra el resto de la luz detrás."
+    },
+    {
+      "key": "Children whose cell_id names no cell in their field. The masks disagree — the child segmentation found an object the parent segmentation did not. Double-click to open one.",
+      "source": "Children whose cell_id names no cell in their field. The masks disagree — the child segmentation found an object the parent segmentation did not. Double-click to open one.",
+      "source_sha256": "29cdfd76e976783aeb7015c4777ecbc6ead5394f529780560a8f5a0ec1b23ab8",
+      "table": "ui",
+      "translation": "Los niños cuyo cell_id no nombra ninguna célula en su campo. Las máscaras no están de acuerdo — la segmentación del niño encontró un objeto que la segmentación del padre no lo hizo. Haga doble clic para abrir uno."
+    },
+    {
+      "key": "Choose which of the screen's measurement databases to download. These are what the measurement and cell functions read. About 0.5 GB per plate.",
+      "source": "Choose which of the screen's measurement databases to download. These are what the measurement and cell functions read. About 0.5 GB per plate.",
+      "source_sha256": "e6d31f5d282dc2970caf502d64ad67267a97f7fd4c4f92be5b075f74b0b27aff",
+      "table": "ui",
+      "translation": "Elija cuáles de las bases de datos de medición del cribado se descargan. Son las que leen las funciones de medición y de células. Unos 0,5 GB por placa."
+    },
+    {
+      "key": "Colour used for the figure frame, axis ticks and spines.",
+      "source": "Colour used for the figure frame, axis ticks and spines.",
+      "source_sha256": "9c0c7c7c4f37f283488be808c115ee125e405f0c64ac298d168bd37a416c97ab",
+      "table": "ui",
+      "translation": "Color utilizado para el marco de la figura, las marcas del eje y las espinas."
+    },
+    {
+      "key": "Count per cell",
+      "source": "Count per cell",
+      "source_sha256": "8f28179b947209f209f0ebe3c0530d7df1efd25933215b4956bd9a16937b05ec",
+      "table": "ui",
+      "translation": "Contar por célula"
+    },
+    {
+      "key": "Download every read. The four runs are about 20 GB in total.",
+      "source": "Download every read. The four runs are about 20 GB in total.",
+      "source_sha256": "81159f0e33cd8ab0643297722e7cb692a710a701ceed6b3ea2ed72551ae752bf",
+      "table": "ui",
+      "translation": "Descargar cada lectura. Las cuatro ejecuciones son de unos 20 GB en total."
+    },
+    {
+      "key": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source_sha256": "515397653a26413dbf2b840eade02d45e1e375e395558a9d92d83dbbb86a3b7c",
+      "table": "ui",
+      "translation": "La codificación se ejecuta por separado para cada tinción y la nombra en la columna. Proyección los mezcla en tres y es más rápido."
+    },
+    {
+      "key": "Every line in the figure, the axis spines and the tick marks included. The numbers beside the ticks are text and follow the font colour.",
+      "source": "Every line in the figure, the axis spines and the tick marks included. The numbers beside the ticks are text and follow the font colour.",
+      "source_sha256": "567c874e12935f1e9149d3af0a821b33f5381710c6dc4cad4d653704a6ae97a4",
+      "table": "ui",
+      "translation": "Cada línea de la figura, las espinas del eje y las marcas incluidas. Los números al lado de las marcas son texto y siguen el color de la fuente."
+    },
+    {
+      "key": "Everything that decides which rows reach the model — minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. Each one silently shrinks the dataset, so check the diagnostics after changing any of them.",
+      "source": "Everything that decides which rows reach the model — minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. Each one silently shrinks the dataset, so check the diagnostics after changing any of them.",
+      "source_sha256": "bfe048337f20c62020d613fb462d29c5de866f44cee3e10419bcdb399f9d44b6",
+      "table": "ui",
+      "translation": "Todo lo que decide qué filas alcanzan el modelo — mínimo de células por pozo, mínimo de observaciones por guía, el corte de la infracción de lectura y la eliminación atípica. Cada una encoge silenciosamente el conjunto de datos, así que compruebe los diagnósticos después de cambiar cualquiera de ellos."
+    },
+    {
+      "key": "Fold this run's figures away.",
+      "source": "Fold this run's figures away.",
+      "source_sha256": "8159fcc89433fa7b969f242e26507bcc8b945fb3e80e7e9d9b817e3562ce0987",
+      "table": "ui",
+      "translation": "Dobla las cifras de esta ejecución."
+    },
+    {
+      "key": "Go to the screen this run belongs to.",
+      "source": "Go to the screen this run belongs to.",
+      "source_sha256": "5e4a8f9bcb4de29f96b0afbf41efae85dadc20bc7257ba4855f60b4e8f10edfc",
+      "table": "ui",
+      "translation": "Ve a la cribado a la que pertenece esta ejecución."
+    },
+    {
+      "key": "Hand the summary to the Graph Builder — one row per cell, one column per statistic",
+      "source": "Hand the summary to the Graph Builder — one row per cell, one column per statistic",
+      "source_sha256": "713be0b880d896bf4fa1f35c04449c09797cf5696f5fc31983f7f9e9584d4431",
+      "table": "ui",
+      "translation": "Entregar el resumen a la Graph Builder — una fila por célula, una columna por estadística"
+    },
+    {
+      "key": "Hold this run at its next safe checkpoint.",
+      "source": "Hold this run at its next safe checkpoint.",
+      "source_sha256": "18600c3a466fcdf2c9e14cc2373840ad598f7f162e30b981298ed0e22502c38b",
+      "table": "ui",
+      "translation": "Mantenga esta ejecución en su próximo puesto de control seguro."
+    },
+    {
+      "key": "Hover any module tile and it lights up in the colour of how finished it is.",
+      "source": "Hover any module tile and it lights up in the colour of how finished it is.",
+      "source_sha256": "86c8a1e018f0ed63e10e38b054cd26e28485bdea536a8e3fc46e2d758f706a5a",
+      "table": "ui",
+      "translation": "Atraviesa cualquier módulo de mosaicos y se ilumina en el color de cómo está terminado."
+    },
+    {
+      "key": "How each measurement combines when several child objects roll up onto one parent. Four pathogens in a cell: their areas SUM, their minimum intensity is the MINIMUM of the four, their mean is the mean. Change any row that is wrong for your data.",
+      "source": "How each measurement combines when several child objects roll up onto one parent. Four pathogens in a cell: their areas SUM, their minimum intensity is the MINIMUM of the four, their mean is the mean. Change any row that is wrong for your data.",
+      "source_sha256": "934ce3b0bcbf0726f38b3daeb724dc03018655a53764f52579cc323d46a0a1e2",
+      "table": "ui",
+      "translation": "Cómo se combina cada medición cuando varios objetos secundarios se enrollan en un padre. Cuatro patógenos en una célula: sus áreas SUM, su intensidad mínima es el MÍNIMO de los cuatro, su media es la media. Cambie cualquier fila que esté mal para sus datos."
+    },
+    {
+      "key": "How each measurement combines when several children roll up onto one cell, and a dropdown to change any of it.",
+      "source": "How each measurement combines when several children roll up onto one cell, and a dropdown to change any of it.",
+      "source_sha256": "e783839c15209b3c80b5084ddb5d5eafb4e04664047bc9b758aa17b248d6cd5e",
+      "table": "ui",
+      "translation": "Cómo cada medición se combina cuando varios niños se enrollan en una célula, y un desplegable para cambiar cualquiera de ella."
+    },
+    {
+      "key": "How many cells a well's montage puts on a row. The count stays the same whatever size the window is — a wider panel draws the same cells larger, up to their natural size, rather than fitting more of them in, so two wells are always laid out alike. How many ROWS fit is still measured, because that is what decides the page.",
+      "source": "How many cells a well's montage puts on a row. The count stays the same whatever size the window is — a wider panel draws the same cells larger, up to their natural size, rather than fitting more of them in, so two wells are always laid out alike. How many ROWS fit is still measured, because that is what decides the page.",
+      "source_sha256": "e569ad408bbd6f6b1ba0db70997d9e8a3ee26cfb01910c01cb9595937ded5d73",
+      "table": "ui",
+      "translation": "¿Cuántas células el ajuste de un pozo pone en una fila. El conteo permanece igual sea cual sea el tamaño de la ventana es — un panel más amplio dibuja las mismas células más grandes, hasta su tamaño natural, en lugar de encajar más de ellos, por lo que dos pozos siempre están dispuestos por igual. ¿Cuántos ROWS ajuste todavía se mide, porque eso es lo que decide la página."
+    },
+    {
+      "key": "How solid cards, settings sections, consoles, previews and the rounded Home panel are. This applies in every theme, including Glass, Space, Cell, Dark and Light. In Glass this controls material strength while preserving its designed translucency; in other themes it is literal surface opacity. A surface will not go thinner than the point where its text stops clearing WCAG AA over the background.",
+      "source": "How solid cards, settings sections, consoles, previews and the rounded Home panel are. This applies in every theme, including Glass, Space, Cell, Dark and Light. In Glass this controls material strength while preserving its designed translucency; in other themes it is literal surface opacity. A surface will not go thinner than the point where its text stops clearing WCAG AA over the background.",
+      "source_sha256": "003542ac32fb434895727ffaa0a9536b286f937e7dc97dbe806861bdc5e3a9be",
+      "table": "ui",
+      "translation": "Cómo son las tarjetas sólidas, las secciones de configuración, las consolas, las vistas previas y el panel Inicio redondeado. Esto se aplica en cada tema, incluidos Glass, Space, Cell, Dark y Light. En Glass, este controla la fuerza del material mientras conserva su translucidez diseñada; en otros temas es opacidad superficial literal. Una superficie no se irá más delgada que el punto donde su texto deja de limpiar WCAG AA sobre el fondo."
+    },
+    {
+      "key": "How the cells are drawn: channels, size, normalisation, outlines. The same settings the annotation application offers, under the same names. What the chosen mode cannot use is greyed with the reason rather than hidden.",
+      "source": "How the cells are drawn: channels, size, normalisation, outlines. The same settings the annotation application offers, under the same names. What the chosen mode cannot use is greyed with the reason rather than hidden.",
+      "source_sha256": "cd9ab60435c415f23266993dd240f44c2c796b816fccc4d54d18fe8c25030e68",
+      "table": "ui",
+      "translation": "Cómo se dibujan las células: canales, tamaño, normalización, contornos. La misma configuración que ofrece la aplicación de anotación, bajo los mismos nombres. Lo que el modo elegido no puede usar está en gris con la razón en lugar de oculto."
+    },
+    {
+      "key": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source": "How the cut-off separating the two populations is chosen, and how much disagreement between methods is tolerated before the run says so. This is the single most consequential group in the assay.",
+      "source_sha256": "49be6c6def4e8a5f31be0e87e289c2cf565bbb1597888dc1ee4cfd8a5bba3a18",
+      "table": "ui",
+      "translation": "Cómo se elige el corte que separa las dos poblaciones, y cuánto desacuerdo entre los métodos se tolera antes de que la ejecución lo diga. Este es el único grupo más consecuente en el ensayo."
+    },
+    {
+      "key": "Inspect held-out predictions from grouped or nested cross-validation, calibration, confusion matrices, per-plate performance and explicit train/test leakage checks.",
+      "source": "Inspect held-out predictions from grouped or nested cross-validation, calibration, confusion matrices, per-plate performance and explicit train/test leakage checks.",
+      "source_sha256": "d54dcf1c2700f30a286633ddaed4816946a1f6ae35d93a877731b40f86f57448",
+      "table": "ui",
+      "translation": "Inspeccione predicciones ocultas de validación cruzada agrupada o anidada, calibración, matrices de confusión, rendimiento por placa y comprobaciones explícitas de fugas de entrenamiento/prueba."
+    },
+    {
+      "key": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "table": "ui",
+      "translation": "Cargar una tabla o utilizar tablas de fusión para crear un conjunto de trabajo con claves validadas y agregación. Definir compuertas de umbral o polígono en columnas reales de característica/coordenada, a continuación, aplicar la compuerta guardada a objetos compatibles. Usar Anotar para escribir las compuertas mostradas en una columna de anotación; revisar los objetos seleccionados y elegir etiquetas binarias o multiclase."
+    },
+    {
+      "key": "Mapping segmentation uncertainty: {passes} detection runs…",
+      "source": "Mapping segmentation uncertainty: {passes} detection runs…",
+      "source_sha256": "c767999ff7d47c95f7aecf58773e2fa1d4b0cde4808a5ed1e5e139315c7430db",
+      "table": "ui",
+      "translation": "Cartografiar la incertidumbre de segmentación: {passes} ejecuciones de detección..."
+    },
+    {
+      "key": "Masks were not kept for this run, so there is nothing to draw.",
+      "source": "Masks were not kept for this run, so there is nothing to draw.",
+      "source_sha256": "cb059d911018d225d1550de7499786e68b7c594a67f10b90630d53b20dabd5c8",
+      "table": "ui",
+      "translation": "No se guardaban máscaras para esta ejecución, así que no hay nada que dibujar."
+    },
+    {
+      "key": "Masks were not kept for this run.",
+      "source": "Masks were not kept for this run.",
+      "source_sha256": "315798aa5b689ff739d3ef5dc46eebce63a1cf4ec9dd5cc14997a2ba94a77275",
+      "table": "ui",
+      "translation": "Las máscaras no fueron guardadas para esta ejecución."
+    },
+    {
+      "key": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source": "Nothing searched yet. The search reads a bounded sample, so it costs seconds rather than a run.",
+      "source_sha256": "a65699a4abcda5196fd246735fbf84337f611a4a7eaffeb6cba3ed04a75529a7",
+      "table": "ui",
+      "translation": "La búsqueda lee una muestra limitada, por lo que cuesta segundos en lugar de una ejecución."
+    },
+    {
+      "key": "Objects needed to seed a population. Anything sparser is treated as debris and left out of every gate.",
+      "source": "Objects needed to seed a population. Anything sparser is treated as debris and left out of every gate.",
+      "source_sha256": "6ba9f267eeef5463dc2c2d02fb20203fba5ce168abcfc65313ca7603dab439a4",
+      "table": "ui",
+      "translation": "Objetos necesarios para formar una población. Todo lo más disperso se trata como residuo y se deja fuera de cada compuerta."
+    },
+    {
+      "key": "On: a flood over the budget is trimmed back to the pixels reachable nearest the click, which leaves a bounded object you can edit. Off: an over-budget flood is refused outright and the mask is untouched, so a tolerance that is far too high says so instead of handing back a piece of the field.",
+      "source": "On: a flood over the budget is trimmed back to the pixels reachable nearest the click, which leaves a bounded object you can edit. Off: an over-budget flood is refused outright and the mask is untouched, so a tolerance that is far too high says so instead of handing back a piece of the field.",
+      "source_sha256": "5b01c6ffcdd02ec132601d648a934e39c05a72daa2cfcd65315e60d17857aea8",
+      "table": "ui",
+      "translation": "Activado: una inundación sobre el presupuesto se recorta de nuevo a los píxeles más cercanos al clic, lo que deja un objeto limitado que se puede editar. Desactivado: se rechaza una inundación de exceso de presupuesto y la máscara está intacta, por lo que una tolerancia que es demasiado alta lo dice en lugar de devolver un pedazo del campo."
+    },
+    {
+      "key": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source_sha256": "0c826070be36c280add2db58a54a88c197302647296252cd344ec7c0118fb44f",
+      "table": "ui",
+      "translation": "Activado: los objetos son más brillantes que el fondo, como en la fluorescencia. Desactivado: tomar el lado oscuro en su lugar, para campo claro o tinción."
+    },
+    {
+      "key": "On: the tolerance below is a percentage of THIS image's own intensity range, so one setting behaves the same on 8-bit and 16-bit data. Off: a fixed grey-level distance, which selects nothing on a 16-bit image at a value tuned for 8-bit and floods the whole frame the other way round.",
+      "source": "On: the tolerance below is a percentage of THIS image's own intensity range, so one setting behaves the same on 8-bit and 16-bit data. Off: a fixed grey-level distance, which selects nothing on a 16-bit image at a value tuned for 8-bit and floods the whole frame the other way round.",
+      "source_sha256": "711193fb6c40218ef827aedd9a4e423c470ceb1bb472e7b18aa7c8f8bcec5086",
+      "table": "ui",
+      "translation": "Activado: la tolerancia a continuación es un porcentaje del rango de intensidad propia de ESTA imagen, por lo que una configuración se comporta de la misma manera en datos de 8 bits y 16 bits. Desactivado: una distancia fija de nivel gris, que selecciona nada en una imagen de 16 bits en un valor sintonizado para 8 bits e inunda todo el marco al revés."
+    },
+    {
+      "key": "Per channel (one pass per stain)",
+      "source": "Per channel (one pass per stain)",
+      "source_sha256": "1a2bb7239b7ecfd4323d52e6b856394fc9fdc73f0255ac36f1527bbadebf8c11",
+      "table": "ui",
+      "translation": "Por canal (una pasada por tinción)"
+    },
+    {
+      "key": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source": "Planes displayed in the montage. Enter the colour letters used by Annotate — r, g, b, or a combination such as 'r,g,b', 'rg', or 'b' — and each letter is resolved to the corresponding source channel. Source-channel indices such as '0,1,2' are also accepted.\n\nLeft empty, the run's own png_dims are read back out of measurements.db, so the crops match the PNGs that run wrote.",
+      "source_sha256": "3648e84647b7195025a60a1399dc3c107993832a14b1808898c128ece76c5a5e",
+      "table": "ui",
+      "translation": "Planos mostrados en el montaje. Introduzca las letras de color utilizadas por Annotate — r, g, b, o una combinación como 'r,g,b', 'rg', o 'b' — y cada letra se resuelve al canal fuente correspondiente. También se aceptan índices de canales de origen como '0,1,2'. Dejado vacío, el propio png_dims de la ejecución se lee de nuevo fuera de measurements.db, por lo que los recortes coinciden con el PNGs que escribió la ejecución."
+    },
+    {
+      "key": "Planning — reading tile headers and overlap strips…",
+      "source": "Planning — reading tile headers and overlap strips…",
+      "source_sha256": "68f2035e2330b85ede9512322b5fd356841843c7b9eb18e430d200a2a50cb2ec",
+      "table": "ui",
+      "translation": "Planificación — leer cabeceras de teselas y tiras de solapamiento..."
+    },
+    {
+      "key": "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.",
+      "source": "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.",
+      "source_sha256": "0758caed71938c52ac2cb318e037ffc3f5cb5d2fc1c75b58716ae3f1ccf96a6a",
+      "table": "ui",
+      "translation": "Apunta estos a un proyecto: editar máscaras a mano, coser teselas, leer una incrustación, dibujar una compuerta, construir una parcela, comprobar la calidad."
+    },
+    {
+      "key": "Proportion (0 or 1 per cell)",
+      "source": "Proportion (0 or 1 per cell)",
+      "source_sha256": "21cbba61a5cacafcd4a26bf0e2bdc700d8164e564ccbd1884d3056d1cf03317c",
+      "table": "ui",
+      "translation": "Proporción (0 ó 1 por célula)"
+    },
+    {
+      "key": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source_sha256": "eafc93df46da79b2779db48f733e586b4353c6aa376b5ead79ba349e456ab4fc",
+      "table": "ui",
+      "translation": "Raw lee de la cribado publicada, NCBI BioProject PRJNA1261935. Marque las ejecuciones que desea y establezca cuántas lecturas tomar de cada una, sólo que se descarga mucho."
+    },
+    {
+      "key": "Record failures that stop the run.",
+      "source": "Record failures that stop the run.",
+      "source_sha256": "14e86b7188149fa0b18763acdcf5e97e91985cfeb07696d63cc770a801f587c0",
+      "table": "ui",
+      "translation": "Registro de fallas que detienen la ejecución."
+    },
+    {
+      "key": "Run two Cellpose models over the same fields and see what changed: object counts, the background-excluded ARI, and whether the extra objects are new cells or fragments of old ones.",
+      "source": "Run two Cellpose models over the same fields and see what changed: object counts, the background-excluded ARI, and whether the extra objects are new cells or fragments of old ones.",
+      "source_sha256": "8cc4e0aa4fe357eb76beef89253791417117b69f3e2a39ecbde8892b315ed1a3",
+      "table": "ui",
+      "translation": "Ejecute dos modelos Cellpose en los mismos campos y vea qué cambió: cuenta de objetos, ARI excluida de fondo y si los objetos adicionales son células nuevas o fragmentos de objetos antiguos."
+    },
+    {
+      "key": "Select a strategy and choose “Run the strategy”. No cells are selected and no results are written before the run.",
+      "source": "Select a strategy and choose “Run the strategy”. No cells are selected and no results are written before the run.",
+      "source_sha256": "353a035d9a677bea4d03c4077c86eede10287a1c600945b9d7c063624243ae63",
+      "table": "ui",
+      "translation": "Seleccione una estrategia y seleccione “Ejecutar la estrategia”. No se seleccionan células y no se escriben resultados antes de la ejecución."
+    },
+    {
+      "key": "Select how cells are prioritised for annotation. The description below states the intended use, assumptions, and computational cost of each strategy.",
+      "source": "Select how cells are prioritised for annotation. The description below states the intended use, assumptions, and computational cost of each strategy.",
+      "source_sha256": "c316a60fe9f23dc07c4e47d4392e27264c0f7c85b2cdacac5bd89083f1afd8fe",
+      "table": "ui",
+      "translation": "Seleccione cómo se priorizan las células para la anotación. La descripción siguiente indica el uso previsto, las suposiciones y el costo computacional de cada estrategia."
+    },
+    {
+      "key": "Set the number of feature-space clusters across which the annotation budget is distributed. Zero uses one cluster per queued cell.",
+      "source": "Set the number of feature-space clusters across which the annotation budget is distributed. Zero uses one cluster per queued cell.",
+      "source_sha256": "7d42479b22cfb680f14c0ee10d078c60d773a346cef331e79dabbf78dbd135db",
+      "table": "ui",
+      "translation": "Establecer el número de clusters de espacio de características a través de los cuales se distribuye el presupuesto de anotación. Zero utiliza un clucker por célula en cola."
+    },
+    {
+      "key": "Set the target number of cells per class. This controls the positive set, matched comparison set, and annotation queue.",
+      "source": "Set the target number of cells per class. This controls the positive set, matched comparison set, and annotation queue.",
+      "source_sha256": "45569e8811d9bbc7d492abc40498d4f74f73131b1620a15ee02614a289d957ad",
+      "table": "ui",
+      "translation": "Establecer el número de células objetivo por clase. Esto controla el conjunto positivo, el conjunto de comparación igualado y la cola de anotación."
+    },
+    {
+      "key": "Show some cells first — the comparison groups them by what the picker chose, and nothing is picked yet.",
+      "source": "Show some cells first — the comparison groups them by what the picker chose, and nothing is picked yet.",
+      "source_sha256": "359ba455b04d16567260b712c94bd59d4e919dbf2de70753cca6d4ffb09cb98b",
+      "table": "ui",
+      "translation": "Mostrar algunas células primero — los grupos de comparación ellos por lo que el selector eligió, y nada es elegido todavía."
+    },
+    {
+      "key": "Show the cells",
+      "source": "Show the cells",
+      "source_sha256": "6de0e22f6a363cee94e0eddd3a05b3ccb2cf7b0270e2a13d2cc18dc5a12a145f",
+      "table": "ui",
+      "translation": "Mostrar las células"
+    },
+    {
+      "key": "Show the previous object's channel. Cycles cell, nucleus, both.",
+      "source": "Show the previous object's channel. Cycles cell, nucleus, both.",
+      "source_sha256": "dab2cfeb886d33229c18767704edf303682d50ad983a58ba2c5f11339638e811",
+      "table": "ui",
+      "translation": "Mostrar el canal del objeto anterior. Ciclos célula, núcleo, ambos."
+    },
+    {
+      "key": "Show this run's figures again.",
+      "source": "Show this run's figures again.",
+      "source_sha256": "60aef91c97a306b4c0906d73496142d29700de178b404fd72006ab982e883145",
+      "table": "ui",
+      "translation": "Muestra las cifras de esta ejecución de nuevo."
+    },
+    {
+      "key": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source": "Show this run's own volcano next to the loaded run's, each answering its own hover and click. Two runs can be live at once.",
+      "source_sha256": "cf23410719a1ba3f6c9648f6011d07374cc85c45837ade1879f47af360da42c9",
+      "table": "ui",
+      "translation": "Mostrar el propio volcán de esta ejecución junto a la ejecución cargada, cada uno contesta su propia ronda y haga clic. Dos ejecuciones pueden ser en vivo a la vez."
+    },
+    {
+      "key": "Ten ways of choosing WHICH of these cells get annotated, each saying what it is for and what it costs — the top-scoring cells against a matched random draw, uncertainty and diversity sampling, control wells as anchors, positive-unlabelled learning, self-training, two-view disagreement, score strata, neighbour propagation, and the plain random draw every one of them is measured against. Wells are never split across train and test, and the fit is reported with the score's own inputs removed as well as kept.",
+      "source": "Ten ways of choosing WHICH of these cells get annotated, each saying what it is for and what it costs — the top-scoring cells against a matched random draw, uncertainty and diversity sampling, control wells as anchors, positive-unlabelled learning, self-training, two-view disagreement, score strata, neighbour propagation, and the plain random draw every one of them is measured against. Wells are never split across train and test, and the fit is reported with the score's own inputs removed as well as kept.",
+      "source_sha256": "ce2fcc112893de7dee8e6f7979d3b17c1afcd83e52527f3938aa0d111cea3104",
+      "table": "ui",
+      "translation": "Diez maneras de elegir QUÉ de estas células se anotan, cada una diciendo lo que es para y lo que cuesta: las células de puntuación superior frente a un sorteo aleatorio emparejado, la incertidumbre y la diversidad de muestreo, pozos de control como anclas, aprendizaje positivo sin etiqueta, autoentrenamiento, desacuerdo de dos puntos, estratos de puntuación, propagación vecina, y el dibujo aleatorio simple cada uno de ellos se mide contra. Los pozos nunca se dividen entre entrenamiento y prueba, y se informa del ajuste con las propias entradas de la puntuación eliminado así como mantenido."
+    },
+    {
+      "key": "The colour of every LINE in the figure: the axis spines and the tick marks. The numbers printed beside the ticks are text and follow the font colour.",
+      "source": "The colour of every LINE in the figure: the axis spines and the tick marks. The numbers printed beside the ticks are text and follow the font colour.",
+      "source_sha256": "8b01af9d7ab5cf328f9731ed524da725b89043656ee3e07332aab037582a8806",
+      "table": "ui",
+      "translation": "El color de cada LÍNEA en la figura: las espinas del eje y las marcas. Los números impresos junto a las marcas son texto y siguen el color de la fuente."
+    },
+    {
+      "key": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source": "The diagnostic figures a run draws as it goes — how many example fields, at what size, with which colour map and normalisation. Useful while tuning, and the first thing to switch off for a long unattended run.",
+      "source_sha256": "270bbdb006ea0e8a1f1cd07e30a520a14e6fbce9c03e3c57dc27e09cdba829e3",
+      "table": "ui",
+      "translation": "Las figuras diagnósticas de una ejecución dibujan como va — cuántos campos de ejemplo, a qué tamaño, con qué mapa de color y normalización. Útil mientras se sintoniza, y la primera cosa que se apaga para una larga ejecución sin vigilancia."
+    },
+    {
+      "key": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source_sha256": "0d0f0759c15a304adb7121b464f14f18ccf67004e98a7c857dfbf4fd42ba20d9",
+      "table": "ui",
+      "translation": "Los metadatos, la puntuación y las tablas de recuento de la regresión se ejecutan encendido. Los tres tienen que ponerse de acuerdo en el nombre del pocillo y del gRNA — desacuerdo hay la causa habitual de un resultado vacío."
+    },
+    {
+      "key": "The plan appears here: canvas size, how many tiles registered, which ones fell back to their stage position, and the largest residuals.",
+      "source": "The plan appears here: canvas size, how many tiles registered, which ones fell back to their stage position, and the largest residuals.",
+      "source_sha256": "4430eb9868680dffad5b9283c692a07942ff0add24a3835a6f9c9dc8092b0ed3",
+      "table": "ui",
+      "translation": "El plan aparece aquí: tamaño de lienzo, cuántas teselas registradas, cuáles cayeron de nuevo a su posición escénica, y los residuos más grandes."
+    },
+    {
+      "key": "The plan summary and, after a run, what was converted and what was skipped.",
+      "source": "The plan summary and, after a run, what was converted and what was skipped.",
+      "source_sha256": "c3f11f30541f90fd748f4d1eb85b3135b7b3508e3187d4c2b1527dbe2733f281",
+      "table": "ui",
+      "translation": "El resumen del plan y, después de una ejecución, lo que se convirtió y lo que se omitió."
+    },
+    {
+      "key": "The report will describe selected cells, model fitting, evaluation data, and interpretation limits.",
+      "source": "The report will describe selected cells, model fitting, evaluation data, and interpretation limits.",
+      "source_sha256": "0715d2f2c647e93d1d8e4e33d6e5dc8ab4e0c8972c05110bc24f3fbfc804deaa",
+      "table": "ui",
+      "translation": "El informe describirá células seleccionadas, ajustes de modelos, datos de evaluación y límites de interpretación."
+    },
+    {
+      "key": "The rules that keep implausible tracks out of the result — the largest jump allowed between frames, how straight a path has to be, and the outlier cutoff. Tighten them when tracking errors show up as impossibly fast cells.",
+      "source": "The rules that keep implausible tracks out of the result — the largest jump allowed between frames, how straight a path has to be, and the outlier cutoff. Tighten them when tracking errors show up as impossibly fast cells.",
+      "source_sha256": "1698e55779569b9364cbc5842692b7c67dbbfd2b13c74c2a10ac3111926f0161",
+      "table": "ui",
+      "translation": "Las reglas que mantienen pistas inverosímiles fuera del resultado — el salto más grande permitido entre los marcos, lo recto que tiene que ser un camino, y el corte atípico. Apriete cuando los errores de seguimiento aparecen como células imposiblemente rápidas."
+    },
+    {
+      "key": "The size and intensity windows an object has to fall inside to count, plus the per-well cell limits. These gates decide which cells the recruitment ratio is averaged over.",
+      "source": "The size and intensity windows an object has to fall inside to count, plus the per-well cell limits. These gates decide which cells the recruitment ratio is averaged over.",
+      "source_sha256": "ad23802218960c945897063d4a9244ba91138b1db6c9515a8161ade7791e3f27",
+      "table": "ui",
+      "translation": "El tamaño y la intensidad de las ventanas de un objeto tiene que caer dentro para contar, además de los límites de célula por pozo. Estas compuertas deciden qué células la relación de reclutamiento se promedia sobre."
+    },
+    {
+      "key": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source_sha256": "1351f56714768824e190ab99739acf09743eaf8bea27f9638fc7b78f5cdcfb79",
+      "table": "ui",
+      "translation": "La lectura de la invasión en dos colores: qué canales llevan las tinciones exterior y total, cómo se mide la señal exterior, cómo se elige y se verifica su umbral, y qué objetos cuentan como parásitos en absoluto. La tabla de la que se leen los parásitos está bajo Medidas."
+    },
+    {
+      "key": "There is nothing to compare yet — press “Show the cells” first. The comparison groups the cells by what the picker chose, and nothing is picked until a montage is loaded.",
+      "source": "There is nothing to compare yet — press “Show the cells” first. The comparison groups the cells by what the picker chose, and nothing is picked until a montage is loaded.",
+      "source_sha256": "2d536f1d3aa6803c78e6fa62c4cd85a8340d8243631b716d37f476529c570722",
+      "table": "ui",
+      "translation": "No hay nada que comparar todavía — presione “Mostrar las células” primero. La comparación agrupa las células por lo que el selector eligió, y nada se elige hasta que se cargue un montaje."
+    },
+    {
+      "key": "This run is still going, so it has no results to show yet. It becomes the loaded run when it finishes.",
+      "source": "This run is still going, so it has no results to show yet. It becomes the loaded run when it finishes.",
+      "source_sha256": "125644e12d69b18ebc69dd8afe50f53b8547a6f5b2d41aafc91876fc4bb2f1f8",
+      "table": "ui",
+      "translation": "Esta ejecución todavía está en marcha, por lo que no tiene resultados que mostrar todavía. Se convierte en la ejecución cargada cuando termina."
+    },
+    {
+      "key": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
+      "source": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
+      "source_sha256": "a51dc627fa198511c47bd0fef31399262aef4c10214ded284a553cce38f59252",
+      "table": "ui",
+      "translation": "Esta ejecución no guardó espacio de trabajo — se ejecutó con 'Saved runs carry: Nothing', o antes de que spaCR grabara uno. Preferencias ▸ Desempeño ▸ Saved runs carry."
+    },
+    {
+      "key": "This run's volcano as it last looked. A still, not a live plot: open the run to hover, click and filter it.",
+      "source": "This run's volcano as it last looked. A still, not a live plot: open the run to hover, click and filter it.",
+      "source_sha256": "5bc4644de3390143f9ca283f05468dd9cf3e806c1f74589883f09e08a041aaf3",
+      "table": "ui",
+      "translation": "El volcán de esta ejecución como se veía por última vez. Un todavía, no una trama en vivo: abrir la ejecución para flotar, hacer clic y filtrarlo."
+    },
+    {
+      "key": "Threshold width",
+      "source": "Threshold width",
+      "source_sha256": "e5f931845514cf8148650cfb53574f091c257771287f4cb2f7512d726f34e654",
+      "table": "ui",
+      "translation": "Ancho del umbral"
+    },
+    {
+      "key": "Tick at least one run to overlay.",
+      "source": "Tick at least one run to overlay.",
+      "source_sha256": "02ea532521ecf046e6b0e504e540dabcd08c112dbfd1af748f55784279aea63e",
+      "table": "ui",
+      "translation": "Tic al menos una ejecución para superponerse."
+    },
+    {
+      "key": "Tick size",
+      "source": "Tick size",
+      "source_sha256": "e2bddc5bfb0776d6a4bb5cd29ec577d07dd8d9d856829f59cae42fc2454f8ee1",
+      "table": "ui",
+      "translation": "Tamaño de las marcas"
+    },
+    {
+      "key": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source": "Type a WHERE predicate yourself, e.g. cell_area > 1000 AND well LIKE 'A%'",
+      "source_sha256": "f0557c2106ed7c4665929b2ad11b7c20e5c230cadc4ae7e699b5a123b2559966",
+      "table": "ui",
+      "translation": "Escriba usted mismo un predicado WHERE, por ejemplo cell_area > 1000 y well LIKE 'A%'"
+    },
+    {
+      "key": "What is being modelled: which score column (or columns — name several and each is fitted and corrected as its own family), whether one row is a well or a single cell, and how the values are collapsed and transformed before the model sees them.",
+      "source": "What is being modelled: which score column (or columns — name several and each is fitted and corrected as its own family), whether one row is a well or a single cell, and how the values are collapsed and transformed before the model sees them.",
+      "source_sha256": "ed75721d92747d72f4f3dfebd2f66341d6be356c1faef1acd3341a50498fe80c",
+      "table": "ui",
+      "translation": "Lo que se está modelando: qué columna de puntuación (o columnas — nombre varios y cada uno se ajusta y corrige como su propia familia), si una fila es un pozo o una sola célula, y cómo los valores se colapsan y se transforman antes de que el modelo los vea."
+    },
+    {
+      "key": "What survives the run: which masks and images are written, which intermediates are kept, how arrays are compressed, and whether objects are filtered or merged on the way out. Disk usage is decided here.",
+      "source": "What survives the run: which masks and images are written, which intermediates are kept, how arrays are compressed, and whether objects are filtered or merged on the way out. Disk usage is decided here.",
+      "source_sha256": "c0d63e716867859a3042139582e93912e3f62ef4635eac18855ee43a3833033d",
+      "table": "ui",
+      "translation": "Lo que sobrevive a la ejecución: qué máscaras e imágenes se escriben, qué intermedios se guardan, cómo se comprimen los arrays, y si los objetos se filtran o se fusionan al salir. El uso del disco se decide aquí."
+    },
+    {
+      "key": "What the training run begins from — a pretrained model fine-tuned on your data, or randomly initialised weights — and the name the result is saved under. Fine-tuning needs far fewer labelled images than starting from scratch.",
+      "source": "What the training run begins from — a pretrained model fine-tuned on your data, or randomly initialised weights — and the name the result is saved under. Fine-tuning needs far fewer labelled images than starting from scratch.",
+      "source_sha256": "43008a362700b9b758d4df2c4bb1158bacffaeaeb1645945eea5926bb4531b6a",
+      "table": "ui",
+      "translation": "De qué parte la ejecución de entrenamiento —un modelo pre-entrenado ajustado a tus datos, o pesos inicializados aleatoriamente— y el nombre del resultado se guarda debajo. El ajuste necesita muchas menos imágenes etiquetadas que a partir de cero."
+    },
+    {
+      "key": "Where the cell-probability map is cut. Lower it to keep dimmer objects the network was unsure about; raise it to keep only confident ones. Open the Cell probability tab after a run and the number has something to be judged against.",
+      "source": "Where the cell-probability map is cut. Lower it to keep dimmer objects the network was unsure about; raise it to keep only confident ones. Open the Cell probability tab after a run and the number has something to be judged against.",
+      "source_sha256": "2276c575bd0a900a4632a62b74271b78c870d34166375f53efdda6f1100e6311",
+      "table": "ui",
+      "translation": "Donde se corta el mapa de probabilidad de células. Bájelo para mantener los objetos dimmer de los que la red no estaba segura; hágalo subir para mantener sólo los seguros. Abra la pestaña de probabilidad después de una ejecución y el número tiene algo contra lo que juzgar."
+    },
+    {
+      "key": "Whether the fitted surface is checked before being applied, and what happens when a plate has no usable estimate — skip it, or stop the run. Stopping is the safer choice the first time you correct an unfamiliar dataset.",
+      "source": "Whether the fitted surface is checked before being applied, and what happens when a plate has no usable estimate — skip it, or stop the run. Stopping is the safer choice the first time you correct an unfamiliar dataset.",
+      "source_sha256": "a30fc7585da2f1aba2b621fe30b72bdcf28fd1d536514b6da7fec450e5fb3cc3",
+      "table": "ui",
+      "translation": "Si la superficie instalada se comprueba antes de ser aplicada, y lo que sucede cuando una placa no tiene una estimación utilizable — saltarlo, o detener la ejecución. Detener es la opción más segura la primera vez que corrige un conjunto de datos desconocido."
+    },
+    {
+      "key": "Which algorithm links objects between frames — Trackastra, Ultrack or a plain distance/overlap linker — and the parameters belonging to whichever you pick. Switch backends when cells swap identities or tracks break at division.",
+      "source": "Which algorithm links objects between frames — Trackastra, Ultrack or a plain distance/overlap linker — and the parameters belonging to whichever you pick. Switch backends when cells swap identities or tracks break at division.",
+      "source_sha256": "481d51377648121aeda377dac9b89f09d7cf2710ff501d32f43a046597dfe626",
+      "table": "ui",
+      "translation": "Qué algoritmo une objetos entre fotogramas — Trakastra, Ultrack o un enlace de distancia/superposición plana — y los parámetros que pertenecen a cualquiera que elijas. Cambia los backends cuando las células intercambian identidades o pistas se rompen en la división."
+    },
+    {
+      "key": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source": "Which family of coefficients is drawn. A run fitted at both levels holds two of them.",
+      "source_sha256": "a29efb37c00f66d85e02548d322eb6867b328f025e2fb5a1e95a1a9571196842",
+      "table": "ui",
+      "translation": "¿Qué familia de coeficientes se dibuja. Una ejecución montada en ambos niveles tiene dos de ellos."
+    },
+    {
+      "key": "Which feature the heatmap shows, how wells are grouped, and the colour map and value range used to draw it. Presentation of the classifier's output; it does not change the fit.",
+      "source": "Which feature the heatmap shows, how wells are grouped, and the colour map and value range used to draw it. Presentation of the classifier's output; it does not change the fit.",
+      "source_sha256": "f26874c59fe10b5087e29ea8f2ec1b789ee273747813b8c87e290b089d180289",
+      "table": "ui",
+      "translation": "Qué característica muestra el mapa de calor, cómo se agrupan los pozos, y el mapa del color y el rango de valor utilizado para dibujarlo. Presentación de la salida del clasificador; no cambia el ajuste."
+    },
+    {
+      "key": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
+      "source": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
+      "source_sha256": "fd36fe0d20280113f5ebfbb7cb79391cfdd7328d68962a75c5c4a1f5a7bcb3f8",
+      "table": "ui",
+      "translation": "Qué plano de máscara recorta cada región. 'cytoplasm' no tiene plano en el disco y se deriva como célula menos núcleo/patógeno, exactamente como lo deriva measure_crop."
+    },
+    {
+      "key": "Which plates the classifier is built from, the experiment it is filed under, and which stages run — build the training set, train, test. Uncheck the stages you have already done to re-run only the part you are iterating on.",
+      "source": "Which plates the classifier is built from, the experiment it is filed under, and which stages run — build the training set, train, test. Uncheck the stages you have already done to re-run only the part you are iterating on.",
+      "source_sha256": "bc2356bb310386a808cc2454eb5afc9d328f25e9c036e00b9e21d09c375df2ca",
+      "table": "ui",
+      "translation": "Con qué placas se construye el clasificador, el experimento bajo el que se presenta, y qué etapas se ejecutan —construye el conjunto de entrenamiento, entrenar, probar. Desmarque las etapas que ya ha hecho para volver a ejecutar sólo la parte en la que está iterando."
+    },
+    {
+      "key": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
+      "source": "Which rows reach the model, and what they are measured against. The plate identifier, the positive and negative control wells, any row filter — and every cutoff that drops data: minimum cells per well, minimum observations per guide, the read-fraction cutoff and outlier removal. The controls set the scale the effect sizes are reported on; each cutoff silently shrinks the dataset, so check the diagnostics after changing one.",
+      "source_sha256": "c25ad0a557a0dbe851c9843511359fc2d4977fd46d562948d1b055e052b29f54",
+      "table": "ui",
+      "translation": "El identificador de la placa, los pozos de control positivos y negativos, cualquier filtro de fila — y cada corte que deja caer los datos: células mínimas por pozo, observaciones mínimas por guía, el corte de la infracción de lectura y la eliminación del atípico. Los controles establecen la escala en la que se informan los tamaños del efecto; cada corte encoge silenciosamente el conjunto de datos, así que compruebe los diagnósticos después de cambiar uno."
+    },
+    {
+      "key": "Which stages run, whether this is a small test pass, and how the run behaves under load and failure — workers, batch size, tolerated failure rate and verbosity. Track a few fields in test mode before committing to a whole plate.",
+      "source": "Which stages run, whether this is a small test pass, and how the run behaves under load and failure — workers, batch size, tolerated failure rate and verbosity. Track a few fields in test mode before committing to a whole plate.",
+      "source_sha256": "f9207cbe258a54accc20c009ad25d320c2eb51d4cc15bfe76e01821300fcca74",
+      "table": "ui",
+      "translation": "¿Qué etapas se ejecutan, si se trata de un pase de prueba pequeño, y cómo se comporta la ejecución bajo carga y fallo — procesos de trabajo, tamaño de lote, tasa de fallo tolerado y verbosidad."
+    },
+    {
+      "key": "Write selected cells, hold-out cells, predictions, and the run report as separate files.",
+      "source": "Write selected cells, hold-out cells, predictions, and the run report as separate files.",
+      "source_sha256": "aa3fd61fd208ffc06e5915ec94bd0634ab918d71178d2c1bd23f5b6fdda53319",
+      "table": "ui",
+      "translation": "Escriba células seleccionadas, células de retención, predicciones y el informe de ejecución como archivos separados."
+    },
+    {
+      "key": "Write the figure, the plotted data, the statistics, the settings, and the cell images into one folder.",
+      "source": "Write the figure, the plotted data, the statistics, the settings, and the cell images into one folder.",
+      "source_sha256": "ca9b2d2553accad62a4fb42493acf55754d7be5caee13a689bdaf535427cd55c",
+      "table": "ui",
+      "translation": "Escriba la figura, los datos trazados, las estadísticas, la configuración y las imágenes de la célula en una carpeta."
+    },
+    {
+      "key": "a trend — something degrading plate after plate",
+      "source": "a trend — something degrading plate after plate",
+      "source_sha256": "22fa96b623886c95f8c9e8f0aded6da2ccc5994b5b3a1983c96aceacf7e461a2",
+      "table": "ui",
+      "translation": "una tendencia — algo que se degrada placa tras placa"
+    },
+    {
+      "key": "as the run saved them",
+      "source": "as the run saved them",
+      "source_sha256": "0b671f50104caa9c084b82790cb41faa1a712dc6c195caf7ab4025414b340cef",
+      "table": "ui",
+      "translation": "como la ejecución los salvó"
+    },
+    {
+      "key": "cell_area > 1000 AND well LIKE 'A%'",
+      "source": "cell_area > 1000 AND well LIKE 'A%'",
+      "source_sha256": "27764a635854e78020f43b2712c07a2874558ef0a99b38debb81aca73d97e7c3",
+      "table": "ui",
+      "translation": "cell_area > 1000 y well LIKE 'A%'"
+    },
+    {
+      "key": "e.g. cell (blank = all types)",
+      "source": "e.g. cell (blank = all types)",
+      "source_sha256": "5e937316889c909a82d619c9c587c5b7bea1ed53246f930594d28e1ab1aca450",
+      "table": "ui",
+      "translation": "Por ejemplo, célula (en blanco = todos los tipos)"
+    },
+    {
+      "key": "replace: the detection becomes the mask and what was there is gone. merge: keep every existing object and add detected ones only where nothing is labelled, so a detection run halfway through cannot undo the editing done so far.",
+      "source": "replace: the detection becomes the mask and what was there is gone. merge: keep every existing object and add detected ones only where nothing is labelled, so a detection run halfway through cannot undo the editing done so far.",
+      "source_sha256": "76033a82786d11c2d3ba2f1bb402b30519efbee7102a61b9eec8f0bb0dca2d82",
+      "table": "ui",
+      "translation": "reemplazar: la detección se convierte en la máscara y lo que estaba allí se ha ido. fusionar: mantener cada objeto existente y añadir los detectados sólo donde nada está etiquetado, por lo que una ejecución de detección a mitad de camino no puede deshacer la edición hecha hasta ahora."
+    },
+    {
+      "key": "wls — parametric: least squares weighted by cell count: normal errors whose variance falls as a well holds more cells",
+      "source": "wls — parametric: least squares weighted by cell count: normal errors whose variance falls as a well holds more cells",
+      "source_sha256": "668a8b5c2a4f01b1a958f240ec245d4a0452861d3ed710d41f4ad99647e2a65c",
+      "table": "ui",
+      "translation": "wls — paramétricos: mínimos cuadrados ponderados por número de células: errores normales cuya varianza cae como un pozo contiene más células"
+    },
+    {
+      "key": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source": "■ A run is already going. Wait for it to finish, or stop it, before re-fitting.",
+      "source_sha256": "092d25352ffea48ab0a0c8a942cc40b40eb8c2f548c7250bff60ab25b3f1c1d2",
+      "table": "ui",
+      "translation": "■ Una ejecución ya está en marcha. Espere a que termine, o detenga, antes de reajustar."
+    },
+    {
+      "key": "image_scatter",
+      "source": "Hover a point to see the cell; click it to open the crop",
+      "source_sha256": "75b1fbac685ec28b09d983af8dccc59a8b1c74658d3ec7f533e6359c2410c6ea",
+      "table": "module_summaries",
+      "translation": "Hover un punto para ver la célula; haga clic en él para abrir el recorte"
+    },
+    {
+      "key": "methods_export",
+      "source": "Draft the methods and results sections from the run, with every number traced",
+      "source_sha256": "c7a2e2e86f1b0b4ef72fe984f7ade063260dbc5784f424323d3ad5871bdf5248",
+      "table": "module_summaries",
+      "translation": "Borra los métodos y resultados de las secciones de la ejecución, con cada número rastreado"
+    }
+  ],
+  "schema": 1
+}

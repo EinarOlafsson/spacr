@@ -306,7 +306,9 @@
       "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
       "context": "Import's \"Load test data…\": every vendor format and naming, one press away.",
       "translation": "Import 의 \"Load test data…\" 입니다. 모든 공급업체 형식과 명명 방식을 버튼 한 번으로 받습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#1",
@@ -322,7 +324,9 @@
       "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
       "context": "What the button does. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
       "translation": "버튼의 동작. :class:`ImportTestDataChooser` 를 여는데, 이는 :data:`spacr.import_examples.IMPORT_VARIANTS` 의 변형마다 버튼이 하나씩 있고 마우스를 올리면 설명이 나옵니다. 선택한 변형을 가져오며(세트 전체가 하나의 아카이브이므로 처음 누를 때 모든 변형을 다운로드하고 이후에는 캐시에서 엽니다), 그다음:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#3",
@@ -346,7 +350,9 @@
       "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
       "context": "Same machinery as every other example set: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
       "translation": "다른 모든 예제 세트와 같은 방식입니다. :class:`_TarExampleWorker` 가 공유 진행률 대화 상자 뒤의 작업자 실행 경로에서 아카이브를 스트리밍하고 tar 데이터 필터를 거쳐 압축 해제합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo.ImportTestDataChooser#0",
@@ -502,6 +508,8 @@
     },
     {
       "label": "spacr.qt.install_consent.apply_choices#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the consent answers, read by the keys ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
       "source_sha256": "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19",
       "context": "the consent answers, read by the structured-data names ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
@@ -510,6 +518,8 @@
     },
     {
       "label": "spacr.qt.install_consent.maybe_show_installer_consent#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
       "source_sha256": "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
       "context": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
@@ -1982,7 +1992,9 @@
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
       "context": "the labels as ``uint16``.",
       "translation": "``uint16`` 으로 나타낸 레이블입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_labels#9",
@@ -1990,7 +2002,9 @@
       "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
       "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
       "translation": "ID 가 ``uint16`` 에 들어가지 않거나, 정확한 ID 모드가 잘못된 레이블을 받았을 때 발생합니다. 너무 큰 ID 는 절대 잘라 내지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_property#0",
@@ -3069,7 +3083,10 @@
       "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
       "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
       "translation": "편집기 유형입니다: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` 또는 ``\"choice\"``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "UMAP source documentation corrected inc00a087e749. Replacement exact-source review is2026-10-15-umap-tier-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.umap_figure_settings.Field#4",
@@ -3407,7 +3424,10 @@
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
       "context": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "translation": "matplotlib 이 이 프레임을 그리게 하는 ``(elev, azim, roll)`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#1",
@@ -3415,7 +3435,10 @@
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "translation": "``elev`` 는 ``[-90, 90]`` 안에 유지되므로 수직 방향이 뒤집히지 않습니다. 그다음 롤이 프레임이 가진 시선 축 둘레의 회전을 모두 담당합니다. 바로 아래(또는 위)를 볼 때는 방위각이 자유로우므로 롤이 영이 되도록 선택합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#2",
@@ -4009,7 +4032,9 @@
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
       "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "translation": "여기서 새로운 것은 바로 연결입니다. 같은 영역의 두 뷰는 정합 상태를 유지할 때만 나란히 놓을 가치가 있습니다. 현미경 시야를 향상된 자기 자신과 비교하는 큐레이터는 둘 사이의 차이를 찾고 있으며, 두 뷰가 가리키는 위치의 차이는 정보가 아닌 유일한 차이입니다. :meth:`ZoomableImageView.link_to` 는 뷰 그룹이 하나의 확대/축소와 하나의 스크롤 위치를 공유하게 하므로, 어느 뷰를 확대/축소하거나 이동해도 모두가 함께 움직입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#3",
@@ -4513,7 +4538,9 @@
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
       "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "translation": "왜 상세 로깅이 아닌가. 상세 로깅은 어떤 로그 레코드를 남길지만 결정하므로, 메모리에 대해 알려 줄 수 있는 것이 없습니다. 상세 로깅이 한때 설치했던 함수 추적기는 모든 호출과 모든 반환마다 실행되었고, 시작 시간의 스무 배 비용이 들었습니다. 추적기를 통해 얻은 기록은 실제 프로그램이 아니라 추적된 프로그램을 설명하게 되는데, 그것은 바로 아무도 측정하고 싶어 하지 않는 프로그램입니다. 그래서 대신 샘플링합니다. 결코 GUI 실행 경로가 아닌 데몬 실행 경로에서, 그 외에는 교란되지 않은 처리 세션에 대해 초당 한 번 psutil 을 읽습니다. 체크박스가 아니라 세 가지 상태인 이유는 유용한 기본값이 \"off\" 가 아니기 때문입니다 -- 가장 가치 있는 리소스 데이터는 아무도 실패할 것이라 예상하지 않은 처리 세션에서 나옵니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.completed_fields_in_merged#5",
@@ -4553,7 +4580,9 @@
       "source_sha256": "afe3be5468f4d9e5af0906d5e8c3cf172789a9f3c6e22ce78fe7cb00b6e14c4d",
       "context": "Describe object types once, collapsing organelle slots into a regex.",
       "translation": "객체 유형을 한 번씩 설명하며, 소기관 슬롯은 하나의 정규식으로 묶습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.schema.object_type_summary#1",
@@ -4729,7 +4758,9 @@
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
       "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "translation": "``size outliers`` 등가 지름이 ``median ± seg_qc_outlier_mad * 1.4826 * MAD`` 밖에 있는 객체의 비율입니다. 평균과 표준 편차가 아니라 중앙값과 MAD 를 씁니다. 잔해 다섯 조각만으로도 표준 편차가 부풀어 더 이상 어떤 것도 이상치가 아니게 되는데, 이 검사가 잡아내려고 존재하는 바로 그 경우입니다(``tests/test_seg_qc.py`` 가 둘을 대비합니다). *k* = 5 는 의도적으로 느슨합니다 — 실제 크기 분포는 로그 정규 분포이며 가우시안보다 꼬리가 두꺼우므로, 3 sigma 기준은 완전히 정상적인 현미경 시야에서도 몇 퍼센트를 표시합니다. 이 플래그는 객체 중 ``seg_qc_outlier_fraction`` (0.15)보다 많은 비율이 그 범위 밖에 있을 때 발생합니다. 두꺼운 꼬리, 혼합된 집단, 분할 결함 모두 이를 촉발할 수 있으며, 플래그는 그중 무엇이 존재하는지 식별하지 않습니다. 경계 객체는 ``diameter._region_diameters`` 가 제외하는 것과 똑같이 모든 크기 통계에서 제외되는데, 잘린 객체의 면적은 거짓이기 때문입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#17",
@@ -4745,7 +4776,9 @@
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
       "translation": "``measure_crop`` 은 spaCR 에서 비용이 큰 단계입니다. 모든 마스크를 열고, 모든 채널에서 모든 객체를 잘라 내고, 객체마다 수백 개의 특징을 계산하여 SQLite 에 기록합니다. 전체 플레이트라면 몇 시간이 걸립니다. 분할이 무너진 플레이트 — 초점이 맞지 않은 채널, 두 배나 틀린 지름, 판 모양으로 융합된 컨플루언트 단층 — 도 정확히 같은 시간이 들고, 결국 버려야 할 측정 테이블을 만들어 냅니다. 이 실패는 마스크만 봐도 명백하지만, 확인하려면 ``.npy`` 파일 천 개를 손으로 열어야 하므로 아무도 보지 않습니다. 마스크 통계는 의심스러운 현미경 시야를 강조할 수 있지만, 그 원인을 확정하거나 생물학적 해석을 검증할 수는 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#3",
@@ -4753,7 +4786,9 @@
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
       "translation": "그래서 이 모듈이 확인합니다. :mod:`spacr.object` 가 방금 기록한 레이블 마스크를 읽고, 몇 가지 강건한 통계로 모든 현미경 시야를 채점하고, 설정된 임계값을 넘는 현미경 시야를 명시한 점수표를 출력합니다. 아무것도 바꾸지 않습니다. ``seg_qc='report'`` (기본값)는 플래그를 드러낼 뿐 현미경 시야를 조용히 제외하지 않습니다. 어떤 현미경 시야를 유지할지는 사용자가 결정할 일이며, 그 결정에는 필터가 아니라 근거가 필요합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#7",
@@ -4793,7 +4828,9 @@
       "source_sha256": "087d7330441efb6c419490e8a975b28c7bc7db27633f9fc64fccc8f0a5b9312b",
       "context": "Fields scored ``'fail'`` in current, readable cards.",
       "translation": "현재 읽을 수 있는 카드에서 ``'fail'`` 로 채점된 현미경 시야입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.QCDigest.n_fields#0",
@@ -4801,7 +4838,9 @@
       "source_sha256": "341744fd4236fe20769f498595a56c8f3a9d8f6dd1422b752fceaf2aa065082d",
       "context": "Fields scored in current, readable cards; stale rows are excluded.",
       "translation": "현재 읽을 수 있는 카드에서 채점된 현미경 시야이며, 오래된 행은 제외됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.Scorecard.verdict#0",
@@ -4809,7 +4848,9 @@
       "source_sha256": "d3c409c2c10bd165c16b398240983d30f3318a3980b3839cb860fb18e5151239",
       "context": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` or ``'error'``.",
       "translation": "``'ok'``, ``'warn'``, ``'fail'``, ``'empty'`` 또는 ``'error'`` 입니다.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.qc_mode#3",

@@ -1,32 +1,26 @@
 """Load several measurement databases as one frame, without pooling them.
 
-A screen acquired as three plates used to require three sessions in the
-Gate Editor and three separate UMAPs, and the comparison a user actually
-wants -- all of it in one embedding, one gate, one figure -- could not be made
-inside spaCR at all.
+A screen acquired as several plates can then be shown in one embedding, one
+gate and one figure.
 
-WHY THIS IS ONE MODULE AND NOT TWO SCREENS' PRIVATE CODE. The hard part of
-merging databases is not concatenation, it is the three ways it goes wrong
-quietly, and each of them has exactly one right answer that both screens must
-give:
+Merging databases can go wrong silently in three ways, and every caller must
+handle them the same way:
 
 * two plates named ``plate1`` in two files are two plates, and
   ``plate1_r1_c1_f1_o1`` is one key. Pool them and every per-well number
   afterwards is computed over two experiments at once, with nothing on screen
   to say so.
 * databases written by different spaCR versions have different columns, and
-  "just intersect" silently drops measurements the user came to compare.
-* a row that has forgotten which file it came from cannot answer the single
-  most valuable question a merged view can ask, which is whether the clusters
-  are biology or batch.
+  intersecting the columns silently drops measurements.
+* a row that has forgotten which file it came from cannot be used to test
+  whether clusters reflect biology or batch.
 
-Two private implementations would disagree about all three, and the third
-module to need this would make a third set of answers.
+This module is the one implementation of all three.
 
-THE DESIGN, in one line: describe the merge before performing it, refuse
-ambiguity rather than resolving it silently, and never lose provenance.
+Design: describe the merge before performing it, refuse ambiguity rather than
+resolving it silently, and never lose provenance.
 
-TWO SCREENS, AND A COLLISION THAT IS NOT ONE
+Plate ids shared between screens
 --------------------------------------------
 There is also a case where the first bullet above is *backwards*. Two
 screens that share a guide library both have ``plate1..plate4``, and there
@@ -34,17 +28,16 @@ they are not two plates claiming one identity -- they are two *different*
 plates whose identity was only ever partly written down. The missing part is
 the screen.
 
-So the check is no longer "does this plate id appear twice?" but **"does this
-plate id appear twice INSIDE ONE SCREEN?"**. The first is normal and must be
-silent about being fine while still *saying it happened*
-(:attr:`MergePlan.shared_plates_across_screens`); the second is the original
-error, unchanged and just as fatal.
+The check is therefore **"does this plate id appear twice inside one
+screen?"**. A plate id shared between screens is normal and is reported in
+:attr:`MergePlan.shared_plates_across_screens`; a duplicate inside one screen
+is an error.
 
-``on_collision='qualify'`` still exists for callers who want it, but it is no
-longer the recommended answer for two screens: rewriting ``plate1`` to
-``kd-plate1`` makes the keys unique, which is all it was built to do, and
-leaves the screen un-analysable -- you cannot block on it, test for a screen
-effect, or colour by it without parsing a string back apart.
+``on_collision='qualify'`` still exists for callers who want it, but is not
+recommended for two screens: rewriting ``plate1`` to ``kd-plate1`` makes the
+keys unique, which is all it was built to do, and leaves the screen
+un-analysable -- you cannot block on it, test for a screen effect, or colour by
+it without parsing a string back apart.
 """
 from __future__ import annotations
 
@@ -104,17 +97,15 @@ _ALWAYS_KEPT: Tuple[str, ...] = (SCREEN_COLUMN, SOURCE_COLUMN)
 
 
 class MergeRefused(RuntimeError):
-    """The merge would have silently changed what the numbers mean."""
+    """Raised when a merge would silently change what the numbers mean."""
 
 
 class MergeCancelled(RuntimeError):
     """The user stopped the merge before it finished.
 
-    NOT a :class:`MergeRefused`, and the distinction is the whole reason this
-    is its own class. A refusal is an ANSWER about the data and the caller
-    shows it; a cancellation is the user changing their mind and there is
-    nothing to report about their databases. A caller that caught both as one
-    would put "the merge was refused" in front of somebody who pressed Stop.
+    Not a :class:`MergeRefused`: a refusal is a finding about the data, which
+    the caller shows; a cancellation means the user stopped the merge, and
+    there is nothing to report about the databases.
 
     Nothing is half-written when this is raised: every merge in this module
     builds a frame in memory and returns it at the end, so abandoning one
@@ -195,12 +186,9 @@ class SourceSummary:
 
 @dataclass(frozen=True)
 class MergePlan:
-    """What a merge WOULD do, computed before anything is concatenated.
+    """What a merge would do, computed before anything is concatenated.
 
-    This exists so a user is told what they are about to lose. The column set
-    a merge produces IS the analysis they are about to run, and finding out
-    afterwards that half the measurements were dropped is finding out too
-    late.
+    It tells the user, before the merge, which columns the merge would drop.
 
     :param sources: per-database summaries in requested merge order.
     :param common_columns: canonical columns present in every source.
@@ -257,7 +245,7 @@ class MergePlan:
     def screens_were_named(self) -> bool:
         """Whether the caller is working in screens at all.
 
-        True as soon as ONE database was given a screen label. It is not
+        True as soon as one database was given a screen label. It is not
         ``len(screens) > 1``: labelling two databases as the same screen is a
         deliberate statement (they are two halves of one experiment), and a
         refusal about them still has to say which screen, or the user cannot
@@ -375,23 +363,22 @@ PLATE_BEARING_COLUMNS = schema.PLATE_BEARING_COLUMNS
 def normalise_plate_ids(frame: "pd.DataFrame") -> "pd.DataFrame":
     """Collapse a doubled ``p`` prefix in every column that carries a plate.
 
-    WHY THIS IS NOT COSMETIC. A measurements database stamped ``pplate1``
-    produces merged rows stamped ``pplate1``, while the score and count CSVs
-    have already been normalised to ``plate1``. The two then do not meet.
-    Every join INSIDE the merge is unaffected, because both sides read the
-    same stored value -- which is exactly what makes it hard to see: the
-    merge succeeds, the row counts are right, and the failure appears later
-    and somewhere else, as a gene half that is missing for no visible reason.
+    A measurements database stamped ``pplate1`` produces merged rows stamped
+    ``pplate1``, while the score and count CSVs have already been normalised to
+    ``plate1``. The two then do not meet. Every join inside the merge is
+    unaffected, because both sides read the same stored value, so the merge
+    succeeds with the right row counts and the failure appears later, in a
+    downstream join.
 
-    THE COMPOSED KEYS MATTER AS MUCH AS THE PLATE COLUMN. ``prc`` is
-    ``<plate>_<row>_<column>``, so a doubled prefix rides in its first
-    component; rewriting ``plateID`` alone would leave ``prc`` unjoinable and
-    the two columns disagreeing about the same plate.
+    Composed keys are normalised too. ``prc`` is ``<plate>_<row>_<column>``, so
+    a doubled prefix rides in its first component; rewriting ``plateID`` alone
+    would leave ``prc`` unjoinable and the two columns disagreeing about the
+    same plate.
 
-    Applied on READ, so nothing on disk is rewritten and an old database
-    keeps working -- the standing rule is to correct the format going forward
-    and migrate the content, and a measurements database is the user's data
-    rather than ours to edit.
+    Applied on read, so nothing on disk is rewritten and an old database keeps
+    working -- the standing rule is to correct the format going forward and
+    migrate the content, and a measurements database is the user's data rather
+    than ours to edit.
 
     A thin name over :func:`spacr.schema.normalise_plate_columns`, which is
     the one implementation.
@@ -407,7 +394,7 @@ def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
     """One short, unique, human name per database, decided for the whole set.
 
     Public because a chip, a legend and the :data:`SOURCE_COLUMN` value have to
-    be the SAME string: a screen that labels a chip ``plate1`` while the
+    be the same string: a screen that labels a chip ``plate1`` while the
     provenance column says ``measurements (2)`` has provenance the user cannot
     follow.
 
@@ -416,7 +403,7 @@ def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
     order:
 
     1. the file stems, when they differ -- that is what the user called them;
-    2. the nearest MEANINGFUL parent folder (:func:`_meaningful_parent`), which
+    2. the nearest meaningful parent folder (:func:`_meaningful_parent`), which
        is the plate folder in spaCR's own ``<plate>/measurements/
        measurements.db`` layout;
     3. the historical parent/stem rule with a numeric tail, for the case where
@@ -460,22 +447,19 @@ _AFFINITY_RULES: Tuple[Tuple[str, str], ...] = (
 
 
 def column_kinds(path: str, table: str) -> Dict[str, str]:
-    """``{column: 'numeric' | 'text' | 'unknown'}`` for one table, WITHOUT
+    """``{column: 'numeric' | 'text' | 'unknown'}`` for one table, without
     reading a row.
 
-    WHY THIS EXISTS, and it is a correctness answer rather than a convenience.
-    A pre-merge plan has to say how each column will be combined, and the
-    merge decides that from the column's pandas dtype
-    (:func:`spacr.merge_tables.aggregation_plan` asks
-    ``is_numeric_dtype``). A plan that matched only on the column NAME told
-    users that ``file_name`` and ``path_name`` "would take the default
-    (mean)", which is not what happens and is not a thing that can happen to
-    a string. The declared affinity is what predicts the dtype, and reading
-    it costs one ``PRAGMA``.
+    A pre-merge plan has to say how each column will be combined, and the merge
+    decides that from the column's pandas dtype
+    (:func:`spacr.merge_tables.aggregation_plan` asks ``is_numeric_dtype``).
+    Matching on the column name alone would report that ``file_name`` and
+    ``path_name`` take the default (mean), which cannot happen to a string. The
+    declared affinity is what predicts the dtype, and reading it costs one
+    ``PRAGMA``.
 
-    ``'unknown'`` is returned rather than guessed for a column declared with
-    no type or as a BLOB -- an absent answer that reads as a definite one is
-    the failure this module exists to avoid.
+    ``'unknown'`` is returned rather than guessed for a column declared with no
+    type or as a BLOB.
 
     :param path: the database.
     :param table: the table.
@@ -608,11 +592,10 @@ def _resolve_screens(paths: Sequence[str],
 
 def describe_merge(paths: Sequence[str], table: str, *,
                    screens: Any = None) -> MergePlan:
-    """Work out what merging ``paths`` would produce, WITHOUT reading rows.
+    """Describe what merging ``paths`` would produce, without reading rows.
 
     Reads only sqlite metadata and the distinct plate ids, so this is cheap
-    enough to run while the user is still choosing files -- which is the
-    point, because the answer has to arrive before they commit.
+    enough to run while the user is still choosing files.
 
     :param paths: measurement databases, in the order the user added them.
     :param table: the table to merge, e.g. ``'cell'``.
@@ -771,10 +754,9 @@ def decision_for(plan: MergePlan, *, outcome: str, columns: str = "common",
 
 
 def decision_log_path() -> str:
-    """Where merge decisions are appended.
+    """Return the file that merge decisions are appended to.
 
-    Beside ``~/.spacr/runs``, which is where this application already keeps
-    the record of what it was asked to do.
+    Beside ``~/.spacr/runs``, where spaCR keeps its run records.
     """
     return os.path.join(str(_spacr_home()),
                         "merge_decisions.jsonl")
@@ -855,11 +837,11 @@ def read_merged(paths: Sequence[str],
         cost -- currently the dropped measurements.
     :param limit_per_source: row cap per database, for previews.
     :param progress: called ``progress(stage, done, total)`` before and after
-        each database is read. ``stage`` is a sentence naming the table and
-        the database it is on; ``done`` and ``total`` are ROWS, counted
-        against ``rows_total`` so a caller reading several tables can show one
-        bar across all of them. Called from whatever thread this runs on, so a
-        GUI caller must relay it rather than touch a widget in it.
+        each database is read. ``stage`` is a sentence naming the table and the
+        database it is on; ``done`` and ``total`` are rows, counted against
+        ``rows_total`` so a caller reading several tables can show one bar
+        across all of them. Called from whatever thread this runs on, so a GUI
+        caller must relay it rather than touch a widget in it.
     :param cancelled: called before each database; a true answer raises
         :class:`MergeCancelled` and nothing is returned. Checked between
         sources rather than inside one, because a half-read source is not a

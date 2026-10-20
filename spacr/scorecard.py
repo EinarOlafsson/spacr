@@ -1,8 +1,8 @@
-"""Score a segmentation against GROUND TRUTH, which nothing in spaCR did.
+"""Score segmentations and classifiers against ground-truth labels.
 
 Every published model carries a table comparing the finetuned model with the
 vanilla one on a held-out set, with all the common metrics for that model
-type. Auditing what existed found the gap this module fills:
+type. Two related modules measure something else:
 
 * :mod:`spacr.model_compare` compares two models to EACH OTHER and says so
   in its own docstring -- "neither model is ground truth". It answers "do
@@ -10,12 +10,12 @@ type. Auditing what existed found the gap this module fills:
 * :mod:`spacr.seg_qc` scores a field with NO labels at all: it flags splits,
   merges and implausible diameters from the mask alone.
 
-Both are useful and neither is Dice. Nothing measured a mask against a
-hand-drawn truth, so no published number could say a model was BETTER --
-only that it was different.
+Neither computes Dice or any other score against a hand-drawn truth mask.
+This module does, so a published number can state whether a model is more
+accurate, not only whether it differs from another model.
 
-WHAT AN OBJECT METRIC HAS TO DECIDE FIRST
-=========================================
+Matching predicted objects to labelled ones
+===========================================
 
 Every number here rests on one choice: when is a predicted object THE SAME
 object as a labelled one? The literature's answer is an IoU threshold, and
@@ -25,7 +25,7 @@ half of them perfectly does the opposite. That is why :func:`average_precision`
 reports the whole sweep from 0.5 to 0.9 rather than one number, and why
 every precision/recall figure states the threshold it was matched at.
 
-MATCHING IS ONE-TO-ONE AND OPTIMAL, not greedy. A greedy pass down the IoU
+Matching is one-to-one and optimal, not greedy. A greedy pass down the IoU
 matrix is cheaper and gives a different answer when one prediction overlaps
 two truths: it takes the first pair it sees rather than the assignment that
 maximises total overlap, so the score depends on label ORDER, which is an
@@ -33,16 +33,17 @@ implementation detail of whoever wrote the mask. :func:`match_objects` uses
 ``scipy.optimize.linear_sum_assignment``, so relabelling either mask cannot
 change the result.
 
-WHAT IS DELIBERATELY NOT HERE
-=============================
+Dependencies and scope
+======================
 
-No torch, and no import of anything that pulls it. The model zoo imports
-without torch on purpose and a test asserts it, so reading a scorecard must
-not be the thing that drags in a GPU stack -- the reader is browsing a list.
-Everything here is numpy plus two scipy/skimage helpers.
+The module does not import torch or anything that imports it. The Model Zoo
+imports without torch and a test asserts it, so reading a scorecard does not
+load a GPU stack. At module scope only numpy is imported; scipy, tifffile and
+matplotlib are imported inside the functions that need them.
 
-Nothing writes files, uploads, or reads a catalogue. This module turns two
-label arrays into numbers; publishing them is 370's other half.
+Nothing here uploads or reads a model catalogue. The functions turn label
+arrays and scores into numbers and CSV text; :func:`scorecard_figure` is the
+only one that writes a file, and publishing the results is left to the caller.
 """
 
 from __future__ import annotations
@@ -176,17 +177,17 @@ class Match:
 
     @property
     def precision(self) -> float:
-        """Of what the model predicted, how much was real.
+        """Fraction of predicted objects that matched a truth object.
 
-        :returns: the ratio, or 0 when the model predicted nothing.
+        :returns: ``TP / n_pred``, or 0 when the model predicted nothing.
         """
         return _ratio(self.true_positives, self.n_pred)
 
     @property
     def recall(self) -> float:
-        """Of what was really there, how much the model found.
+        """Fraction of truth objects that a predicted object matched.
 
-        :returns: the ratio, or 0 when there was nothing to find.
+        :returns: ``TP / n_truth``, or 0 when there was nothing to find.
         """
         return _ratio(self.true_positives, self.n_truth)
 
@@ -253,11 +254,12 @@ def dice(truth: np.ndarray, pred: np.ndarray,
          threshold: float = 0.5) -> Dict[str, float]:
     """Per-object Dice, averaged over matched pairs, plus the pixel-wise one.
 
-    TWO NUMBERS BECAUSE THEY ANSWER DIFFERENT QUESTIONS and are routinely
-    confused. The per-object mean says how well a typical object is
-    outlined; the pixel-wise figure ignores objects entirely and is
-    dominated by the largest ones, so a model that misses ten small cells
-    and nails one big one scores well on it and badly on the other.
+    The two numbers measure different things and are often confused. The
+    per-object mean says how well a typical matched object is outlined; the
+    pixel-wise figure ignores object identity and is dominated by the
+    largest objects, so a model that misses ten small cells and outlines one
+    large cell accurately scores well on the pixel-wise figure and badly on
+    the per-object mean.
 
     :param truth: the ground-truth label image, 0 for background and one
         integer id per object.
@@ -306,10 +308,10 @@ def boundary_f1(truth: np.ndarray, pred: np.ndarray,
     """Boundary precision, recall and F1 at each pixel tolerance.
 
     A predicted boundary pixel counts as correct when a true boundary pixel
-    lies within ``tolerance`` pixels of it, and vice versa. The tolerance is
-    not slack for the model's benefit: two people labelling the same cell
-    disagree by a pixel or two, so a zero-tolerance boundary score measures
-    the annotator as much as the model.
+    lies within ``tolerance`` pixels of it, and vice versa. A tolerance is
+    used because two people labelling the same cell disagree by a pixel or
+    two, so a zero-tolerance boundary score measures the annotator as much
+    as the model.
 
     :param truth: the ground-truth label image, 0 for background and one
         integer id per object.
@@ -344,7 +346,7 @@ def splits_and_merges(truth: np.ndarray, pred: np.ndarray,
         cover to count as overlapping it, so a one-pixel graze is not a
         split.
 
-    THE TWO FAILURES ARE NOT SYMMETRIC IN WHAT THEY COST. A split inflates
+    The two failures affect measurements differently. A split inflates
     the object count and halves the areas; a merge deletes an object and
     doubles one. Both are invisible to Dice at the field level, which is why
     they are counted separately rather than folded into it.
@@ -366,9 +368,10 @@ def counts_and_areas(truth: np.ndarray, pred: np.ndarray,
                      threshold: float = 0.5) -> Dict[str, float]:
     """Object-count error (signed) and the area error a measurement inherits.
 
-    SIGNED, because the direction is the diagnosis: a model that finds too
-    many objects is over-segmenting and one that finds too few is merging or
-    missing, and an absolute count error says neither.
+    ``count_error`` is ``n_pred - n_truth`` and is signed because its
+    direction distinguishes the failure: a model that finds too many objects
+    is over-segmenting and one that finds too few is merging or missing, and
+    an absolute count error does not show which.
 
     :param truth: the ground-truth label image, 0 for background and one
         integer id per object.
@@ -398,7 +401,7 @@ def score_segmentation(truth: np.ndarray, pred: np.ndarray, *,
                        iou_thresholds: Sequence[float] = DEFAULT_IOU_THRESHOLDS,
                        boundary_tolerances: Sequence[int]
                        = DEFAULT_BOUNDARY_TOLERANCES) -> Dict[str, float]:
-    """Every segmentation metric the published table reports, on one field.
+    """Compute every segmentation metric of the published table for one field.
 
     :param truth: the ground-truth label image, 0 for background and one
         integer id per object.
@@ -407,9 +410,9 @@ def score_segmentation(truth: np.ndarray, pred: np.ndarray, *,
         area error are matched. Reported in the result as ``match_iou`` so a
         published number can never be read without it.
 
-    EVERY NUMBER CARRIES ITS N. `n_truth` and `n_pred` are in the result and
-    are not optional: a Dice of 0.91 on eleven objects is not a result, and a
-    table that omits the count invites exactly that reading.
+    The result always includes `n_truth` and `n_pred`, because a score such
+    as a Dice of 0.91 cannot be interpreted without the number of objects it
+    was computed on.
     """
     matched = match_objects(truth, pred, threshold)
     out: Dict[str, float] = {
@@ -441,10 +444,9 @@ def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
     :param vanilla: the vanilla model's label image for the same field.
     :returns: ``{"finetuned": ..., "vanilla": ..., "delta": ...}``.
 
-    THE DELTA IS THE ANSWER THE TABLE EXISTS FOR. The table compares the
-    finetuned model against the vanilla one, and a
-    reader given two columns of eleven numbers will do this subtraction by
-    eye and get it wrong somewhere. Reporting it is not a convenience.
+    ``delta`` holds ``finetuned - vanilla`` for every numeric metric except
+    ``match_iou``, so the published comparison does not depend on a reader
+    subtracting two columns by eye.
 
     Both models are scored on the SAME array with the SAME settings, which
     is the only thing that makes the subtraction meaningful -- and is why
@@ -525,7 +527,7 @@ def _ece(labels: np.ndarray, scores: np.ndarray, bins: int = 10) -> float:
 def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
                      threshold: float = 0.5,
                      calibration_bins: int = 10) -> Dict[str, float]:
-    """Every classifier metric the published table reports, at a STATED threshold.
+    """Compute every classifier metric of the published table at a given threshold.
 
     :param labels: ground truth, 0 or 1.
     :param scores: predicted probability of the positive class.
@@ -652,14 +654,13 @@ def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
     :param name: the held-out set's name, carried into the result.
     :param version: the held-out set's version, carried into the result.
 
-    POOLED FROM THE COUNTS, NOT AVERAGED FROM THE RATIOS. A field with three
+    Pooled from the counts, not averaged from the ratios. A field with three
     objects and a field with three hundred are not equal evidence, and a mean
     of per-field precisions treats them as though they were -- so a model
     that fails on one sparse field is punished as hard as one that fails on a
     confluent one. Precision, recall and F1 are recomputed from the summed
-    true and false positives; only the genuinely per-object means (IoU, Dice,
-    area error) are averaged, and those are weighted by the objects behind
-    them.
+    true and false positives; only the per-object means (IoU, Dice, area
+    error) are averaged, weighted by each field's matched-object count.
     """
     scored = [score_segmentation(truth, pred, **kwargs) for truth, pred in pairs]
     if not scored:
@@ -708,20 +709,19 @@ def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
 
 def scorecard_rows(finetuned: HoldoutScore, vanilla: HoldoutScore
                    ) -> List[Dict[str, object]]:
-    """The published table, one row per metric. THE SOURCE THE REST DERIVE FROM.
+    """Return the published comparison table, one row per metric.
 
     The table has four renderings -- the CSV on Hugging Face, the tooltip,
-    the API section and the zoo screen -- and if the tooltip and the API page
-    can disagree, they eventually will. This is the
-    one place a number is computed; everything else formats these rows.
+    the API section and the zoo screen. This is the one place a difference
+    is computed; the other renderings format these rows, so they cannot
+    disagree.
 
     :param finetuned: the finetuned model's score.
     :param vanilla: the vanilla model's score, on the same set name and
         version.
-    :raises ValueError: when the two were scored on different sets. That is
-        not a defensive check for its own sake: a table headed "finetuned
-        against vanilla" whose two columns came from different data is
-        exactly the mistake that cannot be seen by reading it.
+    :raises ValueError: when the two were scored on different sets (name or
+        version differ). A table whose two columns came from different data
+        looks the same as a valid one, so the mismatch is refused here.
     """
     if (finetuned.name, finetuned.version) != (vanilla.name, vanilla.version):
         raise ValueError(
@@ -756,7 +756,7 @@ _NOT_A_SCORE = frozenset({
 
 
 def scorecard_csv(rows: Sequence[Dict[str, object]]) -> str:
-    """The rows as CSV text. Written by the caller, wherever it belongs.
+    """Return the rows as CSV text; the caller decides where to write it.
 
     :param rows: the table rows, as from :func:`scorecard_rows`; the first
         row's keys are the CSV columns, and no rows gives ``""``.
@@ -808,9 +808,9 @@ class HoldoutSet:
     def path_to(self, relative: str) -> "pathlib.Path":
         """Resolve a manifest-relative path against this set's root.
 
-        MANIFEST PATHS ARE RELATIVE ON PURPOSE, so a held-out set can be
-        moved or shared without rewriting it -- which is what makes the
-        versioned name mean the same thing on two machines.
+        Manifest paths are relative so that a held-out set can be moved or
+        shared without rewriting the manifest, and the versioned name refers
+        to the same files on every machine.
 
         :param relative: the path as the manifest spells it.
         :returns: the absolute path.
@@ -865,10 +865,10 @@ def verify_holdout(holdout: HoldoutSet) -> List[str]:
     :param holdout: the hold-out set whose truth masks are checked on disk.
     :returns: one line per problem; empty when the set is intact.
 
-    A DIGEST IS OPTIONAL AND ITS ABSENCE IS REPORTED. A set published without
-    them can still be scored, and nobody can then tell whether two people
-    scored the same masks -- which is the entire point of naming and
-    versioning it. So "no digest" is a finding, not a pass.
+    A digest is optional, but a missing one is reported as a problem. A set
+    published without digests can still be scored, but nobody can then tell
+    whether two people scored the same masks, which is what naming and
+    versioning the set are for.
     """
     import hashlib
 
@@ -901,8 +901,8 @@ def score_model_on_holdout(holdout: HoldoutSet, predict, *,
     :param read_mask: ``path -> label array``. Defaults to tifffile, which
         the package already depends on.
 
-    THE SET'S NAME AND VERSION TRAVEL WITH THE SCORE, so a published number
-    can never be read without knowing what it was measured on.
+    The returned :class:`HoldoutScore` carries the set's name and version,
+    so a published number always states what it was measured on.
     """
     if read_mask is None:
         def read_mask(path):                     # noqa: WPS440 - local default
@@ -943,11 +943,12 @@ _HEADLINE_ORDER: Tuple[Tuple[str, str], ...] = (
 def headline(metrics: Mapping[str, object], *,
              baseline: Optional[Mapping[str, object]] = None,
              limit: int = 3) -> List[str]:
-    """The few lines a tooltip should lead with, and where the rest is.
+    """Return the headline metric lines for a tooltip, then a count line.
 
     :param metrics: a scorecard, or any mapping; unknown keys are ignored.
     :param baseline: the vanilla model's scorecard, to show the difference.
-    :param limit: how many metric lines to return before the pointer.
+    :param limit: how many metric lines to return before the count line
+        (``on N objects, N fields``).
 
     :returns: lines, or ``[]`` when the mapping holds no scorecard at all --
         an entry with free-form metrics is left exactly as it was, because
@@ -987,16 +988,14 @@ def headline(metrics: Mapping[str, object], *,
 def read_scorecard_csv(text: str) -> Dict[str, Any]:
     """Parse a published scorecard CSV back into an entry's ``metrics``.
 
-    THE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT: the Hugging Face
-    artifact, the tooltip, the API page and the Zoo screen must not be able
-    to disagree, and they cannot if only one of them holds numbers. This is the reader that makes the other
-    three derived.
+    The CSV is the source that the other surfaces render: the Hugging Face
+    artifact, the tooltip, the API page and the Zoo screen all read numbers
+    parsed by this function, so they cannot disagree.
 
-    DEPENDENCY-FREE ON PURPOSE. The Model Zoo imports without torch and a test
-    asserts it, so browsing models and reading a scorecard has to work on a
-    machine with neither torch nor cellpose. Only RE-RUNNING an evaluation
-    needs them. That rules out pandas here too -- csv is in the standard
-    library.
+    It uses only the standard library ``csv`` module, not pandas. The Model
+    Zoo imports without torch and a test asserts it, so browsing models and
+    reading a scorecard work on a machine with neither torch nor cellpose;
+    only re-running an evaluation needs them.
 
     :param text: the CSV as written by :func:`scorecard_csv`.
     :returns: ``{metric: {"finetuned": ..., "vanilla": ..., "delta": ...}}``
@@ -1013,10 +1012,10 @@ def read_scorecard_csv(text: str) -> Dict[str, Any]:
     def number(value):
         """A cell as a number, or the raw string when it is not one.
 
-        A WHOLE NUMBER COMES BACK AS AN int. The CSV cannot distinguish a
-        count from a measurement, and reading everything as float renders
-        "on 12517.0 objects" in a tooltip -- a count with a decimal point
-        reads as a rounding, which it is not.
+        A whole number is returned as an ``int`` and an empty cell as
+        ``None``. The CSV cannot distinguish a count from a measurement, and
+        reading everything as float would render "on 12517.0 objects" in a
+        tooltip.
         """
         text = str(value).strip()
         if not text:
@@ -1048,10 +1047,11 @@ def read_scorecard_csv(text: str) -> Dict[str, Any]:
 def scorecard_is_present(metrics: Mapping[str, Any]) -> bool:
     """Whether ``metrics`` actually carries a scorecard.
 
-    A MISSING SCORECARD MUST SAY SO RATHER THAN SHOW BLANKS, which 370 asks
-    for by name and which `ModelEntry.provenance_known` already does for
-    training provenance. A model with no numbers is not a model that scored
-    zero, and a table of empty cells reads as the second.
+    True when at least one value is a mapping with a non-``None``
+    ``"finetuned"`` entry. Callers use it to show :data:`NO_SCORECARD`
+    instead of blank cells, as `ModelEntry.provenance_known` does for
+    training provenance: a model with no numbers is not a model that scored
+    zero.
 
     :param metrics: an entry's metrics mapping.
     """
@@ -1082,17 +1082,17 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
     """Draw finetuned against stock as paired bars, and write it to ``path``.
 
     The scorecard in graph form, for Hugging Face and for the API page,
-    beside the CSV and the table. It reads the SAME parsed metrics the
+    beside the CSV and the table. It reads the same parsed metrics the
     tooltip and the zoo screen read, so the picture cannot disagree with the
     numbers printed next to it.
 
-    MATPLOTLIB IS IMPORTED INSIDE, deliberately. This module's contract is
-    that the Model Zoo can import it with neither torch nor cellpose present
-    -- a test asserts it -- and a drawing dependency at module scope would
-    break that for every caller who only wanted to READ a scorecard.
+    Matplotlib is imported inside the function. The Model Zoo must be able to
+    import this module with neither torch nor cellpose present -- a test
+    asserts it -- and a drawing dependency at module scope would add
+    matplotlib to every caller that only reads a scorecard.
 
-    ONLY THE METRICS THAT ANSWER THE QUESTION. A scorecard holds forty
-    numbers; a chart of forty bars is a wall, not an answer. The ones in
+    Only a subset of metrics is drawn, because a scorecard holds about forty
+    numbers and a chart of forty bars is hard to read. The ones in
     :data:`CHART_METRICS` that the scorecard actually carries are drawn, in
     that order, and anything absent is skipped rather than drawn as zero --
     a missing metric and a metric that scored nothing look identical at a

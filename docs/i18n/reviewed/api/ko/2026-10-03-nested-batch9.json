@@ -171,7 +171,10 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "``(n, dims)`` float32 features.",
       "source_sha256": "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6",
-      "translation": "``(n, dims)`` float32 특징."
+      "translation": "``(n, dims)`` float32 특징.",
+      "retired": true,
+      "retired_date": "2026-10-18",
+      "retired_reason": "Item 560 Cell-DINO checkpoint picker source changed or shifted this paragraph. Replacement exact-source review is 2026-10-18-560-cell-dino-checkpoints.json; original source and target retained as historical evidence."
     },
     {
       "context": "OpenPhenom's mean patch token; it rescales 0-255 itself.",
@@ -247,7 +250,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Batched here rather than by the caller because the batch size belongs to the DEVICE, not to the channel policy: the per-channel policy calls this once per channel and each call must fit the same GPU.",
       "source_sha256": "58e01fe4a9324a0cfe4888d0bbe4c67b1593d97f32d6b8c85bc68fbc4a048049",
-      "translation": "호출자가 아니라 여기서 배치를 나누는 이유는 배치 크기가 채널 정책이 아니라 장치에 속하기 때문입니다: 채널별 정책은 채널마다 이것을 한 번씩 호출하며, 각 호출은 같은 GPU에 들어가야 합니다."
+      "translation": "호출자가 아니라 여기서 배치를 나누는 이유는 배치 크기가 채널 정책이 아니라 장치에 속하기 때문입니다: 채널별 정책은 채널마다 이것을 한 번씩 호출하며, 각 호출은 같은 GPU에 들어가야 합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(n, height, width, 3)`` float32 in [0, 1].",
@@ -359,7 +364,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Show the installer consent, then start the tour after it closes.",
       "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "translation": "설치 프로그램 동의를 표시하고, 닫힌 뒤에 둘러보기를 시작합니다."
+      "translation": "설치 프로그램 동의를 표시하고, 닫힌 뒤에 둘러보기를 시작합니다.",
+      "retired": true,
+      "retired_reason": "N703 final source1eabf4b498a7 replaces this exact selected source block; original review and target retained as historical evidence."
     },
     {
       "context": "Try the backdrop once more, if the application view is still alive.",
@@ -473,7 +480,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "WRAPS rather than replaces, so the original behaviour is unchanged even if the offer fails -- an error message must still appear when the thing that would report it is broken.",
       "source_sha256": "f71fe71bdb29537b0e769b0a1f2ff6c28880ad88084c22d80a077f6d8386f0aa",
-      "translation": "교체가 아니라 감싸므로, 제안이 실패해도 원래 동작은 바뀌지 않습니다 -- 오류를 보고할 장치가 고장 나도 오류 메시지는 여전히 나타나야 합니다."
+      "translation": "교체가 아니라 감싸므로, 제안이 실패해도 원래 동작은 바뀌지 않습니다 -- 오류를 보고할 장치가 고장 나도 오류 메시지는 여전히 나타나야 합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Start the next missing half, or open the plate after the last.",
@@ -657,7 +666,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Whether a control is really there to be pressed.",
       "source_sha256": "e56b15bb5d6859666b2382a6a6491b09cdb3d4fb0a591060afe855b2bd200134",
-      "translation": "컨트롤이 실제로 누를 수 있게 있는지 여부."
+      "translation": "컨트롤이 실제로 누를 수 있게 있는지 여부.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enabled, visible AND non-empty. A widget with a zero size is laid out but not yet given room, and counting it as usable reports an application view ready before anything can be clicked. A deleted control answers False rather than throwing.",
@@ -713,7 +724,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Add the item AND record it, so the canvas can clear its own drawings.",
       "source_sha256": "4619fb4a9b5f927874b28b64148a8a67efbb546cf70c1f26d6181826a131f7a4",
-      "translation": "항목을 추가하고 기록도 하여, 캔버스가 자신의 그림을 지울 수 있게 합니다."
+      "translation": "항목을 추가하고 기록도 하여, 캔버스가 자신의 그림을 지울 수 있게 합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set an axis label and remember it for the style round-trip.",
@@ -737,7 +750,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Tick labels for a split axis, in the ORIGINAL data's values.",
       "source_sha256": "9f4fb503687069c6149efa5a3860cc22100f25e1e1152f1cd8a13392d0c0fe53",
-      "translation": "분할된 축의 눈금 레이블이며, 원래 데이터의 값으로 표시합니다."
+      "translation": "분할된 축의 눈금 레이블이며, 원래 데이터의 값으로 표시합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The axis is drawn on a compressed coordinate, so labelling it with the drawn position would put numbers on it that the data never had.",
@@ -785,7 +800,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Cached because a scatter asks for a brush PER POINT: building them fresh allocates one QBrush per point per repaint, which is the whole cost of drawing a large scatter.",
       "source_sha256": "ae4649de125eaceba7620e9f4daec2972164f8c7574ca1b8df25dbdc2811f922",
-      "translation": "산점도는 점마다 브러시를 요청하므로 캐시합니다: 매번 새로 만들면 다시 그릴 때마다 점마다 QBrush 하나를 할당하게 되며, 큰 산점도를 그리는 비용이 전부 여기서 나옵니다."
+      "translation": "산점도는 점마다 브러시를 요청하므로 캐시합니다: 매번 새로 만들면 다시 그릴 때마다 점마다 QBrush 하나를 할당하게 되며, 큰 산점도를 그리는 비용이 전부 여기서 나옵니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The label for one option: its friendly name, or \"automatic\" for None.",
@@ -809,7 +826,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "INJECTED so the menu can be exercised without a modal dialog, which is otherwise the only way to reach these entries in a test.",
       "source_sha256": "0bfcf0c7caa4c640ad34eac0412911e09b8d28bc084adcb82b8dc8e84beb5d33",
-      "translation": "주입되므로 모달 대화 상자 없이 메뉴를 시험할 수 있습니다. 그렇지 않으면 테스트에서 이 항목에 닿는 유일한 방법이 모달 대화 상자입니다."
+      "translation": "주입되므로 모달 대화 상자 없이 메뉴를 시험할 수 있습니다. 그렇지 않으면 테스트에서 이 항목에 닿는 유일한 방법이 모달 대화 상자입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Forget the saved default, so new figures use the built-in one.",

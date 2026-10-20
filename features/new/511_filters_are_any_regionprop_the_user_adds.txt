@@ -227,3 +227,36 @@ directs. tests/test_runtime_i18n_syntax.py's sv/fr source pins moved by the
 deleted mask-mean-bounds sources (-7 sv, -12 fr), each marked in place.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_make_masks_filters_are_any_regionprop.py, test_object_filters_are_any_regionprop.py pass; spot-check _filter_objects with an eccentricity<=0.5 filter removed the elongated object only.
+
+
+2026-10-15 — Final contract reconciliation: N511 complete; catalog LEFT is stale.
+The original DONE WHEN is covered by current source and existing literal
+hosted acceptance: test_a_never_hard_coded_property_hides_objects_and_remove_
+restores checks an eccentricity row, recorded filters in the actual mask
+provenance, and exact original labels restored by clicking Remove. The
+regionprop catalogue offers scalar properties available for the current
+mask/intensity context; editor and Mask-run labels agree. Existing migration
+cases cover all twelve retired keys absent from form/type/tooltip/default
+registries, old CSV/script load, explicit-list precedence and invalid-bound
+refusal. On immutable hosted38699600639/source8fc2aa56 the unchanged owning
+engine test file has36PASS under coverage/fast and34PASS on minimum Python; the
+unchanged owning GUI test file has8PASS under coverage and untraced Qt. Every
+owning current filter/migration symbol is AST-identical to those tested bytes;
+no test or collector was repeated. These literal outcomes do not certify the
+failed overall CI run.
+
+The outstanding twelve cell/nucleus/pathogen min/max area/intensity catalog
+rows were already removed by normal generation on2026-09-26: English
+f303cc63c1 and the nine language third-pass commits. Each immutable producer
+removes all twelve previously present identities and is an ancestor of current
+20a4313bcd9. Current English and all nine catalogs have none of the twelve
+labels, tooltips or SOURCE_HASHES entries. Their current normal source label/
+tooltip hashes for the retained object_filters setting agree across all nine.
+No exact retired-key review record remains anywhere in runtime review metadata;
+the deliberately retained organelle reviews and all history are unchanged.
+The normal consumer-map tool already documents this2026-09-26 retirement and
+CATALOG_ONLY_UNREAD is empty. The old LEFT catalog-cleanup sentence therefore
+needs no source or localization work. Organelle bounds remain intentionally
+supported segmentation controls; the maintainer did not request their
+retirement. No organelle decision, native-speaker claim, new model/scientific
+validation or full-release gate is added by this recorded-contract closure.

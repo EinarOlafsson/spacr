@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "item": "N655",
+  "status": "PASS: native external AT-SPI role/state/Toggle acceptance of AI and Live controls",
+  "source_commit": "d41f12fbf31cd55d79acf8296304fb75d61c0417",
+  "source": "spacr/qt/widgets/ai_toggle_label.py",
+  "source_sha256": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd",
+  "source_peer_commit": "06a6ae859",
+  "historical_before_evidence": "2042dde60d8ba7db760b52563139eff3540d4355: actual native controls were read-only labels without checkable/checked state. No old keyboard suite was replayed.",
+  "environment": {
+    "platform": "Linux xcb, private Xvfb1000x800 and dbus-run-session, Qt6.12",
+    "isolation": "Private XDG/QSettings/spaCR paths; existing shared heavy.lock;4G cap; one numeric thread; hidden CUDA; software rendering",
+    "source_root": "/mnt/wd4tb/spacr-worktrees/codex-home-b-n180-final-help-20261015",
+    "mutation": "Source read-only with PYTHONDONTWRITEBYTECODE; no live desktop, services, install or configuration changes",
+    "reader": "Separate system Python Gio AT-SPI D-Bus reader; bounded calls and timeout; no Orca process"
+  },
+  "first_attempt": {
+    "session": 4026,
+    "exit": 1,
+    "wall_seconds": 4.96,
+    "peak_rss_kib": 349464,
+    "classification": "Harness protocol expectation failure after all four successful native Toggle/state/signal assertions. Disabled Action returned exact org.freedesktop.DBus.Error.UnknownObject instead of Boolean False. Raw scripts/logs/source evidence retained.",
+    "correction": "Accept only that exact unavailable Action remote error for the requested object path; require the same Accessible object readable and disabled/unchecked, with no new signals. Application and all other assertions unchanged."
+  },
+  "final_attempt": {
+    "session": 61717,
+    "exit": 0,
+    "wall_seconds": 4.57,
+    "peak_rss_kib": 351956,
+    "role": "Both actual controls expose check box, checkable, not read-only",
+    "activation": "Each exposes native Toggle; two external calls per control produce checked true then false and exactly four existing toggled signals total. External checked state matches each step.",
+    "disabled": "External Press on separate fixture Disable controls button calls setEnabled(False). Both controls then expose no actions. Disabled DoAction(0) is refused, same Accessible objects remain readable/disabled/unchecked, and no signal/state change occurs.",
+    "no_direct_target_calls": "Harness does not directly focus target controls or call their setChecked; existing toggled signal is the boundary observed."
+  },
+  "source_and_cleanup": {
+    "source_commit": "d41f12fbf31cd55d79acf8296304fb75d61c0417",
+    "source_sha256": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd",
+    "process_sources_unchanged": 203,
+    "clean": true,
+    "remaining_owned_processes": []
+  },
+  "limits": [
+    "This is native Linux AT-SPI acceptance, not audible speech, human screen-reader usability, older Qt runtime or other-platform acceptance.",
+    "No provider discovery, ConsolePanel or reporting initialization; no network/provider/model/data workflow or inference. Existing caller routing code was not changed.",
+    "No global N655 completion claim. Official PySide6 v6.6 binding availability is separately evidenced by parent; no older environment was installed or tested."
+  ],
+  "artifacts": {
+    "reader.json.gz": {
+      "sha256": "f1c1d2cbf25928d0c7b7a7bff7e5e8c105427e2535bb392bb79750b055f58a61",
+      "raw_sha256": "665510e0d30087cc9e9d9ecc28727dab7079afb73b72b6736714873d6dd7a622",
+      "raw_bytes": 5166
+    },
+    "time.txt.gz": {
+      "sha256": "d6b6241b62aa90bd5ae306914b030da2d42708affc5bc7536ef50afb4676961e",
+      "raw_sha256": "395d075a30cd2d5ef818dce7b4ddb7166e33988e71c717ecbb63bc9ab5bbdae0",
+      "raw_bytes": 897
+    },
+    "owned-pids.json.gz": {
+      "sha256": "0fb9e149e8ba20bb3a8d304fd92ec7edb062df89e8b966813fd2caf1d23b7cd6",
+      "raw_sha256": "9a998679c36ed5f57af2acf7feeb6099734a1383828f4a2eefb66f0fbf1504f0",
+      "raw_bytes": 20
+    },
+    "inner.sh": {
+      "sha256": "bd08aef7789fac15c1464d9ca9e9458454253abe724827bff63a74f5ed1ce3db",
+      "raw_sha256": "bd08aef7789fac15c1464d9ca9e9458454253abe724827bff63a74f5ed1ce3db",
+      "raw_bytes": 1347
+    },
+    "protocol-correction.json.gz": {
+      "sha256": "d2e67ab6a5ba90ddb00c9b9385797be84bc8197fd662c4449c4d7261bfb72f21",
+      "raw_sha256": "6a99eb088c9af83d2006fdf4bbb8b13f3ab708bc284e4da276e33e3efc1280a9",
+      "raw_bytes": 611
+    },
+    "app-observations.json.gz": {
+      "sha256": "25d8d0d679395f8deb1a6cfb569d37144f47ecf5d556ed40115b8fd83fcddd8e",
+      "raw_sha256": "06e45ecde6c36fe4c895107a82599833fe36207988d6fa8bbdd1d9eedd12aaa3",
+      "raw_bytes": 479
+    },
+    "run.log.gz": {
+      "sha256": "2d65c002c36086f3258ba998b192e0add14c9385d5d31690ef635dfea3deafe1",
+      "raw_sha256": "4ccbd6a756b3dbc660c8448c3debcb6508542d384bdabe8d1c1e03c77db93e41",
+      "raw_bytes": 7302
+    },
+    "process-source.json.gz": {
+      "sha256": "9dd2f1c7645820c7ff9bbd8c7701755e045eee97576eb5199b6475eceae248ce",
+      "raw_sha256": "26b67d3f3ed16a37e77c7792f85b0c220ee3b71e7d7101a60e5a708aad0fd421",
+      "raw_bytes": 20326
+    },
+    "app.log.gz": {
+      "sha256": "1b44af67d17a6a3817a3a3334fa7e78f783fc966d75c7a59aefeefa2e7a3999b",
+      "raw_sha256": "0698d0209c42a0586fdc59eb1ef9775da991d8378513e69e657933b9123d51f8",
+      "raw_bytes": 111
+    },
+    "after-source.json.gz": {
+      "sha256": "2e82704da9e69fbe3340312ba9ef86030fbb7a0fc15b1fb0c74c3d6dd7c00c86",
+      "raw_sha256": "68deeb5a3372d9aea440b1146c1ae9fc3c606bb91521e4d36b4057efc5a38067",
+      "raw_bytes": 241
+    },
+    "attempt-1-result.json.gz": {
+      "sha256": "2a59be7fcf2be91342abe280105313a84d70a5e095f7943f27a44dbe0e229d54",
+      "raw_sha256": "e00c1993938a1f2b9a432c5272f774609e4567db205a2fa8dac8699c2e743570",
+      "raw_bytes": 264
+    },
+    "read-states.py": {
+      "sha256": "e890cb063a947f1bfb4d70f41efeb993fea9261447a086cb478c6162f3bfb99f",
+      "raw_sha256": "e890cb063a947f1bfb4d70f41efeb993fea9261447a086cb478c6162f3bfb99f",
+      "raw_bytes": 6813
+    },
+    "run.sh": {
+      "sha256": "88879776f2e10e3135649369c43c399ce8c8927231b996618af914c336fdf6b7",
+      "raw_sha256": "88879776f2e10e3135649369c43c399ce8c8927231b996618af914c336fdf6b7",
+      "raw_bytes": 636
+    },
+    "before-source.json.gz": {
+      "sha256": "ccb6688049006f3cdb9d02f606d9a6a5fc17d088fc152c87a71544d0f43da5ee",
+      "raw_sha256": "9959a0c373b4c03b8e91edf1ad3341e68dca9607a90cc1ec58bfcc5860fe2c9a",
+      "raw_bytes": 469
+    },
+    "reader-result.json.gz": {
+      "sha256": "f1c1d2cbf25928d0c7b7a7bff7e5e8c105427e2535bb392bb79750b055f58a61",
+      "raw_sha256": "665510e0d30087cc9e9d9ecc28727dab7079afb73b72b6736714873d6dd7a622",
+      "raw_bytes": 5166
+    },
+    "controls-app.py": {
+      "sha256": "32dd892986d15183c74b0cb1b5fd46159484af94d1dab6e42b8a28d1bd610fc2",
+      "raw_sha256": "32dd892986d15183c74b0cb1b5fd46159484af94d1dab6e42b8a28d1bd610fc2",
+      "raw_bytes": 4788
+    },
+    "attempt-1-disabled-action-return/reader.json.gz": {
+      "sha256": "2b3f9faa8e94699429251e56021299b593a5fd162ce9152ebe2484ebe28386a4",
+      "raw_sha256": "513e2dd0294cc0de12dd4ab2c6a201bcdeb4eed473f13f2d9658e6d25b383444",
+      "raw_bytes": 4048
+    },
+    "attempt-1-disabled-action-return/time.txt.gz": {
+      "sha256": "ec7ef51bf532daa0b440c91b147913a453473ea364d1d3ebef5b2c1f4d9287d3",
+      "raw_sha256": "c2b853d8473a1ebae4f8b87b4f0d1dcf80596f3e7ea7c311338cb3196d01ee2c",
+      "raw_bytes": 943
+    },
+    "attempt-1-disabled-action-return/owned-pids.json.gz": {
+      "sha256": "2b5c9af15dfbe37a72d0722fa6996b4c9ed3a7028b57b2219548c74b318dcd99",
+      "raw_sha256": "9b98c2a559a841913c76364accad5007177801b58c69ed9ae936a373f70e8483",
+      "raw_bytes": 20
+    },
+    "attempt-1-disabled-action-return/inner.sh": {
+      "sha256": "bd08aef7789fac15c1464d9ca9e9458454253abe724827bff63a74f5ed1ce3db",
+      "raw_sha256": "bd08aef7789fac15c1464d9ca9e9458454253abe724827bff63a74f5ed1ce3db",
+      "raw_bytes": 1347
+    },
+    "attempt-1-disabled-action-return/app-observations.json.gz": {
+      "sha256": "25d8d0d679395f8deb1a6cfb569d37144f47ecf5d556ed40115b8fd83fcddd8e",
+      "raw_sha256": "06e45ecde6c36fe4c895107a82599833fe36207988d6fa8bbdd1d9eedd12aaa3",
+      "raw_bytes": 479
+    },
+    "attempt-1-disabled-action-return/run.log.gz": {
+      "sha256": "8bb57d4efb66ba5f877df1a8c01cacd6a3bb5190f3d2f2917cda529503cb5223",
+      "raw_sha256": "88dcc4d1c87c0de9945ca14e00d009c1f0e71c300da923393669d7209742f6de",
+      "raw_bytes": 8209
+    },
+    "attempt-1-disabled-action-return/process-source.json.gz": {
+      "sha256": "9dd2f1c7645820c7ff9bbd8c7701755e045eee97576eb5199b6475eceae248ce",
+      "raw_sha256": "26b67d3f3ed16a37e77c7792f85b0c220ee3b71e7d7101a60e5a708aad0fd421",
+      "raw_bytes": 20326
+    },
+    "attempt-1-disabled-action-return/app.log.gz": {
+      "sha256": "302dff0ff373982b4277af82c63c9f8d25925c0fdbad222aeccea3c213c37c94",
+      "raw_sha256": "d753c0eb3d5c07cb53f1123563221e6a3245e80bdbaf814b7ae7baa8fc916a72",
+      "raw_bytes": 111
+    },
+    "attempt-1-disabled-action-return/attempt-1-result.json.gz": {
+      "sha256": "2a59be7fcf2be91342abe280105313a84d70a5e095f7943f27a44dbe0e229d54",
+      "raw_sha256": "e00c1993938a1f2b9a432c5272f774609e4567db205a2fa8dac8699c2e743570",
+      "raw_bytes": 264
+    },
+    "attempt-1-disabled-action-return/read-states.py": {
+      "sha256": "f66d1736a02b4f8471f0bc906960f52f7ce5dff362305f5382b479b6fdb7d9e4",
+      "raw_sha256": "f66d1736a02b4f8471f0bc906960f52f7ce5dff362305f5382b479b6fdb7d9e4",
+      "raw_bytes": 6369
+    },
+    "attempt-1-disabled-action-return/run.sh": {
+      "sha256": "88879776f2e10e3135649369c43c399ce8c8927231b996618af914c336fdf6b7",
+      "raw_sha256": "88879776f2e10e3135649369c43c399ce8c8927231b996618af914c336fdf6b7",
+      "raw_bytes": 636
+    },
+    "attempt-1-disabled-action-return/before-source.json.gz": {
+      "sha256": "ccb6688049006f3cdb9d02f606d9a6a5fc17d088fc152c87a71544d0f43da5ee",
+      "raw_sha256": "9959a0c373b4c03b8e91edf1ad3341e68dca9607a90cc1ec58bfcc5860fe2c9a",
+      "raw_bytes": 469
+    },
+    "attempt-1-disabled-action-return/reader-result.json.gz": {
+      "sha256": "2b3f9faa8e94699429251e56021299b593a5fd162ce9152ebe2484ebe28386a4",
+      "raw_sha256": "513e2dd0294cc0de12dd4ab2c6a201bcdeb4eed473f13f2d9658e6d25b383444",
+      "raw_bytes": 4048
+    },
+    "attempt-1-disabled-action-return/controls-app.py": {
+      "sha256": "32dd892986d15183c74b0cb1b5fd46159484af94d1dab6e42b8a28d1bd610fc2",
+      "raw_sha256": "32dd892986d15183c74b0cb1b5fd46159484af94d1dab6e42b8a28d1bd610fc2",
+      "raw_bytes": 4788
+    }
+  }
+}

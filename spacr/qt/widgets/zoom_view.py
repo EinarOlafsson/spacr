@@ -7,7 +7,7 @@ a pixmap in it" is how a codebase ends up with three that behave subtly
 differently. So the field browser's view moved here unchanged, under a name
 that says it is shared, and the browser goes on using it under its old one.
 
-WHAT IS NEW HERE IS THE TIE. Two views of the same region are only worth
+What this module adds is the tie. Two views of the same region are only worth
 putting side by side if they stay in register: a curator comparing a field
 with its enhanced self is looking for a difference between them, and a
 difference in where the two are pointing is the one difference that is not

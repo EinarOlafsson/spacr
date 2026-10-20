@@ -1385,7 +1385,10 @@
       "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
       "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
       "translation": "redigerarens typ: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` eller ``\"choice\"``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "UMAP source documentation corrected inc00a087e749. Replacement exact-source review is2026-10-15-umap-tier-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.umap_figure_settings.Field#4",
@@ -1723,7 +1726,10 @@
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
       "context": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "translation": "De ``(elev, azim, roll)`` som får matplotlib att rita den här ramen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#1",
@@ -1731,7 +1737,10 @@
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "translation": "``elev`` hålls inom ``[-90, 90]`` så att vertikalen aldrig vänds; rollvinkeln bär sedan den vridning kring siktlinjen som ramen har. När man tittar rakt nedåt (eller uppåt) är azimuten fri, så den väljs så att rollvinkeln blir noll.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#2",
@@ -2325,7 +2334,9 @@
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
       "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "translation": "DET SOM ÄR NYTT HÄR ÄR KOPPLINGEN. Två vyer av samma region är bara värda att placera sida vid sida om de förblir i linje: en kurator som jämför ett fält med sin förbättrade version letar efter en skillnad mellan dem, och en skillnad i var de två pekar är den enda skillnad som inte är information. :meth:`ZoomableImageView.link_to` får en grupp vyer att dela en zoom och en rullningsposition, så att zoomning eller panorering i någon av dem flyttar alla.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#3",
@@ -2829,7 +2840,9 @@
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
       "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "translation": "VARFÖR DET INTE ÄR UTFÖRLIG LOGGNING. Utförlig loggning avgör bara vilka loggposter som behålls, så den har ingen redovisning av minne att ge. Den funktionsspårare som den en gång installerade utlöstes vid varje anrop och varje retur, och den kostade tjugo gånger starttiden. En redovisning gjord via en spårare skulle beskriva det spårade programmet snarare än det verkliga, vilket är precis det program som ingen vill ha uppmätt. Därför görs i stället stickprov: en psutil-avläsning per sekund, i en daemontråd som aldrig är GUI-tråden, under en i övrigt ostörd körning. Tre lägen i stället för en kryssruta, eftersom den användbara standarden inte är \"off\" -- de mest värdefulla resursdata kommer från körningar som ingen väntade sig skulle misslyckas.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.completed_fields_in_merged#5",
@@ -3045,7 +3058,9 @@
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
       "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "translation": "``size outliers`` Andelen objekt vars ekvivalenta diameter hamnar utanför ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median och MAD, inte medelvärde och standardavvikelse: fem skräpbitar blåser upp en standardavvikelse tills ingenting längre är en avvikare, vilket är exakt det fall som den här kontrollen finns till för att fånga (``tests/test_seg_qc.py`` jämför de två). *k* = 5 är avsiktligt generöst — verkliga storleksfördelningar är lognormala och har tyngre svansar än en normalfördelning, så 3 sigma flaggar några procent av ett helt korrekt fält. Flaggan utlöses när mer än ``seg_qc_outlier_fraction`` (0.15) av objekten ligger där ute. Tunga svansar, blandade populationer och segmenteringsdefekter kan alla utlösa den; flaggan anger inte vilket som föreligger. Kantobjekt utesluts från all storleksstatistik, precis som ``diameter._region_diameters`` utesluter dem, eftersom ett avkortat objekts area är missvisande.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#17",
@@ -3061,7 +3076,9 @@
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
       "translation": "``measure_crop`` är det dyra steget i spaCR: det öppnar varje mask, skär ut varje objekt ur varje kanal, beräknar hundratals särdrag per objekt och skriver dem till SQLite. På en hel platta tar det timmar. En platta vars segmentering har kollapsat — en kanal ur fokus, en diameter som är fel med en faktor två, ett konfluent monolager som smält samman till block — kostar exakt lika många timmar och ger sedan en mättabell som måste kastas. Felet syns tydligt i enbart maskerna; ingen tittar, eftersom att titta innebär att öppna tusen ``.npy``-filer för hand. Maskstatistik kan lyfta fram misstänkta fält, men kan inte fastställa orsaken eller validera den biologiska tolkningen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#3",
@@ -3069,7 +3086,9 @@
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
       "translation": "Den här modulen tittar alltså. Den läser de etikettmasker som :mod:`spacr.object` just har skrivit, poängsätter varje fält mot en handfull robusta statistiska mått och skriver ut ett protokoll som namnger de fält som överskrider konfigurerade trösklar. Den ändrar ingenting: ``seg_qc='report'`` (standard) visar flaggorna, den tar inte i tysthet bort fält. Att avgöra vilka fält som ska behållas är användarens beslut, och det kräver underlaget, inte ett filter.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#7",
@@ -3200,7 +3219,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#3",
+      "label": "spacr.sra.fetch_reads#4",
       "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
       "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
       "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
@@ -3208,7 +3227,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.sra.fetch_reads#4",
+      "label": "spacr.sra.fetch_reads#5",
       "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
       "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
       "context": "folder the ``.fastq.gz`` file is written into; created if missing.",
@@ -3381,7 +3400,9 @@
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
       "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "translation": "EN BILD DÄR DETEKTORN INTE HITTAR NÅGOT KOPIERAS HEL TILL DELNINGSMAPPEN, utan geometri, så att den fortfarande analyseras och helt enkelt saknar linjal. En varning som säger \"passed through whole\" och sedan hoppar över bilden släpper inte igenom något: när vissa bilder i en mapp delades och andra inte gjorde det, skulle de andra inte bidra med något utsnitt och ingen rad, och ingenting skulle visa att de hade funnits. Allt-eller-inget-fallet -- där funktionen faller tillbaka på ``src`` -- är det enda som skulle bete sig som meddelandet utlovade.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#0",
@@ -3543,7 +3564,9 @@
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
       "translation": "Endast utsnitt som annotatören INTE har märkt sedan dess returneras: en märkning som gjorts efter ett avvisande är det starkare påståendet och är det som anpassningen läser från själva kolumnen, så att dessutom lämna över avvisandet skulle räkna utsnittet två gånger.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#5",
@@ -3559,7 +3582,9 @@
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
       "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "translation": "Ett BEHÅLL i klump är en bekräftelse av varje förslag det behåller, så det registreras också i bedömningskolumnen (när kolumnen finns): utsnitten får då samma markering som de som bekräftats ett i taget, och antalet som programvyn visar stämmer med det som hände. Ett KASTA i klump är inte en bedömning -- \"jag vill inte granska dessa\" är inte \"these are wrong\" -- så det registrerar ingenting.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#0",
@@ -3591,7 +3616,9 @@
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
       "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "translation": "Den enkla sammanfogare som timeflows-förgreningen måste slå, och poängen som visar det.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#1",
@@ -3599,7 +3626,9 @@
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
       "context": "What it is for",
       "translation": "VAD DEN ÄR TILL FÖR",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#10",
@@ -3607,7 +3636,9 @@
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
       "context": "How a tracking is represented",
       "translation": "HUR EN SPÅRNING REPRESENTERAS",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#11",
@@ -3615,7 +3646,9 @@
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "translation": "Cell Tracking Challenges konvention, eftersom måtten är dess: en etikettstack där ETIKETTEN ÄR SPÅRETS ID, så att ett objekt behåller sin etikett så länge det är samma objekt, plus en valfri härstamning som mappar varje etikett till dess föräldraetikett. En delning är därför två nya etiketter vars förälder är den gamla; en spårare som inte kan uttrycka delningar skickar ingen härstamning och betalar för de två saknade föräldrakanterna, vilket är det ärliga priset för en enkel sammanfogare.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#12",
@@ -3623,7 +3656,9 @@
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
       "context": "Why it does not call ``spacr.timelapse``",
       "translation": "VARFÖR DEN INTE ANROPAR ``spacr.timelapse``",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#13",
@@ -3649,7 +3684,9 @@
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
       "context": "What is in here",
       "translation": "VAD SOM FINNS HÄR",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#4",
@@ -3689,7 +3726,9 @@
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
       "context": "Why the operation counts are public",
       "translation": "VARFÖR OPERATIONSANTALEN ÄR OFFENTLIGA",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#9",
@@ -3985,7 +4024,9 @@
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "translation": "Detta är det tal som steg 2 finns till för att producera, och det tal som förgreningen i steg 3 måste slå.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.score_stitcher#3",
@@ -4169,7 +4210,9 @@
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
       "context": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the microscope field of view). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "translation": "Cellpose förutsäger, per pixel, ett flöde mot centrum av det objekt som pixeln tillhör. Timeflows lägger till samma idé genom TIDEN: för varje pixel i bildruta ``t``, var objektets centrum finns i bildruta ``t+1``, och om det över huvud taget har en efterföljare (celler dör, delar sig, lämnar fältet). Länkning av objekt mellan bildrutor läser då modellen i stället för att gissa utifrån överlapp, vilket är där den enkla IoU-sammanfogaren misslyckas: snabba celler som rör sig mer än sin egen storlek mellan bildrutor (MuSC-filmerna rör sig 3-4 diametrar per bildruta vid p95).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#10",
@@ -4185,7 +4228,9 @@
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
       "context": "What is here, all runnable on a CPU:",
       "translation": "DET HÄR FINNS HÄR, ALLT KÖRBART PÅ EN CPU:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#3",
@@ -4209,7 +4254,9 @@
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
       "context": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "translation": ":func:`augment_pair` -- en spegling/rotation som tillämpas identiskt på båda bildrutorna och båda etikettbilderna; målen beräknas EFTER den från etiketterna, så en spegling kan aldrig lära ut en förskjutning som inte hände.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#6",
@@ -4353,7 +4400,9 @@
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
       "context": "One random flip and quarter-turn, the SAME for every frame and label.",
       "translation": "En slumpmässig spegling och kvartsvridning, SAMMA för varje bildruta och etikett.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#1",
@@ -4361,7 +4410,9 @@
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "translation": "En spegling som tillämpas på bildruta ``t`` men inte på ``t+1`` lär ut en förskjutning som aldrig hände, vilket är det enklaste sättet att få en modell som tränar vackert och inte spårar någonting. Målen beräknas från de augmenterade etiketterna efteråt, så vektorerna följer med automatiskt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#2",
@@ -4449,7 +4500,9 @@
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
       "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "translation": "De flesta på varandra följande bildrutor är nästan stilla, så om par dras likformigt visas huvudet mest enkla par. Varje pars medianförskjutning i förhållande till diametern hamnar i ett av ``bins`` lika breda intervall över det observerade omfånget, och ett pars vikt är inversen av storleken på dess intervall. Kvantilintervall prövades först och kollapsar när de flesta par rör sig likadant, vilket är precis den film som detta finns till för.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#2",
@@ -4529,7 +4582,9 @@
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
       "context": "One ``size`` square, the SAME window of every frame and label.",
       "translation": "En kvadrat med sidan ``size``, SAMMA fönster i varje bildruta och etikett.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#1",
@@ -4537,7 +4592,9 @@
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "translation": "Centrerat på ett slumpmässigt objekt i den första etikettbilden, förskjutet med upp till ett kvarts fönster, så att fönstren innehåller celler i stället för tom bakgrund. Ett fönster som delas av båda bildrutorna håller varje förskjutning sann.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#2",
@@ -4665,7 +4722,9 @@
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
       "context": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "translation": "Vektorn övervakas bara där det FINNS en efterföljare (``vector_weight``); efterföljarflaggan överallt inuti ett objekt (``object_weight``). Bakgrunden övervakas av ingen av dem.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#5",
@@ -4745,7 +4804,9 @@
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
       "context": "What it does not do",
       "translation": "VAD DEN INTE GÖR",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#11",
@@ -4753,7 +4814,9 @@
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "translation": "Den bedömer ANNOTERINGEN, inte en spårare. Att poängsätta en förutsagd spårning mot en referens är :mod:`spacr.timeflows_baseline`, som är steg 2 i samma plan. Den innehåller ingen grafisk kod och öppnar inga dialoger.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -4811,7 +4874,9 @@
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
       "context": "Why a script and not a look",
       "translation": "VARFÖR ETT SKRIPT OCH INTE EN TITT",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#9",

@@ -188,7 +188,7 @@
     },
     {
       "context": "the leave event; passed to the base class and otherwise not read.",
-      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#2",
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#1",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the leave event; passed to the base class and otherwise not read.",
       "source_sha256": "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56",
@@ -326,6 +326,8 @@
     {
       "context": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The application view calls this when either setting changes. The folder's file names are read off the main GUI execution path, and nothing is decoded.",
       "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.regroup_the_folder#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
       "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
@@ -408,6 +410,8 @@
     {
       "context": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "label": "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT#0",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
@@ -570,6 +574,8 @@
     {
       "context": "Two halves. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its microscope field of view, and draws the answer.",
       "label": "spacr.qt.widgets.mask_comparison#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
       "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
@@ -578,6 +584,8 @@
     {
       "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "label": "spacr.qt.widgets.mask_comparison#3",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
@@ -586,6 +594,8 @@
     {
       "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "label": "spacr.qt.widgets.mask_comparison#4",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
@@ -658,6 +668,8 @@
     {
       "context": "the choices, top of the stack first.",
       "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the choices, TOP OF THE STACK FIRST.",
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
@@ -682,6 +694,8 @@
     {
       "context": "The ticked layers, bottom first, ready for :func:`composite`.",
       "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.chosen#0",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
@@ -850,6 +864,8 @@
     {
       "context": "Split from :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the independent execution path that paints.",
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
@@ -858,6 +874,8 @@
     {
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
@@ -1162,6 +1180,8 @@
     {
       "context": "Not for the main GUI execution path. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it executes this on a worker. Looked up through the module global so a test can replace it and see which independent execution path it ran on.",
       "label": "spacr.qt.widgets.measure_input_table.files_under#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it runs this on a worker. Looked up through the module global so a test can replace it and see which thread it ran on.",
       "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
@@ -1570,6 +1590,8 @@
     {
       "context": "One helper, not one copy per screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "label": "spacr.qt.widgets.measurements_example#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "ONE HELPER, NOT ONE COPY PER SCREEN. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
@@ -1578,6 +1600,8 @@
     {
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "label": "spacr.qt.widgets.measurements_example#3",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DOWNLOAD IS THE EXISTING ONE. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
@@ -1722,6 +1746,8 @@
     {
       "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
       "label": "spacr.qt.widgets.model_share#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY THERE IS NO BUILT-IN TOKEN. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is running it:",
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
@@ -1802,6 +1828,8 @@
     {
       "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "label": "spacr.qt.widgets.model_share.central_upload#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
@@ -1930,6 +1958,8 @@
     {
       "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
@@ -1970,6 +2000,8 @@
     {
       "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "label": "spacr.qt.widgets.model_zoo_picker#4",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on screen and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
@@ -1986,6 +2018,8 @@
     {
       "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
@@ -1994,6 +2028,8 @@
     {
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it runs and a console can say why it failed after the dialog has gone.",
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
@@ -2012,6 +2048,8 @@
     {
       "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#12",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE BAR SITS ON THE BUTTONS. The progress line is the last thing above the buttons and the status keeps four lines' room while a job runs, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
@@ -2020,6 +2058,8 @@
     {
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for minutes -- runs on a worker thread; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
@@ -2310,6 +2350,8 @@
     {
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
@@ -3096,6 +3138,9 @@
     {
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "label": "spacr.qt.widgets.picture_export#0",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Right-click a picture and save it, as a PNG or as a PDF.",
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
@@ -3115,6 +3160,9 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "label": "spacr.qt.widgets.picture_export#1",
       "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
@@ -3124,6 +3172,9 @@
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "label": "spacr.qt.widgets.picture_export#2",
       "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
@@ -3133,6 +3184,9 @@
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "label": "spacr.qt.widgets.picture_export#3",
       "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
@@ -3165,6 +3219,9 @@
     {
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Ask for a path. ``\"\"`` when the user walked away.",
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
@@ -3173,6 +3230,9 @@
     {
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
@@ -3285,6 +3345,9 @@
     {
       "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
       "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
@@ -3293,6 +3356,9 @@
     {
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
@@ -3468,7 +3534,7 @@
     },
     {
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
@@ -3639,6 +3705,8 @@
     {
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "label": "spacr.qt.widgets.plaque_preview#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
@@ -3687,6 +3755,8 @@
     {
       "context": "The box weight that means: pick one from the figure's size.",
       "label": "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS#0",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The box weight that means: pick one from the figure's size.",
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
@@ -3719,6 +3789,8 @@
     {
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
@@ -4201,6 +4273,8 @@
     {
       "context": "Non-modal, because what it answers is how the picture beside it looks.",
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.open_overlay_settings#1",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Non-modal, because what it answers is how the picture beside it looks.",
       "source_sha256": "781131914582d812dc5057d3b0f345d1488386f956032fe3126cd766b3e058e8",
@@ -4601,6 +4675,8 @@
     {
       "context": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
       "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "retired": true,
+      "retired_reason": "2026-10-15: actual Plaque settings has three tabs; Figure and Text detection are both hidden in Plaque mode. Exact current source-bound replacement recorded separately; original review/history retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.",
       "source_sha256": "952883d7a0703a8ea5db52e6582e8f49ad925803a5301e3121c150ceb077a456",
@@ -4617,6 +4693,8 @@
     {
       "context": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
       "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "retired": true,
+      "retired_reason": "2026-10-15: actual Plaque settings has three tabs; Figure and Text detection are both hidden in Plaque mode. Exact current source-bound replacement recorded separately; original review/history retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In Plaque mode the Figure tab is hidden: nothing there applies to a folder of cropped plaque images.",
       "source_sha256": "6bceca08237b8a6663a66eeb053df9ef083ff075b56490e2d14a8aca2e011276",
@@ -4633,6 +4711,8 @@
     {
       "context": "Lay the panel's controls out in two tabs.",
       "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "retired": true,
+      "retired_reason": "2026-10-15: actual Plaque settings has three tabs; Figure and Text detection are both hidden in Plaque mode. Exact current source-bound replacement recorded separately; original review/history retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Lay the panel's controls out in two tabs.",
       "source_sha256": "86acdfef89cc7605c5f86858711e2e4ad9cd1b76f7bb12ac1d345db0ea53fb77",

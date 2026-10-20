@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Applied classifier to {n} crops. Classes: {classes}. Open Classifier results to inspect or export.",
+      "source": "Applied classifier to {n} crops. Classes: {classes}. Open Classifier results to inspect or export.",
+      "source_sha256": "bc201a89c035f689680c3ab347ae1a0816c374b47daf111ba76a27b00f7d141d",
+      "translation": "Classificateur appliqué à {n} extraits d’image. Classes : {classes}. Ouvrez Résultats de classification pour les examiner ou les exporter."
+    },
+    {
+      "table": "ui",
+      "key": "Apply saved classifier…",
+      "source": "Apply saved classifier…",
+      "source_sha256": "007c434b1b3af88f20c2ef10725e7dae9d898ebea34f82afb033203ba9239f82",
+      "translation": "Appliquer un classificateur enregistré…"
+    },
+    {
+      "table": "ui",
+      "key": "Applying classifier to {n} crops…",
+      "source": "Applying classifier to {n} crops…",
+      "source_sha256": "0c18eccab95614db2cea04a7e04e5926f5fffb50315f3234b858d095e9c2659e",
+      "translation": "Application du classificateur à {n} extraits d’image…"
+    },
+    {
+      "table": "ui",
+      "key": "Artifact: {path}\nSHA-256: {digest}\nPhysical channels: {channels}",
+      "source": "Artifact: {path}\nSHA-256: {digest}\nPhysical channels: {channels}",
+      "source_sha256": "d29c97f4d4fdab37197a19078a5e40336fc9af417ed8244c5075f1afb2c9fadd",
+      "translation": "Artefact du modèle : {path}\nSHA-256 : {digest}\nCanaux physiques : {channels}"
+    },
+    {
+      "table": "ui",
+      "key": "CSV tables (*.csv)",
+      "source": "CSV tables (*.csv)",
+      "source_sha256": "47e90111016c292afcb987077a8868e26c92d020e2c411e6cf7a8c6335dd19e4",
+      "translation": "Tables CSV (*.csv)"
+    },
+    {
+      "table": "ui",
+      "key": "Cancel classifier result",
+      "source": "Cancel classifier result",
+      "source_sha256": "d0924dec8b1fccfe38ac80928e4bc2dc7934bb03bde9f8f99f67e13b7588ea5e",
+      "translation": "Annuler le résultat de classification"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a saved own-DINO classifier",
+      "source": "Choose a saved own-DINO classifier",
+      "source_sha256": "06a7795aa441a2b17cdfd2d66f0e9d129fb0515e436abeed69a96fc2d415ac13",
+      "translation": "Choisir un classificateur DINO personnel enregistré"
+    },
+    {
+      "table": "ui",
+      "key": "Classifier application stopped.",
+      "source": "Classifier application stopped.",
+      "source_sha256": "9dbaa4f975c24f45d08479320123d12d99697685b012ab56da887fdab3abbf1a",
+      "translation": "Application du classificateur arrêtée."
+    },
+    {
+      "table": "ui",
+      "key": "Classifier output is not aligned with the loaded crops.",
+      "source": "Classifier output is not aligned with the loaded crops.",
+      "source_sha256": "29521d063b08b22bde0e6a5c401a5d8a940d23d1010bab7f0ed0630fa69dacc2",
+      "translation": "La sortie du classificateur n’est pas alignée sur les extraits d’image chargés."
+    },
+    {
+      "table": "ui",
+      "key": "Classifier result cancelled; background computation may finish.",
+      "source": "Classifier result cancelled; background computation may finish.",
+      "source_sha256": "931e0cd7df3b69aee5e74873bd1887da0396178c1d9f176074b9c18882ecde2f",
+      "translation": "Résultat de classification annulé ; le calcul en arrière-plan peut se terminer."
+    },
+    {
+      "table": "ui",
+      "key": "Classifier results",
+      "source": "Classifier results",
+      "source_sha256": "3ef7b8497aa7eb3730d332ee64f32393c362dcbdf9983c80dfd0f44e7fdac11e",
+      "translation": "Résultats de classification"
+    },
+    {
+      "table": "ui",
+      "key": "Classifier results saved to {path}.",
+      "source": "Classifier results saved to {path}.",
+      "source_sha256": "3ceab58c08842e11e5a353af8aea980b29384805b3cb44ccad110528d387799e",
+      "translation": "Résultats de classification enregistrés dans {path}."
+    },
+    {
+      "table": "ui",
+      "key": "Classifier results…",
+      "source": "Classifier results…",
+      "source_sha256": "fd5acd056acfd1a44d64eac372a65dd5113331a56c2f75ac40d1eeea8df1b9d7",
+      "translation": "Résultats de classification…"
+    },
+    {
+      "table": "ui",
+      "key": "Discard this application result. The model may finish its current work; it is not forcibly stopped.",
+      "source": "Discard this application result. The model may finish its current work; it is not forcibly stopped.",
+      "source_sha256": "94a5dfe8e997d24f06b5a33b4a9240e7212594156e59aa488eaea22a7f25aca8",
+      "translation": "Ignorer le résultat de cette application. Le modèle peut terminer son travail en cours ; il n’est pas arrêté de force."
+    },
+    {
+      "table": "ui",
+      "key": "Export classifier results",
+      "source": "Export classifier results",
+      "source_sha256": "a9c76796a6eb97b72647f7b1717f44c1490c7a04c282b060ec559695d483f0c8",
+      "translation": "Exporter les résultats de classification"
+    },
+    {
+      "table": "ui",
+      "key": "Export classifier results…",
+      "source": "Export classifier results…",
+      "source_sha256": "adaf07c888ea38ce71a30b8d8cd49431273cc67630350e0e503fbeaabe1e3bfc",
+      "translation": "Exporter les résultats de classification…"
+    },
+    {
+      "table": "ui",
+      "key": "Logits",
+      "source": "Logits",
+      "source_sha256": "992af60a106c257581cc83972aa80405b584500a1bc35f749a859afe21a71ab3",
+      "translation": "Valeurs logit"
+    },
+    {
+      "table": "ui",
+      "key": "Prediction",
+      "source": "Prediction",
+      "source_sha256": "6f2ddd1d52d54eb8e08846ade684c2f154f4d9dce40c89f894e69c002162b53d",
+      "translation": "Prédiction"
+    },
+    {
+      "table": "ui",
+      "key": "Preview shows up to {rows} crops and {columns} columns; export includes all values.",
+      "source": "Preview shows up to {rows} crops and {columns} columns; export includes all values.",
+      "source_sha256": "34c055071c77d56260679d314fa79795b946e9af1ed25070c0e023617af9022c",
+      "translation": "L’aperçu affiche au maximum {rows} extraits d’image et {columns} colonnes ; l’export inclut toutes les valeurs."
+    },
+    {
+      "table": "ui",
+      "key": "Probabilities",
+      "source": "Probabilities",
+      "source_sha256": "f88c5520b576214adb9d333b0d107420b81205ffa1604c06bd0b0065f8427938",
+      "translation": "Probabilités"
+    }
+  ]
+}

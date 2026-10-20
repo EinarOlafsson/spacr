@@ -1,0 +1,430 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "spatial_anndata",
+      "source": "Spatial anndata",
+      "source_sha256": "12600771d9080ec668c7346fec1fb152d96f80c84d7c447d4c31acd0349edd51",
+      "translation": "Räumliche anndata"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_bin_um",
+      "source": "Spatial bin um",
+      "source_sha256": "2c5d9fd305561f81741a1cf8ef69cf43c0dbec09512af3b10f681e480b5e58a2",
+      "translation": "Räumliche Bingröße (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_cell_expansion_um",
+      "source": "Spatial cell expansion um",
+      "source_sha256": "7683c0f53a8ba5f7c1a6bed3ab32cec66b6dc0523098c80f10abd0f7727fc9d5",
+      "translation": "Räumliche Zellerweiterung (um)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_cellpose_model",
+      "source": "Spatial cellpose model",
+      "source_sha256": "735cf9adc290447196cdcda7f75076c7883ec53e7df43074eeba48685d37fda4",
+      "translation": "Räumliches cellpose-Modell"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_diameter",
+      "source": "Spatial diameter",
+      "source_sha256": "9a852fae5ceff4538d24fe446cfdc958342bff98fbbfe361147321ef3d425762",
+      "translation": "Räumlicher Durchmesser"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_dst",
+      "source": "Spatial dst",
+      "source_sha256": "5c8f81073176bc5cb5c6486465ca8258fe57fbb9b38a50f36302cada187799e3",
+      "translation": "Räumliches Ziel"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_gene",
+      "source": "Spatial gene",
+      "source_sha256": "ffbec37bdd59019170858769beead8ae379bd89b6ad50557d4d89c898e0e454a",
+      "translation": "Räumliches Gen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_gpu",
+      "source": "Spatial GPU",
+      "source_sha256": "8a178e47103c04883e80b3eb333d21758ea9657c138f8fff481099246a0ae3a8",
+      "translation": "Räumliche GPU"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_level",
+      "source": "Spatial level",
+      "source_sha256": "59762bd57df779e441192711c485d8f07771c9cdd05470f67ee66d18f8110fed",
+      "translation": "Räumliche Ebene"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_map",
+      "source": "Spatial map",
+      "source_sha256": "f9c3fe049098319dbb16a8b811139c4f0fccfd3ab998dc2f8ab52858096108c3",
+      "translation": "Räumliche Zuordnung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_masks",
+      "source": "Spatial masks",
+      "source_sha256": "d21e9fdd67fc49cdb587f67f5ff01c7dfeaf1ae034eb2ee934fbda3b1459a272",
+      "translation": "Räumliche Masken"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_masks_dir",
+      "source": "Spatial masks dir",
+      "source_sha256": "a7e69291fb553cf21143c746821479f96187debea215c891ed8a419839b241a3",
+      "translation": "Räumlicher Maskenordner"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_min_pathogen_transcripts",
+      "source": "Spatial min pathogen transcripts",
+      "source_sha256": "9c19d0c485e275c917a4366aa294949cb884b858d1accffa88c98afcd34d6408",
+      "translation": "Räumlich: min. Pathogentranskripte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_min_qv",
+      "source": "Spatial min qv",
+      "source_sha256": "83d556127527ffef4c3f8b41c96b10e40ce898b43667ab4d7e0f33ed7677426b",
+      "translation": "Räumlich: min. QV"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_objects",
+      "source": "Spatial objects",
+      "source_sha256": "bd1925400537f023896690d8f370295cdf3332754bc44e23be673942766f28aa",
+      "translation": "Räumliche Objekte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_pathogen_genes",
+      "source": "Spatial pathogen genes",
+      "source_sha256": "08df96adbb6d222537a5be4ce3634f2983e01e95780547924c0f43f3ee91c491",
+      "translation": "Räumliche Pathogengene"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_platform",
+      "source": "Spatial platform",
+      "source_sha256": "186d33fe6618e1bbcedf7fe316bced3f699e33253602cedd51492914c6642a8b",
+      "translation": "Räumliche Plattform"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_sample",
+      "source": "Spatial sample",
+      "source_sha256": "b65e5c03d71289666979f96ea6f599840ce03b1cd938dd94d3d5e75f71860857",
+      "translation": "Räumliche Probe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_segmenter",
+      "source": "Spatial segmenter",
+      "source_sha256": "eb882f1b3b7e23f2ae5fc5d539e0342419c66bab6acca8682511e27ded795fec",
+      "translation": "Räumlicher Segmentierer"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_source",
+      "source": "Spatial source",
+      "source_sha256": "8abce834a13ccec1909ca8615374877f0edbbcdfc5cef8045cb5860f262b3a64",
+      "translation": "Räumliche Quelle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_stain",
+      "source": "Spatial stain",
+      "source_sha256": "dd509b06d91a838c7770911285cdc6be1224dbb4e0080ed1c78cd4eeefeea941",
+      "translation": "Räumliche Färbung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_tile_overlap",
+      "source": "Spatial tile overlap",
+      "source_sha256": "74b90f75ddcea684847c0904aab313d52ffed040bf4d314d8641773cc1199d4c",
+      "translation": "Räumliche Kachelüberlappung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_tile_size",
+      "source": "Spatial tile size",
+      "source_sha256": "098770cb9c06d0440ee4888c73ee57a475398a8d9e7108727a1a0ec59bb5382b",
+      "translation": "Räumliche Kachelgröße"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_window",
+      "source": "Spatial window",
+      "source_sha256": "b15a3a51acb1edf247920996cd2e911cd2423ab45332870686b99b68c2243fbe",
+      "translation": "Räumliches Fenster"
+    },
+    {
+      "table": "setting_labels",
+      "key": "spatial_window_unit",
+      "source": "Spatial window unit",
+      "source_sha256": "c7d0d6819125398077ef076bd8eb272dae1cdc26279a1b3189cf09b23d84a98b",
+      "translation": "Räumliche Fenstereinheit"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_anndata",
+      "source": "Also write the per-cell counts as an .h5ad file with the slide coordinates in obsm['spatial'], for scanpy or squidpy; needs the anndata package. Default True.",
+      "source_sha256": "8a25f93b8ad8d9e67097ee7bbaca2fc097ed253937672a05b69012a6761f51a6",
+      "translation": "Schreibt die Zählungen pro Zelle zusätzlich als .h5ad-Datei mit den Objektträgerkoordinaten in obsm['spatial'], für scanpy oder squidpy; benötigt das Paket anndata. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_bin_um",
+      "source": "Which Visium HD bins are read: 2, 8 or 16 micrometres. 2 um bins are smaller than a cell and give the sharpest assignment; 8 and 16 um bins are shared out over the cells they cover by area. Ignored for Xenium. Default 2.",
+      "source_sha256": "76942bb5ccf00e00bd50f3b0085c7269b292478419b3043d031822505eab72cd",
+      "translation": "Welche Visium HD-Bins gelesen werden: 2, 8 oder 16 Mikrometer. 2-um-Bins sind kleiner als eine Zelle und ergeben die schärfste Zuordnung; 8- und 16-um-Bins werden nach Fläche auf die Zellen verteilt, die sie überdecken. Wird bei Xenium ignoriert. Standard 2."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_cell_expansion_um",
+      "source": "How far each nucleus is grown into a cell, in micrometres, without crossing a neighbour (Xenium's own default is 5). The grown objects are the cell masks; the nuclei are written as the nucleus masks with the same labels. 0 writes the nuclei as the cells. Default 5.",
+      "source_sha256": "ead9c4ebdbc92e00648fd720bfaf5e8a4943b7ed3cc592298db4101ce6e5ed50",
+      "translation": "Wie weit jeder Zellkern zu einer Zelle erweitert wird, in Mikrometern, ohne einen Nachbarn zu überschreiten (der eigene Standard von Xenium ist 5). Die erweiterten Objekte sind die Zellmasken; die Zellkerne werden mit denselben Labels als Kernmasken geschrieben. 0 schreibt die Zellkerne als Zellen. Standard 5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_cellpose_model",
+      "source": "The Cellpose model that segments the nuclei: cpsam is the installed Cellpose's default model, any other name or path is loaded as that model. Default cpsam.",
+      "source_sha256": "12aee88d50ea25a8e9e6ddf43468fba56b4945afd4b7bab47e006138941b5bdd",
+      "translation": "Das Cellpose-Modell, das die Zellkerne segmentiert: cpsam ist das Standardmodell des installierten Cellpose, jeder andere Name oder Pfad wird als dieses Modell geladen. Standard cpsam."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_diameter",
+      "source": "Expected nucleus diameter in pixels of the chosen level. Given, each window is rescaled so that this diameter becomes the size Cellpose expects; empty segments at the image's own scale. Default None.",
+      "source_sha256": "4608821b7b073dfa6da135b158143c79610a7adbcd3be85c059e6fa2fe360823",
+      "translation": "Erwarteter Kerndurchmesser in Pixeln der gewählten Ebene. Ist er angegeben, wird jedes Fenster so umskaliert, dass dieser Durchmesser der Größe entspricht, die Cellpose erwartet; leer segmentiert im eigenen Maßstab des Bildes. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_dst",
+      "source": "Where the fields are written: merged/, stack/, masks/ and measurements/measurements.db with the spatial_fields and spatial_objects tables, the same layout Measure reads after Mask Generation. Point Measure's src at <spatial_dst>/merged and Spatial Map Barcodes' spatial_masks_dir at spatial_dst. Empty writes a spacr_spatial folder inside spatial_source. Default None.",
+      "source_sha256": "25ad94b0958ea8c6cc872b237577d5889d4d4be98acd332a1afc2a7a87e939af",
+      "translation": "Wohin die Bildfelder geschrieben werden: merged/, stack/, masks/ und measurements/measurements.db mit den Tabellen spatial_fields und spatial_objects, dasselbe Layout, das Messen nach der Masken-Generierung liest. Richten Sie src von Messen auf <spatial_dst>/merged und spatial_masks_dir von Räumliches Map Barcodes auf spatial_dst. Leer schreibt einen Ordner spacr_spatial in spatial_source. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_gene",
+      "source": "A gene whose transcripts or bins colour the overlay figure drawn over the field with the most cells. Empty draws them uncoloured. Default empty.",
+      "source_sha256": "8d943a01fae609be0a29717bc5ffacb7842d24a637ad15757739c0ace3083a61",
+      "translation": "Ein Gen, dessen Transkripte oder Bins die Overlay-Abbildung einfärben, die über dem Bildfeld mit den meisten Zellen gezeichnet wird. Leer zeichnet sie ohne Färbung. Standard leer."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_gpu",
+      "source": "Run Cellpose on the graphics card when spaCR finds a usable one. Off keeps the run on the CPU, which is slower but leaves a shared card alone. Default False.",
+      "source_sha256": "c98c1c7c34299fa5b917679c152c7a3b6f3f37c3ea0e769121fce72bf000e0d3",
+      "translation": "Cellpose auf der Grafikkarte ausführen, wenn spaCR eine nutzbare findet. Aus belässt den Lauf auf der CPU, was langsamer ist, eine gemeinsam genutzte Karte aber nicht belastet. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_level",
+      "source": "Which pyramid level of the slide image to segment and write: 0 is full resolution, each level up halves it. Level 1 of a Xenium morphology image (0.425 um per pixel) still resolves nuclei and segments four times faster. An image without that level is read at its coarsest one and the scale is recorded. Default 0.",
+      "source_sha256": "d63e7c9b6c3f45aa544b17e3b35e9b551ebdfc6ce911efed24ecbb9e451bd85d",
+      "translation": "Welche Pyramidenebene des Objektträgerbildes segmentiert und geschrieben wird: 0 ist volle Auflösung, jede höhere Ebene halbiert sie. Ebene 1 eines Xenium-Morphologiebildes (0,425 um pro Pixel) löst Zellkerne noch auf und segmentiert viermal schneller. Ein Bild ohne diese Ebene wird in seiner gröbsten gelesen, und der Maßstab wird festgehalten. Standard 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_map",
+      "source": "Read every Xenium transcript or Visium HD bin, put it in the pixel frame of the fields Spatial Mask Generation wrote (Xenium micrometres through the morphology pixel size, Visium HD through the full-resolution image) and count it into the cell or nucleus it falls in. Per-cell expression tables are written into measurements.db keyed like Measure's, with infection calls from pathogen genes, infected-versus-uninfected tests and an overlay.",
+      "source_sha256": "643b6e4fabed74a2831b8f520c427c7836289d4fface8e768ffdacbc9537ec1a",
+      "translation": "Jedes Xenium-Transkript bzw. jeden Visium HD-Bin lesen, in das Pixelraster der Bildfelder setzen, die Räumliche Masken-Generierung geschrieben hat (Xenium-Mikrometer über die Pixelgröße der Morphologie, Visium HD über das Bild in voller Auflösung), und der Zelle oder dem Zellkern zuzählen, in die bzw. den es fällt. Expressionstabellen pro Zelle werden in measurements.db geschrieben, mit Schlüsseln wie die von Messen, zusammen mit Infektionsbestimmungen aus Pathogengenen, Tests infiziert gegen nicht infiziert und einem Overlay."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_masks",
+      "source": "Segment a whole Xenium morphology or Visium HD H&E slide: the slide is cut into overlapping windows, only the image tiles under each window are read, nuclei are found and grown into cells, objects seen whole by more than one window are sewn into one, and every window is written as a field in merged/ with its masks, the layout Measure reads after Mask Generation. The fields' places on the slide go to measurements.db, for Spatial Map Barcodes.",
+      "source_sha256": "2536cbc9a1591d3ad63589e5ec5b6c0d48baea9a9c9b173039b18d98a736db4e",
+      "translation": "Einen ganzen Xenium-Morphologie- oder Visium HD-H&E-Objektträger segmentieren: Der Objektträger wird in überlappende Fenster zerlegt, nur die Bildkacheln unter jedem Fenster werden gelesen, Zellkerne werden gefunden und zu Zellen erweitert, Objekte, die von mehr als einem Fenster vollständig erfasst werden, werden zu einem zusammengefügt, und jedes Fenster wird als Bildfeld mit seinen Masken in merged/ geschrieben, dem Layout, das Messen nach der Masken-Generierung liest. Die Positionen der Bildfelder auf dem Objektträger gehen in measurements.db, für Räumliches Map Barcodes."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_masks_dir",
+      "source": "The folder Spatial Mask Generation wrote (its spatial_dst): the fields in merged/ and their places on the slide in measurements.db. Every transcript or bin is placed in those fields and the per-cell counts are written into the same measurements.db, keyed by prcfo, so they join Measure's tables. Default None.",
+      "source_sha256": "cbc1c9f54951e547e7b53d7508ae4513a9edd48a0024cb7364b6cd5c84f36657",
+      "translation": "Der Ordner, den Räumliche Masken-Generierung geschrieben hat (deren spatial_dst): die Bildfelder in merged/ und ihre Positionen auf dem Objektträger in measurements.db. Jedes Transkript bzw. jeder Bin wird in diese Bildfelder gesetzt, und die Zählungen pro Zelle werden in dieselbe measurements.db geschrieben, mit prcfo als Schlüssel, sodass sie sich mit den Tabellen von Messen verknüpfen lassen. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_min_pathogen_transcripts",
+      "source": "How many pathogen transcripts (Visium HD: UMI shares) make a cell infected. Raising it from 1 removes cells that carry a stray viral read from a neighbour. Default 1.",
+      "source_sha256": "eac8293e223d12fea76d0be3d6bef0e8958a5845463d52a2092df12b7b1ea4e0",
+      "translation": "Wie viele Pathogentranskripte (Visium HD: UMI-Anteile) eine Zelle zu einer infizierten machen. Eine Erhöhung über 1 entfernt Zellen, die einen versprengten viralen Read von einem Nachbarn tragen. Standard 1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_min_qv",
+      "source": "The lowest Xenium transcript quality (Phred-scaled QV) kept. 20 is the threshold of Xenium's own cell-feature matrix; lower keeps more transcripts and more misreads. Ignored for Visium HD. Default 20.",
+      "source_sha256": "caaf27ee55a388845f7ce2dbe0a6ac65c170480caa48ca13b968d940c86f0343",
+      "translation": "Die niedrigste behaltene Xenium-Transkriptqualität (Phred-skalierter QV). 20 ist der Schwellenwert der eigenen Zell-Feature-Matrix von Xenium; niedriger behält mehr Transkripte und mehr Fehllesungen. Wird bei Visium HD ignoriert. Standard 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_objects",
+      "source": "Which mask planes the reads are counted into, separated by commas: cell, nucleus, or both. Each gets an <object>_expression table in measurements.db. Default cell,nucleus.",
+      "source_sha256": "43a85d2a9d715343b97e4e2cd57dc942071c9069f734378abb2252c1e7a23a59",
+      "translation": "In welche Maskenebenen die Reads gezählt werden, durch Kommas getrennt: cell, nucleus oder beide. Jede erhält eine Tabelle <object>_expression in measurements.db. Standard cell,nucleus."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_pathogen_genes",
+      "source": "The pathogen's own probes or genes, separated by commas; a name ending in * matches every gene starting with the rest (CHIKV*). A cell holding at least spatial_min_pathogen_transcripts of them is infected; they are left out of the host comparisons. Empty skips the infection analysis. Default empty.",
+      "source_sha256": "fc1cccb7c067e808774f368daea12816f7440ae3c77d1fc6820b114e35407854",
+      "translation": "Die eigenen Sonden oder Gene des Pathogens, durch Kommas getrennt; ein Name, der auf * endet, passt auf jedes Gen, das mit dem Rest beginnt (CHIKV*). Eine Zelle mit mindestens spatial_min_pathogen_transcripts davon gilt als infiziert; sie bleiben bei den Wirtsvergleichen unberücksichtigt. Leer überspringt die Infektionsanalyse. Standard leer."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_sample",
+      "source": "The plate name of the fields, the first part of every file name and measurement key, so a second slide measured into the same database stays apart. Empty uses the source folder's name. Default empty.",
+      "source_sha256": "34358d885b27abd7a5dc1aa276781a7372650e13b82e0c190fd0df4b9e430095",
+      "translation": "Der Plattenname der Bildfelder, der erste Teil jedes Dateinamens und Messschlüssels, sodass ein zweiter Objektträger, der in dieselbe Datenbank gemessen wird, getrennt bleibt. Leer verwendet den Namen des Quellordners. Standard leer."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_segmenter",
+      "source": "How nuclei are found: cellpose runs the Cellpose model in spatial_cellpose_model; threshold is an Otsu threshold with a distance-transform watershed, seconds instead of minutes on a CPU but it merges touching nuclei more often. Default cellpose.",
+      "source_sha256": "a6f7b6f2015aa8dbb30a13f6df024d7ecd8f41619abf84ebbd266236140c70ec",
+      "translation": "Wie Zellkerne gefunden werden: cellpose führt das Cellpose-Modell aus spatial_cellpose_model aus; threshold ist ein Otsu-Schwellenwert mit einer Watershed-Segmentierung auf der Distanztransformation, auf einer CPU Sekunden statt Minuten, verschmilzt aber sich berührende Zellkerne häufiger. Standard cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_source",
+      "source": "The platform's output folder: a Xenium output bundle (transcripts.parquet, experiment.xenium and the morphology image) or a Space Ranger outs folder of a Visium HD run (binned_outputs/ and the full-resolution H&E or IF image beside it). Mask generation segments its image; barcode mapping reads its transcripts or bins. Default None.",
+      "source_sha256": "a31e97317db9eb78b99dcb94b4f851e0b531ccfe694033e2fd277454b8d86df4",
+      "translation": "Der Ausgabeordner der Plattform: ein Xenium-Ausgabepaket (transcripts.parquet, experiment.xenium und das Morphologiebild) oder ein Space Ranger-Ordner outs eines Visium HD-Laufs (binned_outputs/ und das H&E- oder IF-Bild in voller Auflösung daneben). Die Masken-Generierung segmentiert sein Bild; die Barcode-Zuordnung liest seine Transkripte oder Bins. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_stain",
+      "source": "Which image the segmenter sees: auto takes the nuclear (DAPI) channel of a Xenium image and the haematoxylin of an H&E image; dapi takes the first channel; hematoxylin unmixes haematoxylin from RGB; rgb gives Cellpose the colour image itself. Default auto.",
+      "source_sha256": "c9529de94929c05c05466855ed88335300b70f0fdf1024e3a48edbb609892eb6",
+      "translation": "Welches Bild der Segmentierer sieht: auto nimmt den Kernkanal (DAPI) eines Xenium-Bildes und das Hämatoxylin eines H&E-Bildes; dapi nimmt den ersten Kanal; hematoxylin entmischt Hämatoxylin aus RGB; rgb gibt Cellpose das Farbbild selbst. Standard auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_tile_overlap",
+      "source": "How far neighbouring windows overlap, in pixels. An object is kept from a window that saw all of it, so this has to exceed the largest cell including spatial_cell_expansion_um; objects no window saw whole are counted in the report and dropped. Raising it costs time. Default 160.",
+      "source_sha256": "04c8d13b61e66fb6d6a9669749987aff3b8cb3d8844c5f1ddb7cb0d7683fb4f0",
+      "translation": "Wie weit benachbarte Fenster überlappen, in Pixeln. Ein Objekt wird aus einem Fenster übernommen, das es vollständig gesehen hat; daher muss dieser Wert die größte Zelle einschließlich spatial_cell_expansion_um übersteigen. Objekte, die kein Fenster vollständig gesehen hat, werden im Bericht gezählt und verworfen. Eine Erhöhung kostet Zeit. Standard 160."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_tile_size",
+      "source": "Edge of each segmentation window and written field, in pixels. Larger windows mean fewer fields and seams but more memory per Cellpose call and larger arrays for Measure. Default 2048.",
+      "source_sha256": "5e8475ae79705023662731efbaf4c19d3da6243c802123cf4432e2e72670d1aa",
+      "translation": "Kantenlänge jedes Segmentierungsfensters und geschriebenen Bildfelds, in Pixeln. Größere Fenster bedeuten weniger Bildfelder und Nahtstellen, aber mehr Speicher pro Cellpose-Aufruf und größere Arrays für Messen. Standard 2048."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_window",
+      "source": "Segment only this part of the slide: x, y, width and height, in spatial_window_unit. Only the image tiles under it are read. Empty segments the whole slide. Default empty.",
+      "source_sha256": "7f8c14129c45b1611a52844778cb1fa35580087702e14468b1752c9e160e4f26",
+      "translation": "Nur diesen Teil des Objektträgers segmentieren: x, y, Breite und Höhe in spatial_window_unit. Nur die Bildkacheln darunter werden gelesen. Leer segmentiert den ganzen Objektträger. Standard leer."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_window_unit",
+      "source": "The unit of spatial_window: um (micrometres, through the image's pixel size) or px (pixels of the chosen level). Default um.",
+      "source_sha256": "6ac31e0e656501f0f0d567a71c3fadb8c6e9d4c080690d752d5d6833f840abc5",
+      "translation": "Die Einheit von spatial_window: um (Mikrometer, über die Pixelgröße des Bildes) oder px (Pixel der gewählten Ebene). Standard um."
+    },
+    {
+      "table": "ui",
+      "key": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on.",
+      "source": "Alpha. Count every Xenium transcript or Visium HD bin into the cell or nucleus it falls in, using the fields Spatial Mask Generation wrote; per-object expression tables and infection calls from pathogen genes go into measurements.db keyed like Measure's. In the GUI it is the Spatial switch in Map Barcodes' actions row, shown only with Show alpha features on.",
+      "source_sha256": "08e9e9634d928dcbcf4a250f4bc4f186dd1983f76d38bf6c84d664f1febc5574",
+      "translation": "Alpha. Zählt jedes Xenium-Transkript bzw. jeden Visium HD-Bin der Zelle oder dem Zellkern zu, in die bzw. den es fällt, anhand der Bildfelder, die Räumliche Masken-Generierung geschrieben hat; Expressionstabellen pro Objekt und Infektionsbestimmungen aus Pathogengenen gehen in measurements.db, mit Schlüsseln wie die von Messen. In der GUI ist es der Schalter Räumlich in der Aktionszeile von Map Barcodes, nur sichtbar, wenn Alpha-Funktionen anzeigen aktiviert ist."
+    },
+    {
+      "table": "ui",
+      "key": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on.",
+      "source": "Alpha. Segment a whole Xenium morphology or Visium HD H&E slide in overlapping windows; each window is written to merged/ with its masks, the layout Measure reads, and the windows' places on the slide go to measurements.db for Spatial Map Barcodes. In the GUI it is the Spatial switch in Mask Generation's actions row, shown only with Show alpha features on.",
+      "source_sha256": "b3bbf39d2bd320d003a229fcacf86b99c9d055a82e1ff1360a26db68bfa6e45b",
+      "translation": "Alpha. Segmentiert einen ganzen Xenium-Morphologie- oder Visium HD-H&E-Objektträger in überlappenden Fenstern; jedes Fenster wird mit seinen Masken in merged/ geschrieben, dem Layout, das Messen liest, und die Positionen der Fenster auf dem Objektträger gehen in measurements.db für Räumliches Map Barcodes. In der GUI ist es der Schalter Räumlich in der Aktionszeile der Masken-Generierung, nur sichtbar, wenn Alpha-Funktionen anzeigen aktiviert ist."
+    },
+    {
+      "table": "ui",
+      "key": "Read every Xenium transcript or Visium HD bin, put it in the pixel frame of the fields Spatial Mask Generation wrote (Xenium micrometres through the morphology pixel size, Visium HD through the full-resolution image) and count it into the cell or nucleus it falls in. Per-cell expression tables are written into measurements.db keyed like Measure's, with infection calls from pathogen genes, infected-versus-uninfected tests and an overlay.",
+      "source": "Read every Xenium transcript or Visium HD bin, put it in the pixel frame of the fields Spatial Mask Generation wrote (Xenium micrometres through the morphology pixel size, Visium HD through the full-resolution image) and count it into the cell or nucleus it falls in. Per-cell expression tables are written into measurements.db keyed like Measure's, with infection calls from pathogen genes, infected-versus-uninfected tests and an overlay.",
+      "source_sha256": "643b6e4fabed74a2831b8f520c427c7836289d4fface8e768ffdacbc9537ec1a",
+      "translation": "Jedes Xenium-Transkript bzw. jeden Visium HD-Bin lesen, in das Pixelraster der Bildfelder setzen, die Räumliche Masken-Generierung geschrieben hat (Xenium-Mikrometer über die Pixelgröße der Morphologie, Visium HD über das Bild in voller Auflösung), und der Zelle oder dem Zellkern zuzählen, in die bzw. den es fällt. Expressionstabellen pro Zelle werden in measurements.db geschrieben, mit Schlüsseln wie die von Messen, zusammen mit Infektionsbestimmungen aus Pathogengenen, Tests infiziert gegen nicht infiziert und einem Overlay."
+    },
+    {
+      "table": "ui",
+      "key": "Segment a whole Xenium morphology or Visium HD H&E slide: the slide is cut into overlapping windows, only the image tiles under each window are read, nuclei are found and grown into cells, objects seen whole by more than one window are sewn into one, and every window is written as a field in merged/ with its masks, the layout Measure reads after Mask Generation. The fields' places on the slide go to measurements.db, for Spatial Map Barcodes.",
+      "source": "Segment a whole Xenium morphology or Visium HD H&E slide: the slide is cut into overlapping windows, only the image tiles under each window are read, nuclei are found and grown into cells, objects seen whole by more than one window are sewn into one, and every window is written as a field in merged/ with its masks, the layout Measure reads after Mask Generation. The fields' places on the slide go to measurements.db, for Spatial Map Barcodes.",
+      "source_sha256": "2536cbc9a1591d3ad63589e5ec5b6c0d48baea9a9c9b173039b18d98a736db4e",
+      "translation": "Einen ganzen Xenium-Morphologie- oder Visium HD-H&E-Objektträger segmentieren: Der Objektträger wird in überlappende Fenster zerlegt, nur die Bildkacheln unter jedem Fenster werden gelesen, Zellkerne werden gefunden und zu Zellen erweitert, Objekte, die von mehr als einem Fenster vollständig erfasst werden, werden zu einem zusammengefügt, und jedes Fenster wird als Bildfeld mit seinen Masken in merged/ geschrieben, dem Layout, das Messen nach der Masken-Generierung liest. Die Positionen der Bildfelder auf dem Objektträger gehen in measurements.db, für Räumliches Map Barcodes."
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the Spatial Map Barcodes page: count every Xenium transcript or Visium HD bin of a whole slide into the cells Spatial Mask Generation segmented, with infection calls from pathogen genes. Alpha.",
+      "source": "Show or hide the Spatial Map Barcodes page: count every Xenium transcript or Visium HD bin of a whole slide into the cells Spatial Mask Generation segmented, with infection calls from pathogen genes. Alpha.",
+      "source_sha256": "08dc6a3bf70c7f38bdb6d1f6f66891c6f5738ef39eb532c5a6ffe828b7cdf6c5",
+      "translation": "Seite Räumliches Map Barcodes ein- oder ausblenden: jedes Xenium-Transkript bzw. jeden Visium HD-Bin eines ganzen Objektträgers den Zellen zuzählen, die Räumliche Masken-Generierung segmentiert hat, mit Infektionsbestimmungen aus Pathogengenen. Alpha."
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the Spatial Mask Generation page: segment a whole Xenium morphology or Visium HD H&E slide in overlapping tiles into fields Measure reads, with the fields' places on the slide recorded for Spatial Map Barcodes. Alpha.",
+      "source": "Show or hide the Spatial Mask Generation page: segment a whole Xenium morphology or Visium HD H&E slide in overlapping tiles into fields Measure reads, with the fields' places on the slide recorded for Spatial Map Barcodes. Alpha.",
+      "source_sha256": "2a4d19342ab2ef6bc2f9158ec54aae2145ae349accf2c8c3b4935a3c5ba9dcbc",
+      "translation": "Seite Räumliche Masken-Generierung ein- oder ausblenden: einen ganzen Xenium-Morphologie- oder Visium HD-H&E-Objektträger in überlappenden Kacheln zu Bildfeldern segmentieren, die Messen liest, wobei die Positionen der Bildfelder auf dem Objektträger für Räumliches Map Barcodes festgehalten werden. Alpha."
+    },
+    {
+      "table": "ui",
+      "key": "Spatial",
+      "source": "Spatial",
+      "source_sha256": "f94a59f5619b20aef0a4a38316801f035b9a1534a26e79ccd8c8a11cc02be5dd",
+      "translation": "Räumlich"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial Map Barcodes",
+      "source": "Spatial Map Barcodes",
+      "source_sha256": "f30cc27d8b1232869b130dcef669f4feb4813ece0bb80b09de331848c6d819fa",
+      "translation": "Räumliches Map Barcodes"
+    },
+    {
+      "table": "ui",
+      "key": "Spatial Mask Generation",
+      "source": "Spatial Mask Generation",
+      "source_sha256": "212f9e29a65cbd79a995bc431ce9de170e47c612b7c0a4cdb6f15373088f3235",
+      "translation": "Räumliche Masken-Generierung"
+    },
+    {
+      "table": "ui",
+      "key": "This panel previews one image. For a whole slide, switch on Spatial in Mask Generation's actions row to segment it in tiles, then Spatial in this screen's actions row to count every transcript into those masks in one batch run.",
+      "source": "This panel previews one image. For a whole slide, switch on Spatial in Mask Generation's actions row to segment it in tiles, then Spatial in this screen's actions row to count every transcript into those masks in one batch run.",
+      "source_sha256": "05432044ddda9f24789052edf87b8ff27ab4e73a4096c7b34b1bd8f0b27d04a9",
+      "translation": "Dieses Panel zeigt eine Vorschau eines Bildes. Für einen ganzen Objektträger schalten Sie Räumlich in der Aktionszeile der Masken-Generierung ein, um ihn in Kacheln zu segmentieren, und dann Räumlich in der Aktionszeile dieses Bildschirms, um jedes Transkript in einem Batch-Lauf in diese Masken zu zählen."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_platform",
+      "source": "Which 10x platform wrote spatial_source: auto, xenium or visium_hd. auto reads it from the files present; set it only when a folder holds both layouts. Default auto.",
+      "source_sha256": "9c159dfe6a3c047591bd799f451b21a8bbaac0a025fbdf3a0f5f4290858a42da",
+      "translation": "Welche 10x-Plattform spatial_source geschrieben hat: auto, xenium oder visium_hd. auto liest sie aus den vorhandenen Dateien; setzen Sie sie nur, wenn ein Ordner beide Layouts enthält. Standard auto.",
+      "retired": "2026-10-12: English source changed when the spatial_platform tooltip gained standard Visium (visium); superseded by the new tooltip, awaiting review."
+    }
+  ]
+}

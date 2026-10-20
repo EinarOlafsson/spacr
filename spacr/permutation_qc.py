@@ -34,7 +34,7 @@ def autocorrelation(residuals: Sequence[float]) -> float:
 
     2 is no autocorrelation, 0 is perfect positive, 4 perfect negative.
     Written out rather than imported so this module does not pull
-    statsmodels for one line -- and so the ORDER is explicit: it is the
+    statsmodels for one line -- and so the order is explicit: it is the
     order the rows arrive in, which for a well table is plate reading order.
     """
     values = np.asarray(list(residuals), dtype=float)
@@ -50,7 +50,7 @@ def autocorrelation(residuals: Sequence[float]) -> float:
 
 def position_effect(residuals: Sequence[float],
                     positions: Sequence[Any]) -> Dict[str, float]:
-    """How much of the residual one position column explains.
+    """Measure how much residual variance one position column explains.
 
     :param residuals: residual values whose positional structure is measured.
     :param positions: position level aligned to each residual.
@@ -63,7 +63,7 @@ def position_effect(residuals: Sequence[float],
     :raises ValueError: if ``residuals`` and ``positions`` do not contain
         exactly one value for each other.
 
-    THE NUMBER THAT MATTERS FOR EXCHANGEABILITY. If rows differ from each
+    This is the quantity that matters for exchangeability. If rows differ from each
     other more than cells within a row do, then shuffling across rows inside
     a plate is shuffling things that are not alike, and the permutation null
     is wider than the truth.
@@ -117,11 +117,10 @@ def block_residual_report(residuals: Sequence[float],
                           blocks: Sequence[Any],
                           positions: Optional[Mapping[str, Sequence[Any]]]
                           = None) -> Dict[str, Any]:
-    """Everything the permutation's assumption needs, per block and overall.
+    """Diagnose permutation exchangeability, per block and pooled.
 
-    :param residuals: the phenotype residuals that WILL BE PERMUTED -- not a
-        model's residuals, which is the distinction this whole module exists
-        for.
+    :param residuals: the phenotype residuals that will be permuted -- not a
+        model's residuals.
     :param blocks: the block each residual belongs to; the shuffle happens
         inside these.
     :param positions: ``{'rowID': [...], 'columnID': [...]}`` or similar.
@@ -131,7 +130,7 @@ def block_residual_report(residuals: Sequence[float],
     :raises ValueError: if ``blocks`` or any named position column does not
         contain exactly one value for each residual.
 
-    PER BLOCK AND NOT ONLY POOLED. The shuffle is within-block, so a pooled
+    Diagnostics are per block as well as pooled. The shuffle is within-block, so a pooled
     statistic can look healthy while one plate is badly structured -- and
     that one plate is where the false positives come from.
     """
@@ -185,13 +184,13 @@ POSITION_ALPHA = 0.01
 
 
 def exchangeability_verdict(report: Mapping[str, Any]) -> Dict[str, Any]:
-    """Is the within-block shuffle defensible, and if not, what to change?
+    """Judge whether the within-block shuffle is defensible; name a remedy if not.
 
     :param report: diagnostics returned by :func:`block_residual_report`.
 
     :returns: ``{'ok': bool, 'findings': [...], 'remedy': str}``.
 
-    THE REMEDY IS NAMED, NOT IMPLIED. "Durbin-Watson 1.22" is a number;
+    The remedy names a concrete setting. "Durbin-Watson 1.22" is a number;
     "add rowID to guide_nuisance_columns" is something the reader can do,
     and it is the same setting the run already has.
     """
@@ -273,7 +272,7 @@ def plot_residual_by_position(residuals: Sequence[float],
                               title: str = ""):
     """Draw the permuted residual against plate position, one row per block.
 
-    :param residuals: the residuals that WERE PERMUTED.
+    :param residuals: the residuals that were permuted.
     :param blocks: the block of each residual; the shuffle happens inside it.
     :param positions: ``{'rowID': [...], 'columnID': [...]}``, aligned to
         ``residuals``.
@@ -290,7 +289,7 @@ def plot_residual_by_position(residuals: Sequence[float],
     :returns: a :class:`matplotlib.figure.Figure`.
     :raises ValueError: if ``positions`` is empty or a column is misaligned.
 
-    A GRADIENT ACROSS THE PLATE IS WHAT THIS SHOWS AND NO OTHER PANEL DOES.
+    This panel shows gradients across the plate, which no other panel shows.
     Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that
     row A sits above row P inside one plate, which is exactly what makes the
     wells in that plate not swappable.
@@ -414,7 +413,7 @@ def write_permutation_qc(destination: str,
     :param destination: the run's results folder.
     :param outcome: the phenotype column the residuals belong to; it names
         the files, so a multi-outcome run keeps one set per outcome.
-    :param residuals: the residuals that WERE PERMUTED.
+    :param residuals: the residuals that were permuted.
     :param blocks: the block of each residual.
     :param positions: the position columns, aligned to ``residuals``.
     :param report: :func:`block_residual_report` of the same residuals.

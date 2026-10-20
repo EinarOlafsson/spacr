@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T01:20:54.193261+00:00",
+  "status": "EXTERNAL ROUTING HARDENING ONLY; AST/bash-n passed; inactive proposal, no runtime acceptance",
+  "original_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze_launcher_peerreview_20261013.json",
+    "sha256": "f9c257f90fb7d07d3bc3cf01bb12f238c5287238b1e1eee3fa9d2ba199430574",
+    "size_bytes": 10085
+  },
+  "original_archive": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/original-20261013/bootstrap.py",
+      "sha256": "14d264b792cf62b201b38bf90d2d26bf4a91b553df64ae7a382d7a33503dd439",
+      "size_bytes": 3997
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/original-20261013/live.sh",
+      "sha256": "fea9955d3e68e517b873f7a28e6a8de986416b9c11d6f8f0547d772549ca9b18",
+      "size_bytes": 818
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/original-20261013/proposal.json",
+      "sha256": "a214464e33a137af61bb276973527c0fa481abf60c9cf6bf1615833a68056740",
+      "size_bytes": 4503
+    }
+  ],
+  "corrected_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/bootstrap.py",
+      "sha256": "5ba966df196a2b3ca63de42a3152381a8d7f2ab55ef87dda4bfd73d6d0b53619",
+      "size_bytes": 4718
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/live.sh",
+      "sha256": "fea9955d3e68e517b873f7a28e6a8de986416b9c11d6f8f0547d772549ca9b18",
+      "size_bytes": 818
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/proposal.json",
+      "sha256": "2946a643db217d9e9a056bf47f766111b8698b5c520c6fcca545aa5cdcf7f166",
+      "size_bytes": 6146
+    }
+  ],
+  "parser_source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/run_native_capture.py",
+      "sha256": "0d16cdc9713fcac24148d791adaea96c38c420c4ac97ff91afba4e92a9e96ff1",
+      "size_bytes": 15623
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/capture_refresh.py",
+      "sha256": "baeec52063453ec4e3789a4d72790a4510811173f1af06c0ead2e693e0260884",
+      "size_bytes": 139442
+    }
+  ],
+  "change": "Native and capture segment guard rejects each protected full spelling or long prefix, with =value handled. Capture protection covers stage only, the applicable capture_refresh route option; unrelated full flags such as --inputs,--splash,--settings-tour,--module remain outside protected prefix set.",
+  "syntax": {
+    "AST_parse": true,
+    "bash_n_exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "coverage_limit": "No parser execution or tests permitted by assignment; behavior assessed statically. No queue or capture activated. Existing published snapshot immutable.",
+  "remaining_prerequisites": [
+    "12G cap requires separate root-owned RAM lease; launcher does not acquire one.",
+    "Live matching GPU holder is preflight metadata, not independent flock ownership proof. Root must invoke through real gpu_turn from final worktree.",
+    "AST/bash-n only; no runtime parser/test/queue/host/GPU/capture verification.",
+    "Home release done/final Workbench source still required; recheck exact final interfaces and all wrapper source propagation."
+  ]
+}

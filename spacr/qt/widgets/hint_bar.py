@@ -19,11 +19,16 @@ its lifetime.
 
 from __future__ import annotations
 
+import math
 from typing import Dict, Optional
+from .. import _after
 
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QTextOption
-from PySide6.QtWidgets import QFrame, QLabel, QTextEdit, QVBoxLayout, QWidget
+from PySide6.QtGui import (
+    QAccessible, QAccessibleActionInterface, QColor, QPainter, QPalette, QPen, QTextDocument,
+    QTextOption,
+)
+from PySide6.QtWidgets import QAccessibleWidget, QFrame, QLabel, QTextEdit, QVBoxLayout, QWidget
 
 #: What the bar says when nothing is under the pointer.
 DEFAULT_HINT = "Hover a control to see what it does."
@@ -34,6 +39,12 @@ DEFAULT_HINT = "Hover a control to see what it does."
 BAR_NAME = "HintBar"
 
 
+#: The height of four laid-out rows of text, by font key: the help strip
+#: measured them with a fresh text document at every style or font change,
+#: and a popup made frameless sends one of each.
+_FOUR_ROWS: Dict[str, int] = {}
+
+
 class _HintResizeHandle(QFrame):
     """Move the top edge of a help strip without resizing its window."""
 
@@ -42,11 +53,70 @@ class _HintResizeHandle(QFrame):
         super().__init__(bar)
         self._bar = bar
         self._drag = None
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setObjectName("HintBarResizeHandle")
         self.setFrameShape(QFrame.HLine)
         self.setFrameShadow(QFrame.Sunken)
         self.setFixedHeight(8)
         self.setCursor(Qt.SizeVerCursor)
+
+    def _resize_to(self, height: int) -> None:
+        """Commit an enabled assistive or keyboard resize only when it changes height."""
+        if not self.isEnabled():
+            return
+        previous = self._bar.height()
+        self._bar._set_manual_height(height)
+        if self._bar.height() != previous:
+            self._bar.helpHeightCommitted.emit(self._bar.height())
+
+    def changeEvent(self, event) -> None:
+        """Refresh the cached focus outline when the widget style changes."""
+        super().changeEvent(event)
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange,
+                            QEvent.ApplicationPaletteChange,
+                            QEvent.ApplicationFontChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+
+    def paintEvent(self, event) -> None:
+        """Paint the grip and its cached outline while keyboard focus is here."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def focusInEvent(self, event) -> None:
+        """Repaint when keyboard focus enters the grip."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event) -> None:
+        """Remove the outline when keyboard focus leaves the grip."""
+        super().focusOutEvent(event)
+        self.update()
+
+    def keyPressEvent(self, event) -> None:
+        """Grow with Up and shrink with Down, committing only changed heights."""
+        if (self.hasFocus() and event.modifiers() == Qt.NoModifier
+                and event.key() in (Qt.Key_Up, Qt.Key_Down)):
+            step = max(1, self._bar.fontMetrics().lineSpacing())
+            direction = 1 if event.key() == Qt.Key_Up else -1
+            self._resize_to(self._bar.height() + direction * step)
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def mousePressEvent(self, event) -> None:
         """Start a vertical drag at the currently reserved height."""
@@ -74,6 +144,71 @@ class _HintResizeHandle(QFrame):
             event.accept()
             return
         super().mouseReleaseEvent(event)
+
+
+class _AccessibleHintResize(QAccessibleWidget):
+    """Describe the help edge as a grip with bounded height actions and value."""
+
+    def __init__(self, handle):
+        """Retain the existing widget under Qt accessibility cache ownership."""
+        super().__init__(handle, QAccessible.Grip)
+
+    def state(self):
+        """Add resize semantics to the normal enabled, focus and visibility state."""
+        state = super().state()
+        state.sizeable = True
+        return state
+
+    def text(self, kind):
+        """Report current pixel height while retaining the translated name and help."""
+        if kind == QAccessible.Value:
+            return str(self.widget()._bar.height())
+        return super().text(kind)
+
+    def actionNames(self):
+        """Offer only enabled height changes within the current layout bounds."""
+        if not self.widget().isEnabled():
+            return []
+        actions = []
+        bar = self.widget()._bar
+        if bar.height() < bar._maximum_help_height():
+            actions.append(QAccessibleActionInterface.increaseAction())
+        if bar.height() > bar._minimum_help_height():
+            actions.append(QAccessibleActionInterface.decreaseAction())
+        return actions + super().actionNames()
+
+    def doAction(self, action):
+        """Use the existing font-line resize step for supported assistive actions."""
+        if action not in self.actionNames():
+            return
+        handle = self.widget()
+        step = max(1, handle._bar.fontMetrics().lineSpacing())
+        if action == QAccessibleActionInterface.increaseAction():
+            handle._resize_to(handle._bar.height() + step)
+        elif action == QAccessibleActionInterface.decreaseAction():
+            handle._resize_to(handle._bar.height() - step)
+        else:
+            super().doAction(action)
+
+    def keyBindingsForAction(self, action):
+        """Name the existing unmodified height keys for assistive clients."""
+        if action == QAccessibleActionInterface.increaseAction():
+            return ["Up"]
+        if action == QAccessibleActionInterface.decreaseAction():
+            return ["Down"]
+        return super().keyBindingsForAction(action)
+
+
+def _hint_resize_accessible_factory(_key, widget):
+    """Provide a retained accessibility adapter only for this help resize grip."""
+    if isinstance(widget, _HintResizeHandle):
+        interface = _AccessibleHintResize(widget)
+        widget._accessible_resize = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_hint_resize_accessible_factory)
 
 
 class HintBar(QLabel):
@@ -110,9 +245,9 @@ class HintBar(QLabel):
         self._resize_handle = _HintResizeHandle(self)
         try:
             from ..i18n import tr
-            resize_tip = tr("Drag this edge to make the help area taller or shorter.")
+            resize_tip = tr("Drag this edge or use Up and Down to resize the help area.")
         except Exception:
-            resize_tip = "Drag this edge to make the help area taller or shorter."
+            resize_tip = "Drag this edge or use Up and Down to resize the help area."
         self._resize_handle.setAccessibleName(resize_tip)
         self._resize_handle.setAccessibleDescription(resize_tip)
         self._view = QTextEdit(self)
@@ -133,17 +268,36 @@ class HintBar(QLabel):
         inner.setSpacing(0)
         inner.addWidget(self._resize_handle)
         inner.addWidget(self._view)
+        self._view.setAccessibleName(default)
         self._view.setPlainText(default)
         self.setFixedHeight(self._minimum_help_height())
 
     def _minimum_help_height(self) -> int:
         """Leave four painted text rows and the resize edge visible."""
-        lines = self.fontMetrics().lineSpacing() * 4
+        lines = max(self.fontMetrics().lineSpacing() * 4, self._four_painted_rows())
         margins = self.contentsMargins()
         handle = getattr(self, "_resize_handle", None)
         edge = handle.height() if handle is not None else 8
         return max(28, lines + 12,
                    lines + margins.top() + margins.bottom() + edge)
+
+    def _four_painted_rows(self) -> int:
+        """Measure four laid-out rows, which can exceed four rounded line spacings."""
+        view = getattr(self, "_view", None)
+        font = view.font() if view is not None else self.font()
+        frame = 0 if view is None else 2 * view.frameWidth()
+        key = font.key()
+        height = _FOUR_ROWS.get(key)
+        if height is None:
+            document = QTextDocument()
+            document.setDocumentMargin(0)
+            document.setDefaultFont(font)
+            document.setPlainText("\n".join(("Xg",) * 4))
+            height = math.ceil(document.size().height())
+            if len(_FOUR_ROWS) > 64:
+                _FOUR_ROWS.clear()
+            _FOUR_ROWS[key] = height
+        return height + frame
 
     def _maximum_help_height(self) -> int:
         """Keep the preceding page and the dialog's action buttons visible."""
@@ -173,7 +327,7 @@ class HintBar(QLabel):
         self.setFixedHeight(max(self._minimum_help_height(),
                                 self._manual_height or 0))
         if self._manual_height is not None:
-            QTimer.singleShot(0, self, lambda: self._set_manual_height(
+            _after(0, self, lambda: self._set_manual_height(
                 self._manual_height) if self.isVisible() else None)
 
     def setText(self, text: str) -> None:
@@ -183,6 +337,7 @@ class HintBar(QLabel):
         """
         self._visible_text = text
         self.setAccessibleName(text)
+        self._view.setAccessibleName(text)
         self._view.setPlainText(text)
         self._view.verticalScrollBar().setValue(0)
 
@@ -207,11 +362,13 @@ class HintBar(QLabel):
         """Paint the help at the strip's font size despite inherited editor rules."""
         view = getattr(self, "_view", None)
         if view is not None:
-            view.setFont(self.font())
+            if view.font() != self.font():
+                view.setFont(self.font())
             pixels = self.fontInfo().pixelSize()
-            view.setStyleSheet(
-                "background: transparent; border: none; padding: 0px; margin: 0px;"
-                f"font-size: {pixels}px;")
+            sheet = ("background: transparent; border: none; padding: 0px; "
+                     "margin: 0px;" f"font-size: {pixels}px;")
+            if view.styleSheet() != sheet:
+                view.setStyleSheet(sheet)
 
 
     def explain(self, widget: QWidget, text: str = "") -> str:

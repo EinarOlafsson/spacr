@@ -1484,6 +1484,8 @@ def test_the_preferences_default_to_the_shipped_animation(prefs):
     assert prefs.get_ambient_speed() == DEFAULT_SPEED
     assert prefs.get_ambient_size() == DEFAULT_SIZE
     assert prefs.get_ambient_resolution() == DEFAULT_RESOLUTION
+    assert prefs.get_ambient_density() == pytest.approx(0.25)
+    prefs.set_ambient_animation("blobs")
     assert prefs.get_ambient_density() == DEFAULT_DENSITY
     assert prefs.get_ambient_drift_direction() == DEFAULT_DRIFT_DIRECTION
 
@@ -1570,7 +1572,7 @@ def test_the_dialog_offers_the_controls_and_saves_them(prefs, qtbot,
     qtbot.addWidget(dialog)
     sliders = {s.objectName(): s for s in dialog.findChildren(QSlider)}
     designed = {"AmbientSpeed": 100, "AmbientSize": 100,
-                "AmbientResolution": 100, "AmbientDensity": 10}
+                "AmbientResolution": 100, "AmbientDensity": 25}
     for name, mark in designed.items():
         assert name in sliders, sorted(sliders)
         assert sliders[name].value() == mark, \

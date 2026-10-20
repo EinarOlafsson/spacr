@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Capabilities"
 msgstr "功能"
 
-msgid "spaCR follows an image-based screen from raw microscopy files to a ranked hit list. This page gives the full map; the :doc:`Python API quickstart <python_api>` and interactive tutorials show the individual routes."
-msgstr "spaCR 跟随一次基于图像的筛选，从原始显微文件一直到排序后的命中列表。本页给出完整的功能图；:doc:`Python API 快速入门 <python_api>` 和交互式教程展示了各条具体路线。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR segments objects in microscopy images, measures them, labels and classifies them, and regresses per-well phenotype scores on guide abundance from sequencing reads. This page lists the modules and controls by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
+msgstr "spaCR 对显微图像中的对象进行分割和测量，为其标注并分类，并将每孔表型评分对测序读段中的向导 RNA 丰度进行回归。本页按领域列出各模块和控件；:doc:`Python API 快速入门 <python_api>` 和交互式教程介绍各个具体工作流程。"
 
 msgid "Core screen workflow"
 msgstr "核心筛选工作流程"
@@ -34,13 +35,15 @@ msgstr "掩膜"
 msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
 msgstr "掩膜模块准备 TIFF、OME-TIFF、LIF、CZI 和 ND2 采集数据，并使用 Cellpose 分割细胞、细胞核、病原体和细胞器。它支持二维、体数据和时间序列数据，可估计对象直径，并能与图层查看器或 napari 交换掩膜校正。"
 
-msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
-msgstr "对象并不是固定的四种。一个项目包含细胞、细胞核和病原体，由它们派生的细胞质，以及 ``number_of_organelles`` 要求数量的细胞器槽位——从零到二十六个。每个槽位相互独立，拥有自己的通道、直径、检测方法和形态。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "对象并不是固定的四种。一个项目包含细胞、细胞核和病原体，由它们派生的细胞质，以及 ``number_of_organelles`` 所指定数量的细胞器槽位——从零到二十六个。每个槽位相互独立，拥有自己的通道、直径、检测方法和形态。"
 
 msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
 msgstr "每个槽位会被指定一种形态预设——点状、囊泡状、球形、丝状、管状、网状、扁囊状、环形、新月形或自定义——预设决定检测策略，即 spots、network、irregular 或 ring 之一。"
 
-msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and a hidden object's answers are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
 msgstr "掩膜生成将逐对象设置排列为 **Per-object settings** 下的一张表，每个已设置通道的对象占一列；细胞列始终显示。对象的通道在常规表单中设置，隐藏对象的设置值会被保留，待其通道再次设置时使用。每个对象都有一个 **去除背景** 复选框，细胞列还有 **调整细胞**。**添加过滤器** 会添加一行，可按任何 scikit-image regionprop （例如面积或平均强度）过滤对象；每个对象的单元格可填写 ``200 – 5000``、单独的最小值（``200``）、单独的最大值（``– 5000``），或留空表示不过滤。这些行构成 ``object_filters`` 设置。为某个对象选择 Cellpose 3 模型时，会显示 **Cellpose 3** 类别及该后端自己的设置。**质量控制** 包含分割检查以及输出、存储、运行和可靠性设置。"
 
 msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
@@ -58,11 +61,28 @@ msgstr "测量模块的设置分组为 **输入与实验**、**掩膜与通道�
 msgid "Annotate and Classify"
 msgstr "标注与分类"
 
-msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are kept and inform the next round of training. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
-msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记录到项目数据库中，并可按不确定性对主动学习队列排序。一页显示尽可能多的裁剪图且不会滚动；其余的在下一页。执行 **建议...** 后，建议的裁剪图带有 **?** 徽标：单击或按 **Y** 确认，右键单击或按 **N** 拒绝，**U** 撤销。**确认本页其余项** 和 **拒绝本页其余项** 会一次性判定所有剩余建议。拒绝结果会被保留，并为下一轮训练提供信息。分类模块根据测量表训练 PyTorch 图像模型或经典模型和提升（boosted）模型。检查点会记录其数据集、划分规则、类别平衡和留出指标。分类的 **Essentials** 视图包含选择和训练任一系列所需的内容——ResNet 或 MaxViT 等图像模型，或 XGBoost 或随机森林等表格模型——未选中系列的设置会显示为灰色。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+msgstr "标注模块提供由键盘驱动的裁剪图网格，将标签直接记录到项目数据库中，并可按不确定性对主动学习队列排序。一页显示尽可能多的裁剪图且不会滚动；其余的在下一页。执行 **建议...** 后，建议的裁剪图带有 **?** 徽标：单击或按 **Y** 确认，右键单击或按 **N** 拒绝，**U** 撤销。**确认本页其余项** 和 **拒绝本页其余项** 会一次性判定所有剩余建议。拒绝结果会被保存；在二分类列中，下一轮训练会将被拒绝的建议用作另一类别的样本。分类模块根据测量表训练 PyTorch 图像模型或经典模型和提升（boosted）模型。检查点会记录其数据集、划分规则、类别平衡和留出指标。分类的 **Essentials** 视图包含选择和训练任一系列所需的内容——ResNet 或 MaxViT 等图像模型，或 XGBoost 或随机森林等表格模型——未选中系列的设置会显示为灰色。"
 
 msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
 msgstr "分类 CV 还提供推理时可选的旋转和镜像。关于汇总方法、原始概率和平均概率以及方向稳定性标记，请参阅 :doc:`classifier_evaluation`。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Own-DINO classifiers (alpha)"
+msgstr "自有 DINO 分类器（Alpha）"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enable **Preferences → Show alpha features**, then open **Embeddings** and load the crop stack. Select an existing own-DINO teacher checkpoint with the own-checkpoint control. **Train classifier…** opens the supervised training form. Supply a CSV with one row per loaded crop, in exactly the same order, and columns ``label`` and ``acquisition_group``. Blank labels are excluded. Each labelled crop needs its known acquisition-well identity; complete groups are held out for validation. Keep string identities such as ``01`` intact."
+msgstr "启用 **偏好 → 显示 Alpha 功能**，然后打开 **Embeddings** 并加载裁剪图堆栈。使用自有检查点控件选择一个现有的自有 DINO 教师检查点。**训练分类器…** 会打开监督训练表单。提供一个 CSV 文件，每个已加载的裁剪图对应一行，顺序必须完全相同，并包含 ``label`` 和 ``acquisition_group`` 列。空白标签会被排除。每个已标注的裁剪图都需要其已知的采集孔标识；完整的组会被留出用于验证。请保持 ``01`` 这类字符串标识不变。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enter the ordered physical source-channel indices for these crops, choose training settings, and select a new classifier output file. Existing output files are preserved. The saved classifier records its classes, channel order, scaling and feature-normalization policy. Progress is shown during training; **Stop classifier** requests cancellation."
+msgstr "按顺序输入这些裁剪图的物理源通道索引，选择训练设置，并选择一个新的分类器输出文件。现有输出文件会被保留。保存的分类器会记录其类别、通道顺序、缩放以及特征归一化策略。训练期间会显示进度；**停止分类器** 会请求取消。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use **Apply saved classifier…** to select that classifier and apply it to the loaded raw crop stack. Its recorded preprocessing is applied automatically. **Classifier results…** shows predictions, features, logits and probabilities, with the class order, physical channels and checkpoint digest. CSV export includes the complete selected result table. **Cancel classifier result** discards pending delivery; the worker can remain active until it finishes. These alpha controls do not establish phenotype accuracy for a new dataset."
+msgstr "使用 **应用已保存的分类器…** 选择该分类器，并将其应用于已加载的原始裁剪图堆栈。其记录的预处理会自动应用。**分类结果…** 显示预测、特征、logits 和概率，以及类别顺序、物理通道和检查点摘要。CSV 导出包含所选的完整结果表。**取消分类结果** 会丢弃待交付的结果；工作进程可能会保持运行，直到其结束。这些 Alpha 控件并不能确立新数据集的表型准确性。"
 
 msgid "Map Barcodes"
 msgstr "映射条形码"
@@ -75,6 +95,10 @@ msgstr "回归"
 
 msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
 msgstr "回归估计向导、基因、条件和对照的效应。其模型系列涵盖连续、比例、二元和计数型响应，稳健拟合和分位数拟合，带惩罚的高维设计，混合效应以及向导置换。诊断信息和运行摘要写在结果旁边。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``dependent_variable``, the response, is a drop-down of the numeric columns of the selected score file or files, with ``pred`` first when present. Identifier columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``, ``objectID`` and ``count`` are not offered. The list is read from each file's header and its first 200 rows when the files change. A saved value that is not in the file is kept and flagged. ``pred`` is the probability a classifier writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``. When ``pred`` is selected and a score file has no ``pred`` column, a note under the field says so, names those two outputs and lists the columns that can be used; spaCR does not pick a response for you. A missing response-column error lists available score-table columns to help you choose a valid response."
+msgstr "``dependent_variable`` 是响应变量，其下拉列表提供所选一个或多个评分文件中的数值列；如果存在 ``pred``，它会排在首位。列表不提供 ``plateID``、``rowID``、``columnID``、``fieldID``、``objectID`` 和 ``count`` 等标识符列。文件更改时，列表会从每个文件的表头及前 200 行中读取。已保存但文件中不存在的值会保留并标记。``pred`` 是分类器写出的概率：Classify 将其保存为 tar 文件旁的 ``<date>_<dataset>_<model>_result.csv``，ML 评分则将其保存为 ``results/<model>/<features>/results.csv``。当选择了 ``pred`` 而评分文件没有 ``pred`` 列时，字段下方的提示会说明这一情况，列出上述两个输出文件及可用的列；spaCR 不会替您选择响应变量。响应列缺失错误会列出评分表中的可用列，帮助您选择有效的响应变量。"
 
 msgid "Planning, quality control and exploration"
 msgstr "规划、质量控制与探索"
@@ -113,11 +137,13 @@ msgid "How a module is reached"
 msgstr "如何进入模块"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
-msgstr "主屏幕将模块分为四类：**核心**、**数据**、**工具** 和 **生物体**，共有二十一个模块在这些分类中设有卡片。核心 是按顺序运行的处理流程；数据 涵盖其输入与输出；工具 是针对项目使用的工具，并非流程自动执行的步骤。生物体 打开弓形虫指南及其可用实验分析。计划中的分析标记为即将推出。创建掩膜 位于 **工具** 中。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "主屏幕将模块分为四类：**核心**、**数据**、**工具** 和 **生物体**，其中十九个模块在这些分类中设有磁贴。核心 包含按顺序运行的流程模块；数据 包含导入、嵌入、运行比较、设计、剂量–反应和质量控制；工具 包含针对现有项目进行操作的模块，而非流程步骤；生物体 打开弓形虫指南及其可用实验分析。计划中的分析标记为即将推出。创建掩膜 位于 **工具** 中。"
 
-msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
-msgstr "磁贴并不是唯一的入口，而且大多数模块没有磁贴。磁贴的意思是“从这里开始”，而用于回答别人发起的运行相关问题的模块并不是起点。这些模块改为从以下位置打开："
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
+msgstr "大多数模块没有磁贴；它们用于检查或扩展在另一个模块中开始的工作。它们的打开位置如下："
 
 msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
 msgstr "**其宿主模块标题栏上的按钮**——作为宿主设置旁边的一个页面打开，并已指向同一项目。Investigate Hit 和 Prediction Profiler 从回归打开；格式转换器和外部掩膜从导入打开；Layer Viewer、Control Charts 和 Outliers 从 QC 打开。"
@@ -125,11 +151,13 @@ msgstr "**其宿主模块标题栏上的按钮**——作为宿主设置旁边�
 msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
 msgstr "**帮助菜单**，用于检查或管理已有工作、而不隶属于任何单个模块的那些模块——运行历史、Pipeline Graph、Project Browser、数据库浏览器、报告、数据管理器、孔板队列、批处理运行器和分布式作业。"
 
-msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
-msgstr "**命令面板** （Ctrl+K），可到达所有模块，无论是否有磁贴。这是唯一没有例外的路线，也是键盘用户的导航方式。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**the command palette** (Ctrl+K), which lists every registered module, with or without a tile, and opens the selected module from the keyboard."
+msgstr "**命令面板** （Ctrl+K），列出所有已注册的模块（无论是否有磁贴），并可通过键盘打开所选模块。"
 
-msgid "None of them is second-class: they are shipped, translated and documented like any other module, and the ones that are pipelines still run headlessly under ``spacr-run``."
-msgstr "它们都不是次要的：它们与其他模块一样随软件发布、经过翻译并有文档，其中属于流程的模块仍可通过 ``spacr-run`` 无界面运行。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
+msgstr "没有磁贴的模块与有磁贴的模块以相同方式安装、翻译和编写文档，其中属于流程的模块也可通过 ``spacr-run`` 无界面运行。"
 
 msgid "Host"
 msgstr "宿主"
@@ -176,6 +204,18 @@ msgstr "Cellpose 工作台、为整个文件夹生成掩膜、模型比较、模
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "参数扫描通过第三种方式进入：它是回归屏幕上的一个面板，通过其设置表单上的 **参数扫描** 开关打开。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Starting spaCR"
+msgstr "启动 spaCR"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR opens with a black container holding the spaCR logo as a photomosaic. The logo holds still while the window loads, then the mosaic blows away tile by tile and the container fades to show the window. A click or a key skips it. The sequence is off when **Preferences → Appearance → Animation → Startup animation** is cleared (the mosaic then shows without the animation), while **Reduce motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set to ``1`` (the mosaic is then not shown at all). **Help → Show startup animation** plays it again inside the open window, even when Startup animation is off; under Reduce motion the logo holds and then cross-fades away."
+msgstr "spaCR 启动时会显示一个黑色容器，其中以照片马赛克呈现 spaCR 标志。窗口加载时标志保持静止，随后马赛克逐块飘散，容器淡出，露出窗口。点击或按键可跳过此过程。取消勾选 **偏好 → 外观 → Animation → 启动动画** 时（此时仅显示马赛克，不播放动画）、开启 **减少动态效果** 时，以及环境变量 ``SPACR_NO_SPLASH`` 设为 ``1`` 时（此时完全不显示马赛克），此动画过程均关闭。**帮助 → 显示启动动画** 可在已打开的窗口内重新播放，即使启动动画已关闭；开启减少动态效果时，标志会先保持静止，再淡出消失。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The window opens **Borderless** by default: it has no title bar, fills the work area of its screen, and its menu bar moves it while the marks at the right end of the bar minimise, maximise and close it. Clear **Help → Window → Borderless window** to use the platform's own framed window instead. The choice is remembered."
+msgstr "窗口默认以 **Borderless** 模式打开：没有标题栏，占满所在屏幕的工作区，并可通过菜单栏拖动；菜单栏最右端的图标用于最小化、最大化和关闭窗口。取消勾选 **帮助 → 窗口 → 无边框窗口**，即可改用平台自带的带边框窗口。此选择会被保存。"
+
 msgid "Picking up where you left off"
 msgstr "从上次中断处继续"
 
@@ -184,6 +224,14 @@ msgstr "**会话恢复** ：每次正常启动都会重新打开 spaCR 上次关
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**设置自动保存** ：每 30 秒，各个已打开模块的未保存设置会作为草稿保存在偏好存储中；没有变化时不写入任何内容。正常退出会丢弃草稿。如果 spaCR 未经关闭就结束，下次启动时会询问一次是否恢复这些草稿（与重新打开的会话相同的草稿不会询问）。Linux、macOS 和 Windows 上的行为相同，因为该存储是 Qt 自身的设置存储。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Settings files"
+msgstr "设置文件"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Export settings…**, next to **Import settings…**, to save the form's current values as a settings CSV without running anything. On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a **Submit remote…** sent. Both write the file that ``spacr-run --settings`` reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>` and :doc:`shortcuts_and_templates` for settings templates."
+msgstr "使用 **导入设置…** 旁的 **导出设置…**，可将表单当前值保存为设置 CSV，而不运行任何任务。在 Distributed Jobs 屏幕上，**保存设置 CSV…** 会保存由 **远程提交…** 发送的设置快照。两种方式都写出 ``spacr-run --settings`` 读取的文件；有关设置模板，请参阅 :ref:`通过图形界面保存设置文件 <settings-files-from-the-gui>` 和 :doc:`shortcuts_and_templates`。"
 
 msgid "Undo and redo"
 msgstr "撤销与重做"
@@ -202,6 +250,30 @@ msgstr "在 **标注** 中，**U** 和 Ctrl+Z 撤销最后一个标签，Ctrl+Sh
 
 msgid "the **Make Masks** editor keeps its own **Undo** and **Redo**."
 msgstr "**创建掩膜** 编辑器有自己的 **撤销** 和 **重做**。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo."
+msgstr "**编辑** 菜单为屏幕上的编辑器提供 **撤销** 和 **重做**。它们首先作用于获得焦点的文本框，否则作用于该屏幕自身的历史记录；没有可撤销或重做的内容时，它们显示为灰色。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Gate Editor keys and overlapping elements"
+msgstr "Gate Editor 按键与重叠元素"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "While the Gate Editor has focus, these keys choose its drag mode and, in 3D, the plane or axis. They are listed under **Change shortcuts** with the scope *Gate Editor* and can be rebound there:"
+msgstr "Gate Editor 拥有焦点时，这些键用于选择拖动模式，并在 3D 中选择平面或轴。它们列在 **更改快捷键** 中，作用域为 *Gate Editor*，可在那里重新绑定："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;"
+msgstr "**Shift+E** 选择编辑，**Shift+S** 选择 Spin (free)，**Shift+D** 选择绘制；"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "**Shift+X**、**Shift+Y** 和 **Shift+Z** 分别选择 X、Y 或 Z 平面。如果在按下 **Shift+S** 后的 1.5 秒内按下这些键，则改为选择旋转轴。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks uses the same keys in its True 3D view. When a click lands on more than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under it are highlighted and listed at the top left of the graph under **Elements under the click**, in layer order with sheets before anchors; the top layer is blue and the others white. The initial click grabs the nearest anchor under the pointer, if any; otherwise it grabs the nearest sheet. Click a row or press the Up and Down arrows to choose which element the next click on that overlap selects and moves. **Escape**, a click on empty space, leaving Edit, switching between 2D and 3D, or replacing the gate set closes the list."
+msgstr "Make Masks 的 True 3D 视图使用相同按键。在 3D 编辑模式或 2D 中，如果点击位置有多个面或锚点，鼠标下的元素会高亮显示，并在图表左上角的 **点击处的元素** 下按层顺序列出，同层中面排在锚点前；最上层为蓝色，其余为白色。首次点击优先抓取指针下最近的锚点（如果存在）；否则抓取最近的面。点击列表行或按上、下方向键，可选择下次点击同一重叠位置时选中并移动的元素。按 **Escape**、点击空白处、离开编辑模式、在 2D 与 3D 之间切换或替换 gate 集合都会关闭列表。"
 
 msgid "Running jobs"
 msgstr "正在运行的任务"
@@ -234,16 +306,46 @@ msgid "Every control has a name that screen readers announce, taken from its lab
 msgstr "每个控件都有屏幕阅读器会朗读的名称，取自其标签、工具提示或占位文本，并且名称跟随界面语言。**Tab** 会从文本框和表格移到下一个控件，而不是输入制表符。**偏好 → 外观 → 主题** 提供 **高对比度**，其中所有文字与背景的对比度至少为 7:1。"
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off. Holding a key switches it only once. If your screen reader handles numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`."
+msgstr "使用 :kbd:`Tab` 或 :kbd:`Shift+Tab` 移动到 **人工智能** 或 **实时**。轮廓会显示哪个标签拥有键盘焦点。在未按住其他键的情况下，按 :kbd:`Space`、:kbd:`Return` 或数字键盘上的 :kbd:`Enter` 来开启或关闭它。按住一个键只会切换一次。 如果屏幕阅读器会自行处理数字键盘的 :kbd:`Enter`，请使用 :kbd:`Space` 或 :kbd:`Return`。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge, then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip taller or shorter within its size limits; :kbd:`Tab` moves on."
+msgstr "在 **偏好** 中，使用 :kbd:`Tab` 将焦点移到帮助区域狭窄的上边缘，然后在不按住其他键的情况下按 :kbd:`Up` 或 :kbd:`Down`，在尺寸限制内增大或减小该区域的高度；按 :kbd:`Tab` 可移到下一个控件。"
+
+msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
+msgstr "**偏好 → 外观 → 辅助功能** 汇集了最有帮助的设置："
+
+msgid "**High contrast** chooses the High contrast theme. Clear it to return to the theme you had before. The Theme control shows the same choice."
+msgstr "**高对比度** 选择高对比度主题。取消勾选可返回之前的主题。主题控件显示的是同一选项。"
+
+msgid "**Text size** makes all text larger or smaller. It is the same setting as **Font scale** on the General tab."
+msgstr "**文字大小** 让所有文字变大或变小。它与常规选项卡上的 **字体缩放** 是同一项设置。"
+
+msgid "**Reduce motion** holds every animated backdrop still and turns off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back exactly."
+msgstr "**减少动态效果** 让所有动画背景保持静止，并关闭涟漪、点击涟漪、弹出波纹和鼠标引力。取消勾选可原样恢复您之前的动态设置。"
+
+msgid "**Focus outlines** draws a thick outline round the control that has keyboard focus, in a colour that stands out in every theme."
+msgstr "**焦点轮廓** 在拥有键盘焦点的控件周围绘制粗轮廓，颜色在每个主题中都很醒目。"
+
+msgid "**Keyboard shortcuts…** opens the shortcut editor, where you can change the key for any action."
+msgstr "**键盘快捷键…** 打开快捷键编辑器，您可以在其中更改任何操作的按键。"
+
+msgid "Apply, Cancel and Save work as they do for every other preference."
+msgstr "应用、取消和保存的作用与其他所有偏好设置相同。"
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Data-art themes"
 msgstr "数据艺术主题"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
-msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **spaCR stratified**。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **无**。"
 
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
-msgstr "普通动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR waves**、**spaCR blobs**、**spaCR stratified** 和 **无**。启用 **Spaceout** 后，主窗口的 动画 菜单和 设置 Backdrop 菜单都提供 **spaCR growth**、**spaCR aurora** 和 **spaCR spinn**。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR growth**、**spaCR waves**、**spaCR blobs**、**spaCR aurora**、**spaCR stratified** 和 **spaCR spinn**。"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — 清晰的引力点阵场，可选局部鼠标影响，并呈现向外扩散的波纹。"
@@ -276,8 +378,8 @@ msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in res
 msgstr "**spaCR spinn** — 细薄的纸片状面片轻柔移动，并根据鼠标位置局部旋转。越靠近指针，旋转越快；速度在鼠标引力半径的边缘平滑降至零。改变半径会改变受影响的区域。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**鼠标引力半径** 以屏幕较短边长的百分比设置影响区域。默认值为 **15%** ；设为 **0** 可禁用鼠标影响。**动画密度** 控制元素数量，与改变绘制分辨率的 **动画细节** 相互独立。密度最低为 **1%** ；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板** 中选择 **随机** 可为每个元素使用随机颜色。新安装默认使用 **深色** 、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%** ，引力为 **15%** ，细节、速度和大小均为 **100%** ，页面不透明度为 **60%** 。**点闪烁** 控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%** ，以指针为中心对齐，模式为 **Beat** ，周期为 **1.5 s** 。已有的已保存偏好设置会保留，直到用户更改或重置。"
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**鼠标引力半径** 以屏幕较短边长的百分比设置影响区域。默认值为 **15%** ；设为 **0** 可禁用鼠标影响。**动画密度** 控制元素数量，与改变绘制分辨率的 **动画细节** 相互独立。密度最低为 **1%** ；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板** 中选择 **随机** 可为每个元素使用随机颜色。新安装默认使用 **深色** 、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%** ，引力为 **10%** ，细节、速度和大小均为 **100%** ，页面不透明度为 **60%** 。**点闪烁** 控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%** ，以指针为中心对齐，模式为 **Beat** ，周期为 **1.5 s** 。已有的已保存偏好设置会保留，直到用户更改或重置。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
@@ -288,10 +390,6 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**弹窗波纹频率** 设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟** ；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
-msgstr "**场波纹** 启用点击、打开或关闭容器以及窗口吸附产生的波纹，并启用自动弹窗波纹。将 鼠标引力半径 调至 **0** 后，这些波纹仍可使用。关闭 场波纹 可停止波纹并保留鼠标引力；启用波纹时，弹窗波纹频率 控制自动波纹的频率。"
-
-# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "按 **应用** 预览更改，偏好设置窗口会保持打开。另一个对话框提供 **保留** 或 **还原**。还原会恢复已保存和当前生效的设置；您编辑过的控件仍可继续修改或再次应用。关闭该询问对话框也会还原。**保存** 保留更改并关闭偏好设置窗口。"
 
@@ -300,16 +398,13 @@ msgid "**Preferences** keeps four lines of help visible below the settings. Long
 msgstr "**偏好** 在设置下方保留四行可见帮助。较长的帮助文本在栏内滚动，不会移动对话框。拖动帮助栏狭窄的上边缘可增大或减小其高度；偏好设置会记住所选高度。将指针从控件移入帮助栏后，仍可阅读和滚动其帮助文本。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置窗口动画速度**、**设置窗口动画大小**、**设置窗口动画细节** 和 **设置窗口动画密度** 只改变设置窗口的背景。背景设为 **无** 时，滑块保留其数值，但控件被禁用。选择兼容的背景会重新启用这些控件。 **设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**设置 Backdrop** 在应用和保存时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗保持在其所属 spaCR 窗口前方，但不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "在 **spaCR field** 中，按住鼠标左键并在空白背景区域拖动，可拉动一小片局部点阵。松开鼠标后，点阵会平滑回弹，而不会重新启动整个图案。这个背景手势不会占用科学图像画布及控件的操作手势。"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
-msgstr "运行 ``spaceout --fresh`` 可启动独立的 Spaceout 模式。其默认 **spaCR 场现象** 背景为场增添变化的运动。在 **偏好** → **外观** → **spaCR field** 中，八个独立开关控制 **随机吸引点**、**松弛**、**弹性释放**、**旋涡**、**密度脉动**、**密度波**、**颜色波** 和 **螺旋**。八项默认全部开启。**应用** 预览修改后的开关；**还原** 恢复之前的值，**保存** 则保留修改。普通 ``spacr`` 启动器使用自己的背景选择，并隐藏此 Spaceout 专用区域。如需分形背景，请在 Spaceout 的 **动画** 菜单中选择它。"
 
 msgid "Arranging the window"
 msgstr "排列窗口"
@@ -334,31 +429,41 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "要调整弹出窗口的大小，请将指针指向其任一边缘或角。可拖动的每条边的中间一半会出现一条细蓝色参考线。可沿该边缘或角的任意位置拖动；参考线只是标示出可拖动的边。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Make Masks 用于手动修正掩码，并在页眉显示 Cellpose 循环。画布有十种工具：Brush、Erase、Erase object、Wand、Draw、Box、Divide / Merge、Zoom、Recrop 和 Ruler。Wand 默认添加区域；按住 Ctrl 单击即可删除该区域。:doc:`Make Masks 参考 <make_masks>` 介绍这些工具、Levels、检测设置、主/次数据配对、保存和测量。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks edits integer label masks by hand. Its masthead opens related screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate. Its canvas has eleven tools: Brush, Erase, Erase object, Wand, Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement. Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice slider and a View list of Default, Orthogonal and True 3D; electron micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See :ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`."
+msgstr "Make Masks 用于手动编辑整数标签掩膜。其顶部可打开相关界面，包括 Cellpose Workbench、Model Compare、Model Zoo 和 Curate。其画布有十一种工具：Brush、Erase、擦除对象、魔棒、绘制、边界框、编辑标签、分割 / 合并、Zoom、重新裁剪和标尺。魔棒默认添加区域；按住 Ctrl 并点击可移除区域。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、色阶、检测设置、主次掩膜配对、保存和测量。体数据（TIFF 堆栈、OME-TIFF 和 MRC）在同一视图中打开，带有切片滑块和包含默认、正交及 True 3D 的 View 列表；电子显微图像（``.dm3``、``.dm4``、``.mrc``）提供对比度预设。请参阅 :ref:`3D 体数据 <mm-volumes>` 和 :ref:`电子显微图像 <mm-tem>`。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
 msgstr "**边界框** 为 YOLO 标注绘制带类别标签的独立矩形。可以移动或调整框的大小、撤销或重做编辑，并使用 **保存边界框** 保存项目，或使用 **Export YOLO…** 写出归一化标签和有序的类别元数据。源图像和分割掩膜保持不变。"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Edit Label** asks for a new whole-number ID for the clicked object and gives that ID to every pixel that carries the object's current ID. Entering ``0`` removes the object. An ID that already belongs to another object is refused before any pixel changes. Each change is one undo step."
+msgstr "**编辑标签** 为所点击的对象请求一个新的整数 ID，并将该 ID 赋给带有该对象当前 ID 的所有像素。输入 ``0`` 会删除该对象。已属于其他对象的 ID 会在任何像素改变之前被拒绝。每次更改为一个撤销步骤。"
+
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw 描绘自由轮廓，将其闭合并填充为单个对象 -- 画笔则沿路径盖印圆盘，因此沿边缘描绘只会标记边缘，中央仍为背景。**分割 / 合并** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw traces a free-form outline, closes it and fills the enclosed region as one object. Brush instead paints disks along the pointer path, so tracing an outline with Brush labels only the outline and leaves the interior as background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw 描绘自由轮廓，将其闭合，并将围住的区域填充为单个对象。画笔则沿指针路径盖印圆盘，因此用画笔描绘轮廓只会标记轮廓，内部仍为背景。**分割 / 合并** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
 
-msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
-msgstr "Recrop 是唯一会改变屏幕上显示哪个视野、而不是改变其上所绘内容的工具。包含多个细胞的阶段性裁剪图不是一个训练样本，把它当作一个样本校正会让网络误认为两个对象是一张图——因此，围绕某个对象的框会将图像和掩膜的该区域写为一个单独的视野，排在当前视野之后，而多对象的原图会被移入 ``recropped_originals/``，而不是被校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝；被框切到的对象会被丢弃，因为边界落在鼠标释放处的对象已不是原来的对象；保留下来的标签从一开始重新编号。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Recrop changes which field is on screen rather than the labels painted on it. Use it to split a field that contains several objects into separate training fields. A box drawn round an object writes that region of the image and of the mask as a new field, queued directly after the current one; the original field is moved to ``recropped_originals/`` and is not curated. A box smaller than the minimum side length, or one that repeats an existing cut, is refused. Objects that the box boundary cuts through are removed from the new mask, because their boundary in the crop is the box edge rather than the object edge. The remaining labels are renumbered from one."
+msgstr "Recrop 改变屏幕上显示的视野，而不是改变其上所绘的标签。可用它将包含多个对象的视野拆分为独立的训练视野。围绕某个对象绘制的框会将图像和掩膜的该区域写为一个新视野，排在当前视野之后；原视野被移入 ``recropped_originals/``，不进行校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝。被框边界切到的对象会从新掩膜中移除，因为它们在裁剪图中的边界是框的边缘，而不是对象的边缘。其余标签从 1 开始重新编号。"
 
-msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
-msgstr "在此屏幕上运行 Cellpose-SAM 时，会在掩膜旁显示其两个中间输出：细胞概率图和流场。掩膜是对该概率图应用阈值的结果，当候选对象的流场与网络预测的流场之差超过流场误差阈值时，该候选对象会被丢弃。掩膜出错时，原因就体现在这两个窗格中。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. Pixels above the cell-probability threshold are grouped into objects by following the flow field, and a candidate object is discarded when the flows recomputed from its mask differ from the predicted flows by more than the flow-error threshold. Inspect these two panes to see whether a missing or merged object comes from the probability map or from the flows."
+msgstr "在此屏幕上运行 Cellpose-SAM 时，会在掩膜旁显示其两个中间输出：细胞概率图和流场。高于细胞概率阈值的像素沿流场被归并为对象；当由候选对象的掩膜重新计算的流场与预测流场之差超过流场误差阈值时，该候选对象会被丢弃。查看这两个窗格可判断对象缺失或合并是源于概率图还是流场。"
 
 msgid "Settings that apply"
 msgstr "适用的设置"
 
-msgid "The settings panel carries a control when it applies to the run being set up and leaves it off the form when it does not:"
-msgstr "当某个控件适用于正在设置的运行时，设置面板会显示它；不适用时则不在表单中显示："
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The settings panel shows a control only when it applies to the run being set up:"
+msgstr "设置面板仅在某个控件适用于正在设置的运行时才显示它："
 
-msgid "a slot past ``number_of_organelles`` takes its whole block of settings with it, its channel included -- a slot the run does not have is not a slot with its channel left showing;"
-msgstr "超出 ``number_of_organelles`` 的槽位会连同其整组设置（包括通道）一起隐藏——运行中不存在的槽位不会只留下一个通道显示在那里；"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;"
+msgstr "超出 ``number_of_organelles`` 的槽位的设置（包括其通道）会从表单中移除；"
 
 msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
 msgstr "通道未指向任何平面的对象根本不在运行中，因此其设置不会出现在表单中；"
@@ -417,10 +522,6 @@ msgid "Right-click any figure in spaCR, in a module's figure list or in an embed
 msgstr "在 spaCR 中右键单击任意图表——无论是在模块的图表列表中，还是在 Graph Builder、UMAP 浏览器或训练对比等嵌入式图中——即可打开其图表菜单。Volcano 浏览器和 Gate Editor 保留各自的右键菜单，并在其中添加这些条目。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
-msgstr "Gate Editor 在带圆角的不透明卡片上绘制 2D 和 3D 图，因此页面动画保留在周围控件的背后。在图内右键单击可打开图表和图形操作；右键单击坐标轴可修改该测量的尺度、范围或阈值。"
-
-# AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
 msgstr "**编辑图形…** 可更改此图表的标题、坐标轴标签、范围、刻度、字体、颜色、图例、大小和分辨率。更改会即时显示。"
 
@@ -467,8 +568,9 @@ msgstr "工作进程与可用内存"
 msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
 msgstr "在模块启动其工作进程之前，spaCR 会估算每个工作进程处理一个输入（例如一个视野、一个掩膜、一批裁剪图或一张表）所需的内存。如果你设置的 ``n_jobs`` 会使计算机可用 RAM 低于 12.5%，弹出窗口会显示该估算值、可用内存以及可容纳的工作进程数。选择 **使用 N 个工作进程（推荐）** 以该数量运行，或保留你自己的数量；此时只要可用内存低于预留值，测量就会暂停处理新的视野。 **关闭应用程序以释放 RAM…** 会列出你自己占用最大的程序。初始时不勾选任何程序，只有你勾选的程序会在你确认后被要求退出；它们通常可以先保存，但其中未保存的工作仍可能丢失。"
 
-msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
-msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到安全数量并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到能保持预留内存空闲的数量，并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Worker startup and final retries"

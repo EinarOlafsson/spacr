@@ -215,3 +215,17 @@ each confirmed against `git show HEAD:`: the README never mentions
 counts reads 21 where it expects 44.
 
 VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.
+
+
+2026-10-14 — Current generated picker revalidated
+------------------------------------------------
+Implementation remains complete on current source; no redesign was needed.
+All 28 owning picker tests pass: one generated control per README, all ten
+resolving language targets, localized labels, the Markdown disclosure menu,
+AI-review provenance without native-speaker claims, and generator round trip.
+The existing decision remains: the control navigates to the Markdown menu;
+GitHub README language swapping in place is not an implemented capability.
+The historical GitHub acceptance above is retained, while this receipt is a
+current local-source revalidation. No fresh hosted rendering/publication claim
+is made and no product code changed. Evidence:
+features/data/120_361_readme_reconciliation_2026-10-14/.

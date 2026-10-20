@@ -1,0 +1,14 @@
+{
+  "mode": "PLANNING ONLY; no materialization",
+  "baseline": "81ffd9fd0306a17b5a4b04287c693e685e22a00d",
+  "existing_private_root": "/mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015",
+  "missing_regular_files": 0,
+  "missing_apparent_blob_bytes": 0,
+  "current_available_bytes": 9238568960,
+  "predicted_remaining_before_filesystem_overhead": 9238568960,
+  "minimum_free_bytes": 3221225472,
+  "nominal_headroom_above_floor": 6017343488,
+  "safe_proposal": "Only after peer/Root grant, background hydrate exact missing regular-file blobs from existing local Git into this OWN existing tree; verify blob size/SHA/mode, create no dummy files, refuse any occupied path, never overwrite modified inputs; recheck actual free before each batch and stop below3GiB. No network/LFS/filter/newcheckout.",
+  "missing_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "filesystem_allocation_note": "Apparent bytes understate allocation for tiny files; runtime floor must include conservative overhead and per-batch free-space checks."
+}

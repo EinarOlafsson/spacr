@@ -95,7 +95,7 @@ else:
 
 
     def edge_width(volume: int | None) -> float:
-        """Map transfer volume to the same restrained logarithmic scale as SVG.
+        """Map transfer volume to stroke width on the SVG export's logarithmic scale.
 
         :param volume: the edge's transfer volume (objects, files or rows), or
             ``None``. ``None`` or a value <= 0 gives the minimum width of 1.0;
@@ -179,7 +179,7 @@ else:
             return True
 
         def paint(self, painter: QPainter, option: object, widget: object = None) -> None:
-            """Paint one restrained card using the shared FlowView visual tokens.
+            """Paint one node card using the shared FlowView visual tokens.
 
             :param painter: the painter to draw with; its state is saved and
                 restored around the drawing.

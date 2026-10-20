@@ -1286,7 +1286,9 @@
       "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
       "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
       "translation": "Help 검색 필드의 환경설정 결과는 사용자가 요청한 행에 도달해야 하는데, 도달하는 대화 상자는 주소를 지정할 스키마 없이 칠천 줄의 절차적 코드로 만들어집니다. 따라서 이 모듈은 만들어진 대화 상자를, 빌드가 남기는 두 가지 단서로 탐색합니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#2",
@@ -1310,7 +1312,9 @@
       "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
       "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
       "translation": "표시된 캡션을 영어 리터럴과 비교하던 이전 버전은 정확히 한 언어에서만 동작했습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#5",
@@ -1358,7 +1362,9 @@
       "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
       "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
       "translation": "움직이는 것이 아니라 몇 초 동안의 정적인 윤곽선입니다. 맥동하는 표시는 Animation 환경설정에 답해야 하지만, 이 표시는 그럴 필요가 없고 움직임을 끈 독자에게도 놓치지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation.reveal_row#2",
@@ -1518,7 +1524,9 @@
       "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
       "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
       "translation": "``\"module:function\"`` 이며, ``(host, card)`` 를 받아 카드 안에 패널을 만들어 반환합니다. 이 값이 주어지면, 이 레지스트리를 통해 붙은 미리 보기는 설치 시 카드만 만들고(``builder`` 가 ``panel_later=True`` 로 호출됨), 패널은 카드가 처음 표시되거나 패널을 요청받을 때 만들므로, 숨겨진 미리 보기는 모듈을 여는 데 비용을 들이지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preview_registry.install#2",
@@ -1550,7 +1558,10 @@
       "source_sha256": "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
       "context": "Settings templates — named bundles you can reuse and share.",
       "translation": "설정 템플릿입니다. 재사용하고 공유할 수 있는 이름 붙은 묶음입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.recipes#1",
@@ -2446,7 +2457,10 @@
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
       "context": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "translation": "전부 영이 아닙니다. 정지한 판도 여전히 판이며, 배경은 꺼지지 않고 아름답게 대기해야 합니다. 엔진은 이를 \"자기 시계에 맞춰 천천히 숨 쉬기\"로 읽으며, :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` 이 그것을 위한 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.resonance.silence#2",
@@ -3045,7 +3059,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#3",
       "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
       "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",
       "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
@@ -3170,7 +3184,10 @@
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
       "context": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "translation": "개수 CSV 경로입니다. 각각 파일 이름 토큰이 유일하게 가장 잘 일치하는 점수와 짝지어지며, 짝이 없는 것은 아직 개수가 없는 점수 행을 채우고, 그래도 남은 것은 자체 행을 받습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.flow.FlowHost.heightForWidth#1",
@@ -4006,7 +4023,10 @@
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "translation": "그림을 오른쪽 클릭하여 PNG 또는 PDF 로 저장합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#1",
@@ -4025,7 +4045,10 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "화면의 그림은 한 시간 뒤 누군가가 슬라이드에 넣고 싶어 하는 것일 때가 많은데, 지금까지는 창의 해상도로, 주변 창 장식까지 포함해 창을 스크린샷하는 방법밖에 없었습니다. 이 모듈은 우연히 표시된 크기가 아니라 렌더링된 해상도로 그림 자체를 사용자가 고른 파일에 저장합니다.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#2"
+      "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#2",
@@ -4034,7 +4057,10 @@
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "두 가지 형식이 있으며, PDF 는 확장자만 다른 PNG 가 아닙니다. PDF 에 래스터를 넣기만 하면 파일 이름만 맞출 뿐입니다. 그림 패널은 페이지이고, 페이지에는 밀리미터 단위의 크기가 있습니다. :func:`save_picture` 는 PDF 에 이미지 자체의 모양을 가진 페이지를 주고 Preferences 의 해상도를 작성기에 알려 주므로, 그림은 측정된 크기로 배치되고 그 해상도로 인쇄됩니다.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#3"
+      "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#3",
@@ -4043,7 +4069,10 @@
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "해상도와 기본 형식은 Figures 환경 설정이 이미 가지고 있는 것 -- :func:`spacr.qt.preferences.get_figure_png_dpi` 와 :func:`spacr.qt.preferences.get_figure_format` -- 이므로, 이미 \"300 DPI, PDF\" 라고 말한 사용자에게 다른 말로 두 번 묻지 않습니다.",
       "review_basis": "written from the English (no current MT draft)",
-      "rebound_from": "spacr.qt.widgets.picture_export#4"
+      "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",
@@ -4075,7 +4104,10 @@
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "translation": "경로를 묻습니다. 사용자가 취소하면 ``\"\"`` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
@@ -4083,7 +4115,10 @@
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "translation": "사용자가 확장자를 빼면 다시 붙입니다. 그렇지 않으면 확장자 없이 입력한 이름은 어떤 필터를 선택했든 PNG 로 기록되며, 이것이 \"save as PDF\" 가 조용히 래스터를 만드는 경로입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#2",
@@ -4195,7 +4230,10 @@
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
       "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
       "translation": "메뉴를 사용할 때 호출되며, 기록할 ``QPixmap`` 또는 ``QImage`` 를 반환합니다. 지금이 아니라 반드시 저장 시점에 호출되므로, 메뉴는 항상 현재 화면에 있는 그림을 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
@@ -4203,7 +4241,10 @@
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "translation": "제안되는 파일 이름이며, 확장자는 없습니다. 호출 가능 객체이면 저장 시점에 호출되므로, 내용이 바뀌는 뷰 -- 어느 순간에는 Overlay, 다음 순간에는 Flows -- 는 현재 표시 중인 것의 이름을 제안합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#4",
@@ -4374,7 +4415,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
@@ -4549,7 +4590,9 @@
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
       "context": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "translation": "Plaque Assay 는 두 종류의 폴더를 읽으며, 예전에 빌려 쓰던 Mask 미리 보기는 어느 쪽에도 맞지 않았습니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview#2",
@@ -4597,7 +4640,9 @@
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
       "context": "The box weight that means: pick one from the figure's size.",
       "translation": "그림 크기에서 두께를 고르라는 뜻의 상자 두께 값입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.IMAGE_TABS#0",
@@ -4629,7 +4674,9 @@
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
       "context": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "translation": "이를 바꾸면 이미 분할된 것을 다시 그리며, 아무것도 다시 실행하지 않습니다. 모든 너비는 반드시 이미지 픽셀 단위입니다. 윤곽선은 이미지 배열에서 키우고 상자는 표시 전에 픽스맵에 그리므로, 윤곽선이 늘 그랬듯이 보기를 확대/축소해도, 저장된 그림에서도 선이 그림에서 차지하는 비율이 유지됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.OverlayStyle#2",

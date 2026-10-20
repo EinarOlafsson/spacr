@@ -1,0 +1,30 @@
+{
+  "verdict": "ACCEPT",
+  "scope": "Final narrow target delta semantic and hash review, combined with prior independent 387-target review. AI technical review only; no native/human approval. No collector, validator execution, full audit, writer or tests by reviewer.",
+  "final_files_sha256": {
+    "de": "4dedfb8598827824d23353eaee375d92da6fe814dd15c1013f34436e3f65db4f",
+    "es": "484ab5537b28fd56d1c87e73bfb1188e9308ae2a0e4961f8a7b271fae7110a52",
+    "fr": "e98c023053ee7af7d670066e6894f26c349dce500b6da006792424a69515e1fe",
+    "sv": "f5ee3a434038089f265002de4db9cadd1058a64b1888708fe9adea66909a3db0",
+    "pt": "2c4115e3853e22f16d1aa1439281a6b70fb0a949e5aa5ebb75ebbb0e01dd4813",
+    "is": "15751389c7d20dfe2ec706f4d211ff71090d07f87bc4448c81c1ae07b5574317",
+    "zh_CN": "64adc56a83817b60ca82667d40bed75c3e2d67d57b2d1740b8f50300e1a195ed",
+    "ko": "7c582e2b8365cbbeac239f19ba0cce869429e036ae6a29cd0f95c73739fa9d48",
+    "hi": "20f2519f5c6fc124fab8187b115d73b04610e8f911988dfbfb369b7f56bdaedb"
+  },
+  "changed_target_counts": {
+    "de": 1,
+    "es": 2,
+    "fr": 2,
+    "sv": 0,
+    "pt": 2,
+    "is": 1,
+    "zh_CN": 1,
+    "ko": 23,
+    "hi": 1
+  },
+  "changes": "Protected literal order restored without meaning change; GUI abbreviation retained; Korean RST separator spaces added; accepted IS anonymisation wording retained. Source/context/label records remain frozen.",
+  "author_normal_validator_receipt_sha256": "56398c7a2303ca63fbcecdfa81cd9688faa63b4ffdd468178d7d4a45b89b820f",
+  "author_validator_result": "387 source/context validators passed as recorded by author; not rerun by reviewer",
+  "corrections_manifest_sha256": "b73593818bcbd8d440cd8ab12f38a4d34f7299f45a10f885d5539d51551adc33"
+}

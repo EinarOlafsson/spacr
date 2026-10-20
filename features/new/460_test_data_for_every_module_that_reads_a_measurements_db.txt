@@ -141,3 +141,6 @@ LEFT FOR THE MAINTAINER OR A LATER PASS
   design_from_record yet. That is the docs lane's API translation pass.
 
 VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-19 — API translations closed. The last unreviewed import_examples, measurements_example and plate_templates blocks now have direct AI-reviewed records in all nine locales in 2026-10-19-460-462-import-measurements-examples.json; no native-speaker signoff.
+Catalogs regenerated with --sources-only/--repair-api-blocks and Help index; API i18n cohort passes. Nothing remains on the translation side.

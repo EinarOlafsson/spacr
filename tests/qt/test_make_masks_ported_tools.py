@@ -47,6 +47,7 @@ from spacr.qt.screens import make_masks as mm
 from spacr.qt.screens.make_masks import (
     MIN_VIEWPORT,
     MODE_BRUSH,
+    MODE_ERASE,
     MODE_WAND_ADD,
     MakeMasksScreen,
     _MaskCanvas,
@@ -402,7 +403,7 @@ def test_a_filter_that_removes_nothing_says_so_and_edits_nothing(screen):
 def test_the_filter_is_one_undo_step_and_one_ledger_entry(screen):
     screen._filter_list.set_filter("area", 50)
     screen._btn_filter.click()
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     assert sorted(int(v) for v in np.unique(screen._canvas.mask) if v) \
         == [3, 7, 11], "undo must bring the filtered object back"
@@ -460,11 +461,11 @@ def test_a_sweep_is_a_single_undo_step_and_a_single_ledger_entry(screen):
 
 def test_a_right_click_on_background_leaves_no_undo_step(screen):
     c = screen._canvas
-    assert not screen._btn_undo.isEnabled()
+    assert not screen._act_undo.isEnabled()
     c.mousePressEvent(right_press(c, 25, 25))       # between the squares
     c.mouseReleaseEvent(right_release(c, 25, 25))
     assert sorted(int(v) for v in np.unique(c.mask) if v) == [3, 7, 11]
-    assert not screen._btn_undo.isEnabled(), \
+    assert not screen._act_undo.isEnabled(), \
         "a click that deleted nothing must not become an undo step"
     assert len(screen._log) == 0
 
@@ -484,9 +485,12 @@ def test_the_sweep_works_from_whatever_tool_is_selected(screen):
 # 5. Pan from any tool, and wheel zoom
 # ===========================================================================
 
-@pytest.mark.parametrize("modifier", [Qt.ShiftModifier, Qt.AltModifier])
-def test_a_modified_drag_pans_instead_of_painting(canvas, modifier):
-    canvas.mode = MODE_BRUSH
+@pytest.mark.parametrize("modifier, mode", [(Qt.ShiftModifier, MODE_ERASE),
+                                            (Qt.AltModifier, MODE_BRUSH)])
+def test_a_modified_drag_pans_instead_of_painting(canvas, modifier, mode):
+    """Shift pans with every tool but the Brush, where it keeps the last
+    object across a gap (item 697); Alt pans with every tool."""
+    canvas.mode = mode
     canvas.zoom_at(32, 32, 4.0)
     before_mask = canvas.mask.copy()
     before_view = canvas._viewport_bounds()
@@ -679,7 +683,7 @@ def test_a_detection_that_finds_nothing_leaves_the_mask_alone(screen):
     before = screen._canvas.mask.copy()
     screen._btn_otsu.click()
     assert (screen._canvas.mask == before).all()
-    assert not screen._btn_undo.isEnabled()
+    assert not screen._act_undo.isEnabled()
     assert len(screen._log) == 0
     assert "found no objects" in screen._status_label.text()
 

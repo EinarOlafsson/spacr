@@ -30,13 +30,6 @@
       "translation": "Ett landskap av runda punkter utan synliga kanter bär breda vandrande vågor."
     },
     {
-      "key": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
-      "source": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
-      "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
-      "table": "ui",
-      "translation": "Djupt vatten, grönsvart och långsamt: vågor som färdas genom punkter och en ljuduppsättning i e-moll vid 116 BPM med den tyngsta subbasen av de tio."
-    },
-    {
       "key": "Fine curtains of northern light ripple through softly layered folds.",
       "source": "Fine curtains of northern light ripple through softly layered folds.",
       "source_sha256": "0c92998b1a1f322980df88dca0564ca99e7413a83ec0f192bc9b0e58a9469fb6",
@@ -56,13 +49,6 @@
       "source_sha256": "42b4152ec0eed604e11894f1f31a513a00b56b62a6500000241557f1bf538cfa",
       "table": "ui",
       "translation": "Fina partiklar bildar föränderliga virvlar och förgrenade strömmar, med valfri musgravitation."
-    },
-    {
-      "key": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source_sha256": "4b0c37e6d8dd70e22150df78f460eaba29847b33d85649aa7d2a4874a935912c",
-      "table": "ui",
-      "translation": "Längst från solen: kall violett, punktvågor som färdas genom mörkret och en spänd ljuduppsättning i d harmonisk moll vid 128 BPM."
     },
     {
       "key": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
@@ -128,6 +114,22 @@
       "source_sha256": "dad7ee5de0f47c634524d3698a855e4dcd4a3db7aee71697b99628a5984dc52e",
       "table": "ui",
       "translation": "Det långa låga ljuset vid årets vändning: olivgrönt och blekt guld, fina pappersfasetter genom det och en ljuduppsättning i G lydisk vid 112 BPM."
+    },
+    {
+      "key": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
+      "table": "ui",
+      "translation": "Djupt vatten, grönsvart och långsamt: vågor som färdas genom punkter och en ljuduppsättning i e-moll vid 116 BPM med den tyngsta subbasen av de tio.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source_sha256": "4b0c37e6d8dd70e22150df78f460eaba29847b33d85649aa7d2a4874a935912c",
+      "table": "ui",
+      "translation": "Längst från solen: kall violett, punktvågor som färdas genom mörkret och en spänd ljuduppsättning i d harmonisk moll vid 128 BPM.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",

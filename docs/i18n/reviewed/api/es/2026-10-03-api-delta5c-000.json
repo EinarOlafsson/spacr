@@ -874,7 +874,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one call a pipeline makes before ``measure_crop``, and the one the Illumination button on the Measure masthead runs on its own -- the model and its QC figures in minutes, before committing hours to the measure run that will reuse them through ``illumination_model``.",
       "source_sha256": "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
-      "translation": "La única llamada que hace una pipeline antes de ``measure_crop``, y la que el botón Illumination de la cabecera de Measure ejecuta por sí solo -- el modelo y sus figuras de QC en minutos, antes de comprometer horas en la ejecución de medición que los reutilizará a través de ``illumination_model``."
+      "translation": "La única llamada que hace una pipeline antes de ``measure_crop``, y la que el botón Illumination de la cabecera de Measure ejecuta por sí solo -- el modelo y sus figuras de QC en minutos, antes de comprometer horas en la ejecución de medición que los reutilizará a través de ``illumination_model``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a processing session that never mentions it is measured uncorrected. Being asked to execute with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a processing session button that does nothing, so a verbose call says which switch was not thrown.",
@@ -882,7 +884,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a run that never mentions it is measured uncorrected. Being asked to run with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a Run button that does nothing, so a verbose call says which switch was not thrown.",
       "source_sha256": "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-      "translation": "No hace nada en absoluto -- y devuelve None -- salvo que ``settings['illumination_correction']`` sea True, que NO es el valor predeterminado de fábrica: la corrección es opcional, así que una ejecución que nunca la menciona se mide sin corregir. Que se le pida ejecutarse con el interruptor apagado es una operación nula de la que conviene enterarse y no una silenciosa, porque desde un formulario de ajustes parece exactamente un botón Run que no hace nada; por eso una llamada detallada indica qué interruptor no se activó."
+      "translation": "No hace nada en absoluto -- y devuelve None -- salvo que ``settings['illumination_correction']`` sea True, que NO es el valor predeterminado de fábrica: la corrección es opcional, así que una ejecución que nunca la menciona se mide sin corregir. Que se le pida ejecutarse con el interruptor apagado es una operación nula de la que conviene enterarse y no una silenciosa, porque desde un formulario de ajustes parece exactamente un botón Run que no hace nada; por eso una llamada detallada indica qué interruptor no se activó.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.",
@@ -994,7 +998,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Types, tooltips and the module description are contributed; **categories deliberately are not**. ``spacr.settings.categories`` is one shared, ordered map that every settings panel walks, and its growth is guarded by an exact-equality test against a hand-kept list. A key contributed at *import* time is in that map only in a session that imported this module, so contributing categories would make that test's result depend on which files pytest was pointed at.",
       "source_sha256": "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-      "translation": "Se aportan los tipos, los tooltips y la descripción del módulo; **las categorías deliberadamente no**. ``spacr.settings.categories`` es una única correspondencia compartida y ordenada que recorre cada panel de ajustes, y su crecimiento está vigilado por una prueba de igualdad exacta frente a una lista mantenida a mano. Una clave aportada en tiempo de *importación* solo está en esa correspondencia en una sesión que importó este módulo, así que aportar categorías haría que el resultado de esa prueba dependiera de a qué archivos se apuntó pytest."
+      "translation": "Se aportan los tipos, los tooltips y la descripción del módulo; **las categorías deliberadamente no**. ``spacr.settings.categories`` es una única correspondencia compartida y ordenada que recorre cada panel de ajustes, y su crecimiento está vigilado por una prueba de igualdad exacta frente a una lista mantenida a mano. Una clave aportada en tiempo de *importación* solo está en esa correspondencia en una sesión que importó este módulo, así que aportar categorías haría que el resultado de esa prueba dependiera de a qué archivos se apuntó pytest.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The illumination structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
@@ -1002,7 +1008,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The illumination keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "source_sha256": "08f20d0c611135ba736b3864240429187a18b32becfa178faef6a9296a66bc99",
-      "translation": "Las claves de iluminación SÍ están archivadas bajo un encabezado -- \"Illumination Correction\" en ``spacr.settings.categories`` -- y el panel de Measure ofrece cada una de ellas, porque ``measure_crop`` llama por sí mismo a :func:`prepare_illumination_correction` y estas son las claves que lee esa llamada. El encabezado se escribe a mano en esa correspondencia por la razón anterior: tiene que existir para cada proceso que agrupe los ajustes de Measure, no solo para uno que casualmente importó este módulo."
+      "translation": "Las claves de iluminación SÍ están archivadas bajo un encabezado -- \"Illumination Correction\" en ``spacr.settings.categories`` -- y el panel de Measure ofrece cada una de ellas, porque ``measure_crop`` llama por sí mismo a :func:`prepare_illumination_correction` y estas son las claves que lee esa llamada. El encabezado se escribe a mano en esa correspondencia por la razón anterior: tiene que existir para cada proceso que agrupe los ajustes de Measure, no solo para uno que casualmente importó este módulo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "re-register over an existing registration.",
@@ -1034,23 +1042,29 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement procedure runs three steps in order:",
       "source_sha256": "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-      "translation": "El procedimiento de reemplazo estándar ejecuta tres pasos en orden:"
+      "translation": "El procedimiento de reemplazo estándar ejecuta tres pasos en orden:",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
-      "translation": "Las actualizaciones desde la aplicación usan un procedimiento distinto para las instalaciones de macOS compatibles. Una instalación en línea actualiza spaCR en su entorno de Python existente usando su ejecutable ``uv`` incluido. Conserva el entorno, los archivos de arranque, el lanzador de la aplicación y los paquetes instalados que no necesitan actualización. Verifica la versión de spaCR instalada antes de reiniciar la aplicación."
+      "translation": "Las actualizaciones desde la aplicación usan un procedimiento distinto para las instalaciones de macOS compatibles. Una instalación en línea actualiza spaCR en su entorno de Python existente usando su ejecutable ``uv`` incluido. Conserva el entorno, los archivos de arranque, el lanzador de la aplicación y los paquetes instalados que no necesitan actualización. Verifica la versión de spaCR instalada antes de reiniciar la aplicación.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "Una aplicación congelada de macOS compatible usa un reemplazo DMG verificado y conserva su paquete de aplicación anterior completo. Estas rutas de actualización de macOS no ejecutan el procedimiento de eliminación estándar. Otras familias de aplicaciones congeladas requieren un adaptador de reemplazo compatible antes de que pueda empezar una actualización."
+      "translation": "Una aplicación congelada de macOS compatible usa un reemplazo DMG verificado y conserva su paquete de aplicación anterior completo. Estas rutas de actualización de macOS no ejecutan el procedimiento de eliminación estándar. Otras familias de aplicaciones congeladas requieren un adaptador de reemplazo compatible antes de que pueda empezar una actualización.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1074,7 +1088,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The running spaCR must be an installer-made copy. The helper waits for this process to exit before changing the installation.",
       "source_sha256": "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
-      "translation": "El spaCR en ejecución debe ser una copia creada por el instalador. El ayudante espera a que este proceso termine antes de modificar la instalación."
+      "translation": "El spaCR en ejecución debe ser una copia creada por el instalador. El ayudante espera a que este proceso termine antes de modificar la instalación.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
@@ -1082,7 +1098,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "Para una instalación en línea de macOS compatible, usa el ``uv`` incluido existente y el Python privado para actualizar spaCR en el mismo entorno. Conserva el directorio del entorno, los archivos de arranque, el lanzador de la aplicación y los paquetes instalados que no necesitan actualización. Reinicia solo después de verificar que la versión instalada es al menos ``version`` y más reciente que la versión anterior, cuando esa versión anterior se conoce. Una actualización o una comprobación de versión fallida no desencadena ni la eliminación ni un instalador de reemplazo."
+      "translation": "Para una instalación en línea de macOS compatible, usa el ``uv`` incluido existente y el Python privado para actualizar spaCR en el mismo entorno. Conserva el directorio del entorno, los archivos de arranque, el lanzador de la aplicación y los paquetes instalados que no necesitan actualización. Reinicia solo después de verificar que la versión instalada es al menos ``version`` y más reciente que la versión anterior, cuando esa versión anterior se conoce. Una actualización o una comprobación de versión fallida no desencadena ni la eliminación ni un instalador de reemplazo.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
@@ -1090,7 +1108,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
       "source_sha256": "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
-      "translation": "La ruta de reemplazo estándar descarga el nuevo instalador, elimina las copias anteriores creadas por el instalador, instala la nueva versión y la inicia. Si falla alguna eliminación necesaria, se omite la instalación y se escribe el motivo en el registro."
+      "translation": "La ruta de reemplazo estándar descarga el nuevo instalador, elimina las copias anteriores creadas por el instalador, instala la nueva versión y la inicia. Si falla alguna eliminación necesaria, se omite la instalación y se escribe el motivo en el registro.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.",
@@ -1614,7 +1634,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Graph Builder screen — a table, a filter, and a chart you drag together.",
       "source_sha256": "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
-      "translation": "La pantalla Graph Builder — una tabla, un filtro y un gráfico que se arrastran juntos."
+      "translation": "La pantalla Graph Builder — una tabla, un filtro y un gráfico que se arrastran juntos.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Assembles three things that already exist into one surface:",
@@ -1630,7 +1653,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The screen itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
       "source_sha256": "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae",
-      "translation": ":func:`register` **no** se llama al importar — lee su docstring para saber por qué, y para la línea más cuatro entradas en tablas auxiliares que completan la conexión. La pantalla en sí está completa: constrúyela con :func:`make_graph_builder_screen`, pásale un frame y todo lo que sigue funciona."
+      "translation": ":func:`register` **no** se llama al importar — lee su docstring para saber por qué, y para la línea más cuatro entradas en tablas auxiliares que completan la conexión. La pantalla en sí está completa: constrúyela con :func:`make_graph_builder_screen`, pásale un frame y todo lo que sigue funciona.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones and the canvas;",
@@ -1646,7 +1671,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data Filter, unchanged, because a filter that narrows *every* view is worth more than a private one that narrows this chart;",
       "source_sha256": "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
-      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — el filtro de datos local, sin cambios, porque un filtro que acota *cada* vista vale más que uno privado que acota este gráfico;"
+      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — el filtro de datos local, sin cambios, porque un filtro que acota *cada* vista vale más que uno privado que acota este gráfico;",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells in the UMAP and on the plate map, and a lasso there highlights them here.",
@@ -1670,7 +1697,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The screen goes into the app registry through :func:`spacr.qt.app.register_app` rather than through a row in the table inside ``app.py``, and its styling goes through :func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen built in parallel with five others is a new file rather than a merge conflict in two thousand-line ones.",
       "source_sha256": "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
-      "translation": "La pantalla entra en el registro de la aplicación mediante :func:`spacr.qt.app.register_app` en lugar de mediante una fila de la tabla dentro de ``app.py``, y su estilo pasa por :func:`spacr.qt.theme.register_widget_qss`. Ambas costuras existen para que una pantalla construida en paralelo con otras cinco sea un archivo nuevo en lugar de un conflicto de fusión en dos archivos de miles de líneas."
+      "translation": "La pantalla entra en el registro de la aplicación mediante :func:`spacr.qt.app.register_app` en lugar de mediante una fila de la tabla dentro de ``app.py``, y su estilo pasa por :func:`spacr.qt.theme.register_widget_qss`. Ambas costuras existen para que una pantalla construida en paralelo con otras cinco sea un archivo nuevo en lugar de un conflicto de fusión en dos archivos de miles de líneas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Apply validated labels to the working table while preserving the source.",
@@ -2030,6 +2059,8 @@
     {
       "context": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "source_sha256": "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
@@ -2825,7 +2856,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT OPENS ON THE TOP HITS. Decision 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected wells\", the derived wells are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "source_sha256": "2198232806abac9cd778319cf0d5c723d1a6f8b5e0389091ed635e7ac3011a2b",
-      "translation": "SE ABRE CON LOS MEJORES HITS. Decisión 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". La tabla de resultados de la regresión aporta los hits (:func:`spacr.well_scope._top_hits`); sin ella, la selección son las guías de los propios grupos del montaje. El cuadro de población empieza entonces en \"gRNAs + other datapoints in selected wells\", los pocillos derivados se muestran bajo los controles, y \"gRNAs…\" / \"selected wells…\" cambian uno u otro. Si no hay nada que seleccionar, empieza en \"All datapoints\", de modo que un panel sin guías sigue dibujando lo que dibujaba antes."
+      "translation": "SE ABRE CON LOS MEJORES HITS. Decisión 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". La tabla de resultados de la regresión aporta los hits (:func:`spacr.well_scope._top_hits`); sin ella, la selección son las guías de los propios grupos del montaje. El cuadro de población empieza entonces en \"gRNAs + other datapoints in selected wells\", los pocillos derivados se muestran bajo los controles, y \"gRNAs…\" / \"selected wells…\" cambian uno u otro. Si no hay nada que seleccionar, empieza en \"All datapoints\", de modo que un panel sin guías sigue dibujando lo que dibujaba antes.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared table merging workflow for Graph Builder and Data-selection boundary Editor.",

@@ -1,0 +1,67 @@
+{
+  "base_commit": "be7644061107e0d59dccb0257a78e2cbf036a811",
+  "caption_dependency": {
+    "original_commit": "f1627c25a3",
+    "local_adoption": "be76440611",
+    "path": "spacr/qt/i18n.py",
+    "sha256": "529d0a9b440215c49c3703d4c9d0bf8eafe37fb907e667a2f41a527795b4dd02",
+    "scope": "Parent-authored compact Yes row in all nine languages; existing source-current No catalogs reused. No generated catalogs edited."
+  },
+  "source": {
+    "path": "spacr/qt/widgets/organize_for_measure.py",
+    "before_sha256": "d102dd36a5d537b6398f32591b181b43764f5d7c546e37d5b3cd6c06dc1a1702",
+    "after_sha256": "2147e0a136005fda952973e93639d5637cd09fbc017f3d72e82e61871c356985",
+    "scope": "Only _ask executable body differs; existing docstring/signature and rest of module AST unchanged."
+  },
+  "test_sha256": "95713030756f4b44913c3beac04ba9737fa44a0d6a7aae07de2475ded406f90b",
+  "retained_initial_attempts": [
+    {
+      "stage": "question-baseline",
+      "result": "7 refused by intentional conftest modal guard; 1 headless pass. No actual modal caption evidence."
+    },
+    {
+      "stage": "question-baseline-actual",
+      "result": "4 actual missing-Yes translation failures, 3 new fixture mistakes expecting defaultButton Yes; 1 headless pass. Real Qt defaultButton is NoButton, while Enter still accepts Yes."
+    }
+  ],
+  "baseline": {
+    "stage": "question-baseline-final",
+    "result": "4 actual missing-Yes caption failures, 4 existing behavior passes in 2.03s",
+    "source_commit": "156308219d",
+    "source_sha256": "d102dd36a5d537b6398f32591b181b43764f5d7c546e37d5b3cd6c06dc1a1702",
+    "test_fixture_correction": "Captured original Qt methods are restored only in this explicitly driven test; a real QTimer answers, a 5-second timer refuses any unanswered modal. Existing NoButton default and actual Enter/Escape/close results asserted. No conftest/production changes for fixture repairs."
+  },
+  "final": {
+    "stage": "question-final",
+    "result": "8 passed in 1.92s",
+    "exit": 0,
+    "cap": "2G",
+    "thread_limit": 1,
+    "platform": "offscreen",
+    "scope": "Actual Hindi/Icelandic labels and actual Yes/No clicks, normal translation Show filter, standard Question icon/Yes|No buttons, no explicit default, Enter true, Escape/close false, headless false without dialog construction."
+  },
+  "dialog_hook_readback": {
+    "files": [
+      "spacr/qt/widgets/glass.py",
+      "spacr/qt/dialogs.py",
+      "spacr/qt/i18n.py"
+    ],
+    "finding": "Application glass/movement/translation hooks inspect QDialog show/polish events; no static QMessageBox.question wrapper is relied on. Replacement is the ordinary same QMessageBox type and retains parent/modality/standard buttons. Actual language Show hook is exercised; no new native window-manager or glass-capture claim."
+  },
+  "remaining": "No whole N639 completion; summary/runtime/backend closure and Work-owned tutorial remain separate. No native-user language or other-OS acceptance claim.",
+  "artifact_hashes": {
+    "question-baseline-actual-exit.txt.gz": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75",
+    "question-baseline-actual-run.log.gz": "317aedf6699e9cdee061628cb99477f6550dae647e06517675420b2a925f5594",
+    "question-baseline-actual-time.txt.gz": "12db2723d5774bdcd98a5531ec1cf877c187b6a5743d753191416ee0fc988c85",
+    "question-baseline-exit.txt.gz": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75",
+    "question-baseline-final-exit.txt.gz": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75",
+    "question-baseline-final-run.log.gz": "1cd80594e7a6dd9c924a97ead293ab7abaf0cd06bf244910ff7dca2814f7b11d",
+    "question-baseline-final-time.txt.gz": "85559eabaacf0bdd9ef00eab5c6cbc8a40be92da776ed15d7fef99346911c684",
+    "question-baseline-run.log.gz": "9514b6c3a6d132772f542c3135c777f1a4610e1db4515852a364e23b90c24a8c",
+    "question-baseline-time.txt.gz": "1ac78bcee6ab3708d9b7d581e571cb45dd6e83b6991e7cdaec77d8fc336a69f3",
+    "question-final-exit.txt.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "question-final-run.log.gz": "23398440d1f1b7b9550503c3561d08cab2bf47e9cc24de2d494b236de3e0a07b",
+    "question-final-time.txt.gz": "e497dc861e3d7f6ec2b2c3f1c60d795a39e2d434712bbcb04139a55d56be3ad1",
+    "run.sh": "4249847b4f50c57d01c3bef693f34afbbf6a5da10256c2cfdb04aa8ce8217d3a"
+  }
+}

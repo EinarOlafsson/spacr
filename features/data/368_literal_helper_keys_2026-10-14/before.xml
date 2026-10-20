@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="0.614" timestamp="2026-10-14T23:44:13.603884-04:00" hostname="olafsson"><testcase classname="tests.test_the_settings_flow_analyser" name="test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer[read(settings, 'custom_model_path')-settings.get(name)]" time="0.215"><failure message="AssertionError: assert 'spacr.fixture.consume' in set()">flow = &lt;module 'settings_flow' from '/mnt/wd4tb/spacr-worktrees/codex-home-b-readme-20261014/tools/settings_flow.py'&gt;
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3036/test_a_literal_key_passed_to_a0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cf88c27afc0&gt;
+expression = 'settings.get(name)', call = "read(settings, 'custom_model_path')"
+
+    @pytest.mark.parametrize("expression", ["settings.get(name)", "settings[name]"])
+    @pytest.mark.parametrize("call", [
+        "read(settings, 'custom_model_path')",
+        "read(name='custom_model_path', settings=settings)",
+    ])
+    def test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer(
+            flow, tmp_path, monkeypatch, expression, call):
+        data = _helper_fixture(
+            flow, tmp_path, monkeypatch,
+            "def read(settings, name):\n    return " + expression + "\n", call)
+        readers = {hit["function"] for hit in data["reads"].get("custom_model_path", [])}
+&gt;       assert "spacr.fixture.consume" in readers
+E       AssertionError: assert 'spacr.fixture.consume' in set()
+
+tests/test_the_settings_flow_analyser.py:290: AssertionError</failure></testcase><testcase classname="tests.test_the_settings_flow_analyser" name="test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer[read(settings, 'custom_model_path')-settings[name]]" time="0.002"><failure message="AssertionError: assert 'spacr.fixture.consume' in set()">flow = &lt;module 'settings_flow' from '/mnt/wd4tb/spacr-worktrees/codex-home-b-readme-20261014/tools/settings_flow.py'&gt;
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3036/test_a_literal_key_passed_to_a1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cf88dd9b4a0&gt;
+expression = 'settings[name]', call = "read(settings, 'custom_model_path')"
+
+    @pytest.mark.parametrize("expression", ["settings.get(name)", "settings[name]"])
+    @pytest.mark.parametrize("call", [
+        "read(settings, 'custom_model_path')",
+        "read(name='custom_model_path', settings=settings)",
+    ])
+    def test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer(
+            flow, tmp_path, monkeypatch, expression, call):
+        data = _helper_fixture(
+            flow, tmp_path, monkeypatch,
+            "def read(settings, name):\n    return " + expression + "\n", call)
+        readers = {hit["function"] for hit in data["reads"].get("custom_model_path", [])}
+&gt;       assert "spacr.fixture.consume" in readers
+E       AssertionError: assert 'spacr.fixture.consume' in set()
+
+tests/test_the_settings_flow_analyser.py:290: AssertionError</failure></testcase><testcase classname="tests.test_the_settings_flow_analyser" name="test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer[read(name='custom_model_path', settings=settings)-settings.get(name)]" time="0.002"><failure message="AssertionError: assert 'spacr.fixture.consume' in set()">flow = &lt;module 'settings_flow' from '/mnt/wd4tb/spacr-worktrees/codex-home-b-readme-20261014/tools/settings_flow.py'&gt;
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3036/test_a_literal_key_passed_to_a2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cf88dd99760&gt;
+expression = 'settings.get(name)'
+call = "read(name='custom_model_path', settings=settings)"
+
+    @pytest.mark.parametrize("expression", ["settings.get(name)", "settings[name]"])
+    @pytest.mark.parametrize("call", [
+        "read(settings, 'custom_model_path')",
+        "read(name='custom_model_path', settings=settings)",
+    ])
+    def test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer(
+            flow, tmp_path, monkeypatch, expression, call):
+        data = _helper_fixture(
+            flow, tmp_path, monkeypatch,
+            "def read(settings, name):\n    return " + expression + "\n", call)
+        readers = {hit["function"] for hit in data["reads"].get("custom_model_path", [])}
+&gt;       assert "spacr.fixture.consume" in readers
+E       AssertionError: assert 'spacr.fixture.consume' in set()
+
+tests/test_the_settings_flow_analyser.py:290: AssertionError</failure></testcase><testcase classname="tests.test_the_settings_flow_analyser" name="test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer[read(name='custom_model_path', settings=settings)-settings[name]]" time="0.002"><failure message="AssertionError: assert 'spacr.fixture.consume' in set()">flow = &lt;module 'settings_flow' from '/mnt/wd4tb/spacr-worktrees/codex-home-b-readme-20261014/tools/settings_flow.py'&gt;
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3036/test_a_literal_key_passed_to_a3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7cf88dd99b20&gt;
+expression = 'settings[name]'
+call = "read(name='custom_model_path', settings=settings)"
+
+    @pytest.mark.parametrize("expression", ["settings.get(name)", "settings[name]"])
+    @pytest.mark.parametrize("call", [
+        "read(settings, 'custom_model_path')",
+        "read(name='custom_model_path', settings=settings)",
+    ])
+    def test_a_literal_key_passed_to_a_settings_helper_retains_its_consumer(
+            flow, tmp_path, monkeypatch, expression, call):
+        data = _helper_fixture(
+            flow, tmp_path, monkeypatch,
+            "def read(settings, name):\n    return " + expression + "\n", call)
+        readers = {hit["function"] for hit in data["reads"].get("custom_model_path", [])}
+&gt;       assert "spacr.fixture.consume" in readers
+E       AssertionError: assert 'spacr.fixture.consume' in set()
+
+tests/test_the_settings_flow_analyser.py:290: AssertionError</failure></testcase><testcase classname="tests.test_the_settings_flow_analyser" name="test_helper_inference_does_not_guess_an_unbound_setting[def read(settings, name):\n    return settings.get(name)\n-read({}, 'custom_model_path')]" time="0.002" /><testcase classname="tests.test_the_settings_flow_analyser" name="test_helper_inference_does_not_guess_an_unbound_setting[def read(settings, name):\n    return settings.get(name)\n-read(settings, dynamic_key)]" time="0.002" /><testcase classname="tests.test_the_settings_flow_analyser" name="test_helper_inference_does_not_guess_an_unbound_setting[def read(settings, name):\n    return {'constant': 1}.get(name)\n-read(settings, 'custom_model_path')]" time="0.002" /><testcase classname="tests.test_the_settings_flow_analyser" name="test_helper_inference_does_not_guess_an_unbound_setting[def read(settings, name)...[75:3dfd527c50]-read(settings, 'custom_model_path')]" time="0.002" /></testsuite></testsuites>

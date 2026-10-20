@@ -55,13 +55,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_cycle_labels",
-      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
-      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
-      "translation": "Eine png_list-Spalte mit Annotate-Labels, aus denen die Methoden xgboost und torch lernen: 1 bis 4 für G1, S, G2 und M oder die Phasennamen. Labels werden den Zellkernen über ihre Zelle zugeordnet. Leer trainiert stattdessen auf den sicheren Gate-Bestimmungen, was den gelernten Methoden beibringt, was die Gates ohnehin sagen; annotieren Sie Kerne in Prophase und Anaphase, um ihnen mehr beizubringen. Standard leer."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_cycle_method",
       "source": "How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
       "source_sha256": "cc9645da4e6a8379362200ef6bd0caf53a0a153688df35474d7b437b234de187",
@@ -241,6 +234,16 @@
       "source": "Side of the square window, in pixels, over which the texture wound source measures local variation. About the diameter of one cell at the imaging resolution: smaller follows the wound edge more closely but can open holes in smooth parts of the monolayer, larger bridges narrow gaps. Also sets the smallest gap kept in later frames. Default 15.",
       "source_sha256": "146bdc2d95eeec0de57e7b983923816b003936584578a24d2ebc0439d6bf55f5",
       "translation": "Seitenlänge des quadratischen Fensters in Pixeln, über das die Wundquelle Textur die lokale Variation misst. Etwa der Durchmesser einer Zelle bei der Bildauflösung: Kleiner folgt dem Wundrand genauer, kann aber Löcher in glatten Bereichen des Monolayers öffnen, größer überbrückt schmale Lücken. Legt auch die kleinste Lücke fest, die in späteren Frames behalten wird. Standard 15."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, which teaches the learned methods what the gates already say; annotate prophase and anaphase nuclei to teach them more. Default blank.",
+      "source_sha256": "f98dafb5c5d492479e5eb27075b2e0af9e344df46c9f8cf3cd38d36d4339459c",
+      "translation": "Eine png_list-Spalte mit Annotate-Labels, aus denen die Methoden xgboost und torch lernen: 1 bis 4 für G1, S, G2 und M oder die Phasennamen. Labels werden den Zellkernen über ihre Zelle zugeordnet. Leer trainiert stattdessen auf den sicheren Gate-Bestimmungen, was den gelernten Methoden beibringt, was die Gates ohnehin sagen; annotieren Sie Kerne in Prophase und Anaphase, um ihnen mehr beizubringen. Standard leer.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

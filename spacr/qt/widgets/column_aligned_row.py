@@ -6,32 +6,31 @@ one column each of the paired-data table directly below. Each button is
 centred on its column, and the download table's column widths are locked to
 the widths of their counterparts in the paired-data table below.
 
-ONE COLUMN MODEL, READ IN ONE DIRECTION. The build the request describes --
-a second table above the first, both told to keep the same widths -- is two
-column models that have to be kept in step, and this repository has already
-paid for that once (see the `_ClusterSettingsDialog` docstring on what two
-editors of one setting cost). This layout owns no widths at all. It asks the
-paired table's ``QHeaderView`` where each section starts and how wide it is,
-every time it lays out, and it writes nothing back: the header never learns
-that a strip is following it, so there is nothing to drift.
+There is one column model, read in one direction. A second table above the
+first, both told to keep the same widths, would be two column models kept in
+step (see the `_ClusterSettingsDialog` docstring on two editors of one
+setting). This layout owns no widths. It asks the paired table's
+``QHeaderView`` where each section starts and how wide it is, every time it
+lays out, and it writes nothing back: the header never learns that a strip is
+following it, so there is nothing to drift.
 
-WHY A QLayout RATHER THAN SPACERS IN A QHBoxLayout. Stretches and fixed
+A QLayout is used rather than spacers in a QHBoxLayout. Stretches and fixed
 spacers can be tuned to line up at one column width and are wrong at every
-other one, so each drag of a column edge would mean rebuilding them. A
-layout's ``setGeometry`` runs on every relayout anyway, so reading the header
-there is both shorter and correct at any width; all that is left to arrange
-is that a column resize causes a relayout, which is what the ``sectionResized``
+other one, so each drag of a column edge would mean rebuilding them. A layout's
+``setGeometry`` runs on every relayout anyway, so reading the header there is
+both shorter and correct at any width; all that is left to arrange is that a
+column resize causes a relayout, which is what the ``sectionResized``
 connection below is for.
 
-WHY A BUTTON IS CLAMPED TO ITS COLUMN. Measured on a 1400x900 screen with the
+Each button is clamped to its column. Measured on a 1400x900 screen with the
 table's default 100 px columns: "Measurements (.db)" wants 127 px, so left at
 its natural width and centred on its column it would reach 3.5 px into the
-Count button beside it. Two download buttons drawn overlapping is exactly the
-confusion the alignment exists to remove, so the button is given its column
-and no more -- which is also what "lock the width ... to the width of the
-paired data column counterparts below" asks for. The cost is that a label
-longer than its column is clipped by Qt at the default width; the full
-sentence is in the button's tooltip, and widening the column shows it.
+Count button beside it. Overlapping buttons would defeat the alignment, so the
+button is given its column and no more -- which is also what "lock the width
+... to the width of the paired data column counterparts below" asks for. The
+cost is that a label longer than its column is clipped by Qt at the default
+width; the full sentence is in the button's tooltip, and widening the column
+shows it.
 """
 
 from __future__ import annotations
@@ -42,6 +41,7 @@ from typing import Iterable, Optional, Tuple
 import shiboken6
 from PySide6.QtCore import QEvent, QPoint, QRect, QSize, Qt
 from PySide6.QtWidgets import QLayout, QWidget, QWidgetItem
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 LOG = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class ColumnAlignedRow(QLayout):
     or a resize mode, so the user's own column widths remain the only source
     of truth for what a column is.
 
-    :param header: the ``QHeaderView`` whose sections the row aligns to. READ,
+    :param header: the ``QHeaderView`` whose sections the row aligns to. Read,
         never written -- nothing here calls `resizeSection` or a resize mode,
         so the user's own column widths stay the only source of the geometry.
     :param parent: parent widget.
@@ -98,11 +98,11 @@ class ColumnAlignedRow(QLayout):
             the row follows its resizes, reorders and re-layouts.
         :param parent: the widget to become the layout of, or ``None``.
         :param on_invalidate: called with no arguments whenever a managed
-            widget's size hint changes. THE ROW CANNOT ACT ON THAT ITSELF:
-            a button that grew needs its COLUMN widened, the header is read
-            and never written here, and a layout that wrote back to the
-            geometry it reads would re-enter itself on the resize it
-            caused. So it tells whoever owns the header instead.
+            widget's size hint changes. The row cannot act on that itself: a
+            button that grew needs its column widened, the header is read and
+            never written here, and a layout that wrote back to the geometry it
+            reads would re-enter itself on the resize it caused. So it tells
+            whoever owns the header instead.
         """
         super().__init__(parent)
         self._items: list[Tuple[QWidgetItem, Optional[int]]] = []
@@ -113,11 +113,13 @@ class ColumnAlignedRow(QLayout):
             header.sectionResized.connect(self._restate)
             header.sectionMoved.connect(self._restate)
             header.geometriesChanged.connect(self._restate)
-            header.viewport().installEventFilter(self)
+            _watch_object_events(header.viewport(), self,
+                                 (QEvent.Resize, QEvent.Move, QEvent.Show))
 
 
     def addItem(self, item) -> None:                          # noqa: N802
-        """Qt's own door, used by ``addWidget``: no column, so it trails.
+        """Qt's own entry point, used by ``addWidget``: no column, so it
+        trails.
 
         :param item: the ``QLayoutItem`` to manage; it is placed in the
             trailing run after the column-aligned widgets.
@@ -157,7 +159,7 @@ class ColumnAlignedRow(QLayout):
     def itemAt(self, index):                                  # noqa: N802
         """The item at ``index``, or None when out of range.
 
-        NONE RATHER THAN RAISING: Qt probes past the end to discover where a
+        None rather than raising: Qt probes past the end to discover where a
         layout stops, so an exception here is a crash during ordinary layout.
 
         :param index: the position.
@@ -209,21 +211,17 @@ class ColumnAlignedRow(QLayout):
     def invalidate(self) -> None:
         """Tell the header's owner that a managed widget changed size.
 
-        WHY THIS EXISTS AND WHAT IT COST. A button's caption is set in
-        English when the row is built and REPLACED by the language pass
-        afterwards, and "Count" is 100 px where "Contagem" is 151. The
-        column was sized once, before the translation, and the row then
-        clamped the wider caption into the narrower column for the life of
-        the screen -- which is this class behaving exactly as documented
-        and still showing a cut-off word.
+        A button's caption is set in English when the row is built and replaced
+        by the language pass afterwards, and "Count" is 100 px where "Contagem"
+        is 151. A column sized once, before the translation, would clip the
+        wider caption for the life of the screen.
 
         Qt already reports the event: `setText` calls `updateGeometry`,
         which invalidates the parent layout. The row passes it on rather
         than acting, because widening a column is the header owner's job
         and doing it from here would re-enter this layout.
 
-        Never raises: a failed refit is a column that stays where it was,
-        and a layout that raised here would take the whole strip with it.
+        Never raises: a failed refit leaves the column as it was.
         """
         super().invalidate()
         callback = getattr(self, "_on_invalidate", None)
@@ -326,8 +324,9 @@ def align_row_to_columns(
 ) -> Optional[ColumnAlignedRow]:
     """Re-lay ``strip``'s widgets out over ``header``'s sections.
 
-    Idempotent: a strip that is already following this header is returned
-    unchanged, so a repeated show costs nothing and cannot stack two layouts.
+    An existing ``ColumnAlignedRow`` on the strip is returned unchanged.
+    Its header, widget-column assignments and invalidation callback are not
+    compared with or replaced by the new arguments.
 
     :param strip: the widget holding the buttons. Its existing layout is
         emptied and destroyed -- the widgets survive, reparented on ``strip``.
@@ -337,7 +336,9 @@ def align_row_to_columns(
     :param on_invalidate: passed to the layout; called when a managed
         widget's size hint changes, so the header's owner can re-fit the
         column to a caption that has since been translated.
-    :returns: the installed layout, or ``None`` when there was nothing to do.
+    :returns: the existing or newly installed layout, including an empty
+        layout when ``columns`` is empty. Returns ``None`` when the strip or
+        header is missing or its Qt object has been deleted.
     """
     if strip is None or not _alive(strip) or not _alive(header):
         return None

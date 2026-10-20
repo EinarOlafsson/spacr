@@ -68,7 +68,7 @@ def test_post_measure_step_writes_separate_outputs_and_correct_segment_means(pro
     assert two['color_cell_intensity'] == np.mean(np.arange(5, 13) + 200)
     assert all('lineage_measured' in str(p) for p in result['paths'].values())
     report = json.loads((path.parent / 'lineage_measured' /
-                         (path.stem + '_measurement_source.json')).read_text())
+                         (path.stem + '_measurement_source.json')).read_text(encoding="utf-8"))
     assert report['matched_rows'] == len(pd.read_csv(path))
     assert len(report['measurement_values_sha256']) == 64
     for file, content in sources.items():
@@ -100,7 +100,7 @@ def test_filtered_measurement_rows_stay_missing_without_reindexing(project):
 def test_missing_or_ambiguous_provenance_is_rejected(project, bad):
     path, db, _, _, _ = project
     manifest = path.with_name(path.name + '.lineage_sources.json')
-    data = json.loads(manifest.read_text())
+    data = json.loads(manifest.read_text(encoding="utf-8"))
     if bad == 'missing':
         manifest.unlink()
     elif bad == 'changed_csv':
@@ -196,7 +196,7 @@ def test_tracking_hook_invalid_calibration_publishes_nothing_new(project):
 def test_strict_manifest_json_rejects_ambiguous_or_invalid_values(project, malformed):
     path, db, _, _, _ = project
     manifest = path.with_name(path.name + '.lineage_sources.json')
-    data = manifest.read_text()
+    data = manifest.read_text(encoding="utf-8")
     if malformed == 'duplicate_json':
         data = data.replace('"version": 1,', '"version": 1, "version": 1,')
     elif malformed == 'nan_json':

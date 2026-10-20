@@ -1,0 +1,110 @@
+{
+  "status": "ACCEPT",
+  "reviewer": "Original coordinator independent of Hard author",
+  "scope": "All18 exact final N702 runtime targets independently read for semantic fidelity, placeholders, factual successful-download tense, unknown-request refusal and compatible candidate identities. Allnine languages; no native/human signoff.",
+  "source_and_target_gate": "Per-record currentdraft source SHA and placeholder set verified; normal canonical/loaders/inline gates must still run against final integrated source.",
+  "files": {
+    "de.json": "2733516a7cca4d82194206c50f2c6376cd609ce6d99b870c961a970dd338de37",
+    "es.json": "f4f35841f91809e2fe6d88df51c8e9d8fe34ff3b5d21764552b4bd994015b0c8",
+    "fr.json": "ba418c59df8f6ea539b202a01cc15c022c5452bba7575dba4f35aa738f59817e",
+    "hi.json": "3edeba9345aafb5abc62c13cc49135553cd173ebe7aba0e9682a319913b123c8",
+    "is.json": "644bb03c01822d0acfa99180b1f2bf6f3cb30cb4fbcabbe15b9d32506bb6b83b",
+    "ko.json": "88a991131be2ff5ae438eecc9bfe23f2f346fe047349779602ddc6ce42294a70",
+    "pt.json": "718c70a0df45bd755ede9b5577fddbcc2c1531e1026dd580ad93724cb886acd8",
+    "sv.json": "ca963503536d8b3cd9bf44d05ca0de44dffccc4ee9cdb30b05cd461f4d6ac6cc",
+    "zh_CN.json": "6d8726be5ac73f8b9f0b037892824109d6e7a2fa4ad9f5abcfac36b202ad94db"
+  },
+  "rows": [
+    {
+      "language": "de",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "d9b16ee1de0e5483ff48821c3b3d952584c2dbb73cb86012f9c90cdd9e3ff381"
+    },
+    {
+      "language": "de",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "c804d0744da58f6c0ce40c5169b6098e11cbbd96882c4730b0a8144841b470f3"
+    },
+    {
+      "language": "es",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "37abcc3e883c5af0362757d0c82347fcbe894027b854ae56eeb3c1cd8a7dfb9b"
+    },
+    {
+      "language": "es",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "ac845165ab51619bd8c4ec7d6caa50136eb7c26f76a3b51eb5d6826de363d432"
+    },
+    {
+      "language": "fr",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "0b0f4d5121d9230d211e5df658f8699e47231b7e41234fd5c0a88c8f40dbf86b"
+    },
+    {
+      "language": "fr",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "ca851ec31f3ed3f00ffb6764f090cbd52725a392872f928173998a4a3441078e"
+    },
+    {
+      "language": "hi",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "70a316f7cf506d9cc8fc5be02e75d3ddb61402be94ed44b8e97aa1a03ea22ec4"
+    },
+    {
+      "language": "hi",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "ddfc5411782353f4958c5b92b7041fd41a54e39292e877136f361a87f90d8fcd"
+    },
+    {
+      "language": "is",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "81eeacd8aca813b7cbce074c309706220b68a50f7261f03b87bf500edda9b904"
+    },
+    {
+      "language": "is",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "338b08fae3d3f2123467008dd5613526ddac41e1053783cdce0b9fe07c8c589b"
+    },
+    {
+      "language": "ko",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "609e6ffaa062407f8abb8e13961c6443971159453343e9741a15e18ed0370892"
+    },
+    {
+      "language": "ko",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "b484e7f50d49470e01f5d0862156053bdee676dffb78c06e1c30bddf47e9dc23"
+    },
+    {
+      "language": "pt",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "acff2015e6393e07f3df20ab584d8bfc27e01207908c89a1cef269aaa183116e"
+    },
+    {
+      "language": "pt",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "8b9fb2b9bf25cca4ef844070ae6c37033df069d13b1acc55f79e9d97de432ca5"
+    },
+    {
+      "language": "sv",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "d13b3d97ad7044de6a94d0ccc60407c99ac65b0c9ce783bd6d4fc321c09e5a3f"
+    },
+    {
+      "language": "sv",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "0d21893026ed5dcaacf588e59a5ec7df1089402703ab3604a14a1a0067e2a45d"
+    },
+    {
+      "language": "zh_CN",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "target_sha256": "3e2d63baeaf620da946a8f111800a1fe5a05c6c69484ffb271e61b7b15fd1306"
+    },
+    {
+      "language": "zh_CN",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "target_sha256": "f3e54167ac8904470545369cd6ccf202583c357753fc8e9befabb20fc50a7ee2"
+    }
+  ],
+  "limits": "No runtime writer/collector/model/tests or general translation acceptance performed."
+}

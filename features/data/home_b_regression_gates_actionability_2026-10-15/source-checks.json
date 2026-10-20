@@ -1,0 +1,1246 @@
+{
+  "umap_container": {
+    "path": "spacr/qt/widgets/umap_explorer.py",
+    "sha256": "3434cec3b31798601dec09a5c8c7d11145e0b69a7fc5190442a3246f3b41e34c",
+    "anchors": {
+      "ElidingPushButton": [
+        {
+          "line": 38,
+          "text": "from .eliding import ElidingPushButton"
+        },
+        {
+          "line": 535,
+          "text": "self._apply_selected = ElidingPushButton(\"Label lasso selection\", self)"
+        },
+        {
+          "line": 539,
+          "text": "self._apply_clusters = ElidingPushButton("
+        }
+      ],
+      "img_zoom": [
+        {
+          "line": 195,
+          "text": "(\"img_zoom\",       \"Image zoom\",      \"float\", 0.001, 5.0, False),"
+        },
+        {
+          "line": 618,
+          "text": "#: `figuresize`, `image_nr`, `img_zoom` -- decides what gets DRAWN, and"
+        }
+      ],
+      "install_preview_scale": [
+        {
+          "line": 499,
+          "text": "from .preview_scale import install_preview_scale, scale_figure_canvas"
+        },
+        {
+          "line": 500,
+          "text": "self._scale_control = install_preview_scale("
+        }
+      ]
+    }
+  },
+  "umap_container_contract": {
+    "path": "tests/qt/test_umap_figure_container_drag.py",
+    "sha256": "dd69adc7baa13b9f8472585a41ef4dad3910c13c6a0493fc65b48e9539fdf3e6",
+    "anchors": {
+      "def test_": [
+        {
+          "line": 79,
+          "text": "def test_a_taller_container_gives_a_taller_plot(self, explorer,"
+        },
+        {
+          "line": 89,
+          "text": "def test_a_wider_container_gives_a_wider_plot(self, explorer,"
+        },
+        {
+          "line": 96,
+          "text": "def test_moving_the_divider_moves_the_plot_and_not_only_its_frame("
+        },
+        {
+          "line": 113,
+          "text": "def test_no_point_moves_when_the_container_grows(self, explorer,"
+        }
+      ]
+    }
+  },
+  "umap_search": {
+    "path": "spacr/umap_search.py",
+    "sha256": "523b83b26f1685aeb6af941331eb1657f1244c554c0ae31c44cd759d3a169601",
+    "anchors": {
+      "class UmapRecipe": [
+        {
+          "line": 36,
+          "text": "class UmapRecipe:"
+        }
+      ],
+      "def ": [
+        {
+          "line": 68,
+          "text": "def __post_init__(self) -> None:"
+        },
+        {
+          "line": 75,
+          "text": "def is_3d(self) -> bool:"
+        },
+        {
+          "line": 79,
+          "text": "def to_dict(self) -> Dict[str, Any]:"
+        },
+        {
+          "line": 84,
+          "text": "def from_dict(cls, payload: Dict[str, Any]) -> \"UmapRecipe\":"
+        }
+      ]
+    }
+  },
+  "umap_appearance": {
+    "path": "spacr/qt/widgets/umap_search_viewer.py",
+    "sha256": "584c6575fdb63db6fd2a923add7a3ab4f33a072bd2e9258ed9b441262b434681",
+    "anchors": {
+      "def coordinates": [
+        {
+          "line": 369,
+          "text": "def coordinates(self) -> Optional[np.ndarray]:"
+        }
+      ],
+      "def set_appearance": [
+        {
+          "line": 408,
+          "text": "def set_appearance(self, values: dict) -> None:"
+        }
+      ],
+      "self._coords = _coordinates(values)": [
+        {
+          "line": 489,
+          "text": "self._coords = _coordinates(values)"
+        }
+      ]
+    }
+  },
+  "reducers": {
+    "path": "spacr/gpu_reduce.py",
+    "sha256": "fddf925cff5acb64d0c59a1fe8ec8cef68c2872b385b6f419046e6e9c6c36168",
+    "anchors": {
+      "def backend_for": [
+        {
+          "line": 76,
+          "text": "def backend_for(method: str, *, prefer_gpu: bool = False) -> str:"
+        }
+      ],
+      "def make_reducer": [
+        {
+          "line": 92,
+          "text": "def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[Any, str]:"
+        }
+      ],
+      "def _cpu_estimator": [
+        {
+          "line": 137,
+          "text": "def _cpu_estimator(name: str, **kwargs):"
+        }
+      ]
+    }
+  },
+  "gate_actions": {
+    "path": "spacr/qt/screens/gate_editor.py",
+    "sha256": "7cbdc3c1a67348c21d0157c6a3876e22693364be4cd9eb164c262228b88a61c7",
+    "anchors": {
+      "from ...filters import ANNOTATION_MODES": [
+        {
+          "line": 1700,
+          "text": "from ...filters import ANNOTATION_MODES, FilterError, annotate_from_gates"
+        }
+      ],
+      "labels = annotate_from_gates": [
+        {
+          "line": 1730,
+          "text": "labels = annotate_from_gates(frame, self.gates.gates, names,"
+        }
+      ],
+      "def _on_mode_requested": [
+        {
+          "line": 1291,
+          "text": "def _on_mode_requested(self, mode: str) -> None:"
+        }
+      ],
+      "def _on_gates_changed": [
+        {
+          "line": 675,
+          "text": "def _on_gates_changed(self) -> None:"
+        }
+      ]
+    }
+  },
+  "gate_merge": {
+    "path": "spacr/qt/screens/gate_editor.py",
+    "sha256": "7cbdc3c1a67348c21d0157c6a3876e22693364be4cd9eb164c262228b88a61c7",
+    "anchors": {
+      "_has_merge_image_provenance": [
+        {
+          "line": 1604,
+          "text": "if not self._has_merge_image_provenance():"
+        },
+        {
+          "line": 1702,
+          "text": "if not self._has_merge_image_provenance():"
+        }
+      ],
+      "def _read_across_databases": [
+        {
+          "line": 1972,
+          "text": "def _read_across_databases(paths: List[str], labels: List[str],"
+        }
+      ],
+      "derived_tables": [
+        {
+          "line": 857,
+          "text": "from ...derived_tables import load_definitions"
+        },
+        {
+          "line": 879,
+          "text": "from ...derived_tables import load_definitions"
+        },
+        {
+          "line": 1649,
+          "text": "from ...derived_tables import execute, load_definitions"
+        },
+        {
+          "line": 1805,
+          "text": "from ...derived_tables import load_definitions"
+        }
+      ],
+      "merge_definition": [
+        {
+          "line": 1748,
+          "text": "t=(self._merge_definition[\"base\"] if self._merge_definition else self._table or \"\"):"
+        },
+        {
+          "line": 1811,
+          "text": "if self._merge_definition and name:"
+        },
+        {
+          "line": 2113,
+          "text": "if self._merge_definition:"
+        },
+        {
+          "line": 2114,
+          "text": "payload[\"merge_definition\"] = self._merge_definition"
+        }
+      ]
+    }
+  },
+  "merge_engine": {
+    "path": "spacr/derived_tables.py",
+    "sha256": "7383b4999ef1a5c0e94b07421cfd007f4ed589bd5425f8b513eeffd226316c6d",
+    "anchors": {
+      "def validate_source": [
+        {
+          "line": 134,
+          "text": "def validate_source(path, definition):"
+        }
+      ],
+      "def load_definitions": [
+        {
+          "line": 403,
+          "text": "def load_definitions(path):"
+        }
+      ],
+      "def save_definition": [
+        {
+          "line": 418,
+          "text": "def save_definition(path, definition):"
+        }
+      ],
+      "acknowledge": [
+        {
+          "line": 131,
+          "text": "\"policy\": asdict(policy), \"acknowledged\": False}"
+        },
+        {
+          "line": 258,
+          "text": ":param definition: Default or acknowledged custom merge configuration."
+        },
+        {
+          "line": 274,
+          "text": "if mode == \"custom\" and not definition.get(\"acknowledged\"):"
+        }
+      ]
+    }
+  },
+  "merge_dialog": {
+    "path": "spacr/qt/widgets/merge_tables_dialog.py",
+    "sha256": "a96a40d172e09f80b5298e3b9f1d44ae1ed2f29a5915ded200769568c872bd39",
+    "anchors": {
+      "class MergeTablesDialog": [
+        {
+          "line": 166,
+          "text": "class MergeTablesDialog(QDialog):"
+        }
+      ]
+    }
+  },
+  "merge_contract": {
+    "path": "tests/qt/test_requested_gate_table_merges.py",
+    "sha256": "cc326534f6fb605ba8054e71e173f49f748e51cd0365f00a266394f32ed5ef61",
+    "anchors": {
+      "time_id": [
+        {
+          "line": 104,
+          "text": "def test_derived_gate_export_retains_time_id_alias(qtbot, db):"
+        },
+        {
+          "line": 109,
+          "text": "frames = [frame.assign(time_id=1), frame.assign(time_id=2)]"
+        }
+      ],
+      "def test_": [
+        {
+          "line": 37,
+          "text": "def test_named_merge_is_real_source_and_survives_refresh(qtbot, db):"
+        },
+        {
+          "line": 58,
+          "text": "def test_external_data_without_image_provenance_still_plots_and_gates(qtbot, tmp_path):"
+        },
+        {
+          "line": 81,
+          "text": "def test_gate_save_reconstructs_definition_and_export_gates_on_full_merge(qtbot, db, tmp_path):"
+        },
+        {
+          "line": 104,
+          "text": "def test_derived_gate_export_retains_time_id_alias(qtbot, db):"
+        }
+      ]
+    }
+  },
+  "multi_database": {
+    "path": "spacr/multi_database.py",
+    "sha256": "130edbcb4e896c143a4615338e7e0f6552a12c1de1ba42d920aa245c7b1f8686",
+    "anchors": {
+      "def describe_merge": [
+        {
+          "line": 593,
+          "text": "def describe_merge(paths: Sequence[str], table: str, *,"
+        }
+      ],
+      "def decision_for": [
+        {
+          "line": 728,
+          "text": "def decision_for(plan: MergePlan, *, outcome: str, columns: str = \"common\","
+        }
+      ]
+    }
+  },
+  "database_control": {
+    "path": "spacr/qt/screens/settings_model.py",
+    "sha256": "a7b6524177769279021d23176eb0eefaeed18d153df81c862fd5a56665c17b35",
+    "anchors": {
+      "DatabaseSetWidget": [
+        {
+          "line": 61,
+          "text": "from ..widgets.database_set import DatabaseSetWidget"
+        },
+        {
+          "line": 9729,
+          "text": "elif isinstance(src_widget, DatabaseSetWidget):"
+        },
+        {
+          "line": 10501,
+          "text": "return \"special\", lambda: DatabaseSetWidget("
+        },
+        {
+          "line": 11075,
+          "text": "ClassEditorWidget, DatabaseSetWidget,"
+        }
+      ]
+    }
+  },
+  "headings": {
+    "path": "spacr/gene_measurement_compare.py",
+    "sha256": "5bc56aa6fa060b0c3e363a39d1716d2bafd48585217139d5a670b4fa75ab4d0e",
+    "anchors": {
+      "HEADING_HELP": [
+        {
+          "line": 21,
+          "text": "HEADING_HELP: dict = {"
+        }
+      ],
+      "png_list: bool = True": [
+        {
+          "line": 906,
+          "text": "png_list: bool = True"
+        }
+      ],
+      "table_names=None if png_list else list(OBJECT_TABLES)": [
+        {
+          "line": 954,
+          "text": "table_names=None if png_list else list(OBJECT_TABLES))"
+        }
+      ]
+    }
+  },
+  "measurement_controls": {
+    "path": "spacr/qt/widgets/measurement_compare_dialog.py",
+    "sha256": "9f300da78896d107ffac72cae016b32e874aa7710944cfbdd2768f35672b84c4",
+    "anchors": {
+      "self.join_png_list.setChecked(True)": [
+        {
+          "line": 335,
+          "text": "self.join_png_list.setChecked(True)"
+        }
+      ],
+      "self.join_dependent.toggled.connect": [
+        {
+          "line": 343,
+          "text": "self.join_dependent.toggled.connect(self._on_join_choice)"
+        }
+      ],
+      "HEADING_HELP.get(str(field)": [
+        {
+          "line": 781,
+          "text": "label.setToolTip(HEADING_HELP.get(str(field), \"\"))"
+        }
+      ],
+      "def _join_the_dependent_variable": [
+        {
+          "line": 808,
+          "text": "def _join_the_dependent_variable(self, wide):"
+        }
+      ],
+      "png_list=png_list": [
+        {
+          "line": 554,
+          "text": "png_list=png_list)"
+        }
+      ]
+    }
+  },
+  "dependent_join": {
+    "path": "spacr/dependent_join.py",
+    "sha256": "2d0371db2168b70f8d5be398b51f931162c86d512870c6fe91fb5622241fe566",
+    "anchors": {
+      "OBJECT_KEY": [
+        {
+          "line": 18,
+          "text": "from .schema import (COLUMN_KEY, FIELD_KEY, OBJECT_KEY, PLATE_KEY, ROW_KEY)"
+        },
+        {
+          "line": 24,
+          "text": "OBJECT_KEY)"
+        },
+        {
+          "line": 97,
+          "text": "OBJECT_KEY: found.group(\"object\")}"
+        },
+        {
+          "line": 125,
+          "text": "(PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY, OBJECT_KEY), \"path\"),"
+        }
+      ],
+      "ROUTES:": [
+        {
+          "line": 121,
+          "text": "ROUTES: Tuple[Tuple[str, Tuple[str, ...], str], ...] = ("
+        },
+        {
+          "line": 164,
+          "text": "for name, columns, source in ROUTES:"
+        }
+      ],
+      "\"matched\"": [
+        {
+          "line": 156,
+          "text": "report: Dict[str, Any] = {\"route\": \"\", \"matched\": 0,"
+        },
+        {
+          "line": 190,
+          "text": "report[\"matched\"] = matched"
+        }
+      ],
+      "def describe": [
+        {
+          "line": 216,
+          "text": "def describe(report: Dict[str, Any]) -> str:"
+        }
+      ]
+    }
+  },
+  "multi_colour": {
+    "path": "spacr/qt/widgets/fast_plots.py",
+    "sha256": "3ec1bb75764d33237873115cb27a6bbb6c54146f3190e26b5be33bc1ceef6900",
+    "anchors": {
+      "def _opacity_alphas": [
+        {
+          "line": 3506,
+          "text": "def _opacity_alphas(count: int):"
+        }
+      ],
+      "def _legend_entries": [
+        {
+          "line": 4041,
+          "text": "def _legend_entries(self) -> list:"
+        }
+      ],
+      "hue, then shape, then opacity": [
+        {
+          "line": 4045,
+          "text": "three columns on one point -- hue, then shape, then opacity -- and a"
+        }
+      ]
+    }
+  },
+  "ml_diagnostics": {
+    "path": "spacr/ml.py",
+    "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+    "anchors": {
+      "from .regression_diagnostics import write_diagnostic_suite": [
+        {
+          "line": 6332,
+          "text": "from .regression_diagnostics import write_diagnostic_suite"
+        }
+      ],
+      "rd.write_diagnostic_suite": [
+        {
+          "line": 6990,
+          "text": "written = dict(rd.write_diagnostic_suite("
+        }
+      ]
+    }
+  },
+  "trial_quality": {
+    "path": "spacr/trial_metrics.py",
+    "sha256": "f55c01da99c61c9f44f112480970c76dba304ae09b8e2f109b472f3f3ecb0757",
+    "anchors": {
+      "def qc_verdicts": [
+        {
+          "line": 472,
+          "text": "def qc_verdicts(row: Mapping[str, Any]) -> dict:"
+        }
+      ],
+      "score_design": [
+        {
+          "line": 495,
+          "text": "from .regression_diagnostics import score_design, score_inference"
+        },
+        {
+          "line": 509,
+          "text": "verdict = score_design(design)"
+        }
+      ],
+      "score_inference": [
+        {
+          "line": 495,
+          "text": "from .regression_diagnostics import score_design, score_inference"
+        },
+        {
+          "line": 521,
+          "text": "verdict = score_inference(inference)"
+        }
+      ],
+      "METRIC_COLUMNS": [
+        {
+          "line": 582,
+          "text": "METRIC_COLUMNS: frozenset = frozenset({"
+        }
+      ]
+    }
+  },
+  "results_surface": {
+    "path": "spacr/qt/widgets/regression_results.py",
+    "sha256": "77200739569469a2e2ba9cbd3da0bb9fd01e4e10a8b0cf1bc434e570065bbebf",
+    "anchors": {
+      "self.effect_rank = EffectRankPlot()": [
+        {
+          "line": 784,
+          "text": "self.effect_rank = EffectRankPlot()"
+        }
+      ],
+      "self.effect_distribution = EffectDistribution()": [
+        {
+          "line": 785,
+          "text": "self.effect_distribution = EffectDistribution()"
+        }
+      ],
+      "FoldingSummaryView": [
+        {
+          "line": 807,
+          "text": "from .folding_summary import FoldingSummaryView"
+        },
+        {
+          "line": 809,
+          "text": "self._summary = FoldingSummaryView()"
+        }
+      ],
+      "from ...hits import tested_family": [
+        {
+          "line": 3303,
+          "text": "from ...hits import tested_family"
+        }
+      ]
+    }
+  },
+  "figure_grid": {
+    "path": "spacr/qt/widgets/figure_grid_view.py",
+    "sha256": "a5e2a009cc39b182a4e3ab191a5b9581465c5d25aa3859c015d7e7e521a6aaaa",
+    "anchors": {
+      "def set_live_tiles": [
+        {
+          "line": 548,
+          "text": "def set_live_tiles(self, tiles) -> int:"
+        }
+      ]
+    }
+  },
+  "house_style": {
+    "path": "spacr/figures/style.py",
+    "sha256": "c8991f7cc0817c811b1932d4b0abffb6e731f6484fddf19ba99f2fe2c085c1e4",
+    "anchors": {
+      "def figure_style": [
+        {
+          "line": 632,
+          "text": "def figure_style(target: str = \"screen\", **kwargs):"
+        }
+      ],
+      "def _apply_user_style": [
+        {
+          "line": 338,
+          "text": "def _apply_user_style(figure, kind: Optional[str] = None, *,"
+        }
+      ],
+      "def chosen_ink": [
+        {
+          "line": 87,
+          "text": "def chosen_ink() -> Optional[str]:"
+        }
+      ],
+      "def chosen_line_ink": [
+        {
+          "line": 112,
+          "text": "def chosen_line_ink() -> Optional[str]:"
+        }
+      ],
+      "def resolve_label_ground": [
+        {
+          "line": 182,
+          "text": "def resolve_label_ground(target: str = \"screen\","
+        }
+      ]
+    }
+  },
+  "house_style_guard": {
+    "path": "tests/test_one_visual_system_not_twelve.py",
+    "sha256": "f51b35b6ceaae3284e5d6880208cbc8ba3023aa757285ce20fe57f972b6da31f",
+    "anchors": {
+      "UNSTYLED_CEILING = 0": [
+        {
+          "line": 79,
+          "text": "UNSTYLED_CEILING = 0"
+        }
+      ],
+      "STYLE_CONTEXTS =": [
+        {
+          "line": 82,
+          "text": "STYLE_CONTEXTS = {\"figure_style\", \"rc_context\"}"
+        }
+      ],
+      "test_importing_spacr_leaves_every_rcparam_alone": [
+        {
+          "line": 25,
+          "text": "-- and `test_importing_spacr_leaves_every_rcparam_alone` proves it in a child"
+        },
+        {
+          "line": 296,
+          "text": "def test_importing_spacr_leaves_every_rcparam_alone(tmp_path):"
+        }
+      ]
+    }
+  },
+  "scene_renderer": {
+    "path": "spacr/figures/scene.py",
+    "sha256": "ce43a7f8ca2dc8a628e9c63b95e5ed53db1d0827e389d0e4477b910f87ab135a",
+    "anchors": {
+      "def write_figure": [
+        {
+          "line": 1387,
+          "text": "def write_figure(figure, path, *, fmt=None, dpi=None, renderer=None,"
+        }
+      ],
+      "def scene_renderer": [
+        {
+          "line": 115,
+          "text": "def scene_renderer(force: Optional[str] = None) -> Tuple[str, str]:"
+        }
+      ]
+    }
+  },
+  "diagnostic_writer": {
+    "path": "spacr/regression_diagnostics.py",
+    "sha256": "6cc3c6b88014e6fdc29ff2a0f058b23b0f8f1119cb552d4321a1ac679b6b0f28",
+    "anchors": {
+      "from .figures.scene import write_figure": [
+        {
+          "line": 551,
+          "text": "from .figures.scene import write_figure"
+        }
+      ],
+      "def write_diagnostic_suite": [
+        {
+          "line": 968,
+          "text": "def write_diagnostic_suite(destination, *, fractions=None, block=None,"
+        }
+      ]
+    }
+  },
+  "backend_menu": {
+    "path": "spacr/regression_backends.py",
+    "sha256": "67ffc121f2a60ca955dc9e40c634c70669c9f5d749f0fe3b336bec7b6972c602",
+    "anchors": {
+      "REGRESSION_BACKENDS": [
+        {
+          "line": 74,
+          "text": "REGRESSION_BACKENDS,"
+        },
+        {
+          "line": 100,
+          "text": ":returns: a key of :data:`REGRESSION_BACKENDS`."
+        },
+        {
+          "line": 109,
+          "text": "if text in REGRESSION_BACKENDS:"
+        },
+        {
+          "line": 114,
+          "text": "for name, spec in REGRESSION_BACKENDS.items():"
+        }
+      ],
+      "def backend_status": [
+        {
+          "line": 189,
+          "text": "def backend_status(name, regression_type=None) -> dict:"
+        }
+      ],
+      "def describe_backends": [
+        {
+          "line": 337,
+          "text": "def describe_backends(regression_type=None, html: bool = True,"
+        }
+      ],
+      "def backend_menu": [
+        {
+          "line": 309,
+          "text": "def backend_menu(regression_type=None) -> list:"
+        }
+      ]
+    }
+  },
+  "axes": {
+    "path": "spacr/qt/widgets/fast_plots.py",
+    "sha256": "3ec1bb75764d33237873115cb27a6bbb6c54146f3190e26b5be33bc1ceef6900",
+    "anchors": {
+      "def set_log_axes": [
+        {
+          "line": 2079,
+          "text": "def set_log_axes(self, x=None, y=None) -> tuple:"
+        }
+      ],
+      "def _wear_the_print_look": [
+        {
+          "line": 3568,
+          "text": "def _wear_the_print_look(cls, item) -> list:"
+        }
+      ],
+      "def export_styled": [
+        {
+          "line": 5538,
+          "text": "def export_styled(self, path: str, *, ink: str = \"\", background: str = \"\","
+        }
+      ]
+    }
+  },
+  "print_style": {
+    "path": "spacr/figure_style.py",
+    "sha256": "3de8b6f1a670e5b3457c8f19358a82171c3ea00159e129c1b1d890219321b141",
+    "anchors": {
+      "def export_colour": [
+        {
+          "line": 701,
+          "text": "def export_colour(current, kind: str, look=None) -> Optional[str]:"
+        }
+      ],
+      "def saved_figure_appearance": [
+        {
+          "line": 878,
+          "text": "def saved_figure_appearance(mode: Optional[str] = None"
+        }
+      ]
+    }
+  },
+  "summary_pipeline": {
+    "path": "spacr/ml.py",
+    "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+    "anchors": {
+      "from .regression_summary import write_run_summary": [
+        {
+          "line": 7910,
+          "text": "from .regression_summary import write_run_summary"
+        },
+        {
+          "line": 8076,
+          "text": "from .regression_summary import write_run_summary"
+        }
+      ],
+      "write_run_summary(": [
+        {
+          "line": 7915,
+          "text": "write_run_summary("
+        },
+        {
+          "line": 8082,
+          "text": "write_run_summary(res_folder, model=model, settings=settings,"
+        }
+      ]
+    }
+  },
+  "summary_data": {
+    "path": "spacr/regression_summary.py",
+    "sha256": "53980ad22b1bc6c9e78cf62e07c028383054a32985feb89c8e6b53f01ac2be7b",
+    "anchors": {
+      "def build_run_summary": [
+        {
+          "line": 2136,
+          "text": "def build_run_summary(*, model=None, settings=None, coef_df=None,"
+        }
+      ],
+      "def _recommendations": [
+        {
+          "line": 2214,
+          "text": "def _recommendations(run: \"_Run\") -> List[Any]:"
+        }
+      ],
+      "measured.update(run.diagnostics)": [
+        {
+          "line": 2233,
+          "text": "measured.update(run.diagnostics)"
+        }
+      ],
+      "recommendations=_recommendations(run)": [
+        {
+          "line": 2211,
+          "text": "recommendations=_recommendations(run))"
+        }
+      ]
+    }
+  },
+  "summary_display": {
+    "path": "spacr/qt/widgets/folding_summary.py",
+    "sha256": "f25ba16d422f5c7e41c2ac315b6b5c4ab7e9e0e46de36b38c6e649f752104c5e",
+    "anchors": {
+      "def split_rows": [
+        {
+          "line": 74,
+          "text": "def split_rows(body: str) -> list:"
+        }
+      ],
+      "active_palette()[\"error\"]": [
+        {
+          "line": 384,
+          "text": "alarm = active_palette()[\"error\"]"
+        },
+        {
+          "line": 437,
+          "text": "view.document(), active_palette()[\"error\"])"
+        }
+      ],
+      "view.setHtml(\"<table": [
+        {
+          "line": 412,
+          "text": "view.setHtml(\"<table style='border-collapse:collapse'>\""
+        }
+      ]
+    }
+  },
+  "figure_lock": {
+    "path": "spacr/qt/widgets/figure_queue.py",
+    "sha256": "fa0d2e805b2811dfd94a04517f8cb91e4f521da076f29fe1df2b0efad864fafd",
+    "anchors": {
+      "FIGURE_LOCK = threading.RLock()": [
+        {
+          "line": 166,
+          "text": "FIGURE_LOCK = threading.RLock()"
+        }
+      ],
+      "with FIGURE_LOCK:": [
+        {
+          "line": 186,
+          "text": "with FIGURE_LOCK:"
+        },
+        {
+          "line": 471,
+          "text": "with FIGURE_LOCK:"
+        },
+        {
+          "line": 836,
+          "text": "with FIGURE_LOCK:"
+        },
+        {
+          "line": 2073,
+          "text": "with FIGURE_LOCK:"
+        }
+      ],
+      "def _render_preview": [
+        {
+          "line": 2048,
+          "text": "def _render_preview_async(self, fig) -> bool:"
+        },
+        {
+          "line": 2145,
+          "text": "def _render_preview(self, fig, png_path: Path) -> Optional[QPixmap]:"
+        }
+      ]
+    }
+  },
+  "frame_handoff": {
+    "path": "spacr/frame_handoff.py",
+    "sha256": "b23576b3a3a2e036193f3b16169567647ac2ba8c9852caf28fcf83f8e4e8c2c6",
+    "anchors": {
+      "def hold": [
+        {
+          "line": 80,
+          "text": "def hold(path: Any, frame: pd.DataFrame) -> str:"
+        }
+      ],
+      "def held": [
+        {
+          "line": 99,
+          "text": "def held(path: Any) -> Optional[pd.DataFrame]:"
+        }
+      ],
+      "def release": [
+        {
+          "line": 133,
+          "text": "def release(path: Any = None) -> int:"
+        }
+      ],
+      "def stage": [
+        {
+          "line": 167,
+          "text": "def stage(frame: pd.DataFrame, folder: Any, stem: str, *,"
+        }
+      ]
+    }
+  },
+  "frame_producer": {
+    "path": "spacr/qt/widgets/measurement_scan_panel.py",
+    "sha256": "c2fc8a7613555cb5d29a75889974c09ec773159339a8a362e8a10843e407dfbf",
+    "anchors": {
+      "from ...frame_handoff import stage": [
+        {
+          "line": 1225,
+          "text": "from ...frame_handoff import stage"
+        }
+      ],
+      "from ...frame_handoff import hold": [
+        {
+          "line": 3294,
+          "text": "from ...frame_handoff import hold"
+        }
+      ],
+      "from ...frame_handoff import release": [
+        {
+          "line": 3452,
+          "text": "from ...frame_handoff import release"
+        }
+      ]
+    }
+  },
+  "frame_consumer": {
+    "path": "spacr/ml.py",
+    "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+    "anchors": {
+      "offered = frame_handoff.held(path)": [
+        {
+          "line": 5780,
+          "text": "offered = frame_handoff.held(path) if table is None else None"
+        }
+      ]
+    }
+  },
+  "regression_menu": {
+    "path": "spacr/qt/screens/settings_model.py",
+    "sha256": "a7b6524177769279021d23176eb0eefaeed18d153df81c862fd5a56665c17b35",
+    "anchors": {
+      "def _regression_type_menu": [
+        {
+          "line": 6143,
+          "text": "def _regression_type_menu():"
+        }
+      ],
+      "_REGRESSION_MENU_UI_SOURCES = frozenset": [
+        {
+          "line": 6186,
+          "text": "_REGRESSION_MENU_UI_SOURCES = frozenset("
+        }
+      ]
+    }
+  },
+  "menu_catalog": {
+    "path": "tools/build_i18n_catalogs.py",
+    "sha256": "62a6ebc0839eb88ee6e352ba888c9af2c345ea24a52bf6e5561c8958b15ec91c",
+    "anchors": {
+      "_REGRESSION_MENU_UI_SOURCES": [
+        {
+          "line": 4351,
+          "text": "_REGRESSION_MENU_UI_SOURCES,"
+        },
+        {
+          "line": 4511,
+          "text": "ui_sources.update(_REGRESSION_MENU_UI_SOURCES)"
+        }
+      ]
+    }
+  },
+  "calibration": {
+    "path": "spacr/fraction_calibration.py",
+    "sha256": "bcaa168983fc27225a9fa294b613178f183f56d6232610ab53530189ca20363a",
+    "anchors": {
+      "MINIMUM_CALIBRATION_WELLS = 8": [
+        {
+          "line": 48,
+          "text": "MINIMUM_CALIBRATION_WELLS = 8"
+        }
+      ],
+      "def compare_normalisations": [
+        {
+          "line": 300,
+          "text": "def compare_normalisations(counts: pd.DataFrame,"
+        }
+      ],
+      "training_wells_in_fit": [
+        {
+          "line": 265,
+          "text": "\"training_wells_in_fit\": _training_well_count("
+        },
+        {
+          "line": 381,
+          "text": "if result.get(\"training_wells_in_fit\"):"
+        },
+        {
+          "line": 382,
+          "text": "note = (f\"; {result['training_wells_in_fit']} of the fitted wells \""
+        }
+      ],
+      "mixed_ratio_calibration": [
+        {
+          "line": 197,
+          "text": "from .annotation_validation import mixed_ratio_calibration"
+        },
+        {
+          "line": 228,
+          "text": "fit = mixed_ratio_calibration("
+        }
+      ]
+    }
+  },
+  "calibration_pipeline": {
+    "path": "spacr/ml.py",
+    "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+    "anchors": {
+      "def _calibrated_fraction_threshold": [
+        {
+          "line": 469,
+          "text": "def _calibrated_fraction_threshold(settings):"
+        }
+      ],
+      "sweep_fraction_threshold": [
+        {
+          "line": 411,
+          "text": ":func:`spacr.fraction_calibration.sweep_fraction_threshold`."
+        },
+        {
+          "line": 484,
+          "text": "from .fraction_calibration import sweep_fraction_threshold"
+        },
+        {
+          "line": 490,
+          "text": "result = sweep_fraction_threshold(**_calibration_inputs(settings))"
+        }
+      ]
+    }
+  },
+  "unit_lock": {
+    "path": "spacr/qt/screens/settings_model.py",
+    "sha256": "a7b6524177769279021d23176eb0eefaeed18d153df81c862fd5a56665c17b35",
+    "anchors": {
+      "def _refresh_analysis_unit_lock": [
+        {
+          "line": 11178,
+          "text": "def _refresh_analysis_unit_lock(self) -> None:"
+        }
+      ],
+      "from ...settings_advisor import requirements_for_unit": [
+        {
+          "line": 11190,
+          "text": "from ...settings_advisor import requirements_for_unit"
+        }
+      ],
+      "widget.setEnabled(False)": [
+        {
+          "line": 11211,
+          "text": "widget.setEnabled(False)"
+        }
+      ],
+      "widget.setEnabled(True)": [
+        {
+          "line": 11214,
+          "text": "widget.setEnabled(True)"
+        }
+      ]
+    }
+  },
+  "unit_requirements": {
+    "path": "spacr/settings_advisor.py",
+    "sha256": "1bf8480aa023c21048ba179c2c57435d6b314244777704bbd684895a008a2a52",
+    "anchors": {
+      "UNIT_REQUIREMENTS": [
+        {
+          "line": 1215,
+          "text": "UNIT_REQUIREMENTS: Dict[str, Dict[str, Any]] = {"
+        },
+        {
+          "line": 1236,
+          "text": "return dict(UNIT_REQUIREMENTS.get(str(unit).lower(), {}))"
+        }
+      ],
+      "def requirements_for_unit": [
+        {
+          "line": 1225,
+          "text": "def requirements_for_unit(unit: str) -> Dict[str, Any]:"
+        }
+      ]
+    }
+  },
+  "recommendations": {
+    "path": "spacr/run_recommendations.py",
+    "sha256": "209864eb0bd7bfec03a5467c7f16d14af91b1c30e31926c6b1713f9aaa78f659",
+    "anchors": {
+      "def recommend": [
+        {
+          "line": 81,
+          "text": "def recommend(diagnostics: Mapping[str, Any], *,"
+        }
+      ]
+    }
+  },
+  "panel_writer": {
+    "path": "spacr/regression_panels.py",
+    "sha256": "709656a17afb0cfe50a1c2b229ce99fc93d86dd0bbb0bc6852e754241a11c9e8",
+    "anchors": {
+      "def build_manifest_packages": [
+        {
+          "line": 1155,
+          "text": "def build_manifest_packages("
+        }
+      ],
+      "def guide_control_threshold": [
+        {
+          "line": 168,
+          "text": "def guide_control_threshold("
+        }
+      ],
+      "_data.csv": [
+        {
+          "line": 473,
+          "text": "``<panel_id>_data.csv``) are written to; created if absent."
+        },
+        {
+          "line": 537,
+          "text": "\"data\": destination / f\"{panel_id}_data.csv\","
+        },
+        {
+          "line": 817,
+          "text": "\"data\": destination / f\"{panel_id}_data.csv\","
+        },
+        {
+          "line": 894,
+          "text": "``<panel_id>_data.csv``) are written to; created if absent."
+        }
+      ],
+      "stats": [
+        {
+          "line": 467,
+          "text": "\"\"\"Write the PDF, PNG, stats CSV, and plotted-data CSV for one panel."
+        },
+        {
+          "line": 472,
+          "text": "``<panel_id>.png``, ``<panel_id>_stats.csv`` and"
+        },
+        {
+          "line": 475,
+          "text": "in the stats CSV."
+        },
+        {
+          "line": 483,
+          "text": "the stats CSV."
+        }
+      ]
+    }
+  },
+  "panel_pipeline": {
+    "path": "spacr/ml.py",
+    "sha256": "ce0bd9af83b66f95e93627865f31c0612425d5ce33ddcce75373817c92ec8c84",
+    "anchors": {
+      "def _write_regression_panel_packages": [
+        {
+          "line": 7013,
+          "text": "def _write_regression_panel_packages(outcome, settings):"
+        }
+      ],
+      "from .regression_panels import build_manifest_packages": [
+        {
+          "line": 7090,
+          "text": "from .regression_panels import build_manifest_packages"
+        }
+      ],
+      "publication_panels = _write_regression_panel_packages": [
+        {
+          "line": 7123,
+          "text": "publication_panels = _write_regression_panel_packages("
+        }
+      ]
+    }
+  },
+  "input_labels": {
+    "path": "spacr/qt/widgets/file_list.py",
+    "sha256": "a48c2e66b27adf968df7a27cb434bef429220b3645af4d98c3f2292d38b42f85",
+    "anchors": {
+      "def _labels_before_a_change": [
+        {
+          "line": 1153,
+          "text": "def _labels_before_a_change(self) -> dict:"
+        }
+      ],
+      "def _repropose_after_a_change": [
+        {
+          "line": 1158,
+          "text": "def _repropose_after_a_change(self, typed: dict) -> None:"
+        }
+      ],
+      "def _move": [
+        {
+          "line": 1136,
+          "text": "def _move(self, offset: int) -> None:"
+        },
+        {
+          "line": 1535,
+          "text": "def _move_selected(self, offset: int) -> None:"
+        }
+      ],
+      "def _remove": [
+        {
+          "line": 1184,
+          "text": "def _remove(self) -> None:"
+        }
+      ]
+    }
+  }
+}

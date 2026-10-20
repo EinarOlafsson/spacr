@@ -149,7 +149,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#3",
       "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
       "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",
       "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
@@ -274,7 +274,10 @@
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
       "context": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "translation": "गिनती CSV पथ; प्रत्येक को उस स्कोर के साथ जोड़ा जाता है जिसके फ़ाइल नाम टोकन से यह अद्वितीय रूप से सबसे अच्छा मेल खाता है, बिना मेल वाले पथ उन स्कोर पंक्तियों को भरते हैं जिनमें अभी गिनती नहीं है, और बचे हुए पथों को अपनी पंक्तियाँ मिलती हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.flow.FlowHost.heightForWidth#1",
@@ -1521,7 +1524,9 @@
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
       "context": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "translation": "``\"spin\"`` या ``\"draw\"``; कुछ और होने पर ``\"spin\"`` माना जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled#3",
@@ -2388,7 +2393,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.glass.glass#2",
+      "label": "spacr.qt.widgets.glass.glass#3",
       "source": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
       "source_sha256": "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e",
       "context": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
@@ -2733,7 +2738,9 @@
       "source_sha256": "8a06086a816664ab0d58f6078eb137ad4ff4bd282fec817c0072e42ddb67d232",
       "context": "number of rows actually drawn or, for a binned density, counted.",
       "translation": "वास्तव में बनाई गई पंक्तियों की संख्या, या बिन किए गए घनत्व के लिए, गिनी गई पंक्तियों की।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_spec.brush_mask#10",
@@ -3021,7 +3028,9 @@
       "source_sha256": "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
       "context": "The notes are bundled, and the bundle is what draws. They come from ``spacr/resources/release_notes.json``, which ``tools/build_release_notes.py`` writes from the GitHub releases and which ``.github/workflows/release.yml`` refreshes on every release. This panel is on the first screen the application shows, so making its CONTENT depend on api.github.com would mean a dashboard that is empty offline, throttled behind a shared NAT, and slower to draw than the window it is in. The bundled file therefore remains the offline source of truth and the panel is complete before anything touches a socket.",
       "translation": "नोट्स बंडल किए गए हैं, और बंडल ही वह है जो बनाया जाता है। वे ``spacr/resources/release_notes.json`` से आते हैं, जिसे ``tools/build_release_notes.py`` GitHub रिलीज़ से लिखता है और जिसे ``.github/workflows/release.yml`` हर रिलीज़ पर ताज़ा करता है। यह पैनल ऐप्लिकेशन के दिखाए जाने वाले पहले पेज पर है, इसलिए इसकी सामग्री को api.github.com पर निर्भर बनाने का अर्थ होता एक ऐसा डैशबोर्ड जो ऑफ़लाइन खाली हो, साझा NAT के पीछे सीमित हो, और उस विंडो से धीमा बने जिसमें वह है। इसलिए बंडल की गई फ़ाइल ऑफ़लाइन सत्य का स्रोत बनी रहती है और किसी सॉकेट को छूने से पहले ही पैनल पूरा होता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel#2",
@@ -3029,7 +3038,9 @@
       "source_sha256": "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
       "context": "And then it catches up. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a background execution unit, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
       "translation": "और फिर यह पीछे छूटी जानकारी पकड़ लेता है। किसी रिलीज़ के व्हील में उसका अपना रिलीज़ नोट नहीं हो सकता -- नोट तब लिखा जाता है जब GitHub रिलीज़ प्रकाशित होती है, जो उस व्हील के PyPI पर आने के बाद होता है -- इसलिए बंडल की गई फ़ाइल हमेशा उसे ले जाने वाले बिल्ड से एक रिलीज़ पीछे रहती है, और यही गड़बड़ हुई थी: \"मैं 1.5.1.0 पर हूँ और समाचार केवल 1.5.0.7 तक जाते हैं। समाचार अनुभाग को हमेशा अपने-आप नवीनतम spacr रिलीज़ समाचार दिखाने चाहिए।\" इसलिए पेज दिखाए जाने के बाद :attr:`refresh_requested` विंडो से वर्कर थ्रेड पर सार्वजनिक रिलीज़ सूची पढ़ने को कहता है, और :meth:`apply_releases` जो कुछ भी लौटता है उसे बंडल की गई सूची के आगे मिला देता है। यहाँ कुछ भी सॉकेट नहीं खोलता: पैनल केवल पूछता है, और जो फ़ेच विफल होता है, दर-सीमित होता है, Preferences में बंद है, या बस कुछ नया नहीं पाता, वह बंडल की गई सूची को ठीक वैसा ही छोड़ देता है जैसी वह बनाई गई थी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel#5",
@@ -3037,7 +3048,9 @@
       "source_sha256": "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
       "context": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
       "translation": "अपडेट जाँच एक बटन ही रहती है। कुछ इंस्टॉल करने का प्रस्ताव एक निर्णय है, इसलिए वह अब भी केवल दबाए जाने पर ही किया जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel.apply_releases#0",
@@ -3053,7 +3066,9 @@
       "source_sha256": "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
       "context": "Silence is the contract. An empty list, a list of rubbish, or a list that says nothing the bundled file did not already say leaves the panel untouched and says nothing to the reader -- the failure of an unasked-for background fetch is not the reader's problem.",
       "translation": "मौन ही अनुबंध है। खाली सूची, कचरे की सूची, या ऐसी सूची जो वह कुछ नहीं कहती जो बंडल की गई फ़ाइल पहले से न कहती हो, पैनल को अछूता छोड़ती है और पाठक से कुछ नहीं कहती -- बिना माँगे पृष्ठभूमि फ़ेच की विफलता पाठक की समस्या नहीं है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel.apply_releases#2",
@@ -3149,7 +3164,9 @@
       "source_sha256": "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
       "context": "AFTER the page exists and on the event loop, not during construction: the single-shot timer means the emit lands on a later turn than this show, so Home's first paint is never waiting on it. Once per panel, because a page that is shown again -- a tab revisited, a font-scale rebuild -- is not news.",
       "translation": "पेज के मौजूद होने के बाद और इवेंट लूप पर, निर्माण के दौरान नहीं: सिंगल-शॉट टाइमर का अर्थ है कि उत्सर्जन इस show से बाद की बारी में होता है, इसलिए Home का पहला पेंट कभी इसकी प्रतीक्षा नहीं करता। प्रति पैनल एक बार, क्योंकि फिर से दिखाया गया पेज -- दोबारा खोला गया टैब, फ़ॉन्ट-स्केल पर पुनर्निर्माण -- समाचार नहीं है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.home.NewsPanel.showEvent#2",
@@ -3357,7 +3374,9 @@
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
       "context": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the application view open, and stopping it closes the application view as before.",
       "translation": "दर्ज किया जाता है, ताकि पहली बार का मार्गदर्शन लौटकर आए उपयोगकर्ता का नए उपयोगकर्ता की तरह स्वागत न करे। इंस्टॉलर चलते समय पहले उपयोगकर्ता से पूछा जाता है (:meth:`_may_close`): उसे चलने देने पर पेज खुला रहता है, और उसे रोकने पर पेज पहले की तरह बंद हो जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent#1",
@@ -3385,6 +3404,8 @@
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "retired": "2026-10-16",
+      "retired_reason": "The current docstring no longer contains this paragraph; no replacement block exists. Historical translation retained.",
       "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
       "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",
       "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",
@@ -4489,7 +4510,10 @@
       "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
       "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
       "translation": "संपादक का प्रकार: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` या ``\"choice\"``।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "UMAP source documentation corrected inc00a087e749. Replacement exact-source review is2026-10-15-umap-tier-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.umap_figure_settings.Field#4",

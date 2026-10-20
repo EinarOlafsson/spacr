@@ -1,0 +1,58 @@
+Private Work review packet; no recording is queued.
+
+The earlier Home packet already mapped all nineteen references. This delta
+addresses the missing start identity in its observer: subscribe before the
+physical Run click, allow deferred delivery until _run_token advances once,
+then accept only the current-path/current-control result held by the panel
+and wait until preview_running() reports that the worker retired. A later
+run/cancel token refuses acceptance. A failed pass reports the actual visible
+status; a timeout clicks the actual available Cancel button. It never certifies
+a preexisting result merely because the panel is idle.
+
+current-panel-observer.patch appends these three helpers to the existing
+capture_plaque_current module. It does not replace the main capture recorder.
+The local public baseline is a4f20c23 and uses a synthetic figure. Work's held
+b7b07f25 real-paper companion differs. Rebase only the helper addition onto
+that actual owner source; never replace the file from this packet. Preserve
+607c's shared batch observer and 8363's private checkpoint-copy safeguards.
+No change to the application, privacy, alpha visibility or smoothness gates.
+
+At the former legacy host boundary in the main recorder, the intended owner
+interface is:
+
+    from capture_plaque_current import (
+        current_plaque_panel, observe_current_plaque_preview,
+    )
+    panel = current_plaque_panel(screen, physical_click, settle)
+    result = observe_current_plaque_preview(
+        panel, physical_click, settle, timeout,
+    )
+
+physical_click must be Work's real pointer implementation. Before the second
+call, the current panel must show the actual declared source/model/control
+values, and the owner must record their real selection steps. Model Zoo keys
+and private checkpoint paths must be compared by the existing trusted resolver
+and checksum identity, not by an invented model-name mismatch. Preserve bundled
+model warnings and actual refusal messages. No download is performed here.
+
+The old main recorder still depends on current_params/model, _worker, raw
+masks and the generic minimum-area filter. Do not call that old preview tail
+or plaque_native_views.finish_views on this panel. Extract/reuse only its
+existing read-only Database Browser tail, retaining table/byte/input checks.
+Both filter references require an actual supported inference-control edit and
+another explicit Run. Restoring controls is not proof of identical masks.
+
+scene-map-v2.json retains all nineteen required visual references. For the
+existing download reference, a verified cache selection requires matching new
+narration; call it a download only when actual bytes were downloaded. Keep
+Work's real-paper provenance and report only observed new counts. If ordinary
+Figure-mode visibility exposes alpha content, stop and report it rather than
+switching alpha on or replacing the footage.
+
+The seven checks are stdlib fake-signal/control/clock protocol checks only.
+They expose five old-proposal failures and pass the updated helper. They do
+not test Qt sender semantics, actual model execution, token cancellation or
+physical pointer dispatch on the real panel. Work must review/adopt and prove
+those before the later fresh whole GNOME lesson. Changed English narration,
+changed-sentence audio/translations and normal capture/stage/publication gates
+remain Work-owned. Failed raw footage remains archived; no old clip reuse.

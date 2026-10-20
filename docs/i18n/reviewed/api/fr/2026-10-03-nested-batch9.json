@@ -171,7 +171,10 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "``(n, dims)`` float32 features.",
       "source_sha256": "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6",
-      "translation": "Caractéristiques ``(n, dims)`` en float32."
+      "translation": "Caractéristiques ``(n, dims)`` en float32.",
+      "retired": true,
+      "retired_date": "2026-10-18",
+      "retired_reason": "Item 560 Cell-DINO checkpoint picker source changed or shifted this paragraph. Replacement exact-source review is 2026-10-18-560-cell-dino-checkpoints.json; original source and target retained as historical evidence."
     },
     {
       "context": "OpenPhenom's mean patch token; it rescales 0-255 itself.",
@@ -247,7 +250,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Batched here rather than by the caller because the batch size belongs to the DEVICE, not to the channel policy: the per-channel policy calls this once per channel and each call must fit the same GPU.",
       "source_sha256": "58e01fe4a9324a0cfe4888d0bbe4c67b1593d97f32d6b8c85bc68fbc4a048049",
-      "translation": "Découpé en lots ici plutôt que chez l'appelant parce que la taille de lot dépend du PÉRIPHÉRIQUE, pas de la stratégie de canaux : la stratégie par canal appelle ceci une fois par canal et chaque appel doit tenir sur le même GPU."
+      "translation": "Découpé en lots ici plutôt que chez l'appelant parce que la taille de lot dépend du PÉRIPHÉRIQUE, pas de la stratégie de canaux : la stratégie par canal appelle ceci une fois par canal et chaque appel doit tenir sur le même GPU.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(n, height, width, 3)`` float32 in [0, 1].",
@@ -359,7 +364,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Show the installer consent, then start the tour after it closes.",
       "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
-      "translation": "Affiche le consentement de l'installateur, puis lance la visite après sa fermeture."
+      "translation": "Affiche le consentement de l'installateur, puis lance la visite après sa fermeture.",
+      "retired": true,
+      "retired_reason": "N703 final source1eabf4b498a7 replaces this exact selected source block; original review and target retained as historical evidence."
     },
     {
       "context": "Try the backdrop once more, if the application view is still alive.",
@@ -471,7 +478,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "WRAPS rather than replaces, so the original behaviour is unchanged even if the offer fails -- an error message must still appear when the thing that would report it is broken.",
       "source_sha256": "f71fe71bdb29537b0e769b0a1f2ff6c28880ad88084c22d80a077f6d8386f0aa",
-      "translation": "ENVELOPPE plutôt que remplacer, donc le comportement d'origine reste inchangé même si la proposition échoue -- un message d'erreur doit toujours apparaître quand ce qui le signalerait est cassé."
+      "translation": "ENVELOPPE plutôt que remplacer, donc le comportement d'origine reste inchangé même si la proposition échoue -- un message d'erreur doit toujours apparaître quand ce qui le signalerait est cassé.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Start the next missing half, or open the plate after the last.",
@@ -655,7 +664,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Whether a control is really there to be pressed.",
       "source_sha256": "e56b15bb5d6859666b2382a6a6491b09cdb3d4fb0a591060afe855b2bd200134",
-      "translation": "Indique si un contrôle est réellement là pour être pressé."
+      "translation": "Indique si un contrôle est réellement là pour être pressé.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Enabled, visible AND non-empty. A widget with a zero size is laid out but not yet given room, and counting it as usable reports an application view ready before anything can be clicked. A deleted control answers False rather than throwing.",
@@ -711,7 +722,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Add the item AND record it, so the canvas can clear its own drawings.",
       "source_sha256": "4619fb4a9b5f927874b28b64148a8a67efbb546cf70c1f26d6181826a131f7a4",
-      "translation": "Ajoute l'élément ET l'enregistre, afin que le canevas puisse effacer ses propres dessins."
+      "translation": "Ajoute l'élément ET l'enregistre, afin que le canevas puisse effacer ses propres dessins.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Set an axis label and remember it for the style round-trip.",
@@ -735,7 +748,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Tick labels for a split axis, in the ORIGINAL data's values.",
       "source_sha256": "9f4fb503687069c6149efa5a3860cc22100f25e1e1152f1cd8a13392d0c0fe53",
-      "translation": "Étiquettes de graduation pour un axe scindé, dans les valeurs des données D'ORIGINE."
+      "translation": "Étiquettes de graduation pour un axe scindé, dans les valeurs des données D'ORIGINE.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The axis is drawn on a compressed coordinate, so labelling it with the drawn position would put numbers on it that the data never had.",
@@ -783,7 +798,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Cached because a scatter asks for a brush PER POINT: building them fresh allocates one QBrush per point per repaint, which is the whole cost of drawing a large scatter.",
       "source_sha256": "ae4649de125eaceba7620e9f4daec2972164f8c7574ca1b8df25dbdc2811f922",
-      "translation": "Mis en cache parce qu'un nuage de points demande un pinceau PAR POINT : les créer à neuf alloue un QBrush par point à chaque repeinture, ce qui représente tout le coût du dessin d'un grand nuage de points."
+      "translation": "Mis en cache parce qu'un nuage de points demande un pinceau PAR POINT : les créer à neuf alloue un QBrush par point à chaque repeinture, ce qui représente tout le coût du dessin d'un grand nuage de points.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The label for one option: its friendly name, or \"automatic\" for None.",
@@ -807,7 +824,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "INJECTED so the menu can be exercised without a modal dialog, which is otherwise the only way to reach these entries in a test.",
       "source_sha256": "0bfcf0c7caa4c640ad34eac0412911e09b8d28bc084adcb82b8dc8e84beb5d33",
-      "translation": "INJECTÉ pour que le menu puisse être testé sans boîte de dialogue modale, qui est sinon le seul moyen d'atteindre ces entrées dans un test."
+      "translation": "INJECTÉ pour que le menu puisse être testé sans boîte de dialogue modale, qui est sinon le seul moyen d'atteindre ces entrées dans un test.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Forget the saved default, so new figures use the built-in one.",

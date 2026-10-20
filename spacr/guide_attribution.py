@@ -1,37 +1,32 @@
-"""A guide and a probability for every cell.
+"""Attribute a guide and a probability to every cell of a pooled screen.
 
-NOT `spacr.attribution`, which is the Grad-CAM and saliency library -- "what
-a trained classifier attends to". This is "which guide is in this cell", a
-different question with an unfortunately similar name.
+Distinct from `spacr.attribution`, the Grad-CAM and saliency library (what a
+trained classifier attends to). This module estimates which guide is in each
+cell.
 
-A pooled screen never observes which cell carried which guide: sequencing
-gives a FRACTION per well. But a guide with a measurable
-effect on the classification score leaves a trace in the scores themselves,
-and that is enough to attribute cells probabilistically.
+A pooled screen never observes which cell carried which guide: sequencing gives
+a fraction per well. A guide with a measurable effect on the classification
+score shifts the scores, which allows cells to be attributed probabilistically.
 
     prior       pi_g        the guide's read fraction in the well, normalised
     likelihood  f_g(s)      how likely this score is if the cell carries g
     posterior   r_ig    ∝   pi_g * f_g(s_i)
 
-AND THE CONSTRAINT THAT MAKES IT WORK:
+subject to the constraint:
 
     sum_i r_ig  =  N * pi_g       for every guide
 
-Without it, two guides pointing the same way both claim the same top cells --
-"if i have 2 grnas both in the same direction and want to attribute cells to
-both my arithmatic wont work well because both pick the top hits which would
-be wrong". With it, the total mass attributed to each guide is pinned to its
-read fraction, so they SPLIT the top cells in proportion instead. It is
-enforced by iterative proportional fitting, which is the same fixed point as
-fitting a mixture whose mixing proportions are known and fixed.
+Without it, two guides with effects in the same direction would both claim the
+same top-scoring cells. With it, the total mass attributed to each guide is
+pinned to its read fraction, so they split the top cells in proportion instead.
+It is enforced by iterative proportional fitting, which is the same fixed point
+as fitting a mixture whose mixing proportions are known and fixed.
 
-WHAT THIS IS NOT. It is not a genotype. Every name in this module says
-"attributed" for that reason: a reader who takes the answer for an observation
-has been misled by the column name alone.
+The result is an attribution, not a genotype; every name in this module says
+"attributed" for that reason.
 
-TWO GUIDES WITH THE SAME EFFECT ARE UNIDENTIFIABLE, and the method says so
-rather than inventing a split: their posteriors come back at exactly
-pi_1 : pi_2 for every cell, which is flat, ambiguous and correct.
+Two guides with the same effect cannot be distinguished: their posteriors come
+back at exactly pi_1 : pi_2 for every cell.
 """
 from __future__ import annotations
 
@@ -76,10 +71,8 @@ def normalise_fractions(fractions: Mapping[str, float]) -> Dict[str, float]:
     :param fractions: guide names mapped to their measured fraction in one
         well. Missing, non-finite, and non-positive values are discarded.
 
-    "first calculate what all the fractions in that well add up to if not 1
-    then normalize to 1". A well whose fractions sum to nothing usable comes
-    back empty rather than uniform: inventing a prior where there is no
-    sequencing is the one thing this must not do.
+    A well whose fractions sum to nothing usable comes back empty rather than
+    uniform, so no prior is invented without sequencing data.
     """
     usable = {str(g): float(v) for g, v in (fractions or {}).items()
               if v is not None and math.isfinite(float(v)) and float(v) > 0}
@@ -157,9 +150,9 @@ def posterior(scores: Sequence[float], priors: Mapping[str, float],
         zero shift.
 
     :returns: ``r`` with one row per cell and one column per guide, rows
-        summing to 1, and COLUMNS summing to ``n_cells * prior`` -- the
-        constraint that stops two same-direction guides both claiming the
-        same cells.
+        summing to 1, and columns summing to ``n_cells * prior`` -- the
+        constraint that stops two same-direction guides both claiming the same
+        cells.
 
     Iterative proportional fitting: scale the columns to the target masses,
     renormalise the rows to 1, repeat. Both operations are monotone in the
@@ -223,8 +216,8 @@ class Attribution:
     def called(self) -> bool:
         """Whether this cell was assigned a guide at all.
 
-        AMBIGUOUS IS NOT CALLED. A cell whose reads support two guides has no
-        single perturbation, and counting it as called would attribute a
+        :data:`AMBIGUOUS` is not a call. A cell whose reads support two guides
+        has no single perturbation, and counting it as called would attribute a
         phenotype to whichever guide happened to be listed first.
 
         :returns: True when unambiguously assigned.
@@ -252,13 +245,12 @@ def attribute_well(scores: Sequence[float], fractions: Mapping[str, float],
         usable positive fractions are normalised before attribution.
     :param effects: fitted score effect keyed by guide; a missing guide is
         treated as having zero effect.
-    :param threshold: "if it gets a grna above 0.55 then it gets annotated
-        with that gene and the probability score", and below it the cell is
-        tagged :data:`AMBIGUOUS` -- carrying the highest probability any guide
-        reached anyway, because that number is the useful part of a refusal.
-    :param seed: an exact tie is broken AT RANDOM, and the generator is
-        seeded: spaCR runs are reproducible, and a coin flip that landed
-        differently on a re-run would annotate the same screen two ways.
+    :param threshold: posterior probability the best guide must reach (0.55 by
+        default) for the cell to be annotated with it; below it the cell is
+        tagged :data:`AMBIGUOUS` and still carries the highest probability any
+        guide reached.
+    :param seed: an exact tie is broken at random by a generator seeded with
+        this value, so a re-run produces the same annotation.
     """
     priors = normalise_fractions(fractions)
     r, guides = posterior(scores, priors, effects, centre=centre, scale=scale,
@@ -289,7 +281,7 @@ def attributable(effect: float, scale: float, prior: float, *,
                  centre: float = 0.0,
                  likelihood: str = "lognormal",
                  grid: int = 513) -> Tuple[bool, float]:
-    """``(can_it, best_possible)`` -- can this guide ever be called?
+    """Return ``(can_it, best_possible)`` for one guide's posterior ceiling.
 
     Determine whether a guide can reach the assignment threshold within the
     supplied score range.
@@ -346,7 +338,7 @@ def attributable(effect: float, scale: float, prior: float, *,
 
 @dataclass(frozen=True)
 class Preflight:
-    """Whether a guide can produce a real assignment, BEFORE any is made.
+    """Whether a guide can be assigned at all, checked before assigning.
 
     :ivar guide: guide whose achievable posterior was evaluated.
     :ivar wells: number of wells containing a positive fraction of the guide.
@@ -389,13 +381,11 @@ class Preflight:
 def preflight(guide, fractions_by_well, effects, *, scale, centre=0.0,
               threshold=DEFAULT_THRESHOLD, likelihood="lognormal",
               span=4.0) -> Preflight:
-    """Can ``guide`` ever be called, and in how many of its wells?
+    """Report whether ``guide`` can be called, and in how many of its wells.
 
-    "WHICH GUIDES CAN BE ATTRIBUTED AT ALL, reported BEFORE anything is
-    assigned. A guide whose effect is small against the spread of scores can
-    never reach the threshold -- not with more cells, not with a better fit."
-    This is that report, and until it had a caller it was a library function
-    nobody saw.
+    Reported before anything is assigned. A guide whose effect is small against
+    the spread of scores can never reach the threshold, regardless of cell
+    count or fit quality.
 
     :param guide: the guide being asked about.
     :param fractions_by_well: ``{well: {guide: fraction}}`` -- every guide in
@@ -405,8 +395,8 @@ def preflight(guide, fractions_by_well, effects, *, scale, centre=0.0,
     :param scale: the spread of the scores, per plate.
     :returns: a :class:`Preflight`.
 
-    A guide is counted callable in a well when :func:`attributable` says so
-    THERE -- the answer differs between wells because the prior does, and a
+    A guide is counted callable in a well when :func:`attributable` says so in
+    that well -- the answer differs between wells because the prior does, and a
     guide at 0.6 of one well and 0.02 of another is not the same question.
     """
     name = str(guide)
@@ -476,10 +466,9 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
     :returns: an :class:`Assignment`. ``guides`` is one name per cell, in the
         order the scores came.
 
-    The counts are ``round(N * pi_g)`` adjusted to sum to N exactly -- a
-    rounding that left a cell unassigned would break the one rule that makes
-    this an assignment at all. The largest remainders take the slack, which is
-    the standard apportionment and is deterministic.
+    The counts are ``round(N * pi_g)`` adjusted to sum to N exactly, so every
+    cell is assigned. The largest remainders take the slack, which is the
+    standard apportionment and is deterministic.
     """
     from scipy.optimize import linear_sum_assignment
 
@@ -532,7 +521,7 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
 
 
 def effective_dimension(matrix: np.ndarray) -> float:
-    """How many INDEPENDENT measurements ``matrix``'s columns amount to.
+    """Return the effective number of independent columns in ``matrix``.
 
     The participation ratio of the correlation matrix's eigenvalues,
     ``(sum lambda)^2 / sum lambda^2`` -- 785 for 785 orthogonal columns, and
@@ -573,7 +562,7 @@ def posterior_multivariate(measurements: np.ndarray,
                            iterations: int = 200,
                            tolerance: float = 1e-9
                            ) -> Tuple[np.ndarray, Tuple[str, ...], Dict[str, float]]:
-    """:func:`posterior`, but reading EVERY measurement instead of one score.
+    """:func:`posterior`, but reading every measurement instead of one score.
 
     Option C. Each guide carries a vector of effects -- one per measurement --
     and a cell's evidence is the summed log-density across them, scaled by
@@ -584,8 +573,7 @@ def posterior_multivariate(measurements: np.ndarray,
     :param priors: normalised sequencing fraction keyed by guide. Its key
         order defines the columns in the returned posterior matrix.
     :param effects: ``{guide: [effect per measurement]}``, in the columns'
-        order. A guide with no entry is flat, which is the honest prior for
-        a guide nothing was fitted for.
+        order. A guide with no entry has zero effect in every measurement.
     :param correct_for_correlation: scale the evidence by
         ``effective_dimension / n_measurements``. Leave it on unless the
         columns really are independent; see the note above for why.

@@ -1,0 +1,15 @@
+{
+  "url": "https://einarolafsson.github.io/spacr/channels.json",
+  "time_utc": "2026-10-14T01:24:42Z",
+  "status": 200,
+  "bytes": 539,
+  "bounded_truncated": false,
+  "headers": {
+    "Content-Length": "539",
+    "Content-Type": "application/json; charset=utf-8",
+    "Last-Modified": "Mon, 12 Oct 2026 21:36:00 GMT",
+    "ETag": "\"6acd52c0-21b\"",
+    "Date": "Wed, 14 Oct 2026 01:24:42 GMT"
+  },
+  "sha256": "a77a099cfe1a80a61382350f264a38c8bf487946962fe32631e48ee67c9bb2dd"
+}

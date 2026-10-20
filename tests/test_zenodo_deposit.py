@@ -116,8 +116,8 @@ def test_a_run_is_deposited_with_its_metadata_and_files(tmp_path, caplog):
         dep["files"]["run_journal.zip"])
     assert b"<html" in dep["files"]["report.html"].lower()
     written = Path(record["stage"]) / "zenodo_deposit.json"
-    assert json.loads(written.read_text())["doi"] == "10.5072/zenodo.1"
-    assert TOKEN not in written.read_text()
+    assert json.loads(written.read_text(encoding="utf-8"))["doi"] == "10.5072/zenodo.1"
+    assert TOKEN not in written.read_text(encoding="utf-8")
     assert TOKEN not in caplog.text
     assert all(TOKEN not in r["path"] for r in fake.requests)
     assert {r["auth"] for r in fake.requests} == {f"Bearer {TOKEN}"}

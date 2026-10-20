@@ -7,10 +7,10 @@ measurements database. Importing any variant should give back exactly the
 wells, fields and channels the fields started as, and the manifest says what
 those are.
 
-WHAT IS PUBLISHED. :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it,
-under ``import_example/``:
+Published contents: :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside
+it, under ``import_example/``:
 
-* ``variants/<key>/plate1/`` -- the SAME twelve planes (wells E01 and E02,
+* ``variants/<key>/plate1/`` -- the same twelve planes (wells E01 and E02,
   fields 9 and 10, three channels, cropped from the toxo_mito plate) written
   once per variant: once per filename convention, once as Zeiss CZI, once as
   OME-TIFF and once as an ImageJ TIFF stack;
@@ -20,17 +20,17 @@ under ``import_example/``:
   in those masks, keyed by that variant's own file names, as a collaborator's
   table would be;
 * ``reference/measurements.db`` -- the same rows as spaCR wrote them;
-* ``variants/nikon_nd2`` and ``variants/leica_lif`` -- PUBLIC SAMPLE FILES,
-  because no open library writes ND2 or LIF. They are other people's images
+* ``variants/nikon_nd2`` and ``variants/leica_lif`` -- public sample files,
+  because no open library writes ND2 or LIF. They are third-party images
   under CC BY 4.0, with no masks, and they go through the Format Converter;
-* ``manifest.csv`` -- one row per image file stating the well, field,
-  channel, z and t it truly is. The LAST member of the archive, so a transfer
-  that died part-way leaves no manifest and reads as absent.
+* ``manifest.csv`` -- one row per image file stating its actual well, field,
+  channel, z and t. It is the last member of the archive, so an interrupted
+  transfer leaves no manifest and the set reads as absent.
 
-THE REGISTRY IS HERE AND NOT IN THE ARCHIVE. :data:`IMPORT_VARIANTS` is what
-the Import screen offers before anything is downloaded, and what
-``tools/build_import_example.py`` writes. One list for both is what keeps a
-button from naming a folder the archive does not have.
+The variant registry is defined in this module, not in the archive.
+:data:`IMPORT_VARIANTS` is what the Import screen offers before anything is
+downloaded, and what ``tools/build_import_example.py`` writes. Using one
+list for both keeps every button pointing at a folder the archive contains.
 
 This module imports nothing from Qt, so the round-trip test and the builder
 can use it headless.
@@ -274,8 +274,8 @@ def is_present(root, key: Optional[str] = None) -> bool:
     :param root: the unpacked ``import_example`` folder.
     :param key: one variant, or every variant when omitted.
     :returns: ``True`` only when the manifest exists and every file it lists
-        for the variant(s) is on disk. A half-unpacked set reads as absent,
-        which is the answer that gets it downloaded again.
+        for the variant(s) is on disk. A partly unpacked set reads as absent,
+        so it is downloaded again.
     """
     root = Path(root)
     rows = [row for row in manifest_rows(root)

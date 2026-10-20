@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="1.658" timestamp="2026-10-15T15:00:48.748053-04:00" hostname="olafsson"><testcase classname="tests.test_hf_e2e_stub_diameter_contract" name="test_stub_csv_explicitly_requests_native_scale[cell]" time="0.994"><failure message="AssertionError: assert None == 'auto'">tests/test_hf_e2e_stub_diameter_contract.py:17: in test_stub_csv_explicitly_requests_native_scale
+    assert settings[key] == "auto"
+E   AssertionError: assert None == 'auto'</failure></testcase><testcase classname="tests.test_hf_e2e_stub_diameter_contract" name="test_stub_csv_explicitly_requests_native_scale[nucleus]" time="0.004"><failure message="AssertionError: assert None == 'auto'">tests/test_hf_e2e_stub_diameter_contract.py:17: in test_stub_csv_explicitly_requests_native_scale
+    assert settings[key] == "auto"
+E   AssertionError: assert None == 'auto'</failure></testcase></testsuite></testsuites>

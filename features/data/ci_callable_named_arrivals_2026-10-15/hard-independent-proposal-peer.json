@@ -1,0 +1,20 @@
+{
+  "verdict": "ACCEPT",
+  "reviewer": "independent Codex technical source review; no human signoff",
+  "base": "4108d3f99dbe326837aa45a222a1b023609ca81b",
+  "source_sha256": "732a4af3f44887eb4e7771815167e52afc204656b1c65cd67e54d99f6cd1f5e8",
+  "proposed_sha256": "8683003b65259befc8e9f5879b4bcee06a4733b9319091a9b43a157050542dee",
+  "patch_sha256": "704acc55a160caa125008ddcde0d93020fea2d1fca543e2f13f260191eb5b8a8",
+  "changed_functions": [
+    "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "test_callable_boundary_is_cross_checked_with_i18n_extractor"
+  ],
+  "original_assertions_retained": 220,
+  "contract_prose_source_matches": 21,
+  "preservation": "Exactly two test bodies change. All 220 original assertion ASTs are present unchanged. Historical numerical constants, digests, category/negative predicates and signatures remain unchanged; only explicit contract lengths19/2 are added. Existing named contracts join three inverse-arrival sets with exact prose/count/disjointness and FigureQueue explicit signature/category checks.",
+  "limits": "Read-only AST/Git inspection only. No pytest, collector, source application or generated artifacts. Proposal acceptance does not claim test success.",
+  "contracts": {
+    "561_classifier_api_arrivals_2026-10-15.json": "253027dfb255290b7ac10d68f30ace488952b853e52dabc6fb43d7a638663a43",
+    "180_session_figure_api_arrivals_2026-10-15.json": "51f344b09e1a6f08a7fe11235e98c56d11ce92b9fcdec481baab58fb1adaf0c3"
+  }
+}

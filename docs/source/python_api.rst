@@ -15,9 +15,10 @@ Install spaCR
 Use the typed workflow configuration
 ------------------------------------
 
-The top-level API contains a small, stable interface for the principal
-workflows. Typed fields cover the choices most scripts make; ``extra`` accepts
-advanced settings while refusing a second value for an existing typed field.
+The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with
+``run_mask`` and ``run_measure``. Typed fields cover the commonly set options;
+``extra`` accepts any other setting and raises ``ValueError`` if it repeats a
+typed field.
 
 .. code-block:: python
 
@@ -96,8 +97,8 @@ Measure writes ``measurements/measurements.db`` and the resolved settings. If
 Run the same contract from a shell
 ----------------------------------
 
-The headless command is useful in a scheduler because it validates setting
-names and values before importing the heavy pipeline stack.
+The headless command suits a scheduler because it validates setting names and
+values before importing PyTorch, Cellpose and the other pipeline dependencies.
 
 .. code-block:: bash
 
@@ -127,8 +128,8 @@ Command-line overrides are applied after the file:
 
    spacr-run mask --settings mask_settings.csv --set test_mode=true
 
-Unknown settings and values that cannot be converted are refused with a
-suggestion. Use ``spacr-doctor`` when the problem is the environment rather
+Unknown settings and values that cannot be converted are refused; an unknown
+name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather
 than a setting.
 
 Continue from notebooks

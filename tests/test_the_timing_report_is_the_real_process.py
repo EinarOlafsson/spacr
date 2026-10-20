@@ -336,7 +336,7 @@ def test_the_json_snapshot_round_trips_through_a_file(timing, tmp_path):
     written = timing.write_json(str(target))
 
     assert written == str(target)
-    loaded = json.loads(target.read_text())
+    loaded = json.loads(target.read_text(encoding="utf-8"))
     assert isinstance(loaded, dict)
 
 
@@ -359,7 +359,7 @@ def test_the_text_report_goes_where_the_environment_says(timing, tmp_path,
     written = timing.write_report()
 
     assert written == str(target)
-    assert "spaCR timing report" in target.read_text()
+    assert "spaCR timing report" in target.read_text(encoding="utf-8")
 
 
 def test_an_explicit_path_beats_the_environment(timing, tmp_path, monkeypatch):

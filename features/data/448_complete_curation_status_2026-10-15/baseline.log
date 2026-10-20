@@ -1,0 +1,366 @@
+F...F.FF..FFF..F                                                         [100%]
+=================================== FAILURES ===================================
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[False-moved-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c3d7722a0>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_0')
+language = 'fr', state = 'moved', keep = False
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif d...following.tif' == 'judged.tif r...following.tif'
+E         
+E         - judged.tif rejeté — aucun élément n’a été supprimé  —  maintenant sur following.tif
+E         + judged.tif discarded — nothing was deleted  —  now on following.tif
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[False-last-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c2cf0f9e0>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_4')
+language = 'fr', state = 'last', keep = False
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif d...n this folder' == 'judged.tif r...de ce dossier'
+E         
+E         - judged.tif rejeté — aucun élément n’a été supprimé  —  c’était le dernier champ de ce dossier
+E         + judged.tif discarded — nothing was deleted  —  that was the last field in this folder
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[True-empty-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c2cfa09e0>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_6')
+language = 'fr', state = 'empty', keep = True
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif k...ns cette file' == 'judged.tif c...ns cette file'
+E         
+E         - judged.tif conservé  —  aucun champ non évalué ne reste dans cette file
+E         ?            ^^   -------                        ---------
+E         + judged.tif kept  —  il ne reste aucun champ non évalué dans cette file
+E         ?            ^^^^^^^^^^^^ ++++ +
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[True-other-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c2cfa3b60>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_7')
+language = 'fr', state = 'other', keep = True
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif kept' == 'judged.tif conservé'
+E         
+E         - judged.tif conservé
+E         + judged.tif kept
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[True-moved-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c40630800>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_10')
+language = 'fr', state = 'moved', keep = True
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif k...following.tif' == 'judged.tif c...following.tif'
+E         
+E         - judged.tif conservé  —  maintenant sur following.tif
+E         + judged.tif kept  —  now on following.tif
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[False-empty-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c5802c440>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_11')
+language = 'fr', state = 'empty', keep = False
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif d...ns cette file' == 'judged.tif r...ns cette file'
+E         
+E         - judged.tif rejeté — aucun élément n’a été supprimé  —  aucun champ non évalué ne reste dans cette file
+E         + judged.tif discarded — nothing was deleted  —  il ne reste aucun champ non évalué dans cette file
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[False-other-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c5802eff0>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_12')
+language = 'fr', state = 'other', keep = False
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif d...g was deleted' == 'judged.tif r... été supprimé'
+E         
+E         - judged.tif rejeté — aucun élément n’a été supprimé
+E         + judged.tif discarded — nothing was deleted
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+_ test_actual_verdict_status_is_complete_and_preserves_navigation[True-last-fr] _
+
+qapp = <PySide6.QtWidgets.QApplication(0x5acb967567f0) at 0x729c3eb2e980>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x729c5802ce30>
+tmp_path = PosixPath('/mnt/wd4tb/scratch/n702-cli-pins-20261014/pytest-of-olafsson/pytest-153/test_actual_verdict_status_is_15')
+language = 'fr', state = 'last', keep = True
+
+    @pytest.mark.parametrize('language', ['en', 'fr'])
+    @pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
+    @pytest.mark.parametrize('keep', [True, False])
+    def test_actual_verdict_status_is_complete_and_preserves_navigation(
+            qapp, monkeypatch, tmp_path, language, state, keep):
+        monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+        files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
+        originals = {}
+        for name in [*files, 'mask.tif', 'keep_discard.csv']:
+            path = tmp_path / name
+            path.write_bytes(('private fixture ' + name).encode())
+            originals[path] = path.read_bytes()
+        status = _StatusLabel()
+        calls = []
+        subject = SimpleNamespace(
+            _current_index=0, _folder=str(tmp_path), _image_files=files,
+            _hide_judged=state == 'empty', _status_label=status,
+            _blind_label=lambda path: Path(path).name, _visible_indices=lambda: [],
+            _sync_queue_tally=lambda: calls.append('tally'))
+    
+        def next_field():
+            calls.append('next')
+            if state == 'moved':
+                subject._current_index = 1
+    
+        subject._on_next = next_field
+        moved = MakeMasksScreen._advance_after_verdict(subject, keep, 'judged.tif')
+        expected = (TEMPLATES if language == 'en' else FRENCH)[state, keep].format(
+            judged='judged.tif', now='following.tif')
+    
+>       assert status.text() == expected
+E       AssertionError: assert 'judged.tif k...n this folder' == 'judged.tif c...de ce dossier'
+E         
+E         - judged.tif conservé  —  c’était le dernier champ de ce dossier
+E         + judged.tif kept  —  that was the last field in this folder
+
+tests/qt/test_n448_complete_curation_status.py:63: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[False-moved-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[False-last-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[True-empty-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[True-other-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[True-moved-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[False-empty-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[False-other-fr]
+FAILED tests/qt/test_n448_complete_curation_status.py::test_actual_verdict_status_is_complete_and_preserves_navigation[True-last-fr]
+8 failed, 8 passed in 3.35s

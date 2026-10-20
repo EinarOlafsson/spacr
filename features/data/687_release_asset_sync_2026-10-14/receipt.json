@@ -1,0 +1,48 @@
+{
+  "item": "N687 release synchronization, bounded repair",
+  "created_at": "2026-10-14T19:05:55.388101+00:00",
+  "repository": "EinarOlafsson/site-src",
+  "worktree": "/mnt/wd4tb/spacr-worktrees/codex-home-b-site-20261014",
+  "source_commit": "d9624b5b5adebfea242a5cffde6e659acacb32d2",
+  "parent_commit": "c6ae57b34edd5bbaa8a863eab92c52c3dbb8ffd3",
+  "files": {
+    ".github/workflows/deploy.yml": "fd95591f6d8edefa32f8a3733d12b605ef9ee2efadd4fc084bc3c047bc1985cb",
+    "tools/build.mjs": "6a2aba35e162b68d76fd3b61f9499da561fcf02932c3b805ed224feb9583dab9",
+    "tools/releases.mjs": "29f44eb21f587e7c5bdbe53857a3075a1ff75e51f311b41e164d7d8fb69d8008",
+    "tools/check_release.mjs": "406e15b800fe981f76d0e0d0ae8db0a5603fb26e387115454f1fe99187989dbc",
+    "tools/releases.test.mjs": "507545076a05f48ce778ee4787d8e0a1a4e18840157a5773e6077bbb548f5b77"
+  },
+  "validation": {
+    "node_tests": {
+      "passed": 11,
+      "failed": 0,
+      "log": "release-tests.log",
+      "includes": [
+        "actual hourly workflow same-tag late assets and unchanged release",
+        "actual build early rejection preserves previous output"
+      ]
+    },
+    "full_site_build": {
+      "exit_code": 0,
+      "memory_cap": "4G",
+      "generated_files": 123,
+      "protected_words_checked": 75,
+      "leak_self_test": "passed",
+      "log": "build.log",
+      "password": "disposable validation password, never deployed"
+    },
+    "i18n": {
+      "spacr": "508/508 keys in all nine locales",
+      "parascape": "163/163 keys in all nine locales",
+      "log": "i18n.log"
+    },
+    "rendered_installers": "Windows, macOS and Linux actual1.5.1.4 assets in English and nine translated pages",
+    "diff_check": "passed"
+  },
+  "publication": "private commit only; original Home owns deployment",
+  "remaining_acceptance": [
+    "deploy source commit through site-src main workflow",
+    "verify live manifest assetsFingerprint and unforced hourly check after deploy",
+    "idle-host mobile Lighthouse performance has not been rerun; no whole N686/N687 completion claim"
+  ]
+}

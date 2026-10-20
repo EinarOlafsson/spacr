@@ -810,17 +810,17 @@ def filesystem_type(path: os.PathLike | str) -> Optional[str]:
 
 
 def wal_is_safe_here(path: os.PathLike | str) -> bool:
-    """Is ``path`` on a filesystem where WAL is known to behave?
+    """Return whether ``path`` is on a filesystem where WAL is known to work.
 
-    ``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything
-    else -- a network type, an unrecognised type, or a platform where
-    :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS
-    and Windows always answer ``None``) -- is ``False``.
+    ``True`` only when the filesystem type is identified and listed in
+    ``WAL_SAFE_FILESYSTEMS``. Anything else -- a network type, an
+    unrecognised type, or a path whose type :func:`filesystem_type` cannot
+    determine (it returns ``None``) -- is ``False``.
 
-    That asymmetry is the point. The cost of a wrong ``False`` is the
-    lock contention this project already survives; the cost of a wrong
-    ``True`` is WAL shared memory on storage that cannot support it, which
-    is a corrupted database.
+    The default is ``False`` because the two errors differ in cost: a wrong
+    ``False`` leaves the rollback journal and its lock contention in place,
+    while a wrong ``True`` puts WAL shared memory on storage that cannot
+    support it, which can corrupt the database.
 
     :param path: the database file (or its directory) whose filesystem is
         looked up with :func:`filesystem_type`.
@@ -837,9 +837,9 @@ def wal_is_safe_here(path: os.PathLike | str) -> bool:
 def enable_wal_where_safe(path: os.PathLike | str) -> Optional[str]:
     """Put ``path`` into WAL when the filesystem allows it. Never raises.
 
-    WHY THIS EXISTS (issue #15, "measurements sometimes hangs"). Measure
+    This addresses issue #15 ("measurements sometimes hangs"). Measure
     runs one worker per field and every append goes through pandas'
-    ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ --
+    ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a read --
     before writing. So each worker alternates read, write, read, write
     against one file.
 
@@ -857,24 +857,24 @@ def enable_wal_where_safe(path: os.PathLike | str) -> Optional[str]:
         journal_mode=delete    writer waited 1.037 s
         journal_mode=wal       writer waited 0.002 s
 
-    WAL readers do not block a writer at all, which removes the starvation.
-    It does NOT make two WRITERS concurrent -- SQLite still serialises those
-    -- so this fixes the reader-blocks-writer half, which is the half the
-    traceback is in.
+    WAL readers do not block a writer, which removes the starvation. WAL
+    does not make two writers concurrent -- SQLite still serialises those --
+    so this fixes only readers blocking a writer, which is the case in the
+    traceback.
 
-    (The first version of this note had the direction backwards, claiming
-    reads were blocked by writes. The test written to prove it measured
-    0.000 s and refuted it: in rollback-journal mode a writer holding
-    RESERVED does not block readers, only its brief EXCLUSIVE commit does.)
+    The reverse direction is not a problem: in rollback-journal mode a writer
+    holding RESERVED does not block readers; only its brief EXCLUSIVE commit
+    does.
 
     Called once when a database is opened for a run rather than per write:
-    the mode is a property of the FILE and persists, so paying for it per
-    connection would buy nothing.
+    the journal mode is stored in the database file and persists, so setting
+    it per connection has no further effect.
 
     :param path: the database to switch. A file that does not exist yet is
         created by the connection, which is fine -- the mode persists.
-    :returns: the journal mode in force afterwards, or ``None`` when the
-        database could not be opened at all.
+    :returns: the journal mode in force afterwards, or ``None`` when
+        :func:`wal_is_safe_here` is ``False`` (nothing is changed) or the
+        database could not be opened or queried.
     """
     if not wal_is_safe_here(path):
         return None

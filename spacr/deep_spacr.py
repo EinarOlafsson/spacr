@@ -12,6 +12,7 @@ import pandas as pd
 from torch.optim import Adagrad, AdamW
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from PIL import Image
 from IPython.display import display
 from multiprocessing import cpu_count
@@ -139,9 +140,9 @@ GPU_ROOM_MB = 1024
 
 
 def resolve_mixed_precision(asked, device):
-    """(on, note). Whether to train in half precision on THIS machine.
+    """Decide whether to train with mixed precision on ``device``.
 
-    WHY IT IS WORTH HAVING. The forward pass and the loss run in float16
+    With mixed precision on, the forward pass and the loss run in float16
     while the weights and the optimiser stay in float32. Measured on an
     RTX 3090 over 30 training steps after 5 warm-up, at 224 px
     (`bench_amp.py` in the GPU queue folder reproduces it):
@@ -155,12 +156,13 @@ def resolve_mixed_precision(asked, device):
     vit_b_16, batch 32  2.46x    0.67x
     ==================  =======  =============
 
-    Half the memory is not a nicety on a screen: it is the difference
-    between a batch of 32 and a batch of 64 at the same crop size.
+    At the same crop size, the lower peak memory allows a batch of 64 where
+    full precision fits a batch of 32.
 
-    CUDA ONLY, AND SAID SO. `torch.autocast` accepts a CPU device type and
-    bfloat16, but on the CPUs spaCR runs on it is slower rather than
-    faster, so asking for it there is answered rather than obeyed.
+    Mixed precision is enabled only on CUDA. `torch.autocast` accepts a CPU
+    device type and bfloat16, but on the CPUs spaCR runs on it is slower, so
+    on any other device this returns ``False`` with a note saying the run
+    uses full precision.
 
     :param asked: what the `amp` setting says.
     :param device: the device training will actually run on.
@@ -182,10 +184,10 @@ def resolve_mixed_precision(asked, device):
 
 @contextlib.contextmanager
 def autocasting(on, device):
-    """Half precision for the block, or nothing at all.
+    """Run the enclosed block under :func:`torch.autocast` when ``on`` is true.
 
-    A context manager either way, so the training loop has ONE shape
-    rather than a branch around every forward pass.
+    A context manager is returned in both cases, so the training loop uses
+    the same ``with`` statement whether or not mixed precision is on.
 
     :param on: whether to autocast; falsy makes the block run unchanged.
     :param device: the :class:`torch.device` the block runs on; its ``type`` is
@@ -254,6 +256,33 @@ def _empty_device_cache() -> None:
     """Release accelerator caches without touching unavailable backends."""
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+
+
+def _classifier_model_input(settings, name):
+    """Resolve one named classifier input without rewriting its recorded request.
+
+    :param settings: original classifier settings, including any validated model pins.
+    :param name: actual input-field name, such as ``model_path`` or ``resume_checkpoint``.
+    :returns: verified pinned/acquired file path, or the unchanged optional/existing path.
+    :raises ModelZooError: no existing input or exact compatible zoo identity is available.
+    """
+    from .model_zoo import (
+        ModelZooError, _ensure_model_file, _model_resolution_context,
+        _resolve_pinned_model_file,
+    )
+
+    resolved = _resolve_pinned_model_file(settings, name, kinds=('classifier',))
+    if resolved is not None:
+        return str(resolved)
+    requested = settings.get(name)
+    if (not requested or (isinstance(requested, str) and not requested.strip())
+            or os.path.exists(requested)):
+        return requested
+    resolved = _ensure_model_file(requested, kinds=('classifier',), setting=name)
+    if resolved is None:
+        raise ModelZooError(_model_resolution_context(
+            requested, setting=name, kinds=('classifier',)))
+    return str(resolved)
 
 
 def _load_inference_model(model_path, device):
@@ -478,7 +507,7 @@ def apply_model_to_tar(settings=None):
     from .utils import process_vision_results, print_progress
 
     tar_path = settings['tar_path']
-    model_path = settings['model_path']
+    model_path = _classifier_model_input(settings, 'model_path')
 
     device, note = pick_device(what="inference")
     if note:
@@ -511,7 +540,7 @@ def apply_model_to_tar(settings=None):
         print(f"Loading model from {model_path}")
         print(f"Loading dataset from {tar_path}")
 
-    model, metadata = _load_inference_model(settings['model_path'], device)
+    model, metadata = _load_inference_model(_classifier_model_input(settings, 'model_path'), device)
 
     dataset = TarImageDataset(tar_path, transform=transform,
                               crop_loading_policy=checkpoint_policy(metadata, announce=True))
@@ -732,8 +761,9 @@ def class_labels(metrics, classes=None):
 def per_class_accuracy(metrics, classes=None):
     """``[(name, accuracy, support), …]`` for one epoch's metrics.
 
-    The single place that knows a binary head reports two classes and a
-    multiclass head reports C, so nothing downstream branches on head shape.
+    Binary and multiclass metrics are both read from their
+    ``per_class_accuracy`` and ``class_support`` lists, so callers do not
+    branch on head shape.
 
     :param metrics: one epoch's metrics dict.
     :param classes: optional class names in head order.
@@ -775,12 +805,11 @@ def attach_per_class_columns(metrics, classes=None):
 
 
 def format_per_class_accuracy(metrics, classes=None, prefix=''):
-    """One line naming every class and how it actually did.
+    """Return one line listing every class's accuracy and support.
 
-    A 96 % aggregate hiding a class at 40 % is the commonest way a
-    classifier looks finished and is not, and the aggregate is the only
-    number the epoch line used to print. The worst class is flagged
-    explicitly so it does not have to be spotted in a row of numbers.
+    An aggregate accuracy of 96 % can hide a class at 40 %. When two or more
+    classes have a finite accuracy and the lowest is at least 0.10 below the
+    highest, the line ends with a ``<- WORST`` marker naming that class.
 
     :param metrics: one epoch's metrics dict.
     :param classes: optional class names in head order.
@@ -1039,14 +1068,12 @@ CV_METRIC_KEYS = ('accuracy', 'loss', 'prauc', 'f1_macro',
                   'neg_accuracy', 'pos_accuracy')
 
 def cv_metric_keys(metrics) -> list:
-    """Which metric columns to carry across folds, for THIS class count.
+    """Return the metric names to summarise across folds.
 
-    :data:`CV_METRIC_KEYS` plus every ``acc_class_<name>`` the epoch
-    metrics carry -- named by :data:`PER_CLASS_ACC_PREFIX`, which is
-    already the one spelling of that prefix in this module. Two classes get
-    what they always got; three or more get their per-class accuracies as
-    well, which is the only part of the summary that says anything about
-    the classes.
+    The names in :data:`CV_METRIC_KEYS` that ``metrics`` contains, followed
+    by every name starting with :data:`PER_CLASS_ACC_PREFIX`
+    (``acc_class_<name>``), sorted. A run with three or more classes
+    therefore also gets one accuracy per class.
 
     :param metrics: a collection of metric names (a per-epoch metrics dict or a
         fold DataFrame's columns), tested with ``in`` and iterated for
@@ -1099,12 +1126,13 @@ def resolve_class_balance_loss(loss_type, class_balance, num_classes):
 def summarize_cv_metrics(fold_df, metric_keys=None):
     """Reduce per-fold metrics to mean plus the spread around it.
 
-    The spread is the whole point of k-fold: a single split can be lucky, and
-    only the fold-to-fold standard deviation and range say by how much.
+    The fold-to-fold standard deviation and range show how much each metric
+    depends on the particular split, which a single split cannot show.
 
     :param fold_df: DataFrame with one row per fold.
     :param metric_keys: metric columns to summarise. Defaults to
-        ``CV_METRIC_KEYS`` intersected with the columns present.
+        :func:`cv_metric_keys` of the columns present: the ``CV_METRIC_KEYS``
+        columns plus any per-class accuracy columns.
     :returns: DataFrame indexed by metric with ``n_folds``, ``mean``, ``std``,
         ``min``, ``max``, ``range`` and ``cv_percent`` columns.
     """
@@ -1185,7 +1213,7 @@ def _cross_validate_model(settings, num_classes):
             "resume_checkpoint cannot be shared across cross-validation folds; "
             "resume an individual fold directly or start a fresh k-fold run.")
 
-    crop_loading_policy = initialization_policy(settings.get('custom_model_path'))
+    crop_loading_policy = initialization_policy(_classifier_model_input(settings, 'custom_model_path'))
 
     fold_loaders, info = generate_cv_loaders(
         src,
@@ -1275,7 +1303,7 @@ def _cross_validate_model(settings, num_classes):
             tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get(
                 'early_stopping_patience', 0),
-            custom_model_path=settings.get('custom_model_path') or None,
+            custom_model_path=_classifier_model_input(settings, 'custom_model_path') or None,
             preprocessing={
                 'crop_loading_policy': crop_loading_policy,
                 'image_size': settings.get('image_size', 224),
@@ -1617,7 +1645,7 @@ def train_test_model(settings):
         :func:`spacr.io.generate_dataset` — build the ``train/``/``test/``
         folder tree.
     """
-    from .io import _copy_missclassified
+    from .io import _copy_misclassified
     from .utils import pick_best_model, save_settings
     from .io import generate_loaders, CLASS_BALANCE_MODES
     from .settings import get_train_test_model_settings
@@ -1719,7 +1747,8 @@ def train_test_model(settings):
 
     elif settings['train']:
         crop_loading_policy = initialization_policy(
-            settings.get('resume_checkpoint') or settings.get('custom_model_path'))
+            _classifier_model_input(settings, 'resume_checkpoint')
+            or _classifier_model_input(settings, 'custom_model_path'))
         train, val, _ = generate_loaders(
             src,
             mode='train',
@@ -1807,8 +1836,8 @@ def train_test_model(settings):
             plot=settings.get('plot', False),
             tensorboard=settings.get('tensorboard', True),
             early_stopping_patience=settings.get('early_stopping_patience', 0),
-            custom_model_path=settings.get('custom_model_path') or None,
-            resume_checkpoint=settings.get('resume_checkpoint') or None,
+            custom_model_path=_classifier_model_input(settings, 'custom_model_path') or None,
+            resume_checkpoint=_classifier_model_input(settings, 'resume_checkpoint') or None,
             preprocessing={
                 'crop_loading_policy': crop_loading_policy,
                 'image_size': settings.get('image_size', 224),
@@ -1874,7 +1903,7 @@ def train_test_model(settings):
 
         result.to_csv(result_loc, index=True, header=True, mode='w')
         accuracy.to_csv(acc_loc, index=True, header=True, mode='w')
-        _copy_missclassified(accuracy)
+        _copy_misclassified(accuracy)
 
     _empty_device_cache()
     gc.collect()
@@ -2019,7 +2048,7 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
     suffix = f' / {total_epochs}' if total_epochs else ''
     fig.suptitle(f'Training — epoch {last}{suffix}')
     plt.tight_layout()
-    plt.show(block=False)
+    _show_if_interactive(block=False)
     return fig
 
 
@@ -2093,12 +2122,11 @@ MODEL_CARD_ROLE = 'model-card'
 
 
 def held_out_report(y_true, probs, classes=None):
-    """Everything the card says about held-out performance, recomputable.
+    """Return held-out performance metrics and the confusion matrix behind them.
 
-    The card must not be the only place a number exists — a card that
-    reports 0.96 with nothing to check it against is a claim, not a record.
-    So this returns the confusion matrix alongside every derived figure, and
-    each figure is exactly the standard function of that matrix:
+    The confusion matrix is returned alongside every derived figure, so each
+    figure in the card can be checked against it. Each figure is the
+    standard function of that matrix:
     ``accuracy = trace / total`` and
     ``per_class_accuracy[c] = M[c, c] / M[c, :].sum()``. Recomputing them
     from ``confusion_matrix`` must reproduce them exactly, and the test suite
@@ -2209,20 +2237,20 @@ def build_model_card(model_path, *, settings=None, classes=None,
                      split_rule='', held_out=None, train_metrics=None,
                      dataset_src=None, class_balance=None, module='train',
                      epochs=None, history=None, extra=None):
-    """Assemble the record that travels with a checkpoint.
+    """Build the model-card dict that is written beside a checkpoint.
 
-    Answers, for a ``.pth`` somebody finds in six months: what was it trained
-    on, how was the held-out split drawn, how balanced were the classes, how
-    did it do *per class*, which spaCR wrote it, under which settings, when.
+    The card records the training data and its class balance, how the
+    held-out split was drawn, held-out and per-class performance, the spaCR
+    version, the material settings and their hash, and the creation time
+    (UTC).
 
     :param model_path: the checkpoint the card describes.
     :param settings: the run's settings; only the material ones are hashed
         and stored (:func:`spacr.artifacts.material_settings`).
     :param classes: class names in head order.
-    :param split_rule: how the held-out set was drawn, in words — the field
-        most often left implicit and most often the reason a number is wrong
-        ("random 20 % of objects" leaks across wells; "grouped by well" does
-        not).
+    :param split_rule: how the held-out set was drawn, in words ("random
+        20 % of objects" leaks across wells; "grouped by well" does not).
+        When empty, the card stores ``'not recorded'`` and adds a warning.
     :param held_out: a :func:`held_out_report` dict.
     :param train_metrics: the training-split metrics of the same epoch.
     :param dataset_src: dataset root, for the class balance on disk.
@@ -2285,7 +2313,7 @@ def build_model_card(model_path, *, settings=None, classes=None,
 
 
 def format_model_card(card):
-    """Render a card as Markdown — the version a human reads first.
+    """Return a model card as Markdown text.
 
     :param card: the model card dict, as built by :func:`build_model_card`;
         missing keys render as ``?`` or "not recorded".
@@ -2387,7 +2415,7 @@ def write_model_card(model_path, card, *, markdown=True):
     with open(json_path, 'w') as handle:
         _json.dump(json_safe(card), handle, indent=2, sort_keys=True)
     if markdown:
-        with open(stem + MODEL_CARD_MD_SUFFIX, 'w') as handle:
+        with open(stem + MODEL_CARD_MD_SUFFIX, 'w', encoding='utf-8') as handle:
             handle.write(format_model_card(card))
     return json_path
 
@@ -2411,12 +2439,11 @@ def register_model_card(model_path, card, *, project=None, registry=None,
                         inputs=(), run_id=''):
     """Register the checkpoint and its card in the artifact registry.
 
-    Registering the *weights* with the card as ``extra`` — rather than only
-    dropping a JSON file next to them — is what makes the provenance real:
-    the row carries the content fingerprint of the ``.pth``, the settings
-    hash, the spaCR version and the ids of the artifacts it was derived from,
-    so "is this model stale?" has an answer that a hand-written note cannot
-    give.
+    The *weights* are registered, with the card stored as ``extra``, so the
+    registry row carries the content fingerprint of the ``.pth``, the
+    settings hash, the spaCR version and the ids of the artifacts it was
+    derived from. Whether a model is stale can then be checked against the
+    registry rather than against a JSON file beside the weights.
 
     :param model_path: the checkpoint.
     :param card: a :func:`build_model_card` dict, stored as provenance.
@@ -2425,8 +2452,8 @@ def register_model_card(model_path, card, *, project=None, registry=None,
     :param inputs: upstream artifact ids or :class:`spacr.artifacts.Artifact`.
     :param run_id: the run this came out of.
     :returns: the stored :class:`spacr.artifacts.Artifact`, or ``None`` when
-        the registry could not be written (a card on disk is still worth
-        having, so this never raises the run down).
+        the registry could not be written. Any exception from opening the
+        registry or registering is caught and printed, not raised.
     """
     from . import artifacts as artifacts_module
     from .ports import MODEL_WEIGHTS
@@ -2568,8 +2595,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     :param settings: the run's settings dict, recorded (hashed) in the model card.
     :param split_rule: how the held-out set was drawn, in words, for the card.
     :param write_card: write ``<model>.card.json`` beside the weights and
-        register it as an artifact. On by default: an uncarded checkpoint is a
-        file nobody can audit six months later.
+        register it as an artifact. On by default, so each checkpoint has a
+        record of its training data, split and settings.
     :returns: ``(model, model_path)`` — the trained model and the best
         checkpoint, which on a resumed run where no epoch beat the restored
         best metric is ``resume_checkpoint`` itself, or ``(None, None)`` when
@@ -2578,8 +2605,9 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         class count differs from ``num_classes``, a ``resume_checkpoint``
         carrying no optimizer state, or a checkpoint that already completed
         ``epochs``.
-    :raises FileNotFoundError: if ``custom_model_path`` or
-        ``resume_checkpoint`` does not exist.
+    :raises spacr.model_zoo.ModelZooError: if ``custom_model_path`` or
+        ``resume_checkpoint`` names neither an existing checkpoint nor an
+        exact compatible model-zoo identity.
     """
 
     _flowview_advance("model")
@@ -2631,12 +2659,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     loaded_payload = None
     if initialization_path:
         if not os.path.isfile(initialization_path):
-            from .model_zoo import _ensure_model_file
+            from .model_zoo import ModelZooError, _ensure_model_file, _model_resolution_context
+            initialization_setting = 'resume_checkpoint' if resume_checkpoint else 'custom_model_path'
             downloaded = _ensure_model_file(
-                initialization_path, kinds=("classifier",))
+                initialization_path, kinds=("classifier",), setting=initialization_setting)
             if downloaded is None:
-                raise FileNotFoundError(
-                    f"Training checkpoint does not exist: {initialization_path}")
+                raise ModelZooError(_model_resolution_context(
+                    initialization_path, setting=initialization_setting, kinds=("classifier",)))
             initialization_path = str(downloaded)
         loaded_model, loaded_payload = load_model_artifact(
             initialization_path, map_location=device, model=model)
@@ -3049,6 +3078,7 @@ def generate_activation_map(settings):
         transforms.ToTensor(),
         transforms.CenterCrop(size=(settings['image_size'], settings['image_size'])),
     ]
+    stats = None
     if settings['normalize_input']:
         from .normalization import normalization_stats
         stats = normalization_stats(
@@ -3065,7 +3095,7 @@ def generate_activation_map(settings):
         print(f"Dataset not found at {settings['dataset']}")
         return
 
-    model, metadata = _load_inference_model(settings['model_path'], device)
+    model, metadata = _load_inference_model(_classifier_model_input(settings, 'model_path'), device)
     model.to(device)
     model.eval()
     applies, reason = cam_type_applicability(cam_type, model=model)
@@ -3196,14 +3226,35 @@ def generate_activation_map(settings):
         print_progress(files_processed, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=settings['batch_size'], operation_type="Generating Activation Maps")
 
     if cf_limit:
+        description = None
+        if metadata.get('classes'):
+            description = {
+                'schema': 1,
+                'channel_ids': ['stored_rgb_plane_0', 'stored_rgb_plane_1',
+                                'stored_rgb_plane_2'],
+                'class_labels': list(metadata['classes']),
+                'condition_key': str(settings.get('counterfactual_condition') or 'class').lower(),
+                'preprocessing': {
+                    'pipeline': 'activation_map_model_input_v1',
+                    'crop_loading_policy': dataset.crop_loading_policy,
+                    'center_crop': [settings['image_size'], settings['image_size']],
+                    'normalization': None if stats is None else {
+                        'mean': list(stats[0]), 'std': list(stats[1])},
+                    'selected_channels_1based': list(settings['channels']),
+                    'selection_semantics': 'zero_unselected_stored_rgb_planes',
+                    'classifier_preprocessing': metadata.get('preprocessing'),
+                },
+            }
         _run_counterfactuals(settings, model, cf_crops, cf_names,
-                             os.path.join(save_dir, 'counterfactuals'), device)
+                             os.path.join(save_dir, 'counterfactuals'), device,
+                             input_contract=description)
     _empty_device_cache()
     gc.collect()
     print("Activation map generation complete.")
 
 
-def _run_counterfactuals(settings, model, crops, names, out_dir, device):
+def _run_counterfactuals(settings, model, crops, names, out_dir, device, *,
+                         input_contract=None):
     """Train the counterfactual generator on collected crops and write its report.
 
     The crops are split into a training and a held-out part; the held-out
@@ -3222,12 +3273,16 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
 
     :param settings: the activation-map settings (``counterfactual_epochs``,
         ``counterfactual_condition``, ``counterfactual_target``,
-        ``counterfactual_generator``).
+        ``counterfactual_generator``, ``counterfactual_strength`` and
+        ``counterfactual_structure_weight``). The latter two apply only to
+        diffusion; a zero strength is retained as an identity setting.
     :param model: the loaded classifier, in eval mode.
     :param crops: list of ``(B, C, H, W)`` tensors in model input space.
     :param names: one file name per crop.
     :param out_dir: folder for the tables and the figure.
-    :param device: torch device for training.
+    :param device: torch device for training or checkpoint reuse.
+    :param input_contract: actual preprocessing and ordered channel/class
+        metadata; required for verified explicit checkpoint reuse.
     :returns: the summary dict, or ``None`` when too few crops were collected.
     """
     from .attribution import _cf_condition_of, _counterfactual_report
@@ -3240,12 +3295,22 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
     conditions = (None if key == 'class' else
                   [_cf_condition_of(name, key) for name in names])
     try:
+        kind = settings.get('counterfactual_generator') or 'autoencoder'
+        options = {}
+        if str(kind).strip().lower() == 'diffusion':
+            options = {
+                'strength': settings.get('counterfactual_strength', .95),
+                'structure_weight': settings.get('counterfactual_structure_weight', 0),
+            }
         summary, _rows, _frames = _counterfactual_report(
             model, batch, names=names,
             epochs=int(settings.get('counterfactual_epochs') or 30),
             device=device, out_dir=out_dir, conditions=conditions,
             target=settings.get('counterfactual_target') or None,
-            generator=settings.get('counterfactual_generator') or 'autoencoder')
+            generator=kind, generator_options=options,
+            checkpoint=settings.get('counterfactual_checkpoint') or None,
+            checkpoint_sha256=settings.get('counterfactual_checkpoint_sha256') or None,
+            input_contract=input_contract)
     except ValueError as exc:
         print(f"Counterfactuals skipped: {exc}")
         return None
@@ -3402,7 +3467,7 @@ def visualize_classes(model, dtype, class_names, **kwargs):
         plt.imshow(visualization)
         plt.title(f"Class {class_names[target_y]} Visualization")
         plt.axis('off')
-        plt.show()
+        _show_if_interactive()
 
 def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_size=224, channels=None, normalize=True, save_integrated_grads=False, save_dir='integrated_grads'):
     """Compute and plot Integrated Gradients maps for every PNG under ``src``.
@@ -3467,7 +3532,7 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
             ax[2].imshow(overlay)
             ax[2].axis('off')
             ax[2].set_title("Overlay")
-            plt.show()
+            _show_if_interactive()
 
             if save_integrated_grads:
                 os.makedirs(save_dir, exist_ok=True)
@@ -3573,7 +3638,7 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
             ax[2].imshow(overlay)
             ax[2].axis('off')
             ax[2].set_title("Overlay")
-            plt.show()
+            _show_if_interactive()
 
             if save_smooth_grad:
                 os.makedirs(save_dir, exist_ok=True)
@@ -3672,15 +3737,13 @@ def merge_predictions_into_db(df, db_path, table='png_list', pred_col='pred',
                                class_col='cv_predictions'):
     """Write per-image prediction scores back into a spacr SQLite database.
 
-    Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, which is
-    the one merge path Classify (CV) and Classify (ML) share. It used to be
-    implemented here, keyed on ``basename(png_path)``, and collapsed repeated
-    basenames with a plain ``dict`` assignment -- so a run over two source
-    folders whose plates were both called ``plate1`` scored one plate with the
-    other one's predictions and said nothing. The replacement keys on
-    ``prcfo``, refuses a key that arrives with two different values instead of
-    letting the last one win, counts every row it could not place, and runs in
-    one transaction. See :mod:`spacr.predictions`.
+    Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, the
+    merge path Classify (CV) and Classify (ML) share. The join key is chosen
+    from ``prcfo``, ``png_path`` and ``file_name``, whichever matches the most
+    rows, with ties going to ``prcfo``; a computed basename is not used. A key
+    that arrives with two different values is written nowhere and counted,
+    rows that cannot be placed are counted, and the merge runs in one
+    transaction. See :mod:`spacr.predictions`.
 
     :param df: DataFrame with columns ``path``, ``pred`` and
         ``cv_predictions``.
@@ -3807,6 +3870,11 @@ def deep_spacr(settings=None):
         print("Training model ...")
         training_result = train_test_model(settings)
         if settings.get('train'):
+            if 'model_metadata' in settings:
+                from .model_zoo import _invalidate_model_metadata
+
+                settings['model_metadata'] = _invalidate_model_metadata(
+                    settings, ['model_path'])['model_metadata']
             cv_best = settings.get('cv_best_model_path')
             if cv_best:
                 settings['cv_results_path'] = training_result
@@ -3831,7 +3899,7 @@ def deep_spacr(settings=None):
 
     if settings.get('apply_model_to_dataset'):
 
-        model_path = settings.get('model_path')
+        model_path = _classifier_model_input(settings, 'model_path')
         if model_path and os.path.exists(model_path):
             _flowview_advance("evaluation")
             df = apply_model_to_tar(settings)

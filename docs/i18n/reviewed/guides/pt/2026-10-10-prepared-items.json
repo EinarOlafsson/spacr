@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "source_commit": "",
+  "method": "Claude Opus 5.5 AI technical translation of the N649/N656/N672/N673/N680 user-guide paragraphs; runtime glossary alignment, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo.",
+      "source_sha256": "077470804c448faf65cbd5ed51394f860f6d9204076ec5e8fecb435e8902e27a",
+      "target": "O menu **Editar** tem **Desfazer** e **Refazer** para o editor na tela. Eles atuam primeiro sobre um campo de texto em foco e, caso contrário, sobre o histórico próprio da tela, e ficam esmaecidos quando não há nada para desfazer ou refazer."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask.",
+      "source_sha256": "4524949580ab17c8d1a64bc0dc9b4f3fe227a4d5935958d5eaefa9726846504a",
+      "target": "**Salvar ao navegar**, logo após **Próxima imagem**, salva uma máscara editada antes que **Manter**, **Descartar**, **Próxima imagem** ou **Imagem anterior** avance. A opção fica desativada por padrão e é lembrada entre sessões. Se o salvamento falhar, a imagem permanece aberta e nenhum veredito é registrado. **Ignorar** nunca grava uma máscara."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged.",
+      "source_sha256": "cb4470d40e1764921ea8a3bfe13fb389df68aa6b671414c61308ae907d567d50",
+      "target": "**Abrir imagem 3D…** abre um TIFF com três eixos espaciais no editor de máscaras 3D; pilhas de tempo, de canal e RGB são recusadas. Gire a vista, desenhe um objeto e depois arraste suas âncoras, ou selecione superfícies (Ctrl-click para várias) e arraste-as ou gire a roda do mouse. **Densidade de âncoras** define quantas âncoras cada aresta e cada superfície recebem, e **Mostrar âncoras** permite ocultá-las. As edições alteram os próprios voxels da máscara, mantêm a ordem dos eixos e o espaçamento de voxel da imagem e nunca sobrescrevem outro objeto. **Salvar máscara 3D** grava os rótulos e seu contorno editável; a imagem e a máscara 2D permanecem inalteradas."
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key.",
+      "source_sha256": "8bf4d2be4a40dedfe4a84839bb9a13f867aff18aaf88de235f17c608853297c7",
+      "target": "Para alterar uma tecla, escolha **Alterar atalhos…** na folha de referência. A janela **Alterar atalhos** tem uma linha por ação, com sua tecla **Padrão** e o **Atalho** em uso. Clique em um atalho e pressione a nova tecla, ou limpe-o para deixar a ação sem tecla. **Restaurar padrões** restaura a tecla padrão de todas as linhas."
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "If a key is already used by another action that is active at the same time, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows.",
+      "source_sha256": "a1d529819091548f6df5fa73b71be396fdc2826d4aa84a3a64b6cde165c7b0e5",
+      "target": "Se uma tecla já é usada por outra ação que está ativa ao mesmo tempo, a linha abaixo da tabela indica as ações que a compartilham, e **Salvar** fica indisponível até que o conflito seja resolvido. As teclas salvas valem imediatamente, também para os itens de menu correspondentes, e a folha de referência as mostra. Elas são guardadas com suas preferências e lidas da mesma forma no Linux, no macOS e no Windows."
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "Keys that belong to one screen, such as Annotate's labelling keys, the Make Masks editing keys and the field browser's keys, have their own rows, with the screen named in the **Scope** column. A screen key may match a key of another screen, but not a window-wide key or another key on the same screen. Changed screen keys apply at once to screens that are open and to screens opened later, and the screen's key legend shows them.",
+      "source_sha256": "feb905403228e3bfa138101b001a37be98ebb035243a4fd61fdfce88f26d8cc9",
+      "target": "As teclas que pertencem a uma tela, como as teclas de rotulagem do Annotate, as teclas de edição do Make Masks e as teclas do navegador de campos, têm suas próprias linhas, com a tela indicada na coluna **Âmbito**. Uma tecla de tela pode coincidir com uma tecla de outra tela, mas não com uma tecla da janela inteira nem com outra tecla da mesma tela. As teclas de tela alteradas valem imediatamente para as telas abertas e para as telas abertas depois, e a legenda de teclas da tela as mostra."
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits.",
+      "source_sha256": "ef20d1ba9299391fec30b0d48f2355a04457b160abaefe87eea7f586839d5aee",
+      "target": "Escolha **Editar** ao lado de **Girar** e **Desenhar** para alterar a forma de um gate 3D desenhado. Cada aresta e cada superfície têm âncoras espaçadas uniformemente, inclusive ao longo do eixo de profundidade. Arraste uma âncora, ou clique em uma superfície (Ctrl-click para várias) e arraste ou gire a roda do mouse para mover juntas as superfícies selecionadas. A lista de eixos ao lado de **Editar** limita o movimento a X, Y, Z ou ao plano da vista. **Densidade de âncoras** e **Mostrar âncoras dos gates**, nas configurações de gate, definem quantas âncoras aparecem e se são exibidas; nenhum dos dois altera o gate. Um gate curvo se torna um contorno linear por partes na primeira edição, e as contagens e exportações usam esse contorno editado. Os gates editados são salvos e carregados com o arquivo de gates, e **Desfazer** e **Refazer** percorrem as edições passo a passo."
+    }
+  ]
+}

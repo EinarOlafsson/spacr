@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Parcourez tous les modules actuels de Home de gauche à droite, puis découvrez les commandes communes avec Mask et réglez la navigation, l’aide et l’apparence.",
+      "description": "Explorez la vue d’ensemble de Home et les onglets de catégories, puis découvrez les commandes communes aux modules avec Mask et ajustez la navigation, l’aide et l’apparence.",
       "objectives": [
-        "Identifier chaque module des lignes actuelles Core, Data, Tools et Organism.",
+        "Trouvez les modules à l’aide des onglets Home, Core, Data, Tools et Organism.",
         "Utiliser Mask pour reconnaître les réglages, aperçus, actions et résultats communs.",
         "Revenir à Home, utiliser la recherche et organiser les panneaux.",
         "Choisir les réglages d’apparence et de performances."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data, Tools et Organism. Chaque tuile ouvre son module. La barre latérale propose les mêmes accès et Home revient à cette vue.",
+          "narration": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble.",
           "hold_after": 0.7,
-          "speech_text": "Home est le point de départ. Lisez chaque rangée de gauche à droite : Core, Data, Tools et Organism. Chaque tuile ouvre son module. La barre latérale propose les mêmes accès et Home revient à cette vue."
+          "speech_text": "Home est le point de départ. Sa vue d’ensemble regroupe les modules sous Core, Data, Tools et Organism. Les onglets de catégories limitent la vue. Chaque tuile ouvre le module dont elle porte le nom. La barre latérale propose les mêmes accès et Home ramène à la vue d’ensemble."
         },
         {
           "visual": "home_module_mask",
@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify apprend à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images ou de données tabulaires.",
+          "narration": "Classify entraîne un modèle à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images recadrées ou de caractéristiques mesurées.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify apprend à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images ou de données tabulaires."
+          "speech_text": "Classify entraîne un modèle à partir d’étiquettes vérifiées et attribue des scores à d’autres objets, à partir d’images recadrées ou de caractéristiques mesurées."
         },
         {
           "visual": "home_module_map_barcodes",
@@ -649,18 +649,6 @@
           "speech_text": "Import prépare les fichiers de microscopie et leurs métadonnées pour la structure du projet."
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings transforme les recadrages d’objets en caractéristiques numériques pour l’exploration et la comparaison.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings transforme les recadrages d’objets en caractéristiques numériques pour l’exploration et la comparaison."
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare rassemble les résultats de traitements enregistrés afin d’en examiner les différences.",
           "hold_after": 0.7,
@@ -673,18 +661,6 @@
           "speech_text": "Run Compare rassemble les résultats de traitements enregistrés afin d’en examiner les différences."
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design répartit les conditions, les puits et les identités d’échantillons avant une expérience.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design répartit les conditions, les puits et les identités d’échantillons avant une expérience."
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design explore les hypothèses de taille d’échantillon et de puissance pour planifier les comparaisons.",
           "hold_after": 0.7,
@@ -695,30 +671,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design explore les hypothèses de taille d’échantillon et de puissance pour planifier les comparaisons."
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response ajuste les réponses selon les concentrations, en gardant explicites la variable de réponse et les contrôles choisis.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response ajuste les réponses selon les concentrations, en gardant explicites la variable de réponse et les contrôles choisis."
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC rassemble les contrôles qualité et distingue les éléments disponibles de ceux qui manquent.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC rassemble les contrôles qualité et distingue les éléments disponibles de ceux qui manquent."
         },
         {
           "visual": "home_module_make_masks",
@@ -755,18 +707,6 @@
             "15_image_umap"
           ],
           "speech_text": "Image you map projette les caractéristiques d’objets pour explorer les objets similaires et inspecter des recadrages représentatifs."
-        },
-        {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor définit des sélections sur des colonnes de données réelles. Vérifiez les objets sélectionnés avant de transformer une sélection en étiquettes.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "guéïte éditeur définit des sélections sur des colonnes de données réelles. Vérifiez les objets sélectionnés avant de transformer une sélection en étiquettes."
         },
         {
           "visual": "home_module_graph_builder",
@@ -902,7 +842,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs, et Popup wave frequency lance des vagues depuis les fenêtres ouvertes dans spaCR field. Field ripples contrôle les vagues produites par les clics, l’ouverture ou la fermeture de conteneurs et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris. Le désactiver arrête aussi les vagues automatiques des fenêtres ouvertes. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire.",
+          "narration": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs. Field ripples règle l’intensité des vagues produites par les clics, l’ouverture ou la fermeture de conteneurs, les fenêtres ouvertes et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris ; zéro désactive les vagues, y compris les vagues automatiques des fenêtres ouvertes. Click ripples détermine si un clic sur le fond envoie une vague. Popup wave frequency règle le nombre de vagues par minute qui se propagent depuis une fenêtre ouverte dans spaCR field. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +850,7 @@
             1200,
             1500
           ],
-          "speech_text": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs, et Popup wave frequency lance des vagues depuis les fenêtres ouvertes dans spakeur field. Field ripples contrôle les vagues produites par les clics, l’ouverture ou la fermeture de conteneurs et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris. Le désactiver arrête aussi les vagues automatiques des fenêtres ouvertes. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire."
+          "speech_text": "Cliquez sur Animation pour choisir le fond principal et sa palette. Animation colours définit les couleurs principale et d’accent pour Custom colours ; Animation background choisit un fond indépendant, et Theme colour rétablit le thème de la page. Detail contrôle la résolution du rendu. Speed, Size et Density modifient le mouvement et le nombre d’éléments. Mouse gravity radius définit la zone d’influence de la souris ; zéro la désactive. Dot blinking contrôle les éclats blancs. Field ripples règle l’intensité des vagues produites par les clics, l’ouverture ou la fermeture de conteneurs, les fenêtres ouvertes et l’alignement de la fenêtre sur un bord, indépendamment de l’attraction de la souris ; zéro désactive les vagues, y compris les vagues automatiques des fenêtres ouvertes. Click ripples détermine si un clic sur le fond envoie une vague. Popup wave frequency règle le nombre de vagues par minute qui se propagent depuis une fenêtre ouverte dans spakeur field. Settings animation speed, Settings animation size, Settings animation detail et Settings animation density modifient uniquement Settings backdrop. Settings backdrop darkness règle la lisibilité du formulaire."
         },
         {
           "visual": "13h_preferences_apply",
@@ -959,12 +899,6 @@
             1500
           ],
           "speech_text": "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "En mode Spaceout, Preferences propose les commandes spaCR field pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les réglages habituels d’apparence et d’animation du panneau de réglages restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent.",
-          "hold_after": 0.7,
-          "speech_text": "En mode Spaceout, Preferences propose les commandes spakeur field pour huit effets indépendants. Activez ou désactivez chaque effet séparément. Les réglages habituels d’apparence et d’animation du panneau de réglages restent disponibles ; Apply prévisualise une modification, Keep l’accepte et Revert rétablit le choix précédent."
         }
       ],
       "narration_voices": {
@@ -1061,13 +995,12 @@
             650
           ],
           "narration": "Activez l’environnement Python dans lequel vous avez installé spaCR. Importez spacr et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution.",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "Activez l’environnement Python dans lequel vous avez installé spakeur. Importez spakeur et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution."
+          "speech_text": "Activez l’environnement Python dans lequel vous avez installé spakeur. Importez spakeur et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution.",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1090,12 +1023,12 @@
             900
           ],
           "narration": "Lancez spacr-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spacr.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés.",
+          "hold_after": 0.7,
+          "speech_text": "Lancez spakeur-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spakeur.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Lancez spakeur-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spakeur.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés."
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1130,12 +1063,12 @@
             900
           ],
           "narration": "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console.",
+          "hold_after": 0.7,
+          "speech_text": "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console."
+          ]
         }
       ],
       "narration_voices": {
@@ -1289,7 +1222,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1715,7 +1671,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans quatre puits, puis Next les enregistre.",
+          "narration": "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans trois puits, puis Next les enregistre.",
           "focus": [
             360,
             380,
@@ -1724,11 +1680,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans quatre puits, puis Next les enregistre."
+          "speech_text": "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans trois puits, puis Next les enregistre."
         },
         {
           "visual": "20_suggestions",
-          "narration": "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis chaque découpe de la page porte un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger.",
+          "narration": "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis les découpes non étiquetées de la page portent un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger.",
           "focus": [
             350,
             250,
@@ -1736,11 +1692,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis chaque découpe de la page porte un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger."
+          "speech_text": "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis les découpes non étiquetées de la page portent un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger."
         },
         {
           "visual": "21_judged",
-          "narration": "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses sont enregistrées, les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié.",
+          "narration": "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses restent en attente jusqu’à leur enregistrement par Next ; les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié.",
           "focus": [
             350,
             250,
@@ -1748,7 +1704,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses sont enregistrées, les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié."
+          "speech_text": "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses restent en attente jusqu’à leur enregistrement par Next ; les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié."
         },
         {
           "visual": "17_generate_database_entry",
@@ -1775,7 +1731,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2179,7 +2158,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2560,12 +2562,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear masks, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les masques de l’image actuelle.",
+          "narration": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear all objects, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les objets de l’image actuelle.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear masks, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les masques de l’image actuelle."
+          "speech_text": "Depuis Home, ouvrez Make Masks dans Tools. Les boutons en bas à gauche chargent les images : Open folder, Organize for Measure et Load test data. À droite, Discard, Keep, Skip et Upload data décident du sort de chaque champ une fois modifié. Clear all objects, immédiatement à gauche de Discard, demande confirmation avant de supprimer tous les objets de l’image actuelle."
         },
         {
           "visual": "01b_test_data_menu",
@@ -3155,9 +3157,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Choisissez UMAP comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées. Vous pouvez explorer PCA avec son outil associé si vous voulez une projection linéaire et les contributions des caractéristiques.",
+          "narration": "Choisissez UMAP comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées.",
           "hold_after": 0.7,
-          "speech_text": "Choisissez you map comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées. Vous pouvez explorer PCA avec son outil associé si vous voulez une projection linéaire et les contributions des caractéristiques."
+          "speech_text": "Choisissez you map comme méthode de réduction. Chaque point représentera un objet par deux coordonnées tracées."
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3214,20 +3216,38 @@
           "speech_text": "Cliquez sur un autre point pour comparer sa vignette. La barre latérale permet aussi d’étiqueter une sélection et de propager les étiquettes de groupe. Ces commandes enregistrent des annotations : choisissez donc l’étiquette et la sélection voulues avant de les appliquer."
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Ouvrez Image Scatter depuis l’en-tête d’Image UMAP pour comparer directement des caractéristiques choisies, ou ouvrez PCA pour une projection linéaire. Poursuivez avec les tutoriels associés pour leurs paramètres d’entrée et leurs sorties enregistrées.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Examinez la représentation obtenue et comparez les recadrages des objets sélectionnés. Conservez ensemble les mesures d’entrée, les paramètres choisis et les résultats enregistrés pour retrouver la source de chaque point.",
           "hold_after": 0.7,
-          "speech_text": "Ouvrez Image Scatter depuis l’en-tête d’Image you map pour comparer directement des caractéristiques choisies, ou ouvrez PCA pour une projection linéaire. Poursuivez avec les tutoriels associés pour leurs paramètres d’entrée et leurs sorties enregistrées."
+          "speech_text": "Examinez la représentation obtenue et comparez les recadrages des objets sélectionnés. Conservez ensemble les mesures d’entrée, les paramètres choisis et les résultats enregistrés pour retrouver la source de chaque point."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4031,7 +4051,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Ouvrez le sous-dossier masks dans Source. Chaque image a un TIFF de masque portant le même nom de base. Examinez les figures à côté des images d’origine, en prêtant attention aux objets manqués et aux cellules fusionnées. Le panneau des flux montre les directions utilisées par le modèle pour segmenter.",
+          "narration": "Le sous-dossier masks dans Source contient, pour chaque image, un TIFF de masque portant le même nom de base. Examinez les figures à côté des images d’origine, en prêtant attention aux objets manqués et aux cellules fusionnées. Le panneau des flux montre les directions utilisées par le modèle pour segmenter.",
           "focus": [
             1000,
             450,
@@ -4039,17 +4059,17 @@
             640
           ],
           "hold_after": 0.7,
-          "speech_text": "Ouvrez le sous-dossier masks dans Source. Chaque image a un TIFF de masque portant le même nom de base. Examinez les figures à côté des images d’origine, en prêtant attention aux objets manqués et aux cellules fusionnées. Le panneau des flux montre les directions utilisées par le modèle pour segmenter."
+          "speech_text": "Le sous-dossier masks dans Source contient, pour chaque image, un TIFF de masque portant le même nom de base. Examinez les figures à côté des images d’origine, en prêtant attention aux objets manqués et aux cellules fusionnées. Le panneau des flux montre les directions utilisées par le modèle pour segmenter."
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Activez Live preview et choisissez une image avec le sélecteur d’images. Ouvrez Live settings et vérifiez les réglages de canal et de normalisation. Réduisez Console et System pour donner plus de place à l’aperçu si nécessaire.",
+          "narration": "Réduisez les autres cartes de résultats pour donner plus de place à l’aperçu. Activez Live preview et choisissez une image avec le sélecteur d’images. Parcourez le dossier jusqu’à l’image d’exemple fournie.",
           "hold_after": 0.7,
-          "speech_text": "Activez Live preview et choisissez une image avec le sélecteur d’images. Ouvrez Live settings et vérifiez les réglages de canal et de normalisation. Réduisez Console et System pour donner plus de place à l’aperçu si nécessaire."
+          "speech_text": "Réduisez les autres cartes de résultats pour donner plus de place à l’aperçu. Activez Live preview et choisissez une image avec le sélecteur d’images. Parcourez le dossier jusqu’à l’image d’exemple fournie."
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Comparez l’aperçu avec le masque enregistré du lot. Dans cet exemple, l’aperçu et Apply suivent des chemins de traitement différents ; ils peuvent donc produire des contours et des effectifs différents. Examinez les TIFF enregistrés pour décider si les sorties du lot conviennent à la mesure.",
+          "narration": "Vérifiez le canal et la normalisation dans Live settings, puis lancez l’aperçu. L’aperçu et Apply traitent ces images différemment ; les contours et les effectifs peuvent donc différer. Examinez les TIFF enregistrés pour décider si les sorties du lot conviennent à la mesure.",
           "focus": [
             1000,
             1160,
@@ -4057,11 +4077,11 @@
             610
           ],
           "hold_after": 0.7,
-          "speech_text": "Comparez l’aperçu avec le masque enregistré du lot. Dans cet exemple, l’aperçu et Apply suivent des chemins de traitement différents ; ils peuvent donc produire des contours et des effectifs différents. Examinez les TIFF enregistrés pour décider si les sorties du lot conviennent à la mesure."
+          "speech_text": "Vérifiez le canal et la normalisation dans Live settings, puis lancez l’aperçu. L’aperçu et Apply traitent ces images différemment ; les contours et les effectifs peuvent donc différer. Examinez les TIFF enregistrés pour décider si les sorties du lot conviennent à la mesure."
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Utilisez la molette de la souris pour agrandir une zone sur les deux zones d’aperçu. Examinez les objets qui se touchent et les contours peu visibles, puis dézoomez pour vérifier le champ entier.",
+          "narration": "Utilisez la molette de la souris pour agrandir une zone sur les deux zones d’aperçu. Examinez les objets qui se touchent et les contours peu visibles dans la vue agrandie.",
           "focus": [
             1010,
             1280,
@@ -4069,7 +4089,7 @@
             455
           ],
           "hold_after": 0.7,
-          "speech_text": "Utilisez la molette de la souris pour agrandir une zone sur les deux zones d’aperçu. Examinez les objets qui se touchent et les contours peu visibles, puis dézoomez pour vérifier le champ entier."
+          "speech_text": "Utilisez la molette de la souris pour agrandir une zone sur les deux zones d’aperçu. Examinez les objets qui se touchent et les contours peu visibles dans la vue agrandie."
         },
         {
           "visual": "22_native_filter_reduces_objects",
@@ -4108,7 +4128,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4549,7 +4592,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5778,7 +5844,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6524,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6679,7 +6791,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6995,7 +7130,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7610,7 +7768,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7854,7 +8035,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8719,7 +8923,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8904,7 +9131,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9098,7 +9348,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16258,13 +16531,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify apprend à partir de la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes.",
+          "narration": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify entraîne un modèle sur la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify apprend à partir de la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes."
+          "speech_text": "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify entraîne un modèle sur la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes."
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16875,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Le schéma est fait pour être exploré. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image.",
+          "narration": "Le schéma est interactif. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image.",
           "hold_after": 0.7,
-          "speech_text": "Le schéma est fait pour être exploré. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image."
+          "speech_text": "Le schéma est interactif. Survolez un composant cellulaire et sa description apparaît. Sélectionnez-en plusieurs pour les garder en surbrillance ; Clear components réinitialise l’image."
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16887,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Analysis décrit le déroulement complet.",
+          "narration": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Assay décrit le déroulement complet.",
           "hold_after": 0.7,
-          "speech_text": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Analysis décrit le déroulement complet."
+          "speech_text": "Cliquez sur Plaque Assay pour ouvrir son écran d’analyse. Le panneau de paramètres indique la source des images, les masques et les options de détection. Load test data fournit un exemple. Vérifiez les données d’entrée et l’aperçu avant de lancer Run ; le tutoriel Plaque Assay décrit le déroulement complet."
         },
         {
           "visual": "05_references",

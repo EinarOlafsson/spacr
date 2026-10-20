@@ -363,7 +363,7 @@ def test_the_map_file_says_what_a_reader_is_allowed_to_edit(tmp_path,
                                                             foreign_table):
     path = tmp_path / "column_map.csv"
     foreign.save_column_map(foreign.infer_column_map(foreign_table), path)
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     assert text.startswith("# spaCR foreign column map")
     assert "leave \"target\" empty" in text
     assert "identity | length | area | volume" in text

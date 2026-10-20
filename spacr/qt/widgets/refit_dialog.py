@@ -3,17 +3,16 @@
 Use the regression plot's context menu to choose another model, correction
 method, or FDR threshold.
 
-THIS DIALOG STARTS A FIT. Everything else reachable by right-clicking a plot
-changes how it looks, so this one has to read differently: it names the model
-the table on screen was fitted with, it says WHERE the new run will write, and
+This dialog starts a fit. Everything else reachable by right-clicking a plot
+changes how it looks, so this one states more: it names the model the table
+on screen was fitted with, it says where the new run will write, and
 it says in advance which settings it is about to reset -- all before the OK
 button does anything.
 
-The reset sentence is the one that matters. Switching from a penalised model
-to an unpenalised one drops the penalty weight, because the fit refuses to
-accept a number it cannot read (:func:`spacr.ml._reject_unused_settings`),
-and a user who reads "alpha" on the settings panel afterwards is entitled to
-have been told rather than to work it out from a folder name.
+The reset sentence matters most. Switching from a penalised model to an
+unpenalised one drops the penalty weight, because the fit refuses a setting
+it does not use (:func:`spacr.ml._reject_unused_settings`), so the dialog
+says that "alpha" will be reset before the run starts.
 """
 
 from __future__ import annotations
@@ -110,7 +109,7 @@ class RefitDialog(QDialog):
                              else 1.0)
         self._alpha.valueChanged.connect(self._refresh)
         self._alpha.setToolTip(
-            "The penalty weight of a penalised fit — NOT the significance "
+            "The penalty weight of a penalised fit, not the significance "
             "level above. Greyed out for a model "
             "that has no penalty, because the number would change nothing "
             "there and the run refuses it rather than ignoring it.")

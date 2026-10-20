@@ -17,6 +17,7 @@ modify the transcript.
 """
 from __future__ import annotations
 
+import re
 from typing import Dict, List, Optional
 
 from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer, Slot,
@@ -28,6 +29,7 @@ from PySide6.QtGui import (
     QKeyEvent,
     QTextBlockFormat,
     QTextCursor,
+    QTextLayout,
 )
 from PySide6.QtWidgets import (
     QAbstractButton,
@@ -35,6 +37,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPlainTextEdit,
     QScrollArea,
     QSizePolicy,
@@ -50,9 +53,10 @@ from ..ai import settings as ai_settings
 from ..ai.providers import ChatProvider
 from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
-from ..theme import FONT_SIZE, SPACING, active_palette
+from ..theme import FONT_SIZE, QSS_FONT_FAMILY, SPACING, _painting_palette, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
 from .flash import Flash
+from .. import _after
 
 
 #: Soft budget for pipeline scrollback attached to one AI turn. A complete
@@ -112,6 +116,78 @@ def __getattr__(name: str) -> str:
     if role is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
     return active_palette()[role]
+
+
+def color_spacr_ai() -> str:
+    """spaCR AI's own console colour: the theme's teal.
+
+    The palette's ``chip_class`` role is the spaCR teal on every theme, so
+    a "spaCR AI" entry reads apart from the blue output and the red error.
+    """
+    palette = active_palette()
+    return palette.get("chip_class") or palette["accent"]
+
+
+_MD_HEADING_RE = re.compile(
+    r"^\s*(?:#{1,6}\s*)?\*\*(?P<head>[^*]+?)\*\*\s*(?:[-–—:]\s*)?(?P<rest>.*)$")
+_MD_ATX_RE = re.compile(r"^\s*#{1,6}\s+(?P<head>.+?)\s*#*\s*$")
+_MD_BREAK_RE = re.compile(
+    r"\s+(?=\*\*[^*\n]{2,60}\*\*)|\s+(?=\d{1,2}\.\s)|(?<!\*\*)\s+(?=[-•]\s+\S)")
+
+
+def _is_a_heading(match: "re.Match", line: str) -> bool:
+    """Whether a line's opening ``**bold**`` is a section heading.
+
+    It is when nothing follows it, a dash or colon follows it, or it reads
+    like a title (two words or more, or ending in ``?`` or ``:``) -- not a
+    single bold word opening a sentence.
+    """
+    if "rest" not in match.groupdict():
+        return True
+    head = match.group("head").strip()
+    rest = match.group("rest")
+    if not rest.strip() or re.match(r"^\s*\*\*[^*]+\*\*\s*[-–—:]", line):
+        return True
+    return len(head.split()) >= 2 or head.endswith(("?", ":"))
+
+
+def markdown_lines(text: str) -> List[tuple]:
+    """Lay an AI answer's Markdown out as lines a console block can show.
+
+    A ``**Heading**`` (or ``# Heading``) that opens a line becomes a bold
+    line of its own and its text the next line; numbered and bulleted steps
+    keep a line each. An answer that arrived as one run-on line is broken
+    before its headings and steps first.
+
+    :param text: the answer.
+    :returns: ``[(line, bold), ...]``; ``line`` keeps any inline ``**bold**``
+        markers, which :meth:`_StdoutBlock.show_markdown` draws.
+    """
+    raw = str(text or "").replace("\r\n", "\n").strip()
+    if "\n" not in raw:
+        raw = _MD_BREAK_RE.sub("\n", raw)
+    out: List[tuple] = []
+    for line in raw.split("\n"):
+        line = line.rstrip()
+        heading = _MD_ATX_RE.match(line) or _MD_HEADING_RE.match(line)
+        if heading is not None and not _is_a_heading(heading, line):
+            heading = None
+        if heading is not None:
+            if out and out[-1][0]:
+                out.append(("", False))
+            out.append((heading.group("head").strip(), True))
+            rest = heading.groupdict().get("rest") or ""
+            if rest.strip():
+                out.append((rest.strip(), False))
+            continue
+        bullet = re.match(r"^\s*[-*]\s+(.*)$", line)
+        if bullet is not None:
+            line = "• " + bullet.group(1)
+        if line.strip() or (out and out[-1][0]):
+            out.append((line.strip(), False))
+    while out and not out[-1][0]:
+        out.pop()
+    return out
 
 
 AI_COLOR_CLAUDE = "#DE7356"
@@ -254,7 +330,7 @@ class _CopyGlyphButton(QAbstractButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         try:
-            palette = active_palette()
+            palette = _painting_palette()
             colour = QColor(palette["button_accent"] if self._flash.active
                             else palette["fg_dim"])
         except Exception:
@@ -545,6 +621,7 @@ class _StdoutBlock(QPlainTextEdit):
             Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard
         )
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.viewport().setMouseTracking(True)
         self._font_pt = 10
         self._font = QFont("Open Sans", self._font_pt, QFont.Light)
         self._font.setStyleName("Light")
@@ -576,10 +653,10 @@ class _StdoutBlock(QPlainTextEdit):
         self.setStyleSheet(
             "QPlainTextEdit#%s { color: %s; background-color: transparent; "
             "border: none; "
-            "font-family: 'Open Sans','Segoe UI','Helvetica Neue',sans-serif; "
+            "font-family: %s; "
             "font-weight: 300; font-size: %dpt; "
             "padding: %dpx %dpx; }" % (
-                self.objectName(), self._text_color, self._font_pt,
+                self.objectName(), self._text_color, QSS_FONT_FAMILY, self._font_pt,
                 SPACING["sm"], SPACING["md"]))
 
     def _block_format(self) -> QTextBlockFormat:
@@ -660,6 +737,37 @@ class _StdoutBlock(QPlainTextEdit):
         self._trim_to_cap()
         self.updateGeometry()
 
+    def show_markdown(self, text: str) -> None:
+        """Replace the contents with an AI answer, its Markdown drawn.
+
+        Headings are bold lines of their own and every step keeps its line
+        (:func:`markdown_lines`); ``**bold**`` inside a line is bold too.
+
+        :param text: the answer, in Markdown.
+        """
+        from PySide6.QtGui import QTextCharFormat
+
+        doc = self.document()
+        doc.clear()
+        cursor = QTextCursor(doc)
+        plain = QTextCharFormat()
+        bold = QTextCharFormat()
+        bold.setFontWeight(QFont.Bold)
+        for index, (line, strong) in enumerate(markdown_lines(text)):
+            if index:
+                cursor.insertBlock(self._block_format())
+            else:
+                cursor.mergeBlockFormat(self._block_format())
+            if strong:
+                cursor.insertText(line, bold)
+                continue
+            for part, piece in enumerate(re.split(r"\*\*(.+?)\*\*", line)):
+                if piece:
+                    cursor.insertText(piece, bold if part % 2 else plain)
+        self._chars = doc.characterCount()
+        self._height_key = ()
+        self.updateGeometry()
+
     def _layout_key(self) -> tuple:
         """What paragraph heights depend on: the wrap width and the font."""
         return (self.viewport().width(), self._font_pt)
@@ -696,6 +804,42 @@ class _StdoutBlock(QPlainTextEdit):
         cursor.setPosition(block.position(), QTextCursor.KeepAnchor)
         cursor.removeSelectedText()
         self._chars = max(0, self._chars - removed)
+
+    _LINK = re.compile(r"https?://[^\s<>\"')\]]+")
+
+    def link_at(self, pos) -> str:
+        """The web address under a point of the block, or an empty string.
+
+        :param pos: a point in the viewport's coordinates.
+        """
+        cursor = self.cursorForPosition(pos)
+        line = cursor.block().text()
+        column = cursor.positionInBlock()
+        for match in self._LINK.finditer(line):
+            if match.start() <= column <= match.end():
+                return match.group(0).rstrip(".,;:")
+        return ""
+
+    def mouseMoveEvent(self, event) -> None:           # noqa: N802
+        """Show the pointing hand over an address."""
+        try:
+            over = bool(self.link_at(event.position().toPoint()))
+        except Exception:                              # noqa: BLE001
+            over = False
+        self.viewport().setCursor(
+            Qt.PointingHandCursor if over else Qt.IBeamCursor)
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:        # noqa: N802
+        """Open the address that was clicked, unless text was selected."""
+        super().mouseReleaseEvent(event)
+        if event.button() != Qt.LeftButton or self.textCursor().hasSelection():
+            return
+        url = self.link_at(event.position().toPoint())
+        if url:
+            from PySide6.QtCore import QUrl
+            from PySide6.QtGui import QDesktopServices
+            QDesktopServices.openUrl(QUrl(url))
 
     def sizeHint(self) -> QSize:
         """Report the full document height; the outer console owns scrolling.
@@ -1167,9 +1311,13 @@ class ConsolePanel(QWidget):
 
         input_row = QWidget()
         self._chat_row = input_row
-        row = QHBoxLayout(input_row)
+        chat_column = QVBoxLayout(input_row)
+        chat_column.setContentsMargins(0, 0, 0, 0)
+        chat_column.setSpacing(SPACING["xs"])
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(SPACING["sm"])
+        chat_column.addLayout(row, 1)
 
         self._input = _ChatInput()
         self._input.setObjectName("ConsoleChatInput")
@@ -1179,6 +1327,26 @@ class ConsolePanel(QWidget):
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
+
+        from PySide6.QtWidgets import QProgressBar
+
+        self._usage_row = QWidget()
+        self._usage_row.setObjectName("AiUsageRow")
+        usage = QHBoxLayout(self._usage_row)
+        usage.setContentsMargins(0, 0, 0, 0)
+        usage.setSpacing(SPACING["sm"])
+        self._usage_bar = QProgressBar()
+        self._usage_bar.setObjectName("AiUsageBar")
+        self._usage_bar.setRange(0, 100)
+        self._usage_bar.setTextVisible(False)
+        self._usage_bar.setFixedHeight(6)
+        self._usage_bar.setFixedWidth(96)
+        self._usage_text = QLabel()
+        self._usage_text.setObjectName("AiUsageText")
+        usage.addWidget(self._usage_bar)
+        usage.addWidget(self._usage_text, 1)
+        self._usage_row.setVisible(False)
+        chat_column.addWidget(self._usage_row)
         self._split.addWidget(input_row)
 
         self._split.setStretchFactor(0, 1)
@@ -1229,8 +1397,8 @@ class ConsolePanel(QWidget):
     def split_sizes(self) -> List[int]:
         """Current ``[console_height, chat_height]`` in pixels.
 
-        Public because it is the honest thing for a test — or a caller
-        arranging the screen — to read, rather than reaching into ``_split``.
+        Public so a test, or a caller arranging the screen, can read it rather
+        than reaching into ``_split``.
         """
         return list(self._split.sizes())
 
@@ -1263,6 +1431,41 @@ class ConsolePanel(QWidget):
             return max(1, int(round(base * get_font_scale())))
         except Exception:
             return base
+
+    #: Glyphs the run notices use that Open Sans does not have, so Qt finds
+    #: them in a fallback font the first time each size draws them.
+    NOTICE_GLYPHS = "→✓■…⚠"
+
+    def warm_notice_glyphs(self) -> bool:
+        """Lay out :data:`NOTICE_GLYPHS` once in the size new entries get.
+
+        The first "→ Starting ..." notice of a session cost 33 ms on the GUI
+        thread, almost all of it Qt looking up a fallback font for the arrow
+        at the console's size; the same text costs 0.5 ms after that. The
+        lookup is cached per thread and per size, so it can only be done here,
+        on the GUI thread, ahead of the notice: a Run waiting on its
+        pipeline's import calls this while the busy bar is already showing.
+        The font is taken from a stand-in entry, because the one an entry
+        draws with carries the family list its sheet gives it, and a font
+        that differs only in that list is a different cache entry.
+
+        :returns: whether a layout was made (``False`` when this size was
+            warmed before).
+        """
+        warmed = self.__dict__.setdefault("_warmed_glyph_sizes", set())
+        pt = int(getattr(self, "_font_pt", 10))
+        if pt in warmed:
+            return False
+        warmed.add(pt)
+        probe = _StdoutBlock()
+        probe.set_console_font_pt(pt)
+        layout = QTextLayout(self.NOTICE_GLYPHS,
+                             probe.document().defaultFont())
+        layout.beginLayout()
+        layout.createLine()
+        layout.endLayout()
+        probe.deleteLater()
+        return True
 
     def apply_zoom(self) -> None:
         """Re-read Zoom and restyle every entry. Called on a preferences save."""
@@ -1348,9 +1551,9 @@ class ConsolePanel(QWidget):
     def jump_to_the_end(self) -> None:
         """Show the newest line, and follow the tail again.
 
-        BOTH HALVES, because they are one decision. A console that jumped
-        without resuming the follow would slide back off the end on the very
-        next line written, and the user would press it again.
+        Both are done together: a console that jumped without resuming the
+        follow would slide back off the end on the very next line written, and
+        the user would press it again.
         """
         bar = self._scroll.verticalScrollBar()
         bar.setValue(bar.maximum())
@@ -1425,10 +1628,10 @@ class ConsolePanel(QWidget):
                     ) -> Optional["_TopicBar"]:
         """Insert a divider bar labeled `label` (e.g. 'spaCR output — …').
 
-        A BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now
-        write under the "spaCR output" heading -- stdout, warnings, and the
-        notice path -- and each opens its topic. A run that alternates between
-        them therefore drew the identical banner before EVERY line:
+        A bar is not redrawn when its label would repeat. Three bands now write
+        under the "spaCR output" heading -- stdout, warnings, and the notice
+        path -- and each opens its topic. A run that alternates between them
+        therefore drew the identical banner before every line:
 
             === spaCR output — Mask Generation ===
             Source directory (src): ...
@@ -1438,11 +1641,11 @@ class ConsolePanel(QWidget):
             12:09:47 [INFO] spacr.qt.resource_cleanup: memory budget...
 
         which is what the console looked like when this was reported. The
-        divider exists to say the subject CHANGED; repeating it says nothing
-        and costs three lines of a panel people read during a run.
+        divider marks a change of subject; repeating it adds three lines to the
+        panel and no information.
 
-        The accent is deliberately not part of the comparison. It rides on the
-        TEXT below the bar -- amber for a warning, blue for output -- so a
+        The accent is deliberately not part of the comparison. It is applied to
+        the text below the bar -- amber for a warning, blue for output -- so a
         warning still reads differently without a second identical heading
         above it.
 
@@ -1609,13 +1812,11 @@ class ConsolePanel(QWidget):
     def append_warning(self, text: str) -> None:
         """Append warning text in the theme's amber, under the output banner.
 
-        DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one
-        rather than a design one: a "spaCR warning" heading would need a new
-        row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the
-        COMPACT caption ratchet. Amber under the existing translated "spaCR
-        output" heading already achieves the point -- warnings out of the
-        ERROR pane, errors still in it -- without reaching into that
-        machinery. A dedicated banner would be the nicer end state.
+        Warnings have no banner of their own: a "spaCR warning" heading would
+        need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which
+        moves the COMPACT caption ratchet. Amber under the existing translated
+        "spaCR output" heading keeps warnings out of the error pane and errors
+        in it without that change.
 
         :param text: the formatted record; empty strings are ignored.
         """
@@ -1750,13 +1951,13 @@ class ConsolePanel(QWidget):
         """Bring ``bar``'s section to the top of the view and expand it.
 
         The console is a transcript, so the order of its sections is the one
-        property a log has: this SCROLLS, it does not reorder.
+        property a log has: this scrolls, it does not reorder.
 
-        Raising a section also stops the view following new output. A user
-        who clicked a heading is reading THERE, and appending output that
-        yanks the viewport away is what makes a live log unreadable.
-        Following resumes when they scroll back to the bottom, which is the
-        convention every log viewer uses.
+        Raising a section also stops the view following new output. A user who
+        clicked a heading is reading that section, and new output would
+        otherwise move the viewport away from it. Following resumes when they
+        scroll back to the bottom, which is the convention every log viewer
+        uses.
 
         :param bar: the topic bar (section heading) whose section is meant.
         """
@@ -1769,7 +1970,7 @@ class ConsolePanel(QWidget):
                 continue
             widget.setVisible(not folded)
         self._follow_output = False
-        QTimer.singleShot(0, lambda: self._scroll_widget_to_top(bar))
+        _after(0, self, lambda: self._scroll_widget_to_top(bar))
 
     def _scroll_widget_to_top(self, bar) -> None:
         """Scroll the console so a widget sits at the top of the viewport.
@@ -1804,18 +2005,14 @@ class ConsolePanel(QWidget):
         return abs(scrollbar.value() - min(top, scrollbar.maximum())) <= 4
 
     def toggle_section(self, bar: "_TopicBar") -> None:
-        """Reach the section first; fold it away second.
+        """Scroll to the section first; fold it on a second click.
 
-        Sections are created EXPANDED, so a plain expanded/collapsed toggle
-        spent the user's first click hiding the very section they were
-        reaching for, and the viewport never moved -- the opposite of "click
-        a console section heading to bring it to the top of the console".
+        Sections are created expanded, so a plain expanded/collapsed toggle
+        would hide the section on the first click without scrolling to it.
 
-        A heading that is not already at the top of the viewport is therefore
-        a request to GO THERE, whatever its state. Only a heading already
-        sitting at the top has nowhere left to navigate to, and there
-        collapsing is the one thing the gesture can still mean -- reachable
-        on a second click, exactly where the user's hand already is.
+        A heading that is not already at the top of the viewport is therefore a
+        request to scroll there, whatever its state. Only a heading already at
+        the top is collapsed by the click.
 
         :param bar: the topic bar (section heading) whose section is meant.
         """
@@ -1864,6 +2061,75 @@ class ConsolePanel(QWidget):
         :param provider_name: the provider's name, or None to unset it.
         """
         self._current_provider_name = provider_name
+        self.refresh_ai_usage()
+
+    def _hosted_is_current(self) -> bool:
+        """Whether the selected provider is spaCR's hosted one."""
+        from ..ai.providers import HOSTED_PROVIDER_NAME
+
+        return self._current_provider_name == HOSTED_PROVIDER_NAME
+
+    def refresh_ai_usage(self) -> None:
+        """Refresh the usage bar under the chat box for the selected provider.
+
+        For spaCR AI (free) the relay is asked, off the GUI thread, how much
+        of today's share is left; the request runs on a plain thread that
+        touches no Qt object, and a single-shot timer tied to this panel
+        collects the answer on the GUI thread, so a panel closed meanwhile
+        never hears back. A vendor CLI has no usage source, so its line is
+        shown at once and the bar is hidden
+        (:func:`spacr.qt.ai.providers.usage_bar`). No provider hides the row.
+        """
+        name = self._current_provider_name
+        if not self._hosted_is_current():
+            self._show_ai_usage(None)
+            return
+        import threading
+
+        from ... import crashreport
+        from .. import _after
+
+        box: dict = {}
+
+        def _fetch() -> None:
+            """Fetch the allowance into ``box``; touches no Qt object."""
+            try:
+                box["allowance"] = crashreport.fetch_allowance()
+            except Exception:
+                box["allowance"] = None
+
+        fetcher = threading.Thread(target=_fetch,
+                                   name="spacr-hosted-allowance", daemon=True)
+
+        def _collect() -> None:
+            """On the GUI thread: show the allowance once it has arrived."""
+            if "allowance" not in box and fetcher.is_alive():
+                _after(100, self, _collect)
+                return
+            if self._current_provider_name == name:
+                self._show_ai_usage(box.get("allowance"))
+
+        fetcher.start()
+        _after(100, self, _collect)
+
+    def _show_ai_usage(self, allowance: object) -> None:
+        """Draw the usage bar and its text for the selected provider.
+
+        :param allowance: for spaCR AI, what
+            :func:`spacr.crashreport.fetch_allowance` returned, or ``None``.
+        """
+        from ..ai.providers import hosted_cli_hint, usage_bar
+
+        percent, text = usage_bar(
+            self._current_provider_name,
+            allowance if isinstance(allowance, dict) else None)
+        self._usage_bar.setVisible(percent is not None)
+        if percent is not None:
+            self._usage_bar.setValue(int(percent))
+        self._usage_text.setText(text)
+        self._usage_row.setToolTip(
+            hosted_cli_hint() if self._hosted_is_current() else "")
+        self._usage_row.setVisible(bool(text))
 
     def _current_provider(self) -> Optional[ChatProvider]:
         """Resolve the selected AI provider.
@@ -1929,6 +2195,10 @@ class ConsolePanel(QWidget):
         self._ai_messages.append({"role": "user", "content": prompt})
         self._ai_error_traceback = ""
         self._append_user(text + f"\n\n[{status}]")
+        self._begin_ai_reply()
+
+    def _begin_ai_reply(self) -> None:
+        """Open the "spaCR AI" heading and reply block, then start the stream."""
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
         self._pending_ai_topic = self.begin_topic(
@@ -2009,6 +2279,63 @@ class ConsolePanel(QWidget):
             label += tr(", {n} dropped", n=f"{dropped:,}")
         return context, label
 
+    def begin_ai_entry(self, thinking: bool = True) -> "_StdoutBlock":
+        """Open a "spaCR AI" entry of its own, thinking while it is empty.
+
+        The entry is a section like the others -- a "spaCR AI" heading in
+        spaCR teal (:func:`color_spacr_ai`) over its own block -- written
+        where the console stands now, directly under the error it explains.
+        Its heading carries the working dots, and :meth:`fill_ai_entry`
+        puts the answer in. Whatever is written meanwhile opens its own
+        section below it. GUI thread only.
+
+        :param thinking: show the working dots; ``False`` for an answer
+            already at hand, such as one saved on this computer.
+        :returns: the entry's block, to hand to :meth:`fill_ai_entry`.
+        """
+        teal = color_spacr_ai()
+        dots = _WorkingDots(teal)
+        self._current_topic_label = None
+        bar = self.begin_topic(tr("spaCR AI"), accent=teal, trailing=dots)
+        block = _StdoutBlock(text_color=teal)
+        block.setProperty("consoleContextKind", "spacr_ai")
+        block.hide()
+        block._ai_dots = dots
+        block._ai_bar = bar
+        self._insert_entry(block)
+        self._current_stdout = None
+        self._last_entry_kind = "spacr_ai"
+        if thinking:
+            dots.start()
+        else:
+            dots.hide()
+        return block
+
+    def fill_ai_entry(self, block: Optional["_StdoutBlock"],
+                      text: str) -> "_StdoutBlock":
+        """Put spaCR AI's answer (or why there is none) into its entry.
+
+        The working dots stop and the answer replaces them, its Markdown
+        drawn (:meth:`_StdoutBlock.show_markdown`). An entry that is gone,
+        because the console was cleared, is opened again at the end.
+
+        :param block: what :meth:`begin_ai_entry` returned, or ``None``.
+        :param text: the answer or the one-line note to show.
+        :returns: the block now showing it.
+        """
+        try:
+            dots = getattr(block, "_ai_dots", None) if block else None
+            if dots is not None:
+                dots.stop()
+            if block is None or not block.parent():
+                raise RuntimeError("the entry is gone")
+        except RuntimeError:
+            block = self.begin_ai_entry(thinking=False)
+        block.show_markdown(text)
+        block.show()
+        self._scroll_to_bottom()
+        return block
+
     def _ensure_stdout_block(self) -> None:
         """Open a new plain stdout block if the last entry was not one."""
         if self._current_stdout is None or self._needs_topic("stdout"):
@@ -2030,6 +2357,11 @@ class ConsolePanel(QWidget):
         provider = self._current_provider()
         if provider is None:
             return
+        if not self._hosted_is_current():
+            from ..ai.prompts import tool_approval_note
+
+            note = tool_approval_note(self._current_provider_name or "")
+            system = f"{system}\n\n{note}" if system else note
         self._ai_buf = []
         thread, worker = make_stream_thread(
             provider, list(self._ai_messages), system=system,
@@ -2072,8 +2404,8 @@ class ConsolePanel(QWidget):
         `QThread: Destroyed while thread '' is still running`.
 
         The cancel path kills the CLI subprocess directly so the
-        stream reader unblocks immediately; we then wait for the
-        worker's run() to return and the QThread to quit normally.
+        stream reader unblocks immediately; this method then waits for
+        the worker's run() to return and the QThread to quit normally.
 
         There is deliberately no ``QThread.terminate()`` fallback. It used
         to be here, described as a last resort, and it was reached far more
@@ -2246,27 +2578,104 @@ class ConsolePanel(QWidget):
                 self.append_notice(
                     "(empty response — try again or switch provider)\n"
                 )
+            if self._hosted_is_current():
+                provider = self._current_provider()
+                allowance = getattr(provider, "last_allowance", None)
+                if allowance:
+                    self._show_ai_usage(allowance)
+                else:
+                    self.refresh_ai_usage()
         else:
             self.append_notice(
                 "[AI error] {detail}\n", detail=final_text)
+            if self._hosted_is_current():
+                self.refresh_ai_usage()
         if self._current_stdout is not None:
             self._current_stdout.append("\n")
         self._ai_buf = []
         self.ai_stream_finished.emit()
+        if ok:
+            self._offer_tool_approval()
+
+    def _offer_tool_approval(self) -> None:
+        """Ask the user about tool calls the CLI blocked, and resume if allowed.
+
+        ``claude -p`` cannot show its own approval prompt, so a command that
+        needs permission was refused silently and the reply asked the user to
+        approve a prompt that never appeared (GitHub #147). The provider keeps
+        the refused calls; this asks once in a dialog, and an allowed call is
+        run by resuming the same session with exactly that call allowed, for
+        that one reply.
+        """
+        from ..ai.providers import describe_tool_call
+
+        provider = self._current_provider()
+        denials = [d for d in getattr(provider, "last_permission_denials", None) or []
+                   if isinstance(d, dict)]
+        if not denials or not hasattr(provider, "allow_once"):
+            return
+        provider.last_permission_denials = []
+        session = str(getattr(provider, "last_session_id", "") or "")
+        calls = list(dict.fromkeys(describe_tool_call(d) for d in denials))
+        shown = "; ".join(calls)
+        if not session or not self._ask_tool_approval(calls):
+            self.append_notice(
+                "[AI] Not run: {calls}. Run it in your own terminal if you "
+                "need its output.\n", calls=shown)
+            return
+        provider.allow_once(denials, session)
+        self.append_notice("[AI] Allowed once: {calls}\n", calls=shown)
+        self._ai_messages.append({"role": "user", "content": (
+            "I approved these tool calls in spaCR's dialog. Run them now and "
+            "continue:\n" + "\n".join(f"- {call}" for call in calls))})
+        self._begin_ai_reply()
+
+    def _tool_approval_box(self, calls: List[str]) -> QMessageBox:
+        """The dialog that asks whether the assistant may run ``calls`` once.
+
+        :param calls: one line per tool call, the command for a shell call.
+        :returns: the box, with :attr:`_allow_button` set to its allow button.
+        """
+        box = QMessageBox(self)
+        box.setObjectName("aiToolApprovalBox")
+        box.setIcon(QMessageBox.Question)
+        box.setWindowTitle(tr("Allow the assistant to run this?"))
+        box.setText(tr("The assistant asked to run:") + "\n\n"
+                    + "\n".join(calls))
+        box.setInformativeText(tr(
+            "Allow once runs it a single time with your user permissions, "
+            "then the assistant continues. Allow it only if you trust the "
+            "command."))
+        self._allow_button = box.addButton(tr("Allow once"),
+                                           QMessageBox.AcceptRole)
+        deny = box.addButton(tr("Don't allow"), QMessageBox.RejectRole)
+        box.setDefaultButton(deny)
+        box.setEscapeButton(deny)
+        return box
+
+    def _ask_tool_approval(self, calls: List[str]) -> bool:
+        """Show :meth:`_tool_approval_box` and return whether the user allowed it.
+
+        :param calls: one line per tool call.
+        :returns: ``True`` for "Allow once".
+        """
+        box = self._tool_approval_box(calls)
+        box.exec()
+        allowed = box.clickedButton() is self._allow_button
+        box.deleteLater()
+        return allowed
 
     def ai_explanation_of(self, traceback_text: str) -> str:
         """spaCR AI's answer about ``traceback_text``, or ``""``.
 
         Used by the bug reporter: when the AI is switched on it has usually
-        already diagnosed the crash by the time the user files, and that
-        analysis is the most useful thing in the report -- it is what whoever
-        picks the report up would otherwise spend the first hour
-        reproducing.
+        already diagnosed the crash by the time the user files, and including
+        that analysis saves the reader of the report from reproducing it.
 
-        Empty unless there IS an answer AND it is an answer to THIS error.
-        The console holds one conversation across a whole session, so without
-        the second condition a report about one crash would carry an
-        explanation of an earlier one, stated with equal confidence.
+        Empty unless there is an answer and it is an answer to this error. The
+        console holds one conversation across a whole session, so without the
+        second condition a report about one crash would carry an explanation of
+        an earlier one, stated with equal confidence.
 
         :param traceback_text: the traceback the report is about; compared,
             whitespace-stripped, with the traceback the AI last explained.
@@ -2283,7 +2692,7 @@ class ConsolePanel(QWidget):
 
         :param traceback_text: raw traceback captured from the pipeline.
         :param active_app: optional app label used in the framing prompt.
-        :param show_raw: when False, the raw traceback is NOT printed to the
+        :param show_raw: when False, the raw traceback is not printed to the
             console (only a short note); the AI still receives it in its
             prompt, so the user can ask the AI to show the error.
         """

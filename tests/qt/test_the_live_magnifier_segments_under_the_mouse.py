@@ -597,7 +597,7 @@ def test_the_screen_offers_and_runs_otsu_with_no_model(
         assert [made._mag_mode.itemData(i)
                 for i in range(made._mag_mode.count())] == [
             "otsu", *mm.cpu_modes.modes(), *mm.organelle_modes.modes(),
-            *mm._MAGNIFIER_BACKENDS]
+            "mitonet", *mm._MAGNIFIER_BACKENDS]
         assert made._mag_uninstalled == set(mm._MAGNIFIER_BACKENDS)
         assert made._mag_mode.currentData() == "otsu"
         made._btn_magnifier.setChecked(True)

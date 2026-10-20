@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "scope": "External helper compatibility/history update only; no duplicate sampler execution or visual acceptance",
+  "updated_utc": "2026-10-15T16:37:07.898584+00:00",
+  "overlay_terminal": {
+    "reported_by_root": true,
+    "returncode": 0
+  },
+  "first_sampler_failure": {
+    "output_directory": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-boundary-samples",
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-boundary-samples/ffmpeg.log",
+      "bytes": 84,
+      "sha256": "08ea441c5e0d672de57eb848b0d7f078ae748c72dab4c2861f69274f5adc428c"
+    },
+    "cause": "Installed system ffmpeg does not support -fps_mode; first sampler failed before decoding, preserved."
+  },
+  "root_applied_correction": {
+    "option": "-vsync 0",
+    "new_output": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-boundary-samples-r2",
+    "sampler": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/extract_boundary_samples.py",
+      "bytes": 3804,
+      "sha256": "8e88615987099e1e28a9e478909e1a1b994a6f7e454edc4dfafea1fc2053dc3d"
+    },
+    "launcher": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_extract_boundary_samples.sh",
+      "bytes": 450,
+      "sha256": "a6aeb93e8e665951f9872546dc7786f65aa43722586e79c481b5db992278139f"
+    },
+    "retry_execution_owned_by_root": true,
+    "retry_session_reported": "68039",
+    "terminal_or_visual_result_not_claimed": true
+  },
+  "downstream": {
+    "publish_chain": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/publish_chain.sh",
+      "bytes": 3347,
+      "sha256": "f76b8ede952f37062909e04d3fb27db94c92f115267cc0f01d8574c04703997f"
+    },
+    "run_tool": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/run_tool.py",
+      "bytes": 3160,
+      "sha256": "bce5705f6a9f5bf297734d31fe338bc519c3ab92ab75cd9ec3b392c2ceb422d2"
+    },
+    "config": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/config.sh",
+      "bytes": 1222,
+      "sha256": "1bdcb2e7f74c5bcf459e2027c311c4ec5b1676f5f876f77b9063aa14f7c49701"
+    },
+    "requires_actual_clean_source_commit": "Root-supplied K3 after final702/701 peer",
+    "source_K3_not_invented": true,
+    "actual_execution_owned_by_root": true
+  }
+}

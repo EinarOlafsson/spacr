@@ -41,14 +41,18 @@
       "label": "spacr.cli.resolve_settings#0",
       "source": "Build the settings dict the pipeline will actually receive.",
       "source_sha256": "239f2f5b46b63e213eaa07698a39944f3bdfd995e398dc130e8e0680cc91bd87",
-      "translation": "Erstellt das Einstellungswörterbuch, das die Verarbeitung tatsächlich erhält."
+      "translation": "Erstellt das Einstellungswörterbuch, das die Verarbeitung tatsächlich erhält.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
       "label": "spacr.cli.resolve_settings#1",
       "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
       "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
-      "translation": "Die Ebenen werden in aufsteigender Priorität angewendet: die eigenen Vorgaben des Moduls, die Einstellungsdatei und dann die Überschreibungen durch ``--set``. Zuerst wird die Datei unter den heutigen Namen eingelesen; siehe :func:`_under_todays_names`. Ohne diesen Schritt würde ein unter einem alten Namen gespeicherter Wert von der bereits unter dem neuen Namen vorhandenen Vorgabe verdrängt."
+      "translation": "Die Ebenen werden in aufsteigender Priorität angewendet: die eigenen Vorgaben des Moduls, die Einstellungsdatei und dann die Überschreibungen durch ``--set``. Zuerst wird die Datei unter den heutigen Namen eingelesen; siehe :func:`_under_todays_names`. Ohne diesen Schritt würde ein unter einem alten Namen gespeicherter Wert von der bereits unter dem neuen Namen vorhandenen Vorgabe verdrängt.",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "context": "module being executed.",
@@ -132,14 +136,18 @@
       "label": "spacr.curation_queue.load_draft_counts#1",
       "source": "Reading three hundred drafts at every launch is slow, so counts are cached by stem and only stems missing from the cache are read. Counts drive ORDERING only: a stale one mis-sorts a field, it never loses work.",
       "source_sha256": "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
-      "translation": "Dreihundert Entwürfe bei jedem Start einzulesen ist langsam. Deshalb werden die Anzahlen nach Dateistamm zwischengespeichert und nur die Entwürfe eingelesen, deren Dateistamm im Cache fehlt. Die Anzahlen bestimmen ausschließlich die Reihenfolge: Ein veralteter Wert kann ein Bildfeld falsch einsortieren, aber niemals bereits geleistete Arbeit verlieren lassen."
+      "translation": "Dreihundert Entwürfe bei jedem Start einzulesen ist langsam. Deshalb werden die Anzahlen nach Dateistamm zwischengespeichert und nur die Entwürfe eingelesen, deren Dateistamm im Cache fehlt. Die Anzahlen bestimmen ausschließlich die Reihenfolge: Ein veralteter Wert kann ein Bildfeld falsch einsortieren, aber niemals bereits geleistete Arbeit verlieren lassen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "So an unreadable cache is recounted, never reported as an error. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
       "label": "spacr.curation_queue.load_draft_counts#2",
       "source": "SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
       "source_sha256": "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
-      "translation": "Ein unlesbarer Cache führt deshalb zu einer Neuzählung und löst keine Ausnahme aus. Eine Datei, deren Schreiben durch einen Absturz unterbrochen wurde, kann ungültiges UTF-8 enthalten. Würde dieser Fehler weitergegeben, würde eine bloße Optimierung die gesamte Sitzung beenden, obwohl die Entwürfe auf dem Datenträger liegen und maßgeblich sind."
+      "translation": "Ein unlesbarer Cache führt deshalb zu einer Neuzählung und löst keine Ausnahme aus. Eine Datei, deren Schreiben durch einen Absturz unterbrochen wurde, kann ungültiges UTF-8 enthalten. Würde dieser Fehler weitergegeben, würde eine bloße Optimierung die gesamte Sitzung beenden, obwohl die Entwürfe auf dem Datenträger liegen und maßgeblich sind.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the work list folder.",
@@ -195,14 +203,18 @@
       "label": "spacr.curation_queue.load_probabilities#2",
       "source": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
       "source_sha256": "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
-      "translation": "``{stem: probability}`` oder ``{}``, wenn keine Datei mit Wahrscheinlichkeitswerten vorhanden ist (siehe :func:`scores_path`). In diesem Fall wechseln ``prob`` und ``easy`` mit einer ausdrücklichen Meldung auf ihre Ersatzreihenfolge."
+      "translation": "``{stem: probability}`` oder ``{}``, wenn keine Datei mit Wahrscheinlichkeitswerten vorhanden ist (siehe :func:`scores_path`). In diesem Fall wechseln ``prob`` und ``easy`` mit einer ausdrücklichen Meldung auf ihre Ersatzreihenfolge.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
       "label": "spacr.curation_queue.load_probabilities#3",
       "source": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
       "source_sha256": "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028",
-      "translation": "wenn ``curate_scores.csv`` vorhanden ist, aber keine Dateistammspalte oder keine erkannte Wahrscheinlichkeitsspalte enthält. Eine vorhandene, aber unbrauchbare Datei ist ein Fehler, der die Verarbeitung anhalten soll; eine fehlende Datei ist ein normaler Zustand."
+      "translation": "wenn ``curate_scores.csv`` vorhanden ist, aber keine Dateistammspalte oder keine erkannte Wahrscheinlichkeitsspalte enthält. Eine vorhandene, aber unbrauchbare Datei ist ein Fehler, der die Verarbeitung anhalten soll; eine fehlende Datei ist ein normaler Zustand.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where this work list's probabilities are read from, if anywhere.",
@@ -244,7 +256,9 @@
       "label": "spacr.curation_queue.status_path#1",
       "source": "``<folder>/curate_status.csv``, inside the queue folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every field already done or skipped as undone while the other tool went on reading the first.",
       "source_sha256": "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
-      "translation": "Normalerweise ist dies ``<folder>/curate_status.csv`` innerhalb des Warteschlangenordners, damit der Status zusammen mit den Bildern zwischen Rechnern synchronisiert wird. Eine Ausnahme gilt, wenn diese Datei im Ordner fehlt und daneben die Statusdatei des externen Kurationswerkzeugs, ``<parent>/<name>_status.csv``, mit den Spalten ``stem`` und ``state`` liegt. Dann ist diese Datei maßgeblich und wird an ihrem vorhandenen Ort gelesen und zurückgeschrieben. Die mit diesem Werkzeug kuratierten Datensätze bewahren ihren Fortschritt dort auf und haben keine entsprechende Datei im Ordner. Eine zweite Datei anzulegen würde bereits abgeschlossene oder übersprungene Bildfelder wieder als unbearbeitet öffnen, während das andere Werkzeug weiterhin die erste Datei liest."
+      "translation": "Normalerweise ist dies ``<folder>/curate_status.csv`` innerhalb des Warteschlangenordners, damit der Status zusammen mit den Bildern zwischen Rechnern synchronisiert wird. Eine Ausnahme gilt, wenn diese Datei im Ordner fehlt und daneben die Statusdatei des externen Kurationswerkzeugs, ``<parent>/<name>_status.csv``, mit den Spalten ``stem`` und ``state`` liegt. Dann ist diese Datei maßgeblich und wird an ihrem vorhandenen Ort gelesen und zurückgeschrieben. Die mit diesem Werkzeug kuratierten Datensätze bewahren ihren Fortschritt dort auf und haben keine entsprechende Datei im Ordner. Eine zweite Datei anzulegen würde bereits abgeschlossene oder übersprungene Bildfelder wieder als unbearbeitet öffnen, während das andere Werkzeug weiterhin die erste Datei liest.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the work list folder.",

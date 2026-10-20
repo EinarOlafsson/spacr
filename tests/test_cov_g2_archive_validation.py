@@ -106,7 +106,7 @@ def test_mihcsme_and_checksum_damage_is_named(package):
     if conditions.exists():
         pd.DataFrame({"x": [1]}).to_csv(conditions, sep="\t", index=False)
     sums = package / "checksums.md5"
-    lines = sums.read_text().splitlines()
+    lines = sums.read_text(encoding="utf-8").splitlines()
     kept = [line for line in lines if not line.endswith(".tif")]
     sums.write_text("\n".join(kept + ["no-separator-line"]) + "\n")
     text = _problems(package)

@@ -7,7 +7,9 @@
       "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
       "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
       "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
-      "translation": "GREINT OG NOTHÆFT ER TILKYNNT HVORT Í SÍNU LAGI. Uppsetningarskjár sem tilkynnir hraðal sem spaCR mun aldrei senda verk á er verri en skjár sem segir ekkert, því þá kennir notandinn vélbúnaði sínum um CPU hraðann. Taugavélar eru öll ástæðan fyrir því að þessi greinarmunur er hér: Neural Engine frá Apple, AI Boost frá Intel og Hexagon frá Qualcomm eru allt raunverulegt kísil án nokkurs færanlegs torch tækis, svo þau eru nefnd sem FUNDIN og aldrei valin."
+      "translation": "GREINT OG NOTHÆFT ER TILKYNNT HVORT Í SÍNU LAGI. Uppsetningarskjár sem tilkynnir hraðal sem spaCR mun aldrei senda verk á er verri en skjár sem segir ekkert, því þá kennir notandinn vélbúnaði sínum um CPU hraðann. Taugavélar eru öll ástæðan fyrir því að þessi greinarmunur er hér: Neural Engine frá Apple, AI Boost frá Intel og Hexagon frá Qualcomm eru allt raunverulegt kísil án nokkurs færanlegs torch tækis, svo þau eru nefnd sem FUNDIN og aldrei valin.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.active_learning.retrain_round#27",
@@ -15,14 +17,18 @@
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "translation": "hversu margar óskráðar myndúrklippur á að draga af handahófi og fella að flokknum FJARVERANDI þegar aðeins einn flokkur hefur verið skráður. ``None`` (sjálfgefið) hafnar því í staðinn, eins og áður.",
-      "rebound_from": "spacr.active_learning.retrain_round#26"
+      "rebound_from": "spacr.active_learning.retrain_round#26",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.api.MaskConfig#2",
       "source_sha256": "fcffe5b1b1fecf0608b6e7bb0730e4028130b5e09ec0d3320666be0ed972e54e",
       "source": "src: Plate folder, or a sequence of plate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` lets spaCR estimate the diameter from representative fields. channels: Intensity channels retained in the merged field arrays. magnification: Objective magnification recorded with the run. pipeline_style: ``\"v1\"`` for the stable disk-based pipeline or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed fields. Keys that repeat a typed field are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy pipeline imports, model loading, segmentation, or writes.",
       "context": "src: Laboratory microplate folder, or a sequence of laboratory microplate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity image data channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` lets spaCR estimate the diameter from representative microscope fields of view. image data channels: Intensity image data channels retained in the merged microscope field of view arrays. magnification: Objective magnification recorded with the processing session. pipeline_style: ``\"v1\"`` for the stable disk-based workflow or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed microscope fields of view. Structured-data names that repeat a typed microscope field of view are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy workflow imports, model loading, segmentation, or writes.",
-      "translation": "src: Plötumappa, eða röð plötumappa, sem geymir upprunalegu smásjármyndirnar. cell_channel, nucleus_channel, pathogen_channel: Styrkleikarás talin frá núlli, notuð fyrir hvert hlutgreiningarmarkmið. Skildu hlut eftir á ``None`` þegar ekki á að greina hann. Að minnsta kosti eitt er nauðsynlegt. cell_diameter, nucleus_diameter, pathogen_diameter: Væntanleg þvermál hluta í mynddílum. ``None`` lætur spaCR meta þvermálið út frá dæmigerðum sviðum. channels: Styrkleikarásir sem haldið er eftir í sameinuðu sviðsfylkjunum. magnification: Stækkun linsu sem skráð er með keyrslunni. pipeline_style: ``\"v1\"`` fyrir stöðugu diskbundnu leiðina eða ``\"v2\"`` fyrir tilraunastreymisleiðina. extra: Ítarlegar stillingar sem eiga sér ekki eigin reit. Lyklum sem endurtaka slíkan reit er hafnað svo eitt skriftuskjal geti ekki innihaldið tvö svör. test_mode: Keyrðu Mask á slembiúrtaki af allt að ``test_images`` heilum myndasettum undir ``<src>/test`` og kveiktu á greiningarritum áður en allur uppruninn er unninn. dry_run: Keyrðu forathugun Mask og skilaðu skráðum vandamálum hennar áður en þungt er flutt inn, líkön hlaðin, greining gerð eða skrifað."
+      "translation": "src: Plötumappa, eða röð plötumappa, sem geymir upprunalegu smásjármyndirnar. cell_channel, nucleus_channel, pathogen_channel: Styrkleikarás talin frá núlli, notuð fyrir hvert hlutgreiningarmarkmið. Skildu hlut eftir á ``None`` þegar ekki á að greina hann. Að minnsta kosti eitt er nauðsynlegt. cell_diameter, nucleus_diameter, pathogen_diameter: Væntanleg þvermál hluta í mynddílum. ``None`` lætur spaCR meta þvermálið út frá dæmigerðum sviðum. channels: Styrkleikarásir sem haldið er eftir í sameinuðu sviðsfylkjunum. magnification: Stækkun linsu sem skráð er með keyrslunni. pipeline_style: ``\"v1\"`` fyrir stöðugu diskbundnu leiðina eða ``\"v2\"`` fyrir tilraunastreymisleiðina. extra: Ítarlegar stillingar sem eiga sér ekki eigin reit. Lyklum sem endurtaka slíkan reit er hafnað svo eitt skriftuskjal geti ekki innihaldið tvö svör. test_mode: Keyrðu Mask á slembiúrtaki af allt að ``test_images`` heilum myndasettum undir ``<src>/test`` og kveiktu á greiningarritum áður en allur uppruninn er unninn. dry_run: Keyrðu forathugun Mask og skilaðu skráðum vandamálum hennar áður en þungt er flutt inn, líkön hlaðin, greining gerð eða skrifað.",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "label": "spacr.api.MeasureConfig#3",
@@ -57,7 +63,9 @@
       "source_sha256": "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
       "source": "``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment pathogens with, instead of stock ``cpsam``. The pre-SAM ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to ``cpsam``; a PATH to a fine-tune is honoured, and a path that is not there stops the run rather than silently using stock weights.",
       "context": "``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment pathogens with, instead of stock ``cpsam``. The pre-SAM ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to ``cpsam``; a PATH to a fine-tune is honoured, and a path that is not there stops the run rather than silently using stock weights.",
-      "translation": "``pathogen_model`` — slóð á Cellpose-SAM eftirlitspunkt til að greina sýkla með, í stað hefðbundins ``cpsam``. Nöfnin ``toxo_pv_lumen`` / ``toxo_cyto`` frá því fyrir SAM eru horfin og vísa nú á ``cpsam``; PATH á fínstillt líkan er virt, og slóð sem er ekki til stöðvar keyrsluna í stað þess að nota hefðbundnar þyngdir í kyrrþey."
+      "translation": "``pathogen_model`` — slóð á Cellpose-SAM eftirlitspunkt til að greina sýkla með, í stað hefðbundins ``cpsam``. Nöfnin ``toxo_pv_lumen`` / ``toxo_cyto`` frá því fyrir SAM eru horfin og vísa nú á ``cpsam``; PATH á fínstillt líkan er virt, og slóð sem er ekki til stöðvar keyrsluna í stað þess að nota hefðbundnar þyngdir í kyrrþey.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.curation.CurationLog#3",
@@ -71,14 +79,18 @@
       "source_sha256": "d8ae6810427eaf2289aa29e16337017624b7b7b0f7a8b2d69ee900c9428ea690",
       "source": "One call, deliberately. A curated table written without its ledger is exactly the reproducibility hole this module exists to close, and leaving the second write to the caller is how that happens. The CSV and ledger remain sequential filesystem writes rather than one atomic transaction; retry this method if a process stops between them.",
       "context": "One call, deliberately. A curated table written without its ledger is exactly the reproducibility hole this module exists to close, and leaving the second write to the caller is how that happens. The CSV and ledger remain sequential filesystem writes rather than one atomic transaction; retry this method if a process stops between them.",
-      "translation": "Eitt kall, af ásettu ráði. Ritstýrð tafla skrifuð án bókar sinnar er nákvæmlega sú gjá í endurgerðanleika sem þessi eining er til að loka, og að skilja seinni skrifin eftir hjá þeim sem kallar er einmitt hvernig það gerist. CSV-skráin og bókin eru áfram tvenn aðskilin skrif á skráakerfið fremur en ein óskipt færsla; endurtaktu þessa aðferð ef ferli stöðvast á milli þeirra."
+      "translation": "Eitt kall, af ásettu ráði. Ritstýrð tafla skrifuð án bókar sinnar er nákvæmlega sú gjá í endurgerðanleika sem þessi eining er til að loka, og að skilja seinni skrifin eftir hjá þeim sem kallar er einmitt hvernig það gerist. CSV-skráin og bókin eru áfram tvenn aðskilin skrif á skráakerfið fremur en ein óskipt færsla; endurtaktu þessa aðferð ef ferli stöðvast á milli þeirra.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.example_archives.make_the_example_paths_absolute#1",
       "source_sha256": "a21a8bd0a960b5dcd6b67f59422ef0b196f79e860e530387c86a928eafa5f6a1",
       "source": "A measurements database stores ABSOLUTE paths to its crops, which name the machine that made it and resolve nowhere else. The published copy stores them relative to the dataset root instead, so it is portable and carries no account name -- and this is what turns them back into paths that open.",
       "context": "A measurements database stores ABSOLUTE paths to its extracted image regions, which name the machine that made it and resolve nowhere else. The published copy stores them relative to the dataset root instead, so it is portable and carries no account name -- and this is what turns them back into paths that open.",
-      "translation": "Mælingagagnagrunnur geymir ALGERAR slóðir á úrklippur sínar, sem nefna vélina sem bjó hann til og vísa hvergi annars staðar. Útgefna eintakið geymir þær þess í stað miðað við rót gagnasafnsins, svo það er færanlegt og ber ekkert notandanafn -- og þetta er það sem breytir þeim aftur í slóðir sem opnast."
+      "translation": "Mælingagagnagrunnur geymir ALGERAR slóðir á úrklippur sínar, sem nefna vélina sem bjó hann til og vísa hvergi annars staðar. Útgefna eintakið geymir þær þess í stað miðað við rót gagnasafnsins, svo það er færanlegt og ber ekkert notandanafn -- og þetta er það sem breytir þeim aftur í slóðir sem opnast.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.flowview.collector.Collector#9",
@@ -106,42 +118,54 @@
       "source_sha256": "a2045cc64181a447290c201cf0a40ac2f42999056741db15bb4d283a7bae7615",
       "source": "The gene a GUIDE NAME belongs to, for both spellings in use.",
       "context": "The gene a guide name belongs to, for both spellings in use.",
-      "translation": "Genið sem LEIÐARANAFN tilheyrir, fyrir báðar stafsetningarnar sem eru í notkun."
+      "translation": "Genið sem LEIÐARANAFN tilheyrir, fyrir báðar stafsetningarnar sem eru í notkun.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.image_import.ImportPlan.columns#1",
       "source_sha256": "266844c6621eaef1c31abff2603aabc745bc4ecb2678d9f21cde3d2e0cf92cfa",
       "source": "ONLY THE AXES THIS FOLDER HAS. A column of empty cells for an axis no file carries reads as \"spaCR looked for a Z and found none\", which is a different claim from \"this acquisition has no Z\" and is the one a user acts on. The tiled tree gains a `tile` column and the flat OME one gains `c_count`; neither shows the other's.",
       "context": "Only the axes this folder has. A column of empty cells for an axis no file carries reads as \"spaCR looked for a Z and found none\", which is a different claim from \"this acquisition has no Z\" and is the one a user acts on. The tiled tree gains a `tile` column and the flat OME one gains `c_count`; neither shows the other's.",
-      "translation": "AÐEINS ÞEIR ÁSAR SEM ÞESSI MAPPA HEFUR. Dálkur af tómum reitum fyrir ás sem engin skrá ber les sem \"spaCR looked for a Z and found none\", sem er önnur fullyrðing en \"this acquisition has no Z\" og sú sem notandi bregst við. Flísatréð fær `tile` dálk og flata OME-tréð fær `c_count`; hvorugt sýnir dálk hins."
+      "translation": "AÐEINS ÞEIR ÁSAR SEM ÞESSI MAPPA HEFUR. Dálkur af tómum reitum fyrir ás sem engin skrá ber les sem \"spaCR looked for a Z and found none\", sem er önnur fullyrðing en \"this acquisition has no Z\" og sú sem notandi bregst við. Flísatréð fær `tile` dálk og flata OME-tréð fær `c_count`; hvorugt sýnir dálk hins.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.image_import.apply_import#10",
       "source_sha256": "a8f07fd33fb31a5a6cb8faf4da4fd7a08b463323aff157c06a2498344a23ae05",
       "source": "THE OPT-OUT, and it takes precedence over ``stitch_tiles`` because it is the more specific request: a caller who says \"each tile is a field\" has said what they want the tiles to be. It discards the fact that they are ONE field, so anything measuring per field is then counting quarters of one -- which is why it is not the default.",
       "context": "The opt-out, and it takes precedence over ``stitch_tiles`` because it is the more specific request: a caller who says \"each tile is a microscope field of view\" has said what they want the tiles to be. It discards the fact that they are ONE microscope field of view, so anything measuring per microscope field of view is then counting quarters of one -- which is why it is not the default.",
-      "translation": "AFÞÖKKUNIN, og hún gengur framar ``stitch_tiles`` af því að hún er nákvæmari beiðni: sá sem segir \"each tile is a field\" hefur sagt hvað hann vill að flísarnar séu. Hún kastar frá sér þeirri staðreynd að þær eru EITT svið, svo allt sem mælir eftir sviðum telur þá fjórðunga úr einu -- sem er ástæðan fyrir því að þetta er ekki sjálfgefið."
+      "translation": "AFÞÖKKUNIN, og hún gengur framar ``stitch_tiles`` af því að hún er nákvæmari beiðni: sá sem segir \"each tile is a field\" hefur sagt hvað hann vill að flísarnar séu. Hún kastar frá sér þeirri staðreynd að þær eru EITT svið, svo allt sem mælir eftir sviðum telur þá fjórðunga úr einu -- sem er ástæðan fyrir því að þetta er ekki sjálfgefið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.image_import.save_plan#1",
       "source_sha256": "287cf7a6d77c5e40b07fb04af9f8aacc569c11f9f0dbd8d688607d9390604423",
       "source": "THE MAPPING IS THE ANSWER WORTH KEEPING. The per-file table is written too, because a saved plan a person cannot read is not reviewable, but :func:`load_plan` re-derives the files from the folder and trusts only the mapping -- see its own docstring for why replaying a stale table would import last week's images.",
       "context": "The mapping is the answer worth keeping. The per-file table is written too, because a saved plan a person cannot read is not reviewable, but :func:`load_plan` re-derives the files from the folder and trusts only the mapping -- see its own docstring for why replaying a stale table would import last week's images.",
-      "translation": "VÖRPUNIN ER SVARIÐ SEM VERT ER AÐ GEYMA. Taflan yfir hverja skrá er líka skrifuð, því vistuð áætlun sem enginn getur lesið er ekki yfirfaranleg, en :func:`load_plan` leiðir skrárnar aftur út frá möppunni og treystir aðeins vörpuninni -- sjá skýringu þeirrar aðferðar um hvers vegna endurspilun úreltrar töflu myndi flytja inn myndir síðustu viku."
+      "translation": "VÖRPUNIN ER SVARIÐ SEM VERT ER AÐ GEYMA. Taflan yfir hverja skrá er líka skrifuð, því vistuð áætlun sem enginn getur lesið er ekki yfirfaranleg, en :func:`load_plan` leiðir skrárnar aftur út frá möppunni og treystir aðeins vörpuninni -- sjá skýringu þeirrar aðferðar um hvers vegna endurspilun úreltrar töflu myndi flytja inn myndir síðustu viku.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.image_stitch#3",
       "source_sha256": "307bff3d5aa4bda90ff1e97238f2cfda63ba3632c7af2c30e2305fc539954a14",
       "source": "1. THE FILE'S OWN STAGE COORDINATES, when it has them. An OME-TIFF records ``PositionX``/``PositionY`` in microns and the pixel size beside them, so the layout is not inferred at all -- it is read. Nothing else is as good. 2. THE PIXELS, otherwise. Adjacent tiles overlap, and the overlap is the same picture twice, so the right displacement is the one whose implied overlap correlates -- scored for EVERY admissible displacement rather than picked from a phase-correlation peak, which a small overlap buries. This also settles the ORDER -- row-major and serpentine put different tiles beside each other, so the arrangement that correlates is the arrangement the microscope used. 3. NOTHING, in which case it says so. Blank tiles, single-pixel overlaps and images with no shared content produce no correlation to speak of. The tiles are then butt-joined in a square-ish grid and the mosaic is marked ``assumed`` with its confidence, because a seam in an image a user was told about is a different thing from one they were not.",
       "context": "1. The file's own stage coordinates, when it has them. An OME-TIFF records ``PositionX``/``PositionY`` in microns and the pixel size beside them, so the layout is not inferred at all -- it is read. Nothing else is as good. 2. the pixels, otherwise. Adjacent microscope image fields overlap, and the overlap is the same picture twice, so the right displacement is the one whose implied overlap correlates -- scored for EVERY admissible displacement rather than picked from a phase-correlation peak, which a small overlap buries. This also settles the ORDER -- row-major and serpentine put different microscope image fields beside each other, so the arrangement that correlates is the arrangement the microscope used. 3. NOTHING, in which case it says so. Blank microscope image fields, single-pixel overlaps and images with no shared content produce no correlation to speak of. The microscope image fields are then butt-joined in a square-ish grid and the stitched image grid is marked ``assumed`` with its confidence, because a seam in an image a user was told about is a different thing from one they were not.",
-      "translation": "1. SVIÐSHNIT SKRÁRINNAR SJÁLFRAR, þegar hún hefur þau. OME-TIFF skráir ``PositionX``/``PositionY`` í míkrómetrum og mynddílastærðina við hliðina, svo uppsetningin er alls ekki ályktuð -- hún er lesin. Ekkert annað er jafn gott. 2. MYNDDÍLARNIR, að öðrum kosti. Aðliggjandi flísar skarast, og skörunin er sama myndin tvisvar, svo rétta hliðrunin er sú þar sem skörunin sem hún felur í sér fylgist að -- metið fyrir SÉRHVERJA leyfilega hliðrun fremur en valið úr toppi fasafylgni, sem lítil skörun grefur. Þetta útkljáir líka RÖÐINA -- raðbundin og slöngulaga yfirferð setja ólíkar flísar hlið við hlið, svo sú skipan sem fylgist að er skipanin sem smásjáin notaði. 3. EKKERT, og þá segir hún það. Auðar flísar, skörun upp á einn mynddíl og myndir án sameiginlegs innihalds gefa enga fylgni sem heitið getur. Flísarnar eru þá lagðar saman brún við brún í nokkurn veginn ferkantað net og mósaíkin er merkt ``assumed`` með vissu sinni, því saumur í mynd sem notanda var sagt frá er annað en saumur sem honum var ekki sagt frá."
+      "translation": "1. SVIÐSHNIT SKRÁRINNAR SJÁLFRAR, þegar hún hefur þau. OME-TIFF skráir ``PositionX``/``PositionY`` í míkrómetrum og mynddílastærðina við hliðina, svo uppsetningin er alls ekki ályktuð -- hún er lesin. Ekkert annað er jafn gott. 2. MYNDDÍLARNIR, að öðrum kosti. Aðliggjandi flísar skarast, og skörunin er sama myndin tvisvar, svo rétta hliðrunin er sú þar sem skörunin sem hún felur í sér fylgist að -- metið fyrir SÉRHVERJA leyfilega hliðrun fremur en valið úr toppi fasafylgni, sem lítil skörun grefur. Þetta útkljáir líka RÖÐINA -- raðbundin og slöngulaga yfirferð setja ólíkar flísar hlið við hlið, svo sú skipan sem fylgist að er skipanin sem smásjáin notaði. 3. EKKERT, og þá segir hún það. Auðar flísar, skörun upp á einn mynddíl og myndir án sameiginlegs innihalds gefa enga fylgni sem heitið getur. Flísarnar eru þá lagðar saman brún við brún í nokkurn veginn ferkantað net og mósaíkin er merkt ``assumed`` með vissu sinni, því saumur í mynd sem notanda var sagt frá er annað en saumur sem honum var ekki sagt frá.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.layers.PointsLayer.world_extent#0",
       "source_sha256": "72afc959a790fd1de660906a16d08eb6bc18810468ac4fd31afa4063b5605409",
       "source": "The world box these points occupy, INCLUDING their drawn size.",
       "context": "The world box these points occupy, INCLUDING their drawn size.",
-      "translation": "Heimskassinn sem þessir punktar taka, MEÐTALINNI teiknaðri stærð þeirra."
+      "translation": "Heimskassinn sem þessir punktar taka, MEÐTALINNI teiknaðri stærð þeirra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measurement_scan.MeasurementEffect#1",
@@ -176,7 +200,9 @@
       "source_sha256": "c99169e7b871c6e8d473c11af3de27682927e033d4e1b7e862ab1f320d3583ea",
       "source": "**1. The Spacing is built from the SPACE axes only.** A 5-D NGFF image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the very check ``layers.py`` exists to make, and then draws a plausible picture of the wrong thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
       "context": "**1. The Spacing is built from the SPACE axes only.** A 5-d ngff image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the image data channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the very check ``layers.py`` exists to make, and then draws a plausible picture of the wrong thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
-      "translation": "**1. Bilið er byggt AÐEINS á rúmásunum.** Fimmvíð NGFF mynd hefur ásana ``(t, c, z, y, x)``: tímaásinn er í sekúndum, rásarásinn hefur enga einingu yfirleitt, og z/y/x eru í míkrómetrum. Eitt ``Spacing`` yfir alla fimm þyrfti að svara \"what unit is this?\" með einum streng, og hverju sem það svaraði væri rangt fyrir þrjá ásanna — stafli þar sem bilið segist vera ``\"um\"`` meðan einn ása hans stígur í sekúndum stenst einmitt þá athugun sem ``layers.py`` er til að gera, og teiknar svo trúverðuga mynd af röngum hlut. Þess vegna nær :attr:`OmeZarrImage.spacing` yfir z/y/x, og t og c eru tilkynnt við hliðina sem :class:`Axis` færslur gegnum :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` og :attr:`OmeZarrImage.channel_axis`. Ekkert tapast; lesarinn meðhöndlar sekúndur og míkrómetra ekki sem sömu tegund tölu."
+      "translation": "**1. Bilið er byggt AÐEINS á rúmásunum.** Fimmvíð NGFF mynd hefur ásana ``(t, c, z, y, x)``: tímaásinn er í sekúndum, rásarásinn hefur enga einingu yfirleitt, og z/y/x eru í míkrómetrum. Eitt ``Spacing`` yfir alla fimm þyrfti að svara \"what unit is this?\" með einum streng, og hverju sem það svaraði væri rangt fyrir þrjá ásanna — stafli þar sem bilið segist vera ``\"um\"`` meðan einn ása hans stígur í sekúndum stenst einmitt þá athugun sem ``layers.py`` er til að gera, og teiknar svo trúverðuga mynd af röngum hlut. Þess vegna nær :attr:`OmeZarrImage.spacing` yfir z/y/x, og t og c eru tilkynnt við hliðina sem :class:`Axis` færslur gegnum :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` og :attr:`OmeZarrImage.channel_axis`. Ekkert tapast; lesarinn meðhöndlar sekúndur og míkrómetra ekki sem sömu tegund tölu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_merge#7",
@@ -218,14 +244,18 @@
       "source_sha256": "f80077553335be2fe5b15d65d4fb5a6ce5da04414f6707db9041576db25977cc",
       "source": "Name the file's path AND which module writes it, so a user who has not run Measure yet learns what is missing rather than that they are wrong.",
       "context": "Name the file's path AND which module writes it, so a user who has not executed Measure yet learns what is missing rather than that they are wrong.",
-      "translation": "Nefndu slóð skrárinnar OG hvaða eining skrifar hana, svo notandi sem hefur ekki keyrt Measure enn læri hvað vantar fremur en að hann hafi rangt fyrir sér."
+      "translation": "Nefndu slóð skrárinnar OG hvaða eining skrifar hana, svo notandi sem hefur ekki keyrt Measure enn læri hvað vantar fremur en að hann hafi rangt fyrir sér.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.ExternalMasksDropHandler.apply#1",
       "source_sha256": "c9cb7ea22f68c5b6eca06cea0e77d1c8147e77ac453e6f29ec52ff61a97fddb5",
       "source": "APPEND, NOT REPLACE. The mapper pairs images with masks, so a drop that replaced the list would undo the pairing the previous drop just contributed to.",
       "context": "APPEND, not replace. The mapper pairs images with masks, so a drop that replaced the list would undo the pairing the previous drop just contributed to.",
-      "translation": "BÆTA VIÐ, EKKI SKIPTA ÚT. Vörpunin parar myndir við grímur, svo innsláttur sem skipti listanum út myndi afturkalla þá pörun sem fyrri innsláttur var nýbúinn að leggja til."
+      "translation": "BÆTA VIÐ, EKKI SKIPTA ÚT. Vörpunin parar myndir við grímur, svo innsláttur sem skipti listanum út myndi afturkalla þá pörun sem fyrri innsláttur var nýbúinn að leggja til.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.MeasureDropHandler.can_accept#0",
@@ -246,14 +276,18 @@
       "source_sha256": "7b163964931e0dd5b265664e486d46e99ce3c219db92cdd1451c3a96ff729294",
       "source": "A CANCELLED CHOOSER IS NOT A FAILURE. The user changed their mind about a drop; loading something anyway, or raising, would both be worse than doing nothing.",
       "context": "A cancelled chooser is not a failure. The user changed their mind about a drop; loading something anyway, or raising, would both be worse than doing nothing.",
-      "translation": "AFTURKALLAÐUR VALGLUGGI ER EKKI BILUN. Notandinn skipti um skoðun um innslátt; að hlaða einhverju samt, eða kasta villu, væri hvort tveggja verra en að gera ekkert."
+      "translation": "AFTURKALLAÐUR VALGLUGGI ER EKKI BILUN. Notandinn skipti um skoðun um innslátt; að hlaða einhverju samt, eða kasta villu, væri hvort tveggja verra en að gera ekkert.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gc_policy#1",
       "source_sha256": "ec50cc5ffde77df3cea7a3bbf66958152c1f7271efab32af296eca09d5b1b29d",
       "source": "WHY THIS EXISTS, MEASURED. Pressing Run in the live preview with ``cpsam`` produced, on 2026-09-01",
       "context": "Why this exists, MEASURED. Pressing Run in the live preview with ``cpsam`` produced, on 2026-09-01",
-      "translation": "HVERS VEGNA ÞETTA ER TIL, MÆLT. Að ýta á Run í lifandi forskoðun með ``cpsam`` framkallaði, þann 2026-09-01"
+      "translation": "HVERS VEGNA ÞETTA ER TIL, MÆLT. Að ýta á Run í lifandi forskoðun með ``cpsam`` framkallaði, þann 2026-09-01",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.live_zoom#6",
@@ -267,7 +301,9 @@
       "source_sha256": "b3c97c6645470312248191a2d262b6d48eb1b310e0c6811b05cf2789a5e01b2f",
       "source": "IT USED TO GO TO THE STATUS BAR, the line in the bottom LEFT of the window, with a four-second linger, and it flickered: text that looked as though it were going to the hovered module and then to something else and back again. Two writers, not one -- this filter put the description there on every hover and Qt put the permanent message back four seconds later, so the corner alternated. The strip does not alternate -- it holds the last module for thirty seconds and is replaced only by the next.",
       "context": "It used to go to the status bar, the line in the bottom LEFT of the window, with a four-second linger, and it flickered: text that looked as though it were going to the hovered module and then to something else and back again. Two writers, not one -- this filter put the description there on every hover and Qt put the permanent message back four seconds later, so the corner alternated. The strip does not alternate -- it holds the last module for thirty seconds and is replaced only by the next.",
-      "translation": "ÞETTA FÓR ÁÐUR Í STÖÐUSTIKUNA, línuna neðst til VINSTRI í glugganum, með fjögurra sekúndna töf, og hún flökti: texti sem virtist eiga við eininguna undir bendlinum og fór svo á eitthvað annað og til baka. Tveir skrifarar, ekki einn -- þessi sía setti lýsinguna þangað við hverja yfirferð og Qt setti föstu skilaboðin aftur fjórum sekúndum síðar, svo hornið skiptist á. Stikan skiptist ekki á -- hún heldur síðustu einingunni í þrjátíu sekúndur og henni er aðeins skipt út fyrir þá næstu."
+      "translation": "ÞETTA FÓR ÁÐUR Í STÖÐUSTIKUNA, línuna neðst til VINSTRI í glugganum, með fjögurra sekúndna töf, og hún flökti: texti sem virtist eiga við eininguna undir bendlinum og fór svo á eitthvað annað og til baka. Tveir skrifarar, ekki einn -- þessi sía setti lýsinguna þangað við hverja yfirferð og Qt setti föstu skilaboðin aftur fjórum sekúndum síðar, svo hornið skiptist á. Stikan skiptist ekki á -- hún heldur síðustu einingunni í þrjátíu sekúndur og henni er aðeins skipt út fyrir þá næstu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.path_probe#3",
@@ -282,7 +318,9 @@
       "source": "WHY `wait` EXISTS, and why it is not the default. The freeze this module was written for came from statting REMEMBERED paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. Nobody asked for it and nobody was waiting on it, so answering from cache and checking later is strictly better.",
       "context": "WHY `wait` EXISTS, and why it is not the default. The freeze this module was written for came from statting REMEMBERED paths -- a passive pass over everything a settings file mentions, on the main GUI execution path, to colour the missing ones red. Nobody asked for it and nobody was waiting on it, so answering from cache and checking later is strictly better.",
       "translation": "HVERS VEGNA `wait` ER TIL, og hvers vegna það er ekki sjálfgefið. Frostið sem þessi eining var skrifuð vegna kom af því að stat var keyrt á MUNAÐAR slóðir -- óvirk yfirferð yfir allt sem stillingaskrá nefnir, á GUI þræðinum, til að lita þær sem vantaði rauðar. Enginn bað um það og enginn beið eftir því, svo að svara úr skyndiminni og athuga síðar er hreinlega betra.",
-      "rebound_from": "spacr.qt.path_probe.isdir#3"
+      "rebound_from": "spacr.qt.path_probe.isdir#3",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences.get_dashboard_watermark#1",
@@ -331,7 +369,9 @@
       "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
       "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
-      "translation": "Bæði Delete og Cancel fara hér í gegn og HVORUGT sendir lokunaratburð — ``QDialog.done`` felur viðmótsstykkið — svo hér, en ekki í ``closeEvent``, verður niðurrif kvaðningarglugga að búa. Qt stöðvar ferlið umsvifalaust ef ``QThread`` sem er í gangi er eytt með eiganda sínum, og yfirferðin getur enn verið úti þegar notandinn hættir við."
+      "translation": "Bæði Delete og Cancel fara hér í gegn og HVORUGT sendir lokunaratburð — ``QDialog.done`` felur viðmótsstykkið — svo hér, en ekki í ``closeEvent``, verður niðurrif kvaðningarglugga að búa. Qt stöðvar ferlið umsvifalaust ef ``QThread`` sem er í gangi er eytt með eiganda sínum, og yfirferðin getur enn verið úti þegar notandinn hættir við.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.experiment_design#7",
@@ -347,7 +387,9 @@
       "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
       "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
       "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
-      "translation": "ENGINN NOTANDI SÉR BÓKSTAF, beðið um það með þessum orðum 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Hólfin eru geymd með bókstaf -- ``organelle``, ``organelleb``, ``organellec`` -- því hlutverksheiti er forskeyti hvers stillingarlykils sem það á og ``organelle2`` kemst ekki fram og til baka gegnum ``prcfo`` lykil án þess að rekast á hlutinn sem MERKTUR er 2. Það er geymsluákvörðun og hún á ekkert erindi á skjáinn, þar sem hólf er TALA: Organelle 1, Organelle 2."
+      "translation": "ENGINN NOTANDI SÉR BÓKSTAF, beðið um það með þessum orðum 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Hólfin eru geymd með bókstaf -- ``organelle``, ``organelleb``, ``organellec`` -- því hlutverksheiti er forskeyti hvers stillingarlykils sem það á og ``organelle2`` kemst ekki fram og til baka gegnum ``prcfo`` lykil án þess að rekast á hlutinn sem MERKTUR er 2. Það er geymsluákvörðun og hún á ekkert erindi á skjáinn, þar sem hólf er TALA: Organelle 1, Organelle 2.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.hyperparam.UmapSearchSettingsDialog#3",
@@ -410,7 +452,9 @@
       "source_sha256": "28a45cde783d7e3bf2e6789c2f206647f93fcb6e7fa404dcabb5deb92659b4f4",
       "source": "DELIBERATELY NOT REBUILT. Loading the crops is the slow half -- the first montage of a run reads images off disk for seconds -- and a restore that started it would freeze a window the user had just opened to look around in. The settings are put back and the button is there; 155's \"the montage says how it chose\" is on screen either way.",
       "context": "Deliberately not rebuilt. Loading the extracted image regions is the slow half -- the first montage of a processing session reads images off disk for seconds -- and a restore that started it would freeze a window the user had just opened to look around in. The settings are put back and the button is there; 155's \"the montage says how it chose\" is on application view either way.",
-      "translation": "VÍSVITANDI EKKI ENDURBYGGT. Að hlaða úrklippunum er hægari helmingurinn -- fyrsta myndaröð keyrslu les myndir af diski í nokkrar sekúndur -- og endurheimt sem hæfi það myndi frysta glugga sem notandinn var nýbúinn að opna til að skoða sig um í. Stillingarnar eru settar aftur og hnappurinn er þar; \"the montage says how it chose\" úr 155 er á skjánum hvort sem er."
+      "translation": "VÍSVITANDI EKKI ENDURBYGGT. Að hlaða úrklippunum er hægari helmingurinn -- fyrsta myndaröð keyrslu les myndir af diski í nokkrar sekúndur -- og endurheimt sem hæfi það myndi frysta glugga sem notandinn var nýbúinn að opna til að skoða sig um í. Stillingarnar eru settar aftur og hnappurinn er þar; \"the montage says how it chose\" úr 155 er á skjánum hvort sem er.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.column_aligned_row#1",
@@ -424,21 +468,27 @@
       "source_sha256": "6e86102a63cfaa26842ba5ab8e4215d80e02c18b09d183ae3ea0687580698ba3",
       "source": "ONE COLUMN MODEL, READ IN ONE DIRECTION. The build the request describes -- a second table above the first, both told to keep the same widths -- is two column models that have to be kept in step, and this repository has already paid for that once (see the `_ClusterSettingsDialog` docstring on what two editors of one setting cost). This layout owns no widths at all. It asks the paired table's ``QHeaderView`` where each section starts and how wide it is, every time it lays out, and it writes nothing back: the header never learns that a strip is following it, so there is nothing to drift.",
       "context": "One column model, read in one direction. The build the request describes -- a second table above the first, both told to keep the same widths -- is two column models that have to be kept in step, and this repository has already paid for that once (see the `_ClusterSettingsDialog` docstring on what two editors of one setting cost). This layout owns no widths at all. It asks the paired table's ``QHeaderView`` where each section starts and how wide it is, every time it lays out, and it writes nothing back: the header never learns that a strip is following it, so there is nothing to drift.",
-      "translation": "EITT DÁLKALÍKAN, LESIÐ Í EINA ÁTT. Sú smíði sem beiðnin lýsir -- önnur tafla ofan við þá fyrri, báðum sagt að halda sömu breiddum -- er tvö dálkalíkön sem þarf að halda í takt, og þetta geymslusafn hefur þegar borgað fyrir það einu sinni (sjá skýringu `_ClusterSettingsDialog` um hvað tveir ritlar einnar stillingar kosta). Þetta útlit á engar breiddir. Það spyr ``QHeaderView`` pöruðu töflunnar hvar hver kafli byrjar og hversu breiður hann er, í hvert sinn sem það raðar, og það skrifar ekkert til baka: hausinn kemst aldrei að því að stika sé að fylgja honum, svo það er ekkert sem getur rekið."
+      "translation": "EITT DÁLKALÍKAN, LESIÐ Í EINA ÁTT. Sú smíði sem beiðnin lýsir -- önnur tafla ofan við þá fyrri, báðum sagt að halda sömu breiddum -- er tvö dálkalíkön sem þarf að halda í takt, og þetta geymslusafn hefur þegar borgað fyrir það einu sinni (sjá skýringu `_ClusterSettingsDialog` um hvað tveir ritlar einnar stillingar kosta). Þetta útlit á engar breiddir. Það spyr ``QHeaderView`` pöruðu töflunnar hvar hver kafli byrjar og hversu breiður hann er, í hvert sinn sem það raðar, og það skrifar ekkert til baka: hausinn kemst aldrei að því að stika sé að fylgja honum, svo það er ekkert sem getur rekið.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.feature_rank.ExplorerResult.summary#1",
       "source_sha256": "177203f92f948518a8dd9303769e13ae4c63f9d245cb63879784530f6b9b411d",
       "source": "NAMES THE SKIPPED ONES. A ranking that quietly dropped constant or all-null columns would read as a complete answer over a set of features the user did not choose.",
       "context": "Names the SKIPPED ones. A ranking that quietly dropped constant or all-null columns would read as a complete answer over a set of features the user did not choose.",
-      "translation": "NEFNIR ÞÁ SEM SKIPPED VAR. Röðun sem sleppti föstum eða alveg tómum dálkum í kyrrþey myndi lesast sem fullgert svar yfir mengi eiginleika sem notandinn valdi ekki."
+      "translation": "NEFNIR ÞÁ SEM SKIPPED VAR. Röðun sem sleppti föstum eða alveg tómum dálkum í kyrrþey myndi lesast sem fullgert svar yfir mengi eiginleika sem notandinn valdi ekki.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#3",
       "source_sha256": "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
       "source": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the CSVs still land on the right plates.",
       "context": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the CSVs still land on the right plates.",
-      "translation": "taflan sem þegar er vistuð, ein færsla á plötu. Allt sem berst eftir það LEGGUR TIL ALLA TÖFLUNA AÐ NÝJU út frá skráarnafnsbrotum fremur en að bæta við, sem er það sem lætur gagnagrunna sem sleppt er í öfugri röð við CSV-skrárnar samt lenda á réttum plötum."
+      "translation": "taflan sem þegar er vistuð, ein færsla á plötu. Allt sem berst eftir það LEGGUR TIL ALLA TÖFLUNA AÐ NÝJU út frá skráarnafnsbrotum fremur en að bæta við, sem er það sem lætur gagnagrunna sem sleppt er í öfugri röð við CSV-skrárnar samt lenda á réttum plötum.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent#2",
@@ -487,14 +537,18 @@
       "source_sha256": "b52010bc5874a741b3af7bc1ce01a94972bba4cd2a61762145f9526dc423d208",
       "source": "NOTHING IS DELETED, for the same reason **Clear** on Recent runs deletes nothing — see :func:`spacr.qt.preferences.get_dashboard_watermark`. What these counts are FOR is telling the user how much this installation has done, and a reset that removed the manifests would take Run History and every run's provenance with it.",
       "context": "Nothing is deleted, for the same reason **Clear** on Recent runs deletes nothing — see :func:`spacr.qt.preferences.get_dashboard_watermark`. What these counts are FOR is telling the user how much this installation has done, and a reset that removed the manifests would take Run History and every run's provenance with it.",
-      "translation": "ENGU ER EYTT, af sömu ástæðu og **Clear** á Nýlegum keyrslum eyðir engu — sjá :func:`spacr.qt.preferences.get_dashboard_watermark`. Það sem þessar tölur eru TIL fyrir er að segja notandanum hversu mikið þessi uppsetning hefur gert, og endursetning sem fjarlægði skrárnar tæki Run History og uppruna hverrar keyrslu með sér."
+      "translation": "ENGU ER EYTT, af sömu ástæðu og **Clear** á Nýlegum keyrslum eyðir engu — sjá :func:`spacr.qt.preferences.get_dashboard_watermark`. Það sem þessar tölur eru TIL fyrir er að segja notandanum hversu mikið þessi uppsetning hefur gert, og endursetning sem fjarlægði skrárnar tæki Run History og uppruna hverrar keyrslu með sér.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.import_workbench.ImportWorkbench#5",
       "source_sha256": "c0fa4551e350a749322c8e6093f5669f8e1c78e0fbcad710e0f292d537eb0ac4",
       "source": "The walk over dropped paths runs on its own worker. A drop is a path the user chose, and a plate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a run, and it is safe to do so because that runner carries nothing but the walk.",
       "context": "The walk over dropped paths executes on its own worker. A drop is a path the user chose, and a laboratory microplate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a processing session, and it is safe to do so because that runner carries nothing but the walk.",
-      "translation": "Yfirferðin um slóðir sem sleppt er keyrir á sínum eigin vinnuþræði. Innsláttur er slóð sem notandinn valdi, og plata býr á sameign smásjárinnar: eitt ``os.path.exists`` undir sofandi autofs tengipunkti hafði ekki skilað sér eftir tuttugu sekúndur, og yfirferð er þúsundir slíkra. Innfelld fraus hún forritið án nokkurs rakningarstakks -- stöðnuð atburðalykkja er ekki hrun, og því var lýst sem flökti við yfirferð og glefsum af öðrum skjám. Keyrarinn er merktur ekki sýnilegur notanda því að sleppa möppu er ekki að hefja keyrslu, og það er óhætt því sá keyrari ber ekkert nema yfirferðina."
+      "translation": "Yfirferðin um slóðir sem sleppt er keyrir á sínum eigin vinnuþræði. Innsláttur er slóð sem notandinn valdi, og plata býr á sameign smásjárinnar: eitt ``os.path.exists`` undir sofandi autofs tengipunkti hafði ekki skilað sér eftir tuttugu sekúndur, og yfirferð er þúsundir slíkra. Innfelld fraus hún forritið án nokkurs rakningarstakks -- stöðnuð atburðalykkja er ekki hrun, og því var lýst sem flökti við yfirferð og glefsum af öðrum skjám. Keyrarinn er merktur ekki sýnilegur notanda því að sleppa möppu er ekki að hefja keyrslu, og það er óhætt því sá keyrari ber ekkert nema yfirferðina.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.WorkflowStep#2",
@@ -515,7 +569,9 @@
       "source_sha256": "2c921ecadfa8c01fccbe4f629a84f0bc653d7120c48b7a7c31734344b031920b",
       "source": "**A question an object does not ask stays absent.** ``cytoplasm`` has no channel, no diameter and no detection method -- it is DERIVED, cell minus the rest, not found in a channel. Those cells are blank and not editable, because writing a value there invents a key nothing reads.",
       "context": "**A question an object does not ask stays absent.** ``cytoplasm`` has no channel, no diameter and no detection method -- it is DERIVED, cell minus the rest, not found in a channel. Those cells are blank and not editable, because writing a value there invents a structured-data name nothing reads.",
-      "translation": "**Spurning sem hlutur spyr ekki er áfram fjarverandi.** ``cytoplasm`` hefur enga rás, ekkert þvermál og enga greiningaraðferð -- hún er LEIDD, fruma að frádregnu hinu, ekki fundin í rás. Þeir reitir eru auðir og ekki ritanlegir, því að skrifa gildi þar býr til lykil sem ekkert les."
+      "translation": "**Spurning sem hlutur spyr ekki er áfram fjarverandi.** ``cytoplasm`` hefur enga rás, ekkert þvermál og enga greiningaraðferð -- hún er LEIDD, fruma að frádregnu hinu, ekki fundin í rás. Þeir reitir eru auðir og ekki ritanlegir, því að skrifa gildi þar býr til lykil sem ekkert les.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle#0",
@@ -564,7 +620,9 @@
       "source_sha256": "29f300eea7b0f1cf9ccf8ed5dd1901574db15ad42f4c2033ed795c45d34edcd9",
       "source": "The way out of a spin or a zoom that has lost the cloud: a 3-D view can be rotated until nothing is on screen, and no amount of further dragging necessarily finds it again.",
       "context": "The way out of a spin or a zoom that has lost the cloud: a 3-D view can be rotated until nothing is on application view, and no amount of further dragging necessarily finds it again.",
-      "translation": "Leiðin út úr snúningi eða aðdrætti sem hefur týnt skýinu: hægt er að snúa þrívíðri sýn þar til ekkert er á skjánum, og frekara dráttarlag finnur það ekki endilega aftur."
+      "translation": "Leiðin út úr snúningi eða aðdrætti sem hefur týnt skýinu: hægt er að snúa þrívíðri sýn þar til ekkert er á skjánum, og frekara dráttarlag finnur það ekki endilega aftur.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regex_infer.FieldEvidence#4",
@@ -578,7 +636,9 @@
       "source_sha256": "00eebf2ab64eaaadd8e726e1c47f16b95b7e924dbb2f84dfec979700e450c402",
       "source": "One compact panel reporting wells, predictors, rank and guide support.",
       "context": "One compact panel reporting microplate sample positions, predictors, rank and guide support.",
-      "translation": "Eitt þjappað spjald sem greinir frá brunnum, forspárbreytum, stigi og stuðningi leiðara."
+      "translation": "Eitt þjappað spjald sem greinir frá brunnum, forspárbreytum, stigi og stuðningi leiðara.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_panels#1",
@@ -599,14 +659,18 @@
       "source_sha256": "568bb01b14c61acf93886a5ad2c476412585e30bcb97f4fe7de633197a409bfe",
       "source": "Match predicted objects to labelled ones, one to one and optimally.",
       "context": "Match predicted objects to labelled ones, one to one and optimally.",
-      "translation": "Parar spáða hluti við merkta, einn á móti einum og með sem bestum hætti."
+      "translation": "Parar spáða hluti við merkta, einn á móti einum og með sem bestum hætti.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc.SegmentationQCFailed#3",
       "source_sha256": "d24851a39a6fc56e0079598ccabe16e41d410a02b861ee50f469d0b2b2bc05d7",
       "source": "the QC summary, so a caller can report WHICH fields failed and why rather than only that something did. ``None`` when there is nothing to carry.",
       "context": "the QC summary, so a caller can report WHICH fields failed and why rather than only that something did. ``None`` when there is nothing to carry.",
-      "translation": "samantekt QC gæðaeftirlitsins, svo kallandi geti greint frá HVAÐA svið féllu og hvers vegna fremur en aðeins að eitthvað hafi fallið. ``None`` þegar ekkert er að bera."
+      "translation": "samantekt QC gæðaeftirlitsins, svo kallandi geti greint frá HVAÐA svið féllu og hvers vegna fremur en aðeins að eitthvað hafi fallið. ``None`` þegar ekkert er að bera.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing#2",
@@ -620,7 +684,9 @@
       "source_sha256": "e1380a40a01e067252f44957c4b4467d882cea762eb3b170776da2b0cbdb125a",
       "source": "There are three easy ways to obtain plausible but incomplete output.  The anchor match is exact and a wrong regex silently rejects reads; reference sequences are compared in their stored orientation; and a sequence within ``barcode_mismatches`` of two references remains unassigned instead of being guessed.  Finally, read-level HDF5 output can be much larger than the count tables, and high compression may spend more time saving than decoding, so disable ``save_h5`` unless those individual annotations are needed.",
       "context": "There are three easy ways to obtain plausible but incomplete output.  The anchor match is exact and a wrong regex silently rejects reads; reference sequences are compared in their stored orientation; and a sequence within ``barcode_mismatches`` of two references remains unassigned instead of being guessed.  Finally, read-level HDF5 output can be much larger than the count tables, and high compression may spend more time saving than decoding, so disable ``save_h5`` unless those individual annotations are needed.",
-      "translation": "Það eru þrjár auðveldar leiðir til að fá trúverðuga en ófullgerða útkomu.  Akkerissamsvörunin er nákvæm og röng segð hafnar aflestrum í kyrrþey; viðmiðunarraðir eru bornar saman í þeirri stefnu sem þær eru geymdar í; og röð sem er innan ``barcode_mismatches`` frá tveimur viðmiðunum er áfram óúthlutuð í stað þess að vera giskuð.  Loks getur HDF5 úttak á aflestrarstigi verið miklu stærra en talningatöflurnar, og mikil þjöppun getur eytt meiri tíma í vistun en afkóðun, svo slökktu á ``save_h5`` nema þessar einstöku skýringar séu nauðsynlegar."
+      "translation": "Það eru þrjár auðveldar leiðir til að fá trúverðuga en ófullgerða útkomu.  Akkerissamsvörunin er nákvæm og röng segð hafnar aflestrum í kyrrþey; viðmiðunarraðir eru bornar saman í þeirri stefnu sem þær eru geymdar í; og röð sem er innan ``barcode_mismatches`` frá tveimur viðmiðunum er áfram óúthlutuð í stað þess að vera giskuð.  Loks getur HDF5 úttak á aflestrarstigi verið miklu stærra en talningatöflurnar, og mikil þjöppun getur eytt meiri tíma í vistun en afkóðun, svo slökktu á ``save_h5`` nema þessar einstöku skýringar séu nauðsynlegar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.downloaded_zoo_models#1",
@@ -666,31 +732,37 @@
     },
     {
       "label": "spacr.umap_search.walk_clusters#1",
-      "source_sha256": "3de9d77c4e3f019184b4ec1eb24ba19a30961d76735bd6d189b6c6a75de07f2b",
-      "source": "This is the clustering half of the Starplast-style walk.  It can run for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
-      "context": "This is the clustering half of the Starplast-style walk.  It can execute for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
-      "translation": "Þetta er klösunarhelmingur gönguferðarinnar að hætti Starplast.  Hún getur keyrt fyrir hverja UMAP tilraun um leið og sú tilraun berst, eða síðar á móti töfluröðinni sem notandinn valdi. Tvíteknum og of stórum eða of litlum stærðum er sleppt; sé engin stærð merkingarbær er kallinu hafnað fremur en að búa til sigurvegara með einum klasa. Bilun í klösun berst áfram, meðan óskilgreint sílúettugildi er haldið sem ``nan`` og raðast neðar en hvert mælt gildi."
+      "source_sha256": "310bf179b0c8df3da48fd937967afa81d8ee66930286b64f7116b4a4a9c07b6f",
+      "source": "This is the clustering half of the ParaScape-style walk.  It can run for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
+      "context": "This is the clustering half of the ParaScape-style walk.  It can execute for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
+      "translation": "Þetta er klösunarhelmingur gönguferðarinnar að hætti ParaScape.  Hún getur keyrt fyrir hverja UMAP tilraun um leið og sú tilraun berst, eða síðar á móti töfluröðinni sem notandinn valdi. Tvíteknum og of stórum eða of litlum stærðum er sleppt; sé engin stærð merkingarbær er kallinu hafnað fremur en að búa til sigurvegara með einum klasa. Bilun í klösun berst áfram, meðan óskilgreint sílúettugildi er haldið sem ``nan`` og raðast neðar en hvert mælt gildi."
     },
     {
       "label": "spacr.utils.correct_metadata#5",
       "source_sha256": "16fbf4da6b961ed22a53b76935745822e7bd660bf78413366801ad2c7191e8bd",
       "source": "THE ``pp`` REPAIR RUNS AFTER THE RENAMES, and over every plate-bearing column. It used to run first and only over ``plateID``/``prcfo``, which meant it did nothing at all for the files that actually carry the artifact: a legacy score CSV has a ``plate`` column and NO ``plateID`` column, so the guard was false, the repair was skipped, and the very next line then copied the unrepaired ``plate`` value into ``plateID``.",
       "context": "THE ``pp`` repair executes after the renames, and over every laboratory microplate-bearing column. It used to execute first and only over ``plateID``/``prcfo``, which meant it did nothing at all for the files that actually carry the artifact: a legacy score CSV has a ``plate`` column and NO ``plateID`` column, so the guard was false, the repair was skipped, and the very next line then copied the unrepaired ``plate`` value into ``plateID``.",
-      "translation": "``pp`` VIÐGERÐIN KEYRIR EFTIR ENDURNEFNINGARNAR, og yfir hvern dálk sem ber plötu. Hún keyrði áður fyrst og aðeins yfir ``plateID``/``prcfo``, sem þýddi að hún gerði alls ekkert fyrir þær skrár sem raunverulega bera gripinn: eldri stiga-CSV hefur ``plate`` dálk og ENGAN ``plateID`` dálk, svo vörnin var ósönn, viðgerðinni var sleppt, og næsta lína afritaði svo óviðgerða ``plate`` gildið yfir í ``plateID``."
+      "translation": "``pp`` VIÐGERÐIN KEYRIR EFTIR ENDURNEFNINGARNAR, og yfir hvern dálk sem ber plötu. Hún keyrði áður fyrst og aðeins yfir ``plateID``/``prcfo``, sem þýddi að hún gerði alls ekkert fyrir þær skrár sem raunverulega bera gripinn: eldri stiga-CSV hefur ``plate`` dálk og ENGAN ``plateID`` dálk, svo vörnin var ósönn, viðgerðinni var sleppt, og næsta lína afritaði svo óviðgerða ``plate`` gildið yfir í ``plateID``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.validate.Problem.__str__#1",
       "source_sha256": "e36e97ee68a2121af3d17b11d60917d834fe4f3ab53fa96652354073df72281b",
       "source": "The setting's name leads when there is one, so a reader scanning a list of problems sees WHICH setting each belongs to before the message.",
       "context": "The setting's name leads when there is one, so a reader scanning a list of problems sees WHICH setting each belongs to before the message.",
-      "translation": "Heiti stillingarinnar kemur fyrst þegar það er til staðar, svo lesandi sem rennir yfir lista af vandamálum sjái HVAÐA stillingu hvert þeirra tilheyrir áður en hann les skilaboðin."
+      "translation": "Heiti stillingarinnar kemur fyrst þegar það er til staðar, svo lesandi sem rennir yfir lista af vandamálum sjái HVAÐA stillingu hvert þeirra tilheyrir áður en hann les skilaboðin.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.fast_plots.InfluencePlot#1",
       "source_sha256": "4350cfa3c03dd8dd835b377eb543acdf1f6145649f88d6222d3364dc7ee15cad",
       "source": "The interactive twin of :func:`spacr.regression_qc._panel_influence`. The question it answers is the one a screen cannot answer from the volcano: is a hit the shape of the data, or the shape of ONE WELL? A well far to the right has an unusual combination of guides; a well far up or down is poorly predicted; a well that is both is one whose removal moves the coefficients, and Cook's distance is the product that says so.",
       "context": "The interactive twin of :func:`spacr.regression_qc._panel_influence`. The question it answers is the one a screening experiment cannot answer from the volcano: is a hit the shape of the data, or the shape of one microplate sample position? A microplate sample position far to the right has an unusual combination of guides; a microplate sample position far up or down is poorly predicted; a microplate sample position that is both is one whose removal moves the coefficients, and Cook's distance is the product that says so.",
-      "translation": "Gagnvirki tvíburi :func:`spacr.regression_qc._panel_influence`. Spurningin sem hann svarar er sú sem eldfjallaritið getur ekki svarað: er niðurstaða lögun gagnanna, eða lögun EINS BRUNNS? Brunnur langt til hægri hefur óvenjulega samsetningu leiðara; brunnur langt upp eða niður er illa spáð fyrir um; brunnur sem er hvort tveggja er sá sem færir stuðlana þegar hann er fjarlægður, og fjarlægð Cooks er stærðin sem segir það."
+      "translation": "Gagnvirki tvíburi :func:`spacr.regression_qc._panel_influence`. Spurningin sem hann svarar er sú sem eldfjallaritið getur ekki svarað: er niðurstaða lögun gagnanna, eða lögun EINS BRUNNS? Brunnur langt til hægri hefur óvenjulega samsetningu leiðara; brunnur langt upp eða niður er illa spáð fyrir um; brunnur sem er hvort tveggja er sá sem færir stuðlana þegar hann er fjarlægður, og fjarlægð Cooks er stærðin sem segir það.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

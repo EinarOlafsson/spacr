@@ -1,0 +1,26 @@
+[
+  {
+    "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+    "source_sha256": "315764f9f637a7738ecc5bf0096ef003af20c2ff8c6bccadfe44650306c23013",
+    "path": "spacr/qt/widgets/organize_for_measure.py",
+    "owner": "OrganizeForMeasureDialog._plan_summary"
+  },
+  {
+    "source": "Move {images} image(s) into {dest} using Yokogawa names, with {masks} mask(s) in {masks_dir}. Do not write stacks or merged arrays.",
+    "source_sha256": "c8f56c31fa63ca3ba85a1eca9882098ff093f541e091200d079a79b087eadc35",
+    "path": "spacr/qt/widgets/organize_for_measure.py",
+    "owner": "OrganizeForMeasureDialog._plan_summary"
+  },
+  {
+    "source": "Mask roles: {roles}",
+    "source_sha256": "ac8848f20042aaf3bb3f55930c77fc36b99cdb9381d42b3394a29dafd8748ebc",
+    "path": "spacr/qt/widgets/organize_for_measure.py",
+    "owner": "OrganizeForMeasureDialog._plan_summary"
+  },
+  {
+    "source": "channel {n}: {role}",
+    "source_sha256": "2857fe4857c59e725990874e5dbb61f2c892cb123f1e2b258de29484302caf0f",
+    "path": "spacr/qt/widgets/organize_for_measure.py",
+    "owner": "OrganizeForMeasureDialog._plan_summary"
+  }
+]

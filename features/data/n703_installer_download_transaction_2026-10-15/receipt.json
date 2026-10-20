@@ -1,0 +1,42 @@
+{
+  "scope": "Checksum transport failures stop installer execution; downloaded bytes are staged privately and replace a prior artifact only after validation",
+  "base_commit": "0118cabd4019d9cf9e7c7021babcaeab3e33706d",
+  "source_sha256": {
+    "spacr/install_cleanup.py": "9c5352767d451e5c201f7d8438dd48bdcc061c7b1cb67373778ad3bd59c0897d",
+    "tests/test_installer_download_failure_preserves_previous_703.py": "fbf6fe68804183c01429470c8f95f9ce62b39b85f6619b04f6e0cacd417fe53d",
+    "tests/test_the_downloaded_installer_is_checked_before_it_is_run.py": "2f390bedeaf7dfad9a178662c4e370dc300e1119935489d32dc13c9161d6839e"
+  },
+  "baseline": {
+    "exit": 1,
+    "failed": 1,
+    "seconds": 1.01,
+    "actual": "HTTP503 from the checksum endpoint was swallowed; previous _download returned successfully instead of raising",
+    "source_sha256": "b8f40894398294cbf046abce3d8e2ec58701b262203b5aa8945e3e0d989b5d4e",
+    "test_sha256": "df4ec02ee244ddf3da9ebf6958c563e3d3a06e37023b7e7389652ef960fc96cf"
+  },
+  "owning": {
+    "exit": 0,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1.68,
+    "new_cases": 22,
+    "existing_cases": 12,
+    "memory_max_bytes": 2147483648
+  },
+  "behavior": [
+    "Only actual HTTP404 retains historical missing-checksum compatibility; transient HTTP failures, timeout and connection errors propagate before installer execution.",
+    "Private0600 sibling file receives streamed bytes; wrong digest, empty/interrupted stream, checksum outage, chmod failure and replacement failure preserve any previous artifact and clean staging.",
+    "Validated artifact is chmodded and atomically replaces target; target symlinks never redirect writes into unrelated user model data.",
+    "Actual _run_plan invocation with fake HTTP503 returns4, leaves previous runtime/download bytes intact and calls no install/removal/relaunch.",
+    "Existing explicit support for a sums file not naming this asset remains unchanged; no new mandatory-checksum policy or compromised-release authenticity claim."
+  ],
+  "test_contract_correction": "Existing legacy checksum test now models a real urllib.HTTPError404 instead of generic OSError text404; the legacy acceptance assertion is unchanged.",
+  "api_captions": "All module/function/class API docstrings unchanged; no new user-facing captions/generated artifacts. Existing foreign API/caption holds remain explicit; no unchanged global audit rerun.",
+  "remaining": [
+    "Native installer and desktop update acceptance across target OSes",
+    "Other N703 lease/recovery/full NSIS and native requirements",
+    "Foreign API/caption integration and final complete hosted CI"
+  ],
+  "no_actual_http_install_account_user_data_gpu_operation": true
+}

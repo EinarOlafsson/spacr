@@ -175,3 +175,129 @@ measurement-comparison panel do not contribute yet, so a restored session
 puts the montage back but not the comparison built on it.
 
 VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-15 — Direct carried-file restoration repaired; directory adapter remains.
+A real disposable reader reproduced the old failure: inventory said carried,
+but restore supplied the deleted original path. Missing direct file references
+now use only contained, digest-verified bundle copies; existing original paths
+retain their prior behavior. Provider payloads are copied without mutating the
+saved document. Corrupt, unverified and escaping copies are refused with visible
+machine reasons; a copy made from an unhashed inventory now retains its digest.
+Final source: 31 selected owning cases PASS, including all 14 new reader and
+containment cases. The initial 109 PASS/6 reporter failures and baseline failure
+remain preserved. Evidence: features/data/n180_verified_carried_files_2026-10-15/.
+This is bounded validation before the provider read, not atomic file ownership.
+Still actionable: DatabaseSetWidget restores folder sources and ignores the
+verified carried databases list; its owner adapter must support that state.
+No whole-item, full-CI or native GUI completion is claimed.
+
+2026-10-15 — Folder-mode carried database adapter completed.
+Explicit aligned database references remapped by the core now remain usable
+when the original folder/database is missing. Existing original databases win;
+logical source roots and saved order remain unchanged. Filesystem probes stay
+off the GUI thread. Per-source versions preserve pending associations for
+surviving rows while rejecting replaced/removed/re-added/closed stale results;
+ambiguous duplicate source keys are refused. Actual relocated SQLite tests
+reproduced two failures; final three owning Qt modules41PASS16.84s, clean.
+All36 changed API translation targets have independent technical review and
+normal generation; unrelated records preserved. Source peers and actual logs
+are in features/data/180_carried_database_adapter_2026-10-15/ and related API
+and peer directories. No new caption, backend/default or source-root guessing.
+Still actionable: Graph/measurement-comparison control state and lazy montage
+handoff, now explicitly owned by Home-B. This adapter is not whole N180 closure
+or a promise that a fresh arbitrary pipeline can rebuild missing source roots.
+
+2026-10-15 — Graph comparison workspace controls completed.
+MeasurementComparePanel now saves stable control identifiers and selection
+state, preserving unavailable dynamic choices until the ordinary data refresh.
+Explicit activation of a displayed fallback clears the corresponding pending
+choice. Montage saves an existing panel's state or retains plain pending state
+without building a deferred panel. Restore blocks mirrored controls, cancels
+superseded work and suppresses synchronous optional run-name metadata probes;
+it does not load data, join measurements, render or run inference. Existing
+bounded asynchronous missing-source validation remains enabled. Pending graph
+state applies once when the user later builds the panel explicitly.
+Final source-bound four-module integration:71PASS16.48s. Both implementation
+and126 API translation targets have independent peer review. Coordinator
+readback verifies all four API symbols against normal generated artifacts and
+preserves every unrelated incoming record. Evidence is under
+features/data/180_montage_comparison_workspace_2026-10-15/ and related Graph
+review/readback directories. Real-app database contributor registration and
+settings-before-panel restore ordering remain separately owned by Original
+Home. This is a completed Graph scope, not whole N180 acceptance.
+
+2026-10-15 — Actual UMAP workspace registration and restore order repaired.
+The real screen omitted DatabaseSetWidget from the registry despite its working
+protocol. A real AppScreen baseline failed before saving the database section.
+After registration, a complete restore exposed a second failure: settings replay
+cleared the restored carried-database mapping. The stable app:databases provider
+now resolves the current built source control without constructing deferred
+controls; teardown unregisters it. Matching namespaced settings restore before
+their panels, preserving all other panel order and existing refusal reporting.
+Actual complete registry/settings -> copy -> delete original -> move -> load ->
+restore -> read-only SQLite query now passes.48 distinct owning cases pass
+across47+1 runs; both product baselines and an initial generic fixture ordering
+error remain preserved. Existing prose/captions unchanged; independent normal
+API eligibility peer excludes the new direct private class helper. Evidence:
+features/data/n180_actual_app_database_registry_2026-10-15/. No full CI, native
+GUI, fresh UMAP pipeline or whole-item acceptance is claimed. Home-B separately
+owns Graph/comparison/montage contribution and its API/publication closure.
+
+2026-10-15 — Regression plot workspace persistence repaired.
+Actual JSON round trips exposed lost multi-row selection, an explicit disabled
+colour reverting to its default, and current-run state overwritten during load.
+A companion round trip proved shape-only, opacity-only and three-channel views
+lost their secondary columns. State now carries complete selected_keys beside
+legacy active selected_key and independent symbol_by/opacity_by names or None.
+Signals are blocked during restore; absent legacy fields retain their meaning.
+Incoming state wins for matching runs; unrelated live-run state is preserved.
+A finally-restored guard suppresses outgoing snapshots during synchronous load.
+The initial source passed70 owning checks after three failures. Final companion
+source passes47 checks covering regression workspace, per-run and channel/legend
+roles; the cohorts overlap and are not summed. Two public API bodies have18
+exact independently reviewed targets, normal generation and independent source
+review. No new captions, backend, schema, alpha or tutorial changes.
+Final source SHA5a6d4bd10d4325e8952ea33bf96c2f72935b8548384443603ecad2808dac8c4a.
+Evidence:features/data/180_regression_colour_channels_2026-10-15/ and related
+workspace, API, peer and coordinator directories. Whole N180 acceptance remains
+open; no native desktop, final full CI or release claim.
+
+2026-10-15 — Actual AppScreen provider bridge acceptance passed.
+A source-pinned finite real-Qt probe uses the full settings and real provider
+registry, without mapping injection/filtering. Visited Graph controls, queued
+regression selections/colour channels and figure-grid size survive normal
+collect/save/load/restore. Unvisited collection/restore remains deferred and
+reports skipped contributors by name; closing the screen unregisters them.
+All guarded rendering, joins and data reads see zero calls. Constructor Graph
+refresh is explicitly suppressed and regression state has no live data path;
+loaded data consumers remain covered by their separate owning tests. Terminal
+PASS6.78s,390652KiB under4G/thread1/serialized lock. Source hashes of six owning
+files match the published implementation. No new source defect or implementation
+tick is claimed. Evidence:features/data/180_actual_provider_bridge_2026-10-15/.
+
+2026-10-15 — Complete original workspace contract accepted on current source.
+The remaining real session-figure gap is repaired: FigureQueue contributes its
+ordered previews, PDFs, titles, run sections and current selection through the
+existing AppScreen registry. Reference mode carries small queue-owned assets;
+external originals remain references and the existing copy budget/off mode are
+preserved. Restore stages immutable copies, retains missing slots/reporting,
+and updates only already-built UI. A missing PNG no longer loses its saved PDF
+on the next save. Existing Graph, regression, databases, montage and deferred
+provider acceptance remain bound to their previously recorded real consumers.
+
+The actual queue/AppScreen cohort passed18 cases; three affected PDF follow-up
+cases pass and overlap that cohort. Independent source review accepted both
+repairs. Normal generation produced63 reviewed API targets and9 runtime targets,
+passed the full nine-language runtime audit, fresh canonical-source equality,
+arrival refresh and ordinary Help generation;10,958 unrelated runtime rows per
+locale and foreign API/history/arrivals were preserved. Final actual consumers
+pass: nine compiled tr lookups,18 localized API entries/63 blocks, two local
+API/Help entries, English/Korean links and four production search queries.
+All13,289 prior Help rows remain exact, with only the two new methods added.
+
+All original A–D and five acceptance criteria are now reconciled; no original
+implementation clause remains open. This is whole current-contract acceptance,
+not a new physical-device run or final release CI. Evidence: data/180_session_
+figure_carry_2026-10-15/,180_session_figure_source_peer_2026-10-15/,
+180_session_figure_inputs_2026-10-15/,180_session_figure_catalogs_2026-10-15/
+and the final session-figure consumer receipt.

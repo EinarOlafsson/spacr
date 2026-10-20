@@ -1,0 +1,412 @@
+{
+  "schema": 1,
+  "lesson": "06_api",
+  "status": "pass",
+  "scope": "Postresume metadata/current Pages-pin association and existing C05 readback reuse only",
+  "source_commit": "5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/release-manifest.json",
+    "bytes": 1166528,
+    "sha256": "e5d099163ba3a99cf9cba249d07ad5e64609f8ea46ce59213519591655257aba"
+  },
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/release-manifest.json",
+    "bytes": 1179634,
+    "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+  },
+  "resumed_publication_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/publication-receipt.json",
+    "bytes": 141494,
+    "sha256": "2c5698ecc1ce9050ddd4bc4c027a26904d496bc5a56c273543367523cd7fdce6"
+  },
+  "original_C05_publication_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/publication-receipt.json",
+    "bytes": 141431,
+    "sha256": "9f58f30644880ff3faac98e756feba1d33ec3e812c02cf4f3b791b0ea02eef5a"
+  },
+  "root_media_reuse_proof": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/root-media-reuse-proof.json",
+    "bytes": 1957,
+    "sha256": "024509ec04eae7900aa84c314c2c6b23ee66f2e384719efe2eae47bfbf6b27df"
+  },
+  "original_readback_copy": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/baseline-media-readback.json",
+    "bytes": 133772,
+    "sha256": "dc51df0fa7fb9a217c366359a309f0863987ea43cf54c59b1714cb5f06756317"
+  },
+  "media_files_compared_as_records": 5370,
+  "media_record_bytes": 8807787387,
+  "all_media_record_paths_sizes_and_sha256_identical": true,
+  "immutable_media_commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+  "existing_branch": "n676-selective05-20261015",
+  "existing_tag": "n676-selective05-20261015-verified",
+  "fresh_upload": false,
+  "fresh_readback": false,
+  "owning_resume_readback_source": "completed immutable-commit readback resumed after upload",
+  "root_resume_readonly_remote_guards": "Existing successful owning receipt bound here; no remote calls repeated by peer",
+  "catalogs": [
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_da.json",
+        "bytes": 697272,
+        "sha256": "709388321008392cb116b1da98c0bfb434b99749148975fde2b95099a8186662"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/captions_da.json",
+        "bytes": 697272,
+        "sha256": "709388321008392cb116b1da98c0bfb434b99749148975fde2b95099a8186662"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_de.json",
+        "bytes": 744234,
+        "sha256": "0e54bbd9cb1ecd3ecbfd92fad8b8d3205c240146c417ebf4ca7a58c814ab08ed"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/captions_de.json",
+        "bytes": 744234,
+        "sha256": "0e54bbd9cb1ecd3ecbfd92fad8b8d3205c240146c417ebf4ca7a58c814ab08ed"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_is.json",
+        "bytes": 702037,
+        "sha256": "fca1a724d8a7bbd257afecd9b34d26ac123d9c6283a04da99537e919f23b9c07"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/captions_is.json",
+        "bytes": 702037,
+        "sha256": "fca1a724d8a7bbd257afecd9b34d26ac123d9c6283a04da99537e919f23b9c07"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_ko.json",
+        "bytes": 738718,
+        "sha256": "5364c23af7aa5cb981f5780647ee05562f8c9b177483d532ac9234781bc13023"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/captions_ko.json",
+        "bytes": 738718,
+        "sha256": "5364c23af7aa5cb981f5780647ee05562f8c9b177483d532ac9234781bc13023"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_nb.json",
+        "bytes": 693119,
+        "sha256": "0b3c8069fa5a3b4d5e661a484338e6fb718ef3a1a12f94dcff580de3c298b288"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/captions_nb.json",
+        "bytes": 693119,
+        "sha256": "0b3c8069fa5a3b4d5e661a484338e6fb718ef3a1a12f94dcff580de3c298b288"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/captions_sv.json",
+        "bytes": 702045,
+        "sha256": "26a2b6e5ce31382b76dd251d6af89eb909d787ce70660d20278b383360d296df"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/captions_sv.json",
+        "bytes": 702045,
+        "sha256": "26a2b6e5ce31382b76dd251d6af89eb909d787ce70660d20278b383360d296df"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_en.json",
+        "bytes": 674272,
+        "sha256": "f51031c81d1a19eed303b6e834b78d54691d032f33597f364932462c9f4475c2"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_en.json",
+        "bytes": 674272,
+        "sha256": "f51031c81d1a19eed303b6e834b78d54691d032f33597f364932462c9f4475c2"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_es.json",
+        "bytes": 1104441,
+        "sha256": "13de5d7a198332b2d15188352a5f2e2d7627587dd043eda1f8bd83b96764c96d"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_es.json",
+        "bytes": 1104441,
+        "sha256": "13de5d7a198332b2d15188352a5f2e2d7627587dd043eda1f8bd83b96764c96d"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_fr.json",
+        "bytes": 1148165,
+        "sha256": "f26e76596ec61e59a9cb3427c337da32685551866a134219cbae64b50154fce5"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_fr.json",
+        "bytes": 1148165,
+        "sha256": "f26e76596ec61e59a9cb3427c337da32685551866a134219cbae64b50154fce5"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_hi.json",
+        "bytes": 1832309,
+        "sha256": "d258a45584949d4e432af5b3bdc5a0f0f5f192c61816b94c8cdf6e868ce77aa3"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_hi.json",
+        "bytes": 1832309,
+        "sha256": "d258a45584949d4e432af5b3bdc5a0f0f5f192c61816b94c8cdf6e868ce77aa3"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_it.json",
+        "bytes": 1093036,
+        "sha256": "7a5bc9367a1cf7d089ffe563e79d0c2d4b1514a4425c8bd828ad48c4370f9116"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_it.json",
+        "bytes": 1093036,
+        "sha256": "7a5bc9367a1cf7d089ffe563e79d0c2d4b1514a4425c8bd828ad48c4370f9116"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_ja.json",
+        "bytes": 1222626,
+        "sha256": "6c9a2491c492dbc5c8df671b8ee6a6bb787481587d6ce97b60d2f41d76646702"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_ja.json",
+        "bytes": 1222626,
+        "sha256": "6c9a2491c492dbc5c8df671b8ee6a6bb787481587d6ce97b60d2f41d76646702"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_pt-BR.json",
+        "bytes": 1087182,
+        "sha256": "f0bf95787cb23a3728c5757652c72ab8364902c47b038c3bea1e6488f1062629"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_pt-BR.json",
+        "bytes": 1087182,
+        "sha256": "f0bf95787cb23a3728c5757652c72ab8364902c47b038c3bea1e6488f1062629"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    },
+    {
+      "candidate_catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/catalog/lessons_zh-CN.json",
+        "bytes": 948835,
+        "sha256": "85ab12af7d8fb7945e474b6131227a7df3612edbce2ade90241b485a045f7cd9"
+      },
+      "pages_catalog": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/catalog/lessons_zh-CN.json",
+        "bytes": 948835,
+        "sha256": "85ab12af7d8fb7945e474b6131227a7df3612edbce2ade90241b485a045f7cd9"
+      },
+      "published_old_related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "current_related_lessons": [
+        "02_install_spacr",
+        "04_platform_installers"
+      ],
+      "all_other06_fields_and_six_paragraphs_unchanged": true,
+      "declared_voices": 27
+    }
+  ],
+  "candidate_JS": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/web/lesson_catalog.js",
+    "bytes": 529835,
+    "sha256": "8ec0993a9b9649e834da7bcd7ff0a0230ca993b62ec7e31a64c2929a5f57e770"
+  },
+  "Pages_JS": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/lesson_catalog.js",
+    "bytes": 529835,
+    "sha256": "8ec0993a9b9649e834da7bcd7ff0a0230ca993b62ec7e31a64c2929a5f57e770"
+  },
+  "Pages_index": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/docs/source/_extra/tutorials/index.html",
+    "bytes": 15913,
+    "sha256": "d6898075c516c85c8d65acc4ca1a1f4da50d9723adae0e76efa55a16c2466a1b"
+  },
+  "Pages_media_roots": {
+    "audio": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+    "video4k": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+    "web": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/4e4de22dce9cc5e7f1c86747b6159b538e66f7a1"
+  },
+  "canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/06_api.json",
+    "bytes": 3584,
+    "sha256": "a7a67a5ed3103d5fca855e03397c1ae0a461cbd9cfa0ad8ecb1e79e868a13d0b"
+  },
+  "normalized_english_sha256": "5182c3efe47b1f6fa83911262a5b2b4eea6d619af5ea77044974276de96774f1",
+  "review_hash_application": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/review-hash-rebind-application-receipt.json",
+    "bytes": 15238,
+    "sha256": "8e3c1b84ba51581e8ac78324ca291acf350e2664d79e71b84fd37228ff7c8243"
+  },
+  "review_hashes_rebound": 13,
+  "unchanged_six_narrations_all14_catalogs_and_JS": true,
+  "declared_voices": 27,
+  "limits": [
+    "Compared declared path/byte/SHA maps and existing actual receipts, not rehashed or downloaded media.",
+    "C05 original full immutable download/SHA evidence reused; no second upload/readback or new HF branch/tag.",
+    "Pages metadata/pins are checked locally. Hosted84 playback was running at assignment; this receipt does not attest its completion or final record/publication.",
+    "No audio/video regeneration, browser/network, decode, source/REPORT edit, listening/native-speaker or whole-watch claim."
+  ]
+}

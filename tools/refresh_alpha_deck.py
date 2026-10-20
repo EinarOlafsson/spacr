@@ -37,6 +37,7 @@ GROUPS = (
         (558, "Virtual staining from brightfield"),
         (493, "Mask batches across several GPUs"),
         (508, "Use Make Masks settings in Mask Generation"),
+        (691, "MitoNet: mitochondria in TEM images"),
     )),
     ("Image preprocessing", (
         (538, "Spectral unmixing (bleed-through correction)"),
@@ -44,7 +45,7 @@ GROUPS = (
         (543, "Vendor flat-field profiles (Harmony, ZEN)"),
         (580, "Intensity calibration across sessions"),
         (559, "Deep-learning image QC: focus, debris, empty fields"),
-        (557, "Self-supervised denoising (Noise2Void)"),
+        (557, "Self-supervised denoising (Noise2Void), low-light benchmark"),
         (591, "Illumination, enhancement and PSF settings"),
     )),
     ("Measurements and\nassays", (
@@ -78,7 +79,7 @@ GROUPS = (
         (570, "Arrayed-screen hits: SSMD, robust z, B-score"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
-        (534, "Spatial transcriptomics: Visium and Xenium"),
+        (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),
         (583, "LIMS / plate-barcode linkage"),
     )),
     ("Automation and data", (
@@ -91,6 +92,7 @@ GROUPS = (
         (582, "Plugin and recipe catalogue"),
         (576, "Postgres or DuckDB / Parquet measurement store"),
         (633, "Test data on seven more modules"),
+        (685, "Export masks and objects for vvvv"),
     )),
     ("Reproducibility", (
         (572, "Figure-integrity check"),

@@ -59,7 +59,7 @@ def test_fixed_map_tzyx_preserves_every_original_plane_and_frame(tmp_path):
         assert content['filenames'].tolist() == [
             'plate1_A01_1_1.npy', 'plate1_A01_1_2.npy']
         assert np.isfinite(content['data']).all()
-    receipt = json.loads((source / 'stack/.spacr_volume_series_ingest.json').read_text())
+    receipt = json.loads((source / 'stack/.spacr_volume_series_ingest.json').read_text(encoding="utf-8"))
     assert receipt['axes'] == 'TZYXC'
     assert set(receipt['inputs']) == set(originals)
     assert set(receipt['stacks']) == {

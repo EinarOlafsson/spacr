@@ -1,0 +1,181 @@
+{
+  "decision": "ACCEPT all27 exact source-bound new targets",
+  "reviewer": "Original root independent technical peer",
+  "basis": "Read all27 translations in full against three English blocks and actual three-tab construction/mode visibility. Product Plaque Assay retained; Figure/Text detection/Plaque detection, hiding both irrelevant tabs and exactly three control tabs preserved accurately. No executable/source signature/new caption or scientific claims.",
+  "limits": "AI technical review; no native/human signoff",
+  "input_files_sha256": {
+    "sv": "a3c54c908e982d3092ed9b0fb7350cb1f30ff456277df8926d1f60d04bf350fc",
+    "is": "ffeacfff8df9de77e4c868eed47eb590c5c9466c19207df6f3367e5353dec1af",
+    "de": "2878ca22c2ea8e5a18aba446bdc433272aaf788c37fbfc1fd7e86857e3c3d460",
+    "fr": "827ad17577eb342a0df60be62fc17dc750bf3cd1d977fe948d392f9a35afe42f",
+    "es": "f6e1b8846aff83f239bd6dfdf8d9a386ff1c0ebf8669d09ca3cb6df3af76006b",
+    "pt": "63c434e076ffa721d7ea332571acc624dc4d857af9cc01bf2c1ec078d403e99d",
+    "zh_CN": "a0ec3510ef77827e26d09fe8b90dd9b16acd439c79d680fcf2d38a8661f784aa",
+    "hi": "ffe9bb444be921de81f2b68608edadb28c2aabb7c189636e87961ce9095a5219",
+    "ko": "a85b241eedb513e39f73ccb982914040dec4ece4ab479e153b227e6003fffc73"
+  },
+  "records": [
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "1a62a4ef140577d4d9d20d812ec7eabf800ff2eb61d5bfa2f1d8c6eff65aa61f"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "02eee411f6e7fad2cdb4b6b341342750a6b9acc484dd9fa2b2c249317224a787"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "e582edbd9fdc1e3fd7fd8991206f0e470ec03df5e5afb5acd7247f56c0c59e66"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "f425c0517dca7287719f0cb541760c4aacb16b9a0c7f007dfe07d7425b56221a"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "5f00196dd401e9d3904f5d58450898ee9dcdc24e294e0486e39e767746792c20"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "ddf492a583c5e4e8d28c8cc77fad8d7474c7ff2f7a0ce2d079aefdd9b4f036dd"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "7d5c025aa3372102dacbf3e56230f67674dc539dc6e9e2d3ec0a431744fa09a4"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "53d3361d8de5fd00df79d67f15a8a0186e44bf1902d8fe64e5985a40295bfd4a"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "17c40d42d7086ddd78700096ec3f27b76419f113f2a02e2a270ae42ce3a32a89"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "2efafdc32ea84c16c7eeefb7adf2cc228a8ab9701387815536ec81b8a4f8731f"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "df6cb75d35ebdd97a40377956d21c2219f68162cad492384f40ebcf9a8c41297"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "472bb1af1261672db522063f68814045af04052c9d3fafbdca1170da53a71fc1"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "2ab3d5e5b6e5bd64026e8a0f976ca931091d8d4cdbcce101cbf1a26a65518e06"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "5809992f02bbed1a1c1baf8730b528611994c68ebc9ebec03a17bb9d07bf3f27"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "0a1016e8c6db243bcce1f100f132de3b36ed88ed4f242c76f36404510c12880b"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "350fbedf175a30113476483ca0f92f5282950d440d52e977190d11c846f47eb5"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "81eab27f6c2dd063439d369d0076a3f42e7890c7a1efd9056f02ac417b87f664"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "83fb8fd9b6608d39c283b3107a020076c5c00c75d398aa79267695cf545569cd"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "3fa9237c14de2634407bedb41b8672ecaefe4907b6b4e6b00b974d11ac205e75"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "e756dd3eba68447bb5eb3411cfba99b1f19d22b4812671499828c75be54c3700"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "a6726f82fd04975cd21565e26814e58caef0352e3a4eaaea0536c897fd969013"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "f2577bda9678a813cf002913548d5bd51d560a56afb4a0eb54b4cc08e2f2178c"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "cc09bd75749d24dd1b813c555e5e1e38ec4e02262bbf22af1adf8e6d0609a2f8"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "deab64c14249f4761c5d2fbae4da613df39e616b26ac6ea8ec0c924fae674b54"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#0",
+      "source_sha256": "5495d84ccb8b417598fc38d2110df38f4ff94da39759938754ea8599259af4c9",
+      "target_sha256": "7f0917e01b42d58ff8824c62ac10cfced0825b891f609908d0c08ef7365dd401"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#2",
+      "source_sha256": "f38b9e158f223823762ab4a5af51f4b53f2ba833757ae9487d98e0bc060a3e3d",
+      "target_sha256": "e40fa4c810d058e08348bc1b813400e778e2a4f3d8924f03736654b994d1c297"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.plaque_preview.PlaqueSettingsDialog#4",
+      "source_sha256": "1220abe427e5d62b3ac2901c5c0f545fd85b31d28209a22ad7592b6fdfcd5458",
+      "target_sha256": "62dda345975324b69ec0cf06eff4f6b237fb18812e609faf6e438d04409300ad"
+    }
+  ]
+}

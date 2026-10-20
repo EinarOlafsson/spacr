@@ -923,12 +923,14 @@ def prepare_external_masks(settings: Optional[Mapping[str, Any]] = None
 def register_settings(replace: bool = False) -> bool:
     """Publish this module's settings help through the shared registry.
 
-    External Masks predates the module-registration seam, so its seven
-    importer-specific controls were the only displayed settings in the app
-    registry without authored help.  Registering beside the defaults keeps
-    the inventory, validation types, and tooltip prose together; the Measure
-    settings returned by :func:`default_settings` retain their existing
-    shared declarations.
+    Registers expected types and tooltips for the seven importer-specific
+    controls (``inputs``, ``recursive``, ``layout``, ``z_handling``,
+    ``plate_naming``, ``overwrite`` and ``preview_only``) beside the defaults,
+    so the inventory, validation types and tooltip prose stay together. A key
+    that already has a shared tooltip keeps it, and the Measure settings
+    returned by :func:`default_settings` retain their existing shared
+    declarations. Nothing is registered when a registration exists and
+    ``replace`` is False.
 
     :param replace: replace this module's existing defaults registration.
     :returns: whether a new registration was made.

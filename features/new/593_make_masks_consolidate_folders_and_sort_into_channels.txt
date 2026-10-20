@@ -157,3 +157,39 @@ Left: a run on a real folder by the maintainer; translation rows follow the
 next catalog rebuild.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-15 — exclusive consolidation copies and owned failure cleanup:
+Consolidation now creates each destination exclusively and copies through
+held file descriptors. An image or symlink arriving after name selection
+cannot be overwritten. Device/inode identity of a regular owned destination
+is checked before/after metadata copying, and failed-copy cleanup only
+unlinks the observed owned inode; replaced files and links are retained.
+Naming, case numbering, manifest error/layout/count behavior and original
+inputs stay intact. Seven native public-baseline cases fail in0.82seconds.
+Final seven race cases plus existing naming/100-file/partial cleanup/input/
+CLI contracts pass30 in1.44seconds under2G. Two existing failure injectors now
+use copyfileobj while retaining their original output/status assertions.
+A local stat-variable shadowing error caught in the first owning iteration
+was fixed before final acceptance; its diagnostic remains in the receipt.
+Bounded scope: path-based copystat still has a metadata check/use race, and
+external replacement after the last identity check is not serialized. The
+metadata-seam fixture proves foreign/source bytes retained and refusal,
+not foreign metadata isolation or all concurrent mutation prevention. No
+whole-folder transaction, model/network/GPU/fullCI, live data or native
+other-OS/scientific acceptance. Evidence:
+data/593_consolidation_destination_ownership_2026-10-15/receipt.json.
+
+2026-10-15 — occupied output leaf links cannot redirect consolidation:
+An explicit existing leaf symlink is now refused before resolution using
+the existing output-already-exists caption. Previously a dangling leaf was
+resolved into its missing target and consolidation created/copied there.
+Default output naming now counts broken links as occupied and selects the
+next numbered folder, instead of failing mkdir. Normal canonical paths,
+existing-target refusal, source inputs and link/private target bytes stay
+intact. Native public baseline3FAIL/1PASS0.89seconds; four new link cases plus
+existing consolidation naming/copy/cleanup/manifest/CLI contracts pass34 in
+2.17seconds under2G. Parent symlink components retain existing behavior;
+external replacements after checks and prior metadata/cleanup race limits
+remain outside this bounded guard. No live data, model/network/GPU/fullCI,
+native other-OS or scientific acceptance. Evidence:
+data/593_consolidation_output_links_2026-10-15/receipt.json.

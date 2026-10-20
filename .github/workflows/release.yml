@@ -108,7 +108,7 @@ jobs:
         run: |
           git config user.name "Einar Olafsson"
           git config user.email "einar.olafsson@gmail.com"
-          git add setup.py CITATION.cff spacr/_version.py
+          git add setup.py CITATION.cff spacr/_version.py README.rst packaging/readme_source.yaml docs/i18n/readme docs/source/installer_guide.rst packaging/apptainer/README.md
           if git diff --cached --quiet; then
             echo "Release metadata already declares $VERSION; continuing idempotently."
           else
@@ -283,6 +283,19 @@ jobs:
       publish_to_repository: true
     secrets: inherit
 
+  frozen-installers:
+    name: Build and accept frozen release installers
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.installers.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, installers]
+    uses: ./.github/workflows/frozen-installers.yml
+    with:
+      source_ref: ${{ needs.installers.outputs.release_commit }}
+      release_version: ${{ needs.bump.outputs.version }}
+
   container-images:
     name: Build and publish container images
     # THIS CALL IS THE ONLY THING THAT PUBLISHES AN IMAGE ON A RELEASE.
@@ -316,6 +329,24 @@ jobs:
       release_version: ${{ needs.bump.outputs.version }}
       publish: true
 
+  apptainer-images:
+    name: Build and publish Apptainer images
+    # Item 586. The SIFs are built FROM the Docker images container-images
+    # has just pushed, so this runs only when that job succeeded. Like it, it
+    # cannot gate the release: PyPI is already immutable by then, and a
+    # failure here publishes no SIF and costs nothing else.
+    if: >-
+      always() &&
+      needs.container-images.result == 'success'
+    needs: [bump, container-images]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/apptainer-images.yml
+    with:
+      release_version: ${{ needs.bump.outputs.version }}
+      publish: true
+
   github-release:
     name: Publish GitHub release
     if: >-
@@ -325,8 +356,9 @@ jobs:
       (needs.publish-pypi.result == 'success' ||
        needs.publish-pypi.result == 'skipped') &&
       needs.verify-pypi.result == 'success' &&
-      needs.installers.result == 'success'
-    needs: [bump, package, publish-pypi, verify-pypi, installers]
+      needs.installers.result == 'success' &&
+      needs.frozen-installers.result == 'success'
+    needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -344,6 +376,23 @@ jobs:
         with:
           name: pypi-distributions
           path: release-assets
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install release verification dependency
+        run: python -m pip install packaging
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: legacy-build-*
+          path: frozen-assets
+      - name: Verify and select exact native release payloads
+        env:
+          RELEASE_SHA: ${{ needs.installers.outputs.release_commit }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: >-
+          python packaging/release.py collect-frozen
+          --source frozen-assets --destination release-assets
+          --source-commit "$RELEASE_SHA" --version "$VERSION"
       - name: Create checksums
         run: |
           cd release-assets
@@ -578,3 +627,36 @@ jobs:
               exit 1
             fi
           done
+
+  refresh-project-site:
+    name: Refresh the project website after publication
+    needs: [bump, verify-pypi, github-release, release-metadata]
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.github-release.result == 'success' &&
+      needs.release-metadata.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Request the project site's release rebuild
+        env:
+          GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
+          VERSION: ${{ needs.bump.outputs.version }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::SITE_DISPATCH_TOKEN is not configured; the website checks release versions and assets hourly and rebuilds all metadata daily."
+            echo 'Project website: automatic release checks run hourly; immediate automatic refresh needs SITE_DISPATCH_TOKEN with access to EinarOlafsson/site-src.' >> "$GITHUB_STEP_SUMMARY"
+            echo 'An authorized maintainer can also run [Build and deploy](https://github.com/EinarOlafsson/site-src/actions/workflows/deploy.yml) with force=true after publication.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          gh api --method POST repos/EinarOlafsson/site-src/dispatches \
+            -f event_type=spacr-release \
+            -f "client_payload[version]=$VERSION" \
+            -f "client_payload[tag]=v$VERSION"
+          echo "Project website: requested rebuild for spaCR $VERSION; publication is verified by the site workflow." >> "$GITHUB_STEP_SUMMARY"

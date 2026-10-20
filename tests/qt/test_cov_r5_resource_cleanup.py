@@ -411,11 +411,11 @@ def test_a_collection_that_frees_nothing_adds_no_line_to_the_report(
     monkeypatch.setitem(sys.modules, "PySide6.QtWidgets", None)
     monkeypatch.setattr(rc, "process_rss", lambda: 4096)
 
-    monkeypatch.setattr(rc.gc, "collect", lambda: 0)
+    monkeypatch.setattr(rc._gc, "collect", lambda: 0)
     quiet = rc.clear_ram()
     assert not any("unreachable" in line for line in quiet.details)
 
-    monkeypatch.setattr(rc.gc, "collect", lambda: 7)
+    monkeypatch.setattr(rc._gc, "collect", lambda: 7)
     loud = rc.clear_ram()
     assert "7 unreachable objects collected" in loud.details
 
@@ -428,7 +428,7 @@ def test_a_process_that_really_shrank_gets_no_allocator_apology(monkeypatch):
                      120 * 1024 * 1024, 200 * 1024 * 1024])
     monkeypatch.setattr(rc, "process_rss", lambda: next(readings))
     monkeypatch.setitem(sys.modules, "PySide6.QtWidgets", None)
-    monkeypatch.setattr(rc.gc, "collect", lambda: 0)
+    monkeypatch.setattr(rc._gc, "collect", lambda: 0)
 
     monkeypatch.setattr(panel, "_KINDS_CACHE", {"a": 1, "b": 2})
     shrank = rc.clear_ram()

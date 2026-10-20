@@ -14,6 +14,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QDialogButtonBox, QPushButton
 
 from .gil_priority import _watch_application_events
+from . import _after
 
 POSITIVE_PREFIXES = ("run", "propagate")
 NEGATIVE_PREFIXES = (
@@ -52,7 +53,7 @@ def action_role(text: str) -> Optional[str]:
 
 
 def alive(button) -> bool:
-    """Is this button's C++ side still there?
+    """Return whether this button's C++ object still exists.
 
     A ``lambda target=button: ...`` connected to a signal keeps the PYTHON
     wrapper alive while Qt deletes the C++ object under it -- the wrapper has
@@ -100,8 +101,8 @@ def set_button_busy(button: QPushButton, busy: bool) -> None:
     """Show or clear the persistent solid operation state.
 
     A no-op for a button whose C++ side has been deleted -- see :func:`alive`.
-    Returning quietly is right here: the state being set is a VISUAL one on a
-    widget that is gone, so there is nothing to show and nothing was lost.
+    No exception is raised, because the state is visual only and the widget no
+    longer exists.
 
     :param button: the button whose ``buttonActionBusy`` property is set.
     :param busy: truthy to show the busy state, falsy to clear it; the
@@ -227,8 +228,8 @@ class _SemanticButtonFilter(QObject):
         disables or relabels the button, and reading its state before it has run
         settles against the state the button had a moment ago.
         """
-        QTimer.singleShot(
-            0, lambda target=button: self._settle_after_handler(target))
+        _after(
+            0, self, lambda target=button: self._settle_after_handler(target))
 
     @staticmethod
     def _settle_after_handler(button: QPushButton) -> None:

@@ -2,9 +2,9 @@
 3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
 ================================================================================
 
-Status:    open
+Status:    BLOCKED ON MAINTAINER — wgpu implementation and automated checks complete; real-display backend and dragging-FPS acceptance remains
 Requested: 2026-10-08
-Owner:     Home/root CPU mask editing lane; workstation API/docs/translations/tutorials
+Owner:     accessibility_implementation + accessibility_acceptance; root publication; maintainer real-display acceptance
 Depends:   N672 validated gate anchor and surface editing logic
 
 WHAT THE STATE IS
@@ -31,3 +31,191 @@ permutations, physical spacing, independent voxel-centre membership, real
 TIFF label/dtype/ID roundtrip, collision/topology/memory refusal, atomic pair
 rollback and external-file changes checked. Native shared-editor GUI follows;
 no published 3D-mask feature or scientific acceptance of the whole item yet.
+
+2026-10-10 — Published. Codex's private native volume work (92ebb1729,
+ecd38110b, 14e4bbcb2, e4ebe5cd8 and 6bbc41860: spatial TIFF model, source-
+bound persistence, shared-anchor 3D editor, busy-close protection, stable
+status/preview) ported onto nightly after N672. Integration fixes:
+QKeySequence/QShortcut imports restored after N656 moved Make Masks keys to
+per-screen bindings; the editor's accessibility descriptions are literal
+tooltips so the extractor sees them; the window title is "3D mask editor"
+(the old "3D Make Masks" was an untranslatable identity). 49 captions
+reviewed in nine locales (docs/i18n/reviewed/runtime/*/2026-10-10-make-
+masks-native-volume.json); 11 new public API symbols (VolumeMaskSession and
+members, load_volume_image_and_mask, save_volume_mask,
+MakeMasksScreen.open_volume) with 41 reviewed API blocks per locale. The
+load and folder-job workers now retire through primary_mask_selector._retire
+(item 43 Shiboken fix), covered in
+tests/qt/test_primary_mask_worker_outlives_its_cpp_half.py. Checks: native
+volume model/editor 60 PASS; all Make Masks, gate, shortcut and worker Qt
+files PASS (3,284 cases). Left for the maintainer: hands-on desktop check on
+a real display; AI-reviewed translations have no native-speaker signoff.
+
+2026-10-12 — The maintainer's desktop check: a 3D image opened in a separate
+window; it should open in the same container as the 2-D test data. Done: the
+"3D mask editor" window (_VolumeMaskEditor) is retired and a volume opens in
+the Make Masks Mask tab (_VolumeStage): slice slider with index/total on the
+left, a Z button (blue when on) that makes the wheel change the slice, Page
+Up/Down, and a View list left of the Mask tab (Default / Orthogonal / True
+3D, shown only for a volume). The old "3D anchors" tab is True 3D: the gate
+editor's 3-D view with every object drawn as coloured surface voxels; draw
+(New object), reshape with anchors, Delete object, spin free or about X/Y/Z;
+Shift+E/S/D and Shift+X/Y/Z (after Shift+S: spin axis), rebindable on the
+Make Masks keymap. A large object's anchor boundary is built off the GUI
+thread (FIB-SEM object of 1,310 voxels: about 9 s in the shared mesh
+validation, the GUI stays live). Not alpha. API: replace_plane and
+delete_label in tests/data/release_contracts/673_volume_in_container_api_
+arrivals_2026-10-12.json; open_volume's pin carries its new docstring.
+Tests: tests/qt/test_673_make_masks_3d_in_container.py; the window tests in
+test_make_masks_native_volume_editor.py now drive True 3D.
+
+2026-10-15 — Maintainer review of True 3D, and a napari-like rebuild.
+Feedback: "The True 3D looks like a 3D UMAP. I want to be able to see the
+objects and modify the masks, but also see the image, with a clear opacity
+setting for the image, for the masks, and for each channel in the image."
+"This view keeps the backbone grid of the graph at the same scale but zooms
+the objects. That feels strange... Let the user toggle its visibility."
+"Take inspiration from napari for this 3D functionality."
+Built: True 3D now renders the image volume itself, as layers. A layer list
+docked right of the view (Layers) has one row per channel (eye, colour,
+opacity, contrast low/high, rendering MIP / Attenuated MIP / Translucent /
+Average / MinIP) and a Masks row (eye, opacity, rendering Surface = shaded
+nearest surface, or Translucent = coloured glass). The model is the existing
+spacr.layers LayerStack (ImageLayer per channel, LabelsLayer for the mask);
+the renderer is new pure NumPy/SciPy code in spacr.layers (VolumeRays,
+render_volume, volume_steps, downsample_volume), orthographic rays matched
+to the matplotlib camera of the anchor editor, so the gate anchors/surfaces
+are drawn on top of the picture they edit. No new dependency, no GL (the
+offscreen Qt platform cannot host a GL widget; vispy stays unused here).
+Multichannel TIFFs (CZYX / ZCYX, at most 16 channels) now open as volumes
+(VolumeMaskSession.channels; slice views show channel 1). Camera: drag
+orbits (existing spin), Shift+drag or middle-drag pans, wheel zooms; zoom
+scales the whole box, so axes, ticks and grid zoom and move with the data.
+"Show axes and grid" is off by default. A blue frame outlines the current
+slice plane (napari-style plane indicator) and follows the slider/Page keys.
+Pick (click an object to choose it; the chosen object is drawn lighter),
+Paint and Erase (brush on the slice plane, one undo step through
+VolumeMaskSession.paint_plane) work in the 3D view; anchor Edit/Draw/Spin
+are unchanged. Rendering runs on a newest-wins worker thread
+(spacr-volume-render, responsive GIL interval, cancellable between row
+chunks): a 262k-voxel interactive render while turning, a 4.2M-voxel render
+250 ms after the view settles, and "Render at full resolution" on demand;
+the dock says at what fraction the view is drawn.
+Tests: tests/qt/test_673_napari_true3d.py (15: layer model per channel and
+masks, visibility/opacity/colour/contrast/rendering, image and objects in
+the render, grid default off and toggle, grid zooms with data (limits and
+ticks fixed, on-screen size x2), pan and reset, slice plane follows the
+slice, Paint/Erase change only the slice and undo/redo exactly, edge-on
+refusal, Pick, downsampling exact strides, interactive vs full quality,
+render off the GUI thread and stale results dropped, renderer modes);
+updated with dated notes: test_673_make_masks_3d_in_container.py (cloud ->
+render), test_make_masks_native_volume_editor.py (notice wording).
+Screenshots: /mnt/wd4tb/scratch/673-napari/ (before_true3d.png;
+after_true3d.png, after_true3d_grid.png, after_true3d_hidden.png,
+after_true3d_pick_edit.png). Captions: 33 new strings with AI-reviewed
+translations in nine languages (Claude; no native-speaker signoff),
+docs/i18n/reviewed/runtime/*/2026-10-15-n673-napari-true3d.json; "MinIP"
+kept as identity text like "MIP". API: 8 new public symbols in
+tests/data/release_contracts/673_napari_true3d_api_arrivals_2026-10-15.json;
+VolumeMaskSession and load_volume_image_and_mask docstrings updated in the
+672/673 contract (locale API blocks for those two are now stale for WS).
+Left for the maintainer, on a real display: turn/zoom/pan feel on a real
+volume (FIB-SEM test data), whether the default mask opacity (60%) and
+MIP default suit, and Paint/Erase in 3D on a tilted view. Not alpha.
+
+2026-10-16 — Maintainer review: "much better, now speed". Turning, zooming
+and panning must feel instant, like napari (30-60 fps while dragging); the
+view "still looks 2-dimensional". Built (Claude, spacr-d7 worktree):
+- GPU volume renderer. Stack: VisPy gloo (OpenGL), already a core spaCR
+  dependency and already run under PySide6 by the fractal backdrop; pygfx/
+  wgpu and moderngl are not installed in the shipped environment (moderngl
+  is only the optional flow-gpu extra), so no new dependency. The renderer
+  (spacr.layers.GLVolumeRenderer) ray-marches every channel layer in a
+  fragment shader (MIP, Attenuated MIP, Translucent, Average, MinIP; colour,
+  opacity, contrast) and lays the masks over it (Surface or Translucent),
+  then writes the object ID nearest the viewer per pixel for picking. It
+  takes the SAME VolumeRays as the CPU renderer, so the camera, anchors,
+  slice plane, Paint/Erase and Pick are unchanged and aligned. It draws
+  into an offscreen Qt OpenGL context (_GLVolumeContext) on the GUI thread
+  and the frame is shown under the matplotlib axes as before. Offscreen
+  (EGL, RTX 3090): a 900x800 frame with 400 samples per ray in 8-10 ms;
+  the True 3D drag loop (camera change, GPU frame, both matplotlib draws)
+  at 16.7 ms per frame, 60 fps, against about 0.06-0.8 s per CPU frame.
+  GPU and CPU frames agree within 2/255 per channel on every rendering,
+  finish and magnifier setting, and pick the same objects.
+- Render backend list: Auto, OpenGL, CPU (software). Vulkan, Metal and
+  Direct3D need wgpu, which spaCR does not ship, so they are not offered.
+  Auto uses OpenGL when a desktop GL context can be made and a test frame
+  draws, and refuses software rasterisers (llvmpipe etc.); otherwise, or
+  when a GPU frame fails, it draws on the CPU and logs one line ("GPU
+  rendering is unavailable (...); drawing on the CPU."), also shown under
+  the view. The choice is saved (preferences.get/set_volume_view).
+- "Render at full resolution" is replaced by a Render scale slider, 1-100 %
+  of full resolution along each axis (spacr.layers.render_scale: 50 % =
+  every 2nd voxel along X, Y and Z into half-size pixels). While the view
+  moves it draws coarser (CPU: at most 262,144 voxels and 4-px pixels; GPU:
+  same voxels, 2-px pixels) and sharpens to the slider 250 ms after it
+  stops. Defaults: 100 % on the GPU, 50 % on the CPU; the slider is saved.
+- Surface finish list on the Masks layer row: Matte, Satin, Glossy,
+  Metallic (Blinn-Phong: ambient/diffuse/specular/shininess, metal tints
+  the highlight with the object colour). Normals come from the mask itself
+  (central differences of the occupancy), so the CPU draws the same light
+  (its surfaces hit at voxel samples, so edges are blockier). Saved.
+- 3D magnifier: the Magnifier button in True 3D, or M (the Live magnifier
+  key) while True 3D is shown, shows a cube (accent outline) that follows
+  the pointer on the slice plane (or through the middle of the volume when
+  the plane is edge-on). Inside it the volume is drawn magnified about its
+  centre; outside it everything is dimmed to 35 %. Shift+wheel resizes the
+  cube and Ctrl+wheel zooms inside it, as Shift/Ctrl do for the 2-D
+  magnifier; the plain wheel still zooms the view. The 2-D magnifier is
+  untouched.
+Tests: tests/qt/test_673_true3d_gpu.py (16: render-scale mapping and the
+slider, backend list and saved choice, Auto fallback with one log line, a
+GPU frame failing mid-render, software GL refused by Auto, finish numbers
+and lighting, finish list, lens cube geometry/warp/dimming mask, M key and
+Shift/Ctrl wheel on the cube, cube following the pointer, CPU frame budget
+at 10 %, GPU vs CPU frames/picks for every mode, GPU view uses the CPU
+camera exactly, GPU drag frame budget); GPU tests skip without an offscreen
+GL context. test_673_napari_true3d.py: two dated updates (slider instead
+of the full-resolution button; the worker-thread test runs on the CPU).
+Captions: 18 new strings with AI-reviewed translations in nine languages
+(Claude; no native-speaker signoff), docs/i18n/reviewed/runtime/*/
+2026-10-16-n673-true3d-gpu.json; 5 retired captions removed from the
+2026-10-15 review files; OpenGL is identity text. API: 23 public symbols in
+tests/data/release_contracts/673_true3d_gpu_api_arrivals_2026-10-16.json;
+render_volume's pin in the 2026-10-15 contract carries its new docstring.
+FOR THE MAINTAINER, ON A REAL DISPLAY (offscreen cannot judge feel):
+1. FPS while dragging: open the FIB-SEM test volume, True 3D, Render
+   backend Auto. The line under the layers should say "Drawn on the GPU
+   (OpenGL, <your card>)". Orbit, Shift+drag pan and wheel zoom should keep
+   up with the mouse (aim: 30-60 fps); the picture should stay sharp at
+   100 % and only soften briefly while moving.
+2. Each backend: switch to CPU (software): slower and coarser while
+   moving, sharp 250 ms after stopping; back to OpenGL; then Auto. Restart
+   spaCR and check the choice and the Render scale are kept. On a Wayland
+   session spaCR asks for XWayland; if only OpenGL ES is offered the line
+   says so and the CPU draws.
+3. Render scale: drag the slider from 100 % to 10 %: the picture should
+   coarsen and redraw quickly; the line says the scale and the stride.
+4. Finishes: Masks row, Surface finish Matte / Satin / Glossy / Metallic
+   on a few objects: the highlight should grow sharper from Satin to
+   Glossy, and be coloured on Metallic. Turning the view should move the
+   highlights (the light is a head light).
+5. Magnifier cube: press M (or Magnifier). The cube should follow the
+   pointer over the slice plane, magnify what is inside it and dim the
+   rest; Shift+wheel resizes it, Ctrl+wheel zooms inside it, the plain
+   wheel still zooms the view; M again turns it off.
+
+2026-10-16 — Codex takeover: reuse two agents for unpushed9770fcc09db; rebase onto nightly including707/59ce785b443, preserving both implementations; root integrates and pushes once after related CPU/offscreen673, marker and API/i18n checks (GPU render tests skip at Home).
+README requirements, all10 languages: only a “3D” column in the existing hardware table; move backend order/exclusions and Intel iMac CPU detail to its clicked readable-text page; remove the Load test data/spacr-download paragraph; edit sources and regenerate normally.
+Publish nightly, then copy only README.rst, docs/i18n/readme, docs/readme_images, docs/readme_assets, docs/models and docs/readme_text outputs to main as explicitly requested; preserve main history and its separate-table revert.
+Website: existing GPU table gets only a3D column across9 languages; no separate table; check_i18n.mjs and node --test tools/ must pass. Coordinate N688 badge generation and N703 Preferences/installer ownership.
+Real-display acceptance remains with the maintainer: each available backend and dragging FPS; no Home GPU execution or offscreen claim of visual acceptance.
+
+2026-10-16 — Transferred wgpu implementation9770fcc09db is integrated as ebfb558238f with707; renderer/installer cohort172pass/8GPUskip and opt-out cohort14pass; Home used no GPU.
+2026-10-16 — Supported Python3.10+ processors get wgpu by default; unsupported hosts/opt-out use OpenGL/CPU. Noarch conda retains its documented wgpu-py constraint and explicit installation path.
+2026-10-16 — All10 README sources/outputs have only a3D hardware column; backend exclusions/order and CPU measurement text are on the clicked pages. Website changes and hosted language checks passed in N686.
+2026-10-16 — Normal nine-language API build/audit passed13564symbols; all16 focused API/runtime/arrival contracts pass, with494 independently reviewed repairs adopted normally and Help/runtime results retained.
+2026-10-16 — BLOCKED ON MAINTAINER: check picking and dragging FPS on Linux Vulkan/OpenGL/CPU, Windows Vulkan/Direct3D12/OpenGL/CPU, macOS Metal/OpenGL/CPU, plus opt-out installer/doctor behavior.
+
+2026-10-19 — macOS acceptance (Intel MacBook Pro, Iris Plus, Retina, 1.5.1.5 installer build, real display): Metal 30 fps dragging, picks agree with the render 19/20. OpenGL was offered but always drew on the CPU because PyOpenGL (needed by VisPy 3-D textures) was not declared; 537b53690 now installs PyOpenGL; with it OpenGL drags at 24 fps. CPU: every mouse move cancelled the frame being drawn, so a drag showed no new picture until release; a newer interactive request of the same content now lets the running CPU frame finish and the newest finished frame is shown (preview, content change or leaving still cancel). Linux/Windows backends remain with the maintainer.

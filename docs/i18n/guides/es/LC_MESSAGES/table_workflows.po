@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:06-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,8 +24,9 @@ msgid "Combine measurement tables for plots and gates"
 msgstr "Combinar tablas de mediciones para gráficos y compuertas"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
-msgstr "Abra **Graph Builder** o **Gate Editor** desde Inicio para explorar mediciones. Ambas pantallas ofrecen **Combinar tablas** justo al lado del selector de tablas. La misma definición de combinación produce las mismas mediciones en ambas pantallas. Para el flujo de trabajo general, consulte :doc:`workflows`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`."
+msgstr "Abra **Graph Builder** o **Gate Editor** desde Inicio para representar mediciones en gráficos o aplicarles gating. Ambas pantallas ofrecen **Combinar tablas** justo al lado del selector de tablas. La misma definición de combinación produce las mismas mediciones en ambas pantallas. Para el flujo de trabajo general, consulte :doc:`workflows`."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose a source and an observation level"
@@ -226,6 +227,10 @@ msgstr "**Polígono a través de la vista**: haga clic en las esquinas en la pan
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
 msgstr "**Elipsoide con asas** y **Caja con asas**: arrastre un rectángulo sobre una población y la forma se ajusta a los objetos que encuadra. Tire de un tirador de cara o de radio para cambiar su tamaño, o arrastre el tirador central para moverla. Las compuertas dibujadas a través de la vista también se mueven con su tirador central."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits."
+msgstr "Elija **Editar** junto a **Girar** y **Dibujar** para cambiar la forma de una región de selección 3D dibujada. Cada arista y cada superficie llevan anclas espaciadas uniformemente, también a lo largo del eje de profundidad. Arrastre un ancla, o haga clic en una superficie (Ctrl-click para varias) y arrastre o gire la rueda del ratón para mover juntas las superficies seleccionadas. La lista de ejes junto a **Editar** limita el movimiento a X, Y, Z o al plano de la vista. **Densidad de anclas** y **Mostrar anclas de las regiones de selección**, en la configuración de las regiones de selección, establecen cuántas anclas aparecen y si se muestran; ninguno de los dos cambia la región de selección. Una región de selección curva se convierte en un contorno lineal por tramos en su primera edición, y los recuentos y las exportaciones usan ese contorno editado. Las regiones de selección editadas se guardan y se cargan con el archivo de regiones de selección, y **Deshacer** y **Rehacer** recorren las ediciones paso a paso."
+
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "Mientras dibuja o ajusta una forma, los objetos que contiene se resaltan. Haga doble clic en el nombre de una compuerta en la tabla de compuertas para cambiarle el nombre; las compuertas creadas a partir de ella adoptan el nuevo nombre. Las compuertas dibujadas en 3D se guardan, cargan y exportan como las de 2D, con las mismas columnas de pertenencia."
 
@@ -250,8 +255,9 @@ msgid "Recover original filenames before labelling conditions"
 msgstr "Recuperar nombres originales de archivos antes de etiquetar condiciones"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
-msgstr "Si las imágenes se renombraron al formato Yokogawa, use **Fusionar nombres de archivo originales...** dentro de **Combinar tablas** para recuperar los nombres registrados durante la conversión. Seleccione ``conversion_map.csv``, un ``rename_log.csv`` antiguo, un ``channel_sorting_manifest.csv`` o una base de datos SQLite que contenga la tabla ``conversion_map``. El selector de archivos comienza cerca de una asignación conocida cuando encuentra una junto a la base de datos de mediciones o en sus carpetas superiores. La asignación debe contener relaciones registradas entre origen y salida; esta acción no deduce nombres de tratamientos a partir de imágenes renombradas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+msgstr "Si las imágenes se renombraron al formato Yokogawa, use **Fusionar nombres de archivo originales...** dentro de **Combinar tablas** para recuperar los nombres registrados durante la conversión. Seleccione ``conversion_map.csv``, un ``rename_log.csv``, un ``channel_sorting_manifest.csv`` o una base de datos SQLite que contenga la tabla ``conversion_map``. El selector de archivos comienza cerca de una asignación conocida cuando encuentra una junto a la base de datos de mediciones o en sus carpetas superiores. La asignación debe contener relaciones registradas entre origen y salida; esta acción no deduce nombres de tratamientos a partir de imágenes renombradas."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations."

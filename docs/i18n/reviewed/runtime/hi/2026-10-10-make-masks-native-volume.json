@@ -1,0 +1,364 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "3D masks require a finite numeric spatial TIFF within the volume memory budget.",
+      "source": "3D masks require a finite numeric spatial TIFF within the volume memory budget.",
+      "source_sha256": "3a399576089d8bd4a024614e475156534cfae7dc5c1d078d77ccec840fa9b65d",
+      "table": "ui",
+      "translation": "3D मास्क के लिए वॉल्यूम मेमोरी बजट के भीतर एक परिमित संख्यात्मक स्थानिक TIFF आवश्यक है।"
+    },
+    {
+      "key": "An edit is still running. Discard the completed unsaved edits and cancel this operation?",
+      "source": "An edit is still running. Discard the completed unsaved edits and cancel this operation?",
+      "source_sha256": "4c21b5c62a6748bf618d9d5b7e89911087102e630a5d800beaccaa9fa5169d31",
+      "table": "ui",
+      "translation": "एक संपादन अभी भी चल रहा है। क्या पूर्ण हो चुके असहेजे संपादनों को छोड़कर यह कार्रवाई रद्द करें?"
+    },
+    {
+      "key": "Choose a TIFF explicitly declaring three spatial axes; time, channels and RGB are not 3D fields.",
+      "source": "Choose a TIFF explicitly declaring three spatial axes; time, channels and RGB are not 3D fields.",
+      "source_sha256": "17d60e4ae00ad6e816ad4e2c75397f6e1b54f4d6b61dfc3e3ef1337cbad1beb3",
+      "table": "ui",
+      "translation": "ऐसा TIFF चुनें जो स्पष्ट रूप से तीन स्थानिक अक्ष घोषित करता हो; समय, चैनल और RGB 3D फ़ील्ड नहीं हैं।"
+    },
+    {
+      "key": "Choose an existing object to edit, or draw a new object with an unused label.",
+      "source": "Choose an existing object to edit, or draw a new object with an unused label.",
+      "source_sha256": "dc589b2081037cf38720dce46748ebe350227d7b045e35d216798c6185cd08c3",
+      "table": "ui",
+      "translation": "संपादित करने के लिए कोई मौजूदा ऑब्जेक्ट चुनें, या किसी अप्रयुक्त लेबल के साथ नया ऑब्जेक्ट बनाएँ।"
+    },
+    {
+      "key": "Choose an existing positive object label.",
+      "source": "Choose an existing positive object label.",
+      "source_sha256": "4762221b91441b3f3604919ef591ee86bcc213abae8630b9ec04188f8dadce54",
+      "table": "ui",
+      "translation": "कोई मौजूदा धनात्मक ऑब्जेक्ट लेबल चुनें।"
+    },
+    {
+      "key": "No unused object identifier fits this mask dtype.",
+      "source": "No unused object identifier fits this mask dtype.",
+      "source_sha256": "ab70a9028a85587d35950175f371fef5a4661e9c93ece5db984806fa03be6e4a",
+      "table": "ui",
+      "translation": "इस मास्क dtype में कोई अप्रयुक्त ऑब्जेक्ट पहचानकर्ता नहीं समाता।"
+    },
+    {
+      "key": "OME volumes need complete supported physical spacing for X, Y and Z.",
+      "source": "OME volumes need complete supported physical spacing for X, Y and Z.",
+      "source_sha256": "c7997cc4ce35c5a9a9404a02cdb5951fcde17cff6cc4f04e8e8c15e6e745d5fd",
+      "table": "ui",
+      "translation": "OME वॉल्यूम के लिए X, Y और Z का पूर्ण समर्थित भौतिक अंतराल आवश्यक है।"
+    },
+    {
+      "key": "Object ID",
+      "source": "Object ID",
+      "source_sha256": "f79ceb0b00781a2e074b7c79fb0a9cb65ea4676b826b50bee45210721d47d9dd",
+      "table": "ui",
+      "translation": "ऑब्जेक्ट ID"
+    },
+    {
+      "key": "Open 3D spatial image",
+      "source": "Open 3D spatial image",
+      "source_sha256": "42c22a30eb64464500f33fbfbc59ad83b9b2ba41dd36e2e13c715d8684d5a2d0",
+      "table": "ui",
+      "translation": "3D स्थानिक छवि खोलें"
+    },
+    {
+      "key": "Save 3D mask?",
+      "source": "Save 3D mask?",
+      "source_sha256": "e2659886c2aa2f5b2cffabfcde4f7a3608ad0f182d9e9dbf45bd638f881e3bf1",
+      "table": "ui",
+      "translation": "3D मास्क सहेजें?"
+    },
+    {
+      "key": "Save the edited volume before closing?",
+      "source": "Save the edited volume before closing?",
+      "source_sha256": "c83004ab99f32d796861a9b41168223999892df3c1c2c847027c3879643f7af2",
+      "table": "ui",
+      "translation": "बंद करने से पहले संपादित वॉल्यूम सहेजें?"
+    },
+    {
+      "key": "Saved 3D mask: {path}",
+      "source": "Saved 3D mask: {path}",
+      "source_sha256": "43732e8e6f691ee3b2e9c055dd7bd856d6c849f578d4e510bf992b4aee3cefe6",
+      "table": "ui",
+      "translation": "3D मास्क सहेजा गया: {path}"
+    },
+    {
+      "key": "Show anchors",
+      "source": "Show anchors",
+      "source_sha256": "fc60d32dd2be02d5bae660c0815237314dd27bd0eef2ea947e05a0c6554672f9",
+      "table": "ui",
+      "translation": "एंकर दिखाएँ"
+    },
+    {
+      "key": "Show or hide editing anchors without changing the mask.",
+      "source": "Show or hide editing anchors without changing the mask.",
+      "source_sha256": "ec59f4fdb1c001346267bc8f1714a77f89e0058b8fd13cb2d59ef70124aa92dc",
+      "table": "ui",
+      "translation": "मास्क बदले बिना संपादन एंकर दिखाएँ या छिपाएँ।"
+    },
+    {
+      "key": "Subdivide every edge and surface into editing anchors. This never changes mask voxels.",
+      "source": "Subdivide every edge and surface into editing anchors. This never changes mask voxels.",
+      "source_sha256": "0755d555ac5ae742843af12b787a822465efcf0e9b4a09f1bdb1106fc06587aa",
+      "table": "ui",
+      "translation": "प्रत्येक किनारे और सतह को संपादन एंकर में उपविभाजित करें। इससे मास्क वॉक्सेल कभी नहीं बदलते।"
+    },
+    {
+      "key": "The drawn shape cannot become a valid bounded spatial volume.",
+      "source": "The drawn shape cannot become a valid bounded spatial volume.",
+      "source_sha256": "f1fef5284158eb99873325635524f870d54f22017feb5baec234be01369e403c",
+      "table": "ui",
+      "translation": "बनाई गई आकृति एक मान्य परिबद्ध स्थानिक वॉल्यूम नहीं बन सकती।"
+    },
+    {
+      "key": "The edited volume overlaps another object; no labels were changed.",
+      "source": "The edited volume overlaps another object; no labels were changed.",
+      "source_sha256": "f087355e2b14982b8c384581e5b3d908b8934b410d71431f9c06115402db120d",
+      "table": "ui",
+      "translation": "संपादित वॉल्यूम किसी अन्य ऑब्जेक्ट से ओवरलैप करता है; कोई लेबल नहीं बदला गया।"
+    },
+    {
+      "key": "The mask output must not overwrite the source volume.",
+      "source": "The mask output must not overwrite the source volume.",
+      "source_sha256": "384fc415e28f9a6e480e8fe30cc89243774b8385f36e2ea918bfb799e5072705",
+      "table": "ui",
+      "translation": "मास्क आउटपुट को स्रोत वॉल्यूम को अधिलेखित नहीं करना चाहिए।"
+    },
+    {
+      "key": "The physical image bounds must be finite.",
+      "source": "The physical image bounds must be finite.",
+      "source_sha256": "c7d82ba9980e17da77debd2310b61e7aafa7af5f85a8d6de122cf691b2f18660",
+      "table": "ui",
+      "translation": "भौतिक छवि सीमाएँ परिमित होनी चाहिए।"
+    },
+    {
+      "key": "The saved boundary does not match its object voxels.",
+      "source": "The saved boundary does not match its object voxels.",
+      "source_sha256": "43154bbb0f9139c885b37a9620739a9fd47f25b3ca8e13fb9e2dc57df270fa36",
+      "table": "ui",
+      "translation": "सहेजी गई सीमा अपने ऑब्जेक्ट वॉक्सेल से मेल नहीं खाती।"
+    },
+    {
+      "key": "The saved mask axes do not match the spatial source.",
+      "source": "The saved mask axes do not match the spatial source.",
+      "source_sha256": "d88cad22977c98844ab200e48adb887810b6a1e5e4d54c60eaf7f72cf5ccebe1",
+      "table": "ui",
+      "translation": "सहेजे गए मास्क अक्ष स्थानिक स्रोत से मेल नहीं खाते।"
+    },
+    {
+      "key": "The saved spatial mask shape, integer dtype or decoded size does not match this volume.",
+      "source": "The saved spatial mask shape, integer dtype or decoded size does not match this volume.",
+      "source_sha256": "dd601f77df944139a8b8a960557f767af47b8aab55713fe1dedee784ff1f8d08",
+      "table": "ui",
+      "translation": "सहेजे गए स्थानिक मास्क की आकृति, पूर्णांक dtype या डिकोड किया गया आकार इस वॉल्यूम से मेल नहीं खाता।"
+    },
+    {
+      "key": "The saved volume anchor controls are invalid.",
+      "source": "The saved volume anchor controls are invalid.",
+      "source_sha256": "5e17326288a27ed04750685ee400f254b6d191c4d28b21c28afcb6cc664449b3",
+      "table": "ui",
+      "translation": "सहेजे गए वॉल्यूम एंकर नियंत्रण अमान्य हैं।"
+    },
+    {
+      "key": "The saved volume changed outside this session; no mask was overwritten.",
+      "source": "The saved volume changed outside this session; no mask was overwritten.",
+      "source_sha256": "46c19187c469199a66ebe6dee3003b31ee2ba5b4f879cd1f49950dadcf9c7247",
+      "table": "ui",
+      "translation": "सहेजा गया वॉल्यूम इस सत्र के बाहर बदल गया; कोई मास्क अधिलेखित नहीं किया गया।"
+    },
+    {
+      "key": "The saved volume geometry does not match these source and mask pixels.",
+      "source": "The saved volume geometry does not match these source and mask pixels.",
+      "source_sha256": "b3cf33193130dba679464cf9a19e2029d2d4f83c514ee159f598d36a45bb5d55",
+      "table": "ui",
+      "translation": "सहेजी गई वॉल्यूम ज्यामिति इन स्रोत और मास्क पिक्सेल से मेल नहीं खाती।"
+    },
+    {
+      "key": "The source volume changed while opening it.",
+      "source": "The source volume changed while opening it.",
+      "source_sha256": "45a398cca760a2a7e87675bd878b9e62d1c6a71293363490a9c6369219cdf259",
+      "table": "ui",
+      "translation": "खोलते समय स्रोत वॉल्यूम बदल गया।"
+    },
+    {
+      "key": "The source volume changed; no mask was saved.",
+      "source": "The source volume changed; no mask was saved.",
+      "source_sha256": "4a3c15079a54d626ddf155a6d476ce5552e9673f3002424e732defba3b2a4857",
+      "table": "ui",
+      "translation": "स्रोत वॉल्यूम बदल गया; कोई मास्क सहेजा नहीं गया।"
+    },
+    {
+      "key": "The volume files changed during saving; no output was replaced.",
+      "source": "The volume files changed during saving; no output was replaced.",
+      "source_sha256": "10d144ce0b1da0b637983a5675154594e98c900636596f4dccecf6a692f9e498",
+      "table": "ui",
+      "translation": "सहेजने के दौरान वॉल्यूम फ़ाइलें बदल गईं; कोई आउटपुट प्रतिस्थापित नहीं किया गया।"
+    },
+    {
+      "key": "The volume mask must contain matching nonnegative integer object labels up to 65535.",
+      "source": "The volume mask must contain matching nonnegative integer object labels up to 65535.",
+      "source_sha256": "6575c71341f06b4f08f60d527b2a9edebf1978a71e0a58c42656372f1b043b34",
+      "table": "ui",
+      "translation": "वॉल्यूम मास्क में 65535 तक के मेल खाते ऋणेतर पूर्णांक ऑब्जेक्ट लेबल होने चाहिए।"
+    },
+    {
+      "key": "The volume sidecar contains invalid object geometry.",
+      "source": "The volume sidecar contains invalid object geometry.",
+      "source_sha256": "b365723f72917f87ed1380428a071817f4556c2ed6135b6812dfb025bcdfe5b1",
+      "table": "ui",
+      "translation": "वॉल्यूम साइडकार में अमान्य ऑब्जेक्ट ज्यामिति है।"
+    },
+    {
+      "key": "This TIFF exceeds the native volume memory budget.",
+      "source": "This TIFF exceeds the native volume memory budget.",
+      "source_sha256": "8738cd535e40db6b74a9812c5f9d60c484edf278cd4db29162b1b6f60baa1fa0",
+      "table": "ui",
+      "translation": "यह TIFF नेटिव वॉल्यूम मेमोरी बजट से अधिक है।"
+    },
+    {
+      "key": "This edit exceeds the volume undo memory budget; no labels were changed.",
+      "source": "This edit exceeds the volume undo memory budget; no labels were changed.",
+      "source_sha256": "0575caf0160a033557e7a5381062869f49c238c104e8e27f263628ef62784369",
+      "table": "ui",
+      "translation": "यह संपादन वॉल्यूम पूर्ववत मेमोरी बजट से अधिक है; कोई लेबल नहीं बदला गया।"
+    },
+    {
+      "key": "This label has too much boundary detail for editable volume geometry.",
+      "source": "This label has too much boundary detail for editable volume geometry.",
+      "source_sha256": "f669b4c459ba8c6a87a713e84f5428f503ae036c9087ea8d32b6b7633bcf2aed",
+      "table": "ui",
+      "translation": "संपादन योग्य वॉल्यूम ज्यामिति के लिए इस लेबल में सीमा का बहुत अधिक विवरण है।"
+    },
+    {
+      "key": "This volume is already being saved.",
+      "source": "This volume is already being saved.",
+      "source_sha256": "092d7df28c2d5d26c500f7d5a4a02777eeb8854c3bf468b3a17fa4e5c6b16d6b",
+      "table": "ui",
+      "translation": "यह वॉल्यूम पहले से सहेजा जा रहा है।"
+    },
+    {
+      "key": "Updated {n} voxels; source image and other labels are unchanged.",
+      "source": "Updated {n} voxels; source image and other labels are unchanged.",
+      "source_sha256": "79586f1b5eed4b688276d627fd4150193025d398fd474250c3500a3baedb580a",
+      "table": "ui",
+      "translation": "{n} वॉक्सेल अपडेट किए गए; स्रोत छवि और अन्य लेबल अपरिवर्तित हैं।"
+    },
+    {
+      "key": "Volume editing was cancelled; no labels were changed.",
+      "source": "Volume editing was cancelled; no labels were changed.",
+      "source_sha256": "8ad570d78efe7061237c7c66b4dc7e843e4aeb77ccfc7362f417c708422ea660",
+      "table": "ui",
+      "translation": "वॉल्यूम संपादन रद्द कर दिया गया; कोई लेबल नहीं बदला गया।"
+    },
+    {
+      "key": "Voxel spacing must contain three positive finite distances.",
+      "source": "Voxel spacing must contain three positive finite distances.",
+      "source_sha256": "c212b0e7a1997114593a578f7c56a7a783cac33ce42bf85328d846ff5370d9bd",
+      "table": "ui",
+      "translation": "वॉक्सेल अंतराल में तीन धनात्मक परिमित दूरियाँ होनी चाहिए।"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "Choose an object and drag its anchors to edit the full mask.",
+      "source": "Choose an object and drag its anchors to edit the full mask.",
+      "source_sha256": "dda6bcc436ac1d5e4deb6b90cb767f20acc2e4e6d51e9f7986dc3785e8e647a1",
+      "table": "ui",
+      "translation": "कोई ऑब्जेक्ट चुनें और पूरे मास्क को संपादित करने के लिए उसके एंकर खींचें।",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
+      "source": "Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.",
+      "source_sha256": "aa29cc2ae54043c1c72cd4c86de7b5e67d17ed36a261ebe061d9c3742fb8d14a",
+      "table": "ui",
+      "translation": "स्थानिक 3D TIFF को नेटिव वॉल्यूम संपादक में खोलें। साझा एंकर के साथ सटीक मास्क वॉक्सेल संपादित करें; वर्तमान 2D छवि और मास्क अपरिवर्तित रहते हैं।",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Spatial TIFF (*.tif *.tiff)",
+      "source": "Spatial TIFF (*.tif *.tiff)",
+      "source_sha256": "fe1b324cc761ccce0f57e47a541f1dceab02f80348e7a1c857f28b85505d4231",
+      "table": "ui",
+      "translation": "स्थानिक TIFF (*.tif *.tiff)",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Z slice (index)",
+      "source": "Z slice (index)",
+      "source_sha256": "4165baeba826fd3e68d5bb8b920d034bffdb32bd6ae8a87e075b8ae0cff09785",
+      "table": "ui",
+      "translation": "Z स्लाइस (सूचकांक)",
+      "retired": "2026-10-12: English caption removed by N692 (3-D mask drawing replaced the anchor-only volume editor); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "3D mask editor",
+      "source": "3D mask editor",
+      "source_sha256": "851c38a587d130ceb761534dacc43a2785a4c44b03c78d3c364a77da48f6ba8c",
+      "table": "ui",
+      "translation": "3D मास्क संपादक",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}",
+      "source": "Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}",
+      "source_sha256": "31c6970dc7be5dcb7734991be503d591ad714377342e5224a6cc1e7c4d8de38c",
+      "table": "ui",
+      "translation": "ऑब्जेक्ट {label}: {n} वॉक्सेल\nअक्ष: {axes}\nअंतराल: {spacing} {unit}",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Redo the last volume edit.",
+      "source": "Redo the last volume edit.",
+      "source_sha256": "d3f9310dc596a4ae1f4a35af6abd7f8c2dc4abc0f45b9f41fb865ad8327546cf",
+      "table": "ui",
+      "translation": "अंतिम वॉल्यूम संपादन फिर से करें।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Save 3D mask",
+      "source": "Save 3D mask",
+      "source_sha256": "1d89b96dfcc1e6742c1ca93098748285736db32f3180c9091aab4356cda2d93f",
+      "table": "ui",
+      "translation": "3D मास्क सहेजें",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Save the full 3D labels and their editable boundary without changing the source image.",
+      "source": "Save the full 3D labels and their editable boundary without changing the source image.",
+      "source_sha256": "7e0ea751ce0326e94a98370f363ae40de392928a422fb1ddac68154784cde425",
+      "table": "ui",
+      "translation": "स्रोत छवि बदले बिना पूरे 3D लेबल और उनकी संपादन योग्य सीमा सहेजें।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Select an object to inspect its exact voxel count and spacing.",
+      "source": "Select an object to inspect its exact voxel count and spacing.",
+      "source_sha256": "94ff5e73f34221f1cd9b50e886a77f77e6ac29b053539fe1fc11c51c9ca1cfab",
+      "table": "ui",
+      "translation": "किसी ऑब्जेक्ट की सटीक वॉक्सेल संख्या और अंतराल देखने के लिए उसे चुनें।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Undo the last volume edit, including its exact labels and boundary.",
+      "source": "Undo the last volume edit, including its exact labels and boundary.",
+      "source_sha256": "faea3aed5474ecb37ada868a32bbc37066dd70d8989a716af68bd2a2831b06e8",
+      "table": "ui",
+      "translation": "अंतिम वॉल्यूम संपादन को उसके सटीक लेबल और सीमा सहित पूर्ववत करें।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "key": "Open 3D image…",
+      "source": "Open 3D image…",
+      "source_sha256": "6ea6e40ff44e2de686180d13647a5f5ba7b46f092cfb00d81f93101834a967b8",
+      "table": "ui",
+      "translation": "3D छवि खोलें…",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    }
+  ]
+}

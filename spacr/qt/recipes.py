@@ -1,29 +1,26 @@
-"""Settings templates — named bundles you can reuse and share.
+"""Settings templates: named, reusable and shareable bundles of settings.
 
 The historical Recipe API, JSON format and storage paths remain compatible.
 
-A lab does not run one set of settings; it runs a handful, each tied to a
-preparation. "Toxo PVM, 40×" is a real thing people say to each other, and
-until now the only way to carry it between sessions was a settings CSV in a
-folder somebody had to remember, with no name on it, no record of which
-module it belonged to, and no way to tell whether it was written by the
-version of spaCR about to consume it.
+A lab often uses several sets of settings, each tied to a preparation, such as
+"Toxo PVM, 40×". A settings CSV saved in a folder has no name, no record of its
+module and no record of the spaCR version that wrote it.
 
-A recipe fixes all four:
+A recipe records all four:
 
 * it has a **name** the user chose;
 * it knows its **module**, so applying a Mask recipe to Measure is refused
-  rather than silently writing seventeen keys that mean nothing there;
-* it records the **spaCR version** it was captured with, and applying it
-  under a different one says so, listing the settings that no longer exist
-  and the ones that have appeared since;
+  rather than writing keys that do not apply there;
+* it records the **spaCR version** it was captured with, and applying it under
+  a different one says so and lists the recipe's settings that the module no
+  longer has;
 * it is **one file**, so sharing it is sending a file.
 
 Storage is ``~/.spacr/recipes/<module>/<slug>.json``, honouring
 :data:`RECIPE_DIR_ENV` — the same shape :func:`spacr.macro.macros_dir` uses,
 so a lab that redirects one redirects both.
 
-The file format is deliberately boring::
+The file format is plain JSON::
 
     {
       "spacr_recipe": 1,
@@ -35,9 +32,9 @@ The file format is deliberately boring::
       "settings": {"cell_channel": 1, ...}
     }
 
-``spacr_recipe`` is a format version, not the spaCR version: the two change
-for unrelated reasons and conflating them is how a reader ends up refusing a
-file it could have read.
+``spacr_recipe`` is a format version, not the spaCR version: the two change for
+unrelated reasons, so a reader accepts any file whose format version it can
+read.
 """
 from __future__ import annotations
 
@@ -47,6 +44,7 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, Qt, QTimer
@@ -69,8 +67,10 @@ from PySide6.QtWidgets import (
 )
 
 from .widgets.flow import FlowLayout
+from .widgets.sortable_table import _reuse_list_items
 from .i18n import tr
 from ..logging_util import _spacr_home
+from ..run_journal import _atomic_write_text
 
 LOG = logging.getLogger("spacr.qt.recipes")
 
@@ -212,10 +212,9 @@ class Recipe:
             and a ``settings`` dict. Missing ``name`` falls back to
             ``"Untitled"``.
         :raises ValueError: when the mapping is not a recipe at all, or is a
-            format version this build does not understand. Both are worth an
-            explicit error: silently treating an arbitrary JSON file as a
-            settings bundle is how a user ends up applying somebody's
-            ``package.json`` to a segmentation run.
+            format version this build does not understand. Both raise an
+            explicit error, so an arbitrary JSON file such as a
+            ``package.json`` is not applied as settings.
         """
         if not isinstance(data, dict) or "spacr_recipe" not in data:
             raise ValueError(tr("not a spaCR settings template"))
@@ -243,9 +242,8 @@ class Recipe:
 def save_recipe(recipe: Recipe, directory: Optional[str] = None) -> str:
     """Write ``recipe`` and return its path.
 
-    :param recipe: the bundle. Its ``spacr_version`` and ``created`` are
-        filled in here when empty, so a caller never has to remember to
-        stamp them — the stamp is the point of the format.
+    :param recipe: the bundle. Its ``spacr_version`` and ``created`` are filled
+        in here when empty, so a caller does not have to set them.
     :param directory: override the destination (used by export).
     """
     recipe.spacr_version = recipe.spacr_version or spacr_version()
@@ -254,9 +252,8 @@ def save_recipe(recipe: Recipe, directory: Optional[str] = None) -> str:
     root = directory or recipes_dir(recipe.app_key)
     os.makedirs(root, exist_ok=True)
     path = os.path.join(root, f"{_slug(recipe.name) or 'recipe'}.json")
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(recipe.to_json(), handle, indent=2, sort_keys=True,
-                  default=str)
+    text = json.dumps(recipe.to_json(), indent=2, sort_keys=True, default=str)
+    _atomic_write_text(Path(path), text)
     recipe.path = path
     return path
 
@@ -335,8 +332,13 @@ def _rename_recipe(recipe: Recipe, new_name: str) -> str:
     if os.path.exists(target) and not same_file:
         raise ValueError(
             tr("A template called {name} already exists.", name=repr(name)))
+    old_name = recipe.name
     recipe.name = name
-    save_recipe(recipe, directory=root)
+    try:
+        save_recipe(recipe, directory=root)
+    except Exception:
+        recipe.name = old_name
+        raise
     if old and not same_file and os.path.isfile(old):
         os.remove(old)
     return recipe.path
@@ -371,9 +373,8 @@ def _recipe_from_settings_csv(path: str, app_key: str, screen=None) -> Recipe:
 def version_note(recipe: Recipe, current: Optional[str] = None) -> str:
     """What to tell the user about the version gap, or ``""`` if there is none.
 
-    Returns a sentence, not a boolean, because "captured with 1.3.4, you are
-    on 1.3.6" is the information — a bare warning icon says only that
-    something might be wrong and leaves the user no way to judge it.
+    Returns a sentence that names both versions, not a boolean, so the user can
+    judge the gap.
 
     :param recipe: the bundle about to be applied.
     :param current: override the running version (tests).
@@ -388,12 +389,12 @@ def version_note(recipe: Recipe, current: Optional[str] = None) -> str:
 
 
 def compatibility_note(recipe: Recipe, model) -> str:
-    """Which of the recipe's settings this build has no home for.
+    """Describe the recipe's settings that this module does not have.
 
     The version gap says *that* something may have moved; this says *what*.
-    Reported as counts plus the first few names, because a recipe from two
-    releases back can differ in thirty keys and a wall of them is not a
-    warning, it is noise.
+    Reported as a count plus the first four names, so a recipe that differs in
+    many keys gives a short note. The result is empty when there is nothing to
+    report.
 
     :param recipe: the bundle.
     :param model: the screen's ``SettingsWidgets``.
@@ -415,15 +416,15 @@ def compatibility_note(recipe: Recipe, model) -> str:
 def apply_recipe(recipe: Recipe, screen) -> int:
     """Write a recipe's settings into ``screen``. Returns how many landed.
 
-    Delegates to ``AppScreen.apply_settings_dict``, which is the same path
-    the settings-CSV import takes — so a recipe cannot reach a widget that
-    an imported CSV could not, and neither can drift from the other.
+    Delegates to ``AppScreen.apply_settings_dict``, which is the same path the
+    settings-CSV import takes — so a recipe reaches the same widgets an
+    imported CSV reaches.
 
     :raises ValueError: when the recipe belongs to a different module. It is
-        refused rather than partially applied: the keys that happen to
-        overlap between two modules are exactly the generic ones (``src``,
-        ``verbose``, ``n_jobs``), so a "successful" cross-module apply
-        writes the least meaningful half and reports success.
+        refused rather than partially applied: the keys that happen to overlap
+        between two modules are exactly the generic ones (``src``, ``verbose``,
+        ``n_jobs``), so a cross-module apply would write only those and still
+        report success.
 
     :param recipe: the recipe to apply; its settings are copied, not
         mutated.
@@ -445,10 +446,10 @@ def apply_recipe(recipe: Recipe, screen) -> int:
 def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
     """Build a recipe from a screen's current settings.
 
-    Uses ``SettingsWidgets.collect``, so what is captured is exactly what a
-    Run would use — including the defaults the user never touched. That is
-    deliberate: a recipe is meant to reproduce a result, and a bundle of
-    only the edits reproduces something different the day a default changes.
+    Uses ``SettingsWidgets.collect``, so what is captured is exactly what a Run
+    would use — including the defaults the user never touched. Storing every
+    value means the recipe reproduces the same settings after a default
+    changes.
 
     :param screen: the module screen to capture; it must have a settings
         model (``_settings_model``) or :class:`ValueError` is raised, and
@@ -549,12 +550,11 @@ class RecipeDialog(QDialog):
     def reload(self) -> None:
         """Re-read the module's recipe folder and repopulate the list."""
         self._recipes = list_recipes(self._app_key)
-        self._list.clear()
-        for recipe in self._recipes:
-            item = QListWidgetItem(
+        rows = _reuse_list_items(self._list, len(self._recipes))
+        for item, recipe in zip(rows, self._recipes):
+            item.setText(
                 f"{recipe.name}    ·    spaCR {recipe.spacr_version}")
             item.setData(Qt.UserRole, recipe.path)
-            self._list.addItem(item)
         if self._recipes:
             self._list.setCurrentRow(0)
         else:
@@ -632,8 +632,7 @@ class RecipeDialog(QDialog):
         """
         name, ok = QInputDialog.getText(
             self, tr("Save template"),
-            tr("Name this template — something you would say out loud, "
-               "like “Toxo PVM, 40×”:"))
+            tr("Name for this template, for example “Toxo PVM, 40×”:"))
         if not ok or not str(name).strip():
             return
         try:
@@ -690,9 +689,9 @@ class RecipeDialog(QDialog):
         if not path:
             return
         try:
-            with open(path, "w", encoding="utf-8") as handle:
-                json.dump(recipe.to_json(), handle, indent=2, sort_keys=True,
-                          default=str)
+            text = json.dumps(recipe.to_json(), indent=2, sort_keys=True, default=str)
+            Path(path).parent.stat()
+            _atomic_write_text(Path(path), text)
         except Exception as exc:
             QMessageBox.warning(self, "Could not write the file", str(exc))
 
@@ -779,10 +778,10 @@ def open_recipes(screen, parent: Optional[QWidget] = None) -> RecipeDialog:
 def install(screen) -> Optional[QToolButton]:
     """Add a Templates button to ``screen``'s settings search strip.
 
-    The strip is where a settings bundle belongs — directly above the
-    settings it bundles — and it already exists, so this costs no chrome of
-    its own. Returns ``None`` when the screen has no strip (a bespoke
-    screen), or when one is already installed.
+    The strip is where a settings bundle belongs — directly above the settings
+    it bundles — and it already exists, so no new toolbar is added. Returns
+    ``None`` when the screen has no strip (a bespoke screen), or when one is
+    already installed.
 
     :param screen: the module screen; its ``_settings_search`` strip must
         provide ``add_trailing_widget``. If the screen already has a
@@ -894,8 +893,8 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
     """Add **Settings templates…** to the window's Help menu.
 
     Returns the action, or ``None`` when there is no Help menu or one is
-    already installed. The command palette mirrors menu actions, so this
-    also makes recipes reachable from Ctrl+K for free.
+    already installed. The command palette mirrors menu actions, so recipes are
+    also reachable from Ctrl+K.
 
     :param window: the main window; its menu-bar menu titled "Help" (``&``
         ignored) receives the action, before the first separator.
@@ -963,7 +962,7 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
     """Wire recipes into a live main window.
 
     Called once from :func:`spacr.qt.shortcuts.install`. Every failure is
-    logged and swallowed: a missing recipe button must not cost a window.
+    logged and swallowed, so a failure to add recipes does not stop the window.
 
     :param window: the main window; the Help-menu action is added to it and
         its ``_stack`` screen stack is watched so each shown screen gets a

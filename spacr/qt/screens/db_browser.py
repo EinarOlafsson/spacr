@@ -1,11 +1,10 @@
 """
 Database Browser — a read-only query panel for a spaCR ``measurements.db``.
 
-Answering "how many cells are in plate1?" or "what does the ``png_list``
-table actually contain?" used to mean dropping to a terminal and typing
-``sqlite3 .../measurements/measurements.db``. This screen puts the same
-questions one click away, and — unless you deliberately arm edit mode —
-without ever giving the GUI a way to write to the file.
+The screen answers questions such as "how many cells are in plate1?" or
+"what does the ``png_list`` table contain?" without a terminal and
+``sqlite3 .../measurements/measurements.db``. Unless edit mode is armed,
+the GUI has no way to write to the file.
 
 Layout::
 
@@ -33,8 +32,7 @@ Design notes that matter for real spaCR databases:
 * **Keyset paging, not OFFSET.** Each chunk asks for ``rowid > <last
   rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes
   SQLite walk (and throw away) every skipped row, so chunk 500 of a
-  400 k-row table would cost 500× chunk 1 — the "fast" version would
-  get slower the further you scrolled. Only tables with no usable key
+  400 k-row table would cost 500× chunk 1. Only tables with no usable key
   (views, composite-primary-key ``WITHOUT ROWID`` tables) fall back to
   ``OFFSET``, and those are small by construction.
 * **The count never blocks the first paint.** ``SELECT COUNT(*)`` is a
@@ -54,8 +52,8 @@ Design notes that matter for real spaCR databases:
   Nothing is ever killed mid-flight.
 * **Read-only by default, structurally.** Browsing connections are
   opened with the ``file:…?mode=ro`` URI *and* ``PRAGMA query_only =
-  ON``. A write is rejected by SQLite itself, not by a check we could
-  forget. Editing is a separate, opt-in path (see below) with its own
+  ON``. A write is rejected by SQLite itself, not by an application-level
+  check. Editing is a separate, opt-in path (see below) with its own
   connection.
 * **No string-formatted values.** Everything the user types is bound as
   a ``?`` parameter. Identifiers (table + column names) never come from
@@ -84,7 +82,7 @@ below has to fail open to *read-only*:
    corruption. The write also probes ``COUNT(*)`` for the row address
    first and rolls back unless ``rowcount == 1``.
 5. The typed text must be coercible to the column's declared type.
-   SQLite will cheerfully store ``'abc'`` in an INTEGER column;
+   SQLite stores ``'abc'`` in an INTEGER column without error;
    :func:`coerce_for_column` refuses instead.
 
 Loading a different database always resets edit mode to off.
@@ -149,6 +147,7 @@ from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import (
     EXAMPLE_TABLE, install_test_data_button,
 )
+from ..widgets.sortable_table import _reuse_list_items
 from ..widgets.toggle import Toggle
 from .app_screen import ModuleHeader
 
@@ -231,8 +230,8 @@ def quote_ident(name: str) -> str:
     """Double-quote a SQL identifier, escaping embedded quotes.
 
     Only ever called with a name that has already been matched against
-    the live schema; the quoting is belt-and-braces for identifiers that
-    are legal but awkward (``cell_channel_1 (raw)``).
+    the live schema; the quoting is an additional safeguard for identifiers
+    that are legal but awkward (``cell_channel_1 (raw)``).
 
     :param name: schema-validated table or column identifier.
     :returns: identifier surrounded by SQL double quotes.
@@ -323,10 +322,10 @@ _FORBIDDEN_RAW = re.compile(
 def validate_raw_predicate(text: str) -> str:
     """Return ``text`` stripped, or raise if it is not a lone predicate.
 
-    The raw box is an explicit power-user escape hatch (``cell_area > 1000
-    AND well LIKE 'A%'``). We refuse statement separators, comments and
-    DDL/DML keywords so it stays a *predicate*; the read-only connection
-    plus ``PRAGMA query_only`` guarantee the rest.
+    The raw box accepts a hand-written WHERE predicate (``cell_area > 1000
+    AND well LIKE 'A%'``). Statement separators, comments and DDL/DML
+    keywords are refused so it stays a *predicate*; the read-only
+    connection plus ``PRAGMA query_only`` prevent any write.
 
     :param text: raw WHERE-clause fragment entered by the user.
     :returns: stripped predicate after the safety checks.
@@ -442,7 +441,7 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
 
 def build_update(table: str, column: str,
                  key_columns: Sequence[str]) -> str:
-    """Return the one statement this screen is ever willing to run.
+    """Return the single-cell UPDATE statement, the only write this screen runs.
 
     ``UPDATE "t" SET "c" = ? WHERE "rowid" = ?`` — one column, one row
     address, everything bound. Exposed so the screen can show the user
@@ -681,10 +680,10 @@ class ReadOnlyDb:
         ``order_by`` is ``(column, descending)`` when the user has clicked a
         column header. It sorts **in SQL, over the whole table**, which is
         the only way to sort a table the view has only partly loaded --
-        sorting the rows fetched so far and presenting that as the table's
-        order is the one option worse than not sorting at all.
+        sorting only the rows fetched so far would present a partial order
+        as the table's order.
 
-        Two details that are not optional:
+        Two requirements:
 
         * the key column is appended as a **tiebreak**. Without it, rows
           sharing a value come back in whatever order SQLite happens to
@@ -786,10 +785,10 @@ class ReadOnlyDb:
         """Return an O(1) *estimate* of the row count, or ``None``.
 
         ``max(rowid)`` is answered from the right-hand edge of the
-        table's b-tree without scanning, which is the whole point: a
-        real ``COUNT(*)`` on a 400 k-row measurement table takes long
-        enough to be felt. It is only an estimate — deleted rows leave
-        gaps — so every caller must label it as one.
+        table's b-tree without scanning, which avoids the full scan an
+        exact ``COUNT(*)`` needs; on a 400 k-row measurement table that
+        scan causes a noticeable delay. It is only an estimate — deleted rows
+        leave gaps — so every caller must label it as one.
 
         ``None`` when the table has no rowid, or is empty.
 
@@ -889,10 +888,9 @@ class ReadOnlyDb:
 class WritableDb:
     """A read-write handle used only by an armed edit mode.
 
-    Deliberately tiny: it knows how to write **one cell of one row** and
-    nothing else. There is no ``execute()``, no DDL, no multi-row
-    update — the class has no method that could touch more than
-    a single row.
+    It can write **one cell of one row** and nothing else. There is no
+    ``execute()``, no DDL, no multi-row update — the class has no method that
+    could touch more than a single row.
 
     :param path: database file, or a run folder — see :func:`resolve_db_path`.
     """
@@ -909,7 +907,7 @@ class WritableDb:
     def connect(self) -> sqlite3.Connection:
         """Return a fresh read-write connection in autocommit mode.
 
-        ``isolation_level = None`` hands transaction control back to us,
+        ``isolation_level = None`` leaves transaction control to this class,
         so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real
         ones and do not fight Python's implicit transaction handling
         (which differs between 3.11 and 3.12+).
@@ -1019,10 +1017,10 @@ def _sort_key(value: Any) -> tuple:
 class PreviewModel(QAbstractTableModel):
     """Holds the rows fetched so far plus the column-visibility mask.
 
-    Two jobs beyond the obvious one:
+    Besides holding the rows, it handles two things:
 
-    * **Incremental fetch.** ``canFetchMore``/``fetchMore`` are the Qt
-      way to say "there is more where that came from"; the view calls
+    * **Incremental fetch.** ``canFetchMore``/``fetchMore`` are Qt's
+      incremental-loading interface; the view calls
       them when the user scrolls to the bottom and the model asks the
       screen for another chunk. While a chunk is in flight
       ``canFetchMore`` is False, so a scroll cannot queue ten of them.
@@ -1234,9 +1232,9 @@ class PreviewModel(QAbstractTableModel):
     def is_editable(self) -> bool:
         """Whether this preview allows edits.
 
-        OFF UNLESS CHOSEN. The browser reads a project's real measurements,
-        and an accidental edit there is a silent change to data a run already
-        produced.
+        Off unless edit mode is armed. The browser reads a project's real
+        measurements, and an accidental edit there is a silent change to data
+        a run already produced.
 
         :returns: True when editing is enabled.
         """
@@ -1363,14 +1361,14 @@ class DbBrowserScreen(LinkedView, QWidget):
 
     Joined to the shared selection as ``"db_browser"``, in both directions:
 
-    * selecting rows publishes them, so a row picked out here lights up on
-      the plate heatmap and in the UMAP;
+    * selecting rows publishes them, so a row picked out here is highlighted
+      on the plate heatmap and in the UMAP;
     * a selection published elsewhere selects and scrolls to the same rows;
-    * a filter published elsewhere HIDES rows, which a selection never does.
+    * a filter published elsewhere hides rows, which a selection never does.
 
     All three act on the rows already fetched. Nothing here re-queries: the
-    shared filter is a lens over the page in memory, and the row-count label
-    keeps saying how much of the table that page is.
+    shared filter applies to the rows in memory, and the row-count label
+    states how much of the table those rows are.
 
     :param parent: optional Qt owner responsible for the screen's lifetime.
     :param threaded: run queries on a worker thread (the default). Tests
@@ -1753,7 +1751,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._token += 1
         self._model.set_more(False)
         self._model.clear()
-        self._table_list.clear()
+        _reuse_list_items(self._table_list, 0)
         self._db = None
         self._table = ""
         self._all_columns = []
@@ -1779,8 +1777,9 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_status(self._humanise(e, path), error=True)
             self._update_controls()
             return False
-        for name in tables:
-            self._table_list.addItem(QListWidgetItem(name))
+        for item, name in zip(
+                _reuse_list_items(self._table_list, len(tables)), tables):
+            item.setText(name)
         if not tables:
             self._set_status(
                 f"Opened {db.path} — but it has no tables.", error=False)
@@ -1947,9 +1946,8 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         The generic hand-off seam ``MainWindow._on_train_requested`` looks
         for. Everything is optional and anything unusable is ignored rather
-        than raised: this is a convenience jump, and a screen that refuses to
-        open because a seed was stale is worse than one that opens on the
-        wrong table.
+        than raised: this is a convenience jump, so the screen still opens
+        when a seed is stale, possibly on a different table.
 
         :param seed: ``db_path``, and optionally ``table`` and ``column``.
         """
@@ -2512,7 +2510,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         return bool(get_db_browser_editable())
 
     def edit_mode_enabled(self) -> bool:
-        """True when this screen currently holds a licence to write."""
+        """True when edit mode is armed for the open database."""
         return self._edit_mode
 
     def _edit_block_reason(self) -> str:
@@ -3055,8 +3053,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         """Let every in-flight query thread finish before the widget dies.
 
         Destroying a QThread that is still running aborts the process, so
-        we wait (briefly) rather than hope. Jobs that have not started yet
-        are dropped — nothing has been spawned for them.
+        the screen waits briefly for running threads. Jobs that have not
+        started yet are dropped — nothing has been spawned for them.
 
         The shared link outlives this screen, so let go of it too.
 

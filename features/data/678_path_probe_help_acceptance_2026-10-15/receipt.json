@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-15",
+  "result": "PASS",
+  "exact_tested_commit": "a59e1f06f08c42cde033dd52f0194c2798e96f28",
+  "later_delivery_commit_with_all_tested_files_identical": "8eea98abe2446b74c081855593b16d36ef863d90",
+  "help_index_sha256": "154f30b4506de4c9796a42ab76f39a8c8f82be4e8916df83c01764eaaa654a34",
+  "existing_checks": {
+    "result": "5 PASS",
+    "pytest_seconds": 2.77,
+    "wall_seconds": 5.02,
+    "peak_rss_kib": 572872,
+    "terminal_exit": 0,
+    "tests": [
+      "tests/test_the_help_index_is_generated_not_typed.py::test_the_generated_module_says_it_is_generated",
+      "tests/test_the_help_index_is_generated_not_typed.py::test_every_setting_consumer_is_addressable",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py::test_enabled_object_helpers_have_search_rows_local_prose_and_exact_links",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py::test_the_page_of_a_symbol_is_addressed_in_the_readers_language",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py::test_the_local_docstring_is_read_without_importing_the_module"
+    ]
+  },
+  "five_symbol_consumer_acceptance": {
+    "result": "PASS",
+    "wall_seconds": 1.1,
+    "peak_rss_kib": 160460,
+    "terminal_exit": 0,
+    "symbols": [
+      "spacr.qt.path_probe",
+      "spacr.qt.path_probe.exists",
+      "spacr.qt.path_probe.isdir",
+      "spacr.qt.path_probe.forget",
+      "spacr.qt.path_probe.prime"
+    ],
+    "production_provider_rows": 13259,
+    "queries": 10,
+    "all_exact_and_qualified_queries_rank_expected_symbol_first": true,
+    "details": "five-symbols.json"
+  },
+  "resource": {
+    "cap": "2G",
+    "threads": 1,
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "heavy_lock": "/mnt/wd4tb/scratch/home-b-coordination-20261014/heavy.lock",
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "qt_overlay": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/a744-dark-opaque-p1-20261014/qt612-runtime/site-packages"
+  },
+  "source_and_artifact_sha256": {
+    "spacr/qt/help_api_index.py": "154f30b4506de4c9796a42ab76f39a8c8f82be4e8916df83c01764eaaa654a34",
+    "spacr/qt/help_index.py": "16de97f287e1b27d116b39e8cbd35333e2aaaca202c698208f81d675fe9e6139",
+    "spacr/qt/help_search.py": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+    "spacr/qt/path_probe.py": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4",
+    "docs/source/_static/i18n/api/en.json": "0e0e5478ebf2a8674e1647bf2e1bd4e54b6a8f3aa12d1a64f0ca1afeea4431b5",
+    "tools/build_help_search_index.py": "6b98bf028bbe372894a314eb509fb9da4a74e814f13d1223fb1741ffea71d2a9",
+    "tests/test_the_help_index_is_generated_not_typed.py": "18373e4f992b870629868f4701f07c89f5c2db0d35ed0c4d09f1fbbddaff1b80",
+    "tests/qt/test_the_help_search_field_lands_where_it_says.py": "e3b668da2161b163f7afc95162df4bc950ebf83d814678bd415d111217e2196e"
+  },
+  "evidence_sha256": {
+    "check_five_symbols.py": "a8fcfa09583c18ee07532e323762c2bd9c495d3fb0fadc1babde30bca64e979d",
+    "five-symbols.json": "f4f5ab5ce7ed804f718af43f6cf437cd949f647f1208e4f2b057fc5aa029fc18",
+    "five-symbols.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "five-symbols.time": "61df879b562c919a306085a3136300a1abd83dbdc9d311f0ca4b1a1c2123e023",
+    "existing.txt": "b12ebe2c13c208800f2608d0266e864dcb7171d59e467fcbfd050c8f6c4b2fc4",
+    "existing.time": "b77bf1073961124bea2da5e05d52d6d2d5223b6ad133d38fbd7d947860331131"
+  },
+  "boundary": [
+    "Five existing pytest checks plus five exact-symbol consumer cases; not ten new pytest cases or a whole-suite claim.",
+    "Actual production api_entries and search used across13259 rows; no fabricated provider mappings. Full current AST-read local prose and English summaries match; en/ko module/function URLs checked structurally, not hosted/rendered HTML.",
+    "Offline local_docstring did not import path_probe. api_url subsequently imports it through existing settings_model/file_list dependencies; _started remainedFalse and no path probes ran.",
+    "No generator, canonical collection, decoder, network, Sphinx, native UI or physical performance acceptance was repeated.",
+    "Independent consumer acceptance: reviewer authored neither path_probe source correction nor API translations."
+  ]
+}

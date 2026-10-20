@@ -66,7 +66,7 @@ def test_discovery_refuses_what_it_cannot_place(tmp_path, kwargs, message):
 def test_inputs_inside_the_destination_are_refused(acquisition, tmp_path):  # noqa: F811
     inside = Path(acquisition["dst"]) / "own.csv"
     inside.parent.mkdir(parents=True)
-    inside.write_text(Path(acquisition["profiling_metadata"]).read_text())
+    inside.write_text(Path(acquisition["profiling_metadata"]).read_text(encoding="utf-8"))
     with pytest.raises(ConfigurationError, match="outside the destination"):
         cv.convert_folder(acquisition, profiling_metadata=str(inside))
 
@@ -122,7 +122,7 @@ def test_an_input_changed_while_linking_is_refused(acquisition, monkeypatch):  #
     def link_then_edit(*args, **kwargs):
         result = real(*args, **kwargs)
         own = Path(acquisition["profiling_metadata"])
-        own.write_text(own.read_text() + "plate1,A02,DMSO,2\n")
+        own.write_text(own.read_text(encoding="utf-8") + "plate1,A02,DMSO,2\n")
         return result
 
     monkeypatch.setattr(plate_qc, "_link_barcode_wells", link_then_edit)

@@ -37,6 +37,11 @@ from pathlib import Path
 from functools import lru_cache
 from typing import Dict, List, Optional, Set, Tuple
 
+try:
+    from api_visibility import public_symbol
+except ModuleNotFoundError:
+    from tools.api_visibility import public_symbol
+
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "spacr"
 OUTPUT = ROOT / "docs" / "settings_flow.json"
@@ -516,6 +521,94 @@ def _keys_from(node, aliases: Set[str],
     return out
 
 
+def _scope_nodes(function):
+    """Walk one function's nodes without entering a nested callable or class."""
+    pending = list(ast.iter_child_nodes(function))
+    while pending:
+        node = pending.pop()
+        yield node
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+            pending.extend(ast.iter_child_nodes(node))
+
+
+def _bound_names(nodes) -> Set[str]:
+    """Names written in this scope, including nested definitions and imports."""
+    names = set()
+    for node in nodes:
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            names.add(node.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            names.update(alias.asname or alias.name.split('.')[0] for alias in node.names)
+    return names
+
+
+def _literal_key_helpers(modules) -> dict:
+    """Find direct settings reads whose key is an unchanged formal parameter.
+
+    A caller such as ``read(settings, 'model_path')`` carries an explicit
+    setting key even when the helper says ``settings.get(name)``. Only
+    module-level helpers with unmodified mapping/key parameters qualify;
+    nested functions and dynamic key transformations are not guessed.
+    """
+    helpers = {}
+    for module, tree in modules.items():
+        functions = [node for node in tree.body
+                     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+        if not functions:
+            continue
+        reassigned = _bound_names(node for node in _scope_nodes(tree)
+                                  if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)))
+        for function in functions:
+            if (function.name in reassigned
+                    or sum(other.name == function.name for other in functions) != 1):
+                continue
+            positional = [arg.arg for arg in function.args.posonlyargs + function.args.args]
+            keywords = {arg.arg for arg in function.args.args + function.args.kwonlyargs}
+            parameters = set(positional) | keywords
+            nodes = list(_scope_nodes(function))
+            rebound = _bound_names(nodes)
+            pairs = set()
+            for node in nodes:
+                mapping = key = None
+                if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Load):
+                    mapping, key = node.value, node.slice
+                elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                      and node.func.attr in ('get', 'setdefault') and node.args):
+                    mapping, key = node.func.value, node.args[0]
+                if (isinstance(mapping, ast.Name) and isinstance(key, ast.Name)
+                        and mapping.id in (parameters & SETTINGS_NAMES) - rebound
+                        and key.id in parameters - rebound):
+                    pairs.add((mapping.id, key.id))
+            if pairs:
+                helpers[f'{module}.{function.name}'] = (positional, keywords, pairs)
+    return helpers
+
+
+def _helper_keys(call, specification, aliases, known_keys=None) -> Set[str]:
+    """Bind only explicit arguments, then retain declared literal setting keys."""
+    positional, keywords, pairs = specification
+    if (len(call.args) > len(positional)
+            or any(isinstance(value, ast.Starred) for value in call.args)):
+        return set()
+    bound = dict(zip(positional, call.args))
+    for keyword in call.keywords:
+        if keyword.arg not in keywords or keyword.arg in bound:
+            return set()
+        bound[keyword.arg] = keyword.value
+    found = set()
+    known_keys = _tooltips() if known_keys is None else known_keys
+    for mapping, key in pairs:
+        value = bound.get(key)
+        if (_is_settings_value(bound.get(mapping), aliases)
+                and isinstance(value, ast.Constant) and isinstance(value.value, str)
+                and value.value in known_keys):
+            found.add(value.value)
+    return found
+
+
 def analyse() -> dict:
     """Walk the package and return the flow data."""
     modules: Dict[str, ast.Module] = {}
@@ -539,6 +632,7 @@ def analyse() -> dict:
     # back to their caller. `_alias_targets` needs the answer for modules
     # it has not walked yet.
     helper_functions = _settings_helpers(modules)
+    key_helpers = _literal_key_helpers(modules)
 
     reads: Dict[str, List[dict]] = defaultdict(list)
     edges: List[dict] = []
@@ -583,6 +677,17 @@ def analyse() -> dict:
             aliases = (_alias_targets(fn, local_helpers, tables)
                        | (params & SETTINGS_NAMES))
             keyed = _keyed_names(fn, tables, constants)
+            owned = list(_scope_nodes(fn))
+            shadowed = _bound_names(owned) | params
+            for node in owned:
+                if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+                    continue
+                target = imports.get(node.func.id)
+                if target not in key_helpers or node.func.id in shadowed:
+                    continue
+                for key in sorted(_helper_keys(node, key_helpers[target], aliases)):
+                    reads[key].append({'function': qual, 'form': 'helper-key',
+                                       'line': node.lineno})
             for node in ast.walk(fn):
                 for key, form in _keys_from(node, aliases, keyed, tables):
                     reads[key].append({"function": qual, "form": form,
@@ -814,12 +919,12 @@ def _link(qualname: str) -> str:
     ``:py:func:`~name``` renders as the short name and links to the full one,
     which is what keeps a deep tree readable: the reader wants
     ``_normalize_img_batch``, not ``spacr.io._normalize_img_batch``, on every
-    line. AutoAPI publishes the target, and a private function has no page --
-    so those are left as plain text rather than emitted as a link Sphinx will
-    warn about and the reader will find broken.
+    line. The shared documentation policy keeps unpublished functions and
+    modules as plain text, preserving links to deliberately published
+    services in private modules.
     """
     leaf = qualname.rsplit(".", 1)[-1]
-    if leaf.startswith("_"):
+    if not public_symbol(qualname):
         return f"``{leaf}``"
     return f":py:func:`~{qualname}`"
 

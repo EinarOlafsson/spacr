@@ -1,4 +1,4 @@
-"""Attribution — what a trained classifier attends to, and whether that means anything.
+"""Attribution maps for trained classifiers, and checks of their validity.
 
 spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``,
 ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This
@@ -14,20 +14,18 @@ Not every method applies to every backbone. :func:`method_applicability` says
 which do for a model or a ``model_type`` name, and why the others do not, so a
 method selector can grey an entry with its reason instead of failing mid-run.
 
-Almost none of it is written here. The CAM variants come from the optional
-**torchcam** attribution extra, while the gradient and perturbation methods
-come from the core **captum** dependency. What is written here is the part no
-library can supply: the
-adapters that make every method agree on one output shape, the handling of
-spaCR's two classifier head shapes, and — the reason this module exists — the
-analyses in the second half.
+Most methods are implemented by other libraries. The CAM variants come from
+the optional **torchcam** attribution extra, while the gradient and
+perturbation methods come from the core **captum** dependency. This module
+adds the adapters that give every method one output shape, the handling of
+spaCR's two classifier head shapes, and the evaluation analyses in the second
+half.
 
 **An attribution map is not an explanation.** It is a number per pixel produced
 by a procedure. It does not show what the model "looked at", it does not
 establish that the highlighted pixels caused the prediction, and it will render
-a confident, beautiful, plausible picture for a model with random weights. Four
-checks stand between a map and wishful thinking, and they are the point of this
-module:
+a plausible-looking map for a model with random weights. This module provides
+four checks of whether a map reflects the model:
 
 * :func:`deletion_curve` / :func:`insertion_curve` — remove (or add) the pixels
   the map ranks highest and watch the score. A map whose deletion curve is flat
@@ -160,7 +158,7 @@ CRITERION_CAVEATS: Dict[str, str] = {
 
 
 class AttributionError(RuntimeError):
-    """Base class for the failures this module reports instead of guessing."""
+    """Base class for the errors raised by this module."""
 
 
 class UnknownMethodError(AttributionError):
@@ -477,7 +475,7 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
 
 @dataclass
 class Attribution:
-    """One attribution map plus everything needed to judge it.
+    """One attribution map with its target, prediction and caveats.
 
     :param method: Requested attribution-method name; normally a key of
         :data:`ATTRIBUTION_METHODS`, and retained verbatim on a skipped-failure
@@ -1998,7 +1996,7 @@ def faithfulness(model: nn.Module, image: Any, amap: Any, *,
                  target: Optional[int] = None, n_steps: int = 20,
                  baseline: Any = "blur",
                  mask: Optional[Any] = None) -> Dict[str, Any]:
-    """Every faithfulness number for one map, with the caveats attached.
+    """Compute deletion, insertion and pointing-game scores for one map.
 
     :param model: the trained classifier.
     :param image: the image the map explains.
@@ -2036,12 +2034,11 @@ def faithfulness(model: nn.Module, image: Any, amap: Any, *,
 
 
 def pointing_game(amap: Any, mask: Any, *, tolerance: int = 0) -> float:
-    """Does the map's brightest pixel land inside the object?
+    """Test whether the map's highest-ranked pixel lies inside the object.
 
-    spaCR already has the answer key: ``merged/*.npy`` stores the label-mask
-    planes next to the image channels, so a boolean object mask is free. The
-    game is deliberately crude — one pixel, hit or miss — because that is all it
-    claims to measure.
+    ``merged/*.npy`` stores the label-mask planes next to the image channels,
+    so an object mask is available without extra input. The test scores a
+    single pixel as a hit or a miss and measures nothing else.
 
     :param amap: an :class:`Attribution` or a ``(H, W)`` map.
     :param mask: object mask, same spatial shape. Any non-zero value is inside
@@ -2130,8 +2127,8 @@ class SanityCheck:
     :ivar stages: ``(layer_name, similarity)`` after each randomisation step, in
         the order applied.
     :ivar final_similarity: similarity to the trained model's map once every
-        parameterised layer has been randomised. This is the number that
-        matters: at that point the model is noise.
+        parameterised layer has been randomised. ``passed`` is decided on
+        this value.
     :ivar max_similarity: the largest similarity over all stages.
     :ivar threshold: the value ``final_similarity`` must fall below to pass.
     :ivar passed: whether the method's map changed when the weights did.
@@ -2161,7 +2158,7 @@ class SanityCheck:
         return float(min(1.0, max(0.0, 1.0 - self.final_similarity)))
 
     def verdict(self) -> str:
-        """One sentence a user can act on."""
+        """Return a one-sentence pass/fail statement for the check."""
         if self.passed:
             return (f"{self.method} PASSES the randomisation sanity check: "
                     f"after randomising every layer its map correlates "
@@ -2232,7 +2229,7 @@ def randomization_sanity_check(
         max_stages: Optional[int] = None,
         attribute_fn: Optional[Callable[..., Any]] = None,
         **kw) -> SanityCheck:
-    """Adebayo et al. 2018: does the map change when the weights are destroyed?
+    """Test whether the map changes when the weights are randomised (Adebayo 2018).
 
     Randomise the model's parameters layer by layer, from the output backwards,
     re-attribute at every stage, and correlate each map with the map from the
@@ -2364,7 +2361,7 @@ class Agreement:
     notes: List[str] = field(default_factory=list)
 
     def verdict(self) -> str:
-        """One sentence, deliberately asymmetric — see the note in the source."""
+        """Return a one-sentence interpretation of the agreement values."""
         if not math.isfinite(self.mean):
             return ("Agreement could not be computed: at least one map is "
                     "constant and has no pixel ordering to correlate.")
@@ -2447,7 +2444,8 @@ class AttributionMapGenerator:
     :class:`spacr.utils.SaliencyMapGenerator` expose
     ``compute_*_and_predictions(X)`` plus ``plot_activation_grid``. This offers
     the same two calls for every method in :data:`ATTRIBUTION_METHODS`, so the
-    existing batch loop gains twelve methods without changing shape.
+    existing batch loop can use any registered method without changing
+    shape.
 
     :param model: the trained classifier.
     :param method: a key of :data:`ATTRIBUTION_METHODS`.
@@ -2598,6 +2596,74 @@ class _CfResBlock(nn.Module):
         return h + self.skip(x)
 
 
+def _cf_structure_weight(value: float) -> float:
+    """Validate the nonnegative optional layout-objective coefficient.
+
+    :param value: finite coefficient; zero retains the denoising-only path.
+    :returns: the coefficient as a float.
+    :raises ValueError: for a negative, nonnumeric or nonfinite coefficient.
+    """
+    try:
+        weight = float(value)
+    except (TypeError, ValueError, OverflowError):
+        weight = float('nan')
+    if not np.isfinite(weight) or weight < 0:
+        from .qt.i18n import tr
+        raise ValueError(tr("The counterfactual structure weight must be finite and nonnegative."))
+    return weight
+
+
+def _cf_diffusion_strength(value: float) -> float:
+    """Validate a finite fraction of the diffusion inversion schedule.
+
+    :param value: noise-schedule fraction from zero to one, inclusive.
+    :returns: the validated fraction.
+    :raises ValueError: for a nonnumeric, nonfinite or out-of-range fraction.
+    """
+    try:
+        strength = float(value)
+    except (TypeError, ValueError, OverflowError):
+        strength = float('nan')
+    if not np.isfinite(strength) or not 0 <= strength <= 1:
+        from .qt.i18n import tr
+        raise ValueError(tr("The counterfactual diffusion strength must be between zero and one."))
+    return strength
+
+
+def _cf_structure_loss(edited: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
+    """Compare per-channel spatial differences at three spatial scales.
+
+    Uniform channel offsets have zero cost, while displaced edges contribute
+    at full resolution and after twofold and fourfold average pooling. This
+    is a geometric training regularizer, not evidence of biological identity.
+
+    :param edited: finite floating-point NCHW reconstruction.
+    :param reference: matching source tensor, detached from differentiation.
+    :returns: mean squared spatial-difference discrepancy across valid scales.
+    :raises ValueError: for incompatible or nonfinite input tensors.
+    """
+    if (not isinstance(edited, torch.Tensor) or not isinstance(reference, torch.Tensor)
+            or edited.ndim != 4 or edited.shape != reference.shape
+            or min(edited.shape) < 1 or min(edited.shape[-2:]) < 2
+            or not edited.is_floating_point() or not reference.is_floating_point()
+            or edited.device != reference.device or edited.dtype != reference.dtype
+            or not torch.isfinite(edited).all() or not torch.isfinite(reference).all()):
+        from .qt.i18n import tr
+        raise ValueError(tr("Structure preservation requires matching finite floating-point NCHW tensors."))
+    reference = reference.detach()
+    losses = []
+    for scale in (1, 2, 4):
+        if min(edited.shape[-2:]) // scale < 2:
+            continue
+        left = edited if scale == 1 else F.avg_pool2d(edited, scale)
+        right = reference if scale == 1 else F.avg_pool2d(reference, scale)
+        losses.append(F.mse_loss(left[..., 1:, :] - left[..., :-1, :],
+                                 right[..., 1:, :] - right[..., :-1, :]))
+        losses.append(F.mse_loss(left[..., :, 1:] - left[..., :, :-1],
+                                 right[..., :, 1:] - right[..., :, :-1]))
+    return torch.stack(losses).mean()
+
+
 class _CounterfactualDiffusion(nn.Module):
     """A class-conditional denoising diffusion model with the generator's API.
 
@@ -2629,7 +2695,7 @@ class _CounterfactualDiffusion(nn.Module):
     def __init__(self, channels: int, side: int, n_classes: int,
                  width: int = 64, timesteps: int = 1000,
                  strength: float = 0.95, sample_steps: int = 50,
-                 guidance_scale: float = 4.0):
+                 guidance_scale: float = 4.0, structure_weight: float = 0.0):
         """Build the U-Net and the noise schedule.
 
         :param side: crop side the model works at; a multiple of 4.
@@ -2644,14 +2710,17 @@ class _CounterfactualDiffusion(nn.Module):
         :param sample_steps: DDIM steps over the whole schedule; inversion
             and sampling use the share of them below ``strength``.
         :param guidance_scale: classifier-free guidance weight at sampling.
+        :param structure_weight: optional nonnegative training-layout penalty,
+            retained with the configuration; zero is the original objective.
         """
         super().__init__()
+        self.structure_weight = _cf_structure_weight(structure_weight)
         self.side = int(side)
         self.n_classes = int(n_classes)
         self.channels = int(channels)
         self.width = int(width)
         self.timesteps = int(timesteps)
-        self.strength = float(strength)
+        self.strength = _cf_diffusion_strength(strength)
         self.sample_steps = int(sample_steps)
         self.guidance_scale = float(guidance_scale)
         w, emb = self.width, 4 * self.width
@@ -2769,7 +2838,8 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
                                     seed: int = 0, device: Any = 'cpu',
                                     labels: Optional[torch.Tensor] = None,
                                     target_probs: Optional[torch.Tensor] = None,
-                                    augment: bool = True):
+                                    augment: bool = True,
+                                    structure_weight: float = 0.0):
     """Train a class-conditional diffusion generator on crops.
 
     The classifier only LABELS the crops (its predicted class, or the given
@@ -2781,12 +2851,20 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
     crops are randomly flipped and rotated by multiples of 90 degrees, which
     is a symmetry of a centred single-cell crop.
 
+    :param structure_weight: optional nonnegative coefficient for multiscale
+        spatial-difference error between the predicted clean crop and the
+        source. The error is weighted by the step's retained signal fraction
+        to avoid amplification at near-pure-noise steps. It can be combined
+        with a lower inversion ``strength`` but does not establish phenotype
+        success or identity preservation. Zero preserves the original path.
+
     :returns: ``(generator, history)`` as :func:`_train_counterfactual_generator`
         gives them. The last history entry also holds ``reconstruction``:
         the mean squared error of decoding a crop's inversion under its own
         class, on up to 256 training crops, which is how far the round trip
         alone moves a crop.
     """
+    structure_weight = _cf_structure_weight(structure_weight)
     device = torch.device(device)
     torch.manual_seed(int(seed))
     rng = torch.Generator().manual_seed(int(seed))
@@ -2799,7 +2877,8 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
     gen = _CounterfactualDiffusion(crops.shape[1], side, n_codes, width=width,
                                    timesteps=timesteps, strength=strength,
                                    sample_steps=sample_steps,
-                                   guidance_scale=guidance_scale)
+                                   guidance_scale=guidance_scale,
+                                   structure_weight=structure_weight)
     gen.mean.copy_(small_all.mean(dim=(0, 2, 3), keepdim=True))
     gen.std.copy_(small_all.std(dim=(0, 2, 3), keepdim=True).clamp_min(1e-6))
     gen = gen.to(device)
@@ -2810,6 +2889,8 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
         gen.train()
         order = torch.randperm(n, generator=rng)
         total = 0.0
+        total_structure = 0.0
+        total_objective = 0.0
         for start in range(0, n, int(batch_size)):
             idx = order[start:start + int(batch_size)]
             x = ((small_all[idx].to(device) - gen.mean) / gen.std)
@@ -2824,12 +2905,22 @@ def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
             noise = torch.randn(x.shape, generator=rng).to(device)
             a = gen.abar[t][:, None, None, None]
             noisy = a.sqrt() * x + (1 - a).sqrt() * noise
-            loss = F.mse_loss(gen(noisy, t, code, drop=drop), noise)
+            prediction = gen(noisy, t, code, drop=drop)
+            denoising = F.mse_loss(prediction, noise)
+            loss = denoising
+            if structure_weight:
+                clean = (noisy - (1 - a).sqrt() * prediction) / a.sqrt()
+                structural = _cf_structure_loss(a.sqrt() * clean, a.sqrt() * x)
+                loss = denoising + structure_weight * structural
+                total_structure += structural.item() * len(idx) / n
             optimiser.zero_grad()
             loss.backward()
             optimiser.step()
-            total += loss.item() * len(idx) / n
+            total += denoising.item() * len(idx) / n
+            total_objective += loss.item() * len(idx) / n
         history.append({'denoising': total})
+        if structure_weight:
+            history[-1].update(structure=total_structure, objective=total_objective)
     gen.eval()
     probe = small_all[:256].to(device)
     with torch.no_grad():
@@ -3030,13 +3121,69 @@ def _spearman(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.corrcoef(ra, rb)[0, 1])
 
 
+def _cf_preserved_channels(channels, n_channels):
+    """Validate explicit zero-based reference channels without coercing indices.
+
+    :param channels: explicit index list/tuple, or None for no constraint.
+    :param n_channels: number of source image channels.
+    :returns: a tuple of unique zero-based integer indices.
+    :raises ValueError: for noninteger, duplicate or out-of-range indices.
+    """
+    from numbers import Integral
+    from .qt.i18n import tr
+
+    if channels is None:
+        return ()
+    if not isinstance(channels, (list, tuple)) or any(
+            isinstance(value, (bool, np.bool_)) or not isinstance(value, Integral)
+            or value < 0 or value >= n_channels for value in channels):
+        raise ValueError(tr("Preserved channels must be a list of valid zero-based whole channel indices."))
+    result = tuple(int(value) for value in channels)
+    if len(result) != len(set(result)):
+        raise ValueError(tr("Select each preserved channel only once."))
+    return result
+
+
+def _cf_preserve_reference_channels(edited, original, channels):
+    """Copy reference pixels into a new NCHW edit batch; mutate neither input.
+
+    The original batch may contain one crop or one crop per edit. Dtype,
+    device and spatial/channel dimensions must match exactly. This is an
+    explicit constraint, not a claim that other channels retain cell identity.
+
+    :param edited: floating NCHW generated tensor.
+    :param original: matching source tensor with one or N source crops.
+    :param channels: explicit reference-channel indices.
+    :returns: a fresh tensor with reference pixels copied exactly.
+    :raises ValueError: for incompatible/nonfinite tensors or invalid indices.
+    """
+    from .qt.i18n import tr
+
+    if (not isinstance(edited, torch.Tensor) or not isinstance(original, torch.Tensor)
+            or edited.ndim != 4 or original.ndim != 4
+            or not all(edited.shape) or not all(original.shape)
+            or edited.shape[1:] != original.shape[1:]
+            or original.shape[0] not in (1, edited.shape[0])
+            or edited.dtype != original.dtype or edited.device != original.device
+            or not edited.is_floating_point() or not original.is_floating_point()):
+        raise ValueError(tr("Reference and edited crops must have matching floating NCHW shapes, dtype and device."))
+    if not torch.isfinite(edited).all() or not torch.isfinite(original).all():
+        raise ValueError(tr("Reference and edited crops must contain finite pixels."))
+    channels = _cf_preserved_channels(channels, edited.shape[1])
+    result = edited.clone()
+    if channels:
+        result[:, list(channels)] = original[:, list(channels)]
+    return result
+
+
 def _counterfactual_sequences(model: nn.Module,
                               generator: _CounterfactualGenerator,
                               crops: torch.Tensor, *, targets=None,
                               steps: int = 7, keep: int = 0,
                               monotone_tolerance: float = 0.02,
                               device: Any = 'cpu', labels=None,
-                              target_probs=None, finals: Optional[list] = None):
+                              target_probs=None, finals: Optional[list] = None,
+                              preserve_channels: Optional[Sequence[int]] = None):
     """Morph each crop toward another class and score every step.
 
     The code moves in ``steps`` equal steps from the crop's own code to its
@@ -3058,6 +3205,10 @@ def _counterfactual_sequences(model: nn.Module,
     :param device: torch device.
     :param labels: per-crop condition index, or ``None``.
     :param target_probs: per-condition class probabilities, or ``None``.
+    :param preserve_channels: optional zero-based reference channels copied
+        exactly from the existing float32 working crop into every frame before
+        scoring, realism evaluation and output. Other channels may still
+        redraw structure; this is not a biological identity guarantee.
     :param finals: when a list is given, every crop's last frame is appended
         to it (CPU tensors), which is what the realism score compares.
     :returns: ``(rows, frames)``: a list of one dict per crop (source and
@@ -3073,11 +3224,27 @@ def _counterfactual_sequences(model: nn.Module,
     would, in a single pass, which matters for the diffusion generator, where
     one decode is a whole guided sampling run.
     """
+    if preserve_channels is not None and (not isinstance(crops, torch.Tensor) or crops.ndim != 4):
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference preservation requires NCHW crop tensors."))
+    preserved = _cf_preserved_channels(preserve_channels, crops.shape[1])
+    if preserved and not torch.isfinite(crops.float()).all():
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference crops must contain finite pixels."))
+    n = generator.n_classes
+    if targets is not None:
+        checked_targets = []
+        for target in targets:
+            if isinstance(target, torch.Tensor) and target.ndim == 0:
+                target = target.item()
+            if isinstance(target, (bool, np.bool_)):
+                target = int(target)
+            checked_targets.append(_cf_target_index(target, [], n))
+        targets = checked_targets
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
     generator = generator.to(device).eval()
     crops = crops.float().to(device)
-    n = generator.n_classes
     src, target_probs = _cf_codes(wrapped, crops, labels, target_probs)
     target_probs = target_probs.to(device)
     tgt = (src + 1) % n if targets is None else torch.as_tensor(targets).long()
@@ -3095,6 +3262,8 @@ def _counterfactual_sequences(model: nn.Module,
             seq = _cf_edit(generator, x.expand(len(alphas), -1, -1, -1),
                            z.expand(len(alphas), *z.shape[1:]),
                            base.expand(len(alphas), -1, -1, -1), codes)
+            if preserved:
+                seq = _cf_preserve_reference_channels(seq, x, preserved)
             probs = torch.softmax(wrapped(seq), dim=-1)
             want = target_probs[int(tgt[i])]
             score = ((probs @ want) / (want @ want)).cpu().numpy()
@@ -3110,6 +3279,8 @@ def _counterfactual_sequences(model: nn.Module,
                 'edit_l1': float(change.mean()),
                 'changed_fraction': float((change > 0.1).float().mean()),
             })
+            if preserved:
+                rows[-1]['preserved_channels'] = ';'.join(str(value) for value in preserved)
             if finals is not None:
                 finals.append(seq[-1:].cpu())
             if i < int(keep):
@@ -3120,7 +3291,7 @@ def _counterfactual_sequences(model: nn.Module,
 def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
                          test: torch.Tensor, *, device: Any = 'cpu',
                          train_labels=None, test_labels=None,
-                         target_probs=None, targets=None):
+                         target_probs=None, targets=None, preserve_channels=None):
     """Flip rate and edit size of the naive counterfactual, a class-mean shift.
 
     Each test crop gets the difference between the mean training crop of its
@@ -3130,6 +3301,8 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     ``target_probs`` the means are per condition and a flip is the
     target condition's most likely class. ``targets`` gives each test
     crop's target code; ``None`` uses the next code after its own.
+    ``preserve_channels`` applies the same reference-channel constraint as
+    the generated counterfactuals before scoring or measuring the shift.
 
     :returns: ``(flip_rate, median_edit_l1)``, NaN when a class has no
         training crops.
@@ -3137,6 +3310,7 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
     train, test = train.float().to(device), test.float().to(device)
+    preserved = _cf_preserved_channels(preserve_channels, test.shape[1])
     train_labels, target_probs = _cf_codes(wrapped, train, train_labels,
                                            target_probs)
     src, _ = _cf_codes(wrapped, test, test_labels, target_probs)
@@ -3150,6 +3324,9 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     tgt = (src + 1) % n if targets is None else torch.as_tensor(targets).long()
     shift = torch.stack([means[int(t)] - means[int(s)] for s, t in zip(src, tgt)])
     moved = test + shift
+    if preserved:
+        moved = _cf_preserve_reference_channels(moved, test, preserved)
+        shift = moved - test
     wanted = target_probs.argmax(dim=1)[tgt].to(device)
     flipped = (_cf_scores(wrapped, moved).argmax(dim=1) == wanted).float().mean()
     span = (test.amax(dim=(1, 2, 3)) - test.amin(dim=(1, 2, 3))).clamp_min(1e-8)
@@ -3220,14 +3397,241 @@ def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
             raise ValueError(f'target condition {text!r} is not among the '
                              f'training conditions {list(levels)}')
         return list(levels).index(text)
+    from decimal import Decimal, InvalidOperation
+
     try:
-        index = int(float(text))
-    except ValueError:
+        number = Decimal(text)
+        index = (int(number) if number.is_finite()
+                 and number == number.to_integral_value()
+                 and 0 <= number < int(n_classes) else -1)
+    except (ValueError, InvalidOperation):
         index = -1
     if not 0 <= index < int(n_classes):
         raise ValueError(f'target class {text!r} is not a class index from '
                          f'0 to {int(n_classes) - 1}')
     return index
+
+
+_CF_CHECKPOINT_MAX_BYTES = 512 * 1024 ** 2
+
+
+def _cf_checkpoint_error():
+    """Return the localized refusal for an unverified or incompatible reuse."""
+    from .qt.i18n import tr
+    return ValueError(tr("The counterfactual checkpoint is missing, unreadable, unsafe, or incompatible with the current inputs."))
+
+
+def _cf_input_contract(model, crops, description, levels):
+    """Bind declared preprocessing and class identities to actual input/model bytes.
+
+    :param description: complete caller-declared channel, preprocessing, class
+        and condition metadata; no legacy metadata is inferred.
+    :returns: a canonical JSON-compatible contract, including classifier hash.
+    :raises ValueError: when the description cannot describe these NCHW crops.
+    """
+    import hashlib
+    import json
+
+    try:
+        data = json.loads(json.dumps(description, allow_nan=False, sort_keys=True))
+        if (not isinstance(data, dict) or type(data.get('schema')) is not int
+                or data['schema'] != 1):
+            raise _cf_checkpoint_error()
+        channels = data['channel_ids']
+        classes = data['class_labels']
+        if (crops.ndim != 4 or any(int(v) < 1 for v in crops.shape[1:])
+                or not torch.isfinite(crops).all()
+                or not isinstance(channels, list)
+                or len(channels) != crops.shape[1]
+                or any(not isinstance(v, str) or not v for v in channels)
+                or len(set(channels)) != len(channels)
+                or not isinstance(classes, list) or len(classes) < 2
+                or any(not isinstance(v, str) or not v for v in classes)
+                or len(set(classes)) != len(classes)
+                or not isinstance(data['preprocessing'], dict)
+                or not data['preprocessing']
+                or not isinstance(data['condition_key'], str)
+                or not data['condition_key']):
+            raise _cf_checkpoint_error()
+        preprocessing = data['preprocessing']
+        required = {'pipeline', 'crop_loading_policy', 'center_crop',
+                    'normalization', 'selected_channels_1based',
+                    'selection_semantics', 'classifier_preprocessing'}
+        if not required <= preprocessing.keys():
+            raise _cf_checkpoint_error()
+        for name in ['pipeline', 'crop_loading_policy']:
+            if not isinstance(preprocessing[name], str) or not preprocessing[name].strip():
+                raise _cf_checkpoint_error()
+        center = preprocessing['center_crop']
+        selected = preprocessing['selected_channels_1based']
+        if (not isinstance(center, list) or len(center) != 2
+                or any(type(v) is not int or v < 1 for v in center)
+                or center != list(crops.shape[-2:])
+                or not isinstance(selected, list)
+                or any(type(v) is not int or not 1 <= v <= crops.shape[1] for v in selected)
+                or preprocessing['selection_semantics'] != 'zero_unselected_stored_rgb_planes'
+                or (preprocessing['classifier_preprocessing'] is not None
+                    and not isinstance(preprocessing['classifier_preprocessing'], dict))):
+            raise _cf_checkpoint_error()
+        normalization = preprocessing['normalization']
+        if normalization is not None:
+            if not isinstance(normalization, dict) or normalization.keys() != {'mean', 'std'}:
+                raise _cf_checkpoint_error()
+            for name in ['mean', 'std']:
+                values = normalization[name]
+                if (not isinstance(values, list) or len(values) != crops.shape[1]
+                        or any(type(v) not in (int, float) or not math.isfinite(v)
+                               or (name == 'std' and v <= 0) for v in values)):
+                    raise _cf_checkpoint_error()
+        digest = hashlib.sha256()
+        for key, value in sorted(model.state_dict().items()):
+            value = value.detach().cpu().contiguous()
+            if value.layout != torch.strided or not torch.isfinite(value).all():
+                raise _cf_checkpoint_error()
+            header = json.dumps([key, str(value.dtype), list(value.shape)],
+                                separators=(',', ':')).encode()
+            digest.update(len(header).to_bytes(8, 'big'))
+            digest.update(header)
+            digest.update(value.reshape(-1).view(torch.uint8).numpy().tobytes())
+        data['tensor_shape'] = list(crops.shape[1:])
+        data['classifier'] = {
+            'type': type(model).__module__ + '.' + type(model).__qualname__,
+            'sha256': digest.hexdigest(),
+        }
+        data['code_levels'] = list(levels) if levels else list(classes)
+        return data
+    except (TypeError, KeyError, RuntimeError, OverflowError, ValueError) as exc:
+        raise _cf_checkpoint_error() from exc
+
+
+def _cf_checkpoint_sha256(handle):
+    """Stream bounded SHA256 from the same descriptor, positioned from its start.
+
+    :param handle: seekable binary checkpoint handle; never reopened by path.
+    :returns: hexadecimal digest; leaves the handle at EOF.
+    """
+    import hashlib
+    handle.seek(0)
+    digest = hashlib.sha256()
+    total = 0
+    while True:
+        block = handle.read(min(1024 * 1024, _CF_CHECKPOINT_MAX_BYTES - total + 1))
+        if not block:
+            break
+        total += len(block)
+        if total > _CF_CHECKPOINT_MAX_BYTES:
+            raise _cf_checkpoint_error()
+        digest.update(block)
+    return digest.hexdigest()
+
+
+def _cf_load_checkpoint(path, expected_sha256, contract):
+    """Load only a pinned, bounded, local version1 diffusion state dictionary.
+
+    :param path: existing regular local checkpoint, held open while verified.
+    :param expected_sha256: required exact SHA256 chosen by the caller.
+    :param contract: actual current input/classifier contract to match exactly.
+    :returns: CPU generator and verified source SHA; no trainer is called.
+    :raises ValueError: for unsafe, incompatible, changed or unverified input.
+    """
+    import json
+    import os
+    import re
+    import stat
+    import pickle
+    import zipfile
+
+    try:
+        if not isinstance(expected_sha256, str) or not re.fullmatch(
+                '[0-9a-fA-F]{64}', expected_sha256):
+            raise _cf_checkpoint_error()
+        path = os.fspath(path)
+        with open(path, 'rb', opener=lambda selected, flags: os.open(
+                selected, flags | getattr(os, 'O_NONBLOCK', 0))) as handle:
+            before = os.fstat(handle.fileno())
+            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= _CF_CHECKPOINT_MAX_BYTES:
+                raise _cf_checkpoint_error()
+            sha = _cf_checkpoint_sha256(handle)
+            if sha != expected_sha256.lower():
+                raise _cf_checkpoint_error()
+            handle.seek(0)
+            with zipfile.ZipFile(handle) as archive:
+                entries = archive.infolist()
+                if (len(entries) > 4096
+                        or sum(entry.file_size for entry in entries) > _CF_CHECKPOINT_MAX_BYTES
+                        or any(entry.compress_type != zipfile.ZIP_STORED for entry in entries)):
+                    raise _cf_checkpoint_error()
+            handle.seek(0)
+            payload = torch.load(handle, map_location='cpu', weights_only=True)
+            after_sha = _cf_checkpoint_sha256(handle)
+            after = os.fstat(handle.fileno())
+        if (after_sha != sha or (before.st_dev, before.st_ino, before.st_size,
+                before.st_mtime_ns, before.st_ctime_ns) != (after.st_dev,
+                after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns)):
+            raise _cf_checkpoint_error()
+        if (not isinstance(payload, dict)
+                or payload.get('artifact_type') != 'spacr.counterfactual_diffusion'
+                or type(payload.get('artifact_version')) is not int
+                or payload['artifact_version'] != 1
+                or payload.get('architecture') != 'counterfactual_ddpm_unet_v1'
+                or json.dumps(payload.get('input_contract'), sort_keys=True,
+                              allow_nan=False) != json.dumps(contract, sort_keys=True,
+                                                            allow_nan=False)):
+            raise _cf_checkpoint_error()
+        provenance = payload.get('provenance')
+        if (not isinstance(provenance, dict)
+                or provenance.get('source') != 'trained_here'
+                or provenance.get('pretraining_independence') != 'unverified'
+                or type(provenance.get('training_crops')) is not int
+                or type(provenance.get('training_epochs')) is not int
+                or provenance['training_crops'] < 1
+                or provenance['training_epochs'] < 1):
+            raise _cf_checkpoint_error()
+        config = payload['config']
+        required = {'channels', 'side', 'n_classes', 'width', 'timesteps',
+                    'strength', 'sample_steps', 'guidance_scale'}
+        if not isinstance(config, dict) or not required <= config.keys() or (
+                config.keys() - required - {'structure_weight'}):
+            raise _cf_checkpoint_error()
+        bounds = {'channels': (1, 64), 'side': (4, 256), 'n_classes': (2, 256),
+                  'width': (8, 128), 'timesteps': (2, 4096), 'sample_steps': (1, 4096)}
+        for name, (lo, hi) in bounds.items():
+            if type(config[name]) is not int or not lo <= config[name] <= hi:
+                raise _cf_checkpoint_error()
+        if (config['side'] % 4 or config['width'] % 8
+                or config['channels'] != contract['tensor_shape'][0]
+                or config['n_classes'] != len(contract['code_levels'])
+                or payload['levels'] != (contract['code_levels']
+                                         if contract['condition_key'] != 'class' else [])):
+            raise _cf_checkpoint_error()
+        for name in ['strength', 'guidance_scale', 'structure_weight']:
+            value = config.get(name, 0)
+            if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+                raise _cf_checkpoint_error()
+        if config['strength'] > 1 or config['guidance_scale'] > 100:
+            raise _cf_checkpoint_error()
+        with torch.random.fork_rng(devices=[]):
+            generator = _CounterfactualDiffusion(**config)
+        state = payload['state_dict']
+        reference = generator.state_dict()
+        if not isinstance(state, dict) or state.keys() != reference.keys():
+            raise _cf_checkpoint_error()
+        for key, value in state.items():
+            if (not isinstance(value, torch.Tensor) or value.layout != torch.strided
+                    or value.shape != reference[key].shape
+                    or value.dtype != reference[key].dtype
+                    or not torch.isfinite(value).all()):
+                raise _cf_checkpoint_error()
+        if (not torch.equal(state['abar'], reference['abar'])
+                or not (state['std'] > 0).all() or not (state['abar'] > 0).all()
+                or not (state['abar'] <= 1).all()):
+            raise _cf_checkpoint_error()
+        generator.load_state_dict(state, strict=True)
+        generator._checkpoint_provenance = dict(provenance)
+        return generator.eval(), sha
+    except (OSError, KeyError, TypeError, RuntimeError, EOFError,
+            OverflowError, ValueError, pickle.UnpicklingError, zipfile.BadZipFile) as exc:
+        raise _cf_checkpoint_error() from exc
 
 
 def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
@@ -3238,11 +3642,18 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                            out_dir: Optional[str] = None,
                            conditions: Optional[Sequence[str]] = None,
                            target: Any = None, generator: str = 'autoencoder',
-                           generator_options: Optional[Dict[str, Any]] = None):
-    """Train a counterfactual generator on crops and score it on held-out ones.
+                           generator_options: Optional[Dict[str, Any]] = None,
+                           preserve_channels: Optional[Sequence[int]] = None,
+                           checkpoint=None, checkpoint_sha256=None,
+                           input_contract=None):
+    """Train or explicitly reuse a generator and score current-input sequences.
 
-    The crops are split, seeded, into a training part and a held-out part.
-    The generator is trained on the first; every held-out crop is morphed
+    The crops are split, seeded, into a reference part and a scoring part.
+    Without a checkpoint the generator is trained on the first, and the
+    scoring crops are held out from that fit. With a checkpoint no training
+    occurs: independence of either current partition from its pretraining is
+    unknown, so all reuse metrics describe the current inputs only.
+    Every scoring crop is morphed
     toward the other class and scored. The summary reports the held-out flip
     rate, how often the classifier's target score rises monotonically along
     the sequence and its mean Spearman correlation with the step, the edit
@@ -3276,8 +3687,17 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         against the classifier; see :class:`_CounterfactualDiffusion`). With
         ``out_dir`` the diffusion weights are saved there as
         ``counterfactual_diffusion.pt``.
+    :param preserve_channels: optional explicit zero-based reference channels
+        kept at their existing float32 working values in every scored/output
+        edit and the class-mean baseline.
+        No training objective or scientific identity claim is implied.
     :param generator_options: extra keyword arguments for the generator's
         trainer, for example ``width`` or ``strength`` for diffusion.
+    :param checkpoint: optional pinned local version1 diffusion checkpoint;
+        reuse refuses incompatibility and never falls back to training.
+    :param checkpoint_sha256: required expected SHA256 when reusing.
+    :param input_contract: actual channel/preprocessing/class metadata for
+        producing or consuming a reusable artifact. Legacy provenance is not inferred.
     :returns: ``(summary, rows, frames)``: a dict of summary metrics, the
         held-out rows of ``_counterfactual_sequences`` and their frames.
     :raises ValueError: for fewer than four crops, fewer than two
@@ -3285,6 +3705,16 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         or training condition, or no held-out crop outside the target.
     """
     crops = torch.as_tensor(crops).float()
+    if ((input_contract is not None or (checkpoint is not None and str(checkpoint).strip()))
+            and crops.ndim != 4):
+        raise _cf_checkpoint_error()
+    if preserve_channels is not None and crops.ndim != 4:
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference preservation requires NCHW crop tensors."))
+    preserved = _cf_preserved_channels(preserve_channels, crops.shape[1])
+    if preserved and not torch.isfinite(crops.float()).all():
+        from .qt.i18n import tr
+        raise ValueError(tr("Reference crops must contain finite pixels."))
     n = crops.shape[0]
     if n < 4:
         raise ValueError(f'counterfactuals need at least 4 crops; got {n}')
@@ -3293,6 +3723,34 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
     test_idx, train_idx = order[:n_test], order[n_test:]
     codes = {'labels': None, 'target_probs': None}
     levels: List[str] = []
+    kind = str(generator or 'autoencoder').strip().lower()
+    reuse = checkpoint is not None and str(checkpoint).strip() != ''
+    contract = None
+    loaded = None
+    checkpoint_sha = None
+    if reuse and kind != 'diffusion':
+        raise _cf_checkpoint_error()
+    if reuse and out_dir:
+        import os
+        from pathlib import Path
+        selected = Path(checkpoint).resolve()
+        reserved = ('counterfactual_cells.', 'counterfactual_summary.',
+                    'counterfactual_frames.', 'counterfactual_sequences.')
+        output = Path(out_dir).resolve()
+        if selected.parent == output and selected.name.startswith(reserved):
+            raise _cf_checkpoint_error()
+        if output.is_dir() and selected.is_file():
+            for existing in output.iterdir():
+                if (existing.name.startswith(reserved) and existing.is_file()
+                        and os.path.samefile(existing, selected)):
+                    raise _cf_checkpoint_error()
+    if input_contract is not None or reuse:
+        contract_levels = (sorted({str(conditions[i]) for i in train_idx.tolist()})
+                           if conditions is not None else [])
+        contract = _cf_input_contract(model, crops, input_contract, contract_levels)
+        if reuse:
+            loaded, checkpoint_sha = _cf_load_checkpoint(
+                checkpoint, checkpoint_sha256, contract)
     if conditions is not None:
         conditions = [str(c) for c in conditions]
         levels = sorted({conditions[i] for i in train_idx.tolist()})
@@ -3327,17 +3785,20 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                          f'{list(COUNTERFACTUAL_GENERATORS)}')
     trainer = (_train_counterfactual_diffusion if kind == 'diffusion'
                else _train_counterfactual_generator)
-    generator, history = trainer(
-        model, crops[train_idx], epochs=epochs, seed=seed, device=device,
-        labels=None if codes['labels'] is None else codes['labels'][train_idx],
-        target_probs=codes['target_probs'], **dict(generator_options or {}))
+    if loaded is None:
+        generator, history = trainer(
+            model, crops[train_idx], epochs=epochs, seed=seed, device=device,
+            labels=None if codes['labels'] is None else codes['labels'][train_idx],
+            target_probs=codes['target_probs'], **dict(generator_options or {}))
+    else:
+        generator, history = loaded.to(torch.device(device)), []
     goals = None if goal is None else [goal] * len(test_idx)
     finals: list = []
     rows, frames = _counterfactual_sequences(
         model, generator, crops[test_idx], targets=goals, steps=steps,
         keep=show, device=device,
         labels=None if codes['labels'] is None else codes['labels'][test_idx],
-        target_probs=codes['target_probs'], finals=finals)
+        target_probs=codes['target_probs'], finals=finals, preserve_channels=preserved)
     realism, realism_source = _cf_realism(
         model, crops[train_idx], crops[test_idx], finals, rows, device=device,
         train_labels=None if codes['labels'] is None else codes['labels'][train_idx])
@@ -3351,11 +3812,11 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         model, crops[train_idx], crops[test_idx], device=device,
         train_labels=None if codes['labels'] is None else codes['labels'][train_idx],
         test_labels=None if codes['labels'] is None else codes['labels'][test_idx],
-        target_probs=codes['target_probs'], targets=goals)
+        target_probs=codes['target_probs'], targets=goals, preserve_channels=preserved)
     spear = np.array([r['spearman'] for r in rows], dtype=float)
     summary = {
         'train_crops': int(len(train_idx)), 'heldout_crops': int(len(test_idx)),
-        'epochs': int(epochs), 'steps': int(steps),
+        'epochs': 0 if reuse else int(epochs), 'steps': int(steps),
         'reconstruction_mse': history[-1]['reconstruction'] if history else float('nan'),
         'flip_rate': float(np.mean([r['flipped'] for r in rows])),
         'monotone_fraction': float(np.mean([r['monotone'] for r in rows])),
@@ -3368,11 +3829,22 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         'generator': kind,
         'realism_fd': realism, 'realism_fd_unedited': realism_source,
     }
+    if reuse:
+        summary.update(checkpoint_source=str(checkpoint),
+                       checkpoint_sha256=checkpoint_sha,
+                       pretraining_independence='unverified',
+                       scoring_scope='descriptive_current_inputs',
+                       fitted_crops=0,
+                       current_reference_crops=len(train_idx),
+                       checkpoint_provenance_source=generator._checkpoint_provenance['source'])
+    if preserved:
+        summary["preserved_channels"] = ";".join(str(value) for value in preserved)
+    if kind == 'diffusion' and generator.structure_weight:
+        summary['structure_weight'] = generator.structure_weight
     if out_dir:
-        _write_counterfactual_outputs(out_dir, summary, rows, frames)
-        if kind == 'diffusion':
+        if kind == 'diffusion' and not reuse:
             import os
-            torch.save({'state_dict': generator.state_dict(),
+            payload = {'state_dict': generator.state_dict(),
                         'config': {'channels': generator.channels,
                                    'side': generator.side,
                                    'n_classes': generator.n_classes,
@@ -3380,9 +3852,32 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                                    'timesteps': generator.timesteps,
                                    'strength': generator.strength,
                                    'sample_steps': generator.sample_steps,
-                                   'guidance_scale': generator.guidance_scale},
-                        'levels': list(levels)},
-                       os.path.join(out_dir, 'counterfactual_diffusion.pt'))
+                                   'guidance_scale': generator.guidance_scale,
+                                   **({'structure_weight': generator.structure_weight}
+                                      if generator.structure_weight else {})},
+                       'levels': list(levels)}
+            if contract is not None and int(epochs) > 0:
+                payload.update(artifact_type='spacr.counterfactual_diffusion',
+                               artifact_version=1,
+                               architecture='counterfactual_ddpm_unet_v1',
+                               input_contract=contract,
+                               provenance={'source': 'trained_here',
+                                           'training_crops': len(train_idx),
+                                           'training_epochs': int(epochs),
+                                           'pretraining_independence': 'unverified'})
+            os.makedirs(out_dir, exist_ok=True)
+            destination = os.path.join(out_dir, 'counterfactual_diffusion.pt')
+            torch.save(payload, destination)
+            if contract is not None:
+                import hashlib
+                digest = hashlib.sha256()
+                with open(destination, 'rb') as handle:
+                    for block in iter(lambda: handle.read(1024 * 1024), b''):
+                        digest.update(block)
+                summary.update(checkpoint_source=destination,
+                               checkpoint_sha256=digest.hexdigest(),
+                               pretraining_independence='unverified')
+        _write_counterfactual_outputs(out_dir, summary, rows, frames)
     return summary, rows, frames
 
 

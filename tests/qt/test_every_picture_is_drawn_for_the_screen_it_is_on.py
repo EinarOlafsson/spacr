@@ -68,7 +68,6 @@ QT_ROOT = Path(__file__).resolve().parents[2] / "spacr" / "qt"
 
 _BATTERY = r'''
 import json
-import tempfile
 
 import numpy as np
 from PySide6.QtCore import Qt
@@ -196,21 +195,6 @@ out["flow"] = {
     "logical": lg(pane.pixmap()),
 }
 
-# A tutorial video frame, which is measured in FILE pixels and must not move.
-from spacr.qt.tutorial.engine import Recorder
-window = QLabel("x")
-window.resize(400, 300)
-window.show()
-recorder = Recorder(window, tempfile.mkdtemp(), size=(320, 240))
-recorder.refresh_base()
-frame = recorder._base_frame
-out["video"] = {
-    "device": [frame.width(), frame.height()],
-    "dpr": frame.devicePixelRatio(),
-    "logical": lg(frame),
-    "asked": [320, 240],
-}
-
 # The icons. `iconset` draws vector glyphs, which are resolution-free, but
 # the bundled PNGs were the other suspect: they go to QIcon WHOLE, never
 # pre-scaled, so QIcon serves the density it is asked for. Measured, not
@@ -282,7 +266,6 @@ def test_an_ordinary_display_renders_exactly_what_it_did_before(measured):
     assert plain["strip"]["device"] == [140, 90]
     assert plain["preview"]["device"] == [200, 200]
     assert plain["grid"]["device"] == [300, 150]
-    assert plain["video"]["device"] == [320, 240]
     # Same pixel dimensions as today, whichever ratio the picture came from.
     for key in ("home", "strip", "preview", "grid"):
         assert plain[key]["device"] == [d // 2 for d in
@@ -363,21 +346,6 @@ def test_the_splash_paints_its_mark_in_the_same_place_on_any_screen(measured):
         assert abs(painted - expected) <= 1, (
             f"the mark is painted at {dense['mark_box_logical']} on a 2x"
             f" screen and {plain['mark_box_logical']} on a 1x one")
-
-
-def test_a_video_frame_is_the_same_recording_on_every_machine(measured):
-    """The one picture measured in file pixels, not screen ones.
-
-    ``window.grab()`` comes back carrying the window's ratio. A frame that
-    still claims to be dense draws at a fraction of its size on the plain
-    canvas the recorder composites onto -- a quarter-size picture in the
-    corner of every frame on a retina display.
-    """
-    for ratio in (1, 2):
-        frame = measured[ratio]["video"]
-        assert frame["device"] == [320, 240], ratio
-        assert frame["dpr"] == 1.0, ratio
-        assert frame["logical"] == [320, 240], ratio
 
 
 # --------------------------------------------------------------------------
@@ -606,10 +574,39 @@ SCALED_EXEMPT = {
         "the blur, an internal downscale of the ambient buffer, which "
         "already carries the ratio it was allocated at and is blitted back "
         "up at the same density",
-    "tutorial/engine.py":
-        "a video frame, measured in FILE pixels: a recording must come out "
-        "the same size on every machine",
 }
+
+
+def _qsize_geometry_binding(tree) -> bool:
+    """Accept only the unshadowed, explicit QtCore QSize class binding."""
+    import ast
+
+    imports = [alias for node in tree.body
+               if isinstance(node, ast.ImportFrom)
+               and node.module == "PySide6.QtCore"
+               for alias in node.names
+               if alias.name == "QSize" and alias.asname is None]
+    if len(imports) != 1:
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.alias):
+            if node.name == "*":
+                return False
+            if (node.asname or node.name.split(".")[0]) == "QSize" and node is not imports[0]:
+                return False
+        if isinstance(node, ast.Name) and node.id == "QSize" and isinstance(node.ctx, (ast.Store, ast.Del)):
+            return False
+        if isinstance(node, ast.arg) and node.arg == "QSize":
+            return False
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name == "QSize":
+            return False
+        if isinstance(node, ast.ExceptHandler) and node.name == "QSize":
+            return False
+        if type(node).__name__ in {"MatchAs", "MatchStar"} and node.name == "QSize":
+            return False
+        if type(node).__name__ == "MatchMapping" and node.rest == "QSize":
+            return False
+    return True
 
 
 def _scaled_call_sites() -> dict:
@@ -638,13 +635,16 @@ def _scaled_call_sites() -> dict:
                  and isinstance(node.func, ast.Attribute)
                  and node.func.attr == "scaled"]
         lines = []
+        qsize_geometry = _qsize_geometry_binding(tree)
         for node in calls:
             receiver = node.func.value
             svg_size = (path.name == 'iconset.py'
                         and isinstance(receiver, ast.Call)
                         and isinstance(receiver.func, ast.Attribute)
                         and receiver.func.attr == 'defaultSize')
-            if not svg_size:
+            size_geometry = (qsize_geometry and isinstance(receiver, ast.Name)
+                             and receiver.id == "QSize")
+            if not (svg_size or size_geometry):
                 lines.append(node.lineno)
         if lines:
             found[str(path.relative_to(QT_ROOT))] = sorted(lines)
@@ -990,3 +990,24 @@ def test_something_that_cannot_be_watched_is_simply_not_watched(qapp):
             return 1.0
 
     assert follow_device_ratio(_NotAWidget(), lambda: None) is None
+
+
+@pytest.mark.parametrize("source,geometry", [
+    ("from PySide6.QtCore import QSize\nQSize.scaled(size, target, mode)\n", True),
+    ("from PySide6.QtGui import QPixmap\nQPixmap.scaled(picture, target)\n", False),
+    ("from PySide6.QtGui import QImage\nQImage.scaled(picture, target)\n", False),
+    ("from PySide6.QtGui import QPixmap as QSize\nQSize.scaled(picture, target)\n", False),
+    ("from PySide6.QtGui import QImage as QSize\nQSize.scaled(picture, target)\n", False),
+    ("from PySide6.QtCore import QSize\nQSize = picture\nQSize.scaled(target)\n", False),
+    ("from PySide6.QtCore import QSize\ndef render(QSize):\n    QSize.scaled(target)\n", False),
+    ("from PySide6.QtCore import QSize\npicture.scaled(target)\n", False),
+    ("from PySide6.QtCore import QSize\nfrom other import *\nQSize.scaled(size, target, mode)\n", False),
+])
+def test_scaled_census_distinguishes_qsize_geometry_from_raster_calls(tmp_path, monkeypatch, source, geometry):
+    path = tmp_path / "drawing.py"
+    path.write_text(source)
+    monkeypatch.setitem(_scaled_call_sites.__globals__, "QT_ROOT", tmp_path)
+    sites = _scaled_call_sites()
+    assert ("drawing.py" not in sites) is geometry
+    if not geometry:
+        assert len(sites["drawing.py"]) == 1

@@ -107,19 +107,34 @@ def _measured(builder):
     # A helper is a function that forwards one of its OWN parameters into a
     # call the extractor understands.
     helpers = set()
-    for tree in trees.values():
+    # A module's own function of the same name is what its calls reach, so a
+    # name that forwards captions elsewhere hides nothing in a module whose
+    # local definition does not (ambient's `_refuse(reason)` logs a reason;
+    # embeddings' `_refuse(title, detail)` shows a caption).
+    local_plain, local_forwarding = {}, {}
+    for path, tree in trees.items():
+        plain = local_plain.setdefault(path, set())
+        forwarding = local_forwarding.setdefault(path, set())
         for fn in ast.walk(tree):
             if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             params = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
+            forwards = False
             for call in ast.walk(fn):
                 if isinstance(call, ast.Call) and _call_name(call) in known:
                     forwarded = list(call.args) + [k.value for k in call.keywords]
                     if any(isinstance(a, ast.Name) and a.id in params
                            for a in forwarded):
-                        helpers.add(fn.name)
+                        forwards = True
                         break
+            if forwards:
+                helpers.add(fn.name)
+                forwarding.add(fn.name)
+            else:
+                plain.add(fn.name)
     helpers -= known
+    for path, plain in local_plain.items():
+        plain -= local_forwarding[path]
 
     # It only HIDES something if its callers pass literals the catalog lacks
     # and no keyed extractor rule reaches that argument.
@@ -128,6 +143,8 @@ def _measured(builder):
         module = path.relative_to(QT).as_posix()
         for call in ast.walk(tree):
             if not isinstance(call, ast.Call) or _call_name(call) not in helpers:
+                continue
+            if _call_name(call) in local_plain[path]:
                 continue
             reached = list(builder._helper_caption_arguments(
                 call, module, _call_name(call)))
@@ -214,9 +231,10 @@ def test_each_rule_is_called_where_it_is_keyed(builder):
 
 def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
     """Both local row helpers carry prose past a programmatic field key."""
-    tree = ast.parse((QT / "screens/make_masks.py").read_text())
+    tree = ast.parse((QT / "screens/make_masks.py").read_text(encoding="utf-8"))
     calls = [node for node in ast.walk(tree)
-             if isinstance(node, ast.Call) and _call_name(node) == "row"]
+             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+             and node.func.id == "row"]
     assert len(calls) == 28
     reached = set()
     keys = set()
@@ -264,7 +282,7 @@ def test_section_titles_are_extracted_without_persistence_keys(builder):
     """Both add_section implementations put their visible title after the widget."""
     for filename, parameter in (("widgets/collapsible_splitter.py", "name"),
                                 ("widgets/measurement_scan_panel.py", "title")):
-        tree = ast.parse((QT / filename).read_text())
+        tree = ast.parse((QT / filename).read_text(encoding="utf-8"))
         methods = [node for node in ast.walk(tree)
                    if isinstance(node, ast.FunctionDef) and node.name == "add_section"]
         assert len(methods) == 1
@@ -319,7 +337,7 @@ def test_spaceout_effect_row_prose_reaches_catalog_without_storage_keys(builder)
     from spacr.qt import preferences
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    tree = ast.parse((QT / "preferences.py").read_text())
+    tree = ast.parse((QT / "preferences.py").read_text(encoding="utf-8"))
     registries = [node for node in ast.walk(tree)
                   if isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
                   and tuple(getattr(item, "id", None) for item in node.target.elts)

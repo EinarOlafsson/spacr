@@ -1,0 +1,21 @@
+.........F                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_scanr_user_stems_disclose_the_inferred_tiff_suffix ____________
+
+    def test_scanr_user_stems_disclose_the_inferred_tiff_suffix():
+        """Two acquisition users supply stems; the configured suffix is inferred."""
+        record = _metadata_convention("scanr")
+        stems = (
+            "A1--W00001--P00001--Z00000--T00000--Alexa 488",
+            "A1--W00001--P00001--Z00000--T00000--mCherry1",
+        )
+>       assert record["examples"] == tuple(stem + ".tif" for stem in stems)
+E       AssertionError: assert ('A1--W00001-...exa 488.tif',) == ('A1--W00001-...mCherry1.tif')
+E         
+E         Right contains one more item: 'A1--W00001--P00001--Z00000--T00000--mCherry1.tif'
+E         Use -v to get more diff
+
+tests/test_a_metadata_type_for_every_common_microscope.py:360: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_a_metadata_type_for_every_common_microscope.py::test_scanr_user_stems_disclose_the_inferred_tiff_suffix
+1 failed, 9 passed in 5.93s

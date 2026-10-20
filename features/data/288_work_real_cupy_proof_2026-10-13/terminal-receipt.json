@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:41:19.329390+00:00",
+  "accepted": true,
+  "scope": "Work-only real-device parity proof for exactly three unchanged forced-CuPy tests",
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "actual_outer_tool_session_id": 63118,
+  "actual_outer_tool_exit_code": 0,
+  "scheduler_exit_code": 0,
+  "pytest_exit_code": 0,
+  "JUnit": {
+    "tests": 3,
+    "passed": 3,
+    "skipped": 0,
+    "failed": 0,
+    "errors": 0,
+    "cases": [
+      {
+        "name": "test_every_backends_matmul_agrees[cupy]",
+        "classname": "tests.test_the_ops_primitives_agree_on_every_backend"
+      },
+      {
+        "name": "test_every_backends_nearest_neighbour_agrees[cupy]",
+        "classname": "tests.test_the_ops_primitives_agree_on_every_backend"
+      },
+      {
+        "name": "test_every_backends_windowed_maximum_agrees[cupy]",
+        "classname": "tests.test_the_ops_primitives_agree_on_every_backend"
+      }
+    ]
+  },
+  "source_bindings_before_after_root_rechecked": {
+    "spacr/ops_accel.py": {
+      "sha256": "57e9181b5784a4aac225580878664ae341fdcbca7476dd6b8b0ffd126a1ecde0",
+      "bytes": 12908
+    },
+    "tests/test_the_ops_primitives_agree_on_every_backend.py": {
+      "sha256": "82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd",
+      "bytes": 14816
+    },
+    "tools/gpu_turn.sh": {
+      "sha256": "a567cfd80b5f9eb79bdbb3f369bd778ff6ebac7f1ada83e179c5f572a0f7e6bc",
+      "bytes": 2334
+    },
+    "tools/run_capped.sh": {
+      "sha256": "875c64c77a75e9caa15b0366e1fde38ce5ac2917c58dee7916eba94185d8846a",
+      "bytes": 1640
+    },
+    ".coveragerc": {
+      "sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "bytes": 460
+    }
+  },
+  "actual_ops_module_path": "/media/carruthers/mnt3/claude/spacr-f288-cupy-20261013/spacr/ops_accel.py",
+  "original_inner_receipt_unmodified": true,
+  "original_raw_DBs_unmodified_after_terminal": true,
+  "coverage_collector": "Coverage CLI 7.16.0, explicitly approved by Home",
+  "own_run_coverage": {
+    "covered_lines": 96,
+    "num_statements": 147,
+    "percent_covered": 60.59113300492611,
+    "percent_covered_display": "60.59",
+    "missing_lines": 51,
+    "excluded_lines": 0,
+    "percent_statements_covered": 65.3061224489796,
+    "percent_statements_covered_display": "65.31",
+    "num_branches": 56,
+    "num_partial_branches": 19,
+    "covered_branches": 27,
+    "missing_branches": 29,
+    "percent_branches_covered": 48.214285714285715,
+    "percent_branches_covered_display": "48.21"
+  },
+  "hosted_CI_evidence": false,
+  "cross_version_reader_compatibility_verified": false,
+  "hosted_coverage_union_measured": false,
+  "ratchet_baseline_or_exemption_changed": false,
+  "independent_completed_proof_review": {
+    "file": "completed-proof-peer-review.json",
+    "sha256": "b070ff078ab40684f4c9d5fc26918093594ce7ab8581799c32250723cbaaa646"
+  },
+  "retained_warning": "PytestAssertRewriteWarning for the preloaded prerequisite-only plugin; no assertions in that plugin require rewrite, all requested tests passed",
+  "Home_next_steps": "Read an immutable copy with pinned coverage7.15.4, verify source/denominator/exclusions and raw-data compatibility, then measure independent hosted+Work union preserving originals. 97.04% remains prediction until measured."
+}

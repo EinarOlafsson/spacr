@@ -10720,8 +10720,8 @@ lane permits. Implementation will continue sending newly added API symbols.
 2026-09-22 — IMPLEMENTATION:474 USER-REQUESTED EXPANSION
 Continuing the organism pages with several assay-referenced prose sections,
 a horizontally resizable information pane, exact Home tile sizing, and a
-PySide6 adaptation of Starplast's labelled SwissBioPics apicomplexan diagram.
-Starplast is read-only source. Diagram art attribution/licensing will ship
+PySide6 adaptation of ParaScape's labelled SwissBioPics apicomplexan diagram.
+ParaScape is read-only source. Diagram art attribution/licensing will ship
 with the assets. API/translation handoff follows the finished implementation.
 2026-09-22 — CODEX: PUSHED d9c570517 / NEXT SOURCE RECONCILIATION
 Detection-panel translations, archived stale reviews, form/registry extraction,
@@ -10773,7 +10773,7 @@ The expanded organism-page implementation is ready to commit: three Home
 organism entries, eight identical-to-Home AppTiles per page, four available
 Toxoplasma assays, twenty inert proposals, four prose sections per organism,
 linked active assays, horizontally resizable text pane and offline labelled
-SwissBioPics diagrams. The user explicitly requested the Starplast artwork.
+SwissBioPics diagrams. The user explicitly requested the ParaScape artwork.
 API inventory: new spacr.qt.organisms.ORGANISMS; screens.organism_screen
 OrganismScreen and its layout/link/navigation methods; widgets.organism_diagram
 OrganismDiagram, _CellArtwork, _diagram_svg and compartment label/mapping
@@ -11035,15 +11035,15 @@ no new runtime captions.257 focused checks pass, including10 new persistence
 and numerical-replay cases. Existing incomplete sidecars are not retrofilled;
 a general replay UI is not claimed. Source/test claim released with commit.
 
-2026-09-22 — MAINTAINER FOLLOW-UP:474 DIAGRAMS / TILES / STARPLAST
+2026-09-22 — MAINTAINER FOLLOW-UP:474 DIAGRAMS / TILES / PARASCAPE
 New request now takes implementation priority after the provenance commit:
 upright Toxoplasma/Plasmodium (rhoptries at top), white outlines on a rounded
 transparent-black panel, fill only on hover/selection, multiple compartment
 selections, matching colored legend and hovered LOPIT location descriptions.
 Match Home tile shape exactly, pack tiles more closely, and use a thin splitter.
-Add Starplast as the first Toxoplasma tile: first click offers its separate
+Add ParaScape as the first Toxoplasma tile: first click offers its separate
 environment install with size and alpha warnings; later clicks launch it.
-The local Starplast celldiagram.py already supplies portrait/outline/hit-test
+The local ParaScape celldiagram.py already supplies portrait/outline/hit-test
 reference code. Implementation will own these runtime changes; please defer
 final diagram-caption acceptance until the resulting source handoff.
 2026-09-22 — CODEX: PUSHEDd3cea1dcb / HISTOGRAM HANDOFF READ
@@ -11094,13 +11094,13 @@ No propagation source or behavior changed in this caption batch. The complete
 reference, other help, organism prose, API rollout and tutorial media remain
 open. No GPU or NAS work.
 
-2026-09-22 — IMPLEMENTATION:474 INTERACTIVE DIAGRAM / STARPLAST CLAIM
+2026-09-22 — IMPLEMENTATION:474 INTERACTIVE DIAGRAM / PARASCAPE CLAIM
 Starting the maintainer follow-up now that provenance is pushed5d20d2c1c.
 Claiming organism_diagram.py, organism_screen.py, organism registry additions,
-isolated Starplast integration and related focused tests. Starplast source
+isolated ParaScape integration and related focused tests. ParaScape source
 reference is still53703bafdf0604576a05b589400051a6b09e62ea, read-only. It already
 rotates the apical end upward and uses rendered masks for reliable component
-hit-testing. Current package is starplast-core0.41.0; its source explicitly
+hit-testing. Current package is parascape-core0.41.0; its source explicitly
 warns of about2GB of CUDA wheels on Linux/x86_64. Installer UI will disclose
 that approximate download plus additional application/data/disk requirements,
 alpha status, and separate environment before the user starts installation.
@@ -11121,7 +11121,7 @@ over the cell to identify a compartment. Check several labels to keep them
 highlighted.; These LOPIT classes share one anatomical outline; the diagram
 does not distinguish their protein populations.; The membrane label uses the
 mitochondrial outline; it has no separate shape.
-Starplast tile/install/launch is next and remains claimed. Public PyPI and
+ParaScape tile/install/launch is next and remains claimed. Public PyPI and
 GitHub archive checks returned404; the local checkout exists and authenticated
 Git remote access works. Installer will support a chosen local source so this
 machine does not depend on a public release which is not available yet.
@@ -11135,7 +11135,7 @@ MainWindow's missing OPS page-switch dispatch and the dedicated OPS example
 loader. Will regenerate affected workflow outputs from the single map only;
 please avoid editing that route until this focused correction is pushed.
 New route action/note need locale review; other catalogs remain your lane.
-Starplast installation work remains pending locally while this user-reported
+ParaScape installation work remains pending locally while this user-reported
 routing bug takes priority. Upright diagrams are pushed7ffa0d968.
 
 2026-09-22 — IMPLEMENTATION TO API/TUTORIAL OWNER:472 OPS SAMPLE ROUTE FIXED
@@ -11153,8 +11153,8 @@ _opened_module_screen helper gives sample loading, seeded records and force
 restart the actual OPS form instead of its host. Please refresh affected
 API source bindings and the pathway documentation/locales together.
 78 focused checks pass; build_module_workflows.py --check verifies all74
-modules/9 pathways. Source/map claim released after this commit. Starplast
-integration remains claimed and incomplete in untracked spacr/_starplast.py;
+modules/9 pathways. Source/map claim released after this commit. ParaScape
+integration remains claimed and incomplete in untracked spacr/_parascape.py;
 no catalogs or tutorial recordings claimed. GPU observer3332996 stilllive,
 no qualifying idle interval, no GPU analysis or NAS access.
 2026-09-22 — CODEX: PUSHED06f5285cd / PROPAGATION REFERENCE CLAIM
@@ -11188,29 +11188,29 @@ Receipt: features/data/473_propagation_reference_2026-09-22.json (bound to
 Read 7ffa0d968 and 03e73713c handoffs. Next reconciliation includes new
 OrganismDiagram APIs and embedded SVG description inventory, retired OPS
 first-step/source reviews, the optional Align & Stitch note, and refreshed
-API bindings. Starplast implementation remains the other session's claim.
+API bindings. ParaScape implementation remains the other session's claim.
 The section-title context audit also found existing mistranslations (for
 example agreement-as-a-deal and Icelandic parameter prose), so that work
 will review the six existing rows as well as translating the 74 missing.
 Full catalogs, remaining Make Masks reference/help and tutorial media remain
 open. No GPU or NAS work. Propagation source claim released.
 
-2026-09-22 — IMPLEMENTATION TO API OWNER:474 STARPLAST INSTALL/LAUNCH READY
-Starplast is the first Toxoplasma tile; nine tiles now, other organisms eight.
-New spacr._starplast APIs: apps_root,default_source,is_installed,
-process_environment,install_starplast,launch_starplast; new spacr.qt.starplast
-StarplastInstallDialog/start/reject and open_starplast. Docstrings explain
+2026-09-22 — IMPLEMENTATION TO API OWNER:474 PARASCAPE INSTALL/LAUNCH READY
+ParaScape is the first Toxoplasma tile; nine tiles now, other organisms eight.
+New spacr._parascape APIs: apps_root,default_source,is_installed,
+process_environment,install_parascape,launch_parascape; new spacr.qt.parascape
+ParaScapeInstallDialog/start/reject and open_parascape. Docstrings explain
 source selection, defaults, isolation and return/error behavior. It is an
 external app, NOT an analysis registry module or segmentation backend; the
 workflow inventory remains74 analysis modules. Do not add it to mask methods.
 Runtime warnings precede Install and open: alpha, approximately2GB Linux CUDA
 wheels plus data/dependencies, at least12GB free disk, separate environment.
 New strings and all API signatures are inventoried in features/data/
-474_starplast_integration_2026-09-22.json. Backend progress labels are dynamic
+474_parascape_integration_2026-09-22.json. Backend progress labels are dynamic
 tr(label) inputs, like embedded SVG descriptions: include the receipt's list
-when updating catalog extraction. Original Starplast checkout remains read-only.
+when updating catalog extraction. Original ParaScape checkout remains read-only.
 48 focused tests pass including real local Git archive, real minimal venv
-launch and subprocess descendant cancellation. Full Starplast dependency
+launch and subprocess descendant cancellation. Full ParaScape dependency
 installation/GUI acceptance was not run and is not claimed. Reviewed actual
 window/dialog renders. Source claim released after commit; APIs/locales need
 your follow-up. No catalog or tutorial files modified in this chunk.
@@ -11229,15 +11229,15 @@ These new handoff bindings are pending, not covered by the earlier batch's
 all-loader pass. Private reconciliation inventory and source-title context
 are prepared; no new source/catalog changes were published by this audit.
 
-2026-09-22 — CODEX: STARPLAST HANDOFF ACKNOWLEDGED
+2026-09-22 — CODEX: PARASCAPE HANDOFF ACKNOWLEDGED
 Rebase received2b87a43d0. The11340/4629 inventory above is bound toab975a0c7,
-before Starplast. Its new external-app APIs, dynamic progress labels and
-installer prose are now part of the next source reconciliation; Starplast
+before ParaScape. Its new external-app APIs, dynamic progress labels and
+installer prose are now part of the next source reconciliation; ParaScape
 must remain outside the74-module analysis inventory and mask methods.
 
 2026-09-22 — IMPLEMENTATION:474 REAL INSTALL / 471 REGRESSION LAYOUT CLAIM
-Running a real Starplast install from the untouched local checkout into
-private implementation-20260922/starplast-validation/apps, memory cap8GB,
+Running a real ParaScape install from the untouched local checkout into
+private implementation-20260922/parascape-validation/apps, memory cap8GB,
 CUDA devices disabled; process83549 remains live. This will check actual
 package/dependency installation and bundled data, beyond the shipped fixture
 checks. Independently reproduced the handoff's Regression overlap at1366x768:
@@ -11252,7 +11252,7 @@ Home-tile transparency and removal of Widen text/Restore columns. Claiming
 organism_screen.py and organism_diagram.py plus focused Qt tests. The thin
 draggable divider remains. No catalog edits; API helper changes will be
 handed off after validation. Regression layout repair is deferred while
-this direct user request is completed. Real Starplast install finished in
+this direct user request is completed. Real ParaScape install finished in
 480 seconds with successful package/data self-test; GUI acceptance pending.
 
 2026-09-22 — IMPLEMENTATION TO API OWNER:474 HOVER LAYOUT STABLE
@@ -11265,23 +11265,23 @@ source strings added. Retire the two button captions and their old tooltip;
 remove OrganismScreen._toggle_text_width from API inventory. New helpers:
 _CellArtwork.panel_color; OrganismDiagram.resizeEvent/changeEvent/_fit_width/
 _description_text. Receipt474_stable_compartment_layout_2026-09-22.json lists
-all changes. Organism source claim released after this commit. Starplast
+all changes. Organism source claim released after this commit. ParaScape
 real-install follow-up and Regression layout repair remain implementation's
 lane; neither is claimed fully accepted by this UI receipt.
 
-2026-09-22 — IMPLEMENTATION TO API OWNER:474 REAL STARPLAST VERIFIED
+2026-09-22 — IMPLEMENTATION TO API OWNER:474 REAL PARASCAPE VERIFIED
 Real isolated install from unchanged local committed53703bafdf completed in
-479.8s, Starplast0.41.0; imports and required bundled data passed. Installed
+479.8s, ParaScape0.41.0; imports and required bundled data passed. Installed
 main() opened a real PyQt6 window under Xvfb/software OpenGL with CUDA hidden,
 loaded8140 Toxoplasma entries, rendered the knowledge map and exited cleanly.
 No GPU analysis or upstream checkout edits. Measured downloaded artifacts
 approximately3981MB and installed files7133811862bytes (du6.8G). Replace the
 old2GB installer warning with about4GB downloads/about7GB installed, varying
 by platform/version; retain12GB free-space requirement. One changed runtime
-paragraph in qt/starplast.py needs renewed translations. Receipt below
-supersedes earlier "full install not run" limitation; broad Starplast tool
+paragraph in qt/parascape.py needs renewed translations. Receipt below
+supersedes earlier "full install not run" limitation; broad ParaScape tool
 validation remains outside this integration check.
-Receipt: features/data/474_starplast_real_install_2026-09-22.json.
+Receipt: features/data/474_parascape_real_install_2026-09-22.json.
 
 2026-09-22 — IMPLEMENTATION:471 REGRESSION OVERLAP FIXED
 Regression's old560px Figures minimum overran Console at laptop height.
@@ -11292,7 +11292,7 @@ Actual MainWindow1366x768 now has Figures463px, Console starts469px; no91px
 overlap. New tests exercise600/768px windows, scroll endpoints, adjacent
 headings, Console reopening and Figures fold/reopen. Reviewed render at768px.
 No new APIs, strings or catalogs. app_screen.py sizing claim released after
-commit. Starplast real-install follow-up landed62921a16f separately; its
+commit. ParaScape real-install follow-up landed62921a16f separately; its
 changed installer paragraph still needs the API/translation lane's review.
 Validation: all37 focused shell/results/deferred-build tests pass in30.98s
 under8GB cap; no GPU or NAS work. GPU idle observer remains live with recent
@@ -11354,20 +11354,20 @@ tr() strings include Apply, its activation/measurement tooltip, Compare's
 configured-settings tooltip and Clear all objects. No catalogs edited.
 209 focused tests pass in39.28s; loaded-field render reviewed.477 ruler,
 478 interactive Levels and482 magnifier lock remain open and owned here.
-2026-09-22 — CODEX: DIAGRAM/OPS/STARPLAST DOCUMENTATION CLAIM
+2026-09-22 — CODEX: DIAGRAM/OPS/PARASCAPE DOCUMENTATION CLAIM
 Reconciling released7ffa0d968/03e73713c/2b87a43d0 sources now. Claiming catalog
-extraction for SVG descriptions and Starplast progress labels; API visibility
-for spacr._starplast's six documented services, English manifests/Help, and
+extraction for SVG descriptions and ParaScape progress labels; API visibility
+for spacr._parascape's six documented services, English manifests/Help, and
 source-bound locale repairs. Will document OrganismDiagram.eventFilter's
-arguments and the Starplast source-validation ValueError. OPS's first action
+arguments and the ParaScape source-validation ValueError. OPS's first action
 will say Start on Home (it still says Return Home after becoming first), with
 all nine translations and generated workflow outputs updated together.
 No installer run, segmentation change, GPU or NAS activity is planned.
 
-2026-09-22 — CODEX: STARPLAST/DIAGRAM API AND OPS PATHWAY RECONCILED
+2026-09-22 — CODEX: PARASCAPE/DIAGRAM API AND OPS PATHWAY RECONCILED
 All16 new API entries and three changed entries have current source-bound
 catalogs in all nine languages:171 documents,549 block reconstructions,
-504 new review records. The six spacr._starplast services and documented
+504 new review records. The six spacr._parascape services and documented
 REPOSITORY are explicitly rendered and searchable; unrelated private modules,
 private helpers and imported aliases remain hidden. The visibility allowlist
 is also a Sphinx environment dependency for future incremental rebuilds.
@@ -11379,9 +11379,9 @@ OPS now says Start on Home: Mask then OPS. Both this first action and the
 optional Align & Stitch note resolve exactly in all nine locales. Preserved
 18 superseded API and27 superseded runtime reviews verbatim; unrelated catalog
 rows and tables are unchanged. All74 analysis modules/nine pathways remain
-checked against generated outputs. Starplast stays an external app.
+checked against generated outputs. ParaScape stays an external app.
 Added inventory of reachable SVG compartment descriptions and all seven
-Starplast callback phase labels. English now11354 API entries/4668 UI sources.
+ParaScape callback phase labels. English now11354 API entries/4668 UI sources.
 These runtime additions are inventoried, not yet fully translated.
 
 167 focused tests pass across the main run and two count-pin corrections.
@@ -11393,7 +11393,7 @@ to fe0db6147 plus this batch, before the newest implementation handoffs.
 
 Read aadd4ad1c/62921a16f/3f907ea4f. Next merge/reconciliation must include the
 new diagram resize/change events, the retired width-control captions, and
-the measured approximately4GB download/7GB installed Starplast paragraph.
+the measured approximately4GB download/7GB installed ParaScape paragraph.
 The real install/GUI receipt supersedes the earlier untested-install note.
 Remaining runtime prose, heading corrections, broad API backlog, Make Masks
 reference and tutorial media acceptance remain open. No GPU or NAS activity.
@@ -11414,7 +11414,7 @@ available; no GPU/NAS work or installer execution in this batch.
 2026-09-22 — CODEX: DIAGRAM/INSTALLER FOLLOW-UP VALIDATED
 166 focused checks pass. Full Sphinx -W build succeeds at the integrated
 source state;21 current API anchors resolve,189 served locale entries match,
-and private Starplast helpers/import aliases stay hidden. All nine complete
+and private ParaScape helpers/import aliases stay hidden. All nine complete
 API/runtime review loaders pass; unrelated catalog rows and tables unchanged.
 Receipt: features/data/411_stable_layout_api_2026-09-22.json, bound to
 e56536702 plus this follow-up. English inventory11356 API/4665 UI sources.
@@ -11457,7 +11457,7 @@ Fresh structural census:11356 API/4663 external UI sources. German API731
 missing/126 stale; each other locale786 missing/144 stale; two extra API
 symbols per locale. UI missing counts560–792, with11–43 extra keys. Exact
 counts are in411_catalog_census_after_headings_2026-09-22.json. This is not
-full linguistic/browser acceptance. Remaining organism/Starplast prose,
+full linguistic/browser acceptance. Remaining organism/ParaScape prose,
 broad API catalog repairs/helper rollout, Make Masks reference and current
 tutorial recording/listening/publication remain open. No GPU/NAS work.
 
@@ -11580,13 +11580,13 @@ deck publication. Generator/layout claims release with this commit.
 Previous turn landed API follow-ups a567c178a/a69909cc5 and heading batch
 d59dde95e; bookkeeping037487158 also pushed. Read9be2d3d72 and rebased cleanly.
 Catalog/extraction lane now covers pending482/478 captions and the remaining
-organism/Starplast runtime text. Found SHORTCUT_HINTS was absent from dynamic
+organism/ParaScape runtime text. Found SHORTCUT_HINTS was absent from dynamic
 source extraction; adding its two display columns via AST, with a test against
 the actual rows. No make_masks.py/live_preview.py changes claimed;477 remains
 the implementation lane. Diagram SVG descriptions and installer progress are
 included in the translation inventory. No GPU/NAS work or installer execution.
 
-2026-09-22 — CODEX: LOCK/LEVELS/STARPLAST CONTROLS TRANSLATED
+2026-09-22 — CODEX: LOCK/LEVELS/PARASCAPE CONTROLS TRANSLATED
 74 sources have666 reviewed rows in nine languages,660 newly filled and six
 existing Try again rows preserved. Covers all current Make Masks shortcut
 rows, Levels controls and its full intensity-stretch explanation, magnifier
@@ -11602,7 +11602,7 @@ actual Make Masks shortcut panel and installer progress prefixes in all nine
 languages, alongside lock/Levels/installer behavior checks. Both full review
 loaders pass in all nine locales; unrelated rows and tables unchanged. No
 installer execution or GPU/NAS work. Receipt:
-features/data/288_lock_levels_starplast_translations_2026-09-22.json, bound to
+features/data/288_lock_levels_parascape_translations_2026-09-22.json, bound to
 9be2d3d72 plus this catalog/extractor batch.137 scoped organism titles/prose/
 SVG descriptions remain next; broader catalog/API/tutorial acceptance remains
 open. No Make Masks/live_preview implementation changes in this batch.
@@ -11945,7 +11945,7 @@ matching pins in tests/test_module_coverage_ratchet.py. Measured622installed
 Python modules against608at97c7307ab:14added,0removed. Every new module remains
 subject to90percent coverage; no omitted files or lowered thresholds.
 Also claiming tests/test_a_worker_cannot_abort_the_process.py's explicit worker
-inventory: missing qt/starplast.py and widgets/primary_mask_selector.py. Both
+inventory: missing qt/parascape.py and widgets/primary_mask_selector.py. Both
 must enter the existing guarded-QThread checks. Current source reproduces that
 inventory failure; Qt crash-site/prose rechecks are running under8GiB.
 
@@ -12038,7 +12038,7 @@ manifest and Help summaries refreshed. All nine full API review loaders pass;
 entries and54 scoped-fixture browser panels verified. Whole-catalog browser
 acceptance remains FAIL: missing/stale older rows make the selector fall back
 to English. No gate weakened. Browser count11338->11365 is proved by27added,
-0removed:14Starplast,9ruler,4diagram entries since1d5a80f78.
+0removed:14ParaScape,9ruler,4diagram entries since1d5a80f78.
 Receipt: features/data/411_api_prose_cleanup_2026-09-22.json, explicitly bound
 to29fc34545 plus its recorded docstring changes, not newer483/476 sources.
 
@@ -12672,24 +12672,24 @@ constructor bodies only. Please refresh those API source bindings and describe
 CPU inference consistently with Make Masks. Tests' two generic Backend.eval
 doubles now declare the supported full contract; no new ratchet exemption.
 
-2026-09-23 — IMPLEMENTATION: 288 STARPLAST FAILURE/LIFECYCLE COVERAGE CLAIM
+2026-09-23 — IMPLEMENTATION: 288 PARASCAPE FAILURE/LIFECYCLE COVERAGE CLAIM
 Read last completed CI35807838039's full coverage artifact: 11modules below
 90percent and71ratchet failures at old6006a0608 (not current-head claims).
 Current push CI remains live; no extra full dispatch while docs work moves.
-Claiming tests/test_starplast_environment.py and tests/qt/test_starplast_launcher.py
+Claiming tests/test_parascape_environment.py and tests/qt/test_parascape_launcher.py
 for real boundary cases: invalid source/ownership, cancellation after preflight,
 partial-environment recovery, close while installing, launch failures and child
-reaping. Will measure the two current Starplast modules in a bounded cohort;
+reaping. Will measure the two current ParaScape modules in a bounded cohort;
 no baseline/exemption/threshold changes or repeat multi-GB installation.
 
-2026-09-23 — IMPLEMENTATION: 288 STARPLAST BOUNDARIES VERIFIED
+2026-09-23 — IMPLEMENTATION: 288 PARASCAPE BOUNDARIES VERIFIED
 35focused tests pass. Current installer/launcher statement+branch coverage
 rises from86.89/83.62percent to98.91/97.74percent. Tests cover ownership/source
 refusals, preflight cancellation, partial-install recovery, malformed self-test,
 frozen library isolation, concurrent-start/close behavior, retries and launch/
 child reaping. Existing real Git and isolated child tests remain included;
 no repeated multi-GB install, runtime/API/UI change or relaxed coverage gate.
-Receipt288_starplast_boundary_coverage_2026-09-23.json. Two floor gaps closed;
+Receipt288_parascape_boundary_coverage_2026-09-23.json. Two floor gaps closed;
 the old CI's11below-floor/71ratchet failures are not a current-head claim.
 No translation/tutorial action needed beyond the existing474installation docs.
 
@@ -14053,12 +14053,12 @@ your catalog refresh. Runtime/layout tests pass; no translation test weakened.
 Offscreen screenshots inspected: Annotate full captions wrap onto rows; tour
 keeps its content and actions inside the window without clearing the backing.
 
-2026-09-23 — STARPLAST PYPI SWITCH COMPLETE
-User explicitly requests latest PyPI Starplast instead of source installation.
-Default source now 'starplast' with --upgrade and official PyPI index; nearby
+2026-09-23 — PARASCAPE PYPI SWITCH COMPLETE
+User explicitly requests latest PyPI ParaScape instead of source installation.
+Default source now 'parascape' with --upgrade and official PyPI index; nearby
 checkout no longer wins. Explicit developer overrides remain. Source/version
 record retained; repeated clicks launch installed version offline. Real0.42.0
-installation completed in ~/.spacr/apps/starplast; old0.41.0 retained as backup.
+installation completed in ~/.spacr/apps/parascape; old0.41.0 retained as backup.
 Import/PyQt6/bundled-data self-test and pip check pass, about1.2GB installed.
 No GPU extra or inference job.37 installer/launcher checks pass. Install dialog
 prose now describes PyPI and version/platform-dependent size instead of quoting
@@ -14139,7 +14139,7 @@ workflow CPU drafts have finished privately and need review/map reconciliation.
 Authoring player supports per-lesson narration_voices; eight selector checks
 and real private English/silent/English playback pass. Published player/media
 are unchanged; candidate assembly and exact-source checks still precede upload.
-Your three latest Starplast/layout/category commits are fetched for rebase;
+Your three latest ParaScape/layout/category commits are fetched for rebase;
 the QSS capture fix and curated category blurbs are received, thank you.
 
 2026-09-23 — ISSUE129 INSTALLER SYNCHRONIZATION WORK
@@ -14562,16 +14562,16 @@ and obsolete translated source entries as part of494. Home media generator
 menu_strip also no longer draws Demos. Please regenerate any current media
 that visibly depicts the retired menu while retiring tutorial menu steps.
 
-2026-09-23 — ORGANISM DROPDOWNS / TRAINING AND STARPLAST CLAIM
+2026-09-23 — ORGANISM DROPDOWNS / TRAINING AND PARASCAPE CLAIM
 Implementation lane finished495: module menu now mirrors ORGANISMS with
 Toxoplasma/Plasmodium/Candida submenus, overview, ordered children and disabled
-planned modules; Starplast uses its external installer.16 focused checks pass.
+planned modules; ParaScape uses its external installer.16 focused checks pass.
 Please update menu tutorials/API/translations to this shared hierarchy.
 Claiming spacr/settings.py, submodules.py, qt/screens/settings_model.py,
 qt/screens/train_cellpose.py and training tests for the user's Cellpose4 Train
 settings overhaul; image source plus optional separate mask source (default
 <src>/masks), current upstream fine-tuning defaults and removal of legacy
-unused options. Also claiming _starplast.py, qt/starplast.py and focused tests
+unused options. Also claiming _parascape.py, qt/parascape.py and focused tests
 for latest user request: check updates on each open, ask before upgrade, pip
 only for upgrades in the isolated environment. Documentation remains yours.
 487 follow-up paused for this steering: reproduced main-thread plaque figure
@@ -14579,15 +14579,15 @@ sidecar reads + scale calculation. Focused failing regression saved outside
 repo at implementation-20260922/plaque_review_pending_test.py; runtime not
 changed yet, issue127 remains open pending the worker fix and validation.
 
-2026-09-23 — STARPLAST PER-OPEN UPDATE CONTRACT (496)
-48 focused tests pass. open_starplast now checks actual isolated metadata +
+2026-09-23 — PARASCAPE PER-OPEN UPDATE CONTRACT (496)
+48 focused tests pass. open_parascape now checks actual isolated metadata +
 compatible stable PyPI versions off-thread on every open; cancellable check,
 offline notice then launch current app; newer release prompts Upgrade/Not now.
-Consent immediately starts upgrade_starplast through isolated pip --upgrade
-starplast, always PyPI even for Git-sourced installs. Failed/interrupted upgrade
+Consent immediately starts upgrade_parascape through isolated pip --upgrade
+parascape, always PyPI even for Git-sourced installs. Failed/interrupted upgrade
 keeps files/logs but readiness requires successful bundled-data/import self-test.
-New APIs: _starplast.check_starplast_update, upgrade_starplast;
-qt.starplast.StarplastUpdateCheckDialog; InstallDialog gains upgrade bool.
+New APIs: _parascape.check_parascape_update, upgrade_parascape;
+qt.parascape.ParaScapeUpdateCheckDialog; InstallDialog gains upgrade bool.
 Please cover these strings/API/tutorial behavior. New user styling requests:
 keyboard instructions rounded translucent window; full workflow map should use
 pipeline overview's detailed cards, retaining existing pan/Ctrl-wheel zoom with
@@ -14650,8 +14650,8 @@ translation reviews are registered, not hidden or made release gates.
 
 494 recorder scripts no longer direct users to Help>Demos or point at the
 missing menu.77focused checks pass; final wording's3regression checks pass.
-English API11483 (+5Starplast update entries,-1retired Demos label), UI5140,
-and Help index refreshed. Exact delta:411_starplast_demos_api_2026-09-23.json.
+English API11483 (+5ParaScape update entries,-1retired Demos label), UI5140,
+and Help index refreshed. Exact delta:411_parascape_demos_api_2026-09-23.json.
 English API freshness passes;9incompatible API locales remain report-only.
 
 78 upload reached immutable03fbad4b67cd60d9689b3106bcff4a9103f2eaad,
@@ -14663,7 +14663,7 @@ Later Pages publication must retain0f651f706's learning order: the frozen78
 candidate was built before that change. Do not overwrite the new navigation.
 
 2026-09-23 — CODEX: COMMIT RECEIPTS / ENGLISH MEDIA IN PROGRESS
-Walkthrough sources and494scripts landed d74269937; Starplast API/UI refresh
+Walkthrough sources and494scripts landed d74269937; ParaScape API/UI refresh
 landed afe3175c2; authenticated rate-limit-aware readback landed471eecb43.
 After receiving keyboard/flowchart changes, refreshed their English sources:
 API count remains11483, UI5141. Latest public site reports1586759fd; learning
@@ -15448,7 +15448,7 @@ not change API captions. The candidate remains frozen while original CI runs.
 
 2026-09-23 RELEASE CI CLAIMS AND ADDITIONAL DOCS FAILURES
 I am also claiming setup.py to declare the packaging dependency already used
-by updater/Starplast, explicit SQLite timeouts in host_pathogen_preview/example
+by updater/ParaScape, explicit SQLite timeouts in host_pathogen_preview/example
 and image_quality, raw-reader routing in the new scientific paths, and test
 hygiene/retired crop-fallback expectations. No dependency version upgrade.
 Docs failures from coverage0/5/10 also include installer callback localization
@@ -15533,7 +15533,7 @@ Explicit30second read-only SQLite waits now cover Host–Pathogen previews;
 image screening uses the shared read-only connection and closes it. Synthetic
 unit-test projects and real analysis CSV outputs use canonical writers; raw
 reader/writer counts return under the existing ceilings. packaging is declared
-because updater and Starplast already import it.151database/scientific/package
+because updater and ParaScape already import it.151database/scientific/package
 checks passed; five preview-double failures exposed an implicit channel axis.
 Live evaluates an already-selected2D plane, so its call now explicitly states
 channel_axis=None; the double validates that through Cellpose's real image
@@ -15917,7 +15917,7 @@ Exact special-member proof is now /tmp/spacr-api-final-member-proof.json:
 spacr.point_spread.PSF.__post_init__. Current digest is
 e287c1b880ad2cfeb73fa91c11ae468e19f6c5871adcfabc2f4b02dbd7611206;
 removing only that member reproduces the old
-cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3 exactly.
+3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e exactly.
 No extractor visibility change is needed. Candidate81154d8ec includes the
 validated SaveFigure code and awaits this small final inventory repair.
 
@@ -18849,3 +18849,5 @@ owned; protected serial untouched and one final source-provenance replay queued.
 2026-10-06 workstation preceding frozen-source completion: both normal all-nine runtime and API audits now pass after exact two-record technical admission. Complete original failed checkpoint (3,372 files) and accepted catalog/review/history/source checkpoint (4,039 files) are byte-preserved in bounded ZIP parts with full failures, strict repair logs and source provenance. Scope is historical 13,196 API symbols, 1,243 settings, 237 categories, 7,224 UI captions and 77 external modules; it does not accept or overwrite the later final 13,199-symbol integration. Receipts 615_preceding_terminal_catalogs_2026-10-06.json, 615_preceding_catalog_recovery_2026-10-06_r2.json and 615_final_catalog_context_2026-10-06_r2.json distinguish originals, acceptance and prepared final technical targets. Final GPU owners/current catalogs, guides, generated documentation, actual browser checks, fifty-track/native61 tutorial publication and current deployment remain pending. The guarded normal immutable upload/full-byte readback continuation follows successful all85 candidate routes; no partial current writer was archived or credited as accepted. Home retains CPU/native/CI and workstation retains all GPU/API/docs/translation/tutorial ownership.
 
 2026-10-06 workstation final API original and independent recovery: the complete first final GPU run ended1 on exactly eight SCN blocks across five locales. Its full 13,199-symbol API/catalog/review/history/frozen-source checkpoint preserves 1,925 files plus the original terminal failure in three bounded byte-exact ZIP parts. Eighteen exact SCN source/context reviews were normally admitted afterward; current all-nine CPU API repair is live and not yet accepted. The untouched runtime GPU r2 started through the actual 360s/600s shared queue at20:08:20 local with24GiB, source fingerprintb36c87fe and7,228 UI captions; Chinese88-entry repair/fallback is live. Runtime-only nine-record admission remains deferred until its original writer ends and full checkpoint is retained. Revised idle controllers preserve both full all-nine gates, normal guides/generated owners/strict Sphinx/browsers and guarded immutable media/deployment verification. Only an exact idle control process was interrupted, with no source/writer/checkpoint phase; dependent absent-precondition failures are distinct from product acceptance. Receipt 615_final_independent_API_context_2026-10-06_r2.json retains complete originals and prepared-code provenance. Home retains CPU/native/CI and source freeze; workstation retains all GPU/API/docs/translation/tutorial work. No live log or partial current acceptance is published.
+
+2026-10-15T07:23:14.373595 Original Home -> Work URGENT owner relay: maintainer says Spaceout is HIDDEN and must not appear in tutorials; some published narration has audible gaps/missing sentence beginnings. Please acknowledge and report exact affected lesson/clip IDs plus held/published repair state. Top HANDOFF mirrors this. No Home tutorial/audio edits or receipt/repair claim; Work retains one-lesson fresh capture/audio/render/publication ownership.

@@ -50,13 +50,13 @@ Four stages plus an orchestrator, mirroring ``R/simulate_screen.R``:
   well, after PCR amplification and a finite sequencing depth.
 * :func:`simulate_screen` — all four, joined on ``(well, gene)``.
 
-Reproducibility is not optional
--------------------------------
+Reproducibility
+---------------
 Every public sampler takes exactly one of ``seed=`` or ``rng=`` and refuses to
 run with neither. The global numpy random state is never touched. A power
-analysis is a number somebody defends in a grant review or a methods section;
-one that cannot be re-run bit-for-bit is not evidence, so drawing silently from
-OS entropy is treated as a configuration error rather than a convenience.
+analysis is a number somebody defends in a grant review or a methods section,
+and a result drawn from OS entropy cannot be re-run bit-for-bit, so omitting
+both is treated as a configuration error.
 
 Deviations from the R package, and why
 --------------------------------------
@@ -101,8 +101,8 @@ and keeps ``'uniform'`` for exact R parity.
 Two things neither package modelled
 -----------------------------------
 The list above is about *fidelity* to the R. These two are about fidelity to a
-real screen, and both make the answer worse — which is why they are worth
-having and why they are **off by default**. A simulator whose baseline shifted
+real screen, and both change the simulated power, so they are
+**off by default**. A simulator whose baseline shifted
 under a version bump would make every power figure already quoted from it
 wrong, so turning either on is an explicit act.
 
@@ -217,9 +217,9 @@ class ImpossibleMomentsError(PowerSimulationError):
     Raised instead of clamping. A beta distribution cannot have variance above
     ``mean * (1 - mean)``, and a negative binomial cannot have variance below its
     mean; quietly moving the request onto the nearest feasible point would hand
-    back samples from a distribution the caller did not ask for and never find
-    out about — which is precisely how a power analysis ends up defending a
-    number it did not compute.
+    back samples from a distribution the caller did not ask for, without
+    telling the caller, and the power estimate would then describe a
+    different design from the one requested.
     """
 
 
@@ -229,7 +229,7 @@ class ScreenDesignError(PowerSimulationError):
     Zero genes, zero wells, a hit rate outside ``[0, 1]``, a non-positive
     abundance concentration. R's ``1:n_wells`` idiom turns ``n_wells = 0`` into
     the two-element vector ``c(1, 0)`` and simulates two wells; there is no
-    silently-empty frame to return here, so we refuse the design instead.
+    silently-empty frame to return here, so the design is rejected instead.
     """
 
 
@@ -255,8 +255,8 @@ class AbundanceClippedWarning(UserWarning):
     """A ``gene_abundance x well_abundance`` product exceeded 1 and was clipped.
 
     That product is used as a Bernoulli probability. R's ``rbinom`` returns
-    ``NA`` for ``prob > 1`` with a warning nobody reads, which poisons every
-    downstream count. Clipping keeps the run alive, but it means the realised
+    ``NA`` for ``prob > 1`` with a warning, and the ``NA`` propagates into
+    every downstream count. Clipping keeps the run alive, but it means the realised
     genes-per-well is *below* the requested ``well_abundance_factor_mu`` for the
     affected genes, so the warning carries the clip count and the worst offender.
     """
@@ -381,7 +381,7 @@ def rgamma_mean_variance(
     ``var = k / r**2``; inverting gives ``r = mean / var`` and
     ``k = mean**2 / var``.
 
-    **The R-to-numpy trap this function exists to close:** R's ``rgamma`` takes a
+    **Rate versus scale.** R's ``rgamma`` takes a
     *rate*, numpy's takes a *scale*, and ``scale = 1 / rate = var / mean``. A
     port that passes the rate to numpy gets a distribution wrong by a factor of
     ``var**2 / mean**2`` in the variance while still looking entirely plausible.
@@ -548,8 +548,8 @@ def rdirichlet_stable(
     them. At small concentration the individual gamma draws underflow to exactly
     ``0.0``, so a gene gets an abundance of exactly zero — measured here, at
     ``alpha = 0.05`` with 452 categories, numpy produces exact zeros in roughly
-    one draw in ten, and this routine produces none. Zero abundance is not merely
-    unlucky: it removes the gene from every well, and the downstream read
+    one draw in ten, and this routine produces none. A zero abundance
+    removes the gene from every well, and the downstream read
     fraction for that gene becomes ``0 / 0`` in any well where nothing else
     amplified.
 
@@ -785,7 +785,7 @@ def simulate_spot_plate(
     wells-per-gene, and it is the sweep the R package cared most about: with 452
     genes, ``mu = 4.6`` gives roughly 4.6 genes per well.
 
-    **Probabilities above 1 are clipped, loudly.** The Bernoulli probability is a
+    **Probabilities above 1 are clipped, with a warning.** The Bernoulli probability is a
     product of two independently drawn quantities and nothing constrains it to
     ``[0, 1]``; at ``alpha = 0.6`` the most abundant gene's share times a
     ``mu = 4.6`` well factor exceeds 1 routinely. R's ``rbinom`` returns ``NA``
@@ -1040,8 +1040,8 @@ def simulate_imaging_plate(
 
     The gap between ``class_pos_mu`` and ``class_neg_mu`` **is** the signal the
     whole power analysis is trying to detect. The real MaxViT classifier this was
-    fitted to sat at 0.80 / 0.12, which is a modest gap, and the point of the
-    exercise is that a modest gap is survivable given enough wells.
+    fitted to sat at 0.80 / 0.12, which is a modest gap; the simulation shows
+    how many wells are needed to detect hits at that gap.
 
     ``imaging_split`` chooses how a well's cells are divided between the genes
     in it:
@@ -1209,9 +1209,9 @@ def misassign_reads(
     to the genes that were never testable. A gene that landed in every well,
     or in none, has a constant read-fraction column; its coefficient is
     confounded with the intercept and ``power_model.prepare_model_data``
-    reports it as unidentified rather than as a non-hit. That check is the
-    one honest thing standing between a thin design and a page of confident
-    negative results — and mis-assignment defeats it, because phantom reads
+    reports it as unidentified rather than as a non-hit. That check is what
+    keeps a thin design from reporting untestable genes as negative
+    results, and mis-assignment defeats it, because phantom reads
     give every gene a covariate that *varies*. On the same reference design,
     0.5 % error takes the scored library from 317 genes to all 452: the 135
     genes that were correctly flagged "untested" become scored non-hits with
@@ -1219,9 +1219,10 @@ def misassign_reads(
     from 0.799 to 0.723 — fourteen times the direct dilution, and all of it
     from a safeguard being switched off rather than from any loss of signal.
 
-    So the reason to simulate this is not to price the noise. It is that a
+    The main reason to simulate this is therefore not the added noise: a
     screen with sequencing error and a screen without it disagree about *how
-    many genes were tested*, and only one of them is telling the truth.
+    many genes were tested*, and the count with error included is
+    inflated.
 
     The model, per well:
 
@@ -1316,9 +1317,9 @@ def drop_low_cell_wells(
     The Poisson offset does part of the job: a well with three cells has a
     small expected count, so it does not dominate the *scale* of the fit. What
     the offset does not do is stop the well's read-fraction covariate from
-    being paired with a response that is almost pure noise, and a screen with
-    a long tail of thin wells is a screen whose covariate-response
-    relationship is being averaged against nothing.
+    being paired with a response that is almost pure noise, and in a screen
+    with a long tail of thin wells those noisy pairs dilute the
+    covariate-response relationship.
 
     Dropping them is what an analyst does by hand, and it costs something:
     fewer wells is less power. Simulating both sides of that trade is the
@@ -1441,7 +1442,8 @@ def simulate_sequencing_plate(
         because that is the variance the model used.
     :param read_depth_cv: Coefficient of variation of read depth between wells.
         ``0.0`` gives every well exactly ``n_reads_per_well``; real screens are
-        far from uniform, and shallow wells are where hits go to die.
+        far from uniform, and hits in shallow wells are the ones most likely
+        to be missed.
     :param sequencing_error_rate: probability a read is credited to the wrong
         gene, in ``[0, 1]``. ``0.0`` (the default) is the R behaviour;
         :data:`DEFAULT_SEQUENCING_ERROR_RATE` is a realistic figure.
@@ -1640,8 +1642,8 @@ def simulate_screen(
         the covariate toward uniform and attenuates the coefficient.
     :param min_cells_per_well: See :func:`drop_low_cell_wells`. Off by
         default. Turning it on trades wells for well quality, and which way
-        that comes out depends on how long the thin tail is -- which is the
-        thing worth simulating rather than arguing about.
+        that comes out depends on how long the thin tail is, which a
+        simulation can measure.
     :param imaging_split: See :func:`simulate_imaging_plate`.
     :param rng: Generator to draw from; mutually exclusive with ``seed``.
     :param seed: Seed for a fresh generator; mutually exclusive with ``rng``.

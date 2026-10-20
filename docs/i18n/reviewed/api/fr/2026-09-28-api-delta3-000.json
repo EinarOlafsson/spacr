@@ -16,7 +16,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-channel field per position, in the layout spaCR's Mask/Measure pipeline reads.",
       "source_sha256": "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
-      "translation": "Le cas pour lequel ce module existe : des masques ont été dessinés dans Make Masks sur un dossier contenant deux sortes d’images à la fois -- par exemple des images de marquage nucléaire avec des masques de noyaux et des images de marquage cellulaire avec des masques de cellules --, et elles doivent devenir un champ de vue multicanal par position, dans la structure que lit le pipeline Mask/Measure de spaCR."
+      "translation": "Le cas pour lequel ce module existe : des masques ont été dessinés dans Make Masks sur un dossier contenant deux sortes d’images à la fois -- par exemple des images de marquage nucléaire avec des masques de noyaux et des images de marquage cellulaire avec des masques de cellules --, et elles doivent devenir un champ de vue multicanal par position, dans la structure que lit le pipeline Mask/Measure de spaCR.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It happens in three separate steps, and nothing is moved until the last:",
@@ -458,7 +460,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "MOVE the images and masks as planned, then merge.",
       "source_sha256": "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
-      "translation": "DÉPLACE les images et les masques comme prévu, puis fusionne."
+      "translation": "DÉPLACE les images et les masques comme prévu, puis fusionne.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
@@ -731,7 +735,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST channels wins: any name can be read as a channel of its own in a single set, which passes and means nothing.",
       "source_sha256": "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
-      "translation": "Les noms sont découpés en éléments (à ``_ - . space``, et à défaut en suites de chiffres et de lettres) ; les éléments qui varient sont repérés ; l’un est essayé comme canal -- ou, lorsque l’utilisateur a attribué des canaux, les éléments qui ne font que suivre le canal sont mis de côté -- et le reste doit identifier un ensemble contenant exactement une image par canal. Chaque candidate est vérifiée avec :func:`check_sets` avant d’être renvoyée. Le motif Yokogawa propre à spaCR est essayé en premier et :func:`spacr.regex_infer.propose` en dernier. Parmi les candidates retenues, celle qui a le MOINS de canaux l’emporte : n’importe quel nom peut être lu comme un canal à part entière dans un ensemble unique, ce qui passe et ne signifie rien."
+      "translation": "Les noms sont découpés en éléments (à ``_ - . space``, et à défaut en suites de chiffres et de lettres) ; les éléments qui varient sont repérés ; l’un est essayé comme canal -- ou, lorsque l’utilisateur a attribué des canaux, les éléments qui ne font que suivre le canal sont mis de côté -- et le reste doit identifier un ensemble contenant exactement une image par canal. Chaque candidate est vérifiée avec :func:`check_sets` avant d’être renvoyée. Le motif Yokogawa propre à spaCR est essayé en premier et :func:`spacr.regex_infer.propose` en dernier. Parmi les candidates retenues, celle qui a le MOINS de canaux l’emporte : n’importe quel nom peut être lu comme un canal à part entière dans un ensemble unique, ce qui passe et ne signifie rien.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image file names.",
@@ -755,7 +761,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the first regex that passes, or None.",
       "source_sha256": "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791",
-      "translation": "la première expression régulière retenue, ou None."
+      "translation": "la première expression régulière retenue, ou None.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return the image file names directly in ``folder``, naturally sorted.",
@@ -1511,7 +1519,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
       "source_sha256": "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63",
-      "translation": "LE DÉBRUITAGE AUTOSUPERVISÉ PASSE AVANT LA CHAÎNE. Avec ``n2v_denoise`` activé, un modèle Noise2Void (N2V2) par canal de segmentation est entraîné par CAREamics, dans son propre environnement, sur un échantillon des champs de vue bruts de l’exécution elle-même -- aucune image propre n’est nécessaire --, ou lu depuis ``n2v_model``. Les canaux sélectionnés de chaque champ de vue sont débruités après la correction d’illumination et avant la PSF et la chaîne, tant que le bruit est encore indépendant d’un pixel à l’autre, ce que suppose Noise2Void. Les hachages des points de contrôle et l’enregistrement de l’entraînement rejoignent le même registre de provenance."
+      "translation": "LE DÉBRUITAGE AUTOSUPERVISÉ PASSE AVANT LA CHAÎNE. Avec ``n2v_denoise`` activé, un modèle Noise2Void (N2V2) par canal de segmentation est entraîné par CAREamics, dans son propre environnement, sur un échantillon des champs de vue bruts de l’exécution elle-même -- aucune image propre n’est nécessaire --, ou lu depuis ``n2v_model``. Les canaux sélectionnés de chaque champ de vue sont débruités après la correction d’illumination et avant la PSF et la chaîne, tant que le bruit est encore indépendant d’un pixel à l’autre, ce que suppose Noise2Void. Les hachages des points de contrôle et l’enregistrement de l’entraînement rejoignent le même registre de provenance.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the processing session's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
@@ -1562,14 +1572,6 @@
       "translation": "Le premier groupe de Classify n’est que le sélecteur de famille, donc ses compléments portent ce dont l’entraînement de l’une ou l’autre famille a besoin : les classes, les partitions, le modèle d’image et son calendrier, ainsi que l’algorithme tabulaire et ses principaux hyperparamètres. Le sélecteur de famille grise la moitié qui ne s’applique pas."
     },
     {
-      "context": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
-      "source_sha256": "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
-      "translation": "La boîte de dialogue \"Sort into channels…\" de Make Masks, sa fenêtre d’expressions régulières et sa vérification des ensembles."
-    },
-    {
       "context": "Thin Qt over :mod:`spacr.channel_sorting`, which holds every decision:",
       "label": "spacr.qt.widgets.channel_sort_dialog#1",
       "review_basis": "written from the English (no current MT draft)",
@@ -1578,308 +1580,12 @@
       "translation": "Fine couche Qt au-dessus de :mod:`spacr.channel_sorting`, qui prend toutes les décisions :"
     },
     {
-      "context": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to an image data channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to a channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
-      "source_sha256": "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
-      "translation": ":class:`ChannelSortDialog` liste les images du dossier ouvert avec des miniatures et indique si chacune a un masque. Les images sont sélectionnées (clic, Maj, Ctrl, Tout sélectionner) et attribuées à un canal -- la stratégie de SÉLECTION --, et une expression régulière peut à la place attribuer chaque image -- la stratégie REGEX. Apply construit un :class:`spacr.channel_sorting.SortPlan` ; lorsque les noms ne peuvent pas être transformés en ensembles, l’utilisateur est invité à modifier l’expression régulière."
-    },
-    {
-      "context": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
-      "label": "spacr.qt.widgets.channel_sort_dialog#3",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
-      "source_sha256": "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
-      "translation": ":class:`RegexWindow` explique les groupes nommés, teste une expression régulière en direct sur chaque nom de fichier, en propose une (\"Auto regex\") ou apparie les images par ressemblance et par taille, sans tenir compte des noms (\"Detect sets\")."
-    },
-    {
-      "context": ":class:`ExampleSetsDialog` shows three detected sets side by side, every image data channel with its mask, and asks whether they are right.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#4",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": ":class:`ExampleSetsDialog` shows three detected sets side by side, every channel with its mask, and asks whether they are right.",
-      "source_sha256": "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
-      "translation": ":class:`ExampleSetsDialog` affiche trois ensembles détectés côte à côte, chaque canal avec son masque, et demande s’ils sont corrects."
-    },
-    {
-      "context": "Nothing here moves a file. The dialog hands back a plan; the application view applies it off the main GUI execution path.",
-      "label": "spacr.qt.widgets.channel_sort_dialog#5",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Nothing here moves a file. The dialog hands back a plan; the screen applies it off the GUI thread.",
-      "source_sha256": "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33",
-      "translation": "Rien ici ne déplace de fichier. La boîte de dialogue renvoie un plan ; la vue l’applique hors du thread de la GUI."
-    },
-    {
-      "context": "Assign the folder's images to image data channels, check the sets, plan the move.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Assign the folder's images to channels, check the sets, plan the move.",
-      "source_sha256": "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
-      "translation": "Attribue les images du dossier à des canaux, vérifie les ensembles et planifie le déplacement."
-    },
-    {
-      "context": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
-      "source_sha256": "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
-      "translation": "le :class:`spacr.channel_sorting.SortPlan` confirmé une fois la boîte de dialogue acceptée, sinon None."
-    },
-    {
-      "context": "List the folder and propose a regex.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "List the folder and propose a regex.",
-      "source_sha256": "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
-      "translation": "Liste le dossier et propose une expression régulière."
-    },
-    {
-      "context": "the folder Make Masks has open.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#3",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the folder Make Masks has open.",
-      "source_sha256": "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
-      "translation": "le dossier que Make Masks a ouvert."
-    },
-    {
-      "context": "its masks folder, when not ``<folder>/masks``.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#4",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "its masks folder, when not ``<folder>/masks``.",
-      "source_sha256": "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
-      "translation": "son dossier de masques, s’il ne s’agit pas de ``<folder>/masks``."
-    },
-    {
-      "context": "Offer one more channel.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Offer one more channel.",
-      "source_sha256": "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
-      "translation": "Propose un canal supplémentaire."
-    },
-    {
-      "context": "the new channel's number.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the new channel's number.",
-      "source_sha256": "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f",
-      "translation": "le numéro du nouveau canal."
-    },
-    {
-      "context": "Assign the selected images to ``channel``; None clears them.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Assign the selected images to ``channel``; None clears them.",
-      "source_sha256": "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
-      "translation": "Attribue les images sélectionnées à ``channel`` ; None annule leur attribution."
-    },
-    {
-      "context": "Assigning by hand replaces any sets \"Detect sets\" found.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Assigning by hand replaces any sets \"Detect sets\" found.",
-      "source_sha256": "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
-      "translation": "Une attribution manuelle remplace les ensembles trouvés par \"Detect sets\"."
-    },
-    {
-      "context": "the 1-based channel, or None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the 1-based channel, or None.",
-      "source_sha256": "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08",
-      "translation": "le canal compté à partir de 1, ou None."
-    },
-    {
-      "context": "The sets Apply would use, and what is wrong when there are none.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "The sets Apply would use, and what is wrong when there are none.",
-      "source_sha256": "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
-      "translation": "Les ensembles qu’utiliserait Apply, et ce qui ne va pas lorsqu’il n’y en a aucun."
-    },
-    {
-      "context": "``{channel: role}`` as chosen, leaving out ``none``.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "``{channel: role}`` as chosen, leaving out ``none``.",
-      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
-      "translation": "``{channel: role}`` tel que choisi, sans ``none``."
-    },
-    {
-      "context": "Every image read through the regex, with the selection's image data channels.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Every image read through the regex, with the selection's channels.",
-      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
-      "translation": "Chaque image lue au moyen de l’expression régulière, avec les canaux de la sélection."
-    },
-    {
-      "context": "Build the plan from the current sets, or None when there are none.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Build the plan from the current sets, or None when there are none.",
-      "source_sha256": "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
-      "translation": "Construit le plan à partir des ensembles actuels, ou None lorsqu’il n’y en a aucun."
-    },
-    {
-      "context": "convert RGB images and z-stacks to one image layer.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "convert RGB images and z-stacks to one plane.",
-      "source_sha256": "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
-      "translation": "convertit les images RGB et les piles z en un seul plan."
-    },
-    {
-      "context": "the plan, which may still carry problems.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the plan, which may still carry problems.",
-      "source_sha256": "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9",
-      "translation": "le plan, qui peut encore comporter des problèmes."
-    },
-    {
-      "context": "Redraw the list texts, the mask-role choices and the status line.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Redraw the list texts, the mask-role choices and the status line.",
-      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
-      "translation": "Redessine les textes de la liste, les choix de rôle de masque et la ligne d’état."
-    },
-    {
-      "context": "The selected images' names, in list order.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "The selected images' names, in list order.",
-      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
-      "translation": "Les noms des images sélectionnées, dans l’ordre de la liste."
-    },
-    {
-      "context": "Use ``regex`` for channels and sets from now on.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Use ``regex`` for channels and sets from now on.",
-      "source_sha256": "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
-      "translation": "Utilise désormais ``regex`` pour les canaux et les ensembles."
-    },
-    {
-      "context": "the pattern.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the pattern.",
-      "source_sha256": "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d",
-      "translation": "le motif."
-    },
-    {
       "context": "Three sets side by side -- every image data channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
       "label": "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog#0",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Three sets side by side -- every channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
       "source_sha256": "dd2e726e1cde5d46efc870a113c92884a8c2754136bee3681e0161ec1e1ea844",
       "translation": "Trois ensembles côte à côte -- chaque canal et son masque -- et une question. Dispose jusqu’à trois ensembles : le premier, celui du milieu et le dernier."
-    },
-    {
-      "context": "Write, test, infer or bypass the regex that sorts images into sets.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Write, test, infer or bypass the regex that sorts images into sets.",
-      "source_sha256": "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
-      "translation": "Écrire, tester, déduire ou contourner l’expression régulière qui trie les images en ensembles."
-    },
-    {
-      "context": "the regex when the window is accepted with \"Use this regex\".",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the regex when the window is accepted with \"Use this regex\".",
-      "source_sha256": "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
-      "translation": "l’expression régulière lorsque la fenêtre est validée avec \"Use this regex\"."
-    },
-    {
-      "context": "the sets \"Detect sets\" found and the user confirmed, or None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#2",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the sets \"Detect sets\" found and the user confirmed, or None.",
-      "source_sha256": "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
-      "translation": "les ensembles trouvés par \"Detect sets\" et confirmés par l’utilisateur, ou None."
-    },
-    {
-      "context": "Build the window and run the test once.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#3",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Build the window and run the test once.",
-      "source_sha256": "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
-      "translation": "Construit la fenêtre et exécute le test une fois."
-    },
-    {
-      "context": "the image names to test against.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#5",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the image names to test against.",
-      "source_sha256": "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
-      "translation": "les noms d’images sur lesquels tester."
-    },
-    {
-      "context": "``{name: channel}`` from the selection.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#6",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "``{name: channel}`` from the selection.",
-      "source_sha256": "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
-      "translation": "``{name: channel}`` issu de la sélection."
-    },
-    {
-      "context": "the regex to start from.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#7",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the regex to start from.",
-      "source_sha256": "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
-      "translation": "l’expression régulière de départ."
-    },
-    {
-      "context": "Propose a regex, put it in the field and test it.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Propose a regex, put it in the field and test it.",
-      "source_sha256": "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
-      "translation": "Propose une expression régulière, la place dans le champ et la teste."
-    },
-    {
-      "context": "the regex, or None when none was found.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the regex, or None when none was found.",
-      "source_sha256": "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896",
-      "translation": "l’expression régulière, ou None lorsqu’aucune n’a été trouvée."
-    },
-    {
-      "context": "Pair images into sets, show three, and keep them when confirmed.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Pair images into sets, show three, and keep them when confirmed.",
-      "source_sha256": "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
-      "translation": "Apparie les images en ensembles, en affiche trois et les conserve s’ils sont confirmés."
-    },
-    {
-      "context": "the sets when the user said they are right, else None.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the sets when the user said they are right, else None.",
-      "source_sha256": "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585",
-      "translation": "les ensembles lorsque l’utilisateur a dit qu’ils étaient corrects, sinon None."
-    },
-    {
-      "context": "Parse every name with the regex and fill the table and summary.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#0",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "Parse every name with the regex and fill the table and summary.",
-      "source_sha256": "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
-      "translation": "Analyse chaque nom avec l’expression régulière et remplit le tableau et le résumé."
-    },
-    {
-      "context": "the set report.",
-      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#1",
-      "review_basis": "written from the English (no current MT draft)",
-      "source": "the set report.",
-      "source_sha256": "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737",
-      "translation": "le rapport sur les ensembles."
     },
     {
       "context": "Add a filter row for regionprop ``name``, every cell empty.",
@@ -1943,7 +1649,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
       "source_sha256": "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58",
-      "translation": "``pandas``, ``sqlite3`` et :mod:`spacr.schema`. Les autres stockages de mesures n’importent ``duckdb`` ou ``psycopg`` qu’à l’ouverture d’un stockage DuckDB, Parquet ou PostgreSQL. Rien d’autre au niveau du module -- pas de ``spacr.utils``, pas de matplotlib, pas de torch. C’est une exigence, pas du rangement : le sélecteur de CSV et la liste de colonnes SQL doivent pouvoir importer ceci pour obtenir les noms canoniques, et ne peuvent pas payer une importation de torch pour cela."
+      "translation": "``pandas``, ``sqlite3`` et :mod:`spacr.schema`. Les autres stockages de mesures n’importent ``duckdb`` ou ``psycopg`` qu’à l’ouverture d’un stockage DuckDB, Parquet ou PostgreSQL. Rien d’autre au niveau du module -- pas de ``spacr.utils``, pas de matplotlib, pas de torch. C’est une exigence, pas du rangement : le sélecteur de CSV et la liste de colonnes SQL doivent pouvoir importer ceci pour obtenir les noms canoniques, et ne peuvent pas payer une importation de torch pour cela.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",
@@ -2008,6 +1716,22 @@
       "source": "path to the database, or a PostgreSQL connection string; created if absent, ``~`` expanded.",
       "source_sha256": "712d7de416953159084c363aa825659c0be1df1457ae8108beb63ebd46a300f9",
       "translation": "chemin de la base de données, ou chaîne de connexion PostgreSQL ; créée si elle est absente, ``~`` développé."
+    },
+    {
+      "context": "Make Masks' example-set check.",
+      "label": "spacr.qt.widgets.channel_sort_dialog#0",
+      "review_basis": "written from the English (no current MT draft)",
+      "source": "Make Masks' example-set check.",
+      "source_sha256": "0db23266304f86d8ee4762faa106a031e43d8db3669ee8e9113e656adbd8ddd4",
+      "translation": "La vérification des ensembles d’exemple de Make Masks."
+    },
+    {
+      "context": ":class:`ExampleSetsDialog` shows three detected sets side by side, every image data channel with its mask, and asks whether they are right.",
+      "label": "spacr.qt.widgets.channel_sort_dialog#2",
+      "review_basis": "written from the English (no current MT draft)",
+      "source": ":class:`ExampleSetsDialog` shows three detected sets side by side, every channel with its mask, and asks whether they are right.",
+      "source_sha256": "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
+      "translation": ":class:`ExampleSetsDialog` affiche trois ensembles détectés côte à côte, chaque canal avec son masque, et demande s’ils sont corrects."
     }
   ],
   "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",

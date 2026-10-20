@@ -374,6 +374,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "counterfactual_target",
     # item 564 (d050bc6d4, 2026-10-04): the diffusion counterfactual generator.
     "counterfactual_generator",
+    # F564 structure objective and inversion strength, published 2026-10-15.
+    "counterfactual_strength", "counterfactual_structure_weight",
+    # F564 verified local checkpoint reuse (9bfaea5901).
+    "counterfactual_checkpoint", "counterfactual_checkpoint_sha256",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
@@ -825,6 +829,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # measurement on a CUDA GPU, under its own "GPU Measurement α"
     # heading.
     "measure_gpu",
+    # A NEW SETTING, not a regrouping (item 685, 2026-10-10): the alpha vvvv
+    # export of Mask Generation and Measure, filed with the object crops
+    # and shown under Visualization & Diagnostics on Mask and Crop Output
+    # on Measure.
+    "export_vvvv",
     # NEW SETTINGS, not a regrouping (item 576, 2026-09-28): a DuckDB,
     # Parquet or PostgreSQL copy of the measurements, under their own
     # "Measurement Backend α" heading.
@@ -837,6 +846,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 537, 2026-10-03): the minimum
     # division interval in hours, under the same "Lineage Trees α" heading.
     "timelapse_lineage_min_division_h",
+    # NEW SETTINGS, not a regrouping (item 537, 2026-10-11): edge-entry,
+    # vacuole-count and bud rules for inferred divisions, same heading.
+    "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+    "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
     # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
     # detection on tracks, appended to the Timelapse category and shown under
     # "Event Detection α" on the Timelapse app.
@@ -861,7 +874,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # switch, the reference wells, the statistic and the camera offset --
     # under their own "Intensity Calibration α" heading.
     "intensity_calibration", "intensity_calibration_wells",
+    "intensity_calibration_reference_plate",
     "intensity_calibration_statistic", "intensity_calibration_offset",
+    # F580 acquisition sessions and external reference images (b1aa37fd02).
+    "intensity_calibration_sessions", "intensity_calibration_session_column",
+    "intensity_calibration_beads", "intensity_calibration_reference_session",
     # NEW SETTINGS, not a regrouping (item 583, 2026-09-27): Measure's
     # plate map filled from sample records by plate barcode -- the records
     # table or LIMS address, the plate barcodes, the barcode column and the
@@ -939,6 +956,18 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # real / not-real object classifier Make Masks applies after detection
     # and its threshold, under "Object filtration" beside object_filters.
     "real_object_classifier", "real_object_threshold",
+    # NEW SETTINGS, not a regrouping (F534, 1c822e519, declared here
+    # 2026-10-11): the Spatial Mask Generation and Spatial Map Barcodes
+    # engines' keys from spacr.ops_settings, under their own "Spatial ..."
+    # headings on the OPS window.
+    "spatial_source", "spatial_platform", "spatial_dst", "spatial_sample",
+    "spatial_level", "spatial_window", "spatial_window_unit",
+    "spatial_tile_size", "spatial_tile_overlap", "spatial_segmenter",
+    "spatial_stain", "spatial_cellpose_model", "spatial_diameter",
+    "spatial_cell_expansion_um", "spatial_gpu", "spatial_masks_dir",
+    "spatial_bin_um", "spatial_min_qv", "spatial_objects",
+    "spatial_pathogen_genes", "spatial_min_pathogen_transcripts",
+    "spatial_gene", "spatial_anndata",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1030,7 +1059,7 @@ def _declared_category_names():
     reading ``S.categories`` cannot detect a name typed twice -- the source has
     to be parsed.
     """
-    src = pathlib.Path(S.__file__).read_text()
+    src = pathlib.Path(S.__file__).read_text(encoding="utf-8")
     tree = ast.parse(src)
     for node in ast.walk(tree):
         if not isinstance(node, ast.Assign):
@@ -1392,7 +1421,7 @@ def test_category_names_referenced_elsewhere_still_exist(name):
 def test_qt_hidden_category_names_all_resolve():
     """Read the real strings out of the Qt bridge rather than restating them."""
     src = pathlib.Path(S.__file__).parent / "qt" / "screens" / "settings_model.py"
-    tree = ast.parse(src.read_text())
+    tree = ast.parse(src.read_text(encoding="utf-8"))
     hidden = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.AnnAssign) and getattr(node.target, "id", "") == "_APP_HIDDEN_CATEGORIES":

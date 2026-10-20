@@ -1,0 +1,55 @@
+{
+    "schema": 1,
+    "language": "pt",
+    "review_method": "N678 factual-language revision 2026-10-10: English blocks rewritten to match the implementation (fold counts per model, publish_model returns the row, safe-mode preferences persist, metric definitions); translations written and checked by Claude against the revised meaning, preserving literals, numbers and markup. No native-speaker signoff.",
+    "records": [
+        {
+            "label": "clone-size-without-lazy-fetch-claim",
+            "source_sha256": "f4badfffeb2ab569b1d3adb28ec01c06a1b06c60df773764b7db86ba8db29bb7",
+            "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+            "translation": "O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz a cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. O Git não informa as transferências adiadas de objetos, por isso nenhum total de download foi medido. Os arquivos versionados de nightly ocupam 3416 MB na cópia de trabalho (medidos em 2026-10-08), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."
+        },
+        {
+            "label": "precision-recall-definitions",
+            "source_sha256": "89a9bbd3eb1eb0d9a49db7e669a771f8e15cc40664a0d0e5d97eef0387c13768",
+            "source": "**Precision** is how many of the objects a model reported are real; **recall** is how many of the real objects it found. Low precision means false detections; low recall means missed objects.",
+            "translation": "**Precision** (precisão) é quantos dos objetos relatados por um modelo são reais; **recall** (sensibilidade) é quantos dos objetos reais ele encontrou. Precisão baixa significa detecções falsas; sensibilidade baixa significa objetos perdidos."
+        },
+        {
+            "label": "f1-harmonic-mean",
+            "source_sha256": "c492936dc0d2fca2e2e266ae65ee4d2608a0cf8e6ea6d5007c2010cea53c62f9",
+            "source": "**F1** is their harmonic mean. Either alone can be near-perfect: precision for a model that reports one unmistakable plaque, recall for one that reports every dark blob. Which error matters more depends on the assay: the plaque model was accepted at precision 0.858 with recall 0.811 over an earlier round at 0.939 and 0.631.",
+            "translation": "**F1** é a média harmônica das duas. Cada uma isoladamente pode ser quase perfeita: a precisão para um modelo que relata uma única placa inequívoca, a sensibilidade para um que relata cada mancha escura. Qual erro importa mais depende do ensaio: o modelo de placas foi aceito com precisão 0.858 e sensibilidade 0.811, em vez de uma rodada anterior com 0.939 e 0.631."
+        },
+        {
+            "label": "map-iou-definitions",
+            "source_sha256": "15df5f74dd4eaac903950e3cd255456a643f9902fa43240a8526942ff2243712",
+            "source": "**mAP50** and **mAP50-95** score the well detector: mean average precision at IoU 0.5, and its average over ten IoU thresholds from 0.5 to 0.95, which also penalizes loosely placed boxes.",
+            "translation": "**mAP50** e **mAP50-95** avaliam o detector de poços: a precisão média (mean average precision) com IoU 0.5 e a sua média em dez limiares de IoU de 0.5 a 0.95, que também penaliza caixas mal posicionadas."
+        },
+        {
+            "label": "cross-validation-folds-per-model",
+            "source_sha256": "23ded58c491de0d5d4a9c6effdf637e665d84a9bc0b97d2bae28dc7f4276f1a3",
+            "source": "**Cross-validated**, with an **SD**, gives the mean and standard deviation over folds: three for ``toxoplasma_plaque_v1``, five for ``toxoplasma_pv_v2``. One split can mislead: the literature figure of ``toxoplasma_plaque_v1`` is 0.834 on a single 19-well split and 0.806 across all three.",
+            "translation": "**Cross-validated** (validação cruzada), com um **SD**, dá a média e o desvio padrão entre as partições: três para ``toxoplasma_plaque_v1`` e cinco para ``toxoplasma_pv_v2``. Uma única partição pode enganar: o valor publicado de ``toxoplasma_plaque_v1`` é 0.834 numa única partição de 19 poços e 0.806 nas três."
+        },
+        {
+            "label": "publish-model-returns-row",
+            "source_sha256": "b63375e80f0eecd4d0bc16b833c801062a6f3061bde49f352e88b4511a0dcaaf",
+            "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and returns the catalogue row to add.",
+            "translation": "Os modelos são hospedados na conta de Hugging Face de cada autor; ``spacr.model_zoo.publish_model`` envia um modelo e retorna a linha a ser adicionada ao catálogo."
+        },
+        {
+            "label": "safespacr-preferences-persist",
+            "source_sha256": "1a199f5d29b78cac2ed874be9d25af4f6662792442901bc233c95c4cfe906d01",
+            "source": "``safespacr`` reads every preference as its default and forces the backdrop, animations, verbose logging and preloading off. Use it when a saved preference breaks the launch. Preferences saved in safe mode are written normally and persist.",
+            "translation": "``safespacr`` lê cada preferência com seu valor padrão e desativa o plano de fundo, as animações, o registro detalhado e o pré-carregamento. Use-o quando uma preferência salva impedir a inicialização. As preferências salvas no modo de segurança são gravadas normalmente e permanecem."
+        },
+        {
+            "label": "validate-lists-problems",
+            "source_sha256": "406586010b7cc46feedc5b38ecd925f5911ebf5981187e718e8625c94fd4d4af",
+            "source": "``validate`` reads the same settings the run would and lists each problem, such as a missing setting or a path that does not exist, with a fix.",
+            "translation": "``validate`` lê as mesmas configurações que a execução leria e lista cada problema, como uma configuração ausente ou um caminho que não existe, com uma correção."
+        }
+    ]
+}

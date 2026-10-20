@@ -6,7 +6,9 @@
       "label": "spacr.diameter#3",
       "source": "Design constraint: this module must be usable *before* committing to a segmentation run, which means it may not cost what a segmentation run costs. It therefore imports **no torch and no cellpose** — that is a tested property, not an aspiration (see ``tests/test_diameter_estimator.py``). It reuses :mod:`spacr.validate` for filename-metadata parsing, which is the other deliberately dependency-light module in the package (``spacr.utils``, where ``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and cellpose at module scope and so cannot be touched from here). The regexes in ``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the channel ordering used below mirrors ``spacr.io._rename_and_organize_image_files``, which concatenates one plane per distinct ``chanID`` in sorted order — so channel index *i* is the *i*-th sorted ``chanID``, exactly as ``cell_channel`` and friends mean it.",
       "source_sha256": "6e3a3d32380c55cce82d71837ca2a4274a6b814cc355008d0d9e17cda8f38406",
-      "translation": "*Tiltækt snemma:* einingin virkar áður en hlutun hefst. **Léttar háðir:** hún notar hvorki torch né cellpose. Þetta er prófað í ``tests/test_diameter_estimator.py``. :mod:`spacr.validate` les lýsigögn úr skráarheitum án þungra innflutninga. Valkosturinn ``spacr.utils`` flytur inn torch og cellpose vegna þess að þar eru ``_get_regex`` og ``_extract_filename_metadata`` skilgreind. Jafngildar reglur eru í ``spacr.validate.METADATA_REGEXES`` og ``spacr.utils._get_regex``. ``spacr.io._rename_and_organize_image_files`` raðar myndlögum eftir ``chanID``. Staða *i* velur eina færslu. Í stöðu *i* samsvarar raðaða ``chanID`` gildið ``cell_channel``."
+      "translation": "*Tiltækt snemma:* einingin virkar áður en hlutun hefst. **Léttar háðir:** hún notar hvorki torch né cellpose. Þetta er prófað í ``tests/test_diameter_estimator.py``. :mod:`spacr.validate` les lýsigögn úr skráarheitum án þungra innflutninga. Valkosturinn ``spacr.utils`` flytur inn torch og cellpose vegna þess að þar eru ``_get_regex`` og ``_extract_filename_metadata`` skilgreind. Jafngildar reglur eru í ``spacr.validate.METADATA_REGEXES`` og ``spacr.utils._get_regex``. ``spacr.io._rename_and_organize_image_files`` raðar myndlögum eftir ``chanID``. Staða *i* velur eina færslu. Í stöðu *i* samsvarar raðaða ``chanID`` gildið ``cell_channel``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a plausible object, so it removes vignetting without the object shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare the flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; real objects score in the tens. Discard a field below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold and label.** Apply Otsu, fill holes, and label components. Remove border-touching components because they are truncated; also remove equivalent diameters below ``min_object_diameter`` and areas above ``max_object_fraction``. Use the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A confluent layer can fuse into one border-touching component, which is discarded and leaves debris that biases the estimate silently **low**. Compute the Euclidean distance transform of the unfilled foreground. Use local maxima as object seeds in two passes: a coarse pass sets the suppression radius for the refined pass. Watershed on ``-EDT`` separates the fused foreground before measuring equivalent diameters the same way.",
@@ -45,7 +47,9 @@
       "label": "spacr.hits.benjamini_hochberg#0",
       "source": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
       "source_sha256": "68613541f955ea03a035da293be613c7ede40c3e815c25693644efdf1a5ca309",
-      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda."
+      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
@@ -59,7 +63,9 @@
       "label": "spacr.timelapse.automated_motility_assay#0",
       "source": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.",
       "source_sha256": "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
-      "translation": "Heildstætt vinnuflæði með sameinuðum npy-skrám fyrir hreyfanleika frumna og sýkla og QC-gæðaeftirlit sýkingar."
+      "translation": "Heildstætt vinnuflæði með sameinuðum npy-skrám fyrir hreyfanleika frumna og sýkla og QC-gæðaeftirlit sýkingar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Legacy end-to-end helper retained for API callers and tests.",
@@ -73,7 +79,9 @@
       "label": "spacr.torch_artifacts.load_model_artifact#0",
       "source": "Load current artifacts and legacy full-module/state-dict checkpoints.",
       "source_sha256": "443dc3d96e5c8c4f2602c91cde6046a1518e192620f6b5192a8e3cb970ffae0c",
-      "translation": "Hlaða núverandi líkangripum og eldri stöðupunktum sem geyma heila einingu eða lyklagildavörpun ástands."
+      "translation": "Hlaða núverandi líkangripum og eldri stöðupunktum sem geyma heila einingu eða lyklagildavörpun ástands.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Point-in-polygon uses the vectorised even–odd ray-casting rule. A row whose x or y is missing is **outside every gate**. Its state is not \"unknown\", and it is not silently kept. An object with no measurement is not inside the region. Letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
@@ -94,7 +102,9 @@
       "label": "spacr.sim.run_simulation#0",
       "source": "Run one end-to-end pooled-screen simulation and return every intermediate table.",
       "source_sha256": "1b1ccb8efa965920dd4ca57f9986ab3eb259f0e58e08ef6e5401aed65ebbd4f6",
-      "translation": "Keyra eina heildstæða hermun á sameinaðri líffræðilegri skimunartilraun og skila öllum millitöflum."
+      "translation": "Keyra eina heildstæða hermun á sameinaðri líffræðilegri skimunartilraun og skila öllum millitöflum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The align / batch / convert / report / plate_view screens never open a modal dialog; their ``_set_status`` documentation refers to the earlier hang in this screen. Here, however, \"Clear mask\" requires a yes-or-no response. Therefore this screen opens the dialog only when a person can answer it.",
@@ -123,7 +133,9 @@
       "label": "spacr.qt.screens.outliers.register#2",
       "source": "``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is worth writing down because the first instinct is the other one. This screen looks like QC — it is about whether to believe what a run produced — but what it *does* is what the Gate Editor and the Feature Explorer do, and it sits beside them: you pick features, you move a threshold, you watch a distribution answer, and what comes out is a **column** the user then filters or gates on. Results & QC holds the screens that hand back a verdict; this one hands back a question with the evidence attached, and :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` is the only place a row is ever dropped and it has to be called on purpose.",
       "source_sha256": "3274f5c18a7477eb02bac55d4951fa3b312d7ab69e8b52b3ed5bcbab746523bf",
-      "translation": "``SECTION_EXPLORE`` frekar en ``SECTION_RESULTS``; ástæðuna þarf að skrá því fyrsta hugmyndin er hin. Forritssýnin líkist QC-gæðaeftirliti — hún fjallar um hvort treysta megi niðurstöðu keyrslu — en það sem hún *gerir* er hið sama og gagnavalsmarkaritillinn og eiginleikakönnuðurinn gera, og hún er nærri þeim: notandinn velur eiginleika, færir þröskuld, sér dreifinguna svara og fær **dálk** sem síðan er síað eða notað til gagnavalsmarka. Results & QC geymir forritssýnir sem skila úrskurði; þessi skilar spurningu ásamt gögnunum. :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` er eini staðurinn þar sem röð er felld brott og það þarf að kalla fallið viljandi."
+      "translation": "``SECTION_EXPLORE`` frekar en ``SECTION_RESULTS``; ástæðuna þarf að skrá því fyrsta hugmyndin er hin. Forritssýnin líkist QC-gæðaeftirliti — hún fjallar um hvort treysta megi niðurstöðu keyrslu — en það sem hún *gerir* er hið sama og gagnavalsmarkaritillinn og eiginleikakönnuðurinn gera, og hún er nærri þeim: notandinn velur eiginleika, færir þröskuld, sér dreifinguna svara og fær **dálk** sem síðan er síað eða notað til gagnavalsmarka. Results & QC geymir forritssýnir sem skila úrskurði; þessi skilar spurningu ásamt gögnunum. :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` er eini staðurinn þar sem röð er felld brott og það þarf að kalla fallið viljandi.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the tar handed to the model is built with ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`), so a processing session over two source folders whose plates are *both* called ``plate1`` --- which is what happens whenever the plate name comes from the source folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` --- puts two different extracted image regions in the archive under one member name; and",

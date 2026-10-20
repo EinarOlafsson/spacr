@@ -266,6 +266,7 @@ class TestCtrlWheelSizesTheColumnText:
         assert _wheel(viewport, 2)
         _pump()
         assert column.scale() == pytest.approx(1.2)
+        qtbot.waitUntil(lambda: self._px(title) > before[0], timeout=3000)
         assert self._px(title) > before[0]
         assert self._px(system) > before[1]
         assert self._px(run) > before[2]

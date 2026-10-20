@@ -37,7 +37,7 @@
       "key": "cell_model_name",
       "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
       "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1",
-      "translation": "Vogir fyrir hlutun frumna. Cellpose 4 býður upp á staðlaða 'cpsam' líkanið; einnig má gefa CPSAM-vistunarpunkt sem Þjálfa Cellpose bjó til, hlaðinn sem pretrained_model. Eldri heiti ('cyto', 'cyto2', 'cyto3', 'nuclei') vísa á cpsam því Cellpose 4 fylgja ekki lengur þau líkön -- nema segmentation_backend sé 'cellpose3', sem keyrir raunverulega líkanið með því heiti. Aðeins þvermál breytir ályktun (kvörðun með 30/þvermál); model_type og diam_mean eru ekki notuð í v4.0.1+. Sjálfgefið 'cpsam'."
+      "translation": "Vægi fyrir hlutun frumna. Cellpose 4 býður upp á staðlaða 'cpsam' líkanið; einnig má gefa CPSAM-vistunarpunkt sem Þjálfa Cellpose bjó til, hlaðinn sem pretrained_model. Eldri heiti ('cyto', 'cyto2', 'cyto3', 'nuclei') vísa á cpsam því Cellpose 4 fylgja ekki lengur þau líkön -- nema segmentation_backend sé 'cellpose3', sem keyrir raunverulega líkanið með því heiti. Aðeins þvermál breytir ályktun (kvörðun með 30/þvermál); model_type og diam_mean eru ekki notuð í v4.0.1+. Sjálfgefið 'cpsam'."
     },
     {
       "table": "setting_tooltips",
@@ -307,13 +307,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "ops_library",
-      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
-      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
-      "translation": "CSV með strikamerkjum leiðara, þar sem dálkurinn sem geymir þau heitir prefix, barcode eða sequence. Ef hún er gefin er kallað strikamerki hvers kjarna einnig parað við næsta leiðara, og keyrslan greinir frá því hve margir blettir samsvara safninu nákvæmlega -- eina talan sem segir til um hvort afkóðunin virkaði yfirhöfuð. Tómt kallar samt strikamerki en getur einfaldlega ekki metið þau. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "ops_raster_overlap",
       "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
       "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
@@ -325,13 +318,6 @@
       "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
       "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
       "translation": "Hversu miklu bjartari en umhverfið blettur þarf að vera til að teljast lestur. Lægra gildi finnur fleiri lestra og meira rusl, sem birtist sem lækkandi samsvörunarhlutfall við safnið frekar en sem villa; hærra gildi tapar raunverulegum lestrum og skilur kjarna eftir með of fáa til að kjósa. Sjálfgefið 315, eigið gildi viðmiðunarkeyrslunnar fyrir þessa plötu."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_store_reads",
-      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
-      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
-      "translation": "Skrifa hvern lestur að baki strikamerkjunum í töfluna ops_reads: ein röð fyrir hvern lestur í hverri umferð, með kallaða basanum, mörkum hans og styrkjunum fjórum sem hann var kallaður út frá. Þannig er grunsamlegt strikamerki rakið aftur til pixla sinna. Þetta er SLÖKKT sjálfgefið því það er stórt -- heill brunnur á viðmiðunarplötunni er um þrjátíu milljón raðir -- svo kveiktu á því fyrir einn eða tvo brunna frekar en heila plötu. Sjálfgefið False."
     },
     {
       "table": "setting_tooltips",
@@ -696,6 +682,24 @@
       "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
       "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7",
       "translation": "Tveggja staka [min, max] mörk á stuðlaás (x) Toxoplasma-eldfjallaritsins sem aðhvarfsvinnslan býr til þegar annotation_source er meðfylgjandi Toxoplasma-lýsingin. Þrengdu það til að þysja inn á marktækar niðurstöður sem hópast nálægt núlli, víkkaðu það til að halda genum með mikil áhrif á grafinu. Ef það er haft None er notað [-0.5, 0.5], ekki sjálfvirk kvörðun. Sjálfgefið None."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "translation": "CSV með strikamerkjum leiðara, þar sem dálkurinn sem geymir þau heitir prefix, barcode eða sequence. Ef hún er gefin er kallað strikamerki hvers kjarna einnig parað við næsta leiðara, og keyrslan greinir frá því hve margir blettir samsvara safninu nákvæmlega -- eina talan sem segir til um hvort afkóðunin virkaði yfirhöfuð. Tómt kallar samt strikamerki en getur einfaldlega ekki metið þau. Sjálfgefið None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "translation": "Skrifa hvern lestur að baki strikamerkjunum í töfluna ops_reads: ein röð fyrir hvern lestur í hverri umferð, með kallaða basanum, mörkum hans og styrkjunum fjórum sem hann var kallaður út frá. Þannig er grunsamlegt strikamerki rakið aftur til pixla sinna. Þetta er SLÖKKT sjálfgefið því það er stórt -- heill brunnur á viðmiðunarplötunni er um þrjátíu milljón raðir -- svo kveiktu á því fyrir einn eða tvo brunna frekar en heila plötu. Sjálfgefið False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

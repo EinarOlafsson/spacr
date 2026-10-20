@@ -2,15 +2,16 @@
 
 Every figure here is built inside :func:`_house`, which is
 :mod:`spacr.figures.style` applied as a context manager. Read that module
-before adding a panel; the rule it exists to enforce is that **everything is
-grey except what the sentence is about**, and this file is where breaking it
-was measured -- see :func:`custom_volcano_plot`.
+before adding a panel; its rule is that **everything is grey except what the
+sentence is about**. :func:`custom_volcano_plot` is the example in this file
+where the effect of breaking that rule was measured.
 """
 
 import contextlib
 import os
 
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 import seaborn as sns
 import numpy as np
 from adjustText import adjust_text
@@ -340,7 +341,7 @@ def custom_volcano_plot(
         if save_path:
             save_path = _write_the_figure(fig, save_path,
                                           bbox_inches='tight')
-        plt.show()
+        _show_if_interactive()
 
         return hit_list
 
@@ -554,7 +555,7 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
                  (f'not called ({int((~called).sum())})', ROLES['data'])],
                 scale)
             fig.tight_layout()
-            plt.show()
+            _show_if_interactive()
 
         print(f'Results for {go_term_column}')
 
@@ -592,7 +593,7 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 
         adjust_text(texts, ax=ax, arrowprops=_LEADER)
         fig.tight_layout()
-        plt.show()
+        _show_if_interactive()
 
 
 def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
@@ -693,16 +694,16 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
                                           bbox_inches='tight')
             print(f"Figure saved to {save_path}")
 
-        plt.show()
+        _show_if_interactive()
 
 def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=False, save_path=None):
     """Render a heatmap for selected genes across selected metadata columns.
 
-    THE RAMP IS SINGLE-HUE. It was viridis, a rainbow that reads as five
-    categories where the quantity is one ordered score; the house style's
-    ``Blues`` runs light to dark, so "more" is one direction rather than a
-    tour of the spectrum. A diverging map would be right only if the values
-    were signed, and after ``normalize`` they run 0 to 1.
+    The colour map is the single-hue sequential house palette (``Blues``,
+    light to dark), so larger values are darker. A multi-hue map such as
+    viridis suggests categories in what is one ordered score, and a
+    diverging map applies only to signed values; after ``normalize`` the
+    values run 0 to 1.
 
     :param data: DataFrame containing per-gene rows. Copied before use -- the
         row-key column this adds used to appear on the caller's frame.
@@ -764,7 +765,7 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
                                           bbox_inches='tight')
             print(f"Figure saved to {save_path}")
 
-        plt.show()
+        _show_if_interactive()
 
 def generate_score_heatmap(settings):
     """Build combined classification-score and control-fraction heatmaps for a plate.

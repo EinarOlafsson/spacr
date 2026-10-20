@@ -1,0 +1,826 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical authoring; no native-speaker signoff",
+  "note": "Current error-report relay API, assigned second symbol group only. No runtime source changes or scientific/native acceptance claim.",
+  "records": [
+    {
+      "label": "spacr.crashreport.normalise_question#0",
+      "source": "A question as both caches compare it.",
+      "source_sha256": "0f0cae22dd277f52ca201b96733e8dcf3029ecbccd93581c20eb0f5c9546b8a7",
+      "context": "A question as both caches compare it.",
+      "translation": "दोनों कैश द्वारा तुलना के लिए उपयोग किया जाने वाला प्रश्न का रूप।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.normalise_question#1",
+      "source": "Lower case, placeholders such as ``<PATH>`` removed, and every run of whitespace or punctuation folded into one space, the way the relay's ``normaliseQuestion`` does it.",
+      "source_sha256": "492769b21b09c87878023ebb1112a1fd4c77ed259f2eb6e17b02c2c2a23be74d",
+      "context": "Lower case, placeholders such as ``<PATH>`` removed, and every run of whitespace or punctuation folded into one space, the way the relay's ``normaliseQuestion`` does it.",
+      "translation": "छोटे अक्षरों में, ``<PATH>`` जैसे प्लेसहोल्डर हटाकर, और रिक्त स्थान या विराम चिह्नों की हर शृंखला को एक स्पेस में समेटकर, जैसा रिले का ``normaliseQuestion`` करता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.normalise_question#2",
+      "source": "the question.",
+      "source_sha256": "c049dd8f2cfeaa634d9db7c9c555fdc86a7c2d76205463a3c1f6ffb672373705",
+      "context": "the question.",
+      "translation": "प्रश्न।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.normalise_question#3",
+      "source": "the normalised question.",
+      "source_sha256": "0ceb5213e85b3ea40168b85b1b739141142ec1d476838518098c26eb2418cb01",
+      "context": "the normalised question.",
+      "translation": "सामान्यीकृत प्रश्न।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_environment#0",
+      "source": "The computer and libraries a report was made on, without any name.",
+      "source_sha256": "143cbf82508ad7d35f938c80c999116c856f8476d060195dec21d69ba4a7e482",
+      "context": "The computer and libraries a report was made on, without any name.",
+      "translation": "वह कंप्यूटर और लाइब्रेरी जिन पर रिपोर्ट बनी, बिना किसी नाम के।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_environment#1",
+      "source": "OS version, CPU architecture and cores, memory rounded to whole GB, the GPU's model and memory when torch already knows it, CUDA or MPS, the versions of spaCR's main libraries and how spaCR was installed.",
+      "source_sha256": "18df698a2ebe90392af36b917af48c3fbe52abd868620e90762adfa8c1784929",
+      "context": "OS version, CPU architecture and cores, memory rounded to whole GB, the GPU's model and memory when torch already knows it, CUDA or MPS, the versions of spaCR's main libraries and how spaCR was installed.",
+      "translation": "OS संस्करण, CPU आर्किटेक्चर और कोर, पूरे GB में गोल की गई मेमोरी, torch को पहले से ज्ञात GPU मॉडल और मेमोरी, CUDA या MPS, spaCR की प्रमुख लाइब्रेरी के संस्करण और spaCR की स्थापना का तरीका।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_environment#2",
+      "source": "the facts that could be read.",
+      "source_sha256": "d1bdabe97177a2c46f2bbc056f1c432ac114a6d69cc386f8df0bbe82d0b8a0fc",
+      "context": "the facts that could be read.",
+      "translation": "वे तथ्य जिन्हें पढ़ा जा सका।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_input_facts#0",
+      "source": "What the run's source folder holds, without any name in it.",
+      "source_sha256": "986a0c95208b374ac3ccc585d3789f048ceb98464a78941b7b7586f50887c9a4",
+      "context": "What the processing session's source folder holds, without any name in it.",
+      "translation": "प्रोसेसिंग रन के स्रोत फ़ोल्डर की सामग्री, बिना किसी नाम के।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_input_facts#1",
+      "source": "Counts the image files directly in the folder (at most ``limit`` entries are looked at), the extensions seen, and the shape, dtype and likely channel count of the first image, read from its header.",
+      "source_sha256": "4e38c3ca51f64ad8de1aa6826a84c001a5750c218aff2f4d2857d09d23db7186",
+      "context": "Counts the image files directly in the folder (at most ``limit`` entries are looked at), the extensions seen, and the shape, dtype and likely image data channel count of the first image, read from its header.",
+      "translation": "फ़ोल्डर में सीधे मौजूद इमेज फ़ाइलें गिनता है (अधिकतम ``limit`` प्रविष्टियाँ देखी जाती हैं), मिले हुए एक्सटेंशन और पहली इमेज के हेडर से उसका आकार, dtype तथा संभावित इमेज चैनल संख्या पढ़ता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_input_facts#2",
+      "source": "the run's settings.",
+      "source_sha256": "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+      "context": "the processing session's settings.",
+      "translation": "प्रोसेसिंग रन की सेटिंग्स।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_input_facts#3",
+      "source": "the most folder entries looked at.",
+      "source_sha256": "8b1d0678f203d982a1b6c1c354631c33bc7201afc8bd9e483829df9cef396e83",
+      "context": "the most folder entries looked at.",
+      "translation": "देखी जाने वाली फ़ोल्डर प्रविष्टियों की अधिकतम संख्या।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_input_facts#4",
+      "source": "``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``, only the keys that could be found; ``{}`` without a readable folder.",
+      "source_sha256": "208123e84fdf833418eab4a88a0197014add4bd0d7ea41f0b1da802d93b0f755",
+      "context": "``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``, only the keys that could be found; ``{}`` without a readable folder.",
+      "translation": "``{\"images\", \"extensions\", \"shape\", \"dtype\", \"channels\"}``, केवल मिली हुई कुंजियाँ; पढ़ने योग्य फ़ोल्डर न होने पर ``{}``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_log_tail#0",
+      "source": "The console's last lines before a failure, scrubbed and cut.",
+      "source_sha256": "8d91911ebf8c718a211495f2539f64503018be20ddf551daf804dd034d95b8f6",
+      "context": "The console's last lines before a failure, scrubbed and cut.",
+      "translation": "विफलता से पहले कंसोल की अंतिम पंक्तियाँ, संवेदनशील जानकारी हटाकर और काटकर।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_log_tail#1",
+      "source": "the console text.",
+      "source_sha256": "34e9d50a201b2222e430d77acf4e9661d49f04a897f97452982965307c0e7fc8",
+      "context": "the console text.",
+      "translation": "कंसोल का पाठ।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_log_tail#2",
+      "source": "the most lines kept, from the end.",
+      "source_sha256": "b963ea1bb8ca7170b5aba9688123fe680dcd157069c67c3dcec738c13e1d5c4d",
+      "context": "the most lines kept, from the end.",
+      "translation": "अंत से रखी जाने वाली पंक्तियों की अधिकतम संख्या।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_log_tail#3",
+      "source": "the most characters kept, from the end.",
+      "source_sha256": "f6dec1a4dbc936c496b836e3762740643bf24ce898cc7c502926d0f994b36b99",
+      "context": "the most characters kept, from the end.",
+      "translation": "अंत से रखे जाने वाले वर्णों की अधिकतम संख्या।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_log_tail#4",
+      "source": "the scrubbed excerpt.",
+      "source_sha256": "ba586c5534c232a5db9d1a95c98215a0cb8137449ccce7bf6c42335649650bfa",
+      "context": "the scrubbed excerpt.",
+      "translation": "संवेदनशील जानकारी हटाया गया अंश।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_problem_lines#0",
+      "source": "Scrub settings problems into short lines that may be published.",
+      "source_sha256": "f33f611684db36ff26fe84c795732cd7c4cd23ab1cfcaf3ba1a3204d6662923d",
+      "context": "Scrub settings problems into short lines that may be published.",
+      "translation": "सेटिंग्स की समस्याओं से संवेदनशील जानकारी हटाकर प्रकाशित करने योग्य छोटी पंक्तियाँ बनाना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_problem_lines#1",
+      "source": "Paths and file names are taken out rather than replaced, so \"src does not exist: /data/plate1\" is sent as \"src does not exist\".",
+      "source_sha256": "8589f473cc0aaa5c63406e177c2791c9d0e66b9e760f82b1969af0c60956447c",
+      "context": "Paths and file names are taken out rather than replaced, so \"src does not exist: /data/plate1\" is sent as \"src does not exist\".",
+      "translation": "पथ और फ़ाइल नाम बदले नहीं बल्कि हटाए जाते हैं, इसलिए \"src does not exist: /data/plate1\" को \"src does not exist\" के रूप में भेजा जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_problem_lines#2",
+      "source": ":class:`spacr.validate.Problem` objects, or texts.",
+      "source_sha256": "b7b5fc741ae265a1cb0bb3334d2e5fd91e771cba76304099b9cdf61db58f2151",
+      "context": ":class:`spacr.validate.Problem` objects, or texts.",
+      "translation": ":class:`spacr.validate.Problem` ऑब्जेक्ट या पाठ।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_problem_lines#3",
+      "source": "the longest line, in characters.",
+      "source_sha256": "cc95cecde657def27f1b55201193938840c7c59a9cd7a1c4eed12c46e95b94ce",
+      "context": "the longest line, in characters.",
+      "translation": "पंक्ति की अधिकतम लंबाई, वर्णों में।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_problem_lines#4",
+      "source": "one line per problem, ``\"setting: message\"`` when the problem names a setting; duplicates and empty lines are dropped.",
+      "source_sha256": "b4ae9684325b53d0dc33a0158c3d79fb2a387194463b1fe0e6cb40fdd6416bc2",
+      "context": "one line per problem, ``\"setting: message\"`` when the problem names a setting; duplicates and empty lines are dropped.",
+      "translation": "प्रति समस्या एक पंक्ति, समस्या में सेटिंग का नाम होने पर ``\"setting: message\"``; दोहराव और खाली पंक्तियाँ हटा दी जाती हैं।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_settings#0",
+      "source": "The settings a run used, with nothing personal left in them.",
+      "source_sha256": "c34105192fc3c673ec09a16c0589c3ab498c920697acc3401b9f1b2e478d5193",
+      "context": "The settings a processing session used, with nothing personal left in them.",
+      "translation": "प्रोसेसिंग रन में उपयोग की गई सेटिंग्स, जिनमें कोई व्यक्तिगत जानकारी शेष नहीं रहती।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_settings#1",
+      "source": "Setting names are kept as they are; values go through :func:`_public_setting_value`, so ``src`` reads ``<path: exists=no>`` when the folder is missing, without the folder's name. At most :data:`MAX_SETTINGS` settings, in name order.",
+      "source_sha256": "c2609f0c61dbfd640dc74eac4a0b4f1ac3cc29da90d1743cb7b59d54c9cc676b",
+      "context": "Setting names are kept as they are; values go through :func:`_public_setting_value`, so ``src`` reads ``<path: exists=no>`` when the folder is missing, without the folder's name. At most :data:`MAX_SETTINGS` settings, in name order.",
+      "translation": "सेटिंग्स के नाम ज्यों के त्यों रखे जाते हैं; मान :func:`_public_setting_value` से गुज़रते हैं, इसलिए फ़ोल्डर न होने पर ``src`` उसके नाम के बिना ``<path: exists=no>`` दिखाता है। नाम के क्रम में अधिकतम :data:`MAX_SETTINGS` सेटिंग्स।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_settings#2",
+      "source": "the run's settings.",
+      "source_sha256": "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2",
+      "context": "the processing session's settings.",
+      "translation": "प्रोसेसिंग रन की सेटिंग्स।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_settings#3",
+      "source": "``{name: value}``.",
+      "source_sha256": "c25d4209c8659dfaf15de261c10316befee090b8885e2b244ee41d7a5667b792",
+      "context": "``{name: value}``.",
+      "translation": "``{name: value}``.",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#0",
+      "source": "Build the anonymised summary of an error that may be published.",
+      "source_sha256": "552617af2b167678afbb951fd4ac2f2c7320d101154e8dedaed86b872ebdf076",
+      "context": "Build the anonymised summary of an error that may be published.",
+      "translation": "प्रकाशित की जा सकने वाली त्रुटि का अनाम सारांश बनाना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#1",
+      "source": "Only the keys in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is passed through :func:`scrub_public_text` and cut to :data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES` ``{file, function, line}`` records with the file as a basename, or ``<user-code>`` for a file outside spaCR, Python and its libraries. No log, setting, environment variable or path is read into it.",
+      "source_sha256": "c3b7eb8820126de0b319bcc04c1d421425d97cc6122ee4756d56397e44be4326",
+      "context": "Only the structured-data names in :data:`PUBLIC_SUMMARY_KEYS` are present. The message is passed through :func:`scrub_public_text` and cut to :data:`MAX_MESSAGE_CHARS`; the frames are at most :data:`MAX_FRAMES` ``{file, function, line}`` records with the file as a basename, or ``<user-code>`` for a file outside spaCR, Python and its libraries. No log, setting, environment variable or path is read into it.",
+      "translation": "केवल :data:`PUBLIC_SUMMARY_KEYS` की कुंजियाँ मौजूद होती हैं। संदेश :func:`scrub_public_text` से गुज़रकर :data:`MAX_MESSAGE_CHARS` तक काटा जाता है; कॉल स्टैक फ़्रेम अधिकतम :data:`MAX_FRAMES` ``{file, function, line}`` रिकॉर्ड होते हैं, जिनमें फ़ाइल का मूल नाम होता है, या spaCR, Python और उसकी लाइब्रेरी से बाहर की फ़ाइल के लिए ``<user-code>`` होता है। इसमें कोई लॉग, सेटिंग, पर्यावरण चर या पथ पढ़कर नहीं डाला जाता।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#2",
+      "source": "the exception, with its traceback.",
+      "source_sha256": "7b2a9096c72b5305a2d3ce1966b62885d376f5b393a2b63ecc58802c84a0ddb7",
+      "context": "the exception, with its traceback.",
+      "translation": "अपवाद और उसका ट्रेसबैक।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#3",
+      "source": "a formatted traceback, used when no exception object is at hand (a failed pipeline run reports one as text).",
+      "source_sha256": "0bc8a12f04c86ce745abf2ae3bfaea4242fbc5ede43b65a5e270d29ce93f4109",
+      "context": "a formatted traceback, used when no exception object is at hand (a failed workflow processing session reports one as text).",
+      "translation": "अपवाद ऑब्जेक्ट उपलब्ध न होने पर उपयोग किया जाने वाला स्वरूपित ट्रेसबैक (विफल पाइपलाइन रन इसे पाठ के रूप में रिपोर्ट करता है)।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#4",
+      "source": "the spaCR module key the error happened in, such as ``mask`` or ``measure``.",
+      "source_sha256": "a7ac770cdac6cb39dd33f45d923b488ce85f5687d6c64122801e3320643a6643",
+      "context": "the spaCR module key the error happened in, such as ``mask`` or ``measure``.",
+      "translation": "वह spaCR मॉड्यूल कुंजी जिसमें त्रुटि हुई, जैसे ``mask`` या ``measure``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#5",
+      "source": "what the user adds, scrubbed and cut to :data:`MAX_NOTE_CHARS`; left out when empty.",
+      "source_sha256": "b9446029dff846f1cf09f9601d63cd086e726da8976b5cdc0e1795c356960f16",
+      "context": "what the user adds, scrubbed and cut to :data:`MAX_NOTE_CHARS`; left out when empty.",
+      "translation": "उपयोगकर्ता द्वारा जोड़ी गई सामग्री, संवेदनशील जानकारी हटाकर :data:`MAX_NOTE_CHARS` तक काटी गई; खाली होने पर छोड़ी जाती है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#6",
+      "source": "ask the relay to validate without filing; left out when false.",
+      "source_sha256": "73218bc6b24dc0d5d3c6039a100e31af256c8cb76db00e1102eb6024646c1c4b",
+      "context": "ask the relay to validate without filing; left out when false.",
+      "translation": "रिपोर्ट दर्ज किए बिना सत्यापन करने के लिए रिले से कहना; असत्य होने पर छोड़ा जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#7",
+      "source": ":data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out by :func:`classify_failure` when empty.",
+      "source_sha256": "9c14e5904446bde5cd0a8897edccf8ebf9025dd0674726871575984c29ca661c",
+      "context": ":data:`KIND_FAULT` or :data:`KIND_USER_ERROR`; worked out by :func:`classify_failure` when empty.",
+      "translation": ":data:`KIND_FAULT` या :data:`KIND_USER_ERROR`; खाली होने पर :func:`classify_failure` से निर्धारित।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#8",
+      "source": "add each spaCR frame's source line as ``code``. Frames of any other file never carry code.",
+      "source_sha256": "9e1051e5033f4155433b7ab10fd44dfc6fe22ed04d050769aca2b2a9e57dec70",
+      "context": "add each spaCR frame's source line as ``code``. Frames of any other file never carry code.",
+      "translation": "हर spaCR कॉल फ़्रेम की स्रोत पंक्ति को ``code`` के रूप में जोड़ना। किसी अन्य फ़ाइल के फ़्रेम में कभी कोड नहीं जोड़ा जाता।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#9",
+      "source": "the screen's title as the user sees it, such as ``Mask``; at most :data:`MAX_SCREEN_CHARS` characters.",
+      "source_sha256": "558bb46dae77b3bdf1b5924eaac436cc52a3182a382d3df16fb29f6e1a0ef059",
+      "context": "the screen's title as the user sees it, such as ``Mask``; at most :data:`MAX_SCREEN_CHARS` characters.",
+      "translation": "उपयोगकर्ता को दिखाई देने वाला स्क्रीन शीर्षक, जैसे ``Mask``; अधिकतम :data:`MAX_SCREEN_CHARS` वर्ण।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#10",
+      "source": "the error as the console showed it, scrubbed with its line breaks kept and cut to :data:`MAX_ERROR_TEXT_CHARS`.",
+      "source_sha256": "ba1077179bedb029d7a2ca098716e1b44f4e9d2350e9024f62fc4f68f8a644c8",
+      "context": "the error as the console showed it, scrubbed with its line breaks kept and cut to :data:`MAX_ERROR_TEXT_CHARS`.",
+      "translation": "कंसोल में दिखाई गई त्रुटि, संवेदनशील जानकारी हटाकर और पंक्ति विराम रखते हुए :data:`MAX_ERROR_TEXT_CHARS` तक काटी गई।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#11",
+      "source": "the message to send in place of the exception's own, such as every problem a refused run found; a user error keeps its line breaks and may be :data:`MAX_USER_ERROR_MESSAGE_CHARS` long.",
+      "source_sha256": "33b592719332b1e0608f2172fe8715caacc14beb67bde2d80f755f90272be6ca",
+      "context": "the message to send in place of the exception's own, such as every problem a refused run found; a user error keeps its line breaks and may be :data:`MAX_USER_ERROR_MESSAGE_CHARS` long.",
+      "translation": "अपवाद के अपने संदेश की जगह भेजा जाने वाला संदेश, जैसे किसी अस्वीकृत रन में मिली सभी समस्याएँ; उपयोगकर्ता त्रुटि अपने पंक्ति विराम रखती है और :data:`MAX_USER_ERROR_MESSAGE_CHARS` वर्ण लंबी हो सकती है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#12",
+      "source": "the run's settings; their names and public values (:func:`public_settings`) and the source folder's input facts (:func:`public_input_facts`) are added.",
+      "source_sha256": "ca1f09810e6eddac5afe5b26732da35429a00d5f51c36a7afa9611ff89eeb244",
+      "context": "the processing session's settings; their names and public values (:func:`public_settings`) and the source folder's input facts (:func:`public_input_facts`) are added.",
+      "translation": "प्रोसेसिंग रन की सेटिंग्स; उनके नाम और सार्वजनिक मान (:func:`public_settings`) तथा स्रोत फ़ोल्डर के इनपुट तथ्य (:func:`public_input_facts`) जोड़े जाते हैं।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#13",
+      "source": "the console text before the failure; its last lines are added, scrubbed (:func:`public_log_tail`).",
+      "source_sha256": "a9377aabfeed8d672d3197583e9c2a0e5d5de04bad7d15176fb0e8a760e1f1c0",
+      "context": "the console text before the failure; its last lines are added, scrubbed (:func:`public_log_tail`).",
+      "translation": "विफलता से पहले का कंसोल पाठ; उसकी अंतिम पंक्तियाँ संवेदनशील जानकारी हटाकर जोड़ी जाती हैं (:func:`public_log_tail`)।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#14",
+      "source": "``{\"stage\", \"elapsed_s\", \"dry_run\"}`` of the failed run.",
+      "source_sha256": "97f5adcf4fe6581fd4ea8471715b00997dd39eff5b13aaf2b14636c440a72204",
+      "context": "``{\"stage\", \"elapsed_s\", \"dry_run\"}`` of the failed processing session.",
+      "translation": "विफल प्रोसेसिंग रन का ``{\"stage\", \"elapsed_s\", \"dry_run\"}``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#15",
+      "source": "add the environment block (:func:`public_environment`) and the exception chain.",
+      "source_sha256": "865a509d4d5a53b0189e5cb0f2f7fcee4a61625ad6e1d6d6eab9e1a9291f99e1",
+      "context": "add the environment block (:func:`public_environment`) and the exception chain.",
+      "translation": "पर्यावरण ब्लॉक (:func:`public_environment`) और अपवाद शृंखला जोड़ना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.public_summary#16",
+      "source": "the summary, ready for :func:`submit_public_summary`.",
+      "source_sha256": "fcdaad60554b1a24419b64f901370c942b794d32d2c472885deb64beee091182",
+      "context": "the summary, ready for :func:`submit_public_summary`.",
+      "translation": ":func:`submit_public_summary` के लिए तैयार सारांश।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.question_key#0",
+      "source": "The key a question's saved answer is kept under, or ``\"\"``.",
+      "source_sha256": "05fed47f6d1de504bfe09d0bf7651c09dd5a1aafbed254ca41bed1715d356a14",
+      "context": "The key a question's saved answer is kept under, or ``\"\"``.",
+      "translation": "वह कुंजी जिसके अंतर्गत प्रश्न का सहेजा हुआ उत्तर रखा जाता है, या ``\"\"``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.question_key#1",
+      "source": "SHA-256 of the scrubbed, normalised question, the place it was asked (screen or module) and spaCR's ``major.minor``, prefixed ``q:``. A question with more than :data:`QUESTION_CACHE_CONTEXT_MAX` characters of question and pasted context is never saved.",
+      "source_sha256": "9ea846a8c806fae26730dac71ac0808afada88d86894dd298c043596416e21c2",
+      "context": "SHA-256 of the scrubbed, normalised question, the place it was asked (application view or module) and spaCR's ``major.minor``, prefixed ``q:``. A question with more than :data:`QUESTION_CACHE_CONTEXT_MAX` characters of question and pasted context is never saved.",
+      "translation": "संवेदनशील जानकारी हटाए और सामान्यीकृत प्रश्न, पूछे जाने के स्थान (ऐप स्क्रीन या मॉड्यूल) और spaCR के ``major.minor`` का SHA-256, ``q:`` उपसर्ग सहित। प्रश्न और चिपकाए गए संदर्भ में कुल :data:`QUESTION_CACHE_CONTEXT_MAX` से अधिक वर्ण होने पर प्रश्न कभी सहेजा नहीं जाता।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.question_key#2",
+      "source": "what the user asked.",
+      "source_sha256": "84d186ddcdde56653cd4aeb0e692a25d797bda21469a190bebdcff3377aaf8f8",
+      "context": "what the user asked.",
+      "translation": "उपयोगकर्ता ने क्या पूछा।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.question_key#3",
+      "source": "the screen or module it was asked on.",
+      "source_sha256": "d02fb2680a955047b4370421b7c80f2c509fd8062686e6abcf7ed5667ea964e4",
+      "context": "the screen or module it was asked on.",
+      "translation": "वह स्क्रीन या मॉड्यूल जहाँ प्रश्न पूछा गया।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.question_key#4",
+      "source": "characters of console context, code or traceback pasted with it.",
+      "source_sha256": "0387530ec68234cb3df513587597db84b4008919da25c9d3904a8eb533b873b7",
+      "context": "characters of console context, code or traceback pasted with it.",
+      "translation": "साथ में चिपकाए गए कंसोल संदर्भ, कोड या ट्रेसबैक के वर्णों की संख्या।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.question_key#5",
+      "retired": "2026-10-16",
+      "retired_reason": "This identical source has a different reviewed target elsewhere; 2026-10-16-api-source-consistency.json reuses the retained target from 2026-10-15-n700-provider-utilities.json. Historical translation retained.",
+      "source": "the key, or ``\"\"`` when the answer must not be saved.",
+      "source_sha256": "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86",
+      "context": "the key, or ``\"\"`` when the answer must not be saved.",
+      "translation": "कुंजी, या उत्तर सहेजने की अनुमति न होने पर ``\"\"``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.queued_summaries#0",
+      "source": "Return the reports waiting to be sent, oldest first.",
+      "source_sha256": "b056272264320ce5219beb1da9712a5967c6924853f0f78ec22f73219a9f5b1b",
+      "context": "Return the reports waiting to be sent, oldest first.",
+      "translation": "भेजे जाने की प्रतीक्षा कर रही रिपोर्टें लौटाना, सबसे पुरानी पहले।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.queued_summaries#1",
+      "source": "Expired and surplus reports are deleted first.",
+      "source_sha256": "bacc48839eab27b77f601a8d37432a109de81830de8d5b956156d1c427974d8a",
+      "context": "Expired and surplus reports are deleted first.",
+      "translation": "समयसीमा पार और अतिरिक्त रिपोर्टें पहले हटा दी जाती हैं।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.queued_summaries#2",
+      "source": "the summaries.",
+      "source_sha256": "1cab404dcb1da244b822e30546c57e2f68804a00c7c6f7d528cda6b7b83b6135",
+      "context": "the summaries.",
+      "translation": "सारांश।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.relay_url#0",
+      "source": "Return the relay address reports are posted to, without a trailing slash.",
+      "source_sha256": "2643cf59ddd0a37fa3191993bcc713054dc7f5d9a00d21bd95797709f5f7b61b",
+      "context": "Return the relay address reports are posted to, without a trailing slash.",
+      "translation": "रिपोर्ट भेजे जाने वाला रिले पता लौटाना, अंतिम स्लैश के बिना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.relay_url#1",
+      "source": ":data:`REPORT_RELAY_ENV` overrides :data:`REPORT_RELAY_URL` when it holds an ``https://`` address, or an ``http://`` one on this computer.",
+      "source_sha256": "6f839863e220adff39a290f740c1f73b242be563403fbc36fd61ddb8def6e87c",
+      "context": ":data:`REPORT_RELAY_ENV` overrides :data:`REPORT_RELAY_URL` when it holds an ``https://`` address, or an ``http://`` one on this computer.",
+      "translation": ":data:`REPORT_RELAY_ENV` से :data:`REPORT_RELAY_URL` अधिलेखित होता है, यदि पहले में ``https://`` पता या इस कंप्यूटर का ``http://`` पता हो।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.relay_url#2",
+      "source": "the base address.",
+      "source_sha256": "9cc379f36f3768e8b53cb6e76a8e861f5f2bd8bb2dbaeb759fefec4efeda1ae1",
+      "context": "the base address.",
+      "translation": "आधार पता।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#0",
+      "source": "Keep an explanation on this computer for the next identical error.",
+      "source_sha256": "28af111d7f1e7625d8491505cb1f361219dde8ab663dac5f7c05ae056d42113a",
+      "context": "Keep an explanation on this computer for the next identical error.",
+      "translation": "अगली समान त्रुटि के लिए इस कंप्यूटर पर एक व्याख्या रखना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#1",
+      "source": "At most :data:`MAX_SAVED_EXPLANATIONS` are kept, oldest dropped first, and expired ones are dropped on every write. A failed write is ignored.",
+      "source_sha256": "5cee2ec77eb14a9170d8df3b5e021c573142ec50c19e258d7d7f2fde494d2151",
+      "context": "At most :data:`MAX_SAVED_EXPLANATIONS` are kept, oldest dropped first, and expired ones are dropped on every write. A failed write is ignored.",
+      "translation": "अधिकतम :data:`MAX_SAVED_EXPLANATIONS` रखी जाती हैं, सबसे पुरानी पहले हटती हैं और हर लेखन पर समयसीमा पार प्रविष्टियाँ हटती हैं। लिखने की विफलता अनदेखी की जाती है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#2",
+      "source": "from :func:`explanation_signature`.",
+      "source_sha256": "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+      "context": "from :func:`explanation_signature`.",
+      "translation": ":func:`explanation_signature` से।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#3",
+      "source": "the scrubbed explanation.",
+      "source_sha256": "3cd67d36dbdb5c54f555816574478caa8693d95a94cbf617de5117c4dd1adf11",
+      "context": "the scrubbed explanation.",
+      "translation": "संवेदनशील जानकारी हटाई गई व्याख्या।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#4",
+      "source": "``\"best\"``, ``\"light\"`` or ``\"\"``.",
+      "source_sha256": "73d3ef4042444ab329f10847cfff66ae72139d8c664b4a185ee004e90abe1283",
+      "context": "``\"best\"``, ``\"light\"`` or ``\"\"``.",
+      "translation": "``\"best\"``, ``\"light\"`` या ``\"\"``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#5",
+      "source": "the model that wrote it, when known.",
+      "source_sha256": "d687ba373e4443cce4b6faa8c09ab6ea775b2d37bb8dbbea5569c8a661f8047a",
+      "context": "the model that wrote it, when known.",
+      "translation": "उसे लिखने वाला मॉडल, यदि ज्ञात हो।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#6",
+      "source": "the time, in seconds since the epoch; defaults to now.",
+      "source_sha256": "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+      "context": "the time, in seconds since the epoch; defaults to now.",
+      "translation": "एपॉक से बीते सेकंडों में समय; डिफ़ॉल्ट अभी का समय।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.save_explanation#7",
+      "source": "the likely-cause key the AI gave, if any.",
+      "source_sha256": "578c9fff753df34a1750f53d74bcbf0f3308c09bd9864d93a8c4a7459a7a4910",
+      "context": "the likely-cause key the AI gave, if any.",
+      "translation": "AI द्वारा दी गई संभावित कारण कुंजी, यदि हो।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.saved_explanation#0",
+      "source": "The explanation saved on this computer for an error, if still good.",
+      "source_sha256": "65f26e02cd937dc8a78205f66e6d39e018916ac3dee8ff1e245ad8d807702e4e",
+      "context": "The explanation saved on this computer for an error, if still good.",
+      "translation": "इस कंप्यूटर पर त्रुटि के लिए सहेजी गई व्याख्या, यदि अब भी मान्य हो।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.saved_explanation#1",
+      "source": "Good means written for this spaCR ``major.minor`` and less than :data:`SAVED_EXPLANATION_DAYS` days ago.",
+      "source_sha256": "daed287218203e4c13f41fea45f0d9a107de749d2bd3d5bb751446f2306c4456",
+      "context": "Good means written for this spaCR ``major.minor`` and less than :data:`SAVED_EXPLANATION_DAYS` days ago.",
+      "translation": "मान्य का अर्थ है कि यह spaCR के इसी ``major.minor`` के लिए :data:`SAVED_EXPLANATION_DAYS` से कम दिन पहले लिखी गई हो।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.saved_explanation#2",
+      "source": "from :func:`explanation_signature`.",
+      "source_sha256": "40de8b97923d2ee09926fe063c4581621449d520d52cc191f3b8c0cf1a8f4330",
+      "context": "from :func:`explanation_signature`.",
+      "translation": ":func:`explanation_signature` से।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.saved_explanation#3",
+      "source": "the time, in seconds since the epoch; defaults to now.",
+      "source_sha256": "4658ef7ae85b97fe9246a25c1180601e52754502237b23bebb3761627f3ab50f",
+      "context": "the time, in seconds since the epoch; defaults to now.",
+      "translation": "एपॉक से बीते सेकंडों में समय; डिफ़ॉल्ट अभी का समय।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.saved_explanation#4",
+      "source": "``{\"text\", \"tier\", \"model\"}``, or ``None``.",
+      "source_sha256": "2cbd351de9e1a53ce8ee85c86c3b979b278a3e6a025082fcc0baf254a5735e8b",
+      "context": "``{\"text\", \"tier\", \"model\"}``, or ``None``.",
+      "translation": "``{\"text\", \"tier\", \"model\"}``, या ``None``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_lines#0",
+      "source": "Scrub a text like :func:`scrub_public_text`, keeping its line breaks.",
+      "source_sha256": "044c2c542b75d6d3c72ccfc686475662df8fc6c8c4c15dac48455c00a9ee8dc9",
+      "context": "Scrub a text like :func:`scrub_public_text`, keeping its line breaks.",
+      "translation": ":func:`scrub_public_text` की तरह पाठ से संवेदनशील जानकारी हटाना, पर पंक्ति विराम बनाए रखना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_lines#1",
+      "source": "Each line is scrubbed on its own, so a Markdown answer keeps its headings and numbered steps on lines of their own; runs of blank lines become one.",
+      "source_sha256": "572a872e35413edbd0762136e17009c113d835f577b1112fafc6c89c0a7eda56",
+      "context": "Each line is scrubbed on its own, so a Markdown answer keeps its headings and numbered steps on lines of their own; runs of blank lines become one.",
+      "translation": "हर पंक्ति अलग साफ़ की जाती है, जिससे Markdown उत्तर के शीर्षक और क्रमांकित चरण अलग पंक्तियों में रहते हैं; लगातार खाली पंक्तियाँ एक हो जाती हैं।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_lines#2",
+      "source": "the text; anything else is turned into text first.",
+      "source_sha256": "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+      "context": "the text; anything else is turned into text first.",
+      "translation": "पाठ; किसी अन्य मान को पहले पाठ में बदला जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_lines#3",
+      "source": "the longest result, in characters; a longer one is cut and ends in ``…``.",
+      "source_sha256": "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+      "context": "the longest result, in characters; a longer one is cut and ends in ``…``.",
+      "translation": "परिणाम की अधिकतम लंबाई, वर्णों में; लंबे परिणाम को काटकर ``…`` से समाप्त किया जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_lines#4",
+      "source": "as for :func:`scrub_public_text`.",
+      "source_sha256": "789d20d0dc60fece4bd441d129d1b20113b05ea3deaf7cb16907e8a285bcbf09",
+      "context": "as for :func:`scrub_public_text`.",
+      "translation": "जैसा :func:`scrub_public_text` में है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_lines#5",
+      "source": "the scrubbed text, lines joined by ``\\n``.",
+      "source_sha256": "630081496e8b30d4ca7f2da4a78439e0bb77638e2b3978f802f966c3dd76905f",
+      "context": "the scrubbed text, lines joined by ``\\n``.",
+      "translation": "संवेदनशील जानकारी हटाया गया पाठ, जिसकी पंक्तियाँ ``\\n`` से जुड़ी हैं।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text#0",
+      "source": "Remove anything personal from a short text that will be published.",
+      "source_sha256": "9a20c78f64aa38bee2a204a30b26a482e1707ab252885c1ec7d5c88e293c0d7b",
+      "context": "Remove anything personal from a short text that will be published.",
+      "translation": "प्रकाशित होने वाले छोटे पाठ से व्यक्तिगत जानकारी हटाना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text#1",
+      "source": "Absolute paths (POSIX, Windows and network shares) become ``<PATH>``, file names with a data or code extension ``<FILE>``, e-mail addresses ``<EMAIL>``, web addresses ``<URL>``, IP addresses ``<IP>``, host names ``<HOST>``, this computer's login name ``<USER>``, and anything shaped like a key, token or long hexadecimal or base64 string ``<TOKEN>``. The redaction helpers of :mod:`spacr.qt.ai.issue_report` run first, and these stricter rules after them.",
+      "source_sha256": "242aca94a2143e2e756248352bc9124e64680fd1b505ffb6f52333adf54a120f",
+      "context": "Absolute paths (POSIX, Windows and network shares) become ``<PATH>``, file names with a data or code extension ``<FILE>``, e-mail addresses ``<EMAIL>``, web addresses ``<URL>``, IP addresses ``<IP>``, host names ``<HOST>``, this computer's login name ``<USER>``, and anything shaped like a key, token or long hexadecimal or base64 string ``<TOKEN>``. The redaction helpers of :mod:`spacr.qt.ai.issue_report` run first, and these stricter rules after them.",
+      "translation": "निरपेक्ष पथ (POSIX, Windows और नेटवर्क शेयर) ``<PATH>`` बनते हैं, डेटा या कोड एक्सटेंशन वाले फ़ाइल नाम ``<FILE>``, ईमेल पते ``<EMAIL>``, वेब पते ``<URL>``, IP पते ``<IP>``, होस्ट नाम ``<HOST>``, इस कंप्यूटर का लॉगिन नाम ``<USER>`` और कुंजी, टोकन या लंबी हेक्साडेसिमल या base64 स्ट्रिंग जैसी कोई भी चीज़ ``<TOKEN>`` बनती है। :mod:`spacr.qt.ai.issue_report` के संवेदनशील जानकारी हटाने वाले सहायक पहले चलते हैं, और ये सख़्त नियम बाद में।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text#2",
+      "source": "the text; anything else is turned into text first.",
+      "source_sha256": "abfe850b32d6d2a06dd4ccf1d0e6bb0c3cf51391b0c7f856714a8e6fcccfc5c5",
+      "context": "the text; anything else is turned into text first.",
+      "translation": "पाठ; किसी अन्य मान को पहले पाठ में बदला जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text#3",
+      "source": "the longest result, in characters; a longer one is cut and ends in ``…``.",
+      "source_sha256": "c86f36468710a89d756e9b3144993fc419d724b98a141cbd56f2858db067841a",
+      "context": "the longest result, in characters; a longer one is cut and ends in ``…``.",
+      "translation": "परिणाम की अधिकतम लंबाई, वर्णों में; लंबे परिणाम को काटकर ``…`` से समाप्त किया जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text#4",
+      "source": "keep the public spaCR addresses in :data:`PUBLIC_DOCS_URLS`, for an AI answer that links the documentation; every other address still becomes ``<URL>``.",
+      "source_sha256": "973a7237076f8172f936b4f03bd23d6190af0e03cbb131bd9210d64abd89851f",
+      "context": "keep the public spaCR addresses in :data:`PUBLIC_DOCS_URLS`, for an AI answer that links the documentation; every other address still becomes ``<URL>``.",
+      "translation": "दस्तावेज़ के लिंक वाले AI उत्तर के लिए :data:`PUBLIC_DOCS_URLS` में दिए गए सार्वजनिक spaCR पते रखना; अन्य हर पता फिर भी ``<URL>`` बनता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text#5",
+      "source": "the scrubbed text on one line.",
+      "source_sha256": "e195a696122793adb3b9e56035581cefa5265864a5dd595fbd4906954a1dcb7b",
+      "context": "the scrubbed text on one line.",
+      "translation": "एक पंक्ति में संवेदनशील जानकारी हटाया गया पाठ।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.scrub_public_text._hold#0",
+      "source": "Keep a public spaCR address aside; any other becomes <URL>.",
+      "source_sha256": "d763eca478e72701158eb7a75ffcacd94fa6e7e0f0184644fe976d0ca8f3f643",
+      "context": "Keep a public spaCR address aside; any other becomes <URL>.",
+      "translation": "सार्वजनिक spaCR पता अलग रखना; अन्य हर पता <URL> बनता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_anonymous_reports_enabled#0",
+      "source": "Turn reports on or off, as the first-run notice's switch does.",
+      "source_sha256": "95d2c3ef6e990ecca25ec967247e73eb4864bb2854839d4a971765cf7a93d9cf",
+      "context": "Turn reports on or off, as the first-run notice's switch does.",
+      "translation": "पहली बार चलने की सूचना के स्विच की तरह रिपोर्टें चालू या बंद करना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_anonymous_reports_enabled#1",
+      "source": "On restores the default choice when the current one sends nothing; off is ``\"off\"``.",
+      "source_sha256": "ecf85b592f7e7cde56182557c97755b5596dc130a517a9335f19386e115c001d",
+      "context": "On restores the default choice when the current one sends nothing; off is ``\"off\"``.",
+      "translation": "मौजूदा चयन कुछ नहीं भेजता हो तो चालू करना डिफ़ॉल्ट चयन बहाल करता है; बंद ``\"off\"`` है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_anonymous_reports_enabled#2",
+      "source": "whether reports may be sent.",
+      "source_sha256": "786370d266e12ef723275f1b6cfc161ed58f8c76fdbc3329f7ef9ed6c9338342",
+      "context": "whether reports may be sent.",
+      "translation": "क्या रिपोर्टें भेजी जा सकती हैं।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_error_report_mode#0",
+      "source": "Save the \"AI Error report\" choice.",
+      "source_sha256": "d6b15c793c173b843de9a4a73d89e8a79f5b90c28ae1811a71aa80c7955001bd",
+      "context": "Save the \"AI Error report\" choice.",
+      "translation": "\"AI Error report\" चयन सहेजना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_error_report_mode#1",
+      "source": "A choice that sends nothing also deletes every report still waiting, so nothing queued before the change is sent after it.",
+      "source_sha256": "1f35a978f781b0cc430311c9a296897cdcfeea0740e6ebc268ce6cdc4841d5d4",
+      "context": "A choice that sends nothing also deletes every report still waiting, so nothing queued before the change is sent after it.",
+      "translation": "कुछ न भेजने वाला चयन सभी प्रतीक्षारत रिपोर्टें भी हटा देता है, ताकि बदलाव से पहले कतार में डाली गई कोई चीज़ उसके बाद न भेजी जाए।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_error_report_mode#2",
+      "source": "a key of :data:`ERROR_REPORT_MODES`.",
+      "source_sha256": "be6a6d280a6b058be3544def3e4210f5d2cb25662713b1870faaccf6d008b3a3",
+      "context": "a key of :data:`ERROR_REPORT_MODES`.",
+      "translation": ":data:`ERROR_REPORT_MODES` की कोई कुंजी।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.set_error_report_mode#3",
+      "source": "for any other value.",
+      "source_sha256": "a7d32480e0d70e60b85e0944abdf7d31b7930e4c8e72c6108881ab41ce3cf9d4",
+      "context": "for any other value.",
+      "translation": "किसी अन्य मान के लिए।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.split_cause#0",
+      "source": "Take the ``CAUSE: <slug>`` line off an AI answer.",
+      "source_sha256": "a2af4a441bd10c00605a30dc46a6e968e14b696fb3e79e50879289c70682f6e1",
+      "context": "Take the ``CAUSE: <slug>`` line off an AI answer.",
+      "translation": "AI उत्तर से ``CAUSE: <slug>`` पंक्ति हटाना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.split_cause#1",
+      "source": "the answer.",
+      "source_sha256": "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+      "context": "the answer.",
+      "translation": "उत्तर।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.split_cause#2",
+      "source": "``(answer without the line, slug or \"\")``.",
+      "source_sha256": "dccc0ce46d3d6e6d24f6290cd306a77e51df8ffd58a31ad9835c3ee7d04649a2",
+      "context": "``(answer without the line, slug or \"\")``.",
+      "translation": "``(answer without the line, slug or \"\")``.",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary#0",
+      "source": "Send an anonymised summary to the relay, or queue it for later.",
+      "source_sha256": "382e7b5f1e8c6056b58bdbfc06309644cc1ff9acd0dbc9c17244bc221310c430",
+      "context": "Send an anonymised summary to the relay, or work list it for later.",
+      "translation": "अनाम सारांश रिले को भेजना या बाद के लिए कतार में रखना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary#1",
+      "source": "Blocks for up to ``timeout`` seconds, so call it off the GUI thread, or use :func:`submit_public_summary_in_background`. With reports off, or the network forbidden, nothing is sent and nothing is stored.",
+      "source_sha256": "57ebc2ab058cc17613889817a361e7c87e8851bf74448d32ed8d9be852a753ae",
+      "context": "Blocks for up to ``timeout`` seconds, so call it off the main GUI execution path, or use :func:`submit_public_summary_in_background`. With reports off, or the network forbidden, nothing is sent and nothing is stored.",
+      "translation": "अधिकतम ``timeout`` सेकंड तक अवरुद्ध करता है, इसलिए इसे GUI थ्रेड से बाहर बुलाएँ या :func:`submit_public_summary_in_background` उपयोग करें। रिपोर्टें बंद या नेटवर्क निषिद्ध होने पर न कुछ भेजा जाता है, न सहेजा जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary#2",
+      "source": "a summary from :func:`public_summary`.",
+      "source_sha256": "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+      "context": "a summary from :func:`public_summary`.",
+      "translation": ":func:`public_summary` से मिला सारांश।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary#3",
+      "source": "seconds the post may take.",
+      "source_sha256": "389173d0defedcb66feb4928b42cb19e79b7ad87bb97b0cc657d640549252f0a",
+      "context": "seconds the post may take.",
+      "translation": "पोस्ट अनुरोध में लग सकने वाले सेकंड।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary#4",
+      "source": "``{\"status\": ...}`` with :data:`REPORT_SENT` (and ``issue_number``, ``issue_url``, ``deduplicated``), :data:`REPORT_QUEUED` (kept to try again), :data:`REPORT_DROPPED` (rejected, not retried) or :data:`REPORT_DISABLED`.",
+      "source_sha256": "87a2f759eb6a0daa0e6f0f9ea1802a911c1994fa6914be92fad0f165329b74c7",
+      "context": "``{\"status\": ...}`` with :data:`REPORT_SENT` (and ``issue_number``, ``issue_url``, ``deduplicated``), :data:`REPORT_QUEUED` (kept to try again), :data:`REPORT_DROPPED` (rejected, not retried) or :data:`REPORT_DISABLED`.",
+      "translation": "``{\"status\": ...}`` में :data:`REPORT_SENT` (और ``issue_number``, ``issue_url``, ``deduplicated``), :data:`REPORT_QUEUED` (पुनः प्रयास के लिए रखा गया), :data:`REPORT_DROPPED` (अस्वीकृत, दोबारा प्रयास नहीं) या :data:`REPORT_DISABLED`।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary_in_background#0",
+      "source": "Queue a summary now and send it on a daemon thread.",
+      "source_sha256": "fb1a33d40b8fdd3d215d1ca9fb04ce19c060f866a688544fe338b5de73f4b130",
+      "context": "Schedule a summary now and send it on a daemon independent execution path.",
+      "translation": "सारांश अभी प्रतीक्षा-सूची में रखना और डेमन थ्रेड पर भेजना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary_in_background#1",
+      "source": "The summary is on disk before this returns, so a process that ends at once still sends it the next time spaCR starts.",
+      "source_sha256": "29057a83dbc25266a4744ca6f7dceab48395d2d30d362e1b56f0cae3d281dd43",
+      "context": "The summary is on disk before this returns, so a process that ends at once still sends it the next time spaCR starts.",
+      "translation": "लौटने से पहले सारांश डिस्क पर होता है, इसलिए प्रक्रिया तुरंत समाप्त हो जाए तो भी spaCR के अगले आरंभ पर इसे भेजा जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary_in_background#2",
+      "source": "a summary from :func:`public_summary`.",
+      "source_sha256": "70b983594bb070cf4f4fe9e2bc416c9e29d1f407a799f713ad5c2c80b071ec2e",
+      "context": "a summary from :func:`public_summary`.",
+      "translation": ":func:`public_summary` से मिला सारांश।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary_in_background#3",
+      "source": "called with the outcome :func:`submit_public_summary` describes, on the sending thread.",
+      "source_sha256": "59fa48e3625e88f44f061d79ab200d8f87ad674d1b3fc8d2a383fd0fd13e2770",
+      "context": "called with the outcome :func:`submit_public_summary` describes, on the sending thread.",
+      "translation": "भेजने वाले थ्रेड पर :func:`submit_public_summary` में वर्णित परिणाम के साथ बुलाया जाता है।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary_in_background#4",
+      "source": "the thread, or ``None`` when reports are off and nothing was queued.",
+      "source_sha256": "ccaf8e68db46d0314aa7aa7b49ca7d605921f48766523aba0a54d7269aa23617",
+      "context": "the thread, or ``None`` when reports are off and nothing was queued.",
+      "translation": "थ्रेड, या रिपोर्टें बंद हों और कुछ कतार में न हो तो ``None``।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    },
+    {
+      "label": "spacr.crashreport.submit_public_summary_in_background._run#0",
+      "source": "Send the queued summary and hand the outcome to ``on_done``.",
+      "source_sha256": "605bdaccd80f6f5c2cda0f9893616bee655836a4ae9691bd521805764c32d9f3",
+      "context": "Send the queued summary and hand the outcome to ``on_done``.",
+      "translation": "कतार वाला सारांश भेजना और परिणाम ``on_done`` को देना।",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context; no native-speaker or human signoff."
+    }
+  ]
+}

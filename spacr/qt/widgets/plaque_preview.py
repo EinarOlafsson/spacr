@@ -1,7 +1,7 @@
 """Plaque Assay's live preview, in its two modes, and the switch between them.
 
-Plaque Assay reads two kinds of folder, and the Mask preview it
-used to borrow fitted neither:
+Plaque Assay reads two kinds of folder, and the generic Mask preview fits
+neither:
 
 * **Plaque mode** -- a folder of cropped plaque images. The run segments
   every image and writes one table of per-image values and one of
@@ -57,7 +57,9 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_items,
+    _spare_table_item)
 from .segmentation_views import (
     CELLPROB, FLOWS, MASKS, OVERLAY, VIEWS, SegmentationViews,
     picture_name_of, render_cellprob, render_labels,
@@ -163,7 +165,7 @@ PAPERS_REQUIREMENT = "spacr[papers]"
 PAPERS_PACKAGES = (("ultralytics", "ultralytics"),
                    ("rapidocr_onnxruntime", "RapidOCR"))
 
-DEFAULT_PLAQUE_MODEL = "toxoplasma_plaque_v2"
+DEFAULT_PLAQUE_MODEL = "toxoplasma_plaque_v5"
 DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
 DEFAULT_SIZES = (640, 1280)
 
@@ -428,7 +430,7 @@ RANDOM_COLOUR = "random"
 MAX_OUTLINE_THICKNESS = 20
 MAX_BOX_THICKNESS = 20
 AUTOMATIC_BOX_THICKNESS = 0
-"""The box weight that means: pick one from the figure's size."""
+"""Box weight value meaning: choose the weight from the figure's size."""
 
 IMAGE_TABS = VIEWS
 """The views of the plaque picture, the ones Mask generation's live preview
@@ -474,7 +476,7 @@ class OverlayStyle:
     """How the segmented plaques and the detected wells are drawn.
 
     Changing it redraws what is already segmented; nothing is run again.
-    Every width is in IMAGE pixels: the outlines are grown on the image
+    Every width is in image pixels: the outlines are grown on the image
     array and the boxes are painted into the pixmap before it is shown, so
     a line keeps its share of the picture as the view is zoomed and in a
     saved picture, the way the outlines always did.
@@ -790,18 +792,19 @@ def _catalogue() -> List[Any]:
 
 
 def plaque_model_choices(entries: Optional[Iterable[Any]] = None) -> List[str]:
-    """What the plaque model box offers: zoo plaque models, then ``bundled``.
+    """What the plaque model box offers: the default, other zoo plaque models, then ``bundled``.
 
     :param entries: zoo entries; the zoo's own listing when None.
-    :returns: setting values, newest zoo model first.
+    :returns: setting values, the default first, then the newest zoo model.
     """
     entries = _catalogue() if entries is None else list(entries)
     keys = sorted({str(getattr(e, "key", "") or "") for e in entries
                    if "plaque" in str(getattr(e, "key", "") or "")
                    and str(getattr(e, "kind", "")) == "cellpose"},
                   reverse=True)
-    if DEFAULT_PLAQUE_MODEL not in keys:
-        keys.insert(0, DEFAULT_PLAQUE_MODEL)
+    if DEFAULT_PLAQUE_MODEL in keys:
+        keys.remove(DEFAULT_PLAQUE_MODEL)
+    keys.insert(0, DEFAULT_PLAQUE_MODEL)
     return keys + ["bundled"]
 
 
@@ -824,7 +827,7 @@ def detector_choices(entries: Optional[Iterable[Any]] = None) -> List[str]:
 BUNDLED_NOTE = ("'bundled' is the historical packaged plaque model. It is "
                 "kept so an old run can be reproduced; it misses about a "
                 "third of the plaques on literature images. "
-                "toxoplasma_plaque_v2 is the current model.")
+                "toxoplasma_plaque_v5 is the current model.")
 
 
 def resolve_plaque_model(settings: Dict[str, Any]) -> Tuple[str, str, Any]:
@@ -887,7 +890,7 @@ def resolve_detector(key: Any, src: Any = None) -> Tuple[str, str, Any]:
     """The detector checkpoint a key names, found without a download.
 
     Looks where the run looks: the path itself, the zoo entry's own path,
-    ``~/.spacr/models`` and the run's model cache under
+    the active shared model cache and the run's model cache under
     ``<src>/plaque_figures/models``.
 
     :param key: a zoo key or a checkpoint path.
@@ -904,8 +907,10 @@ def resolve_detector(key: Any, src: Any = None) -> Tuple[str, str, Any]:
         return "", tr("{key} is neither a checkpoint file nor a model zoo "
                       "detector.", key=text), None
     name = str(getattr(entry, "name", "") or "")
+    from ...model_zoo import _model_cache_root
+
     candidates = [str(getattr(entry, "path", "") or ""),
-                  os.path.join(str(_spacr_home()), "models", name)]
+                  str(_model_cache_root() / name)]
     if src:
         candidates.append(os.path.join(str(src), "plaque_figures", "models", name))
     for candidate in candidates:
@@ -1571,20 +1576,21 @@ def _setting_tooltip(key: str) -> str:
 
 
 class PlaqueSettingsDialog(QDialog):
-    """The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.
+    """The Plaque Assay preview's settings: Figure, Text detection and
+    Plaque detection tabs.
 
     The controls belong to the panel and are lent to this window while it is
     open, so a value set here is the value the next pass uses, and it
     survives the window being closed -- :meth:`give_back` returns them.
 
-    In Plaque mode the Figure tab is hidden: nothing there applies to a
-    folder of cropped plaque images.
+    In Plaque mode the Figure and Text detection tabs are hidden: neither
+    applies to a folder of cropped plaque images.
 
     :param panel: the :class:`PlaquePreviewPanel` whose controls it shows.
     """
 
     def __init__(self, panel: "PlaquePreviewPanel"):
-        """Lay the panel's controls out in two tabs.
+        """Lay the panel's controls out in three tabs.
 
         :param panel: the preview panel; also the window's parent.
         """
@@ -2807,7 +2813,7 @@ class ContributeDialog(QDialog):
                  upload: Optional[Callable[[Path, str], str]] = None,
                  threaded: bool = True, parent: Optional[QWidget] = None,
                  target: Optional[str] = None):
-        """Build the list, the editor area, the conscience and Upload.
+        """Build the list, the editor area, the contribution notice and Upload.
 
         :param mode: see the class docstring.
         :param paths: see the class docstring.
@@ -3039,7 +3045,7 @@ class ContributeDialog(QDialog):
         if row < 0:
             return
         path = self._paths.pop(row)
-        self.image_list.takeItem(row)
+        _spare_items(self.image_list).append(self.image_list.takeItem(row))
         page = self._pages.pop(str(path), None)
         self._images.pop(str(path), None)
         self._pending.discard(str(path))
@@ -4576,8 +4582,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def open_overlay_settings(self) -> PlaqueOverlayDialog:
         """Open (or raise) the overlay settings, applied live.
 
-        Non-modal, because what it answers is how the picture beside it
-        looks.
+        Non-modal, so the picture beside it stays visible while the style
+        changes.
 
         :returns: the dialog, shown.
         """
@@ -4609,13 +4615,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._download_btn.show()
 
     def _start_download(self) -> None:
-        """Download the missing zoo model into ``~/.spacr/models``."""
+        """Download the missing zoo model into the active shared model cache."""
         entry = self._missing_entry
         if entry is None:
             return
         from ..model_install import CheckpointDownload
 
-        folder = os.path.join(str(_spacr_home()), "models")
+        from ...model_zoo import _model_cache_root
+
+        folder = str(_model_cache_root())
         os.makedirs(folder, exist_ok=True)
         self._download = CheckpointDownload(entry, folder)
         self._download.progressed.connect(self._on_download_progress)
@@ -5026,6 +5034,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._filling_table = True
         self._table.blockSignals(True)
         self._table.setSortingEnabled(False)
+        _retire_table_cells(self._table)
         self._table.setRowCount(len(self._annotations))
         growth = self._growth_values()
         for row, a in enumerate(self._annotations):
@@ -5038,7 +5047,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                      str(well["count"]) if well else "",
                      f"{well['mean_area']:.0f}" if well else "")
             for column, text in enumerate(cells):
-                item = table_item(text)
+                item = _spare_table_item(self._table, text)
                 item.setData(Qt.UserRole, row)
                 item.setToolTip(text)
                 if column != CONDITION_COLUMN:
@@ -5049,12 +5058,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 self._table.setItem(row, column, item)
             for column, key in enumerate(("estimated_pixels_per_um", "estimated_formation_hours", "estimation_source"), 12):
                 value = growth.get(row, {}).get(key)
-                item = table_item("" if value is None else f"{value:.6g}" if isinstance(value, float) else str(value))
+                item = _spare_table_item(self._table, "" if value is None else f"{value:.6g}" if isinstance(value, float) else str(value))
                 item.setData(Qt.UserRole, row)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 item.setToolTip(tr("Experimental suggestion; measured values are retained. See the reference and assumptions below."))
                 self._table.setItem(row, column, item)
-            ok = table_item("")
+            ok = _spare_table_item(self._table, "")
             ok.setData(Qt.UserRole, row)
             ok.setFlags((ok.flags() | Qt.ItemIsUserCheckable)
                         & ~Qt.ItemIsEditable)
@@ -5067,7 +5076,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                 (PIXELS_PER_UM_COLUMN, "pixels_per_um"),
                                 (FORMATION_HOURS_COLUMN, "formation_hours")):
                 value = values[key]
-                item = table_item("" if value is None else f"{value:.8g}")
+                item = _spare_table_item(self._table, "" if value is None else f"{value:.8g}")
                 item.setData(Qt.UserRole, row)
                 if column == WELL_DIAMETER_COLUMN:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
@@ -5116,9 +5125,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._selected = None
         self._batch = []
         self._filling_table = True
-        self._table.setRowCount(0)
+        _retire_table_cells(self._table)
         self._filling_table = False
-        self._plaque_table.setRowCount(0)
+        _retire_table_cells(self._plaque_table)
         self._tabs.setTabText(1, tr("Plaques"))
         self._well_view.set_image(None)
         self._well_view.ruler.clear()
@@ -5388,6 +5397,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         rows = self.plaque_table_rows()
         self._plaque_table.blockSignals(True)
         self._plaque_table.setSortingEnabled(False)
+        _retire_table_cells(self._plaque_table)
         self._plaque_table.setRowCount(len(rows))
         for r, row in enumerate(rows):
             for c, key in enumerate(PLAQUE_KEYS):
@@ -5398,7 +5408,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                     text = f"{value:.2f}" if abs(value) < 100 else f"{value:.0f}"
                 else:
                     text = str(value)
-                self._plaque_table.setItem(r, c, table_item(text))
+                self._plaque_table.setItem(r, c, _spare_table_item(self._plaque_table, text))
         self._plaque_table.setSortingEnabled(True)
         self._plaque_table.blockSignals(False)
         self._tabs.setTabText(1, tr("Plaques ({n})", n=len(rows)))
@@ -5714,6 +5724,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                           f"{index + 1:03d}_{name}"):
                 if label.lower() not in taken:
                     break
+            else:
+                suffix = index + 2
+                label = f"{suffix:03d}_{name}"
+                while label.lower() in taken:
+                    suffix += 1
+                    label = f"{suffix:03d}_{name}"
             taken.add(label.lower())
             todo.append((pdf, folder / label))
         self._paper_batch = {"todo": todo, "n": len(todo), "read": [],

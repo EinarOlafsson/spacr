@@ -1,0 +1,29 @@
+{
+  "verdict": "APPROVED fixture-only hosted PYTHONPATH isolation",
+  "commit": "ca543ddbe897354dc87a92202337aa5a02c4e8be",
+  "reviewer": "independent AI technical source peer, easy_overnight; no native/human signoff",
+  "files": {
+    "tests/test_macos_runtime_transaction_703.py": {
+      "sha256": "9e56110df4e28cb5030429c1d294d691d8cc8b664ad7f220d65a283425fc7f32",
+      "all_ast_outside_installation_fixture_identical": true
+    },
+    "tests/test_pip_runtime_transaction_703.py": {
+      "sha256": "b24768324b4033947381863408e80c8608086881a08f845ad6752112535cd1b7",
+      "all_ast_outside_installation_fixture_identical": true
+    }
+  },
+  "checks": [
+    "monkeypatch removes only inherited PYTHONPATH for fixture lifetime and restores it at teardown",
+    "PYTHONPYCACHEPREFIX remains inherited and unchanged; owning shell explicitly sets private external prefix",
+    "actual pip wheel install remains nonmocked; old qt.py exact physical bytes asserted",
+    "production _retiring_runtime_identity invoked without stub, verified True/version1.5.1.4/exact physical module path asserted",
+    "all transaction test functions, parameterization and entrypoint/rollback/version-floor/foreign-state assertions unchanged",
+    "no production files changed",
+    "raw predecessor baseline2FAIL6.37s confirms missing old installation identity and checkout entrypoint import",
+    "existing26owningPASS65.17s receipt inspected; no tests rerun by peer"
+  ],
+  "limits": [
+    "Linux disposable offline fake-wheel evidence, no native macOS or Windows acceptance",
+    "Removing inherited PYTHONPATH is isolated fixture setup, not a production import-policy change"
+  ]
+}

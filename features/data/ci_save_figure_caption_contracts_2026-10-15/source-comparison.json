@@ -1,0 +1,26 @@
+{
+  "old": "8fc2aa5601847ccd8f7cff287c36c6a9ee00ba53",
+  "current": "72e412b9f37a3f661981de19e8c4ad5ccffd9cc8",
+  "files": {
+    "spacr/qt/widgets/save_figure_dialog.py": {
+      "old_sha256": "d1452fffc76caf09dfc4041bc3d876233201c7eee92d227a92b4d001c8bc977b",
+      "current_sha256": "d1452fffc76caf09dfc4041bc3d876233201c7eee92d227a92b4d001c8bc977b",
+      "identical": true
+    },
+    "tests/qt/test_a_pyqtgraph_plot_is_styled_for_the_file_too.py": {
+      "old_sha256": "d925be510f64045d128a5dbb8af1e6499e5010cd4aaa9a38a2166f89c14d3a33",
+      "current_sha256": "d925be510f64045d128a5dbb8af1e6499e5010cd4aaa9a38a2166f89c14d3a33",
+      "identical": true
+    },
+    "tests/qt/test_the_save_dialog_changes_the_page_too.py": {
+      "old_sha256": "75233bade38ff7cf4d522fbf5cf9ef75490a7a3827168c752d089c94001c9b96",
+      "current_sha256": "75233bade38ff7cf4d522fbf5cf9ef75490a7a3827168c752d089c94001c9b96",
+      "identical": true
+    },
+    "tests/qt/test_the_save_figure_dialog_four_things.py": {
+      "old_sha256": "5cd6c04a347a37933e70a6de24f21acfdf77142286f46bb0eaf5b058f73aeae0",
+      "current_sha256": "5cd6c04a347a37933e70a6de24f21acfdf77142286f46bb0eaf5b058f73aeae0",
+      "identical": true
+    }
+  }
+}

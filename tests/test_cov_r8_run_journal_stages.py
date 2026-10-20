@@ -123,7 +123,7 @@ class TestTheLogTailItWrites:
         run._record_stage("segment", state="done")
         run._snapshot_log_tail(n=10)
 
-        written = (run.dir / "log.txt").read_text()
+        written = (run.dir / "log.txt").read_text(encoding="utf-8")
         assert "last line without a newline\nFlowView stage" in written
 
     def test_nothing_to_write_writes_no_file_at_all(self, run, monkeypatch,

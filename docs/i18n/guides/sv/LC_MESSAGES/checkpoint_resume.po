@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Kontrollpunkter och återupptagning"
 
-msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR sparar kontrollpunkter för långvarigt arbete först när en säker enhet är klar. En kontrollpunkt innebär aldrig att en skrivning avbryts halvvägs: den innebär att ett senare anrop kan visa vilka fält, försök eller plattjobb som blev klara och fortsätta efter dem. Qt-knappen **Stoppa** använder samma gränser: den begär samarbetsvillig avbrytning, låter den aktuella säkra enheten bli klar och behåller kontrollpunkten till nästa körning. Se :doc:`threading_cancellation_audit`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR skriver en kontrollpunkt först när en hel arbetsenhet (ett fält, ett försök eller ett plattjobb) är klar; en pågående skrivning avbryts inte. Ett senare anrop läser kontrollpunkten för att avgöra vilka enheter som blev klara och fortsätter efter dem. Qt-knappen **Stoppa** använder samma gränser: den begär samarbetsvillig avbrytning, låter den aktuella säkra enheten bli klar och behåller kontrollpunkten till nästa körning. Se :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Arbetsflöden som stöds"
@@ -41,10 +42,11 @@ msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A f
 msgstr "Aktivera ``resume`` under **Postprocessing → Körning och tillförlitlighet**. Ett fält hoppas bara över när varje tabell som Mätning äger i ``measurements.db`` är komplett. Ofullständiga fältrader rensas i en enda transaktion före ommätningen, medan tabeller som ägs av konvertering, registrering eller andra moduler aldrig tas bort."
 
 msgid "Format Converter"
-msgstr "Formatkonverterare"
+msgstr "Filformatkonverterare"
 
-msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Aktivera reglaget **Återuppta** i Apple-stil. Konverteraren skriver ``.spacr_conversion.checkpoint.json`` efter att ett helt fält är klart. Återupptagningen öppnar varje måls TIFF-metadata igen innan fältet godtas och reparerar atomiskt ett saknat eller skadat mål. Källans identitet och hela mappningsplanen måste stämma."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "Aktivera reglaget **Återuppta**. Konverteraren skriver ``.spacr_conversion.checkpoint.json`` efter att ett helt fält är klart. Återupptagningen öppnar varje måls TIFF-metadata igen innan fältet godtas och reparerar atomiskt ett saknat eller skadat mål. Källans identitet och hela mappningsplanen måste stämma."
 
 msgid "Image UMAP search"
 msgstr "UMAP-sökning i Bild-UMAP"
@@ -56,7 +58,7 @@ msgid "Batch Runner"
 msgstr "Batchkörare"
 
 msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
-msgstr "En sparad kö skrivs efter varje jobbövergång. När den läses in och återupptas lämnas lyckade jobb orörda. Ett jobb för Masker, Mätning eller Formatkonverterare som pågick när datorn stannade startas om med ``resume=True``, så att dess egen verifierade fältgräns återanvänds. Andra jobb startar om vid jobbgränsen."
+msgstr "En sparad kö skrivs efter varje jobbövergång. När den läses in och återupptas lämnas lyckade jobb orörda. Ett jobb för Masker, Mätning eller Filformatkonverterare som pågick när datorn stannade startas om med ``resume=True``, så att dess egen verifierade fältgräns återanvänds. Andra jobb startar om vid jobbgränsen."
 
 msgid "Interrupted normalization archives"
 msgstr "Avbrutna normaliseringsarkiv"
@@ -64,8 +66,9 @@ msgstr "Avbrutna normaliseringsarkiv"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "Masker kontrollerar också de normaliserade ``masks/*.npz``-arkiven före segmenteringen. Kontrollen omfattar ZIP-medlemmarnas omfång, ett läsbart numeriskt ``data.npy``-huvud, tillräckligt många deklarerade pixelbyte för formen och datatypen samt ett filnamn per batchfält. Den här strukturella kontrollen packar inte upp varje pixelmatris och gör ingen fullständig CRC-kontroll av pixlarna."
 
-msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
-msgstr "Skadade arkiv läggs åt sidan som ``<name>.damaged``. Om förbehandlingen är avstängd stoppar körningen och förklarar hur de kan återställas. Samma karantän hindrar fortfarande en senare körning från att i tysthet utelämna de fälten. Den upphävs av en giltig ersättning med samma namn, eller av läsbara arkiv som täcker varje befintligt fält i ``stack/``. Äldre filnamnsmatriser med objektvärden kan inte visa den täckningen. Om förbehandlingen aktiveras kan återställbara fält byggas om från tillgängliga källdata; giltiga arkiv och bevis i karantän bevaras."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "Skadade arkiv läggs åt sidan som ``<name>.damaged``. Om förbehandlingen är avstängd stoppar körningen och förklarar hur de kan återställas. Samma karantän hindrar fortfarande en senare körning från att i tysthet utelämna de fälten. Den upphävs av en giltig ersättning med samma namn, eller av läsbara arkiv som täcker varje befintligt fält i ``stack/``. Arkiv som lagrar filnamn som matriser med objektvärden kan inte visa den täckningen. Om förbehandlingen aktiveras kan återställbara fält byggas om från tillgängliga källdata; giltiga arkiv och bevis i karantän bevaras."
 
 msgid "Safety rules"
 msgstr "Säkerhetsregler"

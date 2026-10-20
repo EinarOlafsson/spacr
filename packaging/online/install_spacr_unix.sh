@@ -7,6 +7,8 @@
 # 3.12 runtime, then resolves spaCR and the appropriate PyTorch backend.
 
 set -Eeuo pipefail
+SPACR_ORIGINAL_ARGS=("$@")
+GUI_REQUEST=0
 
 # @SPACR_INSTALLER_MESSAGES_BEGIN@
 SPACR_INSTALLER_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -49,7 +51,10 @@ DRY_RUN="${SPACR_INSTALL_DRY_RUN:-0}"
 CONSENT_COLLECTED=0
 SHARE_DIAGNOSTICS=0
 REPORT_ISSUES=0
-SIGN_IN_NOW=0
+# wgpu draws the True 3D view through Vulkan, Metal or Direct3D 12. Without
+# it spaCR draws 3D through OpenGL (VisPy) or the CPU. Off by default.
+WITHOUT_WGPU="${SPACR_WITHOUT_WGPU:-0}"
+WGPU_SKIP_REASON=""
 # An offline bundle (packaging/offline/build_offline_bundle.py) carries uv,
 # the private Python, every wheel, Cellpose weights and Mask test data, so
 # nothing is downloaded. Without it the installer is the online one.
@@ -67,10 +72,11 @@ usage() {
     printf '  --no-command-launcher   %s\n' "$(spacr_say help_no_command_launcher)"
     printf '  --skip-system-deps      %s\n' "$(spacr_say help_skip_system_deps)"
     printf '  --no-launch             %s\n' "$(spacr_say help_no_launch)"
+    printf '  --gui                   %s\n' "$(spacr_say gui_explanation)"
     printf '  --dry-run               %s\n' "$(spacr_say help_dry_run)"
+    printf '  --without-wgpu          %s\n' "$(spacr_say help_without_wgpu)"
     printf '  --share-diagnostics     Include redacted logs in report previews.\n'
     printf '  --report-issues         Show the public GitHub report action.\n'
-    printf '  --sign-in-now           Open account setup on first launch.\n'
     printf '  --consent-collected     Record that these choices were reviewed.\n'
     printf '  --offline-bundle PATH   Install from an offline bundle, with no network.\n'
     printf '  --check-mask            After an offline install, run Mask on its test data.\n'
@@ -119,6 +125,10 @@ while (($#)); do
             NO_COMMAND_LAUNCHER=1
             shift
             ;;
+        --gui)
+            GUI_REQUEST=1
+            shift
+            ;;
         --no-launch)
             NO_LAUNCH=1
             shift
@@ -131,12 +141,12 @@ while (($#)); do
             SHARE_DIAGNOSTICS=1
             shift
             ;;
-        --report-issues)
-            REPORT_ISSUES=1
+        --without-wgpu)
+            WITHOUT_WGPU=1
             shift
             ;;
-        --sign-in-now)
-            SIGN_IN_NOW=1
+        --report-issues)
+            REPORT_ISSUES=1
             shift
             ;;
         --consent-collected)
@@ -224,6 +234,45 @@ if [[ "$PLATFORM" == "macos" && "$(uname -m)" == "x86_64" ]]; then
         "llvmlite>=0.43,<0.46"
     )
 fi
+# wgpu publishes Linux wheels for glibc 2.28 and newer only; on an older
+# glibc the resolver would pick its source release, which does not build.
+# Such a system installs without wgpu, decided before resolving. An unknown
+# C library (musl, or no getconf/ldd) is not treated as old.
+spacr_glibc_version() {
+    local text=""
+    if [[ -n "${SPACR_GLIBC_VERSION:-}" ]]; then
+        printf '%s\n' "$SPACR_GLIBC_VERSION"
+        return 0
+    fi
+    if command -v getconf >/dev/null 2>&1; then
+        text="$(getconf GNU_LIBC_VERSION 2>/dev/null || true)"
+    fi
+    if [[ ! "$text" =~ [Gg][Ll][Ii][Bb][Cc] ]] && command -v ldd >/dev/null 2>&1; then
+        text="$(ldd --version 2>&1 | head -n 1 || true)"
+        if [[ ! "$text" =~ [Gg][Ll][Ii][Bb][Cc]|GNU ]]; then
+            text=""
+        fi
+    fi
+    if [[ "$text" =~ ([0-9]+)\.([0-9]+)[^0-9]*$ ]]; then
+        printf '%s.%s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+    fi
+}
+if [[ "$PLATFORM" == "linux" ]]; then
+    GLIBC_VERSION="$(spacr_glibc_version)"
+    if [[ "$GLIBC_VERSION" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+        glibc_major="${BASH_REMATCH[1]}"
+        glibc_minor="${BASH_REMATCH[2]}"
+        if (( glibc_major < 2 || (glibc_major == 2 && glibc_minor < 28) )); then
+            WITHOUT_WGPU=1
+            WGPU_SKIP_REASON="glibc"
+            spacr_say wgpu_glibc_too_old "$GLIBC_VERSION"
+        fi
+    fi
+fi
+if [[ "$WITHOUT_WGPU" != "0" && "$WITHOUT_WGPU" != "1" ]]; then
+    WITHOUT_WGPU=1
+fi
+
 if [[ ! "$TORCH_BACKEND" =~ ^[a-z0-9]+$ ]]; then
     spacr_say invalid_backend "$TORCH_BACKEND" >&2
     exit 2
@@ -239,17 +288,14 @@ ask_yes_no() {
 
 # A terminal-launched .run (and the macOS first-user helper) can collect the
 # choices here. Package-manager and CI invocations have no TTY, remain fully
-# non-interactive, and leave all three choices off for the app to ask later.
-if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" ]]; then
-    printf '\nspaCR privacy and account setup\n'
+# non-interactive, and leave both choices off for the app to ask later.
+if [[ "$CONSENT_COLLECTED" == "0" && -t 0 && "$DRY_RUN" != "1" && "$GUI_REQUEST" != "1" ]]; then
+    printf '\nspaCR privacy choices\n'
     printf '%s\n' \
-        'Crash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished.' \
-        'Every report is redacted, shown in an editable preview, and sent only when you press Send for that report.' \
-        'Account setup runs the official GitHub, Claude, Codex (GPT), and Gemini login tools; spaCR never stores their passwords or tokens.' \
-        'All choices are optional, default off, and can be changed later in Preferences.'
+        'Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR'"'"'s relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content.' \
+        'spaCR AI (free) is also on by default. Turn reports off in Preferences > AI > AI Error report. The terms of use, Sections 5.6-5.7 and 6, give the details.'
     ask_yes_no 'Include redacted diagnostic logs in report previews?' && SHARE_DIAGNOSTICS=1
     ask_yes_no 'Enable the public GitHub issue-report action?' && REPORT_ISSUES=1
-    ask_yes_no 'Open GitHub, Claude, GPT/Codex, and Gemini setup on first launch?' && SIGN_IN_NOW=1
     CONSENT_COLLECTED=1
 fi
 
@@ -302,6 +348,11 @@ printf '  %s:   %s\n' "$(spacr_say install_root)" "$INSTALL_ROOT"
 printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
 printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n'
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
+if [[ "$WITHOUT_WGPU" == "1" ]]; then
+    printf '  %s: %s\n' "$(spacr_say wgpu_plan)" "$(spacr_say wgpu_plan_skip)"
+else
+    printf '  %s: %s\n' "$(spacr_say wgpu_plan)" "$(spacr_say wgpu_plan_install)"
+fi
 
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     printf '  Offline bundle: %s\n' "$OFFLINE_BUNDLE"
@@ -317,6 +368,107 @@ if [[ "$DRY_RUN" == "1" ]]; then
         spacr_say dry_launcher "$LAUNCHER"
     fi
     exit 0
+fi
+
+# @SPACR_LINUX_GUI_BEGIN@
+spacr_linux_gui_install() {
+    local installer="$1"
+    shift
+    if ! command -v zenity >/dev/null 2>&1; then
+        spacr_say required_command zenity >&2
+        return 3
+    fi
+    if ! command -v setsid >/dev/null 2>&1; then
+        spacr_say required_command setsid >&2
+        return 3
+    fi
+    if (( BASH_VERSINFO[0] < 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] < 1) )); then
+        spacr_say required_command "Bash 5.1+" >&2
+        return 3
+    fi
+    local title choices intro log_folder log fifo backend window completed status
+    title="$(spacr_say installer_title)"
+    local wgpu_default=FALSE
+    if [[ "${WITHOUT_WGPU:-0}" == "1" ]]; then wgpu_default=TRUE; fi
+    intro="$(spacr_say gui_explanation)"$'\n\n'"$(spacr_say gui_preserve)"
+    if ! choices="$(zenity --list --checklist --hide-header --width=760 --height=520 \
+        --title="$title" --text="$intro" --ok-label="$(spacr_say gui_install)" \
+        --cancel-label="$(spacr_say gui_cancel)" \
+        --column="" --column="" --column="" --hide-column=2 --print-column=2 --separator='|' \
+        TRUE diagnostics "$(spacr_say gui_share_diagnostics)" \
+        TRUE issues "$(spacr_say gui_report_issues)" \
+        "$wgpu_default" without_wgpu "$(spacr_say without_wgpu)")"; then
+        return 130
+    fi
+    local diagnostics=0 issues=0 without_wgpu=0
+    case "|$choices|" in *'|diagnostics|'*) diagnostics=1 ;; esac
+    case "|$choices|" in *'|issues|'*) issues=1 ;; esac
+    case "|$choices|" in *'|without_wgpu|'*) without_wgpu=1 ;; esac
+    umask 077
+    log_folder="${XDG_CACHE_HOME:-$HOME/.cache}/spacr/installer"
+    mkdir -p "$log_folder"
+    local work
+    work="$(mktemp -d "$log_folder/gui.XXXXXXXX")"
+    log="$work/install.log"
+    fifo="$work/output.fifo"
+    : > "$log"
+    mkfifo "$fifo"
+    zenity --text-info --auto-scroll --width=900 --height=600 --title="$title" \
+        --ok-label="$(spacr_say gui_cancel)" < "$fifo" &
+    window=$!
+    local -a child_args=() child_options=(--consent-collected --skip-system-deps --no-launch)
+    local argument
+    for argument in "$@"; do
+        case "$argument" in
+            --gui|--consent-collected|--share-diagnostics|--report-issues|--without-wgpu) ;;
+            *) child_args+=("$argument") ;;
+        esac
+    done
+    if [[ "$diagnostics" == "1" ]]; then child_options+=(--share-diagnostics); fi
+    if [[ "$issues" == "1" ]]; then child_options+=(--report-issues); fi
+    if [[ "$without_wgpu" == "1" ]]; then child_options+=(--without-wgpu); fi
+    SPACR_INSTALL_GUI_CHILD=1 SPACR_GUI_LOG="$log" SPACR_GUI_FIFO="$fifo" \
+        setsid bash -c 'set -o pipefail; trap "wait; exit 130" TERM INT; bash "$@" 2>&1 | tee "$SPACR_GUI_LOG" > "$SPACR_GUI_FIFO"' \
+        spacr-gui "$installer" "${child_args[@]}" "${child_options[@]}" < /dev/null &
+    backend=$!
+    completed=""
+    status=0
+    wait -n -p completed "$backend" "$window" || status=$?
+    if [[ "${completed:-}" != "$backend" ]]; then
+        kill -TERM -- "-$backend" 2>/dev/null || true
+        zenity --progress --pulsate --title="$title" --text="$(spacr_say gui_stopping)" < /dev/null &
+        local stopping=$!
+        wait "$backend" || true
+        kill "$stopping" 2>/dev/null || true
+        wait "$stopping" 2>/dev/null || true
+        rm -f "$fifo"
+        zenity --info --no-markup --title="$title" --text="$(spacr_say gui_cancelled)" || true
+        return 130
+    fi
+    kill "$window" 2>/dev/null || true
+    wait "$window" 2>/dev/null || true
+    rm -f "$fifo"
+    if [[ "$status" != "0" ]]; then
+        zenity --error --no-markup --title="$title" --text="$(spacr_say gui_failed)" || true
+        zenity --text-info --width=900 --height=600 --title="$title" \
+            --filename="$log" --ok-label="$(spacr_say gui_close)" || true
+        return "$status"
+    fi
+    zenity --info --no-markup --title="$title" --text="$(spacr_say installed)" || true
+    if [[ "$NO_LAUNCH" == "0" ]]; then
+        nohup "$INSTALL_ROOT/venv/bin/python" -I -m spacr.qt >/dev/null 2>&1 &
+    fi
+    return 0
+}
+# @SPACR_LINUX_GUI_END@
+
+if [[ "$PLATFORM" == "linux" && "${SPACR_INSTALL_GUI_CHILD:-0}" != "1" ]]; then
+    if [[ "$GUI_REQUEST" == "1" ]] || \
+       [[ "$CONSENT_COLLECTED" == "0" && "$NO_LAUNCH" == "0" && ! -t 0 && \
+          -n "${DISPLAY:-${WAYLAND_DISPLAY:-}}" ]]; then
+        spacr_linux_gui_install "$SPACR_SOURCE_DIR/$(basename -- "${BASH_SOURCE[0]}")" "${SPACR_ORIGINAL_ARGS[@]}"
+        exit $?
+    fi
 fi
 
 require_command() {
@@ -386,6 +538,239 @@ install_linux_system_dependencies() {
     fi
 }
 
+# @SPACR_INSTALLER_LEASE_BEGIN@
+SPACR_INSTALLER_LEASE=""
+SPACR_INSTALLER_LEASE_ID=""
+SPACR_RUNTIME_LEASE=""
+SPACR_RUNTIME_LEASE_ID=""
+SPACR_INSTALLER_STATUS_LEASE=""
+SPACR_INSTALLER_STATUS_LEASE_ID=""
+SPACR_INSTALLER_RETAIN_LEASE=0
+SPACR_ABANDONED_OWNERS=()
+# GNU stat first, then BSD stat: PLATFORM alone does not say which one is on
+# PATH (Homebrew's gnubin puts GNU stat first on a Mac).
+spacr_installer_lease_identity() {
+    stat -c '%d:%i' "$1" 2>/dev/null || stat -f '%d:%i' "$1"
+}
+# Each lease records its owner: pid, start stamp, host and (Linux) pid
+# namespace. A later installer takes a lease over only when it is this
+# user's, written on this host in this pid namespace, holds nothing but
+# that record, and the system says the pid is gone or now belongs to a
+# process with another start stamp of the same kind. Linux stamps the start
+# tick from /proc (immune to clock steps, locale and time zone); macOS reads
+# ps lstart in the C locale and UTC. A rollback marker, a journal, any other
+# file, another user's, host's or container's lease, an unreadable process
+# or a lease that recorded no owner is never taken over. One takeover at a
+# time: a second installer judging the same lease refuses.
+spacr_process_started() {
+    local text fields
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        text="$(cat "/proc/$1/stat" 2>/dev/null)" || return 0
+        text="${text##*) }"
+        read -r -a fields <<< "$text"
+        if [[ "${fields[19]:-}" =~ ^[0-9]+$ ]]; then printf 'ticks:%s\n' "${fields[19]}"; fi
+        return 0
+    fi
+    text="$(LC_ALL=C TZ=UTC0 ps -o lstart= -p "$1" 2>/dev/null | tr -s ' \t' ' ' | sed 's/^ //; s/ $//')" || true
+    if [[ -n "$text" ]]; then printf 'lstart:%s\n' "$text"; fi
+    return 0
+}
+spacr_process_gone() {
+    local message
+    kill -0 "$1" 2>/dev/null && return 1
+    message="$( (export LC_ALL=C; kill -0 "$1") 2>&1 )" || true
+    [[ "$message" == *"No such process"* ]]
+}
+spacr_pid_namespace() {
+    if [[ "$(uname -s)" == "Linux" ]]; then readlink "/proc/$$/ns/pid" 2>/dev/null || printf 'unknown\n'; fi
+    return 0
+}
+# The process group a lease records, when the system names one. Children of
+# a killed installer (uv, its log tee) keep that group after the installer
+# itself is gone, so a lease that recorded a group stays live while any
+# member owned by this user survives, other than this installer's own
+# ancestors and descendants. A lease that recorded no group is judged by its
+# pid alone, as before.
+spacr_process_group() {
+    ps -o pgid= -p "$1" 2>/dev/null | tr -d ' \t' || true
+}
+spacr_group_live_member() {
+    local listing
+    listing="$(ps -A -o pid=,ppid=,pgid=,uid= 2>/dev/null)" || { printf 'unknown\n'; return 0; }
+    [[ -n "$listing" ]] || { printf 'unknown\n'; return 0; }
+    awk -v group="$1" -v me="$$" -v uid="$(id -u)" '
+        { pid[NR] = $1; parent[$1] = $2; pg[$1] = $3; owner[$1] = $4 }
+        END {
+            for (p = me; p != "" && p != 0 && !(p in mine); p = parent[p]) mine[p] = 1
+            for (i = 1; i <= NR; i++) {
+                p = pid[i]
+                if (pg[p] != group || owner[p] != uid || (p in mine)) continue
+                steps = 0
+                for (q = parent[p]; q != "" && q != 0 && q != 1 && steps++ < 4096; q = parent[q]) if (q == me) break
+                if (q == me) continue
+                print p; exit
+            }
+        }' <<< "$listing"
+}
+# Fields a lease written by a later installer may add are unknown here. Such a
+# lease is never taken over, and when its pid is gone it is reported as a
+# lease this version cannot check, not as held by that dead pid.
+spacr_lease_has_unknown_fields() {
+    [[ -f "$1/owner" ]] && grep -qvE '^(pid|started|host|pidns|pgid)=' "$1/owner"
+}
+spacr_lease_field() {
+    [[ -f "$1/owner" ]] || return 0
+    sed -n "s/^$2=//p" "$1/owner" 2>/dev/null | head -n 1 || true
+}
+spacr_stamp_installer_lease() {
+    local group
+    group="$(spacr_process_group "$$")"
+    printf 'pid=%s\nstarted=%s\nhost=%s\npidns=%s\n' "$$" "$(spacr_process_started "$$")" "$(uname -n)" \
+        "$(spacr_pid_namespace)" > "$1/owner"
+    if [[ "$group" =~ ^[1-9][0-9]*$ ]]; then printf 'pgid=%s\n' "$group" >> "$1/owner"; fi
+}
+spacr_lease_owner_dead() {
+    local lease="$1" key pid started now namespace group
+    [[ -d "$lease" && ! -L "$lease" && -f "$lease/owner" && ! -L "$lease/owner" ]] || return 1
+    [[ -O "$lease" && -O "$lease/owner" ]] || return 1
+    [[ "$(ls -A "$lease")" == "owner" ]] || return 1
+    grep -qvE '^(pid|started|host|pidns|pgid)=' "$lease/owner" && return 1
+    for key in pid started host pidns; do
+        [[ "$(grep -c "^$key=" "$lease/owner")" == "1" ]] || return 1
+    done
+    [[ "$(grep -c '^pgid=' "$lease/owner")" -le 1 ]] || return 1
+    pid="$(spacr_lease_field "$lease" pid)"
+    started="$(spacr_lease_field "$lease" started)"
+    [[ "$pid" =~ ^[1-9][0-9]*$ && "$pid" != "$$" && -n "$started" ]] || return 1
+    [[ "$(spacr_lease_field "$lease" host)" == "$(uname -n)" ]] || return 1
+    namespace="$(spacr_pid_namespace)"
+    [[ "$namespace" != "unknown" && "$(spacr_lease_field "$lease" pidns)" == "$namespace" ]] || return 1
+    if ! spacr_process_gone "$pid"; then
+        now="$(spacr_process_started "$pid")"
+        [[ -n "$now" && "${now%%:*}" == "${started%%:*}" && "$now" != "$started" ]] || return 1
+    fi
+    group="$(spacr_lease_field "$lease" pgid)"
+    [[ -z "$group" ]] && return 0
+    [[ "$group" =~ ^[1-9][0-9]*$ ]] || return 1
+    [[ -z "$(spacr_group_live_member "$group")" ]]
+}
+spacr_take_installer_lease() {
+    local lease="$1" pid member
+    if (umask 077; mkdir "$lease") 2>/dev/null; then
+        spacr_stamp_installer_lease "$lease"
+        return 0
+    fi
+    if spacr_lease_owner_dead "$lease" && (umask 077; mkdir "$lease.takeover") 2>/dev/null; then
+        spacr_stamp_installer_lease "$lease.takeover"
+        if spacr_lease_owner_dead "$lease"; then
+            SPACR_ABANDONED_OWNERS+=("$(spacr_lease_field "$lease" pid)")
+            rm -f "$lease/owner"
+            if rmdir "$lease" 2>/dev/null && (umask 077; mkdir "$lease") 2>/dev/null; then
+                spacr_stamp_installer_lease "$lease"
+                rm -f "$lease.takeover/owner"
+                rmdir "$lease.takeover" 2>/dev/null || true
+                spacr_say lease_cleared "$lease" >&2
+                return 0
+            fi
+        fi
+        rm -f "$lease.takeover/owner"
+        rmdir "$lease.takeover" 2>/dev/null || true
+    fi
+    spacr_say already_running >&2
+    pid="$(spacr_lease_field "$lease" pid)"
+    if [[ -n "$pid" ]] && spacr_process_gone "$pid"; then
+        member="$(spacr_lease_field "$lease" pgid)"
+        [[ -n "$member" ]] && member="$(spacr_group_live_member "$member")"
+        if [[ "$member" =~ ^[0-9]+$ ]]; then
+            pid="$member"
+        elif spacr_lease_has_unknown_fields "$lease"; then
+            pid=""
+        fi
+    fi
+    if [[ -n "$pid" ]]; then spacr_say lease_held "$lease" "$pid" >&2; else spacr_say lease_held_unknown "$lease" >&2; fi
+    return 1
+}
+spacr_release_installer_lease() {
+    local lease saved current
+    if [[ "$SPACR_INSTALLER_RETAIN_LEASE" != "0" ]]; then
+        for lease in "$SPACR_INSTALLER_STATUS_LEASE" "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
+            [[ -n "$lease" && -d "$lease" && ! -L "$lease" ]] || continue
+            printf '%s\n' "${work_dir:-retained}" > "$lease/rollback" 2>/dev/null || true
+        done
+        return 0
+    fi
+    for lease in "$SPACR_INSTALLER_STATUS_LEASE" "$SPACR_RUNTIME_LEASE" "$SPACR_INSTALLER_LEASE"; do
+        [[ -n "$lease" && -d "$lease" && ! -L "$lease" ]] || continue
+        if [[ "$lease" == "$SPACR_INSTALLER_STATUS_LEASE" ]]; then
+            saved="$SPACR_INSTALLER_STATUS_LEASE_ID"
+        elif [[ "$lease" == "$SPACR_RUNTIME_LEASE" ]]; then
+            saved="$SPACR_RUNTIME_LEASE_ID"
+        else
+            saved="$SPACR_INSTALLER_LEASE_ID"
+        fi
+        current="$(spacr_installer_lease_identity "$lease")" || continue
+        if [[ -n "$saved" && "$current" == "$saved" ]]; then
+            rm -f "$lease/owner"
+            rmdir "$lease" 2>/dev/null || true
+        fi
+    done
+}
+spacr_acquire_installer_lease() {
+    local canonical parent
+    parent="$(dirname -- "$INSTALL_ROOT")"
+    mkdir -p "$parent"
+    if [[ -d "$INSTALL_ROOT" ]]; then
+        canonical="$(CDPATH= cd -- "$INSTALL_ROOT" && pwd -P)"
+    else
+        canonical="$(CDPATH= cd -- "$parent" && pwd -P)/$(basename -- "$INSTALL_ROOT")"
+    fi
+    case "$canonical" in
+        ""|"/"|"$HOME"|"/home"|"/Users"|"/Library"|"/usr"|"/usr/local")
+            spacr_say unsafe_root "$INSTALL_ROOT" >&2
+            return 2
+            ;;
+    esac
+    SPACR_INSTALLER_LEASE="$(dirname -- "$canonical")/.$(basename -- "$canonical").spacr-installer-lock"
+    if ! spacr_take_installer_lease "$SPACR_INSTALLER_LEASE"; then
+        SPACR_INSTALLER_LEASE=""
+        return 73
+    fi
+    SPACR_INSTALLER_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_LEASE")"
+    trap spacr_release_installer_lease EXIT
+    mkdir -p "$INSTALL_ROOT"
+    SPACR_RUNTIME_LEASE="$INSTALL_ROOT/.venv.spacr-update-lock"
+    if ! spacr_take_installer_lease "$SPACR_RUNTIME_LEASE"; then
+        SPACR_RUNTIME_LEASE=""
+        return 73
+    fi
+    SPACR_RUNTIME_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_RUNTIME_LEASE")"
+    if [[ "$PLATFORM" == "macos" ]]; then
+        SPACR_INSTALLER_STATUS_LEASE="$INSTALL_ROOT/.installing"
+        if ! spacr_take_installer_lease "$SPACR_INSTALLER_STATUS_LEASE"; then
+            SPACR_INSTALLER_STATUS_LEASE=""
+            return 73
+        fi
+        SPACR_INSTALLER_STATUS_LEASE_ID="$(spacr_installer_lease_identity "$SPACR_INSTALLER_STATUS_LEASE")"
+    fi
+    spacr_remove_abandoned_staging
+}
+# A killed installer leaves its staging runtime behind. It is removed only
+# for an owner whose leases this installer just took over -- pid and group
+# provably gone -- and only now that this installer holds every lease.
+spacr_remove_abandoned_staging() {
+    local owner
+    for owner in "${SPACR_ABANDONED_OWNERS[@]+"${SPACR_ABANDONED_OWNERS[@]}"}"; do
+        [[ "$owner" =~ ^[1-9][0-9]*$ && "$owner" != "$$" ]] || continue
+        spacr_process_gone "$owner" || continue
+        if [[ -d "$INSTALL_ROOT/.venv-staging-$owner" && ! -L "$INSTALL_ROOT/.venv-staging-$owner" ]]; then
+            rm -rf "$INSTALL_ROOT/.venv-staging-$owner" && spacr_say staging_removed "$INSTALL_ROOT/.venv-staging-$owner" >&2
+        fi
+        rm -f "$INSTALL_ROOT/.install-profile-staging-$owner.json"
+    done
+}
+spacr_acquire_installer_lease
+# @SPACR_INSTALLER_LEASE_END@
+
 mkdir -p "$INSTALL_ROOT"
 INSTALL_LOG="$INSTALL_ROOT/install.log"
 touch "$INSTALL_LOG"
@@ -393,17 +778,36 @@ exec > >(tee -a "$INSTALL_LOG") 2>&1
 spacr_say detailed_log "$INSTALL_LOG"
 install_linux_system_dependencies
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/spacr-install.XXXXXX")"
+work_dir="$(cd "$work_dir" && pwd -P)"
 installer_tmp="$work_dir/uv-installer.sh"
 stage_venv="$INSTALL_ROOT/.venv-staging-$$"
 stage_profile="$INSTALL_ROOT/.install-profile-staging-$$.json"
+old_venv=""
+swap_started=0
+metadata_touched=0
+metadata_backup="$work_dir/previous-metadata"
 cleanup() {
-    rm -rf "$work_dir"
+    local retain_work=0
+    if [[ "$swap_started" == "1" && -d "$old_venv" ]]; then
+        rm -rf "$VENV_DIR"
+        mv "$old_venv" "$VENV_DIR"
+    fi
+    if [[ "$metadata_touched" == "1" ]]; then
+        if ! "$cleanup_python" -I "$cleanup_module" installer-metadata restore --folder "$metadata_backup"; then
+            retain_work=1
+            spacr_say gui_failed >&2
+            printf '%s\n' "$metadata_backup" >&2
+        fi
+    fi
+    if [[ "$retain_work" == "0" ]]; then rm -rf "$work_dir"; else SPACR_INSTALLER_RETAIN_LEASE=1; fi
     rm -f "$stage_profile"
     if [[ -d "$stage_venv" ]]; then
         rm -rf "$stage_venv"
     fi
 }
-trap cleanup EXIT
+trap 'cleanup; spacr_release_installer_lease' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 # find old spaCR files --> delete old spaCR files --> install new spaCR.
 #
@@ -455,7 +859,7 @@ spacr_write_cleanup_module "$cleanup_module"
 
 # The log of this install, and the lock of the macOS first-launch helper, are
 # not old files.
-cleanup_args=(remove --keep "$INSTALL_LOG" --keep "$INSTALL_ROOT/.installing")
+cleanup_args=(remove --keep "$INSTALL_ROOT" --keep "$INSTALL_LOG" --keep "$INSTALL_ROOT/.installing")
 if [[ "$PLATFORM" == "macos" && -f "$SPACR_SOURCE_DIR/install-for-user.sh" ]]; then
     # Run by the package's first-launch helper: the package has just put the
     # new application bundle, its command link and this folder in place.
@@ -469,10 +873,7 @@ fi
 if [[ -n "${SPACR_CLEANUP_ROOT:-}" ]]; then
     cleanup_args+=(--root "$SPACR_CLEANUP_ROOT")
 fi
-if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
-    spacr_say old_copy_not_removed >&2
-    exit 6
-fi
+
 
 mkdir -p "$BOOTSTRAP_DIR" "$PYTHON_DIR" "$CACHE_DIR"
 mv "$work_uv" "$UV_BIN"
@@ -489,23 +890,51 @@ rm -rf "$stage_venv"
 
 stage_python="$stage_venv/bin/python"
 
+# Skipping wgpu at resolve time, not uninstalling it afterwards: an override
+# whose marker never holds removes wgpu from the resolution, so a glibc that
+# would otherwise send uv to the wgpu source release never sees it. Nothing
+# else spaCR needs depends on wgpu or on rendercanvas, which only wgpu pulls.
+override_args=()
+if [[ "$WITHOUT_WGPU" == "1" ]]; then
+    wgpu_overrides="$work_dir/without-wgpu-overrides.txt"
+    printf '%s\n' 'wgpu; sys_platform == "never"' > "$wgpu_overrides"
+    override_args=(--override "$wgpu_overrides")
+fi
+
 spacr_say downloading_dependencies
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
     "$UV_BIN" pip install \
         --python "$stage_python" \
+        --compile-bytecode \
         --offline --no-index \
         --find-links "$OFFLINE_BUNDLE/wheels" \
+        ${override_args[@]+"${override_args[@]}"} \
         -r "$OFFLINE_BUNDLE/requirements.txt"
 else
     "$UV_BIN" pip install \
         --python "$stage_python" \
+        --compile-bytecode \
         --torch-backend "$TORCH_BACKEND" \
+        ${override_args[@]+"${override_args[@]}"} \
         "$PACKAGE_SPEC" \
         "${RESOLVER_GUARDS[@]}"
 fi
 
 spacr_say validating_install
-"$UV_BIN" pip check --python "$stage_python"
+# An install without wgpu leaves one declared dependency out on purpose, so
+# uv's sole "spacr requires wgpu" diagnostic is accepted then and nothing else
+# is (install_cleanup._only_saved_wgpu_omission, as the updater does).
+pip_check_log="$work_dir/pip-check.txt"
+pip_check_code=0
+"$UV_BIN" pip check --python "$stage_python" > "$pip_check_log" 2>&1 || pip_check_code=$?
+cat "$pip_check_log"
+if [[ "$pip_check_code" != "0" ]]; then
+    if [[ "$WITHOUT_WGPU" != "1" ]] || ! "$stage_python" -I -c \
+        'import sys; from spacr.install_cleanup import _only_saved_wgpu_omission as only; sys.exit(0 if only(int(sys.argv[1]), open(sys.argv[2], encoding="utf-8", errors="replace").read()) else 1)' \
+        "$pip_check_code" "$pip_check_log"; then
+        exit "$pip_check_code"
+    fi
+fi
 QT_QPA_PLATFORM=offscreen "$stage_python" -I -c \
     "import spacr, PySide6, torch; import numpy as np; assert torch.from_numpy(np.zeros(1, dtype=np.float32)).numel() == 1; print('spaCR', spacr.__version__, '| torch', torch.__version__, '| numpy', np.__version__)"
 if [[ "$TORCH_BACKEND" != "cpu" && "$DETECTED_ACCELERATOR" == "nvidia" ]]; then
@@ -523,15 +952,43 @@ fi
     --consent-collected "$CONSENT_COLLECTED" \
     --share-diagnostics "$SHARE_DIAGNOSTICS" \
     --report-issues "$REPORT_ISSUES" \
-    --sign-in-now "$SIGN_IN_NOW"
+    --without-wgpu "$WITHOUT_WGPU"
 
-old_venv="$INSTALL_ROOT/.venv-previous"
-rm -rf "$old_venv"
+identity_args=(verify-runtime)
+if [[ "$DEFAULT_SPACR_VERSION" != @*@ ]]; then
+    identity_args+=(--version "$DEFAULT_SPACR_VERSION")
+fi
+"$cleanup_python" -I "$cleanup_module" "${identity_args[@]}" \
+    --python "$stage_python" --retiring-prefix "$VENV_DIR"
+if ! "$cleanup_python" -I "$cleanup_module" "${cleanup_args[@]}"; then
+    spacr_say old_copy_not_removed >&2
+    exit 6
+fi
+metadata_paths=("$INSTALL_ROOT/runtime-identity.json" "$INSTALL_ROOT/install-profile.json")
+if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then metadata_paths+=("$LAUNCHER"); fi
+if [[ "$PLATFORM" == "linux" ]]; then
+    metadata_paths+=("$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop" "$INSTALL_ROOT/uninstall-spacr.sh")
+fi
+if [[ -n "$OFFLINE_BUNDLE" ]]; then
+    metadata_paths+=("$INSTALL_ROOT/offline_mask_check.py" "$INSTALL_ROOT/offline-bundle.json")
+fi
+"$cleanup_python" -I "$cleanup_module" installer-metadata snapshot --folder "$metadata_backup" --paths "${metadata_paths[@]}"
+old_venv="$INSTALL_ROOT/.venv-previous-$$"
 if [[ -d "$VENV_DIR" ]]; then
     mv "$VENV_DIR" "$old_venv"
+    swap_started=1
 fi
 mv "$stage_venv" "$VENV_DIR"
-rm -rf "$old_venv"
+if ! "$cleanup_python" -I "$cleanup_module" "${identity_args[@]}" \
+    --python "$VENV_DIR/bin/python" > "$work_dir/runtime-identity.new.json"; then
+    rm -rf "$VENV_DIR"
+    if [[ -d "$old_venv" ]]; then
+        mv "$old_venv" "$VENV_DIR"
+    fi
+    exit 7
+fi
+metadata_touched=1
+mv "$work_dir/runtime-identity.new.json" "$INSTALL_ROOT/runtime-identity.json"
 mv "$stage_profile" "$INSTALL_ROOT/install-profile.json"
 
 if [[ -n "$OFFLINE_BUNDLE" ]]; then
@@ -545,8 +1002,7 @@ if [[ -n "$OFFLINE_BUNDLE" ]]; then
         done
         printf 'Cellpose models: %s\n' "$cellpose_dir"
     fi
-    if [[ -d "$OFFLINE_BUNDLE/test_data" ]]; then
-        rm -rf "$INSTALL_ROOT/test_data"
+    if [[ -d "$OFFLINE_BUNDLE/test_data" && ! -e "$INSTALL_ROOT/test_data" ]]; then
         cp -R "$OFFLINE_BUNDLE/test_data" "$INSTALL_ROOT/test_data"
         printf 'Mask test data: %s\n' "$INSTALL_ROOT/test_data/plate1"
     fi
@@ -564,7 +1020,7 @@ if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then
     launcher_tmp="$INSTALL_ROOT/.spacr-launcher-$$"
     cat > "$launcher_tmp" <<EOF
 #!/usr/bin/env sh
-exec "$VENV_DIR/bin/python" -m spacr.qt "\$@"
+exec "$VENV_DIR/bin/python" -I -m spacr.qt "\$@"
 EOF
     chmod 755 "$launcher_tmp"
     mv "$launcher_tmp" "$LAUNCHER"
@@ -576,12 +1032,27 @@ if [[ "$PLATFORM" == "linux" ]]; then
         "from pathlib import Path; import spacr; d=Path(spacr.__file__).parent/'resources/icons'; p=d/'app_icon.png'; print(p if p.is_file() else d/'logo_spacr.png')")"
     desktop_tmp="$INSTALL_ROOT/.spacr-desktop-$$"
     desktop_comment="$(spacr_say desktop_comment)"
+    desktop_exec="$("$VENV_DIR/bin/python" -I - "$VENV_DIR/bin/python" <<'PY'
+import sys
+
+def quote_argument(value):
+    for character in ('\\', '"', '`', '$'):
+        value = value.replace(character, '\\' + character)
+    value = value.replace('%', '%%')
+    value = value.replace('\\', '\\\\')
+    value = value.replace('\t', '\\t').replace('\n', '\\n').replace('\r', '\\r')
+    return '"' + value + '"'
+
+arguments = ('/bin/sh', '-c', 'exec "$@"', 'spacr', sys.argv[1], '-I', '-m', 'spacr.qt')
+print(' '.join(quote_argument(argument) for argument in arguments))
+PY
+)"
     cat > "$desktop_tmp" <<EOF
 [Desktop Entry]
 Type=Application
 Name=spaCR
 Comment=$desktop_comment
-Exec=$LAUNCHER
+Exec=$desktop_exec
 Icon=$icon_path
 StartupWMClass=spaCR
 Terminal=false
@@ -592,7 +1063,6 @@ EOF
     mv "$desktop_tmp" "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 
     uninstall_path="$INSTALL_ROOT/uninstall-spacr.sh"
-    removed_message="$(spacr_say removed)"
     cat > "$uninstall_path" <<EOF
 #!/usr/bin/env sh
 # Usage: uninstall-spacr.sh [--purge [--yes]]
@@ -608,14 +1078,16 @@ for arg in "\$@"; do
         "$VENV_DIR/bin/python" -m spacr.install_cleanup purge \$yes_flag || true
     fi
 done
-rm -f "$LAUNCHER"
-rm -f "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
-rm -rf "$INSTALL_ROOT"
-echo "$removed_message"
+# SPACR_UNINSTALL_PATH $LAUNCHER
+# SPACR_UNINSTALL_PATH $DESKTOP_DIR/io.github.olafssonlab.spacr.desktop
+exec "$VENV_DIR/bin/python" -I -m spacr.install_cleanup remove --only-root "$INSTALL_ROOT"
 EOF
     chmod 755 "$uninstall_path"
 fi
 
+swap_started=0
+metadata_touched=0
+rm -rf "$old_venv"
 echo
 spacr_say installed
 if [[ "$NO_COMMAND_LAUNCHER" == "0" ]]; then

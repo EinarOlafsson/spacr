@@ -1,0 +1,21 @@
+{
+  "status": "CORRECTED PRIVATE v3; independent CI exact source re-review pending, no Work delivery/adoption/recording/native panel claim",
+  "supersedes": "v2 only; immutable priorfiles retained as blocked by real Qt outerdict-copy peer finding",
+  "real_qt_basis": "CI isolated PySide6/Qt6.11.2 Signal(dict) AutoConnection+QObjectAuto+Queued: outerdictidentityFalse,nestedndarrayidentityTrue. Root/CI own actual probe; this receipt does not claim author executed it.",
+  "changes": [
+    "No outerdictionary identity requirement: token/currentcontext bind newly accepted panel result; emitted path/count and labels shape/dtype/bytes must exactly match accepted; return actual acceptedpaneldict.",
+    "Freeze complete model_metadata as immutable sorted JSONprimitive text with presence flag; bind src+model+diameter+flow_threshold+CP_prob. Reject colony_counting not literalFalse beforeclick, as ordinaryToxo scope.",
+    "Preserve exact nexttoken/deferredstart/error/stale/cancel/retirement guards, actualwarning/status and no idle-only acceptance."
+  ],
+  "protocol_before": "Blockedv2 on new copied-signal/metadata/src/colony/arraypayload fixtures:12cases3FAIL3ERROR6PASS0.003s.",
+  "protocol_after": "12PASS0.004s stdlibprotocol, withfourinferencecontrols subcases; simulated outerdictcopy, no new actualQt/model/native execution.",
+  "files_sha256": {
+    "adapter-v3.py": "06ed9ec3387306ff12f2ca231d7839fc176e02e09afd5a98d06283a530d8f967",
+    "verify_adapter_v3.py": "42737af5d30ab0f523009b0b0222dcf47f638edce9d43849d445279af017cf9d",
+    "protocol-v3-final.log": "4e9583fbd8b7dfd17b1b52f963bca5e078ab351e78d6c9726b2c05ff184c10db",
+    "protocol-v3-baseline.log": "614a436dc0d732a96baf1bc17fd9d2cedb4f534e1531fe12a0b9d7aec786e9ab",
+    "proposed-capture_plaque_current-v3.py": "b7e0a3dc56a3fcb03a2eb72303f5508958ce785d270d339f7523b9058fd0ed49",
+    "current-panel-observer-v3.patch": "8e61a46c9a8fecd8e45cec1fb66c2a507384cc06c95835221a703c2cb0a19b27"
+  },
+  "owner_limits": "Owner must rebase appendedhelpers onto actualheldb7realpaper+607c source; main19scene route stillnotrunnable fromthispatchalone; allprior19mapping/native/alpha/gate/audio/publication requirements remain."
+}

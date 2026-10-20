@@ -362,7 +362,9 @@
       "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
       "context": "One helper, not one copy per screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "translation": "UN SEUL ASSISTANT, PAS UNE COPIE PAR VUE. La décision cache-ou-téléchargement, l’état occupé du bouton et le message d’échec sont les mêmes pour Plate Viewer, Tabulate, Graph Builder et les autres ; seuls diffèrent le champ rempli et la méthode qui l’ouvre. Une vue ne transmet donc que cette différence, sous forme de rappel, et rien d’autre.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurements_example#3",
@@ -370,7 +372,9 @@
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "translation": "LE TÉLÉCHARGEMENT EST CELUI QUI EXISTE DÉJÀ. Rien de nouveau n’est publié : l’archive, le worker et la boîte de dialogue de progression sont ceux de :func:`spacr.qt.hf_download.download_annotate_example`, le même appel que fait le bouton de Classify, et une plaque déjà décompressée par l’un d’eux est réutilisée sans accéder au réseau.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",
@@ -514,7 +518,9 @@
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
       "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
       "translation": "POURQUOI IL N’Y A PAS DE JETON INTÉGRÉ. Téléverser vers un seul compte depuis la machine de chaque utilisateur impliquerait de livrer un jeton d’écriture dans spaCR. Un jeton d’écriture n’est pas une simple autorisation de téléversement : il peut aussi réécrire et SUPPRIMER tous les modèles de ce compte, et quiconque installe spaCR peut le lire dans le paquet. Le téléversement utilise donc le jeton de la personne qui l’exécute :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share#2",
@@ -594,7 +600,9 @@
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
       "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "translation": "Parle directement à l’API HTTP de Gradio avec urllib plutôt que via gradio_client, car ce paquet n’est pas une dépendance de spaCR : lorsqu’il manquait, ceci levait une exception, l’appelant se rabattait sur le jeton propre de la personne qui téléversait, et le modèle partait à un endroit où personne ne le cherchait. Un chemin de publication qui dépend d’une importation facultative est un chemin de publication qui fait silencieusement autre chose.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share.central_upload#2",
@@ -722,7 +730,9 @@
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
       "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "translation": "Le vide est autorisé partout : une carte qui indique \"not recorded\" est honnête, et un formulaire qui refuserait d’être soumis sans nombre recevrait un nombre inventé. Construit le formulaire pour partager ``filename``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#2",
@@ -762,7 +772,9 @@
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
       "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "translation": "POURQUOI LA LISTE A CINQ EN-TÊTES PLUTÔT QU’UN BOOLÉEN. C’était auparavant une liste unique avec \"show unvetted community uploads\" à côté -- un contrôle capable de masquer exactement une des cinq origines du catalogue. Avec dix modèles entraînés ici, quatre backbones Cellpose-SAM standard, la collection de bioimage.io, les quatre propres au backend Cellpose 3 et un catalogue partagé, un utilisateur qui voulait les dix et pas le reste n’avait aucun moyen de le dire. :class:`SourceStrip` présente les cinq origines sous forme de cinq noms cliquables, chacun bleu lorsque ses lignes sont affichées et estompé lorsqu’elles sont masquées, avec mémorisation d’une ouverture à l’autre. L’avertissement que portait le booléen est inchangé et arrive toujours avant la première ligne non vérifiée -- voir :meth:`ModelZooPicker._may_show_source`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#0",
@@ -778,7 +790,9 @@
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
       "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "translation": "CE QU’IL MODIFIE, DIT AVANT DE LE MODIFIER. Un backend s’installe dans un environnement propre sous ``~/.spacr/backends`` ; l’environnement de spaCR n’est jamais touché, donc rien ici ne peut empêcher spaCR de démarrer. La boîte de dialogue indique où il va, ce qu’il télécharge, sa taille et sous quelle licence, avant qu’on appuie sur Install.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
@@ -786,7 +800,9 @@
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
       "translation": "LA VUE DERRIÈRE PEUT LA SUIVRE. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` et :attr:`job_cancelled` indiquent au widget qui a ouvert la boîte de dialogue ce que fait l’installation, de sorte qu’un bouton peut afficher \"installing\" pendant qu’elle s’exécute et qu’une console peut expliquer pourquoi elle a échoué après la fermeture de la boîte de dialogue.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
@@ -804,7 +820,9 @@
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
       "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "translation": "LA BARRE REPOSE SUR LES BOUTONS. La ligne de progression est le dernier élément au-dessus des boutons et l’état réserve la place de quatre lignes pendant l’exécution d’une tâche, de sorte que la barre ne bouge pas quand la ligne d’état s’allonge ou raccourcit. Décrit le backend et attend le bouton.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
@@ -812,7 +830,9 @@
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "translation": "LA FENÊTRE CONTINUE DE RÉPONDRE. L’installation -- un venv, puis pip, souvent pendant plusieurs minutes -- s’exécute sur un thread de travail ; la boîte de dialogue montre l’étape en cours et la dernière ligne de pip, et Cancel arrête pip et tout ce qu’il a lancé, puis supprime l’environnement à moitié construit. Un échec affiche la sortie propre de la commande en échec, telle quelle.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#3",
@@ -1102,7 +1122,9 @@
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "translation": "Les mots sont ceux de la case à cocher retirée, inchangés. C’est le contrôle qui les portait qui posait problème, pas la phrase. Elle est dite plutôt que simplement affichée comme étiquette, car la différence entre un modèle examiné et un modèle non examiné n’est pas visible dans une table.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#2",
@@ -1888,7 +1910,10 @@
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
       "context": "Right-click a picture and save it, as a PNG or as a PDF.",
       "translation": "Clic droit sur une image pour l’enregistrer, en PNG ou en PDF.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#1",
@@ -1907,7 +1932,10 @@
       "context": "A picture on application view is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves the picture, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "translation": "Une image affichée à l’écran est souvent ce que quelqu’un veut mettre dans une diapositive une heure plus tard, et le moyen d’y parvenir était une capture d’écran d’une fenêtre, à la résolution de la fenêtre, avec l’habillage environnant. Ceci enregistre L’IMAGE, à la résolution à laquelle elle a été rendue plutôt qu’à la taille à laquelle elle se trouve affichée, dans un fichier choisi par l’utilisateur.",
       "review_basis": "MT draft edited in AI review",
-      "rebound_from": "spacr.qt.widgets.picture_export#2"
+      "rebound_from": "spacr.qt.widgets.picture_export#2",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#2",
@@ -1916,7 +1944,10 @@
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "translation": "DEUX FORMATS, ET LE PDF N’EST PAS UN PNG AVEC UNE AUTRE EXTENSION. Une image matricielle déposée dans un PDF ne satisfait que le nom du fichier ; un panneau de figure est une page, et une page a une taille en millimètres. :func:`save_picture` donne au PDF une page ayant la forme propre de l’image et indique au rédacteur la résolution que porte Preferences, de sorte que l’image s’affiche à la taille à laquelle elle a été mesurée et s’imprime à cette résolution.",
       "review_basis": "MT draft edited in AI review",
-      "rebound_from": "spacr.qt.widgets.picture_export#3"
+      "rebound_from": "spacr.qt.widgets.picture_export#3",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export#3",
@@ -1925,7 +1956,10 @@
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "translation": "La résolution et le format par défaut sont ceux que possèdent déjà les préférences Figures -- :func:`spacr.qt.preferences.get_figure_png_dpi` et :func:`spacr.qt.preferences.get_figure_format` -- de sorte qu’un utilisateur qui a déjà dit \"300 DPI, PDF\" ne se le voit pas redemander en d’autres termes.",
       "review_basis": "MT draft edited in AI review",
-      "rebound_from": "spacr.qt.widgets.picture_export#4"
+      "rebound_from": "spacr.qt.widgets.picture_export#4",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.as_image#0",
@@ -1957,7 +1991,10 @@
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
       "context": "Ask for a path. ``\"\"`` when the user walked away.",
       "translation": "Demande un chemin. ``\"\"`` lorsque l’utilisateur a abandonné.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
@@ -1965,7 +2002,10 @@
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "translation": "LE SUFFIXE EST RÉTABLI SI L’UTILISATEUR L’OMET. Un nom saisi sans suffixe serait sinon écrit en PNG quel que soit le filtre sélectionné, et c’est ainsi que \"save as PDF\" produit discrètement une image matricielle.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.ask_where_to_save#2",
@@ -2077,7 +2117,10 @@
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
       "context": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called at save time rather than now, so the menu always writes the picture currently on application view.",
       "translation": "appelé lorsque le menu est utilisé ; renvoie le ``QPixmap`` ou ``QImage`` à écrire. Appelé AU MOMENT DE L’ENREGISTREMENT et non maintenant, de sorte que le menu écrit toujours l’image actuellement affichée.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
@@ -2085,7 +2128,10 @@
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "translation": "le nom de fichier proposé, sans suffixe. Un appelable est interrogé au moment de l’enregistrement, de sorte qu’une vue dont le contenu change -- Overlay à un moment, Flows au suivant -- propose le nom de ce qu’elle affiche à cet instant.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     }
   ]
 }

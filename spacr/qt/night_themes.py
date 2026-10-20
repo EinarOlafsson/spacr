@@ -335,54 +335,50 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
         NightTheme(
             key="lantern",
             label="Lantern",
-            description=("A lit window in the dark: warm orange on near-"
-                         "black, a field of luminous points behind it, "
-                         "and a sound set in G minor at 118 BPM."),
+            description=("Warm orange on near-black, a backdrop of "
+                         "luminous points, and a sound set in G minor at "
+                         "118 BPM."),
             palette=LANTERN_PALETTE,
             ambient="data_art_impulse_lens",
             ambient_palette="ember"),
         NightTheme(
             key="halcyon",
             label="Halcyon",
-            description=("Gold haze over a brown-black room, nebula fields "
-                         "moving slowly through it, and a sound set in F "
-                         "Dorian at 120 BPM."),
+            description=("Gold on brown-black, slowly drifting colour "
+                         "blobs, and a sound set in F Dorian at 120 BPM."),
             palette=HALCYON_PALETTE,
             ambient="blobs",
             ambient_palette="lowsun"),
         NightTheme(
             key="solstice",
             label="Solstice",
-            description=("The long low light of a year's turn: olive and "
-                         "pale gold, luminous points through it, and a "
-                         "sound set in G Lydian at 112 BPM."),
+            description=("Olive and pale gold, a backdrop of luminous "
+                         "points, and a sound set in G Lydian at 112 BPM."),
             palette=SOLSTICE_PALETTE,
             ambient="data_art_impulse_lens",
             ambient_palette="lowsun"),
         NightTheme(
             key="undertow",
             label="Undertow",
-            description=("Deep water, green-black and slow: waves travelling "
-                         "through points, and a sound set in E minor at 116 BPM "
-                         "with the heaviest sub of the ten."),
+            description=("Green on green-black, waves travelling through "
+                         "points, and a sound set in E minor at 116 BPM "
+                         "with the most sub-bass of the ten."),
             palette=UNDERTOW_PALETTE,
             ambient="data_art_point_atlas",
             ambient_palette="deepwater"),
         NightTheme(
             key="meridian",
             label="Meridian",
-            description=("A teal horizon line with currents of light "
-                         "bending above it, and a sound set in A Dorian at "
-                         "124 BPM."),
+            description=("Teal on a dark background, particle currents, "
+                         "and a sound set in A Dorian at 124 BPM."),
             palette=MERIDIAN_PALETTE,
             ambient="data_art_genetic_advection",
             ambient_palette="ocean"),
         NightTheme(
             key="cirrus",
             label="Cirrus",
-            description=("Thin high cloud: pale ice blue, barely coloured, "
-                         "a starfield behind it, and the most open sound "
-                         "set of the ten, in B minor at 126 BPM."),
+            description=("Pale, low-saturation ice blue, a starfield "
+                         "backdrop, and a sound set in B minor at 126 BPM."),
             palette=CIRRUS_PALETTE,
             ambient="drift",
             ambient_palette="ocean"),
@@ -398,26 +394,24 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
         NightTheme(
             key="aphelion",
             label="Aphelion",
-            description=("Furthest from the sun: cold violet, point waves travelling "
-                         "through the dark, and a tense sound set in D "
-                         "harmonic minor at 128 BPM."),
+            description=("Violet on a dark background, waves travelling "
+                         "through points, and a sound set in D harmonic "
+                         "minor at 128 BPM."),
             palette=APHELION_PALETTE,
             ambient="data_art_point_atlas",
             ambient_palette="midnight"),
         NightTheme(
             key="pulsar",
             label="Pulsar",
-            description=("Magenta on black with nebula fields turning "
-                         "through it, and the hardest-pumping sound set of "
-                         "the ten, in F sharp minor at 128 BPM."),
+            description=("Magenta on black, slowly drifting colour blobs, "
+                         "and a sound set in F sharp minor at 128 BPM."),
             palette=PULSAR_PALETTE,
             ambient="blobs",
             ambient_palette="dusk"),
         NightTheme(
             key="vesper",
             label="Vesper",
-            description=("The last colour in the sky: plum and dusty rose, "
-                         "currents of light moving overhead, and a soft "
+            description=("Plum and dusty rose, particle currents, and a "
                          "sound set in E flat minor at 114 BPM."),
             palette=VESPER_PALETTE,
             ambient="data_art_genetic_advection",

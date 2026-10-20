@@ -1,0 +1,171 @@
+name: Restore retained main coverage
+
+on:
+  workflow_call:
+    inputs:
+      source_run_id:
+        description: Completed main tests run with retained combined coverage and all shards
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+jobs:
+  upload:
+    name: Upload the original main measurement to Codecov
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Resolve the original main run and successful combine
+        id: source
+        uses: actions/github-script@v8
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        with:
+          script: |
+            const rawId = process.env.SOURCE_RUN_ID;
+            if (!/^[1-9][0-9]*$/.test(rawId) || !Number.isSafeInteger(Number(rawId))) {
+              throw new Error('A positive source tests run ID is required');
+            }
+            const runId = Number(rawId);
+            const repo = context.repo;
+            const fullName = `${repo.owner}/${repo.repo}`;
+            const {data: run} = await github.rest.actions.getWorkflowRun({...repo, run_id: runId});
+            if (run.repository.full_name !== fullName || run.head_repository.full_name !== fullName ||
+                run.event !== 'push' || run.head_branch !== 'main' || run.status !== 'completed' ||
+                run.path !== '.github/workflows/tests.yml' || !/^[0-9a-f]{40}$/.test(run.head_sha)) {
+              throw new Error('Source must be a completed main push of this repository tests workflow');
+            }
+            const {data: comparison} = await github.rest.repos.compareCommitsWithBasehead({
+              ...repo, basehead: `${run.head_sha}...main`
+            });
+            if (!['ahead', 'identical'].includes(comparison.status)) {
+              throw new Error('The measured commit is no longer in main history');
+            }
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+              ...repo, run_id: runId, filter: 'latest', per_page: 100
+            });
+            const combine = jobs.find(job => job.name === 'Coverage / every module at 90% and none loses coverage');
+            const combined = combine?.steps?.find(step => step.name === 'Combine process data and write coverage.py JSON');
+            if (combined?.conclusion !== 'success') {
+              throw new Error('The original coverage combine did not succeed');
+            }
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+              ...repo, run_id: runId, per_page: 100
+            });
+            const reportName = `spacr-module-coverage-report-${runId}-${run.run_attempt}`;
+            if (!artifacts.some(item => item.name === reportName && !item.expired)) {
+              throw new Error('The original combined coverage report is no longer retained');
+            }
+            const pattern = new RegExp(`^spacr-coverage-data-${runId}-([1-9][0-9]*)-([0-9]+)$`);
+            const shards = new Set(artifacts.filter(item => !item.expired).flatMap(item => {
+              const match = pattern.exec(item.name);
+              return match && Number(match[1]) <= run.run_attempt ? [Number(match[2])] : [];
+            }));
+            if (!Array.from({length: 12}, (_, index) => index).every(index => shards.has(index))) {
+              throw new Error('All twelve original coverage shards must still be retained');
+            }
+            core.setOutput('sha', run.head_sha);
+            core.setOutput('attempt', run.run_attempt);
+            core.setOutput('run_id', runId);
+            core.setOutput('report_name', reportName);
+            core.setOutput('url', run.html_url);
+
+      - name: Check out the measured source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+
+      - name: Check out the upload verifier
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: .uploader
+          sparse-checkout: tools
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download the original combined report
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.source.outputs.run_id }}
+          name: ${{ steps.source.outputs.report_name }}
+          path: ${{ runner.temp }}/original-report
+
+      - name: Validate and disclose the original measurement
+        id: report
+        env:
+          ORIGINAL_REPORT: ${{ runner.temp }}/original-report
+        run: |
+          set -euo pipefail
+          python .uploader/tools/verify_codecov_reupload.py --original "$ORIGINAL_REPORT" \
+            | tee "$RUNNER_TEMP/original-coverage-validation.txt"
+
+      - name: Download only the measured run's coverage shards
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.source.outputs.run_id }}
+          pattern: spacr-coverage-data-${{ steps.source.outputs.run_id }}-*
+          path: ${{ runner.temp }}/coverage-artifacts
+
+      - name: Regenerate Cobertura from the exact original source and data
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          SOURCE_RUN_ID: ${{ steps.source.outputs.run_id }}
+          SOURCE_ATTEMPT: ${{ steps.source.outputs.attempt }}
+          COVERAGE_VERSION: ${{ steps.report.outputs.coverage_version }}
+          COVERAGE_FILE: ${{ runner.temp }}/reupload/.coverage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          python -m pip install "coverage==$COVERAGE_VERSION" "setuptools>=64"
+          python tools/select_coverage_artifacts.py \
+            --source "$RUNNER_TEMP/coverage-artifacts" \
+            --destination "$RUNNER_TEMP/coverage-input" \
+            --run-id "$SOURCE_RUN_ID" --run-attempt "$SOURCE_ATTEMPT" \
+            --shard-count 12 --head-sha "$SOURCE_SHA"
+          mkdir -p "$RUNNER_TEMP/reupload"
+          python -m coverage combine --keep "$RUNNER_TEMP/coverage-input"
+          python -m coverage json -o "$RUNNER_TEMP/reupload/coverage.json"
+          python .uploader/tools/verify_codecov_reupload.py \
+            --original "$RUNNER_TEMP/original-report" \
+            --regenerated "$RUNNER_TEMP/reupload/coverage.json"
+          python -m coverage xml -o "$RUNNER_TEMP/reupload/coverage.xml"
+
+      - name: Upload the measured main commit
+        uses: codecov/codecov-action@v7
+        with:
+          files: ${{ runner.temp }}/reupload/coverage.xml
+          disable_search: true
+          flags: main
+          override_branch: main
+          override_commit: ${{ steps.source.outputs.sha }}
+          override_build: ${{ steps.source.outputs.run_id }}
+          override_build_url: ${{ steps.source.outputs.url }}
+          name: spacr-main-${{ steps.source.outputs.run_id }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Identify the informational upload
+        env:
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          SOURCE_URL: ${{ steps.source.outputs.url }}
+        run: |
+          {
+            echo "Attempted informational upload for main commit $SOURCE_SHA from $SOURCE_URL."
+            cat "$RUNNER_TEMP/original-coverage-validation.txt"
+            echo "This does not rerun tests or change the original CI/coverage-gate result."
+            echo "Confirm Codecov processed the upload and compare its percentage before switching README badges."
+          } >> "$GITHUB_STEP_SUMMARY"

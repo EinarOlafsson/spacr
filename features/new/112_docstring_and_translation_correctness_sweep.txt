@@ -235,3 +235,113 @@ discipline is intact -- the comment block above the constant still enumerates
 its admissions by module.
 
 VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-15 — Bounded current-source semantic corrections
+Two actual documentation defects were repaired in3385aeaac26: the enabled
+Storage relocation completion helper had no docstring, blocking the normal
+docs writer; download_bundled_models still described direct final-file writes
+after its downloader changed to staged whole-pack publication. The new prose
+retains checksum/cache-trust limitations. Independent source/AST review is in
+features/data/112_current_docstring_semantics_2026-10-15/receipt.json.
+No behavior changed. Normal locale review/generation is a separate owner step;
+this is not completion of the package-wide semantic sweep.
+
+2026-10-15 — Derived artifacts for the preceding bounded corrections
+The callback/download descriptions above now have27 exact reviewed API
+source/locale pairs with normal scoped generation, published in0b9a828c97b.
+Unrelated13,401 API records per locale were retained. Evidence:
+features/data/cache_doc_catalogs_2026-10-15/. This closes the preceding
+source/derived-artifact batch; the wider semantic sweep is still open.
+
+2026-10-15 — JobRunner lifecycle documentation corrected.
+The documented cancellation, pending/busy counts, inline execution, shutdown
+budget and surviving-thread behavior now match actual code. Executable AST and
+comments are unchanged. Independent technical review covers172 target blocks:
+153 initial changes,18 genuine historical timeout/parking repairs or additions,
+and one previously English Icelandic heading. Normal guarded attempts correctly
+refused missing provenance/context; actual capped normal fallback then passed
+with a fresh canonical equality recheck and669 stable source hashes. No decoder
+requests. All unrelated API records are retained; normal history writer prunes
+only two hashes proven unreferenced across all ten catalogs. Normal Help search
+regeneration passes. Evidence:features/data/678_job_runner_api_catalogs_2026-10-15/
+and related source, historical-repair and independent peer directories.
+This is a bounded correctness delivery; the wider semantic sweep remains open.
+
+2026-10-15 — Retained Icelandic worker-signal paragraph corrected.
+One retained module paragraph incorrectly described finished as stored and
+garbled worker-thread execution. Exact current-source/context review and an
+independent peer now match the emitted-signal/GUI delivery contract. The normal
+single-locale writer passes2.25s with zero canonical collections or decoding.
+Other seven module blocks,13409 unrelated Icelandic records, English, eight
+other locales and history are unchanged; no source or Help-input changes.
+Evidence:features/data/678_job_runner_icelandic_signal_catalog_2026-10-15/.
+The existing172 authored targets remain unchanged; broader semantic review stays
+open. Additional separately identified defects are not certified by this scope.
+
+2026-10-15 — Three retained Icelandic lifecycle paragraphs corrected.
+Exact module blocks #1/#4/#5 now preserve completed-job retirement, GUI-thread
+QObject receiver/queued deletion ordering, and strong-reference lifetime.
+Independent source-bound peer1b9dfe0e and normal selected-module writer pass;
+zero canonical collections or model decoding. Other five module targets,13409
+unrelated Icelandic symbols, English/eight other locales, history and reviews
+are byte-exact. Source/English/Help inputs unchanged, so no repeated Help build.
+Evidence:features/data/678_job_runner_icelandic_retained_catalog_2026-10-15/.
+This closes three specific retained errors; the wider semantic sweep stays open.
+
+2026-10-15 — Path-probe wait/cache documentation and derived artifacts
+The module and exists/isdir/forget/prime descriptions now match bounded waits,
+cache fallbacks and pending-probe completion. Executable AST/comments are
+unchanged. Independently reviewed99 changed targets plus one retained English
+Icelandic paragraph pass normal generation across nine locales. Genuine normal
+context/identity refusals are preserved; successful capped fallback uses one
+canonical snapshot plus fresh equality recheck,669 stable source hashes and
+zero decoding. All unrelated13405 translated records and13479 English entries
+are preserved; source history stays exact. Normal Help regeneration passes.
+Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
+features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
+these five symbols, not the wider semantic review or final CI/release gates.
+
+2026-10-15 — Registered-job and spinner-timer documentation corrected
+Four existing symbols now distinguish registered handles from running threads,
+state registration/retirement timing, document user_visible, and distinguish the
+animation timer from an active appearance delay. Executable AST/comments stay
+unchanged. All source and target reviews are bound to exact hashes. Normal
+generation passes18.30s without canonical collection or decoding:54 changed/new
+targets,16 byte-preserved shifted targets and two proven Hindi/Icelandic return
+repairs. Nine obsolete active review rows retire with exact provenance. Every
+unrelated locale/English entry and source history is preserved. Normal Help
+regeneration passes; precisely two summaries change, all unrelated API summaries
+are exact. Evidence:features/data/678_bridge_spinner_api_catalogs_2026-10-15/
+and features/data/678_bridge_spinner_coordinator_review_2026-10-15/. This closes
+these four contracts, not the wider semantic sweep or final CI/release.
+
+2026-10-15 — Final installer cleanup and updater API documentation closure
+Nine source-bound bodies (seven new, two changed) now have297 independently
+reviewed records across nine locales. All594 source/context and297 inline
+checks pass. Normal selected generation passes18.95s with no model, runtime
+canonical or full API collector request;13486 unrelated English records,
+all unrelated localized records, Windows updater paragraph1 and source
+history remain exact. Eighteen stale review rows retire with provenance.
+The nine-symbol unchanged normal API audit passes across all nine locales.
+Normal Help regeneration adds seven entries and changes the onboarding
+summary. All nine actual local docstrings, English/Korean links and eighteen
+production searches pass; unrelated Help rows/settings/preferences stay exact.
+An actual offline lookup defect for helpers within control-flow blocks is
+repaired: baseline12FAIL/2PASS, final19PASS, lexical scope boundaries retained.
+Evidence: features/data/703_cleanup_final_api_inputs_2026-10-15/,
+features/data/703_cleanup_api_catalogs_2026-10-15/,
+features/data/703_cleanup_help_consumer_2026-10-15/ and
+features/data/703_offline_helper_scope_2026-10-15/.
+A broader snapshot audit remains blocked by an unrelated N700 providers#6
+review/source mismatch; its failure is retained and referred to that owner.
+This closes these documentation/help scopes only, not the whole semantic
+sweep, N703 platform acceptance, final CI or release.
+
+2026-10-15 — Three actual missing private docstrings restored.
+model_zoo._bad_model_metadata, distributed_jobs._SSHAuthBroker.__init__ and
+remote_execution._SSHSessionPool.__init__ now describe their actual behavior.
+Executable ASTs are identical. Normal public/private-class and nested-helper
+eligibility proves no new rendered API or runtime targets. The original zero
+undocumented-callable gate passes on its exact tested source (27,364callables);
+this is not a new blanket scientific, global API-review or release claim.
+Evidence: data/ci_callable_documentation_contracts_2026-10-15/.

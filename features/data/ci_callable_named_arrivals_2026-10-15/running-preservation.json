@@ -1,0 +1,15 @@
+{
+  "tested_source_sha256": "8683003b65259befc8e9f5879b4bcee06a4733b9319091a9b43a157050542dee",
+  "protected_paths_equal_prepared": {
+    "tools/build_documentation_i18n.py": true,
+    "spacr/remote_execution.py": true,
+    "spacr/qt/widgets/figure_queue.py": true,
+    "spacr/embeddings.py": true,
+    "spacr/qt/screens/embeddings.py": true,
+    "tests/data/release_contracts/561_classifier_api_arrivals_2026-10-15.json": true,
+    "tests/data/release_contracts/180_session_figure_api_arrivals_2026-10-15.json": true
+  },
+  "tracked_mutations": [
+    "tests/test_docstring_correctness.py"
+  ]
+}

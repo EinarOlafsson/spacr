@@ -162,7 +162,7 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
     lessons = sorted({p.parts[2] for p in kept
                       if len(p.parts) > 2 and p.parts[1] == "production"})
     catalog = json.loads(
-        (_LIBRARY / "tutorials" / "catalog" / "lessons_en.json").read_text())
+        (_LIBRARY / "tutorials" / "catalog" / "lessons_en.json").read_text(encoding="utf-8"))
     expected = {lesson["id"] for lesson in catalog["lessons"]
                 if lesson.get("status") != "coming_soon"}
     known = {lesson["id"] for lesson in catalog["lessons"]}
@@ -200,9 +200,9 @@ def _hosted_web_copies():
     flagged = {lesson["id"]: lesson["web"] for lesson in catalog["lessons"] if "web" in lesson}
     if not flagged:
         return {}
-    checkpoint = REPO_ROOT / "tools" / "tutorials" / "release_candidate"
-    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
-    manifest = json.loads((checkpoint / "release-manifest.json").read_text())
+    checkpoint = REPO_ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text(encoding="utf-8"))
+    manifest = json.loads((checkpoint / "release-manifest.json").read_text(encoding="utf-8"))
     readback = receipt["readback"]
     assert readback["passed"] is True and readback["commit"] == receipt["commit"]
     assert readback["downloaded_sha256_matched"] == readback["files_expected"]
@@ -220,7 +220,7 @@ def test_narration_is_external_not_duplicated_on_pages(real_plan):
     """Hugging Face serves narration; Pages keeps video and captions."""
     _published, _dropped, keep = real_plan
     catalog = budget.parse_voice_catalog(
-        budget.voice_catalog_path(_LIBRARY).read_text())
+        budget.voice_catalog_path(_LIBRARY).read_text(encoding="utf-8"))
 
     assert budget.NARRATION_HOST
     assert set(keep) == set(catalog)
@@ -250,8 +250,8 @@ def _checked_player_source(tutorials, checkpoint, source_receipt):
     import hashlib
 
     manifest_path = checkpoint / "release-manifest.json"
-    manifest = json.loads(manifest_path.read_text())
-    receipt = json.loads((checkpoint / "publication-receipt.json").read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text(encoding="utf-8"))
     assert receipt["manifest_sha256"] == hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     published = {row["path"]: row for row in manifest["files"]}
     names = ("app_v2.js", "styles.css")
@@ -261,7 +261,7 @@ def _checked_player_source(tutorials, checkpoint, source_receipt):
                   for name in names)
     index = (tutorials / "index.html").read_text(encoding="utf-8")
     if changed:
-        source = json.loads(source_receipt.read_text())
+        source = json.loads(source_receipt.read_text(encoding="utf-8"))
         assert source["published"] is False
         assert source["historical_manifest_sha256"] == hashlib.sha256(
             manifest_path.read_bytes()).hexdigest()
@@ -343,7 +343,7 @@ def test_narration_is_the_stable_mobile_clock():
     # the historical published manifest to imply an upload that did not occur.
     _checked_player_source(
         _LIBRARY / "tutorials",
-        REPO_ROOT / "tools/tutorials/release_candidate",
+        REPO_ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint",
         REPO_ROOT / "tools/tutorials/evidence/2026-10-02-player-source-checks.json")
     assert 'app_v2.js?v=20260923-workflow78-learning-order' not in index
     assert 'app_v2.js?v=20260911-narration-captions' not in index
@@ -372,9 +372,9 @@ def test_source_player_receipt_rejects_drift(tmp_path, mutation):
         with (tutorials / "app_v2.js").open("a") as stream:
             stream.write("\n// An unreviewed later player change.\n")
     elif mutation == "cache_key":
-        source = json.loads(receipt.read_text())
+        source = json.loads(receipt.read_text(encoding="utf-8"))
         index = tutorials / "index.html"
-        index.write_text(index.read_text().replace(source["cache_key"], "old-cache"))
+        index.write_text(index.read_text(encoding="utf-8").replace(source["cache_key"], "old-cache"))
     else:
         with (checkpoint / "release-manifest.json").open("a") as stream:
             stream.write("\n")
@@ -393,7 +393,7 @@ def test_the_catalog_offers_every_hosted_voice(real_plan):
     """
     _published, _dropped, keep = real_plan
     catalog = budget.parse_voice_catalog(
-        budget.voice_catalog_path(_LIBRARY).read_text())
+        budget.voice_catalog_path(_LIBRARY).read_text(encoding="utf-8"))
 
     assert budget.NARRATION_HOST, (
         "no host is configured, so the catalog would be offering voices "
@@ -577,7 +577,7 @@ def test_the_staged_catalog_offers_exactly_what_was_staged(tiny_library,
     dest = tmp_path / "staged"
     budget.stage(dest, tiny_library, per_language=1)
 
-    staged_js = (dest / "tutorials" / "voice_catalog.js").read_text()
+    staged_js = (dest / "tutorials" / "voice_catalog.js").read_text(encoding="utf-8")
     offered = budget.parse_voice_catalog(staged_js)
     assert offered == {"en": ["af_heart"], "ja": ["jf_alpha"]}
 
@@ -608,9 +608,9 @@ def test_a_configured_host_leaves_the_catalog_alone(tiny_library, tmp_path,
     budget.stage(dest, tiny_library, per_language=1)
 
     source = budget.parse_voice_catalog(
-        budget.voice_catalog_path(tiny_library).read_text())
+        budget.voice_catalog_path(tiny_library).read_text(encoding="utf-8"))
     offered = budget.parse_voice_catalog(
-        (dest / "tutorials" / "voice_catalog.js").read_text())
+        (dest / "tutorials" / "voice_catalog.js").read_text(encoding="utf-8"))
     assert offered == source, (
         "the catalog was trimmed even though a narration host is configured")
     assert sum(len(v) for v in offered.values()) > 2, (
@@ -695,7 +695,7 @@ def test_conf_py_publishes_the_staged_tree_rather_than_the_raw_one():
     write, and it is what put the site at 88% of the Pages limit. If it comes
     back, everything above goes on passing while the build ships 712 MiB.
     """
-    conf = (REPO_ROOT / "docs" / "source" / "conf.py").read_text()
+    conf = (REPO_ROOT / "docs" / "source" / "conf.py").read_text(encoding="utf-8")
     assert "html_extra_path = ['_extra']" not in conf
     assert "docs_media_budget" in conf, (
         "conf.py no longer stages the tutorial media through "
@@ -711,13 +711,28 @@ def test_the_budget_module_runs_as_a_script():
     assert "OVER" not in report
 
 
-def test_docs_workflow_publishes_both_branches_without_overwriting_main():
-    """Both branch builds are required before a combined Pages artifact ships."""
-    workflow = (REPO_ROOT / ".github/workflows/docs.yml").read_text()
+def test_docs_workflow_publishes_each_branch_to_its_own_host():
+    """Main deploys to Pages alone; nightly goes to its Hugging Face Space."""
+    import yaml
+    workflow = (REPO_ROOT / ".github/workflows/docs.yml").read_text(encoding="utf-8")
+    jobs = yaml.safe_load(workflow)["jobs"]
     assert "branches: [main, nightly]" in workflow
-    assert "branch: [main, nightly]" in workflow
-    assert "--main channels/docs-channel-main" in workflow
-    assert "--nightly channels/docs-channel-nightly" in workflow
     assert "--english-required" in workflow
-    assert "upload-pages-artifact" in workflow
-    assert "needs: build" in workflow
+    assert jobs["deploy-pages"]["if"] == "needs.resolve.outputs.branch == 'main'"
+    assert jobs["deploy-space"]["if"] == "needs.resolve.outputs.branch == 'nightly'"
+    pages = yaml.safe_dump(jobs["deploy-pages"])
+    assert "assemble-main" in pages and "upload-pages-artifact" in pages
+    downloads = [step["with"]["name"]
+                 for step in jobs["deploy-pages"]["steps"]
+                 if step.get("uses", "").startswith("actions/download-artifact@")]
+    assert downloads == ["docs-channel-main"]
+    assert "--main channels/docs-channel-main" in pages
+    assert "assemble-nightly" not in pages
+    assert "docs-channel-nightly" not in pages
+    commands = "\n".join(step.get("run", "") for step in jobs["deploy-pages"]["steps"])
+    assert '--nightly-url "$HF_DOCS_URL"' in commands
+    space = yaml.safe_dump(jobs["deploy-space"])
+    assert "secrets.HF_DOCS_TOKEN" in space and "upload-nightly" in space
+    assert "pages" not in jobs["deploy-space"].get("permissions", {})
+    for job in ("deploy-pages", "deploy-space"):
+        assert "build" in jobs[job]["needs"]

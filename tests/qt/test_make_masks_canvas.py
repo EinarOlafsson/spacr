@@ -358,8 +358,8 @@ def test_brush_press_paints_and_signals(canvas):
     canvas.mousePressEvent(press(*canvas_xy(32, 32)))
     assert started == [1] and finished == []
     radius = 40 * IMG_N // PIXMAP_N
-    assert canvas.mask[32, 32] == 255
-    assert canvas.mask[32 - radius, 32 - radius] == 255
+    assert canvas.mask[32, 32] == 1, "a stroke on empty ground is a new object"
+    assert canvas.mask[32 - radius, 32 - radius] == 1
     assert canvas.mask[0, 0] == 0
     painted = int((canvas.mask > 0).sum())
     assert painted == (2 * radius) ** 2, f"got {painted}px"
@@ -380,7 +380,7 @@ def test_brush_drag_paints_a_connected_line(canvas):
     canvas.mouseReleaseEvent(release(*canvas_xy(50, 32)))
 
     row = canvas.mask[32, :]
-    assert row[10] == 255 and row[50] == 255
+    assert row[10] == 1 and row[50] == 1
     # Bresenham stamped every pixel in between — no gaps.
     assert (row[10:51] > 0).all(), f"gap in stroke: {np.where(row[10:51] == 0)}"
     assert row[5] == 0 and row[60] == 0
@@ -460,7 +460,7 @@ def test_drag_entering_the_canvas_still_opens_a_stroke(canvas):
     assert started == [1], "moving into the image must open the stroke"
     canvas.mouseReleaseEvent(release(*canvas_xy(32, 32)))
     assert finished == [1], "the stroke must close so history records it"
-    assert canvas.mask[32, 32] == 255
+    assert canvas.mask[32, 32] == 1
 
 
 def test_drag_leaving_the_canvas_keeps_the_stroke_open(canvas):
@@ -769,7 +769,7 @@ def test_clear_mask_public_api_zeroes_and_is_undoable(screen):
     screen._history.push(screen._canvas.mask)
     screen.clear_mask()
     assert not screen._canvas.mask.any()
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     assert int((screen._canvas.mask > 0).sum()) == 100
 
@@ -873,7 +873,7 @@ def test_pick_folder_opens_the_chosen_directory(qtbot, qt_theme_applied,
     assert seen["start"] == os.getcwd()          # no folder open yet
     assert s._folder == str(folder_3)
     assert len(s._image_files) == 3
-    assert s._body_stack.currentWidget() is s._body_splitter
+    assert s._body_stack.currentWidget() is s._image_page
 
 
 def test_pick_folder_cancelled_changes_nothing(qtbot, qt_theme_applied,
@@ -976,19 +976,19 @@ def test_undo_and_redo_are_noops_with_a_single_snapshot(screen):
     screen._on_undo()
     screen._on_redo()
     assert (screen._canvas.mask == before).all()
-    assert not screen._btn_undo.isEnabled()
-    assert not screen._btn_redo.isEnabled()
+    assert not screen._act_undo.isEnabled()
+    assert not screen._act_redo.isEnabled()
 
 
 def test_stroke_finished_pushes_history_and_enables_undo(screen):
-    assert not screen._btn_undo.isEnabled()
+    assert not screen._act_undo.isEnabled()
     screen._canvas.mask[10:20, 10:20] = 255
     screen._on_stroke_started()                    # deliberately a no-op
     screen._canvas.stroke_finished.emit()
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     assert not screen._canvas.mask.any(), "undo must return to the loaded mask"
-    assert screen._btn_redo.isEnabled()
+    assert screen._act_redo.isEnabled()
     screen._on_redo()
     assert int((screen._canvas.mask > 0).sum()) == 100
 
@@ -1002,7 +1002,7 @@ def test_brush_stroke_through_the_canvas_lands_in_history(screen):
     c.mouseMoveEvent(move(*canvas_xy(44, 32)))
     c.mouseReleaseEvent(release(*canvas_xy(44, 32)))
     assert (c.mask[32, 20:45] > 0).all()
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     assert not c.mask.any()
 
@@ -1016,8 +1016,8 @@ def test_drag_from_the_margin_is_undoable(screen):
     c.mousePressEvent(press(MARGIN_X - 25, 200))
     c.mouseMoveEvent(move(*canvas_xy(32, 32)))
     c.mouseReleaseEvent(release(*canvas_xy(32, 32)))
-    assert c.mask[32, 32] == 255
-    assert screen._btn_undo.isEnabled(), "off-canvas drag was never recorded"
+    assert c.mask[32, 32] == 1
+    assert screen._act_undo.isEnabled(), "off-canvas drag was never recorded"
     screen._on_undo()
     assert not c.mask.any()
 
@@ -1030,7 +1030,7 @@ def test_stroke_finished_without_a_mask_pushes_nothing(qtbot,
     s._canvas.stroke_finished.emit()
     assert not s._history.can_undo()
     assert not s._history.can_redo()
-    assert not s._btn_undo.isEnabled()
+    assert not s._act_undo.isEnabled()
 
 
 def _shortcut(widget, sequence: str):
@@ -1109,7 +1109,7 @@ def test_invert_mask_swaps_foreground_and_background(screen):
     assert out[15, 15] == 0, "the object became background"
     assert out[0, 0] > 0, "the background became an object"
     assert int((out > 0).sum()) == IMG_N * IMG_N - 100
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     assert int((screen._canvas.mask > 0).sum()) == 100
 
@@ -1149,7 +1149,7 @@ def test_object_ops_are_noops_without_an_image(qtbot, qt_theme_applied):
                s._on_remove_small):
         fn()
     assert s._canvas.mask is None
-    assert not s._btn_undo.isEnabled()
+    assert not s._act_undo.isEnabled()
 
 
 # ===========================================================================

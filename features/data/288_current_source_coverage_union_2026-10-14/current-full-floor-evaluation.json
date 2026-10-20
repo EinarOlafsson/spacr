@@ -1,0 +1,68 @@
+{
+  "label": "CURRENT SOURCE-BOUND LOGICAL FLOOR DIAGNOSTIC; NOT NEW HOSTED CI OR HARDWARE ACCEPTANCE",
+  "candidate_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "run_id": 38512120776,
+  "run_attempt": 1,
+  "evaluation": {
+    "scope": "Logical diagnostic using the genuine current normal hosted report, exact nonOps file-specific arc/context equality, and normal measured Ops report; not a new full normal ratchet or hosted CI result.",
+    "modules": 664,
+    "nonops_current_modules_at_least_90": 663,
+    "ops_actual_at_least_90": true,
+    "modules_below_literal_floor": 0,
+    "baseline_or_exemption_changed": false
+  },
+  "actual_ops_summary": {
+    "covered_lines": 144,
+    "num_statements": 147,
+    "percent_covered": 97.04433497536945,
+    "percent_covered_display": "97.04",
+    "missing_lines": 3,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.95918367346938,
+    "percent_statements_covered_display": "97.96",
+    "num_branches": 56,
+    "num_partial_branches": 3,
+    "covered_branches": 53,
+    "missing_branches": 3,
+    "percent_branches_covered": 94.64285714285714,
+    "percent_branches_covered_display": "94.64"
+  },
+  "current_ambient_summary": {
+    "covered_lines": 6416,
+    "num_statements": 6416,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 1716,
+    "num_partial_branches": 0,
+    "covered_branches": 1716,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "nonops_file_specific_context_arcs_equal": true,
+  "nonops_compared_files": 667,
+  "all12_integrity": {
+    "checked": true,
+    "shard_count": 12,
+    "shards_with_records": 12,
+    "status": "complete",
+    "issues": [],
+    "recovered": [],
+    "loss_kinds": {}
+  },
+  "originals_and_source_unchanged": true,
+  "full_current_cpu_db_sha256": "f9e57d905a439d0f9de1d5ead40a8a94a7cb546b66def68c31860c4736cf3543",
+  "full_current_cpu_plus_ops_gpu_db_sha256": "ab8627bcaaed01860d5234c9c385110d1b6eed9fd0f0128dd01f5f322a2c978a",
+  "source_guard_path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f288-current-a744-union-plan-20261014/analysis-v2/source-bindings.json",
+  "normal_scoped_report_path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f288-current-a744-union-plan-20261014/analysis-v2/current-plus-ops-scoped.json",
+  "limits": [
+    "Logical floor evaluation; no new full normal ratchet/CI result.",
+    "Genuine historical Work CuPy execution retained; no new device test.",
+    "Global context set may gain Ops-only Work context.",
+    "First attempt normal basename setup failure preserved; corrected second attempt actual exit0."
+  ]
+}

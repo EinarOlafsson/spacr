@@ -38,13 +38,16 @@ Page custom ConsentPage ConsentPageLeave
 
 Var ConsentShare
 Var ConsentIssues
-Var ConsentSignIn
 Var ConsentShareValue
 Var ConsentIssuesValue
-Var ConsentSignInValue
 Var ConsentCollectedValue
 
 Section /o "$(SPACR_NSIS_GPU)" SecGpu
+SectionEnd
+
+; Off by default: wgpu draws the True 3D view through Vulkan or Direct3D 12.
+; Ticked, spaCR is installed without wgpu and draws 3D through OpenGL or the CPU.
+Section /o "$(SPACR_WITHOUT_WGPU)" SecWithoutWgpu
 SectionEnd
 
 Function .onInit
@@ -53,9 +56,9 @@ Function .onInit
   ; NVIDIA hardware is present and falls back safely on other systems. The
   ; user can still untick this component to require the smaller CPU wheel.
   SectionSetFlags ${SecGpu} ${SF_SELECTED}
-  StrCpy $ConsentShareValue 0
-  StrCpy $ConsentIssuesValue 0
-  StrCpy $ConsentSignInValue 0
+  SectionSetFlags ${SecWithoutWgpu} 0
+  StrCpy $ConsentShareValue 1
+  StrCpy $ConsentIssuesValue 1
   StrCpy $ConsentCollectedValue 0
 FunctionEnd
 
@@ -65,33 +68,34 @@ Function ConsentPage
   ${If} $0 == error
     Abort
   ${EndIf}
-  ${NSD_CreateLabel} 0 0 100% 58u "Privacy and optional account setup$\r$\n$\r$\nCrash reports go to the PUBLIC spaCR GitHub repository. They are world-readable, indexed, and cannot be reliably unpublished. Every report is redacted, shown in an editable preview, and sent only when you press Send for that report. These choices are optional and revocable in Preferences."
+  ${NSD_CreateLabel} 0 0 100% 12u "Privacy choices"
   Pop $0
-  ${NSD_CreateCheckbox} 0 66u 100% 12u "Include redacted diagnostic logs in report previews (off by default)"
+  ${NSD_CreateCheckbox} 0 20u 100% 12u "Include redacted diagnostic logs in report previews"
   Pop $ConsentShare
-  ${NSD_CreateCheckbox} 0 84u 100% 12u "Enable the public GitHub issue-report action (off by default)"
+  ${NSD_Check} $ConsentShare
+  ${NSD_CreateCheckbox} 0 38u 100% 12u "Enable the public GitHub issue-report action"
   Pop $ConsentIssues
-  ${NSD_CreateCheckbox} 0 102u 100% 22u "Set up GitHub, Claude, GPT/Codex, and Gemini on first launch; official CLIs own credentials (off by default)"
-  Pop $ConsentSignIn
+  ${NSD_Check} $ConsentIssues
   nsDialogs::Show
 FunctionEnd
 
 Function ConsentPageLeave
   ${NSD_GetState} $ConsentShare $ConsentShareValue
   ${NSD_GetState} $ConsentIssues $ConsentIssuesValue
-  ${NSD_GetState} $ConsentSignIn $ConsentSignInValue
   StrCpy $ConsentCollectedValue 1
 FunctionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGpu} "Automatic acceleration (recommended): uses CUDA on compatible NVIDIA hardware and falls back safely elsewhere. Untick only for a smaller CPU-only installation."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWithoutWgpu} "$(SPACR_WITHOUT_WGPU_DESCRIPTION)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   SectionIn RO
+  InitPluginsDir
   SetOutPath "$INSTDIR"
   File /oname=spacr.ico "${SPACR_ICON}"
-  SetOutPath "$TEMP\spaCR-online-installer"
+  SetOutPath "$PLUGINSDIR\spaCR-online-installer"
   File "install_spacr_windows.ps1"
   File /r "generated"
   ; The finder and remover the bootstrap runs before it installs: the same
@@ -103,6 +107,13 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   IntOp $2 $2 & ${SF_SELECTED}
   ${If} $2 != 0
     StrCpy $1 "auto"
+  ${EndIf}
+
+  StrCpy $5 ""
+  SectionGetFlags ${SecWithoutWgpu} $2
+  IntOp $2 $2 & ${SF_SELECTED}
+  ${If} $2 != 0
+    StrCpy $5 " -WithoutWgpu"
   ${EndIf}
 
   ; Keep the bootstrap phase in the language selected in MUI_LANGDLL_DISPLAY,
@@ -131,10 +142,10 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   ; Keep a tiny wrapper-level trace even when PowerShell fails before its own
   ; transcript starts. This makes silent enterprise/CI installs diagnosable.
   FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" w
-  FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$\r$\n"
+  FileWrite $4 "starting backend=$1 language=$3 consent=$ConsentCollectedValue$5$\r$\n"
   FileClose $4
   DetailPrint "$(SPACR_NSIS_DOWNLOADING)"
-  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue -SignInNow $ConsentSignInValue'
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1" -InstallRoot "$INSTDIR" -Version "${VERSION}" -TorchBackend "$1" -Language "$3" -ConsentCollected $ConsentCollectedValue -ShareDiagnostics $ConsentShareValue -ReportIssues $ConsentIssuesValue$5'
   Pop $0
   FileOpen $4 "$INSTDIR\nsis-bootstrap-status.txt" a
   FileWrite $4 "exit=$0$\r$\n"
@@ -155,19 +166,19 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
 
   WriteUninstaller "$INSTDIR\Uninstall.exe"
   CreateDirectory "$SMPROGRAMS\spaCR"
-  CreateShortcut "$SMPROGRAMS\spaCR\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
+  CreateShortcut "$SMPROGRAMS\spaCR\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
   CreateShortcut "$SMPROGRAMS\spaCR\Uninstall spaCR.lnk" "$INSTDIR\Uninstall.exe"
-  CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
+  CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
 
-  Delete "$TEMP\spaCR-online-installer\install_spacr_windows.ps1"
-  Delete "$TEMP\spaCR-online-installer\install_cleanup.py"
-  Delete "$TEMP\spaCR-online-installer\generated\installer_messages.ps1"
-  RMDir "$TEMP\spaCR-online-installer\generated"
-  RMDir "$TEMP\spaCR-online-installer"
+  Delete "$PLUGINSDIR\spaCR-online-installer\install_spacr_windows.ps1"
+  Delete "$PLUGINSDIR\spaCR-online-installer\install_cleanup.py"
+  Delete "$PLUGINSDIR\spaCR-online-installer\generated\installer_messages.ps1"
+  RMDir "$PLUGINSDIR\spaCR-online-installer\generated"
+  RMDir "$PLUGINSDIR\spaCR-online-installer"
 SectionEnd
 
 Function LaunchSpaCR
-  ExecShell "open" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"'
+  ExecShell "open" "$INSTDIR\venv\Scripts\pythonw.exe" '-I "$INSTDIR\launch_spacr.pyw"'
 FunctionEnd
 
 ; NSIS identifies the uninstaller by this exact sentinel name. Localising it
@@ -181,12 +192,17 @@ Section "Uninstall"
   ${IfNot} ${Errors}
     ExecWait '"$INSTDIR\venv\Scripts\python.exe" -m spacr.install_cleanup purge'
   ${EndIf}
-  Delete "$DESKTOP\spaCR.lnk"
-  RMDir /r "$SMPROGRAMS\spaCR"
-  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR"
-  ; Registry names ignore case, so this is also the key the settings live in
-  ; (Software\spacr\qt). Delete only what the installer wrote.
-  DeleteRegValue HKCU "Software\spaCR" "InstallRoot"
-  DeleteRegKey /ifempty HKCU "Software\spaCR"
-  RMDir /r "$INSTDIR"
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  File "uninstall_spacr_windows.ps1"
+  nsExec::ExecToLog 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\uninstall_spacr_windows.ps1" -InstallRoot "$INSTDIR"'
+  Pop $0
+  ${If} $0 != 0
+    MessageBox MB_ICONSTOP "$(SPACR_NSIS_UNINSTALL_FAILED)"
+    SetErrorLevel $0
+    Abort
+  ${EndIf}
+  ; The shared remover handles only matching shortcuts/registrations and keeps
+  ; user/cache/model/unknown folders. Remove the root only when it is empty.
+  RMDir "$INSTDIR"
 SectionEnd

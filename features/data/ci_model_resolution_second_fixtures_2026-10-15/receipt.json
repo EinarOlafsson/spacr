@@ -1,0 +1,49 @@
+{
+  "scope": "Five named test bodies only; no product, fixture, conftest, model policy or resolver changes.",
+  "baseline": "5 FAIL 7.88s",
+  "final": "5 PASS 8.22s, zero skips, eight warnings preserved",
+  "warning_scope": "Existing preference-guard warning reports another process changing live qt.conf despite this test sandbox; joblib/NumPy deprecations also retained. No timing/native/whole-CI claim.",
+  "plaque_order_cause": "A real offscreen QApplication reproduces the hosted surviving-GUI-thread condition. Test explicitly verifies main-thread ModelUnreadable/no-fetch then resolves on a real worker with timeout/exception propagation. GUI guard never mocked.",
+  "other_changes": "Two current ModelZooError refusal contracts, real local augmentation checkpoint prerequisite/exact fake-loader path+unchangedbytes, original N470 missing-channel skip/mask bytes plus current ValueError field/request/candidate context.",
+  "environment": "blank CUDA/offscreen/2GiB/thread1/Original heavy.lock/socket connect+DNS tripwire; no model downloads or checkpoint decode",
+  "source_proof": {
+    "tests/test_coverage_fill_cellpose_gpu_funcs.py": {
+      "before_sha256": "1c180a396931303cc3d47d949d1a99c76809ca4679606506879836c900d0ddc6",
+      "after_sha256": "04d1f9c9b45f9dfc0f2161399b904eb8877cf7ce1379dae879de9ea31da48ba6",
+      "outside_target_body_entire_ast_unchanged": true
+    },
+    "tests/test_inference_augmentation.py": {
+      "before_sha256": "fa02ef3f220d5e0734b4fbec705fd32012b07349bc94d68345f92460f4a8de1c",
+      "after_sha256": "f39fd1bdad7b7e0af0f2300d53d6f5e8bb35c9e4a2eb304dfd75e838815d5b03",
+      "outside_target_body_entire_ast_unchanged": true
+    },
+    "tests/test_plaque_assay_growth_models_and_figure_notes.py": {
+      "before_sha256": "6b45167756de226a8cb3768e533ffab23ec1c325bdcd6ef6b2f00964ebf518fb",
+      "after_sha256": "d5b9c55a9a1ab0be649ac9c2b0e90d3fbb5a5c7521ba08d84b1226790047e0b9",
+      "outside_target_body_entire_ast_unchanged": true
+    },
+    "tests/test_470_real_object_classifier.py": {
+      "before_sha256": "ea89e2cf05208a9ec867d897489122056255343146739e9cc5725b95f4ed5df4",
+      "after_sha256": "411e2fb041dbd98af53ebf391c4d5cff2c7100f8ff50688ad7fea009d8df8440",
+      "outside_target_body_entire_ast_unchanged": true
+    },
+    "tests/test_prefixed_backends_run_in_their_own_environment.py": {
+      "before_sha256": "c536c54dbdfe1a9a548a98563810f30feed3dde6cac8bef05932ca64e30588cc",
+      "after_sha256": "dbee07a2563b86c94ce50382314b4b95f45e186698b05ca461676ee33e945a7a",
+      "outside_target_body_entire_ast_unchanged": true
+    }
+  },
+  "files_sha256": {
+    "baseline.log.gz": "4283063318b4051cd8bedee8e3ce8c34d53385bd2c5a2f9719c2539833835589",
+    "baseline.sh": "46f238ffb9f87bd0d6be08f26f6dcffdc9db0a479dad401eeb6cc015bd3a4d96",
+    "pytest-offline.py": "7b1ceee40506fad7cac2539c26f9c8b86ceee6925bb18908589f8fc4d8e3b5c6",
+    "baseline.xml.gz": "aa6cab9cdad2c4c19499bd493a901a976c548c7479950e5dbb65f7de5a93e346",
+    "source-proof.json": "85cfce24c61598a191661a8c7fa2542e1a0005850437996f5faf9eda4c1473ad",
+    "final.log.gz": "80c1cc92cbe28ca41582b4b6d32c615e7870c337ad3418d218f4b53b613e0dbb",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "final.xml.gz": "170abbe05d80b5c3db603a858048cb4965475af41801d23ecbf1615543e78cd6",
+    "final.sh": "78311181cc48009aecdc6b8571192ac1e828025def21f4f2e59dd312df6cbdbc",
+    "nodes.json": "debf44f18f607759cae5507b0ebe6225843ff69d056e31c40f9b4dab52fda951",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}

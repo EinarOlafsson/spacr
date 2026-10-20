@@ -1,26 +1,20 @@
 """The canonical nuclear map, composed one window at a time.
 
-`ops_stitch` solves where every tile sits and
-deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is
-1.4 GB as uint16 for ONE channel, and every later phase would read through it.
-This module composes the same well WINDOW BY WINDOW instead, which is what
-segmentation wants anyway: segment once, on the composite, a window at a
-time.
+`ops_stitch` solves where every tile sits and deliberately does not hold the
+pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for one
+channel, and every later phase would read through it. This module composes the
+same well window by window instead, which is what segmentation wants anyway:
+segment once, on the composite, a window at a time.
 
-    THE MEMORY PROBLEM AND THE SEGMENTATION PLAN HAVE THE SAME ANSWER. A
-    window that a segmenter can hold is also a window a composer can build,
+    A window that a segmenter can hold is also a window a composer can build,
     so nothing ever materialises the whole canvas. The join key the object
-    numbering needs --
-    a plate-level object number in the WELL frame -- survives because every
-    window carries its own offset into that frame.
+    numbering needs -- a plate-level object number in the well frame --
+    survives because every window carries its own offset into that frame.
 
-WHY AVERAGE THE OVERLAPS AT ALL. PART 15 measured it: the gain is about
-1.15x on the exact channel segmentation runs on, not the 3.3x an earlier
-draft claimed from averaging across cycles. There is only one DAPI
-acquisition, so the eleven-sample argument does not apply -- what is left is
-the raster's own 14% overlap, where two tiles saw the same nuclei twice.
-1.15x is worth having and is not worth overstating, which is why the number
-is here rather than the adjective.
+Averaging the overlaps gives a measured noise gain of about 1.15x on the
+channel segmentation runs on. There is only one DAPI acquisition, so averaging
+across cycles does not apply; the gain comes from the raster's 14% overlap,
+where two tiles imaged the same nuclei.
 """
 from __future__ import annotations
 
@@ -76,11 +70,10 @@ def windows_over(canvas: Tuple[int, int], size: int = 4096,
                  overlap: int = 256) -> Iterator[Window]:
     """Tile a canvas into overlapping windows, in raster order.
 
-    THE WINDOWS OVERLAP ON PURPOSE, and sewing is the reason: an object
-    straddling
-    a window boundary is one object, and it can only be matched across the
-    seam if both windows saw all of it. The overlap has to exceed the largest
-    object, not merely touch.
+    The windows overlap so objects can be sewn across them: an object
+    straddling a window boundary is one object, and it can only be matched
+    across the seam if both windows saw all of it. The overlap has to exceed
+    the largest object, not merely touch.
 
     :param canvas: ``(height, width)`` of the well frame.
     :param size: window edge in pixels.
@@ -115,22 +108,20 @@ def compose_window(window: Window,
                    dtype: type = np.float32) -> Tuple[np.ndarray, np.ndarray]:
     """Average every tile that overlaps ``window`` into one image.
 
-    AVERAGED, NOT LAST-WRITER-WINS. A tile pasted over its neighbour keeps a
-    seam exactly where two tiles disagree, and a seam is a gradient a
-    segmenter will happily find an edge in. Averaging removes the seam AND is
-    where the 1.15x comes from; they are the same operation.
+    Averaged, not last-writer-wins. A tile pasted over its neighbour keeps a
+    seam where two tiles disagree, and a segmenter can detect that seam as an
+    edge. Averaging removes the seam and also gives the 1.15x noise gain.
 
     :param window: the rectangle of the well frame to build.
     :param placements: ``site -> (y, x)`` from the solve, in well pixels.
-    :param read_tile: called with a site number, returns that tile. Called
-        ONLY for tiles that actually touch the window, so a well of 333 tiles
-        costs a handful of reads per window rather than 333.
+    :param read_tile: called with a site number, returns that tile. Called only
+        for tiles that touch the window, so a well of 333 tiles costs a handful
+        of reads per window rather than 333.
     :param tile_shape: ``(height, width)``; read from the first tile when
         omitted.
     :returns: ``(image, coverage)`` -- the averaged window and how many tiles
-        contributed to each pixel. COVERAGE IS RETURNED RATHER THAN DISCARDED
-        because a pixel no tile reached is not a black pixel, and only the
-        count tells them apart.
+        contributed to each pixel. Coverage is returned because a pixel no tile
+        reached is not a black pixel, and only the count tells them apart.
     """
     if window.height <= 0 or window.width <= 0:
         raise ComposeError("a window needs a positive height and width")
@@ -170,16 +161,16 @@ def compose_window(window: Window,
 
 
 def overlap_gain(count: np.ndarray) -> float:
-    """The noise gain averaging bought, over pixels a tile actually reached.
+    """The noise gain from averaging, over pixels a tile reached.
 
     sqrt of the mean coverage: averaging n independent samples of one signal
-    divides the noise by sqrt(n). Reported over COVERED pixels only, because
-    a well's corners are reached by one tile and including the uncovered
+    divides the noise by sqrt(n). Reported over covered pixels only, because a
+    well's corners are reached by one tile and including the uncovered
     background would report a gain for pixels nothing measured.
 
-    PART 15 measured 1.15x for well A1 at a 14% raster overlap. A composer
-    that reports much more than that on the same geometry is averaging
-    something twice.
+    A gain of 1.15x was measured for well A1 at a 14% raster overlap; a much
+    larger value on the same geometry indicates that something is averaged
+    twice.
 
     :param count: the coverage array from :func:`compose_window`.
     """

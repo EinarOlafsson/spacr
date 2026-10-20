@@ -692,7 +692,7 @@
       "source": "Quantify plaque number and size.",
       "source_sha256": "c0d42dc824bba34169d53fe155c1c39c169c1b5ea329971b075e99254261237c",
       "table": "ui",
-      "translation": "Magngreina fjölda og stærð rofbletta."
+      "translation": "Magngreina fjölda og stærð skellna."
     },
     {
       "key": "Quantify uptake by phagocytes.",

@@ -34,3 +34,41 @@ clipping. Tests: tests/qt/test_597_home_aside_handle_and_text_slider.py.
 Left: nothing.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-15 Home-B — System refresh retains the selected text size
+
+The actual System-panel Refresh button rebuilt its six reading labels at
+their original 11/12 px size after the Home slider had enlarged them to
+18/19 px at 160%. Home now connects that same button to its existing text
+scale/refit pass, after the existing System refresh callback. Hardware
+readings, settings persistence, normal Home refresh and dock behavior are
+unchanged; no captions or API prose changed.
+
+The actual-button baseline failed on all six font sizes. Two new cases
+exercise 70% and 160%, repeated refresh with changed reading data, persisted
+scale and return to 100%. Together with the ten existing N597 cases, the
+final cohort passed 12 checks in 24.51 s under a 2 GB cap. The initial
+fixture failure counted hidden rows awaiting deferred deletion; that log is
+retained separately, and the corrected check measures only visible rows.
+Evidence: data/597_system_refresh_text_scale_2026-10-15/receipt.json.
+This is a specific Home refresh repair, not a new broad layout/native claim.
+
+2026-10-15 Home-B — original corrected contract complete
+
+The maintainer's correction replaces the proposed widget-size slider with
+the shared settings-column arrow/drag handle; only the text slider remains
+below the lowest panel. All requirements of that corrected contract now
+map to the current 12 passing owning Qt cases: live column resizing and
+folding with saved restoration; the sole correctly positioned text slider;
+live text sizing and saved restoration; rebuilt rows without compounding;
+and no panel overlap/clipping at the tested width/text extremes. The actual
+System Refresh violation found today is repaired in 87bc3e207d.
+
+Acceptance is bound to that immutable source and independent source/evidence
+peer faa7cebf7c. The requirement-by-requirement mapping is in
+data/597_system_refresh_text_scale_2026-10-15/original-contract-closeout.json.
+The current evidence is the 12-case, 24.51-second terminal pass already
+recorded above; no tests were repeated for this closeout. The historical
+1495-test note is not new evidence. No unmet requirement remains within
+this item's requested Qt acceptance; native/other-OS or all-GUI claims are
+not added. Left: nothing.

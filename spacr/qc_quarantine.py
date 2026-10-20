@@ -187,12 +187,14 @@ def _move_without_overwrite(source: Path, destination: Path) -> None:
         if exc.errno not in unsupported:
             raise
         descriptor = -1
+        created = None
         try:
             descriptor = os.open(
                 destination,
                 os.O_WRONLY | os.O_CREAT | os.O_EXCL,
                 source.stat().st_mode & 0o777,
             )
+            created = os.fstat(descriptor)
             with source.open("rb") as reader, os.fdopen(
                     descriptor, "wb") as writer:
                 descriptor = -1
@@ -205,7 +207,9 @@ def _move_without_overwrite(source: Path, destination: Path) -> None:
             if descriptor >= 0:
                 os.close(descriptor)
             try:
-                os.unlink(destination)
+                if created is not None and os.path.samestat(
+                        destination.lstat(), created):
+                    os.unlink(destination)
             except OSError:
                 pass
             raise

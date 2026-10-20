@@ -88,11 +88,12 @@ except Exception:
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
-        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
-        module scope, and IPython can be mid-init -- partially imported by
-        another thread -- which makes that import raise. Letting it propagate
-        would make importing this module fail for a reason that has nothing to
-        do with what the module does. spaCR only calls `display` from notebook
+        This no-op is the fallback used when importing
+        `IPython.display.display` fails. It is imported at module scope, and
+        IPython can be mid-init -- partially imported by another thread --
+        which makes that import raise. Letting it propagate would make
+        importing this module fail for a reason that has nothing to do with
+        what the module does. spaCR only calls `display` from notebook
         contexts; the Qt GUI ignores it.
 
         :param args: whatever the caller would have displayed.
@@ -107,6 +108,7 @@ from scipy.stats import chi2_contingency
 from sklearn.metrics import mean_absolute_error
 from skimage.measure import label as sklabel
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from natsort import natsorted
 
 from torch.utils.data import Dataset
@@ -116,7 +118,6 @@ from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
                             reference_line, resolve_ink, rotate_ticks,
                             theme_target)
 from .plot import save_figure
-from .logging_util import _spacr_home
 
 #: The categorical vocabulary for a plot whose categories genuinely ARE the
 #: data -- one line per measured column, one bar per class. Taken from the
@@ -275,8 +276,8 @@ class CellposeLazyDataset(Dataset):
     def __getitem__(self, idx):
         """Load one item, decoding ``idx`` into a file and an augmentation.
 
-        The file is read HERE rather than at construction, which is what makes the
-        dataset lazy: a plate larger than memory costs one image at a time.
+        The file is read here rather than at construction, so the dataset is
+        lazy: a plate larger than memory costs one image at a time.
         """
         base_idx = idx // self._n_augments
         aug_idx = idx % self._n_augments
@@ -474,7 +475,11 @@ def train_cellpose(settings):
     model_save_path = os.path.expanduser(settings['save_path'] or os.path.join(settings['src'], 'models', 'cellpose_model'))
     os.makedirs(model_save_path, exist_ok=True)
     save_settings(settings, name=model_name)
-    base = _resolve_training_base(settings['base_model'])
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned_base = _resolve_pinned_model_file(settings, 'base_model', kinds=('cellpose',))
+    base = (str(pinned_base) if pinned_base is not None
+            else _resolve_training_base(settings['base_model']))
     print(f'Training starts from {base}')
     model = cp_models.CellposeModel(gpu=_cellpose_use_gpu(), pretrained_model=base)
     try:
@@ -553,7 +558,7 @@ def test_cellpose_model(settings):
             save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
             save_path = save_figure(fig, save_path,
                                     bbox_inches='tight')
-            plt.show()
+            _show_if_interactive()
             plt.close(fig)
         
         
@@ -580,10 +585,17 @@ def test_cellpose_model(settings):
     test_dataset = CellposeLazyDataset(test_image_files, test_label_files, settings, randomize=False, augment=False)
 
     from .accelerator import cellpose_kwargs
+    from .model_zoo import _resolve_pinned_model_file
+    from .run_journal import current_run
 
+    pinned = _resolve_pinned_model_file(settings, 'model_path', kinds=('cellpose',))
+    model_path = str(pinned) if pinned is not None else _resolve_training_base(settings['model_path'])
     model = cp_models.CellposeModel(
-        pretrained_model=settings['model_path'], **cellpose_kwargs()
+        pretrained_model=model_path, **cellpose_kwargs()
     )
+    active_run = current_run()
+    if active_run is not None and os.path.isfile(model_path):
+        active_run.record_model('model_path', model_path)
 
     batch_size = settings['batch_size']
     scores = []
@@ -752,7 +764,7 @@ def apply_cellpose_model(settings):
             save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
             save_path = save_figure(fig, save_path,
                                     bbox_inches='tight')
-            plt.show()
+            _show_if_interactive()
             plt.close(fig)
         
         
@@ -771,10 +783,17 @@ def apply_cellpose_model(settings):
     dataset = CellposeLazyDataset(image_files, dummy_labels, settings, randomize=False, augment=False)
 
     from .accelerator import cellpose_kwargs
+    from .model_zoo import _resolve_pinned_model_file
+    from .run_journal import current_run
 
+    pinned = _resolve_pinned_model_file(settings, 'model_path', kinds=('cellpose',))
+    model_path = str(pinned) if pinned is not None else _resolve_training_base(settings['model_path'])
     model = cp_models.CellposeModel(
-        pretrained_model=settings['model_path'], **cellpose_kwargs()
+        pretrained_model=model_path, **cellpose_kwargs()
     )
+    active_run = current_run()
+    if active_run is not None and os.path.isfile(model_path):
+        active_run.record_model('model_path', model_path)
     batch_size = settings['batch_size']
     measurements = []
     
@@ -863,7 +882,7 @@ def plot_cellpose_batch(images, labels):
             axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
             axs[1, i].set_title(f'Label {i+1}')
             axs[1, i].axis('off')
-        plt.show()
+        _show_if_interactive()
 
 def analyze_percent_positive(settings):
     """Annotate objects above a threshold and summarise positive fractions per well.
@@ -1068,10 +1087,10 @@ def analyze_recruitment(settings):
 
     settings = get_analyze_recruitment_default_settings(settings=settings)
     
-    if settings['src'].endswith('/measurements.db'):
+    if settings['src'].replace('\\', '/').endswith('/measurements.db'):
         src_orig = settings['src']
         settings['src'] = os.path.dirname(settings['src'])
-        if settings['src'].endswith('/measurements'):
+        if settings['src'].replace('\\', '/').endswith('/measurements'):
             settings['src'] = os.path.dirname(settings['src'])
         else:
             src_mes = os.path.join(settings['src'], 'measurements')
@@ -1246,20 +1265,18 @@ def split_wells(settings):
     :returns: the folder holding the crops, or ``src`` unchanged when
         detection is off or finds nothing.
 
-    WHY THIS IS A SEPARATE PASS rather than a branch inside the segmenter: the
-    two shapes of input differ in what a RESULT ROW MEANS. One field per image
-    gives one row per image; a plate gives one row per well, and the well has
-    to be named or the conditions are pooled into a single meaningless count.
-    Splitting first makes every downstream row a well, whichever shape arrived.
+    This is a separate pass rather than a branch inside the segmenter because
+    the two shapes of input differ in what a result row means. One field per
+    image gives one row per image; a plate gives one row per well, and the well
+    has to be named or the conditions are pooled into a single meaningless
+    count. Splitting first makes every downstream row a well, whichever shape
+    arrived.
 
-    AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER
-    WHOLE, with no geometry, so it is still analysed and simply has no ruler.
-    A warning that says "passed through whole" and then skips the image
-    passes nothing through: when some images in a
-    folder split and others did not, the others would contribute no crop and
-    no row and nothing would say they had existed. The all-or-nothing case --
-    where the function falls back to ``src`` -- is the only one that would
-    behave as the message promised.
+    An image in which the detector finds nothing is copied into the split
+    folder whole, with no geometry, so it is still analysed but has no scale.
+    Without the copy, when some images in a folder split and others did not,
+    the others would contribute no crop and no row. The function returns
+    ``src`` unchanged only when detection is off or finds nothing in any image.
     """
     from .plaque import crop_well, detect_wells
 
@@ -1336,6 +1353,11 @@ def _resolve_well_detector(settings):
     ``well_detection`` may be ``False`` (off), a path, or a
     :mod:`spacr.model_zoo` key -- ``True`` means the default detector.
     """
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, 'well_detection', kinds=('detector',))
+    if pinned is not None:
+        return str(pinned)
     requested = settings.get('well_detection', False)
     if not requested:
         return None
@@ -1351,20 +1373,18 @@ def _resolve_detector_weights(requested, setting):
         fetched into ``~/.spacr/models`` on first use.
     :param setting: the setting it came from, named in the error.
     :returns: the checkpoint path.
-    :raises ValueError: when it is neither a file nor a model-zoo key.
+    :raises ModelZooError: when no existing file or exact compatible zoo identity matches.
     """
     if os.path.isfile(requested):
         return requested
     from . import model_zoo
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == requested), None)
-    if entry is None:
-        raise ValueError(
-            f"{setting}={requested!r} is neither a file nor a model_zoo "
-            f"key")
-    dest = os.path.join(str(_spacr_home()), 'models')
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+
+    resolved = model_zoo._ensure_model_file(
+        requested, kinds=('detector',), setting=setting)
+    if resolved is not None:
+        return str(resolved)
+    raise model_zoo.ModelZooError(model_zoo._model_resolution_context(
+        requested, setting=setting, kinds=('detector',)))
 
 
 class ModelZooMissing(FileNotFoundError):
@@ -1382,29 +1402,26 @@ def _resolve_training_base(requested):
 
     :param requested: the ``base_model`` setting.
     :returns: what to hand ``CellposeModel(pretrained_model=...)``.
+    :raises ModelZooError: if a bare model name cannot be resolved exactly,
+        or its stock checkpoint is missing while downloads are disabled.
     """
     name = str(requested or 'cpsam').strip() or 'cpsam'
     if os.path.isfile(name):
         return name
     from . import model_zoo
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == name), None)
-    if entry is None:
-        return name
-    local = str(getattr(entry, 'path', '') or '')
-    if local and os.path.isfile(local):
-        return local
-    if not getattr(entry, 'uri', None):
-        return name
-    dest = os.path.join(str(_spacr_home()), 'models')
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+
+    resolved = model_zoo._ensure_model_file(name, kinds=('cellpose',), setting='base_model')
+    if resolved is not None:
+        return str(resolved)
+    from .utils import _resolve_cellpose_pretrained
+
+    return _resolve_cellpose_pretrained(name, setting='base_model')
 
 
-#: The plaque model a run segments with when none is named: cpsam_plaque_r5,
-#: trained on the curated v5 set. ``'bundled'`` is not the default because
+#: The plaque model a run segments with when none is named: the cpsam_v2
+#: round-7 model (toxoplasma_plaque_v5, maintainer's choice 2026-10-17). ``'bundled'`` is not the default because
 #: the bundled checkpoint is a Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
-DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v2'
+DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v5'
 
 
 class Cellpose3Checkpoint(ValueError):
@@ -1523,7 +1540,12 @@ def _resolve_plaque_model(settings, fetch=True):
     THE DEFAULT IS NOT ``'bundled'``, though keeping it would avoid changing
     counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
     and the Cellpose 4 spaCR installs will not load it, so a default run on it
-    fails. ``toxoplasma_plaque_v2`` (cpsam_plaque_r5) is the default instead.
+    fails. ``toxoplasma_plaque_v5`` (the cpsam_v2 round-7 model) is the
+    default since 2026-10-17: on the 153 test fields of the curated 2026-10-15
+    set it scores object F1 0.816, against 0.725 for ``toxoplasma_plaque_v4``
+    (the default before it) and 0.741 for ``toxoplasma_plaque_v3``, which
+    stays the better choice on Gel Doc wells (0.954 against 0.868). Both stay
+    selectable for recorded runs.
 
     :param settings: the plaque settings dict.
     :param fetch: download what is not here -- the bundled pack through
@@ -1538,6 +1560,13 @@ def _resolve_plaque_model(settings, fetch=True):
     """
     from .utils import download_models
 
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned = _resolve_pinned_model_file(settings, 'plaque_model', kinds=('cellpose',), download=fetch)
+    if pinned is not None:
+        if os.path.isfile(pinned):
+            return str(pinned)
+        raise ModelZooMissing(str(pinned))
     requested = _requested_plaque_model(settings)
 
     if os.path.isfile(requested):
@@ -1560,25 +1589,15 @@ def _resolve_plaque_model(settings, fetch=True):
             "a model_zoo key such as 'toxoplasma_plaque_v1' instead.")
 
     from . import model_zoo
-    entry = next((e for e in model_zoo.catalogue(remote=True)
-                  if e.key == requested), None)
-    if entry is None:
-        raise ValueError(
-            f"plaque_model={requested!r} is neither a file that exists, the "
-            f"string 'bundled', nor a model_zoo key. Known keys: "
-            f"{sorted(e.key for e in model_zoo.catalogue(remote=True))}")
-    dest = os.path.join(str(_spacr_home()), 'models')
-    if not fetch:
-        for candidate in (str(getattr(entry, 'path', '') or ''),
-                          os.path.join(dest, str(getattr(entry, 'name', '')
-                                                 or ''))):
-            if candidate and os.path.isfile(candidate):
-                return candidate
-        raise ModelZooMissing(
-            f"plaque_model={requested!r} is not on this machine yet (looked "
-            f"in {dest}); running the plaque analysis downloads it.")
-    os.makedirs(dest, exist_ok=True)
-    return str(model_zoo.fetch(entry, dest))
+
+    resolved = model_zoo._ensure_model_file(
+        requested, kinds=('cellpose',), download=fetch, setting='plaque_model')
+    if resolved is not None:
+        if fetch or os.path.isfile(resolved):
+            return str(resolved)
+        raise ModelZooMissing(str(resolved))
+    raise model_zoo.ModelZooError(model_zoo._model_resolution_context(
+        requested, setting='plaque_model', kinds=('cellpose',)))
 
 
 def analyze_plaques(settings):
@@ -1740,7 +1759,7 @@ def analyze_plaques(settings):
                     'area_vs_image_median': (float(region.area) / median
                                              if median else None),
                     'perimeter_px': float(region.perimeter),
-                    'equivalent_diameter_px': float(region.equivalent_diameter),
+                    'equivalent_diameter_px': float(region.equivalent_diameter_area),
                     'eccentricity': float(region.eccentricity),
                     'solidity': float(region.solidity),
                     'centroid_y': float(region.centroid[0]),
@@ -1981,6 +2000,11 @@ def _analyze_plaque_figures(settings, model_path):
         returns.
     """
     from . import plaque_papers
+    from .model_zoo import _resolve_pinned_model_file
+
+    pinned_detector = _resolve_pinned_model_file(settings, 'figure_detector', kinds=('detector',))
+    detector = (str(pinned_detector) if pinned_detector is not None
+                else str(settings.get('figure_detector') or plaque_papers.DEFAULT_DETECTOR))
 
     sizes = tuple(int(float(part)) for part in
                   str(settings.get('figure_imgsz') or '640').split(',')
@@ -1991,8 +2015,7 @@ def _analyze_plaque_figures(settings, model_path):
     for folder in plaque_papers.figure_folders(settings['src']):
         part = plaque_papers.measure_figure_folder(
             folder, os.path.join(settings['src'], 'plaque_figures'),
-            detector=str(settings.get('figure_detector')
-                         or plaque_papers.DEFAULT_DETECTOR),
+            detector=detector,
             segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
             confidence=float(settings.get('figure_confidence', 0.25)),
             confirm_each=bool(settings.get('confirm_annotations', False)),
@@ -2038,7 +2061,7 @@ def count_phenotypes(settings):
     """
     from .io import _read_db
 
-    if not settings['src'].endswith('/measurements/measurements.db'):
+    if not settings['src'].replace('\\', '/').endswith('/measurements/measurements.db'):
         settings['src'] = os.path.join(settings['src'], 'measurements/measurements.db')
 
     df = _read_db(settings['src'], tables=['png_list'])[0]
@@ -2140,12 +2163,10 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         def _set_theme(theme):
             """The colours the lines are drawn in, house palette first.
 
-            ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY
-            ARE THE DATA, so these series keep distinct hues -- but they come
-            from the published palette in a fixed order rather than from
-            seaborn's 100-colour 'deep' ramp reordered by an index list. A
-            hundred hues is a hundred series nobody can tell apart, and the
-            eighth one was a pastel that vanished on the dark ground.
+            With one line per measured column the categories are the data, so
+            these series keep distinct hues -- but they come from the published
+            palette in a fixed order rather than from seaborn's 100-colour
+            'deep' ramp reordered by an index list.
 
             An explicit non-default ``theme`` still wins, for a caller who
             deliberately asked for a seaborn palette.
@@ -2208,7 +2229,7 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
                                         bbox_inches='tight')
                 print(f"Plot saved to {save_path}")
 
-            plt.show()
+            _show_if_interactive()
         return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
@@ -2330,8 +2351,8 @@ def interpret_vision_model(settings=None):
     feature ratios (e.g. ``nucleus_cell_area``), then runs random-forest
     feature importance, permutation importance and (optionally) SHAP on
     the top features. Also groups importance by compartment and by
-    channel so you can answer "is my classifier looking at the
-    pathogen or at the cell?".
+    channel, which shows whether the classifier's score depends mainly
+    on pathogen or on cell features.
 
     :param settings: Settings dict. Key entries:
 
@@ -2489,7 +2510,7 @@ def interpret_vision_model(settings=None):
             ax.set_xticklabels(labels, fontsize=TYPE_SCALE['tick'],
                                rotation=45, ha='right')
             plt.title(title, pad=20)
-            plt.show()
+            _show_if_interactive()
 
     def extract_compartment_channel(feature_name):
         """Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.
@@ -2626,7 +2647,7 @@ def interpret_vision_model(settings=None):
                 plt.title(f"Top {settings['top_features']} Features - Feature Importance")
                 plt.gca().invert_yaxis()
                 plt.tight_layout()
-                plt.show()
+                _show_if_interactive()
 
             output['feature_importance'] = feature_importance_df
             fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
@@ -2653,7 +2674,7 @@ def interpret_vision_model(settings=None):
             plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
             plt.gca().invert_yaxis()
             plt.tight_layout()
-            plt.show()
+            _show_if_interactive()
             
         output['permutation_importance'] = perm_importance_df
     
@@ -2705,8 +2726,7 @@ interperate_vision_model = interpret_vision_model
 def analyze_endodyogeny(settings):
     """Bin pathogen *size* by log2 doublings and test the bin proportions per group.
 
-    This is the **size-proxy** replication readout, not a parasite count.
-    Read that sentence twice before quoting a number from it:
+    This is the **size-proxy** replication readout, not a parasite count:
 
     * The rows come from :func:`spacr.io._read_and_merge_data`, which collapses
       the per-object ``pathogen`` table onto the **host cell** (``prcfo`` is
@@ -2723,7 +2743,7 @@ def analyze_endodyogeny(settings):
     cannot be resolved into single parasites. When the individual parasites
     *are* resolvable, :func:`analyze_replication` counts them and reports the
     parasites-per-vacuole distribution directly, which is the readout an
-    endodyogeny experiment is actually after.
+    endodyogeny experiment needs.
 
     :param settings: dict of endodyogeny settings; see
         ``set_analyze_endodyogeny_defaults`` for keys including ``src``,
@@ -2926,7 +2946,7 @@ def analyze_endodyogeny(settings):
         pairwise_results_df.to_csv(os.path.join(output_dir, 'chi_squared_pairwise_results.csv'), index=False)
         print(f"Chi-squared results saved to {output_dir}")
 
-    plt.show()
+    _show_if_interactive()
 
     return output
 
@@ -3529,7 +3549,7 @@ def _replication_compare_conditions(vacuoles, group_column, buckets,
         column set) when there are fewer than two groups.
     """
     from scipy.stats import mannwhitneyu
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import _multipletests
     from .sp_stats import choose_p_adjust_method
 
     columns = ['group1', 'group2', 'test', 'n1', 'n2',
@@ -3600,7 +3620,7 @@ def _replication_compare_conditions(vacuoles, group_column, buckets,
     finite = results_df['p_value'].notna()
     results_df['p_value_adj'] = np.nan
     if finite.any():
-        results_df.loc[finite, 'p_value_adj'] = multipletests(
+        results_df.loc[finite, 'p_value_adj'] = _multipletests(
             results_df.loc[finite, 'p_value'].to_numpy(dtype=float),
             method=method
         )[1]
@@ -3711,12 +3731,11 @@ def analyze_replication(settings):
     moves mass from the 8 and 4 buckets down into 2 and 1, and only the
     distribution shows that.
 
-    **The counting unit is the vacuole.** Not the parasite, and emphatically
-    not the host cell — one host cell routinely carries several vacuoles, so
-    grouping on ``cell_id`` reports their combined count as a single vacuole
-    and produces a plausible but meaningless number. See
-    :func:`_assign_vacuole_ids` for how the vacuole is derived and what each
-    ``vacuole_key`` costs you.
+    **The counting unit is the vacuole.** Not the parasite, and not the host
+    cell — one host cell routinely carries several vacuoles, so grouping on
+    ``cell_id`` reports their combined count as a single vacuole and produces a
+    plausible but meaningless number. See :func:`_assign_vacuole_ids` for how
+    the vacuole is derived and what each ``vacuole_key`` costs you.
 
     Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two``
     bucket that is always reported and never folded into a neighbouring bucket.
@@ -4015,7 +4034,7 @@ def analyze_replication(settings):
                   f"threshold ({settings['non_power_of_two_warn']:.0%}): "
                   f"{', '.join(map(str, flagged))}")
 
-    plt.show()
+    _show_if_interactive()
     plt.close(well_fig)
     plt.close(group_fig)
 
@@ -4547,6 +4566,30 @@ def _invasion_field_thresholds(df, value_column, settings, control_thresholds):
     return pd.DataFrame(rows)
 
 
+def _with_invasion_columns(df, columns):
+    """Return ``df`` with ``columns`` added in one step instead of one insert each.
+
+    Inserting columns one at a time leaves the frame in one block per insert,
+    and every later copy then has to merge them. Joining them in one concat
+    merges the blocks once. Names already in ``df`` are replaced where they
+    stand; new names are appended in the order given.
+
+    :param df: Frame to extend.
+    :param columns: ``{name: values}``, each aligned with ``df.index``.
+    :returns: the extended frame.
+    """
+    replaced = {name: values for name, values in columns.items()
+                if name in df.columns}
+    added = {name: values for name, values in columns.items()
+             if name not in df.columns}
+    for name, values in replaced.items():
+        df[name] = values
+    if not added:
+        return df
+    return pd.concat([df, pd.DataFrame(added, index=df.index)], axis=1,
+                     copy=False)
+
+
 def _invasion_classify(df, fields, value_column, extracellular_class):
     """Attach ``invasion_class`` and the threshold that produced it to every parasite.
 
@@ -4599,15 +4642,17 @@ def _invasion_classify(df, fields, value_column, extracellular_class):
         outside_high = outside_high | forced
         usable = usable | forced
 
-    df['is_outside'] = np.where(usable, is_outside, np.nan)
-    df['invasion_class'] = np.where(
-        ~usable, 'unclassified', np.where(is_outside, 'attached', 'invaded'))
-    df['invasion_class'] = pd.Categorical(
-        df['invasion_class'],
+    invasion_class = pd.Categorical(
+        np.where(~usable, 'unclassified',
+                 np.where(is_outside, 'attached', 'invaded')),
         categories=_INVASION_CLASSES + ['unclassified'], ordered=False)
-    df['is_outside_low_threshold'] = np.where(usable, outside_low, np.nan)
-    df['is_outside_high_threshold'] = np.where(usable, outside_high, np.nan)
-    return df
+    df = _with_invasion_columns(df, {
+        'is_outside': np.where(usable, is_outside, np.nan),
+        'invasion_class': invasion_class,
+        'is_outside_low_threshold': np.where(usable, outside_low, np.nan),
+        'is_outside_high_threshold': np.where(usable, outside_high, np.nan),
+    })
+    return df.copy()
 
 
 def _invasion_efficiency(n_invaded, n_total):
@@ -4858,7 +4903,7 @@ def _invasion_compare_conditions(wells, group_column, min_wells=2,
         column set) when there are fewer than two conditions.
     """
     from scipy.stats import mannwhitneyu
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import _multipletests
     from .sp_stats import choose_p_adjust_method
 
     columns = ['group1', 'group2', 'test', 'unit_of_replication',
@@ -4939,7 +4984,7 @@ def _invasion_compare_conditions(wells, group_column, min_wells=2,
     finite = results_df['p_value'].notna()
     results_df['p_value_adj'] = np.nan
     if finite.any():
-        results_df.loc[finite, 'p_value_adj'] = multipletests(
+        results_df.loc[finite, 'p_value_adj'] = _multipletests(
             results_df.loc[finite, 'p_value'].to_numpy(dtype=float),
             method=method
         )[1]
@@ -5135,34 +5180,33 @@ def analyze_invasion(settings):
     * **attached / outside** = present in the outside-stain channel;
     * **invaded / inside** = *absent* from the outside-stain channel.
 
-    Read that asymmetry carefully, because the whole design follows from it.
-    "Inside" is defined by an absence, and absence is the unreliable
-    direction. Poor antibody penetration, a focal plane off the parasite's
-    equator, photobleaching, a low-expressing parasite — every one of them
-    removes outside signal from a parasite that is genuinely outside, and
-    every one of them therefore *inflates* invasion efficiency. Nothing
+    The design follows from this asymmetry. "Inside" is defined by an absence,
+    and absence is the unreliable direction. Poor antibody penetration, a focal
+    plane off the parasite's equator, photobleaching, a low-expressing parasite
+    — every one of them removes outside signal from a parasite that is outside,
+    and every one of them therefore *inflates* invasion efficiency. Nothing
     plausible pushes the error the other way. The threshold on the outside
     channel is the single number the assay rests on, so it is derived from the
     data, reported per field in ``fields``, cross-checked against a
     control-derived cut when one exists, and bracketed by a sensitivity pair
     that says how much of the answer is the threshold.
 
-    Three design decisions worth stating outright:
+    Three design decisions:
 
     * **The threshold is per field.** Illumination and staining vary field to
       field, and a plate-wide cut turns an illumination gradient into an
       invasion gradient. See :func:`_invasion_field_thresholds`.
-    * **Controls beat any automatic method.** ``control_wells`` names wells
-      whose parasites are known to carry no outside stain; the threshold is
-      then a high quantile of that honest negative distribution
+    * **Controls take precedence over the automatic method.** ``control_wells``
+      names wells whose parasites are known to carry no outside stain; the
+      threshold is then a high quantile of that negative distribution
       (``control_quantile``), the control wells are excluded from the results,
       and ``threshold_source`` says ``'control'`` so the report cannot be
       mistaken for an automatic run.
-    * **A threshold without two populations is arbitrary.** Otsu will happily
-      split a single smear of signal down the middle and return a confident
-      number. ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when
-      that has happened, per field and per well, instead of letting it pass
-      silently. See :func:`_bimodality_coefficient`.
+    * **A threshold without two populations is arbitrary.** Otsu splits a
+      single smear of signal down the middle and return a confident number.
+      ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when that has
+      happened, per field and per well, instead of letting it pass silently.
+      See :func:`_bimodality_coefficient`.
 
     ``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` and it is
     always reported next to ``n_total``: 90% from ten parasites and 90% from
@@ -5319,15 +5363,17 @@ def analyze_invasion(settings):
         df, compartment, settings['outside_channel'],
         settings['background_correction'])
 
-    df['outside_intensity_raw'] = pd.to_numeric(df[value_column],
-                                                errors='coerce')
+    outside_raw = pd.to_numeric(df[value_column], errors='coerce')
     if background_column is None:
-        df['outside_background'] = 0.0
+        outside_background = pd.Series(0.0, index=df.index)
     else:
-        df['outside_background'] = pd.to_numeric(df[background_column],
-                                                 errors='coerce').fillna(0.0)
-    df['outside_intensity'] = (df['outside_intensity_raw']
-                               - df['outside_background'])
+        outside_background = pd.to_numeric(df[background_column],
+                                           errors='coerce').fillna(0.0)
+    df = _with_invasion_columns(df, {
+        'outside_intensity_raw': outside_raw,
+        'outside_background': outside_background,
+        'outside_intensity': outside_raw - outside_background,
+    })
 
     control_mask = _invasion_control_mask(df, settings['stain_baseline_wells'])
     controls = df[control_mask].copy()
@@ -5371,10 +5417,13 @@ def analyze_invasion(settings):
 
     if 'cell_id' in df.columns:
         host = pd.to_numeric(df['cell_id'], errors='coerce')
-        df['cell_id'] = host.fillna(0).astype(int)
-        df['no_host_cell'] = (~host.notna()) | (host == 0)
+        df = _with_invasion_columns(df, {
+            'cell_id': host.fillna(0).astype(int),
+            'no_host_cell': (~host.notna()) | (host == 0),
+        })
     else:
-        df['no_host_cell'] = False
+        df = _with_invasion_columns(
+            df, {'no_host_cell': pd.Series(False, index=df.index)})
     if settings['extracellular_class'] == 'exclude':
         df = df[~df['no_host_cell']].copy()
         if len(df) == 0:
@@ -5532,7 +5581,7 @@ def analyze_invasion(settings):
             print(f"QC: {len(flagged)} well(s) flagged:")
             print(flagged.to_string(index=False))
 
-    plt.show()
+    _show_if_interactive()
     for figure in (well_fig, group_fig, threshold_fig):
         plt.close(figure)
 
@@ -5624,7 +5673,7 @@ def analyze_class_proportion(settings):
         print(f"Chi-squared results saved to {output_path_chi}")
         print(f"Annotated data saved to {output_path_data}")
 
-    plt.show()
+    _show_if_interactive()
     
     fig2 = plot_plates(df, variable=settings['class_column'], grouping='mean', min_max='allq', cmap='viridis', min_count=0, verbose=True, dst=None)
     if settings['save']:
@@ -5632,7 +5681,7 @@ def analyze_class_proportion(settings):
         output_path_fig2 = save_figure(fig2, output_path_fig2,
                                        bbox_inches='tight')
     
-    plt.show()
+    _show_if_interactive()
     
     is_normal, normality_results = perform_normality_tests(df, settings['group_column'], [settings['class_column']])
     variance_stat, variance_p = perform_levene_test(df, settings['group_column'], settings['class_column'])
@@ -5677,10 +5726,11 @@ def generate_score_heatmap(settings):
         """Aggregate a CV predictions CSV to a per-(plate, row, column) mean.
 
         :param csv: path to the cross-validation predictions CSV.
-        :param plate: a plate NUMBER, not a column name. Any value but ``None``
-            rewrites every row's ``plateID`` to ``plate<plate>``, discarding the
-            plate the CSV itself recorded; ``None`` keeps the CSV's own value and
-            raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.
+        :param plate: a plate number, not a column name. Any value but ``None``
+            rewrites every row's ``plateID`` to ``plate<plate>``, discarding
+            the plate the CSV itself recorded; ``None`` keeps the CSV's own
+            value and raises ``KeyError`` if it has no ``plateID`` column.
+            Default ``1``.
         :param column: value kept from ``columnID``, or from a legacy ``column``
             column which is copied to ``columnID`` first. A value matching no row
             returns an empty frame rather than raising; a CSV carrying neither
@@ -5707,7 +5757,7 @@ def generate_score_heatmap(settings):
 
         :param csv: path to the reads CSV; needs ``grna_name``, ``count``,
             ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).
-        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+        :param plate: a plate number, not a column name. Any value but ``None``
             rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each
             row's own value. Default ``1``.
         :param column: value kept from ``columnID``. Default ``'c3'``.
@@ -5780,7 +5830,7 @@ def generate_score_heatmap(settings):
             _style_colour_bar(fig)
             plt.tight_layout()
 
-            plt.show()
+            _show_if_interactive()
 
         return fig
 
@@ -5800,7 +5850,7 @@ def generate_score_heatmap(settings):
             after the containing sub-directory (``<sub-folder>_<data_column>``),
             so two parents holding same-named sub-folders collide and pandas
             appends ``_x`` / ``_y``.
-        :param plate: a plate NUMBER, not a column name. Any value but ``None``
+        :param plate: a plate number, not a column name. Any value but ``None``
             rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each
             CSV's own value. Default ``1``.
         :param column: value kept from ``columnID``; a CSV lacking that column
@@ -5921,7 +5971,7 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
                 correlation_fig_path = save_figure(fig,
                                                    correlation_fig_path)
 
-            plt.show()
+            _show_if_interactive()
 
         return correlation_matrix
 
@@ -5968,7 +6018,7 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
                 effect_sizes_fig_path = save_figure(fig,
                                                     effect_sizes_fig_path)
 
-            plt.show()
+            _show_if_interactive()
 
         return effect_sizes
     

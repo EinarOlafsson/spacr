@@ -8,24 +8,25 @@ The reads are NCBI BioProject :data:`DEFAULT_BIOPROJECT`, runs
 SRR33531217-SRR33531220 -- the four plates, paired, named ``hilib_p1`` through
 ``hilib_p4`` in the submission.
 
-WHY ENA AND NOT NCBI'S OWN DOWNLOAD. The three routes are not equivalent
+ENA is used rather than NCBI's own download. The three routes are not equivalent
 here. ``fasterq-dump`` needs the SRA toolkit installed, which spaCR does not
 ship and cannot assume. NCBI's own FASTQ endpoint does not support fetching a
 prefix. ENA mirrors every SRA submission as plain gzipped FASTQ over HTTPS,
 which is what makes the read limit meaningful rather than cosmetic: the file
-is read as a STREAM and the connection is dropped as soon as enough reads have
+is read as a stream and the connection is dropped as soon as enough reads have
 arrived.
 
-That distinction is the whole feature. The four runs are 2.2-3.2 GB per mate,
+Streaming is what makes the read limit useful. The four runs are 2.2-3.2 GB per mate,
 about 19 GB in total, and 60-74 million reads each. Measured against the live
 archive on 2026-09-01: 3,662 reads arrived in 0.13 MB and 1.7 seconds from a
 2,833 MB file. Asking for a hundred thousand reads costs a few megabytes, not
-a few gigabytes, so a laptop on hotel wifi can have a real subset of the real
-screen in under a minute.
+a few gigabytes, so a subset of the screen can be downloaded in under a
+minute on a slow connection.
 """
 from __future__ import annotations
 
 import gzip
+import json
 import urllib.request
 import zlib
 from dataclasses import dataclass
@@ -50,6 +51,15 @@ LINES_PER_READ = 4
 
 #: How much of the compressed stream to pull at a time.
 CHUNK_BYTES = 65536
+
+#: The example set holding a small copy of these reads, for use offline.
+CACHED_READS_SET = "reads"
+
+#: ENA's own listing of :data:`DEFAULT_BIOPROJECT`, kept in the cached set.
+CACHED_LISTING = "filereport.tsv"
+
+#: What the cached set holds: reads per file, and each file's digest.
+CACHED_MANIFEST = "manifest.json"
 
 
 @dataclass(frozen=True)
@@ -79,7 +89,7 @@ class RunFile:
     def label(self) -> str:
         """A one-line description for a picker.
 
-        Names the LIBRARY as well as the run, because ``hilib_p3`` says which
+        Names the library as well as the run, because ``hilib_p3`` says which
         plate this is and ``SRR33531218`` does not.
         """
         size = f"{self.size_bytes / 1e9:.1f} GB" if self.size_bytes else "?"
@@ -170,6 +180,12 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
     documents for sequencing ("the folder of .fastq.gz reads"), so a subset
     and a full download are the same shape to everything downstream.
 
+    Without an ``opener``, the downloaded ``reads`` example set is read
+    first: when it holds this file with at least ``max_reads`` reads, they
+    are taken from it rather than from ENA, so a limited request works
+    offline and gives the same reads. A whole-file request, or one larger
+    than the cache, streams from ENA as before.
+
     :param run_file: the archive file to stream; its ``url`` is read and its
         ``filename`` names the output.
     :param destination: folder the ``.fastq.gz`` file is written into; created
@@ -179,9 +195,17 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
         download and removes the partial file.
     :returns: the path written.
     :raises ValueError: for a non-positive ``max_reads``.
+    :raises ConnectionError: when the stream stops before the reads asked for
+        and before the end of the file, so a dropped connection never leaves
+        a short file that looks complete.
     """
     if max_reads is not None and max_reads <= 0:
         raise ValueError(f"max_reads must be positive, got {max_reads!r}")
+
+    if opener is None:
+        local = _cached_copy(run_file, max_reads)
+        if local is not None:
+            opener = lambda _url, path=local: path.open("rb")
 
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
@@ -217,6 +241,12 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
                     progress(written_lines // LINES_PER_READ, fetched)
                 if wanted_lines is not None and written_lines >= wanted_lines:
                     break
+            short = wanted_lines is None or written_lines < wanted_lines
+            if short and not decompressor.eof:
+                raise ConnectionError(
+                    f"{run_file.filename}: the stream ended after "
+                    f"{written_lines // LINES_PER_READ} reads, before the "
+                    "file did")
             if wanted_lines is None and pending:
                 out.write(pending)
         part.replace(target)
@@ -227,7 +257,7 @@ def fetch_reads(run_file: RunFile, destination, *, max_reads: Optional[int] = No
 
 
 def total_bytes(files: Iterable[RunFile]) -> int:
-    """What downloading all of ``files`` in full would cost.
+    """Total compressed size, in bytes, of downloading all of ``files``.
 
     :param files: the run files; their ``size_bytes`` are summed, so a file of
         unknown size adds zero.
@@ -236,7 +266,7 @@ def total_bytes(files: Iterable[RunFile]) -> int:
 
 
 def estimated_bytes(files: Sequence[RunFile], max_reads: Optional[int]) -> int:
-    """Roughly what ``max_reads`` from each of ``files`` will transfer.
+    """Estimate the bytes transferred when taking ``max_reads`` from each file.
 
     Scaled from each run's own read count rather than from a fixed rate, so a
     run with longer reads is not under-quoted. Returns the full size when no
@@ -257,6 +287,97 @@ def estimated_bytes(files: Sequence[RunFile], max_reads: Optional[int]) -> int:
         else:
             estimate += one.size_bytes
     return estimate
+
+
+def _cached_read_folder() -> Path:
+    """Where the cached read set unpacks: ``~/.cache/spacr/example_data/reads``."""
+    from .example_archives import example_set_folder
+
+    return example_set_folder(CACHED_READS_SET)
+
+
+def _cached_manifest(folder=None) -> Optional[dict]:
+    """The cached set's manifest, or ``None`` when no usable set is there.
+
+    :param folder: the cached set's folder; ``None`` uses
+        :func:`_cached_read_folder`.
+    """
+    folder = Path(folder) if folder is not None else _cached_read_folder()
+    try:
+        manifest = json.loads((folder / CACHED_MANIFEST).read_text("utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(manifest, dict) or not (folder / CACHED_LISTING).is_file():
+        return None
+    return manifest
+
+
+def _has_cached_reads(folder=None) -> bool:
+    """Whether the cached read set is unpacked and readable.
+
+    :param folder: the cached set's folder; ``None`` uses
+        :func:`_cached_read_folder`.
+    """
+    return _cached_manifest(folder) is not None
+
+
+def _cached_runs(folder=None) -> tuple[RunFile, ...]:
+    """The runs listed by the cached set, read without the network.
+
+    The set keeps ENA's own listing of the project, so the runs, libraries,
+    sizes and URLs are the ones :func:`runs_for` reports online.
+
+    :param folder: the cached set's folder; ``None`` uses
+        :func:`_cached_read_folder`.
+    :returns: one :class:`RunFile` per mate per run, or ``()`` without a set.
+    """
+    folder = Path(folder) if folder is not None else _cached_read_folder()
+    if _cached_manifest(folder) is None:
+        return ()
+    listing = folder / CACHED_LISTING
+    return runs_for(opener=lambda _url: listing.open("rb"))
+
+
+def _cached_reads_per_file(folder=None) -> int:
+    """How many reads the cached set holds from each file, or 0 without one.
+
+    :param folder: the cached set's folder; ``None`` uses
+        :func:`_cached_read_folder`.
+    """
+    manifest = _cached_manifest(folder) or {}
+    try:
+        return max(0, int(manifest.get("reads_per_file", 0)))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _cached_copy(run_file: RunFile, max_reads: Optional[int],
+                folder=None) -> Optional[Path]:
+    """The cached file to read ``max_reads`` of ``run_file`` from, if any.
+
+    :param run_file: the archive file asked for.
+    :param max_reads: reads wanted; ``None`` (the whole file) is never
+        served from the cache, which holds only the first reads.
+    :param folder: the cached set's folder; ``None`` uses
+        :func:`_cached_read_folder`.
+    :returns: the cached ``.fastq.gz``, or ``None`` when the set is absent,
+        lacks this file or holds fewer reads than asked for.
+    """
+    if max_reads is None:
+        return None
+    folder = Path(folder) if folder is not None else _cached_read_folder()
+    manifest = _cached_manifest(folder)
+    if manifest is None:
+        return None
+    entry = (manifest.get("files") or {}).get(run_file.filename) or {}
+    try:
+        held = int(entry.get("reads", manifest.get("reads_per_file", 0)))
+    except (TypeError, ValueError):
+        return None
+    path = folder / run_file.filename
+    if held < max_reads or not path.is_file():
+        return None
+    return path
 
 
 __all__ = ["DEFAULT_BIOPROJECT", "RunFile", "runs_for", "fetch_reads",

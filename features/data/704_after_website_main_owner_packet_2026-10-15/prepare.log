@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "candidate_tree": "1d8039eb56379d5cd53f980b177e366e33ac1375",
+  "files": 738,
+  "assets": 1747,
+  "readable_routes": 670,
+  "changed_prior_files": 10,
+  "patch_sha256": "7b6f3364b64b91e5d73567810713cdf22102346d36f28182749734b99d4d4ec9",
+  "patch_bytes": 1397514,
+  "compressed_patch_bytes": 237133
+}

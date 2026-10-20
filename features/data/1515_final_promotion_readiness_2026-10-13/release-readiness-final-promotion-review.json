@@ -1,0 +1,278 @@
+{
+  "schema": "spacr-release-final-promotion-readiness-v1",
+  "checked_at_utc": "2026-10-14T02:29:05.560009+00:00",
+  "status": "Prepared source promotion is coherent; WAIT exact full CI green before any main push/release.",
+  "handoff_read": [
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/HANDOFF.md",
+      "sha256": "ae94c68ee8efde04198cf6074443823658446bc5f48a3d134553a14f08ea87f3"
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013/features/HANDOFF_2026-10-13_claude_home_to_codex.md",
+      "sha256": "f3a22d45e959e43777701b2707c2fab3f055126c2e4527667d171fbf9132143d"
+    }
+  ],
+  "promotion": {
+    "worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-promotion-1515-20261013",
+    "head": "87010935bbbd6e925a702c4fa6c19d37751a5b20",
+    "parents": [
+      "b59c31a347772e4ef56b735a3984dd076dd9729b",
+      "eb72a1a85f5c3a3324f295ab18ad730aea7d5570"
+    ],
+    "whole_tree": "33415e485abaf4089a61bc8ebc317019f3037f4a",
+    "candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+    "candidate_tree": "33415e485abaf4089a61bc8ebc317019f3037f4a",
+    "whole_tree_byte_equivalent": true,
+    "clean": true,
+    "tracking_main": "e0bedd1534d71708f65b60a2d9e24b6328d4ce9d",
+    "live_remote_main": "e0bedd1534d71708f65b60a2d9e24b6328d4ce9d",
+    "expected_main": "e0bedd1534d71708f65b60a2d9e24b6328d4ce9d",
+    "main_is_ancestor": true,
+    "candidate_is_ancestor": true,
+    "remote_tag_present": false
+  },
+  "pinned_source_files": [
+    {
+      "path": ".github/workflows/release.yml",
+      "line": 30,
+      "sha256": "f8ce2569367db37ab4b9479d63271487607b3afa22b1bb70b7f11262257c03f6",
+      "git_blob": "e0e4d508df97cdb6557f0b79907c6a4dd3454eeb"
+    },
+    {
+      "path": ".github/workflows/online-installers.yml",
+      "line": 22,
+      "sha256": "e5ca0060ad6f5e4687ab0bd639faf0f471d7fc3c8e71480c48257d52a7c96e26",
+      "git_blob": "297365464fe8da2b67abee4a7e81874613bf11dd"
+    },
+    {
+      "path": ".github/workflows/docker-images.yml",
+      "line": 296,
+      "sha256": "fba99f9b92dd79342ff53cd400c851ff7e51e489ff6751111f6bca0b47160578",
+      "git_blob": "a2a8e38b4848acce9a6d0ee9b77f732ff506403c"
+    },
+    {
+      "path": ".github/workflows/apptainer-images.yml",
+      "line": 109,
+      "sha256": "750f5b54ff4c19b6dfdce007255d5099d93161f5458a343d3eed3d6d336da6ce",
+      "git_blob": "49a5b17efa5d15d9de792946c3cbef748a32d896"
+    },
+    {
+      "path": "packaging/release.py",
+      "line": 245,
+      "sha256": "9842cebd3eac5b8498fb3fab3b85405f8ad3560127e15bc6330457f5268b4c08",
+      "git_blob": "b256c206adcba713144344af1828c3bb6435d254"
+    },
+    {
+      "path": "packaging/online/smoke_installed.py",
+      "line": 25,
+      "sha256": "cfde55c562533d50bf0892988724f0e392b7f68933403f62388632b9fa115a32",
+      "git_blob": "c853b82288cdec00fb22ed4f801e66ebff9ed8b5"
+    },
+    {
+      "path": "setup.py",
+      "line": 193,
+      "sha256": "4dc21bd2aed6278c52e42ebf05d59d1c803b218532fd1a07d98464213e01a608",
+      "git_blob": "51e96a5ca0f34615a16ac51a7a200677decabf83"
+    },
+    {
+      "path": "spacr/_version.py",
+      "line": 13,
+      "sha256": "0f8601b7d00cdec6e0e3a0f62bac5f0fc1715183c4a4b6229f241b29540eb455",
+      "git_blob": "feb8f759f33407878d1f90a7146ab894ebc13232"
+    }
+  ],
+  "CI_live_snapshot": {
+    "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/release-readiness-ci-live.json",
+    "sha256": "8392cfcc226425d961325124c675b0e9648071a75ee3f8056ac717ec3f45ac9f",
+    "headSha": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+    "status": "in_progress",
+    "conclusion": ""
+  },
+  "required_terminal_evidence": [
+    {
+      "order": 1,
+      "required": true,
+      "job": "Full tests38488240863",
+      "evidence": "Terminal conclusion success on exact eb72, all required jobs successful; retain job/log/raw coverage identities.",
+      "currently": {
+        "status": "in_progress",
+        "conclusion": "",
+        "passed": 26,
+        "remaining": [
+          {
+            "name": "Qt (2) / Qt shard 2 of 3 (ubuntu-24.04, py3.12)",
+            "status": "in_progress",
+            "conclusion": ""
+          },
+          {
+            "name": "Qt (1) / Qt shard 1 of 3 (ubuntu-24.04, py3.12)",
+            "status": "in_progress",
+            "conclusion": ""
+          }
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "required": true,
+      "job": "Main promotion",
+      "evidence": "Recheck live main and exact whole-tree equality immediately before authorized normal push. Require promoted main to contain source candidate and prepared promotion; if main moves, prepare/review a normal refreshed merge. No generated conflict resolution by hand.",
+      "currently": "Prepared privately only; no main push in this audit."
+    },
+    {
+      "order": 3,
+      "required": true,
+      "job": "bump",
+      "outputs": {
+        "version": "1.5.1.5",
+        "tag": "v1.5.1.5",
+        "branch": "main",
+        "release_required": "true",
+        "commit_sha": "nonempty committed bump SHA",
+        "pypi_exists": "true or false from actual PyPI probe"
+      },
+      "evidence": "Terminal success, coherent setup.py and spacr/_version.py1.5.1.5, monotonic release helper verification, actual bump commit on main. If prior PyPI version exists, preserve immutable release and verify its artifact/source provenance before treating this as an idempotent continuation."
+    },
+    {
+      "order": 4,
+      "required": true,
+      "job": "package / publish-pypi / verify-pypi",
+      "evidence": "package success: wheel+sdist build, twine check and selected packaging/installer/recipe tests, pypi-distributions artifact. publish-pypi success or legitimate skip only when pypi_exists=true. verify-pypi success and actual https://pypi.org/pypi/spacr/1.5.1.5/json200 with filename/version/SHA256 readback; do not equate upload intention to publication."
+    },
+    {
+      "order": 5,
+      "required": true,
+      "job": "installers/linux",
+      "artifact": "spacr-online-linux: *Linux*x86_64*Online.run",
+      "evidence": "Build, shell+10-locale dry-run, fresh CPU source install, backend/consent/bootstrap assertions, offscreen module-screen and one-field Measure smoke, uploaded exact1.5.1.5 artifact/log hashes."
+    },
+    {
+      "order": 6,
+      "required": true,
+      "job": "installers/windows",
+      "artifact": "spacr-online-windows: *Windows*Online-Setup.exe",
+      "evidence": "PowerShell parse+10-locale dry-runs, NSIS build and silent fresh install, installed icon/log/profile/bootstrap checks, source import/backend/consent and final offscreen Measure smoke; retain actual native exit/log evidence. Inspect earlier native Python checks too because the step has multiple native invocations."
+    },
+    {
+      "order": 7,
+      "required": true,
+      "job": "installers/macos",
+      "artifact": "spacr-online-macos: *macOS*Online.pkg; spacr-macos-signing-receipt",
+      "evidence": "Universal arm64+x86_64 launcher inspection, package installation, app/codesign/symlink check, per-user source install with MPS import/backend/bootstrap and Measure smoke. Record actual signing receipt and policy SPACR_MACOS_SIGNING_REQUIRED; optional identity/notarization must not be claimed as guaranteed."
+    },
+    {
+      "order": 8,
+      "required": true,
+      "job": "installers/collect",
+      "outputs": {
+        "release_commit": "needs.installers.outputs.release_commit from jobs.collect.steps.commit.outputs.commit_sha"
+      },
+      "evidence": "All three platform jobs success, collected versioned installer bytes under spacr/application, generated README/archive commit actually pushed to main, nonempty output SHA descendant of bump commit."
+    },
+    {
+      "order": 9,
+      "required": true,
+      "job": "github-release",
+      "evidence": "Terminal success; annotated tag v1.5.1.5 resolves EXACTLY to installers release_commit; public GitHub release not draft/prerelease unintentionally; all three native installer assets, wheel, sdist and SHA256SUMS.txt present and hashes read back. Existing tag with another SHA is a blocker, never retag silently. Initial body is generated notes, not the approved authored draft."
+    },
+    {
+      "order": 10,
+      "required": false,
+      "job": "container-images",
+      "evidence": "Optional release component: both CPU and CUDA jobs build from installers release_commit and pass version/nonroot/CPU-pipeline smoke before publication; record actual pushed GHCR version tags/digests/public readback. Failure may leave PyPI/GitHub installers shipped while containers are unavailable."
+    },
+    {
+      "order": 11,
+      "required": false,
+      "job": "apptainer-images",
+      "evidence": "Runs only after successful containers; CPU/CUDA SIF build/version/CPU-smoke/push success plus public ORAS readback required before claiming SIF publication. GHCR spacr-sif package visibility may require maintainer action.",
+      "limit": "SIF checks out v1.5.1.5 but has no explicit needs dependency on github-release; verify that tag exists when it starts. A tag-timing failure is optional-job failure, not evidence of a SIF shipped."
+    },
+    {
+      "order": 12,
+      "required": false,
+      "job": "biotools",
+      "evidence": "Registry update status is non-gating; report failure separately without inventing a successful external registry update."
+    },
+    {
+      "order": 13,
+      "required": false,
+      "job": "release-notes",
+      "writes": [
+        "main:spacr/resources/release_notes.json",
+        "nightly:spacr/resources/release_notes.json"
+      ],
+      "evidence": "Wait actual terminal/push result. It bundles initial generated GitHub body after publication, so publishing authored English notes requires another normal resource refresh. This wheel cannot retroactively contain the refreshed resource.",
+      "race": "Parallel with release-metadata; its pushes lack retry, so success of github-release does not establish both branches received notes."
+    },
+    {
+      "order": 14,
+      "required": false,
+      "job": "release-metadata",
+      "writes": [
+        "main:CITATION.cff",
+        "main:conda-forge/recipe/recipe.yaml",
+        "nightly:CITATION.cff",
+        "nightly:conda-forge/recipe/recipe.yaml"
+      ],
+      "evidence": "Wait actual DOI+sdist lookup receipt and terminal/push results, up to75min. Verify same recorded DOI/checksum on each branch. Pushes retry/rebase; this can move branch tips after GitHub release success."
+    }
+  ],
+  "postpublication_sequence": [
+    "Wait all automatic main/nightly writers to finish before authored-note/resource/docs integration. Record optional Docker/SIF/biotools/metadata statuses honestly.",
+    "Publish approved authored English body only after actual GitHub release exists. Refresh bundled notes with its normal tool/release-notes job and inspect both branch outcomes.",
+    "Fetch exact published tag and latest main/nightly after all writers. Validate tagged669 Python source inventory/bytes with verify-published-core.py, allowing only exact setup/_version version literals; this is separate from artifact/runtime acceptance.",
+    "In isolated normal nightly integration, copy exact published tool-generated setup.py and spacr/_version.py, preserving monotonicity and workflow-generated CITATION/recipe. Do not bump1.5.1.5 by hand or raise ratchets.",
+    "Run normal packaging/release.py sync-published to synchronize installer links/archive and all container tags, English packaging/readme_source.yaml and nine docs/i18n/readme/source YAMLs BEFORE notes/deck/images generation. Verify actual container/SIF availability separately; generated version links alone do not prove those optional artifacts exist.",
+    "Run normal notes/deck stamp/README image generators, then focused metadata/link/image checks under the agreed background slot. Postrelease source/core changes require the appropriate CI verification; any changed app/test/workflow implementation before release invalidates the frozen candidate and requires a new full CI/promotion proof.",
+    "Prepare main docs copy from LATEST origin/main after metadata jobs and nightly integration, copying normal generator outputs, never hand-merging them. Include English source YAML; the release bump git-add omits it even though release.py changes it."
+  ],
+  "source_guard": {
+    "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/verify-published-core.py",
+    "sha256": "a70c1fe425b0448900ad29127305397a29bc48f64b698ca7566b4ad5df2464f3",
+    "AST_parsed": true,
+    "pinned_spacr_python_inventory": 669,
+    "static_review": "Correctly rejects inventory changes and any spaCR Python byte changes except exact _version literal replacement, and requires exact setup.VERSION replacement with no other setup change. Missing/unresolvable ref fails closed. Source inventory and669 byte comparisons do not cover artifact build identity, installer/runtime acceptance or all resources/workflows/tools.",
+    "control": "Root reported candidate-as-release control exited2 because it is still1.5.1.4; not rerun by this audit. No published tag execution/result is invented."
+  },
+  "actionable_blockers": [
+    {
+      "priority": "P1",
+      "item": "Full CI pending",
+      "action": "Await both Qt1/Qt2 and terminal full-run success on exacteb72 before approved main promotion."
+    },
+    {
+      "priority": "P1",
+      "item": "Release remains unexecuted",
+      "action": "After full green/recheck, root may perform authorized main promotion and dispatch existing main-only release workflow; then collect actual mandatory terminal/publication proof."
+    },
+    {
+      "priority": "Postrelease",
+      "item": "Version/source/docs synchronization",
+      "action": "Wait both automatic writer jobs; sync exact published core versions and normal generated authoring sources before notes/deck/images/main docs copy."
+    },
+    {
+      "priority": "Conditional owner action",
+      "item": "GHCR SIF visibility",
+      "action": "If SIF push succeeds but anonymous access is denied, maintainer must make spacr-sif public before advertising public pull availability."
+    }
+  ],
+  "limits": [
+    "Current source version is1.5.1.4; source tree equality proves the pre-bump candidate only. No1.5.1.5 release execution/publication was performed by this audit.",
+    "Native workflow smokes target clean runner installations. They do not prove N703 existing-environment upgrades/cache-preservation/rollback, macOS Intel runtime execution, all-user/custom paths or in-app relaunch behavior.",
+    "Installer smoke script builds a real screen and runs one Measure field; it does not explicitly assert installed spacr.__version__. Asset/version/source provenance and preserved logs remain necessary.",
+    "Docker and SIF failures can make the overall workflow red after core publication; distinguish mandatory core publication from optional component completeness.",
+    "Bundled-note and metadata writers can push concurrently; do not integrate stale branch tips or infer success from an earlier job."
+  ],
+  "authorized_next_commands": [
+    {
+      "condition": "ONLY after exact full CI green, fresh main/whole-tree checks and root coordination.",
+      "command": "git -C /mnt/firecuda2/Claude/spacr-worktrees/codex-home-promotion-1515-20261013 push origin HEAD:main"
+    },
+    {
+      "condition": "ONLY after approved promotion is actually on main; inspect any promotion-triggered no-version-change release run and concurrency before dispatch.",
+      "command": "gh workflow run release.yml --ref main -f version=1.5.1.5 -f target_branch=main"
+    }
+  ],
+  "audit_actions": "Read-only Git/remote-ref and gh run inspection, local text/AST parsing and scratch receipt. No source/tests/generated edits, installs, tests, dispatch, release, push or GPU."
+}

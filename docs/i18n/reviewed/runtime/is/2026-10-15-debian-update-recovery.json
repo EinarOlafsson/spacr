@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Exact-source AI technical translation/self-review; independent root peer and normal owner writer required, no native/human signoff",
+  "source_file_sha256": "3448c838e77cb9a4fb6c95127fce2c733645c546124b86282f72a8ddcf100837",
+  "owner": "spacr.install_cleanup._run_debian_update",
+  "scope": "Only retained package/transaction-log recovery diagnostic; no promise of automatic successful rollback or cache deletion",
+  "records": [],
+  "independent_technical_reviewer": "Original Home root",
+  "independent_peer_receipt": "features/data/n703_optional_cleanup_preview_2026-10-15/cache-labels/recovery-root-independent-target-peer.json"
+}

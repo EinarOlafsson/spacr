@@ -1,12 +1,11 @@
 """A popup that explains each test-data route before either is started.
 
-Instruction of 2026-09-01, for Annotate and then Classify: one "Load test
-data" button opening a dialog with two buttons, a description that fills in on
-hover, and a Close button.
+Used by Annotate and Classify: one "Load test data" button opens a dialog with
+two buttons, a description that fills in on hover, and a Close button.
 
-It lives here rather than on a screen because two screens now use it and a
-third is asked for. It fetches NOTHING itself -- it reports the chosen route
-and the screen does the work, which keeps it testable without a network.
+It is shared by several screens, so it lives here rather than on one screen.
+It fetches nothing itself -- it reports the chosen route and the screen does
+the work, which keeps it testable without a network.
 """
 from __future__ import annotations
 
@@ -29,12 +28,10 @@ from ..i18n import tr
 class TestDataChooser(QDialog):
     """Pick which half of the example plate to fetch, and read why first.
 
-    The two routes need different halves of the plate and differ in size, and
-    the old pair of buttons named the choice ("crops" / "streaming") without
-    room to explain it -- the difference lived in a tooltip that had to be
-    hunted for. Here the description sits UNDER the buttons and fills in on
-    hover, so both routes can be compared before either is started. A download
-    of several hundred megabytes deserves that much.
+    The two routes need different halves of the plate and differ in size.
+    The description sits under the buttons and fills in on hover, so both
+    routes, each a download of several hundred megabytes, can be compared
+    before either is started.
 
     Nothing is fetched by this dialog. It reports the chosen route and the
     screen does the work, so the dialog stays testable without a network.
@@ -88,9 +85,9 @@ class TestDataChooser(QDialog):
         """Build the test-data chooser.
 
         The minimum width is set before the description pane is measured: the
-        measurement asks how tall the longest description is AT A GIVEN WIDTH,
-        and measuring at one width while displaying at another is what left the
-        pane sized for a column it never had.
+        measurement asks how tall the longest description is at a given width,
+        and measuring at one width while displaying at another would size the
+        pane for the wrong width.
 
         :param parent: parent widget, or ``None``.
         """

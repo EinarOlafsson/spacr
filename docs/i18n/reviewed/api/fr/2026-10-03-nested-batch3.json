@@ -88,7 +88,7 @@
       "source": "Build the worker for the chosen archives.",
       "source_sha256": "3cb2d8f2ea0c7092b5544f6bf1cb8eb746c2c2278b3b808f4c7387b9c8343c44",
       "context": "Build the worker for the chosen archives.",
-      "translation": "Construit le travailleur pour les archives choisies.",
+      "translation": "Construit le worker pour les archives choisies.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -104,7 +104,7 @@
       "source": "The worker and thread are bound as default arguments so this still refers to THIS download if another starts before the quit.",
       "source_sha256": "e4c5232d53634806bd604240afdba328f1320ee9ba7e0ae7dfe6c6b3482358b0",
       "context": "The worker and independent execution path are bound as default arguments so this still refers to THIS download if another starts before the quit.",
-      "translation": "Le travailleur et le fil sont liés comme arguments par défaut, de sorte que cela désigne toujours CE téléchargement si un autre démarre avant la fermeture.",
+      "translation": "Le worker et le fil sont liés comme arguments par défaut, de sorte que cela désigne toujours CE téléchargement si un autre démarre avant la fermeture.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -152,7 +152,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "La charge utile est le moyen pour une valeur de revenir du travailleur : une valeur renvoyée serait absorbée par l'exécuteur.",
+      "translation": "La charge utile est le moyen pour une valeur de revenir du worker : une valeur renvoyée serait absorbée par l'exécuteur.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -233,7 +233,9 @@
       "source_sha256": "3341b6a4ec6ede14b76b4d38be73114629b078b7efacac611d754ff63d4e2acf",
       "context": "Deferred because the list comes from umap, and importing it at build time would pay for it on every screen that never opens this combo.",
       "translation": "Différé parce que la liste provient de umap, et l'importer à la construction coûterait à chaque vue qui n'ouvre jamais cette liste déroulante.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.run_import._job#0",
@@ -316,19 +318,19 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.__init__.check#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check#0",
       "source": "Store the comparison until the worker's finished signal arrives.",
       "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
       "context": "Store the comparison until the worker's finished signal arrives.",
-      "translation": "Conserve la comparaison jusqu'à l'arrivée du signal finished du travailleur.",
+      "translation": "Conserve la comparaison jusqu'à l'arrivée du signal finished du worker.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.starplast.open_starplast.check#0",
-      "source": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
-      "source_sha256": "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b",
-      "context": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
-      "translation": "Récupère le processus enfant détaché et affiche les échecs sans fermer Starplast à la sortie de spaCR.",
+      "label": "spacr.qt.parascape.open_parascape.check#0",
+      "source": "Reap the detached child and show failures without closing ParaScape on spaCR exit.",
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "context": "Reap the detached child and show failures without closing ParaScape on spaCR exit.",
+      "translation": "Récupère le processus enfant détaché et affiche les échecs sans fermer ParaScape à la sortie de spaCR.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

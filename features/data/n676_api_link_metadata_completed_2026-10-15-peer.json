@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "lesson": "06_api",
+  "status": "pass",
+  "packet_root": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet",
+  "packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/packet-manifest.json",
+    "bytes": 122699,
+    "sha256": "962980c1dd1a97b3724998c63f476327488e1850f5f54198d29d1b7d1de8b34a"
+  },
+  "source_commit": "5430c0ceabbd9cf99a4f40ea3030eefa89c2bd87",
+  "counts": {
+    "listed_packet_files": 189,
+    "closed_packet_files_with_manifest": 190,
+    "checkpoint_snapshot_files": 148,
+    "recorded_checkpoint_files": 145,
+    "official_reviews": 13,
+    "retained_voice_tracks": 27,
+    "unchanged_media_files": 5370,
+    "unchanged_media_bytes": 8807787387,
+    "unchanged_posters": 84,
+    "other_lesson_objects_preserved_per_catalog": 83,
+    "candidate_routes": 84,
+    "prepared_pages_hosted_routes": 84
+  },
+  "current_candidate_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/release-manifest.json",
+    "bytes": 1166528,
+    "sha256": "e5d099163ba3a99cf9cba249d07ad5e64609f8ea46ce59213519591655257aba"
+  },
+  "final_publication_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/001-root-final-publication-review.json",
+    "bytes": 3594,
+    "sha256": "6d7952b5b92a9d6ba0ea7450f0770ae1b654759f6ca9cf9d0a7929b1b0f90fa1"
+  },
+  "preservation_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/013-link-only-candidate-preservation-independent-peer.json",
+    "bytes": 17087,
+    "sha256": "e4d657e8864088c9e74c47cfcd91a6470a58db3ff697a5b23addde8abd0a516e"
+  },
+  "media_reuse_proof": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/002-root-media-reuse-proof.json",
+    "bytes": 1957,
+    "sha256": "024509ec04eae7900aa84c314c2c6b23ee66f2e384719efe2eae47bfbf6b27df"
+  },
+  "reuse_independent_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/014-metadata-publication-reuse-independent-peer.json",
+    "bytes": 18114,
+    "sha256": "75666181d29ac01e1e5684a0ae17afc27ad68945da6d7511369d89891eef9abc"
+  },
+  "reused_media_commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+  "reused_readback": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/003-baseline-media-readback.json",
+    "bytes": 133772,
+    "sha256": "dc51df0fa7fb9a217c366359a309f0863987ea43cf54c59b1714cb5f06756317"
+  },
+  "prepared_pages_index": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/006-index.html",
+    "bytes": 15913,
+    "sha256": "d6898075c516c85c8d65acc4ca1a1f4da50d9723adae0e76efa55a16c2466a1b"
+  },
+  "official_reviews": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.da.json",
+      "bytes": 2781,
+      "sha256": "2fb059d3fda62f8304ddfe01ddd54b383dc5b630f85fb17b0996e1eb2de2626e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.de.json",
+      "bytes": 3113,
+      "sha256": "ef93cead0b1947e7d12d4b7dd168038341aedd030f57b2ee5081d03a5b4e25fe"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.es.json",
+      "bytes": 3022,
+      "sha256": "67e843fafb123618fb3ea7caae8d32efeaa4f503a18cd4f2ddde9689204acf48"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.fr.json",
+      "bytes": 3170,
+      "sha256": "ab7bb9ea482bbffff9d02ecc35ae589f088a6941275871b50c4bf7df96358a60"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.hi.json",
+      "bytes": 5379,
+      "sha256": "e90ba93024ad8360c1ca79e1f7ed2cb86880203eb4ba070f20e69ffc09d414e9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.is.json",
+      "bytes": 2845,
+      "sha256": "81536aec31b3f16fe431fcbd2f864aabdf7ee929fd722c1228ae1481c610f151"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.it.json",
+      "bytes": 2978,
+      "sha256": "88cad395ecc0bf758b3bb77b600f95136b583dd9a31d7a1845f056d1685681a5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.ja.json",
+      "bytes": 3577,
+      "sha256": "41494b03c44945259438f89af66932696cf63f3c6f54b993db6f7e6e1dd63338"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.ko.json",
+      "bytes": 2988,
+      "sha256": "d9317391ab5a2e2827603cd5b01d0ae306a2dbc9ccb48bdc14191b290a1b029d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.nb.json",
+      "bytes": 2793,
+      "sha256": "4e80f0ae0d4b06e0d68165a528abf3bf66654b66f004df9eda821c8c6081545d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.pt-BR.json",
+      "bytes": 2996,
+      "sha256": "ea878afa7f8ca32da72f5bdc7af8ad3eef8ba862e1e51e17eb1984863a6a89c0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.sv.json",
+      "bytes": 2804,
+      "sha256": "c184448a66b3b15c5665de877c0b5c706a7db8ed65d66d4a76f52b217e705a6d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/official-reviews/06_api.zh-CN.json",
+      "bytes": 2535,
+      "sha256": "4d1918ed5adc24b91905c7c428ea72fa13c8ff57c9c71c242924f4dc59c8dd1e"
+    }
+  ],
+  "owning_terminal_phase_logs": {
+    "build": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/020-lesson06-links-20261015-build.log",
+      "bytes": 508,
+      "sha256": "2cce948555b8822a03f419c3e15d97797e0991aae1af922fb1abbe5aa6ee76e4"
+    },
+    "verify-candidate": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/021-lesson06-links-20261015-verify-candidate.log",
+      "bytes": 3755,
+      "sha256": "f700366f24669251fc2c2e3e8f790a0f6d9b881990b478f21d61ba548d1d4a07"
+    },
+    "placeholder": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/022-lesson06-links-20261015-placeholder.log",
+      "bytes": 481,
+      "sha256": "3da010f9c09ce36d9e19531614b8d46cdb4ac549eb5f840ad05b96b71b0a2f08"
+    },
+    "checkpoint": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/023-lesson06-links-20261015-checkpoint.log",
+      "bytes": 583,
+      "sha256": "0bd7406486a14cf26f1fb7ea004e09fac3928f506f16283094779a6220f29506"
+    },
+    "resume-receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/024-lesson06-links-20261015-resume-receipt.log",
+      "bytes": 859,
+      "sha256": "de3e24930147c23d6eb11d7d13d6a895824a6bb05ed36d7c41bfdfaf81c0f12e"
+    },
+    "pages": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/025-lesson06-links-20261015-pages.log",
+      "bytes": 1532,
+      "sha256": "0c2c4a49193d406068adfd058235bcb8d98d43a3b5afa68b04d83b503937efb7"
+    },
+    "verify-pages": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/026-lesson06-links-20261015-verify-pages.log",
+      "bytes": 3872,
+      "sha256": "ab82410659b5b92b6808f203fececd5789c4e15bf860c8f4b52fafd033d342f2"
+    },
+    "record": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/completed-metadata-packet/evidence/027-lesson06-links-20261015-record.log",
+      "bytes": 525,
+      "sha256": "22f77dc8f305df2d464f4090598a6f4f30053dca66b9c40f95bed050cb30fe4d"
+    }
+  },
+  "checks": {
+    "all189_listed_file_hash_size_safe_paths_and_closed190_inventory": true,
+    "coherent145_plus3_recorded_checkpoint": true,
+    "all13_reviews_bound_actual_source5430": true,
+    "only06_links_and13_hash_metadata_changed": true,
+    "all5370_media_84posters_83otherobjects_preservation_bound": true,
+    "candidate84_hosted84_and_record_pass_bound": true,
+    "existing4e4_fullreadback_reused_without_fresh_upload_or_readback": true,
+    "no_fullfresh_listening_native_speaker_liveCI_claims": true
+  },
+  "blocking_issues": [],
+  "limits": [
+    "Independent actual local packet/hash and boundowningreceipt review only; no browser/network/download/mediahash/decode/tests repeated.",
+    "PreparedPages84 is not subsequent PagesCI/liveSpace deployment proof.",
+    "Video/audio/captions retained;27 honestly offered existingtracks, no new50voice/fullnative/fullwatch/hearing acceptance.",
+    "Initial exporter cwd rejection preserved byowner; corrected ROOTcwd export-r2 ran0 without helper/gate changes."
+  ],
+  "review_notes": [
+    "Hostedindex association uses copied evidence/index.html; checkpoint/web/index.html intentionally preserves privatecandidate relative media roots and is not the preparedPages index. No helper/packet mutation."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

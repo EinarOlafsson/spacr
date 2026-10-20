@@ -1,0 +1,60 @@
+{
+  "source_sha256": "ebb6b3d8faf237c1ee207a1d649cef859c9fb66ae1c750489a17839f72846bab",
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "6e9bbc6302c284ca5ec3ec2a90f9ce653fae77c36eb202d257aed6d6fbdc9f74",
+      "adopted_final_sha256": "dbb931d98bc245a4f2fccf85f47b751aa2c42a00ef0433193068abdd0aa2fc52",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "975fbef6e6a350f581a3570af663c90cd1a4a8f804aef00d8de3d2d971e0e93a",
+      "adopted_final_sha256": "6da0aabfe024b4508439c54d8b5b372efa05950d6496fcb944c707ba3ce983a6",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "abc8dcc717f62092c84f17a2df88dd6c9329821f11ac127b030235a829b5dd96",
+      "adopted_final_sha256": "6485edce3191cd179d6e33b8e3f8c43bc5a46fe3741abb6ad6d52ec8750a6624",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "926192462e2fd674e28c1b57627d4f1d867ade5d8b8e46bec7f3164af2d0dadd",
+      "adopted_final_sha256": "69e34cca8c771446ef784ea2fa9efe2f160159ea9a1c3c80780c39dbdb761c44",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "262b6380746e214b9a8f2c8ddd50676579eaf166ce167b47f554150a71061331",
+      "adopted_final_sha256": "ece44a8c36fdbf2adf6d87c0dccf6f1d57423e840d3a1f10573352524e69add0",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "d24046a074f35f376c8aad45ad8fa2ee1a67729aa1b3ed533fc8983a32d1922f",
+      "adopted_final_sha256": "11b0cb36f52316bf6629dabb638062193ee9cf2e6dfe5d741a482a2daf8ede3c",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "c2c1e1c89fdf76f8a4bcc7a8e1ef20beb48717b32a39081a59319f2a75e293bc",
+      "adopted_final_sha256": "79c552d92e10faff0cae1274d3bec313f25ef0657b218fa144427f15af66c8e7",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "487a1ee3e02b01720081df83dcaec2d91c950725d26daded141f7230ab8115af",
+      "adopted_final_sha256": "60cd8ab9cf35eecc3dadbf9ad61a241c407a6033fd08a90de04a8174cc0d848a",
+      "source_and_target_unchanged": true
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-viability-finite-threshold.json",
+      "peer_immutable_draft_sha256": "9fa5c6f60d30a765e67b6ba3b3f2db37fa30be27764409439efdcc57b4a877fa",
+      "adopted_final_sha256": "bc489197c26990f54189f7109fce6d342018ebe6e65fd7e7704e62de663495e1",
+      "source_and_target_unchanged": true
+    }
+  ],
+  "changes": "Only independent peer metadata; exact approved targets unchanged."
+}

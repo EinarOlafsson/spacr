@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review; independent parent peer review requested; no native-speaker signoff",
+  "note": "Only13 changed rendered blocks from source6ac69c5b823 and c3b78f277dc. Normal public_docstrings collector included all10 intended symbols, with no invented catalog keys. Old superseded review evidence is retained with retirement metadata. No generated API catalogs edited by this review-input step.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.figure_queue#1",
+      "source": "The panel combines a thumbnail strip, forward/back controls, a position label, and a zoomable full-resolution view. Every arriving figure is written to a temporary PNG. Full-resolution ``QPixmap`` objects use a least-recently-used cache, limited by the ``ram_cap`` entry count (100 by default). Evicted entries reload their PNG on demand, while thumbnails stay in memory. Clearing the queue or destroying its owner removes the temporary directory.",
+      "context": "The panel combines a thumbnail strip, forward/back controls, a position label, and a zoomable full-resolution view. Every arriving figure is written to a temporary PNG. Full-resolution ``QPixmap`` objects use a least-recently-used cache, limited by the ``ram_cap`` entry count (100 by default). Evicted entries reload their PNG on demand, while thumbnails stay in memory. Clearing the work list or destroying its owner removes the temporary directory.",
+      "source_sha256": "0a8a923a7290e46fa98b9d549f11e960c2cae85b3caf76eee84b0ce2bd6aafb2",
+      "translation": "पैनल में थंबनेल पट्टी, आगे/पीछे के नियंत्रण, स्थिति लेबल और पूर्ण रिज़ॉल्यूशन वाला ज़ूम करने योग्य दृश्य शामिल हैं। हर प्राप्त आकृति को अस्थायी PNG में लिखा जाता है। पूर्ण रिज़ॉल्यूशन वाले ``QPixmap`` ऑब्जेक्ट ऐसे कैश का उपयोग करते हैं जो सबसे लंबे समय से उपयोग न की गई प्रविष्टियों को हटाता है और जिसकी सीमा ``ram_cap`` प्रविष्टियों की संख्या है (डिफ़ॉल्ट 100)। हटाई गई प्रविष्टियाँ आवश्यकता पर अपना PNG फिर से लोड करती हैं, जबकि थंबनेल मेमोरी में रहते हैं। कतार खाली करने या उसके स्वामी को नष्ट करने से अस्थायी डायरेक्टरी हट जाती है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.figure_text_items#3",
+      "source": "Text objects in traversal order, omitting missing entries. Repeated references are retained.",
+      "context": "Text objects in traversal order, omitting missing entries. Repeated references are retained.",
+      "source_sha256": "2945d7185cf8c8c6930b6372a5c4cfceabef9724d890b12cdd1d078ff07623db",
+      "translation": "भ्रमण क्रम में टेक्स्ट ऑब्जेक्ट; अनुपस्थित प्रविष्टियाँ छोड़ दी जाती हैं। दोहराए गए संदर्भ बनाए रखे जाते हैं।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue#1",
+      "source": "maximum number of full-resolution pixmaps in the RAM cache, 100 by default. Least-recently-used entries are evicted; their PNG files remain available for reloading. This is an entry count, not a byte limit or a limit on all process memory.",
+      "context": "maximum number of full-resolution pixmaps in the RAM cache, 100 by default. Least-recently-used entries are evicted; their PNG files remain available for reloading. This is an entry count, not a byte limit or a limit on all process memory.",
+      "source_sha256": "2f5af36587413de43f63fbdb76d5b55364852292dcbddbe9ec2e128b9f0a7c0d",
+      "translation": "RAM कैश में पूर्ण रिज़ॉल्यूशन वाले पिक्समैप की अधिकतम संख्या, डिफ़ॉल्ट 100। सबसे लंबे समय से उपयोग न की गई प्रविष्टियाँ हटाई जाती हैं; उनकी PNG फ़ाइलें दोबारा लोड करने के लिए उपलब्ध रहती हैं। यह प्रविष्टियों की संख्या है, बाइट सीमा या प्रक्रिया की पूरी मेमोरी की सीमा नहीं।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue#4",
+      "source": "maximum number of full-resolution pixmaps to cache in memory, 100 by default; entries are evicted by least-recent use.",
+      "context": "maximum number of full-resolution pixmaps to cache in memory, 100 by default; entries are evicted by least-recent use.",
+      "source_sha256": "2d2f3c1144a325739b062f10cebfc9c2d727cb671d6285bdd0fe2d36ae5ccac8",
+      "translation": "मेमोरी में कैश किए जाने वाले पूर्ण रिज़ॉल्यूशन पिक्समैप की अधिकतम संख्या, डिफ़ॉल्ट 100; सबसे लंबे समय से उपयोग न की गई प्रविष्टियाँ हटाई जाती हैं।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view#2",
+      "source": "Image reads run through :class:`spacr.qt.job_runner.JobRunner` and only the GUI-thread completion handler updates widgets. The montage cap limits the selected objects and defaults to :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). Converting image arrays to ``QPixmap`` occurs on the GUI thread; image loading and crop selection occur in the worker.",
+      "context": "Image reads run through :class:`spacr.qt.job_runner.JobRunner` and only the main GUI execution path completion handler updates widgets. The montage cap limits the selected objects and defaults to :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). Converting image arrays to ``QPixmap`` occurs on the main GUI execution path; image loading and extracted image region selection occur in the worker.",
+      "source_sha256": "13fcffa0dec03b0049d3ae96f0b0a5b15c370e54c09a9a972bcbec5d269edd2f",
+      "translation": "छवियाँ पढ़ने का कार्य :class:`spacr.qt.job_runner.JobRunner` से होता है और केवल GUI थ्रेड का पूर्णता हैंडलर विजेट अपडेट करता है। मोंटाज सीमा चयनित ऑब्जेक्ट की संख्या सीमित करती है और इसका डिफ़ॉल्ट :data:`spacr.cell_montage.MAX_OBJECTS` (2,000) है। छवि ऐरे को ``QPixmap`` में बदलना GUI थ्रेड में होता है; छवियाँ लोड करना और क्रॉप चुनना वर्कर में होता है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen#0",
+      "source": "Full-window loading cover and startup photomosaic animation.",
+      "context": "Full-window loading cover and startup photomosaic animation.",
+      "source_sha256": "7a6017b8c545c3ea6dfbb8f4a8bd6f2909be4a500c2f4977b4d37d9d62d16058",
+      "translation": "पूरी विंडो को ढकने वाला लोडिंग आवरण और स्टार्टअप फोटोमोज़ेक ऐनिमेशन।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen#1",
+      "source": "The application shows this cover while constructing its window. With eager preloading, :class:`spacr.qt.app._PipelinePreloader` imports pipeline modules on a worker thread and reports progress through a GUI-thread timer. The default on-demand policy ends the loading phase without importing those modules. The host then closes the cover or starts its photomosaic animation, according to the startup preferences.",
+      "context": "The application shows this cover while constructing its window. With eager preloading, :class:`spacr.qt.app._PipelinePreloader` imports workflow modules on a background execution unit and reports progress through a main GUI execution path timer. The default on-demand policy ends the loading phase without importing those modules. The host then closes the cover or starts its photomosaic animation, according to the startup preferences.",
+      "source_sha256": "d5cdd19db82248472abddbc3a3a038aebd742124e1467a731f7853087f11a6be",
+      "translation": "एप्लिकेशन अपनी विंडो बनाते समय यह आवरण दिखाता है। अग्रिम प्रीलोडिंग में :class:`spacr.qt.app._PipelinePreloader` वर्कर थ्रेड पर पाइपलाइन मॉड्यूल आयात करता है और GUI थ्रेड के टाइमर से प्रगति बताता है। डिफ़ॉल्ट माँग-आधारित नीति इन मॉड्यूल को आयात किए बिना लोडिंग चरण समाप्त करती है। इसके बाद होस्ट स्टार्टअप प्राथमिकताओं के अनुसार आवरण बंद करता है या उसका फोटोमोज़ेक ऐनिमेशन शुरू करता है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen#2",
+      "source": "Reported progress lights the three phases of :data:`STRAP_LINE` and fills the thin rule below them. :meth:`LoadingScreen.show_mosaic` replaces the plain logo with the photomosaic; :meth:`LoadingScreen.blow_away` animates its removal. :func:`replay_startup_animation` runs the sequence again over an existing window.",
+      "context": "Reported progress lights the three phases of :data:`STRAP_LINE` and fills the thin rule below them. :meth:`LoadingScreen.show_mosaic` replaces the plain logo with the photomosaic; :meth:`LoadingScreen.blow_away` animates its removal. :func:`replay_startup_animation` runs the sequence again over an existing window.",
+      "source_sha256": "2fd99810ff3b8c85c93df3d5bfb3c3a60830f5213a637de784ca54326bc69655",
+      "translation": "बताई गई प्रगति :data:`STRAP_LINE` के तीन चरणों को रोशन करती है और उनके नीचे की पतली रेखा भरती है। :meth:`LoadingScreen.show_mosaic` साधारण लोगो को फोटोमोज़ेक से बदलता है; :meth:`LoadingScreen.blow_away` उसके हटने का ऐनिमेशन दिखाता है। :func:`replay_startup_animation` किसी मौजूदा विंडो के ऊपर यह क्रम दोबारा चलाता है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen#0",
+      "source": "Full-window loading cover with optional photomosaic animation.",
+      "context": "Full-window loading cover with optional photomosaic animation.",
+      "source_sha256": "ce6bd0230d8d9c6451d89f42549da34961fe16fe4d5a57b7f8d427b3ca97158f",
+      "translation": "वैकल्पिक फोटोमोज़ेक ऐनिमेशन वाला पूरी विंडो को ढकने वाला लोडिंग आवरण।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.startup_animation_allowed#1",
+      "source": "No when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while Preferences > Appearance > Accessibility > Reduce motion is on, or when Preferences > Appearance > Animation > Startup animation is off. An unreadable preference disables the animation.",
+      "context": "No when :data:`NO_SPLASH_ENV` is set, on the offscreen platform, while Preferences > Appearance > Accessibility > Reduce motion is on, or when Preferences > Appearance > Animation > Startup animation is off. An unreadable preference disables the animation.",
+      "source_sha256": "e3b3dfb79482cd5a8f9b03dab742ca292c1630b4a1e5254d7b637468b5d70280",
+      "translation": "नहीं, यदि :data:`NO_SPLASH_ENV` सेट है, ऑफ़स्क्रीन प्लेटफ़ॉर्म उपयोग हो रहा है, प्राथमिकताएँ > रूप > सुलभता > गति कम करें चालू है या प्राथमिकताएँ > रूप > ऐनिमेशन > स्टार्टअप ऐनिमेशन बंद है। कोई प्राथमिकता पढ़ी न जा सके तो ऐनिमेशन बंद रहता है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#1",
+      "source": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Appearance > Animation > Startup animation is off; under Preferences > Appearance > Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Appearance > Animation > Startup animation is off; under Preferences > Appearance > Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "source_sha256": "cadcec354bb6efc8df952337831c882079280af0eee04248b29ea6ba3644446c",
+      "translation": "सहायता > स्टार्टअप ऐनिमेशन दिखाएँ। लोगो वाला काला कंटेनर विंडो के ऊपर फिर आता है, दो सेकंड ठहरता है और स्टार्टअप की तरह उड़कर हट जाता है। प्राथमिकताएँ > रूप > ऐनिमेशन > स्टार्टअप ऐनिमेशन बंद होने पर भी यह चलता है; प्राथमिकताएँ > रूप > सुलभता > गति कम करें के अंतर्गत लोगो ठहरता है और फिर एक सेकंड में धीरे-धीरे गायब होता है। क्लिक या कुंजी दबाने से इसे छोड़ा जा सकता है। विंडो का आकार, स्थिति और कीबोर्ड फ़ोकस पहले जैसे रहते हैं।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_startup_animation#1",
+      "source": "Preferences > Appearance > Animation > Startup animation. Reduce motion overrides it.",
+      "context": "Preferences > Appearance > Animation > Startup animation. Reduce motion overrides it.",
+      "source_sha256": "062bb851e1ef54484010b1eb00ed6063401aedcb9c054c148b7fefc427cacf69",
+      "translation": "प्राथमिकताएँ > रूप > ऐनिमेशन > स्टार्टअप ऐनिमेशन। गति कम करें को इस पर प्राथमिकता मिलती है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme.focus_ring_qss#1",
+      "source": "Preferences > Appearance > Accessibility > Stronger focus outlines. These rules replace the listed widgets' normal focus borders with a :data:`FOCUS_RING_PX`-pixel border in :func:`focus_ring_colour`.",
+      "context": "Preferences > Appearance > Accessibility > Stronger focus outlines. These rules replace the listed widgets' normal focus borders with a :data:`FOCUS_RING_PX`-pixel border in :func:`focus_ring_colour`.",
+      "source_sha256": "bdf41810b280e49bdfc0c8e698420630d948396d417d19eef9640392040228dc",
+      "translation": "प्राथमिकताएँ > रूप > सुलभता > अधिक स्पष्ट फ़ोकस सीमाएँ। ये नियम सूचीबद्ध विजेट की सामान्य फ़ोकस सीमाओं को :data:`FOCUS_RING_PX` पिक्सेल चौड़ी सीमा से बदलते हैं, जिसका रंग :func:`focus_ring_colour` से मिलता है।",
+      "review_basis": "Exact-source AI technical comparison: cache counts and LRU eviction, retained references, montage cap/thread ownership, on-demand versus eager loading, current preference paths and focus-border scope. RST references, protected names, numerical limits and conditional behavior preserved. No native-speaker signoff."
+    }
+  ]
+}

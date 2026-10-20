@@ -531,14 +531,18 @@
       "label": "spacr.timeflows_baseline#1",
       "source": "WHAT IT IS FOR",
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
-      "translation": "VERWENDUNGSZWECK"
+      "translation": "VERWENDUNGSZWECK",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What it is for",
       "label": "spacr.timeflows_qc#1",
       "source": "WHAT IT IS FOR",
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
-      "translation": "VERWENDUNGSZWECK"
+      "translation": "VERWENDUNGSZWECK",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a setting name.",
@@ -734,7 +738,9 @@
       "label": "spacr.timeflows_baseline#3",
       "source": "WHAT IS IN HERE",
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
-      "translation": "INHALT"
+      "translation": "INHALT",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a backend name.",
@@ -1312,7 +1318,9 @@
       "label": "spacr.qt.mask_engine.save_mask#8",
       "source": "the path written.",
       "source_sha256": "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
-      "translation": "der Pfad der geschriebenen Datei."
+      "translation": "der Pfad der geschriebenen Datei.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the path written.",

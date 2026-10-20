@@ -249,7 +249,7 @@ def test_the_qt_downloader_still_re_exports_what_moved_out_of_it():
     own. Every name here is one the Qt workers resolve as a module global, or
     one a test in ``tests/qt`` patches to keep the demo flow offline.
     """
-    source = (REPO_ROOT / "spacr" / "qt" / "hf_download.py").read_text()
+    source = (REPO_ROOT / "spacr" / "qt" / "hf_download.py").read_text(encoding="utf-8")
     assert "from ..example_archives import" in source
     for name in ("DATASET_REPO", "DATASET_SUB", "SETTINGS_REPO",
                  "MEASURE_EXAMPLE_REPO", "ANNOTATE_EXAMPLE_REPO",
@@ -384,7 +384,7 @@ def test_the_listing_says_which_pieces_are_already_on_disk(capsys, dest, hub):
 def test_the_listing_totals_only_what_was_selected(capsys, dest, hub):
     run(["--list", "--screen", "measurements", "--plate", "1"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 1 of 18 pieces" in out
+    assert "Selected: 1 of 27 pieces" in out
     assert "555.7 MB to download" in out
 
 
@@ -393,7 +393,7 @@ def test_the_total_leaves_out_what_is_already_on_disk(capsys, dest, hub):
     _make_present(dest, keys=["mask", "measure"])
     run(["--list"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 7 of 18 pieces, about 986.0 MB to download." in out
+    assert "Selected: 7 of 27 pieces, about 986.0 MB to download." in out
     assert "2 already on disk and skipped" in out
 
 

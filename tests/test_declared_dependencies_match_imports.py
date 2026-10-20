@@ -143,6 +143,7 @@ STDLIB_MODULE_NAMES = _stdlib_module_names()
 IMPORT_TO_DIST = {
     "Bio": "biopython",
     "GPUtil": "gputil",
+    "OpenGL": "PyOpenGL",
     "PIL": "pillow",
     "PySide6": "PySide6",
     "cv2": "opencv-python-headless",

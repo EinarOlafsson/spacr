@@ -1,0 +1,296 @@
+{
+  "language": "de",
+  "note": "Item 429: changed public docstrings (convert_separate_files_to_yokogawa, spacr.resume, completed_fields_in_merged, process_mask_file_adjust_cell).",
+  "records": [
+    {
+      "context": "Rename per-slice TIFFs in ``folder`` into the Yokogawa CV filename convention.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Rename per-slice TIFFs in ``folder`` into the Yokogawa CV filename convention.",
+      "source_sha256": "a35719848cb2f5beeb80aa75904b6ab376e6815e0e09bce3364673865cb0f9db",
+      "translation": "Benennt TIFF-Dateien pro Schicht in ``folder`` nach der Yokogawa-CV-Dateinamenskonvention um."
+    },
+    {
+      "context": "Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)`` parsed from the regex. Groups with multiple Z-slices are max- projected before saving, and the mapping is logged to ``rename_log.csv``.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Files are grouped by ``(plateID, wellID, fieldID, timeID, chanID)`` parsed from the regex. Groups with multiple Z-slices are max- projected before saving, and the mapping is logged to ``rename_log.csv``.",
+      "source_sha256": "04c5c86232895780c860b264a909e4484f47dc78a0630da1245759c8144a1a31",
+      "translation": "Die Dateien werden nach ``(plateID, wellID, fieldID, timeID, chanID)`` gruppiert, die aus dem regulären Ausdruck geparst werden. Gruppen mit mehreren Z-Schichten werden vor dem Speichern maximal- projiziert, und die Zuordnung wird in ``rename_log.csv`` protokolliert."
+    },
+    {
+      "context": "Well naming, in full:",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Well naming, in full:",
+      "source_sha256": "8c9fcafa7a74df91c12853f3908547556cc4ce5fbca252896418f5b282e7a6b9",
+      "translation": "Benennung der Wells im Einzelnen:"
+    },
+    {
+      "context": "Folder containing the source TIFFs.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Folder containing the source TIFFs.",
+      "source_sha256": "fe04581fb850dcf6354f1a73ae113a1503c99f4f67ffac627cf1bd9d5f0e043c",
+      "translation": "Ordner mit den Quell-TIFFs."
+    },
+    {
+      "context": "Pattern with named groups ``wellID`` (required) plus optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``.",
+      "label": "spacr.io.convert_separate_files_to_yokogawa#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Pattern with named groups ``wellID`` (required) plus optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``.",
+      "source_sha256": "1f1dbbcd1eefc3738da325db55b7645767836ea05dd3bcbc42a9648af65a1198",
+      "translation": "Muster mit den benannten Gruppen ``wellID`` (erforderlich) sowie optional ``plateID``, ``fieldID``, ``timeID``, ``chanID``, ``sliceID``."
+    },
+    {
+      "context": "Resume / checkpointing for spaCR's two long batch stages.",
+      "label": "spacr.resume#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Resume / checkpointing for spaCR's two long batch stages.",
+      "source_sha256": "ca65c2e84b84bb3e47626969495deaf674ce9e1108a30d6c878c6f2e14632ce5",
+      "translation": "Fortsetzen und Checkpoints für die beiden langen Batch-Stufen von spaCR."
+    },
+    {
+      "context": "A laboratory microplate can be a thousand microscope fields of view and several hours. When a processing session stops at microscope field of view 900 — a full disk, an OOM-killed worker, a closed laptop lid — this module lets the next invocation skip the microscope fields of view already completed instead of starting again.",
+      "label": "spacr.resume#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A plate can be a thousand fields and several hours. When a run stops at field 900 — a full disk, an OOM-killed worker, a closed laptop lid — this module lets the next invocation skip the fields already completed instead of starting again.",
+      "source_sha256": "49da02cd55b58d089203bfd7870b0337b085acac04a038413eeeb1e64c890b5c",
+      "translation": "Eine Platte kann tausend Bildfelder und mehrere Stunden umfassen. Bricht ein Lauf bei Bildfeld 900 ab — volle Festplatte, ein wegen Speichermangels beendeter Worker, ein zugeklappter Laptop —, lässt dieses Modul den nächsten Aufruf die bereits abgeschlossenen Bildfelder überspringen, statt von vorn zu beginnen."
+    },
+    {
+      "context": "What bounds all of it: every imported row in the canonical table has an identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not* on the allow-list, so no resume can touch it. That is checked rather than assumed — a row without a twin stops the release.",
+      "label": "spacr.resume#10",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "What bounds all of it: every imported row in the canonical table has an identical twin in ``foreign_<object>``, and ``foreign_<object>`` is *not* on the allow-list, so no resume can touch it. That is checked rather than assumed — a row without a twin stops the release.",
+      "source_sha256": "a71d5ca6fc1233025bcc14754f150e3252fa18aecfca7c2d5141a9e6091e605e",
+      "translation": "Was all dies begrenzt: Jede importierte Zeile in der kanonischen Tabelle hat einen identischen Zwilling in ``foreign_<object>``, und ``foreign_<object>`` steht *nicht* auf der Zulassungsliste, sodass kein Fortsetzen sie berühren kann. Das wird geprüft, nicht angenommen — eine Zeile ohne Zwilling stoppt die Freigabe."
+    },
+    {
+      "context": "One half of this is still open and is not in this module: ``_merge_and_save_to_database`` appends into a canonical table an import filled without noticing, so a user who measures such a project *without* a resume still gets both populations in one table. ``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)`` and names the change ``spacr/utils.py`` needs.",
+      "label": "spacr.resume#11",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "One half of this is still open and is not in this module: ``_merge_and_save_to_database`` appends into a canonical table an import filled without noticing, so a user who measures such a project *without* a resume still gets both populations in one table. ``tests/test_resume_owned_tables.py`` pins it with ``xfail(strict=True)`` and names the change ``spacr/utils.py`` needs.",
+      "source_sha256": "3115becf856bfffbee43f32a8a7b8fdf824a174a55668717e37c2278d931ff88",
+      "translation": "Eine Hälfte davon ist noch offen und liegt nicht in diesem Modul: ``_merge_and_save_to_database`` hängt an eine kanonische Tabelle, die ein Import gefüllt hat, an, ohne es zu bemerken, sodass ein Benutzer, der ein solches Projekt *ohne* Fortsetzen misst, weiterhin beide Populationen in einer Tabelle erhält. ``tests/test_resume_owned_tables.py`` hält dies mit ``xfail(strict=True)`` fest und benennt die Änderung, die ``spacr/utils.py`` benötigt."
+    },
+    {
+      "context": "A database already damaged by an earlier resume cannot be repaired on read — the rows are gone, and nothing in the file records what they were. It can be *rewritten* from the sources outside the database, and all three writers use ``if_exists='replace'``, so re-executing one is a full repair rather than a second generation of rows: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` restores the map from the CSV that sits beside the converted images, ``align.save_coordinates`` restores the stitch coordinates, and ``foreign.run_import`` restores the imported measurements.",
+      "label": "spacr.resume#12",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "A database already damaged by an earlier resume cannot be repaired on read — the rows are gone, and nothing in the file records what they were. It can be *rewritten* from the sources outside the database, and all three writers use ``if_exists='replace'``, so re-running one is a full repair rather than a second generation of rows: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` restores the map from the CSV that sits beside the converted images, ``align.save_coordinates`` restores the stitch coordinates, and ``foreign.run_import`` restores the imported measurements.",
+      "source_sha256": "81718b398c9e524e867232267195386df7013dc1b493d6c707c23eac88bb8b66",
+      "translation": "Eine Datenbank, die bereits durch ein früheres Fortsetzen beschädigt wurde, lässt sich beim Lesen nicht reparieren — die Zeilen sind weg, und nichts in der Datei hält fest, was sie enthielten. Sie kann aus den Quellen außerhalb der Datenbank *neu geschrieben* werden, und alle drei Schreiber verwenden ``if_exists='replace'``, sodass ein erneuter Aufruf eine vollständige Reparatur statt einer zweiten Generation von Zeilen ist: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` stellt die Zuordnung aus der CSV-Datei neben den konvertierten Bildern wieder her, ``align.save_coordinates`` stellt die Stitching-Koordinaten wieder her, und ``foreign.run_import`` stellt die importierten Messungen wieder her."
+    },
+    {
+      "context": "**A microscope field of view is identified by its well coordinates, never by a name prefix.** Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``, so clearing one microscope field of view would delete rows of ten others. Every statement in here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table that does not carry all four.",
+      "label": "spacr.resume#13",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A field is identified by its well coordinates, never by a name prefix.** Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``, so clearing one field would delete rows of ten others. Every statement in here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table that does not carry all four.",
+      "source_sha256": "9eb0b50526dcf59b09c1c07ad83f59fd76f4d5fd3cd9b1b0644d043d00f8598a",
+      "translation": "**Ein Bildfeld wird über seine Well-Koordinaten identifiziert, nie über ein Namenspräfix.** Ein Löschen mit ``LIKE 'plate1_A01_f1%'`` trifft auch ``f10`` … ``f19``, sodass das Leeren eines Bildfelds Zeilen von zehn anderen löschen würde. Jede Anweisung hier vergleicht auf Gleichheit über ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (plus ``timeID`` bei Zeitraffer) und verweigert den Zugriff auf eine Tabelle, die nicht alle vier enthält."
+    },
+    {
+      "context": "**A resume across different settings is not a resume.** Concatenating microscope fields of view measured with one channel/diameter/extracted-image-region configuration onto microscope fields of view measured with another produces a dataset that is half one thing and half another, and nothing downstream can tell. :func:`check_settings_compatible` compares the current settings against the ones recorded by the previous processing session and raises :class:`ResumeRefused` naming exactly what differs. Environment drift (a numpy version bump) does not block.",
+      "label": "spacr.resume#14",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A resume across different settings is not a resume.** Concatenating fields measured with one channel/diameter/crop configuration onto fields measured with another produces a dataset that is half one thing and half another, and nothing downstream can tell. :func:`check_settings_compatible` compares the current settings against the ones recorded by the previous run and raises :class:`ResumeRefused` naming exactly what differs. Environment drift (a numpy version bump) does not block.",
+      "source_sha256": "3aa3ef028f5ed965c211c373242350defa16f20acd1803b270888c54232f68e1",
+      "translation": "**Ein Fortsetzen mit anderen Einstellungen ist kein Fortsetzen.** Bildfelder, die mit einer Kanal-/Durchmesser-/Ausschnittkonfiguration gemessen wurden, an Bildfelder anzuhängen, die mit einer anderen gemessen wurden, ergibt einen Datensatz, der zur Hälfte das eine und zur Hälfte das andere ist, und nichts Nachgelagertes kann das erkennen. :func:`check_settings_compatible` vergleicht die aktuellen Einstellungen mit denen, die der vorherige Lauf aufgezeichnet hat, und löst :class:`ResumeRefused` aus, wobei genau benannt wird, was sich unterscheidet. Abweichungen der Umgebung (eine neuere numpy-Version) blockieren nicht."
+    },
+    {
+      "context": "Resume is **opt-in**: everything here is inert unless ``settings['resume']`` is true, and a processing session without it behaves exactly as it did before.",
+      "label": "spacr.resume#15",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Resume is **opt-in**: everything here is inert unless ``settings['resume']`` is true, and a run without it behaves exactly as it did before.",
+      "source_sha256": "ff6926e2022974b49117519dfa678eeef8ff52021833a4d7933210d3d451b2b8",
+      "translation": "Das Fortsetzen ist **optional**: Alles hier bleibt wirkungslos, solange ``settings['resume']`` nicht wahr ist, und ein Lauf ohne diese Einstellung verhält sich genau wie zuvor."
+    },
+    {
+      "context": "Typical use, from ``measure_crop``",
+      "label": "spacr.resume#17",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Typical use, from ``measure_crop``",
+      "source_sha256": "ff7df5a8dcda2db2e8baad7db63c94c73180609e6e3b5d4db0ab94b6d553a756",
+      "translation": "Typische Verwendung, aus ``measure_crop``"
+    },
+    {
+      "context": "Most of the module decides whether skipping a field is *safe*:",
+      "label": "spacr.resume#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Most of the module decides whether skipping a field is *safe*:",
+      "source_sha256": "bb0ed19daddb2ac203cf6e055cde153d9d18900218e11abafeab759486e51646",
+      "translation": "Der größte Teil des Moduls entscheidet, ob das Überspringen eines Bildfelds *sicher* ist:"
+    },
+    {
+      "context": "**A file that exists is not a file that finished.** Older versions of ``spacr.io._load_and_concatenate_arrays`` wrote ``merged/<field>.npy`` with a bare ``np.save`` straight onto the destination path, so a crash mid-write left a short, structurally valid-looking ``.npy`` on disk. Current versions write merged arrays atomically, but files left by earlier runs can still be truncated. A resume that skips on ``os.path.exists`` would accept such a field, measure whatever bytes happened to land, and put the result in the same table as the good fields. So :func:`completed_fields_in_merged` *validates*: it parses the ``.npy`` header and checks that the file is as long as its own shape claims. Anything short is reported as rejected and re-queued, never skipped.",
+      "label": "spacr.resume#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**A file that exists is not a file that finished.** Older versions of ``spacr.io._load_and_concatenate_arrays`` wrote ``merged/<field>.npy`` with a bare ``np.save`` straight onto the destination path, so a crash mid-write left a short, structurally valid-looking ``.npy`` on disk. Current versions write merged arrays atomically, but files left by earlier runs can still be truncated. A resume that skips on ``os.path.exists`` would accept such a field, measure whatever bytes happened to land, and put the result in the same table as the good fields. So :func:`completed_fields_in_merged` *validates*: it parses the ``.npy`` header and checks that the file is as long as its own shape claims. Anything short is reported as rejected and re-queued, never skipped.",
+      "source_sha256": "4efd09353e2beb2f1988b0b220ad23055a80f96b522535c7c5581cbaa425c701",
+      "translation": "**Eine vorhandene Datei ist noch keine fertige Datei.** Ältere Versionen von ``spacr.io._load_and_concatenate_arrays`` schrieben ``merged/<field>.npy`` mit einem bloßen ``np.save`` direkt in den Zielpfad, sodass ein Absturz während des Schreibens eine zu kurze, strukturell gültig wirkende ``.npy`` auf dem Datenträger hinterließ. Aktuelle Versionen schreiben zusammengeführte Arrays atomar, doch Dateien früherer Läufe können weiterhin abgeschnitten sein. Ein Fortsetzen, das anhand von ``os.path.exists`` überspringt, würde ein solches Bildfeld akzeptieren, die zufällig vorhandenen Bytes messen und das Ergebnis in dieselbe Tabelle wie die intakten Bildfelder schreiben. Deshalb *validiert* :func:`completed_fields_in_merged`: Es parst den ``.npy``-Header und prüft, ob die Datei so lang ist, wie ihre eigene Form angibt. Alles, was zu kurz ist, wird als abgelehnt gemeldet und erneut eingeplant, nie übersprungen."
+    },
+    {
+      "context": "**The measurement workflow appends rows, so existing rows must be removed prior to continuing an interrupted run.** ``_merge_and_save_to_database`` and ``filepaths_to_database`` both call ``to_sql(..., if_exists='append')``. Measuring a field again does not replace existing rows; it *inserts additional rows*. This makes downstream per-well aggregates too large without a warning. :func:`clear_field_rows` removes old rows so repeated measurement produces one consistent result. One transaction covers every affected table, so an error leaves the database unchanged.",
+      "label": "spacr.resume#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**Measure appends; therefore a resume must delete first.** ``_merge_and_save_to_database`` and ``filepaths_to_database`` both use ``to_sql(..., if_exists='append')``. Re-measuring a field that already wrote some rows does not overwrite them, it *adds* to them, and every per-well aggregate downstream is then computed over inflated counts with nothing anywhere to indicate it. :func:`clear_field_rows` is the delete-before-insert that makes re-running a field idempotent, and it is the reason this module exists at all. It runs in one transaction across every table the field touched, so a failure part-way leaves the database exactly as it was.",
+      "source_sha256": "657b1c8da06a0528f8dee80fbef2f8a799e065cda5bff1beea831f7cfe4497d7",
+      "translation": "**Measure hängt an; daher muss ein Fortsetzen zuerst löschen.** ``_merge_and_save_to_database`` und ``filepaths_to_database`` verwenden beide ``to_sql(..., if_exists='append')``. Ein erneutes Messen eines Bildfelds, das bereits einige Zeilen geschrieben hat, überschreibt diese nicht, sondern *fügt* weitere hinzu, und jedes nachgelagerte Aggregat pro Well wird dann über überhöhte Zählungen berechnet, ohne dass irgendetwas darauf hinweist. :func:`clear_field_rows` ist das Löschen vor dem Einfügen, das die Wiederholung eines Bildfelds idempotent macht, und der eigentliche Grund, warum dieses Modul existiert. Es läuft in einer einzigen Transaktion über alle Tabellen, die das Bildfeld berührt hat, sodass ein Fehler mittendrin die Datenbank genau so zurücklässt, wie sie war."
+    },
+    {
+      "context": "**measurements.db is not measure's private file.** ``convert`` writes ``conversion_map`` into it, ``align`` writes ``align_coordinates``, ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table — all keyed on the same four columns as the measurements, deliberately, so that they join. Discovering \"tables to clear\" by their columns alone would therefore find all of them, and clearing a pending microscope field of view from each would delete the only record of which vendor file became ``plate1_A01_1``, of where each microscope image field was stitched, and of imported measurements. None of it can be recomputed from the database. The tables a resume may delete from are therefore an explicit allow-list, :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered and again per table immediately before the DELETE is prepared.",
+      "label": "spacr.resume#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**measurements.db is not measure's private file.** ``convert`` writes ``conversion_map`` into it, ``align`` writes ``align_coordinates``, ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table — all keyed on the same four columns as the measurements, deliberately, so that they join. Discovering \"tables to clear\" by their columns alone would therefore find all of them, and clearing a pending field from each would delete the only record of which vendor file became ``plate1_A01_1``, of where each tile was stitched, and of imported measurements. None of it can be recomputed from the database. The tables a resume may delete from are therefore an explicit allow-list, :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered and again per table immediately before the DELETE is prepared.",
+      "source_sha256": "b92a7f18669bd4508258c5d830c110dbd91eab9528fbbdb89d6283bf001a59f9",
+      "translation": "**measurements.db ist nicht die private Datei von Measure.** ``convert`` schreibt ``conversion_map`` hinein, ``align`` schreibt ``align_coordinates``, ``foreign`` schreibt ``foreign_*``, ``timelapse`` schreibt seine Spurtabelle — alle bewusst mit denselben vier Schlüsselspalten wie die Messungen, damit sie sich verknüpfen lassen. Würde man die \"tables to clear\" (die zu leerenden Tabellen) allein anhand ihrer Spalten ermitteln, fände man daher alle, und das Entfernen eines ausstehenden Bildfelds aus jeder davon würde die einzige Aufzeichnung löschen, welche Herstellerdatei zu ``plate1_A01_1`` wurde, wo jede Kachel zusammengesetzt wurde und welche Messungen importiert wurden. Nichts davon (None) lässt sich aus der Datenbank neu berechnen. Die Tabellen, aus denen ein Fortsetzen löschen darf, sind daher eine explizite Zulassungsliste, :data:`MEASURE_OWNED_TABLES`, die sowohl beim Ermitteln der Liste als auch erneut pro Tabelle unmittelbar vor dem Vorbereiten des DELETE geprüft wird."
+    },
+    {
+      "context": "**Owned by name is not owned in fact, so ownership is decided per row.** A name allow-list answers \"could measure have written this table?\", and there is one case where the answer to \"did it?\" is no: ``foreign.run_import`` copies the imported rows into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so that a purely-imported project is readable by every spaCR tool. Those rows sit under spaCR's own metadata columns in a table on the allow-list, and a table-level rule would clear them along with the pending field.",
+      "label": "spacr.resume#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**Owned by name is not owned in fact, so ownership is decided per row.** A name allow-list answers \"could measure have written this table?\", and there is one case where the answer to \"did it?\" is no: ``foreign.run_import`` copies the imported rows into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone else's is there, so that a purely-imported project is readable by every spaCR tool. Those rows sit under spaCR's own metadata columns in a table on the allow-list, and a table-level rule would clear them along with the pending field.",
+      "source_sha256": "ecfda98e0d21d52df75b5cda6d64e1e6835ed8258f94f18cea24ce2819bfd4bd",
+      "translation": "**Dem Namen nach zugehörig heißt nicht tatsächlich zugehörig, daher wird die Zugehörigkeit pro Zeile entschieden.** Eine Zulassungsliste nach Namen beantwortet die Frage „Könnte Measure diese Tabelle geschrieben haben?“, und es gibt einen Fall, in dem die Antwort auf „Hat es das getan?“ nein lautet: ``foreign.run_import`` kopiert die importierten Zeilen in die kanonische Tabelle ``cell`` / ``nucleus`` / ``pathogen``, wenn dort nichts von anderer Seite steht, damit ein rein importiertes Projekt von jedem spaCR-Werkzeug gelesen werden kann. Diese Zeilen stehen unter den eigenen Metadatenspalten von spaCR in einer Tabelle auf der Zulassungsliste, und eine Regel auf Tabellenebene würde sie zusammen mit dem ausstehenden Bildfeld löschen."
+    },
+    {
+      "context": "The rows are told apart by ``foreign_columns``, written by every release of the importer, names each column that importer put in each table. Its table-scoped use — ``foreign._importer_owns``, \"are this table's columns a subset of what the importer recorded?\" — has a row-scoped twin, and that is the rule here: **a row is the importer's when every column it is non-NULL in is one the importer recorded for this table**. A ``measure_crop`` row always carries at least its own area and intensity columns, which the importer never wrote; an imported row carries only metadata and ``foreign_``-prefixed measurements. So a table can be half one and half the other and each row is still attributable — which matters, because a project that was imported and then measured is exactly that. See :func:`measure_rows_clause`.",
+      "label": "spacr.resume#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The rows are told apart by ``foreign_columns``, written by every release of the importer, names each column that importer put in each table. Its table-scoped use — ``foreign._importer_owns``, \"are this table's columns a subset of what the importer recorded?\" — has a row-scoped twin, and that is the rule here: **a row is the importer's when every column it is non-NULL in is one the importer recorded for this table**. A ``measure_crop`` row always carries at least its own area and intensity columns, which the importer never wrote; an imported row carries only metadata and ``foreign_``-prefixed measurements. So a table can be half one and half the other and each row is still attributable — which matters, because a project that was imported and then measured is exactly that. See :func:`measure_rows_clause`.",
+      "source_sha256": "2b60ac7c79a8d6bcc4aef67d718f4f97903c9661cfde325cb6ea2f3e334eae19",
+      "translation": "Die Zeilen werden anhand von ``foreign_columns`` unterschieden, das jede Version des Importers schreibt und das jede Spalte benennt, die dieser Importer in jede Tabelle eingetragen hat. Seine tabellenbezogene Verwendung — ``foreign._importer_owns``, „Sind die Spalten dieser Tabelle eine Teilmenge dessen, was der Importer aufgezeichnet hat?“ — hat ein zeilenbezogenes Gegenstück, und das ist hier die Regel: **Eine Zeile gehört dem Importer, wenn jede Spalte, in der sie nicht NULL ist, eine Spalte ist, die der Importer für diese Tabelle aufgezeichnet hat**. Eine ``measure_crop``-Zeile enthält immer mindestens ihre eigenen Flächen- und Intensitätsspalten, die der Importer nie geschrieben hat; eine importierte Zeile enthält nur Metadaten und Messungen mit dem Präfix ``foreign_``. So kann eine Tabelle zur Hälfte aus dem einen und zur Hälfte aus dem anderen bestehen, und jede Zeile bleibt dennoch zuordenbar — was wichtig ist, denn ein Projekt, das importiert und danach gemessen wurde, ist genau das. Siehe :func:`measure_rows_clause`."
+    },
+    {
+      "context": "Ownership is not read from a table-level marker such as ``foreign_import.canonical_table_written``. A marker that blocks every delete from a claimed table would also block clearing fields the import never covered, so such a project could never be resumed; and the first importer release wrote the canonical copy without that marker. ``foreign_columns`` is per table and per column, and every importer release has written it.",
+      "label": "spacr.resume#8",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Ownership is not read from a table-level marker such as ``foreign_import.canonical_table_written``. A marker that blocks every delete from a claimed table would also block clearing fields the import never covered, so such a project could never be resumed; and the first importer release wrote the canonical copy without that marker. ``foreign_columns`` is per table and per column, and every importer release has written it.",
+      "source_sha256": "b81bb92533f51288b75bf1f069a2793c921d452397cd5f3b3348aae3265ba0a7",
+      "translation": "Die Zugehörigkeit wird nicht aus einer Markierung auf Tabellenebene wie ``foreign_import.canonical_table_written`` gelesen. Eine Markierung, die jedes Löschen aus einer beanspruchten Tabelle blockiert, würde auch das Leeren von Bildfeldern blockieren, die der Import nie abgedeckt hat, sodass ein solches Projekt nie fortgesetzt werden könnte; außerdem schrieb die erste Version des Importers die kanonische Kopie ohne diese Markierung. ``foreign_columns`` gilt pro Tabelle und pro Spalte, und jede Version des Importers hat es geschrieben."
+    },
+    {
+      "context": "**An imported copy is released before measure appends to its table.** ``measure_crop`` appends, so the moment spaCR measures a microscope field of view into a canonical table an import filled, its rows and theirs sit in the same table with nothing marking the seam and every per-microplate sample position count becomes the sum of two populations. :func:`supersede_imported_copies` executes before the first insert and removes that copy — but only when every microscope field of view it covers is either already measured into that table or queued to be measured now, and only after :func:`spacr.foreign.release_canonical_copy` has proved, row by row, that each row it removes still exists in ``foreign_<object>``. A half-released table is worse than an unreleased one, so anything less than a complete, lossless release is refused and reported instead, together with the two lines that do it by hand.",
+      "label": "spacr.resume#9",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "**An imported copy is released before measure appends to its table.** ``measure_crop`` appends, so the moment spaCR measures a field into a canonical table an import filled, its rows and theirs sit in the same table with nothing marking the seam and every per-well count becomes the sum of two populations. :func:`supersede_imported_copies` runs before the first insert and removes that copy — but only when every field it covers is either already measured into that table or queued to be measured now, and only after :func:`spacr.foreign.release_canonical_copy` has proved, row by row, that each row it removes still exists in ``foreign_<object>``. A half-released table is worse than an unreleased one, so anything less than a complete, lossless release is refused and reported instead, together with the two lines that do it by hand.",
+      "source_sha256": "a0e3c89211c92923b07cf5a2f579785d1eede0f203ba0919ef70d6f821f62ecf",
+      "translation": "**Eine importierte Kopie wird freigegeben, bevor Measure an ihre Tabelle anhängt.** ``measure_crop`` hängt an; sobald spaCR also ein Bildfeld in eine kanonische Tabelle misst, die ein Import gefüllt hat, stehen dessen Zeilen und die importierten in derselben Tabelle, ohne dass die Nahtstelle markiert ist, und jede Zählung pro Well wird zur Summe zweier Populationen. :func:`supersede_imported_copies` läuft vor dem ersten Einfügen und entfernt diese Kopie — aber nur, wenn jedes von ihr abgedeckte Bildfeld entweder bereits in diese Tabelle gemessen wurde oder jetzt zum Messen eingeplant ist, und erst nachdem :func:`spacr.foreign.release_canonical_copy` Zeile für Zeile nachgewiesen hat, dass jede zu entfernende Zeile noch in ``foreign_<object>`` existiert. Eine halb freigegebene Tabelle ist schlimmer als eine nicht freigegebene, daher wird alles, was keine vollständige, verlustfreie Freigabe ist, abgelehnt und stattdessen gemeldet, zusammen mit den zwei Zeilen, die dies von Hand erledigen."
+    },
+    {
+      "context": "Field stems in ``src`` whose ``.npy`` is *verified* complete.",
+      "label": "spacr.resume.completed_fields_in_merged#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Field stems in ``src`` whose ``.npy`` is *verified* complete.",
+      "source_sha256": "f600cc2fe7525f0e7e0ecab51af90da6ec1f6afe497c36ea78ec1167fa625cec",
+      "translation": "Bildfeld-Stämme in ``src``, deren ``.npy`` *nachweislich* vollständig ist."
+    },
+    {
+      "context": "It never answers on the strength of ``os.path.exists``: each candidate's header is parsed and its length checked against its own declared shape, because older releases wrote merged arrays in place with ``np.save`` and a run killed mid-write left a short file behind.",
+      "label": "spacr.resume.completed_fields_in_merged#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "It never answers on the strength of ``os.path.exists``: each candidate's header is parsed and its length checked against its own declared shape, because older releases wrote merged arrays in place with ``np.save`` and a run killed mid-write left a short file behind.",
+      "source_sha256": "9f691fd91eaf7f832d263148d2774b91724c430ebd849f3f179e6148f7995a07",
+      "translation": "Die Antwort stützt sich nie auf ``os.path.exists``: Der Header jedes Kandidaten wird geparst und seine Länge mit seiner eigenen deklarierten Form verglichen, weil ältere Versionen zusammengeführte Arrays mit ``np.save`` direkt an Ort und Stelle schrieben und ein während des Schreibens abgebrochener Lauf eine zu kurze Datei hinterließ."
+    },
+    {
+      "context": "the ``merged/`` folder (or any folder of ``.npy`` fields).",
+      "label": "spacr.resume.completed_fields_in_merged#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "the ``merged/`` folder (or any folder of ``.npy`` fields).",
+      "source_sha256": "b15b9d25358960c2c9753b1fb6b9d4bc800a7fe98abc41000c58f17945acfdad",
+      "translation": "der Ordner ``merged/`` (oder ein beliebiger Ordner mit ``.npy``-Bildfeldern)."
+    },
+    {
+      "context": "minimum last-axis size, see :func:`expected_min_planes`. When None and at least three files validate, the *modal* image layer count across the folder is used instead — every microscope field of view in a merged folder is written with the same image layer count, so an odd one out is a bad microscope field of view.",
+      "label": "spacr.resume.completed_fields_in_merged#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "minimum last-axis size, see :func:`expected_min_planes`. When None and at least three files validate, the *modal* plane count across the folder is used instead — every field in a merged folder is written with the same plane count, so an odd one out is a bad field.",
+      "source_sha256": "71178390b889fd3e6452812caf207ba3981f7a8f9d3f0aece6e69025da1ba11b",
+      "translation": "minimale Größe der letzten Achse, siehe :func:`expected_min_planes`. Bei None und mindestens drei gültigen Dateien wird stattdessen die *häufigste* Ebenenanzahl im Ordner verwendet — jedes Bildfeld in einem merged-Ordner wird mit derselben Ebenenanzahl geschrieben, daher ist ein abweichendes ein fehlerhaftes Bildfeld."
+    },
+    {
+      "context": "optional dict populated in place with ``{field: reason}`` for each candidate. **Rejected candidates** are recorded there. Reporting code can then say \"3 fields rejected as truncated\" instead of doing extra work without explanation.",
+      "label": "spacr.resume.completed_fields_in_merged#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "optional dict, populated in place with ``{field: reason}`` for every candidate that was **rejected**. This is how the caller can report \"3 fields rejected as truncated\" rather than silently doing more work.",
+      "source_sha256": "9ff2e6ab3a651b17c0d85cc5c446eca0e7873964b001e03fdb9186d623bdec15",
+      "translation": "optionales Dict, das direkt mit ``{field: reason}`` für jeden **abgelehnten** Kandidaten gefüllt wird. So kann der Aufrufer „3 Bildfelder als abgeschnitten abgelehnt“ melden, statt stillschweigend mehr Arbeit zu verrichten."
+    },
+    {
+      "context": "set of field stems (basename without ``.npy``) that are safe to skip.",
+      "label": "spacr.resume.completed_fields_in_merged#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "set of field stems (basename without ``.npy``) that are safe to skip.",
+      "source_sha256": "661bf724378535f0096b34a773a876a9cceb93b3d2ee688afdc9d57e499a8dee",
+      "translation": "Menge der Bildfeld-Stämme (Basisname ohne ``.npy``), die sicher übersprungen werden können."
+    },
+    {
+      "context": "Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.",
+      "source_sha256": "3d44cc64e5df0379e8033f71ffa02f4f1763dedcdd5dc0c5a365a5e79194119d",
+      "translation": "Lädt ein Tripel aus Parasiten-, Zell- und Zellkernmasken, führt Zellen an Ort und Stelle zusammen und gibt die verstrichene Zeit zurück."
+    },
+    {
+      "context": "mask file name (must exist in all folders).",
+      "label": "spacr.utils.process_mask_file_adjust_cell#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "mask file name (must exist in all folders).",
+      "source_sha256": "2ec991fa8a09f655d32251c6a02bfb550c388392cf471ef762108fa122e07d2f",
+      "translation": "Name der Maskendatei (muss in allen Ordnern vorhanden sein)."
+    },
+    {
+      "context": "folder of parasite masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "folder of parasite masks.",
+      "source_sha256": "091e1a8f2d0d0976d61417317b3bc1963d9104bd2dcc67fc947ab5cc621a7426",
+      "translation": "Ordner mit Parasitenmasken."
+    },
+    {
+      "context": "folder of nuclei masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#4",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "folder of nuclei masks.",
+      "source_sha256": "460edf701c4ba7c313b062130489dc4b5a864d5391087ef33768c0dadfa825f2",
+      "translation": "Ordner mit Zellkernmasken."
+    },
+    {
+      "context": "optional folder of organelle masks.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "optional folder of organelle masks.",
+      "source_sha256": "4fa9f7bc2dc2cc28fc94c1f2bbe02b6cb0af09c286cdff588c496694c8115eb2",
+      "translation": "optionaler Ordner mit Organellenmasken."
+    },
+    {
+      "context": "fractional overlap threshold used by the merger.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#6",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "fractional overlap threshold used by the merger.",
+      "source_sha256": "d74578ab692f965d7efea3bf728580ac8c18902e00741fe0e22efa017dec0b87",
+      "translation": "Schwellenwert für den Überlappungsanteil, den die Zusammenführung verwendet."
+    },
+    {
+      "context": "shared-perimeter threshold used by the merger.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "shared-perimeter threshold used by the merger.",
+      "source_sha256": "dff55e4243c14516fe9c847db3eb36e681080993c99e65223219aa327babd7a8",
+      "translation": "Schwellenwert für den gemeinsamen Umfang, den die Zusammenführung verwendet."
+    },
+    {
+      "context": "elapsed seconds.",
+      "label": "spacr.utils.process_mask_file_adjust_cell#9",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "elapsed seconds.",
+      "source_sha256": "2d1f90c2a487534d206f3cd50d00c1726a2fdbdb2e09ab8424ff0835013754b4",
+      "translation": "verstrichene Sekunden."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

@@ -1,22 +1,20 @@
-"""Keeping the per-object grid and the flat settings form saying the same thing.
+"""Keep the per-object grid and the flat settings form in agreement.
 
-The grid in :mod:`spacr.qt.widgets.object_settings_grid` edits VALUES; the
-settings panel is a dictionary of WIDGETS, and the pipeline reads the widgets.
+The grid in :mod:`spacr.qt.widgets.object_settings_grid` edits values; the
+settings panel is a dictionary of widgets, and the pipeline reads the widgets.
 Mounting the grid without a binding would give a screen two answers to the
 same question -- the table showing what the user typed and ``collect()``
 still returning what the widget holds -- and the run would silently use the
-second one. That is a settings file that means something other than what it
-looks like, which is worse than the flat form the grid replaces.
+second one, so the saved settings would differ from what the grid shows.
 
-So the grid never becomes the source of truth. It is a VIEW that writes
+So the grid never becomes the source of truth. It is a view that writes
 through: every edit lands in the widget behind it, and the widget stays what
 the pipeline reads. Nothing downstream of ``collect()`` learns that the grid
 exists, so no settings file, notebook or ``spacr-run`` invocation changes.
 
-WHY THE PANEL IS DUCK-TYPED. This asks for two methods -- ``collect`` and
+The panel is duck-typed: the binding asks for two methods -- ``collect`` and
 ``set_value_for_key`` -- and not for a class. That keeps the binding testable
-against a dictionary rather than against a built screen, and it is the whole
-of what the binding needs.
+against a dictionary rather than against a built screen.
 """
 from __future__ import annotations
 
@@ -133,24 +131,27 @@ class ObjectGridBinding(QObject):
         self.follow_the_form()
 
     def follow_the_form(self) -> int:
-        """Make the form's own fields write INTO the table.
+        """Make the form's own fields write into the table.
 
-        THE OTHER HALF OF A TWO-WAY BINDING, and the half that was missing:
-        the grid wrote through to the widgets, but nothing told the grid when
-        a widget moved, so a value changed anywhere else -- the flat row for
-        an object the table does not claim, a preset, the Live Preview, a
-        settings file poured in -- left the table showing the old answer.
+        This is the form-to-grid half of the two-way binding. Without it, a
+        value changed outside the grid -- the flat row for an object the
+        table does not claim, a preset, the Live Preview, a loaded settings
+        file -- would leave the table showing the old value.
 
-        WHY NOT JUST RESEED. `seed` rebuilds the whole table, which is 30 ms
-        on Mask and 100 ms once there are ten organelles. On a `textChanged`
-        that is per KEYSTROKE, and it would also take the cursor out of
-        whatever cell was being typed into. One cell is written instead.
+        The table is not reseeded: `seed` rebuilds the whole table, which
+        takes 30 ms on Mask and 100 ms with ten organelles. On a
+        `textChanged` that would run per keystroke and move the cursor out
+        of the cell being edited. One cell is written instead.
+
+        The magnification field is followed as well: a blank object
+        diameter shows the magnification default, which moves with it
+        (item 696).
 
         :returns: how many widgets were newly connected.
         """
         widgets = getattr(self._panel, "_widgets", None) or {}
         connected = 0
-        for key in self.owned_keys() | self._switch_keys():
+        for key in self.owned_keys() | self._switch_keys() | {"magnification"}:
             widget = widgets.get(key)
             if widget is None or id(widget) in self._followed:
                 continue
@@ -203,6 +204,9 @@ class ObjectGridBinding(QObject):
         keep = getattr(self._grid, "_keep_the_switches", None)
         if callable(keep):
             keep(current)
+        follow = getattr(self._grid, "_follow_magnification", None)
+        if callable(follow) and "magnification" in current:
+            follow(current["magnification"])
         shown = self._grid.settings()
         moved = 0
         for key in self.owned_keys():
@@ -236,7 +240,7 @@ class ObjectGridBinding(QObject):
     def write_through(self) -> Dict[str, Any]:
         """Write every changed cell into its widget; return what changed.
 
-        ONLY WHAT DIFFERS. Setting a widget to the value it already holds
+        Only changed values are written. Setting a widget to the value it already holds
         still makes it emit, and a panel that re-validates on every emit
         would do the whole form's work on each keystroke in the table.
         """

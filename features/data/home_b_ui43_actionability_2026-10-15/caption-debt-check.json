@@ -1,0 +1,197 @@
+{
+  "source_pin": "7756aed3919f5424a5a8fa3bab61687b38e9189e",
+  "scope": "Recorded N591/N647/N648/N694/N695 caption debt, source-bound availability only; no new linguistic or human review",
+  "english_catalog_sha256": "c7394e951f8bf6196bb2daf0205b4e91edfad1dd9fe22be266266ea3b7e76b7a",
+  "caption_count": 33,
+  "captions": [
+    {
+      "text": "Bleach Correction α",
+      "source_sha256": "ea9986cff8e2df068eaafb2816f91204c8de163803717dee54a561016f9679c5"
+    },
+    {
+      "text": "Borderless window",
+      "source_sha256": "139c9e4adb3940a8d44494f7d85d221b463a14d5aff788027e1ede9a1294de68"
+    },
+    {
+      "text": "Cell Cycle α",
+      "source_sha256": "30bc796f955cc312d4457d14e5a89b98487726b240699a6e5c63a8ff6b223165"
+    },
+    {
+      "text": "CellProfiler α",
+      "source_sha256": "393d8f4ab4be58adc74a1dd16c06dc7ade182241c06e7d3eb31044a78b09c8ae"
+    },
+    {
+      "text": "Cloud α",
+      "source_sha256": "7ce52e94272bc34fc8fc61711d297961015db1a271c0352647f2e7475e9ede5a"
+    },
+    {
+      "text": "Colony Counting α",
+      "source_sha256": "02e07c0e3f80b5f975cb91e4a92ff397f2b68af24e1300e71ce22f0737a3325e"
+    },
+    {
+      "text": "Confluency α",
+      "source_sha256": "44104125219552ed3768d48f760f740ef2c10955b53b0e53bd200a20b26856ba"
+    },
+    {
+      "text": "Event Detection α",
+      "source_sha256": "4461fea4af107f21b94fbf462acc4d2b4a2310ccfaaace6aac793035a2086bbe"
+    },
+    {
+      "text": "Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.",
+      "source_sha256": "e8c6c51777940fcb456fb43b5d6f8ea39d601680d4224432c318f33921ed44aa"
+    },
+    {
+      "text": "GPU Measurement α",
+      "source_sha256": "5ba3496ac8e8437712669d15f54eb51fb205d4d871f6b8ddfd1f7b349c5e120b"
+    },
+    {
+      "text": "Illumination Correction α",
+      "source_sha256": "23b32cea3650ffa7936c303c64b9f7f065b66c88051954e96c82d4161f3be6ed"
+    },
+    {
+      "text": "Image Deconvolution α",
+      "source_sha256": "acc823836c554408b2bad494752366b604cffcf3337c6e863de1dd16116b6caa"
+    },
+    {
+      "text": "Image Enhancement α",
+      "source_sha256": "182e1d103911ddcdf8de29136f6738940e06f696313eec34b9b3b34bd8730f1d"
+    },
+    {
+      "text": "Intensity Calibration α",
+      "source_sha256": "4e4b612e62bda4b87f7ee87f3579bf3e31458495b7079a6ff3ab8d722173a33b"
+    },
+    {
+      "text": "Lineage Trees α",
+      "source_sha256": "a0ef74cde2279f43f3157e6026532de6289ec971c807b1f7989dcc9cd97b0824"
+    },
+    {
+      "text": "Maximise, or restore the size before",
+      "source_sha256": "5b2bad893bec0ff6171e75d8a8f506b47ca3b3980ab1e42b61aa16cfbf35bfee"
+    },
+    {
+      "text": "Measurement Backend α",
+      "source_sha256": "da7f2445d9ab9514a1a35362d8a4bcd3a42b7d1094f363ca2a735fbfce5126cc"
+    },
+    {
+      "text": "On: no title bar; spaCR opens filling the screen, and the menu bar moves the window while its marks minimise, maximise and close it. Off: the platform's own framed window. Remembered.",
+      "source_sha256": "2c9f8b123a462ffc7de74f8690786d111a55658c4121cf14ab9386ee8d78d3be"
+    },
+    {
+      "text": "Open fresh",
+      "source_sha256": "c72c959a7efac4c6e2db13c5288dddcfc60128b42b6a766e054a42d19094ed58"
+    },
+    {
+      "text": "Plate Barcode Linkage α",
+      "source_sha256": "c904973fa2c94e7ab6845ef5cd11d3bb2b84d73692995512294b0f16546ac9e2"
+    },
+    {
+      "text": "Play the spaCR logo and its blow-away again, inside this window, as at startup. A click or a key skips it.",
+      "source_sha256": "ef2df77b77337a2c6813cd11a1275df4eed4a9d5cc4a3d8ae59d086479e844e6"
+    },
+    {
+      "text": "Profiling α",
+      "source_sha256": "a193f3ee893f5177e0485e119876eae7fa36a31fa3bb8b109bb959bd0c062252"
+    },
+    {
+      "text": "Reopen the last module, settings and folder on start",
+      "source_sha256": "23b45c63a3f51ac27320a528303b96682ed5f301efdfdb2d66cd87746f4f9393"
+    },
+    {
+      "text": "Restore unsaved settings",
+      "source_sha256": "337b36dc281cdbc4d87e56d3574c08d0e13d97b1a67a050c54c96adb7a80b7e9"
+    },
+    {
+      "text": "Segmentation Robustness α",
+      "source_sha256": "bbe85f6d1455e4abe5c9010add146b7fae3a5d9fee2b0bec53459f7f83b64770"
+    },
+    {
+      "text": "Self-Supervised Denoising α",
+      "source_sha256": "a7378861fd1be59dfdf8fbcd0ac00a2f6020906d97f3cde50edc7536d714c9c1"
+    },
+    {
+      "text": "Show startup animation",
+      "source_sha256": "f01d719079d5eedc948bde480ad6131169e167fffdecaf9ac29f1e423621b560"
+    },
+    {
+      "text": "Spectral Unmixing α",
+      "source_sha256": "5dd2aa33b0109c49560da3742b78c1a64d5525845ea87648f3f37a7941b0c1da"
+    },
+    {
+      "text": "Startup animation",
+      "source_sha256": "c6013d4786bb822dcd3c1f02d2d67ec0ace86385ce63c92ab9b8f1115633a84b"
+    },
+    {
+      "text": "Time To Event α",
+      "source_sha256": "dc7990cedee4dc0346ea0f07a3aecaa963acfc059a975268de6fd15cc6f45795"
+    },
+    {
+      "text": "Viability α",
+      "source_sha256": "836df7c8cb40865ff40c18590d08497d4562cf53e651563a78fd64b5b0536e99"
+    },
+    {
+      "text": "When spaCR starts, the logo photomosaic blows away tile by tile to reveal the window. Off shows the mosaic without the animation. Reduce motion also turns it off. A click or a key skips it.",
+      "source_sha256": "2b6557a4f76db526ab933d744a2f782bdef518a0fad1de80f1e5c531a9a78969"
+    },
+    {
+      "text": "Wound Closure α",
+      "source_sha256": "c612fe1c7f4cb7b2084fa2d3e3fbc13f21880d85be602d4b42811217016ac020"
+    }
+  ],
+  "locales": [
+    {
+      "locale": "de",
+      "sha256": "1fad0583441a2febb7bce42981031d7cb9dac2149e78f72147b054cf9d8af3a9",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "es",
+      "sha256": "952b9e2dcd8cf07e9f84df472330105d43647c2c6143b2ddf5aac3360648f96e",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "fr",
+      "sha256": "a9dbcf7d8e780375c9815fcadb97998df2087920a098c80a9957fef58e60d3e8",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "hi",
+      "sha256": "0bc2f68a2085301007a7366f38122939fede41200e888e70841c06b939c9a33a",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "is",
+      "sha256": "6a06024e643af339bfc4c79d655c826314f534128ee1f41e909f6a79b165c68e",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "ko",
+      "sha256": "5f6ecbcd1ab9fcca5a53cc00a74cdf85fc7924a50fb24d2b0380454962e64857",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "pt",
+      "sha256": "9a4393e6a1990578d51069bcb904897a18858ced959480fb1365decd2731b088",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "sv",
+      "sha256": "2475a2d6d3233472a9fff0b93c2cfb18b010cf56501c46a1375d16aa47b10c91",
+      "checked": 33,
+      "failures": []
+    },
+    {
+      "locale": "zh_CN",
+      "sha256": "761a52ea4e4654db4941fcf5aa28f29f0ec6543cbc8a16918749eb687000884c",
+      "checked": 33,
+      "failures": []
+    }
+  ],
+  "probe_note": "An initial hand-written label Restore last session was absent because the actual visible caption is Reopen the last module, settings and folder on start. The final inventory uses the literal current caption; no application/catalog change occurred."
+}

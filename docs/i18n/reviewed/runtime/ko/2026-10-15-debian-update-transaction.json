@@ -1,0 +1,264 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Exact-source AI translation with independent root technical target review; no native-speaker or native-platform acceptance",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "Original Home root, independent of draft author",
+  "draft_input_packet_sha256": "235fc4b60ea8e5a8f56dc6eee0332f53467d2a5da61264a710ba08df90350a65",
+  "draft_adapter_source_sha256": "fb90b9181cd04629649fca72c2bcddacf20834d00809675a0dc5b5cc93ddb535",
+  "review": "37 unique exact sources from parent-provided38occurrences only; no new source inventory or collector. Preserve Debian/spaCR/SHA256 and error placeholder. Private staging means restricted trusted filesystem staging, not cache cleanup. Distinguish authorization, unsupported protocol, failed update with successful restoration, and failed update+rollback retaining BOTH archives. GUI prompt retains graphical consent, prior package and all data/caches. Parent independent review/current final source+owner generation remain required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "unsafe Debian frontend lock",
+      "source": "unsafe Debian frontend lock",
+      "source_sha256": "40095472970a1f1668207cbedb02fb2dc799489a9d865290a5d22766206bc343",
+      "translation": "Debian 프런트엔드 잠금이 안전하지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian archive does not match its published SHA256",
+      "source": "Debian archive does not match its published SHA256",
+      "source_sha256": "d6bf0a0744caa43ba795ec1b2cd5e72593cfb3459e8b9ff63f102480df24f82b",
+      "translation": "Debian 아카이브가 게시된 SHA256과 일치하지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian archives require private trusted staging",
+      "source": "Debian archives require private trusted staging",
+      "source_sha256": "8d44fe96aecdf2800d82e1a19a2f02a182e34a702aacf9dc63b700f6e8492b30",
+      "translation": "Debian 아카이브에는 접근이 제한된 신뢰할 수 있는 준비 영역이 필요합니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian staging must not reuse an existing archive",
+      "source": "Debian staging must not reuse an existing archive",
+      "source_sha256": "45d9b8cb7b6912d78242302587f307b745926be1f6251c64266db5a058a5cd4d",
+      "translation": "Debian 준비 과정에서 기존 아카이브를 재사용해서는 안 됩니다"
+    },
+    {
+      "table": "ui",
+      "key": "a published SHA256 is required for Debian replacement and rollback",
+      "source": "a published SHA256 is required for Debian replacement and rollback",
+      "source_sha256": "1b65ccb6b03c85f7bae176e124a71050669802e439d1806a6b9d09b89bdb7fd3",
+      "translation": "Debian 교체와 롤백에는 게시된 SHA256이 필요합니다"
+    },
+    {
+      "table": "ui",
+      "key": "unsafe Debian archive staging identity",
+      "source": "unsafe Debian archive staging identity",
+      "source_sha256": "22869feda9a35de6006f52082e1efa74eb9a6ac03b6bcc9b6950361152e1f44c",
+      "translation": "Debian 아카이브 준비 영역의 식별 정보가 안전하지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian archive does not match the requested spaCR release",
+      "source": "Debian archive does not match the requested spaCR release",
+      "source_sha256": "82ef17eb596e1673a6fd313a6ae5ddb3776ce001ddcb5ba941ae8b87d403c93c",
+      "translation": "Debian 아카이브가 요청한 spaCR 릴리스와 일치하지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "invalid Debian package metadata",
+      "source": "invalid Debian package metadata",
+      "source_sha256": "ac3f4b568b5a8e326a2127746c77538856c0732bbff29586231bd8150690c2f8",
+      "translation": "Debian 패키지 메타데이터가 유효하지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "unsupported Debian package architecture",
+      "source": "unsupported Debian package architecture",
+      "source_sha256": "2405cf16d6bf15bb774e9d9522033f6c8d7666acd498c2d6af506f8bf3539b74",
+      "translation": "지원되지 않는 Debian 패키지 아키텍처입니다"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR Debian package state is ambiguous",
+      "source": "spaCR Debian package state is ambiguous",
+      "source_sha256": "5d0fb39b005a0adba00c774ae007f3d5a57246c3a4fdf26c2f3fd175f2f0eb81",
+      "translation": "spaCR의 Debian 패키지 상태가 모호합니다"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR is not a configured native Debian package",
+      "source": "spaCR is not a configured native Debian package",
+      "source_sha256": "f6838e7c234e95bdeb9330ecf0a521d506945a9b48d21c23f2081810a06db4ef",
+      "translation": "spaCR은 구성이 완료된 네이티브 Debian 패키지가 아닙니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian replacement failed: {error}",
+      "source": "Debian replacement failed: {error}",
+      "source_sha256": "aaceb7db3a67bd4baf67d2d9daf9a0b07c340c0c8aeec5d02555d23a5736e2a0",
+      "translation": "Debian 교체에 실패했습니다: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Debian replacement identity could not be verified",
+      "source": "Debian replacement identity could not be verified",
+      "source_sha256": "ea760ac07820e2eef5d7f28cd9e33fcc1faea130f41a3a323f34c6b7a048cda6",
+      "translation": "Debian 교체 결과의 식별 정보를 확인할 수 없습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian update and rollback failed; both archives are retained for recovery",
+      "source": "Debian update and rollback failed; both archives are retained for recovery",
+      "source_sha256": "522eb4d41d0780cc2cc20ded410927d0a6c1c26ebee1f06cd480ee5e06e38c3a",
+      "translation": "Debian 업데이트와 롤백이 모두 실패했습니다. 복구를 위해 두 아카이브를 모두 보관합니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian update failed; the previous package and runtime were restored",
+      "source": "Debian update failed; the previous package and runtime were restored",
+      "source_sha256": "55c91d413cfc5183f809d47bb47be912899ba8494931f4d2b9606e99dd5da322",
+      "translation": "Debian 업데이트가 실패했습니다. 이전 패키지와 실행 환경을 복원했습니다"
+    },
+    {
+      "table": "ui",
+      "key": "a different Debian package replaced this transaction",
+      "source": "a different Debian package replaced this transaction",
+      "source_sha256": "352cc3786a88ffd14ec37e963b216894ef3df93d55787a648eca9c60f35198b5",
+      "translation": "다른 Debian 패키지가 이 트랜잭션을 대체했습니다"
+    },
+    {
+      "table": "ui",
+      "key": "restored Debian identity could not be verified",
+      "source": "restored Debian identity could not be verified",
+      "source_sha256": "f167a158aca2b1b5e3cf672b84d3444b94b3ad4b329d93f097ae5f9598cb8105",
+      "translation": "복원된 Debian 식별 정보를 확인할 수 없습니다"
+    },
+    {
+      "table": "ui",
+      "key": "the installed Debian package changed during preparation",
+      "source": "the installed Debian package changed during preparation",
+      "source_sha256": "3da57864237aec78bff84e788c2ae9bc2f17d491d890911f47b7d216e3ef5ba5",
+      "translation": "준비 중에 설치된 Debian 패키지가 변경되었습니다"
+    },
+    {
+      "table": "ui",
+      "key": "the requested Debian release is not newer than the installed version",
+      "source": "the requested Debian release is not newer than the installed version",
+      "source_sha256": "3484b86517db36dc00fae7a2d93c101d8daf7dde2a7f7a6055b58195e989f201",
+      "translation": "요청한 Debian 릴리스가 설치된 버전보다 최신이 아닙니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian package commands require the trusted privileged adapter",
+      "source": "Debian package commands require the trusted privileged adapter",
+      "source_sha256": "1e1ad296cc74e1b2c61ba2da141cf4a9f84d8b6da899dbdb3e7741424a35399a",
+      "translation": "Debian 패키지 명령에는 신뢰할 수 있는 권한 상승 어댑터가 필요합니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian verification requires the authenticated desktop user",
+      "source": "Debian verification requires the authenticated desktop user",
+      "source_sha256": "3d9f4efceb4d1185b704d68bd36a90af39a16a51092c167f9ee1710e1bb17dce",
+      "translation": "Debian 검증에는 인증된 데스크톱 사용자가 필요합니다"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian application is not a trusted system package",
+      "source": "the Debian application is not a trusted system package",
+      "source_sha256": "812486db044579969ff8dffeae6a8bc17c5e4a5118498b528e96cf52829fbc9e",
+      "translation": "Debian 애플리케이션이 신뢰할 수 있는 시스템 패키지가 아닙니다"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian application root must not be redirected",
+      "source": "the Debian application root must not be redirected",
+      "source_sha256": "85a135dca131ebd2bfe60a9c4cc6edf142062be6daec080ccc95f5b6343f94d6",
+      "translation": "Debian 애플리케이션의 루트 디렉터리를 다른 위치로 리디렉션해서는 안 됩니다"
+    },
+    {
+      "table": "ui",
+      "key": "configured user data inside the Debian application must remain untouched",
+      "source": "configured user data inside the Debian application must remain untouched",
+      "source_sha256": "e2f30c2e58668804e9548033516ddece216bf3cca53473c343d92f3712f788bd",
+      "translation": "Debian 애플리케이션 내부에 구성된 사용자 데이터는 그대로 유지해야 합니다"
+    },
+    {
+      "table": "ui",
+      "key": "graphical administrator authorization is unavailable",
+      "source": "graphical administrator authorization is unavailable",
+      "source_sha256": "095edf5a58c12747078002f350071ecb13c50d43c9d034f6c2f5282606daaf70",
+      "translation": "그래픽 관리자 승인을 사용할 수 없습니다"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian update protocol marker is not trusted",
+      "source": "the Debian update protocol marker is not trusted",
+      "source_sha256": "87763ca344d861cf6b9cfc0830875ec7c97c04cc82443fd84f52155e1e33acae",
+      "translation": "Debian 업데이트 프로토콜 표식을 신뢰할 수 없습니다"
+    },
+    {
+      "table": "ui",
+      "key": "the installed Debian updater protocol is unsupported",
+      "source": "the installed Debian updater protocol is unsupported",
+      "source_sha256": "e699c7e008847fc03b25f40d8fa762283562576cbc4ff221d1fa018a5a63c802",
+      "translation": "설치된 Debian 업데이터의 프로토콜이 지원되지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "this Debian installation has no verified graphical replacement adapter",
+      "source": "this Debian installation has no verified graphical replacement adapter",
+      "source_sha256": "98e96a4e3e445e50cb8c1871fc6b143c0b41466c90150d94bc6ce9c013af4efd",
+      "translation": "이 Debian 설치에는 검증된 그래픽 교체 어댑터가 없습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian updates require graphical authorization from the desktop user",
+      "source": "Debian updates require graphical authorization from the desktop user",
+      "source_sha256": "e9c4f5880c58051f7da2e8f815c83da7ceb97533252e21910b2e1bdbb9872b6c",
+      "translation": "Debian 업데이트에는 데스크톱 사용자의 그래픽 승인이 필요합니다"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian executable is not exclusively owned by spaCR",
+      "source": "the Debian executable is not exclusively owned by spaCR",
+      "source_sha256": "1e17589d820d60a26eb331bd2347a7b1b078b11140291d10f7eb78e7d192a8ce",
+      "translation": "Debian 실행 파일의 소유권이 spaCR에만 있지 않습니다"
+    },
+    {
+      "table": "ui",
+      "key": "the Debian package layout is not a trusted system installation",
+      "source": "the Debian package layout is not a trusted system installation",
+      "source_sha256": "32832632d30428bc2d63ddca8803d29d4163217db824419c741c18e0d9169c51",
+      "translation": "Debian 패키지 구조가 신뢰할 수 있는 시스템 설치 구조가 아닙니다"
+    },
+    {
+      "table": "ui",
+      "key": "the installed Debian package changed before authorization",
+      "source": "the installed Debian package changed before authorization",
+      "source_sha256": "3f50a4a7cbc7ea1b47c293183397b612a9641581f68e4603024be2f55d10c8a5",
+      "translation": "승인 전에 설치된 Debian 패키지가 변경되었습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian privileged staging identity changed",
+      "source": "Debian privileged staging identity changed",
+      "source_sha256": "49278c15b2f81ea49842aabc29c3b529028b1b3f4ee0f00e832eba5bfb583eee",
+      "translation": "Debian 권한 상승 준비 영역의 식별 정보가 변경되었습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian replacement must run from its trusted outside-runtime helper",
+      "source": "Debian replacement must run from its trusted outside-runtime helper",
+      "source_sha256": "a5f1de32cd6f3f2cca743c5fed5e972e661e760ffac598b02be9c3c0fb05298f",
+      "translation": "Debian 교체는 실행 환경 외부에 있는 신뢰할 수 있는 보조 프로그램에서 실행해야 합니다"
+    },
+    {
+      "table": "ui",
+      "key": "Debian updater staging is not a private system directory",
+      "source": "Debian updater staging is not a private system directory",
+      "source_sha256": "4e4752834a2acba930a31f1a6675d315c2dbb7d735e534dfe739c91aaf321a86",
+      "translation": "Debian 업데이터의 준비 영역이 접근이 제한된 시스템 디렉터리가 아닙니다"
+    },
+    {
+      "table": "ui",
+      "key": "only the installed Debian helper may prepare privileged replacement",
+      "source": "only the installed Debian helper may prepare privileged replacement",
+      "source_sha256": "08bea987fcf96d92d755f584d77c1dd6dd1d288698032c5d73bdca7ce6adcb9e",
+      "translation": "설치된 Debian 보조 프로그램만 권한 상승 교체를 준비할 수 있습니다"
+    }
+  ]
+}

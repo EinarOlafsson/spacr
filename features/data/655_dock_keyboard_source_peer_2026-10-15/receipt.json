@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-15",
+  "result": "PASS",
+  "reviewed_commit": "70837a5795ad85e27fe1b6d866355611a6e6fdcb",
+  "base_commit": "a2e3184837f1bf92f68d2eca3431b955300d4050",
+  "independence": "Reviewer authored neither DockEdge change nor its tests/evidence. Prior related AiToggleLabel work does not substitute for reading this patch.",
+  "file_sha256": {
+    "features/data/655_dock_keyboard_activation_2026-10-15/baseline-dock.py.gz": "df5967ab4e8af3fca300b56676c290f182a4224e2b74a3086f775349afb2a04e",
+    "features/data/655_dock_keyboard_activation_2026-10-15/baseline.log.gz": "c475d8c8ec8c058a4fd5a5ff2b8c6c0efd488e9d2021b744422aaaa5a7086de6",
+    "features/data/655_dock_keyboard_activation_2026-10-15/final.log.gz": "3d6ac97c368c6a1a13ee8bb99655c32db2178d3d594cd2bb28a7c6c45790bf0c",
+    "features/data/655_dock_keyboard_activation_2026-10-15/fixture-before.log.gz": "64eccd17697a6b002ba294d5d5db2ae38452d7eaf95f749b95ab41c30b4241a5",
+    "features/data/655_dock_keyboard_activation_2026-10-15/initial-fixture.py.gz": "2e176a3737686d802fa19db87e512c397e0a8658041bf81a5fb87862864a8160",
+    "features/data/655_dock_keyboard_activation_2026-10-15/receipt.json": "4a02903c66e68c1dd32e8260d33bf40de08bc2a6c0134df26eb96e7d3473ebb8",
+    "spacr/qt/widgets/dock.py": "a9b65ea4ad0805f9e0e945ff9876a5dc45822378bd167ff097843507d897a9c9",
+    "tests/qt/test_655_dock_keyboard_activation.py": "b0bde247b66069096b16a840133e099dab3f042acd4dbd00a43161f21d38c468"
+  },
+  "checks": [
+    "All8 committed files read or hash-bound; source and test hashes match author receipt.",
+    "Decompressed baseline source equals exact parent dock.py; all executable AST outside existing DockEdge.keyPressEvent is byte-structure equivalent; handler docstring and all comments unchanged.",
+    "Only ordinary Space/Return/Enter and keypad-only numeric Enter activate; command-modified keys delegate to QWidget. Recognized automatic repeats are accepted without toggling or emitting collapsedChanged. A subsequent ordinary press still toggles.",
+    "set_collapsed remains the only state mutation path; unchanged guard, description, signal, update and ripple behavior; mouse drag/collapse, resizing, width persistence and painting remain untouched.",
+    "New16 cases dispatch actual QKeyEvent to a live focused DockEdge, distinguish first press/repeats/release/second press, and assert state+signal counts. Existing10cases remain in final cohort.",
+    "Initial fixture kept no Python parent reference after return; corrected yield fixture retains host while tests run. Initial16deleted-source failures retained separately, not counted as the product baseline.",
+    "Actual corrected baseline16assertion failures1.93s and final26PASS3.79s read from decompressed logs and hashes verified. Final wall6.14s/RSS579944KiB/terminal0 match receipt."
+  ],
+  "execution": "Read-only code/evidence review plus local AST/hash comparisons; no test, generator, application, network, native probe or source edits.",
+  "limits": [
+    "No native screen-reader/platform/human acceptance inferred from the existing Linux offscreen cohort.",
+    "No full N655, final CI or release completion claim.",
+    "No additional public symbols/captions/prose or generated-artifact requirement introduced by this body-only patch."
+  ]
+}

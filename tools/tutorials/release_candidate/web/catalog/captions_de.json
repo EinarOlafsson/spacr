@@ -491,7 +491,7 @@
       "section": "spaCR",
       "description": "Gehen Sie alle aktuellen Home-Module von links nach rechts durch. Lernen Sie anschließend mit Mask die gemeinsamen Bedienelemente kennen und passen Sie Navigation, Hilfe und Darstellung an.",
       "objectives": [
-        "Alle Module in den aktuellen Reihen Core, Data, Tools und Organism erkennen.",
+        "Alle Module in den aktuellen Reihen Core, Data und Tools erkennen.",
         "Mit Mask die gemeinsamen Einstellungen, Vorschauen, Aktionen und Ausgaben kennenlernen.",
         "Zu Home zurückkehren, die Suche verwenden und die Bereiche anordnen.",
         "Einstellungen für Darstellung und Leistung auswählen."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home ist der Ausgangspunkt. Lesen Sie jede Reihe von links nach rechts: Core, Data, Tools und Organism. Jede Kachel öffnet ihr Modul. Die Seitenleiste bietet dieselben Zugänge; Home führt zurück zur Übersicht.",
+          "narration": "Home ist der Ausgangspunkt. Lesen Sie jede Reihe von links nach rechts: Core, Data und Tools. Jede Kachel öffnet ihr Modul. Die Seitenleiste bietet dieselben Zugänge; Home führt zurück zur Übersicht.",
           "hold_after": 0.7
         },
         {
@@ -537,17 +537,6 @@
           ]
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify lernt aus geprüften Beschriftungen und bewertet weitere Objekte anhand von Bildern oder Tabellenmerkmalen.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ]
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes liest Sequenzierungsdaten, um Guides oder Barcodes zu zählen und zu identifizieren.",
           "hold_after": 0.7,
@@ -581,17 +570,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings kodiert Objektausschnitte als numerische Merkmale zur Untersuchung und zum Vergleich.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare führt gespeicherte Ergebnisse mehrerer Läufe zusammen, damit Sie Unterschiede prüfen können.",
           "hold_after": 0.7,
@@ -603,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design ordnet Bedingungen, Wells und Probenidentitäten vor einem Experiment an.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design untersucht Annahmen zu Stichprobengröße und Teststärke bei geplanten Vergleichen.",
           "hold_after": 0.7,
@@ -622,28 +589,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response passt Antworten über Konzentrationen hinweg an und hält den gewählten Endpunkt und die Kontrollen ausdrücklich fest.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC führt Qualitätsprüfungen zusammen und zeigt vorhandene und fehlende Nachweise.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -680,17 +625,6 @@
           ]
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor definiert Auswahlen anhand realer Datenspalten. Prüfen Sie die ausgewählten Objekte, bevor Sie aus einem Gate Beschriftungen erzeugen.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ]
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder erstellt Diagramme aus Messtabellen mit einstellbaren Spalten und Gruppierungen.",
           "hold_after": 0.7,
@@ -699,17 +633,6 @@
           ],
           "related_lessons": [
             "58_graph_builder"
-          ]
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Die Reihe Organism enthält Toxoplasma. Sie öffnet einen Organismusleitfaden, eine interaktive Zeichnung und die verfügbaren Toxoplasma-Assays. Ein eigener Toxoplasma-Kurs erklärt diese Seite.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
           ]
         },
         {
@@ -810,7 +733,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klicken Sie auf Animation, um den Haupthintergrund und seine Palette zu wählen. Animation colours legt die Haupt- und Akzentfarben für Custom colours fest; Animation background wählt einen unabhängigen Hintergrund, und Theme colour stellt das Seitendesign wieder her. Detail steuert die Darstellungsauflösung. Speed, Size und Density ändern Bewegung und Anzahl der Elemente. Mouse gravity radius legt den Einflussbereich der Maus fest; null deaktiviert ihn. Dot blinking steuert weiße Lichtblitze, und Popup wave frequency lässt in spaCR field Wellen von geöffneten Dialogfenstern ausgehen. Field ripples steuert Wellen durch Klicks, das Öffnen oder Schließen von Bereichen und das Einrasten des Fensters, unabhängig von der Mausanziehung. Beim Ausschalten enden auch die automatischen Dialogwellen. Settings animation speed, Settings animation size, Settings animation detail und Settings animation density ändern nur Settings backdrop. Settings backdrop darkness steuert die Lesbarkeit des Formulars.",
+          "narration": "Klicken Sie auf Animation, um den Haupthintergrund und seine Palette zu wählen. Animation colours legt die Haupt- und Akzentfarben für Custom colours fest; Animation background wählt einen unabhängigen Hintergrund, und Theme colour stellt das Seitendesign wieder her. Detail steuert die Darstellungsauflösung. Speed, Size und Density ändern Bewegung und Anzahl der Elemente. Mouse gravity radius legt den Einflussbereich der Maus fest; null deaktiviert ihn. Dot blinking steuert weiße Lichtblitze. Field ripples legt die Stärke der Wellen durch Klicks, das Öffnen oder Schließen von Bereichen, Dialogfenster und das Einrasten des Fensters fest, unabhängig von der Mausanziehung; null schaltet die Wellen aus, auch die automatischen Dialogwellen. Click ripples bestimmt, ob ein Klick auf den Hintergrund eine Welle auslöst. Popup wave frequency legt fest, wie viele Wellen pro Minute sich von einem geöffneten Dialogfenster in spaCR field ausbreiten. Settings animation speed, Settings animation size, Settings animation detail und Settings animation density ändern nur Settings backdrop. Settings backdrop darkness steuert die Lesbarkeit des Formulars.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -1171,7 +1094,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1564,7 +1510,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben. Geben Sie ihm daher zuerst Beispiele beider Klassen aus mehreren Wells. Hier werden in vier Wells einige Ausschnitte jeder Klasse beschriftet, und Next speichert sie.",
+          "narration": "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben. Geben Sie ihm daher zuerst Beispiele beider Klassen aus mehreren Wells. Hier werden in drei Wells einige Ausschnitte jeder Klasse beschriftet, und Next speichert sie.",
           "focus": [
             360,
             380,
@@ -1576,7 +1522,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Öffnen Sie Suggest und wählen Sie Suggest for the images on this page. Die Runde dauert einige Sekunden, danach trägt jeder Ausschnitt der Seite ein Fragezeichen. Die Leiste über dem Raster zählt, wie viele Vorschläge noch zu beurteilen sind.",
+          "narration": "Öffnen Sie Suggest und wählen Sie Suggest for the images on this page. Die Runde dauert einige Sekunden, danach tragen die unbeschrifteten Ausschnitte der Seite ein Fragezeichen. Die Leiste über dem Raster zählt, wie viele Vorschläge noch zu beurteilen sind.",
           "focus": [
             350,
             250,
@@ -1587,7 +1533,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Klicken Sie auf einen vorgeschlagenen Ausschnitt oder drücken Sie Y, um ihn zu bestätigen, und klicken Sie mit der rechten Maustaste oder drücken Sie N, um ihn abzulehnen. Beide Antworten werden festgehalten, Ablehnungen trainieren die nächste Runde, und Confirm the rest of the page erledigt den Rest, sobald Sie ihn geprüft haben.",
+          "narration": "Klicken Sie auf einen vorgeschlagenen Ausschnitt oder drücken Sie Y, um ihn zu bestätigen, und klicken Sie mit der rechten Maustaste oder drücken Sie N, um ihn abzulehnen. Beide Antworten bleiben ungespeichert, bis Next sie speichert; Ablehnungen trainieren die nächste Runde, und Confirm the rest of the page erledigt den Rest, sobald Sie ihn geprüft haben.",
           "focus": [
             350,
             250,
@@ -1618,7 +1564,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2001,7 +1970,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2355,7 +2347,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Die Schaltflächen unten links laden Bilder: Open folder, Organize for Measure und Load test data. Rechts legen Discard, Keep, Skip und Upload data fest, was mit jedem Bildfeld nach der Bearbeitung geschieht. Clear masks, direkt links von Discard, fragt nach einer Bestätigung, bevor alle Masken im aktuellen Bild entfernt werden.",
+          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Die Schaltflächen unten links laden Bilder: Open folder, Organize for Measure und Load test data. Rechts legen Discard, Keep, Skip und Upload data fest, was mit jedem Bildfeld nach der Bearbeitung geschieht. Clear all objects, direkt links von Discard, fragt nach einer Bestätigung, bevor alle Objekte im aktuellen Bild entfernt werden.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -8092,7 +8084,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15092,7 +15107,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify lernt anhand der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
+          "narration": "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify trainiert ein Modell mit der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15430,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Das Diagramm ist zum Erkunden da. Fahren Sie mit der Maus über einen Zellbestandteil, und seine Beschreibung erscheint. Wählen Sie mehrere aus, damit sie hervorgehoben bleiben; Clear components setzt das Bild zurück.",
+          "narration": "Das Diagramm ist interaktiv. Fahren Sie mit der Maus über einen Zellbestandteil, und seine Beschreibung erscheint. Wählen Sie mehrere aus, damit sie hervorgehoben bleiben; Clear components setzt das Bild zurück.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15440,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Klicken Sie auf Plaque Assay, um den Analysebildschirm zu öffnen. Das Einstellungspanel legt Bildquelle, Masken und Erkennungsoptionen fest. Load test data stellt ein Beispiel bereit. Prüfen Sie Eingaben und Vorschau, bevor Sie Run starten; das Tutorial Plaque Analysis beschreibt den vollständigen Ablauf.",
+          "narration": "Klicken Sie auf Plaque Assay, um den Analysebildschirm zu öffnen. Das Einstellungspanel legt Bildquelle, Masken und Erkennungsoptionen fest. Load test data stellt ein Beispiel bereit. Prüfen Sie Eingaben und Vorschau, bevor Sie Run starten; das Tutorial Plaque Assay beschreibt den vollständigen Ablauf.",
           "hold_after": 0.7
         },
         {

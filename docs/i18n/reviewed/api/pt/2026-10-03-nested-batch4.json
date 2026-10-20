@@ -160,7 +160,7 @@
       "source": "Build the worker for this set's repository.",
       "source_sha256": "3abd1a0ebc03f1756cc7b01f85325b9f56575463701e2b8aaaca9681452be128",
       "context": "Build the worker for this set's repository.",
-      "translation": "Constrói o trabalhador para o repositório deste conjunto.",
+      "translation": "Constrói o worker para o repositório deste conjunto.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -209,7 +209,9 @@
       "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
       "context": "Retranslate a dialog's tree the first time it is shown.",
       "translation": "Retraduz a árvore de um diálogo na primeira vez que ele é exibido.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the Preferences open/close change (6be4c1d70, 4c776c10d) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo._load_import_variant._done#0",
@@ -272,7 +274,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "A carga útil é como um valor volta do trabalhador: um valor retornado seria engolido pelo executor.",
+      "translation": "A carga útil é como um valor volta do worker: um valor retornado seria engolido pelo executor.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -304,7 +306,7 @@
       "source": "Join, cluster and summarise on the worker.",
       "source_sha256": "a772af0cefd436f625321c10ea6d8fcef897e59f489cf0ad9444107f88418b29",
       "context": "Join, cluster and summarise on the worker.",
-      "translation": "Junta, agrupa e resume no trabalhador.",
+      "translation": "Junta, agrupa e resume no worker.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -344,7 +346,7 @@
       "source": "Reconstruct saved data on the worker before the chart is restored.",
       "source_sha256": "ab0510b64d231c389232fe770dba98b4e740d619ea31c086011cd17c83eac025",
       "context": "Reconstruct saved data on the worker before the chart is restored.",
-      "translation": "Reconstrói os dados salvos no trabalhador antes de o gráfico ser restaurado.",
+      "translation": "Reconstrói os dados salvos no worker antes de o gráfico ser restaurado.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -369,7 +371,9 @@
       "source_sha256": "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa",
       "context": "The two halves fail separately on purpose. A listing that fails means the file is not a database and there is nothing to offer; a READ that fails, on one table of a database whose other tables listed fine, must still leave the picker populated -- that is how the user reaches the table that does read. Inline, that fell out of the order the old code ran in; here it has to be said.",
       "translation": "As duas metades falham separadamente de propósito. Uma listagem que falha significa que o arquivo não é um banco de dados e não há nada a oferecer; uma LEITURA que falha, em uma tabela de um banco cujas outras tabelas foram listadas sem problema, ainda precisa deixar o seletor preenchido -- é assim que o usuário chega à tabela que pode ser lida. Embutido, isso decorria da ordem em que o código antigo rodava; aqui é preciso dizê-lo.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job#0",
@@ -432,7 +436,7 @@
       "source": "Load a schema in a worker and apply it to a copy of the table.",
       "source_sha256": "b0621a4d52a0e66b09429246b8bf4fe41fa57b0912603f14af0b8cd39c8cc046",
       "context": "Load a schema in a worker and apply it to a copy of the table.",
-      "translation": "Carrega um esquema em um trabalhador e o aplica a uma cópia da tabela.",
+      "translation": "Carrega um esquema em um worker e o aplica a uma cópia da tabela.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -440,7 +444,7 @@
       "source": "Save the schema in a worker; returns the path, rows and any error.",
       "source_sha256": "4f43561b979f61f4017738edfd9c42a0795409bd91b677db724385fdafdb1214",
       "context": "Save the schema in a worker; returns the path, rows and any error.",
-      "translation": "Salva o esquema em um trabalhador; retorna o caminho, as linhas e qualquer erro.",
+      "translation": "Salva o esquema em um worker; retorna o caminho, as linhas e qualquer erro.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -448,7 +452,7 @@
       "source": "Preview the draft in a worker and apply it to a copy of the table.",
       "source_sha256": "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb",
       "context": "Preview the draft in a worker and apply it to a copy of the table.",
-      "translation": "Pré-visualiza o rascunho em um trabalhador e o aplica a uma cópia da tabela.",
+      "translation": "Pré-visualiza o rascunho em um worker e o aplica a uma cópia da tabela.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -577,7 +581,9 @@
       "source_sha256": "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1",
       "context": "A whole number comes back as an int. The CSV cannot distinguish a count from a measurement, and reading everything as float renders \"on 12517.0 objects\" in a tooltip -- a count with a decimal point reads as a rounding, which it is not.",
       "translation": "UM NÚMERO INTEIRO VOLTA COMO int. O CSV não distingue uma contagem de uma medida, e ler tudo como float exibe \"on 12517.0 objects\" numa dica -- uma contagem com ponto decimal parece um arredondamento, o que ela não é.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.scorecard.score_holdout.weighted#0",
@@ -625,7 +631,9 @@
       "source_sha256": "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b",
       "context": "``index`` is the strictest candidate yielding ``achieved``. The plateau reaches down to just above the last candidate that yielded MORE than ``achieved``, found by a second bisection on the same monotone statistic.",
       "translation": "``index`` é o candidato mais estrito que produz ``achieved``. O platô desce até logo acima do último candidato que produziu MAIS do que ``achieved``, encontrado por uma segunda bissecção sobre a mesma estatística monótona.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing_qc.derive_threshold.stat#0",

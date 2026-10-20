@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-15",
+  "result": "PASS",
+  "independence": "Reviewer did not author JobRunner source prose or implementation; this is independent source-contract review, not translation approval.",
+  "source_commits": [
+    "e8d45689ab58eef1c4ca1ab0d2fc20fedccf7505",
+    "35aa6c146f3b30eedab48f198166d32ba4e67ff0"
+  ],
+  "source_path": "spacr/qt/job_runner.py",
+  "final_source_sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706",
+  "executable_ast_unchanged": true,
+  "reviewed_scope": "10 revised docstrings across module, shutdown_all, JobRunner/constructor, submit, is_busy, active_jobs, pending_jobs, cancel and shutdown;9 rendered public symbols.",
+  "checks": [
+    "Inline submission invokes both callables on caller thread, reports failure/completion synchronously and returns false when either callable raises; it does not register a worker or update busy state.",
+    "Threaded submission registers worker references/pending record, then starts the thread; returned true acknowledges start, not outcome. Successful pending results dispatch through the GUI-bound relay; cancelled results no longer have a pending entry and emit no job_finished.",
+    "cancel increments generation, requests interruption, clears pending and busy immediately without waiting or forcing termination. It leaves tracked thread references; separately connected error signals can still emit job_failed.",
+    "active_jobs counts tracked references, including not-yet-retired stopped threads; shutdown clears this local registry even when bridge retains parked live threads.",
+    "shutdown_all requests cancellation across all runners before waiting; one deadline bounds waiting, not total process exit. Only normally returning shutdown calls count; failure logs and continues.",
+    "shutdown uses remaining shared deadline for each drain_thread, which requests quit, waits bounded time and parks unresponsive threads instead of terminating."
+  ],
+  "finding": {
+    "source": "e8d45689ab5 shutdown_all",
+    "before": "All runners are cancelled before any wait",
+    "reason": "cancel exceptions are caught, so successful cancellation cannot be guaranteed.",
+    "after": "Cancellation is requested for all runners before any wait",
+    "resolved_in": "35aa6c146f3b30eedab48f198166d32ba4e67ff0"
+  },
+  "owning_tests_read": [
+    "test_a_handler_that_raises_still_retires_its_job",
+    "test_an_unthreaded_handler_that_raises_reports_and_returns_false",
+    "test_an_unthreaded_job_that_raises_never_calls_the_handler",
+    "test_a_cancelled_result_is_retired_but_never_delivered",
+    "test_shutdown_survives_a_drain_that_raises",
+    "test_a_completion_arriving_after_the_runner_is_gone_is_silent",
+    "test_every_live_runner_is_asked_to_stop_at_quit",
+    "test_one_runner_that_will_not_stop_does_not_strand_the_others"
+  ],
+  "validation": "Read actual lifecycle implementation, owning regression bodies and bridge.drain_thread; independently verified executable AST equality. No runtime tests, collector, writer or source edits. Normal API review/generation remains documentation owner scope."
+}

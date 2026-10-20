@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "records": [
+    {
+      "context": "The first fold makes the page strip in a turn of its own. Making it moves this application view's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded#2",
+      "source": "THE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it moves this screen's whole body onto the strip, and Qt restyles every widget of a body it moves; that and the page joining the strip were one freeze. A breath between them lets the window answer.",
+      "source_sha256": "cb84e339284f737c131fcd13edcbcd5240a16d9118bb62bfe976c49a79d403ce",
+      "translation": "EL PRIMER PLIEGUE CREA LA TIRA DE PÁGINAS EN UNA VUELTA PROPIA. Al crearla, todo el contenido de la pantalla pasa a la tira, y Qt vuelve a aplicar estilos a cada widget del contenido que mueve; eso y la incorporación de la página a la tira eran una sola congelación. Una pausa entre ambos permite que la ventana responda."
+    }
+  ]
+}

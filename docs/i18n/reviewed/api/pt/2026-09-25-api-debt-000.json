@@ -84,7 +84,7 @@
     },
     {
       "context": "Install the latest compatible stable release from the official PyPI index.",
-      "label": "spacr._starplast.PYPI_PACKAGE#0",
+      "label": "spacr._parascape.PYPI_PACKAGE#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Install the latest compatible stable release from the official PyPI index.",
       "source_sha256": "24043ad21025cbd4614682bd8f4ff20c74a910f2aae11b2cb369479090f91585",
@@ -92,7 +92,7 @@
     },
     {
       "context": "Optional explicit source for development installations.",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "review_basis": "MT draft kept after AI review",
       "source": "Optional explicit source for development installations.",
       "source_sha256": "62d2579e5a409ab73664aebf2e332a6ce0bfdf50f69543911b4654fa4c68cfce",
@@ -100,7 +100,7 @@
     },
     {
       "context": "Compare the actual isolated installation with compatible stable PyPI releases.",
-      "label": "spacr._starplast.check_starplast_update#0",
+      "label": "spacr._parascape.check_parascape_update#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Compare the actual isolated installation with compatible stable PyPI releases.",
       "source_sha256": "ac37e36f747dc794e3a8d52b633a03c6b0724a3b4fa5c59420f9ca7fb1e369ff",
@@ -108,7 +108,7 @@
     },
     {
       "context": "optional cancellation event for subprocesses.",
-      "label": "spacr._starplast.check_starplast_update#2",
+      "label": "spacr._parascape.check_parascape_update#2",
       "review_basis": "MT draft kept after AI review",
       "source": "optional cancellation event for subprocesses.",
       "source_sha256": "2a6038ff6c10abd2e914afb14d3270a32aed55b6bf50fbd0ab73dadcd74a5664",
@@ -116,7 +116,7 @@
     },
     {
       "context": "optional cancellable command runner for tests.",
-      "label": "spacr._starplast.check_starplast_update#3",
+      "label": "spacr._parascape.check_parascape_update#3",
       "review_basis": "MT draft edited in AI review",
       "source": "optional cancellable command runner for tests.",
       "source_sha256": "5a64a08b84c1aad78432184fb527796029fbdac075104569bedd14a3d73d89aa",
@@ -124,7 +124,7 @@
     },
     {
       "context": "installed/latest version strings and an ``available`` boolean.",
-      "label": "spacr._starplast.check_starplast_update#4",
+      "label": "spacr._parascape.check_parascape_update#4",
       "review_basis": "MT draft edited in AI review",
       "source": "installed/latest version strings and an ``available`` boolean.",
       "source_sha256": "b5e5669ceb44bbc906c6bb6755d9e4e3877ccc0d81464a9ebac174dff804c363",
@@ -132,7 +132,7 @@
     },
     {
       "context": "the installation or package index cannot be checked.",
-      "label": "spacr._starplast.check_starplast_update#5",
+      "label": "spacr._parascape.check_parascape_update#5",
       "review_basis": "MT draft edited in AI review",
       "source": "the installation or package index cannot be checked.",
       "source_sha256": "f735c67c1ddfaace436e814516661ec496778fe9e1727746808578f24f5e8802",
@@ -140,55 +140,55 @@
     },
     {
       "context": "Use PyPI unless a developer explicitly overrides the installation source.",
-      "label": "spacr._starplast.default_source#0",
+      "label": "spacr._parascape.default_source#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Use PyPI unless a developer explicitly overrides the installation source.",
       "source_sha256": "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
       "translation": "Usa o PyPI, a menos que um desenvolvedor substitua explicitamente a fonte de instalação."
     },
     {
-      "context": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
-      "label": "spacr._starplast.default_source#1",
+      "context": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name.",
+      "label": "spacr._parascape.default_source#1",
       "review_basis": "MT draft edited in AI review",
-      "source": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
-      "source_sha256": "eefc7385a8be3c85e49a119b1aceac9968def78e51ee4ad2396978c14fb50283",
-      "translation": "``SPACR_STARPLAST_SOURCE`` ou o nome do pacote PyPI sem versão fixada."
+      "source": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name.",
+      "source_sha256": "36d3db9dec8bb3cb3e632388c365bfac4f3c8eb3677d2c168b31812e9cbb7852",
+      "translation": "``SPACR_PARASCAPE_SOURCE`` ou o nome do pacote PyPI sem versão fixada."
     },
     {
       "context": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "review_basis": "MT draft edited in AI review",
       "source": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
       "source_sha256": "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890",
       "translation": "a fonte selecionada não é uma cópia de trabalho local do Git adequada, nem o pacote PyPI, nem um URL de repositório oficial permitido."
     },
     {
-      "context": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
-      "label": "spacr._starplast.install_starplast#2",
+      "context": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "label": "spacr._parascape.install_parascape#2",
       "review_basis": "MT draft edited in AI review",
-      "source": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
-      "source_sha256": "a6dd51e96b540c9586a79238e3aa62de516e2a6035a114f5a6e5c9261aef2ccb",
-      "translation": "starplast no PyPI, ou uma cópia de trabalho local explícita do Git ou URL de repositório; caso contrário, default_source. O PyPI resolve a versão estável compatível mais recente no momento da instalação, sem fixar versão."
+      "source": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "source_sha256": "ba804868c40c314aa56be73c88caae908ab8ada0c3a5636b024d36d2515ded79",
+      "translation": "parascape no PyPI, ou uma cópia de trabalho local explícita do Git ou URL de repositório; caso contrário, default_source. O PyPI resolve a versão estável compatível mais recente no momento da instalação, sem fixar versão."
     },
     {
       "context": "Upgrade the owned environment using pip and PyPI, then verify its data.",
-      "label": "spacr._starplast.upgrade_starplast#0",
+      "label": "spacr._parascape.upgrade_parascape#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Upgrade the owned environment using pip and PyPI, then verify its data.",
       "source_sha256": "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
       "translation": "Atualiza o ambiente próprio usando pip e PyPI e, em seguida, verifica seus dados."
     },
     {
-      "context": "ignored; upgrades always use the PyPI Starplast package.",
-      "label": "spacr._starplast.upgrade_starplast#1",
+      "context": "ignored; upgrades always use the PyPI ParaScape package.",
+      "label": "spacr._parascape.upgrade_parascape#1",
       "review_basis": "MT draft edited in AI review",
-      "source": "ignored; upgrades always use the PyPI Starplast package.",
-      "source_sha256": "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
-      "translation": "ignorado; as atualizações sempre usam o pacote Starplast do PyPI."
+      "source": "ignored; upgrades always use the PyPI ParaScape package.",
+      "source_sha256": "0689f9793c64792f0eaa5b3bfed07fdbd1698533cbc5d5fab647e812d65433c2",
+      "translation": "ignorado; as atualizações sempre usam o pacote ParaScape do PyPI."
     },
     {
       "context": "optional ``(step, total, text)`` callback.",
-      "label": "spacr._starplast.upgrade_starplast#3",
+      "label": "spacr._parascape.upgrade_parascape#3",
       "review_basis": "MT draft edited in AI review",
       "source": "optional ``(step, total, text)`` callback.",
       "source_sha256": "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
@@ -196,7 +196,7 @@
     },
     {
       "context": "optional subprocess cancellation event.",
-      "label": "spacr._starplast.upgrade_starplast#4",
+      "label": "spacr._parascape.upgrade_parascape#4",
       "review_basis": "MT draft edited in AI review",
       "source": "optional subprocess cancellation event.",
       "source_sha256": "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
@@ -204,7 +204,7 @@
     },
     {
       "context": "optional command runner for tests.",
-      "label": "spacr._starplast.upgrade_starplast#5",
+      "label": "spacr._parascape.upgrade_parascape#5",
       "review_basis": "MT draft edited in AI review",
       "source": "optional command runner for tests.",
       "source_sha256": "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
@@ -212,7 +212,7 @@
     },
     {
       "context": "verified environment path.",
-      "label": "spacr._starplast.upgrade_starplast#6",
+      "label": "spacr._parascape.upgrade_parascape#6",
       "review_basis": "MT draft edited in AI review",
       "source": "verified environment path.",
       "source_sha256": "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
@@ -220,7 +220,7 @@
     },
     {
       "context": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
-      "label": "spacr._starplast.upgrade_starplast#7",
+      "label": "spacr._parascape.upgrade_parascape#7",
       "review_basis": "MT draft edited in AI review",
       "source": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
       "source_sha256": "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c",
@@ -248,7 +248,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Cellpose does its own device resolution and already knows about MPS -- ``assign_device(gpu=True)`` answers ``mps`` on a Metal machine. What it cannot do is guess, so it must be TOLD there is a GPU. Passing ``torch.cuda.is_available()`` here pins a Mac to the CPU when no explicit device is supplied. An explicit Cellpose device takes precedence.",
       "source_sha256": "afe087464bfad63c02c73d1ef7064c3c7a07c59dee6a07e681f52ce136361a82",
-      "translation": "O Cellpose faz sua própria resolução de dispositivo e já conhece o MPS -- ``assign_device(gpu=True)`` responde ``mps`` em uma máquina Metal. O que ele não consegue é adivinhar, então é preciso INFORMÁ-LO de que há uma GPU. Passar ``torch.cuda.is_available()`` aqui prende um Mac à CPU quando nenhum dispositivo explícito é fornecido. Um dispositivo explícito do Cellpose tem precedência."
+      "translation": "O Cellpose faz sua própria resolução de dispositivo e já conhece o MPS -- ``assign_device(gpu=True)`` responde ``mps`` em uma máquina Metal. O que ele não consegue é adivinhar, então é preciso INFORMÁ-LO de que há uma GPU. Passar ``torch.cuda.is_available()`` aqui prende um Mac à CPU quando nenhum dispositivo explícito é fornecido. Um dispositivo explícito do Cellpose tem precedência.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Consistent device and weight precision for ``CellposeModel`` inference.",
@@ -280,7 +282,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``use_bfloat16`` -- cpsam loads its weights in bfloat16 by default and Metal on torch 2.2 has no bfloat16, so the default is a ``TypeError: BFloat16 is not supported on MPS`` at construction. Measured on the reporting iMac; float32 weights work there and cost VRAM, which is the right trade for a card that otherwise sits idle. CPU inference also uses float32: bfloat16 support does not imply native arithmetic, and emulation can be substantially slower. This matches Make Masks; float32 arithmetic need not produce identical predictions to bfloat16.",
       "source_sha256": "01e3269686bf0c8c620ad49a202b0c33f9cbb40bc7d0c0c40db10cda2bdfc42d",
-      "translation": "``use_bfloat16`` -- o cpsam carrega seus pesos em bfloat16 por padrão e o Metal no torch 2.2 não tem bfloat16, então o padrão resulta em ``TypeError: BFloat16 is not supported on MPS`` na construção. Medido no iMac do relato; pesos float32 funcionam ali e custam VRAM, o que é a troca certa para uma placa que de outra forma ficaria ociosa. A inferência na CPU também usa float32: suporte a bfloat16 não implica aritmética nativa, e a emulação pode ser substancialmente mais lenta. Isso corresponde ao Make Masks; a aritmética float32 não precisa produzir previsões idênticas às de bfloat16."
+      "translation": "``use_bfloat16`` -- o cpsam carrega seus pesos em bfloat16 por padrão e o Metal no torch 2.2 não tem bfloat16, então o padrão resulta em ``TypeError: BFloat16 is not supported on MPS`` na construção. Medido no iMac do relato; pesos float32 funcionam ali e custam VRAM, o que é a troca certa para uma placa que de outra forma ficaria ociosa. A inferência na CPU também usa float32: suporte a bfloat16 não implica aritmética nativa, e a emulação pode ser substancialmente mais lenta. Isso corresponde ao Make Masks; a aritmética float32 não precisa produzir previsões idênticas às de bfloat16.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "torch module whose availability metadata should be inspected.",
@@ -328,7 +332,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``{crop key: rejected class}`` -- suggestions the annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In a two-class column a rejection of class 1 is an example of class 2, and it is fitted as one; a crop that has since been labelled is left to its label, and in a column with any other classes the rejection cannot be turned into a label and is counted in the notes instead. A rejection is information, not silence: without this the model that proposed the wrong class would be fitted on exactly the same evidence next round and propose it again.",
       "source_sha256": "a1c2ae31255926042ea1c7995c687f0ca39c1662ca318fc07f82e46dc4ff5eb9",
-      "translation": "``{crop key: rejected class}`` -- sugestões que o anotador REJEITOU (:func:`spacr.suggest.rejected_suggestions`). Em uma coluna de duas classes, uma rejeição da classe 1 é um exemplo da classe 2 e é ajustada como tal; um recorte que foi rotulado desde então fica com seu rótulo, e em uma coluna com quaisquer outras classes a rejeição não pode ser convertida em rótulo e é contada nas notas. Uma rejeição é informação, não silêncio: sem isso, o modelo que propôs a classe errada seria ajustado exatamente com as mesmas evidências na próxima rodada e a proporia de novo."
+      "translation": "``{crop key: rejected class}`` -- sugestões que o anotador REJEITOU (:func:`spacr.suggest.rejected_suggestions`). Em uma coluna de duas classes, uma rejeição da classe 1 é um exemplo da classe 2 e é ajustada como tal; um recorte que foi rotulado desde então fica com seu rótulo, e em uma coluna com quaisquer outras classes a rejeição não pode ser convertida em rótulo e é contada nas notas. Uma rejeição é informação, não silêncio: sem isso, o modelo que propôs a classe errada seria ajustado exatamente com as mesmas evidências na próxima rodada e a proporia de novo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "global-frame row position, in pixels; ``origin_y`` is subtracted and the result rounded to the nearest integer.",
@@ -864,7 +870,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Layered lowest-to-highest: the module's own defaults, the settings file, then the ``--set`` overrides. The file is read under today's names first -- see :func:`_under_todays_names`, without which a value the file set under an old name lost to the default already sitting under the new one.",
       "source_sha256": "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
-      "translation": "Camadas da mais baixa para a mais alta: os padrões do próprio módulo, o arquivo de configurações e, em seguida, as substituições de ``--set``. O arquivo é lido primeiro com os nomes atuais -- veja :func:`_under_todays_names`; sem isso, um valor que o arquivo definia com um nome antigo perdia para o padrão já presente com o nome novo."
+      "translation": "Camadas da mais baixa para a mais alta: os padrões do próprio módulo, o arquivo de configurações e, em seguida, as substituições de ``--set``. O arquivo é lido primeiro com os nomes atuais -- veja :func:`_under_todays_names`; sem isso, um valor que o arquivo definia com um nome antigo perdia para o padrão já presente com o nome novo.",
+      "retired": true,
+      "retired_reason": "2026-10-14: canonical paragraph or source context changed during MakeMasks lifecycle/N696 integration. Original review/target retained as historical evidence; new current-source AI technical review is separate."
     },
     {
       "context": "list to receive the migration notices, passed straight to :func:`_under_todays_names`; a caller that prints a pre-flight report hands these to :func:`_preflight` so the keys the fold consumed are still named there.",
@@ -880,7 +888,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches the example sets -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The OPS and Align & Stitch samples are fetched only when named (``spacr-download ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen, which is 33 GB. A command that spent 33 GB of somebody's quota because they typed its name with no arguments would be a bug however well documented, so the screen is opt-in, is asked for in pieces, and is confirmed before it starts. The pieces are :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about 0.5 GB and four crop folders of about 8 GB, any subset of which can be named.",
       "source_sha256": "cbeaa646852275e319331195d9c56909734676f0283735c25d09e0d5d60defdb",
-      "translation": "O QUE ELE FAZ E NÃO FAZ SEM QUE SE PEÇA. Sem argumentos, ele baixa os conjuntos de exemplo -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment e o conjunto sintético Invasion -- que somam cerca de 1.8 GB. As amostras de OPS e de Align & Stitch são baixadas apenas quando nomeadas (``spacr-download ops stitch``) ou com ``all``. Ele NÃO baixa o screen TSG101 publicado, que tem 33 GB. Um comando que gastasse 33 GB da cota de alguém porque a pessoa digitou o nome dele sem argumentos seria um bug, por mais bem documentado que fosse; por isso o screen é opcional, é solicitado em partes e é confirmado antes de começar. As partes são as de :mod:`spacr.screen_data`, inalteradas: quatro bancos de dados de medições de cerca de 0.5 GB e quatro pastas de recortes de cerca de 8 GB, das quais qualquer subconjunto pode ser nomeado."
+      "translation": "O QUE ELE FAZ E NÃO FAZ SEM QUE SE PEÇA. Sem argumentos, ele baixa os conjuntos de exemplo -- Import, Mask, Measure, Annotate/Classify, Replication, Recruitment e o conjunto sintético Invasion -- que somam cerca de 1.8 GB. As amostras de OPS e de Align & Stitch são baixadas apenas quando nomeadas (``spacr-download ops stitch``) ou com ``all``. Ele NÃO baixa o screen TSG101 publicado, que tem 33 GB. Um comando que gastasse 33 GB da cota de alguém porque a pessoa digitou o nome dele sem argumentos seria um bug, por mais bem documentado que fosse; por isso o screen é opcional, é solicitado em partes e é confirmado antes de começar. As partes são as de :mod:`spacr.screen_data`, inalteradas: quatro bancos de dados de medições de cerca de 0.5 GB e quatro pastas de recortes de cerca de 8 GB, das quais qualquer subconjunto pode ser nomeado.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The one plate folder the three plate example sets unpack into.",
@@ -1000,7 +1010,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**WHAT IT IS FOR.** Every screen that shows objects has had its own way of finding them, and the Embeddings screen had none at all -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existed and nothing in ``spacr/`` called it, so the only route to a label-free vector was to open Python. This module is the missing half: it turns a question about a plate into a stack of pixels, and it does it in two steps so a GUI can stay answerable between them.",
       "source_sha256": "cea439e50c1bfbd8e82ed329bde7a6d73038961b4fdd36627239e6a5a37f1b18",
-      "translation": "**PARA QUE SERVE.** Cada tela que mostra objetos tinha sua própria maneira de encontrá-los, e a tela Embeddings não tinha nenhuma -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existia e nada em ``spacr/`` a chamava, então o único caminho para um vetor sem rótulos era abrir o Python. Este módulo é a metade que faltava: ele transforma uma pergunta sobre uma placa em uma pilha de pixels, e faz isso em duas etapas para que uma GUI possa continuar respondendo entre elas."
+      "translation": "**PARA QUE SERVE.** Cada tela que mostra objetos tinha sua própria maneira de encontrá-los, e a tela Embeddings não tinha nenhuma -- :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` existia e nada em ``spacr/`` a chamava, então o único caminho para um vetor sem rótulos era abrir o Python. Este módulo é a metade que faltava: ele transforma uma pergunta sobre uma placa em uma pilha de pixels, e faz isso em duas etapas para que uma GUI possa continuar respondendo entre elas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Planning is not loading, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand extracted image regions, so a screen can execute it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that executes the second half on a background execution unit gets a progress number per page and a stop that takes effect within a page rather than at the end.",
@@ -1008,7 +1020,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**PLANNING IS NOT LOADING, and that separation is the whole design.** :func:`plan_crops` asks the database or the folder *which objects match* and reads no pixels at all: a ``COUNT`` and a ``SELECT`` of identifiers, or one ``scandir``. It is milliseconds on a plate of sixty thousand crops, so a screen can run it on a click and tell the user what they asked for before committing to reading any of it. :func:`load_crops` then reads the pixels in pages, reporting after each one. A caller that runs the second half on a worker thread gets a progress number per page and a stop that takes effect within a page rather than at the end.",
       "source_sha256": "a2b7234b8098f4c5c55bbda35e8d9803f520b4056638fcfc5dc39b98541f258e",
-      "translation": "**PLANEJAR NÃO É CARREGAR, e essa separação é todo o design.** :func:`plan_crops` pergunta ao banco de dados ou à pasta *quais objetos correspondem* e não lê pixel nenhum: um ``COUNT`` e um ``SELECT`` de identificadores, ou um único ``scandir``. Leva milissegundos em uma placa de sessenta mil recortes, então uma tela pode executá-lo com um clique e informar ao usuário o que ele pediu antes de se comprometer a ler qualquer parte. :func:`load_crops` então lê os pixels em páginas, reportando após cada uma. Um chamador que executa a segunda metade em uma thread de worker recebe um número de progresso por página e uma parada que tem efeito dentro de uma página, e não no final."
+      "translation": "**PLANEJAR NÃO É CARREGAR, e essa separação é todo o design.** :func:`plan_crops` pergunta ao banco de dados ou à pasta *quais objetos correspondem* e não lê pixel nenhum: um ``COUNT`` e um ``SELECT`` de identificadores, ou um único ``scandir``. Leva milissegundos em uma placa de sessenta mil recortes, então uma tela pode executá-lo com um clique e informar ao usuário o que ele pediu antes de se comprometer a ler qualquer parte. :func:`load_crops` então lê os pixels em páginas, reportando após cada uma. Um chamador que executa a segunda metade em uma thread de worker recebe um número de progresso por página e uma parada que tem efeito dentro de uma página, e não no final.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it needs.** Either a ``measurements.db`` -- where the extracted image regions are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of extracted image region PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated extracted image regions here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
@@ -1016,7 +1030,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**WHAT IT NEEDS.** Either a ``measurements.db`` -- where the crops are chosen by object class, by plate, or by a predicate over ``png_list`` -- or a folder of crop PNGs. Nothing else: the pixels themselves come from :func:`spacr.crops.resolve_crop_source`, so this module inherits the existing answer to \"are there pre-generated crops here, or do we cut from ``merged/*.npy``\" rather than inventing a second one, and a legacy folder is corrected on load exactly as it is everywhere else.",
       "source_sha256": "0246ed020295fb5f7fa9294f43b79e139378001612699d3898a2907e813b6e68",
-      "translation": "**DO QUE PRECISA.** Ou um ``measurements.db`` -- no qual os recortes são escolhidos por classe de objeto, por placa ou por um predicado sobre ``png_list`` -- ou uma pasta de PNGs de recortes. Nada mais: os próprios pixels vêm de :func:`spacr.crops.resolve_crop_source`, então este módulo herda a resposta existente para \"há recortes pré-gerados aqui, ou recortamos de ``merged/*.npy``\" em vez de inventar uma segunda, e uma pasta legada é corrigida ao carregar exatamente como em todos os outros lugares."
+      "translation": "**DO QUE PRECISA.** Ou um ``measurements.db`` -- no qual os recortes são escolhidos por classe de objeto, por placa ou por um predicado sobre ``png_list`` -- ou uma pasta de PNGs de recortes. Nada mais: os próprios pixels vêm de :func:`spacr.crops.resolve_crop_source`, então este módulo herda a resposta existente para \"há recortes pré-gerados aqui, ou recortamos de ``merged/*.npy``\" em vez de inventar uma segunda, e uma pasta legada é corrigida ao carregar exatamente como em todos os outros lugares.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it produces.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the extracted image region shape, and how many extracted image regions had to be conformed to it.",
@@ -1024,7 +1040,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**WHAT IT PRODUCES.** One ``(objects, height, width, channels)`` uint8 array, which is the layout :func:`spacr.embeddings.embed_array` documents and :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` requires, plus a JSON-serialisable ``record`` of what was actually read -- how many matched, how many were taken, the crop shape, and how many crops had to be conformed to it.",
       "source_sha256": "7cbd39f7b940b46852f5602d894db6eab98ffcde8412e68e8c6b9381c6baece2",
-      "translation": "**O QUE PRODUZ.** Um array uint8 ``(objects, height, width, channels)``, que é o layout que :func:`spacr.embeddings.embed_array` documenta e :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` exige, mais um ``record`` serializável em JSON do que foi realmente lido -- quantos corresponderam, quantos foram usados, a forma do recorte e quantos recortes tiveram de ser ajustados a ela."
+      "translation": "**O QUE PRODUZ.** Um array uint8 ``(objects, height, width, channels)``, que é o layout que :func:`spacr.embeddings.embed_array` documenta e :meth:`spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops` exige, mais um ``record`` serializável em JSON do que foi realmente lido -- quantos corresponderam, quantos foram usados, a forma do recorte e quantos recortes tiveram de ser ajustados a ela.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What to do next.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
@@ -1032,7 +1050,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**WHAT TO DO NEXT.** Hand the array to the Embeddings screen, or straight to :func:`spacr.embeddings.embed_array`.",
       "source_sha256": "b10cc334b1c8590ce9def8b83370b72555d59dac5c73c0dcedc5d80791d85485",
-      "translation": "**O QUE FAZER EM SEGUIDA.** Entregue o array à tela Embeddings, ou diretamente a :func:`spacr.embeddings.embed_array`."
+      "translation": "**O QUE FAZER EM SEGUIDA.** Entregue o array à tela Embeddings, ou diretamente a :func:`spacr.embeddings.embed_array`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A cap is part of the answer, not a failure to load everything.** Sixty thousand extracted image regions of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
@@ -1040,7 +1060,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**A CAP IS PART OF THE ANSWER, NOT A FAILURE TO LOAD EVERYTHING.** Sixty thousand crops of 96x96x3 is 1.6 GB before a backbone has seen one of them, and a screen that tries it dies on a machine that could have embedded the first two thousand happily. So :attr:`CropQuery.limit` is a real default and the plan says what it left behind -- \"the first 2,000 of 61,433\" -- rather than quietly returning a subset that looks like the whole plate.",
       "source_sha256": "f5416d81e92af3e5782b6df0c779f69b6655ac044f706b098fd1086e379a768c",
-      "translation": "**UM LIMITE FAZ PARTE DA RESPOSTA, NÃO É UMA FALHA EM CARREGAR TUDO.** Sessenta mil recortes de 96x96x3 somam 1.6 GB antes que um backbone tenha visto um único deles, e uma tela que tenta isso morre em uma máquina que teria gerado embeddings dos primeiros dois mil sem problema. Por isso :attr:`CropQuery.limit` é um padrão real e o plano diz o que deixou de fora -- \"os primeiros 2,000 de 61,433\" -- em vez de retornar silenciosamente um subconjunto que parece ser a placa inteira."
+      "translation": "**UM LIMITE FAZ PARTE DA RESPOSTA, NÃO É UMA FALHA EM CARREGAR TUDO.** Sessenta mil recortes de 96x96x3 somam 1.6 GB antes que um backbone tenha visto um único deles, e uma tela que tenta isso morre em uma máquina que teria gerado embeddings dos primeiros dois mil sem problema. Por isso :attr:`CropQuery.limit` é um padrão real e o plano diz o que deixou de fora -- \"os primeiros 2,000 de 61,433\" -- em vez de retornar silenciosamente um subconjunto que parece ser a placa inteira.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**And a cap is not the only thing that removes a row, so it is counted on its own.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
@@ -1048,7 +1070,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**AND A CAP IS NOT THE ONLY THING THAT REMOVES A ROW, SO IT IS COUNTED ON ITS OWN.** The merged route drops every row it cannot cut, and reporting that as a cap is the same sentence read backwards: a complete answer dressed as a subset, telling the user to raise a limit that never bit. So :attr:`CropPlan.matched`, :attr:`CropPlan.selected` and :attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap between the first two and :attr:`CropPlan.dropped` the gap between the last two, and they reach the panel as separate clauses.",
       "source_sha256": "b03529a0c8a16d11a9d75ec30f7641740b14ab9c0f1ae1fa4c8e5d0cfe29ac51",
-      "translation": "**E UM LIMITE NÃO É A ÚNICA COISA QUE REMOVE UMA LINHA, POR ISSO ELE É CONTADO À PARTE.** A rota mesclada descarta toda linha que não consegue recortar, e reportar isso como um limite é a mesma frase lida ao contrário: uma resposta completa disfarçada de subconjunto, dizendo ao usuário para aumentar um limite que nunca atuou. Por isso :attr:`CropPlan.matched`, :attr:`CropPlan.selected` e :attr:`CropPlan.count` são três números, :attr:`CropPlan.capped` é a diferença entre os dois primeiros e :attr:`CropPlan.dropped` a diferença entre os dois últimos, e eles chegam ao painel como orações separadas."
+      "translation": "**E UM LIMITE NÃO É A ÚNICA COISA QUE REMOVE UMA LINHA, POR ISSO ELE É CONTADO À PARTE.** A rota mesclada descarta toda linha que não consegue recortar, e reportar isso como um limite é a mesma frase lida ao contrário: uma resposta completa disfarçada de subconjunto, dizendo ao usuário para aumentar um limite que nunca atuou. Por isso :attr:`CropPlan.matched`, :attr:`CropPlan.selected` e :attr:`CropPlan.count` são três números, :attr:`CropPlan.capped` é a diferença entre os dois primeiros e :attr:`CropPlan.dropped` a diferença entre os dois últimos, e eles chegam ao painel como orações separadas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**An empty result is a sentence, never an empty array.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
@@ -1056,7 +1080,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY.** A plan that matched nothing carries :attr:`CropPlan.empty_reason`, which names the table, the class, the plate and the predicate that were asked for AND what the database does hold, because \"no crops\" on its own sends a user to look for a broken install when they have asked for plate 9 of an eight-plate screen.",
       "source_sha256": "64d3e787e6c1589ed05899b1fa0efa9af0a8caa64964c6cb571bb56c36c90a3e",
-      "translation": "**UM RESULTADO VAZIO É UMA FRASE, NUNCA UM ARRAY VAZIO.** Um plano que não correspondeu a nada carrega :attr:`CropPlan.empty_reason`, que nomeia a tabela, a classe, a placa e o predicado que foram pedidos E o que o banco de dados de fato contém, porque \"no crops\" sozinho manda o usuário procurar uma instalação quebrada quando ele pediu a placa 9 de um screen de oito placas."
+      "translation": "**UM RESULTADO VAZIO É UMA FRASE, NUNCA UM ARRAY VAZIO.** Um plano que não correspondeu a nada carrega :attr:`CropPlan.empty_reason`, que nomeia a tabela, a classe, a placa e o predicado que foram pedidos E o que o banco de dados de fato contém, porque \"no crops\" sozinho manda o usuário procurar uma instalação quebrada quando ele pediu a placa 9 de um screen de oito placas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The predicate is sql and the database is opened read-only.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
@@ -1064,7 +1090,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**THE PREDICATE IS SQL AND THE DATABASE IS OPENED READ-ONLY.** ``where`` is a fragment of the user's own query language against their own file; refusing it would mean inventing a worse one. It is spliced into a ``WHERE`` clause, so the connection is opened with ``readonly=True`` -- SQLite's ``query_only``, which refuses every write at the engine -- and a predicate carrying a statement separator is rejected before it is sent.",
       "source_sha256": "5344722e1829dc66e3e587f9e0d9dfd5f168597192263dd45a579f0b076fdd04",
-      "translation": "**O PREDICADO É SQL E O BANCO DE DADOS É ABERTO SOMENTE PARA LEITURA.** ``where`` é um fragmento da própria linguagem de consulta do usuário sobre o seu próprio arquivo; recusá-lo significaria inventar uma pior. Ele é inserido em uma cláusula ``WHERE``, então a conexão é aberta com ``readonly=True`` -- o ``query_only`` do SQLite, que recusa toda gravação no próprio mecanismo -- e um predicado que contenha um separador de instruções é rejeitado antes de ser enviado."
+      "translation": "**O PREDICADO É SQL E O BANCO DE DADOS É ABERTO SOMENTE PARA LEITURA.** ``where`` é um fragmento da própria linguagem de consulta do usuário sobre o seu próprio arquivo; recusá-lo significaria inventar uma pior. Ele é inserido em uma cláusula ``WHERE``, então a conexão é aberta com ``readonly=True`` -- o ``query_only`` do SQLite, que recusa toda gravação no próprio mecanismo -- e um predicado que contenha um separador de instruções é rejeitado antes de ser enviado.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A set of extracted image regions that cannot be loaded, and why.",
@@ -1072,7 +1100,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A set of crops that cannot be loaded, and why.",
       "source_sha256": "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
-      "translation": "Um conjunto de recortes que não pode ser carregado, e o motivo."
+      "translation": "Um conjunto de recortes que não pode ser carregado, e o motivo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
@@ -1080,7 +1110,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
       "source_sha256": "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778",
-      "translation": "Carrega uma frase adequada para uma barra de status: cada exceção levantada neste módulo nomeia o caminho, a classe ou o predicado que a produziu, porque o chamador é uma tela e sua única maneira de explicar uma falha é repetir este texto."
+      "translation": "Carrega uma frase adequada para uma barra de status: cada exceção levantada neste módulo nomeia o caminho, a classe ou o predicado que a produziu, porque o chamador é uma tela e sua única maneira de explicar uma falha é repetir este texto.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What a query matched, before any pixel was read.",
@@ -1144,7 +1176,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**THREE NUMBERS, NOT TWO, BECAUSE TWO THINGS REMOVE ROWS AND THEY ASK THE READER FOR DIFFERENT THINGS.** ``matched`` is what the query found, ``selected`` is what the limit left of it, and ``count`` is what survived the merged route's join -- which drops every row with no single object label (``'omulti'`` / ``'onone'``) or no merged array recorded. Only the first gap is a cap, and only a cap is repaired by raising 'At most'; telling a user to raise a limit that never bit hands them an action that returns the same rows and reprints the same sentence.",
       "source_sha256": "f622fbebcfd51538703ad24eedbb583f73fca0ab0d0343fe5113afe82137173b",
-      "translation": "**TRÊS NÚMEROS, NÃO DOIS, PORQUE DUAS COISAS REMOVEM LINHAS E PEDEM COISAS DIFERENTES AO LEITOR.** ``matched`` é o que a consulta encontrou, ``selected`` é o que o limite deixou disso, e ``count`` é o que sobreviveu à junção da rota mesclada -- que descarta toda linha sem um único rótulo de objeto (``'omulti'`` / ``'onone'``) ou sem array mesclado registrado. Apenas a primeira diferença é um limite, e apenas um limite se resolve aumentando 'At most'; dizer a um usuário para aumentar um limite que nunca atuou lhe entrega uma ação que retorna as mesmas linhas e reimprime a mesma frase."
+      "translation": "**TRÊS NÚMEROS, NÃO DOIS, PORQUE DUAS COISAS REMOVEM LINHAS E PEDEM COISAS DIFERENTES AO LEITOR.** ``matched`` é o que a consulta encontrou, ``selected`` é o que o limite deixou disso, e ``count`` é o que sobreviveu à junção da rota mesclada -- que descarta toda linha sem um único rótulo de objeto (``'omulti'`` / ``'onone'``) ou sem array mesclado registrado. Apenas a primeira diferença é um limite, e apenas um limite se resolve aumentando 'At most'; dizer a um usuário para aumentar um limite que nunca atuou lhe entrega uma ação que retorna as mesmas linhas e reimprime a mesma frase.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Default ``selected`` to the rows, for a plan built without a join.",
@@ -1176,7 +1210,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- running backwards.",
       "source_sha256": "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140",
-      "translation": "Em relação a :attr:`selected`, nunca a :attr:`count`: um carregamento pela rota mesclada que perdeu linhas na junção tem ``matched > count`` sem nenhum limite por perto, e reportar isso como limite seria a própria promessa deste módulo -- de que um limite faz parte da resposta -- funcionando ao contrário."
+      "translation": "Em relação a :attr:`selected`, nunca a :attr:`count`: um carregamento pela rota mesclada que perdeu linhas na junção tem ``matched > count`` sem nenhum limite por perto, e reportar isso como limite seria a própria promessa deste módulo -- de que um limite faz parte da resposta -- funcionando ao contrário.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How many extracted image regions this plan will load.",
@@ -1192,7 +1228,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "One line a status bar can show the moment planning returns.",
       "source_sha256": "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
-      "translation": "Uma linha que uma barra de status pode mostrar assim que o planejamento retorna."
+      "translation": "Uma linha que uma barra de status pode mostrar assim que o planejamento retorna.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole laboratory microplate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
@@ -1344,7 +1382,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Padding rather than resizing, and that is the whole of the decision: a stack has to be rectangular before a backbone sees it, and rescaling a crop changes the apparent size of the object in it, which is a phenotype. Zero-padding changes the background, which is not. It is also what :func:`spacr.crop_source.crop_at` already does to a box that runs off the edge of a field, so two crops of the same object arrive the same way whichever route cut them.",
       "source_sha256": "60186be9400f437b29441174605c238c3cd6ffb76e03f55629de9867f45dfe9d",
-      "translation": "Preencher em vez de redimensionar, e essa é toda a decisão: uma pilha precisa ser retangular antes que um backbone a veja, e reescalar um recorte muda o tamanho aparente do objeto nele, o que é um fenótipo. O preenchimento com zeros muda o fundo, o que não é. É também o que :func:`spacr.crop_source.crop_at` já faz com uma caixa que ultrapassa a borda de um campo, então dois recortes do mesmo objeto chegam da mesma forma, qualquer que seja a rota que os cortou."
+      "translation": "Preencher em vez de redimensionar, e essa é toda a decisão: uma pilha precisa ser retangular antes que um backbone a veja, e reescalar um recorte muda o tamanho aparente do objeto nele, o que é um fenótipo. O preenchimento com zeros muda o fundo, o que não é. É também o que :func:`spacr.crop_source.crop_at` já faz com uma caixa que ultrapassa a borda de um campo, então dois recortes do mesmo objeto chegam da mesma forma, qualquer que seja a rota que os cortou.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the target first axis.",
@@ -1488,7 +1528,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Which object classes this database actually has crops for.",
       "source_sha256": "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
-      "translation": "Para quais classes de objeto este banco de dados de fato tem recortes."
+      "translation": "Para quais classes de objeto este banco de dados de fato tem recortes.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
@@ -1536,7 +1578,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
       "source_sha256": "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
-      "translation": "um :class:`CropPlan`. Verifique :attr:`CropPlan.is_empty` antes de carregar -- um plano vazio é uma resposta, não uma falha, e carrega a frase que o explica."
+      "translation": "um :class:`CropPlan`. Verifique :attr:`CropPlan.is_empty` antes de carregar -- um plano vazio é uma resposta, não uma falha, e carrega a frase que o explica.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an unknown source, or a path that is not there.",
@@ -1880,7 +1924,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A curation session is a queue with a memory, not one field.",
       "source_sha256": "574adf1c2af156173cdc04cfa14dcd78263b8e69cfa829dbd0e3a8c0d54e09e8",
-      "translation": "Uma sessão de curadoria é uma fila com memória, não um único campo."
+      "translation": "Uma sessão de curadoria é uma fila com memória, não um único campo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
@@ -1888,7 +1934,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
       "source_sha256": "f08654017bb002c7e1b24f54ab252e691fae9f380f64007960025997e3dbf7bb",
-      "translation": "O Make Masks é o melhor editor e a ferramenta sob medida fora do repositório é o melhor fluxo de trabalho, e nenhum dos dois é ambos. Este módulo é a metade do fluxo de trabalho, trazida para dentro do spaCR: quais campos estão esperando, em que ordem oferecê-los, quantos oferecer antes que a sessão termine e o que já foi decidido sobre cada um."
+      "translation": "O Make Masks é o melhor editor e a ferramenta sob medida fora do repositório é o melhor fluxo de trabalho, e nenhum dos dois é ambos. Este módulo é a metade do fluxo de trabalho, trazida para dentro do spaCR: quais campos estão esperando, em que ordem oferecê-los, quantos oferecer antes que a sessão termine e o que já foi decidido sobre cada um.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
@@ -1896,7 +1944,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The layout mismatch is the thing to settle first: silently assuming one layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected",
       "source_sha256": "e3fe8dd55a40465988109da7de8da3cbecacb06fea7f81d0c28a2c562359e782",
-      "translation": "A incompatibilidade de layout é a primeira coisa a resolver: presumir silenciosamente um layout é o que faz uma pasta cheia de trabalho ser carregada como vazia. Por isso os três são aceitos e o que está diante de nós é detectado"
+      "translation": "A incompatibilidade de layout é a primeira coisa a resolver: presumir silenciosamente um layout é o que faz uma pasta cheia de trabalho ser carregada como vazia. Por isso os três são aceitos e o que está diante de nós é detectado",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
@@ -1904,7 +1954,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Accepting all three is safer than picking a winner. An existing curation set opens unconverted, so nothing has to be moved before work can start -- and the EDITOR takes all three too, reading and saving each where it lies (:mod:`spacr.qt.mask_engine` says how).",
       "source_sha256": "3ffb139150b72f77e1a1cafa84bfbc14b59887886714a32cf4fd4b164e6cc2f4",
-      "translation": "Aceitar os três é mais seguro do que escolher um vencedor. Um conjunto de curadoria existente abre sem conversão, então nada precisa ser movido antes que o trabalho possa começar -- e o EDITOR também aceita os três, lendo e salvando cada um onde está (:mod:`spacr.qt.mask_engine` explica como)."
+      "translation": "Aceitar os três é mais seguro do que escolher um vencedor. Um conjunto de curadoria existente abre sem conversão, então nada precisa ser movido antes que o trabalho possa começar -- e o EDITOR também aceita os três, lendo e salvando cada um onde está (:mod:`spacr.qt.mask_engine` explica como).",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The record lives at ``<folder>/curate_status.csv``, inside the work list folder rather than beside it, so it syncs with the images and a session resumes on the other machine. A row about a stem that is not in this folder is kept on rewrite for exactly that reason: the curator may be resuming somewhere the rest of the set has not arrived yet, and dropping those rows would hand back work already done. A folder with no record of its own but with the external tool's ``<parent>/<name>_status.csv`` beside it resumes from that one and writes back to it (:func:`status_path`), so a set curated half in each tool keeps one record.",
@@ -1920,7 +1972,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the queue is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
       "source_sha256": "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee",
-      "translation": "o que o curador deve saber antes do primeiro campo -- uma ordem ``prob`` ou ``easy`` sem arquivo de pontuações, ou com campos que o arquivo de pontuações não nomeia, e um registro de retomada que é o arquivo da ferramenta externa ao lado da pasta, no qual cada salvamento passa a gravar. Impresso quando a fila é montada e mostrado pelo editor junto com ela, porque uma ordenação que silenciosamente virou outra, ou um salvamento que silenciosamente vai parar fora da pasta que foi aberta, é a falha com que este módulo mais se preocupa."
+      "translation": "o que o curador deve saber antes do primeiro campo -- uma ordem ``prob`` ou ``easy`` sem arquivo de pontuações, ou com campos que o arquivo de pontuações não nomeia, e um registro de retomada que é o arquivo da ferramenta externa ao lado da pasta, no qual cada salvamento passa a gravar. Impresso quando a fila é montada e mostrado pelo editor junto com ela, porque uma ordenação que silenciosamente virou outra, ou um salvamento que silenciosamente vai parar fora da pasta que foi aberta, é a falha com que este módulo mais se preocupa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``sorted by <order>``, naming the order that was asked",
@@ -1928,7 +1982,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``sorted by <order>``, naming the order that was asked",
       "source_sha256": "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
-      "translation": "``sorted by <order>``, nomeando a ordem que foi pedida"
+      "translation": "``sorted by <order>``, nomeando a ordem que foi pedida",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "for too whenever it is not the one that was used.",
@@ -1936,7 +1992,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "for too whenever it is not the one that was used.",
       "source_sha256": "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7",
-      "translation": "também sempre que ela não for a que foi usada."
+      "translation": "também sempre que ela não for a que foi usada.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "where this work list's resume record is read and written:",
@@ -1968,7 +2026,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Probabilities are read only for the orders that use them, so ``name`` and ``value`` read no scores file at all. For ``prob`` and ``easy`` the absence of scores is never silent: no scores file falls back to ``value`` and says so, naming both places it looked; a scores file that leaves some waiting fields unscored says how many; and where the scores came from is printed. Those warnings, and the one that says progress is being written back to the external tool's record beside the folder, are kept on the queue as :attr:`CurationQueue.notices` for the editor to show.",
       "source_sha256": "b0b8528a818d3986b5fab0bdc9cb878b44d0052fb24179a4ff6f8534e9203c93",
-      "translation": "As probabilidades são lidas apenas para as ordens que as usam, então ``name`` e ``value`` não leem arquivo de pontuações algum. Para ``prob`` e ``easy``, a ausência de pontuações nunca é silenciosa: sem arquivo de pontuações, recorre-se a ``value`` e isso é informado, nomeando os dois lugares onde se procurou; um arquivo de pontuações que deixa alguns campos em espera sem pontuação diz quantos; e a origem das pontuações é impressa. Esses avisos, e o que informa que o progresso está sendo gravado de volta no registro da ferramenta externa ao lado da pasta, ficam na fila como :attr:`CurationQueue.notices` para o editor mostrar."
+      "translation": "As probabilidades são lidas apenas para as ordens que as usam, então ``name`` e ``value`` não leem arquivo de pontuações algum. Para ``prob`` e ``easy``, a ausência de pontuações nunca é silenciosa: sem arquivo de pontuações, recorre-se a ``value`` e isso é informado, nomeando os dois lugares onde se procurou; um arquivo de pontuações que deixa alguns campos em espera sem pontuação diz quantos; e a origem das pontuações é impressa. Esses avisos, e o que informa que o progresso está sendo gravado de volta no registro da ferramenta externa ao lado da pasta, ficam na fila como :attr:`CurationQueue.notices` para o editor mostrar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the external curation tool keeps one of a work list's files.",
@@ -2008,7 +2068,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a crash mid-write is not valid UTF-8, and letting that out would take the whole session down over an optimisation -- the drafts are on disk and are the truth.",
       "source_sha256": "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
-      "translation": "POR ISSO UM CACHE ILEGÍVEL É RECONTADO, NUNCA GERA EXCEÇÃO. Um arquivo truncado por uma falha no meio da gravação não é UTF-8 válido, e deixar isso escapar derrubaria a sessão inteira por causa de uma otimização -- os rascunhos estão no disco e são a verdade."
+      "translation": "POR ISSO UM CACHE ILEGÍVEL É RECONTADO, NUNCA GERA EXCEÇÃO. Um arquivo truncado por uma falha no meio da gravação não é UTF-8 válido, e deixar isso escapar derrubaria a sessão inteira por causa de uma otimização -- os rascunhos estão no disco e são a verdade.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Read the work list's scores file, when there is one.",
@@ -2024,7 +2086,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``{stem: probability}``, and ``{}`` when there is no scores file (see :func:`scores_path`) -- which is what makes ``prob`` and ``easy`` fall back, loudly.",
       "source_sha256": "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
-      "translation": "``{stem: probability}``, e ``{}`` quando não há arquivo de pontuações (veja :func:`scores_path`) -- que é o que faz ``prob`` e ``easy`` recorrerem ao fallback, de forma ruidosa."
+      "translation": "``{stem: probability}``, e ``{}`` quando não há arquivo de pontuações (veja :func:`scores_path`) -- que é o que faz ``prob`` e ``easy`` recorrerem ao fallback, de forma ruidosa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
@@ -2032,7 +2096,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "when ``curate_scores.csv`` is present but has no stem column or no recognised probability column. A scores file that exists and cannot be used is a mistake worth stopping for; a missing one is an ordinary state.",
       "source_sha256": "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028",
-      "translation": "quando ``curate_scores.csv`` está presente, mas não tem coluna de radical ou nenhuma coluna de probabilidade reconhecida. Um arquivo de pontuações que existe e não pode ser usado é um erro que justifica parar; um ausente é um estado comum."
+      "translation": "quando ``curate_scores.csv`` está presente, mas não tem coluna de radical ou nenhuma coluna de probabilidade reconhecida. Um arquivo de pontuações que existe e não pode ser usado é um erro que justifica parar; um ausente é um estado comum.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where this work list's probabilities are read from, if anywhere.",
@@ -2072,7 +2138,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``<folder>/curate_status.csv``, inside the queue folder so it travels with the images when the set is synced between machines -- UNLESS the folder has none and the external curation tool's record, ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and ``state`` columns. That record is then THE record, read and written back in place: the sets that tool curated keep their progress there and nothing inside the folder, and starting a second file would reopen every field already done or skipped as undone while the other tool went on reading the first.",
       "source_sha256": "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
-      "translation": "``<folder>/curate_status.csv``, dentro da pasta da fila, para que acompanhe as imagens quando o conjunto é sincronizado entre máquinas -- A MENOS QUE a pasta não tenha nenhum e o registro da ferramenta de curadoria externa, ``<parent>/<name>_status.csv``, esteja ao lado dela com as colunas ``stem`` e ``state``. Esse registro passa então a ser O registro, lido e gravado de volta no local: os conjuntos que essa ferramenta curou guardam seu progresso ali e nada dentro da pasta, e iniciar um segundo arquivo reabriria como não feito cada campo já concluído ou pulado, enquanto a outra ferramenta continuaria lendo o primeiro."
+      "translation": "``<folder>/curate_status.csv``, dentro da pasta da fila, para que acompanhe as imagens quando o conjunto é sincronizado entre máquinas -- A MENOS QUE a pasta não tenha nenhum e o registro da ferramenta de curadoria externa, ``<parent>/<name>_status.csv``, esteja ao lado dela com as colunas ``stem`` e ``state``. Esse registro passa então a ser O registro, lido e gravado de volta no local: os conjuntos que essa ferramenta curou guardam seu progresso ali e nada dentro da pasta, e iniciar um segundo arquivo reabriria como não feito cada campo já concluído ou pulado, enquanto a outra ferramenta continuaria lendo o primeiro.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the path of the resume record, which need not exist yet.",
@@ -2288,7 +2356,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Sizes are equivalent diameters, ``2 * sqrt(area / pi)``. 4. **Drop specks, then take the median.** A textured or punctate stain (a mitochondrial cell stain, a parasite marker) thresholds into a few whole objects plus hundreds of 4-10 px specks, and a plain median counts every speck as an object: on spaCR's own test plate that put the cell at 8 px and the pathogen at 11 px against 175 px and 32 px in the curated masks, while the nucleus, whose stain is solid, came out right at 91 px. So the typical object is first located by the stained area it carries (the area-weighted median, which specks cannot move because they hold almost no area), everything narrower than :data:`SPECK_FRACTION` of it is dropped, and the characteristic size is the median of what remains. Small components that together hold :data:`SPECK_MAX_AREA_SHARE` of the stained area or more are a second population, not specks, and stay. 5. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
       "source_sha256": "3922ffced95795af2b296a59e836e087a33d7ff4e979aa40492f8c3acd907025",
-      "translation": "1. **Achatar.** Remove o ruído com uma gaussiana de 1 px e depois subtrai uma cópia fortemente suavizada (sigma = max(32, min(H, W) / 4)) para eliminar gradientes de iluminação. O sigma é deliberadamente muito maior do que qualquer objeto plausível, para que o achatamento remova o vinheteamento sem consumir os objetos — a escolha oposta (uma esfera rolante estreita) encolhe justamente o que se tenta medir. 2. **Rejeitar ruído.** Compara a amplitude estrutural do plano achatado (p99 - p30) com a escala de ruído *no nível do pixel*, medida como ``1.4826 * MAD(img - gaussian(img, 1))`` no plano bruto. Um plano de ruído puro pontua abaixo de 1; um plano com objetos reais pontua na casa das dezenas. Abaixo de ``min_snr`` o campo é descartado em vez de limiarizado, porque o Otsu divide ruído puro ao meio sem hesitar e devolve um número de aparência confiável. 3. **Limiarizar e rotular.** Otsu, preenchimento de buracos, rotulagem, descarte dos componentes que tocam a borda da imagem (truncados, então seu tamanho é enganoso) e dos componentes absurdos (diâmetro equivalente abaixo de ``min_object_diameter`` ou área acima de ``max_object_fraction`` do campo). Os tamanhos são diâmetros equivalentes, ``2 * sqrt(area / pi)``. 4. **Descartar pontinhos e depois tomar a mediana.** Uma marcação texturizada ou pontilhada (uma marcação mitocondrial de células, um marcador de parasita) se limiariza em alguns objetos inteiros mais centenas de pontinhos de 4-10 px, e uma mediana simples conta cada pontinho como um objeto: na própria placa de teste do spaCR, isso pôs a célula em 8 px e o patógeno em 11 px, contra 175 px e 32 px nas máscaras curadas, enquanto o núcleo, cuja marcação é sólida, saiu correto em 91 px. Por isso, o objeto típico é primeiro localizado pela área marcada que ele carrega (a mediana ponderada por área, que os pontinhos não conseguem deslocar porque quase não têm área), tudo o que for mais estreito que :data:`SPECK_FRACTION` dele é descartado, e o tamanho característico é a mediana do que resta. Componentes pequenos que juntos detêm :data:`SPECK_MAX_AREA_SHARE` da área marcada ou mais são uma segunda população, não pontinhos, e permanecem. 5. **Verificação cruzada pela transformada de distância.** A etapa 3 tem um modo de falha dominante: uma monocamada confluente se funde em um único componente, esse componente toca a borda e é descartado, e a estimativa passa a ser calculada a partir dos detritos que sobraram — enviesada para **baixo**, e silenciosamente. Por isso, a transformada de distância euclidiana do primeiro plano (não preenchido) também é calculada, seus máximos locais são tomados como uma semente por objeto (duas passagens: uma passagem grosseira define o raio de supressão da passagem refinada), e um watershed sobre ``-EDT`` separa o primeiro plano fundido de volta em objetos cujos diâmetros equivalentes são medidos da mesma forma."
+      "translation": "1. **Achatar.** Remove o ruído com uma gaussiana de 1 px e depois subtrai uma cópia fortemente suavizada (sigma = max(32, min(H, W) / 4)) para eliminar gradientes de iluminação. O sigma é deliberadamente muito maior do que qualquer objeto plausível, para que o achatamento remova o vinheteamento sem consumir os objetos — a escolha oposta (uma esfera rolante estreita) encolhe justamente o que se tenta medir. 2. **Rejeitar ruído.** Compara a amplitude estrutural do plano achatado (p99 - p30) com a escala de ruído *no nível do pixel*, medida como ``1.4826 * MAD(img - gaussian(img, 1))`` no plano bruto. Um plano de ruído puro pontua abaixo de 1; um plano com objetos reais pontua na casa das dezenas. Abaixo de ``min_snr`` o campo é descartado em vez de limiarizado, porque o Otsu divide ruído puro ao meio sem hesitar e devolve um número de aparência confiável. 3. **Limiarizar e rotular.** Otsu, preenchimento de buracos, rotulagem, descarte dos componentes que tocam a borda da imagem (truncados, então seu tamanho é enganoso) e dos componentes absurdos (diâmetro equivalente abaixo de ``min_object_diameter`` ou área acima de ``max_object_fraction`` do campo). Os tamanhos são diâmetros equivalentes, ``2 * sqrt(area / pi)``. 4. **Descartar pontinhos e depois tomar a mediana.** Uma marcação texturizada ou pontilhada (uma marcação mitocondrial de células, um marcador de parasita) se limiariza em alguns objetos inteiros mais centenas de pontinhos de 4-10 px, e uma mediana simples conta cada pontinho como um objeto: na própria placa de teste do spaCR, isso pôs a célula em 8 px e o patógeno em 11 px, contra 175 px e 32 px nas máscaras curadas, enquanto o núcleo, cuja marcação é sólida, saiu correto em 91 px. Por isso, o objeto típico é primeiro localizado pela área marcada que ele carrega (a mediana ponderada por área, que os pontinhos não conseguem deslocar porque quase não têm área), tudo o que for mais estreito que :data:`SPECK_FRACTION` dele é descartado, e o tamanho característico é a mediana do que resta. Componentes pequenos que juntos detêm :data:`SPECK_MAX_AREA_SHARE` da área marcada ou mais são uma segunda população, não pontinhos, e permanecem. 5. **Verificação cruzada pela transformada de distância.** A etapa 3 tem um modo de falha dominante: uma monocamada confluente se funde em um único componente, esse componente toca a borda e é descartado, e a estimativa passa a ser calculada a partir dos detritos que sobraram — enviesada para **baixo**, e silenciosamente. Por isso, a transformada de distância euclidiana do primeiro plano (não preenchido) também é calculada, seus máximos locais são tomados como uma semente por objeto (duas passagens: uma passagem grosseira define o raio de supressão da passagem refinada), e um watershed sobre ``-EDT`` separa o primeiro plano fundido de volta em objetos cujos diâmetros equivalentes são medidos da mesma forma.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'cell'``, ``'nucleus'``, ``'pathogen'`` or ``'organelle'``.",
@@ -2336,7 +2406,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NOT TO BE CONFUSED WITH :mod:`spacr.example_data`, which fetches the Regression example screen's count and score CSVs from a GitHub release. That is a different set of files, a different host and a different transport. This module is about the ``.tar`` archives of imaging data: the Mask demo plate, the Measure example, the Annotate/Classify example, the Replication and Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the pieces of the published TSG101 screen.",
       "source_sha256": "c63c5157f967c7436c28f206bc05887b311aae8c825d63eade4a306a2e8175a7",
-      "translation": "NÃO CONFUNDIR COM :mod:`spacr.example_data`, que baixa os CSVs de contagens e pontuações do screen de exemplo de Regression a partir de uma release do GitHub. É outro conjunto de arquivos, outro host e outro meio de transferência. Este módulo trata dos arquivos ``.tar`` de dados de imagem: a placa de demonstração do Mask, o exemplo do Measure, o exemplo de Annotate/Classify, os exemplos dos ensaios de Replication e Recruitment e -- por meio de :mod:`spacr.screen_data` -- as partes do screen TSG101 publicado."
+      "translation": "NÃO CONFUNDIR COM :mod:`spacr.example_data`, que baixa os CSVs de contagens e pontuações do screen de exemplo de Regression a partir de uma release do GitHub. É outro conjunto de arquivos, outro host e outro meio de transferência. Este módulo trata dos arquivos ``.tar`` de dados de imagem: a placa de demonstração do Mask, o exemplo do Measure, o exemplo de Annotate/Classify, os exemplos dos ensaios de Replication e Recruitment e -- por meio de :mod:`spacr.screen_data` -- as partes do screen TSG101 publicado.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "whether ``spacr-download`` with no arguments fetches it. False for the OPS and Align & Stitch samples: together they are 0.6 GB of one screen's tiles, and adding them would push the default run past ``CONFIRM_ABOVE_BYTES``, so the command would start asking to confirm the thing it does with no arguments. They are fetched when named, and by ``all``.",
@@ -2344,7 +2416,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "whether ``spacr-download`` with no arguments fetches it. False for the OPS and Align & Stitch samples: together they are 0.6 GB of one screen's tiles, and adding them would push the default run past ``CONFIRM_ABOVE_BYTES``, so the command would start asking to confirm the thing it does with no arguments. They are fetched when named, and by ``all``.",
       "source_sha256": "6d660de5168ab0be2070170d92e0da6d30a070104efad979fbe7c301a7329f3c",
-      "translation": "se ``spacr-download`` sem argumentos o baixa. False para as amostras de OPS e de Align & Stitch: juntas, elas somam 0.6 GB de tiles de um único screen, e adicioná-las levaria a execução padrão além de ``CONFIRM_ABOVE_BYTES``, de modo que o comando passaria a pedir confirmação para aquilo que faz sem argumentos. Elas são baixadas quando nomeadas, e com ``all``."
+      "translation": "se ``spacr-download`` sem argumentos o baixa. False para as amostras de OPS e de Align & Stitch: juntas, elas somam 0.6 GB de tiles de um único screen, e adicioná-las levaria a execução padrão além de ``CONFIRM_ABOVE_BYTES``, de modo que o comando passaria a pedir confirmação para aquilo que faz sem argumentos. Elas são baixadas quando nomeadas, e com ``all``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the folder under the example-data root the set unpacks into. ``plate1`` -- the shared plate -- for the three sets that are stages of one plate; a folder of its own for a set that would collide with them.",
@@ -2368,7 +2442,9 @@
       "review_basis": "MT draft kept after AI review",
       "source": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` or ``invasion``.",
       "source_sha256": "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
-      "translation": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` ou ``invasion``."
+      "translation": "``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` ou ``invasion``.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the set called ``key`` unpacks: its folder beside the plate.",
@@ -2400,7 +2476,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Downloading test data requires a network connection. What the user saw before was ``str(exc)``, which for the ordinary offline case is a nested urllib3 dump",
       "source_sha256": "c6fa2b5bb81c233c777438ebcf95e42867e4ece267ae6089b956c9b15361ab12",
-      "translation": "Baixar dados de teste exige uma conexão de rede. O que o usuário via antes era ``str(exc)``, que, no caso comum de estar offline, é um despejo aninhado do urllib3"
+      "translation": "Baixar dados de teste exige uma conexão de rede. O que o usuário via antes era ``str(exc)``, que, no caso comum de estar offline, é um despejo aninhado do urllib3",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the user's search word or phrase; converted to ``str``, stripped of surrounding whitespace and lower-cased before lookup.",
@@ -2632,7 +2710,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the filename convention their images AND masks are named by -- any of Mask's ``metadata_type`` values. ``None`` or ``'auto'`` reads plate / well / field from the folders, as before. See :func:`spacr.convert.scan`.",
       "source_sha256": "ab47a93fa1a0aece48bf4a97906eb579064561274a0281d5b4f11588dc70b9c8",
-      "translation": "a convenção de nomes de arquivo pela qual suas imagens E máscaras são nomeadas -- qualquer um dos valores de ``metadata_type`` do Mask. ``None`` ou ``'auto'`` lê placa / poço / campo a partir das pastas, como antes. Veja :func:`spacr.convert.scan`."
+      "translation": "a convenção de nomes de arquivo pela qual suas imagens E máscaras são nomeadas -- qualquer um dos valores de ``metadata_type`` do Mask. ``None`` ou ``'auto'`` lê placa / poço / campo a partir das pastas, como antes. Veja :func:`spacr.convert.scan`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the pattern for ``metadata_type='custom'``.",
@@ -3576,7 +3656,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHAT IS PUBLISHED. :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
       "source_sha256": "a8f41243265f4b5b51f5ad8a4a9db6fe74ab606a482cc9dfc5b7e5e0089a02f6",
-      "translation": "O QUE É PUBLICADO. :data:`IMPORT_EXAMPLE_REPO` contém um único arquivo compactado. Dentro dele, em ``import_example/``:"
+      "translation": "O QUE É PUBLICADO. :data:`IMPORT_EXAMPLE_REPO` contém um único arquivo compactado. Dentro dele, em ``import_example/``:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``variants/<key>/plate1/`` -- the SAME twelve image layers (microplate sample positions E01 and E02, microscope fields of view 9 and 10, three image data channels, cropped from the toxo_mito laboratory microplate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
@@ -3584,7 +3666,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``variants/<key>/plate1/`` -- the SAME twelve planes (wells E01 and E02, fields 9 and 10, three channels, cropped from the toxo_mito plate) written once per variant: once per filename convention, once as Zeiss CZI, once as OME-TIFF and once as an ImageJ TIFF stack;",
       "source_sha256": "9f1e7c21fd5148bca36bb89fed16fcf3e37fe70906d74c378c211ba55c6a621e",
-      "translation": "``variants/<key>/plate1/`` -- os MESMOS doze planos (poços E01 e E02, campos 9 e 10, três canais, recortados da placa toxo_mito) gravados uma vez por variante: uma vez por convenção de nome de arquivo, uma vez como Zeiss CZI, uma vez como OME-TIFF e uma vez como pilha TIFF do ImageJ;"
+      "translation": "``variants/<key>/plate1/`` -- os MESMOS doze planos (poços E01 e E02, campos 9 e 10, três canais, recortados da placa toxo_mito) gravados uma vez por variante: uma vez por convenção de nome de arquivo, uma vez como Zeiss CZI, uma vez como OME-TIFF e uma vez como pilha TIFF do ImageJ;",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``variants/<key>/masks/{cell,nucleus,pathogen}/`` -- the Mask run's label images for exactly those microscope fields of view, named the way that variant names images;",
@@ -3616,7 +3700,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- PUBLIC SAMPLE FILES, because no open library writes ND2 or LIF. They are other people's images under CC BY 4.0, with no masks, and they go through the Format Converter;",
       "source_sha256": "6611f98d21980274185a656992ec9e8d30a0b96d8ceff712ae0bf2062b7a8cb1",
-      "translation": "``variants/nikon_nd2`` e ``variants/leica_lif`` -- ARQUIVOS DE AMOSTRA PÚBLICOS, porque nenhuma biblioteca aberta grava ND2 ou LIF. São imagens de terceiros sob CC BY 4.0, sem máscaras, e passam pelo Format Converter;"
+      "translation": "``variants/nikon_nd2`` e ``variants/leica_lif`` -- ARQUIVOS DE AMOSTRA PÚBLICOS, porque nenhuma biblioteca aberta grava ND2 ou LIF. São imagens de terceiros sob CC BY 4.0, sem máscaras, e passam pelo Format Converter;",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``manifest.csv`` -- one row per image file stating the microplate sample position, microscope field of view, image data channel, z and t it truly is. The LAST member of the archive, so a transfer that died part-way leaves no manifest and reads as absent.",
@@ -3624,7 +3710,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``manifest.csv`` -- one row per image file stating the well, field, channel, z and t it truly is. The LAST member of the archive, so a transfer that died part-way leaves no manifest and reads as absent.",
       "source_sha256": "f4bc017472f5e2c106f317270894415221f28e17db2c4c53f9d66836b1f03c73",
-      "translation": "``manifest.csv`` -- uma linha por arquivo de imagem, informando o poço, o campo, o canal, o z e o t que ele de fato é. É o ÚLTIMO membro do arquivo compactado, para que uma transferência interrompida no meio não deixe manifesto e seja lida como ausente."
+      "translation": "``manifest.csv`` -- uma linha por arquivo de imagem, informando o poço, o campo, o canal, o z e o t que ele de fato é. É o ÚLTIMO membro do arquivo compactado, para que uma transferência interrompida no meio não deixe manifesto e seja lida como ausente.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The registry is here and not in the archive. :data:`IMPORT_VARIANTS` is what the Import screen offers before anything is downloaded, and what ``tools/build_import_example.py`` writes. One list for both is what keeps a button from naming a folder the archive does not have.",
@@ -3632,7 +3720,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE REGISTRY IS HERE AND NOT IN THE ARCHIVE. :data:`IMPORT_VARIANTS` is what the Import screen offers before anything is downloaded, and what ``tools/build_import_example.py`` writes. One list for both is what keeps a button from naming a folder the archive does not have.",
       "source_sha256": "f200e4f1a1322aaa087cf9c43ac96e647dbee47a97b4f2d167e95bb43f229df5",
-      "translation": "O REGISTRO ESTÁ AQUI E NÃO NO ARQUIVO COMPACTADO. :data:`IMPORT_VARIANTS` é o que a tela Import oferece antes que qualquer coisa seja baixada, e o que ``tools/build_import_example.py`` grava. Uma única lista para ambos é o que impede um botão de nomear uma pasta que o arquivo compactado não tem."
+      "translation": "O REGISTRO ESTÁ AQUI E NÃO NO ARQUIVO COMPACTADO. :data:`IMPORT_VARIANTS` é o que a tela Import oferece antes que qualquer coisa seja baixada, e o que ``tools/build_import_example.py`` grava. Uma única lista para ambos é o que impede um botão de nomear uma pasta que o arquivo compactado não tem.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One way the same fields were written, and how Import reads it back.",
@@ -3792,7 +3882,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A half-unpacked set reads as absent, which is the answer that gets it downloaded again.",
       "source_sha256": "53aa5915d0a3b623a973f0c39bd2f7706ea02be2aaa5f554c061a6cf3b1b6560",
-      "translation": "``True`` somente quando o manifesto existe e todos os arquivos que ele lista para a(s) variante(s) estão no disco. Um conjunto descompactado pela metade é lido como ausente, que é a resposta que faz com que seja baixado de novo."
+      "translation": "``True`` somente quando o manifesto existe e todos os arquivos que ele lista para a(s) variante(s) estão no disco. Um conjunto descompactado pela metade é lido como ausente, que é a resposta que faz com que seja baixado de novo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every row of the set's ``manifest.csv``.",
@@ -3848,7 +3940,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate already has it. There is no button and no screen, and nothing has to be asked for -- which is the point, because the runs that most need these numbers are the ones that would never have thought to ask.",
       "source_sha256": "b38580f69db89f036c156f421195dc1ff3e986c5214f11863bca2986ff6ff45f",
-      "translation": "UMA EXECUÇÃO DO MEASURE EMITE O RELATÓRIO, então quem já mediu uma placa já o tem. Não há botão nem tela, e nada precisa ser pedido -- e esse é o ponto, porque as execuções que mais precisam desses números são as que nunca teriam pensado em pedi-los."
+      "translation": "UMA EXECUÇÃO DO MEASURE EMITE O RELATÓRIO, então quem já mediu uma placa já o tem. Não há botão nem tela, e nada precisa ser pedido -- e esse é o ponto, porque as execuções que mais precisam desses números são as que nunca teriam pensado em pedi-los.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is written when there is nothing to say. A laboratory microplate with no cell table, or none of the columns the metrics need, gives an empty report, and an empty CSV beside a database is a file that invites somebody to wonder what went wrong. The answer is None instead.",
@@ -3856,7 +3950,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell table, or none of the columns the metrics need, gives an empty report, and an empty CSV beside a database is a file that invites somebody to wonder what went wrong. The answer is None instead.",
       "source_sha256": "693a9b900d1febe91eb3ec51adc7f2ee8f4e53a6a229c069668107b9b229f321",
-      "translation": "NADA É GRAVADO QUANDO NÃO HÁ NADA A DIZER. Uma placa sem tabela de células, ou sem nenhuma das colunas de que as métricas precisam, gera um relatório vazio, e um CSV vazio ao lado de um banco de dados é um arquivo que leva alguém a se perguntar o que deu errado. Em vez disso, a resposta é None."
+      "translation": "NADA É GRAVADO QUANDO NÃO HÁ NADA A DIZER. Uma placa sem tabela de células, ou sem nenhuma das colunas de que as métricas precisam, gera um relatório vazio, e um CSV vazio ao lado de um banco de dados é um arquivo que leva alguém a se perguntar o que deu errado. Em vez disso, a resposta é None.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Written to a dot-name in the same folder and renamed over the target, so a reader never sees half a file.",
@@ -4354,7 +4450,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "which channel token owns which channel column, by position: ``channel_tokens[i]`` is the token that column ``i`` means. THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property of a SET of tokens, and a user fills this table one field at a time, so without a memory the second drop would rank its own files from scratch and put ``C2`` in column 0 beside the first drop's ``C1``. Empty means no column means any particular token yet -- every cell was filled by browsing rather than by the regex.",
       "source_sha256": "d76f12e476201e1f72a80dc7d2809f3a23b6070801726d77dd0444005ed196d4",
-      "translation": "qual token de canal é dono de qual coluna de canal, por posição: ``channel_tokens[i]`` é o token que a coluna ``i`` representa. A TABELA SE LEMBRA DISSO PORQUE A TABELA SOBREVIVE AO ARRASTE. A classificação que transforma ``C1``/``C2`` nas colunas 0 e 1 é uma propriedade de um CONJUNTO de tokens, e o usuário preenche esta tabela um campo por vez; sem memória, o segundo arraste classificaria seus próprios arquivos do zero e colocaria ``C2`` na coluna 0 ao lado do ``C1`` do primeiro arraste. Vazio significa que nenhuma coluna representa ainda um token específico -- cada célula foi preenchida navegando, e não pela regex."
+      "translation": "qual token de canal é dono de qual coluna de canal, por posição: ``channel_tokens[i]`` é o token que a coluna ``i`` representa. A TABELA SE LEMBRA DISSO PORQUE A TABELA SOBREVIVE AO ARRASTE. A classificação que transforma ``C1``/``C2`` nas colunas 0 e 1 é uma propriedade de um CONJUNTO de tokens, e o usuário preenche esta tabela um campo por vez; sem memória, o segundo arraste classificaria seus próprios arquivos do zero e colocaria ``C2`` na coluna 0 ao lado do ``C1`` do primeiro arraste. Vazio significa que nenhuma coluna representa ainda um token específico -- cada célula foi preenchida navegando, e não pela regex.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Whether the table is complete enough to measure.",
@@ -4434,7 +4532,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``(path, reason)`` for every file that did not. The window lists these, because a file that silently vanishes is the one failure a drag-and-drop table cannot afford.",
       "source_sha256": "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873",
-      "translation": "``(path, reason)`` para cada arquivo que não foi. A janela os lista, porque um arquivo que some silenciosamente é a única falha que uma tabela de arrastar e soltar não pode se permitir."
+      "translation": "``(path, reason)`` para cada arquivo que não foi. A janela os lista, porque um arquivo que some silenciosamente é a única falha que uma tabela de arrastar e soltar não pode se permitir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Sort dropped files into rows and image data channel/mask columns with one regex.",
@@ -4506,7 +4606,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
       "source_sha256": "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
-      "translation": "O TOKEN DE CANAL É CLASSIFICADO, NÃO LIDO COMO NÚMERO, e essa é a única decisão aqui que vale a pena conhecer. ``C1``/``C2``/``C3``, ``w1``/``w2`` e ``0``/``1``/``2`` precisam todos acabar como canais 0, 1, 2, e não existe leitura de ``C1`` que sirva para os três -- uma leitura literal faz o primeiro conjunto começar no canal 1 e deixa o canal 0 vazio para sempre. Por isso, os tokens de canal DISTINTOS são ordenados (numericamente pelos dígitos finais) e mapeados para 0, 1, 2 ... nessa ordem. O mapeamento é, portanto, uma propriedade do conjunto de arquivos, e não de um deles, e é por isso que a janela mostra a atribuição em vez de descrever a regra."
+      "translation": "O TOKEN DE CANAL É CLASSIFICADO, NÃO LIDO COMO NÚMERO, e essa é a única decisão aqui que vale a pena conhecer. ``C1``/``C2``/``C3``, ``w1``/``w2`` e ``0``/``1``/``2`` precisam todos acabar como canais 0, 1, 2, e não existe leitura de ``C1`` que sirva para os três -- uma leitura literal faz o primeiro conjunto começar no canal 1 e deixa o canal 0 vazio para sempre. Por isso, os tokens de canal DISTINTOS são ordenados (numericamente pelos dígitos finais) e mapeados para 0, 1, 2 ... nessa ordem. O mapeamento é, portanto, uma propriedade do conjunto de arquivos, e não de um deles, e é por isso que a janela mostra a atribuição em vez de descrever a regra.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The set is the table's, not the drop's. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second microscope field of view's ``C2`` in column 0 beside a first microscope field of view's ``C1``, and the only sign of it would be in the database.",
@@ -4514,7 +4616,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second field's ``C2`` in column 0 beside a first field's ``C1``, and the only sign of it would be in the database.",
       "source_sha256": "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
-      "translation": "O CONJUNTO É DA TABELA, NÃO DO ARRASTE. ``table`` lembra qual token é dono de qual coluna em :attr:`FieldTable.channel_tokens`, e um arraste posterior é classificado em relação à união do que ele traz com o que já está lá. Um token que fica antes de outro já posicionado renumera as colunas e MOVE os arquivos que já estão nelas (:func:`_renumber_channels`), para que todas as linhas concordem sobre o que é o canal 0. Classificar cada arraste isoladamente colocaria o ``C2`` de um segundo campo na coluna 0 ao lado do ``C1`` de um primeiro campo, e o único sinal disso estaria no banco de dados."
+      "translation": "O CONJUNTO É DA TABELA, NÃO DO ARRASTE. ``table`` lembra qual token é dono de qual coluna em :attr:`FieldTable.channel_tokens`, e um arraste posterior é classificado em relação à união do que ele traz com o que já está lá. Um token que fica antes de outro já posicionado renumera as colunas e MOVE os arquivos que já estão nelas (:func:`_renumber_channels`), para que todas as linhas concordem sobre o que é o canal 0. Classificar cada arraste isoladamente colocaria o ``C2`` de um segundo campo na coluna 0 ao lado do ``C1`` de um primeiro campo, e o único sinal disso estaria no banco de dados.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "file paths to assign.",
@@ -4546,7 +4650,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``(width, height)`` to resize every crop to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized THE WAY THE RUN RESIZES -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a run will write. Without it the preview showed bounding boxes while the run wrote squares, and the crop-size setting looked like it did nothing.",
       "source_sha256": "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
-      "translation": "``(width, height)`` para o qual redimensionar cada recorte, ou ``None`` para retornar a caixa delimitadora própria de cada objeto. É o parâmetro de ``measure_crop`` chamado ``png_size``, redimensionado DA MESMA FORMA QUE A EXECUÇÃO REDIMENSIONA -- a mesma chamada ``PIL.Image.resize`` com sua reamostragem padrão --, porque isto alimenta a pré-visualização do Measure, cujo objetivo é mostrar o que uma execução vai gravar. Sem isso, a pré-visualização mostrava caixas delimitadoras enquanto a execução gravava quadrados, e a configuração de tamanho do recorte parecia não fazer nada."
+      "translation": "``(width, height)`` para o qual redimensionar cada recorte, ou ``None`` para retornar a caixa delimitadora própria de cada objeto. É o parâmetro de ``measure_crop`` chamado ``png_size``, redimensionado DA MESMA FORMA QUE A EXECUÇÃO REDIMENSIONA -- a mesma chamada ``PIL.Image.resize`` com sua reamostragem padrão --, porque isto alimenta a pré-visualização do Measure, cujo objetivo é mostrar o que uma execução vai gravar. Sem isso, a pré-visualização mostrava caixas delimitadoras enquanto a execução gravava quadrados, e a configuração de tamanho do recorte parecia não fazer nada.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where a run of ``table`` would write, given the destination it was handed.",
@@ -4562,7 +4668,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "ONE ANSWER, so that the window and the run cannot disagree about it. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES window shows it filled in and disabled; before this existed the window derived it only when it had been given a destination, and a window opened without one showed the settings spec's ``path`` placeholder while the run wrote beside the first channel file. A disabled box captioned \"the table decides this\" that names the wrong folder is worse than no box at all -- it is the window telling the user where their results are not.",
       "source_sha256": "cbd15fed09cbe3ab02bb5efce0266b7836fc0d792e48d6ac3f8b64a8d6dd6584",
-      "translation": "UMA ÚNICA RESPOSTA, para que a janela e a execução não possam divergir sobre ela. ``src`` é uma de :data:`FIELD_TABLE_DECIDED_KEYS`, então a janela FEATURES a mostra preenchida e desativada; antes de isto existir, a janela só a derivava quando havia recebido um destino, e uma janela aberta sem destino mostrava o placeholder ``path`` da especificação de configurações enquanto a execução gravava ao lado do primeiro arquivo de canal. Uma caixa desativada com a legenda \"the table decides this\" que nomeia a pasta errada é pior do que nenhuma caixa -- é a janela dizendo ao usuário onde seus resultados não estão."
+      "translation": "UMA ÚNICA RESPOSTA, para que a janela e a execução não possam divergir sobre ela. ``src`` é uma de :data:`FIELD_TABLE_DECIDED_KEYS`, então a janela FEATURES a mostra preenchida e desativada; antes de isto existir, a janela só a derivava quando havia recebido um destino, e uma janela aberta sem destino mostrava o placeholder ``path`` da especificação de configurações enquanto a execução gravava ao lado do primeiro arquivo de canal. Uma caixa desativada com a legenda \"the table decides this\" que nomeia a pasta errada é pior do que nenhuma caixa -- é a janela dizendo ao usuário onde seus resultados não estão.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the :class:`FieldTable` the run would measure.",
@@ -4698,7 +4806,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a pipeline already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the fields came from. The database, the crops and the folder tree are therefore the Measure module's, because they are made by it.",
       "source_sha256": "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
-      "translation": "A outra porta de entrada deste módulo. :func:`measure_crop` parte de uma pasta ``merged/`` que um pipeline já construiu; esta função parte de uma tabela que o usuário preencheu arrastando arquivos para ela, grava essa pasta e depois chama o PRÓPRIO :func:`measure_crop` -- sem alteração, sem nenhum indicador dizendo de onde vieram os campos. O banco de dados, os recortes e a árvore de pastas são, portanto, os do módulo Measure, porque são feitos por ele."
+      "translation": "A outra porta de entrada deste módulo. :func:`measure_crop` parte de uma pasta ``merged/`` que um pipeline já construiu; esta função parte de uma tabela que o usuário preencheu arrastando arquivos para ela, grava essa pasta e depois chama o PRÓPRIO :func:`measure_crop` -- sem alteração, sem nenhum indicador dizendo de onde vieram os campos. O banco de dados, os recortes e a árvore de pastas são, portanto, os do módulo Measure, porque são feitos por ele.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the :class:`FieldTable` the FEATURES window edited.",

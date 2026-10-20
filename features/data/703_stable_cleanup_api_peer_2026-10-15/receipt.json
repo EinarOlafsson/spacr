@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reviewer": "Home-B accessibility worker",
+  "status": "PASS: independent technical semantic review of 270 exact stable draft pairs",
+  "independence": "Reviewer authored neither candidate implementation nor these translation targets. This is a technical source/translation peer review, not native-speaker certification.",
+  "source_commit": "6524d039b3e020c4b42f01fb038898dd4a87b112",
+  "source_files": {
+    "spacr/install_cleanup.py": "93ea41af128dbe8880b4399eeef6e349025b5fbca8fe3aa05cef60928220aa69",
+    "spacr/qt/app.py": "b5764dfe8c41ff48d21bc3ce677bfd03dcfd0b8afe4e4ff1b7db4832ec1e0d90"
+  },
+  "source_prose_peer": "68f992365",
+  "assignment_sha256": "6ee788f8dc45b3c9b0a66696841d8d173940b7c7e6782ffc3e7ce20affb59c43",
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "stable_blocks": 30,
+  "pairs": 270,
+  "drafts": {
+    "readme_704": {
+      "file": "/mnt/wd4tb/scratch/home-b-n703-stable-api-drafts-20261015/home-targets.py",
+      "sha256": "91c2cc873b04172a073a6545ae2b08d554f51a05d076d6a3c51a60c5e35080f7",
+      "pairs": 135
+    },
+    "website_686_687": {
+      "file": "/mnt/wd4tb/scratch/home-b-n703-stable-api-drafts-20261015/website-targets.py",
+      "sha256": "e4cd6460ed320706b23960ea00b4ad6ecc5273a4689d88be53cbd2a90a52d288",
+      "pairs": 135
+    }
+  },
+  "evidence": {
+    "reviewed-pairs.json": "0d33b6ace4579c84473df0ece307fab742d953eac668616419e73df8a9387d05",
+    "assignments.json": "6ee788f8dc45b3c9b0a66696841d8d173940b7c7e6782ffc3e7ce20affb59c43",
+    "guard-precision-followup.json": "0d063ef1b4da63854779b2779b999d5a24ad8d6c3fe2e1c605578b8425a380a6"
+  },
+  "incremental_approval_snapshots": [
+    {
+      "file": "readme_704-sv.json",
+      "sha256": "9d4d5028388fadb9b385f8bca46570e291efd4ce0ee60c01063daa57dee81131",
+      "draft_sha256_at_chunk_review": "d7a464dc99f912860b09cdbaa19eb2f4ba621876a08b1a939e6f61ac4c220a1c"
+    },
+    {
+      "file": "readme_704-de.json",
+      "sha256": "5c838f890dfb98f92c519ea803e9a7bc4bd8b000a71a77be332b6b86cac1c7e3",
+      "draft_sha256_at_chunk_review": "d7a464dc99f912860b09cdbaa19eb2f4ba621876a08b1a939e6f61ac4c220a1c"
+    },
+    {
+      "file": "readme_704-es.json",
+      "sha256": "2d81dfc7c43427427177217582c267411ac747ab753852b765b2dc7007b9460b",
+      "draft_sha256_at_chunk_review": "d7a464dc99f912860b09cdbaa19eb2f4ba621876a08b1a939e6f61ac4c220a1c"
+    },
+    {
+      "file": "readme_704-zh_CN.json",
+      "sha256": "f0fca2a9419eeec28c4679def489dea4e11906be96fc8f6bc2180776513c92a7",
+      "draft_sha256_at_chunk_review": "91c2cc873b04172a073a6545ae2b08d554f51a05d076d6a3c51a60c5e35080f7"
+    },
+    {
+      "file": "readme_704-pt.json",
+      "sha256": "47cf7c3f0722d44078cc201bbd730ec98912fea57530bdb74f90fa5c1a36d57f",
+      "draft_sha256_at_chunk_review": "cecec57dae1f4e9fa429c0b9705b1998fedc89c745a99891809e6de29c3e4c3c"
+    },
+    {
+      "file": "readme_704-hi.json",
+      "sha256": "6e15ba322cc06f52dc9e39ae6e71fce6bb2ca8f25419669ef3ede280796ad96f",
+      "draft_sha256_at_chunk_review": "91c2cc873b04172a073a6545ae2b08d554f51a05d076d6a3c51a60c5e35080f7"
+    },
+    {
+      "file": "readme_704-ko.json",
+      "sha256": "fc221703bc963f9a73166f2718b1aab6eb72353c3fb70e17380210ee37ce71c6",
+      "draft_sha256_at_chunk_review": "91c2cc873b04172a073a6545ae2b08d554f51a05d076d6a3c51a60c5e35080f7"
+    },
+    {
+      "file": "readme_704-is.json",
+      "sha256": "575963acf68cafcfe8b04ecf9cdf67291aaec6bbe21a934961b1083488385386",
+      "draft_sha256_at_chunk_review": "cecec57dae1f4e9fa429c0b9705b1998fedc89c745a99891809e6de29c3e4c3c"
+    },
+    {
+      "file": "readme_704-fr.json",
+      "sha256": "17a0e777f114b0cd643cf0ce32d46ee8ad8e357fd892f2212b02921a115e54dd",
+      "draft_sha256_at_chunk_review": "cecec57dae1f4e9fa429c0b9705b1998fedc89c745a99891809e6de29c3e4c3c"
+    },
+    {
+      "file": "website_686_687-sv.json",
+      "sha256": "0aa7a2b8da73e6e791419436a0c25cc96a0e7eaeccf12c738a067fb306ff8438",
+      "draft_sha256_at_chunk_review": "404b085a23bc04bb8389843b9677d208e265ca740c07bf95a8ca9184dd1b599f"
+    },
+    {
+      "file": "website_686_687-de.json",
+      "sha256": "8c04794ee0e4ed9eb21c2737a221b81f4227e986f313a3a78aef7405a20fcfed",
+      "draft_sha256_at_chunk_review": "404b085a23bc04bb8389843b9677d208e265ca740c07bf95a8ca9184dd1b599f"
+    },
+    {
+      "file": "website_686_687-es.json",
+      "sha256": "480526430ebe0c2c07d327ee36351d19bc9094ff6749fad74bf53754bf05a914",
+      "draft_sha256_at_chunk_review": "404b085a23bc04bb8389843b9677d208e265ca740c07bf95a8ca9184dd1b599f"
+    },
+    {
+      "file": "website_686_687-zh_CN.json",
+      "sha256": "86a50fab6d7bdea12d9c4c2017285cd90230e99248abe79b36c553a59601aec8",
+      "draft_sha256_at_chunk_review": "e4cd6460ed320706b23960ea00b4ad6ecc5273a4689d88be53cbd2a90a52d288"
+    },
+    {
+      "file": "website_686_687-pt.json",
+      "sha256": "654baee35b0fb9b6177d3003462382bea325cb8c86f9062cc6dcd27551c858e2",
+      "draft_sha256_at_chunk_review": "404b085a23bc04bb8389843b9677d208e265ca740c07bf95a8ca9184dd1b599f"
+    },
+    {
+      "file": "website_686_687-hi.json",
+      "sha256": "86782262f8c5a4273ede1821b2dffa770fcfa62939c343e9809f7664e456e1a5",
+      "draft_sha256_at_chunk_review": "e4cd6460ed320706b23960ea00b4ad6ecc5273a4689d88be53cbd2a90a52d288"
+    },
+    {
+      "file": "website_686_687-ko.json",
+      "sha256": "c2354df2b5d3f4e9ff248837f6cd3078807df5ffded19ced8d79e356b5a81a94",
+      "draft_sha256_at_chunk_review": "e4cd6460ed320706b23960ea00b4ad6ecc5273a4689d88be53cbd2a90a52d288"
+    },
+    {
+      "file": "website_686_687-is.json",
+      "sha256": "4bc105b2c2e4a3bdcdf3c5150dc1aa6bdbe95e6ac6f34e8b041407292af223b7",
+      "draft_sha256_at_chunk_review": "404b085a23bc04bb8389843b9677d208e265ca740c07bf95a8ca9184dd1b599f"
+    },
+    {
+      "file": "website_686_687-fr.json",
+      "sha256": "2ed94781d201b976b753a6fd3d0f04641e80ce9f6aad6343049da1d8d33be27c",
+      "draft_sha256_at_chunk_review": "404b085a23bc04bb8389843b9677d208e265ca740c07bf95a8ca9184dd1b599f"
+    }
+  ],
+  "technical_checks": [
+    "Trusted context-manager authority remains application-local and held during cleanup; saved dictionaries/helpers cannot grant it and other-process idleness is not promised.",
+    "Operation and snapshot identities, validation before mutation, process-local once-only action consumption, protected roots and no-follow descriptors remain explicit.",
+    "Changed, unknown or locked detached entries remain privately staged; the prose does not promise recursive deletion or overwriting restoration.",
+    "Default cache paths, bounded configured-home manifest handling and retained override precedence remain distinct; preview paths and contents do not authorize deletion.",
+    "Immutable preview preparation, background worker execution, startup consent/cache/report/tour ordering and conditional return semantics remain faithful.",
+    "API function roles, literals including None, parameters, and markup boundaries were read against the assigned source blocks."
+  ],
+  "precision_followup": {
+    "count": 3,
+    "locales": [
+      "sv",
+      "de",
+      "es"
+    ],
+    "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#0",
+    "meaning": "Refuse cleanup when registered active work exists; do not imply stopping or refusing the ongoing jobs.",
+    "other_initial_42_targets": "Byte-identical after the approved clarification."
+  },
+  "excluded_blocks": [
+    {
+      "index": 7,
+      "symbol": "spacr.install_cleanup.apply_optional_cleanup",
+      "block_index": 7,
+      "label": "spacr.install_cleanup.apply_optional_cleanup#7",
+      "source": "Action outcome with counts and any private retained paths.",
+      "source_sha256": "d8e33fc0f263cc5a8b946c3283720273b4fdff5ff79bbfaa8b3362e636377504",
+      "context_source": "Action outcome with counts and any private retained paths.",
+      "context_sha256": "d8e33fc0f263cc5a8b946c3283720273b4fdff5ff79bbfaa8b3362e636377504",
+      "owner": "withheld",
+      "hold_reason": "Pending return-contract correction"
+    },
+    {
+      "index": 15,
+      "symbol": "spacr.install_cleanup.start_update_helper",
+      "block_index": 12,
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
+      "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
+      "context_source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
+      "context_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
+      "owner": "withheld",
+      "hold_reason": "Original Hard owns this final paragraph; preserve its reviews plus71fb paragraph1 records."
+    },
+    {
+      "index": 32,
+      "symbol": "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply",
+      "block_index": 1,
+      "label": "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply#1",
+      "source": "Guarded outcome with removed counts and any retained paths.",
+      "source_sha256": "61645a84134e4a663d4c7f8e13c2b449b7c65157ff13f05d0cd882b7fafd9b83",
+      "context_source": "Guarded outcome with removed counts and any retained paths.",
+      "context_sha256": "61645a84134e4a663d4c7f8e13c2b449b7c65157ff13f05d0cd882b7fafd9b83",
+      "owner": "withheld",
+      "hold_reason": "Pending return-contract correction"
+    }
+  ],
+  "publication_boundary": "Stable draft approval only. Final merged source, the two corrected returns fields, committed review inputs and normal artifact generation remain with the coordinator. The Original Hard-owned updater paragraph is excluded. Bind eventual committed records only after exact source/context/target comparison.",
+  "execution_boundary": "No product source, catalogs or review-input files changed. No runtime imports, canonical collector, generator, implementation tests or installation/deletion performed."
+}

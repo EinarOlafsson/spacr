@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "प्रशिक्षण/परीक्षण रिसाव ऑडिट"
 
-msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "जब संबंधित क्रॉप किसी मूल्यांकन सीमा के दोनों ओर दिखाई दें तो वर्गीकारक सटीकता अमान्य होती है। फ़िट करने से पहले spaCR स्थायी ``train/``/``test/`` विभाजन, सामान्य प्रशिक्षण/सत्यापन होल्डआउट, हर बाहरी और आंतरिक क्रॉस-वैलिडेशन सीमा, और पूरे क्रॉस-वैलिडेशन विभाजन का ऑडिट करता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "जब संबंधित क्रॉप किसी मूल्यांकन सीमा के दोनों ओर दिखाई दें, तो अलग रखे गए डेटा पर सटीकता का अनुमान स्वतंत्र डेटा पर प्रदर्शन को बढ़ा-चढ़ाकर बताता है। फ़िट करने से पहले spaCR स्थायी ``train/``/``test/`` विभाजन, सामान्य प्रशिक्षण/सत्यापन होल्डआउट, हर बाहरी और आंतरिक क्रॉस-वैलिडेशन सीमा, और पूरे क्रॉस-वैलिडेशन विभाजन का ऑडिट करता है।"
 
 msgid "What is verified"
 msgstr "क्या सत्यापित किया जाता है"
@@ -61,8 +62,9 @@ msgstr "सामान्य सत्यापन भी समूह-सज�
 msgid "Run the audit directly"
 msgstr "ऑडिट सीधे चलाएँ"
 
-msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
-msgstr "कमांड JSON छापती है और सत्यापित विभाजन के लिए ``0``, रिसाव या असत्यापनीय पहचान मिलने पर ``1``, और डेटासेट का ऑडिट संभव न होने पर ``2`` के साथ बाहर निकलती है। ``--no-content-hash`` I/O घटाता है लेकिन नाम बदली गई प्रतियों का पता नहीं लगा सकता। ``--allow-unverifiable`` पुराने डेटासेट के निदान के लिए है; यह उनके प्रदर्शन अनुमान को भरोसेमंद नहीं बनाता।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
+msgstr "कमांड JSON छापती है और सत्यापित विभाजन के लिए ``0``, रिसाव या असत्यापनीय पहचान मिलने पर ``1``, और डेटासेट का ऑडिट संभव न होने पर ``2`` के साथ बाहर निकलती है। ``--no-content-hash`` I/O घटाता है लेकिन नाम बदली गई प्रतियों का पता नहीं लगा सकता। ``--allow-unverifiable`` पुराने डेटासेट के निदान के लिए है; उनका प्रदर्शन अनुमान फिर भी प्रशिक्षण डेटा से स्वतंत्र नहीं होता।"
 
 msgid "Classify settings"
 msgstr "वर्गीकरण सेटिंग्स"
@@ -103,8 +105,9 @@ msgstr "वर्गीकारक मूल्यांकन, अंशां
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "यह मॉड्यूल मॉडल-निरपेक्ष है: यह लेबल, संभावनाएँ, फ़ोल्ड ID और नमूना पथ लेता है। इसलिए डीप-लर्निंग क्रॉस-वैलिडेशन और भविष्य की पारंपरिक-ML पाइपलाइन एक ही मूल्यांकन संग्रह लिख सकती हैं और Qt वर्कबेंच एक स्थिर फ़ाइल प्रारूप दिखा सकता है।"
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "पूरे क्रॉस-वैलिडेशन के स्तर पर प्रमाण कि हर संबंधित नमूना परिवार एक ही फ़ोल्ड से संबंधित है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr "हर क्रॉस-वैलिडेशन फ़ोल्ड की रिसाव जाँच का परिणाम।"
 
 msgid "Parameters"
 msgstr "पैरामीटर"
@@ -208,11 +211,13 @@ msgstr "प्रति पथ वैकल्पिक वर्ग, हर प
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "वह पहचान स्तर जो फ़ोल्ड सीमा पार नहीं कर सकता -- ``none``, ``field``, ``well`` या ``plate``। कूप-समूहित विभाजन एक ही प्लेट को दोनों ओर होने देता है, लेकिन एक ही कूप को कभी नहीं।"
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
-msgstr "फ़ाइल सामग्री (CONTENT) की भी तुलना करें, ताकि अलग नाम वाली बाइट-समान प्रति पकड़ी जाए। हर फ़ाइल के लिए एक बार पढ़ना पड़ता है।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
+msgstr "फ़ाइल सामग्री की भी तुलना करें, ताकि अलग नाम वाली बाइट-समान प्रति का पता चले। हर फ़ाइल के लिए एक बार पढ़ना पड़ता है।"
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
-msgstr "असत्यापनीय (UNVERIFIABLE) को गंभीर मानें। अन्यथा अनुरोधित पहचान को एन्कोड न करने वाला फ़ाइल नाम, या हैश न हो सकने वाली फ़ाइल, केवल चेतावनी होती है -- इसलिए इसे False छोड़ने का अर्थ है कि साफ़ रिपोर्ट भी ऐसा रिसाव छिपा सकती है जिसकी कोई जाँच नहीं कर सका।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
+msgstr "असत्यापनीय नमूनों को गंभीर मानें। अन्यथा अनुरोधित पहचान को एन्कोड न करने वाला फ़ाइल नाम, या हैश न हो सकने वाली फ़ाइल, केवल चेतावनी होती है, इसलिए इसके False होने पर उत्तीर्ण रिपोर्ट में ऐसे नमूने शामिल हो सकते हैं जिनके रिसाव की जाँच नहीं हुई।"
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "``passed`` के False होने वाली रिपोर्ट लौटाने के बजाय :class:`LeakageError` उत्पन्न करें।"

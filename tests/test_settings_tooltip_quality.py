@@ -587,8 +587,11 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # enhance_sharpen_radius, the Make Masks chain's two radii as Mask
     # settings. Both tooltips say pixels.
     enhancement_unit_settings = 2
+    # +1 on 2026-10-11 (F534): spatial_diameter, Spatial Mask Generation's
+    # nucleus size. Its tooltip names its unit, so only the census moved.
+    spatial_unit_settings = 1
     assert len(diameter_or_radius) == (
-        base_unit_settings + enhancement_unit_settings
+        base_unit_settings + enhancement_unit_settings + spatial_unit_settings
         + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
@@ -999,9 +1002,39 @@ def test_real_default_claims_have_no_unrecorded_drift():
     assert ("mask", "watch_classify_settings") in compared_pairs
     item_548_pool = {("mask", "watch_normalization_pool")}
     assert item_548_pool <= compared_pairs
-    assert comparisons == 920
+    # 920 -> 923 on 2026-10-10, +3/-0 (item 685): export_vvvv (False), the
+    # alpha vvvv export, resolved by Mask, Measure and External Masks.
+    item_685 = {(app, "export_vvvv")
+                for app in ("mask", "measure", "external_masks")}
+    assert item_685 <= compared_pairs
+    # 923 -> 931 on 2026-10-11, +8/-0 (item 537): timelapse_lineage_edge_entry
+    # (True), timelapse_lineage_vacuole_count (True), timelapse_lineage_bud_guard
+    # (False) and timelapse_lineage_bud_threshold (2.6), the inferred-division
+    # rules, each resolved by Measure and by External Masks.
+    item_537_rules = {(app, key) for app in ("measure", "external_masks")
+                      for key in ("timelapse_lineage_edge_entry",
+                                  "timelapse_lineage_vacuole_count",
+                                  "timelapse_lineage_bud_guard",
+                                  "timelapse_lineage_bud_threshold")}
+    assert item_537_rules <= compared_pairs
+    # F580 adds four blank session/reference inputs in these two consumers.
+    # Subtract only the exact named arrivals; the historical census stays 931.
+    session_reference_arrivals = {
+        (app, key)
+        for app in ("measure", "external_masks")
+        for key in (
+            "intensity_calibration_reference_plate",
+            "intensity_calibration_sessions",
+            "intensity_calibration_beads",
+            "intensity_calibration_reference_session",
+        )
+    }
+    assert len(session_reference_arrivals) == 8
+    assert session_reference_arrivals <= compared_pairs
+    assert not session_reference_arrivals & variants.keys()
+    assert comparisons - len(session_reference_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
-                             '508_default_claim_census_2026-09-25.json').read_text())
+                             '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
     # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
     # + 8: item 541's four confluency claims in two apps, pinned above;
@@ -1035,6 +1068,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 4: item 537's lineage claims in two apps, pinned above.
     # + 3: item 583's vendor channel map in three apps, pinned above.
     # + 2: item 537's minimum division interval in two apps, pinned above.
+    # + 3: item 685's export_vvvv in three apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
@@ -1049,12 +1083,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_470)
             + len(item_537_min_division)
             + len(item_548_pool)
-            == comparisons)
+            + len(item_685) + len(item_537_rules)
+            == comparisons - len(session_reference_arrivals))
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
     assert len(census_508['added_pairs']) == 19
     census = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
-                         '491_default_claim_census_2026-09-23.json').read_text())
+                         '491_default_claim_census_2026-09-23.json').read_text(encoding="utf-8"))
     assert census['comparisons_after'] == census_508['comparisons_before']
     assert census['removed_pairs'] == []
     assert len(census['added_pairs']) == 43

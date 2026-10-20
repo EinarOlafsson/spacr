@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "解释 CV 模型并调查命中项"
 
-msgid "spaCR separates three questions that are easy to blur together:"
-msgstr "spaCR 将三个容易混淆的问题区分开来："
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR provides three separate analyses that answer different questions:"
+msgstr "spaCR 提供三种相互独立的分析，分别回答不同的问题："
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "激活图或遮挡图显示视觉模型关注的 **位置**；"
@@ -40,8 +41,9 @@ msgstr "最后一种结果是弱监督证据，而不是细胞分辨率的条形
 msgid "Explain CV Model"
 msgstr "解释 CV 模型"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "该模块从 **分类** 标题栏打开，而没有单独的磁贴，它位于 **分类器评估** 旁边：两者都在回答训练好的分类器实际做了什么。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "该模块从 **分类** 标题栏打开，而没有单独的磁贴，它位于 **分类器评估** 旁边：两者都用于分析已有的训练好的分类器及其保存的预测结果。"
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "选择确切的 ``measurements.db`` 以及现有的逐对象 CV 预测 CSV。该模块绝不会重新运行原始分类器，也不会悄悄替换它。它将预测与已测量对象一一关联，并从替代模型的特征矩阵中排除标识符、预测/类别列、分数、标注和用户排除项。"
@@ -73,8 +75,9 @@ msgstr "从 **回归** 标题栏打开 **命中列表**，选择确切的基因�
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "提供测量数据库、原始的逐对象预测 CSV 和逐孔向导比例 CSV。关联使用显式的对象键和孔板/行/列键。重复的对象键或重复的孔/向导比例会使运行停止。"
 
-msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "第一个输出是一个如实的审查队列：含有靶标的孔中的细胞按回归的效应方向排序，并在旁边显示孔水平的靶标向导比例。随后，可选的归因模型会："
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "第一个输出是一个审查队列：含有靶标的孔中的细胞按回归的效应方向排序，并在旁边显示孔水平的靶标向导比例。随后，可选的归因模型会："
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "将孔视为包（bag），将细胞视为实例；"

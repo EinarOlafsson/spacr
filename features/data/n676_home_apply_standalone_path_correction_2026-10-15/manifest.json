@@ -1,0 +1,18 @@
+{
+  "README.md": "2e4471bcb33658eb5c36b783636311557e57d07b4238c8d19b70a8a903341f5c",
+  "owner-cleanup.json": "06533f5f87359342eed170a7edc775ba8310f988b266e45a57de6ab757cb5950",
+  "platform-failure.json": "48e111f6614129970edcb435027b196736973ae2a9c6a9844f84f41e8d5e4c29",
+  "preparation-manifest.json": "72153c452449fa9f985afd41b7d1b8362b30cada86c92bce302486c909392fee",
+  "privacy-r3/neutral-privacy-root-contract-smoke.json": "ac94cfc9aefd46d4265762ab4cb4505c7311eaf0166af1d562eaaf4c4b98ce62",
+  "privacy-r3/owner-cleanup.json": "06533f5f87359342eed170a7edc775ba8310f988b266e45a57de6ab757cb5950",
+  "privacy-r3/preparation-manifest.json": "27e9f7fefc682b42fd705478cc007200c3d06c873fe7ef6900431c692129acdb",
+  "privacy-r3/r2-to-r3.patch": "6dc4b0f58d93d2624d8967a0d054936fd66e625305b8addbf9fac657db836800",
+  "privacy-r3/supervisor-result.json": "2f16d58166ea47b2bfd32354c7fa8cab2d06319431f6c2b80bc4bd1b5fdfd60a",
+  "privacy-r3/worker-capture-result.json": "bd79327e11011c65febd67625d3e33eeeb0a07d16efa369f08d2706e1705f870",
+  "privacy-r3/worker-clean-r3-news-parity-independent-source-peer.json": "d077be78486ddf284c887898712aa186558536e333f51af51e4557dc9ebe57a5",
+  "privacy-r3/worker-clean-r3-privacy-independent-source-peer.json": "df4f4e30d311e976a43c05acdf7e6ab5051bd1f34dc7028ba94ede474021db7a",
+  "r3-to-standalone-short-path.patch": "0b407e771c3e93f411d6222f83d6694d6c3eb8ade1c2af2b0521abf5f0f3539f",
+  "supervisor-result.json": "c13c1418ced3366b507fecd48ea7b5fbd5ace9d223717af28da7023efe1e0f72",
+  "worker-apply-clean-r1-independent-source-peer.json": "2174ae7215f3f6146d1fff7b9f7cd3d258f8b4642dd40b67ba4e10f26b31ad3c",
+  "worker-clean-r2-path-independent-source-peer.json": "b145d3c45237eb70d36d674d45e9b6092878994d403392ecbc7a9836ce79299f"
+}

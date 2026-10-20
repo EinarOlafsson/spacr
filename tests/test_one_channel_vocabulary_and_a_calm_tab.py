@@ -86,7 +86,7 @@ def test_the_help_is_in_the_one_table_the_dialog_already_reads():
     import pathlib
 
     source = pathlib.Path(
-        "spacr/qt/widgets/picture_settings_dialog.py").read_text()
+        "spacr/qt/widgets/picture_settings_dialog.py").read_text(encoding="utf-8")
     assert "from ...settings import tooltips" in source
 
 

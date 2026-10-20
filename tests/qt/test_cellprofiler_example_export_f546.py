@@ -24,7 +24,7 @@ def edit(qtbot):
 def test_resource_matches_verified_fixture_and_is_in_source_distribution():
     resource = ROOT / "spacr/resources/data/cellprofiler_example.cppipe"
     assert resource.read_bytes() == (ROOT / "tests/data/cellprofiler/example.cppipe").read_bytes()
-    assert "include spacr/resources/data/cellprofiler_example.cppipe" in (ROOT / "MANIFEST.in").read_text()
+    assert "include spacr/resources/data/cellprofiler_example.cppipe" in (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
 
 
 def test_measure_action_exports_and_collects_path(qtbot, tmp_path, monkeypatch):

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical authoring; no human/native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.glass.glass#2",
+      "source": "THE SHEET GOES ON ONCE, LAST. Every step below restyles a dialog that already wears the window sheet: its own rule is one more sheet, the frameless flags make Qt repolish every widget of a styled window, and each transparent container is polished again. On Preferences (967 widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`, the steps run on an unstyled dialog and the same sheet text goes on once at the end.",
+      "source_sha256": "39a8bd5a67a629f63e1f2598f77ea632c1c34173abd7792c3ca3e0ea21e8cb86",
+      "context": "The sheet goes on once, LAST. Every step below restyles a dialog that already wears the window sheet: its own rule is one more sheet, the frameless flags make Qt repolish every widget of a styled window, and each transparent container is polished again. On Preferences (967 widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`, the steps run on an unstyled dialog and the same sheet text goes on once at the end.",
+      "translation": "La feuille de style est appliquée une seule fois, en dernier. Chaque étape ci-dessous redéfinit le style d’une boîte de dialogue qui porte déjà la feuille de style de la fenêtre : sa propre règle constitue une feuille supplémentaire, les indicateurs de fenêtre sans cadre obligent Qt à repolir chaque widget d’une fenêtre stylée, et chaque conteneur transparent est repoli. Dans les Préférences (967 widgets), cela prenait 425-484 ms dans un seul ``Polish``, soit le blocage de 0.36 s du clip de redimensionnement de la leçon 05. Sous :func:`spacr.qt.theme._one_sheet_for`, les étapes s’exécutent sur une boîte de dialogue sans style, puis le même texte de feuille de style est appliqué une fois à la fin.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent semantic review recorded separately."
+    }
+  ]
+}

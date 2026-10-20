@@ -1,0 +1,21 @@
+{
+  "ready": false,
+  "source_merge_head": "ed570dee1dc6fc58c840a8b075624402c1e8df24",
+  "root_integrated_parent": "bd9106876f4fa842046763a535850ea5e1f08091",
+  "source": "spacr/qt/ai/providers.py",
+  "source_sha256": "88eaf32a8ff9b158e4a900e4dc03f39ea3023aaf33003be612a0eb0bbb717725",
+  "tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "config_sha256": "f9d5520ac41ff79cc1363782c44271ff5bc41b7901f6ce90e3e65cc129c33f94",
+  "input_pin_count": 10448,
+  "driver_pins": {
+    "normal26-producer.py": "c8356a659305b818de0f178c4e179273cf29ee420162f599bf6c7628684a723f",
+    "restore-authentic-history.py": "1961b39eb23b3df9592c040e6dfa25ef5d26d91dc2b24ed8a27905ba98f54c58"
+  },
+  "staged_restore": "Copies all10full API catalogs and existing14history; stagedENINPUT contains only4authentic recovered original projections verified against6e386; unchanged normalEnglishwriter(fullcurrenttextmap) produces exactlyold14unionoriginal4 and byte-identical currentEN/ninelocales. Restoreglobals; copyONLY normal-generated18recordhistory actual. No actualEN write.",
+  "writer": "All9 normal reviewedloaders, _proven_api_history and _translate_api_documents(reuse_history=True) preflights beforefirstlocale catalogwrite. Refusal-only decoder/runtimecanonical guards. Eight historical source-proven targetblocks retained exactly. Normal write_language(preserve_other_symbols=True) ONLY26symbols/locale.",
+  "final_audit": "ONE ordinary FULL9 API+README audit calls genuine normal public_docstrings() AST inventory then unchanged audit(full_docs,all9). This AST-only normal full source inventory is required by fullgate; runtime canonical collector remains refusal-guarded. Any sourcecontext collector request or other gate refusal is retained; no selectedsubstitute or gatechange.",
+  "protection": "All10448 inputs pinned; only9locale APIJSON plus normal-generated sourcehistory may change. EN/APIforeignheaders+records, runtime/README/Help/arrival/source/reviews/tools/resources preserved. Source/tool/catalogpins verified before andprotectedafter.",
+  "help": "No normalHelp generation planned because actualEnglishAPI stays byte-identical. Any later need is separately coordinated.",
+  "execution": "NOT executed. Requires Hard/Root finite independent peer, final cleanHEAD activation/reseal and explicit Root grant; established bothlocks8G/swap0CPU1/thread1/core0 background wrapper.",
+  "full_source_observability": "Lossless gzip+rawJSON SHA of existing normal public_docstrings result persisted before unchanged fullaudit; diagnostic-only globalEN missing/extra/stale lists, no extra collection/subset/gate assertion."
+}

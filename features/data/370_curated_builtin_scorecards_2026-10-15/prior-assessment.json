@@ -1,0 +1,60 @@
+{
+  "scope": "Read-only source-bound F370 software gaps after detector-only repair; no all-model/science completion claim",
+  "current_public": "207bb4adea49932d0c857f19c408170a1e962d5f",
+  "exact_function_bindings": {
+    "spacr/model_zoo.py:_entry_from_mapping": {
+      "line": 2175,
+      "source_block_sha256": "b1fcdc09261bc0dd8da7c689680b52a774e37d754b93a5255388facafaa00e39"
+    },
+    "spacr/model_zoo.py:catalogue": {
+      "line": 3476,
+      "source_block_sha256": "4088edfcf181ee984f467b4c6bf3d6eea14c34faa7d198404aa12fca83e673dd"
+    },
+    "spacr/model_zoo.py:scorecard_html": {
+      "line": 4838,
+      "source_block_sha256": "e7fbdee6e8c7df72aa9b8aae3a4619327a06b4f7355506551ab542d3678703a1"
+    },
+    "tools/build_score_cards.py:rescored": {
+      "line": 198,
+      "source_block_sha256": "dbb0e06f7ea18db4d6e53e016b402339234e3b885b1fa844254357a6157dc00b"
+    },
+    "packaging/generate_readme_visuals.py:_model_zoo_sections": {
+      "line": 777,
+      "source_block_sha256": "222059faf647602d86557c02a7532c3c3196313fc7d73f867d4c0f62bc41babc"
+    }
+  },
+  "counterexample": "counterexample.json",
+  "native_receipt": "counterexample.exit0; noTorch/Qt/provider/network tripwires held; no catalogue census or model/scoring runs",
+  "confirmed_gaps": [
+    {
+      "component": "Builtin metrics/tooltip",
+      "cause": "catalogue uses _entry_from_mapping(record) which copies literal metrics; current accepted card data is not overlaid on this exact builtin route.",
+      "evidence": "PVv4 literal10fields/.8536 versus accepted209strictfields/.761146; different datasets, not a regression."
+    },
+    {
+      "component": "Six-row propagation",
+      "cause": "RESCORED_FIELDS excludes boundary_f1; SCORECARD_ROWS omits boundary/precision/recall.",
+      "constraint": "Accepted card boundary F1 is2px per tracked approvedREADME; do not map to existing headline1px key."
+    },
+    {
+      "component": "Generated links/export",
+      "cause": "_model_zoo_sections assumes unqualified root scorecard.png/csv for all dict metrics. Saved pinned approved metadata has7of9 without roots;2existing rootCSVs are older named sets.",
+      "qualification": "No currentremote claim/no network. Existing accepted local card JSON+fullfieldIDs available; generator changes and versioned export/publish/readback are separate owner tasks."
+    }
+  ],
+  "already_correct": [
+    "model_cards.score_rows/page_html preserves all6approvedrows",
+    "rescore input/fullfieldIDs and stockcomparisons are locally recorded; no rerun needed",
+    "detector-only scorecard presence guard fixed by prior9checks"
+  ],
+  "preserved": [
+    "No source/metrics/default/annotation changes",
+    "No data copied across holdoutsets",
+    "No external publication/modeldownload/re-score"
+  ],
+  "proposed_owner_split": {
+    "root": "Exact-checkpoint-bound builtin approved-card normalization and tooltip six-row rendering; retain historicalnamed-dataset metrics",
+    "Home-B": "Shared generator boundary2px field propagation, actualpublished path selection and normalAPI/README artifact regeneration",
+    "separate_publish_gate": "Versioned machineCSV/JSON/chart export from accepted full source with provenance; no unrequested uploads"
+  }
+}

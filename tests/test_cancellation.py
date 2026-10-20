@@ -73,7 +73,7 @@ def test_checkpoint_mark_is_durable_before_cancellation(tmp_path):
         with pytest.raises(PipelineCancelled, match="stop after field"):
             store.mark("A01/F001", {"output": "complete"})
 
-    document = json.loads((tmp_path / "state.json").read_text())
+    document = json.loads((tmp_path / "state.json").read_text(encoding="utf-8"))
     assert document["completed"]["A01/F001"]["output"] == "complete"
     assert document["status"] == "running"
 

@@ -491,7 +491,7 @@
       "section": "spaCR",
       "description": "Farðu yfir allar núverandi einingar á Home frá vinstri til hægri. Lærðu síðan á sameiginleg stjórntæki með Mask og stilltu leiðsögn, hjálp og útlit.",
       "objectives": [
-        "Þekkja allar einingarnar í núverandi röðunum Core, Data, Tools og Organism.",
+        "Þekkja allar einingarnar í núverandi röðunum Core, Data og Tools.",
         "Nota Mask til að þekkja sameiginlegar stillingar, forskoðanir, aðgerðir og niðurstöður.",
         "Fara aftur á Home, nota leit og raða spjöldum.",
         "Velja stillingar fyrir útlit og afköst."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data, Tools og Organism. Hver reitur opnar sína einingu. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
+          "narration": "Home er upphafspunkturinn. Lestu hverja röð frá vinstri til hægri: Core, Data og Tools. Hver reitur opnar sína einingu. Hliðarstikan býður sömu leiðir og Home fer aftur í yfirlitið.",
           "hold_after": 0.7
         },
         {
@@ -537,17 +537,6 @@
           ]
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify lærir af yfirförnum merkingum og gefur öðrum hlutum stig með mynd- eða töfluaðferðum.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ]
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes les raðgreiningargögn til að telja og auðkenna leiðara eða strikamerki.",
           "hold_after": 0.7,
@@ -581,17 +570,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings kóðar myndútskurði hluta sem töluleg einkenni til skoðunar og samanburðar.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare safnar vistuðum niðurstöðum keyrslna svo þú getir skoðað muninn.",
           "hold_after": 0.7,
@@ -603,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design raðar skilyrðum, brunnum og auðkennum sýna fyrir tilraun.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design skoðar forsendur um úrtaksstærð og tölfræðilegt afl við skipulagningu samanburðar.",
           "hold_after": 0.7,
@@ -622,28 +589,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response fellir líkan að svörun yfir styrkleika og heldur valinni útkomumælingu og viðmiðum skýrum.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC sameinar gæðaprófanir og sýnir hvaða gögn eru fyrir hendi eða vantar.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -680,17 +625,6 @@
           ]
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor skilgreinir val á raunverulegum gagnadálkum. Yfirfarðu valda hluti áður en vali er breytt í merkingar.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ]
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder býr til gröf úr mælitöflum með stillanlegum dálkum og hópum.",
           "hold_after": 0.7,
@@ -699,17 +633,6 @@
           ],
           "related_lessons": [
             "58_graph_builder"
-          ]
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Röðin Organism inniheldur Toxoplasma. Hún opnar leiðarvísi um lífveruna, gagnvirka teikningu og tiltækar Toxoplasma-greiningar. Sérstök Toxoplasma-kennsla fer yfir þessa síðu.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
           ]
         },
         {
@@ -810,7 +733,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum og Popup wave frequency setur af stað bylgjur frá opnum sprettigluggum í spaCR field. Field ripples stjórnar bylgjum frá smellum, opnun eða lokun íláta og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar. Þegar slökkt er á því stöðvast sjálfvirkar bylgjur frá sprettigluggum líka. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
+          "narration": "Smelltu á Animation til að velja aðalbakgrunninn og litaspjaldið. Animation colours stillir aðal- og áhersluliti fyrir Custom colours; Animation background velur sjálfstæðan bakgrunn og Theme colour endurheimtir þema síðunnar. Detail stjórnar upplausn myndgerðarinnar. Speed, Size og Density breyta hreyfingu og fjölda eininga. Mouse gravity radius ákveður áhrifasvæði músarinnar; núll slekkur á því. Dot blinking stjórnar hvítum leiftrum. Field ripples stillir styrk bylgna frá smellum, opnun eða lokun íláta, sprettigluggum og þegar glugginn er festur við skjájaðar, óháð aðdráttarafli músarinnar; núll slekkur á bylgjunum, líka sjálfvirkum bylgjum frá sprettigluggum. Click ripples ræður því hvort smellur á bakgrunninn sendir bylgju. Popup wave frequency stillir hve margar bylgjur á mínútu breiðast út frá opnum sprettiglugga í spaCR field. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density breyta aðeins Settings backdrop. Settings backdrop darkness stjórnar læsileika formsins.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -1171,7 +1094,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1564,7 +1510,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í þremur brunnum og Next vistar þær.",
           "focus": [
             360,
             380,
@@ -1576,7 +1522,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú bera ómerktar úrklippur á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
           "focus": [
             350,
             250,
@@ -1587,7 +1533,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
+          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin bíða vistunar þar til Next vistar þau; höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
           "focus": [
             350,
             250,
@@ -1618,7 +1564,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2001,7 +1970,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2355,7 +2347,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear masks, beint vinstra megin við Discard, biður um staðfestingu áður en allar grímur í núverandi mynd eru fjarlægðar.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear all objects, beint vinstra megin við Discard, biður um staðfestingu áður en allir hlutir í núverandi mynd eru fjarlægðir.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -8092,7 +8084,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15092,7 +15107,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify lærir af valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
+          "narration": "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify þjálfar líkan á valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15430,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Skýringarmyndin er til að kanna. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
+          "narration": "Skýringarmyndin er gagnvirk. Haltu bendlinum yfir frumuhluta og lýsing hans birtist. Veldu nokkra til að halda þeim auðkenndum, og Clear components endurstillir myndina.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15440,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Analysis lýsir öllu vinnuferlinu.",
+          "narration": "Smelltu á Plaque Assay til að opna greiningarskjáinn. Stillingaspjaldið tilgreinir uppruna mynda, grímur og greiningarvalkosti. Load test data gefur dæmi. Farðu yfir inntak og forskoðun áður en Run er ræst; kennslan Plaque Assay lýsir öllu vinnuferlinu.",
           "hold_after": 0.7
         },
         {

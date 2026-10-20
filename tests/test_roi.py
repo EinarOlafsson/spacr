@@ -538,14 +538,28 @@ def _filter_in_this_process(payload):
     return names, dropped
 
 
+def _apply_in_a_spawn_worker(function, arguments):
+    """Run ``function`` in one spawn worker that is closed, not terminated.
+
+    ``Pool.__exit__`` terminates a worker that has just been told to stop, so
+    SIGTERM can land inside the worker's exit-time coverage save and leave a
+    coverage file nobody can read; close and join let it finish its save.
+    """
+    pool = mp.get_context('spawn').Pool(1)
+    try:
+        return pool.apply(function, arguments)
+    finally:
+        pool.close()
+        pool.join()
+
+
 def test_the_roi_reaches_a_real_spawn_worker(tmp_path):
     """The deliverable: a cold interpreter filters the field for itself."""
     R.enable_roi_filter(R.RoiSet(fields={'*': (top_half(),)}),
                         path=str(tmp_path / 'roi.json'), verbose=False)
 
-    with mp.get_context('spawn').Pool(1) as pool:
-        names, dropped = pool.apply(
-            _filter_in_this_process, ((disc_mask(), 'plate1_A01_F001'),))
+    names, dropped = _apply_in_a_spawn_worker(
+        _filter_in_this_process, ((disc_mask(), 'plate1_A01_F001'),))
 
     assert names == [R.HOOK_NAME], (
         'the spawned worker did not install the ROI filter, so every object '
@@ -565,9 +579,8 @@ def test_a_parent_only_registration_reaches_no_spawn_worker(tmp_path):
         R.RoiRegionFilter(R.RoiSet(fields={'*': (top_half(),)})),
         name=R.HOOK_NAME)
 
-    with mp.get_context('spawn').Pool(1) as pool:
-        names, dropped = pool.apply(
-            _filter_in_this_process, ((disc_mask(), 'plate1_A01_F001'),))
+    names, dropped = _apply_in_a_spawn_worker(
+        _filter_in_this_process, ((disc_mask(), 'plate1_A01_F001'),))
 
     assert names == []
     assert dropped == ()

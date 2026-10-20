@@ -1,17 +1,17 @@
 """EdgeDrawer — a panel that slides in from the left edge on hover.
 
-The full app list used to be a permanent 220 px column. It is now a
-*reveal*: a 6 px strip along the left edge that, when the pointer rests
-against it, slides the whole panel in over the page and slides it out
-again when the pointer leaves.
+The drawer is a *reveal*: a 6 px strip along the left edge that, when the
+pointer rests against it, slides the whole panel in over the page and
+slides it out again when the pointer leaves. The main window keeps its
+drawer closed and disabled and shows the app list as a dock column, or
+hides it (see :meth:`spacr.qt.app.MainWindow.apply_dock_mode`).
 
 Three things make the difference between a reveal that feels deliberate
 and one that fires while you are aiming at something else:
 
 * **Dwell, not touch.** Entering the strip starts
   :data:`EdgeDrawer.OPEN_DELAY_MS`; a pointer that crosses the strip on
-  its way somewhere else has left again before the timer fires. This is
-  the whole reason a hot corner is usable at all.
+  its way somewhere else has left again before the timer fires.
 * **A generous close.** Leaving does *not* close immediately —
   :data:`EdgeDrawer.CLOSE_DELAY_MS` covers the gap between the panel and
   wherever the pointer wobbled to, and any re-entry cancels it. Panels
@@ -33,6 +33,7 @@ from PySide6.QtCore import (
     QEasingCurve, QEvent, QPoint, QPropertyAnimation, Qt, QTimer, Signal,
 )
 from PySide6.QtWidgets import QWidget
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 
 class EdgeDrawer(QWidget):
@@ -127,7 +128,7 @@ class EdgeDrawer(QWidget):
         self._trigger = _EdgeTrigger(host, self)
         self._trigger.show()
 
-        host.installEventFilter(self)
+        _watch_object_events(host, self, (QEvent.Resize,))
         self.setAttribute(Qt.WA_Hover, True)
 
     def _owns_panel(self) -> bool:
@@ -263,7 +264,7 @@ class EdgeDrawer(QWidget):
     def is_held(self) -> bool:
         """Whether the drawer is pinned open.
 
-        HELD IS NOT OPEN. A hovered drawer is open and closes when the
+        Held is not the same as open. A hovered drawer is open and closes when the
         pointer leaves; a held one stays until it is released.
 
         :returns: True when pinned.

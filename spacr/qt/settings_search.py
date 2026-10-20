@@ -1,11 +1,10 @@
 """Find a setting, and meet a module's settings a few at a time.
 
 A spaCR module can render a lot of settings. Mask alone renders 190 of them
-under thirteen collapsed headings, and across the shell there are 1,022. Until
-now the only way to reach one was to guess which heading somebody filed it
-under and open headings until it appeared — and the only thing a first-time
-user saw was those thirteen headings, with nothing to say which two of them
-they actually had to touch.
+under thirteen collapsed headings, and across the shell there are 1,022.
+Without a search, a setting can only be found by opening headings, and a
+first-time user sees thirteen headings without an indication of which ones
+need changing.
 
 This module adds one strip above the settings form:
 
@@ -14,16 +13,14 @@ This module adds one strip above the settings form:
   user thinks in, so "touching" finds ``merge_edge_pathogen_cells`` and
   "gpu" finds ``n_jobs`` — neither word appears in either name.
 * **a Modified filter** that shows only what differs from the module's
-  defaults. It is the fastest possible answer to "what did I change?", and
-  it shares :func:`spacr.qt.settings_diff._values_equal` with the diff
+  defaults, which answers "what did I change?", and it shares :func:`spacr.qt.settings_diff._values_equal` with the diff
   dialog and the run journal so all three agree about what an edit is.
 * **an Essentials / All switch** — the progressive disclosure. Essentials
   shows the module's inputs plus the handful of decisions
   :func:`spacr.qt.screens.settings_model.essential_keys` derives from its
   curated layout, expanded and ready; All restores every heading, collapsed
   as before. Essentials is the default on a module's first visit and the
-  choice is remembered per module thereafter, so a returning expert never
-  meets the training wheels twice.
+  choice is remembered per module thereafter.
 
 The three compose: with a query typed, Essentials narrows the search rather
 than fighting it, and the count line always says exactly what is being shown
@@ -63,7 +60,8 @@ from PySide6.QtWidgets import (
 from .i18n import tr
 from .widgets.section import _logical_parent
 from .widgets.toggle import Toggle
-from .prefs import _store_args
+from .prefs import _flush_stores, _store_args, _store_later, _stored_later
+from . import _after
 
 LOG = logging.getLogger("spacr.qt.settings_search")
 
@@ -108,12 +106,16 @@ def _settings():
 def disclosure_for(app_key: str) -> str:
     """The remembered disclosure level for ``app_key``.
 
-    Defaults to :data:`ESSENTIALS`, which is the whole point: a module is
-    met a few settings at a time until its user says otherwise.
+    Defaults to :data:`ESSENTIALS`, so a module shows a few settings at a
+    time until its user switches to All.
 
     :param app_key: the module's app key.
     """
-    raw = _settings().value(f"{_KEY_DISCLOSURE}/{app_key}", ESSENTIALS)
+    key = f"{_KEY_DISCLOSURE}/{app_key}"
+    store = _settings()
+    raw = _stored_later(store, key)
+    if raw is None:
+        raw = store.value(key, ESSENTIALS)
     return ALL if str(raw) == ALL else ESSENTIALS
 
 
@@ -124,8 +126,8 @@ def remember_disclosure(app_key: str, level: str) -> None:
     :param level: disclosure level; ``'all'`` is stored as is and any other
         value as ``'essentials'``.
     """
-    _settings().setValue(f"{_KEY_DISCLOSURE}/{app_key}",
-                         ALL if level == ALL else ESSENTIALS)
+    _store_later(_settings(), f"{_KEY_DISCLOSURE}/{app_key}",
+                 ALL if level == ALL else ESSENTIALS)
 
 
 def forget_disclosure(app_key: Optional[str] = None) -> None:
@@ -133,6 +135,7 @@ def forget_disclosure(app_key: Optional[str] = None) -> None:
 
     :param app_key: the module to forget, or ``None`` for all of them.
     """
+    _flush_stores()
     store = _settings()
     if app_key is None:
         store.remove(_KEY_DISCLOSURE)
@@ -376,8 +379,8 @@ class SettingsSearchBar(QWidget):
     def reveal(self, key: str) -> bool:
         """Show one setting with every other category shut.
 
-        WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the
-        search filter. Typing the key into the box above would hide every other
+        This is what a Help-search result uses, and it is not the search
+        filter. Typing the key into the box above would hide every other
         setting as well, so a user who arrived from the Help search and then
         wanted to look at the neighbouring rows would first have to work out
         what had happened to the form. Revealing instead leaves the module
@@ -390,8 +393,8 @@ class SettingsSearchBar(QWidget):
         That is what makes arriving here from a search safe for a half-typed
         value -- the same property the filter has, for the same reason.
 
-        THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE
-        IS NEVER REMEMBERED. Switching to All settings unconditionally would
+        The disclosure level is changed only when necessary, and the change
+        is not remembered. Switching to All settings unconditionally would
         work, and it would also rewrite this module's remembered
         Essentials/All choice every time anybody arrived here -- a setting
         the user chose, changed as a side effect of looking something up. So
@@ -446,7 +449,7 @@ class SettingsSearchBar(QWidget):
         section.setVisible(True)
         self._revealed = str(key)
         self._mark(field)
-        QTimer.singleShot(0, lambda: self._scroll_to(field))
+        _after(0, self, lambda: self._scroll_to(field))
         return True
 
     def revealed_key(self) -> str:

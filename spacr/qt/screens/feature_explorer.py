@@ -1,21 +1,21 @@
-"""V4 — Feature Explorer: which of the four hundred features separates them.
+"""Feature Explorer: rank measured features by how well they separate classes.
 
-spaCR measures hundreds of features per object, so the useful question is never
-"plot ``cell_area`` by condition" — it is "which of these actually differs, and
-by how much". This screen answers that one: every continuous column scored
-against a class column, sorted by separation, with the distributions of the top
-few drawn underneath.
+spaCR measures hundreds of features per object, so instead of plotting one
+column such as ``cell_area`` by condition, this screen shows which features
+differ between classes and by how much: every continuous column is scored
+against a class column and sorted by separation, with the distributions of the
+top few drawn underneath.
 
 The statistic is AUC by default and the reason is written down in
 :mod:`spacr.qt.widgets.feature_rank`; so is what it cannot see, which the panel
 puts on screen next to the picker rather than in a manual.
 
 Assembles the ranking panel with the Local Data Filter (so a ranking can be
-restricted to one plate without leaving the screen) and the B7 formula panel
-(so a derived feature is ranked alongside the measured ones). The ranking runs
-on a worker thread through :class:`spacr.qt.job_runner.JobRunner`: four hundred
-features over two hundred thousand objects is a sort per feature, and doing
-that on the GUI thread is a frozen window.
+restricted to one plate without leaving the screen) and the formula panel (so
+a derived feature is ranked alongside the measured ones). The ranking runs on a
+worker thread through :class:`spacr.qt.job_runner.JobRunner`: four hundred
+features over two hundred thousand objects is a sort per feature, which would
+freeze the window if run on the GUI thread.
 
 :func:`register` is not called at import; read its docstring.
 """
@@ -379,11 +379,10 @@ def register() -> bool:
     The row itself -- the key, the name, the blurb, the section, the "no
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
-    :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    :func:`spacr.qt.app.register_app` distributes those into the four
+    registry tables, and this function only names the row. The app can
+    therefore be registered without importing this module: the launch reads
+    the table, and the screen is imported when somebody opens it.
 
     :returns: ``True`` if this call is what registered it.
     """

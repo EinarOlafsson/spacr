@@ -1,0 +1,83 @@
+{
+  "checked_at_utc": "2026-10-14T04:44:43.982588+00:00",
+  "status": "Fresh CI live; private merge simulation exact; promotion and release NOT performed.",
+  "candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "candidate_tree": "5e2df183be6ecfeb20fb8d759c8eb059d0b80eaf",
+  "run_id": 38512120776,
+  "existing_promotion": {
+    "head": "87010935bbbd6e925a702c4fa6c19d37751a5b20",
+    "tree": "33415e485abaf4089a61bc8ebc317019f3037f4a",
+    "clean": true,
+    "still_old_failed_source": true
+  },
+  "normal_merge_simulation": {
+    "actual_exit": 0,
+    "result_tree": "5e2df183be6ecfeb20fb8d759c8eb059d0b80eaf",
+    "exact_candidate_tree": true,
+    "conflicts": false,
+    "worktree_or_branch_modified": false
+  },
+  "pinned_release_source_files": [
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "f8ce2569367db37ab4b9479d63271487607b3afa22b1bb70b7f11262257c03f6",
+      "bytes": 24659,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": ".github/workflows/online-installers.yml",
+      "sha256": "e5ca0060ad6f5e4687ab0bd639faf0f471d7fc3c8e71480c48257d52a7c96e26",
+      "bytes": 17314,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": ".github/workflows/docker-images.yml",
+      "sha256": "fba99f9b92dd79342ff53cd400c851ff7e51e489ff6751111f6bca0b47160578",
+      "bytes": 14477,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": ".github/workflows/apptainer-images.yml",
+      "sha256": "750f5b54ff4c19b6dfdce007255d5099d93161f5458a343d3eed3d6d336da6ce",
+      "bytes": 4351,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": "packaging/release.py",
+      "sha256": "9842cebd3eac5b8498fb3fab3b85405f8ad3560127e15bc6330457f5268b4c08",
+      "bytes": 59748,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": "packaging/online/smoke_installed.py",
+      "sha256": "cfde55c562533d50bf0892988724f0e392b7f68933403f62388632b9fa115a32",
+      "bytes": 3071,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": "setup.py",
+      "sha256": "4dc21bd2aed6278c52e42ebf05d59d1c803b218532fd1a07d98464213e01a608",
+      "bytes": 15743,
+      "unchanged_from_historical_readiness": true
+    },
+    {
+      "path": "spacr/_version.py",
+      "sha256": "0f8601b7d00cdec6e0e3a0f62bac5f0fc1715183c4a4b6229f241b29540eb455",
+      "bytes": 583,
+      "unchanged_from_historical_readiness": true
+    }
+  ],
+  "scratch_guards": "Both now require explicit --head/--candidate; current unfinished run correctly rejected. See guard-readiness-receipt.json.",
+  "required_next_gate": "Fresh terminal snapshot: all 30 required jobs success on exact candidate a744a9fda2; then recheck remote main, normal-merge actual private promotion, prove exact tree/ancestry, authorized main push and existing workflow.",
+  "acceptance_limits": [
+    "Merge simulation is not actual prepared promotion or full CI success.",
+    "Historical eb72 promotion readiness remains preserved and must not authorize the new source.",
+    "Artifacts/native installers/publication and optional SIF/container checks remain after actual release workflow."
+  ],
+  "current_ci": {
+    "status": "queued",
+    "conclusion": ""
+  },
+  "main_promoted": false,
+  "release_dispatched": false
+}

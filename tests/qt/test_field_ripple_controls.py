@@ -3,11 +3,10 @@
 import numpy as np
 import pytest
 from PySide6.QtCore import QRect, QSettings, Qt
-from PySide6.QtWidgets import QDialogButtonBox, QWidget
+from PySide6.QtWidgets import QDialogButtonBox, QSlider, QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient
-from spacr.qt.widgets.toggle import Toggle
 
 
 @pytest.fixture(autouse=True)
@@ -36,6 +35,7 @@ def _field(qtbot, gravity_radius=0):
 def test_actual_click_creates_visible_ripples_with_gravity_disabled(qtbot, radius):
     host, field = _field(qtbot, radius)
     qtbot.mouseClick(host, Qt.LeftButton, pos=host.rect().center())
+    qtbot.waitUntil(lambda: bool(field.engine._popup_waves))
     field._on_tick()
     field._timer.stop()
     assert field.engine.gravity_radius == 0
@@ -96,7 +96,7 @@ def test_one_edge_wave_reaches_both_ends_of_the_field_material():
 
     key = ("impulse_lens", 320, 180, wave.size, wave.density)
     x, y, _, fields = wave._material_cache[key]
-    ex, ey, distance = fields[boundary]
+    ex, ey, distance, _outside = fields[boundary]
     inside = (x >= 0) & (x <= 1) & (y >= 0) & (y <= 1)
     assert np.allclose(ey[inside], 0)
     assert np.allclose(ex[inside], x[inside])
@@ -117,17 +117,19 @@ def test_one_popup_wave_keeps_all_four_edges_and_nearest_segment_material():
     made.shade(320, 180)
     key = ("impulse_lens", 320, 180, made.size, made.density)
     x, y, _, fields = made._material_cache[key]
-    ex, ey, distance = fields[perimeter]
+    ex, ey, distance, outside = fields[perimeter]
     for target_x, target_y, expected_axis in ((0.5, 0.16, "y"),
                                                (0.5, 0.84, "y"),
                                                (0.16, 0.5, "x"),
                                                (0.84, 0.5, "x")):
         index = np.argmin((x - target_x) ** 2 + (y - target_y) ** 2)
         assert np.isfinite(distance.flat[index])
+        assert outside.flat[index] == 1.0
         if expected_axis == "x":
             assert abs(ey.flat[index]) < 0.02
         else:
             assert abs(ex.flat[index]) < 0.02
+    assert outside.flat[np.argmin((x - 0.5) ** 2 + (y - 0.5) ** 2)] == 0.0
     for _ in range(7):
         made._add_ripple(perimeter)
     assert len(made._popup_waves) == 6
@@ -236,15 +238,15 @@ def test_preferences_cancel_and_save_update_existing_fields(
     _host, field = _field(qtbot)
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
-    toggle = dialog.findChild(Toggle, "FieldRipplesEnabled")
-    assert toggle.isChecked()
-    toggle.setChecked(False)
+    slider = dialog.findChild(QSlider, "FieldRipples")
+    assert slider.value() == 100
+    slider.setValue(0)
     dialog.reject()
     assert prefs._field_ripples_enabled()
     assert field.engine.ripples_enabled
     accepted = prefs.PreferencesDialog()
     qtbot.addWidget(accepted)
-    accepted.findChild(Toggle, "FieldRipplesEnabled").setChecked(False)
+    accepted.findChild(QSlider, "FieldRipples").setValue(0)
     accepted.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
     assert not prefs._field_ripples_enabled()
     assert not field.engine.ripples_enabled
@@ -290,17 +292,30 @@ def test_container_header_click_has_one_final_edge_and_no_point_wave(qtbot):
     section.show()
     for expanded in (True, False):
         field.engine._popup_waves.clear()
+        field.engine._column_waves.clear()
+        field.engine._fold_waves.clear()
         qtbot.mouseClick(section.header(), Qt.LeftButton)
-        qtbot.waitUntil(lambda: bool(field.engine._popup_waves))
+        qtbot.waitUntil(lambda: bool(field.engine._column_waves
+                                     or field.engine._fold_waves))
         field._on_tick()
         field._timer.stop()
         assert section._expanded is expanded
         assert not field._pending_art_impulses
-        assert len(field.engine._popup_waves) == 1
-        origin = field.engine._popup_waves[0][1]
-        bottom = (section.y() + section.height()) / field.height()
-        assert origin == ((section.x() / field.width(), bottom,
-                           (section.x() + section.width()) / field.width(), bottom),)
+        assert not field.engine._popup_waves
+        if expanded:
+            assert len(field.engine._column_waves) == 1
+            assert not field.engine._fold_waves
+            column = field.engine._column_waves[0][1]
+            bottom = (section.y() + section.height()) / field.height()
+            assert column == (section.x() / field.width(),
+                              (section.x() + section.width()) / field.width(), bottom)
+        else:
+            assert not field.engine._column_waves
+            assert len(field.engine._fold_waves) == ambient.FOLD_RINGS
+            centre = section.geometry().center()
+            assert field.engine._fold_waves[0][1] == pytest.approx(
+                ((centre.x() + .5) / field.width(),
+                 (centre.y() + .5) / field.height()), abs=.01)
 
 
 @pytest.mark.parametrize("value,expected", [(0, 0), (2, 2), (9, 2),

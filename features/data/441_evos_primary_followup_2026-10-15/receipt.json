@@ -1,0 +1,61 @@
+{
+  "scope": "Read-only bounded max3 primary documents, no newPDF/pixel/archive/model downloads; existing previously pinnedPDFtext/screenshots inspected",
+  "source_head": "3ae268481fe22e83dcc1604567455ac75b2a4839",
+  "regex_sha256": "e9d7292bdf72df2fa71d1a07ce347eb5d3b813da96da8fb2b62f350e32bbdd95",
+  "primary_urls": [
+    "https://documents.thermofisher.com/TFS-Assets/LSG/manuals/MAN0018326-EVOSM7000ImagingSystem-UG.pdf",
+    "https://documents.thermofisher.com/TFS-Assets/LSG/manuals/MAN0018326_EVOS_M7000_Imaging_System_UG.pdf",
+    "https://assets.thermofisher.com/TFS-Assets/LSG/manuals/MAN0014072_EVOS_FL_Auto_2_UG.pdf"
+  ],
+  "browser_result": "All3 fullPDF open refused by browser size limits (23.3MB,23.2MB,13.9MB). Indexed primaryvendor excerpts confirm M7000 printedpages41/198. No second acquired-data listing or second compatibledefault literal found. FLAuto2indexed specificfilename queries empty.",
+  "cases": [
+    {
+      "filename": "scan_R_p2_z1_0_B03f01d0.tif",
+      "unmodified_literal": true,
+      "current_regex_match": true,
+      "groups": {
+        "plateID": "scan",
+        "AID": "R",
+        "timeID": "2",
+        "sliceID": "1",
+        "laserID": "0",
+        "wellID": "B03",
+        "fieldID": "01",
+        "chanID": "0"
+      },
+      "evidence_type": "vendor explanatory filename diagram, not an observed acquisition-directory listing",
+      "missing_metadata": [],
+      "parse_potential": null
+    },
+    {
+      "filename": "image_0002_Top Slide_R_p00_0_A01f00d0.TIF",
+      "unmodified_literal": true,
+      "current_regex_match": false,
+      "groups": null,
+      "evidence_type": "actual vendor save-dialog Next filename screenshot; generated name displayed, not proof pixels were saved",
+      "missing_metadata": [
+        "Z plane absent in displayed filename; no sliceID may be invented"
+      ],
+      "parse_potential": {
+        "from_visible_tokens_only": {
+          "prefix": "image_0002_Top Slide",
+          "format": "R",
+          "time": "00",
+          "grid": "0",
+          "well": "A01",
+          "field": "00",
+          "channel": "0"
+        },
+        "not_an_existing_parser_result": true
+      }
+    }
+  ],
+  "prior_evidence_reused": {
+    "pdf_sha256": "9151b27411afe0171f81770b90ab773dcee8e5e8eecf2dd3abeeffd0b60aec5c",
+    "vendor_screenshot_page": "printed41/PDF43",
+    "vendor_explanatory_diagram_page": "printed198/PDF200"
+  },
+  "remaining": "Two literalvendor names are not two observed passing acquisition examples. Existing pattern accepts one documenteddiagram only; actualUIvariant lacksz. Original two-real-example requirement remains unresolved, no complete/confirmed upgrade. No claim no further public examples exist.",
+  "code_changes": "NONE; only direct stdlibAST/literalregex read to report existing groups; no pytest/pipeline or model.",
+  "probe_correction": "Initial metadata-only stdlib probe usedstr.format and refused literalregex quantifier braces; corrected to existing {ext} token substitution only. No product modification."
+}

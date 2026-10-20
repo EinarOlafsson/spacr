@@ -10,11 +10,11 @@ from ..theme import SPACING
 class UsageBar(QWidget):
     """Labeled thin progress bar with a right-aligned percent readout.
 
-    BOTH TEXT COLUMNS ARE FIXED-WIDTH ON PURPOSE, and that is what made them
-    a bug at a large font scale. The caption column is wider than "RAM" needs
-    so the four bars of the System card line up; the readout column is fixed
-    so the bar does not jitter sideways as 9 % becomes 10 %. Neither reason
-    survives being written as a constant: see :meth:`_size_the_columns`.
+    Both text columns have fixed widths. The caption column is wider than "RAM"
+    needs so the four bars of the System card line up; the readout column is
+    fixed so the bar does not shift sideways as 9 % becomes 10 %. The widths
+    are measured from the font rather than written as constants, so they hold
+    at a large font scale: see :meth:`_size_the_columns`.
 
     :param label: text shown to the left of the bar (e.g. "RAM", "GPU").
     :param parent: parent widget; ownership only.
@@ -104,11 +104,11 @@ class UsageBar(QWidget):
         """Re-measure when the font under this row changes.
 
         The stylesheet is what carries the font scale, and it is installed on
-        the application AFTER these widgets are built -- a preferences save
+        the application after these widgets are built -- a preferences save
         re-installs it on a live window. Both arrive as a font change on the
-        widgets whose resolved font moved, so the columns are re-measured
-        there rather than being right only for the sheet that happened to be
-        current at construction.
+        widgets whose resolved font moved, so the columns are re-measured there
+        rather than being right only for the sheet that happened to be current
+        at construction.
 
         :param event: the change event, passed to the base class; a font,
             application-font or style change re-measures the columns.
@@ -136,16 +136,37 @@ class UsageBar(QWidget):
     def set_value(self, pct: float) -> None:
         """Set the bar value, clamped to 0-100, and re-color at 75/90 %.
 
+        The new value is scheduled for the next paint rather than painted
+        now. ``QProgressBar.setValue`` repaints synchronously whenever the
+        change moves a pixel, and the bar is translucent over the window's
+        field, so each call painted the field under it and flushed the
+        window there and then: four synchronous flushes every two seconds on
+        every module screen, which on a composited GPU desktop each wait for
+        the display. With updates held off for the call, the bar is marked
+        dirty instead and is drawn with the next field frame.
+
+        The bar is re-polished only when the reading crosses into another
+        band. A polish re-resolves the application style sheet for the bar,
+        and the usage poll calls this for every bar every two seconds, almost
+        always with the colour unchanged.
+
         :param pct: value in ``0.0``-``100.0``; out-of-range values clamp.
         """
         pct = max(0, min(100, int(round(pct))))
-        self._bar.setValue(pct)
+        self._bar.setUpdatesEnabled(False)
+        try:
+            self._bar.setValue(pct)
+        finally:
+            self._bar.setUpdatesEnabled(True)
         self._pct.setText(f"{pct}%")
         if pct >= 90:
-            self._bar.setObjectName("UsageBarError")
+            band = "UsageBarError"
         elif pct >= 75:
-            self._bar.setObjectName("UsageBarWarn")
+            band = "UsageBarWarn"
         else:
-            self._bar.setObjectName("UsageBar")
+            band = "UsageBar"
+        if band == self._bar.objectName():
+            return
+        self._bar.setObjectName(band)
         self._bar.style().unpolish(self._bar)
         self._bar.style().polish(self._bar)

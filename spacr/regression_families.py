@@ -125,8 +125,8 @@ def family_group(name: str) -> str:
     :param name: a stored ``regression_type`` value.
     :returns: ``'parametric'``, ``'robust_semiparametric'`` or
         ``'rank_based'``.
-    :raises KeyError: a family this table does not place, which is the
-        signal that the inventory grew and this did not.
+    :raises KeyError: a family this table does not place, which means the
+        family inventory was extended without updating this table.
     """
     key = str(name).strip().lower()
     for group, families in REGRESSION_FAMILY_GROUPS:

@@ -1,24 +1,20 @@
 """Methods & Results — the two paragraphs, written from the run.
 
-The end of an analysis is a paper, and the part of the paper that is pure
-transcription — what software, what version, what parameters, what n, what
-came out — is the part everyone writes from memory three months later and
-gets subtly wrong. spaCR knows all of it: the run journal has the versions
-and the timings, the emitted macro has the modules and the parameters the
-user actually chose, the artifact registry has the provenance, the QC modules
-have the verdicts, and the hit list has the statistics.
+The software, versions, parameters, sample sizes and results that a methods
+section reports are already recorded by spaCR: the run journal has the versions
+and the timings, the emitted macro has the modules and the parameters the user
+actually chose, the artifact registry has the provenance, the QC modules have
+the verdicts, and the hit list has the statistics.
 
 This screen assembles that into a **run digest** and turns it into two
 sections: **Methods** and **Results**.
 
 **The model never sees the data.** It sees the digest — numbers already
-computed — and writes prose around them. Then every number it wrote is
-checked back against the digest, and a draft carrying a figure that is not
-there is refused: the panel says which numbers were invented, keeps the
-model's text where you can read it, and shows the sections spaCR wrote from
-the digest instead. The check is visible in the strip under the tabs, because
-"an AI wrote my methods section" is only acceptable if the reader can see the
-provenance of every figure in it.
+computed — and writes prose around them. Then every number it wrote is checked
+back against the digest, and a draft carrying a figure that is not there is
+refused: the panel says which numbers were invented, keeps the model's text
+where you can read it, and shows the sections spaCR wrote from the digest
+instead. The result of the check is shown in the strip under the tabs.
 
 **With no AI configured it still works.** The deterministic renderer writes
 both sections from the same digest with no model at all. The panel says which
@@ -398,9 +394,7 @@ class MethodsExportScreen(QWidget):
     def provenance_message(self, draft: Any) -> str:
         """The sentence under the tabs: where the prose came from, and why.
 
-        Split out from the widget so a test can assert on the wording — this
-        line is the entire user-facing guarantee, and a vague one would be
-        worse than none.
+        Split out from the widget so a test can assert on the wording.
 
         :param draft: the :class:`spacr.qt.ai.manuscript.ManuscriptDraft` just
             produced. When ``ok``, its provider and the counts of checked
@@ -428,9 +422,8 @@ class MethodsExportScreen(QWidget):
     def export(self, path: str) -> str:
         """Write both sections plus the digest to a Markdown file.
 
-        The digest travels WITH the prose, as an appendix. A methods section
-        whose provenance is a separate file is a methods section whose
-        provenance is lost.
+        The digest is written into the same file as an appendix, so the record
+        the text was written from stays with it.
 
         :param path: where to write.
         :returns: the path written, or ``""`` when there was nothing to write.

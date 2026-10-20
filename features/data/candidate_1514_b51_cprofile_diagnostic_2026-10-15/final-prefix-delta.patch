@@ -1,0 +1,53 @@
+--- peer-preimage/worker-prefix.py
++++ final/worker-prefix.py
+@@ -49,6 +49,16 @@
+             print('DIAGNOSTIC PROFILE OUTPUT ERROR: ' + traceback.format_exc(), file=sys.stderr, flush=True)
+ 
+ 
++def _wrap_callback(original, label):
++    @functools.wraps(original)
++    def wrapped(self, *args, **kwargs):
++        key = args[0] if args else kwargs.get('key')
++        if label != 'mask-build' or key == 'mask':
++            return _profile_call(label, original, (self, *args), kwargs)
++        return original(self, *args, **kwargs)
++    return wrapped
++
++
+ def _patch_loaded():
+     for module_name, class_name, method_name, label in (
+             ('spacr.qt.app', 'MainWindow', '_build_screen', 'mask-build'),
+@@ -63,25 +73,17 @@
+         actual = Path(module.__file__).resolve()
+         if not actual.is_relative_to(_EXPECTED_SITE):
+             raise RuntimeError(f'Diagnostic refuses noninstalled target: {actual}')
+-        if label == 'mask-build':
+-            @functools.wraps(original)
+-            def wrapped(self, *args, __original=original, **kwargs):
+-                key = args[0] if args else kwargs.get('key')
+-                if key == 'mask':
+-                    return _profile_call('mask-build', __original, (self, *args), kwargs)
+-                return __original(self, *args, **kwargs)
+-        else:
+-            @functools.wraps(original)
+-            def wrapped(self, *args, __original=original, **kwargs):
+-                return _profile_call('preferences-open', __original, (self, *args), kwargs)
+-        setattr(cls, method_name, wrapped)
++        setattr(cls, method_name, _wrap_callback(original, label))
+         _patched.add(label)
+     if len(_patched) == 2:
+         builtins.__import__ = _original_import
+-        (_PROFILE_ROOT / 'instrumentation.json').write_text(json.dumps({
+-            'patched': sorted(_patched), 'import_hook_restored': True,
+-            'entrypoint': 'unchanged original driver WORKER suffix',
+-            'scope': 'Only synchronous original callback duration; deferred work after return is not profiled.'}, indent=2) + '\n')
++        try:
++            (_PROFILE_ROOT / 'instrumentation.json').write_text(json.dumps({
++                'patched': sorted(_patched), 'import_hook_restored': True,
++                'entrypoint': 'unchanged original driver WORKER suffix',
++                'scope': 'Only synchronous original callback duration; deferred work after return is not profiled.'}, indent=2) + '\n')
++        except BaseException:
++            print('DIAGNOSTIC PROFILE OUTPUT ERROR: ' + traceback.format_exc(), file=sys.stderr, flush=True)
+ 
+ 
+ def _import_after_original(name, globals=None, locals=None, fromlist=(), level=0):

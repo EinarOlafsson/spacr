@@ -136,7 +136,12 @@ const VIDEO_CLOCK_DRIFT_SECONDS = 0.4;
 const VIDEO_END_PARK_SECONDS = 0.10;
 const VIDEO_END_PARK_RATE = 0.0625;
 let videoClockCorrectionPending = false;
+// True from a narration-led video skip until the picture plays again: the
+// narration is the master clock and must never wait for the picture.
+let videoCatchingUpToNarration = false;
 let nativeFrameSyncHandle = null;
+let completeNativeSceneIndex = null;
+let completeNativeNarrationWaiting = false;
 // A localized narration can outlast the silent visual master. The video stays
 // genuinely playing at a browser-safe minimum rate near its final frame so
 // native phone controls still offer a truthful Pause button while audio ends.
@@ -150,6 +155,10 @@ let programmaticVideoPausePending = false;
 // picture can play. Otherwise speech runs on over a frozen frame and the
 // clock correction chases a moving target on a slow media host.
 let narrationHeldForVideo = false;
+let narrationLoadPending = false;
+let videoHeldForAudio = false;
+let audioHoldPauseEventsPending = 0;
+let resumeAfterAudioHold = false;
 let captionUrl = "";
 let captionTrackLoading = false;
 let toastTimer = null;
@@ -1100,16 +1109,28 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
   if (!isPlayable(activeLesson)) { updateComingSoon(); return; }
   const request = ++narrationRequest;
   const isCurrent = () => request === narrationRequest && outerCurrent();
-  const wasPlaying = resume && !elements.video.paused;
-  const normalized = elements.video.duration ? elements.video.currentTime / elements.video.duration : 0;
+  const wasPlaying = resume && (!elements.video.paused ||
+    (videoHeldForAudio && resumeAfterAudioHold));
+  if (!resume) {
+    videoHeldForAudio = false;
+    resumeAfterAudioHold = false;
+  }
+  narrationLoadPending = elements.voice.value !== "silent";
+  if (wasPlaying && narrationLoadPending) holdVideoForAudio();
   videoParkedForNarration = false;
   narratedPlaybackCompleted = false;
   if (narrationFetchController) narrationFetchController.abort();
   narrationFetchController = null;
   discardNarrationAudio();
   narrationAudioAvailable = false;
-  audioTimings = null;
-  visualTimings = null;
+  // Keep the previous mapping for a chapter/seek made during a voice load.
+  // Narration cannot use it until the selected track's metadata is ready.
+  if (!resume) {
+    audioTimings = null;
+    visualTimings = null;
+  }
+  completeNativeSceneIndex = null;
+  completeNativeNarrationWaiting = false;
   clearCaptions();
   if (elements.voice.value === "silent") {
     configureMediaSync();
@@ -1122,7 +1143,7 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
     if (!isCurrent()) return;
     await loadLessonDetail(isCurrent);
     if (!isCurrent()) return;
-    if (wasPlaying) elements.video.play().catch(() => {});
+    releaseVideoForAudio();
     return;
   }
   elements.loading.classList.remove("hidden");
@@ -1147,26 +1168,38 @@ async function loadNarration(resume = true, outerCurrent = () => true) {
       // The complete Blob is already present, so a metadata timeout means
       // "finish on the play gesture", not "narration is unavailable".
       await mediaReadyOrDeferred(elements.audio);
+      if (!isCurrent()) return;
       narrationAudioAvailable = true;
     } catch (audioError) {
       if (!isCurrent()) return;
       discardNarrationAudio();
       showToast("Narration is unavailable; the GitHub-hosted video remains available.");
     }
-    setVideoTimeWithoutNarrationSeek(normalized * elements.video.duration);
-    configureMediaSync();
     await loadLessonDetail(isCurrent);
     if (!isCurrent()) return;
-    if (wasPlaying) await elements.video.play();
+    if (narrationAudioAvailable && (!audioTimings || !visualTimings)) {
+      narrationAudioAvailable = false;
+      discardNarrationAudio();
+    }
+    narrationLoadPending = false;
+    configureMediaSync();
+    if (videoHeldForAudio && resumeAfterAudioHold) {
+      if (narrationAudioAvailable) await playNarration();
+      else releaseVideoForAudio();
+    }
   } catch (error) {
     if (isCurrent()) showToast("This narration track could not be loaded.");
   } finally {
     if (narrationFetchController === controller) narrationFetchController = null;
-    if (isCurrent()) elements.loading.classList.add("hidden");
+    if (isCurrent()) {
+      narrationLoadPending = false;
+      if (!videoHeldForAudio) elements.loading.classList.add("hidden");
+    }
   }
 }
 
 function configureMediaSync() {
+  if (narrationLoadPending) return;
   if (!narrationAudioAvailable || !elements.audio.duration ||
       !elements.video.duration || elements.voice.value === "silent") {
     videoParkedForNarration = false;
@@ -1183,8 +1216,14 @@ function configureMediaSync() {
   seekNarrationToVideo();
 }
 
+function completeNativePlayback() {
+  return (visualTimings?.complete_native_clips === true ||
+    visualTimings?.preserve_visual_intervals === true) &&
+    visualTimings?.native_live_video === true;
+}
+
 function narrationOwnsCompletion() {
-  return narrationAudioAvailable && elements.voice.value !== "silent" &&
+  return !completeNativePlayback() && narrationAudioAvailable && elements.voice.value !== "silent" &&
     Number.isFinite(elements.audio.duration) && elements.audio.duration > 0 &&
     !elements.audio.ended;
 }
@@ -1250,6 +1289,11 @@ function parkVideoForNarration(force = false) {
 }
 
 function finishNarratedPlayback() {
+  if (completeNativePlayback()) {
+    completeNativeNarrationWaiting = true;
+    updateWatchUI();
+    return;
+  }
   if (narrationAudioAvailable && elements.voice.value !== "silent") {
     videoParkedForNarration = false;
     narratedPlaybackCompleted = true;
@@ -1305,9 +1349,12 @@ function mapTiming(seconds, fromTimings, toTimings) {
   const sourceEnd = Number(located.scene.scene_end) || sourceStart;
   const targetStart = Number(target.speech_start) || 0;
   const targetEnd = Number(target.scene_end) || targetStart;
-  if (located.scene.native_live_video || target.native_live_video) {
-    // Native footage retains its recorded elapsed time. A shorter narration
-    // skips the unused end of the scene at the next chapter boundary.
+  if (completeNativePlayback() ||
+      located.scene.native_live_video || target.native_live_video) {
+    // Complete native playback (complete clips or preserved intervals) runs
+    // the picture at speed 1 in every scene, stills included, so speech maps
+    // by elapsed time there too. Ordinary native playback skips unused tails;
+    // preserved playback holds speech.
     const elapsed = Math.max(0, seconds - sourceStart);
     return targetStart + Math.min(elapsed, Math.max(0, targetEnd - targetStart - 0.001));
   }
@@ -1340,7 +1387,7 @@ function updateSceneSyncRate(audioSeconds) {
   const referenceDuration = Number(reference.scene_end) - Number(reference.speech_start);
   const referenceTotal = timingDuration(visualTimings, elements.video.duration);
   if (selectedDuration <= 0 || referenceDuration <= 0 || referenceTotal <= 0) return;
-  syncRate = reference.native_live_video ? 1
+  syncRate = completeNativePlayback() || reference.native_live_video ? 1
     : elements.video.duration / referenceTotal * referenceDuration / selectedDuration;
   programmedVideoRate = clamp(syncRate, 0.0625, 16);
   elements.video.defaultPlaybackRate = programmedVideoRate;
@@ -1359,6 +1406,11 @@ function updateSceneSyncRate(audioSeconds) {
 // an explicit video seek or a load/resume boundary. Normal playback flows in
 // the other direction: stable narration time drives the silent video.
 function seekNarrationToVideo() {
+  if (narrationLoadPending) return;
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(true);
+    return;
+  }
   if (videoParkedForNarration || !narrationAudioAvailable ||
       elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
@@ -1370,6 +1422,7 @@ function seekNarrationToVideo() {
 }
 
 function videoIsLoading() {
+  if (videoCatchingUpToNarration) return false;
   return elements.video.seeking ||
     elements.video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
 }
@@ -1380,18 +1433,111 @@ function narrationHoldApplies() {
     !videoParkedForNarration && !narratedPlaybackCompleted;
 }
 
+// Only newly verified complete-clip timelines use the picture as the clock.
+// Speech is never stretched. It rests after its actual speech boundary while
+// every remaining recorded frame plays, then starts at the next visual scene.
+function syncCompleteNativeNarration(seek = false) {
+  if (narrationLoadPending || !completeNativePlayback() || !narrationAudioAvailable ||
+      elements.voice.value === "silent" || !elements.video.duration ||
+      !elements.audio.duration || !audioTimings) return;
+  if (videoClockCorrectionPending || elements.video.seeking) {
+    if (!elements.audio.paused) elements.audio.pause();
+    return;
+  }
+  const visualTime = elements.video.currentTime / elements.video.duration *
+    timingDuration(visualTimings, elements.video.duration);
+  const located = timingScene(visualTimings, visualTime);
+  const spoken = located && audioTimings.scenes?.[located.index];
+  if (!spoken) return;
+  const start = Number(spoken.speech_start) || 0;
+  const end = Number(spoken.speech_end);
+  if (!Number.isFinite(end) || end < start) return;
+  const changed = completeNativeSceneIndex !== located.index;
+  if (changed || seek) {
+    completeNativeSceneIndex = located.index;
+    const elapsed = Math.max(0, visualTime - Number(located.scene.speech_start));
+    const target = seek ? Math.min(start + elapsed, end) : start;
+    if (Math.abs(elements.audio.currentTime - target) > 0.015) {
+      elements.audio.currentTime = Math.min(target, elements.audio.duration);
+    }
+    completeNativeNarrationWaiting = target >= end;
+  } else if (elements.audio.currentTime >= end) {
+    completeNativeNarrationWaiting = true;
+  }
+  updateSceneSyncRate(start);
+  // Retain an explicit mid-scene seek target even before decoding is ready.
+  if (videoHeldForAudio && audioNeedsData()) return;
+  if (completeNativeNarrationWaiting || (elements.video.paused && !videoHeldForAudio) ||
+      elements.video.ended || videoIsLoading()) {
+    if (!elements.audio.paused) elements.audio.pause();
+  } else if (elements.audio.paused && !elements.audio.ended) {
+    startNarrationAudio().catch(() => showToast("Select play again to start narration."));
+  }
+  if (completeNativeNarrationWaiting) releaseVideoForAudio();
+}
+
+function holdVideoForAudio() {
+  if (!elements.video.paused) {
+    videoHeldForAudio = true;
+    resumeAfterAudioHold = true;
+    audioHoldPauseEventsPending += 1;
+    elements.video.pause();
+  }
+  if (videoHeldForAudio) elements.loading.classList.remove("hidden");
+}
+
+function audioNeedsData() {
+  return narrationAudioAvailable && elements.voice.value !== "silent" &&
+    !elements.audio.ended && !completeNativeNarrationWaiting &&
+    !elements.audio.seeking &&
+    elements.audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
+}
+
+function releaseVideoForAudio() {
+  if (!videoHeldForAudio || !resumeAfterAudioHold || narrationLoadPending || audioNeedsData()) return;
+  if (narrationAudioAvailable && elements.voice.value !== "silent" &&
+      elements.audio.paused && !completeNativeNarrationWaiting) return;
+  videoHeldForAudio = false;
+  resumeAfterAudioHold = false;
+  elements.loading.classList.add("hidden");
+  playVideoWithoutNarrationSync();
+}
+
+function startNarrationAudio() {
+  if (narrationLoadPending) return Promise.resolve();
+  const request = narrationRequest;
+  if (audioNeedsData() && !videoIsLoading()) holdVideoForAudio();
+  return elements.audio.play().then(() => {
+    if (request === narrationRequest) releaseVideoForAudio();
+  });
+}
+
 function updateNarrationHold() {
-  if (narrationHoldApplies() && videoIsLoading()) {
-    // Also re-pause narration that another path started during the hold.
+  // A requested picture seek already holds speech. Do not turn its ordinary
+  // playing/buffering state into a second, reciprocal picture pause.
+  if (!completeNativePlayback() && narrationHoldApplies() && videoIsLoading()) {
     narrationHeldForVideo = true;
     if (!elements.audio.paused) elements.audio.pause();
     return;
   }
-  if (!narrationHeldForVideo) return;
+  if (narrationLoadPending || audioNeedsData()) {
+    holdVideoForAudio();
+    // A deferred mobile decoder needs the play gesture to obtain metadata.
+    // It still cannot advance the picture before real decoded data arrives.
+    if (!elements.audio.paused && elements.audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      elements.audio.pause();
+    }
+    return;
+  }
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(false);
+    return;
+  }
+  if (!narrationHeldForVideo && !videoHeldForAudio) return;
   narrationHeldForVideo = false;
   // Resume only what was held: a paused or finished lesson stays as it is.
-  if (narrationHoldApplies() && elements.audio.paused && !elements.audio.ended) {
-    elements.audio.play()
+  if ((narrationHoldApplies() || videoHeldForAudio) && elements.audio.paused && !elements.audio.ended) {
+    startNarrationAudio()
       .catch(() => showToast("Select play again to start narration."));
   }
 }
@@ -1400,11 +1546,20 @@ function updateNarrationHold() {
 // narration is held instead (updateNarrationHold resumes it with the picture),
 // so no play() races a pause() and no false "select play again" appears.
 function playNarration() {
+  if (narrationLoadPending) {
+    holdVideoForAudio();
+    return Promise.resolve();
+  }
+  if (completeNativePlayback()) {
+    if (narrationAudioAvailable && !elements.audio.duration) return startNarrationAudio();
+    syncCompleteNativeNarration(false);
+    return Promise.resolve();
+  }
   if (narrationHoldApplies() && videoIsLoading()) {
     narrationHeldForVideo = true;
     return Promise.resolve();
   }
-  return elements.audio.play();
+  return startNarrationAudio();
 }
 
 function setVideoTimeFromNarration(target) {
@@ -1414,10 +1569,16 @@ function setVideoTimeFromNarration(target) {
     Math.max(0, target), Math.max(0, elements.video.duration - 0.02));
   if (Math.abs(elements.video.currentTime - bounded) <= 0.015) return;
   videoClockCorrectionPending = true;
+  videoCatchingUpToNarration = true;
   elements.video.currentTime = bounded;
 }
 
 function syncVideoToNarration(force = false) {
+  if (narrationLoadPending) return;
+  if (completeNativePlayback()) {
+    syncCompleteNativeNarration(false);
+    return;
+  }
   if (videoParkedForNarration || !narrationAudioAvailable ||
       elements.voice.value === "silent" ||
       !elements.audio.duration || !elements.video.duration) return;
@@ -1476,6 +1637,8 @@ async function loadLessonDetail(isCurrent = () => true) {
     if (!isCurrent()) return;
     audioTimings = timings;
     visualTimings = referenceTimings;
+    completeNativeSceneIndex = null;
+    completeNativeNarrationWaiting = false;
     configureMediaSync();
     startNativeFrameSync();
     rebuildChapterData();
@@ -1664,6 +1827,10 @@ function renderCaptions() {
   updateCaptionTrackMode();
 }
 
+function chapterDisplayTime(chapter) {
+  return completeNativePlayback() ? videoTimeFromAudio(chapter.start) : chapter.start;
+}
+
 function renderChapters() {
   elements.chapters.innerHTML = "";
   elements.chapters.lang = effectiveCaptionLanguage();
@@ -1672,7 +1839,7 @@ function renderChapters() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "chapter-button";
-    button.innerHTML = `<span class="chapter-time">${formatTime(chapter.start)}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
+    button.innerHTML = `<span class="chapter-time">${formatTime(chapterDisplayTime(chapter))}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
     button.addEventListener("click", () => seekTo(chapter.start));
     elements.chapters.appendChild(button);
     if (chapter.related.length) elements.chapters.appendChild(makeRelatedLessons(chapter.related));
@@ -1682,7 +1849,7 @@ function renderChapters() {
 function renderTranscript() {
   elements.transcript.lang = effectiveCaptionLanguage();
   elements.transcript.dir = "auto";
-  elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapter.start)}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
+  elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapterDisplayTime(chapter))}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
   elements.transcript.querySelectorAll("[data-seek]").forEach(button => button.addEventListener("click", () => seekTo(Number(button.dataset.seek))));
   elements.transcript.querySelectorAll(".transcript-entry").forEach((entry, index) => {
     const related = chapterData[index].related;
@@ -1691,6 +1858,10 @@ function renderTranscript() {
 }
 
 function seekTo(audioSeconds) {
+  if (completeNativePlayback()) {
+    completeNativeSceneIndex = null;
+    completeNativeNarrationWaiting = false;
+  }
   if (narrationAudioAvailable && elements.audio.duration &&
       elements.voice.value !== "silent") {
     const bounded = Math.min(
@@ -1699,6 +1870,9 @@ function seekTo(audioSeconds) {
     updateSceneSyncRate(bounded);
   }
   setVideoTimeFromNarration(videoTimeFromAudio(audioSeconds));
+  // This is a viewer's requested chapter, not an automatic drift correction.
+  // Its loading picture must hold narration at the requested speech offset.
+  videoCatchingUpToNarration = false;
   elements.video.play().catch(() => {});
 }
 
@@ -1738,8 +1912,12 @@ function mediaClock() {
 
 function updateWatchUI() {
   const clock = mediaClock();
-  elements.watchTime.textContent = `${formatTime(clock.current)} / ${formatTime(clock.duration)}`;
-  elements.watchBar.style.width = `${Math.min(100, clock.ratio * 100)}%`;
+  const shownCurrent = completeNativePlayback() ? elements.video.currentTime : clock.current;
+  const shownDuration = completeNativePlayback() ? elements.video.duration : clock.duration;
+  elements.watchTime.textContent = `${formatTime(shownCurrent)} / ${formatTime(shownDuration)}`;
+  const shownRatio = completeNativePlayback() && elements.video.duration
+    ? elements.video.currentTime / elements.video.duration : clock.ratio;
+  elements.watchBar.style.width = `${Math.min(100, shownRatio * 100)}%`;
   const currentIndex = chapterData.findIndex((chapter, index) => clock.current >= chapter.start && (!chapterData[index + 1] || clock.current < chapterData[index + 1].start));
   elements.chapters.querySelectorAll(".chapter-button").forEach((button, index) => button.classList.toggle("current", index === currentIndex));
 }
@@ -1945,6 +2123,14 @@ function resetCaptionAppearance() {
 elements.search.addEventListener("input", event => renderCurriculum(event.target.value));
 elements.video.addEventListener("play", () => {
   startNativeFrameSync();
+  if (narrationLoadPending || (audioNeedsData() && !videoIsLoading())) {
+    programmaticVideoPlayPending = false;
+    holdVideoForAudio();
+    if (!narrationLoadPending && narrationAudioAvailable) {
+      playNarration().catch(() => showToast("Select play again to start narration."));
+    }
+    return;
+  }
   const action = narratedVideoPlayAction(
     programmaticVideoPlayPending,
     narratedPlaybackCompleted,
@@ -1976,10 +2162,16 @@ elements.video.addEventListener("play", () => {
   }
 });
 elements.video.addEventListener("pause", () => {
+  if (audioHoldPauseEventsPending > 0) {
+    audioHoldPauseEventsPending -= 1;
+    return;
+  }
   if (programmaticVideoPausePending) {
     programmaticVideoPausePending = false;
     return;
   }
+  videoHeldForAudio = false;
+  resumeAfterAudioHold = false;
   // A sparse phone tick can still reach natural EOF before parking; that
   // browser-generated pause must not clip narration. A parked video remains
   // genuinely playing, so every native user pause has video.ended === false
@@ -1993,6 +2185,7 @@ elements.video.addEventListener("pause", () => {
 });
 elements.video.addEventListener("seeking", () => {
   if (!videoClockCorrectionPending) {
+    videoCatchingUpToNarration = false;
     videoParkedForNarration = false;
     narratedPlaybackCompleted = false;
     seekNarrationToVideo();
@@ -2001,6 +2194,10 @@ elements.video.addEventListener("seeking", () => {
 elements.video.addEventListener("seeked", () => {
   if (videoClockCorrectionPending) {
     videoClockCorrectionPending = false;
+    if (completeNativePlayback()) {
+      syncCompleteNativeNarration(true);
+      return;
+    }
     // One correction per settled seek. A chapter jump made while it was in
     // flight is applied now; held narration cannot have moved meanwhile.
     syncVideoToNarration(false);
@@ -2011,11 +2208,19 @@ elements.video.addEventListener("seeked", () => {
 // Registered after the handlers above so a finished correction or a viewer
 // seek has updated both clocks before narration is held or released.
 elements.audio.addEventListener("play", updateNarrationHold);
+for (const type of ["waiting", "stalled", "seeking", "seeked", "canplay"]) {
+  elements.audio.addEventListener(type, updateNarrationHold);
+}
+elements.audio.addEventListener("playing", releaseVideoForAudio);
 for (const type of ["waiting", "stalled", "seeking", "seeked", "loadeddata",
                     "canplay", "canplaythrough", "playing", "pause", "emptied"]) {
   elements.video.addEventListener(type, updateNarrationHold);
 }
+elements.video.addEventListener("playing", () => {
+  if (!videoClockCorrectionPending) videoCatchingUpToNarration = false;
+});
 elements.video.addEventListener("emptied", () => {
+  videoCatchingUpToNarration = false;
   // Replacing/removing src cancels an in-flight seek without a seeked event.
   // Its guard belongs to the discarded resource, not the next lesson.
   videoClockCorrectionPending = false;
@@ -2048,9 +2253,9 @@ elements.audio.addEventListener("timeupdate", () => {
   updateWatchUI();
 });
 elements.audio.addEventListener("loadedmetadata", () => {
-  if (!narrationAudioAvailable) return;
+  if (narrationLoadPending || !narrationAudioAvailable) return;
   configureMediaSync();
-  if (!elements.video.paused) {
+  if (!elements.video.paused || (videoHeldForAudio && resumeAfterAudioHold)) {
     playNarration().catch(() => {
       showToast("Select play again to start narration.");
     });
@@ -2066,9 +2271,12 @@ elements.audio.addEventListener("error", () => {
   programmaticVideoPlayPending = false;
   discardNarrationAudio();
   configureMediaSync();
+  releaseVideoForAudio();
   showToast("Narration is unavailable; the GitHub-hosted video remains available.");
 });
-elements.video.addEventListener("canplay", () => elements.loading.classList.add("hidden"));
+elements.video.addEventListener("canplay", () => {
+  if (!narrationLoadPending && !videoHeldForAudio) elements.loading.classList.add("hidden");
+});
 elements.video.textTracks?.addEventListener?.("change", syncCaptionPreferenceFromNativeControls);
 elements.voice.addEventListener("change", switchVoice);
 elements.language.addEventListener("change", switchLanguage);

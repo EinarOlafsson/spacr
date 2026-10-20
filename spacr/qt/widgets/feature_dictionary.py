@@ -1,13 +1,12 @@
 """The in-app feature dictionary: look a measurement up without leaving spaCR.
 
 A finished run writes hundreds of columns per object with names like
-``cell_channel_1_percentile_75``. :mod:`spacr.feature_dict` has known what
-those mean for a while, but only as an *export*: you could write a markdown
-file describing a database, and that was the whole interface. So the moment a
-user actually needs the answer — reading a results table, staring at a
-regression coefficient, hovering a UMAP axis — they have to leave the app.
+``cell_channel_1_percentile_75``. :mod:`spacr.feature_dict` defines those
+names and can export a markdown file describing a database. This module makes
+the same definitions available inside the app, where a user reads a results
+table, a regression coefficient or a UMAP axis.
 
-This module is the missing half:
+The module provides:
 
 :class:`FeatureDictionaryPanel`
     the searchable panel. Search by column name, by substring, or by *idea*
@@ -27,9 +26,9 @@ This module is the missing half:
     ``theme.py``.
 
 :func:`install_window_hooks`
-    the two reach-me-from-where-I-am routes: a **Help ▸ Feature Dictionary…**
-    action, and a **"What is this?"** item on the context menu of any results
-    table in the app.
+    the two entry points: a **Help ▸ Feature Dictionary…** action, and a
+    **"What is this?"** item on the context menu of any results table in the
+    app.
 
 The context-menu route is deliberately an application-level event filter
 rather than an edit to each table screen. There are eleven table-bearing
@@ -425,14 +424,22 @@ class FeatureDictionaryPanel(QWidget):
             self._hits = []
 
         self._list.blockSignals(True)
-        self._list.clear()
-        for hit in self._hits:
+        self._list.setCurrentRow(-1)
+        self._list.clearSelection()
+        for row, hit in enumerate(self._hits):
             doc = hit.doc
             where = object_type_summary(doc.object_types) if doc.object_types else doc.kind
-            item = QListWidgetItem(f"{doc.title}\n{doc.family} · {where}")
+            if row < self._list.count():
+                item = self._list.item(row)
+            else:
+                item = QListWidgetItem()
+                self._list.addItem(item)
+            item.setText(f"{doc.title}\n{doc.family} · {where}")
             item.setData(Qt.UserRole, doc.key)
             item.setToolTip(doc.description or "No definition.")
-            self._list.addItem(item)
+            item.setHidden(False)
+        for row in range(len(self._hits), self._list.count()):
+            self._hide_pooled_item(self._list.item(row))
         self._list.blockSignals(False)
 
         if self._hits:
@@ -448,6 +455,19 @@ class FeatureDictionaryPanel(QWidget):
             self._doc = None
             self._detail.setHtml(
                 "<p><i>No feature matches that search.</i></p>")
+
+    def _hide_pooled_item(self, item: QListWidgetItem) -> None:
+        """Blank and hide a pooled list item that no hit currently uses.
+
+        Items are recycled rather than deleted so a keystroke never destroys
+        Qt objects.
+
+        :param item: the surplus pooled item.
+        """
+        item.setText("")
+        item.setData(Qt.UserRole, None)
+        item.setToolTip("")
+        item.setHidden(True)
 
     def _on_row_changed(self, row: int) -> None:
         """Show the selected feature, unpinning the asked-about column if it moved.
@@ -855,7 +875,7 @@ class FeatureHelpFilter(QObject):
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         """Watch the widgets this filter is installed on.
 
-        THE EVENT TYPE IS READ FIRST, and the liveness checks follow it.
+        The event type is read first, and the liveness checks follow it.
         This filter is on the QApplication, so both `_still_alive` calls
         used to run for every event in the process -- 94,431 of them
         during one Regression open, and a profile counted the pair at
@@ -943,7 +963,8 @@ def install_window_hooks(window: QMainWindow) -> None:
 
     Called from :func:`spacr.qt.shortcuts.install`, which runs once from
     ``MainWindow.__init__`` after the menu bar exists. Every failure is
-    logged and swallowed: a missing help entry must not cost anyone a window.
+    logged and swallowed, so a missing help entry never prevents the window
+    from opening.
 
     :param window: the main window; its Help menu gets the dictionary action,
         and the process-wide context-menu filter is installed.

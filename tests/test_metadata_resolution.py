@@ -72,7 +72,7 @@ def test_unparseable_conditions_get_distinct_audited_pseudo_wells(tmp_path):
     assert wells[0] == wells[2]
     assert wells[3] != wells[4]
     assert len(set(wells)) == 4
-    payload = json.loads(audit.read_text())
+    payload = json.loads(audit.read_text(encoding="utf-8"))
     assert len(payload["pseudo_map"]) == 4
 
 

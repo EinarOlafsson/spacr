@@ -112,4 +112,4 @@ def test_workflow_starts_measurable_software_x_under_the_same_serial_guard():
     assert '"SPACR_TEST_MEMORY_GB=10.8"' in workflow
     assert "-p MemoryMax=12G -p MemorySwapMax=0" in workflow
     assert '"$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh"' in workflow
-    assert "tools/can_this_display_be_measured.py" in RUNNER.read_text()
+    assert "tools/can_this_display_be_measured.py" in RUNNER.read_text(encoding="utf-8")

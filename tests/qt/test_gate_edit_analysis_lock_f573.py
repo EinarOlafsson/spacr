@@ -30,8 +30,8 @@ def test_threshold_edit_before_unblinding_keeps_original_first_seen_at_export(qt
     low.editingFinished.emit()
     assert 'DEVIATION' in screen._source.text().upper()
     assert 'VERIFIED' not in screen._source.text().upper()
-    assert json.loads(strategy.read_text())['gates'][0]['low'] == 150
-    observed = [json.loads(line) for line in rj._seen_log(record).read_text().splitlines()]
+    assert json.loads(strategy.read_text(encoding="utf-8"))['gates'][0]['low'] == 150
+    observed = [json.loads(line) for line in rj._seen_log(record).read_text(encoding="utf-8").splitlines()]
     assert len(observed) == 1 and observed[0]['utc'] == now['time']
     now['time'] = '2026-10-01T10:02:00.000000Z'
     rj.unblind(key['key_id'], reason='scoring complete')

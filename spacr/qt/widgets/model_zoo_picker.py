@@ -1,35 +1,31 @@
 """Browse the model zoo, download a model, and hand back its path.
 
-A model setting takes a filesystem path, which is exact and unhelpful: the
-user has to know a model exists, find where it lives, and type it correctly
-before anything happens. This dialog is the other way in -- the list of models
-spaCR knows about, what each was trained on, whether it is already on this
+A model setting takes a filesystem path, so the user has to know a model
+exists, find where it lives, and type it correctly. This dialog lists the
+models in spaCR's catalogue, what each was trained on, whether it is already on this
 machine, and a button that downloads one and returns its path to the field
 that opened it.
 
-WHY THE DOWNLOAD LOCATION IS A CONTROL RATHER THAN A CONSTANT. Checkpoints are
+The download location is a control rather than a constant. Checkpoints are
 large -- the Toxoplasma models are 1.2 GB each -- and on a shared workstation
 or a laptop with a small root volume the default is often the wrong disk. A
 lab that keeps models on a NAS wants them there once, not once per user. So
 the folder is on screen, remembered between openings, and shown before anything
 is fetched rather than discovered afterwards in a full-disk error.
 
-NOTHING IS DOWNLOADED WITHOUT BEING ASKED FOR. Opening the dialog lists; the
-download happens on the button. That matters because the list is useful on its
-own -- seeing that a model exists and what it was trained on is often the whole
-question -- and because a dialog that starts a gigabyte transfer on open is one
-users learn not to open.
+Nothing is downloaded until requested. Opening the dialog lists the models;
+the download happens on the button. The list is useful on its own -- whether a
+model exists and what it was trained on -- and opening the dialog does not
+start a gigabyte transfer.
 
-WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list
-with "show unvetted community uploads" beside it -- a control that could fold
-away exactly one of the catalogue's five origins. With ten models trained
-here, four stock Cellpose-SAM backbones, bioimage.io's collection, the
-Cellpose 3 backend's own four and a shared catalogue, a user who wanted the
-ten and not the rest had no way to say so. :class:`SourceStrip` is the five
+The list has five source headings rather than one checkbox. The catalogue
+has five origins -- models trained here, the stock Cellpose-SAM backbones,
+bioimage.io's collection, the Cellpose 3 backend's models and a shared
+community catalogue -- and each can be shown or hidden. :class:`SourceStrip` is the five
 origins as five clickable names, each one blue when its rows are on screen and
-muted when they are folded away, remembered between openings. The warning the
-boolean carried is unchanged and still arrives before the first unvetted row
-does -- see :meth:`ModelZooPicker._may_show_source`.
+muted when they are folded away, remembered between openings. A warning is
+shown before the first unvetted community row -- see
+:meth:`ModelZooPicker._may_show_source`.
 """
 from __future__ import annotations
 
@@ -47,8 +43,10 @@ from PySide6.QtWidgets import (QAbstractItemView, QDialog,
                                QTextBrowser,
                                QVBoxLayout, QWidget)
 
-from .sortable_table import install_sorting, table_item
-from ..i18n import tr
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_items,
+    _spare_table_item, _wipe)
+from ..i18n import retranslate_widget_tree, set_translatable_text, tr
 from ...logging_util import _spacr_home
 from ..prefs import _store_args
 
@@ -85,6 +83,13 @@ def _store():
     return QSettings(*_store_args(_ORG, _APP))
 
 
+def _default_model_dir() -> str:
+    """Resolve the active model cache when a new destination is needed."""
+    from ... import model_zoo
+
+    return str(model_zoo._model_cache_root())
+
+
 def remembered_model_dir() -> str:
     """The folder the user last downloaded into, or the default.
 
@@ -98,7 +103,7 @@ def remembered_model_dir() -> str:
             return stored
     except Exception:                                       # noqa: BLE001
         pass
-    return DEFAULT_MODEL_DIR
+    return _default_model_dir()
 
 
 def _remember_model_dir(folder: str) -> None:
@@ -175,6 +180,21 @@ def _cellpose3_heading_turns_on(chosen) -> bool:
     except Exception:                                       # noqa: BLE001
         return False
     return True
+
+
+def _third_party_heading_visible() -> bool:
+    """Whether the Third-party heading is shown (item 691).
+
+    Its only row, MitoNet, is an alpha feature, so the heading is
+    registered with the alpha gate as ``ModelZooSourceThirdParty`` and is
+    hidden, rather than shown empty, while Show alpha features is off.
+    """
+    try:
+        from ..preferences import _is_alpha_visible
+
+        return bool(_is_alpha_visible("widgets", "ModelZooSourceThirdParty"))
+    except Exception:
+        return False
 
 
 def _remember_sources(names) -> None:
@@ -256,7 +276,7 @@ class _SourceHeading(QLabel):
         palette = active_palette()
         colour = palette["accent"] if self._on else palette["fg_muted"]
         size = font_px("body")
-        sheet = (f"QLabel#ModelZooSource {{"
+        sheet = (f"QLabel#{self.objectName() or 'ModelZooSource'} {{"
                  f"  color: {colour};"
                  f"  font-size: {size}px;"
                  f"  font-weight: 600;"
@@ -304,6 +324,24 @@ class SourceStrip(QWidget):
         for name in model_zoo.ZOO_SOURCES:
             heading = _SourceHeading(name, self)
             heading.setToolTip(_SOURCE_TOOLTIPS.get(name, ""))
+            if name == "spaCR community":
+                set_translatable_text(heading, "spaCR community")
+            if name in _SOURCE_TOOLTIPS:
+                retranslate_widget_tree(heading)
+            if name == "Third-party":
+                from ..i18n import tr
+
+                heading.setObjectName("ModelZooSourceThirdParty")
+                heading.setText(tr("Third-party"))
+                heading.setToolTip(tr(
+                    "Published models that spaCR did not train, such as "
+                    "MitoNet for mitochondria in electron micrographs. Each "
+                    "row carries its authors' licence and the paper to "
+                    "cite."))
+                heading._restyle()
+                if not _third_party_heading_visible():
+                    heading.setProperty("_spacr_alpha_hid", True)
+                    heading.setVisible(False)
             heading.set_on(name in on_now)
             heading.clicked.connect(
                 lambda n=name: self.set_on(n, not self.is_on(n)))
@@ -357,10 +395,9 @@ class SourceStrip(QWidget):
 def confirm_community_uploads(parent) -> bool:
     """Say what an unvetted upload is, and ask whether to show them anyway.
 
-    The words are the retired checkbox's own, unchanged. The control that
-    carried them was what was wrong; the sentence was not. It is said rather
-    than merely labelled because the difference between a reviewed model and
-    an unreviewed one is not visible in a table.
+    The words are those of the retired checkbox. The question is asked
+    rather than shown as a label because a reviewed and an unreviewed model
+    look the same in a table.
 
     :param parent: the widget the dialog belongs to.
     :returns: True when the user said to show them.
@@ -464,6 +501,38 @@ class _DownloadWorker(QObject):
             self.finished.emit(str(path))
 
 
+
+class _ModelReferenceWorker(QObject):
+    """Verify one selected file on a worker, with cooperative cancellation."""
+
+    succeeded = Signal(int, object)
+    failed = Signal(int, str)
+    cancelled = Signal(int)
+
+    def __init__(self, generation, entry, path, requested):
+        """Capture an immutable selection generation and its actual local path."""
+        super().__init__()
+        self._generation = generation
+        self._entry = entry
+        self._path = path
+        self._requested = requested
+
+    def run(self):
+        """Hash trusted bytes off the GUI thread and return separate evidence."""
+        from ... import model_zoo
+
+        try:
+            result = model_zoo._verified_model_reference(
+                self._entry, self._path, requested_value=self._requested,
+                cancelled=QThread.currentThread().isInterruptionRequested)
+        except model_zoo.DownloadCancelled:
+            self.cancelled.emit(self._generation)
+        except Exception as exc:
+            self.failed.emit(self._generation, str(exc))
+        else:
+            self.succeeded.emit(self._generation, result)
+
+
 def _human_bytes_local(size: float) -> str:
     """A byte count a person can read.
 
@@ -543,17 +612,62 @@ class _BackendJob(QObject):
             self.succeeded.emit(state)
 
 
+def _retire_thread(thread, worker, wait_ms: int = 2000) -> bool:
+    """Stop a dialog's worker thread within ``wait_ms`` and never destroy it running.
+
+    A QThread parented to a dialog dies with the dialog, and Qt aborts the
+    process when that happens while it still runs. The thread is asked to
+    stop and waited for; one that will not stop is cut loose from the dialog
+    and its worker, taken off its parent and parked with
+    :func:`spacr.qt.bridge._park_still_running`, never terminated.
+
+    :param thread: the QThread, or None.
+    :param worker: the QObject living on it, or None.
+    :param wait_ms: how long to wait for it to stop.
+    :returns: True when the thread has stopped, False when it was parked.
+    """
+    from ..bridge import thread_has_stopped
+
+    if thread_has_stopped(thread):
+        return True
+    try:
+        thread.requestInterruption()
+        thread.quit()
+        if thread.wait(max(0, int(wait_ms))):
+            return True
+    except RuntimeError:
+        return True
+    if worker is not None:
+        for name in ("progressed", "finished", "failed", "succeeded",
+                     "cancelled"):
+            signal = getattr(worker, name, None)
+            if signal is None:
+                continue
+            try:
+                signal.disconnect()
+            except (RuntimeError, TypeError):
+                pass
+    try:
+        thread.setParent(None)
+    except RuntimeError:
+        return True
+    from ..bridge import _park_still_running
+
+    _park_still_running([(thread, worker)])
+    return False
+
+
 class BackendInstallDialog(QDialog):
     """Install, or uninstall, one segmentation backend, with progress and
     Cancel.
 
-    WHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an
+    The dialog states what it changes before it changes it. A backend installs into an
     environment of its own under ``~/.spacr/backends``; spaCR's own
     environment is never touched, so nothing here can stop spaCR starting.
     The dialog says where it goes, what it downloads, how large it is and
     under what licence before Install is pressed.
 
-    THE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for
+    The window keeps responding. The install -- a venv, then pip, often for
     minutes -- runs on a worker thread; the dialog shows which step it is on
     and pip's latest line, and Cancel stops pip and everything it started
     and removes the half-built environment. A failure shows the failing
@@ -572,13 +686,13 @@ class BackendInstallDialog(QDialog):
         in the description.
     :ivar error: the last failure's message, verbatim; empty until one.
 
-    THE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,
+    The screen behind it can follow it. :attr:`job_started`,
     :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`
     tell the widget that opened the dialog what the install is doing, so a
     button can say "installing" while it runs and a console can say why it
     failed after the dialog has gone.
 
-    IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog
+    It belongs to the window, not the widget that asked. A dialog
     inherits the style sheet of every widget above it, and Plaque Assay asks
     from its preview, whose own scale slider re-states the application sheet
     at that preview's scale: at 150 % Install and Cancel were 59 px tall,
@@ -586,7 +700,7 @@ class BackendInstallDialog(QDialog):
     is themed like every other dialog and still centred on, and modal to,
     the window that opened it.
 
-    THE BAR SITS ON THE BUTTONS. The progress line is the last thing above
+    The progress bar sits on the buttons. The progress line is the last thing above
     the buttons and the status keeps four lines' room while a job runs, so
     the bar does not move as the status line grows and shrinks.
     """
@@ -780,10 +894,7 @@ class BackendInstallDialog(QDialog):
 
     def _join(self) -> None:
         """Retire the worker thread."""
-        thread = self._thread
-        if thread is not None:
-            thread.quit()
-            thread.wait(10000)
+        _retire_thread(self._thread, self._worker, 10000)
         self._thread = None
         self._worker = None
         self.progress.setVisible(False)
@@ -852,6 +963,18 @@ class BackendInstallDialog(QDialog):
             event.ignore()
             return
         super().closeEvent(event)
+
+    def done(self, result: int) -> None:
+        """Cancel and retire a job still running when the dialog ends.
+
+        :param result: dialog result passed unchanged to Qt.
+        """
+        if self._thread is not None:
+            self._cancel.set()
+            _retire_thread(self._thread, self._worker, 2000)
+            self._thread = None
+            self._worker = None
+        super().done(result)
 
 
 def install_backend(parent, name: str, *, watch=None, reinstall: bool = False,
@@ -1114,11 +1237,18 @@ class ModelZooPicker(QDialog):
         self._kinds = tuple(kinds) if kinds else None
         self._entries: List = []
         self._chosen_path: Optional[str] = None
+        self._chosen_reference = None
+        self._reference_generation = 0
+        self._reference_thread = None
+        self._reference_worker = None
+        self._reference_request = None
+        self._completed_paths = {}
+        self._download_entry = None
 
         layout = QVBoxLayout(self)
 
         blurb = QLabel(
-            "Models spaCR knows about. A model already on this machine can be "
+            "Models in spaCR's catalogue. A model already on this machine can be "
             "used straight away; the rest are downloaded when you ask for one.")
         blurb.setWordWrap(True)
         layout.addWidget(blurb)
@@ -1392,15 +1522,17 @@ class ModelZooPicker(QDialog):
         Split out of :meth:`refresh` so a caller -- a test, mainly -- can list
         entries of its own choosing without going through the catalogue.
         """
-        from ..screens.model_zoo import group_entries
+        from ..screens.model_zoo import _mark_alternatives, group_entries
 
         self._entries = list(entries)
 
         self._rebuilding = True
-        self.table.clearContents()
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self._groups = group_entries(entries)
-        self._chosen = {stem: 0 for stem, _ in self._groups}
+        from ... import model_zoo as _zoo
+
+        self._chosen = {stem: _zoo.default_version_index(pairs)
+                        for stem, pairs in self._groups}
 
         sorting = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
@@ -1408,7 +1540,8 @@ class ModelZooPicker(QDialog):
         for row, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(self.table)
             combo.addItems([label for label, _ in pairs])
-            combo.setCurrentIndex(0)
+            _mark_alternatives(combo, pairs)
+            combo.setCurrentIndex(self._chosen[stem])
             combo.currentIndexChanged.connect(
                 lambda index, g=row: self._version_picked(g, index))
             self.table.setCellWidget(row, 4, combo)
@@ -1492,11 +1625,17 @@ class ModelZooPicker(QDialog):
         from ... import model_zoo
 
         tip = model_zoo.scorecard_html(entry)
+        state = model_zoo._scorecard_state_html(entry)
+        tip = tip + state if tip else state
         notes = tuple(getattr(entry, "notes", ()) or ())
         sorting = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
         for column, text in enumerate(cells):
-            item = table_item(str(text))
+            old = self.table.takeItem(row, column)
+            if old is not None:
+                _wipe(self.table, old)
+                _spare_items(self.table).append(old)
+            item = _spare_table_item(self.table, str(text))
             if column == 0:
                 item.setData(Qt.UserRole, group)
             if tip:
@@ -1673,11 +1812,14 @@ class ModelZooPicker(QDialog):
         Checks the entry's own recorded path first -- a locally discovered
         model has one -- then the chosen download folder.
         """
+        completed = self._completed_paths.get(self._entry_identity(entry))
+        if completed and os.path.isfile(completed):
+            return completed
         recorded = getattr(entry, "path", "") or ""
         if recorded and os.path.isfile(recorded):
             return recorded
         candidate = os.path.join(self.folder_edit.text().strip()
-                                 or DEFAULT_MODEL_DIR, entry.name)
+                                 or _default_model_dir(), entry.name)
         return candidate if os.path.isfile(candidate) else None
 
     def selected_entry(self):
@@ -1702,6 +1844,13 @@ class ModelZooPicker(QDialog):
         knowingly.
         """
         entry = self.selected_entry()
+        request = self._reference_request
+        if request is not None:
+            if (self._entry_identity(entry) != request[0]
+                    or self._local_path(entry) != request[1]):
+                self._stop_reference_check()
+            else:
+                return
         refused = _cannot_run(entry) if entry is not None else ""
         local = self._local_path(entry) if entry and not refused else None
         installs = entry is not None and not refused and _needs_install(entry)
@@ -1755,7 +1904,9 @@ class ModelZooPicker(QDialog):
                 name = getattr(entry, "display_name", "") or getattr(entry, "name", "")
                 html = (f"<p><b>{name}</b></p>"
                         f"<p>{getattr(entry, 'trained_on', '') or ''}</p>")
-        if getattr(entry, "source", "") == "community":
+        html += model_zoo._scorecard_state_html(entry)
+        if (getattr(entry, "source", "") == "community"
+                and model_zoo.source_of(entry) == "spaCR community"):
             from ... import model_zoo as _zoo
 
             html += (f"<p><b style='color:#b45309'>{_zoo.COMMUNITY_WARNING}"
@@ -1781,7 +1932,7 @@ class ModelZooPicker(QDialog):
         """Ask where downloaded checkpoints should live, and remember the answer."""
         folder = QFileDialog.getExistingDirectory(
             self, "Where should models be saved?",
-            self.folder_edit.text().strip() or DEFAULT_MODEL_DIR)
+            self.folder_edit.text().strip() or _default_model_dir())
         if folder:
             self.folder_edit.setText(folder)
             _remember_model_dir(folder)
@@ -1797,7 +1948,7 @@ class ModelZooPicker(QDialog):
         if _needs_install(entry) or getattr(entry, "kind", "") == "backend":
             self._install_backend(entry)
             return
-        folder = self.folder_edit.text().strip() or DEFAULT_MODEL_DIR
+        folder = self.folder_edit.text().strip() or _default_model_dir()
         try:
             os.makedirs(folder, exist_ok=True)
         except OSError as exc:
@@ -1828,6 +1979,7 @@ class ModelZooPicker(QDialog):
                 self.status.setText("Download cancelled.")
                 return
         self._folder_for_download = folder
+        self._download_entry = entry
         self._started_at = time.monotonic()
         self._last_emit = 0.0
 
@@ -1884,12 +2036,11 @@ class ModelZooPicker(QDialog):
     def _finish_download(self, outcome: str) -> None:
         """Common teardown for both download outcomes."""
         self.progress.setVisible(False)
-        thread = getattr(self, "_thread", None)
-        if thread is not None:
-            thread.quit()
-            thread.wait(5000)
-            self._thread = None
-            self._worker = None
+        _retire_thread(getattr(self, "_thread", None),
+                       getattr(self, "_worker", None), 5000)
+        self._thread = None
+        self._worker = None
+        self._download_entry = None
         self.refresh()
         if outcome:
             self.status.setText(outcome)
@@ -1899,6 +2050,12 @@ class ModelZooPicker(QDialog):
 
         :param path: where the checkpoint landed.
         """
+        sender = self.sender()
+        if sender is not None and sender is not self._worker:
+            return
+        entry = self._download_entry
+        if entry is not None:
+            self._completed_paths[self._entry_identity(entry)] = str(path)
         _remember_model_dir(getattr(self, "_folder_for_download", "") or path)
         self._finish_download(f"Downloaded to {path}")
 
@@ -1945,9 +2102,94 @@ class ModelZooPicker(QDialog):
             from ..._segmentation_backends import _prefixed_value
 
             local = _prefixed_value(_prefixed_kind(entry), local)
-        self._chosen_path = local
-        self.model_chosen.emit(local)
+        self._start_reference_check(entry, self._local_path(entry), local)
+
+    @staticmethod
+    def _entry_identity(entry):
+        """Distinguish selected records without inferring identity from filenames."""
+        return tuple(getattr(entry, name, None) for name in
+                     ("source", "key", "name", "kind", "uri", "sha256",
+                      "version", "path"))
+
+    def _start_reference_check(self, entry, path, requested):
+        """Verify asynchronously, retaining the worker through native teardown.
+
+        The result can reach the GUI before the thread finishes deleting its
+        worker. Keeping the wrapper on the thread prevents its last Python
+        reference from disappearing while that native destructor takes the GIL.
+        """
+        self._stop_reference_check()
+        self._chosen_reference = None
+        self._chosen_path = None
+        if getattr(entry, "source", "") == "stock" or not entry.sha256:
+            self._chosen_path = requested
+            self.model_chosen.emit(requested)
+            self.accept()
+            return
+        self._reference_generation += 1
+        generation = self._reference_generation
+        self._reference_request = (self._entry_identity(entry), path, requested)
+        self.progress.setRange(0, 0)
+        self.progress.setVisible(True)
+        self.status.setText(tr("Checking the selected model file…"))
+        for control in (self.table, self.sources, self.folder_edit,
+                        self.use_button, self.download_button,
+                        self.uninstall_button):
+            control.setEnabled(False)
+        thread = QThread(self)
+        worker = _ModelReferenceWorker(generation, entry, path, requested)
+        thread._reference_worker = worker
+        self._reference_thread = thread
+        self._reference_worker = worker
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.succeeded.connect(self._reference_ready)
+        worker.failed.connect(self._reference_failed)
+        worker.cancelled.connect(self._reference_cancelled)
+        for signal in (worker.succeeded, worker.failed, worker.cancelled):
+            signal.connect(thread.quit, Qt.DirectConnection)
+        thread.start()
+
+    def _stop_reference_check(self):
+        """Cancel and drain verification without waiting for file reads on the GUI."""
+        self._reference_generation += 1
+        thread, worker = self._reference_thread, self._reference_worker
+        self._reference_thread = self._reference_worker = None
+        self._reference_request = None
+        _retire_thread(thread, worker, 0)
+        self.progress.setVisible(False)
+        for control in (self.table, self.sources, self.folder_edit):
+            control.setEnabled(True)
+        self._selection_changed()
+
+    def _reference_ready(self, generation, verified):
+        """Accept only the still-current selection and its separately verified result."""
+        if generation != self._reference_generation:
+            return
+        request = self._reference_request
+        entry = self.selected_entry()
+        current = (self._entry_identity(entry), self._local_path(entry))
+        self._stop_reference_check()
+        if request is None or current != request[:2]:
+            return
+        self._chosen_path = request[2]
+        self._chosen_reference = verified
+        self.model_chosen.emit(request[2])
         self.accept()
+
+    def _reference_failed(self, generation, message):
+        """Keep the selection open and report the actual verifier refusal."""
+        if generation != self._reference_generation:
+            return
+        self._stop_reference_check()
+        self.status.setText(message)
+
+    def _reference_cancelled(self, generation):
+        """Discard a cancelled check without treating it as an empty error."""
+        if generation != self._reference_generation:
+            return
+        self._stop_reference_check()
+        self.status.setText("")
 
     def _stop_any_download(self) -> None:
         """Stop and join a running download thread.
@@ -1959,15 +2201,8 @@ class ModelZooPicker(QDialog):
         a live thread. This crashed the test suite before it could crash a
         user, which is the only reason it was found here.
         """
-        thread = getattr(self, "_thread", None)
-        if thread is None:
-            return
-        try:
-            if thread.isRunning():
-                thread.quit()
-                thread.wait(10000)
-        except RuntimeError:
-            pass
+        _retire_thread(getattr(self, "_thread", None),
+                       getattr(self, "_worker", None), 2000)
         self._thread = None
         self._worker = None
 
@@ -1977,11 +2212,13 @@ class ModelZooPicker(QDialog):
         :param event: the close event; passed on to the base class after any
             download is stopped.
         """
+        self._stop_reference_check()
         self._stop_any_download()
         super().closeEvent(event)
 
     def reject(self) -> None:
         """Cancel closes the dialog; it must not leave a thread behind."""
+        self._stop_reference_check()
         self._stop_any_download()
         super().reject()
 
@@ -1995,6 +2232,11 @@ class ModelZooPicker(QDialog):
         work never waits for HTTP, and discarded results cannot refresh
         this dialog.
         """
+        self._stop_reference_check()
+        if result != QDialog.Accepted:
+            self._chosen_path = None
+            self._chosen_reference = None
+        self._stop_any_download()
         runner = getattr(self, "_catalogue_job", None)
         if runner is not None:
             runner.shutdown(timeout_ms=0)

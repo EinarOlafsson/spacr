@@ -1,0 +1,69 @@
+{
+  "review_kind": "AI technical translation review; no native-speaker or human signoff",
+  "scope": "Seven natural count/ranking rewrites preserve exact meanings and protected placeholder order. Sources and gate code unchanged.",
+  "records": [
+    {
+      "language": "zh_CN",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "source_sha256": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+      "previous_translation": "{total} 个文件中有 {matched} 个可解析。第一个无法解析的文件：{first}",
+      "previous_target_sha256": "4aa9d5f9f56deb290bbc0da8036dacc7f3a4336350a4d1f52fc085ed2d1ca2e2",
+      "translation": "{matched}/{total} 个文件可解析。第一个无法解析的文件：{first}",
+      "target_sha256": "4d7d9fb3b1828dc2514ef2d1a7b04a08fe0dab3e3ddf6d40dca1ddd664ba506f"
+    },
+    {
+      "language": "zh_CN",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "source_sha256": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb",
+      "previous_translation": "{total} 个中有 {matched} 个 — {label}  ({key})",
+      "previous_target_sha256": "ae9d70577f3619b4ef30e97cf589b179e9fae94269c21ac09bea247d1a1e016d",
+      "translation": "{matched}/{total} 个 — {label}  ({key})",
+      "target_sha256": "10175531efd40a5c156270328c4a1b08c3f2ece337b43d7f809366e9be1105b2"
+    },
+    {
+      "language": "hi",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "source_sha256": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+      "previous_translation": "{total} में से {matched} फ़ाइलों के नाम पार्स किए जा सकते हैं। पहली फ़ाइल जिसका नाम पार्स नहीं किया जा सकता: {first}",
+      "previous_target_sha256": "3defd0084a8c3c3fac618bab407d5366bd548c3332e7ea449df7adbfe95fb0bc",
+      "translation": "{matched} फ़ाइलों के नाम पार्स किए जा सकते हैं (कुल {total})। पहली फ़ाइल जिसका नाम पार्स नहीं किया जा सकता: {first}",
+      "target_sha256": "1f781d5c66524d83bc10483f1ee291692f294bc9db2f2184458bb534b42edd84"
+    },
+    {
+      "language": "hi",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "source_sha256": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb",
+      "previous_translation": "{total} में से {matched} — {label}  ({key})",
+      "previous_target_sha256": "6e9961bf34cad95694f152c027cd487d28fe86633f8148abcc6825028aac13f0",
+      "translation": "{matched}/{total} फ़ाइलें — {label}  ({key})",
+      "target_sha256": "acadd532111840d116f32f2f1517a6bc112c7c749f9744242b2be9a0dc3a9f43"
+    },
+    {
+      "language": "ko",
+      "source": "All {total} .{extension} files parse.",
+      "source_sha256": "83dcef9065d4facb51a49c97ad99bd74a84ac8457385ef80a1c44cc03f680fba",
+      "previous_translation": ".{extension} 파일 {total}개를 모두 해석할 수 있습니다.",
+      "previous_target_sha256": "2d1a8b49d6a40081179218025202bfa04e9f6b1148e2989815cddfb011bb293a",
+      "translation": "총 {total}개의 .{extension} 파일을 모두 해석할 수 있습니다.",
+      "target_sha256": "73a4324216bf21273264019a8d162115875a20f6a7143d475fd2527274287596"
+    },
+    {
+      "language": "ko",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "source_sha256": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+      "previous_translation": "파일 {total}개 중 {matched}개를 해석할 수 있습니다. 해석할 수 없는 첫 번째 파일: {first}",
+      "previous_target_sha256": "0214dbb2217ab1e9f0b551c63dc0b4fd34a646bb1e4d91f294b9c8ceacdcc660",
+      "translation": "{matched}개 파일(총 {total}개)을 해석할 수 있습니다. 해석할 수 없는 첫 번째 파일: {first}",
+      "target_sha256": "dc968f8307f92dd1db0e03281a26c3c163fbd87f837a2972cf380b0db031d01f"
+    },
+    {
+      "language": "ko",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "source_sha256": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb",
+      "previous_translation": "{total}개 중 {matched}개 — {label}  ({key})",
+      "previous_target_sha256": "b6aa4f2fcf7caa4402c4037c7ca8056bb5e7999f5201863720270d1f5f7bcc32",
+      "translation": "{matched}/{total}개 — {label}  ({key})",
+      "target_sha256": "81e89514e42c58fcadac986d214d1c6aadcb752f2e30741d758a74e667ceafb6"
+    }
+  ]
+}

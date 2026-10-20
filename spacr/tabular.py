@@ -1,21 +1,18 @@
 """One reader and one writer for every table spaCR opens or saves.
 
-Why this module exists
+Purpose
 ----------------------
-An audit across ``spacr/`` found 248
-tabular reads and writes -- ``pd.read_csv``, ``pd.read_sql*``, ``.to_csv``,
-``.to_sql`` -- and **thirteen** call sites that normalised a column name at
-all. There was no funnel; there were 248 doors, and which spelling of a key a
-frame ended up with depended on which door it came through.
+spaCR reads and writes tables in many places (``pd.read_csv``,
+``pd.read_sql*``, ``.to_csv``, ``.to_sql``). Without a shared reader, the
+spelling of a key column in a frame depends on which code path read it.
 
-The resulting failure has a consistent shape: ``columnID``
-worked as a filter, because *some* path downstream renamed on the way to the
-fit, while the CSV picker read the raw header and offered ``column_name`` and
-``column`` -- the names a user must not have to know.
+For example, ``columnID`` could work as a filter, because *some* path
+downstream renamed on the way to the fit, while the CSV picker read the raw
+header and offered ``column_name`` and ``column`` -- names a user should not
+need to know.
 
-So: one place normalises, and every reader goes through it. Doing it at the
-funnel is the point. The picker becomes correct for free, because it reads
-through the same door and therefore sees ``columnID``.
+This module normalises names in one place and every reader goes through it, so
+the picker also sees ``columnID``.
 
 What a read guarantees
 ----------------------
@@ -31,16 +28,14 @@ Every frame that leaves :func:`read_table` / :func:`read_database` has
 
 Writing
 -------
-**Decided, not accidental: spaCR writes canonical names.** ``write_table``
-and ``write_database`` canonicalise on the way out by default, so a frame
-assembled by hand cannot re-export ``column_name`` and start the cycle again.
-The header of an exported file therefore changes for anyone whose downstream
-script reads ``column_name`` -- that is a release note, and it is the
-deliberate half of this compatibility trade-off.
-``canonicalise=False`` is there for a caller who owes an external format an
-exact header.
+**spaCR writes canonical names.** ``write_table`` and ``write_database``
+canonicalise on the way out by default, so a frame assembled by hand cannot
+re-export ``column_name`` and start the cycle again. The header of an exported
+file therefore changes for anyone whose downstream script reads ``column_name``
+-- a documented compatibility change. ``canonicalise=False`` is there for a
+caller who owes an external format an exact header.
 
-The guards that moved here rather than being left behind
+Path and schema guards
 --------------------------------------------------------
 * A ``~`` path is expanded, once, for every reader -- GitHub issue #108,
   where a ``src`` beginning with ``~`` was resolved against the working
@@ -48,24 +43,22 @@ The guards that moved here rather than being left behind
   ``%USERPROFILE%`` too: a settings CSV carried between machines routinely
   holds one.
 * **The measurements schema migration runs on open**, exactly as
-  ``io._read_db`` does it, so a legacy database is repaired by any reader
-  rather than only by the one that remembered.
+  ``io._read_db`` does it, so a legacy database is repaired by any reader.
 
 Dependencies
 ------------
-``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative
-measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB,
-Parquet or PostgreSQL store is opened. Nothing else at module
-scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement
-rather than tidiness: the CSV picker and the SQL column list have to be able
-to import this to get canonical names, and they cannot pay for a torch
-import to do it.
+``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement
+stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or
+PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``,
+no matplotlib, no torch. The CSV picker and the SQL column list import this
+module to get canonical names and must not import torch.
 """
 
 from __future__ import annotations
 
 import os
 import sqlite3
+from contextlib import contextmanager
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -106,13 +99,12 @@ TABLE_SUFFIXES: Tuple[str, ...] = (
 
 
 def resolve_path(path: Any) -> str:
-    """Expand ``~`` and environment variables in a path, once, for everyone.
+    """Expand ``~`` and environment variables in a path.
 
     GitHub issue #108: a ``src`` beginning with ``~`` produced
-    ``~/.../measurements.db``, which the migration resolved against the
-    working directory and refused with ``FileNotFoundError: ~<DB>``. Fixed at
-    the funnel rather than at the ~99 sites that build a measurements path by
-    string concatenation.
+    ``~/.../measurements.db``, which the migration resolved against the working
+    directory and refused with ``FileNotFoundError: ~<DB>``. Expanding here
+    covers every site that builds a measurements path by string concatenation.
 
     :param path: a path, a :class:`os.PathLike`, or anything else (returned
         unchanged, so a caller may pass an open connection through).
@@ -235,10 +227,9 @@ def read_table(source: Any, *, table: Optional[str] = None,
         cloud address (``s3://``, ``gs://``, ``az://``, ``https://``) is read
         from a cached local copy.
     :param table: the table name, for a database.
-    :param canonicalise: apply the vocabulary. **There is no reason to turn
-        this off on the ordinary path** -- it is what makes the picker and
-        the run agree about what a column is called. Off is for a caller
-        inspecting a file exactly as written.
+    :param canonicalise: apply the vocabulary. Keep it on for ordinary reads:
+        it is what makes the picker and the run agree about what a column is
+        called. Off is for a caller inspecting a file exactly as written.
     :param report: called with each agreeing-collision message; ``print`` by
         default, ``None`` to silence.
     :param warn: called with each disagreeing-collision message; ``None``
@@ -278,6 +269,91 @@ def read_table(source: Any, *, table: Optional[str] = None,
     return _canonicalise(frame, canonicalise, report, warn, repair_plate_ids)
 
 
+def _parse_setting_value(value: Any) -> Any:
+    """Turn one cell of a settings CSV back into the Python value it was.
+
+    ``True``/``False`` (any case), a literal list, tuple or dict (whose
+    values are parsed the same way), an int, a float, an empty cell
+    (``None``), or the text as written.
+
+    :param value: the cell as pandas read it.
+    :returns: the parsed value.
+    """
+    if pd.isna(value) or value == '':
+        return None
+    if not isinstance(value, str):
+        return value
+    if value.strip().lower() == 'true':
+        return True
+    if value.strip().lower() == 'false':
+        return False
+    if value.startswith(('(', '[', '{')):
+        import ast
+        try:
+            parsed = ast.literal_eval(value)
+            if isinstance(parsed, dict):
+                parsed = {k: _parse_setting_value(v) for k, v in parsed.items()}
+            return parsed
+        except (ValueError, SyntaxError):
+            pass
+    try:
+        if '.' in value:
+            return float(value)
+        return int(value)
+    except ValueError:
+        pass
+    return value
+
+
+def _settings_columns(frame: pd.DataFrame, setting_key: str, setting_value: str,
+                      source: Any = '') -> Tuple[str, str]:
+    """The key and value columns of a settings table.
+
+    ``setting_key``/``setting_value`` when both are columns, otherwise the
+    ``Key``/``Value`` pair :func:`spacr.utils.save_settings` writes.
+
+    :param frame: the table as :func:`read_table` read it.
+    :param setting_key: the key column asked for.
+    :param setting_value: the value column asked for.
+    :param source: the file the table came from, named in the error.
+    :returns: ``(key column, value column)``.
+    :raises ValueError: when neither pair is present.
+    """
+    if setting_key in frame.columns and setting_value in frame.columns:
+        return setting_key, setting_value
+    if 'Key' in frame.columns and 'Value' in frame.columns:
+        return 'Key', 'Value'
+    raise ValueError(
+        f"CSV file must contain {setting_key} and {setting_value} "
+        f"columns (or the Key/Value pair save_settings writes); "
+        f"{os.path.basename(str(source))} has "
+        f"{list(frame.columns)}.")
+
+
+def _settings_from_table(frame: pd.DataFrame, setting_key: str = 'setting_key',
+                         setting_value: str = 'setting_value',
+                         source: Any = '') -> Dict[str, Any]:
+    """The settings dict a two-column settings table holds.
+
+    What :func:`spacr.utils.load_settings` returns for the same table, here
+    so the GUI can read a settings CSV without importing :mod:`spacr.utils`
+    (torch, torchvision, scikit-image, statsmodels: seconds the first time,
+    on the GUI thread).
+
+    :param frame: the table as :func:`read_table` read it.
+    :param setting_key: the key column.
+    :param setting_value: the value column.
+    :param source: the file the table came from, named in the error.
+    :returns: ``{key: parsed value}``, see :func:`_parse_setting_value`.
+    :raises ValueError: when neither column pair is present
+        (:func:`_settings_columns`).
+    """
+    setting_key, setting_value = _settings_columns(
+        frame, setting_key, setting_value, source=source)
+    return {key: _parse_setting_value(value)
+            for key, value in zip(frame[setting_key], frame[setting_value])}
+
+
 def write_table(frame: pd.DataFrame, path: Any, *,
                 canonicalise: bool = True, index: bool = False,
                 **kwargs) -> str:
@@ -291,8 +367,8 @@ def write_table(frame: pd.DataFrame, path: Any, *,
         directory is created.
     :param canonicalise: rename legacy spellings on the way out.
     :param index: pandas' ``index`` argument, defaulted to ``False`` because
-        every spaCR export that ever wanted the index has a real column for
-        it and an unnamed ``Unnamed: 0`` on re-read is a bug in waiting.
+        every spaCR export that ever wanted the index has a real column for it
+        and an unnamed index reads back as ``Unnamed: 0``.
     :param kwargs: passed to the underlying pandas writer.
     :returns: the resolved path written.
     """
@@ -591,6 +667,9 @@ def table_columns(source: Any, *, table: Optional[str] = None,
         frame = next(_iter_chunks(source, table, limit=0))
     elif kind == 'csv':
         frame = read_table(source, canonicalise=False, report=None, nrows=0)
+    elif kind == 'parquet':
+        parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+        frame = parquet.read_schema(resolve_path(source)).empty_table().to_pandas()
     elif kind == 'excel':
         frame = read_table(source, canonicalise=False, report=None, nrows=0)
     else:
@@ -799,12 +878,123 @@ def _postgres_connect(dsn: str):
 
 
 def _parquet_parts(store: str, table: str) -> List[str]:
-    """The Parquet part files of ``table`` in a Parquet store, oldest first."""
+    """The active Parquet parts, using a published snapshot when one exists."""
+    if table in ('.', '..') or '/' in table or '\\' in table:
+        raise ValueError(f'Invalid Parquet table name: {table!r}')
     folder = os.path.join(store, table)
     if not os.path.isdir(folder):
         return []
+    manifest = _parquet_manifest(folder)
+    if manifest is not None:
+        return [os.path.join(folder, part['name'])
+                for part in manifest['active']]
     return [os.path.join(folder, name) for name in sorted(os.listdir(folder))
             if name.endswith('.parquet') and not name.startswith('.')]
+
+
+@contextmanager
+def _parquet_store_lock(store: str):
+    """Serialize spaCR writers of one Parquet store across processes."""
+    os.makedirs(store, exist_ok=True)
+    with open(os.path.join(store, '.spacr-write.lock'), 'a+b') as handle:
+        if os.name == 'nt':
+            import msvcrt
+            if handle.seek(0, os.SEEK_END) == 0:
+                handle.write(b'\0')
+                handle.flush()
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if os.name == 'nt':
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def _parquet_part_record(path: str) -> dict:
+    """Record an immutable part's basename, size and content digest."""
+    import hashlib
+
+    before = os.stat(path)
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(block)
+    after = os.stat(path)
+    if ((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns,
+         before.st_ctime_ns) !=
+            (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns,
+             after.st_ctime_ns)):
+        raise RuntimeError(f'Parquet part changed while being read: {path}')
+    return {'name': os.path.basename(path), 'size': after.st_size,
+            'sha256': digest.hexdigest()}
+
+
+def _parquet_manifest(folder: str):
+    """Validate and return a complete active snapshot, or None for legacy parts."""
+    import json
+
+    path = os.path.join(folder, '.spacr-parts.json')
+    if not os.path.lexists(path):
+        return None
+    with open(path, 'r', encoding='utf-8') as handle:
+        manifest = json.load(handle)
+    if not isinstance(manifest, dict) or set(manifest) != {
+            'version', 'active', 'retired'} or type(manifest['version']) is not int \
+            or manifest['version'] != 1:
+        raise ValueError(f'Invalid Parquet part manifest: {path}')
+    if not manifest['active']:
+        raise ValueError(f'Invalid Parquet part manifest: {path}')
+    names = set()
+    for category in ('active', 'retired'):
+        if not isinstance(manifest[category], list):
+            raise ValueError(f'Invalid Parquet part manifest: {path}')
+        for part in manifest[category]:
+            if not isinstance(part, dict) or set(part) != {
+                    'name', 'size', 'sha256'}:
+                raise ValueError(f'Invalid Parquet part manifest: {path}')
+            name = part['name']
+            digest = part['sha256']
+            if (not isinstance(name, str) or not name.endswith('.parquet')
+                    or name in ('', '.', '..') or '/' in name or '\\' in name
+                    or name in names or type(part['size']) is not int
+                    or part['size'] < 0 or not isinstance(digest, str)
+                    or len(digest) != 64
+                    or any(c not in '0123456789abcdef' for c in digest)):
+                raise ValueError(f'Invalid Parquet part manifest: {path}')
+            names.add(name)
+            if category == 'active':
+                actual = _parquet_part_record(os.path.join(folder, name))
+                if actual != part:
+                    raise ValueError(f'Parquet part changed outside spaCR: {name}')
+    visible = {name for name in os.listdir(folder)
+               if name.endswith('.parquet') and not name.startswith('.')}
+    if not visible.issubset(names):
+        raise ValueError(f'Untracked Parquet part in {folder}')
+    return manifest
+
+
+def _write_parquet_manifest_payload(pending: str, payload: dict):
+    """Flush one staged active-snapshot manifest before publication."""
+    import json
+
+    with open(pending, 'w', encoding='utf-8') as handle:
+        json.dump(payload, handle, sort_keys=True, separators=(',', ':'))
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _publish_parquet_manifest(folder: str, active: list, retired: list):
+    """Publish one active part set with a single atomic file replacement."""
+    path = os.path.join(folder, '.spacr-parts.json')
+    payload = {'version': 1, 'active': active, 'retired': retired}
+    _publish(path, lambda pending: _write_parquet_manifest_payload(pending, payload))
 
 
 def _store_tables(db: Any, backend: str) -> Tuple[str, ...]:
@@ -856,6 +1046,9 @@ def _iter_chunks(db: Any, table: str, *, limit: Optional[int] = None,
         parquet = _require_optional('pyarrow.parquet',
                                     _PYARROW_MISSING_MESSAGE)
         parts = _parquet_parts(resolve_path(db), table)
+        if limit == 0 and parts:
+            yield parquet.read_schema(parts[0]).empty_table().to_pandas()
+            return
         remaining = limit
         yielded = False
         for part in parts:
@@ -923,23 +1116,42 @@ def _store_write(frame: pd.DataFrame, db: Any, backend: str, table: str,
     if if_exists not in ('append', 'replace', 'fail'):
         raise ValueError(f"if_exists must be 'append', 'replace' or 'fail', "
                          f"not {if_exists!r}.")
+    quoted = _quote_identifier(table)
+    if backend == 'parquet':
+        import uuid
+        _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+        if table in ('.', '..') or '/' in table or '\\' in table:
+            raise ValueError(f'Invalid Parquet table name: {table!r}')
+        store = resolve_path(db)
+        with _parquet_store_lock(store):
+            folder = os.path.join(store, table)
+            manifest = _parquet_manifest(folder) if os.path.isdir(folder) else None
+            previous = _parquet_parts(store, table)
+            if previous and if_exists == 'fail':
+                raise ValueError(f'Table {table!r} already exists in {db!r}.')
+            active = (manifest['active'] if manifest is not None else
+                      [_parquet_part_record(part) for part in previous])
+            retired = manifest['retired'] if manifest is not None else []
+            part = os.path.join(folder, f'.spacr-part-{uuid.uuid4().hex}.parquet')
+            published = False
+            try:
+                _publish(part, lambda pending: frame.to_parquet(pending, index=False))
+                new = _parquet_part_record(part)
+                if if_exists == 'replace':
+                    retired = retired + active
+                    active = [new]
+                else:
+                    active = active + [new]
+                _publish_parquet_manifest(folder, active, retired)
+                published = True
+            finally:
+                if not published and os.path.exists(part):
+                    os.remove(part)
+        return
     present = table in _store_tables(db, backend)
     if present and if_exists == 'fail':
         raise ValueError(f'Table {table!r} already exists in {db!r}.')
     fresh = not present or if_exists == 'replace'
-    quoted = _quote_identifier(table)
-    if backend == 'parquet':
-        import shutil
-        import uuid
-        _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
-        folder = os.path.join(resolve_path(db), table)
-        if present and if_exists == 'replace':
-            shutil.rmtree(folder)
-        part = os.path.join(
-            folder, f'part-{len(_parquet_parts(resolve_path(db), table)):06d}'
-                    f'-{uuid.uuid4().hex[:8]}.parquet')
-        _publish(part, lambda pending: frame.to_parquet(pending, index=False))
-        return
     if backend == 'duckdb':
         with _duckdb_connect(db) as conn:
             conn.register('spacr_frame', frame)

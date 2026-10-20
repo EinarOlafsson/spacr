@@ -80,7 +80,7 @@ def test_the_header_names_every_folder_it_is_generated_from():
     # it only in the renderer leaves the committed index still lying, and one
     # that says it only in the committed file is a hand-edit away from gone.
     for header in (_header(tool.render(today="2026-09-14")),
-                   _header(INDEX.read_text())):
+                   _header(INDEX.read_text(encoding="utf-8"))):
         for folder in tool.SCANNED:
             assert f"features/{folder}/*.txt" in header, (
                 f"the index is generated from features/{folder}/ and does "
@@ -95,7 +95,7 @@ def test_the_header_lists_every_top_level_file_it_does_not_scan():
     assert unscanned, "no top-level .txt files, so this proves nothing"
     assert tool._unscanned_top_level() == sorted(unscanned, key=str.lower)
     for header in (_header(tool.render(today="2026-09-14")),
-                   _header(INDEX.read_text())):
+                   _header(INDEX.read_text(encoding="utf-8"))):
         missing = sorted(name for name in unscanned if name not in header)
         assert missing == [], (
             f"at features/ top level and named nowhere in the index: "
@@ -108,7 +108,7 @@ def test_the_index_does_not_list_itself_as_unscanned():
     tool = _tool()
     assert INDEX.name not in tool._unscanned_top_level()
     assert INDEX.name not in _header(tool.render(today="2026-09-14"))
-    assert INDEX.name not in _header(INDEX.read_text())
+    assert INDEX.name not in _header(INDEX.read_text(encoding="utf-8"))
 
 
 def test_the_list_is_globbed_on_every_run_and_not_pinned(monkeypatch,

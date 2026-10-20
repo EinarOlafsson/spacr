@@ -1,0 +1,64 @@
+{
+  "stage": "all",
+  "assigned_symbols": 15,
+  "author_blocks_total": 36,
+  "completed_blocks": 36,
+  "completed_targets": 324,
+  "reused_blocks": 8,
+  "reused_targets": 72,
+  "source_file": "spacr/qt/ai/providers.py",
+  "source_file_sha256": "88eaf32a8ff9b158e4a900e4dc03f39ea3023aaf33003be612a0eb0bbb717725",
+  "normal_tool_file": "tools/build_documentation_i18n.py",
+  "normal_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "inventory_sha256": "3ceb5911bf77897f8efed3c48aa8efe0545c0e4ed4cb636cb27e604ea339c940",
+  "active_filename_reserved": "2026-10-15-n700-provider-core.json",
+  "files": {
+    "sv": {
+      "path": "sv.json",
+      "sha256": "b038ea949ffd09fac1eb447081419a8be098bee7b028f521034466f1a7ea08c9",
+      "records": 36
+    },
+    "de": {
+      "path": "de.json",
+      "sha256": "bb59a71ffc0675a15bfae319f02be8a04096a773596cb9e8dfdc6d757882add7",
+      "records": 36
+    },
+    "es": {
+      "path": "es.json",
+      "sha256": "792db20c5252c970e22a35a29d2b2d254cffe7e7b0505f5851340d4acf1bced1",
+      "records": 36
+    },
+    "fr": {
+      "path": "fr.json",
+      "sha256": "385cbc16759a99595fe36216344c75ee825b2cd0f1e2194244ed93d679c91e4d",
+      "records": 36
+    },
+    "pt": {
+      "path": "pt.json",
+      "sha256": "3829b4a93574f4961e75b8bea74e61a2202508486c48af1a63df8a5d7c0b0252",
+      "records": 36
+    },
+    "hi": {
+      "path": "hi.json",
+      "sha256": "b91e336bdb0e8e1049ec5c7785aa27e21a691f0c17f3dfce9cdde4a6e5bd76f9",
+      "records": 36
+    },
+    "ko": {
+      "path": "ko.json",
+      "sha256": "659ef21d2ccc7ecdaf0f572fc04391ffb45d0df1550f409b144f0bd9409c24de",
+      "records": 36
+    },
+    "is": {
+      "path": "is.json",
+      "sha256": "cfdeca48f69167f926a6e40671aa8652190b5ef64cc6784a0287af70b00581d1",
+      "records": 36
+    },
+    "zh_CN": {
+      "path": "zh_CN.json",
+      "sha256": "f4bd830c437cbcc8d928192dd52a4c3e05c8c6822abea162881113506b7289a7",
+      "records": 36
+    }
+  },
+  "no_active_review_or_catalog_writes": true,
+  "local_check": "Source/context SHA and ordered RST-role/double-backtick literals only; not ordinary validator acceptance"
+}

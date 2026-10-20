@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Plaque Assay: fields, figures and reviewed conditions"
 msgstr "Test de plaques : champs, figures et conditions vérifiées"
 
-msgid "Open **Home → Assays → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
-msgstr "Ouvrez **Accueil → Essais → Toxoplasma → Test de plaques**. Choisissez **Plaque** pour des champs de plages de lyse ou **Figure** pour des figures publiées contenant des puits, des panneaux et du texte environnant. Ces entrées ne nécessitent pas d’exécution préalable de Mesure. Pour le workflow environnant, consultez la :ref:`carte des modules <workflow-module-analyze_plaques>`, le `tutoriel Test de plaques <tutorials/#lesson=24_plaque>`_ et :func:`spacr.submodules.analyze_plaques`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for plaque fields or **Figure** for published figures containing wells, panels and surrounding text. These inputs do not require a preceding Measure run. See the :ref:`module map <workflow-module-analyze_plaques>`, the `Plaque Assay tutorial <tutorials/#lesson=24_plaque>`_ and :func:`spacr.submodules.analyze_plaques` for the surrounding workflow."
+msgstr "Ouvrez **Accueil → Organisme → Toxoplasma → Test de plaques**. Choisissez **Plaque** pour des champs de plages de lyse ou **Figure** pour des figures publiées contenant des puits, des panneaux et du texte environnant. Ces entrées ne nécessitent pas d’exécution préalable de Mesure. Pour le workflow environnant, consultez la :ref:`carte des modules <workflow-module-analyze_plaques>`, le `tutoriel Test de plaques <tutorials/#lesson=24_plaque>`_ et :func:`spacr.submodules.analyze_plaques`."
 
 msgid "Preview a plaque field"
 msgstr "Aperçu d’un champ de plages de lyse"
@@ -88,7 +89,7 @@ msgstr "Images Bio-Rad Gel Doc (``.scn``)"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Image Lab ``.scn`` files from a Gel Doc or ChemiDoc imager are read directly, without exporting them first, wherever a TIFF is accepted: Plaque Assay in both modes, Make Masks and its curation queue, and the Format Converter. A folder of ``.scn`` files is a source like a folder of figures. Image Lab stores these images with zero as white, so spaCR inverts them to look like Image Lab's own PDF and TIFF exports (dark wells on light plastic) and keeps the 12-bit values. Plaque Assay shows them as 8-bit grey scaled linearly to the imager's ceiling. When the file records its physical field size, that pixel size calibrates Figure-mode plaque areas (scale source ``image metadata``) unless a pixel scale is set in the settings or on a well. In Python, :func:`spacr.convert.read_scn` returns the image and its metadata: pixel size, imager, acquisition date, exposure and application."
-msgstr "Les fichiers Image Lab ``.scn`` issus d’un appareil Gel Doc ou ChemiDoc sont lus directement, sans export préalable, partout où TIFF est accepté : Plaque Assay dans les deux modes, Make Masks et sa file de curation, et Format Converter. Un dossier de fichiers ``.scn`` constitue une source comme un dossier de figures. Image Lab stocke ces images avec zéro correspondant au blanc ; spaCR les inverse donc pour reproduire les exports PDF et TIFF d’Image Lab (puits sombres sur plastique clair) et conserve les valeurs sur 12 bits. Plaque Assay les affiche en gris sur 8 bits, avec une mise à l’échelle linéaire jusqu’au maximum de l’appareil. Lorsque le fichier indique la taille physique du champ, cette taille de pixel calibre les surfaces des plaques en mode Figure (source d’échelle ``image metadata``), sauf si une échelle de pixel est définie dans les paramètres ou pour un puits. En Python, :func:`spacr.convert.read_scn` renvoie l’image et ses métadonnées : taille de pixel, appareil, date d’acquisition, exposition et application."
+msgstr "Les fichiers Image Lab ``.scn`` issus d’un appareil Gel Doc ou ChemiDoc sont lus directement, sans export préalable, partout où TIFF est accepté : Plaque Assay dans les deux modes, Make Masks et sa file de curation, et Format de fichier Converter. Un dossier de fichiers ``.scn`` constitue une source comme un dossier de figures. Image Lab stocke ces images avec zéro correspondant au blanc ; spaCR les inverse donc pour reproduire les exports PDF et TIFF d’Image Lab (puits sombres sur plastique clair) et conserve les valeurs sur 12 bits. Plaque Assay les affiche en gris sur 8 bits, avec une mise à l’échelle linéaire jusqu’au maximum de l’appareil. Lorsque le fichier indique la taille physique du champ, cette taille de pixel calibre les surfaces des plaques en mode Figure (source d’échelle ``image metadata``), sauf si une échelle de pixel est définie dans les paramètres ou pour un puits. En Python, :func:`spacr.convert.read_scn` renvoie l’image et ses métadonnées : taille de pixel, appareil, date d’acquisition, exposition et application."
 
 msgid "Inspect the result views"
 msgstr "Examiner les vues de résultats"
@@ -166,8 +167,9 @@ msgstr "Modifier la sélection pendant l’exécution d’un aperçu"
 msgid "Changing the source, selected image or mode abandons the previous preview. Its late result cannot replace the newly selected view. An empty source folder clears the prior mask, object views and figure tables. Start a new preview for the intended selection after it loads. Cancellation discards the old result; the current model call finishes before **Run preview** and the well controls become available again. Wait for those controls before rerunning with changed settings."
 msgstr "Changer la source, l’image sélectionnée ou le mode abandonne l’aperçu précédent. Son résultat tardif ne peut pas remplacer la vue nouvellement sélectionnée. Un dossier source vide efface le masque, les vues d’objets et les tableaux de figures précédents. Lancez un nouvel aperçu pour la sélection voulue après son chargement. L’annulation abandonne l’ancien résultat ; l’appel de modèle en cours se termine avant que **Exécuter l'aperçu** et les contrôles des puits redeviennent disponibles. Attendez ces contrôles avant de relancer avec des paramètres modifiés."
 
-msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving happens in the background so the image remains responsive; a queued save is not yet a completed write."
-msgstr "Après avoir choisi **Enregistrer les annotations**, attendez la confirmation d’enregistrement dans l’état de l’aperçu avant de lancer l’analyse par lots. L’enregistrement a lieu en arrière-plan pour que l’image reste réactive ; un enregistrement en file d’attente n’est pas encore une écriture terminée."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "After choosing **Save annotations**, wait for the saved confirmation in the preview status before starting the batch analysis. Saving runs in the background so the window remains responsive; a queued save is not yet a completed write."
+msgstr "Après avoir choisi **Enregistrer les annotations**, attendez la confirmation d’enregistrement dans l’état de l’aperçu avant de lancer l’analyse par lots. L’enregistrement a lieu en arrière-plan pour que la fenêtre reste réactive ; un enregistrement en file d’attente n’est pas encore une écriture terminée."
 
 msgid "Python preview contracts"
 msgstr "Contrats d’aperçu Python"

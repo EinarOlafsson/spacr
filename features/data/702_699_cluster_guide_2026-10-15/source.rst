@@ -1,0 +1,4 @@
+Model checkpoints on the execution target
+-----------------------------------------
+
+Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames.

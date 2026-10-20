@@ -1096,19 +1096,20 @@ def _backend_name(value):
     return name
 
 
-def _cellpose3_model(model_name=None, object_type=None):
+def _cellpose3_model(model_name=None, object_type=None, *, setting=None):
     """The Cellpose 3 model an object's model setting selects.
 
-    A Cellpose 3 name, or a checkpoint file, is used as it is. A blank, or
-    the NAME of a model of another Cellpose -- spaCR's default ``cpsam`` --
-    means the Cellpose 3 model for the object: ``nuclei`` for nuclei,
-    ``cyto3`` for everything else. A PATH that is not there is refused:
-    Cellpose 3 itself would quietly run cyto3 in its place.
+    A Cellpose 3 name, or a checkpoint file, is used as it is. A blank
+    value, or spaCR's default ``cpsam``, means the Cellpose 3 model for the
+    object: ``nuclei`` for nuclei, ``cyto3`` for everything else. Unknown
+    explicit names and missing checkpoint paths are refused: Cellpose 3
+    itself would quietly run cyto3 in their place.
 
     :param model_name: the object's ``<object>_model_name`` setting.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'``, ...
+    :param setting: actual caller field, or the direct parameter ``model_name``.
     :returns: a model name or an absolute path.
-    :raises FileNotFoundError: for a path that names no file.
+    :raises ModelZooError: when an explicit model has no exact compatible identity.
     """
     chosen = _cellpose3_choice(model_name)
     name = chosen if chosen is not None else str(model_name or "").strip()
@@ -1119,14 +1120,17 @@ def _cellpose3_model(model_name=None, object_type=None):
         return os.path.abspath(path)
     if name and name != "cpsam":
         from .model_zoo import _ensure_model_file
-        downloaded = _ensure_model_file(name, kinds=("cellpose3",))
+        downloaded = _ensure_model_file(
+            name, kinds=("cellpose3",), setting=setting if setting is not None else "model_name",
+            original_request=model_name)
         if downloaded is not None:
             return str(downloaded)
-    if name and (os.sep in name or "/" in name or os.path.splitext(name)[1]):
-        raise FileNotFoundError(
-            f"no Cellpose 3 model at {name!r}: the file is not there. Name "
-            f"one of {', '.join(_CELLPOSE3_MODELS)}, or the path of a "
-            f"Cellpose 3 checkpoint.")
+    if name and name != "cpsam":
+        from .model_zoo import ModelZooError, _model_resolution_context
+
+        raise ModelZooError(_model_resolution_context(
+            model_name, setting=setting if setting is not None else "model_name",
+            kinds=("cellpose3",)))
     return "nuclei" if object_type == "nucleus" else "cyto3"
 
 
@@ -1203,15 +1207,16 @@ def _cellpose_dino_value(path):
                                     else str(path or "").strip())
 
 
-def _cellpose_dino_model(model_name):
+def _cellpose_dino_model(model_name, *, setting=None):
     """The checkpoint file a ``cellpose_dino:`` model setting names.
 
     Cellpose 4 handed a path that is not there logs a warning and runs
     cpsam_v2 in its place, so a missing file is refused here instead.
 
     :param model_name: the setting, with or without the prefix.
+    :param setting: actual caller field, or the direct parameter ``model_name``.
     :returns: the checkpoint's absolute path.
-    :raises FileNotFoundError: when no file is there, or none is named.
+    :raises ModelZooError: when no existing file or exact compatible identity matches.
     """
     chosen = _cellpose_dino_choice(model_name)
     name = chosen if chosen is not None else str(model_name or "").strip()
@@ -1219,14 +1224,16 @@ def _cellpose_dino_model(model_name):
     if not name or not os.path.isfile(path):
         if name:
             from .model_zoo import _ensure_model_file
-            downloaded = _ensure_model_file(name, kinds=("cellpose_dino",))
+            downloaded = _ensure_model_file(
+                name, kinds=("cellpose_dino",), setting=setting if setting is not None else "model_name",
+                original_request=model_name)
             if downloaded is not None:
                 return str(downloaded)
-        raise FileNotFoundError(
-            f"no Cellpose-DINO checkpoint at {name!r}: the file is not "
-            f"there. Download a Cellpose-DINO model from the model zoo and "
-            f"press Use this model, which writes "
-            f"{_CELLPOSE_DINO_PREFIX}<its path>.")
+        from .model_zoo import ModelZooError, _model_resolution_context
+
+        raise ModelZooError(_model_resolution_context(
+            model_name, setting=setting if setting is not None else "model_name",
+            kinds=("cellpose_dino",)))
     return os.path.abspath(path)
 
 
@@ -1298,7 +1305,7 @@ def _prefixed_split(name, model_name):
     return model.strip(), target.strip().lower()
 
 
-def _prefixed_model(name, model_name, *, download=True):
+def _prefixed_model(name, model_name, *, download=True, setting=None):
     """The model a prefixed backend's setting selects.
 
     One of the backend's own model names is used as it is, a blank one is
@@ -1308,8 +1315,9 @@ def _prefixed_model(name, model_name, *, download=True):
 
     :param name: a backend from :func:`_prefixed_names`.
     :param model_name: the setting, with or without the prefix.
+    :param setting: actual caller field, or the direct parameter ``model_name``.
     :returns: a model name or an absolute path.
-    :raises FileNotFoundError: for a path that names nothing.
+    :raises ModelZooError: when no existing path or exact compatible identity matches.
     """
     spec = _SPECS[name]
     model, _target = _prefixed_split(name, model_name)
@@ -1321,12 +1329,15 @@ def _prefixed_model(name, model_name, *, download=True):
     if os.path.exists(path):
         return os.path.abspath(path)
     from .model_zoo import _ensure_model_file
-    downloaded = _ensure_model_file(model, kinds=(name,), download=download)
+    downloaded = _ensure_model_file(
+        model, kinds=(name,), download=download,
+        setting=setting if setting is not None else "model_name", original_request=model_name)
     if downloaded is not None:
         return str(downloaded)
-    raise FileNotFoundError(
-        f"no {spec.label} model called {model!r}: it is not one of "
-        f"{', '.join(spec.models)}, and no file or folder is there.")
+    from .model_zoo import ModelZooError, _model_resolution_context
+
+    raise ModelZooError(_model_resolution_context(
+        model_name, setting=setting if setting is not None else "model_name", kinds=(name,)))
 
 
 def _prefixed_model_ok(value):
@@ -3688,6 +3699,7 @@ class _RemoteBackend:
         self.note = (f"in its own environment, {self.env}"
                      + (f"; model {self.model}" if self.model else ""))
         self._said = set()
+        self.estimated_diameters = []
 
     def eval(self, x, batch_size=None, channel_axis=-1, normalize=True,
              diameter=None, flow_threshold=None, cellprob_threshold=0.0,
@@ -3696,9 +3708,12 @@ class _RemoteBackend:
         """Segment each image of a batch in the backend's worker.
 
         :param x: a 2-D image, or a list of ``(H, W)`` / ``(H, W, C)``
-            images. For a custom StarDist3D model, ``do_3D=True`` accepts
-            one ``(Z, Y, X)`` or ``(Z, Y, X, C)`` volume, or a list of
-            volumes, with explicit ``z_axis`` and positive ``anisotropy``.
+            images. Cellpose 3 and custom StarDist3D models accept one
+            volume or a list of volumes with ``do_3D=True``, explicit
+            ``z_axis`` and positive ``anisotropy``. Cellpose 3 also accepts
+            volumes with ``do_3D=False`` and a positive ``stitch_threshold``.
+            A scalar volume has three axes and ``channel_axis=None``;
+            four-axis input requires a distinct explicit channel axis.
         :param normalize: a bool, or Cellpose 3's normalization dict such
             as ``{"normalize": True, "percentile": [1, 99]}``.
         :param augment: Cellpose 3's test-time augmentation; sent only when
@@ -3707,11 +3722,19 @@ class _RemoteBackend:
         :param cellpose_only: other Cellpose arguments, accepted so the call
             site is the same as Cellpose's.
         :returns: ``(masks, flows, None)`` with one entry per image. A single
-            StarDist3D volume returns one label array and one flows entry,
+            supported volume returns one label array and one flows entry,
             preserving the spatial axis order of that volume.
         :raises _BackendError: with the backend's own message.
         """
-        volume = self.name == _STARDIST and bool(cellpose_only.get("do_3D"))
+        volume = bool(cellpose_only.get("do_3D"))
+        stitch = (float(cellpose_only.get("stitch_threshold") or 0)
+                  if self.name == _CELLPOSE3 else 0)
+        if self.name == _CELLPOSE3 and (not np.isfinite(stitch) or not 0 <= stitch <= 1):
+            raise ValueError("The 3D stitch threshold must be finite and between 0 and 1.")
+        stitching = self.name == _CELLPOSE3 and stitch > 0
+        volume = volume or stitching
+        if volume and self.name not in (_STARDIST, _CELLPOSE3):
+            raise ValueError("The selected model does not support native 3D detection.")
         single_volume = volume and isinstance(x, np.ndarray)
         images = [x] if single_volume else _eval_images(x)
         params = {"channel_axis": channel_axis, "normalize": normalize,
@@ -3722,7 +3745,12 @@ class _RemoteBackend:
         if volume:
             params.update({key: cellpose_only.get(key) for key in
                            ("do_3D", "z_axis", "anisotropy")})
-        params = {k: _plain(v) for k, v in params.items() if v is not None}
+            if self.name == _CELLPOSE3:
+                params["do_3D"] = bool(cellpose_only.get("do_3D"))
+                if "stitch_threshold" in cellpose_only:
+                    params["stitch_threshold"] = cellpose_only["stitch_threshold"]
+        params = {k: _plain(v) for k, v in params.items()
+                  if v is not None or (volume and k == "channel_axis")}
         worker = self._worker_for(self.name, self.env)
         scratch = tempfile.mkdtemp(prefix="spacr-backend-")
         try:
@@ -3736,6 +3764,9 @@ class _RemoteBackend:
                 device=self.device, inputs=inputs, outputs=scratch,
                 params=params, options=self.options)
             self._report(reply)
+            self.estimated_diameters = [
+                float(value) for value in
+                reply.get("estimated_diameters") or ()]
             masks, flows = [], []
             for item in reply.get("outputs") or ():
                 masks.append(np.load(item["mask"], allow_pickle=False))
@@ -3920,7 +3951,7 @@ def _as_label_image(labels):
     ``skimage.segmentation.relabel_sequential`` does -- because the Cellpose
     3 environment has no scikit-image.
 
-    :param labels: 2-D integer label image, background 0.
+    :param labels: integer label image or volume, background 0.
     :returns: relabelled array.
     """
     arr = np.asarray(labels)
@@ -4158,6 +4189,7 @@ class _Cellpose3Adapter:
         self.model = model
         self.ignored = set()
         self.translated = set()
+        self.estimated_diameters = []
         where = torch.device(device)
         gpu = where.type != "cpu"
         if model in _CELLPOSE3_MODELS:
@@ -4178,7 +4210,7 @@ class _Cellpose3Adapter:
     def eval(self, x, channel_axis=-1, diameter=None, normalize=True,
              flow_threshold=0.4, cellprob_threshold=0.0, min_size=15,
              resample=True, batch_size=None, **other):
-        """Segment each image; a second channel is the nucleus channel.
+        """Segment each image or volume; a second channel is the nucleus channel.
 
         A diameter of 0 or None lets a named model's size model estimate it,
         and leaves a checkpoint at the diameter it was trained at.
@@ -4203,9 +4235,14 @@ class _Cellpose3Adapter:
 
         :param batch_size: forwarded to Cellpose 3, which has its own
             default of 8, so the user's value has to be passed on.
-        :param other: anything else the call site passes. What this
-            Cellpose cannot take is recorded in :attr:`ignored` and
-            reported by name, rather than disappearing.
+        :param other: anything else the call site passes. A native volume
+            requires ``do_3D=True``, explicit ``z_axis`` and positive finite
+            ``anisotropy``. A positive ``stitch_threshold`` instead joins
+            2-D predictions across the volume with ``do_3D=False``. Scalar
+            volumes require ``channel_axis=None``; multichannel volumes
+            require a distinct explicit channel axis. Missing volume
+            arguments are refused rather than dropped. Other settings
+            this Cellpose cannot take are recorded in :attr:`ignored`.
         :returns: ``(masks, flows, None)``; each flows entry is Cellpose's
             ``[RGB flow, dP, cell probability, None]``.
         """
@@ -4217,12 +4254,45 @@ class _Cellpose3Adapter:
                 "percentile normalization")
         extra = {"batch_size": batch_size} if batch_size else {}
         extra.update({k: v for k, v in other.items() if v is not None})
+        native = bool(other.get("do_3D"))
+        stitch = float(other.get("stitch_threshold") or 0)
+        if not np.isfinite(stitch) or not 0 <= stitch <= 1:
+            raise ValueError("The 3D stitch threshold must be finite and between 0 and 1.")
+        volume = native or stitch > 0
         extra = self._accepted(extra)
+        if volume:
+            required = {"do_3D", "z_axis", "anisotropy"} if native else {
+                "do_3D", "z_axis", "stitch_threshold"}
+            if not required <= set(extra):
+                if native:
+                    raise ValueError("The installed Cellpose 3 cannot accept native 3D axis and spacing settings")
+                raise ValueError("The installed Cellpose 3 cannot accept 3D stitching settings")
+            anisotropy = float(extra.get("anisotropy", 1))
+            if not np.isfinite(anisotropy) or anisotropy <= 0:
+                raise ValueError("3D model anisotropy must be positive and finite.")
         masks, flows = [], []
+        self.estimated_diameters = []
         for image in x:
             image = np.asarray(image)
             channels, axis = [0, 0], None
-            if image.ndim == 3:
+            if volume:
+                axis = channel_axis
+                z_axis = extra["z_axis"]
+                if (image.ndim not in (3, 4) or not image.size
+                        or not isinstance(z_axis, (int, np.integer))
+                        or not -image.ndim <= z_axis < image.ndim
+                        or image.shape[z_axis] < 2
+                        or (image.ndim == 3 and axis is not None)
+                        or (image.ndim == 4 and (
+                            not isinstance(axis, (int, np.integer))
+                            or not -image.ndim <= axis < image.ndim
+                            or axis % image.ndim == z_axis % image.ndim))):
+                    raise ValueError("Cellpose 3 needs explicit distinct spatial and channel axes for a volume")
+                if not np.isfinite(image).all():
+                    raise ValueError("Cellpose 3 needs finite volume intensities")
+                if axis is not None and image.shape[axis] >= 2:
+                    channels = [1, 2]
+            elif image.ndim == 3:
                 axis = -1 if channel_axis is None else channel_axis
                 if image.shape[axis] >= 2:
                     channels = [1, 2]
@@ -4239,8 +4309,20 @@ class _Cellpose3Adapter:
                 normalize=normalize, flow_threshold=flow_threshold,
                 cellprob_threshold=cellprob_threshold, min_size=min_size,
                 resample=resample, **extra)
+            if size == 0.0 and len(output) > 3:
+                self.estimated_diameters.append(
+                    float(np.mean(np.asarray(output[3], dtype=float))))
             parts = list(output[1])[:3]
-            masks.append(_as_label_image(output[0]))
+            labels = np.asarray(output[0])
+            if volume:
+                shape = tuple(size for index, size in enumerate(image.shape)
+                              if axis is None or index != axis % image.ndim)
+                if labels.shape != shape:
+                    raise ValueError("The detected labels do not match the volume.")
+                if (labels.dtype.kind not in "ui" or labels.min(initial=0) < 0
+                        or int(labels.max(initial=0)) > np.iinfo(np.int64).max):
+                    raise ValueError("Cellpose 3 returned invalid integer labels for a volume")
+            masks.append(_as_label_image(labels))
             flows.append(parts + [None] * (4 - len(parts)))
         return masks, flows, None
 
@@ -5120,6 +5202,9 @@ def _worker_segment(name, request, adapters):
         reply["ignored"] = ignored
     if translated:
         reply["translated"] = translated
+    estimated = list(getattr(adapter, "estimated_diameters", ()) or ())
+    if estimated:
+        reply["estimated_diameters"] = [float(value) for value in estimated]
     return reply
 
 

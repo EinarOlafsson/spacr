@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "locale": "ko",
+  "status": "AI technical draft; not native/canonical acceptance",
+  "records": [
+    {
+      "id": "ZC01",
+      "source_english": "This managed reporting and hosted AI route is available only while its current zero-cost configuration remains verified. It must not purchase credits, upgrade a plan or use a paid fallback. Free limits can make requests unavailable; free access is not unlimited or guaranteed indefinitely.",
+      "source_sha256_utf8": "f3a368c7b99b7a0aaa0a1a7fdb42a4c33009dca8739afd8149d346aa0f72a193",
+      "display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification.",
+      "translated_body": "이 관리형 보고 및 호스팅 AI 경로는 현재의 무비용 구성이 계속 검증된 상태로 유지되는 동안에만 이용할 수 있습니다. 크레딧을 구매하거나 요금제를 상향하거나 유료 대체 경로를 사용해서는 안 됩니다. 무료 사용 한도로 인해 요청을 이용할 수 없게 될 수 있습니다. 무료 접근은 무제한이 아니며 영구적으로 보장되지도 않습니다.",
+      "translated_sha256_utf8": "1bf0d6a3144fd3d55de8f6edd27c2e893a78c8b2569901a2d713d690e8e08f31",
+      "semantic_obligations_preserved": [
+        "Availability only while current zero-cost configuration remains verified",
+        "No credits, upgrade or paid fallback",
+        "Free capacity neither unlimited nor guaranteed indefinitely"
+      ]
+    },
+    {
+      "id": "ZC02",
+      "source_english": "The verified managed route can file a limited technical summary on the public spaCR GitHub repository without your own GitHub account. Public issues can be indexed and copied and cannot be reliably unpublished. The route must remain zero-cost to the maintainer; when free capacity is unavailable, the request is refused or, only if the disclosed storage and retry policy permits it, queued.",
+      "source_sha256_utf8": "61b481bc2b0ccd51c8841f3e56820fa7ae114b62165ea06db99c409667060b80",
+      "display_predicate": "Strict typed summary actually excludes raw logs/settings/paths/personal text; owner zero-cost gate and independent report quotas implemented. Queue only if explicitly permitted by bounded storage/retry policy. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "translated_body": "검증된 관리형 경로는 사용자의 GitHub 계정 없이도 공개 spaCR GitHub 저장소에 제한된 기술 요약을 등록할 수 있습니다. 공개 이슈는 검색 색인에 포함되거나 복사될 수 있으며, 공개된 내용을 확실하게 철회할 수는 없습니다. 이 경로는 유지관리자에게 비용을 발생시켜서는 안 됩니다. 무료 처리 용량을 이용할 수 없으면 요청이 거부되며, 공개된 저장 및 재시도 정책이 허용하는 경우에만 대기열에 들어갑니다.",
+      "translated_sha256_utf8": "591af3138391d81ae09f28c5e08258e9deb9abdf3bf623f1e21384fdd706fd19",
+      "semantic_obligations_preserved": [
+        "Limited summary to public spaCR GitHub without user account",
+        "Public issues can be indexed and copied and cannot reliably be unpublished.",
+        "Zero cost mandatory; refusal unless disclosed storage/retry policy permits queue"
+      ]
+    },
+    {
+      "id": "ZC03",
+      "source_english": "The verified hosted route sends a limited technical summary to the cloud AI service without requiring your own AI account. Its answer is generated advice, not a verified diagnosis, and no command is run automatically. The route must remain zero-cost to the maintainer. When free capacity is unavailable, the request is refused or, only if the disclosed storage and retry policy permits it, queued. Public issue filing is a separate action with its own limits.",
+      "source_sha256_utf8": "1a1751c14e3e33c91e754c8816b7ab0ac586a1f32fde62c1f7bf0de7b30f4277",
+      "display_predicate": "Hosted selection/actual new request; typed input/privacy disclosure and opt-out; verified free model allowlist, atomic quota enforcement and no paid fallback. Reused advice does not imply a new transfer. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "translated_body": "검증된 호스팅 경로는 사용자의 AI 계정을 요구하지 않고 클라우드 AI 서비스에 제한된 기술 요약을 전송합니다. 그 답변은 생성된 조언이며 검증된 진단이 아닙니다. 어떤 명령도 자동으로 실행되지 않습니다. 이 경로는 유지관리자에게 비용을 발생시켜서는 안 됩니다. 무료 처리 용량을 이용할 수 없으면 요청이 거부되며, 공개된 저장 및 재시도 정책이 허용하는 경우에만 대기열에 들어갑니다. 공개 이슈 등록은 자체 한도가 있는 별도 작업입니다.",
+      "translated_sha256_utf8": "54e1c069a52415a242b712e2ba31dbef935e708f385027ffca9b83397b0019d7",
+      "semantic_obligations_preserved": [
+        "Limited technical summary sent to cloud AI without user account",
+        "Generated advice, not verified diagnosis; no automatic command execution",
+        "Public filing separate; zero cost and conditional queue/refusal"
+      ]
+    },
+    {
+      "id": "ZC04",
+      "source_english": "Hosted chat sends the question and the conversation context you explicitly include to the cloud service. That text may contain personal or confidential information; review it before sending. Prior CLI conversations, raw logs and settings are not transferred automatically. The hosted route must remain zero-cost to the maintainer and refuses requests when free capacity is exhausted or queues them only if the disclosed storage and retry policy permits it.",
+      "source_sha256_utf8": "428e7a0f6e126afaed21070d4924c9850b7e66ebe1e99dd40db4d41e4f11dcbd",
+      "display_predicate": "Hosted mode selected, explicit context preview/consent and transfer boundary implemented, zero-cost verified, no arbitrary-text anonymity claim or automatic raw CLI history import. Actual permitted bounded queue with disclosed stored content/location/retention/deletion/retry limits, valid purpose-specific consent and atomic request identity/reconciliation required; otherwise refuse. General notice is not acknowledgment of an actual queued request.",
+      "translated_body": "호스팅 채팅은 질문과 사용자가 명시적으로 포함한 대화 문맥을 클라우드 서비스로 전송합니다. 이 텍스트에는 개인 정보나 기밀 정보가 포함될 수 있으므로 전송하기 전에 검토하세요. 이전 CLI 대화, 원시 로그 및 설정은 자동으로 전송되지 않습니다. 호스팅 경로는 유지관리자에게 비용을 발생시켜서는 안 됩니다. 무료 처리 용량이 소진되면 요청을 거부하며, 공개된 저장 및 재시도 정책이 허용하는 경우에만 대기열에 넣습니다.",
+      "translated_sha256_utf8": "21bfb57d527ad4068e124bfab8d97b9d0dc73410e630c69c91c1b132807309e3",
+      "semantic_obligations_preserved": [
+        "Hosted chat sends the question and the conversation context the user explicitly includes; that text may contain personal or confidential information. This content-selection obligation does not promise anonymous or metadata-free transport.",
+        "Review before sending; no automatic prior CLI conversation/log/settings transfer",
+        "Zero-cost requirement and refusal or explicitly permitted queue"
+      ]
+    },
+    {
+      "id": "ZC05",
+      "source_english": "The hosted AI service has reached its free limit. This request was refused and no new answer is available. The managed route must not buy credits, upgrade a plan or select paid inference. You can try again when free capacity is available. Public reporting remains separate and may still be available within its own limits.",
+      "source_sha256_utf8": "4920e4065e12319de0a6c7914fcc21a4da6a95ccc5f9408d82724aca6b380ac6",
+      "display_predicate": "Confirmed quota refusal without successful inference; no successful queued request promised; independent report route status actually checked. Do not assert all transport was cancelled.",
+      "translated_body": "호스팅 AI 서비스가 무료 사용 한도에 도달했습니다. 이 요청은 거부되었으며 새 답변이 없습니다. 관리형 경로는 크레딧을 구매하거나 요금제를 상향하거나 유료 추론을 선택해서는 안 됩니다. 무료 처리 용량을 이용할 수 있게 되면 다시 시도할 수 있습니다. 공개 보고는 별개이며 자체 한도 내에서는 여전히 이용 가능할 수 있습니다.",
+      "translated_sha256_utf8": "b8def3568977883673d850563025e6aec8c921a7723320801c6822ac8dc24c73",
+      "semantic_obligations_preserved": [
+        "Actual refusal and no new answer, not cancellation or queue",
+        "No credits, upgrade or paid inference",
+        "Later free capacity conditional; independent public route may remain available within own limits"
+      ]
+    },
+    {
+      "id": "ZC06",
+      "source_english": "Free AI capacity is currently unavailable. Your request is queued under the stated storage and retry policy; it has not completed. No paid fallback or plan upgrade will be used. You can remove the queued request before another attempt starts; removing it cannot undo data already sent in an earlier attempt.",
+      "source_sha256_utf8": "c0fa4dfd509e7a0f4149243ccdc904bb13dc6276aae2bfffd0b06d631927ae6f",
+      "display_predicate": "Actual permitted bounded queue exists with disclosed content/location/retention/deletion and retry limits; consent valid; server/client request identity reconciled. Never imply raw inputs or CLI history automatically saved.",
+      "translated_body": "현재 무료 AI 처리 용량을 이용할 수 없습니다. 요청은 명시된 저장 및 재시도 정책에 따라 대기열에 있으며 아직 완료되지 않았습니다. 유료 대체 경로나 요금제 상향은 사용되지 않습니다. 다음 시도가 시작되기 전에 대기열에서 요청을 제거할 수 있습니다. 제거하더라도 이전 시도에서 이미 전송한 데이터를 되돌릴 수는 없습니다.",
+      "translated_sha256_utf8": "88bf7528b162f86c0a19f4ead27ba7392202540138aee6f33bcb27cf9073913f",
+      "semantic_obligations_preserved": [
+        "Actually queued under stated policy; not completed",
+        "No paid fallback or plan upgrade",
+        "Remove before next attempt; cannot undo earlier sent data"
+      ]
+    },
+    {
+      "id": "ZC07",
+      "source_english": "The managed reporting service has reached its free limit and did not accept this report for filing. No paid fallback or plan upgrade will be used. You can retry later. Hosted AI has separate limits and does not establish that a public issue was filed.",
+      "source_sha256_utf8": "bea5bc81db1b5f786dc223c24adf97b9ced9c0f5fbbc1324eb3aeb7ab0873b7c",
+      "display_predicate": "Explicit authoritative quota rejection proves no accepted filing for this attempt. Network timeout/unknown result must use ZC09 instead.",
+      "translated_body": "관리형 보고 서비스가 무료 사용 한도에 도달하여 이 보고를 등록 대상으로 수락하지 않았습니다. 유료 대체 경로나 요금제 상향은 사용되지 않습니다. 나중에 다시 시도할 수 있습니다. 호스팅 AI에는 별도의 한도가 있으며, 이를 이용했다고 해서 공개 이슈가 등록되었다는 뜻은 아닙니다.",
+      "translated_sha256_utf8": "59245f6ee2fff171c783bf3d95e497df17d09868320b49f1d8f5f2525f9c75ef",
+      "semantic_obligations_preserved": [
+        "Authoritative nonacceptance for filing, not unknown transport outcome",
+        "No paid fallback or upgrade; retry later",
+        "AI limits separate and AI does not prove public filing"
+      ]
+    },
+    {
+      "id": "ZC08",
+      "source_english": "The report is queued under the stated storage and retry policy because free reporting capacity is unavailable. It has not been filed by this queued attempt. No paid fallback or plan upgrade will be used. You can remove it before another filing attempt starts; removal cannot retract an issue already published by an earlier attempt.",
+      "source_sha256_utf8": "1edbe944b800f3ce461636e4a20af845222273f2fb42c61f891f5660fa077b08",
+      "display_predicate": "Actual permitted bounded summary queue; no submission yet for queued attempt; prior attempts reconciled/deduplicated. Queue retention and cancellation disclosed and implemented.",
+      "translated_body": "무료 보고 처리 용량을 이용할 수 없어 보고가 명시된 저장 및 재시도 정책에 따라 대기열에 있습니다. 대기열에 있는 이번 시도에서는 아직 등록되지 않았습니다. 유료 대체 경로나 요금제 상향은 사용되지 않습니다. 다음 등록 시도가 시작되기 전에 제거할 수 있습니다. 제거하더라도 이전 시도에서 이미 공개된 이슈를 철회할 수는 없습니다.",
+      "translated_sha256_utf8": "2db33d6cd52ded82d7d1776de79295866c04aad6604cdeb11dbdc3feb20bd565",
+      "semantic_obligations_preserved": [
+        "Actually queued; not filed by this queued attempt",
+        "No paid fallback or upgrade",
+        "Remove before next attempt; cannot retract prior published issue"
+      ]
+    },
+    {
+      "id": "ZC09",
+      "source_english": "We could not confirm whether the reporting service accepted this request. Do not treat this as a filed issue or as proof that nothing was sent. spaCR must check the request identity before retrying; it will not switch to a paid service or upgrade a plan.",
+      "source_sha256_utf8": "05cfc5b7b43f20d4b0e16fe8f3b1078d07bed6c3d8456bdde936d9fd28bf7991",
+      "display_predicate": "Actual indeterminate transport/outcome; reconciliation mechanism implemented. Do not claim complete anonymity, cancellation or guaranteed future filing.",
+      "translated_body": "보고 서비스가 이 요청을 수락했는지 확인할 수 없었습니다. 이를 이슈가 등록되었다는 뜻이나 아무것도 전송되지 않았다는 증거로 받아들여서는 안 됩니다. spaCR는 다시 시도하기 전에 요청 식별 정보를 확인해야 합니다. 유료 서비스로 전환하거나 요금제를 상향하지 않습니다.",
+      "translated_sha256_utf8": "26d341d4e429db4bac82403964964519b1418a0f1af55dcf96c0881f83a821a3",
+      "semantic_obligations_preserved": [
+        "Unknown acceptance proves neither that an issue was filed nor that nothing was sent; both remain unconfirmed until request identity is reconciled.",
+        "Reconcile request identity before retry",
+        "No paid service switch or upgrade"
+      ]
+    },
+    {
+      "id": "ZC10",
+      "source_english": "Managed public reporting and hosted AI are unavailable because the service’s zero-cost configuration has not been verified. The route stays disabled. It must not select a paid replacement or upgrade a plan. Existing CLI providers are separate options with their own account requirements and terms.",
+      "source_sha256_utf8": "41137f6337b61be7cd6d4405e98d98c61771354db2e37a6797062e820a091a36",
+      "display_predicate": "Owner configuration verification absent/stale/failed; application actually keeps managed route disabled. No deployment/free-plan certification implied.",
+      "translated_body": "서비스의 무비용 구성이 검증되지 않았으므로 관리형 공개 보고 및 호스팅 AI를 이용할 수 없습니다. 이 경로는 비활성화된 상태로 유지됩니다. 유료 대체 서비스를 선택하거나 요금제를 상향해서는 안 됩니다. 기존 CLI 제공자는 자체 계정 요건과 약관이 적용되는 별도 선택지입니다.",
+      "translated_sha256_utf8": "c2cd74694b471cf97ef5061ac0069d14196f36c90ddd88d9cbc5bf591f6a74ad",
+      "semantic_obligations_preserved": [
+        "Current zero-cost configuration unverified, so routes unavailable and disabled",
+        "No paid replacement or upgrade",
+        "CLI providers separate with own accounts/terms"
+      ]
+    },
+    {
+      "id": "ZC11",
+      "source_english": "The managed service is unavailable because its current configuration cannot satisfy the zero-cost requirement. The route stays disabled instead of buying credits, upgrading a plan or using paid inference. This does not change your separately configured CLI provider.",
+      "source_sha256_utf8": "6931b57099cf7422c18a63d482a724a639f80c430558f8682fa79495c197ce95",
+      "display_predicate": "Actual plan/model/limit check establishes incompatibility; preserve unrelated user configuration and do not silently alter other services.",
+      "translated_body": "현재 구성이 무비용 요건을 충족할 수 없으므로 관리형 서비스를 이용할 수 없습니다. 이 경로는 크레딧을 구매하거나 요금제를 상향하거나 유료 추론을 사용하는 대신 비활성화된 상태로 유지됩니다. 이는 별도로 설정한 CLI 제공자에 영향을 주지 않습니다.",
+      "translated_sha256_utf8": "fb259709731474370b57f532477afddc58247cd6d8082a38d042fcae9a9f7801",
+      "semantic_obligations_preserved": [
+        "Current configuration incompatible with zero cost; route disabled",
+        "No credits, upgrade or paid inference",
+        "Separate configured CLI unaffected"
+      ]
+    },
+    {
+      "id": "ZC12",
+      "source_english": "The managed route is available only while its current zero-cost configuration is verified. When free capacity is exhausted, it refuses work or queues it only if the disclosed storage and retry policy permits queuing. It must not buy credits, upgrade plans, purchase hosting or domains, or invoke a paid fallback. Existing CLI providers use their own accounts and terms and are not part of this managed-route commitment.",
+      "source_sha256_utf8": "5f73479bc4b040246de72164207072c00eed4d6050e3743ceb4ebb60bb561125",
+      "display_predicate": "Actual current plan/model/resource checks and declared verification validity; stale/failed/incompatible verification leaves managed routes disabled. This is not current deployment or perpetual billing certification. Managed route refuses incompatible paid configuration regardless of user-facing confirmation; no paid resources/credits/domain/GPU rental/fallback/plan upgrades. Do not forbid explicit user choice of separately configured CLI, and do not claim guarantee for arbitrary user accounts. Queue only under implemented disclosed bounded purpose-specific content/location/retention/deletion/retry policy, valid consent and atomic request identity; otherwise refuse.",
+      "translated_body": "관리형 경로는 현재의 무비용 구성이 검증된 동안에만 이용할 수 있습니다. 무료 처리 용량이 소진되면 작업을 거부하며, 공개된 저장 및 재시도 정책이 대기열 사용을 허용하는 경우에만 대기열에 넣습니다. 크레딧을 구매하거나 요금제를 상향하거나 호스팅 또는 도메인을 구매하거나 유료 대체 경로를 호출해서는 안 됩니다. 기존 CLI 제공자는 자체 계정과 약관을 사용하며 이 관리형 경로의 약속에 포함되지 않습니다.",
+      "translated_sha256_utf8": "f0c6c5fac8ca3848c96c11abd427eca56aa36b723e65ff408d88f72d81f5314c",
+      "semantic_obligations_preserved": [
+        "Availability only while current zero-cost verification valid",
+        "Exhaustion refuses unless disclosed bounded policy permits queue",
+        "No credits, upgrades, purchased hosting/domains or paid fallback",
+        "Separate CLI accounts and terms outside managed commitment"
+      ]
+    },
+    {
+      "id": "ZC13",
+      "source_english": "This option uses your selected user-owned CLI provider and its account or subscription settings. Its deployment, transport and billing terms are separate from spaCR’s managed zero-cost route. spaCR does not switch to it automatically when hosted free capacity is exhausted. Review what error text or conversation context will be handed to the selected CLI.",
+      "source_sha256_utf8": "78daee1d6ea83fa42eaf7692cad98ff162c1c257a1ce4484d21b7a594b886fe7",
+      "display_predicate": "Existing CLI selected explicitly, correct provider account/terms disclosure; no claim every CLI remote/account-free/no-charge and no automatic quota fallback.",
+      "translated_body": "이 옵션은 사용자가 선택하고 관리하는 CLI 제공자와 해당 계정 또는 구독 설정을 사용합니다. 그 배포 방식, 전송 및 과금 조건은 spaCR의 관리형 무비용 경로와 별개입니다. 호스팅 무료 처리 용량이 소진되어도 spaCR는 이 옵션으로 자동 전환하지 않습니다. 어떤 오류 텍스트나 대화 문맥이 선택한 CLI에 전달될지 검토하세요.",
+      "translated_sha256_utf8": "5a010686c26af02936822876ef2868479d30a58dd70f9b0adc537fd4ca0721b0",
+      "semantic_obligations_preserved": [
+        "Explicit user-owned CLI and its account/subscription settings",
+        "Deployment, transport, billing separate; no blanket zero-cost claim",
+        "No automatic fallback when free hosted capacity exhausted; review transferred text/context"
+      ]
+    },
+    {
+      "id": "ZC14",
+      "source_english": "Public reporting and cloud AI have separate settings and data disclosures. Choosing a cloud diagnosis or chat does not by itself authorize public filing. Approving a public report does not by itself authorize a cloud AI request. You can turn each off independently.",
+      "source_sha256_utf8": "ce02b35a74d3a96b36bf5e39d6f1948d8aa6067e096f184e561c0060deddcbb2",
+      "display_predicate": "Actual separate settings/disclosures/consent and no network when each purpose disabled; valid new hosted request or explicit reuse distinction; account-free technical diagnosis and sensitive freeform chat remain separate payloads. State UI cancellation/timeout limits truthfully.",
+      "translated_body": "공개 보고와 클라우드 AI에는 별도의 설정과 데이터 관련 고지가 적용됩니다. 클라우드 진단이나 채팅을 선택하는 것만으로 공개 등록을 승인하는 것은 아닙니다. 공개 보고를 승인하는 것만으로 클라우드 AI 요청을 승인하는 것도 아닙니다. 각각을 독립적으로 끌 수 있습니다.",
+      "translated_sha256_utf8": "261fd1d8d0faaa6eaaa415aecc5ca1406206fb34c6cfc900c369518e46de5bc5",
+      "semantic_obligations_preserved": [
+        "Independent public and cloud settings/disclosures",
+        "Cloud choice does not authorize public filing and vice versa",
+        "Each can be turned off independently"
+      ]
+    }
+  ]
+}

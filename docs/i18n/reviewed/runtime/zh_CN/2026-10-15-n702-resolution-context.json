@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "review": "Exact setting/request/candidate diagnostic and factual completed-download log. Preserve all placeholders, opaque version display and literal sha256; no model-quality or available-download promise.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Model setting {setting}: no existing checkpoint or exact model-zoo identity matches {requested}. Available compatible zoo identities: {candidates}.",
+      "source": "Model setting {setting}: no existing checkpoint or exact model-zoo identity matches {requested}. Available compatible zoo identities: {candidates}.",
+      "source_sha256": "b208f70952cfe6b7caf5e5f9438c7b39f604b4a6c2bb2cfc27933f2d06afdb5f",
+      "translation": "模型设置 {setting}：没有与 {requested} 匹配的现有检查点或精确模型目录标识。可用的兼容目录标识：{candidates}。"
+    },
+    {
+      "table": "ui",
+      "key": "{setting}: {requested} was not found here; downloaded zoo model {key} {version} (sha256 {sha256}) to {path}.",
+      "source": "{setting}: {requested} was not found here; downloaded zoo model {key} {version} (sha256 {sha256}) to {path}.",
+      "source_sha256": "2dc270cef9d3a761a467107ac26ec1e762a7da8970c2c82959dd4a958b95408a",
+      "translation": "{setting}：此处未找到 {requested}；已将模型目录中的模型 {key} {version}（sha256 {sha256}）下载到 {path}。"
+    }
+  ],
+  "independent_peer": "Original coordinator exact source/context/target review; portable evidence in features/data/702_resolution_context_2026-10-15."
+}

@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "Esamina tutti i moduli attuali di Home da sinistra a destra, poi impara i controlli condivisi usando Mask e regola navigazione, guida e aspetto.",
       "objectives": [
-        "Identificare tutti i moduli delle righe attuali Core, Data, Tools e Organism.",
+        "Identificare tutti i moduli delle righe attuali Core, Data e Tools.",
         "Usare Mask per riconoscere impostazioni, anteprime, azioni e risultati condivisi.",
         "Tornare a Home, usare la ricerca e disporre i pannelli.",
         "Scegliere le impostazioni di aspetto e prestazioni."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data, Tools e Organism. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica.",
+          "narration": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data e Tools. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica.",
           "hold_after": 0.7,
-          "speech_text": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data, Tools e Organism. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica."
+          "speech_text": "Home è il punto di partenza. Leggi ogni riga da sinistra a destra: Core, Data e Tools. Ogni riquadro apre il suo modulo. La barra laterale offre gli stessi percorsi e Home torna a questa panoramica."
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate permette di esaminare i ritagli degli oggetti e registrare etichette verificate per gli esempi."
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify apprende da etichette verificate e assegna punteggi ad altri oggetti usando immagini o dati tabellari.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify apprende da etichette verificate e assegna punteggi ad altri oggetti usando immagini o dati tabellari."
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes legge dati di sequenziamento per contare e identificare guide o codici a barre.",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import prepara i file di microscopia e i metadati in ingresso per la struttura del progetto."
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings codifica i ritagli degli oggetti in caratteristiche numeriche da esplorare e confrontare.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings codifica i ritagli degli oggetti in caratteristiche numeriche da esplorare e confrontare."
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare riunisce i risultati salvati di più esecuzioni per esaminarne le differenze.",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare riunisce i risultati salvati di più esecuzioni per esaminarne le differenze."
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design organizza condizioni, pozzetti e identità dei campioni prima dell’esperimento.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design organizza condizioni, pozzetti e identità dei campioni prima dell’esperimento."
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design esplora le ipotesi sulla dimensione del campione e sulla potenza quando si pianificano confronti.",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design esplora le ipotesi sulla dimensione del campione e sulla potenza quando si pianificano confronti."
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response adatta le risposte alle concentrazioni, mantenendo espliciti l’esito misurato e i controlli scelti.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response adatta le risposte alle concentrazioni, mantenendo espliciti l’esito misurato e i controlli scelti."
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC riunisce i controlli di qualità e indica quali prove sono disponibili e quali mancano.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC riunisce i controlli di qualità e indica quali prove sono disponibili e quali mancano."
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image iu map proietta le caratteristiche degli oggetti per esplorare oggetti simili e controllare ritagli rappresentativi."
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor definisce selezioni su colonne di dati reali. Controlla gli oggetti selezionati prima di trasformare una selezione in etichette.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "gheit èditor definisce selezioni su colonne di dati reali. Controlla gli oggetti selezionati prima di trasformare una selezione in etichette."
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder crea grafici dalle tabelle di misure con colonne e raggruppamenti configurabili.",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder crea grafici dalle tabelle di misure con colonne e raggruppamenti configurabili."
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "La riga Organism contiene Toxoplasma. Apre una guida dell’organismo, un diagramma interattivo e i percorsi dei saggi disponibili. Il tutorial Toxoplasma esplora questa pagina separatamente.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "La riga Organism contiene Toxoplasma. Apre una guida dell’organismo, un diagramma interattivo e i percorsi dei saggi disponibili. Il tutorial Toxoplasma esplora questa pagina separatamente."
         },
         {
           "visual": "06_mask_host",
@@ -902,7 +818,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Fai clic su Animation per scegliere lo sfondo principale e la sua tavolozza. Animation colours imposta i colori principale e di accento di Custom colours; Animation background sceglie uno sfondo indipendente, e Theme colour ripristina il tema della pagina. Detail controlla la risoluzione del rendering. Speed, Size e Density cambiano il movimento e il numero di elementi. Mouse gravity radius stabilisce il raggio d’influenza del mouse; zero lo disattiva. Dot blinking controlla i lampi bianchi, e Popup wave frequency avvia onde dalle finestre aperte in spaCR field. Field ripples controlla le onde prodotte dai clic, dall’apertura o chiusura dei contenitori e dall’aggancio della finestra al bordo dello schermo, indipendentemente dall’attrazione del mouse. Disattivandolo si fermano anche le onde automatiche delle finestre aperte. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density modificano solo Settings backdrop. Settings backdrop darkness controlla la leggibilità del modulo.",
+          "narration": "Fai clic su Animation per scegliere lo sfondo principale e la sua tavolozza. Animation colours imposta i colori principale e di accento di Custom colours; Animation background sceglie uno sfondo indipendente, e Theme colour ripristina il tema della pagina. Detail controlla la risoluzione del rendering. Speed, Size e Density cambiano il movimento e il numero di elementi. Mouse gravity radius stabilisce il raggio d’influenza del mouse; zero lo disattiva. Dot blinking controlla i lampi bianchi. Field ripples imposta l’intensità delle onde prodotte dai clic, dall’apertura o chiusura dei contenitori, dalle finestre aperte e dall’aggancio della finestra al bordo dello schermo, indipendentemente dall’attrazione del mouse; zero disattiva le onde, comprese quelle automatiche delle finestre aperte. Click ripples stabilisce se un clic sullo sfondo invia un’onda. Popup wave frequency imposta quante onde al minuto si propagano da una finestra aperta in spaCR field. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density modificano solo Settings backdrop. Settings backdrop darkness controlla la leggibilità del modulo.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +826,7 @@
             1200,
             1500
           ],
-          "speech_text": "Fai clic su Animation per scegliere lo sfondo principale e la sua tavolozza. Animation colours imposta i colori principale e di accento di Custom colours; Animation background sceglie uno sfondo indipendente, e Theme colour ripristina il tema della pagina. Detail controlla la risoluzione del rendering. Speed, Size e Density cambiano il movimento e il numero di elementi. Mouse gravity radius stabilisce il raggio d’influenza del mouse; zero lo disattiva. Dot blinking controlla i lampi bianchi, e Popup wave frequency avvia onde dalle finestre aperte in spàker field. Field ripples controlla le onde prodotte dai clic, dall’apertura o chiusura dei contenitori e dall’aggancio della finestra al bordo dello schermo, indipendentemente dall’attrazione del mouse. Disattivandolo si fermano anche le onde automatiche delle finestre aperte. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density modificano solo Settings backdrop. Settings backdrop darkness controlla la leggibilità del modulo."
+          "speech_text": "Fai clic su Animation per scegliere lo sfondo principale e la sua tavolozza. Animation colours imposta i colori principale e di accento di Custom colours; Animation background sceglie uno sfondo indipendente, e Theme colour ripristina il tema della pagina. Detail controlla la risoluzione del rendering. Speed, Size e Density cambiano il movimento e il numero di elementi. Mouse gravity radius stabilisce il raggio d’influenza del mouse; zero lo disattiva. Dot blinking controlla i lampi bianchi. Field ripples imposta l’intensità delle onde prodotte dai clic, dall’apertura o chiusura dei contenitori, dalle finestre aperte e dall’aggancio della finestra al bordo dello schermo, indipendentemente dall’attrazione del mouse; zero disattiva le onde, comprese quelle automatiche delle finestre aperte. Click ripples stabilisce se un clic sullo sfondo invia un’onda. Popup wave frequency imposta quante onde al minuto si propagano da una finestra aperta in spàker field. Settings animation speed, Settings animation size, Settings animation detail e Settings animation density modificano solo Settings backdrop. Settings backdrop darkness controlla la leggibilità del modulo."
         },
         {
           "visual": "13h_preferences_apply",
@@ -1289,7 +1205,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1715,7 +1654,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in quattro pozzetti e Next li salva.",
+          "narration": "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in tre pozzetti e Next li salva.",
           "focus": [
             360,
             380,
@@ -1724,11 +1663,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in quattro pozzetti e Next li salva."
+          "speech_text": "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in tre pozzetti e Next li salva."
         },
         {
           "visual": "20_suggestions",
-          "narration": "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora ogni ritaglio della pagina porta un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare.",
+          "narration": "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora i ritagli senza etichetta della pagina portano un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare.",
           "focus": [
             350,
             250,
@@ -1736,11 +1675,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora ogni ritaglio della pagina porta un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare."
+          "speech_text": "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora i ritagli senza etichetta della pagina portano un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare."
         },
         {
           "visual": "21_judged",
-          "narration": "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte vengono registrate, i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato.",
+          "narration": "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte restano in sospeso finché Next non le salva; i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato.",
           "focus": [
             350,
             250,
@@ -1748,7 +1687,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte vengono registrate, i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato."
+          "speech_text": "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte restano in sospeso finché Next non le salva; i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato."
         },
         {
           "visual": "17_generate_database_entry",
@@ -1775,7 +1714,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2179,7 +2141,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2560,12 +2545,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica. Clear masks, subito a sinistra di Discard, chiede conferma prima di rimuovere tutte le maschere nell’immagine corrente.",
+          "narration": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica. Clear all objects, subito a sinistra di Discard, chiede conferma prima di rimuovere tutti gli oggetti nell’immagine corrente.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica. Clear masks, subito a sinistra di Discard, chiede conferma prima di rimuovere tutte le maschere nell’immagine corrente."
+          "speech_text": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica. Clear all objects, subito a sinistra di Discard, chiede conferma prima di rimuovere tutti gli oggetti nell’immagine corrente."
         },
         {
           "visual": "01b_test_data_menu",
@@ -8719,7 +8704,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16258,13 +16266,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify apprende dalla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive.",
+          "narration": "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify addestra un modello sulla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify apprende dalla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive."
+          "speech_text": "Annotate mostra i ritagli degli oggetti per permetterti di aggiungere etichette verificate. Classify addestra un modello sulla colonna di etichette selezionata, usando immagini ritagliate o caratteristiche misurate. Tieni separati gli oggetti di valutazione da quelli di addestramento e porta la colonna dei punteggi e le identità degli oggetti nelle analisi successive."
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16610,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Il diagramma è fatto per essere esplorato. Passa il puntatore su un componente cellulare e compare la sua descrizione. Selezionane diversi per tenerli evidenziati; Clear components ripristina l’immagine.",
+          "narration": "Il diagramma è interattivo. Passa il puntatore su un componente cellulare e compare la sua descrizione. Selezionane diversi per tenerli evidenziati; Clear components ripristina l’immagine.",
           "hold_after": 0.7,
-          "speech_text": "Il diagramma è fatto per essere esplorato. Passa il puntatore su un componente cellulare e compare la sua descrizione. Selezionane diversi per tenerli evidenziati; Clear components ripristina l’immagine."
+          "speech_text": "Il diagramma è interattivo. Passa il puntatore su un componente cellulare e compare la sua descrizione. Selezionane diversi per tenerli evidenziati; Clear components ripristina l’immagine."
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16622,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Analysis descrive il flusso di lavoro completo.",
+          "narration": "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Assay descrive il flusso di lavoro completo.",
           "hold_after": 0.7,
-          "speech_text": "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Analysis descrive il flusso di lavoro completo."
+          "speech_text": "Fai clic su Plaque Assay per aprire la schermata di analisi. Il pannello delle impostazioni specifica la sorgente delle immagini, le maschere e le opzioni di rilevamento. Load test data fornisce un esempio. Controlla i dati di ingresso e l’anteprima prima di avviare Run; il tutorial Plaque Assay descrive il flusso di lavoro completo."
         },
         {
           "visual": "05_references",

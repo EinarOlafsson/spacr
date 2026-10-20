@@ -1,0 +1,21 @@
+spaCR startup benchmark written to /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/installed-screen-diagnostic/diagnostic.json
+registry: 54 apps; violations: 19
+  - cold-process: worst_event_loop_stall_ms reached the 500 ms ceiling
+  - cold-process: stall_budget_met is not true
+  - cold-process: worker reported violation: __home__: no readiness record meeting the 5.0 s budget
+  - cold-process: worker reported violation: __preferences__: event-loop stall reached the 500 ms ceiling
+  - cold-process: worker reported violation: mask: event-loop stall reached the 500 ms ceiling
+  - cold-process: benchmark.results[0].within_budget is not true
+  - cold-process: benchmark.results[0].duration_s exceeds its declared budget
+  - cold-process: benchmark.results[1] reached the 500 ms event-loop stall ceiling
+  - cold-process: benchmark.results[1].event_loop_stall_budget_met is not true
+  - cold-process: benchmark.results[2] reached the 500 ms event-loop stall ceiling
+  - cold-process: benchmark.results[2].event_loop_stall_budget_met is not true
+  - warm-process: worst_event_loop_stall_ms reached the 500 ms ceiling
+  - warm-process: stall_budget_met is not true
+  - warm-process: worker reported violation: __preferences__: event-loop stall reached the 500 ms ceiling
+  - warm-process: worker reported violation: mask: event-loop stall reached the 500 ms ceiling
+  - warm-process: benchmark.results[1] reached the 500 ms event-loop stall ceiling
+  - warm-process: benchmark.results[1].event_loop_stall_budget_met is not true
+  - warm-process: benchmark.results[2] reached the 500 ms event-loop stall ceiling
+  - warm-process: benchmark.results[2].event_loop_stall_budget_met is not true

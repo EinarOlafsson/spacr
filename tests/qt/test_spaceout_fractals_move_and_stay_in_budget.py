@@ -517,19 +517,26 @@ def test_a_huge_display_cannot_ask_for_a_huge_shading_pass(dressed):
 
 
 def _best_shade_ms(engine, width, height, rounds=9):
-    """Cheapest of ``rounds`` shading passes, in milliseconds.
+    """Cheapest of ``rounds`` shading passes, in CPU milliseconds.
 
     The minimum rather than the mean, because on a machine with other work
     on it the mean measures the other work. Nine rounds is what the table in
     the ambient module's own docstring was measured with.
+
+    Thread CPU time rather than wall time (2026-10-11), as in
+    ``tests/test_regression_results_panel.py``: a shading pass is synchronous
+    on this thread with no I/O, so its CPU time is its cost, and time spent
+    pre-empted by another xdist worker or another session is left out.
+    Measured on the 5950X: thread time is within 0.1 ms of wall time on a
+    quiet machine, so the budgets below mean what they meant before.
     """
     engine.shade(width, height)                 # allocate the buffer first
     best = float("inf")
     for _round in range(rounds):
         engine.advance(1.0 / 24.0)
-        started = time.perf_counter()
+        started = time.thread_time()
         engine.shade(width, height)
-        best = min(best, (time.perf_counter() - started) * 1000.0)
+        best = min(best, (time.thread_time() - started) * 1000.0)
     return best
 
 
@@ -571,12 +578,80 @@ def test_a_fractal_frame_settles_inside_the_budget_it_asked_for(width, height,
     assert fractal.iterations() >= 1
 
 
+#: Thread CPU milliseconds :func:`_reference_loop_ms` takes on the machine
+#: the allowance below was set on (AMD Ryzen 9 5950X, minimum of 120 runs,
+#: 2026-10-11). The lowest value seen, so the scaling never loosens the gate
+#: on that machine.
+PROBE_REFERENCE_MS = 14.2
+
+
+def _reference_loop_ms(height=180, width=320, iterations=111):
+    """Thread CPU time of a fixed escape-time loop, in milliseconds.
+
+    The fractal's inner loop written out with fixed numbers: the 320 x 180
+    buffer and 111 iterations the guard settles on at resolution 2.0 and
+    density 3.0 on a 4K canvas. Independent of spaCR, so a change to the
+    engine moves the measured pass and never this yardstick; the same NumPy
+    operations on the same array sizes, so a busy CPU slows both alike.
+    """
+    rows, cols = np.mgrid[-1:1:height * 1j, -1.6:1.6:width * 1j]
+    zr = cols.astype(np.float32)
+    zi = rows.astype(np.float32)
+    survived = np.zeros((height, width), np.float32)
+    share = np.empty_like(zr)
+    cross = np.empty_like(zr)
+    c_re, c_im = np.float32(-0.4), np.float32(0.6)
+    reach = np.float32(4.0)
+    started = time.thread_time()
+    for _ in range(iterations):
+        zr2 = zr * zr
+        zi2 = zi * zi
+        np.add(zr2, zi2, out=share)
+        np.subtract(np.float32(16.0), share, out=share)
+        share *= np.float32(1.0 / 12.0)
+        np.clip(share, 0.0, 1.0, out=share)
+        survived += share
+        np.multiply(zr, zi, out=cross)
+        cross *= np.float32(2.0)
+        cross += c_im
+        np.subtract(zr2, zi2, out=zr)
+        zr += c_re
+        zi, cross = cross, zi
+        np.clip(zr, -reach, reach, out=zr)
+        np.clip(zi, -reach, reach, out=zi)
+    return (time.thread_time() - started) * 1000.0
+
+
+def _best_shade_and_probe_ms(engine, width, height, rounds=9):
+    """``(cheapest pass, median pass / reference loop)``, in CPU time.
+
+    Each pass is bracketed by a reference loop just before and just after
+    it, so each ratio compares the two under the same load, and the median
+    ratio is what a moment of luck on either side cannot move.
+    """
+    engine.shade(width, height)
+    best = float("inf")
+    ratios = []
+    before = _reference_loop_ms()
+    for _round in range(rounds):
+        engine.advance(1.0 / 24.0)
+        started = time.thread_time()
+        engine.shade(width, height)
+        spent = (time.thread_time() - started) * 1000.0
+        after = _reference_loop_ms()
+        best = min(best, spent)
+        ratios.append(2.0 * spent / (before + after))
+        before = after
+    return best, float(np.median(ratios))
+
+
 #: What one shading pass may cost, as a share of the frame interval at
 #: :data:`spacr.qt.widgets.ambient.DEFAULT_FPS`.
 #:
-#: Half, and the headroom is real: the worst corner measured — a 4K canvas
-#: at maximum resolution and maximum density — is 3.87 ms against a 20.8 ms
-#: allowance. It is also not the GUI thread's time: this pass runs on
+#: Half. The worst corner — a 4K canvas at maximum resolution and maximum
+#: density — measured 3.87 ms when this was written; on 2026-10-11 it
+#: measures 14.7-15.0 ms (5950X, quiet, thread CPU time) against the 16.7 ms
+#: allowance the 30 fps cap (9ba7df6d6) leaves, so the headroom is now thin. It is also not the GUI thread's time: this pass runs on
 #: :class:`spacr.qt.widgets.ambient._FrameProducer`, and a pass that ran
 #: long would make the widget repeat a frame rather than block the
 #: interface. The bound exists so that "it degrades gracefully" cannot
@@ -604,10 +679,22 @@ def test_no_setting_can_ask_for_more_than_half_a_frame(resolution, density,
                              resolution=resolution, density=density)
     allowance = MAX_SHADE_SHARE * 1000.0 / amb.DEFAULT_FPS
     _best_shade_ms(engine, 3840, 2160, rounds=30)
-    measured = _best_shade_ms(engine, 3840, 2160)
-    assert measured <= allowance, (
-        f"resolution {resolution}, density {density}: {measured:.2f} ms "
-        f"against a {allowance:.2f} ms allowance")
+    measured, ratio = _best_shade_and_probe_ms(engine, 3840, 2160)
+    # 2026-10-11: under load ~31 on this 32-thread machine one run read
+    # 18.1 ms against 16.7 for a pass that costs 14.8 ms quiet. Thread CPU
+    # time leaves out pre-emption but not SMT siblings and a lower all-core
+    # clock, which slow the CPU itself (19-25 ms under 31 spinners). The
+    # reference loop slows by the same factor (pass / loop held 1.05-1.07
+    # quiet and loaded), so the median pass / loop ratio also judges the
+    # pass at the reference machine's speed. A slower or busier CPU is forgiven, a faster one is
+    # not held to more than the plain allowance, and a pass that really
+    # grew fails both.
+    at_reference = ratio * PROBE_REFERENCE_MS
+    assert min(measured, at_reference) <= allowance, (
+        f"resolution {resolution}, density {density}: {measured:.2f} ms, "
+        f"{at_reference:.2f} ms at reference speed ({ratio:.3f} x the "
+        f"{PROBE_REFERENCE_MS} ms reference loop) against a "
+        f"{allowance:.2f} ms allowance")
 
 
 def test_the_backdrop_still_costs_nothing_while_it_is_off_screen(

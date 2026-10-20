@@ -79,13 +79,20 @@ def test_apply_model_to_tar_reports_crop_format(tmp_path, monkeypatch, capsys):
 
     monkeypatch.setattr(spacr_io, "TarImageDataset", Dataset)
     monkeypatch.setattr(ds, "DataLoader", lambda *_a, **_k: [])
-    monkeypatch.setattr(ds, "_load_inference_model", lambda *_a, **_k: (nn.Identity(), {}))
+    model_path = tmp_path / "m.pth"
+    model_path.write_bytes(b"local-loader-fixture")
+
+    def load_model(path, *_a, **_k):
+        assert path == str(model_path)
+        return nn.Identity(), {}
+
+    monkeypatch.setattr(ds, "_load_inference_model", load_model)
     monkeypatch.setattr(ds, "_empty_device_cache", lambda: None)
     monkeypatch.setattr("spacr.utils.process_vision_results", lambda frame, _t: frame)
     monkeypatch.setattr("spacr.utils.print_progress", lambda *_a, **_k: None)
     monkeypatch.setattr("spacr.crops.CROP_FORMAT_RGB", "rgb-v1")
     settings = {
-        "tar_path": str(tmp_path / "images.tar"), "model_path": str(tmp_path / "m.pth"),
+        "tar_path": str(tmp_path / "images.tar"), "model_path": str(model_path),
         "normalize": False, "image_size": 4, "verbose": False, "batch_size": 2,
         "n_jobs": 0, "score_threshold": 0.5,
     }
@@ -336,8 +343,10 @@ def test_generate_activation_map_registered_attribution_path(tmp_path, monkeypat
     dataset_path = tmp_path / "datasets" / "images.tar"
     dataset_path.parent.mkdir()
     dataset_path.write_bytes(b"present")
+    model_path = tmp_path / "model.pth"
+    model_path.write_bytes(b"local-attribution-fixture")
     supplied = {
-        "dataset": str(dataset_path), "model_path": "model.pth", "model_type": "resnet18",
+        "dataset": str(dataset_path), "model_path": str(model_path), "model_type": "resnet18",
         "target_layer": None, "cam_type": "occlusion", "n_jobs": 0,
         "image_size": 4, "batch_size": 1, "channels": [1, 2, 3],
         "normalize": False, "normalize_input": False, "save": False,
@@ -349,7 +358,12 @@ def test_generate_activation_map_registered_attribution_path(tmp_path, monkeypat
     monkeypatch.setattr(utils, "save_settings", lambda *_a, **_k: None)
     monkeypatch.setattr(utils, "print_progress", lambda *_a, **_k: None)
     monkeypatch.setattr(ds, "_empty_device_cache", lambda: None)
-    monkeypatch.setattr(ds, "_load_inference_model", lambda *_a, **_k: (nn.Identity(), {}))
+
+    def load_model(path, *_a, **_k):
+        assert path == str(model_path)
+        return nn.Identity(), {}
+
+    monkeypatch.setattr(ds, "_load_inference_model", load_model)
     monkeypatch.setattr(spacr_io, "TarImageDataset", lambda *_a, **_k: [0])
     monkeypatch.setattr(
         ds, "DataLoader",
@@ -406,11 +420,24 @@ def _prepare_tiny_training(monkeypatch, *, loaded=None, payload=None, accuracy=0
 
 def test_train_model_rejects_missing_initial_checkpoint(tmp_path, monkeypatch):
     import spacr.deep_spacr as ds
+    from spacr import model_zoo
+
     _prepare_tiny_training(monkeypatch)
-    with pytest.raises(FileNotFoundError, match="does not exist"):
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("A missing initial checkpoint must refuse before acquisition or fitting")
+
+    monkeypatch.setattr(model_zoo, "fetch", forbidden)
+    monkeypatch.setattr(ds, "load_model_artifact", forbidden)
+    monkeypatch.setattr(ds, "AdamW", forbidden)
+    missing = str(tmp_path / "missing.pth")
+    with pytest.raises(model_zoo.ModelZooError) as refused:
         ds.train_model(str(tmp_path), str(tmp_path), "tiny", _tiny_training_loader(),
-                       epochs=1, custom_model_path=str(tmp_path / "missing.pth"),
+                       epochs=1, custom_model_path=missing,
                        tensorboard=False, write_card=False)
+    assert "custom_model_path" in str(refused.value)
+    assert repr(missing) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
 
 
 def test_train_model_validates_loaded_checkpoint_state(tmp_path, monkeypatch):
@@ -803,7 +830,7 @@ def test_train_test_model_tests_the_selected_checkpoint(tmp_path, monkeypatch, c
     monkeypatch.setattr(settings_module, "get_train_test_model_settings", lambda _s: supplied)
     monkeypatch.setattr(utils, "save_settings", lambda *_a, **_k: None)
     monkeypatch.setattr(spacr_io, "generate_loaders", lambda *_a, **_k: ([], [], None))
-    monkeypatch.setattr(spacr_io, "_copy_missclassified", lambda *_a, **_k: None)
+    monkeypatch.setattr(spacr_io, "_copy_misclassified", lambda *_a, **_k: None)
     monkeypatch.setattr(ds, "train_model", lambda **_k: (object(), str(checkpoint)))
     loaded = object()
     monkeypatch.setattr(ds, "_load_inference_model", lambda *_a, **_k: (loaded, {}))

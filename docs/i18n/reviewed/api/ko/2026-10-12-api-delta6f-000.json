@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Sonnet 5.5), no native-speaker signoff",
+  "note": "Reviewed API translations (AI review, same method as delta6c-6e) for item 695: the borderless window preference, the startup replay, the container opacity and the four-second blow-away docstrings.",
+  "records": [
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#0",
+      "source": "Whether the main window is borderless, filling its screen's work area.",
+      "source_sha256": "6696d9463f84d759bd511101da97bcc98e37e471d0c8148b568a544fb80c0559",
+      "context": "Whether the main window is borderless, filling its screen's work area.",
+      "translation": "주 창이 테두리가 없고 화면의 작업 영역을 채우는지 여부.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#1",
+      "source": "The Borderless window switch in the spaCR menu and in Help > Window. Off gives the platform's own framed window, opened at the measured width.",
+      "source_sha256": "7babea5116d9784edfa61dc59be402dc6fe7a70e5975897d19b56e15f69a99f9",
+      "context": "The Borderless window switch in the spaCR menu and in Help > Window. Off gives the platform's own framed window, opened at the measured width.",
+      "translation": "spaCR 메뉴와 Help > Window의 테두리 없는 창 스위치. 끄면 플랫폼 자체의 테두리가 있는 창이 측정된 너비로 열립니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#2",
+      "source": "``True`` unless the switch was turned off; on by default.",
+      "source_sha256": "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857",
+      "context": "``True`` unless the switch was turned off; on by default.",
+      "translation": "스위치를 끄지 않았다면 ``True``. 기본값은 켜짐.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.preferences.set_borderless_window#0",
+      "source": "Choose a borderless or a framed main window.",
+      "source_sha256": "dd37fe43655dda8492c04f5e5075f2e7f4f0cb93bb72fef976c86fb2053998e4",
+      "context": "Choose a borderless or a framed main window.",
+      "translation": "테두리 없는 주 창 또는 테두리가 있는 주 창을 선택합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_borderless_window#1",
+      "source": "``True`` for borderless.",
+      "source_sha256": "fa862288b574333fb21abcd51bc0c637fe970e7015c40064f1024b2b5f34c179",
+      "context": "``True`` for borderless.",
+      "translation": "테두리가 없으면 ``True``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#10",
+      "source": "how many times slower than the 694 flight each tile flies (lift, flip, spin, travel and fade are stretched alike).",
+      "source_sha256": "c85ce426df60be8aa7904bd784bde2d80f61d256000226a99fcd63aa78e97bbb",
+      "context": "how many times slower than the 694 flight each tile flies (lift, flip, spin, travel and fade are stretched alike).",
+      "translation": "각 타일이 694 비행보다 몇 배 느리게 나는지(들어 올림, 뒤집기, 회전, 이동, 사라짐이 똑같이 늘어납니다).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#11",
+      "source": "when given, the last tile has gone by then: lives are cut to end there and :attr:`duration` is ``end``.",
+      "source_sha256": "5584f91e8ebc8f359f1bcd8d5c35599d5ecb2e2d69ada108dc89d9b0982eaf40",
+      "context": "when given, the last tile has gone by then: lives are cut to end there and :attr:`duration` is ``end``.",
+      "translation": "주어지면 그때까지 마지막 타일이 사라집니다. 수명은 거기서 잘리고 :attr:`duration` 은 ``end`` 입니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#1",
+      "source": "The logo holds until two seconds after the cover first painted (at once when called later than that), then blows away over four seconds: the black container fades from one to three seconds in and the last tile has gone at four. The cover deletes itself then.",
+      "source_sha256": "6efefcdf4e85f61d1f97a90af92af73062ad47bb2158659a803945de350a2ce3",
+      "context": "The logo holds until two seconds after the cover first painted (at once when called later than that), then blows away over four seconds: the black container fades from one to three seconds in and the last tile has gone at four. The cover deletes itself then.",
+      "translation": "로고는 커버가 처음 그려진 뒤 2초까지 유지되고(나중에 호출되면 즉시), 이후 4초에 걸쳐 날려 보내집니다. 검은 컨테이너는 1초에서 3초 사이에 사라지고 마지막 타일은 4초에 사라집니다. 그러면 커버는 스스로 삭제됩니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#3",
+      "source": "play even where :func:`startup_animation_allowed` says no; for the Help replay, tests and previews.",
+      "source_sha256": "ec5380f74a5384036fd4b2782649ecf274594c3e1ff229bdb93f7f21cfd73461",
+      "context": "play even where :func:`startup_animation_allowed` says no; for the Help replay, tests and previews.",
+      "translation": ":func:`startup_animation_allowed` 가 안 된다고 하는 곳에서도 재생합니다. Help의 다시 재생, 테스트, 미리보기용.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#4",
+      "source": "hold the logo, then cross-fade it and the container away in one second instead of blowing it away (Reduce motion).",
+      "source_sha256": "5a3404365eb8f1412ef14154c877341c9d2e76b7bb168aa59c816ffd70d94386",
+      "context": "hold the logo, then cross-fade it and the container away in one second instead of blowing it away (Reduce motion).",
+      "translation": "로고를 유지한 다음 날려 보내는 대신 1초 동안 로고와 컨테이너를 페이드 아웃합니다(모션 줄이기).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity#0",
+      "source": "How opaque the black container behind the logo is now.",
+      "source_sha256": "e91e6b0da79dde9b6329bc20ec7b2dfea7b2985138efe7b1b1b70d45fb8954b2",
+      "context": "How opaque the black container behind the logo is now.",
+      "translation": "로고 뒤의 검은 컨테이너가 지금 얼마나 불투명한지.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity#1",
+      "source": "1.0 until a second into the blow-away, then falling monotonically to 0.0 three seconds in (over the one second of the plain cross-fade under Reduce motion); 0.0 once the cover is done.",
+      "source_sha256": "783ca45f2efa090faad6ff940369432be46f4b9971c46a28423261cbeb5bc6cf",
+      "context": "1.0 until a second into the blow-away, then falling monotonically to 0.0 three seconds in (over the one second of the plain cross-fade under Reduce motion); 0.0 once the cover is done.",
+      "translation": "날려 보내기 시작 후 1초까지 1.0, 이후 3초에 0.0이 될 때까지 단조롭게 감소합니다(모션 줄이기에서는 단순 크로스페이드 1초 동안). 커버가 끝나면 0.0.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#0",
+      "source": "Keep covering the window as it resizes.",
+      "source_sha256": "e3908476e0189f8e05c8b2a3fe72cef3b2c461f2d85f5795ba1027d24df8861a",
+      "context": "Keep covering the window as it resizes.",
+      "translation": "창 크기가 바뀔 때도 계속 창을 덮습니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#1",
+      "source": "A window that opens maximised is resized after the cover is put over it, and by then the window may have handed the cover to the blow-away and stopped sizing it.",
+      "source_sha256": "928fa536d3b3e02ccb3f9ccfba87e5df30f3e450f4370529a84429b3a24a768b",
+      "context": "A window that opens maximised is resized after the cover is put over it, and by then the window may have handed the cover to the blow-away and stopped sizing it.",
+      "translation": "최대화된 채 열리는 창은 커버가 덮인 뒤에 크기가 바뀌며, 그때쯤 창이 커버를 날려 보내기에 넘기고 크기 조정을 멈췄을 수 있습니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#2",
+      "source": "the window this covers.",
+      "source_sha256": "d8b4c87947dc5706b037fe6d478e3b06c816b8f51263600de99985df02d04d1c",
+      "context": "the window this covers.",
+      "translation": "덮고 있는 창.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#3",
+      "source": "the event; only a resize is acted on.",
+      "source_sha256": "784c858a3afe115edea340cceee5f0650707ec7a7ceef26311eef17c89574d34",
+      "context": "the event; only a resize is acted on.",
+      "translation": "이벤트. 크기 변경만 처리됩니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#4",
+      "source": "``False``, so the window still sees every event.",
+      "source_sha256": "f875ef6e96d7862b203196a9897f64ba5ac6f59bc4fd81d94f0cd3ed628ae6df",
+      "context": "``False``, so the window still sees every event.",
+      "translation": "``False``. 창이 여전히 모든 이벤트를 보도록 합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#0",
+      "source": "Whether a blow-away is drawing its frames.",
+      "source_sha256": "4f147dc3159d9379023f03408fc94b1c007df2f2a4e12af5afeb62e5fb65f0ec",
+      "context": "Whether a blow-away is drawing its frames.",
+      "translation": "날려 보내기가 프레임을 그리고 있는지 여부.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#1",
+      "source": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the four seconds it runs. While the logo only holds, the window keeps loading underneath it.",
+      "source_sha256": "1d44a287cb158f90eff57bac59c06d910b7126dc6e13ed09117420892ea04bc6",
+      "context": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the four seconds it runs. While the logo only holds, the window keeps loading underneath it.",
+      "translation": "유휴 시간 워밍업이 이를 묻고 기다리므로, 그 조각이 애니메이션이 진행되는 4초 동안 프레임을 빼앗지 않습니다. 로고가 유지되기만 하는 동안에는 그 아래에서 창이 계속 로드됩니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#2",
+      "source": "``True`` while any cover that still exists is past its hold and drawing; a cover deleted mid-way, with its window, no longer counts.",
+      "source_sha256": "dcd0b4a50b13145cede04bd05c397d960d9c795f87a8116c3644e117793ac1c0",
+      "context": "``True`` while any cover that still exists is past its hold and drawing; a cover deleted mid-way, with its window, no longer counts.",
+      "translation": "아직 존재하는 커버가 유지 시간을 지나 그리고 있는 동안 ``True``. 창과 함께 도중에 삭제된 커버는 더 이상 세지 않습니다.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#0",
+      "source": "Play the startup sequence again inside ``window``.",
+      "source_sha256": "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+      "context": "Play the startup sequence again inside ``window``.",
+      "translation": "``window`` 안에서 시작 시퀀스를 다시 재생합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#1",
+      "source": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
+      "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "translation": "Help > Show startup animation. 로고가 있는 검은 컨테이너가 창 위로 돌아와 2초 동안 유지된 뒤 시작할 때처럼 날려 보내집니다. Preferences > 애니메이션 > 시작 애니메이션이 꺼져 있어도 재생되며, 접근성 > 모션 줄이기에서는 로고가 유지된 뒤 1초에 걸쳐 페이드 아웃됩니다. 클릭하거나 키를 누르면 건너뜁니다. 창의 크기, 상태, 키보드 포커스는 그대로 둡니다.",
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",
+      "source": "the window to play it in.",
+      "source_sha256": "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+      "context": "the window to play it in.",
+      "translation": "재생할 창.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#3",
+      "source": "the cover now playing, or ``None`` when the logo cannot be read or a cover is already over the window.",
+      "source_sha256": "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2",
+      "context": "the cover now playing, or ``None`` when the logo cannot be read or a cover is already over the window.",
+      "translation": "지금 재생 중인 커버, 또는 로고를 읽을 수 없거나 이미 창 위에 커버가 있으면 ``None``.",
+      "review_basis": "written from the English"
+    }
+  ]
+}

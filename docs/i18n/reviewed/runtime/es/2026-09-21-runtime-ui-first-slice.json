@@ -39,24 +39,10 @@
     },
     {
       "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "translation": "Una curva 4PL es simétrica respecto a su punto medio. La asimetría real existe, y el modelo 4PL la absorbe desplazando el EC50; el modelo 5PL la ajusta con un parámetro adicional, necesita una concentración más e indica si ese parámetro aporta una mejora suficiente."
-    },
-    {
-      "table": "ui",
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
       "translation": "Archivo WAV propio para usar como música de fondo en lugar de la música de spaCR. Déjelo vacío para usar la música de spaCR. No se sube ni se copia nada: el archivo se lee desde su ubicación y también marca el movimiento del fondo Resonancia."
-    },
-    {
-      "table": "ui",
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
-      "translation": "Una noche despejada: índigo, violeta, azul hielo y el azul lavanda pálido que el cielo conserva mucho después de ponerse el sol."
     },
     {
       "table": "ui",
@@ -88,31 +74,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "translation": "Un arpegio ascendente que resuelve en la tónica cuando la ejecución de un módulo termina correctamente, para avisarle cuando spaCR está en otra ventana."
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "translation": "Una nota de cuerda pulsada, breve y suave, en la tonalidad del conjunto de sonidos al pulsar un botón, un interruptor, una pestaña, una lista o un deslizador: confirma que se registró la pulsación, de forma más perceptible que audible."
-    },
-    {
-      "table": "ui",
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
       "translation": "Una secuencia musical descendente más lenta cuando una ejecución se detiene por un error, para que una ejecución completada y una fallida nunca suenen igual. Si detiene la ejecución usted mismo, no se emite ningún sonido."
-    },
-    {
-      "table": "ui",
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
-      "translation": "El sol cerca del horizonte y la materia que atraviesa su luz: dorado, ámbar, oro pálido y verde musgo."
     },
     {
       "table": "ui",
@@ -127,13 +92,6 @@
       "source": "Add field",
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
       "translation": "Añadir campo"
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "translation": "Añade los mensajes DEBUG de spaCR a los archivos de registro en ~/.spacr/logs. También permite que cellpose indique qué modelo ha cargado y registra qué botones ha pulsado. Ese historial aporta la información necesaria para investigar un informe de error.\n\nActivar esta opción no aumentó el tiempo de inicio de spaCR ni el de apertura de sus pantallas. Se midió en una estación de trabajo abriendo cada módulo una vez con la opción activada y otra con ella desactivada. Inicio estuvo listo en unos 4 segundos tras un arranque en frío en ambos casos. El módulo más lento se abrió en unos 7 segundos en ambos casos. No se cronometraron las ejecuciones de los flujos de trabajo.\n\nLa Consola sigue mostrando únicamente los niveles que active en la pestaña Registro. Este interruptor no rastrea todas las llamadas a funciones. Ese rastreador es una herramienta independiente para desarrolladores y nada de lo que se configura aquí lo activa."
     },
     {
       "table": "ui",
@@ -305,6 +263,54 @@
         "translation": "Otra instalación todavía está en ejecución. Espere a que termine, o presione Cancelar bajo las marcas."
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "translation": "Una curva 4PL es simétrica respecto a su punto medio. La asimetría real existe, y el modelo 4PL la absorbe desplazando el EC50; el modelo 5PL la ajusta con un parámetro adicional, necesita una concentración más e indica si ese parámetro aporta una mejora suficiente.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "translation": "Una noche despejada: índigo, violeta, azul hielo y el azul lavanda pálido que el cielo conserva mucho después de ponerse el sol.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "Un arpegio ascendente que resuelve en la tónica cuando la ejecución de un módulo termina correctamente, para avisarle cuando spaCR está en otra ventana.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "Una nota de cuerda pulsada, breve y suave, en la tonalidad del conjunto de sonidos al pulsar un botón, un interruptor, una pestaña, una lista o un deslizador: confirma que se registró la pulsación, de forma más perceptible que audible.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "translation": "El sol cerca del horizonte y la materia que atraviesa su luz: dorado, ámbar, oro pálido y verde musgo.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "Añade los mensajes DEBUG de spaCR a los archivos de registro en ~/.spacr/logs. También permite que cellpose indique qué modelo ha cargado y registra qué botones ha pulsado. Ese historial aporta la información necesaria para investigar un informe de error.\n\nActivar esta opción no aumentó el tiempo de inicio de spaCR ni el de apertura de sus pantallas. Se midió en una estación de trabajo abriendo cada módulo una vez con la opción activada y otra con ella desactivada. Inicio estuvo listo en unos 4 segundos tras un arranque en frío en ambos casos. El módulo más lento se abrió en unos 7 segundos en ambos casos. No se cronometraron las ejecuciones de los flujos de trabajo.\n\nLa Consola sigue mostrando únicamente los niveles que active en la pestaña Registro. Este interruptor no rastrea todas las llamadas a funciones. Ese rastreador es una herramienta independiente para desarrolladores y nada de lo que se configura aquí lo activa.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

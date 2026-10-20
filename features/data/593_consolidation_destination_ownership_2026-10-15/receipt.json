@@ -1,0 +1,39 @@
+{
+  "scope": "N593 exclusive destination creation and ownership-aware failed-copy cleanup only",
+  "source_owner_grant": "consolidate_folder copy/cleanup hunk",
+  "baseline": {
+    "failed": 7,
+    "passed": 0,
+    "seconds": 0.82,
+    "reference": "391dda3ab45 private immutable source; current new-tree source unchanged before edit"
+  },
+  "owning": {
+    "passed": 30,
+    "new_native_cases": 7,
+    "seconds": 1.44,
+    "exit": 0,
+    "memory_cap": "2G",
+    "tiny_stdlib_file_cohort_outside_heavy_lock": true
+  },
+  "source": [
+    "Exclusive xb destination creation refuses concurrently arriving files/normal or broken symlinks",
+    "Input and output held file descriptors copy original bytes; flush/fsync before recording success",
+    "Destination regular-file device/inode identity checked before and after existing copystat metadata operation",
+    "Failure cleanup unlinks only matching owned regular-file device/inode, retaining observed foreign replacements/symlinks",
+    "Original naming, case numbering, manifest layout/errors, copied/failed counts and source inputs preserved"
+  ],
+  "tests": [
+    "Native arriving file/symlink/broken-symlink after name selection",
+    "Native replaced file/symlink during failed copy",
+    "Private file arrival when copy refuses before open",
+    "Replacement at copystat seam preserves foreign/source bytes and is refused",
+    "Existing100-file, partial-file cleanup, original-input/metadata/naming/manifest/CLI fixtures retained; two failure injectors moved from copy2 to copyfileobj without weakening file/status assertions"
+  ],
+  "development": "First owning cohort caught shadowing of directory current by new stat local, causing multi-file TypeError; renamed destination_info before final30PASS. First log retained, not waived.",
+  "limitations": [
+    "Path-based copystat check/use race remains: foreign replacement metadata may change; fixture proves bytes and refusal, not metadata isolation",
+    "External replacements between final lstat and unlink are not serialized; no blanket concurrent mutation guarantee",
+    "No whole-folder transaction or copy-in-progress visibility guarantee",
+    "Native Linux temporary files only, no user/live data, model/network/GPU/full CI or native other-OS acceptance"
+  ]
+}

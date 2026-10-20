@@ -64,7 +64,7 @@ class TestTheAnswerIsUnchanged:
         """Bounding the read must not change WHICH runs come back."""
         every = []
         for folder in journal.iterdir():
-            manifest = json.loads((folder / "manifest.json").read_text())
+            manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
             every.append((manifest["start_utc"], folder.name))
         every.sort(reverse=True)
         for limit in (1, 5, 10, 50):

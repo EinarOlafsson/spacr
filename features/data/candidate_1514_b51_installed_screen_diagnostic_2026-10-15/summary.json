@@ -1,0 +1,82 @@
+{
+  "passed": false,
+  "violation_count": 19,
+  "registry_count": 54,
+  "runs": [
+    {
+      "name": "cold-process",
+      "measured": 54,
+      "registry_stable": true,
+      "exit_reason": "registry sweep complete",
+      "worker_exit": 0,
+      "seconds": 33.2180459969677,
+      "violations": [
+        "__home__: no readiness record meeting the 5.0 s budget",
+        "__preferences__: event-loop stall reached the 500 ms ceiling",
+        "mask: event-loop stall reached the 500 ms ceiling"
+      ],
+      "named_rows": [
+        {
+          "detail": "__home__",
+          "duration_s": 5.40387339622248,
+          "within_budget": false,
+          "worst_event_loop_stall_ms": 89.28577799815685,
+          "event_loop_stall_budget_met": true
+        },
+        {
+          "detail": "__preferences__",
+          "duration_s": 0.9909870420815423,
+          "within_budget": true,
+          "worst_event_loop_stall_ms": 674.2780780186877,
+          "event_loop_stall_budget_met": false
+        },
+        {
+          "detail": "mask",
+          "duration_s": 5.844355085049756,
+          "within_budget": true,
+          "worst_event_loop_stall_ms": 718.4220789931715,
+          "event_loop_stall_budget_met": false
+        }
+      ],
+      "all_modules_under10s": true,
+      "stderr": ""
+    },
+    {
+      "name": "warm-process",
+      "measured": 54,
+      "registry_stable": true,
+      "exit_reason": "registry sweep complete",
+      "worker_exit": 0,
+      "seconds": 25.154036432038993,
+      "violations": [
+        "__preferences__: event-loop stall reached the 500 ms ceiling",
+        "mask: event-loop stall reached the 500 ms ceiling"
+      ],
+      "named_rows": [
+        {
+          "detail": "__home__",
+          "duration_s": 1.9801825897302479,
+          "within_budget": true,
+          "worst_event_loop_stall_ms": 68.74162203166634,
+          "event_loop_stall_budget_met": true
+        },
+        {
+          "detail": "__preferences__",
+          "duration_s": 0.8880685290787369,
+          "within_budget": true,
+          "worst_event_loop_stall_ms": 811.2929740455002,
+          "event_loop_stall_budget_met": false
+        },
+        {
+          "detail": "mask",
+          "duration_s": 2.8126723560271785,
+          "within_budget": true,
+          "worst_event_loop_stall_ms": 528.3336410066113,
+          "event_loop_stall_budget_met": false
+        }
+      ],
+      "all_modules_under10s": true,
+      "stderr": ""
+    }
+  ]
+}

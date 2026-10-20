@@ -256,21 +256,12 @@ def record_home_navigation(app, window, capture, settle):
                 break
         else:
             raise RuntimeError('Current Home has no visible tile for ' + key)
-    from spacr.qt import preferences as prefs
-    previous_backdrop, previous_density = prefs.get_ambient_animation(), prefs.get_ambient_density()
-    prefs.set_ambient_animation('blobs')
-    prefs.set_ambient_density(2.0)
-    prefs.apply_preferences_to_app(app)
-    window.setProperty('tutorialMaskBlobs', True)
+    # Mask scenes keep the spaCR field like every other scene (2026-10-10).
     select('mask')
     capture('06_mask_host')
     capture('06b_mask_settings')
     capture('06c_mask_actions')
     focus = {'14_resize_panels': record_resize_panels(app, window, capture, settle)}
-    prefs.set_ambient_animation(previous_backdrop)
-    prefs.set_ambient_density(previous_density)
-    prefs.apply_preferences_to_app(app)
-    window.setProperty('tutorialMaskBlobs', False)
     select('__home__')
     focus.update(record_home_column(window, capture, settle))
     focus['08_help_search'] = record_help_search(app, window, capture, settle)
@@ -395,8 +386,8 @@ def record_appearance_sections(window, capture, settle):
             settle(1)
             if key == "animation":
                 names = ("AmbientSpeed", "AmbientSize", "AmbientResolution",
-                         "AmbientDensity", "AmbientGravityRadius", "FieldRipplesEnabled",
-                         "FieldPopupWaveFrequency", "PopupBackdrop", "PopupBackdropSpeed",
+                         "AmbientDensity", "AmbientGravityRadius", "FieldRipples",
+                         "FieldClickRipples", "FieldPopupWaveFrequency", "PopupBackdrop", "PopupBackdropSpeed",
                          "PopupBackdropSize", "PopupBackdropResolution", "PopupBackdropDensity",
                          "PopupBackdropDarkness")
                 viewport = scroll.viewport()
@@ -433,7 +424,8 @@ def record_appearance_sections(window, capture, settle):
                     settings.setValue(before)
                 proof = {"all_named_controls_visible": list(names), "ordinary_choices": choices,
                          "settings_controls_independent": independence,
-                         "field_ripples_separate_control": controls["FieldRipplesEnabled"].isChecked()}
+                         "field_ripples_strength_percent": controls["FieldRipples"].value(),
+                         "click_ripples": controls["FieldClickRipples"].isChecked()}
                 settle(.5)
             capture(name)
         for section in sections.values():

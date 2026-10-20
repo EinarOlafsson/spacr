@@ -1,0 +1,184 @@
+{
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "Modeller"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "Nyheter"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "Modelle"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "Neuigkeiten"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "Modelos"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "Noticias"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "模型"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "新闻"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "Modèles"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "Actualités"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "Modelos"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "Notícias"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "मॉडल"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "समाचार"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "모델"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "소식"
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-installer-cleanup-preview.json",
+      "reason": "Retired2026-10-15: exact normal canonical ownership is compact i18n._ROWS for News and i18n._TERM_ROWS for Models; both intentionally excluded from generated UI. Existing compact source/targets remain unchanged.",
+      "records": [
+        {
+          "table": "ui",
+          "key": "Models",
+          "source": "Models",
+          "source_sha256": "d17d2d78d76e6a6cd13048de225e107ac73de4aa5f8914e58a0cfaa9698c373e",
+          "translation": "Líkön"
+        },
+        {
+          "table": "ui",
+          "key": "News",
+          "source": "News",
+          "source_sha256": "69752f2313b2f0173a64afafc8fd7c6342a4a03ebaf47f7fe56792c146082232",
+          "translation": "Fréttir"
+        }
+      ]
+    }
+  ]
+}

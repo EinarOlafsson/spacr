@@ -4,46 +4,42 @@ run them unattended.
 The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one*
 pipeline with *one* settings dict.
 
-This module is the other axis. It holds a queue of arbitrary
-``(module, settings)`` jobs in any order:
-``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again
-with a different diameter, then a fifth plate's Mask. That is what a night of
-plate-scale work actually looks like.
+This module is the other axis. It holds a queue of arbitrary ``(module,
+settings)`` jobs in any order: ``Mask → Measure → Classify (CV) → Classify
+(ML)``, then the same four again with a different diameter, then a fifth
+plate's Mask.
 
 A queued job **is** a ``spacr-run`` invocation. Nothing here re-implements
-module dispatch or settings loading: :mod:`spacr.cli` owns the module
-registry, the settings loader, the ``--set`` coercion and the exit-code
-contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this
-module drives it. Likewise a queue is a **ledger of ledgers**: the queue's own
-verdict is a :class:`spacr.errors.RunLedger`, stamped next to the queue file,
-and each job's :func:`spacr.errors.read_run_status` stamp is read back so a
-job that exited 0 having silently skipped 40 fields is reported as *partial*
-rather than as a success.
+module dispatch or settings loading: :mod:`spacr.cli` owns the module registry,
+the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1
+the module raised, 2 bad arguments or settings), and this module drives it. The
+queue's own result is a :class:`spacr.errors.RunLedger`, stamped next to the
+queue file, and each job's :func:`spacr.errors.read_run_status` stamp is read
+back so a job that exited 0 having silently skipped 40 fields is reported as
+*partial* rather than as a success.
 
-What makes a queue survive a night nobody is watching:
+Behaviour for unattended runs:
 
-* **Every job is validated when it is added, not when it runs.** Discovering
-  at 3 a.m. that job 9's ``src`` is misspelled wastes the whole night.
-  :func:`validate_queue` reports *all* problems at once and
-  :func:`run_queue` refuses to start while any of them is an error.
+* **Every job is validated when it is added, not when it runs.**
+  :func:`validate_queue` reports *all* problems at once and :func:`run_queue`
+  refuses to start while any of them is an error.
 * **State is persisted after every transition, atomically.** A machine that
   reboots mid-queue is resumed with :func:`resume_queue`, not restarted. The
-  file is written to a temp name and ``os.replace``\\ d, because a queue file
-  truncated by a crash is worse than no queue file at all.
-* **A job whose dependency failed is SKIPPED, not run.** Measure after a
-  failed Mask produces a database that looks like a real result.
-  ``skipped`` (deliberately not run), ``failed`` and ``not_run`` (the queue
-  halted before reaching it) are three different things and stay that way.
-* **continue-on-error stops hiding a systematic failure.** If the first three
-  jobs died the same way the remaining nine will too;
-  ``max_consecutive_failures`` halts the queue and says so.
+  file is written to a temp name and ``os.replace``\\ d, so a crash cannot
+  leave a truncated queue file.
+* **A job whose dependency failed is skipped, not run.** Measure after a failed
+  Mask produces a database that looks like a real result. ``skipped``
+  (deliberately not run), ``failed`` and ``not_run`` (the queue halted before
+  reaching it) are three different things and stay that way.
+* **Repeated failures halt the queue.** Under continue-on-error,
+  ``max_consecutive_failures`` (3 by default) halts the queue after that many
+  failures in a row and records the reason.
 * **Per-job logs go to their own file** — one interleaved log from twelve
   overnight jobs is unreadable — and the path is on the job record.
 
-Concurrency: jobs run **strictly one at a time**. They compete for one GPU,
-and two Cellpose jobs sharing a card is how an overnight run turns into an
-overnight CUDA OOM. There is deliberately no ``max_workers``; run two queues
-in two processes if you really have two cards.
+Concurrency: jobs run **strictly one at a time**. They compete for one GPU, and
+two Cellpose jobs on one card can run out of CUDA memory. There is no
+``max_workers`` option; to use two cards, run two queues in two processes.
 
 Import cost: this module imports only the standard library plus
 :mod:`spacr.cli`, :mod:`spacr.errors` and :mod:`spacr.validate`, all of which
@@ -74,6 +70,7 @@ import sys
 import tempfile
 import uuid
 from collections import OrderedDict
+from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -196,7 +193,7 @@ def _parse_iso(text: Any) -> Optional[datetime]:
 
 
 def fmt_duration(seconds: Optional[float]) -> str:
-    """Render a duration the way an overnight summary should read.
+    """Format a duration in seconds as a short string.
 
     :param seconds: elapsed seconds, or None when the job never finished.
     :returns: ``'—'``, ``'42.1s'``, ``'7m 12s'`` or ``'7h 41m'``.
@@ -225,7 +222,7 @@ class Problem:
     :param job_id: id of the offending job; ``''`` for a queue-level problem.
     :param severity: ``'error'`` (the queue must not start) or ``'warning'``.
     :param message: what is wrong, in the user's terms.
-    :param fix: what to actually do about it.
+    :param fix: the corrective action.
     :param setting: the settings key at fault, when there is one.
     """
 
@@ -250,8 +247,7 @@ class Problem:
 def format_problems(problems: Sequence[Problem], title: str = 'queue check') -> str:
     """Render every problem at once, errors first.
 
-    Reporting the first error and stopping is what makes a twelve-job queue
-    take twelve rounds of fixing; this prints all of them.
+    All problems are listed, not only the first.
 
     :param problems: what :func:`validate_queue` returned.
     :param title: heading for the block.
@@ -361,8 +357,7 @@ class Job:
     def is_partial(self) -> bool:
         """True when the job exited 0 but its own ledger says items failed.
 
-        This is the case the queue exists to catch: a measure run that
-        processed 344 of 384 wells exits 0 and looks like a success.
+        Example: a Measure run that processed 344 of 384 wells exits 0.
         """
         if not isinstance(self.run_status, dict):
             return False
@@ -402,9 +397,8 @@ class Job:
         """Rebuild a job from :meth:`to_dict`, tolerating a hand-edited file.
 
         Every field has a default and unknown keys are ignored, so a user can
-        delete the bookkeeping (``status``, ``started``, ...) from a queue
-        file and still have it load — which is the whole point of a
-        hand-editable format.
+        delete the bookkeeping (``status``, ``started``, ...) from a queue file
+        and still have it load.
 
         :param data: one entry of the queue file's ``jobs`` list.
         :raises QueueError: when ``data`` is not a mapping with a ``module``.
@@ -456,8 +450,7 @@ class Job:
     def copy(self, **changes: Any) -> 'Job':
         """Return a fresh, never-run copy of this job with ``changes`` applied.
 
-        The GUI's "Duplicate" button: the common way to build a queue is one
-        job, then eleven variations of it.
+        Used by the GUI's "Duplicate" button.
         """
         data = dict(self.to_dict())
         data.update(changes)
@@ -529,7 +522,7 @@ class Queue:
         return f'{base}-{n}'
 
     def add(self, job: Job, validate: bool = True) -> Job:
-        """Append ``job``, validating it *now* rather than at 3 a.m.
+        """Validate ``job`` and append it to the queue.
 
         :param job: the job to add; its ``id`` and ``label`` are filled in
             when empty.
@@ -692,9 +685,8 @@ def save_queue(queue: Queue, path: Union[str, os.PathLike]) -> Path:
     """Write ``queue`` to ``path`` atomically, as indented JSON.
 
     JSON rather than a bespoke format because it is stdlib (no PyYAML on a
-    compute node), because :mod:`spacr.errors` already persists its stamps
-    this way, and because indented JSON is genuinely hand-editable: a user
-    fixing job 9's ``src`` at 3 a.m. opens this file in an editor, not a GUI.
+    compute node), because :mod:`spacr.errors` already persists its stamps this
+    way, and because indented JSON can be edited in a text editor.
 
     :param queue: the queue to persist.
     :param path: destination file.
@@ -708,8 +700,8 @@ def load_queue(path: Union[str, os.PathLike]) -> Queue:
 
     :param path: the queue file.
     :returns: the :class:`Queue`.
-    :raises QueueError: when the file is missing or is not a queue. Never a
-        traceback: an unattended runner should fail with a sentence.
+    :raises QueueError: when the file is missing or is not a queue; the message
+        is one sentence.
     """
     target = Path(path)
     if not target.exists():
@@ -734,16 +726,18 @@ def load_queue(path: Union[str, os.PathLike]) -> Queue:
 def _src_values(settings: Mapping[str, Any]) -> List[str]:
     """``src`` normalised to a list of strings.
 
-    Mirrors :func:`spacr.validate._src_values` (itself mirroring
-    ``spacr.utils.normalize_src_path``); copied rather than imported so this
-    module depends only on validate's public API.
+    Read by ``spacr.portable_paths._parse_path_list``, the same reader
+    :func:`spacr.validate._src_values` and ``spacr.utils.normalize_src_path``
+    use, so a pasted list of plates is split the same way everywhere.
     """
+    from .portable_paths import _parse_path_list
+
     src = settings.get('src')
     if isinstance(src, (list, tuple)):
-        return [str(v) for v in src if isinstance(v, (str, os.PathLike))]
-    if isinstance(src, str) and src.strip():
-        return [src]
-    return []
+        src = [v for v in src if isinstance(v, (str, os.PathLike))]
+    elif not isinstance(src, str):
+        return []
+    return [str(v) for v in _parse_path_list(src)]
 
 
 def _within(path: str, root: str) -> bool:
@@ -786,7 +780,7 @@ def resolve_job_settings(job: Job) -> Dict[str, Any]:
         raise SettingsError(f'unknown module {job.module!r}.')
     resolved = module_defaults(module)
     if isinstance(job.settings, Mapping):
-        resolved.update(_under_todays_names(dict(job.settings)))
+        resolved.update(_under_todays_names(deepcopy(dict(job.settings))))
     elif isinstance(job.settings, str) and job.settings.strip():
         resolved.update(_under_todays_names(load_settings_file(job.settings)))
     apply_overrides(resolved, job.override_args, module)
@@ -994,9 +988,8 @@ def _cycle_problems(queue: Queue) -> List[Problem]:
 def validate_queue(queue: Queue) -> List[Problem]:
     """Validate every job, and the queue's own structure, all at once.
 
-    Reporting the first problem and stopping is how a twelve-job queue takes
-    twelve rounds of fixing, so this returns *everything*: duplicate ids,
-    cycles, unknown dependencies, and each job's own settings problems.
+    All problems are returned at once: duplicate ids, cycles, unknown
+    dependencies, and each job's own settings problems.
 
     :param queue: the queue to check.
     :returns: every problem found. ``[p for p in problems if p.is_error]``
@@ -1032,8 +1025,8 @@ def plan(queue: Queue, detail: bool = False) -> str:
 
     :param queue: the queue.
     :param detail: also render :func:`spacr.validate.describe_plan` for every
-        job — the full "here is what would actually happen" per job. Off by
-        default because it lists directories, which is slow over NFS.
+        job — the full per-job plan. Off by default because it lists
+        directories, which is slow over NFS.
     :returns: the plan as one string.
     """
     lines = [_RULE, f' spaCR batch queue: {queue.name} — {len(queue.jobs)} job(s)', _RULE,
@@ -1079,8 +1072,8 @@ def plan(queue: Queue, detail: bool = False) -> str:
 class Progress:
     """One incremental progress report, handed to ``on_progress``.
 
-    A queue runs for hours; a GUI that only learns the outcome at the end is
-    not showing progress. Every transition emits one of these.
+    Every transition emits one of these, so a GUI can show progress while the
+    queue runs.
 
     :param event: ``'queue_started'``, ``'job_started'``, ``'job_finished'``,
         ``'job_skipped'``, ``'queue_stopped'`` or ``'queue_finished'``.
@@ -1101,7 +1094,7 @@ class Progress:
 
 @dataclass
 class QueueResult:
-    """What happened, and the summary that is the actual deliverable.
+    """Outcome of a queue run: job states, timings and ledger.
 
     :param queue: the queue, with every job's final status on it.
     :param log_dir: folder holding the per-job logs.
@@ -1174,8 +1167,7 @@ class QueueResult:
 
         What ran, what failed and why (identical failures grouped), what was
         skipped and because of which upstream job, what is only partial, and
-        how long each took. This is the thing a user reads over coffee
-        instead of scrolling four thousand lines of interleaved log.
+        how long each took.
         """
         counts = self.queue.counts()
         head = (f'{counts[STATUS_SUCCESS]} ok, {counts[STATUS_FAILED]} failed, '
@@ -1261,9 +1253,8 @@ def job_command(job: Job, settings_path: str,
     """Return the exact ``spacr-run`` command line for ``job``.
 
     Spelled as ``<this python> -m spacr.cli ...`` rather than the ``spacr-run``
-    console script so the job runs in the interpreter the queue is running in
-    — the venv the user actually installed spaCR into — even when ``PATH``
-    says otherwise.
+    console script so the job runs in the interpreter the queue is running in —
+    the environment spaCR is installed in — even when ``PATH`` says otherwise.
 
     :param job: the job.
     :param settings_path: settings file the job will be given.
@@ -1283,9 +1274,9 @@ def job_command(job: Job, settings_path: str,
 def subprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
     """Run one job as its own ``spacr-run`` process. **The default runner.**
 
-    A separate process is the point: cellpose segfaulting or the CUDA driver
-    wedging kills that job, not the other eleven and not the GUI. The exit
-    code comes straight from :mod:`spacr.cli` — 0 ok, 1 the module raised,
+    A separate process isolates failures: cellpose segfaulting or the CUDA
+    driver wedging kills that job, not the other eleven and not the GUI. The
+    exit code comes straight from :mod:`spacr.cli` — 0 ok, 1 the module raised,
     2 bad settings — and stdout+stderr go to this job's own log file.
 
     :param job: the job to run.
@@ -1580,16 +1571,14 @@ def run_queue(queue: Queue,
 
     :param queue: the queue to run. Mutated in place: each job's status,
         timestamps, exit code, log path and run_status are filled in.
-    :param path: queue file kept up to date after every transition. Without
-        it the run cannot be resumed, which is a real loss on a long night.
+    :param path: queue file kept up to date after every transition. Without it
+        the run cannot be resumed.
     :param on_error: ``'continue'`` (default) runs the jobs that do not depend
         on the failed one; ``'stop'`` halts the queue immediately.
     :param log_dir: folder for per-job logs; defaults to ``<queue file>_logs``
         or a temp folder.
     :param max_consecutive_failures: halt after this many failures in a row.
-        Continue-on-error is meant to save a night from one bad plate, not to
-        spend it repeating one systematic mistake twelve times. ``None`` or
-        ``0`` disables the check.
+        ``None`` or ``0`` disables the check.
     :param on_progress: called with a :class:`Progress` on every transition,
         so a GUI can show the queue moving. Exceptions from it are logged and
         swallowed.
@@ -1598,9 +1587,8 @@ def run_queue(queue: Queue,
         anyone who wants to submit jobs to a scheduler instead.
     :param stop_flag: polled between jobs; return True to stop the queue after
         the running job finishes (the GUI's Stop button).
-    :param force: run even though validation found errors. The escape hatch
-        for a check that is wrong about your data — it is not the default for
-        a reason.
+    :param force: run even though validation found errors. Use it only when a
+        validation error does not apply to your data.
     :param echo: print the summary at the end. Always logged either way.
     :returns: the :class:`QueueResult`.
     :raises QueueError: when validation found errors and ``force`` is False —

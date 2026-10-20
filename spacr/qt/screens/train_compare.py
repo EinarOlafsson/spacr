@@ -1,9 +1,8 @@
 """
 Training Runs — several runs' curves on one axis, with the settings diffed.
 
-The question this screen exists to answer is "why is run B better than run A",
-which today is answered by opening two folders of PDFs in one window, two
-settings CSVs in another, and holding the difference in your head.
+The screen helps explain why one run scored better than another: it draws their
+curves on one axis and lists the settings that differ.
 
 Layout::
 
@@ -37,9 +36,7 @@ Design notes:
   curves, a metric nothing logged — all of it lands in the inline status and
   problem labels. A QMessageBox hangs a headless run.
 * **Broken runs are listed, not hidden.** A folder holding checkpoints but no
-  ``train.csv`` still appears, marked, with its note in the problem line. A
-  scan that silently drops the folder you were looking for is worse than one
-  that says what is wrong with it.
+  ``train.csv`` still appears, marked, with its note in the problem line.
 * **The diff is bucketed, never flat.** It renders
   :func:`spacr.train_compare.diff_settings`, which reuses the provenance
   bucketing from :mod:`spacr.run_journal`: environment drift (paths, hosts,
@@ -81,7 +78,9 @@ from ..theme import (SPACING, active_palette, make_transparent,
                      paint_panel, palette_for)
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _reuse_list_items,
+                                      _spare_table_item, install_sorting,
+                                      table_item)
 
 LOG = logging.getLogger(__name__)
 
@@ -345,8 +344,8 @@ class TrainCompareScreen(QWidget):
             self._fold_combo.addItem(label)
         self._fold_combo.setToolTip(
             "How to draw a cross-validated run: every fold, the fold mean "
-            "with a ±1 sd band, or both. A mean drawn as if it were one run "
-            "hides the fold-to-fold spread k-fold exists to show.")
+            "with a ±1 sd band, or both. Drawing only the mean hides the "
+            "spread between folds.")
         self._fold_combo.currentIndexChanged.connect(self._on_fold_changed)
         fold_row.addWidget(self._fold_combo, 1)
         left_layout.addLayout(fold_row)
@@ -510,9 +509,9 @@ class TrainCompareScreen(QWidget):
     def _fill_runs_list(self) -> None:
         """Rebuild the run list, keeping whatever was ticked."""
         self._runs_list.blockSignals(True)
-        self._runs_list.clear()
-        for run in self._runs:
-            item = QListWidgetItem(run.summary_line())
+        items = _reuse_list_items(self._runs_list, len(self._runs))
+        for item, run in zip(items, self._runs):
+            item.setText(run.summary_line())
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Unchecked)
             item.setData(Qt.UserRole, run.run_id)
@@ -521,7 +520,6 @@ class TrainCompareScreen(QWidget):
             if not run.has_curves:
                 item.setForeground(
                     QBrush(QColor(active_palette()["fg_dim"])))
-            self._runs_list.addItem(item)
         self._runs_list.blockSignals(False)
         self._runs_header.setText(f"Runs found ({len(self._runs)})")
         self._fill_metric_combo(tc.available_metrics(self._runs))
@@ -565,7 +563,7 @@ class TrainCompareScreen(QWidget):
     def runs(self) -> List[tc.TrainingRun]:
         """Every run the last scan found.
 
-        A LIST COPY, so a caller cannot reorder this screen's runs by
+        A copy of the list, so a caller cannot reorder this screen's runs by
         mutating what it was handed.
 
         :returns: the runs.
@@ -760,9 +758,8 @@ class TrainCompareScreen(QWidget):
             if self._comparison.metrics else "accuracy")
         tc.plot_curves(self._comparison, metric, ax=ax)
         from ...figures.bundle import _register_figure_data
-        _register_figure_data(
-            self._figure, lambda: tc._curve_frame(self._comparison, metric),
-            x="epoch", y=metric, hue="series", kind="line")
+        _register_figure_data(self._figure, self._figure._spacr_data,
+                              **self._figure._spacr_spec)
         self._style_axes(ax, pal)
         from ...figures.style import _apply_user_style
         _apply_user_style(self._figure, force=True)
@@ -794,7 +791,7 @@ class TrainCompareScreen(QWidget):
 
     def _clear_diff(self) -> None:
         """Empty the settings diff, so a stale one is not read as current."""
-        self._diff_table.clear()
+        _retire_table_cells(self._diff_table, headers=True)
         self._diff_table.setRowCount(0)
         self._diff_table.setColumnCount(0)
         self._diff_summary.setText("")
@@ -861,13 +858,15 @@ class TrainCompareScreen(QWidget):
         :param headers: the column headings.
         :param rows: the rows.
         """
-        self._diff_table.clear()
+        _retire_table_cells(self._diff_table, headers=True)
         self._diff_table.setColumnCount(len(headers))
         self._diff_table.setHorizontalHeaderLabels(list(headers))
         self._diff_table.setRowCount(len(rows))
         for r, row in enumerate(rows):
             for c, value in enumerate(row):
-                self._diff_table.setItem(r, c, _cell(str(value)))
+                cell = _spare_table_item(self._diff_table, str(value))
+                cell.setFlags(cell.flags() & ~Qt.ItemIsEditable)
+                self._diff_table.setItem(r, c, cell)
         self._diff_table.resizeColumnsToContents()
 
     def diff_headers(self) -> List[str]:

@@ -24,12 +24,13 @@ THREE PROPERTIES ARE WORTH A TEST AND THEY ARE NOT THE OBVIOUS ONE.
   `<well>f<field>d<dye>` tail, so `scan_R_p2_z1_0_B03f01d0.tif` matched
   `arrayscan` as well as `evos` until a negative lookahead was added.
 
-* NO CAPTURING GROUP MAY BE OPTIONAL. `spacr.utils._extract_filename_metadata`
+* REQUIRED IMAGE IDENTIFIERS MAY NOT BE OPTIONAL. `spacr.utils._extract_filename_metadata`
   reads `match.group('fieldID')[0]` to decide whether to strip zero padding.
   A group that did not participate returns None and that subscript raises
   TypeError, which nothing up the stack catches. A group that matched the
   empty string raises IndexError, which IS caught -- and silently skips the
-  file. Both are worse than not matching at all.
+  file. Both are worse than not matching at all. A documented absent EVOS Z
+  plane is explicitly preserved as None; it does not identify a synthetic Z0.
 """
 from __future__ import annotations
 
@@ -143,7 +144,7 @@ def test_every_convention_parses_every_example_it_claims(record):
 @pytest.mark.parametrize("record", _METADATA_CONVENTIONS,
                          ids=[r["key"] for r in _METADATA_CONVENTIONS])
 def test_every_example_fills_every_group_the_importer_reads(record):
-    """No group may be absent, None, or empty -- see this file's header."""
+    """Required groups participate; only the documented EVOS slice may be absent."""
     required = {"wellID", "fieldID", "chanID"}
     must_not_be_empty = required | {"timeID", "sliceID"}
     for example in record["examples"]:
@@ -151,11 +152,16 @@ def test_every_example_fills_every_group_the_importer_reads(record):
                                     custom_regex=r"(?P<wellID>[A-H]\d\d)")
         match = re.compile(pattern).match(example)
         groups = match.groupdict()
+        absent = ({"sliceID"} if record["key"] == "evos" and example ==
+                  "image_0002_Top Slide_R_p00_0_A01f00d0.TIF" else set())
+        if absent:
+            assert groups["sliceID"] is None
         if record["key"] != "custom":
             assert required <= set(groups), (
                 f"{record['key']} must capture {sorted(required)}; "
                 f"{example!r} captured {sorted(groups)}")
-        assert not [name for name, value in groups.items() if value is None], (
+        assert not [name for name, value in groups.items()
+                    if value is None and name not in absent], (
             f"{record['key']}: a group did not participate on {example!r} -- "
             f"_extract_filename_metadata raises TypeError on that")
         assert not [name for name, value in groups.items()
@@ -196,10 +202,13 @@ def test_every_record_carries_the_evidence_for_itself(record):
 
     CONFIRMED NEEDS TWO EXAMPLES AND PROVISIONAL NEEDS ONE. One filename
     proves a pattern can parse something; two proves it parses a FAMILY, and
-    that is the difference between a convention and a screenshot. Where only
-    one could be sourced -- EVOS, ScanR, Cytation -- the record says
-    provisional and the dropdown shows it, which is the honest outcome and
-    not a failure.
+    that is the difference between a convention and a screenshot. EVOS has
+    two exact vendor-documented literals, including the no-Z save dialog.
+    ScanR's two acquisition-user stems omit extensions; both runnable
+    examples explicitly disclose an inferred TIFF suffix.
+    Cytation also remains provisional because its additional upstream
+    real-world-derived names disclose sanitization. The dropdown shows this
+    evidence limit rather than treating a matching example as confirmation.
     """
     for field in ("key", "label", "vendor", "instrument", "pattern",
                   "groups", "source", "status"):
@@ -324,3 +333,54 @@ def test_the_convention_table_reaches_the_settings_spec_menu():
                    if record["status"] == "provisional"}
     for value, label in choices:
         assert ("provisional" in label) == (value in provisional)
+
+
+def test_cytation_real_world_derived_examples_keep_their_provenance_caveat():
+    """Upstream sanitized acquisition names remain provisional evidence."""
+    record = _metadata_convention("cytation")
+    names = (
+        "A1_01_1_1_Phase Contrast_001.tif",
+        "A1_01_1_2_Phase Contrast_001.tif",
+    )
+    assert set(names) <= set(record["examples"])
+    assert "A1ROI1_02_1_1_Bright Field_High Contrast_003.tif" in record["examples"]
+    assert record["status"] == "provisional"
+    assert "f5440e9996908f2a108560961635ac9bc6693e3c" in record["source"]
+    assert "BioTekTest.java" in record["source"]
+    assert "sanitization" in record["source"]
+    assert "not unchanged raw filenames" in record["source"]
+    for field, name in enumerate(names, start=1):
+        match = re.fullmatch(_metadata_pattern("cytation", "tif"), name)
+        assert match is not None
+        assert match.group("wellID") == "A1"
+        assert int(match.group("fieldID")) == field
+        assert match.group("chanID") == "Phase Contrast"
+        assert match.group("timeID") == "001"
+
+
+def test_scanr_user_stems_disclose_the_inferred_tiff_suffix():
+    """Two acquisition users supply stems; the configured suffix is inferred."""
+    record = _metadata_convention("scanr")
+    stems = (
+        "A1--W00001--P00001--Z00000--T00000--Alexa 488",
+        "A1--W00001--P00001--Z00000--T00000--mCherry1",
+    )
+    assert record["examples"] == tuple(stem + ".tif" for stem in stems)
+    assert record["status"] == "provisional"
+    assert record["ext"] == "suffix"
+    assert "https://forum.knime.com/t/combining-images-to-stack/2119" in record["source"]
+    assert "forum.image.sc thread 14872" in record["source"]
+    assert "Both cited stems omit the file extension" in record["source"]
+    assert "configured .tif suffix is inferred" in record["source"]
+    assert "not observed complete filenames" in record["source"]
+    assert "ONE literal filename" not in record["source"]
+    for stem, channel in zip(stems, ("Alexa 488", "mCherry1")):
+        assert stem in record["source"]
+        pattern = _metadata_pattern("scanr", "tif")
+        assert re.fullmatch(pattern, stem) is None
+        match = re.fullmatch(pattern, stem + ".tif")
+        assert match is not None
+        assert match.groupdict() == {
+            "wellID": "A1", "fieldID": "00001", "sliceID": "00000",
+            "timeID": "00000", "chanID": channel,
+        }

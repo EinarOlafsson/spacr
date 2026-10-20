@@ -72,11 +72,22 @@ def test_one_runner_that_refuses_does_not_stop_the_others(qtbot):
 
 
 def test_the_quit_path_calls_it():
-    """A registry nothing drains is a registry."""
+    """A registry nothing drains is a registry.
+
+    The application's ``aboutToQuit`` drain goes through
+    :func:`spacr.qt.bridge.retire_live_work`, the one exit path it shares
+    with the interpreter's exit hook, and that is where the runners are
+    drained. Both links are checked, so neither can drop the drain.
+    """
     import inspect
 
     from spacr.qt import app as module
+    from spacr.qt import bridge
 
-    source = inspect.getsource(module)
-    assert "shutdown_all" in source, (
+    launch_source = inspect.getsource(module.launch)
+    assert "retire_live_work()" in launch_source, (
         "the application quit path does not drain the job runners")
+    assert "aboutToQuit.connect(_drain_ai)" in launch_source, (
+        "the drain is not connected to the application's quit")
+    assert "shutdown_all(" in inspect.getsource(bridge.retire_live_work), (
+        "retire_live_work does not drain the job runners")

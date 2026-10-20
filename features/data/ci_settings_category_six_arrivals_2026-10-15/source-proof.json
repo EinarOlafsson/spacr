@@ -1,0 +1,49 @@
+{
+  "source_base": "56daca881d8eb8a6ff56bae384a45c14c412a723",
+  "test_before_sha256": "eabd16b6ba7beea78b37f4c5b12adf897fc9e55a7a70cf3b5c7c904cc709dd84",
+  "test_after_sha256": "f3b5aad01b4801284398ade5901818f0347a2a265ada6ec7cfde18579a1f9112",
+  "settings_source_sha256": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5",
+  "settings_source_unchanged": true,
+  "exact_six_added": [
+    "counterfactual_checkpoint",
+    "counterfactual_checkpoint_sha256",
+    "intensity_calibration_beads",
+    "intensity_calibration_reference_session",
+    "intensity_calibration_session_column",
+    "intensity_calibration_sessions"
+  ],
+  "entire_module_AST_exact_after_removing_exact_six_literals": true,
+  "frozen_before_retired_sets_and_all_test_predicates_unchanged": true,
+  "no_anonymous_allowance_ceiling_or_digest_change": true,
+  "fatal_ruff": "PASS",
+  "full_ruff_preexisting_findings": [
+    [
+      "I001",
+      "[*] Import block is un-sorted or un-formatted"
+    ],
+    [
+      "B033",
+      "[*] Sets should not contain duplicate item `\"organelle_max_area\"`"
+    ],
+    [
+      "B033",
+      "[*] Sets should not contain duplicate item `\"organelle_min_area\"`"
+    ],
+    [
+      "B033",
+      "Sets should not contain duplicate item `\"crop_source\"`"
+    ],
+    [
+      "I001",
+      "[*] Import block is un-sorted or un-formatted"
+    ],
+    [
+      "I001",
+      "[*] Import block is un-sorted or un-formatted"
+    ]
+  ],
+  "full_ruff_same_codes_and_messages_before_after": true,
+  "full_ruff_raw_output_diff": "Only source line positions move after adding six explicit keys/comments; existing offending AST unchanged.",
+  "ruff_baseline_log_sha256": "7f290b001f7693104a306b6d4c40eb0a8140204d968282e1d89018bcac0df219",
+  "ruff_final_log_sha256": "70f8613a3988e3735cabcf1d6de0463817445e1bf6c90f882500dee1153204a0"
+}

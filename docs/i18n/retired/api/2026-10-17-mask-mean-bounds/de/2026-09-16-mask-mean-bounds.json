@@ -1,0 +1,48 @@
+{
+  "language": "de",
+  "schema": 1,
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "All 14 changed prose blocks in the seven feature 418 API symbols, plus material semantic corrections in their retained paragraphs. The changed literal-only split_role_setting example requires no translation.",
+    "limitations": "AI semantic review against current English source docstrings; not native-speaker human review or approval."
+  },
+  "records": [
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "translation": "Lädt das vortrainierte Modell ``cpsam`` — oder den vom Benutzer trainierten Checkpoint, wenn ``<object_type>_model_name`` (oder ``pathogen_model``) einen solchen angibt —, durchläuft jede bereits in Batches organisierte ``.npz``-Datei, wendet umfangsbasierte Zusammenführung und Flächen-/Randfilterung auf 2-D-Masken an und filtert Objekte optional anhand ihrer absoluten mittleren Intensität im Originalbild ihres eigenen Kanals. Anschließend verfolgt die Funktion optional Objekte über die Zeit, speichert pro Bild ``.npy``-Masken und schreibt die Objektanzahlen in die SQLite-Datenbank des Verarbeitungslaufs. Zeitstapelarchive müssen unabhängig von der angegebenen Position der Zeitachse einen Dateinamen pro Zeitpunkt enthalten; jeder Rohbilddateiname bezeichnet das ``(Z, Y, X, C)``-Volumen dieses Zeitpunkts oder dessen ``(Y, X, C)``-Bild bei einer flachen ``TYX``-Serie.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#1",
+      "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
+      "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+      "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
+      "translation": "EIN GEMEINSAMER AUFLÖSER FÜR ALLE DREI VERBRAUCHER -- die Zusammenführung der Einstellungen beim Verarbeitungslauf, die Diagnosemeldung und das Laden im Qt-Panel.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#2",
+      "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+      "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "translation": "Früher beantworteten sie diese Frage auf drei verschiedene Arten. Der Verarbeitungslauf berücksichtigte nur die Umbenennungstabelle, das Diagnosewerkzeug nur die Tabelle der zurückgezogenen Einstellungen, und allein das Qt-Panel kannte die Suffixregel für Organellen. Ein generierter Organellenschlüssel konnte daher gleichzeitig vom Panel migriert, vom Verarbeitungslauf ignoriert und vom Diagnosewerkzeug unerwähnt bleiben.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#4",
+      "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
+      "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+      "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
+      "translation": "DIE GÜLTIGKEIT WIRD NUR AM ENDE DER KETTE GEPRÜFT. Würde jeder Schritt geprüft, würde ein Zwischenname einer gültigen Kette abgelehnt, weil ein solcher Name definitionsgemäß nicht mehr gültig ist. Die Migration abzulehnen, wenn der alte Schlüssel SELBST noch gültig ist, verhindert, dass eine Suffixregel eine funktionierende Einstellung zurückzieht -- sieben ``_size``-Schlüssel sind gültig und dürfen nicht verändert werden.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    }
+  ]
+}

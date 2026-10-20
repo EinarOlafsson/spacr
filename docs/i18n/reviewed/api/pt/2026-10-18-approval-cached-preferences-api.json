@@ -1,0 +1,125 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Tell the assistant how tool approval works in spaCR's console (GitHub #147).",
+      "label": "spacr.qt.ai.prompts.tool_approval_note#0",
+      "source": "Tell the assistant how tool approval works in spaCR's console (GitHub #147).",
+      "source_sha256": "b182982b9db2c5993471b399025096fd11a4ee7eff7e417993358fd3483568a9",
+      "translation": "Informar ao assistente como funciona a aprovação de chamadas de ferramentas no console do spaCR (GitHub #147)."
+    },
+    {
+      "context": "The vendor CLIs run non-interactively, so they cannot show their own approval prompt. For Claude Code spaCR asks the user itself after the reply and resumes the session when the user allows the call; the other CLIs have no such route, so the assistant hands the command over instead.",
+      "label": "spacr.qt.ai.prompts.tool_approval_note#1",
+      "source": "The vendor CLIs run non-interactively, so they cannot show their own approval prompt. For Claude Code spaCR asks the user itself after the reply and resumes the session when the user allows the call; the other CLIs have no such route, so the assistant hands the command over instead.",
+      "source_sha256": "391201d4c0d14ce15d34280a2cb177547c90c334c6c963edc49f8ec51ddaf27c",
+      "translation": "As CLIs dos fornecedores são executadas sem interação e, por isso, não podem mostrar seu próprio pedido de aprovação. Para o Claude Code, o próprio spaCR pergunta ao usuário após a resposta e retoma a sessão quando ele permite a chamada; as outras CLIs não oferecem esse caminho, então o assistente entrega o comando em vez disso."
+    },
+    {
+      "context": "the provider's short id, such as ``\"claude\"``.",
+      "label": "spacr.qt.ai.prompts.tool_approval_note#2",
+      "source": "the provider's short id, such as ``\"claude\"``.",
+      "source_sha256": "54b9ed1794e4a1c0cded616a9bee1fe45e38a6cd72017c718e8eb160bab3bbcc",
+      "translation": "o identificador curto do provedor, como ``\"claude\"``."
+    },
+    {
+      "context": "the paragraph to append to the system prompt.",
+      "label": "spacr.qt.ai.prompts.tool_approval_note#3",
+      "source": "the paragraph to append to the system prompt.",
+      "source_sha256": "7ec4b872bf241cbe04ba54b695ac06c0ffd282a893ed35920774af0f0937422e",
+      "translation": "o parágrafo a acrescentar à instrução do sistema."
+    },
+    {
+      "context": "Let the next :meth:`stream_chat` resume ``session_id`` with these tool calls allowed, for that one reply only.",
+      "label": "spacr.qt.ai.providers.ClaudeCliProvider.allow_once#0",
+      "source": "Let the next :meth:`stream_chat` resume ``session_id`` with these tool calls allowed, for that one reply only.",
+      "source_sha256": "c8919ae9a357e6c3770a9eff1df3f8226c7a22d8fca14500d3c48b6b2aba0e56",
+      "translation": "Permitir que a próxima chamada de :meth:`stream_chat` retome ``session_id`` com estas chamadas de ferramentas autorizadas, apenas para essa resposta."
+    },
+    {
+      "context": "entries of :attr:`last_permission_denials` the user approved.",
+      "label": "spacr.qt.ai.providers.ClaudeCliProvider.allow_once#1",
+      "source": "entries of :attr:`last_permission_denials` the user approved.",
+      "source_sha256": "96018029665a054c106138c8397d9b366a741b532db204e6b863d006209f203c",
+      "translation": "entradas de :attr:`last_permission_denials` aprovadas pelo usuário."
+    },
+    {
+      "context": "the session they were denied in.",
+      "label": "spacr.qt.ai.providers.ClaudeCliProvider.allow_once#2",
+      "source": "the session they were denied in.",
+      "source_sha256": "3d61fb1e3fac94ab51df53532933b44a3c40ca9456977f88d2ccf6381c58fc77",
+      "translation": "a sessão em que as chamadas foram negadas."
+    },
+    {
+      "context": "the ``--allowedTools`` rules that will be passed.",
+      "label": "spacr.qt.ai.providers.ClaudeCliProvider.allow_once#3",
+      "source": "the ``--allowedTools`` rules that will be passed.",
+      "source_sha256": "92712d5b8e4d846537df2bff4d55bbd2a236e76349d6f352a1aa833fc4128499",
+      "translation": "as regras ``--allowedTools`` que serão passadas."
+    },
+    {
+      "context": "One line naming what a denied tool call would have done.",
+      "label": "spacr.qt.ai.providers.describe_tool_call#0",
+      "source": "One line naming what a denied tool call would have done.",
+      "source_sha256": "a276bbf026e4cf0d3529ed3516a23ae1e7c3a6145ba9ae738f15f20b0449eaab",
+      "translation": "Uma linha que informa o que uma chamada de ferramenta negada teria feito."
+    },
+    {
+      "context": "one ``permission_denials`` entry.",
+      "label": "spacr.qt.ai.providers.describe_tool_call#1",
+      "source": "one ``permission_denials`` entry.",
+      "source_sha256": "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+      "translation": "uma entrada de ``permission_denials``."
+    },
+    {
+      "context": "the command for a shell call, otherwise the tool's name and its path, address or pattern.",
+      "label": "spacr.qt.ai.providers.describe_tool_call#2",
+      "source": "the command for a shell call, otherwise the tool's name and its path, address or pattern.",
+      "source_sha256": "b92f20fb9374d3446aa0e34bbc48b812aca3f3ea859f66cc5d25830b898aba8b",
+      "translation": "o comando de uma chamada ao shell; caso contrário, o nome da ferramenta e seu caminho, endereço ou padrão."
+    },
+    {
+      "context": "The ``--allowedTools`` rule that allows exactly one denied tool call.",
+      "label": "spacr.qt.ai.providers.tool_rule#0",
+      "source": "The ``--allowedTools`` rule that allows exactly one denied tool call.",
+      "source_sha256": "a1ae643f2adef9e0820d0c12591b875130e64742db2252515f3707eeed5d897e",
+      "translation": "A regra ``--allowedTools`` que permite exatamente uma chamada de ferramenta negada."
+    },
+    {
+      "context": "A shell command is allowed as written, ``Bash(gh auth status)``; a web fetch for its host; any other tool by its name.",
+      "label": "spacr.qt.ai.providers.tool_rule#1",
+      "source": "A shell command is allowed as written, ``Bash(gh auth status)``; a web fetch for its host; any other tool by its name.",
+      "source_sha256": "d80379bd26b3665a1a94188ec3e89f5ed0fa52b5658d1eb0a9d439fd6e6685b6",
+      "translation": "Um comando de shell é permitido exatamente como escrito, ``Bash(gh auth status)``; uma requisição à Web, para seu host; qualquer outra ferramenta, pelo nome."
+    },
+    {
+      "context": "one ``permission_denials`` entry.",
+      "label": "spacr.qt.ai.providers.tool_rule#2",
+      "source": "one ``permission_denials`` entry.",
+      "source_sha256": "2f6f18b877df59c1dec4309e7b4b6bf058e7f7d8f9d576f518e37cad44f709e4",
+      "translation": "uma entrada de ``permission_denials``."
+    },
+    {
+      "context": "the rule, or ``\"\"`` when the entry names no tool.",
+      "label": "spacr.qt.ai.providers.tool_rule#3",
+      "source": "the rule, or ``\"\"`` when the entry names no tool.",
+      "source_sha256": "ee06a28d9b9e0805f3e535a4e1999a5c24683f1904749838e28f3102ad762db6",
+      "translation": "a regra, ou ``\"\"`` quando a entrada não nomeia nenhuma ferramenta."
+    },
+    {
+      "context": "Forward to Qt, then forget what was remembered.",
+      "label": "spacr.qt.preferences._count_store_writes.write#0",
+      "source": "Forward to Qt, then forget what was remembered.",
+      "source_sha256": "87c75ec317df697ceb7bf37e303b5aee1058d12ec24f6b07ed3553bf51d8d355",
+      "translation": "Encaminhar ao Qt e depois descartar os valores armazenados em cache."
+    },
+    {
+      "context": "Remembered value of the wrapped getter.",
+      "label": "spacr.qt.preferences._remembered.read#0",
+      "source": "Remembered value of the wrapped getter.",
+      "source_sha256": "42f0bff1ccfb24f255abf250dd46631c6761c8986052cdd365ad51d3b631d3e0",
+      "translation": "Valor armazenado em cache da função de leitura encapsulada."
+    }
+  ],
+  "schema": 1
+}

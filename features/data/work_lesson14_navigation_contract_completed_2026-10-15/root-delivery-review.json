@@ -1,0 +1,21 @@
+{
+  "status": "root_reviewed_tested_source_contract_patch",
+  "held_commit": "44fc26e58832dd760286725c951d9b0e1f9b9260",
+  "base_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/home-owner-packet/manifest.json",
+    "bytes": 2186,
+    "sha256": "2e3561513eb255cc0019e347abbcb4790518e7d644f2f6f3590814f33330db7c"
+  },
+  "source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/navigation-contract-independent-source-peer.json",
+    "bytes": 6001,
+    "sha256": "ed8ddd379911986e3e286f3dc0335c025be84ab3b4c5df27fe61cfc18f61c5d9"
+  },
+  "owning_tests": 8,
+  "owning_test_seconds": 3.51,
+  "old_packet_status_is_historical": true,
+  "lesson14_completed": false,
+  "native_capture_performed": false,
+  "limits": "Source packet was generated before root review/commit; exact same reviewed tree is now committed locally. Home driver preimage differs, so review/adapt the bounded readiness change without copying the full host driver. No actual14 native/CI runtime acceptance."
+}

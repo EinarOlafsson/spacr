@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,14 +22,16 @@ msgstr ""
 msgid "Host–Pathogen Analysis"
 msgstr "Wirt–Pathogen-Analyse"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
-msgstr "Öffnen Sie unter **Startseite → Assays → Toxoplasma** die **Wirt–Pathogen-Analyse**. Dieses Modul kombiniert die Markerrekrutierung auf Vakuolenebene mit Zusammenfassungen pro Wirtszelle und Well. Für die Vakuolenrekrutierung allein verwenden Sie die :doc:`Rekrutierungsanalyse <recruitment>`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**. This module combines vacuole-level marker recruitment with host and well summaries. For vacuole recruitment on its own, use :doc:`Recruitment <recruitment>`."
+msgstr "Öffnen Sie unter **Startseite → Organismus → Toxoplasma** die **Wirt–Pathogen-Analyse**. Dieses Modul kombiniert die Markerrekrutierung auf Vakuolenebene mit Zusammenfassungen pro Wirtszelle und Well. Für die Vakuolenrekrutierung allein verwenden Sie die :doc:`Rekrutierungsanalyse <recruitment>`."
 
 msgid "Try the real microscopy test data"
 msgstr "Die echten Mikroskopie-Testdaten ausprobieren"
 
-msgid "Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
-msgstr "Öffnen Sie **Startseite → Assays → Toxoplasma → Wirt–Pathogen-Analyse** und wählen Sie **Testdaten laden...**. Der Download umfasst etwa 114 MB."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select **Load test data…**. The download is approximately 114 MB."
+msgstr "Öffnen Sie **Startseite → Organismus → Toxoplasma → Wirt–Pathogen-Analyse** und wählen Sie **Testdaten laden...**. Der Download umfasst etwa 114 MB."
 
 msgid "Enable **Live** beside the bottom action controls, then select **Run preview**. Choose either measured field and select vacuoles in the image or table to inspect their host links and marker ratios."
 msgstr "Aktivieren Sie **Live** neben den unteren Aktionsschaltflächen und wählen Sie dann **Vorschau ausführen**. Wählen Sie eines der beiden gemessenen Bildfelder und wählen Sie Vakuolen im Bild oder in der Tabelle aus, um deren Wirtsverknüpfungen und Markerverhältnisse zu prüfen."
@@ -88,8 +90,9 @@ msgstr "Die Berichte interpretieren"
 msgid "The output directory ``results/host_pathogen`` contains ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` and the exact ``settings.json``. With multiple input projects, the combined report is saved under the first project. Database paths separate sources even when plate or field identifiers repeat."
 msgstr "Das Ausgabeverzeichnis ``results/host_pathogen`` enthält ``vacuoles.csv``, ``cells.csv``, ``wells.csv``, ``marker_states.csv``, ``replication_distribution.csv``, ``orphan_parasites.csv`` und die exakte ``settings.json``. Bei mehreren Eingabeprojekten wird der kombinierte Bericht im ersten Projekt gespeichert. Datenbankpfade trennen die Quellen, auch wenn sich Platten- oder Bildfeldkennungen wiederholen."
 
-msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These denominators answer different questions and should be reported explicitly."
-msgstr "Nicht verknüpfte Vakuolen sowie fehlende, ungültige oder bei null liegende Referenzintensitäten der Wirtszelle ergeben unbekannte Markerzustände. Gemeinsame Markeranteile schließen unbekannte Vakuolen in ihren Nenner ein; Replikationsanteile verwenden nur Vakuolen mit Zählungen. Infektionsanteile der Wirtszellen beschreiben die beibehaltenen gemessenen Wirtszellen. Diese Nenner beantworten unterschiedliche Fragen und sollten explizit angegeben werden."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Unlinked vacuoles and missing, invalid or zero host-reference intensities yield unknown marker states. Joint marker fractions include unknown vacuoles in their denominator; replication fractions use only vacuoles with counts. Host infection fractions describe retained measured host cells. These fractions use different denominators, so report each denominator explicitly."
+msgstr "Nicht verknüpfte Vakuolen sowie fehlende, ungültige oder bei null liegende Referenzintensitäten der Wirtszelle ergeben unbekannte Markerzustände. Gemeinsame Markeranteile schließen unbekannte Vakuolen in ihren Nenner ein; Replikationsanteile verwenden nur Vakuolen mit Zählungen. Infektionsanteile der Wirtszellen beschreiben die beibehaltenen gemessenen Wirtszellen. Diese Anteile verwenden unterschiedliche Nenner; geben Sie daher jeden Nenner explizit an."
 
 msgid "For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and :func:`spacr.host_pathogen.summarize_tables`. The headless module name is ``host_pathogen`` in ``spacr-run``."
 msgstr "Zur Verwendung in Skripten siehe :func:`spacr.host_pathogen.analyze_host_pathogen` und :func:`spacr.host_pathogen.summarize_tables`. Der Modulname ohne GUI lautet in ``spacr-run`` ``host_pathogen``."

@@ -240,8 +240,9 @@ def guarded_n_jobs(requested, label: str = "this step"):
     one that crashed. Keeping joblib on the calling thread keeps the clamp
     meaningful.
 
-    This is NOT the earlier, wrong idea of clamping the estimator's own thread
-    argument: that was measured to change nothing at all.
+    This limits the joblib job count, not the estimator's own thread
+    argument; clamping the estimator's thread argument was measured to have
+    no effect on the OpenMP worker threads.
     """
     try:
         if _guard_disabled() or not _clamping_platform():

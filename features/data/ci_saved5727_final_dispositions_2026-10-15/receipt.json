@@ -1,0 +1,143 @@
+{
+  "status": "LAST_BOUNDED_SAVED_POOL_SCAN_NO_ADDITIONAL_UNOWNED_STALE_FIXTURE_SCOPE",
+  "immutable_public_reference": "f35f64f310c7fa43ded5cfa012fb153eb08081c5",
+  "old_source": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+  "scope": "Onlyexisting savedcompletedfailurepool/current source andalreadydeliveredreceipts. Notanexhaustive certification ofallrunjobs/currenttests.",
+  "result": "No next evidencedunownedfixture repair identified inremainingcheckedcandidates afteractivation/diameter/preview/annotate deliveries. Stopoldlogrescans; nexttriage requires neweractualterminalsource evidence.",
+  "pending_own_delivery": "Annotate0907Rootaccepted/Hardpeeractive; honestcoldPASSanddeterministicPASS retained, notnewproductfix.",
+  "dispositions": [
+    {
+      "scope": [
+        "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_every_view_in_the_source_asks_for_the_sorting_contract",
+        "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_nothing_builds_a_bare_table_cell_any_more"
+      ],
+      "disposition": "ALREADY_DELIVERED_SOURCE_REPAIR_DO_NOT_REPEAT",
+      "evidence": "features/data/ci_cleanup_tree_sorting_2026-10-15/receipt.json",
+      "detail": "Exact oldoffenders are install_consent tree andtwo bareitems. Existing2FAIL\u219220PASSsource repair; unchangedstrictsweep. No newgap."
+    },
+    {
+      "scope": [
+        "tests/qt/test_example_datasets_ship_as_one_archive.py::test_a_cancelled_download_leaves_no_part_file"
+      ],
+      "disposition": "ALREADY_DELIVERED_CANCELLATION_REPAIR_DO_NOT_REPEAT",
+      "evidence": "features/data/ci_example_cancellation_fixture_2026-10-15/receipt.json",
+      "detail": "Existing cancellation fixture/source evidence alreadypublic; no repeatedoldlogsource-substringrepair."
+    },
+    {
+      "scope": [
+        "tests/qt/test_hf_download.py::test_download_one_reraises_when_the_staging_file_cannot_be_removed"
+      ],
+      "disposition": "ALREADY_DELIVERED_UNLINK_FIXTURE_DO_NOT_REPEAT",
+      "evidence": "features/data/ci_download_unlink_fixture_2026-10-15/receipt.json",
+      "detail": "Existing source-boundfixture repair and independentpeer alreadypublic; no newdownloadbehaviorclaim."
+    },
+    {
+      "scope": [
+        "tests/qt/test_umap_interactive_toggle.py::test_umap_has_interactive_toggle_immediately_beside_ai"
+      ],
+      "disposition": "ALREADY_DELIVERED_SHARED_HOVER_FIXTURE_DO_NOT_REPEAT",
+      "evidence": "tests/qt/test_umap_interactive_toggle.py and published shared immediate_hover_help fixture",
+      "detail": "Currentnode consumes normal immediate_hover_help. Earlier invalidgenericEnterevent repair/testbinding alreadydelivered; no source/style workaround or repeatedpass."
+    },
+    {
+      "scope": [
+        "tests/qt/test_zoom_reaches_text.py::test_zoom_reaches_the_text_toggles[Live]",
+        "tests/qt/test_zoom_reaches_text.py::test_zoom_reaches_the_text_toggles[AI]"
+      ],
+      "disposition": "RENDER_CONTEXT_UNRESOLVED_NOT_STALE_FIXTURE_PROVEN",
+      "evidence": "savedcoverage6-116568856311.log",
+      "detail": "Actualhosted ink rows24at100percent and24at150percent. No specific currentfixturedefect or productrootcause proven bythisreview. Preservegrowthassertion, thresholds andcomponentownership; waitsource-boundnewterminal evidence ratherthan repeatedoldruns."
+    },
+    {
+      "scope": [
+        "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals (18 original cases)"
+      ],
+      "disposition": "HOME_B_OWNER_PROPOSAL_DELIVERED_NOT_DUPLICATE",
+      "evidence": "features/data/ci_f561_locale_owner_proposal_2026-10-15/receipt.json",
+      "detail": "All18active review/catalog/sourcehashes verified read-only; explicit twofilenameproposal retained. Owneradoption/runtime18acceptance notclaimed bymetadata."
+    },
+    {
+      "scope": [
+        "tests/test_i18n_reviewed_ui.py::test_reviewed_ui_vocabulary_is_complete_and_pinned"
+      ],
+      "disposition": "CLAUDE_N699_OWNER_REQUEST_NO_EDIT",
+      "evidence": "features/data/ci_reviewed_ui_ellipsis_owner_request_2026-10-15/request.json",
+      "detail": "Publishedexactvocabularyowner packet exists; no newowner/source/gate mutation or stalefailure-as-currentclaim."
+    },
+    {
+      "scope": [
+        "tests/test_test_suite_hygiene.py::test_no_new_assertion_free_tests"
+      ],
+      "disposition": "CLAUDE_N700_OWNER_REQUEST_NO_EDIT",
+      "evidence": "savedclaude-n700-assertion-free-relay.json andexistingownerHANDOFF",
+      "detail": "No ownershipexpansion or assertion-freeceilingbypass; latestowneracceptance notrerun."
+    },
+    {
+      "scope": [
+        "tests/test_readme_is_built_from_images.py",
+        "tests/test_readme_panel_text_destinations.py",
+        "tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree"
+      ],
+      "disposition": "README_OWNER_CLAUDE_N704_OR_HOME_B_REQUESTS_NO_EDIT",
+      "evidence": "features/data/ci_readme_checkout_size_owner_request_2026-10-15/owner-request.json",
+      "detail": "Specificcheckoutsizeoldclaim independentlyproved; ownerlaterREADMEdeliveriesand67panelcontracts maysupersedeearlierotherfailures. No strictimagepolicy/sizeceilingschanged; notcurrentallfailureclaim."
+    },
+    {
+      "scope": [
+        "tests/test_docs_media_budget.py media/narration cases"
+      ],
+      "disposition": "WORK_PUBLICATION_MEDIA_OWNER_NO_DUPLICATE",
+      "evidence": "existingWorkcompletedpublication packets; Rootmediaee893 acceptedseparately",
+      "detail": "No recording/media/sourcepolicy edits or nativeplayback claims; existingworkflowfixturealreadyRoot-owned."
+    },
+    {
+      "scope": [
+        "tests/test_hf_e2e_integration.py::test_hf_e2e_mask_stage"
+      ],
+      "disposition": "REAL_NUMERICAL_MODEL_ACCEPTANCE_PENDING_NOT_FIXTURE_SUCCESS",
+      "evidence": "features/data/ci_hf_e2e_stub_native_scale_2026-10-15/receipt.json",
+      "detail": "StubCSVnativeauto semantics actualsoftware2PASSdelivered. Originalnonempty/atleast12maskassertions retained; no actualmodelnumericalsuccess fromthislane. No inference/download authorized."
+    },
+    {
+      "scope": [
+        "docs38793118044/source4108 publishjob116635550251"
+      ],
+      "disposition": "LAST_OBSERVED_PROVIDER_STORAGE_GATE_NO_NEW_REMOTE_QUERY",
+      "evidence": "features/data/ci_current_nightly_readonly_snapshot_2026-10-15/receipt.json",
+      "detail": "BuildSUCCESS thenHFcommit403 Space1GBstorage. No tokenfailureinference, paidfallback, storage mutation or freshproviderstateclaim."
+    }
+  ],
+  "source_pins": {
+    "features/data/ci_cleanup_tree_sorting_2026-10-15/receipt.json": "7d6dda5756da2296b3e9580aa1b8ae8ec75305684ddd084e42bca1e1ec72b954",
+    "features/data/ci_example_cancellation_fixture_2026-10-15/receipt.json": "2c5d2b76cb75fd5c3cc4f5c4847aec5ffee3d52e9bfc73312a1f6b544b06bea9",
+    "features/data/ci_download_unlink_fixture_2026-10-15/receipt.json": "7998336dd6f4f5ca2ae17d1405d7ef17d67b73f3fd222cf284e5c496d62d6543",
+    "features/data/ci_f561_locale_owner_proposal_2026-10-15/receipt.json": "bec8599cc3e256bdb410d20c2936e6ea3c5563771bcb37b24546cf316a2c632e",
+    "features/data/ci_reviewed_ui_ellipsis_owner_request_2026-10-15/request.json": "54103b59b8d3ec3b74a9d8a9f862c0392ec03f5d07b9e40be4e973619760c427",
+    "features/data/ci_readme_checkout_size_owner_request_2026-10-15/owner-request.json": "06a027117fbad13546e9ac0d872419fba8320455842b7b64e6907689c7b6dead",
+    "features/data/ci_hf_e2e_stub_native_scale_2026-10-15/receipt.json": "17d6277bf438b6c58263e35f33e98f07023425f27a7e1ebb19e2a0e8f72f6e31",
+    "features/data/ci_current_nightly_readonly_snapshot_2026-10-15/receipt.json": "cf450970861d3701ae07d36458832607361615b94ff4124596b917bcfd2c00e0",
+    "tests/qt/test_zoom_reaches_text.py": "02855190ed1b1531130ece209b89c634dd72280ccf44aaec110e4f30cf4682d9",
+    "tests/qt/test_umap_interactive_toggle.py": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+    "tests/qt/conftest.py": "901a9e4cf81fafc5cef5684ba858cd75d08ecb60c6cbfba12463feea9cb70cd3",
+    "features/HANDOFF.md": "eb9f78527941fd28871ba11dfc11f26f513548bc6a0dc51f402670652fc6f4f4"
+  },
+  "saved_log_pins": {
+    "coverage7-116568856169.log": "f562926c920e30eb07d8230805f446860c311281ffd888713f0d7595b425b63e",
+    "coverage10-116568856246.log": "013e8e3e55455e80460b60ab954ff6f8eb75486a2a44ee52ca4db2a5bd9a37b1",
+    "docs-38774384461-failed.log": "19e711a1737321cb1988761c413feab1631fcf049b7fab22aac247919bdcd2ee",
+    "network-116568856207.log": "707c6f5870e23e8b08c7ad61102941e260746c33340c6dec95bf6c5336c66375",
+    "coverage6-116568856311.log": "c1c982f491f0602e9faf6a77f873a068f0724e46e983e37789c83fc4b508d5ad",
+    "coverage3-116568856180.log": "cc72ded87c90fb2d8184e61c340968048f5dd43ac7833b20b3cfbca0e38df319",
+    "coverage11-116568856249.log": "3b7b78a20b0d948841769a8963b3a96c120737ba3dabcc612b3176c3509780c9",
+    "coverage2-116568856167.log": "64beef3ac2f4faaaf244a3778b9eb37a3932ca6140f1ed0563ce6e5b028ddcf9",
+    "coverage5-116568856354.log": "ec3be52e8fdd45c7096cc6726ce3cc2316cf74d9544a1b6fd043bc79f96fdf9e"
+  },
+  "future_probe_boundary": "Onlyifnewsource-boundterminalzoom failurespersist, request finiteactualfont/scale/ink/context capture fromthatnewrun beforetargetedlocalreproduction. No pixelthreshold/fixtureexpectation change is justified now. Owner andrealmodel/provider gatesstaywith theirauthorizedlanes.",
+  "not_executed": [
+    "No tests/passingnodes repeated",
+    "No network/API/logdownloads/polling",
+    "No collector/writer/model/nativeprobe",
+    "No product/owner test/sourceorartifact changes"
+  ],
+  "limits": "Historical failures and ownerrequest existence are not re-certified as currentfailures. Repairs are not wholefeature/fullCI acceptance."
+}

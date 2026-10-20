@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QTextEdit, QWidget)
 
 from ..gil_priority import (_stop_watching_application_events,
+                            _watch_object_events,
                             _watch_application_events)
 
 LOG = logging.getLogger("spacr.qt.glass")
@@ -426,7 +427,11 @@ class _ResizeByEdge(QObject):
         window.setMouseTracking(True)
         for child in window.findChildren(QWidget):
             child.setMouseTracking(True)
-        window.installEventFilter(self)
+        _watch_object_events(window, self, (
+            QEvent.Resize, QEvent.Hide, QEvent.WindowDeactivate,
+            QEvent.WindowStateChange, QEvent.Type.MouseMove,
+            QEvent.Type.MouseButtonRelease, QEvent.Type.MouseButtonPress,
+            QEvent.Type.Leave))
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
         """Resize from a corner or edge and highlight that edge in blue.
@@ -447,7 +452,8 @@ class _ResizeByEdge(QObject):
             if kind in (QEvent.Hide, QEvent.WindowDeactivate, QEvent.WindowStateChange):
                 self._grab = None
                 self._hint.show_edges(Qt.Edge(0))
-            if window.isFullScreen() or window.isMaximized():
+            if (window.isFullScreen() or window.isMaximized()
+                    or not getattr(window, "_borderless", True)):
                 self._grab = None
                 self._hint.show_edges(Qt.Edge(0))
                 return False
@@ -808,11 +814,32 @@ def glass(dialog: QDialog) -> bool:
     Idempotent: a dialog that already carries :data:`GLASSED` is left alone,
     so a dialog shown, closed and shown again does not accumulate cards.
 
+    THE SHEET GOES ON ONCE, LAST. Every step below restyles a dialog that
+    already wears the window sheet: its own rule is one more sheet, the
+    frameless flags make Qt repolish every widget of a styled window, and
+    each transparent container is polished again. On Preferences (967
+    widgets) that was 425-484 ms in one ``Polish``, the 0.36 s freeze of
+    lesson 05's resize clip. Held by :func:`spacr.qt.theme._one_sheet_for`,
+    the steps run on an unstyled dialog and the same sheet text goes on
+    once at the end.
+
     :param dialog: the dialog to decorate; it is left alone unless
         :func:`wants_glass` accepts it.
     """
     if not wants_glass(dialog):
         return False
+    from ..theme import _one_sheet_for
+
+    with _one_sheet_for(dialog):
+        return _glass_held(dialog)
+
+
+def _glass_held(dialog: QDialog) -> bool:
+    """The steps of :func:`glass`, run while the dialog's sheet is held.
+
+    :param dialog: a dialog :func:`wants_glass` accepted.
+    :returns: whether the treatment was applied.
+    """
     try:
         from .setup_card import SetupCard
     except Exception:                                        # noqa: BLE001
@@ -1033,6 +1060,19 @@ _INSTALLED: Optional[_GlassInstaller] = None
 _INSTALLED_APP = None
 
 
+def _glass_will_sheet(widget) -> bool:
+    """Whether the installed filter will glass ``widget``, and so sheet it.
+
+    Handed to :func:`spacr.qt.theme._let_a_decorator_sheet`, so the theme's
+    window filter leaves such a dialog to :func:`glass`, which puts the
+    sheet on once, after the steps that would each have restyled it.
+
+    :param widget: a window being polished or shown.
+    :returns: ``True`` when the glass filter is installed and wants it.
+    """
+    return _INSTALLED is not None and wants_glass(widget)
+
+
 def install_glass_everywhere(application=None) -> bool:
     """Install the filter. True when it was installed by this call.
 
@@ -1069,6 +1109,9 @@ def install_glass_everywhere(application=None) -> bool:
             application, installed, _GLASS_MOMENTS | _DRAG_MOMENTS)
         _INSTALLED = installed
         _INSTALLED_APP = application
+        from ..theme import _let_a_decorator_sheet
+
+        _let_a_decorator_sheet(_glass_will_sheet)
         return True
     except Exception:                                        # noqa: BLE001
         LOG.debug("the glass filter would not install", exc_info=True)
@@ -1106,4 +1149,10 @@ def uninstall_glass_everywhere(application=None) -> bool:
     finally:
         _INSTALLED = None
         _INSTALLED_APP = None
+        try:
+            from ..theme import _stop_letting_a_decorator_sheet
+
+            _stop_letting_a_decorator_sheet(_glass_will_sheet)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the theme kept the glass filter's claim", exc_info=True)
     return True

@@ -258,3 +258,4 @@ VERIFICATION:
     possible only after the editable, report-specific Send action.
 
 VERIFIED 2026-10-04: test_install_consent.py passes; consent boxes off by default.
+2026-10-19 — MAINTAINER DECISION: the install windows (macOS, Linux zenity, Windows NSIS) no longer show the anonymised-error-report paragraph; the app and the user agreement carry it. Every consent box starts ticked (hardware acceleration, redacted diagnostic logs, GitHub issue-report action); "Install without wgpu" is an opt-out and stays unticked. Terminal and unattended installs are unchanged.

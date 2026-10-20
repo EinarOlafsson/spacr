@@ -96,13 +96,16 @@ def write_profile(
     consent_collected: bool = False,
     share_diagnostics: bool = False,
     report_issues: bool = False,
-    sign_in_now: bool = False,
+    without_wgpu: bool = False,
 ) -> Dict[str, Any]:
     """Atomically write and return an installer profile.
 
     :param path: destination of the JSON installer profile.
     :param requested_backend: installer backend choice to validate and record.
     :param detected_accelerator: detected hardware class to validate and record.
+    :param without_wgpu: the install left wgpu out (the installers' "Install
+        without wgpu" option, or Linux with glibc older than 2.28); recorded
+        so an in-app update leaves it out too (:func:`no_wgpu_override`).
     """
     target = Path(path).expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -111,8 +114,8 @@ def write_profile(
         "collected": bool(consent_collected),
         "share_diagnostics": bool(share_diagnostics),
         "report_issues": bool(report_issues),
-        "sign_in_now": bool(sign_in_now),
     }
+    payload["without_wgpu"] = bool(without_wgpu)
     fd, temporary = tempfile.mkstemp(
         prefix=f".{target.name}.", suffix=".tmp", dir=str(target.parent)
     )
@@ -148,21 +151,56 @@ def read_profile(path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
     return payload
 
 
+NO_WGPU_OVERRIDE = 'wgpu; sys_platform == "never"'
+"""A requirement with a never-true marker that overrides every wgpu requirement."""
+
+NO_WGPU_OVERRIDE_NAME = "no-wgpu-override.txt"
+"""The file :func:`no_wgpu_override` writes beside the installer profile."""
+
+
+def no_wgpu_override(profile: Optional[Dict[str, Any]],
+                     path: Optional[Path] = None) -> Optional[Path]:
+    """The uv ``--override`` file that keeps wgpu out, when the install did.
+
+    :param profile: a profile from :func:`read_profile`, or ``None``.
+    :param path: where to write the file; defaults to beside the profile.
+    :returns: the written file when the profile records ``without_wgpu``,
+        else ``None`` (also when the file cannot be written).
+    """
+    if not profile or not profile.get("without_wgpu"):
+        return None
+    target = (default_profile_path().parent / NO_WGPU_OVERRIDE_NAME
+              if path is None else Path(path))
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(NO_WGPU_OVERRIDE + "\n", encoding="utf-8")
+    except OSError:
+        return None
+    return target
+
+
 def build_parser() -> argparse.ArgumentParser:
-    """The command line the installers call this module with.
+    """Return the argument parser for the command line the installers use.
 
     Separate from :func:`main` so the installer scripts and the tests can
     inspect the accepted options without running an install -- an argument
     that silently stopped being accepted would otherwise only show up as a
     failed install on somebody's machine.
 
-    The four consent flags take ``"0"`` / ``"1"`` rather than being
+    The three consent flags take ``"0"`` / ``"1"`` rather than being
     store_true switches: the installer passes a value for every one of them
-    on every run, so an unchecked box is recorded as a deliberate NO rather
+    on every run, so an unchecked box is recorded as a deliberate no rather
     than as an absent answer.
 
-    :returns: the parser, with ``--path``, ``--requested``, ``--detected``
-        and the consent flags.
+    ``--sign-in-now`` is still accepted and ignored: installers released
+    before setup stopped offering GitHub and AI sign-in pass it, and an
+    install must not fail on an option that no longer does anything.
+
+    ``--without-wgpu`` (``"0"`` / ``"1"``) records an install that left wgpu
+    out, so in-app updates leave it out too.
+
+    :returns: the parser, with ``--path``, ``--requested``, ``--detected``,
+        the consent flags and ``--without-wgpu``.
     """
     parser = argparse.ArgumentParser(description="Record the spaCR installer profile")
     parser.add_argument("--path", type=Path, required=True)
@@ -174,9 +212,11 @@ def build_parser() -> argparse.ArgumentParser:
         "consent-collected",
         "share-diagnostics",
         "report-issues",
-        "sign-in-now",
+        "without-wgpu",
     ):
         parser.add_argument(f"--{option}", choices=("0", "1"), default="0")
+    parser.add_argument("--sign-in-now", choices=("0", "1"), default="0",
+                        help=argparse.SUPPRESS)
     return parser
 
 
@@ -199,7 +239,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         consent_collected=args.consent_collected == "1",
         share_diagnostics=args.share_diagnostics == "1",
         report_issues=args.report_issues == "1",
-        sign_in_now=args.sign_in_now == "1",
+        without_wgpu=args.without_wgpu == "1",
     )
     print(json.dumps(profile, sort_keys=True))
     return 0

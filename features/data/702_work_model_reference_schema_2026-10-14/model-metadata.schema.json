@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PROPOSED N702 model_metadata value, version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "settings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "settings": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/model_reference"
+      }
+    }
+  },
+  "$defs": {
+    "model_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requested_value",
+        "key",
+        "version",
+        "version_status",
+        "sha256",
+        "kind",
+        "filename"
+      ],
+      "properties": {
+        "requested_value": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version_status": {
+          "enum": [
+            "declared",
+            "unspecified"
+          ]
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "filename": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*://)(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).*\\S.*$"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "version_status": {
+              "const": "declared"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          }
+        },
+        {
+          "properties": {
+            "version_status": {
+              "const": "unspecified"
+            },
+            "version": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

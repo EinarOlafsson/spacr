@@ -1,0 +1,198 @@
+================================================================================
+SUBMIT TO CLUSTER: FILL THE SERVER FROM ~/.ssh, AND LOG IN THROUGH A SECOND
+FACTOR (DUO / OKTA PUSH OR CODE)
+================================================================================
+
+Status:    BUILT 2026-10-15 (Claude Home). Remaining: maintainer acceptance - a real
+           Great Lakes login with Kerberos password + Okta, then one job submit
+           and status poll without further prompts.
+Requested: maintainer, 2026-10-13: "for the submit to cluster to have a
+           button in the popup window that searches the computer (in the
+           appropriate locations, and then allows the user to do it manually)
+           for .SSH folder and fill in all the server information
+           automatically from there. many servers like the umich great lakes
+           cluster need the user to login via a third party authenticator
+           like okta. there needs to be code that accommodates this."
+Owner:     Home (build); WS (translations, a real Great Lakes login test by
+           the maintainer)
+Related:   the Submit to cluster dialog (spacr/qt/app.py cluster submission,
+           Slurm), cluster check item on the maintainer's list.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. "Find my SSH settings" button in the Submit to cluster popup.
+   - Searches the usual places: ~/.ssh/config (and Include'd files),
+     /etc/ssh/ssh_config, %USERPROFILE%\.ssh on Windows, plus known_hosts for
+     host names; lists the Host entries found (alias, HostName, User, Port,
+     IdentityFile, ProxyJump/ProxyCommand, ControlMaster settings).
+   - The user picks one; the dialog fills server, user, port, key file and
+     jump host. A "Choose folder..." button lets the user point at another
+     .ssh folder manually.
+   - Read-only: spaCR never edits the user's SSH files and never copies or
+     uploads private keys; it stores only the path to the key.
+2. Second-factor logins (Great Lakes uses Duo; others use Okta Verify).
+   - Use keyboard-interactive authentication and show the server's prompts
+     verbatim in a spaCR dialog (password, "Passcode or option (1-3)", push
+     choice), so Duo/Okta push, phone call and one-time codes all work
+     without hard-coding any vendor.
+   - Reuse one authenticated connection for the whole session (OpenSSH
+     ControlMaster/ControlPersist where available, or one persistent
+     paramiko/asyncssh transport) so the user approves the second factor
+     once, not on every file copy or squeue poll.
+   - Clear messages for a denied or timed-out push, with a retry.
+   - Never store passwords or one-time codes; optional OS keychain storage of
+     the password only if the user ticks a box.
+3. A "Test connection" button that logs in, runs `hostname` and `sinfo`, and
+   reports success or the exact failing step.
+4. Every new string through tr(); help text names Great Lakes as an example.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- With a ~/.ssh/config Host entry for Great Lakes, one click fills the form.
+- Logging in to Great Lakes with Duo push works once per session; a job
+  submits and its status updates without further prompts.
+- Tests: config parsing (Include, wildcards, ProxyJump), Windows paths, a
+  fake keyboard-interactive server with a two-step prompt, denied push.
+
+
+2026-10-13 21:37 EDT — Home source-bound implementation audit (not shipped).
+Evidence: features/data/699_ssh_source_audit_2026-10-13/. Nine source and eight
+owning test-file bindings were independently checked. Existing OpenSSH aliases
+can already supply Includes/ProxyJump/ControlMaster through OpenSSH, but the app
+has no discovery controls, GUI auth broker, session pool or Test connection.
+Current SSH stdin carries JSON uploads, so MFA needs a separate auth channel.
+Never silently invoke ssh -G for passive discovery: Match exec can run local
+commands. No SSH/config/credential reads, connections or tests were performed.
+
+Current official Great Lakes policy specifies Kerberos password plus Okta,
+and its FAQ says SSH key login is unsupported. The older Duo example is not
+a current Great Lakes configuration claim; prompts must remain vendor-neutral.
+Implementation batches include Windows/static Include precedence, brokered
+challenge/cancellation, capability-tested session reuse and staged Test
+connection. Actual Great Lakes acceptance needs maintainer-owned access/MFA.
+Implementation and acceptance remain OPEN after CI/release.
+
+2026-10-14 — Home implementation (private source; acceptance remains partial)
+Implemented explicit read-only SSH discovery from user/system config, bounded
+Includes, wildcard/default precedence, Windows USERPROFILE paths and public
+known-host suggestions. Discovery never invokes ssh -G or evaluates Match exec.
+The profile editor now imports editable host/user/port/key-path/jump metadata,
+provides a folder chooser, and tests hostname before Slurm sinfo in a worker.
+The opt-in persistent Paramiko transport verifies known host keys before any
+authentication, supports agent/private keys plus keyboard-interactive/password
+challenges and proxy/jump channels, and reuses authentication for job operations.
+MFA responses stay ephemeral; command JSON uses a distinct session channel.
+Denied authentication, cancelled prompts and command timeouts do not retry a
+submission automatically. Existing external-OpenSSH profiles retain their route.
+
+Validation: the finite owning cohort passed 118 cases (40.25 s). A subsequent
+39-case closure passed after adding key-plus-MFA partial-authentication handling
+and the normal runtime extractor contract. Four additional assignment-spacing
+cases passed after fixing optional whitespace around OpenSSH assignments.
+There are 124 distinct validated nodes across these finite runs. All SSH/transport/account behavior was
+injected: no Home SSH connection, private-key read or actual account login was
+performed. Native Windows/macOS and real cluster acceptance are still required;
+this entry does not claim that provider-specific authentication was exercised.
+New runtime text has 43 complete nine-locale AI technical review rows; the new
+API blocks also have exact-source AI reviews, not human/native-speaker signoff.
+Normal source-bound catalog/API generation and arrival contracts accompany the
+source delivery; unrelated owner text must not be silently retranslated.
+
+Normal generation closure: English API/runtime audits and all nine locale
+writers passed. The normal caption-arrival refresh passed with the immutable
+9,833 baseline unchanged (800 added, 24 changed, 137 retired source identities).
+The existing shared "Choose folder…" targets were retained in every language
+rather than overriding another caption review. Current hosted coverage and real
+SSH/native acceptance remain pending; historical raw coverage was not relabelled.
+
+2026-10-14 — current-nightly private integration and two real source repairs:
+Five new baseline failures exposed password-first partial authentication
+stopping before keyboard-interactive OTP and native OpenSSH rejecting identity
+or control socket paths containing spaces/quotes. Password authentication now
+continues only into the advertised keyboard-interactive method; neither a
+connection nor a command is retried. Single-path OpenSSH options preserve one
+quoted literal path. Native -G parser probes use /dev/null and loopback
+HostName, never user configuration, DNS or a network connection.
+The combined source passes129 distinct owning cases:74CPU/native-parser
+(1.46s) and55GUI (10.18s). All nine normal runtime writers preserve unrelated
+source-current rows; the English API manifest regenerates13475symbols.
+Publication remains HELD: current global arrival refresh rejects the existing
+N700 sv/UI/AI Error report caption's missing explicit review. Claude ownsN700;
+Home-B has the pending shared extractor request. Neither baseline pin nor
+generator assertions were waived. No real cluster/MFA/macOS/Windows acceptance.
+Receipt: data/699_current_integration_2026-10-14/receipt.json.
+
+2026-10-15 Original Home: coherent SSH discovery/password-first MFA/literal-path source merged with published N702 snapshot provenance. Fresh owning mixed CPU/Qt cohort107PASS12.25s; earlier native local OpenSSH parsing/injected auth129-check receipts retained, no real cluster acceptance claim. Normal English runtime writer completed. Home-B approved additive extractor retained every scientific/model/installer owner. Source publication proceeds with exact known foreign N700 review and current preferences nested-docstring generation failures recorded; no global CI, native MFA or whole-feature acceptance is claimed.
+
+
+2026-10-15 — PRIVATE conditional Include and outer Host-scope repair.
+Actual private native OpenSSH -G comparisons exposed static Include flattening
+reactivating User from an unrelated Host and suppressing outer directives
+after a child Host stopped matching. The existing parser/lookup now preserve
+parent inclusion activation and restore the outer active state per included
+file. Internal top/start/end framing uses None keys; unsupported user keywords
+cannot impersonate it. Host discovery ignores internal markers. No passive
+command/Match evaluation, UI/authentication, signatures/prose or captions changed.
+Baseline8FAIL4PASS1.17s; final54PASS1.28s includes12new native/passive/unknown-key
+controls plus42existing discovery/MFA cases. Actual normal nested1/API/runtime
+source proof shows zero arrivals and all unrelated source bodies unchanged.
+No real SSH account/MFA, private-key read, user/system SSH config, network or
+other-OS acceptance; maintainer-owned cluster validation remains open.
+Evidence:data/699_conditional_ssh_includes_2026-10-15/.
+
+2026-10-15 — PRIVATE HostName literal-percent/alias token repair.
+The existing static lookup now expands only documented %% and %h in one pass,
+so escaped percent output is not rescanned. Eight actual native private ssh -G
+controls plus default-hostname/first-value/Include cases exposed7 failures
+before; final63PASS1.49s includes all prior Include/discovery/MFA cases.
+Only _ssh_lookup body changed; signatures/prose/tr calls and named helpers
+unchanged. Actual enabled nested rollout has0 entries (module excluded);
+the unchanged measured helper group1 from the prior note is not an active
+rendered arrival. No runtime/API writer, network/account/MFA/private-key or
+other-OS acceptance; real maintainer cluster validation remains open.
+Evidence:data/699_hostname_tokens_2026-10-15/receipt.json.
+
+2026-10-15 — HANDOVER to Claude Home (maintainer ownership request).
+Original Home has stopped N699 implementation, tests and documentation edits.
+Published work includes SSH-config discovery/conditional Include and HostName
+token repairs, password-first keyboard-interactive MFA and literal-path handling;
+prior native local OpenSSH/injected-auth receipts remain in the notes above.
+The normal nine-locale guide refresh also includes the eighteen N699 targets.
+No real cluster account, provider-specific Duo/Okta, Windows/macOS or real MFA
+acceptance is claimed. These remaining original-contract checks transfer to
+Claude Home. No unpushed N699 implementation changes or active N699 worker
+remain in Original Home; private N441 work is separate. Whole N702 is already
+accepted and published at b5724d096e, so its eventual takeover needs no duplicate
+implementation. Source and receipts are on nightly, not only WD scratch.
+
+2026-10-15 — BUILT (Claude Home; took over from Codex per the HANDOFF notice).
+Codex's discovery, keyboard-interactive session pool and Test connection were
+already on nightly (no unpushed 699 branch differs from it). Added on top:
+- Denied and timed-out second factor are now told apart ("was denied" /
+  "timed out", e.g. a rejected or unanswered Okta push); nothing is run, and
+  a "Retry sign-in" button appears beside Test connection after any failure.
+  The authentication wait is at least 120 s so a push can be approved.
+- Optional "Remember my password in the system keychain" (profile field
+  ssh_keychain, off by default, needs the keyring package). Only a prompt
+  that is hidden and says "password" is stored; passcodes, push choices and
+  one-time codes never are. A remembered password is used once per login and
+  removed if that login fails; unticking the box deletes it.
+- Find my SSH settings tooltip states what is read (user + system config,
+  Includes, Windows profile .ssh, known_hosts) and that it never runs ssh -G
+  or reads private keys; Choose folder… has its own tooltip.
+- Tests: Okta two-step (password, then "Passcode or option (1-2)") shown
+  verbatim; denied and timed-out push; retry; second command not re-prompted;
+  keychain off by default / password-only / removed on rejection / broken
+  backend; discovery opens no private key file; discovery starts no process
+  and never runs ssh -G; GUI keychain box, retry button, help text.
+- 9 new captions with AI-reviewed records in nine languages (Claude, no
+  native-speaker signoff); one caption retired; caption arrivals refreshed;
+  ExecutionProfile#19 has AI-reviewed API records. Localized API JSONs
+  are left to the normal docs generation.
+Remaining (maintainer): a real Great Lakes login with Kerberos password +
+Okta push, then a job submit and status poll without another prompt; ideally
+also one Windows machine for the %USERPROFILE%\.ssh discovery.

@@ -154,8 +154,11 @@ def install_dropzone(target: QWidget, handler: DropHandler,
 
     target._dnd_handler = handler
     target._dnd_screen = screen
+    from .gil_priority import _watch_object_events
+
     f = _DropzoneFilter(target)
-    target.installEventFilter(f)
+    _watch_object_events(target, f,
+                         (QEvent.DragEnter, QEvent.DragMove, QEvent.Drop))
 
 
 def install_for(target: QWidget, app_key: str, screen: QWidget = None) -> bool:
@@ -166,9 +169,9 @@ def install_for(target: QWidget, app_key: str, screen: QWidget = None) -> bool:
     handler class and a screen with no declared policy still gets the
     source-folder fallback.
 
-    Failure is a missing convenience, not a broken screen — a Qt build with no
-    drag-and-drop, or a handler whose import fails, must not stop the screen
-    being constructed. It is logged and the screen goes up without a dropzone.
+    A failure, such as a Qt build with no drag-and-drop or a handler whose
+    import fails, does not stop the screen being constructed: it is logged and
+    the screen is built without a dropzone.
 
     :param target: the widget that receives the drag/drop events.
     :param app_key: the registered app key, e.g. ``"graph_builder"``.
@@ -1042,7 +1045,7 @@ def suggest_alternatives_dialog(
     header = QLabel(
         f"<b>{original.name}</b> can't be used as-is."
         + (f"<br><span style='color:gray;'>{why}</span>" if why else "")
-        + "<br><br>Nearby folders that WOULD work:"
+        + "<br><br>Nearby folders that can be used:"
     )
     header.setTextFormat(Qt.RichText)
     header.setWordWrap(True)
@@ -1075,10 +1078,9 @@ def choose_one_dialog(parent, headline: str, question: str,
     """Ask which of ``options`` was meant. ``None`` when nobody answered.
 
     Distinct from :func:`suggest_alternatives_dialog`, which says the drop
-    *cannot be used*. This one is asked when the drop resolved perfectly and
-    landed on more than one right answer — two tables in the database, two
-    masks in ``masks/`` — where "did you mean…" would be telling the user
-    they made a mistake they did not make.
+    *cannot be used*. This one is asked when the drop is valid and matches more
+    than one candidate — two tables in the database, two masks in ``masks/`` —
+    so the question does not suggest the drop was wrong.
 
     :param parent: the widget to centre the dialog on.
     :param headline: what was found, e.g. "plate1.db holds 4 tables."
@@ -1141,9 +1143,9 @@ def find_image_folders_nearby(path: Path, max_depth: int = 1,
     """Search parent + immediate children of ``path`` for folders that
     contain images. Excludes ``path`` itself if it already qualifies.
 
-    Handy for the "did you mean X?" prompt when the user drops the
-    wrong sibling of a plate folder. Worker thread only: it lists two levels
-    of a folder the user chose.
+    Used for the "did you mean X?" prompt when the user drops the wrong sibling
+    of a plate folder. Worker thread only: it lists two levels of a folder the
+    user chose.
 
     :param path: folder the user dropped; its siblings and, if it is a
         directory, its immediate child folders are searched.

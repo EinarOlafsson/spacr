@@ -203,9 +203,13 @@ class TestIdentifyMasksFinetune:
 
     def test_custom_model_not_found_refuses_stock_fallback(self, tmp_path,
                                                            _mock_cellpose):
+        from spacr.model_zoo import ModelZooError
+
         s = self._settings(tmp_path, custom_model=str(tmp_path / "nope.pth"))
-        with pytest.raises(FileNotFoundError, match="nope.pth"):
+        with pytest.raises(ModelZooError) as refused:
             SC.identify_masks_finetune(s)
+        assert repr(s["custom_model"]) in str(refused.value)
+        assert "stock weights were not substituted" in str(refused.value)
         assert not _mock_cellpose.models
 
     def test_no_images_returns(self, tmp_path, _mock_cellpose):
@@ -333,7 +337,7 @@ class TestIdentifyMasksFinetune:
         ("cyto2", "predates Cellpose-SAM"),
         ("nucleus", "predates Cellpose-SAM"),
         ("cyto", "predates Cellpose-SAM"),
-        ("other", "Unknown Cellpose model"),
+        pytest.param("other", None, id="other-refuses-stock-substitution"),
     ])
     def test_channel_selection_per_model(self, tmp_path, capsys, monkeypatch,
                                          _mock_cellpose, model_name, notice):
@@ -341,10 +345,10 @@ class TestIdentifyMasksFinetune:
 
         Pre-SAM spaCR mapped cyto / cyto2 / nucleus onto different
         ``eval(channels=...)`` pairs. Cellpose 4 deprecated that argument and
-        ships one checkpoint, so every name must resolve to ``cpsam`` and hand
-        the network the SAME image — the only thing that differs per name is
-        the substitution notice. What still selects channels is
-        ``settings['channels']``, proved by the second half.
+        ships one checkpoint, so known legacy names resolve to ``cpsam`` and
+        hand the network the SAME image; an unknown name must be refused before
+        any model is constructed. What still selects channels for the supported
+        legacy names is ``settings['channels']``, proved by the second half.
         """
         import spacr.utils as sutils
         # The notices are printed once per run; give this test a private
@@ -352,6 +356,25 @@ class TestIdentifyMasksFinetune:
         monkeypatch.setattr(sutils, "_REPORTED_CELLPOSE_NOTICES", set())
 
         src = _make_img_dir(tmp_path / model_name)
+        if model_name == "other":
+            from spacr import model_zoo
+            from spacr.qt.i18n import tr
+
+            before = {path: path.read_bytes() for path in src.rglob("*")
+                      if path.is_file()}
+            with pytest.raises(model_zoo.ModelZooError) as error:
+                SC.identify_masks_finetune(
+                    self._settings(src, model_name=model_name))
+            expected = tr(
+                "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
+                name=repr(model_name))
+            expected += "\n" + model_zoo._model_resolution_context(
+                model_name, setting="model_name", kinds=("cellpose",))
+            assert str(error.value) == expected
+            assert _mock_cellpose.models == []
+            assert _mock_cellpose.eval_calls == []
+            assert {path: path.read_bytes() for path in before} == before
+            return
         SC.identify_masks_finetune(self._settings(src, model_name=model_name))
         out = capsys.readouterr().out
 

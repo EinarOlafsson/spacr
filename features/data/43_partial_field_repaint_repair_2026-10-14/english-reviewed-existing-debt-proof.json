@@ -1,0 +1,160 @@
+{
+  "baseline_source": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "affected_review_record_count": 27,
+  "moved": 18,
+  "stale": 9,
+  "all_affected_sources_review_files_and_guards_identical_to_eb72": true,
+  "files": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-006.json",
+      "identical_to_eb72": true,
+      "sha256": "4f202c6dd5f1c94f770e97899cee3b683afc75b5c456123a29f0b3c39f85a821"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-007.json",
+      "identical_to_eb72": true,
+      "sha256": "2f9e208de3eb21007078716a05cfcb43cdae41329a6516335a9be658f56e8d42"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "f2e1ca837d005c70c752c459f18fa9744911a80d25e7186ee85a122f44667b1d"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-010.json",
+      "identical_to_eb72": true,
+      "sha256": "dfc7caa61a7f1400acea0808649d6d9fe85515613bdc801d5584cbe6cd664f14"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "cb425ad80d64b133df3d729f22c3b6d7f7565e62fa37cfe9b7c553ace57f77fa"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-010.json",
+      "identical_to_eb72": true,
+      "sha256": "dc2a55f62a92a639c8e1682c8f3bc776f8e76a756e5f5f5d162781649a740c84"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "31c2244f7034ad8afd94eb8ea0b6d631c7463830397ec20a5fb552dc0e28e9ee"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-009.json",
+      "identical_to_eb72": true,
+      "sha256": "fb98cf253361175050d08b598b605d7e62a80ade9581c7745df4da12039dd484"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "9fbdab721bf99dd87e0510b8efec1c3b76c02ec16e29f6da22c82febf9eda6d5"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json",
+      "identical_to_eb72": true,
+      "sha256": "2d7699e0fc177df334d8290e28f5516ad1a91a3f8f872ce4f574453134870679"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json",
+      "identical_to_eb72": true,
+      "sha256": "f56aad24cec4d7fd698690b7beb74fa5a91fab0c7c7c817b6ef64b8a23f12da7"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "97cd49a099a061f4a2a7b365b4d761b965405fe3abaaac47eaaa56edfa567454"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+      "identical_to_eb72": true,
+      "sha256": "e382ba3ec286a809f3ff761045349cfe3ce2fb27902d7fb1cb891e98b8682ee0"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-008.json",
+      "identical_to_eb72": true,
+      "sha256": "1cbe79e49170a5912b5d39f1bfc44b068a51e071d54fb1fe4a9261fe3e0efa47"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "b0c4ff5203cea51300c4284f1572f5ca16b2ab7f470c35ecc2d41758408eb8ba"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json",
+      "identical_to_eb72": true,
+      "sha256": "646647b4dc8d3272f925357153e32679167b58894cfecfdfb340a28e2442c08c"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-010.json",
+      "identical_to_eb72": true,
+      "sha256": "c48c359b881eec5981c8a423c1ae8b13c6269ddf2eecb4ca3d5747f4aeecae8f"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "8bd80753d0ef140a5ad1b39430a5f7b978c9b71fc1bf38c8d6d44a8183f3d961"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-007.json",
+      "identical_to_eb72": true,
+      "sha256": "1302699ed963d9c83757b5fe43ddf200e810797a786d89c747829656567a7d92"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-010.json",
+      "identical_to_eb72": true,
+      "sha256": "40a6db3bc06af1264b6975873e25abcfe0782c5147510a5e3bb95a019908bfc1"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "22d6c1b481262fe63fec6e1b9e807a4de68645e28d39c519b56158030efeba4f"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-005.json",
+      "identical_to_eb72": true,
+      "sha256": "9f0eb522061909664fb37bfe358fd393a802f1125056f8f27d30f0862a569ac2"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-006.json",
+      "identical_to_eb72": true,
+      "sha256": "53beb55e7d41669b07b1e4d6f87b5ae2eef3a162e3c4a728a90dcdb9752f4db5"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-03-nested-batch8.json",
+      "identical_to_eb72": true,
+      "sha256": "7dcf8c3dbcdb87cf1b718746632e4ee73421f3b95e46f38a99f37c1d4a4c7055"
+    },
+    {
+      "path": "spacr/qt/widgets/figure_queue.py",
+      "identical_to_eb72": true,
+      "sha256": "296ea2cbecb72efccad201f31a25ed02f96b3978810cdd82554003f1b16a7849"
+    },
+    {
+      "path": "spacr/qt/widgets/glass.py",
+      "identical_to_eb72": true,
+      "sha256": "0a30f850192003a63e6edfcfb0363187062c87ff849eca65a2c4ae2568474766"
+    },
+    {
+      "path": "spacr/qt/bridge.py",
+      "identical_to_eb72": true,
+      "sha256": "c548813cf9c55f8e0bfda966b08750c5cb30256623afeed72570101b2a3170d4"
+    },
+    {
+      "path": "tools/check_reviewed_api_evidence.py",
+      "identical_to_eb72": true,
+      "sha256": "443951340f8c198cd3552f743dbb051109ab25231c8ec347578b783fe3bcac7f"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "identical_to_eb72": true,
+      "sha256": "9adc90b6f52ceba1f9b4bd1d79f300d279664cc03dfb91e7776592850a5b014b"
+    },
+    {
+      "path": "tools/nested_helper_docs.py",
+      "identical_to_eb72": true,
+      "sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237"
+    }
+  ],
+  "scope": "The private ambient repair did not create these exact moved/stale records; no records or source files modified by this check."
+}

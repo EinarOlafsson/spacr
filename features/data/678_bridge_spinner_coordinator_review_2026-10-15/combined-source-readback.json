@@ -1,0 +1,22 @@
+{
+  "tested_source_and_artifact_files_exact": {
+    "689_hf_host_envelope_2026-10-15": {
+      "tools/publish_docs_channels.py": "f1a7e7a76dd24acfb012e3008b026a5962627ef3cc6f7e98237250fcade469cf",
+      "tests/test_docs_channels.py": "609b42721c1f777d8bbd3e293e07ddf7a1522083e2d80459278758c0fb37d288"
+    },
+    "678_bridge_spinner_help_acceptance_2026-10-15": {
+      "spacr/qt/bridge.py": "79c9b2e72259fcd18ac7d02707c4bffcba588bd55b154e2026e089863772df5d",
+      "spacr/qt/widgets/activity_spinner.py": "909e079fafe5cecd461abe0f404c57f0a4f9faa1d2cbd0d520ccdb6987806bae",
+      "spacr/qt/help_api_index.py": "7c84afd77466338a55ce7436bdb0f6ece8022a96e40f1c51479397d7e97c7c98",
+      "spacr/qt/help_index.py": "16de97f287e1b27d116b39e8cbd35333e2aaaca202c698208f81d675fe9e6139",
+      "spacr/qt/help_search.py": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+      "docs/source/_static/i18n/api/en.json": "02297213551624abce3d92fba8f5edcda0809da68b3d61104f4ffab4a830579e",
+      "tools/build_help_search_index.py": "6b98bf028bbe372894a314eb509fb9da4a74e814f13d1223fb1741ffea71d2a9",
+      "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+      "tests/test_the_help_index_is_generated_not_typed.py": "18373e4f992b870629868f4701f07c89f5c2db0d35ed0c4d09f1fbbddaff1b80",
+      "tests/qt/test_the_help_search_field_lands_where_it_says.py": "e3b668da2161b163f7afc95162df4bc950ebf83d814678bd415d111217e2196e"
+    }
+  },
+  "no_repeated_tests_or_generators": true,
+  "scope": "Combined four-symbol doc/API/Help and strict HF verifier integration; no deployment or global gate claim."
+}

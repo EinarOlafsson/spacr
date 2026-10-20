@@ -1,10 +1,9 @@
 """Name the call that freezes the interface.
 
-A STALLED GUI THREAD LEAVES NO TRACEBACK. It is not an exception and not a
-fault, so ``faulthandler`` cannot see it, the log simply stops, and the
-only report anyone can give is "spaCR froze" with nothing under it.
-The only thing that can name the call is a sample of the main thread's
-stack taken WHILE it is stuck, from another thread.
+A stalled GUI thread leaves no traceback. It is not an exception and not a
+fault, so ``faulthandler`` does not report it and the log stops. Only a sample
+of the main thread's stack, taken from another thread while it is stuck, names
+the call.
 
     SPACR_WATCH_GUI_STALLS=1 spacr
 
@@ -13,15 +12,15 @@ Every time the event loop stops answering for longer than
 to stderr and appended to :data:`LOG_PATH`. **The last frame of that stack
 is the blocking call.**
 
-WHY THIS IS IN THE PACKAGE RATHER THAN IN ``tools/``.
-``tools/watch_the_gui_thread.py`` does the same thing and has to build the
-``QApplication`` itself to attach before any screen exists. That stopped
-working the day :func:`spacr.qt.app.launch` began constructing its own, and
-Qt refuses a second.
+This lives in the package rather than in ``tools/``.
+``tools/watch_the_gui_thread.py`` does the same thing but has to build the
+``QApplication`` itself to attach before any screen exists, which no longer
+works because :func:`spacr.qt.app.launch` constructs its own and Qt refuses a
+second.
 
-Reaching in from outside was then tried two more ways and failed twice more.
-Hosting ``qt.run()`` inside another process makes Home itself time out at
-thirty seconds.
+Two other ways of attaching from outside do not work either. Hosting
+``qt.run()`` inside another process makes Home itself time out at thirty
+seconds.
 
 The other way was a ``sitecustomize`` on the startup benchmark path. It is
 imported, and what it changes is never the object that runs.
@@ -30,9 +29,9 @@ A flag read inside ``launch`` is the one place that cannot be missed, and it
 composes with every other driver -- the benchmark included, which is what
 this was written for.
 
-WHAT IT COSTS WHEN OFF: one ``os.environ.get``. When on: a 100 ms timer on
-the GUI thread that increments an integer, and a daemon thread that
-compares two integers four times a second.
+Cost when off: one ``os.environ.get``. When on: a 100 ms timer on the GUI
+thread that increments an integer, and a daemon thread that compares two
+integers four times a second.
 """
 from __future__ import annotations
 
@@ -78,21 +77,18 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
     :param app: the live ``QApplication``. The heartbeat timer is parented
         to it so the timer lives exactly as long as the application does.
     :param stall_seconds: override :data:`STALL_SECONDS` for one call.
-    :param echo: also write each report to ``sys.stderr``. Pass ``False``
-        under a harness that captures streams. THE FILE IS THE RECORD AND
-        STDERR IS A CONVENIENCE: this writes from a DAEMON THREAD, and a
-        thread writing into a stream the harness is swapping underneath it
-        crashed pytest inside its own `capture.py` -- not in our write,
-        which is guarded, but in pytest reading a stream that moved while
-        it read. A tool must not write to a stream it does not own when
-        somebody else is holding it.
+    :param echo: also write each report to ``sys.stderr``. Pass ``False`` under
+        a harness that captures streams. The file is the record and stderr is
+        optional: this writes from a daemon thread, and writing into a stream
+        that a test harness is replacing crashed pytest inside its own
+        `capture.py`.
     :returns: the watcher thread, or ``None`` if Qt could not be reached.
 
-    THE HEARTBEAT IS THE MEASUREMENT. A ``QTimer`` on the GUI thread bumps
-    an integer; a daemon thread watches the integer. If it stops moving the
-    GUI thread is not running the event loop, which is exactly the
-    condition being hunted -- and the reason a timer cannot report it
-    itself: a wedged loop does not deliver the timer either.
+    The heartbeat is the measurement. A ``QTimer`` on the GUI thread bumps an
+    integer; a daemon thread watches the integer. If it stops moving the GUI
+    thread is not running the event loop, which is exactly the condition being
+    hunted -- and the reason a timer cannot report it itself: a wedged loop
+    does not deliver the timer either.
     """
     try:
         from PySide6.QtCore import QTimer
@@ -128,17 +124,17 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
     def watch() -> None:
         """Sample the GUI thread through each stall and summarise it.
 
-        ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT,
-        and those are different questions whenever the stall is a loop
-        rather than a single blocking call. Measured: four stalls of the
-        same module sweep gave four different last frames -- an event
-        filter, a screen constructor, a settings-search install, another
-        event filter -- which is a list of suspects rather than an answer.
+        One snapshot shows where the thread was, not where the time went; the
+        two differ when the stall is a loop rather than a single blocking call.
+        Measured: four stalls of the same module sweep gave four different last
+        frames -- an event filter, a screen constructor, a settings-search
+        install, another event filter -- which is a list of suspects rather
+        than an answer.
 
-        So the stack is sampled every :data:`POLL_SECONDS` FOR AS LONG AS
-        the stall lasts, and the last frames are counted. A call that holds
-        the thread appears in most samples; one that merely happened to be
-        running appears in one.
+        So the stack is sampled every :data:`POLL_SECONDS` for as long as the
+        stall lasts, and the last frames are counted. A call that holds the
+        thread appears in most samples; one that merely happened to be running
+        appears in one.
         """
         reported_for = -1
         while not stopping.is_set():
@@ -151,19 +147,19 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
                     _flush_samples()
                 continue
             if beat["n"] == reported_for:
-                frame = sys._current_frames().get(main_thread.ident)
-                if frame is not None:
-                    samples.append(_where(frame))
+                stack = _main_stack()
+                if stack is not None:
+                    samples.append(_where(stack))
                 continue
             _flush_samples()
             reported_for = beat["n"]
-            frame = sys._current_frames().get(main_thread.ident)
-            if frame is None:
+            stack = _main_stack()
+            if stack is None:
                 continue
-            samples.append(_where(frame))
+            samples.append(_where(stack))
             report = (f"\n--- GUI THREAD STALLED {stalled:.1f}s "
                       f"(heartbeat {beat['n']}) ---\n"
-                      + "".join(traceback.format_stack(frame)))
+                      + "".join(traceback.format_list(stack)))
             if echo:
                 try:
                     sys.stderr.write(report)
@@ -174,9 +170,26 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
 
     samples: list = []
 
-    def _where(frame) -> str:
-        """The innermost frame, as ``file:line function``."""
-        stack = traceback.extract_stack(frame)
+    def _main_stack():
+        """The GUI thread's stack as text-only frame summaries, or None.
+
+        No frame object outlives this call. A frame held by the watcher
+        keeps its function's locals alive after the GUI thread has returned
+        from it, and the watcher then drops them on its own thread: a
+        ``QPainter`` made in a ``paintEvent`` stayed active past the paint
+        ("QBackingStore::endPaint() called with active painter") and was
+        destroyed off the GUI thread, a segmentation fault in the next
+        window repaint. Measured on the lesson 14 driver with a watcher that
+        kept its last frame: 4 crashes in 6 runs.
+        """
+        frame = sys._current_frames().get(main_thread.ident)
+        try:
+            return None if frame is None else traceback.extract_stack(frame)
+        finally:
+            del frame
+
+    def _where(stack) -> str:
+        """The innermost frame of ``stack``, as ``file:line function``."""
         if not stack:
             return "(empty)"
         last = stack[-1]
@@ -203,17 +216,15 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
     def _flush_when_the_stall_ends() -> None:
         """Summarise a stall the moment the loop answers again.
 
-        THE LAST STALL OF A SESSION WAS NEVER SUMMARISED, and that is the
-        one anybody runs this for. `_flush_samples` was called only when the
-        NEXT stall began, so a process that wedges once and is then killed
-        -- a run against a sleeping autofs mount, say -- left the first
-        traceback and no distribution at all. The summary is the part that
-        separates the call HOLDING the thread from the one that merely
-        happened to be running when the sample was taken.
+        Summarising when the stall ends, rather than when the next stall
+        begins, means the last stall of a session is summarised even if the
+        process is then killed, for example after a hang on a sleeping autofs
+        mount. The summary separates the call holding the thread from one that
+        happened to be running when a sample was taken.
 
         The heartbeat resuming is the end of the stall, so that is where the
-        summary belongs. `tick` cannot do it: it runs on the GUI thread, and
-        the whole point is that the GUI thread was not running.
+        summary belongs. `tick` cannot do it, because it runs on the GUI
+        thread, which was not running during the stall.
         """
         if samples:
             _flush_samples()

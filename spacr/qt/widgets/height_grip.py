@@ -1,31 +1,31 @@
-"""A drag handle that makes ONE widget in a column taller or shorter.
+"""A drag handle that makes one widget in a column taller or shorter.
 
-Qt has no vertical-resize handle for "this one widget inside a column", and
-the two things that look like one do not fit: a ``QSplitter`` needs two panes
-to divide, and ``QSizeGrip`` resizes the WINDOW. Home grew its own for the
+Qt has no vertical-resize handle for "this one widget inside a column", and the
+two things that look like one do not fit: a ``QSplitter`` needs two panes to
+divide, and ``QSizeGrip`` resizes the window. Home grew its own for the
 release-notes panel; the nested containers of Regression's Measurements tab
 need the same affordance, so the class lives here and Home imports it rather
 than the tool carrying two of them.
 
-WHAT WAS ADDED WHEN IT MOVED, and why each addition is not decoration:
+Additions made when it moved here:
 
 * an accessible name per instance -- "Resize the release notes" is the wrong
   thing for a screen reader to say about the merge report;
 * keyboard resizing, because a pointer-only handle is not an accessible
   height-resize affordance. Up and Down move by one step, Page Up/Down by
   five, Home/End go to the bounds;
-* bounds expressed in BASE pixels and re-scaled on demand. At a 200 % font
-  scale a ceiling of 400 physical px is half a box, so every bound goes
-  through :func:`spacr.qt.preferences.scaled_px` and
-  :meth:`HeightGrip.rescale` re-reads it when the font preference changes.
+* bounds expressed in base pixels and re-scaled on demand. At a 200 % font
+  scale a ceiling of 400 physical px is half a box, so every bound goes through
+  :func:`spacr.qt.preferences.scaled_px` and :meth:`HeightGrip.rescale`
+  re-reads it when the font preference changes.
 """
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, Qt, Signal
-from PySide6.QtGui import QColor, QPainter
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
-from ..theme import active_palette, make_transparent
+from ..theme import make_transparent, _painting_palette
 
 
 class HeightGrip(QWidget):
@@ -56,7 +56,9 @@ class HeightGrip(QWidget):
                  parent=None, name: str = "Resize this panel"):
         """Build the grip, bounded so a drag cannot collapse or run away."""
         super().__init__(parent)
+        from .figure_grid_view import _strong_focus_style
 
+        self._strong_focus_ring = _strong_focus_style()
         self._target = target
         self._base_min = int(minimum)
         self._base_max = int(maximum)
@@ -125,6 +127,13 @@ class HeightGrip(QWidget):
                              QEvent.StyleChange)
                 and getattr(self, "_min", None) is not None):
             self._follow_the_font()
+        if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange,
+                            QEvent.StyleChange, QEvent.PaletteChange,
+                            QEvent.ApplicationPaletteChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
         super().changeEvent(event)
 
     def _follow_the_font(self) -> None:
@@ -148,7 +157,7 @@ class HeightGrip(QWidget):
     def resize_target(self, height: int) -> int:
         """Set the target's height, clamped. Returns what it became.
 
-        Public because it is the whole behaviour, and a test that drives it
+        Public because it implements the resize, and a test that drives it
         directly is testing the clamp rather than Qt's event delivery.
 
         :param height: wanted height in device pixels, clamped between the
@@ -201,11 +210,19 @@ class HeightGrip(QWidget):
 
         :param event: the paint event; not read, the whole grip is redrawn.
         """
-        P = active_palette()
+        P = _painting_palette()
         painter = QPainter(self)
-        lit = self._hovered or self.hasFocus() or self._from_y is not None
-        colour = QColor('#168cff' if lit else P['border_soft'])
-        painter.fillRect(0, self.height() // 2, self.width(), 1, colour)
+        try:
+            lit = self._hovered or self.hasFocus() or self._from_y is not None
+            colour = QColor('#168cff' if lit else P['border_soft'])
+            painter.fillRect(0, self.height() // 2, self.width(), 1, colour)
+            if self.hasFocus() and self._strong_focus_ring:
+                width, colour = self._strong_focus_ring
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+        finally:
+            painter.end()
 
     def enterEvent(self, event):                # noqa: N802 - Qt naming
         """Light the grip as the pointer arrives.
@@ -228,8 +245,8 @@ class HeightGrip(QWidget):
     def focusInEvent(self, event):              # noqa: N802 - Qt naming
         """Redraw when focused, so the grip is visible to keyboard users.
 
-        A DRAG HANDLE NOBODY CAN SEE is a control only a mouse can find. The
-        focus ring is what makes the keyboard route discoverable.
+        Without a visible focus state, keyboard users could not find the
+        handle. The focus ring is what makes the keyboard route discoverable.
 
         :param event: the Qt focus event.
         """
@@ -245,9 +262,9 @@ class HeightGrip(QWidget):
         super().focusOutEvent(event)
 
     def mousePressEvent(self, event):           # noqa: N802 - Qt naming
-        """Remember where the drag started, in GLOBAL coordinates.
+        """Remember where the drag started, in global coordinates.
 
-        Global, because this widget MOVES while the drag is happening -- it
+        Global, because this widget moves while the drag is happening -- it
         sits under the widget being resized, so growing the target by 40 px
         slides the grip 40 px down and a local y would double every step.
 
@@ -262,7 +279,7 @@ class HeightGrip(QWidget):
         event.accept()
 
     def mouseMoveEvent(self, event):            # noqa: N802 - Qt naming
-        """Resize by how far the pointer moved SINCE THE PRESS.
+        """Resize by how far the pointer moved since the press.
 
         Measured from the press rather than the last move, so a drag that
         outruns the redraw lands where the pointer is instead of
@@ -295,7 +312,7 @@ class HeightGrip(QWidget):
         """Arrow keys resize; everything else is passed on.
 
         Passed on matters as much as handled: swallowing Tab would trap focus
-        on the one control whose whole purpose is to be reachable.
+        on this control.
 
         :param event: the key event; Up/Down, +/-/=, Page Up/Down and
             Home/End resize and are accepted, and any other key goes to the

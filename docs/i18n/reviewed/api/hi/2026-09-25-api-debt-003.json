@@ -218,7 +218,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "spaCR में वह सब कुछ जिस तक नाम से पहुँचा जा सकता है, और उसे कैसे रैंक करें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -226,7 +228,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "Help मेनू के बगल का खोज फ़ील्ड उतना ही अच्छा है जितना यह: जो उपयोगकर्ता जानता है कि किसी चीज़ को क्या कहा जाता है, उसे यह जाने बिना वहाँ पहुँचना चाहिए कि कौन-सा मॉड्यूल उसका स्वामी है या वह किस संकुचित शीर्षक के अंतर्गत दर्ज है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#10",
@@ -234,7 +238,9 @@
       "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
       "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
       "translation": "नया प्रकार जोड़ना एक प्रदाता पंजीकृत करना है, कोई स्विच संपादित करना नहीं। प्रदाता ``() -> Iterable[HelpEntry]`` है; :func:`register_provider` एक जोड़ता है और :func:`build_index` उनमें से हर एक को उसके अपने सुरक्षा घेरे में कॉल करता है, इसलिए जो प्रदाता त्रुटि उठाता है उसकी कीमत केवल उसकी अपनी पंक्तियाँ हैं और कुछ नहीं। कोई परिणाम खोले जाने पर क्या करता है, वह भी इसी तरह :mod:`spacr.qt.help_search` में पंजीकृत होता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#11",
@@ -242,7 +248,9 @@
       "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
       "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
       "translation": "इसे आयात करने की कोई कीमत नहीं; इंडेक्स बनाने में एक सेकंड लगता है। हर रजिस्ट्री उसे पढ़ने वाले प्रदाता के भीतर आयात की जाती है, इसलिए मॉड्यूल स्वयं न Qt लाता है न ``spacr.settings``। इस ट्री पर इसे बनाने में 1.1 s लगे और 13,000 पंक्तियाँ बनीं, जो GUI थ्रेड के लिए बहुत अधिक है -- :mod:`spacr.qt.help_search` :func:`build_index` को वर्कर पर चलाता है और यह मॉड्यूल बिना डिस्प्ले के परखा जा सकता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -250,7 +258,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "इंडेक्स कभी हाथ से बनी सूची नहीं है। यहाँ की हर पंक्ति किसी ऐसी चीज़ से निकाली जाती है जो पहले से उत्तर तय करती है:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",
@@ -306,7 +316,9 @@
       "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
       "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
       "translation": "तब न मिल सकने वाली सेटिंग इस बात का तथ्य है कि जनरेटर कैसा है, न कि इसका कि किसी ने पंक्ति जोड़ना याद रखा या नहीं, और निर्देश का पूरा तर्क यही है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#0",
@@ -330,7 +342,9 @@
       "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
       "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
       "translation": "तैयार स्ट्रिंग नहीं, टेम्पलेट क्यों। ``subtitle`` और ``description`` वे हैं जिन पर खोज मिलान करती है, इसलिए वे अंग्रेज़ी में रहते हैं: क्वेरी और खोजा जाने वाला पाठ एक ही भाषा में होने चाहिए, और इंडेक्स प्रति सत्र एक बार बनता है जबकि इंटरफ़ेस भाषा उसके बाद बदल सकती है। उपयोगकर्ता जो पढ़ता है वह पंक्ति बनाए जाने के क्षण टेम्पलेट से रेंडर होता है, :func:`rendered_subtitle` और :func:`rendered_description` द्वारा, :func:`spacr.qt.i18n.tr` देकर -- इसलिए भाषा परिवर्तन अगली कुंजी दबाने पर लागू हो जाता है और यह मॉड्यूल फिर भी न Qt आयात करता है न कोई कैटलॉग। \"API reference\" दस हज़ार पंक्तियों का उपशीर्षक है; यहाँ तैयार अंग्रेज़ी स्ट्रिंग हर उस पाठक के लिए पूरी तरह अंग्रेज़ी परिणाम सूची है जो अंग्रेज़ी में काम नहीं करता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#2",
@@ -354,7 +368,9 @@
       "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
       "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
       "translation": "यह क्या करता है, उस भाषा में जिसमें उपयोगकर्ता सोचता है। इस पर मिलान होता है, और यही \"touching\" को ``merge_edge_pathogen_cells`` तक पहुँचाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#5",
@@ -434,7 +450,9 @@
       "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
       "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
       "translation": "हर प्रदाता अलग से सुरक्षित है: जो खोज फ़ील्ड API मैनिफ़ेस्ट न पढ़ पाने के कारण अपनी सेटिंग्स खो दे, वह चुपचाप कम प्रकार प्रस्तुत करने वाले फ़ील्ड से बदतर है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.build_index#2",
@@ -578,7 +596,9 @@
       "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
       "context": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
       "translation": "पदों को AND किया जाता है, वही नियम जो प्रति-मॉड्यूल सेटिंग्स खोज उपयोग करती है: दूसरा शब्द टाइप करने से परिणाम सीमित होने चाहिए, क्योंकि अन्यथा अधिक टाइप करना अधिक परिणाम पाने का तरीका बन जाता, जो टाइप करने के अर्थ के विपरीत है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.score#2",
@@ -666,7 +686,9 @@
       "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
       "context": "One row per module: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
       "translation": "प्रति मॉड्यूल एक पंक्ति: चार मॉड्यूल में मौजूद सेटिंग चार पंक्तियाँ है, हर एक अपने मॉड्यूल और उस श्रेणी का नाम देती है जिसमें वह है, न कि एक पंक्ति जो फिर पूछे कि कौन-सा। उपयोगकर्ता पहले से जानता है कि उसका आशय किस मॉड्यूल से था; पूछने वाली पंक्ति उस जानकारी के लिए दूसरा क्लिक है जिसे सूची दिखा सकती थी।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#2",
@@ -674,7 +696,9 @@
       "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
       "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
       "translation": "सेटिंग का API वाला आधा भाग यहाँ नहीं निकाला जाता। ``SETTING_CONSUMERS`` किसी कुंजी को पढ़ने वाले हर पहुँच योग्य फ़ंक्शन का नाम देता है, और :func:`api_entries` इसे उनमें से हर फ़ंक्शन की API पंक्ति में शामिल करता है -- प्रति प्रतीक एक पंक्ति, जो बताती है कि वह कौन-सी सेटिंग्स पढ़ता है। दोनों प्रदाताओं से इन्हें निकालने पर ``spacr.io.preprocess_img_data`` एक बार स्वयं के लिए और हर पढ़ी गई सेटिंग के लिए एक बार सूचीबद्ध होता था, यानी एक परिणाम सूची में ग्यारह एक जैसी पंक्तियाँ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#3",
@@ -698,7 +722,9 @@
       "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
       "context": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
       "translation": ":mod:`spacr.qt.help_index` तय करता है कि नाम से क्या पहुँच योग्य है; यह मॉड्यूल वह जगह है जहाँ उपयोगकर्ता नाम टाइप करता है और जहाँ उत्तर उसे ले जाता है। दोनों हिस्से अलग इसलिए हैं क्योंकि केवल इसी को डिस्प्ले चाहिए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#2",
@@ -706,7 +732,9 @@
       "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
       "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
       "translation": "परिणाम क्या करता है, यह पंजीकृत होता है, किसी स्विच पर तय नहीं। :func:`register_opener` एक प्रकार को ``(window, entry) -> str`` से बाँधता है; :func:`open_entry` प्रकार खोजता है। इसलिए नई तरह की चीज़ को इंडेक्स मॉड्यूल में एक प्रदाता और यहाँ एक ओपनर चाहिए, और कोई मौजूदा फ़ंक्शन नहीं बदलता -- जो निर्देश के \"and so on\" उपवाक्य को शब्दशः लेना है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#3",
@@ -730,7 +758,9 @@
       "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
       "context": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
       "translation": "``setting`` मॉड्यूल खोलता है और फिर :func:`reveal_setting`: सेटिंग वाली श्रेणी को छोड़कर हर श्रेणी संकुचित, पंक्ति तक स्क्रॉल करके उसे चिह्नित किया जाता है। पैनल को फ़िल्टर करके नहीं -- प्रति-मॉड्यूल पट्टी में पहले से फ़िल्टर है और वह अन्य श्रेणियों को छिपा छोड़ता है, इसलिए जो उपयोगकर्ता आगे आसपास देखना चाहता है उसे समझना पड़ता है कि फ़ॉर्म को क्या हुआ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#6",
@@ -746,7 +776,9 @@
       "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
       "context": "``api`` Opens the published page when it is reachable, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
       "translation": "``api`` प्रकाशित पेज केवल तब खोलता है जब वह पहुँच योग्य हो, और अन्यथा इस मशीन पर मौजूद docstring दिखाता है और बताता है कि पेज पहुँच योग्य नहीं है। खोज परिणाम पर भरोसा किया जाता है, इसलिए 404 खोलने वाला परिणाम किसी परिणाम के न होने से भी बदतर है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#8",
@@ -754,7 +786,9 @@
       "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
       "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
       "translation": "यह मॉड्यूल GUI थ्रेड पर जो कुछ करता है वह उसे कभी नहीं रोकता। इंडेक्स बनाने में लगभग एक सेकंड लगता है, इसलिए फ़ील्ड में पहली बार टाइप होने पर इसे वर्कर पर बनाया जाता है (:class:`_IndexLoader`), और बनने तक फ़ील्ड यह बताता है। दस्तावेज़ साइट उत्तर देती है या नहीं, यह नेटवर्क का प्रश्न है, इसलिए यह भी वर्कर पर पूछा जाता है (:class:`_DocsReach`) और केवल तब जब उपयोगकर्ता ने API परिणाम खोला हो -- spaCR केवल इसलिए नेटवर्क तक नहीं पहुँचता कि किसी ने टाइप किया।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#9",
@@ -762,7 +796,9 @@
       "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
       "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
       "translation": "परिणाम खोलना कभी सेटिंग्स नहीं मिटाता। ``MainWindow._on_nav_selected`` अपने बनाए हर पेज को ``self._screens`` में रखता है और स्टैक को उस पर स्विच करता है, इसलिए आधा भरा Mask फ़ॉर्म, उपयोगकर्ता के Measure से लौटने पर भी आधा भरा रहता है। यह इस फ़ील्ड के अस्तित्व से पहले भी सच था और अब इसे ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` से पक्का किया गया है, ताकि भविष्य का नेविगेशन-पर-पुनर्निर्माण इसे चुपचाप न हटा सके।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.ApiEntryDialog#0",
@@ -954,7 +990,9 @@
       "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
       "context": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
       "translation": "वह जोड़ जिसे परीक्षण चलाते हैं: टाइप करना उपयोगकर्ता की क्रिया है, और हर जाँच में टाइमर के लिए 140 ms प्रतीक्षा करने से सूट धीमा होगा और फ़ील्ड के व्यवहार के बारे में ज़रा भी अधिक ईमानदार नहीं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.HelpSearchField.type_and_search#2",
@@ -994,7 +1032,9 @@
       "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
       "context": "Which prefix is the module is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
       "translation": "कौन-सा उपसर्ग मॉड्यूल है, इसका उत्तर मान लेने के बजाय डिस्क से दिया जाता है: ``spacr.qt.screens.mask`` एक मॉड्यूल है और ``spacr.layers.ShapesLayer.mask`` एक मॉड्यूल के भीतर दो स्तर गहरा एक गुण है, और केवल फ़ाइल लेआउट जानता है कि कौन-सा बिंदु पथ का अंतिम बिंदु है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.api_url#3",
@@ -1082,7 +1122,9 @@
       "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
       "context": "In the menu row, not the corner. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full application view and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
       "translation": "मेनू पंक्ति में, कोने में नहीं। फ़ील्ड पहले मेनू बार के ऊपरी-दाएँ कोने वाले विजेट में स्थापित किया गया था, जिससे यह विंडो के सबसे दाईं ओर छोटा करने, पूरे आकार और बंद करने के चिह्नों के बगल में, मेनुओं से दूर पहुँच गया। इसकी सही जगह Help के ठीक दाईं ओर है, इसलिए इसे मेनू पंक्ति में ही रखा जाता है: बार अपनी क्रियाएँ बाएँ से दाएँ रखता है, और Help अंतिम मेनू है, इसलिए फ़ील्ड Help के बाद आता है और मेनुओं के फिर से अनुवादित या पुनर्व्यवस्थित होने पर उसके साथ चलता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.install#2",
@@ -1874,7 +1916,9 @@
       "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
       "context": "Import's \"Load test data…\": every vendor format and naming, one press away.",
       "translation": "Import का \"Load test data…\": हर विक्रेता फ़ॉर्मैट और नामकरण, एक क्लिक दूर।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#1",
@@ -1890,7 +1934,9 @@
       "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
       "context": "What the button does. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
       "translation": "बटन क्या करता है। यह :class:`ImportTestDataChooser` खोलता है, :data:`spacr.import_examples.IMPORT_VARIANTS` के हर संस्करण के लिए एक बटन, हर एक का होवर पर वर्णन। चुना गया संस्करण प्राप्त किया जाता है -- पूरा सेट एक आर्काइव है, इसलिए पहली बार दबाने पर हर संस्करण डाउनलोड होता है और बाद में हर बार कैश से खुलता है -- और फिर:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#3",
@@ -1914,7 +1960,9 @@
       "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
       "context": "Same machinery as every other example set: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
       "translation": "हर अन्य उदाहरण सेट वाला ही तंत्र: :class:`_TarExampleWorker` साझा प्रगति डायलॉग के पीछे वर्कर थ्रेड पर आर्काइव स्ट्रीम करता है और उसे tar डेटा फ़िल्टर से अनपैक करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo.ImportTestDataChooser#0",
@@ -2070,6 +2118,8 @@
     },
     {
       "label": "spacr.qt.install_consent.apply_choices#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the consent answers, read by the keys ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
       "source_sha256": "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19",
       "context": "the consent answers, read by the structured-data names ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
@@ -2078,6 +2128,8 @@
     },
     {
       "label": "spacr.qt.install_consent.maybe_show_installer_consent#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
       "source_sha256": "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
       "context": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
@@ -3550,7 +3602,9 @@
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
       "context": "the labels as ``uint16``.",
       "translation": "``uint16`` के रूप में लेबल।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_labels#9",
@@ -3558,7 +3612,9 @@
       "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
       "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
       "translation": "जब कोई id ``uint16`` में न समाए, या सटीक-ID मोड को अमान्य लेबल मिलें। बहुत बड़ी ID कभी काटी नहीं जातीं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_property#0",
@@ -4761,7 +4817,9 @@
       "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
       "context": "label mask; an empty array gives 1.",
       "translation": "लेबल मास्क; खाली ऐरे 1 देता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.normalise_filters#0",

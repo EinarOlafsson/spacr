@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="28" time="13.828" timestamp="2026-10-15T10:26:56.160165-04:00" hostname="olafsson"><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-moved-en]" time="2.157" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-moved-fr]" time="0.227" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-empty-en]" time="0.037" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-empty-fr]" time="0.029" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-last-en]" time="0.028" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-last-fr]" time="0.030" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-other-en]" time="0.029" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[True-other-fr]" time="0.027" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-moved-en]" time="0.029" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-moved-fr]" time="0.028" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-empty-en]" time="0.030" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-empty-fr]" time="0.030" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-last-en]" time="0.027" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-last-fr]" time="0.028" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-other-en]" time="0.031" /><testcase classname="tests.qt.test_n448_complete_curation_status" name="test_actual_verdict_status_is_complete_and_preserves_navigation[False-other-fr]" time="0.038" /><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[sv]" time="0.028"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[de]" time="0.027"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[es]" time="0.028"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[zh_CN]" time="0.034"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[fr]" time="0.028"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[pt]" time="0.028"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/pt/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/pt/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[hi]" time="0.029"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/hi/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/hi/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[ko]" time="0.034"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/ko/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/ko/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n448_curation_status_locales" name="test_actual_curation_status_callbacks_use_all_reviewed_sentences[is]" time="0.088"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/is/2026-10-15-n448-complete-curation-status.json'">tests/qt/test_n448_curation_status_locales.py:19: in test_actual_curation_status_callbacks_use_all_reviewed_sentences
+    review = json.loads(review_path.read_text())
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/pathlib.py:1013: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/is/2026-10-15-n448-complete-curation-status.json'</failure></testcase><testcase classname="tests.qt.test_n421_legacy_measurement_output_translations" name="test_stage_messages_reach_the_real_log_in_swedish" time="0.845" /><testcase classname="tests.qt.test_n421_legacy_measurement_output_translations" name="test_result_failure_messages_preserve_payloads_and_signal_order" time="0.236" /><testcase classname="tests.qt.test_n421_legacy_measurement_output_translations" name="test_scan_failure_writes_are_localized_without_changing_scan_flow" time="0.051" /></testsuite></testsuites>

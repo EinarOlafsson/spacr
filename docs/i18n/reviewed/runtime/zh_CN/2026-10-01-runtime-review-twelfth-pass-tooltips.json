@@ -1077,13 +1077,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination_correction",
-      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
-      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
-      "translation": "根据视野本身估计显微镜的不均匀照明，并在每个已启用的阶段将其从像素中除去。默认关闭。开启后，同一个细胞无论位于视野何处，外观和测量结果都相同，这正是消除板边缘效应背后位置相关偏差的方式。默认值 False。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "surrogate_model",
       "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
       "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
@@ -1130,27 +1123,6 @@
       "source": "Expand the training split eightfold by adding four 90-degree rotations of each crop and their horizontal reflections; validation and test splits are not augmented. Enable this setting when few annotated objects are available and validation accuracy is below training accuracy. The expanded set is materialised in RAM, requiring approximately eight times the memory and epoch duration. Default False.",
       "source_sha256": "c9bdfee5e52dc25281d9ebc73e469f03da4ccef99f4b37729c0c2beec10130e3",
       "translation": "通过为每个裁剪图添加四个 90 度旋转及其水平镜像，将训练集扩展为八倍；验证集和测试集不做增强。当可用的已标注对象较少、验证准确率低于训练准确率时启用此设置。扩展后的数据集在 RAM 中实体化，大约需要八倍的内存和每轮训练时间。默认值 False。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_diameter",
-      "source": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
-      "source_sha256": "c0522ea640336af4540951ec1bf709c48d2ea6799cb5cf9279f4ff37e21da08e",
-      "translation": "预期的细胞直径（像素）。Cellpose 4 在分割之前按 30/diameter 重新缩放图像，使预期对象大小与训练 CPSAM 所用的尺度一致；保留为 None 则以原生尺度分割。当细胞远大于或远小于约 30 px、且分割产生碎片化或合并的掩膜时，请设置此项。spacr.diameter.estimate_diameters 可根据所选视野估计一个值。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_diameter",
-      "source": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
-      "source_sha256": "d2cb2db47fddc1e1c03763a45b4d3cbf3cabf6752a346f4bde49813f105ed4da",
-      "translation": "预期的细胞核直径（像素），Cellpose 4 在分割之前据此按 30/diameter 重新缩放图像。None 表示以原生尺度分割。由于细胞核通常是被分割的最小对象，对于低倍率采集，此参数往往需要显式设置。spacr.diameter.estimate_diameters 可估计一个值。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_diameter",
-      "source": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
-      "source_sha256": "acdded81afff918e3a71e83fb47eef1b3ba87a058508f30ffa4a4b1b2587fdd1",
-      "translation": "预期的病原体直径（像素），Cellpose 4 在分割之前据此按 30/diameter 重新缩放图像。None 表示以原生尺度分割。在低倍率下，胞内寄生虫往往只有几个像素宽，此时重新缩放最为重要。spacr.diameter.estimate_diameters 可给出建议值。默认值 None。"
     },
     {
       "table": "setting_tooltips",
@@ -1452,13 +1424,6 @@
       "source": "Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
       "source_sha256": "98401699283b8e04e9617c5650ca4ac27a0338ebbd2e063b63b5a8dbe2aad330",
       "translation": "两个相互接触的病原体对象必须共享的较小标签周长比例（0 到 1），达到才会合并。默认值 0 禁用基于周长的合并。接近 0.1 的值会合并大多数相互接触的对象，而 0.5 到 0.8 的值只合并共享边界较长的对象。可使用此设置连接被 Cellpose 分为多个标签的液泡。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "threshold_sensitivity",
-      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
-      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
-      "translation": "阈值上下移动的比例幅度，用于生成 invasion_efficiency_low_threshold 和 _high_threshold 区间，该区间显示孔的结果有多少取决于阈值而非生物学。加宽它会扩大区间，并使膨胀标记更容易触发。默认值 0.25。"
     },
     {
       "table": "setting_tooltips",
@@ -1889,13 +1854,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination",
-      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
-      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
-      "translation": "照明 / 平场校正。根据一块板的视野一次性估计显微镜的不均匀照明，并在每个已启用的阶段将其从像素中除去，使同一个细胞无论位于视野何处，外观和测量结果都相同。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "inputs",
       "source": "Image and external label-mask files or folders to import. The preview groups them by source and proposes whether each group is an intensity image, an object mask, or ignored. Default [].",
       "source_sha256": "bd4f3d7ab7c7b446fa5e306ed9d2dff0231ad5e8489281b37d22b4e0e20cb91f",
@@ -2037,9 +1995,9 @@
     {
       "table": "setting_tooltips",
       "key": "keep_original_images",
-      "source": "Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
-      "source_sha256": "9511970677e5b897fff768ea0b8a6e1f39dcf418504999830807f8eca089fb54",
-      "translation": "保留原始输入图像（位于 orig/ 中）。默认关闭以节省磁盘空间；像素数据保存在 merged/ 中。"
+      "source": "Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
+      "source_sha256": "37f2cb7a4e9540ab6489037f764e403b8aa446be738d704fe1a10f4f918ec821",
+      "translation": "运行结束后将原始输入图像保留在 orig/ 中。默认开启，这样原始文件不会丢失。仅在需要节省磁盘空间时才设为 False：此时 merged/ 构建完成后会删除 orig/，且无法撤销；merged/ 保存的是投影后的像素数据，而不是原始文件。"
     },
     {
       "table": "setting_tooltips",
@@ -2428,13 +2386,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "tables",
-      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
-      "source_sha256": "44096ea3a7b8d7e090e0212cca3a4d967d9e997c3bf214063dc3b195bc410828",
-      "translation": "从每块板的数据库读取并合并为一个分析数据框的测量表。只有 'cell'、'nucleus'、'pathogen'、'cytoplasm' 和 'png_list' 会被合并。任何其他表（包括 'organelle'）会被加载，但会在不警告的情况下从合并结果中略去。默认值 ['cell', 'nucleus', 'pathogen', 'cytoplasm']。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "channel_of_interest",
       "source": "Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere.",
       "source_sha256": "3284ef8d112789fb79ee98a8a88a035af49a501f2eb474c87bfab889a11bf6d8",
@@ -2523,13 +2474,6 @@
       "source": "Minimum YOLO confidence, from 0 to 1, for keeping a detected well when well_detection is enabled. Raising it removes uncertain boxes but can lose an entire condition; lowering it retains more candidates and can create spurious well crops. Default 0.25.",
       "source_sha256": "adee31baa8f22894423ccb66f408eb38144696998422b02521cd9656736b6eb0",
       "translation": "启用 well_detection 时保留检测到的孔所需的最小 YOLO 置信度，范围 0 到 1。提高该值会去除不确定的检测框，但可能丢失整个条件；降低该值会保留更多候选，并可能产生虚假的孔裁剪图。默认值 0.25。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "lasso_selection_threshold",
-      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
-      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
-      "translation": "lasso 或弹性网络系数被判定为命中所需的最小 bootstrap 选择频率，介于 0 和 1 之间。0.6 表示该 gRNA 在至少五分之三的重抽样中保留了非零系数。提高该值可得到更短、更难反驳的列表；降到约 0.5 以下则会纳入被惩罚项删除和保留次数相当的项。默认值 0.6。由 regression_type 'elasticnet'、'group_lasso'、'lasso' 读取。"
     },
     {
       "table": "setting_tooltips",
@@ -2649,13 +2593,6 @@
       "source": "Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None.",
       "source_sha256": "4085fb8f1ccbf86564d3f1efd551f6c34e3d98ba530195697e4941bace13e4f9",
       "translation": "连接后测量表中某一列的名称（例如 'cond'、'columnID'、'plateID'），用于代替聚类标签为嵌入点着色。设置它可查看条件或板列等已知分组在图上的分布；保留为 None 则按聚类结果着色。设置它还会禁用 remove_cluster_noise、plot_outlines 和 smooth_lines。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_value_column",
-      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
-      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
-      "translation": "计数 CSV 中存放一个向导在一个孔中读段计数的列名；它会成为 fraction_threshold 扫描所处理的每孔比例。此前硬编码为 'count'，因此将其命名为 'reads' 或 'n' 的文件会失败，错误信息只列出 spaCR 期望的列。默认值 'count'。"
     },
     {
       "table": "setting_tooltips",
@@ -2806,13 +2743,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cross_validation_folds",
-      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
-      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
-      "translation": "用于训练视觉分类器的 k 折划分数，代替单一的 val_split 留出。0（默认）或 1 使用一次随机划分；2 或更多时每折训练一个单独的模型，在其留出折上评估每个模型，并报告均值、折间标准差和范围。这些统计量量化了对数据划分的敏感性。运行时间大约与 k 成正比。与控制回归流程的 'cross_validation' 不同。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "plot_nr",
       "source": "Number of merged image stacks from the start of the folder displayed with cell, nucleus, and pathogen outlines before recruitment analysis. The implementation checks index <= plot_nr, so plot_nr + 1 images are displayed and 0 displays one image. Increase the value to inspect segmentation across more fields. Default 3.",
       "source_sha256": "41d775e8013bfef565606135c07014be8a767c7f954bb9a868aad71042e8a8e6",
@@ -2908,13 +2838,6 @@
       "source": "Object tables joined into the cell-anchored export. Dropping a table drops its features from X: without 'pathogen' there are no pathogen columns and no count_pathogen, and without 'png_list' the crop paths, annotations and model scores are all absent from obs. Default ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'].",
       "source_sha256": "a14ab71833e1cd7807bc5853579e9e4b74e1d3c2ea274d5276985c055fcca7c1",
       "translation": "连接到以细胞为锚点的导出中的对象表。删除一个表会从 X 中删除其特征：没有 'pathogen' 就没有病原体列和 count_pathogen，没有 'png_list' 则 obs 中不会有裁剪图路径、注释和模型评分。默认值 ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "magnification",
-      "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
-      "source_sha256": "d6a066048ede229da859af72ddbdd37cb9528677a77d5bcc7a805df31ac015f3",
-      "translation": "物镜放大倍数，仅用于推导预期对象大小：细胞的像素直径为 2*mag+80，细胞核为 0.75*mag+45，病原体为 mag，最小/最大面积限制为 diameter^2/4 和 diameter^2*10。显式设置的 cell_diameter、nucleus_diameter 或 pathogen_diameter 会覆盖它。请将其设为采集所用物镜的放大倍数（10、20、40 或 60）。默认值 40。"
     },
     {
       "table": "setting_tooltips",
@@ -3170,13 +3093,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "group_lasso_lambda",
-      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
-      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
-      "translation": "组 lasso 的惩罚权重，它将一个基因的所有向导一起收缩，而不是逐个收缩，因此基因作为一个整体进入或退出模型，而不是取决于其最幸运的向导。较大的值保留更少的基因；0 表示不惩罚，负值会被拒绝。设为 auto 可通过交叉验证选择。默认值 auto。由 regression_type 'group_lasso' 读取。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "infection_xgb_min_cells_per_class",
       "source": "Per well, how many intensity-extreme examples each class must reach before that well's training data are balanced by subsampling to the smaller class; wells that have both classes but fewer examples contribute all of theirs, unbalanced. Wells with only one class are skipped entirely. No well is ever excluded for being small, so raising it leaves more wells unbalanced and the training set more skewed - lower it towards 1 to force balancing in every usable well. Default 10.",
       "source_sha256": "7faab303881689b626892f01779b000ff6d3fc4a48c045b538450d4ff85368bc",
@@ -3244,13 +3160,6 @@
       "source": "Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
       "source_sha256": "6fd9a61848bed586026b239e1a3e068937314369cee0a865f69d72ff9674fe50",
       "translation": "用于构建每个对象灰度共生矩阵的像素偏移；每个条目为每个通道添加一个 homogeneity_distance_<d> 特征。小偏移捕捉细粒度纹理，大偏移捕捉粗结构，大于对象本身的偏移不携带信号。条目越多，特征越多，测量越慢。默认值 [8, 16, 32]。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "resnet_features",
-      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
-      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
-      "translation": "占位选项，用于以 ResNet 特征而非测量特征表嵌入原始裁剪图。generate_image_umap 中该分支是空的 pass，因此启用它会完全跳过嵌入步骤，随后运行会因未绑定的 'embedding' 变量而失败。请保持为 False。默认值 False。"
     },
     {
       "table": "setting_tooltips",
@@ -3482,13 +3391,6 @@
       "source": "PyTables compression library used when writing annotated_reads.h5, passed to pandas HDFStore as complib: 'zlib', 'lzo', 'bzip2' or 'blosc'. 'blosc' is far faster at similar file size, 'bzip2' is smallest but slowest. Ignored entirely when save_h5 is False. Default 'zlib'.",
       "source_sha256": "cf6a7f1590943fff70307e3accca31b3ef06bcf10271d43545ca07a833694162",
       "translation": "写入 annotated_reads.h5 时使用的 PyTables 压缩库，作为 complib 传给 pandas HDFStore：'zlib'、'lzo'、'bzip2' 或 'blosc'。'blosc' 在文件大小相近的情况下快得多，'bzip2' 文件最小但最慢。save_h5 为 False 时完全忽略。默认值 'zlib'。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "optimizer_type",
-      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
-      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
-      "translation": "deep_spacr.train_model 使用的 PyTorch 优化器：'adamw'、'adam'、'adamax'、'sgd'、'rmsprop'、'nadam'、'radam'、'adagrad'、'adadelta' 或 'asgd'。AdamW 是稳健的微调默认选项；SGD 的泛化可能更好，但通常需要更多训练轮次。amsgrad 仅适用于 Adam/AdamW。API：spacr.deep_spacr.train_model(optimizer_type=...)。默认值 'adamw'。"
     },
     {
       "table": "setting_tooltips",
@@ -3860,13 +3762,6 @@
       "source": "Scales in pixels at which the vesselness filter detects tubular structures; each value should approximate the half-width of a filament, and responses are combined across scales. Add larger values to detect thick bundles and retain smaller values for fine tubules. Default [1, 2, 3]; runtime increases approximately in proportion to list length.",
       "source_sha256": "7352879220612c7fa268a242f54e2e140726424e3df712121b6c8ef3c4d603fe",
       "translation": "血管度滤波器检测管状结构所用的尺度（像素）；每个值应接近丝状结构的半宽，各尺度的响应会被合并。添加较大的值可检测粗束，保留较小的值可检测细小的小管。默认值 [1, 2, 3]；运行时间大约与列表长度成正比。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cross_validation",
-      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
-      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
-      "translation": "使用 5 折分层交叉验证而不是单次训练/测试划分为分类器评分，使每个对照对象都获得一个折外预测，并在每折中选择最优概率阈值。在小型对照集上可得到稳定得多的准确率估计，代价是训练时间约为 5x。默认值 True。"
     },
     {
       "table": "setting_tooltips",
@@ -4255,13 +4150,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "init_weights",
-      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
-      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
-      "translation": "从 ImageNet 预训练权重而不是随机初始化开始训练骨干网络；无论哪种方式，其上附加的 spaCR 分类头都是随机初始化的。请保持开启：在这里常见的小型标注集上，迁移学习收敛所需的训练轮次少得多。仅在使用超大数据集从头训练，或测量预训练的贡献时才关闭。默认值 True。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "evaluation_fail_on_leakage",
       "source": "Stop Classify (CV) before fitting a fold when the same object, augmentation family, or protected cv_group_by identity appears in both train and validation. False records the problem and continues, which is useful only for diagnosing a legacy dataset because its performance estimate remains invalid. Default True. API: spacr.classifier_evaluation.audit_split_leakage.",
       "source_sha256": "b207e4fb0f2b741f70e63df0bed4a7c0a70a48193fd45616af15d6958afc22e2",
@@ -4626,13 +4514,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "mixed_control_wells",
-      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
-      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
-      "translation": "含有已知阳性与阴性对照混合物的孔，例如 ['c3']。与另外两种一样会从回归中删除。它们提供了有力的验证，因为每个细胞的身份未知，但总体比例可由测序得知，从而可以在真实而非模拟的细胞上为注释方法评分。默认值 None。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_plate_metadata",
       "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
       "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
@@ -4742,13 +4623,6 @@
       "source": "Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
       "source_sha256": "df1546fc22935ad9d30f1c3bf4549814377a45de9c86aec2195dbbf249821af3",
       "translation": "是否为分割出的对象生成掩膜。如果为 True，将为细胞核、细胞和病原体生成掩膜。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "classifier_family",
-      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
-      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
-      "translation": "合并后的 Classify 模块运行哪种分类器：'cv' 在对象裁剪图上训练 Torch 模型，'ml' 在测量特征上拟合梯度提升模型。另一类所用的设置会显示为灰色而不是隐藏，并保留其值。这是唯一的 Classify 界面；它所取代的两个界面已于 2026-08-23 移除，其入口点（spacr.deep_spacr.deep_spacr 和 spacr.ml.generate_ml_scores）正是此处原样调用的对象。默认值 'cv'。"
     },
     {
       "table": "setting_tooltips",
@@ -5003,6 +4877,110 @@
       "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
       "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
       "translation": "当 transform 本身就是一个连接函数（'log' 或 'logit'），且自动选择的 GLM 族也具有非恒等连接函数时，要拟合的响应尺度。'untransformed' 拟合测得的响应，并由族的连接函数对其进行变换；适用于事先被不必要地变换过的比例数据。'transformed' 保留变换后的响应，并拟合高斯恒等连接模型。'warn' 重现旧版的双重变换行为并打印警告。此设置对其他变换或回归类型无效。默认值 'untransformed'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
+      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
+      "translation": "根据视野本身估计显微镜的不均匀照明，并在每个已启用的阶段将其从像素中除去。默认关闭。开启后，同一个细胞无论位于视野何处，外观和测量结果都相同，这正是消除板边缘效应背后位置相关偏差的方式。默认值 False。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
+      "translation": "阈值上下移动的比例幅度，用于生成 invasion_efficiency_low_threshold 和 _high_threshold 区间，该区间显示孔的结果有多少取决于阈值而非生物学。加宽它会扩大区间，并使膨胀标记更容易触发。默认值 0.25。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
+      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
+      "translation": "照明 / 平场校正。根据一块板的视野一次性估计显微镜的不均匀照明，并在每个已启用的阶段将其从像素中除去，使同一个细胞无论位于视野何处，外观和测量结果都相同。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
+      "translation": "lasso 或弹性网络系数被判定为命中所需的最小 bootstrap 选择频率，介于 0 和 1 之间。0.6 表示该 gRNA 在至少五分之三的重抽样中保留了非零系数。提高该值可得到更短、更难反驳的列表；降到约 0.5 以下则会纳入被惩罚项删除和保留次数相当的项。默认值 0.6。由 regression_type 'elasticnet'、'group_lasso'、'lasso' 读取。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
+      "translation": "计数 CSV 中存放一个向导在一个孔中读段计数的列名；它会成为 fraction_threshold 扫描所处理的每孔比例。此前硬编码为 'count'，因此将其命名为 'reads' 或 'n' 的文件会失败，错误信息只列出 spaCR 期望的列。默认值 'count'。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
+      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
+      "translation": "用于训练视觉分类器的 k 折划分数，代替单一的 val_split 留出。0（默认）或 1 使用一次随机划分；2 或更多时每折训练一个单独的模型，在其留出折上评估每个模型，并报告均值、折间标准差和范围。这些统计量量化了对数据划分的敏感性。运行时间大约与 k 成正比。与控制回归流程的 'cross_validation' 不同。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
+      "translation": "组 lasso 的惩罚权重，它将一个基因的所有向导一起收缩，而不是逐个收缩，因此基因作为一个整体进入或退出模型，而不是取决于其最幸运的向导。较大的值保留更少的基因；0 表示不惩罚，负值会被拒绝。设为 auto 可通过交叉验证选择。默认值 auto。由 regression_type 'group_lasso' 读取。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
+      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
+      "translation": "占位选项，用于以 ResNet 特征而非测量特征表嵌入原始裁剪图。generate_image_umap 中该分支是空的 pass，因此启用它会完全跳过嵌入步骤，随后运行会因未绑定的 'embedding' 变量而失败。请保持为 False。默认值 False。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
+      "translation": "deep_spacr.train_model 使用的 PyTorch 优化器：'adamw'、'adam'、'adamax'、'sgd'、'rmsprop'、'nadam'、'radam'、'adagrad'、'adadelta' 或 'asgd'。AdamW 是稳健的微调默认选项；SGD 的泛化可能更好，但通常需要更多训练轮次。amsgrad 仅适用于 Adam/AdamW。API：spacr.deep_spacr.train_model(optimizer_type=...)。默认值 'adamw'。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
+      "translation": "使用 5 折分层交叉验证而不是单次训练/测试划分为分类器评分，使每个对照对象都获得一个折外预测，并在每折中选择最优概率阈值。在小型对照集上可得到稳定得多的准确率估计，代价是训练时间约为 5x。默认值 True。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
+      "translation": "从 ImageNet 预训练权重而不是随机初始化开始训练骨干网络；无论哪种方式，其上附加的 spaCR 分类头都是随机初始化的。请保持开启：在这里常见的小型标注集上，迁移学习收敛所需的训练轮次少得多。仅在使用超大数据集从头训练，或测量预训练的贡献时才关闭。默认值 True。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
+      "translation": "含有已知阳性与阴性对照混合物的孔，例如 ['c3']。与另外两种一样会从回归中删除。它们提供了有力的验证，因为每个细胞的身份未知，但总体比例可由测序得知，从而可以在真实而非模拟的细胞上为注释方法评分。默认值 None。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
+      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
+      "translation": "合并后的 Classify 模块运行哪种分类器：'cv' 在对象裁剪图上训练 Torch 模型，'ml' 在测量特征上拟合梯度提升模型。另一类所用的设置会显示为灰色而不是隐藏，并保留其值。这是唯一的 Classify 界面；它所取代的两个界面已于 2026-08-23 移除，其入口点（spacr.deep_spacr.deep_spacr 和 spacr.ml.generate_ml_scores）正是此处原样调用的对象。默认值 'cv'。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."

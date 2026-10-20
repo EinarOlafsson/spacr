@@ -48,10 +48,10 @@
     },
     {
       "table": "ui",
-      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source_sha256": "c090c47c506dae6de2c1805553b5a319be3d942bcad5b0a36793c316bf4789a7",
-      "translation": "Starplast에서도 사용하는 SwissBioPics 그림을 이용한 공통 정단복합체 세포 도식입니다. 마우스를 올리면 UniProt 위치 설명이 표시되며, 여러 구획을 체크하면 강조 표시가 유지됩니다. 기생충의 모양과 세포소기관 구성은 종과 생활사 단계에 따라 다르며, 이는 혈액 단계의 재구성이 아닙니다. Toxoplasma hyperLOPIT 할당은 Plasmodium에 적용되지 않습니다."
+      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source_sha256": "7b9e5166e7e57a405fb01a52f6d63240635b0e3fd817e9e366772dc51c55759d",
+      "translation": "ParaScape에서도 사용하는 SwissBioPics 그림을 이용한 공통 정단복합체 세포 도식입니다. 마우스를 올리면 UniProt 위치 설명이 표시되며, 여러 구획을 체크하면 강조 표시가 유지됩니다. 기생충의 모양과 세포소기관 구성은 종과 생활사 단계에 따라 다르며, 이는 혈액 단계의 재구성이 아닙니다. Toxoplasma hyperLOPIT 할당은 Plasmodium에 적용되지 않습니다."
     },
     {
       "table": "ui",
@@ -223,10 +223,10 @@
     },
     {
       "table": "ui",
-      "key": "Checking the installed Starplast version and PyPI…",
-      "source": "Checking the installed Starplast version and PyPI…",
-      "source_sha256": "48a0895ff04ff436502899a7660a0a6db27e5817120aeabb4e6c7c8cead566a9",
-      "translation": "설치된 Starplast 버전과 PyPI를 확인하는 중…"
+      "key": "Checking the installed ParaScape version and PyPI…",
+      "source": "Checking the installed ParaScape version and PyPI…",
+      "source_sha256": "5cfd7f901cd3cd3c269c55118b7f69e2dbe7a3507062a7889ec7c910c2c801ae",
+      "translation": "설치된 ParaScape 버전과 PyPI를 확인하는 중…"
     },
     {
       "table": "ui",
@@ -559,10 +559,10 @@
     },
     {
       "table": "ui",
-      "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",
-      "translation": "Starplast의 Toxoplasma hyperLOPIT 레이블로 정단복합체 세포를 살펴보세요. 마우스를 올리면 위치 설명이 표시되며, 여러 구획을 체크하면 강조 표시가 유지되고, 선택 해제로 초기화할 수 있습니다. 여러 클래스가 같은 모양을 공유하며, 치밀 과립은 일반 세포질 과립 모양을 사용합니다. 리보솜, 프로테아솜, 정단 클래스, 혼합 내막 소포는 여기에 대응하는 모양이 없습니다. 그림은 구획 이름을 보여 줄 뿐 단백질 측정값이 아닙니다."
+      "key": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source_sha256": "d15122e91befb1cf9db9139d22e19e767ced9397781bf7e59f2c4387a795d5b9",
+      "translation": "ParaScape의 Toxoplasma hyperLOPIT 레이블로 정단복합체 세포를 살펴보세요. 마우스를 올리면 위치 설명이 표시되며, 여러 구획을 체크하면 강조 표시가 유지되고, 선택 해제로 초기화할 수 있습니다. 여러 클래스가 같은 모양을 공유하며, 치밀 과립은 일반 세포질 과립 모양을 사용합니다. 리보솜, 프로테아솜, 정단 클래스, 혼합 내막 소포는 여기에 대응하는 모양이 없습니다. 그림은 구획 이름을 보여 줄 뿐 단백질 측정값이 아닙니다."
     },
     {
       "table": "ui",
@@ -1392,6 +1392,13 @@
     },
     {
       "table": "ui",
+      "key": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source_sha256": "b5accb1ab020b58d357581ec6cbddee67e3d4a924804b7c52851ce445d74e512",
+      "translation": "ParaScape {installed}이(가) 설치되어 있습니다. PyPI에 버전 {latest}이(가) 있습니다. 열기 전에 pip으로 업그레이드할까요?"
+    },
+    {
+      "table": "ui",
       "key": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
       "source": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
       "source_sha256": "d4259004a55ccf450d716693b1f7dac26e2f2061fb978865903367698bbe0be3",
@@ -1910,13 +1917,6 @@
     },
     {
       "table": "ui",
-      "key": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
-      "translation": "Starplast {installed}이(가) 설치되어 있습니다. PyPI에 버전 {latest}이(가) 있습니다. 열기 전에 pip으로 업그레이드할까요?"
-    },
-    {
-      "table": "ui",
       "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
       "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
       "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
@@ -2323,10 +2323,10 @@
     },
     {
       "table": "ui",
-      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source_sha256": "ebb593b82afa1a40521a11f6e0d27f24059ad63ef3a0aff1c5cffefb33ed1e10",
-      "translation": "구획 도식은 이미징 표현형을 Starplast에서 사용하는 세포 내 위치 어휘와 연결합니다. ToxoDB는 유전자와 유전체 맥락을, UniProt은 단백질 주석을 제공합니다. hyperLOPIT 아틀라스는 Toxoplasma 단백질의 실험적 위치 근거를 제공합니다. 여기서 강조 표시된 세포소기관은 그 어휘에 대한 안내일 뿐, 선택한 유전자에 대한 예측이나 표현형 원인의 증거가 아닙니다."
+      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source_sha256": "486cc736ebc04f37f783b8e95fe4dff7c6a8c3f1795d4213c8712c82f6dbe554",
+      "translation": "구획 도식은 이미징 표현형을 ParaScape에서 사용하는 세포 내 위치 어휘와 연결합니다. ToxoDB는 유전자와 유전체 맥락을, UniProt은 단백질 주석을 제공합니다. hyperLOPIT 아틀라스는 Toxoplasma 단백질의 실험적 위치 근거를 제공합니다. 여기서 강조 표시된 세포소기관은 그 어휘에 대한 안내일 뿐, 선택한 유전자에 대한 예측이나 표현형 원인의 증거가 아닙니다."
     },
     {
       "table": "ui",
@@ -2778,10 +2778,10 @@
     },
     {
       "table": "ui",
-      "key": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source_sha256": "e457bc3cf0b529f5fc157c1fadd1fa1a6e14824255bbd1aad7ab0fd2fb6b4473",
-      "translation": "{path}에 있는 별도 환경에서 PyPI의 pip으로 Starplast를 업그레이드합니다. 업그레이드하기 전에 실행 중인 Starplast 창을 모두 닫으세요. Starplast는 알파 단계이며, 다운로드와 디스크 사용량은 릴리스에 따라 다릅니다. spaCR의 패키지는 바뀌지 않습니다."
+      "key": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source_sha256": "ec2ce02efb53ca414003af40ffc41d8edd734e24f7baccf140040b879c9dc92a",
+      "translation": "{path}에 있는 별도 환경에서 PyPI의 pip으로 ParaScape를 업그레이드합니다. 업그레이드하기 전에 실행 중인 ParaScape 창을 모두 닫으세요. ParaScape는 알파 단계이며, 다운로드와 디스크 사용량은 릴리스에 따라 다릅니다. spaCR의 패키지는 바뀌지 않습니다."
     },
     {
       "table": "ui",

@@ -24,7 +24,8 @@ from ..linked_selection import has_object_opener, open_objects
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_table_item, install_sorting, table_item)
 
 APP_KEY = "explain_cv"
 APP_NAME = "Explain CV Model"
@@ -42,12 +43,14 @@ APP_CLI_NOTE = (
     "spacr.surrogate.explain_classifier and spacr.hit_attribution directly.")
 
 
-def _read_only_item(value: Any) -> QTableWidgetItem:
+def _read_only_item(value: Any, table=None) -> QTableWidgetItem:
     """Build a table cell that cannot be edited.
 
     :param value: the value; ``None`` and ``NaN`` render blank rather than
         as the string "nan", and a float is shown to five significant
         figures so a column of them lines up.
+    :param table: when given, a spare cell kept by this table is rewritten
+        instead of building a new one.
     :returns: the cell.
     """
     if value is None or (isinstance(value, float) and pd.isna(value)):
@@ -56,7 +59,8 @@ def _read_only_item(value: Any) -> QTableWidgetItem:
         text = f"{value:.5g}"
     else:
         text = str(value)
-    item = table_item(text)
+    item = (_spare_table_item(table, text) if table is not None
+            else table_item(text))
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -78,13 +82,13 @@ def _fill_table(table: QTableWidget, frame: pd.DataFrame,
     if not isinstance(shown.index, pd.RangeIndex):
         shown = shown.reset_index()
     table.setSortingEnabled(False)
-    table.clear()
+    _retire_table_cells(table, headers=True)
     table.setColumnCount(len(shown.columns))
     table.setHorizontalHeaderLabels([str(column) for column in shown.columns])
     table.setRowCount(len(shown))
     for row_index, row in enumerate(shown.itertuples(index=False, name=None)):
         for column_index, value in enumerate(row):
-            table.setItem(row_index, column_index, _read_only_item(value))
+            table.setItem(row_index, column_index, _read_only_item(value, table))
     table.setSortingEnabled(True)
     if shown.shape[1]:
         table.horizontalHeader().setSectionResizeMode(
@@ -349,7 +353,7 @@ class ExplainCvPanel(QWidget):
                      shap_explainer: str = "auto"):
         """Run the surrogate explanation and render it.
 
-        SEPARATE FROM :meth:`run` so the analysis can be driven without the
+        Separate from :meth:`run` so the analysis can be driven without the
         form -- a test, or another screen handing over inputs it already has.
 
         :param database: the measurements database.
@@ -481,8 +485,8 @@ class ExplainCvPanel(QWidget):
     def closeEvent(self, event) -> None:  # noqa: N802
         """Shut the job pool down before going away.
 
-        A WORKER OUTLIVING ITS PANEL writes results into a widget whose C++
-        half is gone, which is a crash rather than a leak.
+        A worker that outlives its panel writes results into a widget whose
+        C++ object is gone, which crashes the application.
 
         :param event: the Qt close event.
         """
@@ -562,6 +566,12 @@ class InvestigateHitPanel(QWidget):
                        self.undo_button, self.umap_button):
             actions.addWidget(button)
         actions.addStretch(1); outer.addLayout(actions)
+        from ..widgets.measurements_example import _install_hit_test_data_button
+        example = _install_hit_test_data_button(
+            self, actions, self._load_example,
+            say=lambda message: self.status.setText(message),
+            index=actions.count() - 1)
+        example.setObjectName("InvestigateHitTestDataButton")
         self.status = QLabel(
             "Candidate probabilities are weakly supervised hit-like morphology, not observed guide identity.")
         self.status.setWordWrap(True); self.status.setObjectName("Muted")
@@ -617,6 +627,32 @@ class InvestigateHitPanel(QWidget):
         self.gene.setProperty("source_guide_agreement", guide_agreement)
         self.gene.setProperty("source_n_guides", n_guides)
         self.gene.setProperty("source_well_support", well_support)
+
+    def _load_example(self, folder, hit: Dict[str, Any]) -> None:
+        """Fill the form from the downloaded Investigate Hit example.
+
+        :param folder: the unpacked example folder.
+        :param hit: its ``hit.json``: the file names relative to ``folder``,
+            the hit gene, its guides, score column and the regression's
+            effect, adjusted P value and support.
+        """
+        root = str(folder)
+        self.database.setText(os.path.join(root, hit["db_path"]))
+        self.predictions.setText(os.path.join(root, hit["predictions_file"]))
+        self.fractions.setText(os.path.join(root, hit["guide_fractions_file"]))
+        self._refresh_prediction_columns()
+        self.configure_hit(
+            folder=os.path.join(root, hit["results_folder"]),
+            gene=str(hit["target_gene"]),
+            effect=float(hit.get("hit_effect", 0.0)),
+            guides=tuple(hit["target_guides"]),
+            fdr=float(hit.get("hit_fdr", float("nan"))),
+            phenotype=str(hit.get("score_column", "")),
+            n_guides=int(hit.get("hit_n_guides", len(hit["target_guides"]))),
+            well_support=int(hit.get("hit_well_support", 0)))
+        self.status.setText(tr(
+            "Loaded the example hit {gene}. Press Investigate hit.",
+            gene=str(hit["target_gene"])))
 
     def _refresh_prediction_columns(self) -> None:
         """Offer the score columns of the chosen prediction file.
@@ -776,9 +812,8 @@ class InvestigateHitPanel(QWidget):
     def promote(self) -> None:
         """Record this hit as annotated, against the attribution run.
 
-        REFUSES WITHOUT AN ANNOTATION. A promotion is a claim about the
-        biology, and one with no note attached says only that somebody
-        pressed a button.
+        Does nothing unless an attribution run exists and an annotation
+        column is named: the promoted calls are written into that column.
         """
         if not self.attribution_run_id or not self.annotation.text().strip():
             return

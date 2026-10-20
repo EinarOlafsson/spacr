@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "lesson": "09_annotate",
+  "status": "capture accepted; English audio running; not published",
+  "source_commit": "9db0e4b61b8f1a6c814d69f102bd9a0c55ab19d4",
+  "files": [
+    {
+      "file": "root-selected-acceptance.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/root-selected-acceptance.json",
+      "bytes": 14766,
+      "sha256": "879471d01edb114be944c28d2afed9c70dc98fbbb2ea871fdf926bbc7f215345",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "accepted-science.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/accepted-science.json",
+      "bytes": 6417,
+      "sha256": "ee6a2dd537d85226a6e488fde95486329bc3dd39dd464c53415f739367e08b37",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "gate-source-review.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/gate-source-review.json",
+      "bytes": 51346,
+      "sha256": "4afc565964e3b1a8ef1a95cd6d1a29b87de3e5c64ab2a20ce2ae309d9e348830",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "english-translation-three-sentence-changes.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/lesson09-r41/english-translation-three-sentence-changes.json",
+      "bytes": 7495,
+      "sha256": "1cb7f6c4682ed077c41cf4d9233491ac8a3faa52ee7205ffef112c700fdcb9a2",
+      "byte_identical_copy": true
+    },
+    {
+      "file": "9db0e4b61b8f1a6c814d69f102bd9a0c55ab19d4.patch",
+      "source": "git format-patch -1 --stdout 9db0e4b61b8f1a6c814d69f102bd9a0c55ab19d4",
+      "bytes": 61321,
+      "sha256": "cd6e0e158191c62592e77039a5a42e046eab5912d74c239e6851527c033b47ba"
+    }
+  ],
+  "published": false,
+  "raw_evidence_modified": false
+}

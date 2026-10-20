@@ -271,7 +271,11 @@ def test_a_bare_table_aligns_nothing_and_does_not_raise(qtbot):
 # column, so the wider of them is what the column has to hold.
 
 def test_no_heading_is_clipped_at_the_width_it_opens_at(qtbot):
-    """The pre-existing half: two of five headings did not fit."""
+    """The pre-existing half: two of five headings did not fit.
+
+    A hidden column draws no heading: F576's Score table and Count table
+    columns stay hidden until alpha features are shown.
+    """
     from PySide6.QtGui import QFontMetrics
 
     screen, _section = _shown_regression(qtbot)
@@ -281,6 +285,8 @@ def test_no_heading_is_clipped_at_the_width_it_opens_at(qtbot):
 
     clipped = []
     for column in range(table.table.columnCount()):
+        if table.table.isColumnHidden(column):
+            continue
         item = table.table.horizontalHeaderItem(column)
         text = item.text() if item is not None else ""
         needed = metrics.horizontalAdvance(text) + 18

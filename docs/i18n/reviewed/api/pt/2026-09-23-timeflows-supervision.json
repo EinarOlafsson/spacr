@@ -61,14 +61,18 @@
       "label": "spacr.timeflows_model.track_masks_from_ctc#0",
       "source": "Full object masks labelled with their TRACK ids.",
       "source_sha256": "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
-      "translation": "Máscaras completas de objetos rotuladas com seus identificadores TRACK."
+      "translation": "Máscaras completas de objetos rotuladas com seus identificadores TRACK.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
       "label": "spacr.timeflows_model.track_masks_from_ctc#1",
       "source": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
       "source_sha256": "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
-      "translation": "O Cell Tracking Challenge publica a referência de rastreamento como MARKERS: uma pequena região dentro de cada célula, rotulada com seu identificador de trajetória em cada quadro. Os contornos completos são publicados separadamente como máscaras silver ``ST/SEG``, rotuladas por quadro. Apenas associações um a um são mantidas: o objeto contém exatamente um identificador de marcador e esse marcador não se sobrepõe a outro objeto segmentado. Associações sem marcador, mescladas ou divididas são excluídas em vez de adivinhadas."
+      "translation": "O Cell Tracking Challenge publica a referência de rastreamento como MARKERS: uma pequena região dentro de cada célula, rotulada com seu identificador de trajetória em cada quadro. Os contornos completos são publicados separadamente como máscaras silver ``ST/SEG``, rotuladas por quadro. Apenas associações um a um são mantidas: o objeto contém exatamente um identificador de marcador e esse marcador não se sobrepõe a outro objeto segmentado. Associações sem marcador, mescladas ou divididas são excluídas em vez de adivinhadas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one frame's instance labels, any ids.",
@@ -110,7 +114,9 @@
       "label": "spacr.timeflows_model.train_timeflows#1",
       "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
-      "translation": "Treinamento em duas etapas: a segmentação da rede base já foi aprendida, então ela fica congelada enquanto a nova cabeça aprende; depois, toda a rede é treinada com uma taxa de aprendizado baixa. Ambos os quadros de cada par recebem os mesmos aumentos de dados antes do cálculo dos alvos."
+      "translation": "Treinamento em duas etapas: a segmentação da rede base já foi aprendida, então ela fica congelada enquanto a nova cabeça aprende; depois, toda a rede é treinada com uma taxa de aprendizado baixa. Ambos os quadros de cada par recebem os mesmos aumentos de dados antes do cálculo dos alvos.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",

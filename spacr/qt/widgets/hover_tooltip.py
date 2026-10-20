@@ -76,8 +76,9 @@ text-only popup with no **Animation** word to click.
 
 The popup is ONE surface. Its two layout containers paint nothing, so the
 rounded grey frame is the only fill and the page-opacity preference moves it
-as a single layer — see :meth:`HoverTooltip._apply_theme` for the black slab
-that taught us.
+as a single layer. :meth:`HoverTooltip._apply_theme` keeps both containers
+transparent, because a container with its own fill drew a dark rectangle
+inside the frame.
 
 Only one tooltip ever appears. The screens that anchor this popup also leave
 a native Qt tooltip on the same label (``refresh_api_tooltips`` re-applies it
@@ -102,6 +103,7 @@ from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QToolTip,
                                QVBoxLayout, QWidget)
 
 from ..theme import SPACING, active_palette, font_px
+from ..tooltip_policy import LINGER_MS
 
 
 LOGGER = logging.getLogger(__name__)
@@ -433,7 +435,7 @@ class HoverTooltip(QFrame):
     def __init__(self):
         """Build the process-wide hover popup.
 
-        A tool-tip window with our own painting: shown without activating, so it
+        A tool-tip window with custom painting: shown without activating, so it
         never takes focus from what the pointer is over.
         """
         super().__init__(
@@ -600,7 +602,7 @@ class HoverTooltip(QFrame):
     #: The cost of being generous is a tooltip that lingers a moment after
     #: the cursor has genuinely left, which is the mistake worth making: the
     #: other one loses text the user was reading.
-    HIDE_DELAY_MS = 700
+    HIDE_DELAY_MS = LINGER_MS
 
     def start_hide(self, delay_ms: int = 0) -> None:
         """Schedule a hide after ``delay_ms`` unless the cursor re-enters.
@@ -886,6 +888,7 @@ class HoverTooltip(QFrame):
         event loop, where there is nobody to catch it.
         """
         if self._pointer_is_on_me():
+            self._hide_timer.start(self.HIDE_DELAY_MS)
             return
         anchor = self._anchor
         if anchor is not None:
@@ -894,6 +897,7 @@ class HoverTooltip(QFrame):
 
                 if anchor.rect().contains(
                         anchor.mapFromGlobal(QCursor.pos())):
+                    self._hide_timer.start(self.HIDE_DELAY_MS)
                     return
             except RuntimeError:
                 self._anchor = None
@@ -910,6 +914,7 @@ class HoverTooltip(QFrame):
             animation stops.
         """
         self._hover_delay.cancel()
+        self._hide_timer.stop()
         self._animation_view.stop()
         super().hideEvent(event)
 
@@ -935,14 +940,10 @@ class HoverTooltip(QFrame):
     def leaveEvent(self, event):
         """Restart the hide timer when the cursor leaves the POPUP itself.
 
-        Shorter than the anchor's grace period on purpose: leaving the popup
-        is a deliberate act, where leaving the label may just be the journey
-        towards it.
-
         :param event: the leave event; passed to the base class and otherwise
             not read.
         """
-        self.start_hide(delay_ms=250)
+        self.start_hide()
         super().leaveEvent(event)
 
 

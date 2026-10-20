@@ -29,8 +29,11 @@ sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from tools.readme_i18n import (  # noqa: E402
-    localize_hardware_markup, localize_workflow_markup,
+    localize_hardware_markup, localize_model_zoo_label,
+    localize_workflow_markup,
 )
+from tools import build_model_cards  # noqa: E402
+from tools import build_readme_images  # noqa: E402
 
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
@@ -56,19 +59,20 @@ WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 WORKFLOW_END = ".. spacr-workflow-end"
 MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
 MODEL_ZOO_END = ".. spacr-model-zoo-end"
+SCORE_CARDS_PER_ROW = 2
 HARDWARE_BEGIN = ".. spacr-hardware-begin"
 HARDWARE_END = ".. spacr-hardware-end"
 INSTALLER_BEGIN = ".. spacr-installer-links-begin"
 INSTALLER_END = ".. spacr-installer-links-end"
 INSTALLER_SUBSTITUTIONS = (
-    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux",
 )
 DATA_SUBSTITUTIONS = (
     "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",
     "DataBioRxiv",
 )
 INSTALLER_ROW = (
-    "|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|"
+    "|InstallerLinux| |InstallerMacOS| |InstallerWindows|"
 )
 DATA_ROW = (
     "|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| "
@@ -77,6 +81,11 @@ DATA_ROW = (
 _IMAGE_SUBSTITUTION_RE = re.compile(
     r"(?m)^\.\. \|(?P<name>[^|\n]+)\| image::[^\n]*"
     r"(?:\n   [^\n]*)*(?:\n)?"
+)
+#: The same definitions once ``build_readme_images`` has made them raw-HTML
+#: icon cells: ``.. |Name| raw:: html``, a blank line, one indented line.
+_RAW_SUBSTITUTION_RE = re.compile(
+    r"(?m)^\.\. \|(?P<name>[^|\n]+)\| raw:: html\n\n   [^\n]*(?:\n)?"
 )
 
 RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
@@ -623,7 +632,6 @@ HARDWARE_TASKS = (
 #: These render identically on GitHub, PyPI, Sphinx and a plain editor.
 GREEN, PURPLE, RED = "\U0001F7E2", "\U0001F7E3", "\U0001F534"
 
-
 def _cell(accelerated: bool, maturity: str, row_has_a_gpu: bool) -> str:
     """One table cell: the mark, then what it runs on.
 
@@ -676,7 +684,7 @@ def _hardware_table() -> str:
     aligned to the wrong width and the table would not parse. A
     list-table needs no alignment at all.
     """
-    header = ["Hardware"] + [name for name, _prefix in HARDWARE_TASKS]
+    header = ["Hardware"] + [name for name, _prefix in HARDWARE_TASKS] + ["3D"]
     rows = []
     for label, maturity, kwargs in HARDWARE_ROWS:
         answers = _capabilities_for(**kwargs)
@@ -690,9 +698,10 @@ def _hardware_table() -> str:
                     f"no capability row starts with {prefix!r}; the table "
                     "and spacr.accelerator.capabilities() have diverged")
             cells.append(_cell(matched[0], maturity, has_gpu))
+        cells.append(_cell(has_gpu, "beta", has_gpu))
         rows.append([label] + cells)
 
-    lines = [".. list-table::", "   :header-rows: 1", "   :widths: 32 18 18 22",
+    lines = [".. list-table::", "   :header-rows: 1", "   :widths: 30 17 15 23 15",
              ""]
     for row in [header] + rows:
         lines.append(f"   * - {row[0]}")
@@ -721,7 +730,13 @@ def _published_models() -> "list[dict]":
     from spacr.model_zoo import BUNDLED_REMOTE_MODELS
     from spacr.settings import _is_alpha
 
-    return [entry for entry in BUNDLED_REMOTE_MODELS
+    import importlib.util
+
+    path = Path(__file__).resolve().parent.parent / "tools" / "build_score_cards.py"
+    spec = importlib.util.spec_from_file_location("spacr_score_cards_rescore", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return [module.rescored(entry) for entry in BUNDLED_REMOTE_MODELS
             if not _is_alpha("models",
                              str(entry.get("key") or entry.get("name") or ""))]
 
@@ -809,7 +824,7 @@ def _model_zoo_sections() -> str:
                       "   * - Metric", "     - This model",
                       "     - Stock", "     - Difference"]
             for metric, value in score_rows:
-                lines += [f"   * - {metric}",
+                lines += [f"   * - {build_model_cards.METRIC_LABELS.get(metric, metric)}",
                           f"     - {score_value(value['finetuned'])}",
                           f"     - {score_value(value.get('vanilla'))}",
                           f"     - {score_value(value.get('delta'))}"]
@@ -835,7 +850,13 @@ def _model_zoo_sections() -> str:
                 f"``{entry.get('name')}``.",
                 "",
             ]
-            if score_rows:
+            if entry.get("scorecard_pages"):
+                for page in entry["scorecard_pages"]:
+                    lines += [f".. image:: https://huggingface.co/{where}{repo}/resolve/main/{page}",
+                              f"   :alt: Published scorecard for {title}: {page}",
+                              f"   :target: https://huggingface.co/{where}{repo}/blob/main/{page}",
+                              ""]
+            elif score_rows:
                 lines += [f".. image:: https://huggingface.co/{where}{repo}/resolve/main/scorecard.png",
                           f"   :alt: Published scorecard for {title}",
                           f"   :target: https://huggingface.co/{where}{repo}/blob/main/scorecard.csv",
@@ -882,6 +903,98 @@ def _model_zoo_table() -> str:
             f"     - {versus}",
         ])
     return "\n".join(lines)
+
+
+def _readme_language(path) -> str:
+    """``README.de.rst`` -> ``de``; the English README is ``en``."""
+    parts = Path(path).name.split(".")
+    return parts[1] if len(parts) == 3 else "en"
+
+
+def _card_prefix(path) -> str:
+    """Where ``docs/models`` is, relative to the README at ``path``."""
+    return ("../../models/" if Path(path).parent.name == "readme"
+            else "docs/models/")
+
+
+def _readme_model_zoo_block(prefix: str = "docs/models/",
+                            language: str = "en") -> str:
+    """The README's model-zoo block: a grid of score cards, one per family.
+
+    A centred heading strip, then the default model of each family as its
+    SVG score card (``docs/models/cards/<key>.svg`` on a desktop and
+    ``<key>.phone.svg`` on a phone, drawn by ``tools/build_score_cards.py``
+    through ``tools/build_model_cards.py``), two to a row in both layouts.
+    The block is raw HTML: one ``<picture>`` per card, written without
+    whitespace between them, so each card is exactly half the row and the
+    browser wraps every second one; no table, so GitHub draws no cell
+    borders, padding or row stripes. The heading strip spans the row. Each
+    card links its Markdown card; there is no text under it. The image's alt text carries the record's own
+    ``versus_stock`` sentence, so the numbers are readable without the
+    picture. The other versions follow on one line each, older models and
+    alternatives, linking their cards. Every number comes from the zoo
+    record, so a re-score reaches the README by re-running this generator.
+    """
+    def label(text: str) -> str:
+        return localize_model_zoo_label(text, language)
+
+    def link(entry) -> str:
+        key = build_model_cards.key_of(entry)
+        return f"`{key} <{prefix}{build_model_cards.card_file(key)}>`__"
+
+    scores = build_model_cards.score_cards()
+    published = _published_models()
+    families = build_model_cards.families(published)
+    defaults = [family["default"] for family in families]
+    picture = build_readme_images.picture_html
+    heading = picture(
+        f"{prefix}{scores.heading_name('phone')}",
+        f"{prefix}{scores.heading_name('desktop')}", scores.HEADING_TEXT,
+        f"{prefix}{build_model_cards.INDEX_NAME}")
+    cards = []
+    for entry in defaults:
+        key = build_model_cards.key_of(entry)
+        versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
+        alt = scores.alt_text(entry, "default")
+        if versus:
+            alt += " " + build_model_cards._sentence(versus)
+        cards.append(picture(
+            f"{prefix}{scores.card_name(key, 'phone')}",
+            f"{prefix}{scores.card_name(key)}", alt,
+            f"{prefix}{build_model_cards.card_file(key)}"))
+    lines = [build_readme_images.raw_html(heading, "".join(cards))]
+    others = build_model_cards.other_records(published)
+    older = [entry for entry, status in others if status == "older"]
+    alternatives = [(entry, status) for entry, status in others
+                    if status != "older"]
+    if older:
+        lines += ["", f"{label('Older models')}: "
+                  + ", ".join(link(entry) for entry in older)]
+    if alternatives:
+        lines += ["", f"{label('Alternatives')}: " + ", ".join(
+            link(entry) + (f" ({label('candidate')})"
+                           if status == "candidate" else "")
+            for entry, status in alternatives)]
+    site_language = "" if language == "en" else language.replace("_", "-") + "/"
+    lines += ["", f"`{label('Mask generator')} "
+              "<https://einarolafsson.github.io/projects/spacr/"
+              f"{site_language}#mask-generator>`__"]
+    return "\n".join(lines)
+
+
+def _readme_model_zoo_markup(prefix: str = "docs/models/",
+                             language: str = "en", *,
+                             render: bool = True) -> str:
+    """The model-zoo block as the image README carries it.
+
+    :func:`_readme_model_zoo_block` with its text drawn as images by
+    ``tools/build_readme_images.py``: the "Older models" and "Alternatives"
+    lines become a caption and one linked button per model. ``render=False``
+    returns the markup without drawing, for checks.
+    """
+    return build_readme_images.convert_generated(
+        _readme_model_zoo_block(prefix, language), language, "model-zoo",
+        render=render)
 
 
 #: "Languages" written in each translated README's own language.
@@ -1048,7 +1161,8 @@ def _write_the_language_picker(path) -> bool:
     end += len(LANGUAGE_PICKER_END)
     match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
     code = match.group("language") if match else "en"
-    line = _language_picker_line(code)
+    line = build_readme_images.convert_generated(
+        _language_picker_line(code), code, "language-picker")
     block = (f"{LANGUAGE_PICKER_BEGIN}\n\n{line}\n\n"
              f"{LANGUAGE_PICKER_END}")
     updated = text[:start] + block + text[end:]
@@ -1071,7 +1185,8 @@ def _write_the_model_zoo_table(path) -> bool:
     if start < 0 or end < 0:
         return False
     end += len(MODEL_ZOO_END)
-    block = f"{MODEL_ZOO_BEGIN}\n\n{_model_zoo_table()}\n\n{MODEL_ZOO_END}"
+    zoo = _readme_model_zoo_markup(_card_prefix(path), _readme_language(path))
+    block = f"{MODEL_ZOO_BEGIN}\n\n{zoo}\n\n{MODEL_ZOO_END}"
     updated = text[:start] + block + text[end:]
     if updated != text:
         path.write_text(updated, encoding="utf-8")
@@ -1096,7 +1211,9 @@ def _write_the_hardware_table(path) -> bool:
     match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
     if match:
         markup = localize_hardware_markup(markup, match.group("language"))
-    block = f"{HARDWARE_BEGIN}\n\n{markup}\n{HARDWARE_END}"
+    markup = build_readme_images.convert_generated(
+        markup, _readme_language(path), "hardware")
+    block = f"{HARDWARE_BEGIN}\n\n{markup}\n\n{HARDWARE_END}"
     updated = text[:start] + block + text[end:]
     if updated != text:
         path.write_text(updated, encoding="utf-8")
@@ -1406,16 +1523,28 @@ def _grid_markup(
             *textwrap.wrap(note, width=76, break_on_hyphens=False),
             "",
         ])
-        lines.extend(_grid_lines([f"|{names[key]}|" for key, _l, _p in tiles]))
+        references = [f"|{names[key]}|" for key, _l, _p in tiles]
+        if github_alignment:
+            # The README puts each band on ONE row of equal cells (see
+            # ``build_readme_images.icon_cell``): every tile the same size
+            # in every band, the row spanning the column on a phone and on
+            # a desktop alike.
+            lines.extend([f"| {_inline_image_row(references)}", ""])
+        else:
+            lines.extend(_grid_lines(references))
         for key, label, image in tiles:
             if github_alignment:
+                source = f"spacr/resources/icons/{image}"
+                cell, width = build_readme_images.icon_cell(source, len(tiles))
+                build_readme_images.draw_icon_cell(source, len(tiles))
+                if image_prefix.startswith(".."):
+                    cell = build_readme_images._relative(cell, "translated")
                 definitions.extend([
                     f".. |{names[key]}| raw:: html",
                     "",
-                    f'   <a href="{escape(urls[key], quote=True)}">'
-                    f'<img src="{escape(f"{image_prefix}/{image}", quote=True)}" '
-                    f'width="{TILE_DISPLAY_WIDTH}" align="middle" '
-                    f'alt="{escape(alt_template.format(module=label), quote=True)}"></a>',
+                    "   " + build_readme_images.icon_html(
+                        urls[key], cell, width,
+                        alt_template.format(module=label)),
                     "",
                 ])
                 continue
@@ -1487,7 +1616,9 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
     wanted = set(INSTALLER_SUBSTITUTIONS + DATA_SUBSTITUTIONS)
     definitions: dict[str, str] = {}
-    for match in _IMAGE_SUBSTITUTION_RE.finditer(text):
+    matches = [*_IMAGE_SUBSTITUTION_RE.finditer(text),
+               *_RAW_SUBSTITUTION_RE.finditer(text)]
+    for match in matches:
         name = match.group("name")
         if name not in wanted:
             continue
@@ -1498,10 +1629,12 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     if missing:
         raise ValueError(f"{path} is missing linked image definitions: {missing}")
 
-    text = _IMAGE_SUBSTITUTION_RE.sub(
-        lambda match: "" if match.group("name") in wanted else match.group(0),
-        text,
-    )
+    for pattern in (_IMAGE_SUBSTITUTION_RE, _RAW_SUBSTITUTION_RE):
+        text = pattern.sub(
+            lambda match: "" if match.group("name") in wanted
+            else match.group(0),
+            text,
+        )
     start = text.find(INSTALLER_BEGIN)
     end = text.find(INSTALLER_END, start + len(INSTALLER_BEGIN))
     if start < 0 or end <= start:
@@ -1517,7 +1650,7 @@ def _normalize_linked_resource_blocks(path: Path) -> None:
     text = text[:start] + installer + text[end:]
 
     rows = list(re.finditer(
-        r"(?m)^\|DataBioStudies\|[^\n]*$\n*", text,
+        r"(?m)^(?:\| )?\|DataBioStudies\|[^\n]*$\n*", text,
     ))
     if len(rows) != 1:
         raise ValueError(f"{path} must use the linked dataset row exactly once")
@@ -1550,6 +1683,29 @@ def _workflow_markup_for_readme(path: Path, icon_prefix: str) -> str:
     if match:
         return localize_workflow_markup(markup, match.group("language"))
     return markup
+
+
+def _workflow_images_for_readme(path: Path, icon_prefix: str) -> str:
+    """The README's module grid with its band headings drawn as images."""
+    return build_readme_images.convert_generated(
+        _workflow_markup_for_readme(path, icon_prefix),
+        _readme_language(path), "workflow")
+
+
+def write_readme_blocks(path: Path) -> None:
+    """Rewrite every generated block of one README, without redrawing tiles.
+
+    ``tools/build_readme_images.py --refresh-generated`` calls this, so the
+    image README can pick up a new model or Home layout without the forty
+    tile PNGs being redrawn.
+    """
+    _normalize_linked_resource_blocks(path)
+    prefix = ("../../../spacr/resources/icons"
+              if path.parent.name == "readme" else "spacr/resources/icons")
+    _replace_workflow_block(path, _workflow_images_for_readme(path, prefix))
+    _write_the_hardware_table(path)
+    _write_the_model_zoo_table(path)
+    _write_the_language_picker(path)
 
 
 def _warn_if_the_layout_engine_differs() -> None:
@@ -1661,7 +1817,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             else "spacr/resources/icons"
         )
         _replace_workflow_block(
-            readme, _workflow_markup_for_readme(readme, prefix)
+            readme, _workflow_images_for_readme(readme, prefix)
         )
         print(readme.relative_to(ROOT))
     DOC_WORKFLOW.parent.mkdir(parents=True, exist_ok=True)
@@ -1674,6 +1830,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     MODEL_ZOO_SECTIONS.write_text(_model_zoo_sections(),
                                   encoding="utf-8")
     print(MODEL_ZOO_TABLE.relative_to(ROOT))
+    for name in build_model_cards.write():
+        print(f"docs/models/{name}")
     # The picker page before the pickers that point at it, so a fresh
     # checkout never has ten links to a file that is not there yet.
     LANGUAGE_PICKER_PAGE.parent.mkdir(parents=True, exist_ok=True)

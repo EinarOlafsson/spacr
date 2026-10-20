@@ -61,7 +61,7 @@ def test_destination_skips_both_existing_files_and_folders(tmp_path):
     (tmp_path / "images_spacr_2").write_text("existing project marker")
     assert demo._fresh_destination(str(images) + "/") == str(tmp_path / "images_spacr_3")
     assert not (tmp_path / "images_spacr_3").exists()
-    assert (tmp_path / "images_spacr_2").read_text() == "existing project marker"
+    assert (tmp_path / "images_spacr_2").read_text(encoding="utf-8") == "existing project marker"
 
 
 @pytest.mark.parametrize("wrapped", [False, True])

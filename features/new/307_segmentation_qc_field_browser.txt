@@ -191,3 +191,18 @@ navigation and the non-blocking invariant. The implementation therefore meets
 all acceptance points in this instruction and the item is closed.
 
 VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.
+
+2026-10-15 — FAILED QUARANTINE COPIES KEEP FOREIGN DESTINATIONS
+When the hard-link fallback could not exclusively create its destination,
+rollback unconditionally unlinked that path. A concurrently created regular
+file or symlink was therefore deleted; the same happened when the path was
+replaced during a failed copy. Rollback now captures the actually created
+file's descriptor identity and unlinks only a matching current path. A failed
+exclusive create cannot claim any destination. Own partial files are still
+cleaned; existing successful bytes/modes/fsync/copystat/source deletion and
+the hard-link branch are unchanged. Native baseline4FAIL2PASS1.19s; final
+37PASS2.04s includes6new and31existing quarantine/restore/mask/ledger/FD cases
+under2G. The final lstat/unlink race and successful-copy concurrent replacement
+remain outside this bounded failure-cleanup claim. No scientific data, model,
+network, API prose, UI or native other-OS behavior was changed. Evidence:
+features/data/307_quarantine_rollback_ownership_2026-10-15/.

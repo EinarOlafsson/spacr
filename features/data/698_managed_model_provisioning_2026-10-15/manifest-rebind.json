@@ -1,0 +1,24 @@
+{
+  "source_base": "c6a0041d336713eae5223280ccf235bbc735576f",
+  "public_merge": "6e4d131624f005afb8ddd7fa73911ca06922408f",
+  "manifest_commit": "82754c1a5c0370a845f5ab5b126f35ca841c0353",
+  "normal_command": "CUDA_VISIBLE_DEVICES='' python -m tools.web_mask_generator.provision --prepare-manifest /mnt/wd4tb/scratch/n698-zerogpu-deployment-preparation-20261015/public-weight-metadata.json --output tools/web_mask_generator/space/models.json",
+  "exit": 0,
+  "metadata_snapshot_sha256": "d3a48e8b7fdc1d2e333d01d865cd607f0b6199db0bac716321a1c9752e2a73d2",
+  "changed_source_pins": {
+    "spacr/settings.py": {
+      "before": "4086e6c580497725f539aab9df48eb24abbb209a912863442a9a200a0e131c18",
+      "after": "7e75b7238428dc3e56f1e43569034af61c34115e971867c3fc67efc52b125bf5"
+    }
+  },
+  "unchanged_model_rows": 17,
+  "model_rows_sha256": "fe134010e02a2d42b295cb2f66374e2a8272ca9781d21b346b409e8d16d1fd9b",
+  "manifest_sha256": "c019759e41d9665b26fb93b82d41b18b6f2ac597d6a41fbff71ee986a91f2434",
+  "assertions": [
+    "Entire manifest except source_sha256 is exactly equal to c6a acceptance manifest.",
+    "All 17 key/family/kind/repository type/repo/revision/filename/bytes/SHA identities remain identical.",
+    "Only actual settings.py F564 source hash changed; every other relevant source hash unchanged and current.",
+    "Normal generator ran once; no tests, weights, network, model execution or service operations repeated."
+  ],
+  "packaging_note": "First receipt write failed because sparse merge removed its physical evidence directory. Manifest comparison had passed; missing set-e allowed manifest-only commit. Receipt is committed immediately in this transparent followup; no source/test rerun."
+}

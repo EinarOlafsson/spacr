@@ -131,7 +131,7 @@ def test_cli_fine_tunes_from_a_checkpoint_balances_groups_and_records_the_recipe
     assert seen["lr_schedule"] == "cosine" and seen["consistency_weight"] == 0.5
     assert seen["lr_head"] == 3e-4 and seen["lr_full"] == 1e-5
     np.testing.assert_allclose(seen["weights"], [1 / 6, 1 / 6, 1 / 6, 1 / 2])
-    record = json.loads(target.with_suffix(".pt.json").read_text())
+    record = json.loads(target.with_suffix(".pt.json").read_text(encoding="utf-8"))
     assert record["init"] == str(init) and record["lr_schedule"] == "cosine"
     assert record["consistency_weight"] == 0.5
     assert record["sampling"]["groups"] == ["mouse", "human"]

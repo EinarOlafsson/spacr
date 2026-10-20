@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "status": "bounded_guard_delta_peer_pass",
+  "blocking_issues": [],
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/export_published15_checkpoint.py",
+      "sha256": "7db50354c8372be5ae925f81fafed480dfc8f5f67655a5aef29dd1311359e5dd",
+      "bytes": 22909
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/assemble_completed_publication_packet.py",
+      "sha256": "a0d1b6e1446b78e7d8bf1cba043335eaf303b85fb229689cef11ff35686ba9d5",
+      "bytes": 13470
+    }
+  ],
+  "compared_originals": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/helper-review-originals/export_published15_checkpoint.py.99fafc168e1c",
+      "sha256": "99fafc168e1c99fd60004a632a6343b992314b7da1cb60d1f12a19e5055ad9dc",
+      "bytes": 19224
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/helper-review-originals/assemble_completed_publication_packet.py.fd486c92e04a",
+      "sha256": "fd486c92e04ad2829044969f8ebf52e406c2084dd5064fc930305165f6982845",
+      "bytes": 11893
+    }
+  ],
+  "player_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-readiness-final-independent-peer.json",
+    "sha256": "6d1beff2b3864075926ec6cd4428aff35c2d2bd482a938d4b6df88bdeef69173",
+    "bytes": 4274
+  },
+  "checks": [
+    "Wparent exacta672, exacttwo player/test paths, perfileGit/currentSHA and identicalapp tree enforced.",
+    "Hashbound actualpeer source_peer_passed/blocking[]/commitW/twofilemap/final11log identity match actual6d1beff2 schema.",
+    "Exacttestcount+terminal0/hash checks now accept normalPytest parenthesizedelapsed suffix; no changedtestexpectation/gate.",
+    "TparentW/onlyauditfile and exactfull auditpreimage substitution anchorednative_ids11+14\u219211+14+15; no genericanywhere literal addition.",
+    "Exporterrecords separateplayer W/currentpostrecord T while preserving actualcapturea672/entryfd327 and coherentcheckpoint.",
+    "Assemblerbinds sameplayer evidence/peer/tests exportedidentities and supportcommitroles."
+  ],
+  "limits": [
+    "Only requestednewW/Tguarddelta reviewed; no wholehelperre-review, execution or generatedevidence.",
+    "FutureactualpostrecordT/nativearrivaltests/export/publicationfacts remain rootowned and unexecuted here.",
+    "No app/media/audio/source changes by reviewer."
+  ]
+}

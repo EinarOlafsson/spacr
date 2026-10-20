@@ -1,0 +1,14 @@
+{
+  "status": "ONLY_TWO_APPROVED_PACKAGES",
+  "packages": {
+    "onnx": [
+      "1.23.2",
+      "7abf381d278f31ac62487fddedc9dd42da842dce94d5d43536836ee3efdf4a2b"
+    ],
+    "ml-dtypes": [
+      "0.5.4",
+      "9ad459e99793fa6e13bd5b7e6792c8f9190b4e5a1b45c63aba14a4d0a7f1d5ff"
+    ]
+  },
+  "normal_resolver": true
+}

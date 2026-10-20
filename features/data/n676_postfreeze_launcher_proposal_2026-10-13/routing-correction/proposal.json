@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:14:23.940885+00:00",
+  "status": "Prepared external source-pinned launcher only; no launch/queue generation/execution",
+  "contract": "make_host_jobs --launcher emits LAUNCHER STAGE [run_native options] -- [capture args]. Required finalsource supplied through inherited explicitlyexported env.",
+  "reuse_review": {
+    "turn28_live": "HardcodesCH and no exactcleanrevision requirement; cannotbe reused as finalsource launcher. Existing run_native_capture GNOMEchild alreadypins its own resolvedsource, removeseditablefinder and checks actualapp import/sourcehashes; reused withoutedit.",
+    "run_current_source_tool": "CPU-only CUDAempty assertion and no exact cleanrevision gate; not used for CUDA lesson20 recording."
+  },
+  "required_environment": [
+    "SPACR_FINAL_CAPTURE_REPO absolute approved isolated finalworktree",
+    "SPACR_FINAL_CAPTURE_REVISION exact40hex commit; no branch/latest/default",
+    "SPACR_CAPTURE_PYTHON existing appPython executable"
+  ],
+  "launcher": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/live.sh",
+  "bootstrap": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/bootstrap.py",
+  "preflight_gates": [
+    "Finalrepoisnotsharedcheckout, matches exact cleanfullrevision before/after",
+    "Stdlib-onlybootstrap thenrootfirst on sys.path, editablefinder removal and actualspacr.__file__ pin",
+    "Fresh externalstage, forced--hostgnome and no callerchild/host/stage override",
+    "CallerdesktopDISPLAY:0 rejected, mustbeginoutsidecapturehost; existing GNOMEtool makes newprivatebus/runtime/display",
+    "Matching live GPUturnholder for finalrepo required; scheduler itself remainsrootowned"
+  ],
+  "proposed_generate_command": "From the approved final isolatedworktree, invoke its existing tools/tutorials/make_host_jobs.py with --repo FINAL_REPO --launcher /media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/live.sh and the new externalqueue/tag/20_cellpose_masks arguments. This writesjobs only after rootauthorizes; nonewrittenhere.",
+  "proposed_execution_environment": "Export SPACR_FINAL_CAPTURE_REPO, SPACR_FINAL_CAPTURE_REVISION and SPACR_CAPTURE_PYTHON into the root-owned queue-runner/GPUturn environment, not only the generationprocess. Remove inheritedDISPLAY/WAYLAND/DBUS desktop variables. Run from FINAL_REPO inside tools/gpu_turn.sh with unchangedidle360/gap600; launcher adds existing12Gcap.",
+  "proposed_direct_invocation": [
+    "env",
+    "SPACR_FINAL_CAPTURE_REPO=ACTUAL_APPROVED_FINAL_REPO",
+    "SPACR_FINAL_CAPTURE_REVISION=ACTUAL_APPROVED_FINAL_40_HEX_COMMIT",
+    "SPACR_CAPTURE_PYTHON=/home/carruthers/anaconda3/envs/spacr/bin/python",
+    "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/live.sh",
+    "NEW_EXTERNAL_STAGE",
+    "--cuda",
+    "--",
+    "EXACT_EXISTING_LESSON20_CAPTURE_ARGS"
+  ],
+  "validation": {
+    "bash_n": true,
+    "AST_parse": true,
+    "no_import_or_runtime_execution": true,
+    "GNOME_runtime_verified": false,
+    "GPU_queue_or_lease_submitted": false,
+    "capture_or_gate_acceptance_claimed": false
+  },
+  "final_app_revision_selected": null,
+  "no_fcf_final_source_assumption": true,
+  "no_installed_environment_or_source_changes": true,
+  "reference_source_sha256": {
+    "/media/carruthers/mnt3/claude/capture_host_proto/turn28/live.sh": "4f48afd4dfeba2b58ac1fd230ceedc4c83ffd397b726ac41e1b2929cce2d4a1e",
+    "/media/carruthers/mnt3/claude/n676_stages/work/run_current_source_tool.py": "ac6f97bcefa37b97c34c58d7afef0a667860d163f1df90f439e6c19f2a10f8a2",
+    "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/make_host_jobs.py": "329e510b81054d35b305f52fcfd1b119a6e90b2606c625a2ed9d00d27d33320d",
+    "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/run_native_capture.py": "0d16cdc9713fcac24148d791adaea96c38c420c4ac97ff91afba4e92a9e96ff1",
+    "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/gnome_capture_host.py": "9401e0b46e3104243d0ea2f9f6c38a703e4d4107425edd3f6d0d2392bc19439e"
+  },
+  "artifact_sha256": {
+    "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/live.sh": "fea9955d3e68e517b873f7a28e6a8de986416b9c11d6f8f0547d772549ca9b18",
+    "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/bootstrap.py": "5ba966df196a2b3ca63de42a3152381a8d7f2ab55ef87dda4bfd73d6d0b53619"
+  },
+  "updated_at_utc": "2026-10-14T01:20:54.190628+00:00",
+  "original_archive": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/original-20261013/bootstrap.py",
+      "sha256": "14d264b792cf62b201b38bf90d2d26bf4a91b553df64ae7a382d7a33503dd439",
+      "size_bytes": 3997
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/original-20261013/live.sh",
+      "sha256": "fea9955d3e68e517b873f7a28e6a8de986416b9c11d6f8f0547d772549ca9b18",
+      "size_bytes": 818
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/postfreeze-launcher-20261013/original-20261013/proposal.json",
+      "sha256": "a214464e33a137af61bb276973527c0fa481abf60c9cf6bf1615833a68056740",
+      "size_bytes": 4503
+    }
+  ],
+  "routing_hardening": "Reject protected native routing flags (--host,--stage,--host-stage,--child,--in-host) and every long-option prefix, including equals form. Reject capture_refresh --stage and every prefix before its positional separator. Unrelated full options are preserved. Both inspected parsers retain default argparse prefix handling.",
+  "limitations": [
+    "12G cap requires separate root-owned RAM lease; launcher does not acquire one.",
+    "Live matching GPU holder is preflight metadata, not independent flock ownership proof. Root must invoke through real gpu_turn from final worktree.",
+    "AST/bash-n only; no runtime parser/test/queue/host/GPU/capture verification.",
+    "Home release done/final Workbench source still required; recheck exact final interfaces and all wrapper source propagation."
+  ]
+}

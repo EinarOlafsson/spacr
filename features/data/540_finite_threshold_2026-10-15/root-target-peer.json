@@ -1,0 +1,64 @@
+{
+  "reviewer": "Original Home root",
+  "kind": "Independent AI technical semantic peer, no native-speaker signoff",
+  "source": "Manual viability thresholds must be finite numbers or automatic.",
+  "proposed_final_source_sha256": "ebb6b3d8faf237c1ee207a1d649cef859c9fb66ae1c750489a17839f72846bab",
+  "source_state": "Peer binds approved proposed final ordering source; this receipt does not claim ordering already applied/tested. Final actual source must match before normal closure.",
+  "records": [
+    {
+      "path": "docs/i18n/reviewed/runtime/de/2026-10-15-viability-finite-threshold.json",
+      "sha256": "6e9bbc6302c284ca5ec3ec2a90f9ce653fae77c36eb202d257aed6d6fbdc9f74",
+      "translation": "Manuelle Schwellenwerte für die Viabilität müssen endliche Zahlen sein oder auf automatisch gesetzt werden.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/es/2026-10-15-viability-finite-threshold.json",
+      "sha256": "975fbef6e6a350f581a3570af663c90cd1a4a8f804aef00d8de3d2d971e0e93a",
+      "translation": "Los umbrales manuales de viabilidad deben ser números finitos o estar configurados como automáticos.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/fr/2026-10-15-viability-finite-threshold.json",
+      "sha256": "abc8dcc717f62092c84f17a2df88dd6c9329821f11ac127b030235a829b5dd96",
+      "translation": "Les seuils manuels de viabilité doivent être des nombres finis ou être définis sur automatique.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/hi/2026-10-15-viability-finite-threshold.json",
+      "sha256": "926192462e2fd674e28c1b57627d4f1d867ade5d8b8e46bec7f3164af2d0dadd",
+      "translation": "कोशिका जीवनक्षमता के मैन्युअल सीमा मान परिमित संख्याएँ होने चाहिए या स्वचालित पर सेट होने चाहिए।",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/is/2026-10-15-viability-finite-threshold.json",
+      "sha256": "262b6380746e214b9a8f2c8ddd50676579eaf166ce167b47f554150a71061331",
+      "translation": "Handvirk þröskuldsgildi fyrir lífvænleika verða að vera endanlegar tölur eða stillt á sjálfvirkt.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/ko/2026-10-15-viability-finite-threshold.json",
+      "sha256": "d24046a074f35f376c8aad45ad8fa2ee1a67729aa1b3ed533fc8983a32d1922f",
+      "translation": "수동 생존율 임계값은 유한한 숫자이거나 자동으로 설정되어야 합니다.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/pt/2026-10-15-viability-finite-threshold.json",
+      "sha256": "c2c1e1c89fdf76f8a4bcc7a8e1ef20beb48717b32a39081a59319f2a75e293bc",
+      "translation": "Os limiares manuais de viabilidade devem ser números finitos ou estar definidos como automáticos.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/sv/2026-10-15-viability-finite-threshold.json",
+      "sha256": "487a1ee3e02b01720081df83dcaec2d91c950725d26daded141f7230ab8115af",
+      "translation": "Manuella viabilitetströsklar måste vara ändliga tal eller anges som automatiska.",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    },
+    {
+      "path": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-viability-finite-threshold.json",
+      "sha256": "9fa5c6f60d30a765e67b6ba3b3f2db37fa30be27764409439efdcc57b4a877fa",
+      "translation": "手动活力阈值必须为有限数值或设为自动。",
+      "decision": "approved: finite numeric manual viability threshold or automatic selection; no positivity/range/calibration requirement added"
+    }
+  ],
+  "limits": "Normal source/loader/extractor/preservation/writer/audit/arrival and localized callback gates remain; no biological calibration/acceptance claim."
+}

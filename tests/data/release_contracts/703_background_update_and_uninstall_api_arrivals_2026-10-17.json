@@ -1,0 +1,19 @@
+{
+  "spacr.install_cleanup._coordinate_native_update._run_authorized": "Retain the native worker's completion or error until its owned process finishes.",
+  "spacr.install_cleanup._coordinate_native_update._stopped": "Check desktop cancellation before observing native worker completion.",
+  "spacr.install_cleanup._macos_uninstall_tree.visit": "Remove one verified child through its parent descriptor while preserving selected paths.",
+  "spacr.install_cleanup._run_debian_update._check_current": "Bind activation to the same installed Debian package and trusted helper.",
+  "spacr.install_cleanup._run_macos_frozen_update._authorized": "Request one native authorization for trusted staging and deferred activation.",
+  "spacr.install_cleanup._run_macos_frozen_update._new_desktop": "Verify the activated release and wait for its actual main window.",
+  "spacr.install_cleanup._run_macos_frozen_update._unchanged": "Refuse activation if the installed bundle or authenticated image changed.",
+  "spacr.install_cleanup._run_macos_online_update.prepared": "Offer Restart only after the replacement passes its staged checks.",
+  "spacr.install_cleanup._run_native_uninstall.stopped": "Check desktop cancellation before observing the authorized helper's completion.",
+  "spacr.install_cleanup._run_pip_environment_update.prepared": "Keep the running environment until the verified replacement is accepted.",
+  "spacr.install_cleanup._run_windows_frozen_update._check_current": "Recheck the pinned installer and unchanged Windows destination before activation.",
+  "spacr.install_cleanup._run_windows_frozen_update._launch_verified": "Confirm the activated Windows payload and its unelevated main window.",
+  "spacr.install_cleanup._run_windows_native_uninstall.authorize": "Retain the native uninstaller's bootstrap result until authenticated completion.",
+  "spacr.install_cleanup._run_windows_native_uninstall.stopped": "Treat failed native startup as stopped without confusing bootstrap exit with completion.",
+  "spacr.install_cleanup._run_windows_pip_update.prepared": "Request shutdown only when the private replacement is verified.",
+  "spacr.install_cleanup._uninstall_data_candidates.expand": "Expand the configured user's leading home marker.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_spacr_uninstall": "Leave Preferences before opening the application uninstall preview."
+}

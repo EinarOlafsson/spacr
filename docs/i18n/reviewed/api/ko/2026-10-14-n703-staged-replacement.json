@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "N703: exactly three rewritten paragraphs. Directly authored from current English after normal MT inverted cache/model preservation in German and Spanish. All untouched paragraphs retain existing reviewed/history evidence. This record does not certify native installer behavior.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#1",
+      "source": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "source_sha256": "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
+      "context": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "translation": "온라인 설치 프로그램은 이전 애플리케이션 복사본을 제거하기 전에 새 런타임을 준비하고 검증합니다. 준비하는 동안 현재 설치를 유지하고, 교체된 런타임이 검증에 실패하면 이전 런타임을 복원합니다. 업데이트 도우미는 다른 복사본을 제거하거나 재시작을 요청하기 전에 데스크톱 실행에 사용되는 인터프리터와 실제로 가져온 애플리케이션을 검증합니다. :func:`run_update_sequence`는 명시적인 정리 명령에서 사용하는 하위 수준 제거 절차로 유지됩니다.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
+      "context": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "translation": "설치 프로그램이 만든 복사본의 애플리케이션 코드, 실행기, 바로 가기, 메뉴 항목 및 제거 등록 정보는 삭제됩니다. 알려진 캐시, 모델, 테스트 데이터, 설정된 사용자 위치와 온라인 런타임 루트 디렉터리 안의 애플리케이션에 속하지 않는 항목은 보존됩니다. 해당 파일을 보관하기 위해 루트 디렉터리는 남아 있을 수 있습니다. Debian 패키지는 패키지 관리자를 통해 제거되며, 관리자 권한 부족으로 제거할 수 없으면 해당 권한이 필요하다고 보고합니다. 사용자가 만든 환경에서는 spaCR 패키지만 제거하며 ``ticked``일 때만 수행합니다. 환경 자체는 유지됩니다. 소스 코드 체크아웃은 건너뜁니다.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+      "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "translation": "일반적인 교체 절차는 설치를 준비하는 새 설치 프로그램을 내려받아 실행하고, 실제 인터프리터와 가져온 애플리케이션을 검증한 다음 다른 복사본을 제거하고 애플리케이션을 시작합니다. 설치 또는 검증에 실패해도 이전에 정상 작동하던 복사본은 제거하지 않습니다. 다른 복사본 제거에 실패하면 이를 기록하며 애플리케이션을 다시 실행하지 않습니다.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
+    }
+  ]
+}

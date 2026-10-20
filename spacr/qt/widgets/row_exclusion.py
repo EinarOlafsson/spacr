@@ -23,9 +23,9 @@ So both go through a :class:`~spacr.qt.job_runner.JobRunner` owned by the
 editor, and the value reads are additionally debounced. Three rules hold
 this together:
 
-* ``_value_cache`` and ``_column_sources`` are GUI-thread state. The
-  worker returns plain data and the completion handler — which Qt runs on
-  the GUI thread — is the only thing that writes them.
+* ``_value_cache`` and ``_column_sources`` are GUI-thread state. Workers
+  return plain data; GUI-thread completion handlers install it. Changing
+  the source clears the value cache before the replacement schema arrives.
 * Schema discovery and value reads get **separate** runners.
   :meth:`JobRunner.cancel` works by generation, so one runner cannot
   supersede a value read without also dropping the schema read that the
@@ -73,7 +73,7 @@ def _quote(name: str) -> str:
 
 
 def source_paths(source) -> list[Path]:
-    """Return the ``measurements.db`` files ``source`` resolves to.
+    """Return the existing database-file paths ``source`` resolves to.
 
     Accepts a path, a list of paths, or the repr of a list (which is what
     a settings text field holds after a multi-folder drop), and tolerates
@@ -242,14 +242,19 @@ class _CheckableValueCombo(QComboBox):
         all_values.extend(
             value for value in selected if str(value) not in existing)
         model = self.model()
-        model.clear()
-        for value in all_values:
-            item = QStandardItem(str(value))
+        spare = self.__dict__.setdefault("_spare_rows", [])
+        while model.rowCount() > len(all_values):
+            spare.extend(model.takeRow(model.rowCount() - 1))
+        for row, value in enumerate(all_values):
+            fresh = row >= model.rowCount()
+            item = QStandardItem() if fresh else model.item(row)
+            item.setText(str(value))
             item.setData(value, Qt.UserRole)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
             item.setCheckState(
                 Qt.Checked if str(value) in selected_text else Qt.Unchecked)
-            model.appendRow(item)
+            if fresh:
+                model.appendRow(item)
         self._refresh_text()
 
     def checked_values(self) -> list[Any]:
@@ -341,7 +346,8 @@ class RowExclusionEditor(QWidget):
         (``SettingsWidgets._widget_for``) passes ``value`` and ``parent``
         and nothing else.
     :param debounce_ms: how long a column edit waits before it is read.
-        ``0`` reads on the next event-loop turn without coalescing.
+        ``0`` schedules the read for a later event-loop turn; edits before
+        that timer fires can still be coalesced.
     """
 
     #: Emitted after a background read has been applied to the widget.
@@ -392,6 +398,7 @@ class RowExclusionEditor(QWidget):
         self._outer.addLayout(self._rows_layout)
 
         add = QToolButton(self)
+        add.setObjectName("RowExclusionAdd")
         add.setText("+ Add exclusion")
         add.setToolTip("Exclude values from another database column")
         add.clicked.connect(lambda: self._add_row())
@@ -427,10 +434,10 @@ class RowExclusionEditor(QWidget):
     def set_source(self, source, tables=None) -> None:
         """Populate column/value choices from a dropped measurements DB.
 
-        Returns as soon as the schema read is dispatched. The dropdowns
-        keep whatever they are showing until the worker delivers — a
-        list that is half a second stale beats a frozen window, and on
-        the first call they are showing nothing anyway.
+        In the default threaded mode, returns after dispatching the schema
+        read. Existing column choices and checked values remain visible
+        while it runs, including rules restored before the first source
+        was set. With ``threaded=False``, the reads run inline.
 
         :param source: anything :func:`source_paths` accepts: a run folder,
             its ``measurements`` folder, a ``.db`` file, or a list of them.
@@ -577,13 +584,14 @@ class RowExclusionEditor(QWidget):
                 + self._value_jobs.active_jobs())
 
     def shutdown(self) -> None:
-        """Stop reading and let no worker outlive the widget.
+        """Cancel pending results and drain both runners with bounded waits.
 
         Public because a host that owns this editor inside a larger
         screen can call it directly — Qt delivers a close event to the
         window, not to every widget inside it, so a screen that wants
-        the reads stopped the moment the user navigates away has to say
-        so. Idempotent.
+        pending results discarded when the user navigates away must call
+        it. Slow database reads can continue in parked workers without
+        delivering their results to this editor. Idempotent.
         """
         self._debounce.stop()
         self._pending.clear()
@@ -591,7 +599,7 @@ class RowExclusionEditor(QWidget):
         self._value_jobs.shutdown()
 
     def closeEvent(self, event):        # noqa: N802 - Qt override
-        """Closing mid-read must not leave a thread behind.
+        """Cancel result delivery and drain both runners when closing mid-read.
 
         Qt aborts the process when a running QThread is destroyed, and a
         worker that delivers into a widget on its way out is a
@@ -606,7 +614,7 @@ class RowExclusionEditor(QWidget):
         when a worker settles after its runner's C++ half has gone.
 
         :param event: the close event; passed on unchanged to the base class
-            after the workers are shut down.
+            after both runners have attempted their bounded shutdown.
         """
         self.shutdown()
         super().closeEvent(event)

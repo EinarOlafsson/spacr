@@ -1,0 +1,1918 @@
+{
+  "source_pin": "7756aed3919f5424a5a8fa3bab61687b38e9189e",
+  "scope": "43 assigned UI items excluding N655, read-only requirements/override/source actionability audit",
+  "classification_counts": {
+    "delivered_source": 23,
+    "superseded_design": 4,
+    "external_acceptance": 11,
+    "stale_debt_resolved_in_source": 1,
+    "work_tutorial_gate": 3,
+    "maintainer_accepted": 1
+  },
+  "method": "Read item requirements and later maintainer/delivery notes; inspect current source contracts. Anchors and hashes identify reviewed implementation but are not dynamic test results. Historical tests were not rerun. No blanket acceptance or completion tick is justified by this audit.",
+  "new_source_changes": 0,
+  "new_test_runs": 0,
+  "new_local_implementation_gaps_proven": 0,
+  "ownership_constraints": [
+    "Original Home: app/app_screen/restart_state/run_journal/updater/settings/schema/MakeMasks",
+    "Claude: N700/AI/providers",
+    "Work: tutorials/captures/media/GPU lane",
+    "Home-B F549 agent: three core.py helpers"
+  ],
+  "editorial_candidates": [
+    {
+      "path": "spacr/qt/widgets/loading_screen.py",
+      "symbol": "startup_animation_allowed",
+      "finding": "Docstring says Preferences > Animation, while current N601 hierarchy is Appearance > Animation. This is a documentation path correction, not a software behavior gap; defer to final editorial pass."
+    }
+  ],
+  "items": [
+    {
+      "id": "N08",
+      "item_file": "features/new/08_flowview_pipeline_visualisation.txt",
+      "item_sha256": "417a519495c93f6cc30912ca98841c7755a4223bd450e02d5246e1217efd30df",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Lazy, collapsed Classify FlowView and graph export are implemented; old placement/blocked notes are superseded by later published receipts.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/screens/classify.py",
+          "sha256": "7b1b770cbf04f60e9dfb31818c4f74a50aa59390d9d898a33e0afbd959674442",
+          "anchors": [
+            {
+              "literal": "class LazyFlowViewSection",
+              "first_line": 219,
+              "excerpt": "class LazyFlowViewSection(CollapsibleSection):"
+            },
+            {
+              "literal": "expanded=False",
+              "first_line": 258,
+              "excerpt": "super().__init__(\"FlowView\", body, expanded=False, parent=parent)"
+            },
+            {
+              "literal": "from spacr.flowview.panel import FlowViewPanel",
+              "first_line": 347,
+              "excerpt": "from spacr.flowview.panel import FlowViewPanel"
+            }
+          ]
+        },
+        {
+          "path": "spacr/flowview/export.py",
+          "sha256": "9fd64e6467708ffa83de45ba88ae9ac73583ab72104d53ef98e754dd96a8107c",
+          "anchors": [
+            {
+              "literal": "def ",
+              "first_line": 32,
+              "excerpt": "def _escape(value: object, *, quote: bool = False) -> str:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N74",
+      "item_file": "features/new/74_loading_screen_covers_the_preload.txt",
+      "item_sha256": "982d33d9b88391e2721058c6c41884dc82b60170c66b1e600cac502a947a3194",
+      "classification": "superseded_design",
+      "current_requirement_disposition": "Loading cover/preloader is implemented; current photomosaic startup behavior is governed by later N694/N695.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "_PipelinePreloader",
+              "first_line": 448,
+              "excerpt": "class _PipelinePreloader:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/loading_screen.py",
+          "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+          "anchors": [
+            {
+              "literal": "class LoadingScreen",
+              "first_line": 483,
+              "excerpt": "class LoadingScreen(QWidget):"
+            },
+            {
+              "literal": "def blow_away",
+              "first_line": 833,
+              "excerpt": "def blow_away(self, on_finished: Optional[Callable[[], None]] = None,"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_i18n.py"
+      ]
+    },
+    {
+      "id": "N78",
+      "item_file": "features/new/78_loading_screen_background_is_teal.txt",
+      "item_sha256": "992d9634b46745f2c48b9dd65d117be2ecef685d4d84b838e7724dac51c9e1cb",
+      "classification": "superseded_design",
+      "current_requirement_disposition": "Maintainer changed the requested splash from teal to black/dark gray; current palette roles and later mosaic supersede original title.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/loading_screen.py",
+          "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+          "anchors": [
+            {
+              "literal": "splash_bg",
+              "first_line": 143,
+              "excerpt": "#: background (`splash_bg`, derived in :func:`spacr.qt.theme.palette_for`)."
+            },
+            {
+              "literal": "splash_ink",
+              "first_line": 131,
+              "excerpt": "paint path no longer uses it: `splash_ink` and `splash_ink_dim` are"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/theme.py",
+          "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+          "anchors": [
+            {
+              "literal": "\"splash_bg\": bg",
+              "first_line": 910,
+              "excerpt": "\"splash_bg\": bg,"
+            },
+            {
+              "literal": "\"splash_ink\": ink",
+              "first_line": 911,
+              "excerpt": "\"splash_ink\": ink,"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N117",
+      "item_file": "features/new/117_figures_on_a_grid_not_stretched.txt",
+      "item_sha256": "c1a1d6ab374bd3c9c01270cfc46bd22ff58f8a621df8c27c2bfac54a4d437690",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Grid refits each image using its own aspect; same sparse tile identities retained.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/figure_grid_view.py",
+          "sha256": "a5e2a009cc39b182a4e3ab191a5b9581465c5d25aa3859c015d7e7e521a6aaaa",
+          "anchors": [
+            {
+              "literal": "def aspect(",
+              "first_line": 370,
+              "excerpt": "def aspect(self) -> float:"
+            },
+            {
+              "literal": "int(width / max(self.aspect(), 0.05))",
+              "first_line": 387,
+              "excerpt": "QSize(width, int(width / max(self.aspect(), 0.05))))"
+            },
+            {
+              "literal": "setFixedHeight(logical_size(scaled).height())",
+              "first_line": 389,
+              "excerpt": "self._image.setFixedHeight(logical_size(scaled).height())"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N118",
+      "item_file": "features/new/118_figure_preferences_general_and_per_graph.txt",
+      "item_sha256": "b4b5e61ceaa1877114756ddcf513a12da188423a4f59285e4e067df894e94b37",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "General/per-graph preferences resolve into scoped figure style and palette application.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/figure_style.py",
+          "sha256": "3de8b6f1a670e5b3457c8f19358a82171c3ea00159e129c1b1d890219321b141",
+          "anchors": [
+            {
+              "literal": "def resolve(",
+              "first_line": 223,
+              "excerpt": "def resolve(kind: Optional[str] = None,"
+            },
+            {
+              "literal": "def rc_params(",
+              "first_line": 259,
+              "excerpt": "def rc_params(style: Mapping[str, Any]) -> dict:"
+            },
+            {
+              "literal": "def palette_colours(",
+              "first_line": 431,
+              "excerpt": "def palette_colours(name: Optional[str]) -> list:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/figures/style.py",
+          "sha256": "c8991f7cc0817c811b1932d4b0abffb6e731f6484fddf19ba99f2fe2c085c1e4",
+          "anchors": [
+            {
+              "literal": "def _apply_user_style(",
+              "first_line": 338,
+              "excerpt": "def _apply_user_style(figure, kind: Optional[str] = None, *,"
+            },
+            {
+              "literal": "get_figure_style_per_graph",
+              "first_line": 215,
+              "excerpt": "get_figure_style_per_graph)"
+            },
+            {
+              "literal": "from ..figure_style import palette_colours",
+              "first_line": 275,
+              "excerpt": "from ..figure_style import palette_colours"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_figure_preferences_are_general_and_per_graph.py",
+        "tests/test_the_figure_style_sets_live_beside_their_defaults.py",
+        "tests/test_the_palette_preference_reaches_a_figure.py"
+      ]
+    },
+    {
+      "id": "N126",
+      "item_file": "features/new/126_the_theme_must_not_lag_while_a_run_is_going.txt",
+      "item_sha256": "bb288b8b1c9e60965bde9873b2eea8a6e1223589d409283d1a37de784a1feb24",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Busy-worker GIL interval is claimed/released and restored; later evidence rejects the unnecessary frame-buffer alternative.",
+      "remaining_gate": "Reporter confirmation on the original slow machine; no new timing claim on busy host.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/gil_priority.py",
+          "sha256": "be7b27d6b90d16dc2a53376f80e201f14606f60d811b672a8893b5f144814e7f",
+          "anchors": [
+            {
+              "literal": "def claim(",
+              "first_line": 41,
+              "excerpt": "def claim() -> None:"
+            },
+            {
+              "literal": "sys.setswitchinterval(BUSY_INTERVAL)",
+              "first_line": 53,
+              "excerpt": "sys.setswitchinterval(BUSY_INTERVAL)"
+            },
+            {
+              "literal": "def release(",
+              "first_line": 60,
+              "excerpt": "def release() -> None:"
+            },
+            {
+              "literal": "sys.setswitchinterval(_RESTORE)",
+              "first_line": 70,
+              "excerpt": "sys.setswitchinterval(_RESTORE)"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_theme_does_not_lag_while_a_run_is_going.py"
+      ]
+    },
+    {
+      "id": "N138",
+      "item_file": "features/new/138_the_explainer_text_fills_its_box.txt",
+      "item_sha256": "4ab5cbf9ea1dd12ea8e2ea54e07e37c5fd0f6b6f71b16f6575c97ecbdf366e20",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Regression explainers use selectable rich text and widget-width wrapping instead of fixed plain-text columns.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "sha256": "e14beea4d73c002ec976881b3c137420411b10712541669aca40b459622b2db1",
+          "anchors": [
+            {
+              "literal": "class _ExplainerBrowser",
+              "first_line": 175,
+              "excerpt": "class _ExplainerBrowser(QTextBrowser):"
+            },
+            {
+              "literal": "box.setLineWrapMode(QTextEdit.WidgetWidth)",
+              "first_line": 4851,
+              "excerpt": "box.setLineWrapMode(QTextEdit.WidgetWidth)"
+            },
+            {
+              "literal": "section.add_prose(box, at_top=True)",
+              "first_line": 4864,
+              "excerpt": "section.add_prose(box, at_top=True)"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_explainer_prose_fills_its_box.py"
+      ]
+    },
+    {
+      "id": "N197",
+      "item_file": "features/new/197_the_hotkey_map_is_in_the_help_menu.txt",
+      "item_sha256": "e9fb8c2a5bfd77570ba14a7d18f0c3f9456f6efde074c54b8fd7ff2cbc7b27d8",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Help/F1 shortcut map derives registered/scoped bindings with native key labels.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/shortcuts.py",
+          "sha256": "c98ba32df7c43e01360d871e0ff2f7e76dde66f29c8fda638b0c411e673e7f16",
+          "anchors": [
+            {
+              "literal": "def mapped(",
+              "first_line": 352,
+              "excerpt": "def mapped() -> List[ShortcutSpec]:"
+            },
+            {
+              "literal": "QKeySequence.NativeText",
+              "first_line": 371,
+              "excerpt": "return QKeySequence(_portable(keys)).toString(QKeySequence.NativeText) \\"
+            },
+            {
+              "literal": "def show_cheat_sheet(",
+              "first_line": 1631,
+              "excerpt": "def show_cheat_sheet(parent) -> None:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "from .shortcuts import show_cheat_sheet",
+              "first_line": 4425,
+              "excerpt": "from .shortcuts import show_cheat_sheet"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_hotkey_map_is_the_whole_map.py"
+      ]
+    },
+    {
+      "id": "N199",
+      "item_file": "features/new/199_every_figure_in_the_panel_opens_when_it_is_clicked.txt",
+      "item_sha256": "21c0561c2126002d3cbfdbcffd07e116b45f45984663a2f66aa2a922513335cd",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Grid/live views open existing figures; inability to show a figure has explicit handling instead of retaining a stale old image.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/figure_grid_view.py",
+          "sha256": "a5e2a009cc39b182a4e3ab191a5b9581465c5d25aa3859c015d7e7e521a6aaaa",
+          "anchors": [
+            {
+              "literal": "def mousePressEvent(",
+              "first_line": 432,
+              "excerpt": "def mousePressEvent(self, event):  # noqa: N802 - Qt naming"
+            },
+            {
+              "literal": "def set_live_tiles(",
+              "first_line": 548,
+              "excerpt": "def set_live_tiles(self, tiles) -> int:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/figure_queue.py",
+          "sha256": "fa0d2e805b2811dfd94a04517f8cb91e4f521da076f29fe1df2b0efad864fafd",
+          "anchors": [
+            {
+              "literal": "figure_clicked = Signal()",
+              "first_line": 866,
+              "excerpt": "figure_clicked = Signal()"
+            },
+            {
+              "literal": "def _note_unseen_figure(",
+              "first_line": 1341,
+              "excerpt": "def _note_unseen_figure(self) -> None:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_every_live_tile_opens.py",
+        "tests/qt/test_a_figure_that_cannot_be_shown_says_why.py"
+      ]
+    },
+    {
+      "id": "N208",
+      "item_file": "features/new/208_the_picture_settings_tooltips_stay_while_read.txt",
+      "item_sha256": "27547b8edb2d6b30290d9081850103492fb07d3976cbda2041b348d72e7a42e4",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Rich tooltip lifetime/pointer geometry repair is already published with actual before/after receipt on October 14.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/hover_tooltip.py",
+          "sha256": "4d24bce6111199962f0cbceb261f489968362739a01c43f2aca7b29eb5cc4ccd",
+          "anchors": [
+            {
+              "literal": "def _pointer_is_on_me(",
+              "first_line": 854,
+              "excerpt": "def _pointer_is_on_me(self) -> bool:"
+            },
+            {
+              "literal": "if self._pointer_is_on_me():",
+              "first_line": 889,
+              "excerpt": "if self._pointer_is_on_me():"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_tooltip_is_on_the_title_only.py",
+        "tests/test_each_annotation_method_explains_itself.py"
+      ]
+    },
+    {
+      "id": "N216",
+      "item_file": "features/new/216_every_popup_is_a_window_the_user_can_drag.txt",
+      "item_sha256": "3f1d1f81de9343c2f40f282f2bc193198302c0a574727a6ad530d7801aec5aff",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Dialogs detach into movable windows before mapping; N486 supersedes the obsolete custom blue-arrow request.",
+      "remaining_gate": "Native stacking/compositor acceptance on Windows/macOS/X11/Wayland; offscreen receipts do not establish it.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/dialogs.py",
+          "sha256": "09e2323aee3b686a0a346b303605bc2c13a94ee7f82d783cdcf3a73adcd7d48c",
+          "anchors": [
+            {
+              "literal": "def detach_from_window_manager(",
+              "first_line": 111,
+              "excerpt": "def detach_from_window_manager(dialog: Any) -> Any:"
+            },
+            {
+              "literal": "~Qt.WindowType.WindowStaysOnTopHint",
+              "first_line": 127,
+              "excerpt": "& ~Qt.WindowType.WindowStaysOnTopHint)"
+            },
+            {
+              "literal": "| Qt.WindowType.Window",
+              "first_line": 128,
+              "excerpt": "| Qt.WindowType.Window)"
+            },
+            {
+              "literal": "def detach_all_dialogs(",
+              "first_line": 735,
+              "excerpt": "def detach_all_dialogs(app) -> bool:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_every_dialog_is_a_movable_window.py"
+      ]
+    },
+    {
+      "id": "N228",
+      "item_file": "features/new/228_the_bottom_panels_collapse.txt",
+      "item_sha256": "df66ae681ed2253b68e4b4336ff0485dde9838ac2e02161ccec86241ea272f6a",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Console/system/action panels fold and persist with per-module fold keys; ordinary cards remain nonfoldable by default.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/card.py",
+          "sha256": "74be23a5ec74ea51a153d9b67e932660b277739ba5e2e78f58843b2707e5bd8d",
+          "anchors": [
+            {
+              "literal": "foldable: bool = False",
+              "first_line": 25,
+              "excerpt": "*, foldable: bool = False, fold_key: str = \"\"):"
+            },
+            {
+              "literal": "make_foldable",
+              "first_line": 72,
+              "excerpt": "from .foldable import make_foldable"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "sha256": "e14beea4d73c002ec976881b3c137420411b10712541669aca40b459622b2db1",
+          "anchors": [
+            {
+              "literal": "self._console_folder = make_foldable(",
+              "first_line": 7669,
+              "excerpt": "self._console_folder = make_foldable("
+            },
+            {
+              "literal": "fold_key=f\"{self.app_key}/System\"",
+              "first_line": 7811,
+              "excerpt": "fold_key=f\"{self.app_key}/System\")"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_bottom_panels_collapse.py"
+      ]
+    },
+    {
+      "id": "N240",
+      "item_file": "features/new/240_the_gui_pass.txt",
+      "item_sha256": "fc8ed7ec4444b979d13b315eab08b41380487b512812f205ad182309e1f892d1",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Historical GUI pass has delivered translation/menu/registry/dialog fixes; inventory counts are historical and not a new implementation backlog.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/live_preview.py",
+          "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+          "anchors": [
+            {
+              "literal": "from ..i18n import set_translatable_items, tr",
+              "first_line": 79,
+              "excerpt": "from ..i18n import set_translatable_items, tr"
+            },
+            {
+              "literal": "def retranslate_dynamic_content(",
+              "first_line": 3425,
+              "excerpt": "def retranslate_dynamic_content(self, language: str) -> None:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "sha256": "e14beea4d73c002ec976881b3c137420411b10712541669aca40b459622b2db1",
+          "anchors": [
+            {
+              "literal": "folded_fallback",
+              "first_line": 618,
+              "excerpt": "from ..widgets.fold_strip import folded_fallback"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "show_cheat_sheet",
+              "first_line": 4425,
+              "excerpt": "from .shortcuts import show_cheat_sheet"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_live_preview_dropdowns_follow_the_language.py",
+        "tests/qt/test_i18n.py",
+        "tests/qt/test_the_folded_rows_left_the_registry.py"
+      ]
+    },
+    {
+      "id": "N286",
+      "item_file": "features/new/286_one_performance_selector_with_five_levels.txt",
+      "item_sha256": "3ecb80679ce3a79d6c85af2db5c9cb363a8bdde6ecfcf4522b7a3d1f78015f82",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Five performance levels are implemented; October 1 main tutorial publication receipt supersedes the earlier media hold. Maintainer explicitly rejected an extra notice.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "PERFORMANCE_LEVELS = (\"laptop\", \"extra_performance\", \"performance\",",
+              "first_line": 3030,
+              "excerpt": "PERFORMANCE_LEVELS = (\"laptop\", \"extra_performance\", \"performance\","
+            },
+            {
+              "literal": "def get_performance_level(",
+              "first_line": 3873,
+              "excerpt": "def get_performance_level() -> str:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_tutorial_capture_finds_the_performance_selector.py"
+      ]
+    },
+    {
+      "id": "N291",
+      "item_file": "features/new/291_open_sans_everywhere_including_figures.txt",
+      "item_sha256": "e4f30e6c4d044a1e7272260389bfd1dd10cf004c4856545329d889ba4d112d7e",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Maintainer scope is global in the app only; library/notebook import must not rewrite Matplotlib defaults. Bundled font registration and run context exist.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/figure_font.py",
+          "sha256": "b5b29e3479b0e21188181a779b5e7b0d0d74d3d97573330c9af31841a748e429",
+          "anchors": [
+            {
+              "literal": "FAMILY = \"Open Sans\"",
+              "first_line": 25,
+              "excerpt": "FAMILY = \"Open Sans\""
+            },
+            {
+              "literal": "_RUN_MARKER = \"SPACR_FIGURES_IN_OPEN_SANS\"",
+              "first_line": 112,
+              "excerpt": "_RUN_MARKER = \"SPACR_FIGURES_IN_OPEN_SANS\""
+            },
+            {
+              "literal": "def _open_sans_is_the_default(",
+              "first_line": 147,
+              "excerpt": "def _open_sans_is_the_default():"
+            },
+            {
+              "literal": "def _open_sans_if_a_run_started_this(",
+              "first_line": 181,
+              "excerpt": "def _open_sans_if_a_run_started_this():"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_interface_uses_open_sans.py",
+        "tests/test_a_figure_drawn_without_open_sans_still_gets_it.py",
+        "tests/test_one_visual_system_not_twelve.py",
+        "tests/test_cli.py",
+        "tests/test_open_sans_is_the_default_in_the_app_and_runs_only.py"
+      ]
+    },
+    {
+      "id": "N309",
+      "item_file": "features/new/309_one_settings_store_with_one_name.txt",
+      "item_sha256": "1182d9aedbf8c720fbf2c6ebdf633d472e0813ad6235322b4baffb641d36986d",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Canonical Qt store and nondestructive legacy migration exist; shared preferences between installations are explicitly accepted.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/prefs.py",
+          "sha256": "88d46fd7f12480d465db1962e5ba317508bbc262e416a6692d6d301f829afe4b",
+          "anchors": [
+            {
+              "literal": "def _migrate_legacy_settings(",
+              "first_line": 26,
+              "excerpt": "def _migrate_legacy_settings(current: QSettings) -> None:"
+            },
+            {
+              "literal": "_LEGACY_NAMESPACES",
+              "first_line": 18,
+              "excerpt": "_LEGACY_NAMESPACES = ("
+            },
+            {
+              "literal": "settings = QSettings(*_store_args(ORG, APP))",
+              "first_line": 70,
+              "excerpt": "settings = QSettings(*_store_args(ORG, APP))"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/model_zoo_picker.py",
+          "sha256": "0d9cbbe50a56bd66ef5addcdb57e830317e8cac00c84e6125eea91f245d338e5",
+          "anchors": [
+            {
+              "literal": "from ..preferences import _APP, _ORG",
+              "first_line": 79,
+              "excerpt": "from ..preferences import _APP, _ORG"
+            },
+            {
+              "literal": "return QSettings(*_store_args(_ORG, _APP))",
+              "first_line": 81,
+              "excerpt": "return QSettings(*_store_args(_ORG, _APP))"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N311",
+      "item_file": "features/new/311_no_outlines_between_the_module_rows.txt",
+      "item_sha256": "8c520896a81142a3a8556db922176b85849feb42decf0f7bab6a90c86e5c84c5",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Nonsemantic resting module-row/tiling borders are removed while semantic focus/hover states remain.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/theme.py",
+          "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+          "anchors": [
+            {
+              "literal": "QPushButton#AppTile {{",
+              "first_line": 3309,
+              "excerpt": "QPushButton#AppTile {{"
+            },
+            {
+              "literal": "border: none;",
+              "first_line": 3261,
+              "excerpt": "border: none;"
+            },
+            {
+              "literal": "QPushButton#AppTile:focus {{",
+              "first_line": 3314,
+              "excerpt": "QPushButton#AppTile:focus {{"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N320",
+      "item_file": "features/new/320_the_qt_console_is_noisy_and_mislabels_warnings.txt",
+      "item_sha256": "9345792abd541ef7e7bb34816e1aa391fe09aaa172636c9b55121d155c876d83",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Qt warning classification/filtering is implemented; original ChildAdded construction defect has historical repair evidence and is not an unfinished warning-suppression request.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/__init__.py",
+          "sha256": "557a2eb740b3202c9dd200041d9b205bfc407cbdcbdb6d07bdf86f942fe43cb3",
+          "anchors": [
+            {
+              "literal": "_QT_NOISE = re.compile(",
+              "first_line": 57,
+              "excerpt": "_QT_NOISE = re.compile("
+            },
+            {
+              "literal": "QtMsgType.QtWarningMsg: logging.WARNING",
+              "first_line": 193,
+              "excerpt": "QtMsgType.QtWarningMsg: logging.WARNING,"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "sha256": "e14beea4d73c002ec976881b3c137420411b10712541669aca40b459622b2db1",
+          "anchors": [
+            {
+              "literal": "class _ExplainerBrowser",
+              "first_line": 175,
+              "excerpt": "class _ExplainerBrowser(QTextBrowser):"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_a_qt_warning_reaches_the_console_once.py"
+      ]
+    },
+    {
+      "id": "N330",
+      "item_file": "features/new/330_the_dock_and_menu_should_show_the_nested_structure.txt",
+      "item_sha256": "c55fce5cd4e475bb7c5e046757c25df8ac675da1ae455458c407d59efad82b33",
+      "classification": "superseded_design",
+      "current_requirement_disposition": "Later N376 explicitly removes nested folded children from dock; host strips/menu routes retain their relationship. Do not restore the rejected dock design.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/dock.py",
+          "sha256": "ee59ad9d044ee85e1da1736cacd2873da0e69ce20e1d73629b9ec1db3ef60ac0",
+          "anchors": [
+            {
+              "literal": "a second, indented level of folded modules",
+              "first_line": 19,
+              "excerpt": "* a second, indented level of folded modules with its own expand state"
+            },
+            {
+              "literal": "class Dock",
+              "first_line": 80,
+              "excerpt": "class DockRow(ElidingPushButton):"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/screens/app_screen.py",
+          "sha256": "e14beea4d73c002ec976881b3c137420411b10712541669aca40b459622b2db1",
+          "anchors": [
+            {
+              "literal": "folded_fallback",
+              "first_line": 618,
+              "excerpt": "from ..widgets.fold_strip import folded_fallback"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N350",
+      "item_file": "features/new/350_no_text_is_cut_off_anywhere_in_the_package.txt",
+      "item_sha256": "30b99229352a65aa8af7f0bc76b2a89699a6285d74ed064a28dd9a0115e222fd",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Historical finite text-fit sweeps and later small Annotate Settings viewport repair exist; no new clipping defect was demonstrated by this bounded source audit.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/screens/annotate.py",
+          "sha256": "37f6c5b631cff5bbea8b73752851fae971b4fb779db147fd8f27159a1586da5e",
+          "anchors": [
+            {
+              "literal": "class _SettingsDialog",
+              "first_line": 2289,
+              "excerpt": "class _SettingsDialog(QDialog):"
+            },
+            {
+              "literal": "QScrollArea",
+              "first_line": 122,
+              "excerpt": "QScrollArea,"
+            },
+            {
+              "literal": "QDialogButtonBox",
+              "first_line": 108,
+              "excerpt": "QDialogButtonBox,"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/flow.py",
+          "sha256": "42c8464c68d7ece5904d77b67b93ed80ff8edd3041ee3262e6d821de2edea767",
+          "anchors": [
+            {
+              "literal": "class Flow",
+              "first_line": 19,
+              "excerpt": "class FlowLayout(QLayout):"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_no_caption_is_clipped.py",
+        "tests/qt/test_the_text_fits_sweep.py",
+        "tests/qt/test_the_action_row_wraps_instead_of_squeezing.py",
+        "tests/qt/test_the_text_fits_sweep_dialogs.py",
+        "tests/qt/test_a_settings_column_grows_with_the_font.py",
+        "tests/qt/test_the_layout_matrix.py",
+        "tests/conftest.py",
+        "tests/qt/test_annotate_settings_actions_stay_visible.py"
+      ]
+    },
+    {
+      "id": "N355",
+      "item_file": "features/new/355_every_button_deserves_its_own_icon.txt",
+      "item_sha256": "3f894c019b67a0c1053a61a7d16a30dcad79f5676e275b6a0507a72244f9a1ba",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Icon routing/fallbacks and chosen assets are present; the item records no remaining identified icon gap.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/iconset.py",
+          "sha256": "c100c6023f033bbefe4af13f500cbb2adb32dc8916685df040b5bf69a60c3a57",
+          "anchors": [
+            {
+              "literal": "def icon(",
+              "first_line": 243,
+              "excerpt": "def icon(name: str, color: Optional[str] = None, size: int = 16,"
+            },
+            {
+              "literal": "def _fallback_icon(",
+              "first_line": 823,
+              "excerpt": "def _fallback_icon(name: str, theme: Optional[str] = None, *,"
+            }
+          ]
+        },
+        {
+          "path": "spacr/resources/icons/chosen_icons.json",
+          "sha256": "713edb64a025123c85d2f79a73934ffa05963c3c095be8f7b55880ba045ba0f0",
+          "anchors": [
+            {
+              "literal": "diagnostic",
+              "first_line": 258,
+              "excerpt": "\"regression_diagnostics\": {"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_cov_qt_app.py",
+        "tests/qt/test_every_button_deserves_its_own_icon.py"
+      ]
+    },
+    {
+      "id": "N359",
+      "item_file": "features/new/359_every_settings_container_resizes_and_first_launch_chooses_a_measured_layout.txt",
+      "item_sha256": "d0be150b48590c6a3efeac22cc58a45c1675d6ce011e3facc8aec1f2d8109e55",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Flexible form growth, font-aware height grips, and measured first-launch layout policy exist. Twenty-eight sideways-scroll cases were explicitly accepted, not left as defects.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/section.py",
+          "sha256": "28da6b06274ff341a18ccb7cdf68117c41f9133db7d371fe993cc2431c813c37",
+          "anchors": [
+            {
+              "literal": "QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow",
+              "first_line": 261,
+              "excerpt": "QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/height_grip.py",
+          "sha256": "9e7873eb7490410c527a07496032326e887170c2631c04f2231e08c80e37e1b3",
+          "anchors": [
+            {
+              "literal": "def rescale(",
+              "first_line": 91,
+              "excerpt": "def rescale(self) -> None:"
+            },
+            {
+              "literal": "def keyPressEvent(",
+              "first_line": 294,
+              "excerpt": "def keyPressEvent(self, event):             # noqa: N802 - Qt naming"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "def _open_at_the_measured_width(",
+              "first_line": 138,
+              "excerpt": "def _open_at_the_measured_width(window) -> bool:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_every_measurements_container_resizes.py",
+        "tests/qt/test_the_layout_matrix.py",
+        "tests/qt/conftest.py",
+        "tests/qt/test_the_first_run_layout_is_decided_once.py"
+      ]
+    },
+    {
+      "id": "N369",
+      "item_file": "features/new/369_the_dock_reads_as_icons_with_names_on_hover.txt",
+      "item_sha256": "9799213fb9b463789b0dae114f15d1aab7748b7cbcb22875f5d833599b760bf6",
+      "classification": "superseded_design",
+      "current_requirement_disposition": "Later N376 supersedes hover-only names/effects/nested dock; current dock uses stable icon plus text.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/dock.py",
+          "sha256": "ee59ad9d044ee85e1da1736cacd2873da0e69ce20e1d73629b9ec1db3ef60ac0",
+          "anchors": [
+            {
+              "literal": "The left navigation dock: an icon, a name, and a category heading.",
+              "first_line": 1,
+              "excerpt": "\"\"\"The left navigation dock: an icon, a name, and a category heading."
+            },
+            {
+              "literal": "self.setToolTip(\"\")",
+              "first_line": 119,
+              "excerpt": "self.setToolTip(\"\")"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_space_theme.py"
+      ]
+    },
+    {
+      "id": "N376",
+      "item_file": "features/new/376_a_simple_dock_icon_text_and_categories.txt",
+      "item_sha256": "83c4a9068465ae5f10c0b2af7281e8d8750681749e7796b8bee7734b04ae2037",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Latest dock design is icon/text/category with blue hover; folded modules stay out of dock by explicit maintainer direction.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/dock.py",
+          "sha256": "ee59ad9d044ee85e1da1736cacd2873da0e69ce20e1d73629b9ec1db3ef60ac0",
+          "anchors": [
+            {
+              "literal": "class Dock",
+              "first_line": 80,
+              "excerpt": "class DockRow(ElidingPushButton):"
+            },
+            {
+              "literal": "def _on_row_hovered(",
+              "first_line": 295,
+              "excerpt": "def _on_row_hovered(self, key: str, entered: bool) -> None:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/theme.py",
+          "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+          "anchors": [
+            {
+              "literal": "QPushButton#SidebarItem[selected=\"true\"]",
+              "first_line": 5118,
+              "excerpt": "QPushButton#SidebarItem[selected=\"true\"] {{"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_dock_is_icon_text_and_categories.py"
+      ]
+    },
+    {
+      "id": "N380",
+      "item_file": "features/new/380_a_performance_sweep_for_smoothness_and_speed.txt",
+      "item_sha256": "049157d872c877780c6dde723f29ff5f935eadc27c2251cb019b642bbb283197",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Performance harnesses and identified software defects are delivered; historical hosted cold-process timing does not stand in for physical compositor/hardware checks.",
+      "remaining_gate": "Actual display/compositor and low-end hardware acceptance; timing is not safe to manufacture on this busy shared host.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "tools/spacr_startup_benchmark.py",
+          "sha256": "55543051e11bd965fceb47b22b5229813cb6303430f52b7ad8c7debd2afdedb7",
+          "anchors": [
+            {
+              "literal": "def ",
+              "first_line": 68,
+              "excerpt": "def _default_output() -> Path:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/startup_benchmark.py",
+          "sha256": "3df1f0b680df25688177d577cf6f28b3db659046c1a8d3799b384eb5d339db35",
+          "anchors": [
+            {
+              "literal": "def ",
+              "first_line": 34,
+              "excerpt": "def _timeout_seconds() -> float:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/stall_watch.py",
+          "sha256": "f4ae0ab55c9cbbdc83b6e281b4b10abc19bd31840def9278e004f06c6edbf550",
+          "anchors": [
+            {
+              "literal": "def ",
+              "first_line": 63,
+              "excerpt": "def _write(text: str) -> None:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_paint_harness_can_see_a_second_layer.py",
+        "tests/qt/test_cov_r8_i18n_current_language.py",
+        "tests/qt/test_cov_qt_app.py",
+        "tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py",
+        "tests/qt/test_the_tree_is_translated_once_not_three_times.py",
+        "tests/qt/conftest.py",
+        "tests/qt/test_every_widget_wears_the_current_theme.py",
+        "tests/qt/test_widget_qss_is_complete.py",
+        "tests/qt/test_a_hidden_panel_is_built_when_it_is_first_shown.py",
+        "tests/qt/test_a_hidden_category_stays_off_the_page_until_opened.py"
+      ]
+    },
+    {
+      "id": "N413",
+      "item_file": "features/new/413_the_font_zoom_floor_is_ten_percent.txt",
+      "item_sha256": "2617e5cf429c12f2ad49d2e78cb24e73fb43e9ef4503d3b941068cc74b68a649",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Ten-percent zoom floor and baseline-relative font rescaling are implemented.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "FONT_SCALE_MIN = 0.10",
+              "first_line": 600,
+              "excerpt": "FONT_SCALE_MIN = 0.10"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/live_zoom.py",
+          "sha256": "6a306b2f91cd7f1390c39fd216f414b60e9f1145621ab4798de89d97a043e4dc",
+          "anchors": [
+            {
+              "literal": "def _scaled_font(",
+              "first_line": 124,
+              "excerpt": "def _scaled_font(base: QFont, ratio: float,"
+            },
+            {
+              "literal": "FONT_SCALE_STEP",
+              "first_line": 75,
+              "excerpt": "FONT_SCALE_STEP = 0.05"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_zoom_goes_down_to_ten_percent.py",
+        "tests/test_cov_11_theme.py",
+        "tests/test_documented_assignment_prose.py"
+      ]
+    },
+    {
+      "id": "N427",
+      "item_file": "features/new/427_sound_effects_and_the_resonance_theme.txt",
+      "item_sha256": "d51cc7120f4371b7732ceb31a0804d2428ae89bbc5d679c622ae0b2295e28741",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Optional sound, synthesized melodic sets, resonance and night palettes are present; all-off default retained.",
+      "remaining_gate": "Human listening to the sound sets and visual judgment of the night palettes; no audio played during this audit.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/sound.py",
+          "sha256": "13f6ac8cc725616438d6f80bc794f110f958d257823c59e37f71ccda3ede174f",
+          "anchors": [
+            {
+              "literal": "Qt Multimedia is touched only on the GUI thread.",
+              "first_line": 17,
+              "excerpt": "* **Qt Multimedia is touched only on the GUI thread.**"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/sound_synth.py",
+          "sha256": "3a8bce057ebb52aad0c8ef9896de295c456908ed61aecf842af7c5c9f48fa6db",
+          "anchors": [
+            {
+              "literal": "def ",
+              "first_line": 287,
+              "excerpt": "def beat(self) -> float:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/resonance.py",
+          "sha256": "f1100869daf41f8958844c543ada14c68b2860de43b1f555bf62448d6c64e8d6",
+          "anchors": [
+            {
+              "literal": "def ",
+              "first_line": 183,
+              "excerpt": "def silence() -> Moment:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/night_themes.py",
+          "sha256": "fb117121646983285f9ab8dd37eae16539ef50f9592008da3f500be1e2830c40",
+          "anchors": [
+            {
+              "literal": "NIGHT_THEME_KEYS",
+              "first_line": 61,
+              "excerpt": "\"NIGHT_THEME_KEYS\","
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_sounds_are_melodic_space_house.py",
+        "tests/qt/test_sound_is_silent_until_asked.py",
+        "tests/qt/test_the_sound_tab_is_last_and_off.py",
+        "tests/qt/test_preferences_tabs.py",
+        "tests/conftest.py",
+        "tests/qt/test_the_music_bed_is_a_piece.py",
+        "tests/qt/test_the_resonance_plate_answers_the_music.py",
+        "tests/qt/test_ambient.py",
+        "tests/qt/test_ambient_none.py",
+        "tests/qt/test_ambient_motion.py",
+        "tests/qt/test_the_rim_has_modes_and_the_windows_are_bare.py",
+        "tests/qt/test_the_bed_has_a_melody.py",
+        "tests/qt/test_ten_night_themes.py",
+        "tests/test_docstring_correctness.py",
+        "tests/test_api_i18n_extractor.py"
+      ]
+    },
+    {
+      "id": "N433",
+      "item_file": "features/new/433_icons_follow_the_zoom.txt",
+      "item_sha256": "167ca7aaf92406e6f3b6463914629e1248e4539c545d8db3ab19a53ac9be19f9",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Settled preference application rescales tracked icon baselines with zoom; raster preview thumbnails are intentionally not UI icons.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "def _rescale_icon_sizes(",
+              "first_line": 4908,
+              "excerpt": "def _rescale_icon_sizes(app=None) -> int:"
+            },
+            {
+              "literal": "setIconSize",
+              "first_line": 4888,
+              "excerpt": ":param widget: anything with ``setIconSize`` -- a button, a list view."
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/live_zoom.py",
+          "sha256": "6a306b2f91cd7f1390c39fd216f414b60e9f1145621ab4798de89d97a043e4dc",
+          "anchors": [
+            {
+              "literal": "_rescale_icon_sizes",
+              "first_line": 50,
+              "excerpt": ":func:`spacr.qt.preferences._rescale_icon_sizes`, inside the same"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_the_icons_follow_the_zoom.py"
+      ]
+    },
+    {
+      "id": "N444",
+      "item_file": "features/new/444_sound_on_wedges_the_preferences_dialog.txt",
+      "item_sha256": "8040228c362a5375f38f9ae0f7c59a46f59199fa02c77582c57cdb0d5b05d307",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "GUI-thread audio-object ownership and background synthesis split are implemented.",
+      "remaining_gate": "Original desktop sound-on Preferences reopen/Save/Cancel/shutdown check; historical multimedia dependency skips are not current failure claims.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/sound.py",
+          "sha256": "13f6ac8cc725616438d6f80bc794f110f958d257823c59e37f71ccda3ede174f",
+          "anchors": [
+            {
+              "literal": "class _",
+              "first_line": 312,
+              "excerpt": "class _SoundRenderer(QObject):"
+            },
+            {
+              "literal": "Owns every Qt Multimedia object, on the GUI thread.",
+              "first_line": 485,
+              "excerpt": "\"\"\"Owns every Qt Multimedia object, on the GUI thread."
+            },
+            {
+              "literal": "self.moveToThread(app.thread())",
+              "first_line": 479,
+              "excerpt": "self.moveToThread(app.thread())"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py",
+        "tests/qt/test_sound_is_silent_until_asked.py"
+      ]
+    },
+    {
+      "id": "N486",
+      "item_file": "features/new/486_native_os_cursor_and_thin_resize_edge_hints.txt",
+      "item_sha256": "66257e6f603dcd36303fbc1ae589d0a1bce6bfc47b683ca956f5fcda79d6b3a8",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Native arrow and thin resize-edge hints are implemented; replaces previous custom pointer request.",
+      "remaining_gate": "Native compositor artwork/geometry across GNOME/KDE Wayland/X11/macOS/Windows.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/cursor_policy.py",
+          "sha256": "0ad488d50acb2d31e358ade12c967fb52313f9fec05dd605f06ac31e22637403",
+          "anchors": [
+            {
+              "literal": "return QCursor(Qt.ArrowCursor)",
+              "first_line": 17,
+              "excerpt": "return QCursor(Qt.ArrowCursor)"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/glass.py",
+          "sha256": "0a30f850192003a63e6edfcfb0363187062c87ff849eca65a2c4ae2568474766",
+          "anchors": [
+            {
+              "literal": "class _ResizeEdgeHint",
+              "first_line": 348,
+              "excerpt": "class _ResizeEdgeHint(QWidget):"
+            },
+            {
+              "literal": "handle.startSystemResize(edges)",
+              "first_line": 502,
+              "excerpt": "handle.startSystemResize(edges)"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N506",
+      "item_file": "features/new/506_tooltips_wait_two_seconds_and_can_be_switched_off.txt",
+      "item_sha256": "9d34ec9e58c659f925acfb2af2d0f73640c73bbe7abb3ed7fe3b442ffa7312c2",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Two-second hover, one-second linger, master off, and real delegate lifetime retention were repaired and published during this Home-B session.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/tooltip_policy.py",
+          "sha256": "1bd9eff3a3873b94a4d71c58f932683bfc825ba53180e8ad5148166903e413d6",
+          "anchors": [
+            {
+              "literal": "SHOW_DELAY_MS = 2000",
+              "first_line": 68,
+              "excerpt": "SHOW_DELAY_MS = 2000"
+            },
+            {
+              "literal": "LINGER_MS = 1000",
+              "first_line": 72,
+              "excerpt": "LINGER_MS = 1000"
+            },
+            {
+              "literal": "HOLD_MS = 3600 * 1000",
+              "first_line": 78,
+              "excerpt": "HOLD_MS = 3600 * 1000"
+            },
+            {
+              "literal": "QToolTip.showText(self._pos, text, None, QRect(), HOLD_MS)",
+              "first_line": 527,
+              "excerpt": "QToolTip.showText(self._pos, text, None, QRect(), HOLD_MS)"
+            },
+            {
+              "literal": "QToolTip.showText(self._pos, text, widget, QRect(), HOLD_MS)",
+              "first_line": 528,
+              "excerpt": "QToolTip.showText(self._pos, text, widget, QRect(), HOLD_MS)"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_tooltips_wait_two_seconds.py",
+        "tests/qt/test_tooltips.py"
+      ]
+    },
+    {
+      "id": "N530",
+      "item_file": "features/new/530_spaceout_fractal_changes_apply_without_a_restart.txt",
+      "item_sha256": "ddd9f0f26afc02001ec8876b7b27c7320ed8eca2e0e0b83ba27334a227aded77",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Fractal live updates/rebuilds and renderer references are implemented and have October 14 bounded acceptance; no restart-only setting remains in recorded scope.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+          "anchors": [
+            {
+              "literal": "def rebuild_the_spaceout_backdrops(",
+              "first_line": 12307,
+              "excerpt": "def rebuild_the_spaceout_backdrops() -> int:"
+            },
+            {
+              "literal": "_spaceout_built_from",
+              "first_line": 12225,
+              "excerpt": "widget._spaceout_built_from = _built_from(values)"
+            }
+          ]
+        },
+        {
+          "path": "tests/qt/test_fractal_changes_apply_without_a_restart.py",
+          "sha256": "14a0b5c796d7ff7c2dd95af96e3039b3a4e0f2b99ce56a1d99347f0a895e2aa7",
+          "anchors": [
+            {
+              "literal": "def test_saving_preferences_rebuilds_the_running_backdrop",
+              "first_line": 302,
+              "excerpt": "def test_saving_preferences_rebuilds_the_running_backdrop(spaceout, qtbot):"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_fractal_changes_apply_without_a_restart.py"
+      ]
+    },
+    {
+      "id": "N591",
+      "item_file": "features/new/591_alpha_categories_read_as_alpha_and_image_preprocessing_holds_the_rest.txt",
+      "item_sha256": "1bb54f3f0f8caeb979acdb590bf194697c5177b27363785a43f810fd4d2a5da0",
+      "classification": "stale_debt_resolved_in_source",
+      "current_requirement_disposition": "Explicit trailing alpha-widget debt is already implemented; selected renamed alpha-category captions are present in all nine generated locales with matching English source hashes.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/plaque_preview.py",
+          "sha256": "5f72095c13cbb59c35deea8ccce89c6d98967f6c6e25bf004c76f5f87b80bdb2",
+          "anchors": [
+            {
+              "literal": "setObjectName(\"PlaqueEstimateScaleTime\")",
+              "first_line": 3627,
+              "excerpt": "self._growth_btn.setObjectName(\"PlaqueEstimateScaleTime\")"
+            },
+            {
+              "literal": "setObjectName(\"PlaqueEstimateScaleTimeNote\")",
+              "first_line": 3637,
+              "excerpt": "self._growth_note.setObjectName(\"PlaqueEstimateScaleTimeNote\")"
+            },
+            {
+              "literal": "_apply_alpha_widgets(self._growth_btn)",
+              "first_line": 3641,
+              "excerpt": "_apply_alpha_widgets(self._growth_btn)"
+            }
+          ]
+        },
+        {
+          "path": "spacr/settings.py",
+          "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+          "anchors": [
+            {
+              "literal": "'widgets': ('PlaqueEstimateScaleTime', 'PlaqueEstimateScaleTimeNote')",
+              "first_line": 7689,
+              "excerpt": "'widgets': ('PlaqueEstimateScaleTime', 'PlaqueEstimateScaleTimeNote'),"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_591_alpha_categories_read_as_alpha.py"
+      ]
+    },
+    {
+      "id": "N597",
+      "item_file": "features/new/597_home_screen_sliders_size_the_right_widgets_and_their_text.txt",
+      "item_sha256": "ae861895da1ef5f3225af700edc8902fc09fb4de3a4314b1c9318f700bb72e54",
+      "classification": "delivered_source",
+      "current_requirement_disposition": "Latest maintainer correction is implemented: same collapsible edge-pane handle as module settings plus one text slider below widgets, not two sliders.",
+      "remaining_gate": null,
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/home.py",
+          "sha256": "15ed2f9dda2a579958b249f92bd43ffb919e0743eb23b32de4e9c82c244ede0d",
+          "anchors": [
+            {
+              "literal": "_ASIDE_PERSIST_KEY = \"home::body\"",
+              "first_line": 1798,
+              "excerpt": "_ASIDE_PERSIST_KEY = \"home::body\""
+            },
+            {
+              "literal": "HomeAsideTextSlider",
+              "first_line": 2767,
+              "excerpt": "slider.setObjectName(\"HomeAsideTextSlider\")"
+            },
+            {
+              "literal": "def _build_aside_slider(",
+              "first_line": 2746,
+              "excerpt": "def _build_aside_slider(self) -> QWidget:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "_KEY_HOME_ASIDE_TEXT = \"prefs/home_aside_text\"",
+              "first_line": 196,
+              "excerpt": "_KEY_HOME_ASIDE_TEXT = \"prefs/home_aside_text\""
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_597_home_aside_handle_and_text_slider.py"
+      ]
+    },
+    {
+      "id": "N601",
+      "item_file": "features/new/601_preferences_theme_and_animation_under_appearance.txt",
+      "item_sha256": "4d8c432dcf4d5e8939fa5a4bb2472010f77375f2d9bdd5129da6281be1019289",
+      "classification": "work_tutorial_gate",
+      "current_requirement_disposition": "Theme/Animation are folded Appearance categories; later Storage tab is another authorized addition, not regression against an old literal tab list.",
+      "remaining_gate": "Work owns current Appearance tutorial narration/media/publication acceptance; local source layout is delivered.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "appearance = _page(\"Appearance\", \"PreferencesTabAppearance\")",
+              "first_line": 9200,
+              "excerpt": "appearance = _page(\"Appearance\", \"PreferencesTabAppearance\")"
+            },
+            {
+              "literal": "theme_category, theme_tab = _category(\"Theme\", \"PreferencesTabTheme\")",
+              "first_line": 9222,
+              "excerpt": "theme_category, theme_tab = _category(\"Theme\", \"PreferencesTabTheme\")"
+            },
+            {
+              "literal": "\"Animation\", \"PreferencesTabAnimation\"",
+              "first_line": 9224,
+              "excerpt": "\"Animation\", \"PreferencesTabAnimation\")"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_preferences_tabs.py"
+      ]
+    },
+    {
+      "id": "N647",
+      "item_file": "features/new/647_session_restore_on_every_start.txt",
+      "item_sha256": "e0b616607f1fde5fa425cd17fcba5c9b180ce60aa07c28845cb50fd1b1a7e516",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Ordinary startup restore, fresh bypass, persistent toggle and recent unread-draft preservation exist; selected caption debt is resolved in current catalogs.",
+      "remaining_gate": "Native Windows/macOS session-store acceptance remains separate; app/restart_state source belongs to Original Home.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "def _resume_last_session(",
+              "first_line": 5793,
+              "excerpt": "def _resume_last_session(self) -> str:"
+            },
+            {
+              "literal": "if _OPEN_FRESH[0] or not _get_restore_session():",
+              "first_line": 5804,
+              "excerpt": "if _OPEN_FRESH[0] or not _get_restore_session():"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "setObjectName(\"RestoreLastSession\")",
+              "first_line": 10315,
+              "excerpt": "restore_session_check.setObjectName(\"RestoreLastSession\")"
+            }
+          ]
+        },
+        {
+          "path": "spacr/restart_state.py",
+          "sha256": "7940e60492aa6f4ca10cdc29df2cd673ac5894e844801eb33bf961706427b576",
+          "anchors": [
+            {
+              "literal": "def _take_drafts(",
+              "first_line": 371,
+              "excerpt": "def _take_drafts() -> Dict[str, Dict[str, Any]]:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_session_restore_and_settings_autosave.py"
+      ]
+    },
+    {
+      "id": "N648",
+      "item_file": "features/new/648_settings_autosave.txt",
+      "item_sha256": "daaec4d8392a098095958952b1526e7b041225f4a2799b853ff7a2544811c746",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Periodic drafts, strict collection, successful-write checkpointing and conditional clean-close deletion are implemented with Original Home October 14 before/after receipts.",
+      "remaining_gate": "Native Windows/macOS/hard-power-loss acceptance; source remains Original Home-owned.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "def _autosave_settings(",
+              "first_line": 5749,
+              "excerpt": "def _autosave_settings(self) -> bool:"
+            },
+            {
+              "literal": "if session_saved and drafts_saved:",
+              "first_line": 5775,
+              "excerpt": "if session_saved and drafts_saved:"
+            },
+            {
+              "literal": "if restart_state._save_session(module, settings) or not module:",
+              "first_line": 5788,
+              "excerpt": "if restart_state._save_session(module, settings) or not module:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_session_restore_and_settings_autosave.py"
+      ]
+    },
+    {
+      "id": "N668",
+      "item_file": "features/new/668_separate_settings_animation_controls_and_spaceout_theme_catalog.txt",
+      "item_sha256": "b0f49c6fb4c31c9cf96ee6c765943de2a386d8ae7abe7de39102c5c16e8a0f0c",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Separate settings controls, Spaceout-only theme routing and published ultra-quality repair exist. N684 supersedes default animation background.",
+      "remaining_gate": "Maintainer native visual acceptance and actual Qt 6.10 crash reproduction remain external/version-specific; no current source failure proved here.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+          "anchors": [
+            {
+              "literal": "SPACEOUT_ONLY_THEMES",
+              "first_line": 267,
+              "excerpt": "SPACEOUT_ONLY_THEMES = (\"data_art_spaceout_field\", \"data_art_fungal_growth\","
+            },
+            {
+              "literal": "DEFAULT_SPACEOUT_THEME",
+              "first_line": 244,
+              "excerpt": "\"SPACEOUT_THEME\", \"SPACEOUT_PALETTE\", \"DEFAULT_SPACEOUT_THEME\","
+            },
+            {
+              "literal": "def rebuild_the_spaceout_backdrops(",
+              "first_line": 12307,
+              "excerpt": "def rebuild_the_spaceout_backdrops() -> int:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "_KEY_SETTING_ANIMATIONS",
+              "first_line": 243,
+              "excerpt": "_KEY_SETTING_ANIMATIONS = \"prefs/setting_animations\""
+            },
+            {
+              "literal": "_SPACEOUT_NIGHT_THEMES",
+              "first_line": 584,
+              "excerpt": "_SPACEOUT_NIGHT_THEMES = (\"data_art_fungal_growth\", \"data_art_tissue_facets\")"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N670",
+      "item_file": "features/new/670_independent_field_ripples_and_setup_backdrop.txt",
+      "item_sha256": "4f3996842a5d0c189af53d2b5f32a37d36b71fbf7676d6ecafcdf01ff2593b41",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Ripple control/intensity migration, independent click toggle and outward popup-close waves are implemented; October 12 source repairs supersede earlier private-publication debt.",
+      "remaining_gate": "Native/user visual acceptance and Work-owned real-GPU parity readback; no GPU job started.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "def _field_ripples_enabled(",
+              "first_line": 2652,
+              "excerpt": "def _field_ripples_enabled() -> bool:"
+            },
+            {
+              "literal": "def _field_click_ripples(",
+              "first_line": 2657,
+              "excerpt": "def _field_click_ripples() -> bool:"
+            },
+            {
+              "literal": "def _field_ripple_intensity(",
+              "first_line": 2737,
+              "excerpt": "def _field_ripple_intensity() -> float:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+          "anchors": [
+            {
+              "literal": "def _outside_outline(",
+              "first_line": 1052,
+              "excerpt": "def _outside_outline(np, segments, x, y, distance, aspect):"
+            },
+            {
+              "literal": "ripples_enabled = _field_ripples_enabled()",
+              "first_line": 10314,
+              "excerpt": "ripples_enabled = _field_ripples_enabled()"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_n670_close_ripples_and_intensity_20261012.py"
+      ]
+    },
+    {
+      "id": "N674",
+      "item_file": "features/new/674_spaceout_field_random_phenomena_and_effect_controls.txt",
+      "item_sha256": "1198332498732ce1b4d151a515596e7ab7d253d4bd09adf56e58a8167a3bae81",
+      "classification": "external_acceptance",
+      "current_requirement_disposition": "Separate default Spaceout field with eight persisted effects, bounded two-lane schedule, calm intervals and native renderer fallback exists.",
+      "remaining_gate": "Human aesthetic/native display acceptance; no unmet explicit local behavior identified.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+          "anchors": [
+            {
+              "literal": "DEFAULT_SPACEOUT_THEME = \"data_art_spaceout_field\"",
+              "first_line": 270,
+              "excerpt": "DEFAULT_SPACEOUT_THEME = \"data_art_spaceout_field\""
+            },
+            {
+              "literal": "class _SpaceoutFieldEngine",
+              "first_line": 7873,
+              "excerpt": "class _SpaceoutFieldEngine(_DataArtEngine):"
+            },
+            {
+              "literal": "_lane_periods = (29.0, 43.0)",
+              "first_line": 7883,
+              "excerpt": "_lane_periods = (29.0, 43.0)"
+            },
+            {
+              "literal": "def _field_events(",
+              "first_line": 7902,
+              "excerpt": "def _field_events(self):"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/preferences.py",
+          "sha256": "a8e4fae4717fe00289237ef18e9d4d2d5baea8c2e8a0ebd20d417fb538ad26a1",
+          "anchors": [
+            {
+              "literal": "def _spaceout_field_effects(",
+              "first_line": 2756,
+              "excerpt": "def _spaceout_field_effects() -> dict[str, bool]:"
+            },
+            {
+              "literal": "def _set_spaceout_field_effects(",
+              "first_line": 2763,
+              "excerpt": "def _set_spaceout_field_effects(effects: dict[str, bool]) -> None:"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": []
+    },
+    {
+      "id": "N684",
+      "item_file": "features/new/684_animation_defaults_ripples_cross_platform_snap_and_dynamic_gpu.txt",
+      "item_sha256": "15e0834c690b835f94551ad53ad18579356324a6f3a7b2efe883d9b958ad4835",
+      "classification": "maintainer_accepted",
+      "current_requirement_disposition": "Explicit October 12 maintainer desktop acceptance is recorded. Later fractional grain parity repair is in source; preserve unspecified mouse-gravity default.",
+      "remaining_gate": "Historical Work GPU rerun request is not a fresh Home-B software completion claim.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/ambient.py",
+          "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+          "anchors": [
+            {
+              "literal": "def _draw_subpixel(",
+              "first_line": 6181,
+              "excerpt": "def _draw_subpixel(self, width, height, xs, ys, values, lookup, dark):"
+            },
+            {
+              "literal": "def _point_material(",
+              "first_line": 7028,
+              "excerpt": "def _point_material(self, width: int, height: int, x, y, light,"
+            }
+          ]
+        },
+        {
+          "path": "tests/qt/test_impulse_lens_subpixel_gpu_parity_n684.py",
+          "sha256": "01866e2cd1884d9d2de0521e2816a951b4efe634c208832e3ba24c912760b9f0",
+          "anchors": [
+            {
+              "literal": "def test",
+              "first_line": 50,
+              "excerpt": "def test_subpixel_grains_draw_one_footprint_quad_per_grain(renderer, dark, equation, clear):"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/test_audit_animation_cost_table_n684.py",
+        "tests/qt/test_cpu_theme_graphics_paths_n684.py",
+        "tests/qt/test_flow_graphics_backend_fallback_and_ownership.py",
+        "tests/qt/test_growth_gpu_on_software_gl_n684.py",
+        "tests/qt/test_ui_feedback_boxes_ripples_spinner_20261010.py",
+        "tests/qt/test_impulse_lens_subpixel_gpu_parity_n684.py"
+      ]
+    },
+    {
+      "id": "N694",
+      "item_file": "features/new/694_photomosaic_blow_away_startup_screen.txt",
+      "item_sha256": "41db833631b5932973258d51c1ad584066b5f25bf5c9b2a7d1e991879f7f80e1",
+      "classification": "work_tutorial_gate",
+      "current_requirement_disposition": "Built-in mosaic startup and reduced-motion gate exist; later N695 defines timing/size. Both new captions are already present in all nine generated locales.",
+      "remaining_gate": "Work tutorial capture/media ownership remains; native performance measurements are historical.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/loading_screen.py",
+          "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+          "anchors": [
+            {
+              "literal": "def startup_animation_allowed(",
+              "first_line": 227,
+              "excerpt": "def startup_animation_allowed() -> bool:"
+            },
+            {
+              "literal": "return bool(get_startup_animation()) and not get_reduce_motion()",
+              "first_line": 246,
+              "excerpt": "return bool(get_startup_animation()) and not get_reduce_motion()"
+            },
+            {
+              "literal": "def blow_away(",
+              "first_line": 833,
+              "excerpt": "def blow_away(self, on_finished: Optional[Callable[[], None]] = None,"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_694_photomosaic_blow_away_startup_screen.py"
+      ]
+    },
+    {
+      "id": "N695",
+      "item_file": "features/new/695_startup_logo_on_a_full_screen_borderless_window_and_a_help_replay.txt",
+      "item_sha256": "596a8b5fce04664dbfa718e8f82821a21c6a0b538b9c212cc93d918b2b7d79d6",
+      "classification": "work_tutorial_gate",
+      "current_requirement_disposition": "Same-window mosaic hold/blow-away/replay and launch-dialog deferral are implemented; startup captions are present with matching locale source hashes.",
+      "remaining_gate": "Work capture with SPACR_NO_SPLASH unset; no new compositor/capture claim.",
+      "new_local_implementation_gap_proven": false,
+      "source_evidence": [
+        {
+          "path": "spacr/qt/widgets/loading_screen.py",
+          "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+          "anchors": [
+            {
+              "literal": "(_MOSAIC_MIN_HOLD_S - held)",
+              "first_line": 875,
+              "excerpt": "wait_ms = max(0, int(math.ceil((_MOSAIC_MIN_HOLD_S - held) * 1000.0)))"
+            },
+            {
+              "literal": "def _hold_then_begin(",
+              "first_line": 869,
+              "excerpt": "def _hold_then_begin(self) -> None:"
+            }
+          ]
+        },
+        {
+          "path": "spacr/qt/app.py",
+          "sha256": "01e516c2b1038fa11a3e7108a17733bb9908a14e3d79eff28d450e23cc4f17a9",
+          "anchors": [
+            {
+              "literal": "def _after_the_startup_sequence(",
+              "first_line": 3101,
+              "excerpt": "def _after_the_startup_sequence(self, action) -> None:"
+            },
+            {
+              "literal": "self._after_the_startup_sequence(box.open)",
+              "first_line": 5898,
+              "excerpt": "self._after_the_startup_sequence(box.open)"
+            }
+          ]
+        }
+      ],
+      "historical_test_references_not_rerun": [
+        "tests/qt/test_695_startup_sequence_and_borderless_window.py",
+        "tests/qt/test_695_startup_dialogs_deferred.py"
+      ]
+    }
+  ],
+  "caption_debt_evidence": "caption-debt-check.json"
+}

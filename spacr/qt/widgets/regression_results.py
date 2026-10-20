@@ -29,13 +29,14 @@ import os
 import re
 from typing import Dict, Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSignalBlocker, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QLabel, QPushButton, QTabWidget,
     QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
+from .. import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -204,21 +205,19 @@ def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
 
 
 def read_run_tables(tables, progress=None):
-    """Read a run's primary table, and any LEVEL it left in a sibling file.
+    """Read a run's primary table, and any level it left in a sibling file.
 
     ``results.csv`` is meant to hold every level a run produced -- a fitted
     run at ``level='both'`` writes its guide and gene rows into one table and
     the panel filters them apart by the ``level`` column.
 
-    THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected
-    them as their own family, wrote them to ``results_gene.csv``, and left
-    ``results.csv`` holding guides alone -- so a reader who asked for genes
-    was shown nothing while the rows sat in a file nothing opened. The writer
-    is fixed, and this reads the older runs too, because a folder on disk
-    does not update itself.
+    Older permutation runs did not: they tested genes, corrected them as
+    their own family, wrote them to ``results_gene.csv``, and left
+    ``results.csv`` holding guides alone. The writer now follows the rule,
+    and this function also reads those older runs.
 
     A sibling is merged only when it brings a level the primary table does
-    NOT already carry, so a run that already holds both is untouched and
+    not already carry, so a run that already holds both is untouched and
     nothing is ever counted twice.
 
     :param tables: candidate paths, primary first, as
@@ -291,13 +290,12 @@ TABLE_KEEP_COLUMNS = ("feature", "level", "coefficient", "p_value",
 def for_table(frame):
     """``frame`` without the columns that are blank for every row shown.
 
-    A permutation run's table is the UNION of two schemas: a guide row has
+    A permutation run's table is the union of two schemas: a guide row has
     ``guide`` and ``wells_with_guide``, a gene row has ``gene``,
     ``wells_with_gene`` and ``guides_in_gene``. Showing the union means that
     whichever level is chosen, a third of the columns are empty -- and the
     gene the reader is looking for is named thirteen columns to the right of
-    a blank ``guide`` cell, which is what makes a gene view read as broken
-    even once the rows are there.
+    a blank ``guide`` cell.
 
     Dropping a column that no visible row fills is safe because it carries no
     value for this selection: "how many wells hold this guide" has no answer
@@ -624,6 +622,9 @@ def backend_of(path) -> Optional[str]:
     return None
 
 
+_HELD_CONSTRUCTIONS: list = []
+
+
 class RegressionResultsPanel(QWidget):
     """Volcano, table and diagnostics for one finished regression."""
 
@@ -663,6 +664,36 @@ class RegressionResultsPanel(QWidget):
             larger external view; selection and redraw behavior are unchanged.
         """
         super().__init__(parent)
+        steps = self._construct(external_volcano)
+        held = _HELD_CONSTRUCTIONS[-1] if _HELD_CONSTRUCTIONS else None
+        if held is not None and not held:
+            held.append(steps)
+            return
+        for _step in steps:
+            pass
+
+    @classmethod
+    def _constructed_in_steps(cls, parent=None,
+                              external_volcano: bool = False):
+        """Build a panel one part per step, as a generator returning it.
+
+        The same construction :meth:`__init__` runs in one go, paused
+        between its larger parts so a caller stepping a deferred build can
+        give the event loop back. A reader must not use the panel before
+        the generator has finished.
+        """
+        held = []
+        _HELD_CONSTRUCTIONS.append(held)
+        try:
+            panel = cls(parent, external_volcano=external_volcano)
+        finally:
+            _HELD_CONSTRUCTIONS.remove(held)
+        for _step in (held[0] if held else ()):
+            yield
+        return panel
+
+    def _construct(self, external_volcano):
+        """Build the panel's widgets, pausing between its larger parts."""
         from .fast_plots import (ControlSeparation, EffectDistribution,
                                  EffectRankPlot, GuideAgreementPlot,
                                  InfluencePlot, PValueHistogram, QQPlot,
@@ -698,7 +729,7 @@ class RegressionResultsPanel(QWidget):
         self._level_label = QLabel("level")
         self._level_label.setToolTip(
             "Which family of coefficients every tab draws.\n\n"
-            "A run fitted at level='both' fits TWICE — once per guide and "
+            "A run fitted at level='both' fits twice — once per guide and "
             "once per gene — and writes both into one table. They are two "
             "multiple-testing families, so the q-values, the Q-Q's inflation "
             "figure and the significance line are computed within each "
@@ -758,6 +789,7 @@ class RegressionResultsPanel(QWidget):
 
         self.volcano = VolcanoPlot()
         self.table = ResultsTable()
+        self.table.fill_in_steps = True
         self.external_volcano = bool(external_volcano)
         self.table.setMinimumHeight(150)
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -784,6 +816,7 @@ class RegressionResultsPanel(QWidget):
             self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
 
+        yield
         self.effect_rank = EffectRankPlot()
         self.effect_distribution = EffectDistribution()
         self.tabs.addTab(self.effect_rank, "Effect rank")
@@ -799,6 +832,7 @@ class RegressionResultsPanel(QWidget):
             "them is. σ is a MAD, which the outliers a screen is looking for "
             "do not inflate.")
 
+        yield
         self.p_values = PValueHistogram()
         self.qq = QQPlot()
         self.controls = ControlSeparation()
@@ -806,6 +840,7 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.qq, "Q-Q")
         self.tabs.addTab(self.controls, "Controls")
 
+        yield
         from PySide6.QtGui import QFontDatabase
         from .folding_summary import FoldingSummaryView
 
@@ -813,6 +848,7 @@ class RegressionResultsPanel(QWidget):
         self._summary.setPlainText(
             "Run a regression to see its summary.")
 
+        yield
         self.residuals = ResidualPlot()
         self.scale_location = ScaleLocationPlot()
         self.influence = InfluencePlot()
@@ -852,8 +888,10 @@ class RegressionResultsPanel(QWidget):
             "Leverage against standardised residual. Which wells are moving "
             "the coefficients on their own.")
 
+        yield
         self.agreement = GuideAgreementPlot()
         self.support = ResultsTable()
+        self.support.fill_in_steps = True
         from .collapsible_splitter import CollapsibleSplitter
         agreement_split = CollapsibleSplitter(
             Qt.Vertical, persist_key="regression::guide_support")
@@ -912,6 +950,7 @@ class RegressionResultsPanel(QWidget):
         self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
+        yield
         from ..job_runner import JobRunner
 
         self._loading = False
@@ -1097,9 +1136,7 @@ class RegressionResultsPanel(QWidget):
         """The three well-level tabs, in the order they are shown.
 
         Public because it is how a caller asks the panel to restyle, export or
-        interrogate them WITHOUT reaching past the panel into its widgets --
-        which is how one screen ended up depending on another's private
-        surface.
+        interrogate them without reaching past the panel into its widgets.
         """
         return (self.residuals, self.scale_location, self.influence)
 
@@ -1150,17 +1187,17 @@ class RegressionResultsPanel(QWidget):
         return True
 
     def clear_diagnostics(self, reason: str = "") -> None:
-        """Empty the three well-level tabs and SAY why they are empty.
+        """Empty the three well-level tabs and state why they are empty.
 
         :param reason: the specific reason, when there is one. The default is
             :data:`NO_MODEL_MESSAGE` -- "no run in this session has fitted
             anything yet", which is the ordinary case and still an answer.
 
-        THIS DROPS THE MODEL, and that is what it is for: it is called when a
-        NEW TABLE arrives, and the previous fit has nothing to say about it.
-        A failure to DRAW the diagnostics is a different event and goes
-        through :meth:`_clear_diagnostic_views`, which leaves the fit alone --
-        a failure in the view must not destroy the thing being viewed.
+        This drops the model: it is called when a new table arrives, and the
+        previous fit does not describe it. A failure to draw the diagnostics
+        is a different event and goes through :meth:`_clear_diagnostic_views`,
+        which leaves the fit alone -- a failure in the view must not destroy
+        the thing being viewed.
         """
         self._model = None
         self._diagnostics_error = ""
@@ -1186,10 +1223,9 @@ class RegressionResultsPanel(QWidget):
             beside the loaded results.
         :returns: True when a summary was rendered.
 
-        Rendered from `model.summary()` verbatim rather than rebuilt: the
-        point of asking for the statsmodels summary is to get the statsmodels
-        summary, and a re-implementation would differ from every textbook and
-        every other tool the reader compares it against.
+        Rendered from `model.summary()` verbatim rather than rebuilt, so the
+        text matches the statsmodels summary that textbooks and other tools
+        show.
         """
         if model is None:
             model = self._model
@@ -1253,14 +1289,13 @@ class RegressionResultsPanel(QWidget):
             return payload. ``None`` clears the tabs and says why.
         :returns: True when the tabs were filled.
 
-        EVERY NUMBER COMES FROM :mod:`spacr.regression_qc`. The residuals, the
+        Every number comes from :mod:`spacr.regression_qc`. The residuals, the
         standardisation, the leverage and Cook's distance are the arrays that
         module already computes for the report it writes to disk -- so the
         live tab and the saved PDF cannot disagree about which well is
-        influential, which they would within a week if this panel did its own
-        arithmetic.
+        influential.
 
-        NEVER RAISES INTO THE GUI. A model class that cannot be diagnosed --
+        Never raises into the GUI. A model class that cannot be diagnosed --
         the penalised backends keep no design matrix -- puts its reason on the
         three tabs instead, because "this fit cannot answer that" and "this
         tab is broken" must not look the same.
@@ -1317,21 +1352,20 @@ class RegressionResultsPanel(QWidget):
             from, so a caller does not have to keep a copy of it to ask again.
         :returns: the verdict now on screen.
 
-        NOT ONE NUMBER RE-DERIVED HERE. The statistics come from
+        No statistic is recomputed here. The statistics come from
         :func:`spacr.regression_qc.draw_panel` -- Spearman's rho on
         sqrt|standardised residual| against fitted, a Brown-Forsythe test
         across quartiles of the fitted value, and the quartile SD ratio --
         drawn into a throwaway axes purely to get the dict it returns. That
         module is 3,444 lines and already computes them for the PDF the run
-        writes; a second implementation here would disagree with it about the
-        same fit inside a week, and the reader would have no way to tell which
-        of the two was wrong.
+        writes; a second implementation here could disagree with it about the
+        same fit.
 
-        TWO STATISTICS, NOT ONE, and that is regression_qc's decision rather
-        than this panel's: a rank correlation is exactly zero for a SYMMETRIC
+        Two statistics are used, which is regression_qc's decision rather than
+        this panel's: a rank correlation is exactly zero for a symmetric
         funnel -- wide at both ends, narrow in the middle -- which is what a
-        mis-specified link produces, and a panel reporting "no trend in
-        spread" over one would be a confident wrong answer.
+        mis-specified link produces, so "no trend in spread" from the rank
+        correlation alone would be wrong.
         """
         from matplotlib.figure import Figure
 
@@ -1576,7 +1610,7 @@ class RegressionResultsPanel(QWidget):
         """Put a sentence where the user will read it.
 
         Public because the panel is not the only thing that can fail to fill
-        it: the caller that decides WHICH folder to hand over can come up with
+        it: the caller that decides which folder to hand over can come up with
         nothing at all, and that has to reach the same header rather than
         being logged at debug level and dropped.
 
@@ -1594,10 +1628,8 @@ class RegressionResultsPanel(QWidget):
         Companion to :meth:`load`: the panel is otherwise only ever filled by
         a run finishing, which is no use to a user who has results and no run.
 
-        While a load is already in flight the same button is the CANCEL, so
-        the one control that starts a read is also the one that abandons it;
-        a read with no way out is the freeze this loader was moved off the
-        GUI thread to remove.
+        While a load is already in flight the same button cancels it, so the
+        control that starts a read also abandons it.
         """
         from PySide6.QtWidgets import QFileDialog
 
@@ -1834,14 +1866,13 @@ class RegressionResultsPanel(QWidget):
     def load(self, path) -> bool:
         """Load a results CSV, a run folder, or a parent of one.
 
-        THE SYNCHRONOUS ENTRY POINT, kept for tests and headless callers.
+        The synchronous entry point, kept for tests and headless callers.
         The GUI goes through :meth:`start_load`; both end in
         :meth:`_apply_loaded_run`, so the two cannot drift -- which is the
         rule `start_merge` and `merge` already follow.
 
-        EVERY WAY THIS FAILS SAYS SO. It used to return False five different
-        ways and leave the user looking at a table with columns and no rows,
-        which is indistinguishable from a run that produced nothing.
+        Every failure is reported in the status line, so a failed load is not
+        mistaken for a run that produced an empty table.
 
         :param path: results CSV, run folder or a folder above one (searched
             up to :data:`MAX_SEARCH_DEPTH` deep); ``~`` is expanded.
@@ -1973,6 +2004,11 @@ class RegressionResultsPanel(QWidget):
 
         :param frame: the coefficient DataFrame; ``None`` or an empty frame is
             reported in the status line and returns ``False``.
+
+        A run whose plot state is remembered is drawn once, by the restore
+        of that state, rather than drawn and then drawn again. A state first
+        recorded while this call draws -- a workspace save reading the panel
+        mid-draw -- holds what is being drawn and is not restored over it.
         """
         import pandas as pd
 
@@ -2078,14 +2114,18 @@ class RegressionResultsPanel(QWidget):
         self._offer_thresholds()
         self._offer_compartments()
 
-        self.refresh_views()
+        restoring = isinstance(
+            self._plot_states.get(self._plot_state_key(source)), dict)
+        if not restoring:
+            self.refresh_views()
         self._mark_the_level_on_the_plots()
         note = self.both_levels_note()
         if note:
             self.say(f"{self._status} {note}")
         if self._colour_by_note:
             self.say(f"{self._status} Colouring: {self._colour_by_note}.")
-        self._restore_plot_state(source)
+        if restoring:
+            self._restore_plot_state(source)
         self.loaded.emit(source or "")
         return True
 
@@ -2093,16 +2133,21 @@ class RegressionResultsPanel(QWidget):
     def plot_state(self) -> dict:
         """What the user has built on the plot, as data.
 
-        The design: "every regression run should have its own
-        interactive volcano plot." A run does not have a volcano today -- the
-        screen has one and a run borrows it -- so opening run B destroyed the
-        level, the colouring, the axis limits, the effect cut and the
-        selection a user had chosen on run A.
+        Each regression run keeps its own plot state. The screen has one
+        volcano that every run uses, so without this, opening run B would
+        discard the level, the colouring, the axis limits, the effect cut and
+        the selection chosen on run A.
 
-        EVERYTHING HERE BELONGS TO THE RUN AND NOT TO THE WIDGET. The colour
-        column is stored by NAME rather than by index, because the combo box
+        Everything here belongs to the run, not to the widget. The colour
+        column is stored by name rather than by index, because the combo box
         is rebuilt from each table's own columns and index 3 is a different
         column in the next run.
+
+        ``selected_keys`` carries the complete table selection; the legacy
+        ``selected_key`` also retains the active key used by linked plots.
+        ``symbol_by`` and ``opacity_by`` independently record the chosen
+        marker-shape and opacity columns, including ``None`` for an unused
+        channel, so an empty shape channel does not change opacity's role.
         """
         reader = getattr(self.volcano, "pinned_limits", None)
         pinned = reader() if callable(reader) else (
@@ -2110,12 +2155,15 @@ class RegressionResultsPanel(QWidget):
         return {
             "level": self._level,
             "colour_by": self._colour_by.currentData(),
+            "symbol_by": self._colour_by_2.currentData(),
+            "opacity_by": self._colour_by_3.currentData(),
             "baseline": tuple(self._baseline),
             "compartment": self._compartment,
             "p_value_kind": self._p_value_kind,
             "threshold_method": self._threshold_method,
             "threshold_multiplier": self._threshold_multiplier,
             "selected_key": self._selected_key,
+            "selected_keys": tuple(self.selected_keys()),
             "x_limits": pinned.get("x"),
             "y_limits": pinned.get("y"),
         }
@@ -2123,14 +2171,15 @@ class RegressionResultsPanel(QWidget):
     def apply_plot_state(self, state) -> bool:
         """Put a saved :meth:`plot_state` back. Returns whether it applied.
 
-        ONE REDRAW, not one per setting. Every public setter here redraws,
+        One redraw, not one per setting. Every public setter here redraws,
         so restoring nine of them through nine setters would draw the panel
         nine times on every run switch -- and the intermediate frames are of
         combinations the user never chose.
 
         :param state: dict as :meth:`plot_state` returns it; keys it lacks
             keep their current value. Nothing applies when it is not a dict or
-            no table is loaded.
+            no table is loaded. An explicit ``None`` colour disables colouring.
+            Older states containing only ``selected_key`` remain supported.
         """
         if not isinstance(state, dict) or self._frame is None:
             return False
@@ -2143,13 +2192,15 @@ class RegressionResultsPanel(QWidget):
                       "threshold_multiplier"):
             if field in state:
                 setattr(self, f"_{field}", state[field])
-        colour = state.get("colour_by")
-        if colour is not None:
-            index = self._colour_by.findData(colour)
+        for field, combo in (("colour_by", self._colour_by),
+                             ("symbol_by", self._colour_by_2),
+                             ("opacity_by", self._colour_by_3)):
+            if field not in state:
+                continue
+            index = combo.findData(state[field])
             if index >= 0:
-                blocked = self._colour_by.blockSignals(True)
-                self._colour_by.setCurrentIndex(index)
-                self._colour_by.blockSignals(blocked)
+                with QSignalBlocker(combo):
+                    combo.setCurrentIndex(index)
         self._offer_levels()
         self._offer_p_values()
         self._offer_thresholds()
@@ -2164,6 +2215,16 @@ class RegressionResultsPanel(QWidget):
             except Exception:                                    # noqa: BLE001
                 LOG.debug("could not restore the run's axis limits",
                           exc_info=True)
+        keys = state.get("selected_keys")
+        if isinstance(keys, (list, tuple)):
+            with QSignalBlocker(self.table):
+                self.table.select_keys(keys)
+            if not keys and not state.get("selected_key"):
+                self._selected_key = None
+                for plot in self._keyed_plots():
+                    plot.clear_highlight()
+                for histogram in (self.p_values, self.effect_distribution):
+                    histogram.clear_highlight()
         key = state.get("selected_key")
         if key:
             try:
@@ -2198,8 +2259,8 @@ class RegressionResultsPanel(QWidget):
     def apply_workspace_state(self, state) -> bool:
         """Put the remembered views back, and reopen the run that was open.
 
-        Returns whether anything was put back. THE STORE IS MERGED, NOT
-        REPLACED: restoring a workspace into a session that already has runs
+        Returns whether anything was put back. The store is merged, not
+        replaced: restoring a workspace into a session that already has runs
         open must not silently drop the views the user built since. A run in
         both is taken from the document, which is what the user asked to
         restore.
@@ -2210,6 +2271,7 @@ class RegressionResultsPanel(QWidget):
         """
         if not isinstance(state, dict):
             return False
+        self._remember_plot_state()
         runs = state.get("runs")
         if isinstance(runs, dict):
             for key, remembered in runs.items():
@@ -2217,11 +2279,16 @@ class RegressionResultsPanel(QWidget):
                     self._plot_states[str(key)] = dict(remembered)
         path = str(state.get("path") or "")
         if path and os.path.exists(path):
-            return bool(self.load(path))
+            restoring = getattr(self, "_restoring_workspace", False)
+            self._restoring_workspace = True
+            try:
+                return bool(self.load(path))
+            finally:
+                self._restoring_workspace = restoring
         return bool(runs)
 
     def forget_plot_state(self, source) -> bool:
-        """Drop one run's remembered plot. The design deletes a run.
+        """Drop one run's remembered plot, for a run that was deleted.
 
         :param source: the run's folder, or any path inside it -- the CSV a
             caller happens to be holding answers the same as the folder.
@@ -2235,17 +2302,16 @@ class RegressionResultsPanel(QWidget):
                                      None) is not None
 
     def forget_run(self, source) -> bool:
-        """A run was deleted: drop its view, and clear the panel if it is IT.
+        """A run was deleted: drop its view, and clear the panel if it is shown.
 
-        THE ORDER IS THE WHOLE POINT, and the failure sequence is explicit
-        before 146 existed: "deleting the run CURRENTLY ON SCREEN must also
+        The order matters: deleting the run currently on screen must also
         clear the panel, or leaving that run re-saves the state that was just
-        forgotten." `set_frame` calls `_remember_plot_state` on the way out of
+        forgotten. `set_frame` calls `_remember_plot_state` on the way out of
         a run, so forgetting first and clearing second files the deleted run
         again, under the same key, with the state it was just relieved of.
 
-        So the panel lets go of the run FIRST -- `_path` and `_frame` cleared
-        by hand rather than through `set_frame`, which is a route INTO a run
+        So the panel lets go of the run first -- `_path` and `_frame` cleared
+        by hand rather than through `set_frame`, which is a route into a run
         and re-saves on the way -- and forgets afterwards.
 
         :param source: the run's folder, or any path inside it.
@@ -2282,6 +2348,8 @@ class RegressionResultsPanel(QWidget):
 
     def _remember_plot_state(self) -> None:
         """Save the run on screen, if it has a path to be saved under."""
+        if getattr(self, "_restoring_workspace", False):
+            return
         key = self._plot_state_key(self._path)
         if key and self._frame is not None:
             self._plot_states[key] = self.plot_state()
@@ -2302,20 +2370,17 @@ class RegressionResultsPanel(QWidget):
         self._offer_levels()
 
     def refresh_views(self) -> None:
-        """Draw EVERY tab from the coefficient table at the chosen level.
+        """Draw every tab from the coefficient table at the chosen level.
 
-        ONE PIECE OF STATE, READ SIX TIMES. `_level` used to reach the volcano
-        and nothing else, so "genes only" left the coefficient table, the
-        p-value histogram, the Q-Q, the control panel and the guide support
-        showing the whole fit -- five tabs disagreeing with the sixth, at the
-        same time, with nothing on screen saying which was which. That is
-        worse than no filter at all: a reader who trusts the volcano and reads
-        the inflation figure off the Q-Q beside it has combined two different
-        multiple-testing families and cannot tell.
+        One piece of state is read by all six tabs. If the level reached only
+        the volcano, the coefficient table, the p-value histogram, the Q-Q,
+        the control panel and the guide support would show the whole fit
+        while the volcano showed one level, and a reader combining the
+        volcano with the Q-Q inflation figure would mix two multiple-testing
+        families without knowing it.
 
         Public because it is also what a caller does after changing something
-        the panel does not own -- and because a private redraw that four
-        methods have to remember to call is how the fifth one forgets.
+        the panel does not own.
         """
         frame = self._frame
         if frame is None:
@@ -2604,24 +2669,23 @@ class RegressionResultsPanel(QWidget):
     def both_levels_note(self) -> str:
         """One sentence naming the level shown and the one that is not.
 
-        THE RUN FITS TWICE AND THE PANEL SHOWS ONE. The design splits
-        `level='both'` into a guide fit and a gene fit -- two tables, two
-        multiple-testing families -- and the panel opens on guides so a gene
-        is not drawn once per guide. Both of those are right.
+        A run at `level='both'` fits twice -- a guide fit and a gene fit, two
+        tables, two multiple-testing families -- and the panel shows one
+        level at a time, opening on guides so a gene is not drawn once per
+        guide.
 
-        Previously, nothing said so. In a representative GLM run, both fits
-        completed -- ``results_grna.csv`` had 15 rows and ``results_gene.csv``
-        had 5 -- while half of
-        it was invisible with nothing on screen naming the other half, so "it
-        only runs once" is the honest reading from the user's side.
+        Without this note, the other level is invisible with nothing on
+        screen naming it: in a representative GLM run both fits completed
+        (``results_grna.csv`` had 15 rows and ``results_gene.csv`` had 5)
+        while only one was shown.
 
         Empty when there is nothing to say: one level in the table, or no
-        filter on. A note that fires every time is a note nobody reads.
+        filter on.
 
-        A LEVEL WITH NO ROWS IS A DIFFERENT SENTENCE, and this one gives way
-        to it. "genes only: 0 of 789 coefficients. The guide fit is in this
-        run too" is true and is not an answer -- the reader is looking at an
-        empty tab and needs to know that this run HAS no gene fit and why.
+        A level with no rows gets a different note, which takes precedence:
+        "genes only: 0 of 789 coefficients. The guide fit is in this run too"
+        is true but does not explain the empty tab -- the reader needs to know
+        that this run has no gene fit, and why.
         See :meth:`missing_level_note`.
         """
         missing = self.missing_level_note()
@@ -2705,17 +2769,22 @@ class RegressionResultsPanel(QWidget):
     def level_counts(self) -> dict:
         """``{None: n, "gene": n, "grna": n}`` for the table on screen.
 
-        Counted rather than assumed, and put in the MENU: "genes only" that
+        Counted rather than assumed, and shown in the menu: "genes only" that
         silently draws 400 of 1,213 points is a filter a user applies without
         knowing what they gave up.
         """
         frame = self._frame
+        held = self.__dict__.get("_level_counts_of")
+        if held is not None and held[0] is frame and frame is not None:
+            return dict(held[1])
         levels = self._levels_of(frame)
         if frame is None or levels is None:
             return {None: 0, "gene": 0, "grna": 0}
-        return {None: int(len(frame)),
-                "grna": int((levels == "grna").sum()),
-                "gene": int((levels == "gene").sum())}
+        counts = {None: int(len(frame)),
+                  "grna": int((levels == "grna").sum()),
+                  "gene": int((levels == "gene").sum())}
+        self._level_counts_of = (frame, dict(counts))
+        return counts
 
     def _default_level(self):
         """The level to open a new table at.
@@ -2816,7 +2885,7 @@ class RegressionResultsPanel(QWidget):
         """The coefficient table at the chosen level, or ``None``.
 
         This is what every tab is drawn from -- see :meth:`refresh_views`.
-        :meth:`results_frame` is the RUN's table and stays whole: the filter
+        :meth:`results_frame` is the run's table and stays whole: the filter
         is a view, not an edit, and a caller exporting the results must get
         the fit rather than whatever the user last right-clicked.
         """
@@ -2829,9 +2898,9 @@ class RegressionResultsPanel(QWidget):
     def family_note(self) -> str:
         """Which multiple-testing family the p-value and Q-Q tabs are drawing.
 
-        THE ONE THING FILTERING A Q-Q CHANGES THAT FILTERING A VOLCANO DOES
-        NOT. A volcano of the guides is the same dots with some removed; a
-        Q-Q of the guides is a DIFFERENT DIAGNOSTIC -- the expected quantiles
+        Filtering changes a Q-Q plot in a way it does not change a volcano. A
+        volcano of the guides is the same dots with some removed; a Q-Q of the
+        guides is a different diagnostic -- the expected quantiles
         are recomputed over 900 tests instead of 1,200, so the diagonal moves,
         the inflation figure at the median is a different number, and the
         excess in the histogram's first bin is this family's excess and not
@@ -2854,19 +2923,16 @@ class RegressionResultsPanel(QWidget):
                 f"first bin are this family's, not the run's.")
 
     def set_level(self, level) -> None:
-        """Draw only genes, only guides, or both -- ON EVERY TAB.
+        """Draw only genes, only guides, or both -- on every tab.
 
-        A FILTER ON THE PANEL, not a mode of the run. The coefficient table
-        already carries both -- `feature` is `gene_fraction:gene[...]` or
-        `fraction:grna[...]` -- so this needs no re-fit and no second table,
-        which is why it is better here than in the settings where it used to
-        live.
+        This is a filter on the panel, not a mode of the run. The coefficient
+        table already carries both -- `feature` is `gene_fraction:gene[...]`
+        or `fraction:grna[...]` -- so this needs no re-fit and no second
+        table.
 
-        ONE PIECE OF STATE. Reached from the volcano's right-click menu and
-        from the coefficients table's, and read by every draw path, because a
-        filter that reaches four of six tabs is worse than one that reaches
-        none: the two then disagree on screen at the same time and nothing
-        says which is which.
+        One piece of state, reached from the volcano's right-click menu and
+        from the coefficients table's, and read by every draw path, so every
+        tab shows the same level.
 
         :param level: ``"gene"`` for genes only, ``"grna"`` for guides only,
             or ``None`` for both.
@@ -3123,9 +3189,10 @@ class RegressionResultsPanel(QWidget):
     def set_compartment(self, name) -> None:
         """Colour one TAGM/LOPIT compartment against grey, or none.
 
-        ONE. "Everything is grey except what the sentence is about" -- and a
-        27-colour volcano is both what that rule forbids and, measured, the
-        version whose legend cost 40 ms of a 49 ms redraw.
+        Only one compartment is coloured. "Everything is grey except what the
+        sentence is about" -- and a 27-colour volcano is both what that rule
+        forbids and, measured, the version whose legend cost 40 ms of a 49 ms
+        redraw.
 
         :param name: TAGM/LOPIT compartment name to pick out,
             :data:`spacr.localisation.ALL` to colour every annotated
@@ -3378,7 +3445,8 @@ class RegressionResultsPanel(QWidget):
         from PySide6.QtCore import QTimer
 
         self.set_level("grna" if guide_of(str(key)) else "gene")
-        QTimer.singleShot(0, lambda k=str(key): self.table.select_key(k))
+        _after(
+            0, self, lambda k=str(key): self.table.select_key(k))
         self.say(f"Showing {self.LEVEL_NAMES.get(self._level, 'everything')} "
                  f"so the point you clicked has a row.")
 

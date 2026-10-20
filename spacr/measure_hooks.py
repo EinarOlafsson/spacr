@@ -712,8 +712,8 @@ def warn_if_hooks_will_not_reach_workers(start_method: str) -> bool:
     """Print a warning when in-process hooks cannot reach the worker pool.
 
     A ``spawn`` / ``forkserver`` worker is a fresh interpreter with empty
-    registries, so hooks registered through the Python API would apply to
-    nothing at all — the exact silent no-op this module exists to avoid. Hooks
+    registries, so hooks registered through the Python API are not applied in
+    the workers and no error is raised there. Hooks
     installed via :data:`HOOKS_ENV_VAR` are re-installed by each worker and are
     not warned about.
 

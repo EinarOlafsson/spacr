@@ -1,0 +1,13 @@
+{
+  "base": "55bf6cc6b2b319faadec8cac0d16119d0c21def1",
+  "test_file": "tests/test_cov_submodules_cellpose_apply.py",
+  "test_sha256": "574bdf06a504eff0c28425c8a1e009174d4a768834865851ec8eec31ad786f74",
+  "old_test_sha256": "d8c0f3c7d0655b8fe8e7d3f8f0332f0fd853615c0f7aabdbb5b181d212e96ae9",
+  "patch_sha256": "e515c6de00fc736a7f4c560bd4b9589fddeb58f5f8837e2ae83a077167aeb72e",
+  "production_sha256": "c7587d7bd6f3a27d204ddb73020848c10ae78846546da922a99a2658c5ebfd74",
+  "scope": "Only_apply_settings createsprivatecontrolledlocalfileoutsideimagefolder andusesactualpath; oneconstructorassertstillrequiresexactselectedsettingspath",
+  "entire_old_module_ast_restored_after_only_approved_helper_and_expectedpath_normalization": true,
+  "all_other_original_assertions_ast_exact": true,
+  "fake_model_constructor_eval_signatures_and_arrays_unchanged": true,
+  "trust_limits": "Dummybytesneverdecoded; onlyregularlocalfile resolverboundary exercised, not realmodeltrustorquality. No silentstockfallback/prodchange."
+}

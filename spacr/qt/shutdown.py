@@ -43,26 +43,22 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
         name of a module. It is used in the sentence, so it reads as a
         noun: "Quit Mask Generation?".
     :param verb: the word for what is about to happen. "Quit" for the
-        application and the Home banner, "Stop" for a module's Stop button --
-        a button labelled Stop that opens a dialog headed "Quit" reads as
-        the wrong dialog, and a user who thinks they have mis-clicked
-        cancels out of the thing they wanted.
+        application and the Home banner, "Stop" for a module's Stop button, so
+        the dialog heading matches the button that opened it.
     :param detail: appended under the question. Callers use it to name what
         is still running, because "something is still running" is not
         enough information to choose with.
     :param offer_restart: add a Force restart button. This option is disabled
         by default for ordinary quit dialogs.
     :param restart_detail: what Force restart will cost, from
-        :func:`spacr.restart_state.warning_text`. Shown only when the button
-        is offered, and REQUIRED to be meaningful when it is -- a button whose
-        consequences are not on screen beside it is one people press once.
+        :func:`spacr.restart_state.warning_text`. Shown only when the button is
+        offered, and required when it is.
     :returns: :data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or
         :data:`CANCEL`.
 
-    Cancel is the default button and the escape action. Force quit is
-    reachable in one click but is never what a stray Return key does, and
-    Force restart is LAST because it is the most destructive thing on the
-    dialog.
+    Cancel is the default button and the escape action. Force quit is reachable
+    in one click but is never what a stray Return key does, and Force restart
+    is last because it is the most destructive option on the dialog.
     """
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Warning)
@@ -134,8 +130,12 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
         if launcher is None:
             import subprocess
 
-            subprocess.Popen(started, start_new_session=True,
-                             close_fds=True)
+            launch_options = {"start_new_session": True, "close_fds": True}
+            if getattr(sys, "frozen", False):
+                environment = dict(os.environ)
+                environment["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+                launch_options["env"] = environment
+            subprocess.Popen(started, **launch_options)
         else:
             launcher(started)
     except Exception as exc:                          # noqa: BLE001
@@ -232,7 +232,7 @@ class GracefulQuitWatcher(QObject):
     def stop(self) -> None:
         """Stop watching for the quit signal.
 
-        IDEMPOTENT: shutdown can be reached by more than one route, and a
+        Idempotent: shutdown can be reached by more than one route, and a
         second stop must not be an error.
         """
         self._timer.stop()
@@ -280,8 +280,8 @@ class GracefulQuitWatcher(QObject):
 def describe_active(handles: Iterable) -> str:
     """One line per running job, for the prompts above.
 
-    "Something is still running" is not information anybody can decide
-    with; the name of the module and how long it has been going is.
+    Each line names the module and how long it has been running, so the user
+    can decide whether to wait.
 
     :param handles: running job handles; each one's ``app_key`` (or ``'job'``)
         and ``elapsed()`` seconds, shown in whole minutes, are listed.
@@ -302,10 +302,9 @@ def describe_active(handles: Iterable) -> str:
 def style_as_danger(button: QPushButton, palette: Optional[dict] = None) -> None:
     """Paint ``button`` in the theme's danger colour.
 
-    Scoped to the one button rather than added to the application sheet:
-    this is the only red control on its row, and a global
-    ``#DangerButton`` rule would be a new thing for every later screen to
-    trip over.
+    Scoped to the one button rather than added to the application sheet: this
+    is the only red control on its row, and a global ``#DangerButton`` rule
+    would also apply to every later screen.
 
     :param button: the push button to restyle; it is given the object name
         ``DangerButton`` when it has none.

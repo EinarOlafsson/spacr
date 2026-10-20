@@ -51,7 +51,7 @@ def test_real_cli_package_is_valid_and_source_is_unchanged(archive_run, tmp_path
     assert cli.main(args) == cli.EXIT_OK
     package = tmp_path / "exports" / "archive-fixture"
     assert report._validate_archive_package(package) == []
-    manifest = json.loads((package / "archive_manifest.json").read_text())
+    manifest = json.loads((package / "archive_manifest.json").read_text(encoding="utf-8"))
     assert manifest["form"]["microscope"] == "Yokogawa CellVoyager"
     assert manifest["copy_images"] is copy_images
     assert (package / "data").exists() is copy_images
@@ -145,7 +145,7 @@ assert not any(name in sys.modules for name in ('PySide6', 'tkinter', 'torch', '
 
 def test_notebook_cell_is_opt_in_and_uses_the_working_cli(archive_run, tmp_path):
     notebook = json.loads((Path(__file__).resolve().parents[1] /
-                          "Notebooks/02_measure_and_crop.ipynb").read_text())
+                          "Notebooks/02_measure_and_crop.ipynb").read_text(encoding="utf-8"))
     cell = next(cell for cell in notebook["cells"] if cell["cell_type"] == "code"
                 and cell.get("metadata", {}).get("spacr", {}).get("feature") == 574)
     source = "".join(cell["source"])

@@ -365,22 +365,47 @@ def test_opening_a_source_teaches_the_probe_so_the_picker_can_go_back(
 # ---------------------------------------------------------------------------
 
 def test_browsing_from_the_settings_dialog_does_not_wait_on_the_field(
-        qtbot, qt_theme_applied, monkeypatch, sleeping_mount):
-    """`Browse…` hands the field's text to QFileDialog, which lists it.
+        qtbot, qt_theme_applied, monkeypatch, tmp_path):
+    """Browse returns while its unique source's real background stat is pending.
 
-    The field is prefilled with the open source and can be typed into, so it
-    holds a path the user supplied by two routes. This was the sibling site
-    the first pass left behind: the screen's own picker was fixed and this
-    one, one dialog in, was not.
+    Arm the field after constructing the dialog: cold construction must not
+    consume the simulated I/O window. An eight-second upper bound also makes
+    a foreground-stat regression fail the original one-second assertion.
     """
+    import threading
+
     from PySide6.QtWidgets import QFileDialog
     from spacr.qt import annotate_engine as engine
     from spacr.qt.screens import annotate as annotate_mod
 
+    asleep = str(tmp_path / "asleep-source")
+    release = threading.Event()
+    entered = threading.Event()
+    stat_lock = threading.Lock()
+    stat_threads = []
+    main_thread = threading.current_thread()
+    real_isdir, real_exists = os.path.isdir, os.path.exists
+
+    def pending_stat(original, path, *args, **kwargs):
+        if str(path) != asleep:
+            return original(path, *args, **kwargs)
+        worker = threading.current_thread()
+        with stat_lock:
+            stat_threads.append(worker)
+        if worker is not main_thread:
+            entered.set()
+        release.wait(SLOW_S)
+        return True
+
+    monkeypatch.setattr(os.path, "isdir", lambda path, *args, **kwargs:
+                        pending_stat(real_isdir, path, *args, **kwargs))
+    monkeypatch.setattr(os.path, "exists", lambda path, *args, **kwargs:
+                        pending_stat(real_exists, path, *args, **kwargs))
     settings = engine.AnnotateSettings()
-    settings.src = ASLEEP
+    settings.src = ""
     dialog = annotate_mod._SettingsDialog(settings)
     qtbot.addWidget(dialog)
+    dialog._src_edit.setText(asleep)
 
     seen = []
 
@@ -389,15 +414,33 @@ def test_browsing_from_the_settings_dialog_does_not_wait_on_the_field(
         return ""
 
     monkeypatch.setattr(QFileDialog, "getExistingDirectory", fake_dialog)
-    started = time.monotonic()
-    dialog._pick_src()
-    elapsed = time.monotonic() - started
+    try:
+        started = time.monotonic()
+        dialog._pick_src()
+        elapsed = time.monotonic() - started
 
-    assert elapsed < 1.0, (
-        f"pressing Browse took {elapsed:.1f}s -- the settings dialog is "
-        "stat-ing the source field on the GUI thread")
-    assert seen == [os.getcwd()]
-    assert dialog._src_edit.text() == ASLEEP, "cancelling emptied the field"
+        assert elapsed < 1.0, (
+            f"pressing Browse took {elapsed:.1f}s -- the settings dialog is "
+            "stat-ing the source field on the GUI thread")
+        assert seen == [os.getcwd()]
+        assert dialog._src_edit.text() == asleep, "cancelling emptied the field"
+        qtbot.waitUntil(entered.is_set, timeout=int(SLOW_S * 1000))
+        with stat_lock:
+            workers = tuple(stat_threads)
+        assert workers and all(worker is not main_thread for worker in workers)
+        assert not release.is_set()
+        with annotate_mod._VOUCH_LOCK:
+            assert asleep in annotate_mod._VOUCHING
+            assert asleep not in annotate_mod._VOUCHED
+    finally:
+        release.set()
+        deadline = time.monotonic() + SLOW_S
+        with stat_lock:
+            workers = tuple(stat_threads)
+        for worker in workers:
+            if worker is not main_thread:
+                worker.join(max(0.0, deadline - time.monotonic()))
+    assert all(not worker.is_alive() for worker in workers)
 
 
 def test_browsing_still_starts_in_a_folder_that_is_really_there(

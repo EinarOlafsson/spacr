@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "status": "owning_tests_passed_supplemental_source_peer_pending",
+  "source_parent": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "prior_129_source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-pipeline-independent-source-peer.json",
+    "bytes": 8249,
+    "sha256": "a3ae738daacc31150abff80e9ec7b180123575654d695bcab20a75305a061725"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/check_completed_matrix.py",
+      "bytes": 10671,
+      "sha256": "1a19e390670b84373987f8237e3f12a293aa8d0de7700fa53c4b54e71c63fdaa"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_audio.py",
+      "bytes": 3847,
+      "sha256": "198f487f0e10aeda06ce12df91b368768b72e66f7d8f16210864f40b14234eb9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40381,
+      "sha256": "5fcdc99028c70db27fa99a30b4bb326e96981d825af676e2fa789e7dcd981c3d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 10773,
+      "sha256": "9c59acdaee7d9d83f1176f35617b1aa2555248ecbfbcba207c11b01678ecbbc4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_visual_refresh.py",
+      "bytes": 17523,
+      "sha256": "f3c49da0c193b380640573a11ab9025ef88d977b9b5a410bf1900fef149f1b88"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "bytes": 9540,
+      "sha256": "c04de6166bf33595d96ef045ace75294fe5bd1ac6afaab7a0bb5cb78cd866526"
+    }
+  ],
+  "unchanged_previous_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/build_appended_candidate.py",
+      "bytes": 38632,
+      "sha256": "b4a2bd94912c48371d37c5881f021acfeab65746026f4779809d065df5d2cc85"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/finish_staged_visual.py",
+      "bytes": 5319,
+      "sha256": "a58399848441fa2c9d71511c29baac1e211e5ec8dadceeb8c16421ee38e56077"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+      "bytes": 9336,
+      "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32"
+    }
+  ],
+  "tests": {
+    "passed": 166,
+    "seconds": 1.66,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r3.log",
+      "bytes": 285,
+      "sha256": "85e5e560d9aa0574eedb165d8e00694b6bbfce0e2bd1b2ae492372dc3fcf1708"
+    },
+    "cap": "4G",
+    "CPU_only": true,
+    "no_browser_media_encode_decode_model_execution": true,
+    "own_lease_removed": true
+  },
+  "delta": [
+    "Only narration_voices ignored in retained-English comparison; every other English field and all retained source/caption bytes remain exact.",
+    "check_completed_matrix and verify_staged_audio --retained-from original workspace explicitly require retained-narration; prior defaults retained.",
+    "verify_staged_lesson --retain-visual-from published baseline invokes protected validator; ordinary native path unchanged; rejects contradictory whole-media retention.",
+    "Overlay exactargv now4decoder/encoder threads plus -progress pipe:1/-nostats; original frame source/filter/range12901 unchanged."
+  ],
+  "specific_call_chain_audit": {
+    "checked": [
+      "verify_staged_audio",
+      "check_completed_matrix",
+      "finish_staged_visual",
+      "build_appended_candidate both timing seams",
+      "verify_staged_lesson selected timing entry",
+      "stage_web_renditions",
+      "verify_release_candidate"
+    ],
+    "no_generic_native_gate_edits": true,
+    "inapplicable_mode": "Legacy02 hasone native Home scene; native-boundary-clocks requires2consecutive native scenes. External72case matrix should use ordinaryvoice/caption/dedicatedcue verification, not this inapplicable mode."
+  },
+  "limits": [
+    "Source/tests only; all actual card/overlay/fullmedia/browser/publication gates remain root-owned future operations.",
+    "Tests use real tiny source/catalog/retention files plus mocked decoding/browser boundaries; no application/model imported or actual browser launched."
+  ]
+}

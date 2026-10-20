@@ -69,7 +69,7 @@ def test_small_samples_invalid_values_and_duplicate_identifiers():
 
 def test_real_control_data_reproduce_anchor_and_held_out_endpoint_errors():
     folder = Path(__file__).parent / 'data/plaque_growth'
-    receipt = json.loads((folder / 'reference.json').read_text())
+    receipt = json.loads((folder / 'reference.json').read_text(encoding="utf-8"))
     with (folder / 'control_areas.csv').open() as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 528

@@ -1,19 +1,14 @@
-"""What spaCR is allowed to keep, and when it has to give it back.
+"""Cache eviction policies and host-memory availability measurements.
 
-Three settings, and the order matters. The HEADROOM FLOOR comes first: it
-says how much of the machine must stay free for everything else, and the
-other two are meaningless until something says when to apply them. Then the
-IDLE TIMEOUT, which says how long an unused thing may sit before it is
-dropped, and the CACHE CEILING, which says how much may be held at all.
+The idle timeout and cache ceiling determine the keys selected by
+``what_to_drop``. The separate ``headroom_is_short`` predicate compares
+available host memory with a configured threshold. Callers apply these
+policies and perform resource cleanup.
 
-WHAT THESE DO NOT DO IS UNLOAD A LIBRARY, and nothing here is named as
-though it does. Measured on this machine: importing torch costs 477 MB,
-deleting every torch entry from `sys.modules` and collecting returns 0 of
-it, and 63 of its shared objects stay mapped. CPython has never supported
-unloading a C extension. What CAN be returned is caches, model weights and
-GPU allocations, so that is what these govern -- and deferring an import
-until first use is the honest form of "load when called", which is why a
-session that never opens a deep-learning module never pays the 477 MB.
+This module does not unload Python modules or native libraries. Eviction
+plans identify cache entries; callers decide which resources may be
+released. The policies do not guarantee a particular reduction in process
+memory or GPU allocations.
 """
 from __future__ import annotations
 
@@ -74,11 +69,10 @@ def recommended_for(level: str):
 
 
 def free_megabytes() -> Optional[float]:
-    """How much memory the machine has free right now.
+    """Return available host memory in mebibytes.
 
-    :returns: megabytes, or ``None`` when it cannot be measured -- in which
-        case the headroom floor cannot be enforced and says so rather than
-        guessing.
+    :returns: ``psutil.virtual_memory().available`` divided by ``1024**2``,
+        or ``None`` when the measurement fails.
     """
     try:
         import psutil
@@ -90,11 +84,11 @@ def free_megabytes() -> Optional[float]:
 
 
 def headroom_is_short(floor_mb: Optional[float] = None) -> bool:
-    """Whether free memory has fallen below the floor.
+    """Test whether available host memory is below the configured threshold.
 
-    :param floor_mb: the floor; read from preferences when omitted.
-    :returns: ``False`` when memory cannot be measured -- a cache that
-        cannot be shown to be a problem is not dropped on suspicion.
+    :param floor_mb: threshold in mebibytes; read from preferences when omitted.
+    :returns: ``False`` when memory or the required preference cannot be read;
+        otherwise the result of comparing available memory with the threshold.
     """
     free = free_megabytes()
     if free is None:
@@ -111,22 +105,22 @@ def headroom_is_short(floor_mb: Optional[float] = None) -> bool:
 
 def what_to_drop(entries, now: float, idle_minutes: Optional[float] = None,
                  ceiling_mb: Optional[int] = None) -> list:
-    """Which cache entries must go, oldest idle first.
+    """Select cache keys by idle timeout and then the remaining total size.
 
     :param entries: ``[(key, megabytes, last_used_epoch_seconds), ...]``.
     :param now: the current epoch time, passed in so a test can choose it.
     :param idle_minutes: the idle timeout; from preferences when omitted.
     :param ceiling_mb: the size ceiling; from preferences when omitted.
-    :returns: the keys to drop, in the order to drop them.
+    :returns: string keys to drop, in selection order.
 
-    TWO REASONS, APPLIED IN ORDER. Anything idle longer than the timeout
-    goes because nothing is using it. Then, if what remains is still over
-    the ceiling, the least recently used go until it fits -- so a cache
-    under pressure gives up what it is least likely to want next rather
-    than whatever it happens to reach first.
+    Entries older than the timeout are selected first, in input order. If
+    the remaining total exceeds the ceiling, additional entries are selected
+    from least to most recently used until that total fits.
 
-    An entry is never dropped for being large alone: size decides the ORDER
-    of a trim, and idleness decides whether one happens.
+    Size determines whether further eviction is needed, not the ranking.
+    The ceiling can select entries even when none exceeds the idle timeout.
+    This helper does not check host-memory headroom or whether entries are
+    in use; callers must supply entries eligible for eviction.
     """
     if idle_minutes is None or ceiling_mb is None:
         try:

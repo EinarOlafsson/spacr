@@ -1,0 +1,46 @@
+{
+  "ten_inverse_byteproofs": [
+    {
+      "path": "packaging/readme_source.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/sv.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/de.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/es.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/zh_CN.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/fr.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/pt.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/hi.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/ko.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    },
+    {
+      "path": "docs/i18n/readme/source/is.yaml",
+      "inverse_only_size_date_restores_every_original_byte": true
+    }
+  ],
+  "all_nine_old_review_files_byte_exact": true,
+  "tests_tools_and_generated_files_untouched": true
+}

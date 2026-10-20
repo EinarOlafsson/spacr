@@ -198,7 +198,7 @@ def test_archived_source_rejects_mismatched_translation_layout(plain_build):
     build.builder._write_english_api_manifest(build.docs)
     build.head_records = build.english_manifest()["symbols"]
     path = build.api_dir / "pt.json"
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     payload["symbols"][key]["source_blocks_sha256"] = ["not-the-source-blocks"]
     path.write_text(json.dumps(payload))
     _, history, _, _ = build.builder._proven_api_history(build.docs, "pt")
@@ -210,7 +210,7 @@ def test_corrupt_source_archive_fails_before_overwriting_manifest(plain_build):
     _seed_one_changed_symbol(build)
     build.builder._write_english_api_manifest(build.docs)
     path = build.builder.ROOT / "docs/i18n/api_source_history.json"
-    archive = json.loads(path.read_text())
+    archive = json.loads(path.read_text(encoding="utf-8"))
     next(iter(archive["sources"].values()))["text"] = "Wrong source."
     path.write_text(json.dumps(archive))
     before = (build.api_dir / "en.json").read_bytes()
@@ -296,7 +296,10 @@ def test_plain_api_build_force_bypasses_historical_paragraph_reuse(plain_build):
     assert not call["kwargs"].get("force", False)
     assert build.texts("pt") == {key: f"{PT_NEW}\n\n{PT_GENERATED_SHARED}"}
     assert build.head_reads == []
-    assert build.readme_calls == ["pt"]
+    # --force no longer translates the README: the translated READMEs are
+    # drawn from docs/i18n/readme/source/<lang>.yaml by
+    # tools/build_readme_images.py since 2026-10-12.
+    assert build.readme_calls == []
 
 
 @pytest.mark.parametrize("force", [False, True])

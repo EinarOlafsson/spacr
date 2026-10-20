@@ -44,7 +44,9 @@
       "source_sha256": "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d",
       "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
       "translation": "기초 데이터의 실제 출처를 유지합니다. 외부 이름이 고유하다는 이유만으로 이미지 식별자로 바뀌지 않습니다. 검증된 일대일 조인도 단일 원소 그룹에 같은 자료형 기반 계획을 적용하므로 명시적인 count 및 nunique 선택이 계속 유효합니다. 데이터 선택 경계와 필터 식별자는 timeID를 사용하며 원래 표기인 time_id도 유지하므로 time_id를 선택한 차트를 재현할 수 있습니다.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#3",
@@ -55,7 +57,7 @@
       "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
     },
     {
-      "label": "spacr.install_cleanup#8",
+      "label": "spacr.install_cleanup#7",
       "source": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
       "source_sha256": "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3",
       "context": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
@@ -124,7 +126,9 @@
       "source_sha256": "016cea402964e16150069ef03c1d065fdc3fd759b0333c6af70524e2ec09e799",
       "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
       "translation": "카운터는 감소시키는 대신 초기화합니다. 판단할 것은 spaCR가 지금 충돌하는지이며 역사적으로 몇 번 충돌했는지가 아닙니다. 계속 증가만 하는 합계는 배경이 정상 동작하는 컴퓨터에서도 결국 배경을 비활성화하게 됩니다. 먼저 이 창이 보유한 모든 인스턴스 잠금과 프로젝트 잠금을 해제합니다.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.crash_recovery.note_that_a_launch_began#2",
@@ -214,7 +218,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "창 전체 단축키는 모두 다시 지정할 수 있습니다. 요약표의 \"Change shortcuts…\" 버튼은 창 전체 작업의 테이블을 엽니다. 여기에 입력한 키가 기본 키를 대체하며 다른 작업이 이미 사용하는 키는 충돌로 표시되어 저장할 수 없습니다. 변경 사항은 Qt의 이식 가능한 표기로 환경설정의 :data:`_KEYMAP_KEY` 아래에 저장하므로 한 플랫폼에서 저장한 키 맵을 다른 플랫폼에서도 동일하게 읽습니다. Annotate, Make Masks, 시야 브라우저처럼 한 응용프로그램 화면에만 속한 키는 기본값을 유지하고 사용 중인 키로 표시합니다.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",
@@ -244,6 +250,8 @@
     },
     {
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "source": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
       "source_sha256": "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c",
       "context": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",

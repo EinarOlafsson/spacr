@@ -1,0 +1,57 @@
+{
+  "status": "PRIVATE SOURCE/TEST DELIVERED; independentpeer pending; wholeN441 notclosed",
+  "base": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "source_scope": "OnlyScanR metadata examples/source fields change; secondmCherry example is citedauthorstem+explicitlyinferredconfiguredTIFFsuffix. ExistingAlexaexample preservedanditsowninferredsuffixnowdisclosed. Regex/groups/status/other18records/all19patterns exact.",
+  "provenance": {
+    "primary_first_person_report": "https://forum.knime.com/t/combining-images-to-stack/2119",
+    "author_date": "yosry.moh (Mohamed),2012-06-29",
+    "exact_reported_stem": "A1--W00001--P00001--Z00000--T00000--mCherry1",
+    "existing_report": "forum.image.sc thread14872, exactAlexa488stem",
+    "caveat": "Bothsourcesomitextension. OMEactualScanR TIFFlisting supportsformat, notthemissingparticularsuffix. Notclaimedunmodifiedcomplete/acquiredfilename, noPROVISIONALupgrade."
+  },
+  "baseline": "1newprovenanceFAIL+9existingPASS5.93s",
+  "final": "10PASS7.00s,zero skips/attemptednetwork; exactown/group/evidence/crossoverlap/old4/extensioncontracts",
+  "post_test_doc_correction": "Onlyexistingevidence-testdocstring correctsstaleONE ScanR claim. Tested01db...source archived; final874430...docsource hasidenticaltestedexecutableAST. No redundantretest. RootmergesEVOSbb06 paragraphkeepingbothEVOS2literalstatementandScanRinferredsuffixcaveat.",
+  "source_proof": {
+    "base": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+    "source_sha256": "af4913c48026af80ca17459cf98e4925320dd1768b0bee5c2dd2599d42931a6b",
+    "test_sha256": "87443012d8b78cc9c4e11a7fb0e4b97bd5dc88cd9e94fdef91172d923ab8bd2c",
+    "source_delta_only": {
+      "scanr": [
+        "examples",
+        "source"
+      ]
+    },
+    "all19patterns_and_other18records_exact": true,
+    "all_signatures_docstrings_and_trcalls_exact": true,
+    "entire_module_AST_restored_by_only_priorScanRrow": true,
+    "test_original_bytes_prefix_exact": false,
+    "new_example": "A1--W00001--P00001--Z00000--T00000--mCherry1.tif",
+    "status": "provisional unchanged",
+    "meaning": "Bothcitedsource strings are stems withoutsuffix; runtimeexample appendsdeclared.tif explicitlyinferred, not claimedobservedfullfilename.",
+    "tested_test_sha256": "01db4aed9bedd7b426aa118aac8f8507ca57ae3899cf1bcab5365451105b004a",
+    "post_test_documentation_only_correction": "Existing evidence-test docstring removes stale single-ScanR statement; explicitly distinguishes two acquisition-user stems and inferredTIFFsuffix. Entire tested executableAST remains identical; no retest necessary.",
+    "original_test_executable_AST_unchanged_except_appended_new_test": true
+  },
+  "resource": "OriginalsharedCIlock,8G,oneCPU,blankCUDA/offscreen,offlineDNS/INETguards; no models/GPU/downloads/pixels/pipeline",
+  "limits": "No API/caption/normalglobalgenerator or publicsourcepush; metadata/provenanceamendment only. Originalstrictrealcompletefilename criterion remainsqualified/open.",
+  "files": {
+    "pytest-driver.py": "f4f214efdb435ceb8d03d0614f17a5a3bb3eee26c349899ee9cea505accf98a8",
+    "final.xml": "e6df72794a676f6ae7913dddce6d824e41957fd7c40e22c34dfe03a571626dba",
+    "baseline.log": "d0e4e80ad73a062f79d36108afae13ab28b1bffb1095eb88d1af255d2749b88e",
+    "baseline.sh": "8a60a70445a4a755d72ca2b2be17b7361b76fe5ed111d5757ac1f50b2ffa092a",
+    "baseline-network.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "tested-test.py": "01db4aed9bedd7b426aa118aac8f8507ca57ae3899cf1bcab5365451105b004a",
+    "final.log": "0c3b6bb76363c4dd74a5b4e51b4545ac9e1ade4e371b303acb4cc1ea5c3bbe21",
+    "final-pytest-driver.py": "8e5647007dc3384f3056ed6ab61c258adc527785b4d25bf02e2815aa4db02c86",
+    "source-proof.json": "7e5bbc8de67b90dcd35f62424da395af7861ac82158fa680eade5bf792848590",
+    "final-startup.json": "727e70fde22496abe8c0138914149e3615dc08720f689e2c622a26d9c19007e8",
+    "baseline.xml": "25b1350bc0ecccb0dc3bbce1b95f44b13b1ad55f89f05e11c5d90adac9d3d7a2",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "final.sh": "87a60267a4ca6660db48d2f5baa1007c79a082fda7b24874aa8aad662ad0b512",
+    "final-network.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "baseline-startup.json": "96a331cf6210bf244ccbdb8bfa640a9d39873417cdcb8aaf73bcea960695d5d9",
+    "production.patch": "32a878d71cc4bb10eb6e4051639b7ea8bd0380fd76d7d0d75cae2232e1de2ffd",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}

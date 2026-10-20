@@ -1,0 +1,56 @@
+{
+  "status": "Work current saved byte set matches independently verified Home saved epoch",
+  "artifacts": [
+    {
+      "file": "README.md",
+      "sha256": "1a7431757309930a09fc69f30a10e81bdb2a6005d4950e9c9d5f2d39242d3d47",
+      "bytes": 3745
+    },
+    {
+      "file": "delivery-manifest-initial.json",
+      "sha256": "b327706f769c08f32175d3347520d4ec39d9138a3eb2a113363751b112567ad4",
+      "bytes": 1186
+    },
+    {
+      "file": "home-access-route.json",
+      "sha256": "ee2c21007500fc2db39daced5fa49718034c79c19b9017cd47e64a58563f863b",
+      "bytes": 2275
+    },
+    {
+      "file": "remote-need-query-timeout.json",
+      "sha256": "eae853e9b167bb515346328575d014e17da46aa3a3707c93f9ac9335f301d7fe",
+      "bytes": 432
+    },
+    {
+      "file": "sync-interpretation-peer.json",
+      "sha256": "50d48014b83036f0eef2828a5748b67c05cc879ef49591c5495394124752b546",
+      "bytes": 9286
+    },
+    {
+      "file": "sync-route-discovery.json",
+      "sha256": "fe478fa5a6b101b4c749039bbf1083e600742359ebf075ebc765a06870036425",
+      "bytes": 6126
+    },
+    {
+      "file": "syncthing-live-status-initial-sanitized.json",
+      "sha256": "aae00598510f3aec97eef4923a0b89c01ba17aa244b4baaa4b7c9283e0fbac73",
+      "bytes": 6429
+    },
+    {
+      "file": "verify_home_queue.py",
+      "sha256": "9e1bab4775fed7121845d0657ff81e9cebbf1b30129dd421d7edbb26ffc8dd58",
+      "bytes": 15475
+    },
+    {
+      "file": "work-current-and-home-baseline-match.json",
+      "sha256": "a03e77159fdde7be2239e4520bb13e962383e30de2acd084bcbe63257ed0331e",
+      "bytes": 2542
+    }
+  ],
+  "same_baseline_files": 16981,
+  "manual_transfer_needed": false,
+  "data_or_daemon_changes": false,
+  "Home_GUI_or_unsaved_state_not_proved": true,
+  "entire_af3_share_completion_not_claimed": true,
+  "original_delivery_manifest_preserved": true
+}

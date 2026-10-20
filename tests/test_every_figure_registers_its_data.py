@@ -40,6 +40,9 @@ EXEMPT = {
         "PDF report pages assembled from images already saved, never shown",
     ("timelapse.py", "create_results_figure"):
         "returns an empty figure and axes to the caller, which draws",
+    ("qt/widgets/picture_export.py", "save_picture"):
+        "a scratch figure wrapping an already rendered picture so the "
+        "figure-integrity check can read it, never shown",
 }
 
 _FACTORY_NAMES = ("Figure", "_figure_axes", "setup_plot",

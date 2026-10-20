@@ -44,7 +44,9 @@
       "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
       "translation": "Das Bild geht unverändert an Cellpose, RGB oder grau, und Cellpose normalisiert es. Es wird NICHT durch den historischen Loader des Laufs geschickt (``_load_normalized_images_and_labels`` mit ``background=200``): Bei einem 8-Bit-Bildausschnitt hat dieser Loader jedes Pixel auf 1.0 gesättigt -- gemessen an ``malnio__2.tif``, min = max = 1.0 in jedem Kanal --, sodass der Lauf keine Plaques fand, während die Vorschau, die das Bild unverändert liest, 67 fand. Eine einzige Funktion für beide verhindert, dass sie wieder voneinander abweichen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#5",
@@ -213,7 +215,9 @@
       "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
       "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
       "translation": "DIE BEDINGUNG IST DER SCHWIERIGE TEIL, und sie wird auf zwei unabhängige Arten gelesen, immer auf beide, denn zwei übereinstimmende Lesarten sind ein Beleg und eine allein ist eine Vermutung:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#3",
@@ -245,7 +249,9 @@
       "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
       "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
       "translation": "GRÖSSEN. Eine Plaquefläche in Pixeln hängt vom Druck des Artikels ab, daher trägt jede Plaque auch ihre Fläche relativ zur Median-Plaque im selben Panel, und eine Fläche in mm^2 nur dann, wenn es einen Maßstab gibt: eine im oder unter dem Bild gelesene Maßstabsleiste (ihre Länge aus der Beschriftung daneben oder aus der Angabe \"scale bar, 1 mm\" in der Legende) oder ein ganzes Well eines Plattenformats, das die Einstellungen oder die Legende angeben. Eine angegebene Vergrößerung wird aufgezeichnet, ist aber nie ein Maßstab, weil eine gedruckte Abbildung seit der Aufnahme neu skaliert wurde. Zeilen ohne Maßstab geben an, dass ihre Größen in Pixeln sind.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#7",
@@ -253,7 +259,9 @@
       "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
       "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
       "translation": "DUPLIKATE. Eine Abbildung wird durch ihren Artikel (die DOI, sofern vorhanden) und ihren Bild-Hash identifiziert. Dasselbe Bild, erneut gesehen -- dieselben Bytes oder dieselben Pixel in einem anderen Dateiformat, unter einem anderen Namen oder in einem anderen Artikel, etwa ein Preprint und seine veröffentlichte Version --, wird einmal gemessen und in der Tabelle ``duplicates`` mit Verweis auf die gemessene Kopie aufgezeichnet. Ein Artikel, der bereits aus einer Quelle (Europe PMC) gemessen wurde, wird nicht erneut aus einer anderen (seinem PDF) gemessen. Ein Bild, das nur gleich AUSSIEHT (ein nahezu identischer perzeptueller Hash, wie ihn eine neu kodierte oder in der Größe geänderte Kopie hätte), wird als mögliches Duplikat aufgezeichnet und trotzdem gemessen, weil das bei Abbildungen eine Ähnlichkeit ist, kein Beweis.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#8",
@@ -261,7 +269,9 @@
       "source_sha256": "50a1e664ffd77bee0330eeaf2f96f65df2a7cc880a567ee003de372746390f1c",
       "context": "TEXT. A PDF's own text layer is used for legends and labels before any OCR; OCR is asked only when the text layer has nothing near the plaque images, which is what a figure pasted into the PDF as one picture looks like.",
       "translation": "TEXT. Die eigene Textebene eines PDF wird für Legenden und Beschriftungen vor jeder OCR verwendet; OCR wird nur herangezogen, wenn die Textebene nichts in der Nähe der Plaque-Bilder enthält, und so sieht eine Abbildung aus, die als ein einziges Bild in das PDF eingefügt wurde.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#9",
@@ -639,7 +649,9 @@
       "source_sha256": "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
       "context": "Ask at the terminal for a legend nobody could fetch.",
       "translation": "Fragt am Terminal nach einer Legende, die niemand abrufen konnte.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_legend_prompt#1",
@@ -711,7 +723,9 @@
       "source_sha256": "89bca07c87b373de37b4f7f41175f0a7ac98d01f74e21453d1cf2a4bfe68197a",
       "context": "The images come from the ``supplementaryFiles`` bundle, which carries the main figures as well as the supplements; one file per figure survives, the largest, because journals also ship thumbnails and a detector shown a thumbnail has not been asked the question. Legends come from the full-text XML.",
       "translation": "Die Bilder stammen aus dem Paket ``supplementaryFiles``, das die Hauptabbildungen ebenso wie die Ergänzungen enthält; pro Abbildung bleibt eine Datei übrig, die größte, denn Zeitschriften liefern auch Vorschaubilder mit, und einem Detektor, dem man ein Vorschaubild zeigt, wurde die Frage gar nicht gestellt. Legenden stammen aus dem Volltext-XML.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#3",
@@ -919,7 +933,9 @@
       "source_sha256": "b76a7b49e3f4a48f3459c5998d43d05deb181232c09f5f74eaff887c652f4b36",
       "context": "Nothing here stops to ask. Legends come from ``legends`` (default ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``, the paper from ``<src>/paper.json``, and a person's edits and approvals from ``annotations`` (default ``<src>/figure_annotations.csv``), which the Figure preview writes. With ``confirm_each`` on, only approved images are measured and the rest are counted as waiting. A figure measured again replaces its earlier rows; the same image under a second name is measured once and recorded as a duplicate -- the copy with a legend is the one measured, since figures with legends are taken first.",
       "translation": "Hier wird nie angehalten, um nachzufragen. Legenden stammen aus ``legends`` (Standard ``<src>/legends.csv``), die Textebene eines PDF aus ``<src>/text_layer.json``, der Artikel aus ``<src>/paper.json`` und die Bearbeitungen und Freigaben einer Person aus ``annotations`` (Standard ``<src>/figure_annotations.csv``), das die Figure-Vorschau schreibt. Ist ``confirm_each`` aktiv, werden nur freigegebene Bilder gemessen und der Rest als wartend gezählt. Eine erneut gemessene Abbildung ersetzt ihre früheren Zeilen; dasselbe Bild unter einem zweiten Namen wird einmal gemessen und als Duplikat aufgezeichnet -- gemessen wird die Kopie mit Legende, da Abbildungen mit Legende zuerst genommen werden.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#10",
@@ -1177,7 +1193,9 @@
       "source_sha256": "570d557c65923a1ff3a0ccf73c81d3b169d0e46efb9d68f03fd6b1982537000b",
       "context": "Say what kind of reference a user typed.",
       "translation": "Gibt an, welche Art von Referenz ein Benutzer eingegeben hat.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.parse_reference#1",
@@ -1273,7 +1291,9 @@
       "source_sha256": "9de13c605de361ef665e570b8194ef7a1de462fdd5c813f1c8ba5cd6c9799fc9",
       "context": ":func:`spacr.plaque.detect_wells`, answered by the reader's environment.",
       "translation": ":func:`spacr.plaque.detect_wells`, beantwortet von der Umgebung des Lesers.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_detect#5",
@@ -1489,7 +1509,9 @@
       "source_sha256": "a67cb99a1183a4e5b6944053731c0d7444eddfa69fe15d9c05ad4369b96fba04",
       "context": "**panel** -- a panel letter above and to the left of the grid's top-left corner, within one image size of it. Further than that is another panel's letter, and no letter is better than the wrong one.",
       "translation": "**Panel** -- ein Panelbuchstabe oberhalb und links der oberen linken Ecke des Rasters, höchstens eine Bildgröße davon entfernt. Weiter entfernt ist es der Buchstabe eines anderen Panels, und kein Buchstabe ist besser als der falsche.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#6",
@@ -1857,7 +1879,9 @@
       "source_sha256": "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
       "context": "deconvolution iterations, integer 1..200, default20.",
       "translation": "Iterationen der Entfaltung, ganze Zahl 1..200, Standard 20.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#6",
@@ -2441,7 +2465,9 @@
       "source_sha256": "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
       "context": "Compare active PSF behavior rather than dormant form parameters.",
       "translation": "Vergleicht das aktive PSF-Verhalten statt ruhender Formularparameter.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_resume_settings#1",
@@ -2465,7 +2491,9 @@
       "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
       "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
       "translation": "neue Einstellungen, aus denen inaktive PSF-Parameter entfernt wurden, und eine erfasste Materialsignatur. Legacy-Messungen haben die ursprüngliche Signatur None.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#0",
@@ -2561,7 +2589,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "DIE BILDVERBESSERUNGSKETTE NIMMT DENSELBEN WEG. Die Kette von Make Masks (:mod:`spacr.qt.detect_chain`) wird als ``enhance_*``-Schlüssel in eine Einstellungsdatei geschrieben und hier von :func:`prepare_chain` zurückgelesen, wobei die ``psf_*``-Einstellungen als PSF-Stufe der Kette eingefügt werden, sodass ein Plattenlauf genau die Schritte anwendet, die ein Kurator abgestimmt hat, in der eigenen Reihenfolge der Kette: Hintergrund, PSF, Entrauschen, Kontrast, Schärfen. Die Sitzung wendet sie pro ausgewähltem Kanal an der Stelle an, an der die PSF bereits lief -- nach der Beleuchtungskorrektur und vor der Normalisierung --, und ihre Herkunftsangabe geht in denselben Datensatz ``psf/segmentation_application.json``, sodass eine geänderte Kette beim Fortsetzen ebenso abgelehnt wird wie ein geänderter Kernel. Ist kein Kettenschritt aktiv, ist ein Lauf Byte für Byte derselbe wie vor der Einführung der Kette.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",
@@ -2919,7 +2949,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "DIE BEFEHLE STEHEN NICHT HIER. Die ``install_methods`` jedes Werkzeugs in :mod:`spacr.qt.ai.providers` sind die Zeilen, aus denen sein ``install_hint`` aufgebaut wird, und :func:`plan_install` wählt die erste dieser Zeilen, deren Programme auf ``PATH`` liegen. Der Befehl, den die Schaltfläche Install ausführt, und der Befehl, den die Ansicht anzeigt, sind daher eine einzige Definition.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -3574,7 +3606,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.ai.providers#6",
+      "label": "spacr.qt.ai.providers#7",
       "source": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` a screen shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
       "source_sha256": "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a",
       "context": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` an application view shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
@@ -4203,7 +4235,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "DER KLASSENNAME DER AUSNAHME WIRD NUR VORANGESTELLT, WENN ER ETWAS AUSSAGT. Die Konsole schreibt diesen Text nach \"[AI error] \", daher machte das Präfix bei einem :class:`~spacr.qt.ai.providers.ProviderFailed` -- dessen gesamte Meldung dafür geschrieben ist, dort gelesen zu werden, bis hin zum auszuführenden Anmeldebefehl -- aus einem Satz, auf den der Benutzer reagieren konnte, \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Jede andere Ausnahme behält ihre Klasse, die oft das Einzige ist, was benennt, was schiefgelaufen ist: Ein bloßes ``[Errno 2] No such file or directory`` sagt nicht, dass es ein FileNotFoundError ist.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -4493,10 +4527,12 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "Gefunden über den OBJEKTNAMEN statt über den Registerkartenindex oder die Beschriftung. Ein Index verschiebt sich, sobald eine Registerkarte hinzukommt, und eine Beschriftung wird übersetzt -- eine koreanische Oberfläche hätte nichts gefunden. Jede Seite setzt ihren eigenen ``PreferencesTab*``-Namen, und ``tools/build_help_search_index.py`` liest genau diese Namen aus dem Quelltext dieses Dialogs, sodass beide Enden der Übergabe konstruktionsbedingt dieselbe Zeichenkette sind.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
       "source": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
       "source_sha256": "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
       "context": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
@@ -4504,7 +4540,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
       "source": "the row caption to mark; ``\"\"`` marks nothing.",
       "source_sha256": "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
       "context": "the row caption to mark; ``\"\"`` marks nothing.",
@@ -4512,7 +4548,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#6",
       "source": "True when the named tab was found and shown.",
       "source_sha256": "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7",
       "context": "True when the named tab was found and shown.",
@@ -4679,7 +4715,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "EIN EIGENER ORDNER PRO SATZ. Beide liefern ``measurements/measurements.db`` mit, wie es auch das Annotate-Beispiel in der gemeinsamen Platte tut, daher wird jeder neben dieser Platte entpackt (:func:`spacr.example_archives.example_set_folder`) statt in sie hinein.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -4687,7 +4725,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "DASSELBE MUSTER WIE BEI DEN ANDEREN BEISPIELEN. Ein unkomprimiertes ``.tar``, in einem Worker-Thread hinter dem gemeinsamen Fortschrittsdialog in eine ``.part``-Datei gestreamt, über den tar-Datenfilter entpackt, ``<dataset>`` in den Einstellungen durch den Zielort ersetzt und zwischengespeichert: Ein zweiter Klick verwendet die Kopie auf dem Datenträger.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",

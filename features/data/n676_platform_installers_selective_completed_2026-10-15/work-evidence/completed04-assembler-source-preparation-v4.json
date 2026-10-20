@@ -1,0 +1,45 @@
+{
+  "schema": 4,
+  "status": "source_only_third_closed_handoff_prepared_not_executed",
+  "lesson": "04_platform_installers",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "previous_player_source_commit": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "final_player_source_commit": "2427d57f17ad78d97cf81f18720c1cd9e0c7cc02",
+  "third_handoff": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/source-handoff-pending-seek-followup/source-manifest.json",
+    "bytes": 6610,
+    "sha256": "e92b35938a62224a732b93c025c9e7dc0ef673b8375ce727d03a2c83632af689"
+  },
+  "assembler": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04_packet.py",
+    "bytes": 10104,
+    "sha256": "682227451cb1f0ae77d0c383f2e7d295303f74535f81c875e002fd87b39f4dc8"
+  },
+  "usage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04-USAGE.txt",
+    "bytes": 2788,
+    "sha256": "7bb27020dfb0e17f2cd82dcd5b4212ab4e396c3910575c37d295b6843c2275e6"
+  },
+  "preserved_assembler": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/helper-review-originals/assemble_completed04_packet.py.bf9ac5495f08",
+    "bytes": 10065,
+    "sha256": "bf9ac5495f082b6b26240b760e9bb9e2efa609d4038248038cb6bd2044535772"
+  },
+  "preserved_usage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/helper-review-originals/assemble_completed04-USAGE.txt.44da5e21bf18",
+    "bytes": 2664,
+    "sha256": "44da5e21bf18af2638a2380bd9eace8db04042a67c55e568238222a81affdf96"
+  },
+  "exact_source_delta": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assembler-third-source-handoff.diff",
+    "bytes": 800,
+    "sha256": "88d780f3aa25fa41a806f015566b2b5f12ee5a2b146076669a063c93cd3b4919"
+  },
+  "checks": {
+    "AST_valid": true,
+    "only_explicit_third_source_folder_added_to_assembler": true,
+    "original_two_source_trees_preserved": true,
+    "actual226_cohort_not_sum": true,
+    "production_execution": false
+  }
+}

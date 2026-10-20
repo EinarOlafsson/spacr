@@ -16,7 +16,9 @@
       "source_sha256": "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
       "source": "The (fractional) canvas pixel a world point falls on.",
       "context": "The (fractional) canvas pixel a world point falls on.",
-      "translation": "Strigapixillinn, sem getur verið brottala, sem heimspunktur lendir á."
+      "translation": "Strigapixillinn, sem getur verið brottala, sem heimspunktur lendir á.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.analyze_replication#12",
@@ -47,7 +49,9 @@
       "source_sha256": "b12bc0004afe90e99a7abfc68303f554edb51688cdb120db00c70b7a9a4db97a",
       "source": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
       "context": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
-      "translation": "Prófílbil er sjálfgefið af einni ástæðu sem vegur þyngra en kostnaðurinn: **Wald-bilið er endanlegt samkvæmt skilgreiningu.** Það er ``L ± t·SE`` og skilar því snyrtilegu, samhverfu en algerlega ímynduðu bili fyrir feril sem gögnin staðsetja alls ekki miðpunktinn á — einmitt tilvikið sem þessi eining á að greina. Prófílbilið getur *ekki lokast*: summa kvaðratleifa helst undir þröskuldinum allt að styrk sem er tíu þúsund sinnum hæsti prófaði skammtur, og sú bilun er sjálf greiningarniðurstaðan. Hún er birt sem opin mörk en ekki sléttuð yfir í tölu."
+      "translation": "Prófílbil er sjálfgefið af einni ástæðu sem vegur þyngra en kostnaðurinn: **Wald-bilið er endanlegt samkvæmt skilgreiningu.** Það er ``L ± t·SE`` og skilar því snyrtilegu, samhverfu en algerlega ímynduðu bili fyrir feril sem gögnin staðsetja alls ekki miðpunktinn á — einmitt tilvikið sem þessi eining á að greina. Prófílbilið getur *ekki lokast*: summa kvaðratleifa helst undir þröskuldinum allt að styrk sem er tíu þúsund sinnum hæsti prófaði skammtur, og sú bilun er sjálf greiningarniðurstaðan. Hún er birt sem opin mörk en ekki sléttuð yfir í tölu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops#3",
@@ -89,14 +93,18 @@
       "source_sha256": "680fdd8caedd458a766f5473648dc5d598ee2809aa6e2bbd5a23d409af602abf",
       "source": "**Backward compatibility is the whole difficulty.** A settings CSV written before this exists in every user's project folder, and INVARIANTS §6 is the trap: a key *absent* from the dict means the pipeline falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a run from an old CSV does exactly what it did before.",
       "context": "**Backward compatibility is the whole difficulty.** A settings CSV written before this exists in every user's project folder, and INVARIANTS §6 is the trap: a structured-data name *absent* from the key-value mapping means the workflow falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a processing session from an old CSV does exactly what it did before.",
-      "translation": "**Afturvirk samhæfni er allur vandinn.** Stillinga-CSV frá því áður en þetta var til er í verkefnamöppu hvers notanda, og INVARIANTS §6 er gildran: ef lykil *vantar* í vörpunina notar vinnslurásin sitt eigið sjálfgefna gildi, sem getur verið annað en sjálfgefið gildi GUI, án viðvörunar. Hvert endurnefni hér er því samheiti en ekki staðgengill — :func:`normalize_settings` þýðir gamla heitið og gamla *óskráða* grunninn yfir í nýja skýra grunninn, svo keyrsla úr gömlu CSV hagar sér nákvæmlega eins og áður."
+      "translation": "**Afturvirk samhæfni er allur vandinn.** Stillinga-CSV frá því áður en þetta var til er í verkefnamöppu hvers notanda, og INVARIANTS §6 er gildran: ef lykil *vantar* í vörpunina notar vinnslurásin sitt eigið sjálfgefna gildi, sem getur verið annað en sjálfgefið gildi GUI, án viðvörunar. Hvert endurnefni hér er því samheiti en ekki staðgengill — :func:`normalize_settings` þýðir gamla heitið og gamla *óskráða* grunninn yfir í nýja skýra grunninn, svo keyrsla úr gömlu CSV hagar sér nákvæmlega eins og áður.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_spec#1",
       "source_sha256": "d95f874e5bb730cf872707783d0923e4bb5d1040276cd0f32e5667799fa6d431",
       "source": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by plate down the rows\". This module is the second one, kept deliberately apart from the first.",
       "context": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by laboratory microplate down the rows\". This module is the second one, kept deliberately apart from the first.",
-      "translation": "Grafhönnuður að hætti JMP er tvennt sem vill helst vera eitt: safn draga-og-sleppa viðmótshluta og lítill lýsandi hlutur sem segir að ``area`` sé á x-ás, ``gene`` stýri lit og örplötur myndi hliðar niður raðirnar. Þessi eining er síðari hlutinn og er viljandi aðskilin frá þeim fyrri."
+      "translation": "Grafhönnuður að hætti JMP er tvennt sem vill helst vera eitt: safn draga-og-sleppa viðmótshluta og lítill lýsandi hlutur sem segir að ``area`` sé á x-ás, ``gene`` stýri lit og örplötur myndi hliðar niður raðirnar. Þessi eining er síðari hlutinn og er viljandi aðskilin frá þeim fyrri.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.database_concurrency#1",
@@ -138,14 +146,18 @@
       "source_sha256": "9e804aab51147be0c0629b9d964ef93afd7676dfcbc3b9855b79ee32707ccd08",
       "source": "``False`` skips the folder scan entirely. The FOV dropdown hands out a path from a set the sampler already produced, so re-scanning for it would burn a full pass over a 98 000-file plate to rediscover what is already cached.",
       "context": "``False`` skips the folder scan entirely. The FOV (microscope field of view) dropdown hands out a path from a set the sampler already produced, so re-scanning for it would burn a full pass over a 98 000-file plate to rediscover what is already cached.",
-      "translation": "``False`` sleppir möppuskönnuninni algjörlega. FOV (sýnissvið smásjár) fellilisti skilar stíg úr safni sem sýnisberinn hefur þegar búið til, svo að endurskönnun þess myndi kosta heilt far yfir 98.000 skráa plötu til að enduruppgötva það sem nú þegar er í skyndiminni."
+      "translation": "``False`` sleppir möppuskönnuninni algjörlega. FOV (sýnissvið smásjár) fellilisti skilar stíg úr safni sem sýnisberinn hefur þegar búið til, svo að endurskönnun þess myndi kosta heilt far yfir 98.000 skráa plötu til að enduruppgötva það sem nú þegar er í skyndiminni.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
       "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
       "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
       "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
-      "translation": "Fjöldvinnsla á stakmyndasviðsstaplum gegnum Cellpose, og bæta síðan við gagnrás(-um) fyrir grímumyndina í SÖMU npy skrá(-ar)."
+      "translation": "Fjöldvinnsla á stakmyndasviðsstaplum gegnum Cellpose, og bæta síðan við gagnrás(-um) fyrir grímumyndina í SÖMU npy skrá(-ar).",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_spec.points_in_polygon#4",
@@ -159,7 +171,9 @@
       "source_sha256": "caf8ed2b748f012527691c63b9d87194828011eca5c4fe82be72e33025fcbf6c",
       "source": "Failure is a missing convenience, not a broken screen — a Qt build with no drag-and-drop, or a handler whose import fails, must not stop the screen being constructed. It is logged and the screen goes up without a dropzone.",
       "context": "Failure is a missing convenience, not a broken application view — a Qt build with no drag-and-drop, or a handler whose import fails, must not stop the application view being constructed. It is logged and the application view goes up without a dropzone.",
-      "translation": "Mistök eru skortur á þægindum, ekki brotið forritasýn — Qt útgáfa án draga-og-sleppa, eða stjórnandi sem innflutningur mistakast, má ekki stöðva uppbyggingu forritasýnar. Það er skráð og forritasýnin fer upp án sleppisvæðis."
+      "translation": "Mistök eru skortur á þægindum, ekki brotið forritasýn — Qt útgáfa án draga-og-sleppa, eða stjórnandi sem innflutningur mistakast, má ekki stöðva uppbyggingu forritasýnar. Það er skráð og forritasýnin fer upp án sleppisvæðis.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

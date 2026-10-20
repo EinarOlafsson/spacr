@@ -1,0 +1,8 @@
+{
+  "status": "ACCEPT",
+  "source_commit": "787d76dec0",
+  "source_sha256": "2a666d3c16813c7965169077c28377f793525bc5c3786e774ccd17ac37ec0b00",
+  "proof": "Restoring only ModelCardViewer.keyPressEvent restores entire originalmoduleAST; signatures/docs unchanged. Exact keypad-onlyEnter accepted; childfocus/enlargeable guards and modifierrefusals retained.",
+  "evidence_reviewed": "Actual missingdialog before;12PASS2.24s with cardpageidentity, nonrecursiveviewer, childbutton, emptycard and namedmodifiers using inertlocalPNG/privatecache. No replay.",
+  "limits": "No nativekeyboard/reader/otherOS or wholeN655claim; no captions/API changes."
+}

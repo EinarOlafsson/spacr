@@ -1,9 +1,11 @@
 Capabilities
 ============
 
-spaCR follows an image-based screen from raw microscopy files to a ranked hit
-list. This page gives the full map; the :doc:`Python API quickstart
-<python_api>` and interactive tutorials show the individual routes.
+spaCR segments objects in microscopy images, measures them, labels and
+classifies them, and regresses per-well phenotype scores on guide abundance
+from sequencing reads. This page lists the modules and controls by area; the
+:doc:`Python API quickstart <python_api>` and interactive tutorials cover
+individual workflows.
 
 Core screen workflow
 --------------------
@@ -18,7 +20,7 @@ mask corrections with the layer viewer or napari.
 
 The objects are not a fixed set of four. A project has a cell, a nucleus and a
 pathogen, a cytoplasm derived from them, and as many organelle slots as
-``number_of_organelles`` asks for -- from none up to twenty-six. Each slot is
+``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is
 independent, with its own channel, diameter, detection method and morphology.
 
 A slot is given a morphology preset -- punctate, vesicular, spherical,
@@ -29,7 +31,7 @@ irregular or ring.
 Mask generation lays out the per-object settings as one table under
 **Per-object settings**, with a column for each object whose channel is set;
 the cell column is always shown. An object's channel is set on the ordinary
-form, and a hidden object's answers are kept for when its channel is set
+form, and the values of a hidden object are kept for when its channel is set
 again. Every object has a **Remove background** check box, and the cell
 column also has **Adjust cells**. **Add a filter** adds a row that filters
 objects on any scikit-image regionprop, such as area or mean intensity; each
@@ -71,8 +73,9 @@ A page holds as many crops as fit and never scrolls; the rest are on the next
 page. After **Suggest…**, suggested crops carry a **?** badge: click one or
 press **Y** to confirm it, right-click or press **N** to reject it, and **U**
 undoes. **Confirm the rest of the page** and **Reject the rest of the page**
-judge every remaining suggestion at once. Rejections are kept and inform the
-next round of training.
+judge every remaining suggestion at once. Rejections are stored; in a
+two-class column, the next training round uses a rejected suggestion as an
+example of the other class.
 Classify trains PyTorch image models or classical and boosted models from
 measurement tables. Checkpoints record their dataset, split rule, class
 balance and held-out metrics. The **Essentials** view of Classify holds what
@@ -83,6 +86,31 @@ the settings of the family not chosen.
 Classify CV also offers optional rotations and reflections at inference time.
 See :doc:`classifier_evaluation` for the aggregation methods, original and
 mean probabilities, and orientation-stability flags.
+
+Own-DINO classifiers (alpha)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enable **Preferences → Show alpha features**, then open **Embeddings** and
+load the crop stack. Select an existing own-DINO teacher checkpoint with the
+own-checkpoint control. **Train classifier…** opens the supervised training
+form. Supply a CSV with one row per loaded crop, in exactly the same order,
+and columns ``label`` and ``acquisition_group``. Blank labels are excluded.
+Each labelled crop needs its known acquisition-well identity; complete groups
+are held out for validation. Keep string identities such as ``01`` intact.
+
+Enter the ordered physical source-channel indices for these crops, choose
+training settings, and select a new classifier output file. Existing output
+files are preserved. The saved classifier records its classes, channel order,
+scaling and feature-normalization policy. Progress is shown during training;
+**Stop classifier** requests cancellation.
+
+Use **Apply saved classifier…** to select that classifier and apply it to the
+loaded raw crop stack. Its recorded preprocessing is applied automatically.
+**Classifier results…** shows predictions, features, logits and probabilities,
+with the class order, physical channels and checkpoint digest. CSV export
+includes the complete selected result table. **Cancel classifier result**
+discards pending delivery; the worker can remain active until it finishes.
+These alpha controls do not establish phenotype accuracy for a new dataset.
 
 Map Barcodes
 ~~~~~~~~~~~~
@@ -98,6 +126,19 @@ Regression estimates guide, gene, condition and control effects. Its model
 families cover continuous, fractional, binary and count responses, robust and
 quantile fits, penalised high-dimensional designs, mixed effects and guide
 permutation. Diagnostics and run summaries are written beside the result.
+
+``dependent_variable``, the response, is a drop-down of the numeric columns of
+the selected score file or files, with ``pred`` first when present. Identifier
+columns such as ``plateID``, ``rowID``, ``columnID``, ``fieldID``,
+``objectID`` and ``count`` are not offered. The list is read from each file's
+header and its first 200 rows when the files change. A saved value that is not
+in the file is kept and flagged. ``pred`` is the probability a classifier
+writes: Classify saves it as ``<date>_<dataset>_<model>_result.csv`` next to
+the tar, and ML scoring saves it as ``results/<model>/<features>/results.csv``.
+When ``pred`` is selected and a score file has no ``pred`` column, a note
+under the field says so, names those two outputs and lists the columns that
+can be used; spaCR does not pick a response for you. A missing response-column
+error lists available score-table columns to help you choose a valid response.
 
 Planning, quality control and exploration
 -----------------------------------------
@@ -136,16 +177,15 @@ How a module is reached
 -----------------------
 
 The home screen groups modules into four categories -- **Core**, **Data**,
-**Tools** and **Organism** -- and twenty-one modules have a tile in one of
-them. Core is the pipeline you run in order; Data is what goes in and what
-comes out of it; Tools are the instruments you point at a project rather
-than steps the pipeline takes on its own; Organism opens the Toxoplasma
-guide and its available assays. Planned analyses are marked Coming soon.
+**Tools** and **Organism** -- and nineteen modules have a tile in one of
+them. Core holds the pipeline modules, run in order; Data holds import,
+embeddings, run comparison, design, dose–response and QC; Tools holds
+modules that operate on an existing project rather than pipeline steps;
+Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon.
 Make Masks is filed under **Tools**.
 
-A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says
-"start here", and a module that answers a question about a run somebody else
-started is not a place to start. Those open instead from:
+Most modules do not have a tile; they inspect or extend work started in
+another module. They open from:
 
 - **a button on their host's masthead** -- as a page beside that host's
   settings, already pointed at the same project. Investigate Hit and
@@ -155,13 +195,12 @@ started is not a place to start. Those open instead from:
   already exists rather than belonging behind any one module -- Run History,
   Pipeline Graph, Project Browser, Database Browser, Report, Data Manager,
   Plate Queue, Batch Runner and Distributed Jobs.
-- **the command palette** (Ctrl+K), which reaches EVERY module, tiled or
-  not. It is the one route with no exceptions, and the keyboard user's
-  navigation.
+- **the command palette** (Ctrl+K), which lists every registered module,
+  with or without a tile, and opens the selected module from the keyboard.
 
-None of them is second-class: they are shipped, translated and documented
-like any other module, and the ones that are pipelines still run headlessly
-under ``spacr-run``.
+Modules without a tile are installed, translated and documented in the same
+way as tiled modules, and those that are pipelines also run headlessly under
+``spacr-run``.
 
 ============= ==========================================================
 Host          Opens from its masthead
@@ -180,6 +219,26 @@ Make Masks    Cellpose Workbench, Mask the whole folder, Model Compare,
 Parameter Sweep is reached a third way: it is a panel on the Regression
 screen, opened by the **Parameter sweep** switch on its settings form.
 
+Starting spaCR
+--------------
+
+spaCR opens with a black container holding the spaCR logo as a photomosaic.
+The logo holds still while the window loads, then the mosaic blows away tile
+by tile and the container fades to show the window. A click or a key skips
+it. The sequence is off when **Preferences → Appearance → Animation → Startup animation**
+is cleared (the mosaic then shows without the animation), while **Reduce
+motion** is on, and when the ``SPACR_NO_SPLASH`` environment variable is set
+to ``1`` (the mosaic is then not shown at all). **Help → Show startup
+animation** plays it again inside the open window, even when Startup
+animation is off; under Reduce motion the logo holds and then cross-fades
+away.
+
+The window opens **Borderless** by default: it has no title bar, fills the
+work area of its screen, and its menu bar moves it while the marks at the
+right end of the bar minimise, maximise and close it. Clear **Help → Window →
+Borderless window** to use the platform's own framed window instead. The
+choice is remembered.
+
 Picking up where you left off
 -----------------------------
 
@@ -197,6 +256,16 @@ Picking up where you left off
   to the reopened session are not asked about). The same behaviour applies on
   Linux, macOS and Windows, because the store is Qt's own settings store.
 
+Settings files
+--------------
+
+Use **Export settings…**, next to **Import settings…**, to save the form's
+current values as a settings CSV without running anything.
+On the Distributed Jobs screen, **Save settings CSV…** saves the snapshot a
+**Submit remote…** sent. Both write the file that ``spacr-run --settings``
+reads; see :ref:`Settings files from the GUI <settings-files-from-the-gui>`
+and :doc:`shortcuts_and_templates` for settings templates.
+
 Undo and redo
 -------------
 
@@ -211,6 +280,31 @@ settings panel, in the Gate Editor and in Annotate:
 - in **Annotate**, **U** and Ctrl+Z undo the last label and Ctrl+Shift+Z or
   Ctrl+Y puts it back;
 - the **Make Masks** editor keeps its own **Undo** and **Redo**.
+
+The **Edit** menu has **Undo** and **Redo** for the editor on screen. They
+act on a focused text field first, otherwise on the screen's own history, and
+are greyed out when there is nothing to undo or redo.
+
+Gate Editor keys and overlapping elements
+-----------------------------------------
+
+While the Gate Editor has focus, these keys choose its drag mode and, in 3D,
+the plane or axis. They are listed under **Change shortcuts** with the scope
+*Gate Editor* and can be rebound there:
+
+- **Shift+E** chooses Edit, **Shift+S** Spin (free) and **Shift+D** Draw;
+- **Shift+X**, **Shift+Y** and **Shift+Z** choose the X, Y or Z plane. Pressed
+  within 1.5 s of **Shift+S**, they choose the spin axis instead.
+
+Make Masks uses the same keys in its True 3D view. When a click lands on more
+than one sheet or anchor, in the 3D Edit mode and in 2D, the elements under
+it are highlighted and listed at the top left of the graph under **Elements
+under the click**, in layer order with sheets before anchors; the top layer is
+blue and the others white. The initial click grabs the nearest anchor under
+the pointer, if any; otherwise it grabs the nearest sheet. Click a row or
+press the Up and Down arrows to choose which element the next click on
+that overlap selects and moves. **Escape**, a click on empty space, leaving
+Edit, switching between 2D and 3D, or replacing the gate set closes the list.
 
 Running jobs
 ------------
@@ -251,6 +345,33 @@ moves out of text boxes and tables to the next control instead of typing a
 tab. **Preferences → Appearance → Theme** offers **High contrast**, in which
 all text has a contrast ratio of at least 7:1 against its background.
 
+Use :kbd:`Tab` or :kbd:`Shift+Tab` to reach **AI** or **Live**. An outline
+shows which label has keyboard focus. Press :kbd:`Space`, :kbd:`Return` or
+numeric-keypad :kbd:`Enter`, without other keys held, to switch it on or off.
+Holding a key switches it only once. If your screen reader handles
+numeric-keypad :kbd:`Enter` itself, use :kbd:`Space` or :kbd:`Return`.
+
+In **Preferences**, use :kbd:`Tab` to focus the help strip’s narrow top edge,
+then press :kbd:`Up` or :kbd:`Down`, without other keys held, to make the strip
+taller or shorter within its size limits; :kbd:`Tab` moves on.
+
+**Preferences → Appearance → Accessibility** gathers the settings that help
+most:
+
+- **High contrast** chooses the High contrast theme. Clear it to return to
+  the theme you had before. The Theme control shows the same choice.
+- **Text size** makes all text larger or smaller. It is the same setting as
+  **Font scale** on the General tab.
+- **Reduce motion** holds every animated backdrop still and turns off
+  ripples, click ripples, popup waves and mouse gravity. Clear it to get your
+  previous motion settings back exactly.
+- **Focus outlines** draws a thick outline round the control that has
+  keyboard focus, in a colour that stands out in every theme.
+- **Keyboard shortcuts…** opens the shortcut editor, where you can change
+  the key for any action.
+
+Apply, Cancel and Save work as they do for every other preference.
+
 Data-art themes
 ---------------
 
@@ -281,7 +402,7 @@ screen edge. Its default is **15%**; set it to **0** to disable mouse influence.
 bounds its sampling work within the screen's pixel budget. Select **Random**
 in **Animation palette** for per-element colours. Fresh installations use
 **Dark**, **spaCR field** and the **spaCR** animation palette, with Density
-**10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity
+**10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity
 **60%**. **Dot blinking** controls the percentage of visible dots that flash white:
 **0** switches it off (the default), and nonzero values range from
 0.00001% to 10%. The setting applies to spaCR field, spaCR advection,
@@ -358,53 +479,63 @@ anywhere along that edge or corner; the line only marks the side.
 Make Masks
 ----------
 
-Make Masks corrects masks by hand and carries the Cellpose loop on its
-masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand,
-Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
+Make Masks edits integer label masks by hand. Its masthead opens related
+screens, including Cellpose Workbench, Model Compare, Model Zoo and Curate.
+Its canvas has eleven tools: Brush, Erase, Erase object, Wand,
+Draw, Box, Edit Label, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
 default; hold Ctrl while clicking to remove it. The
 :doc:`Make Masks reference <make_masks>` covers these tools, Levels,
 detection settings, primary/secondary pairing, saving and measurement.
+Volumes (TIFF stacks, OME-TIFF and MRC) open in the same view with a slice
+slider and a View list of Default, Orthogonal and True 3D; electron
+micrographs (``.dm3``, ``.dm4``, ``.mrc``) have a contrast preset. See
+:ref:`3D volumes <mm-volumes>` and :ref:`electron micrographs <mm-tem>`.
 
 **Box** draws independent class-labelled rectangles for YOLO annotation.
 Move or resize a box, undo or redo edits, and use **Save boxes** to preserve
 the project or **Export YOLO…** to write normalized labels and ordered class
 metadata. Source images and segmentation masks remain unchanged.
 
-Draw traces a free-form outline that closes and fills as a single object --
-the tool a brush is not, because a brush stamps disks along the path, so
-tracing a rim with it labels the rim and leaves the middle background.
+**Edit Label** asks for a new whole-number ID for the clicked object and
+gives that ID to every pixel that carries the object's current ID. Entering
+``0`` removes the object. An ID that already belongs to another object is
+refused before any pixel changes. Each change is one undo step.
+
+Draw traces a free-form outline, closes it and fills the enclosed region as
+one object. Brush instead paints disks along the pointer path, so tracing an
+outline with Brush labels only the outline and leaves the interior as
+background.
 **Divide / Merge** splits an object with a left-dragged line: the larger
 component retains its ID and the smaller receives a new one. Right-drag a
 line across objects to merge them under the first crossed ID, without
 painting the background between them. Other objects keep their labels.
 
-Recrop is the only tool that changes which field is on screen rather than
-what is painted on it. A staged crop holding several cells is not one training
-example, and curating it as one teaches a network that two objects are one
-picture -- so a box round an object writes that region of both the image and
-the mask as a field of its own, queued straight after the current one, and the
-multi-object original is retired into ``recropped_originals/`` rather than
-curated. A box smaller than the minimum side, or one repeating a cut already
-made, is refused; objects the box cuts through are dropped, because an object
-whose boundary is where the mouse was released is not that object; and the
-labels that survive are renumbered from one.
+Recrop changes which field is on screen rather than the labels painted on
+it. Use it to split a field that contains several objects into separate
+training fields. A box drawn round an object writes that region of the image
+and of the mask as a new field, queued directly after the current one; the
+original field is moved to ``recropped_originals/`` and is not curated. A box
+smaller than the minimum side length, or one that repeats an existing cut, is
+refused. Objects that the box boundary cuts through are removed from the new
+mask, because their boundary in the crop is the box edge rather than the
+object edge. The remaining labels are renumbered from one.
 
 Running Cellpose-SAM from this screen shows its two intermediate outputs
-beside the mask: the cell-probability map and the flow field. A mask is a
-threshold applied to that probability map, and a candidate object is discarded
-when its flows disagree with the ones the network predicted by more than the
-flow-error threshold. When a mask is wrong, those two panes are where the
-reason is visible.
+beside the mask: the cell-probability map and the flow field. Pixels above the
+cell-probability threshold are grouped into objects by following the flow
+field, and a candidate object is discarded when the flows recomputed from its
+mask differ from the predicted flows by more than the flow-error threshold.
+Inspect these two panes to see whether a missing or merged object comes from
+the probability map or from the flows.
 
 Settings that apply
 -------------------
 
-The settings panel carries a control when it applies to the run being set up
-and leaves it off the form when it does not:
+The settings panel shows a control only when it applies to the run being set
+up:
 
-- a slot past ``number_of_organelles`` takes its whole block of settings with
-  it, its channel included -- a slot the run does not have is not a slot with
-  its channel left showing;
+- the settings of a slot past ``number_of_organelles``, its channel included,
+  are removed from the form;
 - an object whose channel names no plane is not in the run at all, so its
   settings are not on the form;
 - a setting belonging to one morphology is dropped for a slot of another: a
@@ -554,8 +685,8 @@ lists your own largest programs. Nothing is ticked at first, and only the
 programs you tick are asked to quit, after you confirm; they can usually
 save first, but unsaved work in them may still be lost.
 
-Runs started without the GUI lower ``n_jobs`` to the safe number and print a
-warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
+Runs started without the GUI lower ``n_jobs`` to the number that keeps the
+reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
 unchanged; Measure still waits while free memory is below the reserve.
 
 Worker startup and final retries

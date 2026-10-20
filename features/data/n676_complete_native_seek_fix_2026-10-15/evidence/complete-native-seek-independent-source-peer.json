@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "pass",
+  "source_peer_passed": true,
+  "source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "capture_and_voice_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "owning_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-owning-tests.json",
+    "bytes": 3965,
+    "sha256": "6c9a893ef9dd5a3a6165df7d14f30205cc8337f3d82e826ce3d98d264a12eb8a"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 103252,
+      "sha256": "27a50ed92ca98e53960a1b044fbefe9f8a36f43106153b4b1b038e8d5f2fde9b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "bytes": 10966,
+      "sha256": "d37ea15b034ad0bd3194d7dcc2fed9fbe1d39e3ce4123e161aa52b6f64d4b327"
+    }
+  ],
+  "tests": {
+    "passed": 7,
+    "failed": 0,
+    "terminal_status": 0,
+    "elapsed_seconds": 60.49,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-tests-r1.log",
+      "bytes": 607,
+      "sha256": "f13351cdca4286a96351a21798628cc0394a70fea83f655dea2f24f3dcbc1539"
+    },
+    "junit": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-tests-r1.xml",
+      "bytes": 1507,
+      "sha256": "4a893244b246c7437f55ec2fb2960addf935763465886843b187fc0a4bb5f1c9"
+    },
+    "command": [
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-o",
+      "addopts=",
+      "--basetemp",
+      "/tmp/s5seek-ipdx9bpq/pytest",
+      "--junitxml",
+      "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-tests-r1.xml",
+      "tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "tools/tutorials/tests/test_player_complete_native_clips.py"
+    ],
+    "runner": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/run_seek_guard_tests.py",
+      "bytes": 2575,
+      "sha256": "2a7b808d734fc5979b38e9e0ca8e0cf9f7192db0b230e591ba0022f5d1c605c4"
+    },
+    "memory_cap": "8G",
+    "runtime": "ExistingPython3.12/softwareChrome/offscreen/privateHOME+XDG+shortTMP/CUDAempty",
+    "own_lease_removed": true,
+    "subprocess_terminal_status": 0
+  },
+  "observed_cause_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/sentence-cue-conflicting-seek-independent-cause-peer.json",
+    "bytes": 6859,
+    "sha256": "d28bf624fb5e9f69f2c07ab7fc10a401d8257558085f203ba07750ca141cdc37"
+  },
+  "source_inventories": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-nav/exact-source.json",
+      "bytes": 54675,
+      "sha256": "d2b23d67645386aebdd478061f72f573f197cc2c0af266d61af1617285087b3a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson05-r59-prefs/exact-source.json",
+      "bytes": 54902,
+      "sha256": "5453488e83d97dee5bc33c835698c47e65f7d196ac15a6fb0717521b092c2569"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/d05-clean-r3/exact-source.json",
+      "bytes": 55047,
+      "sha256": "dc203c544fea8d805c307ef507966cbf8a18b8d8c1d372190c2fad1e5cd8b97b"
+    }
+  ],
+  "exact_changed_paths": [
+    "tools/tutorials/authoring/web/app_v2.js",
+    "tools/tutorials/tests/test_player_preserve_visual_intervals.py"
+  ],
+  "checks": [
+    "Exactly two committed paths; direct parent87ff; current source files equal held Git blobs and owning-tested hashes.",
+    "JS only broadens existing pending/seeking guard after completeNativePlayback filter from preserve-only to both verified complete-native modes. Guard pauses speech and returns before automatic scene-start/reset seeks.",
+    "Existing cold-paused causal browser regression is parameterized preserved/complete_native; native currentTime descriptor delegation and every offset-write .015 limit, actual seek settlement, .15 clocks/captions/pausedpending assertions remain strict.",
+    "Owning7 realsoftwarebrowser cases passed60.49s/footer0 and JUnit7/noerrors; existing complete-native tail/EOF/userpause cases included, no peer rerun.",
+    "All three captured502 inventories exclude both changed paths. Exact Git delta preserves502/app/canonical13reviews; no recapture/audio/render assets changed."
+  ],
+  "blocking_issues": [],
+  "limits": [
+    "Independent source/sealed-existing-evidence review only; actual05fullbrowser matrix and candidate/publication acceptance remain separate.",
+    "Fix addresses observed conflicting seek writes; does not prove every possible Chromium seek stall resolved.",
+    "No tests/browser/decoder/model/network run by peer; no listening or publication claim."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

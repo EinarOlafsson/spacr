@@ -1,0 +1,33 @@
+{
+  "status": "ACCEPT",
+  "reviewer": "Independent Original CI source peer",
+  "commit": "f4dcd386c1a8c7f2a7a79c93359bec540d536569",
+  "source_pins": {
+    "base": "85125190beee51334836ecbdb7f3033a6ed8afb1",
+    "test_file": "tests/qt/test_live_preview_panel_keeps_its_footing.py",
+    "test_sha256": "14d039ceb69ed8bf638adbd3974165331e84fcf2d10d782f8b2f255ef8a4b9a8",
+    "old_test_sha256": "0bef302d635e103f7dfc8ab697de2fd3bf8b2c83604f6ff13994adccddfc3f1b",
+    "patch_sha256": "3c2a734b24b28d2b79ea791832c9ce9e6bc3f5d0a2098d0c57701c1614a26243",
+    "outside_one_test_ast_identical": true,
+    "original_assertions_preserved": 2,
+    "added_assertions": 2,
+    "production_and_modal_guard_unchanged": {
+      "spacr/qt/widgets/live_preview.py": "58047f4092a416949a90f5e1f3dcd06b95acee242f2dd108a8f7da1afc7407a1",
+      "spacr/qt/widgets/model_zoo_picker.py": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8",
+      "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf"
+    },
+    "baseline": "1FAIL3.29s correct modal guard refusal, no displayed modal interaction",
+    "scope": "Fake only current ModelZooPicker dialog seam; explicitNone reference; actual kind/parent and existingselectedcount semantics"
+  },
+  "verified": [
+    "Only one existing test body changed; all outside AST identical.",
+    "Both original selected-text and no-duplicate-count assertions preserved.",
+    "New fake models exact current constructor(kinds,parent), accepted exec and chosen_path; explicitNone capsule makes no trust claim.",
+    "Production path imports ModelZooPicker directly, so old choose_model stub was obsolete; new factory intercepts actual seam.",
+    "Allowed kinds/parent and cleared reference are checked; no modal guard/production/verifier edits.",
+    "Raw source/patch/guard hashes and baseline1FAIL/final1PASS exits/logs verified."
+  ],
+  "findings": [],
+  "no_tests_or_imports_executed": true,
+  "limits": "Read-only source/evidence peer only; no full CI/model/native inference acceptance."
+}

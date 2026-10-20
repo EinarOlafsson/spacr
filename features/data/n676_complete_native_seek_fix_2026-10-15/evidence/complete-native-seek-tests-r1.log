@@ -1,0 +1,6 @@
+Command: ["/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python", "-m", "pytest", "-q", "-o", "addopts=", "--basetemp", "/tmp/s5seek-ipdx9bpq/pytest", "--junitxml", "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-tests-r1.xml", "tools/tutorials/tests/test_player_preserve_visual_intervals.py", "tools/tutorials/tests/test_player_complete_native_clips.py"]
+Private root: /tmp/s5seek-ipdx9bpq
+.......                                                                  [100%]
+7 passed in 60.49s (0:01:00)
+
+Terminal exit status: 0

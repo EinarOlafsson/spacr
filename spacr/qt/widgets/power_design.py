@@ -22,7 +22,7 @@ What lives here:
   whatever the user typed rather than a fixed grid, so the curve always has
   the user's own design on it.
 * :func:`power_curve` — replicates collapsed into a detection probability.
-* :func:`plain_sentence` — the one sentence the whole screen exists to print.
+* :func:`plain_sentence` — the summary sentence the screen prints.
 * :data:`CAVEATS` — the port's documented departures from spaCRPower, as
   data, so the screen can render the ones that change the number next to the
   number instead of leaving them in a docstring nobody opens.
@@ -117,9 +117,8 @@ class Caveat:
     :ivar detail: the paragraph behind it.
     :ivar changes_the_number: whether believing the opposite would change the
         power the screen reports. Only these are rendered next to the
-        headline sentence; the rest go in the list below it. The distinction
-        is the whole point of the panel — a caveat list where everything is
-        equally urgent is read as a disclaimer and skipped.
+        headline sentence; the rest go in the list below it, so the caveats
+        that change the result are not lost among minor ones.
     """
 
     key: str
@@ -746,7 +745,7 @@ def _fraction_words(detected: int, total: int) -> str:
 
 def plain_sentence(spec: DesignSpec, cells: Optional[pd.DataFrame],
                    wells: Optional[pd.DataFrame] = None) -> str:
-    """The one sentence the screen exists to print.
+    """The summary sentence the screen prints for the user's design.
 
     Reads the user's OWN design off the curve — the point at
     ``spec.cells_per_well`` — rather than the best point on it, because the

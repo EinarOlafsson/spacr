@@ -10,7 +10,7 @@ text again until its own **Animation** is pressed, and nothing is
 decoded until it is. Set *Setting animations* in Preferences to show
 them without asking.
 
-The diagrams use a shared biological grammar: white fibroblast or
+All diagrams use the same drawings: white fibroblast or
 motile immune-cell outlines, blue nuclei with unequal nucleoli, teal
 Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole,
 and soft-magenta Golgi cisternae. Filled regions are translucent and

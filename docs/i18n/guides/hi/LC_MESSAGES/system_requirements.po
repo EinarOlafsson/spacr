@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -108,6 +108,54 @@ msgstr "CPU क्लॉक के आँकड़े x86 खरीद के �
 
 msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
 msgstr "64-बिट OS और Python परिवेश का उपयोग करें। डेस्कटॉप इंस्टॉलर Windows 10/11 x86-64, Linux x86-64 और Intel/Apple-सिलिकॉन macOS को लक्षित करते हैं; उनका घोषित न्यूनतम OS इस बात की गारंटी नहीं देता कि कोई नया GPU फ़्रेमवर्क उसी OS का समर्थन करे। spaCR के सबसे व्यापक अतिरिक्त घटकों के लिए Python 3.12 व्यावहारिक आरंभ बिंदु है। spaCR की घोषित Python सीमा 3.9–3.14 है, 3.14.1 को छोड़कर, लेकिन वैकल्पिक पैकेज और अलग-अलग हार्डवेयर बैकएंड उस सीमा को संकुचित करते हैं। वर्तमान Apple MPS आवश्यकताओं में macOS 14 या बाद का संस्करण शामिल है; आप जो विशिष्ट PyTorch बिल्ड स्थापित करते हैं उसकी आवश्यकताओं का उपयोग करें। `Apple की PyTorch आवश्यकताएँ <https://developer.apple.com/metal/pytorch/>`_ वर्तमान मूल Apple-सिलिकॉन मार्ग का वर्णन करती हैं।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **True 3D** view draws through wgpu (Vulkan, Metal or Direct3D 12) where wgpu is installed, and otherwise through OpenGL or the CPU. wgpu needs Python 3.10 or newer on x86-64 or ARM64, and on Linux glibc 2.28 or newer; the :ref:`3D rendering section of the installer guide <wgpu-3d-rendering>` lists who gets it and how to install without it."
+msgstr "**True 3D** दृश्य वहाँ wgpu (Vulkan, Metal या Direct3D 12) से बनाया जाता है जहाँ wgpu स्थापित है, और अन्यथा OpenGL या CPU से। wgpu के लिए x86-64 या ARM64 पर Python 3.10 या नया, और Linux पर glibc 2.28 या नया आवश्यक है; :ref:`इंस्टॉलर गाइड का 3D रेंडरिंग अनुभाग <wgpu-3d-rendering>` बताता है कि यह किसे मिलता है और इसके बिना कैसे स्थापित करें।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D rendering, in the order Auto tries"
+msgstr "3D रेंडरिंग, उस क्रम में जिसमें Auto प्रयास करता है"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Platform"
+msgstr "प्लेटफ़ॉर्म"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "True 3D view"
+msgstr "True 3D दृश्य"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Linux (x86-64, ARM64; glibc 2.28 or newer)"
+msgstr "Linux (x86-64, ARM64; glibc 2.28 या नया)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan (wgpu), OpenGL, CPU"
+msgstr "Vulkan (wgpu), OpenGL, CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Windows (x64, ARM64)"
+msgstr "Windows (x64, ARM64)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan, Direct3D 12 (wgpu), OpenGL, CPU"
+msgstr "Vulkan, Direct3D 12 (wgpu), OpenGL, CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "macOS (Intel, Apple silicon)"
+msgstr "macOS (Intel, Apple silicon)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Metal, Vulkan when available (wgpu), OpenGL, CPU"
+msgstr "Metal, उपलब्ध होने पर Vulkan (wgpu), OpenGL, CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Without wgpu: Python 3.9, other processors, Linux glibc older than 2.28, or an install made without wgpu"
+msgstr "wgpu के बिना: Python 3.9, अन्य प्रोसेसर, 2.28 से पुराने glibc वाला Linux, या wgpu के बिना की गई स्थापना"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "OpenGL, CPU"
+msgstr "OpenGL, CPU"
 
 msgid "GPU support by chip and framework"
 msgstr "चिप और फ़्रेमवर्क के अनुसार GPU समर्थन"
@@ -327,6 +375,18 @@ msgstr "CUDA और CuPy के साथ RAPIDS/cuML"
 
 msgid "Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it"
 msgstr "स्पष्ट रूप से सक्षम करना होता है; अनुपलब्ध होने पर या नियतात्मक व्यवहार आवश्यक होने पर CPU विकल्प"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks True 3D view"
+msgstr "Make Masks True 3D दृश्य"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "wgpu (Vulkan, Metal or Direct3D 12) where installed, then OpenGL through VisPy"
+msgstr "जहाँ स्थापित हो वहाँ wgpu (Vulkan, Metal या Direct3D 12), फिर VisPy के माध्यम से OpenGL"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "CPU drawing when neither is available; Python 3.9 and installs without wgpu start at OpenGL"
+msgstr "जब दोनों में से कोई उपलब्ध न हो तो CPU से बनाना; Python 3.9 और wgpu के बिना की गई स्थापनाएँ OpenGL से शुरू होती हैं"
 
 msgid "Measurement tables, image I/O and many classical statistics"
 msgstr "मापन तालिकाएँ, छवि I/O और अनेक पारंपरिक सांख्यिकी"

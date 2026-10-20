@@ -1,9 +1,9 @@
 """The Graph Builder's *spec*: what is on which channel, and nothing else.
 
-A JMP-style graph builder is two things that want very much to be one thing:
-a pile of drag-and-drop chrome, and a small declarative object saying "``area``
-is on x, ``gene`` is on colour, facet by plate down the rows". This module is
-the second one, kept deliberately apart from the first.
+A JMP-style graph builder has two parts: drag-and-drop controls, and a small
+declarative object saying "``area`` is on x, ``gene`` is on colour, facet by
+plate down the rows". This module is the second one, kept separate from the
+first.
 
 Why the separation is the important decision
 --------------------------------------------
@@ -34,14 +34,14 @@ The four pieces
     The panel layout — the **full cartesian product** of the row and column
     levels, empty combinations included. A missing panel and an empty panel say
     different things ("this table has no plate 3 / row H" versus "plate 3 row H
-    was measured and nothing survived the filter"), and only one of them is
-    true; drawing the grid complete is what keeps the reader from guessing.
+    was measured and nothing survived the filter"), and drawing the complete
+    grid shows which one applies.
 
 :func:`scales_for`
     One set of limits, bin edges, category orders and colour levels for *every*
-    panel. Shared axes are the default because comparing across panels is the
-    entire point of faceting, and two panels whose y axes differ by an order of
-    magnitude look identical.
+    panel. Shared axes are the default because faceting is for comparing
+    panels, and with independent axes two panels whose values differ by an
+    order of magnitude can look identical.
 
 :func:`prepare_data`
     The large-data policy, stated rather than hidden. See below.
@@ -49,10 +49,10 @@ The four pieces
 Large data
 ----------
 
-spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a
-scatter of a million overlapping dots. Three strategies, chosen by what the
-plot actually needs, and **the chosen one is always named in**
-:attr:`RenderData.notice` so a subset can never be mistaken for the whole:
+spaCR measurement tables run to 10^5–10^6 object rows and a scatter of a
+million overlapping points is unreadable. Three strategies, chosen by what the
+plot needs, and **the chosen one is always named in** :attr:`RenderData.notice`
+so a subset can never be mistaken for the whole:
 
 * **aggregate plots use every row, always.** A histogram, bar, box, violin or
   heatmap is already a reduction — sampling before aggregating would change the
@@ -70,7 +70,7 @@ plot actually needs, and **the chosen one is always named in**
   **seeded uniform sample**, with the count, the fraction and the word
   "sampled" in the notice.
 
-The one thing not on offer is quietly plotting the head of the frame.
+The first rows of the frame are never plotted silently in place of the whole.
 """
 from __future__ import annotations
 
@@ -102,12 +102,11 @@ __all__ = [
 
 
 class SpecError(ValueError):
-    """A spec that cannot mean anything — an unknown channel or plot type.
+    """Raised for an invalid spec — an unknown channel or plot type.
 
     Raised at the point the spec is built rather than at render time. A
     misspelled channel that fell through to "no column on x" would draw a
-    plausible-looking chart of the wrong thing, which is worse than a
-    traceback next to the line that caused it.
+    plausible-looking chart of the wrong thing.
     """
 
 
@@ -192,10 +191,8 @@ def column_kinds(frame: pd.DataFrame) -> Dict[str, str]:
 
     A thin re-reading of
     :func:`spacr.qt.widgets.data_filter_panel.classify_columns` — the Local
-    Data Filter's rule — rather than a second classifier. The two screens must
-    agree about what ``cell_count`` is, or a column offered as a tick list in
-    the filter and as a continuous axis in the plot would give a user two
-    different mental models of the same table.
+    Data Filter's rule — rather than a second classifier. The two screens
+    therefore classify a column such as ``cell_count`` the same way.
 
     The translation is one-to-one: a column the filter offers as a *range* is
     continuous; one it offers as *ticks* is categorical; one it skips
@@ -214,8 +211,7 @@ def plottable_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     """The columns worth offering in the drag well, sorted.
 
     Same rule, same reason as the filter panel's picker: a measurement table
-    has hundreds of columns, and offering all of them is the same as offering
-    none.
+    has hundreds of columns, too many to offer usefully.
 
     :param frame: the table whose columns are offered.
     """
@@ -252,7 +248,7 @@ class GraphSpec:
     :param colour: column mapped to hue. Categorical → the fixed
         eight-colour order; continuous → one-hue light-to-dark ramp.
     :param size: column mapped to mark area. Only meaningful for point marks;
-        an aggregate plot ignores it rather than pretending.
+        an aggregate plot ignores it.
     :param facet_row: column whose levels become rows of panels.
     :param facet_col: column whose levels become columns of panels.
     :param kind: one of :data:`PLOT_KINDS`, or ``None`` to infer it from what
@@ -269,9 +265,8 @@ class GraphSpec:
     :param shared_y: likewise for y.
     :param point_budget: individual marks before :func:`prepare_data` switches
         to binning or sampling.
-    :param seed: the sampler's seed, so "the same chart" is the same chart —
-        a screenshot in a report and the screen it came from must not differ
-        by a random draw.
+    :param seed: the sampler's seed, so the same spec always draws the same
+        sample.
     :raises SpecError: on an unknown plot kind, a non-positive bin count or a
         role that is neither continuous nor categorical.
     """
@@ -415,13 +410,14 @@ class GraphSpec:
         return kinds
 
     def resolved_kind(self, kinds: Mapping[str, str]) -> str:
-        """The kind that will actually be drawn.
+        """The kind that will be drawn.
 
-        THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the
-        user saying "this chart, now" and still wins outright. With no pin,
-        the Default Graph Type preference chooses among the forms that fit,
-        and the inference answers when there is no preference or the chosen
-        form cannot be drawn here -- see :func:`_kind_and_note`.
+        Order of precedence: the pin, then the setting, then the inference. An
+        explicit pin is the user saying "this chart, now" and still wins
+        outright. With no pin, the Default Graph Type preference chooses among
+        the forms that fit, and the inference answers when there is no
+        preference or the chosen form cannot be drawn here -- see
+        :func:`_kind_and_note`.
 
         :param kinds: ``{column: kind}`` map as returned by
             :func:`column_kinds` or :meth:`GraphSpec.kinds_for`.
@@ -488,8 +484,8 @@ class GraphSpec:
         return _kind_and_note(self, kinds)[1]
 
     def to_dict(self) -> Dict[str, Any]:
-        """A plain JSON-able dict. Every field, always — a stable schema beats
-        a compact one for something later screens read."""
+        """A plain JSON-able dict. Every field is always written, so readers
+        get a stable schema."""
         payload: Dict[str, Any] = {channel: getattr(self, channel)
                                    for channel in CHANNELS}
         payload.update({
@@ -508,8 +504,7 @@ class GraphSpec:
         """Rebuild from :meth:`to_dict`.
 
         Unknown keys are ignored and missing keys take their defaults, so a
-        spec written by an older (or newer) build still opens. A spec that
-        will not load is a chart the user cannot get back.
+        spec written by an older (or newer) build still opens.
 
         :param payload: mapping written by :meth:`to_dict`; only channel names
             and ``kind``, ``roles``, ``bins``, ``shared_x``, ``shared_y``,
@@ -619,10 +614,9 @@ _DRAWABLE_KINDS = frozenset({SCATTER, LINE, HISTOGRAM, BAR, BOX, VIOLIN,
 def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
     """The plot type the dropped columns imply.
 
-    Only x and y decide. Colour, size and the facets never change *what kind
-    of chart this is* — dragging ``gene`` onto colour must not silently turn a
-    scatter into something else, or the chart the user built stops being the
-    chart they are looking at.
+    Only x and y decide. Colour, size and the facets never change *what kind of
+    chart this is* — dragging ``gene`` onto colour does not turn a scatter into
+    something else.
 
     ============================  ==================================
     x, y                          kind
@@ -719,8 +713,8 @@ class FacetPanel:
     """One panel of the grid, and the rows that belong in it.
 
     ``index`` holds *positional* indices into the frame :func:`facet_grid` was
-    given, not label indices: a measurement frame carries a duplicated or
-    reset index often enough that positions are the only safe currency.
+    given, not label indices: a measurement frame carries a duplicated or reset
+    index often enough that positions are used instead.
 
     :param row: zero-based grid row of the panel.
     :param col: zero-based grid column of the panel.
@@ -769,9 +763,8 @@ class FacetGrid:
     """The complete panel layout — including the combinations with no rows.
 
     An empty panel is **drawn empty**, never skipped. "Plate 3 / row H has no
-    surviving cells" and "there is no plate 3 / row H" are different facts,
-    and a grid that closes up the gaps tells the reader the second one when
-    the first is true.
+    surviving cells" and "there is no plate 3 / row H" are different facts, and
+    closing up the gaps would suggest the second when the first is true.
 
     :param row_column: column split into panel rows, or None when rows are not
         faceted.
@@ -837,8 +830,8 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     :param levels_source: where the *levels* come from, when that is not
         ``frame``. The renderer passes the pre-sample frame, so a level that
         exists in the population but drew no rows in the sample still gets its
-        panel — drawn empty, which is the honest picture — instead of the grid
-        silently changing shape with the sample.
+        panel — drawn empty — instead of the grid silently changing shape with
+        the sample.
     :param max_levels: per axis; beyond it levels are cut and counted.
     :param max_panels: hard ceiling on rows × columns.
     :returns: a :class:`FacetGrid` whose ``panels`` are the **full** cartesian
@@ -956,8 +949,8 @@ class Scales:
 
     :param count_limit: the tallest bar or bin across all panels, so a
         histogram grid's count axis is comparable too. Sharing the value axis
-        of an aggregate is the same rule as sharing a data axis; forgetting it
-        is the usual way a faceted histogram lies.
+        of an aggregate is the same rule as sharing a data axis; without it,
+        faceted histograms are not comparable.
     """
 
     x_limits: Optional[Tuple[float, float]] = None
@@ -980,9 +973,9 @@ class Scales:
     def y_positions(self) -> Optional[Dict[str, int]]:
         """Where each categorical y level sits on the axis.
 
-        None for a continuous y, which is the distinction a renderer needs:
-        a category is drawn at an integer position it was assigned, a number
-        at the position it IS.
+        None for a continuous y, which is the distinction a renderer needs: a
+        category is drawn at an integer position it was assigned, a number at
+        its own value.
 
         :returns: ``{level: position}``, or None when y is continuous.
         """
@@ -1011,7 +1004,7 @@ def _category_levels(frame: pd.DataFrame, column: Optional[str],
 
 def value_axes(spec: GraphSpec, kinds: Mapping[str, str]
                ) -> Tuple[Optional[str], Optional[str]]:
-    """Which column each *axis* actually carries, once the kind is known.
+    """Which column each *axis* carries, once the kind is known.
 
     Almost always ``(spec.x, spec.y)``. The exception is a lone column on Y
     that infers a histogram or a bar chart: those draw the column along the
@@ -1036,8 +1029,8 @@ def scales_for(frame: pd.DataFrame, spec: GraphSpec,
                grid: Optional[FacetGrid] = None) -> Scales:
     """Limits, bin edges, level orders and colour levels shared by every panel.
 
-    :param frame: the rows that will be drawn — post-filter and post-sample,
-        so the limits bound what is actually on screen.
+    :param frame: the rows that will be drawn — post-filter and post-sample, so
+        the limits bound what is on screen.
     :param spec: graph channels, kind and bin count to scale.
     :param kinds: mapping from column names to continuous or categorical
         axis kinds.
@@ -1126,17 +1119,15 @@ SAMPLED = "sampled"
 class RenderData:
     """What the renderer should draw, and what it must say about it.
 
-    :attr:`notice` is **not** optional decoration. It is the difference
-    between a chart of a million cells and a chart of fifty thousand of them,
-    and a screenshot that does not carry it is a result nobody can check.
+    :attr:`notice` must be shown with the chart: it states whether the chart
+    draws every row or a subset, for example fifty thousand of a million cells.
 
     :param frame: the rows to draw: the whole table, or a random sample of it
         when :attr:`strategy` is ``SAMPLED``.
     :param strategy: ``FULL``, ``BINNED`` or ``SAMPLED``: how the rows are
         drawn.
     :param n_total: number of rows in the table given to :func:`prepare_data`.
-    :param n_shown: number of rows actually drawn or, for a binned density,
-        counted.
+    :param n_shown: number of rows drawn or, for a binned density, counted.
     """
 
     frame: pd.DataFrame
@@ -1153,11 +1144,11 @@ class RenderData:
 
 def prepare_data(frame: pd.DataFrame, spec: GraphSpec,
                  kinds: Mapping[str, str]) -> RenderData:
-    """Decide how many rows get drawn, and say so.
+    """Decide how many rows are drawn, and state it in the notice.
 
     See the module docstring for the policy. The short version: aggregates use
     everything, point plots use everything up to ``spec.point_budget``, and
-    above that they either bin (nothing lost) or sample (said out loud).
+    above that they either bin (nothing lost) or sample (stated in the notice).
 
     :param frame: the filtered table to draw.
     :param spec: the chart specification; its kind, ``point_budget``, ``bins``,

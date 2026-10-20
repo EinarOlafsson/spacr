@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical translation review with independent peer; no native-speaker signoff",
+  "note": "Four changed existing apply_workspace_state API blocks bound to2164d07de80+7c32cd3279f. Normal targeted renderer against exact prior published English. Nine obsolete active parameter records retired with all prior text retained. No full collector/global source-currency claim.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state#1",
+      "source": "Saved sources retain their order. In folder mode, an explicit matching ``databases`` list can supply a database restored by the workspace core. If the original database is missing and that file exists, the set reads the supplied file while retaining the original source key. This association does not rewrite the source roots returned by :meth:`get_value` or reconstruct a project folder for a new pipeline.",
+      "context": "Saved sources retain their order. In folder mode, an explicit matching ``databases`` list can supply a database restored by the workspace core. If the original database is missing and that file exists, the set reads the supplied file while retaining the original source structured-data name. This association does not rewrite the source roots returned by :meth:`get_value` or reconstruct a project folder for a new workflow.",
+      "source_sha256": "6ad0e08287e2e2b86af8c88dc0a6bbd2c66cf69d509b62ca700d39e67ac2af2d",
+      "translation": "Gespeicherte Quellen behalten ihre Reihenfolge. Im Ordnermodus kann eine explizite, passend zugeordnete Liste ``databases`` eine vom Workspace-Kern wiederhergestellte Datenbank bereitstellen. Fehlt die ursprüngliche Datenbank und existiert diese Datei, liest die Menge die bereitgestellte Datei und behält den ursprünglichen Quellschlüssel bei. Diese Zuordnung schreibt weder die von :meth:`get_value` zurückgegebenen Quellwurzelpfade um noch rekonstruiert sie einen Projektordner für eine neue Verarbeitungspipeline.",
+      "review_basis": "Exact-source technical review of explicit positionally matching restored database associations, original source identity/get_value roots retained, no reconstructed project for a fresh pipeline, off-GUI checks, stale-row exclusion and asynchronous return semantics. Workspace core retains file verification/remapping responsibility. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state#2",
+      "source": "Filesystem checks run off the GUI thread. Sources with neither an existing original source nor a usable explicit database are dropped when the answer arrives. Added sources are preserved; replaced, removed and re-added sources cannot receive stale associations.",
+      "context": "Filesystem checks run off the main GUI execution path. Sources with neither an existing original source nor a usable explicit database are dropped when the answer arrives. Added sources are preserved; replaced, removed and re-added sources cannot receive stale associations.",
+      "source_sha256": "b813f69a09a450d3305e51dc59501b009a1482aa3e62d57c42e9785a6d884917",
+      "translation": "Dateisystemprüfungen laufen außerhalb des GUI-Threads. Quellen, für die weder die ursprüngliche Quelle existiert noch eine verwendbare explizite Datenbank vorliegt, werden entfernt, sobald das Ergebnis eintrifft. Hinzugefügte Quellen bleiben erhalten; ersetzte sowie entfernte und erneut hinzugefügte Quellen können keine veralteten Zuordnungen erhalten.",
+      "review_basis": "Exact-source technical review of explicit positionally matching restored database associations, original source identity/get_value roots retained, no reconstructed project for a fresh pipeline, off-GUI checks, stale-row exclusion and asynchronous return semantics. Workspace core retains file verification/remapping responsibility. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state#3",
+      "source": "The return value answers \"was there anything to attach\", not \"was any of it still on disk\" when the check is asynchronous. The workspace core reports missing or changed files separately. Unthreaded, the check has already run by the time this returns.",
+      "context": "The return value answers \"was there anything to attach\", not \"was any of it still on disk\" when the check is asynchronous. The workspace core reports missing or changed files separately. Unthreaded, the check has already run by the time this returns.",
+      "source_sha256": "92de564480e6b8d7fd3634e6fae3f10cb53b4617faee74d820432b4a21c69e6a",
+      "translation": "Bei einer asynchronen Prüfung beantwortet der Rückgabewert die Frage „Gab es etwas anzuhängen?“ und nicht „War davon noch etwas auf dem Datenträger vorhanden?“. Der Workspace-Kern meldet fehlende oder geänderte Dateien separat. Ohne Hintergrundthread ist die Prüfung bei der Rückkehr bereits abgeschlossen.",
+      "review_basis": "Exact-source technical review of explicit positionally matching restored database associations, original source identity/get_value roots retained, no reconstructed project for a fresh pipeline, off-GUI checks, stale-row exclusion and asynchronous return semantics. Workspace core retains file verification/remapping responsibility. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.apply_workspace_state#4",
+      "source": "dict saved by :meth:`workspace_state`; reads ``sources``, ``mode`` and an optional positionally matching ``databases`` list. A non-dict or empty source set returns False. File verification and carried-path remapping belong to the workspace core.",
+      "context": "key-value mapping saved by :meth:`workspace_state`; reads ``sources``, ``mode`` and an optional positionally matching ``databases`` list. A non-key-value mapping or empty source set returns False. File verification and carried-path remapping belong to the workspace core.",
+      "source_sha256": "7b65ee52d867ca737314df800589032c788e8b134f157bc8b40e4ab1bc18930f",
+      "translation": "von :meth:`workspace_state` gespeichertes Dictionary; gelesen werden ``sources``, ``mode`` und eine optionale, positionsweise zugeordnete Liste ``databases``. Ein Wert, der kein Dictionary ist, oder eine leere Quellenmenge ergibt False. Dateiprüfung und Neuzuordnung mitgeführter Pfade sind Aufgabe des Workspace-Kerns.",
+      "review_basis": "Exact-source technical review of explicit positionally matching restored database associations, original source identity/get_value roots retained, no reconstructed project for a fresh pipeline, off-GUI checks, stale-row exclusion and asynchronous return semantics. Workspace core retains file verification/remapping responsibility. No native-speaker claim."
+    }
+  ]
+}

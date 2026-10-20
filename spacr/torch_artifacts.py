@@ -28,6 +28,10 @@ def model_configuration(model: nn.Module) -> dict[str, Any]:
 
     :param model: module whose reconstruction settings should be captured.
     """
+    if hasattr(model, "_own_dino_config"):
+        import copy
+        return {"model_name": "own_dino",
+                "own_dino_config": copy.deepcopy(model._own_dino_config)}
     return {
         "model_name": getattr(model, "model_name", model.__class__.__name__),
         "num_classes": int(getattr(model, "num_classes", 1)),
@@ -42,12 +46,12 @@ def dependency_versions() -> dict[str, str]:
     """Return the runtime versions that materially affect a model artifact."""
     versions = {
         "python": platform.python_version(),
-        "torch": torch.__version__,
+        "torch": str(torch.__version__),
     }
     try:
         import torchvision
 
-        versions["torchvision"] = torchvision.__version__
+        versions["torchvision"] = str(torchvision.__version__)
     except Exception:
         versions["torchvision"] = "unavailable"
     return versions
@@ -123,14 +127,14 @@ def make_model_artifact(
 ) -> dict[str, Any]:
     """Build the canonical serializable spaCR PyTorch artifact.
 
-    Everything needed to REBUILD the model, not only to load its weights:
+    Everything needed to rebuild the model, not only to load its weights:
     :func:`model_configuration` records the architecture so
     :func:`build_model_from_configuration` can reconstruct it without the
     caller remembering what it was.
 
     :param model: the module to serialise. Its ``state_dict`` and its
         configuration are both captured.
-    :param optimizer: optimiser whose state to store, so training can RESUME
+    :param optimizer: optimiser whose state to store, so training can resume
         rather than restart. Silently stored as ``None`` if it has no
         ``state_dict``, which is what makes a plain object safe to pass.
     :param scheduler: learning-rate scheduler, same contract as ``optimizer``.
@@ -145,13 +149,13 @@ def make_model_artifact(
     :param preprocessing: the transform the inputs were prepared with.
         Without it a loaded model can be fed differently-normalised images
         and can produce incorrect results without failing.
-    :param classes: class names in OUTPUT-COLUMN order. The order is the
+    :param classes: class names in output-column order. The order is the
         contract -- a reordered list silently relabels every prediction.
     :param channels: input channel names, in channel order, same contract.
     :param include_rng: capture Python/NumPy/torch RNG state, so a resumed
         run continues the same stream. Turn it off for a smaller artifact
         when exact resumption does not matter.
-    :param artifact_role: what this file IS -- ``model`` for a trained
+    :param artifact_role: what this file is -- ``model`` for a trained
         model, another role for a companion artifact -- recorded so a loader
         can tell them apart.
     :returns: the artifact dict, ready for :func:`atomic_torch_save`.
@@ -212,10 +216,13 @@ def _legacy_configuration(payload: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
-    """Reconstruct a :class:`TorchModel` without pretrained weights.
+    """Reconstruct a recorded classifier without pretrained downloads.
 
     :param config: recorded model-constructor settings.
     """
+    if config.get("model_name") == "own_dino":
+        from .embeddings import _dino_classifier_from_config
+        return _dino_classifier_from_config(config["own_dino_config"])
     from .utils import TorchModel
 
     return TorchModel(
@@ -230,25 +237,28 @@ def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
 
 
 def load_model_artifact(
-    path: str,
+    path: Any,
     *,
     map_location: Any = "cpu",
     model: nn.Module | None = None,
     strict: bool = True,
+    weights_only: bool = False,
 ) -> tuple[nn.Module, dict[str, Any]]:
     """Load current artifacts and legacy full-module/state-dict checkpoints.
 
     The returned metadata dict always contains ``legacy``. Current artifacts
     retain their optimizer/scheduler/RNG state so callers can resume training.
 
-    :param path: checkpoint to read. Unpickled with ``weights_only=False``,
-        so only files you trust are safe to pass.
+    :param path: checkpoint to read, or a seekable binary stream only with
+        ``weights_only=True``. The legacy default unpickles trusted files.
+    :param weights_only: use restricted tensor-and-primitive decoding and local
+        files only when true; unsupported pickles refuse without unsafe retry.
     :param map_location: forwarded to :func:`torch.load`. The ``cpu`` default
         lets a GPU-trained checkpoint load on a machine without a GPU; an
         unrecognised device string raises ``RuntimeError`` from torch.
     :param model: ``None`` rebuilds the architecture from the recorded
         config -- a legacy bare state dict records none, so ``maxvit_t`` is
-        assumed silently. A module passed here is loaded IN PLACE and
+        assumed silently. A module passed here is loaded in place and
         returned as the same object; for legacy full-module files it is
         ignored and the file's own module comes back.
     :param strict: forwarded to ``load_state_dict``; ``True`` raises
@@ -261,13 +271,15 @@ def load_model_artifact(
         ``model`` was supplied.
     :returns: ``(model, metadata)``.
     """
-    if not os.path.isfile(path):
+    if not weights_only and not os.path.isfile(path):
         from .model_zoo import _ensure_model_file
         downloaded = _ensure_model_file(path, kinds=("classifier",))
         if downloaded is not None:
             path = downloaded
-    raw = torch.load(os.fspath(path), map_location=map_location,
-                     weights_only=False)
+    restricted_stream = (weights_only and callable(getattr(path, "read", None))
+                         and callable(getattr(path, "seek", None)))
+    raw = torch.load(path if restricted_stream else os.fspath(path),
+                     map_location=map_location, weights_only=weights_only)
     if isinstance(raw, nn.Module):
         return raw, {
             "legacy": True,
@@ -321,6 +333,14 @@ def load_model_artifact(
                 "provide an initialized model explicitly."
             )
         model = build_model_from_configuration(config)
+    if hasattr(model, "_own_dino_config"):
+        from .qt.i18n import tr
+        scale = state_dict.get("channel_scale")
+        if (not strict or not isinstance(scale, torch.Tensor)
+                or model_configuration(model) != config
+                or not torch.equal(scale, model.channel_scale)):
+            raise ValueError(tr(
+                "Own-DINO classifier settings, checkpoint or input are incompatible."))
     model.load_state_dict(state_dict, strict=strict)
     return model, payload
 
@@ -343,7 +363,7 @@ def restore_training_state(
         the checkpoint's.
     :param scheduler: same contract, restoring ``last_epoch`` and with it the
         position in the schedule.
-    :param restore_random_generators: reseeds the PROCESS-WIDE Python, NumPy
+    :param restore_random_generators: reseeds the process-wide Python, NumPy
         and torch generators, not just this model's. A no-op for artifacts
         written with ``include_rng=False``.
     :returns: a copy of the payload's ``training_state``; ``{}`` when it is

@@ -742,7 +742,7 @@ def test_container_preview_apply_writes_filename_map_csv(
     written = tmp_path / "filename_map.csv"
     assert dlg.written_path == written
     assert written.is_file()
-    lines = written.read_text().strip().splitlines()
+    lines = written.read_text(encoding="utf-8").strip().splitlines()
     assert lines[0] == ("original_path,canonical,plate,well,field,"
                         "channel,time")
     assert len(lines) == 3                                  # header + 2 planes
@@ -1773,12 +1773,15 @@ def test_the_former_three_inline_walks_are_slow_enough_to_matter(big_folder):
 
     The old drop performed this walk three times. Measure that former cost,
     not one cached walk: on a fast filesystem one pass can fit inside the
-    budget while all three still freeze the GUI for well over it.
+    budget while all three still freeze the GUI for well over it. It is the
+    former walk, ``rglob`` with a ``stat`` per file, that is timed: the
+    scanner's own walk no longer asks each file for its stat.
     """
-    from spacr.qt.folder_metadata import iter_image_files
+    from spacr.qt.folder_metadata import IMAGE_EXTS
 
     start = time.perf_counter()
-    found = sum(1 for _ in iter_image_files(big_folder))
+    found = sum(1 for p in Path(big_folder).rglob("*")
+                if p.suffix.lower() in IMAGE_EXTS and p.is_file())
     elapsed = time.perf_counter() - start
     assert found >= _BIG_WELLS * _BIG_FIELDS * _BIG_CHANS
     former_inline_cost = elapsed * 3
@@ -1846,14 +1849,16 @@ def test_a_dropped_folder_is_walked_once_not_three_times(
     ``detect_folder_metadata`` walked it, then ``plan_folder_extraction``
     walked it again *and* called ``detect_folder_metadata`` for a third.
     """
+    from spacr.qt import folder_metadata as fm
+
     walked = []
-    real_rglob = Path.rglob
+    real_walk = fm._listings_in_rglob_order
 
-    def counting(self, pattern, *args, **kwargs):
-        walked.append(str(self))
-        return real_rglob(self, pattern, *args, **kwargs)
+    def counting(root, *args, **kwargs):
+        walked.append(str(root))
+        return real_walk(root, *args, **kwargs)
 
-    monkeypatch.setattr(Path, "rglob", counting)
+    monkeypatch.setattr(fm, "_listings_in_rglob_order", counting)
     MaskDropHandler().apply(structured_folder, screen)
     _settle(qtbot, screen)
 
@@ -1896,3 +1901,79 @@ def test_unknown_modules_accept_a_general_source_folder(tmp_path):
     handler = get_handler("future_module")
     assert type(handler) is SourceDropHandler
     assert handler.can_accept(tmp_path)
+
+
+#: The modules a folder drop runs through. Filesystem calls made from them on
+#: the GUI thread are what a drop must not make: the walk, the listings, the
+#: metadata probes and the plan all belong on the scanner's worker.
+_DROP_PATH_MODULES = ("/spacr/qt/dnd.py", "/spacr/qt/dnd_handlers.py",
+                      "/spacr/qt/folder_metadata.py",
+                      "/spacr/qt/ingest_preview.py",
+                      "/spacr/qt/regex_detect.py", "/spacr/qt/regex_editor.py",
+                      "/spacr/qt/widgets/metadata_table.py")
+
+
+#: Frames of the interpreter's own import machinery. An ``import`` statement
+#: inside a function stats its module through PySide6's feature hook; that is
+#: the interpreter loading code, not the drop reading the dropped folder.
+_IMPORT_MACHINERY = "<frozen importlib"
+_IMPORT_HOOKS = ("/inspect.py", "/linecache.py", "/shibokensupport/feature.py",
+                 "/signature/loader.py")
+
+
+#: Setting ``src`` commits a setting, and every commit asks the run journal
+#: whether an analysis lock covers it. That lookup is the settings model's,
+#: made for any edit, not the drop's reading of the folder; it is excluded
+#: here and reported separately.
+_SETTINGS_COMMIT_OBSERVER = ("/spacr/run_journal.py",)
+
+
+def test_a_folder_drop_makes_no_filesystem_call_on_the_gui_thread(
+        qtbot, structured_folder, logged, monkeypatch):
+    """Every stat and listing of a dropped folder happens off the GUI thread.
+
+    Counted, not timed: ``os.stat``, ``os.lstat``, ``os.scandir`` and
+    ``os.listdir`` are wrapped, and a call on the GUI thread whose caller is
+    one of the drop's own modules is recorded with where it came from.
+    """
+    import os
+    import sys
+    import threading
+
+    screen = _mask_screen(qtbot)
+    gui = threading.get_ident()
+    calls = []
+
+    def guarded(name, real):
+        def call(*args, **kwargs):
+            if threading.get_ident() == gui:
+                frame = sys._getframe(1)
+                trail = []
+                while frame is not None:
+                    where = frame.f_code.co_filename.replace("\\", "/")
+                    if _IMPORT_MACHINERY in where or where.endswith(
+                            _IMPORT_HOOKS):
+                        break
+                    trail.append(f"{where.rsplit('/', 1)[-1]}:"
+                                 f"{frame.f_lineno}")
+                    if where.endswith(_SETTINGS_COMMIT_OBSERVER):
+                        break
+                    if where.endswith(_DROP_PATH_MODULES):
+                        calls.append(f"{name} via {' < '.join(trail)}")
+                        break
+                    frame = frame.f_back
+            return real(*args, **kwargs)
+        return call
+
+    for name in ("stat", "lstat", "scandir", "listdir"):
+        monkeypatch.setattr(os, name, guarded(name, getattr(os, name)))
+    event = _drop(screen, [structured_folder])
+    _settle(qtbot, screen)
+    qtbot.wait(50)
+    monkeypatch.undo()
+
+    assert event.isAccepted()
+    text = "".join(logged)
+    assert "[drop] folder-structure plan — 7 images" in text, text[-2000:]
+    assert len(getattr(screen, "_metadata_dialogs", [])) == 1, text[-3000:]
+    assert calls == [], "\n".join(calls)

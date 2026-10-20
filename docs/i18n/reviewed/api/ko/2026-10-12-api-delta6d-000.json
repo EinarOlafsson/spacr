@@ -1,0 +1,208 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Sonnet 5.5), no native-speaker signoff",
+  "note": "Reviewed API translations (AI review, same method as delta6c) for the Preferences Apply/Keep/Revert redraw and sliced sheeting docstrings (spacr.qt.app, spacr.qt.preferences, spacr.qt.theme, spacr.qt.widgets.home; 1878a7a60, d2582450e).",
+  "records": [
+    {
+      "label": "spacr.qt.app.MainWindow.refresh_after_preferences#0",
+      "source": "Redraw what a Preferences Apply changed, and nothing else.",
+      "source_sha256": "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+      "context": "Redraw what a Preferences Apply changed, and nothing else.",
+      "translation": "Preferences의 적용이 바꾼 것만 다시 그리고, 그 밖에는 아무것도 하지 않습니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.refresh_after_preferences#1",
+      "source": "THE APPLY THAT CHANGED ONE SLIDER REBUILT HOME. Page opacity is in the window's signature, so moving it ran :meth:`refresh_theme` -- Home rebuilt (2.1-2.6 s on a loaded box), the tree retranslated (0.3 s), every alpha gate walked -- while the only things on Home that had taken the opacity were three rules, which :meth:`HomePage.refresh_pane_surfaces` sets again in place.",
+      "source_sha256": "ef2d672a8c89d90621ee7e71c59730cd62e9bf84341ebc4e11113842043b8d4b",
+      "context": "The apply that changed one slider rebuilt home. Page opacity is in the window's signature, so moving it ran :meth:`refresh_theme` -- Home rebuilt (2.1-2.6 s on a loaded box), the tree retranslated (0.3 s), every alpha data-selection boundary walked -- while the only things on Home that had taken the opacity were three rules, which :meth:`HomePage.refresh_pane_surfaces` sets again in place.",
+      "translation": "슬라이더 하나를 바꾼 적용이 Home을 다시 만들었습니다. 페이지 불투명도는 창의 시그니처에 들어 있으므로 이를 움직이면 :meth:`refresh_theme` 이 실행되었습니다 -- Home이 다시 만들어지고(부하가 걸린 컴퓨터에서 2.1-2.6 s), 트리가 다시 번역되고(0.3 s), 모든 알파 게이트가 순회되었습니다 -- 그런데 Home에서 불투명도를 받은 것은 세 개의 규칙뿐이었고, 이는 :meth:`HomePage.refresh_pane_surfaces` 가 그 자리에서 다시 설정합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.refresh_after_preferences#2",
+      "source": "names from the window's signature whose values changed (:func:`spacr.qt.preferences._window_changes`).",
+      "source_sha256": "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+      "context": "names from the window's signature whose values changed (:func:`spacr.qt.preferences._window_changes`).",
+      "translation": "값이 바뀐 창 시그니처의 이름(:func:`spacr.qt.preferences._window_changes`).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.refresh_after_preferences#3",
+      "source": "``\"rebuilt\"``, ``\"in place\"`` or ``\"nothing\"``, so a test can say which.",
+      "source_sha256": "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40",
+      "context": "``\"rebuilt\"``, ``\"in place\"`` or ``\"nothing\"``, so a test can say which.",
+      "translation": "``\"rebuilt\"``, ``\"in place\"`` 또는 ``\"nothing\"`` 이며, 테스트가 어느 쪽인지 말할 수 있게 합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences._refresh_owner_window._redraw_what_changed#0",
+      "source": "Redraw the window for ``changes``, if it is still there.",
+      "source_sha256": "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f",
+      "context": "Redraw the window for ``changes``, if it is still there.",
+      "translation": "창이 아직 있다면 ``changes`` 에 대해 창을 다시 그립니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_preferences_to_app#0",
+      "source": "Re-apply language, theme and font scale to ``QApplication``.",
+      "source_sha256": "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
+      "context": "Re-apply language, theme and font scale to ``QApplication``.",
+      "translation": "언어, 테마, 글꼴 배율을 ``QApplication`` 에 다시 적용합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_preferences_to_app#1",
+      "source": "Called at startup from :func:`spacr.qt.app.launch`, and again whenever the user changes a preference (via :class:`PreferencesDialog` ``accepted`` signal).",
+      "source_sha256": "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
+      "context": "Called at startup from :func:`spacr.qt.app.launch`, and again whenever the user changes a preference (via :class:`PreferencesDialog` ``accepted`` signal).",
+      "translation": "시작할 때 :func:`spacr.qt.app.launch` 에서 호출되며, 사용자가 환경설정을 바꿀 때마다 다시 호출됩니다(:class:`PreferencesDialog` 와 그 ``accepted`` 시그널을 통해).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_preferences_to_app#2",
+      "source": "optional QApplication. Falls back to ``QApplication.instance()``.",
+      "source_sha256": "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+      "context": "optional QApplication. Falls back to ``QApplication.instance()``.",
+      "translation": "선택적 QApplication. ``QApplication.instance()`` 로 대체됩니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.apply_preferences_to_app#3",
+      "source": "Preferences' Apply and its Revert: a new sheet is put on the windows one per pass of the event loop, after the next paint (:func:`spacr.qt.theme.apply_stylesheet_per_window`), and the icon sizes are re-derived only when a scale changed.",
+      "source_sha256": "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086",
+      "context": "Preferences' Apply and its Revert: a new sheet is put on the windows one per pass of the event loop, after the next paint (:func:`spacr.qt.theme.apply_stylesheet_per_window`), and the icon sizes are re-derived only when a scale changed.",
+      "translation": "Preferences의 적용과 되돌리기: 새 시트는 다음 그리기 뒤에 이벤트 루프의 한 차례마다 창 하나씩 놓이며(:func:`spacr.qt.theme.apply_stylesheet_per_window`), 아이콘 크기는 배율이 바뀌었을 때만 다시 계산됩니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#6",
+      "source": "put the sheet on nothing now: the windows on show get it one per pass of the event loop, after the next paint, and the hidden ones after them (:func:`_sheet_the_windows_in_slices`). A window that polishes or shows before its turn is sheeted then, as any window is. Preferences' Apply asks for this.",
+      "source_sha256": "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+      "context": "put the sheet on nothing now: the windows on show get it one per pass of the event loop, after the next paint, and the hidden ones after them (:func:`_sheet_the_windows_in_slices`). A window that polishes or shows before its turn is sheeted then, as any window is. Preferences' Apply asks for this.",
+      "translation": "지금은 아무것에도 시트를 놓지 않습니다. 표시된 창은 다음 그리기 뒤에 이벤트 루프의 한 차례마다 하나씩 시트를 받고, 숨겨진 창은 그 뒤에 받습니다(:func:`_sheet_the_windows_in_slices`). 자기 차례 전에 다듬어지거나 표시되는 창은 다른 모든 창처럼 그때 시트를 받습니다. Preferences의 적용이 이것을 요청합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "source": "the number of windows the sheet was put on; with ``in_slices``, the number waiting for their slice.",
+      "source_sha256": "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
+      "context": "the number of windows the sheet was put on; with ``in_slices``, the number waiting for their slice.",
+      "translation": "시트가 놓인 창의 수. ``in_slices`` 와 함께이면 자기 조각을 기다리는 창의 수.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.finish_the_sliced_sheeting#0",
+      "source": "Pay every root still owed its sheet now. For tests and shutdown.",
+      "source_sha256": "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+      "context": "Pay every root still owed its sheet now. For tests and shutdown.",
+      "translation": "아직 시트를 받지 못한 모든 루트에 지금 시트를 놓습니다. 테스트와 종료를 위한 것입니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.finish_the_sliced_sheeting#1",
+      "source": "how many roots were sheeted.",
+      "source_sha256": "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443",
+      "context": "how many roots were sheeted.",
+      "translation": "시트가 놓인 루트의 수.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.sliced_sheeting_owed#0",
+      "source": "How many roots are still waiting for a sliced sheet.",
+      "source_sha256": "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+      "context": "How many roots are still waiting for a sliced sheet.",
+      "translation": "조각 단위 시트를 아직 기다리는 루트의 수.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.theme.sliced_sheeting_owed#1",
+      "source": "the length of the queue.",
+      "source_sha256": "0e62f6fc8b0ef12d9ed2cd739ca3854f70de89aae9f1c13d15ebf65e2ef7843f",
+      "context": "the length of the work list.",
+      "translation": "대기열의 길이.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces#0",
+      "source": "Give the masthead, the panels and the tabs the page opacity now set.",
+      "source_sha256": "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+      "context": "Give the masthead, the panels and the tabs the page opacity now set.",
+      "translation": "머리글 영역, 패널, 탭에 지금 설정된 페이지 불투명도를 부여합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces#1",
+      "source": "They took it when Home was built, and a new opacity used to rebuild Home: 2.1-2.6 s of the GUI thread on a loaded box, for three kinds of rule. Each is now set again in place, one widget per pass of the event loop, and only where the rule changed, since setting a rule restyles everything under it.",
+      "source_sha256": "21b52f454fa78202d4aea9580df6e2d459d7a545c11c6d4833e53d0a64357b0a",
+      "context": "They took it when Home was built, and a new opacity used to rebuild Home: 2.1-2.6 s of the main GUI execution path on a loaded box, for three kinds of rule. Each is now set again in place, one widget per pass of the event loop, and only where the rule changed, since setting a rule restyles everything under it.",
+      "translation": "이들은 Home이 만들어질 때 불투명도를 받았으며, 새 불투명도는 Home을 다시 만들곤 했습니다. 세 종류의 규칙을 위해 부하가 걸린 컴퓨터에서 GUI 스레드를 2.1-2.6 s 사용했습니다. 이제 각각 그 자리에서, 이벤트 루프의 한 차례마다 위젯 하나씩, 규칙이 바뀐 곳에서만 다시 설정됩니다. 규칙을 설정하면 그 아래 모든 것의 스타일이 다시 적용되기 때문입니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces#2",
+      "source": "THE TABS ARE TOLD ON THEIR BAR. The tab widget's rule holds the whole of Home under it, and setting it again restyled every tile (1.1 s loaded) to change one tab's fill; the bar takes the selected tab's fill as a rule of its own, which wins over the one it inherits.",
+      "source_sha256": "abf455943602ccbc209c157ecc91892c0f3447f62c35265483b715d46cbfbe6f",
+      "context": "The tabs are told on their bar. The tab widget's rule holds the whole of Home under it, and setting it again restyled every tile (1.1 s loaded) to change one tab's fill; the bar takes the selected tab's fill as a rule of its own, which wins over the one it inherits.",
+      "translation": "탭에는 해당 탭 막대에서 알려 줍니다. 탭 위젯의 규칙은 그 아래에 Home 전체를 담고 있어서, 이를 다시 설정하면 탭 하나의 채우기를 바꾸려고 모든 타일의 스타일이 다시 적용되었습니다(부하 시 1.1 s). 막대는 선택된 탭의 채우기를 자체 규칙으로 받으며, 이것이 상속받는 규칙보다 우선합니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces#3",
+      "source": "how many widgets will take a new rule.",
+      "source_sha256": "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3",
+      "context": "how many widgets will take a new rule.",
+      "translation": "새 규칙을 받을 위젯의 수.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces._next#0",
+      "source": "Set one owed rule, then wait for the next pass.",
+      "source_sha256": "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f",
+      "context": "Set one owed rule, then wait for the next pass.",
+      "translation": "밀린 규칙 하나를 설정한 다음 다음 차례를 기다립니다.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.hero_qss#0",
+      "source": "The masthead's rule, at the page opacity now in force.",
+      "source_sha256": "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+      "context": "The masthead's rule, at the page opacity now in force.",
+      "translation": "지금 적용 중인 페이지 불투명도에서의 머리글 영역의 규칙.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.hero_qss#1",
+      "source": "the masthead's own QSS.",
+      "source_sha256": "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e",
+      "context": "the masthead's own QSS.",
+      "translation": "머리글 영역 자체의 QSS.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.panel_box_qss#0",
+      "source": "The rule of a Home panel's box, at the page opacity now in force.",
+      "source_sha256": "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+      "context": "The rule of a Home panel's box, at the page opacity now in force.",
+      "translation": "지금 적용 중인 페이지 불투명도에서의 Home 패널 상자의 규칙.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.panel_box_qss#1",
+      "source": "the active palette.",
+      "source_sha256": "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+      "context": "the active palette.",
+      "translation": "활성 팔레트.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.home.panel_box_qss#2",
+      "source": "the box's own QSS.",
+      "source_sha256": "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8",
+      "context": "the box's own QSS.",
+      "translation": "상자 자체의 QSS.",
+      "review_basis": "written from the English"
+    }
+  ]
+}

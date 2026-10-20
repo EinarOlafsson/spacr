@@ -1,0 +1,584 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "Unknown levels are returned as empty strings rather than guessed. The object identity is the augmentation-normalized full stem. A microplate sample position in laboratory microplate row F (``plate1_F01_1_13``) is read as the microplate sample position, not as a microscope field of view.",
+      "label": "spacr.classifier_evaluation.sample_identity#1",
+      "source": "Unknown levels are returned as empty strings rather than guessed. The object identity is the augmentation-normalized full stem. A well in plate row F (``plate1_F01_1_13``) is read as the well, not as a field.",
+      "source_sha256": "f2a721492af2266da773e3c330a55a955197625a5d58ffe8b7ed7e0e093d9bb6",
+      "translation": "Los niveles desconocidos se devuelven como cadenas vacías en lugar de adivinarse. La identidad del objeto es la raíz completa del nombre, normalizada respecto al aumento de datos. Un pocillo de la fila F de la placa (``plate1_F01_1_13``) se lee como el pocillo, no como un campo."
+    },
+    {
+      "context": "Which version a model family's row opens on.",
+      "label": "spacr.model_zoo.default_version_index#0",
+      "source": "Which version a model family's row opens on.",
+      "source_sha256": "4625c304bdcfa70124c338e810c0f1d09614d019470570264fe6709999a58e40",
+      "translation": "En qué versión se abre la fila de una familia de modelos."
+    },
+    {
+      "context": "The newest version that is not an alternative, so publishing an alternative never changes what a family's row hands out by default.",
+      "label": "spacr.model_zoo.default_version_index#1",
+      "source": "The newest version that is not an alternative, so publishing an alternative never changes what a family's row hands out by default.",
+      "source_sha256": "b5252873f69edc8f2840a6f92f51f9055def9ab3164f9893a50fbd50273d0705",
+      "translation": "La versión más reciente que no es una alternativa, de modo que publicar una alternativa nunca cambia lo que la fila de una familia entrega de forma predeterminada.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
+    },
+    {
+      "context": "``(label, entry)`` pairs, newest first.",
+      "label": "spacr.model_zoo.default_version_index#2",
+      "source": "``(label, entry)`` pairs, newest first.",
+      "source_sha256": "8fcacf592e27a081bbc6393dddd84ad62d75147967dfb36bb7d4a916e6efed27",
+      "translation": "Pares ``(label, entry)``, del más reciente al más antiguo."
+    },
+    {
+      "context": "an index into ``pairs``; 0 when every version is an alternative or there are none.",
+      "label": "spacr.model_zoo.default_version_index#3",
+      "source": "an index into ``pairs``; 0 when every version is an alternative or there are none.",
+      "source_sha256": "b4986493101aaec96b3516b5a66f40f28ccfa49d46c3653803a4717061c9b27a",
+      "translation": "un índice en ``pairs``; 0 cuando todas las versiones son alternativas o no hay ninguna.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (evening batch: accessibility, export settings, startup animation, tutorial CLI, 3D in the container, model cards, regression response); kept verbatim as evidence, not loaded."
+    },
+    {
+      "context": "The ``owner/repo`` a Hugging Face download URL points into, or ``''``.",
+      "label": "spacr.model_zoo.hf_repo_of#0",
+      "source": "The ``owner/repo`` a Hugging Face download URL points into, or ``''``.",
+      "source_sha256": "5a51adff809b22fe7834bc0ea589e00e0ba116626ef43365ca8291afbcf3a810",
+      "translation": "El ``owner/repo`` al que apunta una URL de descarga de Hugging Face, o ``''``."
+    },
+    {
+      "context": "Read from the URL a row is FETCHED from, never from a ``trained_by`` or ``owner`` field a catalogue row can claim for itself: the bytes come from this repository, so it is the only owner that cannot be borrowed.",
+      "label": "spacr.model_zoo.hf_repo_of#1",
+      "source": "Read from the URL a row is FETCHED from, never from a ``trained_by`` or ``owner`` field a catalogue row can claim for itself: the bytes come from this repository, so it is the only owner that cannot be borrowed.",
+      "source_sha256": "eb25398c844f07160aecd4a4b1e4a9f6a774b1f268340fbf82cdb373e8cebd86",
+      "translation": "Se lee de la URL desde la que se DESCARGA una fila, nunca de un campo ``trained_by`` u ``owner`` que una fila del catálogo pueda atribuirse: los bytes proceden de este repositorio, así que es el único propietario que no se puede tomar prestado."
+    },
+    {
+      "context": "Strict on purpose. Only ``https://huggingface.co/<owner>/<repo>/...`` and ``https://huggingface.co/datasets/<owner>/<repo>/...`` qualify; another host, a port, user info, ``..`` or percent-escapes in the path give ``''``, so ``huggingface.co.example.org/einarolafsson/...`` is nobody's.",
+      "label": "spacr.model_zoo.hf_repo_of#2",
+      "source": "Strict on purpose. Only ``https://huggingface.co/<owner>/<repo>/...`` and ``https://huggingface.co/datasets/<owner>/<repo>/...`` qualify; another host, a port, user info, ``..`` or percent-escapes in the path give ``''``, so ``huggingface.co.example.org/einarolafsson/...`` is nobody's.",
+      "source_sha256": "cc5b908ae914b53bbd737b8c827a22da780cc82ffe2157ddffd2840450146aab",
+      "translation": "Estricto a propósito. Solo ``https://huggingface.co/<owner>/<repo>/...`` y ``https://huggingface.co/datasets/<owner>/<repo>/...`` cumplen los requisitos; otro host, un puerto, información de usuario, ``..`` o secuencias de escape con porcentaje en la ruta dan ``''``, de modo que ``huggingface.co.example.org/einarolafsson/...`` no es de nadie."
+    },
+    {
+      "context": "a download URL.",
+      "label": "spacr.model_zoo.hf_repo_of#3",
+      "source": "a download URL.",
+      "source_sha256": "bbd81a1a8078caa80aaa2791398c2365dc912eddaf98a63eff065aa650976643",
+      "translation": "una URL de descarga."
+    },
+    {
+      "context": "``owner/repo`` or ``''``.",
+      "label": "spacr.model_zoo.hf_repo_of#4",
+      "source": "``owner/repo`` or ``''``.",
+      "source_sha256": "7c599a9a2a6d8f2915a3430fb6d035756d4790a22262c29cc5549dd63987e4c2",
+      "translation": "``owner/repo`` o ``''``."
+    },
+    {
+      "context": "Whether a row is a published alternative rather than a default.",
+      "label": "spacr.model_zoo.is_alternative#0",
+      "source": "Whether a row is a published alternative rather than a default.",
+      "source_sha256": "89e4e42072ebac0227e7c77b343e19e86fde23d680ea37ea0bc0012f4802fcc0",
+      "translation": "Si una fila es una alternativa publicada en lugar de un modelo predeterminado."
+    },
+    {
+      "context": "any zoo row.",
+      "label": "spacr.model_zoo.is_alternative#1",
+      "source": "any zoo row.",
+      "source_sha256": "5efd598a819e17d4c3fae4a1b0b19eb0f98c71f0c1f0fa957e97b0afb0ba2780",
+      "translation": "cualquier fila del zoo."
+    },
+    {
+      "context": "True for a key in :data:`ALTERNATIVE_MODEL_KEYS`.",
+      "label": "spacr.model_zoo.is_alternative#2",
+      "source": "True for a key in :data:`ALTERNATIVE_MODEL_KEYS`.",
+      "source_sha256": "ffb6a5ad4266662dc904b2a4f671d4132a84a61d5441c91a605b3e3ff9b71449",
+      "translation": "True para una clave de :data:`ALTERNATIVE_MODEL_KEYS`."
+    },
+    {
+      "context": "True when :func:`hf_repo_of` its ``uri`` is in an account named by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`.",
+      "label": "spacr.model_zoo.is_spacr_owned#2",
+      "source": "True when :func:`hf_repo_of` its ``uri`` is in an account named by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`.",
+      "source_sha256": "b499c3e38bdaf482341346f24feb7d545a49c159c12975b76d7e9ed35b76edda",
+      "translation": "True cuando el resultado de :func:`hf_repo_of` para su ``uri`` está en una cuenta indicada en :data:`SPACR_HF_OWNERS` y no es :data:`COMMUNITY_REPO`."
+    },
+    {
+      "context": "A row's own ``source`` field is dropped: every row here is ``shared``, and which heading it lands under is :func:`source_of`'s decision, made from its checksum and the repository it is fetched from.",
+      "label": "spacr.model_zoo.shared_catalogue#10",
+      "source": "A row's own ``source`` field is dropped: every row here is ``shared``, and which heading it lands under is :func:`source_of`'s decision, made from its checksum and the repository it is fetched from.",
+      "source_sha256": "3c38655b7204ca11b38f94f4e38c889187dd67f91617944f158ebcedf0355fe2",
+      "translation": "Se descarta el campo ``source`` propio de la fila: todas las filas aquí son ``shared``, y el encabezado bajo el que queda cada una lo decide :func:`source_of`, a partir de su suma de verificación y del repositorio desde el que se descarga."
+    },
+    {
+      "context": "``(rows, columns)`` of one level of the series.",
+      "label": "spacr.ops_engine._st_level_geometry.size#0",
+      "source": "``(rows, columns)`` of one level of the series.",
+      "source_sha256": "e0fefab3c4092a51950eb8c5d31c4cce9ad893a11e2a5f540d45c96e085f8e32",
+      "translation": "``(rows, columns)`` de un nivel de la serie."
+    },
+    {
+      "context": "Count every transcript or bin into the cells of the spatial fields.",
+      "label": "spacr.ops_engine.run_spatial_map#0",
+      "source": "Count every transcript or bin into the cells of the spatial fields.",
+      "source_sha256": "9d1c876c3a7f62c823196649d31a885fe5e37e975178d491f86b13b45668af46",
+      "translation": "Cuenta cada transcrito o bin en las células de los campos espaciales."
+    },
+    {
+      "context": "Reads the whole Xenium bundle (transcripts at ``spatial_min_qv``) or one Visium HD bin size, puts every point in full-resolution pixels of the slide image (:func:`_st_slide_xy`), then in the frame of each field Spatial Mask Generation wrote (:func:`_st_field_frame`), and counts it into the object of each image layer named in ``spatial_objects``: Xenium transcripts by the pixel they fall in, Visium HD bins shared out by the fraction of the bin each object covers. Each object is owned by one field, so nothing is counted twice across the overlaps. The counts go to ``<object>_expression`` (and for Xenium ``<object>_expression_long``, for Visium HD ``<object>_spot_coverage``) in the fields' ``measurements.db``, keyed by ``prcfo`` like Measure's tables. Infection calls, infected-versus-uninfected tests, the distance trend (to the nearest infected cell, over the uninfected ones), the region summary, the ``.h5ad`` export and an overlay of the field with the most cells go to ``spatial_transcriptomics`` beside the masks.",
+      "label": "spacr.ops_engine.run_spatial_map#1",
+      "source": "Reads the whole Xenium bundle (transcripts at ``spatial_min_qv``) or one Visium HD bin size, puts every point in full-resolution pixels of the slide image (:func:`_st_slide_xy`), then in the frame of each field Spatial Mask Generation wrote (:func:`_st_field_frame`), and counts it into the object of each plane named in ``spatial_objects``: Xenium transcripts by the pixel they fall in, Visium HD bins shared out by the fraction of the bin each object covers. Each object is owned by one field, so nothing is counted twice across the overlaps. The counts go to ``<object>_expression`` (and for Xenium ``<object>_expression_long``, for Visium HD ``<object>_spot_coverage``) in the fields' ``measurements.db``, keyed by ``prcfo`` like Measure's tables. Infection calls, infected-versus-uninfected tests, the distance trend (to the nearest infected cell, over the uninfected ones), the region summary, the ``.h5ad`` export and an overlay of the field with the most cells go to ``spatial_transcriptomics`` beside the masks.",
+      "source_sha256": "65fa7e7148e8a5f9606c1cebd888914bbf743d169cfa61eaa874e116d852001d",
+      "translation": "Lee el paquete completo de Xenium (transcritos con ``spatial_min_qv``) o un tamaño de bin de Visium HD, sitúa cada punto en píxeles a resolución completa de la imagen del portaobjetos (:func:`_st_slide_xy`), luego en el marco de cada campo que escribió Generación de máscaras espacial (:func:`_st_field_frame`), y lo cuenta en el objeto de cada plano indicado en ``spatial_objects``: los transcritos de Xenium según el píxel en el que caen y los bins de Visium HD repartidos según la fracción del bin que cubre cada objeto. Cada objeto pertenece a un solo campo, así que nada se cuenta dos veces en los solapamientos. Los recuentos van a ``<object>_expression`` (y, para Xenium, a ``<object>_expression_long``; para Visium HD, a ``<object>_spot_coverage``) en el ``measurements.db`` de los campos, con clave ``prcfo`` como las tablas de Measure. La clasificación de infección, las pruebas de infectadas frente a no infectadas, la tendencia con la distancia (a la célula infectada más cercana, sobre las no infectadas), el resumen por regiones, la exportación ``.h5ad`` y una superposición del campo con más células van a ``spatial_transcriptomics``, junto a las máscaras."
+    },
+    {
+      "context": "the Spatial Map Barcodes settings (:data:`spacr.ops_settings.SPATIAL_MAP_DEFAULTS`).",
+      "label": "spacr.ops_engine.run_spatial_map#2",
+      "source": "the Spatial Map Barcodes settings (:data:`spacr.ops_settings.SPATIAL_MAP_DEFAULTS`).",
+      "source_sha256": "7579e9d3795f064ced6fc0ce35aef4b9593726ab98859380309f77c344a81db1",
+      "translation": "los ajustes de Map Barcodes espacial (:data:`spacr.ops_settings.SPATIAL_MAP_DEFAULTS`)."
+    },
+    {
+      "context": "the run report, also written as ``spatial_map_report.json``.",
+      "label": "spacr.ops_engine.run_spatial_map#3",
+      "source": "the run report, also written as ``spatial_map_report.json``.",
+      "source_sha256": "70ea5b1c07758426fca313ec3be25b2499f04c3bd4de10a6e8bc40843afc52b9",
+      "translation": "el informe de la ejecución, que también se escribe como ``spatial_map_report.json``."
+    },
+    {
+      "context": "when the masks folder holds no microscope fields of view of this slide or a requested image layer is not in the microscope fields of view.",
+      "label": "spacr.ops_engine.run_spatial_map#4",
+      "source": "when the masks folder holds no fields of this slide or a requested plane is not in the fields.",
+      "source_sha256": "d40c725ac623d001743aba175d699910ab368e5ddf2b0a481ad97d29c837b8f5",
+      "translation": "cuando la carpeta de máscaras no contiene campos de este portaobjetos o un plano solicitado no está en los campos."
+    },
+    {
+      "context": "Segment a whole Xenium or Visium HD slide into Measure-ready fields.",
+      "label": "spacr.ops_engine.run_spatial_masks#0",
+      "source": "Segment a whole Xenium or Visium HD slide into Measure-ready fields.",
+      "source_sha256": "1dbef6ce4acc139beb0d69e5507480ab7bf9a61655571fddac3844750c68575a",
+      "translation": "Segmenta un portaobjetos completo de Xenium o Visium HD en campos listos para Measure."
+    },
+    {
+      "context": "The slide (or ``spatial_window`` of it) is cut into overlapping windows with :func:`spacr.ops_compose.windows_over`; each window's microscope image fields are read with :func:`_st_read_window`, its nuclei segmented and grown into cells, and the observations sewn and numbered across the seams with :func:`spacr.ops_objects.sew` and :func:`spacr.ops_objects.number`, the OPS window code. Every object is kept from one window that saw all of it, and every window that keeps an object is written as a field: ``stack/<stem>.npy``, ``masks/cell_mask_stack`` and ``masks/nucleus_mask_stack``, and ``merged/<stem>.npy`` (the image data channels, then the cell and nucleus masks) with the image layer-layout file, the layout Mask Generation writes and Measure reads. The fields' places on the slide go to the ``spatial_fields`` table and the objects to ``spatial_objects`` in ``measurements/measurements.db``.",
+      "label": "spacr.ops_engine.run_spatial_masks#1",
+      "source": "The slide (or ``spatial_window`` of it) is cut into overlapping windows with :func:`spacr.ops_compose.windows_over`; each window's tiles are read with :func:`_st_read_window`, its nuclei segmented and grown into cells, and the observations sewn and numbered across the seams with :func:`spacr.ops_objects.sew` and :func:`spacr.ops_objects.number`, the OPS window code. Every object is kept from one window that saw all of it, and every window that keeps an object is written as a field: ``stack/<stem>.npy``, ``masks/cell_mask_stack`` and ``masks/nucleus_mask_stack``, and ``merged/<stem>.npy`` (the channels, then the cell and nucleus masks) with the plane-layout file, the layout Mask Generation writes and Measure reads. The fields' places on the slide go to the ``spatial_fields`` table and the objects to ``spatial_objects`` in ``measurements/measurements.db``.",
+      "source_sha256": "a9aa2cf2f6ed27429f39cfc4e4fda0701a60729bc3ce15277f98ab31704bd0e7",
+      "translation": "El portaobjetos (o su ``spatial_window``) se divide en ventanas solapadas con :func:`spacr.ops_compose.windows_over`; las teselas de cada ventana se leen con :func:`_st_read_window`, sus núcleos se segmentan y se hacen crecer hasta formar células, y las observaciones se unen y se numeran a través de las costuras con :func:`spacr.ops_objects.sew` y :func:`spacr.ops_objects.number`, el código de ventanas de OPS. Cada objeto se conserva a partir de una ventana que lo vio entero, y cada ventana que conserva un objeto se escribe como un campo: ``stack/<stem>.npy``, ``masks/cell_mask_stack`` y ``masks/nucleus_mask_stack``, y ``merged/<stem>.npy`` (los canales y luego las máscaras de célula y de núcleo) con el archivo de disposición de planos, la estructura que escribe Generación de máscaras y lee Measure. Las posiciones de los campos en el portaobjetos van a la tabla ``spatial_fields`` y los objetos a ``spatial_objects`` en ``measurements/measurements.db``."
+    },
+    {
+      "context": "the Spatial Mask Generation settings (:data:`spacr.ops_settings.SPATIAL_MASK_DEFAULTS`).",
+      "label": "spacr.ops_engine.run_spatial_masks#2",
+      "source": "the Spatial Mask Generation settings (:data:`spacr.ops_settings.SPATIAL_MASK_DEFAULTS`).",
+      "source_sha256": "b71d3fcb3c6a8fe63e91f82305af5090c89afb23df8abf7dad1541afd59a1673",
+      "translation": "los ajustes de Generación de máscaras espacial (:data:`spacr.ops_settings.SPATIAL_MASK_DEFAULTS`)."
+    },
+    {
+      "context": "optional callable taking the stain image and returning its nucleus label image, in place of the configured segmenter.",
+      "label": "spacr.ops_engine.run_spatial_masks#3",
+      "source": "optional callable taking the stain image and returning its nucleus label image, in place of the configured segmenter.",
+      "source_sha256": "225f1a64be608637caa0793fe9478e4700d246e990f9bcb516cd58f81ad5f8fc",
+      "translation": "invocable opcional que recibe la imagen de tinción y devuelve su imagen de etiquetas de núcleos, en lugar del segmentador configurado."
+    },
+    {
+      "context": "the run report, also written as ``spatial_mask_report.json``.",
+      "label": "spacr.ops_engine.run_spatial_masks#4",
+      "source": "the run report, also written as ``spatial_mask_report.json``.",
+      "source_sha256": "6037f4a178a1c06538d7053e88eeaf14b0a9b09b5348abe2e6d63d6106296712",
+      "translation": "el informe de la ejecución, que también se escribe como ``spatial_mask_report.json``."
+    },
+    {
+      "context": "when the source is not a folder or the overlap is not smaller than the window.",
+      "label": "spacr.ops_engine.run_spatial_masks#5",
+      "source": "when the source is not a folder or the overlap is not smaller than the window.",
+      "source_sha256": "f686be4a335373727abb289908be6566125b245893e25ec0a44d447d8380c751",
+      "translation": "cuando el origen no es una carpeta o el solapamiento no es menor que la ventana."
+    },
+    {
+      "context": "the kept observation's label in its window's label image, so the object's pixels can be read back from that window. Not an ``ops_objects`` column.",
+      "label": "spacr.ops_objects.PlateObject#9",
+      "source": "the kept observation's label in its window's label image, so the object's pixels can be read back from that window. Not an ``ops_objects`` column.",
+      "source_sha256": "6de43b3f6ff4c514a4114e6e30aed6f4c7b2318f8591f1d57d7f7eb70acc65b0",
+      "translation": "la etiqueta de la observación conservada en la imagen de etiquetas de su ventana, para que los píxeles del objeto puedan volver a leerse de esa ventana. No es una columna de ``ops_objects``."
+    },
+    {
+      "context": "Register both spatial submodules' defaults, types, categories and help.",
+      "label": "spacr.ops_settings.register_spatial#0",
+      "source": "Register both spatial submodules' defaults, types, categories and help.",
+      "source_sha256": "69955144c0b96d35241607ee4a6bf72fa520874d4239860302566af73cadc83c",
+      "translation": "Registra los valores predeterminados, tipos, categorías y ayuda de ambos submódulos espaciales."
+    },
+    {
+      "context": "overwrite existing registrations rather than declining.",
+      "label": "spacr.ops_settings.register_spatial#1",
+      "source": "overwrite existing registrations rather than declining.",
+      "source_sha256": "46a40342967b6c0398560b4d4485e17de81ab4e02e5f69c6ee64bfe92fbf1950",
+      "translation": "sobrescribir los registros existentes en lugar de rechazar el registro."
+    },
+    {
+      "context": "True when this call did the registering.",
+      "label": "spacr.ops_settings.register_spatial#2",
+      "source": "True when this call did the registering.",
+      "source_sha256": "46ffd6cf496269539fefecf32d115ef7981fc7b72dc5832dc7007dcb86958d02",
+      "translation": "True cuando esta llamada realizó el registro."
+    },
+    {
+      "context": "The settings the Spatial Map Barcodes engine reads, filled in.",
+      "label": "spacr.ops_settings.spatial_map_defaults#0",
+      "source": "The settings the Spatial Map Barcodes engine reads, filled in.",
+      "source_sha256": "41152b106ea2748d166b79eefa85349cd2e47ba53f37c6904f87e288a4195ead",
+      "translation": "Los ajustes que lee el motor de Map Barcodes espacial, completados."
+    },
+    {
+      "context": "caller's settings, filled in with the defaults.",
+      "label": "spacr.ops_settings.spatial_map_defaults#1",
+      "source": "caller's settings, filled in with the defaults.",
+      "source_sha256": "9aacf2a79223a4b14e773e7837fc4dfe9a8e049ef801012370c920319fcebf4c",
+      "translation": "los ajustes del llamador, completados con los valores predeterminados."
+    },
+    {
+      "context": "the completed settings key-value mapping.",
+      "label": "spacr.ops_settings.spatial_map_defaults#2",
+      "source": "the completed settings dict.",
+      "source_sha256": "4e34a9e513d13ec9e0830ed1dfd81963ec56c1fa68e95c7db47898bef1f0e19b",
+      "translation": "el dict de ajustes completado."
+    },
+    {
+      "context": "The settings the Spatial Mask Generation engine reads, filled in.",
+      "label": "spacr.ops_settings.spatial_mask_defaults#0",
+      "source": "The settings the Spatial Mask Generation engine reads, filled in.",
+      "source_sha256": "a718f38fc4b1d3b20445a2dd2adcaa0cce2cb533a9babc91875198ea84e98aff",
+      "translation": "Los ajustes que lee el motor de Generación de máscaras espacial, completados."
+    },
+    {
+      "context": "The folds opened as a page by a switch in this application view's actions row.",
+      "label": "spacr.qt.screens.map_barcodes.PAGE_FOLDS#0",
+      "source": "The folds opened as a page by a switch in this screen's actions row.",
+      "source_sha256": "7132d80c08c72f8aea8d53629ceb55d881cef92a2b19276fc03d27e383679d2c",
+      "translation": "Los módulos plegados que un interruptor de la fila de acciones de esta pantalla abre como página."
+    },
+    {
+      "context": "The arrangement OPS has on Mask Generation, rather than a masthead strip button. Spatial Map Barcodes is the batch half of the spatial transcriptomics panel: it maps every transcript of a slide onto the microscope fields of view Spatial Mask Generation wrote. It is alpha and stays out of :data:`FOLDED_APPS`, which would list it in the menu with the alpha data-selection boundary shut. See :func:`install_spatial_map_switch`.",
+      "label": "spacr.qt.screens.map_barcodes.PAGE_FOLDS#1",
+      "source": "The arrangement OPS has on Mask Generation, rather than a masthead strip button. Spatial Map Barcodes is the batch half of the spatial transcriptomics panel: it maps every transcript of a slide onto the fields Spatial Mask Generation wrote. It is alpha and stays out of :data:`FOLDED_APPS`, which would list it in the menu with the alpha gate shut. See :func:`install_spatial_map_switch`.",
+      "source_sha256": "44e04684808447d2f1663204fce292e5d578e7bb4677093e39b0303a3ea89ce0",
+      "translation": "La disposición que tiene OPS en Generación de máscaras, en lugar de un botón de la franja de cabecera. Map Barcodes espacial es la mitad por lotes del panel de transcriptómica espacial: asigna cada transcrito de un portaobjetos a los campos que escribió Generación de máscaras espacial. Es alfa y queda fuera de :data:`FOLDED_APPS`, que lo incluiría en el menú con la puerta alfa cerrada. Véase :func:`install_spatial_map_switch`."
+    },
+    {
+      "context": "An actions-row switch on a host application view and the page it opens.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#0",
+      "source": "An actions-row switch on a host screen and the page it opens.",
+      "source_sha256": "74bbcdaf15cebed8b1fdffc1f38d9d6454088ac54b40a47026aa4fde9078867b",
+      "translation": "Un interruptor de la fila de acciones en una pantalla anfitriona y la página que abre."
+    },
+    {
+      "context": "The general form of what Mask Generation built for OPS: a folded module with a processing session entry point of its own is not a set of categories on the host's form but a page on the host's page strip, opened and closed by a switch in the host's actions row. :class:`spacr.qt.screens.mask._OpsPage` is this class for the structured-data name ``\"ops\"``; the spatial submodules are this class for ``\"spatial_masks\"`` on Mask Generation and ``\"spatial_map\"`` on Map Barcodes.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#1",
+      "source": "The general form of what Mask Generation built for OPS: a folded module with a run entry point of its own is not a set of categories on the host's form but a page on the host's page strip, opened and closed by a switch in the host's actions row. :class:`spacr.qt.screens.mask._OpsPage` is this class for the key ``\"ops\"``; the spatial submodules are this class for ``\"spatial_masks\"`` on Mask Generation and ``\"spatial_map\"`` on Map Barcodes.",
+      "source_sha256": "12fb4c68c53e8f40558b0c3298e5502668f3a09005ac4170ecec3e550177c4b0",
+      "translation": "La forma general de lo que Generación de máscaras construyó para OPS: un módulo plegado con un punto de entrada de ejecución propio no es un conjunto de categorías en el formulario del anfitrión, sino una página en la franja de páginas del anfitrión, que se abre y se cierra con un interruptor en la fila de acciones del anfitrión. :class:`spacr.qt.screens.mask._OpsPage` es esta clase para la clave ``\"ops\"``; los submódulos espaciales son esta clase para ``\"spatial_masks\"`` en Generación de máscaras y ``\"spatial_map\"`` en Map Barcodes."
+    },
+    {
+      "context": "A ``QObject`` parented to the host screen with bound-method slots, rather than closures hung off the switch: the page strip's own close mark can take the page down without telling the switch, so something has to be connected to ``tabCloseRequested`` to put the switch back. A closure doing that would keep the host alive through the switch.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#2",
+      "source": "A ``QObject`` parented to the host screen with bound-method slots, rather than closures hung off the switch: the page strip's own close mark can take the page down without telling the switch, so something has to be connected to ``tabCloseRequested`` to put the switch back. A closure doing that would keep the host alive through the switch.",
+      "source_sha256": "a4d1f98d49a67f888723cd1f28e14a9fe53cf6ebb1c587d778ed064419b6a090",
+      "translation": "Un ``QObject`` cuyo padre es la pantalla anfitriona, con slots de métodos enlazados en lugar de clausuras colgadas del interruptor: la propia marca de cierre de la franja de páginas puede cerrar la página sin avisar al interruptor, así que algo tiene que estar conectado a ``tabCloseRequested`` para restablecer el interruptor. Una clausura que hiciera eso mantendría viva la pantalla anfitriona a través del interruptor."
+    },
+    {
+      "context": "The application view behind the page is built once and kept, the way every other fold's is -- pressing the switch again puts the SAME application view back, with whatever it had loaded still loaded.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#3",
+      "source": "The screen behind the page is built once and kept, the way every other fold's is -- pressing the switch again puts the SAME screen back, with whatever it had loaded still loaded.",
+      "source_sha256": "77b6003009dee84bf76f818ea0c07ed669f98a944bb38d208783924a4021bb55",
+      "translation": "La pantalla que hay detrás de la página se construye una sola vez y se conserva, igual que la de cualquier otro módulo plegado -- volver a pulsar el interruptor restablece la MISMA pantalla, con todo lo que tuviera cargado aún cargado."
+    },
+    {
+      "context": "the host screen the switch sits on.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#4",
+      "source": "the host screen the switch sits on.",
+      "source_sha256": "0300ef4cc7964ea5c6aa6b6df1ea60fb5229736648644ad6ae1a407d0ac67543",
+      "translation": "la pantalla anfitriona en la que está el interruptor."
+    },
+    {
+      "context": "the actions-row toggle.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#5",
+      "source": "the actions-row toggle.",
+      "source_sha256": "fdf30d1039c90c5eb08c62865761ff3e065015906ba3bda6d9e774ef96b8f97b",
+      "translation": "el conmutador de la fila de acciones."
+    },
+    {
+      "context": "the folded module's registry key.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#6",
+      "source": "the folded module's registry key.",
+      "source_sha256": "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
+      "translation": "la clave de registro del módulo plegado."
+    },
+    {
+      "context": "called with the main window (or None) and returning the module's screen; the settings-driven screen for ``key`` when omitted.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#7",
+      "source": "called with the main window (or None) and returning the module's screen; the settings-driven screen for ``key`` when omitted.",
+      "source_sha256": "4cdd307016b5836dbaa5ac96f7d8d6adb07da5e9751302fba4500c659f8efcc2",
+      "translation": "se llama con la ventana principal (o None) y devuelve la pantalla del módulo; si se omite, la pantalla basada en ajustes para ``key``."
+    },
+    {
+      "context": "Record the switch and how to build the page, building neither.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold#8",
+      "source": "Record the switch and how to build the page, building neither.",
+      "source_sha256": "5ed2f58c8ef6604864ebec794d091f47d8f79d50a693839dbd7380725f4cc22a",
+      "translation": "Registra el interruptor y cómo construir la página, sin construir ninguno de los dos."
+    },
+    {
+      "context": "Open or close the page.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold.set_shown#0",
+      "source": "Open or close the page.",
+      "source_sha256": "5e900b21be7ef1146269246aea2513809c45382b7624a2ba1c0a2f974e4a2235",
+      "translation": "Abre o cierra la página."
+    },
+    {
+      "context": "Never throws: this is a slot on a user's click, and a module that cannot be built must cost its own page and nothing else. A failed open puts the switch back off rather than leaving it lit over nothing.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold.set_shown#1",
+      "source": "Never raises: this is a slot on a user's click, and a module that cannot be built must cost its own page and nothing else. A failed open puts the switch back off rather than leaving it lit over nothing.",
+      "source_sha256": "4bc1b2d671550ddaed627cddd8429b50ef4467918f9e538e6cff0c1b21f2428f",
+      "translation": "Nunca lanza excepciones: es un slot de un clic del usuario, y un módulo que no se puede construir debe costar su propia página y nada más. Una apertura fallida vuelve a desactivar el interruptor en lugar de dejarlo encendido sobre nada."
+    },
+    {
+      "context": "the switch's new state.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold.set_shown#2",
+      "source": "the switch's new state.",
+      "source_sha256": "b9ede76b14f4b212d0ea04167b54cea3e57acc0abaa2436877f0e4376bfabc11",
+      "translation": "el nuevo estado del interruptor."
+    },
+    {
+      "context": "Open the page through the switch, so the switch shows the state.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold.show_page#0",
+      "source": "Open the page through the switch, so the switch shows the state.",
+      "source_sha256": "27321ef087ba78d85ca356334a9b3390c022fd22b2415b249e21551037ecdc1b",
+      "translation": "Abre la página a través del interruptor, para que el interruptor muestre el estado."
+    },
+    {
+      "context": "What navigation calls when it is asked for this module by key: a switch already on has its page put back rather than being left lit over a page its cross closed.",
+      "label": "spacr.qt.screens.map_barcodes.PageFold.show_page#1",
+      "source": "What navigation calls when it is asked for this module by key: a switch already on has its page put back rather than being left lit over a page its cross closed.",
+      "source_sha256": "034b8bd86f9c80a2925b2819a32fe9ea0d03ceccfb9057ce5af3414e85bf0c18",
+      "translation": "Lo que llama la navegación cuando se le pide este módulo por clave: a un interruptor ya activado se le restablece la página en lugar de dejarlo encendido sobre una página que cerró su aspa."
+    },
+    {
+      "context": "The registry structured-data name of the page the actions-row Spatial switch opens.",
+      "label": "spacr.qt.screens.map_barcodes.SPATIAL_MAP_KEY#0",
+      "source": "The registry key of the page the actions-row Spatial switch opens.",
+      "source_sha256": "6b6031aa95c2916b51b6b46c301ee0c381dc8342391cfeccf20b0561d321914b",
+      "translation": "La clave de registro de la página que abre el interruptor Espacial de la fila de acciones."
+    },
+    {
+      "context": "What the Map Barcodes Spatial switch says on hover.",
+      "label": "spacr.qt.screens.map_barcodes.SPATIAL_MAP_TOGGLE_TOOLTIP#0",
+      "source": "What the Map Barcodes Spatial switch says on hover.",
+      "source_sha256": "2e7d2804cf62f778cd73719ec874bc82caccde4b5c4e19d86cb5fd4908226d02",
+      "translation": "Lo que muestra el interruptor Espacial de Map Barcodes al pasar el cursor."
+    },
+    {
+      "context": "What both spatial switches say, on Mask Generation and on Map Barcodes.",
+      "label": "spacr.qt.screens.map_barcodes.SPATIAL_TOGGLE_TEXT#0",
+      "source": "What both spatial switches say, on Mask Generation and on Map Barcodes.",
+      "source_sha256": "64e45af9a940f48255e811801364827aaee937e6870f84cd4bc812e14e6c14bd",
+      "translation": "Lo que muestran ambos interruptores espaciales, en Generación de máscaras y en Map Barcodes."
+    },
+    {
+      "context": "Wire an actions-row ``switch`` on ``screen`` to the page for ``key``.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#0",
+      "source": "Wire an actions-row ``switch`` on ``screen`` to the page for ``key``.",
+      "source_sha256": "0bd29504eab50ff3dbc0ed52b27423f6689b7a642756cae9c4b24073a56b5742",
+      "translation": "Conecta un ``switch`` de la fila de acciones de ``screen`` a la página de ``key``."
+    },
+    {
+      "context": "Idempotent: a second call on the same application view returns the first installation and connects nothing further.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#1",
+      "source": "Idempotent: a second call on the same screen returns the first installation and connects nothing further.",
+      "source_sha256": "4408951c0e31153e87731f2c5aa34adb46de9d38655d6682a1679195fd8730af",
+      "translation": "Idempotente: una segunda llamada sobre la misma pantalla devuelve la primera instalación y no conecta nada más."
+    },
+    {
+      "context": "the host screen.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#2",
+      "source": "the host screen.",
+      "source_sha256": "31aa6df77db3f840fe37d11eba44e6a02758a258298d061a0dcbe0464aca4a19",
+      "translation": "la pantalla anfitriona."
+    },
+    {
+      "context": "the toggle to connect.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#3",
+      "source": "the toggle to connect.",
+      "source_sha256": "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+      "translation": "el conmutador que se conecta."
+    },
+    {
+      "context": "registry key the host screen must carry.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#4",
+      "source": "registry key the host screen must carry.",
+      "source_sha256": "117f24e91d16bbf5402752743d4765bba49299721eb873e479cbdca0b23b854b",
+      "translation": "clave de registro que debe tener la pantalla anfitriona."
+    },
+    {
+      "context": "the module's application view factory; the settings-driven application view for ``key`` when omitted.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#6",
+      "source": "the module's screen factory; the settings-driven screen for ``key`` when omitted.",
+      "source_sha256": "44783878d8e0e713a7a9070ea01cd2ef043aa73f427a9cd35da49a4cfb1a700c",
+      "translation": "la fábrica de pantallas del módulo; si se omite, la pantalla basada en ajustes para ``key``."
+    },
+    {
+      "context": "the installation, or None when ``screen`` is not the host.",
+      "label": "spacr.qt.screens.map_barcodes.install_page_fold#7",
+      "source": "the installation, or None when ``screen`` is not the host.",
+      "source_sha256": "ec98be84c490dd730e0d04c3fa78a19e31782be0d2d90c3ed2977571ba2247a7",
+      "translation": "la instalación, o None cuando ``screen`` no es la anfitriona."
+    },
+    {
+      "context": "Wire Map Barcodes' actions-row Spatial switch to its page.",
+      "label": "spacr.qt.screens.map_barcodes.install_spatial_map_switch#0",
+      "source": "Wire Map Barcodes' actions-row Spatial switch to its page.",
+      "source_sha256": "5899cbe9b10d771172b73721c8283b6076a57a3c6e7279389fe6e1fbeadb518e",
+      "translation": "Conecta el interruptor Espacial de la fila de acciones de Map Barcodes a su página."
+    },
+    {
+      "context": "The switch is alpha: it is named for the alpha data-selection boundary here and hidden at once unless Preferences -> Show alpha features is on.",
+      "label": "spacr.qt.screens.map_barcodes.install_spatial_map_switch#1",
+      "source": "The switch is alpha: it is named for the alpha gate here and hidden at once unless Preferences -> Show alpha features is on.",
+      "source_sha256": "4956e2fb87d57d4ec6bf411d4fedd54e96b60d91f3d383f23615150caff9c3f7",
+      "translation": "El interruptor es alfa: aquí se le da nombre para la puerta alfa y se oculta de inmediato salvo que Preferencias -> Mostrar funciones alfa esté activado."
+    },
+    {
+      "context": "the Map Barcodes screen.",
+      "label": "spacr.qt.screens.map_barcodes.install_spatial_map_switch#2",
+      "source": "the Map Barcodes screen.",
+      "source_sha256": "77f775f17a33d210e2f8ff1b94d12595a5b9bb997b26ada7c985eb1cfc6dafce",
+      "translation": "la pantalla de Map Barcodes."
+    },
+    {
+      "context": "the installation, or None when this is not the host screen.",
+      "label": "spacr.qt.screens.map_barcodes.install_spatial_map_switch#4",
+      "source": "the installation, or None when this is not the host screen.",
+      "source_sha256": "c32c2b286c9a5c458196ec75d7a398732930d65618229be2639d9b3627e7c7ee",
+      "translation": "la instalación, o None cuando esta no es la pantalla anfitriona."
+    },
+    {
+      "context": "The page fold for ``key`` installed on ``screen``, or None.",
+      "label": "spacr.qt.screens.map_barcodes.page_fold#0",
+      "source": "The page fold for ``key`` installed on ``screen``, or None.",
+      "source_sha256": "b2a1a69a21ce5bf99aa05b8b8c6ef662970b546be750bb79764603135ca272df",
+      "translation": "El módulo plegado como página para ``key`` instalado en ``screen``, o None."
+    },
+    {
+      "context": "the host screen to inspect.",
+      "label": "spacr.qt.screens.map_barcodes.page_fold#1",
+      "source": "the host screen to inspect.",
+      "source_sha256": "8d806c64f6bbc310a5f44c3bc085d4aa1d97dc3915e136805004edc5f96e6bb3",
+      "translation": "la pantalla anfitriona que se inspecciona."
+    },
+    {
+      "context": "The host application view structured-data name whose actions row opens ``key`` as a page.",
+      "label": "spacr.qt.screens.map_barcodes.page_fold_host#0",
+      "source": "The host screen key whose actions row opens ``key`` as a page.",
+      "source_sha256": "0c439f99334fd548a80420e40c8d56928b30e9b804ff1f48759bef4534261c2e",
+      "translation": "La clave de la pantalla anfitriona cuya fila de acciones abre ``key`` como página."
+    },
+    {
+      "context": "Read from each host's ``PAGE_FOLDS``, the declaration the switches are built from, so navigation and the switches cannot disagree.",
+      "label": "spacr.qt.screens.map_barcodes.page_fold_host#1",
+      "source": "Read from each host's ``PAGE_FOLDS``, the declaration the switches are built from, so navigation and the switches cannot disagree.",
+      "source_sha256": "c836578e2010fb4d077fd8de00c4069d20688b9f987445fa73eb9c6991acd5af",
+      "translation": "Se lee del ``PAGE_FOLDS`` de cada anfitriona, la declaración a partir de la cual se construyen los interruptores, para que la navegación y los interruptores no puedan discrepar."
+    },
+    {
+      "context": "a module key.",
+      "label": "spacr.qt.screens.map_barcodes.page_fold_host#2",
+      "source": "a module key.",
+      "source_sha256": "61e784f3e7111f78863081988f208a91477b6c521e90985fae931801de4b778d",
+      "translation": "una clave de módulo."
+    },
+    {
+      "context": "the host's registry key, or None when ``key`` is no page fold.",
+      "label": "spacr.qt.screens.map_barcodes.page_fold_host#3",
+      "source": "the host's registry key, or None when ``key`` is no page fold.",
+      "source_sha256": "33db42b6592ee74e67c7c00310c235f9cafbdb0fdad2aa471494f654eff3ded2",
+      "translation": "la clave de registro de la anfitriona, o None cuando ``key`` no es un módulo plegado como página."
+    },
+    {
+      "context": "Connect ``fold``'s switch and record it on its host application view.",
+      "label": "spacr.qt.screens.map_barcodes.register_page_fold#0",
+      "source": "Connect ``fold``'s switch and record it on its host screen.",
+      "source_sha256": "72445ef50367572891d9a553b98791538e951cab2d5e4d05b00bf593aecc9dc6",
+      "translation": "Conecta el interruptor de ``fold`` y lo registra en su pantalla anfitriona."
+    },
+    {
+      "context": "the page fold to wire.",
+      "label": "spacr.qt.screens.map_barcodes.register_page_fold#2",
+      "source": "the page fold to wire.",
+      "source_sha256": "b0c180a39b3405a6c59d797b777784cebce3f1b434a9e0b7ef6d791265c0f3be",
+      "translation": "el módulo plegado como página que se conecta."
+    },
+    {
+      "context": "``fold``.",
+      "label": "spacr.qt.screens.map_barcodes.register_page_fold#3",
+      "source": "``fold``.",
+      "source_sha256": "73601fbcc264153e634641cbdf6d1ecae93aeb4114fb6a41c0a26f57ff9c7fac",
+      "translation": "``fold``."
+    },
+    {
+      "context": "Spatial Mask Generation (alpha, F534) is a page fold of the same kind: its Spatial switch sits beside OPS and opens the ``spatial_masks`` settings page, which segments a whole Xenium or Visium HD slide in overlapping microscope image fields. Both are :class:`~spacr.qt.screens.map_barcodes.PageFold` instances; see :func:`install_spatial_masks_switch`.",
+      "label": "spacr.qt.screens.mask#2",
+      "source": "Spatial Mask Generation (alpha, F534) is a page fold of the same kind: its Spatial switch sits beside OPS and opens the ``spatial_masks`` settings page, which segments a whole Xenium or Visium HD slide in overlapping tiles. Both are :class:`~spacr.qt.screens.map_barcodes.PageFold` instances; see :func:`install_spatial_masks_switch`.",
+      "source_sha256": "e6c8c9bae55b8f22a1093e2e8bff4d8eaf83e653fc2baa4b9c9942fffad441e0",
+      "translation": "Generación de máscaras espacial (alfa, F534) es un módulo plegado como página del mismo tipo: su interruptor Espacial está junto a OPS y abre la página de ajustes ``spatial_masks``, que segmenta un portaobjetos completo de Xenium o Visium HD en teselas solapadas. Ambos son instancias de :class:`~spacr.qt.screens.map_barcodes.PageFold`; véase :func:`install_spatial_masks_switch`."
+    },
+    {
+      "context": "The registry key of the page Mask Generation's Spatial switch opens.",
+      "label": "spacr.qt.screens.mask.SPATIAL_MASKS_KEY#0",
+      "source": "The registry key of the page Mask Generation's Spatial switch opens.",
+      "source_sha256": "5dc7b2586c790cf3270ce2dd4d318172c722ed4137f64e55b9b083d9fef11a3c",
+      "translation": "La clave de registro de la página que abre el interruptor Espacial de Generación de máscaras."
+    },
+    {
+      "context": "What Mask Generation's Spatial switch says on hover.",
+      "label": "spacr.qt.screens.mask.SPATIAL_MASKS_TOGGLE_TOOLTIP#0",
+      "source": "What Mask Generation's Spatial switch says on hover.",
+      "source_sha256": "40dd59b13ff8f889578cdfe7d872fdac1b76ee8aa67c2948a4ca3a3fe9d14f78",
+      "translation": "Lo que muestra el interruptor Espacial de Generación de máscaras al pasar el cursor."
+    },
+    {
+      "context": "Wire Mask Generation's actions-row Spatial switch to its page.",
+      "label": "spacr.qt.screens.mask.install_spatial_masks_switch#0",
+      "source": "Wire Mask Generation's actions-row Spatial switch to its page.",
+      "source_sha256": "dca93707a9c24d3410cfc2d2f16553f0bad9affc7989eebf1e5267e0ddcf07bd",
+      "translation": "Conecta el interruptor Espacial de la fila de acciones de Generación de máscaras a su página."
+    },
+    {
+      "context": "the Mask Generation screen.",
+      "label": "spacr.qt.screens.mask.install_spatial_masks_switch#2",
+      "source": "the Mask Generation screen.",
+      "source_sha256": "1428b1f63b4a225b4864f9b3d3eb269b60dc944263ec761d9b336694862c3122",
+      "translation": "la pantalla de Generación de máscaras."
+    },
+    {
+      "context": "The Spatial Mask Generation switch installed on ``screen``, or None.",
+      "label": "spacr.qt.screens.mask.spatial_masks_page#0",
+      "source": "The Spatial Mask Generation switch installed on ``screen``, or None.",
+      "source_sha256": "21de3775bbeda656fe1b8056dde245dfbc27f11973ba4e085b8127661562c534",
+      "translation": "El interruptor de Generación de máscaras espacial instalado en ``screen``, o None."
+    },
+    {
+      "context": "the module application view to inspect.",
+      "label": "spacr.qt.screens.mask.spatial_masks_page#1",
+      "source": "the module screen to inspect.",
+      "source_sha256": "cac3f7bbb782e972ce9d62b2ebf2448f3a9af234937a4df062e61ef171562fb2",
+      "translation": "la pantalla del módulo que se inspecciona."
+    },
+    {
+      "context": "When ``src`` and ``classes`` are provided the counts are taken from the file listings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS. Hidden files such as the ``.spacr_crop_format.json`` sidecar are not samples and are not counted, the same rule the dataset loader uses.",
+      "label": "spacr.utils.estimate_class_counts#1",
+      "source": "When ``src`` and ``classes`` are provided the counts are taken from the file listings under ``src/<class>``, avoiding a slow DataLoader iteration on NAS. Hidden files such as the ``.spacr_crop_format.json`` sidecar are not samples and are not counted, the same rule the dataset loader uses.",
+      "source_sha256": "b471d7eac01680da31d1a0dbc897d2c51406d53f8b04f21923670b2c55964b31",
+      "translation": "Cuando se proporcionan ``src`` y ``classes``, los recuentos se toman de los listados de archivos en ``src/<class>``, lo que evita una iteración lenta del DataLoader sobre un NAS. Los archivos ocultos, como el archivo auxiliar ``.spacr_crop_format.json``, no son muestras y no se cuentan, la misma regla que usa el cargador del conjunto de datos."
+    }
+  ],
+  "schema": 1
+}

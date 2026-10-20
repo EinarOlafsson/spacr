@@ -1,0 +1,254 @@
+{
+  "created_utc": "2026-10-16T00:13:50.996449+00:00",
+  "originals_unchanged_by_agent": true,
+  "original_watcher_not_stopped": true,
+  "files": [
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/de.json",
+      "sha256": "20ae685f343af94385b58e52263748ee8f899c67a8b54629173658c1b32585c2",
+      "bytes": 747,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/es.json",
+      "sha256": "c768e77fbcc735d111ae15338c698a6027a44006f8905fff8f5653ad0ed7d608",
+      "bytes": 751,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/fr.json",
+      "sha256": "be824e8097e0cb9dbf96d3970e8c4404dd4d8fe391bb691d3823aa40924bc77c",
+      "bytes": 748,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/sv.json",
+      "sha256": "bd0c3163d6bf53c83d0370eca5dc5c44acc6004bdaa765933853d576576e9b55",
+      "bytes": 746,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/pt/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/pt.json",
+      "sha256": "1561a45aa21f566046322647514542d9292867497e5f5e1db620b09db199dd99",
+      "bytes": 750,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/is/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/is.json",
+      "sha256": "deb0263efb60cf580acdd478aeed36a8401dbc4fc5175aa35c1581eeca3872d8",
+      "bytes": 743,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/zh_CN.json",
+      "sha256": "0e178fbc833e4e541ebe1a427021503d68e2278e82421cf4856438b98f1997f3",
+      "bytes": 739,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/ko/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/ko.json",
+      "sha256": "e2f25b9c272c85cb98b4a4a2206b3e66bec8fcedafd9f11035b940c8d6da6b89",
+      "bytes": 750,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-ui-editorial-20261015/docs/i18n/reviewed/runtime/hi/2026-10-15-n197-annotation-page-navigation.json",
+      "preserved_path": "preserved/n197/hi.json",
+      "sha256": "c0e109355bcba760805c3566c9d6a42ca706266953e6f3677950efaa5e7e1b0e",
+      "bytes": 777,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-volume-column-api-20261015/docs/i18n/api_source_history.json",
+      "preserved_path": "preserved/volume-history/working.json",
+      "sha256": "270c8e92dd107d3441575e422354c0056d0b1305d1331daa9763152a9d058246",
+      "bytes": 13167,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-coordinator-20261014/features/data/home_b_grouped_progress_2026-10-15/PROGRESS.txt",
+      "preserved_path": "preserved/coordinator/PROGRESS.txt",
+      "sha256": "7d6a1ac1832b232969b3a7c8043b81baace70dcec5527613cfa3e7fd1645ab28",
+      "bytes": 17992,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/spacr-worktrees/codex-home-b-coordinator-20261014/features/data/home_b_grouped_progress_2026-10-15/status.json",
+      "preserved_path": "preserved/coordinator/status.json",
+      "sha256": "62519b3a3fd99930dc9b6b574d14b6d066febbb400e9bfd1e67be77920380397",
+      "bytes": 34172,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/manifest.json",
+      "preserved_path": "preserved/f534/manifest.json",
+      "sha256": "958ab344e4aceabc8cad1ed08ba7aeb93962f20ff9b61bab2ed8136d6cc81eb0",
+      "bytes": 4435,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/visual-addendum-manifest.json",
+      "preserved_path": "preserved/f534/visual-addendum-manifest.json",
+      "sha256": "e0a130063dd9401bae6795afd5fb901bc51cd2498047fd620949817cf73a2503",
+      "bytes": 2420,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/acquisition-receipt.json",
+      "preserved_path": "preserved/f534/acquisition-receipt.json",
+      "sha256": "c025ff4ef559050738de3a588d68732c1e639fb643ea1cc4e6c5f205a89e4639",
+      "bytes": 4892,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/registration-receipt.json",
+      "preserved_path": "preserved/f534/registration-receipt.json",
+      "sha256": "2ca5924aabbbaf4f74e75c719ba30819b7d87b4881652f180abcd5421668dfbc",
+      "bytes": 3393,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/independent-registration-receipt.json",
+      "preserved_path": "preserved/f534/independent-registration-receipt.json",
+      "sha256": "13d6abfe2005088d65128ad775d35be05d63a4e9d0961c51ccb2c66417abc4a4",
+      "bytes": 12430,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/independent-visual-landmarks.json",
+      "preserved_path": "preserved/f534/independent-visual-landmarks.json",
+      "sha256": "50c50b5363101dc4e8fa44b1183c1c2432e622495a3cd7f68cadf6247b7ea691",
+      "bytes": 4862,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/independent-fit-landmarks.csv",
+      "preserved_path": "preserved/f534/independent-fit-landmarks.csv",
+      "sha256": "d189bcbd37c5187b059851e59d154a1ae95b2a26112f7c948856398e43f51dbe",
+      "bytes": 130,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/independent-registration-results.csv",
+      "preserved_path": "preserved/f534/independent-registration-results.csv",
+      "sha256": "9d2e37d01a4a5bd39851baabe09b7e6574ee8d8eebdca694ecb5fe8c4fa7289d",
+      "bytes": 1826,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/saved-before-pixels-plan.json",
+      "preserved_path": "preserved/f534/saved-before-pixels-plan.json",
+      "sha256": "3b40fdcfc8c318c565c7248480230e541cfe48c5aa1c7f4168ff1e442d844428",
+      "bytes": 2058,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/external-reference-landmarks.csv",
+      "preserved_path": "preserved/f534/external-reference-landmarks.csv",
+      "sha256": "289bbd2103d38f71f735e986c8dc8e6ebc27699ebbe4c5dcfba7e8c9262170e7",
+      "bytes": 227,
+      "original_stable_during_read": true
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/README.txt",
+      "preserved_path": "preserved/f534/README.txt",
+      "sha256": "570d16d2b442b8c4c1abdbcb13a7872c7a69e5faf08ac5cd0d10d905a9a6c0a5",
+      "bytes": 2847,
+      "original_stable_during_read": true
+    }
+  ],
+  "f534_image_binary_original_paths": [
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/he-compressed-tile.bin",
+      "bytes": 2769354,
+      "sha256": "3978784cf9b3be66cd6c99437a3e0beb02898842225e1ae866f129e27cc615a9",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/he-crop.tif",
+      "bytes": 786704,
+      "sha256": "50e430be257112dc3d75d70e93ca61bd85dd2cf40a474a73a15af56932a60a10",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/he-decoder-metadata.tif",
+      "bytes": 24128,
+      "sha256": "53047bcb6919c31756c1b1a4284e7214f33d05a0436326afa64630117f2c8711",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/he-platform-window.tif",
+      "bytes": 602384,
+      "sha256": "eeef030344f23aced9f153aa05d06d18802a1620f0433ffd97f7528f447095bc",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/he-preview.png",
+      "bytes": 379366,
+      "sha256": "f1cafd2764657e69cff52df6ea3b30afef9064be3775d07417ab56a4e00c347a",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/if-channel0-preview.png",
+      "bytes": 177015,
+      "sha256": "39cd21426593bd8d53946cd3877e624406ba6a99518a42f598fa75f973c72185",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/if-compressed-tile.bin",
+      "bytes": 1298443,
+      "sha256": "7449acaab999f7bb023225ebed9efa8d6fe9624ebb16977117f4af029cbefb54",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/if-crop.tif",
+      "bytes": 376968,
+      "sha256": "de522a382b29e2114cbd47e91c9f578d9b02721eb8be276ac838baffc8639360",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/if-decoder-metadata.tif",
+      "bytes": 16048,
+      "sha256": "4a019f7fa3a3cf1090e72fc27f5de1d3a3437e5be420c93e2a0bb06204b27e2d",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/independent-registration-review.png",
+      "bytes": 1274857,
+      "sha256": "1fc1ccf7031fa3be83aec0114b066197b82b2c303fbef6423cce669bd5da9d77",
+      "copied": false
+    },
+    {
+      "source_path": "/mnt/wd4tb/scratch/home-b-f534-paired-crop-20261015/paired-inspection.png",
+      "bytes": 1761101,
+      "sha256": "ed8a8f2db1620a1d6ef2c4aada01c181f83a433715be59c67ca95578462c9813",
+      "copied": false
+    }
+  ],
+  "supplemental_preserved_files": {
+    "preserved/coordinator/PROGRESS.txt.diff": {
+      "sha256": "4e079ccb01e21350cca077afccb21ab52f543a52bfaa8534397ba43be8057162",
+      "bytes": 7589
+    },
+    "preserved/coordinator/status.json.diff": {
+      "sha256": "4cf66b8c5e7aea7a95f22115faab533751fa8503876a64bd979af75e6e43ae60",
+      "bytes": 4543
+    },
+    "preserved/volume-history/head.json": {
+      "sha256": "4fa56f7433523ba95d9b2b2b15f857c64cdbb8f6da1af94391fa4d8fc8e0b75f",
+      "bytes": 14762
+    },
+    "preserved/volume-history/working.diff": {
+      "sha256": "c69d37e144001cf292eb77989625a8a4ca63dd7be2e2dbc41ea6214e2c1b54f7",
+      "bytes": 2410
+    }
+  }
+}

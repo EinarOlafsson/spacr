@@ -1,0 +1,74 @@
+{
+  "changes": {
+    "spacr.qt.mask_engine.save_mask": {
+      "added_optional_parameters": [
+        "lineage"
+      ],
+      "after": {
+        "accepted_documented_parameters": [
+          "filename",
+          "folder",
+          "lineage",
+          "log",
+          "mask",
+          "masks_dir",
+          "preserve_ids"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "function",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "filename",
+          "folder",
+          "lineage",
+          "log",
+          "mask",
+          "masks_dir",
+          "preserve_ids"
+        ],
+        "required_parameters": [
+          "filename",
+          "folder",
+          "mask"
+        ],
+        "symbol": "spacr.qt.mask_engine.save_mask",
+        "variant_count": 1
+      },
+      "before": {
+        "accepted_documented_parameters": [
+          "filename",
+          "folder",
+          "log",
+          "mask",
+          "masks_dir",
+          "preserve_ids"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "function",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "filename",
+          "folder",
+          "log",
+          "mask",
+          "masks_dir",
+          "preserve_ids"
+        ],
+        "required_parameters": [
+          "filename",
+          "folder",
+          "mask"
+        ],
+        "symbol": "spacr.qt.mask_engine.save_mask",
+        "variant_count": 1
+      }
+    }
+  },
+  "item": 708,
+  "kind": "existing_callable_optional_parameter_changes",
+  "schema": 1
+}

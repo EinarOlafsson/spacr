@@ -669,5 +669,5 @@ def test_setup_declares_the_ultrack_extra():
     setup_py = pathlib.Path(spacr.__file__).resolve().parent.parent / "setup.py"
     if not setup_py.exists():
         pytest.skip("running against an installed spacr without setup.py")
-    text = setup_py.read_text()
+    text = setup_py.read_text(encoding="utf-8")
     assert re.search(r"'ultrack':\s*\[", text), "extras_require['ultrack'] missing"

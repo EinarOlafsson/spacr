@@ -70,7 +70,7 @@ def test_export_reports_success_and_failure(screen, monkeypatch, tmp_path):
     screen.choose_export_table()
     assert "exported" in screen._source.text()
     assert pd.read_csv(target)["a"].tolist() == [1, 2]
-    receipt = json.loads((tmp_path / "out.csv.conditions.json").read_text())
+    receipt = json.loads((tmp_path / "out.csv.conditions.json").read_text(encoding="utf-8"))
     assert set(receipt) == {"source", "merge_definition", "condition_annotation"}
     monkeypatch.setattr(QFileDialog, "getSaveFileName",
                         staticmethod(lambda *a, **k: ("", "")))

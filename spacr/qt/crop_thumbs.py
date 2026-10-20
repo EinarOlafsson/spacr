@@ -1,12 +1,12 @@
-"""Decode object crops lazily, and keep the last few — the hover seam.
+"""Decode object crops lazily and cache the most recent ones for hover
+previews.
 
-Showing the crop under the cursor is the difference between a scatter plot of
-ninety thousand dots and a scatter plot you can interrogate. It is also the
-easiest way to make a plot unusable: a PNG decode is a handful of milliseconds,
-a mouse sweep is a hundred hover events a second, and the two multiply into a
-plot that lags a quarter-second behind the cursor and feels broken.
+A hover preview shows the crop under the cursor. A PNG decode takes a few
+milliseconds and a mouse sweep produces about a hundred hover events per
+second, so decoding on every event makes the plot lag behind the cursor.
 
-So nothing here decodes on the paint path, and nothing decodes twice:
+Decoding therefore never happens on the paint path, and each crop is decoded
+once:
 
 * :meth:`CropThumbnails.peek` answers from memory or not at all. It is what a
   hover handler calls, because the answer has to be instant or absent.
@@ -23,8 +23,8 @@ Crop PNGs are not ordinary images. Anything spaCR wrote before the BGR fix has
 the first stain in the *blue* channel, and a 16-bit single-channel crop opened
 with ``convert('RGB')`` is clipped to solid white by PIL. Both are corrected by
 :func:`spacr.qt.annotate_engine.load_crop_image`, which is therefore the only
-door used here — a hover preview showing different colours from the annotation
-grid is worse than no hover preview, because both look plausible.
+loader used here, so a hover preview shows the same colours as the annotation
+grid.
 """
 from __future__ import annotations
 
@@ -272,10 +272,8 @@ class CropThumbnails:
     def prime(self, path: str) -> Optional[QPixmap]:
         """Decode ``path`` now so a later :meth:`peek` is instant.
 
-        The same as :meth:`pixmap`; named separately because the intent at the
-        call site is different — this is what a debounce timer runs, and
-        reading it as "prime the cache" rather than "get the pixmap" is what
-        stops it drifting back onto the hover path.
+        The same as :meth:`pixmap`; named separately because a debounce timer
+        runs it to fill the cache, not a hover handler.
 
         :param path: path of the crop image to decode and cache, as for
             :meth:`pixmap`.
@@ -311,9 +309,9 @@ def crop_paths_for_keys(db_path: str, keys) -> Dict[str, str]:
     """``{object key: crop path}``, resolved ONCE for a whole plot.
 
     :func:`spacr.active_learning.crops_for_object_keys` scans the crop table
-    per call — right for opening a subset, ruinous once per hover event. This
-    is the plot-time call: resolve every plotted point up front and let hover
-    be a dict lookup.
+    per call — suitable for opening a subset, too slow to run once per hover
+    event. This is the plot-time call: resolve every plotted point up front and
+    let hover be a dict lookup.
 
     That function keeps the caller's order but *drops* keys it cannot resolve,
     so when everything resolves the answer is a zip and costs one scan. When
@@ -323,9 +321,8 @@ def crop_paths_for_keys(db_path: str, keys) -> Dict[str, str]:
     miss). That is a handful of extra scans for a handful of missing crops,
     rather than one scan per key.
 
-    Keys with no crop are absent from the result rather than mapped to ``""``
-    — "this object has no crop" and "this object's crop is at nowhere" are
-    different claims and only the first one is true.
+    Keys with no crop are absent from the result rather than mapped to ``""``,
+    which would read as a crop path.
     """
     wanted = [str(k) for k in keys]
     if not wanted or not db_path:

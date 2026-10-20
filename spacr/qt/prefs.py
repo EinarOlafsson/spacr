@@ -7,8 +7,12 @@ remain safe.
 """
 from __future__ import annotations
 
+import atexit
+import logging
+import threading
+import time
 from threading import RLock
-from typing import List
+from typing import Any, Dict, List, Tuple
 
 from PySide6.QtCore import QSettings
 
@@ -21,6 +25,126 @@ _LEGACY_NAMESPACES = (
 )
 _MIGRATED_FILES: set[str] = set()
 _MIGRATION_LOCK = RLock()
+
+LOG = logging.getLogger("spacr.qt.prefs")
+
+_STORES = threading.Condition()
+_PENDING_STORES: Dict[Tuple[str, int, str], Any] = {}
+_STORE_STATE: Dict[str, Any] = {"busy": False, "thread": None}
+_NOTHING = object()
+
+
+def _store_key(settings: QSettings, key: str) -> Tuple[str, int, str]:
+    """Name one value by its store's file, the file's format and its key.
+
+    The file is resolved now, on the caller's thread, so a value is written
+    to the store it was set in even if the store path moves before the
+    writer reaches it.
+    """
+    return (str(settings.fileName()), int(settings.format().value), str(key))
+
+
+def _store_later(settings: QSettings, key: str, value: Any) -> None:
+    """Write one ``QSettings`` value on the preference writer thread.
+
+    Ending a ``QSettings`` that holds a change writes the whole preference
+    file on the thread that ends it: a lock file and a temporary file, each
+    with ``fdatasync``, then a rename. That took 35-65 ms per write on an
+    idle disk and seconds on a busy one, on the GUI thread, inside clips the
+    tutorial recorder flagged. The value is held here until the writer has
+    stored it, and :func:`_stored_later` answers reads in the meantime, so a
+    value written is a value read. Only the newest value of a key is
+    written.
+
+    :param settings: a ``QSettings`` naming the store; it is only read.
+    :param key: the settings key.
+    :param value: the value to store.
+    """
+    item = _store_key(settings, key)
+    with _STORES:
+        _PENDING_STORES[item] = value
+        thread = _STORE_STATE["thread"]
+        if thread is None or not thread.is_alive():
+            thread = threading.Thread(target=_run_stores,
+                                      name="spacr-preference-writer",
+                                      daemon=True)
+            _STORE_STATE["thread"] = thread
+            thread.start()
+        _STORES.notify_all()
+
+
+def _stored_later(settings: QSettings, key: str, default: Any = None) -> Any:
+    """The value :func:`_store_later` still holds for ``key``, or ``default``.
+
+    :param settings: a ``QSettings`` naming the store.
+    :param key: the settings key.
+    :param default: returned when nothing is waiting for that key.
+    """
+    with _STORES:
+        return _PENDING_STORES.get(_store_key(settings, key), default)
+
+
+def _write_stores(batch: Dict[Tuple[str, int, str], Any]) -> None:
+    """Store one batch of values, one ``QSettings`` per file."""
+    by_file: Dict[Tuple[str, int], list] = {}
+    for (name, kind, key), value in batch.items():
+        by_file.setdefault((name, kind), []).append((key, value))
+    for (name, kind), values in by_file.items():
+        try:
+            settings = QSettings(name, QSettings.Format(kind))
+            for key, value in values:
+                settings.setValue(key, value)
+            settings.sync()
+        except Exception as exc:
+            LOG.warning("a preference write failed: %s", exc)
+
+
+def _run_stores() -> None:
+    """The writer thread: store what is waiting, then wait for more."""
+    while True:
+        with _STORES:
+            while not _PENDING_STORES:
+                _STORES.wait()
+            batch = dict(_PENDING_STORES)
+            _STORE_STATE["busy"] = True
+        try:
+            _write_stores(batch)
+        finally:
+            with _STORES:
+                for item, value in batch.items():
+                    if _PENDING_STORES.get(item, _NOTHING) is value:
+                        del _PENDING_STORES[item]
+                _STORE_STATE["busy"] = False
+                _STORES.notify_all()
+
+
+def _flush_stores(timeout: float = 30.0) -> bool:
+    """Wait until every value handed to :func:`_store_later` is stored.
+
+    Values still waiting once the writer has stopped are stored on the
+    caller's thread, so a clean exit loses none.
+
+    :param timeout: longest wait, in seconds, for the writer.
+    :returns: whether nothing is left waiting or being written.
+    """
+    deadline = time.monotonic() + max(0.0, float(timeout))
+    with _STORES:
+        while _PENDING_STORES or _STORE_STATE["busy"]:
+            thread = _STORE_STATE["thread"]
+            left = deadline - time.monotonic()
+            if left <= 0 or thread is None or not thread.is_alive():
+                break
+            _STORES.wait(left)
+        batch = {} if _STORE_STATE["busy"] else dict(_PENDING_STORES)
+        if batch:
+            _PENDING_STORES.clear()
+        finished = not _STORE_STATE["busy"]
+    if batch:
+        _write_stores(batch)
+    return finished
+
+
+atexit.register(_flush_stores)
 
 
 def _migrate_legacy_settings(current: QSettings) -> None:

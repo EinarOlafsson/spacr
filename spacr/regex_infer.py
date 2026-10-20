@@ -641,12 +641,12 @@ def structure(preview: Sequence[dict]) -> Dict[str, int]:
 #:     report. The dropdown SAYS WHICH, because a user whose instrument is
 #:     guessed at should know before a run rather than after.
 #:
-#: NO OPTIONAL CAPTURING GROUPS, and this is a correctness rule rather than a
-#: style one. :func:`spacr.utils._extract_filename_metadata` reads
-#: ``match.group('fieldID')[0]`` to decide whether to unpad it; a group that
-#: did not participate returns ``None`` and that subscript raises TypeError,
-#: which the caller does not catch. A group that cannot always match belongs
-#: in a second convention, not behind a ``?``.
+#: Well, field and channel groups must always participate; the importer reads
+#: their first character to decide whether to unpad them. A missing group
+#: would return ``None`` and raise TypeError instead of identifying an image.
+#: A documented absent EVOS Z plane is different: the importer explicitly
+#: retains ``sliceID=None`` when that optional segment does not participate.
+#: Unknown Z is not a synthetic plane zero.
 _METADATA_CONVENTIONS = (
     {
         "key": "cellvoyager",
@@ -904,7 +904,7 @@ _METADATA_CONVENTIONS = (
         "vendor": "Thermo Fisher",
         "instrument": "Cellomics ArrayScan VTI / XTI, CellInsight CX5 / CX7",
         "pattern": (
-            r"(?!.*_[RDM]_p\d+_z\d+_\d+_)(?:.*_)?"
+            r"(?!.*_[RDM]_p\d+(?:_z\d+)?_\d+_)(?:.*_)?"
             r"(?P<wellID>[A-Z]\d{2})f(?P<fieldID>\d{2,3})"
             r"d(?P<chanID>\d)\.(?i:{ext})$"),
         "ext": "suffix",
@@ -974,18 +974,20 @@ _METADATA_CONVENTIONS = (
         "instrument": "EVOS FL Auto 2 / M7000 (and, untested, M5000)",
         "pattern": (
             r"(?P<plateID>.+)_(?P<AID>[RDM])_p(?P<timeID>\d+)"
-            r"_z(?P<sliceID>\d+)_(?P<laserID>\d+)_(?P<wellID>[A-Z]\d{2})"
+            r"(?:_z(?P<sliceID>\d+))?_(?P<laserID>\d+)_(?P<wellID>[A-Z]\d{2})"
             r"f(?P<fieldID>\d{2})d(?P<chanID>\d)\.(?i:{ext})$"),
         "ext": "suffix",
         "examples": (
             "scan_R_p2_z1_0_B03f01d0.tif",
+            "image_0002_Top Slide_R_p00_0_A01f00d0.TIF",
         ),
         "groups": {
             "plateID": "the capture prefix -- 'scan' for an Automate-tab "
                        "plate scan, 'image' for a manual Capture-tab shot",
             "AID": "image format: R raw, D displayed, M merged",
             "timeID": "time point",
-            "sliceID": "Z plane",
+            "sliceID": "Z plane when present; None when the documented "
+                       "manual-save name omits the Z segment",
             "laserID": "the GRID index, for multi-grid vessels. Named "
                        "laserID only because that is the group spaCR's "
                        "importer already carries for an axis it does not "
@@ -997,13 +999,13 @@ _METADATA_CONVENTIONS = (
         "source": (
             "Thermo Fisher, 'EVOS FL Auto 2 Imaging System User Guide' "
             "(MAN0014072) p.148 and 'EVOS M7000 Imaging System User Guide' "
-            "(MAN0018326) p.198, both carrying the same 'File naming "
-            "convention' section and the same labelled example. PROVISIONAL "
-            "FOR ONE REASON ONLY: the vendor documents the template in full "
-            "but publishes exactly ONE literal filename, and no second "
-            "EVOS name could be sourced anywhere. The grammar is not in "
-            "doubt; the breadth of it is."),
-        "status": "provisional",
+            "(MAN0018326) p.198 carry the labelled scan example. The M7000 "
+            "guide p.41 also shows the second literal as the save-dialog "
+            "'Next filename', without a Z segment. Both are vendor-documented "
+            "names, not observed acquisition-directory listings or proof "
+            "that these images were saved. An omitted Z stays unknown; "
+            "the other captured tokens retain their documented meanings."),
+        "status": "confirmed",
     },
     {
         "key": "scanr",
@@ -1017,6 +1019,7 @@ _METADATA_CONVENTIONS = (
         "ext": "suffix",
         "examples": (
             "A1--W00001--P00001--Z00000--T00000--Alexa 488.tif",
+            "A1--W00001--P00001--Z00000--T00000--mCherry1.tif",
         ),
         "groups": {
             "wellID": "the well NAME, which ScanR writes before the "
@@ -1029,17 +1032,26 @@ _METADATA_CONVENTIONS = (
         },
         "source": (
             "forum.image.sc thread 14872, 'Olympus Scan^R metadata', where "
-            "a ScanR user gives 'A1--W00001--P00001--Z00000--T00000--Alexa "
-            "488' as an example of their own 96/384-well filenames and a "
-            "CellProfiler developer answers with a regex naming the first "
-            "block Well and the rest W/Position/Z/T/Channel. Bio-Formats "
-            "confirms the block grammar independently: ScanrReader.java's "
-            "getBlock() zero-pads to five digits and prepends the axis "
-            "letter, so getBlock(1, \"W\") is 'W00001'. PROVISIONAL "
-            "because ONE literal filename could be sourced, and because "
-            "Bio-Formats matches these blocks by substring search rather "
-            "than by a pattern, so it does not vouch for the '--' "
-            "separators or for the leading well name."),
+            "a ScanR user gives 'A1--W00001--P00001--Z00000--T00000--Alexa 488' "
+            "as an example of their own 96/384-well names and a CellProfiler "
+            "developer identifies Well/Position/Z/T/Channel. A second "
+            "acquisition user reports the stem "
+            "'A1--W00001--P00001--Z00000--T00000--mCherry1' in "
+            "https://forum.knime.com/t/combining-images-to-stack/2119 "
+            "on 2012-06-29 while describing their Olympus ScanR Z-stack. "
+            "Both cited stems omit the file extension. The configured .tif "
+            "suffix is inferred for both runnable examples; these are "
+            "not observed complete filenames. The public OME ScanR TIFF "
+            "listing at downloads.openmicroscopy.org/images/ScanR/idr0009/"
+            "0307-10--2007-05-30/data/ supports TIFF as a format, not the "
+            "missing suffixes of these two stems. Bio-Formats confirms the "
+            "axis blocks independently: ScanrReader.java's getBlock() "
+            "zero-pads to five digits and prepends the axis letter, so "
+            "getBlock(1, \"W\") is 'W00001'. PROVISIONAL: the two user "
+            "reports support the well-prefixed grammar, but their full "
+            "filenames were not supplied. Bio-Formats matches blocks by "
+            "substring search and does not establish the '--' separators "
+            "or the leading well name."),
         "status": "provisional",
     },
     {
@@ -1054,6 +1066,8 @@ _METADATA_CONVENTIONS = (
         "ext": "suffix",
         "examples": (
             "A1ROI1_02_1_1_Bright Field_High Contrast_003.tif",
+            "A1_01_1_1_Phase Contrast_001.tif",
+            "A1_01_1_2_Phase Contrast_001.tif",
         ),
         "groups": {
             "wellID": "well",
@@ -1075,10 +1089,17 @@ _METADATA_CONVENTIONS = (
             "TricornutumSegmentation.cppipe, whose regex reads "
             "^(?P<Well>[A-H][0-9]{1,2})_(?P<Plate>[0-9]{1,2})_"
             "(?P<Wavelength>[0-9]{1})_(?P<site>[0-9]{1,2})_"
-            "(?P<channel>.*)_001. PROVISIONAL: Agilent's own Gen5 export "
-            "documentation is behind a WAF that refused every fetch, so "
-            "the vendor's wording is unverified, and only one literal "
-            "filename could be sourced."),
+            "(?P<channel>.*)_001. Two additional Phase Contrast examples "
+            "are listed in glencoesoftware/bioformats2raw revision "
+            "f5440e9996908f2a108560961635ac9bc6693e3c, "
+            "src/test/java/com/glencoesoftware/bioformats2raw/test/"
+            "BioTekTest.java lines 231-243. Its author identifies these "
+            "as names taken from real-world data with minor sanitization "
+            "of some channel names and wavelengths; they are not unchanged "
+            "raw filenames. PROVISIONAL: this disclosed sanitization does "
+            "not establish untouched acquisition filenames, and Agilent's "
+            "own Gen5 export documentation remains unverified after its "
+            "WAF refused the original fetches."),
         "status": "provisional",
     },
     {

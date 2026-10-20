@@ -1,0 +1,25 @@
+{
+  "status": "Bounded allowed-delta AST exposure prediction; finalfrozenpatch equality proof pending",
+  "reference": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "normal_tool_pins": {
+    "spacr/regex_infer.py": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "tools/build_documentation_i18n.py": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+    "tools/build_i18n_catalogs.py": "22f00d6a24393948fe762f0eeb11293be95f4a8087f6acc7e61b71cb73d1ad15",
+    "tools/nested_helper_docs.py": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237"
+  },
+  "normal_predicate_result": {
+    "_extract_filename_metadata_visible": false,
+    "_METADATA_CONVENTIONS_assignment_names": []
+  },
+  "API": "Allowed delta adds no definitions/signatures/docstrings or nested helper calls; datarecord and condition changes alone create zero public/nested API text identities. Private table#: comment excluded by ordinary assignment-name predicate. Existing private helper doc unchanged.",
+  "runtime": "EVOSlabel remains unchanged; status uses existing confirmed/provisional logic, no newcaption literal. Pattern/examples/source/groups text is data not tr; utilscondition has no newstring. Final trcallliteralmultiset equality will be proven againstCI source.",
+  "normal_metadata_limits": "Physical line relocation/fullfilefingerprints can change fromtableprose lines; this is not new semantic API/caption target. Do not hand-edit EnglishAPI/Help metadata orclaimglobalcurrency fromthisprediction.",
+  "guard": "No fullcollector/package import/writer/test/native/model/network. Executed only two unchanged stdlibAST predicates on localAST nodes.",
+  "final_peer_requirements": [
+    "All outsideallowedrecord/comment/onecondition ASTs unchanged.",
+    "Public/nested definition/signature/docstring identities and trliteralset unchanged.",
+    "Frozen originalfourrecords pattern and zero-basedchannel semantics preserved.",
+    "Actual baseline/finalscope/results/sourcepins bindtestevidence; no replay unless discrepancy."
+  ]
+}

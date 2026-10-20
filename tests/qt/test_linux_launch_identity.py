@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import ast
+import os
+import shlex
+import subprocess
 from pathlib import Path
 
 from PySide6.QtCore import Qt
@@ -50,3 +53,33 @@ def test_main_window_and_loading_cover_are_opaque(qapp, qtbot, monkeypatch):
     cover = LoadingScreen(parent=window)
     assert cover.testAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent)
     assert cover.autoFillBackground()
+
+
+def test_frozen_desktop_launch_ignores_an_older_path_installation(tmp_path):
+    root = tmp_path / "installed package"
+    packaged = root / "opt" / "spacr" / "spacr"
+    shadow = tmp_path / "old-bin" / "spacr"
+    proof = tmp_path / "launched.txt"
+    for executable, identity in ((packaged, "packaged"), (shadow, "old")):
+        executable.parent.mkdir(parents=True)
+        executable.write_text(
+            '#!/bin/sh\nprintf "%s\n" ' + shlex.quote(identity)
+            + ' "$@" > "$SPACR_LAUNCH_PROOF"\n'
+        )
+        executable.chmod(0o755)
+    environment = dict(os.environ, PATH=str(shadow.parent), HOME=str(tmp_path),
+                       SPACR_LAUNCH_PROOF=str(proof))
+    arguments = ["--source", "field with spaces.tif"]
+    subprocess.run([str(packaged), *arguments], env=environment, check=True,
+                   capture_output=True, text=True, timeout=5)
+    assert proof.read_text(encoding="utf-8").splitlines() == ["packaged", *arguments]
+    proof.unlink()
+    command = shlex.split(next(line.split("=", 1)[1]
+                              for line in DESKTOP.read_text(encoding="utf-8").splitlines()
+                              if line.startswith("Exec=")))
+    assert command[0] in {"spacr", "/opt/spacr/spacr"}
+    if command[0] == "/opt/spacr/spacr":
+        command[0] = str(packaged)
+    subprocess.run([*command, *arguments], env=environment, check=True,
+                   capture_output=True, text=True, timeout=5)
+    assert proof.read_text(encoding="utf-8").splitlines() == ["packaged", *arguments]

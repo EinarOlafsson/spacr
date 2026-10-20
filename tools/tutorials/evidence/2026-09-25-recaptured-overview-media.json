@@ -491,7 +491,7 @@
         "02_diagram",
         "03_assays",
         "04_host_pathogen",
-        "05_starplast",
+        "05_parascape",
         "06_home_return"
       ],
       "capture_sha256": [

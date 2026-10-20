@@ -145,6 +145,7 @@ def test_a_card_torch_cannot_reach_is_sent_to_the_doctor(qtbot, tmp_path,
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     monkeypatch.setattr(setup_slides, "graphics_card",
                         lambda: (False, "NVIDIA GeForce RTX 3090"))
+    monkeypatch.setattr(setup_slides, "_gpu_library", lambda: "CUDA")
     made = SetupSlides()
     qtbot.addWidget(made)
 
@@ -181,7 +182,7 @@ def test_the_command_it_names_is_one_that_exists():
     import pathlib
 
     setup = pathlib.Path(__file__).resolve().parents[2] / "setup.py"
-    assert "spacr-doctor=spacr.doctor:main" in setup.read_text()
+    assert "spacr-doctor=spacr.doctor:main" in setup.read_text(encoding="utf-8")
     assert "spacr-doctor" in GPU_DOCTOR_HINT
 
 
@@ -203,3 +204,17 @@ def test_the_note_is_on_the_first_slide_and_no_other(slides, qtbot):
     # And coming back to the first slide brings it back.
     slides._show_slide(0)
     assert slides._gpu_note.isVisibleTo(slides)
+
+
+def test_a_mac_whose_graphics_torch_cannot_use_runs_on_the_cpu(qtbot, tmp_path, monkeypatch):
+    """Reported on an Intel MacBook (Iris Plus, Metal) 2026-10-18: the slide
+    sent the user looking for missing CUDA, which no Mac has."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setattr(setup_slides, "graphics_card", lambda: (False, "Intel Iris Plus Graphics"))
+    monkeypatch.setattr(setup_slides, "_gpu_library", lambda: "Metal")
+    made = SetupSlides()
+    qtbot.addWidget(made)
+
+    text = made._gpu_note.text()
+    assert "CUDA" not in text and "spacr-doctor" not in text
+    assert "runs these tasks on the CPU" in text

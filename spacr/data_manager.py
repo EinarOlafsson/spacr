@@ -1,13 +1,13 @@
-"""What a project costs in disk, and how to get it back without losing data.
+"""Measure project disk usage, and prune or archive regenerable data.
 
-An imaging screen is mostly intermediates.  ``stack/`` is the raw files
+An imaging screen is mostly intermediates. ``stack/`` is the raw files
 re-shaped, ``merged/`` is ``stack/`` with the masks concatenated on, ``data/``
-is one PNG per object, and a plate that arrives as 40 GB of TIFFs leaves 400
-GB behind.  A multi-terabyte project has no in-app answer to "where did the
-space go?", and no way to clear derived data that does not also risk the one
-thing on the disk nobody can make again — the images off the microscope.
+is one PNG per object, and a plate that arrives as 40 GB of TIFFs leaves 400 GB
+behind. This module reports where the space in a project is used, and clears
+derived data without touching the raw microscope images, which cannot be
+regenerated.
 
-This module answers both, and it answers the second one *conservatively*.
+Deletion is conservative: only artifacts shown to be regenerable are deleted.
 
 Disk usage
 ----------
@@ -23,13 +23,13 @@ happens to have recorded.  Every file is reconciled against
   labelled by the project layout, as a guess, so the number is readable) but
   its provenance is unknown;
 * a registered artifact whose path is **no longer on disk** is reported as
-  missing, because a registry that claims files that are gone is a registry
-  nobody should prune from.
+  missing, because a registry that lists missing files is not safe to prune
+  from.
 
 Pruning
 -------
-The safety property is the whole feature.  An artifact is prunable only when
-it is *regenerable*, and "regenerable" is not a guess:
+An artifact is prunable only when it is *regenerable*, which requires all of
+the following:
 
 1. the registry knows it — anything unregistered is never a candidate;
 2. its kind is not an **original** (:data:`ORIGINAL_KINDS`): nothing in
@@ -47,19 +47,18 @@ it is *regenerable*, and "regenerable" is not a guess:
 8. **every** artifact sharing its path passes all of the above — three kinds
    live in ``measurements.db``, and deleting the file for one of them
    destroys the other two;
-9. no other registered artifact sits inside it or around it, because the
-   bytes belong to the innermost one and a plan that under-reports what it
-   deletes is the failure this module exists to prevent.
+9. no other registered artifact sits inside it or around it, because the bytes
+   belong to the innermost one and a plan must not under-report what it
+   deletes.
 
 Anything that fails any of those is kept, and :attr:`PrunePlan.kept` says
 which rule kept it.  Unknown provenance always means keep.
 
-Rule 3 is doing more work than it looks.  ``ports.producers_of`` is empty for
+Rule 3 also protects other kinds. ``ports.producers_of`` is empty for
 ``raw-images`` and ``sequencing-reads``, which is *why* originals are safe —
-and it is empty today for ``channel-stacks`` too, so ``stack/`` is reported
-as unregistered bytes and never offered, even though it is one of the largest
-intermediates.  That is the correct answer while nothing declares it produces
-them: the fix is a port declaration, not an exception here.
+and it is empty today for ``channel-stacks`` too, so ``stack/`` is reported as
+unregistered bytes and never offered, even though it is one of the largest
+intermediates. This changes only when a port declares that it produces them.
 
 Nothing is deleted without a plan.  :func:`plan_prune` returns exactly what
 would go and how much it frees; :func:`prune` refuses to run unless it is
@@ -67,18 +66,17 @@ handed :attr:`PrunePlan.token`, a digest over that exact path set and byte
 total, so a confirmation cannot authorise a deletion other than the one that
 was shown.
 
-Deleting is **count first, delete second, verify**.  The tree is
+Deleting is **count first, delete second, verify**. The tree is
 re-fingerprinted against the plan before anything is removed; the registry
-write is a count and a write on one predicate, checked for equality and
-rolled back on any difference.  See :func:`_verified_write` for why that is
-the only property worth asserting here.
+write is a count and a write on one predicate, checked for equality and rolled
+back on any difference. See :func:`_verified_write`.
 
 Archiving
 ---------
 :func:`plan_archive` and :func:`archive` move a project, or a subset of it,
 somewhere else and leave a record: a manifest at the destination, a ledger at
-the origin, and rows in the destination's registry carrying the provenance
-the artifacts arrived with.  The registry still knows where everything went.
+the origin, and rows in the destination's registry carrying the provenance the
+artifacts arrived with. The registry records where every artifact went.
 
 Public API
 ----------
@@ -280,7 +278,7 @@ _NEVER_DELETE = ("artifacts.db", ARCHIVE_LEDGER_NAME, ARCHIVE_MANIFEST_NAME)
 
 
 class DataManagerError(Exception):
-    """Anything this module refuses to do."""
+    """Base class for the errors this module raises."""
 
 
 class ConfirmationRequired(DataManagerError):
@@ -291,17 +289,16 @@ class PruneAborted(DataManagerError):
     """A prune stopped before removing anything, and nothing was removed.
 
     Raised when the tree no longer matches the plan, or when a registry write
-    changed a different number of rows than the count that gated it. The
-    invariant this type carries is in its name: nothing on disk was deleted.
+    changed a different number of rows than the count that gated it. When it is
+    raised, nothing on disk was deleted.
     """
 
 
 class PruneIncomplete(DataManagerError):
     """A prune deleted some of the plan and could not finish it.
 
-    Distinct from :class:`PruneAborted` on purpose: that type promises
-    nothing was removed, and a type whose promise is sometimes true is worse
-    than no type at all.
+    Distinct from :class:`PruneAborted`, which means nothing was removed; this
+    type means some files were removed.
     """
 
 
@@ -311,7 +308,7 @@ class ArchiveError(DataManagerError):
 
 
 def human_bytes(size: float) -> str:
-    """Render a byte count the way a disk report should read.
+    """Format a byte count with a decimal unit, such as ``"1.4 GB"``.
 
     :param size: bytes.
     :returns: e.g. ``"1.4 GB"``. Powers of 1000, because that is what the
@@ -393,7 +390,7 @@ def _classify_by_layout(relative: str) -> str:
 
 @dataclass(frozen=True)
 class KindUsage:
-    """What one artifact kind costs in this project.
+    """Disk usage of one artifact kind in a project.
 
     :param kind: a :mod:`spacr.ports` kind, or :data:`OTHER_KIND`.
     :param label: the display name.
@@ -403,7 +400,7 @@ class KindUsage:
     :param n_artifacts: registry rows of this kind.
     :param registered_bytes: of ``size_bytes``, how much sits under a
         registered artifact.
-    :param unregistered_bytes: the rest — bytes nobody claims.
+    :param unregistered_bytes: the rest — bytes under no registered artifact.
     :param recorded_bytes: what the registry *says* those artifacts weigh.
         A gap against ``size_bytes`` means the folder changed since it was
         registered, which is exactly when a prune must decline.
@@ -457,7 +454,7 @@ class ArtifactUsage:
 
 @dataclass(frozen=True)
 class ProjectUsage:
-    """Where a project's disk went, reconciled against the registry.
+    """Disk usage of a project, reconciled against the artifact registry.
 
     :param root: the project root.
     :param total_bytes: every byte under ``root``, symlinks excluded.
@@ -471,8 +468,8 @@ class ProjectUsage:
     :param missing: artifacts the registry has whose path is gone.
     :param outside: registered artifacts whose path is not under ``root``.
     :param symlinks: links found and not followed. Never counted, never
-        deleted: a link into somebody else's storage is the one shape where
-        a recursive delete leaves the project entirely.
+        deleted: a link can point outside the project, where a recursive delete
+        must not reach.
     :param errors: paths that could not be read, as strings.
     :param scanned_utc: when the walk ran.
     """
@@ -590,12 +587,11 @@ def scan_project(root: Any, *,
     rather than assumed away.
 
     :param root: the project root.
-    :param registry: an open :class:`spacr.artifacts.Registry`. Omit and one
-        is opened for ``root`` when a registry file exists — including the
-        shared one :data:`spacr.artifacts.ARTIFACTS_DB_ENV` points at. A
-        project with no registry is scanned anyway, and reports every byte as
-        unregistered, which is the correct answer and the reason nothing in
-        it is prunable.
+    :param registry: an open :class:`spacr.artifacts.Registry`. Omit and one is
+        opened for ``root`` when a registry file exists — including the shared
+        one :data:`spacr.artifacts.ARTIFACTS_DB_ENV` points at. A project with
+        no registry is scanned anyway, and reports every byte as unregistered,
+        so nothing in it is prunable.
     :returns: a :class:`ProjectUsage`.
     :raises DataManagerError: when ``root`` is not a directory.
     """
@@ -824,12 +820,12 @@ def is_prunable(artifact: Artifact, *, root: Any,
                 group: Sequence[Artifact] = ()) -> str:
     """Return ``""`` when ``artifact`` may be pruned, else the reason to keep.
 
-    An empty string is the *only* value that means "delete this". Every
-    failure mode — including one this function did not anticipate — produces
-    a sentence, which is the direction a delete predicate must fail in.
+    An empty string is the *only* value that means "delete this". Every failure
+    mode, including an unanticipated one, produces a sentence, so the artifact
+    is kept.
 
-    :param artifact: a registered artifact. Something the registry has never
-        heard of cannot be passed here at all, which is the point.
+    :param artifact: a registered artifact. An unregistered path cannot be
+        passed here.
     :param root: the project root it must live inside.
     :param registry: the registry, for checking that its inputs survive.
     :param group: every artifact registered at the same path. A path is
@@ -863,9 +859,9 @@ class PruneCandidate:
     :param artifact_ids: every registry row at this path.
     :param size_bytes: what deleting it frees, measured now.
     :param n_files: files it holds.
-    :param inventory_digest: the content fingerprint the plan was made
-        against. :func:`prune` re-computes it and refuses on any difference,
-        which is how "the tree changed under us" stops a delete.
+    :param inventory_digest: the content fingerprint the plan was made against.
+        :func:`prune` re-computes it and refuses on any difference, so a change
+        to the tree since planning stops the delete.
     :param sample_files: up to twenty paths, for showing a user what this is.
     :param downstream: artifact ids derived from this one — results that
         would no longer be reproducible from what is left.
@@ -976,7 +972,7 @@ def plan_prune(root: Any, *,
                kinds: Optional[Sequence[str]] = None,
                usage: Optional[ProjectUsage] = None,
                paths: Optional[Sequence[str]] = None) -> PrunePlan:
-    """Work out what could be deleted, and prove it before deleting anything.
+    """Plan which registered artifacts can be deleted; nothing is deleted.
 
     Every registered artifact in the project is put through
     :func:`is_prunable`. What passes becomes a candidate; what does not
@@ -988,9 +984,9 @@ def plan_prune(root: Any, *,
     made this" is information, but the answer for them is always keep.
 
     :param root: the project root.
-    :param registry: an open registry; opened from ``root`` when omitted.
-        A project with no registry produces an empty plan, which is correct:
-        nothing there has known provenance.
+    :param registry: an open registry; opened from ``root`` when omitted. A
+        project with no registry produces an empty plan, because nothing there
+        has known provenance.
     :param kinds: kinds to consider. Defaults to
         :data:`DEFAULT_PRUNABLE_KINDS`. Naming a :data:`PROTECTED_KINDS`
         member opts it in — it still has to pass every safety rule. Naming an
@@ -1261,7 +1257,7 @@ def _mark_artifacts(registry: Registry, artifact_ids: Sequence[str],
 
 @dataclass(frozen=True)
 class PruneResult:
-    """What a prune actually did.
+    """Record of a completed prune.
 
     :param root: the project.
     :param removed_paths: the artifact paths deleted, in plan order.
@@ -1291,7 +1287,7 @@ def prune(plan: PrunePlan, *, confirm: str,
           forget_rows: bool = False) -> PruneResult:
     """Carry out a plan. Irreversible, and gated on the plan being unchanged.
 
-    The order is the safety story:
+    The steps run in this order:
 
     1. the confirmation must equal :attr:`PrunePlan.token`, a digest over the
        plan's exact paths and byte total, so a token cannot authorise a
@@ -1305,11 +1301,11 @@ def prune(plan: PrunePlan, *, confirm: str,
     4. only then are the files removed;
     5. every path is checked to be gone afterwards.
 
-    Step 3 commits before step 4 deliberately. A crash between them leaves
-    the registry saying an artifact was pruned while its files are still
-    there — recoverable by running the prune again. The other order leaves
-    files deleted that the registry still describes as present, which is the
-    state nobody can recover from.
+    Step 3 commits before step 4 deliberately. A crash between them leaves the
+    registry saying an artifact was pruned while its files are still there —
+    recoverable by running the prune again. The other order leaves files
+    deleted that the registry still describes as present, which cannot be
+    recovered from.
 
     :param plan: from :func:`plan_prune`.
     :param confirm: :attr:`PrunePlan.token`.
@@ -1461,7 +1457,7 @@ class ArchivePlan:
 
 @dataclass(frozen=True)
 class ArchiveResult:
-    """What an archive actually did.
+    """Record of a completed archive.
 
     :param root: the origin.
     :param destination: where it went.
@@ -1503,12 +1499,12 @@ def plan_archive(root: Any, destination: Any, *,
                  registry: Optional[Registry] = None,
                  paths: Optional[Sequence[str]] = None,
                  usage: Optional[ProjectUsage] = None) -> ArchivePlan:
-    """Work out what moving a project — or part of one — would move.
+    """Plan which entries archiving a project, or part of one, would move.
 
     Entries are top-level: a whole project archive moves every child of the
-    root, and a subset archive moves the paths named. Moving a *file out of*
-    a registered folder is not offered, because half a ``merged/`` in two
-    places is worse than either place having all of it.
+    root, and a subset archive moves the paths named. Moving a *file out of* a
+    registered folder is not offered, so a registered folder is never split
+    between two places.
 
     :param root: the project root.
     :param destination: the folder to move into. It must not already hold an

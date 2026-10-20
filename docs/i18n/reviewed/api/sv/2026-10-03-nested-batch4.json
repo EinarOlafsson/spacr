@@ -209,7 +209,9 @@
       "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
       "context": "Retranslate a dialog's tree the first time it is shown.",
       "translation": "Översätter om en dialogs träd första gången den visas.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the Preferences open/close change (6be4c1d70, 4c776c10d) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo._load_import_variant._done#0",
@@ -369,7 +371,9 @@
       "source_sha256": "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa",
       "context": "The two halves fail separately on purpose. A listing that fails means the file is not a database and there is nothing to offer; a READ that fails, on one table of a database whose other tables listed fine, must still leave the picker populated -- that is how the user reaches the table that does read. Inline, that fell out of the order the old code ran in; here it has to be said.",
       "translation": "De två halvorna misslyckas separat med avsikt. En listning som misslyckas betyder att filen inte är en databas och att det inte finns något att erbjuda; en LÄSNING som misslyckas, på en tabell i en databas vars övriga tabeller listades fint, måste ändå lämna väljaren fylld -- det är så användaren når den tabell som faktiskt går att läsa. Inline följde det av ordningen som den gamla koden körde i; här måste det sägas.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job#0",
@@ -577,7 +581,9 @@
       "source_sha256": "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1",
       "context": "A whole number comes back as an int. The CSV cannot distinguish a count from a measurement, and reading everything as float renders \"on 12517.0 objects\" in a tooltip -- a count with a decimal point reads as a rounding, which it is not.",
       "translation": "ETT HELTAL KOMMER TILLBAKA SOM int. CSV-filen kan inte skilja ett antal från ett mätvärde, och att läsa allt som float visar \"on 12517.0 objects\" i ett verktygstips -- ett antal med decimalpunkt ser ut som en avrundning, vilket det inte är.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.scorecard.score_holdout.weighted#0",
@@ -625,7 +631,9 @@
       "source_sha256": "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b",
       "context": "``index`` is the strictest candidate yielding ``achieved``. The plateau reaches down to just above the last candidate that yielded MORE than ``achieved``, found by a second bisection on the same monotone statistic.",
       "translation": "``index`` är den striktaste kandidat som ger ``achieved``. Platån sträcker sig ned till strax ovanför den sista kandidat som gav MER än ``achieved``, hittad med en andra bisektion på samma monotona statistik.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing_qc.derive_threshold.stat#0",

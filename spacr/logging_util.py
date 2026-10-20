@@ -371,7 +371,7 @@ def normalise_levels(levels: Iterable[int]) -> frozenset:
 
 def clamp_console_to_file(console: Iterable[int],
                           file_levels: Iterable[int]) -> frozenset:
-    """Console levels are a subset of what the file records.
+    """Return the requested console levels that the log file also records.
 
     A level the log file discards cannot reach the console, because the
     console is fed from the same records. Showing a user a line they will
@@ -616,8 +616,8 @@ def setup_logging(level: Optional[int] = None,
         :data:`logging.INFO`.
     :param log_file: override for where the file lands. Defaults to
         :func:`log_path`.
-    :param stream: also attach a StreamHandler to stderr — handy for
-        headless / CI runs where the log file isn't inspected.
+    :param stream: also attach a StreamHandler to stderr, for headless
+        and CI runs in which the log file is not inspected.
     :param quiet: iterable of logger names to pin at WARNING. Defaults
         to :data:`QUIET_LOGGERS`.
     :returns: the resolved log-file path.
@@ -801,7 +801,7 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def enable_debug() -> None:
-    """Crank every ``spacr.*`` logger to DEBUG.
+    """Set the ``spacr`` logger to DEBUG, which ``spacr.*`` loggers inherit.
 
     Useful when debugging interactively:
 
@@ -1139,7 +1139,7 @@ def time_module(module, exclude: tuple = ()) -> int:
     """Wrap every public function in ``module`` with :func:`timed`.
 
     Idempotent — functions that already carry ``__spacr_timed__`` are
-    skipped. Handy during ad-hoc profiling; not recommended for
+    skipped. Intended for ad-hoc profiling; not recommended for
     production imports because it slows every call by ~1 µs.
 
     Example::

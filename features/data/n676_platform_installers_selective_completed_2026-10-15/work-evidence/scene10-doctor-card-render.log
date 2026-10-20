@@ -1,0 +1,5 @@
+Command: ["/home/carruthers/anaconda3/envs/spacr/bin/python", "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py", "--verification", "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/desktop-download-guidance-r3/captures/desktop_public_1513", "--destination", "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/scene10-doctor-command-reference", "--only", "05_doctor"]
+Renderer SHA256: ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c
+1 explicit command references; no reconstructed program output
+
+Terminal exit status: 0

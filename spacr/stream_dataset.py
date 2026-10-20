@@ -121,16 +121,15 @@ def selection_from_objects(frame: pd.DataFrame, *, object_array: str = "cell",
     Raises
     ------
     ValueError
-        If the table is empty or contains no usable object identifier, and
-        either nobody was asked or the answer did not help.
+        If the table is empty, or if it contains no usable object identifier
+        and either ``ask`` is None or ``ask`` returns no answer.
 
     Notes
     -----
-    ``ask`` is called only when the table names no object, and is INJECTED
-    rather than imported so this module never depends on Qt. A caller with
-    nobody in front of it passes none and gets exactly the error it always
-    got, which makes "never prompt in a batch run" structural rather than a
-    rule each call site has to remember. It is called
+    ``ask`` is called only when the table names no object, and is passed in
+    rather than imported so this module never depends on Qt. A batch caller
+    passes no ``ask`` and gets the ``ValueError`` without any prompt. It is
+    called
     ``ask(tried=..., object_array=...)`` and returns
     ``((database, table, column), why)`` -- see
     :func:`spacr.qt.ask_for_the_path.ask_for_a_database_column`.

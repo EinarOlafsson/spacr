@@ -1,0 +1,31 @@
+{
+  "scope": "N702 CLI/batch module and backend kind validation before and after overrides",
+  "dependencies": [
+    "858ca25134b CLI/batch lifecycle",
+    "d2f209d389b parent kind/export helpers"
+  ],
+  "owning": {
+    "passed": 427,
+    "seconds": 8.4,
+    "exit": 0,
+    "warnings": 1,
+    "new_kind_cases": 10
+  },
+  "claims": [
+    "Migrated imported metadata checked against actual consumer/backend before edits",
+    "Changed backend rechecks every remaining pin after explicit pin invalidation",
+    "Wrong imported kind cannot be repaired by replacing that model during overrides",
+    "Failed backend edits leave original pinned payload unchanged"
+  ],
+  "limits": [
+    "Supported module-kind registry only; unknown consumers remain unsupported",
+    "Automatic export capture and GUI lifecycle integrated separately",
+    "No network/inference/GPU/full CI"
+  ],
+  "sha256": {
+    "spacr/cli.py": "a90b85d2028d6abdc056fb512cdaf7e8743981d6922e510a2cc2f57ad18c97a6",
+    "tests/test_n702_cli_and_batch_pin_integrity.py": "84acb60ea488465e1c5802b37999c617684c230660c0ed2f6699bcb1b6a462be",
+    "/mnt/wd4tb/scratch/n702-cli-pins-20261014/kind-owning.log": "f6abda1ef9786e95eab6693e3e56cfb6dc634a4c10812d62d30f4a0901e3a3c5",
+    "/mnt/wd4tb/scratch/n702-cli-pins-20261014/kind-owning.xml": "dfe43a4622ced21b85130492eb7eaef89cecca792e146a08211c090c28062080"
+  }
+}

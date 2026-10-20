@@ -1,0 +1,13 @@
+{
+  "mode": "PLAN ONLY; execution disabled",
+  "driver": "read-only-preflight.py",
+  "driver_sha256": "1a2b31488c50f476773dbc055aca2fd20e1101a81aa190ceb70559712e2025ca",
+  "config": "preflight-config.PENDING.json",
+  "config_sha256": "ca1ee0e435fc93482a6f3b4a4bb27d1364d1770cfa1d085f7705d9c43296a3a1",
+  "candidate_source_head": "7690b8dec54cf7cc011461082aa7b4da90ef7407",
+  "execution_condition": "Root reseals actual clean future merged HEAD/source/resources/review/generated/proposal pins, grants run, thenreadytrue. Current actual Root delivery tree differs; currentconfig must not execute.",
+  "normal_context": "Actual Qt/package imports permitted; initial genuine canonical snapshot shared only as real immutable same-process context across nine ordinary reviewed runtime loaders. Fresh original collector verifies actual final source equality. No fake reviewed context or validator fallback.",
+  "records": "90 installed N441 records validated by ordinary source-bound reviewloader+candidate gates.9 external N698 proposal rows use exactloader recordshape/currentcanonical/hash/idempotence/ordinarycontext+semantic+syntax+script gates; proposal is NOT inserted into authoritative reviewpool or catalog. Owner adoption remainsrequired.",
+  "read_only_guards": "No writer/arrival/audit/translation model called. Writers/model entrypoints tripwire. Internetconnect refused, UnixQtIPCallowed. All7155source/tool/review/resource pins plus11generatedcatalogs and10externalproposal files compared before/after. Receipt/log are only intended writes.",
+  "resource": "Background6G commonheavy.lock, blankCUDA/offscreen, CPU1. No producer, modeldecoder, tests or foreigninput/source/catalog mutation."
+}

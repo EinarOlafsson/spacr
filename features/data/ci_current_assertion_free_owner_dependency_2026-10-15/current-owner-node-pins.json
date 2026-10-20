@@ -1,0 +1,24 @@
+{
+  "file_sha256": "ed37dfa47492acc7cd7cdc6c1b6e91df09535c401d8e1e20c736adc38aee43b7",
+  "source": "2192a341c1fe13aad484e863a5acb1f251c3de1a",
+  "nodes": [
+    {
+      "name": "test_a_failing_fetch_shows_the_hint",
+      "line": 210,
+      "assertions": 0,
+      "ast_sha256": "6fbb07da58dd2dd0aae7477976d8e0bfd4d0ba116172d0623c3abaa205b93831"
+    },
+    {
+      "name": "test_an_answer_without_an_allowance_asks_again",
+      "line": 259,
+      "assertions": 0,
+      "ast_sha256": "1ace96d9b35152f9266d9f8581a40a4b2c3327dbe9a78f6af24af5b38e3fffd2"
+    },
+    {
+      "name": "test_a_failed_answer_asks_again",
+      "line": 275,
+      "assertions": 0,
+      "ast_sha256": "33610865d56c76152580fdbf274cff1911f705c6b747b6465106e83ed92d5f80"
+    }
+  ]
+}

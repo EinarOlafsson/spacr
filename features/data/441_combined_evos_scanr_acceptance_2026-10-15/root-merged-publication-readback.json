@@ -1,0 +1,26 @@
+{
+  "kind": "exact post-merge bytes, not a repeated test/collector/audit",
+  "tested_source": "8fa5d1bb8ced57df64f9f3dab1759d512c4a2556",
+  "actual_merged_head": "083d21924284249cf1ad08b5bb1ff57ca9bbc1c2",
+  "all_protected_files_equal_tested_source": true,
+  "sha256": {
+    "spacr/regex_infer.py": "24a93ebb58b0b38d491f61bd9d01c3254ef316b3cd10a9bb803744bee8ab6ee8",
+    "spacr/utils.py": "0df8f3d85b62758ca8de7d5a6724c61c98df3f7673435b973d53057f13739826",
+    "spacr/io.py": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+    "spacr/convert.py": "d70cc4f94f5bf1132cf72d816d3428c5afd12367f6393c42e452f71d7e46d22c",
+    "tests/test_a_metadata_type_for_every_common_microscope.py": "4444ef556475a1cc92457e0ee6dd72c63832717f26b13fbe998097558d041dcf",
+    "tests/test_evos_documented_optional_z_441.py": "0b5fa5542b4aafbb26e777fbc7a59cffffc882cb2627a71862553da16d1a8db1",
+    "spacr/qt/i18n_catalogs/en.py": "9f9f2a07ac8ce7859d440dfc6103c12eb97936d0ab6fbd3ab83b4fbc25e8873b",
+    "spacr/qt/i18n_catalogs/sv.py": "d9e4dc502400b3aafd5a40d6a85f79bf9f3e7019435f83012c6d8f65c63476c2",
+    "spacr/qt/i18n_catalogs/de.py": "e93d646cd96de99b11afe182c8d134888228d452ba7079a29a2b81d431e52d8d",
+    "spacr/qt/i18n_catalogs/es.py": "c7492066c273d6d0ee59e70147caed5384195de190ad3167b3da88ce985e1b0f",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "52ce1a2465222baf463c965a4dbe1d582debc2b443d11c064efe7751f4e1879b",
+    "spacr/qt/i18n_catalogs/pt.py": "4f52e2c4a055cdf02e166b8f8e9a52dcd3f4c3694c28dce1602eac497cd3b340",
+    "spacr/qt/i18n_catalogs/hi.py": "2f790c1afa30b3428917b12152802e37325098ffa2f0ce25cc8a4a992f4e83af",
+    "spacr/qt/i18n_catalogs/ko.py": "27505e17c6368005329a9b1fe3f0172e33b1db3cca65a3b72af17e7c477c9005",
+    "spacr/qt/i18n_catalogs/is.py": "8efa9aadc68d090ce36232619ccbd9772fe6a8453526ad9a9ec2c39e6b7846d3",
+    "spacr/qt/i18n_catalogs/fr.py": "ccf0e09897d3444b4aab17c5307c78f2427092a25ca3bb4bcd4cf7b140f35332",
+    "tests/data/release_contracts/runtime_caption_arrivals_2026_10_08.json.gz": "ad1c34f80eaf4111536012178811d9196de8dad85416451f154d67741ed52f26",
+    "spacr/qt/help_api_index.py": "e90f8d07f8d918a50d849b13dc67247da1601330f9f0ddb1cb6f5be78f07ec19"
+  }
+}

@@ -63,7 +63,7 @@ def test_mask_uses_full_field_float_psf_before_padding_and_normalizing(tmp_path,
         np.testing.assert_allclose(result['data'], expected[indices], atol=2e-6)
         fields = [str(n).removesuffix('.npy') for n in result['filenames']]
     validate_psf_resume(settings, tmp_path, [0, 1], expected_fields=fields)
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     assert record['complete'] and len(record['archives']) == 1
     assert record['configuration']['measurement_intensity_source'] == 'original persisted intensities'
     assert record['configuration']['processing']['operation'] == operation
@@ -148,7 +148,7 @@ def test_cancel_leaves_old_archives_intact_and_provenance_incomplete(tmp_path):
     with installed_token(token), pytest.raises(PipelineCancelled):
         _run(stack, settings)
     assert {p.name: p.read_bytes() for p in (tmp_path / 'masks').glob('*.npz')} == old
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     assert not record['complete']
     assert not list(tmp_path.glob('.spacr_v1_npz_*'))
 
@@ -214,7 +214,7 @@ def test_v2_model_sees_processed_channels_while_stored_intensities_stay_raw(tmp_
     stored = np.load(stack.path)
     np.testing.assert_array_equal(stored[..., :2], _raw())
     assert stored[..., -1].max() == 7
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     assert record['complete']
     assert record['configuration']['channels'] == [1, 0]
 
@@ -231,7 +231,7 @@ def test_run_v2_captures_psf_from_pipeline_settings(tmp_path, monkeypatch):
     result = run_v2(tmp_path, channels=(0,), channels_for_cellpose=(0,),
                     postprocess_settings=settings)
     np.testing.assert_array_equal(np.load(result['stacks'][0].path)[..., 0], raw)
-    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text())
+    record = json.loads((tmp_path / 'psf/segmentation_application.json').read_text(encoding="utf-8"))
     assert record['complete'] and record['configuration']['pipeline_style'] == 'v2'
 
 

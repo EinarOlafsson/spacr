@@ -36,7 +36,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "परिवर्तन इवेंट; यह पहले बेस क्लास को जाता है, और केवल ``ApplicationPaletteChange`` पर कार्रवाई की जाती है।"
+      "translation": "परिवर्तन इवेंट; यह पहले बेस क्लास को जाता है, और केवल ``ApplicationPaletteChange`` पर कार्रवाई की जाती है।",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
@@ -52,7 +54,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "इवेंट; आकार-परिवर्तन, विंडो-स्थिति, छिपाना, दिखाना, खिसकाना और डिस्प्ले-परिवर्तन प्रकारों पर कार्रवाई की जाती है, और हर इवेंट फिर भी बेस-क्लास फ़िल्टर को आगे भेजा जाता है।"
+      "translation": "इवेंट; आकार-परिवर्तन, विंडो-स्थिति, छिपाना, दिखाना, खिसकाना और डिस्प्ले-परिवर्तन प्रकारों पर कार्रवाई की जाती है, और हर इवेंट फिर भी बेस-क्लास फ़िल्टर को आगे भेजा जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",
@@ -354,7 +358,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "जो बज रहा है और निष्क्रिय साँस, इन दोनों में से जो अधिक ऊँचा है, ताकि कोई शांत अंश तस्वीर को कभी उससे नीचे न ले जाए जो मौन ने बनाई होती। यही वह नियम है जो \"मौन में यह सुंदर ढंग से निष्क्रिय रहता है\" और \"यह संगीत पर प्रतिक्रिया देता है\" को एक ही कोड पथ बनाता है।"
+      "translation": "जो बज रहा है और निष्क्रिय साँस, इन दोनों में से जो अधिक ऊँचा है, ताकि कोई शांत अंश तस्वीर को कभी उससे नीचे न ले जाए जो मौन ने बनाई होती। यही वह नियम है जो \"मौन में यह सुंदर ढंग से निष्क्रिय रहता है\" और \"यह संगीत पर प्रतिक्रिया देता है\" को एक ही कोड पथ बनाता है।",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",
@@ -998,7 +1005,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "वर्कस्पेस के साथ सहेजी गई मैपिंग; इसकी ``picture_settings``, ``widgets``, ``picture_mode`` और ``coefficient`` प्रविष्टियाँ मौजूद होने पर प्रत्येक लागू की जाती हैं, और dict न होने पर कुछ भी लागू नहीं होता।"
+      "translation": "वर्कस्पेस के साथ सहेजी गई मैपिंग; इसकी ``picture_settings``, ``widgets``, ``picture_mode`` और ``coefficient`` प्रविष्टियाँ मौजूद होने पर प्रत्येक लागू की जाती हैं, और dict न होने पर कुछ भी लागू नहीं होता।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",
@@ -1400,7 +1410,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` स्वचालित आधा हिस्सा। कुछ विजेट फ़ोकस विजेट होते हैं (लाइव प्रीव्यू, फ़िगर पैनल): जब तक इनमें से कोई भी दिखाई दे रहा है, लक्ष्य पेन सिमट जाते हैं (कंसोल, System, बटन, सेटिंग्स कॉलम), और जब अंतिम फ़ोकस विजेट हटता है तो वे लौट आते हैं। यह कभी उपयोगकर्ता से नहीं लड़ता: जिस लक्ष्य पेन को उपयोगकर्ता हाथ से फैलाता है, वह खुला पिन हो जाता है और व्यू समाप्त होने तक अकेला छोड़ दिया जाता है। व्यू क्या है, इसके लिए क्लास देखें।"
+      "translation": ":class:`FocusCollapse` स्वचालित आधा हिस्सा। कुछ विजेट फ़ोकस विजेट होते हैं (लाइव प्रीव्यू, फ़िगर पैनल): जब तक इनमें से कोई भी दिखाई दे रहा है, लक्ष्य पेन सिमट जाते हैं (कंसोल, System, बटन, सेटिंग्स कॉलम), और जब अंतिम फ़ोकस विजेट हटता है तो वे लौट आते हैं। यह कभी उपयोगकर्ता से नहीं लड़ता: जिस लक्ष्य पेन को उपयोगकर्ता हाथ से फैलाता है, वह खुला पिन हो जाता है और व्यू समाप्त होने तक अकेला छोड़ दिया जाता है। व्यू क्या है, इसके लिए क्लास देखें।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
@@ -1792,7 +1804,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
       "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
-      "translation": "विंडो का आकार बदलना खींचना नहीं है -- कोई हैंडल पकड़ा नहीं गया है -- इसलिए यहाँ फिर से फ़िट करना किसी से नहीं लड़ता।"
+      "translation": "विंडो का आकार बदलना खींचना नहीं है -- कोई हैंडल पकड़ा नहीं गया है -- इसलिए यहाँ फिर से फ़िट करना किसी से नहीं लड़ता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the resize event.",
@@ -1890,7 +1904,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
-      "translation": "फ़ोकस विजेटों पर नज़र रखी जाती है (:meth:`watch`); जब तक उनमें से कोई भी दिखाया जा रहा है, लक्ष्य पेन (:meth:`target`) सिमटे रहते हैं, और जब अंतिम फ़ोकस विजेट छिपता है तो जिन लक्ष्यों को इसने सिमटाया था वे फिर से खोले जाते हैं। जो लक्ष्य पहले से सिमटा हुआ था -- उपयोगकर्ता द्वारा, या पिछले सत्र से याद रखा गया -- उसे दोनों दिशाओं में ठीक वैसा ही छोड़ दिया जाता है।"
+      "translation": "फ़ोकस विजेटों पर नज़र रखी जाती है (:meth:`watch`); जब तक उनमें से कोई भी दिखाया जा रहा है, लक्ष्य पेन (:meth:`target`) सिमटे रहते हैं, और जब अंतिम फ़ोकस विजेट छिपता है तो जिन लक्ष्यों को इसने सिमटाया था वे फिर से खोले जाते हैं। जो लक्ष्य पहले से सिमटा हुआ था -- उपयोगकर्ता द्वारा, या पिछले सत्र से याद रखा गया -- उसे दोनों दिशाओं में ठीक वैसा ही छोड़ दिया जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
@@ -1898,7 +1914,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NEVER FIGHTS THE USER. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
-      "translation": "कभी उपयोगकर्ता से नहीं लड़ता। जिस लक्ष्य को उपयोगकर्ता हाथ से खोलता है (उसके शीर्षक या हैंडल पर क्लिक करके, या उसे खींचकर खोलकर), वह पिन हो जाता है: व्यू समाप्त होने तक यहाँ कुछ भी उसे फिर से नहीं सिमटाता। जिस लक्ष्य को उपयोगकर्ता हाथ से सिमटाता है, वह भी उसका अपना है, और फ़ोकस जाने पर उसे फिर से नहीं खोला जाता।"
+      "translation": "कभी उपयोगकर्ता से नहीं लड़ता। जिस लक्ष्य को उपयोगकर्ता हाथ से खोलता है (उसके शीर्षक या हैंडल पर क्लिक करके, या उसे खींचकर खोलकर), वह पिन हो जाता है: व्यू समाप्त होने तक यहाँ कुछ भी उसे फिर से नहीं सिमटाता। जिस लक्ष्य को उपयोगकर्ता हाथ से सिमटाता है, वह भी उसका अपना है, और फ़ोकस जाने पर उसे फिर से नहीं खोला जाता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
@@ -1906,7 +1924,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A VIEW is one visit to one screen: it begins when the screen is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another screen (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the screen with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
-      "translation": "एक व्यू किसी एक पेज की एक यात्रा है: यह तब शुरू होता है जब पेज दिखाया जाता है (:meth:`begin_view`, उसके ``showEvent`` से) और तब समाप्त होता है जब वह इसलिए छिपाया जाता है क्योंकि उपयोगकर्ता किसी दूसरे पेज पर गया (:meth:`end_view`, उसके ``hideEvent`` से)। विंडो को छोटा करने से यह समाप्त नहीं होता -- स्वामी केवल गैर-स्वतःस्फूर्त इवेंट आगे भेजता है। पिन व्यू भर टिकते हैं: लाइव प्रीव्यू अभी भी खुला रहते हुए पेज पर लौटने से आसपास के हिस्से फिर से सिमट जाते हैं, जो उस लेआउट पर नए सिरे से पहुँचने पर भी होता।"
+      "translation": "एक व्यू किसी एक पेज की एक यात्रा है: यह तब शुरू होता है जब पेज दिखाया जाता है (:meth:`begin_view`, उसके ``showEvent`` से) और तब समाप्त होता है जब वह इसलिए छिपाया जाता है क्योंकि उपयोगकर्ता किसी दूसरे पेज पर गया (:meth:`end_view`, उसके ``hideEvent`` से)। विंडो को छोटा करने से यह समाप्त नहीं होता -- स्वामी केवल गैर-स्वतःस्फूर्त इवेंट आगे भेजता है। पिन व्यू भर टिकते हैं: लाइव प्रीव्यू अभी भी खुला रहते हुए पेज पर लौटने से आसपास के हिस्से फिर से सिमट जाते हैं, जो उस लेआउट पर नए सिरे से पहुँचने पर भी होता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "owner, normally the screen.",
@@ -1938,7 +1958,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The user left the screen: their pins for this view are spent.",
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
-      "translation": "उपयोगकर्ता ने पेज छोड़ दिया: इस व्यू के लिए उसके पिन समाप्त हो गए।"
+      "translation": "उपयोगकर्ता ने पेज छोड़ दिया: इस व्यू के लिए उसके पिन समाप्त हो गए।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A focus widget was shown or hidden.",
@@ -3088,7 +3110,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "dict saved by :meth:`workspace_state`; only its ``sources`` list is read, and anything that is not a dict, or has no sources, returns False.",
       "source_sha256": "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df",
-      "translation": ":meth:`workspace_state` द्वारा सहेजा गया dict; इसकी केवल ``sources`` सूची पढ़ी जाती है, और जो कुछ dict नहीं है या जिसमें कोई स्रोत नहीं है, वह False लौटाता है।"
+      "translation": ":meth:`workspace_state` द्वारा सहेजा गया dict; इसकी केवल ``sources`` सूची पढ़ी जाती है, और जो कुछ dict नहीं है या जिसमें कोई स्रोत नहीं है, वह False लौटाता है।",
+      "retired": true,
+      "retired_reason": "N180 explicit carried database restoration changed apply_workspace_state parameters in2164d07de80+7c32cd3279f; superseded by2026-10-15-n180-database-restore-home-b.json. Original source/context/target text retained."
     },
     {
       "context": "the source's path or its chip label; nothing is removed when it matches neither or the set is already at its minimum size.",
@@ -3368,7 +3392,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SIZE IS FIXED PER SCALE, NOT PER ROW STATE. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
       "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
-      "translation": "आकार प्रति स्केल निश्चित है, प्रति पंक्ति स्थिति नहीं। पुराना डॉक होवर पर आइकन को बड़ा और छोटा करता था, जिससे पॉइंटर के नीचे का पूरा कॉलम फिर से लेआउट होता था; :data:`ICON_PX` का एक ही संख्या होना यही रोकता है। इसे फिर भी इंटरफ़ेस स्केल का अनुसरण करना होता है, इसलिए आधार प्रत्येक पंक्ति पर दर्ज किया जाता है और वहीं से फिर से निकाला जाता है -- यह कभी भी उस आकार से फिर से परिकलित क्यों नहीं किया जाता जो पंक्ति पहले से पहने हुए है, इसके लिए :func:`spacr.qt.preferences._set_scaled_icon_size` देखें।"
+      "translation": "आकार प्रति स्केल निश्चित है, प्रति पंक्ति स्थिति नहीं। पुराना डॉक होवर पर आइकन को बड़ा और छोटा करता था, जिससे पॉइंटर के नीचे का पूरा कॉलम फिर से लेआउट होता था; :data:`ICON_PX` का एक ही संख्या होना यही रोकता है। इसे फिर भी इंटरफ़ेस स्केल का अनुसरण करना होता है, इसलिए आधार प्रत्येक पंक्ति पर दर्ज किया जाता है और वहीं से फिर से निकाला जाता है -- यह कभी भी उस आकार से फिर से परिकलित क्यों नहीं किया जाता जो पंक्ति पहले से पहने हुए है, इसके लिए :func:`spacr.qt.preferences._set_scaled_icon_size` देखें।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the category name.",
@@ -3408,7 +3434,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
       "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
-      "translation": "फिर भी यह **डिफ़ॉल्ट नहीं** है, और यह एक निर्णय है, कोई चूक नहीं। पाँचवाँ पैरामीटर हिल ढलान के साथ अदला-बदली करता है — कई (ढलान, असममिति) जोड़े लगभग एक ही वक्र बनाते हैं — इसलिए एक प्लेट पर वास्तव में मौजूद आठ या दस सांद्रताओं पर इसकी पहचान कमज़ोर होती है, और इससे बनने वाला प्रोफ़ाइल अंतराल उसी अनुपात में चौड़ा होता है। इसलिए मॉड्यूल इसे प्रस्तुत करता है, इसे **4PL समाधान से** फ़िट करता है ताकि असममित खोज सममित उत्तर से शुरू हो, और जोड़े गए एक पैरामीटर का अतिरिक्त-वर्ग-योग F परीक्षण :attr:`DoseResponseResult.asymmetry_p` में रिपोर्ट करता है ताकि पाठक देख सके कि असममिति अपनी क़ीमत के लायक़ थी या नहीं।"
+      "translation": "फिर भी यह **डिफ़ॉल्ट नहीं** है, और यह एक निर्णय है, कोई चूक नहीं। पाँचवाँ पैरामीटर हिल ढलान के साथ अदला-बदली करता है — कई (ढलान, असममिति) जोड़े लगभग एक ही वक्र बनाते हैं — इसलिए एक प्लेट पर वास्तव में मौजूद आठ या दस सांद्रताओं पर इसकी पहचान कमज़ोर होती है, और इससे बनने वाला प्रोफ़ाइल अंतराल उसी अनुपात में चौड़ा होता है। इसलिए मॉड्यूल इसे प्रस्तुत करता है, इसे **4PL समाधान से** फ़िट करता है ताकि असममित खोज सममित उत्तर से शुरू हो, और जोड़े गए एक पैरामीटर का अतिरिक्त-वर्ग-योग F परीक्षण :attr:`DoseResponseResult.asymmetry_p` में रिपोर्ट करता है ताकि पाठक देख सके कि असममिति अपनी क़ीमत के लायक़ थी या नहीं।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The parameterisation is the EC50-preserving one: ``log10_ec50`` means the same thing under both models, so every rule in this file — boundedness, profiling, the back-transformed reporting — reads one number and not two. :func:`five_parameter_logistic` explains why that needs a constant in the denominator and what goes wrong without it.",
@@ -3424,7 +3452,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-      "translation": "वह ``(elev, azim, roll)`` जिससे matplotlib यह फ़्रेम बनाता है।"
+      "translation": "वह ``(elev, azim, roll)`` जिससे matplotlib यह फ़्रेम बनाता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
@@ -3432,7 +3463,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
-      "translation": "``elev`` को ``[-90, 90]`` के भीतर रखा जाता है ताकि ऊर्ध्वाधर दिशा कभी उलटे नहीं; तब roll दृष्टि-रेखा के चारों ओर फ़्रेम का जो भी घुमाव है उसे वहन करता है। सीधे नीचे (या ऊपर) देखने पर azimuth मुक्त होता है, इसलिए उसे ऐसे चुना जाता है कि roll शून्य हो।"
+      "translation": "``elev`` को ``[-90, 90]`` के भीतर रखा जाता है ताकि ऊर्ध्वाधर दिशा कभी उलटे नहीं; तब roll दृष्टि-रेखा के चारों ओर फ़्रेम का जो भी घुमाव है उसे वहन करता है। सीधे नीचे (या ऊपर) देखने पर azimuth मुक्त होता है, इसलिए उसे ऐसे चुना जाता है कि roll शून्य हो।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the screen's right-pointing axis.",
@@ -4026,7 +4060,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IS NEW HERE IS THE TIE. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
-      "translation": "यहाँ जो नया है वह जुड़ाव है। एक ही क्षेत्र के दो व्यू को साथ-साथ रखना तभी सार्थक है जब वे संरेखित रहें: किसी फ़ील्ड की उसके संवर्धित रूप से तुलना करने वाला क्यूरेटर उनके बीच अंतर खोज रहा है, और दोनों कहाँ इंगित कर रहे हैं, इसमें अंतर ही वह एकमात्र अंतर है जो जानकारी नहीं है। :meth:`ZoomableImageView.link_to` व्यू के एक समूह को एक ही ज़ूम और एक ही स्क्रॉल स्थिति साझा कराता है, इसलिए उनमें से किसी को भी ज़ूम या पैन करने पर सभी हिलते हैं।"
+      "translation": "यहाँ जो नया है वह जुड़ाव है। एक ही क्षेत्र के दो व्यू को साथ-साथ रखना तभी सार्थक है जब वे संरेखित रहें: किसी फ़ील्ड की उसके संवर्धित रूप से तुलना करने वाला क्यूरेटर उनके बीच अंतर खोज रहा है, और दोनों कहाँ इंगित कर रहे हैं, इसमें अंतर ही वह एकमात्र अंतर है जो जानकारी नहीं है। :meth:`ZoomableImageView.link_to` व्यू के एक समूह को एक ही ज़ूम और एक ही स्क्रॉल स्थिति साझा कराता है, इसलिए उनमें से किसी को भी ज़ूम या पैन करने पर सभी हिलते हैं।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The tie is on the VIEW and not on the window, because what has to match is the transform and the two scroll bars -- the things a view owns. Views in a group must show images of the same size for the tie to mean anything; the compare window builds both of its pictures from one region, so they do.",
@@ -4490,7 +4526,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
-      "translation": "कोई जाँच विफल न होने पर ``0``, और किसी के विफल होने पर ``1``। यहाँ विफलता एनोटेशन के बारे में कथन है, इस प्रोग्राम के बारे में नहीं: इसका अर्थ है कि डेटा वह समर्थन नहीं करता जो timeflows योजना उसके बारे में मानकर चलती है।"
+      "translation": "कोई जाँच विफल न होने पर ``0``, और किसी के विफल होने पर ``1``। यहाँ विफलता एनोटेशन के बारे में कथन है, इस प्रोग्राम के बारे में नहीं: इसका अर्थ है कि डेटा वह समर्थन नहीं करता जो timeflows योजना उसके बारे में मानकर चलती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "List every label that disappears and comes back, and judge each one.",
@@ -4498,7 +4536,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "List every label that disappears and comes back, and judge each one.",
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
-      "translation": "हर उस लेबल की सूची बनाएँ जो गायब होकर लौट आता है, और हर एक का मूल्यांकन करें।"
+      "translation": "हर उस लेबल की सूची बनाएँ जो गायब होकर लौट आता है, और हर एक का मूल्यांकन करें।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
@@ -4580,7 +4620,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
-      "translation": "इसे GUI थ्रेड पर कभी भी कॉल न करें। यह एक सॉकेट खोलता है। Home का News पैनल इसे उसी :class:`_UpdateWorker` के माध्यम से माँगता है जिस पर मैनुअल अपडेट जाँच चलती है, पेज दिखाए जाने के बाद।"
+      "translation": "इसे GUI थ्रेड पर कभी भी कॉल न करें। यह एक सॉकेट खोलता है। Home का News पैनल इसे उसी :class:`_UpdateWorker` के माध्यम से माँगता है जिस पर मैनुअल अपडेट जाँच चलती है, पेज दिखाए जाने के बाद।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
@@ -4660,11 +4702,13 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Upgrade this interpreter, optionally to the exact version offered.",
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
-      "translation": "इस इंटरप्रेटर को अपग्रेड करें, वैकल्पिक रूप से ठीक उसी संस्करण पर जो प्रस्तावित है।"
+      "translation": "इस इंटरप्रेटर को अपग्रेड करें, वैकल्पिक रूप से ठीक उसी संस्करण पर जो प्रस्तावित है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "allow prerelease packages.",
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
@@ -4672,7 +4716,7 @@
     },
     {
       "context": "explicit version selected by the update check.",
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
@@ -4718,7 +4762,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
-      "translation": "``True`` जब मास्क फ़ोल्डर अनुपस्थित हो या किसी अपेक्षित स्टैक फ़ाइल नाम का पूर्ण मास्क न हो। असंबंधित मास्क किसी अनुपस्थित फ़ील्ड का स्थान नहीं ले सकते और पूर्ण फ़ील्डों को फिर से संसाधित करने के लिए बाध्य नहीं करते।"
+      "translation": "``True`` जब मास्क फ़ोल्डर अनुपस्थित हो या किसी अपेक्षित स्टैक फ़ाइल नाम का पूर्ण मास्क न हो। असंबंधित मास्क किसी अनुपस्थित फ़ील्ड का स्थान नहीं ले सकते और पूर्ण फ़ील्डों को फिर से संसाधित करने के लिए बाध्य नहीं करते।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'lasso'`` or ``'ridge'``.",

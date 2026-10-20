@@ -1,0 +1,36 @@
+{
+  "scope": "Exact F470/F536 backend caption extraction owner requests only",
+  "before": {
+    "passed": 15,
+    "failed": 2,
+    "seconds": 1.26
+  },
+  "after": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1.05
+  },
+  "source_owners": [
+    {
+      "module": "object_classifier.py",
+      "function": "_annotated_real_crops",
+      "inspected_source_sha256": "4c1f00811f97873c1c53f54734afafd392cedf10a90d83935910042d7ffa58fc",
+      "literal_sources": [
+        "Annotated crop {path} no longer matches its sample-creation fingerprint.",
+        "Annotated crop {path} has conflicting labels or acquisition identities."
+      ]
+    },
+    {
+      "module": "measure.py",
+      "function": "_wound_plane",
+      "inspected_source_sha256": "e7f479bc15232b3cfed2371633be12e3dd99cd36b58f58be70c892397c4abba9",
+      "literal_sources": [
+        "Wound-plane index {index} must be a finite, nonnegative whole number smaller than {planes}."
+      ]
+    }
+  ],
+  "runtime_source_changes": false,
+  "catalog_generation": false,
+  "limitations": "Original Home owns backend code/review inputs/normal generation and scientific acceptance. No full feature or locale closure claimed."
+}

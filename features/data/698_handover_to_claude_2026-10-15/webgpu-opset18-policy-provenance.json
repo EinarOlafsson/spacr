@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "cpp_and_generated_doc_exact_standard_ranges": true,
+  "all_standard_registered_count": 95,
+  "opset18_count": 94,
+  "policy_sha256": "6d25fbc0fa864dee625eba4174cb436fdf7b864a947c8ade00710a7c15ec81f7",
+  "Constant_permitted": false,
+  "Shape_and_Reshape_have_GPU_kernels": false,
+  "operator_constraints": {
+    "AveragePool": "need perf optimization; need implementing activation",
+    "Conv": "need perf optimization; conv3d is not supported; need implementing activation",
+    "ConvTranspose": "need perf optimization; ConvTranspose3d is not supported; need implementing activation",
+    "MaxPool": "need perf optimization; need implementing activation",
+    "Reshape": "no GPU kernel",
+    "Resize": "CoordinateTransformMode align_corners is not supported with downsampling",
+    "Shape": "no GPU kernel; an ORT warning is generated - need to fix",
+    "Transpose": "need perf optimization"
+  },
+  "scope": "Registration/type constraints and actual WebGPU execution remain distinct; no model export/browser acceptance."
+}

@@ -30,7 +30,7 @@ def _checkpoint(tmp_path, torch, width):
                                                     bias=False)
 
         def forward(self, x):
-            return self.patch_embed.proj(x).mean(dim=(2, 3))
+            return self.patch_embed.proj(x)[:, :, 0, 0]
 
     model = SmallDino(width)
     with torch.no_grad():
@@ -64,15 +64,15 @@ def test_local_digest_strict_load_and_ordered_planes(
         channels=channels, cell_dino_factory=factory,
         checkpoint_path=str(path), checkpoint_sha256=digest,
         normalize=False, device="cpu")
-    height, image_width = ((128, 128) if factory == "cell_dino_cp_vits8"
-                           else (20, 22))
-    crops = np.zeros((2, height, image_width, width), dtype=np.float32)
+    crops = np.zeros((2, size, size, width), dtype=np.float32)
     for channel in range(width):
-        crops[..., channel] = channel + 1
+        crops[:, 0, :channel + 1, channel] = 1.0
+    planes = crops[0].reshape(-1, width)
+    standard = (planes[0] - planes.mean(0)) / (planes.std(0) + 1e-7)
     result = emb.embed_array(crops, spec)
-    expected = sum((i + 1) * (channels[i] + 1) for i in range(width))
+    expected = sum((i + 1) * standard[channels[i]] for i in range(width))
     assert result.values.shape == (2, 1)
-    np.testing.assert_allclose(result.values[:, 0], expected)
+    np.testing.assert_allclose(result.values[:, 0], expected, rtol=1e-4)
     assert calls == [("facebookresearch/dinov2:" + emb._CELL_DINO_REVISION,
                       factory, False, True)]
     assert emb._CELL_DINO_FACTORIES[factory] == (width, size)
@@ -236,3 +236,50 @@ def test_injected_encoder_cannot_silently_drop_a_declared_plane(tmp_path):
     with pytest.raises(emb.EmbeddingError, match="input width differs"):
         emb.embed_array(np.ones((1, 20, 20, 5), dtype=np.float32), spec,
                         encoder=wrong)
+
+
+def test_channel_adaptive_dino_encodes_any_planes_as_a_bag_of_channels(
+        tmp_path, monkeypatch):
+    torch = pytest.importorskip("torch")
+
+    class Adaptive(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.patch_embed = torch.nn.Module()
+            self.patch_embed.proj = torch.nn.Conv2d(1, 2, 1, bias=False)
+
+        def get_intermediate_layers(self, x, n, return_class_token):
+            batch, planes = x.shape[:2]
+            tokens = self.patch_embed.proj(x.reshape(batch * planes, 1,
+                                                     *x.shape[2:]))
+            return [(None, tokens[:, :, 0, 0].reshape(batch, -1))]
+
+    model = Adaptive()
+    with torch.no_grad():
+        model.patch_embed.proj.weight.copy_(
+            torch.tensor([1.0, -2.0]).view(2, 1, 1, 1))
+    path = tmp_path / "adaptive.pth"
+    torch.save(model.state_dict(), path)
+    monkeypatch.setattr(torch.hub, "load", lambda repo, name, **_: (
+        model if name == "channel_adaptive_dino_vitl16" else pytest.fail(name)))
+    crops = np.zeros((1, 224, 224, 3), dtype=np.float32)
+    for channel in range(3):
+        crops[0, 0, :channel + 1, channel] = 1.0
+    spec = emb.EmbeddingSpec(
+        backbone="cell_dino", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(2, 0), cell_dino_factory="channel_adaptive_dino_vitl16",
+        checkpoint_path=str(path),
+        checkpoint_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        normalize=False, device="cpu")
+
+    result = emb.embed_array(crops, spec)
+
+    planes = crops[0].reshape(-1, 3)
+    standard = (planes[0] - planes.mean(0)) / (planes.std(0) + 1e-7)
+    np.testing.assert_allclose(result.values[0], [
+        standard[2], -2 * standard[2], standard[0], -2 * standard[0]],
+        rtol=1e-4)
+    assert emb._cell_dino_spec(spec) == (2, 224)
+    with pytest.raises(emb.EmbeddingError, match="distinct"):
+        emb._cell_dino_spec(replace(spec, channels=(1, 1)))
+

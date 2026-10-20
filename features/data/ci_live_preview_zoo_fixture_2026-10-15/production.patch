@@ -1,0 +1,35 @@
+diff --git a/tests/qt/test_live_preview_panel_keeps_its_footing.py b/tests/qt/test_live_preview_panel_keeps_its_footing.py
+index 3a9762d5f9..8e77fb07ec 100644
+--- a/tests/qt/test_live_preview_panel_keeps_its_footing.py
++++ b/tests/qt/test_live_preview_panel_keeps_its_footing.py
+@@ -381,11 +381,28 @@ def test_a_zoo_pick_the_list_already_holds_is_selected_once(
+     listed = box.itemText(box.count() - 1)
+     box.setCurrentIndex(0)
+     count = box.count()
+-    monkeypatch.setattr(model_zoo_picker, "choose_model",
+-                        lambda parent, kinds=None: listed)
++    from spacr import model_zoo
++
++    calls = []
++
++    class Picker:
++        _chosen_reference = None
++
++        def __init__(self, kinds, parent):
++            calls.append((kinds, parent))
++
++        def exec(self):
++            return QDialog.Accepted
++
++        def chosen_path(self):
++            return listed
++
++    monkeypatch.setattr(model_zoo_picker, "ModelZooPicker", Picker)
+     panel._choose_a_preview_model()
+     assert box.currentText() == listed
+     assert box.count() == count
++    assert calls == [(model_zoo._mask_model_kinds(), panel)]
++    assert panel._selected_model_reference is None
+ 
+ 
+ # ---------------------------------------------------------------------------

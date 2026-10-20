@@ -24,7 +24,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "Þegar \"Verbose logging\" kjörstillingin er virk eru Python-annálar spaCR stilltir upp á DEBUG og annálsskrárnar halda þeim færslum. Virka ConsolePanel sýnir aðeins þau stig sem kveikt er á fyrir skipanagluggann á Logging-flipa Preferences. Það setur ítarlegan feril á diskinn, sem er það sem þú vilt þegar villuskýrsla er greind."
+      "translation": "Þegar \"Verbose logging\" kjörstillingin er virk eru Python-annálar spaCR stilltir upp á DEBUG og annálsskrárnar halda þeim færslum. Virka ConsolePanel sýnir aðeins þau stig sem kveikt er á fyrir skipanagluggann á Logging-flipa Preferences. Það setur ítarlegan feril á diskinn, sem er það sem þú vilt þegar villuskýrsla er greind.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -436,7 +438,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "breytingaratburðurinn; hann fer fyrst til grunnklasans, og aðeins er brugðist við ``ApplicationPaletteChange``."
+      "translation": "breytingaratburðurinn; hann fer fyrst til grunnklasans, og aðeins er brugðist við ``ApplicationPaletteChange``.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
@@ -452,7 +456,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "atburðurinn; brugðist er við gerðum fyrir stærðarbreytingu, gluggaástand, földun, sýningu, færslu og skjábreytingu, og hver atburður er samt sendur áfram til síu grunnklasans."
+      "translation": "atburðurinn; brugðist er við gerðum fyrir stærðarbreytingu, gluggaástand, földun, sýningu, færslu og skjábreytingu, og hver atburður er samt sendur áfram til síu grunnklasans.",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",
@@ -754,7 +760,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "Það háværara af því sem er að spilast og aðgerðalausu önduninni, svo lágvær kafli tekur myndina aldrei niður fyrir það sem þögn hefði teiknað. Það er reglan sem gerir „það er fallega aðgerðalaust í þögn“ og „það bregst við tónlistinni“ að sömu kóðaleiðinni."
+      "translation": "Það háværara af því sem er að spilast og aðgerðalausu önduninni, svo lágvær kafli tekur myndina aldrei niður fyrir það sem þögn hefði teiknað. Það er reglan sem gerir „það er fallega aðgerðalaust í þögn“ og „það bregst við tónlistinni“ að sömu kóðaleiðinni.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",
@@ -1398,7 +1407,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "vörpun eins og vistuð er með vinnusvæðinu; ``picture_settings``, ``widgets``, ``picture_mode`` og ``coefficient`` færslum hennar er hverri beitt þegar hún er til staðar, og gildi sem er ekki orðabók beitir engu."
+      "translation": "vörpun eins og vistuð er með vinnusvæðinu; ``picture_settings``, ``widgets``, ``picture_mode`` og ``coefficient`` færslum hennar er hverri beitt þegar hún er til staðar, og gildi sem er ekki orðabók beitir engu.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",
@@ -1800,7 +1812,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` Sjálfvirki helmingurinn. Sumar græjur eru FÓKUSgræjur (lifandi forsýn, myndaspjaldið): á meðan einhver þeirra er á skjánum leggjast MARKrúðurnar saman (skipanaglugginn, System, hnapparnir, stillingadálkurinn), og þegar sú síðasta fer koma þær aftur. Hún berst aldrei við notandann: markrúða sem notandinn stækkar í höndunum er FEST opin og látin í friði þar til SÝNINNI lýkur. Sjá klasann um hvað sýn er."
+      "translation": ":class:`FocusCollapse` Sjálfvirki helmingurinn. Sumar græjur eru FÓKUSgræjur (lifandi forsýn, myndaspjaldið): á meðan einhver þeirra er á skjánum leggjast MARKrúðurnar saman (skipanaglugginn, System, hnapparnir, stillingadálkurinn), og þegar sú síðasta fer koma þær aftur. Hún berst aldrei við notandann: markrúða sem notandinn stækkar í höndunum er FEST opin og látin í friði þar til SÝNINNI lýkur. Sjá klasann um hvað sýn er.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
@@ -2192,7 +2206,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
       "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
-      "translation": "Stærðarbreyting gluggans er ekki dráttur -- engu handfangi er haldið -- svo endurlögun hér berst ekki við neinn."
+      "translation": "Stærðarbreyting gluggans er ekki dráttur -- engu handfangi er haldið -- svo endurlögun hér berst ekki við neinn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the resize event.",
@@ -2290,7 +2306,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
-      "translation": "Fylgst er með FÓKUSgræjum (:meth:`watch`); á meðan EINHVER þeirra er sýnd eru MARKrúðurnar (:meth:`target`) samanbrotnar, og þegar sú síðasta er falin eru markrúðurnar sem þetta braut saman opnaðar aftur. Markrúða sem þegar var samanbrotin -- af notandanum, eða munuð frá síðustu lotu -- er látin vera nákvæmlega eins og hún er, í báðar áttir."
+      "translation": "Fylgst er með FÓKUSgræjum (:meth:`watch`); á meðan EINHVER þeirra er sýnd eru MARKrúðurnar (:meth:`target`) samanbrotnar, og þegar sú síðasta er falin eru markrúðurnar sem þetta braut saman opnaðar aftur. Markrúða sem þegar var samanbrotin -- af notandanum, eða munuð frá síðustu lotu -- er látin vera nákvæmlega eins og hún er, í báðar áttir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
@@ -2298,7 +2316,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NEVER FIGHTS THE USER. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
-      "translation": "BERST ALDREI VIÐ NOTANDANN. Markrúða sem notandinn opnar í höndunum (með því að smella á fyrirsögn hennar eða handfang, eða draga hana opna) er FEST: ekkert hér leggur hana saman aftur fyrr en sýninni lýkur. Markrúða sem notandinn leggur saman í höndunum tilheyrir honum líka, og er ekki opnuð aftur þegar fókusinn fer."
+      "translation": "BERST ALDREI VIÐ NOTANDANN. Markrúða sem notandinn opnar í höndunum (með því að smella á fyrirsögn hennar eða handfang, eða draga hana opna) er FEST: ekkert hér leggur hana saman aftur fyrr en sýninni lýkur. Markrúða sem notandinn leggur saman í höndunum tilheyrir honum líka, og er ekki opnuð aftur þegar fókusinn fer.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
@@ -2306,7 +2326,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A VIEW is one visit to one screen: it begins when the screen is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another screen (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the screen with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
-      "translation": "SÝN er ein heimsókn á eina skjámynd: hún hefst þegar skjámyndin er sýnd (:meth:`begin_view`, frá ``showEvent`` hennar) og lýkur þegar hún er falin af því að notandinn fór á aðra skjámynd (:meth:`end_view`, frá ``hideEvent`` hennar). Lágmörkun gluggans lýkur henni ekki -- eigandinn sendir aðeins atburði sem eru ekki sjálfsprottnir. Festingar endast út sýnina: að koma aftur á skjámyndina með lifandi forsýnina enn opna leggur umhverfið saman aftur, sem er það sem ný koma að þeirri uppsetningu fengi."
+      "translation": "SÝN er ein heimsókn á eina skjámynd: hún hefst þegar skjámyndin er sýnd (:meth:`begin_view`, frá ``showEvent`` hennar) og lýkur þegar hún er falin af því að notandinn fór á aðra skjámynd (:meth:`end_view`, frá ``hideEvent`` hennar). Lágmörkun gluggans lýkur henni ekki -- eigandinn sendir aðeins atburði sem eru ekki sjálfsprottnir. Festingar endast út sýnina: að koma aftur á skjámyndina með lifandi forsýnina enn opna leggur umhverfið saman aftur, sem er það sem ný koma að þeirri uppsetningu fengi.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "owner, normally the screen.",
@@ -2338,7 +2360,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The user left the screen: their pins for this view are spent.",
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
-      "translation": "Notandinn yfirgaf skjámyndina: festingar hans fyrir þessa sýn eru uppurnar."
+      "translation": "Notandinn yfirgaf skjámyndina: festingar hans fyrir þessa sýn eru uppurnar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A focus widget was shown or hidden.",
@@ -3400,7 +3424,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER WHOLE, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no crop and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
-      "translation": "MYND SEM SKYNJARINN FINNUR EKKERT Í ER AFRITUÐ HEIL Í SKIPTU MÖPPUNA, án rúmfræði, svo hún er samt greind og hefur einfaldlega enga reglustiku. Viðvörun sem segir \"passed through whole\" og sleppir svo myndinni hleypir engu í gegn: þegar sumar myndir í möppu skiptust og aðrar ekki, myndu hinar ekki leggja til neinn myndskurð og enga röð og ekkert segði að þær hefðu verið til. Allt-eða-ekkert tilvikið -- þar sem fallið notar ``src`` í staðinn -- er það eina sem myndi hegða sér eins og skilaboðin lofuðu."
+      "translation": "MYND SEM SKYNJARINN FINNUR EKKERT Í ER AFRITUÐ HEIL Í SKIPTU MÖPPUNA, án rúmfræði, svo hún er samt greind og hefur einfaldlega enga reglustiku. Viðvörun sem segir \"passed through whole\" og sleppir svo myndinni hleypir engu í gegn: þegar sumar myndir í möppu skiptust og aðrar ekki, myndu hinar ekki leggja til neinn myndskurð og enga röð og ekkert segði að þær hefðu verið til. Allt-eða-ekkert tilvikið -- þar sem fallið notar ``src`` í staðinn -- er það eina sem myndi hegða sér eins og skilaboðin lofuðu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
@@ -3408,7 +3434,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",
       "source_sha256": "ebd4ed4f5e79d91bddd8fa3b2b1ded10960a06fd3cd87d7cf51f529dda8f0094",
-      "translation": "Fínstilla Cellpose-SAM með upprunalegum pöruðum myndum og tilvikamerkjagrímum."
+      "translation": "Fínstilla Cellpose-SAM með upprunalegum pöruðum myndum og tilvikamerkjagrímum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "image folder src; optional mask_src (default src/masks), validation test_src/test_mask_src, base_model, model_name, AdamW schedule, image data channels/channel_axis, normalize/percentiles, scale_range, min_train_masks, optional image limits and checkpoint controls. Legacy project/train/images plus project/train/masks remains accepted when mask_src is blank.",
@@ -3450,7 +3478,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Add the verdict column to ``png_table`` if it is missing.",
       "source_sha256": "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
-      "translation": "Bæta matsdálkinum við ``png_table`` ef hann vantar."
+      "translation": "Bæta matsdálkinum við ``png_table`` ef hann vantar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Called when a source is opened, which is how a table made before the column existed gains it: an ``ALTER TABLE ... ADD COLUMN`` with no default is a metadata change in SQLite and rewrites no rows.",
@@ -3498,7 +3528,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The recorded judgement of each of ``paths`` that has one.",
       "source_sha256": "d5ea58e07ce483bc4c2e4cbd73469e376f2802612b7b01834e0556a916993ee2",
-      "translation": "Skráð mat á hverri af ``paths`` sem hefur slíkt."
+      "translation": "Skráð mat á hverri af ``paths`` sem hefur slíkt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the column the judgements belong to.",
@@ -3530,7 +3562,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "How the column's suggestions stand: judged, and still to judge.",
       "source_sha256": "42d4636ff5909674a9561e602945872e2db53bf394af227e127598756003d778",
-      "translation": "Hvernig tillögur dálksins standa: metnar, og enn ómetnar."
+      "translation": "Hvernig tillögur dálksins standa: metnar, og enn ómetnar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the column the suggestions were written into.",
@@ -3554,7 +3588,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The crops whose suggestion was rejected, and the class that was refused.",
       "source_sha256": "7650dad656ad61cb386fce9ca3bcc15299b5c79eecb8044387e41d0564cf06d2",
-      "translation": "Myndskurðirnir þar sem tillögunni var hafnað, og flokkurinn sem var hafnað."
+      "translation": "Myndskurðirnir þar sem tillögunni var hafnað, og flokkurinn sem var hafnað.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
@@ -3562,7 +3598,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Only crops the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the crop twice.",
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
-      "translation": "Aðeins myndskurðir sem merkjandinn hefur EKKI merkt síðan eru skilaðir: merki sem er gefið eftir höfnun er sterkari yfirlýsing og er það sem aðlögunin les úr dálkinum sjálfum, svo ef höfnunin væri líka afhent yrði myndskurðurinn talinn tvisvar."
+      "translation": "Aðeins myndskurðir sem merkjandinn hefur EKKI merkt síðan eru skilaðir: merki sem er gefið eftir höfnun er sterkari yfirlýsing og er það sem aðlögunin les úr dálkinum sjálfum, svo ef höfnunin væri líka afhent yrði myndskurðurinn talinn tvisvar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``{png_path: rejected class}``; empty when nothing was rejected or the verdict column does not exist.",
@@ -3578,7 +3616,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the crops then wear the same mark as ones confirmed one at a time, and the count the screen shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
-      "translation": "Fjölda-KEEP er staðfesting á hverri tillögu sem það heldur, svo það er líka skráð í matsdálkinn (þegar dálkurinn er til): myndskurðirnir bera þá sama merki og þeir sem voru staðfestir einn í einu, og talan sem skjámyndin sýnir kemur heim við það sem gerðist. Fjölda-THROW er ekki mat -- \"ég vil ekki fara yfir þetta\" er ekki \"these are wrong\" -- svo það skráir ekkert."
+      "translation": "Fjölda-KEEP er staðfesting á hverri tillögu sem það heldur, svo það er líka skráð í matsdálkinn (þegar dálkurinn er til): myndskurðirnir bera þá sama merki og þeir sem voru staðfestir einn í einu, og talan sem skjámyndin sýnir kemur heim við það sem gerðist. Fjölda-THROW er ekki mat -- \"ég vil ekki fara yfir þetta\" er ekki \"these are wrong\" -- svo það skráir ekkert.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The column beside ``annotation_column`` that records judgements.",
@@ -3586,7 +3626,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The column beside ``annotation_column`` that records judgements.",
       "source_sha256": "295f1539cc65d7146774f994201847562fc701d4e27425104fef69c5da9e1f96",
-      "translation": "Dálkurinn við hlið ``annotation_column`` sem skráir mat."
+      "translation": "Dálkurinn við hlið ``annotation_column`` sem skráir mat.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One value per extracted image region: ``+c`` when a suggested class ``c`` was confirmed, ``-c`` when it was rejected, NULL when nothing was judged. It lives in the extracted-image-region table rather than in the screen so a judgement survives a restart and reaches the next round of training.",
@@ -3610,7 +3652,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
-      "translation": "Einfaldi samskeytirinn sem timeflows-kvíslin þarf að slá, og skorið sem segir til um það."
+      "translation": "Einfaldi samskeytirinn sem timeflows-kvíslin þarf að slá, og skorið sem segir til um það.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What it is for",
@@ -3618,7 +3662,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHAT IT IS FOR",
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
-      "translation": "TIL HVERS ÞETTA ER"
+      "translation": "TIL HVERS ÞETTA ER",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "How a tracking is represented",
@@ -3626,7 +3672,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "HOW A TRACKING IS REPRESENTED",
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
-      "translation": "HVERNIG RAKNING ER SETT FRAM"
+      "translation": "HVERNIG RAKNING ER SETT FRAM",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
@@ -3634,7 +3682,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where THE LABEL IS THE TRACK ID, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
-      "translation": "Venja Cell Tracking Challenge, því mælikvarðarnir eru hennar: merkjastafli þar sem MERKIÐ ER FERILAUÐKENNIÐ, svo hlutur heldur merki sínu svo lengi sem hann er sami hluturinn, auk valfrjálsrar ættarvörpunar frá hverju merki á foreldramerki þess. Skipting er því tvö ný merki sem hafa það gamla að foreldri; rakningarforrit sem getur ekki tjáð skiptingar sendir enga ætt og greiðir fyrir foreldraleggina tvo sem vantar, sem er heiðarlegt verð einfalds samskeytis."
+      "translation": "Venja Cell Tracking Challenge, því mælikvarðarnir eru hennar: merkjastafli þar sem MERKIÐ ER FERILAUÐKENNIÐ, svo hlutur heldur merki sínu svo lengi sem hann er sami hluturinn, auk valfrjálsrar ættarvörpunar frá hverju merki á foreldramerki þess. Skipting er því tvö ný merki sem hafa það gamla að foreldri; rakningarforrit sem getur ekki tjáð skiptingar sendir enga ætt og greiðir fyrir foreldraleggina tvo sem vantar, sem er heiðarlegt verð einfalds samskeytis.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Why it does not call ``spacr.timelapse``",
@@ -3642,7 +3692,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY IT DOES NOT CALL ``spacr.timelapse``",
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
-      "translation": "HVERS VEGNA HÚN KALLAR EKKI Á ``spacr.timelapse``"
+      "translation": "HVERS VEGNA HÚN KALLAR EKKI Á ``spacr.timelapse``",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`spacr.timelapse.link_by_iou` does the same linking and is the one the workflow uses. It is not imported here for two reasons. Importing ``spacr.timelapse`` pulls in matplotlib, OpenCV and the tracking backends, which is a heavy import for a scoring module that has to run inside a training loop, and its overlap arithmetic is a Python double loop over pairs of boolean masks -- fine for the frames a run produces, far too slow for scoring a held out set every epoch. The arithmetic here is a single cross-tabulation per frame pair. Where the two are meant to agree -- which pairs of labels are matched at a given threshold -- the tests say so.",
@@ -3668,7 +3720,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IS IN HERE",
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
-      "translation": "ÞAÐ SEM ER HÉR INNI"
+      "translation": "ÞAÐ SEM ER HÉR INNI",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`stitch_by_iou` -- per-frame labels in, one consistent id per object out. Hungarian assignment on the IoU between consecutive frames, which is the standard overlap stitcher and deliberately nothing cleverer.",
@@ -3708,7 +3762,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY THE OPERATION COUNTS ARE PUBLIC",
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
-      "translation": "HVERS VEGNA AÐGERÐATALNINGARNAR ERU OPINBERAR"
+      "translation": "HVERS VEGNA AÐGERÐATALNINGARNAR ERU OPINBERAR",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "DET and TRA are one number each and both are dominated by the vertex terms: a false negative costs ten and a redundant edge costs one, so a tracker can lose half its links and still score well if its segmentation is good. The counts of false negatives, false positives, splits, and added, deleted and changed edges say which half of the problem the number came from. The plan needs exactly that distinction later -- the gap between linking given perfect segmentation and end-to-end linking is what decides whether to work on the head or on the backbone -- so the counts are part of the output rather than an internal.",
@@ -3724,7 +3780,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Count the edit operations between a computed tracking and the truth.",
       "source_sha256": "244dd9a93d926c9b9b765c4bd5cf7c021e1559e0f7d1aa23580d9a8ae6cb55a1",
-      "translation": "Telja breytingaaðgerðirnar milli reiknaðrar rakningar og réttu gildanna."
+      "translation": "Telja breytingaaðgerðirnar milli reiknaðrar rakningar og réttu gildanna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Vertex operations follow the detection matching: a ground-truth object nothing detects is a false negative, a computed segment that detects nothing is a false positive, and a computed segment that detects several objects has to be split once per extra object.",
@@ -3796,7 +3854,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Cell Tracking Challenge's DET: detection only, no links.",
       "source_sha256": "675914bcab3622ae4acd0c9398cc149a12062edae869f1e2f2325489101941db",
-      "translation": "DET úr Cell Tracking Challenge: aðeins greining, engar tengingar."
+      "translation": "DET úr Cell Tracking Challenge: aðeins greining, engar tengingar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "ground-truth label stack.",
@@ -3844,7 +3904,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Count how often a ground-truth object changes computed identity.",
       "source_sha256": "f5686da6330d393de754babba1a1de74316318e39e966f4df7acae377684f3e3",
-      "translation": "Telja hversu oft hlutur í réttu gildunum skiptir um reiknað auðkenni."
+      "translation": "Telja hversu oft hlutur í réttu gildunum skiptir um reiknað auðkenni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each ground-truth track is walked in frame order over the frames where it was detected, and every change of computed label is one switch. Frames where the object was missed are skipped rather than ending the track, so an object that is lost and then found again under a NEW id is counted as a switch. That is the failure a biologist reads as \"the cell became another cell\", and a tracker that hides it by dropping the frame should not score better for dropping it.",
@@ -3868,7 +3930,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Intersection over union for every pair of labels in two frames.",
       "source_sha256": "7804e7e63c7574f1bcff6191ea7a871d01ad60d751c0c2a92f630f0828c9e3df",
-      "translation": "Snið yfir sammengi (IoU) fyrir hvert par merkja í tveimur römmum."
+      "translation": "Snið yfir sammengi (IoU) fyrir hvert par merkja í tveimur römmum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "2-D label frame.",
@@ -3900,7 +3964,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Match the labels of two consecutive frames one to one.",
       "source_sha256": "c9f52499b40c86c61b38960eea8a44282db0671ffe63e2e303ec1e3fa1b9c30f",
-      "translation": "Para saman merki tveggja samliggjandi ramma eitt á móti einu."
+      "translation": "Para saman merki tveggja samliggjandi ramma eitt á móti einu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Hungarian assignment maximising total IoU, then every pair below the threshold is dropped. The assignment matters where a cell divides or two cells touch: greedy best-match links both children to the parent and produces two objects with one id, which the metrics then punish twice.",
@@ -3932,7 +3998,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Match every ground-truth object to the computed segment that detects it.",
       "source_sha256": "a26bf651ae274eb2372ce668200ed08abda15aa9512fba01265812a3f64fd24e",
-      "translation": "Para hvern hlut í réttu gildunum við reiknaða bútinn sem greinir hann."
+      "translation": "Para hvern hlut í réttu gildunum við reiknaða bútinn sem greinir hann.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge's criterion: a computed segment detects a ground-truth object when it covers more than half of that object's pixels.",
@@ -3972,7 +4040,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cross-tabulate the pixels shared by the labels of two frames.",
       "source_sha256": "e40555b52f8f06aaf23c4fc00c84110bec8cca5e1434a7d654d00cf99ff0228c",
-      "translation": "Krosstöflugera pixlana sem merki tveggja ramma deila."
+      "translation": "Krosstöflugera pixlana sem merki tveggja ramma deila.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One pass over the pixels where both frames are labelled, so the cost is the image rather than the product of the two label counts.",
@@ -3996,7 +4066,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Run the baseline stitcher on a segmentation and score what it produced.",
       "source_sha256": "8e118c570d818c9f23055e6d458f81c9f0c9f899061434ffc6d5df2e389e197e",
-      "translation": "Keyra grunnsamskeytinn á hlutun og skora það sem hann skilaði."
+      "translation": "Keyra grunnsamskeytinn á hlutun og skora það sem hann skilaði.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
@@ -4004,7 +4076,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
-      "translation": "Þetta er talan sem skref 2 er til að framleiða, og talan sem kvísl skrefs 3 þarf að slá."
+      "translation": "Þetta er talan sem skref 2 er til að framleiða, og talan sem kvísl skrefs 3 þarf að slá.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-frame segmentation whose labels mean nothing across frames. Pass the ground-truth stack itself to measure linking given perfect segmentation, which is the upper bound the plan asks for beside the end-to-end number.",
@@ -4044,7 +4118,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Score one computed tracking against the truth, counts and all.",
       "source_sha256": "29a6a56d14552c4a05a9fb37314a2b674c9fd3af8eed2f1c735593b0a025a5d8",
-      "translation": "Skora eina reiknaða rakningu á móti réttu gildunum, talningar og allt."
+      "translation": "Skora eina reiknaða rakningu á móti réttu gildunum, talningar og allt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what the row is called, so several trackings concatenate into one table.",
@@ -4068,7 +4144,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Put scored trackings in one table, best TRA first.",
       "source_sha256": "c9e111bfc8eb626600920e467b1fa2e5d645bd5b35b14123a87b6cbc7876f857",
-      "translation": "Setja skoraðar rakningar í eina töflu, besta TRA fyrst."
+      "translation": "Setja skoraðar rakningar í eina töflu, besta TRA fyrst.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "iterable of :func:`score_tracking` results.",
@@ -4092,7 +4170,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Give one id to the same object through a movie, by overlap alone.",
       "source_sha256": "81f8ee892b4e1dbca0a14adf1ae89f5dcaf451b4cb7dd4094252e03d5d2f0825",
-      "translation": "Gefa sama hlutnum eitt auðkenni í gegnum kvikmynd, eingöngu eftir skörun."
+      "translation": "Gefa sama hlutnum eitt auðkenni í gegnum kvikmynd, eingöngu eftir skörun.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This is the baseline the plan calls \"the plain stitcher\": each frame is segmented independently, consecutive frames are matched by IoU, an object that matches nothing starts a new id, and nothing is bridged across a gap. It has no notion of a division -- both children are new objects, and the parent simply ends -- which is exactly the limitation the time-flow head is supposed to remove, so it is left in rather than patched around.",
@@ -4124,7 +4204,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Cell Tracking Challenge's TRA: detection and links together.",
       "source_sha256": "fca24c029cb57213a51768d4e103f9f4309733c3ff0c817145f9282b43dbb121",
-      "translation": "TRA Cell Tracking Challenge: greining og tengingar saman."
+      "translation": "TRA Cell Tracking Challenge: greining og tengingar saman.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "float in ``[0, 1]``; ``1.0`` for a tracking identical to the truth.",
@@ -4140,7 +4222,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Build the acyclic oriented graph the AOGM measures are defined on.",
       "source_sha256": "06fa6aeae0fa412bbf36a440bab22b03b04997e587a26988d86a053c8576aa47",
-      "translation": "Byggja stefnda órásaða netið sem AOGM-mælingarnar eru skilgreindar á."
+      "translation": "Byggja stefnda órásaða netið sem AOGM-mælingarnar eru skilgreindar á.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A label whose frames are not contiguous -- a tracker that bridged a gap, or annotation that let an object vanish for a frame and kept its id -- is not refused, but the gap earns no edge. The challenge's format has no way to say \"the same object, not visible for a while\", and an edge across the gap would credit a link the graph cannot express and the truth does not contain. The tracking is scored on the links it can show; the identity it claims across the gap is still honoured by :func:`identity_switches`, which is where that claim belongs.",
@@ -4188,7 +4272,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the field). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
-      "translation": "Cellpose spáir, fyrir hvern pixil, flæði í átt að miðju hlutarins sem pixillinn tilheyrir. Timeflows bætir sömu hugmynd við í gegnum TÍMA: fyrir hvern pixil í ramma ``t``, hvar miðja þess hlutar er í ramma ``t+1``, og hvort hann eigi yfirhöfuð arftaka (frumur deyja, skipta sér, fara út úr sjónsviðinu). Tenging hluta milli ramma les þá líkanið í stað þess að giska út frá skörun, og þar bregst einfaldi IoU-samskeytirinn: hraðar frumur sem færast meira en eigin stærð milli ramma (í MuSC-kvikmyndunum færast þær 3-4 þvermál á ramma við p95)."
+      "translation": "Cellpose spáir, fyrir hvern pixil, flæði í átt að miðju hlutarins sem pixillinn tilheyrir. Timeflows bætir sömu hugmynd við í gegnum TÍMA: fyrir hvern pixil í ramma ``t``, hvar miðja þess hlutar er í ramma ``t+1``, og hvort hann eigi yfirhöfuð arftaka (frumur deyja, skipta sér, fara út úr sjónsviðinu). Tenging hluta milli ramma les þá líkanið í stað þess að giska út frá skörun, og þar bregst einfaldi IoU-samskeytirinn: hraðar frumur sem færast meira en eigin stærð milli ramma (í MuSC-kvikmyndunum færast þær 3-4 þvermál á ramma við p95).",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here starts a GPU training processing session; that is a separate, queued job.",
@@ -4204,7 +4290,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IS HERE, ALL RUNNABLE ON A CPU:",
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
-      "translation": "ÞAÐ SEM ER HÉR, ALLT KEYRANLEGT Á CPU:"
+      "translation": "ÞAÐ SEM ER HÉR, ALLT KEYRANLEGT Á CPU:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`track_masks_from_ctc` -- full masks carrying track ids, from a Cell Tracking Challenge movie's silver segmentation relabelled by its tracking markers (the TRA ground truth marks cells with small markers only).",
@@ -4228,7 +4316,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
-      "translation": ":func:`augment_pair` -- ein speglun/snúningur sem er beitt eins á báða ramma og báðar merkjamyndir; markgildin eru reiknuð EFTIR hana út frá merkjunum, svo speglun getur aldrei kennt tilfærslu sem átti sér ekki stað."
+      "translation": ":func:`augment_pair` -- ein speglun/snúningur sem er beitt eins á báða ramma og báðar merkjamyndir; markgildin eru reiknuð EFTIR hana út frá merkjunum, svo speglun getur aldrei kennt tilfærslu sem átti sér ekki stað.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`pair_sampling_weights` -- pairs drawn across the displacement distribution rather than uniformly over mostly still frames.",
@@ -4268,7 +4358,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cellpose-SAM's encoder as a feature extractor, sharing its weights.",
       "source_sha256": "46d518afbab370488c9f31bebb0eb8f9c9918f51a7d37e237053973294b4ef07",
-      "translation": "Kóðari Cellpose-SAM sem eiginleikaútdráttur, sem deilir vigtum sínum."
+      "translation": "Kóðari Cellpose-SAM sem eiginleikaútdráttur, sem deilir vigtum sínum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Replays :meth:`cellpose.vit.CPSAM.forward` up to the neck: 256 feature image data channels at 1/``ps`` of the image size. The segmentation head stays the network's own, so what the model already segments is not re-learned.",
@@ -4316,7 +4408,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The encoder's parameters, for freezing and the optimiser.",
       "source_sha256": "125ca860eeed928e9c517c7b40de0de8be0ba5e1f998e6d12575d5e58bf0c902",
-      "translation": "Stikar kóðarans, til að frysta þá og fyrir bestunaraðferðina."
+      "translation": "Stikar kóðarans, til að frysta þá og fyrir bestunaraðferðina.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The time head on a shared backbone, as a ``torch.nn.Module``.",
@@ -4324,7 +4418,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The time head on a shared backbone, as a ``torch.nn.Module``.",
       "source_sha256": "4f7397c59463ef05fda46b5cee01e57eaa76bab81f224935e1ffc6fb3e993707",
-      "translation": "Tímahausinn á sameiginlegu grunnneti, sem ``torch.nn.Module``."
+      "translation": "Tímahausinn á sameiginlegu grunnneti, sem ``torch.nn.Module``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Both frames go through the same backbone; their features are joined and read by a small head that predicts three channels at full resolution: ``dy``, ``dx`` (toward the successor's centre, in diameters) and a successor logit.",
@@ -4372,7 +4468,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One random flip and quarter-turn, the SAME for every frame and label.",
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
-      "translation": "Ein slembin speglun og fjórðungssnúningur, SÚ SAMA fyrir hvern ramma og hvert merki."
+      "translation": "Ein slembin speglun og fjórðungssnúningur, SÚ SAMA fyrir hvern ramma og hvert merki.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
@@ -4380,7 +4478,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
-      "translation": "Speglun sem er beitt á ramma ``t`` en ekki ``t+1`` kennir tilfærslu sem aldrei átti sér stað, sem er auðveldasta leiðin til að fá líkan sem þjálfast fallega og rekur ekki neitt. Markgildi eru reiknuð út frá auknu merkjunum á eftir, svo vigrarnir fylgja sjálfkrafa."
+      "translation": "Speglun sem er beitt á ramma ``t`` en ekki ``t+1`` kennir tilfærslu sem aldrei átti sér stað, sem er auðveldasta leiðin til að fá líkan sem þjálfast fallega og rekur ekki neitt. Markgildi eru reiknuð út frá auknu merkjunum á eftir, svo vigrarnir fylgja sjálfkrafa.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the images, ``(H, W)`` or ``(H, W, C)``.",
@@ -4436,7 +4536,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``label -> (y, x, equivalent diameter)`` for every object.",
       "source_sha256": "9884387c2ec92487fb0fa7d30a24c829aca348e556764007d11220e55e9ab88e",
-      "translation": "``label -> (y, x, equivalent diameter)`` fyrir hvern hlut."
+      "translation": "``label -> (y, x, equivalent diameter)`` fyrir hvern hlut.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an instance label image.",
@@ -4460,7 +4562,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Weights that draw pairs evenly across how far their objects move.",
       "source_sha256": "7bbfa2698c17c4dfef7fe3424e5826af27c212be30bd38001a465c69a409bdf6",
-      "translation": "Vægi sem draga pör jafnt yfir það hversu langt hlutir þeirra hreyfast."
+      "translation": "Vægi sem draga pör jafnt yfir það hversu langt hlutir þeirra hreyfast.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
@@ -4468,7 +4572,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
-      "translation": "Flestir samliggjandi rammar eru nánast kyrrir, svo ef pör eru dregin með jafnri dreifingu sér hausinn að mestu auðveld pör. Miðgildi tilfærslu yfir þvermál hvers pars fellur í eitt af ``bins`` jafnbreiðum bilum yfir sviðið sem sést, og vægi pars er andhverfa stærðar bilsins. Fyrst var reynt með hlutfallsmarkabil, og þau falla saman þegar flest pör hreyfast eins, sem er einmitt kvikmyndin sem þetta er til fyrir."
+      "translation": "Flestir samliggjandi rammar eru nánast kyrrir, svo ef pör eru dregin með jafnri dreifingu sér hausinn að mestu auðveld pör. Miðgildi tilfærslu yfir þvermál hvers pars fellur í eitt af ``bins`` jafnbreiðum bilum yfir sviðið sem sést, og vægi pars er andhverfa stærðar bilsins. Fyrst var reynt með hlutfallsmarkabil, og þau falla saman þegar flest pör hreyfast eins, sem er einmitt kvikmyndin sem þetta er til fyrir.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(T, H, W)`` track-labelled frames.",
@@ -4500,7 +4606,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The time head's prediction for one pair.",
       "source_sha256": "7dfd478da4a5b718f4966e858bd3cc553ffe28f7cab5d853d79fe053eca3f4ef",
-      "translation": "Spá tímahaussins fyrir eitt par."
+      "translation": "Spá tímahaussins fyrir eitt par.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a trained :func:`TimeflowsNet`.",
@@ -4548,7 +4656,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One ``size`` square, the SAME window of every frame and label.",
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
-      "translation": "Einn ``size`` ferningur, SAMA gluggi í hverjum ramma og hverju merki."
+      "translation": "Einn ``size`` ferningur, SAMA gluggi í hverjum ramma og hverju merki.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
@@ -4556,7 +4666,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
-      "translation": "Miðjaður á slembivalinn hlut úr fyrstu merkjamyndinni, hnikaður um allt að fjórðung glugga, svo gluggar innihalda frumur frekar en tóman bakgrunn. Gluggi sem báðir rammarnir deila heldur hverri tilfærslu réttri."
+      "translation": "Miðjaður á slembivalinn hlut úr fyrstu merkjamyndinni, hnikaður um allt að fjórðung glugga, svo gluggar innihalda frumur frekar en tóman bakgrunn. Gluggi sem báðir rammarnir deila heldur hverri tilfærslu réttri.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the images.",
@@ -4596,7 +4708,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Shuffle frame ``t+1``'s labels and ask whether the model finds them.",
       "source_sha256": "02c8458a20509e293f98786494be145f6a84d28c148061aa309b5ec84efab1ea",
-      "translation": "Stokka merki ramma ``t+1`` og spyrja hvort líkanið finni þau."
+      "translation": "Stokka merki ramma ``t+1`` og spyrja hvort líkanið finni þau.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Scrambling removes the numeric-ID shortcut, but object positions and overlap remain informative. A good score alone does not prove learned motion. The share of objects linked to their true successor is the score; the plain IoU stitcher on the same pair is the reference the model has to beat.",
@@ -4652,7 +4766,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "What the time head must predict for one pair of labelled frames.",
       "source_sha256": "dabbb956d7e6def28d35d8facf8ac2b0237b11db1aba677e58ba32c08debe766",
-      "translation": "Það sem tímahausinn þarf að spá fyrir um fyrir eitt par merktra ramma."
+      "translation": "Það sem tímahausinn þarf að spá fyrir um fyrir eitt par merktra ramma.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Inside every object of frame ``t``:",
@@ -4684,7 +4800,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
-      "translation": "Vigurinn er aðeins vaktaður þar sem arftaki ER til (``vector_weight``); arftakaflaggið alls staðar innan hlutar (``object_weight``). Bakgrunnurinn er vaktaður af hvorugu."
+      "translation": "Vigurinn er aðeins vaktaður þar sem arftaki ER til (``vector_weight``); arftakaflaggið alls staðar innan hlutar (``object_weight``). Bakgrunnurinn er vaktaður af hvorugu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "frame ``t``'s labels, track ids.",
@@ -4716,7 +4834,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Masked loss for one batch.",
       "source_sha256": "327bcea9ebc2740e3b79e5dc3315642596a496b76f4ae4153237bd51f3486590",
-      "translation": "Grímað tap fyrir eina lotu."
+      "translation": "Grímað tap fyrir eina lotu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Mean squared error on the vector where a successor exists, binary cross-entropy on the successor flag inside objects, background unsupervised.",
@@ -4764,7 +4884,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IT DOES NOT DO",
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
-      "translation": "ÞAÐ SEM HÚN GERIR EKKI"
+      "translation": "ÞAÐ SEM HÚN GERIR EKKI",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
@@ -4772,7 +4894,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
-      "translation": "Hún metur MERKINGUNA, ekki rakningarforrit. Að skora spáða rakningu á móti réttum gildum er :mod:`spacr.timeflows_baseline`, sem er skref 2 í sömu áætlun. Hún geymir engan grafískan kóða og opnar enga glugga."
+      "translation": "Hún metur MERKINGUNA, ekki rakningarforrit. Að skora spáða rakningu á móti réttum gildum er :mod:`spacr.timeflows_baseline`, sem er skref 2 í sömu áætlun. Hún geymir engan grafískan kóða og opnar enga glugga.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
@@ -4830,7 +4954,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY A SCRIPT AND NOT A LOOK",
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
-      "translation": "HVERS VEGNA SKRIFTA EN EKKI AUGNSKOÐUN"
+      "translation": "HVERS VEGNA SKRIFTA EN EKKI AUGNSKOÐUN",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The defect this looks for is invisible by eye. A recycled id is a correct frame and a correct frame, and only the pair is wrong. The plan calls it the most common defect in tracking annotation and the easiest to miss, which is why the output here is a table with a verdict per check and an exit code, and why the detail tables behind every verdict are public: a flagged row is a row somebody has to read, not a number to average.",

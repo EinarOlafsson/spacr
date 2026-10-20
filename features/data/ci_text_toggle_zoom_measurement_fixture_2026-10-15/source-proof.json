@@ -1,0 +1,15 @@
+{
+  "input_head": "2407044464b96c3e33d8fbe948c9e6cac9904d71",
+  "only_changed_body": "test_zoom_reaches_the_text_toggles",
+  "outside_body_whole_module_AST_exact": true,
+  "original_target_assertions_retained": 1,
+  "original_grew_calls_and_threshold_helper_exact": true,
+  "parameterization_and_shared_fixtures_exact": true,
+  "pins": {
+    "tests/qt/test_zoom_reaches_text.py": "124b1d57ef7441a78716c6c65994330f9764bd5201dbe3de0d482e341eb9bff8",
+    "spacr/qt/widgets/ai_toggle_label.py": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd",
+    "spacr/qt/preferences.py": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680",
+    "spacr/qt/theme.py": "70cec896248a67fb9ace7d247175a0a05eb6eb22e6a091ad5bf59b5839851a76",
+    "tests/qt/conftest.py": "901a9e4cf81fafc5cef5684ba858cd75d08ecb60c6cbfba12463feea9cb70cd3"
+  }
+}

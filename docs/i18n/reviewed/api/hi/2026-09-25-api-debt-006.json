@@ -112,7 +112,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY IT ONCE READ NOTHING AT ALL. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
       "source_sha256": "c0e1314bfb7b71ce15b026328020d1b228e2d98f300b7a05268605042a2de2d9",
-      "translation": "यह एक बार कुछ भी क्यों नहीं पढ़ता था। यह मॉड्यूल बिना देखे मिलाने वाले रीडर के सुरक्षित उत्तराधिकारी के रूप में लिखा गया था, और फिर उसकी जगह नहीं ले सका, क्योंकि जो तीन चीज़ें यह नहीं करता था वे वही तीन चीज़ें हैं जिनकी प्रकाशित पैक को आवश्यकता है:"
+      "translation": "यह एक बार कुछ भी क्यों नहीं पढ़ता था। यह मॉड्यूल बिना देखे मिलाने वाले रीडर के सुरक्षित उत्तराधिकारी के रूप में लिखा गया था, और फिर उसकी जगह नहीं ले सका, क्योंकि जो तीन चीज़ें यह नहीं करता था वे वही तीन चीज़ें हैं जिनकी प्रकाशित पैक को आवश्यकता है:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "app key whose pack file is looked for, first as ``<app_key>_settings.csv`` and then under the published names in ``PACK_FILES``.",
@@ -200,7 +202,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the search filter. Typing the key into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
       "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
-      "translation": "Help-खोज परिणाम को यही चाहिए, और यह जानबूझकर खोज फ़िल्टर नहीं है। ऊपर के बॉक्स में कुंजी टाइप करने से हर अन्य सेटिंग भी छिप जाती, इसलिए Help खोज से आया उपयोगकर्ता जो फिर पड़ोसी पंक्तियाँ देखना चाहता, उसे पहले समझना पड़ता कि फ़ॉर्म को क्या हुआ। इसके बजाय प्रकट करना मॉड्यूल को पूरा छोड़ता है और केवल यह तय करता है कि कौन-सा शीर्षक खुला है।"
+      "translation": "Help-खोज परिणाम को यही चाहिए, और यह जानबूझकर खोज फ़िल्टर नहीं है। ऊपर के बॉक्स में कुंजी टाइप करने से हर अन्य सेटिंग भी छिप जाती, इसलिए Help खोज से आया उपयोगकर्ता जो फिर पड़ोसी पंक्तियाँ देखना चाहता, उसे पहले समझना पड़ता कि फ़ॉर्म को क्या हुआ। इसके बजाय प्रकट करना मॉड्यूल को पूरा छोड़ता है और केवल यह तय करता है कि कौन-सा शीर्षक खुला है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is rebuilt and no value is read or written: the row was already on the form, and this shows its section and scrolls to it -- or, for a category not built yet (indexed with no field), the screen builds it first, as opening it would. That is what makes arriving here from a search safe for a half-typed value -- the same property the filter has, for the same reason.",
@@ -216,7 +220,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE IS NEVER REMEMBERED. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
       "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
-      "translation": "प्रकटीकरण स्तर केवल आवश्यक होने पर बदला जाता है, और बदलाव कभी याद नहीं रखा जाता। बिना शर्त All settings पर जाना काम करता, और यह हर बार किसी के यहाँ आने पर इस मॉड्यूल का याद रखा गया Essentials/All चुनाव भी दोबारा लिख देता -- उपयोगकर्ता द्वारा चुनी गई सेटिंग, कुछ खोजने के दुष्प्रभाव के रूप में बदली हुई। इसलिए पहले फ़िल्टर साफ़ किया जाता है और स्तर केवल तब ऊँचा किया जाता है जब उसके बाद भी पंक्ति फ़ॉर्म पर न हो, जो ठीक वह स्थिति है जहाँ Essentials उसे छिपा रहा है; और यह ऊँचा करना :meth:`_show_all_without_remembering` से होकर जाता है, ताकि फ़ॉर्म पंक्ति दिखाए जबकि स्टोर में अब भी उपयोगकर्ता का चुना स्तर रहे। अधिकांश सेटिंग्स आवश्यक नहीं हैं, इसलिए ऊँचे किए गए स्तर को सहेजने वाली खोज लगभग हर मॉड्यूल को हमेशा के लिए Essentials से बाहर कर देती।"
+      "translation": "प्रकटीकरण स्तर केवल आवश्यक होने पर बदला जाता है, और बदलाव कभी याद नहीं रखा जाता। बिना शर्त All settings पर जाना काम करता, और यह हर बार किसी के यहाँ आने पर इस मॉड्यूल का याद रखा गया Essentials/All चुनाव भी दोबारा लिख देता -- उपयोगकर्ता द्वारा चुनी गई सेटिंग, कुछ खोजने के दुष्प्रभाव के रूप में बदली हुई। इसलिए पहले फ़िल्टर साफ़ किया जाता है और स्तर केवल तब ऊँचा किया जाता है जब उसके बाद भी पंक्ति फ़ॉर्म पर न हो, जो ठीक वह स्थिति है जहाँ Essentials उसे छिपा रहा है; और यह ऊँचा करना :meth:`_show_all_without_remembering` से होकर जाता है, ताकि फ़ॉर्म पंक्ति दिखाए जबकि स्टोर में अब भी उपयोगकर्ता का चुना स्तर रहे। अधिकांश सेटिंग्स आवश्यक नहीं हैं, इसलिए ऊँचे किए गए स्तर को सहेजने वाली खोज लगभग हर मॉड्यूल को हमेशा के लिए Essentials से बाहर कर देती।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the module renders ``key`` and it was revealed.",
@@ -416,7 +422,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has; anything else gets a modal dialog parented to it.",
       "source_sha256": "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746",
-      "translation": "ढकी जाने वाली विंडो। शून्येतर आकार वाले :class:`QWidget` को ओवरले मिलता है, जो उसके किसी भी मौजूदा ओवरले की जगह लेता है; बाकी किसी को भी उसका चाइल्ड एक मोडल डायलॉग मिलता है।"
+      "translation": "ढकी जाने वाली विंडो। शून्येतर आकार वाले :class:`QWidget` को ओवरले मिलता है, जो उसके किसी भी मौजूदा ओवरले की जगह लेता है; बाकी किसी को भी उसका चाइल्ड एक मोडल डायलॉग मिलता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "context": ":data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or :data:`CANCEL`.",
@@ -480,7 +489,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**Qt Multimedia is touched only on the GUI thread.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the GUI thread against the real stack.",
       "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
-      "translation": "**Qt Multimedia को केवल GUI थ्रेड पर छुआ जाता है।** :class:`_SoundPlayer` ``QMediaDevices`` और हर ``QSoundEffect`` का स्वामी है और वहीं रहता है जहाँ एप्लिकेशन का इवेंट लूप रहता है; समर्पित ``QThread`` वह भाग रखता है जो वास्तव में धीमा है, यानी ध्वनि सेट का संश्लेषण (:class:`_SoundRenderer`, numpy और फ़ाइल लेखन, Qt Multimedia से कुछ नहीं)। ध्वनि सर्वर से जुड़ना धीमा है -- PipeWire वर्कस्टेशन पर 354 ms मापा गया -- इसलिए इसकी कीमत एक बार चुकाई जाती है, ध्वनि चालू होने के बाद निष्क्रिय टाइमर पर (:meth:`SoundEngine._warm`), और यह महसूस होने के बजाय लॉग होती है। पहले से लोड ध्वनि बजाना ``play()`` है, जो तुरंत लौटता है: वास्तविक स्टैक के साथ GUI थ्रेड पर 0.007-0.014 ms।"
+      "translation": "**Qt Multimedia को केवल GUI थ्रेड पर छुआ जाता है।** :class:`_SoundPlayer` ``QMediaDevices`` और हर ``QSoundEffect`` का स्वामी है और वहीं रहता है जहाँ एप्लिकेशन का इवेंट लूप रहता है; समर्पित ``QThread`` वह भाग रखता है जो वास्तव में धीमा है, यानी ध्वनि सेट का संश्लेषण (:class:`_SoundRenderer`, numpy और फ़ाइल लेखन, Qt Multimedia से कुछ नहीं)। ध्वनि सर्वर से जुड़ना धीमा है -- PipeWire वर्कस्टेशन पर 354 ms मापा गया -- इसलिए इसकी कीमत एक बार चुकाई जाती है, ध्वनि चालू होने के बाद निष्क्रिय टाइमर पर (:meth:`SoundEngine._warm`), और यह महसूस होने के बजाय लॉग होती है। पहले से लोड ध्वनि बजाना ``play()`` है, जो तुरंत लौटता है: वास्तविक स्टैक के साथ GUI थ्रेड पर 0.007-0.014 ms।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
@@ -488,7 +499,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This rule is written in a crash. Building the effects on the audio thread instead does move the connection off the GUI thread -- but Qt Multimedia's device handling belongs to the thread that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong thread. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
       "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
-      "translation": "यह नियम एक क्रैश से सीखा गया। इसके बजाय ऑडियो थ्रेड पर इफ़ेक्ट बनाने से कनेक्शन GUI थ्रेड से हट तो जाता है -- पर Qt Multimedia का डिवाइस प्रबंधन उस थ्रेड का है जो इवेंट लूप का स्वामी है, इसलिए FFmpeg बैकएंड के साथ यह गलत थ्रेड से socket notifier सक्षम करता है। तब ध्वनि चालू रखकर Preferences फिर से खोलने पर segfault होता है, या इंटरफ़ेस खाली Preferences फ़्रेम के साथ तब तक अटका रहता है जब तक उसे बलपूर्वक बंद न किया जाए।"
+      "translation": "यह नियम एक क्रैश से सीखा गया। इसके बजाय ऑडियो थ्रेड पर इफ़ेक्ट बनाने से कनेक्शन GUI थ्रेड से हट तो जाता है -- पर Qt Multimedia का डिवाइस प्रबंधन उस थ्रेड का है जो इवेंट लूप का स्वामी है, इसलिए FFmpeg बैकएंड के साथ यह गलत थ्रेड से socket notifier सक्षम करता है। तब ध्वनि चालू रखकर Preferences फिर से खोलने पर segfault होता है, या इंटरफ़ेस खाली Preferences फ़्रेम के साथ तब तक अटका रहता है जब तक उसे बलपूर्वक बंद न किया जाए।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A missing sound stack is silence.** No device, no server, no Qt Multimedia, a file that will not load: each ends in a debug log line and no sound. Nothing here raises into a caller and nothing opens a dialog.",
@@ -512,7 +525,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Application-wide filter that hears presses and hovers on controls.",
       "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
-      "translation": "एप्लिकेशन-व्यापी फ़िल्टर जो नियंत्रणों पर दबाना और होवर सुनता है।"
+      "translation": "एप्लिकेशन-व्यापी फ़िल्टर जो नियंत्रणों पर दबाना और होवर सुनता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Installed only while a click or hover sound is wanted (see :meth:`SoundEngine.apply`). The body is two liveness checks and at most four comparisons for an event it does not want.",
@@ -728,7 +743,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
-      "translation": "संग्रहीत स्विच जो कहें वह बजाता है: डायलॉग Preview को केवल तब सक्षम करता है जब उसका अपना मुख्य स्विच चालू हो, और दबाना ही अनुरोध है।"
+      "translation": "संग्रहीत स्विच जो कहें वह बजाता है: डायलॉग Preview को केवल तब सक्षम करता है जब उसका अपना मुख्य स्विच चालू हो, और दबाना ही अनुरोध है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "any event, the music bed included.",
@@ -888,7 +905,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows WHATEVER IS PLAYING and there is only ever one thing.",
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
-      "translation": "संश्लेषित संगीत के बजाय पृष्ठभूमि के रूप में बजाने के लिए उपयोगकर्ता की अपनी WAV। खाली का अर्थ spaCR का अपना है। Resonance पृष्ठभूमि भी इसी से चलती है, क्योंकि पृष्ठभूमि जो कुछ भी बज रहा है उसका अनुसरण करती है और हमेशा केवल एक ही चीज़ बजती है।"
+      "translation": "संश्लेषित संगीत के बजाय पृष्ठभूमि के रूप में बजाने के लिए उपयोगकर्ता की अपनी WAV। खाली का अर्थ spaCR का अपना है। Resonance पृष्ठभूमि भी इसी से चलती है, क्योंकि पृष्ठभूमि जो कुछ भी बज रहा है उसका अनुसरण करती है और हमेशा केवल एक ही चीज़ बजती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The linear gain the volume slider stands for.",
@@ -2198,7 +2217,7 @@
     },
     {
       "context": "Check PyPI off the main GUI execution path, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog#0",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Check PyPI off the GUI thread, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
       "source_sha256": "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906",
@@ -2206,7 +2225,7 @@
     },
     {
       "context": "Prevent destruction of an active check thread.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent#0",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Prevent destruction of an active check thread.",
       "source_sha256": "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
@@ -2214,7 +2233,7 @@
     },
     {
       "context": "Qt close event; ignored while the check is being cancelled.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent#1",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent#1",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt close event; ignored while the check is being cancelled.",
       "source_sha256": "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
@@ -2222,7 +2241,7 @@
     },
     {
       "context": "Cancel the check and keep the dialog alive until its worker exits.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.reject#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject#0",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cancel the check and keep the dialog alive until its worker exits.",
       "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
@@ -2230,7 +2249,7 @@
     },
     {
       "context": "Check for updates on every open and offer pip upgrades before launching.",
-      "label": "spacr.qt.starplast.open_starplast#0",
+      "label": "spacr.qt.parascape.open_parascape#0",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Check for updates on every open and offer pip upgrades before launching.",
       "source_sha256": "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
@@ -2360,7 +2379,7 @@
     },
     {
       "context": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
-      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#9",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A settings category's body that is waiting off the page is parentless, so Qt lists it among the top-level widgets, but it is not a window: it goes back under its page before anybody sees it and wears the page's sheet from there. Sheeting it here would leave it carrying a copy of the sheet of the moment when it went back, which the next theme change would not reach. See :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
       "source_sha256": "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b",
@@ -2964,7 +2983,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
       "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
-      "translation": "Qt का अपना उत्तर एक स्टाइल संकेत है, ``SH_ToolTip_WakeUpDelay``, जिसे अधिकांश स्टाइल लगभग 700 ms पर सेट करते हैं और जिसे spaCR में कुछ भी नहीं चुन रहा था। इसलिए टूलटिप तब आ जाते थे जब पॉइंटर अभी चल ही रहा होता, और विजेट से हटते ही चले जाते -- पढ़ने के लिए बहुत तेज़, और लंबा पाठ होने पर उन तक पहुँचना असंभव।"
+      "translation": "Qt का अपना उत्तर एक स्टाइल संकेत है, ``SH_ToolTip_WakeUpDelay``, जिसे अधिकांश स्टाइल लगभग 700 ms पर सेट करते हैं और जिसे spaCR में कुछ भी नहीं चुन रहा था। इसलिए टूलटिप तब आ जाते थे जब पॉइंटर अभी चल ही रहा होता, और विजेट से हटते ही चले जाते -- पढ़ने के लिए बहुत तेज़, और लंबा पाठ होने पर उन तक पहुँचना असंभव।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
@@ -2972,7 +2993,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is SENT AGAIN after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
       "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
-      "translation": "तालिका, हेडर या सूची ``Qt::ToolTipRole`` से उत्तर देती है, अपने ``event`` के भीतर, किसी ऐसे ``toolTip()`` से नहीं जिसे कोई फ़िल्टर पढ़ सके। जब पैरेंट शृंखला में किसी के पास टूलटिप न हो, तो प्रतीक्षा के बाद इवेंट फिर से भेजा जाता है, फ़िल्टर के एक ओर हटकर, ताकि वे भी दिखें -- और बाकी सब की तरह उसी दो-सेकंड नियम पर दिखें।"
+      "translation": "तालिका, हेडर या सूची ``Qt::ToolTipRole`` से उत्तर देती है, अपने ``event`` के भीतर, किसी ऐसे ``toolTip()`` से नहीं जिसे कोई फ़िल्टर पढ़ सके। जब पैरेंट शृंखला में किसी के पास टूलटिप न हो, तो प्रतीक्षा के बाद इवेंट फिर से भेजा जाता है, फ़िल्टर के एक ओर हटकर, ताकि वे भी दिखें -- और बाकी सब की तरह उसी दो-सेकंड नियम पर दिखें।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
@@ -2988,7 +3011,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
       "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
-      "translation": "यह मॉड्यूल ``QApplication`` पर एक इवेंट फ़िल्टर स्थापित करता है और निर्णय स्टाइल से ले लेता है:"
+      "translation": "यह मॉड्यूल ``QApplication`` पर एक इवेंट फ़िल्टर स्थापित करता है और निर्णय स्टाइल से ले लेता है:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
@@ -3046,7 +3071,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
       "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
-      "translation": "जब पॉइंटर के नीचे के विजेट का अपना टूलटिप न हो तो Qt टूलटिप इवेंट को पैरेंट विजेट तक आगे भेजता है, और इसी तरह कोई कार्ड तब भी स्वयं को समझाता है जब पॉइंटर उस पर लिखे लेबल पर हो। इसलिए पाठ :func:`tooltip_text_for` से, पैरेंट शृंखला में ऊपर जाकर, ठीक वैसे हल किया जाता है जैसे Qt करता।"
+      "translation": "जब पॉइंटर के नीचे के विजेट का अपना टूलटिप न हो तो Qt टूलटिप इवेंट को पैरेंट विजेट तक आगे भेजता है, और इसी तरह कोई कार्ड तब भी स्वयं को समझाता है जब पॉइंटर उस पर लिखे लेबल पर हो। इसलिए पाठ :func:`tooltip_text_for` से, पैरेंट शृंखला में ऊपर जाकर, ठीक वैसे हल किया जाता है जैसे Qt करता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Install the application-wide tooltip filter. Idempotent.",
@@ -3102,7 +3129,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
       "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
-      "translation": "यह सुविधा मात्र नहीं है: यही वह व्यवहार है जिसे सुरक्षित रखा जा रहा है। Qt टूलटिप इवेंट को पैरेंट शृंखला में ऊपर भेजता है, इसलिए टूलटिप वाले कार्ड के भीतर बिना अपने टूलटिप का लेबल कार्ड वाला दिखाता है। जो फ़िल्टर केवल ``widget.toolTip()`` पढ़कर फिर इवेंट निगल लेता, वह इनमें से हर एक को तोड़ देता -- कार्ड तब तक स्वयं को समझाता है जब तक पॉइंटर उस पर लिखे पाठ पर न पहुँचे, और फिर रुक जाता है।"
+      "translation": "यह सुविधा मात्र नहीं है: यही वह व्यवहार है जिसे सुरक्षित रखा जा रहा है। Qt टूलटिप इवेंट को पैरेंट शृंखला में ऊपर भेजता है, इसलिए टूलटिप वाले कार्ड के भीतर बिना अपने टूलटिप का लेबल कार्ड वाला दिखाता है। जो फ़िल्टर केवल ``widget.toolTip()`` पढ़कर फिर इवेंट निगल लेता, वह इनमें से हर एक को तोड़ देता -- कार्ड तब तक स्वयं को समझाता है जब तक पॉइंटर उस पर लिखे पाठ पर न पहुँचे, और फिर रुक जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
@@ -3158,7 +3187,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "\"Verbose logging\" प्राथमिकता चालू होने पर spaCR के Python लॉगर DEBUG पर सेट किए जाते हैं और लॉग फ़ाइलें वे रिकॉर्ड रखती हैं। सक्रिय ConsolePanel केवल वे स्तर दिखाता है जो Preferences के Logging टैब पर कंसोल के लिए चालू हैं। इससे डिस्क पर विस्तृत निशान बनता है, जो बग रिपोर्ट की जाँच करते समय चाहिए।"
+      "translation": "\"Verbose logging\" प्राथमिकता चालू होने पर spaCR के Python लॉगर DEBUG पर सेट किए जाते हैं और लॉग फ़ाइलें वे रिकॉर्ड रखती हैं। सक्रिय ConsolePanel केवल वे स्तर दिखाता है जो Preferences के Logging टैब पर कंसोल के लिए चालू हैं। इससे डिस्क पर विस्तृत निशान बनता है, जो बग रिपोर्ट की जाँच करते समय चाहिए।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -3686,7 +3717,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
-      "translation": "चरण 2 इसी संख्या को बनाने के लिए है, और चरण 3 के फ़ोर्क को इसी संख्या को पीछे छोड़ना है।"
+      "translation": "चरण 2 इसी संख्या को बनाने के लिए है, और चरण 3 के फ़ोर्क को इसी संख्या को पीछे छोड़ना है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-frame segmentation whose labels mean nothing across frames. Pass the ground-truth stack itself to measure linking given perfect segmentation, which is the upper bound the plan asks for beside the end-to-end number.",
@@ -3870,7 +3903,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the field). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
-      "translation": "Cellpose प्रति पिक्सेल उस ऑब्जेक्ट के केंद्र की ओर एक प्रवाह पूर्वानुमानित करता है जिससे वह पिक्सेल संबंधित है। Timeflows यही विचार समय के पार जोड़ता है: फ़्रेम ``t`` के प्रति पिक्सेल, फ़्रेम ``t+1`` में उस ऑब्जेक्ट का केंद्र कहाँ है, और क्या उसका कोई उत्तरवर्ती है भी (कोशिकाएँ मरती हैं, विभाजित होती हैं, फ़ील्ड से बाहर जाती हैं)। तब फ़्रेमों के बीच ऑब्जेक्ट को जोड़ना ओवरलैप से अनुमान लगाने के बजाय मॉडल को पढ़ता है, और ठीक यहीं साधारण IoU जोड़ने वाला विफल होता है: तेज़ कोशिकाएँ जो फ़्रेमों के बीच अपने आकार से अधिक चलती हैं (MuSC मूवी p95 पर प्रति फ़्रेम 3-4 व्यास चलती हैं)।"
+      "translation": "Cellpose प्रति पिक्सेल उस ऑब्जेक्ट के केंद्र की ओर एक प्रवाह पूर्वानुमानित करता है जिससे वह पिक्सेल संबंधित है। Timeflows यही विचार समय के पार जोड़ता है: फ़्रेम ``t`` के प्रति पिक्सेल, फ़्रेम ``t+1`` में उस ऑब्जेक्ट का केंद्र कहाँ है, और क्या उसका कोई उत्तरवर्ती है भी (कोशिकाएँ मरती हैं, विभाजित होती हैं, फ़ील्ड से बाहर जाती हैं)। तब फ़्रेमों के बीच ऑब्जेक्ट को जोड़ना ओवरलैप से अनुमान लगाने के बजाय मॉडल को पढ़ता है, और ठीक यहीं साधारण IoU जोड़ने वाला विफल होता है: तेज़ कोशिकाएँ जो फ़्रेमों के बीच अपने आकार से अधिक चलती हैं (MuSC मूवी p95 पर प्रति फ़्रेम 3-4 व्यास चलती हैं)।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing here starts a GPU training processing session; that is a separate, queued job.",
@@ -3886,7 +3921,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IS HERE, ALL RUNNABLE ON A CPU:",
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
-      "translation": "यहाँ क्या है, सब कुछ CPU पर चलने योग्य:"
+      "translation": "यहाँ क्या है, सब कुछ CPU पर चलने योग्य:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`track_masks_from_ctc` -- full masks carrying track ids, from a Cell Tracking Challenge movie's silver segmentation relabelled by its tracking markers (the TRA ground truth marks cells with small markers only).",
@@ -3910,7 +3947,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
-      "translation": ":func:`augment_pair` -- एक फ़्लिप/घुमाव जो दोनों फ़्रेमों और दोनों लेबल छवियों पर समान रूप से लागू होता है; लक्ष्य उसके बाद ही लेबलों से गणना किए जाते हैं, इसलिए कोई फ़्लिप कभी ऐसा विस्थापन नहीं सिखा सकता जो हुआ ही नहीं।"
+      "translation": ":func:`augment_pair` -- एक फ़्लिप/घुमाव जो दोनों फ़्रेमों और दोनों लेबल छवियों पर समान रूप से लागू होता है; लक्ष्य उसके बाद ही लेबलों से गणना किए जाते हैं, इसलिए कोई फ़्लिप कभी ऐसा विस्थापन नहीं सिखा सकता जो हुआ ही नहीं।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`pair_sampling_weights` -- pairs drawn across the displacement distribution rather than uniformly over mostly still frames.",
@@ -4054,7 +4093,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One random flip and quarter-turn, the SAME for every frame and label.",
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
-      "translation": "एक यादृच्छिक फ़्लिप और चौथाई-घुमाव, हर फ़्रेम और लेबल के लिए बिल्कुल एक ही।"
+      "translation": "एक यादृच्छिक फ़्लिप और चौथाई-घुमाव, हर फ़्रेम और लेबल के लिए बिल्कुल एक ही।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
@@ -4062,7 +4103,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
-      "translation": "फ़्रेम ``t`` पर लागू और ``t+1`` पर लागू न किया गया फ़्लिप ऐसा विस्थापन सिखाता है जो कभी हुआ ही नहीं, और यही ऐसा मॉडल पाने का सबसे आसान तरीका है जो बहुत अच्छी तरह प्रशिक्षित होता है और कुछ भी ट्रैक नहीं करता। लक्ष्य बाद में ऑगमेंट किए गए लेबलों से गणना किए जाते हैं, इसलिए वेक्टर अपने-आप साथ चलते हैं।"
+      "translation": "फ़्रेम ``t`` पर लागू और ``t+1`` पर लागू न किया गया फ़्लिप ऐसा विस्थापन सिखाता है जो कभी हुआ ही नहीं, और यही ऐसा मॉडल पाने का सबसे आसान तरीका है जो बहुत अच्छी तरह प्रशिक्षित होता है और कुछ भी ट्रैक नहीं करता। लक्ष्य बाद में ऑगमेंट किए गए लेबलों से गणना किए जाते हैं, इसलिए वेक्टर अपने-आप साथ चलते हैं।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the images, ``(H, W)`` or ``(H, W, C)``.",
@@ -4150,7 +4193,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
-      "translation": "अधिकांश क्रमागत फ़्रेम लगभग स्थिर होते हैं, इसलिए जोड़ों को एकसमान रूप से चुनने पर हेड को अधिकतर आसान जोड़े ही दिखते हैं। हर जोड़े का व्यास के सापेक्ष माध्यिका विस्थापन देखी गई सीमा में फैले ``bins`` समान-चौड़ाई वाले बिन में से किसी एक में आता है, और जोड़े का भार उसके बिन के आकार का व्युत्क्रम होता है। पहले क्वांटाइल बिन आज़माए गए थे, और वे तब ढह जाते हैं जब अधिकांश जोड़े एक जैसे चलते हैं, और ठीक वही मूवी वह है जिसके लिए यह बना है।"
+      "translation": "अधिकांश क्रमागत फ़्रेम लगभग स्थिर होते हैं, इसलिए जोड़ों को एकसमान रूप से चुनने पर हेड को अधिकतर आसान जोड़े ही दिखते हैं। हर जोड़े का व्यास के सापेक्ष माध्यिका विस्थापन देखी गई सीमा में फैले ``bins`` समान-चौड़ाई वाले बिन में से किसी एक में आता है, और जोड़े का भार उसके बिन के आकार का व्युत्क्रम होता है। पहले क्वांटाइल बिन आज़माए गए थे, और वे तब ढह जाते हैं जब अधिकांश जोड़े एक जैसे चलते हैं, और ठीक वही मूवी वह है जिसके लिए यह बना है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``(T, H, W)`` track-labelled frames.",
@@ -4230,7 +4275,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "One ``size`` square, the SAME window of every frame and label.",
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
-      "translation": "एक ``size`` वर्ग, हर फ़्रेम और लेबल की बिल्कुल एक ही विंडो।"
+      "translation": "एक ``size`` वर्ग, हर फ़्रेम और लेबल की बिल्कुल एक ही विंडो।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
@@ -4238,7 +4285,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
-      "translation": "पहली लेबल छवि के किसी यादृच्छिक ऑब्जेक्ट पर केंद्रित, अधिकतम चौथाई विंडो तक यादृच्छिक रूप से खिसकाई गई, ताकि विंडो में खाली पृष्ठभूमि के बजाय कोशिकाएँ हों। दोनों फ़्रेमों द्वारा साझा की गई विंडो हर विस्थापन को सही रखती है।"
+      "translation": "पहली लेबल छवि के किसी यादृच्छिक ऑब्जेक्ट पर केंद्रित, अधिकतम चौथाई विंडो तक यादृच्छिक रूप से खिसकाई गई, ताकि विंडो में खाली पृष्ठभूमि के बजाय कोशिकाएँ हों। दोनों फ़्रेमों द्वारा साझा की गई विंडो हर विस्थापन को सही रखती है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the images.",
@@ -4366,7 +4415,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
-      "translation": "वेक्टर का पर्यवेक्षण केवल वहीं होता है जहाँ उत्तरवर्ती वास्तव में मौजूद है (``vector_weight``); उत्तरवर्ती फ़्लैग का पर्यवेक्षण ऑब्जेक्ट के भीतर हर जगह (``object_weight``)। पृष्ठभूमि का पर्यवेक्षण दोनों में से कोई नहीं करता।"
+      "translation": "वेक्टर का पर्यवेक्षण केवल वहीं होता है जहाँ उत्तरवर्ती वास्तव में मौजूद है (``vector_weight``); उत्तरवर्ती फ़्लैग का पर्यवेक्षण ऑब्जेक्ट के भीतर हर जगह (``object_weight``)। पृष्ठभूमि का पर्यवेक्षण दोनों में से कोई नहीं करता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "frame ``t``'s labels, track ids.",
@@ -4446,7 +4497,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT IT DOES NOT DO",
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
-      "translation": "यह क्या नहीं करता"
+      "translation": "यह क्या नहीं करता",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
@@ -4454,7 +4507,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
-      "translation": "यह एनोटेशन का ही मूल्यांकन करता है, किसी ट्रैकर का नहीं। पूर्वानुमानित ट्रैकिंग को ग्राउंड ट्रुथ के विरुद्ध स्कोर करना :mod:`spacr.timeflows_baseline` का काम है, जो उसी योजना का चरण 2 है। इसमें कोई ग्राफ़िकल कोड नहीं है और यह कोई डायलॉग नहीं खोलता।"
+      "translation": "यह एनोटेशन का ही मूल्यांकन करता है, किसी ट्रैकर का नहीं। पूर्वानुमानित ट्रैकिंग को ग्राउंड ट्रुथ के विरुद्ध स्कोर करना :mod:`spacr.timeflows_baseline` का काम है, जो उसी योजना का चरण 2 है। इसमें कोई ग्राफ़िकल कोड नहीं है और यह कोई डायलॉग नहीं खोलता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
@@ -4512,7 +4567,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY A SCRIPT AND NOT A LOOK",
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
-      "translation": "स्क्रिप्ट क्यों, केवल देखना क्यों नहीं"
+      "translation": "स्क्रिप्ट क्यों, केवल देखना क्यों नहीं",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The defect this looks for is invisible by eye. A recycled id is a correct frame and a correct frame, and only the pair is wrong. The plan calls it the most common defect in tracking annotation and the easiest to miss, which is why the output here is a table with a verdict per check and an exit code, and why the detail tables behind every verdict are public: a flagged row is a row somebody has to read, not a number to average.",
@@ -4576,7 +4633,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Answer step 1's four questions about one label stack, as a table.",
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
-      "translation": "एक लेबल स्टैक के बारे में चरण 1 के चार प्रश्नों का उत्तर एक तालिका के रूप में दें।"
+      "translation": "एक लेबल स्टैक के बारे में चरण 1 के चार प्रश्नों का उत्तर एक तालिका के रूप में दें।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
@@ -4664,7 +4723,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
-      "translation": "केवल क्रमागत फ़्रेम ही मापे जाते हैं। जो लेबल किसी गैप के बाद फिर दिखाई देता है, उसका यहाँ कोई योगदान नहीं होता, क्योंकि उसके द्वारा तय की गई दूरी प्रति-फ़्रेम विस्थापन नहीं है, और उसे औसत में शामिल करने से वह संख्या कृत्रिम रूप से अधिक हो जाएगी जिसे दर्ज करने के लिए यह मॉड्यूल बना है।"
+      "translation": "केवल क्रमागत फ़्रेम ही मापे जाते हैं। जो लेबल किसी गैप के बाद फिर दिखाई देता है, उसका यहाँ कोई योगदान नहीं होता, क्योंकि उसके द्वारा तय की गई दूरी प्रति-फ़्रेम विस्थापन नहीं है, और उसे औसत में शामिल करने से वह संख्या कृत्रिम रूप से अधिक हो जाएगी जिसे दर्ज करने के लिए यह मॉड्यूल बना है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table :func:`label_frames` returns.",

@@ -211,7 +211,7 @@ class TestTheQcFolder:
              "guide_nuisance_columns": []}, str(tmp_path))
         saved = json.loads(
             (tmp_path / "regression_qc" / "exchangeability_score.json")
-            .read_text())
+            .read_text(encoding="utf-8"))
         assert saved["verdict"]["ok"] is False
         assert "guide_nuisance_columns" in saved["verdict"]["remedy"]
         assert "rowID" in saved["verdict"]["remedy"]
@@ -229,7 +229,7 @@ class TestTheQcFolder:
              "guide_nuisance_columns": ["rowID"]}, str(tmp_path))
         saved = json.loads(
             (tmp_path / "regression_qc" / "exchangeability_score.json")
-            .read_text())
+            .read_text(encoding="utf-8"))
         assert saved["removed_before_residualisation"] == ["rowID"]
         assert saved["report"]["position"]["rowID"]["p_value"] > 0.01
 

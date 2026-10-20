@@ -31,7 +31,7 @@
   ],
   "parameters": 18642,
   "public_api_count": 11356,
-  "remaining": "Other new organism/Starplast runtime captions, heading corrections, global API catalog debt, Make Masks reference and tutorial acceptance remain open.",
+  "remaining": "Other new organism/ParaScape runtime captions, heading corrections, global API catalog debt, Make Masks reference and tutorial acceptance remain open.",
   "required_omissions": 2293,
   "required_parameters": 9596,
   "retired_ui": [
@@ -40,7 +40,7 @@
     "Widen the information pane; you can also drag the divider."
   ],
   "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
-  "runtime_source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+  "runtime_source": "ParaScape is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nParaScape gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
   "runtime_warning_translations": 9,
   "schema": 1,
   "signature_digest": "c2d382b1ff3c0efbd08e1216cd18ec74d7f482fb38b549d53837a28c3d66d72d",
@@ -62,44 +62,44 @@
     "sphinx_warnings_as_errors": true,
     "rendered_anchors": [
       {
-        "symbol": "spacr._starplast",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "module-spacr._starplast"
+        "symbol": "spacr._parascape",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "module-spacr._parascape"
       },
       {
-        "symbol": "spacr._starplast.REPOSITORY",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.REPOSITORY"
+        "symbol": "spacr._parascape.REPOSITORY",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.REPOSITORY"
       },
       {
-        "symbol": "spacr._starplast.apps_root",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.apps_root"
+        "symbol": "spacr._parascape.apps_root",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.apps_root"
       },
       {
-        "symbol": "spacr._starplast.default_source",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.default_source"
+        "symbol": "spacr._parascape.default_source",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.default_source"
       },
       {
-        "symbol": "spacr._starplast.install_starplast",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.install_starplast"
+        "symbol": "spacr._parascape.install_parascape",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.install_parascape"
       },
       {
-        "symbol": "spacr._starplast.is_installed",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.is_installed"
+        "symbol": "spacr._parascape.is_installed",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.is_installed"
       },
       {
-        "symbol": "spacr._starplast.launch_starplast",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.launch_starplast"
+        "symbol": "spacr._parascape.launch_parascape",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.launch_parascape"
       },
       {
-        "symbol": "spacr._starplast.process_environment",
-        "page": "api/spacr/_starplast/index.html",
-        "anchor": "spacr._starplast.process_environment"
+        "symbol": "spacr._parascape.process_environment",
+        "page": "api/spacr/_parascape/index.html",
+        "anchor": "spacr._parascape.process_environment"
       },
       {
         "symbol": "spacr.qt.organisms.ORGANISMS",
@@ -107,34 +107,34 @@
         "anchor": "spacr.qt.organisms.ORGANISMS"
       },
       {
-        "symbol": "spacr.qt.starplast",
-        "page": "api/spacr/qt/starplast/index.html",
-        "anchor": "module-spacr.qt.starplast"
+        "symbol": "spacr.qt.parascape",
+        "page": "api/spacr/qt/parascape/index.html",
+        "anchor": "module-spacr.qt.parascape"
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog",
-        "page": "api/spacr/qt/starplast/index.html",
-        "anchor": "spacr.qt.starplast.StarplastInstallDialog"
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog",
+        "page": "api/spacr/qt/parascape/index.html",
+        "anchor": "spacr.qt.parascape.ParaScapeInstallDialog"
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
-        "page": "api/spacr/qt/starplast/index.html",
-        "anchor": "spacr.qt.starplast.StarplastInstallDialog.closeEvent"
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent",
+        "page": "api/spacr/qt/parascape/index.html",
+        "anchor": "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent"
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog.reject",
-        "page": "api/spacr/qt/starplast/index.html",
-        "anchor": "spacr.qt.starplast.StarplastInstallDialog.reject"
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.reject",
+        "page": "api/spacr/qt/parascape/index.html",
+        "anchor": "spacr.qt.parascape.ParaScapeInstallDialog.reject"
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog.start",
-        "page": "api/spacr/qt/starplast/index.html",
-        "anchor": "spacr.qt.starplast.StarplastInstallDialog.start"
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.start",
+        "page": "api/spacr/qt/parascape/index.html",
+        "anchor": "spacr.qt.parascape.ParaScapeInstallDialog.start"
       },
       {
-        "symbol": "spacr.qt.starplast.open_starplast",
-        "page": "api/spacr/qt/starplast/index.html",
-        "anchor": "spacr.qt.starplast.open_starplast"
+        "symbol": "spacr.qt.parascape.open_parascape",
+        "page": "api/spacr/qt/parascape/index.html",
+        "anchor": "spacr.qt.parascape.open_parascape"
       },
       {
         "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram",

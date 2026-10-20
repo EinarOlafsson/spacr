@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_utc": "2026-10-15T16:31:27.484955+00:00",
+  "source_parent": "2a04d64f25410c3d9f265da11259dc3fb96ee1e4",
+  "scope": "Only the historical generated narration_voices inventory compatibility delta and its exact two focused test changes; original a3ae and f58 peers remain historical immutable evidence.",
+  "owning_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-original-inventory-owning-tests.json",
+    "bytes": 2323,
+    "sha256": "603a9da75f9c8ef7d3ca281c45bb0caa64c4f5a26091eafdd109cc6aff2426e3"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retain_narration.py",
+      "bytes": 6079,
+      "sha256": "ef0efe8b0f85b0d576216a79e6cb67d01dda7e8410dcb6eec3d7ed935329a15d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_narration.py",
+      "bytes": 6452,
+      "sha256": "40bf6378ca6642bf3f72b8468b76bf18a73a0994023adcd51d71c2a63b299809"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "bytes": 9728,
+      "sha256": "fd90b4a26562236d7d46152f1249b51b4489eacc8f7f74252f9629a2a10d672f"
+    }
+  ],
+  "owning_tests": {
+    "passed": 175,
+    "seconds": 1.78,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r4.log",
+      "bytes": 285,
+      "sha256": "010befbc5efc5b3392b35a78649f4f13b6606331cafd5be945eef2c8025a82b5"
+    },
+    "cap": "4G",
+    "CPU_only": true,
+    "own_lease_removed": true,
+    "no_media_runtime_execution": true
+  },
+  "actual_data_witness": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/historical-catalog-inventory-mismatch.json",
+    "bytes": 12903,
+    "sha256": "6c447776c238e6d0b9ec7636facec5e5ce02a46ad630bd792980e8c8d44728fe"
+  },
+  "findings": [
+    {
+      "id": "STRICT_DEFAULT",
+      "result": "pass",
+      "evidence": "require_unchanged_lesson without explicit voice_inventory remains the original fully exact comparison."
+    },
+    {
+      "id": "GENERATED_FIELD_ONLY",
+      "result": "pass",
+      "evidence": "Compatibility branch requires published==staged and published.narration_voices exactly equals the explicitly supplied full inventory. Only historical original narration_voices can be absent or a valid supported subset. Original language keys must exist in inventory; voices must be lists of unique strings all supported by that language."
+    },
+    {
+      "id": "OTHER_FIELDS",
+      "result": "pass",
+      "evidence": "Reconstructing a local original dict replaces only narration_voices; final full-dict equality still refuses any other field/word/metadata/caption drift. Original objects and source files are not mutated."
+    },
+    {
+      "id": "MEDIA_IDENTITY",
+      "result": "pass",
+      "evidence": "retained_sources still loops actual inventory and checks every original/staged m4a+sidecar hash and narration identity. No current-runtime fingerprint regeneration or audio rewrite is introduced."
+    },
+    {
+      "id": "OWNING_TESTS",
+      "result": "pass",
+      "evidence": "Actual sealed175PASS1.78s/terminal0. New cases cover missing/subset original voice field, defaultstrict refusal, source narration/published metadata/staged or published inventory/unsupported old voice/duplicate/type drift. Integrated14catalog50voice fixture now reproduces real historical missing-English/af_heart-only metadata."
+    }
+  ],
+  "limitations": [
+    "Source, sealed-test-log and small witness binding review only; reviewer did not rerun tests or perform stage/render/browser/media/model work.",
+    "This compatibility change does not itself accept a stage retry, new master, playback, publication, installation, hearing or fresh capture.",
+    "All actual old/new source/media receipts and failed first stage must remain preserved.",
+    "Root owns K2 commit/freshstage and final pipeline acceptance; current source hashes bind this reviewed delta."
+  ],
+  "reviewer_cap_gib": 1,
+  "own_lease_removed_on_exit": true
+}

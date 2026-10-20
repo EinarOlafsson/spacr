@@ -81,7 +81,6 @@ def test_every_offered_level_can_actually_be_stored():
 INVENTORIES = {
     "spacr_mode": "PERFORMANCE_LEVELS",
     "colour_blind": "VALID_CB_MODES",
-    "issue_prompt": "ISSUE_PROMPT_MODES",
 }
 
 

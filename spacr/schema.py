@@ -569,12 +569,12 @@ def canonical_column_name(name: Any) -> str:
 
     .. note:: What is deliberately **not** in the vocabulary
 
-       Aliases are whole words. ``col`` is here because spaCR itself wrote
-       it; a one-letter ``c`` is not, and never will be, because it would
-       capture a measurement column called ``c`` and rename a real variable
-       into a plate key. A name that is not normalised is visible the moment
-       a user looks at the picker; a measurement silently renamed to
-       ``columnID`` is not, and it corrupts the join it lands in.
+       Aliases are whole words. ``col`` is here because spaCR itself wrote it;
+       a one-letter ``c`` is not, because it would capture a measurement column
+       called ``c`` and rename a real variable into a plate key. A name that is
+       not normalised is visible the moment a user looks at the picker; a
+       measurement silently renamed to ``columnID`` is not, and it corrupts the
+       join it lands in.
 
     This is the *only* implementation. ``spacr.database_schema`` and
     ``spacr.utils`` re-export this function rather than defining their own.
@@ -649,12 +649,10 @@ _ROW_ONLY = re.compile(r'^([A-Za-z]{1,2})$')
 def parse_int_token(token: Any, *, allow_prefix: bool = True) -> Optional[int]:
     """Return the integer ``token`` denotes, or ``None`` — **never** ``0``.
 
-    This is the replacement for ``utils._safe_int_convert``, and the whole
-    point of it is the return type. ``_safe_int_convert`` answers "what
-    number is this?" with ``0`` when the honest answer is "there isn't one",
-    and ``0`` is a perfectly good field id, so the lie is unrecoverable
-    downstream. ``None`` is not a field id, so every caller is forced to
-    decide what to do — and the callers here do decide, see :func:`field_id`.
+    This replaces ``utils._safe_int_convert``, which returns ``0`` for a token
+    that holds no integer; ``0`` is a valid field id, so that result cannot be
+    detected downstream. ``None`` is not a field id, so every caller must
+    decide what to do — see :func:`field_id`.
 
     Vendor prefixes are understood, because they are a spelling of a number
     rather than a different number: an ImageXpress site ``s3``, a CellVoyager
@@ -884,9 +882,7 @@ def field_id(field: Any, *, strict: bool = False) -> str:
 def time_id(time: Any, *, strict: bool = False) -> str:
     """Return the canonical ``'t<N>'`` timepoint id.
 
-    ``'T0003'`` → ``'t3'``. Under the old ``_safe_int_convert`` every
-    ``T####`` token became ``t0``, which collapsed a whole timelapse onto
-    one frame.
+    ``'T0003'`` → ``'t3'``.
 
     :param time: timepoint token.
     :param strict: raise instead of preserving an unparseable token.
@@ -899,21 +895,20 @@ def screen_id(screen: Any = None) -> str:
     """Return the canonical screen id, defaulting an absent one.
 
     Free-form text, like the plate id, because it is the name a user gave an
-    experiment. It is **not** prefixed and **not** parsed back apart: the
-    whole point of :data:`SCREEN_KEY` is that it is a dimension you block on,
-    facet by and colour with as it stands.
+    experiment. It is **not** prefixed and **not** parsed back apart:
+    :data:`SCREEN_KEY` is a dimension to block on, facet by and colour with as
+    it stands.
 
-    Absence is the case that matters. ``None``, ``''`` and whitespace all mean
-    "this project has one screen", and they become :data:`DEFAULT_SCREEN`
-    rather than raising — every project that exists today has no screen
-    anywhere in its settings, and demanding one would stop all of them from
-    opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate
-    is a broken key, but an empty screen is an ordinary single-screen
-    run.
+    Absence is the common case. ``None``, ``''`` and whitespace all mean "this
+    project has one screen", and they become :data:`DEFAULT_SCREEN` rather than
+    raising — every project that exists today has no screen anywhere in its
+    settings, and demanding one would stop all of them from opening. Contrast
+    :func:`_check_plate`, which *does* raise: an empty plate is a broken key,
+    but an empty screen is an ordinary single-screen run.
 
     An empty value is never left empty inside a frame either, because a blank
-    screen groups with every other blank screen — which is exactly the silent
-    pooling :mod:`spacr.multi_database` exists to refuse.
+    screen groups with every other blank screen — the silent pooling that
+    :mod:`spacr.multi_database` refuses.
 
     :param screen: the screen label, or ``None``.
     :returns: the label, stripped, or :data:`DEFAULT_SCREEN`.
@@ -944,16 +939,15 @@ def object_type_prefix(object_type: Any) -> str:
       :func:`_check_plate` gives — the key is separator-joined;
     * it may not contain a **digit**, or the split is ambiguous. Type
       ``'cell1'`` with label ``7`` and type ``'cell'`` with label ``17`` both
-      write ``'cell17'``, which is the "two identities, one key" failure this
-      whole module exists to end.
+      write ``'cell17'``, so two identities would share one key.
 
     The vocabulary is **closed**: :data:`OBJECT_TYPES` and nothing else. An
     open one would mean every unrecognised token in the object slot became a
     type, and ``'plate1_r1_c1_f2_x7'`` — which is not an object key — would
-    parse as object 7 of type ``'x'``. Widening what counts as a key is how a
-    malformed key becomes a plausible wrong answer instead of an error, and a
-    closed vocabulary is the same choice :data:`KEY_PREFIXES` already makes
-    for rows, columns, fields and timepoints.
+    parse as object 7 of type ``'x'``. A wider vocabulary would turn a
+    malformed key into a plausible wrong answer instead of an error, and a
+    closed vocabulary is the same choice :data:`KEY_PREFIXES` already makes for
+    rows, columns, fields and timepoints.
 
     A caller holding a table name it is not sure about asks
     :func:`is_object_type` first and leaves the frame untyped otherwise — an
@@ -989,8 +983,8 @@ def is_object_type(object_type: Any) -> bool:
 
     The question a reader asks about the table it just loaded before stamping
     :data:`OBJECT_TYPE_KEY` on the frame. ``png_list``, a summary table or a
-    user's own table answer False, and the frame stays untyped — which is the
-    key spaCR has always written, so nothing regresses.
+    user's own table answer False, and the frame stays untyped, the key format
+    spaCR has always written.
 
     :param object_type: candidate table or object-type name.
     """
@@ -1011,8 +1005,8 @@ def split_object_id(token: Any, *, require_prefix: bool = True
         split_object_id('7')         -> (None, '')        # not an object id
 
     A type of ``None`` means *not stated*, which is what ``'o'`` has always
-    meant and is exactly what every key written before object types existed
-    carries. It is not "unknown and therefore probably a cell".
+    meant and is what every key written before object types existed carries. It
+    is not "unknown and therefore probably a cell".
 
     :param token: the last component of a ``prcfo``.
     :param require_prefix: when False a bare label (``'7'``) is accepted and
@@ -1045,11 +1039,10 @@ def object_id(label: Any, *, object_type: Any = None,
     """Return the canonical object id used in ``prcfo``.
 
     ``'o<N>'`` when the object's type is not stated, and ``'<type><N>'`` when
-    it is — ``object_id(7, object_type='nucleus')`` is ``'nucleus7'``. The
-    type goes into the *key*, not beside it, because the key is the only thing
-    that travels: a lasso publishes strings, and a string that cannot say
-    which of a cell's four children it means is a string that opens the wrong
-    crop.
+    it is — ``object_id(7, object_type='nucleus')`` is ``'nucleus7'``. The type
+    goes into the *key*, not beside it, because a lasso selection publishes
+    only key strings, and an untyped key cannot say which of a cell's children
+    it means.
 
     An already-composed id round-trips, with or without a type
     (``object_id('nucleus7') == 'nucleus7'``), so this is idempotent and safe
@@ -1194,18 +1187,15 @@ def is_positional_well(well: Any) -> bool:
 def is_positional_pair(row: Any, column: Any) -> bool:
     """True when ``(rowID, columnID)`` came from the positional passthrough.
 
-    :func:`parse_well` puts an unrecognisable well into *both* slots
-    verbatim, so an unprefixed pair of equal values is that passthrough and
-    not a real row and column. Without this check ``('12', '12')`` looks
-    like row 12 / column 12 and :func:`well_id` happily renders it ``'L12'``
-    — a well name for a well that was never identified.
+    :func:`parse_well` puts an unrecognisable well into *both* slots verbatim,
+    so an unprefixed pair of equal values is that passthrough and not a real
+    row and column. Without this check ``('12', '12')`` looks like row 12 /
+    column 12 and :func:`well_id` renders it ``'L12'`` — a well name for a well
+    that was never identified.
 
     Only *strings* can be a passthrough. A bare ``int`` is unambiguously an
-    index — ``well_id(1, 1)`` is a caller asking for well A01, not a well
-    that failed to parse — so an integer pair is never flagged, however
-    equal. (This is not hypothetical: it is the bug the round-trip test in
-    ``tests/test_schema.py`` caught in the first version of this function,
-    where ``well_id(1, 1)`` raised.)
+    index — ``well_id(1, 1)`` is a caller asking for well A01, not a well that
+    failed to parse — so an integer pair is never flagged, however equal.
 
     :param row: the ``rowID`` as stored.
     :param column: the ``columnID`` as stored.
@@ -1607,8 +1597,8 @@ class ObjectID:
     def objectType(self) -> Optional[str]:
         """Which object table this object came from, or ``None``.
 
-        ``None`` is "not stated", which is what every key written before
-        object types existed carries. It is emphatically not "a cell".
+        ``None`` is "not stated", which is what every key written before object
+        types existed carries. It does not mean "a cell".
         """
         return split_object_id(self.objectID)[0]
 
@@ -1652,10 +1642,10 @@ class ObjectID:
 def parse_prcf(text: Any) -> FieldID:
     """Parse a ``prcf`` string back into a :class:`FieldID`.
 
-    Parsed **right to left**, which is what makes it correct: the components
-    are optional in the middle (``timeID`` may or may not be there), and
-    ``ml.py`` splits ``prcfo`` left to right into a fixed five columns, so a
-    timelapse key with six parts silently misaligns every column.
+    Parsed **right to left**, because the components are optional in the middle
+    (``timeID`` may or may not be there), and ``ml.py`` splits ``prcfo`` left
+    to right into a fixed five columns, so a timelapse key with six parts
+    silently misaligns every column.
 
     **Extra components are not automatically an underscored plate.** A key
     with more components than ``plate_row_column_field[_time]`` is one of two
@@ -1668,8 +1658,7 @@ def parse_prcf(text: Any) -> FieldID:
       components are not what they claim. Absorbing it would return
       ``plateID='plate1_r1'``, ``rowID='c1'``, ``columnID='f1'`` — half the
       well inside the plate and a field id in the column slot — and every
-      per-well figure grouped on that is a plausible wrong number with
-      nothing anywhere saying so.
+      per-well figure grouped on that would be silently wrong.
 
     The two are told apart with :func:`is_row_column_pair`, which is the same
     guard ``ml._split_prc`` applies for the same reason. Anything else with
@@ -1719,13 +1708,12 @@ def parse_prcfo(text: Any) -> ObjectID:
     """Parse a ``prcfo`` string back into an :class:`ObjectID`.
 
     The object prefix is stripped before the label is re-canonicalised, which
-    is what makes this the inverse of :func:`compose_prcfo` for **every**
-    label rather than only the numeric ones. :func:`object_id` reads an
+    is what makes this the inverse of :func:`compose_prcfo` for **every** label
+    rather than only the numeric ones. :func:`object_id` reads an
     already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` →
-    ``'o7'``), but it cannot do that for a preserved non-numeric token, so
-    handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'``
-    parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``.
-    A key that grows every time it passes through the parser joins to nothing.
+    ``'o7'``), but it cannot do that for a preserved non-numeric token: without
+    stripping, ``'oxy'`` would become ``'ooxy'`` and the key would grow on
+    every pass through the parser.
 
     A **typed** object component is read back with its type:
     ``'plate1_r1_c1_f2_nucleus7'`` gives ``objectType == 'nucleus'``. An
@@ -2203,27 +2191,27 @@ def coerce_model_feature_types(
         exclude=(),
         allow_unknown: bool = False,
 ):
-    """Repair the two representations of a numeric measurement pandas fumbles.
+    """Repair two non-numeric representations of numeric measurement columns.
 
     **A column with no values at all comes back as** ``object``. This is the
     common one and it is not a data problem: ``pandas.read_sql`` builds the
     frame from the rows it gets, so a column that is ``NULL`` in every row
     arrives as a column of ``None`` and pandas types that ``object`` -- even
-    though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest
-    NaN, and whole measurements are legitimately NaN for a whole database:
-    ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform
-    object, and ``mode_intensity`` was NaN for every object in every database
-    written before the SciPy shim in ``measure._extended_regionprops_table``.
-    Such a column is converted to ``float64`` NaN, which is what it always
-    meant. Nothing is lost, so nothing is warned about -- and the caller's
-    own all-NaN filter then drops it and says so.
+    though SQLite declares it ``REAL``. spaCR writes ``NULL`` for a NaN, and
+    whole measurements are legitimately NaN for a whole database:
+    ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object,
+    and ``mode_intensity`` was NaN for every object in every database written
+    before the SciPy shim in ``measure._extended_regionprops_table``. Such a
+    column is converted to ``float64`` NaN, which is what it always meant.
+    Nothing is lost, so nothing is warned about -- and the caller's own all-NaN
+    filter then drops it and says so.
 
-    **Numeric text is coerced, loudly.** Values inserted as text make pandas
-    use ``object`` for the whole column even when every one of them is a
+    **Numeric text is coerced with a warning.** Values inserted as text make
+    pandas use ``object`` for the whole column even when every one of them is a
     valid number; ``'12.0'`` is recoverable and is recovered, with a
     :class:`UserWarning` naming the columns, because a measurement stored as
-    text is a database that wants looking at. ``'n/a'`` is not recoverable
-    and is never quietly turned into NaN and fitted on: it raises
+    text indicates a database problem. ``'n/a'`` is not recoverable and is
+    never quietly turned into NaN and fitted on: it raises
     :class:`ModelFeatureSchemaError` naming *every* offending column at once.
 
     The input frame is returned unchanged when no conversion is needed. A
@@ -2332,8 +2320,7 @@ def model_feature_columns(
     database-backed model paths should retain the strict default.
 
     Every unusable column is reported in one error, with its dtype and why it
-    is unusable. Refusing the first one and stopping made a user fix them one
-    whole run at a time.
+    is unusable.
 
     :param frame: the frame to select from; anything else (a Series included)
         raises :class:`ModelFeatureSchemaError` rather than ``TypeError``.
@@ -2445,17 +2432,15 @@ def canonical_rename_plan(columns, requested=None):
 
     The one definition of the "target already exists, keep both" rule for
     frames, shared by :func:`canonicalise_columns` and
-    ``utils.canonicalize_measurement_columns`` so the two cannot drift apart
-    again — they have already disagreed once about which spellings they fix.
+    ``utils.canonicalize_measurement_columns`` so the two apply the same rule.
 
     **The test folds case**, because SQLite compares identifiers
     case-insensitively and these frames are written with ``to_sql``. A frame
     holding ``row`` and ``rowid`` already has the canonical column: renaming
-    ``row`` to ``rowID`` produced ``['rowID', 'rowid']``, which looks fine in
-    pandas and makes ``to_sql`` raise ``duplicate column name: rowid``. This
+    ``row`` to ``rowID`` would produce ``['rowID', 'rowid']``, which looks fine
+    in pandas and makes ``to_sql`` raise ``duplicate column name: rowid``. This
     is the same rule, and the same reasoning, as the database-level rename in
-    :mod:`spacr.database_schema` — see the comment there about a plate whose
-    database could not be opened at all.
+    :mod:`spacr.database_schema`.
 
     A column is excluded from its own comparison, so a pure respelling
     (``rowid`` -> ``rowID``, one column, one identifier as far as SQLite is
@@ -2491,15 +2476,15 @@ def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
     The three cases, and why each behaves as it does:
 
     * **The frame has no screen column.** It gains one, holding ``screen`` or
-      :data:`DEFAULT_SCREEN`. That is a single-screen project, which is every
-      project written before and it must keep working.
+      :data:`DEFAULT_SCREEN`. That is a single-screen project, as is every
+      project written before screen labels existed.
     * The frame has one, and ``screen`` is ``None``. Its labels are kept.
       Relabelling a frame that already knows which experiment it came from
       would move rows between screens with nothing on screen to say so.
-    * The frame has one and ``screen`` was given. The caller is looking at
-      the files and has said which screen this is, so it wins — but only
-      because they said so. ``overwrite=False`` (the default) still fills
-      *blank* values only; pass ``overwrite=True`` to restamp every row.
+    * The frame has one and ``screen`` was given. The caller is looking at the
+      files and has said which screen this is, so it takes precedence.
+      ``overwrite=False`` (the default) still fills *blank* values only; pass
+      ``overwrite=True`` to restamp every row.
 
     Blanks are never left blank: ``None``, ``NaN`` and ``''`` become
     :data:`DEFAULT_SCREEN`, because an empty screen id is not an identity and
@@ -2532,18 +2517,16 @@ def canonicalise_columns(df):
     """Return ``df`` with every legacy column name renamed canonically.
 
     Metadata aliases (:data:`LEGACY_COLUMN_NAMES`) *and* the legacy feature
-    spellings (:data:`LEGACY_COLUMN_PATTERNS`) — this used to fix only the
-    former while ``utils.canonicalize_measurement_columns``, the other
-    frame-level canonicaliser, fixed both. Both now call one
-    :func:`canonical_column_name`, so a frame gets the same columns whichever
-    of the two a caller reached for.
+    spellings (:data:`LEGACY_COLUMN_PATTERNS`) — through
+    :func:`canonical_column_name`, which
+    ``utils.canonicalize_measurement_columns`` also calls, so a frame gets the
+    same columns whichever of the two a caller uses.
 
     A rename is **skipped when the canonical name is already present**, which
     is the same rule ``utils.rename_columns_in_db`` follows: a frame carrying
     both spellings keeps both untouched rather than having one silently
-    overwrite the other. Dropping data to tidy a name is never the right
-    trade — a human can decide which column is authoritative, and until then
-    both stay reachable.
+    overwrite the other. A human can decide which column is authoritative, and
+    until then both stay reachable.
 
     "Already present" is decided case-insensitively by
     :func:`canonical_rename_plan`, because these frames get written with
@@ -2589,9 +2572,32 @@ def compose_prc_column(df, columns=None):
         raise KeyError(
             f'cannot compose {PRC_KEY!r}: {missing} not in the frame. '
             f'Columns: {list(df.columns)}')
-    return (df[plate].astype(str).map(escape_filename_component)
-            + KEY_SEPARATOR + df[row].astype(str)
-            + KEY_SEPARATOR + df[column].astype(str))
+    parts = (df[plate], df[row], df[column])
+    if len(df) <= _PRC_CHUNK_ROWS:
+        return _compose_prc_chunk(*parts)
+    import pandas as pd
+
+    return pd.concat([
+        _compose_prc_chunk(*(part.iloc[start:start + _PRC_CHUNK_ROWS]
+                             for part in parts))
+        for start in range(0, len(df), _PRC_CHUNK_ROWS)])
+
+
+_PRC_CHUNK_ROWS = 50_000
+"""Rows composed per step by :func:`compose_prc_column`.
+
+Object-dtype concatenation is one C call that holds the interpreter lock
+for the whole column: 0.46 s on lesson 13's regression reads, with the
+window starved. Slices of this size keep each step to a few milliseconds
+and give the GUI thread the lock between them; the keys are the same.
+"""
+
+
+def _compose_prc_chunk(plate, row, column):
+    """``plate|row|column`` keys for one slice of the three key columns."""
+    return (plate.astype(str).map(escape_filename_component)
+            + KEY_SEPARATOR + row.astype(str)
+            + KEY_SEPARATOR + column.astype(str))
 
 
 
@@ -2614,12 +2620,9 @@ def canonical_plate_id(plate: Any) -> str:
     ``KeyError: 0`` -- nowhere near the mismatch and with nothing on screen
     naming a plate.
 
-    This lives here, and not in :mod:`spacr.multi_database` where it was
-    written, because there must be **one** normaliser:
-    ``utils.correct_metadata`` had the rule for frames, ``multi_database``
-    had it for scalars and for database reads, and the pair had to be pinned
-    against each other by test precisely because they were two. Both now call
-    this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.
+    This is the single normaliser: ``utils.correct_metadata`` (frames) and
+    :mod:`spacr.multi_database` (scalars and database reads) both call it.
+    :mod:`spacr.multi_database` re-exports the name, so no caller moved.
 
     :param plate: a plate id, from anywhere.
     :returns: the id with a doubled ``p`` prefix collapsed; everything else
@@ -2660,11 +2663,9 @@ def comparable_key_value(value: Any) -> str:
     """One metadata value, reduced to the form two spellings are compared in.
 
     ``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype
-    difference is **not** a disagreement, and this is the whole reason the
-    comparison is not ``Series.equals``: a naive equality warns on every file
-    that stored one copy of the well as text and the other as a number, and a
-    warning that fires every time teaches the user to ignore the one that
-    matters.
+    difference is **not** a disagreement, so the comparison is not
+    ``Series.equals``, which would report one for every file that stored one
+    copy of the well as text and the other as a number.
 
     Missing is its own value: ``None``, ``NaN`` and ``''`` all reduce to
     ``''``, so two columns that are both blank on a row agree there.
@@ -2725,7 +2726,7 @@ class ColumnCollision:
 
     @property
     def agreed(self) -> bool:
-        """Whether every row said the same thing."""
+        """Whether every row's source values agreed."""
         return self.disagreeing_rows == 0
 
     @property
@@ -2751,22 +2752,22 @@ def _choose_source(canonical: str, names: Tuple[str, ...]) -> str:
 def resolve_metadata_collisions(frame, *, report=None, warn=None):
     """Collapse every group of columns that mean the same metadata key.
 
-    Several columns can normalise to one
-    key -- a file carrying ``well``, ``wellID`` and ``well_name`` has three
-    opinions about which well a row came from, and every join downstream is
-    silently picking one of them. What happens is decided by whether they
-    **agree row by row** (:func:`comparable_key_value`):
+    Several columns can normalise to one key -- a file carrying ``well``,
+    ``wellID`` and ``well_name`` has three values for which well a row came
+    from, and every join downstream silently picks one of them. What happens is
+    decided by whether they **agree row by row**
+    (:func:`comparable_key_value`):
 
     * **they agree** -- keep one, drop the rest, and *print*. Nothing is
       wrong, so nothing warns.
     * **they disagree** -- the same action, and a **warning** naming the
-      columns, the choice, and *how many rows differ*. That count is the
-      point: "they disagree" is not actionable, "3 of 40 000 rows disagree"
+      columns, the choice, and *how many rows differ*. The count distinguishes
+      the cases: "they disagree" is not actionable, "3 of 40 000 rows disagree"
       is a typo and "40 000 of 40 000" is the wrong file.
 
     Only :data:`METADATA_KEYS` are collapsed. Two feature columns that
-    normalise alike keep both spellings, because a measurement is data and
-    dropping one to tidy a name is not this function's call to make.
+    normalise alike keep both spellings, because a measurement is data and is
+    not dropped to tidy a name.
 
     Duplicate column *labels* are handled positionally, so a frame that
     already carries two columns both literally named ``rowID`` -- which
@@ -2828,13 +2829,13 @@ def resolve_metadata_collisions(frame, *, report=None, warn=None):
 
 def canonicalise_frame(frame, *, report=None, warn=None,
                        repair_plate_ids: bool = True):
-    """The whole vocabulary applied to one frame: the reader's normaliser.
+    """Apply the full column vocabulary to one frame, as readers do.
 
     Three steps, in this order and for this reason:
 
-    1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions
-       *before* renaming, because renaming first is what produces two columns
-       called ``rowID`` and a ``to_sql`` that refuses the table.
+    1. :func:`resolve_metadata_collisions` -- collapse duplicate metadata
+       columns *before* renaming, because renaming first is what produces two
+       columns called ``rowID`` and a ``to_sql`` that refuses the table.
     2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus
        the legacy *feature* spellings, renamed.
     3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on
@@ -3193,9 +3194,9 @@ def legacy_well_ids(well: Any) -> Tuple[str, str]:
 def legacy_map_wells(file_name: Any, timelapse: bool = False) -> Tuple[str, ...]:
     """``utils._map_wells`` reproduced bit for bit, ``'error'`` tuple and all.
 
-    Used by ``tests/test_schema.py`` to assert that the canonical parser
-    agrees with the legacy one on **every well that works today**, so the
-    migration is provably a strict repair rather than a change of contract.
+    Used by ``tests/test_schema.py`` to assert that the canonical parser agrees
+    with the legacy one on **every well that works today**, so the migration is
+    a repair rather than a change of contract.
 
     :param file_name: stack file name.
     :param timelapse: parse a trailing timepoint.
@@ -3226,20 +3227,16 @@ def legacy_map_wells(file_name: Any, timelapse: bool = False) -> Tuple[str, ...]
 def correct_metadata_column_names(df):
     """Rename legacy metadata columns to the canonical spaCR names.
 
-    A thin name over :func:`spacr.schema.canonicalise_frame`, which is the
-    one vocabulary: case- and punctuation-insensitive, so ``Plate``,
-    ``PLATE``, ``plate_id`` and ``plateName`` all become ``plateID``. This
-    function used to carry its own list of six spellings, matched
-    case-sensitively, and that list is why a CSV whose header said ``Column``
-    reached a fit with no ``columnID`` in it.
+    A thin name over :func:`spacr.schema.canonicalise_frame`, which is the one
+    vocabulary: case- and punctuation-insensitive, so ``Plate``, ``PLATE``,
+    ``plate_id`` and ``plateName`` all become ``plateID``.
 
     Two things it does that the shared vocabulary deliberately does not:
 
     * ``grna_name`` -> ``grna``. Not in the shared vocabulary because the
       sequencing CSVs are still read with ``grna_name`` by name in
       ``spacr.submodules`` and ``spacr.plot``; renaming it at the database
-      migration would break those reads, and a rename nobody can see is
-      worse than a spelling.
+      migration would break those reads.
     * ``plate_row`` split into ``plateID`` and ``rowID``. That is a *value*
       split rather than a rename, so it has no place in a name table.
 

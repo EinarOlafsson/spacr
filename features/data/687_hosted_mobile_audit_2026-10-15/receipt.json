@@ -1,0 +1,267 @@
+{
+  "status": "VALID MEASUREMENTS; ALL-PAGE THRESHOLD FAILED",
+  "source_revision": "f2115f8202b4421bc70922712076bb0b7c416949",
+  "production_run": 38751829473,
+  "pages_run": 38751922377,
+  "public_revision": "a7aee44e477a7286c42c66e7f25ab2fbe3533722",
+  "audit_run": 38752383804,
+  "audit_url": "https://github.com/EinarOlafsson/EinarOlafsson.github.io/actions/runs/38752383804",
+  "dispatch_count": 1,
+  "all_reports_hash_verified": 15,
+  "all_measurements_valid": true,
+  "all_before_during_after_identity_checks_pass": true,
+  "thresholds": {
+    "performance": 0.9,
+    "accessibility": 0.95,
+    "transferredBytes": 1000000
+  },
+  "results": [
+    {
+      "type": "sample",
+      "route": "/",
+      "sample": 1,
+      "performance": 0.79,
+      "accessibility": 1,
+      "transferredBytes": 248832,
+      "failures": [
+        "performance"
+      ]
+    },
+    {
+      "type": "sample",
+      "route": "/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 248823,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/",
+      "sample": 3,
+      "performance": 0.99,
+      "accessibility": 1,
+      "transferredBytes": 248845,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/spacr/",
+      "sample": 1,
+      "performance": 0.98,
+      "accessibility": 1,
+      "transferredBytes": 401126,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/spacr/",
+      "sample": 2,
+      "performance": 0.99,
+      "accessibility": 1,
+      "transferredBytes": 401453,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/spacr/",
+      "sample": 3,
+      "performance": 0.99,
+      "accessibility": 1,
+      "transferredBytes": 401520,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/parascape/",
+      "sample": 1,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 120539,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/parascape/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 120580,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/parascape/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 1,
+      "transferredBytes": 120571,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/timepose/",
+      "sample": 1,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 72210,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/timepose/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 72320,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/timepose/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 72322,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/cellect/",
+      "sample": 1,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 64103,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/cellect/",
+      "sample": 2,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 63984,
+      "failures": []
+    },
+    {
+      "type": "sample",
+      "route": "/projects/cellect/",
+      "sample": 3,
+      "performance": 1,
+      "accessibility": 0.97,
+      "transferredBytes": 64061,
+      "failures": []
+    }
+  ],
+  "failed_home_sample_diagnosis": {
+    "total_blocking_time_ms": 751,
+    "field_js_long_task_ms": 410,
+    "fx_js_long_tasks_ms": [
+      128,
+      124
+    ],
+    "lighthouse_eval_long_task_ms": 474,
+    "warnings": [],
+    "inference": "Existing software/slow-frame policy is evaluated after eager context creation and shader compilation; report implicates initial theme work but does not attribute all blocking time to it. No blind retry or score selection."
+  },
+  "limits": [
+    "Every page/all three samples must pass; 14 passing samples do not close N686/N687.",
+    "Protected pages are measured while locked.",
+    "No physical 60 fps, hardware-GPU, human usability or whole-item acceptance."
+  ],
+  "artifacts": {
+    "audit-readback.json": {
+      "bytes": 45697,
+      "sha256": "51311df5966cf3e5fe25932e4294bf6e627102b0dc6429511f9ccf520a5f4108"
+    },
+    "audit-watch.log.gz": {
+      "bytes": 651,
+      "sha256": "e27a411a377c17170e932f6db0392aaabeea016fb6a061251b7a11e62531354e"
+    },
+    "audit.log.gz": {
+      "bytes": 2307742,
+      "sha256": "e81568c41fc48c42c94f5b715b22f98d60d4c23fe4dddeca583a78fb90a235ea"
+    },
+    "collect-audit-log.py": {
+      "bytes": 1837,
+      "sha256": "7ebf35810fd4342034796f13b3f2653abf95f2b9bb30e125e0be7c8ec591e7c3"
+    },
+    "pages-success.json": {
+      "bytes": 2713,
+      "sha256": "f438baf1835c940c651e8773e2331ead7a984877e6f732a0cfcb1bbdfffbac09"
+    },
+    "pre-dispatch-identity.json": {
+      "bytes": 4012,
+      "sha256": "66aadbf7f01daf5b5ebcf7a2400025eee2ca5fa171bc702ba037108f087625b4"
+    },
+    "production-failed.log.gz": {
+      "bytes": 1303,
+      "sha256": "130209b21ea29fbb0da472e65fb2ef4d7cf6e2169cca28513692d8f4c815e97e"
+    },
+    "production-retry.log.gz": {
+      "bytes": 9466,
+      "sha256": "94fae2cb6b24fef1536f50c2750a6dc3ff6e0cfe5b69d2fdcc290b5c9653d2b0"
+    },
+    "report-0-1.json.gz": {
+      "bytes": 124191,
+      "sha256": "47ecb18a3bec22c476c2adddf0d4ed602be3b3f02fcd36aa7ec9b85b05e644a8"
+    },
+    "report-0-2.json.gz": {
+      "bytes": 115919,
+      "sha256": "5664efdab9a5c858ab25398e1fd6c220500c968ec9b0bde872f8244dc3091a7f"
+    },
+    "report-0-3.json.gz": {
+      "bytes": 141060,
+      "sha256": "44930da8c6279c130aff583c06b050e30be7bb6a8efc46c5818a9a0d0d12d55b"
+    },
+    "report-1-1.json.gz": {
+      "bytes": 196745,
+      "sha256": "b1a9d505efda8138d9c390419c44b0e04bec627a290c89fbf63a130ed9f8576e"
+    },
+    "report-1-2.json.gz": {
+      "bytes": 223182,
+      "sha256": "a1bd8f83261e437c14674a5d7853688142da4e7ee6544002a5b50db8f9647db7"
+    },
+    "report-1-3.json.gz": {
+      "bytes": 204815,
+      "sha256": "23179cada5c209b14cab285b6dc2aca53ab56c6ab5b2c2a56164e012268523f1"
+    },
+    "report-2-1.json.gz": {
+      "bytes": 322534,
+      "sha256": "539aed279fcbce64e87f526ffbb49c95d4a140fd81c47963fff5183cc1aa04f6"
+    },
+    "report-2-2.json.gz": {
+      "bytes": 335032,
+      "sha256": "12504e98c7097f3e741df3bf92f9551676f2d4954cec1ab578c5f58256a86961"
+    },
+    "report-2-3.json.gz": {
+      "bytes": 335297,
+      "sha256": "4748de5fc3d722252e1245bfef94a702df9f98151e9476bcefef9c688ecd8e2e"
+    },
+    "report-3-1.json.gz": {
+      "bytes": 45422,
+      "sha256": "dd3561c93ada880adc188e97dcf1de2ed8091bb8cb07edd0777242c6c232bd6f"
+    },
+    "report-3-2.json.gz": {
+      "bytes": 45245,
+      "sha256": "59a14ffa4f6e3780f768ecc1831aca4f1fa0ea9171d7b5c574de2974bfd7b280"
+    },
+    "report-3-3.json.gz": {
+      "bytes": 45364,
+      "sha256": "d3db68b3142e74f7a9c7b77af40cd6caaf1e8ad51ad3d66d323ecdbb0f6cc8fb"
+    },
+    "report-4-1.json.gz": {
+      "bytes": 45349,
+      "sha256": "c54daff30fa6974c8c18029a96798cfa1022d22130b4c9080a29ea843660e2d7"
+    },
+    "report-4-2.json.gz": {
+      "bytes": 55293,
+      "sha256": "86b0880813042523eab5088a6139b7c6969128f723194c7a2b6b5bc68cfb976e"
+    },
+    "report-4-3.json.gz": {
+      "bytes": 45263,
+      "sha256": "601356915f70f72b6b65db04695f969202c048a5f1a0044a47b62682f96b3ebc"
+    }
+  }
+}

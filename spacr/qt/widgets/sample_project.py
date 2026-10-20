@@ -11,6 +11,7 @@ if the bundled map is missing.
 from __future__ import annotations
 
 import json
+from .. import _after
 from copy import deepcopy
 import logging
 from pathlib import Path
@@ -389,7 +390,7 @@ def _offer_pathway_walkthrough(window, entry) -> None:
     button.ensurePolished()
     button.show()
     status.setFixedHeight(max(status.height(), status.sizeHint().height()))
-    QTimer.singleShot(0, status, lambda: status.setFixedHeight(
+    _after(0, status, lambda: status.setFixedHeight(
         max(status.height(), status.sizeHint().height())))
 
 
@@ -404,9 +405,12 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
     :returns: the module key opened, or ``""`` when nothing was chosen.
     """
     dialog = SampleProjectDialog(window, entries)
-    if dialog.exec() != QDialog.Accepted:
-        return ""
-    entry = dialog.selected() or {}
+    try:
+        if dialog.exec() != QDialog.Accepted:
+            return ""
+        entry = dialog.selected() or {}
+    finally:
+        dialog.deleteLater()
     keys = list(entry.get("modules") or ())
     if not keys:
         return ""

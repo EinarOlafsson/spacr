@@ -134,3 +134,67 @@ new scientific acquisition is claimed; F580 remains partial for the stated
 known-exposure paired-session acceptance gap.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-15 — OPTIONAL NAMED REFERENCE PLATE IMPLEMENTED; SCIENCE GATES REMAIN
+Measure now accepts intensity_calibration_reference_plate as an exact plate
+identifier (for example plate2). Blank/None keeps the first-by-name default.
+Missing, ambiguous or non-string choices refuse before output writes. The
+effective reference already participates in saved calibration provenance and
+resume identity: unchanged selected-reference runs resume; changing the choice
+refuses before WAL, settings or resume mutation and preserves the database.
+
+The new control stays behind Show alpha features with literal ObjectName
+IntensityCalibrationReferencePlate. Its value reaches the production read-only
+preview and changing it invalidates displayed gains. CSV/JSON export/import
+preserves the choice. The calibration toggle help and preview explanation now
+state selected-reference and blank-default behavior consistently.
+
+Validation: 87 distinct checks pass across native two-plate NPY/SQLite, existing
+calibration, actual AppScreen/alpha/preview, nine-locale runtime lookup/error
+refusal, generated-current/consumer/arrival contracts. Initial native baseline
+was8FAIL3PASS; one old four-control assertion was updated to the exact five-key
+registry and both original alpha checks pass.36 exact runtime targets across
+nine locales have independent AI technical peer review and normal generation;
+10,572 unrelated values per locale are retained exactly. The optional-reference
+guide paragraph is translated through the owner normal gettext/import/audit,
+retaining14 prior messages and accepting all15 current messages per locale.
+Normal consumer-map, flow and Help search artifacts are regenerated.
+
+Evidence: features/data/580_reference_plate_reviews_2026-10-15/ and
+features/data/580_reference_plate_guide_2026-10-15/. No human/native-language or
+new scientific acquisition acceptance is claimed. Separate session columns,
+external bead folders and known-exposure paired bead/session acquisition
+remain open; this closes only the explicit reference-selection software gap.
+
+
+2026-10-15 — EXPLICIT SESSION AND EXTERNAL REFERENCE SOFTWARE CLOSURE
+Frozen backend 0d814310629 and GUI 6a1b51bfd7 add four alpha inputs: an exact
+filename-to-session CSV, its selected session column, a local external bead/
+reference folder and an explicit reference session. Blank values retain the
+existing per-plate path. Version-2 preview rows use session/reference-session
+identity; changed inputs invalidate gains and reject late results. File/folder
+choosers preserve cancellation and typed values. The calibration form wraps
+long rows so Preview fits the unchanged dark/light viewport assertions.
+
+The backend's 23 actual CSV/TIFF/SQLite/resume checks and independent peer are
+retained without replay. GUI final14 checks pass after the original seven new
+control failures and two reproduced viewport failures. Nine locales have162
+runtime targets and9 module API targets with independent technical review and
+normal generation. All10,855 unrelated runtime identities/targets per locale
+remain exact. Normal source audit and fresh canonical equality pass. The first
+preflight's three stale old GUI captions were resolved by retiring27 exact
+records with their full provenance; four superseded tooltip sources/36 records
+and one old API paragraph/nine records are similarly retained. No validator or
+ratchet is relaxed. Backend scoped normal visibility proves seven changed
+private definitions introduce no additional public API/runtime arrivals, while
+90 public bodies and45 enabled nested entries remain unchanged.
+
+Normal settings consumers, settings-flow and offline Help are regenerated.
+Help's actual local prose/search/English/Korean routes pass. This completes
+the explicit session/reference input software scope; it does not establish a
+new known-exposure paired bead/session acquisition, human/native-language,
+other-platform, scientific accuracy, full CI or release acceptance.
+Evidence: features/data/580_session_gui_2026-10-15/,
+580_session_review_inputs_2026-10-15/,580_backend_census_2026-10-15/,
+580_session_runtime_catalogs_2026-10-15/,580_session_api_catalogs_2026-10-15/,
+580_generated_setting_links_2026-10-15/ and580_session_help_consumer_2026-10-15/.

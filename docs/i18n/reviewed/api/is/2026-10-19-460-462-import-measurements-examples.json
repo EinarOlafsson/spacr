@@ -1,0 +1,344 @@
+{
+  "language": "is",
+  "note": "Items 460/462: test-data docstrings (import_examples, measurements_example, plate templates) not yet reviewed in this locale.",
+  "records": [
+    {
+      "context": "Published contents: :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
+      "label": "spacr.import_examples#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Published contents: :data:`IMPORT_EXAMPLE_REPO` holds one archive. Inside it, under ``import_example/``:",
+      "source_sha256": "f6ca2c83adbdaf5fb94f47ae157aaed5b86ca0ba6c5e3d4beba858ddca48c626",
+      "translation": "Birt innihald: :data:`IMPORT_EXAMPLE_REPO` geymir eitt safnskjal. Í því, undir ``import_example/``:"
+    },
+    {
+      "context": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- public sample files, because no open library writes ND2 or LIF. They are third-party images under CC BY 4.0, with no masks, and they go through the Format Converter;",
+      "label": "spacr.import_examples#7",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``variants/nikon_nd2`` and ``variants/leica_lif`` -- public sample files, because no open library writes ND2 or LIF. They are third-party images under CC BY 4.0, with no masks, and they go through the Format Converter;",
+      "source_sha256": "f97b8d9ab0b47964d32b97a11278f9c049895dbdd0efeaed5128c07a215e4f8e",
+      "translation": "``variants/nikon_nd2`` og ``variants/leica_lif`` -- opinberar sýnisskrár, því ekkert opið safn skrifar ND2 eða LIF. Þetta eru myndir frá þriðja aðila með leyfinu CC BY 4.0, án gríma, og þær fara í gegnum Format Converter;"
+    },
+    {
+      "context": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A partly unpacked set reads as absent, so it is downloaded again.",
+      "label": "spacr.import_examples.is_present#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A partly unpacked set reads as absent, so it is downloaded again.",
+      "source_sha256": "c5e3b615815ae5b67416f846c3d68c8ecce7708d6fc803353f4f33644ba3c113",
+      "translation": "``True`` aðeins þegar skráin yfir innihald er til og hver skrá sem hún tilgreinir fyrir afbrigðið eða afbrigðin er á disknum. Safn sem er aðeins að hluta afþjappað telst ekki til staðar og er því sótt aftur."
+    },
+    {
+      "context": "Load Import test data: one example per vendor format and file naming.",
+      "label": "spacr.qt.import_demo#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Load Import test data: one example per vendor format and file naming.",
+      "source_sha256": "71bda0a7a078897848e6612c40ba52819018fc4f20b280e58c902564d6c41322",
+      "translation": "Hlaða prófunargögnum fyrir Import: eitt dæmi fyrir hvert skráarsnið framleiðanda og hverja nafnavenju skráa."
+    },
+    {
+      "context": "The \"Load test data…\" button opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
+      "label": "spacr.qt.import_demo#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The \"Load test data…\" button opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
+      "source_sha256": "3876f4a2781af684385a54f0765a312f4dc11ff3b0eba2b6342e6f4687eca69d",
+      "translation": "Hnappurinn \"Load test data…\" opnar :class:`ImportTestDataChooser`, með einum hnappi fyrir hvert afbrigði í :data:`spacr.import_examples.IMPORT_VARIANTS`, og hverju þeirra er lýst þegar bendillinn er yfir því. Valið afbrigði er sótt -- allt safnið er eitt safnskjal, svo fyrsti smellur sækir öll afbrigðin og hver síðari smellur opnar úr skyndiminninu -- og síðan:"
+    },
+    {
+      "context": "The download uses the same code as the other example sets: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
+      "label": "spacr.qt.import_demo#5",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The download uses the same code as the other example sets: :class:`_TarExampleWorker` streams the archive on a worker thread behind the shared progress dialog and unpacks it through the tar data filter.",
+      "source_sha256": "74757680c56d6792b3abb0ca44a4316ed09e59c30c23e46a4c2e1a7d3f35a214",
+      "translation": "Niðurhalið notar sama kóða og hin dæmasöfnin: :class:`_TarExampleWorker` streymir safnskjalinu á vinnsluþræði á bak við sameiginlega framvinduglugga og afþjappar það í gegnum gagnasíu tar."
+    },
+    {
+      "context": "Pick their files, review the mapping, import, read the summary.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Pick their files, review the mapping, import, read the summary.",
+      "source_sha256": "18b1058c323caeba027e65f166b3eb62f7ce37fc8abdf223d94f817c26f79fa3",
+      "translation": "Velja skrár notandans, fara yfir vörpunina, flytja inn og lesa samantektina."
+    },
+    {
+      "context": "when False every job executes inline on the calling independent execution path. Tests use it so assertions are exact; the app leaves it True so a long import does not freeze the window.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#2",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "when False every job runs inline on the calling thread. Tests use it so assertions are exact; the app leaves it True so a long import does not freeze the window.",
+      "source_sha256": "eef833511e290f44ee9e3a3cdfda8a3250c74207accb0139862936f17406b77a",
+      "translation": "þegar False keyrir hvert verk beint á þræðinum sem kallar. Prófanir nota það svo fullyrðingar séu nákvæmar; forritið hefur það True svo langur innflutningur frysti ekki gluggann."
+    },
+    {
+      "context": "Build the importer: images, masks, table and mapping.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Build the importer: images, masks, table and mapping.",
+      "source_sha256": "e82aa9195673f73140257b013eba04754d45cff4606e4e42ba0d0d80eb68541d",
+      "translation": "Byggja innflutningstólið: myndir, grímur, töflu og vörpun."
+    },
+    {
+      "context": "How many background execution units are still winding down.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.active_jobs#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "How many worker threads are still winding down.",
+      "source_sha256": "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8",
+      "translation": "Hve margir vinnsluþræðir eru enn að ljúka sér af."
+    },
+    {
+      "context": "Register a mask folder for one object class.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.add_mask_folder#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Register a mask folder for one object class.",
+      "source_sha256": "8e5cc5a01056e4bce8f727f9510c0bb4fe2054d217c3628c26c463fd9f70e684",
+      "translation": "Skrá grímumöppu fyrir einn hlutaflokk."
+    },
+    {
+      "context": "False when the class is unknown or the path is blank, with the reason inline — never an exception into a GUI slot.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.add_mask_folder#3",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "False when the class is unknown or the path is blank, with the reason inline — never an exception into a GUI slot.",
+      "source_sha256": "2bd76c877da125703d3858b0a9b6792a2506533b98f359030904103ccb8baca5",
+      "translation": "False þegar flokkurinn er óþekktur eða slóðin auð, með ástæðunni birtri á staðnum — aldrei undantekning inn í GUI-rauf."
+    },
+    {
+      "context": "True when the Import button is live.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.can_import#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True when the Import button is live.",
+      "source_sha256": "bf094c86760b4f9becc7f5f70482f6f3ad53cb57dba6174e073e1ff040e97505",
+      "translation": "True þegar Import-hnappurinn er virkur."
+    },
+    {
+      "context": "The mapping as edited — exactly what Import would apply.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.column_maps#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The mapping as edited — exactly what Import would apply.",
+      "source_sha256": "449f666692a3705d7a05b932a5b2bc1709fa1bb156de84842bfda6869074cc6d",
+      "translation": "Vörpunin eins og henni hefur verið breytt — nákvæmlega það sem Import myndi beita."
+    },
+    {
+      "context": "One line per conflict, blocking or not.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.conflict_lines#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "One line per conflict, blocking or not.",
+      "source_sha256": "cc2554bf0dc850d7491a4f47264556ce0fc0bf67d9368d60a1c88ee79fc4da8e",
+      "translation": "Ein lína fyrir hvern árekstur, hvort sem hann hindrar eða ekki."
+    },
+    {
+      "context": "The destination currently typed in.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.destination_path#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The destination currently typed in.",
+      "source_sha256": "8f6c44c8e4a6535c6631af56ad8ab12f38e79e5d5726eadb254c6308053e682b",
+      "translation": "Áfangastaðurinn sem er sleginn inn núna."
+    },
+    {
+      "context": "The image folder currently typed in.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.images_path#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The image folder currently typed in.",
+      "source_sha256": "d5547addfb7a6e31ef8ba03ded020c0e272ca01dc99a20737619de8b664b4719",
+      "translation": "Myndamappan sem er slegin inn núna."
+    },
+    {
+      "context": "True while a preview or an import is in flight.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.is_busy#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True while a preview or an import is in flight.",
+      "source_sha256": "faceed522475568c5b33a08448708b729f610007a8d50118c0b30ebe1f89c2b5",
+      "translation": "True á meðan forskoðun eða innflutningur er í gangi."
+    },
+    {
+      "context": "Read a mapping back and apply it to the plan on application view.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.load_mapping#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Read a mapping back and apply it to the plan on screen.",
+      "source_sha256": "ebd4d7a3158ea8158e2b9636318081979b97b7fee143c1ac3bdc226723877dee",
+      "translation": "Lesa vörpun aftur inn og beita henni á áætlunina á skjánum."
+    },
+    {
+      "context": "Rows in the mapping table.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.mapping_row_count#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Rows in the mapping table.",
+      "source_sha256": "be61fc29c77990a128ef451f60140b67c0a97fb7b768b4d386e953cdde7f46b6",
+      "translation": "Raðir í vörpunartöflunni."
+    },
+    {
+      "context": "``{object_type: folder}``, in spaCR's mask image layer order.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.mask_folders#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "``{object_type: folder}``, in spaCR's mask-plane order.",
+      "source_sha256": "53e34034747b7c5284a0aecb7aa921d7dfb21732fbf1d7763928a951ecbed06c",
+      "translation": "``{object_type: folder}``, í röð grímuplana spaCR."
+    },
+    {
+      "context": "The measurement table currently typed in.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.measurements_path#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The measurement table currently typed in.",
+      "source_sha256": "154e6e320955b77759b05ea34567bce05f172653f2957626968ba8ffa8716a30",
+      "translation": "Mælingataflan sem er slegin inn núna."
+    },
+    {
+      "context": "The selected collision policy.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.on_conflict#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The selected collision policy.",
+      "source_sha256": "0f4f336a9ab67aa0ede230303fee737b823186ec8696d7249d62ac0478c24226",
+      "translation": "Valin regla um árekstra."
+    },
+    {
+      "context": "The scale as a number, or None when blank or unparseable.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.pixel_size#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The scale as a number, or None when blank or unparseable.",
+      "source_sha256": "ddcb666ac3b7a3625b066f51cfd0efd86f4a4c3f36cad5287ae576a88f6967a4",
+      "translation": "Kvarðinn sem tala, eða None þegar hann er auður eða ekki hægt að þátta hann."
+    },
+    {
+      "context": "None is not an error: a column that needs a pixel size and does not have one is reported uncalibrated rather than scaled by 1.0.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.pixel_size#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "None is not an error: a column that needs a pixel size and does not have one is reported uncalibrated rather than scaled by 1.0.",
+      "source_sha256": "441d4e201f6cc283f9aac2234328b7dbf54b9690bf44c054acbab5eff93fc6d6",
+      "translation": "None er ekki villa: dálkur sem þarf stærð mynddíls og hefur hana ekki er tilkynntur ókvarðaður frekar en kvarðaður með 1.0."
+    },
+    {
+      "context": "The plan currently on application view, or None.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.plan#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The plan currently on screen, or None.",
+      "source_sha256": "d9f6dedc7903ee6740089f6eea860076d9050744a0278cc66d018d07dcdf9fd7",
+      "translation": "Áætlunin sem er á skjánum núna, eða None."
+    },
+    {
+      "context": "Scan, pair and verify. Writes nothing.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.preview#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Scan, pair and verify. Writes nothing.",
+      "source_sha256": "f08877aa80ad0bb38bcec9fffee0cfaacd3d877e9d5c3ecb325412ea6264bfae",
+      "translation": "Skanna, para og sannreyna. Skrifar ekkert."
+    },
+    {
+      "context": "True when the job was started (or, unthreaded, completed); False when the inputs are unusable, with the reason in the inline status label.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.preview#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True when the job was started (or, unthreaded, completed); False when the inputs are unusable, with the reason in the inline status label.",
+      "source_sha256": "762869bda1e4ef6ad627529f3724442243d96a07aa00fca7a66709d205a439c1",
+      "translation": "True þegar verkið var ræst (eða, án þráða, lokið); False þegar inntökin eru ónothæf, með ástæðunni í stöðumerkinu á staðnum."
+    },
+    {
+      "context": "Forget one object class's mask folder.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.remove_mask_folder#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Forget one object class's mask folder.",
+      "source_sha256": "285af9bbf40531916df9cd8857f698d2bb2e44b62307becb6a2620bc45f09d78",
+      "translation": "Gleyma grímumöppu eins hlutaflokks."
+    },
+    {
+      "context": "Whatever is in the report pane.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.report_text#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Whatever is in the report pane.",
+      "source_sha256": "7481df9b65900bb5f6bbc7170cc183b1f8a25d558ec95e7c54a3877a39fee527",
+      "translation": "Hvaðeina sem er í skýrslusvæðinu."
+    },
+    {
+      "context": "The result of the last import, or None.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.result#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "The result of the last import, or None.",
+      "source_sha256": "139df773931a4bacf470441125a638719e289e67aa7599898cbd5a9af7693375",
+      "translation": "Niðurstaða síðasta innflutnings, eða None."
+    },
+    {
+      "context": "Build the project. Off the main GUI execution path unless ``threaded=False``.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.run_import#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Build the project. Off the GUI thread unless ``threaded=False``.",
+      "source_sha256": "bd5e1a64c0e8d331140ca127330e5096d3539d95cd2177cca50d306f9fac4194",
+      "translation": "Byggja verkefnið. Utan GUI-þráðarins nema ``threaded=False``."
+    },
+    {
+      "context": "True when the job was started, False when it was refused — with the reason inline.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.run_import#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "True when the job was started, False when it was refused — with the reason inline.",
+      "source_sha256": "50da5b00edef562285d6143d7c4bbb4df3485e3e983f61dcca411fb958e96717",
+      "translation": "True þegar verkið var ræst, False þegar því var hafnað — með ástæðunni birtri á staðnum."
+    },
+    {
+      "context": "Write the mapping on application view to a reviewable CSV.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.save_mapping#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Write the mapping on screen to a reviewable CSV.",
+      "source_sha256": "3fc6062ce5759dde3bbc952ad923988b8156d11b9a582d7a3a680a056d39d3fd",
+      "translation": "Skrifa vörpunina á skjánum í CSV-skrá sem hægt er að fara yfir."
+    },
+    {
+      "context": "Set the destination project root.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_destination#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Set the destination project root.",
+      "source_sha256": "ec417ff62f7a1bda9a1ccdd380dd278f764d45982e3c3da83d3e5b7b704485b1",
+      "translation": "Stilla rót áfangaverkefnisins."
+    },
+    {
+      "context": "Point the application view at their image folder without opening a dialog.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_images#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Point the screen at their image folder without opening a dialog.",
+      "source_sha256": "c27833590f076eb7b9466feea009dd3b6e20f13084c8eb7acea3683044f5e01e",
+      "translation": "Beina skjánum að myndamöppu notandans án þess að opna glugga."
+    },
+    {
+      "context": "Point the screen at their measurement table.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_measurements#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Point the screen at their measurement table.",
+      "source_sha256": "e8f2804baac3ab8d358457286fba24d0a206e132ddc4d63b02426ea264363475",
+      "translation": "Beina skjánum að mælingatöflu notandans."
+    },
+    {
+      "context": "Choose refuse-or-rename for colliding targets.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_on_conflict#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Choose refuse-or-rename for colliding targets.",
+      "source_sha256": "e3df10e47af162ffe7ddc7e1735506d7f3ad7e0378e0e036b81214632c70a733",
+      "translation": "Velja höfnun eða endurnefningu fyrir mörk sem rekast á."
+    },
+    {
+      "context": "Set the µm-per-pixel scale; None or '' means unknown.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_pixel_size#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Set the µm-per-pixel scale; None or '' means unknown.",
+      "source_sha256": "250291b04caa144cdb00f3d1eafafef13f732af0e25236fff76c9030361aa99b",
+      "translation": "Stilla kvarðann í µm á mynddíl; None eða '' þýðir óþekkt."
+    },
+    {
+      "context": "Current inline status message.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.status_text#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Current inline status message.",
+      "source_sha256": "f189e4920e5593fbbb2b9120ff0ca74d5606bd45defaf2823b5391f04b804bd0",
+      "translation": "Núverandi stöðuskilaboð á staðnum."
+    },
+    {
+      "context": "Their columns with no mapping, by name.",
+      "label": "spacr.qt.screens.foreign.ForeignScreen.unmapped_columns#0",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Their columns with no mapping, by name.",
+      "source_sha256": "574c656f4ea7b6f28e8099c75701bb3f7d0b103572c62c2ba29049e11f397ef9",
+      "translation": "Dálkar notandans án vörpunar, eftir heiti."
+    },
+    {
+      "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised, so one bad template does not remove the others from the menu.",
+      "label": "spacr.qt.widgets.plate_layout.plate_templates#1",
+      "review_basis": "Direct AI technical authoring against exact current English source and normal target-neutral context",
+      "source": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised, so one bad template does not remove the others from the menu.",
+      "source_sha256": "76e66e6742ccddbe3cf430a9763333214df427200735d83e929af6663c4cbf44",
+      "translation": "Lesið úr gögnum pakkans í hvert sinn sem kallað er; mappan geymir fáeinar litlar skrár og er aðeins lesin þegar Experiment Design byggir valmynd sína. Skrá sem ekki er hægt að þátta er sleppt í stað þess að kasta villu, svo eitt gallað sniðmát fjarlægir ekki hin úr valmyndinni."
+    }
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
+}

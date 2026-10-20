@@ -215,7 +215,7 @@ def test_spacr_graph_canvases_are_the_case_this_covers():
     If that floor ever moves, the warning above is describing something
     that no longer happens.
     """
-    source = Path(P.__file__).read_text()
+    source = Path(P.__file__).read_text(encoding="utf-8")
     body = source.split("def _standerdize_figure_format")[1][:2000]
     assert "fig_size = 10" in body.replace(" ", " "), (
         "the 10 inch floor is gone from _standerdize_figure_format")
@@ -250,7 +250,7 @@ def _raw_savefig_sites(module_name):
     import importlib
 
     path = Path(importlib.import_module(f"spacr.{module_name}").__file__)
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     out = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -272,9 +272,20 @@ def test_every_kept_figure_goes_through_the_helper(module_name):
     """
     sites = _raw_savefig_sites(module_name)
     if module_name == "plot":
-        assert len(sites) == 1, (
+        import inspect
+
+        from spacr import plot
+
+        owners = {}
+        for name in ("save_figure", "_checked_savefig"):
+            lines, start = inspect.getsourcelines(getattr(plot, name))
+            owners[name] = range(start, start + len(lines))
+        outside = [line for line in sites
+                   if not any(line in span for span in owners.values())]
+        assert len(sites) == 2 and not outside, (
             f"spacr.plot has {len(sites)} raw savefig calls at lines "
-            f"{sites}; only save_figure's own is allowed")
+            f"{sites}; only save_figure's own and _checked_savefig's "
+            f"(F572's integrity-checked writer) are allowed")
         return
     assert not sites, (
         f"spacr.{module_name} still writes figures directly at lines "
@@ -295,7 +306,7 @@ def test_each_routed_module_imports_the_helper(module_name):
 
     module = importlib.import_module(f"spacr.{module_name}")
     if module_name in LAZY_IMPORTERS:
-        source = Path(module.__file__).read_text()
+        source = Path(module.__file__).read_text(encoding="utf-8")
         assert "from .plot import save_figure" in source, (
             f"spacr.{module_name} does not import save_figure anywhere")
         assert not re.search(r"(?m)^from \.plot import save_figure", source), (

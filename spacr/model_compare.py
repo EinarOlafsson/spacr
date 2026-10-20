@@ -1,11 +1,10 @@
 """Run two segmentation models over the same fields and say what changed.
 
-Why this exists
+Purpose
 ---------------
-Choosing a segmentation model in spaCR is currently done by running a whole
-plate twice and squinting at the montages. That is hours per candidate, and the
-comparison it produces is "these look about the same" — which is exactly the
-answer you get whether the models differ or not.
+Without this module, segmentation models are compared by running a whole plate
+twice and inspecting the montages, which takes hours per candidate and gives no
+quantitative result.
 
 This module makes the comparison small and quantitative: three fields, two
 models, one table. It is deliberately split in two halves so the Model Zoo
@@ -27,15 +26,15 @@ This is an A/B comparison, not an evaluation. There is no correct mask here, so
 nothing in this module calls one model right and the other wrong: every count
 is reported **directionally** ("B found 12 objects A did not"), never as
 precision or recall, and the wording of :func:`format_comparison` follows the
-same rule. The only symmetric summary numbers are the ones that genuinely are
-symmetric — the ARI and the matched fraction.
+same rule. The only symmetric summary numbers are the ones that are symmetric —
+the ARI and the matched fraction.
 
 The metrics, and why each one is computed the way it is
 -------------------------------------------------------
-``ari`` — **background is excluded, and that is the whole trick.**
-    The Adjusted Rand Index over two raw label images is nearly useless: a
-    1400x1400 field is ~95 % background, both models agree it is background,
-    and those agreed pairs swamp everything else. Two models that disagree
+``ari`` — **background is excluded.**
+    The Adjusted Rand Index over two raw label images is dominated by
+    background: a 1400x1400 field is ~95 % background, both models agree it
+    is background, and those agreed pairs swamp everything else. Two models that disagree
     about every single object still score about 0.999 (``tests/
     test_model_compare.py`` asserts exactly that number on a field where the
     foreground agreement is 0.0).
@@ -43,11 +42,10 @@ The metrics, and why each one is computed the way it is
     So the index is computed over the **union foreground** — the pixels at
     least one model assigned to an object — with pixels the *other* model left
     unassigned treated as unclustered singletons rather than as one big
-    background cluster. That second half matters as much as the first: with
-    background as a single cluster, a model that misses an entire object still
-    scores 1.0, because "one object plus a background blob" and "one object
-    plus a background blob" are the same partition. As singletons, missing
-    half the objects scores 0.50, which is what it deserves.
+    background cluster. With background as a single cluster, a model that
+    misses an entire object still scores 1.0, because "one object plus a
+    background blob" and "one object plus a background blob" are the same
+    partition. As singletons, missing half the objects scores 0.50.
 
     Computed in closed form from the object overlap matrix (see
     :func:`adjusted_rand_index`) rather than by materialising millions of
@@ -74,7 +72,7 @@ The metrics, and why each one is computed the way it is
     anyway because ``iou_threshold`` is a knob, and every value below 0.5 (which
     is where "roughly the same object" lives) makes greedy wrong.
 
-``split_events`` / ``merge_events`` — **fragmentation is not discovery.**
+``split_events`` / ``merge_events`` — **fragments are separated from new detections.**
     "Model B found 20 more objects" means completely different things if they
     are 20 new cells or 20 fragments of cells A already found, and fragmentation
     is the common Cellpose failure. So the object-count delta is decomposed:
@@ -85,12 +83,12 @@ The metrics, and why each one is computed the way it is
       ``split_event``, and it explains ``k - 1`` of B's extra objects.
     * the mirror image gives ``merge_events`` at B objects that swallow two or
       more A objects, explaining ``k - 1`` of A's objects going missing.
-    * whatever is left over — ``new_objects_b`` and ``missing_objects_a`` —
-      is the genuine difference in what the two models detected.
+    * whatever is left over — ``new_objects_b`` and ``missing_objects_a`` — is
+      the remaining difference in what the two models detected.
 
-    The "not assigned elsewhere" clause is what keeps the attribution honest: a
-    B object that straddles two A objects but is *paired* with one of them is
-    that object's counterpart, not a fragment of its neighbour.
+    The "not assigned elsewhere" clause matters: a B object that straddles two
+    A objects but is *paired* with one of them is that object's counterpart,
+    not a fragment of its neighbour.
 
 ``qc_a`` / ``qc_b``
     Each field's masks are additionally run through :mod:`spacr.seg_qc`, so the
@@ -103,15 +101,13 @@ Degenerate fields, and what they are defined to be
 * **both masks empty** — ``ari = 1.0``, ``iou_matched_fraction = 1.0``,
   ``mean_matched_iou = nan``. Two models that both say "there is nothing in
   this field" have made the same statement, and that is agreement; the
-  alternative (``nan``) would drop the field out of every aggregate, so a
-  channel that is legitimately empty would silently shrink the sample instead
-  of showing up as the unanimous verdict it is. It is counted separately in
+  alternative (``nan``) would drop the field out of every aggregate, so an
+  empty channel would silently shrink the sample. It is counted separately in
   :attr:`ComparisonReport.n_both_empty` so it can never be mistaken for
   agreement about objects, and ``mean_matched_iou`` stays ``nan`` because there
   is no matched pair to take an IoU of.
 * **one mask empty** — ``ari = 0.0`` and no matches; falls out of the
-  definitions with no special case, and is the right answer: the models agree
-  about nothing.
+  definitions with no special case.
 * **one object each** — matched normally, but the ARI is degenerate (a single
   cluster carries no pair information) and can even be negative for two masks
   that overlap well. The object-level numbers carry the field in that case.
@@ -132,7 +128,7 @@ image by ``30 / diameter`` before inference. It is the one size knob that does
 anything, which is why :func:`format_comparison` prints it first.
 
 :func:`compare_models` therefore records both what reached the model and what
-was dropped on the floor, and raises a loud warning when the two configurations
+was dropped, and puts a warning first in the report when the two configurations
 differ *only* in arguments nothing will read.
 
 Public API
@@ -298,8 +294,7 @@ class ModelConfig:
     def __post_init__(self):
         """Give the model a name if the caller did not.
 
-        The checkpoint's file name is used, falling back to the path itself --
-        a comparison report that says "Model A" twice is unreadable.
+        The checkpoint's file name is used, falling back to the path itself.
         """
         if not self.name:
             self.name = os.path.basename(str(self.model)) or str(self.model)
@@ -418,15 +413,14 @@ class ModelConfig:
 
 def compare_configs(config_a: ModelConfig,
                     config_b: ModelConfig) -> Dict[str, Any]:
-    """Diff two configurations into what matters and what cannot matter.
+    """Split two configurations' differences into honoured and ignored.
 
     :param config_a: the A side.
     :param config_b: the B side.
     :returns: ``{'honoured': {key: (a, b)}, 'ignored': {key: (a, b)},
         'identical': bool, 'warnings': [str]}``. ``identical`` is True when
-        every argument that reaches the model is the same on both sides — the
-        case where the run cannot show a difference and the report has to say
-        so before anybody reads a number off it.
+        every argument that reaches the model is the same on both sides ; the
+        warnings then state that the run cannot show a difference.
     """
     ha, hb = config_a.honoured_parameters(), config_b.honoured_parameters()
     ia, ib = config_a.ignored_parameters(), config_b.ignored_parameters()
@@ -492,7 +486,7 @@ class SegComparison:
     :param fragments_from_splits: extra B objects explained by ``split_events``.
     :param merged_away: A objects that disappeared into ``merge_events``.
     :param new_objects_b: B objects that are neither matched nor fragments —
-        the genuinely new detections.
+        the new detections.
     :param missing_objects_a: A objects neither matched nor merged away.
     :param iou_threshold: the threshold the matching used.
     :param matches: ``[(label_a, label_b, iou), ...]``, for drawing.
@@ -624,9 +618,9 @@ class ComparisonReport:
     def mean_matched_fraction(self) -> float:
         """The mean fraction of A's objects that B also found.
 
-        NAN-SAFE: a field where neither model found anything contributes no
-        fraction rather than a zero, which would drag the mean down for a
-        field that says nothing about either model.
+        NaN-safe: a field where neither model found anything contributes no
+        fraction rather than a zero, which would drag the mean down for a field
+        that says nothing about either model.
 
         :returns: the mean, or NaN when no field had objects.
         """
@@ -636,7 +630,7 @@ class ComparisonReport:
     def total_splits(self) -> int:
         """How many of A's objects B broke into several.
 
-        DIRECTIONAL. A split and a merge are the same event seen from the two
+        Directional: a split and a merge are the same event seen from the two
         sides, so the pair only means anything if you know which model is A.
 
         :returns: the split count.
@@ -660,9 +654,9 @@ class ComparisonReport:
     def total_merged_away(self) -> int:
         """How many of A's objects disappeared into a merge.
 
-        Distinct from the merge COUNT: one merge can swallow several
-        objects, and the number of objects lost is what changes a per-object
-        measurement downstream.
+        Distinct from the merge count: one merge can swallow several objects,
+        and the number of objects lost is what changes a per-object measurement
+        downstream.
 
         :returns: the object count.
         """
@@ -979,14 +973,13 @@ def compare_masks(mask_a: Any, mask_b: Any,
     """Compare two label images of the same field. Pure: arrays in, numbers out.
 
     Nothing about Cellpose, models, files or the GUI reaches this function, so
-    it works just as well on masks from any other source — which is the point:
-    the Model Zoo reuses it unchanged.
+    it works on masks from any source; the Model Zoo reuses it unchanged.
 
-    The comparison is **directional but not judgemental**. ``*_a`` and ``*_b``
-    describe the two masks; neither is the reference, so there is no precision,
-    no recall, and no "correct" column. See the module docstring for how the
-    ARI excludes background, why the object assignment is optimal rather than
-    greedy, and how splits and merges are told apart from genuine differences.
+    The comparison is **directional**. ``*_a`` and ``*_b`` describe the two
+    masks; neither is the reference, so there is no precision, no recall, and
+    no "correct" column. See the module docstring for how the ARI excludes
+    background, why the object assignment is optimal rather than greedy, and
+    how splits and merges are told apart from other differences.
 
     :param mask_a: a 2-D label image (bool and float masks are coerced).
     :param mask_b: a second label image of the same shape.
@@ -1076,10 +1069,9 @@ def segment_with_cellpose(images: Sequence[np.ndarray],
                           config: ModelConfig) -> List[np.ndarray]:
     """Segment ``images`` with one Cellpose model. The default backend.
 
-    Only :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose 4
-    ignores never reaches ``eval`` — it is reported by the caller instead of
-    being passed on to be silently dropped, which is the difference between a
-    comparison that explains itself and one that says "no difference".
+    Only :meth:`ModelConfig.eval_kwargs` is forwarded, so an argument Cellpose
+    4 ignores never reaches ``eval`` — it is reported by the caller instead of
+    being passed on to be silently dropped.
 
     Model and device dependencies are loaded on demand for this call.
     Cellpose versions without a separate ``invert`` argument receive that
@@ -1237,9 +1229,9 @@ def compare_models(images: Sequence[np.ndarray],
     model in memory at a time, and the per-model wall clock in the report is
     therefore a fair (if small-sample) comparison of their cost.
 
-    The segmentation call is an argument. That is what makes this reusable: the
-    Model Zoo can hand in a different backend, and a test can hand in a stub, so
-    nothing about this function needs Cellpose to be exercised.
+    The segmentation call is an argument: the Model Zoo can hand in a different
+    backend, and a test can hand in a stub, so nothing about this function
+    needs Cellpose to be exercised.
 
     :param images: one array per field.
     :param model_a: a :class:`ModelConfig` or a mapping (see
@@ -1422,10 +1414,10 @@ def _value(value: Any) -> str:
 def format_comparison(report: ComparisonReport) -> str:
     """Render the report a human reads before picking a model.
 
-    Order is deliberate: the warnings first (a run that cannot show a difference
-    must say so before anybody reads a number off it), then the parameters that
-    reached each model, then the per-field table, then the aggregate — and the
-    aggregate is phrased directionally, because neither model is the truth.
+    Order is deliberate: the warnings first, then the parameters that reached
+    each model, then the per-field table, then the aggregate — and the
+    aggregate is phrased directionally, because neither model is treated as
+    ground truth.
 
     :param report: what :func:`compare_models` returned.
     :returns: a multi-line string, ready to print.

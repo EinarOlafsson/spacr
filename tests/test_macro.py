@@ -246,7 +246,7 @@ class TestRoundTrip:
         run = run_through_the_gui_seam(
             registered_demo, {"src": str(src), "label": "x"},
             resolve_pipeline_entry(registered_demo))
-        source = Path(macro.macro_path(run.dir)).read_text()
+        source = Path(macro.macro_path(run.dir)).read_text(encoding="utf-8")
 
         assert "from spacr_macro_demo import run_demo" in source
         assert "run_demo(MACRO_DEMO_SETTINGS)" in source
@@ -420,7 +420,7 @@ class TestSettings:
             {"src": str(src), "scale": 7, "label": "changed"},
             resolve_pipeline_entry(registered_demo))
 
-        source = Path(macro.macro_path(run.dir)).read_text()
+        source = Path(macro.macro_path(run.dir)).read_text(encoding="utf-8")
         assert "'scale': 7," in source
         assert "'scale': 1," not in source, "the default leaked in"
 
@@ -438,7 +438,7 @@ class TestSettings:
             registered_demo, {"src": str(src)},
             resolve_pipeline_entry(registered_demo))
 
-        source = Path(macro.macro_path(run.dir)).read_text()
+        source = Path(macro.macro_path(run.dir)).read_text(encoding="utf-8")
         assert "'scale': 1,  # spaCR default" in source
         assert "'skip_empty': False,  # spaCR default" in source
 
@@ -751,7 +751,7 @@ class TestContracts:
                     f"{key}: no module at {base.with_suffix('.py')} "
                     f"nor {base / '__init__.py'}")
                 continue
-            tree = ast.parse(path.read_text())
+            tree = ast.parse(path.read_text(encoding="utf-8"))
             found = [node for node in tree.body
                      if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
                      and node.name == func]

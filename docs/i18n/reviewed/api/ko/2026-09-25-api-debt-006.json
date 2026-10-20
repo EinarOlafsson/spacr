@@ -274,7 +274,9 @@
       "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
       "context": "label mask; an empty array gives 1.",
       "translation": "레이블 마스크입니다. 빈 배열이면 1 을 반환합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.normalise_filters#0",
@@ -746,7 +748,9 @@
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
       "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "translation": "단일 값 마스크를 이진으로 해석하거나 끊어진 조각을 분리하지 않고 정확한 일차/이차 ID 를 유지합니다. 명시적 모드는 음이 아닌 2-D 정수 레이블을 검증하고, 기록하기 전에 65535 를 넘는 ID 를 거부하며, 절대 조용히 번호를 다시 매기지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.save_seg_bundle#0",
@@ -1524,7 +1528,9 @@
       "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
       "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
       "translation": "바뀐 것은 동작이 아니라 설치 위치입니다. 회색 행은 선택되면 스스로 설치됩니다. 예전에는 spaCR 이 실행 중인 환경에 대해 ``pip install \"spacr[<backend>]\"`` 를 실행했지만, 이제 각 백엔드는 격리된 환경을 가지므로 설치는 Model Zoo 자체 대화 상자를 거칩니다. GUI 실행 경로 밖에서, 진행률과 Cancel 과 함께 ``~/.spacr/backends/<name>`` 에 설치되며, spaCR 자체 환경은 절대 바뀌지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
@@ -2118,7 +2124,9 @@
       "source_sha256": "80634c939fda60cc8ead24e8c2c975eba56823da9be0122ba3450b8f6ab3934f",
       "context": "Test data for OPS and for Align & Stitch, one button away in each.",
       "translation": "OPS 와 Align & Stitch 용 테스트 데이터이며, 각 화면에서 버튼 하나로 받습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#1",
@@ -2134,7 +2142,9 @@
       "source_sha256": "e63dd35277cf175b680fde5212d3ffc2d52211a7b158bf2b7d6938870d694dac",
       "context": "Two samples of one published screen. Both are cut from laboratory microplate ``20200202_6W-LaC024A``, microplate sample position A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
       "translation": "공개된 스크리닝 하나에서 나온 두 샘플입니다. 둘 다 Funk et al. 2022 (BioImage Archive S-BIAD394)의 마이크로플레이트 ``20200202_6W-LaC024A``, 시료 위치 A1 에서 수정 없이 잘라 냈습니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#3",
@@ -2158,7 +2168,9 @@
       "source_sha256": "e4e99262add6368878a0209aa268ebe08f254686a7e0b2196a9092a5cbefacff",
       "context": "Why the ops sample is the well's last two sites. The engine takes a well's microscope field of view count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-microscope field of view layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-microscope field of view sample cannot supply.",
       "translation": "OPS 샘플이 시료 위치의 마지막 두 사이트인 이유. 엔진은 시료 위치의 현미경 시야 수를 가장 큰 사이트 번호에 하나를 더한 값으로 보고 둥근 시료 위치를 그 수에 맞추므로, 측정된 333 개 현미경 시야 배치를 유지하려면 샘플에 마지막 사이트가 포함되어야 합니다. :func:`spacr.ops_engine.run_ops` 를 참조하십시오. 또한 표현형 이미지는 담고 있지 않습니다. 표현형 단계는 시료 위치 전체에 퍼진 기준점을 정렬하는데, 현미경 시야 두 개짜리 샘플로는 이를 제공할 수 없기 때문입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#6",
@@ -2166,7 +2178,9 @@
       "source_sha256": "cd641607642cb1f90def1fc67f167d3abb1a3018f08138c0e56e84effdc87a19",
       "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
       "translation": "다른 모든 예제 세트와 같은 방식입니다. 저장소마다 압축되지 않은 ``.tar`` 하나를 공유 진행률 대화 상자 뒤에서 스트리밍하고, :class:`spacr.qt.hf_download._TarExampleWorker` 가 tar 데이터 필터를 거쳐 공유 예제 마이크로플레이트 옆의 자체 폴더에 압축 해제합니다(:func:`example_folder`). 캐시된 사본은 요청 없이 사용합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#7",
@@ -2174,7 +2188,9 @@
       "source_sha256": "99b835de8e84af9254722809fb93dca52f5a74ff83d46031d4d68d3beeded25b",
       "context": "WHAT \"FILLS THE SETTINGS\" means here. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its microscope image field folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
       "translation": "여기서 \"FILLS THE SETTINGS\" 가 뜻하는 것. OPS 패널은 소스, 출력 폴더, 라이브러리, 마이크로플레이트 이름을 받고, Align & Stitch 는 타일 폴더, 블록의 3 x 3 그리드, 순서, 겹침, 기록할 위치를 받습니다. 그러면 다음 동작은 Run 또는 Plan 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.example_folder#0",
@@ -2238,7 +2254,9 @@
       "source_sha256": "653f71a874206fdd57502212dc20f15d8e898fe283e907faab6e98cb3102f71a",
       "context": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
       "translation": "매니페스트가 존재하고 그것이 나열하는 모든 파일이 있을 때만 True 입니다. 절반만 압축 해제된 샘플은 없는 것으로 읽히며, 그래야 다시 다운로드됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.listed_files#0",
@@ -3054,7 +3072,9 @@
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
       "context": "the choices, top of the stack first.",
       "translation": "선택지이며, 반드시 스택의 맨 위부터입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog#3",
@@ -3078,7 +3098,9 @@
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
       "context": "The ticked layers, bottom first, ready for :func:`composite`.",
       "translation": "선택된 레이어이며, 반드시 맨 아래부터이고 :func:`composite` 에 바로 쓸 수 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.mask_comparison.MaskComparisonDialog.listed#0",
@@ -3246,7 +3268,9 @@
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
       "context": "Split from :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the independent execution path that paints.",
       "translation": ":meth:`add_paths` 에서 분리되었으며, 이 분리가 멈춘 애플리케이션을 고친 방법입니다. 여기서는 모든 것이 문자열 목록입니다. 끌어다 놓은 폴더를 파일로 바꾸는 ``isdir`` 와 ``listdir`` 는 이 위젯 자체의 워커 프로세스(:func:`files_under`)에서 실행되는데, 끌어다 놓은 것은 사용자가 고른 경로이고 현미경 장비에서는 이미지가 있는 공유 폴더이기 때문입니다 -- 잠든 ``autofs`` 마운트 아래에서 stat 한 번이 그리기 실행 경로에서 이십 초 넘게 걸린 것이 측정되었습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#2",
@@ -3254,7 +3278,9 @@
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "translation": "이 함수가 반환될 때는 아직 아무것도 추가되지 않았으며, 바로 그것이 핵심입니다. 표는 이 다음 줄이 아니라 :attr:`table_changed` 에서 읽으십시오.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measure_input_table.MeasureInputTable.add_dropped#3",
@@ -3558,7 +3584,9 @@
       "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
       "context": "Not for the main GUI execution path. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it executes this on a worker. Looked up through the module global so a test can replace it and see which independent execution path it ran on.",
       "translation": "GUI 실행 경로용이 아닙니다. 여기의 모든 경로는 사용자가 고른 것이고 현미경 장비에서는 네트워크 공유를 뜻하며, ``isdir`` 가 자동 마운트를 깨웁니다. :meth:`MeasureInputTable.add_dropped` 가 유일한 호출자이며 이를 작업자에서 실행합니다. 모듈 전역을 통해 조회하므로 테스트가 이를 대체하고 어느 실행 경로에서 실행되었는지 확인할 수 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measure_input_table.files_under#3",
@@ -3966,7 +3994,9 @@
       "source_sha256": "ca9c5b5b37f477a5d377e79817e1c3d6bb88f63fb56ae06fda20cfd3edf4f32f",
       "context": "One helper, not one copy per screen. The cached-or-download decision, the button's busy state and the failure message are the same for Plate Viewer, Tabulate, Graph Builder and the rest; what differs is only which field is filled and which method opens it. So a screen passes that one difference as a callback and nothing else.",
       "translation": "화면마다 사본 하나가 아니라 도우미 하나. 캐시 사용 또는 다운로드 결정, 버튼의 사용 중 상태, 실패 메시지는 Plate Viewer, Tabulate, Graph Builder 등에서 모두 같으며, 다른 것은 어느 필드를 채우고 어느 메서드로 여는지뿐입니다. 그래서 화면은 그 차이 하나만 콜백으로 전달합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurements_example#3",
@@ -3974,7 +4004,9 @@
       "source_sha256": "026050250152d88bb567b26f25fda4faf1296df009b0080bc8b9df3f57f6f923",
       "context": "The download is the existing one. Nothing new is published: the archive, the worker and the progress dialog are :func:`spacr.qt.hf_download.download_annotate_example`, the same call Classify's button makes, and a plate already unpacked by any of them is reused without touching the network.",
       "translation": "다운로드는 기존 것입니다. 새로 게시하는 것은 없습니다. 아카이브, 워커 프로세스, 진행 대화 상자는 Classify 의 버튼이 호출하는 것과 같은 :func:`spacr.qt.hf_download.download_annotate_example` 이며, 이들 중 어느 것이 이미 풀어 둔 플레이트는 네트워크에 접근하지 않고 재사용됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: the English block this record translated was rewritten on nightly (items 633/548/F576); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurements_example.example_measurements_db#0",
@@ -4118,7 +4150,9 @@
       "source_sha256": "3fcf1fe5fc1b5a20cf881519601a6df4fef33f1c1dc6848c4f3aa27a2bcef782",
       "context": "Why there is no built-in token. Uploading to one account from every user's machine would mean shipping a write token inside spaCR. A write token is not an upload permit: it can also rewrite and DELETE every model in that account, and anyone who installs spaCR can read it out of the package. So the upload uses the token belonging to whoever is executing it:",
       "translation": "내장 토큰이 없는 이유. 모든 사용자의 컴퓨터에서 하나의 계정으로 업로드하려면 spaCR 안에 쓰기 토큰을 넣어 배포해야 합니다. 쓰기 토큰은 업로드 허가증이 아닙니다. 그 계정의 모든 모델을 다시 쓰고 삭제할 수도 있으며, spaCR 를 설치하는 누구나 패키지에서 토큰을 읽어 낼 수 있습니다. 그래서 업로드는 실행하는 사람 자신의 토큰을 사용합니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share#2",
@@ -4198,7 +4232,9 @@
       "source_sha256": "c6b2cf6a10e46a573620dceb53eec1de371272ec70e28e0259f8e34fa6cb3e3d",
       "context": "Speaks the Gradio HTTP API directly with urllib rather than through gradio_client, because that package is not a spaCR dependency: when it was missing this raised, the caller fell back to the uploader's own token, and the model went somewhere nobody was looking for it. A publish path that depends on an optional import is a publish path that silently does something else.",
       "translation": "gradio_client 를 거치지 않고 urllib 로 Gradio HTTP API 를 직접 사용합니다. 그 패키지는 spaCR 의존성이 아니기 때문입니다. 패키지가 없을 때 이 함수가 예외를 발생시키자 호출자는 업로드한 사람 자신의 토큰으로 대체했고, 모델은 아무도 찾지 않는 곳으로 갔습니다. 선택적 가져오기에 의존하는 게시 경로는 조용히 다른 일을 하는 게시 경로입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share.central_upload#2",
@@ -4326,7 +4362,9 @@
       "source_sha256": "58f783a0077a53a51ae8f43d35e568f976afb733f999a896a04912d169bb1f6b",
       "context": "Blank is allowed everywhere: a card that says \"not recorded\" is honest, and a form that refused to submit without a number would be answered with a made-up one. Build the form for sharing ``filename``.",
       "translation": "빈 값은 어디서나 허용됩니다. \"not recorded\" 라고 적힌 카드는 정직하며, 숫자 없이는 제출을 거부하는 양식은 지어낸 숫자로 답을 받게 됩니다. ``filename`` 을 공유하기 위한 양식을 구성합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_share_dialog.ShareDialog#2",
@@ -4366,7 +4404,9 @@
       "source_sha256": "d5b17f1a551ef779a9f1a70b2e95749a1f4b916ca08e53003ee7ef9bdeee404f",
       "context": "Why the list has five headings rather than a boolean. It used to be one list with \"show unvetted community uploads\" beside it -- a control that could fold away exactly one of the catalogue's five origins. With ten models trained here, four stock Cellpose-SAM backbones, bioimage.io's collection, the Cellpose 3 backend's own four and a shared catalogue, a user who wanted the ten and not the rest had no way to say so. :class:`SourceStrip` is the five origins as five clickable names, each one blue when its rows are on application view and muted when they are folded away, remembered between openings. The warning the boolean carried is unchanged and still arrives before the first unvetted row does -- see :meth:`ModelZooPicker._may_show_source`.",
       "translation": "목록에 불리언 대신 제목이 다섯 개인 이유. 예전에는 목록 하나 옆에 \"show unvetted community uploads\" 가 있었는데, 카탈로그의 다섯 출처 중 정확히 하나만 접을 수 있는 컨트롤이었습니다. 여기서 학습한 모델 열 개, 기본 Cellpose-SAM 백본 네 개, bioimage.io 의 컬렉션, Cellpose 3 백엔드 자체의 모델 네 개, 공유 카탈로그가 있는 상황에서 열 개만 원하고 나머지는 원하지 않는 사용자는 그렇게 말할 방법이 없었습니다. :class:`SourceStrip` 은 다섯 출처를 클릭할 수 있는 다섯 이름으로 보여 주며, 각 이름은 그 행이 화면에 있으면 파란색, 접혀 있으면 흐리게 표시되고 열 때마다 기억됩니다. 불리언이 담던 경고는 바뀌지 않았고 여전히 첫 번째 검증되지 않은 행보다 먼저 나타납니다 -- :meth:`ModelZooPicker._may_show_source` 를 참조하십시오.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#0",
@@ -4382,7 +4422,9 @@
       "source_sha256": "6e0b859ea8b3dc3706bfd360c431ae5a6e7d44aec8ab868985fd2ee10357e252",
       "context": "What it changes, said before it changes it. A backend installs into an environment of its own under ``~/.spacr/backends``; spaCR's own environment is never touched, so nothing here can stop spaCR starting. The dialog says where it goes, what it downloads, how large it is and under what licence before Install is pressed.",
       "translation": "무엇을 바꾸는지, 바꾸기 전에 말합니다. 백엔드는 ``~/.spacr/backends`` 아래의 자체 환경에 설치됩니다. spaCR 자체 환경은 절대 건드리지 않으므로, 여기서 하는 어떤 일도 spaCR 의 시작을 막을 수 없습니다. 대화 상자는 Install 을 누르기 전에 설치 위치, 다운로드 내용, 크기, 라이선스를 알려 줍니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#10",
@@ -4390,7 +4432,9 @@
       "source_sha256": "1f3386ff872ddce04239ae6b77ffb27bc67109d6efab3c98c768f8f1909df8ab",
       "context": "The application view behind it can follow it. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled` tell the widget that opened the dialog what the install is doing, so a button can say \"installing\" while it executes and a console can say why it failed after the dialog has gone.",
       "translation": "뒤의 화면이 이를 따라갈 수 있습니다. :attr:`job_started`, :attr:`job_progressed`, :attr:`job_failed`, :attr:`job_cancelled` 는 대화 상자를 연 위젯에 설치가 무엇을 하고 있는지 알려 주므로, 버튼은 실행 중에 \"installing\" 이라고 표시하고 콘솔은 대화 상자가 사라진 뒤에도 실패 이유를 알릴 수 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#11",
@@ -4408,7 +4452,9 @@
       "source_sha256": "09459268329bd19bf5584130e32ba68404697452a88f72567247d5a267b3e688",
       "context": "The bar sits on the buttons. The progress line is the last thing above the buttons and the status keeps four lines' room while a job executes, so the bar does not move as the status line grows and shrinks. Describe the backend and wait for the button.",
       "translation": "진행 막대는 버튼 바로 위에 있습니다. 진행 줄은 버튼 위의 마지막 요소이고 작업이 실행되는 동안 상태 영역은 네 줄의 공간을 유지하므로, 상태 줄이 늘고 줄어도 막대가 움직이지 않습니다. 백엔드를 설명하고 버튼 입력을 기다립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#2",
@@ -4416,7 +4462,9 @@
       "source_sha256": "f0165a088e15e5e568b3f7c89b7c68a45b471e78a63e482a12c670492a79387e",
       "context": "The window keeps responding. The install -- a venv, then pip, often for minutes -- executes on a background execution unit; the dialog shows which step it is on and pip's latest line, and Cancel stops pip and everything it started and removes the half-built environment. A failure shows the failing command's own output, verbatim.",
       "translation": "창은 계속 응답합니다. 설치 -- venv, 그다음 pip, 흔히 몇 분 -- 는 워커 스레드에서 실행됩니다. 대화 상자는 현재 단계와 pip 의 최신 줄을 보여 주고, Cancel 은 pip 과 그것이 시작한 모든 것을 중지하고 반쯤 만들어진 환경을 제거합니다. 실패하면 실패한 명령의 출력을 그대로 보여 줍니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#3",
@@ -4706,7 +4754,9 @@
       "source_sha256": "8c0f3505870bd1f5d06e07e1ffb5df5ce1fe0c21289944392bb6fb05135776bb",
       "context": "The words are the retired checkbox's own, unchanged. The control that carried them was what was wrong; the sentence was not. It is said rather than merely labelled because the difference between a reviewed model and an unreviewed one is not visible in a table.",
       "translation": "문구는 폐지된 체크박스의 것을 그대로 사용합니다. 잘못된 것은 문구를 담던 컨트롤이었지 문장이 아니었습니다. 검토된 모델과 검토되지 않은 모델의 차이는 표에서 보이지 않으므로, 레이블로만 두지 않고 직접 말합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads#2",

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -96,14 +97,13 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
     :param root: dropped folder.
     :param max_probe: cap on files inspected — the layout should
         repeat, so no need to walk millions.
-    :param files: image paths already collected from ``root``, used
-        instead of walking. This is how a caller that needs both a
-        template *and* a full file list gets them out of ONE traversal:
-        it pulls a probe off :func:`iter_image_files`, hands it here, and
-        keeps draining the same generator afterwards. Dropping a 100 000
-        file plate folder used to walk the tree three times.
+    :param files: image paths already collected from ``root``, used instead of
+        walking. This is how a caller that needs both a template *and* a full
+        file list gets them out of ONE traversal: it pulls a probe off
+        :func:`iter_image_files`, hands it here, and keeps draining the same
+        generator afterwards.
     :returns: a :class:`FolderTemplate` describing the detected
-        layout, or None if we can't infer one.
+        layout, or None if no layout can be inferred.
     """
     root = Path(root)
     if files is None and not root.is_dir():
@@ -142,25 +142,91 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
 def iter_image_files(root: Path, cap: Optional[int] = None):
     """Yield the image files under ``root``, from a single recursive walk.
 
-    **Lazy, and that is the whole point.** The drop handlers need two things
-    from a dropped folder — a small probe to guess the layout from, and (only
-    if the guess succeeds) the full file list to plan an extraction. Pulling
-    both off one generator means the tree is traversed once; abandoning the
-    generator after the probe means a folder with no layout to detect is
-    never fully walked at all. The previous shape returned lists, and the
-    same tree was walked three times per drop.
+    **Lazy.** The drop handlers need two things from a dropped folder — a small
+    probe to guess the layout from, and (only if the guess succeeds) the full
+    file list to plan an extraction. Pulling both off one generator means the
+    tree is traversed once; abandoning the generator after the probe means a
+    folder with no layout to detect is never fully walked.
+
+    :param root: folder to walk.
+    :param cap: stop after this many image files. ``None`` for no cap.
+    """
+    for path in _iter_image_paths(root, cap):
+        yield Path(path)
+
+
+def _iter_image_paths(root, cap: Optional[int] = None):
+    """:func:`iter_image_files` as plain strings, in the same order.
+
+    A ``Path`` built from a string parses it only when it is first asked
+    for its parts or its text, so a caller that ranks 100,000 files and
+    keeps 200 should rank the strings and build ``Path`` objects for the
+    200.
 
     :param root: folder to walk.
     :param cap: stop after this many image files. ``None`` for no cap.
     """
     root = Path(root)
     seen = 0
-    for p in root.rglob("*"):
-        if p.suffix.lower() in IMAGE_EXTS and p.is_file():
-            yield p
+    for entries in _listings_in_rglob_order(root):
+        for entry in entries:
+            name = entry.name
+            dot = name.rfind(".")
+            suffix = name[dot:] if 0 < dot < len(name) - 1 else ""
+            if suffix.lower() not in IMAGE_EXTS:
+                continue
+            try:
+                if not entry.is_file():
+                    continue
+            except OSError:
+                continue
+            yield entry.path
             seen += 1
             if cap is not None and seen >= cap:
                 return
+
+
+def _listings_in_rglob_order(root: Path):
+    """Each folder's ``os.scandir`` entries, in the order ``rglob('*')`` visits.
+
+    ``Path.rglob`` lists a folder when it reaches it and finds the
+    subfolders by walking top-down, with every image then asked for its
+    ``stat``. This lists each folder once and asks the directory entry
+    instead, which needs no system call per file, so a 100,000-file plate
+    is walked with a fraction of the Python work that held the interpreter
+    lock while the GUI thread waited for it. The folders come in the same
+    order, so the same files come in the same order.
+
+    :param root: folder to walk.
+    """
+    def listing(folder):
+        """One folder's entries, or none when it cannot be read."""
+        try:
+            with os.scandir(folder) as found:
+                return list(found)
+        except OSError:
+            return []
+
+    top = listing(root)
+    yield top
+    kept = {os.fspath(root): top}
+    stack = [os.fspath(root)]
+    while stack:
+        folder = stack.pop()
+        entries = kept.pop(folder, None)
+        if entries is None:
+            entries = listing(folder)
+        subfolders = []
+        for entry in entries:
+            try:
+                if entry.is_dir(follow_symlinks=False):
+                    subfolders.append(entry.path)
+            except OSError:
+                continue
+        for sub in subfolders:
+            kept[sub] = listing(sub)
+            yield kept[sub]
+        stack.extend(reversed(subfolders))
 
 
 
@@ -222,7 +288,7 @@ def assign_missing_fields(
     :param have_well: True if the caller already knows well ids from
         elsewhere (folder structure); False to auto-assign A01, A02, …
     :param have_field: True if the caller knows field ids.
-    :param have_channel: True when we can extract channels from the
+    :param have_channel: True when channels can be extracted from the
         filename or the folder — otherwise every file is treated as
         channel 1.
     :returns: list of :class:`NameMapping`, in the same order as
@@ -267,7 +333,7 @@ def save_filename_map(dst: Path,
     dst.parent.mkdir(parents=True, exist_ok=True)
     cols = ["original_path", "canonical", "plate", "well",
             "field", "channel", "time"]
-    with open(dst, "w", newline="") as f:
+    with open(dst, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(cols)
         for m in mappings:

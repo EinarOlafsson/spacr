@@ -73,7 +73,7 @@ def test_cli_trains_scores_on_held_out_wells_and_rescores(tmp_path):
     subprocess.run([sys.executable, str(TOOL), "train", "--type", "pathogen",
                     "--db", str(database), "--out", str(model)],
                    check=True, capture_output=True, text=True, timeout=300)
-    card = json.loads(model.with_suffix(".scorecard.json").read_text())
+    card = json.loads(model.with_suffix(".scorecard.json").read_text(encoding="utf-8"))
     assert card["object_type"] == "pathogen"
     assert card["n_annotated"] == 50
     assert card["wells_held_out"] and all(w.startswith("plate1|")
@@ -87,7 +87,7 @@ def test_cli_trains_scores_on_held_out_wells_and_rescores(tmp_path):
     subprocess.run([sys.executable, str(TOOL), "score", "--model", str(model),
                     "--db", str(fresh), "--out", str(out)],
                    check=True, capture_output=True, text=True, timeout=300)
-    rescored = json.loads(out.read_text())
+    rescored = json.loads(out.read_text(encoding="utf-8"))
     assert rescored["n"] == 8 and rescored["roc_auc"] >= 0.9
 
 
@@ -143,8 +143,12 @@ def test_a_missing_channel_skips_rather_than_guesses(tmp_path, capsys):
     assert "skipped" in capsys.readouterr().out
     np.testing.assert_array_equal(
         before, np.load(src / "masks" / "pathogen_mask_stack" / "plate1_A01_1.npy"))
-    with pytest.raises(ValueError, match="not found"):
-        oc._real_classifier_bundles(str(tmp_path / "absent"))
+    missing = str(tmp_path / "absent")
+    with pytest.raises(ValueError) as refused:
+        oc._real_classifier_bundles(missing)
+    assert "real_object_classifier" in str(refused.value)
+    assert repr(missing) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
 
 
 def test_the_mask_run_applies_the_classifier_when_set(yokogawa_cellvoyager_dir,
@@ -202,3 +206,116 @@ def test_the_mask_run_applies_the_classifier_when_set(yokogawa_cellvoyager_dir,
         "magnification": 20, "real_object_classifier": "/models/real",
         "real_object_threshold": 0.7}))
     assert seen == [(Path(src), "/models/real", 0.7)]
+
+
+def test_annotation_reader_preserves_source_database_bytes(tmp_path):
+    database = _annotated_db(tmp_path, np.random.default_rng(470), per_well=3)
+    before = database.read_bytes()
+    frame = oc._annotated_real_crops([str(database)])
+    assert len(frame) == 15
+    assert database.read_bytes() == before
+
+
+def test_annotation_reader_coalesces_repeated_identical_source_rows(tmp_path):
+    database = _annotated_db(tmp_path, np.random.default_rng(471), per_well=3)
+    before = database.read_bytes()
+    once = oc._annotated_real_crops([str(database)])
+    repeated = oc._annotated_real_crops([str(database), str(database)])
+    pd.testing.assert_frame_equal(repeated, once)
+    assert database.read_bytes() == before
+
+
+@pytest.mark.parametrize('conflict', ['label', 'group'])
+def test_annotation_reader_refuses_conflicts_without_modifying_sources(tmp_path, conflict):
+    import shutil
+
+    database = _annotated_db(tmp_path / 'original', np.random.default_rng(472), per_well=3)
+    other = tmp_path / 'other.db'
+    shutil.copyfile(database, other)
+    with sqlite3.connect(other) as db:
+        if conflict == 'label':
+            db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
+        else:
+            db.execute('ALTER TABLE png_list ADD COLUMN dataset_plate TEXT')
+            db.execute("UPDATE png_list SET dataset_plate = 'another_plate'")
+    before = {path: path.read_bytes() for path in (database, other)}
+    with pytest.raises(ValueError, match='conflicting labels or acquisition identities'):
+        oc._annotated_real_crops([str(database), str(other)])
+    assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def _sample_fingerprinted_annotation(tmp_path):
+    import hashlib
+
+    database = _annotated_db(tmp_path, np.random.default_rng(473), per_well=3)
+    with sqlite3.connect(database) as db:
+        crop = Path(db.execute('SELECT png_path FROM png_list WHERE rowid = 1').fetchone()[0])
+        pixels = crop.read_bytes()
+        db.execute('ALTER TABLE png_list ADD COLUMN sample_png_sha256 TEXT')
+        db.execute('ALTER TABLE png_list ADD COLUMN sample_png_bytes INTEGER')
+        db.execute('UPDATE png_list SET sample_png_sha256 = ?, sample_png_bytes = ? WHERE rowid = 1',
+                   (hashlib.sha256(pixels).hexdigest(), len(pixels)))
+    return database, crop
+
+
+def test_annotation_reader_accepts_matching_sample_creation_fingerprint(tmp_path):
+    database, crop = _sample_fingerprinted_annotation(tmp_path)
+    before = database.read_bytes(), crop.read_bytes()
+    assert len(oc._annotated_real_crops([str(database)])) == 15
+    assert (database.read_bytes(), crop.read_bytes()) == before
+
+
+@pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
+def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_path, problem):
+    database, crop = _sample_fingerprinted_annotation(tmp_path)
+    if problem == 'pixels':
+        crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+    else:
+        with sqlite3.connect(database) as db:
+            statement = {
+                'digest': "sample_png_sha256 = 'not-a-digest'",
+                'size': 'sample_png_bytes = -1',
+                'fractional': 'sample_png_bytes = 2.5',
+                'partial': 'sample_png_sha256 = NULL',
+            }[problem]
+            db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
+    before = database.read_bytes(), crop.read_bytes()
+    with pytest.raises(ValueError, match='sample-creation fingerprint'):
+        oc._annotated_real_crops([str(database)])
+    assert (database.read_bytes(), crop.read_bytes()) == before
+
+
+def test_annotation_reader_does_not_create_missing_databases(tmp_path):
+    database = tmp_path / 'missing.db'
+    with pytest.raises(sqlite3.OperationalError):
+        oc._annotated_real_crops([str(database)])
+    assert not database.exists()
+
+
+@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
+@pytest.mark.parametrize('problem', ['fingerprint', 'conflict'])
+def test_annotation_reader_uses_exact_reviewed_runtime_diagnostics(tmp_path, monkeypatch, language, problem):
+    import shutil
+
+    from spacr.qt import i18n
+
+    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+    database, crop = _sample_fingerprinted_annotation(tmp_path / 'original')
+    databases = [str(database)]
+    if problem == 'fingerprint':
+        crop.write_bytes(crop.read_bytes() + b'changed after sampling')
+        source = 'Annotated crop {path} no longer matches its sample-creation fingerprint.'
+    else:
+        other = tmp_path / 'other.db'
+        shutil.copyfile(database, other)
+        with sqlite3.connect(other) as db:
+            db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
+        databases.append(str(other))
+        source = 'Annotated crop {path} has conflicting labels or acquisition identities.'
+    reviews = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-annotated-crop-integrity.json').read_text(encoding="utf-8"))
+    target = next(row['translation'] for row in reviews['records'] if row['source'] == source)
+    before = {Path(path): Path(path).read_bytes() for path in databases}
+    with pytest.raises(ValueError) as error:
+        oc._annotated_real_crops(databases)
+    assert str(error.value) == target.format(path=str(crop))
+    assert all(path.read_bytes() == raw for path, raw in before.items())

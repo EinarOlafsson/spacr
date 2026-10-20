@@ -1,0 +1,20 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Lineage could not be rewritten in {n} mask file(s); those frames update when they are saved.",
+      "source": "Lineage could not be rewritten in {n} mask file(s); those frames update when they are saved.",
+      "source_sha256": "f32ea1d0ebd1aaee4f6897744af6908672a55f85cf6af0e68c89275613e3f5f3",
+      "table": "ui",
+      "translation": "Ekki tókst að endurskrifa ætterni í {n} grímuskrá(m); þeir rammar uppfærast þegar þeir eru vistaðir."
+    },
+    {
+      "key": "{old} cannot become part of {name}: one cell cannot appear twice in a frame or divide twice.",
+      "source": "{old} cannot become part of {name}: one cell cannot appear twice in a frame or divide twice.",
+      "source_sha256": "57286b5151e144516d7cab5e90107c0654bd77dc6f96039f8b168ba68ed6903c",
+      "table": "ui",
+      "translation": "{old} getur ekki orðið hluti af {name}: ein fruma getur ekki birst tvisvar í ramma eða skipt sér tvisvar."
+    }
+  ],
+  "schema": 1
+}

@@ -5,18 +5,15 @@ costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute
 names in a null-out block, and a row in a toggle table two hundred lines
 further down.
 
-A fifth would cost the same, which is why there has never been one. The two
-modules that would benefit most are the ones whose entire job is "did the mask
-come out right", Cellpose Masks and Plaque Assay, and neither was worth
-touching the shared screen for.
+Adding a preview to another module that way, for example Cellpose Masks or
+Plaque Assay, needs the same edits to the shared screen.
 
-This module is the seam that makes the fifth free. A module declares a
-preview here; the strip above the settings form grows a toggle for it; the
-card is inserted above the Run row through the same ``_runtime_wrap`` /
-``_actions_row`` anchors :mod:`spacr.qt.prerun` uses. Nothing inside
-``AppScreen`` changes, and the four previews it already builds are left
-alone — a module the shared screen has already served is skipped here rather
-than given a second card.
+This module removes those edits. A module declares a preview here; the strip
+above the settings form grows a toggle for it; the card is inserted above the
+Run row through the same ``_runtime_wrap`` / ``_actions_row`` anchors
+:mod:`spacr.qt.prerun` uses. Nothing inside ``AppScreen`` changes, and the four
+previews it already builds are left alone — a module the shared screen has
+already served is skipped here rather than given a second card.
 
 A module that has been FOLDED into a host reaches the same machinery from
 the other end. Its own screen is not built any more, so ``install`` --
@@ -25,12 +22,11 @@ which answers for the screen's own key -- can never attach its panel;
 behind whatever the host uses to reveal the rest of that module. Mask
 Generation's tracking switch is the case it was written for.
 
-**The sampling contract is inherited, not reimplemented.** The panels reached
-through this registry are the shipped ones, which group a plate into image
-sets from file names alone and open a bounded, reproducible random sample of
-it. Nothing here enumerates, opens or lists a directory, so nothing here can
-regress that. A new panel registered through this seam must keep the same
-promise — see :mod:`spacr.qt.widgets.preview_controls`.
+**Sampling is done by the panels.** The panels reached through this registry
+are the shipped ones, which group a plate into image sets from file names alone
+and open a bounded, reproducible random sample of it. Nothing here enumerates,
+opens or lists a directory. A new panel registered here must sample the same
+way — see :mod:`spacr.qt.widgets.preview_controls`.
 """
 from __future__ import annotations
 
@@ -48,12 +44,12 @@ LOG = logging.getLogger("spacr.qt.preview_registry")
 class PreviewSpec:
     """One module's preview declaration.
 
-    :ivar builder: ``"module:function"`` returning ``(panel, card)``, the
-        shape every existing ``build_*_preview_card`` already has. Named
-        rather than imported so declaring a preview costs no import at
-        launch — a preview panel drags in the imaging stack.
+    :ivar builder: ``"module:function"`` returning ``(panel, card)``, the shape
+        every existing ``build_*_preview_card`` already has. Named rather than
+        imported so declaring a preview imports nothing at launch; a preview
+        panel imports the imaging stack.
     :ivar title: the toggle's label.
-    :ivar tooltip: what the toggle promises.
+    :ivar tooltip: the toggle's tooltip text.
     :ivar propagation: rename map applied to whatever the panel hands back
         through ``set_propagate_callback``, so a panel written for one
         module's setting names can serve another's.
@@ -61,12 +57,12 @@ class PreviewSpec:
         They are declared here so this registry is the single answer to
         "which modules have a preview", and skipped at install time so they
         do not get a second card.
-    :ivar fill: ``"module:function"`` taking ``(host, card)`` and building
-        the panel into the card, returning it. Given, a preview ATTACHED
-        through this registry builds only its card at install --
-        ``builder`` is called with ``panel_later=True`` -- and the panel the
-        first time the card is shown or the panel is asked for, so a hidden
-        preview costs a module's open nothing.
+    :ivar fill: ``"module:function"`` taking ``(host, card)`` and building the
+        panel into the card, returning it. Given, a preview ATTACHED through
+        this registry builds only its card at install -- ``builder`` is called
+        with ``panel_later=True`` -- and the panel the first time the card is
+        shown or the panel is asked for, so a hidden preview adds no work when
+        the module opens.
     """
     builder: str
     title: str = "Live preview"
@@ -102,6 +98,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
         title="Track preview", owned_by_screen=True),
     "cellpose_masks": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
+        fill="spacr.qt.screens.app_screen:_fill_live_preview_card",
         tooltip="Segment one sampled field with these settings before "
                 "committing the plate.",
         propagation={
@@ -156,15 +153,14 @@ def register_preview(app_key: str, spec: PreviewSpec,
     :param app_key: the module's app key.
     :param spec: its declaration.
     :param replace: overwrite an existing declaration instead of raising.
-    :raises ValueError: on a second declaration without ``replace`` — two
-        modules quietly claiming one key is the failure a registry exists to
-        make loud.
+    :raises ValueError: on a second declaration without ``replace``, so two
+        modules cannot claim one key unnoticed.
     """
     key = str(app_key)
     if key in PREVIEWS and not replace:
         raise ValueError(
             f"a preview for {key!r} is already registered; pass "
-            "replace=True if that is really what you mean")
+            "replace=True to replace it")
     PREVIEWS[key] = spec
     return spec
 
@@ -314,9 +310,21 @@ class _PreviewHost(QObject):
         model = getattr(self._screen, "_settings_model", None)
         if model is None:
             return
+        current = None
+        pins = {}
+        if getattr(model, "_model_metadata", None):
+            from .. import model_zoo
+
+            current = model.collect()
+            module = str(getattr(self._screen, "app_key", ""))
+            metadata = model_zoo._validate_model_metadata(
+                current, model_kinds=model_zoo._model_input_kinds(module, current))
+            pins = metadata.get("settings", {}) if metadata is not None else {}
         for source, value in dict(values or {}).items():
             target = rename.get(source) if rename else source
             if target is None:
+                continue
+            if target in pins and current.get(target) == value:
                 continue
             try:
                 model.set_value_for_key(target, value)
@@ -327,10 +335,10 @@ class _PreviewHost(QObject):
 def install(screen: QWidget) -> Optional[_PreviewHost]:
     """Attach ``screen``'s declared preview, if it has one to attach.
 
-    Returns ``None`` when the module declares no preview, when
-    ``AppScreen`` already built one for it, when the screen has no runtime
-    panel to insert into, or when one is already installed. Never raises: a
-    missing preview must not cost anyone a module.
+    Returns ``None`` when the module declares no preview, when ``AppScreen``
+    already built one for it, when the screen has no runtime panel to insert
+    into, or when one is already installed. Never raises, so a missing preview
+    does not stop the module opening.
 
     :param screen: app screen widget; its ``app_key`` attribute selects the
         declared preview, and the installed host is remembered on it so a
@@ -351,18 +359,17 @@ def install(screen: QWidget) -> Optional[_PreviewHost]:
 def attach_folded(screen: QWidget, app_key: str) -> Optional[_PreviewHost]:
     """Attach ANOTHER module's declared preview to ``screen``.
 
-    A module folded into a host as settings categories brings its panel
-    with it. Mask Generation has the Cellpose live preview and no track
-    preview; Timelapse's whole preview is the tracking one, built by the
-    screen the fold means nobody opens any more. Without this the switch
-    would reveal the tracking settings and nothing that shows what they
-    do -- a capability the tile had and the button did not, which is the
-    one thing a fold must not cost.
+    A module folded into a host as settings categories brings its panel with
+    it. Mask Generation has the Cellpose live preview and no track preview;
+    Timelapse's whole preview is the tracking one, built by the screen the fold
+    means nobody opens any more. Without this the switch would show the
+    tracking settings but no preview of their effect, which the separate
+    Timelapse screen had.
 
-    ``owned_by_screen`` is deliberately ignored: it means "``AppScreen``
-    builds this one for its own key", and the point here is that the key
-    is somebody else's. The card and its toggle both start hidden; the
-    host reveals them when the fold is switched on.
+    ``owned_by_screen`` is deliberately ignored: it means "``AppScreen`` builds
+    this one for its own key", and here the key belongs to another module. The
+    card and its toggle both start hidden; the host reveals them when the fold
+    is switched on.
 
     :param screen: the HOST screen.
     :param app_key: the folded module's key.
@@ -410,11 +417,11 @@ def _attach(screen: QWidget, app_key: str,
     except Exception:
         LOG.debug("preview builder failed for %r", app_key, exc_info=True)
         return None
+    card.setVisible(False)
     if not _insert_above_console(screen, card):
         card.setParent(None)
         card.deleteLater()
         return None
-    card.setVisible(False)
     adopt = getattr(screen, "adopt_runtime_pane", None)
     if callable(adopt):
         try:
@@ -455,6 +462,7 @@ def _attach(screen: QWidget, app_key: str,
     else:
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
+    _dress_a_late_panel(screen, toggle)
     return host
 
 

@@ -1,0 +1,41 @@
+{
+  "scope": "Nine existing actual metadata widget consumers after normal99producer, compiledtranslation/no direct lookup substitution",
+  "input_root_head": "2fa6808cc680dcca0fcddc89705e88ba59446b2f",
+  "test_source_commit": "b97eea17b387212f4fccd52b5a945e51b4349576",
+  "test_sha256": "eebe13c392d2b195fb3314581b2fd6c79fa4b5261b0b2d19ef1d6c4324d92f69",
+  "result": "9 passed in2.63s,exit0,zero skips",
+  "actual_case_count": 9,
+  "assertions": "All18existingfinalfixtureassertions retained:10sources/recordhashes, actualtempINI set/get/currentlanguage, en\u2192locale rerender, rawstablekey/allordereditemData IDs, filenames/count/ranking unchanged and inputbytes unchanged.",
+  "actual_module_provenance": {
+    "spacr.qt.screens.settings_model": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/spacr/qt/screens/settings_model.py",
+      "sha256": "356fd0f2b258e58135d3f71b5a4e11c00dd2c2eac8a8653b0c7cac1924f1ada7"
+    },
+    "spacr.qt.i18n": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/spacr/qt/i18n.py",
+      "sha256": "529d0a9b440215c49c3703d4c9d0bf8eafe37fb907e667a2f41a527795b4dd02"
+    },
+    "spacr.qt.preferences": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/spacr/qt/preferences.py",
+      "sha256": "a65aa3cd7af98c4c6aa90a85260398f5b94468b26488400114a21a88f2392680"
+    },
+    "spacr.regex_infer": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/spacr/regex_infer.py",
+      "sha256": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce"
+    }
+  },
+  "preservation": "All24 approvedsource/catalog/reviewhashes unchanged acrossrun; noRootsource/test/catalog/input mutation.",
+  "guards": "OfflineDNS/connect, checkpointopen/backendimports and canonicalcollector imports refused; allnetwork/modelguardevents empty.",
+  "environment": "Python /home/olafsson/anaconda3/envs/spacr/bin/python; exactQt6.12 scratchruntime+plugins printed; explicitpytestqtplugin/autoloadOff; offscreen/blankCUDA/core0/oneCPU/OriginalHL4G",
+  "stages": [
+    {
+      "result": "134 SIGABRT inqappfixture before anytestbody",
+      "reason": "InitialbasePython wrapper differed from establishedGUIinterpreter; no productfailureoracceptanceclaim. Core0; rawimmutablefiles retained."
+    },
+    {
+      "result": "9PASS2.63exit0",
+      "reason": "ExactlyoneRoot-authorizedcontrolledenvironment correction to provenGUIwrapper, no source/tests/asserts/guards/configpinschanged; -s revealsQt/Pythonorigin."
+    }
+  ],
+  "limitations": "Offscreen actualUI/compiledtranslation acceptance only; not microscopepattern accuracy/nativeplatform/scientific/inputdecoder/model acceptance. No duplicate19mechanical/4extractor/9Cytation tests run."
+}

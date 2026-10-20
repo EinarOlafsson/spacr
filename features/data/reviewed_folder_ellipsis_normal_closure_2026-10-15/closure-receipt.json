@@ -1,0 +1,164 @@
+{
+  "input_head": "3e881b57a0b1dbbee58cf08b6ba4f172a2f2f0ef",
+  "driver_sha256": "4429cb05a707187c7b049fc61392d5bfbed144c026ef1dbbf73e0b724e84c459",
+  "config_sha256": "36b27a446bf134626dfdafdba9049a470e96b8321a8c4f9e2df3a7a069450ecf",
+  "locales": {
+    "sv": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 1,
+      "foreign_values_preserved": 11003
+    },
+    "de": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 1,
+      "foreign_values_preserved": 11003
+    },
+    "es": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 1,
+      "foreign_values_preserved": 11003
+    },
+    "zh_CN": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 0,
+      "foreign_values_preserved": 11004
+    },
+    "pt": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 1,
+      "foreign_values_preserved": 11003
+    },
+    "hi": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 1,
+      "foreign_values_preserved": 11003
+    },
+    "ko": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 0,
+      "foreign_values_preserved": 11004
+    },
+    "is": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 0,
+      "foreign_values_preserved": 11004
+    },
+    "fr": {
+      "preflight": "ordinary loader/context/candidate PASS",
+      "owned_changes": 1,
+      "foreign_values_preserved": 11003
+    }
+  },
+  "full_nine_runtime_audit_exit": 0,
+  "fresh_actual_canonical_equal": true,
+  "all_source_hashes_unchanged": true,
+  "protected_bytes_unchanged": {
+    "docs/notes/spacr/qt/help_search.md": "9c43f0117abb17cc6c0e817f5a49bbb4be68b7145db202f0d34cfa57ac4e3855",
+    "docs/source/_static/i18n/api/de.json": "30b58cf2f3ab7efd4c59de561b1177aca42ac7612451262a03d4005be502b2f9",
+    "docs/source/_static/i18n/api/en.json": "4d506f8777c1e0a2c500cfdf519740b9423915d580fb50960caa3dccf83cf325",
+    "docs/source/_static/i18n/api/es.json": "705a05656a2b8b80afb312726def270ba48e20d98c2f18b76fc3afbfc9cd7817",
+    "docs/source/_static/i18n/api/fr.json": "f4bf72ef7b64e4ef021e624ecb8fa54eb1c182c4c30a3ba303970c304deafe5b",
+    "docs/source/_static/i18n/api/hi.json": "a827927c97e4833885d074eac8582ddfe21b6a999cc6ff7d9d37ec092db5cbc8",
+    "docs/source/_static/i18n/api/is.json": "62b14e5bb264634df470717570285f9d610fefb884cc487cfa91a24fd23f3ebc",
+    "docs/source/_static/i18n/api/ko.json": "ff4564e0aea98c373dc27237c44a2588066cdf2cb62dede5d80a6ef412d9f509",
+    "docs/source/_static/i18n/api/pt.json": "2afb782f7132b5388d1215d55f9dd28e3345774776e154310d98e2e87c43bacb",
+    "docs/source/_static/i18n/api/sv.json": "5dc0b47073bd3a22a56128a06f74355f8e02eacdb8d0000ecea77e102730c22b",
+    "docs/source/_static/i18n/api/zh_CN.json": "95db3822a4523c93a909fb727473111dc9f3ea4df6a91b2101c08f6f4e3f2138",
+    "features/data/n676_home_spaceout_native_blocked_2026-10-15/raw/nav/gates/08_help_search.gate.json": "8c9b2f5a29cfd2a2037839de2e72b521f02ec05690fe8f8e5c0d185e02ec1a32",
+    "spacr/qt/help_search.py": "dbc3da84d595a80fdacb858a403195eae3cdf8e3614c49526ea68efa77091b41",
+    "spacr/qt/i18n_catalogs/__init__.py": "096acfe1354f1c88a906d7ec3515489a1cd663ce1a1a30b7b4d60038485a8181",
+    "spacr/qt/i18n_catalogs/en.py": "9f9f2a07ac8ce7859d440dfc6103c12eb97936d0ab6fbd3ab83b4fbc25e8873b",
+    "spacr/qt/i18n_catalogs/is.py": "8efa9aadc68d090ce36232619ccbd9772fe6a8453526ad9a9ec2c39e6b7846d3",
+    "spacr/qt/i18n_catalogs/ko.py": "27505e17c6368005329a9b1fe3f0172e33b1db3cca65a3b72af17e7c477c9005",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "52ce1a2465222baf463c965a4dbe1d582debc2b443d11c064efe7751f4e1879b",
+    "tests/data/release_contracts/144_regression_response_api_arrivals_2026-10-12.json": "cd41cf892456f38abf249814085907d89a2e2d92b870340f48ed4abb8dd4e8a2",
+    "tests/data/release_contracts/180_session_figure_api_arrivals_2026-10-15.json": "51f344b09e1a6f08a7fe11235e98c56d11ce92b9fcdec481baab58fb1adaf0c3",
+    "tests/data/release_contracts/370_scorecard_states_and_export_api_arrivals_2026-10-15.json": "53b865ee8bab5ea3cbd78ecdda29c422b8c4ccaa3e19d55ec990323f5b012760",
+    "tests/data/release_contracts/424_scn_public_api_arrivals_2026-10-06.json": "2ca935608765cd8b7956527bafa56e7ccd5bbb7ba1226557203ed071a5812235",
+    "tests/data/release_contracts/43_hidden_live_preview_close_API_arrival_2026-10-08.json": "9abb8a19f634b3d5bb73299f658b6f410d563de3217985a959f51799553c2924",
+    "tests/data/release_contracts/534_spatial_api_arrivals_2026-10-11.json": "be5a6741d23d413e3dd798c0a1d23d568abe461c98943c3ab72294e8ee9c29e8",
+    "tests/data/release_contracts/548_native_channel_private_api_arrival_2026-10-06.json": "5a4d3b781d7a5332cfb4b86c7df8b8e9e5b4de4bff2cf0a9489e983c4b38964d",
+    "tests/data/release_contracts/561_classifier_api_arrivals_2026-10-15.json": "253027dfb255290b7ac10d68f30ace488952b853e52dabc6fb43d7a638663a43",
+    "tests/data/release_contracts/615_api_browser_arrivals_2026-10-07.json": "7dfb576c68a963f0ab85bf317d1e203eca240d1f4d8afae3f51180beddba154e",
+    "tests/data/release_contracts/615_home_ui_api_arrivals_2026-10-08.json": "256847af6389ea373e6129f30f26a04f4da6e14c8935c4a664243b40ebf23689",
+    "tests/data/release_contracts/615_popup_api_arrivals_2026-10-07.json": "b1dee958b600697c6f7009990532a8f505dd3d39274a1a56770319afdbf60a86",
+    "tests/data/release_contracts/655_accessibility_api_arrivals_2026-10-12.json": "c6c66b378070b72de19343479736bbb4690a7c3e4c9bb516fb011e7c2022ae96",
+    "tests/data/release_contracts/663_565_560_private_api_arrivals_2026-10-06.json": "8ead7861ff11616fe1a3b679d82fdb3b2862747435af3ae1b2435eebcfe60eef",
+    "tests/data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json": "db370ca138a661dc67f38f9e6df72cfe7f1df777bfa20020c98c5e282c6f0bed",
+    "tests/data/release_contracts/672_673_editable_volume_api_arrivals_2026-10-10.json": "f47c92779d2eedf7a09bdd30f3835f3db2c867343c3934f30ddd9533b5761376",
+    "tests/data/release_contracts/673_volume_in_container_api_arrivals_2026-10-12.json": "c0839719030d5ad848a21d1de3787554fc5cf298a0903bd10bcbd4a02fe84932",
+    "tests/data/release_contracts/684_animation_window_api_arrivals_2026-10-10.json": "6a018b2be13196e0d4fe1a26581ecb65931ea13b07cfa30ba7742c32cd943281",
+    "tests/data/release_contracts/685_model_zoo_api_arrivals_2026-10-11.json": "e467d833ae5b6593fca74ea62f75df82493b8cd3003f72a391924d28fe276648",
+    "tests/data/release_contracts/690_tem_api_arrivals_2026-10-11.json": "7432d20fbc9af4595cfa40e92b350b6da34f833829bc4f489358ee292f7bd508",
+    "tests/data/release_contracts/691_mitonet_api_arrivals_2026-10-11.json": "2e5cb7b2d4c5c6dd0ca6d80eade924d4bfaac18a3d8f3ab454e2b5d5494c1957",
+    "tests/data/release_contracts/692_three_d_mask_drawing_api_arrivals_2026-10-11.json": "05a9e6c8486cc1000fa09b17a49b6f15311d84a4d2bb75eb4c7cdd7f838b9ae7",
+    "tests/data/release_contracts/693_export_settings_api_arrivals_2026-10-12.json": "92d5891368871a73ef8e51dd0463115b79df9a22b489ada9c3b45f32ae256e10",
+    "tests/data/release_contracts/694_startup_splash_api_arrivals_2026-10-12.json": "989825969cbd99dc9f2f11fb60948d3cd7100c30acedba48c70403b827b81afb",
+    "tests/data/release_contracts/695_startup_sequence_api_arrivals_2026-10-12.json": "24fad52a3a2bf4b963cfc5c4a21ba18eafae9202f4fc5202bd05c3e64a8d0642",
+    "tests/data/release_contracts/699_ssh_connection_worker_api_arrival_2026-10-14.json": "23cc46d08a2846dec03aacaaf4b5a8c0fa7495b35949fe53acfdae6c0b8b5675",
+    "tests/data/release_contracts/700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json": "71df3883db78ff2102a5bf253d4303797d673d4bc73930a77bddddbaef8f9972",
+    "tests/data/release_contracts/700_anonymous_reports_client_api_arrivals_2026-10-14.json": "671a1d574e369218fb965847c9b75d8724ae6816846c67559aa93caeb66d5daa",
+    "tests/data/release_contracts/console_warm_notice_glyphs_api_arrival_2026-10-13.json": "cf8bb8d95494b70fbac39739336df226493caa84a69f4c37d99173ea66853662",
+    "tests/data/release_contracts/dna_rain_change_event_api_arrival_2026-10-12.json": "824c0809985511c725e1f38332c86855a973e85fbb868d67bb7c4e7694cbd10b",
+    "tests/data/release_contracts/install_cleanup_note_api_arrival_2026-10-14.json": "9441e9a87c3128a1d6684df9fab25cb4c7bd141366461903b7601410eca28c14",
+    "tests/data/release_contracts/mask_live_filter_debounce_api_arrivals_2026-10-13.json": "145e7f2cd0590209b4bee6eed2dffd9027eadfb1bb7ef7ee030400d059cc6991",
+    "tests/data/release_contracts/model_cards_api_arrivals_2026-10-12.json": "1bb89ea21a0c6b3a70b6af51fa41f48653d2603ff6033f4b7c4fd5b4bec05529",
+    "tests/data/release_contracts/parascape_launcher_api_arrivals_2026-10-12.json": "6419be02f83b5f95546c14268f95d9245fdf1f8a152daa9637a3bffae4b36cb3",
+    "tests/data/release_contracts/prefs_apply_api_arrivals_2026-10-12.json": "bac2ebd38843d4c320b2bafcc1ab7463343de991cf049ca0078fb8db10ebfe03",
+    "tests/data/release_contracts/quit_and_warmup_api_arrivals_2026-10-13.json": "1a8718f2e7edbafce3f200ec1256d6c1a69b1449686c9abcfd6212ec36146662",
+    "tests/data/release_contracts/reviewed_api_surface_arrivals_2026-10-15.json": "dbe3059b5414b27963e3b29597bda314edc38942751e76ac375016182784a836",
+    "tests/data/release_contracts/runtime_caption_arrivals_2026_10_08.json.gz": "ad1c34f80eaf4111536012178811d9196de8dad85416451f154d67741ed52f26",
+    "tests/data/release_contracts/thread_retire_api_arrivals_2026-10-13.json": "be64c75c3efdd885b284b939569075559da2ba732ee18feacab1640ee044262d",
+    "tests/qt/test_the_help_search_field_lands_where_it_says.py": "e3b668da2161b163f7afc95162df4bc950ebf83d814678bd415d111217e2196e",
+    "tests/qt/test_the_help_search_says_what_it_left_out.py": "1ec73a45322e0fb44253f966b35f55c99eb7a921a00df1bd4d40bd87dc2e22ae",
+    "tools/build_help_search_index.py": "6b98bf028bbe372894a314eb509fb9da4a74e814f13d1223fb1741ffea71d2a9",
+    "spacr/qt/help_api_index.py": "e90f8d07f8d918a50d849b13dc67247da1601330f9f0ddb1cb6f5be78f07ec19"
+  },
+  "actual_changed_paths": [
+    "spacr/qt/i18n_catalogs/de.py",
+    "spacr/qt/i18n_catalogs/es.py",
+    "spacr/qt/i18n_catalogs/fr.py",
+    "spacr/qt/i18n_catalogs/hi.py",
+    "spacr/qt/i18n_catalogs/pt.py",
+    "spacr/qt/i18n_catalogs/sv.py"
+  ],
+  "no_EN_API_Help_arrival_rewrite": true,
+  "status": "NORMAL six punctuation target repair PASS; consumer/strict-test acceptance remains coordinator-owned",
+  "initial_attempt": {
+    "exit": 1,
+    "phase": "Before all-nine preflights/writes",
+    "reason": "Extra runner guard blocked normal ctypes OpenCC /sbin/ldconfig -p discovery",
+    "zero_writes_source_inputs_baseline_protected_all_unchanged": true
+  },
+  "retry": {
+    "exit": 0,
+    "only_driver_change": "Permit exact executable /sbin/ldconfig and exact argv [/sbin/ldconfig, -p]",
+    "independent_source_peer": "Hard reviewed original plan e708ebcb5a and exact corrected predicate before Root retry authorization"
+  },
+  "actual_final_catalog_sha256": {
+    "spacr/qt/i18n_catalogs/de.py": "921962971708d234418eb3befcc3dbdd1fa7d8ad156f147ecc70d4e73e4465c3",
+    "spacr/qt/i18n_catalogs/es.py": "e6b31b79f95e641f5bf6e8dc676a18942c3b6837b044edadb25a77a2e139292f",
+    "spacr/qt/i18n_catalogs/fr.py": "a46c5fa71860f99f9653e8d86bde49083d90f34cbb4386ecb88076599e0ca926",
+    "spacr/qt/i18n_catalogs/hi.py": "fe109268c00b19fb35bbfa8cc0dd35d0f645ac3afc3c01ee9797572a73263f95",
+    "spacr/qt/i18n_catalogs/pt.py": "48d61ba51c8fea86e73eff1d1bb68dbba4f7df2995007755b3cd57f0ebcded71",
+    "spacr/qt/i18n_catalogs/sv.py": "f28e5d293477ec74daee8e165290fb484e40bbd353fadd9dc3cd1d2ec1ae7204"
+  },
+  "no_tests_or_real_consumers_run": true,
+  "no_human_native_or_N699_implementation_claim": true,
+  "artifact_record_hashes": {
+    "runner-only-ldconfig.patch": "fb1990877b06195c22582e06e93ff8330b9ad35ba09a0c76b21faffa5f11fe3d",
+    "retry-run.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "first-refusal-receipt.json": "3cf96bee1d308e0d5a1b08517b32f94f6caa02e9104f7c381eb641a186febff0",
+    "first-run.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "config.PENDING.json.gz": "e828b5ec7bb6970fbb7d191d1c46246c1738895f5a448dc4e9ea3833224c8c6a",
+    "scoped-six-runtime.py": "57b98e67c7f3d9bb06c049d358e002af4b88dc638342b1f5cf338b95c14d9d99",
+    "first-run.log": "a89d502314f162db51bd8b71643948cb7cfd84d801b94d1c14a961313cf1b71e",
+    "activation.json": "d792e54a8137b682c63cd38f0483553a4a8b4e482624142d6e53c43e630b60dc",
+    "terminal-receipt.json": "d74f817d1d80e284a81626b572cbe41baa11ad36490edfa74210e832df887a0e",
+    "run-final.sh": "bc247619467cd50ec988778a21cbf326f3f968f0551ce447d96bb90f6b20b3aa",
+    "scoped-six-runtime-corrected.py": "4429cb05a707187c7b049fc61392d5bfbed144c026ef1dbbf73e0b724e84c459",
+    "retry-run.log": "68b555583bde5d16daa20f515adb010153f31383cd8d010a012ed96e88618d03",
+    "config.FINAL.json.gz": "6beef9a3b861208f9feb00f9ea1639ea423e5da082da5a438bc530a844377523",
+    "run-retry.sh": "fe05c9afe1af170ec0bf51bd0adc922e75c32ce227411dd8db488a0850932a06"
+  }
+}

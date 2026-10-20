@@ -1,4 +1,4 @@
-"""Hyperparameter search panel — the Live-Preview-shaped window for sweeps.
+"""Hyperparameter search panel, built like the Live Preview panel.
 
 Structurally this is the sibling of :mod:`spacr.qt.widgets.live_preview`: a
 self-contained :class:`QWidget` that owns its own controls, runs the expensive
@@ -10,12 +10,12 @@ a callback the host registers. Host screens embed it with
 preview, and toggle it with a label reading "Hyperparameter search" where the
 Mask screen's says "Live".
 
-What it deliberately does *not* do is announce a winner and stop talking. The
-table is ordered by the criterion the user picked, but the panel also draws the
-small-multiples panel (embeddings for UMAP, score-versus-trial with the noise
-band for the classifiers) and prints the spread, the within-noise flag and the
-failure count, because those are the parts that say whether the winner means
-anything. See :mod:`spacr.hyperparam` for why.
+The panel does not report only a winner. The table is ordered by the criterion
+the user picked, and the panel also draws the small-multiples panel (embeddings
+for UMAP, score-versus-trial with the noise band for the classifiers) and
+prints the spread, the within-noise flag and the failure count, which show
+whether the best configuration differs meaningfully from the others. See
+:mod:`spacr.hyperparam` for why.
 
 """
 from __future__ import annotations
@@ -27,6 +27,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
+from functools import partial
 from io import BytesIO
 from typing import (
     Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple,
@@ -203,9 +204,9 @@ def format_scores(trial: Trial, keys: Sequence[str] = ()) -> str:
     """Render every criterion a trial recorded, one per line.
 
     An Activation sweep computes four criteria for every trial precisely
-    because they disagree, so the row that shows only the ranked one is hiding
-    the finding. The panel puts this on the row's tooltip and in the figure
-    titles.
+    because they disagree, so a row showing only the ranked criterion would
+    hide that disagreement. The panel puts this on the row's tooltip and in the
+    figure titles.
 
     :param trial: the trial to describe.
     :param keys: criteria to show first, in order; anything else the trial
@@ -238,11 +239,12 @@ def format_scores(trial: Trial, keys: Sequence[str] = ()) -> str:
 
 def criteria_disagree(result: SearchResult,
                       criteria: Sequence[str]) -> Optional[str]:
-    """Say plainly when re-ranking by another criterion picks another winner.
+    """Report when re-ranking by another criterion picks a different best
+    trial.
 
-    Ranking attribution methods has no ground truth, so the useful output is
-    not the top row but whether the top row survives a change of criterion.
-    When it does not, that is the result and it goes on the status line.
+    Ranking attribution methods has no ground truth, so this reports whether
+    the top row stays on top under another criterion. When it does not, the
+    sentence is shown on the status line.
 
     :param result: the finished sweep.
     :param criteria: the criteria to re-rank by.
@@ -323,11 +325,11 @@ def build_panel_figure(
 ):
     """Draw the small-multiples panel for a finished (or partial) sweep.
 
-    For a UMAP sweep this is one scatter per trial — the deliverable, because
-    the scores cannot tell you an embedding is right. For a classifier sweep
-    there is no embedding to draw, so it is score-versus-trial with the noise
-    band shaded: every configuration inside the band is indistinguishable from
-    the winner.
+    For a UMAP sweep this is one scatter per trial, because the scores alone do
+    not show whether an embedding is correct. For a classifier sweep there is
+    no embedding to draw, so it is score-versus-trial with the noise band
+    shaded: every configuration inside the band is indistinguishable from the
+    winner.
 
     :param result: the sweep to draw.
     :param max_panels: cap on the number of embedding panels.
@@ -475,28 +477,22 @@ class SearchRequest:
 
 
 
-def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
-    """Draw ONE trial's embedding and write it to ``png_path``.
+def _trial_figure(trial: Trial, metric: str):
+    """Draw ONE trial's embedding on a new figure, or None without one.
 
-    Pure matplotlib, no Qt, so this is safe to call from a worker thread --
-    which is the whole point. Fifty embeddings drawn on the GUI thread is a
-    fifty-second freeze, and the search is the one place where the user most
-    wants to keep interacting (to stop it).
-
-    Returns False when the trial has no embedding to draw: a classifier
-    sweep has none, and a failed UMAP trial has none either. The caller
-    treats that as "no figure for this cell" rather than as an error.
+    Pure matplotlib, no Qt and no pyplot, so it is safe on a worker thread.
+    The figure registers its embedding as tidy data and carries the user's
+    figure settings, so the figure menu can edit it, change its graph type,
+    test it and save it as a zip.
 
     :param trial: the trial to draw; needs an ``embedding`` in
         ``extra_metrics`` and a score.
-    :param metric: the metric name shown with the score in the figure title.
-    :param png_path: where the PNG is written.
+    :param metric: the metric name shown with the score in the title.
+    :returns: the figure, or None when the trial has nothing to draw.
     """
     embedding = trial.extra_metrics.get("embedding")
     if embedding is None or trial.score is None:
-        return False
-    import matplotlib
-    matplotlib.use("Agg", force=False)
+        return None
     from matplotlib.figure import Figure
 
     figure = Figure(figsize=(3.2, 2.6))
@@ -513,6 +509,32 @@ def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
     axis.set_title(f"{format_params(trial.params)}\n"
                    f"{metric}={float(trial.score):.3f}", fontsize=7)
     figure.tight_layout()
+    from ...figures.style import _apply_user_style
+    _apply_user_style(figure, "scatter")
+    return figure
+
+
+def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
+    """Draw ONE trial's embedding and write it to ``png_path``.
+
+    Pure matplotlib, no Qt, so this is safe to call from a worker thread.
+    Drawing fifty embeddings on the GUI thread would freeze the window,
+    including its Stop button, for about fifty seconds.
+
+    Returns False when the trial has no embedding to draw: a classifier
+    sweep has none, and a failed UMAP trial has none either. The caller
+    treats that as "no figure for this cell" rather than as an error.
+
+    :param trial: the trial to draw; needs an ``embedding`` in
+        ``extra_metrics`` and a score.
+    :param metric: the metric name shown with the score in the figure title.
+    :param png_path: where the PNG is written.
+    """
+    import matplotlib
+    matplotlib.use("Agg", force=False)
+    figure = _trial_figure(trial, metric)
+    if figure is None:
+        return False
     from ..widgets.figure_queue import render_figure_to_png
     return bool(render_figure_to_png(figure, png_path))
 
@@ -735,6 +757,10 @@ class HyperparamPanel(QWidget):
         self._worker: Optional[_SearchWorker] = None
         self._result: Optional[SearchResult] = None
         self._live_trials: List[Trial] = []
+        self._grid_trials: Dict[int, Trial] = {}
+        self._trial_figures: Dict[int, Any] = {}
+        self._preview_figure = None
+        self._search_metric = "score"
         self._best_so_far: Optional[float] = None
         self._search_fn = None
         self._apply_cb: Optional[Callable[[Dict[str, Any]], Any]] = None
@@ -1095,8 +1121,7 @@ class HyperparamPanel(QWidget):
             "UMAP settings…" if self.app_key == "umap"
             else "Search settings…")
         self._settings_btn.setToolTip(
-            "Open the tabbed search, graph and module settings window. "
-            "This follows Measure Live's Crop settings pattern.")
+            "Open the tabbed search, graph and module settings window.")
         self._settings_btn.clicked.connect(self.open_settings)
         compact_actions.addWidget(self._compact_run_btn)
         compact_actions.addWidget(self._compact_stop_btn)
@@ -1193,8 +1218,13 @@ class HyperparamPanel(QWidget):
             self._figure_grid = SearchFigureGrid(parent=self._preview_stack)
             self._figure_grid.setVisible(False)
             self._figure_grid.cell_clicked.connect(self._open_trial_figure)
+            self._figure_grid.cell_menu_requested.connect(
+                self._trial_figure_menu)
             preview_column.addWidget(self._figure_grid, 1)
             self._preview = QLabel("No search has been run yet.")
+            self._preview.setContextMenuPolicy(Qt.CustomContextMenu)
+            self._preview.customContextMenuRequested.connect(
+                self._preview_figure_menu)
             self._preview.setAlignment(Qt.AlignCenter)
             self._preview.setMinimumWidth(220)
             self._preview.setSizePolicy(
@@ -1456,8 +1486,8 @@ class HyperparamPanel(QWidget):
     def walk_axes(self) -> Dict[str, Dict[str, Any]]:
         """The chosen Walk axes, ``{name: {'start', 'resolution'}}``.
 
-        Empty means the Walk uses the two parameters it always used, which
-        is what an untouched panel should do.
+        Empty means the Walk uses its default two parameters, n_neighbors and
+        min_dist.
         """
         return {name: dict(spec) for name, spec in self._walk_axes.items()}
 
@@ -1627,7 +1657,7 @@ class HyperparamPanel(QWidget):
             return
         QMessageBox.information(
             self, "Restart spaCR",
-            "cuML is installed. RESTART spaCR before using it — pip may "
+            "cuML is installed. Restart spaCR before using it — pip may "
             "have upgraded numpy or scipy underneath this process, which "
             "has already imported them.")
         self._set_status("cuML installed. Restart spaCR to use it.")
@@ -1734,6 +1764,9 @@ class HyperparamPanel(QWidget):
         )
         self._result = None
         self._live_trials = []
+        self._grid_trials = {}
+        self._trial_figures = {}
+        self._preview_figure = None
         self._table.setRowCount(0)
         self._apply_btn.setEnabled(False)
         self._notes.setText("")
@@ -1767,6 +1800,8 @@ class HyperparamPanel(QWidget):
             f"Running {search_label}, ranked by "
             f"{request.criterion}…")
 
+        self._search_metric = str(getattr(request, "criterion", "score")
+                                  or "score")
         worker = _SearchWorker(request, self._search_fn, self)
         worker.trial_ready.connect(self._on_trial_ready)
         worker.finished.connect(self._on_worker_finished)
@@ -1862,7 +1897,9 @@ class HyperparamPanel(QWidget):
                                  else max(self._best_so_far, float(trial.score)))
         if png_path and self._figure_grid is not None:
             try:
-                self._figure_grid.add_figure(png_path, dict(trial.params))
+                cell = self._figure_grid.add_figure(png_path,
+                                                    dict(trial.params))
+                self._grid_trials[int(cell)] = trial
             except Exception:
                 LOG.debug("could not place the trial figure", exc_info=True)
         sorting = self._table.isSortingEnabled()
@@ -2160,7 +2197,8 @@ class HyperparamPanel(QWidget):
                 return
 
     def open_umap_grid(self) -> Optional[UmapGalleryDialog]:
-        """Spawn the black-background wall of every embedding in the table."""
+        """Open a window with every embedding in the table, on black
+        backgrounds."""
         if self.app_key != "umap":
             return None
         trials = (self._result.trials if self._result is not None
@@ -2352,7 +2390,62 @@ class HyperparamPanel(QWidget):
         if pm.isNull():
             self._preview.setText("Could not render the preview.")
             return
+        self._preview_figure = fig
         self._preview.setPixmap(pm)
+
+    def _preview_figure_menu(self, point) -> None:
+        """Open the figure menu on the summary panel at a right-click.
+
+        The summary is shown as a rendered picture, so the menu edits the
+        live figure behind it and the picture is re-rendered after each
+        change: Edit, Change graph type, Statistics and Save zip all work
+        here as on any figure canvas.
+
+        :param point: the click, in the preview label's coordinates.
+        """
+        figure = self._preview_figure
+        if figure is None:
+            return
+        from ..widgets.figure_settings import _show_rendered_figure_menu
+
+        _show_rendered_figure_menu(self._preview, figure,
+                                   self._preview.mapToGlobal(point),
+                                   self._repaint_preview)
+
+    def _repaint_preview(self, figure) -> None:
+        """Put the edited summary figure back on the preview label."""
+        pixmap = figure_to_pixmap(figure)
+        if not pixmap.isNull():
+            self._preview.setPixmap(pixmap)
+
+    def _repaint_trial(self, index: int, figure) -> None:
+        """Put an edited trial figure back in its grid cell."""
+        if self._figure_grid is not None:
+            self._figure_grid._set_cell_pixmap(index, figure_to_pixmap(figure))
+
+    def _trial_figure_menu(self, index: int, position) -> None:
+        """Open the figure menu on one trial's figure at a right-click.
+
+        The grid holds rendered pictures; the trial's figure is drawn again
+        from its embedding the first time its menu opens and kept, so edits
+        accumulate and the grid cell shows each one.
+
+        :param index: the grid cell, as the grid numbered it.
+        :param position: the global position of the click.
+        """
+        figure = self._trial_figures.get(index)
+        if figure is None:
+            trial = self._grid_trials.get(index)
+            if trial is None:
+                return
+            figure = _trial_figure(trial, self._search_metric)
+            if figure is None:
+                return
+            self._trial_figures[index] = figure
+        from ..widgets.figure_settings import _show_rendered_figure_menu
+
+        _show_rendered_figure_menu(self._figure_grid, figure, position,
+                                   partial(self._repaint_trial, index))
 
 
     @property
@@ -2364,7 +2457,7 @@ class HyperparamPanel(QWidget):
         """Stop a running sweep before the widget is torn down.
 
         Destroying a QWidget whose QThread is still running aborts the process,
-        which is exactly how the headless test suite would die.
+        including in the headless test suite.
 
         :param event: the close event, passed on to the base class after a
             running sweep worker is asked to stop and waited for up to 3 s.
@@ -2735,7 +2828,8 @@ def _complete_metrics_when_opened(combo) -> None:
         """Fill the metric list the first time the popup opens.
 
         Deferred because the list comes from umap, and importing it at build
-        time would pay for it on every screen that never opens this combo.
+        time would import umap for every screen, including those that never
+        open this combo.
         """
         try:
             names = umap_metrics()
@@ -2769,10 +2863,10 @@ def build_hyperparam_card(host, *, panel_later: bool = False):
 
     :param host: the :class:`AppScreen` asking for the card; its ``app_key``
         selects the parameter set.
-    :param panel_later: return ``None`` for the panel and leave the card's
-        body empty. The screen fills it with :func:`_fill_hyperparam_card`
-        when the card is first shown, so a module whose search nobody opens
-        does not build and polish its ~130 widgets at open.
+    :param panel_later: return ``None`` for the panel and leave the card's body
+        empty. The screen fills it with :func:`_fill_hyperparam_card` when the
+        card is first shown, so a module whose search is never opened does not
+        build and polish its ~130 widgets at open.
     :returns: ``(panel, card)``.
     """
     from ..widgets.card import Card, _CardBuiltWhenShown
@@ -2813,11 +2907,9 @@ class WalkAxesDialog(QDialog):
     contributes to each round. 2 is the classic pair either side of the
     centre; 3 includes the centre; 5 reaches two steps out.
 
-    The round cost is the PRODUCT of the resolutions, which is why the
-    dialog shows that number and says when it will trip the per-round
-    limit. Ten axes at resolution 2 is 1024 fits to take one step, and a
-    user who has to discover that by waiting has been failed by the
-    control, not by the search.
+    The round cost is the PRODUCT of the resolutions, which is why the dialog
+    shows that number and says when it will trip the per-round limit. Ten axes
+    at resolution 2 is 1024 fits to take one step.
 
     :param panel: the panel whose axes this walks. Also the dialog's parent.
     """
@@ -2828,7 +2920,7 @@ class WalkAxesDialog(QDialog):
         One row per UMAP parameter, each with a switch, a starting value and a
         resolution -- every one of them changes the structure of the embedding,
         so a search restricted to ``n_neighbors`` and ``min_dist`` leaves the
-        rest at a default nobody chose.
+        others at their defaults.
 
         :param panel: the hyperparameter panel whose walk axes this edits.
         """
@@ -2843,8 +2935,8 @@ class WalkAxesDialog(QDialog):
         blurb = QLabel(
             "The Walk searches the space these parameters define. Every one "
             "of them changes the structure of the embedding, so searching "
-            "only n_neighbors and min_dist leaves the rest at a default "
-            "nobody chose.")
+            "only n_neighbors and min_dist leaves the others at their "
+            "defaults.")
         blurb.setWordWrap(True)
         blurb.setObjectName("WalkAxesBlurb")
         outer.addWidget(blurb)
@@ -2970,7 +3062,7 @@ class WalkAxesDialog(QDialog):
         if count == 0:
             self._cost.setText(
                 "No axes selected — the Walk falls back to n_neighbors and "
-                "min_dist, its original two.")
+                "min_dist.")
             return
         try:
             start = {name: _parse_walk_start(name, spec["start"])

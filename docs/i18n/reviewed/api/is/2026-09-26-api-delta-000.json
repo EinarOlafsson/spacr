@@ -34,7 +34,9 @@
       "source_sha256": "68fcf0be6e95d447179c88cdaf96cde4fe0d3cfac9558a064380e3d5500f1a2a",
       "context": ":func:`method_applicability` for every registered method, by name.",
       "translation": ":func:`method_applicability` fyrir hverja skráða aðferð, eftir heiti.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.architecture_kind#0",
@@ -42,7 +44,9 @@
       "source_sha256": "216352c3f8a763c41a3026a2e82665a4dd11d48c07aae937435e440b87f4d8f3",
       "context": "Classify a backbone into what the attribution families can use.",
       "translation": "Flokka grunnnet í það sem eignunarfjölskyldurnar geta notað.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.architecture_kind#1",
@@ -74,7 +78,9 @@
       "source_sha256": "7bee3a802a9a6a4dd59dbb6013aed91af68e2995f37c1dd152c1c958eee4dfdd",
       "context": ":func:`method_applicability` for a ``cam_type`` setting value.",
       "translation": ":func:`method_applicability` fyrir ``cam_type`` stillingargildi.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.cam_type_applicability#1",
@@ -130,7 +136,9 @@
       "source_sha256": "e524e886fe1a31bb50d721eeb276302421da04a4fb462a81a2ba7199fb7b44da",
       "context": "Every ``cam_type`` the Activation Maps settings can name, in menu order.",
       "translation": "Hvert ``cam_type`` sem Activation Maps stillingarnar geta nefnt, í röð valmyndarinnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.chefer_relevance#0",
@@ -138,7 +146,9 @@
       "source_sha256": "bc950ccd085fd63f98634e57fca78f0662962ef4dc9d32bdbffe24282f4edb95",
       "context": "Class-specific transformer relevance (Chefer, Gur & Wolf 2021).",
       "translation": "Flokkssértækt mikilvægi í transformer (Chefer, Gur & Wolf 2021).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.chefer_relevance#1",
@@ -210,7 +220,9 @@
       "source_sha256": "74c143460065431729d6cab15c0c6ac52215b6ab9de2c107c6947b36fae2b374",
       "context": "Whether a registered method can give a meaningful map for this backbone.",
       "translation": "Hvort skráð aðferð getur gefið marktækt kort fyrir þetta grunnnet.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.method_applicability#1",
@@ -242,7 +254,9 @@
       "source_sha256": "15be02ac3dd27b2ace560b802cfb6402fbae914fe62570d3e6e75469767cbaf2",
       "context": "The registry method a ``cam_type`` names, or None for a legacy one.",
       "translation": "Skráða aðferðin sem ``cam_type`` nefnir, eða None fyrir eldri aðferð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.resolve_cam_type#1",
@@ -274,7 +288,9 @@
       "source_sha256": "918cf3e023827915ba1ada30e3debc2b406b0cc1dab0ae6fc13925e4e2776aa4",
       "context": "Remove one object whole: every element holding ``label`` becomes 0.",
       "translation": "Fjarlægja einn hlut í heild: hvert stak sem geymir ``label`` verður 0.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.curation.MaskCuration.delete_object#1",
@@ -316,7 +332,9 @@
       "source_sha256": "a130dcf219352204403416f544f49f6ada45888dde0228df34121f28c3d394b1",
       "context": "Draw the permuted residual against laboratory microplate position, one row per block.",
       "translation": "Teikna umraðaða leif á móti staðsetningu á plötu, ein röð fyrir hverja blokk.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#1",
@@ -324,7 +342,9 @@
       "source_sha256": "00e560bd83aeacfeaeac75702e507610c4f9219d532dc1ecd38bccfaa5c5e788",
       "context": "the residuals that were permuted.",
       "translation": "leifarnar sem VORU UMRAÐAÐAR.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#10",
@@ -332,7 +352,9 @@
       "source_sha256": "9f149917ae6736dad86f2a8144ba2da03b23b41c4c789e694ac447004c6ec36d",
       "context": "A gradient across the laboratory microplate is what this shows and no other panel does. Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that row A sits above row P inside one laboratory microplate, which is exactly what makes the microplate sample positions in that laboratory microplate not swappable.",
       "translation": "HALLI YFIR PLÖTUNA ER ÞAÐ SEM ÞETTA SÝNIR OG EKKERT ANNAÐ SPJALD GERIR. Leifar á móti mátuðum gildum sýna dreifingu og Q-Q sýnir lögun; hvorugt sýnir að röð A liggur ofar en röð P innan einnar plötu, sem er einmitt það sem gerir brunnana á þeirri plötu ekki víxlanlega.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#2",
@@ -396,7 +418,9 @@
       "source_sha256": "ccb70107e3ca853a8ab6c0a0cb4f53909f0731252de90510b2eb568ec180a0e4",
       "context": "Write the permutation run's QC into ``<destination>/regression_qc/``.",
       "translation": "Skrifa QC umröðunarkeyrslunnar í ``<destination>/regression_qc/``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.write_permutation_qc#1",
@@ -470,7 +494,9 @@
       "source_sha256": "5d02c5e3b497010c47bdef7fb0434371db7f91084d20524a141abe02108cf64d",
       "context": "The folders Figure mode reads for ``src``, in reading order.",
       "translation": "Möppurnar sem Figure-hamur les fyrir ``src``, í lestrarröð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figure_folders#1",
@@ -956,10 +982,10 @@
     },
     {
       "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "82832c2a46f1a1c9f982c197d15fc93d90c3d9ef8cfa5732314ffd7225a507b4",
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "translation": "Hver færsla gefur upp birtingarheiti, lýsingu, slóð líffræðilegrar heimildar, skráarheiti meðfylgjandi skýringarmyndar og athugasemd um myndina. ``sections`` inniheldur þrenndir með fyrirsögn, texta og tengdum greiningarlyklum; ``links`` inniheldur pör af birtingartexta og slóð. ``modules`` inniheldur túplur með leiðarlykli, titli, lýsingu og táknmyndarlykli. Leið með ``None`` táknar lífverusértæka greiningu sem hefur ekkert eigið greiningarferli. ``workflows`` varpar táknmyndarlykli slíks reits á fyrirliggjandi eininguna sem mælir aflestur hans, stillingaforstillingu sem er beitt við opnun og athugasemd um hvernig á að nota hana; ``None`` reitur sem er ekki í ``workflows`` er Coming soon. ``starplast`` ræsir ytra forrit frá Toxoplasma-síðunni; það er hvorki lykill í greiningaskrá spaCR né hlutgreiningarbakendi. Birtingartexti er þýddur við notkun; leiðarlyklar, slóðir og auðlindanöfn haldast óbreytt.",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "cf8e6751da9db404ab186e6bdb1dc1717d006580421624421f6f374bf5b259d6",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "Hver færsla gefur upp birtingarheiti, lýsingu, slóð líffræðilegrar heimildar, skráarheiti meðfylgjandi skýringarmyndar og athugasemd um myndina. ``sections`` inniheldur þrenndir með fyrirsögn, texta og tengdum greiningarlyklum; ``links`` inniheldur pör af birtingartexta og slóð. ``modules`` inniheldur túplur með leiðarlykli, titli, lýsingu og táknmyndarlykli. Leið með ``None`` táknar lífverusértæka greiningu sem hefur ekkert eigið greiningarferli. ``workflows`` varpar táknmyndarlykli slíks reits á fyrirliggjandi eininguna sem mælir aflestur hans, stillingaforstillingu sem er beitt við opnun og athugasemd um hvernig á að nota hana; ``None`` reitur sem er ekki í ``workflows`` er Coming soon. ``parascape`` ræsir ytra forrit frá Toxoplasma-síðunni; það er hvorki lykill í greiningaskrá spaCR né hlutgreiningarbakendi. Birtingartexti er þýddur við notkun; leiðarlyklar, slóðir og auðlindanöfn haldast óbreytt.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
       "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
@@ -1144,7 +1170,9 @@
       "source_sha256": "0c3ad3552d6d5f86522bcb500ecb5ed91473f58914a3be8de7443a23b9fa9431",
       "context": "It lives in a :class:`DiameterDialog`, opened from the Model zoo popup, so the last measurement is kept on the application view it was made for and shown again the next time the popup opens: closing a window is not a reason to measure twice.",
       "translation": "Það býr í :class:`DiameterDialog`, sem er opnaður úr Model zoo sprettiglugganum, svo síðasta mælingin er geymd á skjámyndinni sem hún var gerð fyrir og sýnd aftur næst þegar sprettiglugginn opnast: að loka glugga er ekki ástæða til að mæla tvisvar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_dialog#0",
@@ -1176,7 +1204,9 @@
       "source_sha256": "eef42107a5013005e126f8ea142ea70fa02274265a1cfe4d3b6d3bf356cbc3bd",
       "context": "the dialog, or None when the screen has no diameter setting or the popup could not be built. Never throws: a Model zoo that opens without this button's popup is better than one that does not open.",
       "translation": "glugginn, eða None þegar skjámyndin hefur enga þvermálsstillingu eða ekki var hægt að byggja sprettigluggann. Varpar aldrei undantekningu: Model zoo sem opnast án sprettiglugga þessa hnapps er betri en einn sem opnast ekki.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_screen_of#0",
@@ -1238,6 +1268,8 @@
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
       "source_sha256": "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
       "context": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
@@ -1320,10 +1352,10 @@
     },
     {
       "label": "spacr.qt.screens.organism_screen#3",
-      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "source_sha256": "f692528df9f9c6e05be0dbe36c197d0d40844c50405a184520563729094986c1",
-      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "translation": "Opnaðu Home > Toxoplasma og veldu Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay eða Replication Assay. Valin eining leggur til inntaksvalglugga sína, stillingar, forsýn og Run-stýringar. Notaðu Test data-stýringu hennar þegar dæmi er tiltækt. Plaque Assay byrjar á myndum; hinar mælingarnar nota samsvarandi mælitöflur og tengsl hluta. Fylgdu inntakshjálp hverrar einingar fyrir keyrslu, og opnaðu síðan niðurstöðurnar í valinni úttaksmöppu hennar. Starplast opnar sérstakt forrit til að skoða þekkingarkort Toxoplasma; fyrsta ræsing þess býður uppsetningu. Gliding motility opnar Motility Assay með sýkingar-QC slökkt. Egress, Bradyzoite conversion og Host cell damage segja Coming soon og eru óvirk.",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "source_sha256": "fa59d6c776f5143afeda0752e74eec805a678674558bda44a36ee64d6a0d9c07",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "translation": "Opnaðu Home > Toxoplasma og veldu Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay eða Replication Assay. Valin eining leggur til inntaksvalglugga sína, stillingar, forsýn og Run-stýringar. Notaðu Test data-stýringu hennar þegar dæmi er tiltækt. Plaque Assay byrjar á myndum; hinar mælingarnar nota samsvarandi mælitöflur og tengsl hluta. Fylgdu inntakshjálp hverrar einingar fyrir keyrslu, og opnaðu síðan niðurstöðurnar í valinni úttaksmöppu hennar. ParaScape opnar sérstakt forrit til að skoða þekkingarkort Toxoplasma; fyrsta ræsing þess býður uppsetningu. Gliding motility opnar Motility Assay með sýkingar-QC slökkt. Egress, Bradyzoite conversion og Host cell damage segja Coming soon og eru óvirk.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -1602,7 +1634,9 @@
       "source_sha256": "46b9fefd90e27ab69e88f7019f6e19912340faff06a381decc3d81292e15f514",
       "context": "The width the column wears: the one the user dragged, else fitting.",
       "translation": "Breiddin sem dálkurinn ber: sú sem notandinn dró, annars aðlöguð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.column_width#1",
@@ -2686,7 +2720,9 @@
       "source_sha256": "0be25596494e43d96924f2dd9e25e173e0d1ac6e391c66e539358f5ff8b1ff4a",
       "context": "Build the list, the editor area, the conscience and Upload.",
       "translation": "Byggja listann, ritilssvæðið, samviskutextann og Upload.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.ContributeDialog#2",
@@ -2982,7 +3018,9 @@
       "source_sha256": "2a53e3b695da3ab5e877273e266aceed6dc3824d172f618c8d06d33b1e4defc9",
       "context": "Which importance measures apply to a model, and why the others do not.",
       "translation": "Hvaða mikilvægismælikvarðar eiga við líkan, og hvers vegna hinir gera það ekki.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.importance_method_availability#1",
@@ -3014,7 +3052,9 @@
       "source_sha256": "e89260c6458b51990a7848aecec2613fbb123e9422ad354675fa14c0e705ceb9",
       "context": "Rank the features of any fitted tabular machine-learning classification model or regressor.",
       "translation": "Raða eiginleikum hvaða mátaðs töfluflokkara eða aðhvarfslíkans sem er.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.rank_feature_importance#1",
@@ -3142,7 +3182,9 @@
       "source_sha256": "9bf0a721bee209ee7c2f38344206ff0aca4f9a67b2311f03504634967c799463",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work. In place, each adjusted mask's SHA-256 is recorded in :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes still match its record is left alone on the next run: adjusting an adjusted mask merges it again, so a repeat execution used to change the result every time. A cell mask segmented again no longer matches and is adjusted afresh.",
       "translation": "valfrjáls sérstök mappa fyrir aðlagaðar grímur. None heldur eldri hegðun þar sem breytt er á staðnum. Sérstök mappa heldur öllum upprunagrímum bæti fyrir bæti óbreyttum, og hvert valið sjónsvið er endurbyggt úr uppruna sínum við hvert kall, líka eftir vinnu sem var rofin. Á staðnum er SHA-256 hverrar aðlagaðrar grímu skráð í :data:`ADJUSTED_CELLS_LEDGER` um leið og hún er skrifuð, og gríma sem hefur bæti sem passa enn við skráningu hennar er látin óhreyfð í næstu keyrslu: að aðlaga aðlagaða grímu sameinar hana aftur, svo endurkeyrsla breytti áður niðurstöðunni í hvert sinn. Frumugríma sem er hlutuð aftur passar ekki lengur og er aðlöguð upp á nýtt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

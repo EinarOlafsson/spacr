@@ -256,18 +256,3 @@ def test_no_qt_module_reaches_a_menu_through_the_action_walk():
     assert not offenders, (
         "these walk the menu bar's action list to find a menu; use "
         f"`bar.findChildren(QMenu)` instead: {offenders}")
-
-
-def test_the_tutorial_menu_target_uses_the_safe_lookup(window):
-    from spacr.qt.tutorial.scripts import _find_menu, _menu_target
-    assert _find_menu(window, "Help") is not None
-    bar, point = _menu_target(window, "Help")
-    assert bar is window.menuBar()
-    assert point is not None and point[0] > 0
-
-
-def test_the_removed_demos_menu_is_not_offered_by_the_walkthrough(window):
-    from spacr.qt.tutorial import scripts
-
-    assert scripts._find_menu(window, "Demos") is None
-    assert not hasattr(scripts, "_open_demos_menu")

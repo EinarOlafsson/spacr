@@ -1,0 +1,209 @@
+{
+  "status": "READ_ONLY_CONCRETE_FIXTURE_MISMATCH_IDENTIFIED",
+  "hosted_run": 38774384694,
+  "hosted_source": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+  "current_public": "d12fe074a699ffca43a1d0c25664c5f4d07f1b58",
+  "source_files": {
+    "tests/test_hf_e2e_integration.py": {
+      "5727b5354de46a2ac24f434afb2e0cb4671028ec": "ca4655fde473c7a34360846846068a3455d47900abe21a44821de8f973fdc2ab",
+      "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "ca4655fde473c7a34360846846068a3455d47900abe21a44821de8f973fdc2ab"
+    },
+    "spacr/object.py": {
+      "5727b5354de46a2ac24f434afb2e0cb4671028ec": "bb71c885726aa4f52c878f4d038b61748f8772f8a3b5d363bdd0be98d425ab26",
+      "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "4fcbea011c1ab5afb9f910c3f293040f9df163d59e0ba785ba6e434c298dab9c"
+    },
+    "spacr/object_settings_table.py": {
+      "5727b5354de46a2ac24f434afb2e0cb4671028ec": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f",
+      "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "e793c24403132e4f87a374de1958ac2c043922fad4d4493740e1a0ce0d34dd2f"
+    },
+    "spacr/utils.py": {
+      "5727b5354de46a2ac24f434afb2e0cb4671028ec": "da60fddec27170fb0304c46de9b250fd1679ec9e3601524a913d866f79825a64",
+      "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae"
+    },
+    "spacr/core.py": {
+      "5727b5354de46a2ac24f434afb2e0cb4671028ec": "e91292224f32667ac198b82ee68c25a48a2cd838a32a7a026083065fd6f77208",
+      "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "e91292224f32667ac198b82ee68c25a48a2cd838a32a7a026083065fd6f77208"
+    }
+  },
+  "symbol_AST_pins": {
+    "tests/test_hf_e2e_integration.py:_make_stub_dataset": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "edb2cf8e79d7c70d5f6887dc790fc59a05ea4e54ae24c17ecb38b97de50a3325",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "edb2cf8e79d7c70d5f6887dc790fc59a05ea4e54ae24c17ecb38b97de50a3325"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        86,
+        119
+      ]
+    },
+    "tests/test_hf_e2e_integration.py:_make_stub_settings": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "cff47d71f7fafde602b263d4220e9fbfbd09f81896dd3ef1ed8932e796b26383",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "cff47d71f7fafde602b263d4220e9fbfbd09f81896dd3ef1ed8932e796b26383"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        138,
+        176
+      ]
+    },
+    "tests/test_hf_e2e_integration.py:_load_settings_for": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "d1537c54639e5989890e4e766cd5d6e39e6fa125e32acb8130a4d58157f2c7da",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "d1537c54639e5989890e4e766cd5d6e39e6fa125e32acb8130a4d58157f2c7da"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        220,
+        258
+      ]
+    },
+    "tests/test_hf_e2e_integration.py:test_hf_e2e_mask_stage": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "94991fb77a4c98952f8e3e11a67383949049693d1eee492eaa04052ba342d3ce",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "94991fb77a4c98952f8e3e11a67383949049693d1eee492eaa04052ba342d3ce"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        267,
+        321
+      ]
+    },
+    "spacr/object.py:_eval_diameter": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "6aefa0fbbf9299b0c3fbe582fe0a23d3dfa57a5503d0b63d8af42db0f9b3a716",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "6aefa0fbbf9299b0c3fbe582fe0a23d3dfa57a5503d0b63d8af42db0f9b3a716"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        39,
+        82
+      ]
+    },
+    "spacr/object.py:generate_cellpose_masks_sam": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "8f77bdb92935d3f7fdaacf8809d0c47b88ca9b6debf357cbae9149e3983f010c",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "48d1f03e0b3f43f606b4339a079b3eae38ddd8a719d790799a17df60abbb1709"
+      },
+      "hosted_equals_current": false,
+      "current_lines": [
+        1352,
+        1871
+      ]
+    },
+    "spacr/object_settings_table.py:_diameter_for_eval": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "b38fe9f0f466774bca21bcdcdda5fa40aa5ac2dbbb9123d2185d734f256f1758",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "b38fe9f0f466774bca21bcdcdda5fa40aa5ac2dbbb9123d2185d734f256f1758"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        476,
+        488
+      ]
+    },
+    "spacr/object_settings_table.py:_diameter_setting": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "399d16ce32d262b1c279c07c1c69d3350cce676e67eba80664eae5fd173c7b71",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "399d16ce32d262b1c279c07c1c69d3350cce676e67eba80664eae5fd173c7b71"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        375,
+        410
+      ]
+    },
+    "spacr/object_settings_table.py:_diameter_from_magnification": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "669ceab30e317839d38edad367871a8e81a13feb68dc32624a4fbce00ccac767",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "669ceab30e317839d38edad367871a8e81a13feb68dc32624a4fbce00ccac767"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        344,
+        372
+      ]
+    },
+    "spacr/utils.py:_get_cellpose_channels": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "9951c8ed1771b623675d17e4cecb8495d7c2599215273f6d0e747b930571f7db",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "9951c8ed1771b623675d17e4cecb8495d7c2599215273f6d0e747b930571f7db"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        3495,
+        3532
+      ]
+    },
+    "spacr/utils.py:_get_object_settings": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "72f16ef89a4d1134c00c25a0d2ce29a7a9c50b7f024647883cf98a5530cca9f1",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "72f16ef89a4d1134c00c25a0d2ce29a7a9c50b7f024647883cf98a5530cca9f1"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        3373,
+        3421
+      ]
+    },
+    "spacr/utils.py:prepare_batch_for_segmentation": {
+      "AST_sha256": {
+        "5727b5354de46a2ac24f434afb2e0cb4671028ec": "9da2cb65778dba1827f95a1e64ff5dded9ae27c0e1ba061ad1eaf6f449f23a88",
+        "d12fe074a699ffca43a1d0c25664c5f4d07f1b58": "9da2cb65778dba1827f95a1e64ff5dded9ae27c0e1ba061ad1eaf6f449f23a88"
+      },
+      "hosted_equals_current": true,
+      "current_lines": [
+        9868,
+        9881
+      ]
+    }
+  },
+  "logs": {
+    "network-116568856207.log": {
+      "sha256": "707c6f5870e23e8b08c7ad61102941e260746c33340c6dec95bf6c5336c66375",
+      "excerpt_rows": 25
+    },
+    "coverage7-116568856169.log": {
+      "sha256": "f562926c920e30eb07d8230805f446860c311281ffd888713f0d7595b425b63e",
+      "excerpt_rows": 26
+    }
+  },
+  "facts": [
+    "Both failing jobs explicitly use SPACR_HF_E2E_STUB=1. These failures are synthetic four-field CPU fixtures, not downloaded microscopy data.",
+    "Stub draws four radius11 cell discs surrounding radius5 nucleus discs per64x64 field; CSV supplies cell_channel0/nucleus_channel1 but no diameters.",
+    "Settings resolution starts from current Mask defaults; logged cell/nucleus diameters are None and magnification-derived object diameter is160/75.",
+    "N696 commit7a93f9216b intentionally changed blank Cellpose-SAM eval diameter from None/native scale to object magnification default. Test fixture56d19ec488 was authored before that change, with historical native-scale4/4/4/4 cells.",
+    "Current code sends _eval_diameter(raw,None-default160/75) result to model.eval; flow_threshold0.4 and cellprob_threshold0 are unchanged in logs.",
+    "Channel stack roles are [raw nucleus1,raw cell0] -> dense nucleus0/cell1; cell eval takes dense[1,0] in cell/nucleus order, nucleus takes[0]. No concrete channel misrouting found.",
+    "Logs report no post-segmentation filtering operations for cells, so observed zero outputs were not erased by the later no-op filter stage.",
+    "The nucleus outputs contain4objects/field but with varying sizes and QC warnings; this is not correct-shape or scientific acceptance."
+  ],
+  "proposed_boundary": {
+    "production_changes": false,
+    "test_file": "tests/test_hf_e2e_integration.py",
+    "function": "_make_stub_settings",
+    "candidate": "Add explicit cell_diameter,auto and nucleus_diameter,auto to only synthetic Mask CSV, documenting current SAM auto=native-scale semantics. This restores the originally observed native-scale fixture intent without changing the deliberate production default.",
+    "alternative": "Explicit22/10 geometric diameters match drawn discs but represent a new scale choice; not preferred without actual acceptance comparison.",
+    "preserved": [
+      "Every original per-field nonempty assertion",
+      "At least12total cells out of16",
+      "Real downloaded settings-pack path",
+      "Masks/merged field-count parity and keep_intermediate outputs",
+      "Current production N696 blank/magnification defaults and actual model/thresholds"
+    ]
+  },
+  "required_before_mutation": [
+    "Root scope approval",
+    "Meaningful pure settings/diameter-boundary fixture proof first, no model needed",
+    "Actual single existing mask-stage CPU run only if separately authorized with existing verified cached weights, strict no-network guard and capture/resource coordination; no blind retry or new download"
+  ],
+  "uncertainty": "Missing scale is a proven fixture/software contract mismatch; its causal sufficiency for all-zero numerical masks has not been experimentally proven in this read-only task. Model release/checkpoint differences may still matter.",
+  "not_run": [
+    "No test/inference/model import",
+    "No network/dataset/checkpoint download",
+    "No GPU/export/service/environment mutation"
+  ],
+  "current_source_delta": "Only generate_cellpose_masks_sam changed among scoped symbols: adds actual input setting-name diagnostic to existing resolver call. Removing only that assignment/keyword recovers exact hosted function AST; eval parameters/channel/diameter branches unchanged.",
+  "scoped_eval_and_channel_control_AST_equivalent_after_diagnostic_only_delta": true
+}

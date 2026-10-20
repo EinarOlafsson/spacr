@@ -375,7 +375,7 @@ def test_the_roi_menu_exports_through_its_file_dialogs(screen, tmp_path,
     coco = tmp_path / "coco.json"
     _answer(monkeypatch, getSaveFileName=(str(coco), ""))
     screen._on_export_all_rois("coco")
-    names = [i["file_name"] for i in json.loads(coco.read_text())["images"]]
+    names = [i["file_name"] for i in json.loads(coco.read_text(encoding="utf-8"))["images"]]
     assert names == ["img_00.tif"]
 
     _answer(monkeypatch, getExistingDirectory=str(blocker))

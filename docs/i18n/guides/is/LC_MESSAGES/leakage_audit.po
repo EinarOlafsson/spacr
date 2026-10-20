@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "Úttekt á leka milli þjálfunar og prófunar"
 
-msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "Nákvæmni flokkara er ógild þegar tengdir myndskurðir koma fyrir báðum megin við matsmörk. spaCR tekur út varanlegu skiptinguna ``train/``/``test/``, venjulega geymslu þjálfunar/sannprófunar, öll ytri og innri mörk víxlsannprófunar og skiptingu víxlsannprófunarinnar í heild fyrir mátun."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "Nákvæmnismat á geymdum gögnum ofmetur frammistöðu á óháðum gögnum þegar tengdir myndskurðir koma fyrir báðum megin við matsmörk. spaCR tekur út varanlegu skiptinguna ``train/``/``test/``, venjulega geymslu þjálfunar/sannprófunar, öll ytri og innri mörk víxlsannprófunar og skiptingu víxlsannprófunarinnar í heild fyrir mátun."
 
 msgid "What is verified"
 msgstr "Hvað er staðfest"
@@ -61,8 +62,9 @@ msgstr "Venjuleg sannprófun tekur einnig tillit til hópa. ``cv_group_by='well'
 msgid "Run the audit directly"
 msgstr "Keyra úttektina beint"
 
-msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
-msgstr "Skipunin prentar JSON og hættir með ``0`` fyrir staðfesta skiptingu, ``1`` þegar leki eða óstaðfestanleg auðkenni finnast og ``2`` þegar ekki er hægt að taka gagnasafnið út. ``--no-content-hash`` dregur úr I/O en getur ekki greint endurnefnd afrit. ``--allow-unverifiable`` er ætlað til greiningar á eldri gagnasöfnum; það gerir frammistöðumat þeirra ekki áreiðanlegt."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
+msgstr "Skipunin prentar JSON og hættir með ``0`` fyrir staðfesta skiptingu, ``1`` þegar leki eða óstaðfestanleg auðkenni finnast og ``2`` þegar ekki er hægt að taka gagnasafnið út. ``--no-content-hash`` dregur úr I/O en getur ekki greint endurnefnd afrit. ``--allow-unverifiable`` er ætlað til greiningar á eldri gagnasöfnum; frammistöðumat þeirra er samt ekki óháð þjálfunargögnunum."
 
 msgid "Classify settings"
 msgstr "Stillingar Flokkunar"
@@ -103,8 +105,9 @@ msgstr "Mat á flokkurum, kvörðun og greining á leka milli skiptinga."
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "Einingin er óháð líkani: hún tekur við merkjum, líkum, auðkennum hluta og slóðum sýna. Djúpnáms-víxlsannprófun og framtíðarvinnslukeðjur klassísks vélnáms geta því skrifað sama matspakka og Qt-vinnuborðið getur sýnt eitt stöðugt snið afurða."
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "Sönnun yfir alla víxlsannprófunina á að hver fjölskylda tengdra sýna tilheyri einum hluta."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr "Niðurstaða lekaúttektar á hverri brotskiptingu víxlprófunar."
 
 msgid "Parameters"
 msgstr "Færibreytur"
@@ -208,11 +211,13 @@ msgstr "valkvæður flokkur fyrir hverja slóð, eitt gildi á slóð. Aðeins n
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "auðkennisstig sem má ekki fara yfir mörk hluta -- ``none``, ``field``, ``well`` eða ``plate``. Skipting hópuð eftir brunnum leyfir sömu plötu báðum megin en aldrei sama brunn."
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
-msgstr "bera einnig saman INNIHALD skráa, svo bætaeins afrit undir öðru nafni náist. Kostar einn lestur á skrá."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
+msgstr "bera einnig saman innihald skráa, svo bætaeins afrit undir öðru nafni greinist. Kostar einn lestur á skrá."
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
-msgstr "meðhöndla ÓSTAÐFESTANLEGT sem alvarlegt. Skráarheiti sem kóðar ekki umbeðið auðkenni, eða skrá sem ekki er hægt að reikna tætigildi fyrir, er annars aðeins viðvörun -- svo ef þetta er False getur hrein skýrsla samt falið leka sem enginn gat athugað."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
+msgstr "meðhöndla sýni sem ekki er hægt að staðfesta sem alvarleg. Skráarheiti sem kóðar ekki umbeðið auðkenni, eða skrá sem ekki er hægt að reikna tætigildi fyrir, er annars aðeins viðvörun, svo ef þetta er False getur skýrsla sem stenst innihaldið sýni þar sem leki var ekki athugaður."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "kasta :class:`LeakageError` í stað þess að skila skýrslu þar sem ``passed`` er False."

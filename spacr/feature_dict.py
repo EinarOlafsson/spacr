@@ -12,7 +12,7 @@ Where the code does something surprising (a doubled name prefix, a feature that
 is always NaN, a radial bin that covers the background) the entry says so in
 ``notes`` rather than describing the intent.
 
-**Geometric units are not fixed any more.** A 2-D run measures in pixels, but a
+**Geometric units depend on the run.** A 2-D run measures in pixels, but a
 3-D run measures a volume, and with ``voxel_size_z_um`` / ``voxel_size_xy_um``
 set it measures in micrometres — under the *same* column names, because
 :mod:`spacr.measure` deliberately does not rename ``<object>_area`` (renaming
@@ -294,15 +294,13 @@ _LEGACY_UNITS = UNITS_PX
 class ConditionalUnit:
     """A unit that depends on how the row was measured.
 
-    This module used to state a single unit for every geometric column and say
-    in the string itself that "spaCR never applies a physical pixel size".
-    That was true until :mod:`spacr.measure` learned to measure a ``(Z, Y, X)``
-    mask in 3-D: a run with ``voxel_size_z_um`` and ``voxel_size_xy_um`` set
-    reports micrometres, and one with ``anisotropy`` alone reports xy-pixel
-    units. The column *name* is identical in all three cases — measure.py
-    records the unit on the row instead of renaming the column — which is
-    exactly why the dictionary has to read it from the data rather than assert
-    it.
+    A 2-D run reports pixel units. When :mod:`spacr.measure` measures a
+    ``(Z, Y, X)`` mask in 3-D, a run with ``voxel_size_z_um`` and
+    ``voxel_size_xy_um`` set reports micrometres, and one with ``anisotropy``
+    alone reports xy-pixel units. The column *name* is identical in all three
+    cases — measure.py records the unit on the row instead of renaming the
+    column — so the dictionary reads the unit from the data rather than
+    assuming one.
 
     :param px: unit text for rows stamped ``measurement_units='px'`` (the 2-D
         pixel mode), or ``None`` when the column is not written in that mode.
@@ -3058,9 +3056,9 @@ def coverage(columns: Iterable[str],
              measurement_units: str | None = None) -> Coverage:
     """Measure what share of ``columns`` this dictionary explains.
 
-    The number a user should be able to check for themselves, and the number
-    the test suite pins: a lookup panel that answers "no entry" for a third of
-    a real table is not a lookup panel.
+    A column counts as explained when :func:`parse_column` resolves it to a
+    family other than ``"unknown"``. The test suite pins this share on a
+    snapshot of real measurement tables.
 
     :param columns: Iterable of column names.
     :param measurement_units: passed through to :func:`parse_column`.

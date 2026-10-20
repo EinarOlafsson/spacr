@@ -129,13 +129,13 @@
     {
       "base_commit": "0c0d7370dd131d7c17a91490107afff63b3004f1",
       "api_added": [
-        "spacr._starplast.PYPI_PACKAGE",
+        "spacr._parascape.PYPI_PACKAGE",
         "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter"
       ],
       "api_changed": [
-        "spacr._starplast.REPOSITORY",
-        "spacr._starplast.default_source",
-        "spacr._starplast.install_starplast",
+        "spacr._parascape.REPOSITORY",
+        "spacr._parascape.default_source",
+        "spacr._parascape.install_parascape",
         "spacr.seg_qc",
         "spacr.seg_qc.QCDigest",
         "spacr.seg_qc.QCDigest.failing_fields",

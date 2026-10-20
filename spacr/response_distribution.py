@@ -269,6 +269,7 @@ def panel(values: Sequence[float], transform: str, ax=None,
         ``"axes"``.
     """
     result = compare(values, transform)
+    figure = None
     if ax is None:
         from matplotlib.figure import Figure
 
@@ -303,5 +304,8 @@ def panel(values: Sequence[float], transform: str, ax=None,
     ax.set_title("Response before and after the transform", fontsize=10)
     ax.text(0.01, -0.22, caption(result), transform=ax.transAxes,
             fontsize=8, va="top", wrap=True)
+    if figure is not None:
+        from .figures.style import _apply_user_style
+        _apply_user_style(figure, "hist")
     result["axes"] = ax
     return result

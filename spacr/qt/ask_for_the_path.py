@@ -1,32 +1,29 @@
-"""When the usual way of finding something fails, ask for it.
+"""Ask the user for a folder or database column that path resolution missed.
 
-THESE ARE BACKUPS, not the normal route. The ordinary resolution runs first
-every time; this is reached only once it has already failed. A run that
-works today must not gain a dialog, and a user who never hits the failure
-must never see one.
+These dialogs are fallbacks. The ordinary resolution runs first every time,
+and a dialog is shown only after it has failed, so a run whose paths resolve
+normally never shows one.
 
-A DIALOG IS BETTER THAN AN ERROR HERE because the information is one the
-user has and the program does not. The current behaviour on each of these
-is to stop with a message naming the thing that is missing -- which means
-the program already knows precisely what to ask for. Asking is strictly
-more useful than reporting, and costs one dialog instead of one aborted run.
+Without a dialog, each of these cases stops with a message naming the
+missing item, and that item is information the user has and the program
+does not. A dialog asks for it instead, at the cost of one prompt rather
+than one aborted run.
 
-What every prompt owes, and what this module enforces so a caller cannot
-forget one:
+Every prompt follows these rules, which this module enforces for its
+callers:
 
-* SAY WHAT WAS TRIED FIRST, so a typo in a setting is distinguishable from
-  a genuinely missing folder;
-* VALIDATE BEFORE ACCEPTING -- a chosen folder with nothing in it is the
-  same failure one step later;
-* ASK ONCE PER RUN, not once per image, per well or per plate;
-* WRITE IT BACK and say so, because a setting that changes without being
-  announced is worse than one that does not;
-* BE REFUSABLE: cancel means the run stops with the error it would have
-  given anyway;
-* NEVER APPEAR HEADLESS. In a script, a test or a batch run there is nobody
-  to answer, so the fallback resolves to the original error rather than
-  blocking on a dialog nobody can see. This is the one that would hang a
-  pipeline overnight, and it is checked before anything else.
+* it states what was tried first, so a typo in a setting can be told apart
+  from a missing folder;
+* it validates the answer before accepting it -- a chosen folder with
+  nothing in it would fail one step later;
+* it asks once per run, not once per image, per well or per plate;
+* it returns a sentence naming the value that will be used, for the caller
+  to write back and report;
+* it can be cancelled: cancelling stops the run with the original error;
+* it is never shown without a user present. In a script, a test or a batch
+  run :func:`somebody_is_there` returns False and the original error is
+  returned instead of a dialog that would block the run. This check runs
+  before anything else.
 """
 from __future__ import annotations
 
@@ -55,8 +52,8 @@ def somebody_is_there() -> bool:
     """Whether there is a person who could answer a dialog.
 
     False under pytest, with no display, or before a QApplication exists.
-    Checked FIRST and on its own, because getting it wrong does not show a
-    dialog to nobody -- it BLOCKS, and a blocked batch run looks like a hang.
+    Checked before anything else, because a modal dialog with no one to
+    answer it blocks the run indefinitely.
     """
     if os.environ.get("PYTEST_CURRENT_TEST"):
         return False
@@ -103,8 +100,7 @@ def ask_for_a_folder(
 
     if not somebody_is_there():
         return None, (f"{what}: {tried} -- and there is nobody to ask, so "
-                      f"this run stops here rather than waiting for an "
-                      f"answer that cannot come.")
+                      f"this run stops.")
 
     if chooser is None:
         from PySide6.QtWidgets import QFileDialog
@@ -128,16 +124,16 @@ def ask_for_a_folder(
 def a_folder_holding(*suffixes: str) -> Callable[[str], Optional[str]]:
     """A validator: the folder must hold at least one file with a suffix.
 
-    A chosen folder with nothing in it is the same failure one step later,
-    which is what makes validating before accepting worth the code.
+    A chosen folder without such a file would fail one step later, so it is
+    rejected before it is accepted.
     """
     wanted = tuple(s.lower() for s in suffixes)
 
     def check(path: str) -> Optional[str]:
         """Say what is wrong with a path, or ``None`` when it will do.
 
-        Returns the COMPLAINT rather than a bool, so the caller can show the
-        reason instead of a bare refusal.
+        Returns the reason as a sentence rather than a bool, so the caller
+        can show why the path was refused.
         """
         if not os.path.isdir(path):
             return f"{path} is not a folder"
@@ -158,9 +154,9 @@ def a_folder_holding(*suffixes: str) -> Callable[[str], Optional[str]]:
 def tables_in(database: str) -> list:
     """Every table in a SQLite file, or an empty list if it is not one.
 
-    Never raises: a path the user chose is a path that may be anything, and
-    "this file holds no tables" is the sentence the form needs rather than
-    an exception it would have to catch anyway.
+    Never raises: a path the user chose may be any file, and the form
+    reports an empty list as "holds no tables" instead of handling an
+    exception.
 
     :param database: path to the file to read, opened read-only as SQLite. Any
         failure to open or query it yields an empty list.
@@ -212,21 +208,21 @@ def ask_for_a_database_column(
 ) -> Tuple[Optional[Tuple[str, str, str]], str]:
     """Ask for a database, a table within it, and a column within that.
 
-    THREE ANSWERS, NOT ONE, because that is what the coordinate stream needs
-    and asking for them one at a time is what makes the second and third
-    answerable: the tables offered are the ones the chosen database actually
-    holds, and the columns are that table's. A blank field would ask the
-    user to remember a name the program can read.
+    The coordinate stream needs all three. They are asked one at a time so
+    that the tables offered are the ones the chosen database holds, and the
+    columns offered are the ones that table holds; the user never has to
+    type a name the program can read.
 
     :param key: what is being asked for; the answer is remembered under it.
     :param tried: what was tried and did not work, shown in each title.
     :param chooser: injected for tests; defaults to a real file dialog.
     :param pick: injected for tests; defaults to a real list dialog. Called
         ``(title, prompt, options)`` and returns the choice or None.
-    :returns: ``((database, table, column), why)``, or ``(None, why)``. The
-        reason always says WHICH of the three stops -- nobody there, a
-        cancel, or a database with nothing in it -- because a caller that
-        prints it is the only account the user gets.
+    :returns: ``((database, table, column), why)``, or ``(None, why)``.
+        ``why`` names the value used, or the reason for ``None``: no user
+        present to answer, or the file dialog cancelled. A database with no
+        tables, a table with no columns or a cancelled list choice asks
+        again rather than returning.
 
     Backing out of a later step returns to the earlier one rather than
     abandoning the whole form, so choosing the wrong database costs one
@@ -242,8 +238,7 @@ def ask_for_a_database_column(
 
     if not somebody_is_there():
         return None, (f"{what}: {tried} -- and there is nobody to ask, so "
-                      f"this run stops here rather than waiting for an "
-                      f"answer that cannot come.")
+                      f"this run stops.")
 
     if chooser is None:
         from PySide6.QtWidgets import QFileDialog

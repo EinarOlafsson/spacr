@@ -1,0 +1,32 @@
+{
+  "scope": "Private Debian implementation; no host privileged install or full native desktop acceptance",
+  "source_commit": "6524d039b",
+  "current_module_sha256": "93ea41af128dbe8880b4399eeef6e349025b5fbca8fe3aa05cef60928220aa69",
+  "debian_functions": {
+    "_debian_frontend_lock": "01478641050b6841f542c134ba89de28831a42599f76cc4208f12af18956c656",
+    "_debian_prepare_archive": "2d08b7b4f7cabf02a0a71a9ab1ee7035a13b0593d96c2cb7d5f675f12215c189",
+    "_debian_package_metadata": "3cfb2154400486c2643fa94c2548949fd7c685b34c03db339854e1a9c5496c0a",
+    "_debian_installed_state": "f75770f0196598109a70e7be07dd17a79fc05c88d08f4b09e6787906f686515c",
+    "_debian_installed_version": "1e2c4cfd8ef856492e39af393b3811608b988eae55e6e0986f0b04ceb1cc44e2",
+    "_debian_package_transaction": "e22ec3e22cef7dd6116423ea2fba1b29401e5ad008d4df25dbb45c48b307b893",
+    "_debian_root_runner": "df434c1996776bef8914acf3968aee7b7c5db1e78b31f61fe41e8ff160d858f8",
+    "_debian_verify_desktop": "f428118d09b32b432228412a526d78d524508b834c5100f574f22e92029b233f",
+    "_debian_update_commands": "8cc8def1cc5c609b6c1bccbdb8d9c7626e1a999fd5951049f2ec40475c27435f",
+    "_run_debian_update": "7fa4fe95206d08a1fa770b0b1439868f78b0c0e475948f53df405b1ecd6895d1",
+    "_debian_authenticated_user": "cc00ef4a453f4bd33188a7a9d3679dcb137d8d6efc595ec3e9473bc695391d99",
+    "_debian_check_package_owner": "c25bed1dd8c4ea9548a2cc0cb61a5d3fb5b5011af81b08f3a825dca04320a80b",
+    "_debian_apply_root_transaction": "03d7ef66079015922a146537cdd025fbaf225d76131d567ab1a78a6d9f087460",
+    "_debian_write_journal": "a7a043dfb92d3acc5424071ac845d110319948cfb786bd61c403614f72350725",
+    "_debian_prepare_root_transaction": "bdf4138b8c2c36a240122e5f4a3f099c1d3aa4e076871fe8cc65f324c8bf5e03"
+  },
+  "frozen_build_source_sha256": "fb90b9181cd04629649fca72c2bcddacf20834d00809675a0dc5b5cc93ddb535",
+  "comparison": "All15 Debian function ASTs identical to independently peer-reviewed and frozen-built source after guarded cache component addition.",
+  "owning": "47PASS0.80s; actual unprivileged private package fixtures; no host package mutation",
+  "smoke": "Actual onefile binary4casesPASS; privileged commands refuse unprivileged caller, legacy plan unchanged, JSON discovery works",
+  "remaining": [
+    "Windows source/app normal integration",
+    "Actual Debian Qt handoff acceptance",
+    "Normal runtime/API/arrival artifacts",
+    "Final source review and publication"
+  ]
+}

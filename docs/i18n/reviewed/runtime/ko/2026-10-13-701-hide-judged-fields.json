@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "Codex AI technical review; manually authored from the English and checked against the Item 701 behavior and catalog gates; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Hide judged fields",
+      "source": "Hide judged fields",
+      "source_sha256": "ad671439720e0dea15f20b69ae0e9ff2dacf64f25bf55d6da0f7ca930faeec19",
+      "translation": "판정된 시야 숨기기"
+    },
+    {
+      "table": "ui",
+      "key": "Skip fields already marked Keep or Discard when moving with Previous and Next. Their verdicts stay in csv/keep_discard.csv.",
+      "source": "Skip fields already marked Keep or Discard when moving with Previous and Next. Their verdicts stay in csv/keep_discard.csv.",
+      "source_sha256": "b84b7d4ba3fc96ccec613f55bba74b2f66ca3e682e777be7cc32ccf086fef6e2",
+      "translation": "이전과 다음으로 이동할 때 이미 유지 또는 버리기로 표시된 시야를 건너뜁니다. 해당 판정은 csv/keep_discard.csv 에 남아 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Every field in this queue has Keep or Discard.",
+      "source": "Every field in this queue has Keep or Discard.",
+      "source_sha256": "47766c03a14c2f082f31da3fbe730080005021ab3cfbd24ea329986bcfcbd1e1",
+      "translation": "이 대기열의 모든 시야에 유지 또는 버리기 판정이 있습니다."
+    }
+  ]
+}

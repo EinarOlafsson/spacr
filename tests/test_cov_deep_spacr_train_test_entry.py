@@ -284,10 +284,11 @@ def test_test_only_run_loads_best_checkpoint_and_writes_results(
 
     # --- exactly the class-1 image was copied into the review folder ---
     assert 'Copied 1 misclassified images.' in out
-    copied = src / 'test' / 'missclassified' / 'pc' / 'b.png'
+    copied = src / 'test' / 'misclassified' / 'pc' / 'b.png'
     assert copied.is_file()
     assert copied.read_bytes() == pos_png.read_bytes()
-    assert not (src / 'test' / 'missclassified' / 'nc').exists()
+    assert not (src / 'test' / 'misclassified' / 'nc').exists()
+    assert not (src / 'test' / 'missclassified').exists()
 
 
 def test_train_and_test_run_reuses_trained_model_and_returns_model_path(

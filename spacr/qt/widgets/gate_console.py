@@ -12,9 +12,8 @@ table they are gating without leaving the screen to do it.
 
 ``Chat``
     The same box, addressed in English. It is wired to whatever assistant the
-    host provides and is EMPTY when none is configured -- it says so rather
-    than pretending to think, because a chat box that silently ignores you is
-    worse than one that is honestly unavailable.
+    host provides. When none is configured it replies that no assistant is
+    configured, rather than accepting questions and returning nothing.
 
 Both write into one transcript, so the record of what was asked and what came
 back reads in order regardless of which pane asked.
@@ -259,9 +258,8 @@ class GateConsole(QWidget):
     def set_responder(self, responder: Optional[Callable[[str], str]]) -> None:
         """Give the chat box something to answer with.
 
-        Without one it says it is not configured rather than staying silent:
-        a chat box that ignores you is worse than one that is honestly
-        unavailable.
+        Without one, each question receives a reply saying that no assistant
+        is configured, rather than no reply.
 
         :param responder: a callable taking the question text and returning
             the answer, or ``None`` to remove it. An exception it raises is

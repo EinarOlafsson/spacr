@@ -123,7 +123,7 @@ def test_the_asymmetry_of_a_symmetric_series_is_reported_as_unsupported():
 
     assert asymmetric.asymmetry_p > 0.05, asymmetric.asymmetry_p
     assert asymmetric.ec50 == pytest.approx(symmetric.ec50, rel=0.15)
-    assert any("did not earn itself" in caveat
+    assert any("did not improve the fit" in caveat
                for caveat in asymmetric.caveats()), asymmetric.caveats()
 
 
@@ -262,7 +262,7 @@ def test_an_asymmetry_that_finds_nothing_keeps_the_four_estimated_intervals(
     assert fallen.asymmetry_ci == (None, None), fallen.asymmetry_ci
     assert not any("not estimable" in caveat for caveat in fallen.caveats()), \
         fallen.caveats()
-    assert any("had nothing to do" in note for note in fallen.notes), \
+    assert any("is not a failure" in note for note in fallen.notes), \
         fallen.notes
 
     honest_half = honest.hill_ci[1] - honest.hill_ci[0]

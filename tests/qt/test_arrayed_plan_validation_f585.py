@@ -168,7 +168,7 @@ def test_actual_plan_save_load_roundtrip_and_legacy_defaults(
     target = tmp_path / 'plan.json'
     monkeypatch.setattr(power.QFileDialog, 'getSaveFileName', lambda *_a, **_k: (str(target), ''))
     qtbot.mouseClick(planner._save_plan, Qt.LeftButton)
-    saved = json.loads(target.read_text())
+    saved = json.loads(target.read_text(encoding="utf-8"))
     expected = _state(planner)
     planner._plan_effect.setValue(-3)
     planner._pilot_path.setText('not this pilot')
@@ -177,7 +177,7 @@ def test_actual_plan_save_load_roundtrip_and_legacy_defaults(
     qtbot.mouseClick(planner._load_plan, Qt.LeftButton)
     assert _state(planner) == expected
     qtbot.mouseClick(planner._save_plan, Qt.LeftButton)
-    assert json.loads(target.read_text()) == saved
+    assert json.loads(target.read_text(encoding="utf-8")) == saved
     if readout == 'continuous':
         saved['design_inputs'].pop('readout')
         saved['pilot']['columns'].pop('condition')

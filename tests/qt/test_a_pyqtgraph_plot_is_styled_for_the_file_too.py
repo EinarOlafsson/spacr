@@ -137,11 +137,14 @@ def test_size_is_inherited_but_raster_resolution_stays_editable(qtbot):
     assert "right-click" in dialog.width.toolTip()
     assert dialog.format.currentData() == "png"
     assert dialog.dpi.isEnabled() is True
-    assert "Dots per inch" in dialog.dpi.toolTip()
+    from spacr.qt.i18n import tr
+    assert dialog.dpi.toolTip() == tr("Resolution in dots per inch for PNG and TIFF exports.")
 
     dialog.format.setCurrentIndex(dialog.format.findData("pdf"))
     assert dialog.dpi.isEnabled() is False
-    assert "vector" in dialog.dpi.toolTip()
+    assert dialog.dpi.toolTip() == tr(
+        "PDF and SVG can contain raster images. This dialog disables "
+        "resolution editing for these formats.")
 
 
 def test_an_empty_plot_says_there_is_nothing_to_save_rather_than_saving_it(qtbot):

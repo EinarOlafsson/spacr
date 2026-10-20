@@ -41,10 +41,19 @@ def test_the_input_is_not_modified():
 def test_a_fractional_value_for_an_int_key_is_left_alone():
     """Truncating would change the run without saying so. Left as it was, so
     the validator reports it."""
-    out = coerce_expected_types({"cell_diameter": "60.5"}, "mask")
-    assert out["cell_diameter"] == "60.5"
-    assert any(p.setting == "cell_diameter"
+    out = coerce_expected_types({"batch_size": "60.5"}, "mask")
+    assert out["batch_size"] == "60.5"
+    assert any(p.setting == "batch_size"
                for p in validate_settings(dict(out), "mask"))
+
+
+def test_a_fractional_diameter_is_a_diameter():
+    """Item 696: an object diameter is pixels, a fraction included, and 0 is
+    stored as "auto"."""
+    out = coerce_expected_types({"cell_diameter": "60.5",
+                                 "nucleus_diameter": "0"}, "mask")
+    assert out["cell_diameter"] == 60.5
+    assert out["nucleus_diameter"] == "auto"
 
 
 def test_a_key_that_legitimately_holds_text_is_untouched():
@@ -75,9 +84,16 @@ def test_an_unparseable_value_is_left_for_the_validator():
 
 def test_blank_and_unknown_keys_are_left_alone():
     out = coerce_expected_types(
-        {"cell_diameter": "", "not_a_real_setting": "7"}, "mask")
-    assert out["cell_diameter"] == ""
+        {"batch_size": "", "not_a_real_setting": "7"}, "mask")
+    assert out["batch_size"] == ""
     assert out["not_a_real_setting"] == "7"
+
+
+def test_a_blank_diameter_is_the_magnification_default():
+    """Item 696: blank is stored as None, which the run reads as the
+    magnification default."""
+    out = coerce_expected_types({"cell_diameter": ""}, "mask")
+    assert out["cell_diameter"] is None
 
 
 def test_values_that_are_already_typed_are_returned_unchanged():

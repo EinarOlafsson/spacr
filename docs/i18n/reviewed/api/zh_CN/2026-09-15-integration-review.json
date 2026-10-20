@@ -20,7 +20,9 @@
       "label": "spacr.active_learning.annotation_coverage#7",
       "source": "substring filter on the key, matching the Annotate screen's own filter. Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
       "source_sha256": "3fbb67e19da8bcf0193157d9c2debad4addf3b092e47503cbf560faafceb8397",
-      "translation": "对结构化数据名称进行子字符串过滤,与 Annotate 应用程序视图自身的过滤器一致。其下的每个计数(包括 ``n_rows``)都只针对匹配的提取图像区域——如果分母取自整张表,分子和分母就会落在两个不同的总体上。 ``n_rows_unfiltered`` 保留总数,并有一条说明指出排除了多少条。"
+      "translation": "对结构化数据名称进行子字符串过滤,与 Annotate 应用程序视图自身的过滤器一致。其下的每个计数(包括 ``n_rows``)都只针对匹配的提取图像区域——如果分母取自整张表,分子和分母就会落在两个不同的总体上。 ``n_rows_unfiltered`` 保留总数,并有一条说明指出排除了多少条。",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "context": "``n`` **is the number of rows the matrix actually contains**, and the supports sum to it. A row whose true class the head has no column for is counted as an error rather than dropped: the matrix grows to hold it, and the missing column stays empty because the head can never predict that class. Reporting ``n`` over one population and ``accuracy`` over another is the one thing a model card must not do — a three-class held-out set scored by a binary head used to report a perfect score on a set the model got two of three right, and the ``accuracy == trace / total`` invariant still checked out because the row was missing from both sides of it.",
@@ -48,7 +50,9 @@
       "label": "spacr.anndata_export#18",
       "source": "They go in ``obs`` and ``uns``. **Never** ``obsp``.",
       "source_sha256": "b1793d796c5a3dc9db859a104335b7a251503357990ef047ca0388b7e5224fcf",
-      "translation": "它们放在 ``obs`` 和 ``uns`` 中。 **绝不** 放在 ``obsp`` 中。"
+      "translation": "它们放在 ``obs`` 和 ``uns`` 中。 **绝不** 放在 ``obsp`` 中。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "In the joined, cell-anchored export (the default) the nuclei and pathogens are not observations at all -- the join in :func:`spacr.io._read_and_join_tables` has already averaged them onto their parent cell. There is no row for an ``obsp`` entry to point at.",
@@ -83,7 +87,9 @@
       "label": "spacr.crops.png_view#1",
       "source": "This is the contract, and it is deliberately boring: channel ``i`` of the crop is channel ``i`` of the result, narrowed to 8 bit by :func:`narrow_to_uint8`.",
       "source_sha256": "9763920ad1bb832f1471f832c7a9daaf6cc20fb0dc3afdeecfd940b71f81b0b6",
-      "translation": "这就是约定,而且它刻意保持简单:提取图像区域的通道 ``i`` 就是结果的通道 ``i`` ,并由 :func:`narrow_to_uint8` 缩减为 8 位。"
+      "translation": "这就是约定,而且它刻意保持简单:提取图像区域的通道 ``i`` 就是结果的通道 ``i`` ,并由 :func:`narrow_to_uint8` 缩减为 8 位。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when ``max_bytes`` is not positive, or ``max_size`` is outside ``1..MAX_THUMBNAIL_AXIS``.",
@@ -104,7 +110,9 @@
       "label": "spacr.io.convert_to_yokogawa#2",
       "source": "A file that cannot be read is skipped so the rest of the folder still converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`, printed as a loud summary at the end, and **stamped into a sibling** ``rename_log.run_status.json``. That sidecar is what lets a later reader (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is missing inputs, instead of quietly analysing a subset.",
       "source_sha256": "a3883b7e6d0fcfc96a090738b0160a7b81fc18850d31b04438c7c4f15f682f91",
-      "translation": "无法读取的文件会被跳过,以便文件夹的其余部分仍能转换——但跳过会记录在 :class:`spacr.errors.RunLedger` 中,在结束时打印为醒目的摘要,并 **写入同目录下的** ``rename_log.run_status.json`` 。正是这个附属文件让之后的读者(或 :func:`spacr.errors.run_is_complete` )能够知道转换后的文件夹缺少输入,而不是悄无声息地只分析其中一部分。"
+      "translation": "无法读取的文件会被跳过,以便文件夹的其余部分仍能转换——但跳过会记录在 :class:`spacr.errors.RunLedger` 中,在结束时打印为醒目的摘要,并 **写入同目录下的** ``rename_log.run_status.json`` 。正是这个附属文件让之后的读者(或 :func:`spacr.errors.run_is_complete` )能够知道转换后的文件夹缺少输入,而不是悄无声息地只分析其中一部分。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A canvas ``factor``\\ × closer, about ``centre`` (canvas pixels).",
@@ -146,7 +154,9 @@
       "label": "spacr.model_check#4",
       "source": "**A custom model that loads supersedes** ``model_type``. There is no boolean saying which to believe, because a path that holds a working model is a complete answer on its own and a flag that disagreed with it would just be a second thing to get wrong.",
       "source_sha256": "d6979fab3b30e102c9baacf1fb0f7e36d7be87ae81f4c7fa11d2f15735bc8e70",
-      "translation": "**能够成功加载的自定义模型优先于** ``model_type`` 。没有一个布尔值来指定该相信哪一个,因为一个包含可用模型的路径本身就是完整的答案,而与之矛盾的标志只会成为又一个可能出错的地方。"
+      "translation": "**能够成功加载的自定义模型优先于** ``model_type`` 。没有一个布尔值来指定该相信哪一个,因为一个包含可用模型的路径本身就是完整的答案,而与之矛盾的标志只会成为又一个可能出错的地方。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "There is also a case where the first bullet above is *backwards*. Two screens that share a guide library both have ``plate1..plate4``, and there they are not two plates claiming one identity -- they are two *different* plates whose identity was only ever partly written down. The missing part is the screen.",
@@ -167,7 +177,9 @@
       "label": "spacr.omero#13",
       "source": "**row 26 ->** ``AA``, not ``[`` (which is what ``chr(65 + 26)`` gives) and not an ``IndexError`` (which is what ``string.ascii_uppercase[26]`` gives). This is bijective base 26, and it is not a hypothetical: a 1536-well plate has 32 rows and runs ``A..Z``, ``AA..AF``. Column 47 -> ``48``, for the same plate, so nothing here caps the column at 24 either.",
       "source_sha256": "b0e0419a416ef2de9dfd007da8985990d0150d17a7aafe76a8fc76f135b95f6e",
-      "translation": "**第 26 行 ->** ``AA`` ,而不是 ``[`` (那是 ``chr(65 + 26)`` 给出的结果),也不是 ``IndexError`` (那是 ``string.ascii_uppercase[26]`` 给出的结果)。这是双射 26 进制,而且并非假设:1536 孔板有 32 行,行号依次为 ``A..Z`` 、 ``AA..AF`` 。对于同一块板,第 47 列 -> ``48`` ,因此这里也不会把列数限制在 24。"
+      "translation": "**第 26 行 ->** ``AA`` ,而不是 ``[`` (那是 ``chr(65 + 26)`` 给出的结果),也不是 ``IndexError`` (那是 ``string.ascii_uppercase[26]`` 给出的结果)。这是双射 26 进制,而且并非假设:1536 孔板有 32 行,行号依次为 ``A..Z`` 、 ``AA..AF`` 。对于同一块板,第 47 列 -> ``48`` ,因此这里也不会把列数限制在 24。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the column is zero padded to two digits (``A01``, never ``A1``) because spaCR's strict Yokogawa regex is ``[A-Z]\\d{2}``.",
@@ -188,7 +200,9 @@
       "label": "spacr.omero#25",
       "source": "**The default is REPLACE, implemented as update-in-place, and it is the safe option rather than a compromise:** an existing MapAnnotation whose namespace is exactly spaCR's has its value overwritten. Nothing is created, nothing is unlinked, nothing is deleted, and no annotation outside spaCR's namespaces is so much as read for its value. :data:`APPEND` is available and explicit for anyone who wants a history of runs on the object.",
       "source_sha256": "e26e72778e62ff8f6182c8cf291ce35746ccf5243c06b995174424124a456184",
-      "translation": "**默认值是 REPLACE,以原地更新的方式实现,它是安全的选择而不是折中方案:** 命名空间恰好属于 spaCR 的现有 MapAnnotation 会被覆盖其值。不会创建任何东西,不会解除任何链接,不会删除任何东西,而且 spaCR 命名空间之外的注释连其值都不会被读取。对于希望在对象上保留运行历史的人, :data:`APPEND` 可以显式选用。"
+      "translation": "**默认值是 REPLACE,以原地更新的方式实现,它是安全的选择而不是折中方案:** 命名空间恰好属于 spaCR 的现有 MapAnnotation 会被覆盖其值。不会创建任何东西,不会解除任何链接,不会删除任何东西,而且 spaCR 命名空间之外的注释连其值都不会被读取。对于希望在对象上保留运行历史的人, :data:`APPEND` 可以显式选用。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`connection_settings` reads arguments first and the environment second: ``OMERO_HOST``, ``OMERO_PORT``, ``OMERO_USER``, ``OMERO_PASSWORD`` (or ``OMERO_PASS``), ``OMERO_SESSION_KEY``, ``OMERO_GROUP``, ``OMERO_SECURE``. :class:`OmeroConnection` is frozen and redacts both secrets from ``repr()``, ``str()`` and :meth:`OmeroConnection.redacted`, and no log record in this module carries one.",
@@ -209,14 +223,18 @@
       "label": "spacr.omero#34",
       "source": "So ``import spacr.omero`` must work without it, and it does: the import is function-local, behind :func:`require_omero`, and a missing install produces one actionable sentence naming ``pip install \"spacr[omero]\"`` rather than a ``ModuleNotFoundError`` six frames deep inside Ice's own import machinery. This follows :data:`spacr.qt._QT_MISSING_MESSAGE` and :func:`spacr.anndata_export.require_anndata`.",
       "source_sha256": "8f4dc44697406ca2a9b45e507ab973f2cf76ef0067a02ec907242b5410189563",
-      "translation": "因此 ``import spacr.omero`` 必须在没有它的情况下也能工作,事实也确实如此:导入是在函数内部进行的,位于 :func:`require_omero` 之后,缺少安装时会给出一句可操作的提示,指明 ``pip install \"spacr[omero]\"`` ,而不是在 Ice 自身导入机制内部六层深处抛出 ``ModuleNotFoundError`` 。这与 :data:`spacr.qt._QT_MISSING_MESSAGE` 和 :func:`spacr.anndata_export.require_anndata` 的做法一致。"
+      "translation": "因此 ``import spacr.omero`` 必须在没有它的情况下也能工作,事实也确实如此:导入是在函数内部进行的,位于 :func:`require_omero` 之后,缺少安装时会给出一句可操作的提示,指明 ``pip install \"spacr[omero]\"`` ,而不是在 Ice 自身导入机制内部六层深处抛出 ``ModuleNotFoundError`` 。这与 :data:`spacr.qt._QT_MISSING_MESSAGE` 和 :func:`spacr.anndata_export.require_anndata` 的做法一致。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
       "label": "spacr.omero#36",
       "source": "A missing ``Ice`` counts as a missing omero extra. A half-built ``zeroc-ice`` is the single most likely way this fails in the field, and ``No module named 'Ice'`` mentions neither OMERO nor spaCR. :func:`missing_omero_message` says what happened.",
       "source_sha256": "f071e54875693395da9503f8b5caffb2d5d489bae370b032ebef957242b60f28",
-      "translation": "缺少 ``Ice`` 视同缺少 omero 附加依赖。半途安装失败的 ``zeroc-ice`` 是实际使用中最可能出错的情形,而 ``No module named 'Ice'`` 既没有提到 OMERO 也没有提到 spaCR。 :func:`missing_omero_message` 会说明发生了什么。"
+      "translation": "缺少 ``Ice`` 视同缺少 omero 附加依赖。半途安装失败的 ``zeroc-ice`` 是实际使用中最可能出错的情形,而 ``No module named 'Ice'`` 既没有提到 OMERO 也没有提到 spaCR。 :func:`missing_omero_message` 会说明发生了什么。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This module is called ``spacr/omero.py`` and does not shadow the third-party ``omero`` package. Absolute imports have been the default since Python 3, so a module inside the ``spacr`` package that asks for ``omero`` gets the top-level distribution, not its own sibling. That is verified rather than assumed — see ``tests/test_omero.py::test_spacr_omero_does_not_shadow_the_third_party_package``, which puts a decoy ``omero`` package on ``sys.path`` and checks which one arrives — because a self-import here would be silent and would look like a broken OMERO install.",
@@ -258,7 +276,10 @@
       "label": "spacr.power_model.scan_parameters#17",
       "source": "if no parameters were given, ``on_error`` is not recognised, ``n_replicates < 1``, the progress file exists with a different column layout (appending misaligned rows to a TSV is a silent data-corruption bug, so we stop instead), or the progress file is non-empty and ``resume=False``.",
       "source_sha256": "905314d1666406bc4eccd01d48df000d27f63082ce3bd5c93ecd27c841b6ff4d",
-      "translation": "如果未给出任何参数、 ``on_error`` 无法识别、 ``n_replicates < 1`` 、进度文件已存在但列布局不同(把错位的行追加到 TSV 是一种悄无声息的数据损坏缺陷,所以我们选择停止),或者进度文件非空且 ``resume=False`` 。"
+      "translation": "如果未给出任何参数、 ``on_error`` 无法识别、 ``n_replicates < 1`` 、进度文件已存在但列布局不同(把错位的行追加到 TSV 是一种悄无声息的数据损坏缺陷,所以我们选择停止),或者进度文件非空且 ``resume=False`` 。",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "skip points already present in ``progress_file``.  With ``resume=False`` and a non-empty progress file, this raises rather than appending a second copy of every point.",
@@ -372,7 +393,9 @@
       "label": "spacr.qt.screens.power#6",
       "source": "**Off the GUI thread, and the thread actually retires.** A full sweep is minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every ``thread.finished`` slot is a BOUND METHOD — see :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and why it is not a style preference.",
       "source_sha256": "49fd32c88fa90ed701a360e58ac8cba2be0ccc90633b919619c4b5aa736feb39",
-      "translation": "**在 GUI 线程之外运行,而且线程确实会退出。** 一次完整扫描需要几分钟。它通过 :func:`spacr.qt.bridge.make_thread` 运行,并且每个 ``thread.finished`` 槽都是 BOUND METHOD(绑定方法)——关于闭包在这里会造成什么后果、以及为什么这不是风格偏好,请参见 :meth:`PowerScreen._retire_finished_jobs` 。"
+      "translation": "**在 GUI 线程之外运行,而且线程确实会退出。** 一次完整扫描需要几分钟。它通过 :func:`spacr.qt.bridge.make_thread` 运行,并且每个 ``thread.finished`` 槽都是 BOUND METHOD(绑定方法)——关于闭包在这里会造成什么后果、以及为什么这不是风格偏好,请参见 :meth:`PowerScreen._retire_finished_jobs` 。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``threaded=False`` **runs the same code inline**, firing the same signals, so the tested path and the shipped path differ only in where they run.",
@@ -383,14 +406,14 @@
     },
     {
       "context": "The ``cell_png`` leaf matches. measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell extracted image region does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Extracted image regions written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the processing session died on \"got 0 classes\".",
-      "label": "spacr.qt.synthetic.generate_classify_demo#3",
+      "label": "spacr.qt.synthetic.generate_classify_demo#4",
       "source": "The ``cell_png`` leaf matches. measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell crop does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Crops written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the run died on \"got 0 classes\".",
       "source_sha256": "8981e052180ca4813d8a91f8eb5c0c3a98035e43df48f46dde7e57f25f81df88",
       "translation": "``cell_png`` 这一级目录名是匹配的。 measure_crop 会向文件夹追加 ``f\"{crop_mode}_png/\"`` ,因此真实的细胞提取图像区域确实位于 ``cell_png/`` 之下——这正是 :func:`spacr.io.generate_training_dataset` 中的 ``png_path.str.contains(png_type)`` 过滤器( ``png_type='cell_png'`` )需要看到的。按被替换掉的旧布局平铺写成 ``data/crop_000.png`` 的提取图像区域全部被过滤掉,运行最终以 \"got 0 classes\" 失败。"
     },
     {
       "context": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate application view.",
-      "label": "spacr.qt.synthetic.generate_classify_demo#5",
+      "label": "spacr.qt.synthetic.generate_classify_demo#6",
       "source": "The ``png_list`` columns do not match either. :func:`spacr.utils.filepaths_to_database` writes ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id``, with the tokenised values ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'``. This table carries ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` in plain form, plus the ``annotate`` column — which is the point: ``annotate`` is what ``dataset_mode='annotation'`` selects classes on, and a measure run never writes one. A human does, in the Annotate screen.",
       "source_sha256": "594590600761ad52fdf403d0ef07c31d4a00881c04eaea5d93f74ce946dbf1a9",
       "translation": "``png_list`` 的列也不匹配。 :func:`spacr.utils.filepaths_to_database` 写入的是 ``png_path, file_name, plateID, rowID, columnID, fieldID, prcfo, cell_id`` ,并带有分词后的值 ``rowID='r1'``/``columnID='c1'``/``fieldID='f1'`` 。这张表以原始形式包含 ``png_path, plateID, wellID, rowID, columnID, fieldID, timeID, label`` ,外加 ``annotate`` 列——关键就在这里: ``annotate`` 正是 ``dataset_mode='annotation'`` 选择类别的依据,而测量运行从不写入这一列。它由人在 Annotate 应用程序视图中填写。"
@@ -428,7 +451,9 @@
       "label": "spacr.qt.widgets.control_chart#23",
       "source": "The rule set is selectable, and it has to be, because **running all eight is not eight times the sensitivity**. Each rule has its own in-control false-alarm rate; :data:`RULE_ALARM_RATE` carries them, :meth:`ControlChartResult.caveats` does the arithmetic for the set that actually ran, and over a 200-plate campaign the answer is a number of expected false alarms rather than a reassurance. :data:`RULES_DEFAULT` is the Western Electric four (1, 2, 5, 6), which is the set the classical ARL figure was worked out for; :data:`RULES_ALL` is all eight, and :data:`RULES_LIMITS_ONLY` is rule 1 alone for a user who wants limits and nothing else.",
       "source_sha256": "93737d1ffa18a79facd45a3bbef7308e5bf72aa31efa6e0ba0765ba6f63e70a4",
-      "translation": "规则集是可选的,而且必须可选,因为 **同时运行全部八条规则并不等于八倍的灵敏度**。每条规则都有各自在受控状态下的误报率; :data:`RULE_ALARM_RATE` 记录了这些误报率, :meth:`ControlChartResult.caveats` 会针对实际运行的规则集进行计算,而在一个 200 块板的批次中,得到的答案是预期误报的次数,而不是一句安慰。 :data:`RULES_DEFAULT` 是 Western Electric 的四条规则(1、2、5、6),经典的 ARL 数值正是针对这一规则集推导的; :data:`RULES_ALL` 是全部八条,而 :data:`RULES_LIMITS_ONLY` 只有规则 1,适用于只想要控制限、别无他求的用户。"
+      "translation": "规则集是可选的,而且必须可选,因为 **同时运行全部八条规则并不等于八倍的灵敏度**。每条规则都有各自在受控状态下的误报率; :data:`RULE_ALARM_RATE` 记录了这些误报率, :meth:`ControlChartResult.caveats` 会针对实际运行的规则集进行计算,而在一个 200 块板的批次中,得到的答案是预期误报的次数,而不是一句安慰。 :data:`RULES_DEFAULT` 是 Western Electric 的四条规则(1、2、5、6),经典的 ARL 数值正是针对这一规则集推导的; :data:`RULES_ALL` 是全部八条,而 :data:`RULES_LIMITS_ONLY` 只有规则 1,适用于只想要控制限、别无他求的用户。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Sigma comes from the average moving range divided by d2 = 1.128 (:data:`D2_MOVING_RANGE`), never from the standard deviation of the series.",
@@ -449,28 +474,36 @@
       "label": "spacr.qt.widgets.dose_response#14",
       "source": "The direction is *inferred* from the data (Spearman rho of response against log dose) and never assumed, so an activation series is not fitted upside down. :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` pin it when the user knows better than the correlation does.",
       "source_sha256": "7674c02600262fbfcd9a1ce4c3e51b652a96922960dcbd811e10e82a12adc93e",
-      "translation": "方向是根据数据 *推断* 出来的(响应与对数剂量之间的 Spearman rho),从不预先假设,因此激活型序列不会被上下颠倒地拟合。当用户比相关性更清楚时,可以用 :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` 固定方向。"
+      "translation": "方向是根据数据 *推断* 出来的(响应与对数剂量之间的 Spearman rho),从不预先假设,因此激活型序列不会被上下颠倒地拟合。当用户比相关性更清楚时,可以用 :data:`DIRECTION_INHIBITION` / :data:`DIRECTION_ACTIVATION` 固定方向。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
       "label": "spacr.qt.widgets.dose_response#17",
       "source": ":data:`CI_WALD` — asymptotic, from the covariance matrix ``curve_fit`` returns, with a t quantile on ``n - 4`` degrees of freedom. Not a normal quantile: eight concentrations with no replicates leaves 4 df, where ``t = 2.776`` against ``z = 1.960``. That is a 42% difference in the width of the published interval, which is not cosmetic.",
       "source_sha256": "6cba671cba49540e3b6be17c3ba4065905081725bce9803e687e82fd05647742",
-      "translation": ":data:`CI_WALD` ——渐近区间,基于 ``curve_fit`` 返回的协方差矩阵,并使用自由度为 ``n - 4`` 的 t 分位数。不是正态分位数:八个浓度且无重复时剩下 4 个 df,此时 ``t = 2.776`` ,而 ``z = 1.960`` 。这会让公布的区间宽度相差 42%,绝非无关紧要。"
+      "translation": ":data:`CI_WALD` ——渐近区间,基于 ``curve_fit`` 返回的协方差矩阵,并使用自由度为 ``n - 4`` 的 t 分位数。不是正态分位数:八个浓度且无重复时剩下 4 个 df,此时 ``t = 2.776`` ,而 ``z = 1.960`` 。这会让公布的区间宽度相差 42%,绝非无关紧要。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
       "label": "spacr.qt.widgets.dose_response#19",
       "source": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
       "source_sha256": "b12bc0004afe90e99a7abfc68303f554edb51688cdb120db00c70b7a9a4db97a",
-      "translation": "默认使用剖面似然区间,原因只有一个,但足以抵消其代价: **Wald 区间在构造上必然是有限的。** 它就是 ``L ± t·SE`` ,所以即使数据完全无法确定曲线的中点,它也会给出一个整齐、对称、却完全虚构的区间——而这恰恰是本模块要捕捉的情况。剖面区间则可能 *无法闭合* :残差平方和一直低于阈值,直到浓度达到最高测试剂量的一万倍,而这种失败本身就是诊断信息。它会被报告为开放边界,而不会被平滑成一个数字。"
+      "translation": "默认使用剖面似然区间,原因只有一个,但足以抵消其代价: **Wald 区间在构造上必然是有限的。** 它就是 ``L ± t·SE`` ,所以即使数据完全无法确定曲线的中点,它也会给出一个整齐、对称、却完全虚构的区间——而这恰恰是本模块要捕捉的情况。剖面区间则可能 *无法闭合* :残差平方和一直低于阈值,直到浓度达到最高测试剂量的一万倍,而这种失败本身就是诊断信息。它会被报告为开放边界,而不会被平滑成一个数字。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling each of them would quadruple the work to improve numbers nobody quotes; the EC50 is the number that leaves the building.",
       "label": "spacr.qt.widgets.dose_response#21",
       "source": "``bottom``, ``top`` and the Hill slope get Wald intervals only. Profiling each of them would quadruple the work to improve numbers nobody quotes; the EC50 is the number that leaves the building.",
       "source_sha256": "5deba58db8a4119c53a49f3654789d9e1ccfd2a4d5165c20d514ca67665f0d89",
-      "translation": "``bottom`` 、 ``top`` 和 Hill 斜率只给出 Wald 区间。为它们逐一计算剖面区间会让工作量翻四倍,只为改进没有人引用的数字;真正对外公布的数字是 EC50。"
+      "translation": "``bottom`` 、 ``top`` 和 Hill 斜率只给出 Wald 区间。为它们逐一计算剖面区间会让工作量翻四倍,只为改进没有人引用的数字;真正对外公布的数字是 EC50。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. **The curve is incomplete** — one plateau was never reached, or the midpoint sits outside the tested range. Then the EC50 is an extrapolation. :attr:`DoseResponseResult.ec50` is ``None`` in that case and the number lives in :attr:`DoseResponseResult.ec50_unconstrained`, under a name that cannot be mistaken for a result; :attr:`DoseResponseResult.ec50_bounded` is ``False`` and :meth:`DoseResponseResult.bound_statement` gives the one-sided fact the experiment does support (\"EC50 > 30 µM, the highest concentration tested\"). Three independent detectors have to agree it is fine before a number is released: the fitted midpoint inside the tested dose range, the observed responses bracketing the fitted half-maximum, and neither fitted plateau more than :data:`PLATEAU_SLACK` of the observed response span outside the observed responses. 2. **The data is not monotone.** A bell shape — the classic being cytotoxicity killing the signal at the top dose — is not a 4PL, and a 4PL fitted to it returns a confident EC50 for a curve of the wrong shape. Detected from the concentration-ordered per-dose medians and **refused**, with the concentrations where it turns named in the message. See :func:`monotonicity`. 3. **There is not enough experiment.** Four parameters need at least four distinct concentrations (:data:`MIN_DOSES`) and, to say anything about uncertainty, more observations than parameters (:data:`MIN_OBSERVATIONS`). A constant response has no curve in it. A **zero concentration is not an error** — a vehicle control is normal and belongs in the file — so it is excluded from the fit deliberately, counted, and reported as a reference response, never fed to ``log10``. A *negative* concentration has no such reading and is refused.",
@@ -491,7 +524,9 @@
       "label": "spacr.qt.widgets.dose_response#8",
       "source": "**A linear-space interval routinely reaches below zero**, and a negative concentration is not a thing. An EC50 of ``1.0 ± 1.4 µM`` is not a wide interval, it is a broken one.",
       "source_sha256": "4172be3bd7951ba293251c9f20ae1c6c7814043ab4fcaa30704b1d0e7f95f3ca",
-      "translation": "**线性空间中的区间经常会延伸到零以下**,而负浓度根本不存在。 EC50 为 ``1.0 ± 1.4 µM`` 并不是一个宽区间,而是一个错误的区间。"
+      "translation": "**线性空间中的区间经常会延伸到零以下**,而负浓度根本不存在。 EC50 为 ``1.0 ± 1.4 µM`` 并不是一个宽区间,而是一个错误的区间。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Return this data-selection boundary with ``column`` bounded to ``low..high``.",
@@ -512,7 +547,9 @@
       "label": "spacr.qt.widgets.graph_spec#13",
       "source": "spaCR measurement tables run to 10^5–10^6 object rows and nobody wants a scatter of a million overlapping dots. Three strategies, chosen by what the plot actually needs, and **the chosen one is always named in** :attr:`RenderData.notice` so a subset can never be mistaken for the whole:",
       "source_sha256": "7435c2ac0e6a863c40991bedd5a5024626b41f993d1945ae898da65b7022ac26",
-      "translation": "spaCR 的测量表可达 10^5–10^6 行对象数据,没有人想看一张画着一百万个重叠点的散点图。有三种策略,根据图表实际需要来选择,并且 **所选策略总会被注明在** :attr:`RenderData.notice` 中,这样子集就永远不会被误认为是整体:"
+      "translation": "spaCR 的测量表可达 10^5–10^6 行对象数据,没有人想看一张画着一百万个重叠点的散点图。有三种策略,根据图表实际需要来选择,并且 **所选策略总会被注明在** :attr:`RenderData.notice` 中,这样子集就永远不会被误认为是整体:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**scatter/line up to** :data:`DEFAULT_POINT_BUDGET` **rows: every row is a mark.**",
@@ -540,7 +577,9 @@
       "label": "spacr.qt.widgets.object_settings_grid#3",
       "source": "WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new settings that every tooltip table and translation catalog has to learn; here it is one COLUMN, and the number of questions does not move. :meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new organelle from the first one's answers rather than from a global default nobody chose.",
       "source_sha256": "4e3cead75c559fcbe4bfab91bd4203028c945391ffc696e50afbce6b8052dcf9",
-      "translation": "为什么正是这种结构才能容纳任意数量的细胞器。一次处理会话可以声明的细胞器数量并不固定。在扁平的词汇表中,每新增一种细胞器就意味着二十个新设置,每一个工具提示表和翻译目录都必须学会它们;而在这里,它只是一个 COLUMN(列),问题的数量保持不变。 :meth:`ObjectSettingsGrid.add_object` 就是这一操作,它以第一种细胞器的答案为起点来创建新的细胞器,而不是从一个没人选择过的全局默认值开始。"
+      "translation": "为什么正是这种结构才能容纳任意数量的细胞器。一次处理会话可以声明的细胞器数量并不固定。在扁平的词汇表中,每新增一种细胞器就意味着二十个新设置,每一个工具提示表和翻译目录都必须学会它们;而在这里,它只是一个 COLUMN(列),问题的数量保持不变。 :meth:`ObjectSettingsGrid.add_object` 就是这一操作,它以第一种细胞器的答案为起点来创建新的细胞器,而不是从一个没人选择过的全局默认值开始。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The asymmetry problem is real and is not fixed by choosing a bigger c.** Tukey's fence is symmetric in the quartiles, and a right-skewed distribution therefore has far more mass beyond the upper fence than beyond the lower one *by construction*, whatever the data. For a lognormal with sigma = 1 the standard fence flags about 8% of the sample on the right and essentially nothing on the left — and it does so for a perfectly clean sample. Read uncorrected, \"8% of my cells are outliers\" is a statement about the shape of the distribution, not about the cells.",
@@ -589,7 +628,9 @@
       "label": "spacr.qt.widgets.outlier_model#29",
       "source": "So the well pass is emphatically **not** \"the well contains many flagged objects\". That statistic exists — it is reported as ``flagged_share`` — and it answers a different question: it finds a well containing a few *catastrophic* objects (a segmentation blow-up, a piece of dust measured as a cell) while being blind to a uniform shift. The well-level robust score finds the uniform shift while being blind to the isolated catastrophe. Both are on the well frame because neither subsumes the other.",
       "source_sha256": "b5a0bcabaab97735799dd6e200df3a475aacb185fcc33716cd143456fc6a96e5",
-      "translation": "因此,按孔进行的这一轮检查明确 **不是** “该孔包含很多被标记的对象”。那个统计量确实存在——以 ``flagged_share`` 报告——但它回答的是另一个问题:它能找出包含少数 *灾难性* 对象的孔(分割严重失败、一粒被当作细胞测量的灰尘),却看不到整体性的均匀偏移。孔级稳健分数能发现均匀偏移,却看不到孤立的灾难。两者都放在孔级数据表中,因为谁也不能涵盖对方。"
+      "translation": "因此,按孔进行的这一轮检查明确 **不是** “该孔包含很多被标记的对象”。那个统计量确实存在——以 ``flagged_share`` 报告——但它回答的是另一个问题:它能找出包含少数 *灾难性* 对象的孔(分割严重失败、一粒被当作细胞测量的灰尘),却看不到整体性的均匀偏移。孔级稳健分数能发现均匀偏移,却看不到孤立的灾难。两者都放在孔级数据表中,因为谁也不能涵盖对方。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**MAD == 0 is handled, not divided by.** When more than half the objects share one value — a zero-inflated ``pathogen_area``, an integer count, a saturated intensity — the MAD is exactly zero. Naively, every value that differs at all then scores infinity and *the entire tail is flagged*, which is the opposite of robust. So :func:`robust_scale` falls back to the **mean absolute deviation from the median**, scaled by :data:`MEAN_AD_TO_SIGMA` = ``sqrt(pi/2)`` = 1.2533 (for a Gaussian ``E|X - mu| = sigma * sqrt(2/pi)``), and says so in :attr:`OutlierResult.notes` and in :meth:`OutlierResult.caveats`.",
@@ -603,7 +644,9 @@
       "label": "spacr.qt.widgets.outlier_model#9",
       "source": "The alternative considered and not taken is the Rousseeuw–Croux ``Sn`` (``1.1926 * med_i med_j |x_i - x_j|``), which is the statistically better answer: it has a 50% breakdown point, needs no symmetry assumption, and does not collapse on tied data. It is not used because the naive form is O(n^2) — unusable on the 10^5–10^6 object rows spaCR routinely produces — and the O(n log n) algorithm is a page of intricate code to maintain for a path that is only ever reached when the MAD has *already* collapsed. The mean absolute deviation has a 0% breakdown point and that is stated plainly rather than glossed: it is a stopgap that keeps a degenerate column from flagging its whole tail, not a robust estimator. If the fallback fires, the honest reading is that the column is not continuous enough for this test.",
       "source_sha256": "721569ff101ce8b35287fe360c287aa5942e78ce2fa3045cddc5a5a673f7dc52",
-      "translation": "曾考虑但未采用的替代方案是 Rousseeuw–Croux 的 ``Sn`` ( ``1.1926 * med_i med_j |x_i - x_j|`` ),从统计角度看它是更好的答案:它的崩溃点为 50%,不需要对称性假设,并且在数据存在大量相同值时也不会失效。之所以不用它,是因为朴素实现是 O(n^2) ——在 spaCR 经常产生的 10^5–10^6 行对象数据上根本无法使用——而 O(n log n) 算法则是一整页复杂的代码,却只为维护一条仅在 MAD *已经* 失效时才会走到的路径。平均绝对偏差的崩溃点是 0%,这一点会被直接说明而不是含糊带过:它只是一个权宜之计,用来防止退化的列把整个尾部都标记出来,而不是一个稳健估计量。如果触发了这一回退,诚实的解读是:该列不够连续,不适合做这项检验。"
+      "translation": "曾考虑但未采用的替代方案是 Rousseeuw–Croux 的 ``Sn`` ( ``1.1926 * med_i med_j |x_i - x_j|`` ),从统计角度看它是更好的答案:它的崩溃点为 50%,不需要对称性假设,并且在数据存在大量相同值时也不会失效。之所以不用它,是因为朴素实现是 O(n^2) ——在 spaCR 经常产生的 10^5–10^6 行对象数据上根本无法使用——而 O(n log n) 算法则是一整页复杂的代码,却只为维护一条仅在 MAD *已经* 失效时才会走到的路径。平均绝对偏差的崩溃点是 0%,这一点会被直接说明而不是含糊带过:它只是一个权宜之计,用来防止退化的列把整个尾部都标记出来,而不是一个稳健估计量。如果触发了这一回退,诚实的解读是:该列不够连续,不适合做这项检验。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "an ``.npy`` **stack** whose first axis is time — memory-mapped, so a slice touches only that image layer's pages.",
@@ -631,14 +674,18 @@
       "label": "spacr.schema.add_screen_column#4",
       "source": "The frame has one and ``screen`` was given. The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
       "source_sha256": "8334cca36846b5ad24d6d47eee6daf87740b63e0b5763adbbff146c9fe665cdf",
-      "translation": "该数据框中已有这一列,并且提供了 ``screen`` 。调用方正在查看这些文件,并指明了这是哪个筛选实验,因此以它为准——但仅仅因为它这样指明了。 ``overwrite=False`` (默认)仍然只填充 *空白* 值;传入 ``overwrite=True`` 可重新标记每一行。"
+      "translation": "该数据框中已有这一列,并且提供了 ``screen`` 。调用方正在查看这些文件,并指明了这是哪个筛选实验,因此以它为准——但仅仅因为它这样指明了。 ``overwrite=False`` (默认)仍然只填充 *空白* 值;传入 ``overwrite=True`` 可重新标记每一行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
       "label": "spacr.schema.coerce_model_feature_types#1",
       "source": "**A column with no values at all comes back as** ``object``. This is the common one and it is not a data problem: ``pandas.read_sql`` builds the frame from the rows it gets, so a column that is ``NULL`` in every row arrives as a column of ``None`` and pandas types that ``object`` -- even though SQLite declares it ``REAL``. spaCR writes ``NULL`` for an honest NaN, and whole measurements are legitimately NaN for a whole database: ``skew_intensity``/``kurtosis_intensity`` are NaN for every uniform object, and ``mode_intensity`` was NaN for every object in every database written before the SciPy shim in ``measure._extended_regionprops_table``. Such a column is converted to ``float64`` NaN, which is what it always meant. Nothing is lost, so nothing is warned about -- and the caller's own all-NaN filter then drops it and says so.",
       "source_sha256": "2ee252513ac9bd0fd628bd8790e6abec91cc6cf12c3c83900b46c54f87db28a2",
-      "translation": "**完全没有值的列返回时的类型是** ``object``。 这是常见情况,并不是数据问题: ``pandas.read_sql`` 根据取到的行构建数据框,因此每一行都是 ``NULL`` 的列会成为由 ``None`` 组成的列, pandas 就把它的类型定为 ``object`` ——即使 SQLite 声明它为 ``REAL`` 。 spaCR 用 ``NULL`` 写入真实的 NaN,而某些测量值在整个数据库中本来就全都是 NaN: ``skew_intensity``/``kurtosis_intensity`` 对每个均匀对象都是 NaN,而 ``mode_intensity`` 在 ``measure._extended_regionprops_table`` 引入 SciPy 兼容垫片之前写入的每个数据库中,对每个对象都是 NaN。这样的列会被转换为 ``float64`` NaN,这也正是它一直以来的含义。没有任何信息丢失,因此不会发出警告——调用方自己的全 NaN 过滤器随后会删除这一列并给出说明。"
+      "translation": "**完全没有值的列返回时的类型是** ``object``。 这是常见情况,并不是数据问题: ``pandas.read_sql`` 根据取到的行构建数据框,因此每一行都是 ``NULL`` 的列会成为由 ``None`` 组成的列, pandas 就把它的类型定为 ``object`` ——即使 SQLite 声明它为 ``REAL`` 。 spaCR 用 ``NULL`` 写入真实的 NaN,而某些测量值在整个数据库中本来就全都是 NaN: ``skew_intensity``/``kurtosis_intensity`` 对每个均匀对象都是 NaN,而 ``mode_intensity`` 在 ``measure._extended_regionprops_table`` 引入 SciPy 兼容垫片之前写入的每个数据库中,对每个对象都是 NaN。这样的列会被转换为 ``float64`` NaN,这也正是它一直以来的含义。没有任何信息丢失,因此不会发出警告——调用方自己的全 NaN 过滤器随后会删除这一列并给出说明。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Not the generator's own ``touches`` flag. That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
@@ -659,7 +706,9 @@
       "label": "spacr.surrogate#3",
       "source": "**Fidelity is reported first, and it is not a formality.** A surrogate that cannot reproduce the CV model's decisions has explained nothing, and its feature ranking is a ranking of how the features predict each other. That number is the one people skip, so :class:`SurrogateResult` puts it before the importances and :meth:`SurrogateResult.summary` refuses to lead with anything else.",
       "source_sha256": "2a39d6621585c437e0be27a26b6f8a628dad83bda6e74c95d35dd09884395ee0",
-      "translation": "**首先报告保真度,而且这并非走过场。** 一个无法重现 CV 模型决策的代理模型什么也没有解释,它给出的特征排名只是在反映各特征之间如何相互预测。这个数字恰恰是人们最容易跳过的,所以 :class:`SurrogateResult` 把它放在重要性之前,而 :meth:`SurrogateResult.summary` 也拒绝以其他任何内容开头。"
+      "translation": "**首先报告保真度,而且这并非走过场。** 一个无法重现 CV 模型决策的代理模型什么也没有解释,它给出的特征排名只是在反映各特征之间如何相互预测。这个数字恰恰是人们最容易跳过的,所以 :class:`SurrogateResult` 把它放在重要性之前,而 :meth:`SurrogateResult.summary` 也拒绝以其他任何内容开头。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**The join goes through** ``png_list``. A CV model is indexed by the extracted image region it scored; the features are indexed by the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
@@ -680,7 +729,9 @@
       "label": "spacr.utils.correct_metadata_column_names#0",
       "source": "Renamed legacy metadata columns. **Defined in** :mod:`spacr.schema`.",
       "source_sha256": "4e314297af1da8ebfedd58f49a362f5f04a65a2a10733b2d7f62cacb34323847",
-      "translation": "已重命名的旧版元数据列。 **定义于** :mod:`spacr.schema` 。"
+      "translation": "已重命名的旧版元数据列。 **定义于** :mod:`spacr.schema` 。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

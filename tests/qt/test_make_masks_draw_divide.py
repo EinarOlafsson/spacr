@@ -262,19 +262,21 @@ def test_the_larger_piece_keeps_the_original_id(canvas):
     assert int(canvas.mask[32, 40]) == 7
 
 
-def test_a_line_that_separates_nothing_leaves_the_mask_alone(canvas, strokes):
-    """A cut that stops inside the object is a miss, not a groove.
+def test_a_line_that_separates_nothing_keeps_its_cut(canvas, strokes):
+    """A cut that stops inside the object stays as a groove (item 685).
 
-    Zeroing the pixels anyway would carve a slot into the object and call
-    it a division; leaving the mask alone means the gesture can just be
-    drawn again.
+    Several lines are sometimes needed to separate two objects, so an
+    incomplete stroke is one edit that the next stroke continues.
     """
     before = canvas.mask.copy()
     canvas.mode = MODE_DIVIDE
     drag(canvas, [(30, 16), (30, 30)])          # stops inside the waist
 
-    assert np.array_equal(canvas.mask, before)
-    assert strokes == {"started": 0, "finished": 0}
+    assert not np.array_equal(canvas.mask, before)
+    assert int(canvas.mask[30, 30]) == 0 and int(before[30, 30]) == 7
+    assert counts_by_label(canvas.mask).keys() == counts_by_label(before).keys()
+    assert strokes == {"started": 1, "finished": 1}
+    assert canvas.last_edit["detail"]["cut_labels"] == [7]
 
 
 def test_a_divide_drawn_over_background_changes_nothing(canvas, strokes):
@@ -473,8 +475,10 @@ def test_the_other_tools_are_left_as_they_were(canvas, strokes):
     """A brush stroke still paints — the new branches did not swallow it."""
     canvas.mode = MODE_BRUSH
     canvas.brush_radius = 4
+    before = canvas.mask.copy()
     drag(canvas, [(32, 8), (34, 8)])
-    assert int(canvas.mask[8, 32]) == 255
+    painted = int(canvas.mask[8, 32])
+    assert painted == int(before[8, 32]) or painted == int(before.max()) + 1
     assert strokes == {"started": 1, "finished": 1}
     assert canvas.last_edit["kind"] == "paint"
 
@@ -530,9 +534,9 @@ def test_the_screen_records_a_draw(screen):
 
 
 def test_a_missed_gesture_writes_no_ledger_entry(screen):
-    """A divide that separated nothing is not a correction."""
+    """A divide over background is not a correction."""
     screen._set_mode(MODE_DIVIDE)
-    drag(screen._canvas, [(30, 16), (30, 30)])
+    drag(screen._canvas, [(2, 30), (2, 50)])
     assert list(screen._log.edits) == []
 
 
@@ -708,16 +712,36 @@ def test_drawing_on_a_brush_painted_mask_widens_it_rather_than_wrapping(
     assert int((widget.mask == 255).sum()) == 64, "the painted object moved"
 
 
-def test_a_mask_at_the_top_of_uint16_refuses_a_new_object():
-    """Past 65535 there is no id left to give, and the mask cannot be saved.
-
-    Refused by name rather than wrapped: label 65536 stored in uint16 is 0,
-    which is background, so the object would be silently lost instead.
-    """
+def test_a_mask_at_the_top_of_uint16_widens_for_a_new_object():
+    """Label 65536 remains a new object rather than wrapping to background."""
     full = np.zeros((16, 16), dtype=np.uint16)
     full[0, 0] = 65535
-    with pytest.raises(ValueError, match="65536"):
-        engine.fill_polygon(full, [(4, 4), (10, 4), (10, 10), (4, 10)])
+    full[0, 1] = 1
+    before = full.copy()
+
+    out, made = engine.fill_polygon(
+        full, [(4, 4), (10, 4), (10, 10), (4, 10)])
+
+    expected = before.astype(np.uint32)
+    expected[4:11, 4:11] = 65536
+    assert made == 65536
+    assert out.dtype == np.uint32
+    np.testing.assert_array_equal(out, expected)
+    np.testing.assert_array_equal(full, before)
+
+
+def test_a_polygon_label_past_uint32_is_refused_without_changing_the_mask():
+    """An explicit unrepresentable ID cannot become background or another ID."""
+    mask = np.zeros((16, 16), dtype=np.uint32)
+    mask[0, 0] = 2**32 - 1
+    mask[0, 1] = 1
+    before = mask.copy()
+
+    with pytest.raises(ValueError, match="4294967296.*uint32 capacity"):
+        engine.fill_polygon(
+            mask, [(4, 4), (10, 4), (10, 10), (4, 10)], label_value=2**32)
+
+    np.testing.assert_array_equal(mask, before)
 
 
 def test_an_outline_entirely_off_the_image_makes_no_object():

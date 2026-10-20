@@ -322,14 +322,18 @@
       "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "context": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
-      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त फ़ोल्डर का केवल एक बार परिभ्रमण करें और फ़ोल्डर-मेटाडेटा रिपोर्ट लौटाएँ।"
+      "translation": "ड्रैग-एंड-ड्रॉप से प्राप्त फ़ोल्डर का केवल एक बार परिभ्रमण करें और फ़ोल्डर-मेटाडेटा रिपोर्ट लौटाएँ।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
       "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
       "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
       "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
-      "translation": "वर्कर-सुरक्षित: भीतर साधारण डेटा आता है और साधारण डेटा बाहर जाता है; कोई Qt वस्तु नहीं। एकल परिभ्रमण ही मुख्य बात है। इसने उसी ट्री के तीन परिभ्रमणों की जगह ली — एक ``detect_folder_metadata`` ने किया, दूसरा ``plan_folder_extraction`` ने किया और तीसरे के लिए उसने ``detect_folder_metadata`` को फिर बुलाया — ये सभी मुख्य GUI निष्पादन पथ पर और ड्रॉप घटना के भीतर होते थे।"
+      "translation": "वर्कर-सुरक्षित: भीतर साधारण डेटा आता है और साधारण डेटा बाहर जाता है; कोई Qt वस्तु नहीं। एकल परिभ्रमण ही मुख्य बात है। इसने उसी ट्री के तीन परिभ्रमणों की जगह ली — एक ``detect_folder_metadata`` ने किया, दूसरा ``plan_folder_extraction`` ने किया और तीसरे के लिए उसने ``detect_folder_metadata`` को फिर बुलाया — ये सभी मुख्य GUI निष्पादन पथ पर और ड्रॉप घटना के भीतर होते थे।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#2",

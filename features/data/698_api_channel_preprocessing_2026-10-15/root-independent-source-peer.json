@@ -1,0 +1,10 @@
+{
+  "status": "ACCEPT",
+  "source_sha256": {
+    "tools/web_mask_generator/app.py": "fcdff972b046bed4e968ea38b6b98cec9babbcc4e48aa23d0390800e371fc9fd",
+    "tests/test_web_api_channel_selection_n698.py": "8cc56d718d94b98fcfd1ff90b19b3393b6cc0f762d5c47dc7b6b498a2a9b3768"
+  },
+  "scope": "Independent Root review: removing only3allow_custom_value keywords plus5channel range-check lines restores ENTIRE original app file byte-for-byte. Existing integer/consent/file preprocessing/family limits remain; native-header range/duplicate refusal precedes GPU; same existing caption.",
+  "evidence": "Reviewed actual2FAIL then28PASS9.77s, final1optionalcollectionPASS. No repeated tests by Root. Exact source/test hashes verified after source cherry-pick.",
+  "limitations": "No hosted postrepair result, GPU placement, output/desktop parity, WebGPU or wholeN698 claim."
+}

@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QPoint, QSettings, Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QColorDialog, QComboBox, QDialogButtonBox, QPushButton, QWidget
 
@@ -119,7 +119,7 @@ def test_installed_art_uses_smooth_idle_rate_but_preserves_explicit_caps(qtbot):
     widget = ambient.install_ambient(host, theme="blobs", seed=7)
     assert widget.fps() == 12
     widget.set_theme("data_art_point_atlas")
-    assert widget.fps() == 24
+    assert widget.fps() == 30
     widget._run_paced = True
     assert widget._rate() == ambient._RUN_FPS
     widget.set_fps(8)
@@ -207,6 +207,9 @@ def test_gravity_click_passes_through_to_real_controls_and_stops_when_hidden(qtb
     qtbot.mouseClick(button, Qt.LeftButton)
     backdrop._on_tick()
     assert clicks == [True]
+    assert not backdrop._pending_art_impulses
+    qtbot.mouseClick(host, Qt.LeftButton, pos=QPoint(40, 200))
+    backdrop._on_tick()
     qtbot.waitUntil(lambda: any(
         strength == 1.0 for _stamp, _origin, strength
         in backdrop.engine._gravity_impulses[before:]))
@@ -241,7 +244,10 @@ def test_zero_gravity_keeps_click_ripples_but_not_gravity_through_rebuild(qtbot)
     assert backdrop._interaction_app is not None
     backdrop.set_theme("data_art_genetic_advection")
     assert backdrop.gravity_radius() == 0.4
+    assert backdrop._interaction_app is not None
+    backdrop.set_gravity_radius(0.0)
     assert backdrop._interaction_app is None
+    backdrop.set_gravity_radius(0.4)
     backdrop.set_theme("data_art_impulse_lens")
     assert backdrop._interaction_app is not None
     assert not backdrop.engine._popup_waves

@@ -18,7 +18,7 @@
   "scenes": [
     {
       "visual": "01_module",
-      "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited. Clear masks, immediately left of Discard, asks for confirmation before removing every mask in the current image.",
+      "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited. Clear all objects, immediately left of Discard, asks for confirmation before removing every object in the current image.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask"

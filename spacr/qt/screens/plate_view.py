@@ -1,11 +1,11 @@
 """
 Plate Viewer — any measurement as a plate heatmap, with the edge-effect
-test sitting right next to it.
+test beside it.
 
-The heatmap is the delivery mechanism; the statistic beside it is the
-point. A screen hit in row A or column 24 is far more likely to be an
-evaporation artefact than biology, and until now spaCR gave nobody a way
-to notice that before the follow-up experiment failed.
+The edge-effect statistic is the main output; the heatmap shows where it
+comes from. A screen hit in row A or column 24 is more likely to be an
+evaporation artefact than biology, and the test reports such an edge
+effect.
 
 Layout::
 
@@ -77,7 +77,7 @@ from PySide6.QtWidgets import (
 
 from ... import plate_qc as pqc
 from ...selection import DataFilter
-from ..bridge import make_thread
+from ..bridge import emit_safely, make_thread
 from ..linked_selection import LinkedView
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Card, Divider
@@ -114,8 +114,9 @@ DEFAULT_CMAP = "viridis"
 #: The aggregation behind a tick is 487 ms and the spin box emits about every
 #: 50 ms while its arrow is held, so without this a drag queues a job per tick
 #: and the plate the user stopped on is drawn last, after every plate they
-#: passed through. Short enough that a single click still feels immediate.
-RECOMPUTE_COALESCE_MS = 120
+#: passed through. Long enough that typing a number is one recompute; Enter or
+#: leaving the field recomputes at once.
+RECOMPUTE_COALESCE_MS = 350
 
 #: Tables tried first when a database opens, in order of usefulness.
 PREFERRED_TABLES: Tuple[str, ...] = ("cell", "object", "nucleus", "pathogen",
@@ -323,10 +324,9 @@ def _cmap_lut(name: str, size: int = 256) -> List[QColor]:
 class PlateGridWidget(QWidget):
     """A plate drawn as coloured wells, with row letters and column numbers.
 
-    Painted directly rather than embedded as a matplotlib canvas for one
-    reason that matters: a click has to map back to a *well*, exactly, and
-    a hand-rolled grid gives that for free instead of via a coordinate
-    round-trip through a figure's data transform.
+    Painted directly rather than embedded as a matplotlib canvas because a
+    click has to map back to exactly one *well*; a painted grid gives that
+    directly instead of through a figure's data transform.
 
     :param parent: parent widget.
     :ivar well_clicked: emitted with ``(row_index, column_index)``
@@ -620,7 +620,8 @@ class PlateViewScreen(LinkedView, QWidget):
     job_finished = Signal(bool)
     #: private. Re-emitted from ``PipelineWorker.finished`` purely to hop
     #: back onto the GUI thread — see :meth:`_run_job`.
-    _job_settled = Signal(bool)
+    _job_settled = Signal(bool, int)
+    _job_failed = Signal(str, int)
 
     def __init__(self, parent=None, threaded: bool = True):
         """Build the screen, arm its drop zone and join the shared selection.
@@ -642,13 +643,16 @@ class PlateViewScreen(LinkedView, QWidget):
         self._filter_note = ""
         self._busy = False
         self._jobs: List[tuple] = []
-        self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
+        self._pending: List[Tuple[int, Dict[str, Any], Callable[[Any], None], str]] = []
+        self._next_job_id = 0
+        self._latest_job: Dict[str, int] = {}
         self._thread = None
         self._worker = None
         self._loading = False
         self.last_error: str = ""
 
         self._job_settled.connect(self._on_job_settled)
+        self._job_failed.connect(self._on_worker_error_text)
         self._recompute_timer = QTimer(self)
         self._recompute_timer.setSingleShot(True)
         self._recompute_timer.setInterval(RECOMPUTE_COALESCE_MS)
@@ -682,7 +686,7 @@ class PlateViewScreen(LinkedView, QWidget):
         """Stop listening to the process-wide filter before going away.
 
         The `except` is the one thing :meth:`LinkedView.unlink_selection` does
-        not do for us: it is flag-guarded, so a double close is already
+        not provide: it is flag-guarded, so a double close is already
         silent, but during interpreter teardown the C++ side of the
         process-wide `LinkedSelection` can be gone before this widget's
         `closeEvent` runs, and PySide raises on the disconnect then.
@@ -801,6 +805,7 @@ class PlateViewScreen(LinkedView, QWidget):
             "(int) Wells with fewer objects than this are dropped. They are "
             "drawn blank, never as zero, and the number dropped is reported.")
         self._min_count_box.valueChanged.connect(self._on_view_changed)
+        self._min_count_box.editingFinished.connect(self._flush_recompute)
         opt_row.addWidget(self._min_count_box)
 
         opt_row.addStretch(1)
@@ -878,7 +883,9 @@ class PlateViewScreen(LinkedView, QWidget):
     def _update_controls(self) -> None:
         """Enable the pickers, Render and Export to match what is loaded.
 
-        Everything but Export needs a database and no job in flight; Export
+        The table and measurement pickers and Render need a database and no
+        job in flight; the plate, grouping, scale and min-objects fields stay
+        live while a recompute runs because the newest request wins. Export
         needs a rendered well grid, which is a different condition -- the CSV is
         of what is drawn, not of what could be drawn.
         """
@@ -887,10 +894,10 @@ class PlateViewScreen(LinkedView, QWidget):
         self._btn_render.setEnabled(ready and self._value_combo.count() > 0)
         self._table_combo.setEnabled(ready)
         self._value_combo.setEnabled(ready)
-        self._plate_combo.setEnabled(ready and self._plate_combo.count() > 0)
-        self._grouping_combo.setEnabled(ready)
-        self._scale_combo.setEnabled(ready)
-        self._min_count_box.setEnabled(ready)
+        self._plate_combo.setEnabled(has_db and self._plate_combo.count() > 0)
+        self._grouping_combo.setEnabled(has_db)
+        self._scale_combo.setEnabled(has_db)
+        self._min_count_box.setEnabled(has_db)
         self._btn_export.setEnabled(self._layout_df is not None
                                     and len(self._layout_df) > 0)
 
@@ -1082,6 +1089,12 @@ class PlateViewScreen(LinkedView, QWidget):
             return
         self._recompute_timer.start()
 
+    def _flush_recompute(self) -> None:
+        """Run a pending debounced recompute now (Enter or focus-out)."""
+        if self._recompute_timer.isActive():
+            self._recompute_timer.stop()
+            self.recompute()
+
     def render_plate(self) -> bool:
         """Read the chosen measurement and draw the plate.
 
@@ -1144,15 +1157,15 @@ class PlateViewScreen(LinkedView, QWidget):
         on every tick of the min-objects spin box. Dragging that box was a
         sequence of half-second freezes.
 
-        THE CONTRACT. ``recompute()`` returns a bool that a caller reads, and
-        it now means "a plate was drawn **or is being drawn**" rather than "a
+        ``recompute()`` returns a bool that a caller reads, and
+        it means "a plate was drawn **or is being drawn**" rather than "a
         plate was drawn". The refusals -- no frame yet, and a failed
         aggregation -- are unchanged and still synchronous, because the first
         does no work and the second is reported by the completion handler in
         exactly the place it was reported before. So the only caller-visible
         difference is that ``True`` may arrive before the grid is painted.
 
-        That was made safe rather than assumed safe: ``threaded=False``
+        ``threaded=False``
         (which every test in ``test_plate_view.py`` and
         ``test_plate_view_linked_filter.py`` constructs the screen with) runs
         the job inline through :meth:`_run_job`, so those callers still get
@@ -1204,7 +1217,8 @@ class PlateViewScreen(LinkedView, QWidget):
 
         return self._run_job(
             _job,
-            lambda result: self._draw_plate(result, min_count))
+            lambda result: self._draw_plate(result, min_count),
+            supersedes="recompute")
 
     def _draw_plate(self, result: Dict[str, Any], min_count: int) -> None:
         """Paint one worker-computed plate layout. GUI thread only."""
@@ -1342,7 +1356,8 @@ class PlateViewScreen(LinkedView, QWidget):
 
 
     def _run_job(self, fn: Callable[[], Any],
-                 on_done: Callable[[Any], None]) -> bool:
+                 on_done: Callable[[Any], None],
+                 supersedes: str = "") -> bool:
         """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
 
         Mirrors ``DbBrowserScreen._run_job`` — one threading idiom for the
@@ -1361,6 +1376,11 @@ class PlateViewScreen(LinkedView, QWidget):
 
         With ``threaded=False`` the call runs inline and the same signals
         fire, so both paths behave identically from outside.
+
+        Every threaded job gets an id and is matched when it settles by that
+        id, never by arrival order. Jobs sharing a non-empty ``supersedes``
+        key are one stream of requests: only the newest is applied, and an
+        older one that settles later is dropped silently, errors included.
         """
         if not self._threaded:
             ok = True
@@ -1386,19 +1406,47 @@ class PlateViewScreen(LinkedView, QWidget):
         thread, worker = make_thread(_job, box)
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
-        self._pending.append((box, on_done))
-        worker.error.connect(self._on_worker_error_text)
-        worker.finished.connect(self._job_settled)
+        self._next_job_id += 1
+        job_id = self._next_job_id
+        if supersedes:
+            self._latest_job[supersedes] = job_id
+        self._pending.append((job_id, box, on_done, supersedes))
+        worker.error.connect(
+            lambda text, _j=job_id: emit_safely(self._job_failed, text, _j))
+        worker.finished.connect(
+            lambda ok, _j=job_id: emit_safely(self._job_settled, ok, _j))
         thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
         self._update_controls()
         thread.start()
         return True
 
-    def _on_job_settled(self, ok: bool) -> None:
-        """Finish the oldest in-flight job. Always on the GUI thread."""
-        self._busy = False
-        box, on_done = self._pending.pop(0) if self._pending else ({}, None)
+    def _is_stale(self, job_id: int) -> bool:
+        """True when a newer job of the same superseding stream exists."""
+        for jid, _box, _done, key in self._pending:
+            if jid == job_id:
+                return bool(key) and self._latest_job.get(key) != job_id
+        return False
+
+    def _any_current(self) -> bool:
+        """True while a job that is not superseded is still in flight."""
+        return any(not self._is_stale(item[0]) for item in self._pending)
+
+    def _on_job_settled(self, ok: bool, job_id: int = 0) -> None:
+        """Finish the in-flight job with this id. Always on the GUI thread."""
+        entry = None
+        stale = self._is_stale(job_id)
+        for i, item in enumerate(self._pending):
+            if item[0] == job_id:
+                entry = self._pending.pop(i)
+                break
+        if entry is None and self._pending and not job_id:
+            entry = self._pending.pop(0)
+        self._busy = self._any_current()
+        if entry is not None and stale:
+            self._update_controls()
+            return
+        _jid, box, on_done, _key = entry if entry else (0, {}, None, "")
         ok = bool(ok)
         if ok and on_done is not None:
             try:
@@ -1454,15 +1502,17 @@ class PlateViewScreen(LinkedView, QWidget):
         :param exc: the exception raised by the worker; its class name is used
             when it carries no message.
         """
-        self._busy = False
+        self._busy = self._any_current()
         self._set_status(str(exc) or exc.__class__.__name__, error=True)
 
-    def _on_worker_error_text(self, text: str) -> None:
+    def _on_worker_error_text(self, text: str, job_id: int = 0) -> None:
         """Clear the busy flag and report a worker failure given as text.
 
         :param text: the worker's error output; only its last line is shown,
             which for a traceback is the exception itself.
         """
+        if job_id and self._is_stale(job_id):
+            return
         line = (text or "").strip().splitlines()[-1] if text else "unknown error"
-        self._busy = False
+        self._busy = self._any_current()
         self._set_status(f"Plate view failed: {line}", error=True)

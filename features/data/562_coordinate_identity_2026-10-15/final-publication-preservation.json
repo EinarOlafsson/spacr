@@ -1,0 +1,35 @@
+{
+  "source_closure": "5ef9af8a2ec",
+  "actual_public_source_merge": "e65a5ed839f52932b4a0ad3242f63232469f46de",
+  "actual_incoming_public": "cc5e753bcf0cadf87c0627c126a50caba1881d64",
+  "actual_changed_paths": [
+    "features/HANDOFF.md",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/10c39e5de52b59c29f2b9043d7efda6a6280adca.patch",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/README.md",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/progress-tests-final.log.txt",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/receipt.json",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/turn52-a01.rc",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/turn52-cleanup.json",
+    "features/data/n676_barcode_progress_callback_fix_2026-10-15/turn52-crash.txt"
+  ],
+  "entire_spacr_tools_docs_tests_tree_ids_identical_before_after": {
+    "spacr": "80a6fd6537e179af5d258ea14222adfbe98809b1",
+    "tools": "bdcb428dd0235ece6b2d061fab8d3cdeed64d84d",
+    "docs": "f929fb8830a0762edca14694bfe44ab445f37100",
+    "tests": "4f190a42bd9fa0e7ac120e4c30352737d93b75b0"
+  },
+  "four_normal_driver_source_hashes_and_nine_final_review_hashes_exact": true,
+  "normal_audit_arrival_and_50_9_checks_not_repeated": "No executable/tool/catalog/API/test/runtime-arrival input changed; incoming only Work HANDOFF/rawpatch/evidence.",
+  "orchestration_correction": {
+    "hardcoded_origin_expectation": "Expected1d90, actualWorkdocsadvancecc5e; assertion failed AFTER source/review hash checks passed.",
+    "shell_control_error": "Outer command lacked set-e; failed assertion and subsequent gitadd of nonexistent finalreceipt did not prevent later normalpush.",
+    "actual_push_result": "cc5e753bcf0..e65a5ed839f HEAD -> nightly, exit0",
+    "missing_receipt_at_source_publication": true,
+    "corrective_action": "Immediate explicit post-merge byte-tree/input proof and this transparent evidence-only followup, fail-fast shell for followup.",
+    "raw_log_status": "Original orchestration command output was returned by tool, not saved as a raw filesystem log; this JSON is an observed lifecycle account, not a recreated raw log."
+  },
+  "limits": [
+    "No fullCI/release or whole-F562 acceptance claim.",
+    "No incorrect source/gate failure was found; failed assertion was only overstrict known-origin expectation."
+  ]
+}

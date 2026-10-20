@@ -24,7 +24,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tupl
 
 import numpy as np
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
-from PySide6.QtGui import QImage, QKeySequence, QPixmap, QShortcut
+from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -892,15 +892,14 @@ class QCFieldBrowser(QDialog):
         actions.addWidget(close)
         root.addLayout(actions)
 
-        self._left_shortcut = QShortcut(QKeySequence(Qt.Key_Left), self)
-        self._left_shortcut.setContext(Qt.WidgetWithChildrenShortcut)
-        self._left_shortcut.activated.connect(self.previous_field)
-        self._right_shortcut = QShortcut(QKeySequence(Qt.Key_Right), self)
-        self._right_shortcut.setContext(Qt.WidgetWithChildrenShortcut)
-        self._right_shortcut.activated.connect(self.next_field)
-        self._q_shortcut = QShortcut(QKeySequence("Q"), self)
-        self._q_shortcut.setContext(Qt.WidgetWithChildrenShortcut)
-        self._q_shortcut.activated.connect(self.toggle_quarantine)
+        from ..shortcuts import _bind_screen_key
+
+        self._left_shortcut = _bind_screen_key(
+            self, "Field browser", "Left", self.previous_field)
+        self._right_shortcut = _bind_screen_key(
+            self, "Field browser", "Right", self.next_field)
+        self._q_shortcut = _bind_screen_key(
+            self, "Field browser", "Q", self.toggle_quarantine)
 
         self._run_timer = QTimer(self)
         self._run_timer.setInterval(400)
@@ -1323,14 +1322,11 @@ class QCFieldBrowser(QDialog):
     def toggle_quarantine(self) -> None:
         """Quarantine or restore the current field; also bound to Q.
 
-        THE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made
-        the whole `path_probe` gate in `_sync_action` pointless: the poll in
-        front of this button stopped freezing and the button itself still
-        did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk
-        and the rename that follows adds a mkdir, a stat, a link, an
-        ``fsync``-ed ledger write and an unlink -- on the plate path the user
-        chose, which is the sleeping ``autofs`` share by assumption. See
-        `_move_field`.
+        The move runs on a worker. `quarantine_dir_for` is a `Path.resolve()`
+        realpath walk, and the rename that follows adds a mkdir, a stat, a
+        link, an ``fsync``-ed ledger write and an unlink -- on the plate path
+        the user chose, which may be a sleeping ``autofs`` share. On the GUI
+        thread these would freeze the window. See `_move_field`.
         """
         target = self.current_target
         if (target is None or self._is_run_active() or self._jobs.is_busy()
@@ -1454,8 +1450,9 @@ class QCFieldBrowser(QDialog):
         :param event: the event.
         :returns: True to stop the event going further.
         """
+        from ..shortcuts import _screen_event_key
         if (event.type() == QEvent.KeyPress
-                and self._handle_triage_key(event.key())):
+                and self._handle_triage_key(_screen_event_key(self, event))):
             event.accept()
             return True
         return super().eventFilter(watched, event)
@@ -1467,7 +1464,8 @@ class QCFieldBrowser(QDialog):
             between fields, or a verdict key such as Q) is handled and
             accepted, anything else goes to the base class.
         """
-        if self._handle_triage_key(event.key()):
+        from ..shortcuts import _screen_event_key
+        if self._handle_triage_key(_screen_event_key(self, event)):
             event.accept()
             return
         super().keyPressEvent(event)

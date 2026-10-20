@@ -119,7 +119,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
       "source_sha256": "876e8703cf70d44a4c3fd773752c5dbe24bf8919c0fcf301fa152733df2d8610",
-      "translation": "RÄCKVIDDEN HÄRLEDS FRÅN DETTA FÄLTS EGNA CELLER, som en multipel av deras mediandiameter, så den betyder samma sak vid 20x och 63x."
+      "translation": "RÄCKVIDDEN HÄRLEDS FRÅN DETTA FÄLTS EGNA CELLER, som en multipel av deras mediandiameter, så den betyder samma sak vid 20x och 63x.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Props on the LEFT, for the reason `_with_spatial` gives.",
@@ -247,7 +249,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
       "source_sha256": "0ab47d5ec0a0a95a2bad2a876c4dca28df020f65fd5c785ada10450db9888549",
-      "translation": "Platshållare i stället för interpolation: värdena kommer från en inställningsfil, och en formaterad lista är en injektion som bara väntar på ett filnamn med ett citattecken i."
+      "translation": "Platshållare i stället för interpolation: värdena kommer från en inställningsfil, och en formaterad lista är en injektion som bara väntar på ett filnamn med ett citattecken i.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Record one completed field and save its optional figures.",
@@ -317,7 +321,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Report a stage, if anyone asked to hear about them.",
       "source_sha256": "c4b6a80bf4ad38ea922c169981c33ec890d46f6cc0994468c70f9aa301854bb9",
-      "translation": "Rapporterar ett steg, om någon bad om att få höra om dem."
+      "translation": "Rapporterar ett steg, om någon bad om att få höra om dem.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Guarded because the caller is a window that may be closed while this is still executing: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A processing session must not fail because nobody is listening to it any more.",
@@ -325,7 +331,9 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Guarded because the caller is a window that may be closed while this is still running: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A run must not fail because nobody is listening to it any more.",
       "source_sha256": "73defc1d2820b723b97162c511a1cdc527a26b43368afddd0c14a3ef4e82b37f",
-      "translation": "Skyddat eftersom anroparen är ett fönster som kan stängas medan detta fortfarande körs: FEATURES-fönstrets återanrop skickar en Qt-signal, och en worker som väntar kvar efter att dess widget förstörts utlöser ``RuntimeError`` från emit. En körning får inte misslyckas för att ingen lyssnar på den längre."
+      "translation": "Skyddat eftersom anroparen är ett fönster som kan stängas medan detta fortfarande körs: FEATURES-fönstrets återanrop skickar en Qt-signal, och en worker som väntar kvar efter att dess widget förstörts utlöser ``RuntimeError`` från emit. En körning får inte misslyckas för att ingen lyssnar på den längre.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One spacing value, refused unless it is a positive number.",

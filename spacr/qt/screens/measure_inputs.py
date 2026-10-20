@@ -1,6 +1,6 @@
 """The window the FEATURES button in Make Masks opens.
 
-Three things stacked, and the order is the order the questions come in:
+Three parts, from top to bottom:
 
 1. :class:`spacr.qt.widgets.measure_input_table.MeasureInputTable` -- which
    file is which channel, and which is which object.
@@ -16,27 +16,22 @@ Three things stacked, and the order is the order the questions come in:
    itself. The database and the folder tree are Measure's because Measure
    makes them.
 
-IT IS A ``QDialog``, AND THAT IS WHAT MAKES IT LOOK LIKE spaCR. It used to
-be a bare ``QWidget`` shown with the ``Qt.Window`` flag, which meant the
-operating system's own title bar, square corners, an opaque background and
-minimise/maximise/close buttons -- a window from a different program sitting
-in the middle of this one. :mod:`spacr.qt.widgets.glass` gives every dialog
+The window is a ``QDialog``. :mod:`spacr.qt.widgets.glass` gives every dialog
 in the package the translucent card, the rounded corners and the travelling
-rim, and it recognises a dialog by its TYPE. So the dress is not applied
-here; being a dialog is.
+rim, and it recognises a dialog by its type, so no styling is applied here. A
+bare ``QWidget`` shown with the ``Qt.Window`` flag would get the operating
+system's title bar, square corners and an opaque background instead.
 
 Its actions are at the bottom right, in the order every spaCR dialog uses:
 the thing you came to do in the accent colour (Measure, ``PrimaryButton``),
 and the way out in red beside it (Close, ``DangerButton``). Escape is the
 other way out, and closes rather than hides -- see :meth:`reject`.
 
-THE SETTINGS THE TABLE DECIDES ARE SHOWN AND DISABLED rather than hidden.
-``cell_mask_dim`` is not a question once the table says which column holds
-the cell masks, but a user who has read the Measure documentation comes here
-looking for it, and a control that is missing reads as a feature that is
-missing. Shown, filled in, and not editable says the table already answered
-it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and it is
-derived from the plane order rather than written out again here.
+Settings the table decides are shown, filled in and disabled rather than
+hidden. ``cell_mask_dim``, for example, is set once the table says which column
+holds the cell masks, and a user who has read the Measure documentation can
+still find it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and
+it is derived from the plane order rather than written out again here.
 """
 from __future__ import annotations
 
@@ -59,6 +54,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
+from ..i18n import tr
 from ..widgets.card import Card
 from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
 from ..widgets.collapsible_section import CollapsibleSection
@@ -80,12 +76,11 @@ FOLD_KEY = "measure_inputs"
 def write_setting_value(widget, value) -> bool:
     """Write one value into whichever kind of control holds it.
 
-    THE TRAP THIS EXISTS FOR: only some of the settings controls carry a
-    ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a
-    writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently,
-    leaving the default 8000 in place. A run configured that way measures
-    nothing and reports success, because every object was smaller than a
-    minimum nobody chose.
+    Only some of the settings controls carry a ``set_value`` method.
+    ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests
+    ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default
+    8000 in place. A run configured that way measures nothing and reports
+    success, because every object was smaller than the default minimum.
 
     The coercions are the ones
     :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept
@@ -350,8 +345,8 @@ class MeasureInputsScreen(QDialog):
     def derived_settings(self) -> Dict[str, Any]:
         """The settings a run would use: the panel's, over-written by the table.
 
-        The same call the run makes, so what this returns is what would
-        happen rather than a second opinion about it.
+        The same call the run makes, so this returns the settings the run would
+        use.
         """
         try:
             answers = self.settings.collect()
@@ -506,7 +501,8 @@ class MeasureInputsScreen(QDialog):
         try:
             self._result = None
             self._set_running(False)
-            self._log.appendPlainText(f"The run stopped: {message}")
+            self._log.appendPlainText(
+                tr("The run stopped: {message}", message=message))
             self.run_finished.emit(None)
         except RuntimeError:
             pass
@@ -516,25 +512,25 @@ class MeasureInputsScreen(QDialog):
         self._result = result if isinstance(result, dict) else None
         self._set_running(False)
         if self._result is None:
-            self._log.appendPlainText("The run produced no result.")
+            self._log.appendPlainText(tr("The run produced no result."))
             self.run_finished.emit(None)
             return
         db_path = self._result.get('db_path', '')
         self._log.appendPlainText(
-            f"Measured {len(self._result.get('stems', []))} field(s).")
-        self._log.appendPlainText(f"Database: {db_path}")
+            tr("Measured {count} field(s).", count=len(self._result.get('stems', []))))
+        self._log.appendPlainText(tr("Database: {path}", path=db_path))
         if not self._result.get('db_exists'):
             self._log.appendPlainText(
-                "WARNING: the database is not where it was expected.")
+                tr("WARNING: the database is not where it was expected."))
         self.run_finished.emit(self._result)
 
     def closeEvent(self, event):  # noqa: N802 - Qt contract
         """Stop the run's threads before Qt destroys the widgets.
 
-        Qt ABORTS THE PROCESS if a running ``QThread`` is destroyed, and this
+        Qt aborts the process if a running ``QThread`` is destroyed, and this
         window is closable while a measure run -- minutes of work -- is in
-        flight. :func:`spacr.qt.job_runner.shutdown_all` covers the
-        application quitting; it does not cover one window being closed.
+        flight. :func:`spacr.qt.job_runner.shutdown_all` covers the application
+        quitting; it does not cover one window being closed.
 
         :param event: the Qt close event.
         """
@@ -544,13 +540,12 @@ class MeasureInputsScreen(QDialog):
     def done(self, result):  # noqa: N802 - Qt contract
         """Stop the run whichever way the window is dismissed.
 
-        THE HOOK IS ``done`` AND NOT ``reject``, and not ``closeEvent``
-        alone. Escape reaches ``reject``, which hides the window WITHOUT a
-        close event, and that would leave a measure run -- minutes of work,
-        on a thread -- going behind a window nobody can see; a running
-        ``QThread`` destroyed at exit aborts the process. Overriding
-        ``reject`` to close instead looks like the fix and is a loop:
-        ``QDialog.closeEvent`` itself calls ``reject``.
+        The hook is ``done``, not ``reject`` and not ``closeEvent`` alone.
+        Escape reaches ``reject``, which hides the window WITHOUT a close
+        event, and that would leave a measure run -- minutes of work, on a
+        thread -- going behind a window nobody can see; a running ``QThread``
+        destroyed at exit aborts the process. Overriding ``reject`` to close
+        instead would loop: ``QDialog.closeEvent`` itself calls ``reject``.
 
         :param result: Qt's dialog code, passed straight on.
         """
@@ -581,14 +576,11 @@ def open_measure_inputs(owner: Optional[QWidget] = None, *,
         inline; for tests.
     :returns: the window, already shown.
 
-    THE FOLDER IS NOT READ HERE. This runs in the Make Masks button handler,
-    on the GUI thread, and ``folder`` is a path the user chose -- on a
-    microscope rig, the share the images live on. It used to ``isdir`` and
-    ``listdir`` it and stat every entry before the window was even shown, so
-    pressing FEATURES on a folder living on a sleeping automount froze the
-    application with no traceback. The walk is
-    :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table
-    fills in a moment later.
+    The folder is not read here. This runs in the Make Masks button handler, on
+    the GUI thread, and ``folder`` is a path the user chose, which can be on a
+    network share or a sleeping automount where a stat blocks. The walk is
+    :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills
+    in a moment later.
     """
     screen = MeasureInputsScreen(threaded=threaded)
     if owner is not None:

@@ -104,7 +104,7 @@ def test_every_field_exports_and_imports(screen, tmp_path):
                                                        "f2.geojson"]
     coco = tmp_path / "all.json"
     screen.export_all_rois(str(coco), "coco")
-    data = json.loads(coco.read_text())
+    data = json.loads(coco.read_text(encoding="utf-8"))
     assert [i["file_name"] for i in data["images"]] == ["f0.tif", "f2.tif"]
     assert {a["object_type"] for a in data["annotations"]} == {"cell"}
 

@@ -1,0 +1,28 @@
+{
+  "hosted_run": 38816815119,
+  "job": 116724362499,
+  "source": "99789fd25c44fd94b488ce3fca63e6aa5303ad9c",
+  "result": "3 passed in 6.50s",
+  "unit": "spacr-ci-tooltip-shortcut-contracts-20261015.service",
+  "invocation": "55fae4aaca2247fca2b83f67b19905ef",
+  "test_pins": {
+    "tests/test_settings_tooltip_quality.py": {
+      "hosted_and_before_sha256": "0e533c31fecb243dcc8489aed3958d914b28d3ac2465f897f5a493a950bd3248",
+      "after_sha256": "e21106135fad527a1036b50eaa43b80a626bcfd18fe6811efa46215f32f22f3c",
+      "only_changed_function": "test_real_default_claims_have_no_unrecorded_drift",
+      "outside_function_ast_equal": true
+    },
+    "tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py": {
+      "hosted_and_before_sha256": "e6eb1f433adbee13d9d767f77810fee6d80986926511dda3888573c037d78036",
+      "after_sha256": "23499421ae5b77e9683bbf0d5ec7dfd930e0bbdafaba4d132f03a72a8e140e56",
+      "only_changed_function": "test_the_shortcuts_sit_right_of_the_three_views",
+      "outside_function_ast_equal": true
+    }
+  },
+  "tooltip_change": "Exact 4 F580 blank reference/session keys x 2 consumers subtract eight named arrivals; unchanged historical931 and variant assertions. No production/default/tooltip/ratchet ceiling changed.",
+  "shortcut_change": "Actual resizable side pane: preserve right-side geometry, declared230px minimum, real widening via QSplitter.setSizes and right-side geometry after widening. Fixed230 display assumption rejected by hosted252px minimum-size hint.",
+  "limitations": [
+    "No finalCI/full-suite/native smoothness or whole feature completion claimed."
+  ],
+  "production_changes": []
+}

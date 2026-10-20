@@ -218,7 +218,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "Tout ce qui, dans spaCR, est adressable par son nom, et la façon de le classer.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -226,7 +228,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "Le champ de recherche à côté du menu Aide ne vaut que ce que vaut ceci : un utilisateur qui sait comment une chose S’APPELLE doit pouvoir l’atteindre sans savoir quel module la possède, ni sous quelle rubrique repliée elle a été classée.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#10",
@@ -234,7 +238,9 @@
       "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
       "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
       "translation": "AJOUTER UN TYPE, C’EST ENREGISTRER UN FOURNISSEUR, et non modifier un aiguillage. Un fournisseur est ``() -> Iterable[HelpEntry]`` ; :func:`register_provider` en ajoute un et :func:`build_index` appelle chacun d’eux derrière sa propre protection, si bien qu’un fournisseur qui lève une exception ne coûte que ses propres lignes, et rien d’autre. Ce que FAIT un résultat lorsqu’il est ouvert est enregistré de la même façon, dans :mod:`spacr.qt.help_search`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#11",
@@ -242,7 +248,9 @@
       "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
       "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
       "translation": "IMPORTER CE MODULE NE COÛTE RIEN ; CONSTRUIRE L’INDEX COÛTE UNE SECONDE. Chaque registre est importé à l’intérieur du fournisseur qui le lit, de sorte que le module lui-même n’importe ni Qt ni ``spacr.settings``. Sa construction a pris 1.1 s pour 13,000 lignes sur cette arborescence, ce qui est bien trop pour le fil d’exécution de la GUI -- :mod:`spacr.qt.help_search` exécute :func:`build_index` dans un worker, et ce module reste testable sans affichage.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -250,7 +258,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "L’INDEX N’EST JAMAIS UNE LISTE ÉCRITE À LA MAIN. Chaque ligne ici est dérivée de quelque chose qui détermine déjà la réponse :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",
@@ -306,7 +316,9 @@
       "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
       "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
       "translation": "Un réglage introuvable est alors un fait concernant un générateur, et non la question de savoir si quelqu’un a pensé à ajouter une ligne ; c’est tout l’argument de la consigne.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#0",
@@ -330,7 +342,9 @@
       "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
       "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
       "translation": "POURQUOI UN MODÈLE ET NON LA CHAÎNE FINALE. ``subtitle`` et ``description`` sont ce sur quoi porte la RECHERCHE ; ils restent donc en anglais : la requête et le corpus doivent être dans la même langue, et l’index est construit une fois par session alors que la langue de l’interface peut changer ensuite. Ce que l’utilisateur LIT est rendu à partir du modèle au moment où une ligne est dessinée, par :func:`rendered_subtitle` et :func:`rendered_description`, auxquelles est transmise :func:`spacr.qt.i18n.tr` -- un changement de langue est donc pris en compte dès la frappe suivante, et ce module n’importe toujours ni Qt ni catalogue. \"API reference\" est le sous-titre de dix mille lignes ; une chaîne anglaise finale ici donnerait une liste de résultats entièrement en anglais à tout lecteur qui ne travaille pas en anglais.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#2",
@@ -354,7 +368,9 @@
       "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
       "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
       "translation": "ce qu’elle fait, dans les termes auxquels pense l’utilisateur. La recherche porte dessus ; c’est ce qui permet à \"touching\" de trouver ``merge_edge_pathogen_cells``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#5",
@@ -434,7 +450,9 @@
       "source_sha256": "fb3f090d3ee2e389bffa1631460f0be3ceaa182631408114661f315b0e7b9707",
       "context": "Each provider is guarded on its own: a search field that loses its settings because the API manifest could not be read is worse than one that quietly offers fewer kinds.",
       "translation": "Chaque fournisseur est protégé isolément : un champ de recherche qui perd ses réglages parce que le manifeste de l’API n’a pas pu être lu est pire qu’un champ qui propose discrètement moins de types.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.build_index#2",
@@ -578,7 +596,9 @@
       "source_sha256": "ee33e0b61c5fe51f360b6e103db4362a0adbeaaff6bf149857d040bdd69c5cdb",
       "context": "Terms are ANDed, the same rule the per-module settings search uses: typing a second word must narrow, because otherwise typing more is a way of getting more results, which is the opposite of what typing means.",
       "translation": "Les termes sont combinés par ET, la même règle que celle de la recherche de réglages par module : saisir un deuxième mot doit restreindre, car sinon, saisir davantage serait un moyen d’obtenir plus de résultats, ce qui est le contraire de ce que signifie saisir.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.score#2",
@@ -666,7 +686,9 @@
       "source_sha256": "917a074f3dd7eb984c35c457a05c4a12a81140c0fc0130ac87a3011098d84fd1",
       "context": "One row per module: a setting in four modules is four rows, each naming its module and the category it sits under, rather than one row that then asks which. The user already knows which module they meant; a row that asks is a second click for information the list could have shown.",
       "translation": "UNE LIGNE PAR MODULE : un réglage présent dans quatre modules donne quatre lignes, chacune nommant son module et la catégorie dont il relève, plutôt qu’une seule ligne qui demanderait ensuite laquelle. L’utilisateur sait déjà quel module il visait ; une ligne qui le demande impose un second clic pour une information que la liste aurait pu afficher.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#2",
@@ -674,7 +696,9 @@
       "source_sha256": "2ab02ab5546359c5694a4040595795136c576571fc67d51f9b4ce0b0f0006a0c",
       "context": "The API half of a setting is not emitted here. ``SETTING_CONSUMERS`` names every addressable function that reads a structured-data name, and :func:`api_entries` folds that into the API row for each of those functions -- one row per symbol, saying which settings it reads. Emitting them from both providers listed ``spacr.io.preprocess_img_data`` once for itself and once for every setting it reads, which was eleven identical rows in one result list.",
       "translation": "LA MOITIÉ API D’UN RÉGLAGE N’EST PAS ÉMISE ICI. ``SETTING_CONSUMERS`` nomme chaque fonction adressable qui lit une clé, et :func:`api_entries` l’intègre à la ligne d’API de chacune de ces fonctions -- une ligne par symbole, indiquant les réglages qu’il lit. Les émettre depuis les deux fournisseurs listait ``spacr.io.preprocess_img_data`` une fois pour elle-même et une fois pour chaque réglage qu’elle lit, soit onze lignes identiques dans une même liste de résultats.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.setting_entries#3",
@@ -698,7 +722,9 @@
       "source_sha256": "2ed1190297dac95630e8a03a2c1b34769f2a49d333a10d9b083bd8e9e191161c",
       "context": ":mod:`spacr.qt.help_index` decides WHAT is addressable by name; this module is where a user types a name and where the answer takes them. The two halves are apart because only this one needs a display.",
       "translation": ":mod:`spacr.qt.help_index` décide CE QUI est adressable par un nom ; ce module est l’endroit où un utilisateur saisit un nom et celui où la réponse le mène. Les deux moitiés sont séparées, car seule celle-ci a besoin d’un affichage.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#2",
@@ -706,7 +732,9 @@
       "source_sha256": "9b06bc94e966f1588d6bb3afc4ac0f73c71437496df2efe0ac02e0e0ec01cd21",
       "context": "What a result does is registered, not switched on. :func:`register_opener` binds a kind to ``(window, entry) -> str``; :func:`open_entry` looks the kind up. A new kind of thing therefore needs a provider in the index module and an opener here, and no existing function changes -- which is the instruction's \"and so on\" clause taken literally.",
       "translation": "CE QUE FAIT UN RÉSULTAT EST ENREGISTRÉ, ET NON AIGUILLÉ. :func:`register_opener` associe un type à ``(window, entry) -> str`` ; :func:`open_entry` recherche le type. Un nouveau type d’élément nécessite donc un fournisseur dans le module d’index et un ouvreur ici, et aucune fonction existante ne change -- c’est la clause \"and so on\" de la consigne prise au pied de la lettre.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#3",
@@ -730,7 +758,9 @@
       "source_sha256": "0412bad52eae8ac06d27b65ce47178901c4916d917fa67a6f3120324fa094fa1",
       "context": "``setting`` Opens the module and then :func:`reveal_setting`: every category collapsed except the one holding the setting, the row scrolled to and marked. NOT by filtering the panel -- the per-module strip already has a filter and it leaves the other categories hidden, so a user who wanted to look around next has to work out what happened to the form.",
       "translation": "``setting`` Ouvre le module puis :func:`reveal_setting` : toutes les catégories sont repliées sauf celle qui contient le réglage, et la ligne est amenée à l’écran et mise en évidence. PAS en filtrant le panneau -- le bandeau par module a déjà un filtre et laisse les autres catégories masquées, si bien qu’un utilisateur qui voudrait ensuite parcourir le formulaire devrait comprendre ce qui lui est arrivé.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#6",
@@ -746,7 +776,9 @@
       "source_sha256": "4eda68fd6cc8ade496fa248319928c0e591678a08a07e0106484048f63f74e65",
       "context": "``api`` Opens the published page when it is reachable, and otherwise shows the docstring that is on this machine and says the page is not reachable. A search result is believed, so a result that opens a 404 is worse than no result at all.",
       "translation": "``api`` Ouvre la page publiée LORSQU’ELLE EST ACCESSIBLE, et sinon affiche la docstring présente sur cette machine en indiquant que la page n’est pas accessible. On fait confiance à un résultat de recherche ; un résultat qui ouvre une 404 est donc pire que pas de résultat du tout.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#8",
@@ -754,7 +786,9 @@
       "source_sha256": "e9885c01c2cfd5de99ec32fb6330b680f3e824759cb7e79172a16ef2b3e504b6",
       "context": "Nothing this module does on the main GUI execution path blocks it. The index costs about a second to build, so it is built on a worker the first time the field is typed in (:class:`_IndexLoader`), and the field says so until it lands. Whether the documentation site answers is a network question, so it is asked on a worker too (:class:`_DocsReach`) and only ever when the user has opened an API result -- spaCR does not reach the network because somebody typed.",
       "translation": "RIEN DE CE QUE FAIT CE MODULE SUR LE FIL D’EXÉCUTION DE LA GUI NE LE BLOQUE. L’index coûte environ une seconde à construire ; il est donc construit dans un worker la première fois qu’on saisit du texte dans le champ (:class:`_IndexLoader`), et le champ l’indique jusqu’à ce qu’il soit prêt. Savoir si le site de documentation répond est une question réseau ; elle est donc elle aussi posée dans un worker (:class:`_DocsReach`) et uniquement lorsque l’utilisateur a ouvert un résultat d’API -- spaCR n’accède pas au réseau parce que quelqu’un a tapé au clavier.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search#9",
@@ -762,7 +796,9 @@
       "source_sha256": "efafb19e7ac93635222d2320b091ae7d8524b5208d71838143a70b95ccdb4261",
       "context": "Opening a result never discards settings. ``MainWindow._on_nav_selected`` keeps every application view it has built in ``self._screens`` and switches the stack to it, so a half-filled Mask form is still half-filled when the user comes back from Measure. That was true before this microscope field of view existed and it is now pinned by ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` so that a future rebuild-on-navigate cannot quietly take it away.",
       "translation": "OUVRIR UN RÉSULTAT NE PERD JAMAIS DE RÉGLAGES. ``MainWindow._on_nav_selected`` conserve chaque vue construite dans ``self._screens`` et bascule la pile vers elle, si bien qu’un formulaire Mask à moitié rempli l’est toujours lorsque l’utilisateur revient de Measure. C’était vrai avant l’existence de ce champ, et c’est désormais verrouillé par ``tests/qt/test_the_help_search_field_lands_where_it_says.py`` afin qu’une future reconstruction à chaque navigation ne puisse pas le supprimer discrètement.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.ApiEntryDialog#0",
@@ -954,7 +990,9 @@
       "source_sha256": "a41dde4f85bdc2ad98703622e35a68acb345f497ce5bd4c8b2164616a1c7e3a3",
       "context": "The seam tests drive: typing is the user's action, and waiting 140 ms for a timer in every assertion would make the suite slower and no more honest about what the field does.",
       "translation": "La jointure que pilotent les tests : la saisie est l’action de l’utilisateur, et attendre 140 ms un minuteur dans chaque assertion rendrait la suite plus lente sans la rendre plus fidèle à ce que fait le champ.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.HelpSearchField.type_and_search#2",
@@ -994,7 +1032,9 @@
       "source_sha256": "9d2f1646ec608d1df65993717f61432e1bd129f33a71faef030a7c0937316896",
       "context": "Which prefix is the module is answered from the disk rather than assumed: ``spacr.qt.screens.mask`` is a module and ``spacr.layers.ShapesLayer.mask`` is an attribute two levels inside one, and only the file layout knows which of the dots is the last one in the path.",
       "translation": "LE PRÉFIXE QUI CORRESPOND AU MODULE est déterminé à partir du disque plutôt que supposé : ``spacr.qt.screens.mask`` est un module et ``spacr.layers.ShapesLayer.mask`` un attribut situé deux niveaux à l’intérieur d’un module, et seule l’organisation des fichiers sait lequel des points est le dernier du chemin.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.api_url#3",
@@ -1082,7 +1122,9 @@
       "source_sha256": "fae337d102853e9f49e575c630681a3e0679440efcd741087ee227cc96bf0351",
       "context": "In the menu row, not the corner. The field was first installed in the menu bar's top-right corner widget, which put it beside the minimise, full application view and close marks at the far right of the window, away from the menus. It belongs directly to the right of Help, so it is placed in the menu row itself: the bar lays its actions out left to right, and Help is the last menu, so the field follows Help and moves with it when the menus are re-translated or re-ordered.",
       "translation": "DANS LA LIGNE DES MENUS, PAS DANS LE COIN. Le champ a d’abord été installé dans le widget du coin supérieur droit de la barre de menus, ce qui le plaçait à côté des boutons de réduction, de plein écran et de fermeture, à l’extrême droite de la fenêtre, loin des menus. Sa place est immédiatement à droite d’Aide ; il est donc placé dans la ligne des menus elle-même : la barre dispose ses actions de gauche à droite, et Aide est le dernier menu, si bien que le champ suit Aide et se déplace avec lui lorsque les menus sont retraduits ou réordonnés.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_search.install#2",
@@ -1874,7 +1916,9 @@
       "source_sha256": "b846fe72a4a034340614131b7b02a3277d1f499d748a4e097d51f12b3284109d",
       "context": "Import's \"Load test data…\": every vendor format and naming, one press away.",
       "translation": "Le \"Load test data…\" d’Import : tous les formats et toutes les conventions de nommage des fournisseurs, à un clic.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#1",
@@ -1890,7 +1934,9 @@
       "source_sha256": "7a7f32df124f51efefc2db2199d62485e7299a0fa2072c3ec9b811a4a840d2ef",
       "context": "What the button does. It opens :class:`ImportTestDataChooser`, one button per variant in :data:`spacr.import_examples.IMPORT_VARIANTS`, each described on hover. The chosen one is fetched -- the whole set is one archive, so the first press downloads every variant and every later press opens from the cache -- and then:",
       "translation": "CE QUE FAIT LE BOUTON. Il ouvre :class:`ImportTestDataChooser`, avec un bouton par variante de :data:`spacr.import_examples.IMPORT_VARIANTS`, chacune décrite au survol. La variante choisie est récupérée -- l’ensemble tient dans une seule archive, si bien que le premier clic télécharge toutes les variantes et que chaque clic ultérieur ouvre à partir du cache --, puis :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo#3",
@@ -1914,7 +1960,9 @@
       "source_sha256": "9b3f1d5cfa5375ecbdcc0d1bd9d032e5f5edd74afc26b42c98fddf68650ab816",
       "context": "Same machinery as every other example set: :class:`_TarExampleWorker` streams the archive on a background execution unit behind the shared progress dialog and unpacks it through the tar data filter.",
       "translation": "MÊME MÉCANIQUE QUE TOUS LES AUTRES JEUX D’EXEMPLES : :class:`_TarExampleWorker` transfère l’archive en flux dans un fil d’exécution de worker, derrière la boîte de dialogue de progression partagée, et la décompresse via le filtre de données tar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo.ImportTestDataChooser#0",
@@ -2070,6 +2118,8 @@
     },
     {
       "label": "spacr.qt.install_consent.apply_choices#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the consent answers, read by the keys ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
       "source_sha256": "82abef8f86c95d2674f76fb2ce6ae43eeee5ec6dc13afbaea427e4127878ed19",
       "context": "the consent answers, read by the structured-data names ``share_diagnostics``, ``report_issues`` and ``sign_in_now``; a missing or unrecognised value counts as no.",
@@ -2078,6 +2128,8 @@
     },
     {
       "label": "spacr.qt.install_consent.maybe_show_installer_consent#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
       "source_sha256": "42e71bc786fd1e162aa0c4fab39550375f7644ad1f2a7f2bdb5326846e1903da",
       "context": "the widget that parents the in-app consent dialog and, if sign-in was chosen, the account setup dialog.",
@@ -3550,7 +3602,9 @@
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
       "context": "the labels as ``uint16``.",
       "translation": "les étiquettes en ``uint16``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_labels#9",
@@ -3558,7 +3612,9 @@
       "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
       "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
       "translation": "lorsqu’un id ne tient pas dans ``uint16``, ou que le mode ID exact reçoit des étiquettes invalides. Les ID trop grands ne sont jamais tronqués.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.canonical_property#0",
@@ -4761,7 +4817,9 @@
       "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
       "context": "label mask; an empty array gives 1.",
       "translation": "masque d’étiquettes ; un tableau vide donne 1.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.normalise_filters#0",

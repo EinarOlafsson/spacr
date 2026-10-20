@@ -1,38 +1,33 @@
-"""Work out how a folder of images is named, instead of being told.
+"""Infer what the filenames in a folder of images encode, and import the folder.
 
-spaCR's import path used to ask the user to pick a filename
-convention from a closed list -- ``cellvoyager``, ``cq1``, ``custom`` (write
-your own regular expression), ``auto`` -- and the corpus in
-``tests/import_corpus.py`` measures what that costs: of ten real acquisition
-layouts, two parse and eight recover nothing. Opera Phenix and ImageXpress
-are among the eight.
+A fixed list of filename conventions -- ``cellvoyager``, ``cq1``, ``custom``
+(a user-written regular expression), ``auto`` -- covers few real layouts: of
+the ten acquisition layouts in ``tests/import_corpus.py``, two parse with it
+and eight recover nothing. Opera Phenix and ImageXpress are among the eight.
 
-THE FIXED LIST IS THE PROBLEM, NOT THE REGULAR EXPRESSIONS IN IT. Every one
-of the ten encodes the SAME six facts -- plate, well, field, channel, z, t --
-and differs only in how. So rather than matching a whole filename against one
-of N templates, this module reads the parts of the name that VARY across the
-folder and works out what each varying part means.
+All ten layouts encode the same six facts -- plate, well, field, channel,
+z, t -- and differ only in how. So rather than matching a whole filename
+against one of N templates, this module reads the parts of the name that
+vary across the folder and infers what each varying part means.
 
-WHY VARIANCE IS THE RIGHT SIGNAL. A token that is the same in every file
-carries no information: ``L01`` in ``plate1_A01_T0001F001L01A01Z01C01.tif`` is
-a constant for the whole plate and identifies nothing. A token that takes two
-values across eight files is an axis with two positions. Reading the folder
-tells you which tokens are axes; nothing about the filename alone can.
+Variation across the folder identifies the axes. A token that is the same
+in every file carries no information: ``L01`` in
+``plate1_A01_T0001F001L01A01Z01C01.tif`` is a constant for the whole plate
+and identifies nothing. A token that takes two values across eight files is
+an axis with two positions. Only the folder, not a single filename, shows
+which tokens are axes.
 
-WHY MARKERS ARE STILL NEEDED. Variance says a token IS an axis; it cannot say
-WHICH axis. ``F001`` and ``C01`` both vary and are not interchangeable. The
-letter in front is what the convention uses to say so, and every convention
-in the corpus uses one -- so the marker table below is the vocabulary, and it
-is short because the conventions agree more than they disagree.
+Markers identify which axis a varying token is. ``F001`` and ``C01`` both
+vary and are not interchangeable; the letter in front names the axis, and
+every convention in the corpus uses one. The marker table below is that
+vocabulary, and it is short because the conventions mostly share their
+letters.
 
-WHAT THIS DELIBERATELY DOES NOT DO. It never guesses a role it has no
-evidence for. A token that varies and carries no recognisable marker is
-reported as UNPLACED, with its values, so the caller can ask rather than
-assume. The criterion is that a partly-unparseable tree imports what it can
-and REPORTS the rest: a wrong answer that looks
-plausible is the failure mode this whole module exists to avoid, and it is
-the one the ``consolidate`` bugs demonstrated -- images disappearing with no
-error rather than an import refusing.
+No role is assigned without evidence. A token that varies and carries no
+recognisable marker is reported as unplaced, with its values, so the caller
+can ask the user. A partly unparseable tree imports what it can and reports
+the rest, rather than returning a plausible but wrong answer; the older
+``consolidate`` path instead lost images without an error.
 """
 from __future__ import annotations
 
@@ -129,14 +124,14 @@ class TokenSlot:
 
 @dataclass
 class InferredLayout:
-    """What was worked out about a folder, and what was not.
+    """Axes inferred from a folder's filenames, and the tokens left unresolved.
 
     :param root: the folder examined.
     :param per_file: relative path -> ``{axis: value}`` for what was resolved.
     :param slots: the token slots, resolved and unresolved alike.
     :param unplaced: axes-shaped tokens that vary but carry no known marker,
-        as ``{position: [values]}``. THE IMPORTANT FIELD: it is what the
-        caller shows the user instead of guessing.
+        as ``{position: [values]}``. The caller shows these to the user
+        instead of guessing their axis.
     :param skipped: files whose token shape did not match the majority, so
         nothing was claimed about them.
     :param sampled: how many files were read to decide.
@@ -200,17 +195,17 @@ def _resolve_marker(marker: str, seen_markers: set) -> str:
 def infer_layout(root, *, sample: int = 400,
                  extensions: Sequence[str] = (".tif", ".tiff", ".png",
                                               ".jpg", ".jpeg", ".bmp")) -> InferredLayout:
-    """Work out what the filenames under ``root`` encode.
+    """Infer which axes the filenames under ``root`` encode.
 
     :param root: the folder to inspect.
-    :param sample: how many files to read before deciding. A SAMPLE, not the
-        whole tree: the answer is a naming convention, and a convention is
-        visible in a few hundred names. This is what keeps inspecting a
-        400-plate archive as fast as inspecting one plate.
+    :param sample: how many files to read before deciding. Only this many
+        files are read, in sorted order, not the whole tree: a naming
+        convention is visible in a few hundred names, so inspecting a
+        400-plate archive takes about as long as inspecting one plate.
     :param extensions: which files count as images.
-    :returns: an :class:`InferredLayout`. Never raises for an unrecognised
-        tree -- an empty ``per_file`` with populated ``unplaced`` is the
-        honest answer and the caller is expected to show it.
+    :returns: an :class:`InferredLayout`. Does not raise for an
+        unrecognised tree; the result then has an empty ``per_file`` and a
+        populated ``unplaced``, which the caller is expected to show.
     """
     root = Path(root)
     paths = []
@@ -298,9 +293,9 @@ class InsideFile:
         ``"ZYX"``, ``"TYX"``. Empty when the file declares none.
     :param sizes: ``{axis: length}`` for the non-spatial axes only, so
         ``{"c": 2}`` or ``{"z": 5}``.
-    :param declared: whether the axes came from the FILE or were guessed.
-        ``False`` with ``pages > 1`` is the honest unknown -- a multi-page
-        TIFF with no metadata could be Z, T or C and nothing can say which.
+    :param declared: whether the axes came from the file's metadata.
+        ``False`` with ``pages > 1`` means the axis is unknown -- a multi-page
+        TIFF with no metadata could be Z, T or C.
     """
 
     pages: int
@@ -310,27 +305,26 @@ class InsideFile:
 
     @property
     def is_ambiguous(self) -> bool:
-        """Several pages and nothing saying what they are."""
+        """Whether the file has several pages and no metadata naming their axis."""
         return self.pages > 1 and not self.declared
 
 
 def read_axes_inside(path) -> InsideFile:
-    """What ``path``'s own metadata says its pages are.
+    """Read the page count and the C, Z and T axis sizes declared in ``path``'s own metadata.
 
-    THE AXIS THAT IS NOT IN THE NAME. ``infer_layout`` reads names, and a name
-    cannot carry what an acquisition put inside the file: an OME-TIFF holding
-    two channels is one filename, and a Z-stack and a timelapse of the same
-    field have IDENTICAL names. Only the file says which.
+    ``infer_layout`` reads names, and a name does not carry what an
+    acquisition put inside the file: an OME-TIFF holding two channels is one
+    filename, and a Z-stack and a timelapse of the same field can have
+    identical names. Only the file's metadata distinguishes them.
 
-    NEVER GUESSES. A multi-page TIFF with no axis metadata could be Z, T or C,
-    and this returns ``declared=False`` with the page count rather than
-    picking one. The caller shows that to the user: a page index treated as
-    meaningful on its own is exactly the guess this avoids.
+    No axis is guessed. A multi-page TIFF with no axis metadata could be Z, T
+    or C, and this returns ``declared=False`` with the page count rather than
+    picking one, so the caller can ask the user.
 
     :param path: an image file.
     :returns: an :class:`InsideFile`. A file that cannot be opened at all
-        comes back as ``InsideFile(pages=0)`` rather than raising -- a folder
-        of thousands should not fail wholesale because one file is truncated.
+        comes back as ``InsideFile(pages=0)`` rather than raising, so one
+        truncated file does not stop the inspection of the rest of a folder.
     """
     try:
         import tifffile
@@ -356,18 +350,16 @@ def read_axes_inside(path) -> InsideFile:
 
 @dataclass
 class ImportPlan:
-    """What WOULD be imported, for a human to check before anything is written.
+    """A proposed import, shown to the user for checking before anything is written.
 
-    THE PLAN IS THE FEATURE. `metadata_type` is unusable today not because its
-    regular expressions are bad but because the user cannot see what they did
-    until masks come out wrong, so the whole point of this module is that the
-    proposal is visible and correctable BEFORE it is acted on. This mirrors
-    :mod:`spacr.foreign`, whose column mapping is the middle of its screen and
-    is editable in place -- the same split, applied to images.
+    With `metadata_type`, the user cannot see how filenames were parsed until
+    masks come out wrong; a plan makes the proposal visible and correctable
+    before it is acted on. This mirrors :mod:`spacr.foreign`, whose column
+    mapping is shown on its screen and is editable in place.
 
-    Nothing here touches the destination. :meth:`problems` says what would
-    stop an import; :meth:`with_mapping` returns a NEW plan, resolved in
-    memory, so editing is instant and a rejected edit costs nothing.
+    Nothing here touches the destination. :meth:`problems` lists what would
+    stop an import; :meth:`with_mapping` returns a new plan, resolved in
+    memory, so an edit is applied immediately and can be discarded.
 
     :param layout: what the names gave.
     :param inside: per relative path, what the file's own metadata gave.
@@ -392,9 +384,9 @@ class ImportPlan:
     def files(self) -> Dict[str, Dict[str, object]]:
         """Relative path -> every axis known, from all three sources.
 
-        Names first, then the file's own metadata, then the user's mapping --
-        in that order because each is more specific than the last, and the
-        user is the only one who can be right about the last of them.
+        Names first, then the file's own metadata (as ``<axis>_count``
+        entries), then the user's mapping, which sets ``channel`` -- in that
+        order because each is more specific than the last.
         """
         merged: Dict[str, Dict[str, object]] = {}
         for rel, found in self.layout.per_file.items():
@@ -425,18 +417,16 @@ class ImportPlan:
 
     @property
     def unmapped(self) -> Dict[int, List[str]]:
-        """Axes still waiting on an answer, after the mapping is applied."""
+        """Unplaced token positions whose values the mapping does not fully cover."""
         return {position: values
                 for position, values in self.layout.unplaced.items()
                 if not set(values) <= set(self.mapping.get(position, {}))}
 
     def problems(self) -> List[str]:
-        """Everything that would make this import wrong, in plain sentences.
+        """Return every problem that would make this import wrong, as sentences.
 
-        REPORTED, NOT RAISED, and all of them at once. The first version of
-        the translation audit raised on its first finding and reported one
-        problem where there were three; a plan that stops at the first
-        complaint makes the user fix things one round-trip at a time.
+        Problems are returned, not raised, and all of them at once, so the
+        user can fix them in one pass rather than one at a time.
         """
         issues = []
         if not self.files:
@@ -464,10 +454,10 @@ class ImportPlan:
         return issues
 
     def counts(self) -> Dict[str, int]:
-        """Distinct values per axis -- the numbers a user checks first.
+        """Return the number of distinct values per axis.
 
-        A plate with the wrong number of wells or channels is visible here
-        and nowhere else until the run has finished.
+        A plate with the wrong number of wells or channels shows up here
+        before anything is imported.
         """
         out: Dict[str, int] = {}
         for entry in self.files.values():
@@ -476,7 +466,7 @@ class ImportPlan:
         return {axis: len(values) for axis, values in out.items()}  # type: ignore[arg-type]
 
     def with_mapping(self, mapping: Dict[int, Dict[str, int]]) -> "ImportPlan":
-        """A new plan with ``mapping`` merged in. Nothing on disk is touched.
+        """Return a new plan with ``mapping`` merged in. Nothing on disk is touched.
 
         :param mapping: further answers as ``{token position: {value: index}}``;
             for each position they are added to, and override, the answers this
@@ -502,22 +492,20 @@ class ImportPlan:
     def columns(self) -> List[str]:
         """``file`` then every axis anything resolved, counts last.
 
-        ONLY THE AXES THIS FOLDER HAS. A column of empty cells for an axis no
-        file carries reads as "spaCR looked for a Z and found none", which is
-        a different claim from "this acquisition has no Z" and is the one a
-        user acts on. The tiled tree gains a `tile` column and the flat OME
-        one gains `c_count`; neither shows the other's.
+        Only axes present in at least one file get a column. A column of
+        empty cells for an axis no file carries would read as "spaCR looked
+        for a Z and found none", which differs from "this acquisition has no
+        Z". The tiled tree gains a `tile` column and the flat OME one gains
+        `c_count`; neither shows the other's.
         """
         return self._columns(self.files)
 
     def rows(self, limit: Optional[int] = None) -> List[List[str]]:
         """One row of strings per file, cells aligned to :meth:`columns`.
 
-        SEPARATE FROM :meth:`table` SO THE GUI AND THE TEXT CANNOT DISAGREE.
-        Both are the same proposal seen twice -- the Qt model draws these
-        rows into a widget and :meth:`table` pads them into a monospace
-        block -- and a screen that decided its own columns would be free to
-        show a different answer from the one the CLI and the saved plan show.
+        The Qt model draws these rows into a widget and :meth:`table` pads
+        them into a monospace block, so the GUI and the text output show the
+        same columns and values.
         """
         entries = self.files
         keys = self._columns(entries)[1:]
@@ -528,12 +516,11 @@ class ImportPlan:
                 for rel in order]
 
     def table(self, limit: int = 8) -> str:
-        """The proposal, as the table a user reads before pressing anything.
+        """Return the proposal as a plain-text table, followed by axis counts and problems.
 
-        Example filenames BESIDE the fields they were parsed into, because a
-        wrong guess is only visible next to the name it came from -- reading
-        a column of numbers cannot tell you the field and the channel were
-        swapped.
+        Example filenames are shown beside the fields they were parsed into,
+        because a wrong assignment (field and channel swapped, say) is only
+        visible next to the name it came from.
         """
         header = self.columns()
         rows = self.rows(limit=limit)
@@ -564,8 +551,8 @@ def plan_import(root, *, sample: int = 400,
     :param sample: how many files to inspect; see :func:`infer_layout`.
     :param mapping: answers for axes the names cannot name.
     :param read_files: also open each file for its axis metadata. On by
-        default because a channel that lives inside a file is invisible
-        without it; turn it off for a fast first look at a large archive.
+        default because channels stored inside a file are not visible in its
+        name; turn it off for a faster first look at a large archive.
     """
     layout = infer_layout(root, sample=sample)
     inside: Dict[str, InsideFile] = {}
@@ -623,13 +610,12 @@ def _plan_as_json(plan: "ImportPlan") -> dict:
 
 
 def save_plan(plan: "ImportPlan", path) -> Path:
-    """Write ``plan`` where :func:`load_plan` can read it back.
+    """Write ``plan`` as JSON that :func:`load_plan` can read back.
 
-    THE MAPPING IS THE ANSWER WORTH KEEPING. The per-file table is written
-    too, because a saved plan a person cannot read is not reviewable, but
-    :func:`load_plan` re-derives the files from the folder and trusts only
-    the mapping -- see its own docstring for why replaying a stale table
-    would import last week's images.
+    The root, the mapping and the per-file table are written. The table is
+    there so a person can review the saved plan; :func:`load_plan` re-derives
+    the files from the folder and uses only the root and the mapping -- see
+    its docstring for why.
 
     :param plan: the plan to save.
     :param path: the JSON file to write; missing parent folders are created
@@ -647,16 +633,15 @@ def save_plan(plan: "ImportPlan", path) -> Path:
 
 
 def load_plan(path) -> "ImportPlan":
-    """Reload a saved plan, so the second import of the week is one press.
+    """Rebuild a plan from a file written by :func:`save_plan`.
 
-    A lab images the same way every week, and re-answering the same questions
-    every time is how a tool stops being used. Reloading also makes an import
-    SCRIPTABLE -- the saved file is the whole answer, so a cluster job needs
-    no GUI -- and testable, which is why this exists rather than a cache.
+    A saved plan lets a repeated acquisition be imported without answering
+    the same mapping questions again, and lets an import run from a script or
+    a cluster job without the GUI.
 
-    The plan is re-derived from the folder and the saved MAPPING rather than
-    trusting the saved per-file table: the folder may have gained images since,
-    and a stale table would silently import last week's files.
+    The plan is re-derived from the folder and the saved mapping rather than
+    from the saved per-file table: the folder may have gained images since,
+    and a stale table would import only the files listed when it was saved.
 
     :param path: the JSON file written by :func:`save_plan`; its ``root`` and
         ``mapping`` keys are read and the rest is ignored.
@@ -671,7 +656,7 @@ def load_plan(path) -> "ImportPlan":
 
 @dataclass(frozen=True)
 class ImportResult:
-    """What :func:`apply_import` did.
+    """Counts and per-file reasons describing what :func:`apply_import` wrote.
 
     :param destination: the plate folder written.
     :param written: how many images the project now names.
@@ -679,10 +664,9 @@ class ImportResult:
     :param bytes_saved: source bytes not duplicated by linking.
     :param skipped: source paths that were not written, with the reason.
     :param stitched: fields assembled from several tiles.
-    :param unverified: written name -> why its seams are not believed. A
-        stitch whose tiles correlate on nothing is still the best answer
-        available, and saying so is the difference between a field a user
-        can check and one they cannot.
+    :param unverified: written name -> why its tile placement could not be
+        verified. Such a field is still written, and listed here so the user
+        can check it.
     """
 
     destination: Path
@@ -694,15 +678,12 @@ class ImportResult:
     unverified: Dict[str, str] = field(default_factory=dict)
 
     def summary(self) -> str:
-        """What was written, what was not, and why.
+        """Return a text report of what was written, what was not, and why.
 
-        EVERY SKIPPED FILE IS NAMED WITH ITS REASON, not counted. A count
-        says an import was incomplete; only the name and the reason say what
-        to do about it, and the reasons differ -- a tiled tree needs
-        ``tiles_as_fields``, an unwritable destination needs a different
-        folder. The `consolidate` bugs this module replaces lost images with
-        no message at all, so silence here would be the same failure with a
-        nicer table in front of it.
+        Each skipped file is listed by name with its reason (the first 20,
+        then a count of the rest), because the fix depends on the reason --
+        a tiled tree needs ``tiles_as_fields``, an unwritable destination
+        needs a different folder.
         """
         from .data_manager import human_bytes
 
@@ -784,45 +765,39 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
                  stitch_tiles: bool = True) -> ImportResult:
     """Write the spaCR project ``plan`` describes.
 
-    LINKS BY DEFAULT, AND THAT IS THE POINT. ``consolidate`` -- the closest
-    thing spaCR had to this -- COPIES every image to rearrange its name, so a
-    300 GB plate costs 600 GB to import. Nothing about renaming requires
-    duplicating bytes. Where symlinks are unavailable the copy still happens,
-    and the result says which was used and what linking saved.
+    Images are symlinked by default. ``consolidate`` copies every image to
+    rename it, so a 300 GB plate needs 600 GB to import; renaming does not
+    require duplicating bytes. Where a symlink cannot be created the file is
+    copied, and the result reports how many were linked and how many bytes
+    linking saved.
 
-    REFUSES ON A PLAN WITH PROBLEMS. An import is the irreversible half, and
-    every problem the plan states is a way for the result to be quietly wrong
-    -- an unnamed axis means images that cannot be told apart. Fix the plan or
-    answer its questions; do not write past it.
+    A plan with problems is refused. Every problem the plan reports can make
+    the result wrong -- an unnamed axis means images that cannot be told
+    apart -- so the plan must be fixed or its questions answered first.
 
     :param plan: a plan whose :meth:`ImportPlan.problems` is empty.
     :param destination: the plate folder to create.
     :param link: symlink rather than copy. Falls back to copying per file.
     :param plate: the plate name to write into the filenames.
-    :param stitch_tiles: put each field's tiles back together into the one
-        image the field is. ON BY DEFAULT: a field arrives as one image,
-        and turning this off is the exception rather than the rule.
+    :param stitch_tiles: stitch each field's tiles into one image for that
+        field. On by default.
 
-        THIS IS WHY THE FILENAME NEEDS NO TILE SLOT. The convention the core
-        modules read is plate/well/T/field/L/A/Z/channel, so four tiles of
-        one field produce four images with one name and three would be
-        overwritten. Stitching removes the question rather than answering
-        it: a stitched field IS one image with one name, and nothing
-        downstream has to learn what a tile is. See
-        :mod:`spacr.image_stitch` for how the placement is worked out, and
-        for what it does when the tiles give it nothing to work with.
+        The filename convention the core modules read is
+        plate/well/T/field/L/A/Z/channel and has no tile slot, so four tiles
+        of one field would produce four images with one name. A stitched
+        field is one image with one name, so downstream modules do not need
+        a tile axis. See :mod:`spacr.image_stitch` for how the placement is
+        computed, and for what it does when the tiles cannot be aligned.
     :param tiles_as_fields: give each tile its own field number instead.
 
-        THE OPT-OUT, and it takes precedence over ``stitch_tiles`` because
-        it is the more specific request: a caller who says "each tile is a
-        field" has said what they want the tiles to be. It discards the fact
-        that they are ONE field, so anything measuring per field is then
-        counting quarters of one -- which is why it is not the default.
+        This takes precedence over ``stitch_tiles``, as the more specific
+        request. Tiles are numbered as fields per well, so anything measured
+        per field then describes a part of one acquired field; for that
+        reason it is off by default.
 
-        With both off, tiled images are SKIPPED with a reason rather than
-        overwritten. That was the only honest answer before stitching
-        existed, and it is kept because refusing to write is still better
-        than writing three of four images over each other.
+        With both off, the first tile written under a field's name is kept
+        and every later tile with the same name is skipped with a reason,
+        rather than written over it.
     :raises ValueError: when the plan still has problems.
     """
     import os
@@ -877,7 +852,10 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
             if link:
                 if target.exists() or target.is_symlink():
                     target.unlink()
-                os.symlink(source, target)
+                try:
+                    os.symlink(source, target)
+                except (OSError, NotImplementedError):
+                    os.link(source, target)
                 linked += 1
                 saved += source.stat().st_size
             else:

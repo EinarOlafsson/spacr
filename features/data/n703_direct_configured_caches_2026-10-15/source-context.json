@@ -1,0 +1,8 @@
+{
+  "interface_docstrings_signatures_unchanged": true,
+  "tr_calls_unchanged": true,
+  "module_ast_unchanged_outside_user_data": true,
+  "source_sha256": "a4306433731e32404ae70f17780e2a71a39cc394f81b50fba08f3cd4bd2fce84",
+  "test_sha256": "29f688fa15d44238705e6000caae8f5f79affa6f0aef987c5e00f375a151608d",
+  "no_generated_artifact_needed": "Existing eligible symbols/prose/signatures/captions unchanged; only existing _user_data body changes."
+}

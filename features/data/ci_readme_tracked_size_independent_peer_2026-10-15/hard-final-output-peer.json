@@ -1,0 +1,19 @@
+{
+  "status": "INDEPENDENT NORMAL README OUTPUT/EVIDENCE ACCEPT; no rerun",
+  "input_commit": "6b842e0964c0749040f01bb590606cb197a51d95",
+  "final_commit": "89d39a0511206b9c3469f486ce043d81c9434449",
+  "independent_checks": {
+    "exact40_allowed_generated_paths_only_plus_evidence": true,
+    "all40_output_SHA256s_verified": true,
+    "all20_README_readableMD_inverse_only_size_date_restores_entire_originalbytes": true,
+    "all20_SVGs_parse_and_external_link_attributes_unchanged": true,
+    "all_foreign_panels_ID_link_source_files_unchanged_by_whole_commit_scope": true,
+    "all35_input_tool_test_pins_unchanged_verified": true,
+    "normal_ten_language_build_exit0_check_exit0_1700images15_32MiB_log_bound": true,
+    "raw_XML_11PASS_no_failures_errors_skips_1_42seconds_log": true,
+    "network_attempts_zero_receipt": true,
+    "first_missing_uharfbuzz_failure_preserved": true
+  },
+  "interpreter_correction": "Root-approved existing base interpreter for unchanged generator/check only; tests remain spacr interpreter. No installs/source/environment/gate/tolerance changes.",
+  "limits": "No reviewer generator/tests/collector/models/network/newmeasurement. Numeric/date factual maintenance only, no N704 redesign or native/human/fullCI claim."
+}

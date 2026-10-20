@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "चेकपॉइंट और फिर से शुरू करना"
 
-msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR लंबे काम में चेकपॉइंट केवल तब बनाता है जब कोई सुरक्षित इकाई पूरी हो जाए। चेकपॉइंट का अर्थ कभी भी लिखने की प्रक्रिया को बीच में रोकना नहीं है: इसका अर्थ है कि बाद का आह्वान यह सिद्ध कर सकता है कि कौन-से फ़ील्ड, परीक्षण या प्लेट कार्य पूरे हो चुके हैं और उनके बाद से जारी रख सकता है। Qt का **रोकें** बटन भी इन्हीं सीमाओं का उपयोग करता है: यह सहयोगात्मक रद्दीकरण का अनुरोध करता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगले रन के लिए चेकपॉइंट बनाए रखता है। :doc:`threading_cancellation_audit` देखें।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR चेकपॉइंट केवल तब लिखता है जब कार्य की कोई पूरी इकाई (एक फ़ील्ड, परीक्षण या प्लेट कार्य) समाप्त हो जाए; चल रही लिखने की प्रक्रिया को बीच में नहीं रोका जाता। बाद का आह्वान चेकपॉइंट पढ़कर यह निर्धारित करता है कि कौन-सी इकाइयाँ पूरी हो चुकी हैं और उनके बाद से जारी रखता है। Qt का **रोकें** बटन भी इन्हीं सीमाओं का उपयोग करता है: यह सहयोगात्मक रद्दीकरण का अनुरोध करता है, वर्तमान सुरक्षित इकाई को पूरा होने देता है और अगले रन के लिए चेकपॉइंट बनाए रखता है। :doc:`threading_cancellation_audit` देखें।"
 
 msgid "Supported workflows"
 msgstr "समर्थित कार्यप्रवाह"
@@ -43,8 +44,9 @@ msgstr "**Postprocessing → रनटाइम और विश्वसनी�
 msgid "Format Converter"
 msgstr "प्रारूप परिवर्तक"
 
-msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Apple-शैली का **फिर से शुरू करें** स्विच सक्षम करें। पूरा फ़ील्ड पूर्ण होने के बाद रूपांतरक ``.spacr_conversion.checkpoint.json`` लिखता है। फिर से शुरू करने पर फ़ील्ड स्वीकार करने से पहले हर लक्ष्य का TIFF मेटाडेटा दोबारा खोला जाता है और अनुपस्थित या दूषित लक्ष्य की परमाणु रूप से मरम्मत की जाती है। स्रोत की पहचान और पूरी मैपिंग योजना मेल खानी चाहिए।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "**फिर से शुरू करें** स्विच सक्षम करें। पूरा फ़ील्ड पूर्ण होने के बाद रूपांतरक ``.spacr_conversion.checkpoint.json`` लिखता है। फिर से शुरू करने पर फ़ील्ड स्वीकार करने से पहले हर लक्ष्य का TIFF मेटाडेटा दोबारा खोला जाता है और अनुपस्थित या दूषित लक्ष्य की परमाणु रूप से मरम्मत की जाती है। स्रोत की पहचान और पूरी मैपिंग योजना मेल खानी चाहिए।"
 
 msgid "Image UMAP search"
 msgstr "इमेज UMAP खोज"
@@ -64,8 +66,9 @@ msgstr "बाधित सामान्यीकरण संग्रह"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "मास्क मॉड्यूल विभाजन से पहले सामान्यीकृत ``masks/*.npz`` संग्रहों की भी जाँच करता है। यह ZIP सदस्यों का विस्तार, पढ़ने योग्य संख्यात्मक ``data.npy`` हेडर, आकार और dtype के लिए पर्याप्त घोषित पिक्सेल बाइट, और हर बैच फ़ील्ड के लिए एक फ़ाइल नाम जाँचता है। यह संरचनात्मक जाँच हर पिक्सेल ऐरे को खोलकर नहीं देखती और न ही पूरा पिक्सेल CRC स्कैन करती है।"
 
-msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
-msgstr "क्षतिग्रस्त संग्रहों को ``<name>.damaged`` के रूप में अलग रख दिया जाता है। पूर्वप्रसंस्करण बंद होने पर रन रुक जाता है और बताता है कि उन्हें कैसे पुनर्प्राप्त करें। यही पृथक्करण बाद के रन को भी उन फ़ील्ड को चुपचाप छोड़ने से रोकता है। इसे उसी नाम के वैध प्रतिस्थापन से, या ``stack/`` के हर मौजूदा फ़ील्ड को कवर करने वाले पढ़ने योग्य संग्रहों से हल किया जाता है। पुराने ऑब्जेक्ट-मान वाले फ़ाइल नाम ऐरे यह कवरेज सिद्ध नहीं कर सकते। पूर्वप्रसंस्करण सक्षम करने पर उपलब्ध स्रोत डेटा से पुनर्प्राप्त किए जा सकने वाले फ़ील्ड दोबारा बनाए जा सकते हैं; वैध संग्रह और पृथक किए गए साक्ष्य सुरक्षित रहते हैं।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "क्षतिग्रस्त संग्रहों को ``<name>.damaged`` के रूप में अलग रख दिया जाता है। पूर्वप्रसंस्करण बंद होने पर रन रुक जाता है और बताता है कि उन्हें कैसे पुनर्प्राप्त करें। यही पृथक्करण बाद के रन को भी उन फ़ील्ड को चुपचाप छोड़ने से रोकता है। इसे उसी नाम के वैध प्रतिस्थापन से, या ``stack/`` के हर मौजूदा फ़ील्ड को कवर करने वाले पढ़ने योग्य संग्रहों से हल किया जाता है। जो संग्रह फ़ाइल नामों को ऑब्जेक्ट-मान वाले ऐरे के रूप में संग्रहीत करते हैं, वे यह कवरेज सिद्ध नहीं कर सकते। पूर्वप्रसंस्करण सक्षम करने पर उपलब्ध स्रोत डेटा से पुनर्प्राप्त किए जा सकने वाले फ़ील्ड दोबारा बनाए जा सकते हैं; वैध संग्रह और पृथक किए गए साक्ष्य सुरक्षित रहते हैं।"
 
 msgid "Safety rules"
 msgstr "सुरक्षा नियम"

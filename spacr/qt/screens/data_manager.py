@@ -1,17 +1,17 @@
-"""The Data Manager screen — what the project costs, and how to get it back.
+"""The Data Manager screen: disk usage, pruning and archiving for one project.
 
 Three surfaces over :mod:`spacr.data_manager`, in the order a user needs
 them:
 
 **Usage** — one row per artifact kind, measured by walking the project, with
-the unregistered bytes called out. The row that is always the surprise is
-"unregistered": bytes spaCR did not put there and cannot account for, which
-is also why none of them is ever offered for deletion.
+the unregistered bytes called out. The "unregistered" row counts bytes spaCR
+did not write and has no record of; none of them is ever offered for
+deletion.
 
 **Prune** — the plan, in full, *before* anything happens. Every candidate
 with its size and the module that would make it again; every kept item with
-the rule that kept it, because a user who expected 300 GB back and was
-offered 12 needs to read why rather than guess. Deleting requires the
+the rule that kept it, so the user can see why less space is freed than
+expected. Deleting requires the
 confirmation dialog, and the dialog shows the file list and the total one
 more time.
 
@@ -51,7 +51,8 @@ from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.toggle import Toggle
 from ..widgets.measurements_example import install_test_data_button
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from ..app_catalog import register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.data_manager")
@@ -116,31 +117,45 @@ register_widget_qss("DataManager", _data_manager_qss, replace=True)
 
 
 
+def _disconnect_quietly(signal, slot) -> None:
+    """Disconnect ``slot`` from ``signal``; nothing if it is already gone.
+
+    The screen's path-probe follower is a closure, so Qt cannot drop it when
+    the screen is destroyed without a ``closeEvent``; this runs from
+    ``destroyed`` and makes sure the process-wide signal stops calling it.
+
+    :param signal: the bound signal.
+    :param slot: the callable connected to it.
+    """
+    try:
+        signal.disconnect(slot)
+    except (RuntimeError, TypeError):
+        pass
+
+
 class ConfirmDeleteDialog(QDialog):
-    """The last thing between a plan and an irreversible deletion.
+    """Confirmation dialog shown before a prune plan deletes any files.
 
     It shows the total, the item list and every file that would go — the
     same list :meth:`spacr.data_manager.PrunePlan.file_list` returns, not a
     summary of it — and its accept button stays disabled until the user
-    ticks the box that says they have read it. The box is deliberately not
-    pre-ticked and deliberately not a plain OK: this data is somebody's
-    experiment and there is no undo.
+    ticks the box that says they have read it. The box is not pre-ticked and
+    is not a plain OK, because the deletion cannot be undone.
 
-    IT FILLS IN TWO STAGES, and the reason is the whole point of this
-    exercise. The file list is not stored on the plan: every call to
-    ``file_list`` runs ``os.walk`` over every candidate directory, because a
-    plan for a project with millions of crops must not carry millions of
-    strings. Doing that in ``__init__`` put a full recursive walk of the
-    user's project on the GUI thread, at the one moment they are waiting for
-    a window to appear — and on a share that is asleep it is the walk's FIRST
-    stat that spends twenty seconds waking the mount, not the walk. So the
-    dialog opens with the half that needs nothing from the disk (the totals,
-    every candidate, every kept item and its reason) and the file list
+    The dialog fills in two stages. The file list is not stored on the plan:
+    every call to ``file_list`` runs ``os.walk`` over every candidate
+    directory, because a plan for a project with millions of crops must not
+    carry millions of strings. Doing that in ``__init__`` would put a full
+    recursive walk of the user's project on the GUI thread, at the one moment
+    they are waiting for a window to appear — and on a share that is asleep,
+    the walk's first stat alone can take twenty seconds while the mount wakes.
+    So the dialog opens with the half that needs nothing from the disk (the
+    totals, every candidate, every kept item and its reason) and the file list
     arrives behind it. Nothing is dropped: the user still reads every path
     before anything is deleted, which is why the acknowledgement is held
     disabled until the list is on screen — or, when the walk fails, until
-    :meth:`_on_listing_failed` has said so in the list's place. The one
-    thing that never happens is that box being armed over a placeholder.
+    :meth:`_on_listing_failed` has said so in the list's place. The box is
+    never enabled while the list shows a placeholder.
 
     :param plan: the plan to confirm.
     :param parent: Qt parent.
@@ -228,10 +243,10 @@ class ConfirmDeleteDialog(QDialog):
     def describe(self) -> str:
         """The whole text — the plan, then every file — walked right now.
 
-        WALKS THE PROJECT, AND THE DIALOG NO LONGER CALLS IT.
+        This walks the project, and the dialog does not call it.
         :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over
-        every candidate each time it is asked, which is the twenty seconds
-        this exercise removed, so nothing on the GUI thread may call this.
+        every candidate each time it is asked, which can block for many
+        seconds, so nothing on the GUI thread may call this.
         The dialog builds the same string in two pieces instead:
         :meth:`_heading` at once, then :meth:`_with_the_files` on the walk
         that :meth:`_start_the_file_list` sent to a worker.
@@ -360,7 +375,7 @@ class ConfirmDeleteDialog(QDialog):
     def done(self, result: int) -> None:
         """Close the dialog, having first stopped the walk.
 
-        Both Delete and Cancel come through here and NEITHER sends a close
+        Both Delete and Cancel come through here and neither sends a close
         event — ``QDialog.done`` hides the widget — so this, not
         ``closeEvent``, is where a modal dialog's teardown has to live. Qt
         aborts the process outright if a running ``QThread`` is destroyed
@@ -776,14 +791,14 @@ class DataManagerScreen(QWidget):
         self._destination = str(path)
         self.destination_label.setText(self._destination)
         self._archive_plan = None
-        self.archive_table.setRowCount(0)
+        _retire_table_cells(self.archive_table)
         self._update_controls()
 
     def _clear_tables(self) -> None:
         """Empty every table, so a stale plan is not read as a current one."""
         for table in (self.usage_table, self.prune_table, self.kept_table,
                       self.archive_table):
-            table.setRowCount(0)
+            _retire_table_cells(table)
         self.total_label.setText("—")
         self.freed_label.setText("No plan yet.")
 
@@ -969,6 +984,9 @@ class DataManagerScreen(QWidget):
 
         self._path_probe_redraw = redraw
         path_probe.probes.answered.connect(redraw)
+        self.destroyed.connect(
+            lambda *_args, slot=redraw: _disconnect_quietly(
+                path_probe.probes.answered, slot))
 
 
     def selected_kinds(self) -> List[str]:
@@ -979,8 +997,8 @@ class DataManagerScreen(QWidget):
     def _on_kinds_changed(self, _checked: bool) -> None:
         """A changed selection invalidates the plan it was not made with."""
         self._plan = None
-        self.prune_table.setRowCount(0)
-        self.kept_table.setRowCount(0)
+        _retire_table_cells(self.prune_table)
+        _retire_table_cells(self.kept_table)
         self.freed_label.setText("Kinds changed — plan again.")
         self._update_controls()
 
@@ -996,11 +1014,10 @@ class DataManagerScreen(QWidget):
         def measure():
             """Measure ``root``, having first made sure it is a folder.
 
-            The isdir the guard above can no longer do lives here, where the
-            thread waiting on it is a worker and waiting is free. The sentence
-            it raises is the one the guard has always said, because a root
-            that is not a folder has to read the same to the user however
-            spaCR found out.
+            The isdir check runs here, on the worker thread, rather than in
+            the guard on the GUI thread. It raises the same message the
+            guard uses, so a root that is not a folder is reported the same
+            way in both places.
             """
             if not os.path.isdir(root):
                 raise NotADirectoryError("Choose a project folder first.")
@@ -1029,7 +1046,7 @@ class DataManagerScreen(QWidget):
             notes.append(f"{len(usage.symlinks)} symlink(s), not followed")
         self._note("; ".join(notes))
 
-        self.usage_table.setRowCount(0)
+        _retire_table_cells(self.usage_table)
         for row in usage.kinds:
             if not row.size_bytes and not row.n_artifacts:
                 continue
@@ -1072,13 +1089,13 @@ class DataManagerScreen(QWidget):
         :param plan: the proposed deletions.
         """
         self._plan = plan
-        self.prune_table.setRowCount(0)
+        _retire_table_cells(self.prune_table)
         for candidate in plan.candidates:
             self._append(self.prune_table, (
                 dm.human_bytes(candidate.size_bytes), candidate.label,
                 os.path.relpath(candidate.path, plan.root),
                 f"{candidate.n_files:,}", candidate.regenerate_with))
-        self.kept_table.setRowCount(0)
+        _retire_table_cells(self.kept_table)
         for skip in plan.kept:
             self._append(self.kept_table, (
                 dm.human_bytes(skip.size_bytes),
@@ -1124,7 +1141,7 @@ class DataManagerScreen(QWidget):
         :param result: what was deleted.
         """
         self._plan = None
-        self.prune_table.setRowCount(0)
+        _retire_table_cells(self.prune_table)
         self.freed_label.setText(
             f"Freed {dm.human_bytes(result.freed_bytes)} in "
             f"{result.n_files:,} files.")
@@ -1150,7 +1167,7 @@ class DataManagerScreen(QWidget):
         :param plan: the proposed archive.
         """
         self._archive_plan = plan
-        self.archive_table.setRowCount(0)
+        _retire_table_cells(self.archive_table)
         for item in plan.items:
             self._append(self.archive_table, (
                 dm.human_bytes(item.size_bytes),
@@ -1172,7 +1189,7 @@ class DataManagerScreen(QWidget):
             f"{plan.total_files:,} files from\n{plan.root}\nto\n"
             f"{plan.destination}?\n\n"
             f"A manifest is written at the destination and a log is left at "
-            f"the origin, so the registry still knows where it went.",
+            f"the origin, so the registry records where the files went.",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if answer != QMessageBox.Yes:
             self._note("Nothing was moved.")
@@ -1186,7 +1203,7 @@ class DataManagerScreen(QWidget):
         :param result: what was archived.
         """
         self._archive_plan = None
-        self.archive_table.setRowCount(0)
+        _retire_table_cells(self.archive_table)
         self._note(f"Moved {dm.human_bytes(result.total_bytes)} to "
                    f"{result.destination}. Record left at "
                    f"{result.ledger_path}.")
@@ -1195,11 +1212,17 @@ class DataManagerScreen(QWidget):
 
     @staticmethod
     def _append(table: QTableWidget, values) -> int:
-        """Append one row of strings; returns its index."""
+        """Append one row of strings; returns its index.
+
+        Cells come from the ones :func:`_retire_table_cells` kept when the
+        table was last emptied: deleting Python-made items while assistive
+        technology may hold wrappers of them crashed lesson 44 in this
+        screen's ``setRowCount(0)``, during the choose-folder click.
+        """
         row = table.rowCount()
         table.insertRow(row)
         for column, value in enumerate(values):
-            item = table_item(str(value))
+            item = _spare_table_item(table, str(value))
             item.setToolTip(str(value))
             if column == 0:
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -1238,7 +1261,7 @@ def register() -> bool:
 
     Called at import time, so importing this module is all it takes for the
     app to exist. Returns rather than raises on a duplicate key, so a
-    re-import is a no-op instead of taking the import down.
+    re-import is a no-op instead of failing the import.
 
     :returns: True when this call is what registered it.
     """

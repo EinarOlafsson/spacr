@@ -729,7 +729,7 @@ def test_an_unreadable_previous_summary_does_not_stop_the_write(tmp_path,
     monkeypatch.undo()
 
     assert written == str(path)
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     assert text.startswith("spaCR RUN SUMMARY")
     assert "an earlier statsmodels summary" not in text
 

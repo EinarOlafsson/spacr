@@ -13,7 +13,7 @@ from spacr import install_cleanup as ic
 from spacr import run_journal as rj
 
 DAY = 86400.0
-CACHE_VARS = ("CELLPOSE_LOCAL_MODELS_PATH", "HF_HOME", "TORCH_HOME",
+CACHE_VARS = ("SPACR_MODEL_CACHE", "CELLPOSE_LOCAL_MODELS_PATH", "HF_HOME", "TORCH_HOME",
               "SPACR_BACKENDS_DIR", "SPACR_NEWS_CACHE", "SPACR_HOME")
 
 
@@ -42,7 +42,12 @@ def _aged(path: Path, days: float, size: int = 1000) -> Path:
     else:
         path.mkdir(exist_ok=True)
         (path / "log.txt").write_bytes(b"x" * size)
-        os.utime(path / "log.txt", (time.time() - days * DAY,) * 2)
+        run = rj.Run(app_key="mask", settings={}, dir=path)
+        run.status = "success"
+        run._write_settings()
+        run._write_manifest()
+        for child in path.iterdir():
+            os.utime(child, (time.time() - days * DAY,) * 2)
     os.utime(path, (time.time() - days * DAY,) * 2)
     return path
 
@@ -114,7 +119,7 @@ def test_the_cache_list_measures_each_cache(home):
                          "backends", "news"}
     assert rows["huggingface"]["size"] >= 4096 and rows["huggingface"]["exists"]
     assert rows["torch"]["exists"] is False and rows["torch"]["size"] == 0
-    assert rows["models"]["relocatable"] is False
+    assert rows["models"]["relocatable"] is True
 
 
 def test_clearing_a_cache_keeps_the_folder_and_link_targets(home, tmp_path):
@@ -130,7 +135,7 @@ def test_clearing_a_cache_keeps_the_folder_and_link_targets(home, tmp_path):
     removed, refused = rj._clear_cache("torch")
     assert refused == [] and removed >= 1
     assert torch_dir.is_dir() and list(torch_dir.iterdir()) == []
-    assert precious.read_text() == "keep"
+    assert precious.read_text(encoding="utf-8") == "keep"
 
 
 def test_clearing_refuses_the_home_folder(home, monkeypatch):
@@ -151,12 +156,13 @@ def test_relocating_moves_records_and_reapplies(home, tmp_path, monkeypatch):
     monkeypatch.delenv("SPACR_NEWS_CACHE")
     assert rj._apply_cache_locations() == 1
     assert rj._cache_folder("news") == target
-    recorded = json.loads((home / ".spacr" / "cache_locations.json").read_text())
+    recorded = json.loads((home / ".spacr" / "cache_locations.json").read_text(encoding="utf-8"))
     assert recorded == {"SPACR_NEWS_CACHE": str(target)}
 
 
 def test_relocation_is_refused_when_set_outside_spacr(home, tmp_path, monkeypatch):
     monkeypatch.setenv("HF_HOME", str(tmp_path / "theirs"))
+    monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path / "external-models"))
     with pytest.raises(ValueError):
         rj._relocate_cache("huggingface", tmp_path / "bigdisk")
     with pytest.raises(ValueError):
@@ -254,10 +260,120 @@ def test_the_purge_command_line_is_opt_in(home, capsys, monkeypatch):
 def test_the_uninstallers_offer_purge():
     root = Path(__file__).resolve().parents[1] / "packaging" / "online"
     unix = (root / "install_spacr_unix.sh").read_text(encoding="utf-8")
-    assert "spacr.install_cleanup purge" in unix
-    assert unix.index("spacr.install_cleanup purge") < unix.index('rm -rf "$INSTALL_ROOT"')
+    generated = unix.split('cat > "$uninstall_path" <<EOF\n', 1)[1].split('\nEOF', 1)[0]
+    purge = generated.index("spacr.install_cleanup purge")
+    targeted = generated.index('spacr.install_cleanup remove --only-root "$INSTALL_ROOT"')
+    assert '"--purge"' in generated and purge < targeted
+    assert 'rm -rf "$INSTALL_ROOT"' not in generated
     nsis = (root / "spacr_online_installer.nsi").read_text(encoding="utf-8")
     uninstall = nsis[nsis.index('Section "Uninstall"'):]
-    assert '"/PURGE"' in uninstall and "install_cleanup purge" in uninstall
+    assert '${GetOptions} $R0 "/PURGE" $R1' in uninstall
+    purge = uninstall.index("spacr.install_cleanup purge")
+    targeted = uninstall.index('uninstall_spacr_windows.ps1')
+    assert uninstall.index('${IfNot} ${Errors}') < purge < targeted
+    assert 'RMDir /r "$INSTDIR"' not in uninstall
     mac = (root / "build_macos_online.sh").read_text(encoding="utf-8")
     assert "spacr.install_cleanup purge" in mac
+
+
+def test_failed_cache_location_write_can_be_retried_without_losing_cache(home, tmp_path):
+    source = home / '.spacr' / 'news'
+    source.mkdir(parents=True)
+    payload = b'cached release news\x00\xff'
+    (source / 'releases.json').write_bytes(payload)
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir()
+    parent = tmp_path / 'other-disk'
+    target = parent / 'spacr-news'
+    for _ in range(2):
+        with pytest.raises(OSError):
+            rj._relocate_cache('news', parent)
+        assert (source / 'releases.json').read_bytes() == payload
+        assert not target.exists()
+        assert 'SPACR_NEWS_CACHE' not in os.environ
+    record.rmdir()
+    assert rj._relocate_cache('news', parent) == target
+    assert (target / 'releases.json').read_bytes() == payload
+    assert json.loads(record.read_text(encoding="utf-8")) == {'SPACR_NEWS_CACHE': str(target)}
+
+
+def test_failed_move_keeps_both_caches_when_original_path_was_recreated(home, tmp_path, monkeypatch):
+    source = home / '.spacr' / 'news'
+    source.mkdir(parents=True)
+    (source / 'saved.json').write_bytes(b'original cache')
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir()
+    replace = os.replace
+
+    def replacement(src, dst):
+        if Path(dst) == record:
+            source.mkdir()
+            (source / 'new.json').write_bytes(b'concurrent writer')
+        return replace(src, dst)
+
+    monkeypatch.setattr(os, 'replace', replacement)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', tmp_path / 'other-disk')
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    assert (source / 'new.json').read_bytes() == b'concurrent writer'
+    assert not (source / 'saved.json').exists()
+    assert (target / 'saved.json').read_bytes() == b'original cache'
+    assert 'SPACR_NEWS_CACHE' not in os.environ
+
+
+def test_failed_move_retains_cache_when_native_rollback_is_refused(home, tmp_path, monkeypatch, caplog):
+    import errno
+    source = home / '.spacr' / 'news'
+    source.mkdir(parents=True)
+    (source / 'saved.json').write_bytes(b'preserve at destination')
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir()
+
+    def refused(path, destination):
+        raise OSError(errno.EXDEV, os.strerror(errno.EXDEV), str(path))
+
+    monkeypatch.setattr(Path, 'rename', refused)
+    with pytest.raises(OSError) as failure:
+        rj._relocate_cache('news', tmp_path / 'other-disk')
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    assert Path(failure.value.filename2 or failure.value.filename) == record
+    assert (target / 'saved.json').read_bytes() == b'preserve at destination'
+    assert not source.exists()
+    assert 'SPACR_NEWS_CACHE' not in os.environ
+    assert str(target) in caplog.text
+
+
+def test_failed_empty_cache_move_removes_only_an_empty_created_folder(home, tmp_path):
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir(parents=True)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', tmp_path / 'other-disk')
+    assert not (tmp_path / 'other-disk' / 'spacr-news').exists()
+    assert 'SPACR_NEWS_CACHE' not in os.environ
+
+
+def test_failed_empty_cache_move_preserves_a_preexisting_empty_target(home, tmp_path):
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir(parents=True)
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    target.mkdir(parents=True)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', target.parent)
+    assert target.is_dir() and not list(target.iterdir())
+
+
+def test_failed_empty_cache_move_preserves_files_created_at_target(home, tmp_path, monkeypatch):
+    record = home / '.spacr' / 'cache_locations.json'
+    record.mkdir(parents=True)
+    target = tmp_path / 'other-disk' / 'spacr-news'
+    replace = os.replace
+
+    def replacement(src, dst):
+        if Path(dst) == record:
+            (target / 'new.json').write_bytes(b'concurrent target writer')
+        return replace(src, dst)
+
+    monkeypatch.setattr(os, 'replace', replacement)
+    with pytest.raises(OSError):
+        rj._relocate_cache('news', target.parent)
+    assert (target / 'new.json').read_bytes() == b'concurrent target writer'

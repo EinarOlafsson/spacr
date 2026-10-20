@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+ulimit -c 0
+cd /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015
+export CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 SPACR_NO_NETWORK=1 SPACR_NO_GL=1 HF_HUB_OFFLINE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+export PYTHONPATH="$PWD:/mnt/wd4tb/scratch/codex-home-release-1515-20261013/a744-dark-opaque-p1-20261014/qt612-runtime/site-packages"
+status=0
+flock /mnt/wd4tb/scratch/original-home-ci-20261015/heavy.lock taskset -c 0 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python /mnt/wd4tb/scratch/n441-actual-nine-consumers-20261015/driver.py > /mnt/wd4tb/scratch/n441-actual-nine-consumers-20261015/run.log 2>&1 || status=$?
+printf '%s\n' "$status" > /mnt/wd4tb/scratch/n441-actual-nine-consumers-20261015/run.exit
+exit "$status"

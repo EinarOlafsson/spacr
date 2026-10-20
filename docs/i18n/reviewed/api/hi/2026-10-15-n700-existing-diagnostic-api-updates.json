@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review; no human or native-speaker signoff",
+  "note": "Only four changed/new blocks in three existing API bodies. Unchanged blocks retain their source-proven historical targets. The Icelandic module#7 correction is in its separate existing review input.",
+  "records": [
+    {
+      "label": "spacr.crashreport#10",
+      "source": "Anonymous reports",
+      "source_sha256": "b975a3af4169f667981fd1218129af1381e2e9b989e6ddfe974d8498625fcf74",
+      "context": "Anonymous reports",
+      "translation": "अनाम रिपोर्ट",
+      "review_basis": "AI technical review authored from exact current English and normal API context; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport#11",
+      "source": "The bundle above stays on this computer. What may leave it is a separate, much smaller thing: :func:`public_summary`, an allowlisted record of the versions, the operating-system family, the GPU class, the module, the exception type, a scrubbed one-line message and the call stack as file basenames, function names and line numbers. No log, setting, environment variable or path is in it. :func:`submit_public_summary` posts it to spaCR's relay (:data:`REPORT_RELAY_URL`), which files it as a public issue on EinarOlafsson/spacr, so a user needs no GitHub account. The switch is :func:`anonymous_reports_enabled`, on unless the user turns it off; with it off, or with :data:`NO_NETWORK_ENV` set, nothing is sent. A report that cannot be sent waits in a small queue (:data:`QUEUE_LIMIT` reports, :data:`QUEUE_RETENTION_S` seconds) and is tried again later. :func:`diagnose_remotely` sends the same summary to the relay's hosted model for advice.",
+      "source_sha256": "d443617b1a2d25f891335f181494f72577e78927c4d2a99569a40ed18245d924",
+      "context": "The bundle above stays on this computer. What may leave it is a separate, much smaller thing: :func:`public_summary`, an allowlisted record of the versions, the operating-system family, the GPU class, the module, the exception type, a scrubbed one-line message and the call stack as file basenames, function names and line numbers. No log, setting, environment variable or path is in it. :func:`submit_public_summary` posts it to spaCR's relay (:data:`REPORT_RELAY_URL`), which files it as a public issue on EinarOlafsson/spacr, so a user needs no GitHub account. The switch is :func:`anonymous_reports_enabled`, on unless the user turns it off; with it off, or with :data:`NO_NETWORK_ENV` set, nothing is sent. A report that cannot be sent waits in a small queue (:data:`QUEUE_LIMIT` reports, :data:`QUEUE_RETENTION_S` seconds) and is tried again later. :func:`diagnose_remotely` sends the same summary to the relay's hosted model for advice.",
+      "translation": "ऊपर दिया गया बंडल इसी कंप्यूटर पर रहता है। इससे बाहर जाने वाली चीज़ अलग और बहुत छोटी होती है: :func:`public_summary`, जिसमें केवल स्पष्ट रूप से अनुमत जानकारी होती है—संस्करण, ऑपरेटिंग सिस्टम का परिवार, GPU की श्रेणी, मॉड्यूल, अपवाद का प्रकार, संवेदनशील जानकारी हटाया हुआ एक-पंक्ति संदेश और कॉल स्टैक के फ़ाइल बेसनाम, फ़ंक्शन नाम तथा पंक्ति संख्याएँ। इसमें कोई लॉग, सेटिंग, एनवायरनमेंट वैरिएबल या पथ नहीं होता। :func:`submit_public_summary` इसे spaCR के रिले (:data:`REPORT_RELAY_URL`) को भेजता है, जो इसे EinarOlafsson/spacr पर सार्वजनिक इश्यू के रूप में दर्ज करता है, इसलिए उपयोगकर्ता को GitHub खाते की आवश्यकता नहीं होती। इसका स्विच :func:`anonymous_reports_enabled` है, जो उपयोगकर्ता के बंद करने तक चालू रहता है; इसके बंद होने पर या :data:`NO_NETWORK_ENV` सेट होने पर कुछ नहीं भेजा जाता। जो रिपोर्ट भेजी नहीं जा सकती, वह छोटी कतार में प्रतीक्षा करती है (:data:`QUEUE_LIMIT` रिपोर्ट, :data:`QUEUE_RETENTION_S` सेकंड), और बाद में फिर प्रयास किया जाता है। :func:`diagnose_remotely` सलाह के लिए वही सारांश रिले के होस्ट किए गए मॉडल को भेजता है।",
+      "review_basis": "AI technical review authored from exact current English and normal API context; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport.install_excepthook#1",
+      "source": "Chains rather than replaces: the previous ``sys.excepthook`` still runs, so the traceback the user is used to seeing still appears, with one line after it saying where the bundle is. With anonymised reports on (:func:`anonymous_reports_enabled`), the crash's :func:`public_summary` is also queued and sent on a background thread; the bundle is never sent.",
+      "source_sha256": "6e4475333500fb58da97eb3935c895fd4d1e0b5cd44a10e5e9924c12c73d262f",
+      "context": "Chains rather than replaces: the previous ``sys.excepthook`` still runs, so the traceback the user is used to seeing still appears, with one line after it saying where the bundle is. With anonymised reports on (:func:`anonymous_reports_enabled`), the crash's :func:`public_summary` is also queued and sent on a background execution unit; the bundle is never sent.",
+      "translation": "बदलने के बजाय श्रृंखला में जोड़ता है: पिछला ``sys.excepthook`` फिर भी चलता है, इसलिए उपयोगकर्ता को दिखाई देने वाला सामान्य ट्रेसबैक बना रहता है और उसके बाद एक पंक्ति बंडल का स्थान बताती है। अनाम रिपोर्ट चालू होने पर (:func:`anonymous_reports_enabled`), क्रैश का :func:`public_summary` भी प्रतीक्षा सूची में रखा जाता है और बैकग्राउंड थ्रेड में भेजा जाता है; बंडल कभी नहीं भेजा जाता।",
+      "review_basis": "AI technical review authored from exact current English and normal API context; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.worker.StreamWorker.run#3",
+      "source": "A fresh, short question (:func:`~spacr.qt.ai.providers.question_cache_key`) asked before is answered from this computer's saved answers with no provider call, and :attr:`saved` is then ``True``; a new complete answer to such a question is saved, whatever the provider.",
+      "source_sha256": "91799ef47c3ae4f96e2fa6003107de296008027725ab751456f2727402884093",
+      "context": "A fresh, short question (:func:`~spacr.qt.ai.providers.question_cache_key`) asked before is answered from this computer's saved answers with no provider call, and :attr:`saved` is then ``True``; a new complete answer to such a question is saved, whatever the provider.",
+      "translation": "पहले पूछा गया ऐसा छोटा प्रश्न जिसका उत्तर अभी भी ताज़ा है (:func:`~spacr.qt.ai.providers.question_cache_key`), किसी प्रदाता को कॉल किए बिना इस कंप्यूटर पर सहेजे गए उत्तरों से हल किया जाता है और तब :attr:`saved` का मान ``True`` होता है; ऐसे प्रश्न का नया पूरा उत्तर प्रदाता चाहे जो भी हो, सहेज लिया जाता है।",
+      "review_basis": "AI technical review authored from exact current English and normal API context; no human or native-speaker signoff"
+    }
+  ]
+}

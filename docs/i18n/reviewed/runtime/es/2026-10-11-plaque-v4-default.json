@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, the default until 2026-10-11, which scores higher on the held-out fields and on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v4'.",
+      "source_sha256": "fbf9791c36bf5ec3ee4de38ef7adfeb810d2dbc6ff922fa22a3ee6a02dd06d93",
+      "translation": "Punto de control de Cellpose para segmentar placas: una clave del catálogo de modelos descarga, en el primer uso, un punto de control verificado mediante suma de comprobación. 'toxoplasma_plaque_v4' es el modelo de la ronda 6 basado en cpsam_v2; 'toxoplasma_plaque_v3' es cpsam_plaque_r5_geldoc, el valor predeterminado hasta 2026-10-11, que obtiene mejores resultados en los campos reservados y en los pocillos de Gel Doc; 'toxoplasma_plaque_v2' es un valor predeterminado anterior. Una ruta del sistema de archivos selecciona un punto de control propio. 'bundled' es el modelo histórico incluido en el paquete, un punto de control de Cellpose 3 que requiere Cellpose 3. Cambiarlo puede modificar todos los recuentos de placas; las ejecuciones registradas deben conservar el valor elegido. Valor predeterminado 'toxoplasma_plaque_v4'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
+}

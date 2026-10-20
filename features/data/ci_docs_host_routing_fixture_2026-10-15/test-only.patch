@@ -1,0 +1,21 @@
+diff --git a/tests/test_docs_media_budget.py b/tests/test_docs_media_budget.py
+index cca82459f9..9d5ffb2f1d 100644
+--- a/tests/test_docs_media_budget.py
++++ b/tests/test_docs_media_budget.py
+@@ -722,7 +722,15 @@ def test_docs_workflow_publishes_each_branch_to_its_own_host():
+     assert jobs["deploy-space"]["if"] == "needs.resolve.outputs.branch == 'nightly'"
+     pages = yaml.safe_dump(jobs["deploy-pages"])
+     assert "assemble-main" in pages and "upload-pages-artifact" in pages
+-    assert "nightly" not in pages.replace("nightly redirect stub", "")
++    downloads = [step["with"]["name"]
++                 for step in jobs["deploy-pages"]["steps"]
++                 if step.get("uses", "").startswith("actions/download-artifact@")]
++    assert downloads == ["docs-channel-main"]
++    assert "--main channels/docs-channel-main" in pages
++    assert "assemble-nightly" not in pages
++    assert "docs-channel-nightly" not in pages
++    commands = "\n".join(step.get("run", "") for step in jobs["deploy-pages"]["steps"])
++    assert '--nightly-url "$HF_DOCS_URL"' in commands
+     space = yaml.safe_dump(jobs["deploy-space"])
+     assert "secrets.HF_DOCS_TOKEN" in space and "upload-nightly" in space
+     assert "pages" not in jobs["deploy-space"].get("permissions", {})

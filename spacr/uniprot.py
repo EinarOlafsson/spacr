@@ -1,30 +1,26 @@
 """Resolve an organism or an accession against UniProt, and cache what comes back.
 
-Regression's gene annotation used to be a BOOLEAN. ``Toxoplasma=True``
-joined a bundled table of *Toxoplasma gondii* annotations onto the
-coefficients; ``False`` left them as bare accessions. So the one thing the
-module knew about biology was welded to one parasite, and a *Plasmodium*
-screen, a *Neospora* screen or a host-gene screen got nothing at all.
+Regression's gene annotation is not limited to the bundled *Toxoplasma gondii*
+table: a *Plasmodium*, *Neospora* or host-gene screen can be annotated from
+UniProt.
 
-The setting is a FIELD instead:
+The setting is a text field:
 
-* empty, or any spelling of *Toxoplasma gondii* -- exactly what it did
-  before, from the bundled CSVs, with no network at all. That path is the
-  default and it must never depend on this module;
+* empty, or any spelling of *Toxoplasma gondii* -- the bundled CSVs, with no
+  network access. That path is the default and does not depend on this module;
 * an organism name or a taxon id -- that organism's reviewed proteome from
   UniProt;
 * a single accession -- that one entry.
 
-WHAT MUST RESOLVE, and why :data:`ORGANISMS` is a table rather than a call
-to UniProt's own search: the organisms a user of this software actually
-images should resolve without a round trip, and offline. Hosts people
-culture cells from; every studied apicomplexan; the other parasites that
+:data:`ORGANISMS` is a table rather than a call to UniProt's own search, so
+that commonly imaged organisms resolve offline without a round trip. Hosts
+people culture cells from; every studied apicomplexan; the other parasites that
 come up beside them.
 
-NOTHING HERE IS REQUIRED TO OPEN THE MODULE. Every network call is behind a
-cache, every failure is a warning that names the near-misses UniProt
-offered, and an unresolvable name leaves the results unannotated rather than
-stopping a run that has already done its fitting.
+Network access is optional. Every network call is behind a cache, every failure
+is a warning that names the near-misses UniProt offered, and an unresolvable
+name leaves the results unannotated rather than stopping a run that has already
+done its fitting.
 """
 
 from __future__ import annotations
@@ -243,12 +239,11 @@ def canonical(text) -> str:
 def resolve(text) -> Resolution:
     """What ``text`` names, without touching the network.
 
-    Order matters. The bundled names win, because that path must work with
-    no network and must not be changed by anything here. An accession is
+    Order matters. The bundled names win, because that path must work with no
+    network and must not be changed by anything here. An accession is
     recognised by shape. Everything else is looked up as an organism, and a
-    name that is not in the table comes back ``unknown`` WITH the near
-    misses, because "did you mean" is the whole difference between a
-    typo the user can fix and a silent absence of annotation.
+    name that is not in the table comes back ``unknown`` with the near misses,
+    so the user can correct a typo instead of silently getting no annotation.
 
     :param text: whatever is in the annotation field.
     :returns: a :class:`Resolution`.
@@ -268,7 +263,7 @@ def resolve(text) -> Resolution:
 
 
 def near_misses(name, limit: int = 5) -> Tuple[str, ...]:
-    """Organism names close to ``name``, for a message that helps.
+    """Organism names close to ``name``, for an error message.
 
     :param name: normalized or free-form organism name to approximate.
     """
@@ -364,9 +359,9 @@ def fetch(resolution: Resolution, *, cache_dir=None, reviewed: bool = True,
     :param resolution: from :func:`resolve`. ``bundled`` and ``unknown``
         return None -- neither is a UniProt question.
     :param cache_dir: where the answer is kept so a rerun is offline.
-    :param reviewed: Swiss-Prot only. For an organism with no reviewed
-        entries at all the caller gets an empty frame and a warning, which
-        is truer than silently including unreviewed predictions.
+    :param reviewed: Swiss-Prot only. For an organism with no reviewed entries
+        at all the caller gets an empty frame and a warning, rather than
+        silently including unreviewed predictions.
     :param limit: stop after this many rows.
     :returns: a DataFrame, or None when there is nothing to ask.
     """
@@ -495,10 +490,9 @@ def annotation_for(text, *, cache_dir=None, genes=None):
 
     :param text: bundled name, accession, taxon, or organism to resolve.
 
-    The one call a pipeline needs. It never raises: an unreachable UniProt,
-    an unknown organism and an empty proteome all come back as ``(None,
-    note)`` so the run carries on with unannotated results, which is what
-    the field is for.
+    The one call a pipeline needs. It never raises: an unreachable UniProt, an
+    unknown organism and an empty proteome all come back as ``(None, note)`` so
+    the run carries on with unannotated results.
     """
     resolution = resolve(text)
     if resolution.kind == "bundled":

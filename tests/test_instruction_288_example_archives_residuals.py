@@ -154,3 +154,39 @@ def test_an_unreadable_settings_file_does_not_block_other_path_repairs(
 
     assert module.make_the_example_paths_absolute(tmp_path) == 0
     assert blocked.is_file()
+
+
+def test_a_full_destination_filesystem_never_replaces_an_existing_archive(monkeypatch, tmp_path):
+    import errno
+    import tempfile
+
+    target = tmp_path / 'example.tar'
+    target.write_bytes(b'existing verified archive')
+    progress = []
+    stream_reads = []
+
+    class Response:
+        headers = {'Content-Length': '3'}
+
+        def raise_for_status(self):
+            return None
+
+        def iter_content(self, **_kwargs):
+            stream_reads.append(True)
+            return iter((b'new',))
+
+    def no_space(**kwargs):
+        assert Path(kwargs['dir']) == tmp_path
+        raise OSError(errno.ENOSPC, 'no space left for staging')
+
+    monkeypatch.setitem(sys.modules, 'requests', types.SimpleNamespace(
+        get=lambda *_args, **_kwargs: Response()))
+    monkeypatch.setattr(tempfile, 'NamedTemporaryFile', no_space)
+    with pytest.raises(OSError) as caught:
+        module.download_archive('owner/dataset', 'example.tar', tmp_path,
+                                progress=lambda *values: progress.append(values))
+    assert caught.value.errno == errno.ENOSPC
+    assert target.read_bytes() == b'existing verified archive'
+    assert list(tmp_path.iterdir()) == [target]
+    assert progress == []
+    assert stream_reads == []

@@ -1,0 +1,11 @@
+commit 8ab0b4f421baf9e6318c9f9f0d08ccd73241113b
+Author:     Einar Olafsson <einar.olafsson@gmail.com>
+AuthorDate: Thu Oct 15 20:25:04 2026 -0400
+Commit:     Einar Olafsson <einar.olafsson@gmail.com>
+CommitDate: Thu Oct 15 20:25:04 2026 -0400
+
+    Preserve explicit narration seeks while native video loads
+
+ tools/tutorials/authoring/web/app_v2.js                     |  3 +--
+ .../tests/test_player_preserve_visual_intervals.py          | 13 ++++++++-----
+ 2 files changed, 9 insertions(+), 7 deletions(-)

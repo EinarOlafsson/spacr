@@ -150,9 +150,12 @@ def test_the_weighted_blend_counts_back_from_the_newest_frame():
 
 def test_without_numba_the_weighted_blend_says_so(monkeypatch):
     real_import = builtins.__import__
+    shared_numba = sys.modules.get("numba")
+    rejected = []
 
     def refuse(name, g=None, l=None, fromlist=(), level=0):  # noqa: E741
         if name == "numba" or name.startswith("numba."):
+            rejected.append(name)
             raise ImportError("numba is not installed")
         return real_import(name, g, l, fromlist, level)
 
@@ -160,21 +163,24 @@ def test_without_numba_the_weighted_blend_says_so(monkeypatch):
 
     import spacr.qt.widgets as package
 
-    # A private copy under its own name: a worker thread left by an earlier
-    # test can re-import the shared module, numba and all, between a
-    # sys.modules purge and the import (seen once on a CI shard).
+    # A private module and builtins mapping keep this dependency simulation
+    # separate from the real imports used by other application threads.
     path = Path(package.__file__).with_name("fractal_travel.py")
     spec = importlib.util.spec_from_file_location(
         "spacr.qt.widgets._fractal_travel_without_numba", path)
     scratch = importlib.util.module_from_spec(spec)
     monkeypatch.setitem(sys.modules, spec.name, scratch)
-    monkeypatch.setattr(builtins, "__import__", refuse)
-    monkeypatch.delitem(sys.modules, "numba", raising=False)
+    scratch.__dict__["__builtins__"] = dict(vars(builtins), __import__=refuse)
     spec.loader.exec_module(scratch)
+    assert rejected == ["numba"]
     assert scratch.njit is None
 
     with pytest.raises(RuntimeError, match="numba is required"):
         scratch._blend_weighted(1, 2, 3, 4)
+    assert scratch.__dict__["__builtins__"] is not vars(builtins)
+    assert scratch.__dict__["__builtins__"]["__import__"] is refuse
+    assert builtins.__import__ is not refuse
+    assert sys.modules.get("numba") is shared_numba
 
 
 # ---------------------------------------------------------------------------

@@ -34,13 +34,6 @@
     },
     {
       "table": "categories",
-      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
-      "translation": "클라우드 저장소에서 플레이트를 직접 읽습니다. 자격 증명, 엔드포인트, 로컬 캐시, 그리고 실행이 끝나면 측정값을 복사할 클라우드 폴더를 설정합니다. 로컬 디스크의 플레이트라면 그대로 두세요."
-    },
-    {
-      "table": "categories",
       "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
@@ -66,6 +59,16 @@
       "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
       "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
       "translation": "각 객체에 대해 계산하는 측정 계열(강도, 형태, 질감, 방사 분포, 공동 국재)과 거기서 읽어 내는 분석(컨플루언시, 세포 주기, 상처 봉합, 생존율, 사건 발생 시간 등)입니다. 특징이 많을수록 표가 넓어지고 실행이 길어집니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "클라우드 저장소에서 플레이트를 직접 읽습니다. 자격 증명, 엔드포인트, 로컬 캐시, 그리고 실행이 끝나면 측정값을 복사할 클라우드 폴더를 설정합니다. 로컬 디스크의 플레이트라면 그대로 두세요.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

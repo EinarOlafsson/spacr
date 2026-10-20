@@ -1,18 +1,19 @@
 """Turn masks and channels into one row per object, in a database.
 
-WHAT IT IS FOR. Segmentation says WHERE the objects are; this module says
-what they are LIKE. It reads the arrays Mask wrote and produces the table
-every downstream question is asked of -- which genes changed a phenotype,
-which cells to train a classifier on, which wells to believe.
+What it is for: segmentation gives the location of each object; this module
+measures its shape, intensity, texture and spatial context. It reads the
+arrays Mask wrote and produces the per-object table that downstream analyses
+use -- which genes changed a phenotype, which cells to train a classifier on,
+which wells are reliable.
 
-WHAT IT NEEDS. A ``merged/`` folder written by
+What it needs: a ``merged/`` folder written by
 :func:`spacr.core.preprocess_generate_masks`: the intensity channels and the
 label masks for one field, saved together as ``.npy``. Which masks to measure
 is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``,
 ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask
-dimension is simply not measured, rather than measured as empty.
+dimension is not measured, rather than measured as empty.
 
-WHAT IT PRODUCES.
+What it produces:
 
 * ``measurements/measurements.db``, one SQLite table per object type, one row
   per object, keyed by the plate/row/column/field/object identity
@@ -24,28 +25,28 @@ WHAT IT PRODUCES.
   Annotate shows, which is why the cropping lives here rather than beside the
   classifier: they must be cut by the same mask the measurements came from.
 
-WHAT TO DO NEXT. Annotate or Classify, if the crops were written; Regression,
-if the question is which perturbation moved which measurement. Both read the
-database this writes and neither re-measures anything.
+What to do next: Annotate or Classify, if the crops were written, or
+Regression, to test which perturbation changed which measurement. Both read
+the database this module writes and neither re-measures anything.
 
 --------------------------------------------------------------------------
 
-THREE THINGS THAT ARE NOT OBVIOUS AND ARE LOAD-BEARING:
+Three behaviours that downstream results depend on:
 
-A FIELD THAT FAILS TO MEASURE IS RECORDED, SUMMARISED AND STAMPED INTO THE
-DATABASE. Silence would let a regression analyse 344 of 384 wells and report
-a result with no sign that forty are missing, which is the failure this
-module is most careful about -- the same reason its 3-D path refuses a volume
-it cannot measure correctly instead of measuring it wrongly.
+A field that fails to measure is recorded, summarised at the end of the run
+and stamped into the database. Without that record a regression could
+analyse 344 of 384 wells and report a result with no sign that forty are
+missing; for the same reason the 3-D path refuses a volume it cannot measure
+correctly instead of measuring it wrongly.
 
-THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)``
-label volumes now (see :mod:`spacr.zstack`), and everything about voxel
-spacing, volume columns and the units stamp exists so that a 3-D field is
-measured in real units or refused. A 2-D field takes exactly the code it took
-before, with ``spacing=None``; a screen measured last year and re-measured
-today produces the same numbers.
+The 2-D path is bit-identical to the code before 3-D support. Mask can emit
+``(Z, Y, X)`` label volumes (see :mod:`spacr.zstack`), and the voxel spacing,
+volume columns and units stamp exist so that a 3-D field is measured in
+physical units or refused. A 2-D field runs the same code as before, with
+``spacing=None``, so a screen re-measured today produces the same numbers as
+when it was first measured.
 
-THE RADIUS IS IN THE COLUMN NAME. ``neighbors_within_30`` is a different
+The radius is part of the column name. ``neighbors_within_30`` is a different
 column from ``neighbors_within_50``, following the same precedent as
 ``homogeneity_distance_<d>``, so two plates measured at different radii will
 not silently concatenate into one frame that means two things.
@@ -75,6 +76,7 @@ from skimage.feature import graycomatrix, graycoprops
 from skimage import morphology, measure, filters
 from skimage.util import img_as_bool
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from math import ceil, sqrt
 
 from .crops import (
@@ -345,38 +347,36 @@ def _start_manager(ctx):
 def resolve_pool_size(n_jobs, n_files, start_method=None):
     """Return the worker count for a set of image fields.
 
+    The count is capped at the number of fields for every start method.
     ``spawn`` and ``forkserver`` start a fresh interpreter for every worker,
-    so their worker count is capped at the number of fields. ``fork`` keeps
-    the requested count for compatibility.
+    and worker starts are paced ten seconds apart, so a surplus ``fork``
+    worker also delays the run by ten seconds and then has nothing to do.
 
     :param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.
     :param n_files: how many fields there are to measure.
-    :param start_method: start method name to decide against; defaults to the
-        interpreter's current default.
+    :param start_method: accepted for existing callers; every start method
+        is capped the same way.
     :returns: an int >= 1.
     """
     n_jobs = max(1, int(n_jobs))
-    if start_method is None:
-        start_method = mp.get_start_method()
-    if start_method == 'fork':
-        return n_jobs
     return max(1, min(n_jobs, int(n_files)))
 
 
 def resolve_n_jobs(n_jobs, cpu_count=None):
     """Return the number of worker processes ``measure_crop`` will actually use.
 
-    ``None`` selects spaCR's default. Explicit values are validated and capped
-    at the available CPU count.
+    ``None`` selects spaCR's default, ``cpu_count - N_JOBS_HEADROOM`` (at
+    least 1). Explicit values are validated and capped at the available CPU
+    count.
 
-    :param n_jobs: what the user asked for. ``None`` means "pick for me".
+    :param n_jobs: the requested worker count, or ``None`` for the default.
     :param cpu_count: core count to resolve against; defaults to
         :func:`multiprocessing.cpu_count`.
     :returns: an int in ``[1, cpu_count]``.
     :raises spacr.errors.ConfigurationError: ``n_jobs`` is zero, negative, or
-        not an integer. A pool of zero workers measures nothing, and quietly
-        turning it into some other number is how a run ends up not doing what
-        it was told.
+        not an integer. A pool of zero workers measures nothing, and the value
+        is refused rather than replaced with a worker count the user did not
+        request.
     """
     cores = max(1, int(mp.cpu_count() if cpu_count is None else cpu_count))
 
@@ -1422,7 +1422,7 @@ def _morphological_measurements(
         uninfected control is a mixture whose variance hides the effect
         every infection comparison is looking for.
 
-        THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of
+        The reach is derived from this field's own cells, as a multiple of
         their median diameter, so it means the same thing at 20x and 63x.
 
         Props on the LEFT, for the reason `_with_spatial` gives.
@@ -3084,8 +3084,8 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green,
        2 red, so ``png_dims[0]`` lands in the file's BLUE slot.
 
-       That is the REVERSE of what ``png_dims`` reads like, and it is LEFT
-       THAT WAY ON PURPOSE: every crop already on disk was written with this
+       That is the REVERSE of what ``png_dims`` reads like, and it is kept
+       deliberately: every crop already on disk was written with this
        mapping, so flipping it would silently change what each colour means
        and invalidate the models trained on those crops. The mapping is
        declared rather than corrected.
@@ -3307,26 +3307,40 @@ _CALIBRATION_IDENTITY_KEY = '_intensity_calibration_identity'
 
 
 def _calibration_reference_hashes(settings, files):
-    """Bind reference field names to their bytes, independently of timestamps.
+    """Bind reference images and optional session metadata to their bytes.
 
     :param settings: Measurement settings containing the source, reference wells
         and optional timelapse mode.
     :param files: Available merged-array basenames after quality exclusions.
-    :returns: Reference basenames mapped to SHA-256 content digests.
+    :returns: Reference content keys mapped to SHA-256 digests, including the
+        external references and sessions CSV when those inputs are configured.
     """
     import hashlib
     from . import schema
     from .intensity_rescale import _calibration_wells
 
-    wells = _calibration_wells(settings)
+    paths = {}
+    if any(settings.get(key) for key in ("intensity_calibration_sessions",
+                                        "intensity_calibration_beads",
+                                        "intensity_calibration_reference_session")):
+        from .intensity_rescale import _calibration_inputs
+
+        inputs = _calibration_inputs(settings['src'], files, settings)
+        paths = {(('beads/' if inputs['external_beads'] else '') + row['filename']): row['path']
+                 for row in inputs['references']}
+        if inputs['sessions_csv']:
+            paths['sessions_csv'] = inputs['sessions_csv']
+    else:
+        wells = _calibration_wells(settings)
+        for filename in sorted(set(files)):
+            field = schema.parse_field_stem(
+                filename, timelapse=bool(settings.get('timelapse', False)))
+            if (field.rowID, field.columnID) in wells:
+                paths[filename] = os.path.join(settings['src'], filename)
     references = {}
-    for filename in sorted(set(files)):
-        field = schema.parse_field_stem(
-            filename, timelapse=bool(settings.get('timelapse', False)))
-        if (field.rowID, field.columnID) not in wells:
-            continue
+    for filename, path in paths.items():
         digest = hashlib.sha256()
-        with open(os.path.join(settings['src'], filename), 'rb') as stream:
+        with open(path, 'rb') as stream:
             for chunk in iter(lambda: stream.read(1 << 20), b''):
                 digest.update(chunk)
         references[filename] = digest.hexdigest()
@@ -4669,6 +4683,32 @@ def _gate_dna_content(content, fit):
     return phases, confidence, three
 
 
+def _measurement_channel_index(value):
+    """Normalize a physical image-channel identity without truncating it.
+
+    :param value: Numeric scalar or integer string/bytes; zero-dimensional
+        arrays are unboxed before checking their scalar value.
+    :returns: a nonnegative Python integer with the same identity.
+    :raises ValueError: boolean, nonintegral, nonfinite, nonscalar, negative
+        or malformed channel identities.
+    """
+    try:
+        if np.ndim(value) != 0:
+            raise ValueError
+        if isinstance(value, np.ndarray):
+            value = value.item()
+        if isinstance(value, (bool, np.bool_, complex, np.complexfloating, np.ndarray)):
+            raise ValueError
+        index = int(value)
+        if index < 0 or (not isinstance(value, (str, bytes)) and value != index):
+            raise ValueError
+    except (TypeError, ValueError, OverflowError):
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Measurement channels must be nonnegative integer indices.")) from None
+    return index
+
+
 def _cell_cycle_channel(settings):
     """The merged-array channel the cell-cycle phase is read from.
 
@@ -4679,9 +4719,9 @@ def _cell_cycle_channel(settings):
     for key in ('cell_cycle_channel', 'nucleus_channel'):
         value = settings.get(key)
         if value is not None and value != '':
-            return int(value)
+            return _measurement_channel_index(value)
     channels = settings.get('channels') or [0]
-    return int(channels[0])
+    return _measurement_channel_index(channels[0])
 
 
 def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
@@ -4695,14 +4735,15 @@ def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
     :returns: the position of ``channel`` in ``channels``.
     :raises ValueError: the channel was not measured.
     """
-    measured = [int(c) for c in (settings.get('channels') or [])]
+    channel = _measurement_channel_index(channel)
+    measured = [_measurement_channel_index(c) for c in (settings.get('channels') or [])]
     if not measured:
-        return int(channel)
-    if int(channel) not in measured:
+        return channel
+    if channel not in measured:
         raise ValueError(
             f"Channel {channel} was not measured (channels is {measured}); "
             f"add it to channels or pick a measured {setting}.")
-    return measured.index(int(channel))
+    return measured.index(channel)
 
 
 def _nucleus_dna(nuclei, column):
@@ -5036,18 +5077,21 @@ def _field_split(groups, fraction=0.2, seed=0):
     return np.array([g in held for g in groups])
 
 
-def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
+def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1,
+                        group_by="field"):
     """Cell-cycle phase of every nucleus from a CPU gradient-boosted classifier.
 
-    Trained on the labelled nuclei and applied to all of them. Whole fields
-    are first held out to score the classifier on nuclei it never saw; the
-    model that calls every nucleus is then refitted on all the labels.
-    Scores are calculated on the held-out fields below; fitting does not
+    Trained on labelled nuclei and applied to all of them. The shared
+    classifier splitter holds out the requested whole acquisition groups;
+    the model that calls every nucleus is then refitted on all the labels.
+    Scores are calculated on held-out groups below; fitting does not
     request XGBoost's separate per-iteration training metrics.
 
     :param features: the frame from :func:`_phase_features`.
     :param labels: phase or None per row.
-    :param groups: field identity per row, for the held-out split.
+    :param groups: resolved acquisition-group identity per row.
+    :param group_by: isolation level named by those groups. Direct callers
+        retain the legacy field default; the Measure caller defaults to well.
     :param seed: random seed.
     :param n_jobs: xgboost threads.
     :returns: ``(phases, confidence, report, model)``; ``report`` holds the
@@ -5057,7 +5101,9 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
     from xgboost import XGBClassifier
 
     from .openmp_guard import single_threaded_openmp
+    from .classifier_evaluation import grouped_split, normalize_split_level
 
+    level = normalize_split_level(group_by)
     labelled = labels.notna().to_numpy()
     classes = [p for p in _CELL_CYCLE_PHASES
                if (labels[labelled] == p).any()]
@@ -5078,15 +5124,27 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
             disable_default_eval_metric=True)
 
     report = {'classes': classes,
-              'counts': {p: int((labels == p).sum()) for p in classes}}
-    held = _field_split(np.asarray(groups)[labelled], seed=seed)
+              'counts': {p: int((labels == p).sum()) for p in classes},
+              'split_group_by': level}
     x_lab, y_lab = x_all[labelled], y_all[labelled]
+    try:
+        train_rows, held_rows, split_report = grouped_split(
+            np.asarray(groups)[labelled], y_lab, 0.2,
+            seed=seed, group_by=level)
+    except ValueError as error:
+        from .qt.i18n import tr
+
+        report['held_out_unavailable'] = tr("The requested acquisition groups cannot place every class in both training and held-out data.")
+        report['held_out_split_detail'] = str(error)
+        train_rows = held_rows = None
+    else:
+        report['split'] = split_report.to_dict()
     with single_threaded_openmp('cell-cycle phase classifier'):
-        if held.any() and len(set(y_lab[~held].tolist())) == len(classes):
-            model = _model().fit(x_lab[~held], y_lab[~held])
-            guess = model.predict(x_lab[held])
+        if held_rows is not None:
+            model = _model().fit(x_lab[train_rows], y_lab[train_rows])
+            guess = model.predict(x_lab[held_rows])
             report['held_out'] = _phase_scores(
-                [classes[i] for i in y_lab[held]],
+                [classes[i] for i in y_lab[held_rows]],
                 [classes[i] for i in guess], phases=tuple(classes))
         model = _model().fit(x_lab, y_lab)
         proba = model.predict_proba(x_all)
@@ -5210,7 +5268,8 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
     the model named by ``cell_cycle_model`` or trains one with
     :func:`spacr.deep_spacr.train_test_model`, the same training Classify
     runs: labelled crops go to ``train/<phase>`` and ``test/<phase>`` of a
-    dataset split by field, and the trained model is applied to every crop
+    dataset split by the requested acquisition group (well by default), and
+    the trained model is applied to every crop
     with :func:`spacr.deep_spacr.apply_model`. The phase order the model
     was trained with is written beside it as ``cell_cycle_phases.json``.
 
@@ -5222,9 +5281,11 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
     :param channel: the merged-array DNA channel.
     :param work: the folder the crops, dataset and model go in.
     :returns: ``(phases, confidence, report)``.
-    :raises ValueError: fewer than two labelled phases, or a model file
-        without its phase order.
+    :raises ValueError: fewer than two labelled phases, an unverifiable or
+        class-inadequate grouped holdout, or a model file without its phase
+        order.
     """
+    from .classifier_evaluation import grouped_split, split_group_values
     from .deep_spacr import apply_model, train_test_model
 
     size = _nucleus_crop_size(nuclei)
@@ -5255,12 +5316,26 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
             raise ValueError(
                 f"The torch phase classifier needs labelled crops of at "
                 f"least two phases; it has {classes or 'none'}.")
+        seed = int(settings.get('random_seed', 42))
+        level, groups = split_group_values(
+            frame=nuclei.loc[usable],
+            group_by=settings.get('cv_group_by', 'well'),
+            table=_CELL_CYCLE_TABLE)
+        try:
+            _, held_rows, split_report = grouped_split(
+                groups, labels.loc[usable].to_numpy(), 0.2,
+                seed=seed, group_by=level)
+        except ValueError as error:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("The requested acquisition groups cannot place every class in both training and held-out data.")) from error
+        held = np.zeros(int(usable.sum()), dtype=bool)
+        held[held_rows] = True
+        report['split_group_by'] = level
+        report['split'] = split_report.to_dict()
         dataset = os.path.join(work, 'dataset')
         if os.path.isdir(dataset):
             shutil.rmtree(dataset)
-        fields = nuclei.loc[usable, list(_CELL_CYCLE_KEYS)].astype(str).agg(
-            '_'.join, axis=1)
-        held = _field_split(fields.to_numpy())
         for (i, png), test in zip(paths[usable].items(), held):
             target = os.path.join(dataset, 'test' if test else 'train',
                                   labels[i])
@@ -5278,7 +5353,8 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
             'init_weights': False, 'learning_rate': 1e-3,
             'gradient_accumulation_steps': 1, 'use_checkpoint': False,
             'plot': False, 'tensorboard': False, 'n_jobs': 0,
-            'pin_memory': False, 'cv_group_by': 'field', 'verbose': False,
+            'pin_memory': False, 'cv_group_by': level, 'verbose': False,
+            'random_seed': seed,
             'class_balance': 'weighted_loss',
         })
         if not model_path or not str(model_path).endswith('.pth'):
@@ -5288,7 +5364,8 @@ def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
         with open(os.path.join(os.path.dirname(model_path),
                                'cell_cycle_phases.json'), 'w') as handle:
             json.dump({'phases': classes, 'crop_size': size,
-                       'channel': int(channel)}, handle)
+                       'channel': int(channel), 'split_group_by': level,
+                       'split': split_report.to_dict()}, handle)
         report['model'] = model_path
     scored = apply_model(crops, model_path, image_size=size, batch_size=64,
                          normalize=True, n_jobs=0)
@@ -5585,6 +5662,10 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
     """
     from .tabular import database_tables, read_table, write_database
 
+    channel = _cell_cycle_channel(settings)
+    column = _measured_channel_column(settings, channel)
+    fucci = settings.get('cell_cycle_fucci_channels')
+    fucci_columns = [_measured_channel_column(settings, c) for c in (fucci or [])]
     if 'nucleus' not in database_tables(db_path):
         raise ValueError(
             f"{db_path} has no nucleus table; cell-cycle phases are called "
@@ -5592,8 +5673,6 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
     methods = _resolve_cell_cycle_methods(settings.get('cell_cycle_method'))
     nuclei = read_table(db_path, table='nucleus', report=None)
     nuclei = nuclei.reset_index(drop=True)
-    channel = _cell_cycle_channel(settings)
-    column = _measured_channel_column(settings, channel)
     ratio = settings.get('cell_cycle_mitotic_ratio', 1.8)
     measured, fits = _phases_by_measurements(
         nuclei, column=column, gates=settings.get('cell_cycle_gates') or None,
@@ -5622,14 +5701,15 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
         report['labels'] = source
         report['labelled'] = int(labels.notna().sum())
     if 'xgboost' in methods:
-        fucci = settings.get('cell_cycle_fucci_channels') or []
-        columns = [column] + [_measured_channel_column(settings, c)
-                              for c in fucci]
+        columns = [column] + fucci_columns
         features = _phase_features(nuclei, measured, columns)
-        fields = table[list(_CELL_CYCLE_KEYS)].astype(str).agg('_'.join,
-                                                               axis=1)
+        from .classifier_evaluation import split_group_values
+
+        split_level, split_groups = split_group_values(
+            group_by=settings.get('cv_group_by', 'well'), frame=table,
+            table=_CELL_CYCLE_TABLE)
         phases, confidence, xgb_report, model = _phases_by_xgboost(
-            features, labels, fields.to_numpy(),
+            features, labels, split_groups, group_by=split_level,
             n_jobs=int(settings.get('n_jobs') or 1))
         table['phase_xgboost'] = _keep_content_calls(phases, measured)
         table['confidence_xgboost'] = confidence
@@ -5644,7 +5724,6 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
         table['phase_torch'] = _keep_content_calls(phases, measured)
         table['confidence_torch'] = confidence
         report['torch'] = torch_report
-    fucci = settings.get('cell_cycle_fucci_channels')
     if fucci:
         table['fucci_state'] = _fucci_states(nuclei, settings, fucci)
     table['infected'] = _nucleus_infection(db_path, nuclei)
@@ -6375,7 +6454,7 @@ def _wound_series(planes, times, *, source='texture', window=15,
         maps each kept position to ``(plane, wound)``.
     """
     window = max(3, int(window))
-    scale = None if pixel_size_um in (None, '') else float(pixel_size_um)
+    scale = _wound_calibration(pixel_size_um, 'pixel_size_um')
     rows, masks = [], {}
     axis, start_area, status = None, None, 'ok'
     keep = set(int(k) for k in keep)
@@ -6712,6 +6791,29 @@ def _wound_by_condition(curves, summary):
     return mean_curves, pd.DataFrame(rows)
 
 
+def _wound_calibration(value, name):
+    """Resolve an optional positive finite wound scale before reading images.
+
+    :param value: Spatial size or hours per frame; None or an empty string
+        leaves the corresponding measurement uncalibrated.
+    :param name: The setting or argument named in an invalid-value diagnostic.
+    :returns: A positive finite float, or None for an unspecified scale.
+    :raises ValueError: When a supplied scale is nonnumeric, nonfinite or
+        not greater than zero.
+    """
+    if value is None or isinstance(value, str) and value == '':
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        number = float('nan')
+    if not np.isfinite(number) or number <= 0:
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Wound calibration {name} must be a finite number greater than zero, or blank.", name=name))
+    return number
+
+
 def _wound_settings_check(settings):
     """Validate the wound-closure settings before a run starts.
 
@@ -6719,7 +6821,8 @@ def _wound_settings_check(settings):
     :returns: the resolved source.
     :raises ValueError: for an unknown source, ``masks`` without a cell
         mask, a negative or non-numeric ``wound_threshold``, or a
-        ``wound_conditions`` entry that is not a well.
+        ``wound_conditions`` entry that is not a well, or an optional
+        spatial/time calibration that is not positive and finite.
     """
     source = str(settings.get('wound_source') or 'texture').strip().lower()
     if source not in _WOUND_SOURCES:
@@ -6742,6 +6845,8 @@ def _wound_settings_check(settings):
                 f"Setting: wound_threshold is {threshold!r}; use a positive "
                 "number on the scale of the wound_level column, or leave it "
                 "blank for the automatic cut.")
+    for name in ('voxel_size_xy_um', 'wound_hours_per_frame'):
+        _wound_calibration(settings.get(name), name)
     _wound_condition_lookup(settings.get('wound_conditions'))
     return source
 
@@ -6756,16 +6861,24 @@ def _wound_plane(data, settings):
     """
     source = _wound_settings_check(settings)
     if source == 'masks':
-        index = int(settings['cell_mask_dim'])
+        selected = settings['cell_mask_dim']
     else:
-        index = settings.get('wound_channel')
-        if index is None or index == '':
-            index = (settings.get('channels') or [0])[0]
-        index = int(index)
-    if index >= data.shape[-1]:
-        raise ValueError(
-            f"Setting: the wound plane is {index}, but the merged array has "
-            f"{data.shape[-1]} planes.")
+        selected = settings.get('wound_channel')
+        if selected is None or (isinstance(selected, str) and selected == ''):
+            selected = (settings.get('channels') or [0])[0]
+    from .qt.i18n import tr
+
+    message = tr("Wound-plane index {index} must be a finite, nonnegative whole number smaller than {planes}.", index=str(selected), planes=data.shape[-1])
+    try:
+        if not np.isscalar(selected) or isinstance(selected, (bool, np.bool_, complex, np.complexfloating)):
+            raise ValueError(message)
+        index = int(selected)
+        if not isinstance(selected, str) and index != selected:
+            raise ValueError(message)
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError(message) from None
+    if index < 0 or index >= data.shape[-1]:
+        raise ValueError(message)
     return np.asarray(data[..., index])
 
 
@@ -7377,11 +7490,16 @@ def _viability_manual(value):
             out.append(None)
             continue
         try:
-            out.append(float(item))
+            number = float(item)
         except (TypeError, ValueError):
             raise ValueError(
                 f"Setting: viability_thresholds entries must be numbers or "
                 f"None; got {item!r}.") from None
+        if not np.isfinite(number):
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Manual viability thresholds must be finite numbers or automatic."))
+        out.append(number)
     return out[0], out[1]
 
 
@@ -8066,6 +8184,25 @@ def _classify_viability(db_path, settings, *, plot=None):
     """
     from .tabular import database_tables, read_table, write_database
 
+    manual_dead, manual_live = _viability_manual(
+        settings.get('viability_thresholds'))
+    dead_channel = settings.get('viability_dead_channel')
+    live_channel = settings.get('viability_live_channel')
+    dead_channel = None if dead_channel in (None, '') else _measurement_channel_index(dead_channel)
+    live_channel = None if live_channel in (None, '') else _measurement_channel_index(live_channel)
+    method = ('stain' if dead_channel is not None or live_channel is not None
+              else 'morphology')
+    if method == 'morphology':
+        channel = settings.get('nucleus_channel')
+        if channel in (None, ''):
+            channel = (settings.get('channels') or [0])[0]
+        morphology_column = _measured_channel_column(settings, channel,
+                                                     setting='nucleus_channel')
+    else:
+        dead_column = (None if dead_channel is None else _measured_channel_column(
+            settings, dead_channel, setting='viability_dead_channel'))
+        live_column = (None if live_channel is None else _measured_channel_column(
+            settings, live_channel, setting='viability_live_channel'))
     tables = database_tables(db_path)
     if 'nucleus' in tables:
         unit = 'nucleus'
@@ -8077,14 +8214,6 @@ def _classify_viability(db_path, settings, *, plot=None):
             f"made on measured nuclei or cells.")
     objects = read_table(db_path, table=unit, report=None)
     objects = objects.reset_index(drop=True)
-    dead_channel = settings.get('viability_dead_channel')
-    live_channel = settings.get('viability_live_channel')
-    dead_channel = None if dead_channel in (None, '') else int(dead_channel)
-    live_channel = None if live_channel in (None, '') else int(live_channel)
-    manual_dead, manual_live = _viability_manual(
-        settings.get('viability_thresholds'))
-    method = ('stain' if dead_channel is not None or live_channel is not None
-              else 'morphology')
     table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
                                  'object_label', 'cell_id', 'file_name')
                      if k in objects.columns]].copy()
@@ -8102,11 +8231,7 @@ def _classify_viability(db_path, settings, *, plot=None):
                 "live and dead are called from nucleus morphology, which "
                 "needs measured nuclei; set nucleus_mask_dim or name a "
                 "viability stain channel.")
-        channel = settings.get('nucleus_channel')
-        if channel in (None, ''):
-            channel = (settings.get('channels') or [0])[0]
-        column = _measured_channel_column(settings, int(channel),
-                                          setting='nucleus_channel')
+        column = morphology_column
         signal = _condensation_score(objects, column)
         dead_positive, thresholds, cuts['dead'] = _split_by_plate(
             objects, signal, single_is_positive=False, log_scale=True,
@@ -8115,8 +8240,7 @@ def _classify_viability(db_path, settings, *, plot=None):
         table['dead_threshold'] = thresholds
     else:
         if dead_channel is not None:
-            column = _measured_channel_column(
-                settings, dead_channel, setting='viability_dead_channel')
+            column = dead_column
             signal = _object_signal(objects, unit, column)
             dead_positive, thresholds, cuts['dead'] = _split_by_plate(
                 objects, signal, single_is_positive=False,
@@ -8125,8 +8249,7 @@ def _classify_viability(db_path, settings, *, plot=None):
             table['dead_signal'] = signal
             table['dead_threshold'] = thresholds
         if live_channel is not None:
-            column = _measured_channel_column(
-                settings, live_channel, setting='viability_live_channel')
+            column = live_column
             signal = _object_signal(objects, unit, column)
             live_positive, thresholds, cuts['live'] = _split_by_plate(
                 objects, signal, single_is_positive=True,
@@ -8244,6 +8367,68 @@ def _run_viability_step(db_path, settings):
                 print(f"Viability controls, plate {row['plate_key']}: "
                       f"Z' {z:.2f} on the cytotoxicity index.")
     return table
+
+
+def _export_vvvv_measured_field(source_folder, file, settings, volumetric,
+                                channel_arrays, masks, morphology=None,
+                                intensities=None):
+    """Write Measure's vvvv export of one field (item 685, alpha).
+
+    Every object type the run measured is exported to
+    ``<source_folder>/vvvv/measure/<object>/<field>/`` with the masks as
+    filtered by Measure. Each object's table carries the export's own
+    columns (label, centroid, area, bounding box, mean intensity per
+    channel) followed by Measure's morphology and intensity measurements
+    for that object when ``save_measurements`` produced them. 3-D fields
+    are reported and skipped.
+
+    :param source_folder: the run root (the folder holding ``merged/``).
+    :param file: the merged field's file name.
+    :param settings: Measure settings.
+    :param volumetric: whether the field is a z-stack.
+    :param channel_arrays: the measured intensity planes.
+    :param masks: ``{object: label image}`` for every candidate object.
+    :param morphology: ``{object: frame}`` from the morphology step, or None.
+    :param intensities: ``{object: frame}`` from the intensity step, or None.
+    :returns: the folders written.
+    """
+    from .io import _export_vvvv_field
+
+    if volumetric:
+        print(f"vvvv export skipped {file}: only 2-D fields are exported")
+        return []
+    enabled = {
+        'cell': settings.get('cell_mask_dim') is not None,
+        'nucleus': settings.get('nucleus_mask_dim') is not None,
+        'pathogen': settings.get('pathogen_mask_dim') is not None,
+        'cytoplasm': bool(settings.get('cytoplasm')),
+        **{role: settings.get(f'{role}_mask_dim') is not None
+           for role in ORGANELLE_ROLES},
+    }
+    selected = {role: mask for role, mask in masks.items()
+                if enabled.get(role)}
+    measured = {}
+    for role in selected:
+        frames = [frame.loc[:, ~frame.columns.duplicated()]
+                  for frame in ((morphology or {}).get(role),
+                                (intensities or {}).get(role))
+                  if isinstance(frame, pd.DataFrame)
+                  and 'label' in frame.columns]
+        if not frames:
+            continue
+        table = frames[0]
+        for frame in frames[1:]:
+            frame = frame.loc[:, [column for column in frame.columns
+                                  if column == 'label'
+                                  or column not in table.columns]]
+            table = table.merge(frame, on='label', how='outer')
+        measured[role] = table
+    size = settings.get('voxel_size_xy_um')
+    return _export_vvvv_field(
+        os.path.join(source_folder, 'vvvv', 'measure'), file, selected,
+        channel_arrays, measured=measured, origin='Measure',
+        source_path=os.path.join(settings['src'], file),
+        pixel_size=(float(size), float(size)) if size else None)
 
 
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
@@ -8643,6 +8828,15 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                         os.path.join(source_folder, 'measurements',
                                      'measurements.db'), settings))
 
+        if settings.get('export_vvvv', False):
+            _export_vvvv_measured_field(
+                source_folder, file, settings, volumetric, channel_arrays,
+                {'cell': cell_mask, 'nucleus': nucleus_mask,
+                 'pathogen': pathogen_mask, **organelle_masks,
+                 'cytoplasm': cytoplasm_mask},
+                morphology if settings['save_measurements'] else None,
+                intensities if settings['save_measurements'] else None)
+
         _write_intensity_rescale_record(
             source_folder, file_name, settings, rescale_record, psf_record)
 
@@ -8811,6 +9005,76 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     return index, average_time, cells, figs, error_text
 
 _MEASURE_WRITE_ENDPOINT = None
+
+
+_WORKER_THREAD_VARIABLES = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                            "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
+                            "NUMEXPR_NUM_THREADS", "NUMBA_NUM_THREADS")
+
+
+@contextlib.contextmanager
+def _single_threaded_children():
+    """Start the pool's workers with one compute thread each.
+
+    Each Measure worker otherwise sizes its numpy/BLAS, numba, torch and
+    OpenCV thread pools to every core, so six workers on an eight-core Mac
+    ran some fifty threads and froze the machine. The libraries read these
+    variables when they are first imported, which in a spawned worker is
+    before any initializer runs, so they are set in this process for the
+    life of the pool and inherited by every worker it starts. Results do
+    not change: only how many threads compute them.
+    """
+    saved = {name: os.environ.get(name) for name in _WORKER_THREAD_VARIABLES}
+    try:
+        for name in _WORKER_THREAD_VARIABLES:
+            os.environ[name] = "1"
+        yield
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+
+
+def _limit_worker_threads():
+    """Hold an already-started worker's thread pools to one thread.
+
+    :returns: the limits now in force, by library.
+    """
+    import sys
+
+    for name in _WORKER_THREAD_VARIABLES:
+        os.environ[name] = "1"
+    applied = {}
+    try:
+        from threadpoolctl import threadpool_limits
+        threadpool_limits(limits=1)
+        applied["threadpoolctl"] = 1
+    except Exception:
+        pass
+    torch = sys.modules.get("torch")
+    if torch is not None:
+        try:
+            torch.set_num_threads(1)
+            applied["torch"] = 1
+        except Exception:
+            pass
+    cv2 = sys.modules.get("cv2")
+    if cv2 is not None:
+        try:
+            cv2.setNumThreads(0)
+            applied["cv2"] = 0
+        except Exception:
+            pass
+    return applied
+
+
+def _initialize_measure_worker(endpoint=None):
+    """Limit a Measure worker's threads and hand it its writer endpoint."""
+    _limit_worker_threads()
+    if endpoint is not None:
+        _initialize_measure_writer(endpoint)
 
 
 def _initialize_measure_writer(endpoint):
@@ -9170,14 +9434,53 @@ def _measure_merged_folder(src):
     if os.path.isdir(merged):
         return merged
     if not os.path.exists(src):
-        raise ConfigurationError(
-            f"Measure cannot start: src does not exist: {src}. Set src to "
-            "the plate folder that Make Masks wrote, the one holding "
-            "merged/, and check that the drive or share is mounted.")
+        raise ConfigurationError(_missing_measure_sources_message([src]))
     raise ConfigurationError(
         f"Measure cannot start: there is no merged folder at {merged}. "
         "Set src to the plate folder that Make Masks wrote (the one holding "
         "merged/), or run Make Masks on this plate first.")
+
+
+def _missing_measure_sources(paths):
+    """The ``src`` paths measure cannot read: no merged folder and no path.
+
+    :param paths: the plate folders ``src`` names, already parsed.
+    :returns: the ones that do not exist and resolve to no merged folder.
+    """
+    from .validate import _resolve_measure_src
+    missing = []
+    for path in paths:
+        if not isinstance(path, str):
+            continue
+        merged, _note = _resolve_measure_src(path)
+        if not os.path.isdir(merged) and not os.path.exists(path):
+            missing.append(path)
+    return missing
+
+
+def _missing_measure_sources_message(missing, parsed=None):
+    """Why measure cannot start, one missing ``src`` path per line.
+
+    Each line says whether the path's parent folder exists, which tells an
+    unmounted drive or share apart from a typo.
+
+    :param missing: the ``src`` paths that do not exist.
+    :param parsed: every path ``src`` was read as, listed when it named more
+        than one, so a wrongly split paste is visible.
+    :returns: the message for :class:`ConfigurationError`.
+    """
+    from .portable_paths import _describe_missing_paths
+    from .qt.i18n import tr
+    lines = [tr("Measure cannot start: src does not exist:")]
+    lines += _describe_missing_paths(missing)
+    if parsed and len(parsed) > 1:
+        lines.append(tr("src was read as {count} folders:", count=len(parsed)))
+        lines += [f"  {path}" for path in parsed]
+    lines.append(tr("Set src to the plate folder that Make Masks wrote, the "
+                    "one holding merged/, and check that the drive or share "
+                    "is mounted. Several plates can be given one per line or "
+                    "as a list."))
+    return "\n".join(lines)
 
 
 def _sql_value(value):
@@ -9290,7 +9593,10 @@ def measure_crop(settings):
         :func:`spacr.settings.get_measure_crop_settings`. Key entries the
         function reads:
 
-        - ``src`` (str or list) — one or more ``…/merged`` folders. A
+        - ``src`` (str or list) — one or more plate or ``…/merged``
+          folders, each measured in turn into its own ``measurements``
+          folder. Text naming several plates (a pasted list, curly quotes,
+          one path per line) is split into its plate folders. A
           cloud address Make Masks has analysed is measured from the local
           folder Make Masks staged it in; a cloud folder of merged stacks is
           mirrored under ``cloud_cache`` first. ``cloud_results`` copies the
@@ -9385,6 +9691,13 @@ def measure_crop(settings):
 
     if isinstance(settings['src'], list):
         source_folders = list(settings['src'])
+        if len(source_folders) > 1:
+            print(f"[measure] src names {len(source_folders)} plate folders; "
+                  "measuring each in turn into its own measurements folder.")
+        missing = _missing_measure_sources(source_folders)
+        if missing:
+            raise ConfigurationError(
+                _missing_measure_sources_message(missing, source_folders))
         base_settings = dict(settings)
         
         with run_context('measure', settings) as run:
@@ -9531,13 +9844,19 @@ def measure_crop(settings):
                         f"mark it non-comparable.")
                 if calibration is not None:
                     settings[CALIBRATION_SETTINGS_KEY] = calibration
-                    print(f"Intensity calibration against plate "
-                          f"{calibration['reference_plate']}: " + '; '.join(
-                              f"{plate} x" + ','.join(
-                                  f"{gain:.3g}" for gain in
-                                  entry['gain'].values())
-                              for plate, entry in
-                              calibration['plates'].items()))
+                    if 'sessions' in calibration:
+                        print(json.dumps({'intensity_calibration': {
+                            'reference_session': calibration['reference_session'],
+                            'gains': {session: entry['gain'] for session, entry
+                                      in calibration['sessions'].items()}}}, sort_keys=True))
+                    else:
+                        print(f"Intensity calibration against plate "
+                              f"{calibration['reference_plate']}: " + '; '.join(
+                                  f"{plate} x" + ','.join(
+                                      f"{gain:.3g}" for gain in
+                                      entry['gain'].values())
+                                  for plate, entry in
+                                  calibration['plates'].items()))
                 if resume_plan is not None:
                     files = resume_plan.filter_files(files)
                 n_jobs = settings['n_jobs']
@@ -9639,7 +9958,8 @@ def measure_crop(settings):
                                        'measurements', 'measurements.db')
                 worker_function = (_measure_crop_queued if queued_sqlite else
                                    _measure_crop_core)
-                pool_options = {}
+                pool_options = {'initializer': _initialize_measure_worker,
+                                'initargs': ()}
                 if queued_sqlite:
                     from .database_concurrency import _DatabaseWriteQueue
 
@@ -9648,7 +9968,7 @@ def measure_crop(settings):
                         lambda packet: _commit_measure_packet(db_path, packet),
                         write_callback, ram_gib=_measure_write_queue_budget(settings),
                         context=ctx)
-                    pool_options = {'initializer': _initialize_measure_writer,
+                    pool_options = {'initializer': _initialize_measure_worker,
                                     'initargs': (writer.endpoint,)}
 
                 try:
@@ -9657,8 +9977,9 @@ def measure_crop(settings):
                         psf_cancel = manager.Event() if psf_plan is not None else None
                         completed_jobs = set()
 
-                        with _parallel_pool(pool_jobs, context=ctx,
-                                            **pool_options) as pool:
+                        with _single_threaded_children(), _parallel_pool(
+                                pool_jobs, context=ctx,
+                                **pool_options) as pool:
                             if writer is not None:
                                 writer.start()
                                 writer_started = True
@@ -11088,7 +11409,7 @@ def process_measure_crop_results(partial_results, settings):
                 fig_path = save_figure(fig, fig_path)
                 with figure_style(theme_target()):
                     plt.figure(fig.number)
-                    plt.show()
+                    _show_if_interactive()
                     plt.close(fig)
             result = (index, None, None, None)
 
@@ -11128,8 +11449,9 @@ def generate_cellpose_train_set(folders, dst, min_objects=5):
     :param min_objects: Minimum number of unique object labels required in a
         mask for the pair to be included. Default ``5``.
     :returns: The finalized :class:`spacr.errors.RunLedger`. Unreadable masks
-        and failed copies are recorded on it and summarised loudly at the end,
-        so a training set that is quietly short of pairs announces itself.
+        and failed copies are recorded on it, and the ledger prints a summary
+        of them at the end, so a training set with missing pairs is
+        reported.
     """
     os.makedirs(dst, exist_ok=True)
     os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
@@ -11399,7 +11721,7 @@ def generate_object_dataset(
         image channels). Override if your arrays have a different channel count.
     :param save_png: write PNG files (set False to only collect arrays).
     :param return_arrays: also return the cropped arrays in the manifest.
-    :param limit: cap the number of objects processed (handy for previews).
+    :param limit: cap the number of objects processed, for example for previews.
     :param db_path: explicit path to ``measurements.db`` (else derived from src).
     :param verbose: print a short progress summary.
     :returns: a manifest ``list[dict]``; each entry has ``object_label``,
@@ -11460,9 +11782,9 @@ def generate_object_dataset(
     def _in(colname, values, prefix):
         """An ``IN (...)`` clause and its parameters, built safely.
 
-        Placeholders rather than interpolation: the values come from a settings
-        file, and a formatted list is an injection waiting for a filename with a
-        quote in it.
+        Values are passed as ``?`` placeholders rather than formatted into the
+        SQL, because they come from a settings file and a value containing a
+        quote would otherwise break or alter the query.
         """
         vals = [f"{prefix}{int(v)}" if prefix else str(v) for v in values]
         placeholders = ",".join("?" for _ in vals)
@@ -11606,6 +11928,38 @@ def _save_object_crop(crop, channels, png_path, png_size):
     return png_path
 
 
+def _label_areas_and_boxes(mask):
+    """Every positive label's area and bounding box, in two passes over ``mask``.
+
+    The same answer as ``np.sum(mask == label)`` and ``np.where(mask == label)``
+    per label, without scanning the whole mask once per label: on a 2000 x 2000
+    field with a few hundred cells that loop was most of a Measure live preview
+    pass.
+
+    :param mask: 2-D label image.
+    :returns: ``(areas, boxes)``: ``(label, area)`` pairs in ascending label
+        order and :func:`scipy.ndimage.find_objects` slices indexed by
+        ``label - 1``; or ``None`` when ``mask`` is not a non-negative integer
+        image, which the per-label scan still handles.
+    """
+    if mask.size == 0 or not np.issubdtype(mask.dtype, np.integer):
+        return None
+    if np.issubdtype(mask.dtype, np.signedinteger) and int(mask.min()) < 0:
+        return None
+    top = int(mask.max())
+    if top <= 0:
+        return [], []
+    if top > 2 * mask.size:
+        return None
+    labels = np.ascontiguousarray(mask)
+    if labels.dtype == np.uint64:
+        labels = labels.astype(np.int64)
+    counts = np.bincount(labels.ravel(), minlength=top + 1)
+    present = np.flatnonzero(counts[1:]) + 1
+    areas = [(int(lbl), int(counts[lbl])) for lbl in present]
+    return areas, find_objects(labels)
+
+
 def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
                             min_area=0, max_area=0, mask_background=True,
                             normalize=True, percentiles=(1, 99), buffer=10,
@@ -11632,11 +11986,11 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
     :param limit: cap the number of objects returned.
     :param size: ``(width, height)`` to resize every crop to, or ``None`` to
         return each object's own bounding box. This is ``measure_crop``'s
-        ``png_size``, resized THE WAY THE RUN RESIZES -- the same
+        ``png_size``, resized the same way the run resizes -- the same
         ``PIL.Image.resize`` call at its default resampling -- because this
-        feeds the Measure preview, whose purpose is to show what a run will
-        write. Without it the preview showed bounding boxes while the run
-        wrote squares, and the crop-size setting looked like it did nothing.
+        feeds the Measure preview, which shows what a run will write. With
+        ``None`` the preview shows bounding boxes, while a run writes crops of
+        ``png_size``.
     :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
         objects first.
 
@@ -11653,26 +12007,37 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
 
     channels = list(channels)
     mask = data[:, :, int(mask_dim)]
-    labels = np.unique(mask)
-    labels = labels[labels > 0]
+    counted = _label_areas_and_boxes(mask)
+    if counted is None:
+        labels = np.unique(mask)
+        labels = labels[labels > 0]
+        areas = [(int(lbl), int(np.sum(mask == lbl))) for lbl in labels]
+        boxes = None
+    else:
+        areas, boxes = counted
 
     scored = []
-    for lbl in labels:
-        area = int(np.sum(mask == lbl))
+    for lbl, area in areas:
         if min_area and area < min_area:
             continue
         if max_area and area > max_area:
             continue
-        scored.append((area, int(lbl)))
+        scored.append((area, lbl))
     scored.sort(reverse=True)
     if limit:
         scored = scored[:int(limit)]
 
     out = []
     for area, lbl in scored:
-        ys, xs = np.where(mask == lbl)
-        y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
-        x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
+        if boxes is None:
+            ys, xs = np.where(mask == lbl)
+            top, bottom = int(ys.min()), int(ys.max()) + 1
+            left, right = int(xs.min()), int(xs.max()) + 1
+        else:
+            rows, cols = boxes[lbl - 1]
+            top, bottom, left, right = rows.start, rows.stop, cols.start, cols.stop
+        y0 = max(0, top - buffer); y1 = min(mask.shape[0], bottom + buffer)
+        x0 = max(0, left - buffer); x1 = min(mask.shape[1], right + buffer)
 
         region = (mask[y0:y1, x0:x1] == lbl) if mask_background else None
         crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
@@ -11877,11 +12242,12 @@ class FieldTable:
         the files came from rather than claiming a plate that was never run.
     :ivar channel_tokens: which channel token owns which channel column, by
         position: ``channel_tokens[i]`` is the token that column ``i`` means.
-        THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The
+        The table stores this because it is filled over several drops. The
         ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property
-        of a SET of tokens, and a user fills this table one field at a time,
-        so without a memory the second drop would rank its own files from
-        scratch and put ``C2`` in column 0 beside the first drop's ``C1``.
+        of a set of tokens, and a user fills this table one field at a time,
+        so without the stored tokens the second drop would rank its own files
+        from scratch and put ``C2`` in column 0 beside the first drop's
+        ``C1``.
         Empty means no column means any particular token yet -- every cell
         was filled by browsing rather than by the regex.
     """
@@ -11998,8 +12364,8 @@ class TableAssignment:
     :ivar assigned: ``(path, row label, column caption)`` for every file that
         landed somewhere, in the order the paths were given.
     :ivar unassigned: ``(path, reason)`` for every file that did not. The
-        window lists these, because a file that silently vanishes is the one
-        failure a drag-and-drop table cannot afford.
+        window lists these so that no dropped file is left out without a
+        reason.
     """
 
     table: FieldTable
@@ -12022,22 +12388,21 @@ def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
       through :func:`mask_role_of`.
     * one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.
 
-    THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one
-    decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2``
-    and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is
-    no reading of ``C1`` that is right for all three -- a literal read makes
-    the first set start at channel 1 and leaves channel 0 empty for ever.
-    So the DISTINCT channel tokens are sorted (numerically on their trailing
-    digits) and mapped onto 0, 1, 2 ... in that order. The mapping is
+    The channel token is ranked, not read as a number. ``C1``/``C2``/``C3``
+    and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0,
+    1, 2, and no literal reading of ``C1`` is right for all three -- a
+    literal read makes the first set start at channel 1 and leaves channel 0
+    empty. The distinct channel tokens are therefore sorted (numerically on
+    their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is
     therefore a property of the set of files, not of any one of them, which
     is why the window shows the assignment rather than describing the rule.
 
-    THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token
-    owns which column in :attr:`FieldTable.channel_tokens`, and a later drop
-    is ranked against the union of what it brings and what is already there.
-    A token that ranks before one already placed renumbers the columns and
-    MOVES the files already in them (:func:`_renumber_channels`), so every
-    row agrees about what channel 0 is. Ranking each drop on its own instead
+    The ranked set is the table's, not the drop's. ``table`` stores which
+    token owns which column in :attr:`FieldTable.channel_tokens`, and a later
+    drop is ranked against the union of what it brings and what is already
+    there. A token that ranks before one already placed renumbers the
+    columns and moves the files already in them (:func:`_renumber_channels`),
+    so every row agrees about what channel 0 is. Ranking each drop on its own instead
     would put a second field's ``C2`` in column 0 beside a first field's
     ``C1``, and the only sign of it would be in the database.
 
@@ -12266,12 +12631,11 @@ def _checked_label(plane, stem, path, shape):
 def write_field_table_project(table, dst):
     """Write the table out as the folders the Mask module leaves behind.
 
-    This is the whole of what the FEATURES button adds to Measure: it turns a
+    This is the only step the FEATURES button adds to Measure: it turns a
     table of hand-picked files into ``stack/``, ``masks/`` and ``merged/``
     exactly as :func:`spacr.core.preprocess_generate_masks` would have left
     them, down to the plane-layout manifest, so the run that follows is an
-    ORDINARY measure run and not a second code path that has to be kept in
-    step with this one.
+    ordinary measure run rather than a separate code path.
 
     :param table: a :class:`FieldTable` whose :meth:`FieldTable.problems` is
         empty.
@@ -12353,14 +12717,11 @@ def write_field_table_project(table, dst):
 def field_table_destination(table, dst=None):
     """Where a run of ``table`` would write, given the destination it was handed.
 
-    ONE ANSWER, so that the window and the run cannot disagree about it.
-    ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES
-    window shows it filled in and disabled; before this existed the window
-    derived it only when it had been given a destination, and a window
-    opened without one showed the settings spec's ``path`` placeholder while
-    the run wrote beside the first channel file. A disabled box captioned
-    "the table decides this" that names the wrong folder is worse than no box
-    at all -- it is the window telling the user where their results are not.
+    The window and the run both call this function, so they report the same
+    folder. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the
+    FEATURES window shows it filled in and disabled; with ``dst=None`` the
+    destination is a ``features`` folder beside the first channel file of
+    the first row.
 
     :param table: the :class:`FieldTable` the run would measure.
     :param dst: the destination the caller was given, or ``None`` to derive
@@ -12380,10 +12741,10 @@ def field_table_destination(table, dst=None):
 def measure_from_field_table(table, settings=None, dst=None, progress=None):
     """Measure a table of hand-picked images and masks. The FEATURES entry point.
 
-    The other way into this module. :func:`measure_crop` starts from a
-    ``merged/`` folder a pipeline already built; this starts from a table a
+    The second entry point into this module. :func:`measure_crop` starts from
+    a ``merged/`` folder a pipeline already built; this starts from a table a
     user filled in by dropping files onto it, writes that folder, and then
-    calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where
+    calls :func:`measure_crop` itself -- unchanged, with no flag saying where
     the fields came from. The database, the crops and the folder tree are
     therefore the Measure module's, because they are made by it.
 
@@ -12423,14 +12784,16 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         :func:`measure_crop` -- the run this delegates to, unchanged.
         :func:`write_field_table_project` -- the folders it writes first.
     """
-    def say(message):
-        """Report a stage, if anyone asked to hear about them.
+    from .qt.i18n import tr
 
-        Guarded because the caller is a window that may be closed while this
-        is still running: the FEATURES window's callback emits a Qt signal,
-        and a worker parked past its widget's destruction raises
-        ``RuntimeError`` from the emit. A run must not fail because nobody is
-        listening to it any more.
+    def say(message):
+        """Pass a stage message to ``progress``, when a callback was given.
+
+        Exceptions from the callback are ignored because the caller is a
+        window that may be closed while this is still running: the FEATURES
+        window's callback emits a Qt signal, and a worker that outlives its
+        widget raises ``RuntimeError`` from the emit. The run continues in
+        that case.
         """
         if progress is None:
             return
@@ -12444,11 +12807,12 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         raise ConfigurationError(
             "There is nowhere to write: the table's first field has no "
             "channel file, and no destination was given.")
-    say(f"Writing the merged arrays for {len(table.rows)} field(s)...")
+    say(tr("Writing the merged arrays for {count} field(s)...",
+           count=len(table.rows)))
     written = write_field_table_project(table, dst)
     resolved = field_table_settings(table, settings, dst=dst)
-    say(f"Wrote {len(written['stems'])} field(s). Measuring them now; "
-        "this is the Measure module's own run.")
+    say(tr("Wrote {count} field(s). Measuring them now; "
+           "this is the Measure module's own run.", count=len(written['stems'])))
     measure_crop(resolved)
     return {
         'destination': written['destination'],
@@ -12457,3 +12821,253 @@ def measure_from_field_table(table, settings=None, dst=None, progress=None):
         'stems': written['stems'],
         'merged': written['merged'],
     }
+
+
+def _volume_measure_spacing(axes, spacing, unit):
+    """Normalize declared spatial distances to ZYX micrometres or pixels."""
+    from .qt.i18n import tr
+
+    axes = str(axes)
+    if sorted(axes) != ['X', 'Y', 'Z']:
+        raise ValueError(tr('3D measurement requires exactly three spatial axes.'))
+    distances = tuple(float(value) for value in spacing)
+    if (len(distances) != 3
+            or not all(np.isfinite(value) and value > 0 for value in distances)):
+        raise ValueError(tr('Voxel spacing must contain three positive finite distances.'))
+    factors = {'nm': .001, 'um': 1., 'µm': 1., 'μm': 1.,
+               'micron': 1., 'microns': 1., 'mm': 1000., 'm': 1_000_000.}
+    unit = str(unit).strip().lower()
+    if unit in ('pixel', 'pixels', 'px'):
+        units, factor = UNITS_PX, 1.
+    elif unit in factors:
+        units, factor = UNITS_UM, factors[unit]
+    else:
+        raise ValueError(tr('Unsupported volume measurement unit: {unit}.', unit=unit))
+    ordered = tuple(distances[axes.index(axis)] * factor for axis in 'ZYX')
+    return ordered, units
+
+
+def _volume_measure_input(row):
+    """Load one spatial image set, retaining current unsaved label snapshots.
+
+    Extra files share the source voxel grid. Declared physical spacing must
+    agree; uncalibrated channel TIFFs may inherit the source grid, but their
+    shape must still agree after spatial axes are reordered.
+    """
+    from pathlib import Path
+    from .qt import mask_engine
+    from .qt.i18n import tr
+
+    source = Path(row['source_path']).expanduser().resolve()
+    if not source.is_file():
+        raise ValueError(tr('The volume image does not exist: {path}.', path=str(source)))
+    snapshot = row.get('snapshot')
+    mask_path = row.get('mask_path') if snapshot is None else None
+    if snapshot is None:
+        if mask_path:
+            reader = (mask_engine._read_mrc_volume
+                      if source.suffix.lower() in mask_engine._VOLUME_MRC_SUFFIXES
+                      else mask_engine._read_tiff_volume)
+            image, axes, spacing, unit = reader(source)
+            channels = tuple(image) if image.ndim == 4 else (image,)
+            snapshot = {'channels': channels, 'mask': np.zeros(channels[0].shape, dtype=np.uint16),
+                        'axes': axes, 'spacing': spacing, 'unit': unit}
+        else:
+            session = mask_engine.load_volume_image_and_mask(str(source.parent), source.name)
+            snapshot = {'channels': session.channels, 'mask': session.mask,
+                        'axes': session.axes, 'spacing': session.spacing, 'unit': session.unit}
+    axes = str(snapshot['axes'])
+    spacing, units = _volume_measure_spacing(axes, snapshot['spacing'], snapshot['unit'])
+    order = tuple(axes.index(axis) for axis in 'ZYX')
+    channels = [np.asarray(channel).transpose(order) for channel in snapshot['channels']]
+    labels = np.asarray(snapshot['mask']).transpose(order)
+    if mask_path:
+        mask_data, mask_axes, mask_spacing, mask_unit = mask_engine._read_tiff_volume(Path(mask_path).expanduser())
+        if mask_data.ndim != 3:
+            raise ValueError(tr('Choose a single 3D label volume for the mask.'))
+        mask_spacing, mask_units = _volume_measure_spacing(mask_axes, mask_spacing, mask_unit)
+        calibrated = mask_units != UNITS_PX or not np.allclose(mask_spacing, (1., 1., 1.))
+        if calibrated and (mask_units != units or not np.allclose(mask_spacing, spacing)):
+            raise ValueError(tr('The mask voxel spacing does not match the source image: {path}.', path=str(mask_path)))
+        labels = np.asarray(mask_data).transpose(tuple(mask_axes.index(axis) for axis in 'ZYX'))
+    if (labels.ndim != 3 or not labels.size or labels.dtype.kind not in 'ui'
+            or labels.min() < 0 or labels.max() > 65535
+            or labels.size > mask_engine.VolumeMaskSession.MAX_VOXELS):
+        raise ValueError(tr('The volume mask must contain matching nonnegative integer object labels up to 65535.'))
+    if not np.any(labels):
+        raise ValueError(tr('Draw or load object labels before measuring {name}.', name=source.name))
+    labels = labels.astype(np.uint16, copy=False)
+    paths = []
+    origins = [{'path': str(source), 'channel': index} for index in range(len(channels))]
+    for raw_path in row.get('channel_paths', ()):
+        path = Path(raw_path).expanduser().resolve()
+        paths.append(str(path))
+        reader = (mask_engine._read_mrc_volume
+                  if path.suffix.lower() in mask_engine._VOLUME_MRC_SUFFIXES
+                  else mask_engine._read_tiff_volume)
+        values, extra_axes, extra_spacing, extra_unit = reader(path)
+        extra_spacing, extra_units = _volume_measure_spacing(extra_axes, extra_spacing, extra_unit)
+        calibrated = extra_units != UNITS_PX or not np.allclose(extra_spacing, (1., 1., 1.))
+        if calibrated and (extra_units != units or not np.allclose(extra_spacing, spacing)):
+            raise ValueError(tr('The channel voxel spacing does not match the source image: {path}.', path=str(path)))
+        extra = tuple(values) if values.ndim == 4 else (values,)
+        extra_order = tuple(extra_axes.index(axis) for axis in 'ZYX')
+        channels.extend(np.asarray(value).transpose(extra_order) for value in extra)
+        origins.extend({'path': str(path), 'channel': index} for index in range(len(extra)))
+    if (not channels or len(channels) > 16
+            or sum(channel.nbytes for channel in channels) > 256 * 1024 * 1024):
+        raise ValueError(tr('A measurement image set supports up to 16 channels within the 256 MiB volume budget.'))
+    if any(channel.shape != labels.shape or channel.dtype.kind not in 'uif'
+           or not np.isfinite(channel).all() for channel in channels):
+        raise ValueError(tr('Every channel must contain finite numeric intensities on the same 3D grid as its labels.'))
+    return source, labels, channels, spacing, units, paths, origins
+
+
+def _volume_measure_frame(row, object_type):
+    """Measure native voxels with the same feature names as spaCR Measure."""
+    import hashlib
+    from . import schema
+
+    source, labels, channels, spacing, units, paths, origins = _volume_measure_input(row)
+    props = [prop for prop in MORPHOLOGICAL_PROPS if prop not in PROPS_2D_ONLY]
+    frame = _safe_morphology_table(labels, props, spacing=spacing)
+    counts = np.bincount(labels.ravel().astype(np.int64, copy=False))
+    frame['volume_voxels'] = counts[frame['label'].to_numpy(dtype=int)]
+    if units == UNITS_UM:
+        frame['volume_um3'] = frame['volume_voxels'] * np.prod(spacing)
+    positions = pd.DataFrame(regionprops_table(labels, properties=('label', 'centroid'), spacing=spacing))
+    frame = frame.merge(_rename_3d_centroids(positions), on='label', validate='one_to_one')
+    spatial = _spatial_measurements(labels, spacing=spacing)
+    frame = frame.merge(spatial, on='label', validate='one_to_one')
+    frame = frame.rename(columns={name: f'{object_type}_{name}' for name in frame.columns if name != 'label'})
+    for index, channel in enumerate(channels):
+        measured = _extended_regionprops_table(
+            labels, channel, ('label', 'centroid_weighted', 'max_intensity',
+                              'mean_intensity', 'min_intensity'), spacing=spacing)
+        measured = measured.rename(columns={name: f'{object_type}_channel_{index}_{name}'
+                                             for name in measured.columns if name != 'label'})
+        frame = frame.merge(measured, on='label', validate='one_to_one')
+    correlation_labels = labels
+    if not np.any(labels == 0):
+        correlation_labels = np.pad(labels, 1)
+    for first in range(len(channels)):
+        for second in range(first + 1, len(channels)):
+            images = (channels[first], channels[second])
+            if correlation_labels is not labels:
+                images = tuple(np.pad(channel, 1) for channel in images)
+            correlation = _calculate_correlation_object_level(*images, correlation_labels, {})
+            correlation = correlation.rename(columns={
+                name: ('label' if name == 'label_correlation'
+                       else f'{object_type}_channel_{first}_channel_{second}_{name}')
+                for name in correlation.columns})
+            frame = frame.merge(correlation, on='label', validate='one_to_one')
+    image_key = hashlib.sha256(json.dumps([str(source), paths]).encode('utf-8')).hexdigest()
+    plate = 'make_masks_volume'
+    field = schema.FieldID.build(plate, well='A01', field=int(image_key[:15], 16))
+    identity = {
+        **field.to_dict(), 'prcf': field.prcf,
+        'file_name': source.name, 'path_name': str(source),
+        'measurement_ndim': 3, 'measurement_units': units, 'n_z': labels.shape[0],
+        'voxel_size_z_um': spacing[0] if units == UNITS_UM else None,
+        'voxel_size_xy_um': (spacing[1] if units == UNITS_UM
+                             and np.isclose(spacing[1], spacing[2]) else None),
+        'measurement_source': 'make_masks_3d', 'measurement_image_key': image_key,
+        'measurement_channel_sources': json.dumps(origins, ensure_ascii=False),
+        'measurement_spacing_z': spacing[0], 'measurement_spacing_y': spacing[1],
+        'measurement_spacing_x': spacing[2],
+    }
+    frame = frame.rename(columns={'label': 'object_label'})
+    for name, value in identity.items():
+        frame[name] = value
+    frame = schema.validate_object_table_frame(frame, object_type, timelapse=False)
+    target = source.parent / 'measurements.db'
+    existing = source.parent / 'measurements' / 'measurements.db'
+    if not target.exists() and existing.exists():
+        target = existing
+    return str(target), frame
+
+
+def _write_volume_measurements(db_path, frames, object_type):
+    """Append image sets atomically, updating only this entry point's own rows."""
+    import uuid
+    from .database_concurrency import _commit_write_packet, connect
+    from .tabular import write_database
+    from .utils import _assert_measurement_units_compatible, _widen_table_for
+    from .qt.i18n import tr
+
+    def write(frame):
+        """Validate the destination inside its writer transaction before changing it."""
+        _assert_measurement_units_compatible(db_path, object_type, frame.iloc[0].to_dict())
+        connection = connect(db_path)
+        columns = {row[1] for row in connection.execute(f'PRAGMA table_info("{object_type}")')}
+        if columns:
+            if 'prcf' not in columns:
+                raise ValueError(tr('The existing object table has no field identity; choose another image folder.'))
+            key = frame['prcf'].iloc[0]
+            count = connection.execute(f'SELECT COUNT(*) FROM "{object_type}" WHERE prcf=?', (key,)).fetchone()[0]
+            if count:
+                ownership = {'measurement_source', 'measurement_image_key'}
+                owned = 0
+                if ownership <= columns:
+                    owned = connection.execute(
+                        f'SELECT COUNT(*) FROM "{object_type}" WHERE prcf=? AND measurement_source=? AND measurement_image_key=?',
+                        (key, 'make_masks_3d', frame['measurement_image_key'].iloc[0])).fetchone()[0]
+                if owned != count:
+                    raise ValueError(tr('This image identity already belongs to other measurements; existing rows were preserved.'))
+                connection.execute(f'DELETE FROM "{object_type}" WHERE prcf=?', (key,))
+            _widen_table_for(connection, object_type, frame)
+        write_database(frame, db_path, object_type, if_exists='append')
+
+    packet = {'ticket': uuid.uuid4().hex, 'field': 'make_masks_3d', 'operations': frames}
+    _commit_write_packet(db_path, packet, write)
+
+
+def measure_volume_rows(rows, *, object_type='cell', progress=None):
+    """Measure current or saved 3D image sets into their image-folder databases.
+
+    :param rows: dictionaries with ``source_path``, optional ``mask_path`` and
+        extra ``channel_paths``. The current image supplies a ``snapshot``
+        containing immutable channels, copied labels, axes, spacing and unit,
+        so unsaved edits are measured without changing their saved mask.
+    :param object_type: canonical object role, such as ``cell`` or ``nucleus``.
+    :param progress: optional worker-safe callback receiving translated text.
+    :returns: database paths, image count and object count. All rows are
+        measured before any write; each destination commits atomically.
+
+    Stored morphology, intensity, correlation and spatial feature names follow
+    Measure. Pixel coordinates stay explicitly pixel coordinates; physical
+    metadata are converted to micrometres. Repeating an image set replaces
+    only this entry point's earlier rows. Other fields and tables are retained.
+    """
+    from . import schema
+    from .qt.i18n import tr
+
+    if object_type not in schema.CANONICAL_OBJECT_TABLES:
+        raise ValueError(tr('Choose a supported object type for 3D measurement.'))
+    rows = tuple(rows)
+    if not rows:
+        raise ValueError(tr('Add an image set to measure.'))
+
+    def report(message):
+        """Keep a closed progress display from changing a database result."""
+        if progress is not None:
+            try:
+                progress(message)
+            except Exception:
+                pass
+
+    grouped = defaultdict(list)
+    identities = set()
+    for index, row in enumerate(rows):
+        report(tr('Measuring 3D image set {current} of {total}...', current=index + 1, total=len(rows)))
+        target, frame = _volume_measure_frame(row, object_type)
+        identity = (target, frame['measurement_image_key'].iloc[0])
+        if identity in identities:
+            raise ValueError(tr('The same image set appears more than once in the measurement rows.'))
+        identities.add(identity)
+        grouped[target].append(frame)
+    for target, frames in grouped.items():
+        _write_volume_measurements(target, frames, object_type)
+        report(tr('Measurements saved: {path}', path=target))
+    return {'db_paths': tuple(grouped), 'images': len(rows),
+            'objects': sum(len(frame) for frames in grouped.values() for frame in frames)}

@@ -1,0 +1,6 @@
+{
+  "own_waiter_pid": 977513,
+  "started_collector": false,
+  "reason": "Incoming N698 publication changes canonical caption universe. Defer own not-started arrival refresh until incoming publication is merged, avoiding a duplicate full refresh. Implementation agents continue.",
+  "next": "After actual N698 public SHA arrives, merge normally, requeue normal refresh under shared lock; no gates skipped."
+}

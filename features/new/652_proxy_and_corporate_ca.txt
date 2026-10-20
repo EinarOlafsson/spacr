@@ -38,3 +38,19 @@ IMPLEMENTATION
   check. All nine runtime catalogs contain source-bound "Proxy" and
   "Certificate bundle" captions. Existing mocked-network tests remain the
   bounded behavior proof; live corporate-network acceptance was not claimed.
+
+2026-10-14 — interrupted network-preference save preserves previous bytes:
+Saving a proxy/certificate choice previously opened network.json directly
+for writing. An interrupted partial write left truncated JSON and lost the
+previous working settings. The existing atomic UTF-8 writer now stages and
+flushes the complete new JSON before replacement. Apply-network still runs
+only after a successful save; the unchanged-choice fast path is preserved.
+A controlled partial native-file write failed the baseline's saved-byte
+check. The new test repeats the failure, checks old readable settings and
+no orphan temp files, then repairs the writer and verifies normal retry.
+The finite offline owning cohort passed 24 tests in 9.11 seconds, actual
+exit 0, including network Preferences and portable location behavior.
+This is fault injection on private temporary files, not a real full-disk
+experiment or live corporate-network/native-other-OS acceptance. Public
+signatures, docstrings, captions and JSON format remain unchanged.
+Evidence: data/652_interrupted_network_save_2026-10-14/receipt.json.

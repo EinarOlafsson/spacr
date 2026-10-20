@@ -1,0 +1,142 @@
+================================================================================
+MITONET AS AN ALPHA MAKE MASKS BACKEND FOR TEM
+================================================================================
+
+Status:    complete original alpha scope; nine-language translations current
+Requested: 2026-10-11 — approved by the maintainer as the follow-up N690
+           recommended: "MitoNet as an alpha Make Masks backend for TEM".
+Owner:     Home (build); WS (translations)
+Related:   N690 (Make Masks on TEM, spacr-example-tem, commit 8e7f1f2d9);
+           the model zoo (spacr/model_zoo.py, model_zoo_picker.py);
+           Make Masks (spacr/qt/screens/make_masks.py); ALPHA_FEATURES.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+N690 made Make Masks open TEM images and published ten TEM fields with
+mitochondria masks (spacr-example-tem). Its assisted segmentation was
+Cellpose-SAM, which drafts F1 0.467 there: it outlines every organelle. The
+N690 agent ran empanada's MitoNet_v1_mini TorchScript with its own
+post-processing and got F1 0.823. empanada-dl pins numpy==1.22, so it cannot
+be a dependency.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A usable first draft on TEM turns curation from drawing every mitochondrion
+into correcting a few, which is what makes curated TEM training data cheap.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Add MitoNet_v1_mini to the model zoo as an external (third-party) model:
+   weights from Zenodo record 6861565 on first use, cached and checksummed
+   like the other zoo weights; record the weights' licence (CC-BY-4.0,
+   citation Conrad and Narayan, Cell Systems 2023) and the code licence
+   (BSD-3-Clause). Not under the "spaCR" heading.
+2. Port the post-processing (semantic and instance-centre heads, offsets,
+   then instances) into an existing module; no empanada-dl, no new module.
+3. Offer it in Make Masks' Object detection Method box as
+   "MitoNet (TEM mitochondria)", registered in ALPHA_FEATURES with a literal
+   setObjectName, hidden unless Show alpha features is on.
+4. CPU-only tests without network (synthetic heads, a mocked download, the
+   alpha gate), and the F1 of the ported code on spacr-example-tem.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- With Show alpha features on, Make Masks' Method box offers MitoNet (TEM
+  mitochondria); choosing it on a TEM field drafts mitochondria; the first
+  run downloads the weights, later runs reuse the verified cache.
+- The Model Zoo lists the row under a Third-party heading with its licence
+  and citation; with the gate shut neither the row nor the heading shows.
+- The ported code reproduces N690's F1 0.823 on spacr-example-tem.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- The full MitoNet_v1 (221 MB) and the quantized variants are not offered.
+- No fine-tuning on Toxoplasma TEM; no multi-class organelle model.
+- empanada's 3-D (orthoplane) inference is not ported; 2-D only.
+
+2026-10-11 — Built (Home, CPU only). Code: spacr/model_zoo.py gains the
+record mitonet_mini_v1 (kind "mitonet", uri
+https://zenodo.org/records/6861565/files/MitoNet_v1_mini.pth?download=1,
+sha256 6554a42f...9c2f4c, 110,074,368 bytes; the Zenodo md5 cf261fef...
+matches; licence CC-BY-4.0, code_licence BSD-3-Clause, citation Conrad R,
+Narayan K, Cell Systems 14(1):58-71.e5, 2023, doi:10.1016/j.cels.2022.12.006),
+a sixth zoo heading "Third-party" (THIRD_PARTY_MODEL_KEYS, is_third_party;
+off by default and hidden with the alpha gate shut as
+ModelZooSourceThirdParty), mitonet_weights (verified cache in the Model
+Zoo's folder, ~/.spacr/models; download through fetch, so checksummed and
+atomic), mitonet_instances (the port: foreground at probability 0.5,
+centres as 7 px local maxima of the heatmap at 0.1 or more, each foreground
+pixel joins the centre nearest its offset vote, chunked to bound memory,
+instances under min_size dropped and renumbered) and segment_mitonet
+(normalisation (x/255 - 0.57571)/0.12765 as trained, reflection padding to
+128 px, 1024 px tiles with a 128 px halo stitched before post-processing,
+on_tile progress). Make Masks: Method "MitoNet (TEM mitochondria)" with a
+settings group MakeMasksMitoNetSettings (weights, licence, citation);
+Minimum area is the smallest mitochondrion (N690 used 64 px); Invert is
+undone before the network; whole-image runs count tiles on the run ticket
+and cancel between tiles; a failure (no torch, no network) falls back to
+Otsu with the reason, as every model mode does. ALPHA_FEATURES[691]:
+models mitonet_mini_v1, widgets MakeMasksMitoNetSettings and
+ModelZooSourceThirdParty; alpha slide regenerated (63 features).
+F1 on spacr-example-tem with the ported code (CPU, run_capped, ten fields,
+IoU 0.5, N690's greedy matcher): TP 142, FP 8, FN 53, F1 0.823, Dice 0.842,
+identical to N690's script; 2-4 s per 1024 px field on 8 CPU threads.
+Through the tiled path (512 px tiles, 128 px halo): TP 146, FP 5, FN 49,
+F1 0.844, Dice 0.842, so stitching costs nothing.
+Tests: tests/test_691_mitonet_backend.py (synthetic heads: touching discs,
+small and weak instances, chunking; third-party row, licence, heading;
+mocked download once then cached; checksum refusal; a TorchScript stand-in
+tiled on the CPU) and tests/qt/test_691_mitonet_make_masks.py (registry,
+Method row and settings group follow the switch, zoo heading hidden with
+the gate shut, segmenter hands the un-inverted crop and minimum area on and
+counts tiles). Expectation updates: the zoo headings tuple, the bundled-
+record provenance and ownership tests (third-party rows checked for their
+own Zenodo URI, licence and citation), the Method box order, the alpha deck
+count. API arrivals: tests/data/release_contracts/
+691_mitonet_api_arrivals_2026-10-11.json (is_third_party,
+mitonet_instances, mitonet_weights, segment_mitonet). English runtime and
+API manifests and the Help index regenerated; six new runtime strings need
+translations (WS). Pre-existing on nightly and not from this item: the
+callable inventory in test_docstring_correctness already counted 10,039
+against 10,026, the 685 contract pins an old is_spacr_owned docstring, and
+build_i18n_catalogs/build_documentation_i18n tests stop on stale reviewed
+runtime sources (N678).
+
+2026-10-15 — Current-source completion reconciliation (Original Home).
+The six runtime captions left pending on2026-10-11 now have all54 exact
+source-bound reviewed and compiled targets across nine locales. The four
+public MitoNet API symbols have current English/source/block/context pins;
+one remaining copied-English Portuguese cache/Zenodo paragraph was found,
+independently technically reviewed, and repaired through the ordinary
+reviewed overlay and scoped API writer. The ordinary selected API audit
+passes (one Portuguese symbol, actual normal runtime context; subset only).
+All nine other paragraphs in that symbol,13,439 foreign Portuguese symbols,
+English/eight other locale catalogs, current sources and runtime catalogs
+are preserved. No model or scientific result was rerun.
+
+The original alpha contract is supported by existing hosted8backend/4Qt
+owning passes on unchanged relevant ASTs and the original raw CPU evaluation
+of ten spacr-example-tem fields: TP142/FP8/FN53/F1.823/Dice.842. The five
+inference/postprocessing functions still match original implementation
+6a1dad exactly. Tiled512F1.844 remains a separate recorded result. This is
+historical source-bound evidence, not a new dataset/model certification.
+The original third-party row/licences/citation, verified cached weights,
+Make Masks method and literal alpha gates remain. The deliberate omissions
+(full/quantized variants, fine-tuning, multi-class and3D) remain unchanged;
+N690 tutorial work is separate and was not an original N691 completion gate.
+Evidence: features/data/691_current_whole_item_reconciliation_2026-10-15/.
+
+Original Home independent review: COMPLETE original alpha item. Exact current SourceStrip N440 localization additions reviewed separately; no MitoNet gate behavior changed. No full CI or new model evaluation is implied.
+
+2026-10-15 — Normal runtime pipeline and all-nine audit pass on current source; caption-arrival tests13PASS.
+No new tutorial/native acceptance or release claim; those remain with their existing owners.

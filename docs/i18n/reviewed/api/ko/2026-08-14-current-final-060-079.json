@@ -6,7 +6,9 @@
       "label": "spacr.train_compare#2",
       "source": "Picking a classifier in spaCR means training it, writing down the number, changing a knob, training it again, and then trying to remember which of the six things you touched is the one that moved the number. The provenance diff (:func:`spacr.run_journal.diff_runs`) answers \"what changed\"; this module answers \"and what did it do to the curves\", on one axis, next to the diff.",
       "source_sha256": "0b6e7eefd629e7caa32ea18a59adf2466ba5cc487f17503cc36695b9ae4544f1",
-      "translation": "spaCR 에서 머신러닝 분류 모델을 선택한다는 것은 학습하고, 수치를 기록하고, 설정을 바꾸고, 다시 학습한 뒤, 건드린 여섯 항목 중 무엇이 수치를 바꿨는지 기억하는 일입니다. 출처 차이(:func:`spacr.run_journal.diff_runs`)는 \"what changed\"에 답하고, 이 모듈은 같은 축에서 차이 옆에 곡선을 놓아 \"and what did it do to the curves\"에 답합니다."
+      "translation": "spaCR 에서 머신러닝 분류 모델을 선택한다는 것은 학습하고, 수치를 기록하고, 설정을 바꾸고, 다시 학습한 뒤, 건드린 여섯 항목 중 무엇이 수치를 바꿨는지 기억하는 일입니다. 출처 차이(:func:`spacr.run_journal.diff_runs`)는 \"what changed\"에 답하고, 이 모듈은 같은 축에서 차이 옆에 곡선을 놓아 \"and what did it do to the curves\"에 답합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Point-in-polygon uses the vectorised even–odd ray-casting rule. A row whose x or y is missing is **outside every gate**. Its state is not \"unknown\", and it is not silently kept. An object with no measurement is not inside the region. Letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
@@ -64,7 +66,9 @@
       "label": "spacr.qt.widgets.channel_mapping#2",
       "source": "Why three labelled fields rather than one ordered list: the list form (``png_dims``) never said which colour it meant. Position 0 was blue because of how cv2 interprets an array it is handed, which is not something the settings panel could show and not something a user could infer. It got read backwards for eleven days and every crop written in that window has its nuclear stain in the red channel. A field labelled \"R\" cannot be read backwards.",
       "source_sha256": "831f97a871efb46141f3a2776e97ce713177334d03ee140bdad7d07356885f6f",
-      "translation": "레이블이 붙은 필드 세 개를 순서 목록 하나보다 사용하는 이유는 목록 형식(``png_dims``)이 각 위치의 색상을 말하지 않았기 때문입니다. 위치 0이 파란색이었던 것은 cv2 가 전달된 배열을 해석하는 방식 때문이며 설정 패널에서 표시하거나 사용자가 추론할 수 없었습니다. 11일 동안 거꾸로 읽혀 그 기간에 기록된 모든 추출 이미지 영역의 핵 염색이 빨간 이미지 데이터 채널에 있습니다. \"R\"이라고 표시된 필드는 거꾸로 읽을 수 없습니다."
+      "translation": "레이블이 붙은 필드 세 개를 순서 목록 하나보다 사용하는 이유는 목록 형식(``png_dims``)이 각 위치의 색상을 말하지 않았기 때문입니다. 위치 0이 파란색이었던 것은 cv2 가 전달된 배열을 해석하는 방식 때문이며 설정 패널에서 표시하거나 사용자가 추론할 수 없었습니다. 11일 동안 거꾸로 읽혀 그 기간에 기록된 모든 추출 이미지 영역의 핵 염색이 빨간 이미지 데이터 채널에 있습니다. \"R\"이라고 표시된 필드는 거꾸로 읽을 수 없습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The settings file is the one the GUI writes. Both spaCR CSV layouts are read — ``Key,Value`` (what :func:`spacr.utils.save_settings` emits next to every processing session) and ``setting_key,setting_value`` (the documented default of :func:`spacr.utils.load_settings`) — plus the ``settings.json`` written into each processing-session journal folder. So the round trip is: click through the GUI once on a laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and ``sbatch`` it unchanged.",
@@ -78,14 +82,18 @@
       "label": "spacr.power_model.scan_parameters#2",
       "source": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that runs but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
       "source_sha256": "caaddd5ba419c9c299f816ee984f8812017f22186dc0692869c50cf7f710c631",
-      "translation": "**실패한 지점은 실패로 보고합니다.** 예외를 발생시킨 피팅은 ``status=\"failed\"``로 기록하고 예외 텍스트를 ``error``에 넣습니다. 실행됐지만 수렴 기준을 충족하지 못한 피팅은 ``status=\"not_converged\"``로 기록합니다. 둘 다 ``NaN`` 지표를 가집니다. 고장 난 지점에 0.5를 채우면 우연 수준의 설계처럼 그려집니다. \"이 설계는 히트를 찾을 수 없다\"와 \"this fit crashed\"는 결과가 정반대인 결론입니다."
+      "translation": "**실패한 지점은 실패로 보고합니다.** 예외를 발생시킨 피팅은 ``status=\"failed\"``로 기록하고 예외 텍스트를 ``error``에 넣습니다. 실행됐지만 수렴 기준을 충족하지 못한 피팅은 ``status=\"not_converged\"``로 기록합니다. 둘 다 ``NaN`` 지표를 가집니다. 고장 난 지점에 0.5를 채우면 우연 수준의 설계처럼 그려집니다. \"이 설계는 히트를 찾을 수 없다\"와 \"this fit crashed\"는 결과가 정반대인 결론입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**This is not hypothetical.** Every spaCR measurement table has a column called ``rowID`` -- the row of the laboratory microplate -- and SQLite matches column names case-insensitively, so ``rowid`` in a query means THAT column. It holds 'A'..'P', and ``'A' % 5`` is ``0`` in SQLite, so a sampling clause written the obvious way is true for every row and silently samples nothing. The symptom is a sampling setting that appears to do nothing, which is indistinguishable from the read being slow for another reason.",
       "label": "spacr.filters.rowid_expression#1",
       "source": "**This is not hypothetical.** Every spaCR measurement table has a column called ``rowID`` -- the row of the plate -- and SQLite matches column names case-insensitively, so ``rowid`` in a query means THAT column. It holds 'A'..'P', and ``'A' % 5`` is ``0`` in SQLite, so a sampling clause written the obvious way is true for every row and silently samples nothing. The symptom is a sampling setting that appears to do nothing, which is indistinguishable from the read being slow for another reason.",
       "source_sha256": "24bbfbe18d878349f91ac50b4cd0cf793d3a7ff423c9c34785c3ed84c2ec2a98",
-      "translation": "**가정이 아닙니다.** 모든 spaCR 측정 테이블에는 플레이트 행을 뜻하는 ``rowID`` 열이 있습니다. SQLite 는 열 이름의 대소문자를 구분하지 않으므로 쿼리의 ``rowid``는 바로 그 열입니다. 이 열에는 'A'..'P' 값이 있고, SQLite 에서 ``'A' % 5``는 ``0``이므로 당연해 보이는 샘플링 절은 모든 행에서 참이 되어 아무것도 샘플링하지 않습니다. 증상은 샘플링 설정이 작동하지 않는 것처럼 보이는 것이며, 다른 이유로 읽기가 느린 경우와 구별할 수 없습니다."
+      "translation": "**가정이 아닙니다.** 모든 spaCR 측정 테이블에는 플레이트 행을 뜻하는 ``rowID`` 열이 있습니다. SQLite 는 열 이름의 대소문자를 구분하지 않으므로 쿼리의 ``rowid``는 바로 그 열입니다. 이 열에는 'A'..'P' 값이 있고, SQLite 에서 ``'A' % 5``는 ``0``이므로 당연해 보이는 샘플링 절은 모든 행에서 참이 되어 아무것도 샘플링하지 않습니다. 증상은 샘플링 설정이 작동하지 않는 것처럼 보이는 것이며, 다른 이유로 읽기가 느린 경우와 구별할 수 없습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The returned DataFrame contains at least the columns ``path`` and ``pred``, plus the columns added by ``process_vision_results``. A single-logit head is converted with ``torch.sigmoid``; a multi-logit head with ``torch.softmax``, giving the probability of class 1 for two classes and the winning class's confidence for more. With more than two classes the frame also carries ``predicted_label`` and one ``prob_class_<i>`` column per class, and its ``cv_predictions`` column holds the predicted class index rather than a threshold on ``pred``.",

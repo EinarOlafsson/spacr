@@ -1,0 +1,33 @@
+{
+  "lesson": "04_platform_installers",
+  "scope": "hi/hm_omega playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25",
+  "repository_player_source": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+  "candidate_player": true,
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "ca73b18f4974a9037bd103aab4dd13f8714116623fb42abd698b5e731b9f9401",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 14,
+  "seek_playback_clocks": {
+    "audio": 90.545188,
+    "video": 108.850596,
+    "expectedVideo": 108.8051878913903,
+    "audioDuration": 264.835,
+    "videoDuration": 333.933333,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "23660cd28eeb51219e3358435b86ad98bc1615e385513bca6f2082b41c6911ad",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "02_install_spacr",
+    "05_home"
+  ],
+  "passed": true
+}

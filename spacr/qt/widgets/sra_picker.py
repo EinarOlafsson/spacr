@@ -3,12 +3,11 @@
 Map Barcodes offers the paper's own reads, and lets the user say how many
 sequencing lines to take from each file.
 
-THE LIMIT IS THE FEATURE, not a convenience. The four runs are 20.4 GB in
-full; a hundred thousand reads from each is about 30 MB, because ENA serves
-gzipped FASTQ that :func:`spacr.sra.fetch_reads` reads as a stream and
-abandons once it has enough. The estimate is shown before anything starts, and
-it is recomputed as the limit changes, so the size is a decision rather than a
-surprise.
+The read limit sets the download size. The four runs are 20.4 GB in full; a
+hundred thousand reads from each is about 30 MB, because ENA serves gzipped
+FASTQ that :func:`spacr.sra.fetch_reads` reads as a stream and abandons once it
+has enough. The estimate is shown before anything starts and is recomputed as
+the limit changes, so the size is known before the download begins.
 """
 from __future__ import annotations
 
@@ -27,7 +26,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ...sra import estimated_bytes, fetch_reads, runs_for
+from ...sra import (_cached_reads_per_file, _cached_runs, estimated_bytes,
+                    fetch_reads, runs_for)
 from ..bridge import emit_safely
 from ..i18n import tr
 
@@ -181,7 +181,24 @@ class SraPicker(QDialog):
         self.adjustSize()
 
     def _load_the_listing(self) -> None:
-        """Ask ENA what the project holds. A failure is said, not raised."""
+        """List the project's runs. A failure is said, not raised.
+
+        The cached read set's own copy of ENA's listing is used when it is
+        downloaded, so the dialog opens without the network; ENA is asked
+        otherwise.
+        """
+        try:
+            cached = _cached_runs()
+        except Exception:                         # noqa: BLE001
+            cached = ()
+        if cached:
+            self._files = cached
+            self._blurb.setText(self._blurb.text() + " " + tr(
+                "Up to {reads} reads from each file come from the cached "
+                "copy, without the network.",
+                reads=f"{_cached_reads_per_file():,}"))
+            self._show(self._files)
+            return
         try:
             self._files = runs_for()
         except Exception as exc:                  # noqa: BLE001

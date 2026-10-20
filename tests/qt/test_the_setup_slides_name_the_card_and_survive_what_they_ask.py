@@ -122,32 +122,6 @@ def slides(qtbot):
     return dialog
 
 
-def test_a_sign_in_window_that_cannot_be_built_uses_a_terminal(slides,
-                                                               monkeypatch):
-    from spacr.qt.ai import pty_sign_in
-
-    ran = []
-    monkeypatch.setattr(pty_sign_in, "pty_available", lambda: True)
-    monkeypatch.setattr(pty_sign_in, "SignInDialog", _broken)
-    monkeypatch.setattr(slides, "_run_in_a_terminal",
-                        lambda command: ran.append(command) or True)
-    provider = types.SimpleNamespace(label="GitHub")
-    assert slides._sign_in_here_or_in_a_terminal(provider,
-                                                 "gh auth login") is True
-    assert ran == ["gh auth login"]
-    assert slides._sign_in_dialog is None
-
-
-def test_closing_a_sign_in_window_that_has_gone_is_quiet(slides):
-    class Gone:
-        def close(self):
-            raise RuntimeError("Internal C++ object already deleted.")
-
-    slides._sign_in_dialog = Gone()
-    slides._stop_sign_in()
-    assert slides._sign_in_dialog is None
-
-
 def _on_card(slides):
     note = slides._gpu_note
     return (note.geometry().top() >= 0

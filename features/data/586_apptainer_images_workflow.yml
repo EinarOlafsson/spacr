@@ -13,13 +13,22 @@
 # The CUDA SIF is built and %test-ed on a CPU runner; hosted runners have no
 # GPU, so its --nv run is the maintainer's local check (see the item file).
 #
-# Wire it into release.yml after the docker-images job, e.g.
+# Wire it into release.yml after the container-images job (job names as of
+# nightly 2026-10-11):
 #
-#   apptainer:
-#     needs: docker
+#   apptainer-images:
+#     name: Build and publish Apptainer images
+#     if: >-
+#       always() &&
+#       needs.container-images.result == 'success'
+#     needs: [bump, container-images]
+#     permissions:
+#       contents: read
+#       packages: write
 #     uses: ./.github/workflows/apptainer-images.yml
-#     with: { release_version: ${{ needs.version.outputs.version }} }
-#     permissions: { contents: read, packages: write }
+#     with:
+#       release_version: ${{ needs.bump.outputs.version }}
+#       publish: true
 #
 # As with the Docker images, GHCR makes a new package private; flip
 # spacr-sif to public once after the first push.
@@ -75,7 +84,7 @@ jobs:
       VARIANT: ${{ matrix.variant }}
       SUFFIX: ${{ matrix.tag_suffix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: v${{ inputs.release_version }}
 

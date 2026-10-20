@@ -160,7 +160,7 @@ class TestVerboseLoggerPref:
             vl._file_handler.flush()
         log_file = vl.current_log_file()
         assert log_file.exists()
-        assert "hello world from a test" in log_file.read_text()
+        assert "hello world from a test" in log_file.read_text(encoding="utf-8")
 
     def test_dialog_carries_toggle(self, qtbot, _isolated_prefs):
         """The Preferences dialog should surface the verbose toggle

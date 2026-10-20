@@ -69,7 +69,7 @@ def adapter(monkeypatch):
     def infer(settings):
         model = Path(settings['model_path'])
         calls.append((model, json.loads(json.dumps(settings))))
-        threshold = float(model.read_text())
+        threshold = float(model.read_text(encoding="utf-8"))
         database = Path(settings['src']) / 'measurements' / 'measurements.db'
         with sqlite3.connect(database) as connection:
             connection.execute('ALTER TABLE png_list ADD COLUMN pred REAL')
@@ -102,7 +102,7 @@ def test_watched_predictions_match_the_same_per_field_batch_pipeline(tmp_path, a
     from spacr.classify import classify
 
     batch = []
-    saved = json.loads(Path(settings['watch_classify_settings']).read_text())
+    saved = json.loads(Path(settings['watch_classify_settings']).read_text(encoding="utf-8"))
     for well in ('A01', 'A02'):
         field = tmp_path / ('batch_' + well)
         field.mkdir()
@@ -238,7 +238,7 @@ def test_real_mask_and_measure_predictions_match_batch_size_one(
     core.preprocess_generate_masks({**MASK, 'src': str(batch)})
     measure_crop({**measure, 'src': str(batch / 'merged')})
     from spacr.classify import classify
-    saved = json.loads(Path(settings['watch_classify_settings']).read_text())
+    saved = json.loads(Path(settings['watch_classify_settings']).read_text(encoding="utf-8"))
     classify({**saved, 'src': str(batch)})
 
     watched_db = watched / 'spacr_watch/measurements/measurements.db'

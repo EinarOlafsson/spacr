@@ -146,9 +146,9 @@ class ChannelPicker(QWidget):
     def setText(self, value: Any) -> None:      # noqa: N802 - Qt naming
         """Set the picker from a settings string.
 
-        NAMED FOR QLineEdit's method on purpose: the settings form writes
-        every field the same way, so a control that took a different setter
-        would have to be special-cased everywhere it is poured into.
+        Named after QLineEdit's method because the settings form writes
+        every field the same way; a control with a different setter would
+        have to be special-cased wherever the form writes values.
 
         :param value: the channels, as the settings dict spells them.
         """

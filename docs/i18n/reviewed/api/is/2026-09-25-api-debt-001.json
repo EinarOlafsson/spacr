@@ -18,7 +18,9 @@
       "source_sha256": "1bc0f9f16cdf085ffcdbb5fa13f1ccc50e61bd2a585788b6d941de69beb45611",
       "context": "Write the table out as the folders the Mask module leaves behind.",
       "translation": "Skrifa töfluna út sem möppurnar sem Mask-einingin skilur eftir sig.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#1",
@@ -26,7 +28,9 @@
       "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
       "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
       "translation": "Þetta er allt sem FEATURES-hnappurinn bætir við Measure: hann breytir töflu af handvöldum skrám í ``stack/``, ``masks/`` og ``merged/`` nákvæmlega eins og :func:`spacr.core.preprocess_generate_masks` hefði skilið þær eftir, allt niður í yfirlitsskrá lagauppsetningar, svo keyrslan sem fylgir er VENJULEG mælingakeyrsla en ekki önnur kóðaleið sem þarf að halda í takt við þessa.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#2",
@@ -114,7 +118,9 @@
       "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
       "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
       "translation": "runa af vörpunum með töfluslóðum ``'score'`` og ``'count'`` (hvor sem er má vera tóm), eins og :func:`normalize_regression_input_pairs` skilar þeim. ``'plate'`` hverrar vörpunar er yfirskrifað með leystu plötumerki.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.ml_analysis#15",
@@ -258,7 +264,9 @@
       "source_sha256": "3cecf04f719ddfc2894e372b74cc978c2264dcddb6c149372c60d6e46db3414c",
       "context": "The Hugging Face page for this model, derived from its download uri.",
       "translation": "Hugging Face-síða þessa líkans, leidd út frá niðurhalsslóð þess.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.ModelEntry.model_card_url#1",
@@ -274,7 +282,9 @@
       "source_sha256": "40bbc828ca6bb9422a56265a37e26bdf500feddeac22c8bd2b5290ff6a8d723b",
       "context": "Every Cellpose model bioimage.io publishes, as zoo rows.",
       "translation": "Öll Cellpose-líkön sem bioimage.io birtir, sem raðir í líkanasafninu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.bioimageio_entries#1",
@@ -338,7 +348,9 @@
       "source_sha256": "3f8d93eb9b2d2460875a1858e8632b77035401139aadd552fe264a1ef580465a",
       "context": "Unvetted models uploaded by spaCR users, or an empty list.",
       "translation": "Óyfirfarin líkön sem notendur spaCR hafa hlaðið upp, eða tómur listi.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#1",
@@ -346,7 +358,9 @@
       "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
       "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
       "translation": "Þau eru aðeins sýnd þegar notandinn biður um þau, því óyfirfarinn vistunarpunktur við hlið mælds líkans býður lesandanum að meðhöndla þau eins. Hver röð ber :data:`COMMUNITY_WARNING`, og gátsumman kemur úr eigin innsendingarfærslu þess sem hlóð upp -- hún sannar að skráin hafi ekki breyst síðan henni var hlaðið upp, EKKI að hún sé góð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#2",
@@ -362,7 +376,9 @@
       "source_sha256": "ce40c7898b5b6cd32f4dc53651316e0be8842d53de9464c6a259bec17c1ca6c2",
       "context": "The rows belonging to the headings that are on, in the given order.",
       "translation": "Raðirnar sem tilheyra fyrirsögnunum sem eru virkar, í gefinni röð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.entries_from_sources#1",
@@ -394,7 +410,9 @@
       "source_sha256": "9343baba1544caf7e62ccc464d512618e0de13c12345c503ecd7272d6a151612",
       "context": "Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.",
       "translation": "Skipta lista í :data:`ZOO_SOURCES` og halda röð hverrar uppsprettu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.group_by_source#1",
@@ -426,7 +444,9 @@
       "source_sha256": "2dad6e2a409441275a53d9a859b204ce6ef9619484fea6495717c2d1380a4883",
       "context": "Every optional segmentation backend, in whatever state it is here.",
       "translation": "Allir valfrjálsir hlutunarbakendar, í hvaða ástandi sem þeir eru hér.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.installable_backend_entries#1",
@@ -434,7 +454,9 @@
       "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
       "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
       "translation": "Bakendi sem er ekki í líkanasafninu kennir engum að hann sé til, svo hver og einn er talinn upp, og ``source`` hans segir hvar hann stendur -- ``installed``, ``installable``, ``installing`` eða ``not installable here`` -- með ástæðuna sem fyrstu athugasemd og leyfi sitt á röðinni. Uppsetning eins byggir honum eigið umhverfi undir ``~/.spacr/backends`` og lætur eigið umhverfi spaCR í friði.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#0",
@@ -442,7 +464,9 @@
       "source_sha256": "e89c42cf82d5b5fce3de712de335e052fb1f87247a4fe77c7bb2996df414d725",
       "context": "The model's scorecard as an HTML table, for a tooltip.",
       "translation": "Einkunnaspjald líkansins sem HTML-tafla, fyrir verkfæraábendingu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#1",
@@ -450,7 +474,9 @@
       "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
       "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
       "translation": "Efnisgrein í lausu máli var það sem verkfæraábending sýndi áður, og lesandi sem bar saman tvö líkön þurfti að þátta tvær efnisgreinar til að finna tvær tölur. Sama taflan og líkanskortið prentar svarar því í fljótu bragði. Fellur aftur á lausa málið þegar færsla birtir enga mælikvarða, því tóm tafla er verri en setning.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#2",
@@ -458,7 +484,9 @@
       "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
       "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
       "translation": "Mælikvarðar sem innihalda enga af lyklum einkunnaspjaldsins -- frjáls athugasemd, þjálfunartap undir eigin heiti -- eru heldur ekki einkunnaspjald, og skila líka engu: tafla með ellefu \"not recorded\" röðum kæmi í stað tveggja lína athugasemdar sem sagði eitthvað.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#3",
@@ -466,7 +494,9 @@
       "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
       "context": "a catalogue entry, or anything with ``metrics`` and a name.",
       "translation": "færsla í líkanaskránni, eða hvaðeina með ``metrics`` og heiti.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#4",
@@ -474,7 +504,9 @@
       "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
       "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "translation": "HTML-taflan, eða ``\"\"`` þegar ekkert einkunnaspjald er til að sýna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.source_of#0",
@@ -482,7 +514,9 @@
       "source_sha256": "67899f46eacc993fb62b4e2fdd5d8afaacb8a519542cedc688e3ed0b4e48a2d4",
       "context": "Which of :data:`ZOO_SOURCES` this row belongs under.",
       "translation": "Undir hvaða :data:`ZOO_SOURCES` þessi röð á heima.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#1",
@@ -490,7 +524,9 @@
       "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
       "context": "Decided from the row, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
       "translation": "Ákveðið ÚT FRÁ RÖÐINNI, aldrei út frá lista yfir heiti sem geymdur er annars staðar: handskrifaður listi úreldist í fyrsta sinn sem líkani er bætt við, og bilunin sem hann veldur er líkan sem er í líkanaskránni en undir engri fyrirsögn, sem er líkan sem enginn getur séð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#2",
@@ -498,18 +534,22 @@
       "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
       "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
       "translation": "Röð prófananna er reglan, og hún skiptir máli á einum stað: Cellpose 3-vistunarpunktur sem birtur er á bioimage.io er bioimage.io-röð, ekki Cellpose 3-röð. ``cellpose3`` merkir EIGIN líkön bakendans -- cyto, cyto2, cyto3, nuclei -- og bakendapakkann sem keyrir þau.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.model_zoo.source_of#3",
+      "label": "spacr.model_zoo.source_of#4",
       "source": "A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "translation": "Röð sem passar við ekkert er skráð undir ``spaCR`` OG ÞAÐ ER SAGT UPPHÁTT. Hún er varaúrræði frekar en sjötta fyrirsögnin því líkan undir rangri fyrirsögn er óþægindi en líkan undir engri fyrirsögn er villa sem notandinn upplifir sem líkan sem vantar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.model_zoo.source_of#4",
+      "label": "spacr.model_zoo.source_of#5",
       "source": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
       "source_sha256": "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
       "context": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
@@ -517,7 +557,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.model_zoo.source_of#5",
+      "label": "spacr.model_zoo.source_of#6",
       "source": "one of :data:`ZOO_SOURCES`.",
       "source_sha256": "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec",
       "context": "one of :data:`ZOO_SOURCES`.",
@@ -530,7 +570,9 @@
       "source_sha256": "3413d54520dbbf73561affe9e8fb675855a81d96ee46b80fd7244a0f335b15c7",
       "context": "Every model the installed Cellpose can fetch for itself.",
       "translation": "Öll líkön sem uppsett Cellpose getur sótt sjálft.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.stock_cellpose_entries#1",
@@ -538,7 +580,9 @@
       "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
       "context": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
       "translation": "Þetta eru ekki skrár spaCR og bera enga gátsummu frá okkur: Cellpose sækir þær og sannreynir, og heitið ER slóðin -- að senda \"cpsam\" til Cellpose leysir það. Þær eru taldar upp svo að líkanasafnið svari spurningunni „með hverju get ég hlutað“ frekar en \"what has Einar trained\", sem er spurningin sem nýr notandi hefur í raun.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks#2",
@@ -596,7 +640,9 @@
       "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
       "context": "Say what each object in a mask is, after any segmenter has made it.",
       "translation": "Segja hvað hver hlutur í grímu er, eftir að einhver hlutunaraðferð hefur búið hann til.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#1",
@@ -612,7 +658,9 @@
       "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
       "context": "Two ways in:",
       "translation": "TVÆR LEIÐIR INN:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#3",
@@ -636,7 +684,9 @@
       "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
       "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "translation": "HVAÐ HAUS ER. Haus er þjálfaður flokkari: hann fær lotu af myndskurðum og skilar flokki og líkum fyrir hvern. Hann er samskiptaregla frekar en grunnklasi, svo millistykki utan um torch-einingu eða scikit-learn-matara getur lagt hann til. Tvær notkunir eru fyrirhugaðar -- sníkjudýr í hverri safabólu, og hvað hver hlutur er -- og PV-notkunin er í reynd þrír hausar, þjálfaðir sérstaklega á Hoechst, sníkjudýralitunina og CellMask, svo plata telur út frá hvaða litun sem hún hefur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#6",
@@ -652,7 +702,9 @@
       "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
       "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
       "translation": "AUÐKENNI ERU ALDREI ENDURNÚMERUÐ. Allt hér byggir á merkjaauðkennunum sem gríman kom með, og hver gríma sem skilað er heldur þeim. `canonical_labels` í `mask_engine` segir hvað endurnúmerun kostar: mælingarnar, myndskurðirnir og ferlarnir eru allir lyklaðir eftir þessum auðkennum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#0",
@@ -660,7 +712,9 @@
       "source_sha256": "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
       "context": "Adapt a count regressor to the object-head prediction interface.",
       "translation": "Laga talningaraðhvarfslíkan að spáviðmóti hlutahausa.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#1",
@@ -684,7 +738,9 @@
       "source_sha256": "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4",
       "context": "Return unrounded counts and display classes for an extracted image region batch.",
       "translation": "Skila ónámunduðum talningum og birtingarflokkum fyrir lotu myndskurða.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead.predict#1",
@@ -716,7 +772,9 @@
       "source_sha256": "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
       "context": "Put a predicted parasite count in the bin a report shows it in.",
       "translation": "Setja spáða sníkjudýratalningu í bilið sem skýrsla sýnir hana í.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#1",
@@ -724,7 +782,9 @@
       "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
       "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
       "translation": "BILIÐ ER BIRTINGARVAL, EKKI ÞJÁLFAÐ VAL. Hausinn spáir hversu mörg sníkjudýr hann sér; þetta er aðeins hvernig sú tala er sýnd. Það skiptir máli því reglunni hér að neðan má breyta -- eða skipta henni út fyrir aðra í hverri skýrslu -- án þess að endurþjálfa nokkuð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#2",
@@ -732,7 +792,9 @@
       "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
       "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
       "translation": "JAFNTEFLI FARA NIÐUR, og 12 er tilvikið: það er fjórum frá 8 og fjórum frá 16. Safabóla með 12 hefur lokið átta og er á leið til sextán, svo hún er tilkynnt sem umferðin sem hún hefur lokið frekar en sú sem hún hefur ekki lokið.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#3",
@@ -764,7 +826,9 @@
       "source_sha256": "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
       "context": "Classify every object of a mask that already exists.",
       "translation": "Flokka hvern hlut í grímu sem þegar er til.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.classify_objects#1",
@@ -868,7 +932,9 @@
       "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
       "context": "What can be said about every object without a trained head at all.",
       "translation": "Það sem hægt er að segja um hvern hlut án nokkurs þjálfaðs hauss.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.describe_objects#1",
@@ -892,7 +958,9 @@
       "source_sha256": "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
       "context": "Join each pair into one object, keeping the lower id.",
       "translation": "Sameina hvert par í einn hlut og halda lægra auðkenninu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.merge_halves#1",
@@ -932,7 +1000,9 @@
       "source_sha256": "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
       "context": "Take objects out of a mask without renumbering what is left.",
       "translation": "Taka hluti úr grímu án þess að endurnúmera það sem eftir er.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.remove_labels#2",
@@ -956,7 +1026,9 @@
       "source_sha256": "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
       "context": "Segment a field with any backend, then classify what it found.",
       "translation": "Hluta sjónsvið með hvaða bakenda sem er og flokka síðan það sem fannst.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.segment_and_classify#1",
@@ -1014,7 +1086,9 @@
       "source_sha256": "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
       "context": "Pairs of labels that look like one object cut in two.",
       "translation": "Pör merkja sem líta út eins og einn hlutur skorinn í tvennt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.split_candidates#1",
@@ -1054,7 +1128,9 @@
       "source_sha256": "3ba31413a237ecdda26396e14b6e5a75c36c2e58ead75807f0a5a3ff51afac65",
       "context": "Whether object ``label`` runs into the edge of the microscope field of view.",
       "translation": "Hvort hluturinn ``label`` nær út að brún sjónsviðsins.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.touches_border#2",
@@ -1166,7 +1242,9 @@
       "source_sha256": "5b698f781f00fdf4f81d71558d838168b5557a1be12f862fe52f433b71d88869",
       "context": "Stitch, place, segment and decode the microplate sample positions of one sequencing acquisition.",
       "translation": "Skeyta saman, staðsetja, hluta og afkóða brunna einnar raðgreiningarmyndatöku.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#1",
@@ -1182,7 +1260,9 @@
       "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
       "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
       "translation": "HVOR MAPPAN SEM ER MÁ VERA YFIRMAPPA BEGGJA HELMINGA, og hver stilling les samt sína eigin: ``genotype_source`` skráir aðeins heiti sem bera raðgreiningarumferð og ``phenotype_source`` aðeins heiti sem gera það ekki, en fellur aftur á heiti með umferð fyrir svipgerðarmyndatöku sem ber þau. Að beina báðum að ``20200202_6W-LaC024A`` keyrir því plötuna, frekar en að skrá 1,281 svipgerðarsjónsvið og 333 raðgreiningarsjónsvið sem eina myndatöku -- sjá :func:`_index_tiles`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#4",
@@ -1214,7 +1294,9 @@
       "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
       "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
       "translation": "``(top, left, bottom, right)`` í pixlum brunnrammans, öll gildin MEÐTALIN -- ``bottom`` og ``right`` eru síðasta röðin og dálkurinn sem gríman nær yfir, svo hæð hennar er ``bottom - top + 1``. Þessi lýsing sagði „ekki meðtalin“ fram til 2026-09-19 og kóðinn hefur alltaf verið meðtalinn (`_label_extents` minnkar með ``np.maximum``), sem kostaði hvern þann sem mældi útbreiðslu út frá henni einn pixil í hvora átt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#0",
@@ -1222,7 +1304,9 @@
       "source_sha256": "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
       "context": "One record per group no window saw whole, for a run report.",
       "translation": "Ein færsla fyrir hvern hóp sem enginn gluggi sá í heild, fyrir keyrsluskýrslu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#1",
@@ -1230,7 +1314,9 @@
       "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
       "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
       "translation": "HVERS VEGNA ÞETTA ERU EKKI HÖFNUNARSKILABOÐIN. :func:`_unseen_report` nefnir STÆRSTA hópinn og úrræðið, sem er það sem stjórnandi sem les eina línu þarf. Það er líka allt sem lifði af keyrslu brunns A1: 54 hópum var sleppt og skýrslan hélt einum kassa og fjölda, svo spurningunni sem keyrslan vakti -- eru þetta Cellpose-brot án hliðstæðu, eða klipptir hlutar þar sem samskeytingin missti af fullkominni athugun? -- var ekki hægt að svara eftir á án þess að hluta brunninn aftur. Þessar færslur eru ódýri helmingur þess svars, skrifaðar á meðan athuganirnar eru enn í minni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#2",
@@ -1238,7 +1324,9 @@
       "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
       "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
       "translation": "Hinn helmingurinn tilheyrir :func:`spacr.ops_engine.run_ops`, sem ber hvern kassa saman við hlutina sem VORU númeraðir: höfnun með númeruðum hlut yfir sér er samskeyting sem missti af, og höfnun með tómum brunnramma í kring er brot.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#3",
@@ -1278,7 +1366,9 @@
       "source_sha256": "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
       "context": "The intensities a call was made on, the barcode, and the margin per cycle.",
       "translation": "Styrkleikagildin sem köllun var gerð á, strikamerkið og munurinn fyrir hverja umferð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_sbs.called_bases#1",
@@ -1390,7 +1480,9 @@
       "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
       "context": "What ``method`` suits, as one sentence a picker can show.",
       "translation": "Það sem ``method`` hentar, sem ein setning sem valgluggi getur sýnt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.method_guidance#1",
@@ -1414,7 +1506,9 @@
       "source_sha256": "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
       "context": "The shapes ``method`` is a legal detector for.",
       "translation": "Formin sem ``method`` er leyfilegur greinir fyrir.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.morphologies_for_method#1",
@@ -1478,7 +1572,9 @@
       "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
       "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
       "translation": "ENDURNEFNDUR lykill er færður frekar en honum sé sleppt: ``img_size`` varð ``crop_size`` 2026-09-19, og vistuð keyrsla sem valdi stærð heldur henni. Endurnefningin er lesin úr :func:`spacr.settings.surviving_setting_name`, úrlausnarfallinu sem stillingaskrárnar nota, og aðeins yfir á lykil sem þetta spjald býður. Nýja heitið ræður þegar gagnabútur ber bæði.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
@@ -1584,7 +1680,9 @@
       "source_sha256": "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
       "context": "The flow picture and cell probability out of a Cellpose result.",
       "translation": "Flæðimyndin og frumulíkurnar úr niðurstöðu Cellpose.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.plaque_flow_outputs#1",
@@ -1608,7 +1706,9 @@
       "source_sha256": "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
       "context": "Segment one plaque image the way both Plaque mode's preview and run do.",
       "translation": "Hluta eina skellumynd á sama hátt og bæði forsýn og keyrsla Plaque-hamsins gera.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#1",
@@ -1616,7 +1716,9 @@
       "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
       "translation": "Myndin fer til Cellpose eins og hún er, RGB eða grá, og Cellpose staðlar hana. Hún er EKKI send í gegnum eldri hleðslufall keyrslunnar (``_load_normalized_images_and_labels`` með ``background=200``): á 8-bita myndskurði mettaði það hleðslufall hvern pixil í 1.0 -- mælt á ``malnio__2.tif``, min = max = 1.0 í hverri rás -- svo keyrslan fann engar skellur á meðan forsýnin, sem las myndina eins og hún er, fann 67. Eitt fall fyrir bæði er það sem kemur í veg fyrir að þau verði aftur ósammála.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#2",
@@ -1689,7 +1791,9 @@
       "source_sha256": "d06db38d8cc9c72ad953fbddefc9d1616b72a2e6b7387a428d125e6f9181b6c1",
       "context": "Suggest missing scale/time using an explicitly assumed growth relation.",
       "translation": "Stinga upp á kvarða/tíma sem vantar með sérstaklega gefnu vaxtarsambandi.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.estimate_page#1",
@@ -1737,7 +1841,9 @@
       "source_sha256": "9f499b1eab475128b832d020e0c203b7961e6ec203bc3bf368446419039206a2",
       "context": "Return per-microplate sample position suggestions and complete JSON provenance when enabled.",
       "translation": "Skila tillögum fyrir hvern brunn og fullum JSON-uppruna þegar það er virkt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.estimates_from_settings#1",
@@ -1769,7 +1875,9 @@
       "source_sha256": "2400ae0c5a25da75770e394c915fddf157beb306386e8c7902de190e6ecfa2fe",
       "context": "Median equivalent diameter of the largest ceil(N/4) positive areas.",
       "translation": "Miðgildi jafngilds þvermáls stærstu ceil(N/4) jákvæðu flatarmálanna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_growth.largest_quarter#1",
@@ -1809,7 +1917,9 @@
       "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
       "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
       "translation": "AÐSTÆÐURNAR ERU ERFIÐI HLUTINN, og þær eru lesnar á tvo óháða vegu, alltaf báða, því tveir lestrar sem eru sammála eru sönnunargögn en einn er ágiskun:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#3",
@@ -1841,7 +1951,9 @@
       "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
       "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
       "translation": "STÆRÐIR. Flatarmál skellu í pixlum fer eftir prentun greinarinnar, svo hver skella ber líka flatarmál sitt miðað við miðgildisskelluna í sömu hlutamynd, og flatarmál í mm^2 aðeins þegar kvarði er til: kvarðastika lesin í eða undir myndinni (lengd hennar úr merkinu við hliðina, eða úr \"scale bar, 1 mm\" myndatextans), eða heill brunnur af plötusniði sem stillingarnar eða myndatextinn tilgreina. Uppgefin stækkun er skráð en er aldrei kvarði, því prentuð mynd hefur verið kvörðuð upp á nýtt síðan myndin var tekin. Raðir án kvarða segja að stærðir þeirra séu í pixlum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#7",
@@ -1849,7 +1961,9 @@
       "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
       "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
       "translation": "TVÍTEKNINGAR. Mynd er auðkennd með grein sinni (DOI þegar það er til) og myndhassi sínu. Sama mynd sem sést aftur -- sömu bætin, eða sömu pixlarnir á öðru skráarsniði, undir öðru heiti eða í annarri grein, eins og forprent og birt útgáfa þess -- er mæld einu sinni og skráð í ``duplicates`` töfluna á móti afritinu sem var mælt. Grein sem þegar hefur verið mæld úr einni uppsprettu (Europe PMC) er ekki mæld aftur úr annarri (PDF-skrá hennar). Mynd sem aðeins LÍTUR EINS ÚT (nánast eins skynjunarhass, eins og endurkóðað afrit eða afrit með breyttri stærð hefði) er skráð sem möguleg tvítekning og samt mæld, því á myndum í greinum er það líkindi, ekki sönnun.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#8",
@@ -1857,7 +1971,9 @@
       "source_sha256": "50a1e664ffd77bee0330eeaf2f96f65df2a7cc880a567ee003de372746390f1c",
       "context": "TEXT. A PDF's own text layer is used for legends and labels before any OCR; OCR is asked only when the text layer has nothing near the plaque images, which is what a figure pasted into the PDF as one picture looks like.",
       "translation": "TEXTI. Eigið textalag PDF-skrár er notað fyrir myndatexta og merki á undan allri OCR; aðeins er beðið um OCR þegar textalagið hefur ekkert nálægt skellumyndunum, sem er hvernig mynd sem límd var inn í PDF-skrána sem ein mynd lítur út.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#9",
@@ -1873,7 +1989,9 @@
       "source_sha256": "d5b144bb96dcac6a396c2c0043e61a2e5d8ef07f5f9f5454d3d71755f2dc371a",
       "context": "What one plaque image shows, and how that was decided.",
       "translation": "Hvað ein skellumynd sýnir, og hvernig það var ákveðið.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Annotation#1",
@@ -1961,7 +2079,9 @@
       "source_sha256": "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
       "context": "One figure image and its legend.",
       "translation": "Ein myndskrá og myndatexti hennar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Figure#1",
@@ -2009,7 +2129,9 @@
       "source_sha256": "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
       "context": "One paper, however it was named.",
       "translation": "Ein grein, hvernig sem hún var nefnd.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Paper#1",
@@ -2041,7 +2163,9 @@
       "source_sha256": "89fd591d171eceb74fa5dd9143d3a6b02ecf18fcd391debed0bd997896350818",
       "context": "The figure reader must be installed, or installed again, first.",
       "translation": "Það þarf fyrst að setja upp myndalesarann, eða setja hann upp aftur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.ReaderNeedsInstall#1",
@@ -2083,7 +2207,9 @@
       "source_sha256": "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
       "context": "One plaque image the detector found inside a figure.",
       "translation": "Ein skellumynd sem greinirinn fann innan myndar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region#1",
@@ -2139,7 +2265,9 @@
       "source_sha256": "00daa0dedd4ef958e1c5bba56131a3d793a1c083cef03a0927ecf3b9319f2ec6",
       "context": "Shorter side over longer, so 1.0 is square.",
       "translation": "Styttri hlið deilt með þeirri lengri, svo 1.0 er ferningur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.contains#0",
@@ -2147,7 +2275,9 @@
       "source_sha256": "cc38c72a91847fb8cf0b0831289c50261132248d55c1c69d085590d89eaa4d5f",
       "context": "Whether a word's centre lies inside this box.",
       "translation": "Hvort miðja orðs liggur innan þessa kassa.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.contains#1",
@@ -2171,7 +2301,9 @@
       "source_sha256": "318abcb8b1a4fcf8d4b5f607b3fed5d89860de32a73161307db19d40b55d2865",
       "context": "Box height in pixels.",
       "translation": "Hæð kassans í pixlum.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Region.width#0",
@@ -2179,7 +2311,9 @@
       "source_sha256": "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8",
       "context": "Box width in pixels.",
       "translation": "Breidd kassans í pixlum.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions#0",
@@ -2187,7 +2321,9 @@
       "source_sha256": "d5bec4da82e97883c949ceea598469921978e5eb26e16160dd1536ec70818599",
       "context": "How the text around a plaque image is turned into its condition.",
       "translation": "Hvernig textanum í kringum skellumynd er breytt í tilraunaaðstæður hennar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions#1",
@@ -2307,7 +2443,9 @@
       "source_sha256": "81038886928203d9a3f965e4e911bd337ade46427239ec4b68ba05463d490cf4",
       "context": "Whether a word survives the confidence and ignore filters.",
       "translation": "Hvort orð lifir af öryggis- og hunsunarsíurnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.TextOptions.keeps#1",
@@ -2331,7 +2469,9 @@
       "source_sha256": "7c992c5f9307ed699a42d4e402661477a0c898337735d5735669ee0047f0f0da",
       "context": "One piece of text in a figure, in image pixels.",
       "translation": "Einn textabútur í mynd, í pixlum myndarinnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word#1",
@@ -2387,7 +2527,9 @@
       "source_sha256": "ed279280eced084339d9906fced493dce4d836068cf329a5306d9666d0a120b0",
       "context": "Horizontal centre.",
       "translation": "Lárétt miðja.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word.cy#0",
@@ -2395,7 +2537,9 @@
       "source_sha256": "aa345147114f5b24a9a8d95df5d34fb9e4b0d3440ea5633b1f65036749e78575",
       "context": "Vertical centre.",
       "translation": "Lóðrétt miðja.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.Word.panel_letter#0",
@@ -2403,7 +2547,9 @@
       "source_sha256": "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c",
       "context": "The letter when this word is a panel label such as ``F`` or ``(b)``.",
       "translation": "Stafurinn þegar þetta orð er merki hlutamyndar eins og ``F`` eða ``(b)``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotate_regions#0",
@@ -2411,7 +2557,9 @@
       "source_sha256": "04744b44fb595d2ebfaa60f1ae87739800367e1fc69d09b69f99198c08cbafa5",
       "context": "Propose a condition for every plaque image in one figure.",
       "translation": "Stinga upp á aðstæðum fyrir hverja skellumynd í einni mynd.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotate_regions#1",
@@ -2475,7 +2623,9 @@
       "source_sha256": "e311ac45ef5d98bbec5131b8b24648da27f950e44087e20edaaff1e100f39d47",
       "context": "An annotation as plain values, for JSON and the review dialog.",
       "translation": "Athugasemd sem einföld gildi, fyrir JSON og yfirferðargluggann.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.annotation_as_dict#1",
@@ -2499,7 +2649,9 @@
       "source_sha256": "73cc2c2379f444b0ff76343027c4c7d68ca24ea55ce9fd8d6d4f56becbb6a718",
       "context": "Put a person's edits and approvals onto one figure's proposals.",
       "translation": "Setja breytingar og samþykktir manneskju á tillögur einnar myndar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.apply_overrides#1",
@@ -2555,7 +2707,9 @@
       "source_sha256": "de6e27b12a83aeac319312b45df2a01ad8f8b6830973c677de4525b30f28de5c",
       "context": "Parse an optional finite calibration value without treating invalid input as missing.",
       "translation": "Þátta valfrjálst endanlegt kvörðunargildi án þess að meðhöndla ógilt inntak sem vantandi.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.calibration_values#0",
@@ -2563,7 +2717,9 @@
       "source_sha256": "372341476aabb3763d862ccc7005408d9c529181e736779e582d85144682685d",
       "context": "Return per-microplate sample position size, scale and timing metadata for preview and saved tables.",
       "translation": "Skila lýsigögnum um stærð, kvarða og tímasetningu fyrir hvern brunn fyrir forsýn og vistaðar töflur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.calibration_values#1",
@@ -2579,7 +2735,9 @@
       "source_sha256": "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
       "context": "Ask at the terminal for a legend nobody could fetch.",
       "translation": "Biðja í skipanalínu um myndatexta sem enginn gat sótt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_legend_prompt#1",
@@ -2619,7 +2777,9 @@
       "source_sha256": "e9801e82f0ef743c389c3454861f100bc6d79d2c99c953e1c32a5ba6503dd94e",
       "context": "Show each proposed condition at the terminal and take OK, an edit, or skip.",
       "translation": "Sýna hverjar tillögðu aðstæður í skipanalínu og taka við samþykkt, breytingu eða sleppingu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_review#1",
@@ -2651,7 +2811,9 @@
       "source_sha256": "16654b7288c584ab587a18f6c18649cbfdcf0118a6867e7f645fe5b33dcd582e",
       "context": "The detector call Figure mode uses: in process, or in the reader.",
       "translation": "Greiningarkallið sem Figure-hamurinn notar: í ferlinu sjálfu, eða í lesaranum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.default_detect#1",
@@ -2667,7 +2829,9 @@
       "source_sha256": "c74876a9b99f9f510356cde6978b34e9a4afaa51a8f24f87d3b6fe7c099f6439",
       "context": "Download a paper's figures from Europe PMC with their legends.",
       "translation": "Sækja myndir greinar frá Europe PMC ásamt myndatextum þeirra.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#1",
@@ -2675,7 +2839,9 @@
       "source_sha256": "89bca07c87b373de37b4f7f41175f0a7ac98d01f74e21453d1cf2a4bfe68197a",
       "context": "The images come from the ``supplementaryFiles`` bundle, which carries the main figures as well as the supplements; one file per figure survives, the largest, because journals also ship thumbnails and a detector shown a thumbnail has not been asked the question. Legends come from the full-text XML.",
       "translation": "Myndirnar koma úr ``supplementaryFiles`` búntinu, sem ber aðalmyndirnar jafnt sem viðaukana; ein skrá fyrir hverja mynd lifir af, sú stærsta, því tímarit senda líka smámyndir og greinir sem er sýnd smámynd hefur ekki verið spurður spurningarinnar. Myndatextar koma úr XML með fullum texta.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#2",
@@ -2715,7 +2881,9 @@
       "source_sha256": "c45b48bc27bc20c41911b9fec0017b401ae7dd6436799efb828fd37b66e31b51",
       "context": "Put a paper's figures in a folder Plaque Assay's Figure mode can read.",
       "translation": "Setja myndir greinar í möppu sem Figure-hamur Plaque Assay getur lesið.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_paper_to_folder#1",
@@ -2771,7 +2939,9 @@
       "source_sha256": "083dc7acd3ff669f839a328292d3072ea041ca642dfea957c13a72902a6b5065",
       "context": "Every page of a PDF as a figure image, with its text layer attached.",
       "translation": "Hver síða PDF-skrár sem myndskrá, með textalagi sínu áföstu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figures_from_pdf#1",
@@ -2843,7 +3013,9 @@
       "source_sha256": "8ec9169b6895b82549fc3b12a5267cb97e05dc322a94d829bc6da230311289d0",
       "context": "Every figure image directly in ``src``, with its legend when known.",
       "translation": "Hver myndskrá beint í ``src``, með myndatexta sínum þegar hann er þekktur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figures_in_folder#1",
@@ -2875,7 +3047,9 @@
       "source_sha256": "a88b58fc97bea220ab1066d30b0d71b11af071c555c1ed8301009e9855803009",
       "context": "Plaque images in one figure, asked at every inference size given.",
       "translation": "Skellumyndir í einni mynd, spurt við hverja gefna ályktunarstærð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.find_plaque_regions#1",
@@ -2947,7 +3121,9 @@
       "source_sha256": "c979713f02fef8356300beb27390b085800100ce6b1bf0b6e11b6e49b6e965b4",
       "context": "Figure legends found in a paper's running text.",
       "translation": "Myndatextar sem finnast í meginmáli greinar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.legends_from_text#1",
@@ -2987,7 +3163,9 @@
       "source_sha256": "5d91452d503580d1682a59fa04764bbef8536d904b96b738cf1450a1dd210957",
       "context": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.",
       "translation": "Figure-hamur Plaque Assay: finna, lesa, skrifa athugasemdir við og mæla möppu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#1",
@@ -2995,7 +3173,9 @@
       "source_sha256": "b76a7b49e3f4a48f3459c5998d43d05deb181232c09f5f74eaff887c652f4b36",
       "context": "Nothing here stops to ask. Legends come from ``legends`` (default ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``, the paper from ``<src>/paper.json``, and a person's edits and approvals from ``annotations`` (default ``<src>/figure_annotations.csv``), which the Figure preview writes. With ``confirm_each`` on, only approved images are measured and the rest are counted as waiting. A figure measured again replaces its earlier rows; the same image under a second name is measured once and recorded as a duplicate -- the copy with a legend is the one measured, since figures with legends are taken first.",
       "translation": "Ekkert hér stoppar til að spyrja. Myndatextar koma úr ``legends`` (sjálfgefið ``<src>/legends.csv``), textalag PDF-skrár úr ``<src>/text_layer.json``, greinin úr ``<src>/paper.json``, og breytingar og samþykktir manneskju úr ``annotations`` (sjálfgefið ``<src>/figure_annotations.csv``), sem Figure-forsýnin skrifar. Með ``confirm_each`` virkt eru aðeins samþykktar myndir mældar og hinar taldar sem bíðandi. Mynd sem er mæld aftur kemur í stað fyrri raða sinna; sama myndin undir öðru heiti er mæld einu sinni og skráð sem tvítekning -- afritið með myndatexta er það sem er mælt, því myndir með myndatexta eru teknar fyrst.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#10",
@@ -3123,7 +3303,9 @@
       "source_sha256": "3e1793a7e1db6b4d248772127a491eb51eb1ac2f4622f3eacb56296a13f71efa",
       "context": "Measure the plaques in every figure of every paper given.",
       "translation": "Mæla skellurnar í hverri mynd hverrar gefinnar greinar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_plaques_from_papers#1",
@@ -3219,7 +3401,9 @@
       "source_sha256": "429ed306a9416ec8209f852f9cf0732b1113131e9920f0e94c463603021b889a",
       "context": "One row per plaque in a segmented plaque image.",
       "translation": "Ein röð fyrir hverja skellu í hlutaðri skellumynd.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_region#1",
@@ -3253,7 +3437,9 @@
       "source_sha256": "6976dc0dd07662f8e2a3d62dc650fa43cb869b1099a2cf00bfdf2989b5d45c1b",
       "context": "Open (and create, or bring up to date) the results database.",
       "translation": "Opna (og búa til, eða uppfæra) niðurstöðugagnagrunninn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.open_database#1",
@@ -3293,7 +3479,9 @@
       "source_sha256": "570d557c65923a1ff3a0ccf73c81d3b169d0e46efb9d68f03fd6b1982537000b",
       "context": "Say what kind of reference a user typed.",
       "translation": "Segja hvers konar tilvísun notandi sló inn.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.parse_reference#1",
@@ -3317,7 +3505,9 @@
       "source_sha256": "fe2fcf48af0c396f0234fcf54094e0b0178b66fd408896c17e6a170a5e1c20bf",
       "context": "Conditions a person edited or approved, keyed by figure and image.",
       "translation": "Aðstæður sem manneskja breytti eða samþykkti, lyklaðar eftir mynd og myndhluta.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_annotation_overrides#1",
@@ -3333,7 +3523,9 @@
       "source_sha256": "c417eed5768de812a16bdb7c5e6e0e6bd2eb21a1f23618014aaae28c3272836a",
       "context": "Figure legends supplied beside a folder of figures.",
       "translation": "Myndatextar sem fylgja möppu af myndum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_legends#1",
@@ -3357,7 +3549,9 @@
       "source_sha256": "a4823e5f2660c2209c9e071034c4e26b8bcefcbe42256ffacc265e3338a14570",
       "context": "The text printed in a figure image, with where it is.",
       "translation": "Textinn sem prentaður er í myndskrá, ásamt staðsetningu hans.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.read_words#1",
@@ -3397,7 +3591,9 @@
       "source_sha256": "9de13c605de361ef665e570b8194ef7a1de462fdd5c813f1c8ba5cd6c9799fc9",
       "context": ":func:`spacr.plaque.detect_wells`, answered by the reader's environment.",
       "translation": ":func:`spacr.plaque.detect_wells`, svarað af umhverfi lesarans.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_detect#1",
@@ -3453,7 +3649,9 @@
       "source_sha256": "e22217703b41c0ae60d2f0a477622214b6fd7e9f12cb0f9cac0f563de38fd65b",
       "context": "The figure reader's own environment when it is installed, else None.",
       "translation": "Eigið umhverfi myndalesarans þegar hann er uppsettur, annars None.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_environment#1",
@@ -3469,7 +3667,9 @@
       "source_sha256": "2c4b0219d390309fcded6871329c3e98035da1ce867e1a08af764764816ea129",
       "context": "Whether Figure mode can read now, and what to do when it cannot.",
       "translation": "Hvort Figure-hamurinn getur lesið núna, og hvað skal gera þegar hann getur það ekki.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_problem#1",
@@ -3501,7 +3701,9 @@
       "source_sha256": "9fd40dd240a6986eaf7946f48daf5fa81fa17c358581ca0e3207c930d65fa434",
       "context": "Read the text around each grid of plaque images again, enlarged.",
       "translation": "Lesa textann í kringum hvert hnitanet skellumynda aftur, stækkaðan.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reread_around#1",
@@ -3565,7 +3767,9 @@
       "source_sha256": "06db37f358718807dd30deb26e1be23f9178aef98352a304fd387e51615e8f3b",
       "context": "Look a reference up in Europe PMC, or describe a local PDF.",
       "translation": "Fletta tilvísun upp í Europe PMC, eða lýsa staðbundinni PDF-skrá.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.resolve_paper#1",
@@ -3605,7 +3809,9 @@
       "source_sha256": "a45fcd6b887924fb6f5007b53bff64fce1328a582fdd17f89defc2ee13cd5a13",
       "context": "Hex sha256 of some bytes.",
       "translation": "Sextándakerfis-sha256 af bætum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.sha256_bytes#1",
@@ -3629,7 +3835,9 @@
       "source_sha256": "ea3a961e2d0a5a9f35d10bf9a5a1e040067657754eb4b065423b6336a70f73c4",
       "context": "A figure legend cut into one passage per panel letter.",
       "translation": "Myndatexti skorinn í einn kafla fyrir hvern staf hlutamyndar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.split_legend#1",
@@ -3661,7 +3869,9 @@
       "source_sha256": "5e4878d34b894f321c5d42be71bfc0921a9b08b1e2e735a46376de6fa42055f5",
       "context": "The text a reader would take as this image's label.",
       "translation": "Textinn sem lesandi myndi taka sem merki þessarar myndar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#1",
@@ -3717,7 +3927,9 @@
       "source_sha256": "a67cb99a1183a4e5b6944053731c0d7444eddfa69fe15d9c05ad4369b96fba04",
       "context": "**panel** -- a panel letter above and to the left of the grid's top-left corner, within one image size of it. Further than that is another panel's letter, and no letter is better than the wrong one.",
       "translation": "**hlutamynd** -- stafur hlutamyndar fyrir ofan og vinstra megin við efra vinstra horn hnitanetsins, innan einnar myndstærðar frá því. Lengra en það er stafur annarrar hlutamyndar, og enginn stafur er betri en rangur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#6",
@@ -3757,7 +3969,9 @@
       "source_sha256": "aaee248eae3cca58718a79e35cb15cd516b4b8f0edaccd56a62e30ea1dfac29b",
       "context": ":class:`TextOptions` from a settings key-value mapping's ``text_*`` structured-data names.",
       "translation": ":class:`TextOptions` út frá ``text_*`` lyklum stillingaorðabókar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_options_from_settings#1",
@@ -3781,7 +3995,9 @@
       "source_sha256": "72a190b5e9f6b6fa0f3dee0f7f846d926139db70c9338c8d806e39ea52e70fbf",
       "context": "Save reviewed conditions for :func:`read_annotation_overrides`.",
       "translation": "Vista yfirfarnar aðstæður fyrir :func:`read_annotation_overrides`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.write_annotation_overrides#1",
@@ -3901,7 +4117,9 @@
       "source_sha256": "af600b6cfc25b552a14703657b3135e7a087c397cc21e948d8c8a7bdc0d9489a",
       "context": "One microscope objective: nominal magnification, numerical aperture and immersion.",
       "translation": "Eitt smásjárhlutgler: nafnstækkun, tölulegt ljósop og ídýfing.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.Objective#1",
@@ -3941,7 +4159,9 @@
       "source_sha256": "38eee7f455218b3ff8eace06c7951d36d0d9f4782e858af1c05dbd24638b4ef5",
       "context": "An inferred optical quantity and where it came from.",
       "translation": "Ályktuð ljósfræðileg stærð og hvaðan hún kom.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.OpticalValue#1",
@@ -3981,7 +4201,9 @@
       "source_sha256": "75330411bedaa82d776fdbfed3773f0168f32bde774c71adb18f6aafa436928b",
       "context": "An immutable, normalized kernel whose bytes identify the actual PSF.",
       "translation": "Óbreytanlegur, staðlaður kjarni þar sem bætin auðkenna raunverulega PSF.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSF#1",
@@ -4037,7 +4259,9 @@
       "source_sha256": "2c8f09cc2576919eacf7a3da85b71d1a51e0f94da947b2589d63c692b90dbf5f",
       "context": "Return a read-only float32 view of the normalized kernel.",
       "translation": "Skila float32-sýn í leshami af staðlaða kjarnanum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSF.provenance#0",
@@ -4045,7 +4269,9 @@
       "source_sha256": "6fb33becbb75cf3ca4ce36036d61f2c1c9c000766371beed302178e48eb7c6c6",
       "context": "Return a fresh JSON-safe record of the kernel and its identity.",
       "translation": "Skila nýrri JSON-öruggri færslu um kjarnann og auðkenni hans.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSFResult#0",
@@ -4053,7 +4279,9 @@
       "source_sha256": "9b7f57e17029536623b8a0b9929e172f5dac2b4eb4960655d5003d817ea3da5e",
       "context": "Processed float32 image and a JSON-safe processing receipt.",
       "translation": "Unnin float32-mynd og JSON-örugg vinnslukvittun.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.PSFResult#1",
@@ -4077,7 +4305,9 @@
       "source_sha256": "818f85df594de0515acfe2a8f0fa21082b81025c2ade91a6358007c888daa33f",
       "context": "A caller cancelled processing; no partial image should be applied.",
       "translation": "Kallandi hætti við vinnslu; ekki ætti að beita neinni hálfkláraðri mynd.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#0",
@@ -4085,7 +4315,9 @@
       "source_sha256": "19e42c80f76139d7b1f733ec7101df38605f2d70c6fd8dae8aa026bad90ac99c",
       "context": "Convolve or Richardson–Lucy deconvolve each channel with a known PSF.",
       "translation": "Földun eða Richardson–Lucy afföldun hverrar rásar með þekktri PSF.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#1",
@@ -4125,7 +4357,9 @@
       "source_sha256": "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
       "context": "deconvolution iterations, integer 1..200, default20.",
       "translation": "ítranir afföldunar, heiltala 1..200, sjálfgefið 20.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#6",
@@ -4165,7 +4399,9 @@
       "source_sha256": "59fcccfa43216fceb4536e3179b3b114665662142817bfa25624d1cfd1c3766c",
       "context": "One English line per inferred value: ``name = value (source: detail)``.",
       "translation": "Ein ensk lína fyrir hvert ályktað gildi: ``name = value (source: detail)``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.describe_optics#1",
@@ -4189,7 +4425,9 @@
       "source_sha256": "ac0670908d4e690aba6df5f3177fe76df98c1d4d03035d8cd9985e61e3dcac77",
       "context": "Fill unset Gaussian PSF calibration in Mask settings, in place.",
       "translation": "Fylla út óstillta Gauss-PSF-kvörðun í Mask-stillingum, á staðnum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.fill_psf_settings#1",
@@ -4229,7 +4467,9 @@
       "source_sha256": "ca6e1fc0c371c2f3e410587ea927f0edb2553f5774a613e8ffcf1783c7b2ead1",
       "context": "Calculate a sampled Gaussian approximation from declared physical widths.",
       "translation": "Reikna sýnatekna Gauss-nálgun út frá uppgefnum raunbreiddum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.gaussian_psf#1",
@@ -4277,7 +4517,9 @@
       "source_sha256": "5aa8b9059d007dd0fc1ffa8628a08d7d0fe759fcc85ea1acb13b70c9e7af120e",
       "context": "Calibration an image file states about itself, each value with its source.",
       "translation": "Kvörðun sem myndskrá tilgreinir um sjálfa sig, hvert gildi með uppsprettu sinni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.image_optics_metadata#1",
@@ -4309,7 +4551,9 @@
       "source_sha256": "a86481cd0dda646466d684a9058d0e3c7a4b6274193489479aec4afa7899d9e7",
       "context": "Infer PSF calibration from image metadata, a chosen objective and defaults.",
       "translation": "Álykta PSF-kvörðun út frá lýsigögnum myndar, völdu hlutgleri og sjálfgefnum gildum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.infer_optics#1",
@@ -4413,7 +4657,9 @@
       "source_sha256": "47eae275461b1980de8fe758712d2ac856b2cf2901eac845d5a86bbfd7969cbc",
       "context": "Lateral FWHM of a diffraction-limited widefield PSF, 0.51 λ/NA.",
       "translation": "Hliðlægt FWHM bognunartakmarkaðrar víðsviðs-PSF, 0.51 λ/NA.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.lateral_fwhm_um#1",
@@ -4453,7 +4699,9 @@
       "source_sha256": "372eba12e80831842d066b5da891fb2f4cdc632c193094bcf1fddb44352db190",
       "context": "Read a calibrated measured kernel from NPY or a single TIFF series.",
       "translation": "Lesa kvarðaðan mældan kjarna úr NPY eða einni TIFF-röð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.load_psf#1",
@@ -4493,7 +4741,9 @@
       "source_sha256": "850fd7814b64c5bf02b84c4404d8034ce5f6474beb161ec37dc0a26b04b98ab4",
       "context": "Normalize a measured 2-D/3-D kernel, preserving its centre as origin.",
       "translation": "Staðla mældan 2-D/3-D kjarna og halda miðju hans sem upphafspunkti.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.measured_psf#1",
@@ -4533,7 +4783,9 @@
       "source_sha256": "d316a16347fe66c5aafb69e1b2273673bb50a2fc981d355579848110f73e1aaa",
       "context": "Return the :class:`Objective` table row called ``name``.",
       "translation": "Skila :class:`Objective` röð töflunnar sem heitir ``name``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.objective#1",
@@ -4565,7 +4817,9 @@
       "source_sha256": "b6aebd917f2074640de6d3a0a45f1adaa830fc24560d64e8fc00144b0f464a26",
       "context": "Sample spacing at the specimen: camera pixel pitch divided by total magnification.",
       "translation": "Sýnabil við sýnið: pixlabil myndavélar deilt með heildarstækkun.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.pixel_size_um#1",
@@ -4645,7 +4899,9 @@
       "source_sha256": "f8aea46aa9f67bd22dffcecd9a4f01e9862888d84263ad0e16c5d93faa4db014",
       "context": "Describe the exact intensity stream given to quantitative features.",
       "translation": "Lýsa nákvæmlega þeim styrkleikastraumi sem megindlegu eiginleikarnir fá.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_psf_record#1",
@@ -4693,7 +4949,9 @@
       "source_sha256": "96166882cab5cc714d2c35d96812df5b4ea83730be64982d8d8e07eafffafe85",
       "context": "Return stable JSON configuration, or None for standard intensities.",
       "translation": "Skila stöðugri JSON-stillingu, eða None fyrir staðlaða styrkleika.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_psf_signature#1",
@@ -4717,7 +4975,9 @@
       "source_sha256": "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
       "context": "Compare active PSF behavior rather than dormant form parameters.",
       "translation": "Bera saman virka PSF-hegðun frekar en óvirkar færibreytur forms.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_resume_settings#1",
@@ -4741,7 +5001,9 @@
       "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
       "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
       "translation": "nýjar stillingar þar sem óvirkir PSF-stillihnappar hafa verið fjarlægðir og ein skráð efnisundirskrift. Eldri mælingar hafa upprunalegu undirskriftina None.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#0",
@@ -4749,7 +5011,9 @@
       "source_sha256": "784f1a0c55d4f637bc9f2613b7ca874cf3560af55044ec9b719b31e0d5e7a18d",
       "context": "Capture a calibrated kernel only for explicitly processed measurements.",
       "translation": "Skrá kvarðaðan kjarna aðeins fyrir mælingar sem eru sérstaklega unnar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#1",
@@ -4781,7 +5045,9 @@
       "source_sha256": "14008cc31231f6f830a2ed20f4b7a254afd4b4d64ba5883f4a9bed44ee6f0470",
       "context": "Refuse to mix incompatible intensity sources even when resume is off.",
       "translation": "Neita að blanda saman ósamrýmanlegum styrkleikauppsprettum jafnvel þegar framhald er óvirkt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.validate_measurement_psf_history#1",

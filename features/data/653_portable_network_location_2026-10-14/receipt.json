@@ -1,0 +1,24 @@
+{
+  "scope": "N653 portable/custom-home proxy and certificate preferences location",
+  "baseline": {
+    "failed": 2,
+    "passed": 1,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 33,
+    "seconds": 10.27,
+    "exit": 0
+  },
+  "sha256": {
+    "spacr/updater.py": "5e5a89f37cd679b5e0c90769d75ee57bbe9cbfcae41725c0f7f559882f268edf",
+    "tests/test_n653_network_preferences_follow_portable_home.py": "b8fe03ad167074a6a5166f01e6f40d7bcdeb5d94042835024bbc8f6bb7cb7076",
+    "/mnt/wd4tb/scratch/n653-network-20261014/owning.log": "3531cf03e298b98e8cf3347ba0a3c38f94448b129eb0f57b92718e81df715b6a",
+    "/mnt/wd4tb/scratch/n653-network-20261014/owning.xml": "e1d90818759ea484890504789a8a08dda1221b403c57fda660f1c578ec15eb14"
+  },
+  "limits": [
+    "Native temporary files and offline provider stubs only",
+    "No native macOS/Windows acceptance",
+    "No migration/full CI/live network"
+  ]
+}

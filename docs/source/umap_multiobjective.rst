@@ -15,8 +15,9 @@ multi-objective mode therefore retains three separate measurements:
 ``neighborhood_preservation``
    The geometric mean of trustworthiness and continuity. Trustworthiness
    penalizes neighbours invented by the two-dimensional embedding; continuity
-   penalizes true feature-space neighbours that the embedding tears apart.
-   Requiring both prevents either failure from being hidden.
+   penalizes feature-space neighbours that the embedding places far apart.
+   Because the geometric mean is low when either term is low, a high value
+   requires both.
 
 ``stability``
    The mean fraction of nearest neighbours shared by embeddings fitted with
@@ -25,10 +26,11 @@ multi-objective mode therefore retains three separate measurements:
    structure.
 
 ``cluster_structure``
-   Positive silhouette structure on a scale from zero to one. When labels are
-   supplied through the Python API they define the partition. Otherwise spaCR
-   fits reproducible K-means partitions from 2 through 8 clusters and reports
-   the strongest silhouette together with the selected cluster counts. This is
+   The silhouette coefficient clipped to the range 0 to 1, so negative values
+   score 0. When labels are supplied through the Python API they define the
+   partition. Otherwise spaCR fits seeded K-means partitions with 2 through 8
+   clusters (at most one fewer than the number of rows) and reports the
+   highest silhouette together with the selected cluster counts. This is
    evidence of geometric structure, not proof that a cluster is biological.
 
 The three weights are normalized to sum to one. Their weighted geometric mean
@@ -39,7 +41,7 @@ average.
 Pareto front
 ------------
 
-The composite score is not presented as the only answer. spaCR also marks the
+The composite score gives one ranking of the trials. spaCR also marks the
 Pareto front in the result table. A configuration is Pareto-optimal when no
 other tested configuration improves one objective without making another
 worse. Inspect the embedding panels and objective tooltips for every

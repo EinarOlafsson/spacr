@@ -1,0 +1,7 @@
+Review proposal only: remove hidden Spaceout from lesson 05
+
+The current published Home lesson still contains the Spaceout demonstration (scene 32, 24_spaceout_field). This packet is not repair completion. Lesson 15 publication may preserve the existing 05 assets while this separately prioritized repair follows; that preservation does not accept the hidden content.
+
+The unapplied fourteen-file patch removes only scene 32 and the corresponding row from all thirteen official reviews, replacing their normalized English binding. All other English/localized prose and metadata are preserved. The canonical lesson changes from 32 to 31 narration scenes; there are no other Spaceout strings in its title, description, objectives, prerequisite or remaining narrations. Historical editorial review metadata still mentions the old scene and remains unchanged as audit history, not generated narration. Exact source/draft hashes are in proposal-receipt.json.
+
+The source-recipe proposal retires only tutorial-specific hidden-mode entrypoints and old companion jobs. It does not remove the application Spaceout feature. Root must review/apply source changes, bind genuine current native visuals, rebuild source-bound narration/timing/media, verify real audible sentence starts and complete upload/readback/Pages-tree/record/checkpoint/Nightly delivery. No app, source, audio, recording, media or publication changes have been executed here. Existing 05 native-stall concerns remain separate.

@@ -22,7 +22,11 @@ for the "AI" switch that sits at the bottom-right of every AppScreen.
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, QSize, Qt, Signal
-from PySide6.QtWidgets import QLabel
+from PySide6.QtGui import (
+    QAccessible, QAccessibleActionInterface, QAccessibleStateChangeEvent,
+    QColor, QPainter, QPalette, QPen,
+)
+from PySide6.QtWidgets import QAccessibleWidget, QLabel
 
 from ..i18n import tr
 from ..theme import active_palette, button_accent_text, font_px
@@ -45,6 +49,30 @@ from ..theme import active_palette, button_accent_text, font_px
 #: instead of forcing the window wider. A secondary control must not be
 #: able to starve the primary one -- see INVARIANTS 10.
 ELIDE_ABOVE_PX = 120
+
+
+def _show_focus_ring(label) -> None:
+    """Show ``label``'s keyboard-focus outline in its paint layer, or hide it.
+
+    The outline used to be drawn by a Python ``paintEvent`` that every frame
+    of the window's field re-entered, focused or not.
+    """
+    from ..gil_priority import _blank_layer_pixmap, _show_paint_layer
+
+    if not label.hasFocus():
+        _show_paint_layer(label, "_focus_layer", None)
+        return
+    pixmap = _blank_layer_pixmap(label)
+    painter = QPainter(pixmap)
+    try:
+        width, colour = label._strong_focus_ring or (
+            2, label.palette().color(QPalette.Highlight))
+        painter.setPen(QPen(QColor(colour), width))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRect(label.rect().adjusted(1, 1, -1, -1))
+    finally:
+        painter.end()
+    _show_paint_layer(label, "_focus_layer", pixmap)
 
 
 class AiToggleLabel(QLabel):
@@ -84,6 +112,10 @@ class AiToggleLabel(QLabel):
             "subscription via the selected provider."
         )
         super().__init__(tr(source_text), parent)
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setProperty("_spacr_i18n_text", source_text)
         self.setObjectName("AiToggleLabel")
         self.setCursor(Qt.PointingHandCursor)
@@ -116,7 +148,49 @@ class AiToggleLabel(QLabel):
         if kind in (QEvent.StyleChange, QEvent.PaletteChange,
                     QEvent.ApplicationPaletteChange,
                     QEvent.ApplicationFontChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
             self._refresh_style()
+            _show_focus_ring(self)
+
+    def focusInEvent(self, event):
+        """Repaint the outline when keyboard focus enters the toggle.
+
+        :param event: focus-entry event, forwarded to QLabel.
+        """
+        super().focusInEvent(event)
+        _show_focus_ring(self)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Remove the outline when keyboard focus leaves the toggle.
+
+        :param event: focus-exit event, forwarded to QLabel.
+        """
+        super().focusOutEvent(event)
+        _show_focus_ring(self)
+        self.update()
+
+    def keyPressEvent(self, event):
+        """Toggle once on unmodified Space, Return or numeric Enter while focused.
+
+        Automatic key repeats are consumed without changing state. Other key
+        events are forwarded to QLabel. Activation uses :meth:`setChecked`,
+        preserving the existing state-change signal and routing connections.
+
+        :param event: key-press event delivered to the toggle.
+        """
+        key = event.key()
+        modifiers = event.modifiers()
+        if (self.hasFocus() and key in (Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter)
+                and (modifiers == Qt.NoModifier
+                     or (key == Qt.Key_Enter and modifiers == Qt.KeypadModifier))):
+            if not event.isAutoRepeat():
+                self.setChecked(not self.isChecked())
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def minimumSizeHint(self) -> QSize:      # noqa: N802 (Qt naming)
         """Cap how much width this toggle can demand of its row.
@@ -166,6 +240,8 @@ class AiToggleLabel(QLabel):
         """
         super().resizeEvent(event)
         self._apply_elision()
+        if self.__dict__.get("_focus_layer") is not None:
+            _show_focus_ring(self)
 
     def _apply_elision(self) -> None:
         """Show the full text when it fits, an elided one when it does not."""
@@ -202,6 +278,9 @@ class AiToggleLabel(QLabel):
             return
         self._on = on
         self._refresh_style()
+        changed = QAccessible.State()
+        changed.checked = True
+        QAccessible.updateAccessibility(QAccessibleStateChangeEvent(self, changed))
         self.toggled.emit(self._on)
 
     def mousePressEvent(self, event):
@@ -211,9 +290,7 @@ class AiToggleLabel(QLabel):
             left-button press is consumed.
         """
         if event.button() == Qt.LeftButton:
-            self._on = not self._on
-            self._refresh_style()
-            self.toggled.emit(self._on)
+            self.setChecked(not self.isChecked())
             return
         super().mousePressEvent(event)
 
@@ -239,7 +316,7 @@ class AiToggleLabel(QLabel):
         color = on_color if self._on else palette["fg"]
         size = font_px("body")
         sheet = (
-            f"QLabel#AiToggleLabel {{"
+            f"QLabel {{"
             f"  color: {color};"
             f"  font-size: {size}px;"
             f"  font-weight: 600;"
@@ -257,3 +334,54 @@ class AiToggleLabel(QLabel):
             self._restyling = False
         self.updateGeometry()
         self._apply_elision()
+
+
+class _AccessibleAiToggle(QAccessibleWidget):
+    """Expose the existing label's toggle semantics to assistive clients."""
+
+    def __init__(self, widget):
+        """Wrap the label with checkbox role and normal widget navigation."""
+        super().__init__(widget, QAccessible.CheckBox)
+
+    def state(self):
+        """Combine normal widget state with the label's current checked value."""
+        state = super().state()
+        state.checkable = True
+        state.checked = bool(getattr(self.widget(), "_on", False))
+        state.readOnly = False
+        return state
+
+    def text(self, kind):
+        """Use an explicit accessible name or the full translated label."""
+        if kind == QAccessible.Name:
+            widget = self.widget()
+            return widget.accessibleName() or widget.text()
+        return super().text(kind)
+
+    def actionNames(self):
+        """Offer toggle and normal widget actions while the control is enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.toggleAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Dispatch a client toggle through the label's existing state setter."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.toggleAction():
+            widget.setChecked(not widget.isChecked())
+            return
+        super().doAction(action)
+
+
+def _ai_toggle_accessible_factory(_key, widget):
+    """Provide this interface only for AI/Live labels and retain its wrapper."""
+    if isinstance(widget, AiToggleLabel):
+        interface = _AccessibleAiToggle(widget)
+        widget._accessible_toggle = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_ai_toggle_accessible_factory)

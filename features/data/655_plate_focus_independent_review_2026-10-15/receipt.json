@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "item": "N655",
+  "result": "Independent technical source/evidence review ACCEPT for bounded plate-well keyboard focus repair",
+  "final_commit": "2a64bc3bcee4d96aa4ea12561fac2cc34cbceab1",
+  "source": {
+    "path": "spacr/qt/widgets/plate_map_picker.py",
+    "sha256": "0096db7c45693f3d5c7bb5b4d65aa0db5a246eb8f16f02495fc629a7e7a7ca77"
+  },
+  "tests": {
+    "path": "tests/qt/test_655_plate_well_focus.py",
+    "sha256": "dba0f76833637c3c2578f2c3552d8c8f7ddc68e9519809ae0e8bf3c816a1a3ff"
+  },
+  "findings": [
+    {
+      "finding": "Initial generic strong rings contrast only1.714:1 dark and1.238:1 light with the fixed selected blue, below the existing3:1 policy. Initial tests checked changing pixels, not selected-fill contrast.",
+      "correction": "5bfda172b93547cf91d11d91ba58ce33cf02ecb2",
+      "validation": "Owner reproduced2 failed/4 passed, then45 owning checks passed7.21s."
+    },
+    {
+      "finding": "The first palette-aware fixture omitted scheme, leaving apply_qpalette at its default dark palette.",
+      "correction": "2a64bc3bcee4d96aa4ea12561fac2cc34cbceab1",
+      "validation": "The sole fixture argument was corrected; six affected existing assertions passed2.38s on explicit dark/light/high_contrast palettes. Product bytes stayed unchanged."
+    }
+  ],
+  "source_review": [
+    "Only private _Well focus/cache/paint methods and required imports change. Existing mouse/drag/selection, checked state, geometry, public docs/captions and alpha visibility remain unchanged.",
+    "Ordinary focus uses actual palette highlight/highlighted-text roles. Strong focus keeps the existing shared theme colour except when its contrast against the selected fixed CHOSEN fill is below the existing threshold; only then a local cached black/white fallback is selected.",
+    "Empty well styling and a passing high-contrast selected ring retain their generic colours. Selected centers stay blue, both states preserve fixed well size, and the outline is overlaid after normal button painting.",
+    "The cache refreshes on style/palette/application font changes; no preference lookup or contrast computation occurs during paint. Focus entry/exit requests repaint and calls the normal base implementation.",
+    "Actual normal policy excludes all five added private declarations, helper inventory semantics unchanged; only original nested helper line offsets move."
+  ],
+  "recorded_validation": {
+    "original": "All3themes reproduced invisible focused/unfocused state while Tab/Space/name already worked.",
+    "owning": "45 passed7.21s includes37 existing selection/mouse/drag cases; this predates the exact palette argument correction.",
+    "final_affected": "6 passed,2 deselected2.38s with explicit3theme palettes; unchanged actual rendered contrast/uniform3px/center/fill/geometry/livepreference assertions.",
+    "do_not_sum_overlapping_runs": true
+  },
+  "evidence": [
+    {
+      "commit": "46b3673f273abbb03dd293f379e137d3e2aef212",
+      "receipt": "features/data/655_plate_well_focus_2026-10-15/receipt.json",
+      "receipt_sha256": "4cc0e41902bc978d370a227fb80749b15c913e6035d6693982b11ab65324066a",
+      "verified_artifacts": {
+        "probe.py": {
+          "sha256": "778eb347c2dd95df4d4d79318a754ef89b095d2fa6a18923a923233119fafadb",
+          "raw_sha256": "778eb347c2dd95df4d4d79318a754ef89b095d2fa6a18923a923233119fafadb"
+        },
+        "run.sh": {
+          "sha256": "da9feabb9a0fd4a948ba99c8c57a1edecbca9d6dd6d52ddff67e9995ab6b043a",
+          "raw_sha256": "da9feabb9a0fd4a948ba99c8c57a1edecbca9d6dd6d52ddff67e9995ab6b043a"
+        },
+        "run.log.gz": {
+          "sha256": "e48f4a0e37517a571ec05fe257d49129eb0898555cb1cd56e4c221071b24977b",
+          "raw_sha256": "1e72659b5c719ee20df85933510512bf14786a3c70ebffff4af94cc641561aee"
+        },
+        "exit.txt": {
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+          "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        },
+        "time.txt": {
+          "sha256": "42c1de7c32cacd0378fadced75c32c4d963e058fd917d07c1f2d88f11f780eb5",
+          "raw_sha256": "42c1de7c32cacd0378fadced75c32c4d963e058fd917d07c1f2d88f11f780eb5"
+        },
+        "result.json": {
+          "sha256": "a21739ca1e7a03b5fb32fc33c953e3d6459f2872ad0e05de4735d396aa9aacd7",
+          "raw_sha256": "a21739ca1e7a03b5fb32fc33c953e3d6459f2872ad0e05de4735d396aa9aacd7"
+        },
+        "owning.sh": {
+          "sha256": "ba1f1b56799257ae9b1a17eb9c27cefbac4ed4f98a63c894e6b294c4f3883156",
+          "raw_sha256": "ba1f1b56799257ae9b1a17eb9c27cefbac4ed4f98a63c894e6b294c4f3883156"
+        },
+        "owning.log.gz": {
+          "sha256": "f164efbf78615023c07566432456cf9347da05c67ffcd8b23931694562b6d146",
+          "raw_sha256": "a6ef40ea4fe3f3cb57ef4d6c228e4e7bc7ca3bcaec9710b7e6db35a4fa38bb06"
+        },
+        "owning.exit": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "owning.time": {
+          "sha256": "6287ca85b3a8f7e869922473fe2d930a5a00e62dd00aea1af62988ae75c72910",
+          "raw_sha256": "6287ca85b3a8f7e869922473fe2d930a5a00e62dd00aea1af62988ae75c72910"
+        },
+        "scope-proof.py": {
+          "sha256": "3c70605c7a01e657511df19d4b22a9a7991968bd056f5ceed9b1f3be516c2701",
+          "raw_sha256": "3c70605c7a01e657511df19d4b22a9a7991968bd056f5ceed9b1f3be516c2701"
+        },
+        "scope-proof.json": {
+          "sha256": "215a25f403ec928a6437ceddcdc5b996fb9420661f46d4e34f35a95cf2ace6eb",
+          "raw_sha256": "215a25f403ec928a6437ceddcdc5b996fb9420661f46d4e34f35a95cf2ace6eb"
+        }
+      }
+    },
+    {
+      "commit": "5bfda172b93547cf91d11d91ba58ce33cf02ecb2",
+      "receipt": "features/data/655_plate_well_focus_2026-10-15/contrast-followup.json",
+      "receipt_sha256": "cb153d8c8eab14ab5017146f44d3ded6d61ab5169644201f8b08ea2987d364e7",
+      "verified_artifacts": {
+        "contrast-before.sh": {
+          "sha256": "57ecb1cbdbe035080f3d5089e1aa5c3547f83ac8dd5538b1d2f266cce2cca7f9",
+          "raw_sha256": "57ecb1cbdbe035080f3d5089e1aa5c3547f83ac8dd5538b1d2f266cce2cca7f9"
+        },
+        "contrast-before.log.gz": {
+          "sha256": "205de7eb16b25f3fc73a55a19236552f57cd555c20c31664a12b6a725f1eb989",
+          "raw_sha256": "9f5cb8a792267f0211f30aa4e44ea07e72a20e7d0c7d5ef59df808b936073408"
+        },
+        "contrast-before.time": {
+          "sha256": "5b835c86eea7ebe18289bb510be3a4f8173d58e7d83e5f271e0c7a3e657af691",
+          "raw_sha256": "5b835c86eea7ebe18289bb510be3a4f8173d58e7d83e5f271e0c7a3e657af691"
+        },
+        "contrast-before.exit": {
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+          "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        },
+        "final.sh": {
+          "sha256": "8acb45e21e70535c4e4e8a91d227fafa93dd46bd39d71c89d932499ba7f242f9",
+          "raw_sha256": "8acb45e21e70535c4e4e8a91d227fafa93dd46bd39d71c89d932499ba7f242f9"
+        },
+        "final.log.gz": {
+          "sha256": "4e5decaa00869fab4e5fb77542cc31452c270df2f833a6cd75b82cf65e03e42f",
+          "raw_sha256": "f756d249fa882cc77ca801bc21a9c8d1ef349abb5b7c577fe7c02e8fb1613b69"
+        },
+        "final.time": {
+          "sha256": "38606ce60505aafc27de2629d1a1490b088d377944ed767aebe15f8aa3d96b4b",
+          "raw_sha256": "38606ce60505aafc27de2629d1a1490b088d377944ed767aebe15f8aa3d96b4b"
+        },
+        "final.exit": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "final-scope-proof.py": {
+          "sha256": "c1d4c5f1987c61132209b4bb2a1f125b02ebc20986b45b75161b44842d0ac3ba",
+          "raw_sha256": "c1d4c5f1987c61132209b4bb2a1f125b02ebc20986b45b75161b44842d0ac3ba"
+        },
+        "final-scope-proof.json": {
+          "sha256": "c65512b9924436515dbd276dd78f0040e072be21b3d274dc9e6a13b53a765119",
+          "raw_sha256": "c65512b9924436515dbd276dd78f0040e072be21b3d274dc9e6a13b53a765119"
+        }
+      }
+    },
+    {
+      "commit": "2a64bc3bcee4d96aa4ea12561fac2cc34cbceab1",
+      "receipt": "features/data/655_plate_well_focus_2026-10-15/palette-fixture-followup.json",
+      "receipt_sha256": "6bcc1e0994746c035e712ed5c0014b4e48a4441cd4f6f95b351fca39ae0abbd4",
+      "verified_artifacts": {
+        "palette-final.sh": {
+          "sha256": "1733d6535eda85da6d1fba207db69207afaa22df54775380ea81f818ca3cebb2",
+          "raw_sha256": "1733d6535eda85da6d1fba207db69207afaa22df54775380ea81f818ca3cebb2"
+        },
+        "palette-final.log.gz": {
+          "sha256": "86767df3ed210c4268b38fc5b94655eb9575a09f35e08cb6ba7919fb169ca339",
+          "raw_sha256": "ae5d5392173ff3431c3c93aca515863273f406923db3d9bf843768c4ace3260a"
+        },
+        "palette-final.time": {
+          "sha256": "f603713c4382cad172c45dfc86f40ec941c19c0f4df2da3d5f081fff3193fc18",
+          "raw_sha256": "f603713c4382cad172c45dfc86f40ec941c19c0f4df2da3d5f081fff3193fc18"
+        },
+        "palette-final.exit": {
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      }
+    }
+  ],
+  "reviewer_execution": "Immutable Git source/diff and saved raw/gzip hash readback only; no duplicate Qt tests, native probes, imports, generation or source edits.",
+  "limits": [
+    "Offscreen software rendering and keyboard acceptance only; no native screen-reader, human-user, Windows/macOS or hardware timing claim.",
+    "N655 remains a whole-item progress entry; this bounded repair is not a whole-item completion tick."
+  ]
+}

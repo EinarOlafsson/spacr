@@ -36,8 +36,8 @@ from skimage.restoration import rolling_ball
 warnings.filterwarnings("ignore", message="3D stack used, but stitch_threshold=0 and do_3D=False, so masks are made per plane only")
 
 
-def _eval_diameter(raw, object_type=""):
-    """The diameter to hand Cellpose's ``eval``, or ``None`` for native scale.
+def _eval_diameter(raw, object_type="", default=None, *, estimates=False):
+    """The diameter to hand Cellpose's ``eval``.
 
     Cellpose tests ``diameter > 0``, so a value that reaches it as a STRING
     raises ``TypeError: '>' not supported between instances of 'str' and
@@ -46,29 +46,61 @@ def _eval_diameter(raw, object_type=""):
     this setting that is not a Python literal produces a string: a number
     typed into the GUI, and any settings CSV.
 
-    ``None`` is PRESERVED rather than replaced with a default. A blank
-    diameter means "let CPSAM work at native scale"; substituting the
-    magnification-derived default from `_get_object_settings` would rescale
-    every image by 30/diameter -- a different segmentation, silently, for
-    every run that left the field empty. That is why this coerces the user's
-    own value instead of reading `object_settings['diameter']`, which always
-    holds that default.
+    One rule for every route (item 696), the one
+    :func:`spacr.object_settings_table._resolved_diameter` states:
+
+    * a number is that number, as a float;
+    * 0 and "auto" (any case) are Cellpose estimating the size: ``0.0``
+      for a model with a size model (``estimates``, Cellpose 3) and
+      ``None`` for Cellpose-SAM, which has none and segments at native
+      scale;
+    * blank is ``default``, the object's magnification diameter. A caller
+      with no default gets ``None`` (native scale).
 
     An unparseable value is reported and treated as blank, which is what
     `_get_object_settings` has always done for this field.
+
+    :param raw: the object's diameter setting.
+    :param object_type: the object, for the message.
+    :param default: the magnification default for a blank diameter.
+    :param estimates: whether the model estimates a size at diameter 0.
+    :returns: a positive float, ``0.0`` or ``None``.
     """
-    if raw is None:
-        return None
-    if isinstance(raw, str):
-        raw = raw.strip()
-        if not raw:
-            return None
+    from .object_settings_table import _diameter_for_eval, _diameter_setting
+
     try:
-        return float(raw)
-    except (TypeError, ValueError):
-        print(f"{object_type}_diameter must be a number, got {raw!r}; "
-              f"segmenting at native scale instead")
-        return None
+        value = _diameter_setting(raw)
+    except ValueError:
+        from .qt.i18n import tr
+
+        print(tr("{setting} must be a positive number, 0 or 'auto', got "
+                 "{value}; using the magnification default instead",
+                 setting=f'{object_type}_diameter', value=repr(raw)))
+        value = None
+    if value is None:
+        return None if default is None else float(default)
+    return _diameter_for_eval(value, estimates=estimates)
+
+
+def _note_the_diameter(settings, object_type, estimate=None):
+    """Tell the run journal which diameter ``object_type`` was segmented with.
+
+    :param settings: the run settings.
+    :param object_type: the object.
+    :param estimate: Cellpose's own estimate in pixels, when it gave one.
+    """
+    try:
+        from .object_settings_table import _diameter_used_by
+        from .run_journal import _record_diameter
+
+        _record_diameter(object_type,
+                         _diameter_used_by(settings, object_type, estimate),
+                         estimate=estimate)
+    except Exception as exc:
+        from .qt.i18n import tr
+
+        print(tr("The diameter for {object_type} was not recorded in the run "
+                 "journal: {error}", object_type=object_type, error=str(exc)))
 
 
 def _cellpose3_eval_settings(settings, object_type, default_diameter):
@@ -86,7 +118,8 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
     diameter 44 took 11.9 s on the CPU and matched 24 of 33 objects, and at
     diameter 0 took 153 s and matched 7. So a blank diameter becomes the
     object's magnification default, and 0 is sent only when
-    ``cellpose3_size_model`` is on.
+    ``cellpose3_size_model`` is on or the user asked for it: a diameter of
+    0 or "auto" is the size model estimating it (item 696).
 
     :param settings: the run's settings, defaults already filled.
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'``, ...
@@ -104,9 +137,9 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
     if settings.get('cellpose3_size_model', False):
         diameter = 0.0
     else:
-        diameter = (_eval_diameter(settings.get(f'{object_type}_diameter'),
-                                   object_type)
-                    or float(default_diameter))
+        diameter = _eval_diameter(settings.get(f'{object_type}_diameter'),
+                                  object_type, default_diameter,
+                                  estimates=True)
     keywords = dict(
         diameter=diameter,
         flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
@@ -172,6 +205,10 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
             shaped.append(image)
     output = model.eval(x=shaped, batch_size=int(batch_size),
                         channel_axis=-1, min_size=min_size, **keywords)
+    estimated = list(getattr(model, 'estimated_diameters', None) or ())
+    if keywords['diameter'] == 0.0 and estimated:
+        _note_the_diameter({**settings, f'{object_type}_diameter': 'auto'},
+                           object_type, float(np.median(estimated)))
     masks, flows, _, probability, _ = parse_cellpose4_output(output)
     if probabilities:
         return list(masks), flows, list(probability)
@@ -186,8 +223,9 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
     The Cellpose-DINO backend answers the very ``eval`` call a Cellpose-SAM
     model takes, so this makes V1's Cellpose-SAM call and nothing else:
     ``normalize=False`` and ``channel_axis=-1`` on the prepared images,
-    the object's own diameter (blank lets the model keep its scale, which
-    is what V1 sends), its flow and cell probability thresholds, and
+    the object's own diameter (blank is the magnification default and 0 or
+    "auto" lets the model keep its scale, as V1 sends them), its flow and
+    cell probability thresholds, and
     ``resample`` as :func:`spacr.settings._get_object_settings` sets it --
     off for a pathogen, on for the rest. A 2-D image is given a channel
     axis of one, so the preview's single planes read as V1's images do.
@@ -197,8 +235,9 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
     :param settings: the run's settings.
     :param object_type: the object being segmented.
     :param min_size: smallest object kept, in pixels.
-    :param default_diameter: taken for the route table's shared signature;
-        V1's Cellpose-SAM call does not read the magnification diameter.
+    :param default_diameter: the object's magnification diameter, which a
+        blank diameter segments at -- on this route as on V1's Cellpose-SAM
+        call (item 696).
     :param batch_size: taken for the same reason; V1 and v2 send
         Cellpose-SAM one batch of all the images, and so does this.
     :param probabilities: also return each image's cell probability, for
@@ -220,7 +259,7 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
         min_size=min_size,
         progress=True,
         diameter=_eval_diameter(settings.get(f'{object_type}_diameter'),
-                                object_type),
+                                object_type, default_diameter),
         flow_threshold=settings.get(f'{object_type}_flow_threshold', 0.4),
         cellprob_threshold=settings.get(
             f'{object_type}_cellprob_threshold', 0.0),
@@ -318,6 +357,46 @@ def _fill_holes_smaller_than(binary, area_threshold):
     except TypeError:
         return remove_small_holes(
             binary, area_threshold=int(area_threshold))
+
+
+def _mask_at_field_size(mask, field_shape, object_type=""):
+    """Return ``mask`` at its field's ``(height, width)``, labels unchanged.
+
+    Every mask is saved at the size of the field it was segmented from, so
+    the cell, nucleus and pathogen masks of one field line up pixel for
+    pixel. A segmentation route that hands back labels at its working scale
+    (Cellpose works at ``30 / diameter``, twice the field for a pathogen
+    diameter of 15) is brought back here by nearest-neighbour sampling,
+    which keeps every label an integer id and invents none.
+
+    :param mask: a 2-D label image; anything else is returned untouched.
+    :param field_shape: the field's ``(height, width)``, or ``None``.
+    :param object_type: named in the note printed when a mask is resized.
+    :returns: the mask, resized when its shape differed from the field's.
+    """
+    if field_shape is None or getattr(mask, "ndim", 0) != 2:
+        return mask
+    height, width = (int(field_shape[0]), int(field_shape[1]))
+    if tuple(mask.shape) == (height, width):
+        return mask
+    rows = (np.arange(height) * mask.shape[0]) // height
+    cols = (np.arange(width) * mask.shape[1]) // width
+    print(f"{object_type} mask came back at {tuple(mask.shape)}; returned to "
+          f"the field's {(height, width)}")
+    return np.ascontiguousarray(mask[rows[:, None], cols[None, :]])
+
+
+def _field_shape_of(batch):
+    """``(height, width)`` of a channel-last batch of fields, or ``None``.
+
+    :param batch: an ``(N, ..., Y, X, C)`` batch; the two axes before the
+        channel axis are the field's height and width.
+    """
+    shape = getattr(batch, "shape", None)
+    if shape is None or len(shape) < 4:
+        return None
+    return (int(shape[-3]), int(shape[-2]))
+
 
 def merge_split_filter_masks(masks, intensity_images, settings, object_type, batch_filenames=None):
     """Merge by perimeter and filter each in-memory field's objects.
@@ -544,6 +623,16 @@ def _robustness_sample(src, settings, object_type):
     return chosen
 
 
+def _pinned_object_model(settings, object_type, model_name, backend):
+    """Resolve a role's recorded bytes only at actual model construction."""
+    from .model_zoo import _resolve_pinned_model_file
+
+    key = ('pathogen_model' if object_type == 'pathogen'
+           and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
+    resolved = _resolve_pinned_model_file(settings, key, kinds=(backend,))
+    return str(resolved) if resolved is not None else model_name
+
+
 def _robustness_segmenter(settings, object_type):
     """A ``segment(image, point)`` that runs the run's Cellpose model at one grid point.
 
@@ -570,8 +659,12 @@ def _robustness_segmenter(settings, object_type):
             or _prefixed_backend(model_name) is not None):
         raise ValueError(f"the robustness report runs Cellpose-SAM models only, "
                          f"not {model_name!r}")
+    model_name = _pinned_object_model(settings, object_type, model_name, 'cellpose')
+    model_key = ('pathogen_model' if object_type == 'pathogen'
+                 and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
     model = cp_models.CellposeModel(
-        pretrained_model=_resolve_cellpose_pretrained(model_name, object_type=object_type),
+        pretrained_model=_resolve_cellpose_pretrained(
+            model_name, object_type=object_type, setting=model_key),
         **accelerator.cellpose_kwargs())
     return partial(_robustness_segment, model, object_settings, object_type)
 
@@ -1307,7 +1400,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                      _save_object_counts_to_database)
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
                             _trackastra_track_cells, _ultrack_track_cells,
-                            _timeflows_track_cells, _sam2_track_cells)
+                            _timeflows_track_cells, _sam2_track_cells,
+                            _timepose_track_cells)
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
     from .spacr_cellpose import parse_cellpose4_output
@@ -1400,8 +1494,12 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         segmentation_backend = _CELLPOSE_DINO
     elif _prefixed_backend(model_name) is not None:
         segmentation_backend = _prefixed_backend(model_name)
+    model_name = _pinned_object_model(settings, object_type, model_name, segmentation_backend)
     if segmentation_backend == 'cellpose':
-        pretrained = _resolve_cellpose_pretrained(model_name, object_type=object_type)
+        model_key = ('pathogen_model' if object_type == 'pathogen'
+                     and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
+        pretrained = _resolve_cellpose_pretrained(
+            model_name, object_type=object_type, setting=model_key)
         model = cp_models.CellposeModel(
             pretrained_model=pretrained,
             **accelerator.cellpose_kwargs(),
@@ -1412,6 +1510,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                               object_type=object_type)
     channels = _segmentation_input_channels(
         channels, len(channels_to_extract), model)
+    _note_the_diameter(settings, object_type)
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
@@ -1516,7 +1615,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             progress=True,
                             diameter=_eval_diameter(
                                 settings.get(f'{object_type}_diameter'),
-                                object_type),
+                                object_type, object_settings['diameter']),
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
                             resample=object_settings['resample']
@@ -1533,7 +1632,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             progress=True,
                             diameter=_eval_diameter(
                                 settings.get(f'{object_type}_diameter'),
-                                object_type),
+                                object_type, object_settings['diameter']),
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
                             resample=object_settings['resample'],
@@ -1676,6 +1775,19 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                     mode=timelapse_mode,
                                     model_path=settings.get('timeflows_model'))
 
+                            elif str(timelapse_mode).startswith('timepose'):
+                                mask_stack = _timepose_track_cells(
+                                    src=src,
+                                    name=name,
+                                    batch_filenames=batch_filenames,
+                                    object_type=object_type,
+                                    masks=masks,
+                                    images=batch,
+                                    timelapse_remove_transient=timelapse_remove_transient,
+                                    plot=settings['plot'],
+                                    save=settings['save'],
+                                    mode=timelapse_mode)
+
                             elif timelapse_mode == 'sam2':
                                 mask_stack = _sam2_track_cells(
                                     src=src,
@@ -1710,7 +1822,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             if settings.get('timelapse_lineage'):
                                 from .timelapse import _run_lineage_step
                                 _run_lineage_step(src, name, object_type, timelapse_mode, settings,
-                                                  frame_sources=batch_filenames, label_stack=mask_stack)
+                                                  frame_sources=batch_filenames, label_stack=mask_stack,
+                                                  images=batch)
                             if settings.get('timelapse_events'):
                                 from .timelapse import _run_event_features_step
                                 _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
@@ -1746,7 +1859,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
 
                     if settings['save']:
-                        mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
+                        field_shape = _field_shape_of(batch)
+                        mask_stack = [_as_uint16_mask(_mask_at_field_size(
+                            mask, field_shape, object_type))
+                            for mask in mask_stack]
                         for mask_index, mask in enumerate(mask_stack):
                             output_filename = os.path.join(output_folder, batch_filenames[mask_index])
                             _save_array_atomic(output_filename, mask)
@@ -1850,6 +1966,7 @@ def generate_cellpose_masks(src, settings, object_type):
     if object_type == 'pathogen' and not settings['pathogen_model'] is None:
         model_name = settings['pathogen_model']
     
+    model_name = _pinned_object_model(settings, object_type, model_name, 'cellpose')
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
     
@@ -1994,7 +2111,8 @@ def generate_cellpose_masks(src, settings, object_type):
                     if settings.get('timelapse_lineage'):
                         from .timelapse import _run_lineage_step
                         _run_lineage_step(src, name, object_type, timelapse_mode, settings,
-                                          frame_sources=batch_filenames, label_stack=mask_stack)
+                                          frame_sources=batch_filenames, label_stack=mask_stack,
+                                          images=batch)
                     if settings.get('timelapse_events'):
                         from .timelapse import _run_event_features_step
                         _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
@@ -2049,7 +2167,9 @@ def generate_cellpose_masks(src, settings, object_type):
                     plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=batch_size)
 
             if settings['save']:
-                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
+                field_shape = _field_shape_of(batch)
+                mask_stack = [_as_uint16_mask(_mask_at_field_size(
+                    mask, field_shape, object_type)) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
                     _save_array_atomic(output_filename, mask)
@@ -2163,8 +2283,10 @@ def generate_organelle_masks_sam(src, settings, object_type):
     if method == 'cellpose':
         from .utils import _choose_model
         device = accelerator.torch_device()
+        model_name = _pinned_object_model(
+            settings, object_type, settings['organelle_model_name'], 'cellpose')
         dl_model = _choose_model(
-            settings['organelle_model_name'],
+            model_name,
             device,
             object_type=object_type,
             restore_type=None,

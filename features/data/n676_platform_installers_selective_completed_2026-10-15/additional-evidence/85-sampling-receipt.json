@@ -1,0 +1,537 @@
+{
+  "status": "actual_sampling_completed_not_full_watch",
+  "video": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+    "bytes": 36235297,
+    "sha256": "cd18804b5c7f1bb441da97e3612ea93137b032abebe5f7a8245e1e6ae21b62c6"
+  },
+  "capture_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.capture.json",
+    "bytes": 75079,
+    "sha256": "b0717e18c5f3b3770419bc5c00ad3748b0a8b745cc3a22cd89de73984754b03d"
+  },
+  "pointer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.pointer.json",
+    "bytes": 28319,
+    "sha256": "b92364b73a460e698943b42a0a941b6789072bae549e405295deea285c9d7a3d"
+  },
+  "source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "frame_count": 851,
+  "sampled_seconds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "contact_sheet": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/contact-sheet.png",
+    "bytes": 3053603,
+    "sha256": "1bce5fe78f99ed56a5c62c8fbabfdb888fade0938c81d983ba18e1121bb42ea2"
+  },
+  "second_samples": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-01.png",
+      "bytes": 271032,
+      "sha256": "ac26f7c76bf18f075f06c0c3a14303a17b577a20b2fa5791ffb98f4283fec9a5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-02.png",
+      "bytes": 313639,
+      "sha256": "bb2967d1512e0b67b06eb62067af4d6187b81c5fb4ebc734fcde652a971cd70f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-03.png",
+      "bytes": 290230,
+      "sha256": "d4f3fc7557bcc32ed31196462584e59bbc821d09e40930559f1dc41f27e2b4e7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-04.png",
+      "bytes": 305350,
+      "sha256": "dab1b2333037a542101322b42b32c0538457f0e3c51e23a4603e6ac947499b77"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-05.png",
+      "bytes": 291124,
+      "sha256": "1e97e02897df178bc9af14b8caa0e1e8f97cba1de9ff9f5bc6da0ad994e41680"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-06.png",
+      "bytes": 306489,
+      "sha256": "43be24a2c04a8c80b91f3f7a2690800bf4c64aa694c33aabe4555af87c1511d7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-07.png",
+      "bytes": 297898,
+      "sha256": "ba53d3023bd1c2d7c71c33fe206807d62a54b03f01216408c8d278404d56160a"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-08.png",
+      "bytes": 316855,
+      "sha256": "8ee4b7e0a609e0875793bb3e8f901871ba006580a29c80afc00763921c0ea3bc"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-09.png",
+      "bytes": 288082,
+      "sha256": "19039461f5b0512b95dd77c589bf12299605cf34889f35811b133ed7f61328d7"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-10.png",
+      "bytes": 287471,
+      "sha256": "daea3a93b990934a4ab5d252e8d196982bd6ed5f70267a537ebb55306872f524"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-11.png",
+      "bytes": 282066,
+      "sha256": "6ae1b58a7d055456d87e577fd6b2f5f9f5d2235cb5bf3fdc73e3781347e92d00"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-12.png",
+      "bytes": 297903,
+      "sha256": "cc58fd41f1e75454e9d80c4758b69c9ff583e8072fef48f8a29dd7049e1f0df6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-13.png",
+      "bytes": 285289,
+      "sha256": "c5d2910acede077f70e7568ccb4263903a17a27ec90b80a569d9d49526f6334c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-14.png",
+      "bytes": 302834,
+      "sha256": "8136168cec41c4376cd453af32dd52c456b99af71bba68c5a56d2e338e5cb0b8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-15.png",
+      "bytes": 289959,
+      "sha256": "a0551dfe84a223efedb5b59ae13f82829c812d882075878047f0463828e02a8f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-16.png",
+      "bytes": 306445,
+      "sha256": "098dcb39289a52226fbcbd7e287e60383d394865bab05d458467ff742c2a33cf"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-17.png",
+      "bytes": 292956,
+      "sha256": "52fe05f91de4367c9a3aae11dc98d0a05de5c9a8a00db89219ede8ab4845f54e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-18.png",
+      "bytes": 291851,
+      "sha256": "7db66b1497e2b2818e38fb78f4e96b2484803121dc9bf5cc80b71252581747fb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-19.png",
+      "bytes": 275641,
+      "sha256": "a55bf1323922bfa5d23a086ab82b5601530029d2a6134ad08cc8c699151ccec4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-20.png",
+      "bytes": 295215,
+      "sha256": "fb18dc34d8a457a404a64b290971e6cf5c9967c9f674e01b75d0aaa8e3e6522f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-21.png",
+      "bytes": 277332,
+      "sha256": "246b9ab68c04a26c045ff78ea905ce443eabb72d450da84fa0c9d06b6829cd12"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-22.png",
+      "bytes": 302094,
+      "sha256": "f0665a7a986fa59e4300828a8b9d4e0eae05b88e5f197a495a578de096ceb656"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-23.png",
+      "bytes": 288814,
+      "sha256": "1783cfed78fa9379afde9eef3b63a5aac22ab0f66fa4a6f23a0d8d967cabed78"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-24.png",
+      "bytes": 301853,
+      "sha256": "fd96d6021c6ad5e4b1385425110c17c7d3a8c14fd171932c8d7317845009177b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-25.png",
+      "bytes": 287899,
+      "sha256": "e758dbbf362e4ea4be2675bf8c1bca48ba47a1fdce0a8cf7873e44afc6fa3fc5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-26.png",
+      "bytes": 272244,
+      "sha256": "ccfb6957d31c84c38d7ffc8ffa9ced139187e6abe4a8e46583cae2ff32c71a54"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-27.png",
+      "bytes": 264826,
+      "sha256": "47ab0fcc982c93b56174e94be415bec260f111d6285e64c1e3dce9c8b26bdc0c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-28.png",
+      "bytes": 274020,
+      "sha256": "ce13ee86c9fef59f076de0177cccfbcb41b3b64948c59a4e653cab542d133fb3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-29.png",
+      "bytes": 267246,
+      "sha256": "3e2e722ede386745b62a3b67ca5808640ca7dab097ac38ab4d80b4fc97e1ef6a"
+    }
+  ],
+  "click_release_events": [
+    {
+      "t": 6.9573,
+      "x": 393.0,
+      "y": 177.0,
+      "event": "release-left",
+      "call_ms": null
+    },
+    {
+      "t": 10.2038,
+      "x": 475.0,
+      "y": 177.0,
+      "event": "release-left",
+      "call_ms": null
+    },
+    {
+      "t": 13.4946,
+      "x": 558.0,
+      "y": 177.0,
+      "event": "release-left",
+      "call_ms": null
+    },
+    {
+      "t": 16.7633,
+      "x": 655.0,
+      "y": 177.0,
+      "event": "release-left",
+      "call_ms": null
+    },
+    {
+      "t": 20.402,
+      "x": 304.0,
+      "y": 177.0,
+      "event": "release-left",
+      "call_ms": null
+    }
+  ],
+  "samples": [
+    {
+      "name": "first",
+      "frame_index": 0,
+      "seconds": 0.0,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/first.png",
+        "bytes": 3299769,
+        "sha256": "4e75ee4f388bcb3c85203363a2d97064d0652120d37b698fd7425b6fef378ca0"
+      }
+    },
+    {
+      "name": "last",
+      "frame_index": 850,
+      "seconds": 28.333333333333332,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/last.png",
+        "bytes": 4008939,
+        "sha256": "67eadec1983f90c0960cf5344cc23ff2d873c1bb923141d91cd9cd38329a8215"
+      }
+    },
+    {
+      "name": "after-tab-click-1",
+      "frame_index": 227,
+      "seconds": 7.566666666666666,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-1.png",
+        "bytes": 4697402,
+        "sha256": "e2b0d1ed88ac80da9cbcb070b103a52db5da79cca8c344f40634e7f4fe42b036"
+      }
+    },
+    {
+      "name": "after-tab-click-2",
+      "frame_index": 324,
+      "seconds": 10.8,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-2.png",
+        "bytes": 4320590,
+        "sha256": "c26f0ffa4becb18befe58b27025c147e6873c6ab51093ac45fd65e78343e6452"
+      }
+    },
+    {
+      "name": "after-tab-click-3",
+      "frame_index": 423,
+      "seconds": 14.1,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-3.png",
+        "bytes": 4457154,
+        "sha256": "7723aac3835812d4025f75bf56ef6f801f0a3c522ddd0e3935a089e0ea598a27"
+      }
+    },
+    {
+      "name": "after-tab-click-4",
+      "frame_index": 521,
+      "seconds": 17.366666666666667,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-4.png",
+        "bytes": 4351928,
+        "sha256": "579bd00d0581fa6658eb279d052312ef00e6012c048f6493e44de8f4acbdcbb7"
+      }
+    },
+    {
+      "name": "after-tab-click-5",
+      "frame_index": 630,
+      "seconds": 21.0,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-5.png",
+        "bytes": 4495402,
+        "sha256": "c79bc46bf7bbcab73695c64e71124ec3f38b3297e35c3148b5db2288102ae279"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select='not(mod(n,30))',scale=960:540",
+        "-vsync",
+        "0",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-%02d.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-framerate",
+        "1",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/second-%02d.png",
+        "-vf",
+        "scale=480:270,tile=5x6",
+        "-frames:v",
+        "1",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/contact-sheet.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,0)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/first.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,850)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/last.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,227)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-1.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,324)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-2.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,423)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-3.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,521)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-4.png"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "ffmpeg",
+        "-nostdin",
+        "-n",
+        "-v",
+        "error",
+        "-threads",
+        "2",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/i04-home-r1/captures/home/13_current_nightly_home.mp4",
+        "-vf",
+        "select=eq(n\\,630)",
+        "-vsync",
+        "0",
+        "-frames:v",
+        "1",
+        "-an",
+        "-threads",
+        "2",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/after-tab-click-5.png"
+      ],
+      "returncode": 0
+    }
+  ],
+  "output_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/native-home-visual-samples/ffmpeg.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limitations": [
+    "Bounded visual samples only, not full-watch/smoothness/semantic acceptance.",
+    "Click times are pointer-relative receipt times; tab names require actual image/source readback.",
+    "Existing capture full-decode receipt reused; sampling is not a repeated full-decode acceptance."
+  ]
+}

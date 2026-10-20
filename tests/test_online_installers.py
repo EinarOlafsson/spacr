@@ -6,10 +6,15 @@ import importlib.util
 import json
 import os
 import re
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+
+needs_bash = pytest.mark.skipif(sys.platform == "win32" or shutil.which("bash") is None,
+                                reason="runs the POSIX shell installer through bash")
 
 ROOT = Path(__file__).resolve().parents[1]
 ONLINE = ROOT / "packaging" / "online"
@@ -104,6 +109,24 @@ def test_windows_generated_catalog_is_bom_encoded_before_use():
     )
 
 
+def test_powershell_scripts_never_start_a_line_with_an_operator():
+    """PowerShell ends a statement at a newline unless the line before ends
+    with an operator, so a line that begins with ``-or`` or ``-and`` is a
+    parse error that stops the whole script before it runs."""
+    leading = re.compile(
+        r"^\s+-(?:or|and|xor|not|eq|ne|lt|le|gt|ge|like|notlike|match|notmatch"
+        r"|contains|notcontains|in|notin)\b",
+        re.IGNORECASE,
+    )
+    offenders = [
+        f"{path.relative_to(ROOT)}:{number}"
+        for path in sorted((ROOT / "packaging").rglob("*.ps1"))
+        for number, line in enumerate(_text(path).splitlines(), 1)
+        if leading.match(line)
+    ]
+    assert offenders == []
+
+
 def test_bootstraps_use_tls_and_select_acceleration_by_default():
     unix = _text(UNIX)
     windows = _text(WINDOWS)
@@ -171,7 +194,7 @@ def test_install_is_validated_before_the_previous_environment_is_replaced():
     for path in (UNIX, WINDOWS):
         source = _text(path)
         assert "--relocatable" in source
-        check = source.index("pip check")
+        check = source.index("pip check" if path == UNIX else '@("pip", "check"')
         import_check = source.index("import spacr, PySide6, torch")
         activate = source.index("venv-previous")
         assert "-I" in source[:import_check]
@@ -202,12 +225,13 @@ def test_installer_consent_is_optional_off_by_default_and_persisted():
     for source in (unix, windows):
         assert "ShareDiagnostics" in source or "SHARE_DIAGNOSTICS=0" in source
         assert "ReportIssues" in source or "REPORT_ISSUES=0" in source
-        assert "SignInNow" in source or "SIGN_IN_NOW=0" in source
+        assert "SignInNow" not in source and "SIGN_IN_NOW" not in source and "sign-in-now" not in source
         assert "spacr.install_profile" in source
     assert "Page custom ConsentPage ConsentPageLeave" in nsis
-    assert nsis.count("off by default") >= 3
-    assert "PUBLIC spaCR GitHub repository" in nsis
-    assert "cannot be reliably unpublished" in nsis
+    assert "off by default" not in nsis
+    assert "public GitHub issues by spaCR" not in nsis
+    assert "${NSD_Check} $ConsentShare" in nsis and "${NSD_Check} $ConsentIssues" in nsis
+    assert "StrCpy $ConsentShareValue 1" in nsis and "StrCpy $ConsentIssuesValue 1" in nsis
     assert "-ConsentCollected $ConsentCollectedValue" in nsis
 
 
@@ -389,6 +413,7 @@ def test_embedded_unix_catalog_preserves_markers_and_is_idempotent(
 @pytest.mark.parametrize(
     "language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 )
+@needs_bash
 def test_unix_dry_run_detects_every_installer_language(
     language, tmp_path
 ):
@@ -532,15 +557,17 @@ def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     assert "uninstall-spacr.sh" in source
     assert "PRODUCTSIGN_IDENTITY" in signing
     assert "install-for-user.sh" in source
-    assert "osascript" in launcher
+    assert "install-spacr-gui" in launcher
+    assert "osascript" not in launcher
     assert "execv(python, args)" in launcher
     assert "-arch arm64 -arch x86_64" in source
     assert '$HOME/Library/Application Support/spaCR' in source
-    assert "--no-command-launcher" in source
+    assert "--no-command-launcher" in _text(ONLINE / "install_for_macos_user.sh")
     postinstall = source[source.index('cat > "$SCRIPTS/postinstall"'):]
     assert "install-online.sh" not in postinstall
 
 
+@needs_bash
 def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     installer = _standalone_unix_installer(tmp_path)
     subprocess.run(["bash", "-n", str(installer)], check=True)
@@ -571,6 +598,7 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     assert not (tmp_path / "spacr").exists()
 
 
+@needs_bash
 def test_unix_dry_run_uses_plain_core_package_without_an_override(tmp_path):
     """The rendered release installer pins core spaCR without a Qt extra."""
     installer = _standalone_unix_installer(tmp_path)
@@ -597,6 +625,7 @@ def test_unix_dry_run_uses_plain_core_package_without_an_override(tmp_path):
         ("macos", "x86_64", 1, "auto"),
     ),
 )
+@needs_bash
 def test_unix_backend_default_is_auto_on_every_supported_platform(
     tmp_path, platform_name, machine, nvidia_status, expected
 ):
@@ -705,6 +734,11 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "VERSION remains $version" in workflow
     assert "python packaging/release.py verify" in workflow
     assert "git add setup.py CITATION.cff spacr/_version.py" in workflow
+    commit_step = workflow.split("- name: Commit version increment", 1)[1].split(
+        "\n      - name:", 1)[0]
+    staged_paths = next(line.strip().split()[2:] for line in commit_step.splitlines()
+                        if line.strip().startswith("git add "))
+    assert "packaging/readme_source.yaml" in staged_paths
     assert "release_required: ${{ steps.version.outputs.release_required }}" in workflow
     assert "if: needs.bump.outputs.release_required == 'true'" in workflow
     assert "needs.verify-pypi.result == 'success'" in workflow
@@ -732,7 +766,7 @@ def test_one_click_release_orders_version_pypi_installers_and_github():
     assert "needs: [bump, package, publish-pypi]" in workflow
     assert "needs: [bump, verify-pypi]" in workflow
     assert (
-        "needs: [bump, package, publish-pypi, verify-pypi, installers]"
+        "needs: [bump, package, publish-pypi, verify-pypi, installers, frozen-installers]"
         in workflow
     )
     # The installer stage cannot start until PyPI has returned HTTP 200.
@@ -836,7 +870,10 @@ def test_release_helper_bumps_setup_and_citation_together(tmp_path):
     assert helper.read_package_version(package_version) == "1.2.4"
     assert 'version: "1.2.4"' in _text(citation)
     assert 'date-released: "2026-08-29"' in _text(citation)
-    assert 'doi: "10.5281/zenodo.99999999"' in _text(citation)
+    # The previous release's DOI must not survive the bump; the concept DOI
+    # stands in until sync-release-metadata records the minted one.
+    assert 'doi: "10.5281/zenodo.99999999"' not in _text(citation)
+    assert f'doi: "{helper.ZENODO_CONCEPT_DOI}"' in _text(citation)
 
     # A workflow rerun must not rewrite the historical release date.
     citation_after_bump = _text(citation)

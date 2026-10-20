@@ -104,11 +104,10 @@ def label_to_hex(val: Optional[int], dark: bool = True) -> Optional[str]:
     None / 0 / non-int -> None (no border).
     1 -> blue, 2 -> red, 3+ -> golden-ratio hue rotation.
 
-    THE COLOURS DEPEND ON THE THEME, because contrast does. The original
-    palette was tuned against a dark tile and measured 3.5-12.0 against
-    #1e1e1e -- all comfortable. Against a light tile (#f5f5f5) the SAME
-    colours measure 1.28-4.34, with five of the first six below the 3.0
-    readability floor:
+    The colours depend on the theme, because contrast does. The original
+    palette was tuned against a dark tile and measures 3.5-12.0 against the
+    colour #1e1e1e. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34,
+    with five of the first six below the 3.0 readability floor:
 
         class 1  #3ea6ff   6.43 on dark   2.38 on light
         class 4  #55f2d8  11.97 on dark   1.28 on light
@@ -118,9 +117,9 @@ def label_to_hex(val: Optional[int], dark: bool = True) -> Optional[str]:
     difference rather than a platform one: macOS defaults to the
     light appearance far more often.
 
-    HUE IS PRESERVED so a class keeps its identity across themes; only
-    saturation and value move, deepening the colour until it reads against
-    a pale background.
+    Hue is preserved so a class keeps its identity across themes; only
+    saturation and value move, deepening the colour until it reads against a
+    pale background.
 
     :param val: the annotation value.
     :param dark: True for the dark theme's palette, False for the light
@@ -172,8 +171,8 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     :param path: the crop PNG.
     :param db_path: optional ``measurements.db``, consulted when the crop
         folder carries no sidecar marker.
-    :param display_order: one of ``spacr.crops.DISPLAY_ORDERS``. Applied
-        AFTER the format is corrected, so the two never fight.
+    :param display_order: one of ``spacr.crops.DISPLAY_ORDERS``. Applied after
+        the stored format is corrected, so the two settings do not interact.
     :returns: PIL ``Image`` in RGB mode.
     """
     from ..crops import (
@@ -696,9 +695,8 @@ def outline_image(
         used to detect objects, aligned pixel-for-pixel with ``base_img``.
     :param should_stop: optional callable asked before each channel's Cellpose
         model construction and forward pass. When it answers True the work is
-        abandoned by raising :class:`OutlineCancelled` rather than finishing a
-        page nobody is waiting for; ``'otsu'`` outlines are fast enough that
-        they are never interrupted mid-channel.
+        abandoned by raising :class:`OutlineCancelled`; ``'otsu'`` outlines are
+        fast enough that they are never interrupted mid-channel.
     """
     if not outline_channels or edge_transparency <= 0:
         return base_img
@@ -778,10 +776,10 @@ def add_colored_border(img: Image.Image, width: int, color: str) -> Image.Image:
 
 @dataclass
 class AnnotateSettings:
-    """Every knob the Annotate screen exposes, packed into one dataclass.
+    """Settings of the Annotate screen, as one dataclass.
 
-    Sensible defaults let callers instantiate ``AnnotateSettings()`` and
-    override just the handful of fields they care about.
+    Every field has a default, so ``AnnotateSettings()`` can be created without
+    arguments and individual fields overridden.
     """
 
     src: str = ""
@@ -892,12 +890,11 @@ def ensure_annotation_column(db_path: str, column: str, *,
 def parse_image_type(expression: Optional[str]) -> Tuple[str, List[str]]:
     """Turn an image-type expression into a SQL fragment and its parameters.
 
-    The filter used to be one substring matched with ``LIKE %x%``, which can
-    only ever say what a path MUST contain. There was no way to ask for the
-    complement -- "the cells with no pathogen crop" -- which is half of most
-    comparisons (issue #7).
+    A single substring matched with ``LIKE %x%`` can only require that a path
+    contains a term. This grammar can also select the complement, for example
+    the cells with no pathogen crop (issue #7).
 
-    The grammar is small and deliberately close to what someone would type:
+    The grammar accepts these forms:
 
         pathogen                  contains "pathogen"
         !pathogen                 does NOT contain it
@@ -910,9 +907,8 @@ def parse_image_type(expression: Optional[str]) -> Tuple[str, List[str]]:
     case-insensitively, since ``LIKE`` is already case-insensitive for ASCII
     in SQLite and a user typing "Pathogen" means the same thing.
 
-    EVERY TERM IS A BOUND PARAMETER. Nothing the user types is interpolated
-    into SQL, so a path fragment containing a quote is a path fragment and
-    not an injection.
+    Every term is passed as a bound SQL parameter. User input is never
+    interpolated into SQL, so a quote in a path fragment is matched literally.
 
     :param expression: the user's filter, or None/empty for "no filter".
     :returns: ``(sql, params)`` where sql is a bracketed boolean expression
@@ -1182,9 +1178,8 @@ def metadata_values(db_path: str, column: str, *,
                     table: str = DEFAULT_PNG_TABLE) -> List[str]:
     """The distinct values of one png_list metadata column, sorted.
 
-    Read from the database rather than guessed from a naming convention:
-    plates are named by whoever ran them, and a picker offering rows A-H to
-    someone whose plate is numbered is a picker they cannot use.
+    Values are read from the database, not inferred from a naming convention,
+    because plate and well naming differs between users.
 
     :param db_path: the measurements database.
     :param column: one of :data:`METADATA_COLUMNS`.
@@ -1248,11 +1243,9 @@ def paths_by_measurements(db_path: str, annotation_column: str,
                           rules: Sequence[Mapping[str, Any]]) -> List[str]:
     """png_paths satisfying EVERY ``{column, threshold, direction}`` rule.
 
-    Several measurements at once is the point: one threshold is a gate, not a
-    population. The rules are ANDed, which is what
-    :func:`fetch_filtered_paths` already does for the settings-panel filter --
-    reused here rather than re-derived, so the auto-annotator and the filter
-    can never disagree about what a threshold means.
+    The rules are combined with AND by :func:`fetch_filtered_paths`, the
+    function the settings-panel filter uses, so the auto-annotator and the
+    filter apply a threshold identically.
 
     :param db_path: the measurements database.
     :param annotation_column: the column being written (needed by the join).
@@ -1321,8 +1314,8 @@ def annotation_batch(paths: Iterable[str],
                      value: Optional[int]) -> Dict[str, Optional[int]]:
     """Turn a path list into the batch :meth:`SaveWorker.submit` takes.
 
-    Trivial, and it exists so every auto-annotation source ends at the same
-    call. ``None`` clears, exactly as it does for a keystroke.
+    Every auto-annotation source builds its batch with this function. ``None``
+    clears, as it does for a keystroke.
 
     :param paths: png_paths to label.
     :param value: the class number, or None to clear.

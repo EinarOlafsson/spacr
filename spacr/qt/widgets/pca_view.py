@@ -1,7 +1,7 @@
 """The PCA surface: a scree plot, a scores plot, and a loadings biplot.
 
 The statistics are in :mod:`spacr.qt.widgets.pca_model` and there is none in
-here. This module is the three pictures and the controls, and its one real
+here. This module is the three pictures and the controls, and its main
 design decision is that **the scores plot is a Graph Builder**.
 
 Why the scores plot is a GraphCanvas
@@ -18,7 +18,7 @@ on top.
 Everything that took work in the Graph Builder therefore already works here and
 cannot drift out of step with it: the shared-scale facet grid, the fixed
 categorical colour order, the large-data policy and its notice, the
-selection-dims-never-hides rule, and — the point of the exercise — the brush.
+selection-dims-never-hides rule, and the brush.
 Because the scores frame carries the object key columns, a rectangle dragged
 around a cluster in PC space publishes a real
 :class:`~spacr.selection.Selection`, and the UMAP, the plate map and the crop
@@ -41,11 +41,11 @@ normalisation. So:
 * **absolute length in data units is meaningless.** Every arrow is multiplied
   by one shared constant chosen to fill the panel, because scores and
   correlations have no common unit. The circle is scaled by the same constant,
-  which is what keeps the comparison honest — it is the ruler.
+  so it serves as the scale bar for the arrows.
 
-Only the :data:`DEFAULT_ARROWS` best-represented features are drawn. Four
-hundred arrows is an ink blot, and the ones left out are the ones pointing
-somewhere the reader is not looking.
+Only the :data:`DEFAULT_ARROWS` best-represented features are drawn. Hundreds
+of arrows would make the biplot unreadable, and the omitted features are the
+ones least represented in the plotted plane.
 """
 from __future__ import annotations
 
@@ -120,7 +120,7 @@ def arrow_scale(result: PCAResult, kx: int, ky: int,
     1]``; there is no conversion between them, so a biplot has to pick a
     display scale. It is picked once, from the drawn axes, so that the longest
     arrow spans ``fill`` of the shorter half-range — and applied to the circle
-    too, so the reader has a ruler on screen rather than an assurance.
+    too, so the circle shows the scale on screen.
 
     Returns 0.0 when there is nothing to scale (no finite limits, or every
     correlation zero), which callers read as "draw no arrows".
@@ -154,10 +154,10 @@ class FeaturePicker(QWidget):
     """Which columns go into the decomposition.
 
     A tick list rather than drop zones: PCA takes tens to hundreds of features
-    at once, and dragging four hundred columns one at a time is not a gesture
-    anybody makes twice. The default ticks every continuous column, which is
-    what :func:`~spacr.qt.widgets.pca_model.candidate_features` offers and what
-    a user exploring a new table wants first.
+    at once, and dragging hundreds of columns one at a time is impractical.
+    The default ticks every continuous column, which is what
+    :func:`~spacr.qt.widgets.pca_model.candidate_features` offers and what a
+    user exploring a new table wants first.
 
     :param parent: parent widget.
     """
@@ -216,6 +216,7 @@ class FeaturePicker(QWidget):
         """
         self._all = () if frame is None else candidate_features(frame)
         self._checked = set(self._all)
+        self._rebuild_items()
         self._refilter()
 
     def set_selected(self, features) -> None:
@@ -261,17 +262,33 @@ class FeaturePicker(QWidget):
         needle = self._search.text().strip().lower()
         return [n for n in self._all if not needle or needle in n.lower()]
 
-    def _refilter(self) -> None:
-        """Re-list the features matching the search box."""
+    def _rebuild_items(self) -> None:
+        """Rebuild one list item per offered feature, hidden or not.
+
+        Called only when the offered features change, never per keystroke.
+        """
         self._list.blockSignals(True)
         self._list.clear()
-        for name in self._visible():
+        for name in self._all:
             item = QListWidgetItem(name)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Checked if name in self._checked
                                else Qt.Unchecked)
             item.setData(Qt.UserRole, name)
             self._list.addItem(item)
+        self._list.blockSignals(False)
+
+    def _refilter(self) -> None:
+        """Show the features matching the search box, reusing the items."""
+        shown = set(self._visible())
+        self._list.blockSignals(True)
+        for row in range(self._list.count()):
+            item = self._list.item(row)
+            name = item.data(Qt.UserRole)
+            item.setHidden(name not in shown)
+            state = Qt.Checked if name in self._checked else Qt.Unchecked
+            if item.checkState() != state:
+                item.setCheckState(state)
         self._list.blockSignals(False)
         total = len(self._all)
         self._count.setText(
@@ -303,8 +320,7 @@ class ScreePlot(QWidget):
     for "PC1 and PC2 are most of it" when they are 9% and 7%.
 
     Clicking a bar emits :attr:`component_picked`, so the scree plot is the
-    control that chooses what the scores plot draws rather than a decoration
-    beside it.
+    control that chooses what the scores plot draws.
 
     :param parent: parent widget.
     """
@@ -456,8 +472,8 @@ class PCAScoresCanvas(GraphCanvas):
         """Point the canvas at a decomposition and its scores frame.
 
         Both together, always: a result and a frame that do not match would
-        put arrows from one PCA over the points of another, which is a picture
-        that looks entirely reasonable and is wrong.
+        put arrows from one PCA over the points of another, and the result
+        would look plausible while being wrong.
 
         :param result: the decomposition whose loadings are drawn, or None.
         :param frame: the scores frame from the same decomposition, or None.
@@ -598,14 +614,13 @@ class PCAPanel(QWidget):
         joins the process-wide one, which is what makes brushing a cluster
         here highlight it everywhere else.
     :param threaded: run the decomposition on a worker thread. **Defaults to
-        False**, and the default is the interesting part -- see
-        :meth:`recompute`. ``PCAScreen`` passes its own ``threaded`` through,
-        so the application gets the threaded panel and a panel built directly
-        keeps returning its result from the call.
+        False** -- see :meth:`recompute` for why. ``PCAScreen`` passes its own
+        ``threaded`` through, so the application gets the threaded panel and a
+        panel built directly keeps returning its result from the call.
     :param parent: parent widget; ownership only.
     :param source: this view's name on the link, stamped onto everything it
         publishes so a selection can be attributed and a view does not react
-        to its own brushing. Two panels sharing a link MUST NOT share this.
+        to its own brushing. Two panels sharing a link must not share this.
     """
 
     #: Emitted after every successful decomposition.
@@ -698,8 +713,8 @@ class PCAPanel(QWidget):
 
         self._colour = QComboBox(shelf)
         self._colour.setToolTip("Colour the scores by any column of the "
-                                "table — the point of the plot is usually "
-                                "whether a label separates.")
+                                "table, for example to see whether a label "
+                                "separates the objects.")
         options.addWidget(QLabel("Colour", shelf), 4, 0)
         options.addWidget(self._colour, 4, 1)
 
@@ -708,7 +723,8 @@ class PCAPanel(QWidget):
         self._biplot.setToolTip(
             "Arrows are each feature's correlation with the two components. "
             "Direction and relative length are meaningful; the absolute "
-            "length is scaled to fit and the dashed circle is that ruler.")
+            "length is scaled to fit, and the dashed circle drawn at the same "
+            "scale marks a correlation of 1.")
         options.addWidget(self._biplot, 5, 0)
         self._arrows = QSpinBox(shelf)
         self._arrows.setRange(0, 40)
@@ -805,16 +821,11 @@ class PCAPanel(QWidget):
     def recompute(self) -> Optional[PCAResult]:
         """Decompose and redraw. Refusals become a message, never a traceback.
 
-        THE CONTRACT, and how it was resolved. This method returned its
-        ``PCAResult`` synchronously, and the sklearn fit behind it is **1.63 s
-        on a 200 000-row x 48-column table** -- measured, and recorded as
-        ``PCA_STALL_BUDGET_S`` in ``tests/qt/test_gui_responsiveness.py``
-        rather than hidden, because that is a 1.63 s frozen window on every
-        option change and every filter change.
-
-        The fit now runs on a worker, and this returns ``None`` while it does.
-        Rather than pretend that is the same thing, the panel takes a
-        ``threaded`` flag:
+        The sklearn fit behind this method takes **1.63 s on a 200 000-row x
+        48-column table** -- measured, and recorded as ``PCA_STALL_BUDGET_S``
+        in ``tests/qt/test_gui_responsiveness.py`` -- which on the GUI thread
+        would freeze the window on every option change and every filter
+        change. The panel therefore takes a ``threaded`` flag:
 
         * ``threaded=False`` (the default, and what a directly-constructed
           panel gets) runs the fit inline through :class:`JobRunner`'s
@@ -827,8 +838,7 @@ class PCAPanel(QWidget):
         A host that wants the result asynchronously has always had
         ``computed``; nothing that listens to it changed. A caller that reads
         the return value gets the old behaviour by not asking for threading,
-        which is honest about the fact that a value cannot be returned before
-        it has been computed.
+        because a value cannot be returned before it has been computed.
 
         :returns: the decomposition, or ``None`` when it was refused or is
             still running.

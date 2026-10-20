@@ -24,8 +24,6 @@ LOG = logging.getLogger("spacr.qt.setup_dialog")
 GROUPS: List[tuple] = [
     ("How it looks", ("language", "theme", "colour_blind")),
     ("How it runs", ("spacr_mode", "hash_inputs")),
-    ("The assistant", ("ai_provider", "ai_default")),
-    ("When something breaks", ("issue_prompt", "share_logs")),
 ]
 
 #: How far the home screen behind is blurred.

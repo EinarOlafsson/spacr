@@ -3,8 +3,7 @@ Classifier evaluation workbench
 
 Classifier cross-validation retains every out-of-fold probability instead
 of reducing a fold to one accuracy number. The workbench has no tile of its
-own: it opens from the **Classify** masthead, because judging a classifier is
-the sentence after training one. Press **Classifier Evaluation** there and
+own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and
 drop a model/results folder onto the page. The scan runs in the background and
 finds every ``evaluation_manifest.json`` below that folder.
 
@@ -60,8 +59,8 @@ related fields, wells, or plates together. The default is well-grouped CV.
 Set ``nested_cv_inner_folds`` to two or more to enable true nested CV.
 
 In ordinary CV, the outer validation fold is used for checkpoint selection and
-reported performance. This is fast and useful for routine comparisons, but
-can give a slightly optimistic estimate when many choices are made against
+reported performance. This requires fewer training runs than nested CV, but
+the estimate can be optimistically biased when many choices are made against
 that fold.
 
 In nested CV, each outer training partition is split again. Models select
@@ -77,7 +76,8 @@ Leakage protection
 Before training, spaCR checks exact paths, augmentation families, objects and
 the configured grouping level on both sides of every split. With
 ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises
-an actionable error before model fitting. Augmentations are generated after
+``LeakageError`` before model fitting; the message lists the overlap counts
+per level. Augmentations are generated after
 splitting so transformed copies cannot enter a held-out fold.
 
 Temperature calibration

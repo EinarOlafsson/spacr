@@ -200,3 +200,99 @@ A category made only of alpha settings now hides with its rows
     db path). No Model Zoo entry for a trained cell-cycle model.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cell_cycle_alpha_gate.py, test_cell_cycle_phase_three_ways.py pass.
+
+2026-10-14 — Original Home: tabular classifier holdout follows shared grouping.
+Measure's XGBoost phase route now resolves identities through the existing
+split_group_values helper, defaults to complete wells and honors an explicit
+cv_group_by value. The phase trainer uses shared grouped_split instead of its
+private random-field mask and records requested/realized split provenance.
+Direct helper callers retain their explicitly documented legacy field default.
+When the requested groups cannot place every class on both sides, the final
+all-label fit still provides predictions, but held-out metrics are omitted and
+an explicit unavailable diagnosis/detail is recorded. No random cell fallback
+or invented validation score. Image/Torch/other assay functions are unchanged.
+Validation10 selected owning cases PASS/actualexit0/4.41s,19 unrelated cases
+deselected. Actual XGBoost fit/predict row capture proves no overlap of requested
+identities, including zero shared wells; actual Measure caller supports default
+well plus explicit field/plate/cell grouping. One-group and class-confounded
+wells omit evaluation. One exact diagnostic has9source-hash-bound technical
+translations; normal candidate/context gates pass all9, actualexit0. Independent
+review and owner-scoped extraction/runtime generation remain pending; no catalog
+hand edits. Existing F535 alpha gates unchanged; real hand-labelled nuclei,
+scientific efficacy and image/Torch split acceptance are not closed here.
+Receipt:features/data/535_tabular_grouped_split_2026-10-14/.
+
+2026-10-15 — Current-source backend integration and actual runtime lookup:
+The F564 reference preservation, F562 read-only identity join and F535 grouped
+tabular holdout components were integrated together with Home-B exact scoped
+extractor ownership. Normal writers emit ten reviewed diagnostics in each of
+nine locales, preserving all 10,491 unrelated source-current targets per
+locale. Actual lookup and finite owning cohort: 179 PASS, exit 0, 87.95 s.
+Root independently reviewed exact code diffs and found no blocking code issue;
+this is limited source review, not scientific/native/translation signoff.
+Receipt: features/data/scientific_backends_integration_2026-10-15/. Parent
+scientific, native and whole-feature acceptance limits remain as recorded.
+Normal full nine-locale runtime audit exit 1: 37 existing foreign N700
+error-report captions remain exact English (sv4/de3/es7/zh_CN7/pt7/hi3/ko3/is2/fr1).
+Raw failure is retained in the integration receipt. Nightly implementation
+publication does not claim green global CI/release or waive this owner gap.
+Actual normal caption-arrival refresh also refuses missing explicit
+sv/UI/AI Error report review (exit 1); its raw failure is retained. No
+caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 — Original Home: image/Torch holdout now uses shared acquisition
+groups, defaults to well and honors explicit cv_group_by. Classify receives
+the same normalized grouping and random seed for its own validation split.
+Returned report and model phase sidecar retain actual shared SplitReport group
+and cell fractions/counts. Missing/invalid identity and class-inadequate holdouts
+refuse before trainer or replacement of an existing dataset, without fabricated
+metrics. Saved-model inference does not invent a new split. Architecture,
+existing tabular behavior and alpha gates remain unchanged.
+Actual corrected baseline10FAIL2PASS -> final27PASS7.98s, exit0; actual trainer
+boundary intercepted, nine localized production-helper refusal callbacks and
+five existing tabular checks included. Native synthetic4well outer/inner
+validation proof passes. A prior4well fixture failed correctly for only1
+M-bearing train group; preserved in evidence. Its opt-in training fixture now
+plants declared balanced phase identities into4independent wells; historical
+pixels are not claimed unchanged. Slow real-model training NOT RUN. No GPU,
+checkpoint download, biological accuracy or whole-feature completion.
+Existing exact reviewed caption reused; narrow extractor owner request and
+root source review pending. Evidence:data/535_torch_grouped_split_2026-10-15/.
+
+Follow-up: explicit separate_wells/balanced_phases fixture controls now preserve
+the original seed3 phase distribution as an inadequate-inner-holdout refusal
+regression. Three affected cases PASS5.66s,exit0, including fresh balanced
+independent four-well outer/inner proof and actual helper defaultwell boundary.
+Root reviewed exact runtime diff/test design; no source blocker (source review
+only). Runtime helper AST unchanged from reviewed aad2769b960. Existing caption
+already in English manifest and exact nine targets installed; no new runtime
+target. One-helper extractor ownership followup requested; no globalCI claim.
+
+2026-10-15 — F535 physical measured-channel identity (source component).
+Shared exact scalar normalization now prevents boolean/fractional/nonfinite
+physical IDs silently selecting another stain. Actual prior0.5 viability
+request read DNA rather than PI and called40synthetic nuclei dead instead
+of declared30live/10dead. Active DNA/FUCCI/stain/morphology columns resolve
+before DB access and are reused; original DB bytes/prior outputs/settings
+survive typed-invalid refusal. Legal integral strings/scalars/0D arrays,
+order, empty/duplicate mapping and automatic/default paths remain intact.
+Baseline20FAIL14PASS plus8newrefusal-contractFAIL; final47PASS10.03s.
+Proper private-helper documentation is retained; unchanged actualAPI
+collector13484symbols excludes it and committed English has no target,
+so no orphanAPI reviews are created. No calibration/fit/training math,
+biological efficacy or whole-feature acceptance claim. Nine-language
+runtime closure pending; evidence: features/data/535_540_channel_identity_2026-10-15/.
+
+2026-10-15 — F535 shared physical-channel runtime closure.
+One exact caption owner and nine independent technical target reviews are
+installed through the ordinary writer, preserving 10,777 unrelated
+current targets per locale. Actual full-nine runtime audit and arrivals PASS:
+9833 baseline/1096 added/151 retired/31 changed.
+Eighteen actual cell-cycle/viability localized typed-bool refusals PASS with
+zero skips; DB bytes also survive read-only verification, prior accepted
+outputs and settings unchanged. Prior 47 owning checks and actual API
+eligibility inventory not repeated; five source/tool/test file hashes and
+original source collector stay exact. Proper helper documentation remains,
+with no absent API target reviews invented. No biological calibration,
+whole-feature or final CI claim. Shared evidence remains in
+features/data/535_540_channel_identity_2026-10-15/.

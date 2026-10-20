@@ -1,35 +1,34 @@
 """The repeated per-object settings, drawn as one row per question.
 
-78 of Mask's 201 settings are the SAME twenty-odd questions asked once per
+78 of Mask's 201 settings are the same twenty-odd questions asked once per
 object type -- ``cell_diameter``, ``nucleus_diameter``,
 ``pathogen_diameter``, ``organelle_diameter`` -- and a form that lists them
-flat asks 203 questions before anything is segmented. A table was chosen over
-tabs and over leaving the names flat.
+flat asks each of them separately. A table was chosen over tabs and over
+leaving the names flat.
 
 :mod:`spacr.object_settings_table` is the model and draws nothing; this is
-the view over it. The split matters more than it looks: the stored keys never
-change, so no settings file, notebook, tutorial or ``spacr-run`` invocation
-migrates. What was wrong was the presentation, so only the presentation
-changes.
+the view over it. Because of this split the stored keys never change, so no
+settings file, notebook, tutorial or ``spacr-run`` invocation needs migrating;
+only the presentation differs.
 
-WHY THIS SHAPE IS WHAT LETS AN ARBITRARY ORGANELLE COUNT LAND. The number of
-organelles a run may declare is not fixed. In a flat vocabulary each new organelle is twenty new
-settings that every tooltip table and translation catalog has to learn; here
-it is one COLUMN, and the number of questions does not move.
-:meth:`ObjectSettingsGrid.add_object` is that operation, and it starts a new
-organelle from the first one's answers rather than from a global default
-nobody chose.
+The table shape allows an arbitrary number of organelles. The number of
+organelles a run may declare is not fixed. In a flat vocabulary each new
+organelle is twenty new settings that every tooltip table and translation
+catalog has to include; here it is one column, and the number of questions
+does not change. :meth:`ObjectSettingsGrid.add_organelle` adds one, and it
+starts a new organelle from the first one's answers rather than from a global
+default.
 
-TWO THINGS THIS VIEW IS CAREFUL ABOUT, both of which would corrupt a settings
-file rather than merely look wrong:
+The view enforces two rules; breaking either would corrupt a settings file
+rather than only display it wrongly:
 
 * **A value keeps its type.** ``cell_diameter`` is an int, ``organelle_
   cellprob_threshold`` is a float, and a cell edited in a table arrives as a
-  string. Writing ``"12"`` where ``12`` was is a settings file that has
-  quietly changed meaning, and the pipeline reading it either coerces
-  silently or fails a long way from here.
+  string. Writing ``"12"`` where ``12`` was changes the meaning of the
+  settings file without notice, and the pipeline reading it either coerces
+  silently or fails far from here.
 * **A question an object does not ask stays absent.** ``cytoplasm`` has no
-  channel, no diameter and no detection method -- it is DERIVED, cell minus
+  channel, no diameter and no detection method -- it is derived, cell minus
   the rest, not found in a channel. Those cells are blank and not editable,
   because writing a value there invents a key nothing reads.
 """
@@ -42,6 +41,7 @@ from PySide6.QtCore import (QAbstractTableModel, QEvent, QModelIndex, QSize,
                             Qt, QTimer, Signal)
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QFrame,
     QHBoxLayout,
     QHeaderView,
@@ -56,8 +56,11 @@ from PySide6.QtWidgets import (
 LOG = logging.getLogger(__name__)
 
 from ...object_roles import setting_label
-from ...object_settings_table import (OBJECT_ORDER, _FILTER_PREFIX,
-                                      _SINGLE_OBJECT_QUESTIONS, _filter_text,
+from ...object_settings_table import (OBJECT_ORDER, _AUTO_DIAMETER,
+                                      _DIAMETER_OBJECTS, _FILTER_PREFIX,
+                                      _SINGLE_OBJECT_QUESTIONS,
+                                      _diameter_setting, _filter_text,
+                                      _magnification_default,
                                       _parse_filter_text, _settings_key,
                                       column_label, from_table, to_table,
                                       widen)
@@ -68,10 +71,12 @@ from .sortable_table import install_sorting
 __all__ = ["AUTO_TEXT", "OFF_TEXT", "ObjectSettingsGrid",
            "ObjectSettingsModel"]
 
-#: What an unset value reads as. ``None`` means "work it out" for most of
-#: these -- a diameter of None is Cellpose estimating it -- and an empty cell
-#: would read as "nobody has filled this in yet", which is a different claim.
 AUTO_TEXT = "auto"
+"""What an unset value reads as. ``None`` means "work it out" for most of
+these, and an empty cell would read as "nobody has filled this in yet",
+which is a different claim. An object diameter is the exception: its
+``None`` is the magnification default, drawn greyed (item 696).
+"""
 
 #: What an unset CHANNEL reads as, and it is not "auto".
 #:
@@ -97,6 +102,28 @@ def _unset_text(question: str) -> str:
     if question in _OFF_QUESTIONS or _is_filter(question):
         return OFF_TEXT
     return AUTO_TEXT
+
+
+_DIAMETER_QUESTION = "diameter"
+"""The row whose blank cell shows the magnification default (item 696)."""
+
+
+def _is_magnification_diameter(question: str, obj: str) -> bool:
+    """Whether the cell is an object diameter read by the 0/"auto" rule.
+
+    Cell, nucleus and pathogen. An organelle's diameter is deprecated, read
+    by nothing, and keeps its old reading.
+    """
+    return question == _DIAMETER_QUESTION and obj in _DIAMETER_OBJECTS
+
+
+def _refusal_text(text: str) -> str:
+    """Why a diameter typed into the table was not taken, in the reader's language."""
+    from ..i18n import tr
+
+    return tr("{value} is not a diameter: type a number of pixels, 0 or auto "
+              "to let Cellpose estimate it, or clear the cell for the "
+              "magnification default.").format(value=repr(str(text)))
 
 
 def _is_filter(question: str) -> bool:
@@ -255,6 +282,7 @@ class ObjectSettingsModel(QAbstractTableModel):
 
     #: Emitted when a cell's value actually changed.
     edited = Signal()
+    _refused = Signal(str)
 
     def __init__(self, parent=None):
         """Create the empty per-object settings table model.
@@ -265,6 +293,7 @@ class ObjectSettingsModel(QAbstractTableModel):
         self._table: Dict[str, Dict[str, Any]] = {}
         self._questions: Tuple[str, ...] = ()
         self._objects: Tuple[str, ...] = ()
+        self._magnification: Any = None
 
 
     def set_table(self, table: Mapping[str, Mapping[str, Any]]) -> None:
@@ -340,9 +369,9 @@ class ObjectSettingsModel(QAbstractTableModel):
     def flags(self, index):
         """Which cells are editable.
 
-        ONLY THE CELLS AN OBJECT ACTUALLY ASKS. A blank cell means that
+        Only the cells an object asks are editable. A blank cell means that
         object does not ask that question, and making it editable would
-        invite an answer to a question nobody posed.
+        accept a value for a key nothing reads.
 
         :param index: the cell.
         :returns: the Qt item flags.
@@ -376,6 +405,21 @@ class ObjectSettingsModel(QAbstractTableModel):
             return None
         value = self.value_at(question, obj)
         unset = _unset_text(question)
+        if _is_magnification_diameter(question, obj) and value is None:
+            default = _magnification_default(self._magnification, obj)
+            if default is not None:
+                unset = f"{default:g}"
+                if role == Qt.ForegroundRole:
+                    from PySide6.QtGui import QPalette
+
+                    return QApplication.palette().color(
+                        QPalette.PlaceholderText)
+                if role == Qt.FontRole:
+                    from PySide6.QtGui import QFont
+
+                    font = QFont()
+                    font.setItalic(True)
+                    return font
         if role == Qt.CheckStateRole and isinstance(value, bool):
             return Qt.Checked if value else Qt.Unchecked
         if role == Qt.DisplayRole:
@@ -398,6 +442,13 @@ class ObjectSettingsModel(QAbstractTableModel):
             if question in _OFF_QUESTIONS and value is None:
                 head += (f"\n\n{column_label(obj)} is NOT SEGMENTED. "
                          f"Give it a channel number to turn it on.")
+            if _is_magnification_diameter(question, obj):
+                from ..i18n import tr
+
+                head += "\n\n" + tr(
+                    "Pixels. Blank uses the magnification default "
+                    "(shown greyed); 0 or auto lets Cellpose estimate "
+                    "the diameter.")
             return f"{head}\n\n{help_text}" if help_text else head
         return None
 
@@ -432,6 +483,18 @@ class ObjectSettingsModel(QAbstractTableModel):
             return True
         if role == Qt.CheckStateRole:
             value = "true" if _checked(value) else "false"
+        if _is_magnification_diameter(question, obj):
+            try:
+                new = _diameter_setting(value)
+            except ValueError:
+                self._refused.emit(_refusal_text(value))
+                return False
+            if new == current and type(new) is type(current):
+                return False
+            row[obj] = new
+            self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.EditRole])
+            self.edited.emit()
+            return True
         like = current
         if like is None:
             like = next((v for o, v in row.items()
@@ -459,6 +522,10 @@ class ObjectSettingsModel(QAbstractTableModel):
             if _is_filter(question):
                 return (f"Filter: {question[len(_FILTER_PREFIX):]} "
                         f"(min \u2013 max)")
+            if question == _DIAMETER_QUESTION:
+                from ..i18n import tr
+
+                return tr("Diameter (px)")
             return setting_label(question)
         if role == Qt.ToolTipRole:
             if orientation == Qt.Vertical:
@@ -596,6 +663,7 @@ class ObjectSettingsGrid(QWidget):
         self._base: Dict[str, Any] = {}
         self._model = ObjectSettingsModel(self)
         self._model.edited.connect(self.settings_changed)
+        self._model._refused.connect(self._say_refused)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -700,9 +768,8 @@ class ObjectSettingsGrid(QWidget):
         self._status.setWordWrap(True)
         self._add = QPushButton("Add an organelle", self)
         self._add.setToolTip(
-            "One more organelle is one more COLUMN. In the flat settings "
-            "vocabulary it was twenty new settings, which is why the count "
-            "could not be arbitrary before this table existed.")
+            "Each added organelle is one more column in this table, seeded "
+            "with the first organelle's values.")
         self._add.clicked.connect(self.add_organelle)
         self._add_filter = QPushButton("Add a filter", self)
         self._add_filter.setObjectName("ObjectGridAddFilter")
@@ -812,15 +879,15 @@ class ObjectSettingsGrid(QWidget):
     def eventFilter(self, watched, event):               # noqa: N802
         """Show the same sticky, linked tooltip the form shows.
 
-        THE SAME POPUP, NOT A SECOND ONE. The flat form puts rich help on a
-        widget and lets `HoverTooltip` draw it: a typed body, an API link,
-        and the setting's animation when it has one. A table has no widget
-        per cell, so the anchor is the view and the cell under the pointer
-        decides which setting it is speaking for.
+        The table uses the same popup as the form. The flat form puts rich
+        help on a widget and lets `HoverTooltip` draw it: a typed body, an API
+        link, and the setting's animation when it has one. A table has no
+        widget per cell, so the anchor is the view and the cell under the
+        pointer decides which setting it is speaking for.
 
         The native tooltip is swallowed for the same reason the form
         swallows it -- it disappears the moment the pointer moves toward the
-        API link, and that link is the point.
+        API link.
 
         :param watched: the object the filter is installed on: this widget
             (font changes), the help band (enter and leave) or the table's
@@ -1020,6 +1087,11 @@ class ObjectSettingsGrid(QWidget):
         from ... import model_zoo
         from .model_zoo_picker import choose_model
 
+        chooser = getattr(self, "_model_chooser", None)
+        if callable(chooser):
+            before = self.settings()
+            chooser(obj)
+            return self.settings() != before
         path = choose_model(self, kinds=self.MODEL_KINDS + tuple(
             kind for kind in model_zoo.PREFIXED_KINDS
             if kind not in self.MODEL_KINDS))
@@ -1075,16 +1147,47 @@ class ObjectSettingsGrid(QWidget):
     def set_settings(self, settings: Mapping[str, Any]) -> None:
         """Show the per-object half of a flat settings dict.
 
-        The rest is KEPT, not dropped: :meth:`settings` returns it unchanged
-        beside the table's own keys, so this widget can edit a corner of a
-        settings file without holding the whole of it hostage.
+        The rest is kept, not dropped: :meth:`settings` returns it unchanged
+        beside the table's own keys, so this widget can edit part of a
+        settings file without taking over the rest of it.
 
         :param settings: flat settings dict, or ``None``; its
             ``<object>_<question>`` keys become the table.
         """
         self._base = dict(settings or {})
+        self._model._magnification = self._base.get("magnification")
         self._model.set_table(self._visible_table())
         self._announce()
+
+    def _say_refused(self, text: str) -> None:
+        """Show why a typed value was not taken, under the table."""
+        self._status.setText(text)
+
+    def _follow_magnification(self, magnification) -> bool:
+        """Show the diameter defaults of a new magnification (item 696).
+
+        A blank object diameter shows the magnification default greyed, so
+        it has to move when the magnification does; the stored value stays
+        blank.
+
+        :param magnification: the form's magnification now.
+        :returns: whether anything was redrawn.
+        """
+        self._base["magnification"] = magnification
+        if self._model._magnification == magnification:
+            return False
+        self._model._magnification = magnification
+        rows = self.questions()
+        if _DIAMETER_QUESTION not in rows:
+            return False
+        row = rows.index(_DIAMETER_QUESTION)
+        columns = self._model.columnCount()
+        if columns:
+            self._model.dataChanged.emit(
+                self._model.index(row, 0),
+                self._model.index(row, columns - 1),
+                [Qt.DisplayRole, Qt.ForegroundRole, Qt.ToolTipRole])
+        return True
 
     def _visible_table(self) -> Dict[str, Dict[str, Any]]:
         """The table as drawn: the claimed table less the objects the run lacks.
@@ -1382,13 +1485,12 @@ class ObjectSettingsGrid(QWidget):
 
         Empty at the ceiling. Slot names are lettered -- an object type is
         embedded in an underscore-separated object key, so a digit would be
-        ambiguous against the object LABEL -- and the lettering CARRIES past
+        ambiguous against the object label -- and the lettering carries past
         ``z``, so the ceiling is where two letters run out rather than one.
 
-        COUNTS UP FROM THE SLOTS IN USE rather than from one. Walking every
-        slot from the start was fine while there were 26; there are now 702,
-        and the caller that presses Add repeatedly turned an O(slots) scan
-        into an O(slots squared) one.
+        Counts up from the slots in use rather than from one. With 702 slots,
+        walking every slot from the start on each Add would make repeated
+        presses O(slots squared).
 
         Hidden slots count as in use too.
         """

@@ -56,7 +56,7 @@ def test_the_state_carries_the_module_and_its_settings():
 def test_the_state_is_verified_by_reading_it_back_not_by_the_write_returning():
     """"the write returned" and "the file parses" are different claims."""
     written = restart_state.save(module="mask", settings={"src": "/data"})
-    assert json.loads(written.read_text())["module"] == "mask"
+    assert json.loads(written.read_text(encoding="utf-8"))["module"] == "mask"
 
 
 def test_a_state_that_cannot_be_written_is_None_and_never_an_exception(
@@ -470,3 +470,40 @@ def test_a_rebuild_refusal_keeps_the_old_screen_and_workspace(
         old.close()
         window.deleteLater()
         _flush_deferred_widget_deletes()
+
+
+@pytest.mark.parametrize('frozen', [False, True])
+def test_restart_child_gets_fresh_frozen_environment_without_changing_parent(monkeypatch, tmp_path, frozen):
+    import subprocess
+    import sys
+
+    monkeypatch.setattr(sys, 'frozen', frozen, raising=False)
+    monkeypatch.setenv('PYINSTALLER_RESET_ENVIRONMENT', '0')
+    if frozen:
+        bundled = tmp_path / 'Program Files' / 'spaCR' / 'spacr.exe'
+        bundled.parent.mkdir(parents=True)
+        bundled.write_bytes(b'modeled bundled executable, never executed')
+        monkeypatch.setattr(sys, 'executable', str(bundled))
+    parent_environment = dict(os.environ)
+    calls = []
+    order = []
+
+    def spawn(argv, **kwargs):
+        state = restart_state.peek()
+        assert state['module'] == 'mask'
+        assert state['settings'] == {'src': str(tmp_path / 'my images'), 'cell_channel': 2}
+        calls.append((argv, kwargs))
+        order.append('launch')
+
+    monkeypatch.setattr(subprocess, 'Popen', spawn)
+    assert restart_spacr('mask', {'src': str(tmp_path / 'my images'), 'cell_channel': 2},
+                         exiter=lambda code: order.append(('exit', code))) is True
+    kwargs = {'start_new_session': True, 'close_fds': True}
+    argv = [sys.executable, '-m', 'spacr.qt']
+    if frozen:
+        argv = [sys.executable]
+        kwargs['env'] = {**parent_environment, 'PYINSTALLER_RESET_ENVIRONMENT': '1'}
+        assert calls[0][1]['env'] is not os.environ
+    assert calls == [(argv, kwargs)]
+    assert dict(os.environ) == parent_environment
+    assert order == ['launch', ('exit', 0)]

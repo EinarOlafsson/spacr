@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
-from types import SimpleNamespace
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -83,19 +83,27 @@ def test_a_load_error_is_explained_only_when_there_is_an_explanation(
 
 
 def test_a_zoo_base_without_a_local_file_is_fetched_into_the_model_folder(
-        tmp_path, monkeypatch):
+        tmp_path, monkeypatch, qapp):
+    from concurrent.futures import ThreadPoolExecutor
+
     import spacr.model_zoo as model_zoo
 
     monkeypatch.setenv("HOME", str(tmp_path))
-    entry = SimpleNamespace(key="cpsam_plaque_r5", path="",
-                            uri="https://x/plaque.CP_model")
+    entry = model_zoo.ModelEntry(key="cpsam_plaque_r5", name="plaque.CP_model",
+                                     uri="file:///stub", sha256="7" * 64)
     fetched = []
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
     monkeypatch.setattr(model_zoo, "fetch", lambda e, dest: fetched.append(
         (e, dest)) or os.path.join(dest, "plaque.CP_model"))
-    path = SUB._resolve_training_base("cpsam_plaque_r5")
+    assert model_zoo._on_the_qt_gui_thread()
+    with pytest.raises(model_zoo.ModelUnreadable, match="is not cached"):
+        SUB._resolve_training_base("cpsam_plaque_r5")
+    assert fetched == []
+    with ThreadPoolExecutor(max_workers=1) as worker:
+        future = worker.submit(SUB._resolve_training_base, "cpsam_plaque_r5")
+        path = future.result(timeout=5)
     dest = str(tmp_path / ".spacr" / "models")
-    assert fetched == [(entry, dest)]
+    assert fetched == [(entry, Path(dest))]
     assert path == os.path.join(dest, "plaque.CP_model")
     assert os.path.isdir(dest)
 

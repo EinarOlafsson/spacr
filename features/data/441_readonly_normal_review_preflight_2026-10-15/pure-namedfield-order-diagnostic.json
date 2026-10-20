@@ -1,0 +1,115 @@
+{
+  "scope": "PURE syntax diagnostic ONLY; no ordinary full-context acceptance claim and no source collector.",
+  "syntax_refusals": [
+    {
+      "language": "zh_CN",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "translation": "{total} 个文件中有 {matched} 个可解析。第一个无法解析的文件：{first}",
+      "source_namedfield_order": [
+        "{matched}",
+        "{total}",
+        "{first}"
+      ],
+      "target_namedfield_order": [
+        "{total}",
+        "{matched}",
+        "{first}"
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "translation": "{total} 个中有 {matched} 个 — {label}  ({key})",
+      "source_namedfield_order": [
+        "{matched}",
+        "{total}",
+        "{label}",
+        "{key}"
+      ],
+      "target_namedfield_order": [
+        "{total}",
+        "{matched}",
+        "{label}",
+        "{key}"
+      ]
+    },
+    {
+      "language": "hi",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "translation": "{total} में से {matched} फ़ाइलों के नाम पार्स किए जा सकते हैं। पहली फ़ाइल जिसका नाम पार्स नहीं किया जा सकता: {first}",
+      "source_namedfield_order": [
+        "{matched}",
+        "{total}",
+        "{first}"
+      ],
+      "target_namedfield_order": [
+        "{total}",
+        "{matched}",
+        "{first}"
+      ]
+    },
+    {
+      "language": "hi",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "translation": "{total} में से {matched} — {label}  ({key})",
+      "source_namedfield_order": [
+        "{matched}",
+        "{total}",
+        "{label}",
+        "{key}"
+      ],
+      "target_namedfield_order": [
+        "{total}",
+        "{matched}",
+        "{label}",
+        "{key}"
+      ]
+    },
+    {
+      "language": "ko",
+      "source": "All {total} .{extension} files parse.",
+      "translation": ".{extension} 파일 {total}개를 모두 해석할 수 있습니다.",
+      "source_namedfield_order": [
+        "{total}",
+        "{extension}"
+      ],
+      "target_namedfield_order": [
+        "{extension}",
+        "{total}"
+      ]
+    },
+    {
+      "language": "ko",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "translation": "파일 {total}개 중 {matched}개를 해석할 수 있습니다. 해석할 수 없는 첫 번째 파일: {first}",
+      "source_namedfield_order": [
+        "{matched}",
+        "{total}",
+        "{first}"
+      ],
+      "target_namedfield_order": [
+        "{total}",
+        "{matched}",
+        "{first}"
+      ]
+    },
+    {
+      "language": "ko",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "translation": "{total}개 중 {matched}개 — {label}  ({key})",
+      "source_namedfield_order": [
+        "{matched}",
+        "{total}",
+        "{label}",
+        "{key}"
+      ],
+      "target_namedfield_order": [
+        "{total}",
+        "{matched}",
+        "{label}",
+        "{key}"
+      ]
+    }
+  ],
+  "count": 7
+}

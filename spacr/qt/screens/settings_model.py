@@ -3,7 +3,7 @@ Bridge between spacr's plain-python default settings and Qt form widgets.
 
 The existing spacr GUI expresses settings as `{name: (widget_type, options,
 default)}` triples via `spacr.gui_utils.convert_settings_dict_for_gui`.
-Here we consume the same conversion output and materialize each entry as
+This module consumes the same conversion output and materializes each entry as
 a real Qt widget grouped into logical Section boxes based on
 `spacr.settings.categories`.
 """
@@ -19,12 +19,13 @@ import logging
 import os
 import sys
 import textwrap
+import threading
 import weakref
 from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple)
 
 from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
-                            QThread, QTimer, Signal)
+                            QThread, QTimer, Signal, Slot)
 from PySide6.QtWidgets import (
     QBoxLayout,
     QCheckBox,
@@ -276,7 +277,8 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "train_cellpose": {"model_type", "from_scratch", "Signal_to_noise", "background",
                        "remove_background", "diameter", "resize", "width_height",
                        "target_size", "augment", "verbose"},
-    "mask": {"pathogen_model"},
+    "mask": {"pathogen_model", "export_vvvv"},
+    "measure": {"export_vvvv"},
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_normalization_pool",
                   "watch_measure_settings",
@@ -293,7 +295,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                   "robustness_diameter_factors", "robustness_flow_thresholds",
                   "robustness_cellprob_thresholds", "robustness_enhancement",
                   "robustness_tolerance", "real_object_classifier",
-                  "real_object_threshold"},
+                  "real_object_threshold", "export_vvvv"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",
@@ -1304,6 +1306,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage", "timelapse_lineage_color_by",
             "timelapse_lineage_max_distance",
             "timelapse_lineage_min_division_h",
+            "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+            "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
         )),
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cell_max_size",
@@ -1392,6 +1396,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage", "timelapse_lineage_color_by",
             "timelapse_lineage_max_distance",
             "timelapse_lineage_min_division_h",
+            "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+            "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
         )),
         ("Event Detection α", (
             "timelapse_events", "timelapse_events_annotations",
@@ -1537,7 +1543,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Counterfactuals", (
             "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
             "counterfactual_condition", "counterfactual_target",
-            "counterfactual_generator",
+            "counterfactual_generator", "counterfactual_strength",
+            "counterfactual_structure_weight", "counterfactual_checkpoint",
+            "counterfactual_checkpoint_sha256",
         )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs", "ram_guard",
@@ -2528,6 +2536,30 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How much of the machine the run may use: whether the graphics card "
         "is used, and how many fields are decoded at once. Nothing here "
         "changes the result, only what it costs.",
+    "SPATIAL INPUT":
+        "Which spatial transcriptomics run is read and where its results "
+        "go: the Xenium or Visium HD output folder, the platform that wrote "
+        "it, and either the folder the segmented fields are written to or "
+        "the masks folder the barcodes are mapped onto. Set these first; "
+        "every other spatial group assumes they are right.",
+    "SPATIAL REGION & TILING":
+        "How much of the slide image is segmented and in what pieces: the "
+        "pyramid level, an optional window, and the tile size and overlap "
+        "the image is cut into so a whole slide fits in memory.",
+    "SPATIAL SEGMENTATION":
+        "How cells and nuclei are found in the slide image: the segmenter, "
+        "which stain it reads, the Cellpose model and diameter, how far a "
+        "nucleus is grown to make its cell, and whether the graphics card "
+        "is used.",
+    "SPATIAL MAPPING":
+        "How transcripts or bins are counted into the segmented objects: "
+        "the Visium HD bin size, the minimum Xenium quality value, which "
+        "objects receive counts, the gene drawn on the overlay, and whether "
+        "an AnnData file is written.",
+    "SPATIAL INFECTION":
+        "Which genes belong to the pathogen and how many of their "
+        "transcripts make an object infected. Every object's distance to "
+        "the nearest infected one is measured from this call.",
 
     "PATHS":
         "Where the module reads its images or tables from, plus any lookup "
@@ -2535,10 +2567,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "at a new plate or experiment; every other group assumes they are "
         "right.",
     "GENERAL":
-        "The few decisions the rest of the run depends on: which channel is "
-        "which, whether intensities are normalised, and whether preview "
-        "figures are drawn. Worth a look on any dataset you have not run "
-        "before.",
+        "Channel assignment, intensity normalisation and whether preview "
+        "figures are drawn. The other groups use these values, so check "
+        "them for each new dataset.",
     "CELL":
         "How the cell mask is found — model, expected diameter, probability "
         "and flow thresholds. What is done to the channel first, and which "
@@ -2584,41 +2615,37 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OBJECT FILTRATION (ALL OBJECTS)":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied once per "
-        "object rather than a row of unrelated knobs — the settings are "
-        "ordered by "
-        "object, so each group reads together. Raise the minimum size to "
+        "different objects. The settings are ordered by object, so the "
+        "filters for one object are listed together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
     "OBJECT FILTRATION":
         "Which detected objects are kept, for every object class in one "
         "place. `cell_min_size` and `nucleus_min_size` do the same thing to "
-        "different objects, so they are one decision applied once per "
-        "object rather than a row of unrelated knobs — the settings are "
-        "ordered by "
-        "object, so each group reads together. Raise the minimum size to "
+        "different objects. The settings are ordered by object, so the "
+        "filters for one object are listed together. Raise the minimum size to "
         "drop debris, set a maximum to drop merged clumps, and use the "
         "border filters when objects cut off by the image edge would bias "
         "your measurements.",
     "ORGANELLE ADVANCED":
         "The forty-eight detection parameters behind the organelle type: "
         "shape family and method, the background and contrast correction "
-        "applied first, the knobs belonging to the method chosen, and the "
-        "intensity filters applied to what was found. Choosing an organelle "
-        "type sets the ones that matter for it; anything you change here "
-        "wins and is never overwritten. Punctate, tubular and ring-shaped "
-        "organelles each want a different method, which is what the type is "
-        "choosing for you.",
+        "applied first, the parameters of the chosen method, and the "
+        "intensity filters applied to detected objects. Choosing an "
+        "organelle type sets the parameters it uses; a value changed here "
+        "takes precedence and is not overwritten. Punctate, tubular and "
+        "ring-shaped organelles use different methods, and the organelle "
+        "type selects one.",
     "ORGANELLE SEGMENTATION (ADVANCED)":
         "The forty-eight detection parameters behind the organelle type. "
-        "Choosing a type sets the ones that matter for it; anything you "
-        "change here wins and is never overwritten.",
+        "Choosing a type sets the parameters it uses; a value changed here "
+        "takes precedence and is not overwritten.",
     "CELLPOSE":
-        "How Cellpose itself is run: expected object diameter, probability "
-        "and flow thresholds, rescaling and inversion. Reach for these when "
-        "masks are systematically too many, too few or the wrong size; "
-        "which model runs is chosen under Model Training.",
+        "How Cellpose is run: the base or custom model, expected object "
+        "diameter, probability and flow thresholds, rescaling and inversion. "
+        "Adjust these when masks are systematically too many, too few or the "
+        "wrong size.",
     "SEGMENTATION QC":
         "Automatic pass/fail checks on the finished masks — object counts, "
         "size and split ratios, border and foreground fractions, and how "
@@ -2669,9 +2696,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
     "COMPUTER VISION OPTIMIZATION AND REGULARIZATION":
-        "What keeps the model from memorising the training set: dropout, "
-        "weight decay, gradient checkpointing. Reach for these when training "
-        "accuracy climbs and validation accuracy does not.",
+        "Dropout and weight decay, which reduce overfitting to the training "
+        "set, and gradient checkpointing, which reduces GPU memory use. "
+        "Increase dropout or weight decay when training accuracy rises and "
+        "validation accuracy does not.",
     "MODEL EVALUATION":
         "Cross-validation design used to estimate generalization performance: "
         "whether validation runs, the number of folds, and the grouping unit. "
@@ -2809,10 +2837,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "time axis. Only relevant to a time series; a single-timepoint "
         "plate ignores it.",
     "ADVANCED":
-        "Run-level knobs that rarely need touching — verbosity, worker and "
-        "batch sizing, background handling, and whether results are written "
-        "at all. Come here to make a run quieter or lighter on the machine, "
-        "or to keep a scratch run from saving anything.",
+        "Run-level settings: verbosity, worker and batch sizing, background "
+        "handling, and whether results are written. Use them to reduce "
+        "console output, CPU or memory use, or to run without saving "
+        "results.",
     "3D SETTINGS (BETA)":
         "Experimental volumetric handling: how the z-axis is read, whether "
         "planes are projected or stitched, and the physical voxel size used "
@@ -2937,10 +2965,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The standalone Motility Assay module is the fuller version of the "
         "same analysis.",
     "MOTILITY ADVANCED (BETA)":
-        "Fine-grained control over the beta motility pipeline — which "
-        "features are selected and the filter windows applied to tracks. "
-        "Only worth opening once the basic assay runs and the tracks look "
-        "wrong in a specific way.",
+        "Detailed settings of the beta motility pipeline: feature selection "
+        "and the filter windows applied to tracks. Change them after the "
+        "basic assay runs, when the tracks show a specific error.",
     "RESPONSE":
         "What is being modelled: which score column (or columns — name "
         "several and each is fitted and corrected as its own family), "
@@ -2986,10 +3013,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "type' selects the fitted model family. The mixed model nests guides "
         "within genes and reports both levels.",
     "REGRESSION: MODEL TUNING":
-        "Per-family knobs. Each applies to only some regression types, and a "
-        "family refuses a setting it cannot read rather than ignoring it, so "
-        "nothing here changes a fit silently. Leave them alone unless the "
-        "chosen family documents the one you are changing.",
+        "Per-family parameters. Each applies to only some regression types, "
+        "and a family refuses a setting it cannot read rather than ignoring "
+        "it, so no setting here changes a fit silently. Change a parameter "
+        "only when the chosen family documents it.",
     "REGRESSION: PERMUTATION TEST":
         "Read only when inference resolves to the nonparametric test. These "
         "control the permutation itself: what is measured, how many "
@@ -3066,9 +3093,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "of fields, and configure resumption after interruption. Validate a "
         "new dataset with a test run before processing the complete plate.",
     "IMAGE PREPROCESSING":
-        "What happens to the pixels before any mask is made — intensity "
-        "normalisation, projection, upscaling, denoising, and how fields "
-        "are batched. Reach for it when the images are dim, noisy, or at a "
+        "Processing applied to the pixels before any mask is made: "
+        "intensity normalisation, projection, upscaling, denoising, and "
+        "field batching. Adjust it when the images are dim, noisy, or at a "
         "different scale from the one the model expects.",
     "CELL SEGMENTATION":
         "Everything that produces the cell mask: model and expected "
@@ -3083,18 +3110,18 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "PATHOGEN SEGMENTATION":
         "Everything that produces the pathogen mask: model and expected "
         "diameter, thresholds, background removal, and the size, intensity "
-        "and border filters applied afterwards. Parasites packed into one "
-        "vacuole fusing into a single object is the usual reason to come "
-        "here.",
+        "and border filters applied afterwards. Adjust this group when "
+        "parasites packed into one vacuole are merged into a single "
+        "object.",
     "ORGANELLE SEGMENTATION":
-        "Everything the organelle mask needs, in the order you set it up: "
-        "shape family and detection method, the background and contrast "
-        "correction applied first, the knobs belonging to the method you "
-        "chose (adaptive, spot, ridge, ring, irregular, Cellpose or U-Net), "
-        "the size, intensity and border filters applied to what was found, "
-        "and which parent compartment the results are summarised into. The "
-        "largest group in the module, because punctate, tubular and "
-        "ring-shaped organelles each want a different method.",
+        "All organelle mask settings, in setup order: shape family and "
+        "detection method, the background and contrast correction applied "
+        "first, the parameters of the chosen method (adaptive, spot, ridge, "
+        "ring, irregular, Cellpose or U-Net), the size, intensity and border "
+        "filters applied to detected objects, and the parent compartment the "
+        "results are summarised into. It is the largest group in the module "
+        "because punctate, tubular and ring-shaped organelles use different "
+        "methods.",
     "QUALITY CONTROL":
         "Automatic pass/fail checks on the finished masks — object counts, "
         "size and split ratios, border and foreground fractions, and how "
@@ -3146,8 +3173,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "MASK & CHANNEL MAPPING":
         "Which plane of the stack holds each mask and each intensity "
         "channel, whether a cytoplasm compartment is derived, and whether "
-        "the data is a time series. A wrong index here quietly measures the "
-        "wrong object, so it is worth checking twice.",
+        "the data is a time series. A wrong index measures the wrong object "
+        "without an error, so check each index against the images.",
     "OBJECT FILTERING":
         "Which objects are large enough, infected enough or clean enough to "
         "be measured at all. Raise the minimum sizes when debris is being "
@@ -3252,10 +3279,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "reported on; each cutoff silently shrinks the dataset, so check the "
         "diagnostics after changing one.",
     "ADDITIONAL SETTINGS":
-        "The remaining knobs belonging to individual regression families "
-        "and plots — bootstrap counts, quantile and hinge parameters, "
-        "solver tolerance and axis limits. Only the ones for the model you "
-        "chose above have any effect.",
+        "The remaining parameters of individual regression families and "
+        "plots: bootstrap counts, quantile and hinge parameters, solver "
+        "tolerance and axis limits. Only the parameters of the model chosen "
+        "above take effect.",
     "MODEL & DATA":
         "The trained model, the dataset it is applied to, and the input "
         "channels, object type and image size it expects. These have to "
@@ -3266,10 +3293,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "parameters of whichever you pick. Methods disagree; comparing two "
         "is often more informative than tuning one.",
     "ATTRIBUTION VALIDATION":
-        "The checks that separate a real explanation from a pretty picture "
-        "— insertion and deletion steps, the baseline they are measured "
-        "against, and the model-weight sanity check. Worth running before "
-        "an attribution map goes into a figure.",
+        "Checks that test whether an attribution map depends on the model: "
+        "insertion and deletion steps, the baseline they are measured "
+        "against, and the model-weight sanity check. Run them before an "
+        "attribution map is used in a figure.",
     "MAP DISPLAY":
         "How the finished map is rendered — input and map normalisation, "
         "overlay on the source image, and whether it is plotted at all. "
@@ -3317,15 +3344,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "trained here; this is the picker, and the expected size matters "
         "more than the choice of weights.",
     "DETECTION THRESHOLDS":
-        "How much the model is allowed to find: the probability floor below "
-        "which a candidate is discarded, how strictly flow has to agree, and "
-        "whether holes are filled. Come here when there are too many objects, "
-        "too few, or one blob where two cells belong.",
+        "Detection thresholds: the probability floor below which a candidate "
+        "is discarded, the required flow agreement, and whether holes are "
+        "filled. Adjust them when there are too many objects, too few, or "
+        "one object where there are two cells.",
     "IMAGE GEOMETRY":
-        "The pixel dimensions the images are resampled to before anything "
-        "else happens. Getting this wrong rescales every object and quietly "
-        "changes what the expected size means, so set it once per "
-        "acquisition and leave it.",
+        "The pixel dimensions the images are resampled to before any other "
+        "step. A wrong value rescales every object and changes the meaning "
+        "of the expected object size; set it once per acquisition.",
     "BACKGROUND & DENOISING":
         "Correction applied before segmentation: the intensity floor treated "
         "as empty and the signal-to-noise gate a field has to clear. Raise "
@@ -3337,10 +3363,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "result is saved under. Fine-tuning needs far fewer labelled images "
         "than starting from scratch.",
     "TRAINING SCHEDULE":
-        "How long the fit runs and how fast it moves: epochs, learning rate, "
-        "weight decay, batch size and augmentation. Reach for these when the "
-        "loss stops falling early, or when the model memorises the training "
-        "images instead of generalising.",
+        "Training length and step size: epochs, learning rate, weight decay, "
+        "batch size and augmentation. Adjust them when the loss stops "
+        "decreasing early, or when the model overfits the training images.",
     "SEQUENCING INPUT":
         "The read files and whether they are treated as a pair or a single "
         "direction. Everything downstream assumes this is right, and a "
@@ -3361,20 +3386,20 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "which the checks below are computed from. Point them at the outputs "
         "of the run you want to judge, not at a newer plate.",
     "WELL EXPECTATIONS":
-        "What a healthy well should look like — how many distinct guides it "
-        "ought to carry, which statistic that is judged by, and the read "
-        "floor below which a well is not worth trusting. These set the bar "
-        "that everything else is measured against.",
+        "Expected well composition: the number of distinct guides per well, "
+        "the statistic used to assess it, and the read floor below which a "
+        "well is treated as unreliable. The other checks use these values as "
+        "their reference.",
     "STARVATION & EXCLUSION":
         "How wells that received too few reads are detected and whether they "
         "are dropped before the rest of the analysis. Leaving them in drags "
         "every plate-level summary toward noise, so exclude them once you "
         "trust the read floor above.",
     "POSITION & COLLISION CHECKS":
-        "Two systematic artefacts worth ruling out before believing a hit: "
-        "counts that track a well's position on the plate, and barcodes "
-        "close enough in sequence to be confused for one another. Both look "
-        "like biology until they are checked.",
+        "Checks for two systematic artefacts to rule out before accepting a "
+        "hit: counts that correlate with well position on the plate, and "
+        "barcodes similar enough in sequence to be confused with each other. "
+        "Both can resemble a biological effect.",
     "THRESHOLD SWEEP":
         "The range and resolution of the scan used to show how the results "
         "would change under a different cut-off. Widen the span when the "
@@ -3445,9 +3470,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "below assumes it is right — point it at the project folder a "
         "measure run wrote, not at the raw images.",
     "PLOTS & DIAGNOSTICS":
-        "Whether preview figures are drawn, how large they are, and how many "
-        "examples are produced. Worth turning on for the first plate of an "
-        "experiment and off again once the numbers are trusted.",
+        "Whether preview figures are drawn, their size, and the number of "
+        "examples. Turn them on to check the first plate of an experiment "
+        "and off for later plates.",
     "CHANNELS & INTENSITY":
         "Which channels carry the signals the assay compares, the statistic "
         "each object is summarised by, and whether background is subtracted "
@@ -3462,11 +3487,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "plate must contribute before its number is believed. Raise the "
         "minimums when sparse wells produce implausibly extreme rates.",
     "ESTIMATOR TUNING":
-        "The knobs that belong to one estimator rather than to all of them — "
-        "the elastic-net mixing ratio, the quantile being fitted, Huber's "
-        "cut-off, the convergence tolerance, and the bootstrap counts behind "
-        "the hinge and lasso selection thresholds. Only the ones matching "
-        "the model chosen above have any effect.",
+        "Parameters specific to one estimator: the elastic-net mixing ratio, "
+        "the fitted quantile, Huber's cut-off, the convergence tolerance, "
+        "and the bootstrap counts behind the hinge and lasso selection "
+        "thresholds. Only the parameters of the model chosen above take "
+        "effect.",
     "SOURCE & PROVENANCE":
         "The exact database, prediction, sequencing and result artifacts used "
         "by this run. Preserve these paths and hashes so the explanation can "
@@ -3487,10 +3512,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "Well-level bootstrap/permutation evidence, blinded gallery sampling, "
         "versioned database storage and exported artifacts.",
     "POWER ANALYSIS":
-        "Everything a screening design has to commit to before a plate is "
-        "poured: library size and redundancy, how it is spread over plates "
-        "and replicates, the effect worth detecting and how rare it is, "
-        "sequencing depth, and how the estimate itself is simulated.",
+        "Screen design inputs fixed before plating: library size and "
+        "redundancy, distribution over plates and replicates, the effect "
+        "size to detect and its prevalence, sequencing depth, and the "
+        "simulation settings for the estimate.",
     "LIBRARY DESIGN":
         "The size and redundancy of the screening library: how many genes "
         "are targeted, how many guides each one gets, and how many "
@@ -3501,11 +3526,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "plate count, replicates and cells sampled per well. These values "
         "determine the physical plate and acquisition requirements.",
     "EFFECT & PREVALENCE":
-        "What the screen is looking for and how rare it is: the effect size "
-        "worth detecting, the fraction of genes expected to show it, the "
-        "background rate underneath, and how well the readout separates a "
-        "hit from a miss. Optimism here is the usual reason a real screen "
-        "underperforms its power curve.",
+        "The target effect and its prevalence: the effect size to detect, "
+        "the fraction of genes expected to show it, the background rate, "
+        "and how well the readout separates a hit from a non-hit. "
+        "Overestimating these values overestimates the power of the screen.",
     "SEQUENCING DEPTH":
         "How many reads each well is allotted. Too few and guide counts "
         "become noise before any biology is involved, which no amount of "
@@ -3545,9 +3569,9 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
     },
     "measure": {
         "CLOUD \u0391":
-            "Read the plate straight from cloud storage: credentials, endpoint "
-            "and local cache, and the cloud folder the measurements are copied "
-            "to when the run finishes. Leave it alone for a plate on local disk.",
+            "Read the plate from cloud storage: credentials, endpoint and "
+            "local cache, and the cloud folder the measurements are copied to "
+            "when the run finishes. Not used for a plate on local disk.",
         "IMAGE PREPROCESSING":
             "What is done to the pixels of each field before a single "
             "feature is measured -- bleach, spectral and illumination "
@@ -3693,7 +3717,7 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "images you are importing.",
         "TIMELAPSE":
             "Which objects are linked across frames when the imported data "
-            "is a time series. Leave it alone for single-timepoint plates.",
+            "is a time series. Not used for single-timepoint plates.",
         "MEASUREMENTS":
             "Which feature families are computed for the imported masks — "
             "intensity, texture, radial distribution and colocalisation. "
@@ -4011,6 +4035,8 @@ _APP_API_MODULE = {
     "parameter_sweep": "parameter_sweep",
     "align": "align",
     "ops": "ops_engine",
+    "spatial_masks": "ops_engine",
+    "spatial_map": "ops_engine",
     "convert": "convert",
     "foreign": "foreign",
     "queue": "qt/plate_queue",
@@ -4756,6 +4782,22 @@ def _is_self_labelling(widget) -> bool:
 class _ApiTooltipFilter(QObject):
     """Show rich setting help in the clickable sticky tooltip."""
 
+    #: Every event type :meth:`eventFilter` acts on.
+    KINDS = (QEvent.Enter, QEvent.Leave, QEvent.ToolTip)
+
+    def watch(self, widget) -> None:
+        """Hear ``widget``'s hover and tooltip events, once, never a paint."""
+        from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
+        _stop_watching_object_events(widget, self)
+        _watch_object_events(widget, self, self.KINDS)
+
+    def unwatch(self, widget) -> None:
+        """Stop hearing ``widget``."""
+        from ..gil_priority import _stop_watching_object_events
+
+        _stop_watching_object_events(widget, self)
+
     def eventFilter(self, watched, event):  # noqa: N802 (Qt naming)
         """Show the API help popup instead of Qt's own tooltip.
 
@@ -4949,13 +4991,14 @@ _MODE_NOTES = {
     ),
     "ols": (
         "Least squares: minimises the summed squared residual and assumes "
-        "the well residuals are roughly normal around one common variance. "
-        "It is the baseline the others are worth comparing against."
+        "the well residuals are approximately normal with one common "
+        "variance. Use it as the reference for the other model families."
     ),
     "wls": (
         "Least squares weighted by the well's cell count, so a well of 400 "
-        "cells outweighs one of 30. Worth choosing when wells differ widely "
-        "in how many cells their score was averaged over, which ols ignores."
+        "cells has more weight than one of 30. Use it when wells differ "
+        "widely in the number of cells averaged into their score; ols "
+        "weights every well equally."
     ),
     "rlm": (
         "Robust M-estimation with a Huber loss, tuned by huber_t (default "
@@ -5230,13 +5273,13 @@ def _split_guide_names(names):
 
 
 def regression_design_scan(settings) -> dict:
-    """How big the fit is about to be, read off the count files it was given.
+    """How big the fit is about to be, read off its count input tables.
 
     The design: "The useful line names the design -- 'fitting 389
     genes and 823 guide random effects over 610 wells' -- because that is
     also the line that tells a user their filters did something unexpected."
 
-    WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else,
+    WHAT THIS IS AND IS NOT. It reads the sgRNA count inputs and nothing else,
     so it is the design AS THE INPUT FILES HOLD IT: before the merge with
     the score data, before ``fraction_threshold`` and before the well
     filters. That is deliberate -- it is the number to compare the run's own
@@ -5248,27 +5291,38 @@ def regression_design_scan(settings) -> dict:
     with it. What it could not work out comes back as ``None`` with a
     ``note`` saying why.
 
-    :param settings: regression settings; the sgRNA count CSVs are taken from
-        the ``count`` entries of ``paired_data``, or from the legacy
-        ``count_data`` when there are none.
+    :param settings: regression settings; count paths and optional
+        ``count_table`` names come from ``paired_data``, or paths from legacy
+        ``count_data`` when there are no paired counts.
     :returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.
     """
     out = {"genes": None, "guides": None, "wells": None, "rows": 0,
            "files": 0, "note": ""}
-    paths = _count_files_of(settings)
-    if not paths:
+    pairs = (settings or {}).get('paired_data') or []
+    sources = [(str(row['count']).strip(), row.get('count_table'))
+               for row in pairs if isinstance(row, dict)
+               and str(row.get('count') or '').strip()]
+    if not sources:
+        sources = [(path, None) for path in _count_files_of(settings)]
+    if not sources:
         out["note"] = "no count files in the settings"
         return out
 
-    from ...tabular import read_table
+    from ... import tabular
 
     names, wells, unread = set(), set(), []
     no_wells = False
-    for path in paths:
+    for path, table in sources:
         try:
-            frame = read_table(path, report=None)
+            if table and tabular._backend_of(path) == 'sqlite':
+                frame = tabular.read_database(
+                    path, [table], migrate=False, read_only=True,
+                    report=None)[0]
+            else:
+                frame = tabular.read_table(path, table=table, report=None)
         except Exception as error:                              # noqa: BLE001
-            unread.append(f"{path} ({type(error).__name__})")
+            source = f"{path}:{table}" if table else path
+            unread.append(f"{source} ({type(error).__name__})")
             continue
         out["files"] += 1
         out["rows"] += int(len(frame))
@@ -6404,6 +6458,24 @@ def attach_api_tooltip(
     html = format_tooltip(body, app_key, key)
     widget.setProperty("settingsAppKey", app_key)
     widget.setProperty("settingKey", key)
+    if app_key == "activation":
+        if key == "counterfactual_strength":
+            widget.setObjectName("ActivationCounterfactualStrength")
+        elif key == "counterfactual_structure_weight":
+            widget.setObjectName("ActivationCounterfactualStructureWeight")
+        elif key == "counterfactual_checkpoint":
+            widget.setObjectName("ActivationCounterfactualCheckpoint")
+        elif key == "counterfactual_checkpoint_sha256":
+            widget.setObjectName("ActivationCounterfactualCheckpointSHA256")
+    if app_key == "measure":
+        if key == "intensity_calibration_sessions":
+            widget.setObjectName("IntensityCalibrationSessions")
+        elif key == "intensity_calibration_session_column":
+            widget.setObjectName("IntensityCalibrationSessionColumn")
+        elif key == "intensity_calibration_beads":
+            widget.setObjectName("IntensityCalibrationBeads")
+        elif key == "intensity_calibration_reference_session":
+            widget.setObjectName("IntensityCalibrationReferenceSession")
     widget.setProperty("apiTooltipDescriptionSource", body)
     widget.setProperty("apiTooltipDescription", body)
     widget.setProperty("apiTooltipHtml", html)
@@ -6435,15 +6507,30 @@ def refresh_api_tooltips(
     """
     if root is None:
         return
-    from ..i18n import tr
-
-    code = _language_code(language)
     widgets = [root]
     try:
         widgets.extend(root.findChildren(QWidget))
     except (AttributeError, RuntimeError):
         return
+    _refresh_api_tooltips_of(widgets, language)
 
+
+def _refresh_api_tooltips_of(widgets, language: Optional[str] = None) -> None:
+    """:func:`refresh_api_tooltips` for exactly ``widgets``, not a subtree.
+
+    A late-caption pass only has to render the help of the widgets it has
+    not stamped yet: the stamped ones were rendered in this language by the
+    pass that stamped them. Rendering every setting under the screen's tab
+    strip again took about 130 ms each time a dialog or panel was parented,
+    for example when a folder was dropped on Make Masks.
+
+    :param widgets: the widgets to refresh; those without ``settingsAppKey``
+        and ``settingKey`` are left alone.
+    :param language: as for :func:`refresh_api_tooltips`.
+    """
+    from ..i18n import tr
+
+    code = _language_code(language)
     descriptions: Optional[Dict[str, str]] = None
     for widget in widgets:
         try:
@@ -6536,11 +6623,10 @@ def install_api_tooltips(
             widget.setProperty("apiTooltipHtml", "")
             widget.setProperty("apiTooltipDisplayRole", "metadata")
             widget.setToolTip("")
-            widget.removeEventFilter(event_filter)
+            event_filter.unwatch(widget)
             continue
         if label is None:
-            widget.removeEventFilter(event_filter)
-            widget.installEventFilter(event_filter)
+            event_filter.watch(widget)
             continue
 
         body_source = str(widget.property("apiTooltipDescriptionSource") or "")
@@ -6554,12 +6640,11 @@ def install_api_tooltips(
         label.setProperty("apiTooltipDisplayRole", "tooltip")
         label.setToolTip(html)
         label.setToolTipDuration(-1)
-        label.removeEventFilter(event_filter)
-        label.installEventFilter(event_filter)
+        event_filter.watch(label)
 
         widget.setProperty("apiTooltipDisplayRole", "metadata")
         widget.setToolTip("")
-        widget.removeEventFilter(event_filter)
+        event_filter.unwatch(widget)
 
 
 def _unwrap_setting_label(candidate: Optional[QWidget]) -> Optional[QWidget]:
@@ -6766,6 +6851,34 @@ class _TrainingFolderEdit(_ScalarEdit):
         action.triggered.connect(browse)
 
 
+class _CalibrationPathEdit(_ScalarEdit):
+    """An editable local calibration CSV or reference-folder path."""
+
+    def __init__(self, value=None, parent=None, *, directory=False):
+        """Add a path chooser without reading or interpreting the chosen input."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import QStyle
+        from ..i18n import tr
+        self._directory = directory
+        self.set_value(value)
+        action = self.addAction(self.style().standardIcon(QStyle.SP_DirOpenIcon), QLineEdit.TrailingPosition)
+        action.setToolTip(tr("Choose folder…") if directory else tr("Choose file…"))
+        action.triggered.connect(self._choose_path)
+
+    def _choose_path(self):
+        """Commit one chosen path; cancellation preserves the current text."""
+        from PySide6.QtWidgets import QFileDialog
+        from ..i18n import tr
+        if self._directory:
+            path = QFileDialog.getExistingDirectory(self, tr("Choose folder…"), self.text())
+        else:
+            path, _ = QFileDialog.getOpenFileName(
+                self, tr("Choose file…"), self.text(), tr("CSV files (*.csv)"))
+        if path:
+            self.setText(path)
+            self.editingFinished.emit()
+
+
 class _CloudListingSignals(QObject):
     """Carries a cloud listing from its worker thread to the dialog."""
 
@@ -6867,12 +6980,13 @@ class _CloudBrowserDialog(QDialog):
         import threading
 
         from ..i18n import tr
+        from ..widgets.sortable_table import _reuse_list_items
 
         self._request += 1
         request = self._request
         address = self.location()
         options = self.options()
-        self.entries.clear()
+        _reuse_list_items(self.entries, 0)
         self.details.setPlainText(tr("Reading…"))
         signals = self._signals
 
@@ -6903,16 +7017,15 @@ class _CloudBrowserDialog(QDialog):
 
     def _show_listing(self, request, entries, text) -> None:
         """Show a finished listing, unless a newer one was asked for."""
-        from PySide6.QtWidgets import QListWidgetItem
+        from ..widgets.sortable_table import _reuse_list_items
 
         if request != self._request:
             return
-        self.entries.clear()
-        for name, kind, size in entries:
+        items = _reuse_list_items(self.entries, len(entries))
+        for item, (name, kind, size) in zip(items, entries):
             label = f"{name}/" if kind == "folder" else f"{name}  ({size} B)"
-            item = QListWidgetItem(label)
+            item.setText(label)
             item.setData(Qt.UserRole, name)
-            self.entries.addItem(item)
         self.details.setPlainText(str(text or ""))
 
 
@@ -7043,6 +7156,345 @@ def _add_cellprofiler_example_action(edit: QLineEdit) -> Any:
     return action
 
 
+def _measurement_migration_inputs(source: str, target: str) -> tuple:
+    """Validate two explicit store locators without opening or writing either."""
+    from ...tabular import _backend_of
+    from ..i18n import tr
+
+    source, target = str(source or "").strip(), str(target or "").strip()
+    if not source or not target:
+        raise ValueError(tr("Both source and destination are required."))
+    source_kind, target_kind = _backend_of(source), _backend_of(target)
+    allowed = {".db", ".sqlite", ".sqlite3", ".duckdb", ".ddb",
+               ".parquetdb"}
+    for locator, kind, original in ((source, source_kind, True),
+                                    (target, target_kind, False)):
+        if kind == "postgres":
+            continue
+        if os.path.splitext(locator)[1].lower() not in allowed:
+            raise ValueError(tr("Use a database file, a .parquetdb folder, or a PostgreSQL URL."))
+        path = os.path.abspath(os.path.expanduser(locator))
+        if original:
+            if not (os.path.isdir(path) if kind == "parquet"
+                    else os.path.isfile(path)):
+                raise ValueError(tr("The source measurement store does not exist."))
+        elif os.path.lexists(path):
+            raise ValueError(tr("The destination already exists. Choose a new store."))
+        elif not os.path.isdir(os.path.dirname(path)):
+            raise ValueError(tr("The destination parent folder does not exist."))
+        if original:
+            source = os.path.realpath(path)
+        else:
+            target = path
+    if source == target or (source_kind != "postgres" and target_kind != "postgres"
+                            and os.path.realpath(source) == os.path.realpath(target)):
+        raise ValueError(tr("Source and destination must be different stores."))
+    return source, target, target_kind
+
+
+def _copy_measurement_store(source: str, target: str, report) -> tuple:
+    """Copy an existing store into a new target through the tabular API.
+
+    Local targets are built beside their destination and published only after
+    every requested table is present. The original store is only read.
+    """
+    import shutil
+    import tempfile
+
+    from ...tabular import _migrate_database, database_tables
+
+    source, target, target_kind = _measurement_migration_inputs(source, target)
+    names = tuple(name for name in database_tables(source)
+                  if not name.startswith("sqlite_"))
+    if not names:
+        raise ValueError("The source has no measurement tables to copy.")
+    if target_kind == "parquet" and any(
+            name in (".", "..") or "/" in name or "\\" in name for name in names):
+        raise ValueError("A source table cannot be named as a Parquet folder.")
+    if target_kind == "postgres":
+        if database_tables(target):
+            raise ValueError("The PostgreSQL destination already has tables.")
+        return _migrate_database(source, target, tables=names, report=report)
+    if os.path.lexists(target):
+        raise ValueError("The destination already exists. Choose a new store.")
+    folder = tempfile.mkdtemp(prefix=".spacr-migration-",
+                              dir=os.path.dirname(target))
+    staged = os.path.join(folder, "copy" + os.path.splitext(target)[1])
+    try:
+        copied = _migrate_database(source, staged, tables=names, report=report)
+        if set(database_tables(staged)) != set(names):
+            raise ValueError("The copied store is missing a source table.")
+        if os.path.lexists(target):
+            raise ValueError("The destination appeared during the copy.")
+        if target_kind == "parquet":
+            os.mkdir(target)
+            placed = []
+            created = []
+            try:
+                for root, dirs, files in os.walk(staged):
+                    relative = os.path.relpath(root, staged)
+                    destination = target if relative == "." else os.path.join(target, relative)
+                    for name in dirs:
+                        directory = os.path.join(destination, name)
+                        os.mkdir(directory)
+                        created.append(directory)
+                    for name in files:
+                        output = os.path.join(destination, name)
+                        os.link(os.path.join(root, name), output)
+                        placed.append(output)
+            except Exception:
+                for path in reversed(placed):
+                    os.unlink(path)
+                for path in reversed(created):
+                    os.rmdir(path)
+                try:
+                    os.rmdir(target)
+                except OSError:
+                    pass
+                raise
+        else:
+            os.link(staged, target)
+        return copied
+    finally:
+        shutil.rmtree(folder)
+
+
+def _run_measurement_migration(source, target, kind, signals) -> None:
+    """Copy on a Python worker, reporting only bounded table summaries."""
+    def emit(signal, *args) -> None:
+        """Emit unless the receiving object has been deleted meanwhile."""
+        try:
+            signal.emit(*args)
+        except RuntimeError:
+            return
+
+    try:
+        copied = _copy_measurement_store(source, target,
+                                          lambda _message: emit(signals.progress, "table"))
+    except Exception:
+        emit(signals.failed, kind)
+    else:
+        emit(signals.copied, tuple(copied))
+
+
+class _MeasurementMigrationSignals(QObject):
+    """GUI-thread delivery of progress and the terminal copy result."""
+
+    progress = Signal(str)
+    copied = Signal(tuple)
+    failed = Signal(str)
+
+
+_LIVE_MEASUREMENT_MIGRATIONS: set = set()
+
+
+class _MeasurementMigrationDialog(QDialog):
+    """Explicit, nonblocking copy between already supported measurement stores."""
+
+    def __init__(self, target: str = "") -> None:
+        """Build the dialog, preselecting ``target`` as the destination store.
+
+        Parameters
+        ----------
+        target : str, optional
+            Destination store path or connection string shown in the
+            destination field. Empty leaves the field blank.
+        """
+        super().__init__()
+        from ..i18n import tr
+
+        self.setObjectName("MeasurementMigrationDialog")
+        self.setWindowTitle(tr("Migrate measurement store"))
+        self._running = False
+        self._signals = _MeasurementMigrationSignals(self)
+        self._signals.progress.connect(self._on_progress)
+        self._signals.copied.connect(self._on_copied)
+        self._signals.failed.connect(self._on_failed)
+        layout = QVBoxLayout(self)
+        form = QFormLayout()
+        self.source = QLineEdit(self)
+        self.source.setObjectName("MeasurementMigrationSource")
+        self.source.setPlaceholderText(tr("Existing .db, .duckdb, .parquetdb, or PostgreSQL URL"))
+        self.target = QLineEdit(str(target or ""), self)
+        self.target.setObjectName("MeasurementMigrationTarget")
+        self.target.setPlaceholderText(tr("New destination store"))
+        form.addRow(tr("Read from"), self.source)
+        form.addRow(tr("Copy to"), self.target)
+        layout.addLayout(form)
+        explanation = QLabel(tr(
+            "Copies tables into a new destination. The original is not changed; "
+            "this does not switch the active measurement backend."), self)
+        explanation.setWordWrap(True)
+        layout.addWidget(explanation)
+        self.log = QPlainTextEdit(self)
+        self.log.setObjectName("MeasurementMigrationProgress")
+        self.log.setReadOnly(True)
+        self.log.setMinimumHeight(90)
+        layout.addWidget(self.log)
+        controls = QHBoxLayout()
+        self.start_button = QPushButton(tr("Copy tables"), self)
+        self.start_button.setObjectName("MeasurementMigrationStart")
+        self.start_button.clicked.connect(self._start)
+        controls.addWidget(self.start_button)
+        self.close_button = QPushButton(tr("Close"), self)
+        self.close_button.clicked.connect(self.reject)
+        controls.addWidget(self.close_button)
+        layout.addLayout(controls)
+
+    def _start(self) -> None:
+        """Confirm the explicit locators, then copy on a Python worker thread."""
+        import threading
+        from PySide6.QtWidgets import QMessageBox
+        from ..i18n import tr
+
+        if self._running:
+            return
+        try:
+            source, target, kind = _measurement_migration_inputs(
+                self.source.text(), self.target.text())
+        except ValueError as error:
+            self.log.setPlainText(str(error))
+            return
+        answer = QMessageBox.question(
+            self, tr("Confirm measurement copy"),
+            tr("Copy every table from the selected source into a new destination? "
+               "Existing local destinations are refused. A PostgreSQL destination "
+               "must have no tables."),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if answer != QMessageBox.Yes:
+            return
+        self._running = True
+        self.source.setEnabled(False)
+        self.target.setEnabled(False)
+        self.start_button.setEnabled(False)
+        self.close_button.setEnabled(False)
+        self.log.setPlainText(tr("Copying tables…"))
+        self._worker = threading.Thread(target=_run_measurement_migration,
+                                        args=(source, target, kind, self._signals),
+                                        daemon=False,
+                                        name="spacr-measurement-migration")
+        self._worker.start()
+
+    @Slot(str)
+    def _on_progress(self, message: str) -> None:
+        """Append one table's completion without changing dialog geometry."""
+        from ..i18n import tr
+
+        if message == "table":
+            self.log.appendPlainText(tr("A table finished copying."))
+
+    @Slot(tuple)
+    def _on_copied(self, names: tuple) -> None:
+        """Report a complete destination and permit closing the dialog."""
+        from ..i18n import tr
+
+        self.log.appendPlainText(tr("Copied {count} table(s). The original remains unchanged.",
+                                    count=len(names)))
+        self._finish()
+
+    @Slot(str)
+    def _on_failed(self, message: str) -> None:
+        """Report failure without echoing a password-bearing connection URL."""
+        from ..i18n import tr
+
+        if message == "postgres":
+            self.log.appendPlainText(tr(
+                "Migration stopped. The source is unchanged. The empty "
+                "PostgreSQL destination may contain partial new tables."))
+        else:
+            self.log.appendPlainText(tr(
+                "Migration stopped. The source is unchanged and no local "
+                "destination was published."))
+        self._finish()
+
+    def _finish(self) -> None:
+        """Restore the controls after the worker's terminal signal."""
+        self._running = False
+        self._worker = None
+        self.source.setEnabled(True)
+        self.target.setEnabled(True)
+        self.start_button.setEnabled(True)
+        self.close_button.setEnabled(True)
+
+    def reject(self) -> None:
+        """Keep the progress receiver alive until a running copy finishes."""
+        if not self._running:
+            super().reject()
+
+    def closeEvent(self, event) -> None:
+        """Retain a live progress receiver until the source copy completes.
+
+        :param event: the window close request.
+        """
+        if self._running:
+            event.ignore()
+        else:
+            super().closeEvent(event)
+
+
+def _open_measurement_migration(edit: QLineEdit) -> _MeasurementMigrationDialog:
+    """Show a separately owned migration dialog from Measure's alpha row."""
+    dialog = _MeasurementMigrationDialog(edit.text())
+    _LIVE_MEASUREMENT_MIGRATIONS.add(dialog)
+    dialog.finished.connect(lambda: _LIVE_MEASUREMENT_MIGRATIONS.discard(dialog))
+    dialog.show()
+    return dialog
+
+
+def _add_measurement_migration_action(edit: QLineEdit) -> Any:
+    """Attach the registered alpha copy action to the target locator."""
+    from PySide6.QtWidgets import QStyle
+    from ..i18n import tr
+    from ..preferences import _apply_alpha_widgets
+
+    action = edit.addAction(edit.style().standardIcon(QStyle.SP_ArrowRight),
+                            QLineEdit.TrailingPosition)
+    action.setObjectName("MeasurementMigrationAction")
+    action.setText(tr("Migrate measurement store…"))
+    action.setToolTip(tr("Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores."))
+    action.triggered.connect(lambda: _open_measurement_migration(edit))
+    _apply_alpha_widgets(edit)
+    return action
+
+
+class _ColumnCombo(QComboBox):
+    """An editable drop-down that keeps the line-edit contract of a column box."""
+
+    textChanged = Signal(str)
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Make the box editable and re-announce its text as ``textChanged``."""
+        super().__init__(parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QComboBox.NoInsert)
+        self.lineEdit().textChanged.connect(self.textChanged)
+
+    def get_value(self) -> Optional[str]:
+        """Return the current text, or ``None`` when the box is empty."""
+        return self.currentText() or None
+
+    def set_value(self, value: Any) -> None:
+        """Write the text; ``None`` clears it."""
+        self.setEditText("" if value is None else str(value))
+
+    def text(self) -> str:
+        """The raw text."""
+        return self.currentText()
+
+    def setText(self, value: str) -> None:
+        """Set the raw text."""
+        self.setEditText(value)
+
+    def set_choices(self, names: List[str]) -> None:
+        """Replace the drop-down entries and keep the typed text."""
+        keep = self.currentText()
+        self.blockSignals(True)
+        self.clear()
+        self.addItems(list(names))
+        self.setEditText(keep)
+        self.blockSignals(False)
+
+
 class _CsvColumnField(QWidget):
     """A column-name box with a CSV button that offers the columns that exist.
 
@@ -7075,9 +7527,12 @@ class _CsvColumnField(QWidget):
     #: not only on a keystroke.
     value_changed = Signal()
 
+    _loaded = Signal(object)
+
     def __init__(self, key: str = "", default: Any = None,
                  paths: Any = None, what: str = "column",
-                 parent: Optional[QWidget] = None):
+                 parent: Optional[QWidget] = None,
+                 response: bool = False):
         """
         :param key: the settings key, named in the not-found message.
         :param default: the column name to start with.
@@ -7087,31 +7542,143 @@ class _CsvColumnField(QWidget):
             construction is always the empty one.
         :param what: what kind of column, for the message.
         :param parent: parent widget; ownership only.
+        :param response: True for the response column. The drop-down then
+            lists only numeric columns, puts ``pred`` first, and a note says
+            where ``pred`` comes from when a score file lacks it.
         """
         super().__init__(parent)
         self._key = str(key or "")
         self._what = str(what or "column")
         self._paths = paths
+        self._response = bool(response)
         self._chooser: Optional[Callable[[List[str], Any], Any]] = None
         self._reporter: Optional[Callable[[str], None]] = None
+        self._read: Optional[dict] = None
+        self._generation = 0
+        self._requested = False
+        self._thread: Optional[threading.Thread] = None
 
-        self.edit = _ScalarEdit()
+        self.edit = _ColumnCombo()
         self.edit.set_value(default)
         self.edit.textChanged.connect(self._on_edited)
-        self.button = QPushButton("CSV", self)
+        self._loaded.connect(self._apply_read)
+        from ..i18n import tr
+
+        self.note = QLabel("", self)
+        self.note.setObjectName("CsvColumnNote")
+        self.note.setWordWrap(True)
+        self.note.setProperty("role", "hint")
+        self.note.hide()
+
+        self.button = QPushButton(tr("Columns"), self)
         self.button.setObjectName("CsvColumnPicker")
         self.button.setCursor(Qt.PointingHandCursor)
-        self.button.setToolTip(
-            "Read the header row of the input CSVs and choose a column.")
+        self.button.setToolTip(tr(
+            "Read input table column names and choose a column."))
         self.button.clicked.connect(self.pick)
 
-        row = QHBoxLayout(self)
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(2)
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(4)
         row.addWidget(self.edit, 1)
         row.addWidget(self.button, 0)
+        column.addLayout(row)
+        column.addWidget(self.note)
         self.setFocusProxy(self.edit)
         QWidget.setTabOrder(self.edit, self.button)
+
+    def showEvent(self, event) -> None:
+        """Read the columns the first time the field is shown."""
+        super().showEvent(event)
+        if not self._requested:
+            self.refresh()
+
+    def refresh(self) -> threading.Thread:
+        """Read the selected files' columns on a worker thread.
+
+        :returns: the worker, so a caller can wait for it. A later call makes
+            the answer of an earlier, slower one stale and it is dropped.
+        """
+        self._requested = True
+        self._generation += 1
+        generation = self._generation
+        paths = self.input_paths()
+
+        def job() -> None:
+            """Read the columns and hand them over unless the widget is gone."""
+            result = self._read_columns(paths, generation)
+            try:
+                self._loaded.emit(result)
+            except RuntimeError:
+                return
+
+        self._thread = threading.Thread(target=job, daemon=True)
+        self._thread.start()
+        return self._thread
+
+    def _read_columns(self, paths: List[Any], generation: int) -> dict:
+        """What the files hold: the columns to offer and the files lacking pred."""
+        from spacr import columns as columns_module
+
+        plain = [path for path in paths if not isinstance(path, tuple)]
+        if self._response:
+            by_file = columns_module.numeric_headers(plain)
+            names = []
+            for found in by_file.values():
+                names.extend(name for name in found if name not in names)
+        else:
+            names = columns_module.available(plain)
+        stored, _errors = self._store_columns(paths)
+        names.extend(name for name in stored if name not in names)
+        lacking = [os.path.basename(path)
+                   for path in columns_module.pred_missing(plain)]
+        if "pred" in names:
+            names.remove("pred")
+            names.insert(0, "pred")
+        return {"generation": generation, "names": names,
+                "lacking": lacking, "read": bool(names or lacking)}
+
+    def _apply_read(self, result: dict) -> None:
+        """Fill the drop-down from a finished read, unless a newer one is due."""
+        if result["generation"] != self._generation:
+            return
+        self._read = result
+        self.edit.set_choices(result["names"])
+        self._update_note()
+
+    def _update_note(self) -> None:
+        """Say, before Run, what is wrong with the saved response column."""
+        from ..i18n import tr
+
+        text = ""
+        result = self._read
+        if self._response and result and result["read"]:
+            current = self.get_value()
+            shown = ", ".join(result["names"][:12])
+            files = ", ".join(result["lacking"])
+            if current == "pred" and result["lacking"]:
+                text = tr(
+                    "{files} has no 'pred' column. 'pred' is the classifier "
+                    "probability that Classify writes to "
+                    "<date>_<dataset>_<model>_result.csv next to the tar "
+                    "(ML scoring writes results/<model>/<features>/"
+                    "results.csv). Run Classify and point the score file at "
+                    "that output, or pick a response from the list. "
+                    "Columns you can use: {columns}.",
+                    files=files, columns=shown)
+            elif current and current not in result["names"]:
+                text = tr("{name!r} is not a numeric column of the score "
+                          "file. Columns you can use: {columns}.",
+                          name=current, columns=shown)
+        self.note.setText(text)
+        self.note.setVisible(bool(text))
+        self.edit.setToolTip(text)
+        self.edit.setProperty("flagged", bool(text))
+        self.edit.style().unpolish(self.edit)
+        self.edit.style().polish(self.edit)
 
 
     def get_value(self) -> Optional[str]:
@@ -7139,24 +7706,69 @@ class _CsvColumnField(QWidget):
         """Replace the modal message box with ``reporter(message)``."""
         self._reporter = reporter
 
-    def input_paths(self) -> List[str]:
-        """The CSVs this field's columns are read from, right now."""
+    def input_paths(self) -> List[Any]:
+        """The CSV paths or named tables this field reads right now."""
         paths = self._paths() if callable(self._paths) else self._paths
         return [path for path in (paths or []) if path]
 
+    @staticmethod
+    def _store_columns(paths: List[Any]):
+        """``(names, errors)`` for the named tables among ``paths``."""
+        names: List[str] = []
+        errors: List[str] = []
+        for path, table in (source for source in paths
+                            if isinstance(source, tuple)):
+            from spacr import tabular
+            failures = [OSError, ValueError, ImportError]
+            backend = tabular._backend_of(path)
+            if backend == 'duckdb':
+                try:
+                    import duckdb
+                except ImportError:
+                    pass
+                else:
+                    failures.append(duckdb.Error)
+            elif backend == 'postgres':
+                try:
+                    import psycopg
+                except ImportError:
+                    pass
+                else:
+                    failures.append(psycopg.Error)
+            try:
+                if (backend != 'postgres'
+                        and not os.path.exists(os.path.expanduser(
+                            os.path.expandvars(os.fspath(path))))):
+                    raise FileNotFoundError(path)
+                for name in tabular.table_columns(path, table=table):
+                    if name not in names:
+                        names.append(name)
+            except tuple(failures) as error:
+                errors.append(f"{path}: {error}")
+        return names, errors
+
     def pick(self) -> Optional[str]:
-        """Offer the columns the input CSVs have; return the one chosen.
+        """Offer the columns the selected input tables have; return one.
 
         :returns: the chosen name, or None when there was nothing to offer or
             the user cancelled.
         """
         from spacr import columns as columns_module
+        from ..i18n import tr
 
         paths = self.input_paths()
-        choices = columns_module.available(paths)
+        plain = [path for path in paths if not isinstance(path, tuple)]
+        choices = columns_module.available(plain)
+        stored, errors = self._store_columns(paths)
+        choices.extend(name for name in stored if name not in choices)
         if not choices:
-            self.report(columns_module.describe(
-                self.get_value(), paths, what=self._what, setting=self._key))
+            if errors:
+                self.report(tr("Could not read columns from {sources}",
+                               sources="; ".join(errors)))
+            else:
+                self.report(columns_module.describe(
+                    self.get_value(), plain, what=self._what,
+                    setting=self._key))
             return None
         current = self.get_value()
         chosen = self.choose(choices, current,
@@ -7168,13 +7780,21 @@ class _CsvColumnField(QWidget):
     def _prompt(self, columns_module, choices: List[str],
                 current: Any) -> str:
         """The line above the chooser: how many, and the likely typo."""
+        from ..i18n import tr
+
+        kind = ("input tables" if any(isinstance(path, tuple)
+                                      for path in self.input_paths())
+                else "input CSVs")
         if current is not None and current not in choices:
             close = columns_module.suggest(current, choices)
             if close:
-                return (f"No {self._what} {current!r} in the input CSVs. "
-                        f"Did you mean {close[0]!r}?")
-            return f"No {self._what} {current!r} in the input CSVs."
-        return f"{len(choices)} column(s) in the input CSVs:"
+                return tr("No {what} {current!r} in the {kind}. "
+                          "Did you mean {suggestion!r}?", what=self._what,
+                          current=current, kind=kind, suggestion=close[0])
+            return tr("No {what} {current!r} in the {kind}.",
+                      what=self._what, current=current, kind=kind)
+        return tr("{count} column(s) in the {kind}:",
+                  count=len(choices), kind=kind)
 
     def choose(self, choices: List[str], current: Any,
                prompt: str = "") -> Optional[str]:
@@ -7201,6 +7821,7 @@ class _CsvColumnField(QWidget):
 
     def _on_edited(self, *_args) -> None:
         """Announce that the field changed, whatever changed it."""
+        self._update_note()
         self.value_changed.emit()
 
 
@@ -7577,9 +8198,7 @@ WHICH_CONVENTION_FITS_HELP = (
     "for you.")
 PROVISIONAL_SUFFIX = "   [provisional]"
 LOOKS_LIKE = "Looks like:  {example}"
-RECONSTRUCTED_NOT_DOCUMENTED = (
-    "— reconstructed from real files found in public datasets, not from "
-    "vendor documentation. Test it before you run.")
+RECONSTRUCTED_NOT_DOCUMENTED = 'This convention is provisional. Check its example and test your folder before running.'
 CUSTOM_HAS_NO_EXAMPLE = (
     "Your own expression. It must capture wellID, fieldID and chanID; "
     "plateID is optional and falls back to the folder name.")
@@ -7589,9 +8208,7 @@ NO_IMAGES_IN_THE_FOLDER = "No image files in that folder."
 ALL_FILES_PARSE = "All {total} .{extension} files parse."
 SOME_FILES_PARSE = (
     "{matched} of {total} files parse. The first that does not: {first}")
-NOTHING_FITS = (
-    "None of the built-in conventions reads any of these {total} names. "
-    "Write a custom_regex, or run Import, which reads the folder names too.")
+NOTHING_FITS = 'No built-in convention can read any of these {total} names. Write a custom_regex, or run Import, which reads the folder names too.'
 RANKING_HEADING = "Of {total} files:"
 ONE_RANKING_ROW = "    {matched} of {total} — {label}  ({key})"
 
@@ -7610,13 +8227,45 @@ ONE_RANKING_ROW = "    {matched} of {total} — {label}  ({key})"
 _LIVE_FOLDER_SCANS: set = set()
 
 
-def _forget_folder_scan(thread, worker) -> None:
-    """Release one finished folder scan.
+class _FolderScanKeeper(QObject):
+    """Hold one folder scan's thread and worker until the thread has stopped.
 
-    :param thread: the QThread that has just emitted ``finished``.
-    :param worker: the worker that ran on it.
+    The keeper lives on the GUI thread, so its slot runs there once the
+    thread has emitted ``finished``; the pair is released from that slot and
+    never from a destructor or from the worker thread.
     """
-    _LIVE_FOLDER_SCANS.discard((thread, worker))
+
+    def __init__(self, thread, worker) -> None:
+        """Keep the pair and release it when the thread finishes.
+
+        :param thread: the QThread running the scan.
+        :param worker: the worker moved onto that thread.
+        """
+        super().__init__()
+        self._thread = thread
+        self._worker = worker
+        thread.finished.connect(self._release)
+
+    def _release(self) -> None:
+        """Drop the pair from the GUI thread after the thread has stopped.
+
+        :returns: nothing.
+        """
+        _LIVE_FOLDER_SCANS.discard(self)
+        self._thread = None
+        self._worker = None
+        self.deleteLater()
+
+
+def _keep_folder_scan(thread, worker) -> None:
+    """Register one running folder scan with a GUI-thread keeper.
+
+    :param thread: the QThread running the scan.
+    :param worker: the worker moved onto that thread.
+    :returns: nothing.
+    """
+    keeper = _FolderScanKeeper(thread, worker)
+    _LIVE_FOLDER_SCANS.add(keeper)
 
 
 class _FolderScanWorker(QObject):
@@ -7774,7 +8423,11 @@ class _MetadataTypeField(QWidget):
                  custom_regex: Optional[Callable[[], Any]] = None,
                  parent: Optional[QWidget] = None) -> None:
         """Build the menu from the convention table and wire the button."""
+        from ..i18n import tr
+
         super().__init__(parent)
+        self._language = None
+        self._report_state = None
         self._source_folder = source_folder
         self._custom_regex = custom_regex
         self._thread: Optional[QThread] = None
@@ -7791,19 +8444,21 @@ class _MetadataTypeField(QWidget):
         self.example = QLabel(self)
         self.example.setObjectName("MetadataTypeExample")
         self.example.setWordWrap(True)
+        self.example.setProperty("i18nSkipText", True)
         self.example.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         self.report = QLabel(self)
         self.report.setObjectName("MetadataTypeReport")
         self.report.setWordWrap(True)
+        self.report.setProperty("i18nSkipText", True)
         self.report.setVisible(False)
 
-        self.test_button = QPushButton(TEST_ON_MY_FOLDER, self)
+        self.test_button = QPushButton(tr(TEST_ON_MY_FOLDER), self)
         self.test_button.setObjectName("MetadataTypeTestButton")
-        self.test_button.setToolTip(TEST_ON_MY_FOLDER_HELP)
-        self.detect_button = QPushButton(WHICH_CONVENTION_FITS, self)
+        self.test_button.setToolTip(tr(TEST_ON_MY_FOLDER_HELP))
+        self.detect_button = QPushButton(tr(WHICH_CONVENTION_FITS), self)
         self.detect_button.setObjectName("MetadataTypeDetectButton")
-        self.detect_button.setToolTip(WHICH_CONVENTION_FITS_HELP)
+        self.detect_button.setToolTip(tr(WHICH_CONVENTION_FITS_HELP))
 
         buttons = QHBoxLayout()
         buttons.setContentsMargins(0, 0, 0, 0)
@@ -7830,6 +8485,7 @@ class _MetadataTypeField(QWidget):
     def _fill_the_menu(self) -> None:
         """One disabled heading per vendor, then that vendor's conventions."""
         from spacr.regex_infer import _metadata_convention_menu
+        from ..i18n import tr
 
         for vendor, rows in _metadata_convention_menu():
             self.combo.addItem(vendor, userData=None)
@@ -7838,7 +8494,7 @@ class _MetadataTypeField(QWidget):
                 heading.setFlags(heading.flags() & ~Qt.ItemIsEnabled)
                 heading.setFlags(heading.flags() & ~Qt.ItemIsSelectable)
             for key, label, status in rows:
-                suffix = "" if status == "confirmed" else PROVISIONAL_SUFFIX
+                suffix = "" if status == "confirmed" else tr(PROVISIONAL_SUFFIX, self._language)
                 self.combo.addItem(f"    {label}{suffix}", userData=key)
 
     def get_value(self) -> Optional[str]:
@@ -7884,6 +8540,7 @@ class _MetadataTypeField(QWidget):
     def _on_choice_changed(self, *_args) -> None:
         """A new convention: show its example, drop the stale readout."""
         self._refresh_example()
+        self._report_state = None
         self.report.setVisible(False)
         self.report.setText("")
         self.value_changed.emit()
@@ -7892,6 +8549,7 @@ class _MetadataTypeField(QWidget):
         """Put the chosen convention's own example filename under the menu."""
         from spacr.regex_infer import (_metadata_convention,
                                        _metadata_convention_example)
+        from ..i18n import tr
 
         key = self.get_value()
         record = _metadata_convention(key) if key else None
@@ -7900,11 +8558,11 @@ class _MetadataTypeField(QWidget):
             return
         example = _metadata_convention_example(key)
         if not example:
-            self.example.setText(CUSTOM_HAS_NO_EXAMPLE)
+            self.example.setText(tr(CUSTOM_HAS_NO_EXAMPLE, self._language))
             return
-        line = LOOKS_LIKE.format(example=example)
+        line = tr(LOOKS_LIKE, self._language, example=example)
         if record["status"] != "confirmed":
-            line = f"{line}  {RECONSTRUCTED_NOT_DOCUMENTED}"
+            line += "  " + tr(RECONSTRUCTED_NOT_DOCUMENTED, self._language)
         self.example.setText(line)
 
     def test_on_the_folder(self) -> None:
@@ -7948,9 +8606,7 @@ class _MetadataTypeField(QWidget):
         worker.tested.connect(thread.quit)
         worker.ranked.connect(thread.quit)
         worker.failed.connect(thread.quit)
-        _LIVE_FOLDER_SCANS.add((thread, worker))
-        thread.finished.connect(partial(_forget_folder_scan, thread, worker))
-        thread.finished.connect(thread.deleteLater)
+        _keep_folder_scan(thread, worker)
         thread.finished.connect(self._on_scan_finished)
         self._thread = thread
         self._worker = worker
@@ -7969,36 +8625,74 @@ class _MetadataTypeField(QWidget):
                    extension: str) -> None:
         """Report the count, and the first name that did not parse."""
         if matched == total:
-            self._say(ALL_FILES_PARSE.format(total=total,
-                                             extension=extension))
+            self._say(ALL_FILES_PARSE, total=total, extension=extension)
             return
-        self._say(SOME_FILES_PARSE.format(matched=matched, total=total,
-                                          first=first))
+        self._say(SOME_FILES_PARSE, matched=matched, total=total, first=first)
 
     def _on_ranked(self, ranked: list, total: int) -> None:
         """Show which conventions fit, best first. Changes nothing."""
-        from spacr.regex_infer import _metadata_convention
-
-        if not ranked:
-            self._say(NOTHING_FITS.format(total=total))
-            return
-        lines = []
-        for key, matched, _total in ranked[:5]:
-            record = _metadata_convention(key)
-            label = record["label"] if record else key
-            lines.append(ONE_RANKING_ROW.format(
-                matched=matched, total=total, label=label, key=key))
-        self._say(RANKING_HEADING.format(total=total) + "\n" +
-                  "\n".join(lines))
+        self._report_state = ("ranked", tuple(tuple(row) for row in ranked), total)
+        self._render_report()
 
     def _on_failed(self, message: str) -> None:
         """No files, or the folder could not be read."""
         self._say(message or NO_IMAGES_IN_THE_FOLDER)
 
-    def _say(self, text: str) -> None:
-        """Put one readout under the row."""
+    def _say(self, text: str, **values) -> None:
+        """Retain one readout's canonical template and unmodified values."""
+        self._report_state = ("text", text, dict(values))
+        self._render_report()
+
+    def _render_report(self) -> None:
+        """Translate the saved readout before inserting filenames and counts."""
+        from spacr.regex_infer import _metadata_convention
+        from ..i18n import tr
+
+        if self._report_state is None:
+            return
+        kind, source, values = self._report_state
+        if kind == "text":
+            text = tr(source, self._language, **values)
+        elif not source:
+            text = tr(NOTHING_FITS, self._language, total=values)
+        else:
+            lines = [tr(RANKING_HEADING, self._language, total=values)]
+            for key, matched, _total in source[:5]:
+                record = _metadata_convention(key)
+                label = record["label"] if record else key
+                lines.append(tr(ONE_RANKING_ROW, self._language,
+                                matched=matched, total=values, label=label, key=key))
+            text = "\n".join(lines)
         self.report.setText(text)
         self.report.setVisible(bool(text))
+
+    def retranslate_dynamic_content(self, language=None) -> None:
+        """Redraw captions and saved results without changing the selected key.
+
+        :param language: requested UI language, or the current preference.
+        """
+        from spacr.regex_infer import _metadata_convention
+        from ..i18n import tr
+
+        self._language = language
+        self.test_button.setText(tr(TEST_ON_MY_FOLDER, language))
+        self.test_button.setToolTip(tr(TEST_ON_MY_FOLDER_HELP, language))
+        self.detect_button.setText(tr(WHICH_CONVENTION_FITS, language))
+        self.detect_button.setToolTip(tr(WHICH_CONVENTION_FITS_HELP, language))
+        blocked = self.combo.blockSignals(True)
+        try:
+            for index in range(self.combo.count()):
+                key = self.combo.itemData(index)
+                record = _metadata_convention(key) if key is not None else None
+                if record is None:
+                    continue
+                suffix = ("" if record["status"] == "confirmed"
+                          else tr(PROVISIONAL_SUFFIX, language))
+                self.combo.setItemText(index, f"    {record['label']}{suffix}")
+        finally:
+            self.combo.blockSignals(blocked)
+        self._refresh_example()
+        self._render_report()
 
 
 from ..widgets.flow import FlowHost as _FlowHost, FlowLayout as _FlowLayout
@@ -8952,8 +9646,12 @@ class _SpinCommitInput(QObject):
         """Watch ``widget`` and its line edit for the events this filter handles."""
         super().__init__(widget)
         self._widget = widget
-        widget.installEventFilter(self)
-        widget.lineEdit().installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        kinds = (QEvent.KeyPress, QEvent.InputMethod, QEvent.KeyRelease,
+                 QEvent.MouseButtonPress, QEvent.Wheel, QEvent.FocusOut)
+        _watch_object_events(widget, self, kinds)
+        _watch_object_events(widget.lineEdit(), self, kinds)
 
     def eventFilter(self, watched, event):  # noqa: N802 - Qt override
         """Remember input kind before Qt emits synchronous valueChanged."""
@@ -8968,6 +9666,55 @@ class _SpinCommitInput(QObject):
                       QEvent.Wheel, QEvent.FocusOut):
             self._widget._spacr_numeric_draft = False
         return False
+
+
+#: The module the Activation form asks which ``cam_type`` entries apply.
+_ATTRIBUTION_MODULE = "spacr.attribution"
+
+#: The one worker importing :data:`_ATTRIBUTION_MODULE`, once started.
+_ATTRIBUTION_IMPORT: List[threading.Thread] = []
+
+
+def _import_attribution_off_the_gui_thread() -> Optional[threading.Thread]:
+    """Import :data:`_ATTRIBUTION_MODULE` on a worker, once per process.
+
+    It imports torch, a second of the GUI thread the first time an
+    Activation page is built. The worker shortens the interpreter's switch
+    interval as other importing workers do, and holds the application's
+    heavy-import lock when the window has one, so it never imports torch
+    alongside the preloader.
+
+    :returns: the importing thread while it runs, or ``None`` when the
+        module is imported or its import has been tried.
+    """
+    if _ATTRIBUTION_MODULE in sys.modules:
+        return None
+    if _ATTRIBUTION_IMPORT:
+        thread = _ATTRIBUTION_IMPORT[0]
+        return thread if thread.is_alive() else None
+
+    def _work() -> None:
+        """Import the module, logging rather than raising a failure."""
+        import importlib
+        from contextlib import nullcontext
+
+        from ..gil_priority import responsive_gui
+
+        app = sys.modules.get("spacr.qt.app")
+        lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+        with responsive_gui(), (lock if lock is not None
+                                else nullcontext()):
+            try:
+                importlib.import_module(_ATTRIBUTION_MODULE)
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not import the attribution rules",
+                             exc_info=True)
+
+    thread = threading.Thread(target=_work, daemon=True,
+                              name="spacr-attribution-import")
+    _ATTRIBUTION_IMPORT.append(thread)
+    thread.start()
+    return thread
 
 
 class SettingsWidgets:
@@ -8999,6 +9746,7 @@ class SettingsWidgets:
         """
         self.app_key = app_key
         self._parent = parent
+        self._collect_hooks: List[Callable[[], None]] = []
         self._unmounted_control_owner = None
         if parent is not None:
             self._unmounted_control_owner = QWidget(parent)
@@ -9010,6 +9758,12 @@ class SettingsWidgets:
 
         shipped = resolve_default_settings(app_key)
         current_values = {str(k): v for k, v in (current or {}).items()}
+        self._model_metadata = None
+        if "model_metadata" in current_values:
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            self._model_metadata = _validate_model_metadata(
+                current_values, model_kinds=_model_input_kinds(app_key, current_values))
         if "image_source" in shipped:
             current_values = _image_source_seeded_from_crop_source(
                 current_values)
@@ -9217,6 +9971,7 @@ class SettingsWidgets:
                     break
 
         self._connect_setting_dependency_signals()
+        self._connect_column_fields()
 
         self._connect_object_visibility_signals()
 
@@ -9829,6 +10584,10 @@ class SettingsWidgets:
             self._add_source_actions(key, widget)
         else:
             return None
+        if (self.app_key == "measure"
+                and key == "intensity_calibration_reference_plate"
+                and widget is not None):
+            widget.setObjectName('IntensityCalibrationReferencePlate')
         self._add_calibration_preview_action(key, widget)
         owner = getattr(self, "_unmounted_control_owner", self._parent)
         if (widget is not None and owner is not None
@@ -9849,12 +10608,33 @@ class SettingsWidgets:
         :param key: the setting the plain control edits.
         :param widget: the control just built.
         """
+        if (key == "counterfactual_checkpoint" and self.app_key == "activation"
+                and isinstance(widget, QLineEdit)):
+            from PySide6.QtWidgets import QStyle
+            from ..i18n import tr
+            action = widget.addAction(
+                widget.style().standardIcon(QStyle.SP_DirOpenIcon),
+                QLineEdit.TrailingPosition)
+            action.setToolTip(tr("Choose file…"))
+            action.triggered.connect(partial(self._choose_counterfactual_checkpoint, widget))
         if (key == "src" and self.app_key in ("mask", "measure")
                 and isinstance(widget, QLineEdit)):
             _add_cloud_browse_action(widget, self)
         if (key == "cellprofiler_pipeline" and self.app_key == "measure"
                 and isinstance(widget, QLineEdit)):
             _add_cellprofiler_example_action(widget)
+        if (key == "measurement_backend_target" and self.app_key == "measure"
+                and isinstance(widget, QLineEdit)):
+            _add_measurement_migration_action(widget)
+
+    def _choose_counterfactual_checkpoint(self, widget, checked=False):
+        """Commit a local path without reading it or changing its SHA or generator."""
+        from PySide6.QtWidgets import QFileDialog
+        from ..i18n import tr
+        path, _ = QFileDialog.getOpenFileName(widget, tr("Choose file…"), widget.text())
+        if path:
+            widget.setText(path)
+            widget.editingFinished.emit()
 
     @staticmethod
     def _build_plain(plan) -> QWidget:
@@ -9936,6 +10716,11 @@ class SettingsWidgets:
             default = self._defaults.get(key, default)
         if self.app_key == "train_cellpose" and key in {"src", "mask_src", "test_src", "test_mask_src", "save_path"}:
             return "special", lambda: _TrainingFolderEdit(self._defaults.get(key, default), parent)
+        if self.app_key == "measure" and key in {
+                "intensity_calibration_sessions", "intensity_calibration_beads"}:
+            return "special", lambda: _CalibrationPathEdit(
+                self._defaults.get(key, default), parent,
+                directory=key == "intensity_calibration_beads")
         if self.app_key == "umap" and key == "src":
             return "special", lambda: DatabaseSetWidget(
                 value=self._defaults.get(key, default),
@@ -9991,6 +10776,7 @@ class SettingsWidgets:
                 paths=partial(self._input_csv_paths, source.roles),
                 what=source.what,
                 parent=parent,
+                response=key == "dependent_variable",
             )
         if key == "regression_backend":
             return "special", lambda: _RegressionBackendField(
@@ -10170,10 +10956,16 @@ class SettingsWidgets:
     #: settings file differ from it and breaks "has this been changed?".
     CANONICAL_READERS = {
         "channel_of_interest": "spacr.settings:canonical_feature_selection",
+        "cell_diameter": "spacr.object_settings_table:_canonical_diameter",
+        "nucleus_diameter": "spacr.object_settings_table:_canonical_diameter",
+        "pathogen_diameter": "spacr.object_settings_table:_canonical_diameter",
     }
 
     def _canonical(self, key: str, value: Any) -> Any:
         """Put a widget's answer into the one form the setting is stored in."""
+        if (self.app_key == "activation" and value is None
+                and key in {"counterfactual_checkpoint", "counterfactual_checkpoint_sha256"}):
+            return ""
         where = self.CANONICAL_READERS.get(key)
         if where is None:
             return value
@@ -10340,6 +11132,9 @@ class SettingsWidgets:
         self._record_setting_undo(key, rebase=quiet)
         if quiet:
             return
+        metadata = getattr(self, "_model_metadata", None)
+        if metadata is not None:
+            metadata["settings"].pop(key, None)
         callback = getattr(self, "_commit_observer", None)
         if callable(callback):
             callback(key)
@@ -10377,19 +11172,47 @@ class SettingsWidgets:
                     raise ValueError("Invalid numeric list item")
         return value
 
+    def add_collect_hook(self, hook: Callable[[], None]) -> None:
+        """Call ``hook`` at the start of every :meth:`collect`.
+
+        A Live Preview holds a typed value back until the typing pauses;
+        its hook writes that value in first, so a run started inside the
+        pause reads it.
+
+        :param hook: a callable taking no arguments.
+        """
+        self._collect_hooks.append(hook)
+
     def collect(self) -> Dict[str, Any]:
         """Read all widgets and return the current settings dict.
 
         A control still waiting for its category to be opened is read
         without being built; see :meth:`_read_value`.
         """
+        for hook in list(self._collect_hooks):
+            try:
+                hook()
+            except Exception:
+                LOGGER.debug("a collect hook failed", exc_info=True)
         out: Dict[str, Any] = {}
         for key in self._widgets:
             out[key] = self._canonical(
                 key, self._coerce_to_expected_type(key, self._read_value(key)))
         for k, v in self._defaults.items():
             out.setdefault(k, v)
-        return self._organelle_slots_worth_keeping(out)
+        out = self._organelle_slots_worth_keeping(out)
+        metadata = getattr(self, "_model_metadata", None)
+        if metadata is not None:
+            from copy import deepcopy
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            retained = deepcopy(metadata)
+            retained["settings"] = {key: record for key, record in retained["settings"].items()
+                                    if key in out}
+            out["model_metadata"] = retained
+            out["model_metadata"] = _validate_model_metadata(
+                out, model_kinds=_model_input_kinds(self.app_key, out))
+        return out
 
     def _organelle_slots_worth_keeping(self,
                                        settings: Dict[str, Any]
@@ -10518,12 +11341,23 @@ class SettingsWidgets:
         above the current count is accepted only when this app owns the count
         and the key is a declared setting; foreign-app keys remain rejected.
 
-        :param key: setting key; it must already be a run setting, or an
-            organelle-slot key declared in ``expected_types`` when this form
-            owns the organelle count, otherwise ``False`` is returned.
+        :param key: a known run setting, a declared organelle-slot key when
+            this form owns the count, or reserved ``model_metadata``.
+            Other keys return ``False``.
         :param value: new value, coerced to the setting's expected type before
             it is stored.
         """
+        if key == "model_metadata":
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            supplied = self.collect()
+            supplied[key] = value
+            self._model_metadata = _validate_model_metadata(
+                supplied, model_kinds=_model_input_kinds(self.app_key, supplied))
+            return True
+        current = self._defaults.get(key)
+        if value is None and isinstance(current, str) and not current:
+            value = ""
         if key not in self._defaults:
             from ...organelle_types import (NUMBER_OF_ORGANELLES,
                                             organelle_role_of)
@@ -10701,6 +11535,9 @@ class SettingsWidgets:
         combo = self._built_control("cam_type")
         if not isinstance(combo, QComboBox):
             return
+        if _ATTRIBUTION_MODULE not in sys.modules:
+            self._grey_cam_types_once_imported(combo)
+            return
         try:
             from ...attribution import cam_type_applicability
         except Exception:                                    # noqa: BLE001
@@ -10727,6 +11564,44 @@ class SettingsWidgets:
                     "Not applicable to {model}: {reason}",
                     model=model_type or tr("this model"), reason=reason),
                 Qt.ToolTipRole)
+
+    def _grey_cam_types_once_imported(self, combo) -> None:
+        """Grey the ``cam_type`` menu once the attribution rules are imported.
+
+        The rules live in :mod:`spacr.attribution`, which imports torch: the
+        first Activation page froze for a second while it did. The import
+        runs on a worker (:func:`_import_attribution_off_the_gui_thread`)
+        and the menu is greyed when it has finished. Until then every entry
+        stays enabled, as when the rules cannot be imported at all.
+
+        :param combo: the ``cam_type`` menu; the poll is parented to it.
+        """
+        thread = _import_attribution_off_the_gui_thread()
+        if thread is None:
+            if _ATTRIBUTION_MODULE in sys.modules:
+                self._refresh_attribution_method_enablement()
+            return
+        timer = getattr(self, "_attribution_import_poll", None)
+        if timer is None:
+            timer = QTimer(combo)
+            timer.setInterval(50)
+            timer.timeout.connect(self._after_the_attribution_import)
+            self._attribution_import_poll = timer
+        timer.start()
+
+    def _after_the_attribution_import(self) -> None:
+        """Stop polling and grey the menu once the worker has finished."""
+        thread = _ATTRIBUTION_IMPORT[0] if _ATTRIBUTION_IMPORT else None
+        if thread is not None and thread.is_alive():
+            return
+        timer = getattr(self, "_attribution_import_poll", None)
+        if timer is not None:
+            timer.stop()
+        if _ATTRIBUTION_MODULE in sys.modules:
+            try:
+                self._refresh_attribution_method_enablement()
+            except RuntimeError:
+                pass
 
     def _refresh_umap_reducer_enablement(self) -> None:
         """Enable only the settings the selected reducer actually reads."""
@@ -10948,6 +11823,17 @@ class SettingsWidgets:
                 _connect_value_changed(widget,
                                        self._on_dependency_source_changed)
 
+    def _connect_column_fields(self) -> None:
+        """Re-read a column field's choices when the input files change."""
+        for key in CSV_COLUMN_SOURCES.get(self.app_key, {}):
+            field = self._widgets.get(key)
+            if not isinstance(field, _CsvColumnField):
+                continue
+            for source in ("paired_data", "score_data", "count_data"):
+                widget = self._widgets.get(source)
+                if widget is not None:
+                    _connect_value_changed(widget, field.refresh)
+
     def _on_dependency_source_changed(self, *_args) -> None:
         """Re-evaluate the dependency rules after a source setting changed.
 
@@ -10974,19 +11860,19 @@ class SettingsWidgets:
         return current
 
     def _loaded_table_paths(self, current: Dict[str, Any]):
-        """Return index-tagged score and count CSVs loaded by the user.
+        """Return index-tagged score and count sources loaded by the user.
 
         Paired inputs share one logical index so a score file and its count
         file represent one plate when neither contains a plate column. Legacy
         flat input keys remain supported after the paired table.
         """
-        return [(index, path)
-                for index, _role, path in self._input_tables(current)]
+        return [(index, path) if table is None else (index, path, table)
+                for index, _role, path, table in self._input_tables(current)]
 
     @staticmethod
     def _input_tables(current: Dict[str, Any],
                       roles: Tuple[str, ...] = ('score', 'count')):
-        """``[(index, role, path)]`` for the loaded regression input CSVs.
+        """``[(index, role, path, table)]`` for loaded regression inputs.
 
         THE ONE PLACE THE PAIRED TABLE IS UNPACKED, and it carries the role
         because its two callers need different projections of the same read:
@@ -11005,7 +11891,8 @@ class SettingsWidgets:
                 for role in roles:
                     path = row.get(role)
                     if path:
-                        found.append((index, role, path))
+                        found.append((index, role, path,
+                                      row.get(f'{role}_table')))
             if found:
                 return found
         found = []
@@ -11013,16 +11900,15 @@ class SettingsWidgets:
             paths = current.get(f'{role}_data') or []
             if isinstance(paths, (str, os.PathLike)):
                 paths = [paths]
-            found.extend((index, role, path)
+            found.extend((index, role, path, None)
                          for index, path in enumerate(paths))
         return found
 
     def _input_csv_paths(self, roles: Tuple[str, ...]) -> List[str]:
-        """The input CSVs a column picker for ``roles`` should read.
+        """The input sources a column picker for ``roles`` should read.
 
-        Deduplicated in order: one score CSV shared by two plate rows is one
-        file to read, and `spacr.columns.available` would merge its columns
-        anyway.
+        Deduplicated in order by path and optional table name, so two
+        named tables in one store remain distinct inputs.
 
         Only the three input keys are read, not the whole panel: this runs on
         a button press and `_current_dependency_settings` walks every widget
@@ -11033,29 +11919,41 @@ class SettingsWidgets:
             widget = self._widgets.get(key)
             current[key] = (self._read_widget(widget) if widget is not None
                             else self._defaults.get(key))
-        seen: List[str] = []
-        for _index, _role, path in self._input_tables(current, tuple(roles)):
+        seen = []
+        for _index, _role, path, table in self._input_tables(
+                current, tuple(roles)):
             text = os.fspath(path)
-            if text not in seen:
-                seen.append(text)
+            source = (text, table) if table or not text.lower().endswith(
+                ('.csv', '.tsv', '.txt')) else text
+            if source not in seen:
+                seen.append(source)
         return seen
 
     @staticmethod
     def _plate_context(paths) -> Dict[str, Any]:
-        """Inspect only CSV headers/plate columns; never load feature data."""
+        """Inspect small CSV plate rows; leave backend stores unknown."""
         sources = []
         for fallback_index, item in enumerate(paths or []):
-            logical_index, path = (item if isinstance(item, tuple)
-                                   else (fallback_index, item))
-            if path and os.path.isfile(os.fspath(path)):
-                sources.append((logical_index, os.fspath(path)))
+            if isinstance(item, tuple):
+                logical_index, path = item[:2]
+                table = item[2] if len(item) > 2 else None
+            else:
+                logical_index, path, table = fallback_index, item, None
+            if path and (table or os.path.isfile(os.fspath(path))
+                         or str(path).lower().startswith(
+                             ('postgresql://', 'postgres://'))):
+                sources.append((logical_index, os.fspath(path), table))
         if not sources:
             return {'plate_count': None, 'has_plate_id': False}
-        if sum(os.path.getsize(path) for _, path in sources) > 5_000_000:
+        if any(table is not None or not path.lower().endswith(
+                ('.csv', '.tsv', '.txt')) for _, path, table in sources):
+            return {'plate_count': None, 'has_plate_id': None}
+        if sum(os.path.getsize(path) for _, path, table in sources
+               if table is None and os.path.isfile(path)) > 5_000_000:
             return {'plate_count': None, 'has_plate_id': None}
         plates = set()
         has_plate = False
-        for logical_index, path in sources:
+        for logical_index, path, table in sources:
             with open(path, newline='', encoding='utf-8-sig') as handle:
                 sample = handle.read(4096)
                 handle.seek(0)
@@ -12065,10 +12963,9 @@ def retarget_field_tooltips(root: QWidget) -> int:
         if pending:
             label.setEnabled(field.isEnabled())
             _note_on_label(label, pending)
-        label.removeEventFilter(event_filter)
-        label.installEventFilter(event_filter)
+        event_filter.watch(label)
         field.setToolTip("")
         field.setProperty("apiTooltipDisplayRole", "metadata")
-        field.removeEventFilter(event_filter)
+        event_filter.unwatch(field)
         moved += 1
     return moved

@@ -292,13 +292,14 @@ def test_the_method_setting_names_what_runs():
         _resolve_cell_cycle_methods("svm")
 
 
-def _field(rng, n=26, size=256, fractions=(0.45, 0.25, 0.2, 0.1)):
+def _field(rng, n=26, size=256, fractions=(0.45, 0.25, 0.2, 0.1), *, phases=None):
     """One field of nuclei: an intensity plane, their labels and phases."""
     image = np.zeros((size, size))
     labels = np.zeros((size, size), np.int32)
     yy, xx = np.mgrid[0:size, 0:size]
     truth = {}
-    for phase in rng.choice(PHASES, n, p=fractions):
+    chosen = rng.choice(PHASES, n, p=fractions) if phases is None else phases
+    for phase in chosen:
         dna = {"G1": rng.normal(1, 0.04), "S": rng.uniform(1.15, 1.85),
                "G2": rng.normal(2, 0.05), "M": rng.normal(2, 0.05)}[phase]
         area = 200.0 * {"G1": 1.0, "S": 1 + 0.6 * (dna - 1), "G2": 1.6,
@@ -324,14 +325,18 @@ def _field(rng, n=26, size=256, fractions=(0.45, 0.25, 0.2, 0.1)):
     return image, labels, truth
 
 
-def _write_plate(root, fields=6, seed=0):
+def _write_plate(root, fields=6, seed=0, *, separate_wells=False,
+                 balanced_phases=False):
     merged = root / "merged"
     merged.mkdir(parents=True)
     rng = np.random.default_rng(seed)
     truths = {}
     for number in range(1, fields + 1):
         well = "plate1_A01" if number <= fields // 2 else "plate1_B02"
-        image, labels, truth = _field(rng)
+        if separate_wells:
+            well = f"plate1_A{number:02d}"
+        phases = np.resize(PHASES, 26) if balanced_phases else None
+        image, labels, truth = _field(rng, phases=phases)
         name = f"{well}_{number}"
         np.save(merged / f"{name}.npy",
                 np.stack([image, labels.astype(np.uint16)], axis=-1))
@@ -405,7 +410,8 @@ def test_a_failed_step_is_reported_and_does_not_fail_the_run(tmp_path,
 def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         tmp_path, monkeypatch):
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
-    merged, truths = _write_plate(tmp_path, fields=4, seed=3)
+    merged, truths = _write_plate(tmp_path, fields=4, seed=3,
+                                 separate_wells=True, balanced_phases=True)
     measure.measure_crop(_measure_settings(
         merged, cell_cycle=False))
     db = str(tmp_path / "measurements" / "measurements.db")
@@ -417,7 +423,7 @@ def test_the_torch_route_trains_with_classify_and_reuses_its_model(
     assert report["torch"]["crop_size"] in range(32, 129, 8)
     model = report["torch"]["model"]
     order = json.loads((Path(model).parent / "cell_cycle_phases.json")
-                       .read_text())
+                       .read_text(encoding="utf-8"))
     assert order["phases"] == sorted(order["phases"])
     assert table["phase_torch"].notna().all()
     assert set(table["phase_torch"]) <= set(PHASES) | {"subG1", ">4N"}
@@ -433,6 +439,50 @@ def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         agreement = pd.read_sql_query("SELECT * FROM cell_cycle_agreement",
                                       conn)
     assert "max_fraction_difference" in agreement
+
+
+def test_torch_training_fixture_supports_two_grouped_holdouts(tmp_path):
+    from spacr.classifier_evaluation import grouped_split, split_group_values
+    from spacr.schema import parse_field_stem
+
+    merged, truths = _write_plate(tmp_path, fields=4, seed=3,
+                                 separate_wells=True, balanced_phases=True)
+    records = []
+    for stem, labelled in truths.items():
+        metadata = parse_field_stem(stem).to_dict()
+        records.extend({**metadata, 'phase': phase} for phase in labelled.values())
+    frame = pd.DataFrame(records)
+    level, groups = split_group_values(frame=frame, group_by='well')
+    train, test, report = grouped_split(groups, frame.phase, 0.2, seed=42, group_by=level)
+    fitting, validation, validation_report = grouped_split(
+        groups[train], frame.phase.iloc[train], 0.1, seed=42, group_by=level)
+    fit_groups = set(groups[train[fitting]])
+    validation_groups = set(groups[train[validation]])
+    test_groups = set(groups[test])
+    assert len(set(groups)) == 4
+    assert fit_groups.isdisjoint(validation_groups | test_groups)
+    assert validation_groups.isdisjoint(test_groups)
+    assert report.total_groups == 4 and validation_report.total_groups == 3
+    assert len(list(merged.glob('*.npy'))) == 4
+
+
+def test_original_phase_fixture_refuses_class_inadequate_inner_holdout(tmp_path):
+    from spacr.classifier_evaluation import grouped_split, split_group_values
+    from spacr.schema import parse_field_stem
+
+    merged, truths = _write_plate(tmp_path, fields=4, seed=3, separate_wells=True)
+    records = []
+    for stem, labelled in truths.items():
+        metadata = parse_field_stem(stem).to_dict()
+        records.extend({**metadata, 'phase': phase} for phase in labelled.values())
+    frame = pd.DataFrame(records)
+    level, groups = split_group_values(frame=frame, group_by='well')
+    train, test, report = grouped_split(groups, frame.phase, 0.2, seed=42, group_by=level)
+    assert len(set(groups[train][frame.phase.iloc[train].eq('M')])) == 1
+    with pytest.raises(ValueError, match='Independent groups per class'):
+        grouped_split(groups[train], frame.phase.iloc[train], 0.1,
+                      seed=42, group_by=level)
+    assert report.total_groups == 4 and len(list(merged.glob('*.npy'))) == 4
 
 
 def test_a_model_without_its_phase_order_is_refused(tmp_path):
@@ -477,3 +527,73 @@ def test_the_real_plate1_nuclei_fit_a_g1_and_a_g2_peak(tmp_path):
     assert fit.weights[1] > 0.1
     shares = measured["phase_measurements"].value_counts(normalize=True)
     assert shares["G1"] > shares["G2"] > shares.get("M", 0)
+
+
+@pytest.mark.parametrize('level', ['well', 'field', 'plate'])
+def test_tabular_phase_shared_split_keeps_requested_identity_disjoint(monkeypatch, level):
+    import xgboost
+    from spacr.classifier_evaluation import split_group_values
+    real = xgboost.XGBClassifier
+    fits, predictions = [], []
+    class Recorded(real):
+        def fit(self, x, y, **kwargs):
+            fits.append(set(x[:, 1].astype(int)))
+            return super().fit(x, y, **kwargs)
+        def predict(self, x, **kwargs):
+            predictions.append(set(x[:, 1].astype(int)))
+            return super().predict(x, **kwargs)
+    monkeypatch.setattr(xgboost, 'XGBClassifier', Recorded)
+    n = 144
+    index = np.arange(n)
+    metadata = pd.DataFrame({'plateID': ['p' + str(i // 48) for i in index],
+                             'rowID': 'r1', 'columnID': ['c' + str(i // 24) for i in index],
+                             'fieldID': ['f' + str(i // 12) for i in index]})
+    _, groups = split_group_values(frame=metadata, group_by=level)
+    features = pd.DataFrame({'signal': index % 2, 'row_marker': index})
+    labels = pd.Series(np.where(index % 2, 'S', 'G1'))
+    _, _, report, _ = _phases_by_xgboost(features, labels, groups, group_by=level)
+    assert len(fits) == 2 and len(predictions) == 1
+    trained, held = fits[0], predictions[0]
+    assert trained.isdisjoint(held) and trained | held == set(index)
+    assert set(groups[list(trained)]).isdisjoint(groups[list(held)])
+    if level == 'well':
+        well = metadata.plateID + '_' + metadata.rowID + '_' + metadata.columnID
+        assert set(well.iloc[list(trained)]).isdisjoint(well.iloc[list(held)])
+    assert report['split_group_by'] == report['split']['group_by'] == level
+    assert report['split']['test_cells'] == report['held_out']['n'] == len(held)
+    assert fits[-1] == set(index)
+
+
+@pytest.mark.parametrize('design', ['one_group', 'one_group_per_class'])
+def test_tabular_phase_inadequate_holdout_has_no_invented_scores(design):
+    features = pd.DataFrame({'signal': [0, 1] * 12})
+    labels = pd.Series(['G1', 'S'] * 12)
+    groups = np.repeat('only-well', len(labels)) if design == 'one_group' else labels.to_numpy()
+    phases, confidence, report, _ = _phases_by_xgboost(features, labels, groups, group_by='well')
+    assert len(phases) == len(confidence) == len(labels)
+    assert report['split_group_by'] == 'well'
+    assert report['held_out_unavailable']
+    assert 'held_out' not in report and 'split' not in report
+
+
+@pytest.mark.parametrize('requested,expected', [(None, 'well'), ('field', 'field'), ('plate', 'plate'), ('cell', 'cell')])
+def test_tabular_phase_measure_caller_uses_well_default_and_explicit_grouping(tmp_path, monkeypatch, requested, expected):
+    from spacr import tabular
+    table, truth = _nucleus_table(n=600, plates=('plate1', 'plate2'))
+    db = tmp_path / 'measurements.db'
+    tabular.write_database(table, db, 'nucleus', canonicalise=False, if_exists='replace')
+    settings = {'channels': [0], 'nucleus_channel': 0, 'cell_cycle_method': 'xgboost', 'plot': False, 'n_jobs': 1}
+    if requested is not None:
+        settings['cv_group_by'] = requested
+    actual = measure._phases_by_xgboost
+    captured = []
+    def run(features, labels, groups, **kwargs):
+        captured.append((groups.copy(), kwargs['group_by']))
+        return actual(features, labels, groups, **kwargs)
+    monkeypatch.setattr(measure, '_phases_by_xgboost', run)
+    result, report = _classify_cell_cycle(db, settings, plot=False)
+    assert captured[0][1] == report['xgboost']['split_group_by'] == expected
+    assert report['xgboost']['split']['group_by'] == expected
+    if expected == 'well':
+        for _, rows in result.groupby(['plateID', 'rowID', 'columnID']):
+            assert len(set(captured[0][0][rows.index])) == 1

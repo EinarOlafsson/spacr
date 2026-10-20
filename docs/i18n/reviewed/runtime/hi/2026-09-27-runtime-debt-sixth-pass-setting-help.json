@@ -76,31 +76,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "intensity_calibration",
-      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
-      "translation": "मापन से पहले इमेजिंग सत्रों के बीच तीव्रताओं का अंशांकन करें: हर प्लेट एक सत्र है, हर प्लेट पर इमेज किए गए बीड या संदर्भ वेल मापे जाते हैं, और हर प्लेट के तीव्रता चैनल इस तरह स्केल होते हैं कि उसके संदर्भ वेल पहली प्लेट से मेल खाएँ। यह तालिकाओं के बैच सुधार के विपरीत, छवि स्तर पर दिनों के बीच एक्सपोज़र, लैंप और डिटेक्टर के विचलन को सुधारता है। गेन measurements.db:intensity_rescale में दर्ज होते हैं। डिफ़ॉल्ट False।"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "intensity_calibration_offset",
       "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
       "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
       "translation": "कैमरे का डार्क ऑफ़सेट, Measure की तीव्रता इकाइयों में, जो संदर्भ सांख्यिकी से पहले घटाया जाता है और स्केलिंग में बना रहता है: पिक्सेल बनता है ऑफ़सेट + (मान - ऑफ़सेट) x गेन। इसे डार्क फ़्रेम से पढ़ें; sCMOS कैमरों पर 100 सामान्य है। जब छवियाँ पहले से ऑफ़सेट-सुधारित हों तो 0 रहने दें। डिफ़ॉल्ट 0।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_statistic",
-      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
-      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
-      "translation": "intensity_calibration_offset घटाने के बाद हर संदर्भ छवि क्षेत्र की तीव्रता का सार कैसे निकाला जाता है। foreground: Otsu सीमा से ऊपर के पिक्सेल की माध्यिका, अंधेरी पृष्ठभूमि पर बिखरे बीड के लिए। median: सभी पिक्सेल की माध्यिका, समान रूप से स्टेन किए गए संदर्भ वेल के लिए। हर प्लेट अपने संदर्भ छवि क्षेत्रों पर माध्यिका उपयोग करती है। डिफ़ॉल्ट foreground।"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_wells",
-      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
-      "translation": "अंशांकन नमूने वाले वेल, हर प्लेट पर उसी नमूने के साथ इमेज किए गए: फ़्लोरोसेंट बीड या संदर्भ स्टेन, जैसे ['A01'] या ['A01', 'P24']। हर प्लेट के इनमें कम से कम एक छवि क्षेत्र होना चाहिए, नहीं तो रन रुक जाता है। इन्हें किसी भी दूसरे वेल की तरह मापा और अंशांकित किया जाता है। डिफ़ॉल्ट None।"
     },
     {
       "table": "setting_tooltips",
@@ -320,6 +299,24 @@
       "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
       "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
       "translation": "वंशावली वृक्षों में हर कोशिका को क्या रंगता है: generation_time, generation, start_frame या n_frames, या ट्रैक तालिका के किसी संख्यात्मक कॉलम का नाम, कोशिका के फ़्रेमों पर औसत। अज्ञात नाम एक संदेश के साथ generation_time पर लौटता है। जब तक timelapse_lineage चालू न हो, अनदेखा किया जाता है। डिफ़ॉल्ट generation_time।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "intensity_calibration_offset घटाने के बाद हर संदर्भ छवि क्षेत्र की तीव्रता का सार कैसे निकाला जाता है। foreground: Otsu सीमा से ऊपर के पिक्सेल की माध्यिका, अंधेरी पृष्ठभूमि पर बिखरे बीड के लिए। median: सभी पिक्सेल की माध्यिका, समान रूप से स्टेन किए गए संदर्भ वेल के लिए। हर प्लेट अपने संदर्भ छवि क्षेत्रों पर माध्यिका उपयोग करती है। डिफ़ॉल्ट foreground।",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "अंशांकन नमूने वाले वेल, हर प्लेट पर उसी नमूने के साथ इमेज किए गए: फ़्लोरोसेंट बीड या संदर्भ स्टेन, जैसे ['A01'] या ['A01', 'P24']। हर प्लेट के इनमें कम से कम एक छवि क्षेत्र होना चाहिए, नहीं तो रन रुक जाता है। इन्हें किसी भी दूसरे वेल की तरह मापा और अंशांकित किया जाता है। डिफ़ॉल्ट None।",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
     }
   ],
   "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",

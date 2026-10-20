@@ -276,7 +276,7 @@
   "uploaded": false,
   "remaining": [
     "Merge or deliberately deploy the intended source snapshot; package and Pages workflows are independent",
-    "Incoming origin/nightly Starplast, layout and category-help changes require source refresh after rebase",
+    "Incoming origin/nightly ParaScape, layout and category-help changes require source refresh after rebase",
     "Complete API and GUI translations; Korean/Icelandic tutorial banks are private drafts",
     "Promote exact source-checked tutorial candidates; ready-voice selector support alone does not publish new lessons",
     "Source refresh and recordings for changed workflow tutorials; broader helper documentation"

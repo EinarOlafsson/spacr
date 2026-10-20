@@ -58,12 +58,12 @@ def cp_stub(monkeypatch, tmp_path):
     ``model.eval`` in dataset order; tests fill it before calling the
     function under test.
     """
-    from types import SimpleNamespace
     from spacr import model_zoo
 
     cached = tmp_path / "cached-cpsam"
     cached.write_bytes(b"recording model; never loaded")
-    entry = SimpleNamespace(key="cpsam", path=str(cached), uri="")
+    entry = model_zoo.ModelEntry(key="cpsam", name="cpsam", kind="cellpose",
+                                 path=str(cached), uri="")
     monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
     monkeypatch.setattr(model_zoo, "fetch",
                         lambda *a, **k: pytest.fail("stock weights must not be fetched"))
@@ -414,9 +414,11 @@ def test_train_cellpose_runs_on_documented_defaults(tmp_path, cp_stub):
 # ===========================================================================
 
 def _test_settings(src, **over):
+    checkpoint = src / "custom_model.CP_model"
+    checkpoint.write_bytes(b"recording model; never loaded")
     settings = {
         "src": str(src),
-        "model_path": "/nonexistent/custom_model.CP_model",
+        "model_path": str(checkpoint),
         "save": False,
         "normalize": True,
         "percentiles": (2, 98),
@@ -744,6 +746,8 @@ def test_test_cellpose_model_only_scores_matched_filenames(tmp_path, cp_stub,
 
 def test_test_cellpose_model_writes_settings_snapshot(tmp_path, cp_stub, monkeypatch):
     """The resolved settings are persisted before any inference happens."""
+    from pathlib import Path
+
     from spacr.submodules import test_cellpose_model
 
     labels = [_label_image(32, [(1, (2, 10, 2, 10))])]
@@ -751,15 +755,24 @@ def test_test_cellpose_model_writes_settings_snapshot(tmp_path, cp_stub, monkeyp
     cp_stub["preds"] = _dataset_labels(written["images"], written["masks"], 32)
     monkeypatch.setattr(SUB, "display", lambda df: None)
 
-    settings = {"src": str(tmp_path), "model_path": "cp.CP_model",
+    checkpoint = tmp_path / "cp.CP_model"
+    checkpoint_bytes = b"settings snapshot checkpoint; never decoded"
+    checkpoint.write_bytes(checkpoint_bytes)
+    input_bytes = {Path(path): Path(path).read_bytes()
+                   for path in written["images"] + written["masks"]}
+    settings = {"src": str(tmp_path), "model_path": str(checkpoint),
                 "save": False, "target_size": 32, "batch_size": 10}
     test_cellpose_model(settings)
 
     snapshot = tmp_path / "settings" / "test_cellpose_model.csv"
     assert snapshot.exists()
     values = dict(zip(*pd.read_csv(snapshot)[["Key", "Value"]].values.T))
-    assert values["model_path"] == "cp.CP_model"
+    assert values["model_path"] == str(checkpoint)
     # defaults filled in by get_default_test_cellpose_model_settings
     assert values["FT"] == "0.4"
     assert values["normalize"] == "True"
     assert settings["CP_probability"] == 0
+    assert settings["model_path"] == str(checkpoint)
+    assert cp_stub["models"][0].pretrained_model == str(checkpoint)
+    assert checkpoint.read_bytes() == checkpoint_bytes
+    assert {path: path.read_bytes() for path in input_bytes} == input_bytes

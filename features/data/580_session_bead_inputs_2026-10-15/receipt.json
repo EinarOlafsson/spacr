@@ -1,0 +1,33 @@
+{
+  "state": "PRIVATE source component; GUI owner/runtime localization/derived artifacts/source peer still required before publication",
+  "base": "207bb4adea49932d0c857f19c408170a1e962d5f",
+  "source_sha256": {
+    "spacr/intensity_rescale.py": "df6f846820ef4d2bffe83dd2e86180c026d23a7efc920c812df3b9b408a8ffcb",
+    "spacr/measure.py": "7763ece88f7e8bd02ff4477e4094fa02220f04668c58c55c1744c1905d96a3c6",
+    "spacr/settings.py": "9dcf00cc0518560b41c05d40d8893fc5a0c3043fe2050843d0abb9ff27e94ccb",
+    "tests/test_calibration_session_and_external_beads_f580.py": "7e7ba5665bd336a3b75e374e148a450e97cbc88aeebef65d4edd75078daca956"
+  },
+  "baseline": {
+    "exit": 1,
+    "failed": 2,
+    "seconds": 1.13
+  },
+  "owning": {
+    "exit": 0,
+    "passed": 23,
+    "seconds": 24.95,
+    "scope": "12new realCSV/TIFF/NPY/SQLite nodes plus11 affected existing controls; no whole87repeat"
+  },
+  "ruff": {
+    "command": "/home/olafsson/.local/bin/ruff check --no-cache --select E9,F63,F7,F82 spacr/intensity_rescale.py spacr/measure.py spacr/settings.py tests/test_calibration_session_and_external_beads_f580.py",
+    "actual_exit": 0,
+    "version": "0.16.3",
+    "initial_missing_executable": "First conda-env-bin path absent; actual installed ~/.local/bin/ruff used successfully, no source test repeated"
+  },
+  "limits": [
+    "No GUI-owner source changes;4new alpha ObjectNames need actual ownercontrols/read-only preview wiring.",
+    "New/changed runtime labels/tooltips must receive exact9 technicalreviews/normalgenerator closure; not yet done.",
+    "Known-exposure real paired bead acquisition/scientific tolerance/native/fullCI/wholeF580 acceptance remain open.",
+    "Private doc-only accuracy edits retained23 executable AST unchanged; no false finalsource test rerun."
+  ]
+}

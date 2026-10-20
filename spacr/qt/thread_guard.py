@@ -52,7 +52,7 @@ def install() -> bool:
     if _INSTALLED:
         return False
     try:
-        from PySide6.QtCore import QObject, QThread, QTimer
+        from PySide6.QtCore import QCoreApplication, QObject, QThread, QTimer
     except Exception:                                            # noqa: BLE001
         return False
 
@@ -60,7 +60,7 @@ def install() -> bool:
         """Record and log one cross-thread offence, with its stack.
 
         The stack is trimmed of this function and its caller, so the top frame
-        is the CODE THAT DID IT rather than the guard that noticed.
+        is the code that started the timer rather than the guard.
         """
         stack = "".join(traceback.format_stack()[:-2])
         _OFFENCES.append(stack)
@@ -75,28 +75,36 @@ def install() -> bool:
     def _wrong_thread(obj) -> str:
         """Why this start is illegal, or "" when it is fine.
 
-        ASKS EXACTLY WHAT Qt ASKS: is the object's own thread the thread
-        calling? Qt refuses whenever they differ, which happens both ways
+        Makes the same test Qt makes: is the object's own thread the calling
+        thread? Qt refuses whenever they differ, which happens both ways
         round -- a worker touching a GUI object, and the GUI thread touching a
-        WORKER-AFFINE object, the second being far easier to write by accident
+        worker-affine object; the second is easier to write by accident
         because the code reads as ordinary GUI-thread code.
 
-        COMPARED WITH `==`, NOT `is`. `QThread.currentThread()` hands back a
-        fresh Python wrapper around the same underlying QThread on each call,
-        so an identity test reports every ordinary start as illegal -- which is
-        precisely what the first version of this did, flagging a plain
-        GUI-thread `timer.start()` as "the caller is Qt mainThread, not the GUI
-        thread". A guard that cries wolf on the common path is worse than none,
-        because the one line that matters is then buried.
+        The threads are compared with `==`, not `is`. `QThread.currentThread()`
+        returns a new Python wrapper around the same underlying QThread on each
+        call, so an identity test would report every ordinary start, such as a
+        plain GUI-thread `timer.start()`, as illegal and bury the real reports.
 
         There is deliberately no "is the caller the GUI thread" fallback. It
         added nothing the affinity test does not already cover, and it was the
         half that misfired.
+
+        PySide6 can attach the returned QThread wrapper to the queried object.
+        Restore the application's adopted thread to its application after the
+        read, so collecting a temporary timer cannot delete the GUI thread.
         """
         try:
             owner = obj.thread()
         except Exception:                                        # noqa: BLE001
             return ""
+        finally:
+            try:
+                application = QCoreApplication.instance()
+                if application is not None:
+                    application.thread()
+            except Exception:
+                pass
         if owner is None:
             return ""
         current = QThread.currentThread()
@@ -107,9 +115,9 @@ def install() -> bool:
     def guarded_timer_start(self, *args, **kwargs):
         """Report a QTimer started off its own thread, then start it.
 
-        REPORTS AND PROCEEDS. The guard is a diagnostic: refusing the start
-        would change behaviour under the guard and hide the bug it exists to
-        find.
+        The start is reported and then performed. The guard is a diagnostic:
+        refusing the start would change behaviour under the guard and hide the
+        bug it reports.
         """
         why = _wrong_thread(self)
         if why:

@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.rst"
 DOCS_GRID = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
@@ -243,18 +245,21 @@ class TestTheLocalizedReadmes:
         installer = text.partition(
             ".. spacr-installer-links-begin"
         )[2].partition(".. spacr-installer-links-end")[0]
+        # Since 2026-10-13 the icons are raw-HTML cells of an equal-cell row
+        # (tools/build_readme_images.py icon_rows).
         for name in (
             "InstallerWindows", "InstallerMacOS", "InstallerLinux",
-            "InstallerLegacy",
         ):
-            definition = f".. |{name}| image::"
+            definition = f".. |{name}| raw:: html"
             assert text.count(definition) == 1
             assert definition in installer
+        # 2026-10-12: the "Earlier spaCR installers" button left the README.
+        assert ".. |InstallerLegacy|" not in text
         for name in (
             "DataBioStudies", "DataHuggingFace", "DataNCBI",
             "DataSpaCRPower", "DataBioRxiv",
         ):
-            definition = f".. |{name}| image::"
+            definition = f".. |{name}| raw:: html"
             assert text.count(definition) == 1
             assert definition not in installer
 
@@ -272,7 +277,7 @@ class TestTheProseMatchesTheScreens:
         """
         from spacr.qt.screens.make_masks import tool_row_entries
 
-        readme = README.read_text(encoding="utf-8")
+        readme = readme_words()
         assert re.search(
             r"`[^`<]+<docs/source/features\.rst>`_ for each tool", readme), (
             "the README no longer sends the reader to the feature guide for "

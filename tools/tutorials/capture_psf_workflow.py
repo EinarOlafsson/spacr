@@ -145,8 +145,8 @@ def record_editor(screen, capture, settle, timeout=30):
     paths = screen._current_image_paths()
     before = {str(path): _sha(path) for path in paths}
     choose, click, _ = _actions(screen, settle)
-    if not screen._btn_settings.isChecked():
-        click(screen._btn_settings)
+    if not screen.settings_shown():
+        screen._set_settings_shown(True)
     for title, section in screen._settings_categories:
         if title == 'Image enhancement' and not section.is_expanded():
             click(section.header())

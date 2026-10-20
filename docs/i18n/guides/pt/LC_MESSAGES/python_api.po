@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -32,8 +32,9 @@ msgstr "Instalar spaCR"
 msgid "Use the typed workflow configuration"
 msgstr "Usar a configuração tipada do fluxo de trabalho"
 
-msgid "The top-level API contains a small, stable interface for the principal workflows. Typed fields cover the choices most scripts make; ``extra`` accepts advanced settings while refusing a second value for an existing typed field."
-msgstr "A API de nível superior contém uma interface pequena e estável para os principais fluxos de trabalho. Os campos tipados cobrem as escolhas feitas pela maioria dos scripts; ``extra`` aceita configurações avançadas, mas recusa um segundo valor para um campo tipado existente."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The top-level API provides ``MaskConfig`` and ``MeasureConfig`` with ``run_mask`` and ``run_measure``. Typed fields cover the commonly set options; ``extra`` accepts any other setting and raises ``ValueError`` if it repeats a typed field."
+msgstr "A API de nível superior oferece ``MaskConfig`` e ``MeasureConfig`` com ``run_mask`` e ``run_measure``. Os campos tipados cobrem as opções definidas com mais frequência; ``extra`` aceita qualquer outra configuração e gera ``ValueError`` se repetir um campo tipado."
 
 msgid "Call ``mask.to_settings()`` when a complete dictionary is needed for a saved settings file. It expands through the same defaults used by the GUI."
 msgstr "Chame ``mask.to_settings()`` quando precisar de um dicionário completo para um arquivo de configurações salvo. Ele é completado com os mesmos padrões usados pela interface gráfica."
@@ -62,8 +63,9 @@ msgstr "Medição grava ``measurements/measurements.db`` e as configurações re
 msgid "Run the same contract from a shell"
 msgstr "Executar o mesmo contrato a partir de um shell"
 
-msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
-msgstr "O comando sem interface gráfica é útil em um agendador porque valida os nomes e valores das configurações antes de importar a pesada pilha do pipeline."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The headless command suits a scheduler because it validates setting names and values before importing PyTorch, Cellpose and the other pipeline dependencies."
+msgstr "O comando sem interface gráfica é adequado a um agendador porque valida os nomes e valores das configurações antes de importar o PyTorch, o Cellpose e as demais dependências do pipeline."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
@@ -76,8 +78,9 @@ msgstr "Valores booleanos em arquivos CSV de ajustes não distinguem maiúsculas
 msgid "Command-line overrides are applied after the file:"
 msgstr "As substituições de linha de comando são aplicadas depois do arquivo:"
 
-msgid "Unknown settings and values that cannot be converted are refused with a suggestion. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
-msgstr "Configurações desconhecidas e valores que não podem ser convertidos são recusados com uma sugestão. Use ``spacr-doctor`` quando o problema for o ambiente e não uma configuração."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Unknown settings and values that cannot be converted are refused; an unknown name is reported with the closest known setting when one exists. Use ``spacr-doctor`` when the problem is the environment rather than a setting."
+msgstr "Configurações desconhecidas e valores que não podem ser convertidos são recusados; um nome desconhecido é informado com a configuração conhecida mais próxima, quando existir. Use ``spacr-doctor`` quando o problema for o ambiente e não uma configuração."
 
 msgid "Continue from notebooks"
 msgstr "Continuar em notebooks"

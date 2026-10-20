@@ -15,7 +15,9 @@
       "label": "spacr.ops_accel#4",
       "source": "AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case -- this one also runs structure prediction -- so `ops_gpu=False` refuses a device that exists, and a backend that raises at runtime (an out-of-memory, a driver that went away) falls through to the next rather than failing the plate.",
       "source_sha256": "6b7bee0d9d406e5763c5c3576999cd6bad2266f9bc6ba7e1df8b71f4c5ce52ba",
-      "translation": "UND SIE SETZT NIE VORAUS, DASS DIE KARTE FREI IST. Eine geteilte GPU ist der Normalfall -- auf dieser läuft auch Strukturvorhersage --, deshalb verweigert `ops_gpu=False` ein Gerät, das vorhanden ist, und ein Backend, das zur Laufzeit eine Ausnahme wirft (ein Speicherüberlauf, ein Treiber, der verschwunden ist), fällt auf das nächste zurück, statt die Platte scheitern zu lassen."
+      "translation": "UND SIE SETZT NIE VORAUS, DASS DIE KARTE FREI IST. Eine geteilte GPU ist der Normalfall -- auf dieser läuft auch Strukturvorhersage --, deshalb verweigert `ops_gpu=False` ein Gerät, das vorhanden ist, und ein Backend, das zur Laufzeit eine Ausnahme wirft (ein Speicherüberlauf, ein Treiber, der verschwunden ist), fällt auf das nächste zurück, statt die Platte scheitern zu lassen.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1

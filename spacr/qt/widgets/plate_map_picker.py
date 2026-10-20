@@ -5,7 +5,7 @@ columns, and individual wells use the same validated vocabulary in the GUI and
 headless APIs. Rectangular selection is exposed through :meth:`select_region`
 for mouse-drag handling and programmatic use.
 
-ONE GRID, NOT THREE THINGS NEAR EACH OTHER. The column numbers, the row
+The labels and the wells share one grid. The column numbers, the row
 letters and the wells all live in a single :class:`QGridLayout`, every item
 locked to the same square cell, so a column number sits over its column and a
 row letter beside its row at every window size. The grid takes the width and
@@ -13,7 +13,7 @@ height its square cells need and leaves the rest to a trailing empty row and
 column, rather than dividing whatever the window happens to give it -- which
 is what pulls the labels away from the wells they name.
 
-Each cell states that square in its OWN style sheet rather than through
+Each cell states that square in its own style sheet rather than through
 ``setFixedSize``, which does not survive being polished under the application
 stylesheet. See :func:`_locked_square`.
 """
@@ -22,7 +22,8 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Optional, Set, Tuple
 
-from PySide6.QtCore import QPoint, Qt, QTimer
+from PySide6.QtCore import QEvent, QPoint, Qt, QTimer
+from PySide6.QtGui import QColor, QPainter, QPalette, QPen
 from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QGridLayout,
                                QHBoxLayout, QInputDialog, QLabel,
                                QPushButton, QScrollArea, QVBoxLayout, QWidget)
@@ -60,18 +61,18 @@ AUTOSCROLL_MAX_STEP = 40
 def well_side() -> int:
     """The side of a well right now, in pixels, at the user's font scale.
 
-    THE GLYPHS GREW AND THE BOX DID NOT. `WELL_SIDE` was read as a raw pixel
-    constant, so at the 200% font scale a two-digit column header wanted 30 px
-    of width inside a 22 px cell and every one of columns 10 to 24 had its
-    number cut in half -- 15 clipped headers in every language, which is what
-    `KNOWN_OFFENDERS` recorded against PlateMapPicker.
+    The side follows the font scale. When `WELL_SIDE` was read as a raw pixel
+    constant, a two-digit column header at the 200% font scale needed 30 px of
+    width inside a 22 px cell, and columns 10 to 24 had their numbers cut in
+    half -- 15 clipped headers in every language, recorded in
+    `KNOWN_OFFENDERS` against PlateMapPicker.
 
-    `scaled_px` is the house mechanism for exactly this: the font scale is one
+    `scaled_px` is the shared mechanism for this: the font scale is one
     preference with two consumers, the stylesheet that sets font sizes and
     this, which sizes anything set in pixels from Python. A control tuned to
     match a text width has to go through it or the two drift apart.
 
-    READ AT CONSTRUCTION, not cached, because the preference can change while
+    Read at construction, not cached, because the preference can change while
     the application is running and a plate built afterwards should be pitched
     to the new scale.
     """
@@ -169,8 +170,8 @@ class _Well(QPushButton):
     def __init__(self, row: int, column: int, parent=None):
         """Build one well of the plate.
 
-        :param row: the well's row index, counting from zero.
-        :param column: its column index, counting from zero.
+        :param row: the well's one-based row number.
+        :param column: the well's one-based column number.
         :param parent: parent widget.
 
         The pair is the well's IDENTITY, not just its position: the picker
@@ -178,12 +179,63 @@ class _Well(QPushButton):
         ``A01`` name shown in the tooltip.
         """
         super().__init__(parent)
+        self._cache_focus_style()
         self.row, self.column = int(row), int(column)
         self.setCheckable(True)
         self.setFixedSize(well_side(), well_side())
         self.setToolTip(well_label(row, column))
         self._paint()
         self.toggled.connect(lambda *_: self._paint())
+
+
+    def _cache_focus_style(self) -> None:
+        """Keep the normal ring and a contrasting selected-fill variant."""
+        from .figure_grid_view import _strong_focus_style
+        from ..theme import FOCUS_RING_MIN_CONTRAST, contrast_ratio
+
+        self._strong_focus_ring = _strong_focus_style()
+        self._selected_focus_ring = self._strong_focus_ring
+        if self._strong_focus_ring:
+            width, colour = self._strong_focus_ring
+            if contrast_ratio(colour, CHOSEN) < FOCUS_RING_MIN_CONTRAST:
+                colour = max(("#000000", "#ffffff"),
+                             key=lambda candidate: contrast_ratio(candidate, CHOSEN))
+                self._selected_focus_ring = (width, colour)
+
+    def changeEvent(self, event) -> None:
+        """Refresh the cached focus outline when the active style changes."""
+        super().changeEvent(event)
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange,
+                            QEvent.ApplicationPaletteChange,
+                            QEvent.ApplicationFontChange):
+            self._cache_focus_style()
+            self.update()
+
+    def paintEvent(self, event) -> None:
+        """Overlay keyboard focus without changing the well's selected fill or size."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                role = QPalette.HighlightedText if self.isChecked() else QPalette.Highlight
+                strong = (self._selected_focus_ring if self.isChecked()
+                          else self._strong_focus_ring)
+                width, colour = strong or (2, self.palette().color(role))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def focusInEvent(self, event) -> None:
+        """Repaint the well when keyboard focus enters it."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event) -> None:
+        """Remove the outline when keyboard focus leaves the well."""
+        super().focusOutEvent(event)
+        self.update()
 
 
     def _picker(self):
@@ -393,11 +445,11 @@ class PlateMapPicker(QDialog):
     def begin_drag(self, row: int, column: int, modifiers=None) -> None:
         """Anchor a drag on one well.
 
-        :param row: zero-based plate row of the pressed well.
-        :param column: zero-based plate column of the pressed well.
+        :param row: one-based plate row of the pressed well.
+        :param column: one-based plate column of the pressed well.
         :param modifiers: the keyboard state at the press. With Ctrl the
-            rectangle ADDS to what is already chosen; without it the drag
-            REPLACES the selection, which is what every other grid in this
+            rectangle adds to what is already chosen; without it the drag
+            replaces the selection, which is what every other grid in this
             application does.
         """
         self._anchor = (int(row), int(column))
@@ -407,7 +459,7 @@ class PlateMapPicker(QDialog):
         self._dragged = False
 
     def well_at(self, position) -> Optional[Tuple[int, int]]:
-        """The well under a GLOBAL point, or ``None``.
+        """The well under a global point, or ``None``.
 
         Global, because the pointer is over a sibling of the widget that is
         receiving the events -- the pressed one keeps the grab.
@@ -423,17 +475,17 @@ class PlateMapPicker(QDialog):
     def drag_to(self, position) -> None:
         """Preview the rectangle from the anchor to the well under ``position``.
 
-        SHOWN WHILE DRAGGING, because a selection you cannot see until you
-        let go is one you have to undo to correct.
+        The rectangle is shown while dragging, so a selection can be
+        corrected before the button is released.
 
-        A MOVE INSIDE THE PRESSED WELL IS NOT A DRAG. Every real click
+        A move inside the pressed well is not a drag. Every real click
         carries a pixel or two of pointer travel, and drawing a one-well
         rectangle for it both clears the rest of the selection and leaves
         the release to fall through as an ordinary click -- which toggles
         the anchor straight back off, so a wobbled click lands nothing and
         takes the previous selection with it.
 
-        AND ONCE IT IS A DRAG IT STAYS ONE. Sweeping away from the anchor
+        Once a move becomes a drag it stays one. Sweeping away from the anchor
         and back again ends on the anchor, and treating that as no drag
         would hand the release to the click and toggle off the well the
         rectangle had just chosen.
@@ -630,15 +682,15 @@ class PlateMapPicker(QDialog):
 
         :param cells: one-based ``(row, column)`` pairs, well-specification
             text such as ``"A01"`` or ``"c3"``, or a mixture. The field this
-            picker edits is written in the second vocabulary, so it is worth
-            answering to.
+            picker edits is written in the second vocabulary, so both are
+            accepted.
 
-        THE REPAINT IS NOT OPTIONAL. Signals are blocked so that setting a
-        hundred wells says the count once rather than a hundred times, and
-        that also silences the ``toggled -> _paint`` connection -- so a well
-        chosen without a click, which includes the picker's own starting
-        value and everything kept across a layout change, would be checked
-        and still drawn empty.
+        The whole plate is always repainted. Signals are blocked so that
+        setting a hundred wells says the count once rather than a hundred
+        times, and that also silences the ``toggled -> _paint`` connection --
+        so a well chosen without a click, which includes the picker's own
+        starting value and everything kept across a layout change, would be
+        checked and still drawn empty.
         """
         wanted: Set[Tuple[int, int]] = set()
         for cell in cells:

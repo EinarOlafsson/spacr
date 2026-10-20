@@ -5,6 +5,7 @@ import hashlib
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -92,7 +93,7 @@ def test_native_series_waits_for_declared_planes_and_matches_batch(tmp_path,
     with (field / convert.MAP_FILENAME).open(newline='', encoding='utf-8') as handle:
         scoped = list(csv.DictReader(handle))
     assert {row['target'] for row in scoped} == set(original)
-    receipt = json.loads((field / 'stack/.spacr_volume_series_ingest.json').read_text())
+    receipt = json.loads((field / 'stack/.spacr_volume_series_ingest.json').read_text(encoding="utf-8"))
     assert receipt['axes'] == 'TZYXC'
     assert receipt['map_sha256'] == _digest(field / convert.MAP_FILENAME)
     assert set(receipt['inputs']) == set(original)
@@ -162,7 +163,7 @@ def test_native_series_resume_excludes_only_regular_reserved_mask_workspace(
         with pytest.raises(PipelineCancelled):
             core._watch_folder_and_analyse(_watch(source))
     ledger_path = source / 'spacr_watch/watch_ledger.json'
-    ledger = json.loads(ledger_path.read_text())
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     key = next(iter(ledger['fields']))
     original = ledger['fields'][key]['collection_checkpoint']['artifacts']
     field = source / 'spacr_watch/fields' / key
@@ -176,7 +177,7 @@ def test_native_series_resume_excludes_only_regular_reserved_mask_workspace(
         scratch.mkdir(mode=0o700)
         np.save(scratch / 'data.npy', np.arange(24, dtype=np.float32))
     result = core._watch_folder_and_analyse(_watch(source))
-    resumed = json.loads(ledger_path.read_text())['fields'][key]
+    resumed = json.loads(ledger_path.read_text(encoding="utf-8"))['fields'][key]
     assert len(seen) == 2
     assert resumed['collection_checkpoint']['artifacts'] == original
     assert all(_digest(field / relative) == digest for relative, digest in original.items())
@@ -241,7 +242,7 @@ def test_native_series_checkpoint_rejects_changed_staging_without_reanalysis(
         (field / 'stack/.spacr_volume_series_ingest.json').write_text('{}')
     elif damage == 'receipt_digest':
         path = field / 'stack/.spacr_volume_series_ingest.json'
-        receipt = json.loads(path.read_text())
+        receipt = json.loads(path.read_text(encoding="utf-8"))
         receipt['stacks']['plate1_A01_1_1.npy'] = '0' * 64
         path.write_text(json.dumps(receipt))
     elif damage == 'receipt_oversize':
@@ -261,9 +262,19 @@ def test_native_series_checkpoint_rejects_changed_staging_without_reanalysis(
         shutil.rmtree(field / 'masks/nucleus_mask_stack')
         (field / 'masks/nucleus_mask_stack').symlink_to(field / 'stack',
                                                        target_is_directory=True)
-    result = core._watch_folder_and_analyse(_watch(source))
+    now = [core.time.time()]
+
+    def advance(seconds):
+        now[0] += seconds
+
+    # This checks receipt validation, not scan speed against the 60 ms idle window.
+    # Advance the watcher's clock only when it polls, leaving real I/O unchanged.
+    with monkeypatch.context() as patch:
+        patch.setattr(core, 'time', SimpleNamespace(
+            time=lambda: now[0], sleep=advance))
+        result = core._watch_folder_and_analyse(_watch(source))
     assert len(result['failed']) == 1 and len(seen) == 2
-    ledger = json.loads((source / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((source / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     assert 'Collection' in ledger['fields'][result['failed'][0]]['error']
 
 
@@ -328,7 +339,7 @@ def test_native_series_restart_discards_partial_private_ingest_before_checkpoint
     with pytest.raises(KeyboardInterrupt, match='before collection checkpoint'):
         core._watch_folder_and_analyse(_watch(source), interrupted)
     field = next((source / 'spacr_watch/fields').iterdir())
-    ledger = json.loads((source / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((source / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     assert ledger['fields'][field.name]['status'] == 'running'
     assert 'collection_checkpoint' not in ledger['fields'][field.name]
     assert (field / 'masks/partial.npz').exists()

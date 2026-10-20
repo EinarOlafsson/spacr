@@ -1,0 +1,346 @@
+"""Edited three-axis boundaries must define the same scientific volume they show."""
+from dataclasses import replace
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from spacr.qt.widgets.gate_spec import (
+    BoxGate, CylinderGate, EditableVolumeGate, GateError, GateSet, PrismGate,
+    ViewGate, _EllipsoidGate, gate_from_dict,
+)
+
+
+def _box():
+    return EditableVolumeGate.from_gate(BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3))
+
+
+def _frame(points):
+    return pd.DataFrame(points, columns=['x', 'y', 'z'])
+
+
+@pytest.mark.parametrize('perspective', [False, True])
+def test_view_drawn_boundary_preserves_its_projected_region_within_finite_depth(perspective):
+    projection = np.eye(4)
+    if perspective:
+        projection[3, 2] = .15
+    gate = ViewGate(name='view', x_column='x', y_column='y', z_column='z',
+                    projection=tuple(map(tuple, projection)),
+                    vertices=((-1, -1), (1, -1), (1, 1), (-1, 1)))
+    original = gate.to_dict()
+    mesh = EditableVolumeGate.from_gate(gate, [(-2, 2)] * 3)
+    points = np.random.default_rng(93).uniform(-2, 2, (500, 3))
+    assert np.array_equal(mesh.mask(_frame(points)), gate.mask(_frame(points)))
+    assert gate.to_dict() == original
+    top_group = max(mesh.surface_groups)
+    edited = mesh.moved_surfaces([top_group], [0, 0, .5])
+    assert edited != mesh
+    restored = gate_from_dict(edited.to_dict())
+    assert np.array_equal(restored.mask(_frame(points)), edited.mask(_frame(points)))
+
+
+@pytest.mark.parametrize('projection,limits', [
+    (np.eye(4), None),
+    (np.eye(4), [(-2, 2), (0, 0), (-2, 2)]),
+    (np.diag([1, 1, 0, 1]), [(-2, 2)] * 3),
+    (np.diag([1, 1, 1, -1]), [(-2, 2)] * 3),
+    (np.asarray([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [1, 0, 0, 0]]), [(-2, 2)] * 3),
+])
+def test_unresolved_or_camera_crossing_view_volumes_are_refused(projection, limits):
+    gate = ViewGate(name='view', x_column='x', y_column='y', z_column='z',
+                    projection=tuple(map(tuple, projection)),
+                    vertices=((-1, -1), (1, -1), (1, 1), (-1, 1)))
+    with pytest.raises(GateError):
+        EditableVolumeGate.from_gate(gate, limits)
+
+
+def test_original_box_and_mesh_agree_on_points_boundaries_and_missing_values():
+    box = BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3)
+    rng = np.random.default_rng(17)
+    frame = _frame(np.vstack([rng.uniform(-.2, 1.2, (500, 3)), [[0, .5, .5], [1, 1, 1], [np.nan, .5, .5], [np.inf, .5, .5]]]))
+    assert np.array_equal(_box().mask(frame), box.mask(frame))
+    assert _box().mask(frame.iloc[:0]).shape == (0,)
+
+
+@pytest.mark.parametrize('axis', range(3))
+def test_vertex_edit_changes_all_three_data_axes_without_projection(axis):
+    gate = _box()
+    target = np.asarray(gate.vertices[7])
+    target[axis] += .25
+    edited = gate.with_anchor('anchor:7:1', target)
+    assert np.array_equal(np.asarray(edited.vertices)[7], target)
+    assert edited.columns == gate.columns
+    assert np.array_equal(np.asarray(edited.vertices)[:7], np.asarray(gate.vertices)[:7])
+
+
+def test_editing_depth_creates_a_nonuniform_volume_with_independent_membership():
+    gate = _box()
+    edited = gate.with_anchor('anchor:5:1', (1, 0, 2))
+    points = _frame([[.9, .1, 1.5], [.1, .9, 1.5], [.5, .5, .5], [.9, .1, 1.9]])
+    assert gate.mask(points).tolist() == [False, False, True, False]
+    assert edited.mask(points).tolist() == [True, False, True, False]
+    assert gate_from_dict(edited.to_dict()) == edited
+
+
+def test_adjacent_selected_surfaces_share_one_vertex_displacement():
+    gate = _box()
+    groups = [1, 5, 1]
+    moved = gate.moved_surfaces(groups, (.1, .1, .1))
+    indices = {i for face, group in zip(gate.faces, gate.surface_groups) if group in groups for i in face}
+    for i, (before, after) in enumerate(zip(gate.vertices, moved.vertices)):
+        assert np.asarray(after) == pytest.approx(np.asarray(before) + (.1 if i in indices else 0))
+    assert np.asarray(moved.vertices)[7] == pytest.approx([1.1, 1.1, 1.1])
+
+
+def test_density_samples_edges_and_all_surfaces_without_changing_geometry():
+    gate = _box()
+    anchors = [gate.anchors(density) for density in (1, 2, 3, 4)]
+    assert [len(a) for a in anchors] == [8, 26, 56, 98]
+    for axis in range(3):
+        values = sorted({round(a.point[axis], 12) for a in anchors[3]})
+        assert values == [0, .25, .5, .75, 1]
+    assert len({a.role for a in anchors[3]}) == len(anchors[3])
+    assert gate == _box()
+
+
+@pytest.mark.parametrize('role', ['anchor:4:1,5:1', 'anchor:4:1,5:1,7:1'])
+def test_edge_and_surface_anchor_insertion_keeps_a_closed_shared_mesh(role):
+    gate = _box()
+    anchor = next(a for a in gate.anchors(6) if a.role == role)
+    edited = gate.with_anchor(role, np.asarray(anchor.point) + (0, 0, .1))
+    assert len(edited.vertices) == len(gate.vertices) + 1
+    assert edited.vertices[-1] == pytest.approx(np.asarray(anchor.point) + (0, 0, .1))
+    assert all(len(face) == 3 for face in edited.faces)
+    assert edited.mask(_frame([[.5, .5, .5]])).tolist() == [True]
+
+
+def test_concave_prism_preserves_excluded_notch_and_depth():
+    prism = PrismGate(name='volume', u_column='x', v_column='y', axis_column='z',
+                      vertices=((0, 0), (2, 0), (2, 1), (1, 1), (1, 2), (0, 2)), axis_low=0, axis_high=1)
+    mesh = EditableVolumeGate.from_gate(prism)
+    frame = _frame([[.5, .5, .5], [1.5, .5, .5], [.5, 1.5, .5], [1.5, 1.5, .5], [.5, .5, 1.1]])
+    assert mesh.mask(frame).tolist() == [True, True, True, False, False]
+    assert np.array_equal(mesh.mask(frame), prism.mask(frame))
+
+
+def test_clockwise_prism_has_the_same_region():
+    prism = PrismGate(name='volume', u_column='x', v_column='y', axis_column='z',
+                      vertices=((0, 1), (1, 1), (1, 0), (0, 0)), axis_low=0, axis_high=1)
+    assert np.array_equal(EditableVolumeGate.from_gate(prism).mask(_frame([[.5, .5, .5], [2, 2, .5]])), [True, False])
+
+
+def test_cylinder_has_even_depth_anchors_and_can_deform_one_depth_front():
+    cylinder = CylinderGate(name='volume', u_column='x', v_column='y', axis_column='z',
+                            u_radius=1, v_radius=1, axis_low=0, axis_high=1)
+    mesh = EditableVolumeGate.from_gate(cylinder, segments=16, depth_steps=4)
+    assert sorted(set(point[2] for point in mesh.vertices)) == [0, .25, .5, .75, 1]
+    edited = mesh.with_anchor('anchor:64:1', (1, 0, 2))
+    frame = _frame([[.98, 0, 1.2], [-.98, 0, 1.2], [0, 0, .5]])
+    assert cylinder.mask(frame).tolist() == [False, False, True]
+    assert edited.mask(frame).tolist() == [True, False, True]
+
+
+def test_ellipsoid_conversion_is_closed_and_respects_column_order():
+    ellipse = _EllipsoidGate(name='volume', x_column='z', y_column='x', z_column='y', x_radius=1, y_radius=2, z_radius=3)
+    mesh = EditableVolumeGate.from_gate(ellipse, segments=12, depth_steps=2)
+    assert mesh.columns == ('z', 'x', 'y')
+    assert mesh.mask(_frame([[0, 0, 0], [2.1, 0, 0], [0, 3.1, 0], [0, 0, 1.1]])).tolist() == [True, False, False, False]
+
+
+def test_edited_volume_hierarchy_and_json_roundtrip_keep_actual_point_counts():
+    parent = _box().rename('parent')
+    child = parent.with_anchor('anchor:5:1', (1, 0, 2)).rename('child').with_parent('parent')
+    gates = GateSet([parent, child])
+    frame = _frame([[.5, .5, .5], [.9, .1, 1.5], [2, 2, 2]])
+    restored = GateSet.from_dict(gates.to_dict())
+    assert restored.to_dict() == gates.to_dict()
+    assert restored.mask(frame, 'child').tolist() == [True, False, False]
+
+
+@pytest.mark.parametrize('mutation', [
+    lambda g: replace(g, vertices=tuple((np.nan, *v[1:]) if i == 0 else v for i, v in enumerate(g.vertices))),
+    lambda g: replace(g, faces=g.faces[:-1]),
+    lambda g: replace(g, faces=g.faces + (g.faces[0],)),
+    lambda g: replace(g, faces=((0, 0, 1),) + g.faces[1:]),
+    lambda g: replace(g, vertices=(g.vertices[1],) + g.vertices[1:]),
+    lambda g: g.with_anchor('anchor:5:1', (-1, 1, -.5)),
+    lambda g: g.with_anchor('anchor:99:1', (0, 0, 0)),
+    lambda g: g.moved_vertices([1], (0, np.inf, 0)),
+    lambda g: g.moved_surfaces([99], (1, 0, 0)),
+])
+def test_invalid_deformation_is_refused_and_original_remains_usable(mutation):
+    gate = _box()
+    with pytest.raises(GateError):
+        mutation(gate)
+    assert gate.mask(_frame([[.5, .5, .5]])).tolist() == [True]
+
+
+def test_unbounded_volume_requires_explicit_bounds_and_does_not_guess():
+    gate = BoxGate(name='volume', x_column='x', y_column='y', z_column='z')
+    with pytest.raises(GateError):
+        EditableVolumeGate.from_gate(gate)
+    assert EditableVolumeGate.from_gate(gate, [(0, 1)] * 3) == _box()
+
+
+def test_anisotropic_axis_units_do_not_change_membership():
+    box = BoxGate.from_limits('volume', ('x', 'y', 'z'), [(1e8, 1e8 + 2), (0, 1e-6), (-1e4, 1e4)])
+    mesh = EditableVolumeGate.from_gate(box)
+    frame = _frame([[1e8 + 1, .5e-6, 0], [1e8 + 3, .5e-6, 0], [1e8 + 1, .5e-6, 2e4]])
+    assert np.array_equal(mesh.mask(frame), box.mask(frame))
+
+
+@pytest.mark.parametrize('second, common, expected', [
+    ([[0, 0, 0], [1, 0, 0], [1, -1, 0]], [[0, 0, 0], [1, 0, 0]], False),
+    ([[.5, 0, 0], [.6, -.2, 0], [.4, -.2, 0]], [], True),
+    ([[.1, .1, 0], [.2, .1, 0], [.1, .2, 0]], [], True),
+    ([[2, 2, 0], [3, 2, 0], [2, 3, 0]], [], False),
+    ([[.2, .2, -1], [.2, .2, 1], [.8, .2, 1]], [], True),
+    ([[2, 2, -1], [2, 2, 1], [3, 2, 1]], [], False),
+])
+def test_surface_contact_distinguishes_shared_edges_and_actual_crossings(second, common, expected):
+    from spacr.qt.widgets.gate_spec import _mesh_triangle_contact
+
+    first = np.asarray([[0, 0, 0], [1, 0, 0], [0, 1, 0]], float)
+    assert _mesh_triangle_contact(first, np.asarray(second, float), np.asarray(common, float).reshape(-1, 3)) is expected
+
+
+def test_disconnected_closed_shells_are_not_accepted_as_one_volume():
+    gate = _box()
+    points = gate.vertices + tuple(tuple(np.asarray(v) + (3, 0, 0)) for v in gate.vertices)
+    faces = gate.faces + tuple(tuple(i + 8 for i in face) for face in gate.faces)
+    with pytest.raises(GateError):
+        replace(gate, vertices=points, faces=faces, surface_groups=())
+
+
+@pytest.mark.parametrize('density', [0, 9])
+def test_invalid_anchor_density_does_not_change_the_volume(density):
+    with pytest.raises(GateError):
+        _box().anchors(density)
+
+
+@pytest.mark.parametrize('indices', [[-1], [99], [1.2], ['unavailable']])
+def test_invalid_vertex_selection_does_not_silently_move_another_vertex(indices):
+    with pytest.raises(GateError):
+        _box().moved_vertices(indices, (0, 0, .1))
+
+
+def test_clockwise_concave_cap_survives_very_different_measurement_units():
+    footprint = [(1e6 * x, 1e-8 * y) for x, y in reversed(((0, 0), (2, 0), (2, 1), (1, 1), (1, 2), (0, 2)))]
+    prism = PrismGate(name='volume', u_column='x', v_column='y', axis_column='z', vertices=tuple(footprint), axis_low=0, axis_high=1)
+    mesh = EditableVolumeGate.from_gate(prism)
+    points = _frame([[.5e6, .5e-8, .5], [1.5e6, 1.5e-8, .5]])
+    assert mesh.mask(points).tolist() == [True, False]
+
+
+@pytest.mark.parametrize('vertices', [
+    ((0, 0), (1, 0)),
+    ((0, 0), (1, 0), (0, np.nan)),
+    ((0, 0), (1, 0), (0, 0)),
+    ((0, 0), (1, 1), (2, 2)),
+    ((0, 0), (1, 1), (0, 1), (1, 0)),
+])
+def test_invalid_planar_edit_is_refused_before_creating_a_gate(vertices):
+    from spacr.qt.widgets.gate_spec import _validate_edited_polygon
+
+    with pytest.raises(GateError):
+        _validate_edited_polygon(vertices)
+
+
+def test_valid_concave_outline_and_triangular_cap_remain_valid():
+    from spacr.qt.widgets.gate_spec import _triangulate_volume_cap, _validate_edited_polygon
+
+    outline = ((0, 0), (2, 0), (1, .7), (2, 2), (0, 2))
+    _validate_edited_polygon(outline)
+    assert len(_triangulate_volume_cap(outline)) == 3
+    assert _triangulate_volume_cap(((0, 0), (1, 0), (0, 1))) == [(0, 1, 2)]
+
+
+@pytest.mark.parametrize('outline', [((0, 0), (1, 0), (2, 0)),
+                                   ((0, 0), (0, 1), (1, 1), (1, 0)),
+                                   ((0, 0), (1, 0), (0, np.inf))])
+def test_untriangulatable_caps_are_refused(outline):
+    from spacr.qt.widgets.gate_spec import _triangulate_volume_cap
+
+    with pytest.raises(GateError):
+        _triangulate_volume_cap(outline)
+
+
+@pytest.mark.parametrize('mutation', [
+    lambda g: replace(g, x_column=''),
+    lambda g: replace(g, z_column='x'),
+    lambda g: replace(g, vertices=((0, 0),) * 8),
+    lambda g: replace(g, faces=((0.5, 1, 2),)),
+    lambda g: replace(g, faces=()),
+    lambda g: replace(g, faces=((-1, 1, 2),)),
+    lambda g: replace(g, surface_groups=(0,)),
+    lambda g: replace(g, surface_groups=(-1,) * len(g.faces)),
+    lambda g: replace(g, vertices=g.vertices[:3]),
+    lambda g: replace(g, vertices=tuple((i, i * i, 0) for i in range(8))),
+    lambda g: replace(g, vertices=tuple((i, i * i, i * i * i) for i in range(8193))),
+    lambda g: replace(g, faces=g.faces * 1400),
+])
+def test_malformed_or_over_budget_meshes_do_not_enter_the_gate_set(mutation):
+    original = _box()
+    with pytest.raises(GateError):
+        mutation(original)
+    assert original.mask(_frame([[.5, .5, .5]])).tolist() == [True]
+
+
+def test_closed_flat_tetrahedron_is_refused_even_when_all_axis_extents_are_positive():
+    with pytest.raises(GateError, match='nonzero region'):
+        EditableVolumeGate(name='flat', x_column='x', y_column='y', z_column='z',
+                           vertices=((0, 0, 0), (1, 0, 1), (0, 1, 1), (1, 1, 2)),
+                           faces=((0, 2, 1), (0, 1, 3), (0, 3, 2), (1, 2, 3)))
+
+
+def test_whole_volume_translation_and_scaling_preserve_shared_topology():
+    gate = _box()
+    assert gate.centre() == (.5, .5)
+    moved = gate.translated(2, -3)
+    assert np.asarray(moved.vertices) == pytest.approx(np.asarray(gate.vertices) + [2, -3, 0])
+    scaled = gate.scaled(2)
+    assert np.asarray(scaled.vertices) == pytest.approx(.5 + (np.asarray(gate.vertices) - .5) * 2)
+    anchored = gate.scaled(2, about=(0, 0))
+    assert np.asarray(anchored.vertices) == pytest.approx([0, 0, .5] + (np.asarray(gate.vertices) - [0, 0, .5]) * 2)
+    assert moved.faces == scaled.faces == anchored.faces == gate.faces
+    assert EditableVolumeGate.from_gate(gate) is gate
+
+
+@pytest.mark.parametrize('factor', [0, -1, np.inf, np.nan])
+def test_invalid_scale_cannot_invert_or_corrupt_a_volume(factor):
+    with pytest.raises(GateError):
+        _box().scaled(factor)
+
+
+@pytest.mark.parametrize('role,point', [('vertex:0', (0, 0, 0)), ('anchor:0:1', (0, 0)),
+                                     ('anchor:0:1', (0, np.inf, 0)), ('anchor:0:1,7:1', (0, 0, 0))])
+def test_stale_or_nonfinite_anchor_cannot_split_unrelated_surfaces(role, point):
+    with pytest.raises(GateError):
+        _box().with_anchor(role, point)
+
+
+@pytest.mark.parametrize('gate,arguments', [
+    (BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3), {'segments': 7}),
+    (BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3), {'depth_steps': 17}),
+    (PrismGate(name='bad', u_column='x', v_column='y', axis_column='z', vertices=((0, 0), (1, 0), (2, 0)), axis_low=0, axis_high=1), {}),
+])
+def test_unusable_sampling_and_footprints_are_explicitly_refused(gate, arguments):
+    with pytest.raises(GateError):
+        EditableVolumeGate.from_gate(gate, **arguments)
+
+
+def test_a_flat_gate_has_no_invented_three_dimensional_extent():
+    from spacr.qt.widgets.gate_spec import RectGate
+
+    with pytest.raises(GateError):
+        EditableVolumeGate.from_gate(RectGate(name='flat', x_column='x', y_column='y'))
+
+
+def test_view_boundary_refuses_a_singular_camera_and_normalizes_clockwise_outline():
+    projection = np.eye(4)
+    gate = ViewGate(name='view', x_column='x', y_column='y', z_column='z', projection=tuple(map(tuple, projection)),
+                    vertices=((-1, -1), (-1, 1), (1, 1), (1, -1)))
+    assert EditableVolumeGate.from_gate(gate, [(-2, 2)] * 3).mask(_frame([[0, 0, 0]])).tolist() == [True]
+    projection[1] = projection[0]
+    with pytest.raises(GateError, match='camera cannot resolve'):
+        EditableVolumeGate.from_gate(replace(gate, projection=tuple(map(tuple, projection))), [(-2, 2)] * 3)

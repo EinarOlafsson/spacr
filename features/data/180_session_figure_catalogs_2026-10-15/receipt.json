@@ -1,0 +1,60 @@
+{
+  "plan_sha256": "9f08b253280dfbaf5bdc74fc1b7b96b21608aded935b051fe5f0ea6c94433554",
+  "source_files": {
+    "spacr/qt/widgets/figure_queue.py": "779188b8b59b1420cc5421ce035f20f8b3f8ab35ba04bad2473fe9f724ba0382",
+    "spacr/qt/screens/app_screen.py": "e112f07502a6a7791391f6c0e8cb3673b5cb70937a9927f4491ff4a4e99214bc"
+  },
+  "baseline_public": "172a52e396b9ff6b6542dae28537241ee792b38f",
+  "locales": {
+    "sv": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "de": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "es": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "zh_CN": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "pt": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "hi": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "ko": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "is": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    },
+    "fr": {
+      "reviewed_api_blocks": 7,
+      "reviewed_runtime_rows": 1,
+      "unchanged_runtime_rows": 10958
+    }
+  },
+  "api_history_unchanged": true,
+  "foreign_arrivals_preserved": true,
+  "normal_runtime_audit": 0,
+  "normal_help_exit": 0,
+  "limitations": "Selected API source claim only; actual Help consumer checks and strict named API arrival acceptance remain separate."
+}

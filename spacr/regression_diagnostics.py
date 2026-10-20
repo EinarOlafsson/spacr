@@ -1,10 +1,9 @@
-"""Diagnostics that say whether a screen regression can be believed.
+"""Diagnostics of a screen regression's design, fit and P-value calibration.
 
-A volcano plot shows what the model concluded. It cannot show whether the
-model was entitled to conclude it. These are the checks that can, and they are
-the ones that would have caught the failure this module was written after: a
-design with 824 guides in 587 wells, fitted simultaneously, returning a
-confident coefficient and P value for every guide from a rank-deficient matrix.
+A volcano plot shows the model's estimates, not whether they are identifiable
+or calibrated. These checks test that; for example, they flag a design with 824
+guides in 587 wells, fitted simultaneously, returning a confident coefficient
+and P value for every guide from a rank-deficient matrix.
 
 The suite is deliberately split in two:
 
@@ -343,7 +342,7 @@ def _worst(verdicts):
 
 
 def score_design(report: Mapping) -> "object":
-    """Is a simultaneous fit on this design entitled to its coefficients?
+    """Score whether a simultaneous fit on this design is identifiable.
 
     :param report: the dict :func:`design_report` returns.
     :returns: a ``PanelVerdict``.
@@ -392,13 +391,13 @@ def score_design(report: Mapping) -> "object":
 
 
 def score_residuals(report: Mapping) -> "object":
-    """Are these residuals behaved enough for the inference drawn from them?
+    """Score whether the residuals support the inference drawn from them.
 
     :param report: the dict :func:`residual_report` returns.
 
-    A DIAGNOSTIC TEST'S p IS BACKWARDS AND THAT IS THE COMMONEST WAY TO READ
-    ONE WRONG: the null is "the assumption holds", so a LARGE p is the good
-    outcome. Every rule below is written in that direction and says so.
+    A diagnostic test's p reads the other way round: the null is "the
+    assumption holds", so a large p is the good outcome. Every rule below is
+    written in that direction and says so.
 
     Thresholds are the conventional ones: p >= 0.05 for a diagnostic test,
     Cook's distance of 0.5 and 1.0. A threshold invented here would be a number
@@ -453,15 +452,15 @@ def score_residuals(report: Mapping) -> "object":
 
 
 def score_inference(report: Mapping) -> "object":
-    """Is the null calibrated, or is the whole family shifted?
+    """Score whether the P-value null is calibrated or shifted.
 
     Read off the genomic inflation factor: the median observed chi-square over
     its null median, which is 1.0 when the null behaves. The bands are the ones
-    the GWAS literature uses -- 1.1 is where a report starts explaining itself
-    and 1.2 is where the p-values are not believed.
+    the GWAS literature uses -- above 1.1 a report should explain the
+    inflation, and above 1.2 the p-values are not considered reliable.
 
-    A SPIKE OF SMALL p IS NOT A FAULT. It is what a screen with real hits looks
-    like, and lambda is deliberately a MEDIAN so a handful of true hits barely
+    A spike of small p is not a fault. It is what a screen with real hits looks
+    like, and lambda is deliberately a median so a handful of true hits barely
     move it. Scoring the spike itself would flag every successful screen.
 
     :param report: inference summary with ``tests``, ``genomic_inflation`` and
@@ -871,7 +870,7 @@ def plot_residual_diagnostics(observed, fitted, *,
 def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
                                save_path=None, save_format=None,
                                label: str = ""):
-    """Is the null calibrated, and how much of the family is non-null?
+    """Plot the P-value histogram and QQ plot to check null calibration.
 
     A well-behaved screen gives a flat P-value histogram with a spike at zero.
     A histogram that slopes or humps in the middle means the test is
@@ -981,26 +980,20 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
     a block that raises is recorded as an error rather than aborting the run --
     a diagnostic that fails must never take the analysis down with it.
 
-    Every sheet also SCORES itself -- see :func:`score_design`,
-    :func:`score_residuals` and :func:`score_inference` -- and wears its own
+    Every sheet is also scored -- see :func:`score_design`,
+    :func:`score_residuals` and :func:`score_inference` -- and carries its own
     badge. The verdicts are rows in ``diagnostic_summary.csv``, per sheet and
     for the suite (its worst), rather than entries in the returned mapping:
-    that mapping's contract is "key -> a file that exists". A reader is told
-    whether the numbers are fine rather than expected to know.
+    that mapping's contract is "key -> a file that exists".
 
     :param destination: output directory created as needed for all diagnostic
         figures, CSV tables, and the optional suite summary.
     :param formats: force particular formats, one file per format. ``None``,
-        the default, writes ONE file per panel in the format the user's figure
+        the default, writes one file per panel in the format the user's figure
         preference asks for.
 
-        IT USED TO DEFAULT TO ``("pdf", "png")``, and that was wrong twice
-        over. Each entry re-runs the whole panel -- the same numbers computed
-        and the same picture drawn a second time -- and the pair ignored the
-        figure-format preference completely, so a user who had chosen PNG got
-        a PDF anyway. It also broke the rule the design sets, that a
-        saved figure and a visible one are the same event: two files for one
-        panel is two tiles in the gallery for one picture.
+        Each requested format re-runs the whole panel, and every file written
+        is a separate tile in the gallery.
     """
     destination = os.path.abspath(os.path.expanduser(os.fspath(destination)))
     os.makedirs(destination, exist_ok=True)

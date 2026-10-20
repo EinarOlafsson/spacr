@@ -86,7 +86,9 @@
       "source_sha256": "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
       "context": "What a drop on Make Masks is, and everything needed to act on it.",
       "translation": "Make Masks 에 끌어 놓은 것이 무엇인지, 그리고 그에 따라 처리하는 데 필요한 모든 정보.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.DropClassification#1",
@@ -174,7 +176,9 @@
       "source_sha256": "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
       "context": "Say what a drop on Make Masks is, without asking or opening anything.",
       "translation": "Make Masks 에 끌어 놓은 것이 무엇인지 묻거나 열지 않고 판정합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#1",

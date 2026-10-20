@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical translation review (Codex); no native-speaker or human signoff",
+  "review": "Metadata convention examples, neutral provisional status, non-mutating ranking and parse counts. Preserve original filenames, counts, stored keys, placeholders and literal custom_regex/Import guidance. Ordinary tr restores raw boundary whitespace.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "[provisional]",
+      "source": "[provisional]",
+      "source_sha256": "c4c4af58e7ace819eb0c7338e4be02738fc53a4b52cdab4bf7d490eb0e566ed0",
+      "translation": "[अस्थायी]"
+    },
+    {
+      "table": "ui",
+      "key": "Looks like:  {example}",
+      "source": "Looks like:  {example}",
+      "source_sha256": "d04790fbc2edea1a5eef72fd6b590a5f00492b9276207afdc9d41375a24b66ba",
+      "translation": "उदाहरण:  {example}"
+    },
+    {
+      "table": "ui",
+      "key": "This convention is provisional. Check its example and test your folder before running.",
+      "source": "This convention is provisional. Check its example and test your folder before running.",
+      "source_sha256": "8a5788b36e4014721e161f6fa4804f1c6263cf4d06bad462e23a08162b2a3ea0",
+      "translation": "यह नामकरण नियम अस्थायी है। चलाने से पहले इसका उदाहरण जाँचें और अपने फ़ोल्डर पर परीक्षण करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Reading the folder…",
+      "source": "Reading the folder…",
+      "source_sha256": "14f3f763e528a78c3caaabbe9c49195d1d25eae9597fe9f5e50251b580b59f0a",
+      "translation": "फ़ोल्डर पढ़ा जा रहा है…"
+    },
+    {
+      "table": "ui",
+      "key": "No image files in that folder.",
+      "source": "No image files in that folder.",
+      "source_sha256": "1dcd06f75dc52d247f90f52c1449946b8735d335954255e1450efc8a95bafb85",
+      "translation": "उस फ़ोल्डर में कोई छवि फ़ाइल नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "All {total} .{extension} files parse.",
+      "source": "All {total} .{extension} files parse.",
+      "source_sha256": "83dcef9065d4facb51a49c97ad99bd74a84ac8457385ef80a1c44cc03f680fba",
+      "translation": "सभी {total} .{extension} फ़ाइलों के नाम पार्स किए जा सकते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "{matched} of {total} files parse. The first that does not: {first}",
+      "source": "{matched} of {total} files parse. The first that does not: {first}",
+      "source_sha256": "80b770e2d996dc40cd0b5c279679da0481f716a25e0c782d61d90181902fea1a",
+      "translation": "{matched} फ़ाइलों के नाम पार्स किए जा सकते हैं (कुल {total})। पहली फ़ाइल जिसका नाम पार्स नहीं किया जा सकता: {first}"
+    },
+    {
+      "table": "ui",
+      "key": "No built-in convention can read any of these {total} names. Write a custom_regex, or run Import, which reads the folder names too.",
+      "source": "No built-in convention can read any of these {total} names. Write a custom_regex, or run Import, which reads the folder names too.",
+      "source_sha256": "e328f2234bbe00bcf01bf4b0d0e637330ffac1e00bb2aac973007c980e55ffc2",
+      "translation": "कोई भी अंतर्निहित नामकरण नियम इन {total} नामों में से किसी को नहीं पढ़ सकता। एक custom_regex लिखें या Import चलाएँ, जो फ़ोल्डर के नाम भी पढ़ता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Of {total} files:",
+      "source": "Of {total} files:",
+      "source_sha256": "530e6ed47a6137ac71b1dff5ad6b9ad2f07f207231f1847008e9414214dea651",
+      "translation": "{total} फ़ाइलों में से:"
+    },
+    {
+      "table": "ui",
+      "key": "{matched} of {total} — {label}  ({key})",
+      "source": "{matched} of {total} — {label}  ({key})",
+      "source_sha256": "821810ab6b966d095f0a0a21501db2277c66375f3b4f18c9770be70f2a55a9fb",
+      "translation": "{matched}/{total} फ़ाइलें — {label}  ({key})"
+    }
+  ],
+  "independent_peer": "Original coordinator reviewed original90targets and exact9neutralwarning replacements; source-only rewording of zero-match guidance preserves approvedtargets. Portable old18records, contexts and hash-bound peers retained in features/data/441_metadata_caption_review_amendment_2026-10-15/."
+}

@@ -41,7 +41,9 @@
       "source_sha256": "57fd25665dd161be0d63a2db877677088ef3c765acadb64af13e68bb8abb4344",
       "context": "Bind recovery to actual directory inodes, not mutable app names alone.",
       "translation": "将恢复绑定到实际的目录 inode，而不只是可变的应用名称。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.install_cleanup._macos_recover_user_bundle.identity#1",
@@ -161,7 +163,9 @@
       "source_sha256": "18a69af12aa8e371021a6c950926b108b1a66da26b61684db7d052b42dfb5692",
       "context": "the widget that owns the empty space, and the QObject parent. NOT the window and not the scroll area: putting the contents in a scroll area moved the empty space to this holder, which is the whole point of the class.",
       "translation": "拥有该空白区域的控件，以及 QObject 父对象。不是窗口，也不是滚动区域：把内容放入滚动区域后，空白区域移到了这个容器上，这正是该类存在的意义。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dialogs._drag_class._DragTheWindowByTheForm.eventFilter#0",
@@ -209,7 +213,9 @@
       "source_sha256": "b060baca2b50abe479014fa82687ab2b1540be82393407c8637aae6b2ce912bd",
       "context": "The test is here as well as inside because this method is what Qt calls for every event in the application, and a Python call that returns False is not free at 94,431 of them per module open. The detacher makes the same test for anyone calling it directly.",
       "translation": "此处和内部都要做这项检查，因为 Qt 会为应用程序中的每个事件调用此方法，而每次打开模块有 94,431 次这样的调用，返回 False 的 Python 调用并非没有代价。分离器会为直接调用它的人做同样的检查。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen._start_task._work#0",
@@ -233,7 +239,9 @@
       "source_sha256": "272a015b7b0f6995dee8dbf69e0279ad2043617687f7501839be991539adaee2",
       "context": "Keeping the SELECTION is the point: a list that jumps to the top after a cancel loses the row the user was working with.",
       "translation": "保持选中状态才是关键：取消后跳回顶部的列表会丢失用户正在处理的那一行。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh._done#0",
@@ -409,7 +417,9 @@
       "source_sha256": "80dd839b940339cbf6dfc055ff80aeda4c545068edc8a7ca77d62511f1051da8",
       "context": "A spin box clamps what it cannot hold, silently. The flow threshold runs -1 to 3 here while Mask ships 100 -- \"accept everything Cellpose proposes\" -- so seeding wrote 3, and propagating then handed 3 back as if the user had chosen it. The value that did not fit is remembered so propagation can return it untouched; see :meth:`_unclamped`.",
       "translation": "数值框会悄悄截断它无法容纳的值。这里的流阈值范围是 -1 到 3，而 Mask 自带的值是 100——\"accept everything Cellpose proposes\"——所以预填写入了 3，随后的传播又把 3 当作用户选择的值传回。无法容纳的值会被记住，以便传播时原样返回；参见 :meth:`_unclamped`。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.live_preview._apply_size_filter._num#0",
@@ -489,7 +499,9 @@
       "source_sha256": "7a0fc7dcaa57c39e4f0305f6db0c89f6224463cbdfc101f4d55bbb5dc24b28f8",
       "context": "Read the preview. background execution unit; touches no widget.",
       "translation": "读取预览。工作线程；不触碰任何控件。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.show_aggregation_rules.preview#1",
@@ -513,7 +525,9 @@
       "source_sha256": "c64026a67feded613ce93a159a397fd24a7772a80d105878d2c508da51c1561f",
       "context": "Report the current stage, if anyone is listening.",
       "translation": "如果有人在监听，报告当前阶段。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases._stop#0",
@@ -529,7 +543,9 @@
       "source_sha256": "3a31e8400eae846831bab4e8464e4f4b411cf1b1dccd855f85d0e0d047784baa",
       "context": "Checked BETWEEN stages rather than only at the start: a merge across databases runs for minutes, and a cancel that is only noticed at the end is not a cancel.",
       "translation": "在各阶段之间都会检查，而不只是在开始时：跨数据库合并要运行数分钟，直到结束才被注意到的取消就不算取消。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_summary._assumptions_section.add#0",
@@ -593,7 +609,9 @@
       "source_sha256": "355d23a3e064979b67d838e7a030cd2a4d45f3698141a711aeb496762d407507",
       "context": "Send, and keep what happened.",
       "translation": "发送，并保留所发生的结果。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal._iter_files.excluded#0",

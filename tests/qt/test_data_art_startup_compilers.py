@@ -1,6 +1,11 @@
 """Home's actual readiness boundary defers optional compiler imports."""
 
 import builtins
+import os
+from pathlib import Path
+import subprocess
+import sys
+import textwrap
 
 import pytest
 
@@ -22,7 +27,7 @@ def cold_compilers(monkeypatch):
         def __init__(self, target, name, daemon):
             self.target = target
             self.name = name
-            assert daemon
+            assert daemon is False
 
         def start(self):
             threads.append(self)
@@ -129,3 +134,54 @@ def test_random_palette_starts_no_compiler_before_actual_readiness(qapp, cold_co
     for _ in range(5):
         ambient._ready_colored_scatter()
     assert len(threads) == 1
+
+
+@pytest.mark.parametrize('kind', ['grain', 'satin'])
+def test_started_native_compilation_finishes_before_interpreter_exit(tmp_path, kind):
+    completed = tmp_path / 'compiled'
+    script = textwrap.dedent("""
+        import sys
+        import threading
+        import time
+        from pathlib import Path
+        from types import SimpleNamespace
+        from spacr.qt.widgets import ambient
+
+        entered = threading.Event()
+        def njit(**kwargs):
+            def decorate(function):
+                def kernel(*args):
+                    entered.set()
+                    time.sleep(0.25)
+                kernel.nopython_signatures = ('controlled signature',)
+                return kernel
+            return decorate
+        sys.modules['numba'] = SimpleNamespace(njit=njit)
+        ambient._complete_ambient_startup()
+        if sys.argv[1] == 'grain':
+            original = ambient._warm_packed_scatter
+            def finish():
+                original()
+                assert ambient._PACKED_SCATTER is not None
+                Path(sys.argv[2]).write_text('compiled')
+            ambient._warm_packed_scatter = finish
+            ambient._ready_packed_scatter()
+        else:
+            compiler = ambient._SatinCompiler()
+            ambient._WaveCopyWorker = object
+            original = compiler._warm
+            def finish():
+                original()
+                assert compiler.kernel is not None
+                Path(sys.argv[2]).write_text('compiled')
+            compiler._warm = finish
+            compiler.ready()
+        assert entered.wait(5), 'native compilation never started'
+    """)
+    repo = Path(__file__).resolve().parents[2]
+    env = dict(os.environ, PYTHONPATH=str(repo))
+    result = subprocess.run([sys.executable, '-c', script, kind, str(completed)],
+                            cwd=repo, env=env, capture_output=True, text=True,
+                            timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert completed.read_text(encoding="utf-8") == 'compiled'

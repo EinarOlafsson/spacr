@@ -135,3 +135,89 @@ fits.
 across the shortcut, palette, window and menu suites.
 
 VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
+
+2026-10-15 — Annotate navigation captions match the actual actions.
+The shared Left/Right declarations called those keys Previous/Next image on
+Annotate, where they move focus within the current crop grid. Scoped help
+now reuses Move focus left/right there; PageUp/PageDown and their existing
+Alt-arrow aliases say Previous page/Next page. Keys, callbacks, saved
+rebinding identities and other screens' captions are unchanged. A real
+six-crop screen baseline failed both caption cases; the finite owning replay
+passes six cases, including page movement, restored pages and F8 rebinding.
+Caption-only delivery preserves the tested executable AST and all published
+docstrings; the longer N678 prose review stays separate. Eighteen reviewed
+inputs cover the two new page captions across nine locales. Root's batched
+normal runtime writer is pending; no native-platform acceptance is claimed.
+Proof: features/data/197_annotation_shortcut_captions_2026-10-15/receipt.json.
+
+2026-10-15 — Current shortcut contract acceptance reconciled.
+Two original CI failures now pass against published Annotate page/focus labels
+and the current declared-window-wide-keys paragraph. Exact six Annotate
+navigation key/label pairs, global ordering, per-screen Left/Right coverage and
+keyboard-versus-mapping semantic controls remain checked. No production
+shortcut, prose or generated artifact changed. Evidence:
+data/ci_shortcut_current_contracts_2026-10-15/ (2FAIL44.40s to2PASS36.35s).
+
+2026-10-15 — Whole original contract reconciled after current regressions.
+Status: DONE at the original A–D and five acceptance criteria. The historical
+2026-08-21 implementation date above remains unchanged; today's work closes
+Annotate's page-versus-focus caption regression and stale CI expectations.
+This is not a claim that the original Help-menu implementation was new today.
+
+A / criterion 2: mapped() combines window and scoped declarations, including
+saved per-screen keys; discover() adds existing child QShortcut/QAction keys.
+The original bound-key scan covers string and Qt enum bindings and refuses
+missing mapped keys. Its historical 13-case acceptance and 2026-10-04 owning
+verification remain the evidence for the original complete-map implementation.
+B / criterion 3: ShortcutSpec labels, categories and scope feed the same card.
+Today's real six-crop Annotate acceptance passes six cases: arrows move focus,
+page keys and Alt aliases change pages, and F8 rebinding keeps the correct
+focus caption. Make Masks and Field browser image captions remain unchanged.
+C / criterion 4: native() still renders QKeySequence.NativeText. The original
+platform-spelling guard remains intact; no new native-platform gate is added.
+D: ShortcutOverlay retains wrapping category bands and an internal scroll
+area; existing test_shortcut_overlay.py guards centred bounds and tail-row
+reachability. No fresh layout or native rendering run is claimed here.
+Criteria 1 / 5: Help's Keyboard shortcuts action, question-mark dispatch and
+the command-palette action still call the same show_cheat_sheet implementation.
+
+The earlier pending runtime-writer note is superseded by the normal reviewed
+197_678 batch: all nine locales passed source/candidate/placeholder checks,
+with 10,563 unrelated rows per locale preserved. Current readback matches all
+18 Previous page / Next page targets and source hashes to those exact reviewed
+records. The two current CI contract regressions also pass (2FAIL to 2PASS).
+Evidence: data/197_annotation_shortcut_captions_2026-10-15/receipt.json;
+data/197_678_runtime_batch_2026-10-15/receipt.json; and
+data/ci_shortcut_current_contracts_2026-10-15/receipt.json.
+
+Reconciled against published nightly 2d5dd8788d542e9d98929d90a59c69235bfaee65.
+Current shortcuts.py SHA256 is
+2956073d782df3eeacc5fda277d24948e8dd795a49c60ac992519405802e3f38,
+identical to the six-case tested source and current two-case CI provenance.
+No test, collector, generator or native acceptance was repeated for this
+reconciliation; the historical and today's overlapping counts are not summed.
+
+2026-10-15 — Original Help hotkey-map contract and page-caption debt reconciled
+The full shortcuts executable AST, including declarations and all seven actual
+Qt binding-source call sets, matches hosted8fc. Actual Help action and command-
+palette route remain unchanged; the original whole-map test file is byte-
+identical and its retained hosted log records14 unique PASS nodes. These cover
+Help reachability/order, complete bound-key coverage, scope/meaning, Qt native
+key spelling and one shared screen through three entrypoints. No unchanged
+Qt test was replayed.
+
+The last pending normal-writer statement is stale: Previous page and Next
+page now have exact reviewed/source-hashed compiled targets in all nine
+languages. Ordinary scoped review and candidate gates pass18 target checks.
+The five owning module/API documents match current English/source/context/
+block pins across all nine catalogs. Existing six-case actual Annotate
+navigation and two repaired current-caption/API-contract receipts retain
+their original evidence; no additional runtime/API writer was needed.
+
+All original N197 clauses are therefore source-bound and reconciled. This
+does not claim a new native Windows/macOS run or full release CI; the original
+platform spelling requirement uses Qt NativeText and has no mandatory extra
+native execution clause. Evidence:
+data/197_current_original_contract_reconciliation_2026-10-15/.
+
+Original Home independently accepts the whole original N197 contract.

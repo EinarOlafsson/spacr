@@ -27,7 +27,8 @@ to a ``filename_map.csv`` via :func:`rows_to_mappings` +
 from __future__ import annotations
 
 import heapq
-from pathlib import Path
+import os
+from pathlib import Path, PurePath
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 ROW_COLUMNS = ("original", "plate", "well", "field", "channel", "time", "canonical")
@@ -86,8 +87,12 @@ def plan_container_extraction(desc: Any, plate: str = "plate1",
     return rows
 
 
+#: Rows a folder-structure plan previews by default.
+_PREVIEW_ROWS = 200
+
+
 def plan_folder_extraction(root: Any, plate: str = "plate1",
-                           limit: Optional[int] = 200,
+                           limit: Optional[int] = _PREVIEW_ROWS,
                            files: Optional[Iterable[Path]] = None,
                            template: Any = _UNSET,
                            ) -> List[Dict[str, Any]]:
@@ -128,8 +133,11 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
 
     if files is None:
         files = fm.iter_image_files(root)
-    files = (sorted(files) if limit is None
-             else heapq.nsmallest(limit, files))
+    files = list(files)
+    order = (_path_order if all(isinstance(f, PurePath) for f in files)
+             else None)
+    files = (sorted(files, key=order) if limit is None
+             else heapq.nsmallest(limit, files, key=order))
     if not files:
         return []
 
@@ -139,6 +147,20 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
         have_channel=have_channel,
     )
     return [mapping_to_row(m) for m in mappings]
+
+
+def _path_order(path: Any) -> List[str]:
+    """What ``Path`` objects are ordered by, as plain strings.
+
+    ``Path.__lt__`` compares the case-normalised path split at the
+    separator. Taking that key once per path lets the 200 smallest of a
+    100,000-file plate be found by comparing lists of strings in C, rather
+    than through a Python ``__lt__`` per comparison on the worker that a
+    dropped folder is planned on, with the same order.
+
+    :param path: one image path.
+    """
+    return os.path.normcase(os.fspath(path)).split(os.sep)
 
 
 def mapping_to_row(m: Any) -> Dict[str, Any]:

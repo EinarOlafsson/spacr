@@ -1,0 +1,33 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Annotator Agreement: berðu saman óháðar merkingarumferðir",
+  "description": "Veldu merkingardálka, berðu saman samræmi og skoðaðu úrklippin þar sem merkin eru ólík.",
+  "objectives": [
+    "Opna dæmagagnagrunninn og velja tvær merkingarumferðir.",
+    "Lesa samræmi para og ruglingsfylkið.",
+    "Skoða ósamræmi og bera saman þrjár merkingarumferðir."
+  ],
+  "prerequisite": "Dragðu tengda Annotator Agreement-dæmið út og haltu gagnagrunni þess með úrklippamyndunum. Það inniheldur sextán myndir úr Annotate-dæminu og þrjá tilbúna kennsludálka með merkjum, DEMO_A, DEMO_B og DEMO_C. Í eigin greiningu notarðu óháð safnaðar merkingar á sömu myndum.",
+  "scenes": [
+    "Frá Home opnarðu Annotate og velur svo Annotator Agreement. Notaðu tólið til að bera saman merki sem safnað var í aðskildum merkingarumferðum. Niðurstöðurnar hjálpa þér að finna myndir sem þarf að fara yfir.",
+    "Opnaðu dæmagagnagrunninn. Hafðu útdregnu úrklippamöppurnar við hliðina á honum svo forskoðanir mynda hlaðist inn. DEMO-dálkarnir innihalda tilbúin kennslumerki; notaðu eigin óháða merkingardálka þegar þú metur samræmi í rannsókn.",
+    "Veldu að minnsta kosti tvo merkingardálka úr listanum. Í þessu dæmi byrjarðu á DEMO A og DEMO B. Athugaðu nöfn dálkanna svo þú berir saman réttu umferðirnar.",
+    "Smelltu á Compute agreement. Völdu umferðirnar tvær deila tólf merktum úrklippum. Þrjú úrklipp til viðbótar hafa merki í aðeins einni umferð og eitt hefur ekkert merki. Samræmi para notar úrklippin sem eru merkt í báðum umferðum.",
+    "Lestu niðurstöður paranna. Umferðirnar eru sammála um níu af tólf úrklippum, sem gefur 75 % samræmi og kappa Cohens 0,5. Lestu gildin ásamt fjölda sameiginlegra merkja; lítið úrtak gefur óvisst mat.",
+    "Opnaðu ruglingsfylkið. Línurnar tákna DEMO A og dálkarnir DEMO B. Hornalínan inniheldur samhljóða merki: fimm fyrir flokk 1 og fjögur fyrir flokk 2. Reitirnir utan hornalínunnar innihalda ósamræmin þrjú.",
+    "Veldu ósamræmi til að sjá úrklipp þess og merkin sem sett voru í hverri umferð. Berðu myndina saman við skilgreiningar flokkanna. Til að breyta merki eftir yfirferð ferðu aftur í Annotate.",
+    "Bættu DEMO C við og smelltu aftur á Compute agreement. Tafla paranna sýnir nú öll þrjú pörin. Hvert par notar sín sameiginlegu merki, en heildarsamantektin notar úrklipp sem eru merkt í öllum þremur völdu umferðunum.",
+    "Lestu heildargildi kappa Fleiss og samantekt um einróma samræmi. Þetta dæmi gefur kappa Fleiss um 0,663. Farðu líka yfir lista ósamræma: hann getur innihaldið úrklipp sem er aðeins merkt í tveimur af þremur umferðum.",
+    "Til að einbeita þér aftur að einu pari velurðu aðeins A og B og smellir á Compute agreement. Niðurstöðurnar haldast í þessari samanburðarsýn; merkingardálkarnir þínir eru áfram í upprunagagnagrunninum. Haltu áfram í Annotate til að safna annarri óháðri umferð eða fara yfir ósamræmin sem fundust."
+  ]
+}

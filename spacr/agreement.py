@@ -1,9 +1,9 @@
 """
 Multi-annotator agreement for spaCR annotation columns.
 
-Two people label the same 3 000 crops. How much do they actually agree,
-and *where* do they disagree? This module answers both, reading nothing
-but the ``png_list`` table of a ``measurements.db``.
+This module measures how far two or more annotators agree on the same
+crops and lists the crops on which they disagree. It reads only the
+``png_list`` table of a ``measurements.db``.
 
 Annotation columns are the ones the Annotate app writes: an ``INTEGER``
 column added to ``png_list`` with ``ALTER TABLE … ADD COLUMN`` (see
@@ -27,8 +27,8 @@ Public API
 ``format_agreement(report)``
     the report as text.
 
-Statistics that this module refuses to get wrong
-------------------------------------------------
+Statistical conventions
+-----------------------
 **An unlabelled cell is an abstention, not a disagreement.** Every pair
 is scored on the rows *both* annotators labelled (pairwise complete
 cases). Rows where only one of them committed are counted and reported
@@ -43,13 +43,12 @@ If just one annotator used a single class, pₑ collapses onto the other's
 marginal and κ is identically 0 no matter how well they agree. Both
 cases return ``nan`` with an explanation attached, because on a screen
 where 98 % of cells are negative they are the *normal* case, and a
-returned 0.0 or 1.0 there is a lie with a number on it.
+returned 0.0 or 1.0 there would misstate the agreement.
 
 **Raw agreement is reported next to κ, always.** 95 % agreement with
 κ ≈ 0 is the prevalence paradox (Feinstein & Cicchetti, 1990), not a
 broken annotator: when one class dominates, chance agreement is already
 almost as high as the observed agreement, so κ has almost no room left.
-Hiding either number hides half the story.
 
 **The interpretation bands are a convention.** Landis & Koch (1977)
 "slight/fair/moderate/substantial/almost perfect" is a rule of thumb
@@ -301,7 +300,7 @@ def interpret_kappa(kappa: float) -> str:
 
 @dataclass
 class PairAgreement:
-    """Cohen's κ for one pair of annotators, with everything needed to read it.
+    """Cohen's κ for one annotator pair, with its counts and caveats.
 
     :param column_a: name of the first annotator column (the confusion-matrix
         row axis).
@@ -376,7 +375,7 @@ def kappa_detail(a: Sequence[Any], b: Sequence[Any],
                  labels: Optional[Sequence[Any]] = None,
                  missing_values: Sequence[Any] = (),
                  name_a: str = "a", name_b: str = "b") -> PairAgreement:
-    """Compute Cohen's κ for ``a`` vs ``b`` and everything around it.
+    """Compute Cohen's κ for ``a`` vs ``b`` with counts and confusion matrix.
 
     Only rows both annotators labelled enter the calculation. Rows where
     exactly one of them abstained are counted into
@@ -515,7 +514,7 @@ def cohens_kappa(a: Sequence[Any], b: Sequence[Any],
     """Cohen's κ between two annotators' labels.
 
     Rows either annotator left unlabelled are dropped (abstention, not
-    disagreement). Returns ``nan`` — never a flattering 0.0 or 1.0 —
+    disagreement). Returns ``nan`` — not 0.0 or 1.0 —
     when the compared rows carry no variance; :func:`kappa_detail` gives
     the same number plus the reason.
 
@@ -656,7 +655,7 @@ def annotation_columns(db_path: str, table: str = PNG_TABLE,
     metadata, *not* written by a model, holds few distinct values, and has
     at least one non-NULL.
 
-    The model exclusion is the point. A classifier writes into this same
+    Model-written columns are excluded. A classifier writes into this same
     table — ``pred``/``cv_predictions`` from the CV stage,
     ``predictions``/``ml_pred`` from the ML one — and its class column is
     indistinguishable *by shape* from an annotation pass. Offering it made
@@ -748,7 +747,7 @@ def load_annotations(db_path: str, columns: Sequence[str],
 
 @dataclass
 class AgreementReport:
-    """Everything :func:`agreement_report` worked out, in one object.
+    """Result of :func:`agreement_report`: per-pair and overall κ with counts.
 
     :param db_path: path of the source annotation database.
     :param table: source table that holds the annotation columns.

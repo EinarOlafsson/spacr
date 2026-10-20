@@ -98,7 +98,7 @@ def test_an_oversized_mapping_is_refused(project, monkeypatch):  # noqa: F811
 
 def _rewrite(path, change):
     manifest = lm.Path(str(path) + lm._SUFFIX)
-    data = json.loads(manifest.read_text())
+    data = json.loads(manifest.read_text(encoding="utf-8"))
     change(data)
     manifest.write_text(json.dumps(data))
 

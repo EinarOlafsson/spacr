@@ -9,6 +9,8 @@ this module does not import Qt.
 from __future__ import annotations
 
 import logging
+import os
+import sys
 from typing import Any, Callable, Optional
 
 LOG = logging.getLogger(__name__)
@@ -136,6 +138,120 @@ def publish(fig, path=None, *, fmt=None, dpi=None, close=False, **kwargs):
         except Exception:                                      # noqa: BLE001
             pass
     return written
+
+
+def _interactive_backends():
+    """The names of matplotlib's built-in GUI backends, lower-cased."""
+    try:
+        from matplotlib.backends import BackendFilter, backend_registry
+
+        names = backend_registry.list_builtin(BackendFilter.INTERACTIVE)
+    except ImportError:
+        from matplotlib import rcsetup
+
+        names = rcsetup.interactive_bk
+    return {str(name).lower() for name in names}
+
+
+def _interactive_session():
+    """True in a Python prompt, an IPython shell or kernel, or under ``plt.ion()``."""
+    import matplotlib
+
+    if matplotlib.is_interactive() or hasattr(sys, "ps1") or sys.flags.interactive:
+        return True
+    ipython = sys.modules.get("IPython")
+    getter = getattr(ipython, "get_ipython", None)
+    try:
+        return bool(getter and getter() is not None)
+    except Exception:
+        return False
+
+
+def _can_show():
+    """Whether ``plt.show()`` would show something and then return.
+
+    A host that captured ``pyplot.show`` (the Qt bridge, the CLI's figure
+    closer, a test) and a notebook backend (``module://...``) always can. A
+    GUI backend can only from an interactive session and never on an
+    offscreen Qt platform, where ``plt.show()`` enters an event loop no one
+    can end, so a scripted or headless run hangs on its first figure. A
+    non-GUI backend such as Agg has nothing to show.
+    """
+    import matplotlib
+    import matplotlib.pyplot as pyplot
+
+    if getattr(pyplot.show, "__module__", None) != "matplotlib.pyplot":
+        return True
+    backend = str(matplotlib.get_backend()).lower()
+    if backend.startswith("module://"):
+        return True
+    if backend not in _interactive_backends():
+        return False
+    platform = os.environ.get("QT_QPA_PLATFORM", "").lower()
+    if backend.startswith("qt") and platform in ("offscreen", "minimal"):
+        return False
+    return _interactive_session()
+
+
+def _show_if_interactive(**kwargs):
+    """Call ``plt.show()`` only where :func:`_can_show` allows it.
+
+    Every library figure in spaCR is shown through here, so no function
+    blocks a headless, scripted or offscreen run, while a notebook, an
+    interactive prompt and the GUI (which captures ``pyplot.show``) still
+    see the figure.
+
+    :param kwargs: passed on to ``plt.show`` (for example ``block=False``).
+    :returns: whether ``plt.show()`` was called.
+    """
+    import matplotlib.pyplot as pyplot
+
+    if not _can_show():
+        return False
+    pyplot.show(**kwargs)
+    return True
+
+
+class _ShowOnlyWhereItReturns:
+    """Make ``plt.show()`` a no-op for one run where it would block.
+
+    A long run (the regression, for one) reaches drawing code that may still
+    call ``plt.show()`` itself, such as a plugin or a host override. Where
+    :func:`_can_show` says no, ``pyplot.show`` is replaced for the duration
+    of the run, as Agg would leave it, and restored afterwards; otherwise
+    nothing is touched.
+    """
+
+    def __enter__(self):
+        """Replace ``pyplot.show`` with a no-op when showing would block.
+
+        :returns: this guard.
+        """
+        import matplotlib.pyplot as pyplot
+
+        self._pyplot = pyplot
+        self._original = None
+        if not _can_show():
+            self._original = pyplot.show
+            pyplot.show = self._skip
+        return self
+
+    @staticmethod
+    def _skip(*_args, **_kwargs):
+        """Stand in for ``pyplot.show`` and draw nothing.
+
+        :returns: None, as ``pyplot.show`` does under Agg.
+        """
+        return None
+
+    def __exit__(self, *_exc_info):
+        """Restore ``pyplot.show`` unless something else replaced it since.
+
+        :returns: False, so an exception from the run propagates.
+        """
+        if self._original is not None and self._pyplot.show is self._skip:
+            self._pyplot.show = self._original
+        return False
 
 
 __all__ = ["clear_sink", "file_sink", "publish", "publish_file",

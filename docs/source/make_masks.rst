@@ -55,8 +55,8 @@ their inclusion flags, output object labels, parent IDs, coordinates, noise,
 local background, exact 10/20/40-pixel centre means and the selected N-pixel
 mean. Exact centre means retain overlapping samples independently of label
 ownership. Use ``center_corrected`` for the selected N-pixel mean minus local
-background, or ``corrected20`` for the fixed 20-pixel variant. The legacy
-``corrected`` column retains the reference's three-by-three-window result.
+background, or ``corrected20`` for the fixed 20-pixel variant. The
+``corrected`` column holds the reference's three-by-three-window result.
 The receipt binds the image, parent mask, output mask, CSV and detector
 settings to checksums. Edited or combined labels cannot silently receive the
 old centre measurements. Local previews estimate noise within their crop;
@@ -106,11 +106,116 @@ Open a field and save an edit
 row with the editing tools. Scroll that row horizontally on a narrow window
 to reach controls outside the visible area.
 
+**Save on navigation**, after **Next image**, saves an edited mask before
+**Keep**, **Discard**, **Next image** or **Previous image** moves on. It is
+off by default and remembered between sessions. If the save fails, the image
+stays open and no verdict is recorded. **Skip** never writes a mask.
+
 To try the screen without your own data, **Load test data…** downloads ten
 unsegmented Toxoplasma vacuole fields, with their curated masks kept apart
 in ``ground_truth_masks/``, and opens the first. The arrow on the same
 button offers a sample of fields from the dataset each published model was
-trained on.
+trained on, the electron microscopy test data and the FIB-SEM volumes
+described under :ref:`mm-tem` and :ref:`mm-volumes`.
+
+.. _mm-volumes:
+
+3D volumes in the Mask view
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an
+OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial
+axes is recognised as a volume when it is in the folder you open or when you
+choose **Open 3D image…**. Time, channel and RGB stacks
+are refused rather than read as depth. An MRC volume needs the optional
+``mrcfile`` package. The status line reports the number of slices and the
+voxel size.
+
+* The **slice slider** at the left of the image steps through the slices;
+  **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice
+  on screen.
+* The **Z** button above the slider is the Z wheel toggle. On (blue), the
+  mouse wheel changes the slice; off, the wheel zooms.
+* The **View** list beside the Mask tab chooses **Default**, **Orthogonal**
+  or **True 3D**. Default draws on one slice at a time. Orthogonal adds the XZ
+  and YZ side views through a crosshair; the middle mouse button moves the
+  crosshair. True 3D shows the volume and its objects in three dimensions.
+* The row above the image holds **Object ID** (an existing object to edit,
+  or an unused ID for a new one), **Interpolate slices**, **Assign 3D
+  objects** and **Delete object**.
+
+**Interpolate slices** fills the empty slices between slices where the
+chosen object is drawn, blending its outline from one to the next. **Assign
+3D objects** gives every separate 3D object its own ID: parts of one ID that
+do not touch in 3D become new objects, so you can draw many objects with one
+ID and then assign them. **Delete object** removes the chosen object from
+every slice. Each of these is one undo step.
+
+In True 3D, draw an object, then drag its anchors or select surfaces
+(Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor
+density** sets how many anchors each edge and surface gets, and **Show
+anchors** hides them. The view is a sampled point-cloud preview; the edits
+and voxel counts use the full image. These keys work while True 3D is
+shown, and are listed under **Change shortcuts**:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Key
+     - Action
+   * - **Shift+E**
+     - Edit: drag anchors and surfaces.
+   * - **Shift+S**
+     - Spin the view freely.
+   * - **Shift+D**
+     - Draw a new object.
+   * - **Shift+X**, **Shift+Y**, **Shift+Z**
+     - Choose the X, Y or Z drawing plane. Pressed within 1.5 s of
+       **Shift+S**, they choose the spin axis instead.
+
+Edits change the mask voxels themselves, keep the image's axis order and voxel
+spacing, and never overwrite another object. **Save mask** or **Ctrl+S**
+writes the labels to ``masks/<image stem>.tif`` and their editable boundaries
+to a ``.volume.json`` file beside it; the source volume is never overwritten.
+
+.. _mm-tem:
+
+Electron micrographs
+~~~~~~~~~~~~~~~~~~~~
+
+Make Masks opens transmission electron micrographs as ``.dm3``, ``.dm4``,
+``.mrc`` and ``.rec`` files, with TIFF, PNG and the other image formats. The
+pixel size in nanometres is read from the file. MRC files need the optional
+``mrcfile`` package.
+
+**Contrast preset**, under **Lower %** and **Upper %** in the display
+settings, sets the display in one step. **Electron microscopy (TEM)** windows
+the image between its 0.5th and 99.5th percentiles, so holes in the section
+and stain precipitate cannot take the whole range, and turns on **CLAHE**
+(128 px tiles) under **Image enhancement** to even out uneven section
+thickness. Membranes stay dark. **Electron microscopy, inverted** also turns
+on **Invert image**, so dark membranes and organelles are drawn bright and
+Otsu and the magnifier find them. **Custom** changes nothing, and every value
+stays editable.
+
+The arrow on **Load test data…** offers **Mitochondria in TEM images (test
+data)**: ten transmission electron micrographs (about 32 MB, EMPIAR-10982,
+CC0), with their mitochondria masks in ``ground_truth_masks/``, which the
+editor does not read. **FIB-SEM volume, 3D (test data)** downloads a FIB-SEM
+volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and opens it
+unsegmented in the 3D editor. **FIB-SEM volume with masks, 3D (test data)**
+opens the same volume with its mitochondria masks, copied once to
+``corrected_masks/`` for correction; ``ground_truth_masks/`` stays
+unchanged. All are cached after the first download.
+
+With **Show alpha features** on in Preferences, the magnifier's **Method**
+list offers **MitoNet (TEM mitochondria)**. MitoNet v1 mini finds
+mitochondria in electron micrographs with dark membranes; it is not a
+fluorescence model. The weights are third-party (CC-BY-4.0, Conrad and
+Narayan, Cell Systems 2023), listed under Third-party in the Model Zoo, and
+download from Zenodo (110 MB) the first time the method runs. **Minimum
+area** sets the smallest mitochondrion kept. This method is alpha.
 
 Draw bounding boxes for YOLO
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -362,7 +467,7 @@ checkpoint supported by the installed preview runtime. See
        flow-error threshold, cell-probability threshold and normalization.
        Inspect its cell-probability and flow panes alongside accepted labels.
 
-Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped
+Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped
 preview and whole-field detection are not guaranteed to be pixel-identical.
 Other threshold modes run the shared engine on the requested crop; a crop
 can still have a different histogram from the whole field. Tune on several

@@ -1,0 +1,51 @@
+{
+  "scope": "macOS user bootstrap makes no application-root/legacy-marker mutation before shared backend transaction leases",
+  "base_commit": "3ccb224e4ae21c2d32f75db1c6ffcfd1e1344aa0",
+  "source_sha256": {
+    "packaging/online/install_for_macos_user.sh": "46f1b38b79bed3f483a4d4057de70ff44a8c06379ff6598b48678cd1168c03e5",
+    "packaging/online/install_spacr_unix.sh": "9df1fa8a298775cfa730282909be195981103b5aef6d5949521a4a3d0265babf",
+    "tests/test_macos_user_bootstrap_transaction_lease_703.py": "7021a405795b9300acbd9ca6bb043f5103f71ae383ba524059d0029198f435d8",
+    "tests/test_online_installer_transaction_lease_703.py": "1bb5674f3accb0657869792d6ff5af038533086ee206cfbe137e9937dede60a4",
+    "tests/test_macos_first_run_gui_703.py": "bdf3e4ceea04c64dee206bbcc4e189616e8b3ce6acbcc63c6cb737409fc33494"
+  },
+  "baseline": {
+    "exit": 1,
+    "failed": 1,
+    "seconds": 0.91,
+    "actual": "The backend journal saw the runtime root already created by the wrapper before its lease acquisition.",
+    "helper_sha256": "4e05c1b1be75c417fc6a0bdcef379317320c9f121baa8a8bf56038e67780751a",
+    "test_sha256": "e6a51ea22914656a5df11915f59902fe9eb75a1f13ca9ea1ebf28591b738662f"
+  },
+  "owning": {
+    "exit": 0,
+    "passed_distinct": 23,
+    "new_wrapper_cases": 9,
+    "existing_installer_lease_cases": 12,
+    "existing_wrapper_option_cases": 2,
+    "seconds": 1.46,
+    "production_frozen": true
+  },
+  "final_fixture": {
+    "exit": 0,
+    "passed": 9,
+    "skipped": 0,
+    "seconds": 0.76,
+    "reason": "Fixture maps BSD stat formatting to actual GNU stat only on Linux; native macOS now uses its actual stat. Windows skips this POSIX fixture. Not added to23 distinct cases."
+  },
+  "resource": "Background2GiB zero-swap; stdlib/pytest-only subprocess checks fit the authorized tiny-contract exception outside heavy.lock; no app/GUI/model imports.",
+  "behavior": [
+    "Wrapper reads/refuses every existing legacy marker type, including dangling link; never removes unknown or replacement marker.",
+    "Backend initializes status fields before traps, acquires owner/runtime leases first and then the macOS legacy marker; acquisition failure releases only acquired modern leases.",
+    "Release checks owned marker identity; rollback-retention flag keeps all three leases/marker coherently.",
+    "Actual concurrent processes exclude modern wrapper and old mkdir-based legacy wrapper; actual replacement marker survives cleanup.",
+    "Existing options, failure status, no-hidden-relaunch behavior and all12 portable Unix lease contracts remain valid."
+  ],
+  "captions_api": "Reuse existing already_running/ready_opening reviewed message keys; no new user strings or Python/API prose/artifacts.",
+  "remaining": [
+    "Native macOS first-install/update/cancel/desktop acceptance; GNU-stat adaptation is portable source-contract evidence only",
+    "Full NSIS wrapper transaction handoff and other parentN703 acceptance",
+    "Interrupted retained-lease recovery UI; no stale PID or marker stealing",
+    "Foreign API/caption integration and final complete hosted CI"
+  ],
+  "no_live_install_package_account_user_data_gpu_or_desktop_operation": true
+}

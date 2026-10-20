@@ -188,7 +188,7 @@ def test_the_held_switch_says_why_in_the_strip(qtbot, store,
     immediate_hover_help(debug_file, lambda: "While verbose logging is on" in bar.text())
 
     assert "While verbose logging is on" in bar.text(), bar.text()
-    assert "Turn verbose logging off to choose it yourself" in bar.text()
+    assert "Turn verbose logging off to set it yourself" in bar.text()
 
 
 _LAUNCH_ONCE = r'''

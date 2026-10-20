@@ -1,10 +1,8 @@
 """
 Model Zoo — every model this machine can segment or classify with, in one list.
 
-The question "which models do I have, where did they come from, and does this
-one work on my images" is currently answered with ``find``, memory and a full
-plate run. This screen answers it in a list, a provenance card and three
-fields.
+The screen shows which models are available, where each came from and how one
+segments the user's images: a list, a provenance card and a three-field test.
 
 Layout::
 
@@ -51,16 +49,14 @@ Design notes:
 * **No modal dialogs on any error path.** A folder with no models, a checksum
   mismatch, a corrupt checkpoint, a cancelled download: all inline. A
   QMessageBox hangs a headless run.
-* **Two selected models hand off to Model Compare.** Benchmarking each one
-  separately and reading the two tables is not a comparison — the A/B harness
-  in :mod:`spacr.model_compare` is, and it is the one that says out loud that
-  neither model is ground truth. This screen builds a configured
-  ``ModelCompareScreen`` and emits it rather than growing a second, weaker
-  comparison of its own.
+* **Two selected models hand off to Model Compare.** The A/B harness in
+  :mod:`spacr.model_compare` compares the two models directly and states that
+  neither is ground truth. This screen builds a configured
+  ``ModelCompareScreen`` and emits it instead of comparing two separate
+  benchmarks.
 * **Benchmarks are never sorted across field sets.** The results table belongs
   to one model on one set of fields, and the summary line names the field set,
-  because a score on your three fields says nothing about a score on anybody
-  else's.
+  because a score on one set of fields does not carry over to another.
 """
 from __future__ import annotations
 
@@ -93,15 +89,19 @@ from PySide6.QtWidgets import (
 from ..widgets.collapsible_splitter import (CollapsibleSplitter,
                                            FoldSection)
 from ..widgets.toggle import Toggle
+from ..widgets.model_card_viewer import ModelCardViewer
 
+from ... import model_cards
 from ... import model_zoo as zoo
 from ..bridge import make_thread
+from ..i18n import tr
 from ..hidpi import logical_size, scaled_for
 from ..theme import (RADIUS, SPACING, active_palette,
                      block_surface, ensure_widget_qss_applied,
                      register_widget_qss)
 from ..widgets import Divider
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _spare_table_item,
+                                      install_sorting, table_item)
 from ...logging_util import _spacr_home
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
@@ -199,9 +199,8 @@ def _status_of(entry) -> str:
 def group_entries(entries) -> list:
     """Collapse a listing to one row per model family, newest version first.
 
-    The zoo used to show one row per checkpoint, so a model with three
-    versions pushed two unrelated models off the screen. Grouping makes the
-    row a MODEL and the version a choice within it.
+    Grouping makes each row a model and the version a choice within it, so a
+    model with three versions takes one row instead of three.
     """
     groups: dict = {}
     for entry in entries:
@@ -218,6 +217,20 @@ def group_entries(entries) -> list:
             unique.append((label, entry))
         out.append((stem, unique))
     return out
+
+
+def _mark_alternatives(combo, pairs) -> None:
+    """Give each alternative version in a version box its reason as a tooltip.
+
+    :param combo: the family's version box, filled from ``pairs``.
+    :param pairs: ``(label, entry)`` pairs, in the box's order.
+    """
+    for index, (_label, entry) in enumerate(pairs):
+        if not zoo.is_alternative(entry):
+            continue
+        notes = tuple(getattr(entry, "notes", ()) or ())
+        if notes:
+            combo.setItemData(index, tr(str(notes[0])), Qt.ToolTipRole)
 
 
 def _version_sort_key(label: str):
@@ -355,10 +368,12 @@ def _tooltip_for(entry) -> str:
     two paragraphs to find two numbers. This is the same table the model card
     prints, so the GUI and Hugging Face say the same thing in the same shape.
     """
+    state = zoo.scorecard_state_text(entry)
     table = zoo.scorecard_html(entry)
     if table:
-        return table
-    return _tooltip_prose(entry)
+        return table + zoo._scorecard_state_html(entry)
+    prose = _tooltip_prose(entry)
+    return f"{state}\n\n{prose}" if state else prose
 
 
 def _tooltip_prose(entry) -> str:
@@ -474,8 +489,8 @@ class ModelZooScreen(QWidget):
 
         subtitle = QLabel(
             "Every Cellpose and classifier checkpoint this machine can reach, "
-            "with what it was trained on, whether its bytes check out, and "
-            "what it does to three of your fields.")
+            "with what it was trained on, whether its checksum matches, and "
+            "its result on three of your fields.")
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -519,7 +534,6 @@ class ModelZooScreen(QWidget):
         self._table.itemClicked.connect(self._row_clicked)
         self.models_section = FoldSection(
             self._table, "Models", self, persist_key=f"{FOLD_KEY}/Models")
-        outer.addWidget(self.models_section, 1)
 
         self._detail = QPlainTextEdit(self)
         self._detail.setObjectName(DETAIL_NAME)
@@ -528,7 +542,23 @@ class ModelZooScreen(QWidget):
         self._detail.setPlaceholderText(
             "Select a model to see where it came from and what it was trained "
             "on.")
-        outer.addWidget(self._detail)
+
+        listing = QWidget(self)
+        lv = QVBoxLayout(listing)
+        lv.setContentsMargins(0, 0, 0, 0)
+        lv.setSpacing(SPACING["sm"])
+        lv.addWidget(self.models_section, 1)
+        lv.addWidget(self._detail)
+        self._card_viewer = ModelCardViewer(self, threaded=self._threaded)
+        self._card_viewer.setMinimumHeight(420)
+        self._card_viewer.hide()
+        self._list_split = CollapsibleSplitter(
+            Qt.Horizontal, self, persist_key=f"{FOLD_KEY}::cards")
+        self._list_split.add_pane(listing, "Models", stretch=4, extent=560,
+                                  minimum=380)
+        self._list_split.add_pane(self._card_viewer, "Model card", stretch=5,
+                                  extent=720, minimum=360)
+        outer.addWidget(self._list_split, 6)
 
         download = QGroupBox("Download", self)
         download.setObjectName(GROUP_NAME)
@@ -536,7 +566,7 @@ class ModelZooScreen(QWidget):
         dl.setSpacing(SPACING["xs"])
         row = QHBoxLayout()
         row.setSpacing(SPACING["sm"])
-        self._dest_edit = QLineEdit(DEFAULT_DOWNLOAD_DIR, download)
+        self._dest_edit = QLineEdit(str(zoo._model_cache_root()), download)
         self._dest_edit.setToolTip(
             "(str) Where a downloaded model is written. Never overwritten: a "
             "second copy of the same name lands as name_v2.")
@@ -686,17 +716,19 @@ class ModelZooScreen(QWidget):
         """
         self._entries = list(entries)
         self._groups = group_entries(self._entries)
-        self._chosen = {stem: 0 for stem, _ in self._groups}
+        self._chosen = {stem: zoo.default_version_index(pairs)
+                        for stem, pairs in self._groups}
         table = self._table
         sorting = table.isSortingEnabled()
         table.setSortingEnabled(False)
         table.blockSignals(True)
-        table.setRowCount(0)
+        _retire_table_cells(table)
         table.setRowCount(len(self._groups))
         for r, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(table)
             combo.addItems([label for label, _ in pairs])
-            combo.setCurrentIndex(0)
+            _mark_alternatives(combo, pairs)
+            combo.setCurrentIndex(self._chosen[stem])
             combo.currentIndexChanged.connect(
                 lambda idx, group=r: self._version_picked(group, idx))
             table.setCellWidget(r, 4, combo)
@@ -786,7 +818,15 @@ class ModelZooScreen(QWidget):
         table.setSortingEnabled(False)
         cells = (stem, entry.kind, entry.trained_on, _status_of(entry))
         for c, text in enumerate(cells):
-            item = _cell(str(text))
+            item = table.item(row, c)
+            fresh = item is None
+            if fresh:
+                item = _spare_table_item(table, str(text), make=_cell)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            else:
+                item.setData(Qt.ForegroundRole, None)
+                item.setData(Qt.UserRole, None)
+                item.setText(str(text))
             if c == 0:
                 item.setData(Qt.UserRole, group)
             if c == 2 and not entry.provenance_known:
@@ -794,7 +834,8 @@ class ModelZooScreen(QWidget):
             if c == 3 and "unverified" in str(text):
                 item.setForeground(_brush(active_palette()["warning"]))
             item.setToolTip(_tooltip_for(entry))
-            table.setItem(row, c, item)
+            if fresh:
+                table.setItem(row, c, item)
         table.setSortingEnabled(sorting)
 
     def _version_picked(self, group: int, index: int) -> None:
@@ -808,7 +849,7 @@ class ModelZooScreen(QWidget):
         stem, pairs = self._groups[group]
         self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
         self._fill_row(group)
-        self._update_controls()
+        self._on_selection_changed()
 
     def chosen_entry(self, row: int):
         """The entry a row currently stands for, honouring its version pick.
@@ -940,7 +981,7 @@ class ModelZooScreen(QWidget):
         """Ask where downloaded models should be written."""
         path = QFileDialog.getExistingDirectory(
             self, "Choose where downloaded models go",
-            self._dest_edit.text() or DEFAULT_DOWNLOAD_DIR)
+            self._dest_edit.text() or str(zoo._model_cache_root()))
         if path:
             self._dest_edit.setText(path)
 
@@ -989,12 +1030,20 @@ class ModelZooScreen(QWidget):
         """Show the details of the selected model."""
         chosen = self.selected_entries()
         if len(chosen) == 1:
-            self._detail.setPlainText(chosen[0].describe())
+            state = zoo.scorecard_state_text(chosen[0])
+            self._detail.setPlainText(
+                chosen[0].describe() + (f"\n  ! {state}" if state else ""))
         elif len(chosen) > 1:
             self._detail.setPlainText(
                 "\n\n".join(e.describe() for e in chosen[:2]))
         else:
             self._detail.setPlainText("")
+        card = (model_cards.card_for_entry(chosen[0])
+                if len(chosen) == 1 else None)
+        self._detail.setVisible(card is None)
+        self._card_viewer.setVisible(card is not None)
+        if card is not None and card is not self._card_viewer.card():
+            self._card_viewer.set_card(card)
         self._update_controls()
 
 
@@ -1002,8 +1051,8 @@ class ModelZooScreen(QWidget):
         """Override how bytes are fetched.
 
         ``fn(uri) -> chunks`` or ``fn(uri) -> (chunks, total)``; None restores
-        :func:`spacr.model_zoo.open_uri`. This is the seam the tests use, and
-        it is why no test in this suite touches the network.
+        :func:`spacr.model_zoo.open_uri`. Tests use this, so no test in this
+        suite touches the network.
 
         :param opener: callable of that form, or ``None``.
         """
@@ -1040,7 +1089,7 @@ class ModelZooScreen(QWidget):
                 f"entry.", error=True)
             return False
 
-        dest = str(self._dest_edit.text() or DEFAULT_DOWNLOAD_DIR).strip()
+        dest = str(self._dest_edit.text() or str(zoo._model_cache_root())).strip()
         require = not self._allow_unverified.isChecked()
         opener = self._opener
         self._cancel = {"stop": False}
@@ -1257,12 +1306,14 @@ class ModelZooScreen(QWidget):
         self._result = result
         table = self._bench_table
         table.blockSignals(True)
+        _retire_table_cells(table)
         table.setRowCount(len(result.rows))
         for r, row in enumerate(result.rows):
             cells = (row.field, str(row.n_objects), row.severity,
                      ", ".join(row.flags) if row.flags else "-")
             for c, text in enumerate(cells):
-                item = _cell(text)
+                item = _spare_table_item(table, text, make=_cell)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 item.setToolTip(row.note)
                 if row.severity == "fail":
                     item.setForeground(_brush(active_palette()["error"]))
@@ -1339,7 +1390,7 @@ class ModelZooScreen(QWidget):
         object matching, no split/merge attribution and no statement about
         which differences are real. :mod:`spacr.model_compare` has all three,
         so this emits :attr:`compare_requested` for the host to open that
-        screen rather than growing a weaker comparison here.
+        screen.
 
         :returns: True when the request was emitted.
         """
@@ -1571,7 +1622,7 @@ class ModelZooScreen(QWidget):
         """Let every in-flight job finish before the widget dies.
 
         A QThread collected while still running aborts the process, so the
-        widget waits rather than dropping its references and hoping.
+        widget waits for them.
 
         :param event: the close event, passed on to the base class after
             running jobs are cancelled and waited on (up to five seconds each).

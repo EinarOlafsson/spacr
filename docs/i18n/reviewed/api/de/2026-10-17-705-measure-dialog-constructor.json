@@ -1,0 +1,14 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Build the dialog with the current image fixed in its first row.",
+      "label": "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog#6",
+      "source": "Build the dialog with the current image fixed in its first row.",
+      "source_sha256": "59d8f5c90a67dec01425defaaf5844b376d1fd9805030b35703d454538f5e487",
+      "translation": "Den Dialog mit dem aktuellen Bild fest in der ersten Zeile aufbauen."
+    }
+  ],
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "schema": 1
+}

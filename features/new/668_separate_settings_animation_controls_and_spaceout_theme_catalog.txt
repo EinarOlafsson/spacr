@@ -2,7 +2,7 @@
 SEPARATE SETTINGS ANIMATION CONTROLS AND SPACEOUT-ONLY THEMES
 ================================================================================
 
-Status:    in progress
+Status:    COMPLETE 100% 2026-10-10 for the software scope; native visual check by maintainer
 Requested: 2026-10-08 — "there should be a seperate set of controlls for the settings backdrop annimation settings like density, speed, size, detail."
 Owner:     Home/root; delegated CPU UI lanes
 
@@ -57,3 +57,11 @@ API artifacts remain needed; GPU/ultra user termination cause unproved.
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
 
 2026-10-08 17:49 EDT — Private quality repair0b9 fullnineAPI/runtime audits,172CPU and13native GPU/ultra preferences stages pass; portable24payload proof independently verified. Application/publication and Qt610 crash scope remain separate.
+
+2026-10-10 — The privately prepared quality repair (0b9, the saved
+"ultra" fractal quality reaching the renderer) is published from
+data/668_native_gpu_ultra_preferences_2026-10-08 with its test; owning
+fractal settings files pass (44). Settings-backdrop controls, Spaceout-only
+themes and popup routing were already on nightly. N684 replaces the default
+animation fill with #191919. The reported Qt 6.10 crash and the maintainer's
+native visual approval are not claimed.

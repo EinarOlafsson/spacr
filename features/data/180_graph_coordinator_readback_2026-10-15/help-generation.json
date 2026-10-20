@@ -1,0 +1,13 @@
+{
+  "generator": "tools/build_help_search_index.py",
+  "terminal_exit": 0,
+  "output_sha256": "6153b5e15cc114eb59b8790445e9bc0837cc6ad167af8a3dca5ad76624af8097",
+  "api_entries": 13259,
+  "new_entries": {
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.workspace_state": "Return JSON-compatible comparison choices without collecting data.",
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.apply_workspace_state": "Restore comparison controls without computing or drawing a graph.",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._done": "Accept only a completion belonging to this screen's current run.",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino._progress": "Relay backend reports without touching widgets on the worker thread."
+  },
+  "runtime": "Normal isolated preferences capture, offscreen CUDA-disabled capped8G thread1, heavy.lock."
+}

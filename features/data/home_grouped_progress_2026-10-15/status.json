@@ -1,0 +1,799 @@
+{
+  "updated_date": "2026-10-15",
+  "format_instruction": "2026-10-15 maintainer: one row per numbered item; hours estimates; reprint full table only when all tasks for a whole item finish. Supersedes component-scope completion table.",
+  "estimates_not_promises": true,
+  "unknown_external_hours_not_fabricated": true,
+  "historical_scope_ledger": "/mnt/wd4tb/scratch/original-home-today-completion-scopes-20261015.json",
+  "rows": [
+    {
+      "item": "N702",
+      "title": "cluster runs download a missing zoo model automatically",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Claude Home (handover; completed by Home)",
+      "description": "Complete: exact cluster model acquisition, checksum/context errors, offline guidance, coalesced downloads, verified exported provenance and current nine-language/API/Help/guide closure.",
+      "completion_basis": "Whole original six-clause contract accepted2026-10-15; source-bound evidence and staged22 actual consumers reconciled by Root."
+    },
+    {
+      "item": "N690",
+      "title": "make masks for tem images",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: TEM readers, pixel scale, contrast, drawing/save, public example, recorded draft F1 and current translations; separate tutorial withdrawn.",
+      "completion_basis": "Whole original contract independently reconciled2026-10-15; exact current source/artifact evidence verified."
+    },
+    {
+      "item": "N180",
+      "title": "a saved run can carry the whole workspace",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: settings, ordered databases, montage, Graph/regression views and carried session figures restore through the workspace protocol.",
+      "completion_basis": "Whole original contract independently reconciled2026-10-15; exact current source/artifact evidence verified."
+    },
+    {
+      "item": "F549",
+      "title": "Microscope acquisition",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: transformed simulated events and actual native Micro-Manager demo queue/reload/acquire; four TIFF outputs verified.",
+      "completion_basis": "Original DONE WHEN independently accepted2026-10-15;11 current owning definitions and14 portable evidence identities verified."
+    },
+    {
+      "item": "N197",
+      "title": "Page/focus navigation",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: Help/keyboard/palette reach the same full scoped hotkey map, native key spelling and nine-language page captions.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; exact source/test pins and retained14PASS reviewed."
+    },
+    {
+      "item": "N468",
+      "title": "plaque assay has plaque and figure modes",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: Plaque/Figure workflow, all original captions in nine languages, factual three-tab API prose and offline Help.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "N94",
+      "title": "train test splits must group by well",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete: shared strict cell/field/well/plate splitting, default well, refusal and durable group/cell split reports across all callers.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "F554",
+      "title": "spotiflow spot detection",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Complete alpha: isolated Spotiflow installation, real-field/object-prefix comparisons, paired CPU/GPU evidence and strict original OPS replay.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; current source pins and portable acceptance evidence verified"
+    },
+    {
+      "item": "N448",
+      "title": "keep or discard a field in make masks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: Keep/Discard state, current-count atomic CSV, navigation and nine-language button/status closure.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; source/catalog/consumer evidence exact"
+    },
+    {
+      "item": "N440",
+      "title": "model zoo picker groups by source and folds",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: foldable source grouping/defaults, warning, persistence, shared consumers and nine-language picker closure.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; source/catalog/consumer evidence exact"
+    },
+    {
+      "item": "N421",
+      "title": "capture measurements from hand drawn masks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete: hand-drawn measurement contract, superseding Organize route and final nine-language/runtime/API closure.",
+      "completion_basis": "Whole original contract independently accepted2026-10-15; actual12Qt status cases and normal selectedAPI audit"
+    },
+    {
+      "item": "N597",
+      "title": "Home widget width and text sizing",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B",
+      "description": "Complete: corrected handle/text-slider layout, live scaling, refresh persistence and extremes;12 owning checks pass.",
+      "completion_basis": "Owner whole-contract acceptance public9de; root verified five exact source/test pins"
+    },
+    {
+      "item": "N691",
+      "title": "mitonet tem backend alpha",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete (alpha): MitoNet backend, verified cache, licensing, original TEM F1 reproduction and nine-language closure.",
+      "completion_basis": "Whole original contract independently accepted 2026-10-15; final Portuguese API repair and selected normal audit passed"
+    },
+    {
+      "item": "N511",
+      "title": "filters are any regionprop the user adds",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "CI / Home",
+      "description": "Complete: arbitrary scalar filters, provenance and exact removal restoration; twelve-key catalog retirement verified.",
+      "completion_basis": "Whole original contract accepted 2026-10-15; independent source/evidence closeout"
+    },
+    {
+      "item": "F556",
+      "title": "sam2 timelapse propagation",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Easy / Home",
+      "description": "Complete (alpha): propagation workflow, real-movie baseline comparisons and current nine-language/runtime/API closure.",
+      "completion_basis": "Whole original contract accepted 2026-10-15; independent source/evidence closeout"
+    },
+    {
+      "item": "N692",
+      "title": "three d mask drawing and a fib sem example",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "CI / Home",
+      "description": "Complete: 3D drawing/save/load, protected published FIB-SEM sample and current translations; original contract accepted.",
+      "completion_basis": "Whole original contract accepted 2026-10-15; independent source/evidence closeout"
+    },
+    {
+      "item": "Release1.5.1.5",
+      "title": "Release and final CI",
+      "percent_done": 85,
+      "time_left_hours": "4–8",
+      "owner": "Home",
+      "description": "Publish remaining implementation; release/final CI at end per maintainer.",
+      "completion_basis": "Estimate"
+    },
+    {
+      "item": "N43",
+      "title": "Failing CI",
+      "percent_done": 85,
+      "time_left_hours": "3–6",
+      "owner": "Home",
+      "description": "Published Integration repair plus current coverage-shard test repairs:8 strict model-resolution cases,9 actual localized metadata cases and3 tooltip/resizable-shortcut checks pass. No production safety bypass. Final current-source CI acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N700",
+      "title": "Error reporting and AI",
+      "percent_done": 90,
+      "time_left_hours": "1–3",
+      "owner": "Home / Claude",
+      "description": "Claude implementation delivered; Home is repairing actual CI/API translation debt, including26 provider symbols and711 reviewed records. Current-source final acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N703",
+      "title": "updates replace old application versions and keep user data",
+      "percent_done": 95,
+      "time_left_hours": "2–4 + external",
+      "owner": "Home",
+      "description": "Installer replacement, rollback/cache-preservation software and translations published; native platform acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N696",
+      "title": "magnification default diameter and auto diameter",
+      "percent_done": 95,
+      "time_left_hours": "1–2",
+      "owner": "Home",
+      "description": "Source/widget/diameter/auto semantics and235merged owning checks plus original1.35paintgate passed, normal API/Help generation recorded. Fresh fullCI/platform-native and Work currentlayout tutorial remain; no new native modelquality/GPU acceptance.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N697",
+      "title": "each disconnected brush stroke is a new object",
+      "percent_done": 95,
+      "time_left_hours": "1–2",
+      "owner": "Home",
+      "description": "Disconnected brush/volume behavior and235merged checks/unmodified1.35paintgate recorded. Fresh fullCI/native-platform and Work lesson14 recording/publication remain; oldprivate publication/performance notes superseded only to stated extent.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N704",
+      "title": "Readable README panels",
+      "percent_done": 90,
+      "time_left_hours": "1–3",
+      "owner": "Home (Claude delivery)",
+      "description": "Claude delivered README panel links on nightly and main; Home takes over final published-destination acceptance and any remaining release integration.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N676",
+      "title": "Tutorials, including lesson14",
+      "percent_done": 65,
+      "time_left_hours": "12–24+",
+      "owner": "Work",
+      "description": "Work completed15/23, selective02 and selective04 installer publication packets; next05 numerical review removes hidden Spaceout and repairs Home layout. Root supplies bounded nonrecording Apply diagnosis; remaining lessons/media/publication stay Work-owned.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N689",
+      "title": "HF documentation and Pages",
+      "percent_done": 85,
+      "time_left_hours": "2–4 + external",
+      "owner": "Home (Claude delivery)",
+      "description": "Free docs host verified. CI token reads metadata/tree/README but COMMIT returns403; token write permission and main Pages cutover remain.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F560",
+      "title": "foundation model embeddings",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Official Cell-DINO gated weights require maintainer Meta request/access, then actual official factory/checkpoint loading and final hosted/scientific acceptance. Supported-backbone/human-label and CPU/CUDA proofs already recorded, not a new completion.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F370",
+      "title": "every published model carries its scorecard",
+      "percent_done": 90,
+      "time_left_hours": "2–6 + data",
+      "owner": "Home (Claude delivery)",
+      "description": "Curated six-row tooltips, provenance, generated documents and locales published; remaining model-wide/scientific acceptance separate.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N678",
+      "title": "New-string translations",
+      "percent_done": 90,
+      "time_left_hours": "2–4",
+      "owner": "Home",
+      "description": "See current owner delivery and remaining acceptance gates.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N698",
+      "title": "web mask generator one page per model",
+      "percent_done": 70,
+      "time_left_hours": "24–48+",
+      "owner": "Home (Claude delivery)",
+      "description": "Claude feature delivery preserved; shared model-scale caption now has9 reviewed normal targets. Hosted redeploy/export upload and real browser/GPU acceptance remain owner/maintainer gates.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N699",
+      "title": "cluster submit reads ssh config and handles mfa",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home (Claude delivery)",
+      "description": "Built; handed to Claude with published SSH/MFA/keychain/retry work. Actual Great Lakes login, submit and status acceptance remains maintainer-owned.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N112",
+      "title": "Documentation correctness",
+      "percent_done": 95,
+      "time_left_hours": "1–3",
+      "owner": "Home",
+      "description": "26 provider API symbols generated across nine languages with711 reviewed targets. Full audit now stops at glass#2 review drift;102 other locale gaps and wider semantic acceptance remain.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F288",
+      "title": "zero issues green ci and per module coverage",
+      "percent_done": 85,
+      "time_left_hours": "4–8",
+      "owner": "Home",
+      "description": "Fresh exact-source full30 green plus ordinary union/ratchet; use preserved real Ops raw only if its source/test/provenance bindings still match. Root owns CI and issue owners retain scope.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N305",
+      "title": "the installed package loads and runs optimally",
+      "percent_done": 90,
+      "time_left_hours": "4–8 + platform",
+      "owner": "Home",
+      "description": "Fresh wheel/sdist pass build, Twine, archive/927-file verification and installed functional checks. All54 screens open cold/warm, but strict Home/Preferences/Mask timing fails. One focused profile retained: mixed caller attribution prevents causal fix; network activity observed, response unknown. Native/platform acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N351",
+      "title": "close every github issue by fixing it",
+      "percent_done": 95,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Open GitHub issues146/147/150 remain. Current source accepts all three exact reported float diameters and canonicalizes zero to auto; no issue closure or native/release confirmation claimed.147 remains assistant acceptance.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F404",
+      "title": "dinocell as a segmentation backend",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "PV scorecard after F370 curated source reconciliation and actual Windows/macOS runs remain; do not count alpha implementation as full acceptance.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N419",
+      "title": "make masks reads out lays out and edits by hand",
+      "percent_done": 95,
+      "time_left_hours": "1–3",
+      "owner": "Home",
+      "description": "Maintainer real-display acceptance is recorded; named Clear/Remove/Undo captions are current in all nine catalogs. Current-layout tutorial recording/publication remains Work-owned.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N420",
+      "title": "the setup screen installs the ai provider it offers",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Actual vendor authentication/browser/account and native Windows installer/login acceptance still require their real platform/user. No more arbitrary transport feature work.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F423",
+      "title": "third party segmenters in the model zoo",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Actual Windows/macOS install runs and comparative scorecard acceptance explicitly not claimed; no installation performed now.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F424",
+      "title": "plaques from published papers",
+      "percent_done": 85,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Human lawn-strip/region-count review, crop-specific detector corpus and natural reviewed duplicate/panel/rotation corpus remain; synthetic transformation controls do not close whole424.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N429",
+      "title": "stack file spacr wrote is one it can read",
+      "percent_done": 95,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "All four specifically owed API scopes match current English source and nine locale pins; reporter confirmation on a real macOS external volume remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N441",
+      "title": "metadata type for every common microscope",
+      "percent_done": 95,
+      "time_left_hours": "4–12 + external samples",
+      "owner": "Home",
+      "description": "Dynamic fields, normal90 metadata targets/full9 audit/actual9 compiled-widget checks and documented EVOS optional-Z parser29 checks complete. Missing Z stays unknown; ArrayScan collision prevented. Remaining original provenance limits: ScanR inferred suffix and Zeiss macro-derived examples; no added raw-image/native-device gate.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N449",
+      "title": "a classification wrapper around any cellpose model",
+      "percent_done": 75,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Actual per-vacuole hand counts, original parasite-stain planes/provenance and independent split/merge labels; then train/score/publish heads. Existing model-count labels did not beat PV area; no head shipped. Locate Work truth before asking for duplicate annotation.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F470",
+      "title": "object crops from the cross channel ground truth to judge every label",
+      "percent_done": 80,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Finish expert real/not-real annotation with historical pixel identity, then train/score/publish per-type heads, clean/republish datasets and retrain/rescore cross-channel models. New hashes/read-only guards cannot validate legacy labels without historical fingerprints.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F535",
+      "title": "cell cycle phase classification three ways",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "All3routes implemented; actual hand-labelled real nuclei accuracy/per-phaseF1 and cross-route per-well phase-fraction agreement required by DONE WHEN remain. Grouped split/typed-channel safeguards do not supply that scientific evidence.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F536",
+      "title": "scratch wound closure assay",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Explicit DONE WHEN not met: public BBBC019 closure curves must match hand measurements within5%; recorded76%laterframes within5points after4passes does not satisfy a blanket closure claim. New software calibration/index guards do not fix/validate assay accuracy.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F538",
+      "title": "spectral unmixing and bleed through correction",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Feature-wide acceptance explicitly still needs known-amount real double-stain data and correction/validation of registration/PSF mismatch and strong-spill clipping. Real single-stain and processed-display/export work is recorded; new boundary guards do not close remaining science.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F540",
+      "title": "live dead viability and cytotoxicity",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Actual control-plate Zprime>0.5 DONE WHEN remains unmet on the real plate, although per-cell calls agree95-97% with blind calls. Threshold/channel/software guards do not supply that plate-level acceptance.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F542",
+      "title": "colony cfu counting",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Detector route records median2.4% hand-count error, but later notes explicitly retain real detector cross-validation/external-lab biological acceptance and call the feature partial overall. CSV/preview/diameter fixes do not close those gates.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F559",
+      "title": "deep learning image qc",
+      "percent_done": 85,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Expert non-blur debris/bubble/saturation/empty-field labels or existing truth-table location, plus maintainer shipped-weight/package-data decision. Blur calibration and UI/editor built; synthetic data does not replace expert labels.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F561",
+      "title": "dino pretraining on own crops",
+      "percent_done": 90,
+      "time_left_hours": "Unknown: recover scorecard",
+      "owner": "Home",
+      "description": "Original training/embedding/UMAP/classifier software and coherent GUI/API/runtime/Help are published. Historical kNN improvement is recorded, but its primary scorecard/log is unavailable locally; recover original evidence before independent whole-item acceptance.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F562",
+      "title": "multiple instance learning",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "MIL, saved-embedding GUI producer/consumer and safety are published. Known-responder validation uses resampled real cells; independent real-screen/generalization acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F564",
+      "title": "generative counterfactuals",
+      "percent_done": 85,
+      "time_left_hours": "8–24 + data",
+      "owner": "Home",
+      "description": "Safe pinned local diffusion-checkpoint reuse, alpha GUI,45 language targets and normal derived artifacts complete; larger latent and biological validation remain.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F567",
+      "title": "deep event detection on tracks",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "VideoMAE CPU/CUDA routes, GUI and event annotation integration are published; held-out Toxoplasma event precision/recall/frame-timing acceptance remains unproven.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F580",
+      "title": "cross session intensity calibration",
+      "percent_done": 95,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Session/bead software, viewport fix and locales published; known-exposure acquisition acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "F586",
+      "title": "apptainer singularity images",
+      "percent_done": 85,
+      "time_left_hours": "3–6 + cluster",
+      "owner": "Home",
+      "description": "Root release gate first; publish SIF, maintainer package public visibility, anonymous oras pull, actual Slurm CPU and --nv job evidence. No package/account/resource mutation here.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N615",
+      "title": "API, documentation, translations and tutorial publication acceptance",
+      "percent_done": 95,
+      "time_left_hours": "1–3",
+      "owner": "Home",
+      "description": "Home takes over broad API/docs/translations/tutorial/release acceptance. Work05, hosted documentation and release publication remain separate dependencies.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N639",
+      "title": "organize import in mask and import modules",
+      "percent_done": 95,
+      "time_left_hours": "1–3",
+      "owner": "Home",
+      "description": "Organizer software and189 localized targets verified; Home takes over completion coordination. Work must provide current-layout two-button tutorial/clip proof.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N641",
+      "title": "performance audit 2026 10 04",
+      "percent_done": 90,
+      "time_left_hours": "4–8 + idle host",
+      "owner": "Home",
+      "description": "Any remaining real-display/GPU/per-module timing acceptance requires quiet owner-controlled conditions; do not infer native smoothness from offscreen cases.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N646",
+      "title": "clean uninstall purge",
+      "percent_done": 90,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Actual Windows/macOS uninstaller/purge GUI/data preservation replay remains. Do not treat modeled NSIS/helper tests as native acceptance.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N655",
+      "title": "Accessibility",
+      "percent_done": 90,
+      "time_left_hours": "1–3",
+      "owner": "Home",
+      "description": "Safe resize, plate focus, Clear Figures and keypad fixes published; human/native platform acceptance remains.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N675",
+      "title": "conda forge update to latest spacr release",
+      "percent_done": 90,
+      "time_left_hours": "1–3 + review",
+      "owner": "Home",
+      "description": "Publish existing correction via authorized external owner, normal PR checks/review/feedstock merge/package release, then clean current-channel install. No duplicate patch/build; no account/PR mutation in this audit.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N685",
+      "title": "make masks curation controls and alpha vvvv export",
+      "percent_done": 95,
+      "time_left_hours": "Unknown",
+      "owner": "Home",
+      "description": "Sixparts and real vvvv7.4.1 Wine project/runtime/PDF/liveupdate recorded. Native Windows on-screen renderer/readback remains explicitly the maintainer check; Wine window black even for native example, so native pixel acceptance cannot be asserted.",
+      "completion_basis": "Estimate; partial component deliveries are not whole-item completion"
+    },
+    {
+      "item": "N686",
+      "title": "Free project website",
+      "percent_done": 90,
+      "time_left_hours": "2–6",
+      "owner": "Home",
+      "description": "Deployed; all15 hosted audit routes pass90/95/<1MB thresholds. Physical60fps acceptance remains.",
+      "completion_basis": "Planning estimate; whole item remains open"
+    },
+    {
+      "item": "N687",
+      "title": "Website v2 and release synchronization",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home-B",
+      "description": "Complete: flow theme, fonts, real model showcase, papers, release sync and prominent localized Website links; all15 hosted audit routes pass.",
+      "completion_basis": "Home-B whole eight-clause owner acceptance public2d5dd8788d; Original reviewed contract and independent receipt."
+    },
+    {
+      "item": "N688",
+      "title": "Codecov integration",
+      "percent_done": 95,
+      "time_left_hours": "1–3 after main promotion",
+      "owner": "Home",
+      "description": "Nightly upload and all README badges work; first main upload remains.",
+      "completion_basis": "Planning estimate; whole item remains open"
+    },
+    {
+      "item": "N323",
+      "title": "Hardware capability table",
+      "percent_done": 90,
+      "time_left_hours": "2–6 + review",
+      "owner": "Home",
+      "description": "Hardware table and context implemented. Explicit human translation review remains; machine-drafted replacement table/header/context prose is prohibited.",
+      "completion_basis": "Planning estimate; whole item remains open"
+    },
+    {
+      "item": "N647",
+      "title": "Session restoration",
+      "percent_done": 95,
+      "time_left_hours": "1–3 + platforms",
+      "owner": "Home",
+      "description": "Recovery-preservation repairs built; remaining native platform acceptance.",
+      "completion_basis": "Planning estimate; whole item remains open"
+    },
+    {
+      "item": "N648",
+      "title": "Settings autosave",
+      "percent_done": 95,
+      "time_left_hours": "1–3 + platforms",
+      "owner": "Home",
+      "description": "Autosave/final-write recovery repairs built; remaining native platform acceptance.",
+      "completion_basis": "Planning estimate; whole item remains open"
+    },
+    {
+      "item": "F534",
+      "title": "Spatial barcode mapping",
+      "percent_done": 75,
+      "time_left_hours": "8–24 + data",
+      "owner": "Home",
+      "description": "Remaining spatial workflow/data acceptance; prior verification is not new implementation.",
+      "completion_basis": "Planning estimate; whole item remains open"
+    }
+  ],
+  "source_snapshot": "67de758e4590c3d037e9df6fb885c21d5975e3e7",
+  "whole_items_closed_today": [
+    "N702",
+    "N448",
+    "N440",
+    "N421",
+    "N597",
+    "N691",
+    "N511",
+    "F556",
+    "N692",
+    "N468",
+    "N94",
+    "F554",
+    "N687",
+    "N197",
+    "F549",
+    "N690",
+    "N180"
+  ],
+  "coordination_reconciliation": "Added seven still-open Home-B items missing from earlier Original subset; authoritative item files and owner receipts retained. Historical pre-today completions need not all be printed.",
+  "historical_closed_rows": [
+    {
+      "item": "N03",
+      "title": "five order dependent qt failures",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Reuse scoped evidence; final candidate CI may reveal a new order counterexample. Do not repeat whole Qt sweeps.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N76",
+      "title": "more than one organelle",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Historical generated-artifact debt is not a new unimplemented multi-organelle engine; no new whole scientific acceptance claimed.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N307",
+      "title": "segmentation qc field browser",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Remaining lstat/unlink race explicitly outside bounded repair; no new quarantine requirement inferred.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N328",
+      "title": "a source install should not cost a gigabyte",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Historically complete: original shallow/sparse/light source installation contract; separate translation refinements remain separately owned.",
+      "completion_basis": "Home-B original-contract review confirms explicit DONE2026-09-19; historical correction, not a newtoday implementation."
+    },
+    {
+      "item": "N337",
+      "title": "measure defaults manders and labels",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Six historical foreign settings assigned elsewhere; no repeat54-check or five-new-missing claim.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N384",
+      "title": "Report types",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Closed by maintainer decision: qualified English API fallback accepted; report type-validation repair published.",
+      "completion_basis": "Historical maintainer closure2026-09-09, explicitly not reopened by2026-10-15 repair; stale tracker95 corrected, not a new implementation."
+    },
+    {
+      "item": "N517",
+      "title": "drop files as well as folders in make masks and plaque",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No file/folder-drop software contract work recorded left; implementation plus current18native/offscreen preservation checks recorded. The historical real-app maintainer check remains separate from source completion.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N526",
+      "title": "plaque assay reads any number of pdfs and images",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No arbitraryPDF/image batch software contract work recorded left; distinct output allocator fixed with current11cases. That bounded fixture is not a new realPDF-render/model or cross-batch provenance claim.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "F537",
+      "title": "lineage trees from tracks",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Original alpha contract is recorded met after publicCIL movie work: trees render, track generation times and improved division precision documented. Later identity guards are scoped software fixes; no universal/native tracker or new biological accuracy claim.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N593",
+      "title": "make masks consolidate folders and sort into channels",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No original consolidation/sort-merge contract work recorded left. Current destination ownership/leaflink guards retain existing source/manifest behavior; cross-process mutation/wholefolder transactions beyond the bounded contract are not newly certified.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N594",
+      "title": "classify essentials are enough to train a model",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No original Essentials/model+table selection contract work recorded left; real table consumer wiring,37checks and normal runtime/API/arrival closure recorded. Actual fitting/model efficacy separate from choosing/configuring training.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N626",
+      "title": "Partial consolidation",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Historically complete: partial consolidation reports failure, preserves input/state and successful copies, stops downstream actions and supports retry.",
+      "completion_basis": "Original closed2026-10-01; current organizer/backend pins and actual corrected five-case CI receipt verified2026-10-15. Not a new implementation tick."
+    },
+    {
+      "item": "N633",
+      "title": "test data for every module",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Original listed-screen example-data contract explicitly COMPLETE100%/user-accepted alpha after InvestigateHit publication. Later native archive/NPY safety fixes do not revoke that recorded scope; universal file integrity/mountedFS/native science is not implied.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N643",
+      "title": "prune the spacr home folder",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Use current purge-before-targeted retirement assertion; do not repeat71 or touch live run/data trees. Unknown/corrupt journals intentionally require manual review.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N644",
+      "title": "disk cache manager",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "No further direct-var audit. Reopen only on actual move/cache ownership failure; preserve external environment and user bytes.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    },
+    {
+      "item": "N693",
+      "title": "export settings from every form",
+      "percent_done": "✅",
+      "time_left_hours": "0",
+      "owner": "Home / assigned owner",
+      "description": "Do not invent transactional-pair requirement absent original acceptance. Native ACL/xattr/power-loss/external-writer semantics remain honest limitations.",
+      "completion_basis": "Recorded whole-item completion; not a new completion today"
+    }
+  ],
+  "historical_omission_note": "Pre-today whole-item closures are preserved here for evidence but omitted from the open/today table. This reclassification adds no new completion tick.",
+  "ownership_takeover": "2026-10-15 maintainer closed the other Home session. Original Home assumes all remaining Home-B coordination, implementation and acceptance tasks; completed provenance, Work recording ownership, Claude delivered work and maintainer-only access/platform gates are preserved."
+}

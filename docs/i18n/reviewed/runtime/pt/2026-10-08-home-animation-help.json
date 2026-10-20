@@ -41,7 +41,7 @@
       "source": "Import settings from a saved file into this form before running.",
       "source_sha256": "b8252ae1d9f1575bc1a889fd9bbce0d29c18f55b78db96f6c00da8513049257d",
       "table": "ui",
-      "translation": "Importe as definições de um ficheiro guardado para este formulário antes de executar."
+      "translation": "Importe as definições de um arquivo guardado para este formulário antes de executar."
     },
     {
       "key": "Number of elements in the settings-window animation, independent of the main background.",

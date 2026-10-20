@@ -1,31 +1,28 @@
-"""Two runs, side by side: what changed, how many fewer, which hits moved.
+"""Compare two runs: changed settings, object counts and hit lists.
 
-A screen is re-run with one setting nudged and the numbers come out
-different. Nothing in spaCR has ever answered *why*: the settings that
-produced a result were not recorded next to it, the object counts were
-never compared, and the hit list was a CSV you diffed by eye. So the
-honest answer to "is this better than last week's run?" was to open two
-folders and squint.
+When a screen is re-run with one setting changed, the results differ.
+Without the settings recorded next to each result, comparing two runs
+meant opening both output folders and comparing counts and hit-list CSVs
+by hand.
 
-This module answers it, in three parts, from
-:mod:`spacr.artifacts` — the registry every output now registers with —
-rather than from a filesystem scan:
+This module compares two runs in three parts, reading
+:mod:`spacr.artifacts` — the registry every output registers with —
+rather than scanning the filesystem:
 
 **Settings diff**
     Which parameters moved, grouped by the same headings the settings
     panel groups them by. :mod:`spacr.qt.settings_diff` does the work.
 
 **Count diff**
-    Objects, wells and fields, per plate and overall. A run that produced
-    12% fewer cells is the single most useful early signal that something
-    changed for the worse, and it is visible long before anyone looks at
-    a p-value.
+    Objects, wells and fields, per plate and overall. A drop in object
+    count, such as 12% fewer cells, shows that a change affected the run
+    before any p-value is examined.
 
 **Hit-list diff**
     For runs that produced regression results: which hits appeared, which
-    vanished, and which merely moved. Rank churn among a stable hit set
-    matters as much as set membership — a screen whose top ten reshuffle
-    every run is not a screen anyone should publish from.
+    vanished, and which only moved. Rank churn among a stable hit set is
+    reported alongside membership, because a top ten that reorders between
+    runs indicates an unstable result even when membership is unchanged.
 
 Not every pair of runs *can* be compared. Different plates, a module one
 run never ran, a different spaCR version: :func:`comparability` says so
@@ -378,9 +375,8 @@ def plates_of(settings: Optional[Mapping[str, Any]]) -> Tuple[str, ...]:
 
     A spaCR run is pointed at one or more plate folders through ``src``,
     and the folder's basename is the plate. Used to notice that two runs
-    were pointed at *different experiments*, which is the one difference
-    that makes a count comparison meaningless rather than merely
-    interesting.
+    were pointed at *different experiments*, in which case a count
+    comparison is meaningless.
 
     Note that a run read back out of the artifact registry usually has
     *no* ``src``: it is cosmetic as far as the settings hash is concerned
@@ -411,8 +407,7 @@ def comparability(a: RunRef, b: RunRef, *,
                   b_plates: Optional[Sequence[str]] = None) -> Comparability:
     """Decide whether two runs may be compared, and say why not.
 
-    Blocking, because diffing past them produces a table that is worse
-    than no table:
+    Blocking, because a diff across them would be misleading:
 
     * **no shared module** — the runs did different things, so there is
       no output of the same kind to line up.
@@ -587,9 +582,8 @@ class CountRow:
         """Percentage change from ``a`` to ``b``.
 
         ``None`` when a side is missing, and when the baseline is zero —
-        "up from nothing" has no percentage, and printing ``inf`` in a
-        table that a user scans for the biggest number is worse than
-        printing nothing.
+        "up from nothing" has no percentage, and ``inf`` would rank above
+        every finite change in a table sorted by size.
         """
         if self.a is None or self.b is None or self.a == 0:
             return None
@@ -650,9 +644,8 @@ class CountDiff:
     def worst(self) -> Optional[CountRow]:
         """The overall row that dropped the most, in percent.
 
-        The one number worth putting in a headline: a run that produced
-        12% fewer cells has a problem, and the user should not have to
-        find that by reading a table.
+        Used for the headline, so a drop such as 12% fewer cells is
+        visible without reading the table.
         """
         losses = [r for r in self.overall()
                   if r.pct is not None and r.pct < 0]
@@ -976,9 +969,9 @@ class HitDiff:
     def churn(self) -> float:
         """Fraction of the shared hits whose rank moved, 0.0–1.0.
 
-        The number that says a screen is unstable even when its hit set
-        is not: identical membership with a reshuffled top ten scores 1.0
-        here and 0 appeared / 0 vanished up there.
+        Measures rank instability even when the hit set is unchanged:
+        identical membership with a reshuffled top ten scores 1.0 here
+        while :attr:`appeared` and :attr:`vanished` are empty.
         """
         if not self.n_shared:
             return 0.0
@@ -1173,11 +1166,10 @@ def compare_runs(a: RunRef, b: RunRef, *,
                  force: bool = False) -> RunComparison:
     """Compare two runs: settings, counts and hit list.
 
-    Refuses by default when :func:`comparability` raises a blocker. That
-    is the point of the check — two runs of different plates *can* be
-    subtracted from one another, and the resulting table looks exactly
-    like a regression report, which is why it must not be drawn without
-    the user having said they know what they are doing.
+    Refuses by default when :func:`comparability` reports a blocker. Two
+    runs of different plates can be subtracted from one another, and the
+    resulting table looks like a regression report, so the diffs are
+    produced only when ``force=True``.
 
     :param a: the baseline run, from :func:`runs_in`.
     :param b: the run being compared to it.

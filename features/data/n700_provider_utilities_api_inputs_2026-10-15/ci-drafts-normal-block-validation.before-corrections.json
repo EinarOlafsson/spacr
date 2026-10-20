@@ -1,0 +1,218 @@
+{
+  "normal_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "provider_source_sha256": "88eaf32a8ff9b158e4a900e4dc03f39ea3023aaf33003be612a0eb0bbb717725",
+  "locales": {
+    "de": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/de/2026-10-15-n700-provider-utilities.json",
+      "sha256": "7c2eea47708d3ce3a6ffa99e36bba1a2f9ba4fe43a2b7a770440aedc1b52525b",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/es/2026-10-15-n700-provider-utilities.json",
+      "sha256": "8d0a934a20d73f5b0ecc37aac6556f18f0846f54ba4e8561017e4f1f56836c94",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/fr/2026-10-15-n700-provider-utilities.json",
+      "sha256": "51cad34d4b8a493679fa83d62e68710bc41e3351c1298bd66fa8a6e718aa283c",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/sv/2026-10-15-n700-provider-utilities.json",
+      "sha256": "f5ee3a434038089f265002de4db9cadd1058a64b1888708fe9adea66909a3db0",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/pt/2026-10-15-n700-provider-utilities.json",
+      "sha256": "0c6c0950925bd2ab1c8ce8a3cd17035a163826120e4508dcd8b863877e207f26",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/is/2026-10-15-n700-provider-utilities.json",
+      "sha256": "93053c3fc408c5efffdffdd217ead94daa3f0a57857483cf91ebafb21e56e111",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/zh_CN/2026-10-15-n700-provider-utilities.json",
+      "sha256": "b9e5483019590d0eb9580e2b163ad0ea9bd30bb4edff2c815e84ecaa8ef02a29",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/ko/2026-10-15-n700-provider-utilities.json",
+      "sha256": "c6858b24da0181382c90a07c883299783b0ff51f985aa519aa00909fcd95cd85",
+      "records": 43,
+      "unique_sources": 39
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/ci-providers-api-label-diagnosis-20261015/ci-drafts/hi/2026-10-15-n700-provider-utilities.json",
+      "sha256": "0fb97d93c42d1c81b3e0c289a65cb8d84b34501131e0b7da7a4b677c275f318b",
+      "records": 43,
+      "unique_sources": 39
+    }
+  },
+  "records": 387,
+  "failures": [
+    {
+      "language": "de",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free) fragt mit der anonymisierten Zusammenfassung und :data:`spacr.crashreport.EXPLAIN_QUESTION` den Relay-Endpunkt ``/diagnose`` an; eine Anbieter-CLI beantwortet hier :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Derselbe Text erscheint in der Konsole und wird als ``ai_summary`` des Berichts gesendet, sodass ein Fehler einen KI-Aufruf kostet. Blockiert; daher außerhalb des GUI-Threads aufrufen."
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free) fragt mit der anonymisierten Zusammenfassung und :data:`spacr.crashreport.EXPLAIN_QUESTION` den Relay-Endpunkt ``/diagnose`` an; eine Anbieter-CLI beantwortet hier :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Derselbe Text erscheint in der Konsole und wird als ``ai_summary`` des Berichts gesendet, sodass ein Fehler einen KI-Aufruf kostet. Blockiert; daher außerhalb des GUI-Threads aufrufen."
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free) consulta ``/diagnose`` del relay con el resumen anonimizado y :data:`spacr.crashreport.EXPLAIN_QUESTION`; una CLI de proveedor responde aquí a :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). El mismo texto se muestra en la consola y se envía como ``ai_summary`` del informe, por lo que un fallo cuesta una llamada a la IA. Bloquea la ejecución; debe llamarse fuera del hilo de la interfaz gráfica."
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free) consulta ``/diagnose`` del relay con el resumen anonimizado y :data:`spacr.crashreport.EXPLAIN_QUESTION`; una CLI de proveedor responde aquí a :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). El mismo texto se muestra en la consola y se envía como ``ai_summary`` del informe, por lo que un fallo cuesta una llamada a la IA. Bloquea la ejecución; debe llamarse fuera del hilo de la interfaz gráfica."
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "field": "source",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It runs on a thread of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the GUI thread.",
+      "target": "El proveedor recibe únicamente :func:`spacr.crashreport.ai_summary_prompt`. Se ejecuta en un hilo propio y se detiene tras ``timeout`` segundos; un fallo, un tiempo de espera agotado o una respuesta vacía devuelve ``\"\"``, y entonces se presenta el informe sin resumen. Bloquea la ejecución; debe llamarse fuera del hilo de la interfaz gráfica."
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "field": "context",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It executes on an independent execution path of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the main GUI execution path.",
+      "target": "El proveedor recibe únicamente :func:`spacr.crashreport.ai_summary_prompt`. Se ejecuta en un hilo propio y se detiene tras ``timeout`` segundos; un fallo, un tiempo de espera agotado o una respuesta vacía devuelve ``\"\"``, y entonces se presenta el informe sin resumen. Bloquea la ejecución; debe llamarse fuera del hilo de la interfaz gráfica."
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free) interroge ``/diagnose`` du relais avec le résumé anonymisé et :data:`spacr.crashreport.EXPLAIN_QUESTION` ; une CLI de fournisseur répond ici à :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Le même texte est affiché dans la console et envoyé comme ``ai_summary`` du rapport, de sorte qu’une défaillance coûte un seul appel à l’IA. Cet appel bloque ; l’effectuer hors du fil d’exécution de l’interface graphique."
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free) interroge ``/diagnose`` du relais avec le résumé anonymisé et :data:`spacr.crashreport.EXPLAIN_QUESTION` ; une CLI de fournisseur répond ici à :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Le même texte est affiché dans la console et envoyé comme ``ai_summary`` du rapport, de sorte qu’une défaillance coûte un seul appel à l’IA. Cet appel bloque ; l’effectuer hors du fil d’exécution de l’interface graphique."
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "field": "source",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It runs on a thread of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the GUI thread.",
+      "target": "Le fournisseur reçoit uniquement :func:`spacr.crashreport.ai_summary_prompt`. Il s’exécute dans son propre fil d’exécution et est arrêté après ``timeout`` secondes ; une défaillance, un délai dépassé ou une réponse vide donne ``\"\"``, et le rapport est alors déposé sans résumé. Cet appel bloque ; l’effectuer hors du fil d’exécution de l’interface graphique."
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "field": "context",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It executes on an independent execution path of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the main GUI execution path.",
+      "target": "Le fournisseur reçoit uniquement :func:`spacr.crashreport.ai_summary_prompt`. Il s’exécute dans son propre fil d’exécution et est arrêté après ``timeout`` secondes ; une défaillance, un délai dépassé ou une réponse vide donne ``\"\"``, et le rapport est alors déposé sans résumé. Cet appel bloque ; l’effectuer hors du fil d’exécution de l’interface graphique."
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free) consulta ``/diagnose`` do relay com o resumo anonimizado e :data:`spacr.crashreport.EXPLAIN_QUESTION`; uma CLI de fornecedor responde aqui a :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). O mesmo texto é apresentado na consola e enviado como ``ai_summary`` do relatório, pelo que uma falha custa uma chamada à IA. A chamada bloqueia a execução; deve ser feita fora da thread da interface gráfica."
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free) consulta ``/diagnose`` do relay com o resumo anonimizado e :data:`spacr.crashreport.EXPLAIN_QUESTION`; uma CLI de fornecedor responde aqui a :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). O mesmo texto é apresentado na consola e enviado como ``ai_summary`` do relatório, pelo que uma falha custa uma chamada à IA. A chamada bloqueia a execução; deve ser feita fora da thread da interface gráfica."
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "field": "source",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It runs on a thread of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the GUI thread.",
+      "target": "O fornecedor recebe apenas :func:`spacr.crashreport.ai_summary_prompt`. É executado numa thread própria e é parado após ``timeout`` segundos; uma falha, um tempo limite excedido ou uma resposta vazia devolve ``\"\"``, sendo então o relatório apresentado sem resumo. A chamada bloqueia a execução; deve ser feita fora da thread da interface gráfica."
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "field": "context",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It executes on an independent execution path of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the main GUI execution path.",
+      "target": "O fornecedor recebe apenas :func:`spacr.crashreport.ai_summary_prompt`. É executado numa thread própria e é parado após ``timeout`` segundos; uma falha, um tempo limite excedido ou uma resposta vazia devolve ``\"\"``, sendo então o relatório apresentado sem resumo. A chamada bloqueia a execução; deve ser feita fora da thread da interface gráfica."
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free) sendir nafnlausu samantektina og :data:`spacr.crashreport.EXPLAIN_QUESTION` til ``/diagnose`` á miðlaranum; skipanalínuforrit þjónustuaðila svarar hér :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Sami texti birtist á stjórnborðinu og er sendur sem ``ai_summary`` skýrslunnar, svo ein bilun kostar eitt gervigreindarkall. Kallið stöðvar framkvæmd; kalla skal á það utan GUI-þráðarins."
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free) sendir nafnlausu samantektina og :data:`spacr.crashreport.EXPLAIN_QUESTION` til ``/diagnose`` á miðlaranum; skipanalínuforrit þjónustuaðila svarar hér :func:`spacr.crashreport.ai_summary_prompt` (:func:`write_report_summary`). Sami texti birtist á stjórnborðinu og er sendur sem ``ai_summary`` skýrslunnar, svo ein bilun kostar eitt gervigreindarkall. Kallið stöðvar framkvæmd; kalla skal á það utan GUI-þráðarins."
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free) 将匿名化摘要和 :data:`spacr.crashreport.EXPLAIN_QUESTION` 发送至中继的 ``/diagnose``；供应商 CLI 在本机回答 :func:`spacr.crashreport.ai_summary_prompt`（:func:`write_report_summary`）。同一文本显示在控制台中，并作为报告的 ``ai_summary`` 发送，因此一次故障只消耗一次 AI 调用。此函数会阻塞，应在 GUI 线程之外调用。"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free) 将匿名化摘要和 :data:`spacr.crashreport.EXPLAIN_QUESTION` 发送至中继的 ``/diagnose``；供应商 CLI 在本机回答 :func:`spacr.crashreport.ai_summary_prompt`（:func:`write_report_summary`）。同一文本显示在控制台中，并作为报告的 ``ai_summary`` 发送，因此一次故障只消耗一次 AI 调用。此函数会阻塞，应在 GUI 线程之外调用。"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free)는 익명화된 요약과 :data:`spacr.crashreport.EXPLAIN_QUESTION`을 릴레이의 ``/diagnose``에 전달합니다. 공급업체 CLI는 여기서 :func:`spacr.crashreport.ai_summary_prompt`에 답합니다(:func:`write_report_summary`). 같은 텍스트를 콘솔에 표시하고 보고서의 ``ai_summary``로 보내므로 실패 한 건당 AI 호출은 한 번입니다. 실행을 차단하므로 GUI 스레드 밖에서 호출해야 합니다."
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free)는 익명화된 요약과 :data:`spacr.crashreport.EXPLAIN_QUESTION`을 릴레이의 ``/diagnose``에 전달합니다. 공급업체 CLI는 여기서 :func:`spacr.crashreport.ai_summary_prompt`에 답합니다(:func:`write_report_summary`). 같은 텍스트를 콘솔에 표시하고 보고서의 ``ai_summary``로 보내므로 실패 한 건당 AI 호출은 한 번입니다. 실행을 차단하므로 GUI 스레드 밖에서 호출해야 합니다."
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "source",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "target": "spaCR AI (free), अनामित सारांश और :data:`spacr.crashreport.EXPLAIN_QUESTION` को रिले के ``/diagnose`` पर भेजता है; विक्रेता का CLI यहाँ :func:`spacr.crashreport.ai_summary_prompt` का उत्तर देता है (:func:`write_report_summary`)। वही पाठ कंसोल में दिखाया जाता है और रिपोर्ट के ``ai_summary`` के रूप में भेजा जाता है, इसलिए एक विफलता में एक AI कॉल खर्च होती है। यह कॉल अवरोधक है, इसलिए इसे GUI थ्रेड से बाहर चलाएँ।"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "field": "context",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "target": "spaCR AI (free), अनामित सारांश और :data:`spacr.crashreport.EXPLAIN_QUESTION` को रिले के ``/diagnose`` पर भेजता है; विक्रेता का CLI यहाँ :func:`spacr.crashreport.ai_summary_prompt` का उत्तर देता है (:func:`write_report_summary`)। वही पाठ कंसोल में दिखाया जाता है और रिपोर्ट के ``ai_summary`` के रूप में भेजा जाता है, इसलिए एक विफलता में एक AI कॉल खर्च होती है। यह कॉल अवरोधक है, इसलिए इसे GUI थ्रेड से बाहर चलाएँ।"
+    }
+  ],
+  "scope": "Exact ordinary reviewed block validator only; no collector, public inventory, catalog writer or full audit."
+}

@@ -1,0 +1,18 @@
+## 2026-10-14 08:49 EDT — URGENT Home → Work: user wants to continue plaque annotation at Home
+
+User says they annotated around 1,000 plaque images at Work yesterday and asks
+to continue at Home. Please prioritize a read-only authoritative annotation
+handoff alongside your three source tasks: identify EXACT folder used, status
+and verdict ledger paths/counts/SHA256/mtime, image/mask identity and edited
+mask files. Do not infer this from old Home counts or mere path equality.
+
+Expected NAS curation/plaque_all_2026-10-12_clean_dedup is absent; NAS currently
+shows older queues through Oct11. Home WD queue's curate_status.csv is still
+mtime 2026-10-13T20:56:40Z. Root told user not to write at Home until current
+Work judgments/masks and the correct queue are identified and synchronized.
+Please publish exact current progress/paths/identities and a safe continuation
+plan immediately. Do not overwrite either ledger or guess a merge; retain all
+expert decisions and detect conflicts. Current data/label work is separate
+from application source/capture holds. Home/NAS cleanup excludes ALL plaque
+and annotation roots. No training/inference or source changes requested.
+

@@ -80,14 +80,14 @@ class TestTheTwoThatWereBroken:
     """These tested ``is None``, so the bool sailed past the dialog."""
 
     def test_export_treats_a_bool_as_no_path(self):
-        source = (ROOT / "qt" / "widgets" / "fast_plots.py").read_text()
+        source = (ROOT / "qt" / "widgets" / "fast_plots.py").read_text(encoding="utf-8")
         body = source[source.index("def export(self, path"):]
 
         assert "isinstance(path, bool)" in body[:2000], (
             "a button press must not be mistaken for a filename")
 
     def test_the_montage_save_treats_a_bool_as_no_path(self):
-        source = (ROOT / "qt" / "widgets" / "cell_montage_view.py").read_text()
+        source = (ROOT / "qt" / "widgets" / "cell_montage_view.py").read_text(encoding="utf-8")
         body = source[source.index("def save(self, path"):]
 
         assert "isinstance(path, bool)" in body[:2000]

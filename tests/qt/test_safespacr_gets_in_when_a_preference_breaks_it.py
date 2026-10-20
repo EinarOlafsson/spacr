@@ -158,7 +158,7 @@ SAFE_MODE_MUST_NOT_IMPORT = ("torch", "cupy", "cuml", "cellpose",
 
 
 @pytest.mark.slow
-def test_safe_mode_opens_without_importing_a_gpu_runtime():
+def test_safe_mode_opens_without_importing_a_gpu_runtime(tmp_path):
     """296's "no GPU probe, no CUDA import", asserted instead of intended.
 
     IN A FRESH EXEC, and that is the whole point. By the time this file
@@ -170,6 +170,11 @@ def test_safe_mode_opens_without_importing_a_gpu_runtime():
     Drives the real safe-mode preamble: `enable_safe_mode()`, the launcher's
     environment, the app registration pass and a MainWindow shown offscreen.
     That is everything `safespacr` does short of entering the event loop.
+
+    ISOLATED from this machine's spaCR folder and settings. Home reads the
+    run journal on a worker as it opens, and a large real journal used to
+    keep that read running past the script's last line, so the result
+    depended on whose machine ran the test.
 
     Measured 2026-09-15: none of the five arrive. This test exists because
     that was TRUE AND UNGUARDED -- the guarantee is in 296's list, nothing
@@ -207,8 +212,14 @@ names = {SAFE_MODE_MUST_NOT_IMPORT!r}
 print({sentinel!r} + json.dumps(
     [name for name in names if name in sys.modules]))
 '''
+    import os
+
+    env = dict(os.environ)
+    env.update(SPACR_HOME=str(tmp_path / "spacr-home"),
+               XDG_CONFIG_HOME=str(tmp_path / "config"),
+               SPACR_LOG_DIR=str(tmp_path / "logs"))
     out = subprocess.run([sys.executable, "-c", code], capture_output=True,
-                         text=True, timeout=600)
+                         text=True, timeout=600, env=env)
     assert out.returncode == 0, (
         f"the safe-mode subprocess failed:\n{out.stderr[-3000:]}")
     line = next((ln for ln in out.stdout.splitlines()

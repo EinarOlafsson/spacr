@@ -20,7 +20,9 @@
       "label": "spacr.qt.settings_pack#10",
       "source": "IT LOOKED FOR THE WRONG FILE. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.",
       "source_sha256": "214290cdb5f0843d8999cc74831d2e38700cd312f7b2aab1301f5cf45690cd3e",
-      "translation": "它找错了文件。它只打开 ``<app>_settings.csv``，而 ``einarolafsson/spacr_settings`` 从未提供过这个名字的文件 -- 它提供的是 ``gen_masks_settings.csv`` 和 ``crop_measure_settings.csv``。2026-09-14 在 ``~/datasets/settings`` 的真实设置包上测得：应用 0、重命名 0、丢弃 0、格式错误 0，文件共有 58 项设置。这是一次落空而不是一个报错，所以调用方用普通的默认值填满了表单，却什么也没说。 `tests/test_hf_e2e_integration.py` 从另一端发现了同一个漏洞，并用一个本地读取器和对文件名的硬性断言绕了过去， `PACK_FILES` 就是这样来的。"
+      "translation": "它找错了文件。它只打开 ``<app>_settings.csv``，而 ``einarolafsson/spacr_settings`` 从未提供过这个名字的文件 -- 它提供的是 ``gen_masks_settings.csv`` 和 ``crop_measure_settings.csv``。2026-09-14 在 ``~/datasets/settings`` 的真实设置包上测得：应用 0、重命名 0、丢弃 0、格式错误 0，文件共有 58 项设置。这是一次落空而不是一个报错，所以调用方用普通的默认值填满了表单，却什么也没说。 `tests/test_hf_e2e_integration.py` 从另一端发现了同一个漏洞，并用一个本地读取器和对文件名的硬性断言绕了过去， `PACK_FILES` 就是这样来的。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Missing file is not an error: a pack legitimately carries settings for some apps and not others, and the caller gets an empty key-value mapping. Use :func:`_pack_path` to tell that case apart from a file that was read.",

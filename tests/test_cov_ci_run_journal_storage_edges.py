@@ -58,7 +58,7 @@ def test_prune_planning_skips_an_entry_whose_type_cannot_be_read(
     monkeypatch.setattr(journal, "_is_prunable_name", unreadable)
     plan = journal._prune_plan("logs", 7, 0)
     assert plan["delete"] == []
-    assert candidate.read_text() == "old log"
+    assert candidate.read_text(encoding="utf-8") == "old log"
 
 
 def test_prune_refuses_an_entry_that_cannot_be_resolved(
@@ -74,13 +74,17 @@ def test_prune_refuses_an_entry_that_cannot_be_resolved(
 
     assert (deleted, freed) == (0, 0)
     assert refused == [f"{candidate.name}: path cannot be resolved"]
-    assert candidate.read_text() == "keep"
+    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_failed_run_deletion_stays_a_refusal_in_the_prune_result(
         tmp_path, monkeypatch):
     candidate = tmp_path / "old-run"
     candidate.mkdir()
+    run = journal.Run(app_key="mask", settings={}, dir=candidate)
+    run.status = "success"
+    run._write_settings()
+    run._write_manifest()
     monkeypatch.setattr(journal, "_prune_root", lambda _kind: tmp_path)
     monkeypatch.setattr(journal, "_protected_storage", set)
     monkeypatch.setattr(journal, "_tree_stats", lambda _entry: (4, 0))
@@ -105,7 +109,7 @@ def test_unreadable_log_types_are_excluded_from_clear_plans(
     monkeypatch.setattr(journal, "_is_prunable_name", unreadable)
     plan = journal._clear_logs_plan()
     assert plan["groups"]["run_logs"] == []
-    assert candidate.read_text() == "keep"
+    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_a_log_that_becomes_unreadable_is_refused_during_clear(
@@ -128,7 +132,7 @@ def test_a_log_that_becomes_unreadable_is_refused_during_clear(
 
     assert journal._clear_logs(plan) == (
         0, 0, 0, [f"{candidate.name}: log cannot be read"])
-    assert candidate.read_text() == "keep"
+    assert candidate.read_text(encoding="utf-8") == "keep"
 
 
 def test_cache_clear_reports_one_busy_child_and_removes_a_free_one(
@@ -150,7 +154,7 @@ def test_cache_clear_reports_one_busy_child_and_removes_a_free_one(
     monkeypatch.setattr(Path, "unlink", cannot_remove)
     removed, refused = journal._clear_cache("torch")
     assert removed == 1 and refused == ["busy.bin: file is in use"]
-    assert busy.read_text() == "keep" and not free.exists()
+    assert busy.read_text(encoding="utf-8") == "keep" and not free.exists()
 
 
 def test_a_protected_cache_cannot_be_relocated(tmp_path, monkeypatch):
@@ -180,13 +184,13 @@ def test_an_unresolvable_cache_is_refused_before_any_removal(
 
 def test_reapplying_cache_locations_preserves_an_existing_override(monkeypatch):
     monkeypatch.setattr(journal, "_read_cache_locations", lambda: {
-        "CI_CACHE_ONE": "/tmp/one", "CI_CACHE_TWO": "/tmp/two"})
-    monkeypatch.setenv("CI_CACHE_ONE", "/tmp/owned-outside-spacr")
-    monkeypatch.delenv("CI_CACHE_TWO", raising=False)
+        "TORCH_HOME": "/tmp/one", "HF_HOME": "/tmp/two"})
+    monkeypatch.setenv("TORCH_HOME", "/tmp/owned-outside-spacr")
+    monkeypatch.setenv("HF_HOME", "")
 
     assert journal._apply_cache_locations() == 1
-    assert os.environ["CI_CACHE_ONE"] == "/tmp/owned-outside-spacr"
-    assert os.environ["CI_CACHE_TWO"] == "/tmp/two"
+    assert os.environ["TORCH_HOME"] == "/tmp/owned-outside-spacr"
+    assert os.environ["HF_HOME"] == "/tmp/two"
 
 
 def test_unreadable_cache_locations_do_not_stop_journal_import(
@@ -204,3 +208,28 @@ def test_unreadable_cache_locations_do_not_stop_journal_import(
 
     assert module["MANIFEST_SCHEMA_VERSION"] == journal.MANIFEST_SCHEMA_VERSION
     assert "Relocated caches could not be applied" in caplog.text
+
+
+def test_a_cache_without_a_setting_cannot_be_relocated(tmp_path):
+    with pytest.raises(ValueError, match="no setting to move it with"):
+        journal._relocate_cache("not-a-cache", tmp_path / "elsewhere")
+    assert not (tmp_path / "elsewhere").exists()
+
+
+def test_the_journal_loads_where_the_os_has_no_fork_hooks(monkeypatch):
+    """Windows has no ``os.register_at_fork``; the active-run lock still exists."""
+    import importlib.util
+    import sys
+
+    from spacr import errors
+
+    monkeypatch.delattr(os, "register_at_fork")
+    monkeypatch.setattr(errors, "_FINALIZE_LISTENERS", [])
+    spec = importlib.util.spec_from_file_location(
+        "spacr._run_journal_without_fork_hooks", journal.__file__)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)
+    spec.loader.exec_module(module)
+    with module._ACTIVE_RUNS_LOCK:
+        assert module._ACTIVE_RUN_DIRS == set()
+    assert errors._FINALIZE_LISTENERS == [module._note_ledger_on_the_open_run]

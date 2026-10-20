@@ -1,0 +1,40 @@
+{
+  "scope": "Prepared evidence only; no app/README generated outputs, performance acceptance, external build or publication.",
+  "files": [
+    {
+      "file": "review.json",
+      "original_bytes": 24707,
+      "original_sha256": "32d2dfb5d8ed06b8e374556e94718f1a0b4418aa7ee1d463cd373551c679bdc8",
+      "published_bytes": 24707,
+      "published_sha256": "32d2dfb5d8ed06b8e374556e94718f1a0b4418aa7ee1d463cd373551c679bdc8"
+    },
+    {
+      "file": "review.txt",
+      "original_bytes": 1748,
+      "original_sha256": "0bcba533ec0f35e3be3ba6618f8fd77a6fea1002a1ba4ad56a278c85404174a6",
+      "published_bytes": 1748,
+      "published_sha256": "0bcba533ec0f35e3be3ba6618f8fd77a6fea1002a1ba4ad56a278c85404174a6"
+    },
+    {
+      "file": "published-source-bindings.json.gz",
+      "original_bytes": 79733,
+      "original_sha256": "e89d872d9c7e99ccbf0ce1462c334c290ef3a376d6fd966d56536dc9b41de1da",
+      "published_bytes": 10243,
+      "published_sha256": "7c657b995371792d88caf8c3aa1bdc66523324ada038b86d527133448403979d"
+    },
+    {
+      "file": "owning-test-source-bindings.json.gz",
+      "original_bytes": 15178,
+      "original_sha256": "798fbb08e81d6ac97d790d0512871597b436d9a43d49930e6136fe8e010d190d",
+      "published_bytes": 3439,
+      "published_sha256": "1c690457f7fe3c753b9cccef3c942a3b2c04ec6975af9c7d84a55b058afaa974"
+    },
+    {
+      "file": "home-identity-review.json",
+      "original_bytes": 323,
+      "original_sha256": "0b95d62bf08ce0068ed90b5dbe2e5ac0df29faafe5a869747e9b44f427f71236",
+      "published_bytes": 323,
+      "published_sha256": "0b95d62bf08ce0068ed90b5dbe2e5ac0df29faafe5a869747e9b44f427f71236"
+    }
+  ]
+}

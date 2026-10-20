@@ -1,0 +1,12 @@
+{
+  "decision": "ACCEPT narrow test-only CI contract reconciliation",
+  "reviewed_commit": "a769254f32547c5f38092fc49347939f9cc3bec2",
+  "test_sha256": "3c0132bd2b3d89c266770eacae2d94ed5265134081705c53f17c4a7189b6555d",
+  "verified_scope": "Only one existing function body differs outside new evidence; decorators/signature and every other test AST identical; production unchanged.",
+  "contract_review": "Exact tr source matches production _own_diameter, with original object key and repr invalid value. Current-language lookup/placeholder formatting is used, so English-only human-label assertion is not retained. Diagnostic equality is stricter than old substring. Original magnification-derived diameter equality retained; minimum_size and maximum_size fallback equalities added. Cell/nucleus/pathogen parametrization retained.",
+  "evidence": "All receipt artifact hashes match actual committed bytes. Baseline3FAIL, affected3PASS9.30s, separate42controlsPASS6.31s;45distinct reported.",
+  "tests_rerun_by_peer": false,
+  "limits": [
+    "Test contract repair, no production bug fix/full CI/native scientific/whole N696 closure claimed."
+  ]
+}

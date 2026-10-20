@@ -14,8 +14,7 @@ Interactive Cellpose tuning surface for the Mask app screen. It provides:
   for RGB) so raw low-contrast tiles are legible.
 * **Model-aware options.** Every model shows the full segmentation set.
   Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or
-  ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that
-  killed that belief.
+  ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement.
 * **Outline colour + thickness.** Chosen from the toolbar; effect is
   live once a mask exists. ``color (random)`` assigns a stable categorical
   colour to every object label so touching masks remain distinguishable.
@@ -23,13 +22,12 @@ Interactive Cellpose tuning surface for the Mask app screen. It provides:
   ``cell``, ``nucleus``, and ``cell + nucleus``. In cell+nucleus mode
   the panel runs two Cellpose passes and overlays both masks in
   distinct colours.
-* **The model the RUN will use, and it says which.** The panel reads the
-  same setting the pipeline reads -- ``pathogen_model`` over
-  ``pathogen_model_name`` for pathogens, ``<object>_model_name``
-  otherwise (:func:`_model_keys_for`) -- offers the model zoo beside the
-  combo, and names the model that produced the masks on the status line.
-  A checkpoint that is not on this machine previews with cpsam AND SAYS
-  SO rather than stalling or substituting in silence.
+* **The model the run will use, named on screen.** The panel reads the same
+  setting the pipeline reads -- ``pathogen_model`` over ``pathogen_model_name``
+  for pathogens, ``<object>_model_name`` otherwise (:func:`_model_keys_for`) --
+  offers the model zoo beside the combo, and names the model that produced the
+  masks on the status line. A checkpoint that is not on this machine previews
+  with cpsam and says so rather than stalling or substituting in silence.
 * **Pre / Post filters.** When the object type is ``cell`` (or the
   combined mode) the panel routes pre / post-processing settings from
   the Mask app (``cell_min_size``, ``cell_max_size``,
@@ -53,13 +51,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Event
 from typing import Any, Dict, List, Optional, Sequence, Tuple
+from .. import _after
 
 import numpy as np
 
 from PySide6.QtCore import QPointF, QRectF, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
+    QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsItem, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
     QHeaderView, QSizePolicy, QSpinBox, QTableWidget,
     QTableWidgetItem,
@@ -119,8 +118,59 @@ DIAMETER_TOOLTIP = (
     "(float, px) Expected object diameter. Cellpose-SAM uses it: the "
     "image is rescaled by 30/diameter before segmentation, so raising it "
     "finds bigger objects and lowering it finds smaller ones. 30 is the "
-    "no-op (30/30 = 1) and 0 means 'unset', which is the same thing."
+    "no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates "
+    "the size (Cellpose-SAM, which has no size model, keeps the native "
+    "scale). An object diameter left blank opens at its magnification "
+    "default, as the run uses it."
 )
+
+
+class _DiameterSpinBox(QDoubleSpinBox):
+    """The preview's diameter: a number of pixels, or 0 shown as "auto".
+
+    Item 696. The box used to carry a " px" suffix, so "auto" could not be
+    typed. The unit is in the row's label and the tooltip instead, and
+    "auto", "Auto" and 0 all mean the box's minimum, which reads "auto".
+    """
+
+    def __init__(self, parent=None):
+        """Make the box, 0 to 400 px, its minimum reading "auto"."""
+        super().__init__(parent)
+        self.setRange(0, 400)
+        self.setSpecialValueText("auto")
+
+    def validate(self, text, pos):
+        """Accept any case of "auto" and anything a number box accepts.
+
+        :param text: what is in the box.
+        :param pos: the cursor position.
+        """
+        from PySide6.QtGui import QValidator
+
+        word = str(text).strip().lower()
+        if word and "auto".startswith(word):
+            state = (QValidator.Acceptable if word == "auto"
+                     else QValidator.Intermediate)
+            return state, text, pos
+        return super().validate(text, pos)
+
+    def valueFromText(self, text):
+        """"auto" in any case is 0, the value Cellpose estimates at.
+
+        :param text: what is in the box.
+        """
+        if str(text).strip().lower() == "auto":
+            return 0.0
+        return super().valueFromText(text)
+
+    def fixup(self, text):
+        """Write a typed "Auto" the way the box shows it.
+
+        :param text: what is in the box.
+        """
+        if str(text).strip().lower() == "auto":
+            return "auto"
+        return super().fixup(text)
 
 OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
 
@@ -157,7 +207,7 @@ def organelle_label(number: int) -> str:
 
 
 def object_role(label: str) -> str:
-    """The settings ROLE an object-dropdown caption stands for.
+    """The settings role an object-dropdown caption stands for.
 
     ``organelle`` is slot 1, whose role has the same name; ``organelle 2`` is
     ``organelleb``, which is the prefix its settings keys actually carry. The
@@ -339,9 +389,8 @@ VIEW_MODES = ("Overlay", "Masks", "Flows", "Cell probability")
 
 SESSION_MASK_LIMIT = 8
 """How many of this session's masks the comparison panel can lay over one
-another: the last eight, oldest dropped first. Each is a full-size label
-array, and a panel that kept every run of an afternoon would hold them all
-in memory for a popup that lists eight comfortably."""
+another: the last eight, oldest dropped first. Each is a full-size label array,
+and keeping every run would hold them all in memory."""
 
 
 
@@ -377,10 +426,10 @@ def load_preview_image(path: Path) -> np.ndarray:
 def load_preview_mip(paths) -> np.ndarray:
     """Max-project a field's planes, the way the ingest already does.
 
-    ``io._rename_and_organize_image_files`` reduces every z-stack to
-    ``np.max`` over its planes, per field and per channel, before anything
-    reaches ``stack/``. This is the preview's copy of that, so what the user
-    is looking at is what masking will actually run on.
+    ``io._rename_and_organize_image_files`` reduces every z-stack to ``np.max``
+    over its planes, per field and per channel, before anything reaches
+    ``stack/``. This is the preview's copy of that, so what the user is looking
+    at is what masking runs on.
 
     Planes are folded one at a time rather than stacked: a 60-plane field at
     2048x2048 uint16 is 500 MB as one array and 8 MB folded.
@@ -561,13 +610,11 @@ _AUTO_COLOUR_RNG = random.Random()
 def safe_outline_palette() -> Optional[List[Tuple[int, int, int]]]:
     """Colours ``auto`` may draw from, or ``None`` when any colour will do.
 
-    A random hue is right for a sighted user and exactly wrong for a
-    colour-blind one: uniform over the circle, it will sooner or later hand
-    two adjacent compartments a pair that user cannot tell apart, and the
-    outlines are the one thing on the screen whose whole job is to be told
-    apart. When a colour-vision mode is set, ``auto`` draws from the
-    Okabe-Ito set instead -- eight colours chosen to stay distinct under all
-    three deficiencies.
+    A random hue suits normal colour vision but not a colour-vision deficiency:
+    uniform over the circle, it will sooner or later give two adjacent
+    compartments a pair of colours that user cannot tell apart. When a
+    colour-vision mode is set, ``auto`` draws from the Okabe-Ito set instead --
+    eight colours chosen to stay distinct under all three deficiencies.
 
     :returns: RGB triples, or ``None`` when the preference is ``off``.
     """
@@ -599,7 +646,7 @@ def random_outline_colour(rng: Optional[random.Random] = None,
 
     Hue is uniform over the full circle while saturation and value stay high,
     so the colour is always legible on top of a micrograph — a uniform draw in
-    RGB would regularly produce muddy near-grey outlines nobody can see.
+    RGB would regularly produce low-contrast near-grey outlines.
 
     :param rng: optional generator, for reproducible tests.
     :param palette: draw from these instead of the hue circle. This is how
@@ -647,15 +694,15 @@ def overlay_masks(image: np.ndarray,
         mode reaches the renderer: it holds one random colour per
         compartment for the current run. Falls back to
         :data:`OBJECT_COLORS` for anything it does not name.
-    :param primaries: one of :data:`spacr.crops.DISPLAY_PRIMARIES`. Applied
-        to the IMAGE ONLY, before a single outline is drawn.
+    :param primaries: one of :data:`spacr.crops.DISPLAY_PRIMARIES`. Applied to
+        the image only, before a single outline is drawn.
 
-    WHY THE ORDER MATTERS, and it is the whole reason this parameter is here
-    rather than in :func:`numpy_to_qpixmap`. The primaries are a
-    channel-to-colour mapping and only channels belong in it. An outline is
-    not a channel -- it is a colour the user chose, or a categorical label
-    -- so putting it through the same matrix would answer a request for a
-    red outline with a yellow one. Recolour the image, then draw on top.
+    The order is why this parameter is here rather than in
+    :func:`numpy_to_qpixmap`. The primaries are a channel-to-colour mapping and
+    only channels belong in it. An outline is not a channel -- it is a colour
+    the user chose, or a categorical label -- so putting it through the same
+    matrix would answer a request for a red outline with a yellow one. Recolour
+    the image, then draw on top.
     """
     base = _to_uint8(image, normalise=normalise,
                         lo_pct=lo_pct, hi_pct=hi_pct)
@@ -793,11 +840,9 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
 
     This is the whole of a preview load, written so it touches **no widget and
     no Qt object** and can therefore be handed straight to
-    :class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of
-    a hand-rolled ``QThread`` that emitted two signals, which kept the panel's
-    sampler warm by ordering ``enumerated`` before ``loaded``; returning both
-    halves in one dict gets the same ordering for free, because the caller
-    adopts the enumeration and installs the image in a single GUI-thread call.
+    :class:`spacr.qt.job_runner.JobRunner`. Both halves are returned in one
+    dict, so the caller adopts the enumeration and installs the image in a
+    single GUI-thread call.
 
     The enumeration reads **file names only**. Decoding reads the selected
     image, plus its channel's z-planes when projection is requested.
@@ -806,8 +851,8 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
     :param max_sets: cap for the sample drawn when ``source`` is a directory.
     :param enumerate_sets: ``False`` skips the folder scan entirely. The FOV
         dropdown hands out a path from a set the sampler already produced, so
-        re-scanning for it would burn a full pass over a 98 000-file plate to
-        rediscover what is already cached.
+        re-scanning for it would repeat a full pass over a plate of up to 98
+        000 files for a listing that is already cached.
     :param project: project the selected channel's z-stack on this worker.
     :param known_sets: cached image sets used when enumeration is skipped.
     :returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is
@@ -1199,7 +1244,7 @@ def _backend_preview_pass(req: PreviewRequest, obj: str,
 
     backend, masks_of = route
     settings = dict(req.preprocess_settings)
-    settings[f"{obj}_diameter"] = float(req.diameter) or None
+    settings[f"{obj}_diameter"] = float(req.diameter) or "auto"
     settings[f"{obj}_flow_threshold"] = float(req.flow_threshold)
     settings[f"{obj}_cellprob_threshold"] = float(req.cellprob)
     image = image_2d
@@ -1329,6 +1374,42 @@ def _apply_size_filter(mask: np.ndarray,
     ).astype(mask.dtype)
 
 
+FILTER_DEBOUNCE_MS = 275
+"""How long the live preview waits after the last filter edit before it
+re-filters. Typing ``510`` into a minimum-area box used to re-filter, redraw
+and propagate three times, about half a second each on a 2000 x 2000 field,
+on the GUI thread; the tutorial capture of lesson 07 froze for that second."""
+
+
+def _filter_preview_masks(raw: Dict[str, np.ndarray],
+                          post: Dict[str, Any],
+                          intensities: Dict[str, np.ndarray],
+                          render: Optional[Dict[str, Any]] = None
+                          ) -> Dict[str, Any]:
+    """Filter the cached raw masks and, when asked, draw their overlay.
+
+    Pure: it reads only its arguments, so it is safe on a worker thread.
+
+    :param raw: the cached Cellpose masks by compartment.
+    :param post: the settings the filters read.
+    :param intensities: each compartment's own intensity plane.
+    :param render: the :func:`overlay_masks` arguments without ``masks``,
+        or ``None`` to skip drawing.
+    :returns: ``{"masks": ..., "overlay": ...}``, or ``{"error": exc}``
+        when filtering or drawing raised.
+    """
+    try:
+        out = {obj: _apply_size_filter(mask, post, obj,
+                                       intensity_img=intensities.get(obj))
+               for obj, mask in raw.items()}
+        overlay = None
+        if render is not None:
+            overlay = overlay_masks(masks=out, **render)
+    except Exception as exc:
+        return {"error": exc}
+    return {"masks": out, "overlay": overlay}
+
+
 
 #: How far the pointer may travel and still count as a click rather than a
 #: drag. This view pans with the left button, so without a slop threshold
@@ -1429,11 +1510,19 @@ class _ZoomView(QGraphicsView):
     def set_pixmap(self, pixmap: QPixmap) -> None:
         """Show a new image, fitted, and forget any zoom the user had applied.
 
+        The picture is cached at the size it is shown. The window's field
+        repaints everything above it on every frame, this view included, and
+        drawing a 2048-pixel field scaled into the panel on each of those
+        frames cost about 3 ms a view at 2560x1440 against a blit of the
+        cached, already scaled picture. The cache is rebuilt when the zoom
+        changes.
+
         :param pixmap: the image to show. The zoom is reset so a new field
             starts at the whole canvas rather than inside the last one's crop.
         """
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
+        self._pixmap_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
         self.setSceneRect(self._scene.sceneRect())
         self._user_zoomed = False
@@ -1441,6 +1530,24 @@ class _ZoomView(QGraphicsView):
         self.resetTransform()
         self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
         self._message = ""
+
+    def _show_frame(self, pixmap: QPixmap) -> None:
+        """Show the next frame of the same field, keeping zoom and pan.
+
+        A frame the size of the one on show replaces the picture of the
+        item already in the scene, so scrubbing or playing a movie neither
+        rebuilds the scene nor refits it on every step, and a user zoomed
+        into one cell stays on that cell while the movie plays. A frame of
+        another size is a new field and goes through :meth:`set_pixmap`.
+
+        :param pixmap: the frame to show.
+        """
+        item = self._pixmap_item
+        if item is None or item.pixmap().size() != pixmap.size():
+            self.set_pixmap(pixmap)
+            return
+        if item.pixmap().cacheKey() != pixmap.cacheKey():
+            item.setPixmap(pixmap)
 
     def show_message(self, text: str) -> None:
         """Say ``text`` where a picture would be, and hold no picture.
@@ -1777,7 +1884,7 @@ def _plaque_model_the_run_would_use(
     """The checkpoint the plaque RUN would segment with, by its own resolver.
 
     ``analyze_plaques`` never hands ``model_name`` to Cellpose. It resolves
-    ``plaque_model`` -- a :mod:`spacr.model_zoo` key (``toxoplasma_plaque_v2``
+    ``plaque_model`` -- a :mod:`spacr.model_zoo` key (``toxoplasma_plaque_v5``
     by default), ``'bundled'``, or a path -- through :func:`spacr.submodules._resolve_plaque_model`
     and loads the answer as ``custom_model``. Measured on a built Plaque Assay
     screen the form carries ``plaque_model='bundled'`` AND
@@ -2008,9 +2115,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     """Interactive segmentation preview — Mask app only.
 
     The reference implementation of
-    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the
-    other three live views wear the same run button, the same cancel
-    button and the same words as this one.
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`: the other
+    three live views use the same run button, the same cancel button and the
+    same words as this one.
 
     :param parent: parent widget.
     :param threaded: whether the panel's jobs run off the GUI thread. False
@@ -2085,7 +2192,23 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                                      user_visible=False)
         self._image_load_token: int = 0
         self._run_token: int = 0
+        self._filter_jobs = JobRunner(self, threaded=threaded,
+                                      app_key="preview filter",
+                                      user_visible=False)
+        self._filter_token: int = 0
+        self._canvas_epoch: int = 0
+        self._filter_debounce_ms: int = FILTER_DEBOUNCE_MS if threaded else 0
+        self._filter_timer = QTimer(self)
+        self._filter_timer.setSingleShot(True)
+        self._filter_timer.timeout.connect(self._start_filter_job)
+        self._propagate_timer = QTimer(self)
+        self._propagate_timer.setSingleShot(True)
+        self._propagate_timer.timeout.connect(self._propagate_now)
+        self._propagation_waiting = False
+        self._filter_jobs.job_finished.connect(self._after_filter_job)
         self._propagate_cb = None
+        self._verified_propagate_cb = None
+        self._selected_model_reference = None
         self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
         self._loading_fov = False
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
@@ -2256,9 +2379,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._organelle_channel = QSpinBox(self)
         self._organelle_channel.setRange(0, 8); self._organelle_channel.setValue(3)
 
-        self._diameter = QDoubleSpinBox(self)
-        self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
-        self._diameter.setSuffix(" px")
+        self._diameter = _DiameterSpinBox(self)
+        self._diameter.setValue(30.0)
+        self._diameter_default_seeded: Optional[Tuple[str, float]] = None
         self._flow = QDoubleSpinBox(self)
         self._flow.setRange(-1, 100); self._flow.setSingleStep(0.05)
         self._flow.setValue(0.4)
@@ -2587,9 +2710,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         **Every** GUI path — the drop handler, the FOV dropdown and the
         Choose-image dialog — goes through :meth:`load_source_async`, so that
         neither the decode nor the folder enumeration behind
-        ``_refresh_source_selectors`` can block the application thread. Three of
-        them used to call this instead, which is what the docstring already
-        claimed was not happening.
+        ``_refresh_source_selectors`` can block the application thread.
 
         :param path: the image file to show; with MIP on, its field's stack is
             max-projected instead. A failure is reported in the status line
@@ -2726,7 +2847,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 signal.disconnect()
             drain_thread(worker, timeout_ms=0)
             self._worker = None
-        for name in ("_load_jobs", "_model_jobs"):
+        self._filter_timer.stop()
+        self._filter_token += 1
+        self.flush_propagation()
+        for name in ("_load_jobs", "_model_jobs", "_filter_jobs"):
             runner = getattr(self, name, None)
             if runner is not None:
                 runner.shutdown()
@@ -2852,7 +2976,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._localise_channel_combo()
         self._populate_set_table()
         self._refresh_mip_toggle()
-        QTimer.singleShot(0, self, self._follow_object_channel)
+        _after(0, self, self._follow_object_channel)
 
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""
@@ -2863,10 +2987,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         The table is grouped when a folder is loaded, with the
         ``metadata_type`` and ``custom_regex`` the Mask form held at that
-        moment. Loading first and choosing the naming second left every file
-        under one column until something else reloaded the folder. The
-        screen calls this when either setting changes. The folder's file
-        names are read off the GUI thread, and nothing is decoded.
+        moment. Without this, choosing the naming after loading would leave
+        every file under one column until the folder was reloaded. The screen
+        calls this when either setting changes. The folder's file names are
+        read off the GUI thread, and nothing is decoded.
 
         :returns: ``True`` when a regrouping was started, ``False`` when no
             image is loaded.
@@ -2971,7 +3095,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         columns = self._set_table_columns(sets)
         table.blockSignals(True)
         try:
-            table.clear()
+            _retire_table_cells(table, headers=True)
             table.setRowCount(len(sets))
             table.setColumnCount(len(columns))
             table.setHorizontalHeaderLabels(
@@ -2997,7 +3121,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                         iter(image_set.channels), None)
                     planes = len(image_set.planes.get(key) or ()) or 1
                     text = name if planes <= 1 else f"{name}  ({planes}z)"
-                    item = table_item(text)
+                    item = _spare_table_item(table, text)
                     item.setToolTip(str(image_set.path(key)))
                     item.setData(Qt.UserRole, str(image_set.path(key)))
                     if plane is not None:
@@ -3515,19 +3639,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def settings_for_propagation(self) -> dict:
         """Map the live-preview widget values to main-panel settings keys.
 
-        THE MODEL IS WRITTEN BACK TO THE KEY IT WAS READ FROM. Propagation
-        used to write ``model_name`` and ``<primary>_model_name`` only, and
-        for pathogens the run reads neither first: ``pathogen_model``
-        overrides both when it is set. A user seeded from a
-        ``pathogen_model`` checkpoint, switched the live model, and
-        propagated, and the run went on using the checkpoint -- the same
-        preview/run disagreement as before, pointing the other way.
+        The model is written back to the key it was read from. For pathogens
+        the run reads ``pathogen_model`` first, overriding ``model_name`` and
+        ``<primary>_model_name`` when it is set, so writing only the name keys
+        would leave the run on the old checkpoint after the user switched the
+        live model.
 
-        Only when the settings the panel holds ALREADY set that key. Writing
-        it otherwise would newly switch the override on for a user who never
-        asked for it, and ``pathogen_model`` is validated harder than the
-        name key (:mod:`spacr.validate` stops a run on a path that is not
-        there).
+        Only when the settings the panel holds already set that key. Writing it
+        otherwise would switch the override on when the user did not set it,
+        and ``pathogen_model`` is validated harder than the name key
+        (:mod:`spacr.validate` stops a run on a path that is not there).
         """
         model = self._model_box.currentText()
         primary = self._primary_object()
@@ -3539,8 +3660,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "pathogen_channel": int(self._pathogen_channel.value()),
             f"{self._active_organelle_role}_channel": int(
                 self._organelle_channel.value()),
-            f"{primary}_diameter": self._unclamped(
-                self._diameter, float(self._diameter.value())),
+            f"{primary}_diameter": self._diameter_to_propagate(primary),
             f"{primary}_flow_threshold": self._unclamped(
                 self._flow, float(self._flow.value())),
             f"{primary}_cellprob_threshold": self._unclamped(
@@ -3555,6 +3675,65 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if hasattr(self, "_compartment_widgets"):
             out.update(self._compartment_settings())
         return out
+
+    def _seed_the_diameter(self, settings: dict, primary: str) -> None:
+        """Show the diameter the run will segment ``primary`` with (item 696).
+
+        The run's rule, :func:`spacr.object_settings_table._resolved_diameter`:
+        the object's own number; 0 or "auto", shown as "auto"; and for a
+        blank diameter the magnification default -- which the box then
+        shows, so the preview segments at what the run segments at. A
+        module that names its one diameter ``diameter`` is seeded from that
+        key as before.
+
+        :param settings: the module's settings.
+        :param primary: the object the box speaks for.
+        """
+        from spacr.object_settings_table import (_AUTO_DIAMETER,
+                                                 _canonical_diameter,
+                                                 _resolved_diameter)
+
+        self._diameter_default_seeded = None
+        if settings.get("diameter") is not None:
+            raw = _canonical_diameter(settings["diameter"])
+            resolved = 0.0 if raw == _AUTO_DIAMETER else raw
+        else:
+            resolved = _resolved_diameter(
+                settings.get(f"{primary}_diameter"),
+                settings.get("magnification"), primary)
+            if resolved == _AUTO_DIAMETER:
+                resolved = 0.0
+        if resolved is None:
+            return
+        try:
+            wanted = float(resolved)
+        except (TypeError, ValueError):
+            LOG.debug("apply_settings: %r is not a diameter", resolved)
+            return
+        self._diameter.setValue(wanted)
+        held = float(self._diameter.value())
+        if held != wanted:
+            self._clamped_on_seeding[id(self._diameter)] = (held, wanted)
+        else:
+            self._clamped_on_seeding.pop(id(self._diameter), None)
+        if (settings.get("diameter") is None
+                and settings.get(f"{primary}_diameter") in (None, "")):
+            self._diameter_default_seeded = (primary, held)
+
+    def _diameter_to_propagate(self, primary: str):
+        """The box's diameter as the object's setting stores it (item 696).
+
+        0 is "auto". The magnification default the box was seeded with goes
+        back as blank, so a later change of magnification still moves it.
+
+        :param primary: the object the box speaks for.
+        """
+        value = float(self._diameter.value())
+        if value <= 0:
+            return "auto"
+        if self._diameter_default_seeded == (primary, value):
+            return None
+        return self._unclamped(self._diameter, value)
 
     def _model_write_back(self, model: str) -> Dict[str, Any]:
         """The model keys a registry module's run reads, written back safely.
@@ -3589,13 +3768,58 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 return {"plaque_model": model}
         return {}
 
+    def schedule_propagation(self, *_args) -> None:
+        """Propagate once the user stops editing, not on every keystroke.
+
+        Writing ``object_filters`` into the main panel redraws its object
+        grid, 10 to 30 ms a time. :meth:`flush_propagation` sends a pending
+        push at once; the dialog calls it when an edit finishes or the
+        toggle goes off, so a run never starts from stale settings.
+        """
+        if self._filter_debounce_ms <= 0:
+            self.propagate_settings()
+            return
+        self._propagate_timer.start(self._filter_debounce_ms)
+
+    def flush_propagation(self, *_args) -> None:
+        """Send a propagation that is still waiting out its delay."""
+        if self._propagate_timer.isActive() or self._propagation_waiting:
+            self._propagate_timer.stop()
+            self._propagation_waiting = False
+            self.propagate_settings()
+
+    def _propagate_now(self) -> None:
+        """The delayed push, held back while a filter job is running.
+
+        The two share the interpreter; run together, the push took twice as
+        long. It goes out when the job settles, see
+        :meth:`_after_filter_job`.
+        """
+        if self._filter_jobs.is_busy():
+            self._propagation_waiting = True
+            return
+        self.propagate_settings()
+
+    def _after_filter_job(self, _ok: bool = True) -> None:
+        """Send a push that waited for the filter jobs to settle."""
+        if self._propagation_waiting and not self._filter_jobs.is_busy():
+            self._propagation_waiting = False
+            self.propagate_settings()
+
     def propagate_settings(self) -> None:
         """Send the current live settings to the main panel (if a callback is
         registered). Called on any live-settings change while the dialog's
         Propagate toggle is on."""
         if self._propagate_cb is not None:
             try:
-                self._propagate_cb(self.settings_for_propagation())
+                settings = self.settings_for_propagation()
+                selected = self._selected_model_reference
+                if (selected is not None
+                        and selected[:2] == (self._model_box.currentText(), self._primary_object())
+                        and self._verified_propagate_cb is not None):
+                    self._verified_propagate_cb(settings, selected[2])
+                else:
+                    self._propagate_cb(settings)
             except Exception:
                 LOG.debug("propagate_settings failed", exc_info=True)
 
@@ -3617,11 +3841,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         or Omnipose row as ``<prefix><model>`` to its own backend.
         """
         from ... import model_zoo
-        from .model_zoo_picker import choose_model
+        from .model_zoo_picker import ModelZooPicker
+        from PySide6.QtWidgets import QDialog
 
-        path = choose_model(self, kinds=model_zoo._mask_model_kinds())
+        dialog = ModelZooPicker(model_zoo._mask_model_kinds(), self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        path = dialog.chosen_path()
         if not path:
             return
+        reference = getattr(dialog, "_chosen_reference", None)
+        self._selected_model_reference = (
+            (str(path), self._primary_object(), reference) if reference is not None else None)
         index = self._model_box.findText(str(path))
         if index < 0:
             self._model_box.addItem(str(path))
@@ -3632,18 +3863,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """Seed the panel from a module's settings, and cache the whole dict
         for the Pre / Post routes to read from.
 
-        This is the inverse of :meth:`settings_for_propagation` and is
-        tested as one — the defect it was written for is that the two spoke
-        different vocabularies. The panel emitted ``cell_diameter`` and read
-        back ``diameter``, which Mask does not declare, so a Mask screen
-        seeded here kept the panel's own hardcoded 30 px, 0.4 flow and 0.0
-        probability while ``cell_channel`` and ``nucleus_channel`` DID land
-        — the preview visibly changed and looked seeded, having silently
-        dropped exactly the three settings it is opened to check.
+        This is the inverse of :meth:`settings_for_propagation` and is tested
+        as one: it reads the panel's own key and the ``<object>_`` key Mask
+        declares, such as ``cell_diameter``, so the diameter, flow threshold
+        and cell probability are seeded along with the channels.
 
-        Every field is copied independently. A single unusable value used to
-        abort the whole copy through the shared ``except``, so one junk
-        diameter also cost the flow threshold, the channels and the model.
+        Every field is copied independently, so one unusable value does not
+        stop the others being copied.
 
         A retired ``{object}_min_area``-family bound in ``settings`` is
         folded into ``object_filters`` first, as a Mask run folds it, so the
@@ -3654,6 +3880,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         from spacr.settings import _fold_object_bounds
 
+        self._selected_model_reference = None
         settings = _fold_object_bounds(dict(settings or {}), quiet=True)
         try:
             self._rebuild_object_choices(organelle_count(settings))
@@ -3674,7 +3901,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         def _seed(widget, keys, cast):
             """Write the first present, usable value of ``keys``.
 
-            A SPIN BOX CLAMPS WHAT IT CANNOT HOLD, silently. The flow
+            A spin box silently clamps a value outside its range. The flow
             threshold runs -1 to 3 here while Mask ships 100 -- "accept
             everything Cellpose proposes" -- so seeding wrote 3, and
             propagating then handed 3 back as if the user had chosen it. The
@@ -3698,10 +3925,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 return
 
         for native, suffix in self._SEGMENTATION_ALIASES:
-            widget = {"diameter": self._diameter,
-                      "flow_threshold": self._flow,
+            if native == "diameter":
+                continue
+            widget = {"flow_threshold": self._flow,
                       "CP_prob": self._prob}[native]
             _seed(widget, (native, f"{primary}_{suffix}"), float)
+        self._seed_the_diameter(settings, primary)
 
         for comp in COMPARTMENTS:
             key = (f"{self._active_organelle_role}_channel"
@@ -3874,6 +4103,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         The guard, the refusals and the busy state are the shared ones —
         see :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`.
         """
+        self.flush_propagation()
         if not self.begin_preview():
             return
         self._release_worker()
@@ -4055,7 +4285,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                                  self._pathogen_channel,
                                  self._organelle_channel):
             _channel_spinner.valueChanged.connect(
-                lambda *_: self._recompute_masks())
+                lambda *_: self._schedule_recompute())
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
             "intensity range for the chosen object's channel.")
@@ -4150,8 +4380,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             for sig_name in ("valueChanged", "currentTextChanged", "toggled"):
                 sig = getattr(w, sig_name, None)
                 if sig is not None:
+                    typed = sig_name == "valueChanged"
                     try:
-                        sig.connect(lambda *_: self._recompute_masks())
+                        sig.connect(
+                            lambda *_, debounce=typed:
+                            self._schedule_recompute(debounce=debounce))
                     except (TypeError, RuntimeError):
                         pass
 
@@ -4163,7 +4396,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if text_edited or self._widget_value(widget) != remembered[0]:
             self._clamped_on_seeding.pop(id(widget))
             if text_edited:
-                self._recompute_masks()
+                self._schedule_recompute()
 
     def _all_compartment_widgets(self) -> List[QWidget]:
         """Collect every control the Live Settings dialog manages.
@@ -4732,6 +4965,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._composite_roles = ()
         self._follow_object_channel()
         self._reseed_the_model_for_the_object()
+        self._seed_the_diameter(self._settings or {}, self._primary_object())
         self._refresh_cycle_controls()
         self._recompute_masks()
 
@@ -4910,6 +5144,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _refresh_canvases(self):
         """Re-render both views from the current image + masks."""
+        self._canvas_epoch += 1
         if self._image is None:
             return
         norm = self._normalise_check.isChecked()
@@ -5057,6 +5292,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         only shown inside the Live Settings dialog when it's open).
         The dialog re-reads visibility rules on open, so nothing to
         do here at rest."""
+        selected = self._selected_model_reference
+        if selected is not None and selected[:2] != (
+                self._model_box.currentText(), self._primary_object()):
+            self._selected_model_reference = None
         dlg = self._live_settings_dialog
         if dlg is not None:
             try:
@@ -5184,34 +5423,63 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _recompute_masks(self, snapshot: bool = False) -> None:
         """Re-apply the current per-compartment filters to the cached raw
-        masks and refresh the views — no Cellpose re-run. Called both after a
-        preview and whenever a filter widget changes."""
+        masks and refresh the views — no Cellpose re-run. Runs on the
+        calling thread; edits go through :meth:`_schedule_recompute`. A
+        filter job still in flight is superseded, so it cannot overwrite
+        what this installs."""
+        self._filter_timer.stop()
+        self._filter_token += 1
         raw = getattr(self, "_raw_masks", None)
         if not raw:
             return
         if snapshot:
             self._roll_auto_outline_colours()
         try:
-            if self._image is None:
-                raise ValueError(self.PREVIEW_SOURCE_HINT)
-            post = dict(self._settings)
-            if hasattr(self, "_compartment_widgets"):
-                post.update(self._compartment_settings())
-            out = {}
-            for obj, raw_mask in raw.items():
-                intensity = _select_channel(self._image, self._obj_channel(obj))
-                out[obj] = _apply_size_filter(raw_mask, post, obj,
-                                              intensity_img=intensity)
+            post, intensities = self._filter_inputs()
+            out = {obj: _apply_size_filter(raw_mask, post, obj,
+                                           intensity_img=intensities[obj])
+                   for obj, raw_mask in raw.items()}
         except Exception as exc:
-            LOG.debug("preview filtering failed", exc_info=True)
-            self._masks = {}
-            self._status.setText(preview_failure_message(exc))
-            if self._image is None:
-                self._mask_view.set_pixmap(QPixmap())
-            else:
-                self._refresh_canvases()
-            self.preview_ready.emit(None)
+            self._filtering_failed(exc)
             return
+        self._install_filtered(out, snapshot=snapshot)
+
+    def _filter_inputs(self):
+        """What the filters read, gathered on the GUI thread.
+
+        :returns: ``(settings, intensity plane by compartment)``.
+        :raises ValueError: when no image is loaded.
+        """
+        if self._image is None:
+            raise ValueError(self.PREVIEW_SOURCE_HINT)
+        post = dict(self._settings)
+        if hasattr(self, "_compartment_widgets"):
+            post.update(self._compartment_settings())
+        intensities = {obj: _select_channel(self._image,
+                                            self._obj_channel(obj))
+                       for obj in self._raw_masks}
+        return post, intensities
+
+    def _filtering_failed(self, exc: Exception) -> None:
+        """Show a filter failure and clear the masks it would have made."""
+        LOG.debug("preview filtering failed", exc_info=exc)
+        self._masks = {}
+        self._status.setText(preview_failure_message(exc))
+        if self._image is None:
+            self._mask_view.set_pixmap(QPixmap())
+        else:
+            self._refresh_canvases()
+        self.preview_ready.emit(None)
+
+    def _install_filtered(self, out, *, snapshot: bool = False,
+                          overlay: Optional[np.ndarray] = None) -> None:
+        """Show filtered masks: the counts, the views and the signal.
+
+        :param out: the filtered masks by compartment.
+        :param snapshot: also record the run for comparison.
+        :param overlay: the overlay a filter job already drew, shown as the
+            mask view instead of drawing both views again.
+        """
         self._masks = out
         counts = [f"{k}={int(v.max() if v.size else 0)}"
                     for k, v in out.items()]
@@ -5227,11 +5495,100 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 'Enhancement: {steps} (preview field).',
                 steps=', '.join(step for step in enhancement
                                 if step != 'order')))
-        self._refresh_canvases()
+        if overlay is not None:
+            self._mask_view.set_picture_name("overlay")
+            self._mask_view.set_pixmap(numpy_to_qpixmap(overlay))
+        else:
+            self._refresh_canvases()
         if snapshot:
             self._snapshot_run(out, counts)
         self.preview_ready.emit(out)
 
+    def _schedule_recompute(self, debounce: bool = True) -> None:
+        """Re-filter after an edit, off the GUI thread.
+
+        A typed value waits :data:`FILTER_DEBOUNCE_MS` for the next
+        keystroke, so ``510`` filters once rather than three times; a toggle
+        or a choice starts at once.
+
+        :param debounce: wait for the edit to settle first.
+        """
+        if not getattr(self, "_raw_masks", None):
+            return
+        if debounce and self._filter_debounce_ms > 0:
+            self._filter_timer.start(self._filter_debounce_ms)
+            return
+        self._start_filter_job()
+
+    def _overlay_arguments(self) -> Optional[Dict[str, Any]]:
+        """What :func:`overlay_masks` needs besides the masks, or ``None``.
+
+        ``None`` when the mask view shows something other than the overlay;
+        those views are drawn on the GUI thread as before.
+        """
+        if self._view_mode_choice() != "Overlay":
+            return None
+        return {
+            "image": self._display_image(),
+            "outline_rgb": self._outline_rgb(),
+            "outline_thickness": self._outline_thickness.value(),
+            "normalise": self._normalise_check.isChecked(),
+            "lo_pct": float(self._lo_pct.value()),
+            "hi_pct": float(self._hi_pct.value()),
+            "random_outline": self._outline_choice() == "color (random)",
+            "outline_colors": dict(self._auto_outline_map()),
+            "primaries": self.display_primaries(),
+        }
+
+    def _start_filter_job(self) -> None:
+        """Hand the filtering, and the overlay it feeds, to a worker.
+
+        Only the inputs are gathered here. The result comes back through
+        :meth:`_on_filter_result`, which drops it when newer edits have
+        superseded it.
+        """
+        self._filter_timer.stop()
+        raw = getattr(self, "_raw_masks", None)
+        if not raw:
+            return
+        if self._image is None:
+            self._recompute_masks()
+            return
+        self._filter_token += 1
+        token = self._filter_token
+        try:
+            post, intensities = self._filter_inputs()
+            render = self._overlay_arguments()
+        except Exception as exc:
+            self._filtering_failed(exc)
+            return
+        epoch = self._canvas_epoch
+        raw = dict(raw)
+        self._filter_jobs.submit(
+            lambda: _filter_preview_masks(raw, post, intensities, render),
+            lambda result, _t=token, _e=epoch: self._on_filter_result(
+                _t, _e, result))
+
+    def _on_filter_result(self, token: int, epoch: int, result) -> None:
+        """Install a filter job's result unless newer edits replaced it.
+
+        :param token: the job's filter token; a stale one is dropped.
+        :param epoch: :attr:`_canvas_epoch` when the job started. If the
+            views were redrawn since, the job's overlay may use an old
+            colour or channel, so both views are drawn again instead.
+        :param result: what :func:`_filter_preview_masks` returned.
+        """
+        if token != self._filter_token:
+            LOG.debug("dropping stale filter result (token %s, now %s)",
+                      token, self._filter_token)
+            return
+        if "error" in result:
+            self._filtering_failed(result["error"])
+            return
+        overlay = result.get("overlay")
+        if epoch != self._canvas_epoch:
+            overlay = None
+        self._install_filtered(result["masks"], overlay=overlay)
 
     def _snapshot_run(self, masks, counts) -> None:
         """Record a preview run (image + masks + display params) so the user
@@ -5416,9 +5773,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         time the panel is shown. After the first segmentation Cellpose is
         loaded and a checkpoint the user registered appears here.
 
-        Additive on purpose: the current selection is never disturbed, and
-        an entry is never removed, so a value the user picked cannot vanish
-        under them because a probe came back thinner.
+        Additive: the current selection is never changed and an entry is never
+        removed, so a value the user picked stays listed when a later probe
+        returns fewer models.
         """
         wanted = _model_menu()
         have = {self._model_box.itemText(i)
@@ -5441,7 +5798,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QFormLayout, QGroupBox, QScrollArea,
 )
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 
 
 class LiveSettingsDialog(QDialog):
@@ -5464,10 +5822,10 @@ class LiveSettingsDialog(QDialog):
       * Pre  (bool)
       * Post (bool)
 
-    :param panel: the preview panel this dialog edits. It is also the
-        dialog's PARENT, and the widgets the dialog lays out belong to the
-        panel rather than to it -- the dialog only knows which rows they sit
-        on, which is what lets a morphology change re-gate them.
+    :param panel: the preview panel this dialog edits. It is also the dialog's
+        parent, and the widgets the dialog lays out belong to the panel rather
+        than to it -- the dialog only knows which rows they sit on, which is
+        what lets a morphology change re-gate them.
     """
 
     def __init__(self, panel: "LivePreviewPanel"):
@@ -5512,7 +5870,7 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Nucleus channel", panel._nucleus_channel)
         form.addRow("Pathogen channel", panel._pathogen_channel)
         form.addRow("Organelle channel", panel._organelle_channel)
-        form.addRow("Diameter", panel._diameter)
+        form.addRow(tr("Diameter (px)"), panel._diameter)
         form.addRow("Flow threshold", panel._flow)
         form.addRow("Cell probability", panel._prob)
         form.addRow(panel._normalise_check)
@@ -5611,13 +5969,24 @@ class LiveSettingsDialog(QDialog):
                     continue
                 try:
                     if on:
-                        sig.connect(self._panel.propagate_settings)
+                        sig.connect(self._panel.schedule_propagation)
                     else:
-                        sig.disconnect(self._panel.propagate_settings)
+                        sig.disconnect(self._panel.schedule_propagation)
+                except (TypeError, RuntimeError):
+                    pass
+            finished = getattr(w, "editingFinished", None)
+            if finished is not None:
+                try:
+                    if on:
+                        finished.connect(self._panel.flush_propagation)
+                    else:
+                        finished.disconnect(self._panel.flush_propagation)
                 except (TypeError, RuntimeError):
                     pass
         if on:
             self._panel.propagate_settings()
+        else:
+            self._panel.flush_propagation()
 
     def _managed_widgets(self):
         """List the panel controls this dialog re-parents.

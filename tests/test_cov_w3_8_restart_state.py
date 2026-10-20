@@ -112,6 +112,9 @@ def test_saving_no_drafts_clears_an_earlier_unsaved_form(monkeypatch):
         def sync(self):
             pass
 
+        def status(self):
+            return 0
+
     store = Store()
     monkeypatch.setattr(restart_state, "_store", lambda: store)
     assert restart_state._save_drafts({"mask": {"src": "/old"}})

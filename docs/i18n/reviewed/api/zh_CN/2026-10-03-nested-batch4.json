@@ -209,7 +209,9 @@
       "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
       "context": "Retranslate a dialog's tree the first time it is shown.",
       "translation": "在对话框首次显示时重新翻译其控件树。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the Preferences open/close change (6be4c1d70, 4c776c10d) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.import_demo._load_import_variant._done#0",
@@ -369,7 +371,9 @@
       "source_sha256": "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa",
       "context": "The two halves fail separately on purpose. A listing that fails means the file is not a database and there is nothing to offer; a READ that fails, on one table of a database whose other tables listed fine, must still leave the picker populated -- that is how the user reaches the table that does read. Inline, that fell out of the order the old code ran in; here it has to be said.",
       "translation": "这两部分有意分别失败。列出失败意味着该文件不是数据库，没有可提供的内容；而读取失败——发生在某数据库的一张表上，而其他表都能正常列出——仍必须让选择器保持填充状态，这样用户才能找到确实可读的表。内联写法中，这一点来自旧代码的执行顺序；在这里则必须明确说明。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job#0",
@@ -577,7 +581,9 @@
       "source_sha256": "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1",
       "context": "A whole number comes back as an int. The CSV cannot distinguish a count from a measurement, and reading everything as float renders \"on 12517.0 objects\" in a tooltip -- a count with a decimal point reads as a rounding, which it is not.",
       "translation": "整数会以 int 形式返回。CSV 无法区分计数和测量值，若全部按 float 读取，工具提示中会显示 \"on 12517.0 objects\"——带小数点的计数看起来像是经过了舍入，而事实并非如此。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.scorecard.score_holdout.weighted#0",
@@ -625,7 +631,9 @@
       "source_sha256": "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b",
       "context": "``index`` is the strictest candidate yielding ``achieved``. The plateau reaches down to just above the last candidate that yielded MORE than ``achieved``, found by a second bisection on the same monotone statistic.",
       "translation": "``index`` 是得到 ``achieved`` 的最严格候选。平台向下延伸到最后一个得到多于 ``achieved`` 的候选之上，该候选通过在同一单调统计量上的第二次二分查找确定。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sequencing_qc.derive_threshold.stat#0",

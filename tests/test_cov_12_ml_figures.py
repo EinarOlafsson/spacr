@@ -320,6 +320,6 @@ def test_a_sheet_whose_figure_cannot_be_closed_is_still_written(monkeypatch,
     path = ml._write_regression_sheet(coef, tmp_path)
 
     assert path == str(tmp_path / 'regression_figure.pdf')
-    legend = (tmp_path / 'regression_figure_legend.txt').read_text()
+    legend = (tmp_path / 'regression_figure_legend.txt').read_text(encoding="utf-8")
     assert legend == 'Panel a, the volcano.\n'
     assert '2 panels, 1 not applicable' in capsys.readouterr().out

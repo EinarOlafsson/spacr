@@ -1,0 +1,14 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source_sha256": "43d04f0fd02036ba7f5d48ab3e910d7b6fa601fcaabe433e18ff0109b9b733f5",
+      "table": "ui",
+      "translation": "공개 플레이트 시리즈 불러오기: Cell Painting Gallery(CC0)의 CPJUMP1 화합물 플레이트 24장의 모든 웰로, DMSO 웰과 양성 대조군 웰이 표시되어 있으며, DMSO 웰을 플레이트별로 차트에 표시합니다. 약 2 MB이며 이후 캐시됩니다."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

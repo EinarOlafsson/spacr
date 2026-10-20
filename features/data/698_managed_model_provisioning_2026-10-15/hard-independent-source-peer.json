@@ -1,0 +1,35 @@
+{
+  "disposition": "Source technical peer ACCEPT for exact pinned snapshot; bind immutable owner commit before publication.",
+  "reviewer": "Original Home Hard independent agent",
+  "source_sha256": {
+    "tools/web_mask_generator/provision.py": "68dac48269b880a343fc7801216f0ab11c1e9077bd5482e20e5f0766480e2b4e",
+    "tools/web_mask_generator/space_app.py": "96afa00b61074e1e1a4b40e81d7117522d52d7a1a6393a8aa7313d7f120e013a",
+    "tools/web_mask_generator/space/README.md": "49d1f5b5c34b6246f10b044a4b264a2a1ed7e06d50e54db73e6eb0fd8b91c726",
+    "tools/web_mask_generator/space/models.json": "3eaca36d339e2490fea3725e7b5c7b0aa99225ded1c8d583b1e6e01538c876e1",
+    "tests/test_web_managed_provision_n698.py": "6291e621e071fb0413e9c55a64aee5f6002a25637a7a41a1e584b25b562a4e91"
+  },
+  "manifest": {
+    "identities": 17,
+    "declared_bytes": 17077359443,
+    "all_7_actual_source_pins_equal": true,
+    "all_detector_files_pt": true
+  },
+  "reviewed": [
+    "Full provisioner source and entrypoint, managed README, exact17-row manifest and all owning test assertions.",
+    "Suffix-preserving output fixes real vendor .pt dispatch; extensionless and .CP_model positive controls retained.",
+    "Exact source/catalogue identity, immutable revision/SHA/size gates before cache; all-row validation and24GiB declared aggregate/2GiB each.",
+    "Owner-only cache and held process lease, nofollow/regular/private/single-link checks, bounded SHA and before/after held-descriptor identity.",
+    "Public HTTPS fixed revision URL, proxy-disabled/no ambient auth handlers, validated redirect namespaces, bounded read1/count/hash/deadline, no retries.",
+    "Private temp plus no-overwrite hard-link publication and complete verified mapping only, no partial env map or default local download."
+  ],
+  "owner_execution_observed": {
+    "owning_exit": 0,
+    "format_final": "24PASS1.10s; source owner log read, not independently executed"
+  },
+  "limitations": [
+    "No independent tests/imports/model constructor/network/cache acquisition run.",
+    "Actual17GB provider acquisition/native free-host capacity/CUDA/GPU/scientific inference and URL/site acceptance remain unproven.",
+    "Manifest must be normally regenerated after final integration changes any bound source, including incoming F564 settings.",
+    "No generic protection from hostile same-UID filesystem mutation or OS crash atomicity claim."
+  ]
+}

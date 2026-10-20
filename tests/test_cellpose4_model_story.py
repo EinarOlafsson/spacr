@@ -32,6 +32,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from spacr.model_zoo import ModelZooError
 
 import matplotlib
 matplotlib.use("Agg")
@@ -109,15 +110,15 @@ def test_the_notice_says_what_was_asked_for_and_what_will_run(
 
 def test_a_missing_checkpoint_error_names_the_object_type(fake_cellpose,
                                                           tmp_path):
-    with pytest.raises(FileNotFoundError) as exc:
+    with pytest.raises(ModelZooError) as exc:
         U._choose_model(str(tmp_path / "gone" / "m.pth"), device="cpu",
                         object_type="pathogen")
-    assert "for pathogen" in str(exc.value)
+    assert "pathogen_model_name" in str(exc.value)
 
 
 def test_a_missing_checkpoint_error_invents_no_object_type(fake_cellpose,
                                                            tmp_path):
-    with pytest.raises(FileNotFoundError) as exc:
+    with pytest.raises(ModelZooError) as exc:
         U._choose_model(str(tmp_path / "gone" / "m.pth"), device="cpu")
     msg = str(exc.value)
     for object_type in ("cell", "nucleus", "pathogen", "organelle"):
@@ -166,10 +167,16 @@ def test_reset_re_arms_the_notice_for_the_next_run(fake_cellpose, capsys):
     assert capsys.readouterr().out.count("predates Cellpose-SAM") == 1
 
 
-def test_the_unknown_model_notice_is_also_once_per_run(fake_cellpose, capsys):
+def test_unknown_models_are_always_refused_without_a_stock_notice(fake_cellpose, capsys, monkeypatch):
+    from spacr import model_zoo as zoo
+
+    monkeypatch.setattr(zoo, "catalogue", lambda **kwargs: [])
+    monkeypatch.setattr(U.cp_models, "CellposeModel", lambda **kwargs:
+                        pytest.fail("Unknown model reached constructor"))
     for _ in range(50):
-        U._choose_model("no_such_model", device="cpu", object_type="cell")
-    assert capsys.readouterr().out.count("Unknown Cellpose model") == 1
+        with pytest.raises(zoo.ModelZooError):
+            U._choose_model("no_such_model", device="cpu", object_type="cell")
+    assert capsys.readouterr().out == ""
 
 
 def test_the_checkpoint_notice_is_also_once_per_run(fake_cellpose, tmp_path,
@@ -352,10 +359,10 @@ def test_the_sam_generator_stops_on_a_checkpoint_that_is_not_there(
     _write_npz(src)
     missing = str(tmp_path / "gone" / "m.pth")
 
-    with pytest.raises(FileNotFoundError) as exc:
+    with pytest.raises(ModelZooError) as exc:
         O.generate_cellpose_masks_sam(
             str(src), _mask_settings(src, cell_model_name=missing), "cell")
-    assert "cpsam" in str(exc.value)
+    assert "stock weights were not substituted" in str(exc.value)
     assert not (src / "cell_mask_stack").exists() or \
         list((src / "cell_mask_stack").iterdir()) == []
 

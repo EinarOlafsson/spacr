@@ -1,29 +1,29 @@
-"""Every gene against every measurement, corrected, in one matrix operation.
+"""Test every gene against every measurement in one matrix operation.
 
-The question is "which genes move which measurements", asked of the whole
+:func:`sweep` asks which genes change which measurements across the whole
 screen at once rather than one gene at a time.
 
-IT IS ONE MATMUL. A representative screen with 1,376 guides x 785
-measurements over 1,366 wells, computed in 0.1 seconds. A loop over a million
-regressions answers the same question in a morning; anything here that looks
-like one is a bug.
+The associations are computed as one matrix product. A representative screen
+with 1,376 guides x 785 measurements over 1,366 wells is computed in 0.1
+seconds; fitting the same pairs as about a million separate regressions takes
+hours.
 
-THE THREE CORRECTIONS ARE THE POINT OF THE MODULE. Each was found by hand
-while sweeping ONE gene, in about ten minutes, and each would be made again by
-anyone doing this themselves:
+The module applies three corrections. Each addresses an error found while
+sweeping one gene by hand:
 
-  * IDENTIFIERS ARE NOT MEASUREMENTS. `pathogen_object_label` came out at
-    p=2.5e-07 for EAF1 and it is a LABEL -- the cells picked out sit lower in
-    the segmentation's numbering, which is position in a list.
-    `pathogen_pathogen` is the same column under another name (spearman
-    0.9979, identical in 141,626 of 226,467 rows). Both were nearly reported.
-  * 785 TESTS IS NOT ONE TEST. `pathogen_solidity` at p=1.8e-03 looked
-    interesting and does not survive Benjamini-Hochberg.
-  * CIRCULARITY IS A COLUMN. The classification score is a function of the
-    image, so a measurement it already tracks cannot corroborate anything
-    derived from it. On this screen
+  * Identifier columns are excluded from the measurements.
+    `pathogen_object_label` came out at p=2.5e-07 for EAF1, but it is a label:
+    the selected cells sit lower in the segmentation's numbering, which is a
+    position in a list. `pathogen_pathogen` is the same column under another
+    name (spearman 0.9979, identical in 141,626 of 226,467 rows).
+  * P values are corrected for the number of tests (Benjamini-Hochberg).
+    With 785 measurements, `pathogen_solidity` at p=1.8e-03 does not survive
+    the correction.
+  * Each measurement's circularity is reported in its own column. The
+    classification score is a function of the image, so a measurement it
+    already tracks cannot corroborate a result derived from it. On this screen
     spearman(pred, pathogen_channel_1_mean_intensity) = -0.389, and the
-    "strongest result" for GRA14 was exactly that measurement, in exactly the
+    result that first looked strongest for GRA14 was that measurement, in the
     direction the correlation predicts.
 """
 from __future__ import annotations
@@ -85,9 +85,10 @@ def measurement_columns(frame: pd.DataFrame) -> List[str]:
 
     :param frame: object-measurement table whose numeric columns are screened.
 
-    A COLUMN THAT DUPLICATES AN IDENTIFIER IS ALSO OUT, whatever it is called.
-    `pathogen_pathogen` passes the name test and is the object label to four
-    decimal places; the only way to catch it is to look.
+    A column whose ranks correlate with an identifier column at above 0.99 is
+    also excluded, whatever it is called. `pathogen_pathogen` passes the name
+    test but matches the object label to four decimal places, so it is
+    detected from its values rather than its name.
     """
     numeric = [c for c in frame.columns
                if pd.api.types.is_numeric_dtype(frame[c])]
@@ -113,7 +114,7 @@ def measurement_columns(frame: pd.DataFrame) -> List[str]:
 
 @dataclass(frozen=True)
 class SweepResult:
-    """The grid, and the tidy table a reader actually looks at.
+    """Result of :func:`sweep`: the effect grid and a tidy per-pair table.
 
     :param table: tidy result frame with one row per fitted guide or
         gene-measurement pair and its effect, significance, support, and
@@ -148,8 +149,8 @@ class SweepResult:
         """Rows past the correction, optionally past a circularity bar too.
 
         :raises ValueError: a circularity bar was asked for and the score
-            never joined to the wells. Filtering on a column of NaN returns
-            nothing and looks like a result.
+            never joined to the wells. Filtering on a column of NaN would
+            return an empty table.
         """
         out = self.table[self.table["q"] < float(alpha)]
         if max_circularity < 1.0:
@@ -201,32 +202,30 @@ GUIDE_PREFIXES: Tuple[str, ...] = ("TGGT1_", "TGME49_", "TGVEG_", "TGRH88_")
 
 
 def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
-    """The gene a GUIDE NAME belongs to, for both spellings in use.
+    """Return the gene a guide name belongs to, for both spellings in use.
 
-    `spacr.hits.gene_of` reads a DESIGN TERM -- `fraction:grna[225160_1]` --
-    and truncates at the first underscore. Handed the bare `TGGT1_225160_2`
-    that a count table actually carries, that rule returns `TGGT1`: the
-    organism, for every guide in the screen, which pools the entire library
-    into one "gene". So a bracketed term still goes to `hits.gene_of`.
+    `spacr.hits.gene_of` reads a regression design term --
+    `fraction:grna[225160_1]` -- and truncates at the first underscore.
+    Applied to the bare `TGGT1_225160_2` that a count table carries, that rule
+    returns `TGGT1`, the organism, for every guide in the screen. Only a
+    bracketed term is therefore passed to `hits.gene_of`.
 
-    A BARE NAME IS READ BY ITS SHAPE. `process_reads` splits
-    `<organism>_<gene>_<guide>` on exactly three components, so a three-part
-    name gives up its gene as the middle one and a two-part name as the
-    first. That works for `PF3D7_0100100_1` and for a human library without
-    either being named anywhere.
+    A bare name is parsed by its number of underscore-separated parts.
+    `process_reads` splits `<organism>_<gene>_<guide>` on exactly three
+    components, so the gene of a name with three or more parts is the middle
+    part(s), and the gene of a two-part name is the first part. This works for
+    `PF3D7_0100100_1` and for a human library without listing either organism.
 
-    A PREFIX THAT WAS REMOVED IS NOT REMOVED TWICE. Once an organism has
-    been taken off the front -- the measured `prefix`, or one of
-    :data:`GUIDE_PREFIXES` -- the remainder is `<gene>_<guide>`, so the gene
-    is everything but the guide number. `TGGT1_ROP18_kinase_1` is
+    When an organism prefix has been removed -- the measured `prefix`, or one
+    of :data:`GUIDE_PREFIXES` -- the remainder is read as `<gene>_<guide>`, so
+    the gene is everything except the last part. `TGGT1_ROP18_kinase_1` gives
     `ROP18_kinase`, not `kinase`.
 
     :param guide: bare guide name or bracketed regression design term to parse.
-    :param prefix: an organism prefix MEASURED from the library, as
-        :func:`spacr.control_names.common_prefix` returns. Given, it is
-        removed first, and the remainder read as `<gene>_<guide>`. This is
-        how a caller that has the whole library in hand beats a rule that
-        only has one name.
+    :param prefix: an organism prefix measured from the library, as
+        :func:`spacr.control_names.common_prefix` returns. When given, it is
+        removed first and the remainder is read as `<gene>_<guide>`; this
+        handles prefixes that are not in :data:`GUIDE_PREFIXES`.
     """
     text = str(guide or "").strip()
     if not text:
@@ -261,20 +260,19 @@ def gene_of_guide(guide: Any, prefix: Optional[str] = None) -> Optional[str]:
 
 def gene_fractions(fractions: pd.DataFrame,
                    gene_of: Optional[Any] = None) -> pd.DataFrame:
-    """A gene's fraction in each well: the SUM of its guides' fractions.
+    """Return each gene's fraction per well as the sum of its guides' fractions.
 
-    The same rule the regression applies -- `wells_for_coefficient` with
-    `guide_aggregation='sum'` -- because "does this GENE move this
-    measurement" must not be a different arithmetic from the fit that found
-    the gene in the first place.
+    This is the rule the regression applies (`wells_for_coefficient` with
+    `guide_aggregation='sum'`), so a gene-level sweep uses the same gene
+    fractions as the fit that identified the gene.
 
     :param fractions: well-by-guide fraction matrix. Columns assigned to the
         same gene are summed row-wise.
     :param gene_of: guide name -> gene id. Defaults to
-        :func:`spacr.hits.gene_of`, which is the key the metadata join uses,
-        so the two cannot disagree about which gene a guide belongs to.
+        :func:`gene_of_guide`. A guide for which it raises or returns no gene
+        is left out.
     :returns: one column per gene. Guides that name no gene are left out
-        rather than pooled into an "unknown" gene that no experiment ran.
+        rather than pooled into an "unknown" gene.
     """
     if gene_of is None:
         gene_of = gene_of_guide
@@ -311,24 +309,22 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     :param wells: one row per well, the measurements in its columns.
     :param fractions: one row per well, one column per guide, holding that
         guide's fraction. Aligned to ``wells`` by index.
-    :param blocks: the plate of each well. Absent means one block, which is
-        honest but weaker: a plate difference can then look like a gene.
-    :param scores: the per-well classification score, used ONLY to compute
-        each measurement's circularity. Absent leaves that column at 0 and
-        the caller must not read it as "not circular".
-    :param controls: guide or gene names to MARK as controls. They are not
-        removed: the regression drops the control COLUMNS of the plate because
-        they are not part of the contrast it fits, but this asks a different
-        question -- whether a gene moves a measurement -- and a control is
-        exactly the thing whose answer you want to see. Marked so a reader can
-        find them, never filtered away behind their back.
-    :param drop_measurements: columns to leave out, by name. The complement
-        of ``measurements``: naming the two or three that are wrong is easier
-        than listing the seven hundred that are not.
-    :param drop_guides: guides or genes to leave out, by name. Matched at
-        BOTH levels -- a screen swept at gene level names genes and one at
-        guide level names guides, and a user typing a gene id should not have
-        to know which they are looking at.
+    :param blocks: the plate of each well. Each block's mean is subtracted
+        before fitting. Absent means one block, so a plate difference can then
+        appear as a gene effect.
+    :param scores: the per-well classification score, used only to compute
+        each measurement's circularity. Absent leaves the ``circularity``
+        column NaN and :attr:`SweepResult.circularity_known` False.
+    :param controls: guide or gene names to mark as controls in the
+        ``control`` column. They are not removed. The regression drops the
+        control columns because they are not part of the contrast it fits;
+        this sweep tests whether each guide or gene changes a measurement, and
+        the controls' results are reported for comparison.
+    :param drop_measurements: columns to leave out, by name; the complement of
+        ``measurements``.
+    :param drop_guides: guides or genes to leave out, by name. A guide is
+        dropped when its own name or its gene (:func:`gene_of_guide`) is
+        listed, so gene ids work at either level.
     :param max_share: drop a guide whose median well fraction, where it is
         present, is above this.
     :param max_wells_fraction: drop a guide present in more than this share
@@ -336,12 +332,10 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         measures median abundance where the guide is present. A guide can be
         common at low abundance or rare at high abundance, so the two filters
         identify different forms of over-representation.
-    :param min_wells: guides present in fewer wells than this are dropped --
-        a correlation over three wells is not an effect.
+    :param min_wells: guides present in fewer wells than this are dropped.
     :param level: ``'guide'``, ``'gene'``, or ``'both'``. A gene's fraction in
-        a well is the SUM of its guides' -- the same rule the regression
-        applies, because "does this GENE move this measurement" must not be a
-        different arithmetic from the fit that found the gene.
+        a well is the sum of its guides' fractions, the same rule the
+        regression applies (:func:`gene_fractions`).
     :returns: a :class:`SweepResult`. With ``'both'`` the table carries a
         ``level`` column and the guide rows stay reachable beside the gene
         ones.
@@ -594,8 +588,10 @@ def _write(figure, path) -> None:
                 setter(replacement)
                 restore.append(lambda put=setter, old=current: put(old))
     try:
-        figure.savefig(path, dpi=200, bbox_inches="tight",
-                       facecolor=figure.get_facecolor())
+        from .plot import _checked_savefig
+
+        _checked_savefig(figure, path, dpi=200, bbox_inches="tight",
+                         facecolor=figure.get_facecolor())
     finally:
         for undo in reversed(restore):
             undo()
@@ -697,18 +693,18 @@ def _readable(figure, *axes) -> str:
 def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
                alpha: float = 0.05, max_circularity: float = 1.0,
                top: int = 40, title: str = "", level: Optional[str] = None):
-    """A heatmap of what SURVIVED, clustered so related things sit together.
+    """Plot a clustered heatmap of the effects that survive the correction.
 
-    THE WHOLE GRID IS NOT A PICTURE. 1,240 guides x 767 measurements is
-    951,080 cells; drawn, it is a texture, and every one of them is coloured
-    whether or not it means anything. So the default view is the survivors --
-    the guides and measurements with at least one entry past the correction --
-    and everything else is a filter away.
+    The full grid is too large to read as an image: 1,240 guides x 767
+    measurements is 951,080 cells, all coloured whether or not they are
+    significant. The heatmap therefore draws only survivors -- the guides and
+    measurements with at least one entry past the correction -- and orders
+    rows and columns by correlation clustering.
 
     :param result: what :func:`sweep` returned.
-    :param top: the most guides and measurements to draw. A screen with
-        hundreds of survivors is a table, not a picture, and saying so beats
-        drawing something illegible.
+    :param top: the most guides and measurements to draw, lowest q first.
+        Survivors beyond this limit are not drawn; read them from
+        ``result.table``.
     :returns: the matplotlib Figure, or ``None`` when nothing survived.
     """
     import matplotlib.pyplot as plt
@@ -839,21 +835,19 @@ def plot_effect_against_representation(
     the underlying statistic. It shows whether a gene's number of significant
     measurements follows the overall representation trend or departs from it.
 
-    x is the gene's EFFECTIVE WELL COUNT -- the participation ratio, which is
-    literally the sample size each p-value was computed on -- and y is how
-    many measurements it moved past the correction. A gene high on the trend
-    line is doing what its statistical weight predicts; a gene ABOVE the line
-    is the interesting one, and a gene at the far right with a huge count is
-    exactly the one to be suspicious of.
+    x is the gene's effective well count (``effective_wells``, the
+    participation ratio that sets the degrees of freedom of each p-value) and
+    y is how many measurements it moved past the correction. With at least eight
+    genes, a dotted line shows the linear trend. A gene above the line has more significant
+    measurements than its effective well count predicts; a gene at the far
+    right with a high count may owe its count to statistical weight.
 
-    EFFECTIVE WELLS AND NOT `share`, WHICH MEASURES SOMETHING ELSE. `share`
-    is the median fraction a gene takes of the wells it is IN -- how
-    concentrated it is when present -- and a rare gene can score high on it
-    precisely by being rare. Measured on this module's own fixture: a gene in
-    18 of 120 wells has share 0.44 and one in all 120 has 0.20, which is the
-    opposite of the ordering the reader is asking about. What drives the
-    ranking is POWER, and the participation ratio is the number the test
-    actually used.
+    The x axis uses effective wells rather than `share`. `share` is the
+    median fraction a gene takes of the wells it is present in, so a rare gene
+    can score high on it. On this module's test fixture a gene in 18 of 120
+    wells has share 0.44 and one in all 120 has 0.20, the opposite of their
+    statistical power. The participation ratio is the quantity the test
+    used.
 
     Controls are drawn with a distinct marker because their relationship to
     the trend provides a useful assay calibration.
@@ -932,11 +926,11 @@ def plot_measurement_families(result: "SweepResult",
                               path: Optional[str] = None, *,
                               alpha: float = 0.05, top: int = 14,
                               title: str = "", level: Optional[str] = None):
-    """What KIND of thing each gene moves, as a stacked bar per gene.
+    """Plot each gene's significant measurements by family, as stacked bars.
 
-    767 measurements is not a list a reader can hold, but six families is.
-    "this gene moves pathogen intensity and nothing else" is a sentence about
-    biology; "this gene has 41 significant measurements" is not.
+    The significant measurements of each gene are counted per measurement
+    family (six families plus "other"), which summarises hundreds of columns
+    in a form that can be compared between genes.
 
     The families are coarse on purpose -- see :data:`MEASUREMENT_FAMILIES`.
 
@@ -995,17 +989,16 @@ def plot_measurement_families(result: "SweepResult",
 def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
                            *, alpha: float = 0.05, top: int = 20,
                            title: str = ""):
-    """Do a gene's own guides agree with each other?
+    """Plot how often a gene's own guides agree on the sign of each effect.
 
-    THE ONLY INTERNAL CONTROL THIS DESIGN HAS. Two guides against the same
-    gene are two independent perturbations of it, so a gene whose guides
-    agree on the sign of an effect is saying something the gene's own
-    biology explains, and a gene whose guides disagree is saying something
-    about the guides.
+    Guide agreement is the internal control available in this design. Two
+    guides against the same gene are independent perturbations of it, so
+    agreement on the sign of an effect points to the gene, and disagreement
+    points to guide-specific effects.
 
-    Needs a table with GUIDE rows: `sweep(..., level='guide')` or `'both'`.
-    A gene-level table has nothing to compare, which is a reason to say so
-    rather than to draw an empty axis.
+    Requires a table with guide rows: `sweep(..., level='guide')` or
+    `'both'`. A gene-level table has nothing to compare and returns
+    ``None``.
 
     :returns: the matplotlib Figure, or ``None`` when there is nothing to
         compare.
@@ -1107,17 +1100,17 @@ def _one_level(table: pd.DataFrame, level: Optional[str]) -> str:
 def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
                       alpha: float = 0.05, title: str = "",
                       level: Optional[str] = None):
-    """#5 -- every gene x measurement pair at once: effect against evidence.
+    """Plot effect against -log10(p) for every gene x measurement pair.
 
-    THE SHAPE OF THE WHOLE GRID, which the heatmap cannot show because it
-    draws only survivors. A screen where everything is significant looks
-    different here from one with a handful of real effects, and that
-    difference is the first thing to check before reading any single row.
+    This shows the whole grid, which :func:`plot_sweep` does not because it
+    draws only survivors. A screen where most pairs are significant looks
+    different here from one with a few strong effects.
 
-    Colour is CIRCULARITY where it is known -- a hit the classifier already
-    tracks is a restatement, not a corroboration -- and grey where it is not.
-    Grey is not "clean": the sweep says so in the legend rather than letting
-    an uncomputed number read as zero.
+    Pairs past the correction are coloured by direction (green raises the
+    measurement, rust lowers it) and the rest are grey. When circularity is
+    known, significant pairs with circularity of at least 0.15 are ringed,
+    because the classifier already tracks them; when it is not known, the
+    legend says that circularity was not computed.
     """
     import matplotlib.pyplot as plt
 
@@ -1196,14 +1189,14 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
 def plot_gene_profile(result: "SweepResult", gene: Any,
                       path: Optional[str] = None, *, alpha: float = 0.05,
                       top: int = 24, title: str = ""):
-    """#6 -- ONE gene's fingerprint: every measurement it moves, in order.
+    """Plot one gene's effects on its measurements, largest first.
 
-    The per-gene readout the grid cannot give. "GRA14 moves pathogen
-    intensity up and pathogen area down, and nothing else" is a sentence
-    somebody can take to a bench; a row of a heatmap is not.
+    Shows the measurements past the correction for ``gene`` (or, when none
+    pass, its largest effects), ordered by absolute effect, for example
+    "GRA14 raises pathogen intensity and lowers pathogen area".
 
-    Bars are coloured by measurement family, so a profile that is all one
-    family reads as one finding rather than as twenty.
+    Each bar is labelled with its measurement family, so a profile drawn from
+    one family can be read as one finding rather than as many.
     """
     import matplotlib.pyplot as plt
 
@@ -1263,16 +1256,16 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
 def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
                          alpha: float = 0.05, top: int = 30,
                          title: str = "", level: Optional[str] = None):
-    """#7 -- which genes behave ALIKE, by correlating their whole profiles.
+    """Plot the correlation between genes' effect profiles as a heatmap.
 
-    Two genes in one pathway should move the same measurements the same way,
-    and this is the only view here that can say so: every other one reads a
-    gene on its own. It is also the honest way to ask "is my hit list one
-    finding or twelve".
+    Two genes in one pathway are expected to move the same measurements in
+    the same direction. The other plots read each gene on its own; this one
+    compares genes, which shows whether a hit list contains one shared
+    phenotype or several.
 
-    Correlated across the WHOLE effect row, not just the significant part --
-    a shared sub-threshold pattern is exactly the evidence that two genes
-    belong together, and thresholding first would throw it away.
+    Profiles are correlated across the whole effect row, not only the
+    significant entries, so a shared sub-threshold pattern contributes to
+    the similarity.
     """
     import matplotlib.pyplot as plt
 
@@ -1321,13 +1314,13 @@ def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
 def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
                           *, alpha: float = 0.05, top: int = 26,
                           title: str = "", level: Optional[str] = None):
-    """#8 -- which MEASUREMENTS are informative, and which everything moves.
+    """Plot measurements by how many genes move them past the correction.
 
-    The grid read down its other axis. A measurement moved by half the
-    library is not a discriminating readout: it is a plate effect, a focus
-    drift or a confluence artefact wearing a measurement's name, and it will
-    put a hit on every gene in the screen. Ranking measurements by how many
-    genes move them is how you find those before trusting any of them.
+    This reads the grid along its measurement axis. A measurement moved by
+    half the library does not discriminate between genes; it more likely
+    reflects a plate effect, focus drift or confluence artefact, and it adds
+    a hit to many genes. Measurements moved by at least half of the
+    significant genes are ringed.
     """
     import matplotlib.pyplot as plt
 
@@ -1444,7 +1437,7 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
 
 def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
                      title: str = "", level: Optional[str] = None):
-    """#10 -- is this screen calibrated, or is everything significant?
+    """Plot observed against expected -log10(p) to check calibration.
 
     The observed P values against the uniform they would follow if nothing
     were real. A grid that hugs the diagonal has no signal; one that lifts
@@ -1452,8 +1445,9 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
     systematic effect -- a plate term that did not get blocked out, or an
     aggregation that correlated every well with itself.
 
-    THE FIRST PLOT TO LOOK AT and the last one anybody builds. It says
-    whether the other nine are worth reading at all.
+    The title reports the inflation factor lambda from the median P value;
+    0.9 to 1.15 is labelled calibrated. Check this plot before the others:
+    with inflated P values their significant results are not reliable.
     """
     import matplotlib.pyplot as plt
 

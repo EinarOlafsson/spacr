@@ -245,7 +245,7 @@ def test_the_parallel_sweep_obeys_the_filters_it_was_given(
     assert space.filters == [no_ridge], "the caller's filters were replaced"
     assert rejected == ["ridge"]
     assert list(results["regression_type"]) == ["ols"]
-    trials = json.loads((tmp_path / "out" / "sweep_trials.json").read_text())
+    trials = json.loads((tmp_path / "out" / "sweep_trials.json").read_text(encoding="utf-8"))
     assert [t["regression_type"] for t in trials] == ["ols"]
 
 

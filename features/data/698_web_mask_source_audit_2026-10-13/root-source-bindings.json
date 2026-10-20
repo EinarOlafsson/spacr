@@ -1,0 +1,252 @@
+{
+  "schema_valid": true,
+  "verified_files": [
+    {
+      "kind": "website",
+      "path": ".github/workflows/deploy.yml",
+      "sha256": "92b8921483ce58cd75ec85d5fe2b416c2179cbdea47f9f08b72b5e1e9fbe93b2"
+    },
+    {
+      "kind": "website",
+      "path": "data/models.json",
+      "sha256": "630eb0f5f7bda70df48f7ac61181b6d10a5c130cc55df6941566c27dd84c7b4b"
+    },
+    {
+      "kind": "website",
+      "path": "data/showcase.json",
+      "sha256": "4bf9254a8f36540c5f824d8fbc0700fcac588715b2d2d551ab6d64d8e216ed89"
+    },
+    {
+      "kind": "website",
+      "path": "package.json",
+      "sha256": "249e64f77ab4aedb2b0bbc81b1b43105edbda35076c6cb33e6471dd9e30ca665"
+    },
+    {
+      "kind": "website",
+      "path": "src/_partials/header.html",
+      "sha256": "47d2cd1186d0490307f5555a0638fe0674f4440c9dd5293766be203eb639c263"
+    },
+    {
+      "kind": "website",
+      "path": "src/assets/css/site.css",
+      "sha256": "2ae946adf4f02892eff0dbc9ce0fe8526dd703732b8a64ad56b83d405ac5eb0e"
+    },
+    {
+      "kind": "website",
+      "path": "src/projects/spacr/i18n/en.json",
+      "sha256": "bec8d126db972399bc14d2c89f88865e98fabe559c7233064e175474d8e2dc7e"
+    },
+    {
+      "kind": "website",
+      "path": "src/projects/spacr/index.html",
+      "sha256": "08a00fedb6c1a4ee633faab310dedc666a28b9724dfd0f77d5b2e96695c43e96"
+    },
+    {
+      "kind": "website",
+      "path": "tools/build.mjs",
+      "sha256": "ef4565d3ea140a14a8daf58053c3f1892797996ec30a5b634d792f620c367f85"
+    },
+    {
+      "kind": "website",
+      "path": "tools/check_i18n.mjs",
+      "sha256": "301ed8abed5bb82fe31fa83244de5a557333dc74a550dadd7dbbb1983c5e9793"
+    },
+    {
+      "kind": "website",
+      "path": "tools/i18n.mjs",
+      "sha256": "e902f7d106437b6cc9b2da415de62ca796f7a0e600160c5fdce49882bcaf0b73"
+    },
+    {
+      "kind": "website",
+      "path": "tools/models/collect.py",
+      "sha256": "6732c89be0890e9ba3f4bc1c4734dc7313fb3bc58103722a7292ccc8e21cd5a4"
+    },
+    {
+      "kind": "website",
+      "path": "tools/models/sources.json",
+      "sha256": "431d59ca066ba5166e413d105cfa8c67059a1e5a9427b297948b6ce44dab9e97"
+    },
+    {
+      "kind": "website",
+      "path": "tools/showcase/build_examples.py",
+      "sha256": "550c07dcc77150a1d8c54d679422835a9e21cfbc4f50c904e3512c2a398807f0"
+    },
+    {
+      "kind": "website",
+      "path": "tools/showcase/fetch_weights.py",
+      "sha256": "4706823a97f19d96c5b5a1398ef1fca659524a40d28cdc80e30490ee09072428"
+    },
+    {
+      "kind": "website",
+      "path": "tools/showcase/run_models.py",
+      "sha256": "e0ba5afc3609d45ac762630f8bd1da01f9c2e50eb885e1c1fb0125b2cbab6237"
+    },
+    {
+      "kind": "website",
+      "path": "tools/showcase/run_plaque_v4.py",
+      "sha256": "339e6b1f99162d25fdebfcd86e709bd0bf9249c69f55613409dc116c6c64c112"
+    },
+    {
+      "kind": "website",
+      "path": "tools/showcase/run_pv.py",
+      "sha256": "7356ee69016e7ebfc1d97f835735b54a786d8a291a8fb2c7e2817f531eabe592"
+    },
+    {
+      "kind": "website",
+      "path": "tools/showcase/run_wells.py",
+      "sha256": "bd0c860f85e3b588cf0a7f10cc06d99d7bd17d33844a43b97fe562649691a39b"
+    },
+    {
+      "kind": "desktop",
+      "path": "features/new/698_web_mask_generator_one_page_per_model.txt",
+      "sha256": "890e7ecba5873bcd7078b591464b130544c0f66ba2adcb9378401b1ceee106df"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/model_zoo.py",
+      "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/core.py",
+      "sha256": "ccb78e9fda4ebcbf0d1ee2ff7ad8f7feb463c2ef63271ce594cadf22e711584c"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/object.py",
+      "sha256": "f81c4c8aa9db97912b2236799eec91ff0e6d02948ffc26e6683e28fd40fbf4ca"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/io.py",
+      "sha256": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/spacr_cellpose.py",
+      "sha256": "1fd7bf94a8362d0042fb00d1cb9634e47ac53900c14a1722f5b0506b52f7b0aa"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/model_compare.py",
+      "sha256": "0ac35811fb37112b17e7e9d5784d18770278442eeaefc5e7e507134a599ddd50"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/plaque.py",
+      "sha256": "7ec32f1a3bbafe0efe8a3f095c597b124dff35a14530752b1672ce3c463963c3"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/plaque_papers.py",
+      "sha256": "7b7832c48ee13564c07a3dbc259c80985b181617879ded4d24489dc5abd05663"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/submodules.py",
+      "sha256": "d4984f92427dee45029790ba251e439bba5f219d9b96cfd4365e2d7b6d012799"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/settings.py",
+      "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/tabular.py",
+      "sha256": "bef3e21199bf49dc54b140103549bbb25bcda6b6ca6909d2f2a9a0af3d82836a"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/qt/mask_engine.py",
+      "sha256": "e2984deb6eefb3399e732c4fb4cf2e95d048ddc33ce67ef3410277cf7230ea7d"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/qt/screens/model_zoo.py",
+      "sha256": "58eb5aeca04ef136644b242c6115ec1f918a179d31530fd38d19bdff625e3a93"
+    },
+    {
+      "kind": "desktop",
+      "path": "tools/model_upload_space/app.py",
+      "sha256": "4e969410be6e19d224f99de92655d00da476562a6b760419ec259eaeb92fb5c8"
+    },
+    {
+      "kind": "desktop",
+      "path": "tools/model_upload_space/README.md",
+      "sha256": "b41a7b16cefa467ae1952399d3971aaee1e4a1944c11f4d54f10be3664783c17"
+    },
+    {
+      "kind": "desktop",
+      "path": "tools/model_upload_space/requirements.txt",
+      "sha256": "1519208be7f24a9f225c27741ccf51dc15a730cbea5791d4d5d4e95bf4544340"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_model_zoo.py",
+      "sha256": "3f5a2fc03854432e1cd5a783234370e8b60a3e9119c0f127d299264fa54d82d3"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_model_zoo_shared_catalogue.py",
+      "sha256": "a395425806aa520010d6beca5b1d167826fb674eaa85cc0ccf34b2f652b30ea6"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_cellpose_inference_precision.py",
+      "sha256": "e1ca65cd48cef9729c74ac8485021f942fbf3e78c1e9dd932e7142eacbc88d74"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_cellpose_channel_axis_contract.py",
+      "sha256": "b1ce8c7252ee89b45941d0c9341412a8e152789417a520eecb6e812f0bae1153"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_the_cellpose_output_is_parsed_whatever_its_shape.py",
+      "sha256": "69aefc181622c0b41f3447d8179faf8062e72133e9fb32db9fee44d344705610"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_plaque_reads_only_the_flows_it_can_draw.py",
+      "sha256": "43840620da17550b2311a656b2b2e9354e70f8463015ddf4a9f0c6c4d78f2e22"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_plaque_wells_and_scale.py",
+      "sha256": "8edacca6762bf6a5a1a953a14e4663597639d4e14403cfa77208fe75199dacfd"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_plaque_reader_boundaries.py",
+      "sha256": "5a1aff16f6072d1eb970e9df8256f889910431247c1e477ff79c3bde66e982e1"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_plaque_segmentation_diagnostics.py",
+      "sha256": "284cc745d08c438e846542155a9afc811332e82ffb1b6c79ccf6267a3243fb8c"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_mask_engine_object_lookup.py",
+      "sha256": "a66226b1c0e7000920c4c117c4720166312effa1d5a97afc548867235ed43cd2"
+    },
+    {
+      "kind": "desktop",
+      "path": "tests/test_cov_w2_6_tabular.py",
+      "sha256": "2020d172a48a6a402b28d5f44ab26915697c46d8e7b0690cd1041729254f7da2"
+    },
+    {
+      "kind": "desktop",
+      "path": "features/new/696_magnification_default_diameter_and_auto_diameter.txt",
+      "sha256": "1fb0dd965f17ba7f407c7ecd723c902369093b0e6ede7b66954f094af2650a42"
+    },
+    {
+      "kind": "desktop",
+      "path": "spacr/qt/widgets/plaque_preview.py",
+      "sha256": "fd64b45dfa063aad961cc6007aca1af6da5413514cd91c68dca3819f559c6cb1"
+    }
+  ],
+  "count": 49,
+  "private_source_published": false
+}

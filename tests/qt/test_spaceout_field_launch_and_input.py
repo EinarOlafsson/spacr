@@ -52,12 +52,17 @@ def test_click_ripples_work_without_gravity_on_the_spaceout_field(
     prefs._set_ambient_gravity_radius(0)
     prefs._set_field_popup_wave_frequency(0)
     host, backdrop = _field(qtbot)
+    # N684: a click ripple is committed once the click has settled, so a
+    # container ripple from the same click can replace it.
+    settle = ambient.CLICK_RIPPLE_SETTLE_MS + 100
     qtbot.mouseClick(host, Qt.LeftButton, pos=host.rect().center())
+    qtbot.wait(settle)
     backdrop._on_tick()
     assert backdrop.engine._popup_waves
     assert not backdrop.engine._gravity_impulses
     backdrop.set_ripples_enabled(False)
     qtbot.mouseClick(host, Qt.LeftButton, pos=host.rect().center())
+    qtbot.wait(settle)
     backdrop._on_tick()
     assert not backdrop.engine._popup_waves
     assert backdrop._interaction_app is not None

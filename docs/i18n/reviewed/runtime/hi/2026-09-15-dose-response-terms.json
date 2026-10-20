@@ -30,13 +30,6 @@
       "translation": "सांद्रता"
     },
     {
-      "key": "Cosmetic only — it never enters the arithmetic",
-      "source": "Cosmetic only — it never enters the arithmetic",
-      "source_sha256": "151ab31bfd4a1457a1f2233b765ab8760628544ff99ce073f3abc1bd16d6e1d1",
-      "table": "ui",
-      "translation": "केवल दिखावटी — यह कभी गणना में शामिल नहीं होती"
-    },
-    {
       "key": "Fit non-monotone data",
       "source": "Fit non-monotone data",
       "source_sha256": "c967f08351ad5a401396d06f26df8eb43163a07c9e5e1fbc25ec596824b27ec7",
@@ -114,5 +107,15 @@
       "translation": "डेटाबेस की वह तालिका जिस पर वक्र फिट करना है"
     }
   ],
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "Cosmetic only — it never enters the arithmetic",
+      "source": "Cosmetic only — it never enters the arithmetic",
+      "source_sha256": "151ab31bfd4a1457a1f2233b765ab8760628544ff99ce073f3abc1bd16d6e1d1",
+      "table": "ui",
+      "translation": "केवल दिखावटी — यह कभी गणना में शामिल नहीं होती",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    }
+  ]
 }

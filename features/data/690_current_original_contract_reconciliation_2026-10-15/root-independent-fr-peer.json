@@ -1,0 +1,9 @@
+{
+  "decision": "ACCEPT exact existing French technical target",
+  "draft_sha256": "adcfba0ed565222982e5e22b94fd9cc3fd7769a2b483f980c80703845d68e15d",
+  "source_file_sha256": "940e739d77ec40b30e40fd88a84b36a0f0c19942b31ef5027d115e3b97c8c4ed",
+  "source_sha256": "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060",
+  "target_sha256": "b7ca5fbb0176628d9d3b6beb74a9f868dbd01d3841126e3d295a15630f366206",
+  "independent_review": "Root independently checked GUI thread meaning, unchanged callback signature/argument order and exact Sphinx function reference; French accurately preserves the source relation.",
+  "scope": "Technical AI source/target review only; no native/human certification, no gate change, no model generation or artifact rewrite."
+}

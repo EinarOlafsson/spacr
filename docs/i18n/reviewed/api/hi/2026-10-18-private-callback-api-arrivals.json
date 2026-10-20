@@ -1,0 +1,20 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Forward to Qt, counting a change of folder as a move.",
+      "label": "spacr.qt.preferences._count_store_moves.set_path#0",
+      "source": "Forward to Qt, counting a change of folder as a move.",
+      "source_sha256": "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17",
+      "translation": "कॉल को Qt तक पहुँचाएँ और फ़ोल्डर बदलने को स्थान परिवर्तन के रूप में गिनें।"
+    },
+    {
+      "context": "Import the module, logging rather than throwing a failure.",
+      "label": "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work#0",
+      "source": "Import the module, logging rather than raising a failure.",
+      "source_sha256": "4c8f45aa51aee6c1a88297ee544d8e9a31d81f2406f51afa70235fcea51ba33b",
+      "translation": "मॉड्यूल आयात करें और विफलता पर अपवाद उठाने के बजाय उसे लॉग में दर्ज करें।"
+    }
+  ],
+  "schema": 1
+}

@@ -8,7 +8,9 @@
       "review_basis": "written from current English and technically reviewed by Codex",
       "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. Other frozen application families return an error before removing anything; the helper does not enable an online-installer fallback for these applications.",
       "source_sha256": "21a4f7340e6ecf2a0034ef44bec46f864cd7952b935458021fa9866aadc24759",
-      "translation": "Un paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur emploie son adaptateur de remplacement par DMG vérifié et conserve l’intégralité du paquet précédent. Les autres familles d’applications figées renvoient une erreur avant toute suppression ; le programme auxiliaire n’active pas de solution de repli par installateur en ligne pour ces applications."
+      "translation": "Un paquet d’application macOS figé situé dans un emplacement accessible en écriture à l’utilisateur emploie son adaptateur de remplacement par DMG vérifié et conserve l’intégralité du paquet précédent. Les autres familles d’applications figées renvoient une erreur avant toute suppression ; le programme auxiliaire n’active pas de solution de repli par installateur en ligne pour ces applications.",
+      "retired": true,
+      "retired_reason": "N703 final source1eabf4b498a7 replaces this exact selected source block; original review and target retained as historical evidence."
     },
     {
       "context": "An accepted close also joins the owned backdrop renderer. Showing the application view again creates a fresh backdrop from the current settings.",

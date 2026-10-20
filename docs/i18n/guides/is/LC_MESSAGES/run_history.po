@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -46,8 +46,9 @@ msgstr "útgáfur pakka, spaCR, Git og stýrikerfis;"
 msgid "declared seeds and runtime random-state identifiers."
 msgstr "uppgefin fræ og auðkenni slembistöðu við keyrslu."
 
-msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt folders stay visible rather than disappearing."
-msgstr "Leitarorð eru sameinuð: ``adamw plate_03 warning`` sýnir aðeins skráningar sem innihalda öll þrjú orðin einhvers staðar í stillingum, slóðum, viðvörunum, villum eða umhverfisgögnum. Hægt er að beita síum á einingu og stöðu á sama tíma. Truflaðar og skemmdar möppur haldast sýnilegar í stað þess að hverfa."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
+msgstr "Leitarorð eru sameinuð: ``adamw plate_03 warning`` sýnir aðeins skráningar sem innihalda öll þrjú orðin einhvers staðar í stillingum, slóðum, viðvörunum, villum eða umhverfisgögnum. Hægt er að beita síum á einingu og stöðu á sama tíma. Truflaðar og skemmdar keyrslumöppur eru áfram á listanum, með stöðuna ``running`` eða ``corrupt`` og greiningarviðvaranir."
 
 msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
 msgstr "Veldu röð til að skoða upplýsingar hennar. **Hlaða stillingum í einingu** opnar upphaflegu eininguna og færir nákvæmu skráðu stillingarnar inn í stýringar hennar; það ræsir ekki keyrslu. **Opna keyrslumöppu** og **Afrita slóð** sýna undirliggjandi möppu ``~/.spacr/runs/...``."
@@ -58,11 +59,16 @@ msgstr "Hægrismelltu á valdar raðir til að opna möppur þeirra eða eyða �
 msgid "Storage: pruning and caches"
 msgstr "Geymsla: grisjun og skyndiminni"
 
-msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
-msgstr "**Kjörstillingar → Geymsla** kemur í veg fyrir að heimamappa spaCR vaxi takmarkalaust. Fyrir daglega annála, keyrsluannála (``~/.spacr/logs/runs``) og keyrslumöppur (``~/.spacr/runs``) heldur hún tvenn mörk: **Halda**, aldur í dögum þar sem engu er nokkru sinni eytt, og **Hámark**, stærð þar yfir sem elstu eldri færslum er eytt (**ekkert hámark** eyðir öllum eldri færslum). Keyrslunni sem er í gangi og opnum annálaskrám er aldrei eytt. **Grisja núna…** telur upp það sem mörkin myndu eyða og spyr áður en eytt er; ekkert er grisjað sjálfkrafa."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**Kjörstillingar → Geymsla** stillir mörkin sem notuð eru þegar heimamappa spaCR er grisjuð. Fyrir daglega annála, keyrsluannála (``~/.spacr/logs/runs``) og keyrslumöppur (``~/.spacr/runs``) heldur hún tvenn mörk: **Halda**, aldur í dögum þar sem engu er nokkru sinni eytt, og **Hámark**, stærð þar yfir sem elstu eldri færslum er eytt (**ekkert hámark** eyðir öllum eldri færslum). Keyrslunni sem er í gangi og opnum annálaskrám er aldrei eytt. **Grisja núna…** telur upp það sem mörkin myndu eyða og spyr áður en eytt er; ekkert er grisjað sjálfkrafa."
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "Skyndiminnistaflan sýnir skyndiminni spaCR-líkana, Cellpose, Hugging Face, Torch, bakendaumhverfa og frétta. **Mæling** les stærð þeirra, **Hreinsa…** tæmir valið skyndiminni eftir að hafa spurt og **Færa…** færir það í ``<folder>/spacr-<cache>`` á öðru drifi. Nýi staðurinn er skráður í ``~/.spacr/cache_locations.json`` og notaður við hverja ræsingu; skyndiminni sem hefur breytu sína (til dæmis ``HF_HOME``) stillta utan spaCR er ekki fært. Hreinsun og færsla bíða þar til engin keyrsla er í gangi."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank, models use the ``models`` folder inside the spaCR home returned by ``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment override takes precedence. Moving this cache through **Storage → Move…** persists its new location in ``cache_locations.json`` and reapplies it on startup. Newly opened Model Zoo screens and plaque previews use that location. The model picker follows the move when its remembered folder matched the old cache; a separately chosen custom model folder is preserved."
+msgstr "Líkanaskyndiminni spaCR notar ``SPACR_MODEL_CACHE``. Þegar það er ekki skilgreint eða autt nota líkön möppuna ``models`` innan spaCR-heimamöppunnar sem ``_spacr_home()`` skilar (venjulega ``~/.spacr/models``). Skýr yfirskrift í umhverfisbreytu hefur forgang. Ef þetta skyndiminni er fært með **Storage → Færa…** er nýja staðsetningin vistuð í ``cache_locations.json`` og hún notuð aftur við ræsingu. Nýopnaðir Model Zoo-skjáir og forskoðanir skellna nota þá staðsetningu. Líkanavalið fylgir flutningnum þegar mappan sem það mundi var gamla skyndiminnið; sérvalinni eigin líkanamöppu er haldið."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
@@ -71,6 +77,7 @@ msgstr "**Kjörstillingar → Annálaskráning → Annálsskrár** hefur **Tæma
 msgid "Headless search"
 msgstr "Leit án myndræns viðmóts"
 
-msgid ":func:`spacr.run_journal.search_runs` provides the same resilient records without Qt:"
-msgstr ":func:`spacr.run_journal.search_runs` veitir sömu traustu skráningarnar án Qt:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` skilar sömu skráningum og mælaborðið, þar á meðal skemmdum og trufluðum keyrslum, án Qt:"
 

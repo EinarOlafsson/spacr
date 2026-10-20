@@ -1,45 +1,40 @@
-"""A curation session is a queue with a memory, not one field.
+"""Build, order and record resumable curation sessions over a folder of fields.
 
-Make Masks is the better editor and the bespoke tool outside the repository
-is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields
-are waiting, which order to offer them in, how many to offer before the
-session ends, and what was already decided about each one.
+This module provides the session workflow of the external curation tool
+inside spaCR: which fields are waiting, which order to offer them in, how
+many to offer before the session ends, and what was already decided about
+each one. The masks themselves are edited in Make Masks.
 
-It holds no pixels and draws nothing. That is deliberate and it is the whole
-argument for bringing the work in here: the external tool's defects are found
-in the middle of a curation session, because there is no way to test a
-2,000-line Qt application, whereas everything below is ordinary
-Python over a folder and a CSV, so a defect is found by
-``tests/test_a_curation_session_resumes_where_it_stopped.py`` instead. The
-module imports no Qt, needs no display, and touches ``numpy`` only inside the
-functions that actually read a draft mask off the disk.
+It holds no pixels and draws nothing. Everything below is ordinary Python
+over a folder and a CSV, so it is tested without a display, for example by
+``tests/test_a_curation_session_resumes_where_it_stopped.py``. The module
+imports no Qt, needs no display, and imports ``numpy`` only inside the
+functions that read a draft mask from disk.
 
 Three layouts, all accepted
 ---------------------------
 
-The layout mismatch is the thing to settle first: silently assuming one
-layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected::
+Assuming a single layout can load a folder of unreviewed work as empty, so
+all three layouts are accepted and the one present is detected::
 
     nested    <folder>/*.tif           + <folder>/masks/*.tif
     sibling   <folder>/images/*.tif    + <folder>/masks/*.tif
     seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)
 
-Accepting all three is safer than picking a winner. An existing curation
-set opens unconverted, so nothing has to be moved before work can start --
-and the EDITOR takes all three too, reading and saving each where it lies
-(:mod:`spacr.qt.mask_engine` says how).
+An existing curation set opens without conversion, so no files have to be
+moved before work starts. The editor also reads all three layouts and saves
+each mask where it was read (see :mod:`spacr.qt.mask_engine`).
 
-A guess is not accepted. A folder that matches none of the three, or that
-matches two of them, raises :class:`LayoutError`. The alternative would be an
-empty queue, and an empty queue reads as "all done".
+The layout is not guessed. A folder that matches none of the three, or that
+matches two of them, raises :class:`LayoutError`, because an empty queue
+would report the folder as finished.
 
 Three reviewed states, not two
 ------------------------------
 
-:data:`REVIEWED` is ``done``, ``skip`` and ``recropped``. The ledger note says
-two; it is wrong. ``skip`` is not a lesser ``done`` — it records "this one
-cannot be curated", and collapsing the two means the same unusable field is
-offered again every session. ``recropped`` is what the external tool writes
+:data:`REVIEWED` is ``done``, ``skip`` and ``recropped``. ``skip`` records
+that a field cannot be curated and is kept distinct from ``done``; without
+it, the same unusable field would be offered again every session. ``recropped`` is what the external tool writes
 when a bundle has been split into children: the parent is out of the queue
 and its pieces are in it.
 
@@ -56,10 +51,11 @@ keeps one record.
 Ordering
 --------
 
-Ordering is the productivity feature: a curator's judgement is worth more on
-the hard fields than on the first hundred easy ones. The four orders, and the
-constants inside them, are the external tool's, chosen after a real 500-bundle
-curation set. :func:`order_items` says what each one means.
+The order decides which fields a session with a limit offers first. The
+``easy``, ``prob``, ``value`` and ``name`` orders, and the constants inside
+them, are the external tool's, chosen on a 500-bundle curation set;
+``uncertain`` reads spaCR's own ``curate_uncertainty.csv``.
+:func:`order_items` describes each one.
 
 Where this knowingly differs from the external tool
 ---------------------------------------------------
@@ -72,8 +68,7 @@ suite rather than one folder of Cellpose pickles:
 * The median object diameter is computed directly rather than through
   ``skimage.measure.regionprops``, so ordering a queue needs numpy alone.
   It is the same number, and a test pins the equality.
-* An unknown ``order`` raises instead of silently becoming ``value``. A
-  silent reorder is the failure this module is most careful about.
+* An unknown ``order`` raises instead of silently becoming ``value``.
 * ``name`` order sorts by stem rather than by file name, so the order does
   not change when one field is a PNG and the next a TIFF.
 * Status rows are written sorted by stem, atomically. The file syncs between
@@ -82,8 +77,8 @@ suite rather than one folder of Cellpose pickles:
 
 The nested and sibling layouts also offer an image whose mask is missing,
 rather than pairing strictly as the external tool's bundle builder does: a
-field with no draft is work, drawing from scratch, and ``easy`` already knows
-to offer it last.
+field with no draft is still work, drawn from scratch, and the ``easy``
+order places it last.
 """
 from __future__ import annotations
 
@@ -165,7 +160,7 @@ LAYOUTS: Tuple[str, ...] = (LAYOUT_NESTED, LAYOUT_SIBLING, LAYOUT_SEG)
 #: imageio at import time and this one is deliberately stdlib-only;
 #: ``test_a_curation_session_resumes_where_it_stopped`` holds the two equal.
 IMAGE_EXTS: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp",
-                               ".scn")
+                               ".scn", ".dm3", ".dm4", ".mrc", ".rec")
 
 #: How Cellpose names the pickle that holds an image and its draft masks.
 SEG_SUFFIX = "_seg.npy"
@@ -245,9 +240,8 @@ class CurationQueueError(SpacrError):
 class LayoutError(CurationQueueError):
     """The folder does not unambiguously hold one of the three layouts.
 
-    Raised rather than returning an empty queue. An empty queue reads as
-    "all done", which is the one wrong answer a curation tool must never
-    give about a folder full of work.
+    Raised rather than returning an empty queue, which would report a
+    folder of unreviewed fields as finished.
     """
 
 
@@ -357,7 +351,7 @@ class StatusRow:
 
     @property
     def reviewed(self) -> bool:
-        """:returns: whether this row takes its stem out of the queue."""
+        """Whether this row's state takes its stem out of the queue."""
         return self.state in REVIEWED
 
 
@@ -385,10 +379,9 @@ class QueueSummary:
     def describe(self) -> str:
         """One line a caller can print.
 
-        The ledger's measured state, ``500 bundles, 366 done, 29 skip, 105
-        remaining``, is exactly what this returns for it. The two rarer
-        counts are appended only when they are not zero, so the common
-        sentence stays the short one.
+        For example ``500 bundles, 366 done, 29 skip, 105 remaining``. The
+        ``recropped`` and ``elsewhere`` counts are appended only when they
+        are not zero.
 
         :returns: a human-readable summary of the queue.
         """
@@ -407,24 +400,28 @@ class CurationQueue:
     """A bounded session of curation work over one folder.
 
     :ivar layout: what was found, and where.
-    :ivar items: the fields to offer THIS session — unreviewed, ordered, and
+    :ivar items: the fields to offer this session — unreviewed, ordered, and
         cut to ``limit``.
     :ivar status: every status row read, including rows about stems that are
         not in this folder.
     :ivar order: the ordering that was asked for.
     :ivar effective_order: the ordering actually used, which differs from
-        ``order`` when ``prob`` or ``easy`` fell back to ``value`` for want
-        of probabilities.
+        ``order`` when ``prob``, ``easy`` or ``uncertain`` fell back to
+        ``value`` for want of scores.
     :ivar limit: the cap that was applied, or ``None``.
-    :ivar summary: counts over the WHOLE folder, not over this session.
-    :ivar notices: what the curator should know before the first field --
-        a ``prob`` or ``easy`` order with no scores file, or with fields the
-        scores file does not name, and a resume record that is the external
-        tool's file beside the folder, which every save then writes to.
-        Printed when the queue is built and shown by the editor with it,
-        because an ordering that quietly became another one, or a save that
-        quietly lands outside the folder that was opened, is the failure
-        this module is most careful about.
+    :ivar summary: counts over the whole folder, not over this session.
+    :ivar notices: warnings for the curator before the first field --
+        a ``prob``, ``easy`` or ``uncertain`` order with no scores, or with
+        fields the scores do not name, and a resume record that is the
+        external tool's file beside the folder, which every save then writes
+        to. Printed when the queue is built and shown by the editor with it,
+        so that a changed ordering or a save outside the opened folder is
+        reported.
+    :ivar exclude_verdicts: whether fields with a Keep or Discard verdict were
+        dropped from this session; the editor starts with its "Hide judged
+        fields" switch on when this is true.
+    :ivar excluded_by_verdict: number of otherwise waiting fields dropped
+        because they have a verdict. Zero unless ``exclude_verdicts`` is true.
     """
 
     layout: QueueLayout
@@ -435,28 +432,30 @@ class CurationQueue:
     limit: Optional[int]
     summary: QueueSummary
     notices: Tuple[str, ...] = ()
+    exclude_verdicts: bool = False
+    excluded_by_verdict: int = 0
 
     @property
     def folder(self) -> Path:
-        """:returns: the queue folder."""
+        """The queue folder."""
         return self.layout.folder
 
     @property
     def all_items(self) -> Tuple[QueueItem, ...]:
-        """:returns: every field in the folder, reviewed ones included."""
+        """Every field in the folder, reviewed ones included."""
         return self.layout.items
 
     @property
     def order_phrase(self) -> str:
-        """:returns: ``sorted by <order>``, naming the order that was asked
-            for too whenever it is not the one that was used."""
+        """Return ``sorted by <order>``, also naming the order that was asked
+        for whenever it is not the one that was used."""
         order = self.effective_order
         if order != self.order:
             order = f"{order} (asked for {self.order})"
         return f"sorted by {order}"
 
     def describe(self) -> str:
-        """:returns: a printable line naming the layout, order and counts."""
+        """Return a printable line naming the layout, order and counts."""
         return (f"{self.layout.kind} layout at {self.folder}: "
                 f"{self.summary.describe()}; {len(self.items)} this session, "
                 f"{self.order_phrase}")
@@ -605,9 +604,9 @@ def detect_layout(folder: PathLike) -> QueueLayout:
         the three layouts, or matches more than one of them.
     :raises CurationQueueError: when two files in it share a stem.
 
-    Both refusals are loud on purpose. Guessing between two layouts loads
-    half a folder; assuming one that is not there loads none of it, and
-    reports that as a finished queue.
+    Both cases raise instead of guessing: choosing between two layouts loads
+    only part of the folder, and assuming one that is not there loads none
+    of it and reports the queue as finished.
     """
     folder = Path(folder)
     if not folder.is_dir():
@@ -699,10 +698,10 @@ def status_path(folder: PathLike) -> Path:
     """Where this queue's resume record is read from and written to.
 
     ``<folder>/curate_status.csv``, inside the queue folder so it travels
-    with the images when the set is synced between machines -- UNLESS the
+    with the images when the set is synced between machines -- unless the
     folder has none and the external curation tool's record,
     ``<parent>/<name>_status.csv``, sits beside it with ``stem`` and
-    ``state`` columns. That record is then THE record, read and written
+    ``state`` columns. That record is then the one read and written
     back in place: the sets that tool curated keep their progress there and
     nothing inside the folder, and starting a second file would reopen
     every field already done or skipped as undone while the other tool went
@@ -743,11 +742,12 @@ def scores_path(folder: PathLike) -> Optional[Path]:
 
 
 def is_reviewed(state: Optional[str]) -> bool:
-    """:param state: a state string, or ``None``.
+    """Return whether a status state takes its stem out of the queue.
 
+    :param state: a state string, or ``None``.
     :returns: whether that state takes a stem out of the queue. ``done``,
         ``skip`` and ``recropped`` all do, and they stay distinct: ``skip``
-        means "cannot be curated", which is not a lesser ``done``.
+        means "cannot be curated" and is recorded separately from ``done``.
     """
     return _normalise_state(state) in REVIEWED
 
@@ -896,8 +896,9 @@ def mark_state(folder: PathLike, stem: str, state: str,
 
 def pending_items(items: Iterable[QueueItem],
                   status: Mapping[str, StatusRow]) -> List[QueueItem]:
-    """:param items: fields in the folder.
+    """Return the fields that have no reviewed state.
 
+    :param items: fields in the folder.
     :param status: the rows read from the status file.
     :returns: the items with no reviewed state, in the order given.
     """
@@ -908,7 +909,7 @@ def pending_items(items: Iterable[QueueItem],
 
 def summarize(items: Iterable[QueueItem],
               status: Mapping[str, StatusRow]) -> QueueSummary:
-    """Count the folder the way the ledger asks for it.
+    """Count a folder's fields by review state.
 
     :param items: every field in the folder.
     :param status: the rows read from the status file.
@@ -957,14 +958,14 @@ def _read_draft(item: QueueItem):
 
 
 def count_draft_objects(item: QueueItem) -> int:
-    """How many objects the draft holds.
+    """Return the number of objects in a field's draft mask.
 
-    Counted as DISTINCT NON-ZERO LABELS rather than as ``masks.max()``,
+    Counted as distinct non-zero labels rather than as ``masks.max()``,
     which is what the external tool uses. The two agree on a fresh Cellpose
     pickle, whose ids run 1..N, and disagree in the two places that matter
     here: a label TIFF that has had objects deleted has gaps in its ids, so
     ``max()`` overcounts; and a 0/255 binary mask, which the nested and
-    sibling layouts can perfectly well hold, would report 255 objects.
+    sibling layouts can hold, would report 255 objects.
 
     :param item: the field to count.
     :returns: the number of objects, and ``0`` for a draft that is missing
@@ -1017,11 +1018,13 @@ def median_equivalent_diameter(labels) -> float:
 
 
 def draft_stats(item: QueueItem) -> Tuple[int, float]:
-    """:param item: the field to measure.
+    """Return the object count and median object diameter of a field's draft.
 
-    :returns: ``(n_objects, median_diameter)`` for its draft.
+    :param item: the field to measure.
+    :returns: ``(n_objects, median_diameter)`` for its draft, and
+        ``(0, 0.0)`` when the field has no draft.
     :raises Exception: whatever reading an unreadable draft raises. The
-        ``value`` order catches that and sorts the field dead last.
+        ``value`` order catches that and sorts the field last.
     """
     labels = _read_draft(item)
     if labels is None:
@@ -1065,12 +1068,11 @@ def load_probabilities(folder: PathLike) -> Dict[str, float]:
 
     :param folder: the queue folder.
     :returns: ``{stem: probability}``, and ``{}`` when there is no scores
-        file (see :func:`scores_path`) -- which is what makes ``prob`` and
-        ``easy`` fall back, loudly.
+        file (see :func:`scores_path`), in which case ``prob`` and ``easy``
+        fall back to ``value`` with a notice.
     :raises CurationQueueError: when ``curate_scores.csv`` is present but
-        has no stem column or no recognised probability column. A scores
-        file that exists and cannot be used is a mistake worth stopping for;
-        a missing one is an ordinary state.
+        has no stem column or no recognised probability column. A missing
+        scores file is not an error.
     """
     path = scores_path(folder)
     if path is None:
@@ -1106,12 +1108,11 @@ def load_draft_counts(folder: PathLike, items: Sequence[QueueItem],
 
     Reading three hundred drafts at every launch is slow, so counts are
     cached by stem and only stems missing from the cache are read. Counts
-    drive ORDERING only: a stale one mis-sorts a field, it never loses work.
+    affect ordering only: a stale one mis-sorts a field but loses no work.
 
-    SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a
-    crash mid-write is not valid UTF-8, and letting that out would take the
-    whole session down over an optimisation -- the drafts are on disk and are
-    the truth.
+    An unreadable cache is therefore recounted from the drafts on disk
+    instead of raising. A file truncated by a crash mid-write, for example,
+    is not valid UTF-8.
 
     :param folder: the queue folder.
     :param items: the fields to count.
@@ -1245,21 +1246,21 @@ def _resolve(source, default):
 def resolve_order(order: str, probabilities: Mapping[str, float],
                   scores_hint: Optional[PathLike] = None
                   ) -> Tuple[str, Optional[str]]:
-    """Decide which ordering will actually be used, and what to say about it.
+    """Return the ordering that will be used and the fallback notice, if any.
 
-    ``prob`` and ``easy`` both need probabilities. Without them they fall
-    back to ``value`` — AND SAY SO. The announcement is half the behaviour:
-    a silent reorder leaves the curator believing they are working the
-    uncertain fields first when they are not.
+    ``prob`` and ``easy`` need probabilities and ``uncertain`` needs
+    uncertainty scores. Without them they fall back to ``value`` and the
+    fallback is announced, so the curator is told that the requested order
+    is not the one in use.
 
     :param order: the ordering asked for, one of :data:`ORDERS`.
     :param probabilities: the probabilities available, possibly empty.
     :param scores_hint: the scores file that would have supplied them,
-        named in the message so the fix is obvious.
+        named in the message.
     :returns: ``(effective_order, announcement)``, the announcement being
         ``None`` when nothing changed.
-    :raises ValueError: when ``order`` is not one of :data:`ORDERS`. A typo
-        must not quietly become a different ordering.
+    :raises ValueError: when ``order`` is not one of :data:`ORDERS`, so a
+        misspelled order does not become a different ordering.
     """
     if order not in ORDERS:
         raise ValueError(
@@ -1288,15 +1289,15 @@ def order_items(items: Iterable[QueueItem], order: str = DEFAULT_ORDER,
         change when one field is a PNG and the next a TIFF.
 
     ``prob``
-        Most likely first: the key is ``-probs.get(stem, -1.0)``. The
-        default is the point. An unscored field yields ``+1.0``, larger than
-        any real negated probability, so it sorts LAST rather than
-        pretending to be probability zero.
+        Most likely first: the key is ``-probs.get(stem, -1.0)``. An
+        unscored field yields ``+1.0``, larger than any real negated
+        probability, so it sorts last rather than being treated as
+        probability zero.
 
     ``easy``
         ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. A populated
-        draft is accept-or-light-edit; an EMPTY draft means drawing from
-        scratch, so empty ones go last REGARDLESS of probability. Within
+        draft is accept-or-light-edit; an empty draft means drawing from
+        scratch, so empty ones go last regardless of probability. Within
         each group, most likely first, then most objects.
 
     ``value``
@@ -1347,8 +1348,9 @@ def order_items(items: Iterable[QueueItem], order: str = DEFAULT_ORDER,
                        for item in ordered}
 
         def easy_key(item: QueueItem) -> Tuple[int, float, int]:
-            """:param item: one field.
+            """Return the ``easy`` sort key of one field.
 
+            :param item: one field.
             :returns: its ``easy`` sort key, populated drafts first.
             """
             n_objects = counted.get(item.stem, 0)
@@ -1367,24 +1369,64 @@ def order_items(items: Iterable[QueueItem], order: str = DEFAULT_ORDER,
                                                       min_diameter))
 
 
+_VERDICT_WORDS = frozenset({"true", "1", "yes", "keep",
+                           "false", "0", "no", "discard"})
+
+
+def _judged_stems(layout: QueueLayout) -> frozenset:
+    """Stems with a Keep or Discard verdict in ``csv/keep_discard.csv``.
+
+    The editor writes the file under the folder it has open, so both the
+    queue folder and its images folder are read (they differ in the
+    ``sibling`` layout). Rows are keyed by image path; a ``_seg.npy`` bundle
+    path is reduced to its field stem. A missing or unreadable file means no
+    verdicts.
+
+    :param layout: the detected layout.
+    :returns: the stems that were judged.
+    """
+    folders = {Path(layout.folder)}
+    if layout.images_dir is not None:
+        folders.add(Path(layout.images_dir))
+    judged = set()
+    for folder in sorted(folders):
+        try:
+            with open(folder / "csv" / "keep_discard.csv", "r",
+                      encoding="utf-8", newline="") as handle:
+                rows = {(row.get("image path") or "").strip(): row
+                        for row in csv.DictReader(handle)}
+        except (OSError, csv.Error, UnicodeDecodeError):
+            continue
+        for key, row in rows.items():
+            verdict = str(row.get("keep") or "").strip().lower()
+            if not key or verdict not in _VERDICT_WORDS:
+                continue
+            name = Path(key).name
+            judged.add(name[:-len(SEG_SUFFIX)] if name.endswith(SEG_SUFFIX)
+                       else Path(name).stem)
+    return frozenset(judged)
+
+
 def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
                 limit: Optional[int] = None, probs=None, counts=None,
                 announce: Optional[Callable[[str], None]] = None,
                 include_reviewed: bool = False,
                 min_objects: int = MIN_OBJECTS_FOR_VALUE,
                 min_diameter: float = MIN_DIAMETER_FOR_VALUE,
-                cache_counts: bool = True) -> CurationQueue:
+                cache_counts: bool = True,
+                exclude_verdicts: bool = False) -> CurationQueue:
     """Open a folder as a bounded curation session.
 
     In order: detect the layout, read the resume record, drop everything
-    already reviewed, order what is left, and only THEN apply the limit — so
-    ``--limit 20`` means the twenty most worthwhile fields still to do, not
-    the first twenty found.
+    already reviewed, order what is left, and only then apply the limit — so
+    ``--limit 20`` means the first twenty fields of the ordered pending list,
+    not the first twenty found.
 
     Probabilities are read only for the orders that use them, so ``name``
-    and ``value`` read no scores file at all. For ``prob`` and ``easy`` the
-    absence of scores is never silent: no scores file falls back to
-    ``value`` and says so, naming both places it looked; a scores file that
+    and ``value`` read no scores file at all; ``uncertain`` reads
+    ``curate_uncertainty.csv`` instead. For ``prob`` and ``easy`` a missing
+    scores file is reported: it falls back to ``value`` with a notice
+    naming both places it looked; a scores file that
     leaves some waiting fields unscored says how many; and where the scores
     came from is printed. Those warnings, and the one that says progress
     is being written back to the external tool's record beside the folder,
@@ -1403,10 +1445,17 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
     :param min_objects: passed to :func:`value_key`.
     :param min_diameter: passed to :func:`value_key`.
     :param cache_counts: whether ``easy`` may write its count cache.
+    :param exclude_verdicts: also drop every field with a Keep or Discard
+        verdict in ``csv/keep_discard.csv`` (read from the queue folder and
+        from the folder the editor opens, which differ in the ``sibling``
+        layout), in addition to the done and skip rows. The verdicts stay in
+        the file; the number dropped is
+        :attr:`CurationQueue.excluded_by_verdict`.
     :returns: the :class:`CurationQueue`.
     :raises LayoutError: when the folder is not one unambiguous layout.
     :raises StatusFileError: when the status file cannot be read.
-    :raises ValueError: when ``order`` is not one of :data:`ORDERS`.
+    :raises ValueError: when ``order`` is not one of :data:`ORDERS`, or
+        ``limit`` is negative.
     """
     say = announce if announce is not None else print
     if order not in ORDERS:
@@ -1429,6 +1478,12 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
 
     waiting = (list(layout.items) if include_reviewed
                else pending_items(layout.items, status))
+    excluded = 0
+    if exclude_verdicts:
+        judged = _judged_stems(layout)
+        kept = [item for item in waiting if item.stem not in judged]
+        excluded = len(waiting) - len(kept)
+        waiting = kept
 
     probabilities: Optional[Mapping[str, float]] = None
     source: Optional[Path] = None
@@ -1496,4 +1551,6 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
 
     return CurationQueue(layout=layout, items=tuple(ordered), status=status,
                          order=order, effective_order=effective, limit=limit,
-                         summary=summary, notices=tuple(notices))
+                         summary=summary, notices=tuple(notices),
+                         exclude_verdicts=exclude_verdicts,
+                         excluded_by_verdict=excluded)

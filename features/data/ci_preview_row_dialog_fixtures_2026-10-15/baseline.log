@@ -1,0 +1,36 @@
+{"pid": 3018917, "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68161.scope", "memory_max": "4294967296", "memory_swap_max": "0", "cpus_allowed": [0], "pyside6": "6.12.0", "qt": "6.12.0"}
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+____________________ test_the_live_model_row_offers_the_zoo ____________________
+tests/qt/test_the_preview_path_does_not_push_its_row.py:97: in test_the_live_model_row_offers_the_zoo
+    panel._choose_a_preview_model()
+spacr/qt/widgets/live_preview.py:3830: in _choose_a_preview_model
+    if dialog.exec() != QDialog.Accepted:
+       ^^^^^^^^^^^^^
+tests/qt/conftest.py:861: in _refuse
+    raise AssertionError(
+E   AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.
+__________ test_a_model_not_in_the_menu_is_added_rather_than_ignored ___________
+tests/qt/test_the_preview_path_does_not_push_its_row.py:112: in test_a_model_not_in_the_menu_is_added_rather_than_ignored
+    panel._choose_a_preview_model()
+spacr/qt/widgets/live_preview.py:3830: in _choose_a_preview_model
+    if dialog.exec() != QDialog.Accepted:
+       ^^^^^^^^^^^^^
+tests/qt/conftest.py:861: in _refuse
+    raise AssertionError(
+E   AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.
+______________ test_cancelling_the_picker_leaves_the_model_alone _______________
+tests/qt/test_the_preview_path_does_not_push_its_row.py:123: in test_cancelling_the_picker_leaves_the_model_alone
+    panel._choose_a_preview_model()
+spacr/qt/widgets/live_preview.py:3830: in _choose_a_preview_model
+    if dialog.exec() != QDialog.Accepted:
+       ^^^^^^^^^^^^^
+tests/qt/conftest.py:861: in _refuse
+    raise AssertionError(
+E   AssertionError: ModelZooPicker.exec() was called in a headless test. A modal has nobody to answer it here and hangs the run. Stub the call that opens it -- e.g. monkeypatch spacr.qt.shutdown.ask_how_to_quit -- or patch this dialog's exec in the test that wants it.
+- generated xml file: /mnt/wd4tb/scratch/ci-preview-row-dialog-fixtures-20261015/baseline.xml -
+=========================== short test summary info ============================
+FAILED tests/qt/test_the_preview_path_does_not_push_its_row.py::test_the_live_model_row_offers_the_zoo
+FAILED tests/qt/test_the_preview_path_does_not_push_its_row.py::test_a_model_not_in_the_menu_is_added_rather_than_ignored
+FAILED tests/qt/test_the_preview_path_does_not_push_its_row.py::test_cancelling_the_picker_leaves_the_model_alone
+3 failed in 5.42s

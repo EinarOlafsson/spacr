@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "lesson": "04_platform_installers",
+  "reviewed_at_utc": "2026-10-15T19:57:40.474348+00:00",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04_packet.py",
+      "bytes": 10065,
+      "sha256": "bf9ac5495f082b6b26240b760e9bb9e2efa609d4038248038cb6bd2044535772"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04-USAGE.txt",
+      "bytes": 2664,
+      "sha256": "44da5e21bf18af2638a2380bd9eace8db04042a67c55e568238222a81affdf96"
+    }
+  ],
+  "historical_K4_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/completed04-assembler-independent-source-peer.json",
+    "bytes": 2993,
+    "sha256": "728eee3eb041026ced514115a5560ea0b783f79bf4349d59e1e56284f3b0c455"
+  },
+  "checks": {
+    "final_source_actual_K5_cli_native_and_stage_exact_K4": true,
+    "K4_ancestor_exact_two_player_paths": true,
+    "all502_current_capture_hashes_checked_and_player_paths_excluded": true,
+    "actual_postrecord_export_finalreview_manifest_master_timing_native_acceptance_bindings_required": true,
+    "dynamic_checkpoint_files_plus3_and_closed_hashcoverage": true,
+    "retained100_audio14_objects83_other_lessons_and13reviews_guarded": true,
+    "actual851_native_frames10018_master_and_preserve_intervals_truthful": true,
+    "required_separate_original_and_playback_source_handoffs": true,
+    "all_raw_or_handoff_media_payloads_rejected_before_output_creation": true,
+    "safe_relative_copy_paths_symlinks_rejected_source_and_copy_hashes_rechecked": true
+  },
+  "limits": [
+    "Source-only review; no assembler/export execution, future receipt validation or publication success implied.",
+    "Previous K4 peer is historical; this supplemental peer binds the actual K5-aware helper bytes.",
+    "Requires exporter MP4 snapshot exclusion and actual final publication prerequisites at runtime."
+  ]
+}

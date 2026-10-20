@@ -11,6 +11,93 @@ from spacr.qt import mask_engine as engine
 from spacr.qt.screens.make_masks import MODE_BOX, MODE_DRAW, MakeMasksScreen
 
 
+@pytest.mark.parametrize('layout', ['nested', 'sibling'])
+def test_linked_images_curate_save_and_resume_without_box_popups(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch, layout):
+    """An unannotated source link must not interrupt an ordinary mask queue."""
+    from spacr.curation_queue import build_queue
+
+    originals = tmp_path / 'originals'
+    originals.mkdir()
+    folder = tmp_path / 'review'
+    folder.mkdir()
+    images = folder / 'images' if layout == 'sibling' else folder
+    images.mkdir(exist_ok=True)
+    masks = folder / 'masks'
+    masks.mkdir()
+    image = np.arange(64 * 64, dtype=np.uint16).reshape(64, 64)
+    source_bytes = {}
+    for index in range(2):
+        name = f'field_{index}.tif'
+        source = originals / name
+        imageio.imwrite(source, image + index)
+        source_bytes[name] = source.read_bytes()
+        (images / name).symlink_to(source)
+        imageio.imwrite(masks / name, np.zeros((64, 64), dtype=np.uint16))
+    warnings = []
+    monkeypatch.setattr(MakeMasksScreen, '_warn',
+                        lambda self, title, message: warnings.append((title, message)))
+    widget = MakeMasksScreen()
+    qtbot.addWidget(widget)
+    try:
+        widget.open_queue(build_queue(folder, order='name'))
+        assert warnings == []
+        np.testing.assert_array_equal(widget._canvas.image, image)
+        assert widget._box_load_error is not None
+        assert not widget._canvas.boxes_editable
+        widget._canvas.mask[12:24, 12:24] = 1
+        widget._btn_save.click()
+        saved = imageio.imread(masks / 'field_0.tif')
+        assert saved[12:24, 12:24].all()
+        assert build_queue(folder, order='name').summary.done == 1
+        widget._btn_next.click()
+        assert widget._current_index == 1
+        assert warnings == []
+        for name, payload in source_bytes.items():
+            assert (originals / name).read_bytes() == payload
+    finally:
+        widget.close()
+    resumed = MakeMasksScreen()
+    qtbot.addWidget(resumed)
+    try:
+        resumed.open_queue(build_queue(folder, order='name'))
+        assert resumed._image_files == ['field_1.tif']
+        assert warnings == []
+        resumed._set_mode(MODE_BOX)
+        assert resumed._canvas.mode != MODE_BOX
+        assert len(warnings) == 1
+        assert 'escapes its folder' in warnings[0][1]
+    finally:
+        resumed.close()
+
+
+def test_linked_source_with_box_ledger_still_warns(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """An existing box project keeps its source confinement warning."""
+    folder = tmp_path / 'review'
+    folder.mkdir()
+    source = tmp_path / 'original.tif'
+    imageio.imwrite(source, np.zeros((64, 64), dtype=np.uint16))
+    (folder / 'field.tif').symlink_to(source)
+    (folder / engine.YOLO_ANNOTATIONS_NAME).write_text(
+        '{"version":1,"classes":["object"],"images":{}}')
+    warnings = []
+    monkeypatch.setattr(MakeMasksScreen, '_warn',
+                        lambda self, title, message: warnings.append((title, message)))
+    widget = MakeMasksScreen()
+    qtbot.addWidget(widget)
+    try:
+        assert widget._open_folder(str(folder))
+        assert len(warnings) == 1
+        assert 'escapes its folder' in warnings[0][1]
+        assert not widget._canvas.boxes_editable
+        widget._set_mode(MODE_BOX)
+        assert widget._canvas.mode != MODE_BOX
+        assert len(warnings) == 2
+    finally:
+        widget.close()
+
+
 @pytest.fixture
 def opened(qtbot, qt_theme_applied, tmp_path):
     """Open two genuine TIFF fields and close the editor's helper windows."""

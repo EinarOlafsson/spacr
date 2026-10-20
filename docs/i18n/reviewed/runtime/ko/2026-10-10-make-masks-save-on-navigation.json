@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Save an edited mask before Keep, Discard, Next or Previous. If saving fails, stay on this image without recording a verdict. Off by default; Skip still writes no mask.",
+      "source": "Save an edited mask before Keep, Discard, Next or Previous. If saving fails, stay on this image without recording a verdict. Off by default; Skip still writes no mask.",
+      "source_sha256": "4fb3bd4be6353ec733de2503cdf874558feb772535eeb335f284a338d0bf0047",
+      "table": "ui",
+      "translation": "유지, 버리기, 다음 또는 이전 전에 편집한 마스크를 저장합니다. 저장에 실패하면 판정을 기록하지 않고 이 이미지에 머뭅니다. 기본값은 꺼짐이며, 건너뛰기는 여전히 마스크를 쓰지 않습니다."
+    },
+    {
+      "key": "Save on navigation",
+      "source": "Save on navigation",
+      "source_sha256": "4c723d1597efa09b2c3b35a50b1aba9c907f9c15bae613443bb84905b4d99e3d",
+      "table": "ui",
+      "translation": "이동 시 저장"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

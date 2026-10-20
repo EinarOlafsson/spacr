@@ -29,8 +29,13 @@ from __future__ import annotations
 import argparse
 import ast
 import ctypes
+import threading
 import ctypes.util
-import fcntl
+try:
+    import fcntl
+except ImportError:                       # Windows: byte-range locks through msvcrt
+    fcntl = None
+    import msvcrt
 import hashlib
 import importlib.util
 import json
@@ -289,13 +294,24 @@ _IDENTITY_TEXT = {
     # Scientific genus names and the Latin plural abbreviation stay exact
     # on organism Home tiles; they are not untranslated English prose.
     "Candida spp.", "Plasmodium spp.",
-    "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "Starplast",
+    "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "ParaScape",
     # 316, 2026-10-03 (thirteenth pass): 634's alpha organism pages name
     # these databases and organisms alone.
     "Cellosaurus", "Giardia duodenalis", "GiardiaDB", "Human Protein Atlas",
     "Leishmania spp.", "NCBI Virus", "TriTrypDB", "Trypanosoma spp.", "ViralZone",
     "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
-    "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc", "ER 2",
+    "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc",
+    "Ctrl+Shift+D", "Ctrl+Shift+N", "Ctrl+[ / Ctrl+]",
+    # 2026-10-12: N673 shortcut rows name keys only.
+    "Page Up / Page Down", "Shift+E / Shift+S / Shift+D", "Shift+X / Shift+Y / Shift+Z",
+    # N673 View mode name, kept in English like the other protected 3D terms.
+    "True 3D", "ER 2",
+    # 2026-10-15: N673 True 3D rendering name, napari's minimum-intensity projection.
+    "MinIP",
+    # 2026-10-16: N673 True 3D Render backend name (the graphics API), a product name.
+    "OpenGL",
+    # 2026-10-16: N673 wgpu Render backend names (graphics APIs), product names.
+    "Vulkan", "Metal", "Direct3D 12",
     "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
@@ -315,6 +331,8 @@ _IDENTITY_TEXT = {
     "RNA", "ROI", "SAM", "SHAP", "SQL", "TIFF", "UMAP", "ViT", "X",
     "XGBoost", "Y",
     "Z", "log10", "spaCR", "t", "x", "y", "µM", "µm/pixel",
+    # 2026-10-11: F534 window units, shown alone in its unit menu.
+    "px", "µm",
     "|Tutorials|",
     # Standalone option values are executable configuration identities, not
     # prose.  Translation models repeatedly mapped these short tokens to
@@ -1054,6 +1072,16 @@ _IMAGE_TILE_SOURCE = (
     r"mosaics?|overlaps?|registration|channels?|arrays?|crops?|PNG|TIFF|OME|"
     r"ND2|coordinates?|offsets?|seams?|composit(?:e|ing))\b)"
 )
+# A STAIN IS A DYE in spaCR: a nuclear stain, a differential staining, a
+# virtual-staining model.  Machine output took the smudge sense ("jeden
+# Fleck", "por mancha", "chaque tache").  Sources that also name blobs,
+# specks or spots are excluded, because Fleck/mancha/tache is the right word
+# for those and one block can hold both senses.
+_DYE_STAIN_SOURCE = (
+    r"(?is)\A(?=.*\b(?:counter)?stain(?:s|ed|ing)?\b)"
+    r"(?!.*\b(?:blobs?|blobby|specks?|speckles?|spots?|smudges?|dirt|dust|"
+    r"debris|puncta)\b)"
+)
 _SCIENTIFIC_PLATE_SOURCE = (
     r"(?is)\A(?=.*\bplates?\b)"
     r"(?=.*\b(?:wells?|microplates?|assays?|96|384|1536|imaging|sequencing|"
@@ -1201,25 +1229,47 @@ def _opencc_runtime() -> tuple[str, Path]:
     )
 
 
+_OPENCC_CONVERTERS: dict[tuple[str, str], tuple[object, int]] = {}
+_OPENCC_LOCK = threading.Lock()
+
+
+def _opencc_converter(library_name: str, config_path: Path) -> tuple[object, int]:
+    """Open one OpenCC ``t2s`` converter per runtime and keep it.
+
+    Opening loads the whole t2s dictionary set. It used to happen once per
+    string checked, which made one catalog audit test take about 230 s and
+    pass the N47 serial run's 300 s per-test limit on a loaded machine.
+    The converter is keyed by the resolved runtime, so a test that clears
+    ``_opencc_runtime`` and resolves another one gets its own.
+    """
+    key = (str(library_name), str(config_path))
+    with _OPENCC_LOCK:
+        cached = _OPENCC_CONVERTERS.get(key)
+        if cached is not None:
+            return cached
+        library = ctypes.CDLL(library_name)
+        library.opencc_open.argtypes = [ctypes.c_char_p]
+        library.opencc_open.restype = ctypes.c_void_p
+        library.opencc_convert_utf8.argtypes = [
+            ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t,
+        ]
+        library.opencc_convert_utf8.restype = ctypes.c_void_p
+        library.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
+        library.opencc_close.argtypes = [ctypes.c_void_p]
+        handle = library.opencc_open(str(config_path).encode("utf-8"))
+        if not handle or handle == ctypes.c_void_p(-1).value:
+            raise RuntimeError("OpenCC could not load t2s.json")
+        _OPENCC_CONVERTERS[key] = (library, handle)
+        return library, handle
+
+
 def _simplify_chinese_prose(value: str) -> str:
     """Normalize generated zh_CN prose with Apache-2.0 OpenCC ``t2s``.
 
     Generation and audit both fail loudly when the host dependency is absent.
     Protected API/RST spans bypass OpenCC byte-for-byte.
     """
-    library_name, config_path = _opencc_runtime()
-    library = ctypes.CDLL(library_name)
-    library.opencc_open.argtypes = [ctypes.c_char_p]
-    library.opencc_open.restype = ctypes.c_void_p
-    library.opencc_convert_utf8.argtypes = [
-        ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t,
-    ]
-    library.opencc_convert_utf8.restype = ctypes.c_void_p
-    library.opencc_convert_utf8_free.argtypes = [ctypes.c_void_p]
-    library.opencc_close.argtypes = [ctypes.c_void_p]
-    handle = library.opencc_open(str(config_path).encode("utf-8"))
-    if not handle or handle == ctypes.c_void_p(-1).value:
-        raise RuntimeError("OpenCC could not load t2s.json")
+    library, handle = _opencc_converter(*_opencc_runtime())
 
     def convert(fragment: str) -> str:
         if not fragment:
@@ -1235,18 +1285,16 @@ def _simplify_chinese_prose(value: str) -> str:
         finally:
             library.opencc_convert_utf8_free(pointer)
 
-    try:
-        source = str(value)
-        pieces: list[str] = []
-        cursor = 0
+    source = str(value)
+    pieces: list[str] = []
+    cursor = 0
+    with _OPENCC_LOCK:
         for match in _CONTEXT_HARD_PROTECT_RE.finditer(source):
             pieces.append(convert(source[cursor:match.start()]))
             pieces.append(match.group(0))
             cursor = match.end()
         pieces.append(convert(source[cursor:]))
-        return "".join(pieces)
-    finally:
-        library.opencc_close(handle)
+    return "".join(pieces)
 
 
 def _has_traditional_chinese_prose(value: str) -> bool:
@@ -1483,8 +1531,12 @@ _UI_SCREEN_SOURCE = (
     r"displays?|screen renders?|screen restores?|screen writes?|screen reads?|"
     r"screen chooses?|screen receives?|screen returns?)\b))"
     r"(?!.*\b(?:real|simulated|pooled|CRISPR|widefield)\b.{0,40}\bscreens?\b)"
-    r"(?!.*\bscreens?\s+(?:features?|hits?|wells?|data|scores?|"
-    r"phenotypes?|regression|classification)\b)"
+    r"(?!.*\bscreens?(?:['’]s)?\s+(?:features?|hits?|wells?|data|scores?|"
+    r"phenotypes?|regression|classification|plates?|ids?|merged)\b)"
+    # A genetic screen named by its experiment: a plate within one screen,
+    # an example screen's files, a guide in the screen, re-running it.
+    r"(?!.*\b(?:within\s+(?:one|a|each)\s+screens?|example[- ]screens?|"
+    r"guides?\s+in\s+the\s+screens?|guide-to-well|re-?(?:running|executing)\s+a\s+screens?)\b)"
 )
 
 _SCIENTIFIC_SCREEN_SOURCE = (
@@ -1689,6 +1741,17 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
         "pt": r"\b(?:aument\w*|elev\w*|re-elev\w*)\b",
         "es": r"\b(?:elev\w*|aument\w*)\b",
     },
+    "stain": {
+        "de": r"Fleck",
+        "es": r"\bmanchas?\b",
+        "fr": r"\btaches?\b",
+        "pt": r"\bmanchas?\b",
+        "sv": r"fläck",
+        "is": r"\bblett\w*",
+        "zh_CN": r"(?:污渍|污点|污染物|斑点|斑渍)",
+        "ko": r"얼룩",
+        "hi": r"(?:दाग|धब्ब)",
+    },
     "window-raise": {
         "fr": r"\b(?:soulev\w*|élev\w*)\b",
         "hi": r"(?:(?:इसे|उसे|स्क्रीन|विंडो).{0,25}उठा|उठा.{0,25}(?:फोकस|ध्यान))",
@@ -1698,6 +1761,339 @@ _SEMANTIC_BAD_TARGETS: Mapping[str, Mapping[str, str]] = {
         "pt": r"\b(?:aument\w*|elev\w*)\b",
     },
 }
+
+# A TERMINOLOGY GLOSSARY, ONE LOCALE AT A TIME (item 678, 2026-10-17).
+#
+# Each row is (label, English-source pattern, wrong target pattern): the
+# source pattern names a spaCR domain sense, and the target pattern names a
+# rendering that is wrong in every block carrying that sense -- German
+# "Etikett" for an object label, Hindi "युग" for a training epoch, Korean
+# "씨앗" for a random seed, Spanish "hachas" for matplotlib axes.  The rows
+# came from a source-by-source review of the runtime and API catalogs; when
+# they were added, every committed row and reviewed record matched none of
+# them.  A candidate that matches is rejected like any other false friend,
+# so the wrong sense cannot come back from a later machine translation.
+_REVIEWED_TERM_GATES: Mapping[str, tuple[tuple[str, str, str], ...]] = {
+    'sv': (
+        ('plaque-wrong-sense',
+         '\\bplaques?\\b',
+         'plakett|tandsten|tandbeläggning'),
+        ('gate-wrong-sense',
+         '^(?!.*\\b(ports?|gateway|ported|airport)\\b).*\\bgat(e|es|ed|ing)\\b',
+         '\\b[Pp]ort(ar|arna|en|ens)?\\b'),
+        ('seed-wrong-sense',
+         '\\bseed(s|ed|ing)?\\b',
+         'utsäd'),
+        ('tile-wrong-sense',
+         '\\btil(e|es|ed|ing)\\b',
+         'kakel|kakl|klinker'),
+        ('plot-wrong-sense',
+         '\\bplot(s|ted|ting)?\\b',
+         '\\b[Tt]omt(en|ens|er|erna)\\b|\\b[Tt]omt[a-zåäö]{3,}|\\b[Tt]omtera'),
+        ('screen-wrong-sense',
+         '\\bscreeners?\\b',
+         'skärmare'),
+        ('confluence-wrong-sense',
+         '\\bconfluen(t|ce|cy)\\b',
+         'sammanflät'),
+        ('model-weights-wrong-sense',
+         '\\btorch\\b',
+         '\\b[Ff]ackl'),
+        ('well-wrong-sense',
+         '\\bwell[- ]level\\b',
+         '\\b[Vv]äl[- ]?nivå'),
+        ('feature-wrong-sense',
+         '^(?!.*\\bfunctions?\\b).*\\bfeature[- ](columns?|tables?|matrix|matrices|importances?|names?|space|maps?|vectors?)\\b',
+         '[Ff]unktions(kolumn|tabell|matris|vikt|namn|utrymme|rymd|kart|vektor)'),
+        ('objective-wrong-sense',
+         '\\b(dirty|different|microscope) objectives?\\b|\\bobjectives?,? (and|or) (days|microscopes)|vignetting in the objective',
+         '\\bmål(et)?\\b'),
+        ('annotation-wrong-sense',
+         '^(?!.*\\b(comments?|notes?|notation)\\b).*\\bannotation[- ]columns?\\b',
+         '[Kk]ommentar|[Aa]nteckning|(?<![Aa]n)[Nn]otation'),
+    ),
+    'de': (
+        ('stain-wrong-sense',
+         '^(?![\\s\\S]*\\b(blobs?|specks?|speckles?|spots?|puncta|punctate)\\b)[\\s\\S]*\\b(stain|stains|stained|staining|counterstain\\w*)\\b',
+         '[Ff]leck'),
+        ('tile-wrong-sense',
+         '\\btiles?\\b',
+         '[Ff]liese'),
+        ('worker-wrong-sense',
+         '\\bworkers?\\b',
+         '[Aa]rbeiter(?!\\w*thread)|[Aa]rbeitnehmer'),
+        ('backbone-wrong-sense',
+         '\\bbackbones?\\b',
+         '[Rr]ückgrat'),
+        ('training-wrong-sense',
+         '\\btrain\\b',
+         '\\bZug ?[/-]|\\bZugkurve|Zug und (Test|Validierung)'),
+        ('hallucination-wrong-sense',
+         '^(?![\\s\\S]*\\b(president|parliament|european|commission|regulation)\\b)',
+         'Der Präsident\\.|Fraktion der Europäischen|Verordnung \\(EWG\\)|Europäischen Gemeinschaften|Vertrag über die Europäische Union|Tagesordnung folgt'),
+    ),
+    'es': (
+        ('tile-wrong-sense',
+         '\\btil(e|es|ed|ing)\\b',
+         '\\b(azulej(o|os|a)|baldosas?)\\b'),
+        ('weights-wrong-sense',
+         '\\bweights?\\b',
+         '\\bpesas\\b'),
+        ('training-wrong-sense',
+         '\\btrain[/-](test|val|validation)\\b',
+         '\\btren\\b'),
+        ('run-wrong-sense',
+         '\\bruns?\\b',
+         '(?<!condición de )(?<!condiciones de )\\bcarreras?\\b'),
+        ('plate-wrong-sense',
+         '\\bplates?\\b',
+         '\\bplatos?\\b'),
+        ('mask-wrong-sense',
+         '\\bmasks?\\b',
+         '\\b(mascarillas?|mascas?)\\b'),
+        ('crop-wrong-sense',
+         '\\bcrop(s|ped|ping)?\\b',
+         '\\bcosech\\w*'),
+    ),
+    'zh_CN': (
+        ('dye-wrong-sense',
+         '\\bdyes?\\b',
+         '污渍|污点|污染物'),
+        ('channel-wrong-sense',
+         '(?s)^(?!.*\\b(?:slack|teams|chat|discord|webhook|release|conda|television|tv|broadcast\\w*|radio|youtube)\\b).*\\bchannels?\\b',
+         '频道|渠道'),
+        ('epoch-wrong-sense',
+         '\\bepochs?\\b',
+         '时代'),
+        ('training-wrong-sense',
+         '\\b(model|classifier|network|cellpose|torch)\\s+training\\b|\\btraining\\s+(data|set|epochs?|loss|run|images?)\\b',
+         '培训'),
+        ('vacuole-wrong-sense',
+         '\\bvacuol\\w*',
+         '真空'),
+        ('weights-wrong-sense',
+         '\\b(model|pretrained|pre-trained|checkpoint|network|trained)\\s+weights\\b',
+         '重量|体重'),
+        ('host-wrong-sense',
+         '\\bhost[- ]cells?\\b',
+         '主持|主人|托管细胞'),
+        ('nucleus-wrong-sense',
+         '\\bnucle(us|i)\\b',
+         '原子核'),
+        ('colony-wrong-sense',
+         '\\bcolon(y|ies)\\b',
+         '殖民'),
+        ('plaque-wrong-sense',
+         '\\bplaques?\\b',
+         '牙菌斑|牌匾'),
+        ('parasite-wrong-sense',
+         '\\bparasites?\\b',
+         '寄生素'),
+        ('run-wrong-sense',
+         '\\bruns?\\b',
+         '跑步'),
+        ('worker-wrong-sense',
+         '\\bworkers?\\b',
+         '(?<!管理)员工|工人'),
+        ('field-wrong-sense',
+         '\\bfields?\\b',
+         '田野|田地'),
+        ('confluence-wrong-sense',
+         '\\bconfluen\\w*',
+         '混合性'),
+    ),
+    'pt': (
+        ('stain-wrong-sense',
+         '\\b(counter)?stain(s|ed|ing)?\\b',
+         '\\b[Mm]anch(a|as|ado|ada|ados|adas|ar)\\b'),
+        ('vacuole-wrong-sense',
+         '\\bvacuoles?\\b',
+         '\\b[Vv](ácuos?|acúos?)\\b'),
+        ('objective-wrong-sense',
+         'objective magnification|microscope objective|objective NA\\b|(dirty|different|acquisition) objective\\b|vignetting in the objective',
+         '\\bobjetivos?\\b|\\bmicroscópio objetivo\\b'),
+        ('crop-wrong-sense',
+         '\\bcrops?\\b',
+         '\\b([Ss]afras?|[Pp]lantaç(ão|ões)|[Cc]olheitas?)\\b'),
+        ('feature-wrong-sense',
+         '\\bfeature[- ](matrix|matrices|importances?|columns?|tables?|space|selection|extraction|names?|vectors?|maps?)\\b',
+         '\\b([Ii]mportâncias?|[Mm]atriz|[Mm]atrizes|[Cc]olunas?|[Tt]abelas?|[Ee]spaço|[Ss]eleção|[Ee]xtração|[Nn]omes?|[Vv]etores?|[Mm]apas?)( de importância)? d[eo]s? (recursos?|funcionalidades?)\\b'),
+        ('cell-wrong-sense',
+         '^(?!.*\\b(stack|stacks|stacked|pile)\\b)(?=.*\\bcells?\\b)',
+         '\\b[Pp]ilhas?\\b|\\b[Bb]aterias?\\b'),
+        ('host-wrong-sense',
+         '\\bhost cells?\\b',
+         '\\bcélulas? anfitriãs?\\b'),
+    ),
+    'hi': (
+        ('epoch-wrong-sense',
+         '\\bepochs?\\b',
+         'युग(?!्म)'),
+        ('field-wrong-sense',
+         '\\bfields?\\b',
+         'मैदान'),
+        ('run-wrong-sense',
+         '\\bruns?\\b',
+         'दौ(?:ड़|ड़)'),
+        ('mask-wrong-sense',
+         '\\bmasks?\\b',
+         'मुखौट|नकाब'),
+        ('gate-wrong-sense',
+         '\\bgates?\\b',
+         'दरवाज़?|फाटक'),
+        ('parasite-wrong-sense',
+         '\\bparasites?\\b',
+         'कीटनाशक'),
+        ('colony-wrong-sense',
+         '\\bcolon(y|ies)\\b',
+         'कलीसिया|उपनिवेश'),
+        ('nucleus-wrong-sense',
+         '\\bnucle(us|i)\\b',
+         '(?<![ऀ-ॿ])कोर(?![ऀ-ॿ])'),
+        ('vacuole-wrong-sense',
+         '\\bvacuoles?\\b',
+         'वॉकवॉल|वॉलपेपर'),
+        ('plaque-wrong-sense',
+         '\\bplaque assay\\b',
+         'प्लेट मूल्यांकन|प्लेट परख'),
+    ),
+    'ko': (
+        ('worker-wrong-sense',
+         '(?is)^(?!.*\\b(labou?rers?|staff|employees?)\\b).*\\bworkers?\\b',
+         '노동자|근로자|일꾼'),
+        ('seed-wrong-sense',
+         '(?is)^(?!.*\\b(plants?|sow|sowing|grains?)\\b).*\\b(seeds?|random seed)\\b',
+         '씨앗|씨발'),
+        ('weights-wrong-sense',
+         '(?is)^(?!.*\\b(font|body|molecular)\\b).*\\bweights\\b',
+         '무게(?!\\s?중심)|체중'),
+        ('epoch-wrong-sense',
+         '(?is)^(?!.*\\b(era|eras|century|historic\\w*)\\b).*\\bepochs?\\b',
+         '시대|신기원'),
+        ('pathogen-wrong-sense',
+         '(?is)^(?!.*(bacteri|hospital)).*\\bpathogens?\\b',
+         '병원균|병원(?![가-힣])'),
+        ('vacuole-wrong-sense',
+         '(?is)^(?!.*vacuum).*\\bvacuoles?\\b',
+         '진공'),
+        ('colony-wrong-sense',
+         '(?is)^(?!.*coloni[sz]|.*colonial).*\\bcolon(y|ies)\\b',
+         '식민'),
+        ('stain-wrong-sense',
+         '(?is)^(?!.*(speckle|smudge|blob|brick|soil|scar|stainless)).*\\bstain(s|ed|ing)?\\b',
+         '벽돌|흙|흉터|스톤|얼룩|벽난로'),
+        ('mask-wrong-sense',
+         '(?is)^(?!.*\\b(face|mosque)\\b).*\\bmasks?\\b',
+         '모스크|가면'),
+        ('annotation-wrong-sense',
+         '(?is)^(?!.*\\b(audio|voice|recordings?|narration)\\b).*\\bannotat(e|es|ed|ing|ion|ions|or|ors)\\b',
+         '녹음'),
+        ('embedding-wrong-sense',
+         '(?is)^(?!.*insert).*\\bembeddings?\\b',
+         '삽입'),
+        ('well-wrong-sense',
+         '(?is)^(?!.*\\b(pots?|baskets?|bins?)\\b).*\\bwells\\b',
+         '냄비|바구니|우물'),
+        ('crop-wrong-sense',
+         '(?is)^(?!.*\\b(plants?|harvest\\w*|agricultur\\w*)\\b).*\\bcrops?\\b',
+         '농작물|작물|식물|재배|수확'),
+        ('tile-wrong-sense',
+         '(?is)^(?!.*brick).*\\btiles?\\b',
+         '벽돌|(?<![가-힣])기와'),
+        ('plate-wrong-sense',
+         '(?is)^(?!.*(microb|bacteri|microorganism)).*\\bplates?\\b',
+         '실험[실소]\\s?미생물|미생물\\s?플레이트'),
+        ('gate-wrong-sense',
+         '(?is)^(?!.*\\b(borders?|country|countries|nation\\w*)\\b).*\\bgates?\\b',
+         '국경'),
+        ('field-wrong-sense',
+         '(?is)^(?!.*\\b(farm\\w*|agricultur\\w*)\\b).*\\bfields?\\b',
+         '(?<![가-힣])밭'),
+        ('inference-wrong-sense',
+         '(?is)^(?!.*conclu).*\\binference\\b',
+         '결론'),
+    ),
+    'is': (
+        ('cell-wrong-sense',
+         '^(?!.*(?:table cell|grid|spreadsheet|click|notebook|QTable|header|confusion|heatmap)).*\\bcells?\\b',
+         '\\bcel(?:i|ið|la|ler|lerum)\\b'),
+        ('nucleus-wrong-sense',
+         '\\bnucle(?:us|i)\\b',
+         '\\bkjól\\w*'),
+        ('crop-wrong-sense',
+         '\\bcrops?\\b',
+         '\\bútgreidd\\w*|\\bgróðurs?\\b'),
+        ('worker-wrong-sense',
+         '\\bworkers?\\b',
+         '\\bstarfsm\\w*'),
+        ('host-wrong-sense',
+         '\\bhosts?\\b',
+         '\\bveitingastað\\w*|\\bherberg\\w*'),
+        ('gate-wrong-sense',
+         '\\bgat(?:e|es|ing)\\b',
+         '\\bsæling\\w*|\\bgrænsi\\w*'),
+        ('epoch-wrong-sense',
+         '^(?!.*unix).*\\bepochs?\\b',
+         '\\bæra\\b'),
+        ('invasion-wrong-sense',
+         '\\binvasion\\b',
+         '\\binnflytj\\w*'),
+        ('pathogen-wrong-sense',
+         '\\bpathogens?\\b',
+         '\\bpat[oó]g[eé]n\\w*'),
+        ('field-wrong-sense',
+         '\\bfields?\\b',
+         '\\bfólkið\\b|\\bleikir\\b'),
+        ('stain-wrong-sense',
+         '\\bstain(?:s|ed|ing)?\\b',
+         '\\bskugg\\w*'),
+    ),
+    'fr': (
+        ('well-wrong-sense',
+         '\\bwells\\b',
+         '\\b[Bb]iens\\b'),
+        ('well-wrong-sense',
+         '\\b(control|per|each|every|one|two|which|the same) wells?\\b',
+         '\\b(par|chaque|un|le même) bien\\b|\\b[Bb]iens? de contrôle\\b'),
+        ('training-wrong-sense',
+         '^(?![\\s\\S]*\\bform)[\\s\\S]*\\b(train|training|trained|retrain\\w*)\\b',
+         '\\b[Ff]ormations?\\b'),
+        ('worker-wrong-sense',
+         '^(?![\\s\\S]*\\b(labou?r\\w*|employees?|staff)\\b)[\\s\\S]*\\bworkers?\\b',
+         '\\b([Tt]ravailleu\\w*|[Oo]uvri(?:er|ers|ère|ères))\\b'),
+        ('feature-wrong-sense',
+         '\\bfeatures? (importance|matrix|matrices|columns?|names?|tables?|selection|space|vectors?|extraction|maps?|families|family|dictionary|set)\\b',
+         '\\b[Ff]onctionnalités?\\b'),
+        ('vacuole-wrong-sense',
+         '\\b(per-vacuole|parasites-per-vacuole)\\b',
+         '\\bpar vide\\b'),
+        ('plate-wrong-sense',
+         '\\bplates?\\b',
+         '\\b[Aa]ssiettes?\\b'),
+        ('tile-wrong-sense',
+         '\\btiles?\\b',
+         '\\b[Cc]arrel\\w*'),
+        ('gate-wrong-sense',
+         '\\bgates?\\b',
+         '\\b[Pp]ortails?\\b'),
+        ('seed-wrong-sense',
+         '\\bseeds?\\b',
+         '\\b[Ss]emences?\\b'),
+        ('channel-wrong-sense',
+         '\\bchannels?\\b',
+         "\\b[Cc]haînes? (vidéo|de données d'image d'intensité)\\b|\\b[Cc]haîne \\{index\\}"),
+        ('mask-wrong-sense',
+         '\\bcached masks?\\b',
+         '\\bmasques? caches?\\b'),
+        ('crop-wrong-sense',
+         '\\b(crop|crops|cropping|cropped)\\b',
+         '\\b(récoltes?|avant la culture)\\b'),
+    ),
+}
+
+
+
+
 
 _SCIENTIFIC_WELL_BAD_TARGET = {
     "fr": r"\bbien\b",
@@ -1947,6 +2343,7 @@ def _semantic_false_friends(
         (_IMAGE_TILE_SOURCE, "tile", "image-tile-as-roof-or-floor-tile"),
         (_SCIENTIFIC_PLATE_SOURCE, "plate", "scientific-plate-as-dish"),
         (_IMAGE_CROP_SOURCE, "crop", "image-crop-as-agriculture"),
+        (_DYE_STAIN_SOURCE, "stain", "dye-stain-as-smudge"),
         (_COMPUTE_RUN_SOURCE, "run", "compute-run-as-race"),
         (_COMPUTE_THREAD_SOURCE, "thread", "thread-corruption"),
     )
@@ -1954,6 +2351,14 @@ def _semantic_false_friends(
         if (
             re.search(source_pattern, source_text, re.I)
             and _target_has(family, language, target_text)
+        ):
+            failures.append(label)
+    for label, source_pattern, bad_pattern in _REVIEWED_TERM_GATES.get(
+        language, (),
+    ):
+        if (
+            re.search(source_pattern, source_text, re.I)
+            and re.search(bad_pattern, target_text, re.I)
         ):
             failures.append(label)
 
@@ -2787,7 +3192,7 @@ MANUAL_UI: dict[str, dict[str, str]] = {
         "de": "A — Qualitätskontrolle",
         "es": "A — control de calidad",
         "zh_CN": "A — 质量控制",
-        "pt": "A — controlo de qualidade",
+        "pt": "A — controle de qualidade",
         "hi": "A — गुणवत्ता नियंत्रण",
         "ko": "A — 품질 관리",
         "is": "A — gæðamat",
@@ -2864,6 +3269,15 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # F370: reviewed scientific notation/names and a format-only scorecard
+    # template remain identical. Swedish also spells the metric Precision
+    # identically. These are review decisions, not inventory exclusions.
+    "F1 @ IoU 0.5": {code: "F1 @ IoU 0.5" for code in MODEL_SPECS},
+    "Dice": {code: "Dice" for code in MODEL_SPECS},
+    "{metric}: {value:.4f}": {
+        code: "{metric}: {value:.4f}" for code in MODEL_SPECS
+    },
+    "Precision": {"sv": "Precision"},
     # 316, 2026-09-29: the channel-sort dialog's No button and its no
     # column value are the same word in Spanish.
     "No": {"es": "No"},
@@ -3608,10 +4022,6 @@ _HELPER_CAPTION_RULES: dict[
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("widgets/annotation_umap_tab.py", "say"):
         ("widgets/annotation_umap_tab.py", ((0, "text"),)),
-    # A module-level helper, not a method: it translates the caption it is
-    # given and fills its {label}, {minutes} and {error} fields.
-    ("widgets/cli_setup_panel.py", "_say"):
-        ("widgets/cli_setup_panel.py", ((0, "text"),)),
     ("widgets/fast_plots.py", "_gated"):
         ("widgets/fast_plots.py", ((1, "label"), (3, "reason"))),
     # The plot's style note, stored and shown later.
@@ -3693,7 +4103,7 @@ def _looks_translatable(text: str) -> bool:
         return False
     if re.fullmatch(r"\{[A-Za-z_][A-Za-z0-9_]*\}", source):
         return False
-    if re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
+    if source not in {"TOOLS", "IO"} and re.fullmatch(r"[A-Z0-9_.+-]{1,8}", source):
         return False
     # Stylesheets, regexes and serialized records are not presentation prose.
     if any(marker in source for marker in (
@@ -3725,16 +4135,16 @@ def _has_prose_outside_protected_literals(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", _PROTECT_RE.sub(" ", text)))
 
 
-def _starplast_progress_sources() -> set[str]:
+def _parascape_progress_sources() -> set[str]:
     """Read installer phase labels forwarded dynamically to Qt's translator.
 
     The installer stays unexecuted: only literal progress arguments and the
     labels in its command-step tuples are read from its syntax tree.
     """
-    tree = ast.parse((ROOT / "spacr/_starplast.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "spacr/_parascape.py").read_text(encoding="utf-8"))
     installer = next(node for node in tree.body
                      if isinstance(node, ast.FunctionDef)
-                     and node.name == "install_starplast")
+                     and node.name == "install_parascape")
     found = set()
     for node in ast.walk(installer):
         candidate = None
@@ -3830,7 +4240,14 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
     from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
-    from spacr.qt.screens.mask import OPS_TOGGLE_TOOLTIP
+    from spacr.qt.screens.mask import (
+        OPS_TOGGLE_TOOLTIP,
+        SPATIAL_MASKS_TOGGLE_TOOLTIP,
+    )
+    from spacr.qt.screens.map_barcodes import (
+        SPATIAL_MAP_TOGGLE_TOOLTIP,
+        SPATIAL_TOGGLE_TEXT,
+    )
     from spacr.qt.screens.make_masks import tool_row_entries
     from spacr.qt.screens.parameter_sweep import (
         SWEEP_TOGGLE_TEXT,
@@ -3940,7 +4357,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
                         if isinstance(argument, ast.Call) and _call_name(argument) == "tr":
                             for value in argument.args:
                                 presentation_sources.update(_literal_strings(value, {}))
-    found.update(_starplast_progress_sources())
+    found.update(_parascape_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
     found.update(label for _mode, label, _icon in tool_row_entries())
@@ -4012,6 +4429,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
         # imported from `mask`, exactly like the two toggles above; its
         # caption "OPS" is a compact `_ROWS` row, so only the tooltip is here.
         str(OPS_TOGGLE_TOOLTIP),
+        # F534's two alpha Spatial switches, passed to AiToggleLabel the
+        # same way from `mask` and `map_barcodes`: one caption, two tooltips.
+        str(SPATIAL_TOGGLE_TEXT),
+        str(SPATIAL_MASKS_TOGGLE_TOOLTIP),
+        str(SPATIAL_MAP_TOGGLE_TOOLTIP),
         str(ALL_CHANNELS),
         str(MAX_SETS_TOOLTIP),
         str(PREVIEW_RUN_TEXT),
@@ -4072,6 +4494,92 @@ def _indirect_runtime_ui_sources() -> set[str]:
     } | {value for value in animation_captions if value.startswith('spaCR ')}
 
 
+def _web_mask_generator_ui_sources() -> set[str]:
+    """Read explicit web captions without importing the inference service."""
+    directory = ROOT / "tools" / "web_mask_generator"
+    found: set[str] = set()
+    for filename in (
+        "app.py", "detector.py", "examples.py", "inputs.py", "masks.py",
+        "plaque.py", "registry.py", "results.py", "run.py", "service.py",
+    ):
+        path = directory / filename
+        if not path.is_file():
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "tr" and node.args):
+                continue
+            source = _literal(node.args[0])
+            if source is None:
+                continue
+            text = source.strip()
+            heading = (filename == "app.py" and text.startswith("# ")
+                       and _looks_translatable(text[2:]))
+            if _looks_translatable(text) or heading:
+                found.add(text)
+        if filename != "app.py":
+            continue
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                targets = node.targets
+            elif isinstance(node, ast.AnnAssign):
+                targets = [node.target]
+            else:
+                continue
+            if not (len(targets) == 1 and isinstance(targets[0], ast.Name)
+                    and targets[0].id == "FAMILY_LABELS"
+                    and isinstance(node.value, ast.Dict)):
+                continue
+            for value in node.value.values:
+                source = _literal(value)
+                if source is not None and _looks_translatable(source):
+                    found.add(source.strip())
+    return found
+
+
+def _metadata_type_status_sources(
+    tree: ast.Module, constants: Mapping[str, ast.AST],
+) -> set[str]:
+    """Return four indirect report templates owned by the microscope field.
+
+    :param tree: parsed settings-model module, without importing runtime code.
+    :param constants: literal module assignments used by the field's callbacks.
+    :returns: stripped presentation sources; unrelated and nested owners are excluded.
+    """
+    names = {"READING_THE_FOLDER", "NO_IMAGES_IN_THE_FOLDER",
+             "ALL_FILES_PARSE", "SOME_FILES_PARSE"}
+    found: set[str] = set()
+    for owner in tree.body:
+        if not isinstance(owner, ast.ClassDef) or owner.name != "_MetadataTypeField":
+            continue
+        for method in owner.body:
+            if not isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            pending = list(method.body)
+            while pending:
+                node = pending.pop()
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                     ast.ClassDef, ast.Lambda)):
+                    continue
+                if (isinstance(node, ast.Call) and node.args
+                        and isinstance(node.func, ast.Attribute)
+                        and node.func.attr == "_say"
+                        and isinstance(node.func.value, ast.Name)
+                        and node.func.value.id == "self"):
+                    argument = node.args[0]
+                    values = (argument.values if isinstance(argument, ast.BoolOp)
+                              and isinstance(argument.op, ast.Or) else [argument])
+                    for value in values:
+                        if isinstance(value, ast.Name) and value.id in names:
+                            found.update(text.strip() for text in
+                                         _literal_strings(value, constants)
+                                         if _looks_translatable(text))
+                pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4088,6 +4596,23 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
     paths.add(ROOT / "spacr" / "embeddings.py")
+    paths.add(ROOT / "spacr" / "settings.py")
+    paths.add(ROOT / "spacr" / "object.py")
+    paths.add(ROOT / "spacr" / "remote_execution.py")
+    paths.add(ROOT / "spacr" / "install_cleanup.py")
+    paths.add(ROOT / "spacr" / "doctor.py")
+    paths.add(ROOT / "spacr" / "updater.py")
+    paths.add(ROOT / "spacr" / "model_zoo.py")
+    paths.add(ROOT / "spacr" / "utils.py")
+    paths.add(ROOT / "spacr" / "attribution.py")
+    paths.add(ROOT / "spacr" / "measure.py")
+    paths.add(ROOT / "spacr" / "channel_sorting.py")
+    paths.add(ROOT / "spacr" / "object_classifier.py")
+    paths.add(ROOT / "spacr" / "core.py")
+    paths.add(ROOT / "spacr" / "psf_pipeline.py")
+    paths.add(ROOT / "spacr" / "_lineage_trees.py")
+    # Figure integrity (F572) and other plot captions go through tr() too.
+    paths.add(ROOT / "spacr" / "plot.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
@@ -4097,6 +4622,83 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
             continue
+        if path.parent == source_root and path.name in {"settings.py", "object.py"}:
+            diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in diagnostic_owners]
+        if path == source_root / "model_zoo.py":
+            # Shared acquisition diagnostics and curated scorecard display
+            # text own captions; unrelated metadata and backend prose do not.
+            diagnostic_owners = {
+                "_ensure_catalogue_model_file", "_curated_scorecard_rows",
+                "_curated_scorecard_lines", "_model_resolution_context",
+                "scorecard_state_text",
+            }
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in diagnostic_owners]
+        if path == source_root / "utils.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
+                                           "_cellpose_stock_preflight"}]
+        if path == source_root / "attribution.py":
+            diagnostic_owners = {
+                "_cf_preserved_channels", "_cf_preserve_reference_channels",
+                "_counterfactual_sequences", "_counterfactual_report",
+                "_cf_structure_weight", "_cf_diffusion_strength", "_cf_structure_loss",
+                "_cf_checkpoint_error",
+            }
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in diagnostic_owners]
+        if path == source_root / "embeddings.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_bags",
+                                           "_backbone_scorecards", "_dino_classifier_from_config",
+                                           "_dino_classifier_from_checkpoint",
+                                           "_dino_finetune_classifier", "_dino_classifier_apply"}]
+        if path == source_root / "measure.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name in {
+                             "_phases_by_xgboost", "_phases_by_torch", "_wound_plane",
+                             "_viability_manual",
+                             "_measurement_channel_index",
+                             "_wound_calibration",
+                             "measure_from_field_table",
+                             "_volume_measure_spacing", "_volume_measure_input",
+                             "_write_volume_measurements", "measure_volume_rows",
+                         }]
+        if path == source_root / "channel_sorting.py":
+            tree.body = [node for node in tree.body
+                         if (isinstance(node, ast.FunctionDef)
+                             and node.name in {"build_plan", "_few"})
+                         or (isinstance(node, ast.ClassDef)
+                             and node.name == "SetReport")]
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef):
+                    node.body = [method for method in node.body
+                                 if isinstance(method, ast.FunctionDef)
+                                 and method.name == "summary"]
+        if path == source_root / "object_classifier.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_annotated_real_crops"]
+        if path == source_root / "core.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_microscope_positions"]
+        if path == source_root / "psf_pipeline.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_prepare_unmixing"]
+        if path == source_root / "_lineage_trees.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "_lineage_explicit_parents"]
         is_preferences = path == preferences_path
         filename = path.name
         helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")
@@ -4110,6 +4712,16 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                   and isinstance(statement.target, ast.Name)
                   and statement.value is not None):
                 constants[statement.target.id] = statement.value
+        if helper_module == "screens/settings_model.py":
+            found.update(_metadata_type_status_sources(tree, constants))
+        if helper_module == "widgets/model_zoo_picker.py":
+            mapping = constants.get("_SOURCE_TOOLTIPS")
+            if isinstance(mapping, ast.Dict):
+                for field in mapping.values:
+                    if isinstance(field, ast.Constant) and isinstance(field.value, str):
+                        found.update(value.strip() for value in
+                                     _literal_strings(field, constants)
+                                     if _looks_translatable(value))
         for node in ast.walk(tree):
             if (
                 is_preferences
@@ -4207,6 +4819,19 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                     for value in _literal_strings(item, constants):
                         if _looks_translatable(value):
                             found.add(value.strip())
+            if (
+                filename == "distributed_jobs.py"
+                and isinstance(node, ast.Tuple)
+                and len(node.elts) == 3
+                and isinstance(node.elts[0], ast.Constant)
+                and isinstance(node.elts[0].value, str)
+                and isinstance(node.elts[2], ast.Constant)
+                and isinstance(node.elts[2].value, str)
+                and node.elts[2].value.startswith("ssh_")
+            ):
+                # SSH profile rows use (caption, widget, API key) tuples;
+                # the eventual translated label receives a loop variable.
+                found.add(node.elts[0].value.strip())
             if not isinstance(node, ast.Call):
                 continue
             name = _call_name(node)
@@ -4244,6 +4869,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     # registry captions, they are explanatory prose and may change with the
     # behavior they document.
     found.update(_indirect_runtime_ui_sources())
+    found.update(_web_mask_generator_ui_sources())
 
     # The compact catalog already owns these and has stronger human review.
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
@@ -4422,6 +5048,11 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(str(title) for sections in _APP_CATEGORY_SPECS.values()
                       for title, _keys in sections)
+    # Item 678 (2026-10-17): the shared category titles in spacr.settings are
+    # settings-panel captions too. Without an exact entry they fell back to a
+    # word-by-word composite ("Modell Evaluation"), so catalogue them here.
+    from spacr.settings import categories as _shared_categories
+    ui_sources.update(str(title) for title in _shared_categories)
     # Backend prose lives outside spacr/qt and reaches the install dialog
     # and model card through registry fields, not literal widget arguments.
     from spacr._segmentation_backends import _SPECS as backend_specs
@@ -4593,7 +5224,9 @@ def reviewed_runtime_translations(language: str) -> dict[str, str]:
 
 def _render_assignment(name: str, value: object) -> str:
     if isinstance(value, frozenset):
-        rendered = f"frozenset({tuple(sorted(value))!r})"
+        rendered = "frozenset((\n" + "".join(
+            f"    {item!r},\n" for item in sorted(value)
+        ) + "))"
     elif isinstance(value, dict):
         # One entry per line is deterministic and reviewable without pprint's
         # repeated continuation indentation multiplying large tooltip files.
@@ -4648,10 +5281,18 @@ def _exclusive_cache_lock(path: Path):
     try:
         for _attempt in range(1200):
             try:
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                if fcntl is not None:
+                    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                else:
+                    os.lseek(descriptor, 0, os.SEEK_SET)
+                    msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
                 acquired = True
                 break
             except BlockingIOError:
+                time.sleep(0.05)
+            except OSError:
+                if fcntl is not None:
+                    raise
                 time.sleep(0.05)
         if not acquired:
             raise TimeoutError(
@@ -4663,8 +5304,11 @@ def _exclusive_cache_lock(path: Path):
         yield
     finally:
         try:
-            if acquired:
+            if acquired and fcntl is not None:
                 fcntl.flock(descriptor, fcntl.LOCK_UN)
+            elif acquired:
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
         finally:
             # Closing the descriptor also releases flock, including when an
             # injected/platform unlock error occurs above.

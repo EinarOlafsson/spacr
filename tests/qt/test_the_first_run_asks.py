@@ -51,7 +51,7 @@ class TestEveryQuestionIsAsked:
     def test_all_of_them_are_offered(self, setup):
         keys = {q[0] for q in setup.questions()}
         assert {"language", "theme", "colour_blind", "spacr_mode",
-                "hash_inputs", "issue_prompt", "ai_default"} <= keys
+                "hash_inputs"} <= keys
 
     def test_each_has_a_getter_and_a_setter(self, setup):
         for key, _label, getter, setter, _choices in setup.questions():
@@ -81,33 +81,35 @@ class TestAnswersAreKept:
     def test_writing_one_does_not_disturb_the_others(self, setup):
         from spacr.qt import preferences
 
-        before = preferences.get_issue_prompt_mode()
+        before = preferences.get_color_blind_mode()
+        flag = preferences.get_hash_inputs()
         try:
-            setup.apply({"ai_default": True})
-            assert preferences.get_ai_on_by_default() is True
-            assert preferences.get_issue_prompt_mode() == before
+            setup.apply({"hash_inputs": not flag})
+            assert preferences.get_hash_inputs() is (not flag)
+            assert preferences.get_color_blind_mode() == before
         finally:
-            preferences.set_ai_on_by_default(False)
+            preferences.set_hash_inputs(flag)
 
     def test_one_bad_answer_does_not_lose_the_good_ones(self, setup):
-        """A setup screen that discards six good answers because the seventh
+        """A setup screen that discards four good answers because the fifth
         was bad has cost the user the whole screen."""
         from spacr.qt import preferences
 
+        flag = preferences.get_hash_inputs()
         try:
-            trouble = setup.apply({"ai_default": True,
-                                   "issue_prompt": "whenever-i-feel-like-it"})
+            trouble = setup.apply({"hash_inputs": not flag,
+                                   "colour_blind": "whenever-i-feel-like-it"})
             assert trouble, "the bad one was reported"
-            assert any("issue_prompt" in t for t in trouble)
-            assert preferences.get_ai_on_by_default() is True
+            assert any("colour_blind" in t for t in trouble)
+            assert preferences.get_hash_inputs() is (not flag)
         finally:
-            preferences.set_ai_on_by_default(False)
+            preferences.set_hash_inputs(flag)
 
     def test_an_unmentioned_key_is_left_alone(self, setup):
         from spacr.qt import preferences
 
         before = preferences.get_hash_inputs()
-        setup.apply({"ai_default": preferences.get_ai_on_by_default()})
+        setup.apply({"colour_blind": preferences.get_color_blind_mode()})
         assert preferences.get_hash_inputs() == before
 
 

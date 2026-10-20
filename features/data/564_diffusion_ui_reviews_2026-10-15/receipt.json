@@ -1,0 +1,593 @@
+{
+  "status": "READY: private normal review inputs and exact extractor dependency; no catalogs/publication",
+  "gui_source_commit": "6d1842c2d",
+  "frozen_backend": "db58907754165054879fd083347d948c0a5380ae",
+  "source_sha256": {
+    "spacr/settings.py": "706aac520552d2e4a478c913cbd1490070c7331f95758615d08e83112a4a0033",
+    "spacr/attribution.py": "494f84c2e24c6b3d1812f3c25a37d1c93e59465d9f5fa445a3e6299e7de7adab",
+    "spacr/deep_spacr.py": "fa3e0b859049330a7db7294487b19af750bad9c9697865d8c7d515ecbc3935e5",
+    "tools/build_i18n_catalogs.py": "3307537918790f29b924dc724ebc77b960bf2888890b6a33dad403db8c72ce9e",
+    "spacr/qt/screens/settings_model.py": "e341a482cde10b85f53b41e5ffcad8f6012fa94f54973fa832341b4db6659b41",
+    "tests/test_runtime_backend_caption_owners.py": "df151be196855dbbeafea9d085157a3c2314cb6c7ea2a2afa3cb6b1a160aad4e"
+  },
+  "source_count": 7,
+  "review_record_count": 63,
+  "languages": 9,
+  "tables": {
+    "setting_labels": 2,
+    "setting_tooltips": 2,
+    "ui": 3
+  },
+  "normal_review_gates": {
+    "result": "All nine normal reviewed_runtime_translations loaders PASS seven exact records each",
+    "scope": "Isolated proposed inputs with exact source dictionaries obtained from frozen AST literal values and normal _humanize/_strip_type_prefix helpers. Source hashes/schema/context/candidate/syntax/semantic/script gates unchanged. No full canonical inventory or writer.",
+    "wall_seconds": 2.32,
+    "peak_rss_kib": 226120,
+    "cap": "2G",
+    "threads": 1,
+    "exit": 0,
+    "session": 72601,
+    "terminal_polled": true
+  },
+  "normal_api_visibility": {
+    "changed_private_bodies": 6,
+    "eligible_changed_blocks": 0,
+    "unchanged_enabled_nested_entries": 33,
+    "proof": "Actual normal public-symbol/name policy and nested inventory/entries over the three frozen backend files; exact nested docstrings/signatures unchanged. No API targets invented."
+  },
+  "extractor_change": {
+    "new_top_level_owners": [
+      "_cf_diffusion_strength",
+      "_cf_structure_loss",
+      "_cf_structure_weight"
+    ],
+    "all_attribution_owners": [
+      "_cf_preserved_channels",
+      "_cf_preserve_reference_channels",
+      "_counterfactual_sequences",
+      "_counterfactual_report",
+      "_cf_structure_weight",
+      "_cf_diffusion_strength",
+      "_cf_structure_loss"
+    ],
+    "proof": "Removing only three new set constants recovers complete prior builder AST; all prior owning test function ASTs remain exact.",
+    "baseline": "3 failed, 3 passed, 39 deselected in1.13s; exact new literals absent, exclusions pass",
+    "final": "45 passed in1.20s",
+    "wall_seconds": 2.8,
+    "peak_rss_kib": 462312,
+    "cap": "2G",
+    "threads": 1,
+    "exit": 0,
+    "session": 95383,
+    "terminal_polled": true
+  },
+  "independent_semantic_review": {
+    "reviewer": "Root coordinator",
+    "result": "All63 accepted after one explicit Icelandic tooltip sentence correction",
+    "correction_receipt": "icelandic-peer-correction.json",
+    "boundary": "Technical bilingual semantics only; no native-user or biological acceptance claim"
+  },
+  "review_files": {
+    "docs/i18n/reviewed/runtime/de/2026-10-15-f564-diffusion-controls-home-b.json": "e7dad9bda87413578ea9f36aadee2ca65b51bee3df9b635c927e6e070fa02d2e",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-f564-diffusion-controls-home-b.json": "5a3392dbfcd1a79d1c5eccc403f2f8a5340fd93e047eb2af8f46b846a9f39b27",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-f564-diffusion-controls-home-b.json": "8749b6d7215742bc6067149c7bd3c9bc764b2f42ed418ab81d7f3bf45ff12dc1",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-f564-diffusion-controls-home-b.json": "60fac95a25ace15a7f3d3246a3224d907b1b6590c53781f2db01529f4a798db6",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-f564-diffusion-controls-home-b.json": "f90865e770ab0782a8f689887dfb4a84eceb654cd4636fcabb93c99e22154e07",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-f564-diffusion-controls-home-b.json": "990bedf1c58900989d3eadfeaf1a115a3c2ef07f83b85dcff8f2fef5aa6bf40f",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-f564-diffusion-controls-home-b.json": "8af5f55dee8652f1da97338ac90a7f1dcf5329c393ed59984550befd27fa38b8",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-f564-diffusion-controls-home-b.json": "c5323fa46d72af100b63a51df99cb3d064707ea92e5c58f25901f23082ad6a44",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-f564-diffusion-controls-home-b.json": "9a1da397cbb22cd812b6cc9e5c29f89a04f207387a68cf0797cb2422ce49ec2f"
+  },
+  "record_bindings": [
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "5014e79c0a07bbedac8c0949e2c2db023af00597f36f3b0ef2c03e57498fcf46"
+    },
+    {
+      "language": "de",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "5513443ec936ae1c7749053689bc78493a87a2c33afc37079d7a73ececc5efe0"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "ff7e7f69440076c8ba8ac0e0dff0d5e432c00b96455b724e1be940d8bee12c85"
+    },
+    {
+      "language": "de",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "133ba4598337b7a93f3cae93b2db7d99618674dd7e9b612f82a2fcdc6929107c"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "3954c88220301cc34580387f7cd88383a60145aabf18f68b96dda5c5859fa5e2"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "7199a2d380562252215bd326d6a11f486693c0194dbb2ba1c4f67556ebd0b104"
+    },
+    {
+      "language": "de",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "25372c7fa53ef367e342be6ec3417a99d7a2643dbdd98f17e372eee3d84fb1fe"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "030e54d1eb47e427248fd727c2425e5a94718bb7fd20fb244d8d1cf0ffdc2774"
+    },
+    {
+      "language": "es",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "77ee0fbe370a162390573e99dcf52f69ac40c7b51276a16a660501e9c14ca8b1"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "55ba9a6f01f41bd827b7c6374929dd8be85d1e0769e5a77837d293634fad3cc9"
+    },
+    {
+      "language": "es",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "8836d24c5e5825c0d17fc40ef027a297ae3d205a4eb852d3df5d75a18d7f0d55"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "f2339cad961dcd5a732a7408c47bbf3f82d52620a192aeea778e62fbb1440c47"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "b9770f188436ceeb7a5a31d908d3fc71a64741f5762b0c0fa8d14fa55ae4e3d7"
+    },
+    {
+      "language": "es",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "e3c0be58a9201decb613b5ecd30473d3860943a7080e4de600b066bd3ffc551e"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "3f6dc7145c1ad5de9ead6cb85ca0abf4a04260edcc685edc46ec58b08fa87628"
+    },
+    {
+      "language": "fr",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "13fdc9a3090fce1416a6576eb0411850878af0a93c150c8946580756f6d46efd"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "b4fa44903e49055daed7f72acaf5747c0d5ffe13cb4a3a45f025df8b77119f97"
+    },
+    {
+      "language": "fr",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "0cb1a52584fbecab45115c1875f038af48b8444975ff7a82f8c674f3018a3032"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "230fc580f3b87264a40e910fd84288865e6d10e945785329b7538fcd91c3a1be"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "035d54bd4691755dab5cf1b04a3270c2c18d79290e4ebb205f32e5134570ce7a"
+    },
+    {
+      "language": "fr",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "76d39f24c57b4f6f9cd14334558f0c5c3d5af7c07caaef92d2557c5602674e1b"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "4ffdf26b244a6c18c91d2141ff28bc92d16be7c6725b4a52a53cadc21202f489"
+    },
+    {
+      "language": "hi",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "c7aa373e0da8fd21096eef2ee98a02c26d2b8d4deeb4748687710417a5c6287b"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "71dc99084b622daabb779e95b4a39991236d813f883f404ddd24e68c26f28778"
+    },
+    {
+      "language": "hi",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "e0b84d9a8e04c860fa7fffa29a57d7c8ce06eea5c04bb730844d753febc80f47"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "de3de4cddc68272fd427bfc5b732daf168d4beabb59982ef0cd12e505fe0a684"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "15ba285ba11115d814a9a2ec7e08926a3dfc8b5af755a2f42a328cb6b47f50e7"
+    },
+    {
+      "language": "hi",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "32881f0ca31ec7ab071b1c945bad73fcc163cafd9ac5709611e7d190ee210391"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "7c2330edbe4d541df368582cf1186132c241dcd17fd784afc8ac755e7fed5376"
+    },
+    {
+      "language": "is",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "490644333daa2459470acca2b71d10fa9b01c8cb64c1f3637ab11cc6fbdade55"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "73a745eac70358ec3de81bf54080336683cf094780c0f4c07e0b32b26a4a1e09"
+    },
+    {
+      "language": "is",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "6ea51bf1a7ae29b9c07474bef3bc53d136d92eb12764622250dd890bc8b8f33f"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "e8f090f4de88bd3f125abd5e579afccb7fa0e11cfe688ecd38bd3da23f89a585"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "3f65c4d3a4c90f89abc96334dc0331cc188fcb63534fd7367ea7bf12692cec85"
+    },
+    {
+      "language": "is",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "c97baef60b6199bf7cea443c2843f90b7bf68ad50c03a562aaff63d40dcc67f6"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "81021dbfd135804691b4a918527ccea42e882f96003c7a42b950065257dce466"
+    },
+    {
+      "language": "ko",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "9dd24b1a06258857eda2166268f6a6ea8814f690346c13f7f2aeeb43c7de46f7"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "2b06cb0ca8e59343aada4c77e8b2ccfdec41a0383da4415a3d7df68a1699c903"
+    },
+    {
+      "language": "ko",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "4a77a348b535bc6a773e17f174c540374f6eb7959ff9f2f6768f92c01c2f3d82"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "d6973f37670fe895f4a05c4c13b8a3bce4f13657ffdf04dcc8a6c245b337a6ec"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "596ce17c07a3b3ffc271ea22f175a21c8f904d18e3589afaf715f9ae6a55e942"
+    },
+    {
+      "language": "ko",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "03ee553b1850b15505e0d0748e62a193c7facfe75c07b7afec162ae7c1760977"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "78a900e9dfffa9a6a6bebc8049b7e1004341f05f499ec0f9ba8bcea0208a1eef"
+    },
+    {
+      "language": "pt",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "847f8aa8896a5ef17f7406cc0ab8c0f54708dead29edc2a7cad67e2bcdd00967"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "72b19a130a289a2c6b951c0f069ac7d2a5ba3bcefc2b80a786c06eab7ee5d4cd"
+    },
+    {
+      "language": "pt",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "e67ee1bdd35c9a703a88ae8bf9b189a09ce0748c012921ae5e457610af517e4e"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "7bc7159dacc5c4688c48534ec4da3e39acd540c9ce7b01112248588218fb7026"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "b00f00163377c92f73a61a7a020825e13031294a7a71dbc4197221300f5de522"
+    },
+    {
+      "language": "pt",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "2890ccc071af5b82e6176c8eacc2308dbabcb3fbd332c46259a89e350785ca4d"
+    },
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "3784334032965c182399c35398ded233f7bbe81fe1d5b4eeeb5bfed3e42c3acf"
+    },
+    {
+      "language": "sv",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "777b55b4fd6369868aa08323194453183c6a3dcd1e7e431f72ba44c39c7d47f4"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "f994303ef8e3f96a64fd82c00161e08872079498f79d3d31d2b4a9903035cc81"
+    },
+    {
+      "language": "sv",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "474eb9049a714acc2b07e618dea2e5f24d4ee0e6b5f68b379fe75e3ce930c95d"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "18e867a2eae42b9e84e89b082d745d223fb84d03742a9d7a6b0d4cfecfa18a53"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "64c8bcc1f9b8ea978648845be3145bd7940fceb13cd26b4c97d0e417065870e2"
+    },
+    {
+      "language": "sv",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "fef6cec4480ac508deb4b617fe0cefca928908377f6116b9c7e2d4fa4721a270"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "counterfactual_strength",
+      "source_sha256": "782aa7c47e39bee98fdda1ddb7185b4fd330b4aa2eb44aa98772c0c1d5ad9a62",
+      "target_sha256": "8c25074bb1b4bc964b7b95db4b02669f9b9092022063872e9e278cf3a0dc99f2"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_labels",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "d79cd37042c4777ba5210831c978f9171370169510023bef47aa7c162ffd9f17",
+      "target_sha256": "7e27807a825574a7a7ef8a86040421f5e1b0d00479be3e1b2c207aa8b6b61e48"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "counterfactual_strength",
+      "source_sha256": "2a16e7065b82baa00c725684f2228538ae86c1b9c7e84e1b3e10cb4ce20e7e77",
+      "target_sha256": "ee76526c96b8aac6ac99a7bb0ab8a5c760817cbb64cea10494361a730d2b2dd4"
+    },
+    {
+      "language": "zh_CN",
+      "table": "setting_tooltips",
+      "key": "counterfactual_structure_weight",
+      "source_sha256": "b4892995a9a2589815124695ca32b65db92085168d5e83f355ec60dbeb96ce26",
+      "target_sha256": "76e046e527e82251d03f2a6c90a7a6b7516d8cd1d35ff3642a57e02763d7bf83"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "The counterfactual structure weight must be finite and nonnegative.",
+      "source_sha256": "c6efebd2d3c7a3cc85e552120debf9c01bae44c814f4a6a228450a25e33d51a1",
+      "target_sha256": "90d185d0d09ee03843643919165c0ddccfbbe5f8f469612ad4f47a155f5ea77e"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "The counterfactual diffusion strength must be between zero and one.",
+      "source_sha256": "b38e8212f0c13f613a1078e29ccdd7d4aba49add027b38d8d53fb0ba7934e316",
+      "target_sha256": "db13e11959666c802be5049ada0b0749a5639697d43c0874011aa80803e49192"
+    },
+    {
+      "language": "zh_CN",
+      "table": "ui",
+      "key": "Structure preservation requires matching finite floating-point NCHW tensors.",
+      "source_sha256": "90eca3a556348e82b9056146633d489dc48e0a22ef377d0eed402d4b8188a653",
+      "target_sha256": "0bbebdff52d2781a8680a759b105e34e0f50be4ddc76624c37a19acb6ed5bd4f"
+    }
+  ],
+  "artifacts": {
+    "baseline.sh": {
+      "sha256": "714f6c84de64fd59c15849bbe59dc1746b6c434feb88d55e6ad577718097c9f6",
+      "raw_sha256": "714f6c84de64fd59c15849bbe59dc1746b6c434feb88d55e6ad577718097c9f6"
+    },
+    "baseline.log.gz": {
+      "sha256": "a68cb6148a6bf538804e6aeb3e489b8c69b7a0834cf5af934dca3727b3e85303",
+      "raw_sha256": "a6fcd39f687fc472faa8b8b57026b04e535cc2baf4e0677b4cfcf5fe2250ace3"
+    },
+    "baseline.xml.gz": {
+      "sha256": "e578fcf2dffea9b56030476461bd8df315f9e6b40a922a8bf69af86dc85327fa",
+      "raw_sha256": "db976b15f00d17afb312d35a31b7c1d53dd4ce0ee65942a576a9b238a604806b"
+    },
+    "baseline.time": {
+      "sha256": "459c9f8566d562fc769b586817780bf470c1bcf46e6001f5b514be4c03dfa58c",
+      "raw_sha256": "459c9f8566d562fc769b586817780bf470c1bcf46e6001f5b514be4c03dfa58c"
+    },
+    "baseline.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "final.sh": {
+      "sha256": "790c8957c82b40910fbbf17e81d3f782bfd6f10ccfb749a831aac6ceacf34cf2",
+      "raw_sha256": "790c8957c82b40910fbbf17e81d3f782bfd6f10ccfb749a831aac6ceacf34cf2"
+    },
+    "final.log.gz": {
+      "sha256": "61addfac2cef948ea55da827a3d6af14602a16080ec379184533ccc5955ecb4e",
+      "raw_sha256": "7eed32c29da84beb0fd7594a0742b01fd2bc2b2e412d2b427ab99116642966cb"
+    },
+    "final.xml.gz": {
+      "sha256": "76a57553110a5b1915aa56b0bb234ce62dd9a8cbf124d45f2d5abcbce9ea6176",
+      "raw_sha256": "85cd43c0354039ab085710011b75648f9db6828d889d62c0d2726875dde422b6"
+    },
+    "final.time": {
+      "sha256": "ef7b9fcbe8d7721eb46362e2e4435a46db847d42741c9bf8e7aa487d1b54c24c",
+      "raw_sha256": "ef7b9fcbe8d7721eb46362e2e4435a46db847d42741c9bf8e7aa487d1b54c24c"
+    },
+    "final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "inputs.sh": {
+      "sha256": "ca82d96dc5ed50d1e7b64d54e0caf8387a36939301df3c5bea775cac5fb3c8c8",
+      "raw_sha256": "ca82d96dc5ed50d1e7b64d54e0caf8387a36939301df3c5bea775cac5fb3c8c8"
+    },
+    "inputs.log.gz": {
+      "sha256": "9cb4c73f2e9d9e5ad496e591a263a25f7b11b8c3b0184ac02e28c74f62dff7ed",
+      "raw_sha256": "509fa1aab83cc7a74b3349d2184624e02afe1cbab27c3b6d47519b73c1877185"
+    },
+    "inputs.time": {
+      "sha256": "e35c84a0f745b2065da0afdf4fa1c16c6bee7b0ca6c31d2b913caad6bdf120f3",
+      "raw_sha256": "e35c84a0f745b2065da0afdf4fa1c16c6bee7b0ca6c31d2b913caad6bdf120f3"
+    },
+    "inputs.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  },
+  "remaining": [
+    "Coordinator normal full source collection/catalog generation/audit and foreign-record preservation",
+    "Normal settings-flow output closure",
+    "Backend owner coherent source integration/publication",
+    "Scientific/biological/native and whole-feature limits remain open"
+  ],
+  "not_run": [
+    "Unchanged backend21/legacy93 or GUI7 acceptance",
+    "Full canonical source collector or catalog writer",
+    "Model decoder/download/training/inference"
+  ]
+}

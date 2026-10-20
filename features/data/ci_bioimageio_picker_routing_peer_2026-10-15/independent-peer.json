@@ -1,0 +1,12 @@
+{
+  "decision": "ACCEPT",
+  "review_kind": "Independent AI technical source and recorded-evidence peer, no rerun",
+  "commit": "6f9c3a0951fd98eb2ff3f006e9c8f155189c80c6",
+  "test_sha256": "57531bfc303e4d45e33238243811a9a357549800324b06a1c053c9cac54d0022",
+  "picker_sha256": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8",
+  "outside_exact_function_ast_identical": true,
+  "original_assertions_and_both_parameter_routes_unchanged": true,
+  "evidence_manifest_all_file_hashes_verified": true,
+  "scope": "Real qtbot.waitSignal around actual _accept_selected preserves exact cellpose3-prefixed and SAM unprefixed paths; actual verifier untouched, no model/network, final thread/request cleared. Existing5second wait convention, no raised timeout.",
+  "actual_results": "Baseline2FAIL4.90s -> final2PASS2.28s zero skips. No full picker/cohort claim."
+}

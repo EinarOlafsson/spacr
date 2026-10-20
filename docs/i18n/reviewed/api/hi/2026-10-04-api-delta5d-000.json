@@ -38,10 +38,10 @@
     },
     {
       "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "a56d63eaada705a2dcd6146ee9c5b8c7258c0808f987e7579563e0290941850e",
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "translation": "हर रिकॉर्ड एक प्रदर्शन नाम, विवरण, जीवविज्ञान स्रोत URL, बंडल किया गया आरेख फ़ाइल नाम और आरेख टिप्पणी देता है; जब जीवविज्ञान स्रोत CDC नहीं होता, तो ``source_label`` उसका नाम बताता है। अंतिम पाँच पेज alpha सुविधाएँ हैं। ``sections`` में शीर्षक, गद्य और लिंक की गई परख-कुंजी के त्रिक होते हैं; ``links`` में प्रदर्शन-लेबल और URL के जोड़े होते हैं। ``modules`` में रूट-कुंजी, शीर्षक, विवरण और आइकन-कुंजी के टपल होते हैं। ``None`` रूट ऐसी जीव-विशिष्ट परख दर्शाता है जिसकी अपनी कोई पाइपलाइन नहीं है। ``workflows`` ऐसी टाइल की आइकन कुंजी को उस मौजूदा मॉड्यूल से मैप करता है जो उसका रीडआउट मापता है, साथ में खोलते समय लागू होने वाला सेटिंग्स प्रीसेट और उसके उपयोग पर एक टिप्पणी; ``None`` टाइल जो ``workflows`` में नहीं है, Coming soon होती है। ``starplast`` Toxoplasma पेज से एक बाहरी ऐप लॉन्च करता है; यह spaCR विश्लेषण रजिस्ट्री कुंजी या सेगमेंटेशन बैकएंड नहीं है। प्रदर्शन गद्य उपयोग के समय अनुवादित होता है; रूट कुंजियाँ, URL और एसेट नाम स्थिर रहते हैं।",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "786abdc877bd3aa844a5850f63c6c30be4849d8c9ecd08f55d86ffce349a3570",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "हर रिकॉर्ड एक प्रदर्शन नाम, विवरण, जीवविज्ञान स्रोत URL, बंडल किया गया आरेख फ़ाइल नाम और आरेख टिप्पणी देता है; जब जीवविज्ञान स्रोत CDC नहीं होता, तो ``source_label`` उसका नाम बताता है। अंतिम पाँच पेज alpha सुविधाएँ हैं। ``sections`` में शीर्षक, गद्य और लिंक की गई परख-कुंजी के त्रिक होते हैं; ``links`` में प्रदर्शन-लेबल और URL के जोड़े होते हैं। ``modules`` में रूट-कुंजी, शीर्षक, विवरण और आइकन-कुंजी के टपल होते हैं। ``None`` रूट ऐसी जीव-विशिष्ट परख दर्शाता है जिसकी अपनी कोई पाइपलाइन नहीं है। ``workflows`` ऐसी टाइल की आइकन कुंजी को उस मौजूदा मॉड्यूल से मैप करता है जो उसका रीडआउट मापता है, साथ में खोलते समय लागू होने वाला सेटिंग्स प्रीसेट और उसके उपयोग पर एक टिप्पणी; ``None`` टाइल जो ``workflows`` में नहीं है, Coming soon होती है। ``parascape`` Toxoplasma पेज से एक बाहरी ऐप लॉन्च करता है; यह spaCR विश्लेषण रजिस्ट्री कुंजी या सेगमेंटेशन बैकएंड नहीं है। प्रदर्शन गद्य उपयोग के समय अनुवादित होता है; रूट कुंजियाँ, URL और एसेट नाम स्थिर रहते हैं।",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -58,7 +58,9 @@
       "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**व्यास।**  :mod:`spacr.diameter` उपयोगकर्ता के अपने कुछ फ़ील्ड से, Cellpose या torch लोड किए बिना, विशिष्ट ऑब्जेक्ट आकार मापता है। ``diameter`` spaCR द्वारा उपलब्ध कराई गई सबसे अधिक प्रभाव डालने वाली एकल Cellpose 4 सेटिंग है — ``CellposeModel.eval(diameter=...)`` हर छवि को ``30/diameter`` से पुनः स्केल करता है ताकि ऑब्जेक्ट उस आकार के निकट आएँ जिस पर ``cpsam`` काम करता है — और यही वह सेटिंग है जिसका उपयोगकर्ता अनुमान लगाते हैं।  यह मॉड्यूल जो पैनल बनाता है वह अनुमान को प्रति ऑब्जेक्ट प्रकार एक माप में बदल देता है, और दिखाता है कि उसने कितने ऑब्जेक्ट मापे ताकि संख्या पर संदेह किया जा सके।  यह मुख्य पेज पर नहीं, बल्कि Mask निर्माण के Model zoo पॉपअप में *व्यास मापें…* बटन से अपने अलग पॉपअप में खुलता है, मॉडल के उस चुनाव के बगल में जिसका यह दूसरा आधा हिस्सा है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#1",
@@ -66,7 +68,9 @@
       "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
       "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "एक उपयोगकर्ता का अनुरोध: \"mask generation में व्यास की गणना मुख्य पेज पर नहीं बल्कि model zoo बटन की पॉपअप विंडो में एक बटन होनी चाहिए। बटन दबाने पर वर्तमान कंटेनर की सारी जानकारी के साथ एक और पॉपअप आना चाहिए।\" इसलिए यह पूरे :class:`DiameterPanel` को रखता है -- मापने का बटन, हर ऑब्जेक्ट प्रकार के लिए उसके प्रमाण और टिप्पणी सहित एक पंक्ति, हर पंक्ति पर *उपयोग करें* और *सभी का उपयोग करें* -- और पैनल अब भी उसी पेज की सेटिंग्स में लिखता है जिसने zoo खोला था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
@@ -106,7 +110,9 @@
       "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
       "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
       "translation": "यह पैनल पूरी प्रक्रिया में एक ही सिंगलटन है जिसके दो कॉलर हैं। हर बार दिखाने पर सीधा ``connect`` करने से रिसीवर जमा होते जाते हैं, इसलिए एक क्लिक अंततः रिग्रेशन पिकर का इंस्टॉल और Image UMAP का इंस्टॉल दोनों चला देगा; सीधा ``disconnect()`` तब चेतावनी देता है जब अभी कुछ भी जुड़ा न हो। वर्तमान स्लॉट को रखकर उसे बदलना इनमें से कुछ नहीं करता। किसी ऐसे विजेट से बंधा पिछला स्लॉट जो तब से हटा दिया गया है, बस छोड़ दिया जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
@@ -122,7 +128,9 @@
       "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
       "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "अनुरोध: \"फ़िगर या लाइव प्रीव्यू कंटेनरों के भीतर के सभी सेक्शन भी सिमटने योग्य होने चाहिए ... हर GUI तत्व, चाहे वह फ़िगर हो या तालिका\"। यही एकमात्र तरीका है जिससे किसी पेज के भीतर का सेक्शन मोड़ने का नियंत्रण पाता है, इसलिए वे सभी एक जैसे दिखते और व्यवहार करते हैं: बॉडी के ऊपर एक तीर और एक नाम (वही :class:`~spacr.qt.widgets.foldable.Folder` जिसका उपयोग कंसोल और System करते हैं), एक क्लिक उसे मोड़ता है, और मोड़ा गया सेक्शन उसे दी गई जगह के निचले सिरे पर लॉक किया गया उसका शीर्षक होता है (:func:`lock_folded_to_bottom`)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
@@ -196,7 +204,9 @@
       "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
       "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "timeflows योजना का चरण 2 एक संख्या है, कोई सुविधा नहीं। तीसरा Cellpose हेड लिखे, प्रशिक्षित और बनाए रखे जाने से पहले एक बेसलाइन होनी चाहिए: हर फ़्रेम का स्वतंत्र रूप से सेगमेंटेशन करें, फ़्रेमों को मास्क ओवरलैप से जोड़ें, और परिणाम को ग्राउंड ट्रुथ के विरुद्ध उन मापों से स्कोर करें जिन पर ट्रैकिंग का क्षेत्र पहले से सहमत है। फ़ोर्क जो भी बनाए, वह या तो इससे बेहतर होगा या नहीं होगा, और योजना स्पष्ट कहती है कि \"साधारण जोड़ने वाला पहले से ही पर्याप्त अच्छा है\" एक वास्तविक संभावित परिणाम है जिसे होने पर स्वीकार किया जाना चाहिए। वह परिणाम तभी दिखाई देता है जब यह संख्या पहले से मौजूद हो।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -204,7 +214,9 @@
       "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
       "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "timeflows योजना प्रशिक्षण डेटा के बारे में एक दावे पर टिकी है: कोई ऑब्जेक्ट हर उस फ़्रेम में जिसमें वह दिखाई देता है, बिल्कुल एक ही लेबल रखता है। समय-प्रवाह हेड को फ़्रेम ``t`` में किसी ऑब्जेक्ट के पिक्सेल से फ़्रेम ``t+1`` में उसी ऑब्जेक्ट के केंद्र की ओर इंगित करने के लिए प्रशिक्षित किया जाता है, और ``t+1`` में कौन-सा ऑब्जेक्ट वही ऑब्जेक्ट है, यह केवल लेबल बताता है। यदि एनोटेशन किसी लेबल को उसके ऑब्जेक्ट के मरने या बाहर जाने के बाद फिर से उपयोग करता है, तो मॉडल को किसी असंबंधित कोशिका की ओर इंगित करने के लिए प्रशिक्षित किया जाता है, और बाद का कोई स्कोर इसे नहीं पकड़ता -- अलग रखी गई जाँच उन्हीं गलत लेबलों को फेंटती है और स्वयं से सहमत हो जाती है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.ImportedCopyNotReleased#1",
@@ -212,7 +224,9 @@
       "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
       "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
       "translation": "``foreign.run_import`` गंतव्य खाली होने पर आयातित फ़्रेम को मानक ``cell`` / ``nucleus`` / ``pathogen`` तालिका में कॉपी करता है, ताकि केवल आयात से बना प्रोजेक्ट हर spaCR टूल से पढ़ा जा सके। वह प्रति एक सुविधा है, और जैसे ही spaCR उसी दृश्य-क्षेत्र को मापता है, सुविधा नहीं रहती: :func:`_merge_and_save_to_database` *जोड़ता* है, इसलिए उसकी पंक्तियाँ आयातित पंक्तियों के बगल में, अलग कॉलमों में आ जाती हैं, और पंक्ति में जोड़ को चिह्नित करने वाला कुछ नहीं होता -- और आगे का हर ``count_cell`` दो आबादियों का योग बन जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

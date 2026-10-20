@@ -40,6 +40,16 @@ def cards():
             ('Windows PowerShell: deactivate, then remove the dedicated folder', 'deactivate; Remove-Item -Recurse -Force .venv'),
             ('Conda environment created only for pip-installed spaCR', 'conda deactivate; conda env remove -n spacr-pip')],
          'Confirm the folder or environment name first. Keep microscopy projects and analysis results elsewhere.'),
+        ('pip_conda_01_create', 'Create a Conda environment for pip-installed spaCR', [
+            ('Create a new environment with Python 3.12 and pip', 'conda create -n spacr-pip -c conda-forge python=3.12 pip'),
+            ('Activate the environment you created', 'conda activate spacr-pip'),
+            ('Check the active Python environment path', 'python -c "import sys; print(sys.prefix)"')],
+         'Choose an unused environment name. Conda supplies Python; pip supplies spaCR in the next step.'),
+        ('05_doctor', 'spaCR Doctor: generated command reference', [
+            ('Run from the installed spaCR environment', 'spacr-doctor --no-gpu-probe'),
+            ('Summary of the recorded CPU installation', '13 passed | 1 warning | 0 failed | 0 errored | 4 skipped'),
+            ('Recorded backend and optional file-format reader', 'CPU passed | GPU probe skipped | Optional CZI reader missing')],
+         'Recorded spaCR 1.5.1.3 CPU installation; no new run. Install the CZI extra only if needed.'),
         ('conda_01_create', 'Install from conda-forge in a new Conda environment', [
             ('Solve Python and spaCR together', 'conda create -n spacr-conda -c conda-forge python=3.12 spacr'),
             ('Use a different name if this environment already exists', 'Review Conda’s package plan before accepting it')],
@@ -64,11 +74,28 @@ def cards():
     ]
 
 
+def selected_cards(only=None):
+    """Validate explicit selectors before preparing any output."""
+    available = cards()
+    if only is None:
+        return available
+    if not only or len(set(only)) != len(only):
+        raise ValueError('Choose one or more distinct card selectors')
+    by_name = {card[0]: card for card in available}
+    unknown = sorted(set(only) - set(by_name))
+    if unknown:
+        raise ValueError('Unknown card selectors: ' + ', '.join(unknown))
+    return [by_name[name] for name in only]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--verification', type=Path, required=True)
     parser.add_argument('--destination', type=Path, required=True)
+    parser.add_argument('--only', nargs='+', action='extend', metavar='VISUAL',
+                        help='Render only these distinct card IDs; omit to render all cards')
     args = parser.parse_args()
+    selected = selected_cards(args.only)
     proof = read(args.verification / 'provenance.json')
     if (not proof.get('completed_capture') or not proof.get('installed_identity', {}).get('version')
             or args.destination.exists()):
@@ -78,7 +105,7 @@ def main():
     style = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(style)
     prepared = []
-    for name, title, rows, note in cards():
+    for name, title, rows, note in selected:
         image, draw = style.canvas(title, 'Command reference — not recorded terminal output')
         draw.rounded_rectangle(style.box((150, 190, 1770, 925)), radius=style.scaled(19),
                                fill=style.PANEL, outline=style.PANEL_LINE, width=2)

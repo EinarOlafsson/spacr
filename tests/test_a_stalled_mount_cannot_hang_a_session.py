@@ -66,14 +66,14 @@ def test_the_deadline_is_not_enforced_with_timeout(tmp_path):
     ignores the signal, so the guard would hang exactly where the session
     hung. If someone simplifies this script into a `timeout` call, this
     test is the note explaining why they must not."""
-    source = GUARD.read_text()
+    source = GUARD.read_text(encoding="utf-8")
     body = "\n".join(line for line in source.splitlines()
                      if not line.lstrip().startswith("#"))
     assert "timeout " not in body
 
 
 def test_it_never_waits_on_the_process_that_touches_the_mount():
-    source = GUARD.read_text()
+    source = GUARD.read_text(encoding="utf-8")
     assert "setsid" in source, "the probe has to run in a session of its own"
     commands = [line.strip() for line in source.splitlines()
                 if not line.lstrip().startswith("#")]
@@ -86,5 +86,5 @@ def test_listing_network_mounts_does_not_ask_any_server_anything():
     the kernel already knows."""
     done = _guard("paths", timeout=30)
     assert done.returncode in (0, 1)
-    source = GUARD.read_text()
+    source = GUARD.read_text(encoding="utf-8")
     assert "findmnt" in source

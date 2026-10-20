@@ -130,12 +130,19 @@ def test_a_details_menu_in_reStructuredText_is_thrown_away_by_github():
 
 @pytest.mark.parametrize("path", ALL_READMES, ids=lambda path: path.name)
 def test_no_rst_readme_reaches_for_the_mechanism_github_strips(path: Path):
-    """A future "make it a real dropdown" edit must fail here, not on GitHub."""
+    """A future "make it a real dropdown" edit must fail here, not on GitHub.
+
+    Raw HTML itself is allowed since 2026-10-13: github/markup renders it
+    (the test above) and keeps ``<picture>``, ``<source media>`` and image
+    ``width``, which is how the README offers a phone and a desktop drawing
+    of each image; ``setup.py`` turns it into plain images for PyPI, whose
+    renderer refuses raw HTML. A disclosure menu or a script is still
+    stripped by GitHub's sanitizer.
+    """
     text = path.read_text(encoding="utf-8")
-    for stripped in ("<details", "<summary", ".. raw:: html", "<script"):
+    for stripped in ("<details", "<summary", "<script"):
         assert stripped not in text, (
-            f"{path.name} uses {stripped!r}; GitHub renders .rst through "
-            "docutils with raw HTML disabled and prints it as text")
+            f"{path.name} uses {stripped!r}; GitHub's sanitizer strips it")
 
 
 # ------------------------------------------------------------- the control
@@ -145,7 +152,7 @@ def test_the_front_page_shows_one_language_link_not_ten():
     html, messages = _render(README.read_text(encoding="utf-8"))
     assert "system-message" not in html, messages
 
-    links = re.findall(r'<a class="reference external" href="([^"]+)">', html)
+    links = re.findall(r'<a [^>]*href="([^"]+)"', html)
     picker = [href for href in links if "i18n/readme/README" in href]
     assert picker == ["docs/i18n/readme/README.md"], (
         f"the front page should carry one language control, it has {picker}")
@@ -165,12 +172,20 @@ def test_every_readme_carries_the_generated_picker_for_its_own_language(
     generator = _generator()
     code = _code(path)
     line = generator._language_picker_line(code)
-    assert _block(path) == f"{BEGIN}\n\n{line}\n\n{END}", (
+    # Drawn as one linked button since 2026-10-12, by the same converter
+    # the generator runs (tools/build_readme_images.py).
+    drawn = generator.build_readme_images.convert_generated(
+        line, code, "language-picker", render=False)
+    assert _block(path) == f"{BEGIN}\n\n{drawn}\n\n{END}", (
         f"{path.name} is not what packaging/generate_readme_visuals.py writes; "
         "re-run it rather than editing the README")
     assert line.startswith(f"{generator.LANGUAGE_PICKER_LABELS[code]}:")
     target = "docs/i18n/readme/README.md" if code == "en" else "README.md"
     assert f"<{target}>`_" in line
+    from html import escape
+
+    assert f'href="{target}"' in drawn
+    assert f'alt="{escape(generator.LANGUAGE_PICKER_LABELS[code])}: ' in drawn
     assert (path.parent / target).is_file()
 
 
@@ -263,16 +278,19 @@ def test_the_menu_labels_ai_review_without_native_speaker_signoff():
             assert "AI technical review (Codex), no native-speaker signoff" in row
 
 
-def test_the_page_and_the_readmes_are_regenerated_not_hand_written(tmp_path):
+def test_the_page_and_the_readmes_are_regenerated_not_hand_written(
+        tmp_path, monkeypatch):
     """Running the generator again must change nothing."""
+    pytest.importorskip("uharfbuzz", reason="drawing the README images needs uharfbuzz")
     generator = _generator()
     assert PICKER_PAGE.read_text(encoding="utf-8") == \
         generator._language_picker_page()
     working = tmp_path / "README.sv.rst"
     source = (README_DIR / "README.sv.rst").read_text(encoding="utf-8")
-    stale = source.replace(
-        "Språk: `🌐 Svenska ▾ <README.md>`_", "Languages: stale")
+    stale = source.replace('alt="Språk: Svenska"', 'alt="Languages: stale"')
     assert stale != source, "the Swedish picker line is not what this expects"
+    monkeypatch.setattr(generator.build_readme_images, "IMAGE_DIR",
+                        tmp_path / "images")
     working.write_text(stale, encoding="utf-8")
     assert generator._write_the_language_picker(working)
     assert working.read_text(encoding="utf-8") == source

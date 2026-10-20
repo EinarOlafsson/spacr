@@ -39,21 +39,62 @@ from setuptools import setup, find_packages
 def pypi_readme(source):
     """Preserve the GitHub README while resolving its repository-relative URLs.
 
-    PyPI serves package metadata without the repository's files. Use the
-    public nightly tree, which also carries images not yet promoted to main.
+    PyPI serves package metadata without the repository's files, so every
+    image and link points at the public ``main`` tree. ``main`` carries the
+    README's images: the image README's panels (docs/readme_images), the
+    model cards and the deck are promoted there with every README update,
+    and a released description should not move when ``nightly`` does.
     No network access or spaCR imports are needed during isolated builds.
-    GitHub's aligned raw-HTML tile substitutions become ordinary RST image
-    substitutions here because PyPI's renderer disables raw HTML.
+    GitHub's aligned raw-HTML tile substitutions and the README's
+    phone/desktop ``<picture>`` blocks become ordinary RST images here
+    because PyPI's renderer disables raw HTML; a picture keeps its phone
+    drawing.
     """
+    names = set()
+
+    def pictures(rows):
+        """Rows of GitHub ``<picture>`` images as RST images: the phone
+        drawing, which PyPI shows at its own size like GitHub's phone page."""
+        found = re.compile(
+            r'(?:<a href="(?P<target>[^"]*)">)?<picture><source [^>]*>'
+            r'<img src="(?P<src>[^"]+)" alt="(?P<alt>[^"]*)"></picture>'
+            r'(?:</a>)?')
+        blocks, definitions = [], []
+        for row in re.findall(r"   <div>(.*)</div>", rows):
+            items = list(found.finditer(row))
+            if len(items) == 1:
+                item = items[0]
+                lines = [f".. image:: {unescape(item['src'])}",
+                         f"   :alt: {unescape(item['alt'])}"]
+                if item["target"]:
+                    lines.append(f"   :target: {unescape(item['target'])}")
+                blocks.append("\n".join(lines))
+                continue
+            line = []
+            for item in items:
+                name = "pypi-" + re.sub(
+                    r"\W+", "-", item["src"].rsplit("/", 1)[-1])
+                while name in names:
+                    name += "-"
+                names.add(name)
+                line.append(f"|{name}|")
+                lines = [f".. |{name}| image:: {unescape(item['src'])}",
+                         f"   :alt: {unescape(item['alt'])}"]
+                if item["target"]:
+                    lines.append(f"   :target: {unescape(item['target'])}")
+                definitions.append("\n".join(lines))
+            blocks.append("| " + "\\ ".join(line))
+        return "\n\n".join(blocks + definitions) + "\n"
+
     def absolute(value, image=False):
         if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", value) or value.startswith(("//", "#")):
             return value
-        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/"
-                if image else "https://github.com/EinarOlafsson/spacr/blob/nightly/")
+        base = ("https://raw.githubusercontent.com/EinarOlafsson/spacr/main/"
+                if image else "https://github.com/EinarOlafsson/spacr/blob/main/")
         return base + value.removeprefix("./")
 
     source = re.sub(
-        r'(?m)^\.\. \|(?P<name>Module_[^|\n]+)\| raw:: html\n\n'
+        r'(?m)^\.\. \|(?P<name>[^|\n]+)\| raw:: html\n\n'
         r'   <a href="(?P<target>[^"]+)"><img src="(?P<image>[^"]+)" '
         r'width="(?P<width>[^"]+)" align="middle" alt="(?P<alt>[^"]+)"></a>\n',
         lambda match: (
@@ -64,6 +105,9 @@ def pypi_readme(source):
             "   :align: middle\n"
         ), source,
     )
+    source = re.sub(
+        r"(?m)^\.\. raw:: html\n\n((?:   <div>[^\n]*</div>(?:\n|$))+)",
+        lambda match: pictures(match[1]), source)
     source = re.sub(
         r"(?m)^(\s*\.\. (?:\|[^|]+\| )?(?:image|figure)::\s+)(\S+)",
         lambda match: match[1] + absolute(match[2], image=True), source)
@@ -79,7 +123,14 @@ with open("README.rst", "r", encoding="utf-8") as fh:
 
 dependencies = [
     'packaging>=21.3',
-    'numpy>=1.26.4,<3.0',
+    # torch 2.2.2 is the last release with Intel macOS wheels and is built
+    # against numpy 1.x: under numpy 2 every torch.from_numpy raises "Numpy is
+    # not available". The installer applied this guard only on first install,
+    # so an in-app `uv pip install --upgrade spacr` moved numpy to 2.x. Python
+    # 3.13 on an Intel Mac gets no torch and no numpy 1.x wheel, so it is left
+    # out. opencv 4.12 requires numpy 2 and follows the same split.
+    'numpy>=1.26.4,<3.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+    'numpy>=1.26.4,<2.0; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
     'pandas>=2.2.1,<4.0',
     'scipy>=1.12.0,<2.0',
     'cellpose>=4.0.7,<5.0',
@@ -109,16 +160,30 @@ dependencies = [
     'matplotlib_venn>=1.1,<2.0',
     'pypdf>=6.16.1,<7.0',
     'cycler>=0.10,<1',
-    'PySide6>=6.6,<7',
+    'PySide6>=6.6,!=6.12.0,<7',
     'qtawesome>=1.3,<2',
     'pyqtgraph>=0.13.3,<1',
     'mpmath>=1.3,<2',
     'vispy>=0.14,<1.0',
+    # VisPy's OpenGL volume renderer needs PyOpenGL for 3D textures. It is pure
+    # Python, so one requirement covers every platform and Python.
+    'PyOpenGL>=3.1.7,<4',
+    # wgpu draws the True 3D view through Vulkan, Metal or Direct3D 12. Its
+    # wheels cover Windows x86/x64/arm64, macOS x86_64/arm64 and manylinux_2_28
+    # x86_64/aarch64; wgpu 0.32 needs Python 3.11, 0.25-0.31.0 Python 3.10,
+    # and Python 3.9 gets none. Without it the view draws with OpenGL (VisPy)
+    # or the CPU; `pip uninstall -y wgpu rendercanvas` is the supported way
+    # to drop it, and the installers' "Install without wgpu" option does the
+    # same. Linux with glibc older than 2.28 cannot install the wheel; the
+    # installers detect that and skip it.
+    'wgpu>=0.25,<=0.31.0; python_version == "3.10" and (platform_machine == "x86_64" or platform_machine == "AMD64" or platform_machine == "aarch64" or platform_machine == "arm64" or platform_machine == "ARM64")',
+    'wgpu>=0.25,<0.33; python_version >= "3.11" and (platform_machine == "x86_64" or platform_machine == "AMD64" or platform_machine == "aarch64" or platform_machine == "arm64" or platform_machine == "ARM64")',
     'win10toast>=0.9; platform_system == "Windows"',
     'adjustText>=1.2.0,<2.0',
     'bottleneck>=1.3.6,<2.0',
     'numexpr>=2.8.4,<3.0',
-    'opencv-python-headless>=4.9.0.80,<5.0',
+    'opencv-python-headless>=4.9.0.80,<5.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+    'opencv-python-headless>=4.9.0.80,<4.12; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
     'pillow>=10.2.0,<13',
     'tifffile>=2023.4.12',
     'nd2reader>=3.3.0, <4.0',
@@ -137,6 +202,7 @@ dependencies = [
     'fastremap>=1.14.1',
     'tqdm>=4.65.0',
     'requests>=2.28,<3.0',
+    'paramiko>=3.5,<5',
     'joblib>=1.2,<2.0',
     'cloudpickle>=3.1.2,<4',
     'natsort>=8.0,<9.0',
@@ -146,7 +212,7 @@ dependencies = [
     'protobuf>=5.28.3',
 ]
 
-VERSION = "1.5.1.4"
+VERSION = "1.5.1.5"
 name = "spacr"
 
 setup(
@@ -157,7 +223,7 @@ setup(
     long_description_content_type='text/x-rst',
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
-    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    package_data={'spacr': ['resources/release_notes.json', 'resources/layout_policy.json', 'resources/tutorial_index.json', 'resources/module_workflows.json', 'resources/data/*', 'resources/model_cards/*.json', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/organism_*.svg', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/splash/*.jpg', 'resources/splash/*.json', 'resources/setting_animations/*.json', 'resources/plate_templates/*.json', 'resources/setting_animations/gifs/*.gif'],},
     data_files=(
         [
             ('share/applications', [
@@ -199,13 +265,19 @@ setup(
             'tomli>=2.0; python_version < "3.11"',
             'hypothesis>=6.100,<7',
             'docutils>=0.20.1,<0.24',
+            'pypdfium2>=5.13.0,<6',
+            'markdown-it-py>=2.2,<5',
+            'readme-renderer>=43,<45',
             'pyarrow>=14.0.2,<26',
             'ruff>=0.9,<1',
             'mypy>=1.11,<2',
             'xenon>=0.9,<1',
             'pingouin>=0.5.5,<2.0',
         ],
-        'headless': ['opencv-python-headless>=4.9.0.80,<5.0'],
+        'headless': [
+            'opencv-python-headless>=4.9.0.80,<5.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
+            'opencv-python-headless>=4.9.0.80,<4.12; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
+        ],
         'embeddings': ['timm>=0.9,<2.0'],
         'trackastra': [
             'trackastra>=0.5,<1.0; python_version >= "3.10" and '
@@ -242,18 +314,20 @@ setup(
         'dinocell': ['dinocell>=0.74,<1.0'],
         'samcell': ['samcell>=1.2,<2.0'],
         'napari': ['napari>=0.5,<1.0'],
+        'tem': ['mrcfile>=1.5,<2'],
         'full': ['opencv-python'],
         'sweep': ['threadpoolctl>=3.0,<4'],
         'qt': [
-            'PySide6>=6.6,<7',
+            'PySide6>=6.6,!=6.12.0,<7',
             'qtawesome>=1.3,<2',
             'pyqtgraph>=0.13.3,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
-        'flowview': ['PySide6>=6.6,<7'],
+        'flowview': ['PySide6>=6.6,!=6.12.0,<7'],
+        'flow-gpu': ['moderngl>=5.12,<6'],
         'fractal': ['vispy>=0.14,<1.0'],
         'tutorial': [
-            'PySide6>=6.6,<7',
+            'PySide6>=6.6,!=6.12.0,<7',
             'qtawesome>=1.3,<2',
             'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2; sys_platform != "darwin" or '
@@ -264,6 +338,8 @@ setup(
                 'czifile'],
         'nd2': ['nd2reader>=3.3.0,<4.0'],
         'lif': ['readlif'],
+        'vendor-watch': ['nd2>=0.10,<1; python_version >= "3.10"',
+                         'liffile>=2025.1.25; python_version >= "3.12"'],
         'zernike': ['mahotas>=1.4.13,<2.0; python_version < "3.13"'],
         'btrack': ['btrack>=0.7.0,<1.0'],
 
@@ -285,7 +361,7 @@ setup(
         'microscope': ['pycromanager>=0.28,<1'],
 
         'all': [
-            'PySide6>=6.6,<7',
+            'PySide6>=6.6,!=6.12.0,<7',
             'qtawesome>=1.3,<2',
             'pyqtgraph>=0.13.3,<1',
             'vispy>=0.14,<1.0',
@@ -308,6 +384,7 @@ setup(
             'mahotas>=1.4.13,<2.0; python_version < "3.13"',
             'btrack>=0.7.0,<1.0',
             'anndata>=0.10,<0.13',
+            'mrcfile>=1.5,<2',
         ],
     },
 )

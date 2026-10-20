@@ -1,0 +1,41 @@
+{
+  "public_revision": "eb205abcaaa0d770bf1fa39032e528d7633097e3",
+  "files": [
+    {
+      "path": "spacr/qt/screens/make_masks.py",
+      "bytes": 921392,
+      "sha256": "50ab8ff3a0ee8d6c61b1d7a4792831c34127a610f032c99630c5f8e3907a592d",
+      "git_blob": "07c84e768bde1d2e7fd95a6f16337334b9068a2f"
+    },
+    {
+      "path": "tools/tutorials/capture_make_masks.py",
+      "bytes": 37649,
+      "sha256": "7edaf5ee376d232cbc0773bae906723da9790a7e2d845a1a8b4eae8c6bdbcd4b",
+      "git_blob": "75ecc510969831908e8405c4114ec7b5da3a1bd3"
+    },
+    {
+      "path": "tools/tutorials/capture_refresh.py",
+      "bytes": 122022,
+      "sha256": "63f881ba32401cfc2e45b618046fcd85634d6b9bc6ee45cf30d39ec556ebffbb",
+      "git_blob": "c0f786a47b3a8750ce4eaf9c9455f0c0bf233264"
+    },
+    {
+      "path": "spacr/qt/gc_policy.py",
+      "bytes": 5842,
+      "sha256": "dde9a6102ed56c7465b0785776ad7983dbcc2ae68955ec57a1de2775364a09ca",
+      "git_blob": "68166806592fdc78b7672d33204221bac580d2db"
+    },
+    {
+      "path": "spacr/qt/thread_guard.py",
+      "bytes": 5628,
+      "sha256": "6f77e177368be6e8ac263db6e8f7fe3a0049b849b9a7da44116e7653e3ab9025",
+      "git_blob": "e879296b38c16f591224d54c50fb33fa81cae9ab"
+    },
+    {
+      "path": "features/data/home_masks_work_owner_review_2026-10-14/work-owner-review.json",
+      "bytes": 8376,
+      "sha256": "a910828ec5cfdeb8d77aae90619fa0f869ab3ac09901780a8679bd95063ee0f4",
+      "git_blob": "453a4bbb27d8c4f55ae124df20a7bda56dc38281"
+    }
+  ]
+}

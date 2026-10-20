@@ -1,0 +1,77 @@
+{
+  "status": "TECHNICAL_MARKUP_PEER_ACCEPT",
+  "source_sha256": "639f97050d0750fb28ec84e94d5f7870a1516860facb2f7914a1051c03918e14",
+  "targets_sha256": "ce671107fe6b0ddd463df813b315c1675e0140cc2c30895cd4ae842a5b6d43ec",
+  "language_count": 9,
+  "target_count": 18,
+  "exact_literal_multiset": {
+    "~/.spacr/models": 1,
+    "SPACR_MODEL_CACHE": 1,
+    "SPACR_MODEL_DOWNLOAD=off": 1,
+    "spacr-run": 1
+  },
+  "per_language": {
+    "sv": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "de": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "es": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "pt": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "fr": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "is": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "zh_CN": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "ko": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    },
+    "hi": {
+      "targets": 2,
+      "literal_multiset_exact": true,
+      "semantic_review": "ACCEPT"
+    }
+  },
+  "semantic_checks": [
+    "Recorded path/key/publisher version/SHA preserved; existing pinned bytes must match.",
+    "Missing pinned identity exact; unpinned exact zoo key/filename only; no fuzzy substitution or filename-derived trusted identity.",
+    "spaCR-home cache default conditional normally~/.spacr/models and explicit SPACR_MODEL_CACHE override retained.",
+    "Offline flag placed before spacr-run disables metadata/weights download while permitting existing local files and verified cached models.",
+    "Known uncached checksum/cache-copy guidance and unknown request refusal preserved.",
+    "No text claims all local files forbidden offline or custom filename trusted."
+  ],
+  "optional_style_only": [
+    {
+      "language": "hi",
+      "current": "दर्ज किया गया मॉडल-संग्रह कुंजी",
+      "suggested": "दर्ज की गई मॉडल-संग्रह कुंजी",
+      "reason": "Feminine agreement for कुंजी; existing technical meaning is clear and not a source/markup blocker."
+    }
+  ],
+  "limits": "Independent AI technical/markup peer, not human/native review; no source edits, normal writer/import, collector or tests performed."
+}

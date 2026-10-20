@@ -1,0 +1,9 @@
+{
+  "base": "d99ce177ad2f295679d54aae2ec3780a6f9e95a2",
+  "test_sha256": "c8f03930375c8ea329ec5aefa91966e303e84c5ad8d9b5a83391bd819cccb234",
+  "production_app_sha256": "0d0c6109143feadec12a1dafaebae79839f1ccd46a9f918c5efaf89e6c2b81ca",
+  "production_ambient_sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+  "outside_exact_test_ast_identical": true,
+  "all_original_assertion_asts_identical": true,
+  "scope": "Exactly two monkeypatches select no-existing-window-backdrop and heavy-import-lock-free branch. Existing injected install failure/recovery and full original assertions preserved; real parent-owned backdrop and QSettings untouched."
+}

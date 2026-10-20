@@ -10,8 +10,7 @@ tree was reached through an unguarded ``getColor`` — six of them, none passing
 ``DontUseNativeDialog``.
 
 Qt's own dialog opens immediately, looks the same on every platform, and
-follows the application palette — which the GTK one does not, so the option is
-a consistency win as well as a speed one.
+follows the application palette — which the GTK one does not.
 
 The portal round trip **cannot be reproduced
 headless**: an offscreen Qt never asks the portal, so no test in this suite can
@@ -23,9 +22,8 @@ something this file proves. What IS proven here, by
 ``tests/qt/test_colour_picker.py``, is that no call site can ask for the
 platform dialog any more.
 
-USE IT INSTEAD OF ``QColorDialog.getColor``. That is the whole point: an
-option that has to be remembered at every call site is an option that will be
-forgotten at the seventh. The grep test enforces it.
+Use it instead of ``QColorDialog.getColor``, so no call site has to remember
+the option. A grep test enforces this.
 """
 from __future__ import annotations
 

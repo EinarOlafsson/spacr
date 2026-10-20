@@ -378,7 +378,9 @@
       "source": "Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the wells marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a plate heatmap into ``results/`` next to the source DB.",
       "context": "Reads the ``measurements.db`` produced by :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/ cytoplasm feature tables, uses the microplate sample positions marked as ``positive_control`` / ``negative_control`` (or an annotation column) as training labels, delegates fitting to :func:`ml_analysis`, and writes per-object predictions, permutation and feature-importance tables plus a laboratory microplate heatmap into ``results/`` next to the source DB.",
       "source_sha256": "0ff1beae2f012bb566a9a3d73b348fffe0977eb688f17b77174e6960fa38f437",
-      "translation": "``measurements.db`` को पढ़ता है, जिसे :func:`spacr.measure.measure_crop` बनाता है; सेल/नाभिक/रोगजनक/साइटोप्लाज्म फ़ीचर तालिकाएँ मिलाता है; ``positive_control`` / ``negative_control`` के रूप में चिह्नित माइक्रोप्लेट नमूना स्थानों (या एनोटेशन कॉलम) को प्रशिक्षण लेबल बनाता है; फ़िटिंग :func:`ml_analysis` को सौंपता है; और स्रोत DB के पास ``results/`` में प्रति-ऑब्जेक्ट पूर्वानुमान, क्रमपरिवर्तन और फ़ीचर-महत्त्व तालिकाएँ तथा माइक्रोप्लेट हीटमैप लिखता है।"
+      "translation": "``measurements.db`` को पढ़ता है, जिसे :func:`spacr.measure.measure_crop` बनाता है; सेल/नाभिक/रोगजनक/साइटोप्लाज्म फ़ीचर तालिकाएँ मिलाता है; ``positive_control`` / ``negative_control`` के रूप में चिह्नित माइक्रोप्लेट नमूना स्थानों (या एनोटेशन कॉलम) को प्रशिक्षण लेबल बनाता है; फ़िटिंग :func:`ml_analysis` को सौंपता है; और स्रोत DB के पास ``results/`` में प्रति-ऑब्जेक्ट पूर्वानुमान, क्रमपरिवर्तन और फ़ीचर-महत्त्व तालिकाएँ तथा माइक्रोप्लेट हीटमैप लिखता है।",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.generate_ml_scores#2",
@@ -392,35 +394,49 @@
       "source": "``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.",
       "context": "``src`` (str or list) — folder(s) containing ``measurements/measurements.db``.",
       "source_sha256": "fab81072e6783efa1c366297835b86f3fd46e93cc5a71d99a6d339f41df4689a",
-      "translation": "``src`` (स्ट्रिंग या सूची) — वे फ़ोल्डर जिनमें ``measurements/measurements.db`` है।"
-    },
-    {
-      "label": "spacr.ml.generate_ml_scores#4",
-      "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
-      "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
-      "source_sha256": "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
-      "translation": "``channel_of_interest`` — रिक्रूटमेंट अनुपात फ़ीचर के लिए 0-आधारित चैनल; यह तालिका चयन भी नियंत्रित करता है।"
+      "translation": "``src`` (स्ट्रिंग या सूची) — वे फ़ोल्डर जिनमें ``measurements/measurements.db`` है।",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.generate_ml_scores#5",
-      "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
-      "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
-      "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
-      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``."
+      "source": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
+      "context": "``channel_of_interest`` — 0-based channel for the recruitment ratio feature; also drives table selection.",
+      "source_sha256": "e70caf02964a3ec5d7b8872c9c5a25c803e522c1361d80e4669e738dcb8b3343",
+      "translation": "``channel_of_interest`` — रिक्रूटमेंट अनुपात फ़ीचर के लिए 0-आधारित चैनल; यह तालिका चयन भी नियंत्रित करता है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#6",
-      "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
-      "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
-      "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
-      "translation": "``positive_control`` / ``negative_control`` — माइक्रोप्लेट नमूना स्थिति आईडी (जैसे ``'c2'`` / ``'c1'``) जो प्रशिक्षण लेबल के रूप में उपयोग की जाती हैं।"
+      "source": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "context": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "source_sha256": "a977ad07888386e097c47c5a1b6f76f95d3f166f515fce3af1eccea39b359041",
+      "translation": "``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#7",
+      "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
+      "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
+      "translation": "``positive_control`` / ``negative_control`` — माइक्रोप्लेट नमूना स्थिति आईडी (जैसे ``'c2'`` / ``'c1'``) जो प्रशिक्षण लेबल के रूप में उपयोग की जाती हैं।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#8",
       "source": "``annotation_column`` — override controls with a PNG-level annotation column.",
       "context": "``annotation_column`` — override controls with a PNG-level annotation column.",
       "source_sha256": "3f461869af6c98fe2d7759f49c734fccd7f0b7c383b2fa64eb823648a04fc723",
-      "translation": "``annotation_column`` — नियंत्रणों के स्थान पर PNG-स्तरीय एनोटेशन कॉलम का उपयोग करें।"
+      "translation": "``annotation_column`` — नियंत्रणों के स्थान पर PNG-स्तरीय एनोटेशन कॉलम का उपयोग करें।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#8",
@@ -432,53 +448,74 @@
       "retired_reason": "2026-09-22: the prose detector incorrectly exempted the unquoted conjunction or. Corrected source-bound review in 2026-09-22-reference-alternatives.json; original target retained here."
     },
     {
-      "label": "spacr.ml.generate_ml_scores#9",
+      "label": "spacr.ml.generate_ml_scores#10",
       "source": "``heatmap_feature`` — feature plotted on the plate heatmap.",
       "context": "``heatmap_feature`` — feature plotted on the plate heatmap.",
       "source_sha256": "cb0a243031c3f5cd2044fa67b61c4530305e7a250c7f099e31997ed1060c88bd",
-      "translation": "``heatmap_feature`` — प्लेट हीटमैप पर प्लॉट की गई विशेषता।"
-    },
-    {
-      "label": "spacr.ml.generate_ml_scores#10",
-      "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
-      "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
-      "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
-      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``."
+      "translation": "``heatmap_feature`` — प्लेट हीटमैप पर प्लॉट की गई विशेषता।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#11",
-      "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
-      "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
-      "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
-      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``."
+      "source": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "context": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "source_sha256": "9ee6eb15ffb9c7c8b469af9de56cb2e3a364b2e82bd2b7eca004b0cf69ffac0b",
+      "translation": "``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#12",
-      "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
-      "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
-      "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
-      "translation": "दो-तत्वों वाली सूची ``[output, plate_heatmap]``, जहाँ ``output`` :func:`ml_analysis` की 10-तत्वों वाली परिणाम सूची है और ``plate_heatmap`` प्लेट-हीटमैप की ``matplotlib`` आकृति है। CSV और आकृतियाँ साइड इफ़ेक्ट के रूप में ``results/`` में लिखी जाती हैं; उनके पथ नहीं लौटाए जाते।"
+      "source": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "context": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "source_sha256": "8e71bc18b22baf009410bf097bb2d18e10e4036a160107f9f3d79bff96643800",
+      "translation": "``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#13",
-      "source": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
-      "context": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
-      "source_sha256": "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
-      "translation": "यदि ``annotation_column`` सेट है, लेकिन ``png_list`` तालिका में ``prcfo`` / वह कॉलम नहीं है, तालिका के ऑब्जेक्ट आईडी मापन डेटा से नहीं जुड़ते, उस कॉलम में दो से कम प्रेक्षित वर्ग हैं, या यदि ``heatmap_feature`` प्रशिक्षित विशेषताओं में शामिल नहीं है।"
+      "source": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "context": "The two-element list ``[output, plate_heatmap]``, where ``output`` is the 10-element result list of :func:`ml_analysis` and ``plate_heatmap`` is the plate-heatmap ``matplotlib`` figure. The CSVs and figures are written to ``results/`` as a side effect; their paths are not returned.",
+      "source_sha256": "5661bcf2e30846a03f05e929308fdd631e7c245d24503eba7564d48966745773",
+      "translation": "दो-तत्वों वाली सूची ``[output, plate_heatmap]``, जहाँ ``output`` :func:`ml_analysis` की 10-तत्वों वाली परिणाम सूची है और ``plate_heatmap`` प्लेट-हीटमैप की ``matplotlib`` आकृति है। CSV और आकृतियाँ साइड इफ़ेक्ट के रूप में ``results/`` में लिखी जाती हैं; उनके पथ नहीं लौटाए जाते।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#14",
-      "source": "Example:",
-      "context": "Example:",
-      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
-      "translation": "उदाहरण:"
+      "source": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "context": "if ``annotation_column`` is set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do not join to the measurements, it contains fewer than two observed classes, or if ``heatmap_feature`` is not among the trained features.",
+      "source_sha256": "c6753f3dfc68811b8e2b0ccf1abd2181cce250a11ab0e9c4c330ee527b52df96",
+      "translation": "यदि ``annotation_column`` सेट है, लेकिन ``png_list`` तालिका में ``prcfo`` / वह कॉलम नहीं है, तालिका के ऑब्जेक्ट आईडी मापन डेटा से नहीं जुड़ते, उस कॉलम में दो से कम प्रेक्षित वर्ग हैं, या यदि ``heatmap_feature`` प्रशिक्षित विशेषताओं में शामिल नहीं है।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.generate_ml_scores#15",
+      "source": "Example:",
+      "context": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "translation": "उदाहरण:",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
+    },
+    {
+      "label": "spacr.ml.generate_ml_scores#16",
       "source": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-well ML scores.",
       "context": "See Also: :func:`ml_analysis` — the underlying fit/evaluate routine. :func:`perform_regression` — mixed-effects regression on per-microplate sample position ML scores.",
       "source_sha256": "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d",
-      "translation": "संबंधित देखें: :func:`ml_analysis` — अंतर्निहित फिट/मूल्यांकन रूटीन। :func:`perform_regression` — प्रति-माइक्रोप्लेट नमूना स्थिति ML स्कोर पर मिश्रित-प्रभाव प्रतिगमन।"
+      "translation": "संबंधित देखें: :func:`ml_analysis` — अंतर्निहित फिट/मूल्यांकन रूटीन। :func:`perform_regression` — प्रति-माइक्रोप्लेट नमूना स्थिति ML स्कोर पर मिश्रित-प्रभाव प्रतिगमन।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.ml.load_regression_input_pairs#0",
@@ -513,14 +550,18 @@
       "source": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "context": "Fit every level the run asked for, SEPARATELY, and return one per level.",
       "source_sha256": "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
-      "translation": "रन द्वारा माँगे गए प्रत्येक स्तर को अलग-अलग फ़िट करें और हर स्तर के लिए एक परिणाम लौटाएँ।"
+      "translation": "रन द्वारा माँगे गए प्रत्येक स्तर को अलग-अलग फ़िट करें और हर स्तर के लिए एक परिणाम लौटाएँ।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#1",
       "source": "THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "context": "This is the two-fit entry point, and the reason it exists is that the one design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the SUM of the gene's gRNA fractions, so",
       "source_sha256": "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
-      "translation": "यह दो-फ़िट प्रवेश बिंदु है। यह इसलिए मौजूद है क्योंकि spaCR द्वारा पहले उपयोग किया गया एकल डिज़ाइन बिल्कुल फ़िट नहीं किया जा सकता। ``gene_fraction`` जीन के gRNA अंशों का SUM है, इसलिए"
+      "translation": "यह दो-फ़िट प्रवेश बिंदु है। यह इसलिए मौजूद है क्योंकि spaCR द्वारा पहले उपयोग किया गया एकल डिज़ाइन बिल्कुल फ़िट नहीं किया जा सकता। ``gene_fraction`` जीन के gRNA अंशों का SUM है, इसलिए",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#2",
@@ -534,21 +575,27 @@
       "source": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "context": "puts a block of columns and their own sums into one design. Measured on the reference TSG101 screen: 1248 parameters at rank 862 -- a 386-dimensional EXACT null space -- and the fit statsmodels returned had a residual sum of squares bit-identical to the one you get by adding seven times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.",
       "source_sha256": "0b6580b48091e760bac4983f95e1e5346ded73b05ad1eb3d69b09ef0dbf62d50",
-      "translation": "यह कॉलमों और उन्हीं कॉलमों के योगों को एक ही डिज़ाइन में रखता है। संदर्भ TSG101 स्क्रीनिंग पर मापन में: रैंक 862 पर 1248 पैरामीटर -- 386-आयामी EXACT नल स्पेस -- और लौटाए गए statsmodels फ़िट का अवशिष्ट वर्ग-योग उस परिणाम से बिट-दर-बिट समान था जो उसमें नल वेक्टर का सात गुना जोड़ने पर मिलता है। :data:`COLLINEAR_FORMULA_FRAGMENT` देखें।"
+      "translation": "यह कॉलमों और उन्हीं कॉलमों के योगों को एक ही डिज़ाइन में रखता है। संदर्भ TSG101 स्क्रीनिंग पर मापन में: रैंक 862 पर 1248 पैरामीटर -- 386-आयामी EXACT नल स्पेस -- और लौटाए गए statsmodels फ़िट का अवशिष्ट वर्ग-योग उस परिणाम से बिट-दर-बिट समान था जो उसमें नल वेक्टर का सात गुना जोड़ने पर मिलता है। :data:`COLLINEAR_FORMULA_FRAGMENT` देखें।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#4",
       "source": "Two fits, two tables, TWO CORRECTIONS. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same wells, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "context": "Two fits, two tables, two corrections. Each fit is its own multiple-testing family and is corrected within itself. Pooling them would be wrong twice over: they are not independent -- same microplate sample positions, and the gene regressor IS the sum of the guide regressors -- and doubling the family size costs power for no protection. :func:`perform_regression` applies the correction per level and writes ``results_grna.csv`` and ``results_gene.csv``.",
       "source_sha256": "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
-      "translation": "दो फिट्स, दो टेबल्स, दो सुधार। प्रत्येक फिट अपनी खुद की मल्टीपल-टेस्टिंग फेमिली है और अपने भीतर ही इसे सुधारा जाता है। इन्हें मिलाना दो बार गलत होगा: ये स्वतंत्र नहीं हैं -- वही माइक्रोप्लेट सैंपल पोजीशन्स हैं, और जीन रेग्रेसर गाइड रेग्रेसर्स का योग है -- और फेमिली का आकार दोगुना करने से कोई सुरक्षा नहीं मिलती, केवल शक्ति की हानि होती है। :func:`perform_regression` प्रत्येक स्तर पर सुधार लागू करता है और ``results_grna.csv`` और ``results_gene.csv`` लिखता है।"
+      "translation": "दो फिट्स, दो टेबल्स, दो सुधार। प्रत्येक फिट अपनी खुद की मल्टीपल-टेस्टिंग फेमिली है और अपने भीतर ही इसे सुधारा जाता है। इन्हें मिलाना दो बार गलत होगा: ये स्वतंत्र नहीं हैं -- वही माइक्रोप्लेट सैंपल पोजीशन्स हैं, और जीन रेग्रेसर गाइड रेग्रेसर्स का योग है -- और फेमिली का आकार दोगुना करने से कोई सुरक्षा नहीं मिलती, केवल शक्ति की हानि होती है। :func:`perform_regression` प्रत्येक स्तर पर सुधार लागू करता है और ``results_grna.csv`` और ``results_gene.csv`` लिखता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#5",
       "source": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "context": "``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``: that model has both levels inside it already, the gene as a fixed effect and the guide as a random effect nested in the gene. Its guide output is BLUPs, which is why it cannot be split into two testing families.",
       "source_sha256": "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
-      "translation": "``regression_type='mixed'`` एक बार फिट होता है और एक एंट्री लौटाता है, ``'gene'``: उस मॉडल में पहले ही दोनों स्तर हैं, जीन को फ़िक्स्ड इफेक्ट के रूप में और गाइड को जीन में नेस्टेड रैंडम इफेक्ट के रूप में। इसका गाइड आउटपुट BLUPs है, यही कारण है कि इसे दो टेस्टिंग फेमिलीज़ में नहीं बांटा जा सकता।"
+      "translation": "``regression_type='mixed'`` एक बार फिट होता है और एक एंट्री लौटाता है, ``'gene'``: उस मॉडल में पहले ही दोनों स्तर हैं, जीन को फ़िक्स्ड इफेक्ट के रूप में और गाइड को जीन में नेस्टेड रैंडम इफेक्ट के रूप में। इसका गाइड आउटपुट BLUPs है, यही कारण है कि इसे दो टेस्टिंग फेमिलीज़ में नहीं बांटा जा सकता।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#8",
@@ -564,7 +611,9 @@
       "context": "the processing-session folder. With more than one fit each level's FIGURES go into ``<dst>/<level>/`` so they cannot overwrite each other; the tables stay in ``<dst>``, where every consumer looks for them.",
       "source_sha256": "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
       "translation": "प्रोसेसिंग-सत्र फ़ोल्डर। एक से अधिक फ़िट होने पर प्रत्येक स्तर के FIGURES ``<dst>/<level>/`` में जाते हैं, ताकि वे एक-दूसरे को ओवरराइट न करें; तालिकाएँ ``<dst>`` में रहती हैं, जहाँ हर उपभोक्ता उन्हें खोजता है।",
-      "rebound_from": "spacr.ml.regression_levels#7"
+      "rebound_from": "spacr.ml.regression_levels#7",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_levels#10",
@@ -609,7 +658,9 @@
       "source": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed wells; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "context": "That is not a hypothetical. The screen this was written for has 824 guides in 587 analysed microplate sample positions; the published fit had 825 parameters, rank 579 and 8 residual degrees of freedom, and refitting it did not reproduce its own coefficients.",
       "source_sha256": "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
-      "translation": "यह काल्पनिक नहीं है। जिस स्क्रीनिंग के लिए यह लिखा गया था, उसमें 587 विश्लेषित माइक्रोप्लेट सैंपल पोज़िशन्स में 824 गाइड्स थे; प्रकाशित फ़िट में 825 पैरामीटर थे, रैंक 579 और 8 शेष डिग्रीज़ ऑफ़ फ्रीडम थीं, और इसे फिर से फिट करने पर इसके अपने कोएफ़िशिएंट्स पुन: उत्पन्न नहीं हुए।"
+      "translation": "यह काल्पनिक नहीं है। जिस स्क्रीनिंग के लिए यह लिखा गया था, उसमें 587 विश्लेषित माइक्रोप्लेट सैंपल पोज़िशन्स में 824 गाइड्स थे; प्रकाशित फ़िट में 825 पैरामीटर थे, रैंक 579 और 8 शेष डिग्रीज़ ऑफ़ फ्रीडम थीं, और इसे फिर से फिट करने पर इसके अपने कोएफ़िशिएंट्स पुन: उत्पन्न नहीं हुए।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.resolve_auto_inference#3",
@@ -638,7 +689,9 @@
       "source": "What a run's results folder is NAMED after.",
       "context": "What a processing session's results folder is NAMED after.",
       "source_sha256": "9aa310e1c499c3609c3d787ecfa5bed677dbf44c0ba20f560bb0f47fd646fcde",
-      "translation": "किस आधार पर किसी प्रोसेसिंग सत्र के परिणाम फ़ोल्डर का नाम रखा जाता है।"
+      "translation": "किस आधार पर किसी प्रोसेसिंग सत्र के परिणाम फ़ोल्डर का नाम रखा जाता है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.results_folder_kind#1",
@@ -652,7 +705,9 @@
       "source": "PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every run that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "context": "PUBLIC, and the only copy. A test that re-derived this rule went stale when the rule changed and reported 39 missing CSVs while every processing session that wrote them was fine, which is the failure the `results_dir` helper in tests/test_cov_ml_perform_regression.py was already written to prevent once. A suite pointing at the wrong file is worse than a silent one.",
       "source_sha256": "e1f650f69fe5b9dcac25308be0248c082de61d0cbbc10e8e0135609a2fccf5b8",
-      "translation": "सार्वजनिक, और इसकी एकमात्र प्रति। इस नियम को दोबारा निकालने वाला परीक्षण नियम बदलने पर पुराना पड़ गया और उसने 39 CSV गायब बताईं, जबकि उन्हें लिखने वाला हर प्रोसेसिंग सत्र ठीक था। इसी विफलता को tests/test_cov_ml_perform_regression.py का `results_dir` सहायक पहले ही एक बार रोकने के लिए लिखा गया था। गलत फ़ाइल की ओर संकेत करने वाला परीक्षण-सूट मौन रहने वाले सूट से भी बदतर है।"
+      "translation": "सार्वजनिक, और इसकी एकमात्र प्रति। इस नियम को दोबारा निकालने वाला परीक्षण नियम बदलने पर पुराना पड़ गया और उसने 39 CSV गायब बताईं, जबकि उन्हें लिखने वाला हर प्रोसेसिंग सत्र ठीक था। इसी विफलता को tests/test_cov_ml_perform_regression.py का `results_dir` सहायक पहले ही एक बार रोकने के लिए लिखा गया था। गलत फ़ाइल की ओर संकेत करने वाला परीक्षण-सूट मौन रहने वाले सूट से भी बदतर है।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.screen_is_blockable#0",
@@ -694,14 +749,20 @@
       "source": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "context": "Keyboard-first shortcuts for the spaCR Qt GUI.",
       "source_sha256": "26f0c8f1c1efb05ac6052ac0bf975170fe73a42c4d7076ef4891d95096f3a483",
-      "translation": "कीबोर्ड-प्रथम शॉर्टकट्स spaCR Qt GUI के लिए।"
+      "translation": "कीबोर्ड-प्रथम शॉर्टकट्स spaCR Qt GUI के लिए।",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#1",
       "source": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "context": "Registers global :class:`QShortcut` bindings on the main window so the whole app is usable without a mouse:",
       "source_sha256": "b0c04dae9e6d28f02e9977c0b48d2ea8ab98f343d97eac4a5c4e7ed195668b3a",
-      "translation": "मुख्य विंडो पर वैश्विक :class:`QShortcut` बाइंडिंग्स को पंजीकृत करता है ताकि पूरी एप्लिकेशन माउस के बिना इस्तेमाल योग्य हो:"
+      "translation": "मुख्य विंडो पर वैश्विक :class:`QShortcut` बाइंडिंग्स को पंजीकृत करता है ताकि पूरी एप्लिकेशन माउस के बिना इस्तेमाल योग्य हो:",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#2",
@@ -717,7 +778,10 @@
       "source": "Switch to the Nth app in the sidebar",
       "context": "Switch to the Nth app in the sidebar",
       "source_sha256": "f0f20c34719e99f139fd7bd7b88f717827aa459cc9d4e41c5365b4725e11d91f",
-      "translation": "साइडबार में Nवीं एप्लिकेशन पर स्विच करें"
+      "translation": "साइडबार में Nवीं एप्लिकेशन पर स्विच करें",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.shortcuts#4",
@@ -783,14 +847,18 @@
       "source": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "context": "Switches ``agg_type`` to None automatically when quantile regression is selected, so ``alpha`` is treated as the quantile.",
       "source_sha256": "78caac1266c292e60eebd31f9dcd53cd418015c2df20333e38c43b74e357f50f",
-      "translation": "जब क्वांटाइल रिग्रेशन चुना जाता है, तो ``agg_type`` को स्वतः None में बदल दिया जाता है, ताकि ``alpha`` को क्वांटाइल के रूप में माना जा सके।"
+      "translation": "जब क्वांटाइल रिग्रेशन चुना जाता है, तो ``agg_type`` को स्वतः None में बदल दिया जाता है, ताकि ``alpha`` को क्वांटाइल के रूप में माना जा सके।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#2",
       "source": "Every key :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the dict from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a run that had started cleanly.",
       "context": "Every structured-data name :func:`spacr.ml.perform_regression` reads with ``settings[...]`` is filled here. Six were not, and because both dispatchers (the Qt panel via ``qt.screens.settings_model.resolve_default_settings`` and ``spacr-run regression`` via ``cli.module_defaults``) build the key-value mapping from this one function, regression could not be started from any entry point: it died on ``KeyError: 'verbose'`` at ml.py:1409, after both input CSVs had been read and ``settings/regression.csv`` had been written, so the failure looked like a processing session that had started cleanly.",
       "source_sha256": "165034b2f73d58f8deaceea0de62331e1c48dd872d7b481bf818106b1ceed0f0",
-      "translation": "यहाँ हर संरचित-डेटा नाम भरा जाता है जिसे :func:`spacr.ml.perform_regression` ``settings[...]`` से पढ़ता है। छह नाम पहले नहीं भरे जाते थे। दोनों डिस्पैचर -- ``qt.screens.settings_model.resolve_default_settings`` वाला Qt पैनल और ``spacr-run regression`` का ``cli.module_defaults`` -- इसी एक फ़ंक्शन से की-वैल्यू मैपिंग बनाते हैं, इसलिए प्रतिगमन किसी भी प्रवेश बिंदु से शुरू नहीं हो पाता था: ml.py:1409 पर ``KeyError: 'verbose'`` आया, जबकि दोनों इनपुट CSV पढ़े जा चुके थे और ``settings/regression.csv`` लिखा जा चुका था; इसलिए विफलता साफ़-सुथरे ढंग से शुरू हुए प्रोसेसिंग सत्र जैसी दिखती थी।"
+      "translation": "यहाँ हर संरचित-डेटा नाम भरा जाता है जिसे :func:`spacr.ml.perform_regression` ``settings[...]`` से पढ़ता है। छह नाम पहले नहीं भरे जाते थे। दोनों डिस्पैचर -- ``qt.screens.settings_model.resolve_default_settings`` वाला Qt पैनल और ``spacr-run regression`` का ``cli.module_defaults`` -- इसी एक फ़ंक्शन से की-वैल्यू मैपिंग बनाते हैं, इसलिए प्रतिगमन किसी भी प्रवेश बिंदु से शुरू नहीं हो पाता था: ml.py:1409 पर ``KeyError: 'verbose'`` आया, जबकि दोनों इनपुट CSV पढ़े जा चुके थे और ``settings/regression.csv`` लिखा जा चुका था; इसलिए विफलता साफ़-सुथरे ढंग से शुरू हुए प्रोसेसिंग सत्र जैसी दिखती थी।",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#3",

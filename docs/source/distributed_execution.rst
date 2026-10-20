@@ -13,8 +13,9 @@ An execution profile describes *how to reach compute*, not an analysis.
 Profiles never store passwords or API keys:
 
 ``SSH workstation``
-   Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in
-   a durable background process and records its exit code.
+   Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a
+   detached background process (output redirected to a log, stdin closed) so
+   it continues if the SSH connection drops, and records its exit code.
 
 ``Slurm cluster``
    Uploads settings, submits an ``sbatch`` script, polls ``squeue`` and then
@@ -24,7 +25,8 @@ Profiles never store passwords or API keys:
 ``Cloud / custom command``
    Runs configured submit/status/cancel argument templates. This supports
    cloud CLIs and site-specific schedulers without embedding vendor
-   credentials in spaCR. The command must print a safe job identifier and the
+   credentials in spaCR. The command must print a job identifier containing only letters, digits
+   and ``_.:+-``, and the
    status command should print a conventional state such as ``PENDING``,
    ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``.
 
@@ -51,6 +53,44 @@ example::
 Settings can be dragged onto the Distributed Jobs screen, selected with
 **Browse**, or handed off directly with **Submit remote…** in any ordinary
 module.
+
+.. _settings-files-from-the-gui:
+
+Settings files from the GUI
+---------------------------
+
+Every module screen with **Import settings…** has **Export settings…** next
+to it. It saves the values currently in the form, exactly what **Run** would
+use, to a CSV you choose. Nothing runs: the source folder is not listed or
+opened, so a form set up for a slow network share is saved at once. The
+dialog suggests ``<module>_settings.csv`` in the source folder.
+
+The file has the layout spaCR writes into ``<src>/settings/`` at the start
+of every run: a ``Key,Value`` header and one row per setting, with lists in
+Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset
+values. Paths are saved exactly as the form shows them. A ``.json`` copy
+with the same settings is written beside it. **Import settings…** reads the
+file back to the same form values, and the command line runs it unchanged::
+
+   spacr-run measure --settings measure_settings.csv --dry-run
+   spacr-run measure --settings measure_settings.csv
+
+From Python, ``spacr.cli.load_settings_file`` reads it and
+``spacr.cli.write_settings_file`` writes one. When the cluster mounts the
+data under another path, change ``src`` with
+``--set src=/cluster/projects/plate-A`` or use the dataset roots of an
+execution profile.
+
+After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs
+screen saves the snapshot it received as the same file. Submitting is
+unchanged.
+
+Model checkpoints on the execution target
+-----------------------------------------
+
+Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames.
+
+Jobs and nodes that share one model cache download a missing model once. The first job holds a lock file in the cache and refreshes it while it downloads; the others wait, then reuse the verified file. A lock that a crashed node left behind is removed after ``SPACR_MODEL_LOCK_STALE_SECONDS`` without a refresh (600 by default). When ``SPACR_MODEL_DOWNLOAD=off`` stops a run, the error ends with a shell command that downloads the checkpoint to the cache path and checks its SHA-256. Run it on a machine with network access that sees the same folder, or run it elsewhere and copy the file to that path.
 
 Command-line workflow
 ---------------------

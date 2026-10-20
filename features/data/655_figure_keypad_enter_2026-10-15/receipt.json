@@ -1,0 +1,76 @@
+{
+  "status": "TARGETED_PASS_PRIVATE_REVIEW_READY",
+  "base_commit": "eb1a5588b15037e8da4419c964ec05bfb05d3ebd",
+  "source": {
+    "path": "spacr/qt/widgets/figure_grid_view.py",
+    "before_sha256": "a85bab36e844a77da141b159f644b7d04a8f946d84993ab8ae15ae6a591f99de",
+    "after_sha256": "2dd469ce299779f259119aa12f82bff90557e055c2ad70fb8015e2b4c765c94c",
+    "scope": "Only _FigureCell.keyPressEvent executable body changes. Replacing this body restores the entire previous module AST; every definition/docstring/comment remains unchanged. No new API or runtime caption arrivals."
+  },
+  "test": {
+    "path": "tests/qt/test_655_figure_grid_keypad_enter.py",
+    "sha256": "61d512a35b294607ff88eb36be39a8f22390e1ebaaf14e69ab30594a7fd9d398"
+  },
+  "baseline": {
+    "session": 38377,
+    "exit_code": 1,
+    "result": "3 failed, 6 deselected in 1.84s",
+    "failure": "Actual Qt Key_Enter + KeypadModifier opens none of the saved/live/pinned figure routes."
+  },
+  "final": {
+    "session": 61081,
+    "exit_code": 0,
+    "result": "26 passed in 3.13s",
+    "scope": "Nine new keypad route/refusal cases plus seventeen existing Tab, Space/Return/Enter, modified-key, identity and focus checks. Real FigureGridView routing preserves saved index 2, live qq and pinned regression identities.",
+    "resources": "Shared heavy.lock; capped 2G; thread1; offscreen Qt6.12; hidden CUDA; isolated XDG_CONFIG_HOME. Exact commands/wall/RSS retained."
+  },
+  "semantics": "Keypad-only Enter now follows the existing activation path. Ctrl/Alt/Shift/Meta combinations, and keypad-modified Space/Return, remain refused. Focus and signal payload conditions remain intact; no repeat policy or other event handler changed.",
+  "limits": "In-process Qt event acceptance, not an additional native keyboard, screen-reader, other-OS or whole N655 claim. The known native KeypadModifier event shape was already established in earlier AI/Live evidence; no native replay performed.",
+  "artifacts": [
+    {
+      "file": "before-source.py.gz",
+      "sha256": "66d12c95f30b65e1a720c856a62d55e8f4918b01cea44040990dc80e556412b9",
+      "raw_sha256": "a85bab36e844a77da141b159f644b7d04a8f946d84993ab8ae15ae6a591f99de"
+    },
+    {
+      "file": "before.log.gz",
+      "sha256": "384cb747c093e47ee2472b83bc9408a95fae2bf1fc13b12410e87c578bd007c1",
+      "raw_sha256": "8f6f97fb0e709ee680afb83d8cf034908e9ea912256859f9473185a698357bf4"
+    },
+    {
+      "file": "before.time",
+      "sha256": "2148acaba083cd1b3f2924bf8677d4b22a1fce8d5327feea957b20c613898ef0",
+      "raw_sha256": "2148acaba083cd1b3f2924bf8677d4b22a1fce8d5327feea957b20c613898ef0"
+    },
+    {
+      "file": "before.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "file": "before.sh",
+      "sha256": "7e8d140e9ce096b6ab977bfb0d3e3b55642124f033c90d3af5d4897997a54c64",
+      "raw_sha256": "7e8d140e9ce096b6ab977bfb0d3e3b55642124f033c90d3af5d4897997a54c64"
+    },
+    {
+      "file": "final.log.gz",
+      "sha256": "8576d5c2ff3bda30d505e278497e377b95047488574a4d1db6099485506aab13",
+      "raw_sha256": "6f4b3c2b1e9fc37a30c8c05b349f0dd8b6a62c7a9a594d20ff4f83ca7b5ffcbe"
+    },
+    {
+      "file": "final.time",
+      "sha256": "a087803a8b7289770c273a787d082a173c5bf43c89dfac0f19ece35c7872f72a",
+      "raw_sha256": "a087803a8b7289770c273a787d082a173c5bf43c89dfac0f19ece35c7872f72a"
+    },
+    {
+      "file": "final.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "final.sh",
+      "sha256": "c5efdd6cdb26bb2253120ce28b10ca7819417161973c6c2dc2d90e7abfec4044",
+      "raw_sha256": "c5efdd6cdb26bb2253120ce28b10ca7819417161973c6c2dc2d90e7abfec4044"
+    }
+  ]
+}

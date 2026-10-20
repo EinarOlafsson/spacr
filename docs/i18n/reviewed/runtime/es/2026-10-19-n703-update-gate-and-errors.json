@@ -1,0 +1,28 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "A package is being installed into this spaCR environment. Wait for it to finish before updating spaCR.",
+      "source": "A package is being installed into this spaCR environment. Wait for it to finish before updating spaCR.",
+      "source_sha256": "94d301b11a03ba8d52339e62960d37e4194e1a8d861c77abade1212dc6af93b7",
+      "table": "ui",
+      "translation": "Se está instalando un paquete en este entorno de spaCR. Espere a que termine antes de actualizar spaCR."
+    },
+    {
+      "key": "A model download is in progress. Wait for it to finish, or cancel it in the Jobs window, before updating spaCR.",
+      "source": "A model download is in progress. Wait for it to finish, or cancel it in the Jobs window, before updating spaCR.",
+      "source_sha256": "bc799b0d224e936bfa0ce8d5190124679f177bc2d4f54c03d9aaf7694edc5f7b",
+      "table": "ui",
+      "translation": "Se está descargando un modelo. Espere a que termine o cancele la descarga en la ventana Tareas antes de actualizar spaCR."
+    },
+    {
+      "key": "{summary}\n\nThe full report is in {path}.",
+      "source": "{summary}\n\nThe full report is in {path}.",
+      "source_sha256": "7ace64fccb75801f2d53ffb1118e45746638cf8d28951113b9e9b8598897c663",
+      "table": "ui",
+      "translation": "{summary}\n\nEl informe completo está en {path}."
+    }
+  ],
+  "review_kind": "AI technical source and target-language review; no native-speaker signoff",
+  "schema": 1
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "Root bounds own stuck recording; no accepted clip or maintainer process touched",
+  "at": "2026-10-15T01:50:24.764413+00:00",
+  "pid": 222586,
+  "parent_pid": 222585,
+  "stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson09-r39",
+  "reason": "Only opening01 finalized at21:31; no new scene or example data for about19min, chooser has no global watchdog",
+  "signals": [
+    "SIGUSR1: preserve all-thread snapshot",
+    "SIGTERM: stop exact validated owned app child"
+  ],
+  "native_acceptance": false
+}

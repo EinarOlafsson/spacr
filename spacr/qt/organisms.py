@@ -21,7 +21,7 @@ ORGANISMS = {
         "source": "https://www.cdc.gov/dpdx/toxoplasmosis/index.html",
         "diagram": "organism_apicomplexa.svg",
         "diagram_note": (
-            "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT "
+            "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT "
             "labels. Hover for a location description, check several compartments "
             "to keep them highlighted, or use Clear components to reset them. "
             "Several classes share a shape; dense granules use the generic "
@@ -64,7 +64,7 @@ ORGANISMS = {
             ), ("gliding",)),
             ("From a phenotype to candidate proteins", (
                 "The compartment diagram connects imaging phenotypes to "
-                "subcellular vocabulary used in Starplast. ToxoDB provides "
+                "subcellular vocabulary used in ParaScape. ToxoDB provides "
                 "gene and genome context, while UniProt supplies protein "
                 "annotations. The hyperLOPIT atlas provides experimental "
                 "localization evidence for Toxoplasma proteins; a highlighted "
@@ -74,14 +74,14 @@ ORGANISMS = {
         ),
         "links": (
             ("ToxoDB", "https://toxodb.org/toxo/"),
-            ("Starplast", "https://github.com/EinarOlafsson/starplast"),
+            ("ParaScape", "https://github.com/EinarOlafsson/parascape"),
             ("Toxoplasma hyperLOPIT atlas", "https://pubmed.ncbi.nlm.nih.gov/33053376/"),
             ("UniProt", "https://www.uniprot.org/uniprotkb?query=taxonomy_id%3A5811"),
             ("NCBI Taxonomy", "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=5811"),
             ("BEI Resources", "https://www.beiresources.org/PathogensLinks.aspx"),
         ),
         "modules": (
-            ("starplast", "Starplast", "Explore the Toxoplasma knowledge map in a separate alpha application.", "replication"),
+            ("parascape", "ParaScape", "Explore the Toxoplasma knowledge map in a separate alpha application.", "replication"),
             ("analyze_plaques", "Plaque Assay", "Quantify plaque number and size.", "analyze_plaques"),
             ("recruitment", "Recruitment", "Measure host-protein enrichment at the vacuole.", "recruitment"),
             ('host_pathogen', 'Host–Pathogen', 'Combine vacuole marker recruitment, parasite counts and host infection denominators.', 'host_pathogen'),
@@ -113,7 +113,7 @@ ORGANISMS = {
         "diagram": "organism_apicomplexa.svg",
         "diagram_note": (
             "A shared apicomplexan cell plan, using the SwissBioPics artwork "
-            "also used in Starplast. Hover for a UniProt location description "
+            "also used in ParaScape. Hover for a UniProt location description "
             "and check several compartments to keep them highlighted. "
             "Parasite shape and organelle organization vary by species and "
             "life-cycle stage; this is not a blood-stage reconstruction. "
@@ -789,7 +789,7 @@ linked assay-key triples; ``links`` contains display-label and URL pairs.
 own. ``workflows`` maps such a tile's icon key to the existing module that
 measures its readout, a settings preset applied on opening, and a note on
 how to use it; a ``None`` tile absent from ``workflows`` is Coming soon.
-``starplast`` launches an external app from the Toxoplasma page; it is not
+``parascape`` launches an external app from the Toxoplasma page; it is not
 a spaCR analysis registry key or segmentation backend.
 Display prose is translated at use; route keys, URLs and asset names stay fixed.
 """

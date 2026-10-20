@@ -1,11 +1,10 @@
-"""Which picture settings apply to which mode, and why the others do not.
+"""Map picture settings to the crop modes they apply to, with reasons.
 
-THE KEYS ARE THE ANNOTATOR'S OWN, and that is the point of this module rather
-than a second list. `spacr.settings.set_annotate_default_settings` already
-names every one of them; a Cells tab with its own vocabulary for the same
-picture would be two panels that disagree about what "normalize" means.
+The keys are the annotator's own setting names, not a second list.
+`spacr.settings.set_annotate_default_settings` already names every one of
+them; a Cells tab with its own vocabulary for the same picture would be two panels that disagree about what "normalize" means.
 
-WHY A TABLE AND NOT A BRANCH IN THE WIDGET. The greying rule has to hold
+The rules are a table, not a branch in the widget. The greying rule has to hold
 wherever the settings are read -- a panel, a settings CSV, a macro -- and a
 rule that lives only in the widget that greys it is a rule with one entry
 point unguarded. That is what `ml._require_backend` says about backends and
@@ -219,7 +218,7 @@ def modes() -> Tuple[Tuple[str, str], ...]:
 
 
 def applies_to_picking(key: str, picking: str) -> bool:
-    """Whether ``key`` means anything for the chosen way of picking cells.
+    """Whether ``key`` applies to the chosen way of picking cells.
 
     :param key: picture-setting key whose dependency is being checked.
     :param picking: selected cell-picking strategy.
@@ -231,12 +230,12 @@ def applies_to_picking(key: str, picking: str) -> bool:
 
 
 def applies_to(key: str, mode: str) -> bool:
-    """Whether ``key`` means anything in ``mode``.
+    """Whether ``key`` applies in ``mode``.
 
     :param key: picture-setting key whose source-mode applicability is tested.
     :param mode: selected crop-source mode.
 
-    A key this module has never heard of applies: it is not this module's job
+    A key this module does not know applies: it is not this module's job
     to grey out a setting it does not know, and a panel that hid the unknown
     would hide new settings by default.
     """
@@ -262,7 +261,7 @@ def why_not(key: str, mode: str) -> str:
     :param key: picture-setting key whose inapplicability is explained.
     :param mode: selected crop-source mode.
 
-    GREYED, NEVER HIDDEN (INVARIANTS 6). A control that vanishes cannot tell
+    Controls are greyed, never hidden. A control that vanishes cannot tell
     the user why their mode does not offer it.
     """
     if applies_to(key, mode):
@@ -507,14 +506,14 @@ def draw_crop(array, picture):
     :returns: an array of the same shape, or the input unchanged when nothing
         was asked for or the pipeline is unavailable.
 
-    THE ANNOTATOR'S OWN FUNCTIONS DO THE WORK -- `normalize_pil`,
+    The annotator's own functions do the work -- `normalize_pil`,
     `filter_channels_pil`, `outline_image` from
     :mod:`spacr.qt.annotate_engine`. A second implementation of "normalise a
     crop" is a second answer to what normalise means. Reusing the annotator's
     functions keeps identically configured images visually consistent.
 
-    NEVER RAISES. A picture is the last thing this produces and the least
-    important: losing a montage to an outline is the worst trade available.
+    Never raises: when drawing fails, the input array is returned unchanged,
+    so a montage is not lost to a failed outline.
     """
     items = dict(picture or {})
     if not any(items.get(key) for key in DRAW_SETTINGS):
@@ -565,12 +564,12 @@ def draw_crop(array, picture):
 
 
 def available_arrays(source) -> Tuple[str, ...]:
-    """The mask planes this screen's merged arrays actually record.
+    """Return the mask planes this screen's merged arrays record.
 
     `object_array` chooses which mask the intensity channels are cut by, and
     offering it as free text asks the user to remember what their own screen
-    contains -- and to spell it the way `measure` did. Every other chooser in
-    spaCR is built from the data; this one was not.
+    contains -- and to spell it the way `measure` did. The choices are
+    therefore built from the data.
 
     :param source: a :class:`spacr.crops.CropSource`, a
         :class:`CropSourceChoice`, or anything with a ``spec.mask_dims``.
@@ -686,7 +685,7 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
 
     :param key: picture-setting key whose current choices are requested.
 
-    ONE PLACE, so the Cells tab and the annotation app cannot offer different
+    Defined in one place, so the Cells tab and the annotation app cannot offer different
     answers for the same screen.
     """
     name = str(key or "").strip()
@@ -832,7 +831,7 @@ def drop_retired(picture) -> tuple:
     worth a line -- it is worth one the first time and noise every time
     after.
 
-    A RENAMED key is moved rather than dropped: ``img_size`` became
+    A renamed key is moved rather than dropped: ``img_size`` became
     ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it.
     The rename is read from :func:`spacr.settings.surviving_setting_name`,
     the resolver the settings files use, and only onto a key this panel

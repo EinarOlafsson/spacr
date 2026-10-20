@@ -35,7 +35,7 @@ def test_yokogawa_nonconsecutive_selection_waits_for_intermediate_channels(tmp_p
     result = core._watch_folder_and_analyse(settings, recorder)
     assert len(result['done']) == len(recorder.calls) == 1
     assert recorder.calls[0][1] == sorted(names)
-    ledger = json.loads((tmp_path / 'spacr_watch/watch_ledger.json').read_text())
+    ledger = json.loads((tmp_path / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     assert set(ledger['fields'][result['done'][0]]['files']) == set(names)
     assert core._watch_folder_and_analyse(settings, recorder)['done'] == result['done']
     assert len(recorder.calls) == 1

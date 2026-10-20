@@ -1,10 +1,10 @@
-"""``B16`` — N panels of the same field, panned and zoomed together.
+"""N panels of the same field, panned and zoomed together.
 
 Four channels of one field. The same well at four timepoints. The same field
-under four conditions. The comparison is only worth anything if the panels are
-looking at the same place at the same magnification, and doing that by hand —
-zoom each one, pan each one, hope — is how two panels end up half a cell out
-and a difference in framing is read as a difference in biology.
+under four conditions. A comparison needs every panel to show the same region
+at the same magnification. Zooming and panning each panel by hand leaves them
+misaligned, and a difference in framing can then be read as a difference in
+biology.
 
 :class:`spacr.layers.CanvasLink` is the model: N canvases sharing one world
 window, each keeping its own pixel size because they are different widgets.
@@ -15,9 +15,8 @@ exist once there is more than one panel:
   key through :mod:`spacr.qt.linked_selection`, so the same cell lights up in
   the other panels — and in the UMAP, the plate view and the annotation grid,
   which were already listening.
-* **One panel can be let go.** "Look closely at this one without losing the
-  others' place" is the ordinary next request, and it is a checkbox rather
-  than a mode.
+* **One panel can be unlinked.** A checkbox on each panel lets it be panned and
+  zoomed on its own while the others keep the shared view.
 """
 from __future__ import annotations
 
@@ -99,14 +98,11 @@ class ComparisonPanel(QWidget):
     """One cell: a caption, a canvas and the checkbox that frees it.
 
     :param key: the panel's name in the :class:`~spacr.layers.CanvasLink`.
-    :param stack: what this panel shows. Each panel has its OWN stack — that
-        is the whole point, since they hold different channels, timepoints or
-        conditions.
+    :param stack: what this panel shows. Each panel has its own stack, since
+        the panels hold different channels, timepoints or conditions.
     :param parent: parent widget; ownership only.
-    :param title: the caption over the panel. Empty falls back to ``key``,
-        which is a name the code chose, not one a reader picked -- fine
-        while the keys are the conditions, worth overriding once they are
-        not.
+    :param title: the caption over the panel. Empty falls back to ``key``; pass
+        a caption when the key is not a readable name.
     """
 
     #: This panel's view moved. Carries ``(key, canvas)``.
@@ -454,9 +450,8 @@ class ComparisonGrid(LinkedView, QWidget):
     def highlight(self, object_key: str) -> List[str]:
         """Select ``object_key`` in every panel that holds it; returns which.
 
-        The other half of the comparison: a cell picked in the DAPI panel is
-        the same cell in the phalloidin panel, and saying so is what makes the
-        four pictures one observation rather than four.
+        An object selected in one panel, for example the DAPI panel, is also
+        selected in every other panel that holds the same key.
 
         :param object_key: the object key to find, compared with each labels
             layer's field object keys.

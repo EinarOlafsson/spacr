@@ -1,0 +1,9 @@
+{
+  "base": "2d68797a9f9593183ad972426bdae616d1650390",
+  "test_sha256": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+  "fixture_sha256": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+  "app_screen_sha256": "9396db400fd1203b4f20b35c03dd595feb4fa789a5012f0f84bc8c5487ee26e9",
+  "ai_toggle_sha256": "f611d07a0b83ae3c6ac88fbd769a808377d043d0a0cf0b189a45f084ac556ecd",
+  "baseline": "Actual single original node exit139 nativeSIGSEGV at QApplication.sendEvent genericQEvent Enter; hostedsame repeated serialsource traceback. No label/adjacency failure diagnosed.",
+  "core_limit_note": "Initial run terminal before parent requested zeroCORE; no core* in ownworktree. All subsequent runs explicitly ulimit-c0 and unitLimitCORE0."
+}

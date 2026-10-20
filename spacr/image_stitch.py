@@ -1,41 +1,37 @@
-"""Assemble the tiles of one field into the one image the field really is.
+"""Stitch the tiles of one field into one image.
 
-spaCR's filename convention --
-``plate_well_T####F###L##A##Z##C##`` -- has no tile slot, so a field split
-into four tiles produces four images with ONE canonical name and three of
-them would be overwritten. Three answers were possible: grow the convention a
-tile slot, give each tile its own field number, or put the field back
-together. spaCR stitches at import, with the option to turn it off, and that
-is the right answer: a stitched field IS one image with one name, so nothing
-downstream has to learn what a tile is.
+spaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no
+tile slot, so a field split into four tiles produces four images with one
+canonical name and three of them would be overwritten. Three answers were
+possible: grow the convention a tile slot, give each tile its own field number,
+or put the field back together. spaCR stitches at import, with the option to
+turn it off: a stitched field is one image with one name, so nothing downstream
+has to handle tiles.
 
-WHAT MAKES THIS HARD IS THAT A TILE INDEX IS NOT A POSITION. ``tile03`` says
-an image is the third of some number; it does not say where it goes, how the
-tiles are ordered, or how far they overlap. Every one of those has to come
-from evidence, and this module is arranged around where the evidence is:
+A tile index is not a position. ``tile03`` says an image is the third of some
+number; it does not say where it goes, how the tiles are ordered, or how far
+they overlap. Every one of those has to come from evidence, and this module is
+arranged around where the evidence is:
 
-1. THE FILE'S OWN STAGE COORDINATES, when it has them. An OME-TIFF records
+1. The file's own stage coordinates, when it has them. An OME-TIFF records
    ``PositionX``/``PositionY`` in microns and the pixel size beside them, so
-   the layout is not inferred at all -- it is read. Nothing else is as good.
-2. THE PIXELS, otherwise. Adjacent tiles overlap, and the overlap is the
-   same picture twice, so the right displacement is the one whose implied
-   overlap correlates -- scored for EVERY admissible displacement rather
-   than picked from a phase-correlation peak, which a small overlap buries.
-   This also settles the ORDER -- row-major and serpentine put different
-   tiles beside each other, so the arrangement that correlates is the
-   arrangement the microscope used.
-3. NOTHING, in which case it says so. Blank tiles, single-pixel overlaps and
-   images with no shared content produce no correlation to speak of. The
-   tiles are then butt-joined in a square-ish grid and the mosaic is marked
-   ``assumed`` with its confidence, because a seam in an image a user was
-   told about is a different thing from one they were not.
+   the layout is read rather than inferred.
+2. The pixels, otherwise. Adjacent tiles overlap, and the overlap is the same
+   picture twice, so the right displacement is the one whose implied overlap
+   correlates -- scored for every admissible displacement rather than picked
+   from a phase-correlation peak, which a small overlap buries. This also
+   settles the order -- row-major and serpentine put different tiles beside
+   each other, so the arrangement that correlates is the arrangement the
+   microscope used.
+3. No evidence. Blank tiles, single-pixel overlaps and images with no shared
+   content produce no correlation to speak of. The tiles are then butt-joined
+   in a square-ish grid and the mosaic is marked ``assumed`` with its
+   confidence, so the user is told the layout was not verified.
 
-THE FAILURE THIS EXISTS TO AVOID is the one the whole import module was
-written against: an answer that looks plausible and is wrong. A mosaic
-assembled at the wrong overlap is a field with a duplicated band through it,
-every measurement in that band counted twice, and nothing on screen saying
-so. So the confidence travels with the result, and a caller that cares can
-refuse it.
+A mosaic assembled at the wrong overlap is a field with a duplicated band
+through it, every measurement in that band counted twice, and nothing on screen
+saying so. The confidence is therefore returned with the result, and a caller
+can refuse a mosaic below a chosen confidence.
 """
 from __future__ import annotations
 
@@ -134,7 +130,7 @@ class Mosaic:
         return self.how in ("single", "stage", "correlated")
 
     def describe(self) -> str:
-        """One sentence a user can act on."""
+        """Return one sentence stating how the tiles were placed."""
         if self.how == "single":
             return "One tile; nothing to stitch."
         if self.how == "stage":
@@ -153,9 +149,9 @@ class Mosaic:
 def grid_shape(count: int) -> Tuple[int, int]:
     """``(rows, cols)`` for ``count`` tiles, as square as it can be.
 
-    THE SHAPE IS A GUESS AND THE ORDER IS NOT. A 6-tile field is 2x3 or 3x2
-    and nothing in a tile index says which, so the squarest grid is taken and
-    both arrangements are then scored against the pixels -- a 3x2 read as 2x3
+    The shape is a guess; the order is tested. A 6-tile field is 2x3 or 3x2 and
+    nothing in a tile index says which, so the squarest grid is taken and both
+    arrangements are then scored against the pixels -- a 3x2 read as 2x3
     correlates badly, which is how the wrong one is found.
 
     :param count: number of tiles in the field; zero or less gives ``(0, 0)``,
@@ -198,11 +194,11 @@ def arrangement_of(index: int, rows: int, cols: int,
 
 
 def read_stage_positions(paths: Sequence) -> Optional[List[Tuple[float, float]]]:
-    """``(y, x)`` in PIXELS for each path, or None when any file lacks them.
+    """``(y, x)`` in pixels for each path, or None when any file lacks them.
 
-    ALL OR NOTHING, deliberately. Half a mosaic placed from stage coordinates
-    and half from correlation is two coordinate systems in one image, and the
-    join between them is exactly where nothing checks.
+    All or nothing: half a mosaic placed from stage coordinates and half from
+    correlation would mix two coordinate systems in one image, with no check at
+    the boundary between them.
 
     Returns None rather than raising for a file that cannot be read: a
     missing position is the ordinary case, not an error, and the caller has
@@ -449,7 +445,7 @@ def _read_tiles(paths: Sequence):
 
 
 def plan_mosaic(paths: Sequence, tiles: Optional[Sequence] = None) -> Optional[Mosaic]:
-    """Work out where each tile of one field goes. Reads; writes nothing.
+    """Plan where each tile of one field goes, without writing anything.
 
     :param paths: the tile images, in tile order.
     :param tiles: the tile indices, for the record. Defaults to 1..n.
@@ -614,11 +610,11 @@ def stitch_tiles(paths: Sequence, tiles: Optional[Sequence] = None,
                  mosaic: Optional[Mosaic] = None):
     """The tiles of one field, assembled into one array.
 
-    OVERLAPS ARE AVERAGED, not overwritten. Where two tiles cover the same
+    Overlaps are averaged, not overwritten. Where two tiles cover the same
     pixel they are two measurements of it, and taking the last one writes a
-    visible step at every seam that a segmenter reads as an edge. Averaging
-    also keeps the join honest when the placement is slightly off: the seam
-    blurs rather than doubling a structure.
+    visible step at every seam that a segmenter reads as an edge. When the
+    placement is slightly off, averaging blurs the seam rather than doubling a
+    structure.
 
     :param paths: the tile images, in tile order.
     :param tiles: the tile indices, for the record.

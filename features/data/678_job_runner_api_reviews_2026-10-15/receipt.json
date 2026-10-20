@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "e8d45689ab5",
+    "35aa6c146f3"
+  ],
+  "published_base": "de8394c0606e7f23266d73a829666497330bd05b",
+  "normal_collector": "Nine normal targeted rendered bodies/seventeen changed or new blocks match source-owner ledgers and published before bodies. Exact owned source-file hashes verified. Unrelated published English preserved without claiming its global source currency. No full collector replay.",
+  "review_count": 153,
+  "source_docs_sha256": {
+    "spacr.qt.job_runner": "ef279b22872ef65edf0387969c89ca9dba19ecc717bfa5727e00509fe99d65af",
+    "spacr.qt.job_runner.shutdown_all": "d370dad5b5a783bca409e24001d83745abf282841e4f0b4b9e9c742ba75156c6",
+    "spacr.qt.job_runner.JobRunner": "6e5f679c082897d95cb6376dc3948c809ece12d9de1ba17932d35ad8b73c288b",
+    "spacr.qt.job_runner.JobRunner.submit": "97f0e63400fd95006431fc04c4ea7d7587ff52d9e3cbb9178f42dcb3247783eb",
+    "spacr.qt.job_runner.JobRunner.is_busy": "d44c1fd351b00059fe72a830f20b2a48604cd4f49afc6ffc54c3aa643dbd0202",
+    "spacr.qt.job_runner.JobRunner.active_jobs": "d9dade8b109f8c2925c6e84b31b312d13a2d9978424cee210ca6f2cc3263c3a6",
+    "spacr.qt.job_runner.JobRunner.pending_jobs": "155165745521820a53d42ebbe71c416fdda03348dbba8e835c67e23eed98d193",
+    "spacr.qt.job_runner.JobRunner.cancel": "f7a0bdc5abb5129e7fbf51833ad4084665d294f8d4b19a8df9a18a9e3cc26b5e",
+    "spacr.qt.job_runner.JobRunner.shutdown": "c96601558323f911ac19bebf17e41546c66554ebe2c6d143ae4aecc5c5818928"
+  },
+  "source_and_context_gates": "PASS all 153 source checks, 153 context checks and153 actual inline parser checks; normal reviewed_api_block_translations passes for nine complete selected document sets.",
+  "retired_review_rows": [
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-08-14-tail-275-299.json",
+      "record_index": 14,
+      "label": "spacr.qt.job_runner#6",
+      "source": "The completion handler must run for **every** job, including one whose result is no longer wanted, or the bookkeeping leaks and the screen is permanently \"busy\". Whether the *result* is used is a separate decision, taken from the generation counter -- see :meth:`cancel`.",
+      "source_sha256": "488c10c66e8c94acde0054ae4de4358f57d83b0371189aab491d3927ffb3c9f8"
+    }
+  ],
+  "unrelated_review_rows": "Exact preservation asserted. Retired source/translation content retained.",
+  "scope": "Review inputs; normal catalog generation separate.",
+  "review_claim": "AI technical review; independent peer review requested, no native-speaker claim."
+}

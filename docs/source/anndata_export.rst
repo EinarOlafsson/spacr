@@ -76,5 +76,6 @@ Follow the video
 The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through
 these controls using the downloadable measurement example. It shows joined,
 cell-only and nucleus-only exports and compares the missing-value policies.
-The normal exporter handles entirely missing metadata directly. If writing a
+Object metadata columns that are entirely missing are stored as empty
+categorical columns in ``obs``; no placeholder value is written. If writing a
 replacement fails, an existing completed output is preserved.

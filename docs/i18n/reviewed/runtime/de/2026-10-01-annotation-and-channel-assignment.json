@@ -96,13 +96,6 @@
       "source": "Apply conditions",
       "source_sha256": "504783ac0c3e4c6e2eee46c4b0d745e71fbb3f62dcc85418c3e62c67ef5370f4",
       "translation": "Bedingungen anwenden"
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "Dadurch wird spaCR in seiner aktuellen Umgebung neu installiert. spaCR wird geschlossen, bevor die Aktualisierung beginnt. Nach erfolgreicher Aktualisierung wird es automatisch wieder geöffnet."
     }
   ],
   "retired_records": [

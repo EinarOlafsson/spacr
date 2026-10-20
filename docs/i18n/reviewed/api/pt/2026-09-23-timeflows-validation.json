@@ -324,7 +324,9 @@
       "label": "spacr.timeflows_model.train_timeflows#1",
       "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
-      "translation": "Treinamento em duas etapas: a segmentação da rede base já foi aprendida, então ela fica congelada enquanto a nova cabeça aprende; depois, toda a rede é treinada com uma taxa de aprendizado baixa. Ambos os quadros de cada par recebem os mesmos aumentos de dados antes do cálculo dos alvos."
+      "translation": "Treinamento em duas etapas: a segmentação da rede base já foi aprendida, então ela fica congelada enquanto a nova cabeça aprende; depois, toda a rede é treinada com uma taxa de aprendizado baixa. Ambos os quadros de cada par recebem os mesmos aumentos de dados antes do cálculo dos alvos.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",

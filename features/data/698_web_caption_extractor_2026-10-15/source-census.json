@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "web_source_commit": "6691ddc61b3fc74a704c72e496b7832268c0a4ea",
+  "web_source_sha256": {
+    "tools/web_mask_generator/app.py": "b283fa4ebe2cc53e3528a27663368b5012008f5ec1ab3bd0f073468ab8d2b580",
+    "tools/web_mask_generator/detector.py": "9b1321aff80e9e8883380bdf22e9b7b02c4bcce9d1740a6140ddecb2f343a6e3",
+    "tools/web_mask_generator/examples.py": "bde92452ea75ba7a054132c4244419976e44e42f236a5682aa59fcecd92f8eab",
+    "tools/web_mask_generator/inputs.py": "6429eb33aa772290ccb260330dad94746fec7ec2d376d604ef06eac00767596f",
+    "tools/web_mask_generator/masks.py": "c1f1ddf533119004b06080b126820c07e8cee8e8ecc8079ce80bba5b2e47e8f0",
+    "tools/web_mask_generator/plaque.py": "c8b4d53d519a49a302bb7514ac57a668eb68ef6266b0450e584d630323be7bb9",
+    "tools/web_mask_generator/registry.py": "6272ea7d986979d93a5b9acfd28b60ce2a9cb3cabe02503f79f014e706535ce9",
+    "tools/web_mask_generator/results.py": "02291991b5a1c6d5e01d03e0c8dd656c5f229188a295e5e881daf9249e9466fc",
+    "tools/web_mask_generator/run.py": "eb61644fdeab7611c4b796cf09f89793bf86f32b376001974f3886fe02591062",
+    "tools/web_mask_generator/service.py": "c85c21338da4f6ce28254000d55b6e0209a1b1a3a34051feb0924f1567c270a5"
+  },
+  "literal_tr_calls": 185,
+  "literal_unique": 175,
+  "family_label_values": {
+    "toxoplasma_pv": "Parasite vacuoles",
+    "toxoplasma_plaque": "Plaques",
+    "toxoplasma_well_detector": "Plaque wells",
+    "cell_from_hoechst": "Cells from Hoechst",
+    "nuclei_from_cellmask": "Nuclei from cell images",
+    "toxoplasma_from_cellmask": "Vacuoles from cell images",
+    "toxoplasma_from_hoechst": "Vacuoles from Hoechst",
+    "live_cell": "Live cells"
+  },
+  "total_owned_unique": 183,
+  "matches_independent_literal_call_and_family_value_census": true,
+  "already_generated_sources": [
+    "Flow threshold",
+    "Image channel",
+    "Magnification",
+    "Plaques",
+    "Remove background"
+  ],
+  "new_against_existing_english_UI": 178,
+  "new_family_captions": [
+    "Cells from Hoechst",
+    "Live cells",
+    "Nuclei from cell images",
+    "Parasite vacuoles",
+    "Plaque wells",
+    "Vacuoles from Hoechst",
+    "Vacuoles from cell images"
+  ],
+  "normalizations": [
+    {
+      "path": "tools/web_mask_generator/detector.py",
+      "line": 71,
+      "raw_source": "spaCR well detection result (research use only).\nThe original upload, selected image and actual boxes/confidences are included.\nBounding-box areas/centres describe rectangles, not segmented well pixels.\nDiameter and axis ratio use the desktop Well geometry. No physical scale is assumed.\nMasks, flows and per-pixel cell probabilities are unavailable for this detector.\nModel identity, settings, unavailable-output reasons and file hashes are in manifest.json.\n",
+      "raw_sha256": "4c8321be3389acb96986f110dc90f3f41b498e0166ae6135071fd88a8b41e279",
+      "canonical_source": "spaCR well detection result (research use only).\nThe original upload, selected image and actual boxes/confidences are included.\nBounding-box areas/centres describe rectangles, not segmented well pixels.\nDiameter and axis ratio use the desktop Well geometry. No physical scale is assumed.\nMasks, flows and per-pixel cell probabilities are unavailable for this detector.\nModel identity, settings, unavailable-output reasons and file hashes are in manifest.json.",
+      "canonical_sha256": "ef4dc9babd07d6843c599c50900e860c22248bc945a00d543886101de04c1c63"
+    },
+    {
+      "path": "tools/web_mask_generator/results.py",
+      "line": 174,
+      "raw_source": "spaCR web mask result (research use only)\nModel: {id}; version: {version}; spaCR: {spacr}\nSelected image: image.tif; labels: mask.tif; objects: objects.csv.\nThe input/ folder preserves the uploaded bytes.\nMeasurements use pixels, zero-based centroid coordinates and the selected image intensities.\nflows.npy stores actual backend Y/X vector components when available.\ncell_probability.npy stores actual backend scores when available.\nRaw logits are not calibrated probabilities; no calibration is claimed.\nMissing backend outputs are omitted, with reasons in manifest.json.\nExact model weights SHA-256, settings and file hashes are in manifest.json.\n",
+      "raw_sha256": "75c7d7309450069617f6192de0b681a711b4388fb3f786ae8420fa05b36a20cf",
+      "canonical_source": "spaCR web mask result (research use only)\nModel: {id}; version: {version}; spaCR: {spacr}\nSelected image: image.tif; labels: mask.tif; objects: objects.csv.\nThe input/ folder preserves the uploaded bytes.\nMeasurements use pixels, zero-based centroid coordinates and the selected image intensities.\nflows.npy stores actual backend Y/X vector components when available.\ncell_probability.npy stores actual backend scores when available.\nRaw logits are not calibrated probabilities; no calibration is claimed.\nMissing backend outputs are omitted, with reasons in manifest.json.\nExact model weights SHA-256, settings and file hashes are in manifest.json.",
+      "canonical_sha256": "d4df8baa9dae7fb1bc08ea5ffca8338441a559f408030a970ce801dbadf0e946"
+    }
+  ],
+  "normalization_contract": "Matches existing extractor source.strip(); spacr.qt.i18n._exact_translation resolves the stripped key and restores leading/trailing whitespace. Review inputs must bind to the canonical_source/hash shown here.",
+  "markdown_heading_preserved": true,
+  "family_identifiers_excluded": true,
+  "web_and_gradio_modules_not_imported": true,
+  "english_catalog_sha256_at_census": "9e0c0940fe91f5385d1b3bf45e003c5af19e8093cc90466d047e2938829e87a4",
+  "qualification": "Measured against the pinned English catalog before new-source generation; the count is evidence, not a source-arrival ceiling or a translation review claim."
+}

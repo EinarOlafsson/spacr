@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "preparation_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/preparation-manifest.json",
+    "bytes": 6022,
+    "sha256": "98139420d3cd86f9225220fc3b9de3172e83634e7ace3aeb3cdd758c7d2d5c41"
+  },
+  "prior_r2_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-r2-independent-source-peer.json",
+    "bytes": 4307,
+    "sha256": "25aa9fd95fbc7688ec8e5b40113f75bf053f79c1368df7e1317f9fe60f12fafe"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/USAGE.txt",
+      "bytes": 4144,
+      "sha256": "5beb0b2791cef1e27041b6933eebd92cc8f85d0b14820882f422e2f9b04fdde0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/capture_driver.py",
+      "bytes": 25527,
+      "sha256": "55ad70eeddb49d62204d60410f6fc058a82df49edf025ceab5ebe3cc9d4606b8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/capture_job.py",
+      "bytes": 5716,
+      "sha256": "d231ee814e4e469b4f818942724e124adc2eceb0319cb13500058fd5c935e7ad"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/captured-live-pre-apply-prefix.py.txt",
+      "bytes": 6481,
+      "sha256": "8316d8ba61d0518e7e7cadcbec28bd6d316fc49dc554bde75ade1750c84c280d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/captured-prefix-source.json",
+      "bytes": 1385,
+      "sha256": "7562093a450d0274d7371c7e9e48e922bcd3808d0f931110a493fc41bd6a9225"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/native_once.sh",
+      "bytes": 327,
+      "sha256": "a5405501f3a19da5159d6491e94dc0876aadbb7470d3a6eb355a1b297bc8669e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/run.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/run_with_lease.sh",
+      "bytes": 3291,
+      "sha256": "1736e181f461832d0cafd9f15ebf1f08c67af348d9a247fee9c68aab4c8e1f71"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/worker-apply-capture-r3/supervise_once.py",
+      "bytes": 5720,
+      "sha256": "d87894268a1a2c1815ca8bdacb054ff366012db98f9f0a0e117016581a5ac5dc"
+    }
+  ],
+  "findings": [
+    "Only input change is bounded two-second GUI readiness polling before click, requiring visible/enabled and unchanged strict static reachable; current global point must remain stable40ms before genuine HumanProcess.click_at.",
+    "Normal GUI queued read-only queries and worker sleeps; no EventPump/force/show/trigger/synthetic Qt input or hit-test bypass.",
+    "Timeouts/persistent failure emit fixed classification and visibility/enabled/viewport Booleans without raw reason/point/titles/private values.",
+    "Four execution wrappers identical after uniqueR3 source/stage substitutions; fresh stage absent; all source/profile/deadline/sampler/strict gate/postprocess protections unchanged.",
+    "R2 failure was first menubar click, not popup selection; no exact occlusion cause asserted."
+  ],
+  "validation": "Source/hash/AST/bash-n only; no tests/app/native/GPU runtime.",
+  "limitations": [
+    "Readiness and capture success remain unobserved; this is a recorder comparison, not a product fix or causal proof."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

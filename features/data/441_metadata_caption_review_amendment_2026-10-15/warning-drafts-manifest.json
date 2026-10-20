@@ -1,0 +1,53 @@
+{
+  "status": "PRIVATE_DRAFTS_FOR_ROOT_INDEPENDENT_PEER",
+  "source": "This convention is provisional. Check its example and test your folder before running.",
+  "source_sha256": "8a5788b36e4014721e161f6fa4804f1c6263cf4d06bad462e23a08162b2a3ea0",
+  "languages": {
+    "sv": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/sv.json",
+      "file_sha256": "823893db3d88e25645f20050b6b59d1fa06f5fa05bb65fc8bf9be7b04f08952d",
+      "target_sha256": "3df30375104d6b240ea5c314d1171e3bff209250688ee2dd793c8b949524b0b4"
+    },
+    "de": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/de.json",
+      "file_sha256": "55b1e806c65d4ceffcc47d67445c2dc5d3b8bb0d0e178bb3f9b8e7566a19ab65",
+      "target_sha256": "f96fa5e658056502273da29ae13c523f2813822973e15fac51c08d58e950c096"
+    },
+    "es": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/es.json",
+      "file_sha256": "3cdd63b0452b0d315aa9bf09a679bbd8b87c57a2b45b1b14e46685c30736f2d5",
+      "target_sha256": "1a455b2725a621bfb9161d47b0121518ee9fe69aa6be63593beb96cbfbd87bca"
+    },
+    "zh_CN": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/zh_CN.json",
+      "file_sha256": "6fec19089dc8814b98beb4a31889aa6fcf2d074134c8d8e3ed212974b75beb86",
+      "target_sha256": "75ecfbfe7780368fa2b98cb9f28bfb687278f99d75aa98c2f36f204378f95f8c"
+    },
+    "fr": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/fr.json",
+      "file_sha256": "2e7f464b2b31cc4834f1aa8bc3e7aeb044d9700a5f58d3f38ed8e025e541b199",
+      "target_sha256": "f953546a7abaa23f1659d45538e18ec294c1b8666c558ce7eca00629411abbd5"
+    },
+    "pt": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/pt.json",
+      "file_sha256": "4d2ab75bcd145003fd1533e3fa1544b757bd1af92d56c021538355b1b26e338f",
+      "target_sha256": "ba11fbb97fe023452d9db98e8d3d7cee704d2fb1ddc0ac15f6c50357ee2f9d24"
+    },
+    "hi": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/hi.json",
+      "file_sha256": "ee0008277e544f06dcbcbfaad31fab3a039f7f726742682b45fd7f9d4dc54ff4",
+      "target_sha256": "6b970847e25f57ac82466afe98e5e198d3c11a18be8fb453fe1520fab4026360"
+    },
+    "ko": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/ko.json",
+      "file_sha256": "a8d33e5d1ecc23b0b0656c2d8548411554a9dedf79668df5ca0053a2f8b088f5",
+      "target_sha256": "52faefe9a397476634fa7791ced5879ecd41a070460b5f53e2b83f0f7236866f"
+    },
+    "is": {
+      "path": "/mnt/wd4tb/scratch/n441-caption-corrections-20261015/warning-drafts/is.json",
+      "file_sha256": "ec315f0418c86720933e24fb79bbe9de1b98e23f30449eaa22bccfda30bf4961",
+      "target_sha256": "ec0fb9e1af479c3b81ba246e2133b1bcd14dd4e57f97670ecfa427caab69a10b"
+    }
+  },
+  "records": 9
+}

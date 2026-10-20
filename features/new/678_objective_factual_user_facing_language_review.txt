@@ -70,3 +70,266 @@ Queued as the final task, as explicitly requested. The three existing agents
 continue their current completion work. Newly authored material should
 already follow this factual style, avoiding a second narration rewrite.
 This is a recorded plan, not a claim that the full text review is complete.
+
+2026-10-11 Home share (API docstrings, setting tooltips, spacr/qt UI):
+Split agreed with the workstation. Ledger files a7-a12 appended to
+features/data/678_factual_review_2026-10-10/ in the a1-a6 record format;
+each change keeps its before/after text, kind and code evidence.
+Units read / changed per surface:
+  setting tooltips      954 literals / 18; templates 3 families (35,058
+                        generated keys) / 0; 5 module tooltips and
+                        descriptions (illumination, OPS) changed  a7, a8
+  settings.py docstrings 293 blocks / 26                          a7
+  API docstrings, spacr/ outside qt  25,645 blocks / 2,564        a8-a11
+  spacr/qt docstrings   17,950 blocks / 1,688                     a12
+  spacr/qt app UI strings 6,706 inventoried strings / 92          a12
+Not reviewed: 63 qt files excluded for scope (Make Masks, curation,
+Gate Editor, themes/animations, shortcuts, figure export, generated
+indexes, i18n catalogs) or activity within 12 h; listed by name in the
+Home scratch inventory, and the out-of-scope text found is listed in each
+ledger's out_of_scope_skipped. Factual corrections are tagged
+factual-error in the ledgers (e.g. resnet_features raises
+NotImplementedError; baseline.apply returns the input unchanged when
+nothing moves; sim.run_simulation returns (output, dists)).
+English sources regenerated with their tools only. Reviewed API and
+runtime translations of the rewritten text are now stale and are left
+for the workstation's translation pass; a12 lists the changed English
+keys of hand-translated UI rows. This is the Home share only; docs,
+guides and narration remain with the workstation.
+
+2026-10-15 — Home-B bounded loading/preferences/theme follow-up.
+Reviewed 23 selected source docstrings against current implementation: 17
+retained, six revised. Corrected the loading module's obsolete claim that
+pipeline imports must run on the GUI thread, its unconditional preload
+lifetime, three stale Startup animation navigation descriptions, and the
+focus-ring description's universal one-pixel claim. The eager preloader
+uses a worker and GUI timer; ordinary startup defaults to on-demand imports.
+No visible caption, signature, runtime or scientific behavior changed: the
+three complete executable ASTs match after removing docstrings. Normal API
+source extraction and nine-locale paragraph review remain with the shared
+API lane. This does not complete N678 or claim review of every paragraph in
+these files. Source-bound before/after/retained ledger:
+features/data/678_loading_preferences_theme_2026-10-15/receipt.json.
+
+2026-10-15 — Bounded shortcuts prose review, separate from N197 captions.
+Read all 1,739 pre-change shortcuts.py lines and actual screen/window callers.
+Of 72 docstrings, 15 had factual scope/default/action corrections and 57 were
+retained: window versus screen context, registry-index navigation, undo
+grouping, saved key handling, overlay discovery/dismissal and fallback help.
+The executable AST is identical to the separate N197 caption-only delivery.
+This is owned source preparation; normal English API refresh and nine-locale
+paragraph review remain pending with the shared writer. It does not complete
+N678's final broad pass or claim native-platform acceptance. Source-bound
+ledger: features/data/678_shortcuts_prose_2026-10-15/receipt.json.
+
+2026-10-15 — Published bounded API review batches
+The loading/preferences/theme and figure-queue/montage source corrections
+now have117 independently reviewed targets and normal nine-locale catalogs.
+The export dialog/settings corrections have54 reviewed targets. Picture
+export and shortcut prose now have270 reviewed targets in public348c63b842a,
+including four peer-requested Spanish/Swedish corrections and eight precise
+legacy constructor repairs. All13,394 unrelated API records per locale were
+preserved in the latter batch; both source executable ASTs are unchanged.
+Evidence: features/data/678_picture_shortcut_catalogs_2026-10-15/,
+678_shortcuts_independent_api_review_2026-10-15/ and
+678_picture_export_api_peer_review_2026-10-15/. These notes supersede pending
+translation statements for these exact scopes only; the broad text review,
+tutorial ownership and other acceptance gates remain open.
+2026-10-15 — Bounded Image UMAP tier and editor documentation repair.
+The rerun tier contains clustering, view-layout and output options as well as
+embedding parameters. Corrected the existing module/class prose and one visible
+caption so they no longer claim every such edit changes all point coordinates.
+The caption now identifies the optional Propagate settings action that copies
+values into the module; merely editing this tier does not update the figure.
+Field.kind now includes the implemented int_or_none editor/parser contract.
+Removed the inaccurate duplicate TIER_RERUN comment without introducing a new
+API symbol. Executable AST is unchanged outside the caption and its tr import.
+Four changed rendered blocks in three existing API symbols need the normal
+API review/generation batch. One literal-tr caption needs nine locale runtime
+inputs and the normal writer; no obsolete exact runtime review row exists.
+Evidence: features/data/678_umap_figure_settings_prose_2026-10-15/receipt.json.
+This bounded repair does not complete N678 or claim native-platform acceptance.
+
+2026-10-15 — Image UMAP bounded source/derived-artifact batch complete
+The preceding UMAP source correction now has36 exact API targets and9runtime
+caption targets, all independently technically reviewed and normally generated.
+The sole peer-found Swedish feature-filter/quantifier wording was corrected
+before final API generation. All13,401 unrelated API records per locale and
+10,574 unrelated runtime entries per locale are preserved. Root readback
+proves exactly one UI source/hash addition per runtime catalog and all other
+assignments unchanged. Normal immutable arrival refresh reports892added,
+29changed,150retired; all9,833 baseline identities and hashes remain exact.
+Evidence: features/data/678_umap_runtime_catalogs_2026-10-15/,
+678_umap_api_catalogs_2026-10-15/ and678_umap_api_peer_review_2026-10-15/.
+This closes this source/API/caption scope, not the entire N678 review.
+2026-10-15 — Bounded plate-map coordinate documentation repair.
+Corrected four row/column parameter descriptions in PlateMapPicker.begin_drag
+and its private well constructor: coordinates are one-based, matching grid
+construction, drag anchors, selection methods and well labels. Nine selected
+coordinate-contract docstrings are recorded: two revised, seven retained.
+The complete executable AST is identical; no caption, key, signature or
+selection behavior changed. Two existing public API blocks require the normal
+nine-locale review and catalog batch; the private constructor adds no API
+symbol. No runtime test replay or whole N678 completion is claimed.
+Evidence: features/data/678_plate_map_coordinate_prose_2026-10-15/receipt.json.
+
+2026-10-15 — Bounded volume camera near-pole documentation repair.
+Documented angles_from_axes output degrees and its existing near-pole
+approximation: after normalizing the viewing axis, abs(w[2]) > 1.0 - 1e-9
+returns elevation +/-89.9999 degrees and zero roll, with azimuth from the
+screen-right vector. This is deliberately not an exact pole roundtrip.
+One of four reviewed public function docstrings changed; three were retained.
+The complete executable AST is unchanged, with no arithmetic/test replay.
+Two existing API blocks await the normal nine-locale review/catalog batch.
+Evidence: features/data/678_volume_camera_prose_2026-10-15/receipt.json.
+This bounded contract clarification does not complete the full N678 review.
+
+2026-10-15 — Bounded training-monitor lifecycle documentation repair.
+TrainingMonitor creates its three plot widgets during construction, while
+metric curves are added when their series first appears. Its class paragraph
+now states this distinction and that clear removes curves and stored points
+while retaining the plot widgets and dictionary objects. One selected class
+docstring changed; five public constructor/method docstrings were retained.
+The complete executable AST is unchanged. No training, plotting, caption or
+method behavior changed, and no runtime tests were repeated for this prose.
+One existing API block awaits normal nine-locale review/catalog generation.
+Evidence: features/data/678_training_monitor_prose_2026-10-15/receipt.json.
+This bounded lifecycle clarification does not complete the full N678 review.
+
+2026-10-15 — Published camera/layout and training/sorting derived artifacts
+The camera near-pole approximation and existing column-layout reuse corrections
+have36 independently reviewed targets, normal scoped generation and exact
+unrelated-record preservation. The training lifecycle and sorting contracts
+have27 independently reviewed targets; the German singleton wording was
+corrected before final approval. Root integration verifies all63 targets in
+five symbols, allpeer source/review hashes, unchanged executable ASTs and
+13,399 unrelated locale records (13,473 English) retained exactly.
+The guarded metadata-only27-target writer measured22.72s/582256KiB with zero
+full-canonical requests or model decoding. This closes these bounded batches,
+not whole N678. Evidence:678_volume_column_api_catalogs_2026-10-15/ and
+678_training_sorting_api_catalogs_2026-10-15/ underfeatures/data/.
+
+2026-10-15 — Stored section title documentation closure
+The CollapsibleSection.title getter description now states the constructor's
+stored str value, independently of later header text changes. All 18 changed
+API translation targets passed independent technical review and normal scoped
+generation. Coordinator readback verifies every peer binding, exact owned
+records in all ten catalogs, unchanged unrelated records and executable AST.
+Evidence: features/data/678_collapsible_title_api_catalogs_2026-10-15/.
+No widget behavior, caption or signature changed; broad N678 remains open.
+
+2026-10-15 — File pairing and plate-map bounded documentation delivery
+The pairing fallback, database attachment/drop routing and one-based plate-map
+coordinate descriptions now have 54 independently reviewed API targets across
+nine locales, normally generated. Root readback verified the four exact owned
+symbols and 13,400 unrelated records per translated catalog unchanged. The
+single database-fallback caption has nine reviewed runtime translations and
+actual translation lookup checks. Normal post-merge arrival regeneration kept
+the immutable 9,833-entry baseline exactly; derived deltas are 894 additions,
+29 changed bodies and 150 retirements. No pairing algorithm changed.
+Evidence: features/data/678_file_plate_api_catalogs_2026-10-15/ and
+features/data/678_file_pair_runtime_catalogs_2026-10-15/. This closes the bounded
+batch, not the complete N678 review. Original Home owns the separate N641
+FilePathListWidget asynchronous-drop implementation; our paired-table helpers
+and the plate-map scope remain separate.
+
+2026-10-15 — Memory-budget and laptop-mode factual review completed.
+Corrected eviction ordering, available-memory units/measurement failures,
+caller-owned headroom handling, laptop decision diagnostics and process-only
+backdrop suppression semantics. Executable ASTs remain identical. All261
+changed prose translation targets passed independent technical review; nine
+unchanged literal-schema targets gained exact reviewed provenance without
+changing bytes. Normal writer46.65s, no model decoding, all unrelated API
+records preserved. Final coordinator verifies all15 owned symbols across this,
+DINO and carried-database batches against normal artifacts and all unrelated
+incoming records, including N641. Evidence:678_memory_laptop_api_catalogs and
+peer directories dated2026-10-15 underfeatures/data/. Broad N678 remains open.
+
+2026-10-15 — Row-exclusion and registration-stage factual prose completed.
+Row-exclusion path, asynchronous validation and lifecycle contracts now match
+their implementation;72 translated blocks have exact technical peer review.
+The registration-stage parameter now distinguishes the initial stable fallback
+from maturity.apply assigning unassessed apps alpha; explicit stable entries
+remain stable. Nine changed translation targets have exact reviewed provenance.
+Both changes preserve executable ASTs and comments. Normal scoped API writers
+and the combined coordinator readback retain every unrelated incoming record.
+Evidence is in678_row_exclusion_api_catalogs,678_register_stage_api_catalogs
+and related prose/review directories dated2026-10-15 underfeatures/data/.
+No plugin stage policy or runtime caption changes; broad N678 remains open.
+
+2026-10-15 — JobRunner factual lifecycle scope completed.
+Cancellation/inline/shutdown prose and172 exact translated blocks match actual
+behavior and pass independent technical review plus normal generation. Code and
+comments remain unchanged; no native-speaker or whole-language coverage claim.
+The N112 trailing note and678_job_runner_api_catalogs_2026-10-15 evidence record
+normal refusals, exact historical repairs and final preservation checks.
+
+2026-10-15 — Path-probe wait/cache documentation and derived artifacts
+The module and exists/isdir/forget/prime descriptions now match bounded waits,
+cache fallbacks and pending-probe completion. Executable AST/comments are
+unchanged. Independently reviewed99 changed targets plus one retained English
+Icelandic paragraph pass normal generation across nine locales. Genuine normal
+context/identity refusals are preserved; successful capped fallback uses one
+canonical snapshot plus fresh equality recheck,669 stable source hashes and
+zero decoding. All unrelated13405 translated records and13479 English entries
+are preserved; source history stays exact. Normal Help regeneration passes.
+Evidence:features/data/678_path_probe_api_catalogs_2026-10-15/ and
+features/data/678_path_probe_coordinator_review_2026-10-15/. This closes only
+these five symbols, not the wider semantic review or final CI/release gates.
+
+2026-10-15 — Registered-job and spinner-timer documentation corrected
+Four existing symbols now distinguish registered handles from running threads,
+state registration/retirement timing, document user_visible, and distinguish the
+animation timer from an active appearance delay. Executable AST/comments stay
+unchanged. All source and target reviews are bound to exact hashes. Normal
+generation passes18.30s without canonical collection or decoding:54 changed/new
+targets,16 byte-preserved shifted targets and two proven Hindi/Icelandic return
+repairs. Nine obsolete active review rows retire with exact provenance. Every
+unrelated locale/English entry and source history is preserved. Normal Help
+regeneration passes; precisely two summaries change, all unrelated API summaries
+are exact. Evidence:features/data/678_bridge_spinner_api_catalogs_2026-10-15/
+and features/data/678_bridge_spinner_coordinator_review_2026-10-15/. This closes
+these four contracts, not the wider semantic sweep or final CI/release.
+
+2026-10-15 — Current features guide and all nine language catalogs reconciled
+The normal full features-domain gettext update/import now covers13 source
+messages in nine locales:117 technically reviewed targets. Four paragraphs
+were corrected against actual controls, covering five stale claims about the
+startup preference path, overlap selection, response diagnostics and export
+availability. The AI/Live paragraph documents keyboard activation and the
+observed screen-reader keypad interception fallback. Existing current-source
+arrivals are translated; the shorter obsolete Make Masks paragraph is retired
+with provenance. All117 compiled gettext lookups pass;1422 unrelated message
+records and297 other-domain PO files remain unchanged. Source/prose peer and
+independent target peer are required before publication. No full translated
+HTML, hosted, native-speaker or tutorial acceptance is claimed.
+Evidence:data/655_678_features_guide_inputs_2026-10-15/ and
+data/655_678_features_guide_catalogs_2026-10-15/.
+
+2026-10-17 — Home app runtime English pass (maintainer split: Home owns app text).
+Rewrote 59 runtime strings as factual descriptions: settings-group help, preference,
+sound and fractal tooltips, night-theme and palette notes, drift options, diameter,
+figure text-size and Embeddings intro; nine-locale reviewed records added, 171
+superseded records archived. WS still owns docs, API docstrings and tutorials.
+
+2026-10-17 — Home docs/source prose share (from WS). "Pixels to answers" slogan already absent. Rewrote 17
+paragraphs in features, index, host_pathogen, plaque_assay, installer_guide, model_zoo, model_explanation,
+table_workflows, settings_flow, setting_animations (generator): slogan variant, metaphors, request quote, stale
+Home → Assays path, version-stale tag prose; added missing Edit Label tool; regenerated settings-flow page.
+Nine-locale AI-reviewed guide catalogs, no native signoff. workflows.rst (tutorial-fed) and README unchanged.
+
+2026-10-17 — Home API docstring prose pass. Scanned all 13,609 public API symbols for
+promotional, chatty, metaphorical and first/second-person wording; 51 docstrings (54 blocks)
+rewritten as factual descriptions, with io/power_model contracts checked against the code.
+Nine-locale reviewed records in 2026-10-17-678-api-prose.json; 87 superseded records retired
+and archived. Includes the stale plaque_model_choices entry. Tutorials remain with their lane.
+
+2026-10-17 — Home terminology pass (runtime + API translations, not tutorials). ~16.5k rows
+in nine locales had domain terms in the wrong sense (stain as smudge, well as "bien", epoch
+as era, seed as plant seed, label as Etikett...); fixed in reviewed records, new ones in
+2026-10-17-f678-terminology.json (AI technical review, no native-speaker signoff). Gates
+dye-stain-as-smudge + _REVIEWED_TERM_GATES (99 rules) block regressions. API MT prose still poor.
+
+2026-10-19 — API MT-prose pass on the most-viewed pages. No view analytics exist, so pages were ranked by in-app Help links (setting_api_targets) plus docs references; the top eight module pages (core, settings, psf_pipeline, object, validate, deep_spacr, submodules, io: 349 symbols, 1,553 translatable blocks) are now fully reviewed in all nine locales.
+New direct AI-reviewed records: de 1093, es 1123, fr 1101, hi 1095, is 806, ko 848, pt 1131, sv 1125, zh_CN 840 (2026-10-19-678-most-linked-api-pages.json, no native-speaker signoff). Whole-API reviewed coverage is now 32-46% of 46,370 blocks per locale.
+Remaining: the other API pages (next by rank: ml, hyperparam, utils, plot, seg_qc) are still machine-translated.

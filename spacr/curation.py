@@ -1,26 +1,20 @@
-"""``B12`` ``C7`` — correcting a mask and a track by hand, on the record.
+"""Manual correction of masks and tracks, recorded in a provenance ledger.
 
-Two jobs that had no answer at all, and one rule that binds them.
+The module provides two editors and one recording rule.
 
-**The masks are wrong in specific, obvious places.** Cellpose merges two
-touching cells, or clips a lobe, and until now the only remedies were to
-re-run segmentation with different parameters and hope, or to throw the field
-away. Painting the fix takes four seconds and there was no brush.
+**Mask correction.** Cellpose can merge two touching cells or clip a lobe.
+:class:`MaskCuration` paints corrections into the labels with a brush,
+instead of re-running segmentation or discarding the field.
 
-**btrack output is never perfect.** A track breaks when a cell divides or
-briefly leaves focus, and two tracks get swapped when cells touch. Timelapse
-analysis downstream is only as good as the tracks, and there was no way to
-join, split or delete one. That, more than the brush, is what has made
-timelapse unusable: a velocity computed over a track that is really two cells
-is not a noisy number, it is a wrong one.
+**Track correction.** A btrack track breaks when a cell divides or briefly
+leaves focus, and two tracks get swapped when cells touch. A velocity
+computed over a track that follows two cells is wrong, not merely noisy.
+:class:`TrackCuration` joins, splits and deletes tracks.
 
-**A corrected dataset must be distinguishable from a raw one.** This is the
-rule, and it is why this module exists rather than a couple of mutating
-helpers. A hand-edited mask that looks exactly like a segmented one is a
-reproducibility hole: six months later nobody can say which fields were
-touched, by whom, or what they looked like before — and a reviewer asking "did
-you edit the data?" gets an answer based on memory. So every correction here
-goes through :class:`CurationLog`: an append-only ledger, written beside the
+**A corrected dataset must be distinguishable from a raw one.** A hand-edited
+mask is otherwise indistinguishable from a segmented one, and it is later
+impossible to say which fields were edited, by whom, or what they looked like
+before. Every correction here therefore goes through :class:`CurationLog`: an append-only ledger, written beside the
 artefact it describes, recording what changed, when, and to what. Every
 correction made through the supported edit methods leaves an entry. The public
 layer and table objects remain accessible to views and advanced callers;
@@ -85,12 +79,11 @@ def _pandas():
 
 
 class CurationError(ValueError):
-    """A correction that cannot mean what it was asked to mean.
+    """Raised when a requested correction is invalid.
 
-    Raised rather than silently doing nothing. A "join" button that quietly
+    Raised rather than silently doing nothing. A "join" that silently
     declines when the two tracks overlap in time leaves the user believing
-    the join happened, and the ledger — which is the whole point — would then
-    disagree with the data.
+    the join happened, and the ledger would then disagree with the data.
     """
 
 
@@ -142,8 +135,7 @@ def log_path_for(artifact: Any) -> str:
 
 
 def is_curated(artifact: Any) -> bool:
-    """Whether ``artifact`` has been edited by hand — the question the rule
-    exists to answer.
+    """Whether ``artifact`` has been edited by hand, according to its ledger.
 
     ``True`` only when a ledger exists *and* holds at least one edit. An empty
     ledger left by a session that opened the brush and painted nothing is not
@@ -582,7 +574,7 @@ class MaskCuration:
 
         A stroke that changed nothing — the user pressed and released without
         moving, over pixels that already held the brush label — is not
-        recorded. A ledger padded with no-op entries is one nobody reads.
+        recorded, so the ledger holds no no-op entries.
         """
         edits = self._open or []
         self._open = None
@@ -648,7 +640,7 @@ class MaskCuration:
 
     def erase(self, world: Mapping[str, float],
               radius: Optional[float] = None) -> int:
-        """Paint background. The same act; named for what it is.
+        """Paint background (label 0); equivalent to :meth:`paint` with 0.
 
         :param world: the brush centre in world units, exactly as for
             :meth:`paint`.
@@ -734,15 +726,14 @@ class MaskCuration:
     def save_mask(self, artifact: Optional[Any] = None) -> str:
         """Write the corrected labels to disk, with the ledger beside them.
 
-        The pixels and the record are requested by one call, because either
-        one alone is a lie. They are two sequential filesystem writes, not an
+        The pixels and the record are written by one call, because either
+        one alone misrepresents the file. They are two sequential filesystem writes, not an
         atomic transaction; if a process stops between them, call this method
         again to bring the ledger back in step. A ledger written on its own
         asserts corrections to a file whose pixels are untouched, and
         :func:`is_curated` then reports that untouched file as hand-edited;
         labels written on their own are a curated mask that is
-        byte-indistinguishable from a segmented one, which is the hole this
-        module exists to close.
+        byte-indistinguishable from a segmented one.
 
         :param artifact: where the labels go; anything falsy — including the
             default ``None`` — means :attr:`artifact`. The extension chooses
@@ -773,7 +764,7 @@ class MaskCuration:
 
 
 class TrackCuration:
-    """Join, split and delete tracks by hand, on the record.
+    """Join, split and delete tracks by hand, recording each edit in a ledger.
 
     :param tracks: a track table — :data:`spacr.zstack.BASE_TRACK_COLUMNS`,
         i.e. ``frame``, ``track_id``, ``original_label`` and the centroid.
@@ -870,7 +861,7 @@ class TrackCuration:
         return int(top) + 1 if _pandas().notna(top) else 1
 
     def check(self) -> List[str]:
-        """Everything wrong with the table right now, as sentences.
+        """Return the table's current consistency violations as sentences.
 
         Empty for a consistent table. Returned rather than raised so a broken
         table can be shown to the user; the *operations* raise, because an
@@ -921,7 +912,7 @@ class TrackCuration:
             never moved or re-timed, and its id then no longer exists in the
             table. Nothing checks that the two halves are adjacent or even
             near each other in time — only that they do not overlap — so this
-            will happily join tracks fifty frames apart if you ask it to.
+            will join tracks fifty frames apart if asked to.
         :returns: the ledger entry.
         :raises CurationError: on an unknown track, joining a track to
             itself, or a time overlap.
@@ -957,7 +948,7 @@ class TrackCuration:
         :param track_id: the track to break. It keeps the frames before
             ``at_frame`` and keeps its id, so references to the head stay
             valid; the tail is what gets renamed.
-        :param at_frame: the first frame of the NEW track — rows at this
+        :param at_frame: the first frame of the new track — rows at this
             frame and after are re-assigned, rows before it are left alone.
             Compared with ``<`` and ``>=``, so it need not be a frame the
             track actually has; any value with rows on both sides of it
@@ -992,8 +983,8 @@ class TrackCuration:
         """Remove a track entirely — debris, or a tracker artefact.
 
         The rows go, but the ledger keeps what went: how many rows and which
-        frames, so a count that changed between two analyses can be explained
-        rather than argued about.
+        frames, so a count that changed between two analyses can be
+        explained.
 
         :param track_id: the track to drop. Every row carrying it goes, in
             every frame — there is no partial delete, so :meth:`split` the
@@ -1011,11 +1002,10 @@ class TrackCuration:
             frames=[_plain(f) for f in frames])
 
     def save(self, path: Any) -> str:
-        """Write the curated table AND its ledger. Returns the CSV path.
+        """Write the curated table and its ledger. Returns the CSV path.
 
-        One call, deliberately. A curated table written without its ledger is
-        exactly the reproducibility hole this module exists to close, and
-        leaving the second write to the caller is how that happens. The CSV
+        Both are written by one call because a curated table without its
+        ledger cannot be distinguished from an uncurated one. The CSV
         and ledger remain sequential filesystem writes rather than one atomic
         transaction; retry this method if a process stops between them.
 

@@ -168,8 +168,8 @@ application no longer claims they are.
 2026-08-13 (later) - THE GEOMETRY IS BUILT: CYLINDER AND PRISM
 --------------------------------------------------------------------------------
 
-Requested: 2026-08-13 - "for 49 and 52 take inspiration from starplast
-           (/mnt/firecuda2/Claude/repo/starplast)"
+Requested: 2026-08-13 - "for 49 and 52 take inspiration from parascape
+           (/mnt/firecuda2/Claude/repo/parascape)"
 
 Point 2 of this file asks for three tools -- circle to a CYLINDER, rectangle
 to a BOX, polygon to a PRISM. The box half already existed. The other two are

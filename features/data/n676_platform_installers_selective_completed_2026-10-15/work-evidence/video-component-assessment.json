@@ -1,0 +1,449 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "component": "video",
+  "decision": "TARGETED_REPAIR",
+  "repair_scenes": [
+    9,
+    10
+  ],
+  "keep_scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    11,
+    12,
+    13,
+    14
+  ],
+  "reviewed_utc": "2026-10-15T17:18:56.413833+00:00",
+  "root_head": "50da1bd9bfd59f9042019a1e20b602fcfae86c24",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/release-manifest.json",
+    "bytes": 1179996,
+    "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+  },
+  "canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/04_platform_installers.json",
+    "bytes": 5557,
+    "sha256": "ff2e2d9dbf8822fd76181c029df1edc25cb767167888ca9c425e51362b4fb1e7"
+  },
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host/04_platform_installers/video/04_platform_installers_silent.mp4",
+    "bytes": 57136200,
+    "sha256": "71fc4905d51039d5ccef673c0c7c6030f47c4b377ba670a899766d8b62a28e41"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/media_host/04_platform_installers/video/native-live-timings.json",
+    "bytes": 25791,
+    "sha256": "1d966853b48b82e6b6f0440e7a5936d70764d1edb82748ef1eee9de10ec79f63"
+  },
+  "source_spec": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/production/04_platform_installers/scenes.json",
+    "bytes": 144432,
+    "sha256": "f2aa93a88325b83a8bd854d99b65021e9705fe5ac03e8f13659c8be1a52242d7"
+  },
+  "existing_exact_master_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/production/04_platform_installers/current-video-acceptance.json",
+    "bytes": 3959,
+    "sha256": "ed17e38e37424dd8f334db1989a02a9e86f8fa6b989dc9521b5fcb65a8000ce1"
+  },
+  "sample_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples.json",
+    "bytes": 45096,
+    "sha256": "733150ead895884974e414da54e468a7541bde600ededbc342fc2236db7d934d"
+  },
+  "sample_count": 42,
+  "actual_images_viewed": 42,
+  "each_section_start_middle_end_viewed": true,
+  "findings": [
+    {
+      "id": "V04-09",
+      "scene": 9,
+      "visual": "13_current_nightly_home",
+      "interval_seconds": [
+        170.36666666666667,
+        198.36666666666667
+      ],
+      "finding": "All3viewed samples show full Home with Core/Data/Tools, no Organism category; narration explicitly names Organism. Current normal-public Home source has since changed.",
+      "decision": "targeted_video_repair",
+      "root_decision": "Replace only this interval with fresh normal-profile alpha-off current Home; preserve correct Organism narration. No fresh capture performed by this assessment."
+    },
+    {
+      "id": "V04-10",
+      "scene": 10,
+      "visual": "05_doctor",
+      "interval_seconds": [
+        198.36666666666667,
+        227.66666666666669
+      ],
+      "finding": "All3viewed samples visibly contain diagnostic line Live backdrop and spaceout: GPU \u2014 GPU shader. This is incidental recorded text, not narration or an opened control.",
+      "decision": "targeted_video_repair",
+      "root_decision": "Maintainer hiddenSpaceoutinstruction includes recordings: replace this visual with a clearly labelled factual diagnostic reference summary bound to actual historical result, never fabricated terminal/execution output."
+    }
+  ],
+  "section_assessments": [
+    {
+      "scene": 1,
+      "visual": "08_official_release",
+      "decision": "KEEP",
+      "observations": "Readable labelled reference card: official1513GitHub release and3platform assets, historical version intentional.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/01-start.png",
+          "bytes": 444038,
+          "sha256": "6092a5af656e2a2421dfedadc6b66c513eab20a0879aa7842e5a12048f16873b"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/01-middle.png",
+          "bytes": 443840,
+          "sha256": "d1b274b24f5e4634d0a4b74e034f4b679ff7b2082d031848408d3d52b81a3a67"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/01-end.png",
+          "bytes": 443833,
+          "sha256": "7ffaac4feddc5b014c09dce2a4f9bfc116d89fe3aa9480121266a706b426cf27"
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "visual": "09_windows_guidance",
+      "decision": "KEEP",
+      "observations": "Readable Windows guidance with automatic acceleration/CPU-only instruction; explicitly not recorded Windows installation.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/02-start.png",
+          "bytes": 425557,
+          "sha256": "0438c9b604d5894287b45a2c3df2dcead46b34b7882b24b447a67166083f51c1"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/02-middle.png",
+          "bytes": 421228,
+          "sha256": "9268944dcf024842de04baa5b98dc345379dc565279e1c54f73573526ba59ccc"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/02-end.png",
+          "bytes": 421220,
+          "sha256": "30111e6f12fefd1141cb21e9c1f59e8c95fb3c8c07add1e85db5c818f2a26ec4"
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "visual": "10_macos_guidance",
+      "decision": "KEEP",
+      "observations": "Readable macOS universal package/Applications guidance; explicitly not recorded macOS installation.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/03-start.png",
+          "bytes": 413603,
+          "sha256": "1c6fd7f2d5167b77e13192469fb4a75997b763425b3555e27bf1abd86c5f52bb"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/03-middle.png",
+          "bytes": 409870,
+          "sha256": "819084ba72f0d107ec5788edc6e3721c7e38382558b78b57d102896cf974e072"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/03-end.png",
+          "bytes": 409810,
+          "sha256": "064d07ad4b7661fdeb1ee7aa829666fb98d6a5629122956b4efcf644f386ba63"
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "visual": "11_linux_commands",
+      "decision": "KEEP",
+      "observations": "Readable Linux chmod/run/CPU commands; source-reviewed reference, not claimed terminal execution.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/04-start.png",
+          "bytes": 451934,
+          "sha256": "590aafd924dd9e70393aff302fbef9f8141d483a8e8c52e688b79d58f703c389"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/04-middle.png",
+          "bytes": 455926,
+          "sha256": "19f17fb0a0bcbb980eee9280a88dea7c395e93bfb23797162487b1b171e52d55"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/04-end.png",
+          "bytes": 455918,
+          "sha256": "d50f859fb78b3f1cf1915b506948db1a4f16bac614d3afcec40edb0b0c3b3224"
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "visual": "02_installer_backend",
+      "decision": "KEEP",
+      "observations": "Historical actual install-profile terminal shows CPUbackend/private runtime/choicesfalse, aligned with narration.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/05-start.png",
+          "bytes": 350777,
+          "sha256": "07a9832b71537d7193a5a1dcc66b6ce4754b37bd1b310d25748b7345f2553182"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/05-middle.png",
+          "bytes": 350748,
+          "sha256": "4296d312730b24804e9d32296cb958223c124e649848db2543e48686e9379be3"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/05-end.png",
+          "bytes": 331701,
+          "sha256": "c10d6cd24f726f40b4ff4fa11c276f82dc4b5a2884f0b49758fb9b48484bb9bd"
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "visual": "03_installed_versions",
+      "decision": "KEEP",
+      "observations": "Actual terminal version1513/Python/Qt/package visible start+middle; near-end sample is blank terminal transition. No instruction or command missing from available early/mid samples; not a whole-section watching claim.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/06-start.png",
+          "bytes": 249435,
+          "sha256": "f8d0e24d2c64aaa08e3efd2c46091a4c1553129ff780fee682609d180db0569e"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/06-middle.png",
+          "bytes": 249280,
+          "sha256": "a3732a7a774ba18475da810acb99e158d699e83efcfd0afaa405ab0c3d4801d1"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/06-end.png",
+          "bytes": 226823,
+          "sha256": "1c4f21e4b0865c630b9bc90d3cb9d8cdfc620f93f857f82e69c8931b6689d8e0"
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "visual": "07_privacy_keep_off",
+      "decision": "KEEP",
+      "observations": "Released1513Home privacy notice visible all3 samples, with optionsoff and Skipkeepalloff; this is topic-aligned GUI disclosure, not native Windows or actual installer y/n execution. Background modules are not opened; their maturity not inferred.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/07-start.png",
+          "bytes": 958904,
+          "sha256": "3ebd13852933debafc2930e42b0ec46205ef00c2fe784e4a072bc37926e791f2"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/07-middle.png",
+          "bytes": 928457,
+          "sha256": "80146940aa54c07bf7b73be8838400beefaf4ab07734da2c8c315d2f067c77a1"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/07-end.png",
+          "bytes": 928535,
+          "sha256": "8a799ff5a7a31aed003d33322ca5518532039ec269ff79b8d953810b81fa384f"
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "visual": "14_current_nightly_performance",
+      "decision": "KEEP",
+      "observations": "Actual GNOME Preferences opens from Home and Performance profile/readouts are readable in middle/end; alphaoff profile bound, no explicit alpha tour/Spaceoutfield observed.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/08-start.png",
+          "bytes": 3355658,
+          "sha256": "9277382383e0588cf5c92e5e3b63471b93daaed6f07c93fc96df994a31eae886"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/08-middle.png",
+          "bytes": 4411100,
+          "sha256": "500e20e27295111c6b77cff558116e0b825316934afabee64902ccaf776ee105"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/08-end.png",
+          "bytes": 4213050,
+          "sha256": "9666d77bc59df92f847178bc9561c62003aa007a7451f157496fd95c1a45b5a7"
+        }
+      ]
+    },
+    {
+      "scene": 9,
+      "visual": "13_current_nightly_home",
+      "decision": "TARGETED_REPAIR",
+      "observations": "Outdated GNOME Home missing Organism: targeted replacement perroot.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/09-start.png",
+          "bytes": 3500874,
+          "sha256": "74ca118363e43e4861bb4c574295175c93dd1ca55f462100650624e9a6efbe8b"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/09-middle.png",
+          "bytes": 4432237,
+          "sha256": "0ccb07ae2ac707e1b6ac357e872a595e745487f7ca1e2fc445fbd78923cd18ad"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/09-end.png",
+          "bytes": 4258626,
+          "sha256": "0f6723efa850461abfb5b70a259e5b1a22a6dae2f93211f1e885c466ef8ad5d0"
+        }
+      ]
+    },
+    {
+      "scene": 10,
+      "visual": "05_doctor",
+      "decision": "TARGETED_REPAIR",
+      "observations": "Actual historical doctor13pass/1CZIwarn/0failed/4skips, CPU backend and skippedGPU; also Spaceout text must be replaced perroot.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/10-start.png",
+          "bytes": 1228819,
+          "sha256": "2e768ae414bc62ea0c079cff3e30009e1d678d44d1328ae9a0ac97d7d92ca4af"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/10-middle.png",
+          "bytes": 1134900,
+          "sha256": "c3417be39dfadfdd73b5f2cc915b84d869041fd2847bf4df7b56b2ed35f67bfa"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/10-end.png",
+          "bytes": 1134900,
+          "sha256": "c3417be39dfadfdd73b5f2cc915b84d869041fd2847bf4df7b56b2ed35f67bfa"
+        }
+      ]
+    },
+    {
+      "scene": 11,
+      "visual": "12_logs_and_versions",
+      "decision": "KEEP",
+      "observations": "Readable install.log/install-profile.json/spacr-doctor reference with review-before-sharing note.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/11-start.png",
+          "bytes": 378171,
+          "sha256": "5451dbe553e3014378f453d0eaa19079bfa505af2a73b6c63d8bf03cd1275e33"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/11-middle.png",
+          "bytes": 372825,
+          "sha256": "696a704e74b87b1336c05c12368aadd4dbe43b902b1fcd7ca2b943e25f3abdcc"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/11-end.png",
+          "bytes": 372817,
+          "sha256": "dd2a14735c1f59fff39a2639198db7a8fcc9890ea88abfd735b26f9688a1c1c2"
+        }
+      ]
+    },
+    {
+      "scene": 12,
+      "visual": "15_uninstall_windows",
+      "decision": "KEEP",
+      "observations": "Readable Windows Apps/Installedapps/spaCR/Uninstall and Uninstall.exe reference; not claimed executed removal.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/12-start.png",
+          "bytes": 334658,
+          "sha256": "a4a024f93a57d4ec4097f460af4361c5313682d0c38da40efb58165b34a34b0a"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/12-middle.png",
+          "bytes": 331361,
+          "sha256": "6aded7c9dad030b10c40474fc165ca3a2e506b3a0d0fa1c1dccc3c0365f76ea1"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/12-end.png",
+          "bytes": 331353,
+          "sha256": "db67c9fd38de75bb3e03cd351d17301c8e31df31312c9a420ef6d2af5f28a13d"
+        }
+      ]
+    },
+    {
+      "scene": 13,
+      "visual": "16_uninstall_macos",
+      "decision": "KEEP",
+      "observations": "Readable quoted sudo system macOS uninstaller path; separate per-user runtime preserved, source guidance only.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/13-start.png",
+          "bytes": 372319,
+          "sha256": "f253de1fd51410d3f4c005ac43e20012945f937132c4b6b731d05f8703aad6b0"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/13-middle.png",
+          "bytes": 381210,
+          "sha256": "ccd12e03068a0f6a2d7ba17caf76caa157c3f8b6623a4a646fd97f1c392f7c40"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/13-end.png",
+          "bytes": 381205,
+          "sha256": "d0fa972726fc95ba3c37ecef2bc2fb14941ac604e981b506ca5e0af78c466957"
+        }
+      ]
+    },
+    {
+      "scene": 14,
+      "visual": "17_uninstall_linux",
+      "decision": "KEEP",
+      "observations": "Readable Linux ~/.local/share/spacr/uninstall-spacr.sh and project preservation guidance; no executed removal claimed.",
+      "samples": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/14-start.png",
+          "bytes": 354769,
+          "sha256": "7d981af98d1946ce1df9f1e3084cb43405ff6b9a92241e99c23e29c864691fa0"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/14-middle.png",
+          "bytes": 350998,
+          "sha256": "601578782b50e54617d33bfa058e976e6380a47d79e31ec15957cad4f5034b7b"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/video-samples/14-end.png",
+          "bytes": 351002,
+          "sha256": "f961586cce4fdd68313964d58ca43ead0d85164baa24017284c11a53ea04908e"
+        }
+      ]
+    }
+  ],
+  "native_profile_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-preferences/capture-profile.json",
+      "bytes": 452,
+      "sha256": "c89556317da663fd2d78131e63524e37b7cd94849415e945076248bdf36875b8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r23-05-navigation/capture-profile.json",
+      "bytes": 452,
+      "sha256": "c89556317da663fd2d78131e63524e37b7cd94849415e945076248bdf36875b8"
+    }
+  ],
+  "provenance_limits": {
+    "application_sessions": "Historical released Linux1513terminal/privacy + referenceguidance +2GNOMEnightly app intervals; explicitly not one installation/session or nativeWindows/macOS proof.",
+    "source_capture_commits": [
+      "0cde90ced82641b8caf831cdac81dc0c3911900d",
+      "7d24dcf7760e63f38a85c311da3bd477d0be9479"
+    ],
+    "old_scratch_receipt_reused": false,
+    "current_stage04_r23_receipt_matches_published_master_and_timing": true
+  },
+  "resources": {
+    "cap": "4G",
+    "owned_lease_removed": true,
+    "ffmpeg_threads": 2,
+    "full_master_decode_performed": false,
+    "app_or_installer_executed": false
+  },
+  "limits": [
+    "42sampled actual frames only, no full-watch, smoothness/whole-frame content guarantee or hearing/listening claim.",
+    "No video/caption/audio regenerated; no source modifications, Qt app/GPU/install commands or network checks performed.",
+    "Official asset/link currentness is historical1513context already stated; currentrelease compatibility remains caption/source owner scope.",
+    "No current remote publication/site verification; exact local published baseline examined.",
+    "Parentroot explicitly selected two visual repairs; this assessment does not approve future replacement media."
+  ]
+}

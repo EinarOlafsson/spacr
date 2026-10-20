@@ -797,3 +797,78 @@ def test_both_offered_split_units_are_accepted(split):
     assert "surrogate_split_by" not in _keys(problems)
     assert "surrogate_split_by" in _keys(V._check_app_specific(
         {"surrogate_split_by": "cell"}, "explain_cv"))
+
+
+def test_preflight_retains_numeric_and_typo_checks_when_cli_defaults_cannot_import(monkeypatch):
+    import builtins
+    import copy
+
+    settings = {'batch_size': 0, 'batch_siz': 3}
+    before = copy.deepcopy(settings)
+    original = builtins.__import__
+    refused = []
+
+    def importing(name, globals=None, locals=None, fromlist=(), level=0):
+        if (name == 'cli' and level == 1
+                and tuple(fromlist) == ('MODULES', 'module_defaults')):
+            refused.append(name)
+            raise ImportError('CLI defaults are unavailable')
+        return original(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(V, '_MODULE_DEFAULT_KEYS_CACHE', {})
+    monkeypatch.setattr(builtins, '__import__', importing)
+    problems = V.validate_settings(settings, 'mask')
+    assert refused
+    assert any(p.setting == 'batch_size' and p.is_error and 'at least 1' in p.message
+               for p in problems)
+    assert any(p.setting == 'batch_siz' and p.severity == V.WARNING
+               and "did you mean 'batch_size'" in p.message for p in problems)
+    assert settings == before
+
+
+@pytest.mark.parametrize('diameter', [0, -3])
+def test_generic_diameter_must_be_positive_while_object_zero_retains_auto(diameter):
+    settings = {'diameter': diameter, 'cell_diameter': 0, 'nucleus_diameter': 'auto'}
+    before = dict(settings)
+    problems = V.validate_settings(settings, '')
+    matches = [p for p in problems if p.setting == 'diameter']
+    assert len(matches) == 1 and matches[0].is_error
+    assert 'must be greater than zero' in matches[0].message
+    assert not [p for p in problems if p.setting in ('cell_diameter', 'nucleus_diameter')]
+    assert settings == before
+    for valid in (30, None):
+        positive = V.validate_settings({'diameter': valid}, '')
+        assert not [p for p in positive if p.setting == 'diameter']
+
+
+def test_text_that_is_neither_yes_nor_no_or_a_list_stays_as_typed():
+    """Only clear yes/no words become booleans; a number is not a list."""
+    from spacr.validate import coerce_expected_types
+
+    out = coerce_expected_types({"unmix": "maybe", "channels": "3",
+                                 "n2v_denoise": "no"})
+    assert out == {"unmix": "maybe", "channels": "3", "n2v_denoise": False}
+
+
+def test_a_custom_model_with_an_unreadable_pin_is_reported_missing(tmp_path):
+    """A broken model pin is not evidence that the model will be there."""
+    from spacr.validate import _check_required_paths, _has_planned_model_pin
+
+    settings = {"custom_model": str(tmp_path / "gone.CP_model"),
+                "model_metadata": {"schema_version": 2, "settings": {}}}
+    assert _has_planned_model_pin(settings, "custom_model", ("cellpose",)) is False
+    problems = [p for p in _check_required_paths(settings, "mask")
+                if p.setting == "custom_model"]
+    assert len(problems) == 1
+    assert "does not exist" in problems[0].message
+
+
+def test_the_plan_names_an_organelle_diameter_in_pixels():
+    """An organelle has no magnification default, so its diameter is shown."""
+    from spacr.validate import _describe_objects
+
+    lines = _describe_objects({"organelle_channel": 2, "organelle_diameter": 12,
+                               "organelleb_channel": 3}, "mask")
+    assert "organelle: channel 2, diameter 12 px" in lines[0]
+    assert lines[1].startswith(
+        "organelleb: channel 3, diameter from magnification 20x")

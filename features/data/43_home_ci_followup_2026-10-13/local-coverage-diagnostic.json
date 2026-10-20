@@ -1,0 +1,25 @@
+{
+  "label": "LOCAL AUGMENTED DIAGNOSTIC \u2014 NOT HOSTED CI ACCEPTANCE",
+  "hosted_source": "9af7f3dc12579a5a8f48f5083ab117f965e83e6a",
+  "local_candidate": "37674d061e",
+  "identical_spacr_tree": "a07d9737894d174b8f7f0cfaa79a3f6bccf9941b",
+  "verifier_exit": 0,
+  "status": "pass",
+  "summary": {
+    "failed_modules": 0,
+    "global_issue_count": 0,
+    "improved_modules": 104,
+    "integrity_issue_count": 0,
+    "modules_at_100_percent": 456,
+    "modules_below_100_percent": 208,
+    "modules_below_floor": 1,
+    "modules_checked": 664,
+    "modules_exempt_from_floor": 1,
+    "shipped_modules": 664,
+    "stale_baseline_entries": 0,
+    "stale_exemptions": 0,
+    "unconfirmed_modules": 0
+  },
+  "remaining_failures": [],
+  "directory": "/mnt/wd4tb/scratch/ci-home-audit-20261013/augmented-diagnostic-20261013T235044Z"
+}

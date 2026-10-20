@@ -66,7 +66,7 @@ _IDENTITY_COLUMNS: Tuple[str, ...] = (
 
 
 class ScanRefused(ValueError):
-    """The scan would not have meant what its output claimed."""
+    """Raised when the input cannot support a measurement scan."""
 
 
 
@@ -131,7 +131,7 @@ class MeasurementEffect:
 
 @dataclass(frozen=True)
 class ScanResult:
-    """Every measurement the scan looked at, and how it was corrected.
+    """Fitted measurement effects of a scan and the corrections applied.
 
     :param rows: Successfully fitted measurement effects; measurements that
         could not be fitted are recorded in ``skipped`` instead.
@@ -201,7 +201,7 @@ class ScanResult:
         return table.loc[order].reset_index(drop=True)
 
     def describe(self) -> str:
-        """What a user has to be told before they read the table."""
+        """Return a text summary of the scan design and its corrections."""
         genes = self.rows[0].n_genes if self.rows else 0
         lines = [f"{self.n_measurements_scanned} measurement(s) scanned "
                  f"against {genes} gene term(s)"]
@@ -238,12 +238,13 @@ def simes_p_value(p_values) -> float:
 
     ``min_i (m * p_(i) / i)`` over the sorted P values -- the probability of
     seeing a family this extreme when none of its members is real. Identical
-    to the minimum Benjamini-Hochberg adjusted P, and valid under the positive
-    dependence that gene terms in one design actually have.
+    to the minimum Benjamini-Hochberg adjusted P, and valid under positive
+    dependence among the tests, which gene terms in one design have.
 
-    This is what one measurement contributes to the across-scan stage. The raw
-    minimum of 23 gene tests is not a P value and would smuggle the
-    within-measurement multiplicity past the second correction.
+    This is the value one measurement contributes to the across-scan stage.
+    The raw minimum of, for example, 23 gene tests is not a valid P value: it
+    ignores the within-measurement multiplicity, which the second correction
+    would then not account for.
 
     :param p_values: raw P values for one family of tests; non-finite values
         are ignored.
@@ -264,11 +265,11 @@ def effective_number_of_tests(matrix) -> float:
     matrix, with ``f(x) = I(x >= 1) + (x - floor(x))``: an eigenvalue of 3
     counts as one independent test, an eigenvalue of 0 counts as none.
 
-    Why it is reported. Twelve columns that are four things measured three
-    ways are not twelve tests, and correcting as though they were is the
-    mirror image of not correcting at all -- it hides real effects instead of
-    inventing them. This number is what lets a reader see which situation they
-    are in, and it is the divisor ``'bonferroni_effective'`` uses.
+    Correlated measurements are fewer independent tests than columns: twelve
+    columns that measure four quantities three ways each are not twelve
+    tests, and a Bonferroni correction over all twelve is conservative. The
+    estimate is reported beside the column count and is the divisor
+    ``'bonferroni_effective'`` uses.
 
     :param matrix: ``(n_wells, n_measurements)`` array. Columns with no
         variance are dropped; NaNs are handled pairwise-complete.
@@ -434,10 +435,10 @@ def scan_measurements(frame,
     :param gene_column: the independent variable.
     :param guide_column: excluded from the scanned columns when present.
     :param block_columns: fixed effects fitted alongside the genes and not
-        reported. Default :data:`DEFAULT_BLOCK_COLUMNS` -- the screen. Absent
+        reported. Default :data:`DEFAULT_BLOCK_COLUMNS`, the screen key. Absent
         or single-valued blocks are dropped.
     :param control_genes: the baseline the effects are measured from.
-    :param within_run_method: correction across the genes of ONE measurement,
+    :param within_run_method: correction across the genes of one measurement,
         i.e. what a single-measurement analysis would have reported.
     :param across_scan_method: correction across the measurements. Any
         :mod:`spacr.multiple_testing` method, plus
@@ -448,7 +449,7 @@ def scan_measurements(frame,
         :data:`MIN_WELLS_PER_GENE` -- a gene in one well has nothing
         corroborating it, and on real data keeping them made the across-scan
         correction fire on 65% of scans over permuted labels instead of 5%.
-        Pass ``1`` to keep them, knowing that.
+        Pass ``1`` to keep them.
     :param alpha: the level both corrections target.
     :returns: the :class:`ScanResult`.
     :raises ScanRefused: when there is no gene column, fewer than two genes,

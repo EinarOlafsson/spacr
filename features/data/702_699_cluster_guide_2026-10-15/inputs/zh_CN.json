@@ -1,0 +1,22 @@
+[
+  {
+    "domain": "distributed_execution",
+    "msgid": "Model checkpoints on the execution target",
+    "msgstr": "执行目标上的模型检查点"
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames.",
+    "msgstr": "导出的设置会保留模型路径，以及已记录的模型库键、发布者版本和 SHA-256。已有的、记录了身份信息的文件必须与该校验和一致。缺失文件只能解析为记录的确切身份；未记录身份时，只能按模型库中的确切键或文件名解析，不进行模糊匹配替换。模型缓存在 spaCR 主目录下（通常为 ``~/.spacr/models``），除非通过 ``SPACR_MODEL_CACHE`` 指定其他目录。各进程共享下载锁，并在下载前验证缓存中的检查点。在离线节点上，运行 ``spacr-run`` 前设置 ``SPACR_MODEL_DOWNLOAD=off``：此时不会下载模型元数据或权重。已有本地文件和通过验证的缓存模型仍可使用；对于未缓存的已知模型，程序会给出校验和及应复制到的缓存路径。未知请求会被明确拒绝。自定义路径不会仅因文件名而获得可信的模型库身份。"
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+    "msgstr": "使用经过验证的持久 SSH 会话，并通过图形界面提示进行键盘交互式身份验证，而不是使用外部 OpenSSH 命令。"
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+    "msgstr": "非秘密的 SSH 配置覆盖项，例如用户、端口、身份文件路径和跳板主机；禁止包含密码和一次性验证码。"
+  }
+]

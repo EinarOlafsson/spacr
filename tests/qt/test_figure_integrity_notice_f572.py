@@ -68,7 +68,7 @@ def test_actual_save_button_writes_then_shows_actionable_findings(
         image.load()
         assert image.width > 0 and image.height > 0
     sidecar = target.with_name(target.name + ".provenance.json")
-    report = json.loads(sidecar.read_text())
+    report = json.loads(sidecar.read_text(encoding="utf-8"))
     assert report["figure_sha256"] == hashlib.sha256(target.read_bytes()).hexdigest()
     assert any(f["check"] == problem for f in report["integrity"]["findings"])
     notice, = saving._integrity_notices

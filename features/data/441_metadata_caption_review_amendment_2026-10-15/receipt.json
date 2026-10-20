@@ -1,0 +1,77 @@
+{
+  "source_commit": "46f05d16045801f73298d3080c9b78969f6cf00b",
+  "actual_source_sha256": "356fd0f2b258e58135d3f71b5a4e11c00dd2c2eac8a8653b0c7cac1924f1ada7",
+  "records": 90,
+  "only9_zero_match_source_key_hash_rebound_targets_unchanged": true,
+  "only9_warning_source_key_hash_target_replaced": true,
+  "other72_records_exact": true,
+  "old18_full_records_archived": "docs/i18n/retired/runtime/2026-10-15-metadata-caption-amendments.json",
+  "all9_prior_normal_files_archived_with_hashes": true,
+  "normal_record_fields_exactly5": true,
+  "languages": {
+    "sv": {
+      "prior_file_sha256": "b904b84aa8899a02a606b912e89a3dcf81ee6794dda83199d17b40c38b892a70",
+      "new_file_sha256": "6958f7da17a557b4f78fb8414994f2850d16efa529078671a3f874f17ffcb529",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "3df30375104d6b240ea5c314d1171e3bff209250688ee2dd793c8b949524b0b4"
+    },
+    "de": {
+      "prior_file_sha256": "a285bca35a4877e786b785c334d2305b371259827539128ec2b484013aa8e9a3",
+      "new_file_sha256": "d7ff95d14d03943c26c741ff68b5e55c01f2c9c770dacfaea4965e6f6c22f77f",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "f96fa5e658056502273da29ae13c523f2813822973e15fac51c08d58e950c096"
+    },
+    "es": {
+      "prior_file_sha256": "f02f176c57dc5678446272d208bf58f97adbc07eb5680ba4a0a14a98effca736",
+      "new_file_sha256": "da358eab752a9e7c364759f2d75d3451f6c4ef7e28787c9d222090691c2956c3",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "1a455b2725a621bfb9161d47b0121518ee9fe69aa6be63593beb96cbfbd87bca"
+    },
+    "zh_CN": {
+      "prior_file_sha256": "f321417fbb8a74ce25a23440817b8859cf175032599b4cbce29d7671e81a110c",
+      "new_file_sha256": "50103de157e1e2fab30936d2da45dbcb55ab988f8ccdccea6d23a4dc8944e5ef",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "75ecfbfe7780368fa2b98cb9f28bfb687278f99d75aa98c2f36f204378f95f8c"
+    },
+    "fr": {
+      "prior_file_sha256": "e73c427ad1dea61de82d9cf9403d1e48d70201ee3693c88861c059471b1f4bed",
+      "new_file_sha256": "242fd4d3e36590f69d02fadc16d1fd942bbbbfe1d037bd03aaa02e53462b418c",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "f953546a7abaa23f1659d45538e18ec294c1b8666c558ce7eca00629411abbd5"
+    },
+    "pt": {
+      "prior_file_sha256": "e82ff3c8f462849bc3e9bff37aa173095186e1a0ca4df448dd63315b05235a47",
+      "new_file_sha256": "268299b3593b711651f5c13635f3a2da93394875600cb134c9f12bae3dddd79b",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "ba11fbb97fe023452d9db98e8d3d7cee704d2fb1ddc0ac15f6c50357ee2f9d24"
+    },
+    "hi": {
+      "prior_file_sha256": "25b41d7be3b6b7b1cdb8b75d3bb8317472ae719778baf3ccf30b788570adda4e",
+      "new_file_sha256": "7c0f51c47361c122ca762e94ebb26f9cf37d23aed60b1cea12c324b1c08e5dc8",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "6b970847e25f57ac82466afe98e5e198d3c11a18be8fb453fe1520fab4026360"
+    },
+    "ko": {
+      "prior_file_sha256": "c8c852cd94fb4fdc43d8c070f1184bf8271c5ffa2be3431818726be4324e29ee",
+      "new_file_sha256": "b2fb1de2f7375c5bb7c9c3c01cdf3078eb0436a38260d2506a50d30a074c14c4",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "52faefe9a397476634fa7791ced5879ecd41a070460b5f53e2b83f0f7236866f"
+    },
+    "is": {
+      "prior_file_sha256": "f3270ad632ee7c8ac2ae7ef9b663c81d89b778ba4a1125dcf02df2d8b499fc2e",
+      "new_file_sha256": "921e4d54b383f068694b2de01fc1b16ba9d97612047f12e68e3cb8eff062d2fe",
+      "unchanged_records": 8,
+      "nothing_fits_target_unchanged": true,
+      "replaced_warning_target_sha256": "ec0fb9e1af479c3b81ba246e2133b1bcd14dd4e57f97670ecfa427caab69a10b"
+    }
+  },
+  "normal_gates": "Pending Root-frozen read-only preflight; no collector/writer/gate modification in this amendment."
+}

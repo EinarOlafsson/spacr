@@ -38,10 +38,10 @@
     },
     {
       "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "a56d63eaada705a2dcd6146ee9c5b8c7258c0808f987e7579563e0290941850e",
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공하며, 생물학적 출처가 CDC 가 아니면 ``source_label`` 이 그 출처의 이름을 지정합니다. 마지막 다섯 페이지는 alpha 기능입니다. ``sections`` 에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links`` 에는 표시 레이블과 URL 의 쌍이 들어 있습니다. ``modules`` 에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 자체 파이프라인이 없는 생물 특이적 분석을 뜻합니다. ``workflows`` 는 그러한 타일의 아이콘 키를, 그 판독값을 측정하는 기존 모듈, 열 때 적용되는 설정 프리셋, 사용 방법에 대한 메모에 매핑합니다. ``None`` 타일 중 ``workflows`` 에 없는 것은 Coming soon 입니다. ``starplast`` 는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "786abdc877bd3aa844a5850f63c6c30be4849d8c9ecd08f55d86ffce349a3570",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공하며, 생물학적 출처가 CDC 가 아니면 ``source_label`` 이 그 출처의 이름을 지정합니다. 마지막 다섯 페이지는 alpha 기능입니다. ``sections`` 에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links`` 에는 표시 레이블과 URL 의 쌍이 들어 있습니다. ``modules`` 에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 자체 파이프라인이 없는 생물 특이적 분석을 뜻합니다. ``workflows`` 는 그러한 타일의 아이콘 키를, 그 판독값을 측정하는 기존 모듈, 열 때 적용되는 설정 프리셋, 사용 방법에 대한 메모에 매핑합니다. ``None`` 타일 중 ``workflows`` 에 없는 것은 Coming soon 입니다. ``parascape`` 는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -58,7 +58,9 @@
       "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**직경.**  :mod:`spacr.diameter` 는 Cellpose 나 torch 를 로드하지 않고, 사용자 자신의 시야 몇 개로부터 특징적인 객체 크기를 측정합니다. ``diameter`` 는 spaCR 이 노출하는 Cellpose 4 설정 중 가장 큰 영향을 주는 단일 설정이며(``CellposeModel.eval(diameter=...)`` 는 모든 이미지를 ``30/diameter`` 배로 재조정하여 객체가 ``cpsam`` 이 작동하는 크기 근처에 오게 합니다), 사용자가 짐작으로 정하는 설정이기도 합니다.  이 모듈이 만드는 패널은 그 짐작을 객체 유형별 측정값으로 바꾸고, 측정한 객체 수를 보여 주어 그 숫자를 의심할 수 있게 합니다.  이 패널은 주 화면이 아니라, Mask 생성의 Model zoo 팝업에 있는 *직경 측정…* 버튼에서 자체 팝업으로 열리며, 그것이 나머지 절반을 이루는 모델 선택 옆에 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#1",
@@ -66,7 +68,9 @@
       "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
       "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "한 사용자의 요청: \"mask generation 에서 직경 계산은 주 화면이 아니라 model zoo 버튼 팝업 창의 버튼이어야 한다. 버튼을 누르면 현재 컨테이너의 모든 정보를 담은 또 다른 팝업이 나와야 한다.\" 따라서 이 대화 상자는 :class:`DiameterPanel` 전체(측정 버튼, 근거와 메모가 있는 객체 유형별 행, 행마다의 *사용* 과 *모두 사용*)를 담으며, 패널은 여전히 Model zoo 를 연 화면의 설정에 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
@@ -106,7 +110,9 @@
       "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
       "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
       "translation": "이 패널은 호출자가 둘인 프로세스 전체의 싱글턴입니다. 표시할 때마다 단순히 ``connect`` 하면 수신자가 쌓여, 한 번 누르면 결국 회귀 선택기의 설치와 Image UMAP 의 설치가 모두 실행됩니다. 단순한 ``disconnect()`` 는 아직 아무것도 연결되지 않았을 때 경고를 냅니다. 현재 슬롯을 보관해 두고 교체하면 둘 다 일어나지 않습니다. 이미 삭제된 위젯에 묶인 이전 슬롯은 그냥 버립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
@@ -122,7 +128,9 @@
       "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
       "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "요청 내용: \"그림이나 실시간 미리 보기 컨테이너 안의 모든 섹션도 접을 수 있어야 한다 ... 그림이든 표든 모든 GUI 요소가\". 이것이 화면 안의 섹션이 접기 컨트롤을 얻는 유일한 방법이므로, 모두가 같은 모양과 동작을 가집니다: 본문 위의 화살표와 이름(콘솔과 System 이 쓰는 것과 같은 :class:`~spacr.qt.widgets.foldable.Folder`), 클릭하면 접히고, 접힌 섹션은 주어진 공간의 맨 아래에 고정된 제목이 됩니다(:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
@@ -196,7 +204,9 @@
       "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
       "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "timeflows 계획의 2단계는 기능이 아니라 수치입니다. 세 번째 Cellpose 헤드를 작성하고 학습시키고 유지하기 전에 기준선이 있어야 합니다. 모든 프레임을 독립적으로 분할하고, 마스크 겹침으로 프레임을 연결하고, 추적 분야에서 이미 합의된 측정 방법으로 결과를 정답과 비교해 채점합니다. 그러면 포크가 무엇을 만들어 내든 이보다 낫거나 그렇지 않으며, 계획은 \"단순 스티처로 이미 충분하다\"가 실제로 가능한 결과이고 그런 경우 받아들여야 한다고 분명히 말합니다. 그 결과는 이 수치가 먼저 존재해야만 보입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -204,7 +214,9 @@
       "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
       "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "timeflows 계획은 학습 데이터에 대한 한 가지 주장에 기반합니다. 즉 객체는 자신이 나타나는 모든 프레임에서 반드시 같은 레이블을 유지한다는 것입니다. 시간 흐름 헤드는 프레임 ``t`` 에 있는 객체의 픽셀에서 프레임 ``t+1`` 에 있는 그 객체의 중심을 가리키도록 학습되며, ``t+1`` 의 어느 객체가 같은 객체인지 알려 주는 것은 레이블뿐입니다. 어노테이션이 객체가 죽거나 떠난 뒤 그 레이블을 재활용하면 모델은 관련 없는 세포를 가리키도록 학습되고, 이후 어떤 점수도 이를 잡아내지 못합니다 -- 보류 검증은 같은 잘못된 레이블을 뒤섞어 자기 자신과 일치할 뿐입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.ImportedCopyNotReleased#1",
@@ -212,7 +224,9 @@
       "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
       "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
       "translation": "``foreign.run_import`` 는 대상이 비어 있으면 가져온 프레임을 표준 ``cell`` / ``nucleus`` / ``pathogen`` 테이블에 복사하므로, 가져오기만으로 만든 프로젝트도 모든 spaCR 도구에서 읽을 수 있습니다. 이 복사본은 편의를 위한 것이며, spaCR 이 같은 시야를 측정하는 순간 더는 편의가 아닙니다. :func:`_merge_and_save_to_database` 는 *덧붙이기* 때문에 그 행이 가져온 행 옆에, 다른 열로 놓이고, 행 안에는 이음매를 표시하는 것이 아무것도 없습니다 -- 그리고 이후의 모든 ``count_cell`` 은 두 집단의 합이 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

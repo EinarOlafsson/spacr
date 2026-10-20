@@ -71,6 +71,8 @@ def test_an_unknown_distribution_reports_unknown(monkeypatch):
         raise PackageNotFoundError(name)
 
     monkeypatch.setattr(version, "package_version", _absent)
+    monkeypatch.setattr(version, "_runs_from_source", lambda *a: False)
+    monkeypatch.setattr(version, "_source_version", lambda: None)
 
     assert version.get_version() == "unknown"
 
@@ -89,6 +91,7 @@ def test_the_fallback_distribution_is_consulted_second(monkeypatch):
         raise PackageNotFoundError(name)
 
     monkeypatch.setattr(version, "package_version", _only_nightly)
+    monkeypatch.setattr(version, "_runs_from_source", lambda *a: False)
 
     assert version.get_version() == "9.9.9-nightly"
     assert asked == ["spacr", "spacr-nightly"]

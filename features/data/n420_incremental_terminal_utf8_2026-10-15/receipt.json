@@ -1,0 +1,88 @@
+{
+  "scope": "N420 embedded POSIX sign-in terminal preserves UTF8 across read boundaries",
+  "source_sha256": "7cdb3051a1a5a9fcd03e400b2ac915e80dc9979698ee67890836590bd51405c0",
+  "test_sha256": "3a8ee16cf460755d123a6202d69861c100c25d333396aa6ef199658718a7fede",
+  "baseline": {
+    "exit": 1,
+    "passed": 4,
+    "failed": 4,
+    "elapsed_seconds": 3.27,
+    "failure": "Independent per-read decoding corrupts split valid characters and emits duplicate replacement characters for one truncated sequence."
+  },
+  "final": {
+    "exit": 0,
+    "passed": 17,
+    "skipped": 0,
+    "elapsed_seconds": 10.07,
+    "new_forced_short_read_cases": 8,
+    "existing_local_terminal_lifecycle_cases": 9
+  },
+  "coverage": {
+    "source_current": true,
+    "pump_statements": "14/14",
+    "pump_branches": "6/6",
+    "pump_exclusions": 0,
+    "module_percent": 93.13725490196079,
+    "report": "coverage.json",
+    "raw_database": "/mnt/wd4tb/scratch/n420-pty-unicode-20261015/.coverage"
+  },
+  "behavior": [
+    "One incremental UTF8 decoder per pump; complete text is queued as it becomes available.",
+    "EOF and PTY-read OSError both exit the same loop and flush residual bytes exactly once.",
+    "Malformed/truncated bytes retain replacement semantics; an incomplete sequence produces one replacement on terminal closure.",
+    "ASCII, valid multilingual text, invalid bytes and read-drain idempotence are tested alongside existing cancellation/child/descriptor lifecycle stand-ins."
+  ],
+  "checks": {
+    "fatal_ruff": "PASS E9,F63,F7,F82 --no-cache",
+    "diff_check": "PASS",
+    "api_prose": "All module/class/function docstrings AST-identical; no new helper, public symbol, signature or API source text",
+    "captions": "No new user-facing literal; UTF8 codec/error-policy labels are internal protocol strings"
+  },
+  "limits": [
+    "POSIX transport correctness and actual local Python stand-ins only; no vendor authentication/browser/account/network operations.",
+    "ANSI escape streaming and partial-URL assembly are outside this specific decoding repair.",
+    "Windows terminal fallback/native desktop acceptance and whole item420 remain unclaimed."
+  ],
+  "evidence": [
+    {
+      "path": "baseline-source.json",
+      "sha256": "c043d432b71d6e12821b92513a93d3473f7ac6ac74c1487db3e72eb1a14b427a",
+      "bytes": 269
+    },
+    {
+      "path": "baseline.log",
+      "sha256": "e422510a15a0aaf5560e68c570cee09dc5d4c3ecb44612832960cba241a3b615",
+      "bytes": 2344
+    },
+    {
+      "path": "baseline.xml",
+      "sha256": "78b0a831bf48f8f5ee238aa84ba88144987da5e4f7acb7dd23f8785f9912c081",
+      "bytes": 3454
+    },
+    {
+      "path": "baseline.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "owning.log",
+      "sha256": "b7fbb7e31d4ebef98fe7e176dd8f2a61509c8bb00fd663de19edfe1ada91af9c",
+      "bytes": 433
+    },
+    {
+      "path": "owning.xml",
+      "sha256": "6df75892a27e80927f5d3c76e9ffca08fa4036aa84842581c080a3a78a29264b",
+      "bytes": 2920
+    },
+    {
+      "path": "owning.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "coverage.json",
+      "sha256": "492052244c6b5dd9bc46049f2bfa3d7e3bb1374b3aedc2943a661485b6f20eb9",
+      "bytes": 14966
+    }
+  ]
+}

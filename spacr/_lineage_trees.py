@@ -35,7 +35,23 @@ def _lineage_explicit_parents(df, spans):
     if 'parent_track_id' not in df.columns:
         return {}
     links = {}
-    firsts = df.dropna(subset=['parent_track_id']).groupby('track_id')['parent_track_id'].first()
+    grouped = df.dropna(subset=['parent_track_id']).groupby('track_id')['parent_track_id']
+    for track, values in grouped:
+        known = set()
+        for value in values:
+            try:
+                parent = int(value)
+            except (TypeError, ValueError, OverflowError):
+                continue
+            if not isinstance(value, (str, bytes)) and value != parent:
+                continue
+            if parent > 0 and parent != int(track) and parent in spans.index:
+                known.add(parent)
+        if len(known) > 1:
+            from .qt.i18n import tr
+
+            raise ValueError(tr("Track {track} has conflicting known parent IDs in the lineage table.").format(track=track))
+    firsts = grouped.first()
     for track, parent in firsts.items():
         parent = int(parent)
         if parent > 0 and parent != int(track) and parent in spans.index:
@@ -43,9 +59,55 @@ def _lineage_explicit_parents(df, spans):
     return links
 
 
+def _lineage_edge_distance(df, field_shape=None):
+    """Distance in pixels from each row's position to the edge of the field.
+
+    An ``edge_distance`` column (for registered or stitched movies, whose
+    imaged field moves within the frame) is used as it is; otherwise the
+    distance is measured to the borders of ``field_shape``.
+
+    :returns: a Series aligned with ``df``, or None when neither is known.
+    """
+    if 'edge_distance' in df.columns:
+        return pd.to_numeric(df['edge_distance'], errors='coerce').fillna(np.inf)
+    if field_shape is None:
+        return None
+    height, width = (float(v) - 1 for v in field_shape[-2:])
+    return pd.concat([df['x'], width - df['x'], df['y'], height - df['y']],
+                     axis=1).min(axis=1)
+
+
+def _lineage_vacuoles(df, link_distance):
+    """The vacuole each object sits in, and how many objects it holds.
+
+    Objects of one frame closer than ``link_distance`` pixels are joined,
+    and chains of joined objects form one vacuole (a parasite rosette).
+
+    :returns: ``(vacuole, size)``: a Series aligned with ``df`` giving each
+        row a ``(frame, vacuole number)`` key, and ``{key: objects}``.
+    """
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    from scipy.spatial import cKDTree
+
+    vacuole = pd.Series(index=df.index, dtype=object)
+    size = {}
+    for frame, rows in df.groupby('frame'):
+        pairs = cKDTree(rows[['x', 'y']].to_numpy(float)).query_pairs(
+            float(link_distance), output_type='ndarray').reshape(-1, 2)
+        graph = coo_matrix((np.ones(len(pairs)), (pairs[:, 0], pairs[:, 1])),
+                           shape=(len(rows), len(rows)))
+        _, labels = connected_components(graph, directed=False)
+        vacuole.loc[rows.index] = [(int(frame), int(v)) for v in labels]
+        size.update({(int(frame), int(v)): int(n) for v, n in enumerate(np.bincount(labels))})
+    return vacuole, size
+
+
 def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False, *,
                               persist_frames=1, border_margin=0.0,
-                              field_shape=None):
+                              field_shape=None, entry_margin=None,
+                              vacuole_window=0, vacuole_link=None,
+                              bud_threshold=None, bud_window=8):
     """Infer division links from where new tracks start.
 
     A track that starts after the field's first frame is a daughter of the
@@ -78,26 +140,59 @@ def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False, *,
         track ends this close to the edge has left the field; no division is
         inferred from her.
     :param field_shape: the image ``(height, width)`` in pixels; without it
-        no track counts as being at the edge.
+        (and without an ``edge_distance`` column) no track counts as being
+        at the edge.
+    :param entry_margin: pixels from the field edge. A track whose first
+        position lies this close to the edge entered the field and is never
+        a daughter, and a mother this close to the edge in any of the
+        ``persist_frames`` frames before is still crossing into the field
+        (her vacuole's count is not yet whole) and does not divide. None
+        turns the rule off.
+    :param vacuole_window: frames on each side of a division over which the
+        size of the mother's vacuole (see :func:`_lineage_vacuoles`) is
+        compared. The median size after the division must exceed the median
+        before by the number of objects the division adds, as when a rosette
+        doubles; a mature rosette segmented differently from one frame to
+        the next keeps its size and gives no division. 0 turns it off.
+    :param vacuole_link: largest distance in pixels between neighbours of
+        one vacuole; half of ``max_distance`` when None.
+    :param bud_threshold: with a ``bud_signal`` column (daughter-bud marker
+        brightness per object and frame), the mother's highest value in the
+        ``bud_window`` frames before the division must reach this. None, or
+        no such column, turns the rule off.
+    :param bud_window: frames before a division searched for the bud signal.
     :returns: ``{daughter_track_id: mother_track_id}``.
     """
     first_frame = spans['start'].min()
     last_frame = spans['end'].max()
     persist = max(int(persist_frames), 1)
     frames_of = df.groupby('track_id')['frame'].agg(lambda f: set(f.tolist()))
-    last_xy = df.sort_values('frame').groupby('track_id')[['x', 'y']].last()
-    if field_shape is not None and border_margin > 0:
-        height, width = (float(v) - 1 for v in field_shape[-2:])
-        edge = pd.concat([last_xy['x'], width - last_xy['x'],
-                          last_xy['y'], height - last_xy['y']], axis=1).min(axis=1)
-        at_edge = edge < border_margin
+    ordered = df.sort_values('frame')
+    edge = _lineage_edge_distance(ordered, field_shape)
+    if edge is not None and border_margin > 0:
+        at_edge = (edge < border_margin).groupby(ordered['track_id']).last()
     else:
-        at_edge = pd.Series(False, index=last_xy.index)
-    starts = df.sort_values('frame').groupby('track_id').first()
+        at_edge = pd.Series(False, index=spans.index)
+    entered = pd.Series(False, index=spans.index)
+    crossing = None
+    if edge is not None and entry_margin is not None and entry_margin > 0:
+        near = edge < float(entry_margin)
+        entered = near.groupby(ordered['track_id']).first()
+        crossing = set(zip(ordered['track_id'][near].astype(int), ordered['frame'][near].astype(int)))
+    sizes = None
+    if vacuole_window and int(vacuole_window) > 0:
+        link = max_distance / 2.0 if vacuole_link is None else float(vacuole_link)
+        keys, sizes = _lineage_vacuoles(df, link)
+        vacuoles = dict(zip(zip(df['track_id'].astype(int), df['frame'].astype(int)), keys))
+    buds = None
+    if bud_threshold is not None and 'bud_signal' in df.columns:
+        buds = pd.to_numeric(df['bud_signal'], errors='coerce').groupby(
+            [df['track_id'], df['frame']]).max()
+    starts = ordered.groupby('track_id').first()
     candidates = {}
     for track, row in starts.iterrows():
         track = int(track)
-        if track in skip or row['frame'] <= first_frame:
+        if track in skip or row['frame'] <= first_frame or entered[track]:
             continue
         before = df[(df['frame'] == row['frame'] - 1) & (df['track_id'] != track)]
         if before.empty:
@@ -125,12 +220,82 @@ def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False, *,
             continue
         if not continues and at_edge[mother]:
             continue
+        if crossing and any((mother, f) in crossing for f in before):
+            continue
+        if sizes is not None and not _lineage_vacuole_grew(
+                vacuoles, sizes, mother, daughters, frame, int(vacuole_window),
+                len(daughters) - (0 if continues else 1)):
+            continue
+        if buds is not None:
+            window = [buds.get((mother, f), np.nan)
+                      for f in range(frame - int(bud_window), frame)]
+            if not np.nanmax(window + [-np.inf]) >= float(bud_threshold):
+                continue
         if strict:
             if len(daughters) >= 2 and spans.loc[mother, 'end'] == frame - 1:
                 links.update({d: mother for d in daughters})
         elif continues or len(daughters) >= 2:
             links.update({d: mother for d in daughters})
     return links
+
+
+def _lineage_vacuole_grew(vacuoles, size, mother, daughters, frame, window, added):
+    """Whether the vacuole grew by ``added`` objects across a division.
+
+    The mother must be seen in at least 3 (or ``window``) of the ``window``
+    frames before ``frame``. The median size of her vacuole over those
+    frames is compared with the median, over the ``window`` frames from
+    ``frame``, of the objects in the vacuoles holding the new daughter
+    tracks, so daughters that move apart still count together.
+
+    :param vacuoles: ``{(track_id, frame): vacuole key}``.
+    :param size: ``{vacuole key: objects}``.
+    """
+    before = [size[vacuoles[(mother, f)]] for f in range(frame - window, frame)
+              if (mother, f) in vacuoles]
+    after = []
+    for f in range(frame, frame + window):
+        keys = {vacuoles[(d, f)] for d in daughters if (d, f) in vacuoles}
+        if keys:
+            after.append(sum(size[k] for k in keys))
+    if len(before) < min(3, window) or not after:
+        return False
+    return float(np.median(after)) - float(np.median(before)) >= max(added, 1)
+
+
+def _lineage_bud_signal(label_stack, image):
+    """Daughter-bud brightness of every labelled object in every frame.
+
+    Inside each object, the 95th percentile of a bud marker channel (IMC1
+    and other inner membrane complex markers outline the daughter buds
+    forming in a mother) over its median. A mother carrying buds has bright
+    outlines inside her and scores high; a parasite between divisions is
+    evenly lit and scores near 1.
+
+    :param label_stack: ``(T, H, W)`` labels, each object labelled with its
+        track id.
+    :param image: ``(T, H, W)`` intensities of the bud marker channel.
+    :returns: a table with ``frame``, ``track_id`` and ``bud_signal``.
+    """
+    labels = np.asarray(label_stack)
+    values = np.asarray(image, dtype=np.float64)
+    if labels.shape != values.shape:
+        raise ValueError('bud marker images and labels differ in shape')
+    rows = []
+    for t in range(labels.shape[0]):
+        lab = labels[t].ravel()
+        inside = lab > 0
+        if not inside.any():
+            continue
+        frame = pd.DataFrame({'track_id': lab[inside], 'v': values[t].ravel()[inside]})
+        grouped = frame.groupby('track_id')['v']
+        median = grouped.median()
+        ratio = grouped.quantile(0.95) / median.where(median > 0)
+        rows.append(pd.DataFrame({'frame': t, 'track_id': ratio.index.astype(int),
+                                  'bud_signal': ratio.to_numpy()}))
+    if not rows:
+        return pd.DataFrame(columns=['frame', 'track_id', 'bud_signal'])
+    return pd.concat(rows, ignore_index=True)
 
 
 def _lineage_hours_per_frame(df, frame_interval_s):
@@ -210,7 +375,8 @@ def _lineage_drop_short_cycles(parents, explicit, spans, min_cycle):
 
 def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
                       frame_interval_s=None, persist_frames=3, border_margin=10.0,
-                      field_shape=None):
+                      field_shape=None, entry_margin=None, vacuole_window=0,
+                      vacuole_link=None, bud_threshold=None):
     """Cut one field's tracks into cell-cycle segments linked by divisions.
 
     A segment is one cell from its birth, or its first frame, to its last
@@ -244,7 +410,18 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
     :param border_margin: pixels from the field edge within which a track
         that ends has left the field rather than divided.
     :param field_shape: the image ``(height, width)`` the positions lie in;
-        None turns the field-edge rule off.
+        None turns the field-edge rules off unless the table has an
+        ``edge_distance`` column.
+    :param entry_margin: pixels from the field edge within which a new
+        track entered the field and is never a daughter; None turns it off.
+    :param vacuole_window: frames compared on each side of an inferred
+        division; the mother's vacuole must grow by the objects it adds.
+        0 turns it off.
+    :param vacuole_link: neighbour distance in pixels within one vacuole;
+        half of ``max_distance`` when None.
+    :param bud_threshold: lowest daughter-bud signal (``bud_signal``
+        column) of the mother before an inferred division; None turns it
+        off. See :func:`_lineage_inferred_parents`.
     :returns: one row per segment with ``segment_id``, ``track_id``,
         ``parent_segment_id`` (0 for a root), ``lineage_id`` (the root's
         segment id), ``generation``, ``start_frame``, ``end_frame``,
@@ -268,7 +445,7 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
     known = set(explicit)
     if 'parent_track_id_source' in df:
         native = df['parent_track_id_source'].fillna('').isin(
-            ['ultrack', 'btrack', 'trackastra', 'sam2'])
+            ['ultrack', 'btrack', 'trackastra', 'sam2', 'timepose'])
         known.update(df.loc[native, 'track_id'].astype(int))
     hours = _lineage_hours_per_frame(df, frame_interval_s)
     min_cycle = None
@@ -281,7 +458,11 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
                                          strict='parent_track_id' in df.columns,
                                          persist_frames=persist_frames,
                                          border_margin=float(border_margin or 0.0),
-                                         field_shape=field_shape)
+                                         field_shape=field_shape,
+                                         entry_margin=entry_margin,
+                                         vacuole_window=vacuole_window,
+                                         vacuole_link=vacuole_link,
+                                         bud_threshold=bud_threshold)
     parents = {**inferred, **explicit}
     if min_cycle is not None:
         parents = _lineage_drop_short_cycles(parents, set(explicit), spans, min_cycle)
@@ -634,7 +815,8 @@ def _lineage_hour_statistics(segments, statistics, calibration):
 def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
                                color_by='generation_time', max_distance=30.0,
                                measurements=None, plot=True, frame_interval_s=None, tracks_snapshot=None,
-                               min_division_h=None, field_shape=None):
+                               min_division_h=None, field_shape=None, guards=None,
+                               bud_signal=None):
     """Build lineage trees from one tracks table and write them beside it.
 
     Reads a tracks CSV written by any spaCR tracker (one field per file),
@@ -661,6 +843,12 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
         inferred divisions (see :func:`_lineage_segments`); None for no limit.
     :param field_shape: optional image ``(height, width)`` for the field-edge
         rule of inferred divisions.
+    :param guards: optional keyword arguments of :func:`_lineage_segments`
+        for the edge-entry, vacuole-count and bud rules (see
+        :func:`_lineage_guard_options`).
+    :param bud_signal: optional table with ``frame``, ``track_id`` and
+        ``bud_signal`` (see :func:`_lineage_bud_signal`) joined to the tracks
+        for the bud rule; the tracks file is not changed.
     :returns: dict with the ``segments`` and ``statistics`` frames and the
         ``paths`` written.
     """
@@ -668,12 +856,16 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
 
     tracks = (read_table(tracks_path, report=None) if tracks_snapshot is None
               else tracks_snapshot.copy())
+    if bud_signal is not None and len(bud_signal):
+        tracks = tracks.drop(columns=['bud_signal'], errors='ignore').merge(
+            bud_signal[['frame', 'track_id', 'bud_signal']], on=['frame', 'track_id'], how='left')
     stem = os.path.splitext(os.path.basename(tracks_path))[0]
     out_dir = out_dir or os.path.join(os.path.dirname(os.path.abspath(tracks_path)), 'lineage')
     segments = _lineage_segments(tracks, max_distance=max_distance,
                                   min_division_h=min_division_h,
                                   frame_interval_s=frame_interval_s,
-                                  field_shape=field_shape)
+                                  field_shape=field_shape,
+                                  **(guards or {}))
     segments, calibration = _lineage_calibrate_time(segments, tracks, frame_interval_s)
     try:
         values = _lineage_colour_values(segments, tracks, color_by, measurements)
@@ -721,14 +913,69 @@ def _lineage_min_division_h(settings):
     return hours if hours > 0 else None
 
 
+def _lineage_object_radius(label_stack, frames=10):
+    """Median half length (major axis) of the labelled objects, in pixels.
+
+    Sampled from up to ``frames`` evenly spaced frames; None without objects.
+    """
+    if label_stack is None:
+        return None
+    from skimage.measure import regionprops
+
+    labels = np.asarray(label_stack)
+    if labels.ndim != 3 or not labels.shape[0]:
+        return None
+    picks = np.unique(np.linspace(0, labels.shape[0] - 1, min(frames, labels.shape[0])).astype(int))
+    lengths = [p.major_axis_length for t in picks
+               for p in regionprops(labels[t].astype(np.int32))]
+    return float(np.median(lengths)) / 2.0 if lengths else None
+
+
+def _lineage_guard_options(settings, label_stack=None, max_distance=30.0):
+    """Keyword arguments of :func:`_lineage_segments` from the lineage settings.
+
+    ``timelapse_lineage_edge_entry`` (default on) rejects daughters that
+    enter at the field edge, within one object radius (half the median
+    object length in ``label_stack``, else half of ``max_distance``).
+    ``timelapse_lineage_vacuole_count`` (default on) needs the mother's
+    vacuole to grow over 6 frames on each side of a division.
+    ``timelapse_lineage_bud_guard`` (default off) needs the mother's
+    daughter-bud signal to reach ``timelapse_lineage_bud_threshold``.
+    """
+    guards = {}
+    if settings.get('timelapse_lineage_edge_entry', True):
+        guards['entry_margin'] = (_lineage_object_radius(label_stack)
+                                  or float(max_distance) / 2.0)
+    if settings.get('timelapse_lineage_vacuole_count', True):
+        guards['vacuole_window'] = 6
+    if settings.get('timelapse_lineage_bud_guard', False):
+        value = settings.get('timelapse_lineage_bud_threshold', 2.6)
+        if value is None or value == '':
+            value = 2.6
+        if isinstance(value, (bool, np.bool_)):
+            raise ValueError('timelapse_lineage_bud_threshold must be a number')
+        try:
+            threshold = float(value)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError('timelapse_lineage_bud_threshold must be a number') from exc
+        if not np.isfinite(threshold):
+            raise ValueError('timelapse_lineage_bud_threshold must be finite')
+        guards['bud_threshold'] = threshold
+    return guards
+
+
 def _run_lineage_step(src, name, object_type, mode, settings, *,
-                      frame_sources=None, label_stack=None):
+                      frame_sources=None, label_stack=None, images=None):
     """Draw lineage trees from the tracks one field just produced.
 
     Looks for ``<dirname(src)>/tracks/<tracker>_tracks_<object>_<name>.csv``
     and passes it to :func:`_lineage_trees_from_tracks` with the
     ``timelapse_lineage_color_by``, ``timelapse_lineage_max_distance`` and
-    ``timelapse_lineage_min_division_h`` settings. A failure is reported and does not stop the run.
+    ``timelapse_lineage_min_division_h`` settings and the division rules of
+    :func:`_lineage_guard_options`. With ``timelapse_lineage_bud_guard``,
+    the bud signal is read from the first channel of ``images`` (the
+    channel the objects were segmented on, such as IMC1) inside each object
+    of ``label_stack``. A failure is reported and does not stop the run.
 
     :returns: the result of :func:`_lineage_trees_from_tracks`, or None.
     """
@@ -744,10 +991,23 @@ def _run_lineage_step(src, name, object_type, mode, settings, *,
             from ._lineage_measurements import _SUFFIX, _atomic_json, _prepare_lineage_sources
             source_record = _prepare_lineage_sources(
                 tracks_path, object_type, frame_sources, label_stack, settings.get('frame_interval_s'))
+        max_distance = float(settings.get('timelapse_lineage_max_distance') or 30.0)
+        guards = _lineage_guard_options(settings, label_stack, max_distance)
+        buds = None
+        if 'bud_threshold' in guards:
+            if images is None or label_stack is None:
+                print('Lineage bud guard skipped: no images of the tracked objects')
+            else:
+                marker = np.asarray(images)
+                marker = marker[..., 0] if marker.ndim == 4 else marker
+                try:
+                    buds = _lineage_bud_signal(label_stack, marker)
+                except ValueError as exc:
+                    print(f'Lineage bud guard skipped: {exc}')
         result = _lineage_trees_from_tracks(
             tracks_path,
             color_by=settings.get('timelapse_lineage_color_by') or 'generation_time',
-            max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
+            max_distance=max_distance, guards=guards, bud_signal=buds,
             frame_interval_s=settings.get('frame_interval_s'),
             min_division_h=_lineage_min_division_h(settings),
             field_shape=None if label_stack is None else np.shape(label_stack)[-2:],

@@ -347,8 +347,8 @@ def build(objects: pd.DataFrame, measurement: str, *,
         from. The other three restrict it to the same well, to the control
         wells, or to every other well; each is recorded in
         :attr:`Comparison.note` together with what it removes.
-    :param wells: the wells of the annotation to INCLUDE. ``None`` includes
-        all of them. A well left out is dropped from BOTH sides -- it is not
+    :param wells: the wells of the annotation to include. ``None`` includes
+        all of them. A well left out is dropped from both sides -- it is not
         promoted into the comparison group, because a well excluded for
         being bad is no more usable as a comparison than as an annotation.
     :param controls: the wells the controls occupy, for the
@@ -919,13 +919,8 @@ def join_measurements(objects: "pd.DataFrame",
     png_list : bool, default True
         Join the crop table as well as the object tables. It carries the
         classification score and the crop path, neither of which is in any
-        object table -- which is why it is on by default and why the panel
-        offers it at all.
-
-        THE ARGUMENT EXISTS SO THE BOX CAN MEAN SOMETHING. It was a
-        checkbox that was created, laid out and never read: a control the
-        user can change that changes nothing, which is the failure this
-        codebase writes comments about and shipped anyway.
+        object table, so it is joined by default. The corresponding panel
+        checkbox sets this argument.
 
     Returns
     -------

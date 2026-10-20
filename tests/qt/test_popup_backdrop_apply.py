@@ -55,9 +55,22 @@ def test_spaceout_preferences_keeps_its_popup_drift_without_another_fractal(
         qtbot.addWidget(window)
         window.show()
         qtbot.waitExposed(window)
-        original = tuple(ambient._live_spaceout_fractals())
+
+        def ours():
+            # Apply restyles every open window. In a serial run a window an
+            # earlier test leaked is one of them and may build its own
+            # fractal; only this window's must stay the same one.
+            return tuple(fractal for fractal in ambient._live_spaceout_fractals()
+                         if fractal.window() is window)
+
+        def built_here():
+            return [fractal for fractal in built
+                    if fractal.parentWidget() is not None
+                    and fractal.window() is window]
+
+        original = ours()
         assert len(original) == 1
-        before = len(built)
+        before = len(built_here())
         assert before >= 1
 
         dialog = prefs.PreferencesDialog(window)
@@ -69,15 +82,15 @@ def test_spaceout_preferences_keeps_its_popup_drift_without_another_fractal(
         assert isinstance(backdrop, ambient.AmbientWidget)
         assert backdrop.theme() == "drift"
         assert backdrop.palette_name() == "spacr"
-        assert tuple(ambient._live_spaceout_fractals()) == original
-        assert len(built) == before
+        assert ours() == original
+        assert len(built_here()) == before
 
         prefs.apply_ambient_preferences(qapp)
         assert dialog._spacr_popup_backdrop is backdrop
         assert backdrop.theme() == "drift"
         assert backdrop.palette_name() == "spacr"
-        assert tuple(ambient._live_spaceout_fractals()) == original
-        assert len(built) == before
+        assert ours() == original
+        assert len(built_here()) == before
         dialog.reject()
     finally:
         if dialog is not None:

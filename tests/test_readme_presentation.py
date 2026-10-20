@@ -32,6 +32,20 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def _words() -> str:
+    """The README's wording: its source, as RST prose.
+
+    The README itself is images and code blocks since 2026-10-12; what it
+    says is in packaging/readme_source.yaml, and
+    ``tools/build_readme_images.py`` renders that back to RST for checks
+    like these. tests/test_readme_is_built_from_images.py holds the images
+    to the source.
+    """
+    from tests.readme_source_words import readme_words
+
+    return readme_words()
+
+
 #: A tile counts as wrong when this many pixels of INK disagree. Zero is
 #: not the threshold and the reason is measured, not assumed -- see
 #: `_tile_ink_disagreement`.
@@ -117,13 +131,13 @@ def _assert_tile_is_what_the_generator_draws(committed, rendered, what: str):
 
 
 def test_readme_uses_an_explicit_supported_python_badge():
-    text = _read(README)
+    text = _words()
     assert "Python-3.9%E2%80%933.14" in text
     assert ":alt: Python 3.9 through 3.14" in text
 
 
 def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
-    text = _read(README)
+    text = _words()
     features = _read(FEATURES)
 
     # RENAMED on 2026-09-01. "What you can do" said nothing the six
@@ -268,7 +282,7 @@ def test_no_module_but_make_masks_has_a_section_of_its_own():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    text = _read(README)
+    text = _words()
     labels = {label for _key, label, _description, _section
               in generator._registry()}
     headings = set(re.findall(r"(?m)^([^\n]+)\n[-~^]{3,}$", text))
@@ -290,7 +304,7 @@ def test_no_module_but_make_masks_has_a_section_of_its_own():
 
 
 def test_readme_uses_branch_safe_documentation_links():
-    text = _read(README)
+    text = _words()
     for page in ("installer_guide", "python_api", "features"):
         assert f"einarolafsson.github.io/spacr/{page}.html" not in text
         assert f"docs/source/{page}.rst" in text
@@ -305,7 +319,7 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    text = _read(README)
+    text = _words()
     docs = _read(DOC_WORKFLOW)
     registry = generator._registry()
     urls = generator._api_urls()
@@ -354,7 +368,9 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
         committed = Image.open(ROOT / relative).convert("RGBA")
         rendered = generator.render_module_tile(key, label).convert("RGBA")
         _assert_tile_is_what_the_generator_draws(committed, rendered, relative)
-        assert relative in text
+        # Shown as its cell of the band row since 2026-10-13
+        # (docs/readme_assets/cells/<count>/<folder>/<key>.png).
+        assert f"/{folder}/{key}.png" in text
         assert urls[key] in text
         docs_relative = relative.replace(
             "spacr/resources/icons/workflow", "/_static/workflow"
@@ -388,7 +404,7 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
 
     assert "flow_chart_v3" not in text
     assert "The spaCR workflow" not in text
-    assert "Select a tile to open that\nmodule's API page" in text
+    assert "Select a tile to open that module's API page" in text
     assert "_generated/workflow_grid.rst" in _read(DOCS_INDEX)
     assert "../_generated/workflow_grid.rst" in _read(AUTOAPI_INDEX)
 
@@ -416,7 +432,7 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    text = _read(README)
+    text = _words()
     grid = generator._module_grid()
 
     # THE PIPELINE FIRST, then Home's order. The arrows used to say the
@@ -443,7 +459,6 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         assert bounds[0] >= pad and bounds[1] >= pad
         assert bounds[2] <= committed.width - pad
         assert bounds[3] <= committed.height - pad
-        assert image in text
         assert generator._api_urls()[key] in text
 
     assert str(generator._tile_font(22).path).endswith("OpenSans-Regular.ttf")
@@ -483,9 +498,14 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
             "headings must come from Home through _grid_sections")
     assert "spaCR modules\n-------------" in text
     underline = generator.SECTION_HEADING_CHAR
-    for section, _note, _tiles in generator._grid_sections():
+    for section, note, _tiles in generator._grid_sections():
         assert f"{section}\n{underline * len(section)}\n" in block, (
             f"the grid does not head its {section!r} band")
+        # Drawn as one image per band on the page itself, heading and
+        # Home's note together in its alt text.
+        from html import unescape
+
+        assert f"{section}. {note}" in unescape(_read(README)), section
 
     # A line block fixes the row length and removes paragraph margins.
     # Middle alignment must also survive GitHub sanitization: baseline
@@ -497,38 +517,29 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         "a grid row is a bare paragraph again; its bottom margin is what made "
         "the vertical gutter three times the horizontal one")
     assert sum(line.count("|Module_") for line in rows) == len(grid)
-    # SIX PER ROW, AND A SECTION IS WHERE A SHORT ROW IS ALLOWED. The grid
-    # was one run of tiles until instruction 374 grouped it, and "only the
-    # last row is short" was how that said it. A band of five cannot fill
-    # six columns, so the claim is now made per band: inside one section
-    # every row but its last is full, and no row anywhere exceeds six.
+    # ONE ROW PER BAND, asked for on 2026-10-13 after reading the README on
+    # a phone: every band on one row of equal cells, every tile the same
+    # size in every band, the row spanning the column on a phone and a
+    # desktop alike (``build_readme_images.icon_cell``).
     sections = generator._grid_sections()
-    assert len(rows) == sum(
-        -(-len(tiles) // generator.GRID_COLUMNS)
-        for _s, _n, tiles in sections)
-    consumed = 0
-    for _section, _note, tiles in sections:
-        wide = -(-len(tiles) // generator.GRID_COLUMNS)
-        band = rows[consumed:consumed + wide]
-        consumed += wide
-        assert sum(line.count("|Module_") for line in band) == len(tiles)
-        assert all(line.count("|Module_") == generator.GRID_COLUMNS
-                   for line in band[:-1])
-        assert 1 <= band[-1].count("|Module_") <= generator.GRID_COLUMNS
+    assert len(rows) == len(sections)
+    for line, (_section, _note, tiles) in zip(rows, sections):
+        assert line.count("|Module_") == len(tiles)
     # Zero-width separators: one fewer than the tiles they join, so the
-    # browser puts no whitespace between neighbours and the gutter is
-    # exactly the two canvas margins that meet.
+    # browser puts no whitespace between neighbours and the cells span
+    # exactly their share of the row.
     assert all(line.count(r"\ ") == line.count("|Module_") - 1
                for line in rows)
 
-    # The row must not wrap. Six tiles at the declared width have to leave
-    # headroom, because a browser that rounds each percentage up must
-    # still not push the sixth onto a line of its own.
-    row_width = generator.GRID_COLUMNS * generator.TILE_DISPLAY_PERCENT
-    assert row_width < 100, "a full row wraps its last tile"
+    # The row must not wrap: its cells leave headroom for rounding.
+    from tests.readme_source_words import readme_tool
 
-    # The gutter is made entirely by each tile's own padding, so it has to
-    # be a real gap.
+    tool = readme_tool()
+    assert tool.ICON_ROW_SHARE < 1
+    widest = max(len(tiles) for _s, _n, tiles in sections)
+    assert widest * tool.ICON_SHARE * 358 < 358, "a phone row cannot hold its icons"
+
+    # The gutter inside each tile is still a real gap.
     visible_gap = generator.BUTTON_SIZE - generator.TILE_SIZE
     assert visible_gap == 2 * generator.TILE_PADDING
     assert visible_gap > 0
@@ -558,10 +569,14 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     )["fragment"])
     assert len(parsed.images) == len(grid)
     assert parsed.links == [generator._api_urls()[key] for key, _, _ in grid]
-    for attrs, (_key, label, image) in zip(parsed.images, grid):
+    counts = {key: len(tiles) for _s, _n, tiles in sections
+              for key, _l, _i in tiles}
+    for attrs, (key, label, image) in zip(parsed.images, grid):
+        cell, width = tool.icon_cell(f"spacr/resources/icons/{image}",
+                                     counts[key])
+        assert (ROOT / cell).is_file(), cell
         assert attrs == {
-            "src": f"spacr/resources/icons/{image}",
-            "width": generator.TILE_DISPLAY_WIDTH,
+            "src": cell, "width": width,
             "align": "middle", "alt": f"Open the {label} API",
         }
     sphinx = generator._documentation_workflow()
@@ -631,16 +646,16 @@ print("SPACR_COLUMNS=" + json.dumps(order))
     assert clean == settings_first
 
 
-def test_the_readme_lists_every_published_model_with_its_limits():
+def test_the_readme_lists_the_default_model_of_each_family():
     """The model zoo section is generated from the catalogue, not typed.
 
-    Asked for on 2026-09-02: "add the uploaded modules in the current model
-    zoo to readme in a model zoo section".
-
-    GENERATED, because a hand-written table is a second copy of the
-    catalogue and a second copy goes stale -- which is the fault the module
-    grid above spent a day having removed. Publishing a fourth model must
-    make this test fail until the generator is re-run.
+    Asked for on 2026-09-02, narrowed on 2026-10-12: the README shows only
+    the default model of each family, as a grid of SVG score cards each
+    linking its card in docs/models, with the older models and alternatives
+    on one line each. Redesigned the same day: the grid is a line block of
+    identical half-width cards under a centred heading strip, and the card
+    image itself is the link, with no text link under it. A re-score in
+    the zoo must make this test fail until the generator is re-run.
     """
     import importlib.util
 
@@ -648,47 +663,129 @@ def test_the_readme_lists_every_published_model_with_its_limits():
     spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
+    cards = generator.build_model_cards
 
-    text = _read(README)
+    text = _words()
     block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
     block = block.partition(generator.MODEL_ZOO_END)[0]
     assert block.strip(), "the README has no model zoo block"
-    assert block.strip() == generator._model_zoo_table().strip(), (
-        "the README's model zoo table is not what the catalogue produces; "
+    assert block.strip() == generator._readme_model_zoo_block().strip(), (
+        "the README's model zoo block is not what the catalogue produces; "
         "re-run packaging/generate_readme_visuals.py")
+    drawn = _read(README).partition(generator.MODEL_ZOO_BEGIN)[2]
+    drawn = drawn.partition(generator.MODEL_ZOO_END)[0]
+    assert drawn.strip() == generator._readme_model_zoo_markup(
+        render=False).strip(), (
+        "README.rst does not carry the model zoo block as images; re-run "
+        "packaging/generate_readme_visuals.py")
+    source = block
 
-    rows = generator._model_zoo_rows()
-    assert rows, "the catalogue published nothing"
-    for key, name, trained_on, limits in rows:
-        assert f"``{key}``" in block, f"{key} is published but not in the README"
-        assert name in block
-        # THE LIMITS TOO, not only the headline number. Every entry's notes
-        # carry the caveat that says what the model is not for -- "accuracy
-        # falls sharply above IoU 0.8", "locates WELLS, not plaques" -- and
-        # a table that prints only the good number is the sort of claim
-        # instruction 316 exists to prevent.
-        assert limits, f"{key} publishes no notes at all"
-        assert limits in block, f"{key}'s stated limits are missing"
-        assert trained_on in block, f"{key} does not say what it was trained on"
+    published = generator._published_models()
+    defaults = cards.default_records(published)
+    assert defaults, "the catalogue published nothing"
+    from html import unescape
 
-    # The table must not depend on the machine that generated it: a
-    # developer with a local checkpoint installed, a plugin, or the
-    # catalogue environment variable set must all produce the same README.
+    table = unescape(block.partition("\n\n" + "Older models")[0])
+    for entry in defaults:
+        key = cards.key_of(entry)
+        assert f"<docs/models/{key}.md>`__" not in table, (
+            f"{key} has a text link under its card; the card is the link")
+        assert f'srcset="docs/models/cards/{key}.svg"' in table, key
+        assert f'src="docs/models/cards/{key}.phone.svg"' in table, key
+        assert f'href="docs/models/{key}.md"' in table, key
+        versus = str(entry["versus_stock"]).strip().rstrip(".")
+        assert versus[1:] in table, key
+    for entry, _status in cards.other_records(published):
+        key = cards.key_of(entry)
+        assert f"`{key} <docs/models/{key}.md>`__" in source, key
+        assert f'href="docs/models/{key}.md"' in drawn, key
+        assert f"cards/{key}.svg" not in table, (
+            f"{key} is not a family default but has a score card in the grid")
+    assert "Older models: " in source
+    assert 'alt="Older models."' in drawn
+
+    for key in ("toxoplasma_pv", "toxoplasma_plaque", "live_cell"):
+        family = next(f for f in cards.families(published) if f["stem"] == key)
+        assert family["status"][cards.key_of(family["default"])] == "default"
+
     import os
 
     from spacr.model_zoo import CATALOGUE_ENV_VAR
 
+    before = generator._readme_model_zoo_block()
     os.environ[CATALOGUE_ENV_VAR] = "/nonexistent/catalogue.json"
     try:
-        assert generator._model_zoo_rows() == rows, (
-            "the generated table changed with the environment; the README "
-            "would differ depending on who ran the generator")
+        assert generator._readme_model_zoo_block() == before, (
+            "the generated block changed with the environment")
+        assert generator._published_models() == published
     finally:
         os.environ.pop(CATALOGUE_ENV_VAR, None)
 
 
+def test_model_zoo_links_to_the_matching_site_mask_generator():
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    labels = {
+        "en": "Mask generator", "sv": "Maskgenerator",
+        "de": "Maskengenerator", "es": "Generador de máscaras",
+        "fr": "Générateur de masques", "pt": "Gerador de máscaras",
+        "is": "Grímugerð", "zh_CN": "掩膜生成器",
+        "ko": "마스크 생성기", "hi": "मास्क जनरेटर",
+    }
+    for language, label in labels.items():
+        route = "" if language == "en" else language.replace("_", "-") + "/"
+        target = (
+            "https://einarolafsson.github.io/projects/spacr/"
+            f"{route}#mask-generator"
+        )
+        prefix = "docs/models/" if language == "en" else "../../models/"
+        source = generator._readme_model_zoo_block(prefix, language)
+        assert source.rstrip().endswith(f"`{label} <{target}>`__"), language
+        pages = {}
+        markup = generator.build_readme_images.convert_generated(
+            source, language, "model-zoo", render=False, pages=pages)
+        linked_pages = [name for name, text in pages.items()
+                        if f"[{label}](<{target}>)" in text]
+        assert linked_pages == ["generated-model-zoo-3"], language
+        page_prefix = "docs/readme_text/" if language == "en" else "../../readme_text/"
+        assert markup.count(
+            f'href="{page_prefix}{language}/{linked_pages[0]}.md"') == 1, language
+        assert f'alt="{label}"' in markup, language
+        for entry in generator._published_models():
+            key = generator.build_model_cards.key_of(entry)
+            card = generator.build_model_cards.card_file(key)
+            assert f'href="{prefix}{card}"' in markup, (language, key)
+
+
+def test_every_readme_carries_the_same_model_zoo_block():
+    import importlib.util
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    for readme in generator.README_PATHS:
+        text = readme.read_text(encoding="utf-8")
+        block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
+        block = block.partition(generator.MODEL_ZOO_END)[0]
+        expected = generator._readme_model_zoo_markup(
+            generator._card_prefix(readme), generator._readme_language(readme),
+            render=False)
+        assert block.strip() == expected.strip(), readme.name
+        for target in re.findall(r'href="([^"]+\.md)"', block):
+            assert (readme.parent / target).resolve().is_file(), (
+                readme.name, target)
+        images = re.findall(r'(?:src|srcset)="([^"]+\.svg)"', block)
+        assert images, readme.name
+        for target in images:
+            assert (readme.parent / target).resolve().is_file(), (
+                readme.name, target)
+
+
 def test_installer_guide_is_distinct_from_the_version_archive():
-    readme = _read(README)
+    readme = _words()
     guide = _read(INSTALLER_GUIDE)
     index = _read(DOCS_INDEX)
 
@@ -702,7 +799,9 @@ def test_installer_guide_is_distinct_from_the_version_archive():
         "Troubleshooting",
     ):
         assert heading in guide
-    assert ":target: docs/source/installers.rst" in readme
+    # 2026-10-12: the maintainer removed the README's "Earlier spaCR
+    # installers" button; the archive page stays in the documentation index.
+    assert ":target: docs/source/installers.rst" not in readme
     assert "   installer_guide" in index
     assert "   installers" in index
 
@@ -733,7 +832,7 @@ def test_installer_guide_gives_old_desktop_builds_the_pipless_escape():
 def test_reference_resources_are_linked_rounded_buttons():
     from PIL import Image
 
-    text = _read(README)
+    text = _words()
     for name in ("biostudies", "huggingface", "ncbi", "spacrpower", "biorxiv"):
         relative = f"spacr/resources/icons/databanks/{name}_button.png"
         assert relative in text
@@ -752,7 +851,7 @@ def test_reference_resources_are_linked_rounded_buttons():
 
 
 def test_readme_contains_only_user_facing_installation_copy():
-    text = _read(README)
+    text = _words()
     for creator_note in (
         "one-time reviewed onboarding",
         "one-time maintainer procedure",
@@ -765,7 +864,7 @@ def test_readme_contains_only_user_facing_installation_copy():
 
 
 def test_language_support_is_a_documented_output_safe_feature():
-    readme = _read(README)
+    readme = _words()
     guide = _read(LOCALIZATION)
     index = _read(DOCS_INDEX)
 
@@ -785,7 +884,7 @@ def test_language_support_is_a_documented_output_safe_feature():
 
 
 def test_setting_animations_are_wired_into_readme_and_docs():
-    readme = _read(README)
+    readme = _words()
     gallery = _read(SETTING_ANIMATIONS)
 
     assert "Animated setting guidance" in readme

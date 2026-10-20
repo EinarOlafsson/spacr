@@ -30,8 +30,17 @@ def _settings(**over):
 
 
 def _screen(qtbot):
+    """A regression screen whose pipeline module is already imported.
+
+    The first Run of a session imports the module off the GUI thread and
+    resumes when it is in; with it imported, Run starts at once, as every
+    later Run does, which is what these tests read straight after the call.
+    """
+    import importlib
+
     from spacr.qt.screens.app_screen import AppScreen
 
+    importlib.import_module("spacr.ml")
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
     return screen

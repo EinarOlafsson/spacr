@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "pt-BR",
+  "title": "Instalar spaCR",
+  "description": "Instale com pip em um ambiente virtual do Python, pip em um ambiente do Conda ou conda-forge em um ambiente do Conda; inicie, atualize e desinstale.",
+  "objectives": [
+    "Escolher uma das três formas de instalação isoladas.",
+    "Ativar o ambiente correto antes de instalar ou iniciar.",
+    "Verificar a versão instalada, atualizar e desinstalar com segurança."
+  ],
+  "prerequisite": "Use Python 3.12 para o ambiente virtual ou instale Conda/Miniforge para uma das duas opções com Conda. Abra um terminal. Escolha nomes diferentes dos ambientes existentes.",
+  "scenes": [
+    "Escolha uma forma de instalação. Pip instala o spaCR em um ambiente virtual do Python ou em um ambiente do Conda. Conda-forge instala em um ambiente do Conda; ele não pode instalar pacotes em um ambiente virtual do Python. As três formas abaixo são alternativas, então você só precisa de uma.",
+    "Para usar pip com um ambiente virtual, crie uma pasta dedicada e execute Python três ponto doze com hífen m venv para criar ponto venv. Use outra pasta se ela já contiver um ambiente.",
+    "Ative ponto venv antes de cada instalação, atualização ou inicialização. No Linux e macOS, carregue com source o script bin barra activate. No Windows PowerShell, execute ponto venv barra invertida Scripts barra invertida Activate ponto ps um. O indicador do ambiente e o caminho do Python confirmam qual interpretador você está usando.",
+    "Com o ambiente ativo, atualize o pip e depois execute pip install spacr. A instalação do pacote inclui as dependências Qt usadas pelo aplicativo de desktop. Espere a instalação das dependências científicas e de desktop terminar.",
+    "Verifique a versão instalada e o caminho do pacote; depois execute python hífen m pip check. Guarde a versão com suas notas de análise. Essa forma instala o pacote publicado no PyPI; uma cópia do código-fonte ou uma versão nightly pode ter recursos de interface mais recentes.",
+    "Execute spacr-doctor e siga as orientações sobre dependências ausentes que sejam relevantes para seu trabalho. Depois digite spacr para iniciar o aplicativo instalado. Feche o aplicativo antes de alterar seu ambiente.",
+    "Para usar pip no Conda, crie um ambiente chamado spacr-pip com Python três ponto doze e pip e ative-o. Conda fornece o interpretador; pip fornecerá o spaCR. Escolha outro nome se spacr-pip já existir.",
+    "Com spacr-pip ativo, atualize o pip e execute pip install spacr. A instalação do pacote inclui suas dependências Qt de desktop. Verifique a versão do pacote e execute pip check, como na opção do ambiente virtual. Inicie spacr a partir desse mesmo ambiente ativo.",
+    "Para conda-forge, crie em um único comando um ambiente novo chamado spacr-conda com Python três ponto doze e spacr do canal conda-forge. Resolver o interpretador e o spaCR juntos evita adicionar o pacote a um ambiente sem relação com esta instalação.",
+    "Conda mostra seu plano de pacotes antes de instalar. Revise o plano, aceite-o e espere os downloads e a instalação terminarem. A versão disponível no conda-forge pode ser diferente da versão mais recente no PyPI ou nightly.",
+    "Ative spacr-conda. Verifique o caminho do ambiente do Python e execute conda list spacr para confirmar a versão instalada e o canal. Depois execute spacr-doctor e inicie spacr a partir desse ambiente.",
+    "Este material complementar mostra a interface Home da versão nightly atual. Sua versão instalada pode ter outra aparência. Os comandos de ambiente instalam o pacote publicado no canal escolhido; esta visualização do código atual não afirma que todos os recursos nightly já foram publicados.",
+    "Para atualizar uma instalação com pip, feche o spaCR, ative seu ambiente e execute pip install hífen hífen upgrade spacr. Verifique a versão depois. Use pip para atualizar o spaCR nas duas opções com pip, incluindo o ambiente do Conda criado para pip.",
+    "Para a opção conda-forge, feche o spaCR, ative spacr-conda e execute conda update hífen c conda-forge spacr. Se não houver uma versão mais recente, Conda informa que os pacotes solicitados já estão instalados. Verifique a versão instalada em vez de presumir que a interface mudou.",
+    "Para remover uma instalação com pip, ative seu ambiente e execute python hífen m pip uninstall spacr; depois confirme a remoção. Isso remove o pacote spaCR. Não remove seus projetos de microscopia nem todas as dependências automaticamente.",
+    "Se ponto venv foi criado só para o spaCR, desative-o e remova essa pasta ponto venv dedicada. Para o ambiente dedicado spacr-pip do Conda, execute conda deactivate e depois conda env remove hífen n spacr-pip. Remova somente o ambiente criado para este tutorial.",
+    "No ambiente do conda-forge, conda remove spacr remove o pacote depois que você revisa o plano de remoção. Para remover o ambiente dedicado inteiro, desative-o e execute conda env remove hífen n spacr-conda. Mantenha as pastas dos projetos separadas; desinstalar o ambiente não significa apagar seus dados de análise."
+  ]
+}

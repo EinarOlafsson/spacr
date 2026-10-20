@@ -1,0 +1,30 @@
+{
+  "unit": "hard-f554-strict-ops-20261015",
+  "root": "/mnt/wd4tb/spacr-worktrees/codex-f564-pretrained-reuse-20261015",
+  "code_source_pin": "6e4d131624f005afb8ddd7fa73911ca06922408f",
+  "wrapper_sha256": "d09c43a18d25cac22e8ce344e232e8568385d97d6c5d91b4382815c2a177a4cc",
+  "script_sha256": "44743cd57b1b584f44498353fa4c1171a83feed081ce6240df30c3514e568663",
+  "network_control": {
+    "exit": 0,
+    "parent_and_child_inet4_inet6_refused": true,
+    "unix_pair_send_recv": true
+  },
+  "readonly": "Original exact DB connect converted mode=ro/query_only; worker detector code has no DB path argument. Existing image/library/model bytes untouched and normal strict streamed hashes before/after.",
+  "free_bytes_before": 13586784256,
+  "scratch_estimate": "Under100MiB transient IPC/log/output; not a capacity guarantee; no copies or acquisition.",
+  "max_unit_seconds": 1200,
+  "memory": "8GiB/zeroSwap inherited owning cgroup",
+  "thread_environment": "CPU-only per-provider1, no native/GPU claim",
+  "model_actual_execution": "Authorized single actual CPU replay only; parent/child outbound address families denied, no installs/downloads.",
+  "scope_containment_correction": {
+    "actual_python_pid": 2405901,
+    "actual_scope": "run-u64915.scope",
+    "actual_pid_start": "52692424",
+    "scope_memory_max": 8589934592,
+    "scope_swap_max": 0,
+    "scope_cpu_quota": "100% explicitly set after observing run_capped moves child out of service cgroup",
+    "inherited_seccomp_confirmed": "/proc/PID/status NoNewPrivs1/Seccomp2/filters2; wrapper_INET4/6 probe already passed before imports",
+    "deadline": "Separate delayed systemd guard checks exact PID start+scope membership then stops ONLY owning scope; parent service timeout alone does not contain run_capped scope. No job canceled/restarted.",
+    "runtime_property_attempt": "set-property RuntimeMaxSec refused for scope, no successful claim; guarded timer used."
+  }
+}

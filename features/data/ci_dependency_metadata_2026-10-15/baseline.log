@@ -1,0 +1,48 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+______ test_minimum_profile_covers_every_lower_bounded_direct_requirement ______
+
+    def test_minimum_profile_covers_every_lower_bounded_direct_requirement():
+        declared = [
+            requirement
+            for requirement in _declared_requirements()
+            if _applies_to_minimum_job(requirement) and _has_lower_bound(requirement)
+        ]
+        constraints = _minimum_constraints()
+    
+        missing = sorted(
+            requirement.name
+            for requirement in declared
+            if canonicalize_name(requirement.name) not in constraints
+        )
+>       assert not missing, f"minimum profile is missing direct requirements: {missing}"
+E       AssertionError: minimum profile is missing direct requirements: ['markdown-it-py', 'paramiko', 'readme-renderer']
+E       assert not ['markdown-it-py', 'paramiko', 'readme-renderer']
+
+tests/test_dependency_profiles.py:101: AssertionError
+________________ test_conda_recipe_covers_every_core_dependency ________________
+
+    def test_conda_recipe_covers_every_core_dependency():
+        recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
+        run = recipe["requirements"]["run"]
+        conda_names = {
+            _normalise(str(requirement).split()[0])
+            for requirement in run
+            if not str(requirement).startswith("python ")
+        }
+        expected = {
+            _normalise(CONDA_NAMES.get(name, name))
+            for name in _core_dependency_names()
+        }
+>       assert conda_names == expected | CONDA_APPLICATION_DEPENDENCIES
+E       AssertionError: assert {'adjusttext'...dpickle', ...} == {'adjusttext'...dpickle', ...}
+E         
+E         Extra items in the right set:
+E         'paramiko'
+E         Use -v to get more diff
+
+tests/test_conda_forge_recipe.py:80: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_dependency_profiles.py::test_minimum_profile_covers_every_lower_bounded_direct_requirement
+FAILED tests/test_conda_forge_recipe.py::test_conda_recipe_covers_every_core_dependency
+2 failed in 0.38s

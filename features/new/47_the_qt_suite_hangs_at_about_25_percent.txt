@@ -2,7 +2,12 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 
 
-Status:    OPEN 2026-10-07 — protected b688 run37639050274 failed with
+Status:    COMPLETE 100% 2026-10-11 — one uninterrupted original-order serial
+           tests/qt run on 0a3f3ff64 (31,136 collected) finished with its
+           summary in 4:37:32: no hang, no crash, no timeout, peak RSS
+           7.21 GB. 16 failed / 4 errors are listed in the 2026-10-11 note
+           (other lanes, load timing, or fixed after the run).
+Previous status (superseded 2026-10-10):    OPEN 2026-10-07 — protected b688 run37639050274 failed with
            native SIGSEGV near39% in real distribution measurement;
            last recorded RSS~4048MiB with zero OOM kills. Its retained native
            trace reaches QEventLoop::exec. Ordinary bb7 separately crashes
@@ -2447,3 +2452,62 @@ run or a hard native performance claim.
 2026-10-08 21:13 EDT — Final Edit focus and bounded Xvfb Home fixtures pass owning6/219 and focused5/5 checks. Known-failing e600 serial will be superseded after push by one final-source original-order run. Hosted full-suite acceptance and native performance remain pending; no local full-suite run or weakened timing ceiling.
 
 2026-10-08 21:16 EDT — Final source4944c63dc7 pushed. Requiredfull37868897849 and original-orderQtserial37868900922 dispatched on exactsource; results/first numeric endpoint remain pending. No current hosted-green claim.
+
+2026-10-11 — UNINTERRUPTED LOCAL SERIAL RUN COMPLETES; LEAKS AND STALLS FIXED
+Acceptance run (run5): one process, `pytest tests/qt -v -p no:randomly`,
+no xdist, original order, CPU only (CUDA_VISIBLE_DEVICES=''),
+QT_QPA_PLATFORM=offscreen, tools/run_capped.sh 16G (MemorySwapMax=0),
+SPACR_TEST_MEMORY_GB=14, pytest-timeout 900 s (thread method),
+faulthandler_timeout=600, the qt_serial_rss_journal plugin. Source
+0a3f3ff64 in a frozen worktree. 00:55:44 to 05:33:24 EDT 2026-10-11.
+Result: 31,010 passed, 16 failed, 4 errors, 81 skipped, 26 xfailed in
+16,652.87 s (4:37:32). Exit 1 from test failures only: no hang, no native
+crash, no timeout, no memory-guard exit; the fatal-fault log is empty.
+Peak RSS 7,210,024 KiB (/usr/bin/time). Retained Qt widgets at file
+boundaries: median 805, 90th percentile 2,404 (run1: climbing to 13,549).
+Logs, junit, RSS journal: /mnt/wd4tb/scratch/claude-n47-20261010/run5-*.
+The guard is 900 s, not 300 s: the machine ran at load 40-50 from other
+sessions, and run4 (300 s) ended in test_empty_flowchart_caption_
+translates_without_changing_python_none, which takes 144 s alone.
+
+History of this pass. run1 (39aa0f46e, 300 s guard) was stopped at 63%
+after 3.5 h at 13,549 retained widgets: test_field_fade.py took 1,131 s
+(25 s in run5), test_one_close_mark.py 820 s (19 s),
+test_every_popup_has_the_card_and_the_rim.py 639 s (11 s). run2
+(7b7858e8d) completed in 5:40:15 with 26 failed / 4 errors. run3
+(aca79cb62) ended at its 300 s limit in test_preprocess_generate_masks_
+runs_on_mask_demo; run4 (534f5fcda) in the i18n catalog test above.
+
+Root causes fixed, all pushed to nightly:
+- Retained widget trees (7b7858e8d, aca79cb62): Make Masks now deletes the
+  closed folded modules it built (Cellpose workbench, Model Zoo, Compare)
+  unless a thread still runs; the sample-project dialog and the tutorial
+  renderer's MainWindow are deleted after use; twelve test files give their
+  screens/panels to qtbot or delete module fixtures.
+- Ten-second paced worker starts (664) spent on nothing: a finished
+  thread pool waited for its unused paced starts at shutdown (Calibration
+  preview 30 s+); measure_crop kept surplus fork workers and
+  adjust_cell_masks always opened Pool(n_jobs), so one demo field started
+  about 30 workers 10 s apart (296.8 s and over 300 s; now 6 s and 10 s).
+- OpenCC t2s dictionaries were reopened for every string checked
+  (231 s -> 144 s for one catalog test) (0a3f3ff64).
+- Figure settings handed translated captions to matplotlib
+  ("geradlinig", "am besten"); values now travel as item data, with a
+  regression test that fails on the old code.
+- Order-dependent test faults: stored QThread wrappers compared by `is`
+  (track previews), id() reuse and Qt's own scroll containers in the idle
+  prebuild check, a vanished SQLite -shm in du(), and the macOS menu probe
+  child, whose stubbed exec() never quit, so interpreter exit destroyed a
+  running bridge QThread (abort/segfault, 3 of 4 runs) after the result
+  sat unflushed in the pipe; it now prints flushed and leaves with
+  os._exit (fixed after run5, 3/3 passes).
+
+Run5 failures left for their owners (deterministic alone unless noted):
+i18n caption arrivals x7 (unreviewed arrivals); prerun row height
+(86 vs 48 alone); settings column black[umap] 0.5%; popup backdrop
+spaceout fractal count; tutorial capture alpha guard x2 and capture
+policy x3 ("visible backdrop widgets are not the requested backdrop");
+perf guard aurora frame cost (load). macOS menu x4 errors: fixed after
+the run, as above. Remaining observation, not a hang:
+test_the_text_fits_sweep.py still takes 1,157 s in the run (under 1 s per
+case alone, about 6 s per case late in the run at 2,400 retained widgets).

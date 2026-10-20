@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "consumer_commit": "14a6e0e14a155f5239941f59d6c50f223a67db11",
+  "source_ref": "1eabf4b498a7be2a7eb91385c1c5cb1ba7edf473",
+  "source_files": {
+    "spacr/install_cleanup.py": "3448c838e77cb9a4fb6c95127fce2c733645c546124b86282f72a8ddcf100837",
+    "spacr/qt/app.py": "0d0c6109143feadec12a1dafaebae79839f1ccd46a9f918c5efaf89e6c2b81ca"
+  },
+  "normal_generator": "tools/build_help_search_index.py; one successful generation, initial consumer import-path failure preserved; corrected checkout-specific consumer rerun only.",
+  "help_index_sha256": "3437e7edf63fcd411847f698d09399cd316b03f4f61bfb4d19adee6c077b2fbb",
+  "actual_consumer": "Nine local docstrings, generated summaries, English/Korean links and eighteen production search queries; unrelated Help rows/settings/preferences preserved.",
+  "scope": "No network, native/human or global API/source acceptance claim.",
+  "final_merged_consumer_commit": "a15077cfe85c36873d5fd6c7883a495c348cb43e",
+  "final_merged_readback": "PASS all nine symbols/eighteen searches with owner runtime catalogs integrated; 24 tested artifact/source files byte-exact."
+}

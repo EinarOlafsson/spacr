@@ -1,0 +1,4263 @@
+{
+  "schema_version": 1,
+  "status": "SCOPED_SCIENTIFIC_TECHNICAL_CHECKS_ACCEPTED_WHOLE_CAPTURE_REVIEW_PENDING",
+  "accepted": true,
+  "acceptance_scope": "Fresh r34 source/input preservation, saved model provenance/normalization, offline CPU pixel formula, in-sample QC arithmetic and Apply setting demonstration only",
+  "whole_capture_accepted": false,
+  "root_visual_acceptance_pending": true,
+  "independent_gate_review_pending": true,
+  "physical_illumination_validated": false,
+  "biological_validation": false,
+  "published": false,
+  "synthetic_images": false,
+  "source_commit": "a5dc7353bc1da39795c565dd4d4dd27f3f2ba5af",
+  "main_stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014",
+  "apply_stage": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014",
+  "started_utc": "2026-10-14T23:10:56.610720+00:00",
+  "finished_utc": "2026-10-14T23:11:02.317365+00:00",
+  "source_files_rehashed_matching": 502,
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/folder_metadata.py",
+      "sha256": "4ea4ee09b560872cc0943e3cd6d7b1a3cfb4e1d98309431fbee0822d1d3a97ac",
+      "bytes": 10623,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/theme.py",
+      "sha256": "6abc42c1007e988cad98a7d0f882fb0cf8d22db613225554c68725135b63d77a",
+      "bytes": 268573,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/bridge.py",
+      "sha256": "c548813cf9c55f8e0bfda966b08750c5cb30256623afeed72570101b2a3170d4",
+      "bytes": 91228,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/preferences_navigation.py",
+      "sha256": "1248ddc106939307e8384e4b230bfe6e640f77631e1b656b0904d78cac3f8dc6",
+      "bytes": 6788,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/prefs.py",
+      "sha256": "88d46fd7f12480d465db1962e5ba317508bbc262e416a6692d6d301f829afe4b",
+      "bytes": 4408,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/walkthrough.py",
+      "sha256": "a08040b152ab031932d343c50140c5760e8ee4c0a7a31237220611dac9434ad5",
+      "bytes": 26615,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/app_catalog.py",
+      "sha256": "6180a99d223be848a36a96110f8d26d63cb8847e857486d5ddefa145e23b0f63",
+      "bytes": 38524,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/secondary_masks.py",
+      "sha256": "1c010d6fe40f7ea314730a1841261893dab3d599796b3a1dced73520f9519511",
+      "bytes": 6811,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/notify.py",
+      "sha256": "07ef784b418c2588dd0c32ff580f79805c84896ba96309f87b4bdad930a43065",
+      "bytes": 5303,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/shortcuts.py",
+      "sha256": "c98ba32df7c43e01360d871e0ff2f7e76dde66f29c8fda638b0c411e673e7f16",
+      "bytes": 72273,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/mask_engine.py",
+      "sha256": "e2984deb6eefb3399e732c4fb4cf2e95d048ddc33ce67ef3410277cf7230ea7d",
+      "bytes": 304194,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/multi_format.py",
+      "sha256": "26624e8d855fec0a59d242e867e176a8dc934d9213da4929f3ba7d79b1324af2",
+      "bytes": 10279,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/linked_selection.py",
+      "sha256": "14d13b256f1fccce15e433be2048f19bd9a29b704a6d4705a6bc17c57dd199d0",
+      "bytes": 28625,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/resource_cleanup.py",
+      "sha256": "44def331d580e12a6165dcf36687b332b19bface555cb57396640ac23a194be2",
+      "bytes": 70115,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/mask_thumbnail_quality.py",
+      "sha256": "6dcaa9f1b31092a18ab2020759ff9a27ad29cd44c7cd69080033ee4e420ba2d8",
+      "bytes": 2587,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/logging_util.py",
+      "sha256": "d7203dc24e437bb763702175ffc64aea98900f9cbeadd7caa7ad7ed71ad8df3b",
+      "bytes": 8917,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/organelle_modes.py",
+      "sha256": "505e08462ea89334c2dbf46138d12fa1b0c0169663e4104d1b7e1bfa148d5511",
+      "bytes": 12466,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/__init__.py",
+      "sha256": "557a2eb740b3202c9dd200041d9b205bfc407cbdcbdb6d07bdf86f942fe43cb3",
+      "bytes": 20794,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/resonance.py",
+      "sha256": "f1100869daf41f8958844c543ada14c68b2860de43b1f555bf62448d6c64e8d6",
+      "bytes": 32689,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/path_probe.py",
+      "sha256": "e55fcbc2baae3d8ad829c22f7f7f050d86b979b20f30308882653910ef717c60",
+      "bytes": 10276,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/job_runner.py",
+      "sha256": "db06018699356f525c407d943b23deb17055f94cfdba12aea01e7fb231bd534b",
+      "bytes": 14871,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/setup_screen.py",
+      "sha256": "b63d61223b77dd75beb3d58aa50aea7eb5e82344717dc7e4d3d4e369a7129ce7",
+      "bytes": 8532,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/dnd.py",
+      "sha256": "fd90869558847de6f2e97e4a3facbdf902e1200dbe81b221055c8608e888a2f6",
+      "bytes": 48348,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/assay_examples.py",
+      "sha256": "82bd6b6be91aa660cbe717311b0087e63480c1b9badc2ce6ddd7b74b4f3d77ee",
+      "bytes": 9019,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/verbose_logger.py",
+      "sha256": "09114dcb8aa44f9944837093f7ad5a78dd87bad9e50866dc794243a87674390a",
+      "bytes": 24117,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/regex_editor.py",
+      "sha256": "975564b3447e272902b3eb18f7c5df6a9bd1acb77e3982b1c6039b230789db0a",
+      "bytes": 13061,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/_layout_policy.py",
+      "sha256": "25424f67a0b7df094dda8e95006dac663816aefe4273bd98679593ed4fb2a4d6",
+      "bytes": 7139,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widget_cleanup.py",
+      "sha256": "e73064b7aec6a6e5ab79125902d39c82865cc150a6047950c051c4cbdfe4549d",
+      "bytes": 4215,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/chaining.py",
+      "sha256": "7c455c640de6275606e5903b940ea5ad225abdfee6f50fc7ac07aecf276b5ae6",
+      "bytes": 43262,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_module_summaries_west.py",
+      "sha256": "45eaaadc6c4ad5fe8dd6d2abc750983b25ebfa4cc6a2daf25a8928ec450fa48e",
+      "bytes": 13967,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/maturity.py",
+      "sha256": "ad78070083d58c0fd3a2440ff5b7bc0c8fefcc40324f3f4857716eb5d9da0553",
+      "bytes": 16186,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/shutdown.py",
+      "sha256": "2deed244181bc594eb6ca1310153ffce56f3dd05ec61d8799dbae48cd12b4589",
+      "bytes": 12933,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/help_search.py",
+      "sha256": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+      "bytes": 40909,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/laptop_mode.py",
+      "sha256": "96bd17277365ef2621a80dcb5a637dcef918cf1a38e9801ab116e549d95f3e1f",
+      "bytes": 7978,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/terms.py",
+      "sha256": "30805120ccdf6a73ad9f022f6178d17b0ad612f1da6fb3a85bce906cb778f4f7",
+      "bytes": 27982,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/app.py",
+      "sha256": "612f8bf30aae8db4f9cc04876380de54cb3f7803abecbab13ec4ba24e55f76f3",
+      "bytes": 349711,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/imagery.py",
+      "sha256": "124879af630c860c462ae378cfd2070de4abe7f109d4214a659496515b01f385",
+      "bytes": 34080,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/prerun.py",
+      "sha256": "462fbd4ef5edea14ae51db19e493b2060923092302c88caafa3c8cf49fae2d0d",
+      "bytes": 71789,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/roi_tool.py",
+      "sha256": "e775bc429eea77f37870a2fc14f9f3baee26d0d4d97c5a1b51799c6429dcb3ad",
+      "bytes": 23438,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/counting_tool.py",
+      "sha256": "c41ff4aec2746ab283bb3ebda5099328f7e6d3f0aa8f5a0eb410d82264a00bca",
+      "bytes": 15823,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/module_hints.py",
+      "sha256": "0675ad3ddbe265ef5d4f0b1eca5f54d7f478a431ad08939573edaa42393a285a",
+      "bytes": 7289,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/button_roles.py",
+      "sha256": "4786c1fb4b5bf6269009495be0e2e8acaf596ffe3545f99fbc2dc31c5bc3085f",
+      "bytes": 11992,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/gui_scale.py",
+      "sha256": "6eee4bfbeeacda0aeab135ac89d100250256bd0e6ddc9aa4c357d2395574b341",
+      "bytes": 48955,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/import_demo.py",
+      "sha256": "2fdb4fbc2722c9ef5bc6ee4b73f8c09cce1813f698dbde3c7071f9c59caff774",
+      "bytes": 12988,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/live_zoom.py",
+      "sha256": "6a306b2f91cd7f1390c39fd216f414b60e9f1145621ab4798de89d97a043e4dc",
+      "bytes": 42668,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/hf_download.py",
+      "sha256": "eaa64695fcf3ce73f02447cea06757afccfbd092c827e9e0f418b5901764416f",
+      "bytes": 36504,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/help_api_index.py",
+      "sha256": "d0d571b83da672cb98979802e92e2995ad17229641affcc8a9d670723456abe4",
+      "bytes": 1738227,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/dnd_handlers.py",
+      "sha256": "8342d2f1f35bcad1b7e4cce935a03d95c7e014bc44f3f014b9b24415fa9b357e",
+      "bytes": 167472,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/detect_chain.py",
+      "sha256": "95204a278a72a7a64a64493c5cde46b8f5240dff3ac8952ed86036c9ef837a7d",
+      "bytes": 39588,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/timing.py",
+      "sha256": "b284af740117af62049ec0e1b080f67c219198c7923596daae607cf7110ab59f",
+      "bytes": 39194,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/startup_benchmark.py",
+      "sha256": "3df1f0b680df25688177d577cf6f28b3db659046c1a8d3799b384eb5d339db35",
+      "bytes": 66933,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/sound.py",
+      "sha256": "13f6ac8cc725616438d6f80bc794f110f958d257823c59e37f71ccda3ede174f",
+      "bytes": 59700,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/command_palette.py",
+      "sha256": "390ca0d6733440a057b30adb58fedabac77f3b810dbeadfc7ec6308b8660fff6",
+      "bytes": 26015,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ops_stitch_demo.py",
+      "sha256": "d2099160664979b9ac21c2fe0bef4ebed5e11be7344f2ec735875569175bc34a",
+      "bytes": 11526,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/night_themes.py",
+      "sha256": "fb117121646983285f9ab8dd37eae16539ef50f9592008da3f500be1e2830c40",
+      "bytes": 20567,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/space.py",
+      "sha256": "70f77418a645001a520429de48eec6a088976d64ecd114248105aa3d16d56aa6",
+      "bytes": 50117,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/stall_watch.py",
+      "sha256": "f4ae0ab55c9cbbdc83b6e281b4b10abc19bd31840def9278e004f06c6edbf550",
+      "bytes": 8928,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/gc_policy.py",
+      "sha256": "dde9a6102ed56c7465b0785776ad7983dbcc2ae68955ec57a1de2775364a09ca",
+      "bytes": 5842,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/plate_queue.py",
+      "sha256": "484d106ca8f692146c827e3741906bad37a0b01fb408914b2cbb3f1c5e1c6fbc",
+      "bytes": 14337,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/settings_pack.py",
+      "sha256": "cae086745469bef45cc49607f85fecde39fd6b5c1dabf8b5650ba50f09ddeb3d",
+      "bytes": 19930,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/curation_tool.py",
+      "sha256": "318db22b2619df57cd2c35210a1236177e83dd2e30ddabf56bb5fa9c6abd0a5b",
+      "bytes": 29531,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ingest_preview.py",
+      "sha256": "26ead8bb69448846f6f3938791f968b633df3533ea6f2b888cc7535e4d98e358",
+      "bytes": 8272,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_module_summaries_asia.py",
+      "sha256": "6d27abf14f45aa4dcb503825398a612386386f403fa32b5e846d679d7174fe09",
+      "bytes": 14701,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/__main__.py",
+      "sha256": "55fd9a6b2b10fa87e65ea7d7564e47d61da97be3a1fef4c1320a5cc317d59c56",
+      "bytes": 175,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/settings_diff.py",
+      "sha256": "b22922ab200daa5fc88cbe31c1b6e9a11a82f36658dfa014211e4ce94b7ad345",
+      "bytes": 17025,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/organisms.py",
+      "sha256": "52ca5d9869d1e1831b19911b66e661b7d71acff6394c3267fea5f8d1f880879c",
+      "bytes": 50638,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/make_masks_demo.py",
+      "sha256": "940e739d77ec40b30e40fd88a84b36a0f0c19942b31ef5027d115e3b97c8c4ed",
+      "bytes": 17162,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screensaver.py",
+      "sha256": "10a1e66c801f6574e5fe96f1bbfee3755ef9addbe70ace83166f70a03183fd6a",
+      "bytes": 6158,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_module_summaries.py",
+      "sha256": "d95ec147e940b73707fd79712aa039c5d14ca8fe53921fa95860e0a271ed2012",
+      "bytes": 5288,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/make_masks_datasets.py",
+      "sha256": "df7f354fafd0286d2bbab86ccc4ae25820dc53573b583a634fec7d4238615e41",
+      "bytes": 29443,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/hidpi.py",
+      "sha256": "d0874cd7a91558b40bfc25e5a85ea03fb1b54da949c046fbee85422d76d6abca",
+      "bytes": 13838,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/sound_synth.py",
+      "sha256": "3a8bce057ebb52aad0c8ef9896de295c456908ed61aecf842af7c5c9f48fa6db",
+      "bytes": 73562,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n.py",
+      "sha256": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+      "bytes": 359765,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/parascape.py",
+      "sha256": "24d611462255c1229a3fd114c75dd49392dcaf2999ec1d96945f34e2e7c9bb6e",
+      "bytes": 13800,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/preview_registry.py",
+      "sha256": "6d7ad250e22e3f98ab657e7bc7e27b7993f9618aeaa2030f2eee0799e1c30a3f",
+      "bytes": 24936,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/preferences.py",
+      "sha256": "2928504a1032a1891397c4fe2fa8e7f53dac299397e457739d4628da7524cee7",
+      "bytes": 557330,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/thread_guard.py",
+      "sha256": "6f77e177368be6e8ac263db6e8f7fe3a0049b849b9a7da44116e7653e3ab9025",
+      "bytes": 5628,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/settings_search.py",
+      "sha256": "b24af41deb4d0d8cbbb74c82c19ff5cf78130780d97bb5459f1a8a7678449593",
+      "bytes": 52038,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/menus.py",
+      "sha256": "37cc3f669830c54706770ece4d2731f29bf0eab0972f3e1dcb9a0c3f6d0901ab",
+      "bytes": 6860,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ortho_view.py",
+      "sha256": "3091769506846aae3a1d5a3eb65965b2dd308d6afa4bc1aa2d6dfdf8088b14ae",
+      "bytes": 24550,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/annotate_engine.py",
+      "sha256": "de55a9e6cfbe2fc6f4b52bc3703351cd10a3212d569195f2a16f462104f44583",
+      "bytes": 65724,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/synthetic.py",
+      "sha256": "34657dfb62fe1e5ec5f5b645d29c6c02937060a990a81a42e743373d36571cb7",
+      "bytes": 57804,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/help_index.py",
+      "sha256": "16de97f287e1b27d116b39e8cbd35333e2aaaca202c698208f81d675fe9e6139",
+      "bytes": 30265,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/comparison_grid.py",
+      "sha256": "c969e42ab53add2e61c7990d02deedee00b29dd4b501a695666ecec4acbfe203",
+      "bytes": 20435,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/wand_rescue.py",
+      "sha256": "0940e13c14c1b3e768c54165c7670bfa26cd8890da00f654241818332fd3c8d5",
+      "bytes": 19513,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_module_summaries_other.py",
+      "sha256": "68bd8eddece736289ef5887f9269a8de6bfb434e88d5066fd763d116d665f8c3",
+      "bytes": 12833,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/install_consent.py",
+      "sha256": "96a2d7987d157693b96c4c43812304e935166fdc03c032ddaa119950871d67dd",
+      "bytes": 13351,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/gil_priority.py",
+      "sha256": "be7b27d6b90d16dc2a53376f80e201f14606f60d811b672a8893b5f144814e7f",
+      "bytes": 22417,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/_magnifier_drag.py",
+      "sha256": "b4073ac63140264082f90b1086ccaee09240ccc1b55371124f0b5713778336c5",
+      "bytes": 14100,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/crop_thumbs.py",
+      "sha256": "5326e83a716c82f8be096d91cf1a81c29ee9f4f84e8c421d063357c2581f475a",
+      "bytes": 13729,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/sound_preferences.py",
+      "sha256": "152282a6315069dd6da640cb0748f485bc15eaf64af486f4ec1a1f8ace518fdc",
+      "bytes": 14567,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/layer_viewer.py",
+      "sha256": "aaea7fdb4f7334e668f5b275d34715d172c6bec2dd61dcc466266d131d47976a",
+      "bytes": 49937,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/model_install.py",
+      "sha256": "90cee2e37171adfee4f46262378fb7ccb07e5c05ac716a7da7167d6beca2ab3c",
+      "bytes": 28487,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/cpu_modes.py",
+      "sha256": "a365dc689702872b02068b438df8d8275dc08524ff25e7d5a0a9ad5cadb68a78",
+      "bytes": 17881,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/iconset.py",
+      "sha256": "c100c6023f033bbefe4af13f500cbb2adb32dc8916685df040b5bf69a60c3a57",
+      "bytes": 37100,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/spaceout.py",
+      "sha256": "c83b659412570495b22c38f0d205a2ec403bbc9e18350865b3a1852e82e23617",
+      "bytes": 1306,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/memory_budget.py",
+      "sha256": "9e7f01bc5a102e32abf959ecb2559a27bc505ec295c406bbdef58bfd1e8231b3",
+      "bytes": 6351,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ask_for_the_path.py",
+      "sha256": "f9236a8d63c1eb551a80d6ae014160c2e011aa1f33c5542cfd4127044046a3c9",
+      "bytes": 11437,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/regex_detect.py",
+      "sha256": "a107cf21cf5bbdf3f7e22ce2509000fa168b0cdda7ceb65822dc46d51c03fe24",
+      "bytes": 13664,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/dialogs.py",
+      "sha256": "09e2323aee3b686a0a346b303605bc2c13a94ee7f82d783cdcf3a73adcd7d48c",
+      "bytes": 33199,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/recipes.py",
+      "sha256": "fd54bd4bf40f714c09e881881bcbca0f291b692c9652e655d7dfa941c3b91a00",
+      "bytes": 38160,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/fractal_defaults.py",
+      "sha256": "12e3393f4b3f123e8265c6ebf2a642e4842009878fd22ebd5ed01f5ac7252a1b",
+      "bytes": 5055,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/safespacr.py",
+      "sha256": "d5e07d6b95c156b5b5cf54fbdeb872622e88c7927b1ce2c3a2b055a954425599",
+      "bytes": 1606,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/first_run.py",
+      "sha256": "441175eee9b35fd505861b3c23c08862b5f1eef990acd4429032a7b4f243d434",
+      "bytes": 18713,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/tutorials.py",
+      "sha256": "73a10b52587ec3a0ee5cd9451d49e261d2df30d0abbb7983bff83e2b79e13364",
+      "bytes": 7788,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/crash_recovery.py",
+      "sha256": "168719237cc7c33e211251d370999e3bcd655c8c4300453c96aceb73f23f3918",
+      "bytes": 12792,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/tooltip_policy.py",
+      "sha256": "db2ac1da635b8900df142375fb88c2a8ac26d40bbc7afbed2d54d96b14be9ef6",
+      "bytes": 23932,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/pca_model.py",
+      "sha256": "33d8f0fca072a9bbd02fe6dfc70d675e815d47c58f12a909dab5272ff3c376fe",
+      "bytes": 46571,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gate_settings.py",
+      "sha256": "f3d7eb9b2d29c329c23bd339a245f19412a45c5271d051219d9116f04a7aa87b",
+      "bytes": 42715,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/colour_picker.py",
+      "sha256": "b3d4cf6530bb1bb5a08946ae93c8ddb62a05e46afee3f24edd77c89fc9805afc",
+      "bytes": 2741,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/measure_preview.py",
+      "sha256": "79cd3a14eb37db4a23b4e52acb714639ff84c86147a7228090d01f7f3c68d686",
+      "bytes": 140521,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/channel_sort_dialog.py",
+      "sha256": "6ffc29b6adb007ff50e95ba9b7b5ebf02ae475486ea8650606d3c2cf27908b4c",
+      "bytes": 31744,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/percentile_pair.py",
+      "sha256": "d8b68c6b00a40da9192b7a4d099e0e9a7effbf35e53662da8b1ff9c77f0c3c46",
+      "bytes": 7256,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/file_list.py",
+      "sha256": "a48c2e66b27adf968df7a27cb434bef429220b3645af4d98c3f2292d38b42f85",
+      "bytes": 74009,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/dose_response.py",
+      "sha256": "d63c69d3408acb469658342ad24d3dc03cb28f1b6d77b911ef2160efc72efd92",
+      "bytes": 192760,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/collapsible_section.py",
+      "sha256": "60d0f0e97a7366d0aba8a32d3bc64f265b89f5e7541d63d01649f7dc1ddb210c",
+      "bytes": 5932,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/mask_comparison.py",
+      "sha256": "ed62ebc07cd5e88b03501bee5e62da9f8ac2aa2c8f0ba96cd33575a2d8269d9e",
+      "bytes": 9047,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/volume_view.py",
+      "sha256": "d39dcacd0eb823303ea5eb8c23dd619cf9a264f2b68bbd383c11b2f3a1c51496",
+      "bytes": 5972,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/segmentation_views.py",
+      "sha256": "aa26722a4d47b410d27c54e83c6fe167821317dc637bb29bcce34b5eba93630f",
+      "bytes": 22682,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/hint_bar.py",
+      "sha256": "033db275dd109f1823f5e9b582ac4836b9779db17208af9192664eaed035ccd6",
+      "bytes": 14317,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ai_toggle_label.py",
+      "sha256": "6311b20ac2c583ba4fc5bc460a3efa64da32e46b1d3a80d8784098b2be57c7c7",
+      "bytes": 10523,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/card.py",
+      "sha256": "74be23a5ec74ea51a153d9b67e932660b277739ba5e2e78f58843b2707e5bd8d",
+      "bytes": 7757,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/formula.py",
+      "sha256": "690449cc7258fc74b5eb4d32fce147f533822ff56a3147747b7d4eeb7bdb7f9b",
+      "bytes": 56121,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/primary_mask_selector.py",
+      "sha256": "9720d82b2a5a8df21e574cac270b6fe78fbef892964e0ea9c3d7066b416af0c2",
+      "bytes": 10998,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/aggregation_rules.py",
+      "sha256": "f205654add22a3a3f75a96ea154727a205d0cca4250cb086cf386f2d053836c4",
+      "bytes": 5671,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/console_panel.py",
+      "sha256": "2ce0db87ce4160bc6aae31251a2e4c329a5c08b4d18a7d4b78b5171bc02e9a63",
+      "bytes": 100451,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gate_canvas.py",
+      "sha256": "bee8f951559f193d723a694951313e129e43b62f85665080b84e7c5683a5dea9",
+      "bytes": 13335,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/dna_rain.py",
+      "sha256": "9c004a1df364b870cfff8cafa9a8cc7ad4d7f0815b5afe4b61e1bc9d63fe1a4c",
+      "bytes": 75082,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/calibration_preview.py",
+      "sha256": "c07ce50e61bcbc2ad4d643ff3e61de0a5fb23b699840a2f07f7af8fdeb0a8f35",
+      "bytes": 13132,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/make_masks_help.py",
+      "sha256": "791dff3e97f8216e166692f41b0aebf0f646114b033e59317a6e1375c77b54dd",
+      "bytes": 3000,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/cli_setup_panel.py",
+      "sha256": "104a743882d388a8a3abcbca5282347dd8d06625fa977fdc28830085ad8c2890",
+      "bytes": 21594,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/channel_picker.py",
+      "sha256": "a954de6287aa91bb94a3f5dbcf44d553a2544312697aea4d8dea234aab4ab227",
+      "bytes": 5521,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gate_console.py",
+      "sha256": "baabfe08291ead3c03012561315016fd6ede5f509540d3a6fee9dc03501fca5a",
+      "bytes": 12495,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/database_set.py",
+      "sha256": "da8fa59bb170bf26be16a2cdafcb5e18ad78d05a597294d8727b3d2863ad6900",
+      "bytes": 33080,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/collapsible_splitter.py",
+      "sha256": "4ff0c314aaaf9d75608cc9a4328ac364e83ea563f380369bcd0c2853b837a1da",
+      "bytes": 58945,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/merge_tables_dialog.py",
+      "sha256": "a96a40d172e09f80b5298e3b9f1d44ae1ed2f29a5915ded200769568c872bd39",
+      "bytes": 24149,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/__init__.py",
+      "sha256": "ca1ed911321ae8753696f8bd2a5b7dedda649ba9acee5d66592c8b39f10e4adf",
+      "bytes": 3702,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/foldable.py",
+      "sha256": "d04e5d72838333e386466ef8c20aa1b1a0145b0569b7acf19e38da03f7ad21cc",
+      "bytes": 11087,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/animation_zoom.py",
+      "sha256": "649190ca6ec64c448ccecba6f88f61ce75080d8e17bd98e50806775f0615c08f",
+      "bytes": 22131,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/formula_editor.py",
+      "sha256": "8eb7b3732b50fdf80c8b67c28661c2c9f80476229265acd5d9efebb0f68f0f9c",
+      "bytes": 21078,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/workflow_diagram.py",
+      "sha256": "79184d1beef37657a3607292aa437ccdced3019033fc8545bb1f96afde76cab9",
+      "bytes": 31292,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/feature_rank.py",
+      "sha256": "424eb645201d9fee131e44f92db9e90eda2436412e25e7cd58832b3bf0590df4",
+      "bytes": 38976,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/class_editor.py",
+      "sha256": "bd1b1f086c0f99820651edafb12ac21597c795129b5fd6e909f079a7a079e77c",
+      "bytes": 24159,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/annotation_umap_tab.py",
+      "sha256": "4d7c6524cbec7f176b3d743b668aae55a435c7987b97143614af41595d8cbc9a",
+      "bytes": 19409,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fractal_orbit_gpu.py",
+      "sha256": "a69e4aa5bf16b8ca57b162af94ff182d6244ac5bb4b01dd5762867411e0f8ced",
+      "bytes": 6317,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/figure_grid_view.py",
+      "sha256": "7369e310b619e4ffb77d8256afe2ec734c4f3a789758c162d140a2188cc65c04",
+      "bytes": 39300,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fractal_cascade.py",
+      "sha256": "d8a9ea07391cdd846efcca0d01e05fce6414b12fd424db389bd3881e7ae2f0ea",
+      "bytes": 22553,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/provider_marks.py",
+      "sha256": "847170b27da6583bf519ddb63d264bf0307b5511e08833acb33d434c8cd61eb2",
+      "bytes": 21464,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/measurements_example.py",
+      "sha256": "eb8bf4b9b445c077d0f5423caadda5129da8e0b932f9ac3719b7fb7dd7108a0c",
+      "bytes": 21600,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/dock.py",
+      "sha256": "ee59ad9d044ee85e1da1736cacd2873da0e69ce20e1d73629b9ec1db3ef60ac0",
+      "bytes": 33646,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/host_pathogen_preview.py",
+      "sha256": "ced0a558f0480e5f452afeee5efa78f30c0219b8049d1c81bb3ed8b0e68447bd",
+      "bytes": 18993,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/import_workbench.py",
+      "sha256": "9bcbae24a98ac2f57132cc7fe7f010a15aef439ae6632272a5f3d835d1b267c1",
+      "bytes": 24387,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/timelapse_movie.py",
+      "sha256": "a7a56a12340bc28eb1601f96b444809a19b2a70e05b5efbabbcc4845ab101c0c",
+      "bytes": 23750,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/data_filter_panel.py",
+      "sha256": "e36bded3f9b98d53a2f6c23d8c4069310a484061d0324c8185b1b257a4d9200b",
+      "bytes": 22258,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/measurement_compare_dialog.py",
+      "sha256": "9f300da78896d107ffac72cae016b32e874aa7710944cfbdd2768f35672b84c4",
+      "bytes": 51812,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/live_preview.py",
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "bytes": 269226,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/object_settings_grid.py",
+      "sha256": "c4422cce6baa9a9a9226760c3e661ed627f69ca7404ed03575aaf43e7a6f4bc0",
+      "bytes": 63403,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/sra_picker.py",
+      "sha256": "ef21efbe7266ae170feacb787ba7d0d1f8de4c7c3bafb29431a13a0322060f26",
+      "bytes": 12756,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/module_hint_bar.py",
+      "sha256": "54ae13b4bca4aa9fe0919b384b475ef3fe3a1ef7801e7d9e48dfe0051b899746",
+      "bytes": 10391,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/cursor_policy.py",
+      "sha256": "0ad488d50acb2d31e358ade12c967fb52313f9fec05dd605f06ac31e22637403",
+      "bytes": 2935,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/image_ruler.py",
+      "sha256": "8288acdce12b50fc8a9c888e6b9ffddc44c68504830d9a0e34f7e19e2227666c",
+      "bytes": 9384,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/restoration_controls.py",
+      "sha256": "0ae3c70e9ae35e4e7e1cc9651c278836f6d2e95d3d0a59c0fc8a9f6ec5e4602b",
+      "bytes": 11900,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/api_help_label.py",
+      "sha256": "f323a055f262199da9c854f5cee82cb3794ce2deba17a2ff680ecb10fa2fc294",
+      "bytes": 10623,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/figure_queue.py",
+      "sha256": "296ea2cbecb72efccad201f31a25ed02f96b3978810cdd82554003f1b16a7849",
+      "bytes": 126635,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/power_design.py",
+      "sha256": "79bcb73fd8be8ffd7dc7fd5e6bf037c534278f4f241b8e36733fdc3cb2d161f1",
+      "bytes": 37402,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/sortable_table.py",
+      "sha256": "388c5226f078f1ba3400c0ca1a89da3a9cc70d624e1c3645ba85d39570158806",
+      "bytes": 25888,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/organism_diagram.py",
+      "sha256": "dde938030b580a96fc709cfe1867330eab5a6cea1b55b2c67d3b9b01d1e03ab1",
+      "bytes": 30281,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/qc_summary.py",
+      "sha256": "f60d7a28910591d3959783e923c6b0fd740d4b8e245fb823532ba3150fc32bb9",
+      "bytes": 25950,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fractal_mandelbrot.py",
+      "sha256": "13100638355de3610c865c7f192081f3e598780f92d499d2330911fe1fde551a",
+      "bytes": 58835,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/object_grid_binding.py",
+      "sha256": "75ba596a971d53a7f9b620503b3445f74180c496d71ddbc8c37b404366728f9a",
+      "bytes": 12878,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/figure_grid.py",
+      "sha256": "dd28a818ee2040099f729eeded8dce62366359a35be6b7ae2dd30511efc1440c",
+      "bytes": 19137,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/preview_controls.py",
+      "sha256": "52f6ee3ebfb484a4495a651d597affadeb200cd23ab813d6ed9835d85615ab1e",
+      "bytes": 46341,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/setup_dialog.py",
+      "sha256": "e2d45ce9eb751fa635855b4f24dceeb9fb4a0abef6a24b1ea246363ac92b9dbf",
+      "bytes": 8081,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/pivot_builder.py",
+      "sha256": "21f8634f43f234497d977c20fdeda145b38275f9e815c93a7bf9889e39075b2e",
+      "bytes": 30503,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/info_link.py",
+      "sha256": "2162608c7b0cbeabba46e408ccf81058f45d16061c48b7908af0daa00faff79f",
+      "bytes": 1957,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/save_figure_dialog.py",
+      "sha256": "048434c616f5400ad2fc8c4d85d768184bd40d5713b7eaeaa8742232d3aaa369",
+      "bytes": 42538,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/grouped_plot.py",
+      "sha256": "9ec1e3be54c1158e005826c84d1ccac22621014f49103768db6cc2efcc148dab",
+      "bytes": 13971,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/screen_data_picker.py",
+      "sha256": "24548541ea01b08842a32197bf2d0013df1c1e22c80a46abd95fe3a45d0801ca",
+      "bytes": 9740,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gene_panel.py",
+      "sha256": "8577806e71c7f52bd970f25090f426c6615d4f5857063cf24cbdc9908db7d7d0",
+      "bytes": 25413,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/umap_search_viewer.py",
+      "sha256": "584c6575fdb63db6fd2a923add7a3ab4f33a072bd2e9258ed9b441262b434681",
+      "bytes": 31623,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/setup_slides.py",
+      "sha256": "ef6dc66cf74f4e4af46490c12f7cb9af06813beb0db858969397af32c4fcd402",
+      "bytes": 106170,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/measure_input_table.py",
+      "sha256": "8fcee10ae9ca481d13004bc9c21bd51650dc77e89e8371ccd674fe83d38022e6",
+      "bytes": 29302,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/volcano_explorer.py",
+      "sha256": "cb7f28cdd5db66fc8b5741932e120312ab275e2a724809635991e38424957695",
+      "bytes": 60795,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/pca_view.py",
+      "sha256": "8ddc91fbcf84edabfec0a5842acb1fcab7c4cd0ec8bbfdbeadc7ed6093c626a2",
+      "bytes": 41038,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/derived_table_source.py",
+      "sha256": "d4d0a343a9b42340a61a23ace97ecdb686fe77d5a03de31a361f78cc0019dab7",
+      "bytes": 3814,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/tile.py",
+      "sha256": "45b19a15a0cddd49eede9270f0f0d12fb10c0b1216463e303a2d6e5c6adebc46",
+      "bytes": 15170,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/model_share.py",
+      "sha256": "5b005099ed90893b631a68ea4c8f2458faf7b7042526f155da1553bb3dd339da",
+      "bytes": 40227,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fold_strip.py",
+      "sha256": "df343b5662a7af903f2b9dd9975c5806dcb2bc3fea125788656f2691266128c6",
+      "bytes": 33601,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/regression_results.py",
+      "sha256": "77200739569469a2e2ba9cbd3da0bb9fd01e4e10a8b0cf1bc434e570065bbebf",
+      "bytes": 150499,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gene_tile.py",
+      "sha256": "9640801adbedd6e8851686646146b177a5c0636d8124d46263afc88bbb300c17",
+      "bytes": 8513,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/column_picker.py",
+      "sha256": "1295dceeb535561fb2a69b3105bca779f510eff07cc411c4e737f9d136a2ba7d",
+      "bytes": 66800,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/dna_rain_settings.py",
+      "sha256": "6ca26acf5400e0ede376db20e42641d7018ffbddf09627619f9d991b9c9591e2",
+      "bytes": 12020,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/toggle.py",
+      "sha256": "925345e1ea7ccf0180712b484256299322f8d4c51e272946707d35fb8bfce8eb",
+      "bytes": 12274,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/sample_project.py",
+      "sha256": "fdf6e176beaf85734657be0810225b4aabcda02ca96a4352e179cde580d2c97b",
+      "bytes": 19616,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/availability_panel.py",
+      "sha256": "644abd3f5f52d15a40f340132bc1b9e8b05b845507f3b047ba53945f75b166ba",
+      "bytes": 36366,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/condition_annotation_dialog.py",
+      "sha256": "fdbb4f33e7a9a6fd91a66ded3dee14e82d6fa8911b8f22ec851b87678f930f54",
+      "bytes": 81521,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plate_layout.py",
+      "sha256": "85763e76140cca64c8fa082cb2972ac5a16969097382c9846bb1f71883987000",
+      "bytes": 26315,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/glass.py",
+      "sha256": "0a30f850192003a63e6edfcfb0363187062c87ff849eca65a2c4ae2568474766",
+      "bytes": 49359,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/sweep_runs.py",
+      "sha256": "c6ab0e846102d25db6aa7c0c7ec023ca40c9325bc8c5caebec0e517f874546bd",
+      "bytes": 81430,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/read_view.py",
+      "sha256": "10f4cc8908eef7df46c643b7c214d7523f3deffe6fc5804d2f33c31f9b3a19f5",
+      "bytes": 30290,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/annotation_strategy_panel.py",
+      "sha256": "90356019037a4ba95297e3deff1849e2b04f76c5581b1565a1d008fdc0386165",
+      "bytes": 30565,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/activity_spinner.py",
+      "sha256": "3a7b27a03e7b66a4f0d98652fb50aa4bd603354d550591b5e0179f4a9810d2e2",
+      "bytes": 26234,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/metadata_mapper.py",
+      "sha256": "3ed807492be675209c7dcd40cb2decca6ec0be0f72c061243ee7691494df58ba",
+      "bytes": 8212,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/column_aligned_row.py",
+      "sha256": "639086bb8233cdd9f448bbf419ba3bb7a4e4a9b66b15251759ccceeae1834b6f",
+      "bytes": 15379,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/motility_preview.py",
+      "sha256": "9d21fca8e54995d5230d84c76bfb79cb2031d8a9af9e1d205f94b9be136316de",
+      "bytes": 73915,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/settings_advisor_dialog.py",
+      "sha256": "0012200912f1405f32a3ea8cfbe7f925f919a533a84316e242b59f6d945ade23",
+      "bytes": 14359,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/cursor_zoom.py",
+      "sha256": "7e26ab31d8868cdcb63038de60d09b490cb7de1a4d0dfd0eb60bbbf5fed018e1",
+      "bytes": 1979,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/preview_scale.py",
+      "sha256": "098539fdb94ef0a0befd528e8831011cf2d3e20e546090cb4b363eac64f13277",
+      "bytes": 38185,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/home.py",
+      "sha256": "15ed2f9dda2a579958b249f92bd43ffb919e0743eb23b32de4e9c82c244ede0d",
+      "bytes": 127764,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/figure_settings.py",
+      "sha256": "b6626fa0b4bc379f17ff3956e189eb6ba23ce0787115fa29850afe00cd7250a9",
+      "bytes": 122069,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/metadata_table.py",
+      "sha256": "a73e95486bd950d51e49bcc90ef1f53ab3be5b5c9ccb0af7c9c495489dcbfc1c",
+      "bytes": 10623,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/eliding.py",
+      "sha256": "55ef6a6d10bfe99b53689429d92cf8cd6e673ca4477cacdf04efcbe3d7e85a38",
+      "bytes": 17903,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/collapse_arrow.py",
+      "sha256": "b071140e970ecf6cb0f3f5048f987f583545da96905bad1b7a68b5c64822cc1f",
+      "bytes": 3074,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gate_spec.py",
+      "sha256": "162e49f365e27954914f09cfa6b45af913921b97b3fc3672aceeb3f987c2c38f",
+      "bytes": 179663,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/graph_builder.py",
+      "sha256": "7dd81b79c14307a00bac325c8b22b36c73429250cffff8e090c35a58784c2d34",
+      "bytes": 82470,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/pipeline_details.py",
+      "sha256": "b507f30c21041a39f37fbda7df79bcc7228a9ae5d18b64b2793f661f634d17b8",
+      "bytes": 7892,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/field_fade.py",
+      "sha256": "8f04970cac51ea1c38d022a45963b2029643f0247a3c488010a70b59b3d6be3e",
+      "bytes": 18493,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/flow.py",
+      "sha256": "42c8464c68d7ece5904d77b67b93ed80ff8edd3041ee3262e6d821de2edea767",
+      "bytes": 7690,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/tile_chrome.py",
+      "sha256": "da893ba6862e4b27d834ff6822e8afd75f32e41cf21654a3c1530611fdfa3e8e",
+      "bytes": 4851,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gate_editor.py",
+      "sha256": "84b94268efed23a09813410602c10c43170dca7accbb4741f0718b471a7d60de",
+      "bytes": 225502,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/qc_field_browser.py",
+      "sha256": "9c1282e87208473b20992d76c153f446f0e78c1c6fcfcca3745d45f2f3e001d0",
+      "bytes": 62211,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/control_chart.py",
+      "sha256": "03c145820c76473e5034d8ad57882a7b1d2672d218efffbf5eaa14a4e334d0b7",
+      "bytes": 88352,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/drawer.py",
+      "sha256": "6b3371b7798f634abd597ecec243134846fcaf7a0bdf00db31fbba3309a8cc8f",
+      "bytes": 15626,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/external_mask_inputs.py",
+      "sha256": "dd648e29d39ef66c823b11da8508771987bd6395d6a6d241a7029a0444aee870",
+      "bytes": 14895,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/feature_explorer.py",
+      "sha256": "5f2a9863644fead20d640db629870c618bae957d501f953922566858ee5ed22c",
+      "bytes": 18363,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plate_map_picker.py",
+      "sha256": "f6f9aebca198b91a89183f1f6828ee0dd218d44fcc79142c49194e7c94a4dc41",
+      "bytes": 29851,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/empty_state.py",
+      "sha256": "b8ca78456df21e76259aa844fd5fb30e2faca1394085edb1d6578213b9f613c9",
+      "bytes": 5673,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/loading_screen.py",
+      "sha256": "746a17d048e40bedbdb84003f060599aa3e4b1021e87b7eac3051095bd3b7709",
+      "bytes": 50217,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/picture_settings_dialog.py",
+      "sha256": "53f3b8a4c52786b443b7ae6a75b75b1a0a2cc9e09cc9ee82ff5322393217aeaa",
+      "bytes": 15556,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/table_chip.py",
+      "sha256": "1f5e9845bee8c587aeaf7f825e19bbd442dfc8aa929aab04566d75be9387a38a",
+      "bytes": 3000,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/setup_card.py",
+      "sha256": "1e18095eb0017b4c2ebd2abe6f575c79f712f99b0b67682ce2a17223bb50e3fc",
+      "bytes": 35644,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/test_data_chooser.py",
+      "sha256": "0066cd7e0b161e560e3e85f4c9cd79ffe5ec6afd1e863e7782669f3ce2bf8213",
+      "bytes": 11251,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/sweep_panel.py",
+      "sha256": "619421a321edb199c714e942993006c2c62da923edf8586eeead206e0d4a3b5a",
+      "bytes": 25311,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/model_card_viewer.py",
+      "sha256": "e990f87b7f7165e062dfecb7a32e37be8386fb123f34f7662a58a49b80aa3ecb",
+      "bytes": 12614,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/cell_montage_view.py",
+      "sha256": "6092f1dcdb51d59d17d90ddf1378aa8f2ec77a74f6445baac8fea2cd47256b89",
+      "bytes": 146281,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/barcode_regex.py",
+      "sha256": "76294f12c93610542232624bafa6e659b65c37a29053c26cf4ce5eb82f265730",
+      "bytes": 12321,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/preview_refresh.py",
+      "sha256": "fc550949423c3e86a7b236721032bb3971879c5a83f83f2e4a17c3c27ff61d4a",
+      "bytes": 3990,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/model_share_dialog.py",
+      "sha256": "3424acf57211ea72670cf055a3aecf48263040ccd33d2a4425e261201f41ad3f",
+      "bytes": 26125,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/measurement_scan_panel.py",
+      "sha256": "c2fc8a7613555cb5d29a75889974c09ec773159339a8a362e8a10843e407dfbf",
+      "bytes": 178048,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/divider.py",
+      "sha256": "b25a7a8643aadcfd8dcb9d8001fa6bb5fbcdaedd8e36e0c3b7995e46d36eb428",
+      "bytes": 969,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/organize_for_measure.py",
+      "sha256": "60a3c755454024ced4909c33e5aa64766331ae58e8fa64083ec31d70494cfdbf",
+      "bytes": 137668,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/umap_figure_settings.py",
+      "sha256": "9b1c8946b74694f5360723d576c0a1ab14e2154b141654f852bd82cdf196ea7d",
+      "bytes": 26410,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/graph_spec.py",
+      "sha256": "daa11132bfaa52d580c0d33a2044619a48d4486c2e4fe6eaad1dc660064d34b7",
+      "bytes": 52307,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/row_exclusion.py",
+      "sha256": "4dcf84a6a03db45a4902ce4ef099551b89a4edfd2b5fc2f28309717eebeb2a5c",
+      "bytes": 24883,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/folding_summary.py",
+      "sha256": "f25ba16d422f5c7e41c2ac315b6b5c4ab7e9e0e46de36b38c6e649f752104c5e",
+      "bytes": 18556,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/pivot_spec.py",
+      "sha256": "d359b7cf37295a7e8315ca33acbff14f74862673015f120f2207d9114d6d574f",
+      "bytes": 31763,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/feature_dictionary.py",
+      "sha256": "5689ce2f6bdda8ccd2097b1b704ecf3aabc530588121a2ab785b62d72cb58c49",
+      "bytes": 36093,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/trellis_view.py",
+      "sha256": "7631cea6496b2857ffea5c536d7b90b1b6b20e6e5321b62ba87f7b8a3513ca28",
+      "bytes": 24177,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/plaque_preview.py",
+      "sha256": "fd64b45dfa063aad961cc6007aca1af6da5413514cd91c68dca3819f559c6cb1",
+      "bytes": 263408,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/section.py",
+      "sha256": "28da6b06274ff341a18ccb7cdf68117c41f9133db7d371fe993cc2431c813c37",
+      "bytes": 40329,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/zoom_view.py",
+      "sha256": "8e2ce42ec6fdb33ab189cdc6235f0c26387a402239881f0e7cc35f9b1695782a",
+      "bytes": 7713,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/preview_contract.py",
+      "sha256": "deffede88d82953e44177d2751f87e1206ab85e74a989cc61935a267c82d1e49",
+      "bytes": 15847,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/popup_state.py",
+      "sha256": "6097bce34b0c7127a46dbfb156c47f39dbe1ec532f5aaaa47516372b93daba9e",
+      "bytes": 2320,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/timelapse_preview.py",
+      "sha256": "34f89b49cc96bd9f8885bd81de35a431d427ef750ff2a6a19a31b39734b7e211",
+      "bytes": 145947,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/psf_controls.py",
+      "sha256": "edd0da1359f6d4f26747da7e0cceb1f5cd43cc002bf7be7378c8b92bf7ae89c3",
+      "bytes": 30338,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/model_zoo_picker.py",
+      "sha256": "047407ae1743d70e13dc77ce53f9a1c84948f07370e342a8d6dae114e8012353",
+      "bytes": 97813,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/picture_export.py",
+      "sha256": "aa4af7393c19e337cc8d415c9b1cecace4095b4f5924920e9c96b11cf432104a",
+      "bytes": 14844,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/height_grip.py",
+      "sha256": "9e7873eb7490410c527a07496032326e887170c2631c04f2231e08c80e37e1b3",
+      "bytes": 13060,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/dot_link.py",
+      "sha256": "82c33dbce9716bc1695ad25c57c23a6f9663777a575587b67e6fc4c3e9a22a24",
+      "bytes": 3065,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/channel_mapping.py",
+      "sha256": "bb1432022f689df8e6bb30824d54f6ed612033bc022b5825d12062ac98a500d1",
+      "bytes": 6836,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/umap_explorer.py",
+      "sha256": "3434cec3b31798601dec09a5c8c7d11145e0b69a7fc5190442a3246f3b41e34c",
+      "bytes": 49975,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/training_monitor.py",
+      "sha256": "67d30c2e36b95dd62a3b8d94a8f3845c4fe23a15e875b993f58ee29968ad2b1c",
+      "bytes": 5343,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fractal_regions.py",
+      "sha256": "c842bafaf1cd8239df057813d08bd2ff1486f1af91037808be643268340f05ca",
+      "bytes": 2175,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fractal_travel.py",
+      "sha256": "a713d7f5481d38c121a01eee61a9d1f950cbae8630f3026cf0a6c347958e978f",
+      "bytes": 122133,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fast_plots.py",
+      "sha256": "3ec1bb75764d33237873115cb27a6bbb6c54146f3190e26b5be33bc1ceef6900",
+      "bytes": 368383,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/usage_bar.py",
+      "sha256": "72f6d566775e80b536701549632d8a81852eebfec8312baa56997440c3d5a98a",
+      "bytes": 7453,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/outlier_model.py",
+      "sha256": "9f59b0590525f6a054870c90ee1bf4a359875f909478f7e493031e1d7ac86880",
+      "bytes": 75233,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/hover_tooltip.py",
+      "sha256": "020d8dd2401026eb2f934e8e4687ff65d91da078d32d33c4683a160553f3dec1",
+      "bytes": 39807,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/trellis_spec.py",
+      "sha256": "eafc6866299cfe9dfe11e84e81c3701db5eac4fec13abc83ceb4ce2cbf7da37b",
+      "bytes": 31822,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/refit_dialog.py",
+      "sha256": "506c3d68ba5fac93ed519585369bd6600a05a68ad64d13712e112370919c62b9",
+      "bytes": 8392,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ambient.py",
+      "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+      "bytes": 587528,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/ai_chat_panel.py",
+      "sha256": "2048c010239e21244b77704d4e48a4ebb608f5277334078f9cb5a9f0749f6a29",
+      "bytes": 33621,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/fractal_space.py",
+      "sha256": "7ed7e0a62e01e4edb4a0d890ff506e78eb23a9190ab8edee379e5dee1882b9e2",
+      "bytes": 42687,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/gate_search_panel.py",
+      "sha256": "c7e1f9f18aade49238b931010c1ea5d8bb9f5176ba7f8f5a4193732822db92f1",
+      "bytes": 7677,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/widgets/flash.py",
+      "sha256": "519ce3c602bf640a878554f04c9bef5c1dc9cfd3f7a6f5566e5003c733ee0044",
+      "bytes": 2944,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/terms_i18n/__init__.py",
+      "sha256": "9cf128020322fdf399d77712e6021947d5e07c4a125bd969b3903ccfac43d48e",
+      "bytes": 2823,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/es.py",
+      "sha256": "586db05614060a401fd339bfe21b00409c55a02e9f4b775dbacc9c8a4eb3a247",
+      "bytes": 3670073,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/fr.py",
+      "sha256": "469deb7e042d18e26cdb14905bf1101c29fff684abcb5b64afed8e5b0dfcb524",
+      "bytes": 3717798,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/__init__.py",
+      "sha256": "096acfe1354f1c88a906d7ec3515489a1cd663ce1a1a30b7b4d60038485a8181",
+      "bytes": 10306,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/hi.py",
+      "sha256": "e8d6bd01b4df992b0e53adf21006b0f7b3dac4d303a702667c2bbcb3cc336575",
+      "bytes": 5040757,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/en.py",
+      "sha256": "b1d78bdabb5278458408f65628e3f8bc8e3d823a8d7737869ea1abc3f7796451",
+      "bytes": 2750979,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/de.py",
+      "sha256": "4e0cdec749ef4db95b35cdc6b90755dda954473176f5819309caba9e7ee0a3df",
+      "bytes": 3652555,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/ko.py",
+      "sha256": "85cde3d2401dda2cbf9d8765793cce93e481b1c4fc1245b0d3ffb63d19590961",
+      "bytes": 3670934,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/pt.py",
+      "sha256": "72e269927410e416291cb5a37759890dc7747671daf07f09dd948a332b6b2baa",
+      "bytes": 3619002,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/zh_CN.py",
+      "sha256": "1280d46b25d9e2f2951dfe07f5c3507e06b133ae538f8fe6b69017dfdd7139b8",
+      "bytes": 3365773,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/is.py",
+      "sha256": "97e22f1c17236c477240ebe67441a3e7c028b5b992175c25d66e9557b7c2fc65",
+      "bytes": 3540572,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/i18n_catalogs/sv.py",
+      "sha256": "92382ff95385d1656f8f5e8d9e338f6c2d888d50064064fe1481e472160fa199",
+      "bytes": 3539366,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/qc_dashboard.py",
+      "sha256": "75e5032ffc078039f184fabbb54167a5de1f2740b254929b45bccacbde789a05",
+      "bytes": 27109,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/run_history.py",
+      "sha256": "cb50991db59bf93a78baa06436734e5d4a3bab559a6c76c6bf9879092f59c5cb",
+      "bytes": 33359,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/investigate_hit.py",
+      "sha256": "3afdbfbe1036d87933073efd6ed022b35cde8fa19f682d3a972f4a40eaf31ad8",
+      "bytes": 815,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/dose_response.py",
+      "sha256": "c218109b5330ab62fbaa08840085aff625c0356519ca8bd5d5ba0c1c244abe46",
+      "bytes": 56540,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/train_compare.py",
+      "sha256": "34c260b0e5bb7d813d76fee4d227b8f9a56c847ff834a7e32d9c665ea2d4d0cd",
+      "bytes": 44086,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/model_compare.py",
+      "sha256": "c7a4e606efef54aa9d716bd4c081652224462c21e31337c579a4d335548b3376",
+      "bytes": 50788,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/pipeline_graph.py",
+      "sha256": "228f58091e2f10c28f9bd1b49d34ec3065f2fe53caa3bbce7213f4dc59cf74c8",
+      "bytes": 28975,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/activation.py",
+      "sha256": "6633af864d66c15d69d89098b82e1fa10c7a90aab3a6debd0e54e69f5adbfd00",
+      "bytes": 13355,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/distributed_jobs.py",
+      "sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463",
+      "bytes": 45480,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/mask.py",
+      "sha256": "3d8de201e73bf0496c8922d99da5fe70c8bbe39ede4e64e2e570d30e4d36c3df",
+      "bytes": 26846,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/__init__.py",
+      "sha256": "6b64a6b443ab9a8b2d8cc8c018dd38b77419d2d716070c8de73de117b1f89686",
+      "bytes": 5604,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/methods_export.py",
+      "sha256": "cdb05802e63392e75a453dce29c96e9f2c8d573cab8066c7cafc57807d1a321b",
+      "bytes": 22776,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/outliers.py",
+      "sha256": "913f39288a310fa7916abb4d87bbbcc2a3d5e36511ffcbd1de046791961bb31d",
+      "bytes": 30698,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/measure.py",
+      "sha256": "2d52487fe8616dc7aac2b504e65cd8cc7d472d208a8dfde7cef307eca0452ff0",
+      "bytes": 7091,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/data_manager.py",
+      "sha256": "70cf7c3793b4f0aa679949aebf55ebc94c1304009c41b86ed065c14ce1dc43dd",
+      "bytes": 52902,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/classify.py",
+      "sha256": "7b1b770cbf04f60e9dfb31818c4f74a50aa59390d9d898a33e0afbd959674442",
+      "bytes": 18617,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/organism_screen.py",
+      "sha256": "332a6cbff295e55d9244514e1417780933bda7f7bc51916758a3c4bffdc25e73",
+      "bytes": 17944,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/hyperparam.py",
+      "sha256": "af177c5f2a1f3f49fa871d08d03f97260fd54d09f88e88b64f0f961be7f6ae15",
+      "bytes": 134753,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/batch.py",
+      "sha256": "ff539ec91a18e3a54bc9df066c9c4bab6fd2715b4dc8f08fb14b076492fc9b39",
+      "bytes": 41802,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/model_zoo.py",
+      "sha256": "58eb5aeca04ef136644b242c6115ec1f918a179d31530fd38d19bdff625e3a93",
+      "bytes": 69263,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/convert.py",
+      "sha256": "7bbb655d577cc328c83ce1ffc3f48b3d36da4e771f72a0920c3a449fb3abb29a",
+      "bytes": 40806,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/db_browser.py",
+      "sha256": "230ba91a110f9ec0df5a1017ef5efb4b27c39de695569fc89135c3be811050a5",
+      "bytes": 131493,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/align.py",
+      "sha256": "35d3a767f5e3d8588d6cce49a622df6b0116c2549db3c452a9438efffb1238e7",
+      "bytes": 35214,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/annotate.py",
+      "sha256": "37f6c5b631cff5bbea8b73752851fae971b4fb779db147fd8f27159a1586da5e",
+      "bytes": 337299,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/agreement.py",
+      "sha256": "ce62f3fcfb081e331e525d8eb3dc79f3dd5a8b89889616e8c66f111d39942a7d",
+      "bytes": 41655,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/model_explanation.py",
+      "sha256": "a4f69dac55b420254d18bfa3d6ce80d414661eae6422c0cecb21d006f1c86b3d",
+      "bytes": 46282,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/regression.py",
+      "sha256": "0c15b061bfc911c9b7a4624a7c26fb8be5140bfcd1765ab590ab60d2dd6033eb",
+      "bytes": 31876,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/setting_api_targets.py",
+      "sha256": "3afcfe9155b4d7ae15dc60f4fe41af8008d48f5d9b13e56358e13745eacd4dc8",
+      "bytes": 131707,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/parameter_sweep.py",
+      "sha256": "5cd2830177e1ed0dedfcb3c244903596084656a0e790da2209672c2915656830",
+      "bytes": 35866,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/foreign.py",
+      "sha256": "510eda58be9bcc4637f7cf928d7024bbb3c597c41d8917edf63925f8b04a2e63",
+      "bytes": 59592,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/power.py",
+      "sha256": "889dd708b4bc4dc558d13995673f2e28571db5b81e2a54704a7bc1c238658caa",
+      "bytes": 96654,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/tabulate.py",
+      "sha256": "fde2f8db8e0e0a8aef478018e089593eb05e20e8b0511c8c85510cf37b71008b",
+      "bytes": 16155,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/project_browser.py",
+      "sha256": "03d67e89be600313e897479517d91748cdbf2b613dcb998369f550d3ae07d16d",
+      "bytes": 27175,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/queue.py",
+      "sha256": "d8a0ad0504f7bf2497ea4e2c37ae3e9270551a6dfb9ec68a63f17a796c6d91ef",
+      "bytes": 19501,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/app_screen.py",
+      "sha256": "78414f53ef896e71238a52de2cd8adbbbfc9adcc04acacf349271766c0761eca",
+      "bytes": 602981,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/pca.py",
+      "sha256": "08fb81c2fcb2e3fca6be24bdc2059d2a0ec5346e27c09392d7dbc30ba1c64ed3",
+      "bytes": 20062,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/hit_list.py",
+      "sha256": "3b3d1b071ea0830a1b79978e07e46c6a832a5f58359498a0fd35a81eb16553b1",
+      "bytes": 28687,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/make_masks.py",
+      "sha256": "9fa73b14e2042c73862012e64f19f968de9c4e6f53ad4e220d672c302b3c8af4",
+      "bytes": 891275,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/classifier_evaluation.py",
+      "sha256": "f7c34def725357af802efd6f98ee540b94e59685ed954690efc76e0da3f42a46",
+      "bytes": 39216,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/volcano.py",
+      "sha256": "88b08def67b02be3be65ed61e1e3cfd2961241d691319993ffbd295beeff3198",
+      "bytes": 8230,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/graph_builder.py",
+      "sha256": "4cb43a8b5582198d1ad05f9041d17a24ad8338a34b15ce6f2f2d60f14a0ddb23",
+      "bytes": 40042,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/experiment_design.py",
+      "sha256": "dc2bfccb8a0ebef2325af6a240330543967ac0f32dfb0003dcc3757f9712d005",
+      "bytes": 41770,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/report.py",
+      "sha256": "30832c022618659b33ea02ddc9ff5a24bdded5cbdb4a50ec9694bced09de4aae",
+      "bytes": 39684,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/gate_editor.py",
+      "sha256": "7cbdc3c1a67348c21d0157c6a3876e22693364be4cd9eb164c262228b88a61c7",
+      "bytes": 102598,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/control_chart.py",
+      "sha256": "1798a5aed3c3b758b5535fcbbb13bba8c103f4f50dbb35955f0786b11c6f9256",
+      "bytes": 76668,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/measure_inputs.py",
+      "sha256": "7f1049d6004acd943b59be8d6315a64faabef274dcab4401f2b4980ce76c8319",
+      "bytes": 25353,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/feature_explorer.py",
+      "sha256": "6c2eeb1345abb54cc3d8b620d92ff6e8032ade4ed90887faa145628f309574e0",
+      "bytes": 15517,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/map_barcodes.py",
+      "sha256": "09b827110861f8d83f8e914aa57cb9f00ebbd0c108486b09234dac27b236fbf5",
+      "bytes": 152616,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/trellis.py",
+      "sha256": "e727791bcc3b7f7ec532d8b8d87eb29c8ec3b96c9b98a1ea88b57a67ebd6a758",
+      "bytes": 13203,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/train_cellpose.py",
+      "sha256": "c3ec903c8a4dd8421ffec438c01b3ecbb17ede9e541923990280ef709526204b",
+      "bytes": 28325,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/curate.py",
+      "sha256": "93e9c1f4cf3d661c21d85708f64bc529270107fe1435259c9e81a6dd5c8c249e",
+      "bytes": 10879,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/lineage.py",
+      "sha256": "17ba7647835a59edc80efddaf138236d8ec6e91e9aff3d8de08821a932553a3c",
+      "bytes": 22729,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/settings_flow_index.py",
+      "sha256": "6285db00ed75b5fa23a80692bd2c045b62d39a32b6575c9373f92f9d3a9856d4",
+      "bytes": 33276,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/run_compare.py",
+      "sha256": "8350ba9d0838f6cfe8c7d58398e5af1402d01d5ec3df1aad3c27be0c3ce72133",
+      "bytes": 25234,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/image_import.py",
+      "sha256": "05ea8a7674a6acd8c79fd07e7a27b3930f994f9593bcaa9b25915c43ec32fc95",
+      "bytes": 56698,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/profiler.py",
+      "sha256": "deb14bedd56b0e977645d057464c930376cb60265974a3eb6900338970217809",
+      "bytes": 32761,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/embeddings.py",
+      "sha256": "6acc6c1c148e930781a8272f125aa1298661a346709a11c9c6e9bcc0c8766972",
+      "bytes": 87396,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/plate_view.py",
+      "sha256": "a78a58b1fab79a864e18f3ffd88454be39a938831b63eae4c1e7bd62eaf1ddff",
+      "bytes": 62317,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/settings_model.py",
+      "sha256": "2ab88fa13e51e564672ce6c2e746301d94d62ef93d5b31d66f03d98e0957ea4c",
+      "bytes": 570330,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/image_scatter.py",
+      "sha256": "c855f72260847117562a920d126bf9aa751024e3b5399337637125e96e753b9e",
+      "bytes": 37895,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/screens/image_umap.py",
+      "sha256": "2469322d526f0e1f4aef2d02e0cf59c20dbcc35feac74017ba53789ea42b10e0",
+      "bytes": 5938,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/tutorial/__init__.py",
+      "sha256": "129f499effcd32358a54176efe08275f4aee72bd8269984e256232a86d582f1a",
+      "bytes": 359,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/tutorial/__main__.py",
+      "sha256": "1c4d562047e755ad654af50ab2d172055b4a98ee9838fcdcb6a1e03087936a6b",
+      "bytes": 3505,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/prompts.py",
+      "sha256": "8950ac9969aca575e8f7a91604231e07365c70835e5983599889b83a5163f5b6",
+      "bytes": 3612,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/worker.py",
+      "sha256": "a7bd58589d1c7458504f898ec20d866b138ca81190335d959b56a143c4754cd2",
+      "bytes": 7522,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/issue_preview.py",
+      "sha256": "bb07744b8595346bd92c07aec463aaec75f2ff3f40fc08097706b89c18d21bed",
+      "bytes": 11698,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/providers.py",
+      "sha256": "7443d71b0733be588911f32dbdd1db6def280ba37956a16bc68e4fb4785d2bf8",
+      "bytes": 53489,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/cli_install.py",
+      "sha256": "9669d7f864b2d701cbbbb29b888f59595bf4f62dc45532304f8fa23bfd6e55ac",
+      "bytes": 22151,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/__init__.py",
+      "sha256": "ecd8d0b264b43f78c68a19de2b875cd28d84d7b6e05cfd6b76470c3dec4257a8",
+      "bytes": 1613,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/settings.py",
+      "sha256": "858107ff2d7bbc64bdd5391563f875b064dfb163b690115fc81a2098cb88c189",
+      "bytes": 8804,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/keys.py",
+      "sha256": "161d6172d1a1ebfa5d859f39789ae2f71d8040f2b9b73d0776f2fa31fdd9f966",
+      "bytes": 1572,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/issue_report.py",
+      "sha256": "5489cc833ef9e26ddb9a6221cecab2fddf60e8d1f8fc99e76870b351a1155b06",
+      "bytes": 31642,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/github_auth.py",
+      "sha256": "68dd4d1595ab61d405ba87505dcdacdb800b3dfdb6d7eb6a0675478ffd07c1f0",
+      "bytes": 10967,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/manuscript.py",
+      "sha256": "cdb4528996489691d6cff47dc31dad57e7674895948cab1ce3b252c6f08aab1a",
+      "bytes": 12654,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/qt/ai/pty_sign_in.py",
+      "sha256": "734be20556f96934ea1609946ae62ca9eb424286e586ce8f783895503552a2f6",
+      "bytes": 9912,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_embeddings_api.py",
+      "sha256": "8aeb7d6acbfd550b7aaceba457eaaf523fdb602926844b4bf30176318685ba4c",
+      "bytes": 7663,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plate_queue.py",
+      "sha256": "93cfb817e13c7ed2db06277d5e4b45fd59985b6d8cd2431d953a11db2242b901",
+      "bytes": 17589,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_classify_preparation.py",
+      "sha256": "719f7928b710d79fe2f8f3a63c488f62f8f839104111ae8240ca37d721edbd27",
+      "bytes": 6332,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_model_compare.py",
+      "sha256": "88bd02f64daa1d550a587f2cdd59063217dcceee5ac4fea6068bc12c304736e3",
+      "bytes": 3955,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_feature_explorer.py",
+      "sha256": "fd3fc8ba2f1291e6073dfc1fdee3b121666ea93dcd805dbb10c0047288248eb6",
+      "bytes": 14794,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_organisms.py",
+      "sha256": "89ddead9aa19df4a08512245da4158d2d444baa6ac27c8f8719a96d8f0bd5d37",
+      "bytes": 7554,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_converter.py",
+      "sha256": "82af2bb85528754e95ee55d0198af0387d9d81e3e31df4dcdc60e273c6434d13",
+      "bytes": 22828,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_cellpose_masks.py",
+      "sha256": "e9b6d1392569aa4b02c05fe4a77c6ee2d84174dfe290f48bf9c54952ba4af4e0",
+      "bytes": 22851,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_outliers.py",
+      "sha256": "326c3779b22521f5884e8d090a9405429fb2de9a35fe5474db556294d6913461",
+      "bytes": 14878,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_acceptance.py",
+      "sha256": "8c285ccc4bd0aee70e090fc527c6828270c0e28cf24076e21246e7c73a2942a6",
+      "bytes": 1220,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_openings.py",
+      "sha256": "66397b3d0f08acf397ad9aa92d1f119980b77ac7234b51ac898b3ee9fa170cc2",
+      "bytes": 17842,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_policy.py",
+      "sha256": "4647221b65647d5c59323e58dc405c4c118287e2f0977f6b347b98f8a534a9d1",
+      "bytes": 25151,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_saved_plots.py",
+      "sha256": "50358717c7bb63ee3cecc97a7c02043a06840c0798bb7a7de9baafbc17c677bb",
+      "bytes": 3274,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_map_barcodes_api.py",
+      "sha256": "25bcae888d17292ca900ca7a706742be5d63e7e399f9cc7ec89ffb0ef81cdf06",
+      "bytes": 4217,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_methods.py",
+      "sha256": "e669b917db266a989ab6581515f78782a4d4ac3b473d30a78b7546ad190c8294",
+      "bytes": 10762,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_activation_saved_plots.py",
+      "sha256": "9831d24bb6e850a33d10a3565d1a03dc89b9c36cfab8c6b1d9132a58f090d527",
+      "bytes": 288,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_activation.py",
+      "sha256": "7cfead6b94052bbfa994626e02bcd3ea624e89a764acd1c5cde1c68125e5e6b2",
+      "bytes": 11287,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_volcano.py",
+      "sha256": "f96dba3bfdd899ac67a50814b50bdafa51696d9649269052d847ed4100a98618",
+      "bytes": 15034,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_templates_shortcuts.py",
+      "sha256": "cc6d4201c67869813d7c25f93e16bd2e67379a555eec0f2c9a7b5639e183cab1",
+      "bytes": 11403,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_classify_existing.py",
+      "sha256": "b352ef3a131cb0eeb5b36c4c8cc3c71e3bbfcf9fe35ff323405efa0cd2325356",
+      "bytes": 3393,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_refresh.py",
+      "sha256": "baeec52063453ec4e3789a4d72790a4510811173f1af06c0ead2e693e0260884",
+      "bytes": 139442,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_parameter_sweep.py",
+      "sha256": "52aa6557caf24d86a83927591b20e3af2db9fdd0db30fa8a9b059301ca76f0b4",
+      "bytes": 22395,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_invasion.py",
+      "sha256": "6ff40c93ced1c77dfc3c926cd3ac44222e8fb4c7465d44c74a0d4c3ce400b443",
+      "bytes": 9639,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_cellpose_training_gui.py",
+      "sha256": "c3cc3d3ac6f3033a97a4b93f9d92c0f7ff3cc1a7e16452b93688d64ea9be0ec5",
+      "bytes": 26604,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ops.py",
+      "sha256": "c3daca8d129e2a16f908b4c42d031107a1e358d5ce4ce2b24d51ae37159e64f8",
+      "bytes": 29994,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_b.py",
+      "sha256": "a66b797b9dc7e7ac407d1ae6f46e9eb56345a1eacd355f05d14a2c4f6d0af4ca",
+      "bytes": 2034,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_dose_response.py",
+      "sha256": "b59eaeca2416408c28b9ec7d645b9f6fc9c15684acfefd98ee35ab9a14310075",
+      "bytes": 13269,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_image_scatter.py",
+      "sha256": "50a424f7dee0c8e817a0d9d56f931c7f4ce73c8b9b356cf930b931dfb010a52b",
+      "bytes": 13202,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_distributed.py",
+      "sha256": "6e363c54dd4500223d594d483eab0da7e0616d198301f02087cc987bc8910ca5",
+      "bytes": 7882,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_preferences_appearance.py",
+      "sha256": "2857fd1a9dcdd21ad46f3c10cec482dea8aaaa4c3d238f216713fc80d6596b9e",
+      "bytes": 7510,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_timelapse.py",
+      "sha256": "376bedf9374284578e56c24496a8f6060d5b9669552c2bd52088d71ef428c315",
+      "bytes": 24677,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui.py",
+      "sha256": "f3adc7da710a9f1d317a30c2f90b0ba036917b847b8a8761d5b423a78266c345",
+      "bytes": 33026,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_model_zoo.py",
+      "sha256": "1b8de66970514f6a831d1749df76c0b2512bf35ebcab21314affc06a037d8cd4",
+      "bytes": 28562,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_sequencing.py",
+      "sha256": "83c6c32bcbc62e4ebf7ee16e8ebc8b9a3276225cee4ed99eabdf62c130d1cf56",
+      "bytes": 6070,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_illumination.py",
+      "sha256": "450ddc7bcf202c171848d3b5ca9a6ace6d7bd81d8f5edeb1a9d391fb27fa13d8",
+      "bytes": 20244,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_barcode_qc.py",
+      "sha256": "d08f383dbadaae87cdb1488036b1cdb059c5cb76feb1bb0a2db244562959d325",
+      "bytes": 13291,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_model_inventory.py",
+      "sha256": "1cdd08f7dfc9d5932abdf8429fb1b06fe70b059a323ec6ee22f6c2a7c17b73b4",
+      "bytes": 5579,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_training_runs.py",
+      "sha256": "279be584289d5bc39b44abea933fa15e51846970763b052d6352f00ae5669b75",
+      "bytes": 39101,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_run_compare.py",
+      "sha256": "879ab787d7ba7bb0433e68c719a69a9aa26b6aebbfc0315abf673193a670b36d",
+      "bytes": 9338,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_d.py",
+      "sha256": "3272caaec01f5521bdc30ac59175ce9962d6a8d1e394f8e0660cfad7281722f2",
+      "bytes": 3152,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_systemd_stub.py",
+      "sha256": "4ab213c98279bb8d812da69413e6477fd9870b249150b7fc52cd36668bdd4722",
+      "bytes": 3151,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_psf_workflow.py",
+      "sha256": "c60e70db193c09e7a9b81f111709c6defc77ce45e0317635f3417be7e70b40a6",
+      "bytes": 12152,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plaque.py",
+      "sha256": "a60fa1b3acfb5fa7d93f5346b833db4debbb5e4419c9b3e479dc5469c3818ec2",
+      "bytes": 18421,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_umap.py",
+      "sha256": "b7d82bf35822482075576e45dfcea431547703612eb997ab5cb7944517d473cb",
+      "bytes": 3775,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_agreement.py",
+      "sha256": "5c47eb96adfb89ce4635d5f4487172697f21d857d66388e6ff5bf7c96bc1a9ee",
+      "bytes": 9094,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_alpha_organisms.py",
+      "sha256": "a32ed0ef7c93eca6c93eb6e7e636e1c2e0addbe81c57d60ccdc9cb7255606e54",
+      "bytes": 11555,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_make_masks.py",
+      "sha256": "534a2e6fcb307a9d1ca15bfb4231970d4f35a577cdf5dff11d787ea259d5a861",
+      "bytes": 40892,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_gates.py",
+      "sha256": "c4710228ccb4193ee4888a205eccbc6cce137658ce241552bb6d6493d29f53d1",
+      "bytes": 28244,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_e.py",
+      "sha256": "ce7e1a14de46d4897861e5a095bda1bbe7d59fa94fcc70ced0bb8f178dbe129c",
+      "bytes": 2771,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py",
+      "sha256": "5fc281763a7c0c0cbc3319ee1f2422fe16ecbb85d91cb1b5f8a2bfdd4cb53cf9",
+      "bytes": 36966,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_cellpose_training.py",
+      "sha256": "21f96124df7cbe1a1b56314027fa0d17a1a5f075d519eea2c3ca8a1e85e94226",
+      "bytes": 11393,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_anndata_api.py",
+      "sha256": "fb6029633ff67047955997e040a099aad764353cc05a6249e215b955312da6ad",
+      "bytes": 7295,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_classify_ml.py",
+      "sha256": "d1b9750b330d60804427db315e02c8f82c97bf3f72abacf356ee6b520ba5708e",
+      "bytes": 7013,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_replication.py",
+      "sha256": "d24b3dcc4b824d742016711ef029c995eee256015edb57d9843c533137bbc922",
+      "bytes": 12445,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_data_manager.py",
+      "sha256": "29690bf23c5c0a5a7a76c964c9468e7627a9e942c8d479fab5781a97d60aacaa",
+      "bytes": 17384,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_profiler.py",
+      "sha256": "b0fb373b9cdaef02833fdf650bcdd1cd8883b89ab7c33b790a1287f8558a9aae",
+      "bytes": 9843,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_diagnostics.py",
+      "sha256": "1e6f1d237ac40369cb928863df2f045e221201408c23869f972b9c1dacde4dbb",
+      "bytes": 12387,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_cellpose_training_review.py",
+      "sha256": "c13db4e66906833bd7da07ca78f47dee899eae72df09cc87b071ac7cc8067012",
+      "bytes": 2813,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_design.py",
+      "sha256": "0ce51c198b25c955f985483d0474dfa83e9d4feae21df10bed6d67d3b4c944c9",
+      "bytes": 11494,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_motility.py",
+      "sha256": "b1870841ec4345160133f655df4dc9f28bf7e9f590cd8afab13280f96220ee8a",
+      "bytes": 10766,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_power.py",
+      "sha256": "68a44746fd5b8718b17a54081415fa0d57c54a0055619f920dcde65d846f99a1",
+      "bytes": 9242,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_startup.py",
+      "sha256": "91a625a193edc437303b1c86345920bc4c72902e47f369ff2950ec13ebfacd5b",
+      "bytes": 1869,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_tabulate.py",
+      "sha256": "9c7641c97bdf058f7bc8d79e8fafd57a7d2b9fa995c9e5ac8234b466f2d9f1bd",
+      "bytes": 20746,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_mask_table.py",
+      "sha256": "1c6042b57b5321427dcc5740bbd9980b512c8fb19dc38931775c8feac0e2397f",
+      "bytes": 8882,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_curate.py",
+      "sha256": "968e5ba4657df0f0d1f1a185a9606e25ddfbc3ad9c83803407b1d015779ee8bf",
+      "bytes": 15791,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_mask_readouts.py",
+      "sha256": "471a92369b4669d64be8cc606df0a7a08f4f8a258ac31e3baac768d8e50ad58b",
+      "bytes": 2899,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_barcode_saved_plots.py",
+      "sha256": "c4a892c6427045e95c33b718a4b50ec5c0d563a5d403a7eeb4df2cffabe4dd5b",
+      "bytes": 1876,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_terminal_install.py",
+      "sha256": "4175be607743bc99d4f4621c817aa8d1bf91b4eefa03b4cfafe4afd9b01d01c3",
+      "bytes": 44857,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_measure_controls.py",
+      "sha256": "8dc7a7aea18edc068f7a980e9cea4065637520b8dfb50635d90e7ee654ba38a5",
+      "bytes": 11485,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_anndata.py",
+      "sha256": "c2ededf96c58ab28a6fc5d6ece834625c285799fb32adc7ef1ac704027ee9487",
+      "bytes": 12304,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_pip_installation.py",
+      "sha256": "3b29b13ff0e46304aa5fac5a4aec31ef19009d23bc225a3a4e6bdce08b6ba2fc",
+      "bytes": 22926,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_database.py",
+      "sha256": "5c9cdfe72d08dbbf95dee1ab1e8fe130ef9240f6c6790f12db77001a65bc565a",
+      "bytes": 34412,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_classify_overview.py",
+      "sha256": "8e579709a12752187be69ca69c90ec6da1f8a86035b41b576130abf0d44e1859",
+      "bytes": 5951,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_evaluation.py",
+      "sha256": "58de3fa50ad9f13cc11af89331aaf0dae65f4bd5c0577698de6ce6cad66e043d",
+      "bytes": 9665,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_gate_search.py",
+      "sha256": "a2100399807c2684b1392352a1026384c2564017521f9ac4d2f55ed52e23dbed",
+      "bytes": 6876,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_run_history.py",
+      "sha256": "2d0cb30a05fb602cff63f92ce9159d70700dd5d7ba65685a2cb33e3ef1b2347a",
+      "bytes": 15489,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_graph.py",
+      "sha256": "a96e51d4cb19576969e7c85a6504b0cc47b5ac2712b85b889bae9449bd48153b",
+      "bytes": 22861,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_c.py",
+      "sha256": "93f3b28b8dcea2abeccfbb7b4e87aeb39b7c6af995e6b2f1ff1a7f8b1bafa663",
+      "bytes": 2139,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plate_example.py",
+      "sha256": "54575a1cd6e9aa16a9638eb31fbe49f885147647d2cf23d843461c5114884c4b",
+      "bytes": 7163,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_report.py",
+      "sha256": "b335392a06989202fe5683a5d152c99a9f91e23182bcfd7283bfdd1acca74a70",
+      "bytes": 27642,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_recruitment.py",
+      "sha256": "7e9762681d9c126955777806c28748ef4d013fbfdc23aa44641502eab0879f51",
+      "bytes": 2858,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_layer_viewer.py",
+      "sha256": "ef93d0b624940f50af24b78f435e7937e320ce41e5a5619585ac97e0cece20f9",
+      "bytes": 17438,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_image_import.py",
+      "sha256": "52a47171a3c8bf370adc0e0b2261e513154327770c6e078201ad2e079fb19224",
+      "bytes": 14166,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_graph_annotations.py",
+      "sha256": "39c46e88391c46bd58bf087b8640600561cccfaf54444214591ffc06c9735a7f",
+      "bytes": 17090,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_clip_gate.py",
+      "sha256": "997130864aaaab22cbc021faf7848fc25a34e1798b58314693551cae80eba006",
+      "bytes": 21091,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_features_run.py",
+      "sha256": "b2568f844ec77ae2b64b493f9522a21f4104f26747002a81e8e91cd23a95d2d8",
+      "bytes": 10250,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_puncta.py",
+      "sha256": "749b8c61920186344519007d2b7b87a3a0b9b78c089600f1d2b61b03d6ab0d30",
+      "bytes": 9182,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_annotate.py",
+      "sha256": "62570c65114d02238e2da5666557612e9c0825a739e4e33acf3f6c0619a68d6f",
+      "bytes": 22849,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_workflow_overview.py",
+      "sha256": "60a1a2f701130c6ce2ca0adea215770313507b318ef98554b5206613d25ec799",
+      "bytes": 29026,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_project_browser.py",
+      "sha256": "b07481887a45720aed463790376f4e2f4ecde508a26c836d093469a3e7507ea7",
+      "bytes": 13546,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_model_compare_api.py",
+      "sha256": "8e213f680c98531ab332a518cc7dc3b9d856672f1049d5f54570a3c6c344d40b",
+      "bytes": 7240,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_investigate_hit.py",
+      "sha256": "35d5024b52051be68e18a159000bfa5a20d56f33859fdd605205e0d974517814",
+      "bytes": 13191,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_make_masks_more.py",
+      "sha256": "4a4fcdea41df0ee8c2bb04332e7bc180c84669f810d5852aa565e769687f160c",
+      "bytes": 16456,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_gate_chrome.py",
+      "sha256": "0cec68c0e55b684be377bf8f826a815f113795cd4bb93f97380561cf77dafb8d",
+      "bytes": 8364,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_a.py",
+      "sha256": "0d44c1c6a7b5f494dc44afd0f1d0279fadfb2af22656857af148523864e2cab5",
+      "bytes": 6039,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_cellpose_training_command.py",
+      "sha256": "e69cb3e3ef4c705c03f9c64e5352ec44cc6f88268d9638dad6b48d509e8630ba",
+      "bytes": 5903,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_settings.py",
+      "sha256": "78d560f5ff232900cbac2bfaa1e8c86da96d511005507ac87564bfa454482d36",
+      "bytes": 8341,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_alpha_features.py",
+      "sha256": "c1e350e3daa0917bd3fd4851b2a9550444416d036c15037cf6c4698107cae547",
+      "bytes": 20303,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_trellis.py",
+      "sha256": "895e3cfcbf82207a657a8881048f02492376c3b3d66a4037565d48b1c704ced1",
+      "bytes": 17733,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_foreign.py",
+      "sha256": "91e5bcad828eaee2df3f980e291d714068c11034c2a47655e888a6054f97652b",
+      "bytes": 17197,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_pathogen.py",
+      "sha256": "868dda403aae9db8c8a618d896c7098c04b663c5563b86beb90bb3cdbdbd38b8",
+      "bytes": 9700,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ui_drv_f.py",
+      "sha256": "510cb786a2ba06f2dc5a38bbd8a66be2facc2c42c0890f37cd396afb2b667c1f",
+      "bytes": 10500,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_external_masks.py",
+      "sha256": "b2f478912212d80eb2f882f4512f5f885f64087c3a39bba34d941e5c825171d4",
+      "bytes": 59041,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_lesson.py",
+      "sha256": "339c88eee9c4403dd14d54338c0428474b3d2d0e9ed3b24bb7298ec4561b3abd",
+      "bytes": 11224,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_api_browser.py",
+      "sha256": "41fb7467e48689812f073ec0fdb10b5aa7ea6ade880be2a4991bb6cc4dcb3d71",
+      "bytes": 5563,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plate_retention.py",
+      "sha256": "229e185b61e0b6a7abb3aa1df8519bcdf39e9d03bfec0fb691935e8fa997f8e3",
+      "bytes": 13988,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_hit_list.py",
+      "sha256": "747f82ac1606d39282ac6f1ceca448e1abe4e9a5b27a5927142affba0b2c29e1",
+      "bytes": 14602,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_classify.py",
+      "sha256": "8382fb93e69f0027cdfe652dd1f8954added79e681fde371ab2fadbcd964a82c",
+      "bytes": 1693,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_model_zoo_additions.py",
+      "sha256": "2a390d4cc024f049b4c2630d91e09b791aa3158ade663d3968108c7c75b6a662",
+      "bytes": 9544,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_qc.py",
+      "sha256": "fb2ff8c00df088092ad2733c08b6ff0ae72fde098a64224251b6bf577029bd00",
+      "bytes": 8431,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_embeddings.py",
+      "sha256": "6844248449937878b2003e52ccad62201056676ff442d452b198f49dfef73c6b",
+      "bytes": 6021,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_barcode_search.py",
+      "sha256": "aa2a199bf9f21723c1c92434dbacc6cee34ba94708bcd60a031c801a9dcf604c",
+      "bytes": 9142,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_explain_cv.py",
+      "sha256": "e0505889268138e71e51789a07a1670f23dc8a9f20f39847d48fe80d62ee2e71",
+      "bytes": 11196,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_restoration.py",
+      "sha256": "24b44cbdbcdf0626e82a715a404b2547b32a29c7f970a1efa3ce203343af0cf7",
+      "bytes": 8331,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_ops_api.py",
+      "sha256": "b8d3c3b412c5ef7ba019617289b876430815df89e67caf866d221d39795ef4ba",
+      "bytes": 8005,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_geometry.py",
+      "sha256": "4efc019a238f03ddfece6c513cb9b09e27a6cfb3d001e63940909752e2043d93",
+      "bytes": 1254,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_live_video.py",
+      "sha256": "4f7f5d05a550ee9bc13fbab923261deb4bc6bec841f1764e135110a467962295",
+      "bytes": 10029,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_feature_dictionary.py",
+      "sha256": "826843ffd517719e3b33441fdee883aa7d56351dbebb35d294a7c1bf82377cfb",
+      "bytes": 9934,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_report_browser.py",
+      "sha256": "802419fa28bcd9181acca51b17662486162b31ff860ac77fbc6fb5e3a4a873eb",
+      "bytes": 26654,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_pca.py",
+      "sha256": "54bdf3d9c54c576726c911664455b89e170a5b764e68a0e43867934de65663d7",
+      "bytes": 13608,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_bench.py",
+      "sha256": "167685a7839a978633aa9dbc68ecabf9da7a48e98a2c3f7b2698811bc68feacd",
+      "bytes": 12771,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_cli.py",
+      "sha256": "26cb43edea4822804b821a9004ca9bd7ce7f27750027be720450a29e10c3bb12",
+      "bytes": 9941,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_organize_popup.py",
+      "sha256": "c9918c6bd0f8d43f81183998308f7a55887469c37ea4cb66060bf35626cc6650",
+      "bytes": 7252,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plaque_current.py",
+      "sha256": "b7b07f258fe9529cf35fdbd655ec5a0f9a7a416121cec584aeebdc2f363390b2",
+      "bytes": 15756,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_mask_overlay_command.py",
+      "sha256": "7221b935d2665984a5dac7d79b06ea20dc7f9ad8f5cec9ce25b724ab991f27ec",
+      "bytes": 5930,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home.py",
+      "sha256": "71b3385a4ce3895b1a78e4442fbe7db4c7567d665831974a95fb479c2f9f1015",
+      "bytes": 35587,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_suggest_segment.py",
+      "sha256": "591971786f50b6036bf56baddb2ea6d80eebe4081f7d7388f35538ad0f0ad6d3",
+      "bytes": 10671,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_installation_sources.py",
+      "sha256": "96f970060867d78108deaaa6f3ec13a1204042cb5040b744a3ffce01aa721bb7",
+      "bytes": 6738,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_install_nightly.py",
+      "sha256": "cccd1077bf65a0fb07a831ad7434747f490987a34a4ce5b59455dbc2a649d1df",
+      "bytes": 4034,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_batch_runner.py",
+      "sha256": "8fc68d73f317d7b8ae7f5bcf52a608f256d248968f0f0846a1bd88bde933230d",
+      "bytes": 16669,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_lineage.py",
+      "sha256": "ced513967abc7512d8c1d795d276e39ffee6f46a1914bf59241f1c3299ad931c",
+      "bytes": 20932,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_mask_saved_plots.py",
+      "sha256": "cb6982ebb5ed3fcbc214a68bb28a4ef4b49fdd5f7ababac9d77cfbe9c0736c55",
+      "bytes": 1750,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_home_live.py",
+      "sha256": "fadc10cdd1881517802df1bf04cd1994e14f1ec9ca3264806f2de0c314a2c6b4",
+      "bytes": 46569,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_napari.py",
+      "sha256": "8ed41b206cfaeb4442909fd4720ff857a3b78389733fe548a3b704acd97a5a3a",
+      "bytes": 16091,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_adapter.py",
+      "sha256": "b1a2aaa643787f87ec5a1166a0205a0b9f88cf4bc17440e30de04f88513b43ba",
+      "bytes": 24274,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_control_chart.py",
+      "sha256": "eaf8d0b81302a232fd0fddbef5b9a89f0e580aaba26cfbecec851fd5f6b5250d",
+      "bytes": 13458,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_pipeline_graph.py",
+      "sha256": "2d43d4ac1a401dcae5e5fb212d8c0d250d24f1a66c59d829574fc6851654f7b3",
+      "bytes": 10800,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_align.py",
+      "sha256": "22dee59037120dd3242d2137190e4ed21f0ff0708c742144b786526ff0b1e290",
+      "bytes": 11046,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/human_input.py",
+      "sha256": "bedddf66de9e0bbb14370ecc44d08fa07f372c7bffff10c839355d942eff5e58",
+      "bytes": 25514,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/gnome_capture_host.py",
+      "sha256": "9401e0b46e3104243d0ea2f9f6c38a703e4d4107425edd3f6d0d2392bc19439e",
+      "bytes": 20482,
+      "stable_stat_before_after": true
+    }
+  ],
+  "input_files_rehashed_twice": 64,
+  "inputs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E01_10_1.npy",
+      "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E01_11_1.npy",
+      "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E01_1_1.npy",
+      "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E01_1_1.npy",
+      "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E01_1_1.npy",
+      "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E01_1_1.npy",
+      "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E01_9_1.npy",
+      "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E01_9_1.npy",
+      "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E01_9_1.npy",
+      "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E01_9_1.npy",
+      "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E02_10_1.npy",
+      "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E02_10_1.npy",
+      "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E02_10_1.npy",
+      "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E02_10_1.npy",
+      "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E02_11_1.npy",
+      "sha256": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E02_11_1.npy",
+      "sha256": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E02_11_1.npy",
+      "sha256": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E02_11_1.npy",
+      "sha256": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E02_1_1.npy",
+      "sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E02_1_1.npy",
+      "sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E02_1_1.npy",
+      "sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E02_1_1.npy",
+      "sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_E02_9_1.npy",
+      "sha256": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_E02_9_1.npy",
+      "sha256": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_E02_9_1.npy",
+      "sha256": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_E02_9_1.npy",
+      "sha256": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L01_10_1.npy",
+      "sha256": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L01_10_1.npy",
+      "sha256": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L01_10_1.npy",
+      "sha256": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L01_10_1.npy",
+      "sha256": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L01_11_1.npy",
+      "sha256": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L01_11_1.npy",
+      "sha256": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L01_11_1.npy",
+      "sha256": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L01_11_1.npy",
+      "sha256": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L01_1_1.npy",
+      "sha256": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L01_1_1.npy",
+      "sha256": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L01_1_1.npy",
+      "sha256": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L01_1_1.npy",
+      "sha256": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L01_9_1.npy",
+      "sha256": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L01_9_1.npy",
+      "sha256": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L01_9_1.npy",
+      "sha256": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L01_9_1.npy",
+      "sha256": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L02_10_1.npy",
+      "sha256": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L02_10_1.npy",
+      "sha256": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L02_10_1.npy",
+      "sha256": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L02_10_1.npy",
+      "sha256": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L02_11_1.npy",
+      "sha256": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L02_11_1.npy",
+      "sha256": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L02_11_1.npy",
+      "sha256": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L02_11_1.npy",
+      "sha256": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L02_1_1.npy",
+      "sha256": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L02_1_1.npy",
+      "sha256": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L02_1_1.npy",
+      "sha256": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L02_1_1.npy",
+      "sha256": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/example_data/plate1/merged/plate1_L02_9_1.npy",
+      "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged/plate1_L02_9_1.npy",
+      "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "main_GUI_working_copy",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/merged/plate1_L02_9_1.npy",
+      "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "apply_stage_input",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/illumination/example_data/plate1/merged/plate1_L02_9_1.npy",
+      "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+      "bytes": 55664632,
+      "stable_stat_before_after": true,
+      "role": "bound_input_source",
+      "shape": [
+        1994,
+        1994,
+        7
+      ],
+      "dtype": "uint16"
+    }
+  ],
+  "models": [
+    {
+      "role": "main_GUI_estimated",
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/illumination/illumination_model.npz",
+        "sha256": "fc48265e4363ad4ceaf5803dfcdc1068533e726a14ccd4feb8f316998fcb50fa",
+        "bytes": 12560760,
+        "stable_stat_before_after": true
+      },
+      "checks": {
+        "manifest": {
+          "index": {
+            "field0": {
+              "plate": "plate1",
+              "channels": [
+                0
+              ],
+              "dark": [
+                0.0
+              ],
+              "n_fields": 16,
+              "estimator": "polynomial",
+              "degree": 4,
+              "bin_size": 8,
+              "floored": 0,
+              "key": "plate1"
+            }
+          },
+          "meta": {
+            "src": [
+              "/tmp/spacr-tutorial-current/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged"
+            ],
+            "channels": [
+              0
+            ],
+            "per_plate": true,
+            "estimator": "polynomial",
+            "degree": 4,
+            "max_fields": 16,
+            "grid": 256,
+            "dark": 0.0,
+            "created": "2026-10-14 18:59:46",
+            "application_contract_version": 1,
+            "channel_index_space": "persisted-intensity-axis",
+            "estimated_from_intensity_state": "raw"
+          },
+          "format": 1
+        },
+        "pixels_checked": 3976036,
+        "mean": [
+          1.00000000001661
+        ],
+        "minimum": 0.5460565686225891,
+        "maximum": 1.172926664352417
+      },
+      "QC_independent": {
+        "slope_before": -0.1814245802952636,
+        "slope_after": 0.0264348158355536,
+        "bias_removed_pct": 85.42930853551837,
+        "n_fields": 16,
+        "binned_shape": [
+          249,
+          249
+        ],
+        "in_sample_not_independent_validation": true
+      },
+      "QC_actual_CPU_recomputed": {
+        "slope_before": -0.1814245802952636,
+        "slope_after": 0.02643481583555368,
+        "bias_removed_pct": 85.42930853551832,
+        "nonuniformity_pct": 39.51068878173828,
+        "gain_min": 0.5460565686225891,
+        "gain_max": 1.172926664352417,
+        "n_fields": 16
+      },
+      "QC_matches": true
+    },
+    {
+      "role": "Apply_independently_estimated_before_clip",
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/illumination/illumination_model.npz",
+        "sha256": "67c3a36c6248c6fdb9d275af9cca4d2f061ed3f2bfff7494b875a545e2488ebb",
+        "bytes": 12560747,
+        "stable_stat_before_after": true
+      },
+      "checks": {
+        "manifest": {
+          "index": {
+            "field0": {
+              "plate": "plate1",
+              "channels": [
+                0
+              ],
+              "dark": [
+                0.0
+              ],
+              "n_fields": 16,
+              "estimator": "polynomial",
+              "degree": 4,
+              "bin_size": 8,
+              "floored": 0,
+              "key": "plate1"
+            }
+          },
+          "meta": {
+            "src": [
+              "/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/merged"
+            ],
+            "channels": [
+              0
+            ],
+            "per_plate": true,
+            "estimator": "polynomial",
+            "degree": 4,
+            "max_fields": 16,
+            "grid": 256,
+            "dark": 0.0,
+            "created": "2026-10-14 19:05:17",
+            "application_contract_version": 1,
+            "channel_index_space": "persisted-intensity-axis",
+            "estimated_from_intensity_state": "raw"
+          },
+          "format": 1
+        },
+        "pixels_checked": 3976036,
+        "mean": [
+          1.00000000001661
+        ],
+        "minimum": 0.5460565686225891,
+        "maximum": 1.172926664352417
+      },
+      "QC_independent": {
+        "slope_before": -0.1814245802952636,
+        "slope_after": 0.0264348158355536,
+        "bias_removed_pct": 85.42930853551837,
+        "n_fields": 16,
+        "binned_shape": [
+          249,
+          249
+        ],
+        "in_sample_not_independent_validation": true
+      },
+      "QC_actual_CPU_recomputed": {
+        "slope_before": -0.1814245802952636,
+        "slope_after": 0.02643481583555368,
+        "bias_removed_pct": 85.42930853551832,
+        "nonuniformity_pct": 39.51068878173828,
+        "gain_min": 0.5460565686225891,
+        "gain_max": 1.172926664352417,
+        "n_fields": 16
+      },
+      "QC_matches": true
+    }
+  ],
+  "model_planes_bitwise_equal": true,
+  "models_are_same_encoded_file": false,
+  "model_identity_qualification": "Apply independently estimates off camera from identical16copied fields/settings, as capture_openings.py declares; model NPZ files differ in provenance paths/time, although field arrays are bitwise equal. This is not copying the exact GUI-run file.",
+  "offline_pixel_audits": [
+    {
+      "model_role": "main_GUI_estimated",
+      "input_file": "plate1_E01_10_1.npy",
+      "input_array_unchanged": true,
+      "pixels_checked": 3976036,
+      "unequal_pixels": 0
+    },
+    {
+      "model_role": "main_GUI_estimated",
+      "input_file": "plate1_E01_11_1.npy",
+      "input_array_unchanged": true,
+      "pixels_checked": 3976036,
+      "unequal_pixels": 0
+    },
+    {
+      "model_role": "Apply_independently_estimated_before_clip",
+      "input_file": "plate1_E01_10_1.npy",
+      "input_array_unchanged": true,
+      "pixels_checked": 3976036,
+      "unequal_pixels": 0
+    },
+    {
+      "model_role": "Apply_independently_estimated_before_clip",
+      "input_file": "plate1_E01_11_1.npy",
+      "input_array_unchanged": true,
+      "pixels_checked": 3976036,
+      "unequal_pixels": 0
+    }
+  ],
+  "total_pixels_checked": 15904144,
+  "total_unequal_pixels": 0,
+  "QC_artifacts": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/illumination/illumination_qc_plate1.png",
+      "sha256": "2828420ca6aee0824447c999c69acc056579238321beaa0426077213d695fbd6",
+      "bytes": 705349,
+      "stable_stat_before_after": true,
+      "format": "PNG",
+      "size": [
+        3900,
+        1020
+      ]
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/example_data/plate1/illumination/illumination_qc_plate1.png",
+      "sha256": "2828420ca6aee0824447c999c69acc056579238321beaa0426077213d695fbd6",
+      "bytes": 705349,
+      "stable_stat_before_after": true
+    }
+  ],
+  "QC_scope": "In-sample position/intensity trend arithmetic on the16estimation fields; not independent optical or biological validation",
+  "run_journals": [
+    {
+      "run": "2026-10-14_225752_9c311701__illumination",
+      "status": "success",
+      "elapsed_s": 1.456,
+      "settings": {
+        "channels": [
+          0
+        ],
+        "hash_inputs": true,
+        "illumination_correction": false,
+        "illumination_dark": 0.0,
+        "illumination_degree": 4,
+        "illumination_estimator": "polynomial",
+        "illumination_max_fields": 50,
+        "illumination_model": null,
+        "illumination_on_missing": "error",
+        "illumination_per_plate": true,
+        "illumination_qc": true,
+        "illumination_vendor_channel_map": null,
+        "illumination_vendor_profile": null,
+        "src": "/tmp/spacr-tutorial-current/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged"
+      },
+      "bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/app-state/runs/2026-10-14_225752_9c311701__illumination/manifest.json",
+          "sha256": "014f163b4e34bff6796326b1a1db701e6c3ca04d76e4e4569da022fa1036f355",
+          "bytes": 15821,
+          "stable_stat_before_after": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/app-state/runs/2026-10-14_225752_9c311701__illumination/settings.json",
+          "sha256": "9b57aca5b5a2cd10772c802b8204d79eeac859e88684115ab68f47633dd65fbf",
+          "bytes": 534,
+          "stable_stat_before_after": true
+        }
+      ]
+    },
+    {
+      "run": "2026-10-14_225945_7a7ef357__illumination",
+      "status": "success",
+      "elapsed_s": 5.739,
+      "settings": {
+        "channels": [
+          0
+        ],
+        "hash_inputs": true,
+        "illumination_correction": true,
+        "illumination_dark": 0.0,
+        "illumination_degree": 4,
+        "illumination_estimator": "polynomial",
+        "illumination_max_fields": 16,
+        "illumination_model": null,
+        "illumination_on_missing": "error",
+        "illumination_per_plate": true,
+        "illumination_qc": true,
+        "illumination_vendor_channel_map": null,
+        "illumination_vendor_profile": null,
+        "src": "/tmp/spacr-tutorial-current/illumination_runs/real-downloaded-fields-b0qyeecs/plate1/merged"
+      },
+      "bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/app-state/runs/2026-10-14_225945_7a7ef357__illumination/manifest.json",
+          "sha256": "c8155c074c19fd10079f2a2b460ac19f71f94fad51c3be5be3f7a64c8ae725e9",
+          "bytes": 15822,
+          "stable_stat_before_after": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/app-state/runs/2026-10-14_225945_7a7ef357__illumination/settings.json",
+          "sha256": "4a7038ced9f8407cf7e1c0a848a597690437c3e6f90b5cc124276acb93b8f6f0",
+          "bytes": 533,
+          "stable_stat_before_after": true
+        }
+      ]
+    }
+  ],
+  "Apply_settings": {
+    "model": "/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/illumination/illumination_model.npz",
+    "settings": {
+      "src": "/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1",
+      "illumination_correction": true,
+      "illumination_model": "/tmp/spacr-tutorial-current/profile/.cache/spacr/example_data/plate1/illumination/illumination_model.npz"
+    },
+    "model_field": [
+      427,
+      469,
+      548,
+      30
+    ],
+    "settings_panel": [
+      248,
+      202,
+      761,
+      1200
+    ]
+  },
+  "Apply_scope": "Visible Measure settings recorded; no Measure pipeline execution or measured-feature output is claimed",
+  "evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/scientific_acceptance.json",
+      "sha256": "b047dbaa863704c0d26a908be472fee67b5875f7fc1bd35cf04e24065632333f",
+      "bytes": 12795,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/captures/illumination/configured_settings.json",
+      "sha256": "ad0ac9e08103db616b2e142eafb9757ffc67b65be0efe93a712cd3a77566ec3c",
+      "bytes": 511,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/captures/home/illumination_apply.json",
+      "sha256": "ce08e0171fd039e66251d83e02454027e17da6bfcd0eced5e4461c6a714da438",
+      "bytes": 517,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/exact-source.json",
+      "sha256": "d05a2fec3009b0c65b89488957a672866a4456317931af57797fef01f16f3a99",
+      "bytes": 56757,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/inputs-manifest.json",
+      "sha256": "0a985681baca6765dc5481978a7018dcb4f9660812907cbe89bb7b8a286513f3",
+      "bytes": 2047,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-r34-20261014/capture-profile.json",
+      "sha256": "430f8d37fe16000f802d637e242f1aafebff257173ebc7545547bd2d30613547",
+      "bytes": 636,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/exact-source.json",
+      "sha256": "d05a2fec3009b0c65b89488957a672866a4456317931af57797fef01f16f3a99",
+      "bytes": 56757,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/inputs-manifest.json",
+      "sha256": "0a985681baca6765dc5481978a7018dcb4f9660812907cbe89bb7b8a286513f3",
+      "bytes": 2047,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/lesson43-app-r34-20261014/capture-profile.json",
+      "sha256": "f87722217fb7b9b578204c79c1fd885d576bbb931ec9081af8b403247833ecc2",
+      "bytes": 628,
+      "stable_stat_before_after": true
+    }
+  ],
+  "auditor_source": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/audit_science.py",
+      "sha256": "caa928944b5e3df49886b2cf10de1f1f77aebb33fcb74fe2e9f59b966599c792",
+      "bytes": 10578,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/illumination_evidence.py",
+      "sha256": "75dfcb5eb3dd0a3be552583c1ff34ebe3dbf954e7d578df51943f4263e426cfb",
+      "bytes": 6905,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/illumination.py",
+      "sha256": "5d19ef372497bbd2ef22730b9bf5dd767d5c2628acb50559df38add4e824a682",
+      "bytes": 128364,
+      "stable_stat_before_after": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_openings.py",
+      "sha256": "66397b3d0f08acf397ad9aa92d1f119980b77ac7234b51ac898b3ee9fa170cc2",
+      "bytes": 17842,
+      "stable_stat_before_after": true
+    }
+  ],
+  "limitations": [
+    "No gate or original scientific report was edited; original accepted:true is retained as bounded demonstration proof.",
+    "Off-run model absence is bound to original runtime proof/console/source guard; a model now exists after the on-run, so historical absence is not reasserted from present filesystem.",
+    "No new model estimation, GUI, GPU, native capture, voice, translation, rendering or publication performed by this audit.",
+    "Scoped offline public correction API checks are not measured-feature accuracy or ground-truth validation.",
+    "Neutral capture paths are explicitly mapped to their own fresh r34 saved stages; no oldr32inputs/models/clips used."
+  ]
+}

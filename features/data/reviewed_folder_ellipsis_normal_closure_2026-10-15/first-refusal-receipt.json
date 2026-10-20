@@ -1,0 +1,23 @@
+{
+  "exit": 1,
+  "phase": "Before catalog writes: sv/de/es ordinary preflights passed; zh_CN normal OpenCC read-only system library discovery blocked by extra runner subprocess guard.",
+  "input_head": "3e881b57a0b1dbbee58cf08b6ba4f172a2f2f0ef",
+  "all_pins_unchanged_after_refusal": {
+    "input_pins": {
+      "count": 13530,
+      "changed": []
+    },
+    "catalog_baseline_pins": {
+      "count": 11,
+      "changed": []
+    },
+    "protected_pins": {
+      "count": 60,
+      "changed": []
+    }
+  },
+  "first_driver_sha256": "57b98e67c7f3d9bb06c049d358e002af4b88dc638342b1f5cf338b95c14d9d99",
+  "first_log_sha256": "a89d502314f162db51bd8b71643948cb7cfd84d801b94d1c14a961313cf1b71e",
+  "first_final_config_sha256": "36b27a446bf134626dfdafdba9049a470e96b8321a8c4f9e2df3a7a069450ecf",
+  "retry_launched": false
+}

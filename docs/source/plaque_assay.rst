@@ -1,7 +1,7 @@
 Plaque Assay: fields, figures and reviewed conditions
 =======================================================
 
-Open **Home → Assays → Toxoplasma → Plaque Assay**. Choose **Plaque** for
+Open **Home → Organism → Toxoplasma → Plaque Assay**. Choose **Plaque** for
 plaque fields or **Figure** for published figures containing wells, panels
 and surrounding text. These inputs do not require a preceding Measure run.
 See the :ref:`module map <workflow-module-analyze_plaques>`, the
@@ -188,8 +188,8 @@ become available again. Wait for those controls before rerunning with changed
 settings.
 
 After choosing **Save annotations**, wait for the saved confirmation in the
-preview status before starting the batch analysis. Saving happens in the
-background so the image remains responsive; a queued save is not yet a
+preview status before starting the batch analysis. Saving runs in the
+background so the window remains responsive; a queued save is not yet a
 completed write.
 
 Python preview contracts

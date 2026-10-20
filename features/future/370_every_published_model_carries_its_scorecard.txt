@@ -3,9 +3,12 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    BLOCKED 2026-09-19 — maintainer curation of both hold-out queues
-           (he chose to curate them himself); queues, commands and the gate
-           are prepared, no ground truth drawn.
+Status:    BUILT 2026-10-15; the maintainer signed off the published score
+           cards 2026-10-15. Only WS re-scoring of the 5 recorded models and
+           the detectors remains.
+Previous status (superseded 2026-10-15):    PARTIAL 2026-10-14 — nine approved curated cards are published;
+           catalogue/tooltips, matched-stock exports, API consistency and
+           remaining published-model acceptance still need completion.
 
 Previous status (superseded 2026-10-04):    2026-09-19: BOTH HOLD-OUT QUEUES ARE PREPARED AND WAITING FOR THE
            CURATOR, who is the maintainer -- "I'll curate; prep it" (today,
@@ -1450,3 +1453,176 @@ PV anchor scores average 10 nonempty fields from the 11-field split.
 This publication does not complete the older maintainer-held curation queues
 or the full matched-stock acceptance required by this item. Their gate and
 human decisions are unchanged. No new training or protected jobs were started.
+
+
+================================================================================
+RE-SCORE ON CURATED GROUND TRUTH, DRAFTED (2026-10-11)
+================================================================================
+
+All nine published PV and plaque models plus stock cpsam and cpsam_v2 were
+re-scored on the curated ground truth through the spaCR pipeline calls
+(spacr.model_zoo.benchmark for PV, spacr.plaque.segment_plaque_image for plaque).
+Receipt: features/data/model_rescore_curated_gt_2026-10-11/receipt.json (counts
+per source, manifest hashes, tables, decisions, caveats). Full tables and
+per-field results: /media/carruthers/mnt3/claude/gt_rescore_20261011/scores/.
+
+Maintainer decisions applied: the 98 round-3 PV fields with no ledger row are
+included (labelled, shown with and without); 3 plaque literature fields marked
+done and Discard and the 11 Gel Doc set-aside wells are excluded; PV v5 is
+marked as leaked (trained or validated on 29 of 39 curated PV literature
+hold-out fields and 3 of 11 anchor wells) and scored only on fields it never
+saw; defaults do not change (PV v4, plaque v4).
+
+Model card drafts exist for all nine repositories
+(/media/carruthers/mnt3/claude/gt_rescore_20261011/cards/<repo>/README.draft.md,
+next to the downloaded README.current.md). NOTHING HAS BEEN UPLOADED to Hugging
+Face and nothing was pushed. Zoo notes in spacr/model_zoo.py carry a dated
+re-score line per row; the metrics dicts are untouched.
+
+This supersedes the earlier hold-out numbers wherever they differ; the older
+scorecards stay on the cards, labelled with date and scorer.
+
+2026-10-14 02:30 EDT — Home reconciled current publication and source surfaces.
+The Oct 11 draft-only and older no-curation/no-publication claims are historical
+for the nine PV/plaque cards: pinned public model revisions contain all three
+pages, and their READMEs match the delivered originals. Oct 12 Work notes attest
+maintainer approval; this is not a new human/native PNG review. All 55 tracked
+source bindings and 25 remote small artifact identities independently checked:
+data/370_current_scorecard_reconciliation_2026-10-14/.
+F370 remains PARTIAL. Local builtin catalogue/tooltip construction copies older
+literal metrics; GUI worker/remote refresh behavior is conditional and has not
+been run here. PV v4 older 0.8536/10-field and approved 0.761146/209-field records
+are different datasets, not a measured regression. API tables still include
+older subsets; rescored generation misses BoundaryF1 and assumes some absent
+root CSV/chart files. Central einarolafsson/models is a DATASET, pinned at an
+older Oct 9 revision, with older exports. Nine cards do not cover every declared
+model. Complete source-bound consistency/export/generation/native batches
+after release, preserving accepted curation, immutable old measurements and
+unchanged default model choices. No uploads, scoring, training, GPU, source
+implementation or annotation changes were made by this reconciliation.
+
+2026-10-15 — DETECTOR-ONLY TOOLTIP SCORECARDS (bounded software repair)
+The scorecard renderer already supports mAP50 and mAP50_95, but its early
+presence guard considered only segmentation/training fields. A detector
+with only these valid measured metrics therefore showed no table. The
+unchanged detector-row discovery now precedes that guard. Zero-valued,
+scalar and finetuned/stock detector metrics remain visible; metadata-only
+entries still do not invent a scorecard. Three baseline failures repaired;
+nine targeted checks pass (0.68 s), capped2G/CPU under the shared lock.
+No metric values, scoring, curation, model defaults, API prose or runtime
+captions changed. Evidence: data/370_detector_only_scorecards_2026-10-15/.
+The broader consistency/export/publication and scientific gates above remain
+open; this is not acceptance of every published model or scorecard.
+
+
+2026-10-15 — Exact built-in scorecards, tooltip rows and normal locale closure.
+The nine reviewed packaged cards now attach only to their original bundled
+declarations with matching checkpoint URI/digest and packaged-card digest.
+Custom, local, altered and same-key declarations retain their own measurements;
+serialized catalogue fields cannot enable curated presentation. All six current
+measurements, including Boundary F1 at TWO pixels, appear in descriptions and
+tooltips with dataset identity, counts and baseline model. Earlier evaluations
+remain archived; legacy one-pixel meaning and default model choices are unchanged.
+Normal generators use that same binding, include the sixth metric and link the
+actual three published card pages. Nine Markdown cards and two RST outputs were
+regenerated; unchanged SVG font serialization was preserved by exact-byte proof.
+Source tests24, generator22 and output11 checks are scoped overlapping evidence,
+not additive whole-feature totals. The combined extractor cohort passes39.
+Four existing API bodies received36 new reviewed translations plus27 exact
+positional moves;22 unchanged blocks per locale and unrelated API records/history
+remain exact. Help summaries are unchanged, proven with the normal helper.
+Normal runtime generation/audit passes all nine languages, with72 scorecard
+review records plus9 separate F560 records;10,845 unrelated rows per locale are
+preserved. Actual localized consumers verify nine cards in nine languages:
+81 cases, six rows, exact translated evaluation identity and two-pixel tolerance.
+No scoring, training, metric recomputation, new checkpoint download or upload.
+Broader model coverage, native GUI, central dataset export/publication and
+scientific acceptance remain open. Evidence: data/370_api_catalogs_2026-10-15/,
+data/370_generator_scorecard_artifacts_2026-10-15/ and data/370_560_runtime_catalogs_2026-10-15/.
+
+2026-10-15 — HANDOVER to Claude Home (maintainer ownership notice)
+All Original/Home-B working implementation is already on nightly; no active
+F370 job or unpushed F370 implementation remains in Original. Published exact
+six-row curated cards, detector-only presence repair, renderer/tool outputs,
+API/runtime/Help and localized-consumer receipts are referenced above. They
+are bounded software/locale acceptance, not a claim of every model's new
+scientific evaluation, central dataset upload or native inspection. Claude
+owns reconciliation of the full original item. Original stops scorecard/model
+card/code/item editing after this handover; general CI continues separately.
+
+2026-10-15 — BUILT (Claude Home): scorecard states, matched-stock export,
+consistency tests. Remaining work assigned below.
+
+Done, no scoring, training, GPU or upload:
+* spacr.model_zoo.scorecard_state(entry) names one of four states:
+  reviewed (the nine bound packaged cards), held_out (structured
+  measurements on a named set; toxoplasma_well_detector_v3), recorded
+  (numbers written into the zoo record at publication) and not_evaluated.
+  scorecard_state_text(entry) gives spaCR-published rows a translated
+  sentence for recorded and not_evaluated; stock, third-party and local rows
+  keep their own description. The Model Zoo tooltip, the detail panel (the
+  card viewer's fallback for rows without a 3-page card), the picker row
+  tooltip and the picker card all show it, so no published row shows nothing.
+* Data gaps closed from existing measurements only: toxoplasma_from_hoechst_v1
+  had no metrics dict (tooltip empty while the README card showed numbers);
+  it now carries F1/AJI/Dice 0.569/0.421/0.546 against stock cpsam_v2
+  0.002/0.006/0.016 on 463 fields, copied from its own notes.
+  nuclei_from_cellmask_v1 said "not recorded" for stock while its notes and
+  card give 0.201/0.286/0.449; filled from those notes. SVG cards unchanged.
+* Matched-stock export: spacr.model_zoo.scorecard_export_rows() (long format,
+  one row per metric: this model, stock, difference, baseline, evaluation set
+  and version, field and object counts, boundary tolerance, checkpoint
+  SHA-256; values copied, never recomputed). tools/build_model_cards.py now
+  writes docs/models/scorecards.csv (17 published models, 77 rows) through
+  spacr.tabular.write_table, adds a Scorecard column to docs/models/README.md
+  and a "Scorecard state" line to every Markdown card; --check covers it.
+* Tests: tests/test_f370_scorecard_states_and_export.py: every published
+  model has a measurement; the nine reviewed rows equal the packaged card
+  JSON exactly; export agrees with the SVG score-card numbers (to 5e-4);
+  CSV is current and matches the index; unevaluated and stock rows behave.
+  API arrival contract
+  tests/data/release_contracts/370_scorecard_states_and_export_api_arrivals_2026-10-15.json
+  (3 symbols). Two new captions with AI-reviewed records in nine languages
+  (docs/i18n/reviewed/runtime/<lang>/2026-10-15-f370-scorecard-states.json;
+  Claude AI review, no native-speaker signoff); catalogs rebuilt.
+* Not changed: the nine reviewed cards, default model choices, the API
+  model_zoo_table.rst (it already states "Measured." for every published
+  model), historical evaluations.
+
+Current published states (docs/models/scorecards.csv):
+  reviewed (9): toxoplasma_pv_v1..v5, toxoplasma_plaque_v1..v4
+  held_out (1): toxoplasma_well_detector_v3 (no stock: no stock YOLO class)
+  recorded (7): toxoplasma_well_detector_v1, toxoplasma_well_detector_v2,
+    toxoplasma_from_cellmask_v1, toxoplasma_from_hoechst_v1,
+    nuclei_from_cellmask_v1, cell_from_hoechst_v1, live_cell_v1
+  not_evaluated: none published (alpha colony_yolo11n_makrai_v1 and
+    mitonet_mini_v1 are "recorded").
+
+REMAINING, ASSIGNMENT FOR WS (all GPU work), in order:
+ 1. Re-score the five recorded segmenters with matched stock on fields they
+    never saw (their recorded numbers come from the split that selected the
+    checkpoint): toxoplasma_from_cellmask_v1, toxoplasma_from_hoechst_v1,
+    nuclei_from_cellmask_v1, cell_from_hoechst_v1, live_cell_v1. Use the
+    2026-10-11 protocol (spacr.model_zoo.benchmark, defaults, stock
+    cpsam_v2 on identical fields, six metrics incl. boundary F1 at 2 px,
+    pooled, with field/object counts). Keep the receipt beside
+    model_rescore_curated_gt_2026-10-11 (no evidence packets in the repo).
+ 2. Detectors v1/v2/v3: mAP50, mAP50-95, precision, recall on one
+    independent plate set not used for checkpoint selection (the three Gel
+    Doc plates selected v3's best.pt, so they do not qualify); baseline is
+    the incumbent detector, as no stock YOLO has a plaque_well class.
+ 3. For each re-scored model: card JSON in spacr/resources/model_cards/
+    (same schema as the nine), three PNG pages to its HF repo, a binding in
+    _CURATED_SCORECARD_BINDINGS (URI, checkpoint and resource SHA-256), then
+    python tools/build_model_cards.py; the state becomes "reviewed" and
+    test_the_nine_reviewed_cards_stay_reviewed gets the new keys.
+ 4. Upload docs/models/scorecards.csv to the einarolafsson/models DATASET
+    repo (repo_type="dataset") as scorecards/scorecards.csv and move the
+    pinned catalogue revision past the Oct 9 one (maintainer token).
+ 5. Native GUI check on the GNOME host: Model Zoo hover and select one row
+    per state, picker card in Mask, both themes, screenshots.
+REMAINING, MAINTAINER: scientific sign-off of the re-scored cards (step 3),
+whether "recorded" numbers may stay visible until then, and native-speaker
+review of the two new captions (optional; they are labelled AI-reviewed).
+
+2026-10-15: maintainer scientific sign-off on the published score cards.

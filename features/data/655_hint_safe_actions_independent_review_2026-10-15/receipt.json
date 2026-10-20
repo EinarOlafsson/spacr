@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "item": "N655",
+  "status": "ACCEPTED: bounded safe grip/action fallback; whole-item and numeric native Value acceptance remain open",
+  "review_kind": "Independent AI technical source and recorded-evidence review; no native-speaker or human accessibility claim",
+  "source_commit": "04eebb77c245c3265b7e7129b0bf059ac4365a55",
+  "native_evidence_commit": "db808733c02598e18fcbe1d41f0946970379379d",
+  "source": {
+    "path": "spacr/qt/widgets/hint_bar.py",
+    "sha256": "2d8c046252ca976c1f1e00788ff9c029a4020534a3f99c074c96348ff02d91aa"
+  },
+  "tests": {
+    "path": "tests/qt/test_655_hint_resize_accessible_value.py",
+    "sha256": "a1125707eb2f047b15f70b746a2f32af8cc12ff28e3a1a2f740dd6e46cf72f7d"
+  },
+  "independent_findings": [
+    "Custom QAccessibleValueInterface, interface_cast override, all shiboken pointer conversion and ValueChange event-filter code are removed.",
+    "The class-restricted factory retains a normal QAccessibleWidget adapter on its existing widget; no manual Qt cache registration/deletion or ownership transfer is introduced.",
+    "Enabled standard Increase/Decrease actions recheck actual live bounds and reuse the existing font-line step, height clamp and changed-height-only helpHeightCommitted emission. Unsupported/disabled actions do nothing; inherited focus remains available.",
+    "Existing mouse handling, public HintBar methods, public documentation and user captions are preserved. QAccessible.Value text reports the current height in-process without claiming a numeric native Value interface.",
+    "Focused checks explicitly require valueInterface() is None, exercise bounds/disabled refusal and Qt cache retirement, and retain the existing keyboard and mouse cohorts.",
+    "The recorded native reader is a separate AT-SPI client on a private bus. It enumerates the actual tree and invokes advertised actions; app observation code records actual heights/signals rather than driving the target."
+  ],
+  "owner_executed_validation": {
+    "focused": {
+      "result": "26 passed in 4.51s",
+      "exit": 0,
+      "session": 83622
+    },
+    "native": {
+      "result": "PASS",
+      "session": 41087,
+      "exit": 0,
+      "wall_seconds": 4.75,
+      "peak_rss_kib": 349012,
+      "source_sha256": "2d8c046252ca976c1f1e00788ff9c029a4020534a3f99c074c96348ff02d91aa",
+      "source_commit": "04eebb77c245c3265b7e7129b0bf059ac4365a55",
+      "native_numeric_Value_support": false,
+      "actual_heights": [
+        97,
+        115,
+        97
+      ],
+      "actual_commit_signals": [
+        115,
+        97
+      ],
+      "all_process_sources_match": 204,
+      "owned_app_pid_retired": 2235487,
+      "observed_role_name": "grip",
+      "observed_numeric_role": 67,
+      "numeric_role_meaning": "UNKNOWN",
+      "native_Value_interface_present": false,
+      "accepted": "External GetState/tree traversal and Increase/Decrease with Up/Down action key bindings succeeded on exact corrected bytes."
+    }
+  },
+  "supersession": {
+    "unsafe_source": "418e0d9bae540f09ca27de8146aad6c4b4e76610",
+    "prior_local_peer": "82f7043236f4094cf0516d50a88521eb8899f9c3",
+    "supersession_commit": "770789899e330b9e99b97e21b9455fe276ac7406",
+    "status": "Prior source peer and 33 in-process passes do not establish safety: actual native GetState caused SIGSEGV. They remain explicitly superseded; unsafe numeric adapter must not ship.",
+    "retained_crash_receipt": "features/data/655_hint_safe_actions_2026-10-15/receipt.json",
+    "historical_receipt": "features/data/655_hint_value_independent_review_2026-10-15/receipt.json",
+    "historical_receipt_sha256": "af6bab5300dc8d16226da346bdcedae834beb69d1523d4e3b815c45ddb7c125e"
+  },
+  "verification": {
+    "all_owner_artifact_hashes_and_decompressed_hashes_match": true,
+    "artifacts": [
+      {
+        "commit": "04eebb77c245c3265b7e7129b0bf059ac4365a55",
+        "receipt": "features/data/655_hint_safe_actions_2026-10-15/receipt.json",
+        "receipt_sha256": "ba4859f112104d3b7ac5262cc074d96ade8712a902c9ef69d10f79aef62707db",
+        "verified_artifact_count": 23,
+        "verified_artifacts": [
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/safe-after.sh",
+            "sha256": "d365dbd9c839b382c759ca7ca7c4b2431be18e57bcfa3fd9d6d023316342ae8e",
+            "raw_sha256": "d365dbd9c839b382c759ca7ca7c4b2431be18e57bcfa3fd9d6d023316342ae8e"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/safe-after.log.gz",
+            "sha256": "f38f49bafb100d7d5da1fabb079bd51c7d16fe031cd83ea16715a7ed646404ff",
+            "raw_sha256": "db49a4471425c4b6ffc90db20416e73cfe4d3a00276b21fcf1cda1235aa2440e"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/safe-after.time",
+            "sha256": "f660d1bfe5486885edbdb4cc0b8b2980eed19f2fc3d490bc0875e2d9f9abd3c6",
+            "raw_sha256": "f660d1bfe5486885edbdb4cc0b8b2980eed19f2fc3d490bc0875e2d9f9abd3c6"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/safe-after.exit",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+            "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/safe-scope-proof.py",
+            "sha256": "3b5091b5ee1828ddd169ed8ca5ab01a88f87da6261113643aad8e6d29d52ebb6",
+            "raw_sha256": "3b5091b5ee1828ddd169ed8ca5ab01a88f87da6261113643aad8e6d29d52ebb6"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/safe-scope-proof.json",
+            "sha256": "9553ed0d61a72f8c83972560db236b6d4ac1abbc0519fd58020c4fd84f9fe718",
+            "raw_sha256": "9553ed0d61a72f8c83972560db236b6d4ac1abbc0519fd58020c4fd84f9fe718"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/unsafe-value-interface-test.py.gz",
+            "sha256": "f41f53ec9f0c1be16a679da3da77c5f0b4dbac17ddd35a215799ce03c6006629",
+            "raw_sha256": "8e33af20116a23060602505672ec62207f6e90b2ea4dde87a3b6e26fad85602f"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/after-source.json",
+            "sha256": "bca1daf5b3cf6baba77c8188d765e455d997912e0cdf78246407a09f89c3602b",
+            "raw_sha256": "bca1daf5b3cf6baba77c8188d765e455d997912e0cdf78246407a09f89c3602b"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/app-observations.json",
+            "sha256": "989cf0e675182b169be8d823843443d2ed93385fa85745cd1c744867ace07ffe",
+            "raw_sha256": "989cf0e675182b169be8d823843443d2ed93385fa85745cd1c744867ace07ffe"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/app.log.gz",
+            "sha256": "1b805742a43f7943d12c0078524b14438bb4e30d23a8a8b9a22e172f09c9fff4",
+            "raw_sha256": "292d52f023fa92924953c4480728394acd7ad46842c0b0d0bd2c71d3f85b90d9"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/before-source.json",
+            "sha256": "b27bcf4120dd93dec1ed2f3aab15768b01358ed6eafea197758ec41fc23f1418",
+            "raw_sha256": "b27bcf4120dd93dec1ed2f3aab15768b01358ed6eafea197758ec41fc23f1418"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/hint-app.py",
+            "sha256": "957d0e95d2344f82e67192d8c3adac80619d7298ff85136b7761df93173c855d",
+            "raw_sha256": "957d0e95d2344f82e67192d8c3adac80619d7298ff85136b7761df93173c855d"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/inner.sh",
+            "sha256": "bd06f3c4e0e54260b3cf250c4e524d039fd0e17c839c0e76cff3e113a5a686b1",
+            "raw_sha256": "bd06f3c4e0e54260b3cf250c4e524d039fd0e17c839c0e76cff3e113a5a686b1"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/owned-pids.json",
+            "sha256": "c2e1ff6c301f1ce73de975985b1bb1adeb020d567a968cf459d6d2c7c1098ed5",
+            "raw_sha256": "c2e1ff6c301f1ce73de975985b1bb1adeb020d567a968cf459d6d2c7c1098ed5"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/preflight-harness-correction.json",
+            "sha256": "1a208f862f8c7543ea46a20cdf41d17ca4778f5c4fe7ebf06a919b287f88b3d6",
+            "raw_sha256": "1a208f862f8c7543ea46a20cdf41d17ca4778f5c4fe7ebf06a919b287f88b3d6"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/process-source.json",
+            "sha256": "b0118a1270c5204e369b5cc63842108c61992ef1ce159476989ffe94bcc53eeb",
+            "raw_sha256": "b0118a1270c5204e369b5cc63842108c61992ef1ce159476989ffe94bcc53eeb"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/queued-draft-read-value.py",
+            "sha256": "082144259144f3d65837c0764192a19536a9f7b63f3fce0061ec7359e16fb53c",
+            "raw_sha256": "082144259144f3d65837c0764192a19536a9f7b63f3fce0061ec7359e16fb53c"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/read-value.py",
+            "sha256": "39ece403adb507461fec5fbc808bd376f447fe17ba9b120f92e0fdf702244ad3",
+            "raw_sha256": "39ece403adb507461fec5fbc808bd376f447fe17ba9b120f92e0fdf702244ad3"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/reader.json",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/result.json",
+            "sha256": "f8edab63c4d9ab14e4c19fe503fd5f7887d302da4f2a088af00c1578f9b0b54a",
+            "raw_sha256": "f8edab63c4d9ab14e4c19fe503fd5f7887d302da4f2a088af00c1578f9b0b54a"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/run.log.gz",
+            "sha256": "e2f89c994eb783ad99dba2a7ad3d0f77c1688913ce30df350e800a702e8c3142",
+            "raw_sha256": "694b051c82b134e7ca78aded6605f4ad9dc6b131d658d3d8994959cf6e1b67aa"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/run.sh",
+            "sha256": "5037346dc25974af5fc323ac69b605c23d5fcc1f3e417a1b37f128f9bb8856f3",
+            "raw_sha256": "5037346dc25974af5fc323ac69b605c23d5fcc1f3e417a1b37f128f9bb8856f3"
+          },
+          {
+            "path": "features/data/655_hint_safe_actions_2026-10-15/native-crash/time.txt",
+            "sha256": "09365f123488c4b739a31ecd1a957a64abe0869a00a81e879d3413d154d9a4ef",
+            "raw_sha256": "09365f123488c4b739a31ecd1a957a64abe0869a00a81e879d3413d154d9a4ef"
+          }
+        ]
+      },
+      {
+        "commit": "db808733c02598e18fcbe1d41f0946970379379d",
+        "receipt": "features/data/655_hint_native_safe_actions_2026-10-15/receipt.json",
+        "receipt_sha256": "41b011da051d5e6aa217d741250daad0610f48daf798a4e335390543a2df6f93",
+        "verified_artifact_count": 15,
+        "verified_artifacts": [
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/run.sh",
+            "sha256": "5037346dc25974af5fc323ac69b605c23d5fcc1f3e417a1b37f128f9bb8856f3",
+            "raw_sha256": "5037346dc25974af5fc323ac69b605c23d5fcc1f3e417a1b37f128f9bb8856f3"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/inner.sh",
+            "sha256": "37b0229876a6f59f2416b962f12190ce828f2d8eb014c50662361beafd6b127b",
+            "raw_sha256": "37b0229876a6f59f2416b962f12190ce828f2d8eb014c50662361beafd6b127b"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/hint-app.py",
+            "sha256": "957d0e95d2344f82e67192d8c3adac80619d7298ff85136b7761df93173c855d",
+            "raw_sha256": "957d0e95d2344f82e67192d8c3adac80619d7298ff85136b7761df93173c855d"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/read-safe-actions.py",
+            "sha256": "56a824248a54d2addfdc919289398a3620a5159237d0afeb1a2f09f95c43c346",
+            "raw_sha256": "56a824248a54d2addfdc919289398a3620a5159237d0afeb1a2f09f95c43c346"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/before-source.json",
+            "sha256": "4aad881a187baaa0d65e5fc019297e58ce6c67c98261cb4d60f7101af851d1aa",
+            "raw_sha256": "4aad881a187baaa0d65e5fc019297e58ce6c67c98261cb4d60f7101af851d1aa"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/after-source.json",
+            "sha256": "56de80bd862848305b2891b61296617c50f3d0c77864088a864dbccf3389dda7",
+            "raw_sha256": "56de80bd862848305b2891b61296617c50f3d0c77864088a864dbccf3389dda7"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/process-source.json.gz",
+            "sha256": "c8d5f3e1e36adccbe034687038f828936f70d4bcf8d68965e9b1b6eca6647158",
+            "raw_sha256": "83ab7cc145cfa2060ab013da5542d387ca6bd85240e90739971d48447d3be8d2"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/owned-pids.json",
+            "sha256": "ba3969a7859654bce5bdaa4fcd5aba520d067522f853a3013a103dd67e0dc60f",
+            "raw_sha256": "ba3969a7859654bce5bdaa4fcd5aba520d067522f853a3013a103dd67e0dc60f"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/app-observations.json",
+            "sha256": "71559fd4d1c097333fb252a5734884d2ec389da76eb1b9d6f2bb1d3dec90cae3",
+            "raw_sha256": "71559fd4d1c097333fb252a5734884d2ec389da76eb1b9d6f2bb1d3dec90cae3"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/reader-result.json.gz",
+            "sha256": "6d9b7c4ef8bbf5ea5bd0d03d82192c14c993209c407f65f128181c23ead67250",
+            "raw_sha256": "d056eebe1233b17c9c9a7ee7d11b979212c420d7728e72eb18b4022d4406761d"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/reader.json.gz",
+            "sha256": "6d9b7c4ef8bbf5ea5bd0d03d82192c14c993209c407f65f128181c23ead67250",
+            "raw_sha256": "d056eebe1233b17c9c9a7ee7d11b979212c420d7728e72eb18b4022d4406761d"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/app.log.gz",
+            "sha256": "f34817b3ec604205570a91929b804700b4aeaec3d084e6a8098f3446c35bd741",
+            "raw_sha256": "1ebcf760cac67dfd905d57ba0c5b94892940034c820677396a8f5eb5f285284d"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/run.log.gz",
+            "sha256": "07e90cca3bf746a212279dfd477518d74031ca610a804af5038326f8aa959890",
+            "raw_sha256": "ab5f757918ba537afd7de8746dd0785c15ac7e71561d94c73a1f645b33ed8a11"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/time.txt",
+            "sha256": "657e30f421d4afe1c7c25329830d1fa25e8b02cb53a2a35b1d048c11511bf8cd",
+            "raw_sha256": "657e30f421d4afe1c7c25329830d1fa25e8b02cb53a2a35b1d048c11511bf8cd"
+          },
+          {
+            "path": "features/data/655_hint_native_safe_actions_2026-10-15/result.json",
+            "sha256": "9757cb59bd28f8c760c37cd02199a7fc5a0c223e094a4017a9cac3f38bad4758",
+            "raw_sha256": "9757cb59bd28f8c760c37cd02199a7fc5a0c223e094a4017a9cac3f38bad4758"
+          }
+        ]
+      }
+    ],
+    "method": "Immutable Git blob, SHA-256 and gzip/JSON readback only. No tests, native probes, imports, generators, model calls, service calls or application source edits repeated by reviewer."
+  },
+  "limits": [
+    "Numeric native Value interface, min/max/increment/setter and spoken height remain unsupported.",
+    "Linux native role is named grip but numeric67 UNKNOWN; no standard numeric splitter-role acceptance.",
+    "No audible speech, screen-reader human-user, Windows/macOS or older runtime acceptance.",
+    "The existing persistence signal was observed; no additional real Preferences save/reopen proof is claimed here.",
+    "This is a component source/evidence approval, not whole N655 completion or release acceptance."
+  ]
+}

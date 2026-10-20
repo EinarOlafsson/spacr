@@ -173,7 +173,7 @@ class DnaRainSettingsPopover(QFrame):
         self.move(x, y)
 
     def mousePressEvent(self, event):   # noqa: N802 (Qt override)
-        """Notice the press that is about to close us *and* be replayed.
+        """Record a press that will close the popover *and* be replayed.
 
         A ``Qt.Popup`` receives every press while it is open, including
         the ones outside itself; Qt closes it after this handler returns
@@ -193,7 +193,7 @@ class DnaRainSettingsPopover(QFrame):
         super().mousePressEvent(event)
 
     def hideEvent(self, event):     # noqa: N802 (Qt override)
-        """Arm the guard if a click on the button is closing us.
+        """Arm the guard if a click on the anchor button is closing the popover.
 
         :param event: the hide event; it is passed on to the base class
             unchanged before ``closed`` is emitted.

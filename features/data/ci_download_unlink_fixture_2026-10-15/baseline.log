@@ -1,0 +1,21 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_download_one_reraises_when_the_staging_file_cannot_be_removed ______
+
+fake_get = <function fake_get.<locals>._install at 0x70b85df69d00>
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-3474/test_download_one_reraises_whe0')
+
+    def test_download_one_reraises_when_the_staging_file_cannot_be_removed(
+            fake_get, tmp_path):
+        """A directory sitting where the .part file belongs breaks both the
+        write and the cleanup; the original error must still surface."""
+        (tmp_path / "a.tif.part").mkdir()
+        fake_get(FakeResponse([b"x"]))
+>       with pytest.raises(IsADirectoryError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE IsADirectoryError
+
+tests/qt/test_hf_download.py:239: Failed
+=========================== short test summary info ============================
+FAILED tests/qt/test_hf_download.py::test_download_one_reraises_when_the_staging_file_cannot_be_removed
+1 failed in 2.48s

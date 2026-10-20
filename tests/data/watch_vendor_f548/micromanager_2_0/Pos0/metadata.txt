@@ -1,0 +1,59 @@
+{
+"Summary": {
+  "ChannelGroup": "Channel",
+  "Slices": 1,
+  "ChNames": [
+    "FITC",
+    "DAPI"
+  ],
+  "Comment": "",
+  "AxisOrder": [
+    "channel",
+    "time"
+  ],
+  "UserName": "julou",
+  "Frames": 2,
+  "Prefix": "",
+  "Channels": 2,
+  "ComputerName": "scrafic.local",
+  "ProfileName": "Default user",
+  "CustomIntervals_ms": [],
+  "MetadataVersion": "11.0.0",
+  "z-step_um": 0,
+  "StartTime": "2016-01-31",
+  "IntendedDimensions": {
+    "position": 1,
+    "time": 2,
+    "z": 1,
+    "channel": 2
+  },
+  "Positions": 1,
+  "WaitInterval": 0,
+  "Directory": "",
+  "MicroManagerVersion": "2.0.0-beta3-20160124"
+},
+"Coords-img_channel001_position000_time000000000_z000.tif": {
+  "position": 0,
+  "time": 0,
+  "z": 0,
+  "channel": 1
+},
+"Coords-img_channel000_position000_time000000000_z000.tif": {
+  "position": 0,
+  "time": 0,
+  "z": 0,
+  "channel": 0
+},
+"Coords-img_channel000_position000_time000000001_z000.tif": {
+  "position": 0,
+  "time": 1,
+  "z": 0,
+  "channel": 0
+},
+"Coords-img_channel001_position000_time000000001_z000.tif": {
+  "position": 0,
+  "time": 1,
+  "z": 0,
+  "channel": 1
+}
+}

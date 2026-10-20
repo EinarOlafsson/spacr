@@ -1,0 +1,15 @@
+{
+  "runtime_artifact_commit": "6da1601ec3e6c57b1949a3e7d461588176dd1d5c",
+  "ordinary_merge_commit": "416582f6a7",
+  "result": "10PASS5.01s exit0",
+  "scope": "Nine parameterized ACTUAL worker-start localized caption cases plus ONE actual primary AppScreen(analyze_plaques) verified picker selection/export/load roundtrip on current N180 source. Real QThread, actual backend verifier/capsule, native SHA and ordinary settings CSV serialization. No fake target injection.",
+  "source_sha256": {
+    "spacr/model_zoo.py": "4703612184e6c9e16239ff6c43110c2dd574fd23f1ec48b7a61e6032e352f67b",
+    "spacr/qt/widgets/model_zoo_picker.py": "4b7159f6aaffbd2faf4593d331d696ce0b1421bdd4f32d8091aee735afcd71e8",
+    "spacr/qt/screens/app_screen.py": "45fe3390a5f61aaaac3b612248d130fd40170cd2b71276b8cf1fbbc6fe6d4e2f",
+    "tests/qt/test_n702_picker_verified_reference.py": "1df8371d33ef5407573abdb7130db9ec4dadf3972925537565e2041ffbbd6f55"
+  },
+  "merge": "Only duplicate test add/add conflict; adopted EXACT own151b test bytes. Generated artifacts merged ordinarily without conflict. AppScreen._choose_a_model_for AST byteidentical own frozen57ea despite whole file N180 source45fe. Widget/backend exact frozen4b71/470.",
+  "remaining": "Whole N702 remains open: actual per-object Mask ObjectSettingsGrid path-only chooser bypasses this trailing-field export seam. Separate explicitly owned follow-up pending. No whole-feature claim.",
+  "limits": "Offscreen bounded fixtures only; no actual model inference, native GPU/platform, scientific model quality, full CI or all consumers claim."
+}

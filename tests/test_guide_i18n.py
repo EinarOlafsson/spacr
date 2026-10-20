@@ -96,7 +96,7 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
     guide.update_language("sv", pot, locale)
     work = tmp_path / "work.json"
     guide.export_worklist("sv", work, locale_dir=locale)
-    rows = json.loads(work.read_text())
+    rows = json.loads(work.read_text(encoding="utf-8"))
     strings = tmp_path / "strings.json"
     strings.write_text(json.dumps(["Tryck på **Spara mask**.", "Oförändrad."]))
     applied, rejected = guide.import_worklist("sv", work, strings, locale_dir=locale)
@@ -116,7 +116,7 @@ def test_changed_english_becomes_stale_and_is_not_published(tmp_path):
     assert changed is not None and changed.fuzzy          # hint only
     assert catalog.get("Unchanged.").string == "Oförändrad."
     guide.export_worklist("sv", work, locale_dir=locale)
-    pending = json.loads(work.read_text())
+    pending = json.loads(work.read_text(encoding="utf-8"))
     assert [row["msgid"] for row in pending] == ["Press **Save mask** or Ctrl+S."]
     assert pending[0]["hint"] == "Tryck på **Spara mask**."
 
@@ -325,4 +325,4 @@ def test_fixed_runtime_defect_switches_the_guides_to_the_app_name(tmp_path, monk
     catalog = guide.read_catalog(locale / "sv/LC_MESSAGES/cellpose_training.po")
     assert catalog.get("Choose **Train**.").string == "Välj **Träning**."
     assert catalog.get("Train").string == "Träning"
-    assert "Train" not in json.loads((glossary / "sv.defects.json").read_text())["defects"]
+    assert "Train" not in json.loads((glossary / "sv.defects.json").read_text(encoding="utf-8"))["defects"]

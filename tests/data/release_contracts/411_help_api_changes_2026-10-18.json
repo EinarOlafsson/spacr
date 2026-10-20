@@ -1,0 +1,73 @@
+{
+  "added": {
+    "spacr.qt.preferences._count_store_moves.set_path": "Forward to Qt, counting a change of folder as a move.",
+    "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work": "Import the module, logging rather than raising a failure.",
+    "spacr.qt.screens.regression.HitsOpener.press": "The Hits button: build the results panel in steps, then open.\n\nThe first press used to build the screen's whole results panel in\none go, a freeze of over a second. It is now built one step per\nevent-loop turn (see ``AppScreen._build_owed_part_in_steps``) and\nthe tab is raised when it is finished. With the panel built, or on\na screen that defers nothing, this is :meth:`open`."
+  },
+  "changed": {
+    "spacr.qt.screens.regression.open_publication_figure": {
+      "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+      "after": "Build the Volcano Explorer seeded from ``screen``'s results panel.\n\nThe panel is read only if it has been built. Building it here, for a\npage that finds no run in a panel that was never shown, froze the first\nVolcano Explorer page for most of a second."
+    }
+  },
+  "example_background": {
+    "source_changes": {
+      "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen": {
+        "before": "Fetch the example screen and fill `count_data` and `score_data`.\n\n:param download: If ``True``, download files that are not already in\n    the local cache.\n:returns: A mapping of populated setting names to their file paths.",
+        "after": "Fetch the example screen and fill `count_data` and `score_data`.\n\n:param download: If ``True``, download files that are not already in\n    the local cache.\n:param in_background: check, download and verify the files on a\n    worker thread and fill the slots when they arrive, so the window\n    keeps painting through a download. The buttons use this; the\n    mapping is then empty and the slots fill on completion.\n:returns: A mapping of populated setting names to their file paths."
+      },
+      "spacr.qt.screens.make_masks.MakeMasksScreen.open_folded": {
+        "before": "Open a folded module on this screen, pointed at the open field.\n\nThe module arrives as a PAGE beside the editor, which is where a\nfold belongs; it becomes a window only if this screen has no body\nto make pages out of.\n\n:param key: one of :data:`FOLD_ORDER`.\n:returns: the module's panel, or ``None`` for a key this screen does\n    not fold. Pressing the same button again raises the page that is\n    already there rather than building a second one.",
+        "after": "Open a folded module on this screen, pointed at the open field.\n\nThe module arrives as a PAGE beside the editor, which is where a\nfold belongs; it becomes a window only if this screen has no body\nto make pages out of.\n\nTHE FIRST FOLD MAKES THE PAGE STRIP IN A TURN OF ITS OWN. Making it\nmoves this screen's whole body onto the strip, and Qt restyles every\nwidget of a body it moves; that and the page joining the strip were\none freeze. A breath between them lets the window answer.\n\n:param key: one of :data:`FOLD_ORDER`.\n:returns: the module's panel, or ``None`` for a key this screen does\n    not fold. Pressing the same button again raises the page that is\n    already there rather than building a second one."
+      },
+      "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame": {
+        "before": "Show an already-loaded coefficient table.\n\n:param frame: the coefficient DataFrame; ``None`` or an empty frame is\n    reported in the status line and returns ``False``.",
+        "after": "Show an already-loaded coefficient table.\n\n:param frame: the coefficient DataFrame; ``None`` or an empty frame is\n    reported in the status line and returns ``False``.\n\nA run whose plot state is remembered is drawn once, by the restore\nof that state, rather than drawn and then drawn again. A state first\nrecorded while this call draws -- a workspace save reading the panel\nmid-draw -- holds what is being drawn and is not restored over it."
+      }
+    },
+    "signature_change": {
+      "symbol": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen",
+      "added_optional_parameters": [
+        "in_background"
+      ],
+      "before": {
+        "symbol": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen",
+        "category": "method",
+        "parameters": [
+          "download",
+          "kind"
+        ],
+        "required_parameters": [],
+        "accepted_documented_parameters": [
+          "download",
+          "kind"
+        ],
+        "variant_count": 1,
+        "docless_variant_count": 0,
+        "constructor_prose_variant_count": 0,
+        "exposure": "autoapi",
+        "accepts_arbitrary_keywords": false
+      },
+      "after": {
+        "symbol": "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen",
+        "category": "method",
+        "parameters": [
+          "download",
+          "in_background",
+          "kind"
+        ],
+        "required_parameters": [],
+        "accepted_documented_parameters": [
+          "download",
+          "in_background",
+          "kind"
+        ],
+        "variant_count": 1,
+        "docless_variant_count": 0,
+        "constructor_prose_variant_count": 0,
+        "exposure": "autoapi",
+        "accepts_arbitrary_keywords": false
+      }
+    }
+  }
+}

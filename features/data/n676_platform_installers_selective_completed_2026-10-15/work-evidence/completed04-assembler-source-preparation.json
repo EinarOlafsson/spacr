@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "status": "source_only_preparation_not_execution",
+  "lesson": "04_platform_installers",
+  "created_utc": "2026-10-15T19:40:50.198916+00:00",
+  "source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "adapted_from": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/assemble_completed02_packet.py",
+    "bytes": 7299,
+    "sha256": "1a695a65cf2392224ff93f6e2d66453f917a0f1d9d7432de5172605e56f98ba0"
+  },
+  "assembler": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04_packet.py",
+    "bytes": 8714,
+    "sha256": "ff8161af7f0e1e7ccd45386778bfea23b4af901b2e22f05c400f1e58d78dfeb1"
+  },
+  "usage": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/assemble_completed04-USAGE.txt",
+    "bytes": 2267,
+    "sha256": "ffc068197d7e576f278f25f986e06ce808a1bb05cc8f422edc89d3f4c8a76c97"
+  },
+  "checks": {
+    "AST_valid": true,
+    "actual_final_export_review_and_native_acceptance_required": true,
+    "dynamic_checkpoint_count_plus3": true,
+    "actual851_frame_Home_and10018_frame_master_required": true,
+    "partialfresh_wholefalse_and_preserveflagtrue": true,
+    "exact100audio14catalog83others": true,
+    "no_raw_or_rendered_video_audio_in_packet": true,
+    "actual_additional_JSON_PNG_paths_supplied_by_root": true,
+    "exporter_media_snapshot_correction_required_before_execution": true,
+    "executed": false
+  },
+  "limits": [
+    "No final review, export, native visual acceptance, sample acceptance or publication evidence fabricated.",
+    "Root supplied actual observed captureN851; actual root native acceptance and final publication review remain required future inputs.",
+    "Source-only AST preparation; no production execution or ROOT/REPORT edits."
+  ]
+}

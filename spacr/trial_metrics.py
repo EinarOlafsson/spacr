@@ -1,4 +1,4 @@
-"""Everything a sweep row needs to be worth reading.
+"""Per-trial scalar metrics recorded on each row of a regression sweep.
 
 A row that reports only a hit count is insufficient for choosing a sweep
 configuration: a larger count can coincide with losing a known positive
@@ -12,22 +12,22 @@ So a row carries four kinds of thing, and they answer different questions:
     design          is the thing even identifiable, and how much data reached it
     controls        does it recover what is known to be true
 
-The controls matter most. When the user has named a positive control, it is
-the yardstick a configuration should be read against -- a setting that buries
-a gene known to be real has told you something no goodness-of-fit statistic
-will.
+The controls matter most. When the user has named a positive control, a
+configuration should be judged first by where that control ranks: a setting
+that pushes a known true hit down the list is not detected by any
+goodness-of-fit statistic.
 
 Every function here returns a flat dict of scalars, because a sweep row is a
 row: nothing nested, nothing that needs unpacking to sort on.
 
-EVERYTHING HERE IS CHEAP, AND THAT IS THE DESIGN CONSTRAINT. A sweep runs
-hundreds of trials, so a per-trial diagnostic that costs seconds costs hours
-across the run. The full 23-panel suite in :mod:`spacr.regression_qc` was
-measured at ~5.8 s per fit -- ten minutes per hundred trials, for pictures
-nobody opens while a sweep is running. These scalars were measured at 73-230 ms
-on screen-shaped fits (606-2400 rows, 200-400 parameters), which is under half
-a percent of the ~60 s a real trial takes. So a sweep gets the NUMBERS on every
-row and the PICTURES only for the rows worth reopening.
+Every metric here is cheap to compute, by design. A sweep runs hundreds of
+trials, so a per-trial diagnostic that costs seconds costs hours across the
+run. The full 23-panel suite in :mod:`spacr.regression_qc` was measured at
+~5.8 s per fit -- ten minutes per hundred trials. These scalars were measured
+at 73-230 ms on screen-shaped fits (606-2400 rows, 200-400 parameters), which
+is under half a percent of the ~60 s a real trial takes. A sweep therefore
+records the numbers on every row and draws the plots only for rows that are
+reopened.
 
 Nothing here refits anything. Every statistic is read off the model the trial
 already fitted, which is what keeps it cheap.
@@ -65,7 +65,8 @@ def fit_quality(model) -> dict:
     The supported model families do not agree on which statistics exist. An
     RLM fit has no R-squared, a penalised model's value is not
     comparable to OLS's, and a permutation test has no model object at all.
-    Reporting NaN for an absent statistic is honest; inventing one is not.
+    A statistic the model does not report, or that is not finite, is left out
+    of the returned dict (NaN in the sweep table) rather than estimated.
     """
     out: dict[str, Any] = {}
     if model is None:
@@ -238,7 +239,7 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
 
 
 def calibration(results: pd.DataFrame) -> dict:
-    """Is the null flat? Inflation above 1 says the hits are partly artefact.
+    """Return the genomic inflation and low-p excess of the raw p-values.
 
     :param results: result table carrying raw ``p_value`` values.
     """
@@ -319,7 +320,7 @@ def design_diagnostics(model) -> dict:
 
     :param model: fitted model result object, or ``None``.
 
-    NOTHING IS RECOMPUTED HERE THAT THE FIT ALREADY KNOWS.
+    Values the fit already holds are read, not recomputed.
     :func:`spacr.regression_diagnostics.design_report` answers the same
     questions, but it takes the well-by-guide matrix and pays for a fresh
     ``matrix_rank`` and a full SVD. A sweep does not have that matrix -- it has
@@ -330,9 +331,9 @@ def design_diagnostics(model) -> dict:
     ``identifiable`` is the one that decides whether the rest of the row means
     anything. A rank-deficient design does not have unique coefficients, so its
     per-guide effects are one of infinitely many solutions and its p-values
-    rank an arbitrary choice among them. spaCR fits these designs happily --
-    statsmodels falls back to a pseudo-inverse rather than refusing -- so
-    nothing else in the output says it happened.
+    rank an arbitrary choice among them. spaCR fits these designs without an
+    error -- statsmodels falls back to a pseudo-inverse rather than refusing
+    -- so nothing else in the output reports it.
     """
     out: dict[str, Any] = {}
     if model is None:
@@ -419,8 +420,9 @@ def guide_support_summary(results: pd.DataFrame, alpha: float = 0.05) -> dict:
     :param results: guide-level result table used to compute gene support.
 
     A gene with one surviving guide has a gene-level p identical to that
-    guide's, so it is not independent evidence -- and on this screen the top
-    of the list is exactly that. A count of them belongs in the row.
+    guide's, so it is not independent evidence. The row records
+    ``n_single_guide_hits`` among the gene hits at ``alpha``, together with
+    the discordant-hit count and the median guides per hit.
     """
     out: dict[str, Any] = {}
     try:
@@ -444,7 +446,7 @@ def guide_support_summary(results: pd.DataFrame, alpha: float = 0.05) -> dict:
 
 
 def hit_counts(output: Mapping[str, Any], alpha: float = 0.05) -> dict:
-    """How many things the trial called, raw and corrected.
+    """Count the trial's result rows and hits, by raw and adjusted p-value.
 
     :param output: trial output carrying result and significant-hit frames.
     """
@@ -535,7 +537,7 @@ def qc_verdicts(row: Mapping[str, Any]) -> dict:
 
 def summarise_trial(output: Mapping[str, Any],
                     settings: Mapping[str, Any]) -> dict:
-    """Every metric, flat, for one trial's row.
+    """Return every metric for one trial as a flat dict for its sweep row.
 
     :param output: completed trial output with results, model, and fitted data.
     :param settings: trial settings used for thresholds and control recovery.

@@ -538,3 +538,167 @@ def test_a_block_with_nothing_new_is_skipped_while_a_fresh_one_goes(panel):
 
     assert "boom" in second
     assert "the run said this" not in second
+
+
+@pytest.fixture
+def linked_log(qtbot, monkeypatch):
+    from PySide6.QtGui import QDesktopServices
+
+    block = cp._StdoutBlock('See https://example.org/details. Plain output here.')
+    qtbot.addWidget(block)
+    block.resize(850, 100)
+    block.show()
+    opened = []
+    monkeypatch.setattr(QDesktopServices, 'openUrl', lambda url: opened.append(url.toString()) or True)
+    qtbot.waitExposed(block)
+    return block, opened
+
+
+def _console_text_point(block, token, offset=1):
+    from PySide6.QtCore import QPoint
+
+    cursor = block.textCursor()
+    cursor.setPosition(block.toPlainText().index(token) + offset)
+    rect = block.cursorRect(cursor)
+    return QPoint(rect.x() + 2, rect.center().y())
+
+
+def test_log_hover_and_left_click_open_only_the_web_link(linked_log, qtbot):
+    from PySide6.QtCore import Qt
+
+    block, opened = linked_log
+    link = _console_text_point(block, 'https://')
+    plain = _console_text_point(block, 'Plain')
+    qtbot.mouseMove(block.viewport(), link)
+    assert block.viewport().cursor().shape() == Qt.PointingHandCursor
+    qtbot.mouseClick(block.viewport(), Qt.LeftButton, pos=link)
+    assert opened == ['https://example.org/details']
+    qtbot.mouseMove(block.viewport(), plain)
+    assert block.viewport().cursor().shape() == Qt.IBeamCursor
+    qtbot.mouseClick(block.viewport(), Qt.LeftButton, pos=plain)
+    assert opened == ['https://example.org/details']
+
+
+@pytest.mark.parametrize('button_name', ['RightButton', 'MiddleButton'])
+def test_log_nonleft_release_over_web_link_does_not_launch(linked_log, qtbot, button_name):
+    from PySide6.QtCore import Qt
+
+    block, opened = linked_log
+    qtbot.mouseRelease(block.viewport(), getattr(Qt, button_name),
+                       pos=_console_text_point(block, 'https://'))
+    assert opened == []
+
+
+@pytest.mark.parametrize('address', ['file:///tmp/private.txt', 'ftp://example.org/file',
+                                    'javascript:alert(1)'])
+def test_log_nonweb_addresses_remain_selectable_text(linked_log, qtbot, address):
+    from PySide6.QtCore import Qt
+
+    block, opened = linked_log
+    block.setPlainText('Output ' + address + ' finished')
+    point = _console_text_point(block, address)
+    assert block.link_at(point) == ''
+    qtbot.mouseClick(block.viewport(), Qt.LeftButton, pos=point)
+    assert opened == []
+    assert block.toPlainText() == 'Output ' + address + ' finished'
+
+
+def test_selecting_log_url_text_does_not_open_the_browser(linked_log, qtbot):
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
+
+    block, opened = linked_log
+    start = _console_text_point(block, 'https://', offset=0)
+    end = _console_text_point(block, 'https://', offset=15)
+    qtbot.mousePress(block.viewport(), Qt.LeftButton, pos=start)
+    global_end = block.viewport().mapToGlobal(end)
+    event = QMouseEvent(QEvent.MouseMove, QPointF(end), QPointF(global_end),
+                        Qt.NoButton, Qt.LeftButton, Qt.NoModifier)
+    QApplication.sendEvent(block.viewport(), event)
+    qtbot.mouseRelease(block.viewport(), Qt.LeftButton, pos=end)
+    assert block.textCursor().hasSelection()
+    assert 'https://' in block.textCursor().selectedText()
+    assert opened == []
+
+
+# -- spaCR AI answers ---------------------------------------------------------
+
+def test_a_hash_heading_becomes_a_bold_line_of_its_own():
+    """``# Heading`` lines are headings with nothing after them on the line."""
+    assert cp.markdown_lines("# What happened\nThe run stopped.") == [
+        ("What happened", True), ("The run stopped.", False)]
+
+
+def test_blank_lines_collapse_and_a_stray_empty_bold_marker_is_dropped():
+    """Runs of blank lines become one; an empty ``** **`` leaves no tail."""
+    assert cp.markdown_lines("First.\n\n\n\nSecond.\n** **") == [
+        ("First.", False), ("", False), ("Second.", False)]
+
+
+def test_an_answer_for_an_entry_outside_the_console_opens_a_new_one(panel):
+    """A block that was never placed, or lost its place, is not written to."""
+    stray = cp._StdoutBlock()
+    try:
+        filled = panel.fill_ai_entry(stray, "Set src.")
+        assert filled is not stray
+        assert filled.toPlainText() == "Set src."
+        assert filled.property("consoleContextKind") == "spacr_ai"
+    finally:
+        stray.deleteLater()
+
+
+def test_a_saved_answer_survives_a_heading_that_is_already_gone(panel):
+    """A deleted heading label is skipped; the answer still shows."""
+    block = panel.begin_ai_entry(thinking=False)
+    shiboken6.delete(block._ai_bar._label)
+    filled = panel.fill_ai_entry(block, "Saved advice.")
+    assert filled is block and block.toPlainText() == "Saved advice."
+    other = panel.begin_ai_entry(thinking=False)
+    other._ai_bar = None
+    assert panel.fill_ai_entry(other, "Again.") is other
+    assert other.toPlainText() == "Again."
+
+
+def test_routine_records_arriving_together_are_written_in_one_flush(panel,
+                                                                   qtbot):
+    """A second INFO record joins the pending flush instead of restarting it."""
+    import logging
+
+    panel._on_log_record("first record", logging.INFO)
+    assert panel._log_flush.isActive()
+    panel._on_log_record("second record", logging.INFO)
+    assert panel._log_pending[-2:] == ["first record", "second record"]
+    qtbot.waitUntil(lambda: not panel._log_pending)
+
+
+# -- the scrollback cap and links ---------------------------------------------
+
+def test_one_paragraph_longer_than_the_cap_is_kept_whole(qtbot, monkeypatch):
+    """Only whole paragraphs are dropped, so a lone long line stays."""
+    monkeypatch.setattr(cp._StdoutBlock, "MAX_CHARS", 200)
+    block = cp._StdoutBlock()
+    qtbot.addWidget(block)
+    block.append("x" * 500)
+    assert block.toPlainText() == "x" * 500
+
+
+def test_a_pointer_over_text_that_cannot_be_read_shows_the_text_cursor(
+        linked_log, monkeypatch):
+    """A failing link lookup falls back to the ordinary text cursor."""
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+
+    block, _opened = linked_log
+
+    def broken(_pos):
+        """Fail the way a block whose document is being replaced does."""
+        raise RuntimeError("document is gone")
+
+    monkeypatch.setattr(block, "link_at", broken)
+    block.viewport().setCursor(Qt.PointingHandCursor)
+    point = QPointF(5, 5)
+    block.mouseMoveEvent(QMouseEvent(QEvent.MouseMove, point, point,
+                                     Qt.NoButton, Qt.NoButton,
+                                     Qt.NoModifier))
+    assert block.viewport().cursor().shape() == Qt.IBeamCursor

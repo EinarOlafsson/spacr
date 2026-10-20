@@ -2,7 +2,7 @@
 EDITABLE GATE ANCHORS AND SELECTABLE 3D SURFACES
 ================================================================================
 
-Status:    open
+Status:    DONE (maintainer accepted 2026-10-15)
 Requested: 2026-10-08
 Owner:     Home/root CPU gate editing lane; workstation API/docs/translations/tutorials
 Depends:   N671 rounded Gate Editor plot backing
@@ -39,3 +39,43 @@ Sources and historical failures retained in data/672_editable_gate_anchors_cpu_2
 and final data/672_root_integration_2026-10-08/. Numerical coverage gaps,
 matching catalog generation, application publication and hosted acceptance
 remain open. Keep later672 source separate from immediate frozen UI release.
+
+2026-10-10 — Published. Codex's private 6b89b49b8/1ad258e62/ec50d0bbb
+(identical to the root-integrated 854129cea/38aa5e366/22f8c0046) ported
+cleanly onto current nightly. Integration fixes: the drag-mode tooltips, the
+Edit-axis help and the Spin caption are now literal so the catalog extractor
+sees them; tests/qt/test_volume_gate_controls.py accepts the third Edit tool
+and reads gesture instructions from the new Actions help line. 49 new
+captions reviewed in all nine locales (docs/i18n/reviewed/runtime/*/
+2026-10-10-gate-editable-anchors.json), catalogs regenerated, arrivals
+recorded. API: 21 new documented symbols (EditableVolumeGate, VolumeAnchor,
+GateCanvas.volume_surface_at, three nested helpers) and five changed
+docstrings; 65 new API blocks reviewed in nine locales
+(docs/i18n/reviewed/api/*/2026-10-10-gate-editable-anchors.json), the moved
+load_gates/save_gates records re-bound and the rewritten set_drag_mode
+records retired, API catalogs regenerated with build_documentation_i18n.py,
+arrivals pinned in tests/data/release_contracts/
+672_673_editable_volume_api_arrivals_2026-10-10.json. Checks (CUDA hidden,
+offscreen, run_capped): every gate test file 1782 PASS; API/docstring guards
+142 PASS; i18n ratchet/arrival/catalog guards PASS. Left for the maintainer:
+hands-on desktop check of anchor dragging and wheel moves on a real display
+(Linux/macOS/Windows); AI-reviewed translations have no native-speaker
+signoff.
+
+2026-10-12 — maintainer desktop check 2026-10-12: editing accepted; modifications requested and built.
+Rebindable Gate Editor keys (scope "the Gate Editor screen", listed and
+editable in Change shortcuts), the same scheme as Make Masks' True 3D:
+Shift+E Edit, Shift+S Spin (free), Shift+D Draw, Shift+X/Y/Z the X/Y/Z plane,
+or the spin axis when pressed within 1.5 s of Shift+S.
+No clash with existing keys; Left/Right are no longer copied into scopes that
+have no images. Overlapping-element picker: in 3D Edit (and in 2D, which is
+always editable) a click with more than one sheet/anchor under it highlights
+them all and lists them top-left, layer order, sheets before anchors, top
+layer blue, white text; the click still grabs what it grabbed before, a row
+(click or Up/Down) picks the element the next press on that overlap selects
+and moves; Escape, empty space, leaving Edit, changing 2D/3D or replacing the
+gate set close it. 8 new captions (4 compact shortcut rows, 4 picker rows)
+with AI-reviewed translations in nine locales, no native-speaker signoff.
+Tests: tests/qt/test_gate_editor_mode_keys_and_overlap_picker.py.
+
+2026-10-15: maintainer accepted (visual check passed).

@@ -20,7 +20,7 @@ import time
 from functools import partial
 from html import escape
 from typing import Callable, Optional
-from weakref import WeakMethod
+from weakref import WeakMethod, WeakSet
 
 from PySide6.QtCore import (
     QEvent, QObject, QRect, QSize, Qt, QThread, QTimer, Signal,
@@ -46,6 +46,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .. import _after
 from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
@@ -124,6 +125,10 @@ _REPORTS_BEING_FILED: dict = {}
 #: file it again. `gh auth token` is capped at 8 s and each API call at 20 s,
 #: so a report that has not come back inside two minutes is not coming back.
 REPORT_IN_FLIGHT_SECONDS = 120.0
+
+#: How much of the console's error text, from its end, a report carries
+#: before scrubbing; the relay takes at most 1500 characters of it.
+MAX_REPORTED_ERROR_TEXT = 1500
 
 #: How long an automatic report waits for spaCR AI to finish explaining the
 #: error it is about, so the report can carry the answer. Short enough that
@@ -692,6 +697,8 @@ APP_TITLES = {
     "barcode_qc":      "Barcode QC",
     "anndata_export":  "AnnData Export",
     "illumination":    "Illumination Correction",
+    "spatial_masks":   "Spatial Mask Generation",
+    "spatial_map":     "Spatial Map Barcodes",
 }
 
 
@@ -774,6 +781,27 @@ def _absorb_registered_app_metadata() -> None:
 
 
 _absorb_registered_app_metadata()
+
+
+def _absorb_page_fold_intros() -> None:
+    """Head each spatial page with the description its settings registered.
+
+    Spatial Mask Generation and Spatial Map Barcodes have no registry row
+    to carry an intro; their module description is the one
+    :func:`spacr.ops_settings.register_spatial` gave
+    :func:`spacr.settings.register_defaults`, so the masthead reads it from
+    there rather than keeping a second copy. ``setdefault``, so a
+    hand-written intro would still win.
+    """
+    from spacr.settings import descriptions
+
+    for key in ("spatial_masks", "spatial_map"):
+        intro = descriptions.get(key)
+        if intro:
+            APP_INTROS.setdefault(key, str(intro))
+
+
+_absorb_page_fold_intros()
 
 
 #: Apps that get a live DNA-rain backdrop. Sequencing only — every
@@ -1009,7 +1037,7 @@ class _LateCaptionTranslator(QObject):
         """
         if event.type() != QEvent.ChildAdded:
             return False
-        QTimer.singleShot(0, partial(self._on_arrivals_in, watched))
+        _after(0, self, partial(self._on_arrivals_in, watched))
         return False
 
     #: Marks a child this filter has already run its pass over. A Qt
@@ -1020,6 +1048,11 @@ class _LateCaptionTranslator(QObject):
 
     def _on_arrivals_in(self, host) -> None:
         """Run the pass over children of ``host`` that have not had one.
+
+        The screen schedules one of these per host as soon as this is
+        installed, for the children built with it. Left to the first
+        later arrival, that sweep took the thousand-widget settings panel
+        along with whatever arrived -- a dropped folder's report, mid-drop.
 
         Scans rather than being handed the child, because the arrival is
         the one moment the child cannot safely be touched -- see
@@ -1420,6 +1453,29 @@ def _resume_the_fractal(screen) -> int:
     return resumed
 
 
+class _FloorObserver(QObject):
+    """Hand the runtime viewport's watched events to its ``_observe``.
+
+    The viewport is a ``QScrollArea``, which installs itself on its content,
+    so an ``eventFilter`` override there was asked about every paint of the
+    content on every field frame.
+    """
+
+    def __init__(self, react, parent=None) -> None:
+        """Keep ``react``, called with ``(watched, event)``."""
+        super().__init__(parent)
+        self._react = react
+
+    def eventFilter(self, watched, event):          # noqa: N802 - Qt name
+        """Ask ``react``; nothing is consumed unless it says so."""
+        return bool(self._react(watched, event))
+
+
+#: What the runtime viewport's floor follows.
+_FLOOR_KINDS = frozenset((QEvent.LayoutRequest, QEvent.ShowToParent,
+                          QEvent.HideToParent, QEvent.Resize))
+
+
 class _RuntimeViewport(QScrollArea):
     """Keep runtime controls usable when their minimum height exceeds the viewport.
 
@@ -1441,17 +1497,23 @@ class _RuntimeViewport(QScrollArea):
         self.setFrameShape(QScrollArea.NoFrame)
         self.setWidgetResizable(True)
         self.setWidget(content)
-        self.viewport().installEventFilter(self)
+        from ..gil_priority import _watch_object_events
+
+        self._observer = _FloorObserver(self._observe, self)
+        _watch_object_events(self.viewport(), self._observer, _FLOOR_KINDS)
 
     def _watch_splitter(self, splitter):
         """Observe pane changes without changing collapse or drag ownership.
 
         :param splitter: the registered runtime pane splitter.
         """
+        from ..gil_priority import _watch_object_events
+
         self._split = splitter
-        splitter.installEventFilter(self)
+        _watch_object_events(splitter, self._observer, _FLOOR_KINDS)
         for index in range(splitter.count()):
-            splitter.widget(index).installEventFilter(self)
+            _watch_object_events(splitter.widget(index), self._observer,
+                                 _FLOOR_KINDS)
         splitter.pane_toggled.connect(self._queue_floor)
         self._queue_floor()
 
@@ -1463,18 +1525,21 @@ class _RuntimeViewport(QScrollArea):
         if not self._floor_timer.isActive():
             self._floor_timer.start(0)
 
-    def eventFilter(self, watched, event):
+    def _observe(self, watched, event) -> bool:
         """Revisit minima after wrapping, visibility, and viewport width changes.
+
+        Not an ``eventFilter`` override: the scroll area installs itself on
+        its content, and an override would be asked about every paint of it.
 
         :param watched: the pane, splitter, or viewport receiving the event.
         :param event: the actual Qt event.
-        :returns: the inherited event-filter result.
+        :returns: False; nothing is consumed.
         """
         if event.type() in (QEvent.LayoutRequest, QEvent.ShowToParent,
                             QEvent.HideToParent) or (
                 watched is self.viewport() and event.type() == QEvent.Resize):
             self._queue_floor()
-        return super().eventFilter(watched, event)
+        return False
 
     def _sync_floor(self):
         """Let scrolling absorb genuine overflow instead of shrinking controls."""
@@ -1870,7 +1935,8 @@ class _BuiltOnFirstUse:
             return self
         values = screen.__dict__
         owed = values.get("_parts_owed")
-        if owed and self.part in owed:
+        stepping = values.get("_parts_stepping")
+        if (owed and self.part in owed) or (stepping and self.part in stepping):
             screen._build_owed_part(self.part)
         try:
             return values[self.slot]
@@ -1880,7 +1946,8 @@ class _BuiltOnFirstUse:
     def __set__(self, screen, value) -> None:
         """Build the owed part first, so an assignment lands after it."""
         owed = screen.__dict__.get("_parts_owed")
-        if owed and self.part in owed:
+        stepping = screen.__dict__.get("_parts_stepping")
+        if (owed and self.part in owed) or (stepping and self.part in stepping):
             screen._build_owed_part(self.part)
         screen.__dict__[self.slot] = value
 
@@ -1892,7 +1959,14 @@ class _BuiltOnFirstUse:
             raise AttributeError(self.name) from None
 
     def peek(self, screen):
-        """The value held now, WITHOUT building an owed part; else ``None``."""
+        """The value held now, WITHOUT building an owed part; else ``None``.
+
+        A part still being built in steps answers ``None`` as well: before
+        its last step it is not the finished part a reader would get.
+        """
+        stepping = screen.__dict__.get("_parts_stepping")
+        if stepping and self.part in stepping:
+            return None
         return screen.__dict__.get(self.slot)
 
 
@@ -1945,6 +2019,100 @@ class _DeferredWatchLivePlate(QWidget):
         self.setVisible(False)
 
 
+_SETTINGS_CSV_FOLDER = {"last": ""}
+
+
+def default_settings_csv_path(module: str, src="") -> str:
+    """The path Export settings… offers: ``<module>_settings.csv``.
+
+    It goes in the source folder the form names, else the folder the last
+    settings CSV was imported from or exported to, else the home folder.
+    The folder is only named, never listed or checked, so a slow or missing
+    network share cannot hold the dialog up.
+
+    :param module: the module's key, such as ``measure``.
+    :param src: the form's source folder; a list offers its first entry.
+    :returns: the suggested CSV path.
+    """
+    if isinstance(src, (list, tuple)):
+        src = next((str(item).strip() for item in src if str(item).strip()),
+                   "")
+    folder = (str(src or "").strip() or _SETTINGS_CSV_FOLDER["last"]
+              or os.path.expanduser("~"))
+    return os.path.join(folder, f"{module}_settings.csv")
+
+
+def export_settings_csv(parent, settings: dict, default_path: str) -> list:
+    """Ask where to save ``settings`` as a settings CSV, and write it there.
+
+    The one implementation behind every Export settings… button and the
+    Distributed Jobs snapshot. The file is what
+    :func:`spacr.cli.write_settings_file` writes, which Import settings… and
+    ``spacr-run --settings`` both read.
+
+    :param parent: the dialog's parent widget.
+    :param settings: the settings to write, exactly as given.
+    :param default_path: the path the dialog offers first.
+    :returns: the CSV and JSON paths written, or an empty list when the
+        dialog was cancelled.
+    :raises OSError: when the file cannot be written.
+    """
+    from PySide6.QtWidgets import QFileDialog
+
+    from ...cli import write_settings_file
+
+    path, _ = QFileDialog.getSaveFileName(
+        parent, tr("Export settings CSV"), default_path,
+        f"{tr('Settings')} (*.csv);;{tr('All files')} (*)",
+    )
+    if not path:
+        return []
+    if not path.lower().endswith(".csv"):
+        path += ".csv"
+    written = write_settings_file(settings, path)
+    _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(written[0])
+    return written
+
+
+#: The events :meth:`AppScreen.eventFilter` acts on for the widgets that
+#: carry hover help.
+_HINT_EVENTS = frozenset((QEvent.ToolTip, QEvent.Enter, QEvent.Leave))
+
+
+class _HintWatcher(QObject):
+    """Hands a screen the hover and tooltip events of its help-carrying widgets.
+
+    The screen used to be an event filter on each setting caption, action
+    button and category header, and Qt asks every filter on a widget about
+    every event it gets. Over the window's moving field every widget
+    repaints on every frame, so that was 45 Python calls a Mask Generation
+    frame for a filter that acts on three event types. The watcher hears
+    those three through the application event hub
+    (:func:`spacr.qt.gil_priority._watch_application_events`), which is
+    asked about every event anyway, and passes the screen only its own
+    widgets' events.
+    """
+
+    def __init__(self, screen: QWidget):
+        """Watch the application on behalf of ``screen``."""
+        from ..gil_priority import _watch_application_events
+
+        super().__init__(screen)
+        self._widgets = WeakSet()
+        _watch_application_events(QApplication.instance(), self,
+                                  _HINT_EVENTS)
+
+    def add(self, widget: QWidget) -> None:
+        """Pass ``widget``'s hover and tooltip events to the screen."""
+        self._widgets.add(widget)
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802 - Qt name
+        """The screen's answer for its own widgets; ``False`` otherwise."""
+        if watched in self._widgets:
+            return self.parent().eventFilter(watched, event)
+        return False
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -1960,6 +2128,7 @@ class AppScreen(QWidget):
 
     error_explain_requested = Signal(str, str)
     remote_submit_requested = Signal(str, dict)
+    _example_fetch_moved = Signal(str, object, object)
 
     _ambient = None
     _ambient_applied = None
@@ -2101,6 +2270,9 @@ class AppScreen(QWidget):
         self._usage_jobs = JobRunner(self, app_key=f"{self.app_key} usage",
                                     user_visible=False)
         self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
+        self._example_fetch_running = False
+        self._example_fetch_button = None
+        self._example_fetch_moved.connect(self._on_example_fetch_moved)
 
         self._usage_generation = 0
         self._usage_timer = QTimer(self)
@@ -2216,7 +2388,10 @@ class AppScreen(QWidget):
             window = self.window()
             shared = getattr(window, "window_backdrop", None)
             if callable(shared) and shared() is not None:
+                self._uses_window_backdrop = True
                 self._clear_page_surfaces()
+                self._sync_page_palette()
+                self.update()
                 return
             wanted = (get_ambient_theme(), get_ambient_palette())
             if wanted == self._ambient_applied:
@@ -2491,13 +2666,41 @@ class AppScreen(QWidget):
         Never raises: a page that cannot resolve its colour falls back to
         the rendering it had before this existed.
         """
+        try:
+            from ..preferences import resolve_effective_theme
+        except ImportError:
+            return None
+
+        return self._page_fill_under(resolve_effective_theme)
+
+    def _page_fill_for_a_frame(self):
+        """:meth:`page_fill` for :meth:`paintEvent`, without a store read.
+
+        A paint runs on every frame of the window's field, so the theme
+        comes from :func:`spacr.qt.theme._painting_theme`, resolved once per
+        application palette, as every other paint hook takes it. A screen
+        that paints its own page under the field read the preference store
+        once a frame (CI, 2026-10-13: 1.0 reads per Mask field frame).
+        """
+        try:
+            from ..theme import _painting_theme
+        except ImportError:
+            return None
+
+        return self._page_fill_under(_painting_theme)
+
+    def _page_fill_under(self, theme_of):
+        """The page colour with the theme ``theme_of()`` names, or ``None``.
+
+        :param theme_of: returns the effective theme name; anything it
+            raises reads as no colour.
+        """
         if (self._ambient is not None or self._dna_rain is not None
                 or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
-            from ..preferences import resolve_effective_theme
             from ..theme import IMAGE_THEMES, page_colour
-            theme = resolve_effective_theme()
+            theme = theme_of()
             if theme in IMAGE_THEMES:
                 return None
             return QColor(page_colour(theme))
@@ -2525,6 +2728,14 @@ class AppScreen(QWidget):
         no ordering in which black can appear. The ``paintEvent`` fill
         stays: it is what covers the stylesheet's ``bg`` slab, which the
         palette does not reach.
+
+        Clearing takes the screen's own rule off before the palette and the
+        fill: unpolishing that rule hands back the ``autoFillBackground`` it
+        found when it went on, so cleared last it turned the fill on again
+        over an empty palette: the application's black. A screen that learns
+        of the window's field late (opened while the heavy-import lock was
+        held) clears its page here as well; before 2026-10-13 it kept its
+        page-colour rule over the field.
         """
         if getattr(self, "_syncing_page", False):
             return
@@ -2537,9 +2748,9 @@ class AppScreen(QWidget):
         self._syncing_page = True
         try:
             if colour is None:
-                self.setAutoFillBackground(False)
-                self.setPalette(QPalette())
                 set_a_sheeted_widgets_own_rule(self, "")
+                self.setPalette(QPalette())
+                self.setAutoFillBackground(False)
             else:
                 palette = QPalette(self.palette())
                 palette.setColor(QPalette.Window, colour)
@@ -2563,7 +2774,7 @@ class AppScreen(QWidget):
             there is no page fill. The fill always covers the whole screen,
             not just the event's region.
         """
-        colour = self.page_fill()
+        colour = self._page_fill_for_a_frame()
         if colour is None:
             super().paintEvent(event)
             return
@@ -2605,7 +2816,6 @@ class AppScreen(QWidget):
             getattr(self, "_runtime_wrap", None),
             getattr(self, "_console_wrap", None),
             getattr(self, "_actions_row", None),
-            getattr(self, "_actions_section", None),
             getattr(self, "_actions_body", None),
             getattr(self, "_category_hint", None),
         )
@@ -2806,6 +3016,9 @@ class AppScreen(QWidget):
             self._category_blurbs.setdefault(title, blurb)
             grid = ObjectSettingsGrid(section)
             grid.set_app_key(self.app_key)
+            grid._model_chooser = lambda obj: self._choose_a_model_for(
+                model._widgets[f"{obj}_model_name"], f"{obj}_model_name"
+            ) if f"{obj}_model_name" in model._widgets else None
             binding = ObjectGridBinding(grid, model, self)
             binding.seed()
             owned = binding.owned_keys()
@@ -4634,7 +4847,7 @@ class AppScreen(QWidget):
             lbl_widget.setEnabled(field.isEnabled())
             self._hint_map[lbl_widget] = hint
             self._html_tip_map[lbl_widget] = html
-            lbl_widget.installEventFilter(self)
+            self._hear_hints_of(lbl_widget)
             self._put_the_greyed_reason_on(field, lbl_widget)
         section.add_row(lbl_widget, widget, info_widget=None,
                         wrap_label=True)
@@ -4943,18 +5156,70 @@ class AppScreen(QWidget):
         :param key: the setting the field stands for, which decides what the
             picker offers -- see :meth:`_model_kinds_for`.
         """
-        from ..widgets.model_zoo_picker import choose_model
+        from copy import deepcopy
+        from PySide6.QtWidgets import QDialog, QMessageBox
+        from ..widgets.model_zoo_picker import ModelZooPicker
+        from ... import model_zoo
 
-        path = choose_model(self, kinds=self._model_kinds_for(key))
+        dialog = ModelZooPicker(self._model_kinds_for(key), self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        path = dialog.chosen_path()
         if not path:
             return
-        if hasattr(field, "set_value"):
-            field.set_value(path)
-        elif hasattr(field, "setText"):
-            field.setText(path)
-        else:
-            LOG.warning("no way to write a model path into %s",
-                        type(field).__name__)
+        model = getattr(self, "_settings_model", None)
+        previous = None
+        read_field = getattr(field, "text", None)
+        if not callable(read_field):
+            read_field = getattr(field, "get_value", None)
+        field_known = callable(read_field)
+        previous_field = deepcopy(read_field()) if field_known else None
+        changed = False
+        try:
+            if model is not None:
+                previous = deepcopy(model.collect())
+            verified = getattr(dialog, "_chosen_reference", None)
+            owned = previous is not None and key in previous
+            if verified is not None:
+                if not owned or not field_known:
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+                proposed = model_zoo._invalidate_model_metadata(previous, (key,))
+                proposed[key] = path
+                model_zoo._attach_model_reference(
+                    self.app_key, proposed, key, verified)
+            if owned:
+                changed = True
+                written = model.set_value_for_key(key, path)
+            else:
+                written = False
+            if not written:
+                if hasattr(field, "set_value"):
+                    changed = True
+                    field.set_value(path)
+                elif hasattr(field, "setText"):
+                    changed = True
+                    field.setText(path)
+                else:
+                    LOG.warning("no way to write a model path into %s",
+                                type(field).__name__)
+                    return
+                if owned:
+                    model._setting_committed(key)
+            if verified is not None:
+                attached = model_zoo._attach_model_reference(
+                    self.app_key, model.collect(), key, verified)
+                if (not model.set_hidden_value("model_metadata", attached["model_metadata"])
+                        or model.collect().get("model_metadata") != attached["model_metadata"]):
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+        except model_zoo.ModelZooError as exc:
+            if changed and field_known:
+                if hasattr(field, "set_value"):
+                    field.set_value(previous_field)
+                else:
+                    field.setText(previous_field)
+            if previous is not None:
+                model._model_metadata = deepcopy(previous.get("model_metadata"))
+            QMessageBox.warning(self, tr("Model zoo"), str(exc))
 
     def _with_a_settings_advisor(self, widget, key):
         """Add the regression settings-advisor button beside ``inference``.
@@ -5204,7 +5469,7 @@ class AppScreen(QWidget):
                                  "instant.")
             one.clicked.connect(
                 lambda _checked=False, _k=kind: self.load_the_example_screen(
-                    kind=_k))
+                    kind=_k, in_background=True))
             layout.addWidget(one)
             setattr(self, f"_example_{kind}_button", one)
 
@@ -5237,7 +5502,8 @@ class AppScreen(QWidget):
             "Fetch the four-plate example screen and put its count tables "
             "and score tables into the two slots below. About 35 MB the "
             "first time; cached afterwards, so pressing it again is instant.")
-        button.clicked.connect(lambda: self.load_the_example_screen())
+        button.clicked.connect(
+            lambda: self.load_the_example_screen(in_background=True))
         self._example_data_button = button
         section.add_prose(button, at_top=True)
 
@@ -5990,11 +6256,15 @@ class AppScreen(QWidget):
                 "settings": str(settings) if settings else ""}
 
     def load_the_example_screen(self, *, download: bool = True,
-                               kind=None) -> dict:
+                               kind=None, in_background: bool = False) -> dict:
         """Fetch the example screen and fill `count_data` and `score_data`.
 
         :param download: If ``True``, download files that are not already in
             the local cache.
+        :param in_background: check, download and verify the files on a
+            worker thread and fill the slots when they arrive, so the window
+            keeps painting through a download. The buttons use this; the
+            mapping is then empty and the slots fill on completion.
         :returns: A mapping of populated setting names to their file paths.
         """
         from ...example_data import ExampleDataError, fetch, missing
@@ -6002,6 +6272,9 @@ class AppScreen(QWidget):
         button = getattr(self, f"_example_{kind}_button", None) if kind else None
         if button is None:
             button = getattr(self, "_example_data_button", None)
+        if in_background:
+            self._fetch_the_example_screen_in_background(button, download, kind)
+            return {}
         absent = missing(kind=kind)
         if absent and button is not None:
             button.setEnabled(False)
@@ -6017,7 +6290,149 @@ class AppScreen(QWidget):
             if button is not None:
                 button.setEnabled(True)
                 button.setText(tr("Load test data…"))
+        return self._put_the_example_screen_in(got)
 
+    #: Shortest gap between two download progress updates sent to the GUI
+    #: thread, in seconds. Each file's last update is always sent.
+    EXAMPLE_PROGRESS_INTERVAL_S = 0.1
+
+    def _fetch_the_example_screen_in_background(self, button, download,
+                                                kind) -> bool:
+        """Run :func:`spacr.example_data.fetch` through the screen's jobs.
+
+        The digest check, the download and the verification all read or
+        write tens of megabytes, which froze the window for most of a second
+        per file when they ran on the GUI thread. Progress reaches the button
+        at most every :attr:`EXAMPLE_PROGRESS_INTERVAL_S`, and each file's
+        final count always arrives.
+
+        :returns: whether a fetch was started; a second press while one runs
+            starts nothing.
+        """
+        if getattr(self, "_example_fetch_running", False):
+            return False
+        self._example_fetch_running = True
+        self._example_fetch_button = button
+        if button is not None:
+            button.setEnabled(False)
+            button.setText(tr("Fetching test data…"))
+        last = {"at": None}
+        work = partial(self._fetch_the_example_screen, download, kind,
+                       partial(self._report_the_example_fetch, last))
+        return self._jobs.submit(work, self._on_the_example_screen_fetched)
+
+    def _report_the_example_fetch(self, last, name, seen, total) -> None:
+        """Send one progress update, unless the last was too recent.
+
+        Runs on the worker thread; it only emits a signal. Each file's final
+        count is always sent.
+        """
+        now = time.monotonic()
+        final = bool(total) and seen >= total
+        if (not final and last["at"] is not None
+                and now - last["at"] < float(self.EXAMPLE_PROGRESS_INTERVAL_S)):
+            return
+        last["at"] = now
+        try:
+            self._example_fetch_moved.emit(str(name), int(seen), int(total))
+        except RuntimeError:
+            pass
+
+    @staticmethod
+    def _fetch_the_example_screen(download, kind, report) -> tuple:
+        """Fetch on the worker thread; answer ``(fetched, error)``."""
+        from ...example_data import ExampleDataError, fetch
+
+        try:
+            return fetch(download=download, kind=kind, progress=report), ""
+        except ExampleDataError as error:
+            return None, str(error)
+        except Exception as error:
+            return None, str(error) or error.__class__.__name__
+
+    def _on_example_fetch_moved(self, name, seen, total) -> None:
+        """Show one coalesced download update on the pressed button."""
+        if not getattr(self, "_example_fetch_running", False) or not name:
+            return
+        self._say_the_download_is_moving(name, seen, total, pump=False)
+
+    def _on_the_example_screen_fetched(self, outcome) -> None:
+        """Restore the button and fill the slots from a background fetch."""
+        button = getattr(self, "_example_fetch_button", None)
+        self._example_fetch_button = None
+        self._example_fetch_running = False
+        got, error = outcome if isinstance(outcome, tuple) else (None, "")
+        try:
+            if got is None:
+                self._console.append_stdout(f"{error}\n")
+                return
+        finally:
+            if button is not None:
+                button.setEnabled(True)
+                button.setText(tr("Load test data…"))
+        self._put_the_example_screen_in(got)
+        self._prepare_the_results_part()
+
+    _RESULTS_PART_MODULES = (
+        "spacr.qt.widgets.fast_plots",
+        "spacr.qt.widgets.regression_results",
+        "spacr.qt.widgets.figure_grid_view",
+        "spacr.qt.widgets.sweep_runs",
+        "spacr.qt.widgets.measurement_scan_panel",
+        "spacr.qt.widgets.sweep_panel",
+        "spacr.qt.widgets.cell_montage_view",
+        "spacr.qt.widgets.folding_summary",
+        "spacr.qt.widgets.annotation_umap_tab",
+        "spacr.qt.widgets.gene_panel",
+    )
+
+    def _prepare_the_results_part(self) -> bool:
+        """Get Regression's results part ready while nothing is running.
+
+        Once the input tables are filled a Run is the next press, and a Run
+        with the part still owed builds it alongside the pipeline, each step
+        slowed by the worker's hold on the interpreter lock. So the part's
+        modules (:attr:`_RESULTS_PART_MODULES`) are imported on a worker
+        thread and the part is then built one step per event-loop turn.
+
+        :returns: whether the preparation was started.
+        """
+        if not self._part_is_owed(_REGRESSION_RESULTS):
+            return False
+        if self.__dict__.get("_results_part_preparing"):
+            return False
+        self._results_part_preparing = True
+        return self._jobs.submit(
+            partial(self._import_the_modules, self._RESULTS_PART_MODULES),
+            self._build_the_prepared_results_part)
+
+    @staticmethod
+    def _import_the_modules(names) -> int:
+        """Import ``names`` under the heavy-import lock; answer how many."""
+        import importlib
+        from contextlib import nullcontext
+
+        app = sys.modules.get("spacr.qt.app")
+        lock = getattr(app, "HEAVY_IMPORT_LOCK", None)
+        imported = 0
+        for name in names:
+            try:
+                with lock if lock is not None else nullcontext():
+                    importlib.import_module(name)
+                imported += 1
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not import %s early", name, exc_info=True)
+        return imported
+
+    def _build_the_prepared_results_part(self, _imported=None) -> bool:
+        """Build the results part in steps once its modules are imported."""
+        self._results_part_preparing = False
+        if self._worker_thread_is_running():
+            return False
+        return self._build_owed_part_in_steps(_REGRESSION_RESULTS)
+
+    def _put_the_example_screen_in(self, got) -> dict:
+        """Pair a fetched example screen into Input Tables and say so."""
         table = self._settings_model._widgets.get("paired_data")
         added = 0
         if table is not None and hasattr(table, "add_paths_for_side"):
@@ -6033,12 +6448,20 @@ class AppScreen(QWidget):
         return {"counts": got.counts, "scores": got.scores,
                 "applied": added, "folder": got.folder}
 
-    def _say_the_download_is_moving(self, name, seen, total) -> None:
-        """Progress on the button itself, which is where the user is looking."""
+    def _say_the_download_is_moving(self, name, seen, total,
+                                    pump: bool = True) -> None:
+        """Progress on the button itself, which is where the user is looking.
+
+        :param pump: let the window paint, for a fetch on the GUI thread. A
+            background fetch's updates arrive through the event loop, so it
+            passes ``False``.
+        """
         button = getattr(self, "_example_data_button", None)
         if button is None or not total:
             return
         button.setText(f"{name} — {100 * seen // max(total, 1)}%")
+        if not pump:
+            return
         from PySide6.QtWidgets import QApplication
 
         QApplication.processEvents()
@@ -6453,9 +6876,22 @@ class AppScreen(QWidget):
                 LOG.debug("could not re-apply the settings search",
                           exc_info=True)
         self.refresh_maturity_visibility()
+        folds = getattr(self, "_category_folds", None)
+        refresh_folds = getattr(folds, "_refresh_alpha", None)
+        if callable(refresh_folds):
+            try:
+                refresh_folds()
+            except Exception:
+                LOG.debug("could not re-decide the folded categories",
+                          exc_info=True)
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self)
+        if model is not None:
+            paired = getattr(model, "_widgets", {}).get("paired_data")
+            refresh_paired = getattr(paired, "_refresh_alpha_visibility", None)
+            if callable(refresh_paired):
+                refresh_paired()
         plate = getattr(self, "_watch_live_plate", None)
         if plate is not None:
             from ..preferences import _is_alpha_visible
@@ -6803,6 +7239,17 @@ class AppScreen(QWidget):
         return chosen
 
 
+    def _hear_hints_of(self, widget: QWidget) -> None:
+        """Give ``widget``'s hover and tooltip events to :meth:`eventFilter`.
+
+        Through :class:`_HintWatcher`, not as a filter on the widget, so the
+        widget's paint events never reach Python.
+        """
+        watcher = getattr(self, "_hint_watcher", None)
+        if watcher is None:
+            watcher = self._hint_watcher = _HintWatcher(self)
+        watcher.add(widget)
+
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave.
 
@@ -6971,8 +7418,9 @@ class AppScreen(QWidget):
         return getattr(self, name, None)
 
     def _part_is_owed(self, part: str) -> bool:
-        """Whether ``part`` has been deferred and not built yet."""
-        return part in (self.__dict__.get("_parts_owed") or {})
+        """Whether ``part`` has been deferred and not finished yet."""
+        return (part in (self.__dict__.get("_parts_owed") or {})
+                or part in (self.__dict__.get("_parts_stepping") or {}))
 
     def _build_owed_part(self, part: str) -> bool:
         """Build ``part`` now if it is still owed.
@@ -6986,27 +7434,106 @@ class AppScreen(QWidget):
         fold strip adding the Hits tab, which came after that sweep), then
         the language pass and the polish, which reached the Hits tab too.
 
-        :returns: ``True`` when this call built it.
+        A part that :meth:`_build_owed_part_in_steps` has started is
+        finished here, in one go, so a reader never sees it half built.
+
+        :returns: ``True`` when this call built or finished it.
         """
-        owed = self.__dict__.get("_parts_owed") or {}
-        build = owed.pop(part, None)
-        if build is None:
-            return False
+        steps = (self.__dict__.get("_parts_stepping") or {}).pop(part, None)
+        if steps is None:
+            owed = self.__dict__.get("_parts_owed") or {}
+            build = owed.pop(part, None)
+            if build is None:
+                return False
+            steps = self._owed_part_steps(part, build)
         from .. import timing
 
         with timing.span("build deferred part", part):
-            root = build()
-            if root is not None:
-                self._clear_a_late_parts_surfaces(root)
-            waiting = (self.__dict__.get("_after_parts") or {}).pop(part, [])
-            for callback in waiting:
-                try:
-                    callback()
-                except Exception:                            # noqa: BLE001
-                    LOG.exception("could not finish a deferred %s", part)
-            if root is not None:
-                self._translate_a_late_part(root)
+            _run_to_the_end(steps)
         return True
+
+    def _owed_part_steps(self, part: str, build):
+        """Build ``part`` with ``build``, as a generator of event-loop steps.
+
+        ``build`` may return the part's root, or be a generator of its own
+        steps that returns it. The steps run back to back in
+        :meth:`_build_owed_part`, or one per event-loop turn in
+        :meth:`_build_owed_part_in_steps`; the order is the same either way.
+        """
+        import inspect
+
+        made = build()
+        if inspect.isgenerator(made):
+            root = yield from made
+        else:
+            root = made
+        if root is not None:
+            self._clear_a_late_parts_surfaces(root)
+        self._run_the_parts_callbacks(part, "_after_parts")
+        if root is not None:
+            yield
+            self._translate_a_late_part(root)
+        self._run_the_parts_callbacks(part, "_after_parts")
+        self._run_the_parts_callbacks(part, "_parts_then")
+
+    def _run_the_parts_callbacks(self, part: str, table: str) -> None:
+        """Run and forget the callbacks queued for ``part`` in ``table``."""
+        waiting = (self.__dict__.get(table) or {}).pop(part, [])
+        for callback in waiting:
+            try:
+                callback()
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not finish a deferred %s", part)
+
+    def _build_owed_part_in_steps(self, part: str, then=None) -> bool:
+        """Build ``part`` one step per event-loop turn, then call ``then``.
+
+        For a click that needs a large deferred part: built in one go, its
+        construction, surface sweep and language pass were one freeze of
+        over a second. Each step is followed by a turn of the event loop. A
+        reader of any of the part's attributes in between finishes the
+        build at once (see :class:`_BuiltOnFirstUse`), so nothing ever sees
+        it half built, and the part counts as owed for as long as it runs.
+
+        :param part: the deferred part.
+        :param then: called once the part is finished, however it finished.
+        :returns: ``False`` when the part is not owed, in which case the
+            caller does its work now.
+        """
+        stepping = self.__dict__.get("_parts_stepping")
+        if stepping is None:
+            stepping = self.__dict__["_parts_stepping"] = {}
+        if part not in stepping:
+            build = (self.__dict__.get("_parts_owed") or {}).pop(part, None)
+            if build is None:
+                return False
+            stepping[part] = self._owed_part_steps(part, build)
+            _after(0, self, partial(self._step_owed_part, part))
+        if then is not None:
+            thens = self.__dict__.get("_parts_then")
+            if thens is None:
+                thens = self.__dict__["_parts_then"] = {}
+            thens.setdefault(part, []).append(then)
+        return True
+
+    def _step_owed_part(self, part: str) -> None:
+        """Run the next step of ``part``, and queue the one after it."""
+        stepping = self.__dict__.get("_parts_stepping") or {}
+        steps = stepping.pop(part, None)
+        if steps is None:
+            return
+        from .. import timing
+
+        try:
+            with timing.span("build deferred part, a step", part):
+                next(steps)
+        except StopIteration:
+            return
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not build the deferred %s", part)
+            return
+        stepping[part] = steps
+        _after(0, self, partial(self._step_owed_part, part))
 
     def _after_part_is_built(self, part: str, callback) -> bool:
         """Run ``callback`` once ``part`` is built, if it is still owed.
@@ -7145,6 +7672,11 @@ class AppScreen(QWidget):
         before constructing the panels, so opening the screen does not
         load their data libraries and a missing dependency leaves no
         partially constructed results widgets.
+
+        A generator of build steps: :meth:`_build_owed_part` runs them back
+        to back, and :meth:`_build_owed_part_in_steps` gives the event loop
+        a turn after each, so the Hits button's first press is not one
+        freeze of over a second.
         """
         try:
             from ..widgets.regression_results import RegressionResultsPanel
@@ -7156,10 +7688,16 @@ class AppScreen(QWidget):
                 MeasurementScanPanel)
             from ..widgets.sweep_panel import SweepPanel
             from ..widgets.cell_montage_view import CellMontageView
+            from importlib import import_module
 
-            self._results_panel = RegressionResultsPanel(
+            import_module("..widgets.fast_plots", __package__)
+            yield
+
+            panel = yield from RegressionResultsPanel._constructed_in_steps(
                 self._figures_card, external_volcano=True)
+            self._results_panel = panel
             self._results_panel.refit_requested.connect(self._on_refit)
+            yield
 
             self._figure_grid = FigureGridView(self._figures_card)
             self._figure_grid.figure_activated.connect(
@@ -7243,6 +7781,7 @@ class AppScreen(QWidget):
                 self._live_tile_menu)
             self._results_panel.table.key_selected.connect(
                 self._on_guide_selected)
+            yield
 
             self._sweep_runs = SweepRunsPanel(self._figures_card)
             self._sweep_runs.trial_activated.connect(self._show_trial)
@@ -7271,6 +7810,7 @@ class AppScreen(QWidget):
                                   "Picking a row in Runs re-points this "
                                   "at that run.")
 
+            yield
             self._scan_panel = MeasurementScanPanel(
                 frame_provider=self._scan_source_frame,
                 database_provider=self._attached_database_rows,
@@ -7303,6 +7843,7 @@ class AppScreen(QWidget):
                    "each measurement -- a measurement that passes alone "
                    "and fails across the scan is the one worth knowing "
                    "about.")
+            yield
             self._cell_montage = CellMontageView(
                 frame_provider=self._results_panel.results_frame,
                 results_provider=self._results_source_path,
@@ -7325,6 +7866,7 @@ class AppScreen(QWidget):
             self._results_tabs = left
             left.setCurrentWidget(self._results_page)
 
+            yield
             split = CollapsibleSplitter(Qt.Horizontal, self._figures_card)
             split.add_pane(left, "Results", mode=EDGE, stretch=1,
                            extent=780, fold_key="regression/Results")
@@ -7376,6 +7918,9 @@ class AppScreen(QWidget):
         panel = _fill_live_preview_card(self, self._live_preview_card)
         self._live_preview = panel
         panel.set_propagate_callback(self._propagate_live_settings)
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            model.add_collect_hook(panel.flush_propagation)
         waiting = self.__dict__.pop("_live_src_waiting", None)
         if waiting is not None:
             self._autoload_live_preview(waiting)
@@ -7417,6 +7962,7 @@ class AppScreen(QWidget):
             _CardBuiltWhenShown if self.app_key == "regression" else Card)(
                 title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
+        self._figure_queue._workspace_restored.connect(self._on_workspace_figures_restored)
         #: The queue the regression results page holds, kept apart from
         #: ``_figure_queue`` because that name can be rebound before the
         #: deferred results are built, and the page an eagerly-built screen
@@ -7477,6 +8023,7 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_card.body_layout.addWidget(self._console, 1)
+        _after(0, self, self._warm_console_glyphs)
         self._watch_live_plate = None
         if self.app_key == "mask":
             self._watch_live_plate = _DeferredWatchLivePlate(console_wrap)
@@ -7660,26 +8207,17 @@ class AppScreen(QWidget):
         usage_card.body_layout.addWidget(self._per_core_wrap)
 
         _breathe_while_a_window_opens()
-        section = QWidget()
+        section = Card(title="Actions")
         self._actions_section = section
-        section_col = QVBoxLayout(section)
-        section_col.setContentsMargins(0, 0, 0, 0)
-        section_col.setSpacing(4)
-        actions_heading = QLabel("Actions")
-        actions_heading.setObjectName("CardTitle")
+        actions_heading = section.title_label
         self._actions_heading = actions_heading
-        self._actions_heading_row = QHBoxLayout()
-        self._actions_heading_row.setContentsMargins(
-            SPACING["md"] + 1, 0, 0, 0)
-        self._actions_heading_row.addWidget(actions_heading)
-        self._actions_heading_row.addStretch(1)
-        section_col.addLayout(self._actions_heading_row)
-        actions_body = QWidget(section)
+        self._actions_heading_row = section._ensure_title_row()
+        actions_body = QWidget(section.body)
         self._actions_body = actions_body
         body_col = QVBoxLayout(actions_body)
         body_col.setContentsMargins(0, 0, 0, 0)
         body_col.setSpacing(SPACING["md"])
-        section_col.addWidget(actions_body, 1)
+        section.body_layout.addWidget(actions_body, 1)
 
         actions = QWidget()
         self._actions_row = actions
@@ -7708,6 +8246,14 @@ class AppScreen(QWidget):
         self._btn_import.setCursor(Qt.PointingHandCursor)
         self._btn_import.clicked.connect(self._on_import_settings)
         buttons.addWidget(self._btn_import)
+
+        from ..i18n import set_translatable_text
+        self._btn_export = QPushButton()
+        set_translatable_text(self._btn_export, "Export settings…")
+        self._btn_export.setObjectName("GhostButton")
+        self._btn_export.setCursor(Qt.PointingHandCursor)
+        self._btn_export.clicked.connect(self._on_export_settings)
+        buttons.addWidget(self._btn_export)
         buttons.addWidget(self._build_analysis_lock_button())
         from ..preferences import _apply_alpha_widgets
 
@@ -7900,6 +8446,28 @@ class AppScreen(QWidget):
             except Exception:                            # noqa: BLE001
                 LOG.debug("Could not install the OPS switch", exc_info=True)
 
+        self._spatial_switch = None
+        if self.app_key in ("mask", "map_barcodes"):
+            try:
+                from .map_barcodes import SPATIAL_TOGGLE_TEXT
+                if self.app_key == "mask":
+                    from .mask import (
+                        SPATIAL_MASKS_TOGGLE_TOOLTIP as spatial_tooltip,
+                        install_spatial_masks_switch as install_spatial,
+                    )
+                else:
+                    from .map_barcodes import (
+                        SPATIAL_MAP_TOGGLE_TOOLTIP as spatial_tooltip,
+                        install_spatial_map_switch as install_spatial,
+                    )
+                self._spatial_switch = AiToggleLabel(
+                    text=SPATIAL_TOGGLE_TEXT, tooltip=spatial_tooltip)
+                row.addWidget(self._spatial_switch)
+                install_spatial(self, self._spatial_switch)
+            except Exception:
+                LOG.debug("Could not install the spatial switch",
+                          exc_info=True)
+
         self._gpu_switch = None
         if self.app_key == "umap" and getattr(
                 self, "_hyperparam_card", None) is not None:
@@ -7978,8 +8546,9 @@ class AppScreen(QWidget):
         self._install_action_hints()
 
         self._actions_folder = make_foldable(
-            actions_heading, actions_body, name="Actions",
+            actions_heading, section.body, name="Actions",
             persist_key=f"{self.app_key}/Actions")
+        section.follow_fold(self._actions_folder)
         self._install_the_shell_panes(layout, usage_card, section)
         viewport._watch_splitter(self._runtime_splitter)
         return wrap
@@ -8194,6 +8763,11 @@ class AppScreen(QWidget):
             return tr("Stop the active run without changing its saved inputs.")
         if control is self._btn_import:
             return tr("Import settings from a saved file into this form before running.")
+        if control is self._btn_export:
+            return tr(
+                "Save this form's current settings to a CSV without running "
+                "anything. Import settings reads it back, and spacr-run "
+                "--settings runs it on a cluster.")
         if control is self._btn_clear:
             return tr("Clear the visible console output; saved results remain on disk.")
         if control is self._btn_analysis_lock:
@@ -8219,6 +8793,7 @@ class AppScreen(QWidget):
             (self._btn_run, None),
             (self._btn_stop, None),
             (self._btn_import, None),
+            (self._btn_export, None),
             (self._btn_clear, None),
             (getattr(getattr(self, "_virtual_stain", None), "button", None), None),
         ]
@@ -8228,6 +8803,7 @@ class AppScreen(QWidget):
             self._btn_file_issue, self._btn_cpu_toggle,
             getattr(self, "_preview_switch", None),
             getattr(self, "_ops_switch", None),
+            getattr(self, "_spatial_switch", None),
             getattr(self, "_gpu_switch", None),
             getattr(self, "_sweep_switch", None),
             getattr(self, "_hp_switch", None),
@@ -8243,7 +8819,7 @@ class AppScreen(QWidget):
                 controls += tuple(card.findChildren(QPushButton))
                 controls += tuple(card.findChildren(QToolButton))
         for control in controls:
-            if control is None:
+            if control is None or control.property("moduleTooltipStyle") == "fold":
                 continue
             source = control.property("_spacr_i18n_tooltip")
             sources.append((control, source or self._action_hints.get(control) or control.toolTip()))
@@ -8260,7 +8836,7 @@ class AppScreen(QWidget):
             control.setProperty("_spacr_i18n_tooltip", "")
             control.setProperty(OPT_OUT_PROPERTY, True)
             control.setToolTip("")
-            control.installEventFilter(self)
+            self._hear_hints_of(control)
 
     def _write_hint(self, text: str, url: str = "",
                     hold: bool = False, animated: bool = False) -> None:
@@ -8420,13 +8996,16 @@ class AppScreen(QWidget):
         hosts = (getattr(self, "_runtime_wrap", None),
                  getattr(self, "_body_splitter", None),
                  self)
+        from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
         watcher = _LateCaptionTranslator(self)
         self._late_caption_watcher = watcher
         for host in hosts:
             if host is None:
                 continue
-            host.removeEventFilter(watcher)
-            host.installEventFilter(watcher)
+            _stop_watching_object_events(host, watcher)
+            _watch_object_events(host, watcher, (QEvent.ChildAdded,))
+            _after(0, watcher, partial(watcher._on_arrivals_in, host))
 
     def _default_category_hint(self) -> str:
         """The prompt the category strip falls back to, in the UI language.
@@ -8459,8 +9038,7 @@ class AppScreen(QWidget):
                      or section.title())
             header.setProperty("settingsCategory", title)
             header.setProperty("categoryHintWired", True)
-            header.removeEventFilter(self)
-            header.installEventFilter(self)
+            self._hear_hints_of(header)
             section.toggled.connect(
                 partial(self._on_category_toggled, title))
 
@@ -8618,6 +9196,8 @@ class AppScreen(QWidget):
         looking at" that quietly picked those up would compare two runs
         differing in more ways than the one the user chose.
         """
+        if self._wait_for_the_entry_import(override):
+            return
         from ..verbose_logger import log_button_press
         entry = resolve_pipeline_entry(self.app_key)
         if entry is None:
@@ -8657,6 +9237,10 @@ class AppScreen(QWidget):
             log_button_press(f"{self.app_key}.Run",
                              {"result": "cancelled_at_ram_guard"})
             return
+
+        if "export_vvvv" in settings:
+            from ..preferences import _vvvv_export_enabled
+            settings["export_vvvv"] = _vvvv_export_enabled()
 
         if self.app_key == "umap":
             from ..theme import active_palette
@@ -8708,6 +9292,7 @@ class AppScreen(QWidget):
 
         import time as _time
         self._run_started_at = _time.time()
+        self._run_settings = dict(settings)
         _pause_the_fractal(self)
         import datetime as _dt
         from ..widgets.sweep_runs import SOURCE_REFIT, SOURCE_RUN
@@ -8728,6 +9313,7 @@ class AppScreen(QWidget):
 
         self._announce_the_fit(settings)
 
+        self._watch_for_refusals()
         self._thread, worker = make_thread(entry, settings)
         self._worker = worker
         worker.line_ready.connect(self._console.append_stdout)
@@ -8741,6 +9327,95 @@ class AppScreen(QWidget):
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
 
+
+    #: How often a Run waiting on its entry module's import checks the
+    #: importing thread, in milliseconds. The first tick starts the import,
+    #: so the busy bar has been painted before it begins.
+    ENTRY_IMPORT_POLL_MS = 20
+
+    def _wait_for_the_entry_import(self, override) -> bool:
+        """Import the pipeline's module off the GUI thread before running.
+
+        The first Run of a session resolved the entry point on the GUI
+        thread, and for Mask that imports ``spacr.core`` -- torch, cellpose
+        and the rest, 3.6 s with the window frozen (lesson 07, clip
+        run_20_batch_settings). The resolver can now say that import is
+        still to come and run it on a worker
+        (:func:`spacr.qt.bridge._import_the_entry_off_the_gui_thread`).
+        While it runs, Run is disabled and the busy bar shows; when it ends
+        both are put back as they were and :meth:`_on_run` carries on exactly
+        as it would have, from the collection of the settings onwards. The
+        wait also lays out the console's notice glyphs
+        (:meth:`~spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs`),
+        the other first-time cost of starting a run.
+
+        A resolver without that ability (a stand-in, or an app with no
+        built-in entry) makes this a no-op, and so does a module that is
+        already imported.
+
+        :param override: the ``override`` :meth:`_on_run` was given, passed
+            back to it unchanged.
+        :returns: ``True`` when the run will resume later and the caller
+            must return now.
+        """
+        if getattr(self, "_entry_import", None) is not None:
+            return True
+        pending = getattr(resolve_pipeline_entry, "entry_import_pending",
+                          None)
+        if not callable(pending) or not pending(self.app_key):
+            return False
+        timer = QTimer(self)
+        timer.setInterval(self.ENTRY_IMPORT_POLL_MS)
+        self._entry_import = {
+            "thread": None, "timer": timer, "override": override,
+            "run_enabled": self._btn_run.isEnabled(),
+            "progress_shown": self._progress.isVisibleTo(self),
+        }
+        self._btn_run.setEnabled(False)
+        self._progress.setVisible(True)
+        timer.timeout.connect(self._check_the_entry_import)
+        timer.start()
+        return True
+
+    def _warm_console_glyphs(self) -> None:
+        """Load the console symbols' fallback fonts on the first idle turn.
+
+        The first line the console prints need not come from a Run: a
+        dropped folder's report opens with a warning sign, and the fallback
+        font lookup for it (35 ms, several times that on a busy machine)
+        landed inside the drop. See
+        :meth:`spacr.qt.widgets.console_panel.ConsolePanel.warm_notice_glyphs`.
+        """
+        console = getattr(self, "_console", None)
+        warm = getattr(console, "warm_notice_glyphs", None)
+        if not callable(warm):
+            return
+        try:
+            from shiboken6 import isValid
+            if isinstance(console, QObject) and not isValid(console):
+                return
+            warm()
+        except RuntimeError:
+            pass
+
+    def _check_the_entry_import(self) -> None:
+        """Start the waiting Run's import, then resume the Run once it ends."""
+        waiting = getattr(self, "_entry_import", None)
+        if waiting is None:
+            return
+        thread = waiting["thread"]
+        if thread is None:
+            start = resolve_pipeline_entry.import_off_the_gui_thread
+            waiting["thread"] = thread = start(self.app_key)
+        if thread is not None and thread.is_alive():
+            self._console.warm_notice_glyphs()
+            return
+        waiting["timer"].stop()
+        waiting["timer"].deleteLater()
+        self._entry_import = None
+        self._btn_run.setEnabled(waiting["run_enabled"])
+        self._progress.setVisible(waiting["progress_shown"])
+        self._on_run(override=waiting["override"])
 
     #: When the heartbeat speaks, in seconds since the run started.
     #:
@@ -9008,8 +9683,9 @@ class AppScreen(QWidget):
             return
         lines = text.count("\n")
         self._btn_copy_console.setText(tr("Copied"))
-        QTimer.singleShot(
+        _after(
             1200,
+            self,
             lambda: self._btn_copy_console.setText(tr("Copy console")))
         try:
             self.statusBar().showMessage(
@@ -9036,11 +9712,16 @@ class AppScreen(QWidget):
         console says nothing was sent and how to send it.
         """
         self._last_error_text = tb
+        self._last_error_problems = []
+        self._last_error_console_text = tb[-MAX_REPORTED_ERROR_TEXT:]
+        self._failure_kind = self._kind_of_failure(tb)
+        self._anonymous_report_due = True
 
         routed = False
         try:
             from ..ai import settings as _ai_settings
             if (self._console._ai_active
+                    and not self._the_failure_is_explained_after_the_run()
                     and self._console._current_provider() is not None
                     and _ai_settings.get_route_errors_through_ai()):
                 self._console.open_error_flow(
@@ -9195,6 +9876,14 @@ class AppScreen(QWidget):
 
         :param failed: whether the run that just ended failed.
         """
+        anonymous_due = getattr(self, "_anonymous_report_due", False)
+        self._anonymous_report_due = False
+        relay_files = False
+        if failed and anonymous_due:
+            relay_files = self._send_the_anonymous_report(
+                getattr(self, "_failure_kind", ""))
+        if relay_files:
+            self._report_files_itself = False
         files_itself = getattr(self, "_report_files_itself", False)
         awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
         self._report_files_itself = False
@@ -9220,6 +9909,365 @@ class AppScreen(QWidget):
                 "again…). To send this report now, press File as issue.\n")
             return
         self._say_the_report_was_not_sent(failed=failed)
+
+    def _kind_of_failure(self, tb: str) -> str:
+        """Whether a failed run is a fault or the user's to fix.
+
+        A settings, validation or settings-path error is a user error
+        (:func:`spacr.crashreport.classify_failure`, and
+        :meth:`_is_a_settings_path_error`); anything else is a fault.
+
+        :param tb: the formatted traceback.
+        :returns: ``"fault"`` or ``"user_error"``.
+        """
+        from ... import crashreport
+
+        try:
+            if self._is_a_settings_path_error(tb, self._settings_snapshot()):
+                return crashreport.KIND_USER_ERROR
+            return crashreport.classify_failure(traceback_text=tb)
+        except Exception:                                    # noqa: BLE001
+            return crashreport.KIND_FAULT
+
+    def _the_failure_is_explained_after_the_run(self) -> bool:
+        """Whether the "AI Error report" choice explains this failure itself.
+
+        Then the console does not also send the error to the AI as it
+        arrives: a failure costs one AI call, made when the run has ended
+        (:meth:`_send_the_anonymous_report`).
+
+        :returns: ``True`` for a "Summarize" choice with the network allowed
+            and an AI to ask.
+        """
+        from ... import crashreport
+
+        try:
+            return bool(crashreport.mode_explains()
+                        and crashreport.network_allowed()
+                        and self._report_summary_provider() is not None)
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    def _send_the_anonymous_report(self, kind: str = "") -> bool:
+        """Explain and report a failure as Preferences → AI → AI Error report says.
+
+        Every failure takes this path, faults and user errors alike,
+        including a run refused before it started. A "Summarize" choice has
+        the active AI explain it once (:func:`spacr.qt.ai.providers
+        .explain_failure`): the text is shown in the console as "spaCR AI:"
+        and, when the failure is sent, travels as the report's
+        ``ai_summary``. A choice that sends this kind of failure files the
+        anonymised :func:`spacr.crashreport.public_summary` through spaCR's
+        relay, with each spaCR frame's source line when code context is
+        chosen. All of it runs on the background runner; the outcome is
+        written by :meth:`_on_anonymous_report_sent`.
+
+        :param kind: ``"fault"`` or ``"user_error"``; worked out from the
+            traceback when empty.
+        :returns: whether a report is being sent through the relay, in which
+            case the GitHub sign-in path does not file it a second time.
+        """
+        from ... import crashreport
+
+        tb = getattr(self, "_last_error_text", "") or ""
+        if not tb:
+            return False
+        try:
+            kind = kind or self._kind_of_failure(tb)
+            mode = crashreport.error_report_mode()
+            online = crashreport.network_allowed()
+            explain = bool(crashreport.mode_explains(mode) and online)
+            send = bool(crashreport.mode_sends(kind, mode)
+                        and crashreport.anonymous_reports_enabled() and online)
+        except Exception:                                    # noqa: BLE001
+            return False
+        provider = self._report_summary_provider() if explain else None
+        explain = explain and provider is not None
+        if not (explain or send):
+            return False
+        app_key = str(self.app_key or "")
+        code_context = crashreport.mode_code_context(mode)
+        screen = self._screen_name()
+        error_text = str(getattr(self, "_last_error_console_text", "") or tb)
+        problems = list(getattr(self, "_last_error_problems", None) or [])
+        message = ""
+        if problems:
+            lines = crashreport.public_problem_lines(problems)
+            message = "\n".join(
+                [f"The run did not start: {len(lines)} settings problem"
+                 f"{'' if len(lines) == 1 else 's'}."]
+                + [f"- {line}" for line in lines])
+        import time as _clock
+
+        run_settings = dict(getattr(self, "_run_settings", None) or {})
+        run = {"stage": str(getattr(self._console, "_run_function", "")
+                            or ""),
+               "dry_run": bool(run_settings.get("dry_run", False))}
+        started = getattr(self, "_run_started_at", None)
+        if started:
+            run["elapsed_s"] = max(0.0, _clock.time() - started)
+        try:
+            log_text = self._console.as_text()
+        except Exception:                                    # noqa: BLE001
+            log_text = ""
+        saved = None
+        if explain:
+            try:
+                saved = crashreport.saved_explanation(
+                    crashreport.explanation_key(tb, app_key, kind, message))
+            except Exception:                                # noqa: BLE001
+                saved = None
+        if saved:
+            self._ai_report_entry = None
+            self._console.fill_ai_entry(
+                self._console.begin_ai_entry(thinking=False),
+                saved["text"])
+        elif explain:
+            self._ai_report_entry = self._console.begin_ai_entry()
+
+        def _send() -> dict:
+            """Explain, summarise and post the failure. Off the GUI thread."""
+            from ..ai.providers import explain_failure
+
+            explanation: dict = {}
+            outcome: dict = {"status": "not_sent"}
+            try:
+                summary = crashreport.public_summary(
+                    traceback_text=tb, module=app_key, kind=kind,
+                    code_context=code_context, screen=screen,
+                    error_text=error_text, message=message,
+                    settings=run_settings, log_text=log_text, run=run,
+                    diagnostics=True)
+                if saved:
+                    explanation = {"text": saved["text"],
+                                   "tier": saved["tier"], "refused": "",
+                                   "saved": "local",
+                                   "cause": saved.get("cause", "")}
+                elif explain:
+                    try:
+                        explanation = explain_failure(summary, provider)
+                    except Exception as exc:  # noqa: BLE001 - report anyway
+                        explanation = {"text": "", "refused": "error",
+                                       "detail": str(exc)}
+                if send:
+                    if explanation.get("text"):
+                        summary["ai_summary"] = explanation["text"]
+                    if explanation.get("cause"):
+                        summary["cause"] = explanation["cause"]
+                    outcome = crashreport.submit_public_summary(summary)
+                    outcome["ai_summary_attached"] = bool(
+                        explanation.get("text"))
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                outcome = {"status": crashreport.REPORT_QUEUED,
+                           "detail": f"{type(exc).__name__}: {exc}"}
+            outcome["explained"] = explain
+            outcome["explanation"] = explanation
+            outcome["kind"] = kind
+            return outcome
+
+        self._jobs.submit(_send, self._on_anonymous_report_sent)
+        return send
+
+    def _watch_for_refusals(self) -> None:
+        """Start noting runs that :func:`spacr.errors.raise_if_strict` refuses.
+
+        Outside strict mode a pipeline that finds its settings unusable
+        (for example "At least one registered *_channel … must be set")
+        logs the refusal on ``spacr.errors`` and returns, so the run ends
+        without an exception and used to read as finished. The refusals
+        logged while the run is going are collected and handed to
+        :meth:`_stop_watching_refusals`.
+        """
+        import logging
+
+        self._stop_watching_refusals()
+        seen: list = []
+        handler = logging.Handler(level=logging.ERROR)
+        handler.emit = seen.append
+        logging.getLogger("spacr.errors").addHandler(handler)
+        problems: list = []
+        listener = logging.Handler(level=logging.INFO)
+        listener.emit = problems.append
+        logging.getLogger("spacr.qt.settings_problems").addHandler(listener)
+        self._refusal_watch = (handler, seen, listener, problems)
+
+    def _stop_watching_refusals(self) -> list:
+        """Stop noting refusals and return their messages.
+
+        :returns: the messages logged on ``spacr.errors`` at ``ERROR`` since
+            :meth:`_watch_for_refusals`, oldest first.
+        """
+        import logging
+
+        watch = getattr(self, "_refusal_watch", None)
+        self._refusal_watch = None
+        self._refusal_call_site = []
+        self._settings_problems = []
+        if watch is None:
+            return []
+        handler, seen, listener, problems = watch
+        logging.getLogger("spacr.errors").removeHandler(handler)
+        logging.getLogger("spacr.qt.settings_problems").removeHandler(listener)
+        out = []
+        for record in seen:
+            try:
+                out.append(str(record.getMessage()))
+            except Exception:                                # noqa: BLE001
+                continue
+            site = getattr(record, "spacr_call_site", None)
+            if site and not self._refusal_call_site:
+                self._refusal_call_site = list(site)
+        for record in problems:
+            self._settings_problems.extend(
+                getattr(record, "spacr_problems", None) or [])
+        return out
+
+    def _every_refusal_problem(self, refusals: list) -> list:
+        """Every reason a refused run did not start, the settings check's first.
+
+        The pipeline stops at the first problem it meets; the settings check
+        the run started with (:func:`spacr.validate.validate_settings`, run
+        by the bridge) found them all. A refusal whose text names a setting
+        the check already listed is the same problem and is not repeated.
+
+        :param refusals: the messages :meth:`_stop_watching_refusals`
+            returned.
+        :returns: the problems, as :class:`spacr.validate.Problem` objects
+            and refusal texts.
+        """
+        found = list(getattr(self, "_settings_problems", None) or [])
+        keys = [str(getattr(p, "setting", "") or "") for p in found]
+        out = list(found)
+        for message in refusals:
+            if not any(key and key in message for key in keys):
+                out.append(message)
+        return out
+
+    @staticmethod
+    def _problem_line(problem) -> str:
+        """One problem as the console shows it: its setting, then what is wrong."""
+        setting = str(getattr(problem, "setting", "") or "")
+        message = str(getattr(problem, "message", problem) or "")
+        if setting and not message.startswith(setting):
+            return f"{setting}: {message}"
+        return message
+
+    def _screen_name(self) -> str:
+        """This screen's name as the sidebar shows it, in English.
+
+        "Mask", not the header's "Mask Generation" and never "Make Masks",
+        which is the manual mask editor. Sent with a report so the AI names
+        the screen the user is on.
+        """
+        import sys
+
+        app = sys.modules.get("spacr.qt.app")
+        for entry in getattr(app, "APPS", None) or ():
+            try:
+                if entry[0] == self.app_key:
+                    return str(entry[1])
+            except Exception:                                # noqa: BLE001
+                continue
+        return str(APP_TITLES.get(self.app_key, self.app_key or ""))
+
+    def _report_summary_provider(self):
+        """The provider that writes a report's AI summary: the one in use.
+
+        The console's provider when one is selected, else the one
+        Preferences names (spaCR AI (free) by default). Read on the GUI
+        thread.
+
+        :returns: the provider, or ``None`` when no AI can answer.
+        """
+        try:
+            from ..ai.providers import default_provider
+            from ..preferences import get_preferred_provider
+
+            current = self._console._current_provider()
+            if current is not None:
+                return current
+            return default_provider(get_preferred_provider())
+        except Exception:                                    # noqa: BLE001
+            return None
+
+    def _on_anonymous_report_sent(self, outcome: dict) -> None:
+        """Say in one console line what became of the anonymised report.
+
+        :param outcome: what :func:`spacr.crashreport.submit_public_summary`
+            returned.
+        """
+        from ... import crashreport
+
+        outcome = dict(outcome or {})
+        status = outcome.get("status")
+        explanation = dict(outcome.get("explanation") or {})
+        refused = str(explanation.get("refused", "") or "")
+        relay_text = str(outcome.get("ai_summary", "") or "")
+        entry = getattr(self, "_ai_report_entry", None)
+        self._ai_report_entry = None
+        try:
+            if explanation.get("saved") == "local" and entry is None:
+                pass
+            elif relay_text and not explanation.get("text"):
+                self._console.fill_ai_entry(
+                    entry, relay_text + "\n\n[" + tr("lighter model") + "]")
+            elif outcome.get("explained"):
+                if explanation.get("text"):
+                    light = "\n\n[" + tr("lighter model") + "]" if explanation.get(
+                        "tier") == "light" else ""
+                    self._console.fill_ai_entry(
+                        entry, explanation["text"] + light)
+                elif refused == "quota":
+                    self._console.fill_ai_entry(entry, tr(
+                        "spaCR AI: today's free AI is used up, so this error is "
+                        "not explained. It is still handled as Preferences → AI "
+                        "→ AI Error report says."))
+                else:
+                    self._console.fill_ai_entry(entry, tr(
+                        "spaCR AI could not explain this error this time."))
+                try:
+                    self._console.refresh_ai_usage()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not refresh the AI usage", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not show the AI answer", exc_info=True)
+        if status == crashreport.REPORT_SENT:
+            number = outcome.get("issue_number") or "?"
+            url = str(outcome.get("issue_url", "") or "")
+            if outcome.get("deduplicated"):
+                self._console.append_notice(
+                    "[report] Reported anonymously: this error already has "
+                    "issue #{number}, which now counts it again. {url}\n",
+                    number=number, url=url)
+            elif outcome.get("ai_summary_attached"):
+                self._console.append_notice(
+                    "[report] Reported as issue #{number} (with AI summary). "
+                    "{url}\n", number=number, url=url)
+            elif outcome.get("explained") and refused == "quota":
+                self._console.append_notice(
+                    "[report] Reported as issue #{number} (without AI "
+                    "summary: daily AI allowance used). {url}\n",
+                    number=number, url=url)
+            elif outcome.get("explained"):
+                self._console.append_notice(
+                    "[report] Reported as issue #{number} (without AI "
+                    "summary). {url}\n", number=number, url=url)
+            else:
+                self._console.append_notice(
+                    "[report] Reported anonymously as issue #{number}. "
+                    "{url}\n", number=number, url=url)
+        elif status == crashreport.REPORT_QUEUED and outcome.get("quota"):
+            self._console.append_notice(
+                "[report] Will report after the daily limit resets.\n")
+        elif status == crashreport.REPORT_QUEUED:
+            self._console.append_notice(
+                "[report] The anonymised report could not be sent now. "
+                "spaCR will retry later.\n")
+        elif status == crashreport.REPORT_DROPPED:
+            self._console.append_notice(
+                "[report] spaCR's relay did not accept the anonymised "
+                "report: {detail}\n",
+                detail=str(outcome.get("detail", "") or "unknown"))
 
     def _settings_snapshot(self) -> dict:
         """The settings form's current values, for a report.
@@ -10003,11 +11051,102 @@ class AppScreen(QWidget):
 
         spec = PREVIEWS.get(str(getattr(self, "app_key", "")))
         rename = spec.propagation if spec is not None and self.app_key != "mask" else None
+        current = None
+        pins = {}
+        if getattr(model, "_model_metadata", None):
+            from ... import model_zoo
+
+            current = model.collect()
+            metadata = model_zoo._validate_model_metadata(
+                current, model_kinds=model_zoo._model_input_kinds(self.app_key, current))
+            pins = metadata.get("settings", {}) if metadata is not None else {}
         for key, value in settings.items():
             target = rename.get(key) if rename else key
             if target is None:
                 continue
+            if target in pins and current.get(target) == value:
+                continue
             model.set_value_for_key(target, value)
+
+    def _propagate_verified_live_settings(self, settings, reference):
+        """Apply one live preview's verified model without losing prior pins.
+
+        :param settings: ordinary preview setting values, without capsules.
+        :param reference: in-process verified capsule for the chosen model file.
+        :returns: None; refusal preserves prior model fields and all prior pins.
+        """
+        from copy import deepcopy
+        from PySide6.QtWidgets import QComboBox, QMessageBox
+        from ... import model_zoo
+        from ..preview_registry import PREVIEWS
+
+        model = self._settings_model
+        previous = deepcopy(model.collect())
+        spec = PREVIEWS.get(str(self.app_key))
+        rename = spec.propagation if spec is not None and self.app_key != "mask" else None
+        mapped = {rename.get(key) if rename else key: value
+                  for key, value in settings.items()}
+        candidates = model_zoo._model_input_kinds(self.app_key, previous)
+        requested = dict(reference.record)["requested_value"]
+        targets = {key: value for key, value in mapped.items()
+                   if key in candidates and value == requested}
+        snapshots = {}
+        combos = {}
+        inserted = {}
+        changed = []
+        try:
+            if not targets:
+                model_zoo._bad_model_metadata("model_metadata", "model_metadata")
+            proposed = model_zoo._invalidate_model_metadata(previous, targets)
+            proposed.update(targets)
+            for key in targets:
+                field = model._widgets.get(key)
+                getter = (getattr(field, "text", None) or getattr(field, "get_value", None)
+                          or getattr(field, "currentText", None))
+                if not callable(getter):
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+                snapshots[key] = (field, deepcopy(getter()))
+                if isinstance(field, QComboBox):
+                    combos[key] = (field.currentIndex(), field.currentText())
+                proposed = model_zoo._attach_model_reference(
+                    self.app_key, proposed, key, reference)
+            for key, value in targets.items():
+                changed.append(key)
+                field = snapshots[key][0]
+                if (key in combos and field.findData(value) < 0
+                        and field.findText(value) < 0):
+                    inserted[key] = field.count()
+                    field.addItem(value, value)
+                if not model.set_value_for_key(key, value) or model.collect().get(key) != value:
+                    model_zoo._bad_model_metadata(key, "model_metadata")
+            attached = model.collect()
+            for key in targets:
+                attached = model_zoo._attach_model_reference(
+                    self.app_key, attached, key, reference)
+            if (not model.set_hidden_value("model_metadata", attached["model_metadata"])
+                    or model.collect().get("model_metadata") != attached["model_metadata"]):
+                model_zoo._bad_model_metadata("model_metadata", "model_metadata")
+        except Exception as exc:
+            for key in reversed(changed):
+                field, value = snapshots[key]
+                if key in combos:
+                    index = inserted.get(key)
+                    if (index is not None and field.itemData(index) == targets[key]
+                            and field.itemText(index) == targets[key]):
+                        field.removeItem(index)
+                    old_index, old_text = combos[key]
+                    field.setCurrentIndex(old_index)
+                    if field.isEditable():
+                        field.setEditText(old_text)
+                else:
+                    setter = getattr(field, "set_value", None) or getattr(field, "setText", None)
+                    setter(value)
+            model._model_metadata = deepcopy(previous.get("model_metadata"))
+            QMessageBox.warning(self, tr("Model zoo"), str(exc))
+            return
+        rest = {key: value for key, value in settings.items()
+                if (rename.get(key) if rename else key) not in targets}
+        self._propagate_live_settings(rest)
 
     def _on_figure_ready(self, fig, png_path: str = "") -> None:
         """Hand a matplotlib figure to the FigureQueue. ``png_path`` is a PNG
@@ -10190,6 +11329,10 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         cancelled = bool(
             getattr(getattr(self, "_worker", None), "was_cancelled", False))
+        refusals = self._stop_watching_refusals()
+        refused = bool(ok and not cancelled and refusals)
+        if refused:
+            ok = False
         import time as _elapsed_time
         self._update_run_in_runs_tab(
             status=("stopped" if cancelled else ("ok" if ok else "failed")),
@@ -10198,11 +11341,32 @@ class AppScreen(QWidget):
         if cancelled:
             self._console.append_notice(
                 "■ Stopped safely at a field, trial, or job boundary\n")
+        elif refused:
+            problems = self._every_refusal_problem(refusals)
+            shown = [self._problem_line(p) for p in problems] or refusals[-1:]
+            message = shown[0] if len(shown) == 1 else "".join(
+                f"\n  {index}. {line}" for index, line in enumerate(shown, 1))
+            self._last_error_problems = problems
+            self._last_error_console_text = (
+                "✗ The run did not start: " + message)
+            self._console.append_notice(
+                "✗ The run did not start: {message}\n", message=message)
         else:
             self._console.append_notice(
                 "✓ Finished\n" if ok else
                 "✗ Failed — see traceback above\n")
-        self._settle_the_report(failed=not ok and not cancelled)
+        if refused:
+            from ... import crashreport
+
+            self._settle_the_report(failed=False)
+            site = "".join(getattr(self, "_refusal_call_site", None) or [])
+            self._last_error_text = (
+                ("Traceback (most recent call last):\n" + site if site else "")
+                + "spacr.errors.ConfigurationError: " + refusals[-1])
+            self._failure_kind = crashreport.KIND_USER_ERROR
+            self._send_the_anonymous_report(crashreport.KIND_USER_ERROR)
+        else:
+            self._settle_the_report(failed=not ok and not cancelled)
         if (ok and not cancelled and getattr(self, "_results_panel", None)
                 and not getattr(self, "_results_loaded_in_memory", False)):
             try:
@@ -10228,7 +11392,17 @@ class AppScreen(QWidget):
         """Record a starting regression run on the Runs tab.
 
         Return the run handle, or ``None`` when this screen has no Runs tab.
+
+        A Run pressed while Regression's results part is still owed builds
+        it one step per event-loop turn rather than in one freeze of over a
+        second, and records the run as the build finishes; the handle then
+        reaches ``_run_handle`` from there, and ``None`` is returned now.
         """
+        if self._part_is_owed(_REGRESSION_RESULTS):
+            record = partial(self._record_the_run_once_built, label, source,
+                             dict(settings or {}))
+            if self._build_owed_part_in_steps(_REGRESSION_RESULTS, record):
+                return None
         runs = getattr(self, "_sweep_runs", None)
         if runs is None:
             return None
@@ -10238,6 +11412,11 @@ class AppScreen(QWidget):
             LOG.debug("could not record the run in the Runs tab",
                       exc_info=True)
             return None
+
+    def _record_the_run_once_built(self, label, source, settings) -> None:
+        """Record a run whose Run press waited for the results part."""
+        self._run_handle = self._record_run_in_runs_tab(label, source,
+                                                        settings)
 
     def _update_run_in_runs_tab(self, **fields) -> bool:
         """Update the row for the run this screen last started."""
@@ -10488,7 +11667,8 @@ class AppScreen(QWidget):
         screen does NOT, checked, which is why the count file is the live
         branch here -- then the first count file's folder, then the plate
         folder of the first attached database for a project whose counts are
-        not named yet.
+        not named yet. A PostgreSQL count needs an explicit local ``src``;
+        its connection string is never a filesystem folder.
         """
         import os as _os
 
@@ -10502,13 +11682,19 @@ class AppScreen(QWidget):
         root = str(settings.get("src") or "").strip()
         if root in ("path", "/path", "/path/to/src"):
             root = ""
+        from spacr import tabular
+        if root and tabular._backend_of(root) == "postgres":
+            return ""
         if not root:
-            root = _os.path.dirname(_first_count_file(settings))
+            count = _first_count_file(settings)
+            if count and tabular._backend_of(count) == "postgres":
+                return ""
+            root = _os.path.dirname(count)
         if not root:
             for row in self._attached_database_rows():
                 database = (row.get("database") or row.get("db") or "") \
                     if isinstance(row, dict) else ""
-                if database:
+                if database and tabular._backend_of(database) != "postgres":
                     folder = _os.path.dirname(str(database))
                     root = (_os.path.dirname(folder)
                             if _os.path.basename(folder) == "measurements"
@@ -10921,8 +12107,16 @@ class AppScreen(QWidget):
 
         Asked of the card rather than stored, so the two cannot disagree
         about which folder the sweep is filling.
+
+        A sweep card nobody has opened still holds its stand-in, and a
+        fresh panel's folder stays empty until the card seeds it, so the
+        answer is ``""`` without building the panel (half a second on the
+        Runs tab's first open).
         """
         sweep = getattr(self, "_sweep", None)
+        built = getattr(sweep, "built", None)
+        if callable(built) and not built():
+            return ""
         field = getattr(sweep, "destination", None)
         try:
             return field.text().strip()
@@ -11256,6 +12450,17 @@ class AppScreen(QWidget):
             self._refresh_figure_grid()
             stack.setCurrentIndex(0)
 
+    def _show_figure_grid_soon(self) -> None:
+        """Raise the grid now and rebuild it on its debounce timer.
+
+        For a caller that has just spent its turn drawing a run: the rebuild
+        photographs every live plot, and a turn later is soon enough.
+        """
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            self._queue_figure_grid_refresh()
+            stack.setCurrentIndex(0)
+
     def _show_regression_graph(self) -> None:
         """Fill the results container with the interactive volcano plot."""
         stack = getattr(self, "_figures_stack", None)
@@ -11361,7 +12566,7 @@ class AppScreen(QWidget):
                     LOG.debug("could not hand the run's model to the results "
                               "panel", exc_info=True)
                 self._results_loaded_in_memory = True
-                self._show_figure_grid()
+                self._show_figure_grid_soon()
                 self._figures_card.show()
                 self._console.append_stdout(
                     f"{len(frame)} coefficients loaded from the run itself"
@@ -11432,7 +12637,21 @@ class AppScreen(QWidget):
         Wired to QThread.finished (not worker.finished), so by the time this
         runs the thread's event loop has exited and dropping the last Python
         reference cannot abort the process.
+
+        Only the refs of a thread that has stopped are cleared. ``worker.
+        finished`` re-enables Run before ``thread.finished`` arrives, so a new
+        run can already hold ``self._thread`` when the old run's queued call
+        lands; ``sender()`` is null there (the emitter is gone after its
+        ``deleteLater``), so the held thread is asked instead.
         """
+        from ..bridge import thread_has_stopped
+
+        try:
+            running = not thread_has_stopped(self._thread)
+        except AttributeError:
+            running = False
+        if running:
+            return
         self._thread = None
         self._worker = None
         if getattr(self, "_form_rebuild_deferred", False):
@@ -11565,7 +12784,7 @@ class AppScreen(QWidget):
         snapshot to the new source, never to the previous lock. Drafts are left
         untouched, since failed validation is not an edit.
         """
-        from ...run_journal import _observe_settings_changes
+        from ...run_journal import _find_lock, _observe_settings_changes
 
         model = getattr(self, "_settings_model", None)
         if (model is None or getattr(model, "_applying_settings", False)
@@ -11573,6 +12792,16 @@ class AppScreen(QWidget):
             return
         try:
             source = model._valid_committed_value("src")
+        except (TypeError, ValueError, RuntimeError):
+            return
+        try:
+            unlocked = _find_lock(self.app_key, source) is None
+        except (OSError, ValueError):
+            unlocked = False
+        if unlocked:
+            self._settings_lock_observation = None
+            return
+        try:
             if key not in (None, "src"):
                 settings = {"src": source,
                             key: model._valid_committed_value(key)}
@@ -11757,6 +12986,7 @@ class AppScreen(QWidget):
         )
         if not path:
             return
+        _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(path)
         try:
             loaded = self._load_settings_csv(path)
             applied = self.apply_settings_dict(loaded)
@@ -11767,6 +12997,35 @@ class AppScreen(QWidget):
             self._warn_about_moved_settings(loaded)
         except Exception as e:
             QMessageBox.warning(self, tr("Import failed"), str(e))
+
+    def _on_export_settings(self):
+        """Save the form's current settings to a CSV that Import reads back.
+
+        The settings are what Run collects from the form, and nothing else
+        happens: no run starts and the source folder is not listed or
+        opened, so a configuration made on a workstation can be copied to a
+        cluster and run with ``spacr-run <module> --settings <file>``.
+        """
+        try:
+            from ...model_zoo import _capture_model_metadata
+
+            settings = _capture_model_metadata(
+                self.app_key, dict(self._settings_model.collect()))
+        except Exception as e:
+            QMessageBox.warning(self, tr("Bad settings"), str(e))
+            return
+        default = default_settings_csv_path(
+            self.app_key, self._settings_src_path())
+        try:
+            written = export_settings_csv(self, settings, default)
+        except Exception as e:
+            QMessageBox.warning(self, tr("Export failed"), str(e))
+            return
+        if written:
+            self._console.append_notice(
+                "Saved {count} settings to {path}\n",
+                count=len(settings), path=written[0],
+            )
 
     #: Key/value column-name pairs a spaCR settings CSV can use, in the order
     #: they are tried. Mirrors ``spacr.cli._CSV_COLUMNS``: ``Key,Value`` is
@@ -11791,16 +13050,47 @@ class AppScreen(QWidget):
         ``spacr.io.save_settings_to_db`` — the ``setting_key``/
         ``setting_value`` spelling — fail to import with "Import failed".
 
+        The file is read once and parsed by the code
+        :func:`spacr.utils.load_settings` uses, through :mod:`spacr.tabular`,
+        so reading a settings file does not import :mod:`spacr.utils`
+        (torch, torchvision, statsmodels). That import held the GUI thread
+        for seconds when a session imported a settings CSV before its first
+        run.
+
         :param path: path to the CSV.
         :returns: the parsed settings dict.
         :raises ValueError: when no recognised column pair is present.
         """
-        from spacr.utils import load_settings
+        from spacr import tabular
+        try:
+            initial_stat = os.stat(tabular.resolve_path(path))
+            initial_stamp = (initial_stat.st_dev, initial_stat.st_ino, initial_stat.st_size, initial_stat.st_mtime_ns)
+        except (OSError, TypeError, ValueError):
+            initial_stamp = None
+        table = tabular.read_table(path, report=None)
         first_error = None
         for key_col, value_col in cls._CSV_COLUMNS:
             try:
-                return load_settings(path, setting_key=key_col,
-                                     setting_value=value_col)
+                if key_col in table and value_col in table and "model_metadata" in set(table[key_col]):
+                    from ...cli import _load_settings_csv
+                    from ...model_zoo import _bad_model_metadata
+
+                    preserved = _load_settings_csv(path)
+                    if initial_stamp is not None:
+                        try:
+                            current_stat = os.stat(tabular.resolve_path(path))
+                            current_stamp = (current_stat.st_dev, current_stat.st_ino, current_stat.st_size, current_stat.st_mtime_ns)
+                        except (OSError, TypeError, ValueError):
+                            _bad_model_metadata("CSV", "unchanged input")
+                        if current_stamp != initial_stamp:
+                            _bad_model_metadata("CSV", "unchanged input")
+                    pinned = {"model_metadata", *preserved["model_metadata"]["settings"]}
+                    ordinary = tabular._settings_from_table(
+                        table.loc[~table[key_col].isin(pinned)], key_col, value_col, source=path)
+                    ordinary.update((name, preserved[name]) for name in pinned)
+                    return ordinary
+                return tabular._settings_from_table(
+                    table, key_col, value_col, source=path)
             except ValueError as e:
                 if first_error is None:
                     first_error = e
@@ -12035,7 +13325,22 @@ class AppScreen(QWidget):
         "regression": "_results_panel",
         "montage": "_cell_montage",
         "figures": "_figure_grid",
+        "figure_queue": "_figure_queue",
     }
+
+    def _on_workspace_figures_restored(self) -> None:
+        """Reveal restored figures and update an already-built grid only."""
+        queue = self._if_built("_figure_queue")
+        card = self._if_built("_figures_card")
+        if queue is None:
+            return
+        if (card is not None and queue.count()
+                and not self._part_is_owed(_REGRESSION_RESULTS)):
+            card.show()
+        grid = self._if_built("_figure_grid")
+        if grid is not None:
+            grid.set_figures(queue.all_pixmaps(), queue.figure_titles(),
+                             sections=queue.run_sections())
 
     def register_workspace(self) -> None:
         """Enrol this screen and its panels with the workspace registry.
@@ -12043,14 +13348,23 @@ class AppScreen(QWidget):
         Registered as CALLABLES returning the attribute, never as the widget:
         `_results_panel` is rebuilt when the module changes, and a captured
         reference would hand a run journal a deleted C++ peer to ask.
+
+        The callable reads the attribute with :meth:`_if_built`, so asking for
+        a section never builds a deferred panel. The run journal asks from the
+        worker thread that ran the pipeline, so the registry is given a
+        dispatcher that reads every section on the GUI thread and hands the
+        worker plain data; a panel that was never built has no state to save.
         """
         from ...workspace import register
+        from ..bridge import _install_the_workspace_dispatcher
 
+        _install_the_workspace_dispatcher()
         key = str(self.app_key)
         register(f"{key}:settings", lambda: self)
+        register(f"{key}:databases", self._workspace_database_control)
         for name, attribute in self._WORKSPACE_PANELS.items():
             register(f"{key}:{name}",
-                     lambda attribute=attribute: getattr(self, attribute, None))
+                     lambda attribute=attribute: self._if_built(attribute))
 
     def unregister_workspace(self) -> None:
         """Withdraw this screen's sections. Called when it is torn down."""
@@ -12058,8 +13372,21 @@ class AppScreen(QWidget):
 
         key = str(self.app_key)
         unregister(f"{key}:settings")
+        unregister(f"{key}:databases")
         for name in self._WORKSPACE_PANELS:
             unregister(f"{key}:{name}")
+
+    def _workspace_database_control(self):
+        """Return the current built database control without constructing a setting."""
+        model = self.__dict__.get("_settings_model")
+        controls = getattr(model, "_widgets", None)
+        built = getattr(controls, "built", None)
+        widget = built("src") if callable(built) else None
+        if widget is None:
+            return None
+        from ..widgets.database_set import DatabaseSetWidget
+
+        return widget if isinstance(widget, DatabaseSetWidget) else None
 
     def workspace_state(self) -> dict:
         """The settings AS EDITED, which is a superset of the run's dict.
@@ -12112,6 +13439,14 @@ class AppScreen(QWidget):
         :param settings: setting key to value mapping; legacy key names are
             translated first, and it is merged over the current values.
         """
+        if "model_metadata" in settings:
+            from copy import deepcopy
+            from ...cli import _under_todays_names
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            _validate_model_metadata(settings)
+            settings = _under_todays_names(deepcopy(settings))
+            _validate_model_metadata(settings, model_kinds=_model_input_kinds(self.app_key, settings))
         settings = _translate_legacy_setting_keys(settings)
         settings = self._migrate_control_wells(settings)
         model = getattr(self, "_settings_model", None)
@@ -12121,7 +13456,15 @@ class AppScreen(QWidget):
         except Exception:                                   # noqa: BLE001
             current = {}
         target = dict(current)
+        if "model_metadata" in current and "model_metadata" not in settings:
+            from ...model_zoo import _invalidate_model_metadata
+
+            target = _invalidate_model_metadata(current, settings)
         target.update(settings)
+        if "model_metadata" in target:
+            from ...model_zoo import _model_input_kinds, _validate_model_metadata
+
+            _validate_model_metadata(target, model_kinds=_model_input_kinds(self.app_key, target))
 
         if (self._bulk_apply_changes_form_shape(settings, current)
                 and not getattr(self, "_built_for_this_bulk_apply", False)):
@@ -12149,7 +13492,11 @@ class AppScreen(QWidget):
         if model is not None:
             model._applying_settings = True
         try:
-            applied = self._apply_each_setting(settings)
+            values = {key: value for key, value in settings.items() if key != "model_metadata"}
+            applied = self._apply_each_setting(values)
+            if model is not None and "model_metadata" in target:
+                model._model_metadata = None
+                model.set_hidden_value("model_metadata", target["model_metadata"])
         finally:
             if model is not None:
                 model._applying_settings = False
@@ -12388,8 +13735,9 @@ class AppScreen(QWidget):
     def _refresh_usage(self):
         """Sample RAM/CPU/GPU on a worker; paint the bars when it returns.
 
-        ``GPUtil.getGPUs()`` spawns ``nvidia-smi`` and waits for it: **25 ms**,
-        measured, every single call. This runs on a 2 s timer and once more
+        The GPU is read through NVML (:func:`_nvml_gpu_usage`); the
+        ``GPUtil.getGPUs()`` fallback spawns ``nvidia-smi`` and waits for it:
+        **25 ms**, measured, every single call. This runs on a 2 s timer and once more
         during every screen build, so inline it was a guaranteed 25 ms hitch
         twice a minute per open module and a 25 ms tax on opening one. psutil
         is 0.13 ms and could have stayed, but sampling everything in one place
@@ -12473,6 +13821,10 @@ def _sample_usage(per_core: bool) -> dict:
     except Exception:
         pass
     if _nvidia_smi_available():
+        reading = _nvml_gpu_usage()
+        if reading is not None:
+            sample["gpu"], sample["vram"] = reading
+            return sample
         try:
             import GPUtil
             gpus = GPUtil.getGPUs()
@@ -12488,6 +13840,41 @@ def _sample_usage(per_core: bool) -> dict:
         sample["gpu"] = 0
         sample["vram"] = 0
     return sample
+
+
+def _nvml_gpu_usage() -> Optional[tuple]:
+    """Read the first card's load and memory use through NVML, in process.
+
+    The usage poll used to ask ``GPUtil``, which starts ``nvidia-smi`` and
+    waits for it. Each start opens the driver, enumerates the cards and
+    closes the driver again: 25-40 ms on a headless card, and on the
+    workstation whose card also drives the desktop the tutorial capture saw
+    every module screen stop painting for about 100 ms once every two
+    seconds, the period of this poll, while Home, which has no usage strip,
+    did not. NVML is opened once per process
+    (:func:`spacr.qt.widgets.home._nvml`, which Home's GPU readout already
+    keeps open) and a reading through it is a library call, with no process
+    and no driver open or close.
+
+    :returns: ``(load %, memory %)`` of card 0, ``(0, 0)`` when the driver
+        lists no card, or ``None`` when NVML is not there or a query fails,
+        so the caller can fall back to ``GPUtil``.
+    """
+    try:
+        from ..widgets.home import _nvml
+
+        nvml = _nvml()
+        if nvml is None:
+            return None
+        if nvml.nvmlDeviceGetCount() < 1:
+            return 0, 0
+        handle = nvml.nvmlDeviceGetHandleByIndex(0)
+        load = float(nvml.nvmlDeviceGetUtilizationRates(handle).gpu)
+        memory = nvml.nvmlDeviceGetMemoryInfo(handle)
+        total = float(memory.total)
+        return load, (float(memory.used) / total * 100 if total else 0.0)
+    except Exception:
+        return None
 
 
 def _nvidia_smi_available() -> bool:
@@ -12609,6 +13996,7 @@ def _build_live_preview_card(host, *, panel_later: bool = False):
     card.setMinimumHeight(300)
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
+    panel._verified_propagate_cb = getattr(host, "_propagate_verified_live_settings", None)
     card.body_layout.addWidget(panel)
     return panel, card
 
@@ -12625,6 +14013,7 @@ def _fill_live_preview_card(host, card):
     from ..widgets.live_preview import LivePreviewPanel
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
+    panel._verified_propagate_cb = getattr(host, "_propagate_verified_live_settings", None)
     card.body_layout.addWidget(panel)
     return panel
 

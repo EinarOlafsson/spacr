@@ -1,6 +1,6 @@
 """Find screen phenotypes and test which guides or genes explain them.
 
-WHAT IT IS FOR
+What it is for
 ==============
 The **Regression** tile opens this module because
 :func:`perform_regression` is its main entry point: it joins per-well image
@@ -10,7 +10,7 @@ machine-learning workflow, :func:`generate_ml_scores`, which trains a
 classifier on measured single-object features and turns those predictions
 into the score table a regression can consume.
 
-WHAT IT NEEDS
+What it needs
 =============
 A regression run is configured with ``paired_data``: ordered score/count CSV
 pairs whose plate and well identities agree.  Older ``score_data`` and
@@ -24,7 +24,7 @@ one or more ``measurements.db`` files, labelled positive and negative controls
 or an annotation column, and a model choice such as XGBoost, logistic
 regression, or random forest.
 
-WHAT IT PRODUCES
+What it produces
 ================
 Regression results go into a new, non-overwriting
 ``<output root>/results/<analysis kind>[_n]`` directory.  ``results.csv`` is
@@ -37,7 +37,7 @@ as a header-only CSV so downstream tools can distinguish "tested, no rows"
 from a missing artifact.  Classical ML writes predictions, feature-importance
 tables, evaluation results, and a plate heatmap beneath ``results``.
 
-WHAT TO DO NEXT
+What to do next
 ===============
 Read the diagnostic and failure/resource records before ranking hits, then
 review the significant table alongside the complete level tables and check
@@ -74,6 +74,9 @@ from sklearn.base import clone
 from sklearn.metrics import mean_squared_error
 
 import matplotlib.pyplot as plt
+from .figure_sink import (_ShowOnlyWhereItReturns, _can_show,
+                          _interactive_backends, _interactive_session,
+                          _show_if_interactive)
 try:
     from IPython.display import display
 except Exception:
@@ -678,7 +681,7 @@ def calculate_p_values(X, y, model):
     is divided into has been shrunk, so the test is mis-specified. The
     direction of the error is the one that matters here and it is the safe one:
     the penalty shrinks the numerator and inflates the residual in the
-    denominator, so the statistic is too SMALL and the p-value too large. A
+    denominator, so the statistic is too small and the p-value too large. A
     penalised fit under-detects here; it does not manufacture hits.
 
     ``lasso`` and ``elasticnet`` do not rely on this at all —
@@ -723,7 +726,7 @@ def perform_mixed_model(y, X, groups, alpha=None,
                         regression_backend=DEFAULT_REGRESSION_BACKEND):
     """Fit a mixed-effects linear model with ``groups`` as the random intercept.
 
-    Collinearity is REPORTED, never silently corrected. The previous revision
+    Collinearity is reported, never silently corrected. The previous revision
     reacted to any VIF above 10 by fitting
 
     .. code-block:: python
@@ -746,7 +749,7 @@ def perform_mixed_model(y, X, groups, alpha=None,
       response at all. That is the worse of the two outcomes, because it
       completes.
 
-    A one-hot design against an intercept ALWAYS trips VIF > 10, so this path
+    A one-hot design against an intercept always trips VIF > 10, so this path
     was the normal one, not the exception.
 
     :param y: Response vector.
@@ -755,13 +758,13 @@ def perform_mixed_model(y, X, groups, alpha=None,
         per row of ``X``.
     :param alpha: Must be None. Accepted only so an old call site fails with
         an explanation instead of a TypeError.
-    :param regression_backend: WHO fits it. ``'statsmodels'``
+    :param regression_backend: the backend that fits the model. ``'statsmodels'``
         is the default and produced every existing result; ``'torch'`` fits
         the same profiled REML objective on the GPU
         (:mod:`spacr.mixed_gpu`) and returns a result object with the same
         attributes, so nothing downstream can tell which ran except by
         asking. A backend that cannot fit ``'mixed'`` here, is not installed,
-        or needs a GPU that is absent is REFUSED with the reason -- see
+        or needs a GPU that is absent is rejected with the reason -- see
         :func:`_require_backend`.
     :returns: Fitted ``statsmodels`` ``MixedLMResults``, or the equivalent
         :class:`spacr.mixed_gpu.TorchMixedResults`.
@@ -890,7 +893,7 @@ def create_volcano_filename(csv_path, regression_type, alpha, dst):
 def scale_variables(X, y):
     """Min-max scale the independent (X) and dependent (y) variables to [0, 1].
 
-    Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a
+    Constant columns are passed through unchanged. ``MinMaxScaler`` maps a
     column with zero range to all-zeros, and patsy's intercept is exactly such
     a column, so scaling a design matrix used to silently delete its
     intercept: statsmodels then fitted a model through the origin and still
@@ -1007,7 +1010,7 @@ INTERCEPT_MODES = ("fitted", "zero", "control", "value")
 def centre_on_controls(df, dependent_variable, nc):
     """Subtract the negative controls' median response. Returns (df, offset).
 
-    THIS IS WHAT MAKES THE INTERCEPT MEAN SOMETHING. A fitted intercept is
+    Centring gives the intercept a meaning. A fitted intercept is
     the response where every predictor is zero, which on a screen design is
     a well with no guide in it -- a point that does not exist. Centred on
     the negative controls, the intercept is the control level, and every
@@ -1015,7 +1018,7 @@ def centre_on_controls(df, dependent_variable, nc):
 
     The offset is returned rather than swallowed so the caller can report
     it: a coefficient table whose response was shifted, with nothing saying
-    by how much, is a table nobody can compare with another run.
+    by how much, cannot be compared with another run.
 
     :param df: the long frame the fit runs on.
     :param dependent_variable: the response column.
@@ -1210,6 +1213,299 @@ def _answering_stop(model):
     return model
 
 
+_MIXED_MODEL_FULL = 'gene fixed; guides nested in genes, random'
+_MIXED_MODEL_GENE_ONLY = ('gene fixed; random gene intercept only '
+                         '(guide variance component dropped)')
+
+_MIXED_WAY_OUT = (
+    "Ways out: set inference='nonparametric' (each guide is a permutation "
+    "test, so there is no model to fail to fit); or choose a fixed-effects "
+    "regression_type such as 'ols' with level='gene' or level='grna'; or "
+    "give the model more to work with by lowering min_cells_per_well or "
+    "keeping analysis_unit='well' so that more wells survive the filters.")
+
+_MIXED_OPTIMISERS = (
+    ('statsmodels default (bfgs, then lbfgs)', {}),
+    ('lbfgs', {'method': 'lbfgs', 'reml': True}),
+    ('powell', {'method': 'powell', 'reml': True}),
+    ('cg', {'method': 'cg', 'reml': True}),
+)
+
+
+def _check_mixed_design(df, formula, response, gene_column, guide_column):
+    """Refuse a nested mixed-model design that cannot be fitted, and say why.
+
+    Count genes, guides per gene, rows per guide and the rank of the
+    fixed-effects matrix on the rows the fit will use, before any optimiser
+    runs, and raise a ``ValueError`` that names the dataset's problem and the
+    setting that changes it. A dataset that passes is described in the returned
+    dictionary, which :func:`fit_mixed_model` stores with the fit.
+
+    :param df: Model frame.
+    :param formula: Fixed-effects formula.
+    :param response: Name of the response column on the formula's left side.
+    :param gene_column: Outer grouping column.
+    :param guide_column: Column of guides nested in genes.
+    :returns: Counts describing the design, JSON-serialisable.
+    :raises ValueError: for a response that is missing, non-finite or
+        constant, missing group labels, fewer than two genes, no gene with two
+        guides, guides that are never replicated, more fixed-effect columns
+        than rows, or linearly dependent fixed-effect columns.
+    """
+    from scipy.linalg import qr
+
+    way_out = _MIXED_WAY_OUT
+    if response in df.columns:
+        values = pd.to_numeric(df[response], errors='coerce')
+        usable = np.isfinite(values.to_numpy(dtype=float))
+        if int(usable.sum()) == 0:
+            raise ValueError(
+                f"the response {response!r} has no finite value in this "
+                f"frame ({len(df)} rows), so there is nothing for the mixed "
+                f"model to fit. Check dependent_variable and transform. "
+                f"{way_out}")
+        if int(usable.sum()) < len(df):
+            print(f"Mixed model: {int((~usable).sum())} of {len(df)} rows "
+                  f"have no finite {response!r} and are left out of the fit.")
+        if values[usable].nunique() < 2:
+            raise ValueError(
+                f"the response {response!r} is the same number in every "
+                f"usable row, so its variance is zero and no variance "
+                f"component can be estimated. Check dependent_variable and "
+                f"transform, and whether min_cells_per_well removed all but "
+                f"one kind of well. {way_out}")
+        used = df.loc[usable]
+    else:
+        used = df
+
+    labels = used[[gene_column, guide_column]]
+    missing_labels = int(labels.isna().any(axis=1).sum())
+    if missing_labels:
+        raise ValueError(
+            f"{missing_labels} rows have no {gene_column!r} or "
+            f"{guide_column!r} label, so they cannot be placed in the "
+            f"gene/guide nesting. Remove them, or set exclude_grnas so that "
+            f"the unlabelled guides are dropped before the fit.")
+
+    n_rows = int(len(used))
+    n_genes = int(used[gene_column].nunique())
+    if n_genes < 2:
+        raise ValueError(
+            f"a mixed model needs at least two clusters and the rows with a "
+            f"usable response carry {n_genes} {gene_column}. {way_out}")
+
+    guides_per_gene = used.groupby(gene_column, observed=True)[
+        guide_column].nunique()
+    if int((guides_per_gene > 1).sum()) == 0:
+        raise ValueError(
+            f"the mixed model nests guides inside genes, and no gene in this "
+            f"frame has more than one guide ({len(guides_per_gene)} genes, "
+            f"one guide each). The guide variance component would be exactly "
+            f"confounded with the residual and would come back as zero. Use a "
+            f"fixed-effects regression_type with level='gene' -- with one "
+            f"guide per gene the two levels are the same model anyway.")
+
+    rows_per_guide = used.groupby(
+        [gene_column, guide_column], observed=True).size()
+    if int(rows_per_guide.max()) < 2:
+        raise ValueError(
+            f"every guide appears in exactly one row ({len(rows_per_guide)} "
+            f"guides, {n_rows} rows). A guide effect measured once is "
+            f"indistinguishable from the residual, so the guide variance "
+            f"cannot be estimated. Each guide needs several wells: lower "
+            f"min_cells_per_well so that fewer wells are discarded, or fit a "
+            f"fixed-effects regression_type with level='gene'.")
+
+    rhs = str(formula).split('~', 1)[1] if '~' in str(formula) else ''
+    try:
+        from patsy import dmatrix
+
+        fixed = dmatrix(rhs, used, return_type='dataframe')
+    except Exception as error:
+        raise ValueError(
+            f"the fixed-effects part of the model ({rhs.strip()!r}) could "
+            f"not be built from this frame: {type(error).__name__}: {error}. "
+            f"{way_out}") from error
+    n_fixed = int(fixed.shape[1])
+    if len(fixed) <= n_fixed:
+        raise ValueError(
+            f"the fixed effects have {n_fixed} columns (one slope per gene "
+            f"plus plate, row and column terms) and the fit has only "
+            f"{len(fixed)} rows, so the model has no residual degrees of "
+            f"freedom. The nesting needs more wells than genes. Add wells, "
+            f"lower min_cells_per_well, or set model_plate_position=False "
+            f"to drop the plate, row and column terms. {way_out}")
+    matrix = fixed.to_numpy(dtype=float)
+    gram = matrix.T @ matrix
+    norms = np.sqrt(np.diag(gram))
+    norms[norms == 0] = 1.0
+    _, triangle, pivots = qr(gram / np.outer(norms, norms), pivoting=True)
+    diagonal = np.abs(np.diag(triangle))
+    rank = int((diagonal > diagonal[0] * 1e-9 * n_fixed).sum())
+    if rank < n_fixed:
+        dependent = [str(fixed.columns[i]) for i in pivots[rank:]]
+        raise ValueError(
+            f"the fixed-effects matrix has {n_fixed} columns but rank "
+            f"{rank}: {', '.join(dependent[:6])}"
+            f"{' and more' if len(dependent) > 6 else ''} are linear "
+            f"combinations of the other columns, so their coefficients are "
+            f"not identified. Usual causes are a gene whose fraction is zero "
+            f"in every well, plate, row and column terms that repeat one "
+            f"another, or one plate. Set model_plate_position=False, or "
+            f"exclude those genes with exclude_grnas. {way_out}")
+
+    return {'n_rows': n_rows, 'n_genes': n_genes,
+            'n_guides': int(rows_per_guide.size),
+            'genes_with_several_guides': int((guides_per_gene > 1).sum()),
+            'genes_with_one_guide': int((guides_per_gene == 1).sum()),
+            'min_rows_per_guide': int(rows_per_guide.min()),
+            'fixed_columns': n_fixed, 'fixed_rank': rank}
+
+
+def _fit_nested_mixedlm(formula, df, groups, vc_formula, guide_column, design):
+    """Fit the nested statsmodels MixedLM, falling back and recording how.
+
+    Try the statsmodels default optimiser first, so a fit that works today is
+    byte-for-byte what it was. Only if that raises or does not converge, retry
+    with REML under ``lbfgs``, ``powell`` and ``cg``. A converged fit ends the
+    search. Only if every optimiser raised on the full model is the guide
+    variance component dropped and the gene random intercept refitted; that
+    changes the statistics, so the returned record names the model that was
+    fitted, the reason, and what the reduction does to the gene intervals.
+
+    :param formula: Fixed-effects formula.
+    :param df: Model frame.
+    :param groups: Outer random-intercept grouping, one gene per row.
+    :param vc_formula: Variance-component formulas of the full model.
+    :param guide_column: Key of the guide component in ``vc_formula``.
+    :param design: Counts from :func:`_check_mixed_design`, stored in the
+        record.
+    :returns: ``(result, record)``.
+    :raises ValueError: when no model could be fitted, listing each attempt.
+    """
+    from .cancellation import PipelineCancelled
+
+    record = {'model': _MIXED_MODEL_FULL, 'attempts': [], 'fallbacks': [],
+              'design': design}
+    reduced = {key: value for key, value in vc_formula.items()
+               if key != guide_column}
+    stages = ((_MIXED_MODEL_FULL, vc_formula),
+              (_MIXED_MODEL_GENE_ONLY, reduced))
+    last_error = None
+    for stage, (label, vc) in enumerate(stages):
+        unusable = None
+        for name, options in _MIXED_OPTIMISERS:
+            try:
+                model = smf.mixedlm(formula, data=df, groups=groups,
+                                    re_formula='1', vc_formula=vc or None)
+                result = _answering_stop(model).fit(**options)
+            except PipelineCancelled:
+                raise
+            except Exception as error:
+                last_error = error
+                record['attempts'].append(
+                    f"{label}: {name} failed: "
+                    f"{type(error).__name__}: {error}")
+                continue
+            converged = bool(getattr(result, 'converged', True))
+            finite = _fixed_effect_errors_are_finite(result)
+            record['attempts'].append(
+                f"{label}: {name} "
+                f"{'converged' if converged else 'did not converge'}"
+                + ("" if finite else
+                   ", with fixed-effect standard errors that are not finite"))
+            if converged and finite:
+                return result, _mixed_record(record, label, name, vc, stage)
+            rank = (finite, converged)
+            if unusable is None or rank > unusable[0]:
+                unusable = (rank, name, result)
+        if unusable is not None:
+            _rank, name, result = unusable
+            return result, _mixed_record(record, label, name, vc, stage)
+    raise ValueError(
+        "no optimiser could fit the nested model, with or without the guide "
+        "variance component. Attempts: " + '; '.join(record['attempts'])
+    ) from last_error
+
+
+def _fixed_effect_errors_are_finite(result):
+    """Whether every fixed effect of a MixedLM fit has a finite standard error.
+
+    An optimiser can report convergence at a variance on its boundary where
+    the Hessian is singular; the fixed effects then carry no standard error
+    and no p-value, so that fit answers nothing the gene test asks.
+
+    :param result: A fitted ``MixedLMResults``.
+    :returns: ``True`` when the errors are all finite, or there are none.
+    """
+    try:
+        errors = np.asarray(result.bse_fe, dtype=float)
+    except Exception:
+        return False
+    return bool(np.isfinite(errors).all())
+
+
+def _mixed_record(record, label, optimiser, vc, stage):
+    """Complete the fit record once a model has been chosen.
+
+    :param record: Record under construction.
+    :param label: The model that was fitted.
+    :param optimiser: Name of the optimiser that produced it.
+    :param vc: Variance-component formulas of that model.
+    :param stage: ``0`` for the full model, ``1`` for the reduced one.
+    :returns: The completed record.
+    """
+    record['model'] = label
+    record['optimiser'] = optimiser
+    record['variance_components'] = list(vc)
+    if optimiser != _MIXED_OPTIMISERS[0][0]:
+        record['fallbacks'].append(
+            f"the default optimiser did not give a converged fit; {optimiser} "
+            f"with REML was used instead")
+    if stage:
+        record['fallbacks'].append(
+            "every optimiser failed on the full model, so the guide variance "
+            "component was dropped and only the random gene intercept was "
+            "fitted. Guides that disagree no longer widen their gene's "
+            "interval, so gene intervals and p values here are narrower than "
+            "the full model would give if the guides differ. Treat them as "
+            "provisional, and prefer inference='nonparametric' or a "
+            "fixed-effects regression_type for the final claim")
+    return record
+
+
+def _mixed_variances_at_zero(model, names):
+    """Name the variance components a fitted mixed model put on the boundary.
+
+    :param model: Fitted mixed-model result.
+    :param names: Names of the components in ``model.vcomp`` order.
+    :returns: List of names whose estimate is zero to numerical precision.
+    """
+    values = getattr(model, 'vcomp', None)
+    if values is None:
+        return []
+    values = np.atleast_1d(np.asarray(values, dtype=float))
+    return [str(name) for name, value in zip(names, values) if value < 1e-8]
+
+
+def _describe_mixed_fit(record):
+    """One paragraph saying which mixed model was fitted and how.
+
+    :param record: The fit record.
+    :returns: Text for the log.
+    """
+    lines = [f"Mixed model fitted: {record['model']}; optimiser "
+             f"{record.get('optimiser', 'unknown')}, REML."]
+    lines.extend(f"  Fallback: {note}." for note in record['fallbacks'])
+    if record['variances_at_zero']:
+        lines.append(
+            f"  Variance estimated at zero for "
+            f"{', '.join(record['variances_at_zero'])}: those components "
+            f"add nothing beyond the residual here, so the fixed-effect "
+            f"intervals equal those of a model without them.")
+    return '\n'.join(lines)
+
+
 def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
                     gene_column='gene', guide_column='grna',
                     regression_backend=DEFAULT_REGRESSION_BACKEND):
@@ -1254,15 +1550,32 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     coef_df : pandas.DataFrame
         Fixed effects, variance components, and guide BLUPs. Variance
         components and BLUPs have ``NaN`` p-values because they are not
-        fixed-effect hypothesis tests.
+        fixed-effect hypothesis tests. ``coef_df.attrs['mixed_fit']`` records
+        which model was fitted, the optimiser that produced it, every
+        fallback taken, whether it converged and which variances sit at zero.
 
     Raises
     ------
     ValueError
-        If required grouping columns are missing, no gene has multiple
-        guides, or the backend cannot fit the nested design.
+        If required grouping columns are missing, or the design is checked
+        before any fit and refused with the setting to change: a constant or
+        non-finite response, fewer than two genes, no gene with multiple
+        guides, guides never replicated, more fixed-effect columns than rows,
+        or linearly dependent fixed-effect columns. Also if no optimiser can
+        fit the nested design.
+    spacr.cancellation.PipelineCancelled
+        If the run was stopped; it propagates unchanged and is never reported
+        as a fitting failure.
     MixedBackendUnavailable
         If the selected mixed-model backend is unavailable.
+
+    Notes
+    -----
+    The statsmodels default optimiser runs first. If it raises or does not
+    converge, REML fits under ``lbfgs``, ``powell`` and ``cg`` follow. Only if
+    every optimiser raises on the full model is the guide variance component
+    dropped and a gene-only random intercept fitted; the record and the log say
+    so, because guides that disagree then no longer widen the gene interval.
     """
     from .plot import plot_histogram
 
@@ -1277,16 +1590,8 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     groups = _mixed_model_groups(df, response, df.index,
                                  gene_column=gene_column)
 
-    guides_per_gene = df.groupby(gene_column, observed=True)[
-        guide_column].nunique()
-    if int((guides_per_gene > 1).sum()) == 0:
-        raise ValueError(
-            f"the mixed model nests guides inside genes, and no gene in this "
-            f"frame has more than one guide ({len(guides_per_gene)} genes, "
-            f"one guide each). The guide variance component would be exactly "
-            f"confounded with the residual and would come back as zero. Use a "
-            f"fixed-effects regression_type with level='gene' -- with one "
-            f"guide per gene the two levels are the same model anyway.")
+    design = _check_mixed_design(df, formula, response, gene_column,
+                                 guide_column)
 
     vc_formula = {guide_column: f'0 + C({guide_column})'}
     if random_row_column_effects:
@@ -1295,6 +1600,10 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
 
     backend = _require_backend('mixed', regression_backend)
     _say_what_a_mixed_fit_will_cost(backend, df)
+    from .cancellation import PipelineCancelled
+
+    fit_record = {'model': _MIXED_MODEL_FULL, 'attempts': [],
+                  'fallbacks': [], 'design': design}
     try:
         if backend == 'torch':
             from .mixed_gpu import mixedlm_torch
@@ -1302,11 +1611,12 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
             mixed_model = mixedlm_torch(formula, df, groups,
                                         vc_formula=vc_formula)
             print(mixed_model.summary_line())
+            fit_record['optimiser'] = 'torch nested REML'
+            fit_record['variance_components'] = list(vc_formula)
         else:
-            model = smf.mixedlm(formula, data=df, groups=groups,
-                                re_formula='1', vc_formula=vc_formula)
-            mixed_model = _answering_stop(model).fit()
-    except MixedBackendUnavailable:
+            mixed_model, fit_record = _fit_nested_mixedlm(
+                formula, df, groups, vc_formula, guide_column, design)
+    except (MixedBackendUnavailable, PipelineCancelled):
         raise
     except Exception as error:
         raise ValueError(
@@ -1314,9 +1624,7 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
             f"{gene_column}/{guide_column}) on this frame: "
             f"{type(error).__name__}: {error}. The nesting needs several "
             f"genes, several guides inside at least some of them, and more "
-            f"wells than genes. Choose a fixed-effects regression_type with "
-            f"level='gene' or level='grna' if this screen cannot support "
-            f"it.") from error
+            f"wells than genes. {_MIXED_WAY_OUT}") from error
 
     df['residuals'] = mixed_model.resid
     plot_histogram(df, 'residuals', dst=dst)
@@ -1360,11 +1668,17 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
           f"A BLUP has no p-value, so results_grna.csv from a mixed run is a "
           f"shrunken prediction per guide and carries no q value.")
 
-    if not bool(getattr(mixed_model, 'converged', True)):
+    fit_record['converged'] = bool(getattr(mixed_model, 'converged', True))
+    fit_record['variances_at_zero'] = _mixed_variances_at_zero(
+        mixed_model, fit_record.get('variance_components', []))
+    print(_describe_mixed_fit(fit_record))
+    coef_df.attrs['mixed_fit'] = fit_record
+
+    if not fit_record['converged']:
         variances = ', '.join(
             f"{name}={value:.3g}" for name, value in
-            zip(vc_formula, np.atleast_1d(np.asarray(mixed_model.vcomp,
-                                                     dtype=float))))
+            zip(fit_record.get('variance_components', []),
+                np.atleast_1d(np.asarray(mixed_model.vcomp, dtype=float))))
         print("\n"
               "  ###############################################################\n"
               "  #  WARNING: the mixed model did not converge.                 #\n"
@@ -1845,7 +2159,7 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None,
     The ``condition`` column: what the volcano colours by, what the results
     panel offers in "colour by", and -- the reason this is a function rather
     than four lines inside :func:`process_model_coefficients` -- what the
-    EFFECT-SIZE CUT measures its spread on. A coefficient table without it is
+    effect-size cut measures its spread on. A coefficient table without it is
     a table :meth:`spacr.qt.widgets.regression_results.RegressionResultsPanel.
     set_threshold_method` answers "No control coefficients, so no effect-size
     cut" for, which is what every guide-permutation run used to get.
@@ -1854,7 +2168,7 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None,
     a guide named in two of them is reported once and always the same way.
 
     :param features: the model term per row, e.g. ``fraction:grna[000000_1]``.
-        ``nc`` and ``pc`` are matched as SUBSTRINGS of it, which is how a
+        ``nc`` and ``pc`` are matched as substrings of it, which is how a
         negative control given as a gene id reaches a term named for a guide.
     :param guides: the guide identifier per row, matched whole against
         ``controls``. Both sides are compared as text, so a control list that
@@ -1924,7 +2238,7 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
     :param pc: Positive-control identifier.
     :param controls: Explicit list of control gRNA identifiers.
     :param hinge_threshold: The binarisation cut used by the hinge fit; the
-        bootstrap below must reproduce the SAME two classes the fit saw.
+        bootstrap below must reproduce the same two classes the fit saw.
     :param hinge_n_boot: Bootstrap resamples used for the hinge p-values.
     :returns: Coefficient DataFrame with the row/column nuisance terms removed.
     :raises ValueError: on an unsupported ``regression_type``.
@@ -2354,7 +2668,7 @@ def _choose_glm_family(y, name="", transform=""):
     return sm.families.Gaussian(link=sm.families.links.Identity())
 
 def binarise_response(y, threshold=None, name='response'):
-    """Return ``y`` as a 0/1 vector for a classifier backend, refusing to guess.
+    """Return ``y`` as a 0/1 vector for a classifier backend.
 
     The hinge backend fits a decision boundary, so it needs two classes. There
     are exactly two ways to get them and this function will not invent a
@@ -2367,8 +2681,8 @@ def binarise_response(y, threshold=None, name='response'):
       class", which is the same direction the continuous models report.
     * ``threshold`` is given explicitly, and ``y > threshold`` becomes 1.
 
-    A continuous response with no threshold is REFUSED. Picking a cut for the
-    user — the mean, the median, 0.5 — would silently redefine the hypothesis
+    A continuous response with no threshold raises ``ValueError``. Picking a
+    cut for the user — the mean, the median, 0.5 — would silently redefine the hypothesis
     being tested: on a screen whose well scores run 0.2-0.8 a median split
     calls half the plate positive by construction, and the resulting hit list
     is a plausible, unfalsifiable artefact of the split.
@@ -3227,7 +3541,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                                         :func:`pick_glm_family_and_link`.
     ``poisson``                         Poisson GLM with a log link and
                                         ``offset(log(exposure))``, for per-well counts - so the
-                                        coefficients are effects on the per-cell RATE, not on
+                                        coefficients are effects on the per-cell rate, not on
                                         the well's headcount.
     ``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the
                                         Pearson chi-square, for overdispersed fractions.
@@ -3242,29 +3556,29 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     ``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's
                                         power-analysis model), via :mod:`spacr.power_model`.
     ``group_lasso``                     Penalised least squares with a gene's guide columns
-                                        penalised as ONE block, so a gene is selected or dropped
+                                        penalised as one block, so a gene is selected or dropped
                                         as a set rather than one guide at a time - the penalised
                                         analogue of the mixed model's nesting, via
                                         :mod:`spacr.group_lasso`.
     ``rra``                             MAGeCK-style robust rank aggregation: guides ranked by
-                                        their marginal effect, aggregated to the gene BY RANK
+                                        their marginal effect, aggregated to the gene by rank
                                         with a permutation P value, via :mod:`spacr.rra`. It
                                         forms no joint fit, so the collinearity and the p >> n
                                         width that constrain every backend above do not reach it.
     ==================================  ========================================================
 
-    Settings a backend cannot read are REFUSED, not ignored — see
+    Settings a backend cannot read are rejected, not ignored — see
     :data:`REGRESSION_SETTINGS_USED`.
 
     :param X: Design matrix (DataFrame; column names become feature names).
     :param y: Response variable.
     :param regression_type: One of :data:`REGRESSION_TYPES`.
-    :param regression_backend: WHO fits it -- one of
+    :param regression_backend: the backend that fits the model -- one of
         :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``, which
         produced every existing result. A backend that cannot fit
-        ``regression_type`` is REFUSED here with the reason, not ignored:
-        the two controls constrain each other in both directions
-       , and a settings CSV reaches this function
+        ``regression_type`` is rejected here with the reason, not ignored:
+        the two controls constrain each other in both directions, and a
+        settings CSV reaches this function
         without passing a panel that could have greyed the entry out.
     :param groups: Cluster identifiers for the mixed model.
     :param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and
@@ -3377,7 +3691,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     def _poisson_offset():
         """``log(exposure)``, or None with a warning when there is no exposure.
 
-        A per-well POSITIVE COUNT is not comparable between wells of different
+        A per-well positive count is not comparable between wells of different
         size: ``process_scores`` sums the response for the count models, so a
         well of 2000 cells contributes roughly four times the count of a well
         of 500 at the identical underlying rate. Modelling that count without
@@ -3689,14 +4003,14 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return _fit_horseshoe_poisson(X, y, exposure)
 
     def _spline():
-        """OLS on a design whose COVARIATES carry a spline basis.
+        """Fit OLS on a design whose covariates carry a spline basis.
 
         The guide columns are untouched, so one coefficient and one P value
         per guide survive. The volcano, hit list and attribution can therefore
         read the result with no special case. What becomes free to bend is the
         nuisance trend that the straight line was assuming away.
 
-        A column is treated as a covariate when it is CONTINUOUS and is not
+        A column is treated as a covariate when it is continuous and is not
         a guide or gene term -- an indicator has nothing to bend through,
         and expanding one would spend degrees of freedom on nothing.
         """
@@ -4272,16 +4586,16 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
 
 
 def resolve_levels(regression_type, level='both'):
-    """Which level(s) a run fits, given the backend and the ``level`` setting.
+    """Return the level(s) a run fits, given the backend and ``level``.
 
-    ``mixed`` fits ONE model that already contains both levels -- the gene as a
+    ``mixed`` fits one model that already contains both levels -- the gene as a
     fixed effect and the guide as a random effect nested inside it -- so it
     ignores ``level`` entirely and answers ``('gene',)``. That is why the GUI
     greys the dropdown out rather than hiding it: the
     setting exists, but this model does not read it.
 
     Every other backend is fixed effects only and cannot nest, so it fits one
-    level at a time and ``level`` chooses which. ``'both'`` is TWO FITS.
+    level at a time and ``level`` chooses which. ``'both'`` is two fits.
 
     :param regression_type: the backend name, or ``None`` (not yet chosen).
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
@@ -4405,7 +4719,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         ``'predictions'``.
     :param regression_type: Model type; auto-selected via
         :func:`check_distribution` when ``None``.
-    :param regression_backend: WHO fits it, one of
+    :param regression_backend: the backend that fits the model, one of
         :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``. It is
         threaded to whichever fitter this run reaches -- the mixed branch and
         :func:`regression_model` alike -- so one setting answers for the
@@ -4438,24 +4752,24 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param rra_alpha: Top fraction of the guide ranking ``rra`` aggregates.
     :param rra_permutations: Draws per guide count in ``rra``'s null.
     :param qc: Write the regression QC suite into ``<dst>/regression_qc/``.
-    :param legacy_volcano: also draw the ORIGINAL matplotlib volcano.
+    :param legacy_volcano: also draw the original matplotlib volcano.
         Default ``False``. The interactive one is far faster and the
         house-style panel is what a run now produces; drawing both gives two
         volcanoes in two idioms on the same grid.
         Requires ``dst`` and a design matrix, so it is skipped for the mixed
         branch and when no destination was given.
-    :param level: WHICH MODEL TO FIT -- ``'grna'`` (default) or ``'gene'``.
+    :param level: the level to fit -- ``'grna'`` (default) or ``'gene'``.
         One level, one design; ``'both'`` is refused here because it is two
         fits. :func:`regression_levels` is the entry point that does both.
         Ignored by ``regression_type='mixed'``, which fits the gene fixed and
         the guide random inside it and so is already both levels.
-    :param level_dst: Where THIS LEVEL's figures go -- the QC suite, the
+    :param level_dst: Where this level's figures go -- the QC suite, the
         volcano, the publication sheet. Defaults to ``dst``, which is what a
         single-level run wants. :func:`regression_levels` gives each level its
         own subfolder so two fits cannot overwrite each other's
         ``regression_figure.pdf``.
     :param draw_shared_panels: Draw the guide-fraction and response
-        distributions, which describe the DATA and not the fit. False on the
+        distributions, which describe the data and not the fit. False on the
         second of two fits, so the figure grid gets one copy rather than two
         identical ones.
     :param model_data_layout: ``'long'`` preserves the historical formula
@@ -4569,6 +4883,14 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         elif getattr(model, 'k_fe', None) is not None:
             fit_counts['n_design_columns'] = int(model.k_fe)
         fit_counts['layout'] = 'long'
+        mixed_fit = coef_df.attrs.get('mixed_fit')
+        if mixed_fit:
+            fit_counts['mixed_model_fitted'] = mixed_fit['model']
+            fit_counts['mixed_model_optimiser'] = mixed_fit.get('optimiser')
+            fit_counts['mixed_model_converged'] = mixed_fit['converged']
+            fit_counts['mixed_model_fallbacks'] = list(mixed_fit['fallbacks'])
+            fit_counts['mixed_model_variances_at_zero'] = list(
+                mixed_fit['variances_at_zero'])
     else:
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
@@ -4695,29 +5017,29 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
 
 def regression_levels(df, csv_path, dependent_variable='predictions',
                       regression_type=None, level='both', dst=None, **kwargs):
-    """Fit every level the run asked for, SEPARATELY, and return one per level.
+    """Fit every requested level separately and return one result per level.
 
-    THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one
-    design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the
-    SUM of the gene's gRNA fractions, so
+    This is the entry point for fitting both levels. A single design with
+    both levels cannot be fitted: ``gene_fraction`` is the sum of the gene's
+    gRNA fractions, so
 
         ``y ~ fraction:grna + gene_fraction:gene + plateID + rowID + columnID``
 
     puts a block of columns and their own sums into one design. Measured on
     the reference TSG101 screen: 1248 parameters at rank 862 -- a
-    386-dimensional EXACT null space -- and the fit statsmodels returned had a
+    386-dimensional exact null space -- and the fit statsmodels returned had a
     residual sum of squares bit-identical to the one you get by adding seven
     times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.
 
-    Two fits, two tables, TWO CORRECTIONS. Each fit is its own
-    multiple-testing family and is corrected within itself. Pooling them would
-    be wrong twice over: they are not independent -- same wells, and the gene
-    regressor IS the sum of the guide regressors -- and doubling the family
-    size costs power for no protection. :func:`perform_regression` applies the
+    Two fits give two tables and two corrections. Each fit is its own
+    multiple-testing family and is corrected within itself. They are not
+    pooled because they are not independent -- same wells, and the gene
+    regressor is the sum of the guide regressors -- and doubling the family
+    size would reduce power without added protection. :func:`perform_regression` applies the
     correction per level and writes ``results_grna.csv`` and
     ``results_gene.csv``.
 
-    ``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``:
+    ``regression_type='mixed'`` fits once and returns one entry, ``'gene'``:
     that model has both levels inside it already, the gene as a fixed effect
     and the guide as a random effect nested in the gene. Its guide output is
     BLUPs, which is why it cannot be split into two testing families.
@@ -4727,7 +5049,7 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
     :param csv_path: path passed to :func:`regression`, which derives the
         volcano-plot filename from it.
     :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
-    :param dst: the run folder. With more than one fit each level's FIGURES go
+    :param dst: the run folder. With more than one fit each level's figures go
         into ``<dst>/<level>/`` so they cannot overwrite each other; the
         tables stay in ``<dst>``, where every consumer looks for them.
     :param kwargs: passed straight through to :func:`regression`.
@@ -4799,7 +5121,7 @@ def _show_well_distributions(frame, response_name, dst, plot=True):
             except Exception:
                 pass
         if plot:
-            plt.show()
+            _show_if_interactive()
         plt.close(figure)
         drawn += 1
     return drawn > 0
@@ -4835,7 +5157,7 @@ def _show_plates(frame, variable, dst):
                 bbox_inches="tight")
         except Exception:
             pass
-    plt.show()
+    _show_if_interactive()
     plt.close(figure)
     return True
 
@@ -4873,7 +5195,7 @@ def _show_house_style_panels(coef_df, plot=True):
         figure.set_label(panel.title)
         figure._spacr_title = panel.title
         if plot:
-            plt.show()
+            _show_if_interactive()
         plt.close(figure)
         shown += 1
     if shown:
@@ -4903,7 +5225,7 @@ def _write_regression_sheet(coef_df, dst):
 
         path = publish(sheet.figure, path, bbox_inches='tight') or path
         with open(os.path.join(folder, 'regression_figure_legend.txt'),
-                  'w') as handle:
+                  'w', encoding='utf-8') as handle:
             handle.write(sheet.legend() + '\n')
         try:
             import matplotlib.pyplot as plt
@@ -5062,10 +5384,9 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
     :param file_path: Destination path. Default :data:`SUMMARY_FILENAME`.
     :returns: the path written, or ``None`` if there was nothing to write.
 
-    NEVER RAISES INTO A FINISHED RUN. This is called after every table has
-    been written; a backend whose ``summary()`` throws must not take the run
-    down with it, and the caller is told by the ``None`` rather than by a
-    traceback.
+    Never raises. This is called after every table has been written, so an
+    exception from a backend's ``summary()`` is not propagated; ``None`` is
+    returned instead.
     """
     summary = getattr(model, 'summary', None)
     if not callable(summary):
@@ -5078,7 +5399,7 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
         return None
     folder = os.path.dirname(os.path.abspath(file_path))
     os.makedirs(folder, exist_ok=True)
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(summary_str)
     return file_path
 
@@ -5267,7 +5588,7 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
     number for every guide, but the numbers are one arbitrary solution out of
     infinitely many, and their P values describe nothing.
 
-    That is not a hypothetical. The screen this was written for has 824 guides
+    This occurs in practice. The screen this was written for has 824 guides
     in 587 analysed wells; the published fit had 825 parameters, rank 579 and
     8 residual degrees of freedom, and refitting it did not reproduce its own
     coefficients.
@@ -5381,6 +5702,9 @@ def normalize_regression_input_pairs(settings):
                 'plate': raw.get('plate') or raw.get('plateID'),
                 'database': raw.get('database') or raw.get('measurements'),
             })
+            for name in ('score_table', 'count_table'):
+                if raw.get(name) is not None:
+                    pairs[-1][name] = raw[name]
     else:
         def paths(value):
             """Return ``value`` as a fresh path list, treating ``None`` as empty."""
@@ -5427,7 +5751,9 @@ def load_regression_input_pairs(pairs):
     :param pairs: sequence of mappings with ``'score'`` and ``'count'`` table
         paths (either may be empty), as returned by
         :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``
-        is overwritten with the resolved plate label.
+        is overwritten with the resolved plate label. Database inputs also
+        specify ``'score_table'`` or ``'count_table'``; tables from the same
+        database are cached and paired separately.
     """
     from .utils import correct_metadata
 
@@ -5439,15 +5765,19 @@ def load_regression_input_pairs(pairs):
 
     _parsed: dict = {}
 
-    def read(path):
+    def read(path, table=None):
         """Return a cached corrected frame for ``path``, or ``None`` when blank."""
         import time
 
         if not path:
             return None
-        key = frame_handoff.key_for(path)
+        if table is not None:
+            tabular._quote_identifier(table)
+        path_key = (os.fspath(path) if tabular._backend_of(path) == 'postgres'
+                    else frame_handoff.key_for(path))
+        key = path_key if table is None else (path_key, table)
         if key not in _parsed:
-            offered = frame_handoff.held(path)
+            offered = frame_handoff.held(path) if table is None else None
             if offered is not None:
                 note = frame_handoff.describe(path)
                 print(f"Input {note}." if note else
@@ -5455,11 +5785,13 @@ def load_regression_input_pairs(pairs):
                       flush=True)
                 _parsed[key] = correct_metadata(offered)
             else:
-                size = os.path.getsize(key) if os.path.exists(key) else 0
-                print(f"Reading {os.path.basename(key)} "
+                size = os.path.getsize(path_key) if os.path.exists(path_key) else 0
+                print(f"Reading {os.path.basename(path_key)} "
                       f"({size / 1e6:.1f} MB)...", flush=True)
                 started = time.time()
-                frame = correct_metadata(tabular.read_table(os.fspath(path)))
+                options = {} if table is None else {'table': table}
+                frame = correct_metadata(tabular.read_table(
+                    os.fspath(path), **options))
                 print(f"  {len(frame):,} rows in "
                       f"{time.time() - started:.1f} s.", flush=True)
                 _parsed[key] = frame
@@ -5472,8 +5804,8 @@ def load_regression_input_pairs(pairs):
         return {str(value) for value in frame['plateID'].dropna().unique()}
 
     for index, pair in enumerate(pairs):
-        score = read(pair.get('score'))
-        count = read(pair.get('count'))
+        score = read(pair.get('score'), pair.get('score_table'))
+        count = read(pair.get('count'), pair.get('count_table'))
         score_plates = plates(score)
         count_plates = plates(count)
         fallback = f'plate{index + 1}'
@@ -5537,9 +5869,11 @@ def load_regression_input_pairs(pairs):
         audit.append({'row': index + 1, 'plate': label, 'rule': rule,
                       'score': pair.get('score'), 'count': pair.get('count')})
         print(f"Input pair {index + 1} ({label}): {rule}.")
-        score_part = (os.fspath(pair.get('score')), tuple(sorted(resolved))) \
+        score_part = (os.fspath(pair.get('score')), pair.get('score_table'),
+                      tuple(sorted(resolved))) \
             if score is not None else None
-        count_part = (os.fspath(pair.get('count')), tuple(sorted(resolved))) \
+        count_part = (os.fspath(pair.get('count')), pair.get('count_table'),
+                      tuple(sorted(resolved))) \
             if count is not None else None
         if score is not None and score_part not in seen_score_parts:
             score_frames.append(score)
@@ -6140,8 +6474,20 @@ def _perform_regression_set_paths(settings):
     """
     csv_path = settings['count_data'][0]
 
-    automatic = os.path.dirname(settings['count_data'][0])
-    src, how = resolve_regression_src(settings.get('src'), automatic)
+    from . import tabular
+
+    remote_count = tabular._backend_of(csv_path) == 'postgres'
+    automatic = '' if remote_count else os.path.dirname(csv_path)
+    requested = settings.get('src')
+    blank = str(requested or '').strip() in ('', 'path', '/path', '/path/to/src')
+    src, how = ('', '') if remote_count and (
+        blank or tabular._backend_of(requested) == 'postgres') else \
+        resolve_regression_src(requested, automatic)
+    if remote_count and not src:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            'A local regression output directory is required for PostgreSQL counts.'))
     settings['src'] = src
     if how != 'automatic':
         print(how)
@@ -6165,18 +6511,16 @@ def _perform_regression_set_paths(settings):
 
 
 def results_folder_kind(settings) -> str:
-    """What a run's results folder is NAMED after.
+    """Return the name of a run's results folder.
 
     The inference method when it decides the answer, and the regression type
     otherwise. Under `analysis_mode='guide_permutation'` the regression type
     is never read -- ols and mixed produce byte-identical results -- so a
     folder called `ridge` would name something the run did not do.
 
-    PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale
-    when the rule changed and reported 39 missing CSVs while every run that
-    wrote them was fine, which is the failure the `results_dir` helper in
-    tests/test_cov_ml_perform_regression.py was already written to prevent
-    once. A suite pointing at the wrong file is worse than a silent one.
+    This function is the single public definition of the rule; tests and
+    other callers should import it rather than re-derive it (see the
+    `results_dir` helper in tests/test_cov_ml_perform_regression.py).
 
     :param settings: run settings mapping, or ``None`` (treated as empty);
         only ``analysis_mode`` and ``regression_type`` are read.
@@ -6774,8 +7118,10 @@ def perform_regression(settings):
     except AttributeError:
         pass
     try:
-        outcome = _perform_regression(settings)
-        publication_panels = _write_regression_panel_packages(outcome, settings)
+        with _ShowOnlyWhereItReturns():
+            outcome = _perform_regression(settings)
+            publication_panels = _write_regression_panel_packages(
+                outcome, settings)
         if publication_panels is not None:
             outcome["publication_panels"] = publication_panels
     except Exception as error:                                   # noqa: BLE001
@@ -6965,11 +7311,18 @@ def _perform_regression(settings):
                                                'fieldID', 'objectID', 'count'}]
                         hint = (f"\n\nColumns that could be the response: "
                                 f"{numeric[:12]}") if numeric else ""
+                    from .columns import pred_guidance
+                    named = ", ".join(
+                        os.path.basename(os.fspath(one))
+                        for one in settings['score_data'])
+                    how = (f"\n\n{pred_guidance()}"
+                           if settings['dependent_variable'] == 'pred'
+                           else "")
                     raise ValueError(
                         f"dependent_variable="
                         f"{settings['dependent_variable']!r} is not a column "
-                        f"of the score table, which has "
-                        f"{list(score_data_df.columns)[:15]}.{hint}")
+                        f"of the score table read from {named}, which has "
+                        f"{list(score_data_df.columns)[:15]}.{hint}{how}")
 
             _reject_impossible_probabilities(settings)
             mode = str(settings.get('analysis_mode', 'regression')).strip().lower()
@@ -8474,21 +8827,28 @@ def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_typ
 def generate_ml_scores(settings):
     """Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.
 
-    Reads the ``measurements.db`` produced by
-    :func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/
-    cytoplasm feature tables, uses the wells marked as
+    Reads the measurement store selected by ``measurement_backend`` from
+    :func:`spacr.measure.measure_crop`, merges the object feature tables
+    selected by ``tables`` using their existing parent-object joins, uses
+    the wells marked as
     ``positive_control`` / ``negative_control`` (or an annotation column)
     as training labels, delegates fitting to :func:`ml_analysis`, and
     writes per-object predictions, permutation and feature-importance
-    tables plus a plate heatmap into ``results/`` next to the source DB.
+    tables plus a plate heatmap into ``results/`` under the first source folder.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.set_default_analyze_screen`. Key entries:
 
-        - ``src`` (str or list) — folder(s) containing
-          ``measurements/measurements.db``.
+        - ``src`` (str or list) — folder(s) containing the measurements.
+        - ``measurement_backend`` / ``measurement_backend_target`` — select
+          the SQLite, DuckDB, Parquet or PostgreSQL measurement store.
+        - ``tables`` (list or tuple) — unique registered object-table names,
+          optionally including ``png_list``; at least one object table is
+          required. When absent, reads ``cell``, ``nucleus``, ``pathogen`` and
+          ``cytoplasm`` in that order. Selected tables retain the shared
+          reader's existing joins and nucleus/pathogen limits.
         - ``channel_of_interest`` — 0-based channel for the recruitment
-          ratio feature; also drives table selection.
+          ratio feature.
         - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,
           ``'random_forest'``.
         - ``positive_control`` / ``negative_control`` — well IDs (e.g.
@@ -8509,8 +8869,9 @@ def generate_ml_scores(settings):
         and ``plate_heatmap`` is the plate-heatmap ``matplotlib``
         figure. The CSVs and figures are written to ``results/`` as a
         side effect; their paths are not returned.
-    :raises ValueError: if ``annotation_column`` is set but the
-        ``png_list`` table lacks ``prcfo`` / that column, its object IDs do
+    :raises ValueError: if ``tables`` is empty, duplicated, contains an
+        unknown table or has no object table; or if ``annotation_column`` is
+        set but the ``png_list`` table lacks ``prcfo`` / that column, its object IDs do
         not join to the measurements, it contains fewer than two observed
         classes, or if ``heatmap_feature`` is not among the trained features.
 
@@ -8533,12 +8894,23 @@ def generate_ml_scores(settings):
     """
     from .io import _read_and_merge_data, _read_db
     from .plot import plot_plates
-    from .utils import get_ml_results_paths, calculate_shortest_distance, save_settings
+    from .utils import (get_ml_results_paths, calculate_shortest_distance,
+                        save_settings, _measurement_store_for)
     from .settings import set_default_analyze_screen
     from .predictions import (ML_CLASS_COLUMN, merge_ml_predictions,
                               migrate_prediction_columns)
 
     settings = set_default_analyze_screen(settings)
+    from .object_roles import ALL_ROLES
+    tables = settings.get('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
+    allowed_tables = frozenset(ALL_ROLES) | {'png_list'}
+    if (not isinstance(tables, (list, tuple)) or not tables
+            or any(not isinstance(name, str) or name not in allowed_tables for name in tables)
+            or len(set(tables)) != len(tables)
+            or not set(tables).intersection(ALL_ROLES)):
+        from .qt.i18n import tr
+        raise ValueError(tr("Bad settings") + f": tables={tables!r}")
+    tables = list(tables)
     save_settings(settings, name='generate_ml_scores', show=True)
     _flowview_advance("tables")
 
@@ -8548,13 +8920,18 @@ def generate_ml_scores(settings):
         srcs = [srcs]
     
     df = pd.DataFrame()
+    measurement_stores = []
     for idx, src in enumerate(srcs):
         
         if idx == 0:
             src1 = src
 
-        db_loc = [src+'/measurements/measurements.db']
-        tables = ['cell', 'nucleus', 'pathogen','cytoplasm']
+        sqlite_path = os.path.join(src, 'measurements', 'measurements.db')
+        db_loc = [_measurement_store_for(sqlite_path, settings) or sqlite_path]
+        if (str(settings.get('measurement_backend') or 'sqlite').lower() != 'sqlite'
+                and db_loc[0] in measurement_stores):
+            continue
+        measurement_stores.append(db_loc[0])
         
         dft, _ = _read_and_merge_data(db_loc, 
                                     tables,
@@ -8564,8 +8941,8 @@ def generate_ml_scores(settings):
         df = pd.concat([df, dft])
 
     _flowview_metric("objects", len(df))
-    _flowview_metric("databases", len(srcs))
-    _flowview_metric("tables", len(tables) * len(srcs))
+    _flowview_metric("databases", len(measurement_stores))
+    _flowview_metric("tables", len(tables) * len(measurement_stores))
     
     try:
         df = calculate_shortest_distance(df, 'pathogen', 'nucleus')
@@ -8596,6 +8973,7 @@ def generate_ml_scores(settings):
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         measurement_rows = len(df)
         annotation_rows = len(annotated_df)
+        df = df.drop(columns=[_label_column], errors='ignore')
         df = annotated_df.merge(df, left_index=True, right_index=True,
                                 validate='many_to_one')
         if df.empty:
@@ -8715,16 +9093,16 @@ def generate_ml_scores(settings):
     shap_fig_path = write_plot(shap_fig, shap_fig_path, "SHAP summary")
 
     settings['csv_path'] = data_path
-    settings['db_path'] = os.path.join(src1, 'measurements', 'measurements.db')
+    settings['db_path'] = measurement_stores[0]
     settings['table_name'] = 'png_list'
     settings['update_column'] = ML_CLASS_COLUMN
     settings['match_column'] = 'prcfo'
     matched_objects = 0
     unmatched_objects = 0
-    for src in srcs:
+    for store in measurement_stores:
         report = merge_ml_predictions(
             df,
-            os.path.join(src, 'measurements', 'measurements.db'),
+            store,
             table=settings['table_name'],
         )
         if report is not None:
@@ -8733,7 +9111,7 @@ def generate_ml_scores(settings):
     _flowview_metric("objects", len(df))
     _flowview_metric("matched_objects", matched_objects)
     _flowview_metric("unmatched_objects", unmatched_objects)
-    _flowview_metric("databases", len(srcs))
+    _flowview_metric("databases", len(measurement_stores))
 
     return [output, plate_heatmap]
 
@@ -9495,7 +9873,7 @@ def write_plot(plot, path, title=""):
 
     The counterpart of :func:`spacr.figure_sink.publish` for a scene rather
     than a matplotlib figure: the format follows the user's preference, the
-    file NAME follows the format, and the written file reaches the gallery,
+    file name follows the format, and the written file reaches the gallery,
     because saved and visible are the same event.
 
     ``None`` writes nothing, announces nothing and returns None -- a plot
@@ -9909,18 +10287,20 @@ def _save_importance_csv(df, src, filename):
 def interpret_vision_model(settings=None):
     """Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.
 
-    Merges per-object measurements from ``measurements.db`` with a CSV of
+    Merges per-object measurements from the selected measurement store with a CSV of
     predicted scores, runs any combination of RF feature importance,
     permutation importance and SHAP over the top features, then
     aggregates SHAP contributions into compartment and channel radar
-    plots so you can see which region (cell / nucleus / pathogen /
-    cytoplasm) and which fluorescence channel drives the model.
+    plots that show which region (cell / nucleus / pathogen /
+    cytoplasm) and which fluorescence channel contribute most to the score.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.set_interpret_vision_model_defaults`.
         Key entries:
 
-        - ``src`` — folder containing ``measurements/measurements.db``.
+        - ``src`` — folder containing the measurements.
+        - ``measurement_backend`` / ``measurement_backend_target`` — select
+          the SQLite, DuckDB, Parquet or PostgreSQL measurement store.
         - ``scores`` — CSV of per-object predictions to explain.
         - ``score_column`` — column of ``scores`` holding the score.
         - ``tables`` — DB tables to merge (default
@@ -9934,7 +10314,8 @@ def interpret_vision_model(settings=None):
     :returns: The merged per-object DataFrame — the measurement tables
         joined to the scores CSV — that the explainers were fitted on.
         Radar and importance plots are rendered, and with ``save=True``
-        importance CSVs are written alongside the DB, as side effects.
+        importance CSVs are written under the source folder's ``results/``,
+        as side effects.
 
     Example:
         .. code-block:: python
@@ -9958,7 +10339,7 @@ def interpret_vision_model(settings=None):
                      TimelapseKeyMismatch)
     from .predictions import crop_name_metadata
     from .settings import set_interpret_vision_model_defaults
-    from .utils import save_settings, _time_column
+    from .utils import save_settings, _time_column, _measurement_store_for
 
     settings = set_interpret_vision_model_defaults(settings)
     save_settings(settings, name='interperate_vision_model', show=True)
@@ -9966,12 +10347,10 @@ def interpret_vision_model(settings=None):
     def create_extended_radar_plot(values, labels, title):
         """Draw a filled radar for ``values`` labelled by ``labels``.
 
-        A RADAR IS A POLYGON, NOT AN AXIS. This was the last figure on the
-        explanation path that could not move to the screen's renderer, on
-        the grounds that pyqtgraph has no polar view -- which is true and
-        was never the obstacle: each label takes an angle, each value a
-        radius, and `FastPlot.add_radar` draws its own rings because a
-        radar read against a square grid is unreadable.
+        The radar is drawn as a polygon, so pyqtgraph needs no polar view:
+        each label takes an angle, each value a radius, and
+        `FastPlot.add_radar` draws its own rings because a radar read
+        against a square grid is unreadable.
         """
         return _draw_radar_in_pyqtgraph(
             list(labels), list(values), title,
@@ -10003,8 +10382,11 @@ def interpret_vision_model(settings=None):
 
     def read_and_preprocess_data(settings):
         """Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``."""
+        sqlite_path = os.path.join(settings['src'], 'measurements',
+                                   'measurements.db')
+        measurement_store = _measurement_store_for(sqlite_path, settings) or sqlite_path
         df, _ = _read_and_merge_data(
-            locs=[settings['src']+'/measurements/measurements.db'], 
+            locs=[measurement_store],
             tables=settings['tables'], 
             verbose=True, 
             nuclei_limit=settings['nuclei_limit'], 

@@ -1,7 +1,7 @@
 {
   "language": "fr",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
   "title": "Les modules d’analyse d’images et leurs relations",
   "section": "Parcours de travail",
   "description": "Suivez les parcours actuels de l’image à la mesure et choisissez l’exploration, l’étiquetage, la comparaison ou des analyses propres à un organisme.",
@@ -16,7 +16,7 @@
     "Import organise les fichiers de microscopie entrants et leurs métadonnées. Si votre acquisition comporte des tuiles qui se chevauchent, Align & Stitch peut préparer une mosaïque avec ses enregistrements de coordonnées. Conservez les identités des canaux et les métadonnées sources avec le projet.",
     "Mask produit des étiquettes d’objets à partir d’images de microscopie. Make Masks vous permet de créer ou de vérifier manuellement les masques. Les paires image-masque doivent conserver la même identité de champ ; un fichier de masque isolé ne constitue pas automatiquement les tableaux combinés du projet dont Measure a besoin.",
     "Measure lit ensemble les images préparées et les plans de masques. Il écrit measurements.db avec les identités des objets et les colonnes de caractéristiques, et peut enregistrer des recadrages d’objets. Conservez le projet source et la correspondance des canaux avec ces tables.",
-    "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify apprend à partir de la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes.",
+    "Annotate affiche des recadrages d’objets pour que vous puissiez ajouter des étiquettes vérifiées. Classify entraîne un modèle sur la colonne d’étiquettes choisie, en utilisant les images recadrées ou les caractéristiques mesurées. Séparez les objets d’évaluation des objets d’entraînement et transmettez la colonne de scores et les identités des objets aux analyses suivantes.",
     "Embeddings encode les recadrages en caractéristiques numériques. Image UMAP projette les caractéristiques compatibles pour les explorer. Examinez des recadrages représentatifs avant d’attribuer un sens à un groupe ; un groupe seul n’est pas un phénotype validé.",
     "Gate Editor sélectionne des objets à l’aide de véritables colonnes de caractéristiques ou de coordonnées de projection compatibles. Vérifiez les objets sélectionnés avant d’écrire des étiquettes. Ces étiquettes peuvent devenir des exemples vérifiés pour Annotate ou Classify.",
     "QC présente les contrôles de qualité disponibles et les éléments de preuve manquants. Run Compare examine les exécutions enregistrées côte à côte. Graph Builder trace les tables de mesures avec les colonnes et le regroupement que vous choisissez.",
@@ -26,11 +26,26 @@
     "Revenez à Home et choisissez l’étape suivante à partir de la sortie dont vous disposez réellement. Utilisez les leçons de modules liées pour une exécution complète. Conservez ensemble l’identité des entrées, les paramètres, la version installée et l’emplacement des sorties afin de pouvoir vérifier le flux de travail plus tard."
   ],
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "c334fa37767569588891f5a33dc5f207426ce5c12dd1f686465d9cd120ad60fc",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   }
 }

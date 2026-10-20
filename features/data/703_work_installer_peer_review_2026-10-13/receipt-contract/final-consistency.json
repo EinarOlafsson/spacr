@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:18:59.712038+00:00",
+  "review_kind": "Codex AI scoped final N703 typed-contract consistency",
+  "inputs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_release_identity_rollback_receipt_contract_proposal_20261013.json",
+      "sha256": "d11bfae5b38f72710e9c7799c30177c2391ea6c45965a26972e1a7c7ef3465a1",
+      "bytes": 73845
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_release_identity_rollback_receipt_contract_proposal_20261013_initial_3b6ee93c.json",
+      "sha256": "3b6ee93c1bc8a4beb977c8a5f0cd11cbc73915cb523e2d6d7d445b050bd9f22d",
+      "bytes": 65249
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_typed_identity_rollback_semantic_peerreview_20261013.json",
+      "sha256": "d52bae2a5e4a5a09fcf419cd78a959c436a33ab3fa97d42f5cf4e7837b9c6955",
+      "bytes": 6354
+    }
+  ],
+  "status": "Refined futureproposal consistent in reviewed scope; no implementation/schema/runtime/native acceptance",
+  "checks": {
+    "T1_requested_effective_previous_order": "S02 requires upgrade>verifiedprevious, equalityrepair, previoushigher retained/refused, explicitinventoriedfreshinstall fornullbaseline. S03 repair==requested==previous; S04 unchangedhighercode/runtime/GUI andnoinstalledolderclaim.",
+    "T2_public_normalization_privacy": "Publicrawversion removed; request/identityversions boundedgrammar+80chars ornull; policyIDenum; S13 keepsraw/private/unparseable labels local and disallows verifiedsuccess/private-label laundering. Privateevidence keeps rawobservations andparseprovenance.",
+    "T3_recovery_vs_installation": "S01 explicitlyenumeratesinstalledrequested/repair/newerretained installationoutcomes. rolledback accepts previousrestoredruntime+GUI+data only andneveracceptsnewrelease.",
+    "nativeGUI_boundary": "Freshoneuse/sameprocess/window/eventloop/controllednative evidence remains required; installerexit0/metadata/LaunchServicesrequest remain separate.",
+    "rollback_preservation": "S09/S10 completequiescedcustom/default/unknowninventory andexplicitidentitycheckedcleanup unchanged. S11/S12 preserveconflicts/backups/unrelatedinstalls andrequirefresh restoredGUI+data.",
+    "historical_scope": "Original3b6snapshot retained exactly. Currentjournalhistoricalscope retained; contract remainsunapprovedproposal.",
+    "added_state_graph": "New adjacency/terminalmapping is explicitlyproposed, not currentlyimplemented. Root/owner own broadergraphimplementation review; no independent wholegraph acceptance asserted here."
+  },
+  "no_blocker_found_in_scoped_refinements": true,
+  "limits": [
+    "No runnablevalidator/schemaexecution, tests ornativeinstall/GUI occurred.",
+    "No broadsource/testhashresweep; exactinputartifact bindings only.",
+    "Publicaggregate preservationclaims requireauthorizedprivateevidence review, notpublichashesalone.",
+    "No source/catalog/environment/packages/push edits."
+  ]
+}

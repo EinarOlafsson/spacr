@@ -296,7 +296,7 @@ def test_the_ambiguous_guide_gets_one_annotation_block_per_gene(
 
     assert [known.gene for known in panel.facts] == [
         candidate.gene for candidate in tile.candidates]
-    assert lower.count("what spaCR knows about") == 3
+    assert lower.count("bundled annotation for") == 3
     assert "hypothetical protein" in lower, (
         "241310 has a product description and the ambiguous block dropped it")
 

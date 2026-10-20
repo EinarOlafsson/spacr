@@ -1,4 +1,4 @@
-"""Batch Runner — the Tools module that spends the night for you.
+"""Batch Runner — the Tools module that runs a queue of jobs unattended.
 
 The Plate Queue chains *plates* through *one* pipeline. This screen is the
 other axis: arbitrary ``(module, settings)`` jobs in any order —
@@ -16,8 +16,8 @@ Three decisions are visible to the user:
 
 * **Jobs are validated when they are added, not when they run.** A job whose
   settings file is missing, whose ``src`` is misspelled or whose module is
-  GUI-only is refused at the Add button, with the reason inline. Finding that
-  out at 3 a.m. from job 9 of 12 is what this whole module exists to prevent.
+  GUI-only is refused at the Add button, with the reason inline, instead of
+  failing when the queue reaches it.
 * **No modal dialogs, ever.** Every failure lands in the inline problems pane
   and in :attr:`BatchScreen.last_error`. A ``QMessageBox`` hangs a headless
   run (it did, in ``MakeMasksScreen``), and this screen is exercised headlessly.
@@ -35,7 +35,7 @@ from __future__ import annotations
 import os
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import Qt, QThread, QTimer, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -58,7 +58,9 @@ from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (SORT_KEY_ROLE, _spare_items,
+                                      _spare_table_item, install_sorting,
+                                      table_item)
 
 __all__ = ["BatchScreen", "COLUMNS", "ON_ERROR_LABELS", "STATUS_COLOURS"]
 
@@ -86,6 +88,32 @@ STATUS_COLOURS: Dict[str, str] = {
 }
 
 _LOG_TAIL_BYTES = 200_000
+
+
+class _CloseDrain(QObject):
+    """Event filter that drains a screen's queue run when the screen closes.
+
+    :param screen: the BatchScreen to watch.
+    """
+
+    def __init__(self, screen):
+        """Parent the filter to ``screen`` so it goes when the screen does.
+
+        :param screen: the BatchScreen to watch.
+        """
+        super().__init__(screen)
+        self._screen = screen
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt name
+        """Drain the screen's jobs on its close event; never consume the event.
+
+        :param watched: the object the event was sent to.
+        :param event: the event.
+        :returns: ``False``, so the close carries on as usual.
+        """
+        if event.type() == QEvent.Close and watched is self._screen:
+            self._screen._drain_jobs()
+        return False
 
 
 class BatchScreen(QWidget):
@@ -136,6 +164,8 @@ class BatchScreen(QWidget):
         self._result: Optional[bt.QueueResult] = None
         self._problems: List[bt.Problem] = []
         self._jobs: List[tuple] = []
+        self._close_drain = _CloseDrain(self)
+        self.installEventFilter(self._close_drain)
         self._pending: List[Dict[str, Any]] = []
         self._thread = None
         self._worker = None
@@ -231,8 +261,8 @@ class BatchScreen(QWidget):
         bar = QHBoxLayout()
         bar.setSpacing(SPACING["sm"])
         self._btn_dup = QPushButton("Duplicate", self)
-        self._btn_dup.setToolTip("Copy the selected job so you can edit the copy — "
-                                 "how a twelve-job night is usually built.")
+        self._btn_dup.setToolTip("Copy the selected job so you can edit the copy, "
+                                 "for example to vary one setting.")
         self._btn_dup.clicked.connect(self.duplicate_selected)
         self._btn_remove = QPushButton("Remove", self)
         self._btn_remove.clicked.connect(self.remove_selected)
@@ -266,8 +296,9 @@ class BatchScreen(QWidget):
         self._threshold_spin.setValue(3)
         self._threshold_spin.setSuffix(" failures in a row")
         self._threshold_spin.setToolTip(
-            "Three jobs failing the same way is a systematic problem, not three "
-            "accidents — the rest of the queue would fail too. 0 disables the check.")
+            "Stop the queue after this many failed jobs in a row; consecutive "
+            "failures usually share a cause that would also fail the remaining "
+            "jobs. 0 disables the check.")
         run_row.addWidget(self._threshold_spin)
         run_row.addStretch(1)
         self._btn_run = QPushButton("Run queue", self)
@@ -316,8 +347,8 @@ class BatchScreen(QWidget):
         self._log_view = QPlainTextEdit()
         self._log_view.setReadOnly(True)
         self._log_view.setPlaceholderText(
-            "Select a job to read its own log. Every job writes its own file — a "
-            "single interleaved log from an overnight run is unreadable.")
+            "Select a job to read its own log. Every job writes its own log "
+            "file, so the logs of different jobs are not interleaved.")
         split.add_section(self._log_view, "Job log",
                           persist_key="batch/Job log", stretch=2)
         outer.addWidget(split, 1)
@@ -370,8 +401,8 @@ class BatchScreen(QWidget):
     def duplicate_selected(self) -> bool:
         """Copy the selected job, never-run, and select the copy.
 
-        Building a night's work means one job and eleven variations of it, so
-        this is the button that actually gets used.
+        A queue is usually built from one job and several edited copies of
+        it.
         """
         job = self.selected_job()
         if job is None:
@@ -556,14 +587,16 @@ class BatchScreen(QWidget):
         self._set_status(f"Running {len(self._queue)} job(s), one at a time…")
 
         box: Dict[str, Any] = {}
+        on_error = self._on_error_combo.currentData() or "continue"
+        max_failures = self._threshold_spin.value()
 
         def _job(payload: Dict[str, Any]) -> None:
             """Run the whole plate queue. Off the GUI thread."""
             payload["result"] = bt.run_queue(
                 self._queue,
                 path=self._path or None,
-                on_error=self._on_error_combo.currentData() or "continue",
-                max_consecutive_failures=self._threshold_spin.value(),
+                on_error=on_error,
+                max_consecutive_failures=max_failures,
                 on_progress=self._relay_progress,
                 runner=self._runner,
                 stop_flag=lambda: self._stop_requested,
@@ -714,6 +747,27 @@ class BatchScreen(QWidget):
             if thread_has_stopped(thread):
                 self._retire_job(thread)
 
+    def _drain_jobs(self) -> None:
+        """Stop the queue run and wait briefly for each job thread.
+
+        A thread that will not stop is parked by ``drain_thread`` instead of
+        being dropped, so nothing destroys a running QThread or leaves its
+        worker emitting at a deleted widget.
+
+        :returns: None.
+        """
+        from ..bridge import drain_thread
+
+        self._stop_requested = True
+        for thread, worker in list(self._jobs):
+            try:
+                drain_thread(thread, worker, timeout_ms=1500)
+            except (AttributeError, RuntimeError):
+                continue
+        self._jobs.clear()
+        self._thread = None
+        self._worker = None
+
     def _retire_job(self, thread) -> None:
         """Release this job's refs once its own event loop has exited."""
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
@@ -816,6 +870,12 @@ class BatchScreen(QWidget):
         user picked.
         """
         jobs = self._queue.jobs
+        spare = _spare_items(self._table)
+        for row in range(len(jobs), self._table.rowCount()):
+            for col in range(self._table.columnCount()):
+                tail = self._table.takeItem(row, col)
+                if tail is not None:
+                    spare.append(tail)
         self._table.setRowCount(len(jobs))
         for row, job in enumerate(jobs):
             cells = (
@@ -831,7 +891,17 @@ class BatchScreen(QWidget):
             for col, text in enumerate(cells):
                 key = (job.elapsed_s if col == COLUMNS.index("Time")
                        else None)
-                item = table_item(text, key=key)
+                item = self._table.item(row, col)
+                fresh = item is None
+                if fresh:
+                    item = _spare_table_item(self._table, text)
+                else:
+                    item.setData(Qt.ForegroundRole, None)
+                    item.setData(Qt.ToolTipRole, None)
+                    item.setData(Qt.UserRole, None)
+                item.setData(SORT_KEY_ROLE,
+                             None if key is None else float(key))
+                item.setText(text)
                 if col == COLUMNS.index("Status"):
                     palette = active_palette()
                     colour = palette.get(
@@ -844,7 +914,8 @@ class BatchScreen(QWidget):
                     item.setToolTip(job.error)
                 if col == 0:
                     item.setData(Qt.UserRole, job.id)
-                self._table.setItem(row, col, item)
+                if fresh:
+                    self._table.setItem(row, col, item)
 
     def _refresh_running_row(self) -> None:
         """Tick the elapsed cell of the running job, and only that cell."""
@@ -854,9 +925,13 @@ class BatchScreen(QWidget):
             row = self._row_of_job(job.id)
             if row < 0:
                 continue
-            self._table.setItem(row, COLUMNS.index("Time"),
-                                table_item(bt.fmt_duration(job.elapsed_s),
-                                           key=job.elapsed_s))
+            cell = self._table.item(row, COLUMNS.index("Time"))
+            if cell is None:
+                self._table.setItem(row, COLUMNS.index("Time"), table_item(
+                    bt.fmt_duration(job.elapsed_s), key=job.elapsed_s))
+            else:
+                cell.setData(SORT_KEY_ROLE, float(job.elapsed_s))
+                cell.setText(bt.fmt_duration(job.elapsed_s))
             if self._table.currentRow() == row:
                 self._load_log(job)
 

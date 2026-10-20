@@ -1,0 +1,7 @@
+{
+  "reviewer": "Original Home root independent AI source peer, approval relayed2026-10-15",
+  "decision": "Approved exact proposed.patch source with actual17PASS",
+  "source_sha256": "7cdb3051a1a5a9fcd03e400b2ac915e80dc9979698ee67890836590bd51405c0",
+  "reviewed": "Per-pump incremental UTF8 decoder with replacement policy; complete nonempty text delivery; one final residual flush on EOF/OSError; existing lifecycle/auth contracts unchanged.",
+  "limits": "No vendor/native authentication, Windows terminal fallback, ANSI parser/partial-URL assembly or whole N420 acceptance claim."
+}

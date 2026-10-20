@@ -277,31 +277,19 @@ def test_the_masthead_carries_no_sentence_beside_the_name(screen):
     assert header.title_label.text() == mm.HEADER_TITLE
 
 
-def test_the_settings_toggle_sits_directly_right_of_the_magnifier(
-        screen, qtbot):
-    row = screen._tool_pin_layout
-    magnifier = row.indexOf(screen._btn_magnifier)
-    assert magnifier >= 0
-    assert row.indexOf(screen._btn_settings) == magnifier + 1
-
-    screen.resize(1600, 900)
-    screen.show()
-    qtbot.waitExposed(screen)
-    QApplication.processEvents()
-    gap = (screen._btn_settings.geometry().left()
-           - screen._btn_magnifier.geometry().right() - 1)
-    assert gap == row.spacing(), f"{gap}px between Magnifier and Settings"
+def test_the_magnifier_closes_the_tools_group(screen):
+    row = screen._tool_row_layout
+    assert row.indexOf(screen._btn_magnifier) >= 0
+    assert not hasattr(screen, "_btn_settings")
 
 
-def test_an_action_added_later_does_not_come_between_the_pair(screen):
+def test_an_action_added_later_lands_after_the_tools(screen):
     from PySide6.QtWidgets import QPushButton
 
-    row = screen._tool_pin_layout
+    row = screen._tool_row_layout
     added = screen.add_toolbar_action(QPushButton("Another action"))
-    assert row.indexOf(added) < 0
-    assert screen._tool_row_layout.indexOf(added) >= 0
-    assert row.indexOf(screen._btn_settings) == \
-        row.indexOf(screen._btn_magnifier) + 1
+    assert row.indexOf(added) == row.count() - 1
+    assert row.indexOf(screen._btn_magnifier) < row.indexOf(added)
 
 
 def test_the_toggle_still_gives_the_image_the_settings_width(screen, qtbot):
@@ -311,10 +299,10 @@ def test_the_toggle_still_gives_the_image_the_settings_width(screen, qtbot):
     qtbot.waitUntil(lambda: screen._canvas.width() > 1)
     before = screen._canvas.width()
     width = screen._body_splitter.sizes()[0]
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     qtbot.waitUntil(lambda: screen._canvas.width() > before)
     assert screen._body_splitter.sizes()[0] == 0
-    screen._btn_settings.setChecked(True)
+    screen._set_settings_shown(True)
     qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
     assert abs(screen._body_splitter.sizes()[0] - width) <= 8
 

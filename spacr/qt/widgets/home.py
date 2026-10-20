@@ -43,9 +43,11 @@ import warnings
 from html import escape
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import (QColor, QIcon, QPainter, QPixmap,
+                           QTextDocumentFragment)
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -188,8 +190,7 @@ class AppTile(QPushButton):
     ``AppTile``, so the stylesheet can give it a height floor without
     giving one to every horizontal tile in the app.
 
-    **Its height floor is in the QSS, not here, and that is not a
-    style choice.** ``setFixedSize`` does not survive polish, and
+    **Its height floor is in the QSS, not here.** ``setFixedSize`` does not survive polish, and
     neither does answering through ``sizeHint`` /
     ``minimumSizeHint``: the app stylesheet's blanket
     ``QPushButton { min-height: 22px }`` becomes a real
@@ -216,11 +217,9 @@ class AppTile(QPushButton):
 
         :param text: the module name drawn on the tile, and what the tile is
             identified by.
-        :param description: accepted and NOT DRAWN. The tile stopped showing
-            it because it was a third copy of a sentence already on the
-            tooltip and in the hint bar, and three lines of grey under every
-            tile is what forced two tile sizes in the first place. Kept in
-            the signature so callers that pass it still work.
+        :param description: accepted and not drawn: the same sentence is
+            already on the tooltip and in the hint bar. Kept in the
+            signature so callers that pass it still work.
         :param icon: the module's mark, drawn above the name.
         :param width: tile width in pixels.
         :param height: tile height in pixels.
@@ -308,7 +307,7 @@ class AppTile(QPushButton):
     def sizeHint(self) -> QSize:               # noqa: N802
         """The tile's preferred size, height derived from its width.
 
-        HEIGHT FOLLOWS WIDTH because the tile is icon-over-name in a fixed
+        Height follows width because the tile is icon-over-name in a fixed
         proportion; asking for a free height would let the grid stretch one
         tile and not its neighbours.
 
@@ -324,6 +323,35 @@ class AppTile(QPushButton):
         """
         return self.sizeHint()
 
+
+
+def panel_box_qss(P: dict) -> str:
+    """The rule of a Home panel's box, at the page opacity now in force.
+
+    :param P: the active palette.
+    :returns: the box's own QSS.
+    """
+    from ..theme import pane_surface
+
+    return ("QFrame#HomePanelBox {"
+            f"background: {pane_surface('surface_alt')};"
+            f"border: 1px solid {P['border_soft']};"
+            "border-radius: 8px; }")
+
+
+def hero_qss() -> str:
+    """The masthead's rule, at the page opacity now in force.
+
+    :returns: the masthead's own QSS.
+    """
+    from ..preferences import resolve_effective_theme
+    from ..theme import RADIUS, pane_surface
+
+    return (f"QWidget#Hero {{"
+            f" background-color:"
+            f" {pane_surface('surface_alt', resolve_effective_theme())};"
+            f" border-radius: {RADIUS['lg']}px;"
+            f" }}")
 
 
 class Panel(QWidget):
@@ -385,12 +413,7 @@ class Panel(QWidget):
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
-        from ..theme import pane_surface
-        box.setStyleSheet(
-            "QFrame#HomePanelBox {"
-            f"background: {pane_surface('surface_alt')};"
-            f"border: 1px solid {P['border_soft']};"
-            "border-radius: 8px; }")
+        box.setStyleSheet(panel_box_qss(P))
         self.body_layout = QVBoxLayout(box)
         self.body_layout.setContentsMargins(SPACING["md"], SPACING["sm"],
                                             SPACING["md"], SPACING["sm"])
@@ -416,16 +439,15 @@ class Panel(QWidget):
 
     def add_action(self, text: str, *, kind: str = "danger",
                    tip: str = "") -> QPushButton:
-        """Put an action WORD on the right of the panel's caption.
+        """Put an action word on the right of the panel's caption.
 
         Not a button in the styled sense -- no frame, no fill, no padding
         that would make it look pressable. It is the word alone, in the
         muted caption ink, and it takes its colour when the pointer is on
-        it or while it is held down: "just the text clear which turns red
-        upon hover or click" (2026-09-03).
+        it or while it is held down.
 
         Rendered through a QPushButton rather than a QLabel because the
-        word is a CONTROL: a button is what Tab reaches, what Space
+        word is a control: a button is what Tab reaches, what Space
         activates, what a screen reader announces as pressable, and what
         already has a `:pressed` state to hang the click colour on. A
         clickable QLabel has none of that.
@@ -516,7 +538,7 @@ def _row(label: str, value: str, value_colour: Optional[str] = None,
 
 
 class RunningBanner(QFrame):
-    """"spaCR is doing something right now" — with honest controls.
+    """Banner for the running job, with only the controls it supports.
 
     Reads :func:`spacr.qt.bridge.registry`, so it reflects a job started
     from *any* screen. Hidden entirely when nothing is running, which is
@@ -526,9 +548,9 @@ class RunningBanner(QFrame):
     job's entry point declares itself ``bridge.pausable`` — i.e. it
     actually polls ``bridge.checkpoint()``. No shipped pipeline does, so
     today it renders disabled with :data:`PAUSE_UNAVAILABLE` as its
-    tooltip. That is the whole point: a Pause button that stops the
-    thread wherever it happens to be is not a pause, and the honest
-    thing to draw is a control that says so.
+    tooltip: a Pause button that stopped the thread wherever it happened
+    to be would not be a safe pause, so the control is shown disabled with
+    the reason.
 
     :param icon_provider: called with a module key for that module's icon.
         A callable rather than a dict of icons, so the banner does not build
@@ -817,7 +839,7 @@ class QueuedPanel(Panel):
     def clear_queue(self) -> int:
         """Drop every item from the plate queue. Returns how many went.
 
-        WRITES, which no other part of this panel does -- the class docstring
+        This method writes, which no other part of this panel does -- the class docstring
         says the Queue screen owns writes, and this is the one exception:
         **Clear** empties the queue from here rather than sending the reader
         to another screen to do it.
@@ -828,8 +850,8 @@ class QueuedPanel(Panel):
         confirmation on a two-word action that costs that little is a
         dialog people learn to dismiss without reading.
 
-        Every failure mode ends with the panel telling the truth about what
-        is in the queue, because it re-reads from disk afterwards either way.
+        After any failure the panel shows what is actually in the queue,
+        because it re-reads from disk afterwards either way.
         """
         removed = 0
         try:
@@ -875,21 +897,15 @@ class QueuedPanel(Panel):
 
 
 class RecentRunsPanel(Panel):
-    """Last few journalled runs of a REAL module; each row navigates.
+    """Last few journalled runs of an existing module; each row navigates.
 
-    "Real module" is doing work here. The panel used to list whatever the
-    run journal's newest manifests said, and those rows were clickable
-    without representing runs -- they opened a ``_job`` module. On one
-    machine the journal held 11,046 run folders of which 7,323 were written
-    under the app_key ``_job`` or ``job``: a test fixture's key, written
-    straight into the real `~/.spacr/runs` because nothing sandboxed it
-    (fixed in ``tests/conftest.py``). So most rows named a module that does
-    not exist, and clicking one asked the window to open it.
+    Only runs of a module Home knows about are listed. A run journal can
+    hold entries under keys that are not modules, such as the ``_job`` or
+    ``job`` key a test fixture once wrote into ``~/.spacr/runs``; a row for
+    one of those would ask the window to open a module that does not exist.
 
-    The pollution is stopped at the source now, but a filter here is still
-    the right thing: this panel NAVIGATES, so a row it draws is a promise
-    that pressing it goes somewhere. Anything whose key is not a module Home
-    knows about is dropped.
+    Because each row opens its module when pressed, any entry whose key is
+    not a module Home knows about is dropped.
 
     :param limit: how many journalled runs to show.
     :param known_keys: callable returning the module keys that exist, or a
@@ -940,10 +956,8 @@ class RecentRunsPanel(Panel):
     def name_for(self, key: str) -> str:
         """``key``'s display name when Home knows one, else ``key`` itself.
 
-        A row used to be captioned with the raw app_key, which is what put
-        ``_job`` and ``mask`` on the dashboard in the same typeface as each
-        other. The names are already in Home; the panel just had no way to
-        ask for them.
+        Without this a row would be captioned with the raw app key, such as
+        ``mask``. The names come from Home's own registry.
 
         :param key: application key to name; returned unchanged when the name
             registry does not know it.
@@ -956,7 +970,7 @@ class RecentRunsPanel(Panel):
     def clear_list(self) -> None:
         """Hide every run listed, by moving the watermark to now.
 
-        NOTHING IS DELETED. See
+        Nothing is deleted. See
         :func:`spacr.qt.preferences.get_dashboard_watermark` for why: this
         panel reads the run journal, and the journal is the record Run
         History searches and a run's manifest documents.
@@ -977,7 +991,7 @@ class RecentRunsPanel(Panel):
         measured at 540 ms over 4,865 of them -- so it is not something the
         GUI thread should be doing on the way back to Home.
 
-        THE FILTERING HAPPENS HERE, not in `refresh`, for two reasons. It is
+        The filtering happens here, not in `refresh`, for two reasons. It is
         the half that runs off the GUI thread, and it changes how much has to
         be read: dropping four rows in five after asking for five leaves one,
         so this asks for a multiple of the limit and truncates afterwards.
@@ -1071,8 +1085,8 @@ class SystemPanel(Panel):
     """GPU / VRAM / Disk, read on build and on every Home revisit.
 
     Every reading degrades to a string rather than vanishing — a blank
-    row reads as "broken", while ``n/a`` honestly says the lightweight
-    system probe could not measure a device.  Home must not import a model
+    row reads as "broken", while ``n/a`` says the lightweight system probe
+    could not measure a device.  Home must not import a model
     runtime merely to decorate the dashboard.
 
     :param parent: parent widget.
@@ -1100,7 +1114,7 @@ class SystemPanel(Panel):
     def gpu_util() -> str:
         """Current GPU utilisation, as text for display.
 
-        NEVER RAISES. A missing NVML, a machine with no GPU and a driver
+        Never raises. A missing NVML, a machine with no GPU and a driver
         mismatch are all ordinary here, and none of them is a reason for the
         Home page to fail to build.
 
@@ -1210,12 +1224,12 @@ class TotalsPanel(Panel):
     def reset_counts(self) -> None:
         """Count from now on, by moving the watermark.
 
-        NOTHING IS DELETED, for the same reason **Clear** on Recent runs
+        Nothing is deleted, for the same reason **Clear** on Recent runs
         deletes nothing — see
-        :func:`spacr.qt.preferences.get_dashboard_watermark`. What these
-        counts are FOR is telling the user how much this installation has
-        done, and a reset that removed the manifests would take Run History
-        and every run's provenance with it.
+        :func:`spacr.qt.preferences.get_dashboard_watermark`. The counts
+        show how much this installation has done, and a reset that removed
+        the manifests would also remove Run History and every run's
+        provenance.
         """
         from ..preferences import set_dashboard_watermark
 
@@ -1396,23 +1410,20 @@ class StageLegend(Panel):
 class NewsPanel(Panel):
     """Every spaCR release, with links, in a box the reader can resize.
 
-    THE NOTES ARE BUNDLED, and the bundle is what draws. They come from
+    The notes are bundled, and the bundle is what is drawn. They come from
     ``spacr/resources/release_notes.json``, which
     ``tools/build_release_notes.py`` writes from the GitHub releases and
     which ``.github/workflows/release.yml`` refreshes on every release.
-    This panel is on the first screen the application shows, so making its
-    CONTENT depend on api.github.com would mean a dashboard that is empty
-    offline, throttled behind a shared NAT, and slower to draw than the
-    window it is in. The bundled file therefore remains the offline source
-    of truth and the panel is complete before anything touches a socket.
+    This panel is on the first screen the application shows; content read
+    from api.github.com would be empty offline, rate-limited behind a shared
+    NAT, and slower to draw than the window. The bundled file therefore
+    remains the offline source and the panel is complete before any network
+    access.
 
-    AND THEN IT CATCHES UP. The wheel for a release cannot contain its own
-    release note -- the note is written when the GitHub release is
+    Newer releases are then added. The wheel for a release cannot contain
+    its own release note -- the note is written when the GitHub release is
     published, which is after that wheel is on PyPI -- so a bundled file is
-    always one release behind the build carrying it, and that is what went
-    wrong: "im on 1.5.1.0 and the news only goes to 1.5.0.7. the news
-    section should always automatically reflect the latest spacr release
-    news." So after the page is shown,
+    always one release behind the build carrying it. After the page is shown,
     :attr:`refresh_requested` asks the window to read the public releases
     list on a worker thread, and :meth:`apply_releases` merges whatever
     comes back in front of the bundled list. Nothing here opens a socket:
@@ -1420,21 +1431,13 @@ class NewsPanel(Panel):
     switched off in Preferences, or simply finds nothing newer leaves the
     bundled list exactly as it was drawn.
 
-    There was previously no feed at all and this panel said so -- "No
-    release notes bundled with this build" -- which was honest and useless.
-    What it shows now is the real thing: "News should contain all the
-    releas information with links. i nkow that there was release information
-    for the current 1.5.0.4 version. this one as well as all of the other
-    ones should be scrollable and the user should be able to controll the
-    height."
-
-    So: every release newest-first, each one's body rendered with its links
+    The panel shows every release newest-first, each one's body rendered with its links
     live, the whole list inside a scroll area, and a grip along the bottom
     edge that drags the box taller or shorter. The height is remembered
-    between sessions -- a reader who made it tall wants it tall next time.
+    between sessions.
 
-    The update check stays a BUTTON. Offering to install something is a
-    decision, so it is still made only when pressed.
+    The update check stays a button: installing an update is a decision,
+    so it is made only when pressed.
 
     :param version: the build to name in the heading. Empty leaves the
         heading as the translated word alone -- the two are kept separate
@@ -1488,6 +1491,7 @@ class NewsPanel(Panel):
 
         self._notes = QScrollArea()
         self._notes.setObjectName("HomeNewsScroll")
+        self._notes.setFocusPolicy(Qt.NoFocus)
         self._notes.setWidgetResizable(True)
         self._notes.setFrameShape(QFrame.NoFrame)
         self._notes.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -1528,7 +1532,7 @@ class NewsPanel(Panel):
     def read_releases() -> list:
         """The bundled release records, newest first, or ``[]``.
 
-        Degrades to an empty list on ANY failure, and the panel then draws
+        Degrades to an empty list on any failure, and the panel then draws
         the placeholder it drew before there was a feed. A dashboard must
         not fail to appear because a resource file is missing from a wheel.
         """
@@ -1567,7 +1571,7 @@ class NewsPanel(Panel):
     def showEvent(self, event):                                  # noqa: N802
         """Ask for a refresh the first time the panel is shown.
 
-        AFTER the page exists and ON THE EVENT LOOP, not during
+        After the page exists and on the event loop, not during
         construction: the single-shot timer means the emit lands on a later
         turn than this show, so Home's first paint is never waiting on it.
         Once per panel, because a page that is shown again -- a tab
@@ -1591,10 +1595,10 @@ class NewsPanel(Panel):
     def apply_releases(self, fetched) -> None:
         """Merge a fetched release list into the list on screen.
 
-        Silence is the contract. An empty list, a list of rubbish, or a
-        list that says nothing the bundled file did not already say leaves
-        the panel untouched and says nothing to the reader -- the failure
-        of an unasked-for background fetch is not the reader's problem.
+        Failures are silent. An empty list, an unreadable list, or a list
+        that adds nothing to the bundled file leaves the panel unchanged
+        and shows no message, because the reader did not ask for the
+        background fetch.
 
         :param fetched: release records from
             :func:`spacr.updater.fetch_release_notes`, or anything at all.
@@ -1660,6 +1664,9 @@ class NewsPanel(Panel):
             f'{escape(name)}</a>' if url else escape(name))
         title.setOpenExternalLinks(True)
         title.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        title.setAccessibleName(name)
+        if not url:
+            title.setFocusPolicy(Qt.NoFocus)
         title.setWordWrap(True)
         title.setStyleSheet(
             f"color: {P['fg']}; font-size: {font_px(12)}px;"
@@ -1678,6 +1685,11 @@ class NewsPanel(Panel):
             notes.setWordWrap(True)
             notes.setOpenExternalLinks(True)
             notes.setTextInteractionFlags(Qt.TextBrowserInteraction)
+            notes.setAccessibleName(name)
+            notes.setAccessibleDescription(QTextDocumentFragment.fromHtml(
+                body).toPlainText())
+            if "<a " not in body:
+                notes.setFocusPolicy(Qt.NoFocus)
             notes.setStyleSheet(
                 f"color: {P['fg_muted']}; font-size: {font_px(11)}px;"
                 "background: transparent;")
@@ -1688,14 +1700,14 @@ class NewsPanel(Panel):
     def render_body(body: str, link_colour: str) -> str:
         """Turn a release body into the small HTML subset a QLabel draws.
 
-        NOT A MARKDOWN RENDERER, and not trying to be. Release bodies are
-        GitHub-flavoured markdown; what they actually contain is bullet
+        This is not a Markdown renderer. Release bodies are
+        GitHub-flavoured markdown; what they contain in practice is bullet
         lists, bare URLs and ``**bold**``, and a QLabel understands a
         handful of tags. So: escape everything first -- a body is text from
         a web page and must never reach a rich-text widget as markup --
         then put back the three constructs that are worth having.
 
-        Escaping FIRST is what makes this safe. Linkifying first and
+        Escaping first is what makes this safe. Linkifying first and
         escaping after would escape the anchors too and show the reader
         their own tags; escaping after building the HTML is the mistake that
         turns a release note into an injection.
@@ -1839,6 +1851,34 @@ def _scale_text_under(root: QWidget, ratio: float,
         widget.setProperty(_SCALED_SHEET, new)
         if new != own:
             widget.setStyleSheet(new)
+
+
+class _TileHintWatcher(QObject):
+    """Hands Home the Enter and Leave events of its tiles.
+
+    Home used to be an event filter on each of its 18 tiles, and Qt asks
+    every filter on a widget about every event it gets; over the window's
+    moving field every tile repaints on every frame, so that was a Python
+    call per tile per frame for a filter that acts on two event types. The
+    watcher hears those two through the application event hub
+    (:func:`spacr.qt.gil_priority._watch_application_events`), which is
+    asked about every event anyway, and passes Home only its tiles' events.
+    """
+
+    def __init__(self, page: QWidget):
+        """Watch the application on behalf of ``page``."""
+        from ..gil_priority import _watch_application_events
+
+        super().__init__(page)
+        _watch_application_events(QApplication.instance(), self,
+                                  frozenset((QEvent.Enter, QEvent.Leave)))
+
+    def eventFilter(self, watched, event) -> bool:
+        """Home's answer for its own tiles; never stops an event."""
+        page = self.parent()
+        if watched in page._tile_hints:
+            page.eventFilter(watched, event)
+        return False
 
 
 class HomePage(QWidget):
@@ -2019,13 +2059,33 @@ class HomePage(QWidget):
 
         Never raises.
         """
+        from ..preferences import resolve_effective_theme
+
+        return self._page_fill_under(resolve_effective_theme)
+
+    def _page_fill_for_a_frame(self):
+        """:meth:`page_fill` for :meth:`paintEvent`, without a store read.
+
+        The theme comes from :func:`spacr.qt.theme._painting_theme`,
+        resolved once per application palette, because a paint runs on
+        every frame of the window's field.
+        """
+        from ..theme import _painting_theme
+
+        return self._page_fill_under(_painting_theme)
+
+    def _page_fill_under(self, theme_of):
+        """The page colour with the theme ``theme_of()`` names, or ``None``.
+
+        :param theme_of: returns the effective theme name; anything it
+            raises reads as no colour.
+        """
         if (self._ambient is not None
                 or getattr(self, "_uses_window_backdrop", False)):
             return None
         try:
-            from ..preferences import resolve_effective_theme
             from ..theme import IMAGE_THEMES, page_colour
-            theme = resolve_effective_theme()
+            theme = theme_of()
             if theme in IMAGE_THEMES:
                 return None
             return QColor(page_colour(theme))
@@ -2042,7 +2102,7 @@ class HomePage(QWidget):
         :param event: the paint event; passed to the base class only when no
             page fill colour is set.
         """
-        colour = self.page_fill()
+        colour = self._page_fill_for_a_frame()
         if colour is None:
             super().paintEvent(event)
             return
@@ -2260,15 +2320,7 @@ class HomePage(QWidget):
         hero = QWidget()
         hero.setObjectName("Hero")
         try:
-            from ..preferences import resolve_effective_theme
-            from ..theme import RADIUS, pane_surface
-
-            hero.setStyleSheet(
-                f"QWidget#Hero {{"
-                f" background-color:"
-                f" {pane_surface('surface_alt', resolve_effective_theme())};"
-                f" border-radius: {RADIUS['lg']}px;"
-                f" }}")
+            hero.setStyleSheet(hero_qss())
         except Exception:                                # noqa: BLE001
             import logging
 
@@ -2479,7 +2531,9 @@ class HomePage(QWidget):
         return self._wire_tile(tile, key, desc)
 
     def _wire_tile(self, tile, key: str, desc: str):
-        """Connect one tile so pressing it opens its module.
+        """Connect one tile so pressing it opens its module, and so its
+        Enter and Leave reach :meth:`eventFilter` (through
+        :class:`_TileHintWatcher`, so its paint events never reach Python).
 
         :param tile: the tile.
         :param key: the module it opens.
@@ -2491,7 +2545,8 @@ class HomePage(QWidget):
         tile.setProperty("moduleSummarySource", desc)
         tile.setProperty("moduleTooltipStyle", "tile")
         tile.setProperty("moduleStageSource", STAGE_LABEL.get(tile.stage, ""))
-        tile.installEventFilter(self)
+        if getattr(self, "_tile_watcher", None) is None:
+            self._tile_watcher = _TileHintWatcher(self)
         tile.clicked.connect(lambda _=False, k=key: self.tile_clicked.emit(k))
         return tile
 
@@ -2502,6 +2557,7 @@ class HomePage(QWidget):
         :returns: the scroll area.
         """
         scroll = QScrollArea()
+        scroll.setFocusPolicy(Qt.NoFocus)
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -2558,6 +2614,63 @@ class HomePage(QWidget):
                         - SPACING["xl"] * 2 - SPACING["lg"]
                         - SPACING["md"] * 2 - 4)
         return max(1, available // (tile_w + SPACING["xs"]))
+
+    def refresh_pane_surfaces(self) -> int:
+        """Give the masthead, the panels and the tabs the page opacity now set.
+
+        They took it when Home was built, and a new opacity used to rebuild
+        Home: 2.1-2.6 s of the GUI thread on a loaded box, for three kinds
+        of rule. Each is now set again in place, one widget per pass of the
+        event loop, and only where the rule changed, since setting a rule
+        restyles everything under it.
+
+        THE TABS ARE TOLD ON THEIR BAR. The tab widget's rule holds the
+        whole of Home under it, and setting it again restyled every tile
+        (1.1 s loaded) to change one tab's fill; the bar takes the selected
+        tab's fill as a rule of its own, which wins over the one it
+        inherits.
+
+        :returns: how many widgets will take a new rule.
+        """
+        from PySide6.QtWidgets import QFrame
+
+        wanted = []
+        hero = self.findChild(QWidget, "Hero")
+        if hero is not None:
+            try:
+                wanted.append((hero, hero_qss()))
+            except Exception:                            # noqa: BLE001
+                pass
+        box_rule = panel_box_qss(self._P)
+        wanted.extend((box, box_rule)
+                      for box in self.findChildren(QFrame, "HomePanelBox"))
+        tabs = getattr(self, "_tabs", None)
+        if tabs is not None:
+            wanted.append((tabs.tabBar(),
+                           _selected_tab_qss(self._P, self._pane_alpha())))
+        owed = []
+        for widget, rule in wanted:
+            try:
+                if widget.styleSheet() != rule:
+                    owed.append((widget, rule))
+            except RuntimeError:
+                continue
+
+        def _next():
+            """Set one owed rule, then wait for the next pass."""
+            while owed:
+                widget, rule = owed.pop(0)
+                try:
+                    widget.setStyleSheet(rule)
+                except RuntimeError:
+                    continue
+                break
+            if owed:
+                QTimer.singleShot(0, _next)
+
+        if owed:
+            QTimer.singleShot(0, _next)
+        return len(owed)
 
     @staticmethod
     def _pane_alpha() -> float:
@@ -2623,6 +2736,7 @@ class HomePage(QWidget):
         self._news.refresh_requested.connect(self.news_refresh_requested)
         self._totals = TotalsPanel(read_now=False)
         self._system = SystemPanel()
+        self._system._refresh.clicked.connect(self._apply_aside_text)
         self._legend = StageLegend(self)
         self._legend.hide()
 
@@ -2675,6 +2789,8 @@ class HomePage(QWidget):
         readout.setMinimumWidth(QLabel("200%").sizeHint().width())
         for widget in (label, slider, readout):
             widget.setToolTip(tip)
+        slider.setAccessibleName(label.text())
+        label.setBuddy(slider)
         slider.valueChanged.connect(lambda v: readout.setText(f"{v}%"))
         slider.valueChanged.connect(self._on_aside_text)
         row.addWidget(label)
@@ -2906,7 +3022,10 @@ class HomePage(QWidget):
         return True
 
     def eventFilter(self, obj, event):          # noqa: N802
-        """Watch the widgets this filter is installed on.
+        """Show a tile's summary on Enter and release it on Leave.
+
+        :class:`_TileHintWatcher` hands it the tiles' events; it is not
+        installed on any widget.
 
         :param obj: the object the event is for.
         :param event: the event.
@@ -2946,6 +3065,21 @@ class HomePage(QWidget):
             pass
         self._ticker.stop()
         super().closeEvent(event)
+
+
+def _selected_tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
+    """The selected Home tab's fill alone, for the tab bar to wear.
+
+    :param P: the active palette.
+    :param pane_alpha: the page opacity.
+    :returns: the rule, as :func:`_tab_qss` writes it for the same fill.
+    """
+    from ..theme import css_color
+    selected_fill = ("transparent" if pane_alpha <= 0.0
+                     else css_color(P["surface"], pane_alpha))
+    return (f"QTabWidget#HomeTabs > QTabBar::tab:selected {{"
+            f" background: {selected_fill};"
+            f" border-bottom-color: {selected_fill}; }}")
 
 
 def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:

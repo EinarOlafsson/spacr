@@ -4,9 +4,9 @@ The desktop installers write ``consent`` into a JSON profile that spaCR
 reads on first launch. That file is produced outside the application, so
 :func:`spacr.qt.install_consent.maybe_show_installer_consent` cannot assume
 it holds a mapping -- a hand-edited or half-written profile has to fall back
-to asking in-app rather than crashing the launch. The same function is also
-the only door to the provider setup dialog, and it must mark itself applied
-BEFORE opening it so a failure there cannot make the privacy page reappear.
+to asking in-app rather than crashing the launch. Setup no longer offers
+account sign-in, so even a profile that still asks for it opens no provider
+setup dialog.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ class _FakeConsentDialog:
 
 
 class _FakeProvidersDialog:
-    """Records that account setup was opened, and for which parent."""
+    """Records any provider setup that opens; none should."""
 
     opened = []
 
@@ -88,7 +88,7 @@ def test_a_profile_whose_consent_is_not_a_mapping_asks_in_app(
 
     assert handled is True
     assert len(consent_dialog.instances) == 1
-    assert providers.opened == [None]
+    assert providers.opened == []
 
 
 def test_a_collected_profile_is_applied_without_showing_the_page(

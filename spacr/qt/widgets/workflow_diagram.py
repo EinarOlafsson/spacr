@@ -269,7 +269,14 @@ class _Node(QGraphicsItem):
         painter.setFont(font)
         painter.setPen(QColor(palette["fg"]))
         module = self.view.data["modules"][self.key]
-        painter.drawText(QRectF(14, 9, 232, 66 if self.view.compact else 40), Qt.AlignVCenter | Qt.TextWordWrap, tr(module["name"]))
+        title = tr(module["name"])
+        title_rect = QRectF(14, 9, 232, 66 if self.view.compact else 40)
+        title_flags = Qt.AlignVCenter | Qt.TextWordWrap
+        while (title and font.pixelSize() > 1 and
+               not title_rect.contains(painter.boundingRect(title_rect, title_flags, title))):
+            font.setPixelSize(font.pixelSize() - 1)
+            painter.setFont(font)
+        painter.drawText(title_rect, title_flags, title)
         if self.view.compact:
             return
         font.setBold(False)

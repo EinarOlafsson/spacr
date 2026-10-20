@@ -1,12 +1,11 @@
 """One rule for every tooltip in spaCR: when it appears and when it goes.
 
 Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most
-styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips
-therefore arrived while the pointer was still travelling, and left the
-instant it moved off the widget -- too fast to read, and impossible to reach
-if the text ran long.
+styles set to about 700 ms. Left to the style, a tooltip appears while the
+pointer is still moving and disappears the instant it leaves the widget, which
+is too fast to read and makes a long tooltip impossible to reach.
 
-This module installs ONE event filter on ``QApplication`` and takes the
+This module installs one event filter on ``QApplication`` and takes the
 decision away from the style:
 
 * a tooltip appears after the Tooltip delay preference of hovering, not
@@ -26,14 +25,14 @@ which is the one behaviour this module exists to change.
 Two things follow from taking the event, and both are handled rather than
 accepted:
 
-* Qt PROPAGATES a tooltip event to the parent widget when the widget under
+* Qt propagates a tooltip event to the parent widget when the widget under
   the pointer has no tooltip of its own, which is how a card explains
   itself while the pointer is on the label written on it. The text is
   therefore resolved with :func:`tooltip_text_for`, up the parent chain,
   exactly as Qt would have.
 * A table, a header or a list answers from ``Qt::ToolTipRole`` inside its
   own ``event``, not from a ``toolTip()`` any filter can read. When
-  nothing in the parent chain has a tooltip, the event is SENT AGAIN after
+  nothing in the parent chain has a tooltip, the event is sent again after
   the wait, with the filter standing aside, so those still appear -- and
   appear on the same two-second rule as everything else.
 
@@ -46,7 +45,7 @@ import logging
 import weakref
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, QPoint, QTimer, Qt, Signal, Slot
+from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QTimer, Qt, Signal, Slot
 from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication, QToolTip
 
@@ -257,8 +256,8 @@ class HoverDelay(QObject):
 def tooltip_text_for(widget) -> str:
     """The tooltip a hover on ``widget`` would raise, parents included.
 
-    This is not a convenience: it is the behaviour being preserved. Qt
-    PROPAGATES a tooltip event up the parent chain, so a label with no
+    This reproduces Qt's behaviour: Qt propagates a tooltip event up the
+    parent chain, so a label with no
     tooltip of its own inside a card that has one shows the card's. A
     filter that read ``widget.toolTip()`` alone and then swallowed the
     event would break every one of those -- a card explains itself until
@@ -493,7 +492,7 @@ class _TooltipFilter(QObject):
             self._replay(widget)
             return
         try:
-            QToolTip.showText(self._pos, self._text, None)
+            QToolTip.showText(self._pos, self._text, None, QRect(), HOLD_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not show a tooltip", exc_info=True)
             return
@@ -522,7 +521,11 @@ class _TooltipFilter(QObject):
             return
         self._replaying = True
         try:
-            QApplication.sendEvent(widget, again)
+            delivered = QApplication.sendEvent(widget, again)
+            if delivered and QToolTip.isVisible():
+                text = QToolTip.text()
+                QToolTip.showText(self._pos, text, None, QRect(), HOLD_MS)
+                QToolTip.showText(self._pos, text, widget, QRect(), HOLD_MS)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not replay a tooltip event", exc_info=True)
         finally:
@@ -584,8 +587,7 @@ class _TooltipFilter(QObject):
         """Take any tooltip away at once and forget what was hovered."""
         self._show_timer.stop()
         self._hide_timer.stop()
-        if self._showing:
-            self._hide_text()
+        self._hide_text()
         self._track_widget(None)
         self._text = ""
 

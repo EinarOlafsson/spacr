@@ -62,6 +62,19 @@ def test_a_reachable_results_folder_is_predicted(monkeypatch, tmp_path):
     assert predicted == str(tmp_path / "results" / "ols_1")
 
 
+def test_remote_counts_need_an_explicit_local_refit_destination(tmp_path):
+    dsn = os.environ.get("SPACR_TEST_POSTGRES_DSN", "postgresql:///remote_counts")
+    settings = {"count_data": [dsn],
+                "regression_type": "ols"}
+    assert refit.destination(settings) is None
+    settings["src"] = "path"
+    assert refit.destination(settings) is None
+    settings["src"] = "postgresql:///not_a_folder"
+    assert refit.destination(settings) is None
+    settings["src"] = str(tmp_path)
+    assert refit.destination(settings) == str(tmp_path / "results" / "ols")
+
+
 def test_no_results_path_has_no_settings_to_read():
     """A run that was never located has no settings file beside it."""
     assert refit.settings_of_run(None) is None

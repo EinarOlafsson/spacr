@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_method": "AI technical numeric/date maintenance; no human or native-speaker signoff. Only the tracked-checkout size and its measurement date changed; existing reviewed wording/markup and historical transport measurements remain identical. Size is rounded Git blob bytes / 1048576 under the existing MB label. Revision 81ffd9fd0306a17b5a4b04287c693e685e22a00d.",
+  "records": [
+    {
+      "label": "tracked-checkout-size-2026-10-15",
+      "source_sha256": "98b2e294b49582ecddae59d3a1dc133796258236be63963cdb2908a2cc25c704",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 4657 MB checkout (measured 2026-10-15), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Git meldet bei Bedarf nachgeladene Objekte nicht, daher wurde keine Gesamtgröße des Downloads gemessen. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 4657 MB (gemessen am 2026-10-15), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."
+    }
+  ]
+}

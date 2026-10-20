@@ -59,7 +59,13 @@ def read_policy(refresh: bool = False) -> dict:
     try:
         from importlib.resources import files
 
-        raw = (files("spacr.resources") / "layout_policy.json")
+        try:
+            raw = files("spacr.resources") / "layout_policy.json"
+        except TypeError:
+            from pathlib import Path
+
+            raw = (Path(__file__).resolve().parent.parent / "resources"
+                   / "layout_policy.json")
         data = json.loads(raw.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
             data = {}

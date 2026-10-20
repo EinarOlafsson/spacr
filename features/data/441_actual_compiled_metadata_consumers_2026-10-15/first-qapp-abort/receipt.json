@@ -1,0 +1,15 @@
+{
+  "result": "134 SIGABRT in pytestqt qapp fixture before testbody; no acceptanceclaim",
+  "core_limit": 0,
+  "root_source_head": "2fa6808cc680dcca0fcddc89705e88ba59446b2f",
+  "environment": "basePython+explicitQt6.12PYTHONPATH; established GUI owner uses separate spacrPython/pluginselection",
+  "diagnosis": "No missingnative lib from ldd; exactQtstderr capturedby pytest unavailable in fatalstack. No retry yet.",
+  "pins": {
+    "driver.py": "c0c9c4d4f9874678d75775a11d28a49402ef66c38bdddabc3a421e0fb2ff3422",
+    "run.exit": "e726b440cc164001999e718b51780d80314709efe06e7857282377be9111127b",
+    "run.log": "3d135883e22bbc99974fcccf4897c1655e9e9bf7aac63700cd5c243e1466c557",
+    "run.sh": "9a548addb39c801396309bb97fc0252ac17c434e7d105fed1305ef0765a1adea",
+    "config.json": "7b0a7169e43b1263e179305961a1eb3000eae1bc5642300b41022ac43785e5e8",
+    "hard-final-runner-peer.json": "a151ab263496504ac194d3d55b5df55de08bcf8f4525341f20b1eac473814ca0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "Direct exact-source AI technical translation review; no independent human/native signoff",
+  "draft_author": "hard_overnight",
+  "technical_reviewer": "hard_overnight",
+  "review": "Reviewed crop-file sample-creation provenance distinct from annotation-time evidence, and conflicting class labels/acquisition identifiers. Preserved {path} exactly. This diagnostic does not certify legacy annotations or scientific training efficacy. Normal owner extraction, candidate gates and runtime generation remain required.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Annotated crop {path} no longer matches its sample-creation fingerprint.",
+      "source": "Annotated crop {path} no longer matches its sample-creation fingerprint.",
+      "source_sha256": "a031d4fd425262d746b9a322217f88444338ffb07e144b3332274ab5d4e386b7",
+      "translation": "Det annoterade bildutsnittet {path} matchar inte längre det digitala fingeravtryck som sparades när urvalet skapades."
+    },
+    {
+      "table": "ui",
+      "key": "Annotated crop {path} has conflicting labels or acquisition identities.",
+      "source": "Annotated crop {path} has conflicting labels or acquisition identities.",
+      "source_sha256": "ce5911e02ac0c8690b87aac6ec4dbe69b42e746d95043c134b4c2766e6fca646",
+      "translation": "Det annoterade bildutsnittet {path} har motstridiga etiketter eller insamlingsidentiteter."
+    }
+  ]
+}

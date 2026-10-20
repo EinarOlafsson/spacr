@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "status": "SCOPED CONSISTENCY CONFIRMED; no native acceptance",
+  "owner_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_installer_acceptance_peerreview_20261013.json",
+    "sha256": "8d4ab52577e77a6783333502b65cee20d0762a03fb97e899f0fc399cf3a7233e",
+    "size_bytes": 74533
+  },
+  "independent_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n703_macos_linux_three_flows_peerreview_20261013.json",
+    "sha256": "6e2f66048c5e1da3273c24bf60a595256241cbe149356a53c4124f853c1d6c8f",
+    "size_bytes": 8489
+  },
+  "reviewed_rows": [
+    {
+      "id": "macOS_online_pkg_first_user",
+      "current_source_evidence": "Native C launcher checks only executable existence, so new bundle may launch old runtime. Missing runtime invokes Terminal; optional questions conditional on TTY/uncollected consent. Lock existence returns0 without completion proof.",
+      "source_references": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/macos_launcher.c",
+          "line": 19
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/macos_launcher.c",
+          "line": 26
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/build_macos_online.sh",
+          "line": 107
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/build_macos_online.sh",
+          "line": 113
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/install_spacr_unix.sh",
+          "line": 243
+        }
+      ],
+      "upgrade_acceptance": "Old-to-new: validate exact requested/effective code and launch identity before retiring previous app. Same-version repair is explicit. N627 prevents silent downgrade; newer_retained is a separate truthful outcome, never a claim the older requested build was installed. Stable/nightly and package/offline/cache overrides cannot produce wrong-version success.",
+      "default_cache_data_preservation": "Default preserves cache/test_data/models/downloads/preferences/logs/runs/projects/images/unknown root children. Include standard and configured SPACR_HOME/HF_HOME/XDG/CELLPOSE_LOCAL_MODELS_PATH/SPACR_BACKENDS_DIR/custom nested roots; optional cleanup is separately selected, path/content/size reviewed and identity rechecked.",
+      "rollback_acceptance": "Keep previous usable runtime and launchers until staged verification/activation. Dependency/import/version/space/permission/cancel/stale-lock/concurrent/in-use/relaunch failures retain or restore a verified usable identity and data. Retain recovery journal/backup; remove only owned required staging.",
+      "native_GUI_acceptance": "Actual current native installer and intended desktop/command/restarted GUI must supply PID/executable/interpreter/module/version receipts. Installer exit0, isolated probe or LaunchServices accepted request alone is insufficient. No native action performed here.",
+      "native_routes_to_exercise": [
+        "real pkg/GUI setup",
+        "missing/old/broken runtime first launch",
+        "Finder",
+        "Dock",
+        "/usr/local/bin/spacr"
+      ],
+      "existing_contract_limit": "N627 launcher test uses controlled POSIX executable; workflow sudo installer/direct helper with no-relaunch bypasses real first-user flow. Keep old-bundle/newer-runtime no-downgrade case and add inverse new-bundle/old-runtime.",
+      "native_execution_status": "unperformed; acceptance open"
+    },
+    {
+      "id": "Linux_online_run_generic_inapp",
+      "current_source_evidence": "Fixed-runtime online launcher is absolute for default/absolute inputs, but relative launcher-dir/XDG_BIN_HOME is not normalized. Cleanup precedes dependencies; generic helper/TTY setup lacks desktop GUI proof.",
+      "source_references": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/install_spacr_unix.sh",
+          "line": 408
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/install_spacr_unix.sh",
+          "line": 509
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/install_spacr_unix.sh",
+          "line": 562
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/install_spacr_unix.sh",
+          "line": 579
+        }
+      ],
+      "upgrade_acceptance": "Old-to-new: validate exact requested/effective code and launch identity before retiring previous app. Same-version repair is explicit. N627 prevents silent downgrade; newer_retained is a separate truthful outcome, never a claim the older requested build was installed. Stable/nightly and package/offline/cache overrides cannot produce wrong-version success.",
+      "default_cache_data_preservation": "Default preserves cache/test_data/models/downloads/preferences/logs/runs/projects/images/unknown root children. Include standard and configured SPACR_HOME/HF_HOME/XDG/CELLPOSE_LOCAL_MODELS_PATH/SPACR_BACKENDS_DIR/custom nested roots; optional cleanup is separately selected, path/content/size reviewed and identity rechecked.",
+      "rollback_acceptance": "Keep previous usable runtime and launchers until staged verification/activation. Dependency/import/version/space/permission/cancel/stale-lock/concurrent/in-use/relaunch failures retain or restore a verified usable identity and data. Retain recovery journal/backup; remove only owned required staging.",
+      "native_GUI_acceptance": "Actual current native installer and intended desktop/command/restarted GUI must supply PID/executable/interpreter/module/version receipts. Installer exit0, isolated probe or LaunchServices accepted request alone is insufficient. No native action performed here.",
+      "native_routes_to_exercise": [
+        "supported desktop installer/controller",
+        "in-app restart",
+        "real desktop entry",
+        "shell command with competing PATH/cwd/import roots"
+      ],
+      "existing_contract_limit": "Fake-tool tests intentionally expect old app gone on pip failure. Fresh direct-probe acceptance excludes stale shell/desktop selection; normalize supported launcher choices before claiming exact resolution.",
+      "native_execution_status": "unperformed; acceptance open"
+    },
+    {
+      "id": "Linux_frozen_deb",
+      "current_source_evidence": "Owned wrapper points at /opt/spacr, but desktop Exec=spacr is PATH-dependent. dpkg owns payload retirement. Generic in-app path requires an adapter, not an existing supported replacement guarantee.",
+      "source_references": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/build_debian.sh",
+          "line": 44
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/linux/io.github.olafssonlab.spacr.desktop",
+          "line": 5
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/install_cleanup.py",
+          "line": 1598
+        }
+      ],
+      "upgrade_acceptance": "Old-to-new: validate exact requested/effective code and launch identity before retiring previous app. Same-version repair is explicit. N627 prevents silent downgrade; newer_retained is a separate truthful outcome, never a claim the older requested build was installed. Stable/nightly and package/offline/cache overrides cannot produce wrong-version success.",
+      "default_cache_data_preservation": "Default preserves cache/test_data/models/downloads/preferences/logs/runs/projects/images/unknown root children. Include standard and configured SPACR_HOME/HF_HOME/XDG/CELLPOSE_LOCAL_MODELS_PATH/SPACR_BACKENDS_DIR/custom nested roots; optional cleanup is separately selected, path/content/size reviewed and identity rechecked.",
+      "rollback_acceptance": "Keep previous usable runtime and launchers until staged verification/activation. Dependency/import/version/space/permission/cancel/stale-lock/concurrent/in-use/relaunch failures retain or restore a verified usable identity and data. Retain recovery journal/backup; remove only owned required staging.",
+      "native_GUI_acceptance": "Actual current native installer and intended desktop/command/restarted GUI must supply PID/executable/interpreter/module/version receipts. Installer exit0, isolated probe or LaunchServices accepted request alone is insufficient. No native action performed here.",
+      "native_routes_to_exercise": [
+        "native deb/package-manager install",
+        "desktop entry",
+        "/usr/bin/spacr",
+        "interrupted package recovery"
+      ],
+      "existing_contract_limit": "Private-root dpkg tests prove payload replacement/manual reinstall recovery, not native desktop selection or automatic user rollback. No RPM artifact/support established by dnf/zypper dependency setup.",
+      "native_execution_status": "unperformed; acceptance open"
+    }
+  ],
+  "reviewed_qualifiers": [
+    {
+      "id": "archive_provenance",
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/703_installer_source_audit_2026-10-13/macos-linux.md",
+      "observed": "Published/report directory has no source/ tree. Actual manifest is macos-linux-source-bindings.json, not generic source-bindings.json. Independently verified all41 existing bound source/test files directly.",
+      "required_wording": "Bound source/test hashes verified in worktree; do not claim archived immutable copies unless exact files are exported."
+    },
+    {
+      "id": "absolute_launcher_inputs",
+      "observed": "Online Exec targets generated launcher, absolute for standard/default absolute paths only. Relative --launcher-dir/XDG_BIN_HOME is not normalized. Frozen Exec=spacr has source-level ambiguity, with no actual OS stale selection observed."
+    },
+    {
+      "id": "conditional_TTY",
+      "observed": "C opens Terminal when private runtime is missing; helper privacy questions require TTY, consent not collected and non-dry-run. Existing runtime launch does not always prompt."
+    },
+    {
+      "id": "custom_macOS_runtime_root",
+      "references": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/macos_launcher.c",
+          "line": 19
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/packaging/online/build_macos_online.sh",
+          "line": 107
+        }
+      ],
+      "observed": "Helper supports SPACR_USER_INSTALL_ROOT but C launcher always picks default HOME runtime. Custom helper target is not guaranteed launchable by that C path; source mismatch only, no native failure/loop observed."
+    }
+  ],
+  "verdict": "Three source flows and conditions agree: executable-only macOS gate/no-downgrade preservation; conditional Terminal questions; bare Linux Exec ambiguity versus conditionally absolute online launcher. Missing archive and custom-root mismatch qualified. No observed native selection/failure inferred.",
+  "scope_limit": "No independent review of other five flows,41-source sweep, full rollback/GUI/string list or native installation.",
+  "no_actions": true
+}

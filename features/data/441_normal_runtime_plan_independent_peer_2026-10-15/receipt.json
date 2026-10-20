@@ -1,0 +1,52 @@
+{
+  "status": "DRIVER_SOURCE_ACCEPTED_PENDING_FINAL_INPUT_MANIFEST_CORRECTION_AND_RESEAL_NO_EXECUTION",
+  "reviewed_driver_sha256": "51285c4d689efc17c2a18ffe6aa3e4e0fe091aa156d9fdc8ba9ee8a6feb960ce",
+  "reviewed_pending_config_sha256": "7674b6aa66ecd83065a01f59df29e809a2f109c7e3de303f17f7358394fc776d",
+  "reviewed_plan_sha256": "f67142da1018fa634eff9bacc0f08c194c57f114c8dc026222ad6556df3f4fa7",
+  "pending_input_head": "3a38d63054b45d7fa2cc21c0bf3de6403184d90a",
+  "ready": false,
+  "required_pins_count": 6686,
+  "owned_sources": 10,
+  "owned_reviewed_targets": 90,
+  "ordinary_pipeline_review": [
+    "Actual current original_canonical() collected once before using the genuine snapshot in ordinary review loaders. No source/gate/decoder predicate replaced.",
+    "All nine normal reviewed_runtime_translations loaders and translation candidate gates complete before first write. Exact ten owned source/hash bindings required.",
+    "Every committed foreign current target and SOURCE_HASHES identity must exist and be current before write; unrelated row disappearance is refused. Duplicate source translations must agree.",
+    "Normal write_english and write_language only. All foreign values/hashes checked after write, owned targets checked; ordinary audit validates full generated source/hash/currentness semantics.",
+    "Normal immutable caption arrival refresh preserves pinned baseline/inverse and requires actual current reviewed targets, followed by fresh original collector equality and unchanged-input checks.",
+    "PENDING config refuses execution and old3a38source requires actual final cleanHEAD/input reseal."
+  ],
+  "concrete_required_before_ready": [
+    {
+      "id": "canonical_non_python_input_pins",
+      "finding": "No packaging files and no non-Python spacr resource files exist in pending required_pins. Hash rechecks therefore omit actual directly-read collector/audit inputs.",
+      "actual_reader_inputs": [
+        "packaging/i18n/en.json read directly by canonical_sources",
+        "packaging/i18n/{all9languages}.json read by normal audit",
+        "spacr/resources/module_workflows.json read by _workflow_ui_sources",
+        "registered organism SVG files under spacr/resources/images parsed by _organism_description_sources"
+      ],
+      "correction": "Include exact actual JSON/SVG canonical and audit inputs in final frozen manifest. Keep generated catalog/arrival outputs outside unchanged-source pin set; ordinary arrival baseline checks remain strict."
+    },
+    {
+      "id": "actual_final_source_reseal",
+      "finding": "config input3a38 is intentionally pending. Newpublic1f6 introduces one N698 literal source extracted from masks.py; committed foreign catalogue may lack it.",
+      "correction": "Reseal from actual clean mergedHEAD and actual input/review hashes. Any unrelated missing/stale target must refuse before writes and return to its owner; no admission/bypass or wideningN441scope."
+    }
+  ],
+  "positive_guards": [
+    "readyFalse",
+    "exactHEAD and cleaninput tree atstartup",
+    "check_inputs beforecollector and beforewrites",
+    "all9 prepared before firstcatalogwrite",
+    "normal fullaudit",
+    "immutablearrival helper",
+    "fresh original collector equality",
+    "final source/input hashes unchanged"
+  ],
+  "limits": [
+    "Static source/JSON/AST/hash review only. No imports, collector, writer, model, tests, network or execution.",
+    "No new permission inferred; Root owns final complete-manifest sourcefreeze and serialized execution.",
+    "Acceptance of reviewed driver mechanics does not certify a successful actual producer or bypass pending manifest corrections."
+  ]
+}

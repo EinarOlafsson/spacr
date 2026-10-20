@@ -1,0 +1,58 @@
+         4282855 function calls (4158103 primitive calls) in 7.246 seconds
+
+   Ordered by: internal time
+   List reduced from 4959 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      2/1    1.517    0.758    1.517    1.517 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py:1001(run)
+      5/3    0.346    0.069    3.302    1.101 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/dispatcher.py:101(_compile_core)
+      247    0.317    0.001    0.456    0.002 {method 'decode' of 'ImagingDecoder' objects}
+  210/119    0.251    0.001    0.117    0.001 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/compiler_lock.py:32(_acquire_compile_lock)
+      111    0.149    0.001    0.633    0.006 {built-in method sendEvent}
+  797/559    0.139    0.000    0.310    0.001 {method 'acquire' of '_thread.lock' objects}
+656628/656603    0.115    0.000    0.143    0.000 {built-in method builtins.isinstance}
+   618287    0.112    0.000    0.112    0.000 {method 'startswith' of 'str' objects}
+       57    0.104    0.002    0.104    0.002 {method 'drawPolygon' of 'PySide6.QtGui.QPainter' objects}
+     4457    0.098    0.000    0.162    0.000 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/llvmlite/binding/ffi.py:210(__call__)
+      224    0.092    0.000    0.092    0.000 {method 'drawRoundedRect' of 'PySide6.QtGui.QPainter' objects}
+78792/13670    0.087    0.000    0.153    0.000 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/ir.py:321(_rec_list_vars)
+     2554    0.085    0.000    0.134    0.000 {method 'isatty' of '_io.TextIOWrapper' objects}
+    37/28    0.080    0.002    0.070    0.002 {method 'resize' of 'ImagingCore' objects}
+84774/84492    0.069    0.000    0.083    0.000 {built-in method builtins.getattr}
+       53    0.063    0.001    0.063    0.001 {method 'drawImage' of 'PySide6.QtGui.QPainter' objects}
+      185    0.061    0.000    1.604    0.009 {method 'encode' of 'ImagingEncoder' objects}
+     4275    0.060    0.000    0.060    0.000 {method 'pointAtPercent' of 'PySide6.QtGui.QPainterPath' objects}
+       38    0.058    0.002    0.333    0.009 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/iconset.py:465(reink)
+       58    0.053    0.001    0.074    0.001 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py:5349(_subpixel_grains_numpy)
+     4218    0.050    0.000    0.050    0.000 {method 'angleAtPercent' of 'PySide6.QtGui.QPainterPath' objects}
+    30052    0.048    0.000    0.048    0.000 {method 'property' of 'PySide6.QtCore.QObject' objects}
+       57    0.048    0.001    0.174    0.003 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/setup_card.py:759(_paint_accent)
+      249    0.045    0.000    0.079    0.000 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/object_settings_table.py:79(_split)
+17292/16632    0.042    0.000    1.107    0.000 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/gil_priority.py:349(eventFilter)
+  141/139    0.041    0.000    1.103    0.008 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/threading.py:323(wait)
+      140    0.040    0.000    0.156    0.001 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py:7028(_point_material)
+      623    0.039    0.000    0.087    0.000 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/screens/settings_model.py:10129(<genexpr>)
+       76    0.039    0.001    0.062    0.001 {method 'convert' of 'ImagingCore' objects}
+1206/1089    0.038    0.000    0.041    0.000 {method 'read' of '_io.BufferedReader' objects}
+     5521    0.036    0.000    0.065    0.000 {method 'setProperty' of 'PySide6.QtCore.QObject' objects}
+        4    0.033    0.008    0.033    0.008 {built-in method gc.collect}
+       38    0.033    0.001    0.034    0.001 {method 'copy' of 'ImagingCore' objects}
+   122065    0.031    0.000    0.035    0.000 {method 'get' of 'dict' objects}
+   153163    0.029    0.000    0.029    0.000 {method 'append' of 'list' objects}
+46015/23309    0.026    0.000    0.118    0.000 {method 'format' of 'str' objects}
+     1529    0.026    0.000    0.026    0.000 {method 'value' of 'PySide6.QtCore.QSettings' objects}
+      832    0.025    0.000    0.025    0.000 {method 'findChildren' of 'PySide6.QtCore.QObject' objects}
+      630    0.024    0.000    0.025    0.000 {method 'connect' of 'PySide6.QtCore.SignalInstance' objects}
+  652/331    0.023    0.000    0.030    0.000 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/cursor_policy.py:32(eventFilter)
+      140    0.022    0.000    0.022    0.000 {method 'fill' of 'numpy.ndarray' objects}
+37529/37491    0.022    0.000    0.037    0.000 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/enum.py:720(__call__)
+      140    0.021    0.000    0.213    0.002 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py:7671(_frame_impulse_lens)
+       52    0.021    0.000    0.021    0.000 {built-in method marshal.loads}
+    32913    0.021    0.000    0.054    0.000 {method 'type' of 'PySide6.QtCore.QEvent' objects}
+       27    0.020    0.001    0.024    0.001 {function _install_widget_setters.<locals>.setStyleSheet at 0x7ab7fcdecea0}
+      972    0.019    0.000    0.024    0.000 {method 'setToolTip' of 'PySide6.QtWidgets.QWidget' objects}
+      897    0.019    0.000    0.035    0.000 /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/smoke-preflight/venv/lib/python3.12/site-packages/spacr/qt/widgets/ambient.py:9544(_card_background)
+      153    0.019    0.000    0.023    0.000 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/numba/core/analysis.py:86(def_reach)
+     2554    0.018    0.000    0.178    0.000 /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages/colorama/ansitowin32.py:49(isatty)
+
+

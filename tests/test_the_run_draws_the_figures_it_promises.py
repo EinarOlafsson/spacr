@@ -29,7 +29,7 @@ class TestTheThresholdSweepIsAlwaysDrawn:
         # none of the body this is about.
         from spacr import ml
 
-        source = pathlib.Path(ml.__file__).read_text()
+        source = pathlib.Path(ml.__file__).read_text(encoding="utf-8")
         # The call is matched WITHOUT its closing bracket: the helper gained
         # a keyword saying whether the threshold in force was measured from
         # the control wells or set by the user, so the call spans two lines.

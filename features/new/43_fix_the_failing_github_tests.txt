@@ -2246,7 +2246,7 @@ have been handed to the documentation lane with the complete local logs.
 The old Qt crash-site files and public-prose checks pass on current source:
 145checks passed. This focused run cannot establish full-shard stability.
 
-The guarded-QThread inventory reproduced a current failure: Starplast and
+The guarded-QThread inventory reproduced a current failure: ParaScape and
 the primary-mask selector were absent from its explicit module list. Both
 are now tested by the same existing safety assertions. The packaging count
 measured622installed Python modules,14added and0removed since the608pin at
@@ -3649,7 +3649,7 @@ relative-path failure. Complete terminal logs and current job/source state
 retained. On exact7281178ac, real collector enabled across6 affected owner
 files260PASS7.60s; actual endpoint260/260, no skips. Files cover doctor,
 CellProfiler provisioning, relative file writers, tilde database paths,
-Starplast environments and original diagnostic messages. No further source
+ParaScape environments and original diagnostic messages. No further source
 change or duplicated full CI dispatch. Receipt
 data/681_collector_file_access_ci_2026-10-09/receipt.json now retains
 27 verified payloads and six additional exact Git test bindings.
@@ -3714,3 +3714,440 @@ nonduplicated narration staging. Whole3 owningfiles31PASS/no skips. Normal
 desktop/mobile navigation7checks pass; localmedia only. Evidence expands
 data/43_current_tutorial_guard_repair_2026-10-09/receipt.json. Full hosted
 CI/deployment remainspending; Home serialQt untouched.
+
+2026-10-10 10:07 EDT — Make Masks parent-source SIGSEGV: cause found, fix 18a308d33
+Run 37943684517 Coverage0 (test_make_masks_parent_source_race_guards
+[parent]) and Coverage7 (test_make_masks_center_pixel_puncta [False]) both
+crash in the primary-mask waitUntil. The uploaded native cores give the same
+main-thread stack: QEventLoop::exec -> sendPostedEvents -> QThreadWrapper::event
+-> QObject::event (DeferredDelete) -> ~QThreadWrapper -> Shiboken::Object::
+destroy -> releaseWrapper -> unregisterWrapper+0x50, reading the freed
+wrapper's cptr array (QtCore.abi3/libshiboken offsets matched against the
+identical 6.12.0 wheels; the collector's own gdb python diagnostic failed on
+"No module named math"). The deleted QThread is PrimaryMaskSelector's
+_SourceWorker, deleteLater'd in _finished with its Qt parent holding the last
+Python reference. Shiboken 6.12 destroy() (unchanged on upstream dev) removes
+the parent, which frees the wrapper, then calls releaseWrapper(self) whenever
+hasWrapper(cppData) finds ANY entry at that address; a stale entry at a reused
+address turns that into a use-after-free. That is why only loaded hosted
+shards with a long test history crash and every local replay passes.
+Fix (product): _retire() joins the worker and keeps a module reference to its
+wrapper until the C++ half is gone, on the finished and drained-shutdown
+paths; dead wrappers are released on the next retire. Regression
+tests/qt/test_primary_mask_worker_outlives_its_cpp_half.py checks at
+`destroyed` whether the wrapper still exists: [False] on the old code on both
+PySide 6.10 and 6.12 (the crash window, deterministic), [True] with the fix.
+Local reproduction of the SIGSEGV itself stayed negative: three parallel
+PySide 6.12 + coverage xdist replays of the crashed worker's 13-file order
+(496 passed each) and focused loops. Related selector/Make Masks/guard tests
+pass. Other parented QThread subclasses deleted via deleteLater
+(_MaskLoadWorker, _FolderJobWorker) have the same window; not changed here
+because N673 is editing make_masks.py. Item 43 stays OPEN until hosted green.
+
+2026-10-13 20:03 EDT — Home current-CI follow-up validated locally
+    Full run 38477246153 on 9af7f3dc12 exposed stale N701 popup order,
+    published tutorial checkpoint/cache/native-timing contracts and two new
+    coverage gaps. Work supplied the exact verified 148-file lesson04 export;
+    Home imported it with the normal checked-copy tool after every size/hash
+    and manifest/readback/browser binding passed. Full popup/inventory/media/
+    pronunciation assertions remain. Real tests cover the absent DINO backend
+    row/action and copy glyph neutral fallback from the actual cached palette.
+    Combined ten owning files: 196 PASS, exit0, no skips/errors/failures.
+    Source-identical local augmented coverage diagnostic: 664/664 modules,
+    zero regressions; ratchet unchanged. This is not hosted acceptance.
+    Receipt: data/43_home_ci_followup_2026-10-13/receipt.json. Parent stays OPEN
+    until the coherent new candidate passes full hosted CI.
+
+
+2026-10-14 00:30 EDT — Home preview repaint repair validated, fresh full CI required
+    Exact eb72 full run38488240863 ended28PASS/2FAIL: one independent Qt2
+    cached-preview ratio plus dependent gate. Original unchanged local node
+    reproduced0.894915; native stock-item caches already hit and pixels match.
+    Genuine repair reuses one bounded48MiB presentation raster only for the
+    same held frame and exact supported partial clip; fractional/high-depth/
+    unproven devices retain the original path. No timing threshold change.
+    Source599043a6...: original owning99PASS, final traced70PASS; all98added
+    statements and34branches executed, zero exclusions/misses. Real visible
+    Mask backingstore cache warmup2blits then0over12repeats, exact pixels.
+    English audit/Ruff pass;27 localized review records are unchanged
+    pre-existing advisory debt (N615), not new helper arrivals. Earlier
+    scrollbar-state mismatches remain preserved; cause unproved, final18
+    comparisons stable/pass with genuine cache reuse. No unrelated fix made.
+    Evidence:data/43_partial_field_repaint_repair_2026-10-14/. ParentOPEN;
+    candidate must pass a fresh full hosted run before promotion/release.
+
+2026-10-14 01:18 EDT — Fresh candidate a744a9fda2 / run 38512120776 remains
+live, not full green. Eight jobs pass, including coverage shards 5 and 11; remaining
+Fast/minimum/Qt/coverage and final gates are pending. Source/tests unchanged.
+Fresh scratch/review guards require explicit candidate arguments and correctly
+reject unfinished CI. A normal merge simulation produces the exact candidate
+tree 5e2df183be6ecfeb20fb8d759c8eb059d0b80eaf, without changing the old private
+promotion. Readiness proof: data/1515_current_candidate_readiness_2026-10-14/.
+Main/release remain held; this does not replace terminal 30-job acceptance.
+
+2026-10-14 02:30 EDT — Exacta744/run38512120776 has one independent failure
+cause: four former-application environment-path strings in historical CPU
+preflight evidence. Coverage8, minimum2 and Fast2 report that same scanner
+failure; coverage job fails only its all-shards-tests dependency, while its
+actual664-module numerical/integrity checks pass. Ambient6416statements and
+1716branches are100%, with no misses/exclusions;69new owning cases pass in
+hostedCoverage9. Qt1/2 verdicts remain pending; original0.75untraced benchmark
+has not yet received its final hosted verdict. Source/tests stay unchanged.
+Recoverable raw archive repair preserves every11306original byte/hash in GZIP
+and updates the manifest's compressed/decoded identities, without changing
+scan rules or historical proof bindings. All3existing owning branding checks
+PASS(exit0/no skips); final newly staged proof-text scan still required.
+Proof: data/43_historical_metadata_archive_repair_2026-10-14/. No fullCIrestart
+until remaining independent jobs finish; promotion/release remain held.
+
+2026-10-14 02:59 EDT — Final hosted A744 run is terminal: 24 PASS / 6 FAIL across
+30 jobs. Qt1 passes. Original preview-cache 0.75 gate explicitly passes; a
+separate unchanged dark opaque-field comparison fails at nine SAMPLED pixels
+on x=20, y=204..772. Total differing pixels and cause remain unknown; earlier
+x=460 scrollbar observations do not establish a relation. Exact unchanged
+local dark node passes once (17.64 s), which does not erase hosted failure.
+Qt owns original-assertion-preserving instrumentation/diagnosis privately;
+colour peer review keeps paint/event/capture state faithful. Source holds and
+release block persist; no blanket retry, tolerance, skip or threshold change.
+Small source-bound raw-evidence identities, numerical/69-case/added-code and
+terminal receipts: data/43_a744_terminal_ci_evidence_2026-10-14/.
+
+2026-10-14 03:02 EDT — Archive repair final staged-text acceptance: all three
+existing branding assertion functions pass unchanged against every newly
+staged tracked path/text. Earlier normal owning pytest is 3 PASS, exit 0.
+All archive/export compressed and decoded bytes/hashes independently verified.
+Features-only publication; app/tests/tools/workflows/packaging remain exact
+A744. Final text receipt: data/43_historical_metadata_archive_repair_2026-10-14/.
+This repairs metadata naming, not the independent opaque-pixel failure or
+whole CI; main promotion and release stay held for a fresh full-green run.
+
+2026-10-14 07:10 EDT — Morning diagnostic result: exact Qt 6.12/pytest 8.4.2
+runtime prepared in isolated WD scratch, leaving installed environments and
+application source untouched. All 9 owning module cases pass. All 104 actual
+hosted gw0 nodes then pass in exact original order, source/assertions unchanged,
+under the cap with no pre-failure image/getter/paint observer. The failure-only
+collector never triggered; do not manufacture pixel/cache evidence from PASS.
+Python patch/OS/concurrent-worker differences remain. Hosted pixel failure is
+still UNRESOLVED; no production rendering correction or release is claimed.
+Source-bound receipts and independent static hosted-fallback review:
+data/43_opaque_diagnostic_context_2026-10-14/. Root owns next focused hosted
+diagnostic review/integration; proposal not yet deployed or dispatched. Fresh
+whole 30-job green remains mandatory after a defensible source repair.
+
+2026-10-14 08:28 EDT — Focused hosted diagnostic 38560980131 completed successfully:
+104 PASS, no failures/errors/skips, actual original and diagnostic exit 0,
+exact original gw0 node order and source guard intact. Hosted Python 3.12.15,
+Qt 6.12.0 and observed plugins bound; FF1 test source retains A744 app tree.
+No image artifacts because the unchanged dark assertion passed. This is not
+a rendering-cause diagnosis, full CI acceptance, main promotion or release.
+A fresh whole candidate includes the real metadata archive repair plus
+post-assertion image capture in ordinary Qt jobs. Existing native contracts,
+markers/workers/timeouts/thresholds/app/test assertions stay unchanged. One
+manual full CI run is next; no successful diagnostic is used to bypass it.
+
+
+2026-10-15 — Cellpose catalogue fixture CI repair
+    Two test fixtures now use actual ModelEntry metadata, and evaluation tests
+    request an existing controlled local checkpoint instead of a nonexistent
+    absolute path. Production resolution/trust guards and all assertion ASTs
+    are unchanged. Actual hosted-shape baseline5FAIL; intermediate10PASS/10FAIL
+    identified the stale missing path; final owning two modules20PASS8.32s.
+    Models/trainers are intercepted; no real weights, training, GPU or fullCI
+    acceptance is claimed. Evidence:data/43_cellpose_catalogue_fixtures_2026-10-15/.
+
+
+2026-10-15 — Cellpose eval double signature contracts repaired
+    Five model doubles declare literal recorded Cellpose4 parameters; the
+    worker3 double declares its real adapter API and is checked at its exact
+    qualified AST location against _Cellpose3Adapter. All202 prior assertion
+    ASTs and partial ceiling13 remain. Actual sweep baseline1FAIL; owning
+    first57PASS2FAIL exposed omitted explicit-default recorder fields; final
+    affected N698/sweep19PASS17.01s. Unchanged owning results are retained,
+    not counted as76 unique tests. Recorder preserves the four unconditional
+    desktop fields plus other nondefault bound values; raw keyword presence
+    is not inferred. Nine existing ad hoc lint findings remain; no fullCI,
+    native model, training or release acceptance is claimed.
+    Evidence:data/43_cellpose_signature_doubles_2026-10-15/.
+
+
+2026-10-15 — DINO diameter test follows current shared contract
+    The old empty-settings expectation incorrectly required nativeNone despite
+    supplying a30px magnification default. Test now requires30.0 and separately
+    verifies explicitauto retainsNone; explicit40px and other assertions remain.
+    Actual old node fails, changed node1PASS4.80s. No production/model/scientific
+    or fullCI claim. Evidence:data/43_dino_default_diameter_contract_2026-10-15/.
+
+
+2026-10-15 — final shared-Mask eval fake obeys API contract
+    A kwargs-only fake in the six-family Mask adapter fixture evaded the
+    named-input signature sweep but was caught by both hygiene gates. It now
+    declares recorded4.2 parameters/sentinel and records only actual bound
+    parameters, includingx and defaults. All26 original assertions and
+    returned arrays remain. Actual hygiene baseline2FAIL; owning+hygiene+
+    sweep30PASS40.49s. A source-reviewed recorder-only freevar exclusion then
+    passed27affected owning cases7.55s; unchanged gates were not repeated.
+    No production/ratchet/model/fullCI acceptance claim.
+    Evidence:data/43_shared_mask_double_contract_2026-10-15/.
+
+
+2026-10-15 — deleted bioimageio fixture isolates unavailable model
+    The old test left an external provider declaration after deleting its
+    local fake download, triggering intended exact-basename reacquisition. It
+    now supplies an empty unavailable catalogue and refuses any attempted
+    fetch, keeping the original FileNotFoundError/notthere expectation and
+    asserting the path stays absent. All previous assertion ASTs remain.
+    Safe controlled baseline1FAIL6.10s; affected node1PASS6.15s. Existing N702
+    legitimate reacquisition cases are hash-bound/read only, not duplicated.
+    No production/trust changes, network/model/fullCI acceptance claim.
+    Evidence:data/43_bioimageio_deleted_fixture_2026-10-15/.
+
+
+2026-10-15 — prefixed diameter and wound diagnostic tests current
+    Prefixed Mask test now distinguishes blank17px default from explicitauto
+    nativeNone, keeping original parameters/array assertions. Wound edge test
+    still requires refusal and now checks the exact translated current index3
+    versus2planes diagnostic instead of the obsolete English regex. Existing
+    absent-well/condition assertions remain. Actual two-node baseline2FAIL6.70s
+    and final2PASS6.45s; current public helper ASTs were equal before edits.
+    No production, algorithm, caption/API, model or fullCI changes/acceptance.
+    Evidence:data/43_imaging_test_contracts_2026-10-15/.
+
+
+2026-10-15 — four runtime fixture consumers verified, no new source fix
+    The two current-runtime-floor and two timestamp-collision cases now pass
+    with the already published shared fixture isolation. Target test files,
+    imported fixture and production cleanup source match pinned public3922
+    before and after execution. Actual4PASS10.52s, no skips; no mac/pip/nightly
+    cohort repetition or code mutation. Disposable local synthetic wheels only;
+    no hostedPython3.9/nativeplatform/fullCI/release acceptance is inferred.
+    Evidence:data/43_runtime_fixture_consumers_2026-10-15/.
+
+2026-10-15 — Additional current-source CI contract repairs ready/published normally.
+Three callable/documentation failures reproduce3FAIL58.69s and pass3PASS54.21s
+after restoring three missing private docstrings and validating exact named
+source/signature arrivals. All historical counts, parameter sums, digests and
+original assertions remain; no source/tool eligibility relaxation. Two shortcut
+failures reproduce2FAIL44.40s and pass2PASS36.35s using the already-published
+Annotate page/focus labels and current shortcut prose. Production keyboard
+bindings and all ordering/scope/semantic checks remain. Evidence:
+data/ci_callable_documentation_contracts_2026-10-15/ and
+data/ci_shortcut_current_contracts_2026-10-15/. These are targeted source-bound
+repairs, not a whole hosted-CI pass. Final full CI remains deferred by the
+maintainer until remaining implementation work is finished.
+
+2026-10-15 — Original: immutable historical quotations and native lesson15 CI contracts.
+    Branding baseline fails on15 literal historical title quotations in the
+    unchanged seven-output progress bundle. A single exact-path/SHA evidence
+    pin preserves those bytes; missing/unreadable/drift now fail explicitly.
+    All current product/docs and neighboring evidence remain checked. Entire
+    owning branding file27PASS16.68s, baseline1FAIL16.57s; all bundle bytes
+    remain exact. Evidence:data/ci_historical_progress_branding_2026-10-15/.
+    Owner-supplied native-arrival patch adds published lesson15 to the explicit
+    timing set; AST and actual lesson_catalog.js native timing identity match.
+    No recording/player/media mutation or unchanged browser replay. Separate
+    player-readiness patch does not apply to current authoring source; owner
+    rebase/dependencies requested, not silently overwritten. No fullCI/whole43
+    or release acceptance.
+
+2026-10-15 Original — current hosted-failure repair batch published through d12fe074a6.
+Reproduced and repaired the documentation fixture dependency, Toggle failure
+injection, live-run workspace fixture, Pages content/redirect routing test,
+installer cleanup sorting, asynchronous model-picker fixtures, cancellation
+cleanup behavior fixture, channel warning expectation, private dataclass
+constructor audit and typed Qt Enter-event crash fixture. Each finite targeted
+run and independent source/evidence peer is preserved under features/data/ci_*.
+Normal notebook generation updated only activation_maps checkpoint settings.
+No ratchet ceiling, historical debt, assertion exemption, provider refusal,
+model-trust check or dialog-safety guard was relaxed. No full-suite/release CI
+was dispatched; local staged passes do not establish hosted green/coverage.
+Remaining actual owner dependencies include N700 test hygiene, F561 reviewed
+input fixture path, README source contracts and current tutorial publication
+selectors. HF cell-mask E2E emptiness remains under source-only diagnosis.
+Whole N43/F288 and release acceptance remain OPEN.
+
+2026-10-15 — Original French/Swedish runtime review gates repaired
+Exact published retirement/reuse contracts retain historical count/hash pins,
+ordinary canonical-source/translation checks and all prior failures/peers.
+Both original nodes pass58.76s, then pass60.51s on merged incoming source.
+Actual failed temporary-download cleanup fixture passes1.69s, no production
+change. Broader CI remains open; new docs upload is provider1GB storage gate,
+not a complete green or final release. Evidence referenced in current HANDOFF.
+
+2026-10-15 — Current completed04 media CI contract accepted.
+The two owner-reviewed selector expressions now bind Work's actual completed
+04 packet. Original two tests PASS2/0.94s, zero skips/network events; all98
+assertions/all other text and709 protected blobs remain exact. Independent
+source/evidence peer accepted; prior02 proof is preserved, not reclassified
+as a new failure. Current-source CI was pending behind older retained group
+work in the dated scheduler snapshot; capacity reason remains unknown.
+No concurrency/config/cancel/rerun/final dispatch or green-CI claim.
+Evidence:data/ci_current_publication_selector04_2026-10-15/ and
+data/ci_current_scheduler_snapshot_2026-10-15/.
+
+2026-10-15 — Three callback outcomes now satisfy the original hygiene gate.
+The exact previously published three-assertion proposal is adopted in the
+one CI test file. Original three GUI nodes and generic assertion-free gate
+PASS4/21.04s, zero skips/network events. Removing those three assertions
+restores the complete original bytes/AST; all callbacks, waits, timeouts,
+privacy conditions and the zero hygiene ceiling remain unchanged. All4377
+tracked test Python files were physically present and frozen, avoiding a
+sparse-checkout false pass. Independent source/log/pin peer accepted.
+This narrow N43 test claim was notified through coordination under the latest
+no-active-claims notice; N700 product/provider/relay/API/item stayed untouched.
+Earlier source-bound generic failure is retained, not rerun or relabeled.
+Whole N700/N43 and final CI/release remain open. Evidence:
+data/ci_three_client_outcome_assertions_2026-10-15/ and
+data/ci_three_client_outcome_assertions_independent_peer_2026-10-15/.
+
+2026-10-15 — Strict reviewed vocabulary and six compiled consumers pass.
+Six existing Choose folder… targets now preserve the source Unicode ellipsis
+in the shared authoritative table, review rows and normally generated catalogs.
+Only the six suffixes changed; all unrelated values/source hashes, English,
+API, Help, arrival fixture and three unaffected locales remain exact. Ordinary
+all-nine preflights, full runtime audit and fresh source equality passed.
+The strict inverse reconstructs the unchanged historical99 count/source/content
+digests from56 named arrivals/one retirement; its original Unicode negative
+assertion is untouched. Six corrected new-fixture values have archived old
+bytes; no bad translation, historical hash or raised ceiling is frozen in.
+Original vocabulary check plus six real persisted-INI compiled tr consumers
+PASS7/5.72s, zero skips/network events, all24 inputs/catalog/source pins exact.
+Fallback tripwires ensure compiled output; translations/tr were not mocked.
+First producer stopped before writes on an overbroad subprocess guard; only
+exact read-only ldconfig -p was allowed after peer review. Original failure
+and successful unchanged-gate retry are retained; no model was requested.
+No N699 implementation/item or fullCI/release completion is claimed. Evidence:
+data/reviewed_folder_ellipsis_normal_closure_2026-10-15/ and
+data/ci_reviewed_folder_ellipsis_consumers_2026-10-15/.
+
+2026-10-15 Original Home — dated README checkout size factual CI repair. Immutable public81ffd9 regular tracked blobs measure4656.950838MiB, rounded4657 under existing MB label. Only size/date tokens changed in ten YAML paragraphs; nine new source-bound technical reviews retain all historical reviews and measurements. Normal ten-language README writer/check and original11 size/review/structure cases PASS1.42s, zero skips/network. Only40 intended generated panel/text/README paths changed; foreign panels/links/source/review pins exact. First shaping-dependency failure stopped before writes; unchanged writer retried using an existing fully equipped interpreter, tests retained spaCR. No package/tool/tolerance change or full-CI claim. WholeN43 remains open on actual hosted/current-source verdict and remaining explicit gates. Evidence: data/ci_readme_tracked_size_inputs_2026-10-15/ and normal closure receipt.
+
+2026-10-16 — Release publication now requires accepted Windows NSIS, macOS DMG and Debian DEB payloads from the exact tagged commit, with version/source/checksum validation before upload.
+Related checks pass: native-release files125 (2 native-only skips), actual dialog completion9, frozen restart/settings-flow3, translation inverses2, splitter teardown6 and Python3.9 stdlib inventory4; live pending pane sizes still persist once.
+Protected full run38852206708 remains active; the next code candidate contains these fixes. No whole-green, native installer acceptance or release claim.
+BLOCKED ON MAINTAINER: have Claude resolve N700 retired setup tests/terms/markup, N370 alpha registration, N698 obsolete source fixtures and N673 Matplotlib private-attribute use; preserve behavior and existing gates.
+The hosted big-folder DND test passed this run without changing its700ms limit; finish remaining owned CI repairs and require full green before publishing1.5.1.5.
+
+2026-10-16 — 621bf7433fb passes native Windows NSIS, Debian12 and Ubuntu22.04 install/app/uninstall/helper checks, including retained user data.
+Mac failure identified the actual first-install cache dialog; smoke now completes default-off Keep review before Preferences/Quit, retaining unknown-modal and deadline refusal.
+Related controller checks pass, including real asynchronous review, retained files and no late button clicks; the unchanged1.35 paint test also passes with coverage onQt6.11.2.
+Full tests38861369146 still fail reserved N700/F370/N673/N698 checks; owner repairs remain required before release.
+New native/full CI verdicts remain pending;1.5.1.5 is not released.
+
+2026-10-16 — 4180045b922 makes finite grain/satin CPU compilers survive interpreter teardown; rendering stays asynchronous and the copy queue remains a daemon.
+Both subprocess regressions fail before the fix; all52 related checks pass afterward, including unchanged Classify import isolation. No old LLVM-crash causality claim.
+Native installer workflow38873736048 is green on72e07; protected full CI38877579907 continues. Reserved-feature failures and full-green release gate remain open.
+
+2026-10-16 — a37d0f10357 repairs the smoke-test fake by binding the real cleanup helper; worker and failed-database assertions are unchanged.
+Original node fails before the fixture repair; all17 owning tests pass afterward. Hosted72 coverage also passes the original1.35 Make Masks paint-rate check.
+Full CI still requires the reserved N700/N673 owner repairs and remaining job results; no release or whole-item completion claimed.
+
+2026-10-16 — 1a4f74fdac3 aligns FlowView packaging assertions with the core Qt6.12.0 exclusion and checks the unchanged lower/upper bounds and core-binding reuse.
+The original assertion fails before this test repair; the owning file passes afterward. Future-version admission states policy, not an upstream bug-fix claim.
+Remaining CI jobs and reserved-feature owner repairs still gate1.5.1.5; no whole-green or release claim.
+
+2026-10-16 — 19143604c79 closes every cached QWidget screen before main-window destruction, flushing pending Annotate labels and draining its writer/page worker; close vetoes and deduplication remain intact.
+Two real shutdown regressions fail before the fix; all14 related checks pass, with the two test-helper follow-ups also passing. Original Undo/Redo assertions are unchanged; hosted crash causality remains unproven.
+7c37664cb309/42f1c953abb isolate GDB embedded Python from inherited runtime libraries while retaining inferior search paths and bounded core cleanup; all95 related cases and five focused follow-ups pass.
+Full CI and reserved-feature repairs still gate1.5.1.5; no whole-item completion or release claim.
+
+2026-10-16 — 23580ea8701 makes the field-drag test consume its queued release through the existing zero-time frame API; nonblocking input and all original spring assertions remain unchanged.
+A held-render-lock baseline reproduces the stale engine assertion; all17 owning tests pass, including unchanged150ms responsiveness and strengthened queued-release continuity/no-replay checks.
+HostedQt6.11.2 passes all four strict opaque/classic paint modes. Full-green CI, reserved-feature repairs and1.5.1.5 publication remain open.
+
+2026-10-16 — The serial GDB test now covers absent, empty and inherited library paths without changing debugger isolation, exact commands or backtrace limits; all9 focused checks pass.
+This repairs current run38896248803/job116957311449; the protected run and its existing observer remain active, with no cancellation or duplicate dispatch.
+BLOCKED ON MAINTAINER: the N700 owner must reconcile tests/test_packaging_metadata.py:378 with the deliberate Terms4.3 change; compatibility38894990268/job116953641767 still expects4.2.
+Release1.5.1.5 remains unpublished; continue owned CI repairs as the remaining jobs finish, then require green final-source tests and compatibility before promotion.
+
+2026-10-16 — The thread guard now restores the adopted GUI-thread wrapper to the real application after affinity reads; two forced-GC regressions fail before the fix, all19 owning checks and the previously crashing64-test coverage sequence pass afterwards.
+Shutdown fixtures use real owned/deleted widgets (2PASS); opaque/classic captures require unchanged settings geometry throughout the existing eight-attempt budget, retaining poison and exact-pixel assertions (2PASS).
+The font-scale benchmark warms both modes and alternates order without changing its strict comparison (3PASS; changed benchmark also passes without instrumentation). The separate hosted preview-cache ratio failure remains unreproduced locally and unchanged.
+Coverage7's four-writer database test still has an unexplained hosted timeout: its original singleton and ten-test prefix pass locally under coverage/xdist; no timeout, selection or concurrency assertion was weakened.
+Excluded N700/N702/N698/F370/N673 owner repairs and green final-source CI still gate release1.5.1.5; the protected run and its observer remain active, and no whole-item completion is claimed.
+
+2026-10-16 — Distributed thread-timeout reports now retain uncaptured stderr, so a forked child holding the worker transport cannot hide the original stack and captured output.
+Two real fork/xdist regressions pass for ordinary and function-only timers; two focused lifecycle checks preserve normal cancellation and debugger-return restoration.
+The existing timeout callback, durations, failure exit and database concurrency behavior are unchanged; this fixes missing diagnostics, not the unexplained hosted four-writer hang.
+Final green CI, excluded-owner repairs and native acceptance still gate release1.5.1.5; no whole-item completion is claimed.
+
+2026-10-16 — Maintainer priority: keep the same two CI agents assigned until GitHub tests are green and release1.5.1.5 is delivered; reported starting count90,276/91,449 is not a completion claim.
+Run the normal hosted CI and fix every actual failure, including completed Claude-owned areas now handed over; retain assertions, coverage ratchets and legitimate test semantics.
+Reuse active runs and passing results; no duplicate dispatch or repeated scope inventory. Do not edit the still-running wgpu/installers or Make Masks layout files until their owner commits land.
+Owner pair: ci_gdb_contract + release_path; root integrates and publishes. F288 broader issue/coverage completion is deferred until after1.5.1.5, without disabling existing CI checks.
+
+2026-10-17 — Root + release_path own the concrete Compatibility supersession repair: runs39088615998 and39089316477 were cancelled by concurrent documentation/tutorial pushes before mandatory checks finished.
+Compatibility now queues push runs like Tests and cancels running predecessors only for PRs; all jobs, triggers, groups, assertions and coverage limits are unchanged. Existing orchestration contracts pass12checks (one empty historical category skips); pending pushes can still replace older pending pushes. ci_gdb_contract keeps the sole observer; green hosted gates and1.5.1.5 publication remain open.
+
+2026-10-18 — Coverage9 job117570114828 has two genuine settings-flow currency failures (z_plan missing, stitch_threshold readers stale), unchanged on published e643; original706 owner handles normal generated-output closure with release_path peer review.
+HF publication117578165208 separately hit the v2 Space1GB quota for a634,256,911B site; newer7203 Docs publication117585941550 subsequently succeeded without our cleanup. The cleanup request is withdrawn; continue live gates without hosting mutation, assertion/ratchet changes or credential rotation.
+
+2026-10-18 — Coverage11 legacy PNG metadata loading is repaired by selected-mask format dispatch;18 affected cases pass, preserving canonical TIFF lineage, renamed TIFF/BigTIFF content and corrupt-TIFF validation. Source integrated as c1c33cbf9; final normal generators and nightly publication follow.
+Coverage6 subtitle lifecycle and stale verbose-help expectation are repaired as6e7d4c185;86 affected cases pass, including every84 original2x fit case and a font/text lifecycle regression. Strict geometry, translations and ratchets remain unchanged; hosted acceptance and release stay open.
+
+Current upstream a8cf source is retained during integration; preserve the stronger selected-mask content validation and constructor-safe font/style lifecycle fixes. Normal API/Help closure must include the actual new Make Masks/Plate View callbacks without altering source meaning or historical records; codecov_integration + embedding_implementation repaired the three stale uint16 tests to prove exact65536/70000 identities, no wrapping/collisions and true2**32 refusal; all6 affected cases pass (private d7c39f539), with arrays and TIFF bytes preserved.
+Final normal flow/consumer/Help generation and9 link/freshness contracts pass; shared visibility policy removes fabricated private-backend links while preserving deliberately published services. Exact upstream API seams add no eligible changes; retained45 target reviews/14 API contracts remain valid. Repairs are published7599a65ca; hosted acceptance and release1.5.1.5 remain open. Incoming18686626b shifts Make Masks consumers by8lines (the recorded classes read17464 is now17472); root + retained conda_acceptance refreshed exactly6 consumer-map line references normally, preserving all keys/counts/targets/other fields and runtime bytes. Current AST confirms the17472 read; prior validations remain valid.
+
+2026-10-18 — Coverage4/117591841057 exposes two current defects: AppScreen uses the unsupported owner+partial singleShot overload, and calibrated TEM mask saving supplies metadata twice. Retained codecov_integration + embedding_implementation repaired both dispatches with the existing owner-bound helper:8 owning cases pass (6 retained +2 deletion-fixture reruns). release_path + codecov_acceptance merge exact calibration/shape/embedded lineage once:7 real TIFF/BigTIFF, uint32 and atomic-failure cases pass after the baseline reproduces. Signatures, docstrings and captions are unchanged; the new unchanged DM4 UI node also passes. Normal consumer-map refresh changes only35 line references; one consolidated nightly publication follows. The API arrival failure was already fixed and is not redone.
+
+2026-10-18 — Coverage1/117591841106 exposes a current PlateView lifetime defect: a delayed finished lambda emits through the deleted screen after the PlateView test, surfacing in the following db_browser case. Retained codecov_integration + embedding_implementation guard both relays with existing emit_safely; exact native-deletion baseline fails before the fix and7 focused cases pass afterwards, including the unchanged two-case demo order and existing latest-job tests. APIs/captions remain unchanged; a separate session-end job-registry diagnostic is retained without claiming clean teardown. Prior timer/TEM validations remain valid.
+
+2026-10-18 — Coverage2/117591841059 additionally exposes stale generated13_plaque_assay.ipynb; one normal generator run updates only two strings to the existing v5 default/description, and the single owning currency case passes15.00s. Coverage2 DM4 UI save failure is the same calibrated metadata defect already repaired; that newly identified unchanged UI node passes9.28s without replaying engine cases. Other Minimum1/API count failures are already covered by the published411 source-bound arrival fixture. The tutorial owner independently repaired the Home31→33 inventory pin in a3acd9175; preserve that source. Incoming source requires exactly2 changed API entries from normal extraction: example-loading in_background parameter prose and MakeMasksScreen.open_folded first-fold paragraph (18 new targets,7 old blocks/locale preserved). Constants/private helpers add no eligible entries. Normal extraction also binds c71ce public set_frame remembered-state paragraph: final3 changed API entries/27 new targets/81 prior blocks preserved, no new runtime strings. Prior45/18 target approvals and unrelated catalog/history remain intact. Coverage0 additionally needs exact Watch warning stream/capture diagnosis (capsys empty although captured stdout has the warning); release_path + codecov_acceptance own the bounded same-size/mtime identity case. The traced actor is background Numba ColorShell/Colorama process-stream restoration; validate the public early CI highlighting-only control without disabling JIT, actual messages, capture assertions or identity checks. Coverage7 needs the preference budget test aligned with the already-published per-thread QSettings cache: codecov_integration + embedding_implementation preserve actual one-store, values and thread isolation without rollback or weaker assertions. Exact tested3c3507 stronger preference contents are adopted over the incoming weaker <=1 patch;3 affected checks pass. Later77e private-method-only changes add no eligible API delta; retain27/81 adoption without writer replay.
+
+2026-10-18 — Exact hosted Numba0.68/llvmlite0.50/Colorama0.4.6 reproduces the unchanged Watch capture failure; early CI-only NUMBA_DISABLE_ERROR_MESSAGE_HIGHLIGHTING=1 passes while retaining compiler diagnostics, JIT and strict identity/warning assertions. Tests/Compatibility workflow environments are the only implementation change; parsed job/trigger/concurrency invariance and peer review pass.
+Final three-entry API adoption preserves81 prior blocks, adds27 reviewed targets and passes11 contracts; the stronger preference-cache test passes3 cases. Normal downstream generation changes only36 consumer-map line fields, and its2 affected currency checks pass; Help/runtime/settings-flow outputs remain unchanged. Hosted gates and release1.5.1.5 remain open.
+
+2026-10-18 — Incoming4dfeb9f0d/7bc31e020 requires a bounded F411 closure for the new ResultsTable.set_frame stepped-fill documentation: accessibility_implementation + accessibility_acceptance prepare nine normal source-bound targets and affected catalog currency checks, preserving prior27/81 adoption and11 passes. Exclude only normally private helpers/classes; preserve all old paragraphs, source history and unrelated outputs. Downstream Help/consumer-map work remains with conda_acceptance; nightly publication stays with root.
+
+2026-10-18 — Integrate published c807/40af/d499 source: normally adopt the two changed workspace API paragraphs and the extractor-proven public AppScreen.register_workspace paragraph in nine languages (27 targets), plus published40af first-fold targets; retire only our nine duplicate first-fold rows and the one superseded Icelandic register_workspace row, retaining original review history. Preserve all unrelated catalogs, earlier example/ResultsTable targets and passing results; regenerate final affected consumer/Help outputs after the integrated source is stable.
+
+2026-10-18 — Incoming4dfeb ResultsTable timers violate the existing minimum-PySide contract despite five current-binding behavior passes. The two calls now use existing _after; the unchanged compatibility guard and all five stepped/synchronous/read/selection/replacement cases pass (6checks,10.29s; private313dc462d). Public API prose, captions and tests are unchanged; root integrates this with final normal API/consumer outputs.
+
+2026-10-18 — Final merged-source API checks pass10cases; normal consumers/Help generation changes only228 line references and its2 currency cases pass. Coverage7 batch9 timeout is identified in successful Pool.__exit__ forced termination; the test now closes/joins gracefully after success, keeps termination on failure, requires four original worker PIDs/zero exits and preserves every field/eight-row assertion. Its sole covered xdist node passes17.06s (private8f3b6a272); combined coverage/ledger are readable, without claiming separately attributed fork-child coverage. Five mandatory module ratchets remain under repair; no ceilings change and release1.5.1.5 remains gated.
+
+2026-10-18 — Actual a8cf twelve-shard aggregate exposes five mandatory module-ratchet deficits; retained pairs add87 unique passing behavior cases (9i18n/settings,3PlateView,50engine,25MakeMasks), with production and all ceilings unchanged.
+Source-bound union of existing/new coverage leaves prior missing statement/arc gaps: i18n2/1≤5/1; mask_engine9/11≤11/11; MakeMasks37/26≤59/28; PlateView0/0≤1/1; settings_model108/61≤137/61. This closes the recorded five-module deficits, not a fresh whole-suite measurement or final hosted acceptance.
+Tests cover real malformed TIFF lineage, edit/navigation rejection without mutation, exact worker settlement and existing accessibility/settings behavior; F655 feature work remains deferred. Related API/generated outputs remain valid because no product source changed. Root publishes one combined test-only repair; live hosted tests/coverage and release1.5.1.5 still gate completion.
+
+2026-10-18 — Integrate incoming18f724/4f2400/b31fe source and retain both published coverage test tranches; independently check the two removed guards against their earlier invariants without replaying unchanged passing cohorts. Root + conda_acceptance own normal consumer-map line-reference refresh for the two mask-engine deletions and private sorting constructor shift; generate only actual affected outputs and run only invalidated currency checks. Public API docs/signatures and runtime captions are unchanged; preserve the other owner’s existing manual CI run.
+Independent review confirms both removed guards are already enforced by earlier native-layout/path validation. Updated prior-gap projections remain within unchanged ceilings (i18n2/0, engine8/10); all87 passes are retained. One normal map regeneration changes only object_filters/settings_filters line4219→4217, verified against AST; the sole affected currency case passes0.66s. Other generated outputs remain exact; hosted acceptance remains open.
+
+2026-10-18 — Qt2/117594039946 exposes a cached-Annotate shutdown fixture race: its 100 ms release can precede the real interruption request. Retained release_path + codecov_acceptance reproduce that ordering with the actual timer and native worker, then release the loader only after the original requestInterruption call.
+The exact-host baseline fails the original interruption assertion; both owning cases pass 4.67 s after the test-only correction. All 26 assertions, existing time bounds, save-once/source-byte checks and production behavior remain unchanged. Root integration/publication and hosted CI/release 1.5.1.5 remain open.
+
+2026-10-18 — Repeated Docs publication failures117627685554/117637179779 are BLOCKED ON MAINTAINER storage maintenance: Space einarolafsson/spacr-docs-nightly-v2 rejects the~647MB assembled site with403 Max1GB after successful builds. Retained release pair prepares the smallest supported zero-cost quota remedy with exact approval scope; no remote deletion/history rewrite, credentials change, duplicate CI or weakening of publication checks is authorized by this note. Continue live test grids and verify any newer normal publication result.
+Maintainer action requested once: approve one HfApi.super_squash_history of only spacr-docs-nightly-v2/main after publication is quiescent, preserving current file identities/settings but permanently losing historical commits/LFS versions and revision links. Public metadata reports990,486,901B used versus478,033,504B in3317 current files; current head7938143cfb888f939947ff7ac918b9e2e652f8c7. Local credential availability is confirmed without testing write permission; quota reclamation may take36h and next upload success is unproven. No remote mutation has occurred.
+
+2026-10-18 — Manual4f Fast0/117625234214 exposes three Invasion consolidation tests incorrectly counting non-consolidatable pandas3 string-extension columns as mergeable NumPy blocks. Retained pair reproduces all three on Python3.12.15/pandas3.0.6, then preserves exact values/dtypes/order/is_consolidated while enforcing one NumPy block per NumPy dtype plus one allowance per extension column.
+Five affected cases pass7.61s, including real pure-NumPy and mixed-extension fragmentation rejection controls; peer approved privateed6dff2e. Product code, dependencies, scheduler and all other passing results are unchanged. Existing five Pandas4Warning notices remain; hosted acceptance stays open.
+
+2026-10-18 — codecov_integration + embedding_implementation repair Coverage3/117640608479's missing-numba simulation by giving the private fractal module its own builtins import gate, recording the refused real import and preserving shared importer/numba identities. Original njit-is-None/RuntimeError assertions remain; fallback followed by the unchanged weighted-blend case passes2checks/20.61s under Python3.12.15, coverage and xdist. The unchanged isolated baseline passed13.17s, so the exact hosted interleaving is not claimed reproduced. No product/renderer execution or broader replay; root publication and hosted acceptance remain open.
+
+2026-10-18 — codecov_integration + embedding_implementation repair Coverage5/117676798257's explicit-timeout census failure: _image_type_mask keeps its private in-memory SQLite database and now passes timeout=30.0, matching the module's existing policy. The unchanged census and real filtered/all-matching queue case pass2checks/16.64s on Python3.12.15/pandas3.0.6. No assertion, filter semantics, API/caption, shared-file handling or other passing result changes; root publication and hosted acceptance remain open.
+
+2026-10-18 — Minimum1 job 117676798183 and Coverage8 job 117676798333 expose the same six unregistered API arrivals against unchanged 13190/13218 baselines. accessibility_implementation + accessibility_acceptance own their exact source-bound consumer registration and the frontend's obsolete historical-name comment/literal repair, retaining the negative assertion. The six English entries are current but all 54 localized entries are absent: add 153 source-bound reviewed blocks through the normal six-symbol writer, preserving every unrelated catalog/English/history/review byte. Run only affected extractor/catalog/name contracts; no count increase or global audit.
+2026-10-18 — Six exact source-bound arrivals now satisfy both unchanged inventory pins; normal reviewed-only generation adds 54 locale entries from 153 peer-approved records and preserves all prior entries, English/history and review bytes. All 12 affected extractor/catalog/name checks pass in 91.80 s under 4 GiB/one CPU; the obsolete-name comment and equivalent encoded historical assertion are corrected. Broader hosted CI/release acceptance remains open.
+
+2026-10-18 — Follow-up after upstream87911: preserve removal of the saved-answer heading and normally refresh only ConsolePanel.fill_ai_entry in nine locales, reusing its five surviving translated blocks. accessibility_implementation + accessibility_acceptance also register the same four public callables/six documented arrivals in the two actual Fast2 inventory failures, retaining 10003/13154 and all historical pins. Preserve the previous six-symbol reviews/results; run only affected current-source/catalog contracts.
+2026-10-18 — Normal one-entry refresh retains all 45 surviving translations and retires only the deleted Chinese saved-parameter review, preserving all original fields and unrelated entries/history. The same four/six arrivals now satisfy raw, rendered and projected callable pins without counter changes: 11 current-source/catalog cases passed in 77.65 s, then the sole remaining boundary case passed in 38.23 s. Prior six-symbol closure remains intact; hosted CI/release acceptance is still open.
+
+2026-10-18 — Incoming N700 source leaves18 AppScreen consumer references one line stale; ConsolePanel has no mapped readers. conda_acceptance + codecov_acceptance own the normal consumer-map refresh against223c and its exact AST/non-line review, followed by the sole affected map currency case. Preserve every key, reader identity, target and unrelated output; final root publication and hosted acceptance remain open.
+Normal generation also catches the incoming validate/plot offsets:248 line fields change (AppScreen18×−1, validate105×+6, plot125×+1). Independent AST review binds every changed reference and confirms all non-line fields, keys, row order/counts and targets unchanged; the sole currency case passes0.90s. No source/default/test or other generated output changes; root integration/publication and hosted acceptance remain open.
+
+2026-10-18 — codecov_integration + embedding_implementation correct their missing-numba fixture's overstrict global-importer identity assertion: Qt0/117676798245 passes the real fallback checks before PySide's feature importer changes to its lazy importer. The fixture now requires a distinct private builtins mapping, its refusal gate retained locally and absent globally; rejected import/njit/RuntimeError/shared-numba-cache assertions remain unchanged. The sole affected node passes6.17s on Python3.12.15/Qt6.11.2; isolated baseline passed6.43s, so the hosted transition remains the observed failure evidence. Earlier blend validation retained; no product change or blanket Qt exemption, with root publication/hosted acceptance open.
+
+2026-10-18 — Aggregate4f job117706552631 exposes six uncovered active_learning branches against its unchanged three-branch ceiling, plus two multiple_testing statements against its existing100% floor. conda_acceptance + codecov_acceptance own the smallest meaningful behavior cases and source-bound union with the already acquired artifact, reconciling the retained timeout/filter checks first. Preserve all production guards, assertions and ratchets; run only the new focused cases before combined root publication and hosted acceptance.
+Three behavior cases pass2.40s: malformed child identity mapping, bounded distinct diagnostic samples and the real invalid-correction backend error. Peer-reviewed union with the source-matched aggregate leaves active_learning2 statements/2 branches within7/3 and multiple_testing0/0; statement/branch totals agree. Prior two SQL passes remain valid; production and ratchets are unchanged, with root publication and hosted acceptance still open.
+
+2026-10-18 — accessibility_implementation + accessibility_acceptance close the four statement/four branch provider gaps from aggregate job117706552631 with five focused offline behavior cases (5 passed, 6.75s). The source-bound union with retained CI coverage has zero missing statements/branches and passes the unchanged 0/1 ceiling. Product guards, prior API records and all other coverage stay unchanged; root owns combined publication and broader CI acceptance.
+
+2026-10-18 — accessibility_implementation + accessibility_acceptance own the bounded N712 API artifact follow-up: four current English entries are absent from all nine locale catalogs. Reuse 36 exact reviewed block bindings and prepare only the missing 153 bindings (135 unique targets), then use the normal reviewed-only writer and ten-language currency cohort. Preserve English/history, all existing locale entries and review bytes; no product, tutorial or broad API replay. Normal closure added exactly36 locale entries with189 reviewed bindings (153 new,36 reused);306 new-target checks and10 catalog cases pass (37.46s). Final peer review accepted the exact outputs; root publication remains.
+
+2026-10-18 — Incoming N712 leaves six Make Masks consumer references33 lines stale; the other three changed modules have no mapped readers. conda_acceptance + codecov_acceptance own normal map generation against be644, all actual-delta AST/non-line review and the sole affected currency case. Preserve N712 product behavior and every unrelated generated output; root owns combined publication and hosted acceptance.
+Normal generation changes exactly those six line fields; independent review binds all12 Make Masks rows to current AST and preserves every non-line field, row identity/order/count and target. The sole currency case passes0.78s; product sources and unrelated outputs are unchanged. Root integration/publication and broader hosted acceptance remain open.
+
+2026-10-18 — Incoming N70719a9da1fd changes app.py/Make Masks positions after the retained N712 map proof. conda_acceptance + codecov_acceptance refresh only the normal consumer map on rebased fda82831f, review all actual changed AST references/non-line preservation and rerun only the invalidated currency case. Preserve the layout owner's source and N712 locale closure; root owns combined publication and hosted acceptance.
+Normal output changes12 Make Masks line fields (11×+5,1×+50); independent AST review confirms current keys/forms/scopes and unchanged row multiplicity, all non-line data and targets. The sole currency case passes1.71s; app.py contributes no map delta and both product files remain unchanged. Root publication and broader hosted acceptance remain open.
+
+2026-10-18 — accessibility_implementation + accessibility_acceptance own Coverage7 job117710076500's stale ConsolePanel test calls: remove only the two deleted saved=True arguments, retaining deleted-heading/absent-bar setup and exact answer identity/content assertions. The supported N700 product signature and API outputs remain unchanged. The sole affected node passes (1 passed,4.73s); peer-reviewed root publication remains.
+
+2026-10-19 — Re-verified on nightly fbdf6d825: Terms 4.3 is the deliberate current version and tests/test_packaging_metadata.py already pins 4.3 (152 passed with the 700 console tests); the ConsolePanel test calls carry no saved=True; no hosted Chrome 60 s timeout appears in the 6ac71ea23 release logs. Release run 39245216287 had no failed job when last checked; N43 stays open pending its result.

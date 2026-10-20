@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical translation and self-review; independent peer and ordinary source/review gates pending; no human/native signoff",
+  "review": "Unresolved explicit Cellpose selection refuses before construction. Existing local checkpoint and exact catalogue precedence retained; no automatic stock substitution. Known historical stock aliases remain compatible.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
+      "source": "Cellpose model {name} is not an installed stock name, an existing checkpoint or an exact model-zoo entry. Choose a listed model or provide its checkpoint; stock weights were not substituted.",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "translation": "Das Cellpose-Modell {name} ist weder ein installierter Standardmodellname noch eine vorhandene Modelldatei oder ein genau passender Eintrag im Modellkatalog. Wählen Sie ein aufgeführtes Modell oder geben Sie seine Modelldatei an; es wurden keine Standardgewichte ersatzweise verwendet."
+    }
+  ]
+}

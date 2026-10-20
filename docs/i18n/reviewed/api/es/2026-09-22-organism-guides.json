@@ -96,11 +96,11 @@
       "translation": "Células de SwissBioPics sin conexión con etiquetas de compartimentos UniProt seleccionables."
     },
     {
-      "context": "The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's Starplast ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany the SVGs. Only the rendered copy loses hidden metadata and its credit logo; the original asset and visible attribution are retained. No PyQt6 import, network request or measured localization data is involved.",
+      "context": "The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's ParaScape ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany the SVGs. Only the rendered copy loses hidden metadata and its credit logo; the original asset and visible attribution are retained. No PyQt6 import, network request or measured localization data is involved.",
       "label": "spacr.qt.widgets.organism_diagram#1",
-      "source": "The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's Starplast ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany the SVGs. Only the rendered copy loses hidden metadata and its credit logo; the original asset and visible attribution are retained. No PyQt6 import, network request or measured localization data is involved.",
-      "source_sha256": "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c",
-      "translation": "La correspondencia de Toxoplasma hyperLOPIT a SL sigue el archivo Starplast ``celldiagram.py`` de Einar Olafsson (MIT, revisión 53703bafdf0604576a05b589400051a6b09e62ea). Las ilustraciones son de Philippe Le Mercier, SIB, CC BY 4.0; los registros de origen acompañan a los SVG. Los metadatos ocultos y el logotipo de atribución se eliminan solo de la copia renderizada; se conservan el recurso original y la atribución visible. No se utiliza ninguna importación de PyQt6, solicitud de red ni dato de localización medido."
+      "source": "The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's ParaScape ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany the SVGs. Only the rendered copy loses hidden metadata and its credit logo; the original asset and visible attribution are retained. No PyQt6 import, network request or measured localization data is involved.",
+      "source_sha256": "78d7b218ff6ab74d9bc2f39bce2dd52d74360b1e479371ff596e2c8552be6a22",
+      "translation": "La correspondencia de Toxoplasma hyperLOPIT a SL sigue el archivo ParaScape ``celldiagram.py`` de Einar Olafsson (MIT, revisión 53703bafdf0604576a05b589400051a6b09e62ea). Las ilustraciones son de Philippe Le Mercier, SIB, CC BY 4.0; los registros de origen acompañan a los SVG. Los metadatos ocultos y el logotipo de atribución se eliminan solo de la copia renderizada; se conservan el recurso original y la atribución visible. No se utiliza ninguna importación de PyQt6, solicitud de red ni dato de localización medido."
     },
     {
       "context": "Shared apicomplexan compartment labels mapped to UniProt SL identifiers.",
@@ -186,7 +186,7 @@
   "schema": 1,
   "superseded_records": [
     {
-      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "reason": "2026-09-22: diagram multi-selection, external ParaScape launch or OPS-first sample route changed the English source; original review preserved verbatim.",
       "record": {
         "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes a planned assay whose tile cannot start an analysis. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
         "label": "spacr.qt.organisms.ORGANISMS#1",
@@ -196,7 +196,7 @@
       }
     },
     {
-      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "reason": "2026-09-22: diagram multi-selection, external ParaScape launch or OPS-first sample route changed the English source; original review preserved verbatim.",
       "record": {
         "context": "Build the illustration, label selector and shared-shape caption.",
         "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#4",

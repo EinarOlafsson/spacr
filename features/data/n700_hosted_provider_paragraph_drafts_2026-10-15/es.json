@@ -1,0 +1,12 @@
+{
+  "language": "es",
+  "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "context_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "translation": "Un cuarto, :class:`HostedProvider`, no necesita CLI ni cuenta: consulta al servicio de retransmisión de spaCR, que responde con un modelo alojado gratuito, y es la opción predeterminada cuando ninguno de los tres está instalado y tiene una sesión iniciada (:func:`default_provider`).",
+  "translation_sha256": "c96567ac6f40ce59dd2722de3c7f2955946f6b2747c4d0095000d36b024f5c61",
+  "label": null,
+  "label_status": "Pending CI exact current block inventory; no guessed label",
+  "review_kind": "AI technical draft; independent technical review pending; no human or native-speaker signoff"
+}

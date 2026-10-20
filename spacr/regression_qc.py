@@ -20,12 +20,11 @@ invisible on a volcano:
   systematically wrong even though the ranking is fine.
 
 Each of those is obvious in one glance at the right panel, and each of them
-produces a *believable* volcano plot. That asymmetry — silent, plausible
-garbage — is the documented failure mode of this pipeline, so the diagnostics
-are not optional decoration; they are the thing that says "do not believe this
-run".
+produces a *believable* volcano plot. Plausible but wrong output is the documented failure mode of this pipeline,
+so the diagnostics are a required part of the report: they show when a run
+should not be trusted.
 
-What this module does NOT do
+What this module does not do
 ----------------------------
 It does not duplicate the volcano plot (:func:`spacr.plot.volcano_plot` and
 :func:`spacr.toxo.custom_volcano_plot` already draw it, and a second
@@ -54,7 +53,7 @@ it means a *different thing* on each of them — see
 * ``WLS``: the error variance in the metric of ``sqrt(w) * (y - fitted)``,
   which for cell-count weights is hundreds of times larger than the unweighted
   residual variance;
-* ``RLM`` (``rlm``/``huber``): a robust estimate of the standard DEVIATION, so
+* ``RLM`` (``rlm``/``huber``): a robust estimate of the standard deviation, so
   the variance is its *square*;
 * ``QuantReg``: the constant ``1.0``, a placeholder — quantile regression has
   no error-variance parameter at all;
@@ -66,7 +65,7 @@ Treating all of those as "the error variance of ``y - fitted``" is how a QC
 panel reports the wrong wells as outliers, in a direction that depends on the
 units of the response. Standardisation therefore goes through one registry
 keyed on the fitted model's class, and where no correct scale exists the six
-panels that need one are SKIPPED with that stated on the report.
+panels that need one are skipped with that stated on the report.
 
 Reading the output
 ------------------
@@ -79,21 +78,20 @@ Reading the output
   so it can be grepped or pasted into a lab notebook,
 
 and returns a manifest dict listing every panel, its status, its path and the
-statistics it computed. The statistics are the point: the manifest is what a
+statistics it computed. The manifest is what a
 caller (or a test) reads to find out that Cook's distance flagged well
 ``plate1_r3_c11``, not just that a file exists.
 
-THE FIGURE EXTENSIONS ARE LEFT OFF ABOVE ON PURPOSE. They follow the user's
-figure-format preference, and writing ``.pdf`` down as if it were fixed is
-exactly how the code came to record ``residuals_vs_fitted.pdf`` in the
-manifest for a file that is ``residuals_vs_fitted.png`` on disk.
+The figure extensions are omitted above because they follow the user's
+figure-format preference; a fixed ``.pdf`` would name
+``residuals_vs_fitted.pdf`` in the manifest for a file that is
+``residuals_vs_fitted.png`` on disk.
 
 Figures are built through ``matplotlib.figure.Figure`` directly rather than
 through ``pyplot``. That is deliberate: a Figure that pyplot never sees cannot
 be leaked into pyplot's global registry, cannot be picked up by a later
 ``plt.savefig()`` in another module, and needs no ``plt.close()`` discipline to
-stay out of the way. This repo has been bitten by figure leaks more than once;
-this module cannot leak one.
+stay out of the way. This module therefore cannot leak a figure.
 """
 from __future__ import annotations
 
@@ -215,10 +213,10 @@ class QCPanelResult:
     :param path: Absolute path of the per-panel figure, or ``None``.
     :param reason: Why the panel was skipped, or what limits it.
     :param stats: Numbers the panel computed, for callers and tests.
-    :param verdict: What the panel CONCLUDED -- a :class:`PanelVerdict`, or
-        None for a panel that never drew. The design: a diagnostic that
-        reports a number and no judgement leaves the judging to a reader who
-        is not going to do it, so the verdict travels with the panel into the
+    :param verdict: What the panel concluded -- a :class:`PanelVerdict`, or
+        None for a panel that never drew. A diagnostic that reports a number
+        without a judgement leaves the interpretation to the reader, so the
+        verdict travels with the panel into the
         report, into the manifest and onto the picture itself.
     """
 
@@ -234,7 +232,7 @@ class QCPanelResult:
 
 @dataclass
 class RegressionQCContext:
-    """Everything the panels need, normalised across model types.
+    """Model outputs normalised across model types for the QC panels.
 
     Built by :func:`build_context`; panels only ever read it. Holding the
     normalisation in one place is what keeps twenty panels from each having
@@ -253,7 +251,7 @@ class RegressionQCContext:
     :param leverage: Diagonal of the hat matrix, one entry per well.
     :param leverage_source: How ``leverage`` was obtained, so a panel can say
         so on the axis.
-    :param scale: Error VARIANCE used to standardise the residuals, in the
+    :param scale: Error variance used to standardise the residuals, in the
         metric of ``standardisation.base`` — which is not always ``y -
         fitted``. ``NaN`` when no correct scale exists for this model class.
     :param standardisation: The :class:`ResidualStandardisation` that produced
@@ -263,12 +261,12 @@ class RegressionQCContext:
         mean of ``y`` — a hinge/SVM classifier predicts class labels — so the
         response-scale panels can state that on the report instead of quoting
         an R² that means nothing.
-    :param decision_score: The continuous score wells are RANKED by, which is
+    :param decision_score: The continuous score wells are ranked by, which is
         not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label,
         and an ROC computed on hard labels has exactly two operating points and
         understates the model. ``build_context`` sets this to
         ``decision_function(X)`` for a classifier and to ``fitted`` for
-        everything else, oriented so that LARGER means MORE LIKELY POSITIVE for
+        everything else, oriented so that larger means more likely positive for
         both.
     :param labels: Per-well labels (``prc`` where available), used to name
         outliers on the influence panels.
@@ -1283,9 +1281,9 @@ def _model_kind(model):
 def resolve_residual_standardisation(model, resid, n_obs, n_params):
     """Return how this fit's residuals can be standardised, or why they cannot.
 
-    This is the one place that knows what ``model.scale`` means, and it knows
-    it per model class rather than per attribute: an attribute that exists is
-    not an attribute that means what the caller hoped. See
+    This is the single place that defines what ``model.scale`` means, per
+    model class rather than per attribute: an attribute that exists may not
+    mean what the caller expects. See
     :data:`_SCALE_RESOLVERS` for the table and the module docstring for why it
     is not one formula.
 
@@ -1511,8 +1509,7 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
                   regression_type=None, volcano_path=None):
     """Normalise a fitted model into the view the QC panels read.
 
-    The residual standardisation is the one piece of real statistics here, and
-    it is resolved per model class by
+    The residual standardisation is resolved per model class by
     :func:`resolve_residual_standardisation`::
 
         std_resid = base / sqrt(variance * (1 - h))
@@ -1652,7 +1649,7 @@ def context_from_model(model, *, coef_df=None, regression_type=None,
     :func:`build_context` needs ``X`` and ``y`` because the pipeline has them:
     :func:`spacr.ml.regression` is the only scope where the fitted design
     exists, which is why the report is written from there. A caller who
-    receives only the FITTED MODEL — the Qt results panel gets one on
+    receives only the fitted model — the Qt results panel gets one on
     ``perform_regression``'s return payload, and nothing else — has no design
     matrix to hand over, and had no way to compute a residual at all.
 
@@ -1664,7 +1661,7 @@ def context_from_model(model, *, coef_df=None, regression_type=None,
     :param model: a fitted statsmodels results object.
     :returns: :class:`RegressionQCContext`.
     :raises PanelUnavailable: when the model does not carry its own design, so
-        the caller can put the REASON on screen. sklearn's ``Lasso``,
+        the caller can put the reason on screen. sklearn's ``Lasso``,
         ``Ridge`` and ``ElasticNet`` — spaCR's penalised backends — keep
         neither the design nor the response, and a diagnostics tab that went
         blank without saying so would look like a broken tab rather than a
@@ -3033,13 +3030,13 @@ class PanelVerdict(NamedTuple):
     """What one diagnostic concluded, and what the number behind it was.
 
     :param level: one of :data:`VERDICT_LEVELS`.
-    :param headline: the phrase drawn on the panel. A CLAIM, not a label --
+    :param headline: the phrase drawn on the panel. A statement, not a label --
         "variance is stable across the fit", never "homoscedasticity".
     :param detail: one sentence saying what the score means and which rule
         produced it, for the text report and for a caption.
     :param score: the number the verdict was read off, or None where the
         verdict came from a categorical result.
-    :param statistic: what that number IS, so the report can name it.
+    :param statistic: what that number is, so the report can name it.
     """
 
     level: str
@@ -3559,7 +3556,7 @@ _VERDICT_INK = {
 
 
 def score_panel(name, stats) -> PanelVerdict:
-    """The verdict for one panel's statistics. Never raises.
+    """Return the verdict for one panel's statistics; never raises.
 
     :param name: a name from :data:`PANEL_ORDER`.
     :param stats: the dict :func:`draw_panel` returned.
@@ -3589,12 +3586,11 @@ def draw_verdict(ax, verdict) -> None:
     :param verdict: panel verdict to stamp; None or an unknown verdict leaves
         the panel unchanged.
 
-    BOTTOM LEFT, in a box, because every panel in this module already spends
-    its top corners on the statistics block and its own annotations -- and a
-    verdict written over a data point is a verdict that gets moved instead of
-    read. The box is what separates it from the panel's own annotation: this
-    is the suite talking about the panel rather than the panel talking about
-    the data.
+    The verdict is drawn bottom left, in a box, because every panel in this
+    module already uses its top corners for the statistics block and its own
+    annotations, and a verdict over a data point would hide the data. The
+    box distinguishes the suite's assessment of the panel from the panel's
+    own annotation of the data.
     """
     if verdict is None or verdict.level == "unknown":
         return
@@ -3608,12 +3604,12 @@ def draw_verdict(ax, verdict) -> None:
 
 
 def worst_verdict(verdicts):
-    """The verdict a suite should be summarised by, or None when there is none.
+    """Return the verdict that summarises a suite, or None when there is none.
 
     :param verdicts: iterable of panel verdicts or None entries to compare.
 
-    THE WORST ONE, not the commonest and not an average. Nineteen panels
-    passing and one saying the design is rank deficient is a run whose
+    The most severe verdict is returned, not the most common one or an
+    average. Nineteen panels passing and one saying the design is rank deficient is a run whose
     coefficients are one of infinitely many solutions, and a summary that
     reports "95% passed" is a summary that hides exactly the panel the suite
     was run for.
@@ -3823,10 +3819,8 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         report instead of drawing a second volcano.
     :param panels: Optional subset of :data:`PANEL_ORDER`.
     :param fmt: force a figure format for the individual panels. ``None``,
-        the default, lets the user's figure-format preference decide -- which
-        is what it used to say ``'pdf'`` for, so a user who had chosen PNG got
-        PDFs anyway and the manifest named files that were not there. An
-        explicit format still wins, for a caller that genuinely needs one.
+        the default, lets the user's figure-format preference decide. An
+        explicit format still wins, for a caller that needs one.
     :param combined: Also write the single-page multi-panel report.
     :param strict: Re-raise a panel's unexpected exception instead of recording
         it as ``failed``. Tests use this; the pipeline should not, because a
@@ -3835,14 +3829,14 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     :param renderer: force ``'pyqtgraph'`` or ``'matplotlib'``. ``None`` asks
         :func:`spacr.figures.scene.scene_renderer`, which prefers the screen's
         renderer and falls back where Qt is not available -- and the choice is
-        made ONCE here rather than per panel, so a suite cannot come out half
+        made once here rather than per panel, so a suite cannot come out half
         in one library and half in the other over an environment that changed
         while it ran.
     :returns: dict manifest with ``directory``, ``combined``, ``report``,
         ``panels`` (list of :class:`QCPanelResult`), ``written``, ``skipped``,
         ``failed``, ``renderer`` and the model description.
-    :raises ValueError: if ``dst`` is falsy — a QC report nobody can find is
-        worse than no QC report.
+    :raises ValueError: if ``dst`` is falsy, because the report needs a
+        destination.
 
     Example:
         .. code-block:: python
@@ -4022,7 +4016,7 @@ def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
     import os
 
     def _plain(value):
-        """Whatever JSON can hold, and a string for everything else."""
+        """Return ``value`` as a JSON-serializable value, or as a string."""
         if value is None or isinstance(value, (bool, int, str)):
             return value
         if isinstance(value, float):

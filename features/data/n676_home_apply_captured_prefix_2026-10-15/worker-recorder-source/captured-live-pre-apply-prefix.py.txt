@@ -1,0 +1,131 @@
+def record_preferences_live(app, window, capture, settle):
+    """Lesson 05 Preferences scenes (09, 13, 13b-13i) in ONE real Preferences session."""
+    from PySide6.QtCore import QPoint, Qt
+    from PySide6.QtWidgets import (QAbstractButton, QApplication, QComboBox, QDialogButtonBox,
+                                   QMessageBox, QSlider, QWidget)
+    from spacr.qt import preferences
+
+    focus = {}
+    proof = {}
+    deferred = []
+
+    def steps(dialog):
+        settle(0.8)
+        focus['dialog'] = handoff(capture, dialog)
+        proof['dialog_rect_host'] = [dialog.x(), dialog.y(), dialog.width(), dialog.height()]
+        # 09: Performance profile -- the combo box clicked, its list shown, the current profile kept.
+        selector = dialog.findChild(QComboBox, 'PerformanceLevel')
+        perf_page = next(w for w in _ancestors(selector) if (w.objectName() or '').startswith('PreferencesTab'))
+        show_tab(capture, dialog, perf_page.objectName())
+        hover(selector)
+        pause(capture, 1.2)
+        choose_combo(capture, selector)
+        hold_until(capture, clip_seconds(capture))
+        capture.end()
+
+        # 13: General
+        capture.begin('13_preferences_general')
+        _, general = show_tab(capture, dialog, 'PreferencesTabGeneral')
+        focus['13_preferences_general'] = handoff(capture, dialog)
+        for control in [w for w in general.findChildren(QComboBox) if w.isVisible()][:1] + \
+                       [w for w in general.findChildren(QSlider) if w.isVisible()][:2]:
+            hover(control)
+            pause(capture, 1.5)
+        capture.end()
+
+        # 13b: Appearance
+        capture.begin('13b_preferences_appearance')
+        _, appearance = show_tab(capture, dialog, 'PreferencesTabAppearance')
+        focus['13b_preferences_appearance'] = handoff(capture, dialog)
+        for control in [w for w in appearance.findChildren(QWidget)
+                        if w.isVisible() and w.objectName() in ('TooltipDelay', 'ShowTooltips')][:2]:
+            hover(control)
+            pause(capture, 1.5)
+        capture.end()
+
+        sections = sections_of(appearance)
+        for needed in ('theme', 'animation'):
+            if needed not in sections:
+                raise RuntimeError(f'Appearance has no {needed} section: {sorted(sections)}')
+        scroll = scroll_area_of(sections['theme'])
+
+        # 13c: Theme opened by a click on its header
+        capture.begin('13c_appearance_theme')
+        focus['13c_appearance_theme'] = handoff(capture, dialog)
+        toggle_section(capture, sections['animation'], False)
+        toggle_section(capture, sections['theme'], True)
+        if scroll is not None:
+            for _ in range(4):
+                scroll_bar_wheel(capture, scroll, 1)
+                pause(capture, 0.8)
+        capture.end()
+
+        # 13d: Animation; the settings-window motion controls stay independent (real arrow keys)
+        capture.begin('13d_appearance_animation')
+        focus['13d_appearance_animation'] = handoff(capture, dialog)
+        toggle_section(capture, sections['theme'], False)
+        toggle_section(capture, sections['animation'], True)
+        pairs = (('PopupBackdropSpeed', 'AmbientSpeed'), ('PopupBackdropSize', 'AmbientSize'),
+                 ('PopupBackdropResolution', 'AmbientResolution'), ('PopupBackdropDensity', 'AmbientDensity'))
+        independence = {}
+        if scroll is not None:
+            for _ in range(3):
+                scroll_bar_wheel(capture, scroll, 1)
+                pause(capture, 1.2)
+        for settings_name, main_name in pairs:
+            settings, main = dialog.findChild(QWidget, settings_name), dialog.findChild(QWidget, main_name)
+            if settings is None or main is None or not settings.isVisible():
+                independence[settings_name] = {'shown': False}
+                continue
+            if not settings.isEnabled():
+                # Tutorials record settings windows on plain glass (popup
+                # backdrop off), so its animation controls are disabled.
+                independence[settings_name] = {'shown': True, 'enabled': False}
+                hover(settings)
+                pause(capture, 1.0)
+                continue
+            if scroll is not None:
+                scroll_into_view(capture, scroll, settings)
+            hover(settings)
+            before, main_before = settings.value(), main.value()
+            key(settings, Qt.Key_Right)
+            edited = settings.value()
+            key(settings, Qt.Key_Left)
+            independence[settings_name] = {'before': before, 'edited': edited,
+                                           'main_unchanged': main.value() == main_before,
+                                           'restored': settings.value() == before}
+            if edited == before or main.value() != main_before or settings.value() != before:
+                raise RuntimeError(f'Settings animation is not independent: {settings_name}')
+            pause(capture, 1.0)
+        proof['settings_controls_independent'] = independence
+        hold_until(capture, clip_seconds(capture) - 3)
+        if scroll is not None:
+            scroll_into_view(capture, scroll, sections['animation'].header())
+        capture.end()
+        toggle_section(capture, sections['animation'], False)
+
+        # 13h / 13i: Apply previews, the question offers Keep or Revert
+        buttons = dialog.findChild(QDialogButtonBox)
+        apply_button = buttons.button(QDialogButtonBox.Apply)
+        slider = dialog.findChild(QSlider, 'PaneOpacity')
+        original = round(preferences.get_pane_opacity() * 100)
+        preview = 55 if original != 55 else 60
+        proof['original_opacity_pct'] = original
+
+        def question():
+            box = getattr(dialog, '_apply_confirmation', None)
+            return box if isinstance(box, QMessageBox) and box.isVisible() else None
+
+        def answer(text):
+            box = question()
+            target = next(b for b in box.buttons() if b.text().replace('&', '') == text)
+            click(target)
+            wait_until(capture, lambda: question() is None, 10, f'{text} did not close the question')
+
+        capture.begin('13h_preferences_apply')
+        toggle_section(capture, sections['theme'], True)      # Page opacity lives under Theme
+        if scroll is not None:
+            scroll_into_view(capture, scroll, slider)
+        set_slider(capture, slider, preview)
+        pause(capture, 0.6)
+        click(apply_button)

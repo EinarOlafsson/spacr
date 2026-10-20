@@ -1,0 +1,57 @@
+{
+  "item": "N686/N687 website startup and loading, bounded repair",
+  "created_at": "2026-10-14T19:24:45.513362+00:00",
+  "repository": "EinarOlafsson/site-src",
+  "worktree": "/mnt/wd4tb/spacr-worktrees/codex-home-b-site-20261014",
+  "source_commit": "cc81d2f367e31fc2ee389b39f1a2d562d54e6354",
+  "parent_commit": "d9624b5b5adebfea242a5cffde6e659acacb32d2",
+  "files": {
+    "src/assets/css/site.css": "4c9379af1e9d564e00bd0b36050a08a54dd7fd392ce33d8f42929fa0de941d63",
+    "src/projects/spacr/index.html": "01e6fd5614225b510301cc5a6a379dbd35f3713b599c21bc1ff5c12093ca9d7f"
+  },
+  "behavior": [
+    "Initially inactive tab sections use automatic content containment until tab initialization, only when no native fragment target exists.",
+    "JavaScript disabled or failed leaves all nine sections readable, and fragment navigation restores normal layout.",
+    "The below-hero overview strip is lazy-loaded without obsolete high-priority preloads; hero mosaic keeps high priority."
+  ],
+  "validation": {
+    "browser": {
+      "passed": 19,
+      "failed": 0,
+      "memory_cap": "4G",
+      "gpu": "--disable-gpu --disable-webgl --disable-3d-apis",
+      "results": "startup-browser-results.json",
+      "script": "startup_browser_check.mjs",
+      "launcher": "run_browser_checks.sh",
+      "log": "startup-browser.log",
+      "scope": [
+        "before/after delayed-script startup",
+        "JavaScript disabled light/dark at375 and1280",
+        "failed-script native anchor navigation baseline and candidate",
+        "all9 URL-selected tabs, nested cite, unknown hash",
+        "keyboard and history navigation"
+      ]
+    },
+    "full_site_build": {
+      "exit_code": 0,
+      "generated_files": 123,
+      "protected_word_checks": 75,
+      "log": "performance-build.log"
+    },
+    "i18n": {
+      "result": "all nine locales complete; unchanged captions",
+      "log": "performance-i18n.log"
+    },
+    "diff_check": "passed"
+  },
+  "retained_failed_attempts": [
+    "startup-browser-fragment-failure.log: first containment proposal caused failed-script smooth-anchor scrolling to land incorrectly; final native-target exclusion fixes this and passes both baseline/candidate cases",
+    "startup-browser-interrupted.log: unbounded harness stopped; explicit action/navigation timeouts added"
+  ],
+  "publication": "private commit only; original Home owns deployment",
+  "remaining_acceptance": [
+    "deploy and verify live sources",
+    "Lighthouse >=90 performance / >=95 accessibility on an idle host remains unmeasured; concurrent Claude catalog and protected jobs prevent a valid current score claim"
+  ],
+  "historical_evidence": "performance-findings.json; old83/84/84 reports are not current acceptance"
+}

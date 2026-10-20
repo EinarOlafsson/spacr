@@ -39,10 +39,10 @@ def test_assays_menu_groups_children_under_the_three_organisms(window):
                 assert not action.isEnabled() and 'Coming soon' in action.text()
 
 
-def test_assay_actions_open_their_modules_and_starplast_uses_its_installer(window, monkeypatch):
+def test_assay_actions_open_their_modules_and_parascape_uses_its_installer(window, monkeypatch):
     opened = []
     monkeypatch.setattr(window, 'open_module', opened.append)
-    monkeypatch.setattr('spacr.qt.starplast.open_starplast', lambda parent: opened.append('starplast'))
+    monkeypatch.setattr('spacr.qt.parascape.open_parascape', lambda parent: opened.append('parascape'))
     for route, *_ in ORGANISMS['toxoplasma']['modules']:
         if route:
             window._app_actions[route].trigger()

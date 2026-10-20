@@ -6,7 +6,9 @@
       "label": "spacr.timeflows_model.link_by_timeflows#0",
       "source": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
       "source_sha256": "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
-      "translation": "모델에 따라 ``t+1``의 어느 객체가 ``t``의 각 객체에 해당하는지 결정합니다."
+      "translation": "모델에 따라 ``t+1``의 어느 객체가 ``t``의 각 객체에 해당하는지 결정합니다.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",

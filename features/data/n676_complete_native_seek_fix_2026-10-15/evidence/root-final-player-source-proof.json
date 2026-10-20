@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "lesson": "05_home",
+  "capture_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "render_and_voice_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "changed_paths": [
+    "tools/tutorials/authoring/web/app_v2.js",
+    "tools/tutorials/tests/test_player_preserve_visual_intervals.py"
+  ],
+  "source_files": {
+    "tools/tutorials/authoring/web/app_v2.js": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 103252,
+      "sha256": "27a50ed92ca98e53960a1b044fbefe9f8a36f43106153b4b1b038e8d5f2fde9b"
+    },
+    "tools/tutorials/tests/test_player_preserve_visual_intervals.py": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "bytes": 10966,
+      "sha256": "d37ea15b034ad0bd3194d7dcc2fed9fbe1d39e3ce4123e161aa52b6f64d4b327"
+    }
+  },
+  "owning_tests": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-owning-tests.json",
+    "bytes": 3965,
+    "sha256": "6c9a893ef9dd5a3a6165df7d14f30205cc8337f3d82e826ce3d98d264a12eb8a"
+  },
+  "independent_source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/complete-native-seek-independent-source-peer.json",
+    "bytes": 5078,
+    "sha256": "7a71faa2c7b0ca8a7793d3d00c87066600511a63547b4f8e019de3880005e64b"
+  },
+  "cause_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/sentence-cue-conflicting-seek-independent-cause-peer.json",
+    "bytes": 6859,
+    "sha256": "d28bf624fb5e9f69f2c07ab7fc10a401d8257558085f203ba07750ca141cdc37"
+  },
+  "source_guard": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/stage-tools/run_tool.py",
+    "bytes": 4855,
+    "sha256": "92da0b48504b596b33123297cf05f117d48ee90738a0aac666a475dd6837eb4e"
+  },
+  "limits": [
+    "Only player/test changes; accepted application capture, rendered video, and all50 voice tracks remain bound to87ff.",
+    "Owning7browser regression tests passed; final73matrix/candidate/publication remain pending.",
+    "Source commit held locally during docs/features-only release hold; publication includes reviewed delivery evidence."
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_at_utc": "2026-10-15T20:16:29.894241+00:00",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-34v6631r",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/release-candidate-append-34v6631r/release-manifest.json",
+    "bytes": 1180230,
+    "sha256": "9ac6c7ee63581e1ab77e59957f25fdcdd3854aded7e74fc4645ad7d021de2172"
+  },
+  "source_commit": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "stage_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/04_platform_installers_silent.mp4",
+    "bytes": 71636267,
+    "sha256": "6070dc9347d72b93303bca0b7eea0b12a48dbf1d86c461fb146c2d95fbe84bec"
+  },
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-selective-20261015/production/04_platform_installers/video/native-live-timings.json",
+    "bytes": 26070,
+    "sha256": "0e18fb14eb75bf67c34cca9c329d732e648a331ded362c9a446ee0f40ce0c2b6"
+  },
+  "sampled_master_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-composite-sampled-visual-review.json",
+    "bytes": 4576,
+    "sha256": "2b7c462ea91b5cf1f55092f2a8e5b8b65b3f96e013c7295d47bf646d32c693f1"
+  },
+  "candidate_preservation": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/candidate-preservation-prepublication-readback.json",
+    "bytes": 7278,
+    "sha256": "f7ae298de67d5272e09db7fc672d0769cca65108a6f27c7bb30733c06acfee80"
+  },
+  "stage_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/prepublication-stage-evidence-readback.json",
+    "bytes": 26091,
+    "sha256": "30efd12f3b02801968974b0b38039a31e8f206768cb13082f6e47cf2245ed4c6"
+  },
+  "candidate_browser_checks": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/candidate-browser-checks.json",
+    "bytes": 127624,
+    "sha256": "aa21bd28c1e03528f8d2b2442324684ec6bd148f2f2673cb0623372c49bba0fb"
+  },
+  "placeholder_mutation_checks": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/placeholder-mutation-checks.json",
+    "bytes": 510,
+    "sha256": "d47cfe9933c48da1b720a9478b3ead923f2ec4870fbded217c6ff64761271fc6"
+  },
+  "checkpoint": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json",
+    "bytes": 25855,
+    "sha256": "3826c150f5a379bb07a69c65f6af99c28c5eb159dcc278c25bb8c6dc8f77b501"
+  },
+  "verification_logs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-verify-candidate.log",
+      "bytes": 3761,
+      "sha256": "919e76cfab95b6d975428af2651ea51d8caa8cc17c7d5876e44b70066d57c447"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-placeholder.log",
+      "bytes": 487,
+      "sha256": "6dbef00cba458863df9b48e505473e0039107d2c8ab5430d05b9ec0e2d50ab19"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson04-selective-20261015-checkpoint.log",
+      "bytes": 589,
+      "sha256": "ece010c456455862778dae553e1d77be74f1a90c53af45aacc400b3410006096"
+    }
+  ],
+  "native_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-native-home-visual-acceptance.json",
+    "bytes": 5887,
+    "sha256": "87019dda438fba31de602c23b811e840a7c9ffb0d1042b8d7a1aca14b3a40f25"
+  },
+  "player_source_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/player-static-interval-independent-source-peer.json",
+    "bytes": 4384,
+    "sha256": "cd9b0bbe1bb615f085551edbc9ea6e3d413923585ede4ab2034998f5f066609c"
+  },
+  "counts": {
+    "candidate_files": 5512,
+    "candidate_bytes": 8807506379,
+    "hosted_files": 5370,
+    "hosted_bytes": 8693151860,
+    "ready_candidate_routes_passed": 84,
+    "placeholder_negative_guards_observed": 2,
+    "checkpoint_files_hashed_and_length_checked": 145,
+    "other_lesson_objects_preserved_per_catalog": 83,
+    "catalog_files_byte_identical": 14,
+    "audio_sidecar_manifest_entries_identical": 100,
+    "master_frames": 10018,
+    "fresh_native_home_frames": 851,
+    "speech_interval_pairs": 700,
+    "speech_overruns": 0,
+    "matrix_operations": 73
+  },
+  "checks": {
+    "actual_verify_placeholder_checkpoint_all_terminal0": true,
+    "actual_checkpoint145_rows_hashes_sizes_safe_paths_verified": true,
+    "exactK4_toK5_twofile_player_lineage": true,
+    "all502_native_inventory_owning_guard_preserved": true,
+    "all83_other_lesson_media_maps_unchanged": true,
+    "freshHome851_whole1x_and_generated_doctor879": true,
+    "other12_durations_and_legacyPerformance818_unchanged": true,
+    "preserve_visual_intervals_true_complete_native_clips_false": true,
+    "native_boundary_after_scene9_and_final_staticEOF_dedicated_receipt_bound": true
+  },
+  "publication_state": {
+    "uploaded": false,
+    "published": false,
+    "checkpoint_release_hold": true,
+    "remote_readback_and_preparedPages_record_export_pending": true
+  },
+  "limits": [
+    "This is independent prepublication source/metadata/receipt review, not final publication or deployment acceptance.",
+    "No duplicate media decode/browser/audio/whole8GB hash; full media facts reuse bound sealed owning receipts and exact manifest maps.",
+    "Root sampled visual review is separately bound; no full-watching, hearing, first-word, native-language or biological/scientific claim."
+  ]
+}

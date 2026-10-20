@@ -22,8 +22,8 @@ design decision here:
   window, both bounded by ``max_buffer_bytes`` and both independent of
   the canvas size.
 
-The other half of the problem is being honest about what registered and
-what did not.
+The module also records, per tile, whether it was placed by registration
+or fell back to its nominal position.
 
 **Offsets are solved globally, never accumulated.** Chaining tile-to-tile
 shifts along a row of a 10x10 grid adds every pairwise error together, so
@@ -289,7 +289,7 @@ def _join_keys(plate: str, well: str, field: int) -> Dict[str, str]:
 
 @dataclass(frozen=True)
 class Tile:
-    """One site: everything known about a tile without reading its pixels.
+    """Header metadata and nominal position of one site, read without pixels.
 
     A "site" is a position on the stage, not a file. When each channel is
     its own file — the Yokogawa case — the sibling paths live in
@@ -411,7 +411,7 @@ class PairResult:
 
 @dataclass(frozen=True)
 class Placement:
-    """Where one tile goes, and how much that position is worth.
+    """Solved position of one tile, with its confidence and residual.
 
     :param tile: source :class:`Tile` placed by this result.
     :param y: solved row offset in the global frame; negative positions are
@@ -440,7 +440,7 @@ class Placement:
 
 @dataclass
 class AlignPlan:
-    """The full solution: what goes where, and everything that went wrong.
+    """Alignment plan: tile placements, pair results, canvas and warnings.
 
     :ivar tiles: every tile handed in, readable or not.
     :ivar placements: one per readable tile, in tile order.
@@ -485,7 +485,7 @@ class AlignPlan:
 
     @property
     def refused_pairs(self) -> List[PairResult]:
-        """Pairs that were scored and not believed."""
+        """Pairs that were scored and refused."""
         return [p for p in self.overlaps if not p.accepted]
 
     @property
@@ -507,7 +507,7 @@ class AlignPlan:
 
 @dataclass(frozen=True)
 class CanvasSpec:
-    """Canvas geometry, computed before a single byte is allocated.
+    """Canvas geometry, computed before the output is allocated.
 
     :param height: number of rows in the output canvas.
     :param width: number of columns in the output canvas.
@@ -528,7 +528,7 @@ class CanvasSpec:
 
     @property
     def shape(self) -> Tuple[int, int, int]:
-        """``(H, W, C)``."""
+        """Canvas shape as ``(H, W, C)``."""
         return (int(self.height), int(self.width), int(self.channels))
 
     @property
@@ -550,7 +550,7 @@ class CanvasSpec:
 
 @dataclass
 class AlignResult:
-    """What :func:`write_stack` actually did.
+    """Outcome of :func:`write_stack`: output path, tile counts and status.
 
     :param plan: alignment plan supplied to the write or retained by a preview
         result.
@@ -588,7 +588,7 @@ class AlignResult:
     db_path: str = ''
 
     def summary(self) -> str:
-        """One-block human summary of the write."""
+        """Return a multi-line text summary of the write."""
         ratio = (self.canvas.nbytes / self.peak_buffer_bytes
                  if self.peak_buffer_bytes else float('inf'))
         lines = [
@@ -2031,8 +2031,8 @@ def write_stack(plan: AlignPlan, dst: Union[str, os.PathLike],
     :param band_rows: force the band height; normally derived from
         ``max_buffer_bytes``.
     :param max_buffer_bytes: ceiling on the RAM the write may use for the
-        band. This is the knob; see :data:`DEFAULT_MAX_BUFFER_BYTES` for
-        why the default is small.
+        band. See :data:`DEFAULT_MAX_BUFFER_BYTES` for why the default is
+        small.
     :param feather: override the ramp width in pixels.
     :param dtype: override the canvas dtype.
     :param subpixel: resample each tile by its fractional offset before
@@ -2288,12 +2288,11 @@ def save_coordinates(plan: Union[AlignPlan, Iterable[AlignPlan]],
                      if_exists: str = 'replace') -> int:
     """Write one row per tile into ``measurements.db``.
 
-    The point of this table is that a stitch is a *claim*: "field 47 of
-    B07 sits at canvas row 3641, column 8192". Downstream, a cluster of
-    odd measurements in one corner of a well is either biology or a tile
-    that silently fell back to its nominal position, and only this table
-    can tell the two apart. So every row carries ``method``,
-    ``confidence`` and ``residual`` next to the coordinates.
+    Each row records where a tile was placed, for example "field 47 of
+    B07 sits at canvas row 3641, column 8192", together with ``method``,
+    ``confidence`` and ``residual``. A cluster of unusual measurements in
+    one corner of a well can then be checked against tiles that fell back
+    to their nominal position.
 
     It is keyed exactly the way ``conversion_map`` and every measurement
     table are keyed, so it joins on the same four columns::
@@ -2350,7 +2349,7 @@ def read_coordinates(db_path: Union[str, os.PathLike],
                      *, table: str = ALIGN_TABLE,
                      plate: Optional[str] = None,
                      well: Optional[str] = None) -> pd.DataFrame:
-    """Read :data:`ALIGN_TABLE` back out, closing the loop.
+    """Read :data:`ALIGN_TABLE` written by :func:`save_coordinates`.
 
     :param db_path: the database :func:`save_coordinates` wrote.
     :param table: table name.
@@ -2395,11 +2394,11 @@ def read_coordinates(db_path: Union[str, os.PathLike],
 
 
 def format_plan(plan: AlignPlan, *, max_rows: int = 12) -> str:
-    """Render a plan as the block a user should read before writing 800 MB.
+    """Render an :class:`AlignPlan` as text for review before writing.
 
-    Leads with what is *wrong* — nominal fallbacks, refused pairs, the
-    worst residual — because that is the part a stitch summary usually
-    buries.
+    After the summary counts (including refused pairs and the worst
+    residual), the text lists tiles placed at nominal stage positions, the
+    largest residuals, unplaced tiles and warnings.
 
     :param plan: alignment plan to summarise: its canvas shape, origin,
         placement and pair counts, nominal fallbacks, residuals, unplaced tiles
@@ -2488,9 +2487,8 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
                  **overrides: Any) -> List[AlignResult]:
     """Scan, plan, optionally write and optionally record, in one call.
 
-    Always prints the plan before writing anything, so even a headless run
-    leaves the "these four tiles fell back to nominal" block in the log
-    where a surprised user can find it.
+    Always prints the plan before writing anything, so a headless run also
+    records the tiles that fell back to nominal positions in the log.
 
     :param settings: see :func:`default_settings`.
     :param overrides: keyword form of the same keys; these win.

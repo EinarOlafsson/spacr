@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "base_commit": "391dda3ab454e95b23b8104d0827b8ebc13ccfc5",
+  "scope": "Add only measure._phases_by_torch to existing diagnostic owner set; all existing owners retained. No source/caption/translation/catalog changes.",
+  "source": "The requested acquisition groups cannot place every class in both training and held-out data.",
+  "source_sha256": "71c3e02b71ab5c6ebe4c6f233d37cb64c88d1bb9bbea64ccf64c5d498da0207e",
+  "request_sha256": "b76840f4e01fcb00d57e85da6d169d5b00068168420c55b70a9bcafa52138c52",
+  "private_owner_source_path": "/mnt/wd4tb/spacr-worktrees/codex-f535-torch-grouped-split-20261015/spacr/measure.py",
+  "private_owner_source_sha256": "f7c878839809eb0501838aae1c77456f954e71d9c4fadca057fb8ebea100ca12",
+  "already_canonical_english_UI_source": true,
+  "private_owner_exact_literal_tr_calls": [
+    "The requested acquisition groups cannot place every class in both training and held-out data."
+  ],
+  "before": {
+    "selection": "tabular_phase_holdout or new_backend_owners",
+    "passed": 4,
+    "failed": 1,
+    "deselected": 16,
+    "seconds": 1.85,
+    "expected_failure": "Only isolated _phases_by_torch owner failed to inventory the existing shared holdout caption."
+  },
+  "after": {
+    "module": "tests/test_runtime_backend_caption_owners.py",
+    "passed": 21,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 0.85
+  },
+  "resource_policy": {
+    "memory_cap": "2G",
+    "threads": 1,
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "known_light_exception": true
+  },
+  "source_checks": "Existing owner source is canonical in current English catalog; exact private torch owner contains only that same literal tr source. Production extractor fixtures cover independent positive ownership and exclusion of module/unrelated/class-same-name/untranslated diagnostics.",
+  "artifacts": {
+    "f535-before.xml.gz": "84becbaa733e0d98f1583f5d18ddc88a34d5454400cf4b332aea92497ff1ddad",
+    "f535-after.log.gz": "df343d068b0ad03450a5040b8a56c6e8e3c5f20bd836ce786db1f90cda2aa257",
+    "f535-after.xml.gz": "5a7c70bccf08ef9b34bdce277a571147e6f9205e0e6c00dcf0963faf96ca0869",
+    "f535-before.log.gz": "a1976721de22706ef1e2cc5049899576dbbdecf41099605b296dac2d13e6509a"
+  },
+  "limitations": [
+    "No global canonical regeneration or target writer run; source set unchanged by this ownership addition.",
+    "No scientific model training, GPU, hardware or full CI acceptance claimed."
+  ]
+}

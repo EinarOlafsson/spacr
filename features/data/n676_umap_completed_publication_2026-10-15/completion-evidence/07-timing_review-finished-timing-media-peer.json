@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "lesson": "15_image_umap",
+  "passed": true,
+  "scope": "finished timing/native/audio/review/media identity; no duplicate full decode or model",
+  "capture_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/root-selected-acceptance.json",
+    "bytes": 13599,
+    "sha256": "68c06ca168456abf8b8f432243111e18d946aa38d580729b12977aa83fafb31d"
+  },
+  "builder": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/build_stage.py",
+    "bytes": 11469,
+    "sha256": "ab456454aa3f5f6d40b76f9a02222e80b97bba681d4b9713d2694e28ce57c415"
+  },
+  "recorded_composer_delta_reason": "Turn57 01_module entry precedes unexecuted explorer code; turn58 Actions helper repairs the later public Interactive route. Entry driver, app, gates, adapters, profile, English and reviews are identical.",
+  "root_delta_approval_reason": "NEW root operational decision supersedes the self-imposed turn58 preparation no-partial-tool-mix note ONLY for strict 01_module from turn57: the complete application tree, entry driver, capture policy/adapter/profile, English/reviews and input byte identities are unchanged. Only capture_umap.py changed for a later Interactive action; it is not imported/executed at entry. All other14 clips use turn58. Existing compose recorder-delta support preserves distinct actual per-clip source commits; no failed gate accepted or rewritten.",
+  "capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+  "entry_capture_source_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+  "per_clip_source_commits": {
+    "01_module": "fd327f85139930118be1e92509a8771bf2fedea4",
+    "19_setting_clustering": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_n_neighbors": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_plot_images": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_random_seed": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_reduction_method": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_row_limit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_src": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "19_setting_tables": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "23_batch_finished": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "24_batch_figure": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "25_interactive_embedding": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "26_point_0": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "26_point_200": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+    "27_review_embedding": "a6727b94d63f43df9309b7940275f01b5e56d3f5"
+  },
+  "canonical_english": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/15_image_umap.json",
+    "bytes": 5346,
+    "sha256": "454815e474209dbd7bd5a968122f7e71d2bacd4e3faf277467a83cca3bf9d7f5"
+  },
+  "canonical_english_normalized_sha256": "a6fb36f729a8932ead3c79a407d6c151f993a8a40a961f41350c7dc55c9e6b5e",
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/native-live-timings.json",
+    "bytes": 29967,
+    "sha256": "98baa04bbf0a932c4a488d56dcbeaef8d9b35990f8cce80f7f57464b87ae8aee"
+  },
+  "visual_spec": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/scenes.json",
+    "bytes": 191121,
+    "sha256": "b7d441cbfe8f98e8e1b267df7481306298d933a316f25f88394da0debf2df2e6"
+  },
+  "capture_visual_spec": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/visual.json",
+    "bytes": 183988,
+    "sha256": "17c983b80e940a25082019ca4702e2f99b8373c02b3eaaf7d9cfb8ab6f097302"
+  },
+  "all15_source_start_zero_and_complete_source_frames": true,
+  "all15_strict_source_selections_retained": true,
+  "complete_native_clips": true,
+  "playback_speed": 1,
+  "looped_or_stretched": false,
+  "native_frames": 11001,
+  "duration_s": 366.69999999999993,
+  "clips": [
+    {
+      "scene": "01_module",
+      "actual_capture_source_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r57/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 695,
+      "full_native_duration_s": 23.166666666666668,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/01_module.capture.json",
+        "bytes": 61611,
+        "sha256": "5a5fee11283ae88b9691f01813955a18d0299b0a717ada03e84bad895cdb963e"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "02574814abc9562b35f58919e0147b8d3636ccbdca2da1e3038c8e56ddf885e0",
+      "video_sha256_from_sealed_receipt_and_selection": "ec43ff82768d0f15a62f6ba1917546cec9e0ca0eecd9c04f39d2fda12abd2d1c"
+    },
+    {
+      "scene": "19_setting_src",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 791,
+      "full_native_duration_s": 26.366666666666667,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_src.capture.json",
+        "bytes": 69831,
+        "sha256": "5bee798aed007a8204d44a297841316dab27e582353f2ec03b2f8872e4cb07b9"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "b620fbec59cd1d0d43210c1d559287fa2b6d6ad8931adc5daf7a72b7463228ca",
+      "video_sha256_from_sealed_receipt_and_selection": "d5aed396b95a457a473bf3a640e39e9e573dc3008c676b49c225365f0e7a77a2"
+    },
+    {
+      "scene": "19_setting_tables",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 872,
+      "full_native_duration_s": 29.066666666666666,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_tables.capture.json",
+        "bytes": 76886,
+        "sha256": "fc7669268bd58933d34622d39c25c921a607e7a1b7d7ef73fada4c65f87e6d52"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "bcb2b2c845cde6c3c8d517fa7bc865bb9fb5c0461a784e96ba46c908484fac79",
+      "video_sha256_from_sealed_receipt_and_selection": "65e4e18d154c132e09250f513ee7287dcb12719dbfcaffb43d24ca522715c049"
+    },
+    {
+      "scene": "19_setting_row_limit",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 673,
+      "full_native_duration_s": 22.433333333333334,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_row_limit.capture.json",
+        "bytes": 59583,
+        "sha256": "d51780b10d04b4c3f9f36ac737b262722ca3e03f7dc9422c2e4baf64e2bb4511"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "dfb5124f8cd39792c3d461a5f328173818ebf4269a039d843cab8a2a37b37fd8",
+      "video_sha256_from_sealed_receipt_and_selection": "fb657fdd429cec80aa5885a8409d5b9e19b5d1486a0436d72128943b7f9611be"
+    },
+    {
+      "scene": "19_setting_reduction_method",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 709,
+      "full_native_duration_s": 23.633333333333333,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_reduction_method.capture.json",
+        "bytes": 62736,
+        "sha256": "e393ee25f46baf9bc965049a66e385e532b7a2b1518e74f0f74e775e9e676785"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "b143a39085a12b87e7b804d4e2d002e0229e84f36dcb4dc4e74fd6594963def8",
+      "video_sha256_from_sealed_receipt_and_selection": "a59b9bf249198bb5eb49a08f27e7c6bbb17af004282e00327fc2dac13a72e72e"
+    },
+    {
+      "scene": "19_setting_n_neighbors",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 689,
+      "full_native_duration_s": 22.966666666666665,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_n_neighbors.capture.json",
+        "bytes": 60982,
+        "sha256": "4493b0b31c8df04b2171f7420089ca1b6f6ba8b340a757304746761e9c45e122"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "9aa2ffe5886a7c2f1c57a94f30211fa3a476562dbb4c296f1d4ac3eb405ffdf0",
+      "video_sha256_from_sealed_receipt_and_selection": "56a18f90b815dbe453dd0a11d9ebfc8e7ca2b0c62ff7354d34db0c70a3893ce4"
+    },
+    {
+      "scene": "19_setting_random_seed",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 654,
+      "full_native_duration_s": 21.8,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_random_seed.capture.json",
+        "bytes": 57935,
+        "sha256": "aa5d0807fbd7e901faca914cc73b8bc3f1759828de40ec96dce8a21953157c0f"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "be6b58b1b275b6e31a79afc9ca5ef3382ffa52a72a130abe0d6b3b2f1afcfbde",
+      "video_sha256_from_sealed_receipt_and_selection": "07a0c3269bfbd8fd45023288d32bc48b1ac7957f3624c450373e459919a23178"
+    },
+    {
+      "scene": "19_setting_clustering",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 726,
+      "full_native_duration_s": 24.2,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_clustering.capture.json",
+        "bytes": 64194,
+        "sha256": "c7e277e1f731242d7acbf92c3d3940a747d118007dd7ebd08d8e791d39e1af9f"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "d36857ee56c830a19b75e0c8aee8a1d2f18a3f3d8cf47db7ca8a8fa93b2624cd",
+      "video_sha256_from_sealed_receipt_and_selection": "7e3e03b79e3cbd389ad0cc1b2638cd9db955124b180f762aa1f26b1cafc4888f"
+    },
+    {
+      "scene": "19_setting_plot_images",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 665,
+      "full_native_duration_s": 22.166666666666668,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/19_setting_plot_images.capture.json",
+        "bytes": 58894,
+        "sha256": "78fc4830e63aca95ca8af7f70c58316f0e9025f4a78e9555f985a0bcc8228907"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "bfee436764a63d6068f6019c32091dbfdca9ab931894de4014f731facf4082a3",
+      "video_sha256_from_sealed_receipt_and_selection": "b83a864a8def9ea552e72c08af93cd1c8ae456e9d1789e9c4829db3a793cdd04"
+    },
+    {
+      "scene": "23_batch_finished",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 752,
+      "full_native_duration_s": 25.066666666666666,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/23_batch_finished.capture.json",
+        "bytes": 66446,
+        "sha256": "d57505c4e1710d4b72e2b9e81f57590afb60e3e2b58aaf70a4adac9debe67211"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "7a9ce8d58af1d0f9f44cd1a7a485d8b1fabc656295f99f3d4de033b05268a9e3",
+      "video_sha256_from_sealed_receipt_and_selection": "170e872e017b2bc36c39920b208647b6ad00d4ce7b1f7a2b95f23a1c6fa15677"
+    },
+    {
+      "scene": "24_batch_figure",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 760,
+      "full_native_duration_s": 25.333333333333332,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/24_batch_figure.capture.json",
+        "bytes": 67138,
+        "sha256": "1f37e39889a78a06b8dfa9db647bcd31fd23d33ddb7d3ba5bf2a96892bc312ba"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "2085a355a3996bf50d5f65ccaa9f6cb405acb6ce5e19592e7219c078a3221d39",
+      "video_sha256_from_sealed_receipt_and_selection": "fe523f943f1c9cc010fd1ab3762ce324a99bdacbcbf2e69ea73e9264dd823348"
+    },
+    {
+      "scene": "25_interactive_embedding",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 732,
+      "full_native_duration_s": 24.4,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/25_interactive_embedding.capture.json",
+        "bytes": 64727,
+        "sha256": "1fe5080a0395473cf9fe2aa14eac9405e1f1397e60b9465d06cd19c64d9136f3"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "f020eec63335d8b84d4bd676744232b591a06e549fbaeafa7136a7e69b12ab36",
+      "video_sha256_from_sealed_receipt_and_selection": "da31a4d6088c04df09ee0bed0e7dd566f241447dc4dabebbd555e74485750b48"
+    },
+    {
+      "scene": "26_point_0",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 737,
+      "full_native_duration_s": 24.566666666666666,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/26_point_0.capture.json",
+        "bytes": 65121,
+        "sha256": "da361be951ed9c5cf4b1a9b8e19d0062d6b5adee4337d5a5a1ff8b9892ed8862"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "5da205aa62d32f2396c3cd604028bad9fef1a4103fc7e9aac99a1dd1bd0cf7a6",
+      "video_sha256_from_sealed_receipt_and_selection": "597d09861b5373b5c951ef1599b17ed0130613b627c5a11feb461cb4b24e721c"
+    },
+    {
+      "scene": "26_point_200",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58-b/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 788,
+      "full_native_duration_s": 26.266666666666666,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/26_point_200.capture.json",
+        "bytes": 69563,
+        "sha256": "cbbb588cbb2d3f4aed899336e97a989a7bd7b03def3dd61d1e85de95bf7109c4"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "560aad949e132ff7c55757c0bc16f981b2224009c17cbea52650edb77b7810cc",
+      "video_sha256_from_sealed_receipt_and_selection": "93573ec9af0398ea3bdce0e7a321e623b9890fba7ff13f86db93e73a143516d4"
+    },
+    {
+      "scene": "27_review_embedding",
+      "actual_capture_source_commit": "a6727b94d63f43df9309b7940275f01b5e56d3f5",
+      "original_capture": "/media/carruthers/mnt3/claude/n676_stages/host/lesson15-r58/captures/umap",
+      "source_start": 0,
+      "decoded_source_frames": 758,
+      "full_native_duration_s": 25.266666666666666,
+      "receipt": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/captures/umap_host/27_review_embedding.capture.json",
+        "bytes": 66975,
+        "sha256": "c4982713deb31c11665464d80683a7de6c5228bc09970d8729f6291a95e0ef5c"
+      },
+      "native_sha256_from_sealed_receipt_and_selection": "db88bbf21ad40c90d8c254c14f288c10ed0f44532463263233bb3e4fedd04ecf",
+      "video_sha256_from_sealed_receipt_and_selection": "4da2f1f6c70850103b29bb03dfbfa85126b59d6bbbebfc2dac56899dd276b6d0"
+    }
+  ],
+  "all50_audio_and_sidecar_actual_hashes_match_timing_and_formal_QA": true,
+  "formal_audio_QA": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json",
+    "bytes": 9034,
+    "sha256": "2bbfadf9e6208abc1b68e4018adf2fb4f91c1054ac69ce71db1f9287b59c85d9"
+  },
+  "voice_source_freeze": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/voices-15-r58-20261015/source-freeze.json",
+    "bytes": 2680,
+    "sha256": "358617447a2c3c7122cad710b47ebbf76041b8d32891f9d6ae5b68354c48cf2a"
+  },
+  "official13_review_files_byte_identical_to_current_source": true,
+  "reviews": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.da.json",
+      "bytes": 4496,
+      "sha256": "d0ce46cb611561d21cf87c063d14f9a4bc96ad4f277d44b9dee2afe7a63b73c5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.de.json",
+      "bytes": 5162,
+      "sha256": "2681e3b84305ffdd8018d99cbd3aa9ef55520842af500456645700072a61125d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.es.json",
+      "bytes": 4865,
+      "sha256": "a795ca862a7c38a599d609c18a9580b03dc940e5ac19bcc385afbe0a27c48cdd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.fr.json",
+      "bytes": 5157,
+      "sha256": "2792b20282c10fb22c0ff1519d9c94ee1af337b3afe31eb313d50795856d6922"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.hi.json",
+      "bytes": 9292,
+      "sha256": "9ec010538206f496b490fbae077454101b91ba0080078c42000b7bccae89562b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.is.json",
+      "bytes": 4533,
+      "sha256": "be6858bfe257829e36df5073d0a49a4a7f582136aa0f08c2a75ca4eb07724ea3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.it.json",
+      "bytes": 4806,
+      "sha256": "d0bcab532f1d101f484a867034f457777cb0fd1a699b4eb8f415d559c53a8166"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.ja.json",
+      "bytes": 5450,
+      "sha256": "f7f59c027b1e6a955e1edec082e9e260dd2399a9258fde995bb12a3316f076bf"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.ko.json",
+      "bytes": 4792,
+      "sha256": "169ae6374e71d0ecc7b4d7636e18eea0f5972b502a3022e1be59bfed5bda5ce6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.nb.json",
+      "bytes": 4446,
+      "sha256": "2ce3753abe2427fe117cd974f3e9769e5deed6dc624b732a0999c8df8f4d8851"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.pt-BR.json",
+      "bytes": 4846,
+      "sha256": "acb105f6e50bcbac40cd791be73de9c661b1dcc95545ef807fa368db47e25551"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.sv.json",
+      "bytes": 4573,
+      "sha256": "9f8e12278d4ad85b5171b4002001291b86801dfb0a5192e42ee90cfbe39e770c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/review.zh-CN.json",
+      "bytes": 3920,
+      "sha256": "caa644625d64928438a441fb98a8d5b3e6a653b327c73316067f14cbc60b7e8f"
+    }
+  ],
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/production/15_image_umap/video/15_image_umap_silent.mp4",
+    "bytes": 245088942,
+    "sha256": "ad3a89531587b2193df0d204c890579560462d9adebc1743e4314317c059ad0a"
+  },
+  "master_metadata_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "duration": "366.700000",
+        "nb_frames": "11001"
+      }
+    ]
+  },
+  "web": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/web-renditions/15_image_umap/video/15_image_umap_silent.mp4",
+    "bytes": 44405716,
+    "sha256": "38a9d7764c29a241fe8c89510991b6566275fd3359de1e6b159d4fb2b9b093bc"
+  },
+  "sealed_owning_fullDecode_allPTS_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-15-r58-20261015/web-renditions/15_image_umap/rendition-checks.json",
+    "bytes": 1023,
+    "sha256": "56d1bab6b72678321a0e22fde10f184e21e854c2d47240306b99a40b5b75bfeb"
+  },
+  "owning_receipt_reused": {
+    "accepted": true,
+    "full_decode_passed": true,
+    "all_frame_presentation_times_match": true,
+    "frames": 11001
+  },
+  "visual_review_granted": false,
+  "human_listening_review": false,
+  "native_speaker_signoff": false,
+  "publication_accepted": false,
+  "limits": [
+    "Full native/source receipts and owning fullDecode/allPTS checks reused; no repeated full video decode.",
+    "Fresh master/web/audio SHA hashes and ffprobe metadata checks do not constitute content listening or visual acceptance.",
+    "RMS onset gates cannot establish leading word completeness; discarded-prefix risk and player startup issue remain separate.",
+    "The application capture inventory does not cover player JS or audio engine; those require independent Git/source bindings."
+  ]
+}

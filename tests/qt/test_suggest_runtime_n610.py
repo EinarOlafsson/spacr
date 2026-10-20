@@ -13,8 +13,16 @@ def test_actual_suggest_controls_and_console_use_reviewed_language(qtbot, monkey
 
     root = Path(__file__).resolve().parents[2]
     evidence = json.loads((root / 'docs/i18n/reviewed/runtime' / language /
-                           '2026-10-01-suggest-progress-and-cancellation.json').read_text())
+                           '2026-10-01-suggest-progress-and-cancellation.json').read_text(encoding="utf-8"))
     records = evidence['records']
+    retired = [row['record'] for row in evidence.get('retired_records', [])]
+    assert len(records) == 13 and len(retired) == 1
+    assert retired[0]['source'].startswith('Stop the suggestion run')
+    assert 'may have been cleared' in retired[0]['source']
+    replacement = json.loads((root / 'docs/i18n/reviewed/runtime' / language /
+                              '2026-10-18-issue152-suggest-choice-dialog.json').read_text(encoding="utf-8"))
+    records = records + [r for r in replacement['records']
+                         if r['source'].startswith('Stop the suggestion run')]
     assert len(records) == 14
     targets = {r['source']: r['translation'] for r in records}
     for record in records:

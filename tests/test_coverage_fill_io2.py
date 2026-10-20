@@ -71,10 +71,10 @@ def test_results_to_csv(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# _copy_missclassified
+# _copy_misclassified
 # ---------------------------------------------------------------------------
 
-def test_copy_missclassified(tmp_path):
+def test_copy_misclassified(tmp_path):
     # build image files under a pc and an nc path
     pc_dir = tmp_path / "cls" / "pc"; pc_dir.mkdir(parents=True)
     nc_dir = tmp_path / "cls" / "nc"; nc_dir.mkdir(parents=True)
@@ -85,8 +85,8 @@ def test_copy_missclassified(tmp_path):
         "true_label": [1, 0],
         "predicted_label": [0, 1],   # both misclassified
     })
-    IO._copy_missclassified(df)
-    assert list((tmp_path / "cls" / "missclassified").rglob("*.png"))
+    IO._copy_misclassified(df)
+    assert list((tmp_path / "cls" / "misclassified").rglob("*.png"))
 
 
 # ---------------------------------------------------------------------------

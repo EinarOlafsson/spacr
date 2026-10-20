@@ -91,3 +91,49 @@ ALPHA NOTE (2026-09-27)
         timelapse delays the next field's analysis.
       - The live plate view of events is not built; events are in the
         ledger and the console.
+
+2026-10-15 — Home-B: native Micro-Manager demo DONE WHEN now exercised
+    The previously missing demo-config acceptance passed on actual C++
+    MMCore 12.5.1 with the official Linux DemoCamera adapter release
+    75.20261014.post1 (Device API 75), through pycromanager 1.0.2's owned
+    Python headless backend and pymmcore 12.5.1.75.0. This was not spaCR's
+    _SimulatedMicroscope. The minimal vetted configuration loaded only
+    software DHub, DCam, DXYStage and DStage; no external server or physical
+    device was contacted, and no global environment/configuration changed.
+
+    Source 65949c5d951 includes the position-table validation fix aa15a81e.
+    Existing _microscope_open/_microscope_queue/_microscope_drain/
+    _microscope_acquire ran unchanged. Synthetic measured rows selected two
+    events; the [0.5,0,0,-0.5] transform produced XYZ positions
+    (1006,1993,7.5) and (993,2007,7.5) um. The actual ledger was saved and
+    reloaded before drain; both events acquired two 64x64 uint16 TIFFs each.
+    Native final XYZ, TIFF stage metadata/nonconstant pixels, and equality
+    of the last TIFF to the native camera buffer were checked. Two events
+    lacking a field position remained no_position; a second drain acquired
+    nothing. Owned devices were unloaded and the process exited normally.
+
+    PASS: terminal exit 0, 10.66 s wall time, peak RSS 1,119,768 KiB under a
+    6G cap and the shared resource lock. This is functional acceptance,
+    not an idle-host performance benchmark. Reproduction/configuration,
+    dependency provenance, native library/source hashes, queued/final
+    ledgers, four acquired TIFFs and logs are committed in
+    features/data/549_micromanager_demo_2026-10-15/.
+
+    The stated simulation + Micro-Manager-demo DONE WHEN is now covered;
+    this item remains alpha. Physical microscope calibration and safety,
+    vendor APIs, .pos/vendor metadata import, automatic objective/channel/
+    exposure control, arbitration with live plate acquisition, asynchronous
+    timelapses and live plate-view UI remain outside this acceptance. The
+    demo used fixture measurements; scientific event detection was not
+    revalidated by this run.
+
+2026-10-15 — Original Home whole-original-contract acceptance.
+Both stated DONE WHEN clauses are met: the existing simulation proves transformed
+event positions, and the native Micro-Manager demo queues/reloads/acquires the
+positions. Root independently checked11 relevant microscope/watch/simulator
+definitions remain byte-identical to the actual demo source65949c5, and all14
+portable evidence identities including four native TIFFs. Home-B separately
+confirmed all13 owning definitions and normal nine-language diagnostics.
+Whole F549 is complete and remains alpha. No physical microscope calibration,
+vendor-specific acquisition, biological detection or safety certification is
+implied; those were not additional original demo acceptance requirements.

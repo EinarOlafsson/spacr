@@ -31,7 +31,7 @@ pytest.importorskip("PySide6")
 from spacr.qt import resource_cleanup as rc
 
 
-SOURCE = Path(rc.__file__).read_text()
+SOURCE = Path(rc.__file__).read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -157,7 +157,7 @@ def test_nothing_cached_is_reported_as_nothing_cached(monkeypatch):
     crops._FIELD_CACHE.clear()
     crops._FORMAT_CACHE.clear()
     crops._DB_FORMAT_CACHE.clear()
-    monkeypatch.setattr(rc.gc, "collect", lambda *a: 0)
+    monkeypatch.setattr(rc._gc, "collect", lambda *a: 0)
     monkeypatch.setattr(rc, "process_rss", lambda: 1024)
     result = rc.clear_ram()
     assert result.details == ()
@@ -169,7 +169,7 @@ def test_headless_ram_cleanup_still_collects_python_garbage(monkeypatch):
     monkeypatch.setattr(rc, "_qt_application_is_running", lambda: False)
     monkeypatch.setattr(rc, "_clear_dict_caches", lambda: [])
     monkeypatch.setattr(
-        rc.gc, "collect", lambda: calls.append("collect") or 3)
+        rc._gc, "collect", lambda: calls.append("collect") or 3)
     monkeypatch.setattr(rc, "process_rss", lambda: 1024)
 
     result = rc.clear_ram()
@@ -183,7 +183,7 @@ def test_gui_ram_cleanup_never_collects_live_qt_wrappers(monkeypatch):
     monkeypatch.setattr(rc, "_qt_application_is_running", lambda: True)
     monkeypatch.setattr(rc, "_clear_dict_caches", lambda: [])
     monkeypatch.setattr(
-        rc.gc, "collect",
+        rc._gc, "collect",
         lambda: pytest.fail("gc.collect reached a live Qt heap"))
     monkeypatch.setattr(rc, "process_rss", lambda: 1024)
 
@@ -325,7 +325,7 @@ def test_the_disk_check_only_reads(tmp_path):
     entry = report.entries[0]
     assert entry.total > 0 and entry.free >= 0
     assert 0 <= entry.percent_used <= 100
-    assert (tmp_path / "keep.txt").read_text() == "data"
+    assert (tmp_path / "keep.txt").read_text(encoding="utf-8") == "data"
     assert sorted(p.name for p in tmp_path.iterdir()) == ["keep.txt"]
 
 

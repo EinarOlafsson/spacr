@@ -10,6 +10,7 @@ import contextlib
 import fnmatch
 import html
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -107,7 +108,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # current. The complete-catalog browser gate still checks every locale; this
 # pin change does not exempt its missing or stale translations.
 # 474's ten additional entries have reviewed records in every locale.
-# +27 / -0 since 1d5a80f78: 14 Starplast, 9 ruler and 4 diagram entries.
+# +27 / -0 since 1d5a80f78: 14 ParaScape, 9 ruler and 4 diagram entries.
 # Subtraction is recorded in 411_api_prose_cleanup_2026-09-22.json.
 # +22 / -0 for the flowchart and secondary-object APIs; exact delta in
 # 411_flowchart_secondary_inventory_2026-09-23.json.
@@ -174,7 +175,18 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # Item 662: +4 public mask_engine YOLO helpers, no removals.
 # All 13,177 prior English records preserved; 662_yolo_support receipt.
 # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
-REAL_SYMBOL_COUNT = 13_182
+# 2026-10-18 (maintainer-approved): the count now subtracts the documentation
+# inventory test's named arrival contracts and
+# parascape_rename_api_arrivals_2026-10-18.json (the 24 spacr._parascape /
+# spacr.qt.parascape symbols, make_masks_demo._load_example._done and
+# LiveSettingsDialog.done). Against the 13,182 above: +3 item 684 symbols
+# (snap_window, set_click_ripples, _density_follows_theme; see the
+# documentation ratchet's 2026-10-10 note) and -54 retired: the 24
+# former external-application symbols and the two renamed helpers
+# (load_the_test_data._done, LiveSettingsDialog.closeEvent) replaced by the
+# rename contract, and the 28 item 700 setup symbols in
+# 700_retired_setup_api_inverse_2026-10-15.json.
+REAL_SYMBOL_COUNT = 13_131
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -703,24 +715,71 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
             f"was removed or made private; that is a source change, not a "
             f"build one")
     arrivals = json.loads((ROOT / "tests/data/release_contracts"
-                          / "615_api_browser_arrivals_2026-10-07.json").read_text())
+                          / "615_api_browser_arrivals_2026-10-07.json").read_text(encoding="utf-8"))
     assert len(arrivals) == 33
-    assert {key: docs[key] for key in arrivals} == arrivals
-    assert {key: english["symbols"][key]["text"] for key in arrivals} == arrivals
+    # 2026-10-18: item 560's Cell-DINO checkpoint picker rewrote two of these
+    # arrivals; the contract keeps the 2026-10-07 wording and the current
+    # text is pinned here.
+    revised_560 = {
+        "spacr.embeddings._cell_dino_model.forward": (
+            "Return the official DINOv2 head output for each declared crop.\n\n"
+            "Channel-Adaptive DINO encodes each plane on its own and returns the\n"
+            "class tokens of every plane side by side, as its official\n"
+            "bag-of-channels evaluation does."),
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": (
+            "Show the planes the chosen factory takes; none when adaptive."),
+    }
+    assert {key: arrivals[key] for key in revised_560} == {
+        "spacr.embeddings._cell_dino_model.forward":
+            "Return the official DINOv2 head output for each declared crop.",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width":
+            "The fifth plane belongs only to the Cell Painting factory.",
+    }
+    assert {key: docs[key] for key in revised_560} == revised_560
+    assert {key: english["symbols"][key]["text"] for key in revised_560} == revised_560
+    unchanged = {key: value for key, value in arrivals.items()
+                 if key not in revised_560}
+    assert {key: docs[key] for key in unchanged} == unchanged
+    assert {key: english["symbols"][key]["text"] for key in unchanged} == unchanged
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
     assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
     assert not worker_arrivals.keys() & arrivals.keys()
     assert {key: english["symbols"][key]["text"] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
-    assert len(home_ui_arrivals) == 9
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
+    assert len(home_ui_arrivals) == 10  # + LiveSettingsDialog.close (39bfe8e19)
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
     assert {key: english["symbols"][key]["text"] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & arrivals.keys()
-    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == REAL_SYMBOL_COUNT
+    # 2026-10-18: subtract the same named arrival contracts that
+    # test_documentation_api_catalog_inventory_and_hashes_are_current reads,
+    # read from that test so the two unions cannot drift apart, plus the
+    # ParaScape rename contract.
+    docs_test = (ROOT / "tests/test_documentation_i18n.py").read_text(encoding="utf-8")
+    inventory = docs_test[docs_test.index(
+        "def test_documentation_api_catalog_inventory_and_hashes_are_current"):]
+    inventory = inventory[:inventory.index("retirement = json.loads")]
+    documented_contracts = sorted(set(re.findall(r'"([^"]+\.json)"', inventory)))
+    assert "tutorial_cli_api_changes_2026-10-12.json" in documented_contracts
+    documented_arrivals = {}
+    for filename in (*documented_contracts, "parascape_rename_api_arrivals_2026-10-18.json"):
+        payload = json.loads((ROOT / "tests/data/release_contracts" / filename).read_text(encoding="utf-8"))
+        payload = payload.get("added", payload.get("API_arrivals", payload))
+        assert payload
+        assert {key: docs[key] for key in payload} == payload
+        documented_arrivals.update(payload)
+    rename = json.loads((ROOT / "tests/data/release_contracts"
+        / "parascape_rename_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert len(rename) == 26
+    assert not {
+        key for key in catalog
+        if bytes.fromhex("73746172706c617374").decode() in key.lower()
+    }
+    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+               - documented_arrivals.keys()) == REAL_SYMBOL_COUNT
     assert len(catalog) == len(symbols)
     expected_count = len(symbols)
 

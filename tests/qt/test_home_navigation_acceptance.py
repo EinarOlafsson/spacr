@@ -9,6 +9,9 @@ from spacr.qt.widgets.home import AppTile
 
 @pytest.mark.parametrize('key', ['mask', 'measure', 'annotate', 'classify_merged', 'toxoplasma'])
 def test_visible_home_tile_opens_real_screen(qtbot, qt_theme_applied, key):
+    from spacr.qt.walkthrough import mark_seen
+
+    mark_seen(key)
     window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     window._tour_timer.stop()
@@ -27,8 +30,15 @@ def test_visible_home_tile_opens_real_screen(qtbot, qt_theme_applied, key):
     qtbot.mouseClick(tile, Qt.LeftButton, pos=QPoint(tile.width() // 2, tile.height() // 2))
     qtbot.waitUntil(lambda: key in window._screens, timeout=10000)
     assert window._stack.currentWidget() is window._screens[key]
-    assert window._screens[key].isVisible()
-    assert window._screens[key].visibleRegion().boundingRect().width() > 300
+    screen = window._screens[key]
+    assert screen.isVisible()
+    assert screen.width() > 300
+    # The field behind a screen claims opaque painting (c138911fb), so the
+    # screen's own visibleRegion() is empty under it; what is on top at the
+    # middle of the screen is the screen or something inside it.
+    middle = screen.mapTo(window, QPoint(screen.width() // 2, screen.height() // 2))
+    on_top = window.childAt(middle)
+    assert on_top is screen or screen.isAncestorOf(on_top), on_top
 
 
 @pytest.mark.parametrize('key', ['mask', 'analyze_plaques'])

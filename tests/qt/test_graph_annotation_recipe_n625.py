@@ -67,11 +67,11 @@ def test_recipe_chart_export_and_source_cache_roundtrip(screen, tmp_path):
     assert screen.builder.canvas.figure().axes
     saved = tmp_path / 'recipe-chart.json'
     screen.save_chart(saved)
-    assert json.loads(saved.read_text())['condition_annotation'] == definition
+    assert json.loads(saved.read_text(encoding="utf-8"))['condition_annotation'] == definition
     exported = tmp_path / 'working.csv'
     screen.export_table(exported)
     _assert_example(pd.read_csv(exported))
-    sidecar = json.loads(exported.with_suffix('.csv.conditions.json').read_text())
+    sidecar = json.loads(exported.with_suffix('.csv.conditions.json').read_text(encoding="utf-8"))
     assert sidecar['condition_annotation'] == definition
     source = screen._condition_source['path']
     screen.load_path(source, 'other')

@@ -1,6 +1,6 @@
 """Offline SwissBioPics cells with selectable UniProt compartment labels.
 
-The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's Starplast
+The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's ParaScape
 ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea).
 Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany
 the SVGs. Only the rendered copy loses hidden metadata and its credit logo;

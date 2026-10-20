@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_at_utc": "2026-10-15T20:44:40.101217+00:00",
+  "source_parent": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "capture_source_commit": "b929b7dc53465132322c3ca0b866f567de773b9f",
+  "source_head_at_review": "253f5814bc2add67d01032948271b8aa1b06aa00",
+  "commit_status": "Reviewed two locally uncommitted K6 followup bytes; root owns successor commit. K4 native capture/stage remain unchanged.",
+  "owning_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-explicit-seek-owning-tests.json",
+    "bytes": 5588,
+    "sha256": "a299c3bc1b45b9b52ca01e3137116b0e06bec5b60540df10ca2b1c98e44299b2"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/web/app_v2.js",
+      "bytes": 103313,
+      "sha256": "39591f1dd856cad05324fc32d871a6cc558078792c03dad4a473d7af9778bf25"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_player_preserve_visual_intervals.py",
+      "bytes": 10814,
+      "sha256": "f76a317f79f9e3d634a675063ebd48e5c7dd6698896b503164ce57833dbc6115"
+    }
+  ],
+  "unchanged_prior_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 32978,
+      "sha256": "da1d79a9835f62afb9773129a6d8d104a0c84551f049c9cce00ccdee4ba5aaf3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_mixed_visual_refresh.py",
+      "bytes": 18430,
+      "sha256": "ea7d490b6c6101d497d53e6e602a7c04c07b60228605d4408cdf64a49cc64842"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/verify_staged_lesson.py",
+      "bytes": 40917,
+      "sha256": "0bcfc0298eaca16130cc59846f9133f5a5e317d1c19b3138cba17e54322c2a04"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+      "bytes": 9847,
+      "sha256": "ebf18086e0ec0379824916d6f52045147001fa33e6af65af3900fcf17209da2c"
+    }
+  ],
+  "tests": {
+    "passed": 226,
+    "seconds": 75.25,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/retained-explicit-seek-tests-r2.log",
+      "bytes": 376,
+      "sha256": "bf777fa3f371d12ed9a2a80803a2cb62f32506eb9bff47c4b493feb2ac0fe01e"
+    },
+    "cap": "4G",
+    "CPU_only": true,
+    "software_Chrome": true,
+    "accelerated_video_decode": false,
+    "own_lease_removed": true,
+    "actual_browser_cases": 8,
+    "existing_browser_fixtures_unmodified": true,
+    "global_fixture_patch": false
+  },
+  "actual_failure_trace": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/pages-r3-seek-failure-trace.json",
+    "bytes": 23930,
+    "sha256": "9c06c4e76b38c752a296bed6f444073e10bc3fe6e199721824df56d59a4394a9"
+  },
+  "checks": {
+    "only_exact_preserve_mode_guard_inserted_before_scene_or_offset_writes": true,
+    "pending_explicit_visual_seek_pauses_audio_and_returns": true,
+    "normal_seeked_clears_pending_then_exact_sync_true_preserved": true,
+    "ordinary_complete_native_and_flag_absent_branches_unchanged": true,
+    "all_prior_test_functions_AST_identical": true,
+    "new_native_currentTime_descriptor_observer_delegates_original_setter": true,
+    "five_cold_precise_sentence_seeks_no_unrequested_offset_write": true,
+    "actual_seeking_settlement_AV_and_exact_active_cue_assertions": true,
+    "actual226_terminal0_originalfixtures_eight_browsercases_bound": true,
+    "four_otherK4_files_exact_and_no_capture_policy_verifier_app_audio_changes": true
+  },
+  "limits": [
+    "Independent source review and sealed owning-test readback only; actual newcandidate/hosted84 playback acceptance remains future.",
+    "No duplicate tests/browser/mediahash/decode/remote operation.226 is the final current-byte cohort; historical224/225 receipts are not summed.",
+    "No capture, stage/master reencode, audio change, hearing or complete-word acceptance implied."
+  ]
+}

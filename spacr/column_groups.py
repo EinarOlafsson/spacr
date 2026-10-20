@@ -9,12 +9,11 @@ user means depends on the question:
     channel     channel_0, channel_1, ...
     family      morphology, intensity, texture, correlation, moment
 
-THE FAMILIES ARE NOT INVENTED HERE. They come from
-:data:`spacr.feature_dict.FEATURE_FAMILIES`, which is the dictionary that
-already documents every column, and the classification is
-:func:`spacr.feature_dict.parse_column`. A second taxonomy would be a second
-thing to keep in step with the measurement code, and it would disagree first
-in exactly the corners nobody checks.
+The families are not defined here. They come from
+:data:`spacr.feature_dict.FEATURE_FAMILIES`, the dictionary that documents
+every column, and the classification is
+:func:`spacr.feature_dict.parse_column`. A separate taxonomy would have to be
+kept in step with the measurement code and could drift from it.
 
 Qt-free, so the picker's logic is testable without a display and the same
 grouping can serve the CLI, a notebook, or a future screen.

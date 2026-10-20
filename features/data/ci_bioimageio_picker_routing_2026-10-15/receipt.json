@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-15",
+  "status": "targeted_test_repair_passed",
+  "source_base": "cc5c2c019b42f22c6c0cf3edffcf9ba3be0b642f",
+  "hosted_failure": {
+    "run": 38774384694,
+    "head": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+    "job": 116568856169,
+    "node": "tests/qt/test_bioimageio_rows_in_the_picker.py::test_use_writes_the_setting_that_routes_it",
+    "parameter_cases": 2
+  },
+  "cause": "The test asserts synchronously after _accept_selected, but the current picker routes through a real background reference check and queued model_chosen signal. Fake catalogue rows are untrusted and intentionally return no pin; accepting their existing path still requires the real queued result.",
+  "repair": "Wait on the real model_chosen signal using the existing5000ms project convention, preserve both exact cellpose3-prefixed and Cellpose-SAM path assertions, then require cleared reference thread/request. No signal or verifier stub.",
+  "baseline": {
+    "exit": 1,
+    "failed": 2,
+    "seconds": 4.9
+  },
+  "final": {
+    "exit": 0,
+    "passed": 2,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 2.28
+  },
+  "checks": {
+    "full_ruff": "Same3 pre-existing E402 before/after, raw output byte-identical.",
+    "fatal_ruff_E9_F63_F7_F82": "PASS",
+    "diff_check": "PASS",
+    "production_bytes_unchanged_from_current_base": true,
+    "exact_verifier_AST_unchanged_since_hosted": true,
+    "original_route_assertions_and_parametrization_preserved": true
+  },
+  "review": "Root approved test-only real queued signal wait and existing5s convention before mutation.",
+  "limits": [
+    "Two affected native Qt6.12/offscreen routing cases only.",
+    "No network/model download, checkpoint deserialization or inference; pre-existing offline fixture supplies catalogue rows.",
+    "No complete CI/release/whole-feature acceptance claim."
+  ],
+  "evidence_files": {
+    "baseline.log": {
+      "sha256": "e4ed363d3fb5259b6c751874ce6c12a9489a66d798682f7d81840500f2a5229d",
+      "bytes": 1785
+    },
+    "baseline.xml": {
+      "sha256": "0f594ebc9c9b40d32fee74ac14d35dfc37a23f372af1b67c9039201a757f4716",
+      "bytes": 1956
+    },
+    "baseline.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "baseline-startup.json": {
+      "sha256": "92cda6f4f6ae97251967f31ff756bc978400c9d97cf6d3469c95d9bfc54654a4",
+      "bytes": 237
+    },
+    "final.log": {
+      "sha256": "51c30577325a9715d60f1490346b6365be3ead31f904d1c105bd6b8a261e438b",
+      "bytes": 402
+    },
+    "final.xml": {
+      "sha256": "fea5ade115a5c8ac47e1f4703208d77fcfdfcc8f7888209eabc4ee8efaf8adbd",
+      "bytes": 546
+    },
+    "final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "final-startup.json": {
+      "sha256": "e08bf966e6c2de746fdd2217a7bc58016f0cd071443f61d20d9fc6acc2d37237",
+      "bytes": 237
+    },
+    "ruff.log": {
+      "sha256": "a67cc3afdc6e49dc4073d2b64489d075f28eaca516a77eae4c6a233ec11a230a",
+      "bytes": 954
+    },
+    "ruff-baseline.log": {
+      "sha256": "a67cc3afdc6e49dc4073d2b64489d075f28eaca516a77eae4c6a233ec11a230a",
+      "bytes": 954
+    },
+    "ruff-fatal.log": {
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "source-proof.json": {
+      "sha256": "f4a159911582967768a83e7d4bd33d2d53dd83118388d541d406e54756abe99d",
+      "bytes": 1399
+    },
+    "proposed.patch": {
+      "sha256": "3b19c6946ce8b70e42884d39dd5e1f98fe9fcba3c81f9aa44e840999921eb776",
+      "bytes": 1269
+    },
+    "run.sh": {
+      "sha256": "8ae802de6623cfe489f870bd944d69bf31bb02e62833e1c6ab21bb226e051352",
+      "bytes": 1003
+    },
+    "pytest-driver.py": {
+      "sha256": "adb7affdb0d19d949f97b25018a116deee23f754347d257a223d5a695a532b3d",
+      "bytes": 1156
+    }
+  }
+}

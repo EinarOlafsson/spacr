@@ -1,4 +1,4 @@
-"""One-click, shareable report for a finished spaCR run.
+"""Build a self-contained HTML (and optional PDF) report for a finished spaCR run.
 
 Why this exists
 ---------------
@@ -13,8 +13,7 @@ This module walks that folder, gathers what is *actually there*, and writes
 a single self-contained HTML file (and, optionally, a PDF) that answers the
 question without spaCR, without Python and without the original machine.
 
-Three rules govern what it does, because a report that breaks any of them
-is worse than no report:
+Three rules govern what it does:
 
 **A missing section is stated, never omitted.**
     If segmentation QC was never run, the report contains a "Segmentation
@@ -72,7 +71,7 @@ The PDF is composed with :class:`matplotlib.backends.backend_pdf.PdfPages`
 — a monospace transcription of the same content plus one page per embedded
 figure. spaCR has no HTML-to-PDF engine among its dependencies and this
 module refuses to add one, so the PDF is a faithful *summary*, not a
-rendering of the HTML. Send the HTML when you can.
+rendering of the HTML. The HTML file is the complete report.
 """
 from __future__ import annotations
 
@@ -2191,8 +2190,8 @@ def render_html(report: Report) -> str:
 
     The output has no external dependencies of any kind: the stylesheet is
     inline, every image is a base64 ``data:`` URI, and there is no
-    JavaScript. It renders identically on a machine that has never heard of
-    spaCR and has no network.
+    JavaScript. It renders the same on a machine without spaCR installed and
+    without network access.
 
     :param report: a :class:`Report` from :func:`collect_report`.
     :returns: the complete HTML document as a string.
@@ -2790,9 +2789,9 @@ def _archive_channels(saved: Dict[str, str]) -> str:
 def _archive_analysis_text(saved: Dict[str, str]) -> str:
     """One paragraph on how spaCR analysed the images, from its settings."""
     try:
-        from importlib.metadata import version
+        from .version import get_version
 
-        spacr_version = version("spacr")
+        spacr_version = get_version()
     except Exception:
         spacr_version = "unknown"
     models = []
@@ -2888,6 +2887,8 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
     The IDR template requires the title row even when no title is known.
     """
     import shutil
+
+    from .qt.i18n import tr
 
     import pandas as pd
 
@@ -3209,10 +3210,23 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
         "the images and file_list.tsv to your BioStudies FTP folder, then "
         "submit the .pagetab.tsv.\n"
         "mihcsme/     MIHCSME sheets (and mihcsme.xlsx) for OMERO or IDR.\n"
-        "checksums.md5  MD5 of every file; check with `md5sum -c`.\n"
-        + ("data/        copies of the images.\n" if copy_images else
-           f"The images were not copied; the file list names them relative "
-           f"to {src}.\n"))
+        + tr("checksums.md5  MD5 of the package files and images.\n"
+             "To check the complete package, open a terminal in this package "
+             "folder using the Python environment where spaCR is installed, "
+             "then run:\n")
+        + "python -c \"from spacr.report import _validate_archive_study; "
+        "problems = _validate_archive_study('.'); "
+        "print('\\n'.join(problems) or 'Archive checks passed'); "
+        "raise SystemExit(bool(problems))\"\n"
+        + (tr("data/        copies of the images. With copied images, "
+              "`md5sum -c checksums.md5` also works from this package folder.\n")
+           if copy_images else
+           tr("The images were not copied; the file list names them relative "
+              "to {source}. Keep that source folder available for verification. "
+              "Image checksum paths are relative to the source folder; other "
+              "checksum paths are relative to this package. A single "
+              "`md5sum -c` command cannot resolve both bases; use the Python "
+              "command above.\n", source=src)))
     _archive_write_text(pkg / "README.txt", readme)
     manifest = {"source": str(src), "copy_images": bool(copy_images),
                 "slug": slug, "form": values}

@@ -1,0 +1,811 @@
+{
+  "lesson": "04_platform_installers",
+  "correctionPending": false,
+  "sceneIndex": 1,
+  "narrationWaiting": false,
+  "videoHeldForAudio": false,
+  "resumeAfterAudioHold": false,
+  "narrationHeldForVideo": false,
+  "audio": {
+    "time": 15.627499,
+    "paused": true,
+    "seeking": true,
+    "ready": 1,
+    "network": 1,
+    "error": null,
+    "buffered": [
+      [
+        0,
+        216.045
+      ]
+    ]
+  },
+  "video": {
+    "time": 21.595833,
+    "paused": true,
+    "seeking": false,
+    "ready": 4,
+    "network": 1,
+    "error": null,
+    "buffered": [
+      [
+        0,
+        24.133333
+      ],
+      [
+        25.415,
+        96.623
+      ]
+    ]
+  },
+  "expectedVideo": 21.595832311776302,
+  "scope": "Unmodified owning sentence-cue failure diagnostics; no threshold or playback changes",
+  "elapsed_seconds": 90.46916930517182,
+  "error": "TimeoutError",
+  "network_events": [
+    {
+      "seconds": 0.032,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "seconds": 0.045,
+      "url": "blob:http://127.0.0.1:34697/67ed3779-bbff-4cf1-b31b-46d4571fee2e",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "seconds": 0.068,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "status": 206,
+      "range": "bytes 262144-15929782/15929783",
+      "length": "15667639"
+    },
+    {
+      "seconds": 0.311,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "seconds": 0.409,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "status": 206,
+      "range": "bytes 589824-15929782/15929783",
+      "length": "15339959"
+    },
+    {
+      "seconds": 0.409,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "seconds": 0.507,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "status": 206,
+      "range": "bytes 720896-15929782/15929783",
+      "length": "15208887"
+    },
+    {
+      "seconds": 0.67,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "seconds": 0.743,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "status": 206,
+      "range": "bytes 851968-15929782/15929783",
+      "length": "15077815"
+    },
+    {
+      "seconds": 0.82,
+      "url": "https://us.aws.cdn.hf.co/xet-bridge-us/6a7357c7654d16ff80f22384/f6f24d6481ca20a6f2f908446e160f0e8e16fb74f774b14f020cbd9086acef9f",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "setter_trace": {
+    "writes": [
+      {
+        "value": 3.5475,
+        "before": {
+          "at": 7471.799999952316,
+          "audio": 28.972957,
+          "audioSeeking": false,
+          "audioReady": 4,
+          "video": 40.228224,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": null,
+          "waiting": false
+        },
+        "after": {
+          "at": 7471.899999856949,
+          "audio": 3.5475,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 40.228224,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": null,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at seekTo (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1864:32)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:16)\n    at UtilityScript.evaluate (<anonymous>:318:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      },
+      {
+        "value": 0,
+        "before": {
+          "at": 7472.099999904633,
+          "audio": 3.5475,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 3.547499,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 0,
+          "waiting": false
+        },
+        "after": {
+          "at": 7472.099999904633,
+          "audio": 0,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 3.547499,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 0,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at syncCompleteNativeNarration (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1456:34)\n    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1528:5)"
+      },
+      {
+        "value": 3.547499003541126,
+        "before": {
+          "at": 7521.399999856949,
+          "audio": 0,
+          "audioSeeking": false,
+          "audioReady": 4,
+          "video": 3.547499,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": 0,
+          "waiting": false
+        },
+        "after": {
+          "at": 7521.5,
+          "audio": 3.547499,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 3.547499,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": 0,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at syncCompleteNativeNarration (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1456:34)\n    at HTMLVideoElement.<anonymous> (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:2193:7)"
+      },
+      {
+        "value": 10.23,
+        "before": {
+          "at": 7681.599999904633,
+          "audio": 3.547499,
+          "audioSeeking": false,
+          "audioReady": 4,
+          "video": 3.547499,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": null,
+          "waiting": false
+        },
+        "after": {
+          "at": 7681.599999904633,
+          "audio": 10.23,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 3.547499,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": null,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at seekTo (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1864:32)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:16)\n    at UtilityScript.evaluate (<anonymous>:318:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      },
+      {
+        "value": 0,
+        "before": {
+          "at": 7681.799999952316,
+          "audio": 10.23,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 10.229999,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 0,
+          "waiting": false
+        },
+        "after": {
+          "at": 7681.799999952316,
+          "audio": 0,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 10.229999,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 0,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at syncCompleteNativeNarration (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1456:34)\n    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1528:5)"
+      },
+      {
+        "value": 10.22999901021162,
+        "before": {
+          "at": 7682,
+          "audio": 0,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 10.229999,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 0,
+          "waiting": false
+        },
+        "after": {
+          "at": 7682,
+          "audio": 10.229999,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 10.229999,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 0,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at syncCompleteNativeNarration (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1456:34)\n    at seekNarrationToVideo (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1410:5)\n    at HTMLVideoElement.<anonymous> (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:2149:3)"
+      },
+      {
+        "value": 15.627499999999998,
+        "before": {
+          "at": 7931.199999809265,
+          "audio": 10.229999,
+          "audioSeeking": false,
+          "audioReady": 4,
+          "video": 10.229999,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": null,
+          "waiting": false
+        },
+        "after": {
+          "at": 7931.199999809265,
+          "audio": 15.627499,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 10.229999,
+          "videoSeeking": false,
+          "videoReady": 4,
+          "correction": false,
+          "scene": null,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at seekTo (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1864:32)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:16)\n    at UtilityScript.evaluate (<anonymous>:318:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      },
+      {
+        "value": 13.764999999999999,
+        "before": {
+          "at": 7931.5,
+          "audio": 15.627499,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 21.595833,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 1,
+          "waiting": false
+        },
+        "after": {
+          "at": 7931.5,
+          "audio": 13.764999,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 21.595833,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 1,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at syncCompleteNativeNarration (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1456:34)\n    at HTMLAudioElement.updateNarrationHold (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1528:5)"
+      },
+      {
+        "value": 15.627499688223699,
+        "before": {
+          "at": 7931.699999809265,
+          "audio": 13.764999,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 21.595833,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 1,
+          "waiting": false
+        },
+        "after": {
+          "at": 7931.699999809265,
+          "audio": 15.627499,
+          "audioSeeking": true,
+          "audioReady": 1,
+          "video": 21.595833,
+          "videoSeeking": true,
+          "videoReady": 1,
+          "correction": true,
+          "scene": 1,
+          "waiting": false
+        },
+        "stack": "Error\n    at HTMLAudioElement.set [as currentTime] (eval at evaluate (:311:30), <anonymous>:9:82)\n    at syncCompleteNativeNarration (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1456:34)\n    at seekNarrationToVideo (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:1410:5)\n    at HTMLVideoElement.<anonymous> (http://127.0.0.1:34697/tutorials/app_v2.js?v=n676-selective04-20261015-verified:2149:3)"
+      }
+    ],
+    "events": [
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7472.099999904633,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "waiting",
+        "at": 7472.099999904633,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "seeking",
+        "at": 7472.299999952316,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "waiting",
+        "at": 7472.299999952316,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "pause",
+        "at": 7472.399999856949,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7472.5,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "pause",
+        "at": 7472.599999904633,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeked",
+        "at": 7483.399999856949,
+        "audio": 0,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "canplay",
+        "at": 7483.399999856949,
+        "audio": 0,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 3.547499,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "seeked",
+        "at": 7521.599999904633,
+        "audio": 3.547499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "canplay",
+        "at": 7521.599999904633,
+        "audio": 3.547499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7521.599999904633,
+        "audio": 3.547499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 3.547499,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeked",
+        "at": 7522.899999856949,
+        "audio": 3.547499,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 3.547499,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "canplay",
+        "at": 7522.899999856949,
+        "audio": 3.547499,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 3.547499,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7681.799999952316,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "seeking",
+        "at": 7682,
+        "audio": 0,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "waiting",
+        "at": 7682.099999904633,
+        "audio": 10.229999,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "pause",
+        "at": 7682.099999904633,
+        "audio": 10.229999,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7682.099999904633,
+        "audio": 10.229999,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7682.099999904633,
+        "audio": 10.229999,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeked",
+        "at": 7685.299999952316,
+        "audio": 10.229999,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "canplay",
+        "at": 7685.299999952316,
+        "audio": 10.229999,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 10.229999,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "seeked",
+        "at": 7774.899999856949,
+        "audio": 10.229999,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 10.229999,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "canplay",
+        "at": 7774.899999856949,
+        "audio": 10.229999,
+        "audioSeeking": false,
+        "audioReady": 4,
+        "video": 10.229999,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 0,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7931.599999904633,
+        "audio": 13.764999,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "seeking",
+        "at": 7931.599999904633,
+        "audio": 13.764999,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "waiting",
+        "at": 7931.699999809265,
+        "audio": 15.627499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "pause",
+        "at": 7931.799999952316,
+        "audio": 15.627499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7931.799999952316,
+        "audio": 15.627499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "audio",
+        "name": "seeking",
+        "at": 7931.799999952316,
+        "audio": 15.627499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": true,
+        "videoReady": 1,
+        "correction": true,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "seeked",
+        "at": 8134.5,
+        "audio": 15.627499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 1,
+        "waiting": false
+      },
+      {
+        "media": "video",
+        "name": "canplay",
+        "at": 8134.5,
+        "audio": 15.627499,
+        "audioSeeking": true,
+        "audioReady": 1,
+        "video": 21.595833,
+        "videoSeeking": false,
+        "videoReady": 4,
+        "correction": false,
+        "scene": 1,
+        "waiting": false
+      }
+    ]
+  }
+}

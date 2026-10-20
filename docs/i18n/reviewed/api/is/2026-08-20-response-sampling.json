@@ -6,7 +6,9 @@
       "label": "spacr.settings_advisor.read_the_response#0",
       "source": "Measure response range, shape, and per-well support.",
       "source_sha256": "2abc3e008cb3c377d129b2066e676c6beb52464919440fd4d379a067da990fff",
-      "translation": "Mæla svið og lögun svörunar ásamt stuðningi eftir staðsetningu sýnis á örplötu."
+      "translation": "Mæla svið og lögun svörunar ásamt stuðningi eftir staðsetningu sýnis á örplötu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "At most ``row_cap`` object rows are read across the supplied score tables. The returned mapping records whether that cap was reached so callers can qualify sample-derived recommendations.",

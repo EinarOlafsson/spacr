@@ -473,7 +473,12 @@ def test_the_folded_timelapse_module_keeps_its_own_switch(
         "them")
     assert not folds.is_active("timelapse")
     screen._fold_strip.button_for("timelapse").setChecked(True)
-    assert all(card.isVisible() for card in tracking.sections)
+    held = tracking._alpha_held_sections()
+    shown = [card for card in tracking.sections if id(card) not in held]
+    assert shown
+    assert all(card.isVisible() for card in shown)
+    assert not any(card.isVisible()
+                   for card in tracking.sections if id(card) in held)
 
 
 def test_a_setting_with_no_dimension_is_never_hidden(qt_theme_applied):

@@ -1,0 +1,96 @@
+From 253f5814bc2add67d01032948271b8aa1b06aa00 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 15 Oct 2026 15:57:24 -0400
+Subject: [PATCH] Align preserved static tutorial clocks and caption cues
+
+---
+ tools/tutorials/authoring/web/app_v2.js       |  8 ++-
+ .../test_player_preserve_visual_intervals.py  | 56 +++++++++++++++++++
+ 2 files changed, 61 insertions(+), 3 deletions(-)
+
+diff --git a/tools/tutorials/authoring/web/app_v2.js b/tools/tutorials/authoring/web/app_v2.js
+index 9f35e6a47..15c52859d 100644
+--- a/tools/tutorials/authoring/web/app_v2.js
++++ b/tools/tutorials/authoring/web/app_v2.js
+@@ -1349,9 +1349,11 @@ function mapTiming(seconds, fromTimings, toTimings) {
+   const sourceEnd = Number(located.scene.scene_end) || sourceStart;
+   const targetStart = Number(target.speech_start) || 0;
+   const targetEnd = Number(target.scene_end) || targetStart;
+-  if (located.scene.native_live_video || target.native_live_video) {
+-    // Native footage retains its recorded elapsed time. A shorter narration
+-    // skips the unused end of the scene at the next chapter boundary.
++  if ((visualTimings?.preserve_visual_intervals === true &&
++      visualTimings?.native_live_video === true) ||
++      located.scene.native_live_video || target.native_live_video) {
++    // Preserved intervals and native footage map speech by elapsed time.
++    // Ordinary native playback skips unused tails; preserved playback holds speech.
+     const elapsed = Math.max(0, seconds - sourceStart);
+     return targetStart + Math.min(elapsed, Math.max(0, targetEnd - targetStart - 0.001));
+   }
+diff --git a/tools/tutorials/tests/test_player_preserve_visual_intervals.py b/tools/tutorials/tests/test_player_preserve_visual_intervals.py
+index b297d35d0..9e80b3588 100644
+--- a/tools/tutorials/tests/test_player_preserve_visual_intervals.py
++++ b/tools/tutorials/tests/test_player_preserve_visual_intervals.py
+@@ -44,3 +44,59 @@ def test_preserved_intervals_hold_audio_and_finish_selected_video_at_one_speed(s
+ def test_absent_preservation_flag_keeps_legacy_narration_owned_boundary_skip(served, tmp_path):
+     from test_player_native_live_video import test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries
+     test_native_video_runs_at_one_speed_and_seeks_only_scene_boundaries(served, tmp_path)
++
++
++def test_preserved_static_chapter_seek_and_caption_cues_use_elapsed_speech(served, tmp_path, monkeypatch):
++    from playwright.sync_api import sync_playwright
++    import test_player_holds_narration
++    monkeypatch.setattr(test_player_holds_narration, 'VIDEO_DELAY_SECONDS', 0)
++    url = complete_fixture(served, tmp_path)
++    visual_path = tmp_path / 'complete-native-visual.json'
++    visual = json.loads(visual_path.read_text())
++    del visual['complete_native_clips']
++    visual['preserve_visual_intervals'] = True
++    visual['scenes'][0]['native_live_video'] = False
++    visual['scenes'][-1]['native_live_video'] = False
++    visual_path.write_text(json.dumps(visual))
++    catalog_path = tmp_path / 'complete-native-catalog.js'
++    script = catalog_path.read_text()
++    catalog = json.loads(script[script.index('Object.freeze(')+len('Object.freeze('):script.rindex(');')])
++    lesson = next(row for row in catalog['lessons'] if row['id'] == url.split('lesson=')[1])
++    timing_path = tmp_path / 'complete-native-audio.json'
++    timing = json.loads(timing_path.read_text())
++    for index, text in enumerate(('Static intro.', 'Native interval.', 'Static conclusion.')):
++        lesson['scenes'][index]['narration'] = text
++        timing['scenes'][index]['text'] = text
++        timing['scenes'][index]['sentences'][0]['text'] = text
++    catalog_path.write_text('window.SPACR_LESSON_CATALOG = Object.freeze('+json.dumps(catalog)+');')
++    timing_path.write_text(json.dumps(timing))
++    with sync_playwright() as engine:
++        browser, page = open_player(engine, url)
++        try:
++            page.wait_for_function('elements.video.buffered.length && elements.video.buffered.end(elements.video.buffered.length-1)>=11.99', timeout=30000)
++            assert page.evaluate('videoTimeFromAudio(.25)') == .25
++            assert page.evaluate('audioTimeFromVideo(.25)') == .25
++            assert page.evaluate('videoTimeFromAudio(2.25)') == 8.25
++            assert page.evaluate('audioTimeFromVideo(8.25)') == 2.25
++            assert abs(page.evaluate('audioTimeFromVideo(10)') - 2.999) < .00001
++            page.wait_for_function('elements.captionTrack.readyState===2 && !captionTrackLoading', timeout=30000)
++            vtt = page.evaluate('fetch(captionUrl).then(response=>response.text())')
++            assert '00:00:08.000 --> 00:00:08.650\nStatic conclusion.' in vtt
++            page.evaluate('elements.video.muted=true')
++            page.locator('.chapter-button').nth(2).click()
++            page.wait_for_function('!elements.video.seeking && !elements.audio.seeking && !elements.audio.paused && elements.video.currentTime>=8', timeout=15000)
++            page.evaluate('elements.video.pause()')
++            chapter = page.evaluate('({video:elements.video.currentTime,audio:elements.audio.currentTime})')
++            assert abs(chapter['video'] - (8 + chapter['audio'] - 2)) < .15, chapter
++            page.evaluate('elements.video.muted=true;seekTo(2.25);elements.video.pause()')
++            page.wait_for_function('!elements.video.seeking && !elements.audio.seeking && elements.video.readyState>=2', timeout=15000)
++            page.wait_for_timeout(150)
++            state = page.evaluate('({video:elements.video.currentTime,audio:elements.audio.currentTime,cues:[...(elements.captionTrack.track.activeCues||[])].map(c=>c.text)})')
++            assert abs(state['video'] - (8 + state['audio'] - 2)) < .15, state
++            assert 'Static conclusion.' in state['cues']
++            page.evaluate('delete visualTimings.preserve_visual_intervals')
++            assert page.evaluate('completeNativePlayback()') is False
++            assert page.evaluate('videoTimeFromAudio(2.25)') == 9
++            assert page.evaluate('audioTimeFromVideo(9)') == 2.25
++        finally:
++            browser.close()
+-- 
+2.34.1
+

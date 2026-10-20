@@ -2,21 +2,21 @@
   "schema": 1,
   "source_commit": "fe0db614717d7af92b2a2e331e9a020a94287f9d",
   "api_symbols": [
-    "spacr._starplast",
-    "spacr._starplast.REPOSITORY",
-    "spacr._starplast.apps_root",
-    "spacr._starplast.default_source",
-    "spacr._starplast.install_starplast",
-    "spacr._starplast.is_installed",
-    "spacr._starplast.launch_starplast",
-    "spacr._starplast.process_environment",
+    "spacr._parascape",
+    "spacr._parascape.REPOSITORY",
+    "spacr._parascape.apps_root",
+    "spacr._parascape.default_source",
+    "spacr._parascape.install_parascape",
+    "spacr._parascape.is_installed",
+    "spacr._parascape.launch_parascape",
+    "spacr._parascape.process_environment",
     "spacr.qt.organisms.ORGANISMS",
-    "spacr.qt.starplast",
-    "spacr.qt.starplast.StarplastInstallDialog",
-    "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
-    "spacr.qt.starplast.StarplastInstallDialog.reject",
-    "spacr.qt.starplast.StarplastInstallDialog.start",
-    "spacr.qt.starplast.open_starplast",
+    "spacr.qt.parascape",
+    "spacr.qt.parascape.ParaScapeInstallDialog",
+    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent",
+    "spacr.qt.parascape.ParaScapeInstallDialog.reject",
+    "spacr.qt.parascape.ParaScapeInstallDialog.start",
+    "spacr.qt.parascape.open_parascape",
     "spacr.qt.widgets.organism_diagram.OrganismDiagram",
     "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
     "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter",
@@ -131,20 +131,20 @@
     "The rhoptry is an Apicomplexan parasite organelle. Apicomplexa are named for the unique set of morphologically distinct secretory organelles (refered to as the apical complex)- micronemes, rhoptries and dense granules - whose sequential secretion is required for the invasion of host cells. Rhoptries are twin, membrane-bound, pear-shaped organelles that secrete proteins through their elongated necks at the apical tip of the parasite.",
     "The vacuole is a generally large fluid-filled membrane-bound compartment in the cytoplasm. The precise form and function of vacuoles may vary between phyla. Plant vacuoles are among the best characterized. They differ in terms of their lumenal contents and processing enzymes, as well as on the basis of the type of integral proteins in their membranes (tonoplast intrinsic proteins, TIPs). Examples include the lytic vacuole, the storage vacuole and the lutoid. One important function of plant vacuoles is the maintenance of hydrostatic pressure. Other eukaryotes employ vacuoles for a variety of purposes, including storage (as in the yeast lysosome/vacuole), secretion and phagocytosis. In Protozoa, contractile vacuoles can be used to discharge water from the cytoplasm to the external environment."
   ],
-  "starplast_progress_sources": [
-    "Check Starplast and bundled data",
+  "parascape_progress_sources": [
+    "Check ParaScape and bundled data",
     "Checking Python, network and free disk space",
-    "Create Starplast environment",
-    "Install Starplast and dependencies",
+    "Create ParaScape environment",
+    "Install ParaScape and dependencies",
     "Install pip",
-    "Snapshot committed Starplast source",
-    "Starplast is installed"
+    "Snapshot committed ParaScape source",
+    "ParaScape is installed"
   ],
   "growth_audit": {
     "source_commit": "fe0db614717d7af92b2a2e331e9a020a94287f9d",
     "new_callables": [
       {
-        "symbol": "spacr._starplast.apps_root",
+        "symbol": "spacr._parascape.apps_root",
         "category": "function",
         "parameters": [
           "root"
@@ -152,13 +152,13 @@
         "required": []
       },
       {
-        "symbol": "spacr._starplast.default_source",
+        "symbol": "spacr._parascape.default_source",
         "category": "function",
         "parameters": [],
         "required": []
       },
       {
-        "symbol": "spacr._starplast.install_starplast",
+        "symbol": "spacr._parascape.install_parascape",
         "category": "function",
         "parameters": [
           "cancel",
@@ -171,7 +171,7 @@
         "required": []
       },
       {
-        "symbol": "spacr._starplast.is_installed",
+        "symbol": "spacr._parascape.is_installed",
         "category": "function",
         "parameters": [
           "root"
@@ -179,7 +179,7 @@
         "required": []
       },
       {
-        "symbol": "spacr._starplast.launch_starplast",
+        "symbol": "spacr._parascape.launch_parascape",
         "category": "function",
         "parameters": [
           "popen",
@@ -188,7 +188,7 @@
         "required": []
       },
       {
-        "symbol": "spacr._starplast.process_environment",
+        "symbol": "spacr._parascape.process_environment",
         "category": "function",
         "parameters": [
           "env"
@@ -198,7 +198,7 @@
         ]
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog",
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog",
         "category": "constructor",
         "parameters": [
           "job",
@@ -208,7 +208,7 @@
         "required": []
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent",
         "category": "method",
         "parameters": [
           "event"
@@ -218,19 +218,19 @@
         ]
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog.reject",
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.reject",
         "category": "method",
         "parameters": [],
         "required": []
       },
       {
-        "symbol": "spacr.qt.starplast.StarplastInstallDialog.start",
+        "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.start",
         "category": "method",
         "parameters": [],
         "required": []
       },
       {
-        "symbol": "spacr.qt.starplast.open_starplast",
+        "symbol": "spacr.qt.parascape.open_parascape",
         "category": "function",
         "parameters": [
           "parent",
@@ -283,32 +283,32 @@
     "required_parameters": 9594,
     "signature_digest": "65b0ed4c6466df815cff2780dc163cce133659ab7204e72723ec9e6cc91c597f",
     "subtracted_signature_digest": "3c35ada81c6f1b2b7024632ef9ad09c88ab4b720e61f03a80195dcd8baaaecc6",
-    "visible_digest": "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9",
+    "visible_digest": "aa7adc1a4f67f506b55961f8e83c8bf091e98bda0a605a2a9fc8c3cfca141f13",
     "subtracted_visible_digest": "229e1407fb6fc21359484e763000c6af48fde767acc38d713eed4e707cb616b3",
     "required_omissions": 2293
   },
   "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
   "full_catalog_acceptance": false,
-  "remaining": "New Starplast/diagram runtime prose and SVG descriptions are inventoried but not yet translated. Section headings, full existing API locale debt, remaining Make Masks reference and tutorial recordings/acceptance remain open.",
+  "remaining": "New ParaScape/diagram runtime prose and SVG descriptions are inventoried but not yet translated. Section headings, full existing API locale debt, remaining Make Masks reference and tutorial recordings/acceptance remain open.",
   "boundary_audit": {
     "prefilter": 11578,
     "postfilter": 11354,
     "boundary": 224,
     "new_api_keys": [
-      "spacr._starplast",
-      "spacr._starplast.REPOSITORY",
-      "spacr._starplast.apps_root",
-      "spacr._starplast.default_source",
-      "spacr._starplast.install_starplast",
-      "spacr._starplast.is_installed",
-      "spacr._starplast.launch_starplast",
-      "spacr._starplast.process_environment",
-      "spacr.qt.starplast",
-      "spacr.qt.starplast.StarplastInstallDialog",
-      "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
-      "spacr.qt.starplast.StarplastInstallDialog.reject",
-      "spacr.qt.starplast.StarplastInstallDialog.start",
-      "spacr.qt.starplast.open_starplast",
+      "spacr._parascape",
+      "spacr._parascape.REPOSITORY",
+      "spacr._parascape.apps_root",
+      "spacr._parascape.default_source",
+      "spacr._parascape.install_parascape",
+      "spacr._parascape.is_installed",
+      "spacr._parascape.launch_parascape",
+      "spacr._parascape.process_environment",
+      "spacr.qt.parascape",
+      "spacr.qt.parascape.ParaScapeInstallDialog",
+      "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent",
+      "spacr.qt.parascape.ParaScapeInstallDialog.reject",
+      "spacr.qt.parascape.ParaScapeInstallDialog.start",
+      "spacr.qt.parascape.open_parascape",
       "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",
       "spacr.qt.widgets.organism_diagram.OrganismDiagram.eventFilter"
     ],
@@ -323,74 +323,74 @@
     "rendered": {
       "anchors": [
         {
-          "symbol": "spacr._starplast",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "module-spacr._starplast"
+          "symbol": "spacr._parascape",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "module-spacr._parascape"
         },
         {
-          "symbol": "spacr._starplast.REPOSITORY",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.REPOSITORY"
+          "symbol": "spacr._parascape.REPOSITORY",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.REPOSITORY"
         },
         {
-          "symbol": "spacr._starplast.apps_root",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.apps_root"
+          "symbol": "spacr._parascape.apps_root",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.apps_root"
         },
         {
-          "symbol": "spacr._starplast.default_source",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.default_source"
+          "symbol": "spacr._parascape.default_source",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.default_source"
         },
         {
-          "symbol": "spacr._starplast.install_starplast",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.install_starplast"
+          "symbol": "spacr._parascape.install_parascape",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.install_parascape"
         },
         {
-          "symbol": "spacr._starplast.is_installed",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.is_installed"
+          "symbol": "spacr._parascape.is_installed",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.is_installed"
         },
         {
-          "symbol": "spacr._starplast.launch_starplast",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.launch_starplast"
+          "symbol": "spacr._parascape.launch_parascape",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.launch_parascape"
         },
         {
-          "symbol": "spacr._starplast.process_environment",
-          "page": "api/spacr/_starplast/index.html",
-          "anchor": "spacr._starplast.process_environment"
+          "symbol": "spacr._parascape.process_environment",
+          "page": "api/spacr/_parascape/index.html",
+          "anchor": "spacr._parascape.process_environment"
         },
         {
-          "symbol": "spacr.qt.starplast",
-          "page": "api/spacr/qt/starplast/index.html",
-          "anchor": "module-spacr.qt.starplast"
+          "symbol": "spacr.qt.parascape",
+          "page": "api/spacr/qt/parascape/index.html",
+          "anchor": "module-spacr.qt.parascape"
         },
         {
-          "symbol": "spacr.qt.starplast.StarplastInstallDialog",
-          "page": "api/spacr/qt/starplast/index.html",
-          "anchor": "spacr.qt.starplast.StarplastInstallDialog"
+          "symbol": "spacr.qt.parascape.ParaScapeInstallDialog",
+          "page": "api/spacr/qt/parascape/index.html",
+          "anchor": "spacr.qt.parascape.ParaScapeInstallDialog"
         },
         {
-          "symbol": "spacr.qt.starplast.StarplastInstallDialog.closeEvent",
-          "page": "api/spacr/qt/starplast/index.html",
-          "anchor": "spacr.qt.starplast.StarplastInstallDialog.closeEvent"
+          "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent",
+          "page": "api/spacr/qt/parascape/index.html",
+          "anchor": "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent"
         },
         {
-          "symbol": "spacr.qt.starplast.StarplastInstallDialog.reject",
-          "page": "api/spacr/qt/starplast/index.html",
-          "anchor": "spacr.qt.starplast.StarplastInstallDialog.reject"
+          "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.reject",
+          "page": "api/spacr/qt/parascape/index.html",
+          "anchor": "spacr.qt.parascape.ParaScapeInstallDialog.reject"
         },
         {
-          "symbol": "spacr.qt.starplast.StarplastInstallDialog.start",
-          "page": "api/spacr/qt/starplast/index.html",
-          "anchor": "spacr.qt.starplast.StarplastInstallDialog.start"
+          "symbol": "spacr.qt.parascape.ParaScapeInstallDialog.start",
+          "page": "api/spacr/qt/parascape/index.html",
+          "anchor": "spacr.qt.parascape.ParaScapeInstallDialog.start"
         },
         {
-          "symbol": "spacr.qt.starplast.open_starplast",
-          "page": "api/spacr/qt/starplast/index.html",
-          "anchor": "spacr.qt.starplast.open_starplast"
+          "symbol": "spacr.qt.parascape.open_parascape",
+          "page": "api/spacr/qt/parascape/index.html",
+          "anchor": "spacr.qt.parascape.open_parascape"
         },
         {
           "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram.clear_components",

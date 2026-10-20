@@ -553,6 +553,9 @@ def fake_ambient(monkeypatch):
         def set_ripples_enabled(self, value):
             self.motion["ripples_enabled"] = bool(value)
 
+        def _set_ripple_intensity(self, value):
+            self.motion["ripple_intensity"] = value
+
         def set_field_effects(self, value):
             self.motion["field_effects"] = dict(value)
 
@@ -1030,6 +1033,7 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
     _set_ambient_blink_percent(7.0)
     _set_field_popup_wave_frequency(11.0)
     _set_ambient_gravity_radius(0.35)
+    # N684: the ripple slider is the switch; "off" stores intensity 0.
     _set_field_ripples_enabled(False)
     field_effects = {
         "attractors": True, "relaxation": False, "elastic_release": True,
@@ -1054,6 +1058,7 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
                              "popup_wave_frequency": 11.0,
                              "gravity_radius": 0.35,
                              "ripples_enabled": False,
+                             "ripple_intensity": 0.0,
                              "field_effects": field_effects}
 
 

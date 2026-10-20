@@ -221,3 +221,173 @@ PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
     app scale; a lower-strength mode with a structure-preserving term for
     minimal edits; catalog entries for the new label and tooltip (catalog
     lane).
+
+2026-10-14 Home-B — exact runtime caption extraction owner dependency
+At Original Home request, normal extractor now visits only four top-level
+attribution owners: _cf_preserved_channels, _cf_preserve_reference_channels,
+_counterfactual_sequences and _counterfactual_report. Owner source d78d36ae2ce
+has eight tr calls/six literals. Eight owning tests PASS including each owner
+and unrelated/module/class/nontranslated exclusions. No attribution source,
+review records or generated catalogs changed by this lane. Original Home owns
+normal source integration/generation; no whole-feature/runtime locale closure.
+Evidence: features/data/564_caption_extraction_2026-10-14/.
+2026-10-14 — Original Home: opt-in reference-channel constraint (alpha backend)
+_counterfactual_sequences and _counterfactual_report now accept explicit
+preserve_channels indices. Selected channels retain their existing float32
+working-source pixels in every generated frame before classifier scoring,
+realism/final output and measurements; the class-mean baseline uses the same
+constraint. Rows and summary name the exact indices. The standalone copy helper
+validates matching floating dtype/device/NCHW geometry, finite pixels and unique
+bounded integer channels, clones edits and leaves both inputs untouched. The
+sequence/report refuse nonfinite working references before training/scoring,
+including finite float64 values that overflow their existing float32 conversion.
+No option means the previous edit path. No UI/settings/model-loading path added;
+existing ALPHA_FEATURES[564] registration and controls remain unchanged.
+Validation: full owning counterfactual module45PASS/actualexit0/45.93s before the
+final conversion-overflow guard; final-source focused reference cohort25PASS,
+21unchanged baseline cases deselected, actualexit0/4.12s. These cover actual
+constrained tensors reaching the scorer and output, fair constrained baseline,
+originals, float16/32/64 copy dtype and invalid shape/batch/channel/nonfinite
+inputs. The first42PASS/one fixture failure is retained: a single-class report
+fixture correctly had an unavailable baseline; the fixture now has both classes.
+This is channel invariance, not a structure-loss objective or biological
+identity/minimal-edit/phenotype success claim. Other channels can redraw cells.
+Larger/pretrained diffusion, low-strength biological validation and historical
+scientific/publication limitations remain open; whole F564 is not closed here.
+Receipt:features/data/564_reference_channels_2026-10-14/.
+
+2026-10-14 — Reference-channel diagnostic localization prepared, not generated.
+AST audit identifies8tr callsites across four scoped attribution helpers and
+6unique exact messages (report repeats two). Authored54 source-hash-bound
+technical translations in all9runtime locales; normal contextualization and
+candidate-rejection gates pass all54targets, actualexit0. These are direct AI
+technical reviews, not independent/native signoff. Parent independent review and
+Home-B owner-scoped extraction are requested in
+/mnt/wd4tb/scratch/home-b-coordination-20261014/F564_SCOPED_EXTRACTION_REQUEST.txt.
+No wholemodule extraction, catalog hand insertion, exemptions or generated
+runtime edits. Canonical extraction/generation/runtime closure remains pending;
+the backend's scientific caveats above remain unchanged. Receipt:
+features/data/564_reference_channels_2026-10-14/localization-receipt.json.
+
+2026-10-15 — Current-source backend integration and actual runtime lookup:
+The F564 reference preservation, F562 read-only identity join and F535 grouped
+tabular holdout components were integrated together with Home-B exact scoped
+extractor ownership. Normal writers emit ten reviewed diagnostics in each of
+nine locales, preserving all 10,491 unrelated source-current targets per
+locale. Actual lookup and finite owning cohort: 179 PASS, exit 0, 87.95 s.
+Root independently reviewed exact code diffs and found no blocking code issue;
+this is limited source review, not scientific/native/translation signoff.
+Receipt: features/data/scientific_backends_integration_2026-10-15/. Parent
+scientific, native and whole-feature acceptance limits remain as recorded.
+Normal full nine-locale runtime audit exit 1: 37 existing foreign N700
+error-report captions remain exact English (sv4/de3/es7/zh_CN7/pt7/hi3/ko3/is2/fr1).
+Raw failure is retained in the integration receipt. Nightly implementation
+publication does not claim green global CI/release or waive this owner gap.
+Actual normal caption-arrival refresh also refuses missing explicit
+sv/UI/AI Error report review (exit 1); its raw failure is retained. No
+caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 Original Home — exact numeric counterfactual target classes
+The numeric target-class parser now refuses fractional, nonfinite and
+out-of-range values with its existing class-index ValueError. Exact Decimal
+validation prevents tiny fractional saved strings from underflowing to class0;
+valid integral scalar/string/scientific-notation values and named conditions
+(including numeric-looking names) retain their existing meaning. Nine actual
+prepatch cases failed; final24 checks pass. Three actual default-autoencoder
+report cases refuse before either instrumented trainer can run; input crops and
+classifier weights stay unchanged. No diffusion report execution or training
+is claimed. Only the existing parser body changes; signatures/prose/tr calls
+are identical, so there is no new API/runtime target or generated artifact.
+Evidence: data/564_target_identity_2026-10-15/. This closes only this software
+class-index boundary, not biological counterfactual quality/minimal edits,
+whole F564, final global CI or release acceptance.
+
+2026-10-15 Original Home — explicit per-crop target identity before model changes
+The direct sequence API now validates explicit scalar class targets with the
+existing strict helper before wrapping/moving/evaluating models or converting
+crop devices. Fractional/nonfinite targets cannot silently select another class;
+legacy integer/integral-float and binary Boolean list/NumPy/Tensor targets and
+None defaults retain their existing outputs. Original baseline15FAIL17PASS;
+final33PASS. Fifteen invalid cases preserve initial model/generator training
+modes and inputs, with no wrapper/transfer/scoring call. Sixteen valid forms and
+the default match exact rows/frame bytes captured once from the prior public
+fixed synthetic test modules; existing reference/scorer control also passes.
+An initial test namespace collection error is retained separately. No fitting,
+learned prediction quality or native GPU acceptance is claimed. Only the existing
+function body changes, with unchanged signatures/prose/tr calls and no new
+caption/API target. Evidence: data/564_sequence_target_identity_2026-10-15/.
+Whole F564/scientific calibration and final global CI/release remain open.
+
+2026-10-15 — PRIVATE opt-in structure objective and lower-strength controls.
+A separate owner branch adds a denoising-training penalty comparing per-channel
+spatial differences at full, twofold and fourfold pooled resolution. Uniform
+channel offsets have zero penalty; translated edges do not. Retained-signal
+weighting avoids amplification at near-pure-noise timesteps. Zero weight keeps
+the former training path; lower inversion strength and the penalty coefficient
+pass through the existing activation-map runner without discarding zero.
+The coefficient is recorded in the report and safe-reload checkpoint config.
+These are geometric software controls, not biological identity/phenotype proof.
+
+Twenty-one focused checks pass10.03s, including two original diffusion report/
+first-frame cases. An actual pinned predecessor class/trainer replay reproduces
+all93 state tensors and exact history at zero weight. Initial fixture error,
+corrected seven-failure baseline, intermediate overlapping cohorts and final
+raw receipts are retained; their test counts must not be summed. Independent
+source review approved the corrected input-validation boundary.
+
+Source is PRIVATE pending owner UI heading/literal control adapter and normal
+reviewed localization/API/settings-flow artifacts. Larger/pretrained latent
+backbone and biological/native acceptance remain OPEN. Do not mark the whole
+feature complete from this component. Evidence:
+data/564_structure_objective_2026-10-15/.
+
+2026-10-15 — Optional structure objective and complete alpha control delivery.
+The frozen backend adds configurable inversion strength (default0.95; zero
+retains the input) and an opt-in multiscale spatial-gradient penalty (default0,
+preserving the original objective). Two actual float controls appear under
+Counterfactuals with literal object names, existing alpha visibility and
+eager/lazy settings persistence. Seven actual UI/alpha/roundtrip checks pass;
+backend21 checks and a93-tensor legacy replay retain their original source-bound
+evidence, without duplicate execution. Independent UI/source peers pass.
+
+Seven new setting/diagnostic sources have63 reviewed translations. Normal
+nine-language runtime generation/audit passes, preserving10,855 unrelated
+records per locale plus hashes/metadata. Exact three backend caption owners
+pass the45-case owner cohort; normal visibility proves zero eligible changed
+API prose. Normal setting consumer/flow/Help generation adds both real keys,
+their actual runner and working flow links. Fresh coordinator canonical source
+values and normal hashes equal the producer after derived-file generation;
+an initial tuple-versus-JSON-list harness comparison failure is retained and
+corrected without source/validator changes. Normal arrival baseline9833 remains
+immutable:1180added/31changed/151retired.
+
+Actual localization subchecks pass for18 real control/language cases and27
+diagnostic lookups (all63 targets), including typed tooltip bodies, generated
+flow links, defaults and retained English metadata. That additional harness
+ended1 solely on its stricter final zero-network-attempt assertion: unrelated
+ConsolePanel hosted-AI allowance refresh attempted a connection that the audit
+hook refused before HTTPS connect. The original failure and trace-only caller
+probe are retained; no product edits, locale replay or invented terminal0.
+This does not certify universal startup-network behavior, DNS absence, scientific
+quality, a larger latent model, full CI or release acceptance. Evidence:
+data/564_diffusion_ui_controls_2026-10-15/,
+data/564_diffusion_runtime_catalogs_2026-10-15/,
+data/564_generated_setting_links_2026-10-15/,
+data/564_gui_locale_consumers_2026-10-15/ and
+data/564_coordinator_integration_2026-10-15/.
+
+
+2026-10-15 Original Home — pinned local diffusion reuse and complete alpha controls.
+Optional local checkpoint plus expected SHA-256 now select strict safe reuse
+without fallback training. Full architecture/input/preprocessing/classifier/
+condition and declared positive-fit provenance contracts are checked before
+use; the existing default training route remains. Root settings and Home-B
+alpha file controls,45 reviewed runtime targets across nine locales, normal
+full-nine runtime audit/arrival and generated setting consumers/flow/Help are
+coherent. Nine actual Qt widgets/callbacks (offscreen) and nine actual localized
+backend refusals pass. Initial fixture omitted the normal widget translation
+pass; its nine failures and corrected affected-only nine pass are preserved.
+Prior tiny actual CPU one-epoch fit proves serialization/reuse mechanics only.
+No genuine pretrained biological accuracy, larger latent architecture, real
+display/native OS acceptance, whole-feature completion or final CI claimed.
+Evidence: data/564_pinned_local_diffusion_reuse_2026-10-15/.

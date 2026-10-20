@@ -19,7 +19,9 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QSettings                              # noqa: E402
 
 KEYS = ("timelapse_lineage", "timelapse_lineage_color_by",
-        "timelapse_lineage_max_distance", "timelapse_lineage_min_division_h")
+        "timelapse_lineage_max_distance", "timelapse_lineage_min_division_h",
+        "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
+        "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold")
 
 
 @pytest.fixture

@@ -158,15 +158,20 @@ Values:
 from __future__ import annotations
 
 import contextlib
+import functools
+import itertools
 import logging
 import os
+import sys
 import threading
+import time
 
 from PySide6.QtCore import QSettings, Qt
 
 from .night_themes import (DATA_ART_THEMES, DATA_ART_THEME_KEYS,
                            NIGHT_THEME_KEYS, is_night_theme, theme_for)
 from .prefs import _store_args
+from . import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -220,7 +225,19 @@ _KEY_AMBIENT_BLINK_PERCENT = "prefs/ambient_blink_percent"
 _KEY_FIELD_POPUP_WAVES = "prefs/field_popup_wave_frequency"
 _KEY_FIELD_RIPPLES = "prefs/field_ripples"
 _KEY_FIELD_RIPPLE_INTENSITY = "prefs/field_ripple_intensity"
+_KEY_FIELD_RIPPLES_SLIDER = "prefs/field_ripples_slider_migrated"
+_KEY_FIELD_CLICK_RIPPLES = "prefs/field_click_ripples"
+_KEY_STARTUP_ANIMATION = "prefs/startup_animation"
+_KEY_BORDERLESS_WINDOW = "prefs/borderless_window"
+_KEY_ANIMATION_GPU = "prefs/animation_gpu"
+_KEY_DYNAMIC_ANIMATION = "prefs/dynamic_animation"
+#: Animation renderers in slider order; mirrors ``ambient.GRAPHICS_BACKENDS``.
+GRAPHICS_BACKENDS = ("cpu", "auto", "gpu")
+DEFAULT_GRAPHICS_BACKEND = "gpu"
 _KEY_AMBIENT_GRAVITY_RADIUS = "prefs/ambient_gravity_radius"
+_KEY_AMBIENT_GRAVITY_CHOSEN = "prefs/ambient_gravity_radius_chosen"
+DEFAULT_AMBIENT_GRAVITY_RADIUS = 0.10
+_RETIRED_AMBIENT_GRAVITY_RADIUS = 0.15
 _KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
 #: Which generation of the motion keys the store was last written by. Only
 #: ``ambient_blur`` has ever changed meaning, and this is how a value written
@@ -641,6 +658,7 @@ DEFAULT_FIG_SAVE_MODE = "print"
 
 _KEY_FIG_LIVE_CACHE = "prefs/figure_live_cache"
 _KEY_FIG_DYNAMIC = "prefs/figure_dynamic"
+_KEY_VOLUME_VIEW = "prefs/volume_view"
 DEFAULT_FIG_LIVE_CACHE = 20
 #: Bounds, not a menu: any number in range is legal.
 MIN_FIG_LIVE_CACHE = 1
@@ -709,6 +727,10 @@ class _DefaultsForReadingRealForWriting:
         """Flush the real store."""
         self._real.sync()
 
+    def status(self):
+        """Return the write status of the real store."""
+        return self._real.status()
+
 
 def _fill_safe_overrides() -> None:
     """Populate :data:`_SAFE_OVERRIDES` once the key names exist."""
@@ -739,10 +761,216 @@ def in_safe_mode() -> bool:
     return _SAFE_MODE
 
 
+#: This thread's open preference store, kept between reads. Opening a
+#: ``QSettings`` takes Qt's process-wide settings lock and checks the file on
+#: disk, and the backdrop tick, the dock's paint and every theme lookup read a
+#: preference: on a busy machine those openings were the late frames. One
+#: store per thread, because a ``QSettings`` is reentrant, not thread-safe.
+_STORE = threading.local()
+
+#: ``(format, scope) -> folder`` as last passed to ``QSettings.setPath``, and
+#: how many times one of them has changed. A kept store is reopened after a
+#: move, since the same arguments would now open a different file.
+_STORE_FOLDERS = {}
+_STORE_MOVES = [0]
+
+
+def _count_store_moves() -> None:
+    """Make ``QSettings.setPath`` count the moves a kept store must follow.
+
+    Idempotent. A call that names the folder already in place is not a move,
+    so portable mode, which repeats it on every open, keeps its store.
+    """
+    original = QSettings.setPath
+    if getattr(original, "_spacr_counts_moves", False):
+        return
+
+    def set_path(fmt, scope, path):
+        """Forward to Qt, counting a change of folder as a move."""
+        key = (fmt, scope)
+        if _STORE_FOLDERS.get(key) != str(path):
+            _STORE_FOLDERS[key] = str(path)
+            _STORE_MOVES[0] += 1
+        return original(fmt, scope, path)
+
+    set_path._spacr_counts_moves = True
+    QSettings.setPath = staticmethod(set_path)
+
+
+_count_store_moves()
+
+
+def _store_file_state(store):
+    """``(inode, size, mtime)`` of the file behind ``store``, or ``None``.
+
+    ``None`` means the store cannot be watched this way -- the Windows
+    registry, or the macOS preferences daemon, whose plist is not written
+    when another process changes a value -- so it is opened afresh for every
+    read, as it always was. A file not yet written answers ``()``.
+    """
+    try:
+        if (sys.platform in ("win32", "darwin")
+                and store.format() != QSettings.IniFormat):
+            return None
+        stat = os.stat(store.fileName())
+    except FileNotFoundError:
+        return ()
+    except Exception:                                        # noqa: BLE001
+        return None
+    return (stat.st_ino, stat.st_size, stat.st_mtime_ns)
+
+
+#: How often, in seconds, a thread's kept store looks at its file for a
+#: write from another process. A stat is a system call, and the backdrop
+#: and every theme lookup read a preference on each frame: under a busy
+#: worker holding the interpreter that was a 0.37 s stall in a paint. A
+#: value written in this process is seen at once whatever this says.
+_STORE_WATCH_SECONDS = 1.0
+
+#: The clock the watch above is timed by, replaceable in tests.
+_store_clock = time.monotonic
+
+#: Given a new value whenever any ``QSettings`` in this process writes, and
+#: whenever a kept store is opened or reloaded. :func:`_remembered` getters
+#: answer from memory only while it is unchanged. Each value comes from
+#: one counter, so two threads writing at once cannot share one.
+_STORE_GENERATIONS = itertools.count(1)
+_STORE_GENERATION = [0]
+
+#: ``getter name -> (context, value)`` for :func:`_remembered` getters.
+_REMEMBERED = {}
+
+
+def _count_store_writes() -> None:
+    """Make every ``QSettings`` write in this process bump the generation.
+
+    Idempotent. Every store on one file in this process shares Qt's copy,
+    so a write through any of them, here or in another module, changes
+    what a remembered getter would answer.
+    """
+    for name in ("setValue", "remove", "clear"):
+        original = getattr(QSettings, name)
+        if getattr(original, "_spacr_counts_writes", False):
+            continue
+
+        def write(self, *args, _original=original):
+            """Forward to Qt, then forget what was remembered."""
+            try:
+                return _original(self, *args)
+            finally:
+                _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+
+        write._spacr_counts_writes = True
+        setattr(QSettings, name, write)
+
+
+_count_store_writes()
+
+
+def _real_store() -> QSettings:
+    """This thread's preference store, reread when another process wrote it.
+
+    Every ``QSettings`` on one file in this process shares Qt's copy of it,
+    so a value set through any of them is already visible here. A write from
+    another process changes the file; that is checked at most once every
+    :data:`_STORE_WATCH_SECONDS` per thread and reloaded with ``sync``,
+    which is what opening a new store would do.
+    """
+    args = _store_args(_ORG, _APP)
+    store = getattr(_STORE, "store", None)
+    if (store is None or _STORE.args != args
+            or _STORE.moves != _STORE_MOVES[0]
+            or type(store) is not QSettings):
+        store = QSettings(*args)
+        state = _store_file_state(store)
+        if state is None:
+            _STORE.store = None
+            return store
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+        _STORE.store, _STORE.args = store, args
+        _STORE.moves, _STORE.state = _STORE_MOVES[0], state
+        _STORE.checked = _store_clock()
+        return store
+    now = _store_clock()
+    if now - _STORE.checked < _STORE_WATCH_SECONDS:
+        return store
+    _STORE.checked = now
+    state = _store_file_state(store)
+    if state is None:
+        _STORE.store = None
+        return QSettings(*args)
+    if state != _STORE.state:
+        store.sync()
+        _STORE.state = _store_file_state(store)
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+    return store
+
+
+def _watch_store() -> None:
+    """Let this thread's store look for another process's write when due.
+
+    Costs one clock read between looks. A store that cannot be watched is
+    treated as changed at each look, so what is remembered from it is at
+    most :data:`_STORE_WATCH_SECONDS` old.
+    """
+    now = _store_clock()
+    if now - getattr(_STORE, "checked", float("-inf")) < _STORE_WATCH_SECONDS:
+        return
+    _real_store()
+    if getattr(_STORE, "store", None) is None:
+        _STORE_GENERATION[0] = next(_STORE_GENERATIONS)
+        _STORE.checked = now
+
+
+def _store_context() -> tuple:
+    """Everything besides the stored values that a remembered answer used."""
+    try:
+        from .theme import spaceout_enabled
+        spaceout = spaceout_enabled()
+    except Exception:
+        spaceout = None
+    environ = os.environ
+    return (_STORE_GENERATION[0], _STORE_MOVES[0], _SAFE_MODE, _ORG, _APP,
+            QSettings, _real_store, spaceout,
+            environ.get("SPACR_PORTABLE"), environ.get("SPACR_LAUNCHER_DIR"),
+            environ.get("SPACR_HOME"))
+
+
+def _remembered(fn):
+    """Answer the getter ``fn`` from memory while no preference changes.
+
+    For the getters a paint or a backdrop tick calls. Any write in this
+    process forgets the answer at once; a write from another process is
+    seen by the next look :func:`_watch_store` makes. While
+    :func:`_settings` is replaced, by :func:`_one_store` or a test, every
+    call reads the store as before.
+    """
+    name = fn.__name__
+
+    @functools.wraps(fn)
+    def read():
+        """Remembered value of the wrapped getter."""
+        if _settings is not _SETTINGS:
+            return fn()
+        _watch_store()
+        context = _store_context()
+        hit = _REMEMBERED.get(name)
+        if hit is not None and hit[0] == context:
+            return hit[1]
+        value = fn()
+        _REMEMBERED[name] = (context, value)
+        return value
+
+    return read
+
+
 def _settings():
     """The preference store: the real one, or safe mode's read shadow."""
-    real = QSettings(*_store_args(_ORG, _APP))
+    real = _real_store()
     return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
+
+
+_SETTINGS = _settings
 
 
 def _in_one_store(fn):
@@ -760,25 +988,44 @@ def _one_store():
     dialog's Save. Inside this block the calling thread shares one store,
     written to disk once when the block ends. Other threads keep their own.
 
+    THE SETTERS' OWN ``sync`` CALLS WAIT FOR THE END TOO. Sixteen setters
+    flush at once so that other readers see the value, and inside one store
+    each flush rewrote the whole file again: 45 of them were 290 ms of a
+    Save. Every ``QSettings`` on the same file in this process already sees
+    an unwritten value, so only the disk waits, and only until the block
+    ends.
+
     :yields: the shared store.
     """
     global _settings
     shadowed = _settings
     store = shadowed()
     owner = threading.get_ident()
+    real_sync = None
+    try:
+        real_sync = store.sync
+        store.sync = lambda: None
+    except Exception:                                        # noqa: BLE001
+        real_sync = None
     _settings = lambda: (store if threading.get_ident() == owner
                          else shadowed())
     try:
         yield store
     finally:
         _settings = shadowed
+        if real_sync is not None:
+            try:
+                del store.sync
+            except Exception:                                # noqa: BLE001
+                pass
         try:
-            store.sync()
+            (real_sync or store.sync)()
         except Exception:
             LOG.debug("could not write the preferences", exc_info=True)
 
 
 
+@_remembered
 def get_language() -> str:
     """Return the persisted UI language code, falling back to English."""
     from .i18n import DEFAULT_LANGUAGE, normalize_language
@@ -1264,6 +1511,42 @@ def set_figure_dynamic(enabled: bool) -> None:
     _settings().setValue(_KEY_FIG_DYNAMIC, bool(enabled))
 
 
+def get_volume_view() -> dict:
+    """The Make Masks True 3D view's saved render settings.
+
+    :returns: a dict that may hold ``backend`` (``auto``, ``vulkan``,
+        ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the
+        mask surfaces' finish); a key never chosen is absent. The caller
+        checks the values, so a store written by a later version still
+        opens.
+    """
+    import json
+
+    raw = _settings().value(_KEY_VOLUME_VIEW, "")
+    try:
+        saved = json.loads(raw) if isinstance(raw, str) and raw else raw
+    except ValueError:
+        return {}
+    return dict(saved) if isinstance(saved, dict) else {}
+
+
+def set_volume_view(**values) -> None:
+    """Remember some of the True 3D view's render settings.
+
+    :param values: any of ``backend``, ``scale`` and ``finish``; the others
+        keep their saved values.
+    :raises ValueError: for any other name.
+    """
+    import json
+
+    unknown = set(values) - {"backend", "scale", "finish"}
+    if unknown:
+        raise ValueError(f"unknown True 3D settings: {', '.join(sorted(unknown))}")
+    saved = get_volume_view()
+    saved.update(values)
+    _settings().setValue(_KEY_VOLUME_VIEW, json.dumps(saved, sort_keys=True))
+
+
 def get_figure_png_dpi() -> int:
     """Return the saved PNG resolution, or the 300-DPI default.
 
@@ -1570,7 +1853,7 @@ def set_figure_colors_auto() -> None:
 
     The explicit way out. A user who has been frozen — by the old dialog or
     by their own click — otherwise has no route back to automatic at all,
-    and a preference you can only ever set is a trap.
+    because nothing else clears the explicit setting.
     """
     set_figure_colors(AUTO_FIGURE_COLOR, AUTO_FIGURE_COLOR)
     set_figure_line_colour(AUTO_FIGURE_COLOR)
@@ -1649,6 +1932,7 @@ def _follow_system_was_chosen(store) -> bool:
                     False)
 
 
+@_remembered
 def get_theme() -> str:
     """Return the saved application theme, or the default when invalid.
 
@@ -2001,6 +2285,12 @@ def get_ambient_enabled() -> bool:
 
     if os.environ.get("SPACR_NO_BACKDROP"):
         return False
+    return _stored_ambient_enabled()
+
+
+@_remembered
+def _stored_ambient_enabled() -> bool:
+    """The stored half of :func:`get_ambient_enabled`, kept in memory."""
     if _raw_ambient_animation() == _no_animation_key():
         return False
     return _as_bool(_settings().value(_ambient_enabled_key(),
@@ -2261,23 +2551,37 @@ def _set_ambient_custom_colors(colors):
     settings.sync()
 
 
+#: The spaCR animation background on a fresh profile: RGB 25, 25, 25.
+DEFAULT_AMBIENT_BACKGROUND = "#191919"
+#: Stored when the user explicitly chose "Theme colour".
+_THEME_COLOUR_BACKGROUND = "theme"
+
+
 def _ambient_background_choice():
-    """Read an optional opaque animation fill; None follows the page theme."""
+    """Read the animation fill; None follows the page theme.
+
+    A profile that never chose a fill gets :data:`DEFAULT_AMBIENT_BACKGROUND`;
+    an explicit Theme colour choice is remembered as such.
+    """
     from PySide6.QtGui import QColor
 
     value = _settings().value(_KEY_AMBIENT_BACKGROUND, None)
+    if value is None:
+        return DEFAULT_AMBIENT_BACKGROUND
+    if str(value) == _THEME_COLOUR_BACKGROUND:
+        return None
     color = QColor(str(value)) if value else QColor()
     return color.name() if color.isValid() else None
 
 
 def _set_ambient_background_choice(value):
-    """Persist an optional animation fill, rejecting invalid colours."""
+    """Persist an animation fill or the explicit Theme colour (None)."""
     from PySide6.QtGui import QColor
 
     if value is None:
         _restore_brand_palette_once()
         settings = _settings()
-        settings.remove(_KEY_AMBIENT_BACKGROUND)
+        settings.setValue(_KEY_AMBIENT_BACKGROUND, _THEME_COLOUR_BACKGROUND)
     else:
         color = QColor(value)
         if not color.isValid():
@@ -2294,7 +2598,9 @@ def _effective_ambient_background():
     from .theme import active_page_colour
 
     chosen = _ambient_background_choice()
-    if chosen is None:
+    if chosen is None or (
+            not _stored(_KEY_AMBIENT_BACKGROUND)
+            and resolve_effective_theme() == "light"):
         return QColor(active_page_colour())
     color = QColor(chosen).toHsl()
     lightness = color.lightness()
@@ -2310,8 +2616,21 @@ def _ambient_gravity_radius() -> float:
     """Read a finite viewport-relative mouse radius; zero disables influence."""
     import math
 
+    settings = _settings()
+    stored = settings.value(_KEY_AMBIENT_GRAVITY_RADIUS, None)
+    if stored is not None and not _as_bool(
+            settings.value(_KEY_AMBIENT_GRAVITY_CHOSEN, False), False):
+        try:
+            retired = float(stored) == _RETIRED_AMBIENT_GRAVITY_RADIUS
+        except (TypeError, ValueError):
+            retired = False
+        if retired:
+            settings.remove(_KEY_AMBIENT_GRAVITY_RADIUS)
+            stored = None
+        settings.setValue(_KEY_AMBIENT_GRAVITY_CHOSEN, True)
     try:
-        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.15))
+        value = float(DEFAULT_AMBIENT_GRAVITY_RADIUS if stored is None
+                      else stored)
     except (TypeError, ValueError):
         return 0.0
     return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
@@ -2329,6 +2648,7 @@ def _set_ambient_gravity_radius(value: float) -> None:
         radius = 0.0
     settings = _settings()
     settings.setValue(_KEY_AMBIENT_GRAVITY_RADIUS, max(0.0, min(1.0, radius)))
+    settings.setValue(_KEY_AMBIENT_GRAVITY_CHOSEN, True)
     settings.sync()
 
 
@@ -2490,7 +2810,12 @@ def set_ambient_resolution(value: float) -> None:
     _set_ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3, value)
 
 
-def get_ambient_density() -> float:
+def _stored(key: str) -> bool:
+    """Whether ``key`` holds a saved value, for any settings-like store."""
+    return _settings().value(key, None) is not None
+
+
+def get_ambient_density(theme=None) -> float:
     """How many elements the animated background draws — blobs, curtains,
     ripple sources, stars, discs, cells — as a multiplier on each
     animation's own count. 1.0 is as designed.
@@ -2498,7 +2823,19 @@ def get_ambient_density() -> float:
     Density determines the population independently of detail. Render
     sampling and the native screen-pixel budget bound the combined work.
     """
+    if not _stored(_KEY_AMBIENT_DENSITY):
+        return _default_ambient_density(theme)
     return _ambient_multiplier(_KEY_AMBIENT_DENSITY, 4)
+
+
+def _default_ambient_density(theme=None) -> float:
+    """The shipped density for ``theme`` (default: the saved animation)."""
+    try:
+        from .widgets.ambient import _default_density_for
+
+        return _default_density_for(get_ambient_theme() if theme is None else theme)
+    except Exception:
+        return _ambient_ranges()[4][1]
 
 
 def set_ambient_density(value: float) -> None:
@@ -2509,6 +2846,13 @@ def set_ambient_density(value: float) -> None:
         :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
         ``DEFAULT_DENSITY``.
     """
+    try:
+        unchanged = (not _stored(_KEY_AMBIENT_DENSITY)
+                     and abs(float(value) - _default_ambient_density()) < 0.005)
+    except (TypeError, ValueError):
+        unchanged = False
+    if unchanged:
+        return
     _set_ambient_multiplier(_KEY_AMBIENT_DENSITY, 4, value)
 
 
@@ -2541,15 +2885,117 @@ def _set_ambient_blink_percent(value: float) -> None:
                          max(0.0, min(10.0, value)))
 
 
+def _migrate_field_ripples_switch() -> None:
+    """Fold the retired Field ripples on/off switch into the ripple slider.
+
+    The slider's zero is now "off". A profile that had switched ripples
+    off keeps them off by storing zero once; a profile that had them on
+    keeps its intensity. Runs once per store that still holds the retired
+    switch; a store without it has nothing to fold, so reading stays a read.
+    """
+    settings = _settings()
+    if _as_bool(settings.value(_KEY_FIELD_RIPPLES_SLIDER, False), False):
+        return
+    if settings.value(_KEY_FIELD_RIPPLES, None) is None:
+        return
+    if not _as_bool(settings.value(_KEY_FIELD_RIPPLES, True), True):
+        settings.setValue(_KEY_FIELD_RIPPLE_INTENSITY, 0.0)
+    settings.remove(_KEY_FIELD_RIPPLES)
+    settings.setValue(_KEY_FIELD_RIPPLES_SLIDER, True)
+    settings.sync()
+
+
 def _field_ripples_enabled() -> bool:
-    """Whether clicks, containers and window changes send spaCR field ripples."""
-    return _as_bool(_settings().value(_KEY_FIELD_RIPPLES, True), True)
+    """Whether field ripples are on: the Field ripples slider is above zero."""
+    return _field_ripple_intensity() > 0.0
+
+
+def _field_click_ripples() -> bool:
+    """Whether a mouse click sends a ripple from its position (default on)."""
+    return _as_bool(_settings().value(_KEY_FIELD_CLICK_RIPPLES, True), True)
+
+
+def _set_field_click_ripples(value: bool) -> None:
+    """Persist the click-ripple switch independently of the ripple slider."""
+    _settings().setValue(_KEY_FIELD_CLICK_RIPPLES, bool(value))
+    _settings().sync()
+
+
+def get_borderless_window() -> bool:
+    """Whether the main window is borderless, filling its screen's work area.
+
+    The Borderless window switch in the spaCR menu and in Help > Window. Off
+    gives the platform's own framed window, opened at the measured width.
+
+    :returns: ``True`` unless the switch was turned off; on by default.
+    """
+    return _as_bool(_settings().value(_KEY_BORDERLESS_WINDOW, True), True)
+
+
+def set_borderless_window(on: bool) -> None:
+    """Choose a borderless or a framed main window.
+
+    :param on: ``True`` for borderless.
+    """
+    _settings().setValue(_KEY_BORDERLESS_WINDOW, bool(on))
+    _settings().sync()
+
+
+def get_startup_animation() -> bool:
+    """Whether the startup photomosaic blows away when spaCR is ready.
+
+    Preferences > Appearance > Animation > Startup animation. Reduce motion
+    overrides it.
+
+    :returns: ``True`` unless the switch was turned off; on by default.
+    """
+    return _as_bool(_settings().value(_KEY_STARTUP_ANIMATION, True), True)
+
+
+def set_startup_animation(on: bool) -> None:
+    """Turn the startup animation on or off.
+
+    :param on: whether the photomosaic blows away at startup.
+    """
+    _settings().setValue(_KEY_STARTUP_ANIMATION, bool(on))
+    _settings().sync()
+
+
+def _flow_graphics_backend() -> str:
+    """Return the animation renderer: ``cpu`` (off), ``auto`` or ``gpu``.
+
+    GPU is requested by default. Unsupported hardware, a missing optional
+    ``moderngl`` package or a failed context keeps the CPU renderer.
+    """
+    value = str(_settings().value(_KEY_ANIMATION_GPU,
+                                  DEFAULT_GRAPHICS_BACKEND)).lower()
+    return value if value in GRAPHICS_BACKENDS else DEFAULT_GRAPHICS_BACKEND
+
+
+def _set_flow_graphics_backend(value) -> None:
+    """Store a validated animation renderer without changing motion."""
+    value = str(value).lower()
+    _settings().setValue(_KEY_ANIMATION_GPU, value if value in GRAPHICS_BACKENDS
+                         else DEFAULT_GRAPHICS_BACKEND)
+    _settings().sync()
+
+
+def _dynamic_animation_enabled() -> bool:
+    """Whether running analysis may pause animation or its GPU use (default on)."""
+    return _as_bool(_settings().value(_KEY_DYNAMIC_ANIMATION, True), True)
+
+
+def _set_dynamic_animation_enabled(value: bool) -> None:
+    """Persist the Dynamic animation switch."""
+    _settings().setValue(_KEY_DYNAMIC_ANIMATION, bool(value))
+    _settings().sync()
 
 
 def _field_ripple_intensity() -> float:
-    """Read finite ripple amplitude independently of mouse gravity."""
+    """Read the Field ripples slider; zero is off, one is the default."""
     import math
 
+    _migrate_field_ripples_switch()
     try:
         value = float(_settings().value(_KEY_FIELD_RIPPLE_INTENSITY, 1.0))
     except (TypeError, ValueError):
@@ -2558,7 +3004,8 @@ def _field_ripple_intensity() -> float:
 
 
 def _set_field_ripple_intensity(value: float) -> None:
-    """Persist ripple amplitude; zero is calm and one is the default."""
+    """Persist ripple amplitude; zero is off and one is the default."""
+    _migrate_field_ripples_switch()
     _settings().setValue(_KEY_FIELD_RIPPLE_INTENSITY, float(value))
     _settings().sync()
 
@@ -2581,9 +3028,11 @@ def _set_spaceout_field_effects(effects: dict[str, bool]) -> None:
 
 
 def _set_field_ripples_enabled(value: bool) -> None:
-    """Persist the ripple switch independently of mouse gravity."""
-    _settings().setValue(_KEY_FIELD_RIPPLES, bool(value))
-    _settings().sync()
+    """Switch ripples through the slider: off stores zero, on restores 100%."""
+    if not value:
+        _set_field_ripple_intensity(0.0)
+    elif _field_ripple_intensity() <= 0.0:
+        _set_field_ripple_intensity(1.0)
 
 
 def _field_popup_wave_frequency() -> float:
@@ -2755,6 +3204,14 @@ def apply_ambient_preferences(app=None) -> None:
     direction = get_ambient_drift_direction()
     background = _effective_ambient_background()
     field_effects = _spaceout_field_effects()
+    try:
+        from .widgets.ambient import _animation_resource_policy
+
+        policy = _animation_resource_policy()
+        if policy is not None:
+            policy.set_enabled(_dynamic_animation_enabled())
+    except Exception:
+        LOG.debug("could not apply Dynamic animation", exc_info=True)
     for widget in widgets:
         try:
             if not isinstance(widget, AmbientWidget):
@@ -2763,6 +3220,11 @@ def apply_ambient_preferences(app=None) -> None:
                 continue
             widget.set_ripples_enabled(_field_ripples_enabled())
             widget._set_ripple_intensity(_field_ripple_intensity())
+            for name, value in (("set_click_ripples", _field_click_ripples()),
+                                ("_set_graphics_backend", _flow_graphics_backend())):
+                setter = getattr(widget, name, None)
+                if setter is not None:
+                    setter(value)
             widget.set_field_effects(field_effects)
             if widget.property("spacrSetupBackdrop"):
                 continue
@@ -2789,7 +3251,8 @@ def apply_ambient_preferences(app=None) -> None:
                             widget.set_background_color(background)
                 widget.set_blur(blur)
                 motion = _popup_backdrop_motion() if popup else {
-                    "speed": speed, "size": size, "resolution": resolution, "density": density}
+                    "speed": speed, "size": size, "resolution": resolution,
+                    "density": get_ambient_density(selected_theme)}
                 widget.set_speed(motion["speed"])
                 widget.set_size_scale(motion["size"])
                 widget.set_resolution(motion["resolution"])
@@ -2803,6 +3266,7 @@ def apply_ambient_preferences(app=None) -> None:
                           exc_info=True)
         except Exception:
             continue
+    _hold_the_backdrops_still(app)
 
 
 
@@ -4333,6 +4797,7 @@ def _set_layout_decision(record: dict) -> None:
         return
 
 
+@_remembered
 def get_font_scale() -> float:
     """Return the saved UI font scale, clamped to supported bounds."""
     try:
@@ -4824,6 +5289,7 @@ def set_dock_mode(mode: str) -> None:
 DEFAULT_PANE_OPACITY_PCT = 60
 
 
+@_remembered
 def get_pane_opacity() -> float:
     """The user's requested page-panel opacity, 0.0-1.0.
 
@@ -4936,6 +5402,257 @@ def set_field_fade_enabled(on: bool) -> None:
     except Exception:
         pass
 
+
+#: Preferences > Appearance > Accessibility (item 655). The theme High
+#: contrast replaced, so that turning it off goes back to it.
+_KEY_HIGH_CONTRAST_PREVIOUS = "prefs/high_contrast_previous_theme"
+_KEY_REDUCE_MOTION = "prefs/reduce_motion"
+#: The motion values Reduce motion replaced, one key each under this group,
+#: so that turning it off puts back exactly what the user had.
+_KEY_REDUCE_MOTION_BEFORE = "prefs/reduce_motion_before"
+_KEY_STRONG_FOCUS = "prefs/strong_focus"
+HIGH_CONTRAST_THEME = "high_contrast"
+
+#: The motion preferences Reduce motion holds, with the value each has on a
+#: fresh install. Holding them still is zero, or off.
+_MOTION_DEFAULTS = {
+    "field_ripple_intensity": 1.0,
+    "field_click_ripples": True,
+    "field_popup_wave_frequency": 5.0,
+    "ambient_gravity_radius": DEFAULT_AMBIENT_GRAVITY_RADIUS,
+}
+_STILL_MOTION = {
+    "field_ripple_intensity": 0.0,
+    "field_click_ripples": False,
+    "field_popup_wave_frequency": 0.0,
+    "ambient_gravity_radius": 0.0,
+}
+
+#: Set on a spaCR fractal backdrop that Reduce motion paused, so that
+#: turning it off resumes exactly those and none a run had paused.
+_MOTION_HELD_PROPERTY = "spacrHeldByReduceMotion"
+
+def get_high_contrast() -> bool:
+    """Whether the High contrast theme is the chosen theme.
+
+    :returns: ``True`` when Preferences > Appearance > Theme reads High
+        contrast.
+    """
+    return get_theme_choice() == HIGH_CONTRAST_THEME
+
+
+def _high_contrast_previous_theme() -> str:
+    """The theme High contrast replaced, or ``""`` when none is stored."""
+    return str(_settings().value(_KEY_HIGH_CONTRAST_PREVIOUS, "") or "")
+
+
+def _remember_the_theme_before_contrast(choice: str, before) -> None:
+    """Store the theme to go back to while High contrast is chosen.
+
+    :param choice: the theme token being saved.
+    :param before: the theme High contrast replaced, or ``None``.
+    """
+    store = _settings()
+    if choice != HIGH_CONTRAST_THEME:
+        store.remove(_KEY_HIGH_CONTRAST_PREVIOUS)
+    elif before and before != HIGH_CONTRAST_THEME:
+        store.setValue(_KEY_HIGH_CONTRAST_PREVIOUS, before)
+
+
+def _theme_to_go_back_to(before) -> str:
+    """The theme unticking High contrast returns to.
+
+    :param before: the theme High contrast replaced, or ``None``.
+    :returns: ``before`` when it is still a theme choice, otherwise
+        :data:`DEFAULT_THEME`.
+    """
+    valid = {token for _label, token in theme_choices()}
+    if before in valid and before != HIGH_CONTRAST_THEME:
+        return before
+    return DEFAULT_THEME
+
+
+def set_high_contrast(on: bool) -> str:
+    """Choose High contrast, or go back to the theme it replaced.
+
+    The replaced theme is kept in the preference store, so it survives a
+    restart.
+
+    :param on: true to choose High contrast, false to leave it.
+    :returns: the theme choice in force afterwards.
+    """
+    current = get_theme_choice()
+    if on:
+        if current != HIGH_CONTRAST_THEME:
+            set_theme_choice(HIGH_CONTRAST_THEME)
+            _remember_the_theme_before_contrast(HIGH_CONTRAST_THEME, current)
+        return HIGH_CONTRAST_THEME
+    if current == HIGH_CONTRAST_THEME:
+        set_theme_choice(_theme_to_go_back_to(_high_contrast_previous_theme()))
+    _remember_the_theme_before_contrast(get_theme_choice(), None)
+    return get_theme_choice()
+
+
+@_remembered
+def get_reduce_motion() -> bool:
+    """Whether Reduce motion holds every animated backdrop still.
+
+    While it is on, the backdrops draw one still frame and do not tick, and
+    ripples, click ripples, popup waves and mouse gravity are off.
+
+    :returns: ``True`` when Reduce motion is on; off by default.
+    """
+    return _as_bool(_settings().value(_KEY_REDUCE_MOTION, False), False)
+
+
+def _motion_values() -> dict:
+    """The motion preferences Reduce motion holds, as stored now."""
+    return {
+        "field_ripple_intensity": _field_ripple_intensity(),
+        "field_click_ripples": _field_click_ripples(),
+        "field_popup_wave_frequency": _field_popup_wave_frequency(),
+        "ambient_gravity_radius": _ambient_gravity_radius(),
+    }
+
+
+def _write_motion_values(values: dict) -> None:
+    """Store a full set of the motion preferences Reduce motion holds.
+
+    :param values: a value for every key of :data:`_MOTION_DEFAULTS`.
+    """
+    _set_field_ripple_intensity(values["field_ripple_intensity"])
+    _set_field_click_ripples(values["field_click_ripples"])
+    _set_field_popup_wave_frequency(values["field_popup_wave_frequency"])
+    _set_ambient_gravity_radius(values["ambient_gravity_radius"])
+
+
+def _reduce_motion_previous() -> dict:
+    """The motion values Reduce motion replaced.
+
+    :returns: a value for every key of :data:`_MOTION_DEFAULTS`; a key that
+        was never stored, or cannot be read, has its fresh-install value.
+    """
+    store = _settings()
+    kept = {}
+    for name, default in _MOTION_DEFAULTS.items():
+        raw = store.value(f"{_KEY_REDUCE_MOTION_BEFORE}/{name}", default)
+        if isinstance(default, bool):
+            kept[name] = _as_bool(raw, default)
+            continue
+        try:
+            kept[name] = float(raw)
+        except (TypeError, ValueError):
+            kept[name] = default
+    return kept
+
+
+def _remember_reduce_motion(on: bool, previous) -> None:
+    """Store the Reduce motion switch and the values to give back.
+
+    :param on: the switch.
+    :param previous: while on, the motion values it replaced; ignored off,
+        when the stored ones are removed.
+    """
+    store = _settings()
+    store.setValue(_KEY_REDUCE_MOTION, bool(on))
+    for name in _MOTION_DEFAULTS:
+        key = f"{_KEY_REDUCE_MOTION_BEFORE}/{name}"
+        if on:
+            store.setValue(key, previous[name])
+        else:
+            store.remove(key)
+
+
+def set_reduce_motion(on: bool) -> None:
+    """Turn Reduce motion on or off.
+
+    On, it stores the ripple, click ripple, popup wave and mouse gravity
+    values in force and sets each of them to zero or off. Off, it puts
+    the stored values back exactly. Call :func:`apply_ambient_preferences`
+    to bring the running backdrops along.
+
+    :param on: true to hold the backdrops still.
+    """
+    on = bool(on)
+    if on == get_reduce_motion():
+        return
+    if on:
+        _remember_reduce_motion(True, _motion_values())
+        _write_motion_values(_STILL_MOTION)
+        return
+    _write_motion_values(_reduce_motion_previous())
+    _remember_reduce_motion(False, None)
+
+
+def _hold_still_when_motion_is_reduced(widget) -> bool:
+    """Pause a spaCR fractal backdrop when Reduce motion is on.
+
+    :param widget: a backdrop answering to ``pause`` and ``is_paused``.
+    :returns: whether this call paused it.
+    """
+    if not get_reduce_motion() or widget.is_paused():
+        return False
+    widget.pause()
+    widget.setProperty(_MOTION_HELD_PROPERTY, True)
+    return True
+
+
+def _hold_the_backdrops_still(app) -> int:
+    """Bring every running backdrop in line with Reduce motion.
+
+    Fractal backdrops are paused, and resumed only when it was Reduce
+    motion that paused them; every other backdrop asks again whether it
+    may tick, which Reduce motion answers in its ``_should_run``.
+
+    :param app: the application.
+    :returns: how many backdrops were asked.
+    """
+    import importlib
+
+    ambient = importlib.import_module(".widgets.ambient", __package__)
+    live = getattr(ambient, "_live_spaceout_fractals", None)
+    still = get_reduce_motion()
+    asked = 0
+    for widget in (live() if callable(live) else ()):
+        try:
+            if still:
+                _hold_still_when_motion_is_reduced(widget)
+            elif widget.property(_MOTION_HELD_PROPERTY):
+                widget.setProperty(_MOTION_HELD_PROPERTY, False)
+                widget.resume()
+        except RuntimeError:
+            continue
+        asked += 1
+    for widget in list(app.allWidgets()):
+        sync = getattr(widget, "_sync_run_state", None)
+        if not callable(sync):
+            continue
+        try:
+            sync()
+        except RuntimeError:
+            continue
+        asked += 1
+    return asked
+
+
+def get_strong_focus() -> bool:
+    """Whether the keyboard-focused control wears a thick focus ring.
+
+    :returns: ``True`` when Stronger focus outlines is on; off by default.
+    """
+    return _as_bool(_settings().value(_KEY_STRONG_FOCUS, False), False)
+
+
+def set_strong_focus(on: bool) -> None:
+    """Turn the thick focus ring on or off.
+
+    The ring is a rule of :func:`spacr.qt.theme.stylesheet`
+    (:func:`spacr.qt.theme.focus_ring_qss`); call
+    :func:`apply_preferences_to_app` to put it on the windows.
+
+    :param on: true for the thick ring.
+    """
+    _settings().setValue(_KEY_STRONG_FOCUS, bool(on))
 
 
 def get_color_blind_mode() -> str:
@@ -6513,8 +7230,27 @@ class _StoragePage:
                       source=row["path"], target=target)
         if not _confirm_storage_action(title, text, self._dialog):
             return
-        self._background(partial(self._move, row["key"], folder),
-                         partial(self._moved, title))
+        cache_key, cache_source = str(row["key"]), str(row["path"])
+
+        def finished(result):
+            """Retarget a matching remembered model cache, then report the move.
+
+            :param result: Worker ``(moved, detail)`` pair. On success,
+                ``detail`` is the destination path; otherwise it explains
+                the failure. A missing result is treated as a failed move.
+            """
+            moved, detail = result if result else (False, "")
+            if moved and cache_key == "models":
+                from .widgets import model_zoo_picker
+
+                remembered = model_zoo_picker.remembered_model_dir()
+                normalise = lambda path: os.path.normcase(
+                    os.path.abspath(os.path.expanduser(str(path))))
+                if normalise(remembered) == normalise(cache_source):
+                    model_zoo_picker._remember_model_dir(str(detail))
+            self._moved(title, result)
+
+        self._background(partial(self._move, cache_key, folder), finished)
 
     @staticmethod
     def _move(key: str, folder: str):
@@ -6743,6 +7479,39 @@ def _set_plugin_catalogue(source: str) -> None:
     settings.sync()
 
 
+_KEY_EXPORT_VVVV = "plugins/export_vvvv"
+_EXPORT_VVVV_ALPHA_WIDGET = "PreferencesExportVvvv"
+
+
+def _get_export_vvvv() -> bool:
+    """The stored Preferences -> Plugins "Export to vvvv" choice; default off."""
+    return _as_bool(_settings().value(_KEY_EXPORT_VVVV, False), False)
+
+
+def _set_export_vvvv(enabled: bool) -> None:
+    """Store the Preferences -> Plugins "Export to vvvv" choice.
+
+    :param enabled: whether Make Masks, Mask generation and Measure write
+        their vvvv export.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_EXPORT_VVVV, bool(enabled))
+    settings.sync()
+
+
+def _vvvv_export_enabled() -> bool:
+    """Whether the app writes vvvv exports (item 685, alpha).
+
+    The one switch for every module: Make Masks exports each saved mask,
+    and Mask generation and Measure runs started from the app get their
+    ``export_vvvv`` setting from it. On only while the choice is stored on
+    AND the alpha gate shows it, so turning Show alpha features off also
+    stops an export nobody can see the switch for.
+    """
+    return (_get_export_vvvv()
+            and _is_alpha_visible("widgets", _EXPORT_VVVV_ALPHA_WIDGET))
+
+
 class _PluginCatalogueJob(threading.Thread):
     """Finish catalogue reads or mutations independently of Preferences.
 
@@ -6965,6 +7734,7 @@ class _PluginCataloguePage:
         :returns: True when the read started, False while another job is busy.
         """
         from .i18n import tr
+        from .widgets.sortable_table import _retire_table_cells
 
         if self._job is not None:
             return False
@@ -6972,7 +7742,7 @@ class _PluginCataloguePage:
         _set_plugin_catalogue(source)
         self._job = _PluginCatalogueJob(None, source or None, None)
         self._rows = []
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self.status.setText(tr("Working…"))
         self._sync_buttons()
         self._job.start()
@@ -6982,14 +7752,15 @@ class _PluginCataloguePage:
     def _show_rows(self, rows):
         """Render a previously fetched catalogue snapshot on the GUI thread."""
         from .i18n import tr
-        from .widgets.sortable_table import _settle_sorting, table_item
+        from .widgets.sortable_table import (
+            _retire_table_cells, _settle_sorting, _spare_table_item)
 
         self._rows = rows
         kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
         states = {"available": tr("available"), "installed": tr("installed"),
                   "update available": tr("update available"),
                   "incompatible": tr("incompatible")}
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self.table.setRowCount(len(self._rows))
         for index, row in enumerate(self._rows):
             values = (kinds.get(row["kind"], row["kind"]), row["name"],
@@ -6997,7 +7768,7 @@ class _PluginCataloguePage:
                       states.get(row["status"], row["status"]),
                       row["author"], row["licence"])
             for column, value in enumerate(values):
-                item = table_item(str(value))
+                item = _spare_table_item(self.table, str(value))
                 item.setData(Qt.UserRole, row["key"])
                 item.setToolTip(row["summary"] or row["name"])
                 self.table.setItem(index, column, item)
@@ -7192,7 +7963,7 @@ def _restore_brand_palette_once() -> None:
     settings.sync()
 
 
-def apply_preferences_to_app(app=None) -> None:
+def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
     """Re-apply language, theme and font scale to ``QApplication``.
 
     Called at startup from :func:`spacr.qt.app.launch`, and again
@@ -7201,6 +7972,10 @@ def apply_preferences_to_app(app=None) -> None:
 
     :param app: optional QApplication. Falls back to
         ``QApplication.instance()``.
+    :param in_slices: Preferences' Apply and its Revert: a new sheet is put
+        on the windows one per pass of the event loop, after the next paint
+        (:func:`spacr.qt.theme.apply_stylesheet_per_window`), and the icon
+        sizes are re-derived only when a scale changed.
     """
     from PySide6.QtWidgets import QApplication
 
@@ -7255,6 +8030,7 @@ def apply_preferences_to_app(app=None) -> None:
         pane_opacity,
         str(background or ""),
         bool(get_field_fade_enabled()),
+        bool(get_strong_focus()),
         widget_qss_names(),
     )
     style_changed = (
@@ -7272,7 +8048,7 @@ def apply_preferences_to_app(app=None) -> None:
             theme=theme, font_scale=scale, background=background,
             surface_opacity=pane_opacity, load_widget_registrars=False)
         clear_widget_qss_overlays(app)
-        apply_stylesheet_per_window(app, sheet)
+        apply_stylesheet_per_window(app, sheet, in_slices=in_slices)
         setattr(app, "_spacr_preferences_style_signature", style_signature)
         setattr(app, "_spacr_preferences_stylesheet", sheet)
 
@@ -7302,10 +8078,15 @@ def apply_preferences_to_app(app=None) -> None:
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not apply the sound preferences", exc_info=True)
 
-    try:
-        _rescale_icon_sizes(app)
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("could not re-derive the icon sizes", exc_info=True)
+    icon_scale = (float(scale), float(get_gui_scale()))
+    if (not in_slices
+            or getattr(app, "_spacr_preferences_icon_scale", None)
+            != icon_scale):
+        try:
+            _rescale_icon_sizes(app)
+            setattr(app, "_spacr_preferences_icon_scale", icon_scale)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-derive the icon sizes", exc_info=True)
 
     try:
         from .widgets.console_panel import ConsolePanel
@@ -7660,6 +8441,7 @@ PREFERENCE_TIPS = {
     "Animation colours": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
     "Animation background": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
     "Mouse gravity radius": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+    "Animation GPU": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
     "Field ripples": "Ripples from clicks, opening or closing containers, and window snapping. Independent of mouse gravity.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
     "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
@@ -7667,7 +8449,7 @@ PREFERENCE_TIPS = {
     "Scale": "A resource multiplier for the CPU renderer's internal resolution, applied before it adapts. Below 1.0 draws fewer pixels and scales them up; above 1.0 draws more. It does not change what the fractal looks like, only how finely it is sampled. The GPU renderer ignores it.",
     "Speed": "How fast the view travels inward. It scales the depth the fractal is sampled at, so a higher number moves through the structure sooner; it does not change the frame rate or the cost of a frame.",
     "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the default, and higher values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise.",
-    "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
+    "Variable speed": "Vary the travel speed over time instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
     "Interface font": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
     "Animation speed": "Background-animation speed.",
     "Animation size": "Size of background shapes.",
@@ -7813,7 +8595,11 @@ def _preferences_window_class():
     global _PREFERENCES_WINDOW_CLASS
     if _PREFERENCES_WINDOW_CLASS is not None:
         return _PREFERENCES_WINDOW_CLASS
+    from PySide6.QtCore import QEvent
     from PySide6.QtWidgets import QDialog, QWidget
+
+    from .i18n import TRANSLATE_ONCE_PER_LANGUAGE
+    from .theme import SHEETED_WHEN_SHOWN
 
     class _PreferencesWindow(QDialog):
         """The Preferences window, which styles one tab when it opens.
@@ -7856,8 +8642,14 @@ def _preferences_window_class():
             super().__init__(parent)
             self._page_tabs = None
             self._pages_wait_for_the_show = False
+            self._pages_leave_at_the_polish = False
             self._window_only = 0
             self._pages_away = {}
+            self._window_signature_seen = None
+            self._draft_extras = None
+            self._reusable = True
+            self.setProperty(TRANSLATE_ONCE_PER_LANGUAGE, True)
+            self.setProperty(SHEETED_WHEN_SHOWN, True)
 
         def _show_only_the_open_page_at_first(self, tabs) -> None:
             """Have the first show style only the page of the current tab.
@@ -7883,18 +8675,66 @@ def _preferences_window_class():
             begins in this call, so the pages are gone before any of them
             runs.
 
+            EVERY SHOW, NOT ONLY THE FIRST, walks only the window. A dialog
+            kept for the next open (:func:`_take_the_warm_preferences`) is
+            shown again, and the same filters walk it again; a page still
+            waiting is given what it missed when its tab is chosen, as on
+            the first open.
+
+            Each show also notes the window's look
+            (:func:`_window_signature`), so the close can tell whether the
+            window has anything to catch up on.
+
             :param visible: as for ``QWidget.setVisible``.
             """
-            if not (visible and self._pages_wait_for_the_show):
+            if not visible:
                 super().setVisible(visible)
                 return
-            self._pages_wait_for_the_show = False
-            self._send_the_unseen_pages_away()
+            if self._pages_wait_for_the_show:
+                self._pages_wait_for_the_show = False
+                self._send_the_unseen_pages_away()
             self._window_only += 1
             try:
                 super().setVisible(visible)
             finally:
                 self._window_only -= 1
+            try:
+                self._window_signature_seen = _window_signature()
+            except Exception:                                # noqa: BLE001
+                self._window_signature_seen = None
+
+        def event(self, event):                   # noqa: A003 - Qt naming
+            """Send the unseen pages away before a polish that precedes the show.
+
+            THE WARM-UP POLISHES BEFORE IT SHOWS. Qt posts every new widget
+            a ``PolishRequest``, and a dialog built ahead in an idle slice
+            (:func:`_warm_the_preferences`) answers it in the next pass of
+            the event loop, long before :meth:`setVisible`. The window
+            sheet and the glass then walked all ~967 widgets of every tab
+            in that one event: 425-484 ms offscreen, 0.36 s on the lesson
+            capture host. The pages leave here as they would at the show,
+            and the polish styles the open tab only.
+
+            ONLY FOR A DIALOG THE WARM-UP BUILT, which says so through
+            ``_pages_leave_at_the_polish``. Anything else that builds the
+            dialog and lets the event loop run before walking a page --
+            the help search index reads every tab's form rows that way --
+            still finds every page where the builder put it until the show.
+
+            :param event: the event.
+            :returns: as for ``QDialog.event``.
+            """
+            if (event.type() == QEvent.PolishRequest
+                    and self._pages_leave_at_the_polish
+                    and self._pages_wait_for_the_show):
+                self._pages_wait_for_the_show = False
+                self._send_the_unseen_pages_away()
+                self._window_only += 1
+                try:
+                    return super().event(event)
+                finally:
+                    self._window_only -= 1
+            return super().event(event)
 
         def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
             """``QObject.findChild``, finding a control whose page is waiting.
@@ -8018,6 +8858,599 @@ def _what_a_page_missed_while_away(dialog, page) -> None:
         LOG.debug("a Preferences page was not glassed", exc_info=True)
 
 
+#: How long after an Apply or a Revert the window redraws what changed, so
+#: the click and the question are drawn first.
+_PREFERENCES_REDRAW_AFTER_MS = 30
+
+#: How long after the window is shown the first Preferences is built.
+_PREFERENCES_WARM_AFTER_MS = 1500
+
+#: How long a warming step waits when the user is busy, and between steps.
+_PREFERENCES_WARM_RETRY_MS = 1000
+_PREFERENCES_WARM_GAP_MS = 250
+
+#: How long after Preferences closes before anything heavy is done for the
+#: next open, so that it does not land in the moment after the close.
+_PREFERENCES_AFTER_CLOSE_MS = 2000
+
+#: How often a kept Preferences checks that it still shows the store.
+_PREFERENCES_RECHECK_MS = 10000
+
+#: The store groups the Preferences dialog reads. A change anywhere else --
+#: a pane folded, a recent folder, a walkthrough seen -- leaves a kept dialog
+#: showing what a fresh one would. ``tests/qt/test_preferences_open_and_close_stay_smooth.py``
+#: records every key a build reads and fails when one falls outside these.
+_PREFERENCES_STORE_GROUPS = frozenset({
+    "ai", "figures", "montage", "notify", "plugins", "prefs", "privacy",
+    "rim", "runs", "sound", "spaceout", "storage", "updates",
+})
+
+#: Keys in those groups that do not change what a kept dialog shows. The
+#: help strip's height is written by dragging the strip itself. The rest are
+#: bookkeeping no row shows: the generation markers a migration writes the
+#: first time a getter runs, and the version the What's New check saw. The
+#: first figure of a run on a new profile wrote the figure colour marker,
+#: the kept window went out of date in the middle of the run and was built
+#: again: a 0.39 s stall 9 s after Run in lesson 08. A migration that
+#: changes a value a row shows still writes that row's key, which counts.
+_PREFERENCES_STORE_IGNORED = frozenset({
+    _KEY_PREFERENCES_HELP_HEIGHT,
+    _KEY_FIG_COLOR_SCALE, _KEY_AMBIENT_SCALE, _KEY_FIELD_RIPPLES_SLIDER,
+    _KEY_SEEN_VERSION, _KEY_PREVIOUS_VERSION,
+})
+
+
+#: What each place in :func:`_window_signature` is, in its order, so a
+#: window can be told which of them changed.
+_WINDOW_SIGNATURE_NAMES = (
+    "language", "theme_choice", "effective_theme",
+    "cell_variant", "backdrop_off",
+    "font_scale", "gui_scale", "runtime_text_scale",
+    "font_weight",
+    "show_alpha", "show_beta", "show_alpha_features",
+    "show_alpha_species",
+    "dock_mode", "dock_width", "pane_opacity",
+    "color_blind_mode", "field_fade",
+    "ambient_enabled", "ambient_animation", "ambient_palette",
+    "performance_level", "spacr_mode",
+    "setting_animations", "tooltips_enabled",
+    "spaceout",
+)
+
+
+def _window_changes(seen, now) -> frozenset:
+    """The names of the places where two window signatures differ.
+
+    :param seen: an earlier :func:`_window_signature`, or ``None`` when
+        there is none, which counts as everything having changed.
+    :param now: the signature now.
+    :returns: names from :data:`_WINDOW_SIGNATURE_NAMES`.
+    """
+    if (seen is None or len(seen) != len(_WINDOW_SIGNATURE_NAMES)
+            or len(now) != len(_WINDOW_SIGNATURE_NAMES)):
+        return frozenset(_WINDOW_SIGNATURE_NAMES)
+    return frozenset(name for name, a, b
+                     in zip(_WINDOW_SIGNATURE_NAMES, seen, now) if a != b)
+
+
+def _window_signature() -> tuple:
+    """Everything the main window's ``refresh_theme`` redraws from.
+
+    THE CLOSE OF PREFERENCES WAS THE OTHER HALF OF THE HITCH. The window
+    rebuilt Home, re-inked every icon and walked its whole tree for the
+    language after every close, Cancel included, and once more after a
+    Save that had already done it -- 1.3-1.8 s of the GUI thread on a
+    loaded machine for a dialog that changed nothing. The rebuild is only
+    owed when one of these has changed.
+
+    Effective values rather than raw keys: Save writes every control, so a
+    fresh profile gains dozens of keys holding the defaults it already
+    showed, and none of them changes what the window looks like.
+
+    :returns: a comparable tuple.
+    """
+    from .theme import spaceout_enabled
+
+    return (
+        get_language(), get_theme_choice(), resolve_effective_theme(),
+        get_cell_variant(), backdrop_is_switched_off(),
+        get_font_scale(), get_gui_scale(), get_runtime_text_scale(),
+        get_interface_font_weight(),
+        get_show_alpha(), get_show_beta(), _get_show_alpha_features(),
+        _get_show_alpha_species(),
+        get_dock_mode(), get_dock_width(), get_pane_opacity(),
+        get_color_blind_mode(), get_field_fade_enabled(),
+        get_ambient_enabled(), get_ambient_animation(), get_ambient_palette(),
+        get_performance_level(), get_spacr_mode(),
+        get_setting_animations_enabled(), get_tooltips_enabled(),
+        spaceout_enabled(),
+    )
+
+
+def _the_window_needs_refreshing(dialog) -> bool:
+    """Whether the window has to redraw after ``dialog`` closed.
+
+    :param dialog: the Preferences dialog that just closed; anything that
+        is not one (a test's stand-in) always asks for the redraw.
+    :returns: ``False`` only when the window already shows what it would
+        redraw.
+    """
+    seen = getattr(dialog, "_window_signature_seen", None)
+    if seen is None:
+        return True
+    try:
+        return _window_signature() != seen
+    except Exception:                                        # noqa: BLE001
+        return True
+
+
+def _plain(value) -> str:
+    """A stored value as text that does not depend on how it was stored.
+
+    The store hands back ``"0.5"`` for a number read from disk and ``0.5``
+    for one written in this process; both are the same preference.
+    """
+    if isinstance(value, (list, tuple)):
+        return "[" + ",".join(_plain(item) for item in value) + "]"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (str, int, float)):
+        text = str(value).strip()
+        try:
+            return repr(float(text))
+        except ValueError:
+            return text.lower() if text.lower() in ("true", "false") else text
+    return repr(value)
+
+
+def _preferences_store_values() -> dict:
+    """The stored values a Preferences build reads, as plain text.
+
+    :returns: ``{key: text}`` for every key in
+        :data:`_PREFERENCES_STORE_GROUPS`.
+    """
+    store = _settings()
+    store = getattr(store, "_real", store)
+    return {key: _plain(store.value(key)) for key in store.allKeys()
+            if key.split("/", 1)[0] in _PREFERENCES_STORE_GROUPS
+            and key not in _PREFERENCES_STORE_IGNORED}
+
+
+def _preferences_world() -> tuple:
+    """What a Preferences build reads from outside the store.
+
+    :returns: a comparable tuple.
+    """
+    from .i18n import ENV_LANGUAGE, current_language
+    from .theme import spaceout_enabled
+
+    try:
+        from spacr.updater import _read_network_config
+
+        network = tuple(sorted(_read_network_config().items()))
+    except Exception:                                        # noqa: BLE001
+        network = None
+    try:
+        from . import ai
+
+        providers = tuple(p.name for p in ai.configured_providers())
+    except Exception:                                        # noqa: BLE001
+        providers = None
+    return (current_language(), os.environ.get(ENV_LANGUAGE, ""),
+            spaceout_enabled(), _SAFE_MODE, resolve_effective_theme(),
+            network, providers)
+
+
+def _preferences_draft(dialog) -> tuple:
+    """What every control of ``dialog`` holds, waiting pages included.
+
+    The test of whether a dialog shown before can be shown again: one the
+    user edited and cancelled holds the edits, which a fresh dialog would
+    not show. Scroll bars are not edits; the dialog is scrolled back to the
+    top before it is shown again.
+
+    :param dialog: a Preferences window.
+    :returns: a comparable tuple.
+    """
+    from PySide6.QtWidgets import (
+        QAbstractButton, QAbstractSlider, QAbstractSpinBox, QComboBox,
+        QDialog, QLineEdit, QPlainTextEdit, QScrollBar, QTextEdit, QWidget,
+    )
+
+    widgets = list(QDialog.findChildren(dialog, QWidget))
+    for page in list(getattr(dialog, "_pages_away", {}).values()):
+        widgets.extend(page.findChildren(QWidget))
+    held = []
+    for widget in widgets:
+        if isinstance(widget, QComboBox):
+            value = (widget.currentIndex(),
+                     widget.currentText() if widget.isEditable() else "")
+        elif isinstance(widget, QAbstractButton):
+            if not widget.isCheckable():
+                continue
+            value = widget.isChecked()
+        elif isinstance(widget, QScrollBar):
+            continue
+        elif isinstance(widget, QAbstractSlider):
+            value = widget.value()
+        elif isinstance(widget, (QAbstractSpinBox, QLineEdit)):
+            value = widget.text()
+        elif isinstance(widget, (QPlainTextEdit, QTextEdit)):
+            value = widget.toPlainText()
+        else:
+            continue
+        held.append((widget.objectName(), type(widget).__name__, value))
+    extras = getattr(dialog, "_draft_extras", None)
+    try:
+        extra = repr(extras()) if callable(extras) else ""
+    except Exception:                                        # noqa: BLE001
+        extra = None
+    return tuple(held), extra
+
+
+def _note_what_the_dialog_shows(dialog) -> None:
+    """Remember the store, the world and the controls ``dialog`` shows now.
+
+    :param dialog: a Preferences window that shows exactly what a fresh one
+        built now would.
+    """
+    dialog._spacr_shows = (_preferences_store_values(),
+                           _preferences_world(), _preferences_draft(dialog))
+
+
+def _still_shows_the_store(dialog, *, saved_by_it: bool = False) -> bool:
+    """Whether ``dialog`` still shows what a fresh Preferences would.
+
+    The controls are compared only when the dialog has just closed: nobody
+    can edit a hidden dialog, and walking ~750 widgets is the one part of
+    this check worth leaving off the open.
+
+    :param dialog: a Preferences window noted by
+        :func:`_note_what_the_dialog_shows`.
+    :param saved_by_it: ``dialog`` has just closed. Its controls are
+        compared, and keys it wrote that were not stored before are its own
+        controls' values, which it shows, so they do not make it stale; a
+        key that changed does.
+    :returns: whether it can be shown again as it is.
+    """
+    shown = getattr(dialog, "_spacr_shows", None)
+    if shown is None or not getattr(dialog, "_reusable", False):
+        return False
+    store, world, draft = shown
+    if getattr(dialog, "_apply_confirmation", None) is not None:
+        return False
+    if _preferences_world() != world:
+        return False
+    now = _preferences_store_values()
+    if not saved_by_it:
+        return now == store
+    if any(now.get(key) != value for key, value in store.items()):
+        return False
+    return _preferences_draft(dialog) == draft
+
+
+def _preferences_warmth(window):
+    """The kept Preferences state of ``window``, or ``None`` when not kept."""
+    return getattr(window, "_spacr_preferences_warmth", None)
+
+
+def _warm_the_preferences(window, delay_ms: int = _PREFERENCES_WARM_AFTER_MS):
+    """Build ``window``'s next Preferences while the user is not busy.
+
+    OPENING PREFERENCES WAS A BUILD, A FIRST SHOW AND A FIRST PAINT, ALL ON
+    THE GUI THREAD: 0.3-0.9 s for ~750 widgets on a loaded machine, and the
+    backdrop stood still for it. Here the dialog is built in one idle slice
+    and shown off screen in the next, so the menu only has to show a window
+    that is already polished, glassed and translated. The dialog is kept
+    after it closes and shown again for as long as it shows what a fresh one
+    would (:func:`_still_shows_the_store`); one that is out of date is
+    dropped and the next one built at the next idle moment.
+
+    Off in safe mode and under the startup benchmark, which times the build.
+
+    :param window: the main window Preferences belongs to.
+    :param delay_ms: how long to wait before the first slice.
+    :returns: the state, or ``None`` when warming is off.
+    """
+    if _SAFE_MODE or os.environ.get("SPACR_BENCHMARK_JSON", "").strip():
+        return None
+    from . import _after
+
+    state = _preferences_warmth(window)
+    if state is None:
+        state = {"dialog": None, "returned": None, "retired": [],
+                 "timer": None}
+        window._spacr_preferences_warmth = state
+    timer = state.get("timer")
+    try:
+        if timer is not None and timer.isActive():
+            timer.stop()
+            timer.deleteLater()
+    except RuntimeError:
+        pass
+    state["timer"] = _after(delay_ms, window,
+                            lambda: _warm_one_slice(window))
+    return state
+
+
+def _the_user_is_busy(window) -> bool:
+    """Whether a warming slice would get in the user's way now."""
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance()
+    if app is None or not window.isVisible():
+        return True
+    if app.mouseButtons() != Qt.MouseButton.NoButton:
+        return True
+    if app.activePopupWidget() is not None:
+        return True
+    if app.activeModalWidget() is not None:
+        return True
+    from .widgets.loading_screen import blow_away_running
+
+    if blow_away_running():
+        return True
+    return bool(getattr(window, "_opening_a_screen", False))
+
+
+def _a_run_is_going() -> bool:
+    """Whether a module run is registered, which the warm-up waits out."""
+    from .resource_cleanup import _a_run_is_active
+
+    return _a_run_is_active()
+
+
+def _warm_one_slice(window) -> None:
+    """Do the next piece of keeping ``window``'s Preferences ready.
+
+    One piece per slice, in this order: take back the dialog that just
+    closed, drop one that went out of date, build, show off screen, and
+    otherwise check now and then that the kept one is still current.
+
+    NOTHING BUT THE TAKE-BACK RUNS WHILE A RUN IS GOING. A build, its
+    polish and a re-sheet are each a slice of 50-300 ms, and the run's
+    console, progress and figures are what the user is watching. A kept
+    window that went out of date meanwhile is never shown: the open checks
+    it again (:func:`_take_the_warm_preferences`) and builds a fresh one.
+    """
+    state = _preferences_warmth(window)
+    if state is None:
+        return
+    if _the_user_is_busy(window):
+        _warm_the_preferences(window, _PREFERENCES_WARM_RETRY_MS)
+        return
+    returned, state["returned"] = state["returned"], None
+    if returned is not None:
+        if (_widget_is_alive(returned) and state["dialog"] is None
+                and _still_shows_the_store(returned, saved_by_it=True)):
+            _note_what_the_dialog_shows(returned)
+            state["dialog"] = returned
+        elif _widget_is_alive(returned):
+            state["retired"].append(returned)
+        _warm_the_preferences(window, _PREFERENCES_AFTER_CLOSE_MS)
+        return
+    if _a_run_is_going():
+        _warm_the_preferences(window, _PREFERENCES_WARM_RETRY_MS)
+        return
+    if state["retired"]:
+        retired = state["retired"].pop()
+        if _widget_is_alive(retired):
+            retired.deleteLater()
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    dialog = state["dialog"]
+    if dialog is not None and not _widget_is_alive(dialog):
+        dialog = state["dialog"] = None
+    if dialog is None:
+        try:
+            dialog = PreferencesDialog(window)
+            dialog._pages_leave_at_the_polish = True
+            _note_what_the_dialog_shows(dialog)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not build Preferences ahead", exc_info=True)
+            return
+        dialog._spacr_shown_off_screen = False
+        state["dialog"] = dialog
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if not getattr(dialog, "_spacr_shown_off_screen", True):
+        _show_off_screen(dialog)
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if not _still_shows_the_store(dialog):
+        state["dialog"] = None
+        state["retired"].append(dialog)
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if _the_application_sheet_is_behind():
+        apply_preferences_to_app(in_slices=True)
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    if _sheet_the_kept_dialog(dialog):
+        _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+        return
+    _warm_the_preferences(window, _PREFERENCES_RECHECK_MS)
+
+
+def _the_application_sheet_is_behind() -> bool:
+    """Whether a widget's QSS was registered after the sheet was composed.
+
+    Building Preferences imports the widgets it is made of, and each
+    registers its block. The next :func:`apply_preferences_to_app` -- the
+    one in Save -- then recomposed and re-applied the sheet to every
+    window: 580-680 ms of the close, measured. Done here, it is done while
+    nobody is waiting.
+
+    :returns: ``True`` when the sheet in force predates a registration.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    from .theme import widget_qss_names
+
+    app = QApplication.instance()
+    signature = getattr(app, "_spacr_preferences_style_signature", None)
+    if app is None or not signature:
+        return False
+    return tuple(signature[-1]) != widget_qss_names()
+
+
+def _sheet_the_kept_dialog(dialog) -> bool:
+    """Give a kept, hidden Preferences the sheet in force, now.
+
+    A theme change leaves it for its next show
+    (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`), which would be the open.
+
+    :returns: whether it was sheeted.
+    """
+    from .theme import _sheet_one_window
+
+    dialog._window_only += 1
+    try:
+        return bool(_sheet_one_window(dialog))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not sheet the kept Preferences", exc_info=True)
+        return False
+    finally:
+        dialog._window_only -= 1
+
+
+def _show_off_screen(dialog) -> None:
+    """Show ``dialog`` once where nobody sees it, then hide it.
+
+    The first show is what styles, glasses and translates a window, and it
+    was most of the open. Shown with ``WA_DontShowOnScreen`` it does all of
+    that without a window appearing.
+
+    :param dialog: a Preferences window that has not been shown.
+    """
+    dialog.setAttribute(Qt.WA_DontShowOnScreen, True)
+    try:
+        dialog.show()
+        dialog.hide()
+    finally:
+        dialog.setAttribute(Qt.WA_DontShowOnScreen, False)
+    dialog._spacr_shown_off_screen = True
+    _note_what_the_dialog_shows(dialog)
+
+
+def _take_the_warm_preferences(window):
+    """The kept Preferences of ``window``, when it shows the store as it is.
+
+    :param window: the main window.
+    :returns: the dialog, on its first tab and scrolled to the top, or
+        ``None`` when there is none to show and one has to be built.
+    """
+    state = _preferences_warmth(window)
+    if state is None:
+        return None
+    dialog, state["dialog"] = state["dialog"], None
+    if dialog is None or not _widget_is_alive(dialog):
+        return None
+    if not _still_shows_the_store(dialog):
+        state["retired"].append(dialog)
+        return None
+    _back_to_the_first_tab(dialog)
+    return dialog
+
+
+def _back_to_the_first_tab(dialog) -> None:
+    """Open a dialog shown before where a fresh one opens: tab one, the top."""
+    from PySide6.QtWidgets import QDialog, QScrollArea
+
+    tabs = getattr(dialog, "_page_tabs", None)
+    if tabs is not None and tabs.count():
+        tabs.setCurrentIndex(0)
+    for area in QDialog.findChildren(dialog, QScrollArea):
+        area.verticalScrollBar().setValue(0)
+        area.horizontalScrollBar().setValue(0)
+
+
+def _a_preferences_for(window):
+    """The Preferences dialog the menu opens for ``window``.
+
+    :param window: the main window.
+    :returns: the kept dialog when it is current, otherwise a new one.
+    """
+    dialog = _take_the_warm_preferences(window)
+    if dialog is not None:
+        return dialog
+    dialog = PreferencesDialog(window)
+    if (_preferences_warmth(window) is not None
+            and isinstance(dialog, _preferences_window_class())):
+        _note_what_the_dialog_shows(dialog)
+    return dialog
+
+
+def _put_the_preferences_away(window, dialog) -> None:
+    """Keep ``dialog`` for the next open, or let it go.
+
+    Nothing is decided here: the close is the moment the user is watching,
+    so the dialog is looked at in the next idle slice instead. A window that
+    does not keep its Preferences lets each one go, as it always should
+    have -- every closed dialog stayed parented to the window, and each
+    open added ~180 objects to every walk of the window after it.
+
+    :param window: the main window.
+    :param dialog: the dialog that just closed.
+    """
+    if not isinstance(dialog, _preferences_window_class()):
+        return
+    state = _preferences_warmth(window)
+    if state is None:
+        if _widget_is_alive(dialog):
+            dialog.deleteLater()
+        return
+    if state["returned"] is not None:
+        state["retired"].append(state["returned"])
+    state["returned"] = dialog
+    _warm_the_preferences(window, _PREFERENCES_WARM_GAP_MS)
+
+
+def _name_unnamed_form_fields(root) -> int:
+    """Give each silent field in a form row its row label as accessible name.
+
+    A screen reader reads a focused checkbox without text, a slider or an
+    empty line edit as nothing, although the row's label beside it says what
+    it is. The label is already translated, so no new text is introduced.
+
+    :param root: the dialog to walk.
+    :returns: how many fields were named.
+    """
+    from PySide6.QtGui import QTextDocumentFragment
+    from PySide6.QtWidgets import QFormLayout, QLabel, QWidget
+
+    named = 0
+    for form in root.findChildren(QFormLayout):
+        for row in range(form.rowCount()):
+            label_item = form.itemAt(row, QFormLayout.LabelRole)
+            field_item = form.itemAt(row, QFormLayout.FieldRole)
+            label = label_item.widget() if label_item is not None else None
+            if not isinstance(label, QLabel) or field_item is None:
+                continue
+            text = QTextDocumentFragment.fromHtml(label.text()).toPlainText()
+            text = text.replace("&", "").strip().rstrip(":").strip()
+            if not text:
+                continue
+            field = field_item.widget()
+            if field is None:
+                continue
+            for widget in [field, *field.findChildren(QWidget)]:
+                if not (widget.focusPolicy() & Qt.TabFocus):
+                    continue
+                if widget.accessibleName():
+                    continue
+                own = getattr(widget, "text", None)
+                if callable(own) and not isinstance(widget, QLabel):
+                    try:
+                        if own() and type(widget).__name__ != "QLineEdit":
+                            continue
+                    except TypeError:
+                        pass
+                widget.setAccessibleName(text)
+                named += 1
+    return named
+
+
 class PreferencesDialog:
     """Wrapper that builds the modal Preferences dialog on demand.
 
@@ -8103,6 +9536,7 @@ class PreferencesDialog:
             column.addLayout(page_form)
             column.addStretch(1)
             scroll = QScrollArea()
+            scroll.setFocusPolicy(Qt.NoFocus)
             scroll.setWidgetResizable(True)
             scroll.setFrameShape(QFrame.NoFrame)
             scroll.setWidget(page)
@@ -8198,8 +9632,8 @@ class PreferencesDialog:
         _debug_file_toggle.setToolTip(tr(
             "While verbose logging is on (Modules tab), DEBUG is always "
             "written to the log files, so this switch stays on. Turn "
-            "verbose logging off to choose it yourself. Your own choice "
-            "is kept for when you do."))
+            "verbose logging off to set it yourself; your previous choice "
+            "is then restored."))
         _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
 
         def _remember_the_debug_choice(checked) -> None:
@@ -8488,6 +9922,23 @@ class PreferencesDialog:
             "independently of detail; rendering stays within the screen's "
             "pixel budget.")
 
+        density_follows_theme = [not _stored(_KEY_AMBIENT_DENSITY),
+                                 get_ambient_theme()]
+
+        def _density_follows_theme(*_args):
+            """Show the new theme's own default while density was never chosen."""
+            theme_key = ambient_theme_combo.currentData()
+            follows, previous = density_follows_theme
+            if theme_key is None or theme_key == NO_ANIMATION:
+                return
+            if follows and density_slider.value() == int(round(
+                    _default_ambient_density(previous) * 100)):
+                density_slider.setValue(int(round(
+                    _default_ambient_density(theme_key) * 100)))
+            density_follows_theme[1] = theme_key
+
+        ambient_theme_combo.currentIndexChanged.connect(_density_follows_theme)
+
         blink_slider = QSlider(Qt.Horizontal)
         blink_slider.setObjectName("AmbientBlinkPercent")
         blink_slider.setRange(0, 601)
@@ -8526,25 +9977,57 @@ class PreferencesDialog:
         blink_column.addWidget(blink_value)
         animation.addRow(tr("Dot blinking"), _hbox_wrap(blink_column))
 
-        ripples_check = Toggle()
-        ripples_check.setObjectName("FieldRipplesEnabled")
-        ripples_check.setAccessibleName(tr("Field ripples"))
-        ripples_check.setChecked(_field_ripples_enabled())
-        ripples_check.setToolTip(tr(
-            "Ripples from clicks, opening or closing containers, and window "
-            "snapping. Independent of mouse gravity."))
-        animation.addRow(tr("Field ripples"), ripples_check)
-
+        ripples_tip = tr(
+            "Strength of ripples from clicks, opening or closing containers, "
+            "popups and window snapping. Zero turns ripples off. Independent "
+            "of mouse gravity and animation density.")
+        ripples_slider = QSlider(Qt.Horizontal)
+        ripples_slider.setObjectName("FieldRipples")
+        ripples_slider.setAccessibleName(tr("Field ripples"))
+        ripples_slider.setRange(0, 200)
+        ripples_slider.setSingleStep(5)
+        ripples_slider.setPageStep(25)
+        ripples_slider.setToolTip(ripples_tip)
         ripple_intensity_value = QDoubleSpinBox()
         ripple_intensity_value.setObjectName("FieldRippleIntensity")
-        ripple_intensity_value.setAccessibleName(tr("Ripple intensity"))
+        ripple_intensity_value.setAccessibleName(tr("Field ripples"))
         ripple_intensity_value.setRange(0.0, 200.0)
         ripple_intensity_value.setDecimals(0)
-        ripple_intensity_value.setSingleStep(10.0)
+        ripple_intensity_value.setSingleStep(5.0)
         ripple_intensity_value.setSuffix("%")
+        ripple_intensity_value.setSpecialValueText(tr("Off"))
+        ripple_intensity_value.setToolTip(ripples_tip)
+        ripples_slider.valueChanged.connect(
+            lambda value: ripple_intensity_value.setValue(float(value)))
+        ripple_intensity_value.valueChanged.connect(
+            lambda value: ripples_slider.setValue(int(round(value))))
         ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
-        ripple_intensity_value.setToolTip(ripples_check.toolTip())
-        animation.addRow(tr("Ripple intensity"), ripple_intensity_value)
+        ripples_column = QVBoxLayout()
+        ripples_column.setContentsMargins(0, 0, 0, 0)
+        ripples_column.addWidget(ripples_slider)
+        ripples_column.addWidget(ripple_intensity_value)
+        animation.addRow(tr("Field ripples"), _hbox_wrap(ripples_column))
+
+        click_ripples_check = Toggle()
+        click_ripples_check.setObjectName("FieldClickRipples")
+        click_ripples_check.setAccessibleName(tr("Click ripples"))
+        click_ripples_check.setChecked(_field_click_ripples())
+        click_ripples_check.setToolTip(tr(
+            "A mouse click on the background sends a ripple from where you "
+            "clicked. A click that opens or closes a container sends only "
+            "that container's ripple."))
+        animation.addRow(tr("Click ripples"), click_ripples_check)
+
+        startup_animation_check = Toggle()
+        startup_animation_check.setObjectName("StartupAnimation")
+        startup_animation_check.setAccessibleName(tr("Startup animation"))
+        startup_animation_check.setChecked(get_startup_animation())
+        startup_animation_check.setToolTip(tr(
+            "When spaCR starts, the logo photomosaic blows away tile by tile "
+            "to reveal the window. Off shows the mosaic without the "
+            "animation. Reduce motion also turns it off. A click or a key "
+            "skips it."))
+        animation.addRow(tr("Startup animation"), startup_animation_check)
 
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")
@@ -8602,6 +10085,8 @@ class PreferencesDialog:
             field = ambient_theme_combo.currentData() in (
                 "data_art_impulse_lens", "data_art_spaceout_field")
             ripple_intensity_value.setEnabled(field)
+            ripples_slider.setEnabled(field)
+            click_ripples_check.setEnabled(field)
             popup_waves_slider.setEnabled(field)
             popup_waves_value.setEnabled(field)
             gravity_slider.setEnabled(on)
@@ -8747,7 +10232,22 @@ class PreferencesDialog:
         scale_row.addWidget(scale_slider)
         scale_row.addWidget(scale_value)
         _wrap = _hbox_wrap(scale_row)
+        scale_slider.setAccessibleName(tr("Font scale"))
         form.addRow(tr("Font scale"), _wrap)
+
+        text_size_slider = QSlider(Qt.Horizontal)
+        text_size_slider.setObjectName("AccessibilityTextSize")
+        text_size_slider.setRange(scale_slider.minimum(), scale_slider.maximum())
+        text_size_slider.setSingleStep(5)
+        text_size_slider.setPageStep(25)
+        text_size_slider.setTickInterval(25)
+        text_size_slider.setValue(scale_slider.value())
+        text_size_value = QLabel(f"{text_size_slider.value()}%")
+        text_size_value.setObjectName("AccessibilityTextSizeValue")
+        text_size_slider.valueChanged.connect(
+            lambda v: text_size_value.setText(f"{v}%"))
+        text_size_slider.valueChanged.connect(scale_slider.setValue)
+        scale_slider.valueChanged.connect(text_size_slider.setValue)
 
         from PySide6.QtCore import QTimer
 
@@ -8769,6 +10269,7 @@ class PreferencesDialog:
         gui_scale_row = QVBoxLayout()
         gui_scale_row.addWidget(gui_scale_slider)
         gui_scale_row.addWidget(gui_scale_value)
+        gui_scale_slider.setAccessibleName(tr("GUI scale"))
         form.addRow(tr("GUI scale"), _hbox_wrap(gui_scale_row))
 
         scale_settle = QTimer(dlg)
@@ -8788,6 +10289,7 @@ class PreferencesDialog:
                     slider.blockSignals(False)
                     scale_value.setText(f"{scale_slider.value()}%")
                     gui_scale_value.setText(f"{gui_scale_slider.value()}%")
+                    text_size_slider.setValue(scale_slider.value())
                 except RuntimeError:
                     return
 
@@ -8805,14 +10307,19 @@ class PreferencesDialog:
         scale_settle.timeout.connect(_apply_the_scales_live)
 
         def _settle_unless_dragging(slider) -> None:
-            """A drag applies on release; a click or key applies at once."""
-            if not slider.isSliderDown():
+            """A drag applies on release; a click or key applies at once.
+
+            Text size under Accessibility moves Font scale with it, so a
+            drag of either is a drag.
+            """
+            if not (slider.isSliderDown() or text_size_slider.isSliderDown()):
                 scale_settle.start()
 
         for slider in (scale_slider, gui_scale_slider):
             slider.sliderReleased.connect(scale_settle.start)
             slider.valueChanged.connect(
                 lambda _v, s=slider: _settle_unless_dragging(s))
+        text_size_slider.sliderReleased.connect(scale_settle.start)
 
         dock_combo = QComboBox()
         for label, key in (
@@ -9067,8 +10574,8 @@ class PreferencesDialog:
         verbose_check.setToolTip(tr(
             "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
             "It also lets cellpose report which model it loaded, and it "
-            "records which buttons you pressed. That trail is what makes a "
-            "bug report worth reading.\n\n"
+            "records which buttons you pressed. These records show the "
+            "steps that led to a problem in a bug report.\n\n"
             "Starting spaCR and opening its screens took no longer with "
             "this on. This was measured on one "
             "workstation by opening every module, once with this on and "
@@ -9135,6 +10642,7 @@ class PreferencesDialog:
         )
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
+
 
         refresh_news_check = Toggle(
             tr("Show newer releases than this build in Home's News panel")
@@ -9210,24 +10718,85 @@ class PreferencesDialog:
         db_edit_check.setChecked(get_db_browser_editable())
         modules.addRow(tr("Database Browser"), db_edit_check)
 
-        ai_provider_combo = QComboBox()
-        ai_provider_combo.setObjectName("AiProvider")
-        ai_provider_combo.addItem(tr("Automatic (first available)"), "")
-        try:
-            from . import ai as _ai_module
+        from PySide6.QtWidgets import QButtonGroup, QRadioButton
 
-            for _p in _ai_module.configured_providers():
-                ai_provider_combo.addItem(_p.label, _p.name)
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("could not list AI providers", exc_info=True)
-        _wanted = get_preferred_provider()
-        _at = ai_provider_combo.findData(_wanted)
-        ai_provider_combo.setCurrentIndex(_at if _at >= 0 else 0)
-        ai_provider_combo.setToolTip(tr(
-            "Which assistant the AI switch routes through. Automatic picks "
-            "the first vendor CLI that is installed and logged in."
-        ))
-        ai_form.addRow(tr("Provider"), ai_provider_combo)
+        from .ai.providers import (HOSTED_PROVIDER_NAME, PROVIDER_CHOICES,
+                                   apply_provider_choice,
+                                   effective_provider_name)
+
+        ai_provider_box = QWidget()
+        ai_provider_box.setObjectName("AiProviderChoice")
+        ai_provider_box.setToolTip(tr(
+            "Which assistant the AI switch routes through. spaCR AI (free) "
+            "needs no account and answers within a daily allowance; Claude, "
+            "GPT (Codex) and Gemini use your own CLI login. A switch takes "
+            "effect at once."))
+        ai_provider_layout = QVBoxLayout(ai_provider_box)
+        ai_provider_layout.setContentsMargins(0, 0, 0, 0)
+        ai_provider_group = QButtonGroup(ai_provider_box)
+        ai_provider_group.setExclusive(True)
+        ai_provider_radios = {}
+        for _name, _label, _needs in PROVIDER_CHOICES:
+            _radio = QRadioButton(tr(_label))
+            _radio.setObjectName(f"AiProvider_{_name}")
+            _radio.setProperty("providerName", _name)
+            _needs_label = QLabel(tr(_needs))
+            _needs_label.setObjectName("SubtitleSmall")
+            _needs_label.setWordWrap(True)
+            _needs_label.setContentsMargins(scaled_px(24), 0, 0, 0)
+            ai_provider_group.addButton(_radio)
+            ai_provider_layout.addWidget(_radio)
+            ai_provider_layout.addWidget(_needs_label)
+            ai_provider_radios[_name] = _radio
+        ai_allowance_note = QLabel()
+        ai_allowance_note.setObjectName("AiProviderAllowance")
+        ai_allowance_note.setWordWrap(True)
+        ai_provider_layout.addWidget(ai_allowance_note)
+        ai_provider_status = QLabel()
+        ai_provider_status.setObjectName("AiProviderStatus")
+        ai_provider_status.setWordWrap(True)
+        ai_provider_layout.addWidget(ai_provider_status)
+        ai_provider_radios.get(
+            effective_provider_name(get_preferred_provider()),
+            ai_provider_radios[HOSTED_PROVIDER_NAME]).setChecked(True)
+
+        def _chosen_provider() -> str:
+            """The provider whose switch is on."""
+            for _key, _button in ai_provider_radios.items():
+                if _button.isChecked():
+                    return _key
+            return HOSTED_PROVIDER_NAME
+
+        def _on_provider_switched(*_args) -> None:
+            """Use the provider just chosen at once, and say what it needs."""
+            from shiboken6 import isValid
+
+            from .ai.providers import hosted_daily_allowance_text
+
+            if not (isValid(ai_allowance_note) and isValid(ai_provider_status)
+                    and all(isValid(b) for b in ai_provider_radios.values())):
+                return
+            chosen = _chosen_provider()
+            hosted = chosen == HOSTED_PROVIDER_NAME
+            ai_allowance_note.setVisible(hosted)
+            ai_allowance_note.setText(
+                hosted_daily_allowance_text() if hosted else "")
+            ready = apply_provider_choice(chosen)
+            ai_provider_status.setVisible(not ready)
+            ai_provider_status.setText("" if ready else tr(
+                "Not set up on this computer yet: press Providers… to "
+                "install it and sign in. Until then spaCR AI (free) answers."))
+
+        ai_provider_group.buttonToggled.connect(
+            lambda _button, on: on and _on_provider_switched())
+        ai_allowance_note.setVisible(False)
+        ai_provider_status.setVisible(False)
+        if _chosen_provider() == HOSTED_PROVIDER_NAME:
+            from .ai.providers import hosted_daily_allowance_text
+
+            ai_allowance_note.setText(hosted_daily_allowance_text())
+            ai_allowance_note.setVisible(True)
+        ai_form.addRow(tr("Provider"), ai_provider_box)
 
         ai_providers_btn = QPushButton(tr("Providers…"))
         ai_providers_btn.setObjectName("AiProvidersButton")
@@ -9236,29 +10805,59 @@ class PreferencesDialog:
         ))
 
         def _open_providers():
-            """Open the install/login dialog, then re-list the providers."""
+            """Open the install/login dialog, then apply the choice again."""
             from PySide6.QtWidgets import QDialog
 
             from .widgets.ai_chat_panel import _ProvidersDialog
 
             if _ProvidersDialog(dlg).exec() != QDialog.Accepted:
                 return
-            chosen = ai_provider_combo.currentData()
-            ai_provider_combo.clear()
-            ai_provider_combo.addItem(
-                tr("Automatic (first available)"), "")
-            try:
-                from . import ai as _ai
-
-                for _q in _ai.configured_providers():
-                    ai_provider_combo.addItem(_q.label, _q.name)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not re-list AI providers", exc_info=True)
-            back = ai_provider_combo.findData(chosen)
-            ai_provider_combo.setCurrentIndex(back if back >= 0 else 0)
+            _on_provider_switched()
 
         ai_providers_btn.clicked.connect(_open_providers)
         ai_form.addRow("", ai_providers_btn)
+
+        from spacr import crashreport as _crashreport
+
+        error_report_combo = QComboBox()
+        error_report_combo.setObjectName("AiErrorReport")
+        for _key, _label in _crashreport.ERROR_REPORT_MODES:
+            error_report_combo.addItem(tr(_label), _key)
+        error_report_combo.setCurrentIndex(max(0, error_report_combo.findData(
+            _crashreport.error_report_mode())))
+        error_report_combo.setToolTip(tr(
+            "What happens when a run fails or spaCR crashes, including a "
+            "setting or validation error found before a run starts. "
+            "\"Summarize\" has the AI chosen above explain the error in the "
+            "console. \"Send\" files an anonymised report as a public GitHub "
+            "issue on EinarOlafsson/spacr through spaCR's relay, with no "
+            "GitHub account. \"Faults\" are unexpected errors in spaCR, not "
+            "settings the user can fix. Code context adds the line of spaCR's "
+            "own code at each step, never yours. Logs, settings, file names "
+            "and paths are never sent. Default: summarize and send all "
+            "errors."))
+        error_report_what = QPushButton(tr("What is sent…"))
+        error_report_what.setObjectName("AnonymousReportsWhatIsSent")
+        error_report_what.setFlat(True)
+        error_report_what.setCursor(Qt.PointingHandCursor)
+
+        def _show_what_is_sent() -> None:
+            """Open the example of an anonymised report."""
+            from .install_consent import AnonymousReportExampleDialog
+
+            AnonymousReportExampleDialog(dlg).exec()
+
+        error_report_what.clicked.connect(_show_what_is_sent)
+        error_report_row = QWidget()
+        error_report_layout = QHBoxLayout(error_report_row)
+        error_report_layout.setContentsMargins(0, 0, 0, 0)
+        error_report_layout.addWidget(error_report_combo, 1)
+        error_report_layout.addWidget(error_report_what)
+        error_report_row.setToolTip(error_report_combo.toolTip())
+        error_report_combo.setAccessibleDescription(
+            error_report_combo.toolTip())
+        error_report_combo.setToolTip("")
+        ai_form.addRow(tr("AI Error report"), error_report_row)
 
         alpha_check = Toggle(tr("Show Alpha modules and settings"))
         alpha_check.setObjectName("ShowAlphaFeatures")
@@ -9455,10 +11054,47 @@ class PreferencesDialog:
                 mode_combo.setCurrentIndex(i); break
         performance.addRow(tr("Performance"), mode_combo)
 
+        gpu_labels = (tr("Off (CPU)"), tr("Automatic"), tr("On"))
+        gpu_slider = QSlider(Qt.Horizontal)
+        gpu_slider.setObjectName("AnimationGpu")
+        gpu_slider.setAccessibleName(tr("Animation GPU"))
+        gpu_slider.setRange(0, len(GRAPHICS_BACKENDS) - 1)
+        gpu_slider.setPageStep(1)
+        gpu_slider.setTickPosition(QSlider.TicksBelow)
+        gpu_slider.setTickInterval(1)
+        gpu_value = QLabel()
+        gpu_value.setObjectName("AnimationGpuValue")
+        gpu_slider.setToolTip(tr(
+            "Where animations are drawn. Off draws on the CPU. Automatic uses "
+            "the GPU only for dense, high-resolution frames, where it measured "
+            "faster. On uses the GPU whenever the theme has a GPU renderer. "
+            "Unsupported graphics or a failed GPU start always fall back to "
+            "the CPU."))
+        gpu_slider.valueChanged.connect(
+            lambda position: gpu_value.setText(gpu_labels[position]))
+        gpu_slider.setValue(GRAPHICS_BACKENDS.index(_flow_graphics_backend()))
+        gpu_value.setText(gpu_labels[gpu_slider.value()])
+        gpu_column = QVBoxLayout()
+        gpu_column.setContentsMargins(0, 0, 0, 0)
+        gpu_column.addWidget(gpu_slider)
+        gpu_column.addWidget(gpu_value)
+
+        dynamic_animation_check = Toggle()
+        dynamic_animation_check.setObjectName("DynamicAnimation")
+        dynamic_animation_check.setAccessibleName(tr("Dynamic animation"))
+        dynamic_animation_check.setChecked(_dynamic_animation_enabled())
+        dynamic_animation_check.setToolTip(tr(
+            "While a CPU-heavy job such as Measure runs, the animation pauses. "
+            "While a GPU job such as mask generation runs, animations stop "
+            "using the GPU. Your saved animation settings return when the "
+            "jobs end. Off keeps animations running unchanged."))
+
         mode_note_label = QLabel()
         mode_note_label.setObjectName("PerformanceLevelNote")
         mode_note_label.setWordWrap(True)
         performance.addRow("", mode_note_label)
+        performance.addRow(tr("Animation GPU"), _hbox_wrap(gpu_column))
+        performance.addRow(tr("Dynamic animation"), dynamic_animation_check)
 
         def _sync_mode_note(*_args):
             """Say which hardware the selected mode is for.
@@ -9693,13 +11329,11 @@ class PreferencesDialog:
             fractal_quality.setCurrentIndex(
                 max(0, fractal_quality.findData(_fractal_values["quality"])))
             fractal_quality.setToolTip(tr(
-                "A level is a set of numbers, not an adjective: choosing "
-                "one fills in supersampling, render scale, the iteration "
-                "budget and the scale below. Every one of them stays a "
-                "field you can then change — a level is a starting point, "
-                "not a lock.\n\n"
-                "Auto asks the machine instead, per backend, so it keeps "
-                "following the hardware rather than freezing an answer."))
+                "Each level sets supersampling, render scale, the iteration "
+                "budget and the scale below. Each of these remains a field "
+                "that can be changed after a level is chosen.\n\n"
+                "Auto chooses the values for each backend from the hardware "
+                "every time, instead of storing fixed values."))
             fractal.addRow(tr("Quality"), fractal_quality)
 
             def _tenths(name, value, low=None, high=None):
@@ -9773,10 +11407,11 @@ class PreferencesDialog:
                 "Straight down descends to one point on the boundary and "
                 "stays pointed at it — the steadiest picture, and what the "
                 "published settings use.\n\n"
-                "Search as it goes looks for somewhere more interesting "
-                "every so often and moves the camera onto it. It finds more "
-                "variety, and moving the camera is visible: the Steering "
-                "control below sets how much.\n\n"
+                "Search as it goes periodically scores several directions "
+                "around the centre by the set boundary they contain and "
+                "moves the camera toward the highest score. The camera "
+                "movement is visible; the Steering control below sets how "
+                "far each move reaches.\n\n"
                 "Tour the interesting places measures the view as it "
                 "descends and glides toward the part with the most colours "
                 "in it, never toward a single-colour patch. The camera "
@@ -9791,9 +11426,9 @@ class PreferencesDialog:
             fractal_steering.setRange(0.0, 1.0)
             fractal_steering.setSingleStep(0.05)
             fractal_steering.setToolTip(tr(
-                "How much the view wanders while it descends. 0 goes "
-                "straight down; 1 keeps looking for somewhere more "
-                "interesting.\n\n"
+                "How far the camera moves off a straight descent. 0 goes "
+                "straight down; 1 makes the largest moves toward set "
+                "boundary structure.\n\n"
                 "It sets how far each move reaches, how often one happens "
                 "and how long it takes, together — a move never takes more "
                 "than half the gap before the next, at any setting, so it "
@@ -10039,14 +11674,56 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        uninstall_button = QPushButton(tr("Uninstall…"))
+        uninstall_button.setObjectName("UninstallSpacrButton")
+        uninstall_button.setToolTip(tr(
+            "Remove the current spaCR version or all detected versions. Review the exact paths and choose which spaCR data to keep."))
+        style_as_danger(uninstall_button)
+
+        def _open_spacr_uninstall():
+            """Leave Preferences before opening the application uninstall preview."""
+            from PySide6.QtCore import QTimer
+
+            from .install_consent import _open_uninstall
+
+            window = parent.window() if parent is not None else None
+            dlg.reject()
+            _after(
+                0, window if window is not None else dlg,
+                lambda: _open_uninstall(window))
+
+        uninstall_button.clicked.connect(_open_spacr_uninstall)
+        performance.addRow(tr("Uninstall"), uninstall_button)
+
         notifications_page = None
         if _is_alpha_visible("widgets", _NOTIFY_ALPHA_WIDGET):
             notifications_page = _NotificationsPage(
                 _page("Notifications", "PreferencesTabNotifications"), dlg)
 
-        if _is_alpha_visible("widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET):
-            dlg._plugin_catalogue_page = _PluginCataloguePage(
-                _page("Plugins", "PreferencesTabPlugins"), dlg)
+        export_vvvv_check = None
+        show_catalogue = _is_alpha_visible(
+            "widgets", _PLUGIN_CATALOGUE_ALPHA_WIDGET)
+        show_vvvv = _is_alpha_visible("widgets", _EXPORT_VVVV_ALPHA_WIDGET)
+        if show_catalogue or show_vvvv:
+            plugins_form = _page("Plugins", "PreferencesTabPlugins")
+            if show_vvvv:
+                export_vvvv_check = QCheckBox(tr("Export to vvvv"))
+                export_vvvv_check.setObjectName("PreferencesExportVvvv")
+                export_vvvv_check.setChecked(_get_export_vvvv())
+                export_vvvv_check.setToolTip(tr(
+                    "Also write every saved mask in Make Masks, and every "
+                    "field Mask generation and Measure process, for a vvvv "
+                    "gamma patch: labels, outlines, the image, one row per "
+                    "object and a .vl project, one folder per field. Make "
+                    "Masks writes beside the images in vvvv/make_masks, "
+                    "Mask generation in vvvv/mask and Measure in "
+                    "vvvv/measure. Images and masks are only read. Default "
+                    "off."))
+                plugins_form.addRow(export_vvvv_check)
+            if show_catalogue:
+                dlg._plugin_catalogue_page = _PluginCataloguePage(
+                    plugins_form, dlg)
+        dlg._export_vvvv_check = export_vvvv_check
 
         sound_page = None
         if sound_is_offered():
@@ -10113,6 +11790,18 @@ class PreferencesDialog:
             save_button.setText(tr("Save"))
         if cancel_button is not None:
             cancel_button.setText(tr("Cancel"))
+        from functools import partial
+
+        try:
+            from .widgets.ambient import (EXPLICIT_RIPPLES_PROPERTY,
+                                          _field_ripple_for_popup)
+        except ImportError:
+            pass
+        else:
+            dlg.setProperty(EXPLICIT_RIPPLES_PROPERTY, True)
+            for rippling in (save_button, cancel_button, apply_button):
+                if rippling is not None:
+                    rippling.clicked.connect(partial(_field_ripple_for_popup, dlg))
         reset_button = buttons.addButton(
             tr("Reset to defaults"), QDialogButtonBox.ResetRole)
         reset_button.setObjectName("PreferencesReset")
@@ -10128,6 +11817,147 @@ class PreferencesDialog:
             index = combo.findData(value)
             if index >= 0:
                 combo.setCurrentIndex(index)
+
+        accessibility_category, accessibility = _category(
+            "Accessibility", "PreferencesTabAccessibility")
+        accessibility_help = QLabel(tr(
+            "Settings that make spaCR easier to see, read and use from the "
+            "keyboard. Screen readers announce every control by name."))
+        accessibility_help.setObjectName("AccessibilityHelp")
+        accessibility_help.setWordWrap(True)
+        accessibility.addRow(accessibility_help)
+
+        contrast_check = Toggle()
+        contrast_check.setObjectName("AccessibilityHighContrast")
+        contrast_check.setAccessibleName(tr("High contrast"))
+        contrast_check.setToolTip(tr(
+            "Use the High contrast theme: white text and outlines on black "
+            "with a yellow accent. Clear it to go back to the theme you had. "
+            "The Theme control under Appearance shows the same choice."))
+        contrast_check.setChecked(
+            theme_combo.currentData() == HIGH_CONTRAST_THEME)
+        accessibility.addRow(tr("High contrast"), contrast_check)
+        theme_before_contrast = [_high_contrast_previous_theme() or None]
+        theme_seen = [theme_combo.currentData()]
+
+        def _contrast_follows_the_theme(_index=0) -> None:
+            """Tick High contrast exactly while the Theme control shows it."""
+            choice = theme_combo.currentData()
+            if (choice == HIGH_CONTRAST_THEME
+                    and theme_seen[0] != HIGH_CONTRAST_THEME):
+                theme_before_contrast[0] = theme_seen[0]
+            theme_seen[0] = choice
+            blocked = contrast_check.blockSignals(True)
+            contrast_check.setChecked(choice == HIGH_CONTRAST_THEME)
+            contrast_check.blockSignals(blocked)
+
+        def _theme_follows_contrast(on) -> None:
+            """Choose High contrast, or the theme it replaced."""
+            _select(theme_combo, HIGH_CONTRAST_THEME if on
+                    else _theme_to_go_back_to(theme_before_contrast[0]))
+
+        theme_combo.currentIndexChanged.connect(_contrast_follows_the_theme)
+        contrast_check.toggled.connect(_theme_follows_contrast)
+
+        text_size_column = QVBoxLayout()
+        text_size_column.setContentsMargins(0, 0, 0, 0)
+        text_size_column.addWidget(text_size_slider)
+        text_size_column.addWidget(text_size_value)
+        text_size_field = _hbox_wrap(text_size_column)
+        text_size_field.setToolTip(tr(
+            "Make all text in spaCR larger or smaller. This is the same "
+            "setting as Font scale on the General tab."))
+        accessibility.addRow(tr("Text size"), text_size_field)
+
+        reduce_motion_check = Toggle()
+        reduce_motion_check.setObjectName("AccessibilityReduceMotion")
+        reduce_motion_check.setAccessibleName(tr("Reduce motion"))
+        reduce_motion_check.setToolTip(tr(
+            "Hold every animated backdrop still and turn off ripples, click "
+            "ripples, popup waves and mouse gravity. Clear it to get your "
+            "previous motion settings back."))
+        reduce_motion_check.setChecked(get_reduce_motion())
+        accessibility.addRow(tr("Reduce motion"), reduce_motion_check)
+        motion_before = [_reduce_motion_previous()]
+        motion_given_back = [None]
+
+        def _motion_shown() -> dict:
+            """The motion values the Animation controls show now."""
+            return {
+                "field_ripple_intensity":
+                    ripple_intensity_value.value() / 100.0,
+                "field_click_ripples": click_ripples_check.isChecked(),
+                "field_popup_wave_frequency": popup_waves_value.value(),
+                "ambient_gravity_radius": gravity_slider.value() / 100.0,
+            }
+
+        def _show_motion(values: dict) -> None:
+            """Put a set of motion values on the Animation controls."""
+            ripple_intensity_value.setValue(
+                values["field_ripple_intensity"] * 100.0)
+            click_ripples_check.setChecked(values["field_click_ripples"])
+            popup_waves_value.setValue(values["field_popup_wave_frequency"])
+            gravity_slider.setValue(
+                int(round(values["ambient_gravity_radius"] * 100)))
+
+        motion_known = [(_motion_shown(), _motion_values())]
+
+        def _exact_motion(shown: dict) -> dict:
+            """The stored values behind what the controls show, when known.
+
+            A slider holds whole percents, so what it shows is not always
+            what is stored; giving back what it shows would round the
+            user's own values.
+            """
+            for seen, exact in motion_known:
+                if seen == shown:
+                    return exact
+            return shown
+
+        def _motion_follows_the_switch(on) -> None:
+            """Hold the motion controls still, or give back what they had."""
+            if on:
+                motion_before[0] = _exact_motion(_motion_shown())
+                motion_given_back[0] = None
+                _show_motion(_STILL_MOTION)
+                return
+            _show_motion(motion_before[0])
+            motion_given_back[0] = _motion_shown()
+            motion_known.append((motion_given_back[0], motion_before[0]))
+
+        reduce_motion_check.toggled.connect(_motion_follows_the_switch)
+
+        focus_check = Toggle()
+        focus_check.setObjectName("AccessibilityStrongFocus")
+        focus_check.setAccessibleName(tr("Stronger focus outlines"))
+        focus_check.setToolTip(tr(
+            "Draw a thick outline round the control that has keyboard focus, "
+            "so you can follow Tab from control to control."))
+        focus_check.setChecked(get_strong_focus())
+        accessibility.addRow(tr("Focus outlines"), focus_check)
+
+        shortcuts_button = QPushButton(tr("Keyboard shortcuts…"))
+        shortcuts_button.setObjectName("AccessibilityShortcuts")
+        shortcuts_button.setToolTip(tr(
+            "See every keyboard shortcut and change the key for any of them."))
+
+        def _open_the_shortcuts_editor():
+            """Open the shortcut editor above Preferences and return it."""
+            from .shortcuts import _KeymapDialog
+
+            editor = _KeymapDialog(parent if parent is not None else dlg)
+            editor.setWindowModality(Qt.ApplicationModal)
+            editor.show()
+            dlg._shortcuts_editor = editor
+            return editor
+
+        shortcuts_button.clicked.connect(_open_the_shortcuts_editor)
+        accessibility.addRow(tr("Keyboard"), shortcuts_button)
+        for described in (contrast_check, reduce_motion_check, focus_check,
+                          shortcuts_button):
+            described.setAccessibleDescription(described.toolTip())
+        text_size_slider.setAccessibleDescription(text_size_field.toolTip())
+        appearance.addRow(accessibility_category)
 
         def _reset_to_defaults() -> None:
             """Put every control back to what a fresh install would show.
@@ -10154,6 +11984,8 @@ class PreferencesDialog:
                 tempfile.mkdtemp(prefix="spacr-defaults-"), "defaults.ini")
             _settings = lambda: QSettings(empty, QSettings.IniFormat)
             try:
+                reduce_motion_check.setChecked(get_reduce_motion())
+                focus_check.setChecked(get_strong_focus())
                 _select(language_combo, get_language())
                 _select(theme_combo, get_theme_choice())
                 _select(ambient_theme_combo, get_ambient_animation())
@@ -10182,8 +12014,11 @@ class PreferencesDialog:
                 density_slider.setValue(
                     int(round(get_ambient_density() * 100)))
                 blink_value.setValue(_ambient_blink_percent())
-                ripples_check.setChecked(_field_ripples_enabled())
                 ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
+                click_ripples_check.setChecked(_field_click_ripples())
+                startup_animation_check.setChecked(get_startup_animation())
+                gpu_slider.setValue(GRAPHICS_BACKENDS.index(_flow_graphics_backend()))
+                dynamic_animation_check.setChecked(_dynamic_animation_enabled())
                 for key, enabled in _spaceout_field_effects().items():
                     if key in spaceout_field_checks:
                         spaceout_field_checks[key].setChecked(enabled)
@@ -10227,6 +12062,8 @@ class PreferencesDialog:
                 _select(performance_log_combo, get_performance_logging())
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
+                _select(error_report_combo,
+                        _crashreport.DEFAULT_ERROR_REPORT_MODE)
                 refresh_news_check.setChecked(get_refresh_news())
                 restore_session_check.setChecked(_get_restore_session())
                 _select(update_channel_combo, _get_update_channel())
@@ -10251,6 +12088,10 @@ class PreferencesDialog:
 
             THE RIM GOES FIRST because every open card rereads it: doing it before
             the theme work means one repaint rather than two.
+
+            A Save that closes hides the dialog before the application takes
+            the new values: restyling a window that is about to vanish was
+            the largest part of a Save.
             """
             _set_rim_length_fraction(rim_length_slider.value() / 100.0)
             dlg._storage_page.save()
@@ -10265,6 +12106,8 @@ class PreferencesDialog:
             _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
             set_theme_choice(theme_combo.currentData())
+            _remember_the_theme_before_contrast(theme_combo.currentData(),
+                                                theme_before_contrast[0])
             set_ambient_animation(ambient_theme_combo.currentData())
             palette_choice = ambient_palette_combo.currentData()
             if palette_choice is not None:
@@ -10276,8 +12119,11 @@ class PreferencesDialog:
             set_ambient_resolution(resolution_slider.value() / 100.0)
             set_ambient_density(density_slider.value() / 100.0)
             _set_ambient_blink_percent(blink_value.value())
-            _set_field_ripples_enabled(ripples_check.isChecked())
             _set_field_ripple_intensity(ripple_intensity_value.value() / 100.0)
+            _set_field_click_ripples(click_ripples_check.isChecked())
+            set_startup_animation(startup_animation_check.isChecked())
+            _set_flow_graphics_backend(GRAPHICS_BACKENDS[gpu_slider.value()])
+            _set_dynamic_animation_enabled(dynamic_animation_check.isChecked())
             if spaceout_field_checks:
                 _set_spaceout_field_effects({
                     key: check.isChecked()
@@ -10285,6 +12131,15 @@ class PreferencesDialog:
                 })
             _set_field_popup_wave_frequency(popup_waves_value.value())
             _set_ambient_gravity_radius(gravity_slider.value() / 100.0)
+            _remember_reduce_motion(reduce_motion_check.isChecked(),
+                                    motion_before[0])
+            if (not reduce_motion_check.isChecked()
+                    and motion_given_back[0] is not None
+                    and _motion_shown() == motion_given_back[0]):
+                _write_motion_values(motion_before[0])
+            set_strong_focus(focus_check.isChecked())
+            if export_vvvv_check is not None:
+                _set_export_vvvv(export_vvvv_check.isChecked())
             direction_choice = ambient_dir_combo.currentData()
             if direction_choice is not None:
                 set_ambient_drift_direction(direction_choice)
@@ -10294,7 +12149,7 @@ class PreferencesDialog:
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
             set_tooltips_bottom_enabled(
                 tooltips_bottom_check.isChecked())
-            set_preferred_provider(ai_provider_combo.currentData() or "")
+            set_preferred_provider(_chosen_provider())
             scale_settle.stop()
             set_font_scale(scale_slider.value() / 100.0)
             set_gui_scale(gui_scale_slider.value() / 100.0)
@@ -10313,6 +12168,13 @@ class PreferencesDialog:
             set_verbose_logging(verbose_check.isChecked())
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
+            try:
+                _crashreport.set_error_report_mode(
+                    error_report_combo.currentData()
+                    or _crashreport.DEFAULT_ERROR_REPORT_MODE)
+            except OSError:
+                LOG.warning("could not save the error-report choice",
+                            exc_info=True)
             set_refresh_news(refresh_news_check.isChecked())
             _set_restore_session(restore_session_check.isChecked())
             _set_update_channel(update_channel_combo.currentData())
@@ -10425,9 +12287,15 @@ class PreferencesDialog:
                     LOG.warning("could not save the notification settings "
                                 "(%s)", type(exc).__name__)
             _settings().sync()
-            apply_preferences_to_app()
-            _refresh_owner_window(parent)
-            if close:
+            if not close:
+                apply_preferences_to_app(in_slices=True)
+                _refresh_owner_window(parent, dlg, in_slices=True)
+                return
+            dlg.hide()
+            try:
+                apply_preferences_to_app()
+                _refresh_owner_window(parent, dlg)
+            finally:
                 dlg.accept()
 
         def _apply():
@@ -10492,9 +12360,10 @@ class PreferencesDialog:
                     apply_saved_controls()
                     restart_the_dive()
                     rebuild_the_spaceout_backdrops()
-                apply_preferences_to_app()
-                _refresh_owner_window(parent)
+                apply_preferences_to_app(in_slices=True)
+                _refresh_owner_window(parent, dlg, in_slices=True)
 
+            dlg._send_the_unseen_pages_away()
             try:
                 _in_one_store(lambda: _save(close=False, save_secrets=False))
             except Exception:
@@ -10558,7 +12427,7 @@ class PreferencesDialog:
         hints = HintBar(parent=dlg)
         hints.explain(
             hints._resize_handle,
-            "Drag this edge to make the help area taller or shorter.")
+            "Drag this edge or use Up and Down to resize the help area.")
         layout = dlg.layout()
         row_of_buttons = layout.indexOf(buttons)
         if row_of_buttons >= 0:
@@ -10577,6 +12446,11 @@ class PreferencesDialog:
         explain_every_row(dlg)
         _everything_explains_itself_in_the_strip(dlg, hints)
         _reload_ambient_palettes(ambient_palette_combo.currentData())
+        dlg._draft_extras = lambda: (
+            tuple(custom_colors), custom_background[0], _chosen_debug[0],
+            style_panel.values(), dlg._storage_page._rows,
+            theme_before_contrast[0], tuple(sorted(motion_before[0].items())))
+        _name_unnamed_form_fields(dlg)
         dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 
@@ -10618,7 +12492,8 @@ def _everything_explains_itself_in_the_strip(dialog, bar) -> int:
     return moved
 
 
-def _refresh_owner_window(parent) -> None:
+def _refresh_owner_window(parent, dialog=None, *,
+                          in_slices: bool = False) -> None:
     """Ask the window that opened Preferences to rebuild itself.
 
     A QIcon bakes its pixmap when it is built, so re-applying the
@@ -10631,6 +12506,18 @@ def _refresh_owner_window(parent) -> None:
 
     Never raises: a window that cannot rebuild is a cosmetic problem,
     not a reason to fail the Save.
+
+    With ``dialog``, only when something the window draws from has changed
+    since the dialog last looked (:func:`_window_signature`): a Save of a
+    logging level or a figure format has nothing to redraw, and the redraw
+    rebuilds Home.
+
+    :param parent: the dialog's parent.
+    :param dialog: the Preferences dialog asking, or ``None`` to redraw
+        regardless.
+    :param in_slices: Apply and its Revert: a window that can redraw only
+        what changed (``refresh_after_preferences``) is asked to, in a pass
+        of the event loop after the next paint, so the click is drawn first.
     """
     if parent is None:
         return
@@ -10639,10 +12526,43 @@ def _refresh_owner_window(parent) -> None:
     except Exception:
         return
     refresh = getattr(window, "refresh_theme", None)
-    if callable(refresh):
+    if not callable(refresh):
+        return
+    now = None
+    seen = None
+    if dialog is not None:
+        try:
+            now = _window_signature()
+        except Exception:                                    # noqa: BLE001
+            now = None
+        seen = getattr(dialog, "_window_signature_seen", None)
+        if now is not None and seen == now:
+            return
+    partly = getattr(window, "refresh_after_preferences", None)
+    if in_slices and now is not None and callable(partly):
+        from PySide6.QtCore import QTimer
+
+        changes = _window_changes(seen, now)
+
+        def _redraw_what_changed():
+            """Redraw the window for ``changes``, if it is still there."""
+            if not _widget_is_alive(window):
+                return
+            try:
+                partly(changes)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("the window did not redraw", exc_info=True)
+
+        QTimer.singleShot(_PREFERENCES_REDRAW_AFTER_MS, _redraw_what_changed)
+    else:
         try:
             refresh()
         except Exception:
+            pass
+    if dialog is not None:
+        try:
+            dialog._window_signature_seen = now
+        except Exception:                                    # noqa: BLE001
             pass
 
 

@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_utc": "2026-10-15T17:09:47.146769+00:00",
+  "packet_root": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/completed-publication-packet",
+  "packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/completed-publication-packet/packet-manifest.json",
+    "bytes": 197458,
+    "sha256": "64ed3869bd34efafd9ed46b9d4362c80d098a19d0a408802c138fb8abba910f8"
+  },
+  "final_publication_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-publication-review.json",
+    "bytes": 4676,
+    "sha256": "9dbe77717fa58f9de1e16f40890c290a6b24f05ebfb59234f1f27db57faa4b3e"
+  },
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/published02-checkpoint-export-20261015/export-manifest.json",
+    "bytes": 71893,
+    "sha256": "b8f4b3cf5f81aca8e0f5ce986219d7736519424c114477aa3dbe856ba492bb84"
+  },
+  "source_commit": "14ecf9d1054e15194bb7b9ff01779af061fae875",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e",
+  "checks": {
+    "closed_listed_files": 390,
+    "additional_packet_manifest_files": 1,
+    "all_copied_and_original_source_sizes_and_streamed_sha256_match": true,
+    "no_symlinks_traversal_duplicates_missing_or_extra_files": true,
+    "coherent_checkpoint_snapshot_files": 148,
+    "checkpoint_recorded_files": 145,
+    "checkpoint_receipt_extras": 3,
+    "review_evidence_snapshots_verified": 57,
+    "official_reviews_bound": 13,
+    "unchanged_audio_sidecars_bound": 100,
+    "unchanged_catalog_objects_bound": 14,
+    "other_lessons_preservation_bound": 83,
+    "actual_final_source_test_count": 181,
+    "immutable_metadata_and_download_sha256_files": 5369,
+    "immutable_readback_bytes": 8679855371,
+    "prepared_pages_cases_passed": 84,
+    "record_completed": true
+  },
+  "finalreview_bindings": {
+    "manifest": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/release-candidate-append-lxmwr53e/release-manifest.json",
+      "bytes": 1179996,
+      "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+    },
+    "timing": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-02-selective-r2-20261015/production/02_install_spacr/video/native-live-timings.json",
+      "bytes": 27713,
+      "sha256": "813a5e275ba32c54198180aedd5673176ea92e96f9b40cdb4dd4d858158b4286"
+    },
+    "publication_receipt": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/publication-receipt.json",
+      "bytes": 141480,
+      "sha256": "36d6ed5e9d733361887697647f380d67f27dadff5150564ac37538cd04f34c18"
+    },
+    "published_media_browser_checks": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/published-media-browser-checks.json",
+      "bytes": 134422,
+      "sha256": "8fbe78efb2a42478526383ab227b9cce5ac02c31d3d5c0d5aeeb402d4f6721fd"
+    },
+    "recorded_checkpoint": {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json",
+      "bytes": 26430,
+      "sha256": "5e3738ed8ea17837d898c79bcf02ecf2e74a473fa3ce18c56024af1a9eef2a44"
+    },
+    "visual_review": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-selective-visual-review.json",
+      "bytes": 1850,
+      "sha256": "7b2c1ef1d8ccb9b21c05b26e0e19117b454d76951487370d543bd9167e2651ff"
+    },
+    "prepublication_peer": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/candidate-prepublication-independent-peer.json",
+      "bytes": 6058,
+      "sha256": "07907becdf9906b799c78c7946a738bdc20819f8e9a0d7b9db5d588bb0be4617"
+    },
+    "retained_audio_peer": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-audio-qa-independent-readback.json",
+      "bytes": 61593,
+      "sha256": "294a4437ba6998d006be28eefcb74238fe53c00535e2852081bb5310869a74ac"
+    }
+  },
+  "publication_revision": "b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3",
+  "publication_tag": "n676-selective02-20261015-verified",
+  "record_status": {
+    "published": false,
+    "release_hold": false,
+    "media_uploaded": true,
+    "pages_tree_ready": true
+  },
+  "claims": {
+    "fresh_capture": false,
+    "complete_native_clips": false,
+    "resynthesized": false,
+    "current_runtime_audio_freshness": false,
+    "human_listening": false,
+    "native_speaker_acceptance": false
+  },
+  "scope": "Closed packet/source byte comparison and reconciliation of sealed actual export, immutable hosted readback, prepared Pages and completed record evidence. Prior visual/audio/preservation peers retain their stated scopes.",
+  "limits": [
+    "No repeated network, browser, media decode, synthesis or bulk hosted-media hashing.",
+    "Checkpoint published:false is correct before docs.yml deployment of the next committed Pages tree; no final push or live deployment asserted.",
+    "No fresh native capture, current-runtime audio regeneration, full watching, human listening or native-speaker acceptance."
+  ],
+  "resource_cap": "1G; owned lease removed in finally"
+}

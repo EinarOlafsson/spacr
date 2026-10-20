@@ -1,0 +1,9 @@
+{
+  "source_commit": "9f386d9c0ebe9d48a2598c694f45ddbe360f6908",
+  "source_file_sha256": "440903672f940dffca8e020abe9343a271f285ff01d2679c289444a5ebdc593b",
+  "mutation": "Insert <![unexpected]> immediately before real picker <a href=\"README.md\"><picture>, changing nothing else.",
+  "input_sha256": "2a4324a022f8599ed941d1209d8b1b194102f7ac2fa8359c9f409e9c871d7bb4",
+  "execution": "AST-extracted only _readme_picker_links_to_index with re, Counter and HTMLParser from stdlib; no API imports, collector, generation or existing tests.",
+  "actual_result": "AssertionError: unknown status keyword 'unexpected' in marked section",
+  "requested_fix": "Treat the malformed parser input as False; retain normal audit broken-link diagnostic."
+}

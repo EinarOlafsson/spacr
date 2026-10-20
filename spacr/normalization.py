@@ -4,14 +4,14 @@
 the merged stack held, PNG crops narrow once through
 :func:`spacr.crops.narrow_to_uint8` -- the high byte of a uint16, a linear
 rescale rather than a clip -- and measurements are taken from the
-full-precision array. So the structure the request asks for is the structure:
-original precision wherever it can be, one declared narrowing at the only
-boundary that requires one.
+full-precision array. Original precision is kept everywhere except PNG
+output, which is the only format that requires narrowing.
 
 Storage dtype and model input scaling are separate choices.
-``transforms.ToTensor()`` divides by 255 and
-hands the model a float in [0, 1] whatever the file held, so "scale to 0-1"
-is already what happens at the point it matters. The dtype on disk decides
+Classification crops are decoded to RGB
+uint8 by :func:`spacr.classification_pixels.read_classification_image`
+whatever dtype the file held, and ``transforms.ToTensor()`` divides that by
+255, so the model receives floats in [0, 1]. The dtype on disk decides
 file size and what other tools can open the crop -- a storage decision.
 
 The subsequent normalization setting changes the model input. spaCR has
@@ -26,8 +26,8 @@ was fitted on
 
 so a finetune starts by handing pretrained weights inputs distributed
 differently from the ones they learned. A long finetune adapts; a short one,
-or a frozen backbone, pays for it. That was a literal in two places and is
-now a choice.
+or one with a frozen backbone, may perform worse. The normalization is
+therefore a setting.
 
 The default remains ``symmetric`` for compatibility. This is what spaCR has
 always done, and switching it silently would move every existing model's

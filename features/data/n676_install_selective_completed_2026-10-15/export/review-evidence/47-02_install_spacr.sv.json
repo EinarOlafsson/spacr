@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "sv",
+  "title": "Installera spaCR",
+  "description": "Installera med pip i en virtuell Python-miljö, pip i en Conda-miljö eller conda-forge i en Conda-miljö; starta, uppdatera och avinstallera.",
+  "objectives": [
+    "Välj en av tre separata installationsvägar.",
+    "Aktivera rätt miljö före installation eller start.",
+    "Kontrollera den installerade versionen, uppdatera och avinstallera säkert."
+  ],
+  "prerequisite": "Använd Python 3.12 för den virtuella miljön, eller installera Conda/Miniforge för någon av Conda-vägarna. Öppna en terminal. Välj andra namn än befintliga miljöers.",
+  "scenes": [
+    "Välj en installationsväg. Pip installerar spaCR i antingen en virtuell Python-miljö eller en Conda-miljö. Conda-forge installerar i en Conda-miljö; det kan inte installera paket i en virtuell Python-miljö. De tre vägarna nedan är alternativ, så du behöver bara en.",
+    "För pip med en virtuell miljö skapar du en särskild mapp och kör Python 3.12 med -m venv för att skapa .venv. Använd en annan mapp om den redan innehåller en miljö.",
+    "Aktivera .venv före varje installation, uppdatering eller start. I Linux och macOS laddar du skriptet bin/activate med source. I Windows PowerShell kör du .venv\\Scripts\\Activate.ps1. Miljöns kommandoprompt och Python-sökvägen bekräftar vilken tolk du använder.",
+    "Med miljön aktiv uppdaterar du pip och kör sedan pip install spacr. Paketinstallationen innehåller Qt-beroendena som skrivbordsprogrammet använder. Vänta tills installationen av vetenskapliga beroenden och skrivbordsberoenden är klar.",
+    "Kontrollera den installerade versionen och paketets sökväg och kör sedan python -m pip check. Spara versionen med dina analysanteckningar. Den här vägen installerar det publicerade PyPI-paketet; en utcheckning av källkoden eller ett nightly-bygge kan ha nyare gränssnittsfunktioner.",
+    "Kör spacr-doctor och följ vägledningen om saknade beroenden som är relevanta för ditt arbete. Skriv sedan spacr för att starta det installerade programmet. Stäng programmet innan du ändrar dess miljö.",
+    "För pip i Conda skapar du en miljö som heter spacr-pip med Python 3.12 och pip och aktiverar den. Conda tillhandahåller tolken, pip tillhandahåller spaCR. Välj ett annat namn om spacr-pip redan finns.",
+    "Med spacr-pip aktivt uppdaterar du pip och kör pip install spacr. Paketinstallationen innehåller dess Qt-beroenden för skrivbordet. Kontrollera paketversionen och kör pip check, precis som för den virtuella miljön. Starta spacr från samma aktiva miljö.",
+    "För conda-forge skapar du i ett enda kommando en ny miljö som heter spacr-conda med Python 3.12 och spacr från kanalen conda-forge. Att lösa tolken och spaCR tillsammans undviker att lägga paketet i en orelaterad miljö.",
+    "Conda visar sin paketplan före installationen. Granska och godkänn planen och låt nedladdningar och installation slutföras. Den tillgängliga conda-forge-versionen kan skilja sig från den senaste PyPI- eller nightly-versionen.",
+    "Aktivera spacr-conda. Kontrollera Python-miljöns sökväg och kör conda list spacr för att bekräfta installerad version och kanal. Kör sedan spacr-doctor och starta spacr från den här miljön.",
+    "Det här komplementet visar Home i det aktuella nightly-gränssnittet. Din installerade version kan se annorlunda ut. Miljökommandona installerar det publicerade paketet från den valda kanalen; denna vy av aktuell källkod påstår inte att alla nightly-funktioner redan är publicerade.",
+    "För att uppdatera en pip-installation stänger du spaCR, aktiverar dess miljö och kör pip install --upgrade spacr. Kontrollera sedan versionen. Använd pip för spaCR-uppdateringar i båda pip-vägarna, även Conda-miljön som skapades för pip.",
+    "För conda-forge-vägen stänger du spaCR, aktiverar spacr-conda och kör conda update -c conda-forge spacr. Om inget nyare bygge finns meddelar Conda att de begärda paketen redan är installerade. Kontrollera den installerade versionen i stället för att anta att gränssnittet har ändrats.",
+    "För att ta bort en pip-installation aktiverar du dess miljö och kör python -m pip uninstall spacr och godkänner sedan borttagningen. Det tar bort spaCR-paketet. Det tar inte bort dina mikroskopiprojekt eller automatiskt alla beroenden.",
+    "Om .venv skapades enbart för spaCR avaktiverar du miljön och tar bort den särskilda .venv-mappen. För den särskilda Conda-miljön spacr-pip kör du conda deactivate och sedan conda env remove -n spacr-pip. Ta bara bort miljön du skapade för den här handledningen.",
+    "I conda-forge-miljön tar conda remove spacr bort paketet efter att du granskat borttagningsplanen. För att i stället ta bort hela den särskilda miljön avaktiverar du den och kör conda env remove -n spacr-conda. Håll projektmappar separat; att avinstallera miljön är inte att radera analysdata."
+  ]
+}

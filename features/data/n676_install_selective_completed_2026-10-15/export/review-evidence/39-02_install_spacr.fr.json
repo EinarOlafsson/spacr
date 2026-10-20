@@ -1,0 +1,41 @@
+{
+  "lesson": "02_install_spacr",
+  "english_sha256": "ebd31960772d2090c7c0e9442bafffdcb0d34bbf1905dc562a1829bf87c0f051",
+  "review": {
+    "kind": "AI technical review of exact authored English; unchanged native narration retained verbatim",
+    "translator": "Codex AI, direct source-bound technical translation",
+    "date": "2026-10-08",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three isolated installation alternatives, user-requested plain pip commands with Qt dependencies retained, published/nightly distinction, and operating-system uninstall routes; no synthesis or listening claim"
+  },
+  "language": "fr",
+  "title": "Installer spaCR",
+  "description": "Installer avec pip dans un environnement virtuel Python, avec pip dans un environnement Conda ou avec conda-forge dans un environnement Conda ; lancer, mettre à jour et désinstaller.",
+  "objectives": [
+    "Choisir l’une des trois méthodes d’installation isolées.",
+    "Activer le bon environnement avant d’installer ou de lancer l’application.",
+    "Vérifier la version installée, mettre à jour et désinstaller de façon sûre."
+  ],
+  "prerequisite": "Utilisez Python 3.12 pour l’environnement virtuel, ou installez Conda/Miniforge pour l’une des deux méthodes Conda. Ouvrez un terminal. Choisissez des noms distincts des environnements existants.",
+  "scenes": [
+    "Choisissez une méthode d’installation. Pip installe spaCR dans un environnement virtuel Python ou dans un environnement Conda. Conda-forge installe dans un environnement Conda ; il ne peut pas installer de paquets dans un environnement virtuel Python. Les trois méthodes suivantes sont des alternatives : une seule suffit.",
+    "Pour utiliser pip avec un environnement virtuel, créez un dossier dédié et exécutez Python trois point douze avec tiret m venv pour créer point venv. Utilisez un autre dossier s’il contient déjà un environnement.",
+    "Activez point venv avant chaque installation, mise à jour ou lancement. Sous Linux et macOS, chargez son script bin barre oblique activate avec source. Dans Windows PowerShell, exécutez point venv barre oblique inversée Scripts barre oblique inversée Activate point ps un. L’invite de l’environnement et le chemin Python confirment l’interpréteur utilisé.",
+    "Avec l’environnement actif, mettez pip à jour, puis exécutez pip install spacr. L’installation du paquet comprend les dépendances Qt utilisées par l’application de bureau. Attendez la fin de l’installation des dépendances scientifiques et de bureau.",
+    "Vérifiez la version installée et le chemin du paquet, puis exécutez python tiret m pip check. Conservez la version avec vos notes d’analyse. Cette méthode installe le paquet publié sur PyPI ; une copie du code source ou une version nightly peut proposer des fonctions d’interface plus récentes.",
+    "Exécutez spacr-doctor et suivez les conseils concernant les dépendances manquantes utiles à votre travail. Saisissez ensuite spacr pour lancer l’application installée. Fermez l’application avant de modifier son environnement.",
+    "Pour utiliser pip dans Conda, créez un environnement nommé spacr-pip avec Python trois point douze et pip, puis activez-le. Conda fournit l’interpréteur ; pip fournira spaCR. Choisissez un autre nom si spacr-pip existe déjà.",
+    "Avec spacr-pip actif, mettez pip à jour et exécutez pip install spacr. L’installation du paquet comprend ses dépendances Qt de bureau. Vérifiez la version du paquet et exécutez pip check, comme pour l’environnement virtuel. Lancez spacr depuis ce même environnement actif.",
+    "Pour conda-forge, créez en une seule commande un nouvel environnement nommé spacr-conda avec Python trois point douze et spacr provenant du canal conda-forge. Résoudre l’interpréteur et spaCR ensemble évite d’ajouter le paquet à un environnement sans rapport.",
+    "Conda affiche son plan de paquets avant l’installation. Examinez-le, acceptez-le et laissez les téléchargements et l’installation se terminer. La version disponible sur conda-forge peut différer de la dernière version PyPI ou nightly.",
+    "Activez spacr-conda. Vérifiez le chemin de l’environnement Python et exécutez conda list spacr pour confirmer la version installée et le canal. Exécutez ensuite spacr-doctor et lancez spacr depuis cet environnement.",
+    "Ce complément montre l’interface Home de la version nightly actuelle. Votre version installée peut avoir une autre apparence. Les commandes d’environnement installent le paquet publié sur le canal choisi ; cette vue du code actuel n’affirme pas que toutes les fonctions nightly sont déjà publiées.",
+    "Pour mettre à jour une installation pip, fermez spaCR, activez son environnement et exécutez pip install tiret tiret upgrade spacr. Vérifiez ensuite la version. Utilisez pip pour mettre spaCR à jour dans les deux méthodes pip, y compris l’environnement Conda créé pour pip.",
+    "Pour la méthode conda-forge, fermez spaCR, activez spacr-conda et exécutez conda update tiret c conda-forge spacr. Si aucune version plus récente n’est disponible, Conda indique que les paquets demandés sont déjà installés. Vérifiez la version installée plutôt que de supposer que l’interface a changé.",
+    "Pour supprimer une installation pip, activez son environnement et exécutez python tiret m pip uninstall spacr, puis acceptez la confirmation de suppression. Cela supprime le paquet spaCR. Cela ne supprime ni vos projets de microscopie ni automatiquement toutes les dépendances.",
+    "Si point venv a été créé uniquement pour spaCR, désactivez-le et supprimez ce dossier point venv dédié. Pour l’environnement Conda dédié spacr-pip, exécutez conda deactivate, puis conda env remove tiret n spacr-pip. Supprimez uniquement l’environnement créé pour ce tutoriel.",
+    "Dans l’environnement conda-forge, conda remove spacr supprime le paquet après examen du plan de suppression. Pour supprimer plutôt l’ensemble de l’environnement dédié, désactivez-le et exécutez conda env remove tiret n spacr-conda. Conservez vos dossiers de projets séparément ; désinstaller l’environnement ne signifie pas supprimer vos données d’analyse."
+  ]
+}

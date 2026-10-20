@@ -264,7 +264,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Not zeros: a plate at rest still has a plate, and the backdrop has to idle beautifully rather than go out. The engine reads this as \"breathe slowly on your own clock\", which is what :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` is for.",
       "source_sha256": "f488b733896591ea10307dc05c4c6cd55996eeccb8772d4567e69199cd85064f",
-      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til."
+      "translation": "Ekki núll: plata í hvíld er samt plata, og bakgrunnurinn verður að vera aðgerðalaus á fallegan hátt frekar en að slokkna. Vélin les þetta sem „andaðu hægt eftir eigin klukku“, sem er það sem :data:`spacr.qt.widgets.ambient.RESONANCE_IDLE` er til.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "an all-zero moment.",
@@ -1393,7 +1396,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the settings to submit; a shallow copy is kept and used instead of a settings file until the path field is edited.",
       "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50",
-      "translation": "stillingarnar sem á að senda inn; grunnt afrit er geymt og notað í stað stillingaskrár þar til slóðarreitnum er breytt."
+      "translation": "stillingarnar sem á að senda inn; grunnt afrit er geymt og notað í stað stillingaskrár þar til slóðarreitnum er breytt.",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "context": "the hide event; passed on unchanged to the base class.",
@@ -1417,7 +1422,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**The Curve picker offers the asymmetric model and does not choose it.** Four-parameter is what Fit uses until someone says otherwise, and a five-parameter fit says in its own report whether the fifth parameter earned itself. A screen that picked the better-fitting model per group would hand back a plate whose EC50s came from two different models, compared as though they had not.",
       "source_sha256": "88ffdf0cc95f3d1795b6eaee4e9066d4afa3e4a45aaddeb64c23a5c2c638983f",
-      "translation": "**Curve-valglugginn býður ósamhverfa líkanið en velur það ekki.** Fjögurra færibreytu líkanið er það sem Fit notar þar til einhver segir annað, og aðlögun með fimm færibreytum segir í eigin skýrslu hvort fimmta færibreytan borgaði fyrir sig. Skjámynd sem veldi betur aðlagaða líkanið fyrir hvern hóp myndi skila plötu þar sem EC50s komu úr tveimur ólíkum líkönum, borin saman eins og svo væri ekki."
+      "translation": "**Curve-valglugginn býður ósamhverfa líkanið en velur það ekki.** Fjögurra færibreytu líkanið er það sem Fit notar þar til einhver segir annað, og aðlögun með fimm færibreytum segir í eigin skýrslu hvort fimmta færibreytan borgaði fyrir sig. Skjámynd sem veldi betur aðlagaða líkanið fyrir hvern hóp myndi skila plötu þar sem EC50s komu úr tveimur ólíkum líkönum, borin saman eins og svo væri ekki.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the measurement table; its columns fill the concentration, response, group, laboratory microplate, control, host and second-dose pickers.",
@@ -1441,7 +1448,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**What it is for.** Giving every object a vector that no label went into. The measured panel says how big a cell is and how bright each stain was; an embedding says what the cell LOOKS like, in a few hundred numbers a pretrained backbone produces without being told what to look for. That is what makes it worth having beside the panel rather than instead of it -- a phenotype nobody thought to measure is in the vector, and is in no column.",
       "source_sha256": "feab472a4a0d56851e6f39e72585f4c4adfa529a7492a0d6a39dda6468fe9204",
-      "translation": "**Til hvers það er.** Að gefa hverjum hlut vigur sem ekkert merki fór inn í. Mælda spjaldið segir hversu stór fruma er og hversu björt hver litun var; innfelling segir hvernig fruman LÍTUR ÚT, í nokkur hundruð tölum sem forþjálfað grunnnet framleiðir án þess að vera sagt að hverju eigi að leita. Það er það sem gerir hana verðmæta við hlið spjaldsins frekar en í stað þess -- svipgerð sem engum datt í hug að mæla er í vigrinum, og er í engum dálki."
+      "translation": "**Til hvers það er.** Að gefa hverjum hlut vigur sem ekkert merki fór inn í. Mælda spjaldið segir hversu stór fruma er og hversu björt hver litun var; innfelling segir hvernig fruman LÍTUR ÚT, í nokkur hundruð tölum sem forþjálfað grunnnet framleiðir án þess að vera sagt að hverju eigi að leita. Það er það sem gerir hana verðmæta við hlið spjaldsins frekar en í stað þess -- svipgerð sem engum datt í hug að mæla er í vigrinum, og er í engum dálki.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it needs.** Extracted image regions, and a choice about the channels. The extracted image regions come from the row at the top of the application view, which is :mod:`spacr.crop_loader`: either a ``measurements.db``, narrowed to one object class, one laboratory microplate or any condition its extracted-image-region table supports, or a folder of extracted image region PNGs. Whichever it is, the pixels are read the way every other application view reads them -- :func:`spacr.crops.resolve_crop_source` decides between the extracted image regions already under ``data/`` and cutting them from ``merged/*.npy``, and says which it chose. Nothing has to be prepared first: a laboratory microplate that has been through Measure with extracted image region output on is ready.",
@@ -1467,7 +1476,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**What to do next.** Treat the columns as a feature source, not as a result. They are consumed exactly as the measured panel is -- a reduction to see whether the objects separate, a regression against the perturbation, a retrieval to find the objects most like one you picked. Which is also the warning the screen repeats under the table: a single dimension is not a phenotype, and the only honest way to read one of these numbers is through something that takes the whole vector.",
       "source_sha256": "27b053b768ec700ceb0403d50c8e6d31c2753cbd6f9aa1e812bdf94b4ff706e1",
-      "translation": "**Hvað næst.** Meðhöndla dálkana sem uppsprettu eiginleika, ekki sem niðurstöðu. Þeir eru notaðir nákvæmlega eins og mælda spjaldið -- víddaminnkun til að sjá hvort hlutirnir aðskiljast, aðhvarf á móti inngripinu, leit að þeim hlutum sem líkjast mest einum sem þú valdir. Sem er líka viðvörunin sem endurtekin er undir töflunni: stök vídd er ekki svipgerð, og eina heiðarlega leiðin til að lesa eina af þessum tölum er í gegnum eitthvað sem tekur allan vigurinn."
+      "translation": "**Hvað næst.** Meðhöndla dálkana sem uppsprettu eiginleika, ekki sem niðurstöðu. Þeir eru notaðir nákvæmlega eins og mælda spjaldið -- víddaminnkun til að sjá hvort hlutirnir aðskiljast, aðhvarf á móti inngripinu, leit að þeim hlutum sem líkjast mest einum sem þú valdir. Sem er líka viðvörunin sem endurtekin er undir töflunni: stök vídd er ekki svipgerð, og eina heiðarlega leiðin til að lesa eina af þessum tölum er í gegnum eitthvað sem tekur allan vigurinn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The extracted image region loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a background execution unit, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
@@ -1475,7 +1486,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The crop loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a worker thread, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
       "source_sha256": "efa905cc9d85d0b55f405c6708fbb7b889cfca53a9a71fe22c8043374f250fcf",
-      "translation": "Myndskurðahleðslan fyrir ofan stýringar kóðarans er inngangspunktur skjámyndarinnar: :mod:`spacr.crop_loader` skipuleggur valið, þessi skjámynd flettir í gegnum það á vinnsluþræði, og :meth:`set_crops` -- sem áður var aðeins hægt að ná í úr Python -- er það sem hver lokin hleðsla kallar á."
+      "translation": "Myndskurðahleðslan fyrir ofan stýringar kóðarans er inngangspunktur skjámyndarinnar: :mod:`spacr.crop_loader` skipuleggur valið, þessi skjámynd flettir í gegnum það á vinnsluþræði, og :meth:`set_crops` -- sem áður var aðeins hægt að ná í úr Python -- er það sem hver lokin hleðsla kallar á.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``False`` runs the embedding and the extracted image region load inline, emitting the same signals in the same order, so a test drives the screen synchronously without the behaviour diverging.",
@@ -1507,7 +1520,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The stop flag is set FIRST. ``shutdown`` waits a bounded time and then parks a worker that outlasts it, so a load told to stop between pages finishes in one page instead of reading the rest of the plate into an array whose screen has gone.",
       "source_sha256": "940621b8ce4edb757e3bbc40852030570c090827c47dd1a8c8f0ab3ca20226db",
-      "translation": "Stöðvunarflaggið er stillt FYRST. ``shutdown`` bíður afmarkaðan tíma og leggur síðan til hliðar vinnsluþræði sem endist lengur, svo hleðsla sem sagt er að stöðva milli síðna lýkur á einni síðu í stað þess að lesa restina af plötunni inn í fylki þar sem skjámyndin er horfin."
+      "translation": "Stöðvunarflaggið er stillt FYRST. ``shutdown`` bíður afmarkaðan tíma og leggur síðan til hliðar vinnsluþræði sem endist lengur, svo hleðsla sem sagt er að stöðva milli síðna lýkur á einni síðu í stað þess að lesa restina af plötunni inn í fylki þar sem skjámyndin er horfin.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The :class:`spacr.crop_loader.CropQuery` the controls describe.",
@@ -1547,7 +1562,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
       "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205",
-      "translation": "Myndskurðahleðsla telst með. Hún er langlengra verkið af þeim tveimur -- plata af myndskurðum af nettengdu drifi tekur mínútur -- og skjámynd sem tilkynnti sig aðgerðalausa á meðan myndi leyfa glugganum að lokast yfir lifandi lestri."
+      "translation": "Myndskurðahleðsla telst með. Hún er langlengra verkið af þeim tveimur -- plata af myndskurðum af nettengdu drifi tekur mínútur -- og skjámynd sem tilkynnti sig aðgerðalausa á meðan myndi leyfa glugganum að lokast yfir lifandi lestri.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Embedding runner lifecycle documentation corrected in f35b59248ae + efe3784e64a. Replacement exact-source review is2026-10-15-f561-lifecycle-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Whether an extracted image region load is in flight.",
@@ -1571,7 +1589,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO JOBS, NOT ONE, and the split is the point: planning is a count and a select, so it comes back in milliseconds and the screen can say what was matched -- or why nothing was -- before committing to read a single pixel. Only then does the second job start, and it reports after every page.",
       "source_sha256": "9a32c20722c0e0eac213e341635d0907d9d2eeb9902b22b90c428cb1dabe8931",
-      "translation": "TVÖ VERK, EKKI EITT, og skiptingin er kjarni málsins: skipulagning er talning og val, svo hún skilar sér á millisekúndum og skjámyndin getur sagt hvað passaði -- eða hvers vegna ekkert gerði það -- áður en hún skuldbindur sig til að lesa einn einasta pixil. Aðeins þá hefst seinna verkið, og það tilkynnir eftir hverja síðu."
+      "translation": "TVÖ VERK, EKKI EITT, og skiptingin er kjarni málsins: skipulagning er talning og val, svo hún skilar sér á millisekúndum og skjámyndin getur sagt hvað passaði -- eða hvers vegna ekkert gerði það -- áður en hún skuldbindur sig til að lesa einn einasta pixil. Aðeins þá hefst seinna verkið, og það tilkynnir eftir hverja síðu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Stop a load between pages, keeping the pages already read.",
@@ -1899,7 +1919,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The SAME list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
       "source_sha256": "d73c9885b1f5c35f67498044a8d03246049409a1173b4aeea479044957075f30",
-      "translation": "SAMI listinn og ``metadata_type`` í Mask býður, lesinn úr :func:`spacr.regex_infer._metadata_convention_menu`, svo plata sem Mask getur þáttað er plata sem Import getur þáttað og listarnir tveir geta ekki fjarlægst. Möppur koma fyrst því þær eru það sem Import gerði áður en það þekkti nokkra venju; venjur framleiðenda fylgja í framleiðendaröð Mask, hver merkt með framleiðanda sínum og merkt þegar spaCR er að giska á hana."
+      "translation": "SAMI listinn og ``metadata_type`` í Mask býður, lesinn úr :func:`spacr.regex_infer._metadata_convention_menu`, svo plata sem Mask getur þáttað er plata sem Import getur þáttað og listarnir tveir geta ekki fjarlægst. Möppur koma fyrst því þær eru það sem Import gerði áður en það þekkti nokkra venju; venjur framleiðenda fylgja í framleiðendaröð Mask, hver merkt með framleiðanda sínum og merkt þegar spaCR er að giska á hana.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the choices, ``NAMING_AUTO`` first.",
@@ -1999,7 +2021,7 @@
     },
     {
       "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
       "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
@@ -2055,7 +2077,7 @@
     },
     {
       "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
       "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",
@@ -2197,7 +2219,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "return ``None`` for the panel and leave the card's body empty. The screen fills it with :func:`_fill_hyperparam_card` when the card is first shown, so a module whose search nobody opens does not build and polish its ~130 widgets at open.",
       "source_sha256": "2a689c51c0e247988eaf0b88c222d0589eef8ca2a4113a555b44a0a4de6f2a47",
-      "translation": "skila ``None`` fyrir spjaldið og skilja meginhluta kortsins eftir tóman. Skjámyndin fyllir hann með :func:`_fill_hyperparam_card` þegar kortið er fyrst sýnt, svo eining þar sem enginn opnar leitina byggir hvorki né fágar ~130 græjur sínar við opnun."
+      "translation": "skila ``None`` fyrir spjaldið og skilja meginhluta kortsins eftir tóman. Skjámyndin fyllir hann með :func:`_fill_hyperparam_card` þegar kortið er fyrst sýnt, svo eining þar sem enginn opnar leitina byggir hvorki né fágar ~130 græjur sínar við opnun.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "parameter name to value.",
@@ -3268,7 +3292,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Three things stacked, and the order is the order the questions come in:",
       "source_sha256": "ff153ab88987be36b2d7ce5021d193f746d9ea93c35c5d913dbe25d74add3896",
-      "translation": "Þrennt staflað, og röðin er sú röð sem spurningarnar koma í:"
+      "translation": "Þrennt staflað, og röðin er sú röð sem spurningarnar koma í:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. :class:`spacr.qt.widgets.measure_input_table.MeasureInputTable` -- which file is which image data channel, and which is which object. 2. The Measure module's OWN settings form, built from :class:`spacr.qt.screens.settings_model.SettingsWidgets`. Not a copy of it and not a chosen subset: the same widgets the Measure application view builds, from the same defaults, so a setting that exists there exists here and a setting that gains a control there gains one here without this file being edited. 3. Run, off the main GUI execution path, through :func:`spacr.measure.measure_from_field_table` -- which writes the folders the Mask module would have written and then calls ``measure_crop`` itself. The database and the folder tree are Measure's because Measure makes them.",
@@ -3284,7 +3310,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT IS A ``QDialog``, AND THAT IS WHAT MAKES IT LOOK LIKE spaCR. It used to be a bare ``QWidget`` shown with the ``Qt.Window`` flag, which meant the operating system's own title bar, square corners, an opaque background and minimise/maximise/close buttons -- a window from a different program sitting in the middle of this one. :mod:`spacr.qt.widgets.glass` gives every dialog in the package the translucent card, the rounded corners and the travelling rim, and it recognises a dialog by its TYPE. So the dress is not applied here; being a dialog is.",
       "source_sha256": "c83ae4894af52aae3c2d2afff5cc829069039a6b65dd93b65d15152c96defa71",
-      "translation": "ÞETTA ER ``QDialog``, OG ÞAÐ ER ÞAÐ SEM LÆTUR ÞAÐ LÍTA ÚT EINS OG spaCR. Það var áður ber ``QWidget`` sýnd með ``Qt.Window`` flagginu, sem þýddi eigin titilstiku stýrikerfisins, ferhyrnd horn, ógegnsæjan bakgrunn og lágmörkunar-/hámörkunar-/lokunarhnappa -- gluggi úr öðru forriti sitjandi í miðju þessa. :mod:`spacr.qt.widgets.glass` gefur hverjum glugga í pakkanum hálfgegnsæja spjaldið, rúnnuðu hornin og ferðandi brúnina, og það þekkir glugga eftir GERÐ hans. Búningnum er því ekki beitt hér; það að vera gluggi er það sem gerir það."
+      "translation": "ÞETTA ER ``QDialog``, OG ÞAÐ ER ÞAÐ SEM LÆTUR ÞAÐ LÍTA ÚT EINS OG spaCR. Það var áður ber ``QWidget`` sýnd með ``Qt.Window`` flagginu, sem þýddi eigin titilstiku stýrikerfisins, ferhyrnd horn, ógegnsæjan bakgrunn og lágmörkunar-/hámörkunar-/lokunarhnappa -- gluggi úr öðru forriti sitjandi í miðju þessa. :mod:`spacr.qt.widgets.glass` gefur hverjum glugga í pakkanum hálfgegnsæja spjaldið, rúnnuðu hornin og ferðandi brúnina, og það þekkir glugga eftir GERÐ hans. Búningnum er því ekki beitt hér; það að vera gluggi er það sem gerir það.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Its actions are at the bottom right, in the order every spaCR dialog uses: the thing you came to do in the accent colour (Measure, ``PrimaryButton``), and the way out in red beside it (Close, ``DangerButton``). Escape is the other way out, and closes rather than hides -- see :meth:`reject`.",
@@ -3300,7 +3328,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE SETTINGS THE TABLE DECIDES ARE SHOWN AND DISABLED rather than hidden. ``cell_mask_dim`` is not a question once the table says which column holds the cell masks, but a user who has read the Measure documentation comes here looking for it, and a control that is missing reads as a feature that is missing. Shown, filled in, and not editable says the table already answered it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and it is derived from the plane order rather than written out again here.",
       "source_sha256": "5e3814c4025a3b17e8b89ca036e3cf49aba6a8e9396e0f98b227048ce87482d8",
-      "translation": "STILLINGARNAR SEM TAFLAN ÁKVEÐUR ERU SÝNDAR OG ÓVIRKAR frekar en faldar. ``cell_mask_dim`` er ekki spurning þegar taflan segir hvaða dálkur geymir frumugrímurnar, en notandi sem hefur lesið Measure-skjölunina kemur hingað að leita að henni, og stýring sem vantar lesist sem eiginleiki sem vantar. Sýnd, útfyllt og ekki breytanleg segir að taflan hafi þegar svarað henni. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` er listinn, og hann er leiddur út frá röð laganna frekar en skrifaður út aftur hér."
+      "translation": "STILLINGARNAR SEM TAFLAN ÁKVEÐUR ERU SÝNDAR OG ÓVIRKAR frekar en faldar. ``cell_mask_dim`` er ekki spurning þegar taflan segir hvaða dálkur geymir frumugrímurnar, en notandi sem hefur lesið Measure-skjölunina kemur hingað að leita að henni, og stýring sem vantar lesist sem eiginleiki sem vantar. Sýnd, útfyllt og ekki breytanleg segir að taflan hafi þegar svarað henni. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` er listinn, og hann er leiddur út frá röð laganna frekar en skrifaður út aftur hér.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Table, Measure's settings, and a processing session that goes through Measure.",
@@ -3388,7 +3418,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Qt ABORTS THE PROCESS if a running ``QThread`` is destroyed, and this window is closable while a measure run -- minutes of work -- is in flight. :func:`spacr.qt.job_runner.shutdown_all` covers the application quitting; it does not cover one window being closed.",
       "source_sha256": "066f94a545e8a5d4f0dad71984e3916d729a5017dab57df2239e57ae4ce7b7dd",
-      "translation": "Qt STÖÐVAR FERLIÐ ef ``QThread`` í keyrslu er eytt, og hægt er að loka þessum glugga á meðan mælingakeyrsla -- mínútna vinna -- er í gangi. :func:`spacr.qt.job_runner.shutdown_all` nær yfir það þegar forritið hættir; það nær ekki yfir það þegar einum glugga er lokað."
+      "translation": "Qt STÖÐVAR FERLIÐ ef ``QThread`` í keyrslu er eytt, og hægt er að loka þessum glugga á meðan mælingakeyrsla -- mínútna vinna -- er í gangi. :func:`spacr.qt.job_runner.shutdown_all` nær yfir það þegar forritið hættir; það nær ekki yfir það þegar einum glugga er lokað.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt close event.",
@@ -3412,7 +3444,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The same call the run makes, so what this returns is what would happen rather than a second opinion about it.",
       "source_sha256": "712188e34a5efaa50140f29a2986190b51cef69e2e20377e1da3211fb7db6cb1",
-      "translation": "Sama kall og keyrslan gerir, svo það sem þetta skilar er það sem myndi gerast frekar en annað álit á því."
+      "translation": "Sama kall og keyrslan gerir, svo það sem þetta skilar er það sem myndi gerast frekar en annað álit á því.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Where the next run would write, as far as this window knows.",
@@ -3436,7 +3470,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE HOOK IS ``done`` AND NOT ``reject``, and not ``closeEvent`` alone. Escape reaches ``reject``, which hides the window WITHOUT a close event, and that would leave a measure run -- minutes of work, on a thread -- going behind a window nobody can see; a running ``QThread`` destroyed at exit aborts the process. Overriding ``reject`` to close instead looks like the fix and is a loop: ``QDialog.closeEvent`` itself calls ``reject``.",
       "source_sha256": "33a5fc7e3409b4e4f15a0b8d6c615c56c77d2569ed4bfe8060f6783f3e5e41c9",
-      "translation": "KRÓKURINN ER ``done`` EN EKKI ``reject``, og ekki ``closeEvent`` eitt og sér. Escape nær til ``reject``, sem felur gluggann ÁN lokunaratburðar, og það myndi skilja mælingakeyrslu -- mínútna vinnu, á þræði -- eftir í gangi á bak við glugga sem enginn getur séð; ``QThread`` í keyrslu sem eytt er við lokun stöðvar ferlið. Að yfirskrifa ``reject`` til að loka í staðinn lítur út eins og lagfæringin en er lykkja: ``QDialog.closeEvent`` kallar sjálft á ``reject``."
+      "translation": "KRÓKURINN ER ``done`` EN EKKI ``reject``, og ekki ``closeEvent`` eitt og sér. Escape nær til ``reject``, sem felur gluggann ÁN lokunaratburðar, og það myndi skilja mælingakeyrslu -- mínútna vinnu, á þræði -- eftir í gangi á bak við glugga sem enginn getur séð; ``QThread`` í keyrslu sem eytt er við lokun stöðvar ferlið. Að yfirskrifa ``reject`` til að loka í staðinn lítur út eins og lagfæringin en er lykkja: ``QDialog.closeEvent`` kallar sjálft á ``reject``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Qt's dialog code, passed straight on.",
@@ -3540,7 +3576,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE FOLDER IS NOT READ HERE. This runs in the Make Masks button handler, on the GUI thread, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
       "source_sha256": "0245540ddf0fa85b0368b85b0be0fd1f4df470512e2ea1cdef054850a1dfa2e1",
-      "translation": "MAPPAN ER EKKI LESIN HÉR. Þetta keyrir í hnappameðhöndlara Make Masks, á GUI-þræðinum, og ``folder`` er slóð sem notandinn valdi -- á smásjárbúnaði, sameignardrifið sem myndirnar eru á. Áður var keyrt ``isdir`` og ``listdir`` á hana og stat á hverja færslu áður en glugginn var jafnvel sýndur, svo að ýta á FEATURES á möppu á sofandi sjálfvirkri tengingu fraus forritið án rakningar. Yfirferðin tilheyrir :meth:`MeasureInputTable.add_dropped`, á vinnsluþræði, og taflan fyllist augnabliki síðar."
+      "translation": "MAPPAN ER EKKI LESIN HÉR. Þetta keyrir í hnappameðhöndlara Make Masks, á GUI-þræðinum, og ``folder`` er slóð sem notandinn valdi -- á smásjárbúnaði, sameignardrifið sem myndirnar eru á. Áður var keyrt ``isdir`` og ``listdir`` á hana og stat á hverja færslu áður en glugginn var jafnvel sýndur, svo að ýta á FEATURES á möppu á sofandi sjálfvirkri tengingu fraus forritið án rakningar. Yfirferðin tilheyrir :meth:`MeasureInputTable.add_dropped`, á vinnsluþræði, og taflan fyllist augnabliki síðar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Write one value into whichever kind of control holds it.",
@@ -3556,7 +3594,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE TRAP THIS EXISTS FOR: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A run configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
       "source_sha256": "838af7f7634f688891241ed5aa3b2db8f48a6f6f8ec4588a4098e3d940b24e15",
-      "translation": "GILDRAN SEM ÞETTA ER TIL FYRIR: aðeins sumar stillingastýringarnar hafa ``set_value`` aðferð. ``cell_min_size`` er venjulegt ``QSpinBox``, og skrifari sem prófar ``hasattr(widget, 'set_value')`` sleppir því -- hljóðlaust, og skilur sjálfgefna gildið 8000 eftir á sínum stað. Keyrsla sem er stillt þannig mælir ekkert og tilkynnir árangur, því hver hlutur var minni en lágmark sem enginn valdi."
+      "translation": "GILDRAN SEM ÞETTA ER TIL FYRIR: aðeins sumar stillingastýringarnar hafa ``set_value`` aðferð. ``cell_min_size`` er venjulegt ``QSpinBox``, og skrifari sem prófar ``hasattr(widget, 'set_value')`` sleppir því -- hljóðlaust, og skilur sjálfgefna gildið 8000 eftir á sínum stað. Keyrsla sem er stillt þannig mælir ekkert og tilkynnir árangur, því hver hlutur var minni en lágmark sem enginn valdi.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The coercions are the ones :meth:`spacr.qt.screens.app_screen.AppScreen._apply_value` makes, kept in step with it by hand. They are not shared yet because that method is bound to an application view this window is not one of; if a third caller appears, move it rather than copying it again.",
@@ -3732,7 +3772,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
       "source_sha256": "60937aa50d32a4631226239f7dd53def42dee5504af026e672f1aac1e14e99dc",
-      "translation": "Líkanasafnið sýndi áður eina röð fyrir hvern vistunarpunkt, svo líkan með þrjár útgáfur ýtti tveimur óskyldum líkönum af skjánum. Flokkun gerir röðina að LÍKANI og útgáfuna að vali innan þess."
+      "translation": "Líkanasafnið sýndi áður eina röð fyrir hvern vistunarpunkt, svo líkan með þrjár útgáfur ýtti tveimur óskyldum líkönum af skjánum. Flokkun gerir röðina að LÍKANI og útgáfuna að vali innan þess.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Explore organism guides and open the available image-analysis modules.",
@@ -3759,14 +3801,14 @@
       "translation": "Toxoplasma"
     },
     {
-      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
       "label": "spacr.qt.screens.organism_screen#3",
       "retired": true,
       "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded.",
       "review_basis": "written from the English (no current MT draft)",
-      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
-      "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
-      "translation": "Opnaðu Home > Toxoplasma og veldu Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay eða Replication Assay. Valin eining leggur til inntaksvalglugga sína, stillingar, forsýn og Run-stýringar. Notaðu Test data-stýringu hennar þegar dæmi er tiltækt. Plaque Assay byrjar á myndum; hinar mælingarnar nota samsvarandi mælitöflur og tengsl hluta. Fylgdu inntakshjálp hverrar einingar fyrir keyrslu, og opnaðu síðan niðurstöðurnar í valinni úttaksmöppu hennar. Starplast opnar sérstakt forrit til að skoða þekkingarkort Toxoplasma; fyrsta ræsing þess býður uppsetningu."
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "source_sha256": "bbb98f62352489e8d75908c1f37666b738e44e897fd09d05861a503b0cbb6334",
+      "translation": "Opnaðu Home > Toxoplasma og veldu Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay eða Replication Assay. Valin eining leggur til inntaksvalglugga sína, stillingar, forsýn og Run-stýringar. Notaðu Test data-stýringu hennar þegar dæmi er tiltækt. Plaque Assay byrjar á myndum; hinar mælingarnar nota samsvarandi mælitöflur og tengsl hluta. Fylgdu inntakshjálp hverrar einingar fyrir keyrslu, og opnaðu síðan niðurstöðurnar í valinni úttaksmöppu hennar. ParaScape opnar sérstakt forrit til að skoða þekkingarkort Toxoplasma; fyrsta ræsing þess býður uppsetningu."
     },
     {
       "context": "Plasmodium",
@@ -4268,7 +4310,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Audit several label stacks and compare their frame intervals.",
       "source_sha256": "e0244d2fa2d3905a7b33993282b5e32f918073efb26182e3b3af931aa20dd9f8",
-      "translation": "Taka út nokkra merkjastafla og bera saman rammabil þeirra."
+      "translation": "Taka út nokkra merkjastafla og bera saman rammabil þeirra.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "mapping of dataset name to label stack.",
@@ -4316,7 +4360,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Answer step 1's four questions about one label stack, as a table.",
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
-      "translation": "Svara fjórum spurningum skrefs 1 um einn merkjastafla, sem töflu."
+      "translation": "Svara fjórum spurningum skrefs 1 um einn merkjastafla, sem töflu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
@@ -4364,7 +4410,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A distinct name for each stack path, as short as it can be.",
       "source_sha256": "6d38379f24b9f885ab0d8e5496a3ab096fac4699dda09b2f2834b613d05f1e7e",
-      "translation": "Sérstakt heiti fyrir hverja staflaslóð, eins stutt og það getur verið."
+      "translation": "Sérstakt heiti fyrir hverja staflaslóð, eins stutt og það getur verið.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Named after the last path component, the fourteen Cell Tracking Challenge movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed on that, each overwrote the one before, so only the last was audited (found 2026-09-21, the first run on real movies). A name that repeats takes in parent folders until every name is unique.",
@@ -4396,7 +4444,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Per-frame displacement of every label that survives a frame.",
       "source_sha256": "d07c5d195586d997386e24b5ed457687a0a1a583be763a00123e9834791ded48",
-      "translation": "Tilfærsla milli ramma fyrir hvert merki sem lifir af ramma."
+      "translation": "Tilfærsla milli ramma fyrir hvert merki sem lifir af ramma.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
@@ -4404,7 +4454,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
-      "translation": "Aðeins SAMLIGGJANDI rammar eru mældir. Merki sem birtist aftur eftir eyðu leggur ekkert til hér, því vegalengdin sem það fór er ekki tilfærsla milli ramma og ef hún væri tekin með í meðaltalið myndi hún blása upp töluna sem þessi eining er til að birta."
+      "translation": "Aðeins SAMLIGGJANDI rammar eru mældir. Merki sem birtist aftur eftir eyðu leggur ekkert til hér, því vegalengdin sem það fór er ekki tilfærsla milli ramma og ef hún væri tekin með í meðaltalið myndi hún blása upp töluna sem þessi eining er til að birta.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table :func:`label_frames` returns.",
@@ -4428,7 +4480,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Find divisions and say which labelling convention they follow.",
       "source_sha256": "a813ede0621a64e1731b9708e294d61e22fcf3fb68a4107903adc0224cb5de14",
-      "translation": "Finna skiptingar og segja hvaða merkingarvenju þær fylgja."
+      "translation": "Finna skiptingar og segja hvaða merkingarvenju þær fylgja.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A child is called an object's child when at least ``child_overlap`` of the child's own area came from that object. Two or more children of one parent in one step is a division, and the convention is read off the ids: either one child carries the parent's id forward, or both children are new.",
@@ -4460,7 +4514,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Render a QC table as aligned text.",
       "source_sha256": "ed46e52b6214ea37e414e20cf9dae07f4fac81d4cedbda00c027bd6a4d96c904",
-      "translation": "Birta QC-töflu sem jafnaðan texta."
+      "translation": "Birta QC-töflu sem jafnaðan texta.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table :func:`audit_label_consistency` returns.",
@@ -4492,7 +4548,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Reduce frame timing to an interval and a verdict about its constancy.",
       "source_sha256": "ec30cf326ea8df806e15a5f9787749eb8359b294d221fa481de9fffc9ce37a93",
-      "translation": "Draga tímasetningu ramma saman í bil og úrskurð um hvort það sé stöðugt."
+      "translation": "Draga tímasetningu ramma saman í bil og úrskurð um hvort það sé stöðugt.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "acquisition time of each frame, in any one unit. Two frames are the minimum that says anything.",
@@ -4532,7 +4590,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Measure every labelled object in every frame.",
       "source_sha256": "639c15640edef566f7bd8f8fdd10a74860aba43995a594dbc4665b8737b2186f",
-      "translation": "Mæla hvern merktan hlut í hverjum ramma."
+      "translation": "Mæla hvern merktan hlut í hverjum ramma.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``DataFrame`` with one row per object per frame and the columns ``frame``, ``label``, ``area``, ``y``, ``x`` and ``diameter``, where the diameter is the area-equivalent circle diameter in pixels.",
@@ -4548,7 +4608,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Summarise where each label lives in the movie.",
       "source_sha256": "4da880ca45a65e63e90b39e4c7ccd2cdd56eb3dd1744649cda2842a757f084f8",
-      "translation": "Draga saman hvar hvert merki er í kvikmyndinni."
+      "translation": "Draga saman hvar hvert merki er í kvikmyndinni.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``DataFrame`` with one row per label carrying ``label``, ``first_frame``, ``last_frame``, ``n_frames``, ``n_missing`` and ``missing_frames``. ``n_missing`` counts frames between the first and the last appearance in which the label is absent, which is the only kind of gap that can hide a recycled id.",
@@ -4564,7 +4626,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Read a label stack from a file or a folder of frames.",
       "source_sha256": "3ce10360e6b4bfd1140accfef03fe58087ea8594863ba64126d1547a1aa25ebd",
-      "translation": "Lesa merkjastafla úr skrá eða möppu með römmum."
+      "translation": "Lesa merkjastafla úr skrá eða möppu með römmum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``.npy`` file, ``.tif``/``.tiff`` file, or a folder holding one file per frame, read in sorted name order.",
@@ -4596,7 +4660,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Run the QC over one or more label stacks and print the table.",
       "source_sha256": "296dd7c61debdc466a8f4dd0fa40afdaf9f72015f2b26ee4ad976c9328a75195",
-      "translation": "Keyra QC yfir einn eða fleiri merkjastafla og prenta töfluna."
+      "translation": "Keyra QC yfir einn eða fleiri merkjastafla og prenta töfluna.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "command line arguments; ``sys.argv[1:]`` when ``None``.",
@@ -4612,7 +4678,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
-      "translation": "``0`` þegar engin athugun mistókst, ``1`` þegar einhver gerði það. Misbrestur hér er fullyrðing um MERKINGUNA, ekki um þetta forrit: hann þýðir að gögnin styðja ekki það sem timeflows-áætlunin gerir ráð fyrir um þau."
+      "translation": "``0`` þegar engin athugun mistókst, ``1`` þegar einhver gerði það. Misbrestur hér er fullyrðing um MERKINGUNA, ekki um þetta forrit: hann þýðir að gögnin styðja ekki það sem timeflows-áætlunin gerir ráð fyrir um þau.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "List every label that disappears and comes back, and judge each one.",
@@ -4620,7 +4688,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "List every label that disappears and comes back, and judge each one.",
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
-      "translation": "Telja upp hvert merki sem hverfur og kemur aftur, og meta hvert og eitt."
+      "translation": "Telja upp hvert merki sem hverfur og kemur aftur, og meta hvert og eitt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
@@ -4686,7 +4756,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``'numpy 1.26.4 -> 2.2.6'`` or ``'cuml-cu12 26.8.0 (new)'``.",
       "source_sha256": "1fb0f487a65bf4e090df523d3d710ba630a6eade161a41d22857ef2a0f6650fa",
-      "translation": "``'numpy 1.26.4 -> 2.2.6'`` eða ``'cuml-cu12 26.8.0 (new)'``."
+      "translation": "``'numpy 1.26.4 -> 2.2.6'`` eða ``'cuml-cu12 26.8.0 (new)'``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The repository's releases, newest first, or ``[]``.",
@@ -4694,7 +4766,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The repository's releases, newest first, or ``[]``.",
       "source_sha256": "3b8983469a5c66cea855897275711d2c1a0f358539a5a7f2597382f9c8f3dcc0",
-      "translation": "Útgáfur geymslunnar, nýjasta fyrst, eða ``[]``."
+      "translation": "Útgáfur geymslunnar, nýjasta fyrst, eða ``[]``.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never call this on the main GUI execution path. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
@@ -4702,7 +4776,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
-      "translation": "KALLAÐU ALDREI Á ÞETTA Á GUI-ÞRÆÐINUM. Það opnar sökkul. News-spjald Home biður um það í gegnum sama :class:`_UpdateWorker` og handvirka uppfærsluathugunin keyrir á, eftir að síðan hefur verið sýnd."
+      "translation": "KALLAÐU ALDREI Á ÞETTA Á GUI-ÞRÆÐINUM. Það opnar sökkul. News-spjald Home biður um það í gegnum sama :class:`_UpdateWorker` og handvirka uppfærsluathugunin keyrir á, eftir að síðan hefur verið sýnd.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
@@ -4742,7 +4818,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Launch the updated Qt application after the old event loop has stopped.",
       "source_sha256": "d0babb1e1d852d54725f703cde9a5323776e3a99f7f6b01b8357ca3925ca07d2",
-      "translation": "Ræsa uppfærða Qt-forritið eftir að gamla atburðalykkjan hefur stöðvast."
+      "translation": "Ræsa uppfærða Qt-forritið eftir að gamla atburðalykkjan hefur stöðvast.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "process identifier of the detached replacement application.",
@@ -4766,7 +4844,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Where the fetched release list is remembered between launches.",
       "source_sha256": "5077be3d95d48f253edfff569d1d989b2680b75b152e3e490ac8b2bf59e55aac",
-      "translation": "Hvar sótti útgáfulistinn er geymdur milli ræsinga."
+      "translation": "Hvar sótti útgáfulistinn er geymdur milli ræsinga.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "install this exact offered version and verify it in a fresh process before reporting success. None retains an unpinned upgrade.",
@@ -4782,11 +4862,13 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Upgrade this interpreter, optionally to the exact version offered.",
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
-      "translation": "Uppfæra þennan túlk, valfrjálst í nákvæmlega þá útgáfu sem boðin er."
+      "translation": "Uppfæra þennan túlk, valfrjálst í nákvæmlega þá útgáfu sem boðin er.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "allow prerelease packages.",
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
@@ -4794,7 +4876,7 @@
     },
     {
       "context": "explicit version selected by the update check.",
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
@@ -4840,7 +4922,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
-      "translation": "``True`` þegar grímumöppuna vantar eða einhvert væntanlegt staflaskráarheiti skortir heila grímu. Óskyldar grímur geta ekki komið í stað sjónsviðs sem vantar og valda því ekki að heil sjónsvið séu keyrð aftur."
+      "translation": "``True`` þegar grímumöppuna vantar eða einhvert væntanlegt staflaskráarheiti skortir heila grímu. Óskyldar grímur geta ekki komið í stað sjónsviðs sem vantar og valda því ekki að heil sjónsvið séu keyrð aftur.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'lasso'`` or ``'ridge'``.",

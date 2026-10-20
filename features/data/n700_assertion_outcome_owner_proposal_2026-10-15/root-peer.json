@@ -1,0 +1,7 @@
+{
+  "review": "ACCEPT owner proposal only",
+  "source": "5d52786035144353987d02e1987af41d9dda6e13",
+  "reviewer": "Root independent exact three-line patch read",
+  "meaning": "Explicit asserts repeat three already-awaited actual UI/retry outcomes; not constants or policy exemptions. All existing callbacks, waits and privacy behavior retained.",
+  "runtime_adoption": "Owner apply matching preimage and run its three GUI nodes plus generic gate; no modified N700 test execution claimed."
+}

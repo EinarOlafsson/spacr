@@ -1,22 +1,22 @@
-"""Does a gene's signal come from its guides agreeing, or from one guide?
+"""Test whether a gene's signal comes from agreeing guides or from one guide.
 
-WHY THIS EXISTS
+Background
 
 Ranking a screen by gene-level p-value silently mixes two different things:
 
 * a gene whose guides all move the same way, none of them individually
   striking -- the signature of a real, moderate effect; and
-* a gene with ONE surviving guide, whose "gene-level" term is arithmetically
+* a gene with one surviving guide, whose "gene-level" term is arithmetically
   identical to that guide's own term and carries no independent evidence.
 
 On the TSG101 screen the second kind sits at the top of the list. Gene 244480
-has three guides in the library, exactly one survives the read-fraction
-filter, and its gene p-value (1.6e-12) IS that guide's p-value -- ranked above
-EAF1 and GRA14. EAF1 is the opposite case: three guides fitted, not one of them
+has three guides in the library, exactly one survives the read-fraction filter,
+and its gene p-value (1.6e-12) is that guide's p-value -- ranked above EAF1 and
+GRA14. EAF1 is the opposite case: three guides fitted, not one of them
 significant on its own (p = 0.51, 0.14, 0.27), and a gene-level p of 4.6e-08.
 
-A hit list that does not separate these is not wrong so much as unreadable,
-and the distinction is invisible in the volcano because both are one dot.
+The volcano plot shows both as a single dot, so this module reports the
+distinction separately.
 """
 
 from __future__ import annotations
@@ -76,7 +76,7 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
             how many reached ``alpha`` on their own.
         ``n_same_direction``
             how many share the sign of the gene's mean effect. Guides that
-            disagree in DIRECTION are the strongest argument that a hit is
+            disagree in direction are the strongest argument that a hit is
             noise, and no p-value threshold reveals that.
         ``concordance``
             ``n_same_direction / n_guides``. 1.0 means every guide points the
@@ -105,6 +105,8 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
     guides = frame[frame["feature"].map(_is_guide_term) & frame["_gene"].notna()]
     genes = frame[frame["feature"].map(_is_gene_term) & frame["_gene"].notna()]
 
+    gene_rows = {gene: block for gene, block in genes.groupby("_gene")}
+    no_gene_row = genes.iloc[0:0]
     rows = []
     for gene, block in guides.groupby("_gene"):
         effects = block["_effect"].to_numpy(dtype="float64")
@@ -115,7 +117,7 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
             same = int(np.sum(np.sign(finite) == direction))
         else:
             same = 0
-        gene_row = genes[genes["_gene"] == gene]
+        gene_row = gene_rows.get(gene, no_gene_row)
         rows.append({
             "gene": gene,
             "n_guides": int(len(block)),
@@ -176,7 +178,7 @@ def flag_single_guide_hits(results: pd.DataFrame, alpha: float = 0.05,
 
 def concordance_report(results: pd.DataFrame, alpha: float = 0.05,
                        top: int = 15, controls: dict | None = None) -> str:
-    """A few lines a human can read, for the console after a run.
+    """Return a short text report for the console after a run.
 
     :param results: guide-level coefficient table accepted by
         :func:`guide_support`, including feature names, effects, and P values.

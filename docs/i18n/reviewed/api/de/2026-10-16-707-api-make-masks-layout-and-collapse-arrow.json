@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "Claude AI technical review; no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#0",
+      "source": "Insert a non-mode action at the end of the TOOLS group.",
+      "source_sha256": "f475513b8254934f8bbdcefa6de8437816e3c9f79b844e09cb82e4beaf117e25",
+      "context": "Insert a non-mode action at the end of the TOOLS group.",
+      "translation": "Fügt eine Aktion, die kein Modus ist, am Ende der Gruppe TOOLS ein.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#4",
+      "source": "PySide6 can attach the returned QThread wrapper to the queried object. Restore the application's adopted thread to its application after the read, so collecting a temporary timer cannot delete the GUI thread.",
+      "source_sha256": "1feb885c354ef3f0ddccd81dc50bb3f9d13f7e0f87e30cc186b69007595c70ae",
+      "context": "PySide6 can attach the returned QThread wrapper to the queried object. Restore the application's adopted independent execution path to its application after the read, so collecting a temporary timer cannot delete the main GUI execution path.",
+      "translation": "PySide6 kann den zurückgegebenen QThread-Wrapper an das abgefragte Objekt anhängen. Nach dem Lesen wird der übernommene Thread der Anwendung wieder seiner Anwendung zugeordnet, damit das Einsammeln eines temporären Timers den GUI-Thread nicht löschen kann.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "source": "Draw the collapse tab and its chevron, centred on the handle.",
+      "source_sha256": "b3c9d27ae9f1177b3bb4bf62137b38505c28969dedcbfaf02d7b5588c1c03b8d",
+      "context": "Draw the collapse tab and its chevron, centred on the handle.",
+      "translation": "Zeichnet die Einklapp-Lasche und ihren Winkelpfeil, zentriert auf dem Griff.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7",
+      "source": "The tab and the chevron are drawn at :data:`HANDLE_SCALE` of the 2026-10-01 baseline, the chevron at a further :data:`ARROW_SCALE` of its tab, both centred on the handle (:func:`_collapse_arrow_geometry`). The hit target, the whole handle, stays put.",
+      "source_sha256": "9e87ebdfeac8016ccb76900d687532a099720432850d402d0c0cff4af79b17e5",
+      "context": "The tab and the chevron are drawn at :data:`HANDLE_SCALE` of the 2026-10-01 baseline, the chevron at a further :data:`ARROW_SCALE` of its tab, both centred on the handle (:func:`_collapse_arrow_geometry`). The hit target, the whole handle, stays put.",
+      "translation": "Lasche und Winkelpfeil werden mit :data:`HANDLE_SCALE` der Ausgangsgröße vom 2026-10-01 gezeichnet, der Winkelpfeil zusätzlich mit :data:`ARROW_SCALE` seiner Lasche, beide zentriert auf dem Griff (:func:`_collapse_arrow_geometry`). Die Klickfläche, der ganze Griff, bleibt unverändert.",
+      "review_basis": "Drafted directly from the current English by Claude (AI) and technically reviewed for UI names, RST roles and code literals; no human or native-speaker signoff."
+    }
+  ]
+}

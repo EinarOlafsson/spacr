@@ -33,7 +33,7 @@ def test_catalogue_local_copy_and_metadata_without_uri_are_truthful(
         _entry("present", local.name, path=str(local)),
         _entry("not-published", "missing.pth"),
     )
-    monkeypatch.setattr(model_zoo, "catalogue", lambda **_kw: entries)
+    monkeypatch.setattr(model_zoo, "_planning_model_entries", lambda: entries)
     assert model_zoo._ensure_model_file("present", download=False) == local
     assert model_zoo._ensure_model_file("not-published", download=False) is None
 
@@ -50,7 +50,7 @@ def test_versioned_cache_refuses_wrong_bytes_and_keeps_searching(
     digest = hashlib.sha256(right.read_bytes()).hexdigest()
     entry = _entry("classifier-key", "classifier.pth", uri="file:///unused",
                    sha256=digest)
-    monkeypatch.setattr(model_zoo, "catalogue", lambda **_kw: (entry,))
+    monkeypatch.setattr(model_zoo, "_planning_model_entries", lambda: (entry,))
     monkeypatch.setattr(model_zoo, "_spacr_home", lambda: home)
     assert model_zoo._ensure_model_file("classifier-key", download=False) == right
     right.write_bytes(b"changed after publication")
@@ -66,7 +66,7 @@ def test_validation_accepts_only_a_correct_kind_catalogue_key_without_fetch(
         _entry("trained-cellpose", "cellpose.pth", kind="cellpose",
                uri="file:///unused", sha256="b" * 64),
     )
-    monkeypatch.setattr(model_zoo, "catalogue", lambda **_kw: entries)
+    monkeypatch.setattr(model_zoo, "_planning_model_entries", lambda: entries)
     monkeypatch.setattr(model_zoo, "_spacr_home", lambda: tmp_path)
     monkeypatch.setattr(model_zoo, "fetch", lambda *_a, **_k: pytest.fail(
         "validation downloaded checkpoint bytes"))

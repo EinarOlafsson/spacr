@@ -316,7 +316,7 @@
       }
     },
     {
-      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "reason": "2026-09-22: diagram multi-selection, external ParaScape launch or OPS-first sample route changed the English source; original review preserved verbatim.",
       "record": {
         "key": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
         "source": "Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.",
@@ -326,7 +326,7 @@
       }
     },
     {
-      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "reason": "2026-09-22: diagram multi-selection, external ParaScape launch or OPS-first sample route changed the English source; original review preserved verbatim.",
       "record": {
         "key": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
         "source": "Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.",
@@ -336,7 +336,7 @@
       }
     },
     {
-      "reason": "2026-09-22: diagram multi-selection, external Starplast launch or OPS-first sample route changed the English source; original review preserved verbatim.",
+      "reason": "2026-09-22: diagram multi-selection, external ParaScape launch or OPS-first sample route changed the English source; original review preserved verbatim.",
       "record": {
         "key": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
         "source": "A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",

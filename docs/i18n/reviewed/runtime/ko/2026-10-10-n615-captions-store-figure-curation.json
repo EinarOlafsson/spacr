@@ -1,0 +1,667 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "export_vvvv",
+      "source": "Export vvvv",
+      "source_sha256": "e2f4fe6973b456adb9b5dedc333f14e22f2c7919574d2d743ab73f96ceb7eafd",
+      "translation": "vvvv 내보내기"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "export_vvvv",
+      "source": "Also write every processed 2-D field for vvvv gamma, one folder per field and object type: <stem>_labels.png (16-bit labels, 0 is background), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv (label, centroid, area, bounding box and mean intensity per channel in pixel coordinates; Measure appends its own per-object measurements), manifest.json, README.txt and <stem>.vl, a vvvv gamma project that shows them. Mask Generation writes to <src>/vvvv/mask/<object>, Measure to vvvv/measure/<object> beside merged/. Images and masks are only read. Default False.",
+      "source_sha256": "a6fd83911903716fc50fa6234ae01d1806c390b1bc4b079652d8ba33b38271f3",
+      "translation": "처리한 각 2-D 필드를 vvvv gamma용으로도 기록합니다. 필드와 객체 유형마다 폴더 하나: <stem>_labels.png(16비트 라벨, 0은 배경), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv(객체별 라벨, 중심, 면적, 경계 상자, 채널별 평균 강도, 픽셀 좌표 기준. Measure는 자체 객체별 측정값을 덧붙임), manifest.json, README.txt 및 <stem>.vl(이들을 보여 주는 vvvv gamma 프로젝트). 마스크 생성은 <src>/vvvv/mask/<object>에, Measure는 merged/ 옆의 vvvv/measure/<object>에 기록합니다. 이미지와 마스크는 읽기만 합니다. 기본값 False."
+    },
+    {
+      "table": "ui",
+      "key": ", allowing flips, rotations and contrast changes",
+      "source": ", allowing flips, rotations and contrast changes",
+      "source_sha256": "b11afbb300ee9b5588fe592b099c9d8ee6950143ad4ca5ac386bdad3ba734b2f",
+      "translation": ", 플리프, 회전 및 대조 변화를 허용"
+    },
+    {
+      "table": "ui",
+      "key": "A mouse click on the background sends a ripple from where you clicked. A click that opens or closes a container sends only that container's ripple.",
+      "source": "A mouse click on the background sends a ripple from where you clicked. A click that opens or closes a container sends only that container's ripple.",
+      "source_sha256": "5af8a6a67144ebff700a4099fff4a7db19142c0f456d0190ee487edbf56fff25",
+      "translation": "배경을 마우스로 클릭하면 클릭한 위치에서 물결이 퍼집니다. 컨테이너를 열거나 닫는 클릭은 해당 컨테이너의 물결만 보냅니다."
+    },
+    {
+      "table": "ui",
+      "key": "A table finished copying.",
+      "source": "A table finished copying.",
+      "source_sha256": "5093d9b51692630dbea567dc4155bc72e9c4b8d6093e54d88d5afd6bf8a46f41",
+      "translation": "테이블 하나의 복사가 완료되었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Add count store folder",
+      "source": "Add count store folder",
+      "source_sha256": "7a8a0468f672d8b4197bc804c6a642ba581aa97941558fc1363d443d89b18583",
+      "translation": "카운트 저장소 폴더 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Add count store folder…",
+      "source": "Add count store folder…",
+      "source_sha256": "3db82321f11ef6588749e32360e84c560ea8a3465e2c48ae6ddae89e20e27d4e",
+      "translation": "카운트 저장소 폴더 추가…"
+    },
+    {
+      "table": "ui",
+      "key": "Add count tables",
+      "source": "Add count tables",
+      "source_sha256": "b245672d38984d71cfe8a0f171af2ee4216b624ad6ee15724ee90d43d167366c",
+      "translation": "카운트 테이블 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Add count tables…",
+      "source": "Add count tables…",
+      "source_sha256": "574fa7c9bf0c601b0144f29930fe2f54e7bf4f58815f6062570b087fb2626fe5",
+      "translation": "카운트 테이블 추가…"
+    },
+    {
+      "table": "ui",
+      "key": "Add score store folder",
+      "source": "Add score store folder",
+      "source_sha256": "256a1843a30ef5bff947de1a6b29c678476175a88025940e89fc0c6d6c4da1c7",
+      "translation": "점수 저장소 폴더 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Add score store folder…",
+      "source": "Add score store folder…",
+      "source_sha256": "b4ba1b5089bf86d3c800f0c73e9bc3923874cef273a77aad182fa499b5852eaa",
+      "translation": "점수 저장소 폴더 추가…"
+    },
+    {
+      "table": "ui",
+      "key": "Add score tables",
+      "source": "Add score tables",
+      "source_sha256": "1bde30f6ee928608e49a9824a9c827566b2c2c99a76f9c9e99dcc5c9ff866c72",
+      "translation": "점수 테이블 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Add score tables…",
+      "source": "Add score tables…",
+      "source_sha256": "d7f3de41994b67541c25a7fb6b6eb01e748641116426574f2a538c85b445126a",
+      "translation": "점수 테이블 추가…"
+    },
+    {
+      "table": "ui",
+      "key": "Animation GPU",
+      "source": "Animation GPU",
+      "source_sha256": "76dad508adef129161c64b7d154920295f3f734d5c15c3d7c41d4bee01bca67d",
+      "translation": "애니메이션 GPU"
+    },
+    {
+      "table": "ui",
+      "key": "Both source and destination are required.",
+      "source": "Both source and destination are required.",
+      "source_sha256": "7caaa3527f888b18e1d683460ced89da541249ffcb281dece94987ee7f8c2623",
+      "translation": "원본과 대상이 모두 필요합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Cannot read review status",
+      "source": "Cannot read review status",
+      "source_sha256": "96a23e17de081545c23eda346946b15f084b3b36e52cf4d48923cb4be30ea1ce",
+      "translation": "검토 상태를 읽을 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a .parquetdb store folder.",
+      "source": "Choose a .parquetdb store folder.",
+      "source_sha256": "c37df959b86698b5dbe8262d7671add45a3bb89ab283056e8256fb614ff69241",
+      "translation": ".parquetdb 저장소 폴더를 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Click ripples",
+      "source": "Click ripples",
+      "source_sha256": "d15f0e6a1dcf8093eac31ed5bcb3499b70dc16d43b8c780b78171742cc28ebb1",
+      "translation": "클릭 물결"
+    },
+    {
+      "table": "ui",
+      "key": "Confirm measurement copy",
+      "source": "Confirm measurement copy",
+      "source_sha256": "4278252051e2cb788841a9c8538fecdf7dee909e25d8e4524026490df1ad3974",
+      "translation": "측정 데이터 복사 확인"
+    },
+    {
+      "table": "ui",
+      "key": "Copied {count} table(s). The original remains unchanged.",
+      "source": "Copied {count} table(s). The original remains unchanged.",
+      "source_sha256": "7424ce8d2c5b20cc13e4cc1ded8dcb13cade90aa8a9dbda28d4237ecfc5578c7",
+      "translation": "테이블 {count}개를 복사했습니다. 원본은 변경되지 않았습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+      "source": "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+      "source_sha256": "d8fcd221fede3d2ed2084efc65592a574e566e9b5675db23b5a4f10b267fae48",
+      "translation": "테이블을 새 대상으로 복사합니다. 원본은 변경되지 않으며, 활성 측정 백엔드도 바뀌지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+      "source": "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+      "source_sha256": "b7eecddcbc389099ef6a90fdc748c0a254df5311d2fef9d2919e0cef73a7ed13",
+      "translation": "선택한 원본의 모든 테이블을 새 대상으로 복사할까요? 이미 존재하는 로컬 대상은 거부됩니다. PostgreSQL 대상에는 테이블이 없어야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Copy tables",
+      "source": "Copy tables",
+      "source_sha256": "876b2f6cd3ff5137357bc4fd7b78ae313fdc54b5a4b08d559c14b118c4c6318e",
+      "translation": "테이블 복사"
+    },
+    {
+      "table": "ui",
+      "key": "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+      "source": "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+      "source_sha256": "d905bfbe4763fc99de92b95c23e757d8a8dad550b0f72e16a68ad1fe1c2e73b4",
+      "translation": "SQLite, DuckDB, Parquet, PostgreSQL 저장소 간에 테이블을 복사합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Copy to",
+      "source": "Copy to",
+      "source_sha256": "a8dd595b66f021ea306568c1a3e0e9e27e579faa4d4456cd9ab413fd1ba46b37",
+      "translation": "복사할 대상"
+    },
+    {
+      "table": "ui",
+      "key": "Copying tables…",
+      "source": "Copying tables…",
+      "source_sha256": "aba3186b8b26540ee8d4449d5d1dd8077a159c8e7277aa256f9f0263d1630aa7",
+      "translation": "테이블 복사 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read columns from {sources}",
+      "source": "Could not read columns from {sources}",
+      "source_sha256": "58cfa02a51c892fa82eb4176d5472cbf59e676d065dc2ad1894992ac9ef77db2",
+      "translation": "{sources}에서 열을 읽을 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Count source",
+      "source": "Count source",
+      "source_sha256": "2456c0e51400b21ac5dac18a1bbdc90dfd98579fd81c1bdd354153590724b923",
+      "translation": "카운트 원본"
+    },
+    {
+      "table": "ui",
+      "key": "Count table",
+      "source": "Count table",
+      "source_sha256": "e4b73b938f1698f30602698742ee0d41fd1726894b858b4ab7973ea4314ccbf1",
+      "translation": "카운트 테이블"
+    },
+    {
+      "table": "ui",
+      "key": "Cut kept in object(s) {labels}; draw another line to finish dividing. Ctrl+Z to undo",
+      "source": "Cut kept in object(s) {labels}; draw another line to finish dividing. Ctrl+Z to undo",
+      "source_sha256": "6c8256555b9962ca15f67e7a6db69a3d2ac40f01e5503cd6caafbd927cd84e4e",
+      "translation": "객체 {labels}의 절단선을 유지했습니다. 분할을 완료하려면 선을 하나 더 그리세요. Ctrl+Z로 실행 취소"
+    },
+    {
+      "table": "ui",
+      "key": "Dynamic animation",
+      "source": "Dynamic animation",
+      "source_sha256": "00404dd4b4540aa5411fec10d844b49dfa4d19c8d8c5a7510ac12a03feb07757",
+      "translation": "동적 애니메이션"
+    },
+    {
+      "table": "ui",
+      "key": "Every image in this queue has Keep or Discard.",
+      "source": "Every image in this queue has Keep or Discard.",
+      "source_sha256": "1b8a62462eb92fca9a5957e5dd390c09545846a7e4d30201e093a00d9fcadbd2",
+      "translation": "이 대기열의 모든 이미지에 '유지' 또는 '버리기'가 지정되어 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+      "source": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+      "source_sha256": "c4ba2125608536b61c0895925372ab0a04411b91057bf597aabc97fcf795538d",
+      "translation": "기존 .db, .duckdb, .parquetdb 또는 PostgreSQL URL"
+    },
+    {
+      "table": "ui",
+      "key": "Exported for vvvv → {path}",
+      "source": "Exported for vvvv → {path}",
+      "source_sha256": "4c4a4f491fba7a949f6be8d3a7c9c7c26605fb96c63f17b24a0ff89598b7bb71",
+      "translation": "vvvv용으로 내보냄 → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Fill the left half of this screen's work area.",
+      "source": "Fill the left half of this screen's work area.",
+      "source_sha256": "35c845f2e3f75913f677c990de0edd3959cf0b65eaee82390aa4f1d8d5191771",
+      "translation": "이 화면 작업 영역의 왼쪽 절반을 채웁니다."
+    },
+    {
+      "table": "ui",
+      "key": "Fill the lower half of this screen's work area.",
+      "source": "Fill the lower half of this screen's work area.",
+      "source_sha256": "7a1e434162048b4aa55d7c04e1c413b429d333921491822e9cf15e0e94eaaa8a",
+      "translation": "이 화면 작업 영역의 아래쪽 절반을 채웁니다."
+    },
+    {
+      "table": "ui",
+      "key": "Fill the right half of this screen's work area.",
+      "source": "Fill the right half of this screen's work area.",
+      "source_sha256": "6643e352491cd61e03ace73d078c5e1acb67259ecb2b3d9bcedf28ad51dceb8e",
+      "translation": "이 화면 작업 영역의 오른쪽 절반을 채웁니다."
+    },
+    {
+      "table": "ui",
+      "key": "First unreviewed",
+      "source": "First unreviewed",
+      "source_sha256": "e6201ffe2d0b527ce2acf68411ae779a785700c09a53e3c6f3f0baeea9fa33d4",
+      "translation": "첫 미검토 이미지"
+    },
+    {
+      "table": "ui",
+      "key": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
+      "translation": "공개된 TSG101 모집 스크린의 일부를 불러옵니다: 플레이트 1의 웰 30개에 있는 세포 2,608개와 그 예측값 및 가이드 비율, 그리고 이 데이터로 수행해 GRA14(239740)를 히트로 지목한 회귀 분석 실행입니다. 약 28 MB이며 이후 캐시됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source_sha256": "43d04f0fd02036ba7f5d48ab3e910d7b6fa601fcaabe433e18ff0109b9b733f5",
+      "translation": "공개 플레이트 시리즈 불러오기: Cell Painting Gallery(CC0)의 CPJUMP1 화합물 플레이트 24장의 모든 웰로, DMSO 웰과 양성 대조군 웰이 표시되어 있으며, DMSO 웰을 플레이트별로 차트에 표시합니다. 약 2 MB이며 이후 캐시됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
+      "translation": "예제 히트 {gene}을(를) 불러왔습니다. '히트 조사'를 누르세요."
+    },
+    {
+      "table": "ui",
+      "key": "Maximise to this screen's work area. Full screen is separate.",
+      "source": "Maximise to this screen's work area. Full screen is separate.",
+      "source_sha256": "7d382883b7a6710390c063835ef58120fe202a7106df08e97e7f5e4288f06a51",
+      "translation": "이 화면의 작업 영역에 맞게 최대화합니다. 전체 화면은 별도 기능입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Migrate measurement store",
+      "source": "Migrate measurement store",
+      "source_sha256": "c8034fa8bb3a116041ce7403d9c7559ee7a402748ae7f3a8d25e794f062b68a0",
+      "translation": "측정 저장소 마이그레이션"
+    },
+    {
+      "table": "ui",
+      "key": "Migrate measurement store…",
+      "source": "Migrate measurement store…",
+      "source_sha256": "3061e256bc28ae56fa4a766fa2139ad6bed05791c4e05690a798f3a7341d0f39",
+      "translation": "측정 저장소 마이그레이션…"
+    },
+    {
+      "table": "ui",
+      "key": "Migration stopped. The source is unchanged and no local destination was published.",
+      "source": "Migration stopped. The source is unchanged and no local destination was published.",
+      "source_sha256": "3f8c84039da9791f117f35f3fd6a6656bb6cd2defcb578aaf97a8fc955e14b96",
+      "translation": "마이그레이션이 중지되었습니다. 원본은 변경되지 않았으며 로컬 대상은 만들어지지 않았습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+      "source": "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+      "source_sha256": "660664b550e6b34e107d27912032a78284c05855a841734d474f38cb9658bbda",
+      "translation": "마이그레이션이 중지되었습니다. 원본은 변경되지 않았습니다. 비어 있던 PostgreSQL 대상에 일부만 생성된 새 테이블이 남아 있을 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Name the table for {sources} before running.",
+      "source": "Name the table for {sources} before running.",
+      "source_sha256": "db7b344fd012090cb618c8de8bfd2d76e7a9952130911bd01b22b72b833c10ad",
+      "translation": "실행하기 전에 {sources}의 테이블 이름을 지정하세요."
+    },
+    {
+      "table": "ui",
+      "key": "New destination store",
+      "source": "New destination store",
+      "source_sha256": "238842a1464ed2169bdd04bd235276beb455558d58435cb6b6ec7792a7cba838",
+      "translation": "새 대상 저장소"
+    },
+    {
+      "table": "ui",
+      "key": "No {what} {current!r} in the {kind}.",
+      "source": "No {what} {current!r} in the {kind}.",
+      "source_sha256": "c134f156813a17cf6c156050e3a15a0d42d5acf45d8df2f5972df699eda300d7",
+      "translation": "{what} {current!r}이(가) {kind}에 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+      "source": "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+      "source_sha256": "6e3cf7a46e8ffecced8b56a575cc9e0ed04a6ef175e8d272d409468696d3c9e8",
+      "translation": "{what} {current!r}이(가) {kind}에 없습니다. {suggestion!r}을(를) 의미하셨나요?"
+    },
+    {
+      "table": "ui",
+      "key": "Off (CPU)",
+      "source": "Off (CPU)",
+      "source_sha256": "5f68f15cade8808f4cdaaae7088a72171ba72f3f0a8863dd3cf6a27fcc5416b7",
+      "translation": "끄기 (CPU)"
+    },
+    {
+      "table": "ui",
+      "key": "On",
+      "source": "On",
+      "source_sha256": "130011756125313c72f2cab730db4347e2841526d236a89cb25f38789fa49229",
+      "translation": "켜기"
+    },
+    {
+      "table": "ui",
+      "key": "Open the first image in the queue that has neither Keep nor Discard. Verdicts saved in earlier sessions count. Unsaved edits are handled as when moving to any other image.",
+      "source": "Open the first image in the queue that has neither Keep nor Discard. Verdicts saved in earlier sessions count. Unsaved edits are handled as when moving to any other image.",
+      "source_sha256": "8011696f9c4763a8b06d83ece3a63e4d3c4d5429571011532f97edea87c487f6",
+      "translation": "'유지'와 '버리기' 중 어느 것도 지정되지 않은 대기열의 첫 이미지를 엽니다. 이전 세션에서 저장한 판정도 반영됩니다. 저장하지 않은 편집은 다른 이미지로 이동할 때와 같은 방식으로 처리됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} and panel {prior_panel} in {prior_figure} show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+      "source": "Panel {panel} and panel {prior_panel} in {prior_figure} show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+      "source_sha256": "7a9d5af7a6e926a80c4dfd464b6e3d5d5e35f67e945aa123b674ac8eb0ea4786",
+      "translation": "{panel} 및 {prior_panel} 패널은 {prior_figure}에서 동일한 검증 된 출처 픽셀의 덮개 지역을 표시합니다.이것은 출처 재사용 메모이며 이미지 조작 판결이 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+      "source": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+      "source_sha256": "666c5f4c6a3a6c908481200656b43b9dbce3b88fcffc7cafdbb85c9372a11fac",
+      "translation": "패널 {panel} 패널과 비슷한 표시된 지역이 있습니다. {prior_panel} 안에서 {prior_figure}이것은 픽셀 유사성 노트, 인수 또는 이미지 조작 판결이 아닙니다."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} shows a region of panel {other} (rows {top}-{bottom}, columns {left}-{right}) at {zoom}x magnification. If it is an inset or a zoom, mark the region and say so in the legend.",
+      "source": "Panel {panel} shows a region of panel {other} (rows {top}-{bottom}, columns {left}-{right}) at {zoom}x magnification. If it is an inset or a zoom, mark the region and say so in the legend.",
+      "source_sha256": "90507a300248e2974cfc3d6ee5929b012bd433d42c0df7dfc4760c6a976b2de3",
+      "translation": "패널 {panel}은 패널 {other} (선 {top}-{bottom}, 열 {left}-{right})의 {zoom}x 확대 지역을 표시합니다. 그것이 곤충이나 짐이라면, 지역을 표시하고 전설에서 그렇게 말하십시오."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} shows the same image as panel {prior_panel} in an earlier export ({prior_figure}){how}. If the reuse is intentional, explain it in the legend.",
+      "source": "Panel {panel} shows the same image as panel {prior_panel} in an earlier export ({prior_figure}){how}. If the reuse is intentional, explain it in the legend.",
+      "source_sha256": "e87ad0ed3345e6e192e2e24807d54bc9969ea58508c1482dcfcfb9c5077e4123",
+      "translation": "패널 {panel}은 이전 수출에서 패널 {prior_panel}과 동일한 이미지를 보여줍니다 ({prior_figure}){how}. 재사용이 의도적이라면 전설에서 설명하십시오."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: a straight horizontal seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source": "Panel {panel}: a straight horizontal seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source_sha256": "b4dff4a3de8045aa35112bf2e63103643ce4711d9560b4f5293d43434d1719b3",
+      "translation": "패널 {panel}: 픽셀 {position}에 있는 곧은 가로 이음선이 배경 수준이나 노이즈가 다른 영역을 나눕니다. 두 이미지를 맞붙였을 때 생기는 현상입니다. 패널이 여러 이미지를 합친 것이라면 눈에 보이는 선으로 구분하고 그림 설명에 그렇게 밝히세요."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: a straight vertical seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source": "Panel {panel}: a straight vertical seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source_sha256": "caa74df06cb5057633e230975e8866a3dfad51430ad30e7c0535f6e6f2e693b7",
+      "translation": "패널 {panel}: 픽셀 {position}에 있는 곧은 세로 이음선이 배경 수준이나 노이즈가 다른 영역을 나눕니다. 두 이미지를 맞붙였을 때 생기는 현상입니다. 패널이 여러 이미지를 합친 것이라면 눈에 보이는 선으로 구분하고 그림 설명에 그렇게 밝히세요."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: the region at rows {top}-{bottom}, columns {left}-{right} repeats {down} rows down and {across} columns across in the same image. Check the source image for a copied patch.",
+      "source": "Panel {panel}: the region at rows {top}-{bottom}, columns {left}-{right} repeats {down} rows down and {across} columns across in the same image. Check the source image for a copied patch.",
+      "source_sha256": "67fd40d15babeebd3a886f0e9a8b03d8ef22a7c79e6bb3e26e6368bec848cfcf",
+      "translation": "패널 {panel}: {top}-{bottom} 라인의 영역, {left}- {right} 열이 {down} 라인을 반복하고 {across} 같은 이미지에서 열을 통과합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: the source metadata ({metadata}) declares {bits}-bit camera data, but pixel values reach {peak}. The image was rescaled after acquisition or the metadata is wrong; saturation was checked against the storage type instead.",
+      "source": "Panel {panel}: the source metadata ({metadata}) declares {bits}-bit camera data, but pixel values reach {peak}. The image was rescaled after acquisition or the metadata is wrong; saturation was checked against the storage type instead.",
+      "source_sha256": "70a72f31fabe29b211e13e5e04098f463b4aa140d2261bf06add673d2188f4c3",
+      "translation": "패널 {panel}: 출처 메타데이터 ({metadata})는 {bits}-비트 카메라 데이터를 선언하지만 픽셀 값은 {peak}에 도달합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Position of this image in the queue. Type a number and press Enter to open that image.",
+      "source": "Position of this image in the queue. Type a number and press Enter to open that image.",
+      "source_sha256": "9e08a4cf0ffeaef9b3444cb8eab57ca137c50883d3052eddbd6fae62f9be97de",
+      "translation": "대기열에서 이 이미지의 위치입니다. 번호를 입력하고 Enter를 누르면 해당 이미지가 열립니다."
+    },
+    {
+      "table": "ui",
+      "key": "Read from",
+      "source": "Read from",
+      "source_sha256": "26da1ae26f4836d2f09fca20a31e30cf94f8f39f1fee159889215e2dc2661330",
+      "translation": "읽어 올 원본"
+    },
+    {
+      "table": "ui",
+      "key": "Read input table column names and choose a column.",
+      "source": "Read input table column names and choose a column.",
+      "source_sha256": "25a8d33d30b13ee51e29d9b15cd514be4333e685e68f47ffebdd15adba2558ed",
+      "translation": "입력 테이블 열 이름을 읽고 열을 선택합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Score source",
+      "source": "Score source",
+      "source_sha256": "f873df15ffb7861eac834ff31552eb79f8809a64632e503dbbc1250b6511fc82",
+      "translation": "점수 원본"
+    },
+    {
+      "table": "ui",
+      "key": "Score table",
+      "source": "Score table",
+      "source_sha256": "85d977c1a71a7384106394ae97daa63fa42705c815ce22323720f3dcf5888357",
+      "translation": "점수 테이블"
+    },
+    {
+      "table": "ui",
+      "key": "Snap down",
+      "source": "Snap down",
+      "source_sha256": "11e9ba100badc60369e4c3357963771f46d8f5da579ae6956148efee74173039",
+      "translation": "아래쪽에 맞추기"
+    },
+    {
+      "table": "ui",
+      "key": "Snap left",
+      "source": "Snap left",
+      "source_sha256": "75ad8bfe476cadc279eeabc97f6dce67e869e21d7f784d5e8c84419443b0a970",
+      "translation": "왼쪽에 맞추기"
+    },
+    {
+      "table": "ui",
+      "key": "Snap right",
+      "source": "Snap right",
+      "source_sha256": "639801497b6ff07dcba3059ee081284d0e2dc6fe1cfc81fd92946622d63a1d3f",
+      "translation": "오른쪽에 맞추기"
+    },
+    {
+      "table": "ui",
+      "key": "Snap up",
+      "source": "Snap up",
+      "source_sha256": "c9cad67449c7bcba1d2e49fa163800632dca0fa89b966b647ced118e0e016833",
+      "translation": "위쪽에 맞추기"
+    },
+    {
+      "table": "ui",
+      "key": "Source and destination must be different stores.",
+      "source": "Source and destination must be different stores.",
+      "source_sha256": "755c102c944adfbce02dd87e747f67cac1891fdefb748ba5cadf76775f399c51",
+      "translation": "원본과 대상은 서로 다른 저장소여야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Strength of ripples from clicks, opening or closing containers, popups and window snapping. Zero turns ripples off. Independent of mouse gravity and animation density.",
+      "source": "Strength of ripples from clicks, opening or closing containers, popups and window snapping. Zero turns ripples off. Independent of mouse gravity and animation density.",
+      "source_sha256": "a1e07ce9039068adfe06b134257619c8a95a5f783459f5661032542ca410b127",
+      "translation": "클릭, 컨테이너 열기 또는 닫기, 팝업, 창 맞추기에서 생기는 물결의 세기. 0이면 물결이 꺼집니다. 마우스 중력 및 애니메이션 밀도와는 별개입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Table name for store",
+      "source": "Table name for store",
+      "source_sha256": "7799f72b34405dcf86e55166bb5aa0c64f97b6e6bf87558cb9cde2d540810ab2",
+      "translation": "저장소의 테이블 이름"
+    },
+    {
+      "table": "ui",
+      "key": "The destination already exists. Choose a new store.",
+      "source": "The destination already exists. Choose a new store.",
+      "source_sha256": "4bb3b98ce1949f911f70d935cc1c08f7151ef8f4cf495542b9160629e801213a",
+      "translation": "대상이 이미 존재합니다. 새 저장소를 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "The destination parent folder does not exist.",
+      "source": "The destination parent folder does not exist.",
+      "source_sha256": "ec1317175a9a1dd3b7c6b1adb09dc6cd9950cce849746d8ac3788fa69155d601",
+      "translation": "대상의 상위 폴더가 존재하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "The source measurement store does not exist.",
+      "source": "The source measurement store does not exist.",
+      "source_sha256": "e573d127eff82af9cc2332dba468364be1adc9d075b9fa4c54e9347748dfd4dc",
+      "translation": "원본 측정 저장소가 존재하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "There are no images in the queue.",
+      "source": "There are no images in the queue.",
+      "source_sha256": "1c4ee5cf983027834faf5da21804269cfc30aa8fc0f3744b97e4c6c384dd7dae",
+      "translation": "대기열에 이미지가 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "This is the first image without Keep or Discard.",
+      "source": "This is the first image without Keep or Discard.",
+      "source_sha256": "54592d219433ab56dcf79f365f535dc2abffce133e8cc7d8a2280a1103825060",
+      "translation": "'유지' 또는 '버리기'가 지정되지 않은 첫 이미지입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Type a number from 1 to {total} to open that image.",
+      "source": "Type a number from 1 to {total} to open that image.",
+      "source_sha256": "2ecdd8c943a6cf87be3d78ee4f33ebf9e0ea4461c167bdc5c4fd7d0b2824ecf0",
+      "translation": "해당 이미지를 열려면 1부터 {total}까지의 번호를 입력하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Unblind this session before exporting folders named after source images.",
+      "source": "Unblind this session before exporting folders named after source images.",
+      "source_sha256": "d9a11391072e926087aaa947ddbd696ef64bef096e7a7ebba4747cdfae5437ea",
+      "translation": "원본 이미지 이름을 사용하는 폴더를 내보내기 전에 이 세션의 블라인드를 해제하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Use a database file, a .parquetdb folder, or a PostgreSQL URL.",
+      "source": "Use a database file, a .parquetdb folder, or a PostgreSQL URL.",
+      "source_sha256": "68fe654a98b656ae7942d0df6b63f832f58a06573e3ddc617dbc4bdab9862c51",
+      "translation": "데이터베이스 파일, .parquetdb 폴더 또는 PostgreSQL URL을 사용하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
+      "source": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
+      "source_sha256": "e723553a52f4ad2ac4ebdfd37bcf43e5bba7e3b6d293c27ad5f49169a311ba4d",
+      "translation": "애니메이션을 그리는 위치입니다. 끄기는 CPU에서 그립니다. 자동은 측정 결과 더 빨랐던 조밀한 고해상도 프레임에만 GPU를 사용합니다. 켜기는 테마에 GPU 렌더러가 있으면 항상 GPU를 사용합니다. 지원되지 않는 그래픽이거나 GPU 시작에 실패하면 항상 CPU로 대체합니다."
+    },
+    {
+      "table": "ui",
+      "key": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+      "source": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+      "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+      "translation": "Measure처럼 CPU를 많이 쓰는 작업이 실행되는 동안에는 애니메이션이 일시 중지됩니다. 마스크 생성처럼 GPU를 쓰는 작업이 실행되는 동안에는 애니메이션이 GPU를 사용하지 않습니다. 작업이 끝나면 저장된 애니메이션 설정이 복원됩니다. 끄기로 두면 애니메이션이 변경 없이 계속 실행됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "vvvv export failed",
+      "source": "vvvv export failed",
+      "source_sha256": "99c8a97db1342f2f3cd11bcc83ff33ffb0faaf051cc8f34a75ce9b3995469544",
+      "translation": "vvvv 내보내기 실패"
+    },
+    {
+      "table": "ui",
+      "key": "vvvv export is off while blinded",
+      "source": "vvvv export is off while blinded",
+      "source_sha256": "18d4900689741d5b0b638cf589b5f3c1f94f94e4ef0c349094703382753f6bb5",
+      "translation": "블라인드 상태에서는 vvvv 내보내기가 꺼집니다"
+    },
+    {
+      "table": "ui",
+      "key": "{count} column(s) in the {kind}:",
+      "source": "{count} column(s) in the {kind}:",
+      "source_sha256": "90e184bbe7ce0a7a62d6953512bebb12ee2f33a23c5f9becbe54d91134864d29",
+      "translation": "{count}개 열({kind}):"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source_sha256": "033974a0333a8d22dae58bb647b5e3e5944152cfe72220c27ca1ac7b892885c2",
+      "translation": "'bundled'는 과거에 패키지된 플라크 모델입니다. 이전 실행을 재현할 수 있도록 유지되며, 문헌 이미지에서 플라크의 약 3분의 1을 놓칩니다. 현재 모델은 toxoplasma_plaque_v3 입니다.",
+      "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, which also segments Gel Doc wells; 'toxoplasma_plaque_v2' is the previous default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v3'.",
+      "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
+      "translation": "플라크를 분할하는 Cellpose 체크포인트입니다. 모델 저장소 키를 지정하면 처음 사용할 때 체크섬을 검증한 체크포인트를 다운로드합니다. 'toxoplasma_plaque_v3'는 Gel Doc 웰도 분할하는 cpsam_plaque_r5_geldoc입니다. 'toxoplasma_plaque_v2'는 이전 기본값입니다. 파일 시스템 경로를 지정하면 사용자 체크포인트를 선택합니다. 'bundled'는 과거에 패키지에 포함된 모델이며, Cellpose 3이 필요한 Cellpose 3 체크포인트입니다. 모델을 바꾸면 모든 플라크 계수가 달라질 수 있으므로 기록된 실행에서는 선택한 값을 보존해야 합니다. 기본값 'toxoplasma_plaque_v3'.",
+      "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the vvvv export folder",
+      "source": "Choose the vvvv export folder",
+      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
+      "translation": "vvvv 내보내기 폴더 선택",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
+      "translation": "마스크를 저장할 때마다 vvvv용으로 다시 내보내므로, 내보내기 폴더를 감시하는 패치가 실시간으로 갱신됩니다.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv…",
+      "source": "Export for vvvv…",
+      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
+      "translation": "vvvv용으로 내보내기…",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Export on save",
+      "source": "Export on save",
+      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
+      "translation": "저장 시 내보내기",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "table": "ui",
+      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
+      "translation": "이 이미지의 레이블(16-bit PNG), 윤곽선(RGBA PNG), 객체당 한 행(CSV)과 매니페스트를 이미지 이름을 딴 폴더에 기록하여 vvvv 패치가 읽을 수 있게 합니다. 파일은 통째로 교체되므로, 폴더를 감시하는 패치가 절반만 쓰인 파일을 읽는 일은 없습니다.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    }
+  ]
+}

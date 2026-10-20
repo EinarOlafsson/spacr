@@ -50,7 +50,7 @@
       "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
       "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
       "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
-      "translation": "Ordem: expansão por percentis (Visualização) → fundo → PSF → restauração → redução de ruído → contraste → nitidez → deteção → morfologia → divisão."
+      "translation": "Ordem: expansão por percentis (Visualização) → fundo → PSF → restauração → redução de ruído → contraste → nitidez → detecção → morfologia → divisão."
     }
   ]
 }

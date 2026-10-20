@@ -1,0 +1,7 @@
+{
+  "base_source_sha256": "e6915ca7153bd132a591f1455d1bf6202eb1ec115258f66023da42e33c3a33eb",
+  "final_source_sha256": "ff0831fd6c842df15b79315e247dec08672a930edfecde9e6ec4384f7a3c6bf5",
+  "patch_sha256": "cc5b3bb0f52840f0e0a509fcdcfde96bcaed9e5fe4d123434c7a4ab93625b87c",
+  "test_sha256": "8325c99c5a560354018a9e1a9121a530a9dd7ea0c68dcb0acb439baaf850ecde",
+  "baseline": "8 failed, 10 passed in 10.17s; actual constructor tripwire reached for missing/nonregular cache under four offline settings"
+}

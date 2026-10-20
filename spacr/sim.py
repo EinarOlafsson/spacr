@@ -8,6 +8,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from matplotlib.patches import Patch
 import seaborn as sns
 import sklearn.metrics as metrics
@@ -637,10 +638,12 @@ def run_simulation(settings):
 
     :param settings: Dict of simulation parameters (gene counts, distribution
         moments, sequencing error, classifier accuracy, ...).
-    :returns: Tuple ``(cell_scores, cell_roc_dict_df, cell_pr_dict_df,
-        cell_cm, well_score, gene_fraction_map, metadata, results_df,
-        reg_roc_dict_df, reg_pr_dict_df, reg_cm, sim_stats,
-        genes_per_well_df, wells_per_gene_df, dists)``.
+    :returns: Tuple ``(output, dists)``: ``output`` is the 14-element list
+        ``[cell_scores, cell_roc_dict_df, cell_pr_dict_df, cell_cm, well_score,
+        gene_fraction_map, metadata, results_df, reg_roc_dict_df,
+        reg_pr_dict_df, reg_cm, sim_stats, genes_per_well_df,
+        wells_per_gene_df]`` and ``dists`` is the distribution list returned by
+        :func:`run_experiment`.
     """
     active_gene_list = generate_gene_list(settings['number_of_active_genes'], settings['number_of_genes'])
     control_gene_list = generate_gene_list(settings['number_of_control_genes'], settings['number_of_genes'])
@@ -834,7 +837,7 @@ def visualize_all(output):
             ax[n].spines['right'].set_visible(False)
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         gc.collect()
         return fig
 
@@ -1357,7 +1360,7 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
         ax.set_visible(False)
 
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
     return fig
     
 
@@ -1386,10 +1389,8 @@ def plot_correlation_matrix(df, annot=False, cmap=None, clean=True, dst=None):
         and related outputs.
     :param annot: When True, write numeric correlations in each cell.
     :param cmap: Colormap name or object. ``None`` uses the house diverging
-        map, which is the one case the style allows a diverging map for --
-        a correlation is genuinely signed. The parameter used to default to
-        ``'inferno'`` and then be OVERWRITTEN two lines later, so a caller
-        who passed one got the diverging map anyway and never knew.
+        map, which is the one case the style allows a diverging map for -- a
+        correlation is signed.
     :param clean: When True, drop constant columns before computing correlations.
     :returns: The generated Matplotlib figure.
     """
@@ -1423,7 +1424,7 @@ def plot_correlation_matrix(df, annot=False, cmap=None, clean=True, dst=None):
         _style_colour_bar(fig)
 
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         save_plot(fig, src=_figures_dst(dst), variable='correlation_matrix', i=1)
     return fig
 
@@ -1467,7 +1468,7 @@ def plot_feature_importance(df, target='prauc', exclude=None, clean=True, dst=No
         plt.xlabel('Feature Importance')
         plt.title('Feature Importances')
         plt.tight_layout()
-        plt.show()
+        _show_if_interactive()
         save_plot(fig, src=_figures_dst(dst), variable='feature_importance', i=1)
     return fig
 
@@ -1515,7 +1516,7 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     ax.set_yticklabels([features[i] for i in sorted_idx])
     ax.set_xlabel('Permutation Importance')
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
     save_plot(fig, src=_figures_dst(dst), variable='permutation_importance', i=1)
     return fig
     
@@ -1566,7 +1567,7 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
         ax.set_visible(False)
     
     plt.tight_layout()
-    plt.show()
+    _show_if_interactive()
     save_plot(fig, src=_figures_dst(dst), variable='partial_dependences', i=1)
     return fig
 

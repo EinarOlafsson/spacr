@@ -1,0 +1,27 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Agg's savefig touches no Qt, so the expensive part happens off the main GUI execution path, and the PNG is decoded here too (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI only moves a file and wraps a picture, which is what stops it hanging while figures stream in.",
+      "label": "spacr.qt.bridge.PipelineWorker.run._capture_show#1",
+      "source": "Agg's savefig touches no Qt, so the expensive part happens off the GUI thread, and the PNG is decoded here too (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI only moves a file and wraps a picture, which is what stops it hanging while figures stream in.",
+      "source_sha256": "4b6c201c4898e1ce5d85d7570d250e93161fe3e325ad07c58628e77042fab747",
+      "translation": "Agg का savefig Qt को नहीं छूता, इसलिए अधिक संसाधन लेने वाला काम GUI थ्रेड से बाहर होता है और PNG भी यहीं डिकोड होता है (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): GUI केवल फ़ाइल को स्थानांतरित करता है और चित्र को रैप करता है, जिससे चित्र आते रहने पर वह अटकता नहीं है।"
+    },
+    {
+      "context": "Open a spatial volume, one channel or several, for native 3-D editing.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#0",
+      "source": "Open a spatial volume, one channel or several, for native 3-D editing.",
+      "source_sha256": "f5737aa4b8008209201ff090394eb7367245bebe60741cd318ee13da056d26cc",
+      "translation": "नेटिव 3D संपादन के लिए एक या कई चैनल वाला स्थानिक वॉल्यूम खोलता है।"
+    },
+    {
+      "context": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved. One image data channel axis (``CZYX``, ``ZCYX``, at most 16 image data channels) is kept as :attr:`VolumeMaskSession.channels`; the slice views show the first image data channel. Time and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "label": "spacr.qt.mask_engine.load_volume_image_and_mask#1",
+      "source": "TIFF volumes need exactly three spatial axes, in any order. A plain three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved. One channel axis (``CZYX``, ``ZCYX``, at most 16 channels) is kept as :attr:`VolumeMaskSession.channels`; the slice views show the first channel. Time and colour axes are refused. ``voxel_spacing`` metadata is read in storage-axis order. OME physical sizes are converted to micrometres; ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``, ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres; they need the optional ``mrcfile`` package. Absent physical metadata means pixel coordinates. Labels retain dtype and identity. A saved geometry sidecar is bound to the exact source file and mask pixels and is refused when stale.",
+      "source_sha256": "3fadac73bfca2bb9ad2e0edeacdf234386853325cf5b5c0c6ec9a1386eae7d94",
+      "translation": "TIFF वॉल्यूम को ठीक तीन स्थानिक अक्ष चाहिए, किसी भी क्रम में। tifffile का ``Q`` या ``I`` पृष्ठ अक्ष, ``YX`` के ऊपर, वाला साधारण त्रि-आयामी पृष्ठ स्टैक Z सेक्शन के रूप में पढ़ा जाता है, जैसे z-स्टैक और FIB-SEM श्रृंखला सहेजी जाती हैं। एक चैनल अक्ष (``CZYX``, ``ZCYX``, अधिकतम 16 चैनल) :attr:`VolumeMaskSession.channels` के रूप में रखा जाता है; स्लाइस दृश्य पहला चैनल दिखाते हैं। समय और रंग अक्ष अस्वीकार किए जाते हैं। ``voxel_spacing`` मेटाडेटा संग्रहण-अक्ष क्रम में पढ़ा जाता है। OME भौतिक आकार माइक्रोमीटर में बदले जाते हैं; ImageJ अंतराल और XY रिज़ॉल्यूशन बनाए रखे जाते हैं। MRC वॉल्यूम (``.mrc``, ``.rec``, ``.map``) ZYX के रूप में नैनोमीटर में वॉक्सेल आकार के साथ पढ़े जाते हैं; उन्हें वैकल्पिक ``mrcfile`` पैकेज चाहिए। भौतिक मेटाडेटा न होने का अर्थ पिक्सेल निर्देशांक है। लेबल dtype और पहचान बनाए रखते हैं। सहेजी गई ज्यामिति साइडकार फ़ाइल ठीक स्रोत फ़ाइल और मास्क पिक्सेल से बँधी होती है और पुरानी पड़ने पर अस्वीकार की जाती है।"
+    }
+  ],
+  "schema": 1
+}

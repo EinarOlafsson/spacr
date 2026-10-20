@@ -91,7 +91,7 @@ def cancellation_requested() -> bool:
 
 
 def checkpoint() -> None:
-    """Stop at this safe boundary when requested; otherwise do nothing.
+    """Raise :class:`PipelineCancelled` if this thread's token was cancelled.
 
     Calls outside a managed worker are intentionally no-ops, so the same
     pipeline functions work through the GUI, CLI, notebooks, and tests.

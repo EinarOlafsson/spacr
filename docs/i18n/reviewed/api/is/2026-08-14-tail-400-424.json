@@ -28,7 +28,9 @@
       "source_sha256": "900d6a40e110bdc7336217dabd65f870c7810120cebace3b7646403580a7c4d7",
       "source": "**Chunked.** The array is stored as a grid of independently compressed blocks, so a 100 GB plate is readable a tile at a time. Nothing here ever reads an array to answer a question about it: :func:`read_ome_zarr` opens a handful of small JSON files and returns the levels, their shapes, their voxel sizes and their chunk grids without touching a single chunk, and :meth:`OmeZarrImage.read` with a ``region=`` decodes only the chunks that region intersects. Every byte of chunk data in the pure-Python path passes through one function, :func:`_read_chunk_bytes`, precisely so that \"it is lazy\" is a countable claim rather than a sentence in a docstring — ``tests/test_ome_zarr.py`` counts its calls.",
       "context": "**Chunked storage.** Independently compressed blocks make a 100 GB plate readable one tile at a time. Metadata queries do not load array data. :func:`read_ome_zarr` reads small JSON files and reports levels, shapes, voxel sizes, and chunk grids without reading a chunk. :meth:`OmeZarrImage.read` with ``region=`` decodes only intersecting chunks. In the pure-Python path, all chunk bytes pass through :func:`_read_chunk_bytes`. Therefore ``tests/test_ome_zarr.py`` can count calls and verify lazy loading directly.",
-      "translation": "**Hlutbundið geymsla.** Sjálfstætt þjappaðir kubbar gera 100 GB diska læsanlegan eina flís í einu. Fyrirspurnir á lýsigögnum hlaða ekki fylkismögnun. :func:`read_ome_zarr` les lítil JSON skrár og skilar upplýsingum um stig, form, voxel-stærðir og kubbagrind án þess að lesa kubb. :meth:`OmeZarrImage.read` með ``region=`` afkóðar aðeins skurðpunkti kubba. Í hreinu Python-brautinni fara öll kubba-bæti í gegnum :func:`_read_chunk_bytes`. Þess vegna getur ``tests/test_ome_zarr.py`` talið köll og staðfest seinkaða hleðslu beint."
+      "translation": "**Hlutbundið geymsla.** Sjálfstætt þjappaðir kubbar gera 100 GB diska læsanlegan eina flís í einu. Fyrirspurnir á lýsigögnum hlaða ekki fylkismögnun. :func:`read_ome_zarr` les lítil JSON skrár og skilar upplýsingum um stig, form, voxel-stærðir og kubbagrind án þess að lesa kubb. :meth:`OmeZarrImage.read` með ``region=`` afkóðar aðeins skurðpunkti kubba. Í hreinu Python-brautinni fara öll kubba-bæti í gegnum :func:`_read_chunk_bytes`. Þess vegna getur ``tests/test_ome_zarr.py`` talið köll og staðfest seinkaða hleðslu beint.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.resource_cleanup#1",
@@ -65,7 +67,9 @@
       "source_sha256": "4c551bb8d5f4354a2f329ed883c43eebf1e8e0b3e796a756004fed98473e77fa",
       "source": "Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a column with zero range to all-zeros, and patsy's intercept is exactly such a column, so scaling a design matrix used to silently delete its intercept: statsmodels then fitted a model through the origin and still printed an ``Intercept`` row, of 0.000, in the summary. Every coefficient in that fit absorbs the mean it can no longer estimate.",
       "context": "Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a column with zero range to all-zeros, and patsy's intercept is exactly such a column, so scaling a design matrix used to silently delete its intercept: statsmodels then fitted a model through the origin and still printed an ``Intercept`` row, of 0.000, in the summary. Every coefficient in that fit absorbs the mean it can no longer estimate.",
-      "translation": "Stöðugir dálkar eru fluttir óbreyttir. ``MinMaxScaler`` kortleggur dálk með núlli bil yfir á alla-núll, og skurðpunktur patsy er nákvæmlega slíkur dálkur, svo að skalun hönnunarmatriks sem áður fjarlægði þöglu skurðpunktinn: statsmodels þá passaði líkan í gegnum upphafspunktinn og prentaði samt ``Intercept`` röð, með 0,000, í samantektinni. Hvert stuðull í þeirri passu gleypir meðaltal sem það getur ekki lengur áætlað."
+      "translation": "Stöðugir dálkar eru fluttir óbreyttir. ``MinMaxScaler`` kortleggur dálk með núlli bil yfir á alla-núll, og skurðpunktur patsy er nákvæmlega slíkur dálkur, svo að skalun hönnunarmatriks sem áður fjarlægði þöglu skurðpunktinn: statsmodels þá passaði líkan í gegnum upphafspunktinn og prentaði samt ``Intercept`` röð, með 0,000, í samantektinni. Hvert stuðull í þeirri passu gleypir meðaltal sem það getur ekki lengur áætlað.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.chaining.chained_inputs#4",
@@ -141,42 +145,54 @@
       "source_sha256": "0ba98a7055c369028830a59c28128dea3465fe0237f7b706cdc6d931723a9516",
       "source": "End to end rather than fitted: for a linear model they are the same number, and for a GLM the end-to-end value is the honest summary of a curve whose local slope changes.",
       "context": "End to end rather than fitted: for a linear model they are the same number, and for a GLM the end-to-end value is the honest summary of a curve whose local slope changes.",
-      "translation": "Frá enda til enda frekar en passað: fyrir línulegt líkan eru þau sama talan, og fyrir GLM er endi-til-enda gildið heiðarlegt yfirlit yfir kúrfu þar sem staðbundinn halli breytist."
+      "translation": "Frá enda til enda frekar en passað: fyrir línulegt líkan eru þau sama talan, og fyrir GLM er endi-til-enda gildið heiðarlegt yfirlit yfir kúrfu þar sem staðbundinn halli breytist.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.validate#4",
       "source_sha256": "b1713db9bace8f25c915d07de37f863c1b4c7d2536c977f65818e1bdf83b3245",
       "source": "``Problem`` One thing that is wrong, with the fix. ``validate_settings(settings, app_key)`` Returns a list of :class:`Problem`, errors and warnings mixed. ``format_report(problems, settings, app_key)`` Human-readable report; errors first, each with its fix line. ``describe_plan(settings, app_key)`` \"Here is what would actually happen\" summary.",
       "context": "``Problem`` One thing that is wrong, with the fix. ``validate_settings(settings, app_key)`` Returns a list of :class:`Problem`, errors and warnings mixed. ``format_report(problems, settings, app_key)`` Easy-to-read report; errors first, each with its fix line. ``describe_plan(settings, app_key)`` \"Here is what would actually happen\" summary.",
-      "translation": "``Problem`` Eitt sem er rangt, með lagfæringuna. ``validate_settings(settings, app_key)`` Skilar lista af :class:`Problem`, villum og viðvörunum blönduðum saman. ``format_report(problems, settings, app_key)`` Auðveldur til að lesa skýrsla; villur fyrst, hver með línu lagfæringarinnar. ``describe_plan(settings, app_key)`` \"Hér er hvað myndi raunverulega gerast\" samantekt."
+      "translation": "``Problem`` Eitt sem er rangt, með lagfæringuna. ``validate_settings(settings, app_key)`` Skilar lista af :class:`Problem`, villum og viðvörunum blönduðum saman. ``format_report(problems, settings, app_key)`` Auðveldur til að lesa skýrsla; villur fyrst, hver með línu lagfæringarinnar. ``describe_plan(settings, app_key)`` \"Hér er hvað myndi raunverulega gerast\" samantekt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.hyperparam.walk_search#0",
       "source_sha256": "813fe73850798c945f42375a9779949bb9f044e85613932ceac385e0a8ccc8c8",
       "source": "Walk N-dimensional hyperparameter space toward a better score.",
       "context": "Walk N-dimensional hyperparameter space toward a better score.",
-      "translation": "Gakktu um N-dimensionað hyperparameter-rýmið í átt að betri skori."
+      "translation": "Gakktu um N-dimensionað hyperparameter-rýmið í átt að betri skori.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.mask_io#0",
       "source_sha256": "8b35ff4d18fdce4e97ff91c0301b6ea57b866cdca00fa8c4e2f4ad6cc148893c",
       "source": "Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.",
       "context": "Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.",
-      "translation": "Cellpose grímu I/O — skrifa + lesa grímur sem EÐA TIFF eða NumPy."
+      "translation": "Cellpose grímu I/O — skrifa + lesa grímur sem EÐA TIFF eða NumPy.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.power_model.scan_parameters#2",
       "source_sha256": "caaddd5ba419c9c299f816ee984f8812017f22186dc0692869c50cf7f710c631",
       "source": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that runs but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
       "context": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that executes but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
-      "translation": "**Punktur sem mistekst er skráður sem misheppnaður.** Mátun sem veldur undantekningu fær ``status=\"failed\"`` og texta undantekningarinnar í ``error``; mátun sem keyrir en uppfyllir ekki samleitniskröfuna fær ``status=\"not_converged\"``. Báðar fá ``NaN`` mæligildi. Þetta er tilgangurinn: leit sem fyllti inn 0,5 fyrir bilaða punkta myndi sýna hönnun við tilviljunarstig, en niðurstöðurnar \"þessi hönnun finnur ekki jákvæðu tilvikin\" og \"this fit crashed\" hafa gagnstæðar afleiðingar."
+      "translation": "**Punktur sem mistekst er skráður sem misheppnaður.** Mátun sem veldur undantekningu fær ``status=\"failed\"`` og texta undantekningarinnar í ``error``; mátun sem keyrir en uppfyllir ekki samleitniskröfuna fær ``status=\"not_converged\"``. Báðar fá ``NaN`` mæligildi. Þetta er tilgangurinn: leit sem fyllti inn 0,5 fyrir bilaða punkta myndi sýna hönnun við tilviljunarstig, en niðurstöðurnar \"þessi hönnun finnur ekki jákvæðu tilvikin\" og \"this fit crashed\" hafa gagnstæðar afleiðingar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.folder_metadata.iter_image_files#1",
       "source_sha256": "5a6e01fc0bcb990a4a7664e3bce3e11aa66dc5ed0a221b6a153e254324451426",
       "source": "**Lazy, and that is the whole point.** The drop handlers need two things from a dropped folder — a small probe to guess the layout from, and (only if the guess succeeds) the full file list to plan an extraction. Pulling both off one generator means the tree is traversed once; abandoning the generator after the probe means a folder with no layout to detect is never fully walked at all. The previous shape returned lists, and the same tree was walked three times per drop.",
       "context": "**File iteration is deferred until needed.** Drag-and-drop handlers need a small layout probe from a dropped folder and, only after a successful probe, the complete file list for extraction planning. Both come from one generator, so the folder tree is traversed once. Abandoning the generator after a failed probe avoids a complete traversal. The previous list-based design traversed the same tree three times for each drop operation.",
-      "translation": "**Skráayfirferð er frestað þar til hennar er þörf.** Draga-og-sleppa meðhöndlarar þurfa fyrst lítið útlitspróf úr möppu sem var sleppt og, aðeins ef prófið tekst, allan skráalistann fyrir útdráttaráætlun. Hvort tveggja kemur úr einum ítrara, svo möpputréð er aðeins yfirfarið einu sinni. Ef hætt er við ítrarann eftir misheppnað próf er full yfirferð óþörf. Eldri listahönnun fór þrisvar yfir sama tré fyrir hverja sleppiaðgerð."
+      "translation": "**Skráayfirferð er frestað þar til hennar er þörf.** Draga-og-sleppa meðhöndlarar þurfa fyrst lítið útlitspróf úr möppu sem var sleppt og, aðeins ef prófið tekst, allan skráalistann fyrir útdráttaráætlun. Hvort tveggja kemur úr einum ítrara, svo möpputréð er aðeins yfirfarið einu sinni. Ef hætt er við ítrarann eftir misheppnað próf er full yfirferð óþörf. Eldri listahönnun fór þrisvar yfir sama tré fyrir hverja sleppiaðgerð.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.synthetic.generate_classify_demo#3",

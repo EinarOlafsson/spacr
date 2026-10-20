@@ -131,13 +131,6 @@
     },
     {
       "table": "ui",
-      "key": "Sign in",
-      "source": "Sign in",
-      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
-      "translation": "로그인"
-    },
-    {
-      "table": "ui",
       "key": "Stop at",
       "source": "Stop at",
       "source_sha256": "a9b4c0a4fc8148fdf6465ea5844258d520c91608a80ca7995b82f8c07a722649",
@@ -247,6 +240,18 @@
       "source": "Text size",
       "source_sha256": "d68761cc1eb296478531e007ff1fda9252fb7be5d24429a97eb05765211dafe5",
       "translation": "텍스트 크기"
+    }
+  ],
+  "retired_records": [
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Sign in",
+        "source": "Sign in",
+        "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+        "translation": "로그인"
+      }
     }
   ]
 }

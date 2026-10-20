@@ -683,6 +683,10 @@ def test_the_shared_filter_narrows_the_population_and_the_pca_with_it(
     everything = screen.pca.result
     assert len(everything) == len(frame)
 
+    # set_frame clears the filter panel, and the panel publishes that empty
+    # filter after a 200 ms debounce. A fit faster than the debounce leaves
+    # the publish pending, and it would overwrite the filter set below.
+    screen.filters.flush()
     link.set_filter(DataFilter([CategoryFilter("gene", ("control",))]))
     screen._recompute_filtered()
     _settled(qtbot, screen)

@@ -143,6 +143,89 @@ for _language, _label in {'sv': 'Organism', 'de': 'Organismus', 'es': 'Organismo
     WORKFLOW_SECTION_LABELS[_language]["Organism"] = _label
 
 
+#: Labels of the README's generated model-zoo block, by language. English is
+#: the key; a language or label missing here is written in English.
+MODEL_ZOO_LABELS: dict[str, dict[str, str]] = {
+    "de": {
+        'Mask generator': 'Maskengenerator',
+        'Default models · held-out scores': 'Standardmodelle · Hold-out-Scores',
+        'Older models': 'Ältere Modelle',
+        'Alternatives': 'Alternativen',
+        'Model': 'Modell',
+        'candidate': 'Kandidat',
+    },
+    "es": {
+        'Mask generator': 'Generador de máscaras',
+        'Default models · held-out scores': 'Modelos predeterminados · puntuaciones en datos reservados',
+        'Older models': 'Modelos anteriores',
+        'Alternatives': 'Alternativas',
+        'Model': 'Modelo',
+        'candidate': 'candidato',
+    },
+    "fr": {
+        'Mask generator': 'Générateur de masques',
+        'Default models · held-out scores': 'Modèles par défaut · scores hors apprentissage',
+        'Older models': 'Modèles précédents',
+        'Alternatives': 'Alternatives',
+        'Model': 'Modèle',
+        'candidate': 'candidat',
+    },
+    "pt": {
+        'Mask generator': 'Gerador de máscaras',
+        'Default models · held-out scores': 'Modelos padrão · pontuações em dados reservados',
+        'Older models': 'Modelos anteriores',
+        'Alternatives': 'Alternativas',
+        'Model': 'Modelo',
+        'candidate': 'candidato',
+    },
+    "sv": {
+        'Mask generator': 'Maskgenerator',
+        'Default models · held-out scores': 'Standardmodeller · poäng på undanhållna data',
+        'Older models': 'Äldre modeller',
+        'Alternatives': 'Alternativ',
+        'Model': 'Modell',
+        'candidate': 'kandidat',
+    },
+    "is": {
+        'Mask generator': 'Grímugerð',
+        'Default models · held-out scores': 'Sjálfgefin líkön · skor á ósnortnum gögnum',
+        'Older models': 'Eldri líkön',
+        'Alternatives': 'Valkostir',
+        'Model': 'Líkan',
+        'candidate': 'frambjóðandi',
+    },
+    "ko": {
+        'Mask generator': '마스크 생성기',
+        'Default models · held-out scores': '기본 모델 · 홀드아웃 점수',
+        'Older models': '이전 모델',
+        'Alternatives': '대안',
+        'Model': '모델',
+        'candidate': '후보',
+    },
+    "hi": {
+        'Mask generator': 'मास्क जनरेटर',
+        'Default models · held-out scores': 'डिफ़ॉल्ट मॉडल · होल्ड-आउट स्कोर',
+        'Older models': 'पुराने मॉडल',
+        'Alternatives': 'विकल्प',
+        'Model': 'मॉडल',
+        'candidate': 'उम्मीदवार',
+    },
+    "zh_CN": {
+        'Mask generator': '掩膜生成器',
+        'Default models · held-out scores': '默认模型 · 留出集得分',
+        'Older models': '旧模型',
+        'Alternatives': '替代模型',
+        'Model': '模型',
+        'candidate': '候选',
+    },
+}
+
+
+def localize_model_zoo_label(label: str, language: str) -> str:
+    """The README model-zoo ``label`` in ``language``, English when absent."""
+    return MODEL_ZOO_LABELS.get(language, {}).get(label, label)
+
+
 def localize_workflow_markup(text: str, language: str) -> str:
     """Localize generated workflow headings/actions, retaining module names."""
     template = WORKFLOW_MODULE_ALT_TEMPLATES[language]
@@ -200,13 +283,44 @@ def localize_workflow_markup(text: str, language: str) -> str:
     return localized
 
 
+#: The hardware legend's three entries, one label per colour, in each
+#: language. AI-reviewed (Claude, 2026-10-12, second pass), no native-speaker
+#: signoff.
+#:
+#: The legend is drawn as an image now, a coloured dot before each label, so
+#: it needs the three labels apart. The accepted one-line translations in
+#: ``HARDWARE_LEGEND_TARGETS`` had lost the dots and run the three entries
+#: together ("Soutien (stable) Soutien (bêta) CPU seulement"), which an image
+#: cannot split back into dot and label; they stay as the reviewed record.
+HARDWARE_LEGEND_LABELS = {
+    "sv": ("stöds (stabilt)", "implementerat (beta)", "endast CPU-stöd"),
+    "de": ("unterstützt (stabil)", "implementiert (Beta)",
+           "nur CPU-Unterstützung"),
+    "es": ("compatible (estable)", "implementado (beta)",
+           "solo compatible con CPU"),
+    "zh_CN": ("支持（稳定）", "已实现（beta）", "仅支持 CPU"),
+    "pt": ("suportado (estável)", "implementado (beta)",
+           "apenas suporte a CPU"),
+    "hi": ("समर्थित (स्थिर)", "लागू (बीटा)", "केवल CPU समर्थन"),
+    "ko": ("지원 (안정)", "구현됨 (베타)", "CPU만 지원"),
+    "is": ("með stuðningi (stöðugt)", "útfært (beta)",
+           "aðeins CPU-stuðningur"),
+    "fr": ("pris en charge (stable)", "implémenté (bêta)",
+           "uniquement sur CPU"),
+}
+
+
 def localize_hardware_markup(text: str, language: str) -> str:
-    """Retain the accepted native hardware legend during normal regeneration."""
-    return re.sub(
+    """The hardware table's legend in ``language``."""
+    stable, beta, cpu = HARDWARE_LEGEND_LABELS[language]
+    legend = (f"\U0001F7E2 {stable} \u2003 \U0001F7E3 {beta} "
+              f"\u2003 \U0001F534 {cpu}")
+    localized = re.sub(
         rf"(?m)^{re.escape(HARDWARE_LEGEND_SOURCE)}$",
-        lambda _match: HARDWARE_LEGEND_TARGETS[language],
+        lambda _match: legend,
         str(text),
     )
+    return localized
 
 
 def _underline_width(value: str) -> int:

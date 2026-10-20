@@ -17,7 +17,7 @@ selectors, settings, preview and Run controls. Use its Test data control when
 an example is available. Plaque Assay starts with images; the other assays
 use the corresponding measurement tables and object relationships. Follow
 each module's input help before running, then open the results in its selected
-output folder. Starplast opens a separate application for exploring the
+output folder. ParaScape opens a separate application for exploring the
 Toxoplasma knowledge map; its first launch offers installation. Gliding
 motility opens the Motility Assay with infection QC off. Egress, Bradyzoite
 conversion and Host cell damage say Coming soon and are disabled.
@@ -228,10 +228,10 @@ class OrganismScreen(QWidget):
 
     def _open_module_link(self, key: str) -> None:
         """Navigate only to a live assay listed on this organism page."""
-        if key == "starplast" and self.app_key == "toxoplasma":
-            from ..starplast import open_starplast
+        if key == "parascape" and self.app_key == "toxoplasma":
+            from ..parascape import open_parascape
 
-            open_starplast(self)
+            open_parascape(self)
             return
         if any(row[0] == key for row in self.organism["modules"] if row[0]):
             self.module_requested.emit(key)
@@ -279,7 +279,7 @@ class OrganismScreen(QWidget):
                 tr(title), tr(description), artwork,
                 width=scaled_px(TILE_W), height=scaled_px(TILE_H),
                 icon_px=scaled_px(TILE_ICON_PX),
-                stage=app_stage(key) if key and key != "starplast" else "alpha", parent=self._modules)
+                stage=app_stage(key) if key and key != "parascape" else "alpha", parent=self._modules)
             tile.setProperty("organismModuleKey", key or "")
             tile.setMaximumWidth(scaled_px(TILE_MAX_W))
             tile.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)

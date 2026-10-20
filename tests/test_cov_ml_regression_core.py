@@ -532,7 +532,7 @@ def test_save_summary_to_file_writes_model_summary(tmp_path):
     out = tmp_path / "summary.csv"
     save_summary_to_file(model, file_path=str(out))
 
-    text = out.read_text()
+    text = out.read_text(encoding="utf-8")
     assert "OLS Regression Results" in text
     assert "R-squared" in text
 

@@ -92,12 +92,11 @@ def requested_renderer() -> str:
 
 
 def qt_application():
-    """The running ``QApplication``, or None. NEVER creates one.
+    """Return the running ``QApplication``, or None; never creates one.
 
-    Deliberately does not import PySide6 unless it is already imported.
-    Importing Qt pulls a GUI toolkit into a notebook that asked for a
-    regression, so the question "is there a GUI?" has to be answerable
-    without answering it in the affirmative by accident.
+    PySide6 is not imported: the function only looks up
+    ``PySide6.QtWidgets`` in ``sys.modules``, so calling it from a notebook
+    that ran a regression does not load a GUI toolkit.
     """
     import sys
 
@@ -113,7 +112,7 @@ def qt_application():
 
 
 def renderer_for(key: str, force: Optional[str] = None) -> tuple:
-    """``(renderer, reason)`` for one panel. The decision, in one place.
+    """Return the ``(renderer, reason)`` chosen for one panel.
 
     :param key: generated-panel key. Only keys in :data:`FAST_PANELS` have an
         interactive twin; every other key is assigned to matplotlib.
@@ -175,11 +174,10 @@ def _pyqtgraph_ready(create: bool = True) -> tuple:
 def build_fast_plot(key: str, frame, *, alpha: float = 0.05):
     """A live ``FastPlot`` for ``key``, fed from ``frame``.
 
-    THE COLUMNS ARE RESOLVED BY :mod:`spacr.figures.panels`, not here. A
-    second opinion about which column is the effect and which rows are
-    hypotheses is precisely the disagreement this module exists to end, and
-    ``effect_column`` / ``p_column`` / ``q_column`` / ``tested`` are the
-    generated side's single statement of it.
+    The columns are resolved by :mod:`spacr.figures.panels`, not here:
+    ``effect_column`` / ``p_column`` / ``q_column`` / ``tested`` decide which
+    column is the effect and which rows are hypotheses, so the interactive
+    plot and the generated figure use the same columns.
 
     :param key: generated-panel key with an entry in :data:`FAST_PANELS`.
     :param frame: coefficient table used to populate the interactive plot.
@@ -287,15 +285,14 @@ def render_panel(key: str, frame=None, path=None, *, plot=None,
     :param path: destination. Its extension is REPLACED by the figure-format
         preference unless ``fmt`` forces one, so the name always names what
         was actually written.
-    :param plot: a live ``FastPlot`` to render. THIS IS THE POINT OF THE
-        MODULE: given the widget the user is looking at, the file IS that
-        widget rather than a second drawing of its data.
+    :param plot: a live ``FastPlot`` to render. When given, the file is
+        exported from that widget rather than redrawn from its data, so it
+        matches what is on screen.
     :param renderer: force one of :data:`RENDERERS`.
-    :param announce: put the file in the gallery as well as on disk
-       .
+    :param announce: put the file in the gallery as well as on disk.
     :returns: a :class:`RenderedPanel`, always. A panel that could not be
         drawn comes back with ``drawn=False`` and a reason rather than
-        raising -- losing a fit over a picture is the worst trade here.
+        raising, so a figure failure does not discard the fit.
     """
     from ..plot import figure_path
 

@@ -67,13 +67,6 @@
     },
     {
       "table": "ui",
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "translation": "npm 无权写入其全局文件夹。请在终端中运行一次 `npm config set prefix ~/.local`，使 npm 安装到您拥有的文件夹，然后按“再次尝试”。",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
-    },
-    {
-      "table": "ui",
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "translation": "裁剪 PNG 图像文件夹的路径",
@@ -127,20 +120,6 @@
       "source": "{key} is not on this module's form.",
       "translation": "{key} 不在此模块的设置表单中。",
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "translation": "{label} 已安装。",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "translation": "{label} 已登录并就绪。",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
     },
     {
       "table": "ui",
@@ -222,6 +201,36 @@
         "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "translation": "npm 无权写入其全局文件夹。请在终端中运行一次 `npm config set prefix ~/.local`，使 npm 安装到您拥有的文件夹，然后按“再次尝试”。",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "translation": "{label} 已安装。",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "translation": "{label} 已登录并就绪。",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
+      }
     }
   ]
 }

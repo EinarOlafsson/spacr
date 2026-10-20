@@ -86,7 +86,7 @@ class TestTheCacheNeverLies:
     def test_an_old_cache_version_is_ignored(self, journal):
         run_journal.journal_totals()
         path = run_journal._totals_cache_path()
-        raw = json.loads(path.read_text())
+        raw = json.loads(path.read_text(encoding="utf-8"))
         raw["version"] = 0
         path.write_text(json.dumps(raw))
         assert run_journal.journal_totals()["total_runs"] == 30

@@ -1,0 +1,23 @@
+	Command being timed: "/home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/test_docs_channels.py -k api_report or report_names_every or cli_reports_null or runtime_report or failed_or_crashed_locale or report_only_pytest or cli_allows_bad_translations or incompatible_catalog_is_registered --junitxml=/mnt/wd4tb/scratch/n384-api-report-types-20261015/after.xml"
+	User time (seconds): 6.09
+	System time (seconds): 1.32
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:07.57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 439436
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 168734
+	Voluntary context switches: 1088
+	Involuntary context switches: 179
+	Swaps: 0
+	File system inputs: 19344
+	File system outputs: 456
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,8 @@
+{
+  "reviewer": "Original Home root",
+  "decision": "approved exact guarded backend",
+  "patch_sha256": "8aff7ac91ca4780a10024ba10871bf0d151efea1acc89cf1cb9ecf86a6414710",
+  "source_sha256": "e8f4a0dc2e1f366cd2ce6c6595e6e1331b16e3a396ab8717d16ad9986558e507",
+  "findings": "Callable live application guard and fresh snapshot/operation/key validation; consume once; allselected descriptors validated before own parent changes; anchored private detachment, expected-entry-only unlink/rmdir; no rmtree/nooverwritingrestore; protected roots unselectable; no guard defaults to refusal.",
+  "limits": "Known four UI cache layouts only; no universal crossprocessidle proof; last-stat/unlink same-authority race; partial/unknown/locked trees retained with paths; actual app wiring/native acceptance separate."
+}

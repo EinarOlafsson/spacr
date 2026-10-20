@@ -1,10 +1,10 @@
-"""Prediction Profiler — interrogate a fitted model one input at a time.
+"""Prediction Profiler — sweep one input of a fitted model at a time and plot
+the prediction.
 
-A coefficient table says which terms matter. It does not say what the model
-would predict for a well like yours, and it certainly does not say what
-happens if this one gRNA's fraction doubles while everything else stays put.
-That question — one input moving, the rest pinned where you chose — is what
-this screen answers.
+A coefficient table says which terms matter. It does not show what the model
+predicts for a given well, or how the prediction changes when one gRNA's
+fraction doubles while the other inputs stay fixed. This screen shows that: one
+input is swept and the others are held at chosen values.
 
 ::
 
@@ -18,16 +18,15 @@ this screen answers.
 
 The left column is :func:`spacr.profiler.sensitivity` — every input ranked by
 how far it actually moves the prediction, not by its coefficient, because a
-large coefficient on an input that never varies moves nothing. That ranking
-is what makes a three-thousand-term design usable: it tells you which input
-to open the profiler on.
+large coefficient on an input that never varies moves nothing. In a design with
+thousands of terms, the ranking shows which input to profile first.
 
-**Nothing is re-fitted.** The screen reads a coefficient table a regression
-run already wrote and wraps it in :class:`spacr.profiler.FittedLinear`, which
-is *reading* the fit. A profiler that re-fits is showing a second model under
-the first one's name, and on a penalised backend with ``alpha='auto'`` it is
-not even the same model. A caller that has a live fitted object can hand it
-straight to :meth:`ProfilerScreen.set_model` and skip the file entirely.
+**Nothing is re-fitted.** The screen reads a coefficient table a regression run
+already wrote and wraps it in :class:`spacr.profiler.FittedLinear`, which is
+*reading* the fit. Re-fitting would show a second model under the first one's
+name, and on a penalised backend with ``alpha='auto'`` its coefficients can
+differ. A caller that has a live fitted object can hand it straight to
+:meth:`ProfilerScreen.set_model` and skip the file entirely.
 
 **The link is named, not guessed.** A coefficient table does not record which
 inverse link produced it, and applying the wrong one draws a plausible curve
@@ -72,7 +71,8 @@ from ..theme import (SPACING, active_palette, block_surface,
                      mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import (_reuse_tree_items, install_sorting,
+                                      tree_item)
 from ..app_catalog import declared_app, register_declared
 
 __all__ = ["APP_KEY", "CurveCanvas", "ProfilerScreen", "curve_points",
@@ -545,7 +545,7 @@ class ProfilerScreen(QWidget):
         if design.empty:
             self._set_status("That model has no inputs to profile.",
                              problem=True)
-            self._inputs.clear()
+            _reuse_tree_items(self._inputs, 0)
             self._show_curve(None, "No inputs to profile.")
             return
         self._ranked = sensitivity(model, design)
@@ -566,20 +566,19 @@ class ProfilerScreen(QWidget):
 
     def _fill_inputs(self) -> None:
         """Redraw the ranked input list."""
-        self._inputs.clear()
-        for record in self._ranked:
+        items = _reuse_tree_items(self._inputs, len(self._ranked))
+        for item, record in zip(items, self._ranked):
             coefficient = ("—" if math.isnan(record.coefficient)
                            else f"{record.coefficient:.4g}")
-            item = tree_item([record.variable, coefficient,
-                                    f"{record.span:.4g}"])
+            for column, text in enumerate((record.variable, coefficient,
+                                           f"{record.span:.4g}")):
+                item.setText(column, text)
             item.setData(0, Qt.UserRole, record.variable)
             item.setToolTip(
                 0, f"{record.variable}: sweeping {record.low:.4g} → "
                    f"{record.high:.4g} moves the prediction "
                    f"{record.prediction_low:.4g} → "
                    f"{record.prediction_high:.4g}.")
-            self._inputs.addTopLevelItem(item)
-
 
     def _build_sliders(self) -> None:
         """One slider per held input, for the most influential few."""

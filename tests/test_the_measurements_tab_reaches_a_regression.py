@@ -891,3 +891,35 @@ def test_the_legacy_flat_count_list_is_still_understood(qtbot, tmp_path):
 
     assert screen._measurements_destination() == os.path.join(
         str(tmp_path), "measurements")
+
+
+def test_remote_count_needs_an_explicit_local_measurements_root(qtbot, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    dsn = os.environ.get("SPACR_TEST_POSTGRES_DSN", "postgresql:///remote_counts")
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    settings = {"paired_data": [{"count": dsn}]}
+    screen._settings_model.collect = lambda: settings
+    screen._attached_database_rows = lambda: [
+        {"database": "postgresql:///attached"}]
+    assert screen._measurements_destination() == ""
+
+    settings["src"] = str(tmp_path / "project")
+    assert screen._measurements_destination() == str(
+        tmp_path / "project" / "measurements")
+    settings["src"] = "postgresql:///not_a_folder"
+    assert screen._measurements_destination() == ""
+
+
+def test_remote_attached_store_is_not_a_local_fallback(qtbot, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    screen._settings_model.collect = lambda: {}
+    screen._attached_database_rows = lambda: [
+        {"database": "postgresql:///remote"},
+        {"database": str(tmp_path / "plate" / "measurements.db")}]
+    assert screen._measurements_destination() == str(
+        tmp_path / "plate" / "measurements")

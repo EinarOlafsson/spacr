@@ -1,0 +1,69 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Alt + drag",
+      "source": "Alt + drag",
+      "source_sha256": "a7c81a90804a53470999046a5621a42df380396c65b5497a512bb20548dc8ab1",
+      "table": "ui",
+      "translation": "Alt + arrastrar"
+    },
+    {
+      "key": "Pan; other tools also accept Shift + drag",
+      "source": "Pan; other tools also accept Shift + drag",
+      "source_sha256": "b073042d56f7ba43140ffe9c738cbae8f7f72dff2fbc31a999cf49691d18bc6c",
+      "table": "ui",
+      "translation": "Desplazar; otras herramientas también con Shift + arrastrar"
+    },
+    {
+      "key": "Brush: Shift + drag",
+      "source": "Brush: Shift + drag",
+      "source_sha256": "aef3d8aa71dc5f44ce673bd22a4f40c0f05de0f6839890c21f902c0ca4391940",
+      "table": "ui",
+      "translation": "Pincel: Shift + arrastrar"
+    },
+    {
+      "key": "Keep painting the last object across a gap",
+      "source": "Keep painting the last object across a gap",
+      "source_sha256": "5f6496d7d54b77a9e1021dc7ec96f44b5504e12016149778b1836593720c3728",
+      "table": "ui",
+      "translation": "Seguir pintando el último objeto a través de un hueco"
+    },
+    {
+      "key": "Each separate stroke paints a new object; a stroke that starts on or touches an object extends it. Hold Shift to keep painting the last object across a gap.",
+      "source": "Each separate stroke paints a new object; a stroke that starts on or touches an object extends it. Hold Shift to keep painting the last object across a gap.",
+      "source_sha256": "81c55def6a824c52dd0a5f87c5d4a900d57ad83cc47cf50bae529bf301abbe30",
+      "table": "ui",
+      "translation": "Cada trazo separado pinta un objeto nuevo; un trazo que empieza sobre un objeto o lo toca lo amplía. Mantén Shift pulsada para seguir pintando el último objeto a través de un hueco."
+    },
+    {
+      "key": "How far one wheel notch zooms. Higher jumps across a large field faster; lower gives the fine steps that trimming an object boundary needs. Alt + drag pans with every tool; Shift + drag also pans with tools other than the Brush.",
+      "source": "How far one wheel notch zooms. Higher jumps across a large field faster; lower gives the fine steps that trimming an object boundary needs. Alt + drag pans with every tool; Shift + drag also pans with tools other than the Brush.",
+      "source_sha256": "379b7327fba231130ae3c7fee3e3a520e132154a57304837207f033cb41544f7",
+      "table": "ui",
+      "translation": "Cuánto amplía cada paso de la rueda. Un valor mayor permite recorrer un campo grande más rápido; uno menor da los pasos finos necesarios para ajustar el contorno de un objeto. Alt + arrastrar desplaza con cualquier herramienta; Shift + arrastrar también desplaza con las herramientas distintas del Pincel."
+    },
+    {
+      "key": "The Wand is still filling the last click.",
+      "source": "The Wand is still filling the last click.",
+      "source_sha256": "c284df74509bf4953a1d8b402e5f5f2f692f9ca8b4e3c54b3966ecb0debcc0bb",
+      "table": "ui",
+      "translation": "La varita sigue rellenando el área del último clic."
+    },
+    {
+      "key": "The Wand could not fill that region: {error}",
+      "source": "The Wand could not fill that region: {error}",
+      "source_sha256": "4dd3fbf296e7675782b65b1e8935e223dbed1f2b6f270d198e63bdc64495d7ba",
+      "table": "ui",
+      "translation": "La varita no pudo rellenar esa región: {error}"
+    },
+    {
+      "key": "The Wand region was not applied: the mask changed while it was being filled.",
+      "source": "The Wand region was not applied: the mask changed while it was being filled.",
+      "source_sha256": "b8563cc72ce687c4006fdbf44160cd8da90eb6d3034a3321e372dff95c201c64",
+      "table": "ui",
+      "translation": "No se aplicó la región de la varita: la máscara cambió mientras se rellenaba."
+    }
+  ],
+  "schema": 1
+}

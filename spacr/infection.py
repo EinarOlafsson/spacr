@@ -1,20 +1,20 @@
 """Infection metrics, assembled from a finished Measure run.
 
-A REPORT, NOT A PIPELINE, and that was a deliberate choice made after the
-derivability was measured: thirteen of the sixteen candidate infection metrics
-fall out of tables Measure has already written, with no new image processing.
+This module builds a report from existing tables and runs no image
+processing: thirteen of the sixteen candidate infection metrics can be
+derived from tables Measure has already written.
 The three that do not -- intracellular fraction, vacuoles per cell, distance
 to the host boundary -- belong to the invasion module and to segmentation, and
 are deliberately absent here rather than approximated.
 
-THE DENOMINATOR IS THE WHOLE PROBLEM, and it is why every number this module
-produces carries its own denominator beside it. Almost every way of getting an
-infection metric wrong is a denominator that does not match its numerator:
+Every number this module produces carries its own denominator, because
+most errors in infection metrics come from a denominator that does not match
+its numerator:
 
-* The relationship table has NO ROW for a cell with no parasites.
+* The relationship table has no row for a cell with no parasites.
   ``measure.get_components`` explodes the per-cell child list and drops the
-  empty ones, so counting rows there counts INFECTED cells and calls it the
-  cell count. The denominator has to come from the ``cell`` table, which
+  empty ones, so counting rows there counts infected cells, not all
+  cells. The denominator has to come from the ``cell`` table, which
   holds every segmented cell whether or not anything is inside it.
 * ``io.py`` drops pathogens with no ``cell_id`` and can filter rows by
   ``pathogen_prcfo_count``. Neither touches the cell table. A numerator built
@@ -25,9 +25,9 @@ So :func:`infection_report` returns the denominator, and its size, on every
 row. A reader who disagrees with a number can see immediately which of the two
 halves they disagree with.
 
-IT DOES NOT INVENT A FIFTH VOCABULARY. ``uninfected``, ``pathogen_count`` and
+The module adds no new terms. ``uninfected``, ``pathogen_count`` and
 ``pathogen_prcfo_count`` already exist across ``measure``, ``io`` and
-``timelapse``. This module reuses them and adds no synonym.
+``timelapse``; this module reuses them.
 """
 from __future__ import annotations
 
@@ -101,22 +101,21 @@ NOT_DERIVABLE = ("not derivable: the Measure run set include_uninfected=False, "
 def uninfected_cells_were_measured(db_path: str) -> Optional[bool]:
     """Whether the Measure run that wrote ``db_path`` kept uninfected cells.
 
-    THE ANSWER CHANGES WHAT THE CELL TABLE IS. `include_uninfected=False` --
-    the default for a screen that only crops infected cells, and what the
-    TSG101 plates were measured with -- means Measure wrote no row for a cell
+    The answer determines what the cell table holds.
+    `include_uninfected=False` -- the default for a screen that only crops
+    infected cells, and what the TSG101 plates were measured with -- means Measure wrote no row for a cell
     with no parasite. The cell table is then a selection of infected cells
     rather than the segmented population, and `infected / cells` is 1.0 for
     every well no matter what the biology did.
 
-    That is not a rounding problem to note in a docstring. A reader handed a
-    column of 1.000 reads 100% infection as a RESULT, and nothing in the
-    table says otherwise, so this module refuses the rate instead of
+    A column of 1.000 would read as 100% infection, and nothing in the table
+    would indicate otherwise, so this module withholds the rate instead of
     printing it.
 
     :param db_path: path to a ``measurements.db``.
     :returns: ``True`` or ``False`` when the run recorded the setting,
-        ``None`` when it did not -- an older database, where the honest
-        answer is that we cannot tell.
+        ``None`` when it did not (an older database), so the answer is
+        unknown.
     """
     try:
         db = _connect_read_only(db_path)
@@ -170,33 +169,32 @@ def _setting(db_path: str, key: str) -> Optional[bool]:
 def border_rules_agree(db_path: str) -> Optional[bool]:
     """Whether cells and parasites were border-filtered the same way.
 
-    THE NUMERATOR AND THE DENOMINATOR MUST OBEY THE SAME RULE, which is what
-    377's PART 1 asks for in as many words: "the infection denominator has to
-    use the same rule or the rate is computed against a different cell count
-    than the numerator".
+    The numerator and the denominator must use the same border rule;
+    otherwise the rate is computed against a different cell count than the
+    numerator.
 
-    `remove_border_objects` is applied at SEGMENTATION time, per object type,
+    `remove_border_objects` is applied at segmentation time, per object type,
     so it decides what is in each table rather than how the table is counted.
     The two settings are independent and default to False together, so they
     agree unless somebody changed one:
 
       * pathogens cleared and cells kept -- a host cell whose only parasite
         touched the edge is still in the cell table, now with a count of
-        zero. It reads as UNINFECTED and deflates the rate.
+        zero. It reads as uninfected and deflates the rate.
       * cells cleared and pathogens kept -- a parasite can name a cell that
         is no longer in the cell table, so it is counted in neither
         numerator nor denominator and the infection index drifts.
 
-    THIS IS THE SAME FAILURE AS `include_uninfected`, WHICH ALREADY SHIPPED:
-    a setting that silently changes what a table contains, and therefore what
-    a ratio over it means, with nothing in the output saying so. That one
-    turned every well into 1.000000 on a real plate. This one is quieter,
-    which is worse -- a deflated rate looks like biology.
+    This is the same kind of problem as `include_uninfected`: a setting
+    that changes what a table contains, and therefore what a ratio over it
+    means, without any indication in the output. `include_uninfected` made
+    every well 1.000000 on a real plate; a border mismatch instead deflates
+    the rate, which can be mistaken for a biological effect.
 
     :param db_path: path to a ``measurements.db``.
     :returns: ``True`` when both rules match, ``False`` when they differ,
-        ``None`` when the run recorded neither -- an older database, where
-        the honest answer is that we cannot tell.
+        ``None`` when the run recorded neither (an older database), so the
+        answer is unknown.
     """
     cells = _setting(db_path, CELL_BORDER_KEY)
     pathogens = _setting(db_path, PATHOGEN_BORDER_KEY)
@@ -270,12 +268,12 @@ def _load(db: sqlite3.Connection, table: str,
 
 
 def parasites_per_cell(db_path: str) -> pd.DataFrame:
-    """Every host cell, with how many parasites it contains -- ZERO INCLUDED.
+    """Every host cell with its parasite count, including cells with zero.
 
-    THE ZEROES ARE THE POINT. The relationship between a cell and its
-    parasites is stored on the parasite, so a cell containing none appears
-    nowhere in the pathogen table. Any count taken from that table alone is a
-    count of infected cells wearing the name of a cell count.
+    The relationship between a cell and its parasites is stored on the
+    parasite, so a cell containing none appears nowhere in the pathogen
+    table. Any count taken from that table alone counts only infected
+    cells.
 
     :param db_path: path to a ``measurements.db``.
     :returns: one row per cell, with the identity columns, ``object_label``
@@ -365,8 +363,8 @@ def infection_report(db_path: str, *,
                      monolayer_filter: bool = False) -> pd.DataFrame:
     """Infection metrics per well, each with the denominator it was computed over.
 
-    EVERY ROW CARRIES ITS DENOMINATOR because that is where these numbers go
-    wrong. ``infection rate`` over "cells" and ``parasites per infected`` over
+    Every row carries its denominator, because a mismatched denominator is
+    the usual error in these numbers. ``infection rate`` over "cells" and ``parasites per infected`` over
     "infected cells" are different populations, and a table that reports only
     the ratios cannot be checked.
 
@@ -468,15 +466,12 @@ def write_infection_report(db_path: str, *, by_field: bool = False,
                            destination: Optional[str] = None) -> Optional[str]:
     """Write the infection report beside the database it came from.
 
-    A MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate
-    already has it. There is no button and no screen, and nothing has to be
-    asked for -- which is the point, because the runs that most need these numbers
-    are the ones that would never have thought to ask.
+    A Measure run writes the report automatically; it needs no button,
+    screen or setting.
 
-    NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell
-    table, or none of the columns the metrics need, gives an empty report,
-    and an empty CSV beside a database is a file that invites somebody to
-    wonder what went wrong. The answer is None instead.
+    Nothing is written when the report is empty. A plate with no cell
+    table, or none of the columns the metrics need, gives an empty report;
+    no empty CSV is written and None is returned.
 
     Written to a dot-name in the same folder and renamed over the target,
     so a reader never sees half a file.
@@ -502,7 +497,7 @@ def write_infection_report(db_path: str, *, by_field: bool = False,
 
 
 def multiplicity_distribution(db_path: str) -> pd.DataFrame:
-    """The histogram behind the means, which is what the means hide.
+    """Per-well distribution of the number of parasites per cell.
 
     Two conditions can share an infection index and differ completely: a few
     heavily infected cells against many lightly infected ones is different
@@ -529,12 +524,11 @@ def multiplicity_distribution(db_path: str) -> pd.DataFrame:
 
 def host_contrast(db_path: str, columns: Sequence[str], *,
                   statistic: str = "mean") -> pd.DataFrame:
-    """One host measurement, infected against uninfected, IN THE SAME WELL.
+    """Compare host measurements of infected and uninfected cells per well.
 
-    The comparison is made within a well on purpose: comparing an infected
-    well to an uninfected one confounds infection with everything else that
-    differs between two wells, and the whole reason this is worth computing
-    is that both populations sit in the same one.
+    The comparison is made within a well: comparing an infected well to an
+    uninfected one confounds infection with everything else that differs
+    between two wells, whereas here both populations share the same well.
 
     :param db_path: path to a ``measurements.db``.
     :param columns: the host-cell measurements to contrast, e.g. ``("area",

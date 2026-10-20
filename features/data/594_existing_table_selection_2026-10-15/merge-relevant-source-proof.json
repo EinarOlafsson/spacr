@@ -1,0 +1,25 @@
+{
+  "public_base": "902630241d7",
+  "own_ml_source_byte_identical": "68ebc796b4d",
+  "owner_API_artifacts_byte_identical": true,
+  "incoming_modules": {
+    "spacr/workspace.py": {
+      "settings_argument_function_AST_identical": [
+        "copy_limit_from_settings",
+        "mode_from_settings",
+        "save_for_run"
+      ],
+      "all_existing_public_API_docstrings_identical": true,
+      "only_new_private_helpers": [
+        "_carried_file_path",
+        "_restore_file_paths"
+      ]
+    },
+    "spacr/example_archives.py": {
+      "settings_argument_function_AST_identical": [],
+      "all_existing_public_API_docstrings_identical": true,
+      "only_new_private_helpers": []
+    }
+  },
+  "normal_consumer_flow_help_rerun": "Not required solely for these body-only changes; actual tables artifacts already normal-generated and18 owning cases passed"
+}

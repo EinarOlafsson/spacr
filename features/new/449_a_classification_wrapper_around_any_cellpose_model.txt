@@ -603,3 +603,13 @@ WHAT UNBLOCKS THIS ITEM (the maintainer's):
 When the counts exist, pv_train.py in the receipt is the starting point:
 keep the grouped-by-well folds and report area alone as the baseline to
 beat, per count bin.
+
+2026-10-14 02:30 EDT — Current maintainer-input reconciliation preserved in
+data/maintainer_annotation_reconciliation_2026-10-14/. Home metadata has 8,882
+MTOC crops without an annotation/count column; that is not manual count truth.
+The remaining scientific inputs are actual per-vacuole counts, original
+parasite-stain provenance and independent split/merge judgments. Source/docs
+entrypoints are recorded; no counts were invented, images read, or data changed.
+Live Work labeling state remains unverified; locate existing truth before
+asking for duplicate annotation. Whole validation/published-weight acceptance
+remains open. No inference, training or GPU execution.

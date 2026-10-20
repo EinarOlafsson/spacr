@@ -207,15 +207,18 @@ def apply(frame, baseline: Baseline, *, column: str = "coefficient"):
     :param frame: coefficient table to copy and re-express.
     :param baseline: resolved baseline whose shift is applied.
 
-    The function returns a copy because the input may also supply coefficient
-    tables, exports and other panels that must retain their original values.
+    When the baseline shifts effects, a copy is returned because the input
+    may also supply coefficient tables, exports and other panels that must
+    retain their original values. When it does not shift (``baseline`` is
+    ``None`` or :attr:`Baseline.moves` is false), ``frame`` itself is
+    returned unchanged.
 
     Standard errors and p-values are unchanged: a
     location shift of every coefficient by one constant changes what each
     effect is measured from, not how precisely it was estimated. The
-    p-values still test the coefficient against zero, which is why the
-    sentence goes in the caption -- a reader who sees shifted effects and
-    unshifted stars must be told the two answer different questions.
+    p-values still test the coefficient against zero, so the caption
+    sentence states that shifted effects and unshifted significance marks
+    refer to different references.
     """
     if baseline is None or not baseline.moves:
         return frame

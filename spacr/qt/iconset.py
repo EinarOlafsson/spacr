@@ -3,23 +3,19 @@ Central icon lookup for the spacr Qt GUI.
 
 Two sources of icons, both made theme-aware here:
 
-* **qtawesome glyphs** — vector, painted in whatever colour we ask for.
+* **qtawesome glyphs** — vector, painted in the colour the caller requests.
   Wrapped so callers stay decoupled from Font Awesome glyph names. When the
   optional font is unavailable a bundled, theme-aware glyph is returned;
   toolbar affordances never silently turn into blank buttons.
 * **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome
   artwork baked at a fixed colour.
 
-The bundled PNGs were *theme-blind*, and it showed: ``convert.png``
-(Format Converter) shipped as solid black with an alpha mask, so on the
-black home page it rendered as nothing at all. The other twenty-odd were
-solid white, which is the same bug pointed the other way — invisible on
-the light theme, nobody had noticed because nobody used it. A third
-theme made this unavoidable, so :func:`themed_qimage` now re-inks every
-bundled PNG for the active theme. **This is what makes the artwork
-swappable**: seventeen icons were redrawn and reinstalled without a line
-of change here, because nothing in this module knows what any of them
-look like.
+The bundled PNGs have a fixed colour: ``convert.png`` (Format Converter) is
+solid black with an alpha mask, which is invisible on the black home page, and
+most of the others are solid white, which is invisible on the light theme.
+:func:`themed_qimage` therefore re-inks every bundled PNG for the active
+theme. Nothing in this module depends on what an icon depicts, so artwork can
+be replaced without code changes. Re-inking works as follows:
 
 * the artwork's ink polarity is detected from its own alpha-weighted
   mean luminance, so black-on-transparent and white-on-transparent are
@@ -133,7 +129,7 @@ def _glyph_provider(qta, glyph):
         expected = getattr(qta, "_MD5_HASHES", {}).get(entry[1])
         if expected and hashlib.md5((directory / entry[1]).read_bytes()).hexdigest() != expected:
             return qta
-        provider = qta.IconicFont(entry)
+        provider = _kept_pixmap_font(qta)(entry)
         if not provider.fontids or not all(QFontDatabase.applicationFontFamilies(font_id)
                                           for font_id in provider.fontids.values()):
             return qta
@@ -145,11 +141,87 @@ def _glyph_provider(qta, glyph):
     return provider
 
 
+#: The pixmap-keeping ``IconicFont`` subclass, per QtAwesome font and engine
+#: class; see :func:`_kept_pixmap_font`.
+_KEPT_FONTS: dict = {}
+
+
+def _kept_pixmap_font(qta):
+    """QtAwesome's ``IconicFont``, with icons that keep what they render.
+
+    A QtAwesome icon renders its glyph in Python every time Qt asks it for a
+    pixmap, and a button asks on every paint. Over the window's moving field
+    every widget repaints on every frame, so the one icon button on a
+    module screen (the preferences cog) cost a Python glyph render per
+    frame, about a third of a millisecond. The pixmap depends only on the
+    size, mode and state asked for, so each is rendered once and kept, and
+    the icon's pixels do not change. Animated icons are left as they are.
+
+    :param qta: the QtAwesome module.
+    :returns: the subclass; ``qta.IconicFont`` itself when it or its engine
+        is not a class this can extend.
+    """
+    font = qta.IconicFont
+    engine = getattr(getattr(qta, "iconic_font", None), "CharIconEngine",
+                     None)
+    if not isinstance(font, type) or not isinstance(engine, type):
+        return font
+    kept = _KEPT_FONTS.get((font, engine))
+    if kept is None:
+        kept = _KEPT_FONTS[(font, engine)] = _kept_pixmap_classes(font,
+                                                                  engine)
+    return kept
+
+
+def _kept_pixmap(self, size, mode, state):
+    """The glyph at ``size`` in ``mode`` and ``state``, rendered once.
+
+    The ``pixmap`` of the engine class :func:`_kept_pixmap_font` builds.
+
+    :returns: the pixmap rendered the first time it was asked for.
+    """
+    kept = self.__dict__.setdefault("_kept", {})
+    key = (size.width(), size.height(), mode, state)
+    pixmap = kept.get(key)
+    if pixmap is None:
+        pixmap = kept[key] = super(type(self), self).pixmap(size, mode, state)
+    return pixmap
+
+
+def _kept_icon_by_painter(self, painter, options):
+    """An icon on a pixmap-keeping engine, unless it is animated.
+
+    The ``_icon_by_painter`` of the font class :func:`_kept_pixmap_font`
+    builds.
+    """
+    if any(option.get("animation") for option in options):
+        return super(type(self), self)._icon_by_painter(painter, options)
+    return QIcon(type(self)._spacr_engine(self, painter, options))
+
+
+def _kept_pixmap_classes(font, engine):
+    """Build the subclass :func:`_kept_pixmap_font` returns.
+
+    :param font: QtAwesome's ``IconicFont``.
+    :param engine: QtAwesome's ``CharIconEngine``.
+    """
+    kept_engine = type("_KeptPixmapEngine", (engine,), {
+        "__doc__": "A glyph engine that renders each pixmap it is asked "
+                   "for once.",
+        "pixmap": _kept_pixmap,
+    })
+    return type("_KeptPixmapFont", (font,), {
+        "__doc__": "An ``IconicFont`` whose icons keep their pixmaps.",
+        "_icon_by_painter": _kept_icon_by_painter,
+        "_spacr_engine": kept_engine,
+    })
+
+
 def active_theme() -> str:
     """The theme icons should be drawn for, resolved from preferences.
 
-    Falls back to ``"dark"`` if preferences can't be read at all —
-    icon lookup must never be the thing that stops the GUI booting.
+    Falls back to ``"dark"`` if preferences can't be read at all, so a
+    failed preference read does not stop the GUI from starting.
     """
     try:
         from .preferences import resolve_effective_theme
@@ -242,11 +314,10 @@ def hardest_surface(theme: str) -> str:
 def veil_color(theme: str) -> str:
     """Dimmest ink allowed in a themed icon.
 
-    Solved, not guessed: bisect the blend from the hardest surface
-    toward the theme foreground until the contrast crosses
-    :data:`MIN_ICON_CONTRAST`. That way the shadow end of an icon's
-    tonal range is still a visible shape, and the answer tracks the
-    palette instead of being a magic grey someone eyeballed once.
+    Computed by bisecting the blend from the hardest surface toward the
+    theme foreground until the contrast crosses :data:`MIN_ICON_CONTRAST`.
+    The dark end of an icon's tonal range therefore stays visible, and the
+    value follows the palette rather than being a fixed grey.
 
     :param theme: theme name, one of :data:`spacr.qt.theme.THEMES`; the
         result is cached per theme.
@@ -364,11 +435,10 @@ def _hex_to_array(color: str):
 def carries_tonal_structure(rgba) -> bool:
     """True when an icon's RGB channels carry shading worth preserving.
 
-    Measured, not assumed. Every bundled spaCR icon is **a monochrome
-    mask**: the alpha channel holds the entire shape and the RGB is a
-    uniform fill (white for most of them, black for ``convert.png``).
-    For those, the RGB carries no information at all and the right
-    answer is to paint the alpha mask in the theme's ink.
+    Every bundled spaCR icon is **a monochrome mask**: the alpha channel holds
+    the entire shape and the RGB is a uniform fill (white for most of them,
+    black for ``convert.png``). For those, the RGB carries no information at
+    all and the right answer is to paint the alpha mask in the theme's ink.
 
     A couple of assets (``umap.png``, ``activation.png``) genuinely do
     put shading in RGB, and flattening those to a silhouette would
@@ -799,6 +869,8 @@ def app_icon(key: str, override: Optional[str] = None,
 
 
 _NAME_TO_GLYPH = {
+    "eye":             "fa5s.eye",
+    "eye_off":         "fa5s.eye-slash",
     "open":            "fa5s.folder-open",
     "folder":          "fa5s.folder",
     "file":            "fa5s.file",
@@ -864,6 +936,8 @@ _NAME_TO_GLYPH = {
     "import_images":   "fa5s.images",
     "map_barcodes":    "fa5s.barcode",
     "ops":             "fa5s.braille",
+    "spatial_masks":   "fa5s.th",
+    "spatial_map":     "fa5s.map-marked-alt",
     "ai_console":      "fa5s.robot",
     "data_manager":    "fa5s.hdd",
 }

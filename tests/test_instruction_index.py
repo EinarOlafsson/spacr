@@ -42,7 +42,7 @@ def test_the_committed_index_matches_the_instruction_files():
 
 def test_every_open_instruction_appears():
     tool = _tool()
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     for path in (INSTRUCTIONS / "future").glob("*.txt"):
         assert path.name in text, f"{path.name} is missing from the index"
 
@@ -63,7 +63,7 @@ def test_a_done_instruction_is_not_listed_as_open():
     -- which is what `test_a_reopened_instruction_is_listed_once_and_open`
     below now asserts, so the pair is no weaker than the single rule was.
     """
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     open_block = text.split("OPEN")[1].split("DONE")[0]
     for path in (INSTRUCTIONS / "new").glob("*.txt"):
         if (INSTRUCTIONS / "future" / path.name).exists():
@@ -79,7 +79,7 @@ def test_a_reopened_instruction_is_listed_once_and_open():
     reader take the closure for the current state -- which is the failure
     the rule above exists to prevent, in the one case that rule now skips.
     """
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     # RE-POINTED 2026-09-12 at the section names the index now prints. The
     # two blocks are still the two lists and the assertions below are
     # unchanged; only the words that separate them moved.
@@ -104,14 +104,16 @@ def test_the_counts_are_the_real_counts():
     of both folders, and still fails if either drifts by one.
     """
     tool = _tool()
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     n_future = len(list((INSTRUCTIONS / "future").glob("*.txt")))
     n_new = len(list((INSTRUCTIONS / "new").glob("*.txt")))
     assert (f"{n_new} in features/new, {n_future} in features/future"
             in text)
-    # The lists stopped being a gate on the same day they were split, and
-    # the index is where a reader finds that out.
-    assert "NEITHER LIST BLOCKS A RELEASE" in text
+    # The maintainer explicitly broadened release 1.5.1.5 on 2026-10-14.
+    # Preserve the exact scope and the distinction from historical headers.
+    assert "BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5" in text
+    assert "Historical DONE headers alone" in text
+    assert "NEITHER LIST BLOCKS A RELEASE" not in text
 
 
 def test_duplicate_instruction_numbers_are_ordered_by_filename():
@@ -153,7 +155,7 @@ def test_rendered_index_has_no_trailing_whitespace():
 def test_codex_owned_open_files_are_marked_do_not_touch():
     """Two sessions editing one file is how work gets lost."""
     tool = _tool()
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     open_numbers = {
         path.name.split("_", 1)[0]
         for path in (INSTRUCTIONS / "future").glob("*.txt")
@@ -185,7 +187,7 @@ def test_the_date_alone_does_not_make_it_stale():
 
 def test_the_index_points_at_the_handoff():
     """A new session reads the index; the traps are in the handoff."""
-    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text(encoding="utf-8")
     assert "HANDOFF.md" in text
     assert (INSTRUCTIONS / "HANDOFF.md").exists()
 

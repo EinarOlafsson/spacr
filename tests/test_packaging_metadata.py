@@ -369,18 +369,33 @@ def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
     automatically and that Diagnostic Data was not published, so 4.1
     profiles are asked again.
 
+    4.3 rewrites Sections 5 and 6 for anonymised reports and spaCR AI
+    through spaCR's relay, with no GitHub account required. A user's own
+    assistant instead uses its vendor's service, so 4.2 profiles are asked
+    again before accepting these changed disclosures.
+
     Pinned rather than asserted-nonempty so a bump is deliberate: whoever
     changes the agreement updates this line in the same commit and says which
     clause moved.
     """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.2"
+    assert terms.TERMS_VERSION == "4.3"
     assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
         "4.1 is defined by the governing-language clause; it is missing")
-    assert any(clause.startswith("5.6 AUTOMATIC ERROR REPORTS.")
+    assert any(clause.startswith(
+                   "5.6 ANONYMISED ERROR REPORTS ARE ON BY DEFAULT.")
+               and "You need no GitHub account." in clause
                for clause in terms.TERMS), (
-        "4.2 is defined by the automatic-report clause; it is missing")
+        "4.3 requires the anonymised-report and relay-account disclosure")
+    assert any(clause.startswith("6.1 spaCR AI (free) is ON BY DEFAULT.")
+               and "spaCR's relay" in clause for clause in terms.TERMS), (
+        "4.3 requires the default spaCR AI and relay disclosure")
+    assert any(clause.startswith(
+                   "6.5 You may use Your own Claude, GPT (Codex) or Gemini assistant")
+               and "they do not pass through spaCR's relay." in clause
+               for clause in terms.TERMS), (
+        "4.3 requires the separate user-selected assistant disclosure")
 
 
 # ---------------------------------------------------------------------------
@@ -1314,12 +1329,14 @@ def test_extras_do_not_contradict_the_core_pins():
         return (set(str(s) for s in r.specifier), r.marker is None or str(r.marker),
                 sorted(r.extras))
 
-    core = {_name_of(s): s for s in _core_dependencies()}
+    core = {}
+    for s in _core_dependencies():
+        core.setdefault(_name_of(s), []).append(s)
     problems = []
     for extra, specs in _extras().items():
         for spec in specs:
             n = _name_of(spec)
-            if n in core and _shape(core[n]) != _shape(spec):
+            if n in core and _shape(spec) not in [_shape(c) for c in core[n]]:
                 problems.append((extra, spec, core[n]))
     assert not problems, (
         "extra and core declare different pins for the same package: " + str(problems)
@@ -1341,6 +1358,9 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     ``attribution`` it constrains nothing — the extra exists to keep h5py out
     of a plain ``pip install spacr``, not because ``all`` cannot have it.
 
+    ``tem`` joined it with N690: ``mrcfile`` (BSD, pure Python, numpy only)
+    reads MRC electron micrographs in Make Masks.
+
     ``attribution`` is deliberately NOT aggregated, and that is the
     interesting entry. torchcam declares ``numpy<2.0.0``; no numpy satisfying
     that has a cp313 wheel; so putting it in ``all`` would make
@@ -1353,7 +1373,7 @@ def test_all_extra_is_exactly_the_union_of_what_it_aggregates():
     assert "all" in extras, "the `all` extra disappeared"
     aggregated = ("qt", "fractal", "tutorial", "trackastra", "ultrack",
                   "boosting", "plaque", "czi", "nd2", "lif", "zernike",
-                  "btrack", "anndata")
+                  "btrack", "anndata", "tem")
     expected = set()
     for name in aggregated:
         assert name in extras, f"`all` claims to aggregate {name!r}, which is gone"
@@ -1499,6 +1519,43 @@ def test_no_console_script_name_is_declared_twice():
     assert duplicates == {}, (
         f"a duplicate entry point stops the build before it starts: {duplicates}"
     )
+
+
+
+@pytest.mark.parametrize("group", ["core", "qt", "flowview", "tutorial", "all"])
+def test_qt_requirements_exclude_only_the_broken_6120_release(group):
+    """A Qt binding reference-count regression must not ship in any Qt extra."""
+    from packaging.requirements import Requirement
+
+    values = _core_dependencies() if group == "core" else _extras()[group]
+    requirements = [Requirement(value) for value in values
+                    if _name_of(value) == "pyside6"]
+    assert len(requirements) == 1
+    specifier = requirements[0].specifier
+    assert "6.12.0" not in specifier
+    for version in ("6.6.3.1", "6.11.2", "6.12.1"):
+        assert version in specifier, (group, version)
+    assert "6.5.3" not in specifier
+    assert "7.0" not in specifier
+
+
+def test_native_contrast_install_excludes_the_same_broken_qt_release():
+    """The no-dependency native GUI install must honor the binding exclusion."""
+    import shlex
+    from packaging.requirements import Requirement
+
+    workflow = (WORKFLOWS / "startup-contrast-native.yml").read_text(encoding="utf-8")
+    requirements = [Requirement(token)
+                    for line in workflow.splitlines() if "pip install" in line
+                    for token in shlex.split(line.strip())
+                    if token.startswith("PySide6")]
+    assert len(requirements) == 1
+    specifier = requirements[0].specifier
+    assert "6.12.0" not in specifier
+    for version in ("6.8.0", "6.11.2", "6.12.1"):
+        assert version in specifier
+    assert "6.6.3.1" not in specifier
+    assert "7.0" not in specifier
 
 
 def test_console_scripts_and_extras_agree_about_qt():
@@ -1652,6 +1709,10 @@ def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
             f"spaCR {version} is not tagged yet, so its Zenodo DOI cannot "
             f"exist; this check resumes once v{version} is released. "
             f"CITATION.cff currently names spaCR {named}.")
+    assert not str(entry["description"]).startswith("Version DOI: pending for "), (
+        f"spaCR {version} is released but CITATION.cff still carries the "
+        f"pending marker from `packaging/release.py bump`; run "
+        f"`packaging/release.py sync-release-metadata` to record its DOI.")
     assert named == version, (
         f"CITATION.cff says version {version!r} but its version DOI "
         f"{entry['value']!r} is described as belonging to spaCR {named!r}. A "

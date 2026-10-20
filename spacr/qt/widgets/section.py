@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
 
 from ..i18n import tr
 from ..theme import ALPHA_MARK, SPACING, STAGE_LABEL, STAGE_NOTE
@@ -248,7 +249,9 @@ class Section(QFrame):
         self._header.setCheckable(True)
         self._header.setChecked(False)
         self._header.setCursor(Qt.PointingHandCursor)
-        self._header.installEventFilter(self)
+        _watch_object_events(self._header, self, (
+            QEvent.ToolTip, QEvent.FontChange, QEvent.StyleChange,
+            QEvent.Polish))
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._sync_header_minimum()
         self._header.clicked.connect(self._on_toggle)
@@ -890,13 +893,18 @@ class Section(QFrame):
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
             try:
-                from .ambient import field_ripple_for_widget
+                if self._expanded:
+                    from .ambient import _field_column_ripple_for_widget
+                    ripple = partial(_field_column_ripple_for_widget, self,
+                                     edge="bottom")
+                else:
+                    from .ambient import _publish_widget_ripple
+                    ripple = partial(_publish_widget_ripple, self, None, None, 1.0,
+                                     vertical=False, rings=True)
             except ImportError:
                 return
 
-            QTimer.singleShot(0, partial(
-                field_ripple_for_widget, self,
-                edge="bottom"))
+            QTimer.singleShot(0, ripple)
             return
 
         depth = int(scroll.property(SETTLING_DEPTH) or 0)
@@ -923,10 +931,15 @@ class Section(QFrame):
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)
         try:
-            from .ambient import field_ripple_for_widget
+            if self._expanded:
+                from .ambient import _field_column_ripple_for_widget
+                ripple = partial(_field_column_ripple_for_widget, self,
+                                 edge="bottom")
+            else:
+                from .ambient import _publish_widget_ripple
+                ripple = partial(_publish_widget_ripple, self, None, None, 1.0,
+                                 vertical=False, rings=True)
         except ImportError:
             return
 
-        QTimer.singleShot(0, partial(
-            field_ripple_for_widget, self,
-            edge="bottom"))
+        QTimer.singleShot(0, ripple)

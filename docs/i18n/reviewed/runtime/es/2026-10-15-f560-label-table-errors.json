@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-reviewed translation (Codex author and independent agent technical review); no native-speaker signoff",
+  "review": "Read failure for an embedding crop phenotype/class-label table. Preserve the error placeholder; prior labels are kept.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Could not read the label table: {error}",
+      "source": "Could not read the label table: {error}",
+      "source_sha256": "ce7a18f97412f7144a8b16da831211767b36f45025c4934b54a6c1a1e47ea9a1",
+      "translation": "No se pudo leer la tabla de etiquetas: {error}"
+    }
+  ]
+}

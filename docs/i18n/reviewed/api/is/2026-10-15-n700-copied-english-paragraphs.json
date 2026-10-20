@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review; no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.qt.ai.issue_report.strip_report_paths#2",
+      "source": "A path can contain a space, and a rule that stops a path at the first whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "source_sha256": "2ea393982d18f67fb3d39e9b25aa326644799fea5a7bbf17ee0a4c7bc0139370",
+      "context": "A path can contain a space, and a rule that stops a path at the first whitespace publishes the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "translation": "Slóð getur innihaldið bil og regla sem stöðvar slóð við fyrsta bil birtir afganginn af henni. ``/Volumes/Lab Drive/Patient 042`` varð að ``<PATH> Drive/Patient 042``, og ``C:\\Users\\anna\\OneDrive",
+      "review_basis": "AI technical translation review of exact current English and protected RST/code tokens; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.save_log_bundle#1",
+      "source": "The public issue names this path instead of carrying the log itself. More lines are kept here than an issue would carry, because the file is not limited by the length of a URL.",
+      "source_sha256": "28c3b165602a7bf34f7579800c84b7dfba89a54129857bf99c27581d8baf9a61",
+      "context": "The public issue names this path instead of carrying the log itself. More lines are kept here than an issue would carry, because the file is not limited by the length of a URL.",
+      "translation": "Í opinberu villumáli er þessi slóð tilgreind í stað þess að annállinn sjálfur fylgi með. Fleiri línur eru varðveittar hér en kæmust í villumál, því skráin er ekki takmörkuð af lengd vefslóðar.",
+      "review_basis": "AI technical translation review of exact current English and protected RST/code tokens; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.crashreport#7",
+      "source": "**Bounded size.** ``spacr.log`` rotates but a single run can still write hundreds of megabytes. The bundle takes the *tail* of it, capped by :data:`MAX_LOG_BYTES`, and the manifest records how much was dropped.",
+      "source_sha256": "a4121c3303be5c3ede4d404b88c57d3b4d7f66859551d926ffec4a2624473c53",
+      "context": "**Bounded size.** ``spacr.log`` rotates but a single run can still write hundreds of megabytes. The bundle takes the *tail* of it, capped by :data:`MAX_LOG_BYTES`, and the manifest records how much was dropped.",
+      "translation": "**Takmörkuð stærð.** ``spacr.log`` skiptist í nýjar skrár reglulega, en ein keyrsla getur samt skrifað hundruð megabæta. Pakkinn tekur *síðasta hluta* annálsins, að hámarki :data:`MAX_LOG_BYTES`, og skráayfirlitið skráir hve miklu var sleppt.",
+      "review_basis": "AI technical translation review of exact current English and protected RST/code tokens; no human or native-speaker signoff"
+    }
+  ]
+}

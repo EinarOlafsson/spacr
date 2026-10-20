@@ -20,8 +20,8 @@ Public constants:
 
 * :data:`BUILTIN_REGEXES` — ordered ``{label: pattern}`` map tried by
   :func:`auto_detect_regex` before falling back to synthesis.
-* :data:`REQUIRED_MULTICHANNEL` / :data:`REQUIRED_SINGLECHANNEL` —
-  which group names must be present for spaCR to be happy.
+* :data:`REQUIRED_MULTICHANNEL` / :data:`REQUIRED_SINGLECHANNEL` — which group
+  names must be present for spaCR's downstream steps.
 """
 from __future__ import annotations
 

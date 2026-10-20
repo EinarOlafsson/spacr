@@ -1,0 +1,147 @@
+{
+  "result": "Normal gettext extraction + scoped update/import/audit PASS; all136currentmessages translated eachlocale,0stale/invalid/missinglabels.",
+  "source_sha256": "0cf267c17e329a57ed2315c3f90cca816bd3f0585db2111cf30b01aa2a9fa892",
+  "tool_sha256": "668514ab91ba38a66fcda26e1709377806d6191fee4bcb828528b03b973b0877",
+  "scope": "2newN702title/paragraph+2pre-existingmissingN699SSHprose messages,4perlocale/36targets total. All132priorcatalog messages/locale strings,flags,comments identical.",
+  "failures_retained": [
+    "Initial conda interpreter had noSphinx: refusedbeforeextract.",
+    "Existing baseSphinx failed on absent sparse setup.py: exacttrackedrootfiles materialized withproperexecutablemodes, no sourceversionchange.",
+    "First scopedBabel refusedunexpectedtwo pre-existingmissingSSHmessages before repo outputs; those18targets thenexplicitlyauthored/independentlyreviewed.",
+    "Second scopedBabel refusedKoreanRSTliteralboundary before repo outputs; exact2spacesfixed/independentpeer/normalmarkup accepted."
+  ],
+  "limits": "AI technical review, no nativehumanclaim; no strictfullHTMLbuild/hostedpublication/fullCI claim. Backend source/runtime/API closure remains private dependency before this guide batch publication.",
+  "files": {
+    "source.rst": {
+      "sha256": "639f97050d0750fb28ec84e94d5f7870a1516860facb2f7914a1051c03918e14",
+      "bytes": 941
+    },
+    "normal-page-audit.json": {
+      "sha256": "f2253e62687ffff3bb01abc9ac94665a96559d50c4394c8e922385fc21935008",
+      "bytes": 4286
+    },
+    "extract.sh.gz": {
+      "sha256": "f812cceb66cb3b0766818872f6d519f1b2a99882285058940050454ccdf0b1fe",
+      "bytes": 366
+    },
+    "extract.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "generation.log.gz": {
+      "sha256": "56879225d0fcd43ef1a419d9678c5924ff9694d0157641299921186a50160998",
+      "bytes": 707
+    },
+    "generation-receipt.json": {
+      "sha256": "c26ec177b4c6d9ce7bdbbb41e9451931c4de0e6b0314cbc48a52861a23e68adf",
+      "bytes": 1953
+    },
+    "existing-ssh-targets.json": {
+      "sha256": "d59cf17aa1c3b3ec4be9119a9cb3420504bbd8f4e30a5c9dbab044f05509231b",
+      "bytes": 3464
+    },
+    "attempt1-extract.log.gz": {
+      "sha256": "873a273f2324fd0c373692d6e16860e53509a6c2139d8e2f7013a5150cbe7f24",
+      "bytes": 87
+    },
+    "attempt1-generation.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "generate.py": {
+      "sha256": "beea70003634fc04c49a8a291c887be955b71ac22143f9a270983e4f69c127d4",
+      "bytes": 3756
+    },
+    "ci-korean-literal-boundary-peer-addendum.json": {
+      "sha256": "acff911487c1356ed5b8e3029ae06cd95287f739f3e5662c3bc158be61fd71b2",
+      "bytes": 883
+    },
+    "ci-supplemental-guide-target-peer.json": {
+      "sha256": "b638ccf177779880bea26cc9da099887d808fe08ed2c3e10c2b42346fb0c9b1e",
+      "bytes": 3108
+    },
+    "draft.json": {
+      "sha256": "08423156a36c1ede47f251633fa3e4a0a209a1b483c04271a574c4c6f6c6309f",
+      "bytes": 1129
+    },
+    "attempt2-generation.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "attempt2-extract.exit": {
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+      "bytes": 2
+    },
+    "distributed_execution.pot": {
+      "sha256": "e84b0830a7e21441e91f34e06c8d59be9e95a3109f29a4757cae9515475457ec",
+      "bytes": 15775
+    },
+    "targets.json": {
+      "sha256": "970d32636d929b7956b67ffcc8298a6f94ce3b6d3bb43ae510e0040c79359de3",
+      "bytes": 12992
+    },
+    "attempt1-generation.log.gz": {
+      "sha256": "a8fbed4dc7f9265de65851f33a992a4c6bfca7da6b0e66e10ef28225deeff0f4",
+      "bytes": 210
+    },
+    "attempt2-extract.log.gz": {
+      "sha256": "53a549978c0f807a0ae8ace8bb7de5cf630819dabdf445adc10c14880512f54d",
+      "bytes": 980
+    },
+    "extract.log.gz": {
+      "sha256": "49abea8758e0c7d6b259ae764ec630dac7cc52921f12512067c4d0c631280d58",
+      "bytes": 1049
+    },
+    "ci-independent-guide-target-peer.json": {
+      "sha256": "0cb24e68f91bd6bd60b2dcaf420e0a3faedecab87ef9614c95cf8dbcedafbf14",
+      "bytes": 2671
+    },
+    "attempt1-extract.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "generation.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "attempt2-generation.log.gz": {
+      "sha256": "e116c5ea360f6c1175af55846eb3feae91b9a896fc98a72b9730e1f76cf49c38",
+      "bytes": 222
+    },
+    "inputs/es.json": {
+      "sha256": "6415bfe20adb7c36d9554455847f717ca46de1d192a1ae0c0095df55b2e9e7cf",
+      "bytes": 3137
+    },
+    "inputs/is.json": {
+      "sha256": "62752e5db203e8af7478aa7958d1022e7faa398336fca837cd925da5a60a8621",
+      "bytes": 3013
+    },
+    "inputs/zh_CN.json": {
+      "sha256": "3ecef2c680924ad595b105d2d05a1cc1d0d6f9440be50f0457b99cbd7cea1b86",
+      "bytes": 2698
+    },
+    "inputs/fr.json": {
+      "sha256": "441328d2b3df45ffea073aba6e107af77574706ed80444ed36e20ba764852f5f",
+      "bytes": 3229
+    },
+    "inputs/sv.json": {
+      "sha256": "0ee31218e6506ccebbb3b89f896b6606816e3d875240a6b305e437fff53ebfb6",
+      "bytes": 2885
+    },
+    "inputs/pt.json": {
+      "sha256": "eb91397bf59a55644917086ae57aa15da9be5f9352e9399321b952c605a34e53",
+      "bytes": 3175
+    },
+    "inputs/hi.json": {
+      "sha256": "f4e0587d68efbae143100d7f45e3e659c7f1c3a8b39a55e725f7a253cc44970a",
+      "bytes": 4856
+    },
+    "inputs/ko.json": {
+      "sha256": "da427dd446f4b1f9a5e06a7b0964069ef91fe526002ff4f573f9b0a5c8692d92",
+      "bytes": 3168
+    },
+    "inputs/de.json": {
+      "sha256": "a172e9f1b6b216a20703da46d25ffe9d3c06cf88bbb61b4be2b8d1a3e9902fb8",
+      "bytes": 3099
+    }
+  }
+}

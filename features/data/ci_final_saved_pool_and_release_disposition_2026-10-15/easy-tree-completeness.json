@@ -1,0 +1,10 @@
+{
+  "tree": "/mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015",
+  "head_before": "6b842e0964c0749040f01bb590606cb197a51d95",
+  "head_after": "6b842e0964c0749040f01bb590606cb197a51d95",
+  "tracked_regular_files": 40801,
+  "missing_regular_files": [],
+  "other_modes": [],
+  "apparent_bytes": 4883551133,
+  "snapshot_note": "Read-only non-atomic path stat inventory; owner generator may be active. No content changes or tests."
+}

@@ -1,0 +1,1737 @@
+{
+  "schema": 1,
+  "status": "approved for bounded prerequisite and operational-interface evidence; no recording readiness or execution approval",
+  "input_report": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-tutorial-input-prerequisites-20261013.json",
+    "original_reviewed_sha256": "b3b38173e9dea5cb7b9e35d4832b864958ad2caef08854fd3827448db46b8377",
+    "approved_revised_sha256": "bf42ec8bef8dca6f1ff304da366050fb2bf104b5601f3f22b59758880fa4c5e1",
+    "approved_revised_bytes": 163310,
+    "evidence_bindings_unchanged_by_wording_revision": true
+  },
+  "independent_file_checks": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+      "sha256": "5202f0c033157cd0223e02ddb4fc9c2e8186b97d62b188800cf595ab2c858cc7",
+      "bytes": 7167,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_b.json",
+      "sha256": "8f08f2a7dacb6d7aad363d1ee76855c925539a9738b26184a9f6e9dfdbca213e",
+      "bytes": 8684,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_c.json",
+      "sha256": "a943452ebc1677da0e4d30e1ff5d8f23e1bc186886a6b20873b83476de44973a",
+      "bytes": 14405,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_d.json",
+      "sha256": "481ec38f2e9827fab019ac68a24939fe697da3b14f2d4e235eace478455835c3",
+      "bytes": 13623,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_e.json",
+      "sha256": "a9c4102e608dbf57406c72c3a6018984ec5e37ae515153ef24d09712ec029f59",
+      "bytes": 3047,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_f.json",
+      "sha256": "ca0ef7801c8f5f766d30b4f89536d84f2d0bf3131cc322023f84b5975ec99092",
+      "bytes": 8192,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/remake_inventory_20261013.json",
+      "sha256": "344cb43f3f707cd7e9a15cf52a03dda08642a0733049379544f211cae151e4eb",
+      "bytes": 327755,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/HANDOFF_WS_to_codex_2026-10-13.md",
+      "sha256": "3f2eae3bbed558eca9142d87d586aa2e909258d2fec5c7d78066323b3d1e412e",
+      "bytes": 18301,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/10_classify_cv.json",
+      "sha256": "8d05eba762736b20495c47d4754716393b4fc2a786b3f2dfd0932640e2119e75",
+      "bytes": 6216,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_classify_preparation.py",
+      "sha256": "719f7928b710d79fe2f8f3a63c488f62f8f839104111ae8240ca37d721edbd27",
+      "bytes": 6332,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/classify_split_evidence.py",
+      "sha256": "90d39ed6b1e4e26f2ea4e38625da87c5bef67f76dc48afd7d9b23a555808ba4f",
+      "bytes": 8409,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/prepare_classify_split.py",
+      "sha256": "0ae0a0e3d2b1353017ba96f57ecd74d924a969a680a13b290294058cdfb94768",
+      "bytes": 8597,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/tutorial_input_manifest.json",
+      "sha256": "eda97b129b9cefbecef50f18bc6c38c2981866fbeef5c22bc0849c7367dd1a57",
+      "bytes": 79584,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "bytes": 30629888,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_11_1_51.png",
+      "sha256": "c10675b64e45e5f87409b7adf8802b8638dea3df770b9fcf69b3013c845fbb27",
+      "bytes": 20670,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f11_o51.png",
+      "sha256": "c10675b64e45e5f87409b7adf8802b8638dea3df770b9fcf69b3013c845fbb27",
+      "bytes": 20670,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+      "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_20_1_50.png",
+      "sha256": "fd698ddb145aafddd8a25f6bc8f0009c8396371a7567039f849738e63a9c5a4f",
+      "bytes": 96501,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f20_o50.png",
+      "sha256": "fd698ddb145aafddd8a25f6bc8f0009c8396371a7567039f849738e63a9c5a4f",
+      "bytes": 96501,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_11_1_45.png",
+      "sha256": "cccc3b8051f8325128cf969e5dfc9902c8e9394619fc0e64f4e87aed59402f8b",
+      "bytes": 89063,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f11_o45.png",
+      "sha256": "cccc3b8051f8325128cf969e5dfc9902c8e9394619fc0e64f4e87aed59402f8b",
+      "bytes": 89063,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_17_1_12.png",
+      "sha256": "855991d136a1d4ae134eaffa92dd9733ea2c8e0f824576d707141d1a1c2cc05e",
+      "bytes": 46536,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f17_o12.png",
+      "sha256": "855991d136a1d4ae134eaffa92dd9733ea2c8e0f824576d707141d1a1c2cc05e",
+      "bytes": 46536,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_12_1_52.png",
+      "sha256": "2e72c0f45d98eb1a58b9170f7bd279903cc923f35207da411bfdcd829ea71540",
+      "bytes": 135987,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f12_o52.png",
+      "sha256": "2e72c0f45d98eb1a58b9170f7bd279903cc923f35207da411bfdcd829ea71540",
+      "bytes": 135987,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_9_1_53.png",
+      "sha256": "5657d0282b024c03013d4f5e0b81c4b544f8b41eac5bbc7201dcbec4995b075f",
+      "bytes": 181271,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f9_o53.png",
+      "sha256": "5657d0282b024c03013d4f5e0b81c4b544f8b41eac5bbc7201dcbec4995b075f",
+      "bytes": 181271,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_10_1_2.png",
+      "sha256": "a3f939dc89797ce3f78185ed6cb020f6293d297ce03460b4a75e92ee0567f9c1",
+      "bytes": 102042,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f10_o2.png",
+      "sha256": "a3f939dc89797ce3f78185ed6cb020f6293d297ce03460b4a75e92ee0567f9c1",
+      "bytes": 102042,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_10_1_29.png",
+      "sha256": "7dc49943249347cca0e13f52130eadc8a5a82dda7dae5834a9af4f0d950dd155",
+      "bytes": 50503,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f10_o29.png",
+      "sha256": "7dc49943249347cca0e13f52130eadc8a5a82dda7dae5834a9af4f0d950dd155",
+      "bytes": 50503,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_12_1_39.png",
+      "sha256": "4a336e5fbb77829ba485578cd5e8359d03a8524d1cc3e75dcd40aaae22816dc8",
+      "bytes": 87904,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f12_o39.png",
+      "sha256": "4a336e5fbb77829ba485578cd5e8359d03a8524d1cc3e75dcd40aaae22816dc8",
+      "bytes": 87904,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+      "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_21_1_35.png",
+      "sha256": "89375ef6a1f2605823f4916d0364085d901ca88b232273de88eb0506ebf859b7",
+      "bytes": 98755,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f21_o35.png",
+      "sha256": "89375ef6a1f2605823f4916d0364085d901ca88b232273de88eb0506ebf859b7",
+      "bytes": 98755,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_21_1_70.png",
+      "sha256": "681f1a251a20a589e6b5a2bcac3a3bf0584da4df046ca1934e8ead954172ab30",
+      "bytes": 126344,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f21_o70.png",
+      "sha256": "681f1a251a20a589e6b5a2bcac3a3bf0584da4df046ca1934e8ead954172ab30",
+      "bytes": 126344,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/.spacr_crop_format.json",
+      "sha256": "1789baa5ee553e67dff85d0d81a081988381c6289d88d178c736468167245465",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_9_1_59.png",
+      "sha256": "02f41dc23fb137b13b9806958dc64221c1d444343d88037bb0679373b5f2cbe2",
+      "bytes": 68935,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f9_o59.png",
+      "sha256": "02f41dc23fb137b13b9806958dc64221c1d444343d88037bb0679373b5f2cbe2",
+      "bytes": 68935,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_18_1_39.png",
+      "sha256": "e1625c617fc32e8cbb376f7319f36f5065932430c4c1cde7377babf8fa51eae5",
+      "bytes": 75420,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f18_o39.png",
+      "sha256": "e1625c617fc32e8cbb376f7319f36f5065932430c4c1cde7377babf8fa51eae5",
+      "bytes": 75420,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_14_1_51.png",
+      "sha256": "8a6c1ed5c11bc9099a4b2ac6ef97a0cc5e070b714fab205e188cfc8f6e4bfe6b",
+      "bytes": 108926,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f14_o51.png",
+      "sha256": "8a6c1ed5c11bc9099a4b2ac6ef97a0cc5e070b714fab205e188cfc8f6e4bfe6b",
+      "bytes": 108926,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_11_1_20.png",
+      "sha256": "3f776a28080ae7714f83c1f9cc48c2db3fdcea168eadb3ed9d1833305307785b",
+      "bytes": 131371,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f11_o20.png",
+      "sha256": "3f776a28080ae7714f83c1f9cc48c2db3fdcea168eadb3ed9d1833305307785b",
+      "bytes": 131371,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_9_1_38.png",
+      "sha256": "0fecbeb82fcdc9e00ce6bb2053e321831131f6160ae3795194fa170bd9b79ede",
+      "bytes": 97263,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f9_o38.png",
+      "sha256": "0fecbeb82fcdc9e00ce6bb2053e321831131f6160ae3795194fa170bd9b79ede",
+      "bytes": 97263,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_21_1_26.png",
+      "sha256": "4851d8af7ffd56c8b09c33c04c4dfb375114e63d0c8714fac19ed6ee691d3d71",
+      "bytes": 64382,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f21_o26.png",
+      "sha256": "4851d8af7ffd56c8b09c33c04c4dfb375114e63d0c8714fac19ed6ee691d3d71",
+      "bytes": 64382,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+      "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_16_1_35.png",
+      "sha256": "6783d1f070404123d3ebe576eaa0581754c3bdee4f9afc39abe49120874a5ef9",
+      "bytes": 27656,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f16_o35.png",
+      "sha256": "6783d1f070404123d3ebe576eaa0581754c3bdee4f9afc39abe49120874a5ef9",
+      "bytes": 27656,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_13_1_42.png",
+      "sha256": "3ee808959a6f9725c83da59880c150d4be8904cf8cce9eff024d6973f1c4fc67",
+      "bytes": 123606,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f13_o42.png",
+      "sha256": "3ee808959a6f9725c83da59880c150d4be8904cf8cce9eff024d6973f1c4fc67",
+      "bytes": 123606,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_10_1_3.png",
+      "sha256": "44289f8735251297d083e2fe3b96457284689e4e50532ca8f83e7f4606765e83",
+      "bytes": 82599,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f10_o3.png",
+      "sha256": "44289f8735251297d083e2fe3b96457284689e4e50532ca8f83e7f4606765e83",
+      "bytes": 82599,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_17_1_20.png",
+      "sha256": "c558d787228511d8e6f88f695a2e3876c1ecb130a3a15de02345e51c0f2059c1",
+      "bytes": 157178,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f17_o20.png",
+      "sha256": "c558d787228511d8e6f88f695a2e3876c1ecb130a3a15de02345e51c0f2059c1",
+      "bytes": 157178,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_16_1_36.png",
+      "sha256": "9e4c33bd2a51d95d4cc42d4d4fb9ef2eddb1366455f3f2275f0fd5fabc6cf032",
+      "bytes": 71715,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f16_o36.png",
+      "sha256": "9e4c33bd2a51d95d4cc42d4d4fb9ef2eddb1366455f3f2275f0fd5fabc6cf032",
+      "bytes": 71715,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_11_1_11.png",
+      "sha256": "db7862d8de9793362105cf60a850fe29f093189eb5b75c826461fb5f08361e46",
+      "bytes": 20181,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f11_o11.png",
+      "sha256": "db7862d8de9793362105cf60a850fe29f093189eb5b75c826461fb5f08361e46",
+      "bytes": 20181,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_18_1_47.png",
+      "sha256": "a190131f60f418b5591a5121e6fb5211e939836c944c73377414a14a511c0166",
+      "bytes": 91138,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f18_o47.png",
+      "sha256": "a190131f60f418b5591a5121e6fb5211e939836c944c73377414a14a511c0166",
+      "bytes": 91138,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_1_1_22.png",
+      "sha256": "c61c75e2d2622c1d818222c30f526ada9361398b91506fc2cd191d42570a30a7",
+      "bytes": 135500,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f1_o22.png",
+      "sha256": "c61c75e2d2622c1d818222c30f526ada9361398b91506fc2cd191d42570a30a7",
+      "bytes": 135500,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/.spacr_crop_format.json",
+      "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_10_1_4.png",
+      "sha256": "e76ffd0fa6283029bff77ce4fe4bf096bf2cd06d5fbe1ce5700aabb0b6acbe2e",
+      "bytes": 155848,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f10_o4.png",
+      "sha256": "e76ffd0fa6283029bff77ce4fe4bf096bf2cd06d5fbe1ce5700aabb0b6acbe2e",
+      "bytes": 155848,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_19_1_16.png",
+      "sha256": "e73f55ec43686a6591e12acae56935cd7bebfe554e71d7ec946d36fadb457411",
+      "bytes": 118017,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f19_o16.png",
+      "sha256": "e73f55ec43686a6591e12acae56935cd7bebfe554e71d7ec946d36fadb457411",
+      "bytes": 118017,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_18_1_28.png",
+      "sha256": "753ca0b14d9b7ea14a6c37d7320754a6d0cbfb10b4171098f5761c3f217ba7d1",
+      "bytes": 81905,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f18_o28.png",
+      "sha256": "753ca0b14d9b7ea14a6c37d7320754a6d0cbfb10b4171098f5761c3f217ba7d1",
+      "bytes": 81905,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/.spacr_crop_format.json",
+      "sha256": "e3ef2781a1550b180c377e61dd5e481c0ba1df6e8aea2a54b70b6af43e6cdcf4",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_16_1_22.png",
+      "sha256": "5299d3f81a047e69b1783bd6ced8b4425547ed118999df40b7e16d333583c41e",
+      "bytes": 161119,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f16_o22.png",
+      "sha256": "5299d3f81a047e69b1783bd6ced8b4425547ed118999df40b7e16d333583c41e",
+      "bytes": 161119,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_20_1_43.png",
+      "sha256": "2008c90d7b7c35c47dbc324c25432acdaa355b245f75430f6f08070a52a88942",
+      "bytes": 115681,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f20_o43.png",
+      "sha256": "2008c90d7b7c35c47dbc324c25432acdaa355b245f75430f6f08070a52a88942",
+      "bytes": 115681,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_18_1_40.png",
+      "sha256": "9ea08684f85a90c7d180d5dff82613d1b47e53ce8efc23f6efd19c9200b3ccc7",
+      "bytes": 139274,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f18_o40.png",
+      "sha256": "9ea08684f85a90c7d180d5dff82613d1b47e53ce8efc23f6efd19c9200b3ccc7",
+      "bytes": 139274,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_14_1_10.png",
+      "sha256": "435a5860a3fce104b52c9672a316c12feaf2f9314c9afed6ed06617926c1bf17",
+      "bytes": 95992,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f14_o10.png",
+      "sha256": "435a5860a3fce104b52c9672a316c12feaf2f9314c9afed6ed06617926c1bf17",
+      "bytes": 95992,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L02/cell_png/.spacr_crop_format.json",
+      "sha256": "de43dc703760e89ae21cf0c9317c9c8c7075cbeedc0baa903d9044c02f03f455",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_12_1_32.png",
+      "sha256": "5351242368672df50096da13050f1eefad956cdaa43ecb7d7d6576ceddbc92ae",
+      "bytes": 145332,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f12_o32.png",
+      "sha256": "5351242368672df50096da13050f1eefad956cdaa43ecb7d7d6576ceddbc92ae",
+      "bytes": 145332,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+      "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_1_1_32.png",
+      "sha256": "416cce069fbf939a146afc7f17348c273af0f9a2ec85a87235570de8be6b3afc",
+      "bytes": 189208,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f1_o32.png",
+      "sha256": "416cce069fbf939a146afc7f17348c273af0f9a2ec85a87235570de8be6b3afc",
+      "bytes": 189208,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_10_1_31.png",
+      "sha256": "2363c331bb9cc1a6217cef299db581e37a0aa311b9bab48dad29bd7944f0d067",
+      "bytes": 151724,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f10_o31.png",
+      "sha256": "2363c331bb9cc1a6217cef299db581e37a0aa311b9bab48dad29bd7944f0d067",
+      "bytes": 151724,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_13_1_57.png",
+      "sha256": "72e3d3895cd01ca80515decbc2c739310c4b9338bf34d50770b5c5f481cfb201",
+      "bytes": 191653,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f13_o57.png",
+      "sha256": "72e3d3895cd01ca80515decbc2c739310c4b9338bf34d50770b5c5f481cfb201",
+      "bytes": 191653,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_9_1_11.png",
+      "sha256": "d45ad76d2271c30de03a218c444634ebf65547167f362b263542de63e3f52809",
+      "bytes": 96182,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f9_o11.png",
+      "sha256": "d45ad76d2271c30de03a218c444634ebf65547167f362b263542de63e3f52809",
+      "bytes": 96182,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_18_1_20.png",
+      "sha256": "348d185e33c4a66eae587c0852c9cb6188ca6abded5161340c6f10ebe588bfe4",
+      "bytes": 112567,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f18_o20.png",
+      "sha256": "348d185e33c4a66eae587c0852c9cb6188ca6abded5161340c6f10ebe588bfe4",
+      "bytes": 112567,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_16_1_12.png",
+      "sha256": "2692706400fb1829f373ad9ddbb1aaf834c6a52686b7d7bdf759abd4abc338ce",
+      "bytes": 148066,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f16_o12.png",
+      "sha256": "2692706400fb1829f373ad9ddbb1aaf834c6a52686b7d7bdf759abd4abc338ce",
+      "bytes": 148066,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_20_1_1.png",
+      "sha256": "3354c1054e0aced4126b4881c92ae75d3ce77923c07512b5a93baae7f90dd051",
+      "bytes": 115841,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f20_o1.png",
+      "sha256": "3354c1054e0aced4126b4881c92ae75d3ce77923c07512b5a93baae7f90dd051",
+      "bytes": 115841,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_9_1_31.png",
+      "sha256": "3a7e4f3eab9b66fb91f945efad13dc7078c3f64d44195de52a0e0a6059d2cb9a",
+      "bytes": 90011,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f9_o31.png",
+      "sha256": "3a7e4f3eab9b66fb91f945efad13dc7078c3f64d44195de52a0e0a6059d2cb9a",
+      "bytes": 90011,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+      "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/plate1_E01_10_1_8.png",
+      "sha256": "2d9133f43e809ad2ccab83b4e6d351afa1ddc571d8ec76f4882c0f271ff18762",
+      "bytes": 66500,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f10_o8.png",
+      "sha256": "2d9133f43e809ad2ccab83b4e6d351afa1ddc571d8ec76f4882c0f271ff18762",
+      "bytes": 66500,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/.spacr_crop_format.json",
+      "sha256": "768c0402e1393d42476d207c16469a42d04ca74b36aa823debb3115f72433bf4",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_18_1_14.png",
+      "sha256": "0fe476b201c47e695c33acc5bd4d2369dc9f0f8673185068d6a5b32ad419f83b",
+      "bytes": 123405,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f18_o14.png",
+      "sha256": "0fe476b201c47e695c33acc5bd4d2369dc9f0f8673185068d6a5b32ad419f83b",
+      "bytes": 123405,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_9_1_43.png",
+      "sha256": "eab0f026517f1c359ae5dc5ef58a47fcde6bd1778e68b9a8e1a8bc82d8a560b3",
+      "bytes": 109769,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f9_o43.png",
+      "sha256": "eab0f026517f1c359ae5dc5ef58a47fcde6bd1778e68b9a8e1a8bc82d8a560b3",
+      "bytes": 109769,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_20_1_78.png",
+      "sha256": "ab3c01ef1ea69e1a13f1978f127ddd41f15933551a6261be91f9514f352aee4a",
+      "bytes": 49152,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f20_o78.png",
+      "sha256": "ab3c01ef1ea69e1a13f1978f127ddd41f15933551a6261be91f9514f352aee4a",
+      "bytes": 49152,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_30.png",
+      "sha256": "1ee5f563530af7959e05d640c18905dde686da309228d8211717fb34e079c758",
+      "bytes": 83113,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f1_o30.png",
+      "sha256": "1ee5f563530af7959e05d640c18905dde686da309228d8211717fb34e079c758",
+      "bytes": 83113,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_16.png",
+      "sha256": "08ab608005bb6279a58b6eb749f30167c06c0e72e1a3ca39463d854262e2bbdd",
+      "bytes": 89364,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f1_o16.png",
+      "sha256": "08ab608005bb6279a58b6eb749f30167c06c0e72e1a3ca39463d854262e2bbdd",
+      "bytes": 89364,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/plate1_E01_21_1_39.png",
+      "sha256": "1c8834ee9af29accdd63b157c187ede9843b2e492c093cd255b091add5810420",
+      "bytes": 140685,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f21_o39.png",
+      "sha256": "1c8834ee9af29accdd63b157c187ede9843b2e492c093cd255b091add5810420",
+      "bytes": 140685,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_18_1_1.png",
+      "sha256": "38a57c9495211489542e1942fa6d8f8c415d69f806ae26db7058185110f2b654",
+      "bytes": 31902,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f18_o1.png",
+      "sha256": "38a57c9495211489542e1942fa6d8f8c415d69f806ae26db7058185110f2b654",
+      "bytes": 31902,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+      "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_17_1_22.png",
+      "sha256": "f513247ec0c2c665b3ce5db6f10478577cac1c9b51b3d11e2256ce8149958fb8",
+      "bytes": 119426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f17_o22.png",
+      "sha256": "f513247ec0c2c665b3ce5db6f10478577cac1c9b51b3d11e2256ce8149958fb8",
+      "bytes": 119426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_16_1_4.png",
+      "sha256": "c3ed9451a8f21b8e7e38af6398797e568d0b2b9de71dece537d43ce0734b8cb7",
+      "bytes": 21743,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f16_o4.png",
+      "sha256": "c3ed9451a8f21b8e7e38af6398797e568d0b2b9de71dece537d43ce0734b8cb7",
+      "bytes": 21743,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_18_1_48.png",
+      "sha256": "8c3f131079f043fbe162cad3f4f3a708adb2ed07fcf46cc3b5af2af5858f8bd6",
+      "bytes": 73147,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f18_o48.png",
+      "sha256": "8c3f131079f043fbe162cad3f4f3a708adb2ed07fcf46cc3b5af2af5858f8bd6",
+      "bytes": 73147,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_19_1_35.png",
+      "sha256": "ca6a4ad7268f6454392afbba92d0a187c2df58ab7291ec9f1904eb58c6338920",
+      "bytes": 14690,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f19_o35.png",
+      "sha256": "ca6a4ad7268f6454392afbba92d0a187c2df58ab7291ec9f1904eb58c6338920",
+      "bytes": 14690,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_11_1_2.png",
+      "sha256": "ac336ac816bb101f05d75323b8383e735d3caed7c4f6c55db7968aa4e9285258",
+      "bytes": 35639,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f11_o2.png",
+      "sha256": "ac336ac816bb101f05d75323b8383e735d3caed7c4f6c55db7968aa4e9285258",
+      "bytes": 35639,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_12_1_48.png",
+      "sha256": "56eced7bf4fd58a4428cf45504deaf1c09627fd440a0ef103efdca5200997864",
+      "bytes": 108128,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f12_o48.png",
+      "sha256": "56eced7bf4fd58a4428cf45504deaf1c09627fd440a0ef103efdca5200997864",
+      "bytes": 108128,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_14_1_3.png",
+      "sha256": "00af0619201c544c340c92b1037a08e1f48fcc25b955b92e7311b816b2fa44cb",
+      "bytes": 23838,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f14_o3.png",
+      "sha256": "00af0619201c544c340c92b1037a08e1f48fcc25b955b92e7311b816b2fa44cb",
+      "bytes": 23838,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_13_1_35.png",
+      "sha256": "76bd192affe63fd530b54a4c628e43c1d7cced3d754478dd121c73f13356cff8",
+      "bytes": 160359,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f13_o35.png",
+      "sha256": "76bd192affe63fd530b54a4c628e43c1d7cced3d754478dd121c73f13356cff8",
+      "bytes": 160359,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/.spacr_crop_format.json",
+      "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_13_1_45.png",
+      "sha256": "fa335ad021774061c5a9db3b60bd0d9b220f6970a25aa4b16be6fd1882bbd020",
+      "bytes": 109487,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f13_o45.png",
+      "sha256": "fa335ad021774061c5a9db3b60bd0d9b220f6970a25aa4b16be6fd1882bbd020",
+      "bytes": 109487,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/.spacr_crop_format.json",
+      "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_18_1_75.png",
+      "sha256": "7b33bd88197a2be139a9517693f79b96dee5307c2640d14bbdea7d99fe7b61b3",
+      "bytes": 60322,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f18_o75.png",
+      "sha256": "7b33bd88197a2be139a9517693f79b96dee5307c2640d14bbdea7d99fe7b61b3",
+      "bytes": 60322,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_13_1_28.png",
+      "sha256": "9ccc7cecf03898318445c06641f0fd34e8e16391b406789d5023ec5a85775e48",
+      "bytes": 187617,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f13_o28.png",
+      "sha256": "9ccc7cecf03898318445c06641f0fd34e8e16391b406789d5023ec5a85775e48",
+      "bytes": 187617,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_E02/cell_png/.spacr_crop_format.json",
+      "sha256": "4926890864de1a707b38f1844a68ab2131a2d26ff84150edac9b4b35cf82212f",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_11_1_28.png",
+      "sha256": "6b007184ffb65495518454d54cf8e76f4cae34a6d6eb8636620027481c3ed442",
+      "bytes": 107645,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f11_o28.png",
+      "sha256": "6b007184ffb65495518454d54cf8e76f4cae34a6d6eb8636620027481c3ed442",
+      "bytes": 107645,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_17_1_9.png",
+      "sha256": "c38969b16e36deb71095b16ad97988b43134ecd8bc807f85c95b0a0e7160c1b6",
+      "bytes": 150221,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f17_o9.png",
+      "sha256": "c38969b16e36deb71095b16ad97988b43134ecd8bc807f85c95b0a0e7160c1b6",
+      "bytes": 150221,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_18_1_59.png",
+      "sha256": "e475e27be892abc6a1f9837913e76a47f0129d675e9ce73faf673aec9954f654",
+      "bytes": 107826,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f18_o59.png",
+      "sha256": "e475e27be892abc6a1f9837913e76a47f0129d675e9ce73faf673aec9954f654",
+      "bytes": 107826,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/.spacr_crop_format.json",
+      "sha256": "5199e14812ac218cbb09fb71a7938745aa7375669f06a79522ff25a7a2f1d306",
+      "bytes": 331,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_14_1_31.png",
+      "sha256": "59fc0a7f5c61e159c88dfa5180d48115ea5ee323e0c4c2b79f4caece07a86f85",
+      "bytes": 99755,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f14_o31.png",
+      "sha256": "59fc0a7f5c61e159c88dfa5180d48115ea5ee323e0c4c2b79f4caece07a86f85",
+      "bytes": 99755,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/55_image_scatter.json",
+      "sha256": "e237fcfbbb1c5a600e151023699cd48460c77bb7906e29e5b2e51a3171b652d5",
+      "bytes": 4468,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lineage_data.py",
+      "sha256": "ad1e4a57cb3e02036419398c48ce51b5a4ac7a91adb97e57348845d975c7c996",
+      "bytes": 3922,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_image_scatter.py",
+      "sha256": "50a424f7dee0c8e817a0d9d56f931c7f4ce73c8b9b356cf930b931dfb010a52b",
+      "bytes": 13202,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "bytes": 30629888,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+      "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+      "bytes": 152033,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+      "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+      "bytes": 126492,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+      "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+      "bytes": 101733,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/56_lineage.json",
+      "sha256": "f3aa14168f3470744b1d8b0fbe39e5a664e7b3364bb06ce935132011d22285a3",
+      "bytes": 5204,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_lineage.py",
+      "sha256": "ced513967abc7512d8c1d795d276e39ffee6f46a1914bf59241f1c3299ad931c",
+      "bytes": 20932,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/31_external_masks.json",
+      "sha256": "7ee27b5ecdd37819f9326e4e90534b289a64039307adc2ae352de8bcf1ec79f7",
+      "bytes": 6500,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_external_masks.py",
+      "sha256": "b2f478912212d80eb2f882f4512f5f885f64087c3a39bba34d941e5c825171d4",
+      "bytes": 59041,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py",
+      "sha256": "0d16cdc9713fcac24148d791adaea96c38c420c4ac97ff91afba4e92a9e96ff1",
+      "bytes": 15623,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/foreign_release/captures/foreign_release_v2/inputs.json",
+      "sha256": "6b7c7218e6b9e896731be185df24dd49c892fef03f4af93b9cf4e23f1241df09",
+      "bytes": 2202,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/foreign_release/captures/foreign_release_v2/scientific_acceptance.json",
+      "sha256": "f8815c93184317009d0993721df3935526d99c85d3934121908d7eb277c0dbca",
+      "bytes": 851,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy",
+      "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "bytes": 55664632,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov01_C1.tif",
+      "sha256": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+      "bytes": 7952328,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov01_cell_mask.tif",
+      "sha256": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee",
+      "bytes": 7952328,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_9_1.npy",
+      "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+      "bytes": 55664632,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov02_C1.tif",
+      "sha256": "e9ae8fe15224699a3148a5459649fa9cdc6bf5dd5f9a2b0bcfae45713c39a6f0",
+      "bytes": 7952328,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov02_cell_mask.tif",
+      "sha256": "03574376bfcdadb4543b59538deaa7e1c2a0d9f7bbd643ffce6ee2cfe5c59b52",
+      "bytes": 7952328,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/21_model_compare.json",
+      "sha256": "3ef30508d8d207064adf72979b584a72134475a00f857583b86371af3f8ba17c",
+      "bytes": 3810,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_model_compare.py",
+      "sha256": "88bd02f64daa1d550a587f2cdd59063217dcceee5ac4fea6068bc12c304736e3",
+      "bytes": 3955,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif",
+      "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "bytes": 524544,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif",
+      "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "bytes": 524544,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif",
+      "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "bytes": 524544,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/evidence/2026-09-09_model_zoo_provenance_and_assembly_audit.json",
+      "sha256": "5e83252915f2885b484f16becc88d202af8b4e01bddd3a51c877eda8fc615415",
+      "bytes": 7942,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/22_model_zoo.json",
+      "sha256": "69c1f5874db5d57a7271c5a201dee910a9831eb49e17f2983eda72712eec41df",
+      "bytes": 5307,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_model_zoo.py",
+      "sha256": "1b8de66970514f6a831d1749df76c0b2512bf35ebcab21314affc06a037d8cd4",
+      "bytes": 28562,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/71_investigate_hit.json",
+      "sha256": "f33588911d88b1d0383c98b5616dfa7811906a04fe38c5965347519a7ca35621",
+      "bytes": 7747,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_investigate_hit.py",
+      "sha256": "35d5024b52051be68e18a159000bfa5a20d56f33859fdd605205e0d974517814",
+      "bytes": 13191,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/build_investigate_hit_example.py",
+      "sha256": "11bec79658c2b184895dafaf557a2b865636c76ebca8c8d2ee31b579cb6276b5",
+      "bytes": 13501,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/docs/source/_extra/tutorials/examples/Investigate_Hit_real_screen_example.zip",
+      "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464",
+      "bytes": 1995731,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/75_regression_diagnostics.json",
+      "sha256": "98419b6c6a3a555f1a702d03c179a0ca05b6774dd56df29c8e21ea6bd0e4b739",
+      "bytes": 4247,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_diagnostics.py",
+      "sha256": "1e6f1d237ac40369cb928863df2f045e221201408c23869f972b9c1dacde4dbb",
+      "bytes": 12387,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/design_identifiability.png",
+      "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "bytes": 167591,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/design_diagnostics.png",
+      "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "bytes": 348426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/inference_diagnostics.png",
+      "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "bytes": 199162,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+      "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "bytes": 2830,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/design_identifiability.png",
+      "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "bytes": 167591,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/design_diagnostics.png",
+      "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "bytes": 348426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/inference_diagnostics.png",
+      "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "bytes": 199162,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+      "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "bytes": 2830,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_identifiability.png",
+      "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "bytes": 167591,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_diagnostics.png",
+      "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "bytes": 348426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/inference_diagnostics.png",
+      "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "bytes": 199162,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+      "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "bytes": 2830,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/design_identifiability.png",
+      "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "bytes": 167591,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/design_diagnostics.png",
+      "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "bytes": 348426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/inference_diagnostics.png",
+      "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "bytes": 199162,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+      "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "bytes": 2830,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/design_identifiability.png",
+      "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "bytes": 167591,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/design_diagnostics.png",
+      "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "bytes": 348426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/inference_diagnostics.png",
+      "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "bytes": 199162,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+      "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "bytes": 2830,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/design_identifiability.png",
+      "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "bytes": 167591,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/design_diagnostics.png",
+      "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "bytes": 348426,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/inference_diagnostics.png",
+      "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "bytes": 199162,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+      "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "bytes": 2830,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/01_pypi_github.json",
+      "sha256": "a9b2c6286ca623128da907ed39bd1e1e4a11689695a3f8285a9e9cadf09e990f",
+      "bytes": 3357,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_installation_sources.py",
+      "sha256": "96f970060867d78108deaaa6f3ec13a1204042cb5040b744a3ffce01aa721bb7",
+      "bytes": 6738,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/02_install_spacr.json",
+      "sha256": "21c4a3dacc742874bf86dafe61ded87f22cfd4df8ea171a56220b80570a9f85d",
+      "bytes": 6683,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_install_nightly.py",
+      "sha256": "cccd1077bf65a0fb07a831ad7434747f490987a34a4ce5b59455dbc2a649d1df",
+      "bytes": 4034,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_pip_installation.py",
+      "sha256": "3b29b13ff0e46304aa5fac5a4aec31ef19009d23bc225a3a4e6bdce08b6ba2fc",
+      "bytes": 22926,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/06_api.json",
+      "sha256": "a7a67a5ed3103d5fca855e03397c1ae0a461cbd9cfa0ad8ecb1e79e868a13d0b",
+      "bytes": 3584,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cli.py",
+      "sha256": "26cb43edea4822804b821a9004ca9bd7ce7f27750027be720450a29e10c3bb12",
+      "bytes": 9941,
+      "matches_report": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_release/captures/regression_release/batch_settings.json",
+      "sha256": "aab7ad77f188c0dc4a6f64eedd6237720964d2add6f66edc7011a627864c172e",
+      "bytes": 4033,
+      "matches_report": true
+    }
+  ],
+  "binding_conflicts": [],
+  "binding_mismatches": [],
+  "CV_database_labels_64_preserved": true,
+  "CV_biological_labels_independently_validated": false,
+  "foreign_source_plane_readonly_checks": [
+    {
+      "neutral_stem": "fov01",
+      "source_shape": [
+        1994,
+        1994,
+        7
+      ],
+      "source_dtype": "uint16",
+      "image_shape": [
+        1994,
+        1994
+      ],
+      "image_dtype": "uint16",
+      "mask_dtype": "uint16",
+      "image_equal_source_plane": true,
+      "mask_equal_source_plane": true,
+      "positive_labels": 44,
+      "reported_objects": 44
+    },
+    {
+      "neutral_stem": "fov02",
+      "source_shape": [
+        1994,
+        1994,
+        7
+      ],
+      "source_dtype": "uint16",
+      "image_shape": [
+        1994,
+        1994
+      ],
+      "image_dtype": "uint16",
+      "mask_dtype": "uint16",
+      "image_equal_source_plane": true,
+      "mask_equal_source_plane": true,
+      "positive_labels": 59,
+      "reported_objects": 59
+    }
+  ],
+  "no_bulk_crop_scan_repeated": true,
+  "completed_at_utc": "2026-10-14T01:00:24.175585+00:00",
+  "operational_report": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson20_operational_resume_audit_20261013.json",
+    "sha256": "49ec768da7d9c53891909e4dba827afcb2fc0d25497ce15af7affcd1982f5cd0",
+    "bytes": 47318,
+    "pinned_interface_commit": "fcf4055999a6b5a40fd1875496189bc03709389a",
+    "independent_bound_file_checks": [
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/run_from_ch.py",
+        "sha256": "7f1b4da164181d4e0693079f91a7f487a54b61791725bd3b25b574b2441593c0",
+        "bytes": 471,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/publish_chain_codex.sh",
+        "sha256": "9916457d801cc0fd946e1fd4bd3b346821b224d67bf8afeea91eefd252bede56",
+        "bytes": 2291,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/resume_publish_codex.sh",
+        "sha256": "3f446f505bd04433dc95cff3203f1138c62d1637cb59dc5c3100d529fc7971b5",
+        "bytes": 1564,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/voices20_r28.sh",
+        "sha256": "a0d15edee8f83f0e821b3e2853adaf1cc7221cc8fd640ca4ce16272a510355e0",
+        "bytes": 1690,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/prepare_voice_stage.py",
+        "sha256": "2c2f7c09564f2f4183e869814d7081be13a77b5dead6ef3802564d0dee7d66e6",
+        "bytes": 2297,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/render_partitions_ch.py",
+        "sha256": "2209331462389fca335b553892f7365b506f4b785ede912bf4bea8962f67e104",
+        "bytes": 2408,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/tool_ch.sh",
+        "sha256": "3718af40e7b165954f60d97bc148a6971b00cc9c4158a181f7e02534130c90d5",
+        "bytes": 884,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson_chain.sh",
+        "sha256": "d15d9e3f229b54747514438884f4e1370ba0064ceeb98ea4a5231b4c1289a3f4",
+        "bytes": 1120,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/browser_matrix_ch.py",
+        "sha256": "6f5b7c7af5e73104fe56fe0005949d911530f5dc81318e35ff9b121b1733105a",
+        "bytes": 2348,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/run_current_source_tool.py",
+        "sha256": "ac6f97bcefa37b97c34c58d7afef0a667860d163f1df90f439e6c19f2a10f8a2",
+        "bytes": 1751,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/validate_cellpose_host.py",
+        "sha256": "79432a740d10f48543732f578f5dfa78de16895132460489626bbf80b0124344",
+        "bytes": 32303,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/build_module_stage_with_acceptance.py",
+        "sha256": "6e90c2d7cdb9eaf6c4880e0a8602267ec2959d9dc48340bc21900b0d04db06a9",
+        "bytes": 13585,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/stage_lesson.py",
+        "sha256": "cc8e1cef0e248ff3631f3def5a4192d588b0c2ca93a33033bfdef229a51ace58",
+        "bytes": 15558,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/make_host_jobs.py",
+        "sha256": "329e510b81054d35b305f52fcfd1b119a6e90b2606c625a2ed9d00d27d33320d",
+        "bytes": 9634,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/publish_release_candidate.py",
+        "sha256": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967",
+        "bytes": 24203,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_release_candidate.py",
+        "sha256": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+        "bytes": 32024,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_staged_lesson.py",
+        "sha256": "3a2e7cdfd7ffa49592ec58cbff4399fe5037e20e2882d275ccd614f90a471cad",
+        "bytes": 30347,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_narration_onsets.py",
+        "sha256": "a4c16554df29a8b6007333a893cb6a30368c5c1cc0efaa1666bb7962146bf018",
+        "bytes": 3057,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/adopt_source_bound_tracks.py",
+        "sha256": "0befdb3f26cdea4d8b08e7980ede0475d849f5acf22558b074b43784ecadae67",
+        "bytes": 3590,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/authoring/tools/render_all_voices.py",
+        "sha256": "50e4dee58264862cd29ddcec0a4ddd58c4a5973db6fcf7af4f4650294ecda463",
+        "bytes": 44725,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/authoring/tools/sentence_audio_cache.py",
+        "sha256": "4c83b7f9aa8216258a98a151e5d2c0a93f33400b72425064936b99036ae70a2b",
+        "bytes": 2113,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/apply_translation_review.py",
+        "sha256": "642ed9bf340bda46c3259087e0b3b2685032d0995be1383b7f1916d65128b083",
+        "bytes": 4775,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/20_cellpose_masks.json",
+        "sha256": "0006d6b09d0f4b004fec18bb598e6b9e09c6ad3c39a485e04b7353a1eefe0fa5",
+        "bytes": 5144,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.da.json",
+        "sha256": "41e0707c5d99e5ad93f528c53c999d4e12c84054d10c3ba7410dcdfc43453dd5",
+        "bytes": 4019,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.de.json",
+        "sha256": "73129f2fc25e6d9ce789efb0388c82200231a990c35c9417f8f04c393e0acc77",
+        "bytes": 4418,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.es.json",
+        "sha256": "a3e157b717896549105d12466cda4440d45e5b282f957f7af57ed56e1a126031",
+        "bytes": 4172,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.fr.json",
+        "sha256": "0bb44fd5c710b872921832b27d62d5fc533162f85f3b911e35d6ce6a4856855f",
+        "bytes": 4445,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.hi.json",
+        "sha256": "ac8db3e6302591fa4a17e386f1cfab2cdfe36a6d556353fb4e6aef0ea4600f97",
+        "bytes": 7929,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.is.json",
+        "sha256": "b97883526f648e59852d1977e5c244417b84109f98a82c93eb05653b34a6868a",
+        "bytes": 3986,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.it.json",
+        "sha256": "2d8d2b6968e86898173ac5b44916392843a76be8ea063d107d8733d2999e92f1",
+        "bytes": 4215,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.ja.json",
+        "sha256": "8dcc601a94910f996dfc4087559aba327db3c1140672138e36d3375d8162585b",
+        "bytes": 4789,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.ko.json",
+        "sha256": "3aaa3a0b90afe5653a2a6ff37d4c6270a12bb1bffde65e0c7387133e85cfb5d8",
+        "bytes": 4203,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.nb.json",
+        "sha256": "60e9aaf7a3e35202098ffb0a9b4c544dd57bdbebcd035956715c1df0dfbef9f8",
+        "bytes": 3927,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.pt-BR.json",
+        "sha256": "ffbcf9dc1ac8f89fdf06debf6970081be4d2a418bfd3737f59bf1478aac52c06",
+        "bytes": 4242,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.sv.json",
+        "sha256": "74796d0d53ea621783169034cefa6dbe1c6d37b50506bf636fe82c0b088fc674",
+        "bytes": 4012,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/lessons/reviews/20_cellpose_masks.zh-CN.json",
+        "sha256": "477381fc94f4e143968d379cdfa288a03ae847d400ca6ec9753f8471ca71e94d",
+        "bytes": 3562,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/CAPTURE_STATE_2026-10-13.md",
+        "sha256": "9d22f871badacf7d23071928a5eaf0341a78bcc04e5702e139fb1e2cbd0388e9",
+        "bytes": 37759,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/capture_host_proto/turn28/live.sh",
+        "sha256": "4f48afd4dfeba2b58ac1fd230ceedc4c83ffd397b726ac41e1b2929cce2d4a1e",
+        "bytes": 622,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/capture_host_proto/idle_retest/live.sh",
+        "sha256": "f79d4f43dad69be5b8e04bcf03d0dae6b36dce88d73e6b1a92039078cc798dd6",
+        "bytes": 482,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson20_narration_draft_review_20261013.json",
+        "sha256": "a0734e1b440c9f626598e8ca7f9f02f957713a02399bc59250e252f18e58c655",
+        "bytes": 59537,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/release-manifest.json",
+        "sha256": "8dd2e98facc69ea62721498db0b3b30f9b38c760b9d7bd65fa36795c850e8660",
+        "bytes": 1136143,
+        "matches_report": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/publication-receipt.json",
+        "sha256": "2357a99c6b2e453c9266a0ea08bb1423e29c52afcb0e22c3841b1793258ae777",
+        "bytes": 151963,
+        "matches_report": true
+      }
+    ],
+    "canonical_English_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+    "13_current_review_records_match_old_English_metadata": true,
+    "voice_counts_independently_read_from_AST": {
+      "en": 24,
+      "es": 3,
+      "fr": 1,
+      "hi": 4,
+      "it": 2,
+      "pt-BR": 3,
+      "ja": 5,
+      "zh-CN": 8
+    },
+    "voice_total": 50,
+    "no_wrapper_or_command_execution": true
+  },
+  "approved_claims": [
+    "All 11 prerequisite lessons are explicitly not recording ready; missing stage wiring, hardcoded stale paths and incomplete scientific dependencies remain visible.",
+    "223 prerequisite file path/SHA/size bindings checked independently with zero conflicts or mismatch; no repeated 2341-crop scan.",
+    "64 CV source annotation labels and database well identities match the manifest, without independent biological infection validation or prevalence claims.",
+    "Two Foreign image/mask TIFF pairs exactly equal stored image/label planes 1/4 of merged arrays derived from real acquired microscopy: 44 and 59 labels, 103 rows; neutral demonstration names do not recover acquisition wells or physical calibration.",
+    "Three model-demo image hashes match prior acquired-crop provenance; same images reused in training, not independent held-out evaluation. Model filename existence is not checkpoint identity, and model bytes were not read or loaded.",
+    "Six existing diagnostic bundles meet panel/schema/no-error requirements only; identical file hashes across six folders do not establish six independent completed runs.",
+    "Operational report source/CLI/wrapper bindings, 13 old-English review hashes and 50-voice matrix agree with current pinned interface source. All command templates remain unresolved/post-freeze and claim no readiness.",
+    "The mandatory science/staging path binds exact English, selected clip/native/receipt/gate metadata and immutable raw observations; original failed openings remain rejected and no narrowed published acceptance is granted."
+  ],
+  "requested_corrections": [
+    {
+      "id": "CV_scope",
+      "status": "resolved_in_revised_report",
+      "correction": "Explicit biological_labels_independently_validated:false and balanced-example-only scope."
+    },
+    {
+      "id": "training_reuse",
+      "status": "resolved_in_revised_report",
+      "correction": "Explicit heldout_validation:false and same-crops-training provenance on lessons21/22."
+    },
+    {
+      "id": "diagnostic_completion",
+      "status": "resolved_in_revised_report",
+      "correction": "Explicit completed_run_journal_bound:false; candidates pending run provenance, not completed-run proof."
+    }
+  ],
+  "remaining_issues": [
+    {
+      "id": "external_final_source",
+      "blocking": true,
+      "scope": "Explicit Home release done and final Workbench source remain required before fresh full lesson20 recording; fcf is held integration and cannot be called final app source."
+    },
+    {
+      "id": "recording_wrapper_adaptation",
+      "blocking": true,
+      "scope": "Old CH hardcodes, worktree imports, fresh stage names/labels and matching source-pinned launchers must be adapted together after source availability."
+    },
+    {
+      "id": "fresh_acceptance_and_language",
+      "blocking": true,
+      "scope": "New clips, direct reference receipt, derived acceptance and English alignment required. Current 13 reviews match old English only; changed sentence plan cannot be applied/repinned on this audit."
+    },
+    {
+      "id": "input_prerequisite_scope",
+      "blocking": false,
+      "scope": "For later lessons, existing candidate hashes do not resolve stale absolute manifest paths, captures/ injection rejection, checkpoint identities, model-data validation, live browser/terminal routes or diagnostic run completion."
+    },
+    {
+      "id": "caption_and_voice_matrix",
+      "blocking": false,
+      "scope": "Runtime/API nine-locale matrix differs from tutorial 13 translation languages plus eight spoken-language/50-voice matrix; keep them separate. English af_heart check is one voice, not full publication coverage."
+    },
+    {
+      "id": "operational_override_checks",
+      "blocking": true,
+      "scope": "CANDIDATE override and upload recovery require source-bound matrix/candidate/placeholder/checkpoint/readback verification before subsequent authorized publication; old wrappers are not endorsed unchanged."
+    }
+  ],
+  "peer_review_limits": [
+    "Codex AI technical peer review only; no human/native-speaker or segmentation/model/label accuracy signoff.",
+    "Critical source and metadata file bindings rechecked; no models, test execution, GUI/GPU, recording, audio/translation, network, environment, NAS, protected queues or shared checkout accessed.",
+    "No duplicate all-crop existence scan; relied on independently hash-bound database, manifest, driver validation and three recorded crop hashes, with 64-CV and two-Foreign input checks scoped separately.",
+    "No actual future command execution or final source/recording/acceptance/publication approval.",
+    "Stored Foreign label planes are derived segmentation labels, not independently established biological ground truth; exact TIFF-to-plane identity is only input attribution."
+  ]
+}

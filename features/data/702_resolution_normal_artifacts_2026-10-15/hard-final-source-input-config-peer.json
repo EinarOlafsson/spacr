@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "status": "ACCEPT_FINAL_IMMUTABLE_SOURCE_INPUT_CONFIG",
+  "reviewer": "Original Home independent technical source peer",
+  "head": "b054f6f813a97fa4e527038bd65d21e5d0d76893",
+  "config_sha256": "d3d21fe01cd4c09686b2216bf5eec2606ddd1667de3463a616567546dd004945",
+  "driver_sha256": "2a6358c83822ee09cfdfed7effbb4a8e620efa70f3978ac1ad720922d2c4d4ab",
+  "required_source_tool_review_pins_verified": 6665,
+  "independently_recomputed_metadata_rebinding": {
+    "files": 18,
+    "records": 27,
+    "all_source_context_target_fields_unchanged": true,
+    "allowed_edits": "review_kind/review_basis/independent_peer metadata; API source_file_sha256 rebound to actual accepted private-helper source"
+  },
+  "foreign_catalog_targets_verified": {
+    "sv": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "de": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "es": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "zh_CN": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "fr": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "pt": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "hi": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "ko": {
+      "N639": 21,
+      "N702_picker": 1
+    },
+    "is": {
+      "N639": 21,
+      "N702_picker": 1
+    }
+  },
+  "baseline_ancestry": [
+    "3470d03d51850881b60f23bce623c8a611cd78db",
+    "5727b5354de46a2ac24f434afb2e0cb4671028ec"
+  ],
+  "root_real_classifier_registry_preserved": true,
+  "source_scope": "Driver exact two owned runtime source strings and one public train_model paragraph43; no additional owner sources admitted by config. Actual ordinary canonical collection is producer responsibility and was not performed by this peer.",
+  "limits": [
+    "No collector/generator/tests/model/network executed by peer.",
+    "Producer must execute unchanged ordinary normal gates before artifact acceptance; this receipt authorizes source/config coherence only.",
+    "Current foreign catalogs inspected by executing only local generated literal Python tables, no app/model import."
+  ]
+}

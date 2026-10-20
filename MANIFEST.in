@@ -4,6 +4,7 @@ recursive-include spacr/resources/images organism_*.svg organism_sources.json
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/data *.csv
 include spacr/resources/data/cellprofiler_example.cppipe
+include spacr/resources/data/embeddings_synthetic_example.tar.gz
 # The bundled GitHub release notes Home's News panel draws. Built by
 # tools/build_release_notes.py before a tag; a wheel without it shows
 # an empty News panel and no error.
@@ -28,6 +29,9 @@ recursive-include spacr/resources/setting_animations *.gif *.json
 # 3840x2400 and pre-exposed by spacr/qt/imagery.py; the originals
 # (25 MB) are deliberately not shipped.
 recursive-include spacr/resources/themes *.jpg
+# The startup photomosaic: one 2160 px JPEG (~0.8 MB) and its tile map,
+# written by tools/build_splash_mosaic.py.
+recursive-include spacr/resources/splash *.jpg *.json
 
 # Include essential files
 include *.py
@@ -154,3 +158,5 @@ prune docs/api
 prune docs/tutorial
 prune docs/resources
 exclude docs/*.html docs/*.js docs/*.inv docs/.buildinfo
+# The nine 3-page model cards (scores, facts, about), the offline fallback of the Model Zoo card viewer.
+include spacr/resources/model_cards/*.json

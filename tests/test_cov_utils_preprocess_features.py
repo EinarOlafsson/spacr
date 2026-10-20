@@ -252,7 +252,7 @@ def test_delete_folder_rejects_a_file(tmp_path, capsys):
     f = tmp_path / "a_file.txt"
     f.write_text("keep me")
     delete_folder(str(f))
-    assert f.exists() and f.read_text() == "keep me"
+    assert f.exists() and f.read_text(encoding="utf-8") == "keep me"
     assert "does not exist or is not a directory" in capsys.readouterr().out
 
 

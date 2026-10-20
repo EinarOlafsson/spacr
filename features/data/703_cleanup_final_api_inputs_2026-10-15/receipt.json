@@ -1,0 +1,12 @@
+{
+  "source_commit": "1eabf4b498a7be2a7eb91385c1c5cb1ba7edf473",
+  "records": 297,
+  "changed_blocks": 33,
+  "normal_review_loader_locales": 9,
+  "source_context_checks": 594,
+  "inline_checks": 297,
+  "retired_records": 18,
+  "retirement_scope": "Exact two stale labels per locale only; all other payload fields and records unchanged.",
+  "windows_paragraph1": "Nine existing active source/review records unchanged.",
+  "generation_executed": false
+}

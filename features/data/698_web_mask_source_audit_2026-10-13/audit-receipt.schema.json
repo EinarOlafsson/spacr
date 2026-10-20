@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "N698 minimal source-bound read-only audit receipt",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "item",
+    "audit_date",
+    "state",
+    "scope",
+    "source_bindings",
+    "public_hf_metadata",
+    "findings",
+    "official_constraints",
+    "implementation_batches",
+    "remaining_prerequisites",
+    "existing_test_paths",
+    "acceptance_gaps"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "item": {
+      "const": "N698"
+    },
+    "audit_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "state": {
+      "const": "read_only_audit_complete_implementation_pending"
+    },
+    "source_bindings": {
+      "type": "object",
+      "required": [
+        "website",
+        "desktop"
+      ],
+      "properties": {
+        "website": {
+          "type": "object",
+          "required": [
+            "repository",
+            "private",
+            "commit",
+            "tree",
+            "files"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "private": {
+              "const": true
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "tree": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "git_blob",
+                  "sha256",
+                  "bytes",
+                  "lines"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "git_blob": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{40}$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lines": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "desktop": {
+          "type": "object",
+          "required": [
+            "repository",
+            "observed_head",
+            "files",
+            "binding_rule"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "observed_head": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "git_blob",
+                  "sha256",
+                  "bytes",
+                  "lines"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "git_blob": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{40}$"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "lines": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "binding_rule": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

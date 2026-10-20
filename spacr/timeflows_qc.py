@@ -1,9 +1,9 @@
 """Check that timelapse annotation carries one label per object over time.
 
-WHAT IT IS FOR
+What it is for
 ==============
 The timeflows plan rests on one claim about the
-training data: an object keeps the SAME LABEL in every frame it appears in.
+training data: an object keeps the same label in every frame it appears in.
 A time-flow head is trained to point from a pixel of an object in frame ``t``
 at that object's centre in frame ``t+1``, and the only thing that says which
 object in ``t+1`` is the same object is the label. If the annotation recycles
@@ -35,8 +35,8 @@ than impressions:
   vector has to point further than the head can see, and several identical
   cells are candidates at the far end of it.
 
-WHY A SCRIPT AND NOT A LOOK
-===========================
+Why a table rather than visual inspection
+=========================================
 The defect this looks for is invisible by eye. A recycled id is a correct
 frame and a correct frame, and only the pair is wrong. The plan calls it the
 most common defect in tracking annotation and the easiest to miss, which is
@@ -44,9 +44,9 @@ why the output here is a table with a verdict per check and an exit code, and
 why the detail tables behind every verdict are public: a flagged row is a row
 somebody has to read, not a number to average.
 
-WHAT IT DOES NOT DO
-===================
-It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against
+Scope
+=====
+It checks the annotation, not a tracker. Scoring a predicted tracking against
 a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same
 plan. It holds no graphical code and opens no dialogs.
 """
@@ -195,7 +195,7 @@ def label_spans(frames_table):
 def displacement_table(frames_table):
     """Per-frame displacement of every label that survives a frame.
 
-    Only CONSECUTIVE frames are measured. A label that reappears after a gap
+    Only consecutive frames are measured. A label that reappears after a gap
     contributes nothing here, because the distance it covered is not a
     per-frame displacement and averaging it in would inflate the number this
     module exists to report.
@@ -246,7 +246,7 @@ def _mask_iou(first, second):
 
 
 def recycled_labels(masks, frames_table=None, max_displacement=None):
-    """List every label that disappears and comes back, and judge each one.
+    """List every label that disappears and returns, classifying each gap.
 
     A recycled id -- the same number given to an unrelated object after the
     first one left -- is the defect the whole plan is exposed to, and it looks
@@ -429,7 +429,7 @@ def _row(dataset, check, value, verdict, detail):
 
 def audit_label_consistency(masks, dataset='dataset', timestamps=None,
                             frame_interval=None, max_displacement=None):
-    """Answer step 1's four questions about one label stack, as a table.
+    """Audit one label stack for reuse, divisions, interval and displacement.
 
     :param masks: label stack, ``(T, Y, X)`` or a sequence of 2-D frames.
     :param dataset: the name the rows are reported under.
@@ -700,7 +700,7 @@ def main(argv=None):
 
     :param argv: command line arguments; ``sys.argv[1:]`` when ``None``.
     :returns: ``0`` when no check failed, ``1`` when one did. A failure here
-        is a statement about the ANNOTATION, not about this program: it means
+        is a statement about the annotation, not about this program: it means
         the data does not support what the timeflows plan assumes about it.
     """
     parser = argparse.ArgumentParser(

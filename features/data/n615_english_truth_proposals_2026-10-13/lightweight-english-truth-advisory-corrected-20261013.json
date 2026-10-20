@@ -1,0 +1,377 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T01:06:41.803611+00:00",
+  "status": "CORRECTED ADVISORY ONLY: Home review required; unapproved English proposal, no source/catalog/review/test/GPU change or performance acceptance",
+  "source_binding_basis": {
+    "worktree": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013",
+    "public_source_audit_commit": "c094eb2b5b79b50a9270a1dd6e457c249c0d47bb",
+    "metadata_audit": "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-translation-backlog-20261013.json",
+    "note": "Only actual local public bytes are asserted. No private Home release wording or unpublished app repair is treated as landed."
+  },
+  "animation_tooltip": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+    "line": 10629,
+    "exact_original": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+    "original_source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+    "proposed": "While a CPU-heavy job such as Measure runs, this policy caps backdrops that are already animating at no more than 30 fps and pauses Spaceout fractals. While a GPU job such as mask generation runs, decorative rendering uses the CPU and GPU-backed Spaceout fractals pause. Your saved animation settings return when the jobs end. Off disables this workload policy; other animation limits still apply.",
+    "reasons": [
+      "The cap is min(configured fps, _RUN_FPS=30), not guaranteed delivered motion or measured smoothness. Backdrops must still satisfy animation-on, visibility, Reduce motion and minimization guards.",
+      "Enabled CPU workload policy paces AmbientWidgets and pauses Spaceout fractals; enabled GPU workload policy blocks decorative GPU rendering and pauses GPU-backed fractals. CPU work also blocks decorative GPU rendering.",
+      "Off disables this workload policy; independent pipeline gil_priority pacing and visibility/motion controls remain. Saved preferences are not overwritten."
+    ],
+    "English_not_applied": true,
+    "nine_locale_source_bound_records_requiring_future_review": [
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/de/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Während ein CPU-intensiver Job wie Measure läuft, pausiert die Animation. Während ein GPU-Job wie die Maskengenerierung läuft, verwenden Animationen die GPU nicht. Ihre gespeicherten Animationseinstellungen werden wiederhergestellt, wenn die Jobs enden. Aus lässt Animationen unverändert weiterlaufen.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/es/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Mientras se ejecuta un trabajo que exige mucha CPU, como Measure, la animación se pausa. Mientras se ejecuta un trabajo de GPU, como la generación de máscaras, las animaciones dejan de usar la GPU. Sus ajustes de animación guardados se restablecen cuando terminan los trabajos. Desactivado mantiene las animaciones funcionando sin cambios.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/fr/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Pendant qu’une tâche gourmande en CPU comme Measure s’exécute, l’animation est mise en pause. Pendant qu’une tâche GPU comme la génération de masques s’exécute, les animations cessent d’utiliser le GPU. Vos paramètres d’animation enregistrés sont rétablis à la fin des tâches. Désactivé laisse les animations tourner sans changement.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/hi/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "जब Measure जैसा CPU-भारी कार्य चलता है, तो एनिमेशन रुक जाता है। जब मास्क निर्माण जैसा GPU कार्य चलता है, तो एनिमेशन GPU का उपयोग बंद कर देते हैं। कार्य समाप्त होने पर आपकी सहेजी गई एनिमेशन सेटिंग्स लौट आती हैं। बंद पर एनिमेशन बिना बदलाव के चलते रहते हैं।",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/is/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Meðan CPU-frek vinnsla eins og Measure keyrir gerir hreyfimyndin hlé. Meðan GPU-vinnsla eins og grímugerð keyrir hætta hreyfimyndir að nota GPU. Vistaðar hreyfimyndastillingar þínar koma aftur þegar vinnslunum lýkur. Slökkt lætur hreyfimyndir halda áfram óbreyttar.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/ko/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Measure처럼 CPU를 많이 쓰는 작업이 실행되는 동안에는 애니메이션이 일시 중지됩니다. 마스크 생성처럼 GPU를 쓰는 작업이 실행되는 동안에는 애니메이션이 GPU를 사용하지 않습니다. 작업이 끝나면 저장된 애니메이션 설정이 복원됩니다. 끄기로 두면 애니메이션이 변경 없이 계속 실행됩니다.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/pt/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Enquanto um trabalho que exige muito da CPU, como Measure, é executado, a animação pausa. Enquanto um trabalho de GPU, como a geração de máscaras, é executado, as animações deixam de usar a GPU. Suas configurações de animação salvas voltam quando os trabalhos terminam. Desligado mantém as animações funcionando sem alterações.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/sv/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Medan ett CPU-tungt jobb som Measure körs pausas animeringen. Medan ett GPU-jobb som maskgenerering körs slutar animeringar att använda GPU:n. Dina sparade animeringsinställningar återställs när jobben är klara. Av låter animeringar fortsätta oförändrade.",
+        "matches_current_English": true
+      },
+      {
+        "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/runtime/zh_CN/2026-10-10-n615-captions-store-figure-curation.json",
+        "record_index_0_based": 86,
+        "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+        "translation": "Measure 等占用大量 CPU 的任务运行时，动画会暂停。掩膜生成等 GPU 任务运行时，动画停止使用 GPU。任务结束后，您保存的动画设置会恢复。设为关闭时，动画照常运行，不作调整。",
+        "matches_current_English": true
+      }
+    ],
+    "proposed_English_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+    "proposal_approved": false
+  },
+  "AmbientWidget_stop": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+    "line": 11063,
+    "exact_original_docstring": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it.\n\nThe one exception is a backdrop that stops while it is still on\nscreen -- a CPU-heavy run pausing the animation\n(:func:`_animation_paused_for_work`), reduced motion, or the\nanimation switched off. Its frame on screen is kept as the still\n(:meth:`_paint_still`), because every console line and figure the\nwindow paints over it asks it for a whole frame again, and shading\nthat frame on the GUI thread against the run's worker took 250-350 ms\non lesson 08's Measure run. Hidden, it keeps nothing.",
+    "original_docstring_source_sha256": "928ca9d2cf8efc1e9acf7fabb2a9612a48d3c646b54f04b8692e0b1285e31159",
+    "review_limit": "The full replacement is advisory and unapproved. No zero-memory, immediate worker termination or measured rendering-cost claim is made. Existing historical benchmark prose is preserved in exact_original_docstring only; it is not newly certified.",
+    "new_hash_not_pinned": true,
+    "original_prose_blocks": [
+      {
+        "label": "spacr.qt.widgets.ambient.AmbientWidget.stop#0",
+        "source": "Stop ticking and retire the shading thread. Costs exactly nothing while stopped — no timer, no thread, and no frame held in memory.",
+        "source_sha256": "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",
+        "context": "Stop ticking and retire the shading thread. Costs exactly nothing while stopped — no timer, no thread, and no frame held in memory."
+      },
+      {
+        "label": "spacr.qt.widgets.ambient.AmbientWidget.stop#1",
+        "source": "Dropping the published frame matters because these screens stay built: a dozen module screens the user has visited would otherwise each keep a slot warm behind a tab nobody is on, which is 2 MiB apiece for the aurora. The next :meth:`start` shades a replacement before it starts the thread, so there is nothing to show for it.",
+        "source_sha256": "a17991ea93f26015010e0026bd656409f4fd592a56ff0bdfbc68fbfd278efe06",
+        "context": "Dropping the published frame matters because these application views stay built: a dozen module application views the user has visited would otherwise each keep a slot warm behind a tab nobody is on, which is 2 MiB apiece for the aurora. The next :meth:`start` shades a replacement before it starts the independent execution path, so there is nothing to show for it."
+      },
+      {
+        "label": "spacr.qt.widgets.ambient.AmbientWidget.stop#2",
+        "source": "The one exception is a backdrop that stops while it is still on screen -- a CPU-heavy run pausing the animation (:func:`_animation_paused_for_work`), reduced motion, or the animation switched off. Its frame on screen is kept as the still (:meth:`_paint_still`), because every console line and figure the window paints over it asks it for a whole frame again, and shading that frame on the GUI thread against the run's worker took 250-350 ms on lesson 08's Measure run. Hidden, it keeps nothing.",
+        "source_sha256": "d0c9bc3895ebbae95c2ef4b915cd9d5e9d45fbb88469836959837bfe78d9363a",
+        "context": "The one exception is a backdrop that stops while it is still on application view -- a CPU-heavy run pausing the animation (:func:`_animation_paused_for_work`), reduced motion, or the animation switched off. Its frame on application view is kept as the still (:meth:`_paint_still`), because every console line and figure the window paints over it asks it for a whole frame again, and shading that frame on the main GUI execution path against the processing session's worker took 250-350 ms on lesson 08's Measure run. Hidden, it keeps nothing."
+      }
+    ],
+    "proposed_docstring": "Stop the animation timer and retire the shading thread.\n\nWhen a shading producer exists and the widget is visible with a\n:class:`_BufferedEngine`, retain its last published frame, if available,\nas the still drawn by :meth:`_paint_still`. This applies regardless of\nwhy :meth:`stop` was called. A hidden widget does not retain that\npublished frame. Stopping does not imply that every other piece of\nrenderer or widget state is released.\n\nA CPU-heavy run does not itself stop a backdrop that otherwise qualifies\nto animate: the workload policy and :func:`spacr.qt.gil_priority.active`\ncan pace it to no more than :data:`_RUN_FPS`. The animation switch,\nvisibility, Reduce motion and minimization still govern whether it runs.",
+    "draft_sha256_for_review_only": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+    "proposal_approved": false,
+    "proposed_full_docstring_replacement": {
+      "replacement_draft": "Stop the animation timer and retire the shading thread.\n\nWhen a shading producer exists and the widget is visible with a\n:class:`_BufferedEngine`, retain its last published frame, if available,\nas the still drawn by :meth:`_paint_still`. This applies regardless of\nwhy :meth:`stop` was called. A hidden widget does not retain that\npublished frame. Stopping does not imply that every other piece of\nrenderer or widget state is released.\n\nA CPU-heavy run does not itself stop a backdrop that otherwise qualifies\nto animate: the workload policy and :func:`spacr.qt.gil_priority.active`\ncan pace it to no more than :data:`_RUN_FPS`. The animation switch,\nvisibility, Reduce motion and minimization still govern whether it runs.",
+      "scope": "Replace the whole proposed docstring for Home review so the first no-memory assertion does not contradict the visible still-frame exception. No replacement was applied.",
+      "source_conditions": "keep = self._last_frame if producer is not None and self._holds_still else None; _holds_still = isVisible() and isinstance(_engine, _BufferedEngine); _still is None if keep is None."
+    }
+  },
+  "release_notes": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/notes/release_notes_1.5.1.5.md",
+    "source_sha256": "ab19724ca00b9a3d65fe819eadddaa65c5d169f88e40962210283eb4fa75dc5c",
+    "English_bullet_count": 31,
+    "unreviewed_bullets_preserved": 28,
+    "proposed_changes": [
+      {
+        "exact_original": "Field backgrounds on Mask screens and in Spaceout draw more smoothly, at 60 fps. Ripples from a closed window run outward only, and the ripple slider scales waves up to 200 %.",
+        "proposed": "Field backgrounds on Mask screens and in Spaceout use frame-rate caps of up to 60 fps. Workload pacing can lower the cap for active backdrops to 30 fps. Actual frame rates depend on the display and load. Ripples from a closed window run outward only, and the ripple slider scales waves up to 200 %.",
+        "why": "Configured field/display cap and relevant pipeline/CPU-workload pacing are distinguished from achieved frame rate. No promise of continuous animation or constant60/30fps. Separate Spaceout fractals may pause. Ripple clauses are unchanged and not independently reviewed here.",
+        "source_basis": [
+          {
+            "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+            "line": 658,
+            "fact": "FIELD_FPS = 60 and _RUN_FPS = 30"
+          },
+          {
+            "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+            "line": 10955,
+            "fact": "auto field rate follows display refresh up to FIELD_FPS; _rate uses min(configured fps, _RUN_FPS)"
+          }
+        ],
+        "approval_dependency": "Home confirms final public source behavior before choosing final English. No fresh performance test or capture acceptance is asserted.",
+        "proposal_approved": false,
+        "draft_sha256_for_review_only": "6acaf716393ddaa53995fc3cdfa1deb78e6512135db111b742bf580999ca41a3"
+      },
+      {
+        "exact_original": "Preferences opens, applies and closes faster, and Apply, Keep and Revert no longer freeze the app.",
+        "proposed": "Preferences includes changes intended to reduce delays when opening, applying and closing.",
+        "why": "Keeps the original intent-only alternative. It makes no measured speedup or no-freeze claim; cold first Apply/Save and final-app acceptance remain unverified by this advisory.",
+        "approval_dependency": "Home should choose final wording after cold first Apply/Save and unchanged/nonvisual/scale variants have bound final-app evidence. If no public source change supports this intent, keep the bullet pending rather than claim it shipped.",
+        "proposal_approved": false,
+        "draft_sha256_for_review_only": "ffe34375d7e76ff8d51f752fda1a16354d4b36d15707647518f1cb551cf50063"
+      },
+      {
+        "exact_original": "The README is rebuilt from images, and the slide deck is rebuilt to match. README and interface text are translated into nine languages.",
+        "proposed": "The README is rebuilt from images, and the slide deck is rebuilt to match. README and interface localization catalogs are available in nine languages.",
+        "why": "Catalog presence supports language availability, not complete semantic review. API missing/stale symbols are a separate documentation denominator and do not alone disprove interface language availability. The generic stale-entry fallback sentence is removed because this advisory has not established uniform fallback behavior across README and interface surfaces.",
+        "approval_dependency": "Home confirms the exact released language surfaces. README/deck assertions remain unchanged and are not independently content-reviewed here.",
+        "proposal_approved": false,
+        "draft_sha256_for_review_only": "bb2144738deef1d3e43aca2637038bf4b52b5a935e1c1bdf4371705d24423401"
+      }
+    ],
+    "scope": "Only three conditional editorial alternatives were considered; remaining28 bullets explicitly UNREVIEWED. No release/publication or localized note acceptance.",
+    "no_release_metadata_repin": true,
+    "remaining_bullets": [
+      {
+        "bullet_index_1_based": 1,
+        "text": "Make Masks opens 3D images in the same view as 2D ones. A slice slider and the Z wheel move through the stack, and the view can be Default, Orthogonal or True 3D. Draw and edit masks on any slice and delete objects; edited volumes are saved as whole sections.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 2,
+        "text": "Make Masks supports transmission electron microscopy (TEM) images.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 3,
+        "text": "A FIB-SEM example volume with 3D mitochondria masks (EMPIAR-10982, HeLa, CC0). Fetch it with `spacr-download fibsem`.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 4,
+        "text": "Export settings... on every settings form, and Save settings CSV... in Distributed Jobs (#140, #141, #142).",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 5,
+        "text": "Preferences > Appearance > Accessibility: High contrast, Text size, Reduce motion, Stronger focus outlines and Keyboard shortcuts.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 6,
+        "text": "Startup uses one borderless window that opens at screen size. The spaCR logo, built from microscopy tiles, holds for 2 s and then breaks apart over 4 s. Help has a replay entry. The other startup dialogs (drafts, installer consent, tour, What's new) wait until the sequence ends or is skipped.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 7,
+        "text": "Gate Editor: the mode, plane and spin keys can be rebound, and a picker lets you choose between overlapping elements.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 8,
+        "text": "Model Zoo has a model card viewer with three pages (scores, training facts, about). Cards download from Hugging Face, are cached, and fall back to the bundled card when offline.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 9,
+        "text": "`spacr-tutorial` opens the online tutorials.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 10,
+        "text": "The well detector v3 is the default in the app, the README and the model cards. The plaque default is toxoplasma_plaque_v4.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 11,
+        "text": "Model cards use the ground-truth re-score of 2026-10-11 (object F1, precision, recall, AJI, Dice, with stock Cellpose-SAM for comparison). The README shows one score card per model.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 12,
+        "text": "Sixteen settings that accept a fixed list are now dropdowns, for example `spatial_platform`. Stored values are unchanged.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 13,
+        "text": "Regression: `dependent_variable` is a dropdown of the numeric columns in the score file, with a note when `pred` is missing (#144).",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 14,
+        "text": "Measure reads a pasted list of plate folders as plates (#138, #139).",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 15,
+        "text": "Classify: relative database paths in `src` work, and a missing database is reported with the full path searched (#143).",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 16,
+        "text": "Mixed model: Stop is reported as a stop, the nested design is checked before the fit with the setting to change named, and optimiser fallbacks are handled (#145).",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 19,
+        "text": "Make Masks costs less per frame.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 20,
+        "text": "Every saved mask records its field's size, and a mask of a different size is never reused.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 22,
+        "text": "Apptainer (SIF) images are published with each release, after the Docker images.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 23,
+        "text": "Module screens no longer stall every 2 s. The GPU is read through NVML instead of starting `nvidia-smi`, and usage bars paint with the next frame.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 24,
+        "text": "Command palette: a key typed while the list is rebuilding is kept instead of crashing the app.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 25,
+        "text": "Regression panel: fixed a thread error.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 26,
+        "text": "Make Masks: a linked image with no box ledger opens and saves without the \"Cannot load box annotations\" popup.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 27,
+        "text": "A source checkout or editable install reports its own version.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 28,
+        "text": "Wells named F01, F02 are read as wells, and class counts ignore the `.spacr_crop_format.json` file.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 29,
+        "text": "MitoNet as a Make Masks backend for TEM images.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 30,
+        "text": "Spatial Mask Generation and Spatial Map Barcodes submodules, opened from the Spatial switches.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      },
+      {
+        "bullet_index_1_based": 31,
+        "text": "Other organisms stay behind Show alpha species; Toxoplasma is always shown.",
+        "status": "UNREVIEWED; preserved original, no factual/source/performance/translation approval"
+      }
+    ],
+    "proposal_approved": false
+  },
+  "workflow_after_Home_review": [
+    "Retain originals and source-bound historical review records until final public English is approved. No translation target is generated by this artifact.",
+    "When the hold permits actual source changes, regenerate English source manifests with established tools, then translate/review exactly changed blocks in nine locales with truthful AI technical-review provenance.",
+    "Use scoped API overlays, existing arrival contracts and source-specific caption registration; preserve original inventory ratchets and historical evidence.",
+    "Tutorial English/audio/translation remains conditional on accepted fresh lesson20 clips and is excluded from this advisory."
+  ],
+  "review_provenance": {
+    "kind": "Codex AI technical English/source review",
+    "human_native_speaker_or_performance_certification": false,
+    "methods": "Read-only targeted source conditions and prior peer-review findings; all actual bound source files rechecked. No models, tests, GUI, GPU, recording or translation."
+  },
+  "source_hashes": {
+    "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-translation-backlog-20261013.json": {
+      "sha256": "d32bbf4d5251edb7466070926f89bc44ed236266c46eb7fe72e1909aa511fa6b",
+      "bytes": 1412773
+    },
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py": {
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "bytes": 552446
+    },
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py": {
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "bytes": 581838
+    },
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/notes/release_notes_1.5.1.5.md": {
+      "sha256": "ab19724ca00b9a3d65fe819eadddaa65c5d169f88e40962210283eb4fa75dc5c",
+      "bytes": 3799
+    },
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tools/build_i18n_catalogs.py": {
+      "sha256": "8aceaa2be1c06d54468f3bef595915c3bb426d44fbee94c0e2ad8b3c46afcdee",
+      "bytes": 348951
+    },
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tools/build_documentation_i18n.py": {
+      "sha256": "9adc90b6f52ceba1f9b4bd1d79f300d279664cc03dfb91e7776592850a5b014b",
+      "bytes": 415920
+    },
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tools/build_guide_i18n.py": {
+      "sha256": "668514ab91ba38a66fcda26e1709377806d6191fee4bcb828528b03b973b0877",
+      "bytes": 51056
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/work/published_sampler_review_20261013.json": {
+      "sha256": "0e1bb0fffbb7109461bc44b309be6208abc5083bc125dddd526a1a0c9caee3c1",
+      "bytes": 752979
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/work/translation-backlog-peer-review-20261013.json": {
+      "sha256": "e1e594b9b53e3f80085343401270f688820dd7f159dfb00fa455330b56bd5519",
+      "bytes": 14450
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-english-truth-advisory-20261013.json": {
+      "sha256": "5bd40229854bdb4ff581458c87fea4315ae601e2596e545a0cd0638e1185ab9a",
+      "bytes": 20305
+    }
+  },
+  "supersedes_advisory_for_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-english-truth-advisory-20261013.json",
+    "sha256": "5bd40229854bdb4ff581458c87fea4315ae601e2596e545a0cd0638e1185ab9a",
+    "original_preserved_unchanged": true,
+    "scope": "New external draft corrects wording and scope; no prior or proposed English is approved by this artifact."
+  },
+  "proposal_approved": false,
+  "English_source_revision_applied": false
+}

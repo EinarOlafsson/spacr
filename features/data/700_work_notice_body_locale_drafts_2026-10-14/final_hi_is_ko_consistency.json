@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-14T13:51:59.467153+00:00",
+  "status": "bounded_final_consistency_PASS_no_remaining_corrections",
+  "scope": "Five exact author corrections and original-preservation gates only; prior42-body semantic audit not repeated",
+  "peer_binding": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/peer_hi_is_ko.json",
+    "sha256": "36cd8734042a1a053c13841ecc9cf84e0dd22d9d740595ae30218721856ae4c7",
+    "bytes": 36965
+  },
+  "correction_binding": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/correction_hi_is_ko.json",
+    "sha256": "b279d247716b76e40872c9f7d59f69e4e47ed753706848d36c248e42529d680d",
+    "bytes": 10650
+  },
+  "locale_file_bindings": [
+    {
+      "locale": "hi",
+      "original_preserved_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/hi.json",
+      "original_sha256": "c110cb6f05bb49a5694b6f9ab4f3dfcbf73aa4b31ac87b3f987210229bdb6c67",
+      "original_bytes": 30713,
+      "final_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/hi.json",
+      "final_sha256": "c110cb6f05bb49a5694b6f9ab4f3dfcbf73aa4b31ac87b3f987210229bdb6c67",
+      "final_bytes": 30713
+    },
+    {
+      "locale": "is",
+      "original_preserved_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/originals/is.json",
+      "original_sha256": "3639e1c9ce6dca985f612d846f2b2f838036d5a9148a8207e908f9cffb96f2d2",
+      "original_bytes": 23139,
+      "final_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/is.json",
+      "final_sha256": "19f78481ccce9798e3489d6a322c859005634de270b5ab1caca07e0bd2a41f5e",
+      "final_bytes": 23141
+    },
+    {
+      "locale": "ko",
+      "original_preserved_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/originals/ko.json",
+      "original_sha256": "e93bed3da95b77e62356d1f0744aca176cedb3d86baa61705c6c05117742cb69",
+      "original_bytes": 23357,
+      "final_path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_notice_locale_drafts_20261014/ko.json",
+      "final_sha256": "b06ef0def94f6042bdfde444e6fa27b72ccdc1f772ba31c5e9cec1f188da3db4",
+      "final_bytes": 23369
+    }
+  ],
+  "exact_record_changes": [
+    {
+      "locale": "is",
+      "id": "ZC13",
+      "fix_id": "IS_ZC13_DATIVE",
+      "changed_fields": [
+        "translated_body",
+        "translated_sha256_utf8"
+      ],
+      "before_body_sha256_utf8": "4fc90a6512cc852b68d0bfbbed731673bd24801ccef6d6f427228e51f955bc2d",
+      "after_body_sha256_utf8": "3d298c91843f7cd887f5aef7909dc8ec0d68027cee52775568b807107f788197",
+      "exact_peer_span_only": true
+    },
+    {
+      "locale": "ko",
+      "id": "ZC02",
+      "fix_id": "KO_ZC02_QUEUE_OR",
+      "changed_fields": [
+        "translated_body",
+        "translated_sha256_utf8"
+      ],
+      "before_body_sha256_utf8": "591af3138391d81ae09f28c5e08258e9deb9abdf3bf623f1e21384fdd706fd19",
+      "after_body_sha256_utf8": "5178112e472d7847615865a00f053da50a591c49e80f7cd807b87938ab23c5ab",
+      "exact_peer_span_only": true
+    },
+    {
+      "locale": "ko",
+      "id": "ZC03",
+      "fix_id": "KO_ZC03_QUEUE_OR",
+      "changed_fields": [
+        "translated_body",
+        "translated_sha256_utf8"
+      ],
+      "before_body_sha256_utf8": "54e1c069a52415a242b712e2ba31dbef935e708f385027ffca9b83397b0019d7",
+      "after_body_sha256_utf8": "29dda15492bd9fea0b8fd7d1435250155e7379d531c284d17667d5209d391bb2",
+      "exact_peer_span_only": true
+    },
+    {
+      "locale": "ko",
+      "id": "ZC04",
+      "fix_id": "KO_ZC04_QUEUE_OR",
+      "changed_fields": [
+        "translated_body",
+        "translated_sha256_utf8"
+      ],
+      "before_body_sha256_utf8": "21bfb57d527ad4068e124bfab8d97b9d0dc73410e630c69c91c1b132807309e3",
+      "after_body_sha256_utf8": "4464d56f89e60c760a4890999370ee0c3165389eead1d5a953d2677c8bce7154",
+      "exact_peer_span_only": true
+    },
+    {
+      "locale": "ko",
+      "id": "ZC12",
+      "fix_id": "KO_ZC12_QUEUE_OR",
+      "changed_fields": [
+        "translated_body",
+        "translated_sha256_utf8"
+      ],
+      "before_body_sha256_utf8": "f0c6c5fac8ca3848c96c11abd427eca56aa36b723e65ff408d88f72d81f5314c",
+      "after_body_sha256_utf8": "060727b15345f53e96d5f08488475fa7d89c8dbc541c1a0b4a390d705fd8927f",
+      "exact_peer_span_only": true
+    }
+  ],
+  "checks": {
+    "four_required_Korean_OR_replacements_exact": true,
+    "optional_Icelandic_ZC13_span_exact": true,
+    "Hindi_file_byte_identical": true,
+    "original_Icelandic_Korean_preserved": true,
+    "only_five_body_and_matching_UTF8_hash_pairs_changed": true,
+    "all_other_body_texts_unchanged": true,
+    "English_source_text_hashes_display_predicates_obligation_lists_unchanged": true,
+    "locale_schema_status_record_order_unchanged": true,
+    "peer_preserved": true,
+    "correction_final_hashes_match": true
+  },
+  "remaining_precise_corrections": [],
+  "native_acceptance": false,
+  "human_acceptance": false,
+  "canonical_acceptance": false,
+  "activation_acceptance": false,
+  "author_files_modified_by_peer": false,
+  "new_source_runtime_provider_network_or_app_tests": false
+}

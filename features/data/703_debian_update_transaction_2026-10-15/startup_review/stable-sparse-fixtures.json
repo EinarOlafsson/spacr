@@ -1,0 +1,9 @@
+{
+  "pin": "6524d039b3e020c4b42f01fb038898dd4a87b112",
+  "exact_committed_fixture_sha256": {
+    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/app_registry_state.py": "853328b99bfa135983960d0c13520f541794ee53499e0c3dd92b19d96a6deb91",
+    "tests/conftest.py": "e7ea329f18b49d59eece6071f0b30a007be86ff9f1cb1cbf08fc1c9c6e28a3f8"
+  },
+  "reason": "Materialized-only skipworktree files were removed by subsequent owner commit while cohort queued; exact3 explicit sparse inclusions prevent recurrence, no tracked contents changed."
+}

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Vistunarpunktar og framhald"
 
-msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR vistar vistunarpunkta í langri vinnu aðeins eftir að örugg eining hefur klárast. Vistunarpunktur þýðir aldrei að ritun sé stöðvuð í miðjum klíðum: hann þýðir að síðari keyrsla getur sannað hvaða sjónsvið, tilraunir eða plötuverk lauk og haldið áfram á eftir þeim. Hnappurinn **Stöðva** í Qt notar sömu mörk: hann biður um samvinnuþýða afturköllun, leyfir núverandi öruggu einingu að klárast og heldur vistunarpunktinum fyrir næstu keyrslu. Sjá :doc:`threading_cancellation_audit`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR skrifar vistunarpunkt aðeins eftir að heil vinnueining (sjónsvið, tilraun eða plötuverk) hefur klárast; ritun sem er í gangi er ekki rofin. Síðari keyrsla les vistunarpunktinn til að ákvarða hvaða einingum lauk og heldur áfram á eftir þeim. Hnappurinn **Stöðva** í Qt notar sömu mörk: hann biður um samvinnuþýða afturköllun, leyfir núverandi öruggu einingu að klárast og heldur vistunarpunktinum fyrir næstu keyrslu. Sjá :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Studd verkflæði"
@@ -43,8 +44,9 @@ msgstr "Virkjaðu ``resume`` undir **Postprocessing → Keyrsla og áreiðanleik
 msgid "Format Converter"
 msgstr "Sniðbreytir"
 
-msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Virkjaðu **Halda áfram**-rofann í Apple-stíl. Umbreytirinn skrifar ``.spacr_conversion.checkpoint.json`` eftir að heilt sjónsvið er fullgert. Framhald opnar aftur TIFF-lýsigögn hvers markskjals áður en sjónsviðið er samþykkt og lagfærir frumeindarlega markskrá sem vantar eða er skemmd. Auðkenni uppruna og heildarvörpunaráætlunin verða að passa."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "Virkjaðu **Halda áfram**-rofann. Umbreytirinn skrifar ``.spacr_conversion.checkpoint.json`` eftir að heilt sjónsvið er fullgert. Framhald opnar aftur TIFF-lýsigögn hvers markskjals áður en sjónsviðið er samþykkt og lagfærir frumeindarlega markskrá sem vantar eða er skemmd. Auðkenni uppruna og heildarvörpunaráætlunin verða að passa."
 
 msgid "Image UMAP search"
 msgstr "Leit í Mynda-UMAP"
@@ -64,8 +66,9 @@ msgstr "Truflaðar stöðlunarsafnskrár"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "Einingin Grímur athugar einnig stöðluðu ``masks/*.npz``-safnskrárnar fyrir hlutun. Hún athugar umfang ZIP-meðlima, læsilegan tölulegan ``data.npy``-haus, nægilega marga uppgefna pixlabæti fyrir lögun og dtype og eitt skráarheiti á hvert sjónsvið lotunnar. Þessi byggingarathugun þenur ekki út hvert pixlafylki né framkvæmir fulla CRC-skönnun á pixlum."
 
-msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
-msgstr "Skemmdar safnskrár eru settar til hliðar sem ``<name>.damaged``. Ef forvinnsla er óvirk stöðvast keyrslan og útskýrir hvernig á að endurheimta þær. Sama sóttkví kemur samt í veg fyrir að síðari keyrsla sleppi þeim sjónsviðum án þess að láta vita. Hún er leyst með gildri útskiptingu með sama heiti eða með læsilegum safnskrám sem ná yfir hvert fyrirliggjandi sjónsvið í ``stack/``. Eldri fylki skráarheita með hlutagildum geta ekki sannað slíka þekju. Ef forvinnsla er virkjuð er hægt að endurbyggja endurheimtanleg sjónsvið úr tiltækum upprunagögnum; gildar safnskrár og sönnunargögn í sóttkví eru varðveitt."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "Skemmdar safnskrár eru settar til hliðar sem ``<name>.damaged``. Ef forvinnsla er óvirk stöðvast keyrslan og útskýrir hvernig á að endurheimta þær. Sama sóttkví kemur samt í veg fyrir að síðari keyrsla sleppi þeim sjónsviðum án þess að láta vita. Hún er leyst með gildri útskiptingu með sama heiti eða með læsilegum safnskrám sem ná yfir hvert fyrirliggjandi sjónsvið í ``stack/``. Safnskrár sem geyma skráarheiti sem fylki með hlutagildum geta ekki sannað slíka þekju. Ef forvinnsla er virkjuð er hægt að endurbyggja endurheimtanleg sjónsvið úr tiltækum upprunagögnum; gildar safnskrár og sönnunargögn í sóttkví eru varðveitt."
 
 msgid "Safety rules"
 msgstr "Öryggisreglur"

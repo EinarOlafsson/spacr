@@ -19,10 +19,11 @@ Apply / Cancel buttons for the drop flow.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -38,10 +39,15 @@ from PySide6.QtWidgets import (
 
 from ..ingest_preview import ROW_COLUMNS, _yokogawa_name, rows_to_mappings
 from .sortable_table import install_sorting, table_item
+from .. import _after
 
 _EDITABLE = {"plate", "well", "field", "channel", "time"}
 _INT_COLS = {"field", "channel", "time"}
 _HEADERS = ["Source", "Plate", "Well", "Field", "Channel", "Time", "Filename"]
+
+
+#: Rows :meth:`MetadataTablePanel._append_later` adds per event-loop turn.
+_ROWS_PER_TURN = 25
 
 
 class MetadataTablePanel(QWidget):
@@ -83,6 +89,7 @@ class MetadataTablePanel(QWidget):
         lay.addWidget(self._table)
 
         self._guard = False
+        self._pending: List[Dict[str, Any]] = []
         self._table.itemChanged.connect(self._on_item_changed)
         self.set_rows(rows or [])
 
@@ -92,14 +99,89 @@ class MetadataTablePanel(QWidget):
         :param rows: one dict per row, keyed by column; missing keys show
             blank.
         """
+        self._pending = []
         self._guard = True
         try:
-            self._table.setRowCount(0)
-            for r in rows:
-                self._append_row(r)
+            with self._filling():
+                self._table.setRowCount(0)
+                for r in rows:
+                    self._append_row(r)
         finally:
             self._guard = False
         self._refresh_summary()
+
+    def _append_later(self, rows: List[Dict[str, Any]]) -> None:
+        """Add ``rows`` a chunk per event-loop turn, after those shown.
+
+        A dropped plate plans 200 rows, and building all of their cells in
+        the turn that opens the table held the GUI thread for that long.
+        Anything that reads the table first takes the rest at once
+        (:meth:`_flush_pending`), so no reader sees half a plan.
+
+        :param rows: rows to add after the current ones.
+        """
+        if not rows:
+            return
+        idle = not self._pending
+        self._pending.extend(rows)
+        if idle:
+            _after(0, self, self._drain_pending)
+
+    def _drain_pending(self) -> None:
+        """Add the next chunk of :meth:`_append_later` rows."""
+        if not self._pending:
+            return
+        chunk = self._pending[:_ROWS_PER_TURN]
+        del self._pending[:_ROWS_PER_TURN]
+        self._add_rows(chunk)
+        if self._pending:
+            _after(0, self, self._drain_pending)
+        else:
+            self._refresh_summary()
+
+    def _flush_pending(self) -> None:
+        """Add every row :meth:`_append_later` has still to add, now."""
+        if self._pending:
+            chunk, self._pending = self._pending, []
+            self._add_rows(chunk)
+            self._refresh_summary()
+
+    def _add_rows(self, rows: List[Dict[str, Any]]) -> None:
+        """Append ``rows`` without treating them as edits."""
+        self._guard = True
+        try:
+            with self._filling():
+                for r in rows:
+                    self._append_row(r)
+        finally:
+            self._guard = False
+
+    @contextmanager
+    def _filling(self):
+        """Hold off sorting, column fitting and repaints while rows go in.
+
+        With sorting on and columns sized to their contents, Qt re-sorted and
+        re-measured every column for each of the 1,400 cells of a 200-row
+        plan: about 130 ms on the GUI thread when a folder was dropped. The
+        columns are fitted once, afterwards, to the same contents.
+        """
+        table = self._table
+        header = table.horizontalHeader()
+        modes = [header.sectionResizeMode(i) for i in range(header.count())]
+        sorting = table.isSortingEnabled()
+        updates = table.updatesEnabled()
+        table.setUpdatesEnabled(False)
+        table.setSortingEnabled(False)
+        for i, mode in enumerate(modes):
+            if mode == QHeaderView.ResizeToContents:
+                header.setSectionResizeMode(i, QHeaderView.Interactive)
+        try:
+            yield
+        finally:
+            for i, mode in enumerate(modes):
+                header.setSectionResizeMode(i, mode)
+            table.setSortingEnabled(sorting)
+            table.setUpdatesEnabled(updates)
 
     def _append_row(self, r: Dict[str, Any]) -> None:
         """Add one metadata row.
@@ -173,6 +255,7 @@ class MetadataTablePanel(QWidget):
 
     def rows(self) -> List[Dict[str, Any]]:
         """Return the current (possibly edited) rows as dicts."""
+        self._flush_pending()
         out: List[Dict[str, Any]] = []
         for row in range(self._table.rowCount()):
             rec: Dict[str, Any] = {}

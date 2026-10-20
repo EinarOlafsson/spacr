@@ -1,0 +1,7 @@
+{
+  "reviewer": "Original Home root",
+  "proposal_sha256": "e447b026bca7baaaa7c093c2bcf50941f2ab83ac28ab6f7cbc327c0058128aa9",
+  "decision": "approve exact existing-call move before database access",
+  "scope": "Move same two-line manual parser call immediately after unchanged local tabular import and before database_tables/read_table. Retain parse-once behavior and every other statement order. Prevent rejected nonfinite thresholds causing tabular schema migration. Invalid-setting error now precedes missing-database/channel errors; valid classifier behavior unchanged.",
+  "required_checks": "Only affected six refusal/database-byte cases plus valid finite/cell/morphology classifier controls; initial25pass6fail retained, unchanged parser cases not repeated."
+}

@@ -34,7 +34,9 @@
       "source_sha256": "0245540ddf0fa85b0368b85b0be0fd1f4df470512e2ea1cdef054850a1dfa2e1",
       "context": "The folder is not read here. This executes in the Make Masks button handler, on the main GUI execution path, and ``folder`` is a path the user chose -- on a microscope rig, the share the images live on. It used to ``isdir`` and ``listdir`` it and stat every entry before the window was even shown, so pressing FEATURES on a folder living on a sleeping automount froze the application with no traceback. The walk is :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table fills in a moment later.",
       "translation": "LA CARPETA NO SE LEE AQUÍ. Esto se ejecuta en el manejador del botón de Make Masks, en el hilo de la GUI, y ``folder`` es una ruta que eligió el usuario -- en un equipo de microscopio, el recurso compartido donde están las imágenes. Antes se hacía ``isdir`` y ``listdir`` sobre ella y stat de cada entrada antes siquiera de mostrar la ventana, así que pulsar FEATURES sobre una carpeta situada en un montaje automático dormido congelaba la aplicación sin ningún traceback. El recorrido es cosa de :meth:`MeasureInputTable.add_dropped`, en un proceso de trabajo, y la tabla se rellena un momento después.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.measure_inputs.write_setting_value#0",
@@ -50,7 +52,9 @@
       "source_sha256": "838af7f7634f688891241ed5aa3b2db8f48a6f6f8ec4588a4098e3d940b24e15",
       "context": "The trap this exists for: only some of the settings controls carry a ``set_value`` method. ``cell_min_size`` is a plain ``QSpinBox``, and a writer that tests ``hasattr(widget, 'set_value')`` skips it -- silently, leaving the default 8000 in place. A processing session configured that way measures nothing and reports success, because every object was smaller than a minimum nobody chose.",
       "translation": "LA TRAMPA PARA LA QUE EXISTE ESTO: solo algunos de los controles de ajustes tienen un método ``set_value``. ``cell_min_size`` es un ``QSpinBox`` sin más, y un escritor que comprueba ``hasattr(widget, 'set_value')`` se lo salta -- en silencio, dejando el valor predeterminado 8000. Una ejecución configurada así no mide nada e informa de éxito, porque todos los objetos eran más pequeños que un mínimo que nadie eligió.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.measure_inputs.write_setting_value#2",
@@ -218,7 +222,9 @@
       "source_sha256": "60937aa50d32a4631226239f7dd53def42dee5504af026e672f1aac1e14e99dc",
       "context": "The zoo used to show one row per checkpoint, so a model with three versions pushed two unrelated models off the screen. Grouping makes the row a MODEL and the version a choice within it.",
       "translation": "El zoo mostraba antes una fila por punto de control, así que un modelo con tres versiones empujaba fuera de la pantalla a dos modelos sin relación. Agrupar hace que la fila sea un MODELO y la versión una elección dentro de él.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.organism_screen#0",
@@ -246,10 +252,10 @@
     },
     {
       "label": "spacr.qt.screens.organism_screen#3",
-      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
-      "source_sha256": "c49429d8ad2842349c4d1698dd595c8a500e423d82cfe4f667f17ceff6109d68",
-      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
-      "translation": "Abra Inicio > Toxoplasma y elija Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay o Replication Assay. El módulo seleccionado ofrece sus selectores de entrada, ajustes, vista previa y controles Run. Use su control Test data cuando haya un ejemplo disponible. Plaque Assay parte de imágenes; los demás ensayos usan las tablas de mediciones y relaciones entre objetos correspondientes. Siga la ayuda de entrada de cada módulo antes de ejecutarlo y después abra los resultados en la carpeta de salida que haya seleccionado. Starplast abre una aplicación aparte para explorar el mapa de conocimiento de Toxoplasma; su primer arranque ofrece instalarla.",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "source_sha256": "bbb98f62352489e8d75908c1f37666b738e44e897fd09d05861a503b0cbb6334",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation.",
+      "translation": "Abra Inicio > Toxoplasma y elija Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay o Replication Assay. El módulo seleccionado ofrece sus selectores de entrada, ajustes, vista previa y controles Run. Use su control Test data cuando haya un ejemplo disponible. Plaque Assay parte de imágenes; los demás ensayos usan las tablas de mediciones y relaciones entre objetos correspondientes. Siga la ayuda de entrada de cada módulo antes de ejecutarlo y después abra los resultados en la carpeta de salida que haya seleccionado. ParaScape abre una aplicación aparte para explorar el mapa de conocimiento de Toxoplasma; su primer arranque ofrece instalarla.",
       "review_basis": "MT draft edited in AI review",
       "retired": true,
       "retired_reason": "2026-09-26: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11816-symbol manifest); kept verbatim as evidence, not loaded."
@@ -1436,7 +1442,10 @@
       "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
       "context": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
       "translation": "el tipo de editor: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` o ``\"choice\"``.",
-      "review_basis": "MT draft kept after AI review"
+      "review_basis": "MT draft kept after AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "UMAP source documentation corrected inc00a087e749. Replacement exact-source review is2026-10-15-umap-tier-prose.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.umap_figure_settings.Field#4",
@@ -1774,7 +1783,10 @@
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
       "context": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "translation": "Los ``(elev, azim, roll)`` que hacen que matplotlib dibuje este sistema de referencia.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#1",
@@ -1782,7 +1794,10 @@
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "translation": "``elev`` se mantiene dentro de ``[-90, 90]`` para que la vertical nunca se voltee; el alabeo recoge entonces cualquier giro alrededor de la línea de visión que tenga el sistema de referencia. Mirando justo hacia abajo (o hacia arriba) el azimut es libre, así que se elige para que el alabeo sea cero.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.volume_view.angles_from_axes#2",
@@ -2368,7 +2383,9 @@
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
       "context": "What is new here is the tie. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "translation": "LO NUEVO AQUÍ ES EL VÍNCULO. Dos vistas de la misma región solo merece la pena ponerlas lado a lado si se mantienen alineadas: un curador que compara un campo con su versión mejorada busca una diferencia entre ellas, y una diferencia en hacia dónde apuntan las dos es la única diferencia que no es información. :meth:`ZoomableImageView.link_to` hace que un grupo de vistas comparta un mismo zoom y una misma posición de desplazamiento, así que hacer zoom o desplazar cualquiera de ellas las mueve todas.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#3",
@@ -2848,7 +2865,9 @@
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
       "context": "Why it is not verbose logging. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon independent execution path that is never the main GUI execution path, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "translation": "POR QUÉ NO ES EL REGISTRO DETALLADO. El registro detallado solo decide qué registros se conservan, así que no puede dar cuenta de la memoria. El trazador de funciones que instalaba antes se disparaba en cada llamada y en cada retorno, y multiplicaba por veinte el tiempo de arranque. Una medición tomada mediante un trazador describiría el programa trazado y no el real, que es precisamente el programa que nadie quiere medir. Así que esto muestrea en su lugar: una lectura de psutil por segundo, en un hilo daemon que nunca es el hilo de la GUI, en una ejecución por lo demás no perturbada. Tres estados en lugar de una casilla, porque el valor predeterminado útil no es \"off\" -- los datos de recursos más valiosos proceden de ejecuciones que nadie esperaba que fallaran.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.resume.completed_fields_in_merged#5",
@@ -3064,7 +3083,9 @@
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
       "context": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "translation": "``size outliers`` La fracción de objetos cuyo diámetro equivalente cae fuera de ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Mediana y MAD, no media y desviación estándar: cinco trozos de restos inflan una desviación estándar hasta que ya nada es un valor atípico, que es exactamente el caso que esta comprobación existe para detectar (``tests/test_seg_qc.py`` contrasta ambos). *k* = 5 es deliberadamente holgado — las distribuciones de tamaño reales son lognormales y de colas más pesadas que la gaussiana, así que 3 sigma marca un pequeño porcentaje de un campo perfectamente bueno. La marca se activa cuando más de ``seg_qc_outlier_fraction`` (0.15) de los objetos quedan fuera. Las colas pesadas, las poblaciones mixtas y los defectos de segmentación pueden activarla; la marca no identifica cuál de ellos está presente. Los objetos del borde se excluyen de todas las estadísticas de tamaño, exactamente como los excluye ``diameter._region_diameters``, porque el área de un objeto truncado es engañosa.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#17",
@@ -3080,7 +3101,9 @@
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
       "context": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every image data channel, computes hundreds of features per object and writes them to SQLite. On a full laboratory microplate that is hours. A laboratory microplate whose segmentation collapsed — an image data channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious microscope fields of view, but cannot establish their cause or validate biological interpretation.",
       "translation": "``measure_crop`` es el paso costoso en spaCR: abre cada máscara, recorta cada objeto de cada canal, calcula cientos de características por objeto y las escribe en SQLite. En una placa completa eso son horas. Una placa cuya segmentación se vino abajo — un canal desenfocado, un diámetro equivocado por un factor de dos, una monocapa confluente que se fusionó en bloques — cuesta exactamente las mismas horas y luego produce una tabla de mediciones que hay que tirar. El fallo es evidente solo con las máscaras; nadie mira, porque mirar significa abrir mil archivos ``.npy`` a mano. Las estadísticas de máscaras pueden señalar campos sospechosos, pero no pueden establecer su causa ni validar la interpretación biológica.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#3",
@@ -3088,7 +3111,9 @@
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
       "translation": "Así que este módulo mira. Lee las máscaras de etiquetas que :mod:`spacr.object` acaba de escribir, puntúa cada campo con un puñado de estadísticas robustas e imprime una tarjeta de puntuación que nombra los campos que superan los umbrales configurados. No cambia nada: ``seg_qc='report'`` (el valor predeterminado) muestra las marcas, no descarta campos en silencio. Decidir qué campos conservar es decisión del usuario y necesita las pruebas, no un filtro.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.seg_qc#7",
@@ -3219,7 +3244,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.sra.fetch_reads#3",
+      "label": "spacr.sra.fetch_reads#4",
       "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
       "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
       "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
@@ -3227,7 +3252,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.sra.fetch_reads#4",
+      "label": "spacr.sra.fetch_reads#5",
       "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
       "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
       "context": "folder the ``.fastq.gz`` file is written into; created if missing.",
@@ -3392,7 +3417,9 @@
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
       "context": "An image the detector finds nothing in is copied into the split folder whole, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no extracted image region and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "translation": "UNA IMAGEN EN LA QUE EL DETECTOR NO ENCUENTRA NADA SE COPIA ENTERA EN LA CARPETA DIVIDIDA, sin geometría, de modo que se sigue analizando y simplemente no tiene regla. Una advertencia que dice \"passed through whole\" y luego omite la imagen no deja pasar nada: cuando algunas imágenes de una carpeta se dividieron y otras no, las otras no aportarían ningún recorte ni ninguna fila y nada indicaría que habían existido. El caso de todo o nada -- en el que la función recurre a ``src`` -- es el único que se comportaría como prometía el mensaje.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.train_cellpose#0",
@@ -3554,7 +3581,9 @@
       "source_sha256": "e1de4b0914965ee6e12fa0689ec3002f32c3682d54e9e2a04dbde1fbc8bd09a2",
       "context": "Only extracted image regions the annotator has NOT since labelled are returned: a label made after a rejection is the stronger statement and is what the fit reads from the column itself, so handing the rejection over as well would count the extracted image region twice.",
       "translation": "Solo se devuelven los recortes que el anotador NO ha etiquetado desde entonces: una etiqueta puesta después de un rechazo es la afirmación más fuerte y es lo que el ajuste lee de la propia columna, así que entregar también el rechazo contaría el recorte dos veces.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.rejected_suggestions#5",
@@ -3570,7 +3599,9 @@
       "source_sha256": "85c39faf9e93f94391fa1af5fa2a9854fcbb8f308c28341a758797e49fa2e998",
       "context": "A bulk KEEP is a confirmation of every suggestion it keeps, so it is recorded in the verdict column too (when the column exists): the extracted image regions then wear the same mark as ones confirmed one at a time, and the count the application view shows agrees with what happened. A bulk THROW is not a judgement -- \"I do not want to review these\" is not \"these are wrong\" -- so it records nothing.",
       "translation": "Un CONSERVAR masivo es una confirmación de cada sugerencia que conserva, así que también se registra en la columna de veredictos (cuando la columna existe): los recortes llevan entonces la misma marca que los confirmados uno a uno, y el recuento que muestra la pantalla concuerda con lo que ocurrió. Un DESCARTAR masivo no es un juicio -- \"no quiero revisar estos\" no es \"these are wrong\" --, así que no registra nada.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.suggest.verdict_column#0",
@@ -3602,7 +3633,9 @@
       "source_sha256": "50617ecfc822a64436f9f2d893c182f8fa7c05bb43d78a9956b1bc26b255e435",
       "context": "The plain stitcher the timeflows fork has to beat, and the score that says so.",
       "translation": "El enlazador simple que la bifurcación de timeflows tiene que superar, y la puntuación que lo demuestra.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#1",
@@ -3610,7 +3643,9 @@
       "source_sha256": "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
       "context": "What it is for",
       "translation": "PARA QUÉ SIRVE",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#10",
@@ -3618,7 +3653,9 @@
       "source_sha256": "5edf7061c4555aebb141ce7d3157bbae3605bd73fa688a601ebfc24018ab6938",
       "context": "How a tracking is represented",
       "translation": "CÓMO SE REPRESENTA UN SEGUIMIENTO",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#11",
@@ -3626,7 +3663,9 @@
       "source_sha256": "ec87ad676bda1a42cc0f2fd3fe7817f5993cf6cf9f34ef3aae3fa32ed4f123d8",
       "context": "The Cell Tracking Challenge convention, because the metrics are its: a label stack where the label is the track id, so an object keeps its label for as long as it is the same object, plus an optional lineage mapping each label to its parent label. A division is therefore two new labels whose parent is the old one; a tracker that cannot express divisions passes no lineage and pays for the two missing parent edges, which is the honest price of a plain stitcher.",
       "translation": "La convención del Cell Tracking Challenge, porque las métricas son suyas: una pila de etiquetas en la que LA ETIQUETA ES EL ID DE TRAYECTORIA, de modo que un objeto conserva su etiqueta mientras sea el mismo objeto, más un linaje opcional que asigna a cada etiqueta la etiqueta de su progenitor. Por tanto, una división son dos etiquetas nuevas cuyo progenitor es la antigua; un rastreador que no puede expresar divisiones no pasa ningún linaje y paga por las dos aristas de progenitor que faltan, que es el precio honesto de un enlazador simple.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#12",
@@ -3634,7 +3673,9 @@
       "source_sha256": "37a9a65137a63208f9c450c2461f6000e4f120178e3a07d8abdf3c5e0ffefcdf",
       "context": "Why it does not call ``spacr.timelapse``",
       "translation": "POR QUÉ NO LLAMA A ``spacr.timelapse``",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#13",
@@ -3660,7 +3701,9 @@
       "source_sha256": "84fbb97a72ab2f30909cb09aedeafe53c72aecce08533e8ce814899631b763a8",
       "context": "What is in here",
       "translation": "QUÉ HAY AQUÍ",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#4",
@@ -3700,7 +3743,9 @@
       "source_sha256": "618239e8b2c0f8a4c7d7e1310a2624fa35420ab823c8c9627f55c8bfddb8db4f",
       "context": "Why the operation counts are public",
       "translation": "POR QUÉ LOS RECUENTOS DE OPERACIONES SON PÚBLICOS",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#9",
@@ -3996,7 +4041,9 @@
       "source_sha256": "428e754495fa5896d6eaf5e8ac759b0b6524d4c2b76ba28a529aa81038f34523",
       "context": "This is the number step 2 exists to produce, and the number step 3's fork has to beat.",
       "translation": "Este es el número que el paso 2 existe para producir, y el número que la bifurcación del paso 3 tiene que superar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline.score_stitcher#3",
@@ -4180,7 +4227,9 @@
       "source_sha256": "a610f074616376ab28591ef363ce3a422d1566b711db7e17fde482a725bd94a8",
       "context": "Cellpose predicts, per pixel, a flow toward the centre of the object the pixel belongs to. Timeflows adds the same idea through TIME: per pixel of frame ``t``, where the centre of that object is in frame ``t+1``, and whether it has a successor at all (cells die, divide, leave the microscope field of view). Linking objects between frames then reads the model instead of guessing from overlap, which is where the plain IoU stitcher fails: fast cells that move more than their own size between frames (the MuSC movies move 3-4 diameters per frame at p95).",
       "translation": "Cellpose predice, por píxel, un flujo hacia el centro del objeto al que pertenece el píxel. Timeflows añade la misma idea a través del TIEMPO: por píxel del fotograma ``t``, dónde está el centro de ese objeto en el fotograma ``t+1`` y si tiene siquiera un sucesor (las células mueren, se dividen, salen del campo). Enlazar objetos entre fotogramas pasa entonces a leer el modelo en lugar de adivinar a partir del solapamiento, que es donde falla el enlazador simple por IoU: células rápidas que se mueven más que su propio tamaño entre fotogramas (en las películas MuSC se mueven 3-4 diámetros por fotograma en el p95).",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#10",
@@ -4196,7 +4245,9 @@
       "source_sha256": "4b8e3431af4a99445cb16d4ce4f2716c7f7848f4624c3f77e3ffe59152465c77",
       "context": "What is here, all runnable on a CPU:",
       "translation": "LO QUE HAY AQUÍ, EJECUTABLE ÍNTEGRAMENTE EN UNA CPU:",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#3",
@@ -4220,7 +4271,9 @@
       "source_sha256": "73b32b1b88871a05e6f65dceca7c47b0e515e1d6397be83b362bdfa8d3548878",
       "context": ":func:`augment_pair` -- one flip/rotation applied identically to both frames and both label images; the targets are computed AFTER it from the labels, so a flip can never teach a displacement that did not happen.",
       "translation": ":func:`augment_pair` -- un volteo/rotación aplicado de forma idéntica a ambos fotogramas y a ambas imágenes de etiquetas; los objetivos se calculan DESPUÉS a partir de las etiquetas, de modo que un volteo nunca puede enseñar un desplazamiento que no ocurrió.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model#6",
@@ -4356,7 +4409,9 @@
       "source_sha256": "6c99566ceadf1a0cf9cfbe58bc2843cdfaf73cd625d89abd2ecbf1db90be572d",
       "context": "One random flip and quarter-turn, the SAME for every frame and label.",
       "translation": "Un volteo y un giro de un cuarto de vuelta aleatorios, los MISMOS para cada fotograma y etiqueta.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#1",
@@ -4364,7 +4419,9 @@
       "source_sha256": "72c524a16c366efc105bbc2780f41459ac7aa04040d18b548da436f40460692f",
       "context": "A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that never happened, which is the easiest way to get a model that trains beautifully and tracks nothing. Targets are computed from the augmented labels afterwards, so the vectors follow automatically.",
       "translation": "Un volteo aplicado al fotograma ``t`` y no al ``t+1`` enseña un desplazamiento que nunca ocurrió, que es la forma más fácil de obtener un modelo que entrena de maravilla y no sigue nada. Los objetivos se calculan después a partir de las etiquetas aumentadas, de modo que los vectores las acompañan automáticamente.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.augment_pair#2",
@@ -4444,7 +4501,9 @@
       "source_sha256": "1f10ba01831e4f22536d121b125c8043dae6e6f8095fa265d10667d8744beaf7",
       "context": "Most consecutive frames are nearly still, so drawing pairs uniformly shows the head mostly easy pairs. Each pair's median displacement over diameter falls in one of ``bins`` equal-width bins across the range seen, and a pair's weight is the inverse of its bin's size. Quantile bins were tried first and collapse when most pairs move alike, which is exactly the movie this exists for.",
       "translation": "La mayoría de los fotogramas consecutivos están casi inmóviles, así que muestrear pares de forma uniforme muestra a la cabeza sobre todo pares fáciles. La mediana del desplazamiento sobre el diámetro de cada par cae en uno de ``bins`` intervalos de igual anchura a lo largo del rango observado, y el peso de un par es el inverso del tamaño de su intervalo. Primero se probaron intervalos por cuantiles, que colapsan cuando la mayoría de los pares se mueven igual, que es justo la película para la que existe esto.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.pair_sampling_weights#2",
@@ -4524,7 +4583,9 @@
       "source_sha256": "2703ed9968d63ada18c6052d092ef5faeff0e51853e1599ab4c3c11239a1ac01",
       "context": "One ``size`` square, the SAME window of every frame and label.",
       "translation": "Un cuadrado de ``size``, la MISMA ventana de cada fotograma y etiqueta.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#1",
@@ -4532,7 +4593,9 @@
       "source_sha256": "f3d5a24c24018ec338fef77c90247e3c9b12c11d3505a4f6ffb56709bab8aee2",
       "context": "Centred on a random object of the first label image, jittered by up to a quarter window, so windows hold cells rather than empty background. A window shared by both frames keeps every displacement true.",
       "translation": "Centrada en un objeto aleatorio de la primera imagen de etiquetas y desplazada aleatoriamente hasta un cuarto de ventana, de modo que las ventanas contienen células y no fondo vacío. Una ventana compartida por ambos fotogramas mantiene verdadero cada desplazamiento.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.random_window#2",
@@ -4660,7 +4723,9 @@
       "source_sha256": "fe7ea9f5f4c731caa3bb7b12b7532dcc6800db6803021ac8cef455fca62150e8",
       "context": "The vector is supervised only where there IS a successor (``vector_weight``); the successor flag everywhere inside an object (``object_weight``). Background is supervised by neither.",
       "translation": "El vector se supervisa solo donde SÍ hay un sucesor (``vector_weight``); el indicador de sucesor, en todo el interior de un objeto (``object_weight``). El fondo no se supervisa con ninguno de los dos.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_model.time_targets#5",
@@ -4740,7 +4805,9 @@
       "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
       "context": "What it does not do",
       "translation": "LO QUE NO HACE",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#11",
@@ -4748,7 +4815,9 @@
       "source_sha256": "c7eaca2a274240ea6b7e2bf7c197880c0651cd293f571c1b6ca0009f5c4aaef6",
       "context": "It judges the ANNOTATION, not a tracker. Scoring a predicted tracking against a ground truth is :mod:`spacr.timeflows_baseline`, which is step 2 of the same plan. It holds no graphical code and opens no dialogs.",
       "translation": "Evalúa la ANOTACIÓN, no un rastreador. Puntuar un seguimiento predicho frente a una verdad de referencia corresponde a :mod:`spacr.timeflows_baseline`, que es el paso 2 del mismo plan. No contiene código gráfico ni abre diálogos.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#2",
@@ -4806,7 +4875,9 @@
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
       "context": "Why a script and not a look",
       "translation": "POR QUÉ UN SCRIPT Y NO UNA INSPECCIÓN VISUAL",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#9",

@@ -121,7 +121,7 @@ def test_unavailable_compiler_keeps_exact_numpy_once(monkeypatch, failure):
     for _ in range(3):
         assert ambient._ready_packed_scatter() is None
     assert ambient._PACKED_SCATTER_FAILED and ambient._PACKED_SCATTER_STARTED
-    assert starts == [{'name': 'spacr-grain-compile', 'daemon': True}]
+    assert starts == [{'name': 'spacr-grain-compile', 'daemon': False}]
     image = _engine()._point_material(3, 3, [1], [1], [.8], True)
     assert image.width() == image.height() == 3
 
@@ -175,6 +175,7 @@ def test_cold_compilation_uses_worker_and_gui_keeps_ticking(qtbot, monkeypatch):
         original()
 
     monkeypatch.setattr(ambient, '_warm_packed_scatter', record)
+    monkeypatch.setattr(ambient, '_numba_cache_directory', lambda: None)
     timer = QTimer()
     timer.setInterval(10)
     timer.timeout.connect(lambda: beats.append(time.perf_counter()))

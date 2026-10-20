@@ -89,13 +89,6 @@
       "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
       "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
       "translation": "Associe os canais de intensidade salvos a uma calibração de campo plano do fornecedor. O exemplo 0:2,1:1 associa os canais de intensidade 0 e 1 aos canais de calibração 2 e 1, respectivamente. A numeração dos canais de intensidade começa em 0. A numeração dos canais de calibração ou das camadas de imagem começa em 1. Inclua todos os canais de intensidade que serão corrigidos. Um valor vazio mantém a ordem original dos canais. Com um valor vazio, uma única camada de imagem de calibração é aplicada a todos os canais. Selecione primeiro um arquivo de calibração do fornecedor. Um modelo de iluminação salvo tem prioridade. O valor padrão é vazio."
-    },
-    {
-      "table": "ui",
-      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
-      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
-      "translation": "Isso reinstalará o spaCR no ambiente atual. O spaCR será fechado antes do início da atualização. Ele será reaberto automaticamente após a conclusão bem-sucedida da atualização."
     }
   ],
   "retired_records": [

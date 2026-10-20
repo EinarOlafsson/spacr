@@ -737,14 +737,24 @@ def _action_bar_geometry(screen):
 
 @pytest.mark.parametrize("size", [(1200, 720), (1400, 900)])
 def test_a_verdict_no_longer_moves_the_run_row(qtbot, stepped_project, size):
-    """The verdict used to sit above the Run row and push it up the panel."""
-    plain, _ = _laid_out_measure(qtbot, with_qc=False, src=stepped_project,
-                                 size=size)
-    before = _action_bar_geometry(plain)
+    """The verdict used to sit above the Run row and push it up the panel.
 
-    screen, banner = _laid_out_measure(qtbot, with_qc=True,
-                                       src=stepped_project, size=size)
+    One screen, with the QC switch, is measured before its project gives a
+    verdict and after. It was compared with a screen built without the
+    switch, which measured the switch instead: the switch takes 32 px of
+    the action row, the button strip wraps in what is left, and with a CI
+    runner's wider text the strip broke its lines differently in the
+    narrower row (86 against 88 px at 1200x720, on 4874baa11, 386444b92 and
+    c921b5dc5), while the workstation's two lines fitted either way.
+    """
+    screen, banner = _laid_out_measure(qtbot, with_qc=True, size=size)
+    assert banner.digest is None or banner.digest.verdict != "fail"
+    before = _action_bar_geometry(screen)
+
+    _set(screen, "src", stepped_project)
+    banner.refresh()
     assert banner.digest is not None and banner.digest.verdict == "fail"
+    _wait_for_a_settled_action_bar(qtbot, screen)
     after = _action_bar_geometry(screen)
 
     assert after["row"].height() == before["row"].height()

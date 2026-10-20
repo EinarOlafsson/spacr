@@ -1,7 +1,7 @@
 """Decode in-situ sequencing barcodes out of an image stack.
 
-WHAT THIS IS FOR, AND WHAT IT IS NOT
-====================================
+Purpose and scope
+=================
 Optical pooled screening reads the guide barcode OUT OF THE IMAGES. Each
 sequencing cycle stains four channels, one per base, and a spot's base in that
 cycle is whichever channel is brightest -- once the channels have been put on
@@ -12,8 +12,8 @@ the barcode.
 at it. That module decodes FASTQ reads from an NGS run; there is no FASTQ here
 and no sequencer, only pixels.
 
-WHY EACH STEP IS THE STEP IT IS
-===============================
+Rationale for each step
+=======================
 Three of these carry nearly all of the correctness risk, and all three are
 counter-intuitive enough that implementing them from a description of the
 pipeline rather than from a working one produces something that runs and is
@@ -53,7 +53,7 @@ BASES = ("G", "T", "A", "C")
 
 
 def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
-    """Where the reads are: variance across cycles, not brightness.
+    """Return a map of likely read positions, scored by variance across cycles.
 
     A sequencing spot changes colour from cycle to cycle, which is exactly
     what a constant piece of debris does not do. Taking the standard deviation
@@ -150,12 +150,12 @@ def compensate_crosstalk(values: np.ndarray, *,
                          method: str = "percentile",
                          percentile: float = 95.0,
                          gpu: bool = True) -> np.ndarray:
-    """Undo dye bleed-through, so the brightest channel IS the base.
+    """Correct base intensities for dye bleed-through between channels.
 
-    THE RAW ARGMAX IS NOT THE BASE. Each dye emits into its neighbours'
-    channels, so a channel that is bright overall wins comparisons it should
-    lose, and the bias is systematic rather than noise: it mis-calls the same
-    base everywhere.
+    Without correction the raw argmax is biased: each dye emits into its
+    neighbours' channels, so a channel that is bright overall wins
+    comparisons it should lose, and the bias is systematic rather than noise:
+    it mis-calls the same base everywhere.
 
     The correction is fitted FROM THE DATA rather than from a calibration
     file, because it depends on the stain, the filters and the exposure --
@@ -409,13 +409,12 @@ def _closest_by_comparison(read: str, arrays, max_distance: int
 
 def correct_to_library(barcodes: Sequence[str], library: Sequence[str], *,
                        max_distance: int = 1) -> List[Optional[str]]:
-    """Snap each read to the library, but ONLY on a unique closest match.
+    """Correct each read to its unique closest library barcode, or ``None``.
 
-    AMBIGUITY IS DISCARDED, NOT GUESSED. A read equally close to two library
-    barcodes returns ``None``. That is deliberate and it is the whole point of
-    the step: a misassigned guide moves a cell's phenotype onto the wrong
-    perturbation and silently corrupts every statistic downstream, while a
-    dropped read only costs statistical power that more cells can buy back.
+    A read equally close to two library barcodes returns ``None`` rather
+    than one of them: a misassigned guide moves a cell's phenotype onto the
+    wrong perturbation and silently corrupts every statistic downstream,
+    while a dropped read only costs statistical power.
 
     An exact match short-circuits, so a clean run pays nothing for this.
 
@@ -477,12 +476,12 @@ def assign_reads_to_cells(peaks: np.ndarray, barcodes: Sequence[str],
     when its reads AGREE -- ``min_fraction`` of at least ``min_reads`` must
     carry the same barcode -- and is otherwise left unassigned.
 
-    THE DEFAULTS REFUSE MORE THAN THEY ACCEPT, deliberately. One read is not
-    evidence: it cannot be checked against anything, and a single mis-called
+    The defaults (``min_reads=2``, ``min_fraction=0.6``) are conservative. A
+    single read cannot be checked against anything, and a single mis-called
     base would silently hand a cell the wrong perturbation. A cell with no
-    barcode costs statistical power; a cell with the WRONG barcode moves a
-    real phenotype onto another guide's average and is not recoverable
-    downstream, because nothing later can tell it happened.
+    barcode costs statistical power; a cell with the WRONG barcode moves a real
+    phenotype onto another guide's average and is not recoverable downstream,
+    because nothing later can tell it happened.
 
     Reads landing on label 0 -- background, between cells -- are discarded
     rather than attached to the nearest cell. A read that segmentation did not

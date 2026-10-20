@@ -139,6 +139,39 @@ def test_estimate_class_counts_from_folders(tmp_path, capsys):
     assert "Class counts (from folders)" in capsys.readouterr().out
 
 
+def test_estimate_class_counts_skips_the_crop_format_sidecar(tmp_path):
+    """Regression (2026-10-10): generate_training_dataset stamps every class
+    folder with ``.spacr_crop_format.json`` and the folder count took it for
+    a sample, so each class reported one crop more than it holds."""
+    from PIL import Image
+
+    from spacr.io import generate_dataset_from_lists
+    from spacr.utils import estimate_class_counts
+
+    source = tmp_path / "crops"
+    source.mkdir()
+    class_data = [[], []]
+    for class_index, row in enumerate(("A", "B")):
+        for well in range(1, 5):
+            for obj in range(3):
+                path = source / f"plate1_{row}{well:02d}_1_{obj}.png"
+                Image.fromarray(
+                    np.full((4, 4, 3), class_index * 100, dtype=np.uint8)
+                ).save(path)
+                class_data[class_index].append(str(path))
+    generate_dataset_from_lists(
+        str(tmp_path / "training"), class_data, classes=["c1", "c2"],
+        test_split=0.25)
+    train_root = str(tmp_path / "training" / "train")
+    assert os.path.isfile(os.path.join(train_root, "c1",
+                                       ".spacr_crop_format.json"))
+    pngs = [len([f for f in os.listdir(os.path.join(train_root, c))
+                 if f.endswith(".png")]) for c in ("c1", "c2")]
+    counts = estimate_class_counts(None, 2, src=train_root,
+                                   classes=["c1", "c2"])
+    assert counts.tolist() == pngs
+
+
 def test_estimate_class_counts_dataloader_fallback(capsys):
     """Slow path: iterate the loader, warn, and bincount long targets."""
     from spacr.utils import estimate_class_counts

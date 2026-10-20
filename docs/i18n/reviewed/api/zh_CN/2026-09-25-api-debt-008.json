@@ -552,7 +552,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the labels as ``uint16``.",
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
-      "translation": "以 ``uint16`` 表示的标签。"
+      "translation": "以 ``uint16`` 表示的标签。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
@@ -560,7 +562,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "when an id does not fit in ``uint16``, or exact-ID mode receives invalid labels. Oversized IDs are never truncated.",
       "source_sha256": "1a6423bda836e7645559cf6a555e2638d3b7e67bf5a5c1e0b006f83e35fffde0",
-      "translation": "当某个 ID 无法放入 ``uint16``，或精确 ID 模式收到无效标签时。过大的 ID 绝不会被截断。"
+      "translation": "当某个 ID 无法放入 ``uint16``，或精确 ID 模式收到无效标签时。过大的 ID 绝不会被截断。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "``name`` as the regionprop it means, or a ValueError naming the choices.",
@@ -1763,7 +1767,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "label mask; an empty array gives 1.",
       "source_sha256": "f5498ad93ff511e6e045bbd7d187f8685f7b93ec4c8267d800161571f764d218",
-      "translation": "标签掩膜；空数组返回 1。"
+      "translation": "标签掩膜；空数组返回 1。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "``filters`` as the canonical list of ``{property, min, max}`` key-value mappings.",
@@ -2235,7 +2241,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
-      "translation": "保留精确的初级/次级 ID，不把单值掩膜解读为二值掩膜，也不拆分不连通的部分。显式模式会验证非负的 2-D 整数标签，并在写入前拒绝大于 65535 的 ID；它绝不会悄悄地重新编号。"
+      "translation": "保留精确的初级/次级 ID，不把单值掩膜解读为二值掩膜，也不拆分不连通的部分。显式模式会验证非负的 2-D 整数标签，并在写入前拒绝大于 65535 的 ID；它绝不会悄悄地重新编号。",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "Write edited labels back into the bundle they came from.",
@@ -2901,7 +2909,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "当 \"Verbose logging\" 首选项开启时，spaCR 的 Python 日志记录器会被调到 DEBUG 级别，日志文件会保留这些记录。当前活动的 ConsolePanel 只显示在“首选项”的 Logging 选项卡中为控制台开启的级别。这样磁盘上就会留下详细的记录，这正是分析缺陷报告时所需要的。"
+      "translation": "当 \"Verbose logging\" 首选项开启时，spaCR 的 Python 日志记录器会被调到 DEBUG 级别，日志文件会保留这些记录。当前活动的 ConsolePanel 只显示在“首选项”的 Logging 选项卡中为控制台开启的级别。这样磁盘上就会留下详细的记录，这正是分析缺陷报告时所需要的。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -3313,7 +3323,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "变更事件；它会先交给基类，只有 ``ApplicationPaletteChange`` 会被处理。"
+      "translation": "变更事件；它会先交给基类，只有 ``ApplicationPaletteChange`` 会被处理。",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
@@ -3329,7 +3341,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "事件；会处理调整大小、窗口状态、隐藏、显示、移动和屏幕变更类型的事件，并且每个事件仍会传递给基类过滤器。"
+      "translation": "事件；会处理调整大小、窗口状态、隐藏、显示、移动和屏幕变更类型的事件，并且每个事件仍会传递给基类过滤器。",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",
@@ -3631,7 +3645,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "取正在播放内容与空转呼吸两者中较响的一个，因此安静的段落绝不会使画面低于静音时本应绘制的程度。正是这条规则使“在静音中优美地空转”和“随音乐作出反应”成为同一条代码路径。"
+      "translation": "取正在播放内容与空转呼吸两者中较响的一个，因此安静的段落绝不会使画面低于静音时本应绘制的程度。正是这条规则使“在静音中优美地空转”和“随音乐作出反应”成为同一条代码路径。",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",
@@ -4275,7 +4292,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "随工作区保存的映射；其 ``picture_settings``、``widgets``、``picture_mode`` 和 ``coefficient`` 条目在存在时会各自被应用，非字典不应用任何内容。"
+      "translation": "随工作区保存的映射；其 ``picture_settings``、``widgets``、``picture_mode`` 和 ``coefficient`` 条目在存在时会各自被应用，非字典不应用任何内容。",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",
@@ -4475,7 +4495,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE EVENT TYPE IS READ FIRST, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to run for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
-      "translation": "“先读取事件类型”，然后才进行存活检查。此过滤器安装在 QApplication 上，因此以前两次 `_still_alive` 调用会针对进程中的每个事件运行——在一次打开 Regression 时就有 94,431 次，而一次性能分析在一次打开 Mask 时统计到这两个调用共 839,906 次。读取 C++ 部分已被销毁的对象的类型会抛出异常，而下方的 `except` 已经用同样的 `False` 处理了这种情况，因此调整顺序没有任何代价，现在只有上下文菜单才会运行这些检查。"
+      "translation": "“先读取事件类型”，然后才进行存活检查。此过滤器安装在 QApplication 上，因此以前两次 `_still_alive` 调用会针对进程中的每个事件运行——在一次打开 Regression 时就有 94,431 次，而一次性能分析在一次打开 Mask 时统计到这两个调用共 839,906 次。读取 C++ 部分已被销毁的对象的类型会抛出异常，而下方的 `except` 已经用同样的 `False` 处理了这种情况，因此调整顺序没有任何代价，现在只有上下文菜单才会运行这些检查。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True to stop the event going further.",

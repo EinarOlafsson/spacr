@@ -42,6 +42,8 @@ import subprocess
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 REPO = pathlib.Path(__file__).resolve().parent.parent
 README = REPO / "README.rst"
 EXCLUDES = REPO / "packaging" / "source_install_excludes.txt"
@@ -62,7 +64,7 @@ def _section(title: str = SECTION) -> str:
     the README, so asserting them against the whole file would pass no
     matter what this section said.
     """
-    text = README.read_text(encoding="utf-8")
+    text = readme_words()
     start = text.index(title + "\n")
     body = text[start + len(title) + 1:]
     body = body[body.index("\n") + 1:]          # drop the ~~~ underline
@@ -94,7 +96,7 @@ def _tracked_bytes() -> int:
 
 def _exclusions():
     """Each excluded path from the list, with what it weighs today."""
-    lines = [ln.strip() for ln in EXCLUDES.read_text().splitlines()
+    lines = [ln.strip() for ln in EXCLUDES.read_text(encoding="utf-8").splitlines()
              if ln.strip() and not ln.strip().startswith("#")]
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z"],
                          capture_output=True)
@@ -212,9 +214,12 @@ def test_the_readme_does_not_sell_a_filter_that_saved_nothing():
                 "slower than --depth 1 alone and downloads the same bytes")
     assert "--filter=blob:none" in section, (
         "the README should say why the obvious flag is not used")
-    assert re.search(r"saves nothing|does not help|no help|did not reduce", section), (
+    assert re.search(r"saves nothing|does not help|no help|(did|does) not reduce", section), (
         "--filter=blob:none is named without explaining the measured result")
-    assert 'to the shallow clone' in section and 'measured download' in section
+    flat = " ".join(section.split())
+    assert 'to the shallow clone' in flat
+    assert re.search(r"measured download|download total was measured", flat), (
+        "the README does not say whether the filtered download was measured")
 
 
 def test_the_readme_dates_its_numbers_and_names_what_remeasures_them():
@@ -461,7 +466,7 @@ def test_an_edited_exclusion_list_reaches_the_checkout(tmp_path):
     if run.returncode != 0:
         pytest.skip(f"fetch failed here: {run.stderr[-300:]}")
 
-    written = (out / ".git" / "info" / "sparse-checkout").read_text()
+    written = (out / ".git" / "info" / "sparse-checkout").read_text(encoding="utf-8")
     assert marker in written.split(), (
         "the edited exclusion list never reached the checkout; the script "
         "used its embedded copy instead:\n" + written)
@@ -552,7 +557,7 @@ def test_the_readme_names_the_default_branch_the_installer_uses():
     The GitHub setting cannot be read offline, so this holds the three
     in-tree statements of it to one answer.
     """
-    readme = re.sub(r"\s+", " ", README.read_text(encoding="utf-8"))
+    readme = re.sub(r"\s+", " ", readme_words())
     claim = re.search(r"This clones ``([\w.-]+)``, the default branch", readme)
     assert claim, "the README no longer says which branch a plain clone gets"
     installer = re.search(r'(?m)^BRANCH="([\w.-]+)"', INSTALLER.read_text(
@@ -592,7 +597,7 @@ def test_both_source_install_sections_read_as_reviewed_prose_in_every_language()
         translatable_blocks,
     )
 
-    blocks, _layout = translatable_blocks(README.read_text(encoding="utf-8"))
+    blocks, _layout = translatable_blocks(readme_words())
     first = blocks.index("Install from source")
     last = blocks.index("Command-line entry points")
     section = blocks[first:last]
@@ -604,8 +609,9 @@ def test_both_source_install_sections_read_as_reviewed_prose_in_every_language()
             f"no reviewed translation in "
             f"{sorted(set(LANGUAGES) - set(reviewed))} for {source[:60]!r}")
         for language, target in reviewed.items():
-            localized = (LOCALIZED / f"README.{language}.rst").read_text(
-                encoding="utf-8").replace("<../../source/", "<docs/source/")
+            localized = re.sub(r"\s+", " ", readme_words(
+                LOCALIZED / f"README.{language}.rst"))
+            target = re.sub(r"\s+", " ", target)
             assert target in localized, (language, source[:60])
 
     drafts = {
@@ -620,7 +626,6 @@ def test_both_source_install_sections_read_as_reviewed_prose_in_every_language()
         "is": ("(Light)",),
     }
     for language, fragments in drafts.items():
-        localized = (LOCALIZED / f"README.{language}.rst").read_text(
-            encoding="utf-8")
+        localized = readme_words(LOCALIZED / f"README.{language}.rst")
         left = [fragment for fragment in fragments if fragment in localized]
         assert not left, f"{language} still carries the model draft: {left}"

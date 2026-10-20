@@ -1,0 +1,27 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "The Hits button: build the results panel in steps, then open.",
+      "label": "spacr.qt.screens.regression.HitsOpener.press#0",
+      "source": "The Hits button: build the results panel in steps, then open.",
+      "source_sha256": "c20b7ec45c2710e7f8d29a51d30349d20c28b16ce04f92064d251429c080628c",
+      "translation": "Hits 버튼: 결과 패널을 단계적으로 구성한 다음 엽니다."
+    },
+    {
+      "context": "The first press used to build the application view's whole results panel in one go, a freeze of over a second. It is now built one step per event-loop turn (see ``AppScreen._build_owed_part_in_steps``) and the tab is brought to the front when construction is finished. With the panel built, or on an application view that defers nothing, this is :meth:`open`.",
+      "label": "spacr.qt.screens.regression.HitsOpener.press#1",
+      "source": "The first press used to build the screen's whole results panel in one go, a freeze of over a second. It is now built one step per event-loop turn (see ``AppScreen._build_owed_part_in_steps``) and the tab is raised when it is finished. With the panel built, or on a screen that defers nothing, this is :meth:`open`.",
+      "source_sha256": "857116d8fdcdc68c132028c8881967782f78f87171f3dacb24b879c354c64976",
+      "translation": "이전에는 버튼을 처음 누르면 화면의 전체 결과 패널을 한꺼번에 구성하여 인터페이스가 1초 넘게 멈췄습니다. 이제는 이벤트 루프가 한 번 돌 때마다 한 단계씩 구성하고(``AppScreen._build_owed_part_in_steps`` 참조), 완료되면 탭을 앞으로 가져옵니다. 패널이 이미 구성되어 있거나 화면에서 미루는 작업이 없으면 :meth:`open` 을 호출합니다."
+    },
+    {
+      "context": "The panel is read only if it has been built. Building it here, for a page that finds no run in a panel that was never shown, froze the first Volcano Explorer page for most of a second.",
+      "label": "spacr.qt.screens.regression.open_publication_figure#1",
+      "source": "The panel is read only if it has been built. Building it here, for a page that finds no run in a panel that was never shown, froze the first Volcano Explorer page for most of a second.",
+      "source_sha256": "fe081dcd55adb42959cb31e080af57d9af513443df0c68cff4c996a207af90be",
+      "translation": "패널은 이미 구성된 경우에만 읽습니다. 한 번도 표시되지 않은 패널에서 실행 기록을 찾지 못한 페이지를 위해 여기서 패널을 구성하면, 첫 Volcano Explorer 페이지가 거의 1초 동안 멈추곤 했습니다."
+    }
+  ],
+  "schema": 1
+}

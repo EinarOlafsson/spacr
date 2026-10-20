@@ -1175,13 +1175,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination_correction",
-      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
-      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
-      "translation": "Meta ójafna lýsingu smásjárinnar út frá sjónsviðunum sjálfum og deila henni út úr pixlunum á hverju virku stigi. Sjálfgefið slökkt. Þegar kveikt er lítur sama fruma eins út og mælist eins hvar sem hún er í sjónsviðinu, sem er það sem fjarlægir staðsetningarháða skekkju að baki jaðaráhrifum á plötum. Sjálfgefið False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "surrogate_model",
       "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
       "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
@@ -1238,31 +1231,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_diameter",
-      "source": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM; leave it None to segment at native scale. Set it when cells are much larger or smaller than ~30 px and segmentation produces fragmented or merged masks. spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
-      "source_sha256": "c0522ea640336af4540951ec1bf709c48d2ea6799cb5cf9279f4ff37e21da08e",
-      "translation": "Væntanlegt þvermál frumu í pixlum. Cellpose 4 endurkvarðar myndina um 30/diameter fyrir bútun, svo væntanleg stærð hluta samsvari kvarðanum sem CPSAM var þjálfað á; láttu vera None til að búta í upprunalegum kvarða. Stilltu þegar frumur eru mun stærri eða minni en ~30 px og bútun gefur brotnar eða samrunnar grímur. spacr.diameter.estimate_diameters metur gildi út frá völdum sjónsviðum. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "pathogen_signal_to_noise",
       "source": "Expected foreground-to-background ratio of the pathogen channel. Multiplied by pathogen_background, it defines the minimum intensity for the normalisation ceiling. spaCR evaluates percentiles 98 through 99.5 and uses the first that reaches the threshold, with the 99.5th percentile as the fallback. Increase it for a higher ceiling with less clipping; decrease it for greater contrast. Default 20.",
       "source_sha256": "2a5e221d03bf215fd394749f084f8398e48198c7aa8af4ade86050bcd6cc1652",
       "translation": "Væntanlegt hlutfall forgrunns og bakgrunns í sýklarásinni. Margfaldað með pathogen_background skilgreinir það lágmarksstyrk stöðlunarþaksins. spaCR metur hundraðshlutamörk 98 til 99.5 og notar það fyrsta sem nær þröskuldinum, með 99.5. hundraðshlutamark sem varakost. Hækkaðu fyrir hærra þak með minni klippingu; lækkaðu fyrir meiri birtuskil. Sjálfgefið 20."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_diameter",
-      "source": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None segments at native scale. Because nuclei are commonly the smallest segmented objects, this parameter often requires explicit configuration for low-magnification acquisitions. spacr.diameter.estimate_diameters estimates a value. Default None.",
-      "source_sha256": "d2cb2db47fddc1e1c03763a45b4d3cbf3cabf6752a346f4bde49813f105ed4da",
-      "translation": "Væntanlegt þvermál kjarna í pixlum, notað af Cellpose 4 til að endurkvarða myndina um 30/diameter fyrir bútun. None bútar í upprunalegum kvarða. Þar sem kjarnar eru oft minnstu bútuðu hlutirnir þarf þessi færibreyta oft að vera stillt sérstaklega fyrir myndatökur við litla stækkun. spacr.diameter.estimate_diameters metur gildi. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_diameter",
-      "source": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None segments at native scale. Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
-      "source_sha256": "acdded81afff918e3a71e83fb47eef1b3ba87a058508f30ffa4a4b1b2587fdd1",
-      "translation": "Væntanlegt þvermál sýkils í pixlum, notað af Cellpose 4 til að endurkvarða myndina um 30/diameter fyrir bútun. None bútar í upprunalegum kvarða. Sníkjudýr innan frumna eru oft aðeins nokkrir pixlar í þvermál við litla stækkun, þar sem endurkvörðun skiptir mestu máli. spacr.diameter.estimate_diameters stingur upp á gildi. Sjálfgefið None."
     },
     {
       "table": "setting_tooltips",
@@ -1592,13 +1564,6 @@
       "source": "Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
       "source_sha256": "98401699283b8e04e9617c5650ca4ac27a0338ebbd2e063b63b5a8dbe2aad330",
       "translation": "Hlutfall, frá 0 til 1, af ummáli minna merkisins sem tveir sýklahlutir sem snertast þurfa að deila áður en þeir eru sameinaðir. Sjálfgefna gildið 0 gerir ummálsbundinn samruna óvirkan. Gildi nálægt 0.1 sameina flesta hluti sem snertast, en gildi frá 0.5 til 0.8 sameina aðeins hluti með löng sameiginleg mörk. Notaðu þessa stillingu til að tengja saman bólur sem Cellpose skipti í mörg merki."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "threshold_sensitivity",
-      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
-      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
-      "translation": "Hlutfallsleg upphæð sem þröskuldurinn er færður upp og niður til að mynda bilið invasion_efficiency_low_threshold og _high_threshold, sem sýnir hve mikið af svari brunns ræðst af þröskuldinum frekar en líffræðinni. Breikkun breikkar bilið og gerir uppblástursflaggið ákafara. Sjálfgefið 0.25."
     },
     {
       "table": "setting_tooltips",
@@ -2050,20 +2015,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "illumination",
-      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
-      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
-      "translation": "Lýsingar-/flatsviðsleiðrétting. Metur ójafna lýsingu smásjárinnar einu sinni út frá sjónsviðum plötu og deilir henni út úr pixlunum á hverju virku stigi, svo sama fruma lítur eins út og mælist eins hvar sem hún var í sjónsviðinu."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "file_type",
-      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
-      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
-      "translation": "SNIÐ fyrirframgerðu myndskurðanna, sem skráarending: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' eða 'npy'. Þetta er sniðsía og ekkert annað - HVAÐA HLUT myndskurður sýnir er hlutverk path_string, svo parið getur tjáð 'hvern kjarnaskurð, hvert sem sniðið er' og 'hverja TIFF-skrá, hver sem hluturinn er', sem ein sameinuð stilling gæti aldrei. Eldra gildi á forminu '<object>_png' er enn samþykkt og lesið sem ending þess, svo gömul stillingaskrá virkar áfram. Autt samþykkir hvaða snið sem er. Sjálfgefið 'cell_png', sem er lesið sem 'png'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "inputs",
       "source": "Image and external label-mask files or folders to import. The preview groups them by source and proposes whether each group is an intensity image, an object mask, or ignored. Default [].",
       "source_sha256": "bd4f3d7ab7c7b446fa5e306ed9d2dff0231ad5e8489281b37d22b4e0e20cb91f",
@@ -2226,9 +2177,9 @@
     {
       "table": "setting_tooltips",
       "key": "keep_original_images",
-      "source": "Keep the original raw input images (in orig/). Off by default to save disk space; the pixel data lives in merged/.",
-      "source_sha256": "9511970677e5b897fff768ea0b8a6e1f39dcf418504999830807f8eca089fb54",
-      "translation": "Halda upprunalegu hráu inntaksmyndunum (í orig/). Sjálfgefið slökkt til að spara diskpláss; pixlagögnin eru í merged/."
+      "source": "Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
+      "source_sha256": "37f2cb7a4e9540ab6489037f764e403b8aa446be738d704fe1a10f4f918ec821",
+      "translation": "Heldur upprunalegu hráu inntaksmyndunum í orig/ eftir keyrsluna. Sjálfgefið kveikt, svo hráu skrárnar glatist aldrei. Stilltu á False aðeins til að spara diskpláss: orig/ er þá eytt þegar merged/ hefur verið búið til, sem ekki er hægt að afturkalla; merged/ geymir vörpuðu pixlagögnin, ekki hráu skrárnar."
     },
     {
       "table": "setting_tooltips",
@@ -2411,13 +2362,6 @@
       "source": "Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
       "source_sha256": "c2e1af61dff5c37b33bca47a6b683b34697aa2f67b6d82e3f4c14a8e85bcb831",
       "translation": "Leyfa Cellpose að endurkvarða hverja mynd um 30/diameter fyrir bútun, svo hlutir komi í þeirri stærð sem líkanið býst við. Slökktu aðeins þegar þvermálið er þegar rétt fyrir líkanið. Sjálfgefið False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "ops_gpu",
-      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
-      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
-      "translation": "Leyfa þessari keyrslu að nota skjákortið þar sem spaCR finnur nothæft kort: FFT-útreikningar reitaskráningarinnar og Cellpose-útlínurnar hafa báðar GPU-leið, og báðar falla sjálfkrafa aftur á CPU ef kortið neitar. Slökktu á þessu þegar kortið er upptekið við annað verk -- sameiginlegt GPU er algengasta tilvikið, og minnisskortur í miðri plötu kostar meira en tíminn sem GPU sparar. Sjálfgefið True."
     },
     {
       "table": "setting_tooltips",
@@ -2673,13 +2617,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "tables",
-      "source": "Measurement tables read from each plate's database and merged into one analysis frame. Only 'cell', 'nucleus', 'pathogen', 'cytoplasm', and 'png_list' are merged. Any other table, including 'organelle', is loaded but omitted from the merged result without a warning. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
-      "source_sha256": "44096ea3a7b8d7e090e0212cca3a4d967d9e997c3bf214063dc3b195bc410828",
-      "translation": "Mælitöflur sem lesnar eru úr gagnagrunni hverrar plötu og sameinaðar í einn greiningarramma. Aðeins 'cell', 'nucleus', 'pathogen', 'cytoplasm' og 'png_list' eru sameinaðar. Hverri annarri töflu, þar á meðal 'organelle', er hlaðið en hún er ekki tekin með í sameinuðu niðurstöðuna og engin viðvörun gefin. Sjálfgefið ['cell', 'nucleus', 'pathogen', 'cytoplasm']."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "channel_of_interest",
       "source": "Measurements available to the model. Specify one channel to train on that channel alone, multiple channels to use their combination of measurements, or 'shape' to use outline-derived features. An empty value includes every measurement. A colocalisation feature is associated with both measured channels, so selecting either channel also includes their shared colocalisation features. This setting also selects the channel used for recruitment measurements. Default 3 in machine-learning steps and 1 or 2 elsewhere.",
       "source_sha256": "3284ef8d112789fb79ee98a8a88a035af49a501f2eb474c87bfab889a11bf6d8",
@@ -2775,13 +2712,6 @@
       "source": "Minimum bimodality coefficient required for an unflagged field- or well-level efficiency estimate. Values below the threshold are retained but flagged because the intensity distribution provides insufficient evidence for two populations. Increasing the threshold requires stronger bimodality. Default 0.5555555555555556.",
       "source_sha256": "cf5d8ce60dacbd51f69c1de6a3f34e2a18099b3b7ff943cb5f0eb8203c6bc7c0",
       "translation": "Lágmarks tvítoppunarstuðull sem krafist er fyrir óflaggað skilvirknimat á stigi sjónsviðs eða brunns. Gildum undir þröskuldinum er haldið en þau flögguð, því styrkdreifingin gefur ekki nægar vísbendingar um tvo hópa. Hækkun þröskuldar krefst sterkari tvítoppunar. Sjálfgefið 0.5555555555555556."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "lasso_selection_threshold",
-      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
-      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
-      "translation": "Lágmarkstíðni vals í bootstrap, á milli 0 og 1, til að stuðull í lasso eða elastic-net teljist marktæk niðurstaða. 0.6 þýðir að gRNA hélt stuðli sem er ekki núll í að minnsta kosti þremur fimmtu úrtakanna. Hækkaðu fyrir styttri lista sem erfiðara er að deila um; lækkun undir um 0.5 hleypir inn liðum sem refsingin fellir jafnoft út og hún heldur. Sjálfgefið 0.6. Lesið af regression_type 'elasticnet', 'group_lasso', 'lasso'."
     },
     {
       "table": "setting_tooltips",
@@ -2929,20 +2859,6 @@
       "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
       "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
       "translation": "Heiti dálksins í score_data sem líkanaður er sem svörun, t.d. 'pred'/'predictions' úr ML-skorunarskrefinu eða mældur eiginleiki á borð við 'pathogen_nucleus_shortest_distance'. Hann er dreginn saman á brunn með agg_type og síðan umbreyttur ef þess er óskað. Keyrslan stöðvast ef dálkinn vantar í skor-CSV. Sjálfgefið 'pred'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_grna_column",
-      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
-      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
-      "translation": "Heiti dálksins í talningar-CSV sem inniheldur auðkenni leiðarans. Eldri útgáfur kröfðust heitisins 'grna' og höfnuðu skrám sem notuðu önnur heiti á borð við 'sgRNA' eða 'guide'. Stilltu þetta gildi á dálkinn sem raðgreiningarferlið býr til. Sjálfgefið 'grna'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "count_value_column",
-      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
-      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
-      "translation": "Heiti dálksins í talningar-CSV sem geymir lestrarfjölda eins leiðara í einum brunni; hann verður hlutfallið á brunn sem fraction_threshold-skönnunin vinnur með. Var harðkóðað sem 'count' þar til nú, svo skrá sem nefndi hann 'reads' eða 'n' brást með skilaboðum sem nefndu aðeins dálkana sem spaCR bjóst við. Sjálfgefið 'count'."
     },
     {
       "table": "setting_tooltips",
@@ -3114,13 +3030,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cross_validation_folds",
-      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
-      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
-      "translation": "Fjöldi k-brota skiptinga sem notaðar eru til að þjálfa myndflokkarann í stað eins val_split-útilokunarhluta. 0 (sjálfgefið) eða 1 notar eina slembiskiptingu; 2 eða fleiri þjálfa sérstakt líkan á hvert brot, meta hvert líkan á broti sínu sem haldið var utan og tilkynna meðaltal, staðalfrávik milli brota og spönn. Þessar tölur magngreina næmi fyrir skiptingu gagnanna. Keyrslutími er um það bil í réttu hlutfalli við k. Aðskilið frá 'cross_validation', sem stýrir aðhvarfsferlinu."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "plot_nr",
       "source": "Number of merged image stacks from the start of the folder displayed with cell, nucleus, and pathogen outlines before recruitment analysis. The implementation checks index <= plot_nr, so plot_nr + 1 images are displayed and 0 displays one image. Increase the value to inspect segmentation across more fields. Default 3.",
       "source_sha256": "41d775e8013bfef565606135c07014be8a767c7f954bb9a868aad71042e8a8e6",
@@ -3230,13 +3139,6 @@
       "source": "Object tables joined into the cell-anchored export. Dropping a table drops its features from X: without 'pathogen' there are no pathogen columns and no count_pathogen, and without 'png_list' the crop paths, annotations and model scores are all absent from obs. Default ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list'].",
       "source_sha256": "a14ab71833e1cd7807bc5853579e9e4b74e1d3c2ea274d5276985c055fcca7c1",
       "translation": "Hlutatöflur sem tengdar eru í frumumiðaða útflutninginn. Ef tafla er felld út falla eiginleikar hennar út úr X: án 'pathogen' eru engir sýkladálkar og ekkert count_pathogen, og án 'png_list' vantar slóðir myndskurða, merkingar og skor líkans öll í obs. Sjálfgefið ['cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list']."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "magnification",
-      "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. Explicit cell_diameter, nucleus_diameter or pathogen_diameter override it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
-      "source_sha256": "d6a066048ede229da859af72ddbdd37cb9528677a77d5bcc7a805df31ac015f3",
-      "translation": "Stækkun hlutglers, aðeins notuð til að leiða væntanlegar stærðir hluta: þvermál í pixlum er 2*mag+80 fyrir frumur, 0.75*mag+45 fyrir kjarna og mag fyrir sýkla, með lágmarks-/hámarksflatarmál diameter^2/4 og diameter^2*10. Bein cell_diameter, nucleus_diameter eða pathogen_diameter hnekkja henni. Stilltu á stækkun hlutglersins við myndatöku (10, 20, 40 eða 60). Sjálfgefið 40."
     },
     {
       "table": "setting_tooltips",
@@ -3513,13 +3415,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "group_lasso_lambda",
-      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
-      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
-      "translation": "Refsivægi hópa-lasso, sem minnkar alla leiðara eins gens saman frekar en einn í einu, svo gen kemur inn í eða fer úr líkaninu sem heild en ekki eftir heppnasta leiðara sínum. Hærri gildi halda færri genum; 0 lætur mátunina vera órefsaða og neikvæðu gildi er hafnað. Stilltu á auto til að velja það með krossprófun. Sjálfgefið auto. Lesið af regression_type 'group_lasso'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "infection_xgb_min_cells_per_class",
       "source": "Per well, how many intensity-extreme examples each class must reach before that well's training data are balanced by subsampling to the smaller class; wells that have both classes but fewer examples contribute all of theirs, unbalanced. Wells with only one class are skipped entirely. No well is ever excluded for being small, so raising it leaves more wells unbalanced and the training set more skewed - lower it towards 1 to force balancing in every usable well. Default 10.",
       "source_sha256": "7faab303881689b626892f01779b000ff6d3fc4a48c045b538450d4ff85368bc",
@@ -3615,13 +3510,6 @@
       "source": "Pixel offsets used to build each object's grey-level co-occurrence matrix; every entry adds one homogeneity_distance_<d> feature per channel. Small offsets capture fine-grained texture, large ones capture coarse structure, and offsets larger than the object itself carry no signal. More entries means more features and slower measurement. Default [8, 16, 32].",
       "source_sha256": "6fd9a61848bed586026b239e1a3e068937314369cee0a865f69d72ff9674fe50",
       "translation": "Pixlahliðranir sem notaðar eru til að byggja samtilvikafylki grátóna fyrir hvern hlut; hver færsla bætir við einum eiginleika homogeneity_distance_<d> á hverja rás. Litlar hliðranir fanga fínkornótta áferð, stórar fanga grófa byggingu, og hliðranir stærri en hluturinn sjálfur bera ekkert merki. Fleiri færslur þýða fleiri eiginleika og hægari mælingu. Sjálfgefið [8, 16, 32]."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "resnet_features",
-      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
-      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
-      "translation": "Staðgengill fyrir greypingu hrárra myndskurða með ResNet-eiginleikum í stað mældu eiginleikatöflunnar. Greinin í generate_image_umap er tóm pass-skipun, svo ef þetta er virkjað er greypingarskrefinu sleppt alveg og keyrslan bregst síðan á óbundinni breytu 'embedding'. Hafðu þetta False. Sjálfgefið False."
     },
     {
       "table": "setting_tooltips",
@@ -3860,13 +3748,6 @@
       "source": "PyTables compression library used when writing annotated_reads.h5, passed to pandas HDFStore as complib: 'zlib', 'lzo', 'bzip2' or 'blosc'. 'blosc' is far faster at similar file size, 'bzip2' is smallest but slowest. Ignored entirely when save_h5 is False. Default 'zlib'.",
       "source_sha256": "cf6a7f1590943fff70307e3accca31b3ef06bcf10271d43545ca07a833694162",
       "translation": "Þjöppunarsafn PyTables sem notað er við skrif annotated_reads.h5, sent til pandas HDFStore sem complib: 'zlib', 'lzo', 'bzip2' eða 'blosc'. 'blosc' er mun hraðara við svipaða skráarstærð, 'bzip2' er minnst en hægast. Hunsað alveg þegar save_h5 er False. Sjálfgefið 'zlib'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "optimizer_type",
-      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
-      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
-      "translation": "PyTorch-bestunaraðferð sem deep_spacr.train_model notar: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' eða 'asgd'. AdamW er traust sjálfgefið val við fínstillingu; SGD getur alhæft betur en þarf yfirleitt fleiri umferðir. amsgrad á aðeins við um Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Sjálfgefið 'adamw'."
     },
     {
       "table": "setting_tooltips",
@@ -4346,13 +4227,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cross_validation",
-      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
-      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
-      "translation": "Skora flokkarann með 5-brota lagskiptri krossprófun í stað einnar skiptingar í þjálfun/prófun, svo hver viðmiðshlutur fái spá utan brots og bestur líkindaþröskuldur sé valinn fyrir hvert brot. Gefur mun stöðugra nákvæmnismat á litlum viðmiðasöfnum, á kostnað um það bil 5x þjálfunartíma. Sjálfgefið True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "frame_interval_s",
       "source": "Seconds between consecutive timepoints, obtained from the acquisition metadata. It converts frame indices into physical time in the tracks table and displacement per frame into speed. It does not affect object linking, so an incorrect value rescales reported velocities without changing track identities. None uses the motility module's seconds_per_frame setting. Default None.",
       "source_sha256": "b567b44210fd3edc4e206dadb52e26dc2a51643dddb48619fe609c8c50f9c6f3",
@@ -4756,13 +4630,6 @@
       "source": "Start from randomly initialised weights instead of fine-tuning the pretrained model. Keep this disabled unless the training set contains enough images to fit a model without pretrained weights; fine-tuning may require tens of images, whereas training from scratch commonly requires thousands. Default False.",
       "source_sha256": "2c05cadf408ef6fbf44f5cd5b02f47398e011297e4bac29a3362c2c3d167325d",
       "translation": "Byrja frá slembifrumstilltum vægjum í stað þess að fínstilla forþjálfaða líkanið. Hafðu þetta óvirkt nema þjálfunarsafnið innihaldi nógu margar myndir til að máta líkan án forþjálfaðra vægja; fínstilling getur þurft tugi mynda, en þjálfun frá grunni þarf oft þúsundir. Sjálfgefið False."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "init_weights",
-      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
-      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
-      "translation": "Byrja grunnnetið frá ImageNet-forþjálfuðum vægjum í stað slembifrumstillingar; flokkunarhaus spaCR sem festur er ofan á er slembifrumstilltur hvort sem er. Hafðu kveikt - yfirfærslunám samleitist í mun færri umferðum á litlu merktu söfnunum sem eru dæmigerð hér. Slökktu aðeins til að þjálfa frá grunni á mjög stóru gagnasafni, eða til að mæla hve mikið forþjálfun leggur til. Sjálfgefið True."
     },
     {
       "table": "setting_tooltips",
@@ -5186,13 +5053,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "mixed_control_wells",
-      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
-      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
-      "translation": "Brunnar sem geyma þekkta blöndu jákvæðra og neikvæðra viðmiða, t.d. ['c3']. Fjarlægðir úr aðhvarfinu eins og hinir tveir. Þeir veita sterka staðfestingu því auðkenni hverrar frumu eru óþekkt en heildarhlutföllin eru þekkt úr raðgreiningu, svo hægt er að skora merkingaraðferðir á raunverulegum frekar en hermdum frumum. Sjálfgefið None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "treatment_plate_metadata",
       "source": "Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None. Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionally paired with its two initial treatment names.",
       "source_sha256": "1e7ed41533f616403bbc83f0b68a699c08538fba69c6bc3a58166fc72d01d6b7",
@@ -5305,13 +5165,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "classifier_family",
-      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
-      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
-      "translation": "Hvaða flokkara sameinaða Classify-einingin keyrir: 'cv' þjálfar Torch-líkan á myndskurðum hluta, 'ml' mátar líkan með stigulsaukningu á mældum eiginleikum. Stillingarnar sem hin fjölskyldan notar eru gráar, ekki faldar - þær halda gildum sínum. Þetta er eini Classify-skjárinn; skjáirnir tveir sem hann leysti af hólmi voru fjarlægðir 2026-08-23, og inngangspunktar þeirra (spacr.deep_spacr.deep_spacr og spacr.ml.generate_ml_scores) eru það sem þetta sendir áfram til óbreytt. Sjálfgefið 'cv'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "train_channels",
       "source": "Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b'].",
       "source_sha256": "6b4dd190ee09cb6657c690c02f589ed3b730eaf47241ead5a8390b28a5e0c8d0",
@@ -5372,13 +5225,6 @@
       "source": "Which side of 'threshold' to keep when prefiltering objects for annotation: 'higher' keeps rows whose measurement is >= the threshold, 'lower' keeps rows <= it. Give one value, or one per entry in 'measurement' (a single string is broadcast to the whole list). Default 'higher'.",
       "source_sha256": "2abda47c777beb5cf8d9c93c9c67cf2778c99a98f41674e2362964e8720bc74a",
       "translation": "Hvoru megin við 'threshold' á að halda þegar hlutir eru forsíaðir fyrir merkingu: 'higher' heldur röðum þar sem mælingin er >= þröskuldinum, 'lower' heldur röðum <= honum. Gefðu eitt gildi, eða eitt fyrir hverja færslu í 'measurement' (stakur strengur gildir um allan listann). Sjálfgefið 'higher'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "png_channel_mapping",
-      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
-      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
-      "translation": "Hvaða upprunarás fer í hvern lit vistuðu PNG-myndarinnar, t.d. {'r': 2, 'g': 1, 'b': 0}: rás 2 er rauð, 1 er græn, 0 er blá. Segir beint það sem png_dims gaf aðeins í skyn. Rásir sem ekki eru nefndar vantar í myndskurðina (mælingar verða ekki fyrir áhrifum); litur sem er látinn vera auður er tómt plan. Ef sama rás er nefnd fyrir alla þrjá er skrifuð grátóna PNG-mynd. Sjálfgefið {'r': 2, 'g': 1, 'b': 0}, sem fyrir staðlaðan 405/488/555-stafla setur kjarnalitunina í blátt."
     },
     {
       "table": "setting_tooltips",
@@ -5619,6 +5465,142 @@
       "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
       "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
       "translation": "Svörunarkvarði til að máta þegar transform er sjálft tengifall ('log' eða 'logit') og sjálfvirkt valin GLM-fjölskylda hefur einnig tengifall sem er ekki samsemd. 'untransformed' mátar mældu svörunina og lætur tengifall fjölskyldunnar umbreyta henni; notaðu þetta fyrir hlutfall sem var að óþörfu umbreytt fyrst. 'transformed' heldur umbreyttu svöruninni og mátar Gauss-líkan með samsemdartengingu. 'warn' endurskapar eldri tvöföldu umbreytingarhegðunina og prentar viðvörun. Þessi stilling hefur engin áhrif fyrir aðrar umbreytingar eða aðhvarfsgerðir. Sjálfgefið 'untransformed'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. Off by default. On, the same cell looks and measures the same wherever it sits in the field of view, which is what removes the position-dependent bias behind plate edge effects. Default False.",
+      "source_sha256": "4ed05d00194e72a09c1d332c5ed85dc000d532cac03642668a445973cf5b5c52",
+      "translation": "Meta ójafna lýsingu smásjárinnar út frá sjónsviðunum sjálfum og deila henni út úr pixlunum á hverju virku stigi. Sjálfgefið slökkt. Þegar kveikt er lítur sama fruma eins út og mælist eins hvar sem hún er í sjónsviðinu, sem er það sem fjarlægir staðsetningarháða skekkju að baki jaðaráhrifum á plötum. Sjálfgefið False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much of a well's answer is the threshold rather than the biology. Widening it widens the bracket and makes the inflation flag more eager. Default 0.25.",
+      "source_sha256": "1255dfd543285ee0d06a806fa2071a37c7024029cf484ead83e166015d7db2f0",
+      "translation": "Hlutfallsleg upphæð sem þröskuldurinn er færður upp og niður til að mynda bilið invasion_efficiency_low_threshold og _high_threshold, sem sýnir hve mikið af svari brunns ræðst af þröskuldinum frekar en líffræðinni. Breikkun breikkar bilið og gerir uppblástursflaggið ákafara. Sjálfgefið 0.25.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, so the same cell looks and measures the same wherever it sat in the field of view.",
+      "source_sha256": "5527706aefcb579d910fd5408e185faec260f6a670664fba274d262b86e5f236",
+      "translation": "Lýsingar-/flatsviðsleiðrétting. Metur ójafna lýsingu smásjárinnar einu sinni út frá sjónsviðum plötu og deilir henni út úr pixlunum á hverju virku stigi, svo sama fruma lítur eins út og mælist eins hvar sem hún var í sjónsviðinu.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source": "Image FORMAT the pre-generated crops are in, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It is a format filter and nothing else - WHICH OBJECT a crop is of is path_string's job, so the pair can express 'every nucleus crop, whatever format' and 'every TIFF, whatever object', which one combined setting never could. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "source_sha256": "698fa1e66e8e034744ce753f537985a2a2a76921adb781c60f5a82d186986022",
+      "translation": "SNIÐ fyrirframgerðu myndskurðanna, sem skráarending: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' eða 'npy'. Þetta er sniðsía og ekkert annað - HVAÐA HLUT myndskurður sýnir er hlutverk path_string, svo parið getur tjáð 'hvern kjarnaskurð, hvert sem sniðið er' og 'hverja TIFF-skrá, hver sem hluturinn er', sem ein sameinuð stilling gæti aldrei. Eldra gildi á forminu '<object>_png' er enn samþykkt og lesið sem ending þess, svo gömul stillingaskrá virkar áfram. Autt samþykkir hvaða snið sem er. Sjálfgefið 'cell_png', sem er lesið sem 'png'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
+      "translation": "Leyfa þessari keyrslu að nota skjákortið þar sem spaCR finnur nothæft kort: FFT-útreikningar reitaskráningarinnar og Cellpose-útlínurnar hafa báðar GPU-leið, og báðar falla sjálfkrafa aftur á CPU ef kortið neitar. Slökktu á þessu þegar kortið er upptekið við annað verk -- sameiginlegt GPU er algengasta tilvikið, og minnisskortur í miðri plötu kostar meira en tíminn sem GPU sparar. Sjálfgefið True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "ec828381a659bfcdf79f8c4d3b327fc8a58f133b64d82eff571c1d00ec5e3625",
+      "translation": "Lágmarkstíðni vals í bootstrap, á milli 0 og 1, til að stuðull í lasso eða elastic-net teljist marktæk niðurstaða. 0.6 þýðir að gRNA hélt stuðli sem er ekki núll í að minnsta kosti þremur fimmtu úrtakanna. Hækkaðu fyrir styttri lista sem erfiðara er að deila um; lækkun undir um 0.5 hleypir inn liðum sem refsingin fellir jafnoft út og hún heldur. Sjálfgefið 0.6. Lesið af regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Earlier versions required the name 'grna' and rejected files using alternatives such as 'sgRNA' or 'guide'. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0ceff8d66b77ab5dab0ba09525354e8c54646de65f75d8f3fdabef08ddccb2fe",
+      "translation": "Heiti dálksins í talningar-CSV sem inniheldur auðkenni leiðarans. Eldri útgáfur kröfðust heitisins 'grna' og höfnuðu skrám sem notuðu önnur heiti á borð við 'sgRNA' eða 'guide'. Stilltu þetta gildi á dálkinn sem raðgreiningarferlið býr til. Sjálfgefið 'grna'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
+      "source_sha256": "1b556e0cf7dab9d6390921233d00586c31da686f85e076a767bfaf6ebad1055a",
+      "translation": "Heiti dálksins í talningar-CSV sem geymir lestrarfjölda eins leiðara í einum brunni; hann verður hlutfallið á brunn sem fraction_threshold-skönnunin vinnur með. Var harðkóðað sem 'count' þar til nú, svo skrá sem nefndi hann 'reads' eða 'n' brást með skilaboðum sem nefndu aðeins dálkana sem spaCR bjóst við. Sjálfgefið 'count'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
+      "source_sha256": "791433b7f48309ab20b0e5702aa9e2c61d37f79af40f39c2e1116f5f4f87a85d",
+      "translation": "Fjöldi k-brota skiptinga sem notaðar eru til að þjálfa myndflokkarann í stað eins val_split-útilokunarhluta. 0 (sjálfgefið) eða 1 notar eina slembiskiptingu; 2 eða fleiri þjálfa sérstakt líkan á hvert brot, meta hvert líkan á broti sínu sem haldið var utan og tilkynna meðaltal, staðalfrávik milli brota og spönn. Þessar tölur magngreina næmi fyrir skiptingu gagnanna. Keyrslutími er um það bil í réttu hlutfalli við k. Aðskilið frá 'cross_validation', sem stýrir aðhvarfsferlinu.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "8b71f24b1754313decaaedb9ec0662e98f6368e7d4fbdaca207e9d142cc197dd",
+      "translation": "Refsivægi hópa-lasso, sem minnkar alla leiðara eins gens saman frekar en einn í einu, svo gen kemur inn í eða fer úr líkaninu sem heild en ekki eftir heppnasta leiðara sínum. Hærri gildi halda færri genum; 0 lætur mátunina vera órefsaða og neikvæðu gildi er hafnað. Stilltu á auto til að velja það með krossprófun. Sjálfgefið auto. Lesið af regression_type 'group_lasso'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. The branch in generate_image_umap is an empty pass, so enabling it skips the embedding step entirely and the run then fails on an unbound 'embedding' variable. Leave it False. Default False.",
+      "source_sha256": "af5f55916a963682e5ca5402cdcc988b677a6a5b84ad81ee0ea5b74b58c41f2a",
+      "translation": "Staðgengill fyrir greypingu hrárra myndskurða með ResNet-eiginleikum í stað mældu eiginleikatöflunnar. Greinin í generate_image_umap er tóm pass-skipun, svo ef þetta er virkjað er greypingarskrefinu sleppt alveg og keyrslan bregst síðan á óbundinni breytu 'embedding'. Hafðu þetta False. Sjálfgefið False.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the robust fine-tuning default; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "source_sha256": "f4d3a737f9eb6e8480107790f12a3cf1ba3e2689b6ee286ecfbb4afd4795e41a",
+      "translation": "PyTorch-bestunaraðferð sem deep_spacr.train_model notar: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' eða 'asgd'. AdamW er traust sjálfgefið val við fínstillingu; SGD getur alhæft betur en þarf yfirleitt fleiri umferðir. amsgrad á aðeins við um Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Sjálfgefið 'adamw'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "06fc320c7fe7f41c99ae67e754a32576cdf365219ba2635658dc478a88ae88ee",
+      "translation": "Skora flokkarann með 5-brota lagskiptri krossprófun í stað einnar skiptingar í þjálfun/prófun, svo hver viðmiðshlutur fái spá utan brots og bestur líkindaþröskuldur sé valinn fyrir hvert brot. Gefur mun stöðugra nákvæmnismat á litlum viðmiðasöfnum, á kostnað um það bil 5x þjálfunartíma. Sjálfgefið True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head bolted on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "c40fc866ef87fd783e93d0d2087a5333c4670353778184f0f7b483dd061a6005",
+      "translation": "Byrja grunnnetið frá ImageNet-forþjálfuðum vægjum í stað slembifrumstillingar; flokkunarhaus spaCR sem festur er ofan á er slembifrumstilltur hvort sem er. Hafðu kveikt - yfirfærslunám samleitist í mun færri umferðum á litlu merktu söfnunum sem eru dæmigerð hér. Slökktu aðeins til að þjálfa frá grunni á mjög stóru gagnasafni, eða til að mæla hve mikið forþjálfun leggur til. Sjálfgefið True.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. These provide strong validation because per-cell identities are unknown while the aggregate proportions are known from sequencing, allowing annotation methods to be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "e4339fcf5c57332d46128f4b0b3990ee194084e6fe34670f2bdeb3007fb3fcdc",
+      "translation": "Brunnar sem geyma þekkta blöndu jákvæðra og neikvæðra viðmiða, t.d. ['c3']. Fjarlægðir úr aðhvarfinu eins og hinir tveir. Þeir veita sterka staðfestingu því auðkenni hverrar frumu eru óþekkt en heildarhlutföllin eru þekkt úr raðgreiningu, svo hægt er að skora merkingaraðferðir á raunverulegum frekar en hermdum frumum. Sjálfgefið None.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. This is the only Classify screen; the two it replaced were removed on 2026-08-23, and their entry points (spacr.deep_spacr.deep_spacr and spacr.ml.generate_ml_scores) are what this dispatches to unchanged. Default 'cv'.",
+      "source_sha256": "181c9e9f4aff40d8c90b7ab99a3cb0ad8ba3b6ad53be80d131fd0f38d33fbe5d",
+      "translation": "Hvaða flokkara sameinaða Classify-einingin keyrir: 'cv' þjálfar Torch-líkan á myndskurðum hluta, 'ml' mátar líkan með stigulsaukningu á mældum eiginleikum. Stillingarnar sem hin fjölskyldan notar eru gráar, ekki faldar - þær halda gildum sínum. Þetta er eini Classify-skjárinn; skjáirnir tveir sem hann leysti af hólmi voru fjarlægðir 2026-08-23, og inngangspunktar þeirra (spacr.deep_spacr.deep_spacr og spacr.ml.generate_ml_scores) eru það sem þetta sendir áfram til óbreytt. Sjálfgefið 'cv'.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
+      "translation": "Hvaða upprunarás fer í hvern lit vistuðu PNG-myndarinnar, t.d. {'r': 2, 'g': 1, 'b': 0}: rás 2 er rauð, 1 er græn, 0 er blá. Segir beint það sem png_dims gaf aðeins í skyn. Rásir sem ekki eru nefndar vantar í myndskurðina (mælingar verða ekki fyrir áhrifum); litur sem er látinn vera auður er tómt plan. Ef sama rás er nefnd fyrir alla þrjá er skrifuð grátóna PNG-mynd. Sjálfgefið {'r': 2, 'g': 1, 'b': 0}, sem fyrir staðlaðan 405/488/555-stafla setur kjarnalitunina í blátt.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ],
   "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."

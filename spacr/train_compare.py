@@ -1,12 +1,11 @@
-"""Overlay several training runs' curves and say exactly what differed between them.
+"""Overlay several training runs' curves and report how their settings differ.
 
-Why this exists
+Purpose
 ---------------
-Picking a classifier in spaCR means training it, writing down the number,
-changing a knob, training it again, and then trying to remember which of the
-six things you touched is the one that moved the number. The provenance diff
-(:func:`spacr.run_journal.diff_runs`) answers "what changed"; this module
-answers "and what did it do to the curves", on one axis, next to the diff.
+Choosing a classifier in spaCR involves several training runs with different
+settings. The provenance diff (:func:`spacr.run_journal.diff_runs`) answers
+"what changed"; this module answers "and what did it do to the curves", on one
+axis, next to the diff.
 
 What is on disk, and therefore what can be shown
 ------------------------------------------------
@@ -40,12 +39,12 @@ somebody else's settings as this run's provenance, so the settings diff would
 show differences nobody configured and the answer would depend on where in the
 filesystem the project happened to sit. See :func:`_owns_this_run`.
 
-Judgement calls baked in
+Design decisions
 ------------------------
 **Runs of different length are never aligned.** Each series is plotted over its
 own epoch axis. Truncating a 60-epoch run to match a 25-epoch neighbour invents
-a result ("B never got better") and padding invents a different one; both are
-worse than a legend that says one run is longer.
+a result ("B never got better") and padding invents a different one; the legend
+shows the run lengths instead.
 
 **Train and validation are never silently mixed.** Every series label carries
 run, split and fold, and :func:`plot_curves` annotates the axes when more than
@@ -61,9 +60,9 @@ stopping), the mean carries an ``n_folds`` column so a tail computed from two of
 five folds is visible rather than implied.
 
 **Best-epoch and last-epoch are both reported, always.** The best epoch of a
-validation curve is chosen *using* that curve, so it is an optimistically biased
-estimate of held-out performance; the last epoch is unbiased but may be well
-past the optimum. Reporting either one alone is a way to be wrong.
+validation curve is chosen *using* that curve, so it is an optimistically
+biased estimate of held-out performance; the last epoch is unbiased but may be
+well past the optimum.
 
 **The settings diff reuses the provenance bucketing.** A flat key-by-key diff of
 two real runs reports ~200 differences, of which none are decisions anybody
@@ -80,8 +79,8 @@ the same three buckets:
     keys absent from at least one run — schema drift between spaCR releases,
     summarised rather than enumerated.
 
-Two runs whose settings match say "no differences" in so many words; an empty
-table reads like a failure.
+Two runs whose settings match report "no differences" explicitly, because an
+empty table could be read as a failure.
 
 **Broken run folders are reported, not fatal.** A folder with no curves, no
 settings, or a header-only (zero-epoch) log is loaded anyway, carries a note
@@ -209,7 +208,7 @@ def metric_direction(name: Any) -> Optional[str]:
 
     ``None`` means "no meaningful best" — ``optimal_threshold`` and
     ``train_time`` are recorded per epoch but neither has a direction, and
-    calling the largest one "best" would be a fabrication.
+    calling the largest one "best" would be meaningless.
     """
     n = str(name).strip().lower()
     if "loss" in n or "error" in n:
@@ -224,7 +223,7 @@ def metric_direction(name: Any) -> Optional[str]:
 
 @dataclass
 class TrainingRun:
-    """One training run's curves, settings and complaints.
+    """One training run's curves, settings and notes.
 
     :param run_id: human-readable run identifier; :func:`find_runs` makes it
         unique within the returned scan.
@@ -925,8 +924,8 @@ def find_runs(root: Any, max_depth: int = DEFAULT_SCAN_DEPTH,
     what the caller asked for.
 
     Runs that are broken (no curves, no settings, zero-epoch log) are returned
-    with their notes rather than skipped: a scan that silently drops the folder
-    you were looking for is worse than one that tells you what is wrong with it.
+    with their notes rather than skipped, so a scan never silently drops a
+    folder.
 
     :param root: folder to scan (may itself be a run folder).
     :param max_depth: how deep below ``root`` to look.
@@ -1274,9 +1273,17 @@ def _curve_frame(comparison, metric: str) -> pd.DataFrame:
     :param metric: the metric column drawn.
     :returns: the rows every drawn curve was made from.
     """
-    rows = [pd.DataFrame({"epoch": s.epochs, metric: s.values(metric),
-                          "series": s.label, "split": s.split})
-            for s in comparison.series if s.has(metric)]
+    rows = []
+    for series in comparison.series:
+        frame = series.frame.copy()
+        frame['series'] = series.label
+        frame['split'] = series.split
+        frame['run_id'] = series.run_id
+        frame['fold'] = series.fold
+        frame['kind'] = series.kind
+        if 'n_folds' not in frame:
+            frame['n_folds'] = series.n_folds
+        rows.append(frame)
     return (pd.concat(rows, ignore_index=True) if rows
             else pd.DataFrame(columns=["epoch", metric, "series", "split"]))
 
@@ -1319,15 +1326,17 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
             fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
-    from .figures.bundle import _register_figure_data
-    _register_figure_data(fig, lambda: _curve_frame(comparison, metric),
-                          x="epoch", y=metric, hue="series", kind="line")
-
     wanted = comparison.series
     if labels is not None:
         keep = list(labels)
         wanted = [s for s in wanted if s.label in keep]
     drawn = [s for s in wanted if s.has(metric)]
+    from .figures.bundle import _register_figure_data
+    recipe = {'curves': [], 'band': bool(band), 'mark_best': bool(mark_best),
+              'direction': metric_direction(metric)}
+    _register_figure_data(fig, lambda: _curve_frame(comparison, metric),
+                          x="epoch", y=metric, hue="series", kind="line",
+                          training_curves=recipe)
 
     mapping: Dict[str, Series] = {}
     if not drawn:
@@ -1350,17 +1359,22 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
         line, = ax.plot(eps, vals, style, color=colour, linewidth=width,
                         alpha=alpha, label=s.label)
         line.set_picker(6)
+        recipe['curves'].append({'label': s.label, 'kind': s.kind,
+                                'color': colour, 'linestyle': style,
+                                'linewidth': width, 'alpha': alpha})
         mapping[s.label] = s
         if band and s.kind == "mean":
             sd = s.sd(metric)
             if sd is not None and np.isfinite(sd).any():
-                ax.fill_between(eps, vals - sd, vals + sd, color=colour,
-                                alpha=0.15, linewidth=0)
+                area = ax.fill_between(eps, vals - sd, vals + sd, color=colour,
+                                       alpha=0.15, linewidth=0)
+                area.set_gid('spacr-training-band:' + s.label)
         if mark_best:
             best = s.best(metric)
             if best is not None:
-                ax.plot([best["epoch"]], [best["value"]], "o", color=colour,
-                        markersize=5, alpha=alpha)
+                marker, = ax.plot([best["epoch"]], [best["value"]], "o",
+                                  color=colour, markersize=5, alpha=alpha)
+                marker.set_gid('spacr-training-best:' + s.label)
 
     ax.set_xlabel("epoch")
     ax.set_ylabel(metric)
@@ -1422,8 +1436,8 @@ def format_comparison(comparison: Comparison, metric: str = "accuracy",
 
     Ordering mirrors :func:`spacr.run_journal.format_run_diff`: the runs, then
     the curves, then the settings that changed (the signal), then environment
-    drift, then schema drift reduced to one line. Problems come first, because
-    a run with no curves in the list is the thing you most need to know.
+    drift, then schema drift reduced to one line. Problems come first, so a run
+    with no curves is reported before anything else.
 
     Both the last-epoch and the best-epoch value of ``metric`` are printed for
     every series, with the caveat that makes the second one interpretable.

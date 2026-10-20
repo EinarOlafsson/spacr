@@ -1,0 +1,74 @@
+{
+  "reviewer": "Original Home root independent AI technical peer; no native/human signoff",
+  "decision": "Approved exact8 current targets plus exact Korean correction, normal gates still required",
+  "semantic_review": "All9 read: measurement tables, registered object roles including organelles, optional png_list, nonempty distinct supported list with object anchor and exact original4-table default retained. No join/cohort/scientific claim added.",
+  "files": [
+    {
+      "language": "sv",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/sv.json",
+      "snapshot_sha256": "21ca985991e3ba4209a2cd9477dbeaa1c9a43cfd8f77df6f3cd29925819bbb98",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "4c2ad9e70e7a567f697a2b9ef814773011a450a2ddb7b81e01770d2e411dd00b"
+    },
+    {
+      "language": "de",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/de.json",
+      "snapshot_sha256": "f32fcba4c33cc1e0e79e53b4fdf81656dd1ede333a1ba225092f757a43d8cc9b",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "9210b56675757f67812981712b132413024cf8f25f297b98bff06a0337c7ca85"
+    },
+    {
+      "language": "es",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/es.json",
+      "snapshot_sha256": "2e09794fff28f8982079388b6e11029135fcfc6ec15871b0d63ed33294af3139",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "b2a5a09d214eb5d44361ab68699631909d93e3c45eafc533a2e90978bed7a394"
+    },
+    {
+      "language": "zh_CN",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/zh_CN.json",
+      "snapshot_sha256": "5c900ad3d0c5484f770d5fbb329350a47f3e9826c94d71bb28da40051213fdec",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "63e20290804cf965ea8fcb3e9defbfb8eba4f0dd034bf762796ba6fb21f5a15b"
+    },
+    {
+      "language": "pt",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/pt.json",
+      "snapshot_sha256": "5b9cf779f91fd17d202e856588e265910718c40b43b2f0d408d13b4efcb864bf",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "e61c129f0df3d402df167781fa7cd28722838fc38492362b1cdba9ad4bd0520b"
+    },
+    {
+      "language": "hi",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/hi.json",
+      "snapshot_sha256": "f223c7e4684eacfef6318ad62f149a9149455f88635b4cc2c269ad634a3c8fbd",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "9609eb00be1a484572907c5a9b1d19052bc904402d7d48310b3aa84109c4b68a"
+    },
+    {
+      "language": "ko",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/ko.json",
+      "snapshot_sha256": "12d4984f6deabd5e4975801c84d8ff36638d8ee97c1082ada0e55ff0e29fcc64",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "9c6f6fbfd8bf74f16273bccfd4c58849ec85a534a218d8ca40fa1a24f933742d",
+      "old_translation": "각 플레이트의 데이터베이스에서 읽어 하나의 분석 데이터 프레임으로 병합할 측정 테이블입니다. 세포소기관을 포함한 등록된 객체 역할과 png_list가 지원됩니다. 표 기반 Classify에서는 객체 역할 테이블을 하나 이상 포함하며 서로 중복되지 않는 지원 테이블의 비어 있지 않은 목록을 선택하세요. 기본값 ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "approved_translation": "각 플레이트의 데이터베이스에서 읽어 하나의 분석 데이터 프레임으로 병합할 측정 테이블입니다. 세포소기관을 포함한 등록된 객체 역할과 png_list 테이블이 지원됩니다. 표 기반 Classify에서는 객체 역할 테이블을 하나 이상 포함하며 서로 중복되지 않는 지원 테이블의 비어 있지 않은 목록을 선택하세요. 기본값 ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
+      "approved_translation_sha256": "7434aa251c1b1fa3afa259843d6613eb14d0c712fa6a0ecbff8ad5dc83af940e",
+      "reason": "Separate grammatical particle from protected table identifier using explicit table noun; meaning unchanged."
+    },
+    {
+      "language": "is",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/is.json",
+      "snapshot_sha256": "f0c2bb0d172c24ffa1cb06ee84750f140d1897c018a0f6505b9b2f3d4f5a3ded",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "f3ecbcb1ec8a13ae2cba96ed10434b907473ffcbaa0729a15423830e16616ef2"
+    },
+    {
+      "language": "fr",
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-n594-table-selection-audit-20261015/features/data/594_existing_table_selection_2026-10-15/fr.json",
+      "snapshot_sha256": "5a74c2ae1f176c15c83676a8ed73544560beb817ed7aca245c486b4207dbb014",
+      "source_sha256": "ae80ba99c469953dc414682864e9352b45e99622f2f0d11ed457d06c1e9f825a",
+      "translation_sha256": "041edb62e397b9b39a7b39c72e5129494a13db0485b3cba8ed24a9fee4d11ea9"
+    }
+  ]
+}

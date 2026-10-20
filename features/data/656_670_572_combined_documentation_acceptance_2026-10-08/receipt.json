@@ -91,7 +91,7 @@
       "implementation_equal_8cc": true
     },
     {
-      "path": "spacr/_starplast.py",
+      "path": "spacr/_parascape.py",
       "base8cc_sha256": "966560566f6c0a8f26e076f46c847e57259b5da854673cfd222e1c8338118ab9",
       "current_sha256": "966560566f6c0a8f26e076f46c847e57259b5da854673cfd222e1c8338118ab9",
       "normal_generated_index": false,
@@ -2779,7 +2779,7 @@
       "implementation_equal_8cc": true
     },
     {
-      "path": "spacr/qt/starplast.py",
+      "path": "spacr/qt/parascape.py",
       "base8cc_sha256": "06d7fdde84d722068da77a866305db5d23274cd8b925b7b969b046c7e8d5e72f",
       "current_sha256": "06d7fdde84d722068da77a866305db5d23274cd8b925b7b969b046c7e8d5e72f",
       "normal_generated_index": false,

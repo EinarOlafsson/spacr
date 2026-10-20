@@ -11,19 +11,18 @@ that lights up the parasite tells you the model attends to the parasite; it
 does not tell you whether it is responding to the parasite's size, its
 brightness, or how far it sits from the nucleus.
 
-**Fidelity is reported first, and it is not a formality.** A surrogate that
-cannot reproduce the CV model's decisions has explained nothing, and its
-feature ranking is a ranking of how the features predict each other. That
-number is the one people skip, so :class:`SurrogateResult` puts it before
-the importances and :meth:`SurrogateResult.summary` refuses to lead with
+**Fidelity is reported first.** A surrogate that cannot reproduce the CV
+model's decisions has explained nothing, and its feature ranking is a ranking
+of how the features predict each other. So :class:`SurrogateResult` puts it
+before the importances and :meth:`SurrogateResult.summary` refuses to lead with
 anything else.
 
 **Three importances, because they disagree.**
 
 * *gain* — cheap, comes free with the fit, and is biased towards
   high-cardinality features. Read it last.
-* *permutation* — measured on held-out data by breaking one feature at a
-  time. Costs a re-scoring per feature and is worth it.
+* *permutation* — measured on held-out data by breaking one feature at a time.
+  Costs a re-scoring per feature.
 * *SHAP* — additive per-object attributions. The only one that says which
   direction a feature pushed a particular object, and the one that connects
   to :mod:`spacr.attribution`'s pixel-level story if that gains the SHAP
@@ -109,12 +108,12 @@ _IDENTIFIER_COLUMNS: Tuple[str, ...] = (
 
 
 class SurrogateError(RuntimeError):
-    """The surrogate cannot be built, or cannot be believed."""
+    """Raised when the surrogate cannot be built from the given inputs."""
 
 
 @dataclass
 class SurrogateResult:
-    """What the surrogate learned, with the caveat attached.
+    """Surrogate fit result: fidelity, importances and provenance.
 
     :param fidelity: held-out accuracy at reproducing the CV model.
     :param baseline: the accuracy of always guessing the commonest class.
@@ -226,8 +225,7 @@ class SurrogateResult:
         return self.importance.sort_values(column, ascending=False).head(n)
 
     def summary(self, n: int = 15) -> str:
-        """A report that leads with the caveat, because the caveat decides
-        whether the rest is worth reading."""
+        """Return a text report that starts with the fidelity caveat."""
         lines = [
             "Surrogate model of the CV classifier",
             "=" * 44,
@@ -563,7 +561,7 @@ def fit_surrogate(frame: pd.DataFrame, *, test_size: float = 0.3,
     :param random_seed: fixed, so a reported ranking can be reproduced.
     :param n_repeats: permutation repeats per feature.
     :param shap_max_samples: SHAP is O(rows); this caps the explained sample
-        and the cap is REPORTED rather than applied silently.
+        and the cap is reported rather than applied silently.
     :param exclude: extra feature columns to drop.
     :param split_by: acquisition unit held intact between surrogate fitting
         and fidelity measurement. Default ``'well'``.

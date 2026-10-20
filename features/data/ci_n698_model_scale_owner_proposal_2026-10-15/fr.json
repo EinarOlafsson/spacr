@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical translation draft; independent peer pending; no native-speaker or human signoff",
+  "review": "OWNER PROPOSAL ONLY. Flow/vector field or cell-probability map is unavailable at input-image size because resampling is disabled and output remains at model scale. Preserve literal resample off. Not model quality, pixel calibration, or inference acceptance. Claude N698 must adopt before installation.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "computed at the model scale (resample off), not the image size",
+      "source": "computed at the model scale (resample off), not the image size",
+      "source_sha256": "f718da0368097ff3495ed348a926d147765a46d39a7aaec4c2314af051b141ec",
+      "translation": "calculé à l’échelle du modèle (resample off), pas aux dimensions de l’image"
+    }
+  ]
+}

@@ -1,11 +1,11 @@
-"""Everything in spaCR that is addressable by name, and how to rank it.
+"""Build and rank the index of everything in spaCR that is addressable by name.
 
-The search field beside the Help menu is only as good as
-this: a user who knows what a thing is CALLED should reach it without knowing
-which module owns it or which collapsed heading it was filed under.
+The index backs the search field beside the Help menu, so a user who knows
+what a thing is called can reach it without knowing which module owns it or
+which collapsed heading it is filed under.
 
-THE INDEX IS NEVER A HAND LIST. Every row here is derived from something that
-already decides the answer:
+The index is not maintained by hand. Every row is derived from an existing
+source:
 
 ======================  ====================================================
 kind                    where the rows come from
@@ -21,20 +21,19 @@ kind                    where the rows come from
                         the preferences dialog
 ======================  ====================================================
 
-A setting that cannot be found is then a fact about a generator rather than
-about whether somebody remembered to add a row, which is the whole argument of
-the instruction.
+A setting that cannot be found therefore points to a defect in a generator,
+not to a hand-written row that was never added.
 
-ADDING A KIND IS REGISTERING A PROVIDER, not editing a switch. A provider is
-``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and
-:func:`build_index` calls each of them behind its own guard, so a provider
-that raises costs its own rows and nothing else. What a result DOES when it is
-opened is registered the same way, in :mod:`spacr.qt.help_search`.
+A new kind is added by registering a provider, not by editing a switch. A
+provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one
+and :func:`build_index` calls each of them behind its own guard, so a provider
+that raises loses only its own rows. What a result does when it is opened is
+registered the same way, in :mod:`spacr.qt.help_search`.
 
-IMPORTING THIS COSTS NOTHING; BUILDING THE INDEX COSTS A SECOND. Every
+Importing this module is cheap; building the index takes about a second. Every
 registry is imported inside the provider that reads it, so the module itself
-pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and
-13,000 rows on this tree, which is far too much for the GUI thread --
+imports neither Qt nor ``spacr.settings``. Building the index took 1.1 s and
+produced 13,000 rows on this tree, which is too slow for the GUI thread --
 :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this
 module stays testable without a display.
 """
@@ -70,8 +69,8 @@ class HelpEntry:
         name, a dotted API symbol, a preference label.
     :ivar subtitle: where it lives. "in Mask ▸ Cell Segmentation" for a
         setting, "Preferences ▸ Animation" for a preference.
-    :ivar description: what it does, in the language the user thinks in. It
-        is matched on, which is what makes "touching" find
+    :ivar description: a plain-language description of what it does. It is
+        matched on, which is what makes "touching" find
         ``merge_edge_pathogen_cells``.
     :ivar payload: what the opener needs and nothing more -- an app key, a
         setting key, a dotted symbol, a tab object name.
@@ -84,17 +83,17 @@ class HelpEntry:
     :ivar description_source: the same for :attr:`description`.
     :ivar description_values: the same for :attr:`description`.
 
-    WHY A TEMPLATE AND NOT THE FINISHED STRING. ``subtitle`` and
-    ``description`` are what the search MATCHES on, so they stay English:
-    the query and the haystack have to be in one language, and the index is
-    built once per session while the interface language can change after it.
-    What the user READS is rendered from the template at the moment a row is
-    drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with
-    :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up
-    by the next keystroke and this module still imports no Qt and no
-    catalog. "API reference" is the subtitle of ten thousand of the rows; a
-    finished English string here is a wholly English result list for every
-    reader who does not work in English.
+    Templates are stored instead of finished strings. ``subtitle`` and
+    ``description`` are what the search matches on, so they stay English:
+    the query and the haystack must be in one language, and the index is
+    built once per session while the interface language can change
+    afterwards. The text shown to the user is rendered from the template
+    when a row is drawn, by :func:`rendered_subtitle` and
+    :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in, so
+    a language change takes effect at the next keystroke and this module
+    imports neither Qt nor a catalog. "API reference" is the subtitle of
+    about ten thousand rows; storing it as a finished English string would
+    show those rows in English in every interface language.
     """
 
     kind: str
@@ -231,9 +230,9 @@ def provider_names() -> Tuple[str, ...]:
 def build_index(names: Optional[Sequence[str]] = None) -> List[HelpEntry]:
     """Run every provider and collect what they know.
 
-    Each provider is guarded on its own: a search field that loses its
-    settings because the API manifest could not be read is worse than one
-    that quietly offers fewer kinds.
+    Each provider is guarded on its own: a provider that raises (for
+    example because the API manifest cannot be read) is logged and skipped,
+    and the other kinds are still returned.
 
     :param names: providers to run; all of them when ``None``.
     :returns: every entry, in provider order.
@@ -351,9 +350,8 @@ def _term_score(term: str, entry: HelpEntry) -> Optional[float]:
 def score(entry: HelpEntry, terms: Sequence[str]) -> Optional[float]:
     """The entry's score for a whole query, or ``None`` when a term misses.
 
-    Terms are ANDed, the same rule the per-module settings search uses:
-    typing a second word must narrow, because otherwise typing more is a way
-    of getting more results, which is the opposite of what typing means.
+    Terms are ANDed, the same rule the per-module settings search uses, so
+    each additional word narrows the results.
 
     :param entry: the candidate.
     :param terms: lowercased query terms.
@@ -497,19 +495,17 @@ def module_entries() -> List[HelpEntry]:
 def setting_entries() -> List[HelpEntry]:
     """One entry per module a setting appears in, plus its API consumers.
 
-    ONE ROW PER MODULE: a setting in four modules is four rows,
-    each naming its module and the category it sits under, rather than one
-    row that then asks which. The user already knows which module they meant;
-    a row that asks is a second click for information the list could have
-    shown.
+    One row per module: a setting in four modules gives four rows, each
+    naming its module and the category it sits under, so the module can be
+    chosen from the list without a second click.
 
-    THE API HALF OF A SETTING IS NOT EMITTED HERE. ``SETTING_CONSUMERS``
+    API rows for a setting are not emitted here. ``SETTING_CONSUMERS``
     names every addressable function that reads a key, and
     :func:`api_entries` folds that into the API row for each of those
-    functions -- one row per symbol, saying which settings it reads. Emitting
-    them from both providers listed ``spacr.io.preprocess_img_data`` once for
-    itself and once for every setting it reads, which was eleven identical
-    rows in one result list.
+    functions -- one row per symbol, saying which settings it reads.
+    Emitting them from both providers would list a function such as
+    ``spacr.io.preprocess_img_data`` once for itself and once for every
+    setting it reads (eleven identical rows in one result list).
 
     :returns: ``kind="setting"`` entries carrying ``{"app", "key",
         "category"}``.

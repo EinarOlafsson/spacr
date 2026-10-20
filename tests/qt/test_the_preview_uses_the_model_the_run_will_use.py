@@ -24,6 +24,7 @@ properties tested here are:
 from __future__ import annotations
 
 from spacr.model_zoo import _mask_model_kinds
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
 
 #: What a Mask-generation model field asks the zoo for: Cellpose-SAM,
 #: Cellpose 3, Cellpose-DINO and each prefixed backend (items 551-553).
@@ -154,13 +155,27 @@ def test_a_model_the_user_picked_survives_an_object_switch(panel, tmp_path,
     panel._object_box.setCurrentText("cell")
     panel.apply_settings({"cell_model_name": str(cell),
                           "pathogen_model_name": "cpsam"})
-    monkeypatch.setattr(picker, "choose_model", lambda *a, **k: str(chosen))
+    from types import SimpleNamespace
+
+    from PySide6.QtWidgets import QDialog
+
+    calls = []
+
+    def choose(kinds, parent):
+        calls.append((kinds, parent))
+        return SimpleNamespace(exec=lambda: QDialog.Accepted,
+                               chosen_path=lambda: str(chosen),
+                               _chosen_reference=None)
+
+    monkeypatch.setattr(picker, "ModelZooPicker", choose)
     panel._choose_a_preview_model()
     assert panel._model_box.currentText() == str(chosen)
 
     panel._object_box.setCurrentText("pathogen")
     assert panel._model_box.currentText() == str(chosen), (
         "the panel overwrote a checkpoint the user had just chosen")
+    assert calls == [(MASK_KINDS, panel)]
+    assert panel._selected_model_reference is None
 
 
 def test_the_bare_model_name_still_seeds_the_modules_that_use_it(panel):
@@ -318,15 +333,29 @@ def test_the_preview_offers_only_cellpose_models(panel, monkeypatch):
     here produces a preview that fails the moment it is selected. Cellpose 3
     rows are offered since item 503 and Cellpose-DINO rows since item 525:
     the pass segments each in its own backend, as the run does."""
+    from types import SimpleNamespace
+
+    from PySide6.QtWidgets import QDialog
+
     import spacr.qt.widgets.model_zoo_picker as picker
 
     seen = {}
-    monkeypatch.setattr(
-        picker, "choose_model",
-        lambda parent=None, kinds=None: seen.update(kinds=kinds))
+    previous = panel._model_box.currentText()
+    previous_reference = panel._selected_model_reference
+
+    def choose(kinds, parent):
+        seen.update(kinds=kinds, parent=parent)
+        return SimpleNamespace(exec=lambda: QDialog.Rejected,
+                               chosen_path=lambda: pytest.fail("Cancelled picker path was read"),
+                               _chosen_reference=None)
+
+    monkeypatch.setattr(picker, "ModelZooPicker", choose)
     panel._choose_a_preview_model()
 
     assert seen["kinds"] == MASK_KINDS
+    assert seen["parent"] is panel
+    assert panel._model_box.currentText() == previous
+    assert panel._selected_model_reference is previous_reference
 
 
 # --------------------------------------------------------------------------
@@ -477,13 +506,17 @@ def test_the_plaque_preview_follows_the_real_screens_default(
 
 def test_an_unset_plaque_model_means_what_the_run_takes_it_to_mean(
         module_panel, tmp_path, monkeypatch, no_download):
-    """``None`` is the run's default, the v2 zoo model since 2026-09-21. A
-    copy already on this machine -- under a HOME the test controls -- is what
-    the preview previews, and nothing is downloaded to find it."""
+    """``None`` is the run's default zoo model (v3, the gel-doc model, since
+    6fc7353a1). A copy already on this machine -- under a HOME the test
+    controls -- is what the preview previews, and nothing is downloaded to
+    find it."""
     import spacr.submodules as sm
+    from spacr import model_zoo
 
+    default = next(entry for entry in model_zoo.catalogue()
+                   if entry.key == sm.DEFAULT_PLAQUE_MODEL)
     monkeypatch.setenv("HOME", str(tmp_path))
-    local = tmp_path / ".spacr" / "models" / "cpsam_plaque_r5"
+    local = tmp_path / ".spacr" / "models" / default.name
     local.parent.mkdir(parents=True)
     local.write_bytes(b"w")
     assert sm._requested_plaque_model({"plaque_model": None}) == (
@@ -749,3 +782,42 @@ def test_the_track_preview_segments_with_the_tracked_objects_run_model(
             f"{track.current_params()['model']!r}")
     finally:
         track.deleteLater()
+
+
+# --------------------------------------------------------------------------
+# Item 696: the preview segments at the diameter the run segments at
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("stored", [None, "auto", 0, 75])
+@pytest.mark.parametrize("obj", ["cell", "nucleus", "pathogen"])
+def test_the_preview_uses_the_diameter_the_run_will_use(panel, monkeypatch,
+                                                        stored, obj):
+    """One rule for both: blank is the magnification default, 0 and auto
+    are Cellpose estimating it, a number is itself."""
+    from spacr.object import _eval_diameter
+    from spacr.qt.widgets import live_preview as LP
+    from spacr.utils import _get_diam
+
+    calls = []
+
+    class _Model:
+        def eval(self, image, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0,
+                 stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            calls.append(diameter)
+            return np.zeros(np.asarray(image).shape[:2], np.int32), [None]
+
+    monkeypatch.setattr(LP, "preview_cellpose_model", lambda name: _Model())
+    panel.apply_settings({"magnification": 20, f"{obj}_channel": 0,
+                          f"{obj}_diameter": stored})
+    panel._object_box.setCurrentIndex(panel._object_box.findData(obj))
+    panel._image = np.zeros((8, 8), dtype=np.uint16)
+    request = panel._build_request()
+    LP._segment_multi(request)
+
+    run = _eval_diameter(stored, obj, _get_diam(20, obj))
+    assert calls[-1] == run

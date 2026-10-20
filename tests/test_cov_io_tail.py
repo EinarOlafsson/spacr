@@ -1026,7 +1026,7 @@ def test_convert_separate_files_skips_unmatched_and_wellless(tmp_path):
     IO.convert_separate_files_to_yokogawa(str(folder), regex)
 
     assert list(folder.glob("plate*.tif")) == []
-    assert (folder / "rename_log.csv").read_text().strip() == ""
+    assert (folder / "rename_log.csv").read_text(encoding="utf-8").strip() == ""
 
 
 def test_convert_separate_files_overflows_onto_second_plate(tmp_path):

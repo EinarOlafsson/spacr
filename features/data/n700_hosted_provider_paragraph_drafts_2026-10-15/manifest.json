@@ -1,0 +1,49 @@
+{
+  "source_file": "spacr/qt/ai/providers.py",
+  "source_file_sha256": "88eaf32a8ff9b158e4a900e4dc03f39ea3023aaf33003be612a0eb0bbb717725",
+  "tool_file": "tools/build_documentation_i18n.py",
+  "tool_file_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "normal_context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "normal_context_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "drafts": {
+    "sv": {
+      "file": "sv.json",
+      "sha256": "831f44a0d13ed02378231e08f79a1bf5e27f29c9da18331ce90e34443c73f837"
+    },
+    "de": {
+      "file": "de.json",
+      "sha256": "840dd54e53f28515686276862df96e8aa35612d6d626409a8964c192f9c4777d"
+    },
+    "es": {
+      "file": "es.json",
+      "sha256": "50d2058737d735cbd475abec6a0e9b203b4efe2ad7db07431a943f731e0f7977"
+    },
+    "fr": {
+      "file": "fr.json",
+      "sha256": "c2c1cab43dc94494b6d712d7dd7345e9085ce12a8eadf0b5165e22f7107bfc96"
+    },
+    "pt": {
+      "file": "pt.json",
+      "sha256": "81ad157a76066e5709bda8b083b54df49ab56bb540f350897138cd0302ac7907"
+    },
+    "hi": {
+      "file": "hi.json",
+      "sha256": "fed3480c9bb2d8f48e9dcea9bab5c082195ca834c3e0d0da85863687865e1397"
+    },
+    "ko": {
+      "file": "ko.json",
+      "sha256": "67220631d3f41d3d4ed3b7bbfebb00a9920afecf46816a0133df85af7732b6da"
+    },
+    "is": {
+      "file": "is.json",
+      "sha256": "6d463804b4196bf59ed1bbb092e447638f871143f9cdef45775f05d1df8520fc"
+    },
+    "zh_CN": {
+      "file": "zh_CN.json",
+      "sha256": "e8e2585d751ddceeb307c5ebd420d1c3f467083f7de44d8811fdeb82adc9ec24"
+    }
+  },
+  "scope": "Nine new HostedProvider module paragraph targets only. No installed inputs/catalog writes or retranslation of seven unchanged historical blocks."
+}

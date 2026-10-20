@@ -1,0 +1,5 @@
+Whole15turn57 and exactfailedclipretry finish app0/recorder0/failure null/cleanup survivors[]. Strictunion14of15; only25Interactive fails because realActions focuspolicy collapsesitscontrol, olddriverclickedhidden AiToggleLabel. Noappfreeze; actual400point fit+record/crop lineage verified separately, whole/nativefalse.
+
+Held a6727b94d63f43df9309b7940275f01b5e56d3f5 uses publicActions heading scroll/click then visiblepointer toggle/readback; alreadycorrectstate noextraaction, hidden/disabled failclosed. No widget.show/privatevisibilitymutation/app/gate/prefchanges. ActualAppScreenFocusCollapse+realAiToggle tests3PASS2.65s/footer0; independent sourcepeerPASS. Rawfailedgatesunchanged. FreshWHOLE58 willrecordcleanhelda672; no57nativeacceptance/audio/publication.
+
+Savedscienceaudit400records/crops matchDBidentities/pre-runhashes andcurrentCSV/PDF; cluster0forall400 (no biologyclaim), fixedseed42forcesUMAPinternaln_jobs1 despiteconfigured2. Finite400x2coordinates pinnedexecutedrecorderassertion/console, not independentlysavedcoordinatearrays. Keepthese limits. Home review/importnarrowpatch preservingnewerwork/priorfixes.

@@ -100,9 +100,8 @@ def uniprot_accessions() -> Dict[str, str]:
     Cached: it is read to build one line of a gene tile, which happens every
     time a point is clicked.
 
-    Returns an empty mapping rather than raising when the file is absent --
-    a screen of another organism has no reason to carry it, and a gene tile
-    without a UniProt line is still a gene tile.
+    Returns an empty mapping rather than raising when the file is absent -- a
+    screen of another organism has no reason to carry it.
     """
     out: Dict[str, str] = {}
     try:
@@ -315,10 +314,8 @@ def is_toxoplasma_gene_id(gene: Any) -> bool:
 
     :param gene: a bare gene id (``239740``), an accession (``TGGT1_239740``),
         or anything at all.
-    :returns: ``True`` for a Toxoplasma-shaped id. The point of the check is
-        the negative: an id from a screen of some other organism must not be
-        handed a ToxoDB link, because a link to a record that does not exist
-        is worse than no link.
+    :returns: ``True`` for a Toxoplasma-shaped id. An id from a screen of
+        another organism returns ``False``, so it is not given a ToxoDB link.
     """
     text = _clean(gene)
     if not text:
@@ -337,12 +334,10 @@ def uniprot_reference(accession: str, annotation=None):
     :returns: ``(label, url, is_record)``, or ``None`` when there is nothing
         useful to offer.
 
-    THE DISTINCTION MATTERS AND IS CARRIED IN THE LABEL. A record link says
-    "this is the protein"; a search link says "here is the question". Only
-    one of those is a claim, and only one of them can be wrong in a way the
-    reader cannot see -- a fabricated record URL that happens to resolve
-    opens a real page for a different protein and looks exactly like a
-    correct link.
+    The label and ``is_record`` distinguish a record link, which names a
+    specific protein, from a search link. A record URL is built only from a
+    known accession, because a guessed record URL can open the page of a
+    different protein.
     """
     if not accession:
         return None
@@ -458,7 +453,7 @@ class Reference:
     """An external record for this gene: a label and a URL to open.
 
     :param label: what to show, e.g. ``ToxoDB TGGT1_239740``.
-    :param url: where it goes. Built by string formatting and NEVER fetched —
+    :param url: where it goes. Built by string formatting and never fetched —
         see the module docstring.
     """
 
@@ -471,9 +466,8 @@ class GeneCandidate:
     """One gene the clicked feature could be naming.
 
     Usually there is exactly one. There is more than one when the guide's
-    protospacer sits in more than one gene, and then every one of them is here
-    with whatever is known about it, because picking one would be inventing a
-    result.
+    protospacer sits in more than one gene, and then every one of them is
+    listed with whatever is known about it rather than picking one.
 
     :param gene: the bare gene id, as every spaCR table keys it (``411710``).
     :param accession: the library's own accession (``TGGT1_411710``), when the
@@ -488,9 +482,9 @@ class GeneCandidate:
         ``((label, value), ...)`` in reading order, gaps already dropped.
     :param annotation: the whole matched annotation row, for a caller that
         wants a column this module does not show.
-    :param reported: ``True`` for the gene the regression itself attributed
-        the reads to — the one a naive resolver would have picked alone.
-    :param notes: what could not be resolved ABOUT THIS GENE, in sentences.
+    :param reported: ``True`` for the gene the regression itself attributed the
+        reads to.
+    :param notes: what could not be resolved about this gene, in sentences.
     """
 
     gene: str
@@ -563,11 +557,10 @@ class GuideRow:
 
 @dataclass(frozen=True)
 class GeneTile:
-    """Everything spaCR can say about one clicked point, in reading order.
+    """The gene record for one clicked point, in reading order.
 
-    Identity, then this screen's numbers, then what spaCR already knew, then a
-    link out — because a user who clicked a point wants to know what they
-    clicked before they want a bibliography.
+    Identity, then this screen's numbers, then the bundled annotation, then
+    external links.
 
     :param feature: the string that was clicked, verbatim.
     :param kind: what the feature turned out to be — ``guide``, ``gene``,
@@ -597,9 +590,8 @@ class GeneTile:
     :param gene_q_value: its q-value.
     :param guides: every guide of this gene that was fitted, and how it moved.
     :param n_agree: how many of them agree in sign with the gene effect.
-    :param unresolved: what could not be worked out, in sentences. NEVER
-        empty when something is missing — this is the field that stops the
-        tile reading as a bug.
+    :param unresolved: what could not be worked out, in sentences. Not empty
+        whenever something is missing.
     :param notes: everything else worth saying that is not a failure.
     """
 
@@ -629,7 +621,7 @@ class GeneTile:
 
     @property
     def resolved(self) -> bool:
-        """Did this land on at least one gene?"""
+        """True when the feature resolved to at least one gene."""
         return bool(self.candidates)
 
     @property
@@ -637,8 +629,7 @@ class GeneTile:
         """The tile's first line: a name a human recognises where one exists.
 
         For an ambiguous guide the title names all of the genes, joined by
-        ``/``. That is deliberately awkward to read: the mapping IS awkward,
-        and a title that showed one of three would be a lie that fits.
+        ``/``. Naming only one of them would misrepresent the mapping.
         """
         if self.ambiguous:
             return " / ".join(c.name for c in self.candidates)
@@ -653,7 +644,7 @@ class GeneTile:
 
     @property
     def subtitle(self) -> str:
-        """The line under the title: what the thing IS, in words."""
+        """The line under the title: what the feature is, in words."""
         if self.ambiguous:
             return _message(
                 "one protospacer, {count} genes — the effect cannot be "

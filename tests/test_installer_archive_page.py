@@ -106,11 +106,11 @@ def test_audit_rejects_a_stale_site_even_when_repository_sources_are_consistent(
         shutil.copy(ROOT / f"docs/i18n/readme/README.{code}.rst", locales)
     old = [_release("v1.5.0.8", *ALL_THREE)]
     releases = [_release("v1.5.0.9", *ALL_THREE), *old]
-    before = {p: p.read_text() for p in [tmp_path / "README.rst", *locales.glob("*.rst")]}
+    before = {p: p.read_text(encoding="utf-8") for p in [tmp_path / "README.rst", *locales.glob("*.rst")]}
     helper.sync_published_installer_links(tmp_path, releases)
     assert helper.audit_installer_publication(tmp_path, releases) == []
     for path, text in before.items():
-        after = path.read_text()
+        after = path.read_text(encoding="utf-8")
         assert after.split(helper.README_BEGIN)[0] == text.split(helper.README_BEGIN)[0]
         assert after.split(helper.README_END)[1] == text.split(helper.README_END)[1]
     from docutils.core import publish_parts
@@ -130,14 +130,14 @@ def test_archive_current_version_comes_from_published_assets_not_next_package(tm
     setup.write_text('VERSION = "9.0.0"\n')
     output = tmp_path / "installers.rst"
     helper.write_installer_index(output, setup, [_release("v1.5.0.9", *ALL_THREE)])
-    assert "1.5.0.9 (current)" in output.read_text()
-    assert "9.0.0" not in output.read_text()
+    assert "1.5.0.9 (current)" in output.read_text(encoding="utf-8")
+    assert "9.0.0" not in output.read_text(encoding="utf-8")
 
 
 def test_published_sync_validates_every_translation_before_writing(tmp_path):
     helper = _release_helper()
     readme = tmp_path / "README.rst"
-    readme.write_text((ROOT / "README.rst").read_text())
+    readme.write_text((ROOT / "README.rst").read_text(encoding="utf-8"))
     original = readme.read_bytes()
     with pytest.raises(FileNotFoundError):
         helper.sync_published_installer_links(tmp_path, [_release("v1.5.0.9", *ALL_THREE)])
@@ -404,11 +404,22 @@ def test_every_archived_installer_is_retained_in_the_application_folder():
 def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
     """A page nothing links to is a page nobody reaches. The README's icons
     keep pointing at the latest; this is where someone goes for anything
-    else, so the README is where the pointer belongs."""
+    else.
+
+    2026-10-12: the maintainer removed the README's "Earlier spaCR
+    installers" button, so the pointer is one hop away now: the README links
+    the installer guide, and the guide links this archive. 2026-10-16 (item
+    703): the default-branch README links the nightly guide, so the update,
+    reinstall and uninstall instructions it shows are the current ones."""
     index = (ROOT / "docs" / "source" / "index.rst").read_text(encoding="utf-8")
     assert re.search(r"^\s+installers$", index, re.MULTILINE)
     readme = README.read_text(encoding="utf-8")
-    assert ":target: docs/source/installers.rst" in readme
+    assert re.search(r'href="(?:https://github\.com/EinarOlafsson/spacr/blob/nightly/)?'
+                     r'docs/source/installer_guide\.rst"', readme), (
+        "the README links the current installer guide")
+    guide = (ROOT / "docs" / "source" / "installer_guide.rst").read_text(
+        encoding="utf-8")
+    assert ":doc:`installer archive <installers>`" in guide
 
 
 @pytest.mark.parametrize("script,pattern", [

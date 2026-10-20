@@ -266,7 +266,7 @@ def test_a_batch_past_its_ceiling_is_killed_with_its_children(tmp_path):
     result = runner._run_bounded([sys.executable, "-c", script], timeout=3)
     assert result.returncode == runner.BATCH_TIMED_OUT
     assert time.monotonic() - started < 60
-    child = int(marker.read_text())
+    child = int(marker.read_text(encoding="utf-8"))
     import os
     for _ in range(50):
         try:

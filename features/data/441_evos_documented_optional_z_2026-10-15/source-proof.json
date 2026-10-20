@@ -1,0 +1,36 @@
+{
+  "base": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "production_scope": [
+    "EVOS record only pattern/examples/slice group description/provenance/status",
+    "ArrayScan anti-EVOS lookahead only",
+    "Existing sliceID numeric conversion guard only",
+    "Existing table comment corrected in place; no new comment block"
+  ],
+  "all_other_records_exact": true,
+  "original_four_records_exact": true,
+  "regex_module_AST_exact_except_two_record_deltas": true,
+  "utils_module_AST_exact_after_removing_only_is_not_None_guard": true,
+  "API_and_runtime_identity_proof": {
+    "spacr/regex_infer.py": {
+      "all_class_function_docstrings_signatures_unchanged": true,
+      "callable_count": 32,
+      "all_tr_calls_unchanged": true,
+      "old_sha256": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+      "final_sha256": "4ab946f0272fd1d8579e77f7324c9cc8e03c2e2f4be21a7a8d27af5032bb00b2"
+    },
+    "spacr/utils.py": {
+      "all_class_function_docstrings_signatures_unchanged": true,
+      "callable_count": 400,
+      "all_tr_calls_unchanged": true,
+      "old_sha256": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+      "final_sha256": "0df8f3d85b62758ca8de7d5a6724c61c98df3f7673435b973d53057f13739826"
+    }
+  },
+  "new_or_changed_API_prose_signatures_nested_helpers": 0,
+  "new_tr_calls_or_literals": 0,
+  "io_and_convert_wholefile_exact": true,
+  "limits": [
+    "No full canonical/API collector or writer run; structural equality is a scoped proof only.",
+    "No arbitrary mixed unknown/known-Z region aggregation guarantee; real TIFF fixture is one file."
+  ]
+}

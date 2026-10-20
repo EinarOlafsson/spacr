@@ -8,9 +8,8 @@ also handle:
   a field / channel / stack).
 * ``.npy`` — a single big ndarray whose axes carry the field / channel
   meaning.
-* ``.lif`` / ``.nd2`` — vendor formats that pack a whole plate + its
-  metadata into one file. spaCR uses ``readlif`` and ``nd2reader`` to
-  crack them open.
+* ``.lif`` / ``.nd2`` — vendor formats that pack a whole plate + its metadata
+  into one file. spaCR uses ``readlif`` and ``nd2reader`` to read them.
 * Multi-page ``.tif`` / ``.tiff`` — one file, many pages; typical
   meaning is a stack along Z, T, or C.
 
@@ -22,9 +21,9 @@ supported file (or None). Callers can then either:
   ``filename_map.csv``), or
 * Consume the arrays directly in a downstream analysis.
 
-This module deliberately avoids importing heavy dependencies at
-top-level — vendor libraries are imported lazily inside the
-describers so users without them don't pay a cost.
+This module deliberately avoids importing heavy dependencies at top-level —
+vendor libraries are imported lazily inside the describers, so they are needed
+only when a file of their format is described.
 """
 from __future__ import annotations
 

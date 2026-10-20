@@ -14,6 +14,8 @@ import sys
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
@@ -60,12 +62,15 @@ def test_live_conda_badge_is_visible_and_targets_the_package(path: Path):
 
 @pytest.mark.parametrize("path", ALL_READMES, ids=lambda path: path.name)
 def test_conda_and_pypi_are_separate_install_routes(path: Path):
-    text = path.read_text(encoding="utf-8")
+    text = readme_words(path)
 
-    assert text.count(CONDA_COMMAND) == 1
+    # Once in the route list that opens Install spaCR (0c5c85364) and once in
+    # the conda-forge section itself.
+    assert text.count(CONDA_COMMAND) == 2
     # Every README uses the same standard package for desktop and headless
-    # workflows: quick start, PyPI desktop installation, and command line.
-    assert text.count(PIP_COMMAND) == 3
+    # workflows: quick start, the route list (0c5c85364), PyPI desktop
+    # installation, and command line.
+    assert text.count(PIP_COMMAND) == 4
     if path == README:
         quick_start = text.split("Try spaCR\n", 1)[1].split("Hardware support\n", 1)[0]
         assert quick_start.count(PIP_COMMAND) == 1
@@ -99,7 +104,7 @@ def test_conda_badge_alt_text_is_localized(path: Path):
 
 
 def test_english_readme_says_which_installer_owns_each_route():
-    text = README.read_text(encoding="utf-8")
+    text = readme_words()
 
     assert "official conda-forge package installs spaCR" in text
     assert "For the PyPI release, install spaCR with pip inside a Conda" in text

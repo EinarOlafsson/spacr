@@ -1,0 +1,694 @@
+{
+ "images/predictions/toxoplasma_from_cellmask_v1.png": [
+  1560,
+  1560
+ ],
+ "images/predictions/nuclei_from_cellmask_v1.png": [
+  1560,
+  1560
+ ],
+ "images/predictions/toxoplasma_pv_v3.png": [
+  1560,
+  1560
+ ],
+ "images/predictions/toxoplasma_from_hoechst_v1.png": [
+  1560,
+  1560
+ ],
+ "images/predictions/cell_from_hoechst_v1.png": [
+  1560,
+  1560
+ ],
+ "images/stitch_new/stitch_figure_notitle.png": [
+  2400,
+  1120
+ ],
+ "images/stitch_new/stitch_figure.png": [
+  2400,
+  1350
+ ],
+ "images/magnifier_gif/magnifier_toxo_first.png": [
+  620,
+  620
+ ],
+ "images/magnifier_gif/magnifier_toxo_last.png": [
+  620,
+  620
+ ],
+ "images/magnifier_gif/magnifier_app_last.png": [
+  900,
+  708
+ ],
+ "images/magnifier_gif/magnifier_app.gif": [
+  640,
+  640
+ ],
+ "images/magnifier_gif/magnifier_toxo.gif": [
+  620,
+  620
+ ],
+ "images/magnifier_gif/magnifier_app_first.png": [
+  900,
+  708
+ ],
+ "images/magnifier_gif/magnifier_cells_first.png": [
+  620,
+  620
+ ],
+ "images/magnifier_gif/magnifier_cells.gif": [
+  620,
+  620
+ ],
+ "images/magnifier_gif/magnifier_cells_last.png": [
+  620,
+  620
+ ],
+ "images/magnifier_gif/old_synthetic/magnifier_last.png": [
+  640,
+  684
+ ],
+ "images/magnifier_gif/old_synthetic/magnifier.gif": [
+  640,
+  684
+ ],
+ "images/icons/motility.png": [
+  512,
+  512
+ ],
+ "images/icons/power.png": [
+  512,
+  512
+ ],
+ "images/icons/run_compare.png": [
+  512,
+  512
+ ],
+ "images/icons/report.png": [
+  512,
+  512
+ ],
+ "images/icons/regression.png": [
+  512,
+  512
+ ],
+ "images/icons/map_barcodes.png": [
+  512,
+  512
+ ],
+ "images/icons/align.png": [
+  512,
+  512
+ ],
+ "images/icons/pipeline_graph.png": [
+  512,
+  512
+ ],
+ "images/icons/image_scatter.png": [
+  512,
+  512
+ ],
+ "images/icons/experiment_design.png": [
+  512,
+  512
+ ],
+ "images/icons/graph_builder.png": [
+  512,
+  512
+ ],
+ "images/icons/logo.png": [
+  920,
+  380
+ ],
+ "images/icons/barcode_qc.png": [
+  512,
+  512
+ ],
+ "images/icons/qc_dashboard.png": [
+  512,
+  512
+ ],
+ "images/icons/mask.png": [
+  512,
+  512
+ ],
+ "images/icons/foreign.png": [
+  512,
+  512
+ ],
+ "images/icons/embeddings.png": [
+  512,
+  512
+ ],
+ "images/icons/invasion.png": [
+  512,
+  512
+ ],
+ "images/icons/replication.png": [
+  512,
+  512
+ ],
+ "images/icons/umap.png": [
+  512,
+  512
+ ],
+ "images/icons/timelapse.png": [
+  512,
+  512
+ ],
+ "images/icons/model_zoo.png": [
+  512,
+  512
+ ],
+ "images/icons/recruitment.png": [
+  512,
+  512
+ ],
+ "images/icons/measure.png": [
+  512,
+  505
+ ],
+ "images/icons/batch.png": [
+  512,
+  512
+ ],
+ "images/icons/gate_editor.png": [
+  512,
+  512
+ ],
+ "images/icons/classify.png": [
+  512,
+  512
+ ],
+ "images/icons/analyze_plaques.png": [
+  512,
+  512
+ ],
+ "images/icons/annotate.png": [
+  512,
+  512
+ ],
+ "images/icons/dose_response.png": [
+  512,
+  512
+ ],
+ "images/icons/make_masks.png": [
+  512,
+  512
+ ],
+ "images/umap_new/umap_clusters_notitle.png": [
+  2400,
+  1185
+ ],
+ "images/umap_new/umap_clusters.png": [
+  2400,
+  1350
+ ],
+ "images/manuscript/fig5BC_volcano.png": [
+  4000,
+  2071
+ ],
+ "images/manuscript/_fig3_page400dpi.png": [
+  3308,
+  4678
+ ],
+ "images/manuscript/fig1DE_power.png": [
+  4000,
+  1563
+ ],
+ "images/manuscript/fig3CD_accuracy.png": [
+  4000,
+  2364
+ ],
+ "images/manuscript/fig4F_saliency.png": [
+  4000,
+  3357
+ ],
+ "images/manuscript/figS7_volcano.png": [
+  4000,
+  2184
+ ],
+ "images/manuscript/fig2_mlr.png": [
+  3482,
+  1966
+ ],
+ "images/manuscript/fig3B_recruitment.png": [
+  1371,
+  3247
+ ],
+ "images/manuscript/figS1G_power.png": [
+  3000,
+  2239
+ ],
+ "images/manuscript/fig4BCD_features.png": [
+  4000,
+  1049
+ ],
+ "images/manuscript/fig2_classify.png": [
+  4000,
+  1837
+ ],
+ "images/manuscript/fig1A_concept.png": [
+  4000,
+  646
+ ],
+ "images/manuscript/fig4E_crops.png": [
+  3554,
+  3391
+ ],
+ "images/manuscript/fig3A_segmentation.png": [
+  4000,
+  1665
+ ],
+ "images/models/pv_r6_training_curves.png": [
+  1800,
+  675
+ ],
+ "images/models/yolo_welldetector_training.png": [
+  2883,
+  3078
+ ],
+ "images/models/welldet_example.png": [
+  900,
+  1148
+ ],
+ "images/models/welldet_v2_val_pred.jpg": [
+  1920,
+  620
+ ],
+ "images/models/pv_examples.png": [
+  2370,
+  1100
+ ],
+ "images/models/welldet_example_orig.png": [
+  900,
+  1170
+ ],
+ "images/models/plaque_model_training.png": [
+  2749,
+  3885
+ ],
+ "images/models/welldet_example_clean.png": [
+  900,
+  1148
+ ],
+ "images/models/pv_model_training.png": [
+  2749,
+  3885
+ ],
+ "images/models/plaque_examples.png": [
+  2370,
+  1100
+ ],
+ "images/keyframes/invasion_figs.png": [
+  2355,
+  724
+ ],
+ "images/keyframes/mask_cell_overlay.png": [
+  1590,
+  1480
+ ],
+ "images/keyframes/annotate_grid.png": [
+  2400,
+  1315
+ ],
+ "images/keyframes/mask_nucleus_overlay.png": [
+  1590,
+  1480
+ ],
+ "images/keyframes/replication_figs.png": [
+  2355,
+  724
+ ],
+ "images/keyframes/measure_crops.png": [
+  2389,
+  1474
+ ],
+ "images/keyframes/import_mapping.png": [
+  2400,
+  1132
+ ],
+ "images/keyframes/mask_organelle.png": [
+  1590,
+  1480
+ ],
+ "images/keyframes/gate_walk.png": [
+  2400,
+  1305
+ ],
+ "images/keyframes/mask_channels.png": [
+  2400,
+  1350
+ ],
+ "images/keyframes/import_map2.png": [
+  2050,
+  200
+ ],
+ "images/keyframes/umap_plot.png": [
+  1450,
+  1260
+ ],
+ "images/keyframes/mask_cell_objects.png": [
+  2400,
+  1216
+ ],
+ "images/keyframes/home.png": [
+  2400,
+  1350
+ ],
+ "images/keyframes/motility_preview.png": [
+  2400,
+  759
+ ],
+ "images/keyframes/gate_2d.png": [
+  2400,
+  1338
+ ],
+ "images/keyframes/plate_grid.png": [
+  2400,
+  1125
+ ],
+ "images/keyframes/plate_viewer.png": [
+  2400,
+  1125
+ ],
+ "images/keyframes/train_cellpose_fig.png": [
+  1750,
+  620
+ ],
+ "images/keyframes/align_plan.png": [
+  2400,
+  1151
+ ],
+ "images/keyframes/makemasks.png": [
+  2400,
+  1311
+ ],
+ "images/keyframes/measure_objcrops.png": [
+  1776,
+  1245
+ ],
+ "images/keyframes/mask_pathogen.png": [
+  2400,
+  1216
+ ],
+ "images/keyframes/home_full.png": [
+  2400,
+  1350
+ ],
+ "images/keyframes/db_table.png": [
+  2400,
+  1173
+ ],
+ "images/keyframes/training_acc.png": [
+  2400,
+  937
+ ],
+ "images/keyframes/plate_heat.png": [
+  1180,
+  1250
+ ],
+ "images/keyframes/home_tiles.png": [
+  1780,
+  1000
+ ],
+ "images/keyframes/model_zoo.png": [
+  2400,
+  1311
+ ],
+ "images/keyframes/model_compare.png": [
+  2400,
+  1311
+ ],
+ "images/keyframes/converter2.png": [
+  2300,
+  440
+ ],
+ "images/keyframes/mask_flows.png": [
+  2400,
+  1216
+ ],
+ "images/keyframes/annotate_active.png": [
+  2400,
+  1315
+ ],
+ "images/keyframes/recruit_figs.png": [
+  2355,
+  712
+ ],
+ "images/keyframes/regression_figs.png": [
+  2400,
+  1163
+ ],
+ "images/keyframes/umap_fig.png": [
+  2400,
+  1267
+ ],
+ "images/keyframes/activation_ui.png": [
+  2400,
+  1311
+ ],
+ "images/keyframes/gate_3d.png": [
+  2400,
+  1338
+ ],
+ "images/keyframes/cellpose_masks_fig.png": [
+  1750,
+  620
+ ],
+ "images/keyframes/report_figs.png": [
+  1700,
+  1200
+ ],
+ "images/keyframes/converter.png": [
+  2400,
+  1088
+ ],
+ "images/keyframes/agreement.png": [
+  2400,
+  1311
+ ],
+ "images/mask_new/mask_nuclei.png": [
+  1800,
+  1800
+ ],
+ "images/mask_new/mask_cells.png": [
+  1800,
+  1800
+ ],
+ "images/mask_new/mask_droplets.png": [
+  1800,
+  1800
+ ],
+ "images/makemasks_current/features.png": [
+  3000,
+  1600
+ ],
+ "images/makemasks_current/overview_clean.png": [
+  3400,
+  2000
+ ],
+ "images/makemasks_current/magnifier_canvas.png": [
+  1840,
+  1448
+ ],
+ "images/makemasks_current/magnifier.png": [
+  3400,
+  2000
+ ],
+ "images/makemasks_current/magnifier_clean.png": [
+  3400,
+  2000
+ ],
+ "images/makemasks_current/overview.png": [
+  3400,
+  2000
+ ],
+ "images/makemasks_current/tools.png": [
+  3400,
+  770
+ ],
+ "images/outputs/08_outside_stain_thresholds.png": [
+  1764,
+  658
+ ],
+ "images/outputs/14_loss.png": [
+  2200,
+  1100
+ ],
+ "images/outputs/06_PLATE1_E01_1_1.png": [
+  4400,
+  1100
+ ],
+ "images/outputs/16_plate_heatmap.png": [
+  4400,
+  550
+ ],
+ "images/outputs/99_overlay.png": [
+  4400,
+  1100
+ ],
+ "images/outputs/replication_synthetic.png": [
+  1800,
+  960
+ ],
+ "images/outputs/05_volcano_plot.png": [
+  2400,
+  2502
+ ],
+ "images/outputs/12_shap.png": [
+  880,
+  913
+ ],
+ "images/outputs/01_plate_heatmap_unique_counts.png": [
+  770,
+  583
+ ],
+ "images/outputs/18_fraction_histogram.png": [
+  1100,
+  1100
+ ],
+ "images/outputs/07_invasion_by_condition.png": [
+  1268,
+  804
+ ],
+ "images/outputs/04_volcano_reference.png": [
+  605,
+  473
+ ],
+ "images/outputs/11_plate1_C01_1_activation_grid.png": [
+  3322,
+  3322
+ ],
+ "images/outputs/09_parasites_per_vacuole_by_condition.png": [
+  1342,
+  784
+ ],
+ "images/outputs/02_regression_figure.png": [
+  747,
+  656
+ ],
+ "images/outputs/replication_viridis.png": [
+  2400,
+  960
+ ],
+ "images/outputs/15_figure_controls_1_well_mean_violin.png": [
+  198,
+  660
+ ],
+ "images/outputs/13_feature_importance.png": [
+  1100,
+  880
+ ],
+ "images/outputs/10_fig_2c_recruitment_condition_jitter_bar.png": [
+  539,
+  977
+ ],
+ "images/outputs/recruitment_viridis.png": [
+  2400,
+  930
+ ],
+ "images/outputs/invasion_viridis.png": [
+  2400,
+  930
+ ],
+ "images/outputs/19_plate_heatmap_0.png": [
+  4400,
+  550
+ ],
+ "images/outputs/03_coefficient_forest.png": [
+  604,
+  472
+ ],
+ "images/outputs/17_phenotype_plot.png": [
+  1063,
+  1064
+ ],
+ "images/regression_app/volcano_explorer.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/results_volcano.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/investigate_hit_wells.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/crop_volcano.png": [
+  1776,
+  1834
+ ],
+ "images/regression_app/diagnostics.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/prediction_profiler.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/crop_models.png": [
+  3000,
+  1131
+ ],
+ "images/regression_app/regression_output.png": [
+  2042,
+  1789
+ ],
+ "images/regression_app/hit_list.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/crop_diag_plots.png": [
+  1762,
+  1204
+ ],
+ "images/regression_app/settings_models.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/cells_for_gene.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/crop_cells.png": [
+  2174,
+  1834
+ ],
+ "images/regression_app/diagnostics_residuals.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/diagnostics_influence.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/investigate_hit.png": [
+  4800,
+  2800
+ ],
+ "images/regression_app/crop_diagnostics.png": [
+  2174,
+  896
+ ],
+ "images/mask_new/mask_pathogen.png": [
+  1800,
+  1800
+ ],
+ "images/app_1513/home_tiles.png": [
+  2935,
+  1580
+ ],
+ "images/app_1513/make_masks.png": [
+  3840,
+  2100
+ ],
+ "images/app_1513/toxoplasma.png": [
+  3840,
+  1150
+ ],
+ "images/predictions/toxoplasma_pv_v4.png": [
+  1560,
+  1560
+ ]
+}

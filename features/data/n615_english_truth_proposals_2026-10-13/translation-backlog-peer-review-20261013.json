@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:04:13.877457+00:00",
+  "review_kind": "Codex AI read-only independent count/wording/provenance peer review",
+  "input_audit": "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-translation-backlog-20261013.json",
+  "input_audit_sha256": "d32bbf4d5251edb7466070926f89bc44ed236266c46eb7fe72e1909aa511fa6b",
+  "scope": "Audit consistency plus targeted27 reviewedrecords and animation/release/proposal source checks; root already rehashed4306bindings, not repeated here",
+  "per_locale_confirmed_counts": {
+    "de": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "es": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "fr": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "hi": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "is": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "ko": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "pt": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "sv": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    },
+    "zh_CN": {
+      "API_missing": 20,
+      "API_stale_existing": 20,
+      "context_mismatches_subset": 16,
+      "reviewed_block_mismatches": 3,
+      "runtime_current": 10455,
+      "runtime_metadata_problems": 0
+    }
+  },
+  "total_missing_locale_symbol_pairs": 180,
+  "total_stale_locale_symbol_pairs": 180,
+  "reviewed_mismatched_locale_blocks": 27,
+  "reviewed_problem_flags_are_not_double_counted": "Each of27records has stale_source+stale_context; these are27blockrecords, not54independent deficits.",
+  "count_findings": [],
+  "runtime_freshness_scope": "10455current/generated records perlocale and zero present-review metadata problems establish exact English metadata freshness only. No target semantics/native review approval. Standalone reviewedrecord absence is not itself proof of runtime translation failure.",
+  "actual_CPU_GPU_Off_policy_review": {
+    "CPU": "EnabledCPU workload flag paces active AmbientWidgets and pauses Spaceout fractals; blocks decorative GPU aswell.",
+    "GPU": "EnabledGPU workload flag blocks decorative GPU and pauses GPU-backed fractals; CPUfractals not necessarily paused unless CPUwork also active.",
+    "Off": "Disables this workload policy; gil_priority.active pacing and visibility/motion/minimization controls still apply. Proposed Offclause is correctly qualified.",
+    "saved_preferences": "Policy changes runtime behavior without writing savedbackend/theme choices; reversion clause is supported."
+  },
+  "concrete_overstatements": [
+    {
+      "location": "dynamic_animation_wording.proposed_tooltip_for_Home_review and proposed_stop_doc_change_for_Home_review",
+      "claim": "Backdrops keep moving during CPU-heavy jobs.",
+      "concrete_limit": "AmbientWidget._should_run returnsfalse for animation-off, hidden widgets, Reduce motion or minimized windows. _rate implements a maximum, not guaranteed delivery under load.",
+      "suggestion": "Describe the policy as capping already-active visible backdrops at no more than30fps rather than guaranteeing continued motion. Keep Spaceout fractal pause and GPU-to-CPU policy clauses, which source supports.",
+      "source": [
+        "ambient.py:_should_run11192-11210",
+        "ambient.py:_rate10973",
+        "ambient.py:_follow_the_run11010-11022"
+      ]
+    },
+    {
+      "location": "dynamic_animation_wording.proposed_stop_doc_change_for_Home_review",
+      "claim": "Visible stop exception because Reduce motion is enabled or animation switchedoff.",
+      "concrete_limit": "stop._holds_still tests isVisible and _BufferedEngine; it does not inspect the reason for stopping. An explicit visible stop can retain a still too.",
+      "suggestion": "State the actual visible-buffered-engine retention condition and list motion/off as examples rather than an exhaustive condition. Preserve narrow stopped/hidden memory claims; do not claim all retained renderer state costs nothing.",
+      "source": [
+        "ambient.py:stop11063-11110"
+      ]
+    },
+    {
+      "location": "docs/notes/release_notes_1.5.1.5.md Improved",
+      "claim": "Field backgrounds draw more smoothly, at60fps.",
+      "concrete_limit": "_fps is a configuredcap, display-derived caps vary, and _rate caps relevant running backdrops at30. This review contains no measured60fps proof.",
+      "suggestion": "Use an up-to/frame-cap claim supported by final source or cite actual measured scoped evidence. Do not turn policycaps into unconditional delivered frame-rate acceptance.",
+      "source": [
+        "ambient.py:_choose_auto_rate",
+        "ambient.py:_rate",
+        "ambient.py:_RUN_FPS=30"
+      ]
+    },
+    {
+      "location": "docs/notes/release_notes_1.5.1.5.md Improved",
+      "claim": "Apply, Keep and Revert no longer freeze the app.",
+      "concrete_limit": "Unconditional statement exceeds available evidence: saved lesson05 Apply stall and cold-first coverage gap remain reported; source-current metadata is no performance proof.",
+      "suggestion": "Home must verify final app behavior or narrow the statement to the specific reduced work/fixed paths. This peerreview performs no timing tests.",
+      "source": [
+        "bound lesson05_preferences_apply_readonly_20261013.json",
+        "current unreleased release-note text"
+      ]
+    }
+  ],
+  "release_translation_claim_scope": "Nine-locale runtime presence/freshness supports language availability, not complete semantic approval. API missing/stale symbols alone cannot disprove README/interface language availability because API is a separate denominator. Audit appropriately requests final truthreview without claiming all existing translations invalid.",
+  "coverage_direct_proposal_review": {
+    "proposal_sha256": "356f2f093edf383883fbe9a3ca0e96438cb8b59ef957cc0ef5d096298598e0a0",
+    "wrapper_sha256": "b968ec688510c93aaf568d4c3971ae7271a84e3a90506a93828e0904883883e7",
+    "necessary_provenance_and_compatibility_conditions_present": [
+      "ActualHome approval for7.16/directAPI deviation binds wrapper+proposal",
+      "Pinned unchanged source/test/tool hashes and actual importorigin",
+      "Realdevice/headroom evidence only inside verifiedlease",
+      "Exact3cases/no skips plus rawbranchDB/JSON/JUnit and outer actualterminalexit0 required",
+      "Originalrawproof keptseparate from hostedartifacts, no inventedhostedIDs",
+      "PinnedHome7.15.4 reader actually reads disposablecopy; checks arcs/schema/source/config/denominators and reanalyzes beforeunion",
+      "Verifiedsame-source pathnormalization only; originals rehashedunchanged",
+      "97.04 explicitly prediction until measuredunion; no baseline/exemptionchanges"
+    ],
+    "missing_required_conditions_found": [],
+    "remaining_runtime_uncertainty": "Wrapper is syntax/staticreviewed only. No CUDAcompatibility,3pass,olderreader compatibility or union has been executed/proven. Actualouterterminalexit remains mandatory despite innerchecks."
+  },
+  "targeted_sha256": {
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/de/2026-09-25-api-debt-006.json": "4f202c6dd5f1c94f770e97899cee3b683afc75b5c456123a29f0b3c39f85a821",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/de/2026-09-25-api-debt-007.json": "2f9e208de3eb21007078716a05cfcb43cdae41329a6516335a9be658f56e8d42",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/de/2026-10-03-nested-batch8.json": "f2e1ca837d005c70c752c459f18fa9744911a80d25e7186ee85a122f44667b1d",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/es/2026-09-25-api-debt-010.json": "dfc7caa61a7f1400acea0808649d6d9fe85515613bdc801d5584cbe6cd664f14",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/es/2026-10-03-nested-batch8.json": "cb425ad80d64b133df3d729f22c3b6d7f7565e62fa37cfe9b7c553ace57f77fa",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/fr/2026-09-25-api-debt-010.json": "dc2a55f62a92a639c8e1682c8f3bc776f8e76a756e5f5f5d162781649a740c84",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/fr/2026-10-03-nested-batch8.json": "31c2244f7034ad8afd94eb8ea0b6d631c7463830397ec20a5fb552dc0e28e9ee",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/hi/2026-09-25-api-debt-009.json": "fb98cf253361175050d08b598b605d7e62a80ade9581c7745df4da12039dd484",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/hi/2026-10-03-nested-batch8.json": "9fbdab721bf99dd87e0510b8efec1c3b76c02ec16e29f6da22c82febf9eda6d5",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/is/2026-09-25-api-debt-009.json": "2d7699e0fc177df334d8290e28f5516ad1a91a3f8f872ce4f574453134870679",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/is/2026-09-25-api-debt-010.json": "f56aad24cec4d7fd698690b7beb74fa5a91fab0c7c7c817b6ef64b8a23f12da7",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/is/2026-10-03-nested-batch8.json": "97cd49a099a061f4a2a7b365b4d761b965405fe3abaaac47eaaa56edfa567454",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json": "e382ba3ec286a809f3ff761045349cfe3ce2fb27902d7fb1cb891e98b8682ee0",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/ko/2026-09-25-api-debt-008.json": "1cbe79e49170a5912b5d39f1bfc44b068a51e071d54fb1fe4a9261fe3e0efa47",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/ko/2026-10-03-nested-batch8.json": "b0c4ff5203cea51300c4284f1572f5ca16b2ab7f470c35ecc2d41758408eb8ba",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/pt/2026-09-25-api-debt-008.json": "646647b4dc8d3272f925357153e32679167b58894cfecfdfb340a28e2442c08c",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/pt/2026-09-25-api-debt-010.json": "c48c359b881eec5981c8a423c1ae8b13c6269ddf2eecb4ca3d5747f4aeecae8f",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/pt/2026-10-03-nested-batch8.json": "8bd80753d0ef140a5ad1b39430a5f7b978c9b71fc1bf38c8d6d44a8183f3d961",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/sv/2026-09-25-api-debt-007.json": "1302699ed963d9c83757b5fe43ddf200e810797a786d89c747829656567a7d92",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/sv/2026-09-25-api-debt-010.json": "40a6db3bc06af1264b6975873e25abcfe0782c5147510a5e3bb95a019908bfc1",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/sv/2026-10-03-nested-batch8.json": "22d6c1b481262fe63fec6e1b9e807a4de68645e28d39c519b56158030efeba4f",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-005.json": "9f0eb522061909664fb37bfe358fd393a802f1125056f8f27d30f0862a569ac2",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-006.json": "53beb55e7d41669b07b1e4d6f87b5ae2eef3a162e3c4a728a90dcdb9752f4db5",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/i18n/reviewed/api/zh_CN/2026-10-03-nested-batch8.json": "7dcf8c3dbcdb87cf1b718746632e4ee73421f3b95e46f38a99f37c1d4a4c7055",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_translation_backlog_2026-10-13/README.md": "76a4eb1d188e861c39fe71622403c6ab2fa29ef55b141a2821a1998dc8a12e27",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_translation_backlog_2026-10-13/manifest.json": "a902427817f0f8d61c12dfd61629be20030a1e2c69e177000e1f0dd4b085e41c",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+    "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/notes/release_notes_1.5.1.5.md": "ab19724ca00b9a3d65fe819eadddaa65c5d169f88e40962210283eb4fa75dc5c",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct-coverage-716-proposal.json": "356f2f093edf383883fbe9a3ca0e96438cb8b59ef957cc0ef5d096298598e0a0",
+    "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/direct_coverage_runner.py": "b968ec688510c93aaf568d4c3971ae7271a84e3a90506a93828e0904883883e7",
+    "/media/carruthers/mnt3/claude/n676_stages/work/lesson05_preferences_apply_readonly_20261013.json": "a6af81267b09ae8417b92df6b5cc36315c932af591729b4e00a94c473d01fe33"
+  },
+  "GUI_GPU_tests_models_sources_reviews_catalogs_modified": false,
+  "external_report_written_only": true,
+  "semantic_locale_acceptance_granted": false
+}

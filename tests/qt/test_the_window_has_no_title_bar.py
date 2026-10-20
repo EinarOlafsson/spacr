@@ -52,10 +52,12 @@ def _window_buttons(window):
     return corner.findChildren(QToolButton) if corner is not None else []
 
 
-def test_the_top_right_holds_the_three_in_order(window):
+def test_the_top_right_holds_the_marks_in_order(window):
+    """Item 695 added maximise/restore beside minimise, as a title bar has."""
     names = [b.objectName() for b in _window_buttons(window)]
 
-    assert names == ["MinimiseWindow", "FullScreenToggle", "CloseWindow"]
+    assert names == ["MinimiseWindow", "MaximiseWindow", "FullScreenToggle",
+                     "CloseWindow"]
     assert all(not b.icon().isNull() for b in _window_buttons(window)), (
         "the icons are drawn, not shipped")
 

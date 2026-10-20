@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 
 import numpy as np
@@ -16,7 +17,7 @@ from tests.test_watch_nested_f548 import _fast, _write
 
 def _ledger(folder):
     """Read every persisted field, including deferred copies and real failures."""
-    return json.loads((folder / 'spacr_watch/watch_ledger.json').read_text())['fields']
+    return json.loads((folder / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))['fields']
 
 
 def _change_pixels(path, value, replace=False):
@@ -25,6 +26,14 @@ def _change_pixels(path, value, replace=False):
     target = path.with_suffix('.replacement') if replace else path
     tifffile.imwrite(target, np.full((16, 16), value, np.uint16))
     os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
+    # The kernel stamps ctime from a coarse clock, so a rewrite in the same
+    # tick as the original write can keep ctime too. A later rewrite always
+    # lands in a later tick; wait for one so the change stays observable.
+    deadline = time.monotonic() + 2
+    while (not replace and target.stat().st_ctime_ns == before.st_ctime_ns
+           and time.monotonic() < deadline):
+        time.sleep(0.005)
+        os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
     if replace:
         os.replace(target, path)
     assert path.stat().st_size == before.st_size

@@ -252,7 +252,7 @@ ASKED, AND ANSWERED 2026-08-13: the maintainer meant the CLUSTER MONTAGE, the
 first reading -- and then said the question had been overtaken:
 
     "i asked for the first option (the cluster montage). but then we built
-     starplast together and that is much much much better."
+     parascape together and that is much much much better."
 
 So the standard scrollable figure viewer this instruction asked for is NOT
 what the module should end on either. Instruction 95 carries the replacement:

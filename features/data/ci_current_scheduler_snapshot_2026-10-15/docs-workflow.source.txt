@@ -1,0 +1,362 @@
+name: docs
+
+on:
+  push:
+    branches: [main, nightly]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Publish docs, or verify only the existing Space write token
+        required: true
+        default: publish
+        type: choice
+        options: [publish, verify-host-access]
+      access_space:
+        description: Existing static Space for the content-preserving access check
+        required: true
+        default: einarolafsson/spacr-docs-nightly-v2
+        type: choice
+        options: [einarolafsson/spacr-docs-nightly-v2, einarolafsson/spacr-docs-nightly]
+
+permissions:
+  contents: read
+
+# Each branch publishes to its own host, so each has its own size budget:
+# main to GitHub Pages (with a /nightly/ redirect stub), nightly to the
+# selected Hugging Face static Space. Runs of one
+# branch queue so an older build cannot replace a newer published snapshot.
+concurrency:
+  group: docs-${{ github.ref }}${{ inputs.mode == 'verify-host-access' && '-access' || '' }}
+  cancel-in-progress: false
+
+jobs:
+  verify-host-access:
+    name: Verify the existing documentation Space write token
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'verify-host-access'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: docs-nightly-space
+      cancel-in-progress: false
+    env:
+      HF_TOKEN: ${{ secrets.HF_DOCS_TOKEN }}
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      ACCESS_SPACE: ${{ inputs.access_space }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Install the publication client
+        run: python -m pip install "huggingface_hub>=0.25"
+      - name: Verify write permission without changing published file contents
+        run: |
+          set -euo pipefail
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::Repository secret HF_DOCS_TOKEN is missing."
+            exit 1
+          fi
+          tools/run_capped.sh 2G python tools/publish_docs_channels.py verify-space-access \
+            --space "$ACCESS_SPACE" | tee space-access.json
+      - name: Record the immutable access receipt
+        run: |
+          {
+            echo "### Documentation token verification"
+            cat space-access.json
+            echo "No documentation build, site upload or hosting-plan change was requested."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  resolve:
+    name: Pin the documentation branch
+    if: github.event_name != 'workflow_dispatch' || inputs.mode != 'verify-host-access'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      branch: ${{ steps.refs.outputs.branch }}
+      sha: ${{ steps.refs.outputs.sha }}
+      nightly_space: ${{ steps.nightly-target.outputs.space }}
+      nightly_url: ${{ steps.nightly-target.outputs.url }}
+    steps:
+      - name: Resolve the source commit
+        id: refs
+        run: |
+          case "$GITHUB_REF_NAME" in
+            main|nightly) ;;
+            *) echo "::error::docs publish only main or nightly, not $GITHUB_REF_NAME"; exit 1 ;;
+          esac
+          echo "branch=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          echo "sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the nightly hosting target
+        id: nightly-target
+        env:
+          CONFIGURED_SPACE: ${{ vars.HF_DOCS_SPACE }}
+          CONFIGURED_URL: ${{ vars.HF_DOCS_URL }}
+        run: |
+          python - <<'PYTARGET'
+          import os, re
+          space = os.environ.get("CONFIGURED_SPACE", "").strip()
+          url = os.environ.get("CONFIGURED_URL", "").strip()
+          if bool(space) != bool(url):
+              raise SystemExit("Set both HF_DOCS_SPACE and HF_DOCS_URL, or neither.")
+          if not space:
+              space = "einarolafsson/spacr-docs-nightly"
+              url = "https://einarolafsson-spacr-docs-nightly.static.hf.space/"
+          if not re.fullmatch(r"[a-z0-9-]+/[a-z0-9-]+", space):
+              raise SystemExit("Expected a lowercase owner/name containing letters, digits or hyphens.")
+          expected = "https://" + space.replace("/", "-") + ".static.hf.space/"
+          if url.rstrip("/") + "/" != expected:
+              raise SystemExit("HF_DOCS_URL does not match HF_DOCS_SPACE.")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"space={space}\nurl={expected}\n")
+          PYTARGET
+
+  build:
+    name: Build ${{ needs.resolve.outputs.branch }} documentation
+    needs: resolve
+    env:
+      DOCS_BRANCH: ${{ needs.resolve.outputs.branch }}
+      DOCS_SHA: ${{ needs.resolve.outputs.sha }}
+      SPACR_DOCS_API_LANGUAGE: all
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DOCS_SHA }}
+      - name: Check out publication tooling
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: .publisher
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+          cache: pip
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libopencc1.1 libopencc-data libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxrandr2 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 xvfb
+      - name: Install spaCR and Sphinx
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" torchvision
+          python -m pip install -e ".[dev]"
+          python -m pip install sphinx furo sphinx-design sphinx-autoapi
+      - name: Generate Make Masks parameter reference from the pinned branch
+        run: |
+          if [ -f tools/build_make_masks_reference.py ]; then
+            reference_home=$(mktemp -d)
+            HOME="$reference_home" XDG_CONFIG_HOME="$reference_home/config" \
+              tools/run_capped.sh 4G python tools/build_make_masks_reference.py
+          fi
+      - name: Refresh English manifests from the pinned branch
+        run: |
+          tools/run_capped.sh 4G python tools/build_documentation_i18n.py --sources-only
+          tools/run_capped.sh 4G python tools/build_i18n_catalogs.py --sources-only
+      - name: Verify English and register translation incompatibilities
+        run: |
+          GITHUB_SHA="$DOCS_SHA" tools/run_capped.sh 4G python \
+            .publisher/tools/report_translation_compatibility.py \
+            --english-required --output translation-compatibility.json
+      - name: Upload translation compatibility register
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: translation-compatibility-${{ env.DOCS_BRANCH }}
+          path: translation-compatibility.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Build docs
+        run: |
+          rm -rf docs/_build docs/source/api
+          tools/run_capped.sh 2G python .publisher/tools/publish_docs_channels.py configure
+          source_version=$(tools/run_capped.sh 2G python .publisher/tools/publish_docs_channels.py version)
+          for attempt in 1 2 3; do
+            set +e
+            GITHUB_REF_NAME="$DOCS_BRANCH" sphinx-build -W -E -b html --keep-going \
+              -D "release=$source_version" -D "version=$source_version" \
+              -D "html_title=spaCR $source_version documentation" \
+              docs/source docs/_build/html 2>&1 | tee /tmp/sphinx.log
+            rc=${PIPESTATUS[0]}
+            set -e
+            if [ "$rc" -eq 0 ] || [ "$attempt" -eq 3 ]; then
+              break
+            fi
+            if ! grep -Eq '^WARNING: failed to reach any of the inventories|intersphinx inventory .*not fetchable' /tmp/sphinx.log; then
+              break
+            fi
+            echo "Retrying failed external API inventory fetch (attempt $attempt of 3)."
+            cp /tmp/sphinx.log "/tmp/sphinx-inventory-attempt-$attempt.log"
+          done
+          echo "sphinx-build exit=$rc"
+          if [ ! -f docs/_build/html/index.html ]; then
+            echo "FATAL: no index.html produced"
+            tail -80 /tmp/sphinx.log
+            exit 1
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "FATAL: sphinx-build reported warnings or errors"
+            tail -80 /tmp/sphinx.log
+            exit "$rc"
+          fi
+          touch docs/_build/html/.nojekyll
+      - name: Build translated user guides
+        # One Sphinx gettext build per language into docs/_build/html/<lang>/,
+        # with -W. A message whose English changed renders in English; the
+        # audit register below records coverage and staleness per page.
+        run: |
+          if [ -f tools/build_guide_i18n.py ]; then
+            tools/run_capped.sh 4G python tools/build_guide_i18n.py extract \
+              --output docs/_build/guide-gettext
+            tools/run_capped.sh 4G python tools/build_guide_i18n.py audit \
+              --pot docs/_build/guide-gettext \
+              --output docs/_build/html/guide-translations.json
+            GITHUB_REF_NAME="$DOCS_BRANCH" tools/run_capped.sh 4G python \
+              tools/build_guide_i18n.py build --html docs/_build/html \
+              --doctrees docs/_build/guide-doctrees
+          fi
+      - name: Verify generated tooltip API links
+        env:
+          SPACR_DOCS_BUILT: "1"
+        run: |
+          files=(tests/test_tooltip_api_links_resolve.py tests/test_built_constructor_api.py tests/test_built_nested_helper_api.py)
+          if [ -f tests/test_english_documentation_publication.py ]; then
+            files+=(tests/test_english_documentation_publication.py)
+          fi
+          # Real-catalog coverage is registered separately; fixture tests still
+          # prove that stale translations fall back safely and English links work.
+          tools/run_capped.sh 4G python -m pytest -q "${files[@]}" \
+            -k 'not enabled_helpers_use_their_own_real_catalog_entries_in_the_browser'
+      - name: Prepare branch artifact
+        run: |
+          tools/run_capped.sh 4G python .publisher/tools/publish_docs_channels.py prepare \
+            --build docs/_build/html --report translation-compatibility.json \
+            --branch "$DOCS_BRANCH" --commit "$DOCS_SHA"
+          {
+            echo "### $DOCS_BRANCH documentation"
+            echo "Source commit: $DOCS_SHA"
+            echo "API, guides and tutorials use this branch's committed sources and media pins."
+            echo "Translation incompatibilities are recorded and fall back to English."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload branch site
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-channel-${{ env.DOCS_BRANCH }}
+          path: docs/_build/html
+          include-hidden-files: true
+          retention-days: 1
+
+  deploy-pages:
+    name: Publish main documentation to GitHub Pages
+    needs: [resolve, build]
+    if: needs.resolve.outputs.branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: docs-github-pages
+      cancel-in-progress: false
+    env:
+      HF_DOCS_URL: ${{ needs.resolve.outputs.nightly_url }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Download the main site
+        uses: actions/download-artifact@v8
+        with:
+          name: docs-channel-main
+          path: channels/docs-channel-main
+      - name: Assemble main with the nightly redirect stub and the 900 MB guard
+        run: |
+          receipt=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble-main \
+            --main channels/docs-channel-main --output pages \
+            --base-path "/${GITHUB_REPOSITORY#*/}" --nightly-url "$HF_DOCS_URL")
+          echo "$receipt"
+          size=$(python -c "import json, sys; r = json.loads(sys.argv[1]); print('{:,} of {:,} bytes'.format(r['size_bytes'], r['limit_bytes']))" "$receipt")
+          echo "### Main Pages site: $size" >> "$GITHUB_STEP_SUMMARY"
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: pages
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  deploy-space:
+    name: Publish nightly documentation to the Hugging Face Space
+    needs: [resolve, build]
+    if: needs.resolve.outputs.branch == 'nightly'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    concurrency:
+      group: docs-nightly-space
+      cancel-in-progress: false
+    env:
+      HF_TOKEN: ${{ secrets.HF_DOCS_TOKEN }}
+      HF_DOCS_SPACE: ${{ needs.resolve.outputs.nightly_space }}
+      HF_DOCS_URL: ${{ needs.resolve.outputs.nightly_url }}
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - name: Require the Space write token
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::Repository secret HF_DOCS_TOKEN is missing: create a fine-grained Hugging Face token with write access to $HF_DOCS_SPACE only, then run gh secret set HF_DOCS_TOKEN -R EinarOlafsson/spacr"
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: tools
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - name: Install the Hugging Face client
+        run: python -m pip install "huggingface_hub>=0.25"
+      - name: Download the nightly site
+        uses: actions/download-artifact@v8
+        with:
+          name: docs-channel-nightly
+          path: channels/docs-channel-nightly
+      - name: Assemble the standalone nightly site
+        run: |
+          tools/run_capped.sh 4G python tools/publish_docs_channels.py assemble-nightly \
+            --nightly channels/docs-channel-nightly --output space --nightly-url "$HF_DOCS_URL"
+      - name: Upload one complete site and verify its public deployment
+        run: |
+          revision=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py upload-nightly --site space --space "$HF_DOCS_SPACE")
+          tools/run_capped.sh 4G python tools/publish_docs_channels.py verify-space-tree \
+            --site space --space "$HF_DOCS_SPACE" --revision "$revision"
+          source=$(tools/run_capped.sh 4G python tools/publish_docs_channels.py verify-nightly --site space --url "$HF_DOCS_URL")
+          {
+            echo "### Nightly documentation"
+            echo "Space commit: $revision"
+            echo "Verified public source: $source"
+            echo "$HF_DOCS_URL"
+          } >> "$GITHUB_STEP_SUMMARY"

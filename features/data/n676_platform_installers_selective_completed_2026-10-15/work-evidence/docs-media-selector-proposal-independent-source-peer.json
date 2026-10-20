@@ -1,0 +1,44 @@
+{
+  "status": "pass",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "proposal": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector-proposal/proposal.json",
+    "bytes": 3852,
+    "sha256": "e58b48a8b474f82f230b55d0ef1bfba06dd8513963e2e67daa3682cac08de674"
+  },
+  "preimage": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/test_docs_media_budget.py",
+    "bytes": 33941,
+    "sha256": "1cdc24bda291c77bdce4c16e6472bd3134cbeed894adfe469f23898a81db58c5"
+  },
+  "proposed": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector-proposal/test_docs_media_budget.py.proposed",
+    "bytes": 34017,
+    "sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5"
+  },
+  "patch": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector-proposal/current-published02-selector.patch",
+    "bytes": 1158,
+    "sha256": "081c00d3f60d5d3348b26f64c5022489bccf8c5c0f493624d6b295889d61edf2"
+  },
+  "report_current_HEAD": "f9fc7b8479bb18d92347f4232d575a49b1c1d11a",
+  "checks": {
+    "current_committed_test_preimage_exact": true,
+    "only_two_explicit_checkpoint_selector_expressions_changed": true,
+    "all_assert_AST_nodes_identical": true,
+    "exact_patch_reconstruction": true,
+    "both_selected_test_nodes_exist": true,
+    "current02_selector_b62_manifest98d88_matches": true,
+    "actual_test_source_unchanged": true
+  },
+  "selected_nodes": [
+    "tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster",
+    "tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock"
+  ],
+  "limits": [
+    "Source-only portable proposal, not applied; actual tests/CI/browser/remote operations not executed.",
+    "Applies to exact preimage only; selects completed02 currently published data, not unpublished04.",
+    "Historical tools/tutorials/release_candidate files remain untouched; no assertions weakened."
+  ]
+}

@@ -139,7 +139,7 @@ def test_a_patch_that_changes_nothing_does_not_rewrite_the_queue(tmp_path):
     # ... and one real change writes the whole snapshot back.
     queue.update(item.id, status=pq.Status.RUNNING)
     assert item.status is pq.Status.RUNNING
-    payload = json.loads(path.read_text())
+    payload = json.loads(path.read_text(encoding="utf-8"))
     assert [row["status"] for row in payload["items"]] == ["running"]
 
 
@@ -576,10 +576,12 @@ def test_a_rendered_list_always_holds_something_selectable(palette):
     assert [f != Qt.NoItemFlags for f in flags] == [False, True, False, True]
     assert palette._list.currentRow() == 1
 
-    # the row it selected is a command, and Enter runs that command
-    palette._on_activate()
-    assert ran == ["a"]
-
     # an empty render selects nothing at all, and never asks the loop to
     assert palette._render([]) is None
     assert palette._list.count() == 0
+    assert palette._list.currentRow() == -1
+
+    # the row it selected is a command, and Enter runs that command
+    palette._render(commands)
+    palette._on_activate()
+    assert ran == ["a"]

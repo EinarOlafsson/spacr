@@ -4,8 +4,8 @@ The chrome over :mod:`spacr.qt.widgets.formula`. Everything about *what an
 expression means* is in there; this module is a name box, an expression box, a
 list of what has been defined and a preview of the first few values.
 
-Three things it insists on
---------------------------
+Design rules
+------------
 
 **It validates while you type, not when you commit.** The expression is parsed
 on every keystroke (a parse of a forty-character string is microseconds), so
@@ -17,8 +17,8 @@ formula parses *and* resolves against the loaded table.
 and produce a column that is 90% infinities, which no amount of syntax checking
 catches. The preview evaluates the expression over the head of the table and
 prints :attr:`~spacr.qt.widgets.formula.ColumnResult.notice` — "3 of 4 rows
-have a finite value · 1 became NaN or infinite in the calculation" — which is
-the sentence that stops a bad ratio column reaching a chart.
+have a finite value · 1 became NaN or infinite in the calculation" — so a bad
+ratio column is noticed before it reaches a chart.
 
 **It hands back a frame, not a mutation.** :meth:`FormulaPanel.computed_frame`
 returns the loaded table *plus* the computed columns, a copy every time. The
@@ -30,11 +30,12 @@ Where the columns go
 
 Nowhere, by itself. The panel emits :attr:`FormulaPanel.formulas_changed` and
 the host re-hands the computed frame to whatever it is driving — the trellis,
-the gate editor, the feature explorer, the Local Data Filter. That is the whole
-integration: a computed column is an ordinary column from the moment it exists,
-classified by the same :func:`~spacr.qt.widgets.data_filter_panel.classify_columns`
-rule as a measured one, so it appears in the column well, in the filter picker
-and in the export without any of them being told about formulas.
+the gate editor, the feature explorer, the Local Data Filter. No other
+integration is needed: a computed column is an ordinary column from the moment
+it exists, classified by the same
+:func:`~spacr.qt.widgets.data_filter_panel.classify_columns` rule as a
+measured one, so it appears in the column well, in the filter picker and in
+the export without any of them being told about formulas.
 """
 from __future__ import annotations
 
@@ -45,7 +46,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget,
+    QPushButton, QSizePolicy, QVBoxLayout, QWidget,
 )
 
 from ..theme import RADIUS, SPACING, font_px, register_widget_qss
@@ -53,6 +54,7 @@ from .formula import (
     FUNCTION_HELP, ColumnFormula, ColumnResult, FormulaError, FormulaSet,
     compute,
 )
+from .sortable_table import _reuse_list_items
 from .toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.formula_editor")
@@ -407,13 +409,12 @@ class FormulaPanel(QWidget):
         expression otherwise, so why a column is unavailable is reachable from
         the row itself.
         """
-        self._list.clear()
         notices = {r.formula.name: r.notice for r in self._results}
-        for formula in self._formulas.formulas:
-            item = QListWidgetItem(formula.describe())
+        formulas = list(self._formulas.formulas)
+        for formula, item in zip(formulas, _reuse_list_items(self._list, len(formulas))):
+            item.setText(formula.describe())
             item.setData(Qt.UserRole, formula.name)
             item.setToolTip(notices.get(formula.name, formula.expression))
-            self._list.addItem(item)
 
     def _say(self, text: str, state: str) -> None:
         """Write the status line and repolish it so the state style takes effect.
@@ -448,8 +449,7 @@ class FormulaPanel(QWidget):
 class FormulaDialog(QDialog):
     """:class:`FormulaPanel` in a window, for a screen with no room for it.
 
-    Non-modal, so the chart behind it redraws as columns are added — which is
-    the point of adding them.
+    Non-modal, so the chart behind it redraws as columns are added.
 
     :param parent: parent widget.
     :param panel: an existing :class:`FormulaPanel` to host. ``None`` builds

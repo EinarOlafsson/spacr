@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "source_prepared_not_executed",
+  "lesson": "05_home",
+  "capture_and_voice_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/export_completed05_checkpoint.py",
+      "bytes": 23114,
+      "sha256": "9d7c0f275af4ad16ccb24003dbe50f0d78cec669f22885292663332b11ccdd33"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/assemble_completed05_packet.py",
+      "bytes": 7193,
+      "sha256": "addf63ec9b4a67a58050dc2d3255d9e2cdc002b5eb7f974226a5e327f341fb56"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/copy_completed05_to_report.py",
+      "bytes": 8700,
+      "sha256": "c7d3a76ad9945bd3740817424bdf60a8c99252fad1fe5a0e1a9c67b1128b459b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed05-helper-USAGE.txt",
+      "bytes": 3694,
+      "sha256": "674e3278c5da01f6e4c5bbf3b24674b4a1be3fc959bf4f9bfab791d03ecefcf4"
+    }
+  ],
+  "validation": "AST syntax and bounded source/schema readback only; no exporter/assembler/copy execution, no REPORT/source mutation."
+}

@@ -1639,12 +1639,12 @@ runtime reviews still need source reconciliation. Translations and the full
 reference remain open; see411_threshold_source_refresh_2026-09-22.json.
 
 2026-09-22 — CODEX: CURRENT EXTERNAL APP / DIAGRAM API HANDOFFS PUBLISHED
-Commits a567c178a and a69909cc5 publish/reconcile21 Starplast, diagram, organism
+Commits a567c178a and a69909cc5 publish/reconcile21 ParaScape, diagram, organism
 registry and sample-route API entries in all nine locales. Sphinx -W passes;
 all21 actual anchors and189 served locale entries were checked. The first
 batch passes167 focused checks, the stable-layout follow-up166. Required
 parameter omissions stay2293. The shared explicit-module visibility policy
-publishes Starplast services while excluding private helpers/import aliases.
+publishes ParaScape services while excluding private helpers/import aliases.
 English inventory11356 API entries; all nine review loaders pass. Existing
 full-catalog browser acceptance and the remaining nested-helper rollout are
 still open. Structural/source-hash census after the subsequent heading batch:
@@ -2099,7 +2099,7 @@ large ones (preferences, utils, plot, fractal_travel, gui_scale, ml).
 2026-10-03 — 23 MORE MODULES ENABLED (PARTIAL; 190 of 1,157)
 ENABLED_MODULES grows by 23 modules with two helpers each (hits,
 object_settings_table, qt.dnd, qt.hf_download, qt.menus, qt.prerun, ten
-qt.screens, qt.settings_search, qt.starplast and seven qt.widgets). The normal
+qt.screens, qt.settings_search, qt.parascape and seven qt.widgets). The normal
 API writer adds 46 symbols (12,171 -> 12,217; 45 helpers plus nightly's new
 public ConditionSourceTable.setModel) in English and all nine locales; earlier
 records unchanged. 62 unique blocks got direct AI translations with AI
@@ -2325,3 +2325,13 @@ Private projection normal publisher995914265/996147200bytes passes with only
 232935bytes headroom; future additions are unaccepted. Portable8 payloads:
 features/data/411_source_projection_pages_budget_2026-10-08/receipt.json.
 All broader source remains private until first required green.
+
+2026-10-18 — Normal Help generation requires two genuinely eligible documented nested callbacks missing from English API: preferences._count_store_moves.set_path and settings_model._import_attribution_off_the_gui_thread._work. accessibility_implementation + accessibility_acceptance own those two entries/18 targets plus the normal extractor-proven Regression press arrival and publication-figure paragraph (27 targets), with exact named source/callable registration in existing contracts; preserve historical pins, unrelated entries, prior translated paragraphs, eligibility/strict guards and alpha controls. Scoped closure:45 targets adopted normally,14 owning contracts pass, all unrelated catalog/history records and nine prior paragraphs are preserved. Normal Help was regenerated; broader411 acceptance remains as recorded above. No source/docstring rewrite or broad API audit.
+
+2026-10-18 — Current upstream example-loading changes add in_background=False to load_the_example_screen and documented EXAMPLE_PROGRESS_INTERVAL_S plus worker/private helpers. Retained accessibility_implementation + accessibility_acceptance own only normally eligible added/changed source blocks and their nine-locale bindings; confirm private/nested visibility before drafting, preserve prior45 targets/old paragraphs/history, update exact existing arrival consumers and affected Help normally. Normal extraction proves0 additions/0 removals and exactly2 changed entries: load_the_example_screen gains its in_background parameter block, and MakeMasksScreen.open_folded gains the actual first-fold/page-strip paragraph. The first2 entries need18 targets and preserve7 prior blocks per locale. The class constant/private helpers have no eligible entry. Incoming c71ce set_frame public remembered-state paragraph is normally eligible: final scope3 changed/0added/0removed entries,27 new approved targets and81 preserved prior blocks. All18 earlier approvals remain valid; no other incoming private/body-only changes warrant invented arrivals. No source-English rewrite, eligibility exclusion, broad API audit or unrequested translation sweep.
+
+2026-10-18 — Incoming4dfeb9f0d/7bc31e020 adds the public ResultsTable.set_frame stepped-fill paragraph. accessibility_implementation + accessibility_acceptance own its exact normal source binding and nine reviewed translations, preserving every earlier paragraph, the completed27-target/81-block closure and unrelated catalog/history records. Confirm private-class/helper exclusion, then use the normal scoped API writer and only affected catalog checks; conda_acceptance owns downstream Help/consumer-map closure. No runtime/guide rewrite or global audit.
+
+2026-10-18 — Integrate published c807/40af/d499 source: normally adopt the two changed workspace API paragraphs and the extractor-proven public AppScreen.register_workspace paragraph in nine languages (27 targets), plus published40af first-fold targets; retire only our nine duplicate first-fold rows and the one superseded Icelandic register_workspace row, retaining original review history. Preserve all unrelated catalogs, earlier example/ResultsTable targets and passing results; regenerate final affected consumer/Help outputs after the integrated source is stable.
+
+2026-10-19 — c807/40af/d499 integration was already on nightly (e04394874, 27 targets, Help current). The remaining machine-translated blocks of the same entries (load_the_example_screen, register/unregister_workspace, open_folded, ResultsTable.set_frame, clear_providers, section_states) now have reviewed records in nine locales (9-16 per locale, 2026-10-19-411-workspace-example-fold-pages.json). Normal sources/repair/Help regeneration; API i18n cohort passes.

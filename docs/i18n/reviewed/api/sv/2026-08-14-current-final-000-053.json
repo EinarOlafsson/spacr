@@ -14,7 +14,9 @@
       "source_sha256": "f15db61fc6d0e7de57b3e95a93282aada90fe0bb8dd16569612f01e1666af3ae",
       "source": "substring filter on ``png_path`` — matches the Annotate screen's own ``image_type`` filter (e.g. ``'cell'``).",
       "context": "substring filter on ``png_path`` — matches the Annotate application view's own ``image_type`` filter (e.g. ``'cell'``).",
-      "translation": "delsträngsfilter på ``png_path`` — matchar Annotera-applikationsvyns eget ``image_type``-filter (till exempel ``'cell'``)."
+      "translation": "delsträngsfilter på ``png_path`` — matchar Annotera-applikationsvyns eget ``image_type``-filter (till exempel ``'cell'``).",
+      "retired": true,
+      "retired_reason": "2026-10-18, issue #152: the docstring block was rewritten when Suggest gained table and feature-class choices and the image filter began to be read the way the grid reads it; the replacement is reviewed in 2026-10-18-issue152-suggest-features.json."
     },
     {
       "label": "spacr.active_learning.predict_probabilities#1",
@@ -191,7 +193,9 @@
       "source_sha256": "2a17902227be8ed8baf403dcdea6906b8e5db09cb601e4a9d3e514dfa3ea8e46",
       "source": "Two independent tests, which is the whole point of splitting them: WHICH OBJECT the crop is of (a substring of its path, e.g. ``cell_png``) and WHAT FORMAT it is in (its extension). One setting could never express \"every nucleus crop, whatever format\" or \"every TIFF, whatever object\".",
       "context": "Two independent tests, which is the whole point of splitting them: which object the extracted image region is of (a substring of its path, e.g. ``cell_png``) and what format it is in (its extension). One setting could never express \"every nucleus extracted image region, whatever format\" or \"every TIFF, whatever object\".",
-      "translation": "Två oberoende tester, vilket är hela poängen med att dela upp dem: VILKET OBJEKT den extraherade bildregionen tillhör (en delsträng av dess sökväg, till exempel ``cell_png``) och VILKET FORMAT den är i (dess filändelse). En inställning skulle aldrig kunna uttrycka \"varje kärna extraherade bildregion, oavsett format\" eller \"var TIFF, vilket objekt\"."
+      "translation": "Två oberoende tester, vilket är hela poängen med att dela upp dem: VILKET OBJEKT den extraherade bildregionen tillhör (en delsträng av dess sökväg, till exempel ``cell_png``) och VILKET FORMAT den är i (dess filändelse). En inställning skulle aldrig kunna uttrycka \"varje kärna extraherade bildregion, oavsett format\" eller \"var TIFF, vilket objekt\".",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops.CropSpec#10",
@@ -300,7 +304,9 @@
       "source_sha256": "0c6fb20198b9d6d20613482ae144cfad0e31954ee55622c77238d2800220427f",
       "source": "**Selecting on the test split leaks.** :func:`cv_search` scores every trial on cross-validation folds, never on test, and refuses to run if a caller hands it folds that touch the held-out test indices. It defaults to *grouped* folds (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — crops from one well share focus, illumination and seeding density, so an ungrouped search picks the model that memorised wells and reports a beautiful, meaningless score.",
       "context": "**Selecting on the test split leaks.** :func:`cv_search` scores every trial on cross-validation folds, never on test, and refuses to execute if a caller hands it folds that touch the held-out test indices. It defaults to *grouped* folds (``group_by='well'``) and reuses :func:`spacr.io.make_cv_folds` — extracted image regions from one microplate sample position share focus, illumination and seeding density, so an ungrouped search picks the model that memorised microplate sample positions and reports a beautiful, meaningless score.",
-      "translation": "**Välja på testuppdelningen läcker.** :func:`cv_search` poängsätter varje försök på korsvalideringsvikningar, aldrig på test, och vägrar att utföra om anroparen ger den vikningar som rör de hållna ut testindex. Det är standard till *grupperade* vikningar (``group_by='well'``) och återanvänder :func:`spacr.io.make_cv_folds` - extraherade bildregioner från en mikroplatta provposition delar fokus, belysning och sådddensitet, så en ogrupperad sökning plockar modellen som memorerade mikroplatta prov positioner och rapporterar en vacker, en meningslös poäng."
+      "translation": "**Välja på testuppdelningen läcker.** :func:`cv_search` poängsätter varje försök på korsvalideringsvikningar, aldrig på test, och vägrar att utföra om anroparen ger den vikningar som rör de hållna ut testindex. Det är standard till *grupperade* vikningar (``group_by='well'``) och återanvänder :func:`spacr.io.make_cv_folds` - extraherade bildregioner från en mikroplatta provposition delar fokus, belysning och sådddensitet, så en ogrupperad sökning plockar modellen som memorerade mikroplatta prov positioner och rapporterar en vacker, en meningslös poäng.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.io.generate_loaders#11",
@@ -314,7 +320,10 @@
       "source_sha256": "39de9db9f25ed972138e8e16dff096a6f2820f7dca88be6655984f453c88fe35",
       "source": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
       "context": "If a column has only one annotated value (e.g., only '1's), we add a '<column>_random' class using unannotated rows for that column (same size as positives).",
-      "translation": "Om en kolumn bara har ett annoterat värde (till exempel bara '1:or'), lägger vi till en '<column>_random'-klass med oannoterade rader för den kolumnen (samma storlek som positiva tal)."
+      "translation": "Om en kolumn bara har ett annoterat värde (till exempel bara '1:or'), lägger vi till en '<column>_random'-klass med oannoterade rader för den kolumnen (samma storlek som positiva tal).",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.io.save_object_mask#2",
@@ -352,11 +361,14 @@
       "translation": "mikroskopets synfälts ``.npy``-stam, till exempel ``plate1_A01_F001``. En laboratorium microplate-wide belysningmodell indexerar dess per-brunnförstärkning som använder detta."
     },
     {
-      "label": "spacr.ml.generate_ml_scores#6",
+      "label": "spacr.ml.generate_ml_scores#7",
       "source_sha256": "9d28261bdaab34a143c88fcc3f0c17589cb3115ac9b615ebc10aa48dc7aa6487",
       "source": "``positive_control`` / ``negative_control`` — well IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
       "context": "``positive_control`` / ``negative_control`` — microplate sample position IDs (e.g. ``'c2'`` / ``'c1'``) used as training labels.",
-      "translation": "``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter."
+      "translation": "``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Existing-table Classify source68ebc796b4d changed or shifted this paragraph. Replacement exact-source review is2026-10-15-n594-tables-contracts.json; original source and target retained as historical evidence."
     },
     {
       "label": "spacr.napari_bridge.layer_specs#1",

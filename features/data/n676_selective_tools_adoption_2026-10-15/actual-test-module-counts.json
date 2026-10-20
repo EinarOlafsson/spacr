@@ -1,0 +1,9 @@
+{
+  "tools.tutorials.tests.test_appended_candidate": 60,
+  "tools.tutorials.tests.test_native_live_timing": 12,
+  "tools.tutorials.tests.test_installation_merge": 2,
+  "tools.tutorials.tests.test_retained_visual_refresh": 30,
+  "tools.tutorials.tests.test_retained_pipeline_sources": 13,
+  "tools.tutorials.tests.test_completed_matrix": 24,
+  "tools.tutorials.tests.test_retained_narration": 34
+}

@@ -1,9 +1,9 @@
 """Shared source-selector controls for every live-preview panel.
 
 Four modules ship a live preview — Mask, Measure, Timelapse and Motility —
-and each of them opens exactly one source at a time. Before this module they
-each had a single ``Choose …`` button and no way to move to the next field of
-view or to look at a different channel without re-opening the file dialog.
+and each of them opens exactly one source at a time. This module lets them
+move to the next field of view or another channel without reopening the file
+dialog.
 
 This module supplies the two dropdowns those panels now share, plus the flat
 "text only" look they wear:
@@ -48,7 +48,7 @@ resident memory it held            16.2 MB     3.1 MB     56.0 MB    39.4 MB
 image files opened                       1          1           1          1
 ==============================  ==========  =========  ==========  =========
 
-The third row is the one users feel: the panels rebuild their selectors on
+The third row matters most: the panels rebuild their selectors on
 every load, so re-listing and re-populating the whole plate was paid again on
 each step through it. It was also the wrong list — four of those entries are
 the same field of view, once per channel.
@@ -282,7 +282,7 @@ class FlatSpinBox(_FlatStyleMixin, QSpinBox):
         """Build a flat spin box.
 
         The maximum starts wide open and is clamped once a folder has been
-        enumerated -- until then there is no honest ceiling to impose.
+        enumerated -- until then no ceiling is known.
 
         :param parent: parent widget, or ``None``.
         :param tooltip: hover text.
@@ -736,7 +736,7 @@ def sample_seed(directory, total: int, max_sets: int, nonce: int = 0) -> int:
 
     Deliberately the folder's **name**, not its full path: the same plate read
     from a local copy and from the NAS it was acquired on must preview the same
-    fields, or "the sample I looked at" is not a thing anyone can hand over.
+    fields, so a sample can be shared by naming the plate and the cap.
     Two unrelated folders sharing a name draw the same *positions*, which
     selects different sets because their contents differ.
 
@@ -1082,8 +1082,7 @@ def configure_max_sets_box(box: QSpinBox, total: int) -> int:
     """Point a :class:`FlatSpinBox` at a freshly enumerated folder.
 
     The suffix carries the total, so the control reads ``20 of 24576 sets``.
-    The maximum is clamped to the total so it can never read ``50 of 12`` —
-    a cap above what exists is not a real cap.
+    The maximum is clamped to the total so it can never read ``50 of 12``.
 
     :param box: the cap spin box; its suffix, maximum and enabled state are
         set with signals blocked, and it is enabled only for more than one

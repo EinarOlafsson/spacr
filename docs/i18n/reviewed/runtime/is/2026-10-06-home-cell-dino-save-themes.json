@@ -13,7 +13,7 @@
       "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
       "source_sha256": "f56f8ca9fc07e6461b525f0b74eece2a38a93b32d6147da646a6abecdc143498",
       "table": "ui",
-      "translation": "Líkan þjálfað á smásjármyndum fremur en ljósmyndum. OpenPhenom og ChAda-ViT taka við hvaða fjölda litunarása sem er. Tveggja plana líkan SubCell tekur DNA og síðan prótein; fjögurra plana líkanið krefst skýrrar vörpunar örpípla, ER, DNA og próteins. Aðrar vigtir eru sóttar einu sinni. Cell-DINO krefst staðbundinnar opinberrar vistunar, uppgefins SHA-256 og skýrrar vörpunar myndplana líkansins. Sjálfgefið None (nota grunnnetið)."
+      "translation": "Líkan þjálfað á smásjármyndum fremur en ljósmyndum. OpenPhenom og ChAda-ViT taka við hvaða fjölda litunarása sem er. Tveggja plana líkan SubCell tekur DNA og síðan prótein; fjögurra plana líkanið krefst skýrrar vörpunar örpípla, ER, DNA og próteins. Önnur vægi eru sótt einu sinni. Cell-DINO krefst staðbundinnar opinberrar vistunar, uppgefins SHA-256 og skýrrar vörpunar myndplana líkansins. Sjálfgefið None (nota grunnnetið)."
     },
     {
       "key": "Accent",

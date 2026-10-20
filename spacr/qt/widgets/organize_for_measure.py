@@ -41,26 +41,30 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Sequence
 
 import numpy as np
-from PySide6.QtCore import (QByteArray, QEvent, QMimeData, QRect, QSize, Qt,
-                            Signal, QTimer)
-from PySide6.QtGui import QColor, QImage, QPainter, QPalette, QPen, QPixmap
+from PySide6.QtCore import (QAbstractTableModel, QByteArray,
+                            QMimeData, QModelIndex, QRect, QSize, Qt, Signal,
+                            QTimer, QUrl)
+from PySide6.QtGui import (QBrush, QColor, QImage, QPainter, QPalette, QPen,
+                           QPixmap)
 from PySide6.QtWidgets import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox,
-    QDialog, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
-    QMessageBox, QPushButton, QStyle, QStyledItemDelegate, QTableWidget,
+    QDialog, QDialogButtonBox, QFileDialog, QFrame, QHBoxLayout, QHeaderView, QLabel, QLineEdit,
+    QMessageBox, QPushButton, QStyle, QStyledItemDelegate, QTableView, QTableWidget,
     QToolTip, QVBoxLayout,
 )
+
+from shiboken6 import isValid as shiboken_valid
 
 from ... import channel_sorting as cs
 from ..hidpi import scaled_for
 from ..i18n import tr
 from .colour_picker import pick_colour
-from .sortable_table import SortableTableItem
 
 #: The drag format of cells dragged between the table's columns: JSON
 #: ``{"column": int, "paths": [str]}``.
@@ -71,6 +75,16 @@ _NOT_CONSOLIDATED = ("masks", "orig", cs.DEFAULT_DEST_NAME)
 
 #: The convention the regex box starts on: spaCR proposes a regex.
 _DEFAULT_METADATA_TYPE = "auto"
+
+#: How long a refreshed table waits before it asks for thumbnails: one
+#: frame and a paint, so the reading threads start after the new rows are
+#: on screen rather than while the GUI thread lays them out and draws them.
+_THUMBS_AFTER_REFRESH_MS = 60
+
+#: How long rows a sort installed wait before the table draws them: one
+#: frame, so installing and drawing are two GUI-thread steps with the event
+#: loop free between them, not one long one.
+_DRAW_AFTER_INSTALL_MS = 16
 
 #: The popup's modes: Make Masks' Measure layout, Mask Generation's images
 #: only, and Import's images and masks with either layout.
@@ -330,6 +344,247 @@ def _images_in(paths: Iterable[str]):
     return list(dict.fromkeys(found)), skipped
 
 
+def _alias_in(cache: Dict[str, Dict[str, str]], path: str) -> str:
+    """The name the regex reads for ``path``, through a manifest cache.
+
+    :param cache: ``{folder: {copy name: original name}}``, filled as
+        folders are first met (:func:`spacr.channel_sorting._original_names`).
+    :param path: an image path.
+    :returns: the path under its folder with its original file name.
+    """
+    folder = os.path.dirname(path)
+    if folder not in cache:
+        cache[folder] = cs._original_names(folder)
+    name = os.path.basename(path)
+    return os.path.join(folder, cache[folder].get(name, name))
+
+
+def _regex_for_names(key: str, custom: str, names: Sequence[str]) -> str:
+    """The regex a ``metadata_type`` and a custom regex stand for.
+
+    :param key: the convention; ``auto`` and ``custom`` are spaCR's own.
+    :param custom: the custom regex as typed, stripped.
+    :param names: file names or paths.
+    :returns: the regex, or ``""`` when there is none.
+    """
+    from ... import regex_infer
+
+    if key == "auto":
+        return custom or cs.infer_regex(list(names)) or ""
+    if key == "custom":
+        return custom
+    extensions = sorted({os.path.splitext(n)[1].lstrip(".") or "tif"
+                         for n in names}) or ["tif"]
+    try:
+        if len(extensions) == 1:
+            return regex_infer._metadata_pattern(key, extensions[0],
+                                                 custom or None)
+        return regex_infer._metadata_pattern_any_extension(key, extensions)
+    except KeyError:
+        return ""
+
+
+def _files_in(folder: str):
+    """The names of the files in ``folder``, from one directory read.
+
+    :param folder: a folder.
+    :returns: a set of names; an empty one when the folder is missing; None
+        where file names ignore case, so callers ask the disk per name.
+    """
+    if os.path.normcase("A") != "A" or sys.platform == "darwin":
+        return None
+    try:
+        with os.scandir(folder) as entries:
+            return {entry.name for entry in entries if entry.is_file()}
+    except OSError:
+        return set()
+
+
+def _gather_sort_paths(source: str, masks_dir: Optional[str],
+                       channel_files, mask_pairs, skipped):
+    """The images a sort reads, their channels and their masks.
+
+    Reads the disk only, so it runs on a worker thread.
+
+    :param source: the source folder, or ``""`` to read the columns.
+    :param masks_dir: the source's masks folder, when not its ``masks/``.
+    :param channel_files: ``[(files, channel), ...]``, one per channel
+        column, read when there is no source.
+    :param mask_pairs: ``[(channel column files, mask column files), ...]``.
+    :param skipped: paths "Teach me" was told to skip.
+    :returns: ``(paths, {path: channel}, {image: mask})``.
+    """
+    channels: Dict[str, int] = {}
+    masks: Dict[str, str] = {}
+    if source:
+        names = cs.list_folder_images(source)
+        paths = [os.path.join(source, n) for n in names]
+        saved = _files_in(cs.masks_folder(source, masks_dir))
+        for name, path in zip(names, paths):
+            stem = cs.split_extension(name)[0] + ".tif"
+            if saved is None:
+                mask = cs.mask_for(source, name, masks_dir)
+            else:
+                mask = (os.path.join(cs.masks_folder(source, masks_dir), stem)
+                        if stem in saved else None)
+            if mask:
+                masks[path] = mask
+    else:
+        paths = []
+        for files, channel in channel_files:
+            for path in files:
+                paths.append(path)
+                channels[path] = channel
+        for images, mask_files in mask_pairs:
+            pairs = cs._match_columns([list(images), list(mask_files)])
+            masks.update({row[0]: row[1] for row in pairs
+                          if row[0] and row[1]})
+    paths = [p for p in paths if p not in skipped]
+    return paths, channels, masks
+
+
+def _regex_layout(paths: Sequence[str], channels: Dict[str, int],
+                  masks: Dict[str, str], pattern: Optional[str], chan_map,
+                  key: str, custom: str,
+                  aliases: Dict[str, Dict[str, str]]) -> Dict[str, object]:
+    """The table a regex makes of these images: columns, rows and report.
+
+    Pure apart from reading rename manifests into ``aliases``, so it runs
+    on a worker thread; :meth:`OrganizeForMeasureDialog.sort_by_regex`
+    describes the layout.
+
+    :param paths: the images.
+    :param channels: ``{path: channel}`` for images already in a column.
+    :param masks: ``{image: mask}`` found beside them.
+    :param pattern: the regex, or None for what ``key`` and ``custom`` give.
+    :param chan_map: ``{chanID value: label}`` from "Teach me", or None.
+    :param key: the regex box's convention.
+    :param custom: the custom regex as typed, stripped.
+    :param aliases: the rename-manifest cache, filled in place.
+    :returns: ``{"empty": True}`` when there are no images, else the
+        ``columns``, ``rows``, ``row_keys``, set ``report`` and the masks
+        two images ``shared``.
+    """
+    if not paths:
+        return {"empty": True}
+    alias_of = {p: _alias_in(aliases, p) for p in paths}
+    back = {alias_of[p]: p for p in paths}
+    if pattern is None:
+        pattern = _regex_for_names(key, custom, [alias_of[p] for p in paths])
+    parsed = cs.parse_names(
+        [alias_of[p] for p in paths], pattern,
+        {_alias_in(aliases, p): c for p, c in channels.items()} or None)
+    name_masks: Dict[object, list] = {}
+    if chan_map is not None:
+        compiled = cs.compile_regex(pattern)[0]
+        for item in parsed:
+            item.channel = None
+            if not item.matched or compiled is None:
+                continue
+            label = chan_map.get(item.groups.get(cs.CHANNEL_GROUP, ""))
+            if isinstance(label, tuple) and label[0] == "channel":
+                item.channel = int(label[1])
+            elif isinstance(label, tuple) and label[0] == "mask":
+                name_masks.setdefault(item.set_key, []).append(
+                    (int(label[1]), label[2] if len(label) > 2 else "",
+                     back[item.name]))
+                item.matched = False
+    taken_as_masks = {m for entries in name_masks.values()
+                      for _c, _r, m in entries}
+    report = cs.check_sets([p for p in parsed
+                            if back[p.name] not in taken_as_masks])
+    chosen: Dict[cs.SetKey, Dict[int, str]] = {}
+    for item in parsed:
+        if item.matched and item.channel is not None:
+            chosen.setdefault(item.set_key, {}).setdefault(
+                item.channel, back[item.name])
+    claimed: Dict[str, List[str]] = {}
+    for image, mask in masks.items():
+        claimed.setdefault(mask, []).append(image)
+    shared = sorted(m for m, images in claimed.items() if len(images) > 1)
+    masks = {i: m for i, m in masks.items() if m not in shared}
+    present = sorted({c for m in chosen.values() for c in m})
+    position = {c: i + 1 for i, c in enumerate(present)}
+    explicit = {}
+    for set_key, entries in name_masks.items():
+        for channel, role, mask in entries:
+            image = chosen.get(set_key, {}).get(channel)
+            if image is not None:
+                masks[image] = mask
+                if role:
+                    explicit[channel] = role
+    roles = cs.default_mask_roles(
+        {c: [m[c] for m in chosen.values() if c in m] for c in present},
+        sorted({c for m in chosen.values() for c, p in m.items()
+                if p in masks}))
+    roles.update({c: r for c, r in explicit.items() if c in roles})
+    columns = [_Column("channel") for _c in present]
+    for channel in sorted(roles):
+        columns.append(_Column("mask", roles[channel], position[channel]))
+    rows: List[List[Optional[str]]] = []
+    row_keys: List[Optional[cs.SetKey]] = []
+    for set_key in sorted(chosen,
+                          key=lambda k: cs.natural_key(cs.set_label(k))):
+        row: List[Optional[str]] = [None] * len(columns)
+        for index, channel in enumerate(present):
+            row[index] = chosen[set_key].get(channel)
+        for index, column in enumerate(columns):
+            if column.kind == "mask":
+                image = chosen[set_key].get(present[column.of_channel - 1])
+                row[index] = masks.get(image) if image else None
+        rows.append(row)
+        row_keys.append(set_key)
+    return {"columns": columns, "rows": rows, "row_keys": row_keys,
+            "report": report, "shared": shared}
+
+
+def _name_shapes(rows, width: int, digits: bool = True) -> List[List[int]]:
+    """Per column, one row for each shape of file name it holds.
+
+    A name's shape is the name with its digits all made ``0``: in a font
+    whose digits are one width, names of one shape are one width, so
+    measuring one of each finds the widest. Pure, so a sort worker works it
+    out beside the layout.
+
+    :param rows: one list per row, one path or None per column.
+    :param width: how many columns.
+    :param digits: fold digits; False keeps every distinct name.
+    :returns: ``[[row, ...], ...]``, one list per column.
+    """
+    fold = str.maketrans("123456789", "000000000") if digits else None
+    out: List[List[int]] = []
+    for column in range(width):
+        shapes: Dict[str, int] = {}
+        for index, row in enumerate(rows):
+            path = row[column] if column < len(row) else None
+            name = os.path.basename(path) if path else "\u2014"
+            shapes.setdefault(name.translate(fold) if fold else name, index)
+        out.append(list(shapes.values()))
+    return out
+
+
+def _sort_job(source: str, masks_dir: Optional[str], channel_files,
+              mask_pairs, skipped, pattern: Optional[str], chan_map,
+              key: str, custom: str,
+              aliases: Dict[str, Dict[str, str]]) -> Dict[str, object]:
+    """Read the images and lay them out by the regex, off the GUI thread.
+
+    :func:`_gather_sort_paths`, then :func:`_regex_layout`, with the same
+    arguments; ``aliases`` is a copy the caller merges back.
+
+    :returns: :func:`_regex_layout`'s result plus the ``aliases`` read.
+    """
+    paths, channels, masks = _gather_sort_paths(
+        source, masks_dir, channel_files, mask_pairs, skipped)
+    result = _regex_layout(paths, channels, masks, pattern, chan_map, key,
+                           custom, aliases)
+    result["aliases"] = aliases
+    if "rows" in result:
+        result["shapes"] = _name_shapes(result["rows"],
+                                        len(result["columns"]))
+    return result
+
+
 @dataclass
 class _Column:
     """One table column: an image channel or a mask.
@@ -384,6 +639,210 @@ class _PathEdit(QLineEdit):
             return
         event.acceptProposedAction()
         self.setText(folders[0])
+
+
+class _VolumePathEdit(QLineEdit):
+    """A volume input accepting one local file by drop or pasted path."""
+
+    def __init__(self, parent=None):
+        """Build an empty path field that accepts dropped files.
+
+        :param parent: optional Qt parent widget.
+        """
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+        self.setPlaceholderText(tr("Drop a file or paste its path"))
+
+    def dragEnterEvent(self, event):
+        """Accept a drag of exactly one local file onto an editable field.
+
+        :param event: the Qt drag-enter event.
+        """
+        paths = _mime_paths(event.mimeData())
+        if not self.isReadOnly() and len(paths) == 1 and os.path.isfile(paths[0]):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        """Keep accepting or refusing the drag as it moves over the field.
+
+        :param event: the Qt drag-move event.
+        """
+        self.dragEnterEvent(event)
+
+    def dropEvent(self, event):
+        """Put a dropped local file's path into an editable field.
+
+        :param event: the Qt drop event.
+        """
+        paths = _mime_paths(event.mimeData())
+        if not self.isReadOnly() and len(paths) == 1 and os.path.isfile(paths[0]):
+            self.setText(paths[0])
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def path(self):
+        """Normalize a pasted path or local file URL without loading its data."""
+        value = self.text().strip().strip("\"'")
+        if not value:
+            return ""
+        if value.startswith("file:"):
+            value = QUrl(value).toLocalFile()
+        return os.path.abspath(os.path.expanduser(value)) if value else ""
+
+
+class MeasureVolumeDialog(QDialog):
+    """Choose extra channels and image sets for the current edited 3D mask.
+
+    :param source_path: path of the current 3D image, fixed in the first row.
+    :param parent: optional Qt parent widget.
+    :param spacing: optional voxel distances displayed in axis order.
+    :param axes: spatial axis order used to label the displayed spacing.
+    :param unit: unit displayed beside the voxel spacing.
+    """
+
+    def __init__(self, source_path, parent=None, *, spacing=None, axes="ZYX", unit="pixel"):
+        """Build the dialog with the current image fixed in its first row."""
+        super().__init__(parent)
+        self.setObjectName("MakeMasksMeasureVolumeDialog")
+        self.setWindowTitle(tr("Measure 3D images"))
+        self.resize(960, 440)
+        layout = QVBoxLayout(self)
+        description = QLabel(tr(
+            "The first image uses its current edited labels and all loaded channels. "
+            "Add matching 3D channel files or more image sets below. Leave the mask "
+            "field blank to use the image's saved mask. Measurements are written to measurements.db "
+            "in each image folder; existing measurements for these sets are updated."), self)
+        description.setWordWrap(True)
+        layout.addWidget(description)
+        if spacing is not None:
+            calibration = QLabel(tr(
+                "Current image voxel spacing ({axes}): {spacing} {unit}.",
+                axes=axes, spacing=" × ".join(f"{value:g}" for value in spacing), unit=unit), self)
+            calibration.setObjectName("VolumeMeasureCalibration")
+            calibration.setWordWrap(True)
+            layout.addWidget(calibration)
+        role_row = QHBoxLayout()
+        role_label = QLabel(tr("Object type"), self)
+        self.object_type = QComboBox(self)
+        self.object_type.setObjectName("VolumeMeasureObjectType")
+        for label, value in ((tr("Cell"), "cell"), (tr("Nucleus"), "nucleus"),
+                             (tr("Pathogen"), "pathogen"), (tr("Organelle"), "organelle")):
+            self.object_type.addItem(label, value)
+        role_label.setBuddy(self.object_type)
+        role_row.addWidget(role_label)
+        role_row.addWidget(self.object_type)
+        role_row.addStretch()
+        layout.addLayout(role_row)
+        self.table = QTableWidget(0, 4, self)
+        self.table.setObjectName("VolumeMeasureImageSets")
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._set_headers()
+        layout.addWidget(self.table, 1)
+        controls = QHBoxLayout()
+        self.add_row_button = QPushButton(tr("Add image set"), self)
+        self.add_row_button.setObjectName("VolumeMeasureAddImageSet")
+        self.add_row_button.clicked.connect(lambda: self.add_row())
+        self.add_channel_button = QPushButton(tr("Add channel"), self)
+        self.add_channel_button.setObjectName("VolumeMeasureAddChannel")
+        self.add_channel_button.clicked.connect(self.add_channel)
+        self.remove_row_button = QPushButton(tr("Remove image set"), self)
+        self.remove_row_button.clicked.connect(self.remove_row)
+        for button in (self.add_row_button, self.add_channel_button, self.remove_row_button):
+            controls.addWidget(button)
+        controls.addStretch()
+        layout.addLayout(controls)
+        self.error = QLabel(self)
+        self.error.setWordWrap(True)
+        self.error.setObjectName("VolumeMeasureInputError")
+        layout.addWidget(self.error)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel, self)
+        self.buttons.button(QDialogButtonBox.Save).setText(tr("Save measurements"))
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+        layout.addWidget(self.buttons)
+        self.add_row()
+        self.table.cellWidget(0, 0).setText(str(source_path))
+        self.table.cellWidget(0, 0).setReadOnly(True)
+        self.table.cellWidget(0, 1).setText(tr("Current edited labels"))
+        self.table.cellWidget(0, 1).setReadOnly(True)
+
+    def _set_headers(self):
+        """Label the image, mask and numbered extra-channel columns."""
+        self.table.setHorizontalHeaderLabels(
+            [tr("3D image"), tr("Saved mask (optional)")]
+            + [tr("Extra channel {n}", n=index + 1)
+               for index in range(self.table.columnCount() - 2)])
+
+    def _set_path_cell(self, row, column):
+        """Place a path field, named for its row and column, in one cell.
+
+        :param row: the image-set row.
+        :param column: the column the field fills.
+        """
+        field = _VolumePathEdit(self.table)
+        field.setAccessibleName(tr("Image set {row}, {column}", row=row + 1,
+                                   column=self.table.horizontalHeaderItem(column).text()))
+        self.table.setCellWidget(row, column, field)
+
+    def add_row(self):
+        """Append an independently measured image set."""
+        row = self.table.rowCount()
+        self.table.insertRow(row)
+        for column in range(self.table.columnCount()):
+            self._set_path_cell(row, column)
+        self.table.setCurrentCell(row, 0)
+
+    def add_channel(self):
+        """Add an optional channel slot to every image set."""
+        column = self.table.columnCount()
+        self.table.insertColumn(column)
+        self._set_headers()
+        for row in range(self.table.rowCount()):
+            self._set_path_cell(row, column)
+
+    def remove_row(self):
+        """Remove the selected extra image set, preserving the current image row."""
+        row = self.table.currentRow()
+        if row > 0:
+            self.table.removeRow(row)
+
+    def requests(self):
+        """Validate local paths and preserve each row's channel ordering."""
+        rows = []
+        for row in range(self.table.rowCount()):
+            source = self.table.cellWidget(row, 0).path()
+            mask = self.table.cellWidget(row, 1).path() if row else ""
+            channels = [self.table.cellWidget(row, column).path()
+                        for column in range(2, self.table.columnCount())]
+            if row and not source and not mask and not any(channels):
+                continue
+            if not source:
+                raise ValueError(tr("Choose a 3D image for image set {n}.", n=row + 1))
+            while channels and not channels[-1]:
+                channels.pop()
+            if any(not path for path in channels):
+                raise ValueError(tr("Fill extra channels from left to right in image set {n}.", n=row + 1))
+            for path in (source, mask, *channels):
+                if path and not os.path.isfile(path):
+                    raise ValueError(tr("File not found: {path}", path=path))
+            rows.append({"source_path": source, "mask_path": mask or None,
+                         "channel_paths": tuple(channels)})
+        return rows
+
+    def accept(self):
+        """Accept only valid image-set requests; display validation errors without closing."""
+        try:
+            self.requests()
+        except ValueError as exc:
+            self.error.setText(str(exc))
+            return
+        self.error.clear()
+        super().accept()
 
 
 #: How the table shows a cell: its name, its thumbnail, or both.
@@ -541,6 +1000,25 @@ def _close_rect(cell_rect):
                  _CLOSE_SIZE, _CLOSE_SIZE)
 
 
+#: The ×'s outline and stroke pens, plain and hovered, made once.
+_CLOSE_PENS: Dict[bool, tuple] = {}
+
+
+def _close_pens(hovered: bool) -> tuple:
+    """The ×'s ``(outline, stroke)`` pens: white, red when hovered.
+
+    :param hovered: whether the mouse is over the ×.
+    """
+    hovered = bool(hovered)
+    pens = _CLOSE_PENS.get(hovered)
+    if pens is None:
+        pens = _CLOSE_PENS[hovered] = (
+            QPen(QColor(0, 0, 0, 170), 4, Qt.SolidLine, Qt.RoundCap),
+            QPen(QColor(220, 40, 40) if hovered else QColor("white"),
+                 2, Qt.SolidLine, Qt.RoundCap))
+    return pens
+
+
 class _CellDelegate(QStyledItemDelegate):
     """Draws a table cell as text, thumbnail or both, with its ×.
 
@@ -563,16 +1041,21 @@ class _CellDelegate(QStyledItemDelegate):
         self.hover = None
 
     def paint(self, painter, option, index) -> None:
-        """Draw the cell in the chosen view, then its ×.
+        """Draw the cell in the chosen view; the table draws the ×s after.
 
         :param painter: the painter.
         :param option: the style option.
         :param index: the cell.
         """
-        path = index.data(Qt.UserRole)
-        pixmap = self.pixmaps.get(path) if path else None
-        if self.view == "text" or pixmap is None:
+        model = index.model()
+        if not isinstance(model, _CellModel):
             super().paint(painter, option, index)
+            return
+        path = model.path(index.row(), index.column())
+        pixmap = (self.pixmaps.get(path) if path and self.view != "text"
+                  else None)
+        if pixmap is None:
+            self._paint_text(painter, option, index, model, path)
         else:
             painter.save()
             if option.state & QStyle.State_Selected:
@@ -595,9 +1078,31 @@ class _CellDelegate(QStyledItemDelegate):
                 painter.drawText(box, Qt.AlignBottom | Qt.AlignLeft
                                  | Qt.TextWordWrap, text)
             painter.restore()
-        if path:
-            self._paint_close(painter, _close_rect(option.rect),
-                              self.hover == (index.row(), index.column()))
+
+    def _paint_text(self, painter, option, index, model, path) -> None:
+        """Draw a cell's name as the plain delegate would, without asking.
+
+        ``initStyleOption`` asks the model for nine roles a cell, each a
+        call into Python; this cell's name and flag colour are known, so
+        the option is filled from them and the style draws it as usual.
+
+        :param painter: the painter.
+        :param option: the style option.
+        :param index: the cell.
+        :param model: its :class:`_CellModel`.
+        :param path: its file, or None.
+        """
+        from PySide6.QtWidgets import QStyleOptionViewItem
+
+        cell = QStyleOptionViewItem(option)
+        cell.index = index
+        cell.features |= QStyleOptionViewItem.HasDisplay
+        cell.text = os.path.basename(path) if path else "\u2014"
+        if not path and index.column() in model.flagged:
+            cell.backgroundBrush = model.flag
+        widget = option.widget
+        style = widget.style() if widget is not None else QApplication.style()
+        style.drawControl(QStyle.CE_ItemViewItem, cell, painter, widget)
 
     @staticmethod
     def _paint_close(painter, rect, hovered: bool) -> None:
@@ -610,10 +1115,7 @@ class _CellDelegate(QStyledItemDelegate):
         painter.save()
         painter.setRenderHint(QPainter.Antialiasing, True)
         inset = rect.adjusted(3, 3, -3, -3)
-        outline = QPen(QColor(0, 0, 0, 170), 4, Qt.SolidLine, Qt.RoundCap)
-        stroke = QPen(QColor(220, 40, 40) if hovered else QColor("white"),
-                      2, Qt.SolidLine, Qt.RoundCap)
-        for pen in (outline, stroke):
+        for pen in _close_pens(hovered):
             painter.setPen(pen)
             painter.drawLine(inset.topLeft(), inset.bottomRight())
             painter.drawLine(inset.topRight(), inset.bottomLeft())
@@ -745,7 +1247,216 @@ def _save_thumb_pref(size: int) -> None:
         pass
 
 
-class _OrganizeTable(QTableWidget):
+class _CellItem:
+    """One cell of the table, read back the way a table-widget item was.
+
+    The table shows a fixed :class:`_CellModel`; this is a handle on one of
+    its cells for the code and tests that ask the table for ``item(row,
+    column)`` or its ``selectedItems()``.
+
+    :param table: the :class:`_OrganizeTable`.
+    :param row: the cell's row.
+    :param column: the cell's column.
+    """
+
+    __slots__ = ("_table", "_row", "_column")
+
+    def __init__(self, table, row: int, column: int):
+        """Point at one cell.
+
+        :param table: the table.
+        :param row: the row.
+        :param column: the column.
+        """
+        self._table = table
+        self._row = row
+        self._column = column
+
+    def _index(self):
+        """The cell's model index."""
+        return self._table.model().index(self._row, self._column)
+
+    def row(self) -> int:
+        """The cell's row."""
+        return self._row
+
+    def column(self) -> int:
+        """The cell's column."""
+        return self._column
+
+    def data(self, role: int = Qt.DisplayRole):
+        """The cell's data for ``role``: its path for ``Qt.UserRole``.
+
+        :param role: the item data role.
+        """
+        return self._index().data(role)
+
+    def text(self) -> str:
+        """The text the cell shows."""
+        return self.data(Qt.DisplayRole)
+
+    def toolTip(self) -> str:
+        """The cell's tooltip."""
+        return self.data(Qt.ToolTipRole)
+
+    def flags(self):
+        """The cell's item flags."""
+        return self._table.model().flags(self._index())
+
+    def isSelected(self) -> bool:
+        """Whether the cell is selected."""
+        return self._table.selectionModel().isSelected(self._index())
+
+    def setSelected(self, selected: bool) -> None:
+        """Select or deselect the cell.
+
+        :param selected: the new state.
+        """
+        from PySide6.QtCore import QItemSelectionModel
+
+        self._table.selectionModel().select(
+            self._index(), QItemSelectionModel.Select if selected
+            else QItemSelectionModel.Deselect)
+
+
+#: The roles :class:`_CellModel` answers; a cell is asked for a dozen
+#: others each time it is drawn, and those return at once.
+_CELL_ROLES = frozenset(int(getattr(role, "value", role)) for role in (
+    Qt.DisplayRole, Qt.UserRole, Qt.ToolTipRole, Qt.BackgroundRole))
+
+
+class _CellModel(QAbstractTableModel):
+    """The table's cells: a fixed snapshot of the rows, swapped whole.
+
+    A model is never changed once the table shows it; a new layout builds a
+    new model and the table is pointed at it in one step
+    (:meth:`_OrganizeTable.show_cells`). Nothing is built per cell: the text,
+    tooltip and flag colour are worked out when a cell is drawn, so a
+    3,000-file sort costs the same to show as a ten-file one.
+
+    :param rows: one list per row, one path or None per column.
+    :param captions: the column headers.
+    :param flagged: the columns whose empty cells are flagged.
+    :param table: the table; its ``mimeData`` builds a drag.
+    """
+
+    def __init__(self, rows, captions, flagged, table=None):
+        """Hold the snapshot; it never changes afterwards.
+
+        :param rows: one list per row, one path or None per column.
+        :param captions: the column headers.
+        :param flagged: the columns whose empty cells are flagged.
+        :param table: the table, also the model's Qt parent.
+        """
+        super().__init__(table)
+        self._table = table
+        self._rows = tuple(tuple(row) for row in rows)
+        self._captions = tuple(captions)
+        self.flagged = frozenset(flagged)
+        self.has_files = any(p for row in self._rows for p in row)
+        self._move_tip = tr("Drag it to another slot to move it (an occupied "
+                            "slot swaps); the × or Delete removes it.")
+        self._empty_tip = tr("Nothing matched here")
+        self.flag = QBrush(QColor(200, 60, 60, 60))
+        self._slot_flags = (Qt.ItemIsEnabled | Qt.ItemIsSelectable
+                            | Qt.ItemIsDropEnabled)
+        self._file_flags = self._slot_flags | Qt.ItemIsDragEnabled
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        """How many rows; a cell has no children.
+
+        :param parent: the parent index; only the root has rows.
+        """
+        return 0 if parent.isValid() else len(self._rows)
+
+    def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns.
+
+        :param parent: the parent index; only the root has columns.
+        """
+        return 0 if parent.isValid() else len(self._captions)
+
+    def path(self, row: int, column: int) -> Optional[str]:
+        """The file in a cell, or None.
+
+        :param row: the row.
+        :param column: the column.
+        """
+        if 0 <= row < len(self._rows) and 0 <= column < len(self._rows[row]):
+            return self._rows[row][column]
+        return None
+
+    def data(self, index, role=Qt.DisplayRole):
+        """A cell's name, path, tooltip or flag colour.
+
+        :param index: the cell.
+        :param role: the item data role.
+        """
+        if role not in _CELL_ROLES or not index.isValid():
+            return None
+        path = self.path(index.row(), index.column())
+        if role == Qt.DisplayRole:
+            return os.path.basename(path) if path else "—"
+        if role == Qt.UserRole:
+            return path
+        if role == Qt.ToolTipRole:
+            return path + "\n" + self._move_tip if path else self._empty_tip
+        if (role == Qt.BackgroundRole and not path
+                and index.column() in self.flagged):
+            return self.flag
+        return None
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """The column captions, and row numbers from 1.
+
+        :param section: the column or row.
+        :param orientation: horizontal for columns.
+        :param role: the item data role.
+        """
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Horizontal:
+            if 0 <= section < len(self._captions):
+                return self._captions[section]
+            return None
+        return str(section + 1)
+
+    def flags(self, index):
+        """A cell takes drops; one holding a file can be dragged.
+
+        :param index: the cell.
+        """
+        if not index.isValid():
+            return Qt.ItemIsDropEnabled
+        if self.path(index.row(), index.column()):
+            return self._file_flags
+        return self._slot_flags
+
+    def supportedDragActions(self):
+        """Cells are moved, or copied to another popup."""
+        return Qt.CopyAction | Qt.MoveAction
+
+    def supportedDropActions(self):
+        """Drops move cells or copy files in."""
+        return Qt.CopyAction | Qt.MoveAction
+
+    def mimeTypes(self) -> List[str]:
+        """The cells format only."""
+        return [_CELLS_MIME]
+
+    def mimeData(self, indexes) -> QMimeData:
+        """The drag of these cells, as the table builds it.
+
+        :param indexes: the dragged cells.
+        """
+        table = self._table
+        if table is None:
+            return QMimeData()
+        return table.mimeData([_CellItem(table, i.row(), i.column())
+                               for i in indexes if i.isValid()])
+
+
+class _OrganizeTable(QTableView):
     """The channel/mask table; every column is a drop target.
 
     :ivar dropped: ``(column, paths, from_column)`` -- files dropped on a
@@ -770,7 +1481,8 @@ class _OrganizeTable(QTableWidget):
 
         :param parent: the Qt parent.
         """
-        super().__init__(0, 0, parent)
+        super().__init__(parent)
+        self.setModel(_CellModel((), (), (), self))
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setDragDropMode(QAbstractItemView.DragDrop)
@@ -788,12 +1500,43 @@ class _OrganizeTable(QTableWidget):
 
     def _is_empty(self) -> bool:
         """Whether no cell holds a file (the placeholder is shown)."""
-        for row in range(self.rowCount()):
-            for column in range(self.columnCount()):
-                item = self.item(row, column)
-                if item is not None and item.data(Qt.UserRole):
-                    return False
-        return True
+        return not self.model().has_files
+
+    def show_cells(self, rows, captions, flagged) -> None:
+        """Show new cells: a new model in one step, the old one released.
+
+        :param rows: one list per row, one path or None per column.
+        :param captions: the column headers.
+        :param flagged: the columns whose empty cells are flagged.
+        """
+        old_model, old_selection = self.model(), self.selectionModel()
+        self.setModel(_CellModel(rows, captions, flagged, self))
+        for gone in (old_selection, old_model):
+            if gone is not None:
+                gone.deleteLater()
+
+    def rowCount(self) -> int:
+        """How many rows the table shows."""
+        return self.model().rowCount()
+
+    def columnCount(self) -> int:
+        """How many columns the table shows."""
+        return self.model().columnCount()
+
+    def item(self, row: int, column: int) -> Optional[_CellItem]:
+        """A handle on one cell, or None outside the table.
+
+        :param row: the row.
+        :param column: the column.
+        """
+        if 0 <= row < self.rowCount() and 0 <= column < self.columnCount():
+            return _CellItem(self, row, column)
+        return None
+
+    def selectedItems(self) -> List[_CellItem]:
+        """Handles on the selected cells."""
+        return [_CellItem(self, i.row(), i.column())
+                for i in self.selectedIndexes()]
 
     def paintEvent(self, event) -> None:
         """Paint the table, and the drop hint over it while it is empty.
@@ -802,6 +1545,7 @@ class _OrganizeTable(QTableWidget):
         """
         super().paintEvent(event)
         if not self._is_empty():
+            self._paint_closes(event.rect())
             return
         painter = QPainter(self.viewport())
         color = QColor(self.palette().color(self.foregroundRole()))
@@ -812,6 +1556,44 @@ class _OrganizeTable(QTableWidget):
         painter.setFont(font)
         painter.drawText(self.viewport().rect(), Qt.AlignCenter
                          | Qt.TextWordWrap, self.placeholder)
+        painter.end()
+
+    def _paint_closes(self, area) -> None:
+        """Draw the × of every file cell in ``area``, in one pass.
+
+        One painter and two pens for all of them: drawn cell by cell, a
+        text view's × doubled the cost of painting the table.
+
+        :param area: the viewport rectangle being painted.
+        """
+        model = self.model()
+        top = self.rowAt(area.top())
+        bottom = self.rowAt(area.bottom())
+        left = self.columnAt(area.left())
+        right = self.columnAt(area.right())
+        if top < 0 or left < 0:
+            return
+        bottom = model.rowCount() - 1 if bottom < 0 else bottom
+        right = model.columnCount() - 1 if right < 0 else right
+        hover = getattr(self.itemDelegate(), "hover", None)
+        marks = []
+        for row in range(top, bottom + 1):
+            y, height = self.rowViewportPosition(row), self.rowHeight(row)
+            for column in range(left, right + 1):
+                if model.path(row, column):
+                    cell = QRect(self.columnViewportPosition(column), y,
+                                 self.columnWidth(column), height)
+                    marks.append((_close_rect(cell).adjusted(3, 3, -3, -3),
+                                  hover == (row, column)))
+        if not marks:
+            return
+        painter = QPainter(self.viewport())
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        for layer in (0, 1):
+            for inset, hovered in marks:
+                painter.setPen(_close_pens(hovered)[layer])
+                painter.drawLine(inset.topLeft(), inset.bottomRight())
+                painter.drawLine(inset.topRight(), inset.bottomLeft())
         painter.end()
 
     def _select_band(self, pos) -> None:
@@ -1321,7 +2103,15 @@ class OrganizeForMeasureDialog(QDialog):
         self.sort_button.setToolTip(tr(
             "Read the source folder (or the files in the table) with the "
             "regex: chanID gives the column, the other groups the row."))
-        self.sort_button.clicked.connect(lambda: self.sort_by_regex())
+        self.sort_button.clicked.connect(lambda: self._start_sort())
+        from ..job_runner import JobRunner
+
+        self._sort_jobs = JobRunner(self, app_key="organize images",
+                                    user_visible=False)
+        self._sort_jobs.job_failed.connect(self._sort_failed)
+        self._sort_token = 0
+        self._sorting = False
+        self._known_shapes = None
         self.auto_button = QPushButton(tr("Auto regex"))
         self.auto_button.setToolTip(tr(
             "Find a regex that puts every image in exactly one complete set, "
@@ -1432,6 +2222,10 @@ class OrganizeForMeasureDialog(QDialog):
         self._thumb_poll.setInterval(750)
         self._thumb_poll.timeout.connect(self._load_thumbnails)
         self._thumb_poll.start()
+        self._thumb_kick = QTimer(self)
+        self._thumb_kick.setSingleShot(True)
+        self._thumb_kick.setInterval(_THUMBS_AFTER_REFRESH_MS)
+        self._thumb_kick.timeout.connect(self._load_thumbnails)
         self.table.verticalScrollBar().valueChanged.connect(self._load_thumbnails)
         self.table.horizontalScrollBar().valueChanged.connect(self._load_thumbnails)
         self.finished.connect(lambda _code: self._stop_thumbs())
@@ -1797,23 +2591,9 @@ class OrganizeForMeasureDialog(QDialog):
         :param names: file names or paths.
         :returns: the regex, or ``""`` when there is none.
         """
-        from ... import regex_infer
-
-        key = self.metadata_field.get_value() or _DEFAULT_METADATA_TYPE
-        custom = self.custom_edit.text().strip()
-        if key == "auto":
-            return custom or cs.infer_regex(list(names)) or ""
-        if key == "custom":
-            return custom
-        extensions = sorted({os.path.splitext(n)[1].lstrip(".") or "tif"
-                             for n in names}) or ["tif"]
-        try:
-            if len(extensions) == 1:
-                return regex_infer._metadata_pattern(key, extensions[0],
-                                                     custom or None)
-            return regex_infer._metadata_pattern_any_extension(key, extensions)
-        except KeyError:
-            return ""
+        return _regex_for_names(
+            self.metadata_field.get_value() or _DEFAULT_METADATA_TYPE,
+            self.custom_edit.text().strip(), names)
 
     def _consolidate(self, source: str) -> str:
         """Copy the source's subfolders' images into one folder, if asked.
@@ -1860,11 +2640,36 @@ class OrganizeForMeasureDialog(QDialog):
         The alias keeps the file's folder, so two folders' field1.tif stay two
         names; the regex reads the file name alone.
         """
-        folder = os.path.dirname(path)
-        if folder not in self._alias_cache:
-            self._alias_cache[folder] = cs._original_names(folder)
-        return os.path.join(folder, self._alias_cache[folder].get(
-            os.path.basename(path), os.path.basename(path)))
+        return _alias_in(self._alias_cache, path)
+
+    def _sort_inputs(self):
+        """What a sort reads, gathered from the widgets on the GUI thread.
+
+        The source is consolidated first when asked, as before any read.
+
+        :returns: the keyword arguments of :func:`_gather_sort_paths`, or
+            None when consolidation failed.
+        """
+        source = self._source()
+        if source and os.path.isdir(source):
+            try:
+                source = self._consolidate(source)
+            except _ConsolidationFailed:
+                return None
+            return {"source": source, "masks_dir": self.masks_dir,
+                    "channel_files": [], "mask_pairs": [],
+                    "skipped": set(self._skipped)}
+        channel_files = [(self._column_files(column),
+                          self._channel_of(column))
+                         for column in self._channel_columns()]
+        partners = self._partners()
+        mask_pairs = [(self._column_files(partners[index]),
+                       self._column_files(index))
+                      for index, column in enumerate(self.columns)
+                      if column.kind == "mask" and index in partners]
+        return {"source": "", "masks_dir": self.masks_dir,
+                "channel_files": channel_files, "mask_pairs": mask_pairs,
+                "skipped": set(self._skipped)}
 
     def _paths_to_sort(self):
         """The images a regex or "Teach me" reads, their channels and masks.
@@ -1873,37 +2678,58 @@ class OrganizeForMeasureDialog(QDialog):
             folder's images and saved masks, or, without a source, the
             channel columns' files and the masks matched to them.
         """
-        source = self._source()
-        channels: Dict[str, int] = {}
-        masks: Dict[str, str] = {}
-        if source and os.path.isdir(source):
-            try:
-                source = self._consolidate(source)
-            except _ConsolidationFailed:
-                return None
-            paths = [os.path.join(source, n)
-                     for n in cs.list_folder_images(source)]
-            for path in paths:
-                mask = cs.mask_for(source, os.path.basename(path),
-                                   self.masks_dir)
-                if mask:
-                    masks[path] = mask
-        else:
-            paths = []
-            for column in self._channel_columns():
-                for path in self._column_files(column):
-                    paths.append(path)
-                    channels[path] = self._channel_of(column)
-            partners = self._partners()
-            for index, column in enumerate(self.columns):
-                if column.kind == "mask" and index in partners:
-                    pairs = cs._match_columns([
-                        self._column_files(partners[index]),
-                        self._column_files(index)])
-                    masks.update({row[0]: row[1] for row in pairs
-                                  if row[0] and row[1]})
-        paths = [p for p in paths if p not in self._skipped]
-        return paths, channels, masks
+        inputs = self._sort_inputs()
+        if inputs is None:
+            return None
+        return _gather_sort_paths(**inputs)
+
+    def _sort_arguments(self, pattern, chan_map):
+        """The arguments of :func:`_sort_job` for one sort, or None.
+
+        :param pattern: the regex, or None for the regex box's.
+        :param chan_map: "Teach me"'s labels, or None for the taught ones
+            while the custom regex is still the taught one.
+        :returns: keyword arguments, or None when consolidation failed.
+        """
+        inputs = self._sort_inputs()
+        if inputs is None:
+            return None
+        custom = self.custom_edit.text().strip()
+        if chan_map is None and pattern is None and custom == self._taught[0]:
+            chan_map = self._taught[1]
+        inputs.update(
+            pattern=pattern, chan_map=chan_map, custom=custom,
+            key=self.metadata_field.get_value() or _DEFAULT_METADATA_TYPE,
+            aliases={k: dict(v) for k, v in self._alias_cache.items()})
+        return inputs
+
+    def _install_sort(self, result) -> Optional[cs.SetReport]:
+        """Show what :func:`_sort_job` laid out.
+
+        :param result: its result.
+        :returns: the set report, or None when there was nothing to read.
+        """
+        self._alias_cache.update(result.get("aliases") or {})
+        if result.get("empty"):
+            self.status.setText(tr(
+                "Nothing to sort: give a source folder of images, or drop "
+                "images into the channel columns."))
+            return None
+        report = result["report"]
+        shared = result["shared"]
+        self.columns = result["columns"]
+        self.rows = result["rows"]
+        self.row_keys = result["row_keys"]
+        self._known_shapes = result.get("shapes")
+        self._note = report.summary()
+        if shared:
+            self._note += "\n" + tr(
+                "{n} mask(s) are shared by two images with one name stem and "
+                "were left out: {names}", n=len(shared),
+                names=", ".join(os.path.basename(m) for m in shared[:4]))
+        self._suggest_output()
+        self._refresh()
+        return report
 
     def sort_by_regex(self, pattern: Optional[str] = None,
                       chan_map: Optional[Dict[str, object]] = None
@@ -1922,93 +2748,101 @@ class OrganizeForMeasureDialog(QDialog):
             default the regex's chanID values are channels in natural order.
         :returns: the set report, or None when there was nothing to read.
         """
-        pending = self._paths_to_sort()
-        if pending is None:
+        self._sort_token += 1
+        self._set_sorting(False)
+        arguments = self._sort_arguments(pattern, chan_map)
+        if arguments is None:
             return None
-        paths, channels, masks = pending
-        if not paths:
-            self.status.setText(tr(
-                "Nothing to sort: give a source folder of images, or drop "
-                "images into the channel columns."))
-            return None
-        if chan_map is None and pattern is None and \
-                self.custom_edit.text().strip() == self._taught[0]:
-            chan_map = self._taught[1]
-        aliases = [self._alias(p) for p in paths]
-        back = dict(zip(aliases, paths))
-        if pattern is None:
-            pattern = self._regex_for(aliases)
-        parsed = cs.parse_names(
-            aliases, pattern,
-            {self._alias(p): c for p, c in channels.items()} or None)
-        name_masks: Dict[str, List[str]] = {}
-        if chan_map is not None:
-            compiled = cs.compile_regex(pattern)[0]
-            for item in parsed:
-                item.channel = None
-                if not item.matched or compiled is None:
-                    continue
-                label = chan_map.get(item.groups.get(cs.CHANNEL_GROUP, ""))
-                if isinstance(label, tuple) and label[0] == "channel":
-                    item.channel = int(label[1])
-                elif isinstance(label, tuple) and label[0] == "mask":
-                    name_masks.setdefault(item.set_key, []).append(
-                        (int(label[1]), label[2] if len(label) > 2 else "",
-                         back[item.name]))
-                    item.matched = False
-        taken_as_masks = {m for entries in name_masks.values()
-                          for _c, _r, m in entries}
-        report = cs.check_sets([p for p in parsed
-                                if back[p.name] not in taken_as_masks])
-        chosen: Dict[cs.SetKey, Dict[int, str]] = {}
-        for item in parsed:
-            if item.matched and item.channel is not None:
-                chosen.setdefault(item.set_key, {}).setdefault(
-                    item.channel, back[item.name])
-        claimed: Dict[str, List[str]] = {}
-        for image, mask in masks.items():
-            claimed.setdefault(mask, []).append(image)
-        shared = sorted(m for m, images in claimed.items() if len(images) > 1)
-        masks = {i: m for i, m in masks.items() if m not in shared}
-        present = sorted({c for m in chosen.values() for c in m})
-        position = {c: i + 1 for i, c in enumerate(present)}
-        explicit = {}
-        for key, entries in name_masks.items():
-            for channel, role, mask in entries:
-                image = chosen.get(key, {}).get(channel)
-                if image is not None:
-                    masks[image] = mask
-                    if role:
-                        explicit[channel] = role
-        roles = cs.default_mask_roles(
-            {c: [m[c] for m in chosen.values() if c in m] for c in present},
-            sorted({c for m in chosen.values() for c, p in m.items()
-                    if p in masks}))
-        roles.update({c: r for c, r in explicit.items() if c in roles})
-        self.columns = [_Column("channel") for _c in present]
-        for channel in sorted(roles):
-            self.columns.append(_Column("mask", roles[channel],
-                                        position[channel]))
-        self.rows, self.row_keys = [], []
-        for key in sorted(chosen, key=lambda k: cs.natural_key(cs.set_label(k))):
-            row: List[Optional[str]] = [None] * len(self.columns)
-            for index, channel in enumerate(present):
-                row[index] = chosen[key].get(channel)
-            for index, column in enumerate(self.columns):
-                if column.kind == "mask":
-                    image = chosen[key].get(present[column.of_channel - 1])
-                    row[index] = masks.get(image) if image else None
-            self.rows.append(row)
-            self.row_keys.append(key)
-        self._note = report.summary()
-        if shared:
-            self._note += "\n" + tr(
-                "{n} mask(s) are shared by two images with one name stem and "
-                "were left out: {names}", n=len(shared),
-                names=", ".join(os.path.basename(m) for m in shared[:4]))
-        self._suggest_output()
-        self._refresh()
-        return report
+        return self._install_sort(_sort_job(**arguments))
+
+    def _start_sort(self) -> bool:
+        """"Sort by regex" pressed: read and lay out on a worker thread.
+
+        The folder listing, the mask lookups, the regex and the layout run
+        on :attr:`_sort_jobs`; the table is swapped in on the GUI thread
+        when they are done. A newer sort, a synchronous one or a closed
+        popup drops the result; an edit of the table meanwhile, when the
+        sort reads the columns, sorts again from the edited table.
+
+        :returns: whether a job was started.
+        """
+        self._sort_token += 1
+        token = self._sort_token
+        arguments = self._sort_arguments(None, None)
+        if arguments is None:
+            self._set_sorting(False)
+            return False
+        snapshot = None if arguments["source"] else self._table_snapshot()
+        self._set_sorting(True)
+        self._sort_jobs.submit(
+            lambda: _sort_job(**arguments),
+            lambda result, _t=token, _s=snapshot: self._sort_done(
+                _t, _s, result))
+        return True
+
+    def _table_snapshot(self) -> tuple:
+        """The table's files and columns, to tell whether it was edited."""
+        return (tuple(tuple(row) for row in self.rows),
+                tuple((c.kind, c.role, c.of_channel) for c in self.columns))
+
+    def _sort_done(self, token: int, snapshot, result) -> None:
+        """Install a worker's sort unless something newer replaced it.
+
+        :param token: the job's :attr:`_sort_token`; a stale one is dropped.
+        :param snapshot: the table the job read, or None when it read the
+            source folder; a table edited since is sorted again.
+        :param result: what :func:`_sort_job` returned.
+        """
+        if token != self._sort_token or self._thumb_closed:
+            return
+        if snapshot is not None and snapshot != self._table_snapshot():
+            self._start_sort()
+            return
+        self._set_sorting(False)
+        self.table.setUpdatesEnabled(False)
+        try:
+            self._install_sort(result)
+        finally:
+            QTimer.singleShot(_DRAW_AFTER_INSTALL_MS, self._show_table)
+
+    def _show_table(self) -> None:
+        """Let the table draw the rows a sort installed, a turn later.
+
+        Installing the rows and drawing them are each a GUI-thread step of
+        15 to 30 ms on a large plate; run back to back they made one block
+        long enough to drop frames, so the drawing waits a frame.
+        """
+        if shiboken_valid(self.table):
+            self.table.setUpdatesEnabled(True)
+
+    def _sort_failed(self, message: str) -> None:
+        """A sort job raised: release the buttons and say why.
+
+        :param message: the error's one line.
+        """
+        self._sort_token += 1
+        self._set_sorting(False)
+        self.status.setText(message)
+
+    def _set_sorting(self, busy: bool) -> None:
+        """Hold the sort buttons, with a busy cursor, while a sort runs.
+
+        :param busy: whether a sort job is running.
+        """
+        if busy == self._sorting:
+            return
+        self._sorting = busy
+        for button in (self.sort_button, self.auto_button,
+                       self.detect_button, self.teach_button):
+            button.setEnabled(not busy)
+        if busy:
+            self.setCursor(Qt.BusyCursor)
+        else:
+            self.unsetCursor()
+
+    def _sort_busy(self) -> bool:
+        """Whether a "Sort by regex" job is still running."""
+        return self._sorting
 
     def auto_regex(self) -> Optional[str]:
         """Propose a regex, put it in custom_regex, and sort by it.
@@ -2139,7 +2973,7 @@ class OrganizeForMeasureDialog(QDialog):
             return label
         shown = marker or tr("(nothing)")
         kind = (tr("channel {n}", n=label[1]) if label[0] == "channel"
-                else tr("the {role} mask of channel {n}", role=label[2],
+                else tr("the {role} mask of channel {n}", role=tr(label[2]),
                         n=label[1]))
         box = QMessageBox(self)
         box.setWindowTitle(tr("What does this part of the name mean?"))
@@ -2273,7 +3107,7 @@ class OrganizeForMeasureDialog(QDialog):
             if target is None:
                 problems.append(tr(
                     "A {role} mask column belongs to channel {n}, which "
-                    "there is not.", role=column.role, n=column.of_channel))
+                    "there is not.", role=tr(column.role), n=column.of_channel))
                 continue
             if column.of_channel in roles:
                 problems.append(tr(
@@ -2299,7 +3133,38 @@ class OrganizeForMeasureDialog(QDialog):
         """
         if _headless():
             return False
-        return QMessageBox.question(self, title, text) == QMessageBox.Yes
+        box = QMessageBox(QMessageBox.Question, title, text,
+                          QMessageBox.Yes | QMessageBox.No, self)
+        box.button(QMessageBox.Yes).setText(tr("Yes"))
+        box.button(QMessageBox.No).setText(tr("No"))
+        return box.exec() == QMessageBox.Yes
+
+    def _plan_summary(self, plan: cs.SortPlan) -> str:
+        """Describe the selected output layout and retain every plan diagnostic."""
+        masks = sum(1 for row in plan.rows if row.source_mask)
+        if self._target_layout == "measure":
+            summary = tr(
+                "Move {images} image(s) and {masks} mask(s) into {channels} "
+                "channel folder(s) under {dest}, as {sets} set(s) in "
+                "Yokogawa naming. Then build channel stacks and any merged "
+                "arrays supported by the available masks.",
+                images=len(plan.rows), masks=masks, channels=len(plan.channels),
+                dest=plan.dest, sets=plan.n_sets)
+        else:
+            summary = tr(
+                "Move {images} image(s) into {dest} using Yokogawa names, "
+                "with {masks} mask(s) in {masks_dir}. Do not write stacks "
+                "or merged arrays.", images=len(plan.rows), dest=plan.dest,
+                masks=masks, masks_dir=os.path.join(plan.dest, "masks"))
+        lines = [summary]
+        if plan.mask_roles:
+            roles = ", ".join(
+                tr("channel {n}: {role}", n=channel, role=tr(role))
+                for channel, role in sorted(plan.mask_roles.items()))
+            lines.append(tr("Mask roles: {roles}", roles=roles))
+        lines.extend(plan.warnings)
+        lines.extend(plan.problems)
+        return "\n".join(lines)
 
     def _on_apply(self) -> None:
         """Plan, confirm and accept -- or say what is missing."""
@@ -2332,10 +3197,10 @@ class OrganizeForMeasureDialog(QDialog):
                     "folder.", n=len(plan.convertible), names=shown)):
                 plan = self.prepare_plan(convert=True)
         if not plan.ok:
-            self.status.setText(plan.summary())
+            self.status.setText(self._plan_summary(plan))
             return
         if not self.ask(tr("Move and merge?") if self._target_layout == "measure"
-                        else tr("Move the images?"), plan.summary()):
+                        else tr("Move the images?"), self._plan_summary(plan)):
             return
         self.plan = plan
         self.accept()
@@ -2349,7 +3214,7 @@ class OrganizeForMeasureDialog(QDialog):
         column = self.columns[index]
         if column.kind == "channel":
             return tr("Channel {n}", n=self._channel_of(index))
-        return tr("{role} mask (channel {n})", role=column.role,
+        return tr("{role} mask (channel {n})", role=tr(column.role),
                   n=column.of_channel)
 
     def _rebuild_editors(self) -> None:
@@ -2486,15 +3351,56 @@ class OrganizeForMeasureDialog(QDialog):
         In the image views a column is never narrower than its heading.
         """
         if self.delegate.view == "text":
-            self.table.resizeColumnsToContents()
-            self.table.resizeRowsToContents()
+            self._fit_text_cells()
             return
         header = self.table.horizontalHeader()
         for column in range(self.table.columnCount()):
             self.table.setColumnWidth(column, max(
                 self.thumb_size + 24, header.sectionSizeHint(column)))
-        for row in range(self.table.rowCount()):
-            self.table.setRowHeight(row, self.thumb_size + 8)
+        self.table.verticalHeader().setDefaultSectionSize(self.thumb_size + 8)
+
+    def _fit_text_cells(self) -> None:
+        """Fit the text view's columns and rows to their contents.
+
+        What ``resizeColumnsToContents`` and ``resizeRowsToContents`` give,
+        measured on one cell per column: the one whose name is widest. When
+        the font's digits are all one width, names that differ only in their
+        digits are one width too, so one of each is measured: a plate's
+        thousands of names are a handful of shapes. Qt asks every cell for
+        its size hint, and a model cell answers in Python: 0.6 s for a
+        3,136-image plate.
+        """
+        table = self.table
+        model = table.model()
+        if not model.rowCount() or not model.columnCount():
+            return
+        from PySide6.QtGui import QFontMetricsF
+
+        metrics = table.fontMetrics()
+        tabular = len({QFontMetricsF(table.font()).horizontalAdvance(d)
+                       for d in "0123456789"}) == 1
+        known, self._known_shapes = self._known_shapes, None
+        if not tabular:
+            known = None
+        if known is None or len(known) != model.columnCount():
+            known = _name_shapes(self.rows, model.columnCount(), tabular)
+        header = table.horizontalHeader()
+        grid = 1 if table.showGrid() else 0
+        for column in range(model.columnCount()):
+            shapes = known[column]
+            widest, row_of = -1, 0
+            for row in shapes:
+                path = model.path(row, column)
+                width = metrics.horizontalAdvance(
+                    os.path.basename(path) if path else "\u2014")
+                if width > widest:
+                    widest, row_of = width, row
+            hint = table.sizeHintForIndex(model.index(row_of, column)).width()
+            table.setColumnWidth(column, max(hint + grid,
+                                             header.sectionSizeHint(column)))
+        rows = table.verticalHeader()
+        rows.setDefaultSectionSize(max(table.sizeHintForRow(0),
+                                       rows.sectionSizeHint(0)))
 
     def _clear_slots(self, cells) -> int:
         """Empty cells (the × or Delete); their images' masks go too.
@@ -2680,6 +3586,9 @@ class OrganizeForMeasureDialog(QDialog):
         """Stop polling and end thumbnail threads before destroying the popup."""
         self._thumb_closed = True
         self._thumb_poll.stop()
+        self._thumb_kick.stop()
+        self._sort_token += 1
+        self._sort_jobs.shutdown()
         for worker in self._thumb_workers:
             if worker.isRunning():
                 worker.stop()
@@ -2691,35 +3600,14 @@ class OrganizeForMeasureDialog(QDialog):
         The drop hint lives in the table while it is empty; the new-channel
         strip appears only once there is something beside it.
         """
-        from PySide6.QtGui import QBrush, QColor
-
-        self.table.clear()
-        self.table.setColumnCount(len(self.columns))
-        self.table.setRowCount(len(self.rows))
-        self.table.setHorizontalHeaderLabels(
-            [self._caption(i) for i in range(len(self.columns))])
         channels = set(self._channel_columns())
-        flag = QBrush(QColor(200, 60, 60, 60))
-        for r, row in enumerate(self.rows):
-            for c, path in enumerate(row):
-                item = SortableTableItem(
-                    os.path.basename(path) if path else "—")
-                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable
-                              | Qt.ItemIsDropEnabled
-                              | (Qt.ItemIsDragEnabled if path else Qt.NoItemFlags))
-                if path:
-                    item.setData(Qt.UserRole, path)
-                    item.setToolTip(path + "\n" + tr(
-                        "Drag it to another slot to move it (an occupied "
-                        "slot swaps); the \u00d7 or Delete removes it."))
-                else:
-                    item.setToolTip(tr("Nothing matched here"))
-                    if c in channels:
-                        item.setBackground(flag)
-                self.table.setItem(r, c, item)
+        self.table.show_cells(
+            self.rows, [self._caption(i) for i in range(len(self.columns))],
+            channels)
         self._size_cells()
+        self._known_shapes = None
         if self.delegate.view != "text":
-            self._load_thumbnails()
+            self._thumb_kick.start()
         self.new_zone.setVisible(not self.table._is_empty())
         self.table.viewport().update()
         missing = len(self._incomplete_rows())

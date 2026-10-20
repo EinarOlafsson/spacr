@@ -91,7 +91,7 @@ def test_importing_the_module_still_needs_no_plotting_stack():
 
     import spacr.scorecard as module
 
-    source = pathlib.Path(module.__file__).read_text()
+    source = pathlib.Path(module.__file__).read_text(encoding="utf-8")
     tree = ast.parse(source)
     top_level = []
     for node in tree.body:

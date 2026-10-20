@@ -1,18 +1,16 @@
 """What a finished regression found, in prose, for the console.
 
-PROSE, NOT A TABLE DUMP. A table of a thousand coefficients is already on
-screen and already in a CSV; what is missing is the paragraph a person would
-write after looking at it. So this says how many hypotheses were tested, how
-many survived and under which rule, which genes they were, whether the assay
-worked, and -- because the calibration on real screens is routinely off in
-one direction or the other -- whether the test was conservative or
+The output is a paragraph rather than a table: the coefficient table is
+already on screen and in a CSV. The paragraph states how many hypotheses were
+tested, how many passed and under which rule, which genes they were, whether
+the assay worked, and -- because the calibration on real screens is routinely
+off in one direction or the other -- whether the test was conservative or
 anti-conservative.
 
-IT COMES FROM THE SAME NUMBERS THE PANELS DO. Every figure in
-:mod:`spacr.figures.panels` computes its own statistic; a summary that
-recomputed them separately would be a second implementation that can disagree
-with the pictures beside it, and the reader would have no way to tell which
-one was wrong.
+The numbers come from the same helpers the figures in
+:mod:`spacr.figures.panels` use. A summary that recomputed them separately
+would be a second implementation that could disagree with the figures beside
+it, with no way for the reader to tell which one was wrong.
 """
 
 from __future__ import annotations

@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review; independent source-semantic peer review requested; no native-speaker signoff",
+  "note": "Eleven changed blocks in five existing symbols from doc-only source aa7b8b621047; full executable AST and comments are unchanged. This input commit changes no executable source. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. No active prior review rows require retirement; existing review files remain untouched. No runtime captions change.",
+  "records": [
+    {
+      "label": "spacr.qt.path_probe#0",
+      "source": "Check cached path answers, with optional bounded waiting for unknown paths.",
+      "context": "Check cached path answers, with optional bounded waiting for unknown paths.",
+      "source_sha256": "9960cbcd77fb7e3d068d54a54f62bb99aed3dfca12e4eefd4a86847aad31a75d",
+      "previous_same_source_indexes": [],
+      "translation": "Zwischengespeicherte Pfadantworten prüfen, mit optionalem begrenztem Warten bei unbekannten Pfaden.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe#8",
+      "source": "Non-waiting checks return a cached answer or the caller's ``default`` immediately and queue an unknown path for a background check. The default is ``True`` for :func:`exists` and ``False`` for :func:`isdir`. A background result updates the cache; :data:`probes` emits its ``answered`` signal only when that answer differs from the cached one. The optimistic existence default avoids drawing an unknown path as missing while its check is pending. Passing ``wait=True`` instead waits synchronously for an uncached answer, as described by :func:`exists`.",
+      "context": "Non-waiting checks return a cached answer or the caller's ``default`` immediately and schedule an unknown path for a background check. The default is ``True`` for :func:`exists` and ``False`` for :func:`isdir`. A background result updates the cache; :data:`probes` emits its ``answered`` signal only when that answer differs from the cached one. The optimistic existence default avoids drawing an unknown path as missing while its check is pending. Passing ``wait=True`` instead waits synchronously for an uncached answer, as described by :func:`exists`.",
+      "source_sha256": "f14c2375e1e9be7808544ed8c7744a84ab83f7b735bdc32dc681a8acc78d315a",
+      "previous_same_source_indexes": [],
+      "translation": "Prüfungen ohne Warten liefern sofort eine zwischengespeicherte Antwort oder den Wert ``default`` des Aufrufers und stellen einen unbekannten Pfad zur Hintergrundprüfung in die Warteschlange. Der Standardwert ist ``True`` für :func:`exists` und ``False`` für :func:`isdir`. Ein Hintergrundresultat aktualisiert den Cache; :data:`probes` sendet sein Signal ``answered`` nur, wenn sich die Antwort vom gespeicherten Wert unterscheidet. Der optimistische Existenzstandard verhindert, dass ein unbekannter Pfad während seiner Prüfung als fehlend erscheint. Mit ``wait=True`` wird stattdessen synchron auf eine noch nicht gespeicherte Antwort gewartet, wie unter :func:`exists` beschrieben.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.exists#0",
+      "source": "Return a cached path answer, or probe an unknown path.",
+      "context": "Return a cached path answer, or probe an unknown path.",
+      "source_sha256": "12b7a66e24505dd08f7a50a2a987bd23fd2d63cfb0427f505b3225c2e0bfd692",
+      "previous_same_source_indexes": [],
+      "translation": "Eine zwischengespeicherte Pfadantwort zurückgeben oder einen unbekannten Pfad prüfen.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.exists#2",
+      "source": "what to return for an unknown path when ``wait=False``. ``True`` by default; this value does not control a waiting probe's timeout answer.",
+      "context": "what to return for an unknown path when ``wait=False``. ``True`` by default; this value does not control a waiting probe's timeout answer.",
+      "source_sha256": "70a75476e2b672a42c35ab5f8bc4ed19abb17ba9bef902483240772df4711ff6",
+      "previous_same_source_indexes": [],
+      "translation": "Rückgabewert für einen unbekannten Pfad bei ``wait=False``. Standardmäßig ``True``; dieser Wert bestimmt nicht die Timeout-Antwort einer wartenden Prüfung.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.exists#4",
+      "source": "return a cached answer immediately, or synchronously wait up to :data:`PROBE_TIMEOUT_S` for an uncached stat and cache its answer. A timeout returns and caches ``True``, even if ``default`` is ``False``. It does not cancel the stat thread, and that thread's later result does not update this cached timeout answer.",
+      "context": "return a cached answer immediately, or synchronously wait up to :data:`PROBE_TIMEOUT_S` for an uncached stat and cache its answer. A timeout returns and caches ``True``, even if ``default`` is ``False``. It does not cancel the stat thread, and that thread's later result does not update this cached timeout answer.",
+      "source_sha256": "b6b77652c10e1046b68b3e5957854e0adfc232e44c4e18354b40a66f15527421",
+      "previous_same_source_indexes": [],
+      "translation": "eine zwischengespeicherte Antwort sofort zurückgeben oder synchron bis zu :data:`PROBE_TIMEOUT_S` auf eine noch nicht gespeicherte stat-Abfrage warten und deren Antwort speichern. Bei einem Timeout wird ``True`` zurückgegeben und gespeichert, auch wenn ``default`` gleich ``False`` ist. Der stat-Thread wird nicht abgebrochen; sein späteres Ergebnis aktualisiert diese gespeicherte Timeout-Antwort nicht.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.exists#5",
+      "source": "``False`` for a falsy path; otherwise a cached answer, the non-waiting ``default`` with a check queued or pending, or the waiting probe's answer (``True`` on timeout).",
+      "context": "``False`` for a falsy path; otherwise a cached answer, the non-waiting ``default`` with a check queued or pending, or the waiting probe's answer (``True`` on timeout).",
+      "source_sha256": "2c47a0d2d0d784db8b44ae03e615de0f6b4b6af6516fd8ea1faadfa8fe8faaa7",
+      "previous_same_source_indexes": [],
+      "translation": "``False`` für einen als falsch ausgewerteten Pfad; andernfalls eine zwischengespeicherte Antwort, ``default`` ohne Warten bei einer eingereihten oder ausstehenden Prüfung oder die Antwort der wartenden Prüfung (``True`` bei Timeout).",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.isdir#3",
+      "source": "use the synchronous waiting mode of :func:`exists` for an uncached path. Its timeout answer is ``True``, even though this function's non-waiting default is ``False``.",
+      "context": "use the synchronous waiting mode of :func:`exists` for an uncached path. Its timeout answer is ``True``, even though this function's non-waiting default is ``False``.",
+      "source_sha256": "03783e8fad32489495a610becc756e837ee6ec2107ce3a7bdfd11d84f01c9c24",
+      "previous_same_source_indexes": [],
+      "translation": "für einen noch nicht gespeicherten Pfad den synchronen Wartemodus von :func:`exists` verwenden. Dessen Timeout-Antwort ist ``True``, obwohl der Standardwert dieser Funktion ohne Warten ``False`` ist.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.isdir#5",
+      "source": "Expanding a folder the user has just dropped or chosen is the opposite situation. They performed an action and are waiting for its result, and the unknown-path default turns \"add this folder's files\" into \"add this folder as a file\" -- silently, and only the first time a path is seen. The calling thread waits up to :data:`PROBE_TIMEOUT_S` (5 s) for the stat. A timeout caches ``True`` without cancelling the stat thread; that thread's later answer does not replace the cached timeout result.",
+      "context": "Expanding a folder the user has just dropped or chosen is the opposite situation. They performed an action and are waiting for its result, and the unknown-path default turns \"add this folder's files\" into \"add this folder as a file\" -- silently, and only the first time a path is seen. The calling thread waits up to :data:`PROBE_TIMEOUT_S` (5 s) for the stat. A timeout caches ``True`` without cancelling the stat thread; that thread's later answer does not replace the cached timeout result.",
+      "source_sha256": "caa2f28970b56c421012b2567500738e26b583776206f08764ec250badddbe16",
+      "previous_same_source_indexes": [],
+      "translation": "Das Aufklappen eines gerade abgelegten oder ausgewählten Ordners ist der umgekehrte Fall. Der Benutzer hat eine Aktion ausgeführt und wartet auf ihr Ergebnis; der Standardwert für einen unbekannten Pfad macht aus „Dateien dieses Ordners hinzufügen“ stillschweigend „diesen Ordner als Datei hinzufügen“, und zwar nur beim ersten Auftreten des Pfads. Der aufrufende Thread wartet bis zu :data:`PROBE_TIMEOUT_S` (5 s) auf die stat-Abfrage. Bei einem Timeout wird ``True`` gespeichert, ohne den stat-Thread abzubrechen; dessen spätere Antwort ersetzt das gespeicherte Timeout-Ergebnis nicht.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.forget#0",
+      "source": "Remove cached answers without cancelling queued or running probes. A subsequent non-waiting :func:`exists` returns its default while an existing probe is pending; it queues a new check only when none is pending. A probe already in progress can repopulate the cache after this call.",
+      "context": "Remove cached answers without cancelling queued or running probes. A subsequent non-waiting :func:`exists` returns its default while an existing probe is pending; it schedules a new check only when none is pending. A probe already in progress can repopulate the cache after this call.",
+      "source_sha256": "7d151b084fd4713f314760981aea8f7846c911fd0b8889f5f039cbbede9c51c0",
+      "previous_same_source_indexes": [],
+      "translation": "Zwischengespeicherte Antworten entfernen, ohne eingereihte oder laufende Prüfungen abzubrechen. Ein anschließender Aufruf von :func:`exists` ohne Warten gibt seinen Standardwert zurück, solange eine vorhandene Prüfung aussteht; nur wenn keine aussteht, wird eine neue Prüfung eingereiht. Eine bereits laufende Prüfung kann den Cache nach diesem Aufruf erneut füllen.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.prime#0",
+      "source": "Cache a known answer without starting a probe.",
+      "context": "Cache a known answer without starting a probe.",
+      "source_sha256": "b6b37c2c7fa64b72a4be6e828ed69a63e15461e37732dcf93cd12ba0d7121aea",
+      "previous_same_source_indexes": [],
+      "translation": "Eine bekannte Antwort speichern, ohne eine Prüfung zu starten.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.path_probe.prime#1",
+      "source": "The file dialog has just told us a path exists; asking the filesystem again would be a second stat for a fact already in hand. This clears the matching pending marker but does not cancel a queued or running probe. Such a probe can later overwrite the primed answer and emit the ``answered`` signal on :data:`probes` if its result changes the cached value. This call itself emits no signal.",
+      "context": "The file dialog has just told us a path exists; asking the filesystem again would be a second stat for a fact already in hand. This clears the matching pending marker but does not cancel a queued or executing probe. Such a probe can later overwrite the primed answer and emit the ``answered`` signal on :data:`probes` if its result changes the cached value. This call itself emits no signal.",
+      "source_sha256": "d0beabc45a13cf581eb083eb85cf3c197ceefe7d170d39fb6f50396e72854389",
+      "previous_same_source_indexes": [],
+      "translation": "Der Dateidialog hat gerade mitgeteilt, dass ein Pfad existiert; eine erneute Dateisystemabfrage wäre eine zweite stat-Abfrage für eine bereits bekannte Tatsache. Dies entfernt die zugehörige Ausstehend-Markierung, bricht aber keine eingereihte oder laufende Prüfung ab. Eine solche Prüfung kann die vorab gespeicherte Antwort später überschreiben und das Signal ``answered`` von :data:`probes` senden, falls ihr Ergebnis den gespeicherten Wert ändert. Dieser Aufruf selbst sendet kein Signal.",
+      "review_basis": "Exact-source technical translation review of synchronous versus non-waiting path checks, defaults, optimistic timeout caching, detached late stat results, pending work surviving invalidation and priming, and conditional background versus absent direct signal delivery. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
+    }
+  ]
+}

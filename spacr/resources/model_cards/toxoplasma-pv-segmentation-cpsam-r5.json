@@ -1,0 +1,155 @@
+{
+ "schema": "spacr-model-card-v2",
+ "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r5",
+ "key": "toxoplasma_pv_v2",
+ "display_name": "Toxoplasma PV v2",
+ "family": "pv",
+ "round": "round 5",
+ "status": "earlier version",
+ "date": "trained 2026-09-15",
+ "pages": [
+  "cards/page1.png",
+  "cards/page2.png",
+  "cards/page3.png"
+ ],
+ "scores": {
+  "rows": [
+   {
+    "key": "object_f1",
+    "label": "Object F1 (IoU ≥ 0.5)",
+    "this": 0.7130144605116796,
+    "stock": 0.36382797209815826
+   },
+   {
+    "key": "boundary_f1",
+    "label": "Boundary F1 (outline edges)",
+    "this": 0.7340322097241133,
+    "stock": 0.23005947487150036
+   },
+   {
+    "key": "precision",
+    "label": "Precision",
+    "this": 0.7658303464755077,
+    "stock": 0.25598474683991246
+   },
+   {
+    "key": "recall",
+    "label": "Recall",
+    "this": 0.6670135275754423,
+    "stock": 0.6286853971557406
+   },
+   {
+    "key": "aji",
+    "label": "AJI",
+    "this": 0.4506756207360175,
+    "stock": 0.04878078823857382
+   },
+   {
+    "key": "dice",
+    "label": "Dice",
+    "this": 0.6781863881840309,
+    "stock": 0.11156247283508308
+   }
+  ],
+  "this_model": "toxoplasma_pv_v2",
+  "stock_model": "cpsam_v2",
+  "counts": {
+   "this": {
+    "tp": 3846,
+    "fp": 1176,
+    "fn": 1920,
+    "n_pred": 5022
+   },
+   "stock": {
+    "tp": 3625,
+    "fp": 10536,
+    "fn": 2141,
+    "n_pred": 14161
+   }
+  },
+  "holdout": {
+   "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+   "n_fields": 258,
+   "n_empty_fields": 42,
+   "n_objects": 5766,
+   "fields_by_source": {
+    "pv_compare50_test": 3,
+    "pv_literature_holdout": 39,
+    "pv_r7_dataset_recuration": 60,
+    "pv_r7_plate_test20": 20,
+    "pv_round3_queue": 136
+   }
+  },
+  "pooling": "micro-average over all test fields: object F1, precision and recall from summed TP/FP/FN (spacr.scorecard.match_objects, IoU >= 0.5); AJI = sum C / sum U (Kumar 2017); Dice = 2 sum |T and P| / sum (|T| + |P|) over foreground pixels; boundary F1 from summed boundary-pixel hits at 2 px tolerance (spacr.scorecard._boundary)."
+ },
+ "facts": {
+  "rows": [
+   {
+    "key": "train_fov",
+    "label": "Training FOV",
+    "this": "556 (no val.)",
+    "stock": "Cellpose-SAM v2 training set (public)"
+   },
+   {
+    "key": "test_fov",
+    "label": "Test FOV",
+    "this": "258",
+    "stock": "258"
+   },
+   {
+    "key": "train_obj",
+    "label": "Training objects",
+    "this": "not recorded",
+    "stock": "not applicable"
+   },
+   {
+    "key": "test_obj",
+    "label": "Test objects",
+    "this": "5,766",
+    "stock": "5,766"
+   },
+   {
+    "key": "domains",
+    "label": "Domains",
+    "this": "Lab PV screens (4 sets), published-figure crops",
+    "stock": "General cell and nucleus images (Cellpose datasets)"
+   },
+   {
+    "key": "epochs",
+    "label": "Epochs",
+    "this": "100",
+    "stock": "not applicable"
+   },
+   {
+    "key": "base",
+    "label": "Base (stock) model",
+    "this": "cpsam_v2",
+    "stock": "is the stock model"
+   },
+   {
+    "key": "spacr",
+    "label": "spaCR version",
+    "this": "not used (standalone script)",
+    "stock": "not applicable"
+   },
+   {
+    "key": "cellpose",
+    "label": "Cellpose version",
+    "this": "not recorded",
+    "stock": "4.2 and later"
+   }
+  ],
+  "evidence": "data/training_facts.json"
+ },
+ "about": {
+  "segments": "Toxoplasma gondii parasitophorous vacuoles (PVs) in fluorescence images of infected host cells, with the parasite marked by DsRed or an anti-Toxoplasma stain.",
+  "trained_on": "556 curated fields from four lab PV screens and published-figure crops, including the 11 anchor wells.",
+  "status": "Earlier version, kept so recorded runs reproduce. The default PV model in spaCR is toxoplasma_pv_v4.",
+  "leak_note": null,
+  "load_line": "Set `pathogen_model_name` to `toxoplasma_pv_v2`; spaCR downloads and checks the weights on first use.",
+  "links": {
+   "model": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5",
+   "stock": "https://huggingface.co/mouseland/cellpose-sam/blob/main/cpsam_v2"
+  }
+ }
+}

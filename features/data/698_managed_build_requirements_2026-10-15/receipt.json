@@ -1,0 +1,64 @@
+{
+  "scope": "Private repair for actual managed pre-source requirements installation; no remote update/restart authorized by this commit.",
+  "preimage": "66ac681d3040aab1823aed0bf16b4ed5c89589f7",
+  "actual_baseline": {
+    "stage": "BUILD_ERROR",
+    "error": "Directory '.[plaque]' is not installable. Neither 'setup.py' nor 'pyproject.toml' found.",
+    "evidence": "../698_space_source_deployment_2026-10-15/managed-build-snapshot.log.gz"
+  },
+  "production_change": "One requirements line: immutable public reviewed source Git dependency with same plaque extra/normal dependency resolution; every other requirement pin preserved. README describes actual managed Git/LFS layer and explicit two-flag weight acquisition/manual mapping alternative.",
+  "source_sha256": {
+    "tools/web_mask_generator/space/requirements.txt": "0400ed232f553caa687b4b6532942e900fe01d51f5b435cd97c037dc4b27514c",
+    "tools/web_mask_generator/space/README.md": "6de854bd1cb76114ba6985b47fc4f46d4daf1c6f3daa1832598b1431fcb1f641",
+    "tests/test_web_space_build_requirements_n698.py": "09901102d3c09148420d6b38e66c084c730f2ba4144d7abef87c2bfe059bd6f4"
+  },
+  "actual_final_validation": {
+    "exit": 0,
+    "tests": 2,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1.67,
+    "method": "Current contract parses full public immutable URL/extras and preserved pins. Actual offline pip fixture demonstrates local .[plaque] fails in empty before-COPY directory, while full-hash noneditable Git fixture resolves original revision plus real optional extra dependency wheel through normal resolver. No --no-deps, network or package installation; fixture wheel output only.",
+    "limits": "No actual HF clone/model/native/service or hosted build success claimed."
+  },
+  "prior_validation": {
+    "tests": 2,
+    "seconds": 2.59,
+    "limit": "Before redundant proposed packages.txt was removed using actual managed-base evidence. Preserved separately."
+  },
+  "normal_dependencies_preserved": true,
+  "runtime_pip_or_subprocess_added": false,
+  "source_or_api_caption_changes": false,
+  "service_writes": false,
+  "evidence": {
+    "source-package-input-proof.json": {
+      "sha256": "f26bd18cde396bcae118f2e13c2711a1428c49e008a4aa307429ee6883392860",
+      "bytes": 4428
+    },
+    "managed-build-contracts-final.xml.gz": {
+      "sha256": "7b9d1b09bdb7973f38f513c4287d1652823d253cc52a72d3f80c14eb85db4344",
+      "bytes": 313
+    },
+    "managed-build-contracts.xml.gz": {
+      "sha256": "eb7a70eb876f3bb03b07dfc8f71a4c3fcbce1b3ed09f71bc4a092a75a55f35ef",
+      "bytes": 314
+    },
+    "managed-build-contracts-final.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "managed-build-contracts.log.gz": {
+      "sha256": "994233f94a15f5399d415ef5cb21051e4027de9e9979f530b8923f128bcb366e",
+      "bytes": 50
+    },
+    "managed-build-contracts-final.log.gz": {
+      "sha256": "bf7095793522577929c23237f5c0af32b4a7f635c2153acc06c3c64106c924aa",
+      "bytes": 50
+    },
+    "run-managed-build-contracts-final.sh": {
+      "sha256": "b45aa3d2b2e89aa7ec0e37fa5c7e35911772f199e94e29f912d720f5faf8d064",
+      "bytes": 1053
+    }
+  }
+}

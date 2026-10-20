@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -28,14 +28,17 @@ msgstr "Raccourcis clavier"
 msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
 msgstr "Appuyez sur **F1** ou **?** pour ouvrir l’aide-mémoire des raccourcis. Il liste les touches qui fonctionnent partout dans la fenêtre, comme **Ctrl+K** pour la palette de commandes, **Ctrl+P** pour les Préférences, **Ctrl+F** pour rechercher dans les paramètres du module courant et **F11** pour le plein écran, suivies des touches de l’écran affiché."
 
-msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "Pour modifier une touche, choisissez **Modifier les raccourcis…** dans l’aide-mémoire. La fenêtre **Modifier les raccourcis** comporte une ligne par action à l’échelle de la fenêtre, avec sa touche **Par défaut** et le **Raccourci** utilisé. Cliquez sur un raccourci et appuyez sur la nouvelle touche, ou effacez-le pour laisser l’action sans touche. **Rétablir les valeurs par défaut** rétablit la touche par défaut de chaque ligne."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "Pour modifier une touche, choisissez **Modifier les raccourcis…** dans l’aide-mémoire. La fenêtre **Modifier les raccourcis** comporte une ligne par action, avec sa touche **Par défaut** et le **Raccourci** utilisé. Cliquez sur un raccourci et appuyez sur la nouvelle touche, ou effacez-le pour laisser l’action sans touche. **Rétablir les valeurs par défaut** rétablit la touche par défaut de chaque ligne."
 
-msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
-msgstr "Si une touche est déjà utilisée par une autre action, ou par une touche de l’un des écrans, la ligne sous le tableau nomme les actions qui la partagent, et **Enregistrer** reste indisponible tant que le conflit n’est pas résolu. Les touches enregistrées s’appliquent immédiatement, y compris aux éléments de menu correspondants, et l’aide-mémoire les affiche. Elles sont conservées avec vos préférences et lues de la même façon sous Linux, macOS et Windows."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "If a key is already used by another action that is active at the same time, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Si une touche est déjà utilisée par une autre action active en même temps, la ligne sous le tableau nomme les actions qui la partagent, et **Enregistrer** reste indisponible tant que le conflit n’est pas résolu. Les touches enregistrées s’appliquent immédiatement, y compris aux éléments de menu correspondants, et l’aide-mémoire les affiche. Elles sont conservées avec vos préférences et lues de la même façon sous Linux, macOS et Windows."
 
-msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
-msgstr "Les touches propres à un écran, comme les touches d’étiquetage d’Annotation ou les touches d’édition de Créer des masques, figurent dans l’aide-mémoire mais ne peuvent pas être modifiées."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Keys that belong to one screen, such as Annotate's labelling keys, the Make Masks editing keys and the field browser's keys, have their own rows, with the screen named in the **Scope** column. A screen key may match a key of another screen, but not a window-wide key or another key on the same screen. Changed screen keys apply at once to screens that are open and to screens opened later, and the screen's key legend shows them."
+msgstr "Les touches propres à un écran, comme les touches d’étiquetage d’Annotate, les touches d’édition de Make Masks et les touches du navigateur de champs, ont leurs propres lignes, l’écran étant indiqué dans la colonne **Portée**. Une touche d’écran peut correspondre à une touche d’un autre écran, mais pas à une touche à l’échelle de la fenêtre ni à une autre touche du même écran. Les touches d’écran modifiées s’appliquent immédiatement aux écrans ouverts et à ceux ouverts ultérieurement, et la légende des touches de l’écran les affiche."
 
 msgid "Settings templates"
 msgstr "Modèles de paramètres"
@@ -61,6 +64,10 @@ msgstr "**Renommer…** donne un nouveau nom au modèle sélectionné. Un nom d�
 
 msgid "**Delete** removes the selected template."
 msgstr "**Supprimer** supprime le modèle sélectionné."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Export settings…** on a module screen saves the form as a settings CSV without running it; see :ref:`settings-files-from-the-gui`."
+msgstr "**Exporter les paramètres…** sur un écran de module enregistre le formulaire sous forme de CSV de paramètres sans l’exécuter ; voir :ref:`settings-files-from-the-gui`."
 
 msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
 msgstr "Les modèles sont stockés dans ``~/.spacr/recipes/<module>/``, un fichier JSON par modèle. Définissez la variable d’environnement ``SPACR_RECIPE_DIR`` pour les conserver dans un autre dossier, par exemple un dossier partagé du laboratoire."

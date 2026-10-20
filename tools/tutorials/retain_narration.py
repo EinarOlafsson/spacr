@@ -32,7 +32,23 @@ def catalog_lesson(path, lesson_id):
     return matches[0]
 
 
-def require_unchanged_lesson(original, published, staged):
+def require_unchanged_lesson(original, published, staged, *, voice_inventory=None):
+    if original != published and voice_inventory is not None and published == staged:
+        previous = original.get('narration_voices', {})
+        current = published.get('narration_voices')
+        if (isinstance(previous, dict) and isinstance(current, dict)
+                and set(current) == set(voice_inventory)
+                and all(isinstance(voices, list)
+                        and all(isinstance(voice, str) for voice in voices)
+                        and len(voices) == len(set(voices))
+                        and set(voices) == set(voice_inventory[language])
+                        for language, voices in current.items())
+                and all(language in voice_inventory and isinstance(voices, list)
+                        and all(isinstance(voice, str) for voice in voices)
+                        and len(voices) == len(set(voices))
+                        and set(voices) <= set(voice_inventory[language])
+                        for language, voices in previous.items())):
+            original = {**original, 'narration_voices': current}
     if original != published or original != staged:
         raise ValueError('Retained catalog differs from original or published lesson')
 
@@ -59,7 +75,7 @@ def retained_sources(stage, original, baseline, lesson_id, inventory, *, require
         source = catalog_lesson(original / 'catalog' / filename, lesson_id)
         published = catalog_lesson(baseline / filename, lesson_id)
         staged = catalog_lesson(stage / 'catalog' / filename, lesson_id)
-        require_unchanged_lesson(source, published, staged)
+        require_unchanged_lesson(source, published, staged, voice_inventory=inventory)
         catalogs.append({'language': language, 'lesson_sha256': hashlib.sha256(
             json.dumps(source, sort_keys=True, ensure_ascii=False).encode()).hexdigest()})
         for voice in inventory.get(language, []):

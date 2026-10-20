@@ -1,0 +1,352 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical authoring; no native-speaker signoff",
+  "note": "N700 providers public API locale closure. Exact existing source/context from one normal visibility inventory; no runtime source edits, model generation or native-language approval claimed. Independent peer is a separate hash-bound receipt.",
+  "records": [
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#0",
+      "source": "Have the active AI explain a failure once, for the console and the issue.",
+      "source_sha256": "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+      "context": "Have the active AI explain a failure once, for the console and the issue.",
+      "translation": "활성 AI가 한 번의 실패를 한 번 설명하여 콘솔과 이슈 보고서에 사용하게 합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "source_sha256": "bd98b7f9865a2d9fdea51da602e8a141bedd9cce2a20decd137961d2201263e4",
+      "context": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "translation": "spaCR AI (free)는 릴레이의 ``/diagnose`` 에 익명화된 요약과 :data:`spacr.crashreport.EXPLAIN_QUESTION` 을 전달합니다. 공급업체 CLI는 여기서 :func:`spacr.crashreport.ai_summary_prompt` 에 답합니다(:func:`write_report_summary`). 같은 텍스트를 콘솔에 표시하고 보고서의 ``ai_summary`` 로 보내므로 실패 한 건당 AI 호출은 한 번입니다. 실행을 차단하므로 GUI 스레드 밖에서 호출해야 합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#2",
+      "source": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "source_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "context": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "translation": ":func:`spacr.crashreport.public_summary` 에서 얻은 요약입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#3",
+      "source": "the active provider, or ``None``.",
+      "source_sha256": "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+      "context": "the active provider, or ``None``.",
+      "translation": "활성 제공자 또는 ``None`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#4",
+      "source": "seconds a vendor CLI may take; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "source_sha256": "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+      "context": "seconds a vendor CLI may take; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "translation": "공급업체 CLI에 허용되는 시간(초)이며, 기본값은 :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#5",
+      "source": "``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``, plus ``\"saved\": \"local\"`` when the answer was saved on this computer (no AI call, no network) or ``\"relay\"`` when the relay reused one.",
+      "source_sha256": "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+      "context": "``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``, plus ``\"saved\": \"local\"`` when the answer was saved on this computer (no AI call, no network) or ``\"relay\"`` when the relay reused one.",
+      "translation": "``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}`` 에 더해, 답변이 이 컴퓨터에 저장되어 있었다면 ``\"saved\": \"local\"``(AI 호출과 네트워크 사용 없음), 릴레이가 답변을 재사용했다면 ``\"relay\"`` 가 포함됩니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.explain_failure#6",
+      "source": "An error explained before is not explained again: the answer saved on this computer (:func:`spacr.crashreport.saved_explanation`) comes first, for every provider, and each new answer is saved.",
+      "source_sha256": "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8",
+      "context": "An error explained before is not explained again: the answer saved on this computer (:func:`spacr.crashreport.saved_explanation`) comes first, for every provider, and each new answer is saved.",
+      "translation": "이미 설명한 오류는 다시 설명하지 않습니다. 모든 제공자에서 이 컴퓨터에 저장된 답변(:func:`spacr.crashreport.saved_explanation`)을 먼저 사용하며, 새 답변은 모두 저장합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_allowance_text#0",
+      "source": "One line saying how many free hosted-AI questions are left today.",
+      "source_sha256": "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+      "context": "One line saying how many free hosted-AI questions are left today.",
+      "translation": "오늘 무료 호스팅 AI 질문이 몇 개 남았는지 알려 주는 한 줄입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_allowance_text#1",
+      "source": "what :func:`spacr.crashreport.fetch_allowance` returns, or ``None`` when it is not known.",
+      "source_sha256": "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+      "context": "what :func:`spacr.crashreport.fetch_allowance` returns, or ``None`` when it is not known.",
+      "translation": ":func:`spacr.crashreport.fetch_allowance` 의 반환값이며, 알 수 없으면 ``None`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_allowance_text#2",
+      "source": "the translated line, or ``\"\"`` when nothing is known.",
+      "source_sha256": "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66",
+      "context": "the translated line, or ``\"\"`` when nothing is known.",
+      "translation": "번역된 한 줄이며, 알려진 내용이 없으면 ``\"\"`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_cli_hint#0",
+      "source": "The hint that a user's own CLI gives unlimited answers.",
+      "source_sha256": "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+      "context": "The hint that a user's own CLI gives unlimited answers.",
+      "translation": "사용자 소유 CLI로 무제한 답변을 받을 수 있다는 안내입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_cli_hint#1",
+      "source": "the translated sentence.",
+      "source_sha256": "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6",
+      "context": "the translated sentence.",
+      "translation": "번역된 문장입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_daily_allowance_text#0",
+      "source": "The free allowance of spaCR AI, as Preferences states it.",
+      "source_sha256": "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+      "context": "The free allowance of spaCR AI, as Preferences states it.",
+      "translation": "환경설정에 명시된 spaCR AI의 무료 사용량입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_daily_allowance_text#1",
+      "source": "the translated sentence.",
+      "source_sha256": "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6",
+      "context": "the translated sentence.",
+      "translation": "번역된 문장입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_provider#0",
+      "source": "Return spaCR's hosted provider.",
+      "source_sha256": "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370",
+      "context": "Return spaCR's hosted provider.",
+      "translation": "spaCR의 호스팅 제공자를 반환합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#0",
+      "source": "The sentence shown when the hosted provider gives no advice.",
+      "source_sha256": "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+      "context": "The sentence shown when the hosted provider gives no advice.",
+      "translation": "호스팅 제공자가 조언을 제공하지 않을 때 표시하는 문장입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#1",
+      "source": "``\"quota\"``, ``\"network\"`` or anything else.",
+      "source_sha256": "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+      "context": "``\"quota\"``, ``\"network\"`` or anything else.",
+      "translation": "``\"quota\"``, ``\"network\"`` 또는 다른 값입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#2",
+      "source": "for a quota refusal, ``\"install\"`` (this install's daily questions are used), ``\"global\"`` (spaCR's shared free capacity is) or ``\"ip\"``.",
+      "source_sha256": "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+      "context": "for a quota refusal, ``\"install\"`` (this install's daily questions are used), ``\"global\"`` (spaCR's shared free capacity is) or ``\"ip\"``.",
+      "translation": "사용량 한도에 따른 거부의 경우 ``\"install\"``(이 설치의 일일 질문을 모두 사용함), ``\"global\"``(spaCR의 공유 무료 용량을 모두 사용함) 또는 ``\"ip\"`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#3",
+      "source": "when the limit resets; defaults to the next 00:00 UTC.",
+      "source_sha256": "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+      "context": "when the limit resets; defaults to the next 00:00 UTC.",
+      "translation": "한도가 초기화되는 시각이며, 기본값은 다음 UTC 00:00입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#4",
+      "source": "the translated sentence; a quota refusal also carries :func:`hosted_cli_hint`.",
+      "source_sha256": "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914",
+      "context": "the translated sentence; a quota refusal also carries :func:`hosted_cli_hint`.",
+      "translation": "번역된 문장입니다. 사용량 한도에 따른 거부에는 :func:`hosted_cli_hint` 도 포함됩니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.local_reset_time#0",
+      "source": "The time the free allowances reset, in this computer's local time.",
+      "source_sha256": "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+      "context": "The time the free allowances reset, in this computer's local time.",
+      "translation": "이 컴퓨터의 현지 시각으로 표시한 무료 사용량 초기화 시각입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.local_reset_time#1",
+      "source": "an aware datetime or an ISO-8601 string; defaults to the next 00:00 UTC.",
+      "source_sha256": "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+      "context": "an aware datetime or an ISO-8601 string; defaults to the next 00:00 UTC.",
+      "translation": "시간대 정보가 있는 datetime 또는 ISO-8601 문자열이며, 기본값은 다음 UTC 00:00입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.local_reset_time#2",
+      "source": "``HH:MM``, followed by the weekday when it is not today.",
+      "source_sha256": "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916",
+      "context": "``HH:MM``, followed by the weekday when it is not today.",
+      "translation": "``HH:MM`` 이며, 오늘이 아니면 뒤에 요일을 붙입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.question_cache_key#0",
+      "source": "The key a fresh question's answer is saved under on this computer.",
+      "source_sha256": "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+      "context": "The key a fresh question's answer is saved under on this computer.",
+      "translation": "새 질문의 답변을 이 컴퓨터에 저장할 때 사용하는 키입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.question_cache_key#1",
+      "source": "Only the first question of a conversation is saved, and only when the question and whatever was pasted with it (console context, code, traceback) stay within :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The key is :func:`spacr.crashreport.question_key` of the question and the active app; it is the same for every provider.",
+      "source_sha256": "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+      "context": "Only the first question of a conversation is saved, and only when the question and whatever was pasted with it (console context, code, traceback) stay within :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The key is :func:`spacr.crashreport.question_key` of the question and the active app; it is the same for every provider.",
+      "translation": "대화의 첫 질문만 저장하며, 질문과 함께 붙여 넣은 모든 내용(콘솔 맥락, 코드, 트레이스백)이 :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` 자 이내일 때만 저장합니다. 키는 질문과 활성 앱에 대한 :func:`spacr.crashreport.question_key` 이며 모든 제공자가 동일한 키를 사용합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.question_cache_key#2",
+      "source": "conversation history as ``{role, content}`` dicts.",
+      "source_sha256": "69388d176540fe771c0695e09aad7cd9085a60e08c44e2306bdd418f531232a3",
+      "context": "conversation history as ``{role, content}`` key-value mappings.",
+      "translation": "``{role, content}`` 키-값 매핑으로 표현한 대화 기록입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.question_cache_key#3",
+      "source": "the key, or ``\"\"`` when the answer must not be saved.",
+      "source_sha256": "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86",
+      "context": "the key, or ``\"\"`` when the answer must not be saved.",
+      "translation": "키이며, 답변을 저장하면 안 되는 경우 ``\"\"`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.usage_bar#0",
+      "source": "What the usage bar under the AI chat box shows for a provider.",
+      "source_sha256": "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+      "context": "What the usage bar under the AI chat box shows for a provider.",
+      "translation": "AI 채팅 입력란 아래의 사용량 막대가 제공자에 대해 표시하는 내용입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.usage_bar#1",
+      "source": "For spaCR AI (free) the bar is the user's share of today's shared free capacity, ``neurons_left / share_neurons``, from the relay's dynamic allowance. For a vendor CLI there is no reliable usage source (:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.",
+      "source_sha256": "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+      "context": "For spaCR AI (free) the bar is the user's share of today's shared free capacity, ``neurons_left / share_neurons``, from the relay's dynamic allowance. For a vendor CLI there is no reliable usage source (:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.",
+      "translation": "spaCR AI (free)의 막대는 릴레이의 동적 할당량에서 얻은 ``neurons_left / share_neurons``, 즉 오늘의 공유 무료 용량 중 사용자 몫을 표시합니다. 공급업체 CLI에는 신뢰할 수 있는 사용량 출처(:data:`CLI_USAGE_TEXT`)가 없으므로 막대를 숨기고 한 줄만 표시합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.usage_bar#2",
+      "source": "the selected provider's name, or ``None``.",
+      "source_sha256": "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+      "context": "the selected provider's name, or ``None``.",
+      "translation": "선택한 제공자의 이름 또는 ``None`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.usage_bar#3",
+      "source": "what :func:`spacr.crashreport.fetch_allowance` returned, for spaCR AI.",
+      "source_sha256": "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+      "context": "what :func:`spacr.crashreport.fetch_allowance` returned, for spaCR AI.",
+      "translation": "spaCR AI에 대해 :func:`spacr.crashreport.fetch_allowance` 가 반환한 값입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.usage_bar#4",
+      "source": "``(percent or None to hide the bar, translated text)``.",
+      "source_sha256": "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8",
+      "context": "``(percent or None to hide the bar, translated text)``.",
+      "translation": "``(percent or None to hide the bar, translated text)``.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.with_ai_summary#0",
+      "source": "Return the report with the AI summary its provider allows.",
+      "source_sha256": "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+      "context": "Return the report with the AI summary its provider allows.",
+      "translation": "해당 제공자가 허용하는 AI 요약이 포함된 보고서를 반환합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.with_ai_summary#1",
+      "source": "spaCR AI (free) asks the relay to write it (``summarize: true``, charged to the user's light-model allowance). A vendor CLI writes it here (:func:`write_report_summary`) and it travels as ``ai_summary``. With no provider, or when the CLI gives nothing, the report is unchanged.",
+      "source_sha256": "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+      "context": "spaCR AI (free) asks the relay to write it (``summarize: true``, charged to the user's light-model allowance). A vendor CLI writes it here (:func:`write_report_summary`) and it travels as ``ai_summary``. With no provider, or when the CLI gives nothing, the report is unchanged.",
+      "translation": "spaCR AI (free)는 릴레이에 작성을 요청합니다(``summarize: true``, 사용자의 경량 모델 할당량에서 차감). 공급업체 CLI는 여기서 작성하며(:func:`write_report_summary`), 결과는 ``ai_summary`` 로 전송됩니다. 제공자가 없거나 CLI가 아무것도 반환하지 않으면 보고서는 바뀌지 않습니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.with_ai_summary#2",
+      "source": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "source_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "context": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "translation": ":func:`spacr.crashreport.public_summary` 에서 얻은 요약입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.with_ai_summary#3",
+      "source": "the active provider, or ``None``.",
+      "source_sha256": "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+      "context": "the active provider, or ``None``.",
+      "translation": "활성 제공자 또는 ``None`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.with_ai_summary#4",
+      "source": "a new summary dict.",
+      "source_sha256": "02b60c6a60beb4f41286fcff30e5fd3f8cc2a9d33c3aa4f96666fae1136ad480",
+      "context": "a new summary key-value mapping.",
+      "translation": "새 요약 키-값 매핑입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.write_report_summary#0",
+      "source": "Have the user's own AI summarise an anonymised report, or return ``\"\"``.",
+      "source_sha256": "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+      "context": "Have the user's own AI summarise an anonymised report, or return ``\"\"``.",
+      "translation": "사용자 소유 AI가 익명화된 보고서를 요약하게 하거나 ``\"\"`` 를 반환합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It runs on a thread of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the GUI thread.",
+      "source_sha256": "4316497ce7fa874d6ef3f0d3ac98265e07ce9ad4d8a3d18b26899a4eba8a49d1",
+      "context": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It executes on an independent execution path of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the main GUI execution path.",
+      "translation": "제공자에게는 :func:`spacr.crashreport.ai_summary_prompt` 만 전달합니다. 별도의 스레드에서 실행하고 ``timeout`` 초 후 중지합니다. 실패, 시간 초과 또는 빈 답변이면 ``\"\"`` 를 반환하며, 보고서는 요약 없이 제출됩니다. 실행을 차단하므로 GUI 스레드 밖에서 호출해야 합니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.write_report_summary#2",
+      "source": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "source_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "context": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "translation": ":func:`spacr.crashreport.public_summary` 에서 얻은 요약입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.write_report_summary#3",
+      "source": "a vendor CLI provider, or ``None``.",
+      "source_sha256": "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+      "context": "a vendor CLI provider, or ``None``.",
+      "translation": "공급업체 CLI 제공자 또는 ``None`` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.write_report_summary#4",
+      "source": "seconds to wait; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "source_sha256": "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+      "context": "seconds to wait; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "translation": "대기 시간(초)이며, 기본값은 :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S` 입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    },
+    {
+      "label": "spacr.qt.ai.providers.write_report_summary#5",
+      "source": "the summary text, scrubbed and cut to :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS`.",
+      "source_sha256": "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c",
+      "context": "the summary text, scrubbed and cut to :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS`.",
+      "translation": "정리하고 :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS` 까지 잘라 낸 요약 텍스트입니다.",
+      "review_basis": "Direct AI technical authoring against exact canonical source/context; independent peer recorded separately."
+    }
+  ]
+}

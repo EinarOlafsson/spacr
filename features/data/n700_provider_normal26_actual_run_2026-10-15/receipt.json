@@ -1,0 +1,148 @@
+{
+  "head": "9c5fdc44bf1bc5a489c74e795a3306b942c3d7d0",
+  "selected_symbols": [
+    "spacr.qt.ai.providers",
+    "spacr.qt.ai.providers.HostedProvider",
+    "spacr.qt.ai.providers.HostedProvider.check_signed_in",
+    "spacr.qt.ai.providers.HostedProvider.is_configured",
+    "spacr.qt.ai.providers.HostedProvider.is_installed",
+    "spacr.qt.ai.providers.HostedProvider.is_logged_in",
+    "spacr.qt.ai.providers.HostedProvider.source_of_key",
+    "spacr.qt.ai.providers.HostedProvider.stream_chat",
+    "spacr.qt.ai.providers.HostedProviderRefused",
+    "spacr.qt.ai.providers.apply_provider_choice",
+    "spacr.qt.ai.providers.configured_providers",
+    "spacr.qt.ai.providers.default_provider",
+    "spacr.qt.ai.providers.effective_provider_name",
+    "spacr.qt.ai.providers.get_provider",
+    "spacr.qt.ai.providers.list_providers",
+    "spacr.qt.ai.providers.explain_failure",
+    "spacr.qt.ai.providers.hosted_allowance_text",
+    "spacr.qt.ai.providers.hosted_cli_hint",
+    "spacr.qt.ai.providers.hosted_daily_allowance_text",
+    "spacr.qt.ai.providers.hosted_provider",
+    "spacr.qt.ai.providers.hosted_refusal_message",
+    "spacr.qt.ai.providers.local_reset_time",
+    "spacr.qt.ai.providers.question_cache_key",
+    "spacr.qt.ai.providers.usage_bar",
+    "spacr.qt.ai.providers.with_ai_summary",
+    "spacr.qt.ai.providers.write_report_summary"
+  ],
+  "phases": [
+    "normal staged18-record history restoration PASS",
+    "ALL9 normal history/translation preflights PASS before first locale write",
+    "normal9 language writers +foreign/header/English/history preservation PASS"
+  ],
+  "status": "REFUSED",
+  "restoration": {
+    "old_records": 14,
+    "authentic_records_added": 4,
+    "restored_records": 18,
+    "original_commit": "6e386930baaadf374319d8e7a0e521cc5f53eded",
+    "added_hashes": [
+      "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8",
+      "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa",
+      "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e",
+      "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f"
+    ],
+    "normal_generated_history_equals_exact_union": true,
+    "actual_english_and_nine_locales_untouched_at_restore": true
+  },
+  "restored_history_sha256": "bca7c2f6bac76517079158eae71d025c798f9bc9b9fd9d3434786734260812c1",
+  "preflights": {
+    "sv": {
+      "status": "PASS",
+      "reviewed_sources": 76,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "de": {
+      "status": "PASS",
+      "reviewed_sources": 76,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "es": {
+      "status": "PASS",
+      "reviewed_sources": 75,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "zh_CN": {
+      "status": "PASS",
+      "reviewed_sources": 75,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "pt": {
+      "status": "PASS",
+      "reviewed_sources": 75,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "hi": {
+      "status": "PASS",
+      "reviewed_sources": 75,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "ko": {
+      "status": "PASS",
+      "reviewed_sources": 75,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "is": {
+      "status": "PASS",
+      "reviewed_sources": 76,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    },
+    "fr": {
+      "status": "PASS",
+      "reviewed_sources": 75,
+      "history_from_head": 0,
+      "history_unproven": 0,
+      "reused_target_values": 8
+    }
+  },
+  "full_source_snapshot": {
+    "path": "full-current-source-docs.json.gz",
+    "json_sha256": "ad470f11fbbd19245438028f16c597e348c3e226d530ddcd90df9f6f3da1efca",
+    "gzip_sha256": "2568988ddbc4b8d3817ffe69ae30566808005a5515d814e7b90e91241b8189ad",
+    "symbols": 13539
+  },
+  "global_english_diagnostic": {
+    "missing": [],
+    "extra": [],
+    "stale": [],
+    "equal": true
+  },
+  "full_source_inventory_symbols": 13539,
+  "error": {
+    "type": "ValueError",
+    "message": "stale reviewed API source 'spacr.qt.widgets.glass.glass#2': /mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015/docs/i18n/reviewed/api/sv/2026-09-25-api-debt-007.json",
+    "traceback": "Traceback (most recent call last):\n  File \"/mnt/wd4tb/scratch/n700-provider-core-authoring-20261015/normal26-producer.py\", line 151, in <module>\n    result['full9_audit_exit'] = tool.audit(full_docs, list(tool.MODEL_SPECS))\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015/tools/build_documentation_i18n.py\", line 6743, in audit\n    reviewed_blocks = reviewed_api_block_translations(docs, language)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015/tools/build_documentation_i18n.py\", line 5987, in reviewed_api_block_translations\n    raise ValueError(f\"stale reviewed API source {label!r}: {path}\")\nValueError: stale reviewed API source 'spacr.qt.widgets.glass.glass#2': /mnt/wd4tb/spacr-worktrees/codex-n703-cache-cleanup-gui-20261015/docs/i18n/reviewed/api/sv/2026-09-25-api-debt-007.json\n"
+  },
+  "protected_pins_unchanged": true,
+  "actual_changed_paths": [
+    "docs/i18n/api_source_history.json",
+    "docs/source/_static/i18n/api/de.json",
+    "docs/source/_static/i18n/api/es.json",
+    "docs/source/_static/i18n/api/fr.json",
+    "docs/source/_static/i18n/api/hi.json",
+    "docs/source/_static/i18n/api/is.json",
+    "docs/source/_static/i18n/api/ko.json",
+    "docs/source/_static/i18n/api/pt.json",
+    "docs/source/_static/i18n/api/sv.json",
+    "docs/source/_static/i18n/api/zh_CN.json"
+  ]
+}

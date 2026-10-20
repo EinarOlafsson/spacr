@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "Home के सभी मौजूदा मॉड्यूल बाएँ से दाएँ देखें। फिर Mask से साझा नियंत्रण सीखें और नेविगेशन, सहायता तथा रूप बदलें।",
       "objectives": [
-        "मौजूदा Core, Data, Tools और Organism पंक्तियों के हर मॉड्यूल की पहचान करना।",
+        "मौजूदा Core, Data और Tools पंक्तियों के हर मॉड्यूल की पहचान करना।",
         "Mask से साझा सेटिंग, पूर्वावलोकन, कार्रवाइयों और परिणामों को पहचानना।",
         "Home पर लौटना, खोज का उपयोग करना और पैनल व्यवस्थित करना।",
         "रूप और प्रदर्शन की सेटिंग चुनना।"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data, Tools और Organism। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।",
+          "narration": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data और Tools। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।",
           "hold_after": 0.7,
-          "speech_text": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data, Tools और Organism। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।"
+          "speech_text": "Home शुरुआती स्थान है। हर पंक्ति को बाएँ से दाएँ पढ़ें: Core, Data और Tools। हर टाइल अपना मॉड्यूल खोलती है। बाईं सूची में भी वही विकल्प हैं और Home इस अवलोकन पर लौटाता है।"
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate में वस्तुओं के कटे चित्र देखकर उदाहरणों के लिए जाँचे हुए लेबल दर्ज कर सकते हैं।"
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify जाँचे हुए लेबल से सीखता है और चित्रों या तालिकाओं की मदद से अन्य वस्तुओं को स्कोर देता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify जाँचे हुए लेबल से सीखता है और चित्रों या तालिकाओं की मदद से अन्य वस्तुओं को स्कोर देता है।"
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes अनुक्रमण डेटा पढ़कर गाइड या बारकोड की गिनती और पहचान करता है।",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import आने वाली माइक्रोस्कोपी फ़ाइलों और मेटाडेटा को परियोजना की संरचना के लिए तैयार करता है।"
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings वस्तुओं के कटे चित्रों को खोज और तुलना के लिए संख्यात्मक विशेषताओं में बदलता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings वस्तुओं के कटे चित्रों को खोज और तुलना के लिए संख्यात्मक विशेषताओं में बदलता है।"
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare सहेजे गए रन के परिणाम एक साथ लाता है ताकि उनके अंतर देख सकें।",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare सहेजे गए रन के परिणाम एक साथ लाता है ताकि उनके अंतर देख सकें।"
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design प्रयोग से पहले स्थितियों, वेल और नमूनों की पहचान की व्यवस्था करता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design प्रयोग से पहले स्थितियों, वेल और नमूनों की पहचान की व्यवस्था करता है।"
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design तुलना की योजना बनाते समय नमूना आकार और सांख्यिकीय शक्ति की मान्यताओं को जाँचता है।",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design तुलना की योजना बनाते समय नमूना आकार और सांख्यिकीय शक्ति की मान्यताओं को जाँचता है।"
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response अलग-अलग सांद्रताओं पर प्रतिक्रिया को फिट करता है और चुने हुए मापन तथा नियंत्रणों को स्पष्ट रखता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response अलग-अलग सांद्रताओं पर प्रतिक्रिया को फिट करता है और चुने हुए मापन तथा नियंत्रणों को स्पष्ट रखता है।"
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC गुणवत्ता जाँचों को एक साथ दिखाता है और बताता है कि कौन-से प्रमाण उपलब्ध हैं या गायब हैं।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC गुणवत्ता जाँचों को एक साथ दिखाता है और बताता है कि कौन-से प्रमाण उपलब्ध हैं या गायब हैं।"
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image यू मैप वस्तुओं की विशेषताओं का प्रक्षेपण करता है ताकि समान वस्तुएँ खोजकर प्रतिनिधि कटे चित्र देख सकें।"
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor वास्तविक डेटा कॉलम पर चयन निर्धारित करता है। गेट को लेबल में बदलने से पहले चुनी गई वस्तुओं की जाँच करें।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "गेट एडिटर वास्तविक डेटा कॉलम पर चयन निर्धारित करता है। गेट को लेबल में बदलने से पहले चुनी गई वस्तुओं की जाँच करें।"
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder माप तालिकाओं से ग्राफ बनाता है, जिनके कॉलम और समूह चुन सकते हैं।"
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "Organism पंक्ति में Toxoplasma है। यह जीव की जानकारी, संवादात्मक चित्र और उपलब्ध Toxoplasma परीक्षणों के रास्ते खोलता है। अलग Toxoplasma ट्यूटोरियल इस पेज को समझाता है।"
         },
         {
           "visual": "06_mask_host",
@@ -902,7 +818,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "मुख्य पृष्ठभूमि और उसका पैलेट चुनने के लिए Animation पर क्लिक करें। Animation colours, Custom colours के मुख्य और सहायक रंग तय करता है; Animation background एक अलग पृष्ठभूमि चुनता है, और Theme colour पृष्ठ के थीम वाले रंग को वापस लाता है। Detail रेंडरिंग का रिज़ॉल्यूशन नियंत्रित करता है। Speed, Size और Density गति और तत्वों की संख्या बदलते हैं। Mouse gravity radius माउस के प्रभाव की सीमा तय करता है; शून्य इसे बंद करता है। Dot blinking सफेद चमक नियंत्रित करता है, और Popup wave frequency, spaCR field में खुले पॉपअप से तरंगें शुरू करता है। Field ripples क्लिक करने, कंटेनर खोलने या बंद करने और विंडो को स्क्रीन के किनारे जमाने से बनने वाली तरंगों को माउस के आकर्षण से स्वतंत्र रूप से नियंत्रित करता है। इसे बंद करने पर पॉपअप की स्वचालित तरंगें भी रुक जाती हैं। Settings animation speed, Settings animation size, Settings animation detail और Settings animation density केवल Settings backdrop को बदलते हैं। Settings backdrop darkness फ़ॉर्म के पाठ की पठनीयता नियंत्रित करता है।",
+          "narration": "मुख्य पृष्ठभूमि और उसका पैलेट चुनने के लिए Animation पर क्लिक करें। Animation colours, Custom colours के मुख्य और सहायक रंग तय करता है; Animation background एक अलग पृष्ठभूमि चुनता है, और Theme colour पृष्ठ के थीम वाले रंग को वापस लाता है। Detail रेंडरिंग का रिज़ॉल्यूशन नियंत्रित करता है। Speed, Size और Density गति और तत्वों की संख्या बदलते हैं। Mouse gravity radius माउस के प्रभाव की सीमा तय करता है; शून्य इसे बंद करता है। Dot blinking सफेद चमक नियंत्रित करता है। Field ripples क्लिक करने, कंटेनर खोलने या बंद करने, पॉपअप और विंडो को स्क्रीन के किनारे जमाने से बनने वाली तरंगों की तीव्रता तय करता है, जो माउस के आकर्षण से स्वतंत्र है; शून्य पर तरंगें बंद हो जाती हैं, पॉपअप की स्वचालित तरंगें भी। Click ripples तय करता है कि पृष्ठभूमि पर क्लिक करने से तरंग निकले या नहीं। Popup wave frequency तय करता है कि खुले पॉपअप से spaCR field में प्रति मिनट कितनी तरंगें फैलें। Settings animation speed, Settings animation size, Settings animation detail और Settings animation density केवल Settings backdrop को बदलते हैं। Settings backdrop darkness फ़ॉर्म के पाठ की पठनीयता नियंत्रित करता है।",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +826,7 @@
             1200,
             1500
           ],
-          "speech_text": "मुख्य पृष्ठभूमि और उसका पैलेट चुनने के लिए Animation पर क्लिक करें। Animation colours, Custom colours के मुख्य और सहायक रंग तय करता है; Animation background एक अलग पृष्ठभूमि चुनता है, और Theme colour पृष्ठ के थीम वाले रंग को वापस लाता है। Detail रेंडरिंग का रिज़ॉल्यूशन नियंत्रित करता है। Speed, Size और Density गति और तत्वों की संख्या बदलते हैं। Mouse gravity radius माउस के प्रभाव की सीमा तय करता है; शून्य इसे बंद करता है। Dot blinking सफेद चमक नियंत्रित करता है, और Popup wave frequency, स्पेकर field में खुले पॉपअप से तरंगें शुरू करता है। Field ripples क्लिक करने, कंटेनर खोलने या बंद करने और विंडो को स्क्रीन के किनारे जमाने से बनने वाली तरंगों को माउस के आकर्षण से स्वतंत्र रूप से नियंत्रित करता है। इसे बंद करने पर पॉपअप की स्वचालित तरंगें भी रुक जाती हैं। Settings animation speed, Settings animation size, Settings animation detail और Settings animation density केवल Settings backdrop को बदलते हैं। Settings backdrop darkness फ़ॉर्म के पाठ की पठनीयता नियंत्रित करता है।"
+          "speech_text": "मुख्य पृष्ठभूमि और उसका पैलेट चुनने के लिए Animation पर क्लिक करें। Animation colours, Custom colours के मुख्य और सहायक रंग तय करता है; Animation background एक अलग पृष्ठभूमि चुनता है, और Theme colour पृष्ठ के थीम वाले रंग को वापस लाता है। Detail रेंडरिंग का रिज़ॉल्यूशन नियंत्रित करता है। Speed, Size और Density गति और तत्वों की संख्या बदलते हैं। Mouse gravity radius माउस के प्रभाव की सीमा तय करता है; शून्य इसे बंद करता है। Dot blinking सफेद चमक नियंत्रित करता है। Field ripples क्लिक करने, कंटेनर खोलने या बंद करने, पॉपअप और विंडो को स्क्रीन के किनारे जमाने से बनने वाली तरंगों की तीव्रता तय करता है, जो माउस के आकर्षण से स्वतंत्र है; शून्य पर तरंगें बंद हो जाती हैं, पॉपअप की स्वचालित तरंगें भी। Click ripples तय करता है कि पृष्ठभूमि पर क्लिक करने से तरंग निकले या नहीं। Popup wave frequency तय करता है कि खुले पॉपअप से स्पेकर field में प्रति मिनट कितनी तरंगें फैलें। Settings animation speed, Settings animation size, Settings animation detail और Settings animation density केवल Settings backdrop को बदलते हैं। Settings backdrop darkness फ़ॉर्म के पाठ की पठनीयता नियंत्रित करता है।"
         },
         {
           "visual": "13h_preferences_apply",
@@ -1289,7 +1205,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1715,7 +1654,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest उन क्रॉप के लिए लेबल सुझाता है जिनका आपने अभी उत्तर नहीं दिया है, इसलिए पहले उसे कई वेल से दोनों वर्गों के उदाहरण दें। यहाँ चार वेल में हर वर्ग के कुछ क्रॉप लेबल किए गए हैं, और Next उन्हें सहेजता है।",
+          "narration": "Suggest उन क्रॉप के लिए लेबल सुझाता है जिनका आपने अभी उत्तर नहीं दिया है, इसलिए पहले उसे कई वेल से दोनों वर्गों के उदाहरण दें। यहाँ तीन वेल में हर वर्ग के कुछ क्रॉप लेबल किए गए हैं, और Next उन्हें सहेजता है।",
           "focus": [
             360,
             380,
@@ -1724,11 +1663,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest उन क्रॉप के लिए लेबल सुझाता है जिनका आपने अभी उत्तर नहीं दिया है, इसलिए पहले उसे कई वेल से दोनों वर्गों के उदाहरण दें। यहाँ चार वेल में हर वर्ग के कुछ क्रॉप लेबल किए गए हैं, और Next उन्हें सहेजता है।"
+          "speech_text": "Suggest उन क्रॉप के लिए लेबल सुझाता है जिनका आपने अभी उत्तर नहीं दिया है, इसलिए पहले उसे कई वेल से दोनों वर्गों के उदाहरण दें। यहाँ तीन वेल में हर वर्ग के कुछ क्रॉप लेबल किए गए हैं, और Next उन्हें सहेजता है।"
         },
         {
           "visual": "20_suggestions",
-          "narration": "Suggest खोलें और Suggest for the images on this page चुनें। यह दौर कुछ सेकंड लेता है, और अब पृष्ठ के हर क्रॉप पर प्रश्नचिह्न का बैज होता है। ग्रिड के ऊपर की पट्टी गिनती दिखाती है कि कितने सुझावों का निर्णय बाकी है।",
+          "narration": "Suggest खोलें और Suggest for the images on this page चुनें। यह दौर कुछ सेकंड लेता है, और अब पृष्ठ के बिना लेबल वाले क्रॉप पर प्रश्नचिह्न के बैज होते हैं। ग्रिड के ऊपर की पट्टी गिनती दिखाती है कि कितने सुझावों का निर्णय बाकी है।",
           "focus": [
             350,
             250,
@@ -1736,11 +1675,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Suggest खोलें और Suggest for the images on this page चुनें। यह दौर कुछ सेकंड लेता है, और अब पृष्ठ के हर क्रॉप पर प्रश्नचिह्न का बैज होता है। ग्रिड के ऊपर की पट्टी गिनती दिखाती है कि कितने सुझावों का निर्णय बाकी है।"
+          "speech_text": "Suggest खोलें और Suggest for the images on this page चुनें। यह दौर कुछ सेकंड लेता है, और अब पृष्ठ के बिना लेबल वाले क्रॉप पर प्रश्नचिह्न के बैज होते हैं। ग्रिड के ऊपर की पट्टी गिनती दिखाती है कि कितने सुझावों का निर्णय बाकी है।"
         },
         {
           "visual": "21_judged",
-          "narration": "किसी सुझाए गए क्रॉप पर क्लिक करें या पुष्टि के लिए Y दबाएँ, और अस्वीकार करने के लिए राइट-क्लिक करें या N दबाएँ। दोनों उत्तर दर्ज होते हैं, अस्वीकृतियाँ अगले दौर को प्रशिक्षित करती हैं, और जाँच के बाद Confirm the rest of the page बाकी को तय कर देता है।",
+          "narration": "किसी सुझाए गए क्रॉप पर क्लिक करें या पुष्टि के लिए Y दबाएँ, और अस्वीकार करने के लिए राइट-क्लिक करें या N दबाएँ। दोनों उत्तर Next से सहेजे जाने तक लंबित रहते हैं; अस्वीकृतियाँ अगले दौर को प्रशिक्षित करती हैं, और जाँच के बाद Confirm the rest of the page बाकी को तय कर देता है।",
           "focus": [
             350,
             250,
@@ -1748,7 +1687,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "किसी सुझाए गए क्रॉप पर क्लिक करें या पुष्टि के लिए Y दबाएँ, और अस्वीकार करने के लिए राइट-क्लिक करें या N दबाएँ। दोनों उत्तर दर्ज होते हैं, अस्वीकृतियाँ अगले दौर को प्रशिक्षित करती हैं, और जाँच के बाद Confirm the rest of the page बाकी को तय कर देता है।"
+          "speech_text": "किसी सुझाए गए क्रॉप पर क्लिक करें या पुष्टि के लिए Y दबाएँ, और अस्वीकार करने के लिए राइट-क्लिक करें या N दबाएँ। दोनों उत्तर Next से सहेजे जाने तक लंबित रहते हैं; अस्वीकृतियाँ अगले दौर को प्रशिक्षित करती हैं, और जाँच के बाद Confirm the rest of the page बाकी को तय कर देता है।"
         },
         {
           "visual": "17_generate_database_entry",
@@ -1775,7 +1714,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2179,7 +2141,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2560,12 +2545,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home से Tools में Make Masks खोलें। नीचे बाईं ओर के बटन इमेज लाते हैं: Open folder, Organize for Measure और Load test data। दाईं ओर Discard, Keep, Skip और Upload data तय करते हैं कि संपादन के बाद हर फ़ील्ड का क्या होगा। Discard के ठीक बाईं ओर Clear masks, वर्तमान चित्र के सभी मास्क हटाने से पहले पुष्टि माँगता है।",
+          "narration": "Home से Tools में Make Masks खोलें। नीचे बाईं ओर के बटन इमेज लाते हैं: Open folder, Organize for Measure और Load test data। दाईं ओर Discard, Keep, Skip और Upload data तय करते हैं कि संपादन के बाद हर फ़ील्ड का क्या होगा। Discard के ठीक बाईं ओर Clear all objects, वर्तमान चित्र की सभी वस्तुएँ हटाने से पहले पुष्टि माँगता है।",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Home से Tools में Make Masks खोलें। नीचे बाईं ओर के बटन इमेज लाते हैं: Open folder, Organize for Measure और Load test data। दाईं ओर Discard, Keep, Skip और Upload data तय करते हैं कि संपादन के बाद हर फ़ील्ड का क्या होगा। Discard के ठीक बाईं ओर Clear masks, वर्तमान चित्र के सभी मास्क हटाने से पहले पुष्टि माँगता है।"
+          "speech_text": "Home से Tools में Make Masks खोलें। नीचे बाईं ओर के बटन इमेज लाते हैं: Open folder, Organize for Measure और Load test data। दाईं ओर Discard, Keep, Skip और Upload data तय करते हैं कि संपादन के बाद हर फ़ील्ड का क्या होगा। Discard के ठीक बाईं ओर Clear all objects, वर्तमान चित्र की सभी वस्तुएँ हटाने से पहले पुष्टि माँगता है।"
         },
         {
           "visual": "01b_test_data_menu",
@@ -8719,7 +8704,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16258,13 +16266,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate ऑब्जेक्ट के कटे चित्र दिखाता है ताकि आप जाँचे हुए लेबल जोड़ सकें। Classify कटे चित्रों या मापी गई विशेषताओं का उपयोग करके चुने गए लेबल स्तंभ से सीखता है। मूल्यांकन के ऑब्जेक्ट को प्रशिक्षण के ऑब्जेक्ट से अलग रखें और स्कोर स्तंभ तथा ऑब्जेक्ट पहचान को बाद के विश्लेषणों तक ले जाएँ।",
+          "narration": "Annotate ऑब्जेक्ट के कटे चित्र दिखाता है ताकि आप जाँचे हुए लेबल जोड़ सकें। Classify कटे चित्रों या मापी गई विशेषताओं का उपयोग करके चुने गए लेबल स्तंभ पर एक मॉडल प्रशिक्षित करता है। मूल्यांकन के ऑब्जेक्ट को प्रशिक्षण के ऑब्जेक्ट से अलग रखें और स्कोर स्तंभ तथा ऑब्जेक्ट पहचान को बाद के विश्लेषणों तक ले जाएँ।",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate ऑब्जेक्ट के कटे चित्र दिखाता है ताकि आप जाँचे हुए लेबल जोड़ सकें। Classify कटे चित्रों या मापी गई विशेषताओं का उपयोग करके चुने गए लेबल स्तंभ से सीखता है। मूल्यांकन के ऑब्जेक्ट को प्रशिक्षण के ऑब्जेक्ट से अलग रखें और स्कोर स्तंभ तथा ऑब्जेक्ट पहचान को बाद के विश्लेषणों तक ले जाएँ।"
+          "speech_text": "Annotate ऑब्जेक्ट के कटे चित्र दिखाता है ताकि आप जाँचे हुए लेबल जोड़ सकें। Classify कटे चित्रों या मापी गई विशेषताओं का उपयोग करके चुने गए लेबल स्तंभ पर एक मॉडल प्रशिक्षित करता है। मूल्यांकन के ऑब्जेक्ट को प्रशिक्षण के ऑब्जेक्ट से अलग रखें और स्कोर स्तंभ तथा ऑब्जेक्ट पहचान को बाद के विश्लेषणों तक ले जाएँ।"
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16610,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "आरेख देखने-परखने के लिए है। किसी कोशिका घटक पर माउस रखें, और उसका विवरण दिखता है। कई घटक चुनकर उन्हें हाइलाइट रखें, और Clear components चित्र को फिर से सामान्य कर देता है।",
+          "narration": "आरेख इंटरैक्टिव है। किसी कोशिका घटक पर माउस रखें, और उसका विवरण दिखता है। कई घटक चुनकर उन्हें हाइलाइट रखें, और Clear components चित्र को फिर से सामान्य कर देता है।",
           "hold_after": 0.7,
-          "speech_text": "आरेख देखने-परखने के लिए है। किसी कोशिका घटक पर माउस रखें, और उसका विवरण दिखता है। कई घटक चुनकर उन्हें हाइलाइट रखें, और Clear components चित्र को फिर से सामान्य कर देता है।"
+          "speech_text": "आरेख इंटरैक्टिव है। किसी कोशिका घटक पर माउस रखें, और उसका विवरण दिखता है। कई घटक चुनकर उन्हें हाइलाइट रखें, और Clear components चित्र को फिर से सामान्य कर देता है।"
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16622,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "विश्लेषण स्क्रीन खोलने के लिए Plaque Assay पर क्लिक करें। सेटिंग पैनल छवि का स्रोत, मास्क और पहचान के विकल्प निर्दिष्ट करता है। Load test data एक उदाहरण देता है। Run शुरू करने से पहले इनपुट और पूर्वावलोकन की जाँच करें; Plaque Analysis ट्यूटोरियल पूरी कार्यप्रक्रिया बताता है।",
+          "narration": "विश्लेषण स्क्रीन खोलने के लिए Plaque Assay पर क्लिक करें। सेटिंग पैनल छवि का स्रोत, मास्क और पहचान के विकल्प निर्दिष्ट करता है। Load test data एक उदाहरण देता है। Run शुरू करने से पहले इनपुट और पूर्वावलोकन की जाँच करें; Plaque Assay ट्यूटोरियल पूरी कार्यप्रक्रिया बताता है।",
           "hold_after": 0.7,
-          "speech_text": "विश्लेषण स्क्रीन खोलने के लिए Plaque Assay पर क्लिक करें। सेटिंग पैनल छवि का स्रोत, मास्क और पहचान के विकल्प निर्दिष्ट करता है। Load test data एक उदाहरण देता है। Run शुरू करने से पहले इनपुट और पूर्वावलोकन की जाँच करें; Plaque Analysis ट्यूटोरियल पूरी कार्यप्रक्रिया बताता है।"
+          "speech_text": "विश्लेषण स्क्रीन खोलने के लिए Plaque Assay पर क्लिक करें। सेटिंग पैनल छवि का स्रोत, मास्क और पहचान के विकल्प निर्दिष्ट करता है। Load test data एक उदाहरण देता है। Run शुरू करने से पहले इनपुट और पूर्वावलोकन की जाँच करें; Plaque Assay ट्यूटोरियल पूरी कार्यप्रक्रिया बताता है।"
         },
         {
           "visual": "05_references",

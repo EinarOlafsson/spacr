@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "kind": "retained_mixed_visual_refresh_policy",
+  "lesson": "04_platform_installers",
+  "accepted": true,
+  "acceptance_scope": "Repair policy authorization, not future native-capture acceptance.",
+  "created_utc": "2026-10-15T17:32:10.306221+00:00",
+  "minimum_native_frames": 840,
+  "fps": 30,
+  "whole_native_required": true,
+  "other_scene_durations_preserved": true,
+  "audio_and_catalogs_retained": true,
+  "supersedes_sha256": "48959f634aff43cbec64c1c3b416e0e97ad4a4ff711bda8537c41d2f3a004e42",
+  "component_decision": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/root-component-decision-v2.json",
+    "bytes": 4401,
+    "sha256": "e6cd05d93c47999c2cdfdd7dadbd4ed9f7f64941fa8ca106845b3febd0d2456c"
+  },
+  "capture_lifecycle_source": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_host_mode.py",
+    "bytes": 36136,
+    "sha256": "2fd766f89893da6bea35f1e99b35369c0ff358f6819ab35eed7e62adb480a2fb"
+  },
+  "reason": "The normal host stops after at_least28wall seconds and then completes its recorder; full capture frame count can exceed840. Preserve complete actual source and shift downstream video clocks.",
+  "original_prefix_frames": 5111,
+  "doctor_card_frames": 879,
+  "original_tail_start_frame": 6830,
+  "original_total_frames": 10007,
+  "new_total_frames_policy": "9167 + actual complete native source N",
+  "new_doctor_start_frame_policy": "5111 + actual complete native source N",
+  "native_capture_accepted": false,
+  "published": false
+}

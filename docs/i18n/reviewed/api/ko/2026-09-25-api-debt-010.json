@@ -128,7 +128,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "regression settings; the sgRNA count CSVs are taken from the ``count`` entries of ``paired_data``, or from the legacy ``count_data`` when there are none.",
       "source_sha256": "d4c49d04c3e9743df3e8c1bdf485a1d4c8b0295213a59d83f53d495804a2d768",
-      "translation": "회귀 설정입니다. sgRNA 개수 CSVs 는 ``count`` 항목(``paired_data`` 안)에서 가져오며, 없으면 레거시 ``count_data`` 에서 가져옵니다."
+      "translation": "회귀 설정입니다. sgRNA 개수 CSVs 는 ``count`` 항목(``paired_data`` 안)에서 가져오며, 없으면 레거시 ``count_data`` 에서 가져옵니다.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "context": "application structured-data name; a registered plugin's defaults are used first, then the registered or built-in defaults for that structured-data name, and an unknown structured-data name gets a minimal ``{'src': ...}`` key-value mapping.",
@@ -572,7 +574,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHY IT ONCE READ NOTHING AT ALL. This module was written as the safe successor to a reader that merged blind, and then could not replace it, because three things it did not do are three things the published pack needs:",
       "source_sha256": "c0e1314bfb7b71ce15b026328020d1b228e2d98f300b7a05268605042a2de2d9",
-      "translation": "예전에 아무것도 읽지 못했던 이유. 이 모듈은 무작정 병합하던 판독기를 안전하게 대체하려고 작성되었지만 결국 대체하지 못했습니다. 이 모듈이 하지 않던 세 가지가 바로 게시된 묶음에 필요한 세 가지였기 때문입니다:"
+      "translation": "예전에 아무것도 읽지 못했던 이유. 이 모듈은 무작정 병합하던 판독기를 안전하게 대체하려고 작성되었지만 결국 대체하지 못했습니다. 이 모듈이 하지 않던 세 가지가 바로 게시된 묶음에 필요한 세 가지였기 때문입니다:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "app key whose pack file is looked for, first as ``<app_key>_settings.csv`` and then under the published names in ``PACK_FILES``.",
@@ -660,7 +664,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the search filter. Typing the key into the box above would hide every other setting as well, so a user who arrived from the Help search and then wanted to look at the neighbouring rows would first have to work out what had happened to the form. Revealing instead leaves the module whole and only decides which heading is open.",
       "source_sha256": "caf5f1a0a3722398eeb6e30b294f71f6e51e63f49d05e2650f2bbd3d8cced7cc",
-      "translation": "Help 검색 결과에 필요한 것이며, 의도적으로 검색 필터가 아닙니다. 위 입력란에 키를 입력하면 다른 모든 설정도 숨겨지므로, Help 검색에서 온 사용자가 이웃한 행을 보려면 먼저 양식에 무슨 일이 생겼는지 알아내야 합니다. 대신 보여 주기는 모듈을 온전히 두고 어떤 제목을 열지만 정합니다."
+      "translation": "Help 검색 결과에 필요한 것이며, 의도적으로 검색 필터가 아닙니다. 위 입력란에 키를 입력하면 다른 모든 설정도 숨겨지므로, Help 검색에서 온 사용자가 이웃한 행을 보려면 먼저 양식에 무슨 일이 생겼는지 알아내야 합니다. 대신 보여 주기는 모듈을 온전히 두고 어떤 제목을 열지만 정합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is rebuilt and no value is read or written: the row was already on the form, and this shows its section and scrolls to it -- or, for a category not built yet (indexed with no field), the screen builds it first, as opening it would. That is what makes arriving here from a search safe for a half-typed value -- the same property the filter has, for the same reason.",
@@ -676,7 +682,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE IS NEVER REMEMBERED. Switching to All settings unconditionally would work, and it would also rewrite this module's remembered Essentials/All choice every time anybody arrived here -- a setting the user chose, changed as a side effect of looking something up. So the filter is cleared first and the level is raised only when the row is still not on the form afterwards, which is exactly the case where Essentials is what is hiding it; and the raise goes through :meth:`_show_all_without_remembering`, so the form shows the row while the store still holds the level the user picked. Most settings are not essentials, so a lookup that persisted the raise would move almost every module out of Essentials for good.",
       "source_sha256": "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
-      "translation": "공개 수준은 꼭 필요할 때만 바꾸며, 그 변경은 절대 기억하지 않습니다. 무조건 All settings 로 전환해도 동작하겠지만, 그러면 누군가 여기에 올 때마다 이 모듈에 기억된 Essentials/All 선택을 다시 쓰게 됩니다. 사용자가 선택한 설정이 무언가를 찾아보는 부작용으로 바뀌는 셈입니다. 따라서 먼저 필터를 지우고, 그 후에도 행이 양식에 없을 때만 수준을 올리며, 이는 바로 Essentials 가 행을 숨기고 있는 경우입니다. 올리는 것은 :meth:`_show_all_without_remembering` 을 거치므로, 양식은 행을 보여 주면서도 저장소에는 사용자가 고른 수준이 그대로 남습니다. 대부분의 설정은 필수가 아니므로, 올린 수준을 저장하는 조회는 거의 모든 모듈을 Essentials 에서 영영 벗어나게 할 것입니다."
+      "translation": "공개 수준은 꼭 필요할 때만 바꾸며, 그 변경은 절대 기억하지 않습니다. 무조건 All settings 로 전환해도 동작하겠지만, 그러면 누군가 여기에 올 때마다 이 모듈에 기억된 Essentials/All 선택을 다시 쓰게 됩니다. 사용자가 선택한 설정이 무언가를 찾아보는 부작용으로 바뀌는 셈입니다. 따라서 먼저 필터를 지우고, 그 후에도 행이 양식에 없을 때만 수준을 올리며, 이는 바로 Essentials 가 행을 숨기고 있는 경우입니다. 올리는 것은 :meth:`_show_all_without_remembering` 을 거치므로, 양식은 행을 보여 주면서도 저장소에는 사용자가 고른 수준이 그대로 남습니다. 대부분의 설정은 필수가 아니므로, 올린 수준을 저장하는 조회는 거의 모든 모듈을 Essentials 에서 영영 벗어나게 할 것입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True when the module renders ``key`` and it was revealed.",
@@ -876,7 +884,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the window to cover. A :class:`QWidget` with a non-zero size gets the overlay, replacing any overlay it already has; anything else gets a modal dialog parented to it.",
       "source_sha256": "fe86d015cf241f2c686a498bdc40e932bd0379be1340cabd5f1ff3fcbc465746",
-      "translation": "가릴 창입니다. 크기가 영이 아닌 :class:`QWidget` 은 오버레이를 받으며 이미 있던 오버레이를 대체합니다. 그 밖의 것은 그것을 부모로 하는 모달 대화 상자를 받습니다."
+      "translation": "가릴 창입니다. 크기가 영이 아닌 :class:`QWidget` 은 오버레이를 받으며 이미 있던 오버레이를 대체합니다. 그 밖의 것은 그것을 부모로 하는 모달 대화 상자를 받습니다.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Shortcut source documentation corrected/reordered in8a20fded961. Replacement exact-source reviews are in2026-10-15-shortcuts-factual-prose-home-b.json; original source and translation retained as historical evidence."
     },
     {
       "context": ":data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or :data:`CANCEL`.",
@@ -940,7 +951,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**Qt Multimedia is touched only on the GUI thread.** :class:`_SoundPlayer` owns ``QMediaDevices`` and every ``QSoundEffect`` and lives where the application's event loop does; the dedicated ``QThread`` keeps the part that is genuinely slow, which is synthesizing a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing from Qt Multimedia). Connecting to the sound server is slow -- 354 ms measured on a PipeWire workstation -- so it is paid ONCE, on an idle timer after sound is switched on (:meth:`SoundEngine._warm`), and logged rather than felt. Playing an already loaded sound is ``play()``, which returns at once: 0.007-0.014 ms on the GUI thread against the real stack.",
       "source_sha256": "5894e2c5a68f3a935e9201e73e95722d2ad7b83a30292ff844e37a77fcd99aae",
-      "translation": "**Qt Multimedia 는 GUI 실행 경로에서만 다룹니다.** :class:`_SoundPlayer` 는 ``QMediaDevices`` 와 모든 ``QSoundEffect`` 를 소유하며 애플리케이션의 이벤트 루프가 있는 곳에 있습니다. 전용 ``QThread`` 는 실제로 느린 부분, 즉 사운드 세트 합성(:class:`_SoundRenderer`, numpy 와 파일 기록, Qt Multimedia 는 사용하지 않음)을 맡습니다. 사운드 서버에 연결하는 것은 느리므로(PipeWire 워크스테이션에서 354 ms 측정), 소리를 켠 뒤 유휴 타이머에서 한 번만 비용을 치르며(:meth:`SoundEngine._warm`), 체감되는 대신 로그에 기록됩니다. 이미 로드된 소리를 재생하는 것은 ``play()`` 이며 즉시 반환합니다. 실제 스택에서 GUI 실행 경로에 0.007-0.014 ms 가 걸립니다."
+      "translation": "**Qt Multimedia 는 GUI 실행 경로에서만 다룹니다.** :class:`_SoundPlayer` 는 ``QMediaDevices`` 와 모든 ``QSoundEffect`` 를 소유하며 애플리케이션의 이벤트 루프가 있는 곳에 있습니다. 전용 ``QThread`` 는 실제로 느린 부분, 즉 사운드 세트 합성(:class:`_SoundRenderer`, numpy 와 파일 기록, Qt Multimedia 는 사용하지 않음)을 맡습니다. 사운드 서버에 연결하는 것은 느리므로(PipeWire 워크스테이션에서 354 ms 측정), 소리를 켠 뒤 유휴 타이머에서 한 번만 비용을 치르며(:meth:`SoundEngine._warm`), 체감되는 대신 로그에 기록됩니다. 이미 로드된 소리를 재생하는 것은 ``play()`` 이며 즉시 반환합니다. 실제 스택에서 GUI 실행 경로에 0.007-0.014 ms 가 걸립니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "This rule is written in a crash. Building the effects on the audio independent execution path instead does move the connection off the main GUI execution path -- but Qt Multimedia's device handling belongs to the independent execution path that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong independent execution path. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
@@ -948,7 +961,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This rule is written in a crash. Building the effects on the audio thread instead does move the connection off the GUI thread -- but Qt Multimedia's device handling belongs to the thread that owns the event loop, so with the FFmpeg backend it enables socket notifiers from the wrong thread. Reopening Preferences with sound on then segfaults, or wedges the interface with an empty Preferences frame until it is force quit.",
       "source_sha256": "f4f938216c7727a2323e65b18b1d3f5e9e756a30d023062d76691118c5993865",
-      "translation": "이 규칙은 충돌 경험에서 나온 것입니다. 효과를 오디오 실행 경로에서 만들면 연결을 GUI 실행 경로 밖으로 옮길 수는 있지만, Qt Multimedia 의 장치 처리는 이벤트 루프를 소유한 실행 경로에 속하므로, FFmpeg 백엔드에서는 잘못된 실행 경로에서 소켓 알리미를 활성화하게 됩니다. 그러면 소리가 켜진 상태에서 Preferences 를 다시 열 때 segfault 가 발생하거나, 강제 종료할 때까지 빈 Preferences 프레임으로 인터페이스가 멈춥니다."
+      "translation": "이 규칙은 충돌 경험에서 나온 것입니다. 효과를 오디오 실행 경로에서 만들면 연결을 GUI 실행 경로 밖으로 옮길 수는 있지만, Qt Multimedia 의 장치 처리는 이벤트 루프를 소유한 실행 경로에 속하므로, FFmpeg 백엔드에서는 잘못된 실행 경로에서 소켓 알리미를 활성화하게 됩니다. 그러면 소리가 켜진 상태에서 Preferences 를 다시 열 때 segfault 가 발생하거나, 강제 종료할 때까지 빈 Preferences 프레임으로 인터페이스가 멈춥니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**A missing sound stack is silence.** No device, no server, no Qt Multimedia, a file that will not load: each ends in a debug log line and no sound. Nothing here raises into a caller and nothing opens a dialog.",
@@ -972,7 +987,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Application-wide filter that hears presses and hovers on controls.",
       "source_sha256": "7e0e303e178008d3c7df5826ca96692e5f005d021f6af384f96c38ec399729b7",
-      "translation": "컨트롤의 누름과 마우스 올림을 감지하는 애플리케이션 전체 필터입니다."
+      "translation": "컨트롤의 누름과 마우스 올림을 감지하는 애플리케이션 전체 필터입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Installed only while a click or hover sound is wanted (see :meth:`SoundEngine.apply`). The body is two liveness checks and at most four comparisons for an event it does not want.",
@@ -1188,7 +1205,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Plays whatever the stored switches say: the dialog enables Preview only while its own master switch is on, and the press is the ask.",
       "source_sha256": "f145cbeda408be3532c769734f41dbfa06a3ee942c1dfc61addd22094a4361bf",
-      "translation": "저장된 스위치대로 재생합니다. 대화 상자는 자체 마스터 스위치가 켜져 있을 때만 Preview 를 활성화하며, 누르는 것 자체가 요청입니다."
+      "translation": "저장된 스위치대로 재생합니다. 대화 상자는 자체 마스터 스위치가 켜져 있을 때만 Preview 를 활성화하며, 누르는 것 자체가 요청입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "any event, the music bed included.",
@@ -1348,7 +1367,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "a WAV of the user's own to play as the bed instead of the synthesized one. Empty means spaCR's own. It is also what the Resonance backdrop is driven by, because the backdrop follows WHATEVER IS PLAYING and there is only ever one thing.",
       "source_sha256": "67bef7c78099f3a95c81f27c54795b9c446ac630417b7dab8477b2a16051a155",
-      "translation": "합성된 음악 대신 배경으로 재생할 사용자 자신의 WAV 입니다. 비어 있으면 spaCR 자체 음악입니다. Resonance 배경을 구동하는 것도 이것입니다. 배경은 재생 중인 것을 따르며, 재생되는 것은 항상 하나뿐이기 때문입니다."
+      "translation": "합성된 음악 대신 배경으로 재생할 사용자 자신의 WAV 입니다. 비어 있으면 spaCR 자체 음악입니다. Resonance 배경을 구동하는 것도 이것입니다. 배경은 재생 중인 것을 따르며, 재생되는 것은 항상 하나뿐이기 때문입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The linear gain the volume slider stands for.",
@@ -1892,7 +1913,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "\"Verbose logging\" 환경 설정이 켜져 있으면 spaCR 의 Python 로거가 DEBUG 까지 올라가고 로그 파일이 그 레코드를 보관합니다. 활성 ConsolePanel 은 Preferences 의 Logging 탭에서 콘솔용으로 켠 수준만 표시합니다. 이렇게 하면 디스크에 상세한 기록이 남으며, 버그 보고를 분류할 때 바로 그것이 필요합니다."
+      "translation": "\"Verbose logging\" 환경 설정이 켜져 있으면 spaCR 의 Python 로거가 DEBUG 까지 올라가고 로그 파일이 그 레코드를 보관합니다. 활성 ConsolePanel 은 Preferences 의 Logging 탭에서 콘솔용으로 켠 수준만 표시합니다. 이렇게 하면 디스크에 상세한 기록이 남으며, 버그 보고를 분류할 때 바로 그것이 필요합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -2304,7 +2327,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "변경 이벤트입니다. 먼저 기본 클래스로 전달되며, ``ApplicationPaletteChange`` 만 처리합니다."
+      "translation": "변경 이벤트입니다. 먼저 기본 클래스로 전달되며, ``ApplicationPaletteChange`` 만 처리합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
@@ -2320,7 +2345,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "이벤트입니다. 크기 조정, 창 상태, 숨기기, 표시, 이동, 화면 변경 유형을 처리하며, 모든 이벤트는 여전히 기본 클래스 필터로 전달됩니다."
+      "translation": "이벤트입니다. 크기 조정, 창 상태, 숨기기, 표시, 이동, 화면 변경 유형을 처리하며, 모든 이벤트는 여전히 기본 클래스 필터로 전달됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",
@@ -2622,7 +2649,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "재생 중인 것과 유휴 호흡 중 더 큰 쪽이므로, 조용한 구간이 무음일 때 그렸을 그림보다 아래로 내려가는 일은 없습니다. 이 규칙 덕분에 \"무음에서도 아름답게 유휴 동작한다\" 와 \"음악에 반응한다\" 가 같은 코드 경로가 됩니다."
+      "translation": "재생 중인 것과 유휴 호흡 중 더 큰 쪽이므로, 조용한 구간이 무음일 때 그렸을 그림보다 아래로 내려가는 일은 없습니다. 이 규칙 덕분에 \"무음에서도 아름답게 유휴 동작한다\" 와 \"음악에 반응한다\" 가 같은 코드 경로가 됩니다.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",
@@ -3266,7 +3296,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "작업 공간과 함께 저장된 매핑입니다. ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` 항목은 각각 있으면 적용되며, 사전이 아니면 아무것도 적용되지 않습니다."
+      "translation": "작업 공간과 함께 저장된 매핑입니다. ``picture_settings``, ``widgets``, ``picture_mode``, ``coefficient`` 항목은 각각 있으면 적용되며, 사전이 아니면 아무것도 적용되지 않습니다.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",
@@ -3668,7 +3701,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` 자동 쪽 절반입니다. 일부 위젯은 포커스 위젯(실시간 미리 보기, 그림 패널)입니다: 그중 하나라도 화면에 있는 동안 대상 창(콘솔, System, 버튼, 설정 열)이 접히고, 마지막 것이 사라지면 다시 돌아옵니다. 사용자와 절대 충돌하지 않습니다: 사용자가 직접 펼친 대상은 열린 채로 고정되어 보기가 끝날 때까지 그대로 둡니다. 보기가 무엇인지는 클래스를 참조하십시오."
+      "translation": ":class:`FocusCollapse` 자동 쪽 절반입니다. 일부 위젯은 포커스 위젯(실시간 미리 보기, 그림 패널)입니다: 그중 하나라도 화면에 있는 동안 대상 창(콘솔, System, 버튼, 설정 열)이 접히고, 마지막 것이 사라지면 다시 돌아옵니다. 사용자와 절대 충돌하지 않습니다: 사용자가 직접 펼친 대상은 열린 채로 고정되어 보기가 끝날 때까지 그대로 둡니다. 보기가 무엇인지는 클래스를 참조하십시오.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
@@ -4060,7 +4095,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
       "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
-      "translation": "창 크기 조정은 끌기가 아니므로 -- 잡고 있는 손잡이가 없음 -- 여기서 다시 맞춰도 아무와도 충돌하지 않습니다."
+      "translation": "창 크기 조정은 끌기가 아니므로 -- 잡고 있는 손잡이가 없음 -- 여기서 다시 맞춰도 아무와도 충돌하지 않습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the resize event.",
@@ -4158,7 +4195,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
-      "translation": "포커스 위젯을 감시합니다(:meth:`watch`). 그중 하나라도 표시되어 있는 동안 대상 창(:meth:`target`)을 접고, 마지막 것이 숨겨지면 이 기능이 접었던 대상을 다시 엽니다. 이미 접혀 있던 대상 -- 사용자가 접었거나 지난 세션에서 기억된 것 -- 은 어느 방향으로든 그대로 둡니다."
+      "translation": "포커스 위젯을 감시합니다(:meth:`watch`). 그중 하나라도 표시되어 있는 동안 대상 창(:meth:`target`)을 접고, 마지막 것이 숨겨지면 이 기능이 접었던 대상을 다시 엽니다. 이미 접혀 있던 대상 -- 사용자가 접었거나 지난 세션에서 기억된 것 -- 은 어느 방향으로든 그대로 둡니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
@@ -4166,7 +4205,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "NEVER FIGHTS THE USER. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
-      "translation": "사용자와 절대 충돌하지 않습니다. 사용자가 직접 연 대상(제목이나 손잡이를 클릭하거나 끌어서 연 것)은 고정됩니다: 보기가 끝날 때까지 여기서 다시 접지 않습니다. 사용자가 직접 접은 대상도 사용자의 것이며, 포커스가 사라져도 다시 열지 않습니다."
+      "translation": "사용자와 절대 충돌하지 않습니다. 사용자가 직접 연 대상(제목이나 손잡이를 클릭하거나 끌어서 연 것)은 고정됩니다: 보기가 끝날 때까지 여기서 다시 접지 않습니다. 사용자가 직접 접은 대상도 사용자의 것이며, 포커스가 사라져도 다시 열지 않습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
@@ -4174,7 +4215,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A VIEW is one visit to one screen: it begins when the screen is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another screen (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the screen with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
-      "translation": "보기란 한 화면을 한 번 방문하는 것입니다: 화면이 표시되면 시작하고(:meth:`begin_view`, 그 ``showEvent`` 에서), 사용자가 다른 화면으로 가서 숨겨지면 끝납니다(:meth:`end_view`, 그 ``hideEvent`` 에서). 창을 최소화해도 끝나지 않습니다 -- 소유자는 자발적이지 않은 이벤트만 전달합니다. 고정은 보기 동안 유지됩니다: 실시간 미리 보기가 열린 채로 화면에 돌아오면 주변이 다시 접히며, 이는 그 배치에 새로 도착했을 때와 같습니다."
+      "translation": "보기란 한 화면을 한 번 방문하는 것입니다: 화면이 표시되면 시작하고(:meth:`begin_view`, 그 ``showEvent`` 에서), 사용자가 다른 화면으로 가서 숨겨지면 끝납니다(:meth:`end_view`, 그 ``hideEvent`` 에서). 창을 최소화해도 끝나지 않습니다 -- 소유자는 자발적이지 않은 이벤트만 전달합니다. 고정은 보기 동안 유지됩니다: 실시간 미리 보기가 열린 채로 화면에 돌아오면 주변이 다시 접히며, 이는 그 배치에 새로 도착했을 때와 같습니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "owner, normally the screen.",
@@ -4206,7 +4249,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The user left the screen: their pins for this view are spent.",
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
-      "translation": "사용자가 화면을 떠났습니다: 이 보기에 대한 고정은 소멸됩니다."
+      "translation": "사용자가 화면을 떠났습니다: 이 보기에 대한 고정은 소멸됩니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A focus widget was shown or hidden.",

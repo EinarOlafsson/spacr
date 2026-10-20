@@ -1,0 +1,48 @@
+{
+  "status": "INDEPENDENT INPUT/SOURCE/PLAN ACCEPT CONDITIONAL ON ROOT FINAL CLEAN PIN AND GRANT; not executed",
+  "input_commit": "3e881b57a0b1dbbee58cf08b6ba4f172a2f2f0ef",
+  "base": "b39706cd22588dfe14fc8c7e1d88be3bba008ad0",
+  "hashes": {
+    "scoped-six-runtime.py": "57b98e67c7f3d9bb06c049d358e002af4b88dc638342b1f5cf338b95c14d9d99",
+    "config.PENDING.json": "1241ae9900b36b21c04a482998bf2a106b22f8e1ed4fbd60faddba100a681ac2"
+  },
+  "ready": false,
+  "source": "Choose folder\u2026",
+  "source_sha256": "6e8eb2b02596d8b000a0d091d155251a80a93f3d4d72e03f8d3b4cb39a6de359",
+  "reviewed_changes": {
+    "only_six_ASCII_three_dot_suffixes_to_U2026": true,
+    "source_key_sourcehash_context_and_all_other_record_fields_unchanged": true,
+    "authoritative_table_only_six_constant_changes_remaining_whole_AST_exact": true,
+    "three_unaffected_locale_reviews_exact_bytes": true,
+    "active_paths": 7
+  },
+  "driver_review": {
+    "genuine_canonical_once_reused_in_all_nine_ordinary_loaders": true,
+    "normal_candidate_context_sourcehash_and_reviewed_target_checks": true,
+    "all_nine_preflights_before_any_writes": true,
+    "only_six_normal_write_language_calls": true,
+    "foreign_values_and_every_source_hash_preserved": true,
+    "English_three_unaffected_locales_all_API_Help_arrival_exact_hash_guards": true,
+    "normal_all_nine_audit_fresh_original_canonical_equal_sourcepins": true,
+    "network_decoder_model_translation_and_nonGit_process_refusal": true,
+    "final_git_diff_only_six_catalogs": true
+  },
+  "concrete_config_corrections_verified": {
+    "packaging_i18n_all10_JSON_input_pins": true,
+    "real_Help_output_protected": true
+  },
+  "pin_counts": {
+    "input_pins": 13530,
+    "catalog_baseline_pins": 11,
+    "protected_pins": 60
+  },
+  "all_generated_baseline_and_protected_pins_match_input_commit_and_files": true,
+  "limits": "Reviewer did not import product/generator, collect sources, execute writer, test, or mutate foreign inputs. Final Root input-head/clean state reseal and explicit run grant required.",
+  "CI_private_strict_inverse_alignment": {
+    "commit": "2b4e129979a8b777ad383196a4e2ba3c8c4ff015",
+    "test_bytes_exact_previously_accepted_31eb": true,
+    "fixture_only_exact_six_target_suffixes_differ_from_31eb": true,
+    "historical99_count_source_content_hashes_56_arrivals_one_retirement_and_original_ellipsis_assertion_unchanged": true,
+    "fixture_sha256": "a553ed55c89e3d092c1603eecc44d89c307cd04e43cc91ea8ff12d6faec9d0de"
+  }
+}

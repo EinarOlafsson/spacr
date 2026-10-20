@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review; independent source-semantic peer approved all 45 draft pairs, committed-hash receipt follows; no native-speaker signoff",
+  "note": "Five changed blocks in two existing lifecycle symbols from F561 source f35b59248ae and cancellation correction efe3784e64a, with alpha prerequisite e4458d409d6. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source": "Whether a crop load, embedding job or DINO pretraining is in flight.",
+      "context": "Whether an extracted image region load, embedding job or DINO pretraining is in flight.",
+      "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+      "previous_same_source_indexes": [],
+      "translation": "Hvort hleðsla myndútsniða, innfellingarverk eða DINO-forþjálfun sé í gangi.",
+      "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 classifier training extends busy/close ownership to the classifier runner. Replacement exact-source review is 2026-10-15-f561-classifier-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+      "context": "Includes the separate DINO runner until its worker has retired, even after its final result has reached the screen.",
+      "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+      "previous_same_source_indexes": [],
+      "translation": "Tekur með aðskilda DINO-verkkeyrsluna þar til vinnsluþráður hennar hefur lokið störfum, jafnvel eftir að lokaniðurstaðan hefur borist á skjáinn.",
+      "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 classifier training extends busy/close ownership to the classifier runner. Replacement exact-source review is 2026-10-15-f561-classifier-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+      "source": "Discard pending results and drain both runners before the widget goes.",
+      "context": "Discard pending results and drain both runners before the widget goes.",
+      "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+      "previous_same_source_indexes": [],
+      "translation": "Henda niðurstöðum sem bíða og ljúka frágangi beggja verkkeyrslna áður en viðmótshlutinn hverfur.",
+      "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 classifier training extends busy/close ownership to the classifier runner. Replacement exact-source review is 2026-10-15-f561-classifier-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+      "source": "The crop stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "context": "The extracted image region stop flag is set first and further DINO progress is ignored. Each ``shutdown`` waits a bounded time, then parks any worker that outlasts it. A parked training worker can finish writing its checkpoint without updating this closed screen; it is not forcibly terminated.",
+      "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+      "previous_same_source_indexes": [],
+      "translation": "Stöðvunarflaggi myndútsniða er fyrst stillt og frekari framvindutilkynningar frá DINO eru hunsaðar. Hvert ``shutdown`` bíður í takmarkaðan tíma og leggur síðan vinnsluþræði sem enn eru virkir til hliðar. Þjálfunarþráður sem er lagður til hliðar getur lokið við að skrifa varðveislupunkt sinn án þess að uppfæra þennan lokaða skjá; hann er ekki stöðvaður með valdi.",
+      "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "F561 classifier training extends busy/close ownership to the classifier runner. Replacement exact-source review is 2026-10-15-f561-classifier-ui-api-home-b.json; original source, context and translation are retained as historical evidence."
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+      "source": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+      "context": "Qt's close event, passed to the base class unchanged. The close is accepted even if a worker must be parked.",
+      "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+      "previous_same_source_indexes": [],
+      "translation": "Lokunaratvik Qt, sent óbreytt til grunnklasans. Lokunin er samþykkt þótt leggja þurfi vinnsluþráð til hliðar.",
+      "review_basis": "Exact-source technical translation review of busy state until DINO worker retirement, discarded pending results, crop stop before bounded waits, parked workers completing checkpoints without closed-screen updates, no forced termination and accepted close events. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Recorre todos los módulos actuales de Home de izquierda a derecha; después, aprende los controles compartidos con Mask y ajusta la navegación, la ayuda y la apariencia.",
+      "description": "Explora la vista general de Home y las pestañas de categorías; después, aprende los controles comunes de los módulos usando Mask y ajusta la navegación, la ayuda y la apariencia.",
       "objectives": [
-        "Identificar todos los módulos de las filas actuales Core, Data, Tools y Organism.",
+        "Encuentra módulos mediante las pestañas Home, Core, Data, Tools y Organism.",
         "Usar Mask para reconocer ajustes, vistas previas, acciones y resultados compartidos.",
         "Volver a Home, usar la búsqueda y organizar los paneles.",
         "Elegir ajustes de apariencia y rendimiento."
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home es el punto de partida. Lee cada fila de izquierda a derecha: Core, Data, Tools y Organism. Cada mosaico abre su módulo. La barra lateral ofrece las mismas rutas y Home vuelve a esta vista.",
+          "narration": "Home es el punto de partida. Su vista general agrupa los módulos en Core, Data, Tools y Organism. Las pestañas de categorías acotan la vista. Cada mosaico abre el módulo que lleva su nombre. La barra lateral ofrece las mismas rutas y Home vuelve a la vista general.",
           "hold_after": 0.7,
-          "speech_text": "Home es el punto de partida. Lee cada fila de izquierda a derecha: Core, Data, Tools y Organism. Cada mosaico abre su módulo. La barra lateral ofrece las mismas rutas y Home vuelve a esta vista."
+          "speech_text": "Home es el punto de partida. Su vista general agrupa los módulos en Core, Data, Tools y Organism. Las pestañas de categorías acotan la vista. Cada mosaico abre el módulo que lleva su nombre. La barra lateral ofrece las mismas rutas y Home vuelve a la vista general."
         },
         {
           "visual": "home_module_mask",
@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify aprende de etiquetas revisadas y puntúa otros objetos mediante métodos basados en imágenes o en tablas.",
+          "narration": "Classify entrena un modelo con etiquetas revisadas y puntúa otros objetos mediante recortes de imagen o características medidas.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify aprende de etiquetas revisadas y puntúa otros objetos mediante métodos basados en imágenes o en tablas."
+          "speech_text": "Classify entrena un modelo con etiquetas revisadas y puntúa otros objetos mediante recortes de imagen o características medidas."
         },
         {
           "visual": "home_module_map_barcodes",
@@ -649,18 +649,6 @@
           "speech_text": "Import prepara los archivos de microscopía y sus metadatos para la estructura del proyecto."
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings codifica los recortes de objetos en características numéricas para explorarlos y compararlos.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings codifica los recortes de objetos en características numéricas para explorarlos y compararlos."
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare reúne resultados guardados de varias ejecuciones para inspeccionar sus diferencias.",
           "hold_after": 0.7,
@@ -673,18 +661,6 @@
           "speech_text": "Run Compare reúne resultados guardados de varias ejecuciones para inspeccionar sus diferencias."
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design distribuye condiciones, pocillos e identidades de muestras antes de un experimento.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design distribuye condiciones, pocillos e identidades de muestras antes de un experimento."
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design explora supuestos de tamaño de muestra y potencia al planificar comparaciones.",
           "hold_after": 0.7,
@@ -695,30 +671,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design explora supuestos de tamaño de muestra y potencia al planificar comparaciones."
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response ajusta las respuestas a distintas concentraciones, manteniendo explícitos el criterio de respuesta y los controles elegidos.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response ajusta las respuestas a distintas concentraciones, manteniendo explícitos el criterio de respuesta y los controles elegidos."
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC reúne comprobaciones de calidad e identifica qué evidencia está disponible y cuál falta.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC reúne comprobaciones de calidad e identifica qué evidencia está disponible y cuál falta."
         },
         {
           "visual": "home_module_make_masks",
@@ -755,18 +707,6 @@
             "15_image_umap"
           ],
           "speech_text": "Image ú map proyecta características de objetos para explorar objetos similares e inspeccionar recortes representativos."
-        },
-        {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor define selecciones sobre columnas reales de datos. Revisa los objetos seleccionados antes de convertir una selección en etiquetas.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "gueit éditor define selecciones sobre columnas reales de datos. Revisa los objetos seleccionados antes de convertir una selección en etiquetas."
         },
         {
           "visual": "home_module_graph_builder",
@@ -902,7 +842,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos, y Popup wave frequency inicia ondas desde las ventanas emergentes abiertas en spaCR field. Field ripples controla las ondas producidas por clics, por abrir o cerrar contenedores y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón. Al desactivarlo también se detienen las ondas automáticas de las ventanas emergentes. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario.",
+          "narration": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos. Field ripples establece la intensidad de las ondas producidas por clics, por abrir o cerrar contenedores, por ventanas emergentes y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón; cero desactiva las ondas, incluidas las ondas automáticas de las ventanas emergentes. Click ripples decide si un clic en el fondo envía una onda. Popup wave frequency establece cuántas ondas por minuto se propagan desde una ventana emergente abierta en spaCR field. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +850,7 @@
             1200,
             1500
           ],
-          "speech_text": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos, y Popup wave frequency inicia ondas desde las ventanas emergentes abiertas en espáquer field. Field ripples controla las ondas producidas por clics, por abrir o cerrar contenedores y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón. Al desactivarlo también se detienen las ondas automáticas de las ventanas emergentes. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario."
+          "speech_text": "Haga clic en Animation para elegir el fondo principal y su paleta. Animation colours establece los colores principal y de acento de Custom colours; Animation background elige un fondo independiente, y Theme colour restaura el tema de la página. Detail controla la resolución del renderizado. Speed, Size y Density cambian el movimiento y la cantidad de elementos. Mouse gravity radius establece el radio de influencia del ratón; cero lo desactiva. Dot blinking controla los destellos blancos. Field ripples establece la intensidad de las ondas producidas por clics, por abrir o cerrar contenedores, por ventanas emergentes y por ajustar la ventana al borde de la pantalla, independientemente de la atracción del ratón; cero desactiva las ondas, incluidas las ondas automáticas de las ventanas emergentes. Click ripples decide si un clic en el fondo envía una onda. Popup wave frequency establece cuántas ondas por minuto se propagan desde una ventana emergente abierta en espáquer field. Settings animation speed, Settings animation size, Settings animation detail y Settings animation density solo modifican Settings backdrop. Settings backdrop darkness controla la legibilidad del formulario."
         },
         {
           "visual": "13h_preferences_apply",
@@ -959,12 +899,6 @@
             1500
           ],
           "speech_text": "Prune now nunca borra sin preguntar. Con un límite de ejemplo corto para las carpetas de ejecución, enumera lo que borraría en cada carpeta y espera una respuesta. Haga clic en Cancel y no se elimina nada."
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "En modo Spaceout, Preferences incluye controles de spaCR field para ocho efectos independientes. Activa o desactiva cada efecto por separado. Siguen disponibles los controles habituales de apariencia y animación del panel de ajustes; Apply previsualiza un cambio, Keep lo acepta y Revert restaura la elección anterior.",
-          "hold_after": 0.7,
-          "speech_text": "En modo Spaceout, Preferences incluye controles de espáquer field para ocho efectos independientes. Activa o desactiva cada efecto por separado. Siguen disponibles los controles habituales de apariencia y animación del panel de ajustes; Apply previsualiza un cambio, Keep lo acepta y Revert restaura la elección anterior."
         }
       ],
       "narration_voices": {
@@ -1061,13 +995,12 @@
             650
           ],
           "narration": "Activa el entorno de Python donde instalaste spaCR. Importa spacr e imprime su versión con el comando que se muestra. Guarda la versión con tus notas de análisis para poder reproducir la misma ejecución más adelante.",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "Activa el entorno de Python donde instalaste espáquer. Importa espáquer e imprime su versión con el comando que se muestra. Guarda la versión con tus notas de análisis para poder reproducir la misma ejecución más adelante."
+          "speech_text": "Activa el entorno de Python donde instalaste espáquer. Importa espáquer e imprime su versión con el comando que se muestra. Guarda la versión con tus notas de análisis para poder reproducir la misma ejecución más adelante.",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1090,12 +1023,12 @@
             900
           ],
           "narration": "Ejecuta spacr-run con guion guion describe seguido de regression. Lee las entradas obligatorias, los valores predeterminados y el nombre de la función. Aquí, el comando por lotes llama a perform_regression de spacr.ml. Abre esa función en la referencia de la API para leer sus parámetros y los resultados que devuelve.",
+          "hold_after": 0.7,
+          "speech_text": "Ejecuta espáquer-run con guion guion describe seguido de regression. Lee las entradas obligatorias, los valores predeterminados y el nombre de la función. Aquí, el comando por lotes llama a perform_regression de espáquer.ml. Abre esa función en la referencia de la API para leer sus parámetros y los resultados que devuelve.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Ejecuta espáquer-run con guion guion describe seguido de regression. Lee las entradas obligatorias, los valores predeterminados y el nombre de la función. Aquí, el comando por lotes llama a perform_regression de espáquer.ml. Abre esa función en la referencia de la API para leer sus parámetros y los resultados que devuelve."
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1130,12 +1063,12 @@
             900
           ],
           "narration": "Para ejecutar el análisis, ejecuta el mismo comando sin guion guion dry-run. Sigue la consola hasta que termine el comando y revisa después las salidas descritas en el tutorial y en la página de la API de ese módulo. Guarda el archivo de ajustes, las tablas de entrada, la versión del paquete y el registro de la consola con los resultados.",
+          "hold_after": 0.7,
+          "speech_text": "Para ejecutar el análisis, ejecuta el mismo comando sin guion guion dry-run. Sigue la consola hasta que termine el comando y revisa después las salidas descritas en el tutorial y en la página de la API de ese módulo. Guarda el archivo de ajustes, las tablas de entrada, la versión del paquete y el registro de la consola con los resultados.",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Para ejecutar el análisis, ejecuta el mismo comando sin guion guion dry-run. Sigue la consola hasta que termine el comando y revisa después las salidas descritas en el tutorial y en la página de la API de ese módulo. Guarda el archivo de ajustes, las tablas de entrada, la versión del paquete y el registro de la consola con los resultados."
+          ]
         }
       ],
       "narration_voices": {
@@ -1289,7 +1222,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1715,7 +1671,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en cuatro pocillos y Next los guarda.",
+          "narration": "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en tres pocillos y Next los guarda.",
           "focus": [
             360,
             380,
@@ -1724,11 +1680,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en cuatro pocillos y Next los guarda."
+          "speech_text": "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en tres pocillos y Next los guarda."
         },
         {
           "visual": "20_suggestions",
-          "narration": "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y cada recorte de la página lleva ahora un signo de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar.",
+          "narration": "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y los recortes sin etiquetar de la página llevan ahora signos de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar.",
           "focus": [
             350,
             250,
@@ -1736,11 +1692,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y cada recorte de la página lleva ahora un signo de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar."
+          "speech_text": "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y los recortes sin etiquetar de la página llevan ahora signos de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar."
         },
         {
           "visual": "21_judged",
-          "narration": "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas se registran, los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado.",
+          "narration": "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas quedan pendientes hasta que Next las guarda; los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado.",
           "focus": [
             350,
             250,
@@ -1748,7 +1704,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas se registran, los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado."
+          "speech_text": "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas quedan pendientes hasta que Next las guarda; los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado."
         },
         {
           "visual": "17_generate_database_entry",
@@ -1775,7 +1731,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2179,7 +2158,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2560,12 +2562,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear masks, justo a la izquierda de Discard, pide confirmación antes de eliminar todas las máscaras de la imagen actual.",
+          "narration": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear masks, justo a la izquierda de Discard, pide confirmación antes de eliminar todas las máscaras de la imagen actual."
+          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual."
         },
         {
           "visual": "01b_test_data_menu",
@@ -3155,9 +3157,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Elige UMAP como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico. Puedes explorar PCA con su herramienta enlazada cuando quieras una proyección lineal y las cargas de las características.",
+          "narration": "Elige UMAP como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico.",
           "hold_after": 0.7,
-          "speech_text": "Elige ú map como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico. Puedes explorar PCA con su herramienta enlazada cuando quieras una proyección lineal y las cargas de las características."
+          "speech_text": "Elige ú map como método de reducción. Cada punto representará un objeto mediante dos coordenadas en el gráfico."
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3214,20 +3216,38 @@
           "speech_text": "Haz clic en otro punto para comparar su recorte. La barra lateral también ofrece el etiquetado de selecciones y la propagación de etiquetas de grupo. Esos controles guardan anotaciones, así que elige la etiqueta y la selección correctas antes de aplicarlos."
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Abre Image Scatter desde el encabezado de Image UMAP para comparar directamente características seleccionadas, o abre PCA para una proyección lineal. Continúa con los tutoriales enlazados para ver sus ajustes de entrada y sus salidas guardadas.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Revisa la proyección terminada y compara los recortes de imagen de los objetos seleccionados. Conserva juntas las mediciones de entrada, los ajustes elegidos y los resultados guardados para rastrear cada punto hasta su origen.",
           "hold_after": 0.7,
-          "speech_text": "Abre Image Scatter desde el encabezado de Image ú map para comparar directamente características seleccionadas, o abre PCA para una proyección lineal. Continúa con los tutoriales enlazados para ver sus ajustes de entrada y sus salidas guardadas."
+          "speech_text": "Revisa la proyección terminada y compara los recortes de imagen de los objetos seleccionados. Conserva juntas las mediciones de entrada, los ajustes elegidos y los resultados guardados para rastrear cada punto hasta su origen."
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4031,7 +4051,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Abre la subcarpeta masks dentro de Source. Cada imagen tiene un TIFF de máscara con el mismo nombre base. Revisa las figuras junto a las imágenes originales, fijándote en los objetos no detectados y en las células unidas. El panel de flujos muestra las direcciones que el modelo usa para segmentar.",
+          "narration": "La subcarpeta masks dentro de Source contiene un TIFF de máscara con el mismo nombre base para cada imagen. Revisa las figuras junto a las imágenes originales, fijándote en los objetos no detectados y en las células unidas. El panel de flujos muestra las direcciones que el modelo usa para segmentar.",
           "focus": [
             1000,
             450,
@@ -4039,17 +4059,17 @@
             640
           ],
           "hold_after": 0.7,
-          "speech_text": "Abre la subcarpeta masks dentro de Source. Cada imagen tiene un TIFF de máscara con el mismo nombre base. Revisa las figuras junto a las imágenes originales, fijándote en los objetos no detectados y en las células unidas. El panel de flujos muestra las direcciones que el modelo usa para segmentar."
+          "speech_text": "La subcarpeta masks dentro de Source contiene un TIFF de máscara con el mismo nombre base para cada imagen. Revisa las figuras junto a las imágenes originales, fijándote en los objetos no detectados y en las células unidas. El panel de flujos muestra las direcciones que el modelo usa para segmentar."
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Activa Live preview y elige una imagen con el selector de imágenes. Abre Live settings y revisa los controles de canal y de normalización. Contrae Console y System para dar más espacio a la vista previa si hace falta.",
+          "narration": "Contrae las demás tarjetas de resultados para dar más espacio a la vista previa. Activa Live preview y elige una imagen con el selector de imágenes. Busca la imagen de ejemplo incluida.",
           "hold_after": 0.7,
-          "speech_text": "Activa Live preview y elige una imagen con el selector de imágenes. Abre Live settings y revisa los controles de canal y de normalización. Contrae Console y System para dar más espacio a la vista previa si hace falta."
+          "speech_text": "Contrae las demás tarjetas de resultados para dar más espacio a la vista previa. Activa Live preview y elige una imagen con el selector de imágenes. Busca la imagen de ejemplo incluida."
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Compara la vista previa con la máscara guardada del lote. En este ejemplo, la vista previa y Apply siguen caminos de procesamiento distintos, así que pueden dar bordes y recuentos diferentes. Revisa los TIFF guardados al decidir si las salidas del lote sirven para la medición.",
+          "narration": "Revisa el canal y la normalización en Live settings y luego ejecuta la vista previa. La vista previa y Apply procesan estas imágenes de forma distinta, así que los bordes y los recuentos pueden diferir. Revisa los TIFF guardados al decidir si las salidas del lote sirven para la medición.",
           "focus": [
             1000,
             1160,
@@ -4057,11 +4077,11 @@
             610
           ],
           "hold_after": 0.7,
-          "speech_text": "Compara la vista previa con la máscara guardada del lote. En este ejemplo, la vista previa y Apply siguen caminos de procesamiento distintos, así que pueden dar bordes y recuentos diferentes. Revisa los TIFF guardados al decidir si las salidas del lote sirven para la medición."
+          "speech_text": "Revisa el canal y la normalización en Live settings y luego ejecuta la vista previa. La vista previa y Apply procesan estas imágenes de forma distinta, así que los bordes y los recuentos pueden diferir. Revisa los TIFF guardados al decidir si las salidas del lote sirven para la medición."
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Usa la rueda del ratón para ampliar una zona en los dos lienzos de la vista previa. Revisa los objetos que se tocan y los bordes tenues, y luego aleja la vista para comprobar el campo completo.",
+          "narration": "Usa la rueda del ratón para ampliar una zona en los dos lienzos de la vista previa. Revisa los objetos que se tocan y los bordes tenues en la vista ampliada.",
           "focus": [
             1010,
             1280,
@@ -4069,7 +4089,7 @@
             455
           ],
           "hold_after": 0.7,
-          "speech_text": "Usa la rueda del ratón para ampliar una zona en los dos lienzos de la vista previa. Revisa los objetos que se tocan y los bordes tenues, y luego aleja la vista para comprobar el campo completo."
+          "speech_text": "Usa la rueda del ratón para ampliar una zona en los dos lienzos de la vista previa. Revisa los objetos que se tocan y los bordes tenues en la vista ampliada."
         },
         {
           "visual": "22_native_filter_reduces_objects",
@@ -4108,7 +4128,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4549,7 +4592,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5778,7 +5844,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6524,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6679,7 +6791,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6995,7 +7130,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7610,7 +7768,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7854,7 +8035,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8719,7 +8923,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8904,7 +9131,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9098,7 +9348,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16258,13 +16531,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify aprende de la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores.",
+          "narration": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify entrena un modelo con la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify aprende de la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores."
+          "speech_text": "Annotate muestra recortes de objetos para que pueda añadir etiquetas revisadas. Classify entrena un modelo con la columna de etiquetas seleccionada, mediante imágenes recortadas o características medidas. Mantenga separados los objetos de evaluación y de entrenamiento y lleve la columna de puntuaciones y las identidades de objetos a los análisis posteriores."
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16875,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "El diagrama está para explorarlo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen.",
+          "narration": "El diagrama es interactivo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen.",
           "hold_after": 0.7,
-          "speech_text": "El diagrama está para explorarlo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen."
+          "speech_text": "El diagrama es interactivo. Pasa el cursor sobre un componente celular y aparece su descripción. Selecciona varios para mantenerlos resaltados, y Clear components restablece la imagen."
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16887,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Analysis describe el flujo de trabajo completo.",
+          "narration": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Assay describe el flujo de trabajo completo.",
           "hold_after": 0.7,
-          "speech_text": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Analysis describe el flujo de trabajo completo."
+          "speech_text": "Haz clic en Plaque Assay para abrir su pantalla de análisis. El panel de ajustes especifica el origen de las imágenes, las máscaras y las opciones de detección. Load test data proporciona un ejemplo. Revisa los datos de entrada y la vista previa antes de iniciar Run; el tutorial Plaque Assay describe el flujo de trabajo completo."
         },
         {
           "visual": "05_references",

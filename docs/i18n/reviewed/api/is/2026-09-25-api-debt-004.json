@@ -426,7 +426,9 @@
       "source_sha256": "86d45588220adff140a79f8f7ff91a4a154d945d67f1d16c980cde581f36fdd1",
       "context": "retain exact primary/secondary IDs without interpreting single-valued masks as binary or splitting disconnected pieces. The explicit mode validates nonnegative 2-D integer labels and refuses IDs above 65535 before writing; it never silently renumbers them.",
       "translation": "varðveita nákvæm auðkenni aðal-/aukahluta án þess að túlka grímur með einu gildi sem tvígildar eða skipta ótengdum hlutum. Skýri hamurinn staðfestir óneikvæð 2-D heiltölumerki og hafnar auðkennum yfir 65535 áður en skrifað er; hann endurnúmerar þau aldrei hljóðlaust.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "label": "spacr.qt.mask_engine.save_seg_bundle#0",
@@ -1204,7 +1206,9 @@
       "source_sha256": "38f7b8d8fa3e0e692bcbc56a74593de36868a0662d0f786e3c9e301fa33a7814",
       "context": "The destination changed, not the gesture. A greyed row installs itself when it is chosen. It used to execute ``pip install \"spacr[<backend>]\"`` against the environment spaCR is executing in; each backend now gets an isolated environment, so the install goes through the Model Zoo's own dialog instead: off the main GUI execution path, with progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's own environment is never changed.",
       "translation": "ÁFANGASTAÐURINN BREYTTIST, EKKI HREYFINGIN. Grá röð setur sig upp þegar hún er valin. Áður keyrði hún ``pip install \"spacr[<backend>]\"`` á umhverfið sem spaCR keyrir í; hver bakendi fær nú einangrað umhverfi, svo uppsetningin fer í staðinn í gegnum eigin glugga Model Zoo: utan GUI-þráðarins, með framvindu og Hætta við, í ``~/.spacr/backends/<name>``, og eigið umhverfi spaCR er aldrei breytt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.model_install.SegmentationBackendCombo.offer_install#2",
@@ -1798,7 +1802,9 @@
       "source_sha256": "80634c939fda60cc8ead24e8c2c975eba56823da9be0122ba3450b8f6ab3934f",
       "context": "Test data for OPS and for Align & Stitch, one button away in each.",
       "translation": "Prófunargögn fyrir OPS og fyrir Align & Stitch, einum hnappi frá í hvoru.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#1",
@@ -1814,7 +1820,9 @@
       "source_sha256": "e63dd35277cf175b680fde5212d3ffc2d52211a7b158bf2b7d6938870d694dac",
       "context": "Two samples of one published screen. Both are cut from laboratory microplate ``20200202_6W-LaC024A``, microplate sample position A1, of Funk et al. 2022 (BioImage Archive S-BIAD394), unmodified:",
       "translation": "TVÖ SÝNI ÚR EINNI BIRTRI SKIMUN. Bæði eru skorin úr plötu ``20200202_6W-LaC024A``, brunni A1, úr Funk et al. 2022 (BioImage Archive S-BIAD394), óbreytt:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#3",
@@ -1838,7 +1846,9 @@
       "source_sha256": "e4e99262add6368878a0209aa268ebe08f254686a7e0b2196a9092a5cbefacff",
       "context": "Why the ops sample is the well's last two sites. The engine takes a well's microscope field of view count as its highest site number plus one and fits the round well to that count, so a sample has to include the last site to keep the measured 333-microscope field of view layout; see :func:`spacr.ops_engine.run_ops`. And it carries no phenotype images, because the phenotype phase aligns anchors spread over the whole well, which a two-microscope field of view sample cannot supply.",
       "translation": "HVERS VEGNA OPS-SÝNIÐ ER SÍÐUSTU TVEIR STAÐIR BRUNNSINS. Vélin tekur fjölda sjónsviða brunns sem hæsta staðarnúmer hans plús einn og lagar kringlótta brunninn að þeim fjölda, svo sýni verður að innihalda síðasta staðinn til að halda mældri uppsetningu með 333 sjónsviðum; sjá :func:`spacr.ops_engine.run_ops`. Og það ber engar svipgerðarmyndir, því svipgerðarfasinn samraðar festipunktum sem dreifast yfir allan brunninn, sem sýni með tveimur sjónsviðum getur ekki lagt til.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#6",
@@ -1846,7 +1856,9 @@
       "source_sha256": "cd641607642cb1f90def1fc67f167d3abb1a3018f08138c0e56e84effdc87a19",
       "context": "The same pattern as every other example set. One uncompressed ``.tar`` per repository, streamed behind the shared progress dialog and unpacked through the tar data filter by :class:`spacr.qt.hf_download._TarExampleWorker`, into a folder of its own beside the shared example plate (:func:`example_folder`). A cached copy is used without a request.",
       "translation": "SAMA MYNSTUR OG Í HVERJU ÖÐRU DÆMASAFNI. Ein óþjöppuð ``.tar`` skrá fyrir hvert kóðasafn, streymd á bak við sameiginlega framvindugluggann og afþjöppuð í gegnum gagnasíu tar af :class:`spacr.qt.hf_download._TarExampleWorker`, í eigin möppu við hlið sameiginlegu dæmaplötunnar (:func:`example_folder`). Afrit í skyndiminni er notað án beiðni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo#7",
@@ -1854,7 +1866,9 @@
       "source_sha256": "99b835de8e84af9254722809fb93dca52f5a74ff83d46031d4d68d3beeded25b",
       "context": "WHAT \"FILLS THE SETTINGS\" means here. The OPS panel gets its source, output folder, library and plate name; Align & Stitch gets its microscope image field folder, the block's 3 x 3 grid, its order, its overlap and a place to write. Run -- or Plan -- is then the next action.",
       "translation": "HVAÐ \"FILLS THE SETTINGS\" MERKIR HÉR. OPS-spjaldið fær uppsprettu sína, úttaksmöppu, safn og plötuheiti; Align & Stitch fær flísamöppu sína, 3 x 3 hnitanet blokkarinnar, röð hennar, skörun og stað til að skrifa á. Run -- eða Plan -- er þá næsta aðgerð.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.example_folder#0",
@@ -1918,7 +1932,9 @@
       "source_sha256": "653f71a874206fdd57502212dc20f15d8e898fe283e907faab6e98cb3102f71a",
       "context": "True only when the manifest exists and every file it lists is there. A half-unpacked sample reads as absent, which is the answer that gets it downloaded again.",
       "translation": "True aðeins þegar yfirlitsskráin er til og hver skrá sem hún telur upp er þar. Hálfafþjappað sýni lesist sem fjarverandi, sem er svarið sem fær það sótt aftur.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ops_stitch_demo.listed_files#0",
@@ -3946,7 +3962,9 @@
       "source_sha256": "70de4fdab4c0c095907cf71f3a1d36fb479569fe978bde92add2f2fc33c7c68f",
       "context": "A preference result in the Help search field has to land on the row the user asked for, and the dialog it lands in is built by seven thousand lines of procedure with no schema to address. So this module navigates the BUILT dialog, by the two handles the build leaves behind:",
       "translation": "Kjörstillingarniðurstaða í leitarreit Help þarf að lenda á röðinni sem notandinn bað um, og glugginn sem hún lendir í er byggður af sjö þúsund línum af verklagi án skema til að vísa í. Þessi eining flakkar því um BYGGÐA gluggann, með þeim tveimur handföngum sem byggingin skilur eftir:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#2",
@@ -3970,7 +3988,9 @@
       "source_sha256": "f6351560c13ac6cefc96cc9e7b81365d242b7c36a7f7b201d574ab2a69634f63",
       "context": "Matching the DISPLAYED caption against an English literal was the version before this one, and it worked in exactly one language.",
       "translation": "Samanburður BIRTU yfirskriftarinnar við enskan fasta var útgáfan á undan þessari, og hún virkaði á nákvæmlega einu tungumáli.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation#5",
@@ -4018,7 +4038,9 @@
       "source_sha256": "69922ffa16381a59b17379b6c6c28c173e0ffcd013853b89ef016c5937c3b23f",
       "context": "A static outline for a few seconds rather than anything that moves: a mark that pulses would owe an answer to the Animation preferences, and this one owes none and is not lost on a reader who turned motion off.",
       "translation": "KYRRSTÆÐ útlína í nokkrar sekúndur frekar en eitthvað sem hreyfist: merki sem slær þyrfti að svara til Animation-kjörstillinganna, en þetta þarf þess ekki og fer ekki fram hjá lesanda sem slökkti á hreyfingu.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences_navigation.reveal_row#2",
@@ -4178,7 +4200,9 @@
       "source_sha256": "cce03f00204f5a27234de27180c37476c02d9d9932fcdf581f0875500d0897c6",
       "context": "``\"module:function\"`` taking ``(host, card)`` and building the panel into the card, returning it. Given, a preview ATTACHED through this registry builds only its card at install -- ``builder`` is called with ``panel_later=True`` -- and the panel the first time the card is shown or the panel is asked for, so a hidden preview costs a module's open nothing.",
       "translation": "``\"module:function\"`` sem tekur ``(host, card)``, byggir spjaldið inn í kortið og skilar því. Ef það er gefið byggir forsýn sem er TENGD í gegnum þessa skrá aðeins kort sitt við uppsetningu -- kallað er á ``builder`` með ``panel_later=True`` -- og spjaldið í fyrsta sinn sem kortið er sýnt eða beðið er um spjaldið, svo falin forsýn kostar opnun einingar ekkert.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preview_registry.install#2",
@@ -4210,7 +4234,10 @@
       "source_sha256": "c98fa154942a9ccc7627c1f5620a190accc20898b3ac2571d44bee8dec402396",
       "context": "Settings templates — named bundles you can reuse and share.",
       "translation": "Stillingasniðmát — nefnd búnt sem þú getur endurnýtt og deilt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.recipes#1",

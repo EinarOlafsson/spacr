@@ -880,7 +880,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one call a pipeline makes before ``measure_crop``, and the one the Illumination button on the Measure masthead runs on its own -- the model and its QC figures in minutes, before committing hours to the measure run that will reuse them through ``illumination_model``.",
       "source_sha256": "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
-      "translation": "워크플로가 ``measure_crop`` 전에 하는 단 한 번의 호출이며, Measure 상단 헤더의 Illumination 버튼이 단독으로 실행하는 호출입니다. 모델과 그 QC 그림을 몇 분 만에 얻은 뒤에야, ``illumination_model``을 통해 이를 재사용할 측정 실행에 몇 시간을 투입합니다."
+      "translation": "워크플로가 ``measure_crop`` 전에 하는 단 한 번의 호출이며, Measure 상단 헤더의 Illumination 버튼이 단독으로 실행하는 호출입니다. 모델과 그 QC 그림을 몇 분 만에 얻은 뒤에야, ``illumination_model``을 통해 이를 재사용할 측정 실행에 몇 시간을 투입합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a processing session that never mentions it is measured uncorrected. Being asked to execute with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a processing session button that does nothing, so a verbose call says which switch was not thrown.",
@@ -888,7 +890,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a run that never mentions it is measured uncorrected. Being asked to run with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a Run button that does nothing, so a verbose call says which switch was not thrown.",
       "source_sha256": "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-      "translation": "``settings['illumination_correction']``이 True가 아니면 아무것도 하지 않으며 None을 반환합니다. 그 값은 결코 기본 제공값이 아닙니다. 보정은 선택적으로 켜야 하므로, 이를 언급하지 않는 실행은 보정 없이 측정됩니다. 스위치가 꺼진 상태에서 실행을 요청받는 것은 조용히 넘어가기보다 알릴 가치가 있는 무동작입니다. 설정 양식에서 보면 아무 일도 하지 않는 Run 버튼과 똑같아 보이기 때문에, verbose 호출은 어떤 스위치가 켜지지 않았는지 알려 줍니다."
+      "translation": "``settings['illumination_correction']``이 True가 아니면 아무것도 하지 않으며 None을 반환합니다. 그 값은 결코 기본 제공값이 아닙니다. 보정은 선택적으로 켜야 하므로, 이를 언급하지 않는 실행은 보정 없이 측정됩니다. 스위치가 꺼진 상태에서 실행을 요청받는 것은 조용히 넘어가기보다 알릴 가치가 있는 무동작입니다. 설정 양식에서 보면 아무 일도 하지 않는 Run 버튼과 똑같아 보이기 때문에, verbose 호출은 어떤 스위치가 켜지지 않았는지 알려 줍니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.",
@@ -1000,7 +1004,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Types, tooltips and the module description are contributed; **categories deliberately are not**. ``spacr.settings.categories`` is one shared, ordered map that every settings panel walks, and its growth is guarded by an exact-equality test against a hand-kept list. A key contributed at *import* time is in that map only in a session that imported this module, so contributing categories would make that test's result depend on which files pytest was pointed at.",
       "source_sha256": "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-      "translation": "형식, 도움말, 모듈 설명은 제공됩니다. **범주는 의도적으로 제공되지 않습니다**. ``spacr.settings.categories``는 모든 설정 패널이 순회하는 하나의 공유된 순서 있는 맵이며, 그 증가는 직접 관리하는 목록과의 정확한 일치 테스트로 감시됩니다. *가져오기* 시점에 제공된 키는 이 모듈을 가져온 세션에서만 그 맵에 있으므로, 범주를 제공하면 그 테스트의 결과가 pytest에 어떤 파일을 지정했는지에 따라 달라집니다."
+      "translation": "형식, 도움말, 모듈 설명은 제공됩니다. **범주는 의도적으로 제공되지 않습니다**. ``spacr.settings.categories``는 모든 설정 패널이 순회하는 하나의 공유된 순서 있는 맵이며, 그 증가는 직접 관리하는 목록과의 정확한 일치 테스트로 감시됩니다. *가져오기* 시점에 제공된 키는 이 모듈을 가져온 세션에서만 그 맵에 있으므로, 범주를 제공하면 그 테스트의 결과가 pytest에 어떤 파일을 지정했는지에 따라 달라집니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The illumination structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
@@ -1008,7 +1014,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The illumination keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "source_sha256": "08f20d0c611135ba736b3864240429187a18b32becfa178faef6a9296a66bc99",
-      "translation": "조명 키는 분명히 하나의 제목 아래에 정리되어 있습니다. ``spacr.settings.categories``의 \"Illumination Correction\"이며, ``measure_crop``이 :func:`prepare_illumination_correction`을 직접 호출하고 이 키들이 바로 그 호출이 읽는 키이므로 Measure 패널은 이 키들을 모두 제공합니다. 위의 이유로 그 제목은 맵에 직접 작성됩니다. 이 모듈을 우연히 가져온 프로세스뿐만 아니라 Measure 설정을 그룹화하는 모든 프로세스에 존재해야 하기 때문입니다."
+      "translation": "조명 키는 분명히 하나의 제목 아래에 정리되어 있습니다. ``spacr.settings.categories``의 \"Illumination Correction\"이며, ``measure_crop``이 :func:`prepare_illumination_correction`을 직접 호출하고 이 키들이 바로 그 호출이 읽는 키이므로 Measure 패널은 이 키들을 모두 제공합니다. 위의 이유로 그 제목은 맵에 직접 작성됩니다. 이 모듈을 우연히 가져온 프로세스뿐만 아니라 Measure 설정을 그룹화하는 모든 프로세스에 존재해야 하기 때문입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "re-register over an existing registration.",
@@ -1040,23 +1048,29 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement procedure runs three steps in order:",
       "source_sha256": "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-      "translation": "표준 교체 절차는 세 단계를 순서대로 실행합니다."
+      "translation": "표준 교체 절차는 세 단계를 순서대로 실행합니다.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
-      "translation": "지원되는 macOS 설치에서는 앱 내 업데이트가 다른 절차를 사용합니다. 온라인 설치는 번들된 ``uv`` 실행 파일을 사용하여 기존 Python 환경에서 spaCR을 업그레이드합니다. 환경, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 유지합니다. 애플리케이션을 다시 시작하기 전에 설치된 spaCR 버전을 확인합니다."
+      "translation": "지원되는 macOS 설치에서는 앱 내 업데이트가 다른 절차를 사용합니다. 온라인 설치는 번들된 ``uv`` 실행 파일을 사용하여 기존 Python 환경에서 spaCR을 업그레이드합니다. 환경, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 유지합니다. 애플리케이션을 다시 시작하기 전에 설치된 spaCR 버전을 확인합니다.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "지원되는 고정(frozen) macOS 애플리케이션은 검증된 DMG 교체를 사용하며 이전 애플리케이션 번들 전체를 유지합니다. 이러한 macOS 업데이트 경로는 표준 삭제 절차를 실행하지 않습니다. 다른 고정 애플리케이션 계열은 업데이트를 시작하기 전에 지원되는 교체 어댑터가 필요합니다."
+      "translation": "지원되는 고정(frozen) macOS 애플리케이션은 검증된 DMG 교체를 사용하며 이전 애플리케이션 번들 전체를 유지합니다. 이러한 macOS 업데이트 경로는 표준 삭제 절차를 실행하지 않습니다. 다른 고정 애플리케이션 계열은 업데이트를 시작하기 전에 지원되는 교체 어댑터가 필요합니다.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1080,7 +1094,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The running spaCR must be an installer-made copy. The helper waits for this process to exit before changing the installation.",
       "source_sha256": "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
-      "translation": "실행 중인 spaCR은 설치 프로그램이 만든 사본이어야 합니다. 도우미는 설치를 변경하기 전에 이 프로세스가 종료되기를 기다립니다."
+      "translation": "실행 중인 spaCR은 설치 프로그램이 만든 사본이어야 합니다. 도우미는 설치를 변경하기 전에 이 프로세스가 종료되기를 기다립니다.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
@@ -1088,7 +1104,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "지원되는 macOS 온라인 설치의 경우 기존에 번들된 ``uv``와 전용 Python을 사용하여 같은 환경에서 spaCR을 업그레이드합니다. 환경 디렉터리, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 보존합니다. 설치된 버전이 최소 ``version``이고, 이전 버전을 알 수 있는 경우 그보다 새로운지 확인한 후에만 다시 시작합니다. 업그레이드나 버전 확인이 실패해도 제거나 교체 설치 프로그램을 실행하지 않습니다."
+      "translation": "지원되는 macOS 온라인 설치의 경우 기존에 번들된 ``uv``와 전용 Python을 사용하여 같은 환경에서 spaCR을 업그레이드합니다. 환경 디렉터리, 부트스트랩 파일, 애플리케이션 실행기, 업데이트가 필요 없는 설치된 패키지를 보존합니다. 설치된 버전이 최소 ``version``이고, 이전 버전을 알 수 있는 경우 그보다 새로운지 확인한 후에만 다시 시작합니다. 업그레이드나 버전 확인이 실패해도 제거나 교체 설치 프로그램을 실행하지 않습니다.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
@@ -1096,7 +1114,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
       "source_sha256": "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
-      "translation": "표준 교체 경로는 새 설치 프로그램을 내려받고, 설치 프로그램이 만든 이전 사본을 제거하고, 새 버전을 설치한 후 시작합니다. 필요한 제거 중 하나라도 실패하면 설치를 건너뛰고 그 이유를 로그에 기록합니다."
+      "translation": "표준 교체 경로는 새 설치 프로그램을 내려받고, 설치 프로그램이 만든 이전 사본을 제거하고, 새 버전을 설치한 후 시작합니다. 필요한 제거 중 하나라도 실패하면 설치를 건너뛰고 그 이유를 로그에 기록합니다.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.",
@@ -1612,7 +1632,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Graph Builder screen — a table, a filter, and a chart you drag together.",
       "source_sha256": "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
-      "translation": "Graph Builder 화면 — 테이블, 필터, 차트를 끌어다 함께 구성합니다."
+      "translation": "Graph Builder 화면 — 테이블, 필터, 차트를 끌어다 함께 구성합니다.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Assembles three things that already exist into one surface:",
@@ -1628,7 +1651,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The screen itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
       "source_sha256": "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae",
-      "translation": ":func:`register`는 가져올 때 호출되지 **않습니다**. 그 이유와 연결을 마무리하는 한 줄 및 보조 테이블 항목 네 개에 대해서는 해당 독스트링을 읽으십시오. 화면 자체는 완성되어 있습니다. :func:`make_graph_builder_screen`으로 만들고 프레임을 넘겨주면 아래의 모든 기능이 작동합니다."
+      "translation": ":func:`register`는 가져올 때 호출되지 **않습니다**. 그 이유와 연결을 마무리하는 한 줄 및 보조 테이블 항목 네 개에 대해서는 해당 독스트링을 읽으십시오. 화면 자체는 완성되어 있습니다. :func:`make_graph_builder_screen`으로 만들고 프레임을 넘겨주면 아래의 모든 기능이 작동합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones and the canvas;",
@@ -1644,7 +1669,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data Filter, unchanged, because a filter that narrows *every* view is worth more than a private one that narrows this chart;",
       "source_sha256": "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
-      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — 변경되지 않은 Local Data Filter. *모든* 보기를 좁히는 필터가 이 차트만 좁히는 전용 필터보다 가치가 크기 때문입니다."
+      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — 변경되지 않은 Local Data Filter. *모든* 보기를 좁히는 필터가 이 차트만 좁히는 전용 필터보다 가치가 크기 때문입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells in the UMAP and on the plate map, and a lasso there highlights them here.",
@@ -1668,7 +1695,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The screen goes into the app registry through :func:`spacr.qt.app.register_app` rather than through a row in the table inside ``app.py``, and its styling goes through :func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen built in parallel with five others is a new file rather than a merge conflict in two thousand-line ones.",
       "source_sha256": "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
-      "translation": "이 화면은 :func:`spacr.qt.app.register_app`을 통해 앱 레지스트리에 들어가며 ``app.py`` 안 테이블의 행을 거치지 않고, 스타일은 :func:`spacr.qt.theme.register_widget_qss`를 통해 적용됩니다. 두 연결 지점이 존재하는 이유는 다른 다섯 개와 병행하여 만든 화면이 천 줄짜리 파일 두 개의 병합 충돌이 아니라 새 파일이 되도록 하기 위함입니다."
+      "translation": "이 화면은 :func:`spacr.qt.app.register_app`을 통해 앱 레지스트리에 들어가며 ``app.py`` 안 테이블의 행을 거치지 않고, 스타일은 :func:`spacr.qt.theme.register_widget_qss`를 통해 적용됩니다. 두 연결 지점이 존재하는 이유는 다른 다섯 개와 병행하여 만든 화면이 천 줄짜리 파일 두 개의 병합 충돌이 아니라 새 파일이 되도록 하기 위함입니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Apply validated labels to the working table while preserving the source.",
@@ -2028,6 +2057,8 @@
     {
       "context": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "source_sha256": "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
@@ -2823,7 +2854,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT OPENS ON THE TOP HITS. Decision 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected wells\", the derived wells are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "source_sha256": "2198232806abac9cd778319cf0d5c723d1a6f8b5e0389091ed635e7ac3011a2b",
-      "translation": "상위 히트가 선택된 상태로 열립니다. 2026-09-25 결정: \"회귀 Compare 패널은 상위 히트(유의성이 가장 높은 가이드/유전자와 이를 가진 웰)가 미리 선택된 상태로 열린다(사용자가 변경할 수 있음)\". 히트는 회귀의 결과 표가 제공합니다(:func:`spacr.well_scope._top_hits`). 결과 표가 없으면 몽타주 자체 그룹의 가이드가 선택됩니다. 그러면 모집단 상자는 \"gRNAs + other datapoints in selected wells\" 로 시작하고, 도출된 웰이 컨트롤 아래에 표시되며, \"gRNAs…\" / \"selected wells…\" 로 둘 중 어느 것이든 바꿀 수 있습니다. 선택할 것이 없으면 \"All datapoints\" 로 시작하므로, 가이드가 없는 패널도 이전에 그리던 것을 그대로 그립니다."
+      "translation": "상위 히트가 선택된 상태로 열립니다. 2026-09-25 결정: \"회귀 Compare 패널은 상위 히트(유의성이 가장 높은 가이드/유전자와 이를 가진 웰)가 미리 선택된 상태로 열린다(사용자가 변경할 수 있음)\". 히트는 회귀의 결과 표가 제공합니다(:func:`spacr.well_scope._top_hits`). 결과 표가 없으면 몽타주 자체 그룹의 가이드가 선택됩니다. 그러면 모집단 상자는 \"gRNAs + other datapoints in selected wells\" 로 시작하고, 도출된 웰이 컨트롤 아래에 표시되며, \"gRNAs…\" / \"selected wells…\" 로 둘 중 어느 것이든 바꿀 수 있습니다. 선택할 것이 없으면 \"All datapoints\" 로 시작하므로, 가이드가 없는 패널도 이전에 그리던 것을 그대로 그립니다.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared table merging workflow for Graph Builder and Data-selection boundary Editor.",

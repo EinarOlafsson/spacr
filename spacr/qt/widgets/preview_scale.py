@@ -7,8 +7,8 @@ beside it stay readable. Every preview -- Mask, Measure, Plaque, Timelapse,
 Motility and the image-UMAP views -- installs the same control through
 :func:`install_preview_scale`, so there is one implementation of it.
 
-WHAT IT SCALES, LIVE, WITHOUT A RESTART. Everything inside the preview that
-spaCR sized in pixels:
+The slider scales, live and without a restart, everything inside the preview
+that spaCR sized in pixels:
 
 * style-sheet sizes -- font sizes, paddings, margins, minimum and maximum
   widths and heights, radii -- both the ones the preview inherits from the
@@ -24,20 +24,20 @@ spaCR sized in pixels:
 Each value's own base is remembered on the widget, so scaling is always
 from the size the code asked for and never compounds. A size the code sets
 again later becomes the new base. At 100 % nothing is touched at all -- no
-sheet, no size, no property -- so a preview at its default scale is the
-preview it was before this module existed.
+sheet, no size, no property -- so a preview at 100 % is drawn exactly as it
+would be without this module.
 
 The slider itself is exempt: at 10 % the thing that brings the preview back
 must still be there to grab, and double-clicking its value returns to 100 %.
 ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).
 
-A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW. A dialog
-parented to the panel is a window of its own, yet Qt cascades the panel's
-scaled sheet into it, and the walk found it among the panel's children: at
-150 % a settings dialog's buttons were 59 px tall, not the 40 px of every
-other dialog. Such a window and everything in it are kept at 100 %, and the
-window's own sheet re-states, at 100 %, the sizes it would otherwise inherit
-scaled -- set as it is polished, so before it is first laid out.
+Windows opened from the preview are not scaled with it. A dialog parented to
+the panel is a window of its own, yet Qt cascades the panel's scaled sheet
+into it, and the walk found it among the panel's children: at 150 % a settings
+dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a
+window and everything in it are kept at 100 %, and the window's own sheet
+re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it
+is polished, so before it is first laid out.
 
 Each preview remembers its own scale, under ``prefs/preview_scale/<name>``.
 """

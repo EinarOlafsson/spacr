@@ -17,8 +17,9 @@ from spacr.qt.widgets.preview_controls import populate_channel_combo
 
 
 @pytest.fixture
-def panel(qapp):
+def panel(qapp, qtbot):
     p = LivePreviewPanel()
+    qtbot.addWidget(p)
     populate_channel_combo(p._channel_box, 4)
     # Distinguishable planes, so a composite can be told from a single one.
     image = np.zeros((6, 6, 4), dtype=np.uint8)

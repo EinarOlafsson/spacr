@@ -1,0 +1,59 @@
+{
+  "scope": "Six test files/eight named bodies only; no production/conftest/helper changes.",
+  "baseline": "8 FAIL 8.32s",
+  "intermediate": "7 PASS 1 FAIL 7.39s; new choose_model tripwire was stronger than existing constructor-order contract",
+  "affected_final": "1 PASS 5.43s after replacing only training tripwire with actual load_model_artifact and AdamW fitting-boundary tripwires; seven prior passing bodies unchanged",
+  "distinct_final_nodes": 8,
+  "not_claimed": "No fresh all-eight PASS invocation; no training, real checkpoint decode, model or network acquisition. Tiny local marker files validate path resolution only.",
+  "contract": "Six obsolete missing/unknown refusal expectations now require ModelZooError and actual request/context; two unrelated crop-format/attribution tests use real local file prerequisites and assert exact mocked loader paths. All original unrelated output/array/branch guards retained.",
+  "environment": "2GiB/offscreen/blank CUDA/thread1; serialized Original heavy.lock; connect/DNS tripwire",
+  "source_proof": {
+    "tests/test_mask_worker_model_identity.py": {
+      "before": "93e77ba45c04b52f0d8dd3d50158cecfcad67b9c1708385023bcb3b773764dce",
+      "after": "f34771dec96befb2beada91f13cae5fc38960b445f42f6b7cf9db3b146621a45",
+      "outside_named_bodies_entire_ast_unchanged": true
+    },
+    "tests/test_colony_cfu_counting.py": {
+      "before": "607dd3a480628a1b6ef4349e55eaa1134736479768854dbf8f03c37bb7318047",
+      "after": "31b2308601ae9ee5f5349f945238ad8c7f343cf84273f252f44c58c260561868",
+      "outside_named_bodies_entire_ast_unchanged": true
+    },
+    "tests/test_item60_deep_spacr_coverage.py": {
+      "before": "b7ad370149e748f731d454302617f5dbbe1ed01e96ffcce6ac813afca93bede1",
+      "after": "5704932e3c021cddbb281d13461df234ced52154a6d897b9c5a7c33b419f8ddb",
+      "outside_named_bodies_entire_ast_unchanged": true
+    },
+    "tests/test_cov_deep_spacr_entry_fusion.py": {
+      "before": "786bce7927ce210cc60d4ae3eb9d8177bbd3f6078b108baea42822e0ecdf9536",
+      "after": "9dc85898310a6bb9e229e6523118d14f9da8dc01609bf4fc74ac81fe9ab49497",
+      "outside_named_bodies_entire_ast_unchanged": true
+    },
+    "tests/test_cov_object_cellpose_masks.py": {
+      "before": "0bef8207d277f849e3be64f9a0d78e08091d158ac7f6996af0d32cfbcff80a45",
+      "after": "13804295e26c0fdf008fda9643154d66c4c56b1afb2c4f2feaaba5d05235c985",
+      "outside_named_bodies_entire_ast_unchanged": true
+    },
+    "tests/test_cellpose_dino_runs_in_its_own_environment.py": {
+      "before": "a206ea81134d112b6d4fab9b9c120004f8bc5a4f961a100534936970b311638e",
+      "after": "b479f5fca77e3458b77937d84be86741dd6539bdad4354f0bb088c70f1212aae",
+      "outside_named_bodies_entire_ast_unchanged": true
+    }
+  },
+  "files_sha256": {
+    "baseline.log.gz": "57bd2a20a186d1f4cad7849a009173c2459681202857927ee6711776b8222dc7",
+    "baseline.sh": "9a9fcee165d2d448b850a1488c058338ebbfec51e44e0ecb0829130eb974163d",
+    "pytest-offline.py": "540c1bb22278fa372965579579ce08ae0e03d8fcb0dfb3cf61b0526861ba8795",
+    "training-final.log.gz": "0398f20b9b8ac7fffd477c8b790eeadf9d837ce1b97d6ee16e57862d330141dd",
+    "baseline.xml.gz": "65f88f0974b5ca38333a8ce69cabec50500d22efbf64601f22578ec944b59a03",
+    "source-proof.json": "450a3d6ad91ab4e665c04e21bab2208bd09a6342b1e9bf507ac058cd5f8c6dbb",
+    "final.log.gz": "ef59f02496fe8dde9c5c2df69a9f06dbee30bd263143f3cce0493bf45f4aad12",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "training-final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "final.xml.gz": "a1a0b045784ca5b46c5127262b8260fa8700a57a77904d7667256e56c80d23af",
+    "final.sh": "60380e929a0f1b9c76e389192bed9c91382972d52de2264dbfdf8e324e6dc7d6",
+    "training-final.sh": "8b570a3c9faf7f878f9175b1a4809e44868287180267c3d8277625476dee8343",
+    "nodes.json": "7fb52f2a41224bd1062b74633d9677adad50166bf2839dbb2b2b2dcc982fc68c",
+    "final.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "training-final.xml.gz": "d1a53c0eb8c7be28e1cbc6a795483115c403419861457734050337900f840a9b"
+  }
+}

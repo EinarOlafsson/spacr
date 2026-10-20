@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "source_commits": [
+    "e8d45689ab5",
+    "35aa6c146f3"
+  ],
+  "source_files": {
+    "spacr/qt/job_runner.py": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706"
+  },
+  "review_count": 18,
+  "nine_repaired_paragraphs": "JobRunner.shutdown#1: every historical target omitted the timeout_ms literal/shared wait constraint and contained malformed prose. New exact targets replace only these source/locale pairs.",
+  "nine_added_parameter_blocks": "shutdown_all#2: current English had3blocks, every locale2. Current timeout parameter was wholly absent; no old target to preserve.",
+  "strict_boundaries": "Old complete locale records pinned. Only shutdown#1 target preservation exceptions and shutdown_all3-to2 old-layout mismatch admitted; all19 current blocks/171targets must match normal reviewed translations. No production validator/history/eligibility changes.",
+  "normal_gates": "All18 source/context/inline checks passed; all9 normal selected review loaders pass.",
+  "prior_reviews_preserved": 1532,
+  "independent_peer": "All18 exact source/target pairs approved; final receipt binds this commit.",
+  "failed_attempt": "Initial light writer refused decoder request before preparing or writing any locale; no model decoded, no runtime collection."
+}

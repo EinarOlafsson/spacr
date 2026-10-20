@@ -1,0 +1,15 @@
+{
+  "normal_generator": "tools/build_help_search_index.py",
+  "terminal_exit": 0,
+  "execution": "CUDA hidden/offscreen/thread1/8G/sharedheavy.lock; normal isolated preferences child",
+  "output_sha256": "fb0ab7eda845610e06591c6fc21cd044ba56288d327d7f1ab1af778440807544",
+  "exact_four_new_API_summaries": [
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusInEvent",
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.focusOutEvent",
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.keyPressEvent",
+    "spacr.qt.widgets.ai_toggle_label.AiToggleLabel.paintEvent"
+  ],
+  "API_rows": 13263,
+  "all_prior_API_summaries_exact": true,
+  "scope": "Only four eligible new methods; consumer acceptance next, no whole application or global gate claim."
+}

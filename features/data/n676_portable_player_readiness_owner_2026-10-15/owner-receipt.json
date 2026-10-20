@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "status": "owner_portable_player_dependency_delivery_pass",
+  "test_count": 11,
+  "test_seconds": 82.86,
+  "terminal_exit_status": 0,
+  "test_scope": "Nine readiness cases plus two complete-native real software Chrome cases; synthetic video/sine audio and delayed local HTTP, controlled decoder-event injection explicitly distinguished.",
+  "test_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/player-readiness-port-20261015/browser-tests-r2.log",
+    "bytes": 632,
+    "sha256": "d79e582b66fc249778b7561771bb2909d67156d97391fa13611e35c386c5870a"
+  },
+  "test_xml": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/player-readiness-port-20261015/browser-tests-r2.xml",
+    "bytes": 2026,
+    "sha256": "97447a5a4682db1b8817a694af796c45363330ffeee9f3124030c89eb1983f21"
+  },
+  "source_bindings": {
+    "held_W": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+    "files": [
+      {
+        "path": "tools/tutorials/authoring/web/app_v2.js",
+        "preimage_sha256": "34df699e2c36c317a6a126596b51fba95dcd3a011668dc6d30557f4241746fd4",
+        "preimage_bytes": 94896,
+        "preimage_absent": false,
+        "proposed_sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159",
+        "proposed_bytes": 102935,
+        "exact_held_W_bytes": true
+      },
+      {
+        "path": "tools/tutorials/tests/test_player_audio_readiness.py",
+        "preimage_sha256": null,
+        "preimage_bytes": 0,
+        "preimage_absent": true,
+        "proposed_sha256": "d469b3d63d3b55f8c79120e5d8df59cc23d5ea92f4dfbadee93656fa3aff8fb3",
+        "proposed_bytes": 12656,
+        "exact_held_W_bytes": true
+      },
+      {
+        "path": "tools/tutorials/tests/test_player_complete_native_clips.py",
+        "preimage_sha256": null,
+        "preimage_bytes": 0,
+        "preimage_absent": true,
+        "proposed_sha256": "f9bcf1e8312bc981f405bb2f74bd70e6cdcdbd72c05e252e2304915306939d63",
+        "proposed_bytes": 9898,
+        "exact_held_W_bytes": true
+      }
+    ],
+    "dependency_commits": [
+      "c1637b2c8a80140980b0c77ef82d399f4751e052",
+      "e257c1f3c3e04408968f656eade6a452dbe0bfc0"
+    ],
+    "dependency_scope": "Player hunks only, plus browser fixture/test module. No renderer/native timing producer/verifier/app/audioengine changes.",
+    "unrebased_original_apply_rc": 1,
+    "patch_sha256": "6f91f1b3f6879d3a86b70e55b413158cd04df44a2e33bec410e8803b2ded971d",
+    "tested_nightly_base": "5156243c75990f09eda4892e8426472d0b117500",
+    "delivery_nightly_base": "921760e174a237dd02af78a81b9b8d0e5a38df5f",
+    "existing_runtime_test_dependencies": [
+      {
+        "path": "tools/tutorials/tests/test_player_holds_narration.py",
+        "sha256": "ebc893f78833e9277a812ceabcc933d57c171304f5b48f427b61c497ff1a655b"
+      },
+      {
+        "path": "tools/tutorials/release_candidate/web/index.html",
+        "sha256": "6a49661bcb6483ee01a8b4cece3257f07ad6f9c35844b73ca23723a441ce32d8"
+      },
+      {
+        "path": "tools/tutorials/release_candidate/web/lesson_catalog.js",
+        "sha256": "14eb36ec69506e1ea8e470d0ed81ea0dd53bdca11d7a7a7220439c85480d7da7"
+      }
+    ],
+    "tested_to_delivery_relevant_sources_and_fixture_bootstrap_unchanged": true,
+    "checks": {
+      "exact_patch_applies_to_clean_delivery_preimages": true,
+      "proposed_three_files_exact_held_W": true,
+      "only_three_paths_modified": true,
+      "diff_whitespace_check_passed": true,
+      "no_spacr_application_or_audioengine_or_generated_checkpoint_changes": true
+    }
+  },
+  "initial_failure": "r1 all11 failed before player execution due long private TMPDIR Chrome SingletonSocket path; preserved. Short private /tmp harness rerun, no source/assertion changes.",
+  "original_patch_failure": "Held W patch alone cannot apply: Nightly lacks antecedent player catchup and complete-native playback hunks and complete-native test dependency. This direct apply failure is preserved.",
+  "delivery": "Review/apply this exact three-file unified patch, not held W alone or a broad source merge. Preimage hash must match and the two test files must be absent.",
+  "test_env": {
+    "cap": "4G",
+    "private_home_config_cache_tmp": true,
+    "tmp_prefix": "/tmp/spacr-pr-",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "LIBGL_ALWAYS_SOFTWARE": "1",
+    "MESA_LOADER_DRIVER_OVERRIDE": "swrast",
+    "GALLIUM_DRIVER": "llvmpipe",
+    "EGL_vendor": "/usr/share/glvnd/egl_vendor.d/50_mesa.json",
+    "Chrome_flags": [
+      "--disable-gpu",
+      "--disable-accelerated-video-decode",
+      "--autoplay-policy=no-user-gesture-required"
+    ],
+    "worktree_first_sys_path": true
+  },
+  "limits": [
+    "No app, audioengine, canonical/review prose, generated Pages or existing publication/media was modified.",
+    "This player recognizes optional complete_native_clips timelines already in current published lessons. Producer/renderer/verifier tools are separate scope and are not imported by this runtime/test patch.",
+    "Browser clock/source tests are not human listening, phoneme-completeness, biological, whole-site deployment, or cross-platform acceptance.",
+    "No source commit/push was made; ROOT/REPORT working files remain untouched.",
+    "All child test processes exited; own4GB RAM lease removed in finally."
+  ]
+}

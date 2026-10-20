@@ -1,7 +1,7 @@
 Combine measurement tables for plots and gates
 ==============================================
 
-Open **Graph Builder** or **Gate Editor** from Home to explore measurements.
+Open **Graph Builder** or **Gate Editor** from Home to plot or gate measurements.
 Both screens offer **Merge tables** immediately beside the table picker.
 The same merge definition produces the same measurements in either screen.
 For the surrounding workflow, see :doc:`workflows`.
@@ -177,6 +177,17 @@ In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:
   or radius handle to resize it, or drag the centre handle to move it.
   Gates drawn through the view also move by their centre handle.
 
+Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's
+shape. Every edge and surface carries evenly spaced anchors, including along
+the depth axis. Drag an anchor, or click a surface (Ctrl-click for several)
+and drag or turn the mouse wheel to move the selected surfaces together.
+The axis list beside **Edit** limits the movement to X, Y, Z or the view plane.
+**Anchor density** and **Show gate anchors** in the gate settings set how
+many anchors appear and whether they show; neither changes the gate. A curved
+gate becomes a piecewise-linear boundary at its first edit, and counts and
+exports use that edited boundary. Edited gates are saved and loaded with the
+gate file, and **Undo** and **Redo** step through the edits.
+
 While you draw or adjust a shape, the objects inside it are highlighted.
 Double-click a gate's name in the gate table to rename it; gates built from
 it follow the new name. Gates drawn in 3D are saved, loaded and exported like
@@ -215,7 +226,7 @@ Recover original filenames before labelling conditions
 
 If images were renamed to Yokogawa format, use **Merge original filenames…**
 inside **Merge tables** to recover the names recorded during conversion.
-Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a
+Select ``conversion_map.csv``, a ``rename_log.csv``, a
 ``channel_sorting_manifest.csv``, or a SQLite database containing the
 ``conversion_map`` table. The file picker starts near a known mapping when
 one is found beside the measurement database or in its parent folders.

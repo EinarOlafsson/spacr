@@ -852,7 +852,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one call a pipeline makes before ``measure_crop``, and the one the Illumination button on the Measure masthead runs on its own -- the model and its QC figures in minutes, before committing hours to the measure run that will reuse them through ``illumination_model``.",
       "source_sha256": "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
-      "translation": "Eina kallið sem vinnsluferli gerir á undan ``measure_crop``, og það sem Illumination-hnappurinn á Measure-hausnum keyrir eitt og sér -- líkanið og QC-fígúrur þess á nokkrum mínútum, áður en klukkustundum er varið í mælingakeyrsluna sem endurnýtir þau í gegnum ``illumination_model``."
+      "translation": "Eina kallið sem vinnsluferli gerir á undan ``measure_crop``, og það sem Illumination-hnappurinn á Measure-hausnum keyrir eitt og sér -- líkanið og QC-fígúrur þess á nokkrum mínútum, áður en klukkustundum er varið í mælingakeyrsluna sem endurnýtir þau í gegnum ``illumination_model``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a processing session that never mentions it is measured uncorrected. Being asked to execute with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a processing session button that does nothing, so a verbose call says which switch was not thrown.",
@@ -860,7 +862,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a run that never mentions it is measured uncorrected. Being asked to run with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a Run button that does nothing, so a verbose call says which switch was not thrown.",
       "source_sha256": "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-      "translation": "Það gerir alls ekki neitt -- og skilar None -- nema ``settings['illumination_correction']`` sé True, sem er EKKI sjálfgefið við afhendingu: leiðréttingin er valkvæð, svo keyrsla sem minnist aldrei á hana er mæld óleiðrétt. Beiðni um að keyra með slökkt á rofanum er aðgerðaleysi sem vert er að heyra af frekar en þögult aðgerðaleysi, því á stillingaformi lítur það nákvæmlega út eins og Run-hnappur sem gerir ekkert, svo margmált kall segir hvaða rofa var ekki kveikt á."
+      "translation": "Það gerir alls ekki neitt -- og skilar None -- nema ``settings['illumination_correction']`` sé True, sem er EKKI sjálfgefið við afhendingu: leiðréttingin er valkvæð, svo keyrsla sem minnist aldrei á hana er mæld óleiðrétt. Beiðni um að keyra með slökkt á rofanum er aðgerðaleysi sem vert er að heyra af frekar en þögult aðgerðaleysi, því á stillingaformi lítur það nákvæmlega út eins og Run-hnappur sem gerir ekkert, svo margmált kall segir hvaða rofa var ekki kveikt á.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.",
@@ -972,7 +976,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Types, tooltips and the module description are contributed; **categories deliberately are not**. ``spacr.settings.categories`` is one shared, ordered map that every settings panel walks, and its growth is guarded by an exact-equality test against a hand-kept list. A key contributed at *import* time is in that map only in a session that imported this module, so contributing categories would make that test's result depend on which files pytest was pointed at.",
       "source_sha256": "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-      "translation": "Gerðum, skjávísum og lýsingu einingarinnar er bætt við; **flokkum er vísvitandi ekki bætt við**. ``spacr.settings.categories`` er ein sameiginleg, röðuð vörpun sem hvert stillingaspjald gengur í gegnum, og vexti hennar er haldið í skefjum með prófi á nákvæmu jafngildi við handhaldinn lista. Lykill sem bætt er við á *innflutningstíma* er aðeins í þeirri vörpun í lotu sem flutti inn þessa einingu, svo að bæta við flokkum myndi gera niðurstöðu prófsins háða því á hvaða skrár pytest var beint."
+      "translation": "Gerðum, skjávísum og lýsingu einingarinnar er bætt við; **flokkum er vísvitandi ekki bætt við**. ``spacr.settings.categories`` er ein sameiginleg, röðuð vörpun sem hvert stillingaspjald gengur í gegnum, og vexti hennar er haldið í skefjum með prófi á nákvæmu jafngildi við handhaldinn lista. Lykill sem bætt er við á *innflutningstíma* er aðeins í þeirri vörpun í lotu sem flutti inn þessa einingu, svo að bæta við flokkum myndi gera niðurstöðu prófsins háða því á hvaða skrár pytest var beint.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The illumination structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
@@ -980,7 +986,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The illumination keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "source_sha256": "08f20d0c611135ba736b3864240429187a18b32becfa178faef6a9296a66bc99",
-      "translation": "Lýsingarlyklarnir ERU skráðir undir fyrirsögn -- \"Illumination Correction\" í ``spacr.settings.categories`` -- og spjald Measure býður upp á þá alla, því ``measure_crop`` kallar sjálft á :func:`prepare_illumination_correction` og þetta eru lyklarnir sem það kall les. Fyrirsögnin er skrifuð handvirkt í þá vörpun af ástæðunni hér að ofan: hún þarf að vera til fyrir hvert ferli sem flokkar Measure-stillingarnar, ekki aðeins fyrir ferli sem flutti svo vill til inn þessa einingu."
+      "translation": "Lýsingarlyklarnir ERU skráðir undir fyrirsögn -- \"Illumination Correction\" í ``spacr.settings.categories`` -- og spjald Measure býður upp á þá alla, því ``measure_crop`` kallar sjálft á :func:`prepare_illumination_correction` og þetta eru lyklarnir sem það kall les. Fyrirsögnin er skrifuð handvirkt í þá vörpun af ástæðunni hér að ofan: hún þarf að vera til fyrir hvert ferli sem flokkar Measure-stillingarnar, ekki aðeins fyrir ferli sem flutti svo vill til inn þessa einingu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "re-register over an existing registration.",
@@ -1012,23 +1020,29 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement procedure runs three steps in order:",
       "source_sha256": "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-      "translation": "Hefðbundna útskiptaferlið keyrir þrjú skref í röð:"
+      "translation": "Hefðbundna útskiptaferlið keyrir þrjú skref í röð:",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
-      "translation": "Uppfærslur innan forritsins nota annað ferli fyrir studdar macOS-uppsetningar. Netuppsetning uppfærir spaCR í núverandi Python-umhverfi sínu með meðfylgjandi ``uv``-keyrsluskrá. Hún heldur umhverfinu, ræsiskrám, forritsræsi og uppsettum pökkum sem þurfa ekki uppfærslu. Hún staðfestir uppsettu spaCR-útgáfuna áður en forritið er endurræst."
+      "translation": "Uppfærslur innan forritsins nota annað ferli fyrir studdar macOS-uppsetningar. Netuppsetning uppfærir spaCR í núverandi Python-umhverfi sínu með meðfylgjandi ``uv``-keyrsluskrá. Hún heldur umhverfinu, ræsiskrám, forritsræsi og uppsettum pökkum sem þurfa ekki uppfærslu. Hún staðfestir uppsettu spaCR-útgáfuna áður en forritið er endurræst.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "Stutt fryst macOS-forrit notar staðfesta DMG-útskiptingu og heldur öllum fyrri forritspakka sínum. Þessar macOS-uppfærsluleiðir keyra ekki hefðbundna eyðingarferlið. Aðrar fjölskyldur frystra forrita þurfa studdan útskiptamillilið áður en uppfærsla getur hafist."
+      "translation": "Stutt fryst macOS-forrit notar staðfesta DMG-útskiptingu og heldur öllum fyrri forritspakka sínum. Þessar macOS-uppfærsluleiðir keyra ekki hefðbundna eyðingarferlið. Aðrar fjölskyldur frystra forrita þurfa studdan útskiptamillilið áður en uppfærsla getur hafist.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1052,7 +1066,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The running spaCR must be an installer-made copy. The helper waits for this process to exit before changing the installation.",
       "source_sha256": "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
-      "translation": "spaCR sem er í keyrslu verður að vera eintak sem uppsetningarforrit bjó til. Hjálparforritið bíður eftir að þetta ferli hætti áður en það breytir uppsetningunni."
+      "translation": "spaCR sem er í keyrslu verður að vera eintak sem uppsetningarforrit bjó til. Hjálparforritið bíður eftir að þetta ferli hætti áður en það breytir uppsetningunni.",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
@@ -1060,7 +1076,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "Fyrir studda macOS-netuppsetningu skaltu nota fyrirliggjandi meðfylgjandi ``uv`` og einka-Python til að uppfæra spaCR í sama umhverfi. Haltu umhverfismöppunni, ræsiskrám, forritsræsi og uppsettum pökkum sem þurfa ekki uppfærslu. Endurræstu aðeins eftir að hafa staðfest að uppsetta útgáfan sé að minnsta kosti ``version`` og nýrri en fyrri útgáfan, þegar fyrri útgáfan er þekkt. Misheppnuð uppfærsla eða útgáfuathugun kallar hvorki fram fjarlægingu né útskiptauppsetningarforrit."
+      "translation": "Fyrir studda macOS-netuppsetningu skaltu nota fyrirliggjandi meðfylgjandi ``uv`` og einka-Python til að uppfæra spaCR í sama umhverfi. Haltu umhverfismöppunni, ræsiskrám, forritsræsi og uppsettum pökkum sem þurfa ekki uppfærslu. Endurræstu aðeins eftir að hafa staðfest að uppsetta útgáfan sé að minnsta kosti ``version`` og nýrri en fyrri útgáfan, þegar fyrri útgáfan er þekkt. Misheppnuð uppfærsla eða útgáfuathugun kallar hvorki fram fjarlægingu né útskiptauppsetningarforrit.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
@@ -1068,7 +1086,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
       "source_sha256": "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
-      "translation": "Hefðbundna útskiptaleiðin sækir nýja uppsetningarforritið, fjarlægir eldri eintök sem uppsetningarforrit bjó til, setur upp nýju útgáfuna og ræsir hana. Ef einhver nauðsynleg fjarlæging mistekst skaltu sleppa uppsetningu og skrifa ástæðuna í annálinn."
+      "translation": "Hefðbundna útskiptaleiðin sækir nýja uppsetningarforritið, fjarlægir eldri eintök sem uppsetningarforrit bjó til, setur upp nýju útgáfuna og ræsir hana. Ef einhver nauðsynleg fjarlæging mistekst skaltu sleppa uppsetningu og skrifa ástæðuna í annálinn.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.",
@@ -1570,7 +1590,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Graph Builder screen — a table, a filter, and a chart you drag together.",
       "source_sha256": "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
-      "translation": "Graph Builder-skjárinn — tafla, sía og graf sem þú dregur saman."
+      "translation": "Graph Builder-skjárinn — tafla, sía og graf sem þú dregur saman.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Assembles three things that already exist into one surface:",
@@ -1594,7 +1617,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data Filter, unchanged, because a filter that narrows *every* view is worth more than a private one that narrows this chart;",
       "source_sha256": "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
-      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — Local Data Filter, óbreytt, því sía sem þrengir *hverja* sýn er meira virði en einkasía sem þrengir aðeins þetta graf;"
+      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — Local Data Filter, óbreytt, því sía sem þrengir *hverja* sýn er meira virði en einkasía sem þrengir aðeins þetta graf;",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells in the UMAP and on the plate map, and a lasso there highlights them here.",
@@ -1610,7 +1635,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The screen goes into the app registry through :func:`spacr.qt.app.register_app` rather than through a row in the table inside ``app.py``, and its styling goes through :func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen built in parallel with five others is a new file rather than a merge conflict in two thousand-line ones.",
       "source_sha256": "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
-      "translation": "Skjárinn fer í forritaskrána í gegnum :func:`spacr.qt.app.register_app` í stað þess að fara í gegnum röð í töflunni í ``app.py``, og útlitsmótun hans fer í gegnum :func:`spacr.qt.theme.register_widget_qss`. Bæði samskeytin eru til svo að skjár sem er smíðaður á sama tíma og fimm aðrir sé ný skrá en ekki sameiningarárekstur í tveimur þúsund lína skrám."
+      "translation": "Skjárinn fer í forritaskrána í gegnum :func:`spacr.qt.app.register_app` í stað þess að fara í gegnum röð í töflunni í ``app.py``, og útlitsmótun hans fer í gegnum :func:`spacr.qt.theme.register_widget_qss`. Bæði samskeytin eru til svo að skjár sem er smíðaður á sama tíma og fimm aðrir sé ný skrá en ekki sameiningarárekstur í tveimur þúsund lína skrám.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Apply validated labels to the working table while preserving the source.",
@@ -1970,6 +1997,8 @@
     {
       "context": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "source_sha256": "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
@@ -2757,7 +2786,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT OPENS ON THE TOP HITS. Decision 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected wells\", the derived wells are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "source_sha256": "2198232806abac9cd778319cf0d5c723d1a6f8b5e0389091ed635e7ac3011a2b",
-      "translation": "HANN OPNAST Á EFSTU MARKTÆKU NIÐURSTÖÐUNUM. Ákvörðun 2026-09-25: \"Compare-spjald aðhvarfsins opnast með EFSTU MARKTÆKU NIÐURSTÖÐURNAR forvaldar (marktækustu leiðsagnar-RNA/genin og brunnarnir sem bera þau; notandinn getur breytt því)\". Niðurstöðutafla aðhvarfsins gefur marktæku niðurstöðurnar (:func:`spacr.well_scope._top_hits`); án hennar eru leiðsagnar-RNA eigin hópa myndasamsetningarinnar valið. Þýðisreiturinn byrjar þá á \"gRNAs + other datapoints in selected wells\", afleiddu brunnarnir eru sýndir undir stýringunum, og \"gRNAs…\" / \"selected wells…\" breyta hvoru sem er. Þegar ekkert er til að velja er byrjað á \"All datapoints\", svo spjald án leiðsagnar-RNA teiknar enn það sem það teiknaði áður."
+      "translation": "HANN OPNAST Á EFSTU MARKTÆKU NIÐURSTÖÐUNUM. Ákvörðun 2026-09-25: \"Compare-spjald aðhvarfsins opnast með EFSTU MARKTÆKU NIÐURSTÖÐURNAR forvaldar (marktækustu leiðsagnar-RNA/genin og brunnarnir sem bera þau; notandinn getur breytt því)\". Niðurstöðutafla aðhvarfsins gefur marktæku niðurstöðurnar (:func:`spacr.well_scope._top_hits`); án hennar eru leiðsagnar-RNA eigin hópa myndasamsetningarinnar valið. Þýðisreiturinn byrjar þá á \"gRNAs + other datapoints in selected wells\", afleiddu brunnarnir eru sýndir undir stýringunum, og \"gRNAs…\" / \"selected wells…\" breyta hvoru sem er. Þegar ekkert er til að velja er byrjað á \"All datapoints\", svo spjald án leiðsagnar-RNA teiknar enn það sem það teiknaði áður.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared table merging workflow for Graph Builder and Data-selection boundary Editor.",

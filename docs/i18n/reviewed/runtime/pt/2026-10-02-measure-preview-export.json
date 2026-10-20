@@ -13,7 +13,7 @@
       "key": "A preview crop must contain nonempty RGB pixels.",
       "source": "A preview crop must contain nonempty RGB pixels.",
       "source_sha256": "08c8986c7753c8c2860c156a7c59d5e2d41496a0fdff209cfaad9d28c81b98dc",
-      "translation": "Um recorte de pré-visualização deve conter dados de píxeis RGB não vazios."
+      "translation": "Um recorte de pré-visualização deve conter dados de pixels RGB não vazios."
     },
     {
       "table": "ui",
@@ -104,7 +104,7 @@
       "key": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; batch PNG exports and source files are unchanged.",
       "source": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; batch PNG exports and source files are unchanged.",
       "source_sha256": "9ddde52901713e65be4949f3f7f16d79496649299c4e21fe0388c972905ec523",
-      "translation": "Pré-visualizar a separação espectral com os controlos de coloração única da execução. Isto altera apenas os recortes apresentados; as exportações PNG em lote e os ficheiros de origem permanecem inalterados."
+      "translation": "Pré-visualizar a separação espectral com os controlos de coloração única da execução. Isto altera apenas os recortes apresentados; as exportações PNG em lote e os arquivos de origem permanecem inalterados."
     },
     {
       "table": "ui",

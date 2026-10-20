@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "prior_pending_readback": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/master-and-finish-independent-readback.json",
+    "bytes": 8016,
+    "sha256": "da551f1e30e99d6013afc08367339f019d58c74a82286ab30c7934ca68c1dd60"
+  },
+  "current_video_acceptance": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/production/05_home/current-video-acceptance.json",
+    "bytes": 4162,
+    "sha256": "1126903a151a39be3cf6c2bd0547bd8bff5df0abe0db00035cdca1ad018d3ebc"
+  },
+  "finish_terminal_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-20261015-finish.log",
+    "bytes": 687,
+    "sha256": "cbfaeb1e1f27d2d1c36d2ab975ce8d73d8110d1e826e16935710ddecb02112d3"
+  },
+  "actual_web_rendition": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/web-renditions/05_home/video/05_home_silent.mp4",
+    "bytes": 101992511,
+    "sha256": "50a47cc2a4449130c074401f30ee00feaa37ea88908a16e8fc7165d9db0446bf"
+  },
+  "owning_rendition_checks": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/web-renditions/05_home/rendition-checks.json",
+    "bytes": 1018,
+    "sha256": "ee104df218300a08e3905cd8a4179aab541c0996dcc3e8ec912e344bf29fc9dc"
+  },
+  "master_sha256": "bccee143f355fd732f47e8307d30f95d89a7f4010e35b7c924363a41896e0f2f",
+  "master_size": [
+    3840,
+    2160
+  ],
+  "web_size": [
+    2560,
+    1440
+  ],
+  "fps": 30,
+  "frames": 23571,
+  "duration_seconds": 785.7,
+  "scenes": 31,
+  "final_visual": "13g_storage_prune",
+  "spaceout_absent": true,
+  "owning_full_decode_and_allPTS_master_and_web": true,
+  "audio_caption_identity": "Prior readback50metadata/13reviews exact remains bound; unchangedtiming/spec verified.",
+  "browser_verified": false,
+  "published": false,
+  "limits": [
+    "Owningfinish full decode/PTS receipts read; reviewer did not rerun decode, listen or fully watch.",
+    "Browser matrix active elsewhere; no browser/publication result inferred."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

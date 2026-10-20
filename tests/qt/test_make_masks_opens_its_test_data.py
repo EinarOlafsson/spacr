@@ -196,7 +196,7 @@ def test_the_download_then_opens_the_first_image_by_name(screen, tmp_path):
     first = _pixels(_NAMES.index("plate1_A02_12"))
     assert np.array_equal(screen._canvas.image, first), (
         "the field on the canvas is not the first image by name")
-    assert screen._body_stack.currentWidget() is screen._body_splitter
+    assert screen._body_stack.currentWidget() is screen._image_page
 
 
 def test_the_ground_truth_is_not_offered_as_a_field_and_not_loaded(screen,

@@ -67,7 +67,7 @@ def test_extracted_columns_chart_and_csv_keep_the_complete_recipe(metadata_scree
     exported = tmp_path / 'working.csv'
     screen.export_table(exported)
     _assert_values(pd.read_csv(exported))
-    assert json.loads(exported.with_suffix('.csv.conditions.json').read_text())['condition_annotation'] == definition
+    assert json.loads(exported.with_suffix('.csv.conditions.json').read_text(encoding="utf-8"))['condition_annotation'] == definition
     screen.load_chart(chart)
     assert screen._condition_definition == definition
     _assert_values(screen._frame)

@@ -1,8 +1,8 @@
 Train/test leakage audit
 ========================
 
-Classifier accuracy is invalid when related crops occur on both sides of an
-evaluation boundary. spaCR audits the permanent ``train/``/``test/``
+A held-out accuracy estimate overstates performance on independent data when
+related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/``
 split, the ordinary train/validation holdout, every outer and inner CV
 boundary, and the CV partition as a whole before fitting.
 
@@ -44,7 +44,7 @@ The command prints JSON and exits ``0`` for a verified split, ``1`` when
 leakage or unverifiable identities are found, and ``2`` when the dataset
 cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed
 copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets;
-it does not make their performance estimate trustworthy.
+their performance estimate is still not independent of the training data.
 
 Classify settings
 -----------------

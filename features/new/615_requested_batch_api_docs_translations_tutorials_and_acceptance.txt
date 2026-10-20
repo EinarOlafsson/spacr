@@ -1904,3 +1904,20 @@ publication size, hosted acceptance and native SIGSEGV cause remain open.
   Proof:data/615_home_ui_combined_acceptance_2026-10-08/receipt.json.
 
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-14 01:18 EDT — Home accepts both exact corrected private animation
+helper docstrings as future developer-source English corrections:
+data/n615_home_helper_english_acceptance_2026-10-14/. Rebound current ambient
+599043a6; all 15 selected helper/caller definitions are unchanged from eb72.
+Neither helper is in the 13,418-symbol API or runtime catalogs, nor qualifies
+for nested-helper inventory. Do not create helper locale drafts or dead review
+keys. Public AmbientWidget.stop and Dynamic animation tooltip remain real
+API/runtime surfaces with their separately accepted nine-locale drafts.
+Canonical source/catalog/review/generator edits remain held until release.
+
+2026-10-15 — Requested691/694/695/696/697/699 runtime strings are current through the normal nine-language pipeline; caption tests13PASS.
+Diagnostic API inputs346120f5403/1ba8602514c/ace35ac16b4 and follow-ups localized41 missing bodies and repaired copied-English/path literals.
+Normal65-symbol nine-language audit exposed only six path-literal defects; their normal six-language repair/audit passes, all other records retained.
+History tests12PASS; no model requests or native-speaker claims. Broader tutorial/hosted publication and final release remain open.
+
+2026-10-19 — API/runtime side re-checked on current nightly: en.json has no drift, every reviewed API record binds (check_reviewed_api_evidence), Help index is current, and the normal repair run regenerated all nine catalogs with the new 411/429/460/462/678 reviewed records. No runtime strings changed. Tutorials stay with their lane.

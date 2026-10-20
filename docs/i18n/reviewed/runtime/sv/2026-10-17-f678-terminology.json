@@ -1,0 +1,895 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "(float) Nominal overlap between neighbours, as a fraction of the tile. Only seeds the search — registration corrects it.",
+      "source": "(float) Nominal overlap between neighbours, as a fraction of the tile. Only seeds the search — registration corrects it.",
+      "source_sha256": "d71526458cb88061df12d8511c5870f2b68e7ec86c17b88363927273c78cdce7",
+      "table": "ui",
+      "translation": "(flytande) Nominell överlappning mellan grannar, som en bråkdel av ruta. Endast frön sökningen — registreringen korrigerar det."
+    },
+    {
+      "key": "(int) Rows in the acquisition grid. 0 infers it from the tile count.",
+      "source": "(int) Rows in the acquisition grid. 0 infers it from the tile count.",
+      "source_sha256": "c244f7b6b1fd996bf7d805839a0bac26d9df139fa235d3099c53dcaa26118bfc",
+      "table": "ui",
+      "translation": "Rader i förvärvsnätet. 0 härleder det från ruträkningen."
+    },
+    {
+      "key": "A NaN here is usually meaningful: a pathogen feature is NaN for a cell with no pathogen. Dropping the feature keeps every object; dropping the rows keeps every feature but changes which population you are looking at.",
+      "source": "A NaN here is usually meaningful: a pathogen feature is NaN for a cell with no pathogen. Dropping the feature keeps every object; dropping the rows keeps every feature but changes which population you are looking at.",
+      "source_sha256": "19292d52ccc8c92b43817c2172c46874d4a6a0ac560969f1635914148de40239",
+      "table": "ui",
+      "translation": "Ett NaN här är oftast meningsfullt: en patogen egenskap är NaN för en cell utan patogen. Att släppa egenskapen håller varje objekt; att släppa raderna håller varje egenskap men förändringar som befolkningen du tittar på."
+    },
+    {
+      "key": "A gate is not a gate until it is named — the name is what makes it re-appliable and what the hierarchy is read by:",
+      "source": "A gate is not a gate until it is named — the name is what makes it re-appliable and what the hierarchy is read by:",
+      "source_sha256": "1ed4ae4c46fa2458d4dbeb054e485e45dcf03d82708f1af9a73b9387c8c30b97",
+      "table": "ui",
+      "translation": "En grind är inte en grind förrän den har fått sitt namn – namnet gör den återtillämpbar och vad hierarkin läser av:"
+    },
+    {
+      "key": "An annotation write is already running.",
+      "source": "An annotation write is already running.",
+      "source_sha256": "ef4dde0682ddc105eccf3cbbf82800a6c44195a866341ca84e63ab489282403e",
+      "table": "ui",
+      "translation": "En annoteringsskrivelse är redan igång."
+    },
+    {
+      "key": "Ask a question about the table you are gating without leaving the screen.",
+      "source": "Ask a question about the table you are gating without leaving the screen.",
+      "source_sha256": "f5c1bc8a685d02d445647d36666ca5bac422aceb746e6889de07ceab20c640ce",
+      "table": "ui",
+      "translation": "Ställ en fråga om tabellen du sätter grindar på utan att lämna skärmen."
+    },
+    {
+      "key": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+      "source": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+      "source_sha256": "0ae6dbd8ca2efa9a30e265832d53d0ead239cda1c74da78f1cbdded28a9d6b82",
+      "table": "ui",
+      "translation": "Bygg en uppsättning bildutsnitt för att annotera genom att strömma dem från de sammanslagna matriserna eller från koordinaterna i measurements.db, utan att mäta plattan igen. Resultatet registreras som en ny png_list tabell."
+    },
+    {
+      "key": "Choose a measurements.db (or a run folder), tick two or more annotation columns, then Compute agreement.",
+      "source": "Choose a measurements.db (or a run folder), tick two or more annotation columns, then Compute agreement.",
+      "source_sha256": "fc2ed0ffff29f05401b26e56086ac755443c1462fed26af9d3e2f73a444db702",
+      "table": "ui",
+      "translation": "Välj en measurements.db (eller en körmapp), kryssa i två eller flera annoteringskolumner och beräkna sedan avtal."
+    },
+    {
+      "key": "Choose the experimental unit kept intact across training and evaluation sets. Well-, field-, or plate-level grouping reduces information leakage between related cells.",
+      "source": "Choose the experimental unit kept intact across training and evaluation sets. Well-, field-, or plate-level grouping reduces information leakage between related cells.",
+      "source_sha256": "d83c786853673471541492524ee96f6324557f88426d585e2573ae95aab17634",
+      "table": "ui",
+      "translation": "Välj den experimentella enheten som hålls intakt över tränings- och utvärderingsset. Brunns-, fält- eller plattnivå gruppering minskar informationsläckage mellan relaterade celler."
+    },
+    {
+      "key": "Choose the measurements database, tables and feature columns that enter the map, then exclude unwanted rows or redundant measurements before fitting anything.",
+      "source": "Choose the measurements database, tables and feature columns that enter the map, then exclude unwanted rows or redundant measurements before fitting anything.",
+      "source_sha256": "74c91d8a875d6781256fac4755333beb6143db24fff40fc2cdec933736217959",
+      "table": "ui",
+      "translation": "Välj den mätdatabas, tabeller och kolumner med egenskaper som matar in kartan, och exkludera sedan oönskade rader eller överflödiga mätningar innan du monterar någonting."
+    },
+    {
+      "key": "Choose the reducer and the shared random seed and distance metric. The method-specific groups below grey themselves automatically when another reducer is selected.",
+      "source": "Choose the reducer and the shared random seed and distance metric. The method-specific groups below grey themselves automatically when another reducer is selected.",
+      "source_sha256": "e34cb86d3a1f5c0b9a87111135d55da2c3803bfc50e12f4a0b4419b0d799718f",
+      "table": "ui",
+      "translation": "Välj reduktionsmedel och delat slumpfrö och avståndsmått. De metodspecifika grupperna under grå själva automatiskt när en annan reduktionsmedel väljs."
+    },
+    {
+      "key": "Choose which table of the database the gates were drawn on.",
+      "source": "Choose which table of the database the gates were drawn on.",
+      "source_sha256": "4342dc4469c19e9a2e9b34535f72450bc091816f5f1125a8a0e2b74df9e8a9eb",
+      "table": "ui",
+      "translation": "Välj vilken tabell i databasen som grindarna ritades på."
+    },
+    {
+      "key": "Clear every outstanding suggestion back to unanswered. Your own annotations are not touched.",
+      "source": "Clear every outstanding suggestion back to unanswered. Your own annotations are not touched.",
+      "source_sha256": "b695fc4f46ae3e02e2ede4d06b6808b07314e597775a3f9bb1940fd49221f2be",
+      "table": "ui",
+      "translation": "Rensa varje enastående förslag tillbaka till obesvarade. Dina egna annoteringar är inte rörda."
+    },
+    {
+      "key": "Cluster the objects in a UMAP and write the cluster labels as annotations. Opens the Image UMAP module, which does the write itself.",
+      "source": "Cluster the objects in a UMAP and write the cluster labels as annotations. Opens the Image UMAP module, which does the write itself.",
+      "source_sha256": "c6374b5dc7ea6d7c9076ddfc04e6cd3f6d50df90c5a4977edaac2840d0b9afc1",
+      "table": "ui",
+      "translation": "Klustra objekten i en UMAP och skriv klusteretiketterna som annoteringar. Öppnar modulen Image UMAP som gör själva texten."
+    },
+    {
+      "key": "Cluster with these parameters and turn what it finds into gates — the same gates a drawn shape makes, so they save, re-apply and export identically.",
+      "source": "Cluster with these parameters and turn what it finds into gates — the same gates a drawn shape makes, so they save, re-apply and export identically.",
+      "source_sha256": "aed9860f7b86ca518ccebc7049b518e46fc4e95f9850a7720a3e94f87b44919e",
+      "table": "ui",
+      "translation": "Klustra med dessa parametrar och förvandla vad den finner till grindar — samma grindar en dragen form gör, så de sparar, återanvänder och exporterar identiskt."
+    },
+    {
+      "key": "Cohen's κ between annotation columns (Fleiss' κ for three or more), plus the rows they disagree on. Read-only: the database is opened with mode=ro, so nothing here can change your annotations.",
+      "source": "Cohen's κ between annotation columns (Fleiss' κ for three or more), plus the rows they disagree on. Read-only: the database is opened with mode=ro, so nothing here can change your annotations.",
+      "source_sha256": "f11280eb8424fa743d8f29a864bda83c909e22d30c7db62a75a1bfd14513b2e5",
+      "table": "ui",
+      "translation": "Cohens κ mellan annoteringskolumnerna (Fleiss κ för tre eller fler), plus raderna de inte håller med om. Läs endast: databasen öppnas med läge=ro, så ingenting här kan ändra dina annoteringar."
+    },
+    {
+      "key": "Control whether features used to calculate the source score are included in the model. Comparing both fits indicates how much performance remains without those potentially circular inputs.",
+      "source": "Control whether features used to calculate the source score are included in the model. Comparing both fits indicates how much performance remains without those potentially circular inputs.",
+      "source_sha256": "8a9def5531114097d030c0bd6e0a7c617a15ca5bd9c87133b585cc475972c557",
+      "table": "ui",
+      "translation": "Kontrollera om egenskaper som används för att beräkna källpoäng ingår i modellen. Att jämföra båda passar indikerar hur mycket prestanda som återstår utan dessa potentiellt cirkulära ingångar."
+    },
+    {
+      "key": "Could not build a tile for {feature}. The plot is unaffected; see the log for details.",
+      "source": "Could not build a tile for {feature}. The plot is unaffected; see the log for details.",
+      "source_sha256": "2e39e9493c6b846fece10333c8a7ae5f5ac52f68ebcc880cf4b2a3a208b41e88",
+      "table": "ui",
+      "translation": "Kunde inte bygga en bricka för {feature}. Diagrammet är opåverkad; se loggen för detaljer."
+    },
+    {
+      "key": "Cross-fit grouping, independent morphology features and probability threshold for hit-like candidates; these are not genotype calls.",
+      "source": "Cross-fit grouping, independent morphology features and probability threshold for hit-like candidates; these are not genotype calls.",
+      "source_sha256": "5a863322788a8a5fac817ba26d6a39ce184f5ba57aea952cf585261c53397c1b",
+      "table": "ui",
+      "translation": "Cross-fit gruppering, oberoende morfologi egenskaper och sannolikhetströskel för hit-liknande kandidater; dessa är inte genotyp samtal."
+    },
+    {
+      "key": "Cross-validation folds per trial. Folds are grouped by well, so crops from one well never straddle a split.",
+      "source": "Cross-validation folds per trial. Folds are grouped by well, so crops from one well never straddle a split.",
+      "source_sha256": "1cb34d7b71291302ae5a49df5b35aed4b867cc2de8a247f70a6155fb36cb235d",
+      "table": "ui",
+      "translation": "Korsvalideringsveck per försök. Veck grupperas per brunn, så bildutsnitt från en brunn aldrig hamnar på båda sidor av en uppdelning."
+    },
+    {
+      "key": "Custom merging changes spaCR's standard table relationships and aggregation rules. It is intended for non-spaCR databases or deliberately different schemas. Incorrect settings can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Check the join keys, output level, aggregation, and preview before applying.",
+      "source": "Custom merging changes spaCR's standard table relationships and aggregation rules. It is intended for non-spaCR databases or deliberately different schemas. Incorrect settings can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Check the join keys, output level, aggregation, and preview before applying.",
+      "source_sha256": "42355ddd1cecc7c84ee61ebc37cab498a0eb7a67f6b8024ee4e7378bf7018fc5",
+      "table": "ui",
+      "translation": "Anpassade sammanslagningsändringar spaCR s standardtabellrelationer och aggregeringsregler. Det är avsett för databaser som inte är spaCR eller avsiktligt olika scheman. Felaktiga inställningar kan länka orelaterade objekt, duplicera eller utelämna observationer, och ändra mätningar som används i diagram och grindar. Kontrollera sammanfogade tangenter, utgångsnivå, aggregeringen och förhandsvisningen innan du ansöker."
+    },
+    {
+      "key": "Deletes the gate and everything gated inside it — a child whose parent is gone is a gate on a population that no longer exists.",
+      "source": "Deletes the gate and everything gated inside it — a child whose parent is gone is a gate on a population that no longer exists.",
+      "source_sha256": "99cc9d5b4561a579412f0cace89438f9f93072c11cbb30a863f1f3309187cb8b",
+      "table": "ui",
+      "translation": "Tar bort grinden och allt som grindats inuti den — ett barn vars förälder är borta är en grind för en population som inte längre existerar."
+    },
+    {
+      "key": "Discard this draft and keep previously applied annotations unchanged.",
+      "source": "Discard this draft and keep previously applied annotations unchanged.",
+      "source_sha256": "fdca46ec3071571c46684ad4f0eaf5fc751129287795a163949cd8458f6520f5",
+      "table": "ui",
+      "translation": "Kassera detta utkast och behåll tidigare tillämpade annoteringar oförändrade."
+    },
+    {
+      "key": "Display values on the plot.",
+      "source": "Display values on the plot.",
+      "source_sha256": "cf371900d3ed6a146115ad2dfe84f6c3e45bc6b4016b15af550865151ca9d83f",
+      "table": "ui",
+      "translation": "Visa värden på diagrammet."
+    },
+    {
+      "key": "Divide the score distribution into this many equal-count strata and allocate the annotation budget evenly across them.",
+      "source": "Divide the score distribution into this many equal-count strata and allocate the annotation budget evenly across them.",
+      "source_sha256": "b0c7a574bf82b566617dbf6f37a17ce2d78d4e2b67c195b5fc1ae71670765be8",
+      "table": "ui",
+      "translation": "Dela upp poängfördelningen i så många lika tal och fördela annoteringsbudgeten jämnt över dem."
+    },
+    {
+      "key": "Download an example plate to annotate, and fill in the settings that go with it.",
+      "source": "Download an example plate to annotate, and fill in the settings that go with it.",
+      "source_sha256": "c28efde3c62680f0980db7e3e70d3a95a2d1d6b00dd06c246decd945b9ad40f3",
+      "table": "ui",
+      "translation": "Ladda ner en exempelplatta för att annotera, och fyll i inställningarna som går med den."
+    },
+    {
+      "key": "Download raw reads from the published screen (NCBI BioProject PRJNA1261935, four sequenced plates). You choose which runs and how many reads from each — the full set is about 20 GB, while a hundred thousand reads from each file is about 30 MB.",
+      "source": "Download raw reads from the published screen (NCBI BioProject PRJNA1261935, four sequenced plates). You choose which runs and how many reads from each — the full set is about 20 GB, while a hundred thousand reads from each file is about 30 MB.",
+      "source_sha256": "81a9eccf6c34b68002e2e3b8a911569e7e8819d590e738afd1bf5ec2e59d32b8",
+      "table": "ui",
+      "translation": "Ladda ner råa avläsningar från den publicerade screeningen (NCBI BioProject PRJNA1261935, fyra sekvenserade plattor). Du väljer vilka körningar och hur många avläsningarna från varje – hela uppsättningen är ca 20 GB, medan hundratusen avläsning från varje fil är ca 30 MB."
+    },
+    {
+      "key": "Draw gates on a scatter of your measurements, then annotate what falls inside. Opens the real Gate Editor.",
+      "source": "Draw gates on a scatter of your measurements, then annotate what falls inside. Opens the real Gate Editor.",
+      "source_sha256": "c43139a14b2cb5ad1ab11586d678e5fbe1c3ac3fefe45a7389caeeeb8974be6a",
+      "table": "ui",
+      "translation": "Rita grindar på en spridning av dina mätningar, och annotera sedan vad som faller inuti. Öppnar den riktiga Gate Editor."
+    },
+    {
+      "key": "Each fit ranks features by bootstrap selection frequency and REPORTS NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency is not a false-discovery rate and should not be quoted as one.",
+      "source": "Each fit ranks features by bootstrap selection frequency and REPORTS NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency is not a false-discovery rate and should not be quoted as one.",
+      "source_sha256": "e7bf36400f74a7fd9ea2794e7b0e76075222cd28f2e69d7b63dbad8538d5b4d9",
+      "table": "ui",
+      "translation": "Varje passform rankar egenskaper av bootstrap urvalsfrekvens och RAPPORTER INGEN P-VÄRDE, så det finns INTE ATT BH-KORREKT. En urvalsfrekvens är inte en falsk-upptäckt hastighet och bör inte anges som en."
+    },
+    {
+      "key": "Each guide is tested independently, as a marginal association rather than as one coefficient in a design holding every guide at once -- so these are marginal associations, not conditional coefficients. Its read fraction and the well phenotype are first residualised against the block (normally plateID) and any nuisance columns; the P value is then the share of Freedman-Lane permutations -- the phenotype residual reshuffled WITHIN each block -- whose statistic reaches the observed one, so it is empirical and two-sided and can never be smaller than 1/(permutations + 1). A guide becomes testable once it appears in guide_min_wells wells above guide_presence_threshold, and each of those thresholds is corrected as its own family. This avoids the rank requirement of a simultaneous guide model and can be used when guides outnumber wells; interpretation still depends on valid blocking, exchangeability, and adequate guide support.",
+      "source": "Each guide is tested independently, as a marginal association rather than as one coefficient in a design holding every guide at once -- so these are marginal associations, not conditional coefficients. Its read fraction and the well phenotype are first residualised against the block (normally plateID) and any nuisance columns; the P value is then the share of Freedman-Lane permutations -- the phenotype residual reshuffled WITHIN each block -- whose statistic reaches the observed one, so it is empirical and two-sided and can never be smaller than 1/(permutations + 1). A guide becomes testable once it appears in guide_min_wells wells above guide_presence_threshold, and each of those thresholds is corrected as its own family. This avoids the rank requirement of a simultaneous guide model and can be used when guides outnumber wells; interpretation still depends on valid blocking, exchangeability, and adequate guide support.",
+      "source_sha256": "030d55e4d180ad845ec8c226dd9f7a88f9538ebff6e7c27ca1715600b7c46f06",
+      "table": "ui",
+      "translation": "Varje guide testas självständigt, som en marginell förening snarare än som en koefficient i en design som håller varje guide på en gång -- så dessa är marginella associationer, inte villkorade koefficienter. Dess läsfraktion och brunnens fenotyp återställs först mot blocket (normalt plateID) och eventuella störande kolumner; P-värdet är då andelen av Freedman-Lane permutationer -- fenotypresten återblandas med varje block -- vars statistik når den observerade, så det är empiriskt och tvåsidigt och kan aldrig vara mindre än 1/(permutationer + 1). En guide blir testbar när den visas i guide_min_wells brunnar över guide_presence_threshold, och var och en av dessa trösklar korrigeras som sin egen familj. Detta undviker rankningskravet för en samtidig vägledningsmodell och kan användas när guider utöver antal brunnar; tolkningen beror fortfarande på giltig blockering, utbytbarhet och adekvat vägledningsstöd."
+    },
+    {
+      "key": "Edit the plate / well / field / channel / time columns as needed. The Filename column updates live. Apply writes a filename_map.csv next to your data — the pipeline uses it to name every extracted image.",
+      "source": "Edit the plate / well / field / channel / time columns as needed. The Filename column updates live. Apply writes a filename_map.csv next to your data — the pipeline uses it to name every extracted image.",
+      "source_sha256": "70ea5addaea92bc4b3ae859065458132f1277012086d1ab49a8dc3e6881c6a93",
+      "table": "ui",
+      "translation": "Redigera plattan / brunn / fält / kanal / tid kolumner som behövs. Filnamn kolumn uppdateringar live. Verkställ skriver en filename_map.csv bredvid dina data — rörledningen använder den för att namnge varje extraherad bild."
+    },
+    {
+      "key": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source": "Encoding runs separately for every stain and names it in the column. Projection mixes them into three and is faster.",
+      "source_sha256": "515397653a26413dbf2b840eade02d45e1e375e395558a9d92d83dbbb86a3b7c",
+      "table": "ui",
+      "translation": "Kodning körs separat för varje färgning och namnger den i kolumnen. Projektion blandar dem till tre och är snabbare."
+    },
+    {
+      "key": "Evaluates object-level and well-level deviations separately, allowing detection of wells whose distributions shift without producing extreme individual objects. Available methods include modified z scores based on the median absolute deviation, Tukey fences, and robust minimum-covariance-determinant Mahalanobis distance with a specified false-positive threshold. Results are added as columns; input rows are retained.",
+      "source": "Evaluates object-level and well-level deviations separately, allowing detection of wells whose distributions shift without producing extreme individual objects. Available methods include modified z scores based on the median absolute deviation, Tukey fences, and robust minimum-covariance-determinant Mahalanobis distance with a specified false-positive threshold. Results are added as columns; input rows are retained.",
+      "source_sha256": "42b733c3005b127a7624623cd7df45230f7ef52ceeb55a3a1ddfab6dabecdc16",
+      "table": "ui",
+      "translation": "Utvärderar objektnivå- och brunnsnivåavvikelser separat, vilket gör det möjligt att upptäcka brunnar vars distributioner skiftar utan att producera extrema enskilda objekt. Tillgängliga metoder inkluderar modifierade z-poäng baserat på medianvärdet för absolut avvikelse, Tukey staket, och robust minsta kovarians-determinant Mahalanobis avstånd med en angiven falskt positiv tröskel. Resultat läggs till som kolumner; inmatningsrader behålls."
+    },
+    {
+      "key": "Every piece of text in the figure: the title, the axis labels, the tick labels, the legend and any annotation.",
+      "source": "Every piece of text in the figure: the title, the axis labels, the tick labels, the legend and any annotation.",
+      "source_sha256": "bc5349f3cfc713a434cd56f3b678d1e6561381b96aa278b87d2ba5227cefd34f",
+      "table": "ui",
+      "translation": "Varje textbit i figuren: titeln, axeletiketterna, fästingens etiketter, legenden och eventuella annoteringar."
+    },
+    {
+      "key": "Explore measurements using visualization, tabulation, gating and feature-analysis tools.",
+      "source": "Explore measurements using visualization, tabulation, gating and feature-analysis tools.",
+      "source_sha256": "ee3c59a68a8de6b0e8a1f282c6655de92b2ee1d16159f3792973ab826b3f6e6b",
+      "table": "ui",
+      "translation": "Utforska mätningar med hjälp av visualisering, tabulering, gating och egenskapsanalys verktyg."
+    },
+    {
+      "key": "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
+      "source": "Extract per-object intensity + morphology features from masks and write them to the measurements database.",
+      "source_sha256": "6ea3aa9b6b2b8d02eae0a343958260849df29b48b7b3a346badfdb1bbb6e330b",
+      "table": "ui",
+      "translation": "Extrahera per-objekt intensitet + morfologi egenskaper från masker och skriva dem till mätdatabasen."
+    },
+    {
+      "key": "Generate a training dataset from the current annotations and train a Torch CNN / Transformer classifier, then apply it to the full dataset. Opens the Classify screen with this source pre-selected.",
+      "source": "Generate a training dataset from the current annotations and train a Torch CNN / Transformer classifier, then apply it to the full dataset. Opens the Classify screen with this source pre-selected.",
+      "source_sha256": "9529ad691118718774fada0aaed22163471d0ed7b654f898d12bef43edf377bd",
+      "table": "ui",
+      "translation": "Skapa en utbildningsdatauppsättning från de aktuella annoteringarna och träna ett Torch-CNN / Transformer classifier, applicera den sedan på den fullständiga datauppsättningen. Öppnar Classificate- skärmen med den här källan förvald."
+    },
+    {
+      "key": "Hover any module tile and it lights up in the colour of how finished it is.",
+      "source": "Hover any module tile and it lights up in the colour of how finished it is.",
+      "source_sha256": "86c8a1e018f0ed63e10e38b054cd26e28485bdea536a8e3fc46e2d758f706a5a",
+      "table": "ui",
+      "translation": "Hålla alla modulbrickor och det lyser upp i färgen på hur klar den är."
+    },
+    {
+      "key": "How externally generated images and label masks are found and paired — the input list, the project folder written to, recursion, plate and well layout, z handling and naming. Preview the mapping before writing anything; this is where a mismatched pairing is caught.",
+      "source": "How externally generated images and label masks are found and paired — the input list, the project folder written to, recursion, plate and well layout, z handling and naming. Preview the mapping before writing anything; this is where a mismatched pairing is caught.",
+      "source_sha256": "55a0c8103a31260b8801f038d7a36cf623b2492c9bd07605fd866d17ce2afc6e",
+      "table": "ui",
+      "translation": "Hur externt genererade bilder och etikettmasker hittas och paras ihop — inmatningslistan, projektkatalogen skriven till, rekursion, platt- och brunnslayout, z hantering och namngivning. Förhandsgranska mappningen innan du skriver någonting; det är där en missmatchad parning fångas."
+    },
+    {
+      "key": "How the estimate itself is produced — the level the score is computed at, the backend that runs it, and the random seed. Fix the seed when you want two designs compared rather than two draws.",
+      "source": "How the estimate itself is produced — the level the score is computed at, the backend that runs it, and the random seed. Fix the seed when you want two designs compared rather than two draws.",
+      "source_sha256": "fb4cee06a73236e79fdca9eaecd53811130a5da149e080bf9d708f5ddc028254",
+      "table": "ui",
+      "translation": "Hur själva uppskattningen produceras — nivån poäng beräknas på, bakgrundsgränssnittet som kör det, och slumpfrö. Fixa fröet när du vill två mönster jämfört snarare än två dragningar."
+    },
+    {
+      "key": "How the feature table is reduced to two dimensions and clustered on top of that — neighbourhood size, distance metric, and the DBSCAN/KMeans parameters with their noise handling. Change these when the embedding is one undifferentiated blob, or shatters into dozens of tiny clusters.",
+      "source": "How the feature table is reduced to two dimensions and clustered on top of that — neighbourhood size, distance metric, and the DBSCAN/KMeans parameters with their noise handling. Change these when the embedding is one undifferentiated blob, or shatters into dozens of tiny clusters.",
+      "source_sha256": "a12ae5144d18b79736d1ca9df4591f41317753bf453e7cb3f40c11b9e92aef93",
+      "table": "ui",
+      "translation": "Hur egenskapstabellen reduceras till två dimensioner och klustras ovanpå det – grannskapets storlek, avståndsmåttet och parametrarna DBSCAN/KMeans med deras bullerhantering. Ändra dessa när inbäddningen är en odifferentierad blob, eller splittras i dussintals små kluster."
+    },
+    {
+      "key": "Let the plot choose. Untick to type a value.",
+      "source": "Let the plot choose. Untick to type a value.",
+      "source_sha256": "a8b3e53876ad4356f166a3342203bf71ba7339490b5ab566c64a2828fd2788fc",
+      "table": "ui",
+      "translation": "Låt diagrammet välja. Skruva upp för att skriva ett värde."
+    },
+    {
+      "key": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "source_sha256": "2745c09669c4b288cfbe3489ff27d0f7df8a5d4c24cba98009099b0a609e4910",
+      "table": "ui",
+      "translation": "Ladda en tabell eller använd Sammanfoga tabeller för att kombinera kompatibla mätningar. För konverterade bilder, använd sammanfoga ursprungliga filnamn för att återställa namn från en konverteringskarta. Använd Annotera villkor för att tilldela en namngiven kolumn med metadata regex regler eller dragna rader; spara en annoterad SQLite tabell eller exportera CSV med dess regler. Välj variabler, grupper och plottningsinställningar, och exportera sedan figuren med dess analyskontext."
+    },
+    {
+      "key": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "table": "ui",
+      "translation": "Ladda ett bord eller använd Sammanfoga tabeller för att skapa en arbetsuppsättning med validerade tangenter och aggregering. Definiera tröskel- eller polygongrindar på faktiska egenskaps-/koordinatkolumner, applicera sedan sparad grind på kompatibla objekt. Använd Annotate för att skriva de visade grindarna till en annoteringskolumn; granska de markerade objekten och välj binära eller flerklassiga etiketter."
+    },
+    {
+      "key": "Load an annotation table",
+      "source": "Load an annotation table",
+      "source_sha256": "6185041d9621c821dee51e2c6b09e3630eb11156c8c7fc706bc4e4a284e6cb40",
+      "table": "ui",
+      "translation": "Ladda en annoteringstabell"
+    },
+    {
+      "key": "MAD and IQR test one feature at a time. Mahalanobis tests the features together and is the only one that can see a combination going wrong while each column on its own looks ordinary.",
+      "source": "MAD and IQR test one feature at a time. Mahalanobis tests the features together and is the only one that can see a combination going wrong while each column on its own looks ordinary.",
+      "source_sha256": "1242ae3f3c6163a4581e04a77f9e92a499e179dfa900c13a5274759994423def",
+      "table": "ui",
+      "translation": "MAD och IQR testar en egenskap i taget. Mahalanobis testar egenskaperna tillsammans och är den enda som kan se en kombination gå fel medan varje kolumn på egen hand ser vanlig ut."
+    },
+    {
+      "key": "Map sequencing reads to gRNA barcodes and link them to screen wells.",
+      "source": "Map sequencing reads to gRNA barcodes and link them to screen wells.",
+      "source_sha256": "8bfbc7072ed8d5e4cdf0e1c79c83ec1eb98dce59e0a7a734ce53576904867935",
+      "table": "ui",
+      "translation": "Karta sekvensering avläser till gRNA streckkoder och länkar dem till screeningbrunnar."
+    },
+    {
+      "key": "Mark area. Point plots only — an aggregate ignores it.",
+      "source": "Mark area. Point plots only — an aggregate ignores it.",
+      "source_sha256": "c19edc2bdc486a1006cabad5c12c16d69d421146bb5aee75d731c87e98cb4673",
+      "table": "ui",
+      "translation": "Markera område. Endast punktdiagram — ett aggregat ignorerar det."
+    },
+    {
+      "key": "Name the categories. Off by default: a 27-entry legend costs ~40 ms of every redraw, against 3 ms for the plot itself.",
+      "source": "Name the categories. Off by default: a 27-entry legend costs ~40 ms of every redraw, against 3 ms for the plot itself.",
+      "source_sha256": "5970693c08e73871d50995a25be3c1053d8ef70baef5afbe6547e07617b40d2c",
+      "table": "ui",
+      "translation": "Namn kategorier. Av som standard: en 27-ingång legend kostar ~40 ms av varje omdragning, mot 3 ms för själva diagrammet."
+    },
+    {
+      "key": "No microscope lights a field evenly, so the same cell measures brighter at the centre than at a corner — routinely 10–40% on a widefield screen, and it does not average out of a per-well aggregate. This estimates the illumination field from the plate's own merged fields (a per-pixel median across fields, then a smooth low-order surface), QCs it, and installs it as a preprocessing hook that every measure worker applies before a single feature is computed.",
+      "source": "No microscope lights a field evenly, so the same cell measures brighter at the centre than at a corner — routinely 10–40% on a widefield screen, and it does not average out of a per-well aggregate. This estimates the illumination field from the plate's own merged fields (a per-pixel median across fields, then a smooth low-order surface), QCs it, and installs it as a preprocessing hook that every measure worker applies before a single feature is computed.",
+      "source_sha256": "c378545d5da89aadefb89a0ec3c4389e4c1d612e0009516863ad6ed324a314c5",
+      "table": "ui",
+      "translation": "Inget mikroskop lyser ett fält jämnt, så samma cell mäter ljusare i mitten än i ett hörn – rutinmässigt 10–40 % på en bredfältsskärm, och det inte genomsnitt av en per brunn aggregat. Detta uppskattar belysningsfältet från plattans egna sammanslagna fält (en per pixel median över fält, sedan en jämn låg-order yta), QCs det, och installerar det som en förbehandling krok som varje mätarbetare tillämpar innan en enda egenskap beräknas."
+    },
+    {
+      "key": "Nothing on this page to annotate.",
+      "source": "Nothing on this page to annotate.",
+      "source_sha256": "0573add57a5d2020713be36b9113c4544cdd2d1df46624def28ead2361f0cedf",
+      "table": "ui",
+      "translation": "Inget på den här sidan för att annotera."
+    },
+    {
+      "key": "Nothing to annotate — open a source first.",
+      "source": "Nothing to annotate — open a source first.",
+      "source_sha256": "d78e9ec8f26891ac21c03a84e00576b219e0a83cf880dba4080282b8ffdb0d7d",
+      "table": "ui",
+      "translation": "Inget att annotera — öppna en källa först."
+    },
+    {
+      "key": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
+      "source": "Objects included in the plot. 'gRNAs' displays only objects annotated with the guides selected on the volcano. 'gRNAs + other datapoints in selected wells' also displays the remaining objects from those wells with a distinct encoding. Comparing objects within the same wells controls for their shared plate, acquisition, staining, and imaging conditions.",
+      "source_sha256": "aa89e631c9922a030a916ada977d20e8c54a827d7c739cf7233246ca1e58162e",
+      "table": "ui",
+      "translation": "Objekt som ingår i diagrammet. 'gRNAs' visar endast objekt som annoteras med guiderna markerade på vulkanen. ' gRNAs + andra datapunkter i valda brunnar' visar också de återstående objekten från dessa brunnar med en distinkt kodning. Jämföra objekt inom samma brunnskontroller för deras delade platta, förvärv, färgning och bildförhållanden."
+    },
+    {
+      "key": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source": "On: objects are brighter than background, as in fluorescence. Off: take the dark side instead, for brightfield or stain.",
+      "source_sha256": "0c826070be36c280add2db58a54a88c197302647296252cd344ec7c0118fb44f",
+      "table": "ui",
+      "translation": "På: objekt är ljusare än bakgrund, som i fluorescence. Off: ta den mörka sidan istället, för ljusfält eller färgning."
+    },
+    {
+      "key": "One class made of the objects no other class claimed, chosen at random and sized to match the largest class. This is what to use when only one class is annotated — a comparison group ten times larger teaches the model the prior, not the difference.",
+      "source": "One class made of the objects no other class claimed, chosen at random and sized to match the largest class. This is what to use when only one class is annotated — a comparison group ten times larger teaches the model the prior, not the difference.",
+      "source_sha256": "7972077196d1aceab68ed59b9de0acbe848e70a5a744f0dca6bd6250c0b3713d",
+      "table": "ui",
+      "translation": "En klass som består av objekten och som inte är någon annan klass, som valts ut slumpmässigt och storleksmässigt för att matcha den största klassen. Det är vad man ska använda när bara en klass är annoterad — en jämförelsegrupp tio gånger större lär modellen den tidigare, inte skillnaden."
+    },
+    {
+      "key": "Only retrieve crops without a human class label in the current annotation column. Cleared labels (blank or 0) and unanswered model suggestions remain eligible. The selected reference crop stays visible even when labelled.",
+      "source": "Only retrieve crops without a human class label in the current annotation column. Cleared labels (blank or 0) and unanswered model suggestions remain eligible. The selected reference crop stays visible even when labelled.",
+      "source_sha256": "7676cf4496b47c525b68eb01318d618c8e6d48adbc5b3ecf3ac336fc4cb6772a",
+      "table": "ui",
+      "translation": "Hämta bara bildutsnitt utan en mänsklig klassetikett i den nuvarande annoteringskolumnen. Rensade etiketter (blank eller 0) och obesvarade modellförslag förblir giltiga. Den valda referensbildutsnittet förblir synlig även när den är märkt."
+    },
+    {
+      "key": "Open an experiment source to see annotation coverage.",
+      "source": "Open an experiment source to see annotation coverage.",
+      "source_sha256": "a13258e6152a7dda5dba4906e6707ac714ad8b408ec8b54728d7caf4cb44651f",
+      "table": "ui",
+      "translation": "Öppna en experimentkälla för att se annoteringstäckning."
+    },
+    {
+      "key": "Open an experiment to start annotating",
+      "source": "Open an experiment to start annotating",
+      "source_sha256": "de47504d5cd8bd7315947fe0dd49cfd6193db56cfe5a61d09624923daa26afeb",
+      "table": "ui",
+      "translation": "Öppna ett experiment för att börja annotera"
+    },
+    {
+      "key": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+      "source": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+      "source_sha256": "2e55cae8a3ea9ef00b7663a6a9bebaee03ba8c085aa5a5c834480d18e758ad27",
+      "table": "ui",
+      "translation": "Öppna png_list i Database Browser för att se annoteringskolumnen som den lagras."
+    },
+    {
+      "key": "Open these crops in Annotate, most confident first. If the model is this certain and disagrees, look at the annotation.",
+      "source": "Open these crops in Annotate, most confident first. If the model is this certain and disagrees, look at the annotation.",
+      "source_sha256": "769a1889e7e68a57a3400a92b0bb366aec2b7412700e8b66c79758a9675b4024",
+      "table": "ui",
+      "translation": "Öppna dessa bildutsnitt i Annotate, mest självsäker först. Om modellen är detta vissa och inte håller med, titta på annoteringen."
+    },
+    {
+      "key": "Optional: point at a folder or stack of ready-made label images to skip segmentation entirely.",
+      "source": "Optional: point at a folder or stack of ready-made label images to skip segmentation entirely.",
+      "source_sha256": "464df2833e299e882ddbd9fb574ecb70c6b0590c73f3d1faf04c40abbf9a6571",
+      "table": "ui",
+      "translation": "Valfritt: peka på en mapp eller stack med färdiga etikettbilder för att hoppa över segmentering helt."
+    },
+    {
+      "key": "Page height in mm; 0 follows the plot's own shape:",
+      "source": "Page height in mm; 0 follows the plot's own shape:",
+      "source_sha256": "cb94557f78781a24c2edad401d733bf6fb6013bb5980fed53b6aa74fc7c0d490",
+      "table": "ui",
+      "translation": "Sidhöjd i mm; 0 följer diagrammets egen form:"
+    },
+    {
+      "key": "Penalised least squares with an L2 penalty, which never sets a coefficient to exactly zero -- so there is no selection frequency to report, every feature would score 1.0, and it falls back to an approximate p-value. That test is mis-specified, in the safe direction: the standard error is unpenalised while the coefficient it divides has been shrunk, so the statistic is too small and ridge under-detects rather than manufacturing hits.",
+      "source": "Penalised least squares with an L2 penalty, which never sets a coefficient to exactly zero -- so there is no selection frequency to report, every feature would score 1.0, and it falls back to an approximate p-value. That test is mis-specified, in the safe direction: the standard error is unpenalised while the coefficient it divides has been shrunk, so the statistic is too small and ridge under-detects rather than manufacturing hits.",
+      "source_sha256": "0fe0451c5e0c25e944a66e498270089d1074d3778bbaa6f22edb8bca7b971dd9",
+      "table": "ui",
+      "translation": "Straffad minst kvadrater med en L2-påföljd, som aldrig sätter en koefficient till exakt noll -- så det finns ingen urvalsfrekvens att rapportera, varje egenskap skulle poäng 1.0, och det faller tillbaka till ett ungefärligt p-värde. Det testet är felspecificerad, i säker riktning: standardfelet är openaliserad medan koefficienten den delar har krympts, så statistiken är för liten och kam under-upptäckter snarare än tillverkning träffar."
+    },
+    {
+      "key": "Per channel (one pass per stain)",
+      "source": "Per channel (one pass per stain)",
+      "source_sha256": "1a2bb7239b7ecfd4323d52e6b856394fc9fdc73f0255ac36f1527bbadebf8c11",
+      "table": "ui",
+      "translation": "Per kanal (ett pass per färgning)"
+    },
+    {
+      "key": "Planning — reading tile headers and overlap strips…",
+      "source": "Planning — reading tile headers and overlap strips…",
+      "source_sha256": "68f2035e2330b85ede9512322b5fd356841843c7b9eb18e430d200a2a50cb2ec",
+      "table": "ui",
+      "translation": "Planering — att läsa ruthuvuden och överlappa band..."
+    },
+    {
+      "key": "Plot-frame edge width in points.",
+      "source": "Plot-frame edge width in points.",
+      "source_sha256": "9716b75daa1976d5d2d4c1c1153d752221907ca33bc08bd83dec4711e3f6d2b4",
+      "table": "ui",
+      "translation": "Diagramramens kantbredd i punkter."
+    },
+    {
+      "key": "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.",
+      "source": "Point these at a project: edit masks by hand, stitch tiles, read an embedding, draw a gate, build a plot, check quality.",
+      "source_sha256": "0758caed71938c52ac2cb318e037ffc3f5cb5d2fc1c75b58716ae3f1ccf96a6a",
+      "table": "ui",
+      "translation": "Peka dessa på ett projekt: redigera masker för hand, sy brickor, läsa en inbäddning, rita en grind, bygga ett diagram, kontrollera kvalitet."
+    },
+    {
+      "key": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source": "Raw reads from the published screen, NCBI BioProject PRJNA1261935. Tick the runs you want and set how many reads to take from each — only that much is downloaded.",
+      "source_sha256": "eafc93df46da79b2779db48f733e586b4353c6aa376b5ead79ba349e456ab4fc",
+      "table": "ui",
+      "translation": "Raw läser från den publicerade screeningen, NCBI BioProject PRJNA1261935. Tick de körs du vill ha och ange hur många avläsningar som ska tas från varje – bara så mycket laddas ner."
+    },
+    {
+      "key": "Read the cell, nucleus, pathogen and cytoplasm tables out of the attached databases and attach them to these cells, so every measurement in the screen can be compared.",
+      "source": "Read the cell, nucleus, pathogen and cytoplasm tables out of the attached databases and attach them to these cells, so every measurement in the screen can be compared.",
+      "source_sha256": "5226f63796014dec519ba29829174eab36ee5b2b8fc356b478b7ac3ac11af33e",
+      "table": "ui",
+      "translation": "Läs cellen, kärnan, patogenen och cytoplasma tabeller ur bifogade databaser och bifoga dem till dessa celler, så att varje mätning i screeningen kan jämföras."
+    },
+    {
+      "key": "Reduce each well to the median of each feature and run the same rule across wells. A whole bad well flags almost none of its individual objects, so this is a different test rather than a summary of the one above.",
+      "source": "Reduce each well to the median of each feature and run the same rule across wells. A whole bad well flags almost none of its individual objects, so this is a different test rather than a summary of the one above.",
+      "source_sha256": "284a803e1bfad88c2def9250812b15b6a077716faf1e5a5d301302d23658bb22",
+      "table": "ui",
+      "translation": "Reducera varje brunn till medianen för varje egenskap och kör samma regel över brunnar. En hel dålig brunn flaggor nästan inget av sina enskilda objekt, så detta är ett annat test snarare än en sammanfattning av det ovan."
+    },
+    {
+      "key": "Reference used to compute the implied score. The screen median is estimated from all measured objects. The fitted intercept is the model reference and, for a well-level fit, represents a well with zero guide fraction. The selected reference is reported in the caption.",
+      "source": "Reference used to compute the implied score. The screen median is estimated from all measured objects. The fitted intercept is the model reference and, for a well-level fit, represents a well with zero guide fraction. The selected reference is reported in the caption.",
+      "source_sha256": "b344c134534d11c4f5e28c2c9c37011c3d444a200caae3b8151014a26b5bcbc1",
+      "table": "ui",
+      "translation": "Referensen som används för att beräkna den implicita poängen. Screeningens medianvärde beräknas från alla uppmätta objekt. Den monterade avläsningen är modellreferensen och, för en anpassning på brunnsnivå, representerar en brunn med nollvägledningsfraktion. Den valda referensen rapporteras i bildtexten."
+    },
+    {
+      "key": "Remove the annotations on this page only. Undoable.",
+      "source": "Remove the annotations on this page only. Undoable.",
+      "source_sha256": "63feafe48d1b7212378d3b8dc022a98beb103e19069bf2c58b17e48a9dc8b9ef",
+      "table": "ui",
+      "translation": "Ta bara bort annoteringarna på denna sida. Ogörlig."
+    },
+    {
+      "key": "Save annotated table",
+      "source": "Save annotated table",
+      "source_sha256": "afb71efc84612d1dd3b70c5d44a621a3aca4cc4bf7793948acaa1739c9a6e76a",
+      "table": "ui",
+      "translation": "Spara annoterad tabell"
+    },
+    {
+      "key": "Saving annotated table…",
+      "source": "Saving annotated table…",
+      "source_sha256": "b591d319eb07366e55fadc31f04665faafbd065166060a52b63ffdd32d86a3b8",
+      "table": "ui",
+      "translation": "Sparar annoterat bord..."
+    },
+    {
+      "key": "Score-window half-width in robust scales (1.4826 × MAD). Larger values admit more cells and make 'closest' less selective. One value is applied to every coefficient in the screen, preventing gene-specific adjustment after inspecting the output.",
+      "source": "Score-window half-width in robust scales (1.4826 × MAD). Larger values admit more cells and make 'closest' less selective. One value is applied to every coefficient in the screen, preventing gene-specific adjustment after inspecting the output.",
+      "source_sha256": "8e2692a41dd36f3acf71cc590436467b8c135b798b070be07cb8c497d7163f32",
+      "table": "ui",
+      "translation": "Score-fönster halvbredd i robusta skalor (1.4826 × MAD). Större värden tillåter fler celler och gör 'closest' mindre selektiv. Ett värde appliceras på varje koefficient i screeningen, vilket förhindrar genspecifik justering efter kontroll av produktionen."
+    },
+    {
+      "key": "Screen data ready: {path}",
+      "source": "Screen data ready: {path}",
+      "source_sha256": "bad7343a00caaeff3fcb45a1ce005b2b8ab0f1ace2d17a2f912c997e39b2592d",
+      "table": "ui",
+      "translation": "Screeningdata klar: {path}"
+    },
+    {
+      "key": "Search definitions of measured features by name or concept",
+      "source": "Search definitions of measured features by name or concept",
+      "source_sha256": "41b5ea79ee75ae477ad7df25feb1eb8adda19cff090972282669c235bfe8835f",
+      "table": "ui",
+      "translation": "Sök definitioner av uppmätta egenskaper efter namn eller begrepp"
+    },
+    {
+      "key": "Select the column that defines object classes, then score and rank continuous features by class separation. The default AUC metric is rank-based and independent of measurement units. The results describe limitations of the selected statistic, flag features whose classes differ primarily in spread, and use a permutation test to estimate the best separation expected by chance across the feature set.",
+      "source": "Select the column that defines object classes, then score and rank continuous features by class separation. The default AUC metric is rank-based and independent of measurement units. The results describe limitations of the selected statistic, flag features whose classes differ primarily in spread, and use a permutation test to estimate the best separation expected by chance across the feature set.",
+      "source_sha256": "faec1c4949561d757882e8260ba3ad6b8fdcac053c9ab604f8442e4ea2e93ead",
+      "table": "ui",
+      "translation": "Välj kolumnen som definierar objektklasser och sedan poängsätta och rangordna kontinuerliga egenskaper efter klassseparation. Förvald AUC- metriska är rankbaserad och oberoende av mätenheter. Resultaten beskriver begränsningar av vald statistik, flaggegenskaper vars klasser främst skiljer sig åt i spridning, och använd ett permutationstest för att uppskatta den bästa separation som förväntas av en slump över egenskapsuppsättningen."
+    },
+    {
+      "key": "Set the number of feature-space clusters across which the annotation budget is distributed. Zero uses one cluster per queued cell.",
+      "source": "Set the number of feature-space clusters across which the annotation budget is distributed. Zero uses one cluster per queued cell.",
+      "source_sha256": "7d42479b22cfb680f14c0ee10d078c60d773a346cef331e79dabbf78dbd135db",
+      "table": "ui",
+      "translation": "Ställ in antalet kluster med egenskaper och mellanslag i vilken annoteringsbudgeten fördelas. Noll använder ett kluster per köad cell."
+    },
+    {
+      "key": "Set the number of nearest neighbours evaluated for each seed. Only neighbours within the distance threshold inherit a label.",
+      "source": "Set the number of nearest neighbours evaluated for each seed. Only neighbours within the distance threshold inherit a label.",
+      "source_sha256": "280223a4860b4febe0bc1b0408809e2b717a7e0129df3eb45c5478c1ba26e7bd",
+      "table": "ui",
+      "translation": "Ange antalet närmaste grannar som utvärderas för varje frö. Endast grannar inom avståndströskeln ärver en etikett."
+    },
+    {
+      "key": "Set the random seed used for hold-out selection, sampling, and model fitting. Reusing the seed reproduces the same selection.",
+      "source": "Set the random seed used for hold-out selection, sampling, and model fitting. Reusing the seed reproduces the same selection.",
+      "source_sha256": "cbf0c3cde654c982f4fcc9b5ab37b4a8f5a13a1b26535535c34ac697f04d6906",
+      "table": "ui",
+      "translation": "Ställ in det slumpmässiga fröet som används för val, provtagning och modellmontering. Återanvändning av fröet reproducerar samma urval."
+    },
+    {
+      "key": "Set the target number of cells per class. This controls the positive set, matched comparison set, and annotation queue.",
+      "source": "Set the target number of cells per class. This controls the positive set, matched comparison set, and annotation queue.",
+      "source_sha256": "45569e8811d9bbc7d492abc40498d4f74f73131b1620a15ee02614a289d957ad",
+      "table": "ui",
+      "translation": "Ställ in målantalet celler per klass. Det styr den positiva uppsättningen, matchade jämförelseuppsättningen och annoteringskön."
+    },
+    {
+      "key": "Simulate the screen at each point on both sweeps, fit the model to each, and report how often it found the hits.",
+      "source": "Simulate the screen at each point on both sweeps, fit the model to each, and report how often it found the hits.",
+      "source_sha256": "080b1aaa80ca3a1e35c0ff8a8794f256b9e903b46d2ea70ec4c99701a2aa1bf9",
+      "table": "ui",
+      "translation": "Simulera screeningen vid varje punkt på båda svep, passa modellen till varje, och rapportera hur ofta den hittade träffarna."
+    },
+    {
+      "key": "Ten ways of choosing WHICH of these cells get annotated, each saying what it is for and what it costs — the top-scoring cells against a matched random draw, uncertainty and diversity sampling, control wells as anchors, positive-unlabelled learning, self-training, two-view disagreement, score strata, neighbour propagation, and the plain random draw every one of them is measured against. Wells are never split across train and test, and the fit is reported with the score's own inputs removed as well as kept.",
+      "source": "Ten ways of choosing WHICH of these cells get annotated, each saying what it is for and what it costs — the top-scoring cells against a matched random draw, uncertainty and diversity sampling, control wells as anchors, positive-unlabelled learning, self-training, two-view disagreement, score strata, neighbour propagation, and the plain random draw every one of them is measured against. Wells are never split across train and test, and the fit is reported with the score's own inputs removed as well as kept.",
+      "source_sha256": "ce2fcc112893de7dee8e6f7979d3b17c1afcd83e52527f3938aa0d111cea3104",
+      "table": "ui",
+      "translation": "Tio sätt att välja vilken av dessa celler som får annoteras, var och en säger vad det är till för och vad det kostar – de topp-skorrerande cellerna mot en matchad slumpmässig dragning, osäkerhet och mångfald provtagning, kontroll brunnar som ankare, positiv-omärkt lärande, självträning, två-seende meningsskiljaktigheter, poängskikt, grannförökning, och den enkla slumpmässiga dragningen alla av dem mäts mot. Wells delas aldrig över tåg och test, och passformen rapporteras med poängens egna ingångar borttagna samt hålls."
+    },
+    {
+      "key": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source": "The feature-based classifier: which model, and which measured features it is allowed to see. Feature preparation and feature importance are one heading because they answer one question.",
+      "source_sha256": "192f6125bd9f55bfaab747bebc6a5dafa6d109972ca4cbca438333fb21cf1031",
+      "table": "ui",
+      "translation": "Den egenskapsbaserade klassificeringen: vilken modell, och vilka uppmätta egenskaper det är tillåtet att se. Feature förberedelse och egenskapsvikt är en rubrik eftersom de svarar på en fråga."
+    },
+    {
+      "key": "The fit ranks features by bootstrap selection frequency and REPORTS NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency is not a false-discovery rate and should not be quoted as one.",
+      "source": "The fit ranks features by bootstrap selection frequency and REPORTS NO P-VALUE, so there is NOTHING TO BH-CORRECT. A selection frequency is not a false-discovery rate and should not be quoted as one.",
+      "source_sha256": "e057b7e8531b12173dfc36d64baf0e802a24e4e969ed41a4d4243cb105c8dc40",
+      "table": "ui",
+      "translation": "Passar ranka egenskaper av bootstrap urvalsfrekvens och RAPPORTER INGEN P-VALUE, så det finns INTE ATT BH-KORREKT. En urvalsfrekvens är inte en falsk-upptäckt hastighet och bör inte anges som en."
+    },
+    {
+      "key": "The gates you have drawn. Tick one to show it on the plot and highlight its objects, untick it to hide it. Selecting a gate sets the axes to its measurements and makes the next gate you draw a child of it — it never changes what the plot shows.",
+      "source": "The gates you have drawn. Tick one to show it on the plot and highlight its objects, untick it to hide it. Selecting a gate sets the axes to its measurements and makes the next gate you draw a child of it — it never changes what the plot shows.",
+      "source_sha256": "daf31751a6b0ffb373eb2dc3b3a3a7e4bfc69e7aaa5017085861bc40d15dd3c6",
+      "table": "ui",
+      "translation": "Grinden du har ritat. Markera en för att visa den på diagrammet och markera dess objekt, ta bort den för att dölja den. Välja en grind ställer axlarna till sina mått och gör nästa grind du ritar ett barn av den – det ändrar aldrig vad handlingen visar."
+    },
+    {
+      "key": "The image folder, which channel holds which object, and how spaCR reads plate, well and field out of the file names. Nothing segments correctly until the channel assignment and the naming convention here are right.",
+      "source": "The image folder, which channel holds which object, and how spaCR reads plate, well and field out of the file names. Nothing segments correctly until the channel assignment and the naming convention here are right.",
+      "source_sha256": "4ba873a4922d50336174bbb8dd4adba17664048078451b831c72643c926c737e",
+      "table": "ui",
+      "translation": "Bildkatalogen, vilken kanal som innehåller vilket objekt, och hur spaCR läser platta, brunn och fält ut ur filnamnen. Inget segment korrekt förrän kanaltilldelningen och namngivningskonventionen här är rätt."
+    },
+    {
+      "key": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source": "The metadata, score and count tables the regression runs on. All three have to agree on well and gRNA naming — disagreement there is the usual cause of an empty result.",
+      "source_sha256": "0d0f0759c15a304adb7121b464f14f18ccf67004e98a7c857dfbf4fd42ba20d9",
+      "table": "ui",
+      "translation": "Metadata, poäng och räkna tabeller regression körs på. Alla tre måste komma överens om brunns- och gRNA-namngivning – oenighet finns den vanliga orsaken till ett tomt resultat."
+    },
+    {
+      "key": "The plot repeated in every panel.",
+      "source": "The plot repeated in every panel.",
+      "source_sha256": "d479e3897e36b85aa9ff212cbdfec2019312967f4b19426293149d9d17a5f3fc",
+      "table": "ui",
+      "translation": "Diagrammet upprepades i varje panel."
+    },
+    {
+      "key": "The plot type is inferred from the columns dropped. Pick one here to pin it instead.",
+      "source": "The plot type is inferred from the columns dropped. Pick one here to pin it instead.",
+      "source_sha256": "c5b813831a0a3b843887c57d5ac1e815f565d6bab6dce329664cd17e82db47b1",
+      "table": "ui",
+      "translation": "Diagramtypen härleds från kolumnerna tappade. Välj en här för att spika den istället."
+    },
+    {
+      "key": "The proportions of the saved figure. 'as drawn' keeps what is on screen. This is the shape of the PAGE; the plot's own menu has the axis lock, which is a statement about the data.",
+      "source": "The proportions of the saved figure. 'as drawn' keeps what is on screen. This is the shape of the PAGE; the plot's own menu has the axis lock, which is a statement about the data.",
+      "source_sha256": "e9484509954335d6ab2548b8ebc6b63db08a14665b3e22164486bec44c3cac87",
+      "table": "ui",
+      "translation": "Den sparade figurens proportioner. 'as drawn' behåller det som finns på skärmen. Det här är formen på SIDAN. Diagrammets egen meny har axellåset, vilket är ett uttalande om data."
+    },
+    {
+      "key": "The same rows through the publication renderer: a saved style, labelled points, an annotation file joined on, and a vector re-render at journal size. This plot is drawn for speed and cannot do any of it.",
+      "source": "The same rows through the publication renderer: a saved style, labelled points, an annotation file joined on, and a vector re-render at journal size. This plot is drawn for speed and cannot do any of it.",
+      "source_sha256": "6f610064b654c3199518387c53beb228a2f2670a6bea337277bb549cbbf65ad8",
+      "table": "ui",
+      "translation": "Samma rader genom publikationsrenderaren: en sparad stil, märkta punkter, en annoteringsfil ansluten till, och en vektorrenderare med tidskriftsstorlek. Diagrammet ritas för hastighet och kan inte göra något av den."
+    },
+    {
+      "key": "The size of every piece of text in this figure: the title, the axis labels, the tick labels, the legend and any annotation. It is remembered for this figure, so a redraw keeps it. The size every figure starts at is in Preferences → Figures.",
+      "source": "The size of every piece of text in this figure: the title, the axis labels, the tick labels, the legend and any annotation. It is remembered for this figure, so a redraw keeps it. The size every figure starts at is in Preferences → Figures.",
+      "source_sha256": "a921632ddea9fc1e6c4f1db82f5464feddb7d2a9822c2c7f38d9c5c837eab7c6",
+      "table": "ui",
+      "translation": "Storleken på varje textbit i den här figuren: titeln, axeletiketterna, fästingens etiketter, legenden och eventuella annoteringar. Det är ihågkommet för den här siffran, så en omdragning behåller den. Storleken som varje siffra börjar på är i Inställningar → Figurer."
+    },
+    {
+      "key": "The tabular model and the feature table it learns from — which estimator, how much of the data is held back, and the pruning that decides which measured features survive. Open it when the model overfits, or when thousands of correlated features are drowning the few that matter.",
+      "source": "The tabular model and the feature table it learns from — which estimator, how much of the data is held back, and the pruning that decides which measured features survive. Open it when the model overfits, or when thousands of correlated features are drowning the few that matter.",
+      "source_sha256": "6a369cc51060d62fb1fadfa449de692f28837ec7d8eea7e2aa45f1419af7a2c5",
+      "table": "ui",
+      "translation": "Den tabulära modellen och egenskapstabellen den lär sig av — vilken estimator, hur mycket av data hålls tillbaka, och beskärningen som bestämmer vilka uppmätta egenskaper överlever. Öppna den när modellen överpassar, eller när tusentals korrelerade egenskaper drunknar de få som spelar någon roll."
+    },
+    {
+      "key": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source": "The two-colour invasion readout: which channels carry the outside and total stains, how the outside signal is measured, how its threshold is chosen and sanity-checked, and which objects count as parasites at all. The table the parasites are read from is under Measurements.",
+      "source_sha256": "1351f56714768824e190ab99739acf09743eaf8bea27f9638fc7b78f5cdcfb79",
+      "table": "ui",
+      "translation": "Tvåfärgsinvasionsavläsningen: vilka kanaler som bär utsides- och totalfärgningarna, hur utvändig signal mäts, hur dess tröskel väljs och rimlighetskontrolleras, och vilka objekt som räknas som parasiter över huvud taget. Parasiternas tabell avläses från är under Mätningar."
+    },
+    {
+      "key": "These came from a model with INVENTED negatives — only one class was annotated, so the other was drawn at random from unlabelled crops. Treat this as a ranking to review, not as answers: accepting them in bulk is not offered.",
+      "source": "These came from a model with INVENTED negatives — only one class was annotated, so the other was drawn at random from unlabelled crops. Treat this as a ranking to review, not as answers: accepting them in bulk is not offered.",
+      "source_sha256": "7b6bae10483ab5e7b44902710c7e1a5bce71761c76aa3d707cc78d2763a4700b",
+      "table": "ui",
+      "translation": "Dessa kom från en modell med INVENTERADE negativa - bara en klass var annoterad, så den andra drogs slumpmässigt från omärkta bildutsnitt. Behandla detta som en ranking för att granska, inte som svar: acceptera dem i bulk erbjuds inte."
+    },
+    {
+      "key": "This choice adjusts the significance threshold and, when recall is prioritized, the multiple-testing correction. The appropriate balance depends on the screen objective and the cost of downstream validation.",
+      "source": "This choice adjusts the significance threshold and, when recall is prioritized, the multiple-testing correction. The appropriate balance depends on the screen objective and the cost of downstream validation.",
+      "source_sha256": "76ed74c433eeba23d0b26fb2becf84c254e2c4ae74fcbae029963abb20ef0163",
+      "table": "ui",
+      "translation": "Detta val justerar signifikanströskeln och, när återkallandet prioriteras, korrigeringen med flera tester. Den lämpliga balansen beror på screeningens mål och kostnaden för validering i efterföljande led."
+    },
+    {
+      "key": "This run's volcano as it last looked. A still, not a live plot: open the run to hover, click and filter it.",
+      "source": "This run's volcano as it last looked. A still, not a live plot: open the run to hover, click and filter it.",
+      "source_sha256": "5bc4644de3390143f9ca283f05468dd9cf3e806c1f74589883f09e08a041aaf3",
+      "table": "ui",
+      "translation": "Denna körning vulkan som det senast såg ut. En stilla, inte ett levande diagram: öppna loppet för att sväva, klicka och filtrera den."
+    },
+    {
+      "key": "This well contributed no object to the montage. The caption below says why. The tab stays until its × is clicked.",
+      "source": "This well contributed no object to the montage. The caption below says why. The tab stays until its × is clicked.",
+      "source_sha256": "8ecf9fc96052bca084d75e700c24b247ed46db2d83394fa506447e6f8bb93c20",
+      "table": "ui",
+      "translation": "Den här brunnen bidrog inte med något objekt till montaget. Bildtexten nedan säger varför. Fliken stannar tills dess × klickas."
+    },
+    {
+      "key": "Tick the gates to annotate from. An annotation is built from the gates on screen.",
+      "source": "Tick the gates to annotate from. An annotation is built from the gates on screen.",
+      "source_sha256": "2da40b0b7519a46683b9941a4fcef5a98786c5418433c5a759b109ffe1ebb840",
+      "table": "ui",
+      "translation": "Markera grindarna att annotera från. En annotering byggs från grindarna på skärmen."
+    },
+    {
+      "key": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source": "Train a classical ML classifier (XGBoost, random forest, …) on per-object features and score every well.",
+      "source_sha256": "97cf969f689e9ba99ed0369716794a08ed39c1955d8a75b2aa91d3770f43ac70",
+      "table": "ui",
+      "translation": "Träna en klassisk ML-klassificerare (XGBoost, slumpmässig skog, ...) på perobjektegenskaper och poäng varje brunn."
+    },
+    {
+      "key": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+      "source_sha256": "21524206136786a201bb4280bcc0c03e30a375c03043be0bf7cff591659d9b86",
+      "table": "ui",
+      "translation": "Träna en modell på de aktuella annoteringarna, på bilderna eller på de uppmätta egenskaperna, och tillämpa den på hela datauppsättningen."
+    },
+    {
+      "key": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source": "Train an XGBoost model on the measurement features using the current annotations as class labels, then apply it to score the full dataset. Opens the ML Analyze screen with this source pre-selected.",
+      "source_sha256": "3accedaaa6eba57451341e733be0fe594e762a6d90d51aed4285fee2e3b00cc3",
+      "table": "ui",
+      "translation": "Träna en XGBoost-modell på mätegenskaperna med de aktuella annoteringarna som klassetiketter, och applicera sedan den för att göra hela datauppsättningen. Öppnar ML Analysera skärmen med den här källan förvald."
+    },
+    {
+      "key": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source": "Train classifiers from image crops or measured features in one interface. Define classes from plate metadata or annotations, then choose a PyTorch image model or a gradient-boosted feature model.",
+      "source_sha256": "3248e705bb66fd4e2ffacbf0751c3e3fa1eb7bd7315726e623ac82053d9f72a4",
+      "table": "ui",
+      "translation": "Träna klassificeringar från bildutsnitt eller uppmätta egenskaper i ett gränssnitt. Definiera klasser från plattmetadata eller annoteringar, välj sedan en PyTorch bildmodell eller en gradientförstärkt egenskapsmodell."
+    },
+    {
+      "key": "Turn every outstanding suggestion into an ordinary annotation, indistinguishable from one you made by hand.",
+      "source": "Turn every outstanding suggestion into an ordinary annotation, indistinguishable from one you made by hand.",
+      "source_sha256": "8c99236ca7e0b4abf29047e324ebdce34f10c0de55abf57d71b24144e7559dcb",
+      "table": "ui",
+      "translation": "Förvandla varje enastående förslag till en vanlig annotering, oskiljaktig från en som du gjort för hand."
+    },
+    {
+      "key": "Wand — click a population; the gate grows to fit it",
+      "source": "Wand — click a population; the gate grows to fit it",
+      "source_sha256": "2af070b1bc09f0ca0b9e7f0eecf6d233884150956922f348d90efd3f9e152958",
+      "table": "ui",
+      "translation": "Trollstav — klicka på en population; grinden växer för att passa den"
+    },
+    {
+      "key": "Well-level bootstrap/permutation evidence, blinded gallery sampling, versioned database storage and exported artifacts.",
+      "source": "Well-level bootstrap/permutation evidence, blinded gallery sampling, versioned database storage and exported artifacts.",
+      "source_sha256": "6fd0ec8b28c5525f9c618cfccfd9642b386d57e0c93112b336913436c54499ea",
+      "table": "ui",
+      "translation": "Bootstrap/permutation på brunnsnivå bevis, blindad galleri provtagning, versionerade databas lagring och exporterade artefakter."
+    },
+    {
+      "key": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source": "What defines a class. Pick the training basis first — metadata (the wells named as positive and negative control), annotation (a column the Annotate module wrote), or measurement (thresholds on measured features). The controls the other two bases use are greyed out, not hidden: they keep their values. Get this wrong and every number downstream is meaningless, so check it first.",
+      "source_sha256": "9178300c7387f4899103c7fd5a73ee8a7613c4c9b5bb635931cb6ff92a8787bf",
+      "table": "ui",
+      "translation": "Vad definierar en klass. Välj träningsbasen först – metadata (de brunnar som kallas positiv och negativ kontroll), annotering (en kolumn som Annotate modulen skrev), eller mätning (tröskelvärden på uppmätta egenskaper). Kontrollerna de andra två baserna använder är grå, inte dolda: de håller sina värden. Få detta fel och varje nummer nedströms är meningslöst, så kontrollera det först."
+    },
+    {
+      "key": "What makes an object a member of a class: the basis (plate metadata, an annotation column, or both) and the Classes dict naming which value of which column each class is. Open it first — everything downstream is a model of whatever this says.",
+      "source": "What makes an object a member of a class: the basis (plate metadata, an annotation column, or both) and the Classes dict naming which value of which column each class is. Open it first — everything downstream is a model of whatever this says.",
+      "source_sha256": "dac9cee23e726a7d089aa154e9d906f907761ef0423a8090f513510aeccdf930",
+      "table": "ui",
+      "translation": "Vad som gör ett objekt till en medlem av en klass: basen (plate metadata, en annoteringskolumn, eller båda) och klasserna dikt namnge vilket värde som kolumn varje klass är. Öppna det först – allt nedströms är en modell av vad detta säger."
+    },
+    {
+      "key": "Whether features are pruned before the final fit, and how repeated permutation importance is computed afterwards. These settings identify the measurements contributing to model decisions.",
+      "source": "Whether features are pruned before the final fit, and how repeated permutation importance is computed afterwards. These settings identify the measurements contributing to model decisions.",
+      "source_sha256": "0185db71bc9a92e5e903e7f2378f7080dcd9169f13000d6dfb1dc38899a377ba",
+      "table": "ui",
+      "translation": "Om egenskaper beskärs innan den slutliga passformen, och hur upprepade permutation betydelse beräknas efteråt. Dessa inställningar identifierar de mätningar som bidrar till modellbeslut."
+    },
+    {
+      "key": "Whether the microscope's uneven lighting is estimated from these fields and divided out before any intensity is measured, and how that estimate is made and checked. Turn it on when the same cell measures differently depending on where in the field it sat; leaving it off keeps that bias in every intensity feature.",
+      "source": "Whether the microscope's uneven lighting is estimated from these fields and divided out before any intensity is measured, and how that estimate is made and checked. Turn it on when the same cell measures differently depending on where in the field it sat; leaving it off keeps that bias in every intensity feature.",
+      "source_sha256": "5e1c1f26ee6a9a835a44376befecbe26888397f40f486a8d303e4e8ae716beed",
+      "table": "ui",
+      "translation": "Om mikroskopets ojämna belysning beräknas från dessa fält och delas ut innan någon intensitet mäts, och hur den uppskattningen görs och kontrolleras. Slå på den när samma cell mäter olika beroende på var i fältet den satt; att lämna den av håller den fördomsfull i varje intensitetsegenskap."
+    },
+    {
+      "key": "Which feature families are computed for the imported masks — intensity, texture, radial distribution and colocalisation. The expensive ones are off by default.",
+      "source": "Which feature families are computed for the imported masks — intensity, texture, radial distribution and colocalisation. The expensive ones are off by default.",
+      "source_sha256": "a9d08df556de4a29e7db67fca04246294fd0292ad19dbae44efc29901c6a9497",
+      "table": "ui",
+      "translation": "Vilken egenskap familjer beräknas för importerade masker - intensitet, textur, radial distribution och colocalization. De dyra är av som standard."
+    },
+    {
+      "key": "Which feature the heatmap shows, how wells are grouped, and the colour map and value range used to draw it. Presentation of the classifier's output; it does not change the fit.",
+      "source": "Which feature the heatmap shows, how wells are grouped, and the colour map and value range used to draw it. Presentation of the classifier's output; it does not change the fit.",
+      "source_sha256": "f26874c59fe10b5087e29ea8f2ec1b789ee273747813b8c87e290b089d180289",
+      "table": "ui",
+      "translation": "Vilken egenskap värmekartan visar, hur brunnar grupperas, och färgkartan och värdeintervallet som används för att rita den. Presentation av klassificeringens utgång; den ändrar inte passformen."
+    },
+    {
+      "key": "Which measurement columns are allowed into the model, and the variance, correlation, object-count and compartment filters applied before fitting. Prune here when the feature table is wide, redundant, or contains a column that leaks the answer.",
+      "source": "Which measurement columns are allowed into the model, and the variance, correlation, object-count and compartment filters applied before fitting. Prune here when the feature table is wide, redundant, or contains a column that leaks the answer.",
+      "source_sha256": "7458fd65ed81289da4f99d71250317fb0a37a7eb63604fbaaa2ab41e67f6fbf6",
+      "table": "ui",
+      "translation": "Vilka mätkolumner är tillåtna i modellen, och variansen, korrelationen, objekt-räkning och fack filter tillämpas innan montering. Prune här när egenskapstabellen är bred, överflödig, eller innehåller en kolumn som läcker svaret."
+    },
+    {
+      "key": "Which objects are measured and which features are computed for them — intensity, morphology, texture, radial distribution and colocalisation. Switch families off to keep the table narrow and the run short; switch them on when an analysis needs a column that is not there.",
+      "source": "Which objects are measured and which features are computed for them — intensity, morphology, texture, radial distribution and colocalisation. Switch families off to keep the table narrow and the run short; switch them on when an analysis needs a column that is not there.",
+      "source_sha256": "7bf87258a29bd87f10ce23c4f422c544b603ec9b2161bd76cb0aaa19720171aa",
+      "table": "ui",
+      "translation": "Vilka objekt som mäts och vilka egenskaper som beräknas för dem – intensitet, morfologi, textur, radiell fördelning och colocalization. Slå av familjer för att hålla tabellen smal och körningen kort; slå på dem när en analys behöver en kolumn som inte finns där."
+    },
+    {
+      "key": "Write a suggestion onto every crop with no answer yet, most confident first. Nothing you have already annotated is touched.",
+      "source": "Write a suggestion onto every crop with no answer yet, most confident first. Nothing you have already annotated is touched.",
+      "source_sha256": "e3830bacd511109c19e1aa272872d580e6d9eb5cc1fc4661fa07587ff259bb27",
+      "table": "ui",
+      "translation": "Skriv ett förslag på varje bildutsnitt utan svar ännu, mest självsäker först. Inget du redan har annoterat är rörd."
+    },
+    {
+      "key": "Write every gate to the database as a column of the `filters` table — the gate's name, 1 inside and 0 outside. The gate is applied to EVERY object, whatever fraction of the table is loaded, so a gate drawn on a sample still labels everything.",
+      "source": "Write every gate to the database as a column of the `filters` table — the gate's name, 1 inside and 0 outside. The gate is applied to EVERY object, whatever fraction of the table is loaded, so a gate drawn on a sample still labels everything.",
+      "source_sha256": "970779104554fab053d579e4e79caee9d5716e7490ebb19b779928cb9990be95",
+      "table": "ui",
+      "translation": "Skriv varje grind till databasen som en kolumn i tabellen `filters` – grindens namn, 1 inuti och 0 utanför. Grinden tillämpas på VARJE objekt, oavsett vilken del av tabellen som laddas, så en grind som ritas på ett prov märker fortfarande allt."
+    },
+    {
+      "key": "Write the annotation selection into…",
+      "source": "Write the annotation selection into…",
+      "source_sha256": "6134d1bfd95e923f1e4daa36743e660430cbfa28ca69f8852d622cd3724f7275",
+      "table": "ui",
+      "translation": "Skriv markeringen i annoteringen till..."
+    },
+    {
+      "key": "Write the displayed gates to one annotation column. Binary mode marks objects inside all gates; multi-class mode assigns a separate class to each observed gate combination.",
+      "source": "Write the displayed gates to one annotation column. Binary mode marks objects inside all gates; multi-class mode assigns a separate class to each observed gate combination.",
+      "source_sha256": "88dd2d96f0e27c9811734b1b2065b46baa142aa7bdb33b8e483d042c8ce5580d",
+      "table": "ui",
+      "translation": "Skriv de visade grindarna till en annoteringskolumn. Binära läge markerar objekt inuti alla grindar; flerklassläge tilldelar en separat klass till varje observerad portkombination."
+    },
+    {
+      "key": "Write the graph as it appears, including the gates drawn on it. The format follows the figure format in Preferences — PNG at the resolution set there, or a real vector PDF whose text stays selectable and editable — and you can override it for one save in the file dialog.",
+      "source": "Write the graph as it appears, including the gates drawn on it. The format follows the figure format in Preferences — PNG at the resolution set there, or a real vector PDF whose text stays selectable and editable — and you can override it for one save in the file dialog.",
+      "source_sha256": "c4e47b85ed5700f80688585fe60bf7ab906ab3565ef2d8b767d2101f06181e0c",
+      "table": "ui",
+      "translation": "Skriv grafen som den visas, inklusive grindarna som ritas på den. Formatet följer figurformatet i Inställningar – PNG vid upplösningen som anges där, eller en riktig vektor PDF vars text förblir valbar och redigerbar – och du kan åsidosätta den för en spara i fildialogrutan."
+    },
+    {
+      "key": "grid evaluates every combination; random samples n trials from the space with the seed below, which is reproducible.",
+      "source": "grid evaluates every combination; random samples n trials from the space with the seed below, which is reproducible.",
+      "source_sha256": "0a02be4c0171fd84874f7c850dfa096fb21b7fe40675445f7078b538e3a4f890",
+      "table": "ui",
+      "translation": "rutnät utvärderar varje kombination; slumpmässiga prov n försök från utrymmet med fröet nedan, som är reproducerbar."
+    },
+    {
+      "key": "no gates",
+      "source": "no gates",
+      "source_sha256": "72000a0c3e04b9c76eda4a35c35e3cc86194d547de14d80bba2ef994863b96ac",
+      "table": "ui",
+      "translation": "Inga grindar"
+    },
+    {
+      "key": "no strain prefix was known for gene {gene}, so no ToxoDB link could be built. Supply the gRNA reference the screen was counted against and the accession will resolve.",
+      "source": "no strain prefix was known for gene {gene}, so no ToxoDB link could be built. Supply the gRNA reference the screen was counted against and the accession will resolve.",
+      "source_sha256": "893cf82c11663cb011040777ea53ac373b7e3ab07fa6d2791a3865fc776033bb",
+      "table": "ui",
+      "translation": "Inget stamprefix var känt för gen {gene}, så ingen ToxoDB-länk kunde byggas. Ange den gRNA-referens som screeningen räknades mot, så löses accessionsnumret upp."
+    },
+    {
+      "key": "{name}: no combination well could be scored against {model}",
+      "source": "{name}: no combination well could be scored against {model}",
+      "source_sha256": "11fa127573e252c6ae7848399a09ba9f76611897904ad325c47b0a22ed1fa25a",
+      "table": "ui",
+      "translation": "{name}: Ingen kombination kunde poängsättas väl mot {model}"
+    },
+    {
+      "key": "explain_cv",
+      "source": "Reproduce CV decisions from measured features, then inspect gain, held-out permutation importance and SHAP",
+      "source_sha256": "7ba018a761d7d6e2e38ce7aa94ffecda87f396a9261bb17ce8b77b5f81db2ee3",
+      "table": "module_summaries",
+      "translation": "Återskapa CV-beslut från uppmätta egenskaper, kontrollera därefter vinst, hålla ut permutation betydelse och SHAP"
+    },
+    {
+      "key": "hit_list",
+      "source": "Ranked, annotated, filterable hits with effect size, FDR and gRNA agreement",
+      "source_sha256": "e7ea4fa5c2cf88b44c78407ad5ce878f399b1be1e45517f269fedf4cceb14d80",
+      "table": "module_summaries",
+      "translation": "Rankat, annoterat, filtrerat träffar med effektstorlek, FDR och gRNA avtal"
+    }
+  ],
+  "schema": 1
+}

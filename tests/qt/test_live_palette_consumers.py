@@ -91,7 +91,7 @@ def test_toggle_paints_with_current_palette(qtbot, monkeypatch):
         "border": "#abcdef",
         "fg": "#fedcba",
     }
-    monkeypatch.setattr(toggle, "active_palette", lambda: colors)
+    monkeypatch.setattr(toggle, "_painting_palette", lambda: colors)
     widget = toggle.Toggle("test")
     qtbot.addWidget(widget)
     widget.resize(100, 30)

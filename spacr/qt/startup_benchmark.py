@@ -14,11 +14,13 @@ import os
 import sys
 import threading
 import time
+import weakref
 from typing import Callable, Iterable, Optional, Union
 
 from PySide6.QtCore import QObject, QTimer
 
 from . import timing
+from . import _after
 
 OUTPUT_ENV = "SPACR_BENCHMARK_JSON"
 RUN_LABEL_ENV = "SPACR_BENCHMARK_RUN"
@@ -411,8 +413,9 @@ class BenchmarkController(QObject):
             detail = str(self.current_key)
         self._timeout_pending = True
         timing.cancel_interactive(detail=str(detail))
-        QTimer.singleShot(
+        _after(
             SETTLE_MS,
+            self,
             lambda: self._record_error(
                 detail,
                 f"no painted usable state within {self._armed_timeout_s:.1f} seconds",
@@ -759,6 +762,12 @@ class _DistributionSmokeController(QObject):
         try:
             if time.monotonic() - self.started > 600:
                 raise RuntimeError('Distribution smoke exceeded its 600-second deadline')
+            if (self.phase == 'waiting-installation-review'
+                    and time.monotonic() - self._installation_review_started > 30):
+                raise RuntimeError('Installation review acceptance exceeded its deadline')
+            if (self.phase != 'launch' and not self.phase.startswith('native-menu-')
+                    and self._keep_installer_cleanup()):
+                return
             from .first_run import _TourOverlay
 
             for overlay in self.window.findChildren(_TourOverlay):
@@ -802,13 +811,11 @@ class _DistributionSmokeController(QObject):
                 if self.screen._crop_choice_warnings(self.record['settings']):
                     raise RuntimeError('The smoke fixture unexpectedly requires crop confirmation')
                 self.record['module_constructed'] = True
-                self.phase = 'running'
+                self.phase = 'starting'
                 self.screen._btn_run.click()
-                if self.screen._worker is None:
-                    raise RuntimeError('The real Run action did not start a pipeline worker')
-                self.screen._worker.error.connect(self._pipeline_failed)
-                self.record['real_run_clicked'] = True
-                self._write()
+                self._attach_to_the_worker()
+            elif self.phase == 'starting':
+                self._attach_to_the_worker()
             elif self.phase == 'running':
                 if self.screen._thread is not None:
                     return
@@ -824,6 +831,8 @@ class _DistributionSmokeController(QObject):
                 self._poll_layout_check()
             elif self.phase == 'checking-layout-reachability':
                 self._poll_layout_reachability()
+            elif self.phase == 'waiting-installation-review':
+                self._poll_installation_review()
             elif self.phase.startswith('native-menu-'):
                 self._poll_native_menu_check()
         except Exception as exc:
@@ -1155,10 +1164,52 @@ class _DistributionSmokeController(QObject):
             raise RuntimeError('Installed UI layout did not settle with fully contained controls; '
                                'completion and settled geometry/screenshots were retained')
         if os.environ.get('SPACR_NATIVE_MENU_SMOKE') == '1':
-            self._start_native_menu_check()
+            self._installation_review_started = time.monotonic()
+            self.phase = 'waiting-installation-review'
             return
         self.record['status'] = 'passed'
         self._finish(0)
+
+    def _keep_installer_cleanup(self):
+        """Choose the actual default-off cleanup dialog's Keep button without removing files."""
+        from PySide6.QtCore import Qt
+        from PySide6.QtTest import QTest
+        from PySide6.QtWidgets import QDialog, QPushButton
+        from .install_consent import _InstallerCleanupDialog
+
+        dialog = self.app.activeModalWidget()
+        if not isinstance(dialog, _InstallerCleanupDialog):
+            return False
+        keep = dialog.findChild(QPushButton, 'InstallerCleanupKeep')
+        remove = dialog.findChild(QPushButton, 'InstallerCleanupRemove')
+        if (not dialog.isVisible() or dialog.choices()['keys']
+                or any(item.checkState(0) != Qt.CheckState.Unchecked
+                       for _key, item, _eligible in dialog._folder_choices)
+                or remove is None or remove.isEnabled()
+                or keep is None or not keep.isVisible() or not keep.isEnabled()
+                or not keep.isDefault()):
+            raise RuntimeError('Installation cleanup is not in its default Keep state')
+        QTest.mouseClick(keep, Qt.MouseButton.LeftButton)
+        if dialog.isVisible() or dialog.result() != QDialog.DialogCode.Rejected:
+            raise RuntimeError('Keeping installation files did not close the cleanup review')
+        self.record['installation_review'] = dict(choice='keep', selected_count=0)
+        self._write()
+        return True
+
+    def _poll_installation_review(self):
+        """Wait for real startup review completion before driving Preferences and Quit."""
+        if time.monotonic() - self._installation_review_started > 30:
+            raise RuntimeError('Installation review acceptance exceeded its deadline')
+        if self.app.activeModalWidget() is not None:
+            raise RuntimeError('An unexpected modal dialog blocks installation review')
+        consent = getattr(self.window, '_consent_timer', None)
+        startup = getattr(self.window, '_startup_sequence_running', None)
+        if ((consent is not None and consent.isActive())
+                or (startup is not None and startup())
+                or getattr(self.window, '_startup_deferred', ())
+                or getattr(self.window, '_cache_cleanup_busy', False)):
+            return
+        self._start_native_menu_check()
 
     @staticmethod
     def _cocoa_message(receiver, selector, result_type, *arguments):
@@ -1331,10 +1382,18 @@ class _DistributionSmokeController(QObject):
                 raise RuntimeError('Could not retain the actual Preferences screenshot')
             self.record['native_menu']['preferences_opened'] = True
             self.record['native_menu']['dialog_class'] = type(dialog).__name__
+            self._native_preferences_ref = weakref.ref(dialog)
             self.phase = 'native-menu-closing'
             dialog.reject()
         elif self.phase == 'native-menu-ready-to-quit':
-            if self.app.activeModalWidget() is not None:
+            modal = self.app.activeModalWidget()
+            if modal is not None:
+                reference = getattr(self, '_native_preferences_ref', None)
+                observed = reference() if reference is not None else None
+                self.record['native_menu']['blocking_modal'] = dict(
+                    class_name=type(modal).__name__, visible=modal.isVisible(),
+                    same_observed_wrapper=(modal is observed if observed is not None else None))
+                self._write()
                 raise RuntimeError('Preferences did not close before native Quit')
             self.phase = 'native-menu-quitting'
             self.record['native_menu']['quit_dispatched'] = True
@@ -1359,6 +1418,25 @@ class _DistributionSmokeController(QObject):
             ).fetchone()
             cells = connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0]
         return status, cells
+
+    def _attach_to_the_worker(self):
+        """Follow the worker the real Run started, once it has started.
+
+        A session's first Run imports its pipeline off the GUI thread and
+        starts the worker only when that import ends; until then the screen
+        holds ``_entry_import`` and the controller waits for the next tick.
+
+        :raises RuntimeError: when the Run ended without a worker.
+        """
+        if getattr(self.screen, '_entry_import', None) is not None:
+            return
+        worker = getattr(self.screen, '_worker', None)
+        if worker is None:
+            raise RuntimeError('The real Run action did not start a pipeline worker')
+        worker.error.connect(self._pipeline_failed)
+        self.record['real_run_clicked'] = True
+        self.phase = 'running'
+        self._write()
 
     def _pipeline_failed(self, error):
         """Retain the failure before requesting ordinary Qt shutdown."""

@@ -75,7 +75,7 @@ def test_the_committed_map_matches_what_the_generator_produces():
     assert {"setting_keys", "resolve_targets"} <= names, (
         "the generator no longer exposes the functions this test pins")
 
-    data = json.loads((ROOT / "docs" / "setting_consumers.json").read_text())
+    data = json.loads((ROOT / "docs" / "setting_consumers.json").read_text(encoding="utf-8"))
     from spacr.qt.screens.setting_api_targets import SETTING_API_TARGETS
     assert data["target_count"] == len(SETTING_API_TARGETS), (
         "docs/setting_consumers.json and the generated runtime table disagree; "

@@ -1,0 +1,24 @@
+{
+  "current_sources": [
+    "PDF and SVG can contain raster images. This dialog disables resolution editing for these formats.",
+    "Line colour affects axes spines and tick marks in Matplotlib exports; fast plots also recolour plotted lines.",
+    "Line width applies only to fast-plot exports, in pixels. Matplotlib exports keep their existing line widths.",
+    "Text colour affects axes titles, labels, tick labels, legend entries and axes annotations. Matplotlib figure titles and legend titles keep their existing colours.",
+    "Resolution in dots per inch for PNG and TIFF exports.",
+    "This figure cannot be previewed. It will be saved using its current styling, the selected resolution and background transparency, and a tight crop.",
+    "Previous page",
+    "Next page"
+  ],
+  "retired_sources": [
+    "PDF and SVG are true vector: the page size is the whole answer and there is no resolution to set",
+    "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+    "Pen width in pixels for every line. A line that reads well on screen is often too thin once the figure is a column wide.",
+    "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+    "Dots per inch in the written file. 300 is the usual journal minimum; the screen never needs more than about 150.",
+    "This figure cannot be previewed, so it will be written exactly as it appears on screen."
+  ],
+  "review_names": [
+    "2026-10-15-figure-export-factual.json",
+    "2026-10-15-n197-annotation-page-navigation.json"
+  ]
+}

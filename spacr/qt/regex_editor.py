@@ -91,7 +91,7 @@ class RegexEditorDialog(QDialog):
     :param sample_filenames: bare filenames from the dropped folder
         used for the live preview (first 20 or so).
     :param initial_regex: pre-fill the input with this pattern; empty
-        means we run auto-detect on show.
+        means auto-detection runs when the dialog is shown.
     :param multichannel: True for regular multi-channel plates; False
         for single-channel data (relaxes the warning set).
     :param parent: optional parent widget.
@@ -225,11 +225,9 @@ class RegexEditorDialog(QDialog):
     def resizeEvent(self, event):        # noqa: N802  (Qt naming)
         """Re-fit the wrapped labels to the width they have just been given.
 
-        Both labels grow when the dialog narrows, and a label that is only
-        allowed its one-line hint is the clipping this dialog was found
-        with: the intro wrapped to 54 px inside 36, and the sentence naming
-        `chanID` -- the one thing the dialog exists to explain -- was the
-        part cut off.
+        Both labels grow taller when the dialog narrows; a label kept at its
+        one-line size hint is clipped, which cut off the sentence naming
+        `chanID`.
 
         :param event: the resize event, passed to the base class first; the
             labels are then re-fitted to the dialog's new width.

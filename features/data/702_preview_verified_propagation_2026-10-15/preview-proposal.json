@@ -1,0 +1,14 @@
+{
+  "base_source_sha256": {
+    "spacr/qt/widgets/live_preview.py": "bbf261a1f37eba1bb5294b6991591b825546fc5c89c0e63f83420b4a19a8b364",
+    "spacr/qt/screens/app_screen.py": "11852bb318094d678c937bafddeea0715de4c3647ad3262e3212499b7e5deac6"
+  },
+  "patch_sha256": "4580e8878595812ed1d44f8582151f80f37d4429ad3537c96ff5b2bcdc6737a9",
+  "scope": "Preview init/private binding, choose/apply/invalidate/propagate +AppScreen actual live-panel callback wire +newprivateverifiedtransaction; existing public callback(dict), propagation dictionary/signatures/docs unchanged.",
+  "transaction": "Validate all proposed model bindings before writes; snapshot raw model fields and all prior pins; postwrite actual attach+hidden readback; refusal restores model fields/pins before any nonmodel writes. Ordinary nonmodel propagation runs only after accepted model attachment, excluding duplicate model setters that would invalidate pins.",
+  "notes": [
+    "New helper proper docstring normal eligibility must be proved; no new strings/diagnostics beyond existing tr(Model zoo).",
+    "Capsule is stored BEFORE any combobox mutation/signal, so Propagate-on immediate callback already receives verified context; later manual away/back or role changes invalidate it.",
+    "No product mutation, no writer/test run."
+  ]
+}

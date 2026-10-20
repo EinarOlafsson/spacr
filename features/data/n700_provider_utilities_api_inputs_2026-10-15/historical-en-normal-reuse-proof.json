@@ -1,0 +1,97 @@
+{
+  "proof": [
+    {
+      "symbol": "spacr.qt.ai.providers",
+      "original_commit": "6e386930baaadf374319d8e7a0e521cc5f53eded",
+      "original_source_file_sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "original_en_blob": "851114140dc97c84153dd0dd2a3a3bd9a23b8fe2",
+      "old_source_sha256": "836f437ae8d7b86ab65fabb6086c93e532a1b8f4fab95f0d443d14c7a0926afa",
+      "actual_ast_doc_source_hash_matches": true,
+      "original_english_record_hashes_valid": true,
+      "reused_blocks": [
+        {
+          "new_index": 0,
+          "old_index": 0,
+          "source_sha256": "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+          "nine_locale_normal_history_valid": true
+        },
+        {
+          "new_index": 1,
+          "old_index": 1,
+          "source_sha256": "f9e0fccea5d254c463195200455d44c1032c5e293c0bd094c11eb9fc9e9df3e3",
+          "nine_locale_normal_history_valid": true
+        },
+        {
+          "new_index": 2,
+          "old_index": 2,
+          "source_sha256": "bf089d3a5d44c06643d8a156c082fec6272315b4a6a95fa9e784cc070314796d",
+          "nine_locale_normal_history_valid": true
+        },
+        {
+          "new_index": 3,
+          "old_index": 3,
+          "source_sha256": "c8eb1abaea3fd9e65154f8b0379b34997df41da37898a111bd525655a170d856",
+          "nine_locale_normal_history_valid": true
+        },
+        {
+          "new_index": 5,
+          "old_index": 4,
+          "source_sha256": "204ef948c059dfc36f49b4566c67f63df6ea4fca201470d6568a4f114b0e48c5",
+          "nine_locale_normal_history_valid": true
+        },
+        {
+          "new_index": 6,
+          "old_index": 5,
+          "source_sha256": "b04c1a7ddf7c66c049907c96cc7b7c221e04b49f907ca3fedf95f2398fc960fa",
+          "nine_locale_normal_history_valid": true
+        },
+        {
+          "new_index": 7,
+          "old_index": 6,
+          "source_sha256": "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a",
+          "nine_locale_normal_history_valid": true
+        }
+      ]
+    },
+    {
+      "symbol": "spacr.qt.ai.providers.configured_providers",
+      "original_commit": "6e386930baaadf374319d8e7a0e521cc5f53eded",
+      "original_source_file_sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "original_en_blob": "851114140dc97c84153dd0dd2a3a3bd9a23b8fe2",
+      "old_source_sha256": "534f33187deecbea1599b9e9aa55958070da326ee5431c21142909c5b8534ef8",
+      "actual_ast_doc_source_hash_matches": true,
+      "original_english_record_hashes_valid": true,
+      "reused_blocks": []
+    },
+    {
+      "symbol": "spacr.qt.ai.providers.get_provider",
+      "original_commit": "6e386930baaadf374319d8e7a0e521cc5f53eded",
+      "original_source_file_sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "original_en_blob": "851114140dc97c84153dd0dd2a3a3bd9a23b8fe2",
+      "old_source_sha256": "f7b12025c7d64b6ecea370145f2a97ae2fa04a516a23dd32699314558621970f",
+      "actual_ast_doc_source_hash_matches": true,
+      "original_english_record_hashes_valid": true,
+      "reused_blocks": [
+        {
+          "new_index": 2,
+          "old_index": 2,
+          "source_sha256": "046475e3c0fd377d4cf1c4d6d932652640b458b7edd33c1d0b97aa8e4c6a490f",
+          "nine_locale_normal_history_valid": true
+        }
+      ]
+    },
+    {
+      "symbol": "spacr.qt.ai.providers.list_providers",
+      "original_commit": "6e386930baaadf374319d8e7a0e521cc5f53eded",
+      "original_source_file_sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "original_en_blob": "851114140dc97c84153dd0dd2a3a3bd9a23b8fe2",
+      "old_source_sha256": "f3a75a6a1b9e576469fd2c28d2ef612b4b568b52c238fd37dee7345fcf94409e",
+      "actual_ast_doc_source_hash_matches": true,
+      "original_english_record_hashes_valid": true,
+      "reused_blocks": []
+    }
+  ],
+  "reused_blocks": 8,
+  "normal_tool_sha256": "6bbdd7df679f8ee42f711def5835b1386c0276fbabcbbb036b71caed4012d39e",
+  "scope": "Finite four-original-record proof only; no source history mutation, canonical/public inventory, writer or audit."
+}

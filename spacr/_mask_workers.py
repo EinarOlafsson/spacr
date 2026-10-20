@@ -78,13 +78,17 @@ def _prepare_mask_model(settings, object_type):
     """
     from .artifacts import material_settings
     from .checkpoint import fingerprint
-    from .model_zoo import sha256_file
+    from .model_zoo import sha256_file, _resolve_pinned_model_file
     from .utils import _resolve_cellpose_pretrained, cp_models
 
     prepared, model, backend = _role_backend(settings, object_type)
     if backend != 'cellpose':
         raise ValueError('Parallel model preparation currently requires the Cellpose backend')
-    resolved = _resolve_cellpose_pretrained(model, object_type=object_type)
+    key = ('pathogen_model' if object_type == 'pathogen'
+           and prepared.get('pathogen_model') is not None else f'{object_type}_model_name')
+    pinned = _resolve_pinned_model_file(prepared, key, kinds=('cellpose',))
+    resolved = (str(pinned) if pinned is not None
+                else _resolve_cellpose_pretrained(model, object_type=object_type, setting=key))
     path = Path(resolved).expanduser()
     if not path.is_file():
         cache = getattr(cp_models, 'cache_model_path', None)
@@ -104,9 +108,10 @@ def _prepare_mask_model(settings, object_type):
     if any(getattr(before, key) != getattr(after, key)
            for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
         raise ValueError(f'Model changed while preparing workers: {path}')
-    prepared[f'{object_type}_model_name'] = str(path)
-    if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
-        prepared['pathogen_model'] = str(path)
+    if pinned is None:
+        prepared[f'{object_type}_model_name'] = str(path)
+        if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
+            prepared['pathogen_model'] = str(path)
     material = material_settings(prepared)
     for key in ('mask_parallel', 'mask_gpu_indices'):
         material.pop(key, None)
@@ -168,7 +173,8 @@ def _resolved_backend_model(settings, object_type, *, root=None):
     :returns: ``(prepared, signature, identity)`` like
         :func:`_prepare_mask_model`, with ``identity['backend']`` set.
     :raises ValueError: for the Cellpose-SAM backend, an unsupported role,
-        a missing model or an uninstalled environment.
+        or an uninstalled environment.
+    :raises ModelZooError: when an explicit model has no exact compatible identity.
     """
     from . import _segmentation_backends as sb
     from .artifacts import material_settings
@@ -182,17 +188,20 @@ def _resolved_backend_model(settings, object_type, *, root=None):
     value = _get_object_settings(object_type, prepared)['model_name']
     if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
         key, value = 'pathogen_model', prepared['pathogen_model']
-    backend = sb._backend_name(prepared.get('segmentation_backend'))
+    from .model_zoo import _resolve_pinned_model_file
+
+    backend = _role_backend(prepared, object_type)[2]
+    pinned = _resolve_pinned_model_file(prepared, key, kinds=(backend,))
     try:
-        if sb._cellpose_dino_choice(value) is not None:
-            backend, model = sb._CELLPOSE_DINO, sb._cellpose_dino_choice(value)
-            if not model or not os.path.exists(os.path.expanduser(model)):
-                raise FileNotFoundError(f'no Cellpose-DINO checkpoint at {model!r}')
+        if pinned is not None:
+            model = str(pinned)
+        elif sb._cellpose_dino_choice(value) is not None:
+            backend, model = sb._CELLPOSE_DINO, sb._cellpose_dino_model(value, setting=key)
         elif sb._cellpose3_choice(value) is None and sb._prefixed_backend(value) is not None:
             backend = sb._prefixed_backend(value)
-            model = sb._prefixed_model(backend, value)
+            model = sb._prefixed_model(backend, value, setting=key)
         elif sb._cellpose3_choice(value) is not None or backend == sb._CELLPOSE3:
-            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type)
+            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type, setting=key)
         elif backend in (sb._DINOCELL, sb._SAMCELL):
             text = str(value or '').strip()
             model = (os.path.abspath(os.path.expanduser(text))

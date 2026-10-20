@@ -201,3 +201,38 @@ translated and half not, which is worse than a dialog that is consistently
 English until 316 reaches it.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — Original/Home-B exact picker locale gap repaired coherently.
+    Five existing tooltip values and the community heading now have54 exact
+    independent targets, normal owning extraction and actual rendering. Source
+    defaults, IDs, partitions and preferences remain unchanged; both existing
+    warning rows already passed and were preserved. Ten owner Qt cases pass;
+    the actual compiled consumer verifies54outputs, defaulttwo sources, source
+    IDs and English/locale round trips. Normal full9runtime audit0 and fresh
+    source/arrival proof pass, preserving10,930 foreign targets per locale.
+    The initial ordinary French refusal retained a pronoun that dropped the
+    second protected spaCR mention; the exact independently reviewed corrected
+    sentence passes unchanged gates. Original failed checkpoint is retained.
+    Evidence:data/440_source_picker_rendering_2026-10-15/ and
+    data/448_440_421_runtime_closure_2026-10-15/. This records the final locale
+    software component, pending original whole-contract reconciliation.
+
+2026-10-15 — Original-contract completion reconciliation (Original Home).
+The last nine-language picker debt is closed. The five original canonical
+sources, default cellposeSAM/spaCR selection, fold/blue-muted/persistence,
+community warning/decline/once guard, total disjoint grouping, Hoechst row
+and shared Model Zoo/Mask/Make Masks routes remain covered by the accepted
+implementation and unchanged15original Qt cases. Source-of/group/filter
+functions match the hosted8fc source. The exact owner localization patch
+preserves canonical IDs/defaults/data routing and has10targeted Qt passes.
+All54newcompiled outputs/defaults/English roundtrips pass actual consumers
+across9locales; both original warnings remain sourcebound and reviewed.
+Normal full9runtime audit0, current owningsource/catalog/reviewpins and
+arrival baseline9833 prove the final generated closure. The corrected French
+brand-count refusal and original failed checkpoint remain recorded.
+N691's later third-party alpha source andN503's one-time installed-backend
+heading behavior are intentional later extensions, not regressions to undo.
+No new model, tutorial or native-platform acceptance is claimed or required
+by this originalitem. Evidence: data/440_448_original_contract_closeout_2026-10-15/.
+
+Original Home independent original-contract review: COMPLETE. Exact current source/catalog/evidence hashes checked. No new native/scientific/full-CI claim.

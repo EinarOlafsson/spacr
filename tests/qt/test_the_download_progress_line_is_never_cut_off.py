@@ -238,12 +238,12 @@ def _magnifier(qtbot, monkeypatch, tmp_path):
     return window, bar, ("about 12 s left", "45%")
 
 
-def _starplast(qtbot, monkeypatch, tmp_path):
-    from spacr.qt.starplast import StarplastInstallDialog
+def _parascape(qtbot, monkeypatch, tmp_path):
+    from spacr.qt.parascape import ParaScapeInstallDialog
 
-    dialog = show_dialog(qtbot, StarplastInstallDialog(job=lambda *a, **k: None))
+    dialog = show_dialog(qtbot, ParaScapeInstallDialog(job=lambda *a, **k: None))
     dialog.progress.show()
-    dialog._progress(1, 3, "Installing: starplast-0.9.1-py3-none-any.whl")
+    dialog._progress(1, 3, "Installing: parascape-0.9.1-py3-none-any.whl")
     return dialog, dialog.progress, ("step 2 of 3", "33%")
 
 
@@ -283,7 +283,7 @@ SITES = {
     "model_zoo_screen": _zoo_screen,
     "make_masks_download": _make_masks_download,
     "make_masks_magnifier": _magnifier,
-    "starplast_install": _starplast,
+    "parascape_install": _parascape,
     "batch": _batch,
     "convert": _convert,
     "foreign": _foreign,

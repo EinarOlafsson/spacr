@@ -6,7 +6,9 @@
       "label": "spacr.run_journal.diff_runs#3",
       "source": "``changed`` holds only keys present in *both* runs whose values actually differ, sorted by key — those are the knobs someone turned. Values are compared structurally, not by ``repr`` (see :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``\"[1, 2]\"`` (as CSV round-trips it) ``== [1, 2]``, and ``\"None\" == None``.",
       "source_sha256": "1824fc47d046483c2406726cc25a7c950bf67d73e61ccec623483da56ab44c0b",
-      "translation": "``changed`` inniheldur aðeins nafn á uppbyggðum gögnum sem eru til staðar í *báðum* keyrslum og þar sem gildi eru raunverulega mismunandi, raðað eftir nafni uppbyggðra gagna — þetta eru stillingar sem einhver snéri. Gildi eru borin saman á uppbyggilegan hátt, ekki eftir ``repr`` (sjá :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``\"[1, 2]\"`` (eins og CSV fer í kringum það) ``== [1, 2]``, og ``\"None\" == None``."
+      "translation": "``changed`` inniheldur aðeins nafn á uppbyggðum gögnum sem eru til staðar í *báðum* keyrslum og þar sem gildi eru raunverulega mismunandi, raðað eftir nafni uppbyggðra gagna — þetta eru stillingar sem einhver snéri. Gildi eru borin saman á uppbyggilegan hátt, ekki eftir ``repr`` (sjá :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``\"[1, 2]\"`` (eins og CSV fer í kringum það) ``== [1, 2]``, og ``\"None\" == None``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "when validation found errors and ``force`` is False — with *every* problem in the message, not just the first.",
@@ -64,7 +66,9 @@
       "label": "spacr.omero.measurement_pairs#2",
       "source": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which nobody reads and which makes the panel useless for the annotations that *were* worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful keys are the ones that survive: ``priority`` keys first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
       "source_sha256": "9cf9ee1c1a7e53ea22d0109223708d60028772bbfc405e634d44995b4e7448c0",
-      "translation": "**Af hverju það er hámark.** Tafla af spaCR hlutum hefur 300-600 dálka. Kortamerking með 400 færslum birtist í OMERO.web sem 400-raðar rennibraut í 300 px spjaldi, sem enginn les og gerir spjaldið gagnslaust fyrir þau athugasemdir sem *voru* þess virði að sýna. Þannig að athugasemdin er *yfirlit*, hámarkað við ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 sjálfgefið) og raðað þannig að gagnleg nöfn á uppbyggðum gögnum eru þau sem lifa af: ``priority`` nöfn á uppbyggðum gögnum fyrst í gefnu röðinni, síðan röð raðarinnar sjálfrar. Þegar eitthvað er skorið niður, er síðasta parið :data:`TRUNCATION_KEY`, sem segir hversu mörg voru felld og að sú fulla tafla er CSV meðfylgjandi undir :data:`NS_FILE`. Sú fulla tafla er aldrei *aðeins* í athugasemdinni."
+      "translation": "**Af hverju það er hámark.** Tafla af spaCR hlutum hefur 300-600 dálka. Kortamerking með 400 færslum birtist í OMERO.web sem 400-raðar rennibraut í 300 px spjaldi, sem enginn les og gerir spjaldið gagnslaust fyrir þau athugasemdir sem *voru* þess virði að sýna. Þannig að athugasemdin er *yfirlit*, hámarkað við ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 sjálfgefið) og raðað þannig að gagnleg nöfn á uppbyggðum gögnum eru þau sem lifa af: ``priority`` nöfn á uppbyggðum gögnum fyrst í gefnu röðinni, síðan röð raðarinnar sjálfrar. Þegar eitthvað er skorið niður, er síðasta parið :data:`TRUNCATION_KEY`, sem segir hversu mörg voru felld og að sú fulla tafla er CSV meðfylgjandi undir :data:`NS_FILE`. Sú fulla tafla er aldrei *aðeins* í athugasemdinni.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The well pass reduces each well to a robust summary — the **median** of each feature over the well's objects, plus ``n`` — and then runs *the same* rule (:data:`METHOD_MAD`, :data:`METHOD_IQR` or :data:`METHOD_MAHALANOBIS`) across microplate sample positions. The median rather than the mean for the same reason as everywhere else here: a single blown-up object must not become a bad well.",
@@ -115,7 +119,9 @@
       "label": "spacr.foreign#15",
       "source": "The copy an import-only project gets exists so the rest of spaCR has a ``cell`` table to read. It stops being useful the moment spaCR measures the same objects itself: ``measure_crop`` *appends*, so its rows would land in that table beside theirs and every per-well count would be the sum of two populations, with nothing marking the seam.",
       "source_sha256": "2e18bbf190a2d7fe9d2b0d76af59fd2b4ef796b7c5884eb1e54a34d622cb8d9b",
-      "translation": "Afritið sem innflutnings-einungis verkefni fær til er til svo restin af spaCR hafi ``cell`` töflu til að lesa. Það hættir að vera gagnlegt á þeim augnabliki sem spaCR mælir sömu hlutina sjálft: ``measure_crop`` *appendar*, svo röð þeirra lendi í þeirri töflu við hliðina á þeirra og hver staðsetningarsýni per-microplate fjöldi yrði summan af tveimur hópum, án þess að neitt merkja saumnum."
+      "translation": "Afritið sem innflutnings-einungis verkefni fær til er til svo restin af spaCR hafi ``cell`` töflu til að lesa. Það hættir að vera gagnlegt á þeim augnabliki sem spaCR mælir sömu hlutina sjálft: ``measure_crop`` *appendar*, svo röð þeirra lendi í þeirri töflu við hliðina á þeirra og hver staðsetningarsýni per-microplate fjöldi yrði summan af tveimur hópum, án þess að neitt merkja saumnum.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "two-element list of PDF output paths (pc plot, nc plot).",

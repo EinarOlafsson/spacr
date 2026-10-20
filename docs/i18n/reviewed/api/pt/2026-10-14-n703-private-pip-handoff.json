@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#2",
+      "source": "Supported macOS online installations and dedicated POSIX pip environments use their existing package tool after approved shutdown to stage, verify and atomically activate an updated sibling runtime. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared, Conda and Windows Python environments require their own replacement adapter.",
+      "source_sha256": "f7429e66190134bb8d3b5b0468206f3e3128f87883921c7fbe700c7479929706",
+      "context": "Supported macOS online installations and dedicated POSIX pip environments use their existing package tool after approved shutdown to stage, verify and atomically activate an updated sibling runtime. Bootstrap files, launchers, unchanged packages and the previous runtime are retained. Shared, Conda and Windows Python environments require their own replacement adapter.",
+      "translation": "As instalações online do macOS suportadas e os ambientes POSIX dedicados com pip usam a ferramenta de pacotes existente, após encerramento aprovado, para preparar, verificar e ativar atomicamente um ambiente de execução atualizado num diretório irmão. Os ficheiros de arranque, os lançadores, os pacotes inalterados e o ambiente de execução anterior são preservados. Ambientes partilhados, Conda e ambientes Python no Windows requerem o seu próprio adaptador de substituição.",
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#1",
+      "source": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the running process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "source_sha256": "45e52606fdc21a856ce1be0f8dfe0b59e36ee66e6861c3de9acb519cece16486",
+      "context": "Installer-made copies and supported dedicated POSIX pip environments can use this helper. It waits for the executing process to exit before changing the installation; the pip adapter also requires authenticated shutdown approval.",
+      "translation": "As cópias criadas pelo instalador e os ambientes POSIX dedicados com pip suportados podem usar este assistente. Este espera que o processo em execução termine antes de alterar a instalação; o adaptador pip também exige uma aprovação autenticada do encerramento.",
+      "review_basis": "AI technical review (Codex), exact current English. Preserves approved-shutdown ordering, sibling staging, atomic activation, retained previous runtime and unsupported shared/Conda/Windows scope. No human/native-speaker signoff.",
+      "retired": "2026-10-15",
+      "retired_reason": "This exact paragraph now also names supported dedicated Windows pip environments; the obsolete POSIX-only wording is preserved here as historical review evidence."
+    }
+  ]
+}

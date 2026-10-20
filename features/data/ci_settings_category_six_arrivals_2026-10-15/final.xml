@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.643" timestamp="2026-10-15T15:13:10.851531-04:00" hostname="olafsson"><testcase classname="tests.test_settings_categories" name="test_every_added_key_is_declared" time="0.124" /></testsuite></testsuites>

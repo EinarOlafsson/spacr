@@ -150,7 +150,7 @@ alpha while translation and final review are outstanding.
 
 The maintainer subsequently requested much more text, several sections that
 reference the modules, horizontal expansion of the left information pane,
-prettier illustrations using Starplast's apicomplexan diagram, and precisely
+prettier illustrations using ParaScape's apicomplexan diagram, and precisely
 Home's button shape. Implemented:
 * Each organism has an introduction, four substantive assay-referenced
   sections, a cell illustration, compartment selector, source attribution,
@@ -162,8 +162,8 @@ Home's button shape. Implemented:
 * AppTile uses Home's 172/260 width bounds, 124 height, 48 icon size, Preferred
   width policy and 4-pixel spacing (all scaled through the existing helpers).
 * Toxoplasma and Plasmodium use the SwissBioPics apicomplexan SVG from
-  Starplast 53703bafdf0604576a05b589400051a6b09e62ea. Toxoplasma exposes
-  Starplast's hyperLOPIT-to-UniProt SL mapping; Plasmodium uses common
+  ParaScape 53703bafdf0604576a05b589400051a6b09e62ea. Toxoplasma exposes
+  ParaScape's hyperLOPIT-to-UniProt SL mapping; Plasmodium uses common
   compartment labels without transferring Toxoplasma measurements.
 * Candida uses SwissBioPics' generic budding-yeast illustration, explicitly
   identified as a schematic rather than a species/morphology reference.
@@ -172,7 +172,7 @@ Home's button shape. Implemented:
   schematic pastel palette and selection outline and removes hidden metadata,
   canvas backgrounds and the logo. Visible attribution credits Philippe Le
   Mercier / SIB and links the source and CC BY 4.0 licence. No runtime network
-  access, PyQt6 dependency or import from the separate Starplast checkout.
+  access, PyQt6 dependency or import from the separate ParaScape checkout.
 * Shared hyperLOPIT shapes are disclosed. SL0171 (mitochondrial membrane)
   exists as an empty metadata group in the source; selecting it highlights
   the mitochondrial outline and explicitly explains that no separate shape
@@ -229,22 +229,22 @@ at1500px the right pane shows five197x124 tiles with4px gaps. Original source
 SVGs and attribution are unchanged. Logs and images are private under
 /mnt/firecuda2/Claude/implementation-20260922/organism-followup/.
 
-Still OPEN in the maintainer follow-up: Starplast as the first Toxoplasma tile,
+Still OPEN in the maintainer follow-up: ParaScape as the first Toxoplasma tile,
 its isolated installation and later launch, alpha and size warnings. That
 addition changes Toxoplasma from eight to nine tiles. New caption translation
 and API/workflow integration remain with the other Codex session.
 
-2026-09-22 — STARPLAST FIRST TILE, ISOLATED INSTALLATION AND LATER LAUNCH
+2026-09-22 — PARASCAPE FIRST TILE, ISOLATED INSTALLATION AND LATER LAUNCH
 --------------------------------------------------------------------------------
-Starplast is now the first Toxoplasma tile, explicitly alpha, using Home's
+ParaScape is now the first Toxoplasma tile, explicitly alpha, using Home's
 AppTile. Toxoplasma therefore has nine tiles; the other organisms retain eight.
 It is an external application, not an analysis registry key or mask backend.
 The first click offers Install and open with alpha, approximately2GB Linux
 CUDA-wheel downloads plus application/data/dependencies, and at least12GB free
 disk warnings. Installation is deferred until that button is pressed.
 
-The environment is ~/.spacr/apps/starplast, configurable with SPACR_APPS_DIR.
-Source selection prefers SPACR_STARPLAST_SOURCE or a sibling local Starplast
+The environment is ~/.spacr/apps/parascape, configurable with SPACR_APPS_DIR.
+Source selection prefers SPACR_PARASCAPE_SOURCE or a sibling local ParaScape
 checkout, otherwise its official GitHub main branch. The dialog also offers
 a checkout chooser. Public PyPI metadata and the tested GitHub archive returned
 404 during this session; authenticated Git works, so local-source support is
@@ -258,10 +258,10 @@ rejects unowned target folders and concurrent installs, and removes its own
 partial environment on failure/cancellation. Installation runs on a Qt thread;
 Cancel stops subprocess descendants, and failed installs can be retried.
 
-Later clicks launch the environment's python -I -m starplast directly. Python
+Later clicks launch the environment's python -I -m parascape directly. Python
 and pip target variables and host Qt plugin/library paths are isolated; PyQt6
 stays in the child process. Child failures show the launch-log location. The
-Starplast process is independent of spaCR's window lifetime.
+ParaScape process is independent of spaCR's window lifetime.
 
 Validation:48 focused checks pass. They include actual Git archiving of a
 checkout with spaces/uncommitted edits, a real temporary venv child process,
@@ -271,7 +271,7 @@ routing, later launches and child-error reporting. Reused subprocess helpers
 also pass their real descendant-cancellation tests. Reviewed actual MainWindow
 and install-dialog renders. Fatal-error Ruff and git diff --check pass.
 
-Scope of evidence: the real multi-gigabyte Starplast dependency installation
+Scope of evidence: the real multi-gigabyte ParaScape dependency installation
 and its full desktop/data session were NOT run. Tests validate the integration
 and process boundaries; they do not establish third-party runtime acceptance.
 New API/source and translation inventory is handed to the other Codex lane.
@@ -293,17 +293,17 @@ Reviewed actual MainWindow renders of Toxoplasma and Plasmodium at1366x768
 with360/480/800px panes. API/catalog follow-up is in the shared lane log.
 Receipt: features/data/474_stable_compartment_layout_2026-09-22.json.
 
-2026-09-22 — Real Starplast installation and desktop startup verified
-The isolated installer completed against local committed Starplast0.41.0
+2026-09-22 — Real ParaScape installation and desktop startup verified
+The isolated installer completed against local committed ParaScape0.41.0
 in479.8s, passed package/data checks, then its installed main() rendered a
 real PyQt6 window with8140 Toxoplasma entries under Xvfb/software OpenGL.
 No CUDA analysis. Updated the alpha install warning from an unmeasured2GB
 estimate to measured approximate4GB download/7GB installed, retaining12GB
 free disk and noting platform/version variation. Source checkout unchanged.
-Receipt: features/data/474_starplast_real_install_2026-09-22.json.
+Receipt: features/data/474_parascape_real_install_2026-09-22.json.
 
-2026-09-23 — STARPLAST NOW INSTALLS THE PYPI RELEASE
-The default source is the unpinned starplast package on the official PyPI
+2026-09-23 — PARASCAPE NOW INSTALLS THE PYPI RELEASE
+The default source is the unpinned parascape package on the official PyPI
 index, with pip --upgrade. A sibling Git checkout no longer overrides the
 release. Explicit developer source overrides remain available. Existing
 completed environments launch without network access; this is not an automatic
@@ -311,8 +311,8 @@ update on every click. The alpha/size/isolation warning is retained and no
 longer quotes the old source installation's CUDA download as the current size.
 
 Actual installation on this machine: preserved the owned0.41.0 source environment
-as starplast-source-0.41.0-backup-20260923; installed published0.42.0 into the
-normal ~/.spacr/apps/starplast environment. The package import, PyQt6 import,
+as parascape-source-0.41.0-backup-20260923; installed published0.42.0 into the
+normal ~/.spacr/apps/parascape environment. The package import, PyQt6 import,
 bundled paths.check and distribution-version self-test pass. pip check reports
 no broken requirements. Installed footprint is about1.2GB on this Linux system;
 no optional GPU extra installed and no GPU or native GUI run claimed.
@@ -367,7 +367,7 @@ Tests (offscreen, CPU, after merging nightly d2772a8e4):
 * tests/qt/test_organism_pages.py, test_organism_dropdown.py,
   test_organism_caption_translations.py (9 languages x 3 pages),
   test_organism_diagram_interaction.py, host_pathogen_registration,
-  starplast_launcher, external_caption_inventories, test_runtime_i18n_syntax,
+  parascape_launcher, external_caption_inventories, test_runtime_i18n_syntax,
   test_i18n_literal_boundaries, test_docstring_correctness,
   test_external_i18n_catalogs: 279 passed, 15 xfailed, 6 failed.
   New: test_twenty_proposals_split_into_live_workflows_and_coming_soon,
@@ -400,7 +400,7 @@ For the docs/translation lane:
   docstring; new public workflow(), open_workflow(),
   OrganismScreen.open_workflow(). Reviewed API records in
   docs/i18n/reviewed/api/*/2026-09-22-organism-guides.json and
-  -starplast-and-diagram.json are stale for those docstrings (report-only).
+  -parascape-and-diagram.json are stale for those docstrings (report-only).
 
 2026-09-29 — Docs/translation lane closed
 * The eight retired organism-paragraph runtime records stayed retired; the
@@ -420,4 +420,4 @@ For the docs/translation lane:
   tests/test_runtime_i18n_syntax.py subtracts the new slice. Nothing left
   for the docs lane on this item.
 
-VERIFIED 2026-10-04: test_organism_pages + test_634_organism_alpha_pages pass. Later item 634 owns the alpha gate (ALPHA_SPECIES 634 lists the organism apps and page widgets); Starplast tile is alpha by stage; 2 referenced test files pass.
+VERIFIED 2026-10-04: test_organism_pages + test_634_organism_alpha_pages pass. Later item 634 owns the alpha gate (ALPHA_SPECIES 634 lists the organism apps and page widgets); ParaScape tile is alpha by stage; 2 referenced test files pass.

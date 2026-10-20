@@ -1,9 +1,8 @@
 """Local data filter — narrow every open view at once.
 
-JMP's Local Data Filter, which is the feature its users reach for most: a panel
-of live controls that subsets every plot, table and image grid simultaneously,
-so *"does this hit survive if I drop the low-count wells?"* is a second's work
-rather than a re-run.
+Modelled on JMP's Local Data Filter: a panel of live controls that subsets
+every plot, table and image grid at once, so *"does this hit survive if I drop
+the low-count wells?"* can be checked without a re-run.
 
 It writes into :func:`spacr.qt.linked_selection.linked_selection`, so the panel
 knows nothing about the views and the views know nothing about the panel.
@@ -328,7 +327,7 @@ class _CategoryRow(_ClauseRow):
 
 
 class DataFilterPanel(QWidget):
-    """The panel. Call :meth:`set_frame`, then let the user drive.
+    """Panel of filter clauses over one table; call :meth:`set_frame` first.
 
     Emits :attr:`filter_changed` after publishing, for a host that wants to
     update a count label without subscribing to the shared model itself.

@@ -149,7 +149,7 @@ def test_build_report_body_carries_no_credentials(monkeypatch, tmp_path):
     log.write_text("INFO starting\nDEBUG ANTHROPIC_API_KEY="
                    "sk-ant-api03-LOGLEAK000111222\n")
     monkeypatch.setattr(ir, "log_tail",
-                        lambda *a, **k: ir.sanitize_path(log.read_text()))
+                        lambda *a, **k: ir.sanitize_path(log.read_text(encoding="utf-8")))
 
     report = ir.build_report(
         tb, active_app="mask",

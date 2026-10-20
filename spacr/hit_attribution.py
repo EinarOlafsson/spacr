@@ -4,7 +4,7 @@ Sequencing says which guide reads were present in a well. It does not say
 which cell carried a guide, and a read fraction is not automatically an
 infection fraction. This module keeps that distinction explicit:
 
-* :func:`build_hit_cell_frame` makes the honest review queue: target-well
+* :func:`build_hit_cell_frame` builds the review queue: target-well
   cells ranked in the hit's phenotype direction.
 * :func:`fit_hit_attribution` adds a cross-fitted two-component hierarchical
   mixture. Guide fraction changes a learned well-level prior; it is never
@@ -57,7 +57,7 @@ class HitAttributionError(ValueError):
 
 
 class InsufficientDesignError(HitAttributionError):
-    """There are too few independent wells/plates to cross-fit honestly."""
+    """Raised when there are too few independent wells or plates to cross-fit."""
 
 
 WELL_COLUMNS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
@@ -312,12 +312,16 @@ class _Mixture:
         objects without the morphology having to carry that information. The
         fraction is clipped away from 0 and 1 first, where the logit diverges,
         and the final exponent is clipped so an extreme log-odds saturates to 0
-        or 1 instead of overflowing.
+        or 1 instead of overflowing. A missing or infinite feature value is
+        replaced by the fitted median, as :func:`_fit_mixture` does for the
+        training objects, so one undefined measurement (a Pearson correlation
+        of a constant channel) cannot leave its object without a probability.
 
         :param values: the per-object score.
         :param fractions: each object's guide fraction in its well.
         :returns: the probabilities.
         """
+        values = np.where(np.isfinite(values), values, self.median)
         x = (values - self.median) / self.scale
         covariate = np.log(
             np.clip(fractions, 1e-3, 1 - 1e-3) /
@@ -461,13 +465,13 @@ class HitAttributionResult:
     warnings: List[str] = field(default_factory=list)
 
     def summary(self) -> str:
-        """The effect, its bootstrap interval, and what qualifies it.
+        """Return a multi-line text summary of the effect and its interval.
 
-        THE INTERVAL IS PART OF THE HEADLINE, not a detail underneath it: a
-        prevalence difference quoted without one invites a reader to treat a
-        noisy estimate as a finding.
+        The bootstrap interval is always included, because a prevalence
+        difference quoted without one can make a noisy estimate look like a
+        finding.
 
-        :returns: a one-line summary.
+        :returns: a multi-line summary.
         """
         effect = self.validation.get("prevalence_difference", float("nan"))
         low = self.validation.get("bootstrap_ci_low", float("nan"))
@@ -1346,13 +1350,11 @@ def promote_calls(db_path: str, attribution_run_id: str,
 def revert_promotion(db_path: str, promotion_id: str) -> int:
     """Restore exactly the values replaced by :func:`promote_calls`.
 
-    Reverting something that was never promoted is a NO-OP returning ``0``,
-    not an error -- including on a database where nothing has ever been
-    promoted at all. The audit table is created by :func:`promote_calls`, so
-    until one has run it does not exist, and reaching for it raised a raw
-    ``sqlite3.OperationalError: no such table`` out of a spaCR API. An undo
-    that crashes when there is nothing to undo makes a stray click look like
-    a corrupt database.
+    Reverting something that was never promoted does nothing and returns
+    ``0`` -- including on a database where nothing has ever been promoted.
+    The audit table is created by :func:`promote_calls`; when it does not
+    exist yet, this function returns ``0`` instead of raising
+    ``sqlite3.OperationalError``.
 
     :param db_path: path to the SQLite measurements database to update.
     :param promotion_id: identifier returned by :func:`promote_calls`.

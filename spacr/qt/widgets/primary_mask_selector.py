@@ -18,11 +18,37 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from shiboken6 import isValid
 
 from ..bridge import drain_thread
 from ..i18n import tr
 from ..secondary_masks import read_primary_source
 from .flow import FlowHost, FlowLayout
+
+_RETIRED = []
+
+
+def _retire(worker):
+    """Join and delete a stopped worker while a module reference keeps its wrapper.
+
+    Shiboken's ``Object::destroy`` drops the Qt parent's reference first and
+    then calls ``releaseWrapper(self)`` whenever *any* wrapper is registered
+    at that C++ address. When the parent held the last reference, ``self`` is
+    already freed there, and a stale entry left at a reused address by an
+    unrelated object turns the delete into a use-after-free: the hosted
+    SIGSEGV in ``BindingManager::unregisterWrapper`` under ``QThread::event``
+    (item 43). This reference outlives the selector, so neither the deferred
+    delete nor a parent's destructor can free the wrapper inside ``destroy``.
+    Wrappers whose C++ half is already gone are released here.
+
+    :param worker: a source worker whose ``run`` has returned.
+    """
+    if not isValid(worker):
+        return
+    worker.wait()
+    _RETIRED[:] = [kept for kept in _RETIRED if isValid(kept)]
+    _RETIRED.append(worker)
+    worker.deleteLater()
 
 
 class _SourceWorker(QThread):
@@ -192,7 +218,7 @@ class PrimaryMaskSelector(QWidget):
             self.status.setText(tr('Primary mask unavailable: {error}', error=worker.error)
                                 if worker.error else tr('{n} primary objects ready.', n=worker.count))
             self.changed.emit()
-        worker.deleteLater()
+        _retire(worker)
         self._start_pending()
 
     def restore_source(self, record):
@@ -226,5 +252,7 @@ class PrimaryMaskSelector(QWidget):
                 worker.requestInterruption()
             except RuntimeError:
                 pass
-            if not drain_thread(worker, timeout_ms=5000):
+            if drain_thread(worker, timeout_ms=5000):
+                _retire(worker)
+            else:
                 worker.setParent(None)

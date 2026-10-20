@@ -136,3 +136,177 @@ WHAT IS LEFT
     Left: nothing in code. Note: no GUI step writes crop_embedding yet
     (only spacr.active_learning._store_crop_embeddings); new captions await
     the catalog lane (_AWAITING_CATALOG_REBUILD). GPU runs optional.
+
+2026-10-14 — Original Home: well-label identity/read-only join repaired (alpha).
+The stored-embedding MIL reader now resolves each full/short/compact well key
+individually, so mixed legitimate spellings no longer silently lose labels.
+Conflicting duplicate or alias assignments refuse; a short key matching the
+same row/column on multiple plates refuses and requests the full identifier.
+Agreeing aliases remain valid, absent labels stay absent, unrelated table wells
+are ignored, and label input frames remain untouched. Both embedding and crop
+SQLite reads explicitly disable migration and use read-only connections; source
+bytes remain unchanged on successful and refused joins, and a missing database
+is not created. Existing encoder/UMAP/render/schema/widget source is untouched.
+Validation15 owning MIL cases PASS/actualexit0/5.47s, including actual temporary
+SQLite joins, two-plate identity, conflicts, mixed spellings and original
+planted-responder MIL checks. First9PASS/5test path-type failures are retained;
+after correcting string-path byte checks,5real migration mutations were exposed
+and fixed by read-only reads, with original failures retained. No biological
+accuracy, real-screen or GPU acceptance inferred from these synthetic cases.
+Two new exact diagnostics have18 source-hash-bound AI technical translations in
+all9locales; normal contextualization/candidate gates pass all18, actualexit0.
+Parent independent review, Home-B one-function extractor scope and normal
+runtime generation remain pending. No generated catalog rows inserted here.
+Existing ALPHA_FEATURES[562] and literal widget gates remain unchanged; whole
+F562 scientific/publication acceptance is not newly claimed by this repair.
+Receipt:features/data/562_well_label_identity_2026-10-14/.
+
+2026-10-14 — Canonical metadata fallback for the same read-only MIL join.
+Missing/null/blank acquisition columns now recover through the existing
+schema.parse_prcfo right-to-left parser, retaining full underscored plate names
+and canonical row/column/field identity. Explicit populated metadata remains
+authoritative; unparseable fallback keys refuse rather than inventing a well.
+Only _mil_frame_from_db changes; schema and encoder/UMAP source are untouched.
+Validation20 owning MIL cases PASS/actualexit0/10.58s, including actual SQLite
+absent/null/blank columns, underscored plate IDs, explicit metadata, malformed
+keys and byte-preserving refusal. The one new diagnostic brings this function
+to4tr callsites/3unique sources; all27 review targets across9locales pass normal
+contextualization/candidate gates, actualexit0. Owner extraction/generation and
+independent translation review remain pending; no scientific/GPU acceptance.
+Receipt:features/data/562_well_label_identity_2026-10-14/canonical-identity.json.
+
+2026-10-15 — Current-source backend integration and actual runtime lookup:
+The F564 reference preservation, F562 read-only identity join and F535 grouped
+tabular holdout components were integrated together with Home-B exact scoped
+extractor ownership. Normal writers emit ten reviewed diagnostics in each of
+nine locales, preserving all 10,491 unrelated source-current targets per
+locale. Actual lookup and finite owning cohort: 179 PASS, exit 0, 87.95 s.
+Root independently reviewed exact code diffs and found no blocking code issue;
+this is limited source review, not scientific/native/translation signoff.
+Receipt: features/data/scientific_backends_integration_2026-10-15/. Parent
+scientific, native and whole-feature acceptance limits remain as recorded.
+Normal full nine-locale runtime audit exit 1: 37 existing foreign N700
+error-report captions remain exact English (sv4/de3/es7/zh_CN7/pt7/hi3/ko3/is2/fr1).
+Raw failure is retained in the integration receipt. Nightly implementation
+publication does not claim green global CI/release or waive this owner gap.
+Actual normal caption-arrival refresh also refuses missing explicit
+sv/UI/AI Error report review (exit 1); its raw failure is retained. No
+caption contract, foreign review or source baseline was modified to pass.
+
+2026-10-15 — Original Home: direct per-cell table acquisition identity guard.
+_mil_bags now refuses a selected well identifier whose participating cells
+contain contradictory nonblank plateID, rowID or columnID observations. The
+actual old helper merged8native acquisition wells on2plates into4bags, even
+with agreeing labels. Full/custom unique IDs and multiplefields remain valid;
+no identifiers or labels are rewritten. Null/blank/absent metadata is not
+represented as proof of independence, and legacy metadata-free input remains
+supported. Only _mil_bags changes; no UMAP/render/schema/UI/model changes.
+Actual18case baseline11FAIL7PASS ->18PASS2.59s,exit0, plus1existing legacy
+label-refusal case PASS2.34s. Input frames remain exact. No modeltraining/GPU
+or biological accuracy claim. Nine exact-source technical AI reviews preserve
+{well}; normal scoped extraction/candidate/runtime closure and parent source
+review pending. No generated catalog rows edited; parent562 stays partial.
+Evidence:data/562_direct_table_identity_2026-10-15/.
+
+2026-10-15 — Coherent direct-table identity/runtime closure:
+Exact _mil_bags owner7933c1772c6 integrated independently of private N698
+extractor. Normal9locale review/candidate/writer closure installs1diagnostic
+perlanguage while preserving10,574unrelated source-current targets perlocale.
+Actual helper/owner cohort50PASS6.56s,exit0, includes9actual localized error
+callbacks and no modeltraining. Normal full9locale runtimeaudit PASS
+(1273settings,242categories,7732UI,77modules); normal immutable arrivalrefresh
+PASS:9833baseline retained,892added/150retired/29changed. Parent exact source
+review found no blocker; this does not claim native-language signoff, biological
+responder efficacy, whole562 or fullCI/release acceptance. No handcatalog or
+ratchet changes. All receipts/rawnormaloperations retained in the same folder.
+
+Final concurrent owner merge: all current incoming unrelated translation
+targets and owned exact9targets preserved. The gzip arrival conflict was
+regenerated with the normal tool, immutable9833baseline unchanged, now
+893added/150retired/29changed. Canonical snapshot cache was rechecked against
+original source collection before/after; no handbinary merge or ratchet edit.
+Normal current English audit7733UI PASS; prior full9audit7732UI and50owning
+callbacks remain recorded at their actual source scope. Exact reviewed helper
+AST unchanged fromd2826a4ae76. No globalCI or wholefeature acceptance claim.
+
+2026-10-15 — Finite numerical feature boundary in _mil_bags.
+Retained per-cell feature values must remain finite after float32 conversion;
+positive/negative infinity and finite float64 overflow now refuse before any
+bags or training. Existing NaN-row dropping, finite float32 extrema, labels,
+original input frames, algorithms and alpha gating remain unchanged. Actual
+old-source counterexample:5FAIL1PASS9deselected; final owning cohort42PASS
+20deselected4.55s, including6numeric cases,9actual localized new refusals and
+27existing direct-MIL cases. No training or model construction occurred.
+Nine exact-source technical targets independently reviewed by parent; normal
+writer preserves10,757 unrelated source-current targets per locale. Actual
+full nine-locale runtime audit PASS; normal immutable arrivals PASS with
+9833baseline/1076added/151retired/30changed. Source hashes unchanged throughout.
+Evidence:data/562_finite_features_2026-10-15/. Scientific efficacy, actual model
+training, fullCI/release and whole-feature acceptance remain separate/open.
+
+2026-10-15 — FINITE-CONVERSION GUARD COHERENT PUBLICATION
+The exact42-case checked source/reviews are normal-merged with N594's existing
+table selection. One ordinary combined two-scope runtime writer validates
+both reviewed rows in all nine locales and preserves10,768 unrelated rows
+per locale, including178 web and12 DINO captions. Normal arrival refresh
+reports9833 baseline/1088 added/151 retired/31 changed. Source and review
+hashes remain exact to d25e03edf02; no unchanged42-case/model/training run
+was repeated. Whole F562 scientific/feature acceptance remains separate.
+Combined evidence: features/data/594_existing_table_selection_2026-10-15/.
+
+2026-10-15 — Stored-object join cardinality and acquisition identity (alpha).
+The read-only _mil_frame_from_db boundary refuses contradictory known
+plate/row/column/field metadata for one object key and contradictory stored
+embedding or provenance rows. Exact duplicate stored rows coalesce into one
+cell; legitimate alternative crop views retain the first valid path. Later
+known metadata survives an earlier blank and retains authority over parsed
+key metadata. No DB writes/migration, renaming, training or algorithm changes.
+Actual old-source18-case counterexample16FAIL2PASS1.90s; patched owning
+61PASS4deselected6.93s includes18new real SQLite cases and43existing reader/
+direct-MIL cases, with all4training tests excluded. Every private source DB
+remains byte-exact. Evidence:data/562_db_cardinality_2026-10-15/. Two new
+literal diagnostic targets drafted in9locales; normal review/writer closure
+and18actual localized refusal callbacks remain pending at this source note.
+No biological efficacy, native model training or whole-feature/fullCI claim.
+
+2026-10-15 — Stored-object join coherent runtime closure.
+Parent independently reviewed exact helper source and all18technical targets.
+One normal writer installs2diagnostics in9locales while preserving
+10,770 unrelated source-current rows per locale; actual full9runtimeaudit
+and normal immutable-arrival refresh PASS (9833baseline/1090added/
+151retired/31changed). Only18newactual localized read-only
+SQLite refusals were run after installation:18PASS,zero skips. The unchanged
+61-case helper cohort was not repeated. Original collector and4source/tool/
+test file hashes rechecked across normal closure; no catalog rows hand-edited.
+Raw scripts/logs/source hashes and peer evidence retained in the same folder.
+No training, biological efficacy, wholefeature or fullCI/release acceptance.
+
+2026-10-15 — Known embedding coordinate identity boundary (alpha).
+_mil_bags refuses conflicting known fingerprints or valid64hex checkpoint
+weight identities among retained cells when any selected feature is emb_*.
+Opaque custom fingerprints remain case-sensitive identities; canonical16hex
+fingerprints and valid64hex weights compare without case differences. Only
+missing/blank/documented case-insensitive unknown fingerprints are excluded;
+unverified weight markers are not treated as actual digests. Legacy unknown
+rows remain unverified input. Measurement-only feature selections and dropped
+rows do not acquire new identity requirements. No model/training change.
+Actual22-case old-helper baseline5FAIL17PASS1.16s; patched owning50PASS
+19deselected5.36s includes22new coordinate cases and28existing direct-MIL/
+label cases. Original frames unchanged. Normal actual writer replacement and
+read-only SQLite reader/bags counterexamples are retained separately; numeric
+vectors/checkpoint identifiers are declared synthetic, not real inference.
+Parent independently reviewed exact15lineguard and9technical targets.
+Normal9locale writer/fullaudit/arrivals and9actual localized callbacks remain
+pending at this source note. Evidence:data/562_coordinate_identity_2026-10-15/.
+No verified-identity, scientific efficacy, wholefeature or fullCI claim.
+
+2026-10-15 — Known coordinate identity coherent runtime closure.
+Normal exact-source/review/candidate gates install1diagnostic perlocale,
+preserving10,772 unrelated current targets each. Actual full9runtimeaudit
+PASS and normal immutable arrivals PASS:9833baseline/1091added/
+151retired/31changed. Only9newactual localized refusals run after
+installation:9PASS,zero skips; unchanged50-case helper cohort not repeated.
+Original collector and4source/tool/test hashes remain exact through closure.
+Parent source/technical target peer and all raw receipts retained in the same
+evidence folder. Legacy unknown identities remain unverified; no model
+training, scientific efficacy, wholefeature or fullCI/release acceptance.

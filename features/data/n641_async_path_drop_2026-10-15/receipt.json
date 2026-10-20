@@ -1,0 +1,109 @@
+{
+  "scope": "N641 FilePathListWidget multi-path drop filesystem collection on the existing worker scanner",
+  "source_base": "f260582a63a81e957f22a3bd348baa1e06184a90",
+  "source_sha256": "13c400743afb0d09d2563d14ad817f6212789bc126744fc802c51d81ad8de82f",
+  "test_sha256": "dc2f559b449f71bc49d35c4d9316772a3ceaf36a13769f6d5f9e965c2c61e2ea",
+  "owner_grant": "Original Home relayed explicit Home-B grant restricted to FilePathListWidget dropEvent and per-instance async drop lifecycle; synchronous add_paths/pick_folder and pairing helpers excluded.",
+  "baseline": {
+    "exit": 1,
+    "failed": 1,
+    "evidence": "baseline.log",
+    "defect": "Actual dropEvent called os.listdir on the GUI thread."
+  },
+  "initial_owning": {
+    "exit": 1,
+    "passed": 3,
+    "failed": 3,
+    "explanation": "New fixture used ignore.txt but existing table filter deliberately supports .txt. Worker/stale/close cases passed. Only unsupported fixture extension corrected to .png; source and assertions preserved."
+  },
+  "final_closure": {
+    "exit": 0,
+    "passed": 3,
+    "deselected": 3,
+    "elapsed_seconds": 1.75,
+    "selection": "drop_returns or concurrent_drop or scanner_refusal"
+  },
+  "distinct_acceptance": {
+    "passed": 7,
+    "skipped": 0,
+    "meaning": "Six new lifecycle/order/refusal cases plus one existing URL/invalid-drop contract adapted to await delivery; no broad Qt repeat."
+  },
+  "checks": {
+    "fatal_ruff": "PASS E9,F63,F7,F82 --no-cache for changed source/tests",
+    "diff_check": "PASS"
+  },
+  "api": {
+    "new_nested_paragraphs": 2,
+    "review_records": 18,
+    "independent_peer": "root-api-peer-review.json",
+    "normal_generation": "PASS: two exact source-bound callback symbols through normal nine-locale reviewed API loaders/writer and reusable freshness validation; all unrelated records preserved. Normal complete English manifest audit PASS13480 symbols; fresh original public collector and all669 Python source hashes unchanged.",
+    "current_independent_peer": "root-api-context-v2-peer-review.json",
+    "preserved_failed_attempt": "api-generation-v1.log/exit: raw context mismatched normal expansion before any write; ES/FR/PT then explicitly retained protected GUI acronym."
+  },
+  "limits": [
+    "No native desktop responsiveness benchmark/full CI claim.",
+    "Existing scanner owns close/cancellation behavior; no new background thread facility."
+  ],
+  "evidence": [
+    {
+      "path": "baseline.log",
+      "sha256": "ae84457e131996f7af637a51880182235d308b9a4d1e1604b4ebf0089e4fee07",
+      "bytes": 1612
+    },
+    {
+      "path": "baseline.xml",
+      "sha256": "4908233a0ee4c8eca8a8c10b772b8c37e237dc753c53b92d4e891b5ab57103a8",
+      "bytes": 1844
+    },
+    {
+      "path": "baseline.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "owning.log",
+      "sha256": "725896134163c2208b245a88fe794a062bcb05dab6e8bfd4263394df4f614e9a",
+      "bytes": 2833
+    },
+    {
+      "path": "owning.xml",
+      "sha256": "1ea2811f5d01d6ee118253fea6b71ceb6980c7014c3f3c306b39cef7afc577a2",
+      "bytes": 2694
+    },
+    {
+      "path": "owning.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    {
+      "path": "closure.log",
+      "sha256": "162ca7886e96d02af761baf12887378f171761a278efca26b9febe6c10236b06",
+      "bytes": 112
+    },
+    {
+      "path": "closure.xml",
+      "sha256": "3a677976f5767d1be1de51ba52303642edcb5f5adc74958f243263f0b8c4c416",
+      "bytes": 693
+    },
+    {
+      "path": "closure.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "root-api-peer-review.json",
+      "sha256": "009db5de761f473a4d9f412afe4a75e36e99484c069cfd9717fc4a057530ea03",
+      "bytes": 2970
+    }
+  ],
+  "merged_source_sha256": "48bf51e1da4e3a99b1fddacbb30a693177469fc5f4f11ede6d27eebe361b91ea",
+  "source_dependency": "Normal merged owner pairing publication; FilePathListWidget AST identical to tested source62b04031a2c. Only incoming suggest_file_pairs/_number_unlabelled_plates/PairedFileTableWidget changed.",
+  "existing_owning_contract": {
+    "nodeid": "tests/test_cov_w3_8_file_list.py::test_a_drop_of_files_fills_the_list_and_anything_else_does_not",
+    "passed": 1,
+    "exit": 0,
+    "elapsed_seconds": 1.07,
+    "change": "Existing exact file-content assertion preserved; wait for asynchronous URL-drop delivery. Immediate invalid-drop refusal assertions unchanged.",
+    "test_file_sha256": "a570f9d0e76747fba3d82ce3feafe22b00edc39c93c5e94bc5ddb15d0c2bd4a5"
+  }
+}

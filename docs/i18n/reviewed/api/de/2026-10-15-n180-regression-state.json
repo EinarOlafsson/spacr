@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review; independent source-semantic peer review requested; no native-speaker signoff",
+  "note": "Two changed or added blocks in two existing symbols from tested owner source2b5ba2553db plus1cd00114b270; this input commit changes no executable source. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.plot_state#3",
+      "source": "``selected_keys`` carries the complete table selection; the legacy ``selected_key`` also retains the active key used by linked plots. ``symbol_by`` and ``opacity_by`` independently record the chosen marker-shape and opacity columns, including ``None`` for an unused channel, so an empty shape channel does not change opacity's role.",
+      "context": "``selected_keys`` carries the complete table selection; the legacy ``selected_key`` also retains the active structured-data name used by linked plots. ``symbol_by`` and ``opacity_by`` independently record the chosen marker-shape and opacity columns, including ``None`` for an unused channel, so an empty shape channel does not change opacity's role.",
+      "source_sha256": "6b7fbfc79c84713931aaf236ea440d9da4ab78939c35bb4499516d29287854d7",
+      "previous_same_source_indexes": [],
+      "translation": "``selected_keys`` enthält die vollständige Tabellenauswahl; das ältere ``selected_key`` bewahrt außerdem den aktiven Schlüssel für verknüpfte Diagramme. ``symbol_by`` und ``opacity_by`` speichern die gewählten Spalten für Markierungsform und Deckkraft unabhängig voneinander, einschließlich ``None`` für einen ungenutzten Kanal. Ein leerer Formkanal verändert dadurch nicht die Rolle der Deckkraft.",
+      "review_basis": "Exact-source technical translation review of full table selection versus legacy active key, independent marker-shape and opacity columns including None gaps, no-colour restoration, omission preserving current state, and supported legacy single-key states. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_plot_state#2",
+      "source": "dict as :meth:`plot_state` returns it; keys it lacks keep their current value. Nothing applies when it is not a dict or no table is loaded. An explicit ``None`` colour disables colouring. Older states containing only ``selected_key`` remain supported.",
+      "context": "key-value mapping as :meth:`plot_state` returns it; structured-data names it lacks keep their current value. Nothing applies when it is not a key-value mapping or no table is loaded. An explicit ``None`` colour disables colouring. Older states containing only ``selected_key`` remain supported.",
+      "source_sha256": "59d56f2f9b7ce963e660ceb4200cb732546a925446469009844f0a5d2e857343",
+      "previous_same_source_indexes": [],
+      "translation": "ein von :meth:`plot_state` zurückgegebenes dict; fehlende Schlüssel behalten ihre aktuellen Werte. Es wird nichts angewendet, wenn der Wert kein dict ist oder keine Tabelle geladen ist. Ein explizites ``None`` als Farbe deaktiviert die Farbcodierung. Ältere Zustände, die nur ``selected_key`` enthalten, werden weiterhin unterstützt.",
+      "review_basis": "Exact-source technical translation review of full table selection versus legacy active key, independent marker-shape and opacity columns including None gaps, no-colour restoration, omission preserving current state, and supported legacy single-key states. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

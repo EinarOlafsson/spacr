@@ -1,0 +1,516 @@
+{
+  "schema": 1,
+  "component": "video",
+  "lesson": "01_pypi_github",
+  "assessed_utc": "2026-10-15T15:56:19.775963+00:00",
+  "recommendation": "KEEP",
+  "status": "independent sampled video assessment; root final decision pending",
+  "mandatory_repairs": [],
+  "root_head": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "baseline_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "canonical": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/01_pypi_github.json",
+    "bytes": 3357,
+    "sha256": "a9b2c6286ca623128da907ed39bd1e1e4a11689695a3f8285a9e9cadf09e990f"
+  },
+  "published_catalog": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/web/catalog/lessons_en.json",
+    "bytes": 674671,
+    "sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112"
+  },
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/video/01_pypi_github_silent.mp4",
+    "bytes": 3410065,
+    "sha256": "614eaed2f5491bee3a4f5465039afda699c4798df2190adf1a8e254dde4adf12"
+  },
+  "web_rendition": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/web/01_pypi_github_silent.mp4",
+    "bytes": 4708382,
+    "sha256": "1e25211f91cd297e3ee7124378b2ef9e58a1683263ae432591a91404e98510b6"
+  },
+  "reference_timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/01_pypi_github/audio/en/af_heart.json",
+    "bytes": 32270,
+    "sha256": "a7154ba6a8eade607c34efeb224bb75d919b2918f06ef97694c46c75d78b542a"
+  },
+  "evidence_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-evidence-manifest.json",
+    "bytes": 17903,
+    "sha256": "eb971458fe6c91635907ff8e48b0f2a4c0aadc1d9e6da2436e9bd408924184a7"
+  },
+  "frame_extractor": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/extract_video_evidence.py",
+    "bytes": 6050,
+    "sha256": "0d4f0d33133c867cbed3cfabe7fcc086bc45e4cb19a25fe5a5ca23b1d8e1263c"
+  },
+  "extraction_log": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/frame-extraction.log",
+    "bytes": 16,
+    "sha256": "277e40579016204d37005c479c046cfa40dacf55fb341128d55b0cab4fac84c0"
+  },
+  "metadata": {
+    "master": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "duration": "107.200000",
+          "nb_frames": "3216"
+        }
+      ],
+      "format": {
+        "duration": "107.200000",
+        "size": "3410065"
+      }
+    },
+    "web_rendition": {
+      "codec_name": "h264",
+      "width": 2560,
+      "height": 1440,
+      "fps": "30/1",
+      "nb_frames": 3216,
+      "duration_seconds": 107.2,
+      "source": "ffprobe stream metadata; no second decode"
+    }
+  },
+  "binding_checks": {
+    "both_video_files_match_release_manifest_size_and_sha256": true,
+    "all_eight_canonical_scene_objects_equal_published_english_catalog": true,
+    "all_eight_reference_sidecar_texts_equal_canonical": true,
+    "source_and_media_unchanged_during_review": true
+  },
+  "review_method": {
+    "frames_decoded_once_with_software": 24,
+    "canonical_sections_sampled": 8,
+    "distinct_visuals_sampled": 5,
+    "sample_positions": [
+      "start+approximately0.35s",
+      "midpoint",
+      "end-approximately0.35s"
+    ],
+    "all24_samples_visually_inspected_in_three_contact_sheets": true,
+    "additional_full_resolution_inspection": [
+      "scene3 Project links at33.967s",
+      "scene5 expanded Assets at58.767s"
+    ],
+    "whole_video_watched": false,
+    "full_decode_validation_performed": false,
+    "audio_listened": false,
+    "browser_playback_tested": false,
+    "web_rendition_decoded": false,
+    "resource_cap_gib": 2,
+    "gpu_used": false,
+    "owned_ram_lease_removed": true
+  },
+  "contact_sheets": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/all-scenes-start.jpg",
+      "bytes": 558465,
+      "sha256": "e616c4a67a65773d233cca4cae222f06e41756ec9b2a94ccd7857d6e0b2a1ab9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/all-scenes-middle.jpg",
+      "bytes": 558414,
+      "sha256": "2bcace66d05f0bec076d896df8751a11b06f60783323f284098e1155862de6ee"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/all-scenes-end.jpg",
+      "bytes": 557658,
+      "sha256": "5253ef156faf30b79d265bbcef6812d18fc0f217f02b54cb3c98077a930d44aa"
+    }
+  ],
+  "per_scene": [
+    {
+      "canonical_scene": 1,
+      "visual": "01_pypi_current_release",
+      "reference_video_interval_seconds": [
+        0.0,
+        13.7
+      ],
+      "decision": "KEEP",
+      "finding": "Official PyPI package identity, pip command and distribution-source context are visible; the screen is an illustrative package page, not a demonstrated installation.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/001.png",
+          "bytes": 742016,
+          "sha256": "2a63f55252ef992de0905927bd36bef88db98cdb33ed8d5dbd860c50e29df7e6"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/002.png",
+          "bytes": 742012,
+          "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/003.png",
+          "bytes": 713618,
+          "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 2,
+      "visual": "01_pypi_current_release",
+      "reference_video_interval_seconds": [
+        13.7,
+        28.279999999999998
+      ],
+      "decision": "KEEP",
+      "finding": "The visible pip install spacr command remains valid; the canonical sends environment creation/activation to the installation lesson.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/004.png",
+          "bytes": 742016,
+          "sha256": "2a63f55252ef992de0905927bd36bef88db98cdb33ed8d5dbd860c50e29df7e6"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/005.png",
+          "bytes": 742012,
+          "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/006.png",
+          "bytes": 713618,
+          "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 3,
+      "visual": "02_pypi_project_links",
+      "reference_video_interval_seconds": [
+        28.279999999999998,
+        39.655
+      ],
+      "decision": "KEEP",
+      "finding": "Project links visibly includes Documentation, Homepage, Issues and Source; the current PyPI API retains these exact destinations.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/007.png",
+          "bytes": 742020,
+          "sha256": "a3b312ed633a210d3800978ca1000322f34a70a3669ea5b7c896e77e3a83f3c6"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/008.png",
+          "bytes": 742012,
+          "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/009.png",
+          "bytes": 713618,
+          "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 4,
+      "visual": "03_github_main_branch",
+      "reference_video_interval_seconds": [
+        39.655,
+        52.290000000000006
+      ],
+      "decision": "KEEP",
+      "finding": "Repository identity, main branch selector and Releases area are visible; current official README still describes main as release source and nightly as development.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/010.png",
+          "bytes": 992016,
+          "sha256": "77e6f8dbeb59ed4ad592a5636f2238fd773e8a3a553cf1e8d7939da01ce896dc"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/011.png",
+          "bytes": 992068,
+          "sha256": "d3293b7c2d066b61a56df091aa2accdc0abd6dbec8304f001cb500ba51b5e993"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/012.png",
+          "bytes": 954300,
+          "sha256": "668f4094594e216678cdda9dfc98c4448c22be7cf9f0c9aa4490265f2999effa"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 5,
+      "visual": "04_github_current_assets",
+      "reference_video_interval_seconds": [
+        52.290000000000006,
+        65.25
+      ],
+      "decision": "KEEP",
+      "finding": "Expanded Assets visibly lists Linux .run, macOS .pkg and Windows .exe alongside Python distributions; current latest release offers the same three platform installer types.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/013.png",
+          "bytes": 595844,
+          "sha256": "7dad355dc4d7802f4cadd1e048c939b44af1b77f71b2a6f51a40b681211e288d"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/014.png",
+          "bytes": 595861,
+          "sha256": "1ee8206608773453c5f5ffee0ffc3e853a678d7864f6b310ee5669331628abcc"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/015.png",
+          "bytes": 576703,
+          "sha256": "bab14f50da049a7d4fd301a8917aaa055bf6764da50c049a074d2b47c4280615"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 6,
+      "visual": "05_conda_current_package",
+      "reference_video_interval_seconds": [
+        65.25,
+        76.73
+      ],
+      "decision": "KEEP",
+      "finding": "conda-forge/spacr identity and available version1.5.0.8 are visible; current Anaconda API still reports1.5.0.8.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/016.png",
+          "bytes": 638714,
+          "sha256": "1f36974834966570bd874af1656f2e8649b07c90edad41c232d98f858ba41224"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/017.png",
+          "bytes": 638714,
+          "sha256": "830e87b2aee48740156f3ba2966d8880a3b1c00df7a0704c8a7b6f1966bbf43b"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/018.png",
+          "bytes": 610988,
+          "sha256": "ff5d23a5098adaaa661763f90244bd41fc276de58f0e8dae6daa11e07360eddd"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 7,
+      "visual": "05_conda_current_package",
+      "reference_video_interval_seconds": [
+        76.73,
+        91.485
+      ],
+      "decision": "KEEP",
+      "finding": "The displayed conda install conda-forge::spacr remains the official Anaconda installation command; no installation/removal execution is claimed.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/019.png",
+          "bytes": 638714,
+          "sha256": "1f36974834966570bd874af1656f2e8649b07c90edad41c232d98f858ba41224"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/020.png",
+          "bytes": 638701,
+          "sha256": "136da353d27112c7e4bd2f7c275ca8f06da180d4014f6764bcbf080b0c966b41"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/021.png",
+          "bytes": 610988,
+          "sha256": "ff5d23a5098adaaa661763f90244bd41fc276de58f0e8dae6daa11e07360eddd"
+        }
+      ],
+      "mandatory_repair": null
+    },
+    {
+      "canonical_scene": 8,
+      "visual": "01_pypi_current_release",
+      "reference_video_interval_seconds": [
+        91.485,
+        107.2
+      ],
+      "decision": "KEEP",
+      "finding": "Return to the official PyPI source supports the spoken next-lesson choices; this is guidance to later lessons, not a promise that their actions are shown here.",
+      "sample_files": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/022.png",
+          "bytes": 742016,
+          "sha256": "2a63f55252ef992de0905927bd36bef88db98cdb33ed8d5dbd860c50e29df7e6"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/023.png",
+          "bytes": 742012,
+          "sha256": "0af9e8c118c037a2cda62be66e5f9ba315dcf3c82faacef1a3cda0ed5fe006ba"
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/video-samples/024.png",
+          "bytes": 713618,
+          "sha256": "5ba34e7664dad5bc36215922bd5268a37a59abffc83f7941889c2613eb9b7052"
+        }
+      ],
+      "mandatory_repair": null
+    }
+  ],
+  "primary_source_checks": [
+    {
+      "url": "https://pypi.org/pypi/spacr/json",
+      "final_url": "https://pypi.org/pypi/spacr/json",
+      "checked_utc": "2026-10-15T15:54:44.516280+00:00",
+      "status": 200,
+      "response": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-pypi.json",
+        "bytes": 104015,
+        "sha256": "3f2b1ef0d17b99fc2ad1bd8cf769d193686855087db358670de25f93806d6cc4"
+      },
+      "facts": {
+        "version": "1.5.1.4",
+        "project_urls": {
+          "Documentation": "https://einarolafsson.github.io/spacr/",
+          "Homepage": "https://github.com/EinarOlafsson/spacr",
+          "Issues": "https://github.com/EinarOlafsson/spacr/issues",
+          "Source": "https://github.com/EinarOlafsson/spacr"
+        },
+        "requires_python": "!=3.14.1,<3.15,>=3.9"
+      }
+    },
+    {
+      "url": "https://api.github.com/repos/EinarOlafsson/spacr/releases/latest",
+      "final_url": "https://api.github.com/repos/EinarOlafsson/spacr/releases/latest",
+      "checked_utc": "2026-10-15T15:54:44.572944+00:00",
+      "status": 200,
+      "response": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-github-latest.json",
+        "bytes": 12047,
+        "sha256": "e4748b8f0151711114092d5a8cd18aaace7e23fab105f21b57d3a02a97205bf5"
+      },
+      "facts": {
+        "tag_name": "v1.5.1.4",
+        "html_url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.1.4",
+        "published_at": "2026-10-09T15:47:23Z",
+        "prerelease": false,
+        "draft": false,
+        "assets": [
+          {
+            "name": "SHA256SUMS.txt",
+            "bytes": 500,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/SHA256SUMS.txt"
+          },
+          {
+            "name": "spaCR-1.5.1.4-Linux-x86_64-Online.run",
+            "bytes": 236185,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Linux-x86_64-Online.run"
+          },
+          {
+            "name": "spaCR-1.5.1.4-macOS-Universal-Online.pkg",
+            "bytes": 389726,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-macOS-Universal-Online.pkg"
+          },
+          {
+            "name": "spacr-1.5.1.4-py3-none-any.whl",
+            "bytes": 43282807,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spacr-1.5.1.4-py3-none-any.whl"
+          },
+          {
+            "name": "spaCR-1.5.1.4-Windows-Online-Setup.exe",
+            "bytes": 243842,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spaCR-1.5.1.4-Windows-Online-Setup.exe"
+          },
+          {
+            "name": "spacr-1.5.1.4.tar.gz",
+            "bytes": 51922212,
+            "url": "https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.4/spacr-1.5.1.4.tar.gz"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://api.anaconda.org/package/conda-forge/spacr",
+      "final_url": "https://api.anaconda.org/package/conda-forge/spacr",
+      "checked_utc": "2026-10-15T15:54:45.052029+00:00",
+      "status": 200,
+      "response": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson01-selective-20261015/primary-conda-forge.json",
+        "bytes": 14038,
+        "sha256": "1d8013a287bb7da24571343f932485adcde7de79a9522a4a8848be174a65a00e"
+      },
+      "facts": {
+        "name": "spacr",
+        "full_name": "conda-forge/spacr",
+        "latest_version": "1.5.0.8",
+        "public": true,
+        "home": "https://github.com/EinarOlafsson/spacr",
+        "dev_url": "https://github.com/EinarOlafsson/spacr",
+        "doc_url": "https://einarolafsson.github.io/spacr/",
+        "versions": [
+          "1.5.0.4",
+          "1.5.0.6",
+          "1.5.0.7",
+          "1.5.0.8"
+        ],
+        "modified_at": "2026-09-19 21:32:03.565000+00:00"
+      }
+    }
+  ],
+  "primary_page_observations": [
+    {
+      "url": "https://pypi.org/project/spacr/",
+      "finding": "Official package page retains pip installation and Project links; version/header facts are taken from fresh API response rather than cached search text."
+    },
+    {
+      "url": "https://github.com/EinarOlafsson/spacr",
+      "finding": "Official README describes main as latest release source and nightly as development. This supports the lesson wording; no account actions were performed."
+    },
+    {
+      "url": "https://anaconda.org/conda-forge/spacr",
+      "finding": "Official page still shows conda install conda-forge::spacr; available version1.5.0.8 agrees with fresh API."
+    }
+  ],
+  "incidental_aging": [
+    {
+      "scenes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        8
+      ],
+      "displayed_version": "1.5.1.3",
+      "current_pypi_and_github_latest": "1.5.1.4",
+      "action": "KEEP",
+      "reason": "Narration deliberately directs the viewer to the available/current release and acknowledges differing package-channel versions. It does not instruct installing1.5.1.3 or promise that pictured labels update live."
+    },
+    {
+      "scenes": [
+        1,
+        2,
+        3,
+        8
+      ],
+      "detail": "Live badges, release dates, issue counts and download counts are captured historical page details, not tutorial acceptance claims.",
+      "action": "No visual remake solely for incidental badge/date/count aging."
+    }
+  ],
+  "presentation_findings": {
+    "blank_or_error_page_in_samples": false,
+    "blocking_overlay_in_samples": false,
+    "required_controls_cropped_in_samples": false,
+    "required_package_commands_and_platform_asset_names_readable_at_master_resolution": true,
+    "still_page_views": "Permitted under selective maintainer workflow; not a repair reason by themselves."
+  },
+  "authoring_warning": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/authoring/production/01_pypi_github/scenes.json",
+    "finding": "Older local7-row storyboard differs from published8-row canonical. Assessment used actual published media and af_heart reference timing, not this stale storyboard.",
+    "scope": "No source regeneration or authoring change performed."
+  },
+  "limitations": [
+    "Sampled visual inspection cannot establish every unsampled frame, transition, browser playback lifecycle or delivery behavior.",
+    "Web rendition was bound by actual SHA/size and metadata; its individual frames were not separately decoded.",
+    "No sound audition, phoneme onset judgment, human listening, native speaker acceptance or audio-component decision is implied.",
+    "API release/page facts are dated observations and may change; no installer download, installation, login or account action was performed.",
+    "Root owns final component keep/repair acceptance. No media/source/catalog changes were made."
+  ]
+}

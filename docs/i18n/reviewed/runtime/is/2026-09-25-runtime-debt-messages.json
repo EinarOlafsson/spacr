@@ -6,13 +6,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
-      "translation": "'bundled' er sögulega pakkaða skellulíkanið. Því er haldið svo hægt sé að endurgera gamla keyrslu; það missir af um þriðjungi skellnanna á myndum úr greinum. toxoplasma_plaque_v2 er núverandi líkan."
-    },
-    {
-      "table": "ui",
       "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
       "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
       "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849",
@@ -31,13 +24,6 @@
       "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
       "translation": ".pt- eða .pth-skrá með líkani sem tekur eina rás og skilar einni rás af logits. ÞUNGT: skráin er hlaðin og netið keyrt, sem á CPU tekur sekúndur á hvern kassa og mínútur á hvert sjónsvið."
-    },
-    {
-      "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "translation": "4PL er samhverft um miðpunkt sinn. Raunveruleg ósamhverfa er til, og 4PL tekur hana upp í tilfært EC50; 5PL mátar hana með einum stika í viðbót, þarf einum styrk fleiri og segir til um hvort sá stiki hafi átt rétt á sér."
     },
     {
       "table": "ui",
@@ -104,24 +90,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "translation": "Rísandi arpeggio sem leysist upp á grunntón tóntegundarinnar þegar keyrslu einingar lýkur með árangri, fyrir þegar spaCR er í öðrum glugga."
-    },
-    {
-      "table": "ui",
-      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source_sha256": "c090c47c506dae6de2c1805553b5a319be3d942bcad5b0a36793c316bf4789a7",
-      "translation": "Sameiginleg frumuteikning fyrir Apicomplexa, með SwissBioPics-myndefninu sem einnig er notað í Starplast. Haltu bendlinum yfir til að sjá lýsingu á staðsetningu frá UniProt og hakaðu við nokkur hólf til að halda þeim auðkenndum. Lögun sníkjudýrsins og skipulag frumulíffæra eru breytileg eftir tegund og stigi lífsferils; þetta er ekki endurgerð blóðstigs. Úthlutanir hyperLOPIT fyrir Toxoplasma eru ekki yfirfærðar á Plasmodium."
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "translation": "Stuttur, hljóðlátur plokkaður tónn í tóntegund hljóðasettsins þegar þú ýtir á hnapp, rofa, flipa, lista eða sleða: staðfesting á að ýtt var, meira fundin en heyrð."
+      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source_sha256": "7b9e5166e7e57a405fb01a52f6d63240635b0e3fd817e9e366772dc51c55759d",
+      "translation": "Sameiginleg frumuteikning fyrir Apicomplexa, með SwissBioPics-myndefninu sem einnig er notað í ParaScape. Haltu bendlinum yfir til að sjá lýsingu á staðsetningu frá UniProt og hakaðu við nokkur hólf til að halda þeim auðkenndum. Lögun sníkjudýrsins og skipulag frumulíffæra eru breytileg eftir tegund og stigi lífsferils; þetta er ekki endurgerð blóðstigs. Úthlutanir hyperLOPIT fyrir Toxoplasma eru ekki yfirfærðar á Plasmodium."
     },
     {
       "table": "ui",
@@ -157,13 +129,6 @@
       "source": "Add back a high-pass copy of the image, which makes edges steeper and helps a threshold land on the boundary rather than in the halo. Too much amount puts a bright rim around every object and a dark moat outside it.",
       "source_sha256": "0339730f143445b4f4f8ce4f10e566a3577b5291e8a26b1955ae92cf33596bbc",
       "translation": "Bæta aftur við hápassaafriti af myndinni, sem gerir brúnir brattari og hjálpar þröskuldi að lenda á mörkunum frekar en í geislabaugnum. Of mikið magn setur bjarta brún utan um hvern hlut og dökkt síki fyrir utan."
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "translation": "Bætir DEBUG-skilaboðum spaCR við annálaskrárnar í ~/.spacr/logs. Það leyfir einnig cellpose að greina frá hvaða líkani það hlóð, og það skráir hvaða hnappa þú ýttir á. Sú slóð er það sem gerir villuskýrslu þess virði að lesa hana.\n\nRæsing spaCR og opnun skjáa þess tók ekki lengri tíma með þetta virkt. Þetta var mælt á einni vinnustöð með því að opna allar einingar, einu sinni með þetta virkt og einu sinni óvirkt. Heimaskjárinn var tilbúinn á um 4 sekúndum eftir kalda ræsingu í báðum tilvikum. Hægasta einingin opnaðist á um 7 sekúndum í báðum tilvikum. Keyrslur vinnsluferla voru ekki tímamældar.\n\nStjórnborðið sýnir áfram aðeins þau stig sem þú kveikir á fyrir það í flipanum Annálar. Þessi rofi rekur ekki hvert fallakall. Sá rakari er sérstakt tól fyrir forritara og ekkert hér kveikir á honum."
     },
     {
       "table": "ui",
@@ -321,10 +286,10 @@
     },
     {
       "table": "ui",
-      "key": "Checking the installed Starplast version and PyPI…",
-      "source": "Checking the installed Starplast version and PyPI…",
-      "source_sha256": "48a0895ff04ff436502899a7660a0a6db27e5817120aeabb4e6c7c8cead566a9",
-      "translation": "Athuga uppsetta útgáfu Starplast og PyPI…"
+      "key": "Checking the installed ParaScape version and PyPI…",
+      "source": "Checking the installed ParaScape version and PyPI…",
+      "source_sha256": "5cfd7f901cd3cd3c269c55118b7f69e2dbe7a3507062a7889ec7c910c2c801ae",
+      "translation": "Athuga uppsetta útgáfu ParaScape og PyPI…"
     },
     {
       "table": "ui",
@@ -692,10 +657,10 @@
     },
     {
       "table": "ui",
-      "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",
-      "translation": "Kannaðu Apicomplexa-frumuna með Toxoplasma hyperLOPIT-merkjum Starplast. Haltu bendlinum yfir til að sjá lýsingu á staðsetningu, hakaðu við nokkur hólf til að halda þeim auðkenndum, eða notaðu Hreinsa val til að endurstilla þau. Nokkrir flokkar deila lögun; þétt korn nota almennu lögun umfrymiskorna. Ríbósóm, próteasóm, toppflokkar og blandaðar innhimnublöðrur hafa enga samsvarandi lögun hér. Myndin sýnir heiti hólfa, ekki mælingar á próteinum."
+      "key": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source_sha256": "d15122e91befb1cf9db9139d22e19e767ced9397781bf7e59f2c4387a795d5b9",
+      "translation": "Kannaðu Apicomplexa-frumuna með Toxoplasma hyperLOPIT-merkjum ParaScape. Haltu bendlinum yfir til að sjá lýsingu á staðsetningu, hakaðu við nokkur hólf til að halda þeim auðkenndum, eða notaðu Hreinsa val til að endurstilla þau. Nokkrir flokkar deila lögun; þétt korn nota almennu lögun umfrymiskorna. Ríbósóm, próteasóm, toppflokkar og blandaðar innhimnublöðrur hafa enga samsvarandi lögun hér. Myndin sýnir heiti hólfa, ekki mælingar á próteinum."
     },
     {
       "table": "ui",
@@ -794,13 +759,6 @@
       "source": "Finish or stop the active analyses before updating spaCR.",
       "source_sha256": "6f52966404dcf63b89a08b074f3bce1f3c356f2b7a7256165343c56486eeb3b3",
       "translation": "Ljúktu við eða stöðvaðu virkar greiningar áður en spaCR er uppfært."
-    },
-    {
-      "table": "ui",
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "translation": "Ljúktu innskráningu í {label} í glugganum sem opnaðist og ýttu svo á Lokið."
     },
     {
       "table": "ui",
@@ -955,13 +913,6 @@
       "source": "Imported tables require explicit column and object-identity mappings.",
       "source_sha256": "71aea881bbcc62966b4e24cc7699a30f68cef9cf39007ff98d83b722cfdc1242",
       "translation": "Innfluttar töflur krefjast skýrrar vörpunar á dálkum og auðkennum hluta."
-    },
-    {
-      "table": "ui",
-      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
-      "translation": "Í Grímur skaltu velja myndamöppuna fyrir tímaröðina þína. Virkjaðu Tímaraðir og stilltu svo tímalýsigögn og rakningarstillingar."
     },
     {
       "table": "ui",
@@ -1259,13 +1210,6 @@
     },
     {
       "table": "ui",
-      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
-      "translation": "Nefndu þetta sniðmát — eitthvað sem þú myndir segja upphátt, eins og „Toxo PVM, 40×“:"
-    },
-    {
-      "table": "ui",
       "key": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
       "source": "Nikon ND2 (public sample), named like A01/WellA01_ChannelBF_Seq0001.nd2. Naming: auto. Fills the Format Converter: images only, then previews.\n\nNo open library writes ND2, so this is a public sample file by Maxime Woringer, CC BY 4.0: one brightfield plane, renamed the way NIS-Elements JOBS names a well-plate acquisition. It has no masks, so it goes through the Format Converter.",
       "source_sha256": "d3fd70e009fd1196bf8807e28b5a7b052460b663476a23cdcc5c19a9675146c1",
@@ -1364,13 +1308,6 @@
     },
     {
       "table": "ui",
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "translation": "Býðst til að setja upp GitHub CLI og skráir þig svo inn. Án þess virkar samt að skrá mál -- það opnast í þeim vafra sem þú ert þegar innskráð/ur í."
-    },
-    {
-      "table": "ui",
       "key": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
       "source": "On by default. A build's bundled release notes stop at the release before its own, so with this on spaCR reads the public list of releases from GitHub once a day, on a background thread, after Home is drawn, and shows anything newer at the top of News. Nothing is sent and nothing is signed in. Off shows only the notes bundled in this build.",
       "source_sha256": "4f436b775efc5f19fa3f9d156204b22867db2541b0e5c60134a67dda255020a4",
@@ -1427,13 +1364,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
-      "translation": "Opnaðu myndskurðaverkefni í Merkingu. Hlaða prófunargögnum gefur dæmi. Veldu merkingadálkinn og merktu dæmigerða hluti."
-    },
-    {
-      "table": "ui",
       "key": "Open a folder before running Object detection.",
       "source": "Open a folder before running Object detection.",
       "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313",
@@ -1469,13 +1399,6 @@
     },
     {
       "table": "ui",
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "translation": "Opnar nýskráningarsíðu GitHub í vafranum þínum. Komdu svo aftur hingað til að setja upp GitHub CLI og skrá þig inn."
-    },
-    {
-      "table": "ui",
       "key": "Optional steps applied to what the detector reads, in one fixed order. The image on disk is never changed.",
       "source": "Optional steps applied to what the detector reads, in one fixed order. The image on disk is never changed.",
       "source_sha256": "777b110466de72b37f94ea4053415cc860d38653aca88527de958e55afefe8e5",
@@ -1508,6 +1431,13 @@
       "source": "Panel {letters} was read in {name}, but no legend is known for this figure. Paste the figure legend, or annotate by hand.",
       "source_sha256": "1137981fa023bfda81567633fd2eee30bba3778c7b79e1ad7ba6d97592ac0fd0",
       "translation": "Hluti {letters} var lesinn í {name}, en enginn myndatexti er þekktur fyrir þessa mynd. Límdu inn myndatextann eða merktu handvirkt."
+    },
+    {
+      "table": "ui",
+      "key": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source_sha256": "b5accb1ab020b58d357581ec6cbddee67e3d4a924804b7c52851ce445d74e512",
+      "translation": "ParaScape {installed} er uppsett. Útgáfa {latest} er í boði á PyPI. Uppfæra með pip áður en opnað er?"
     },
     {
       "table": "ui",
@@ -1882,13 +1812,6 @@
     },
     {
       "table": "ui",
-      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
-      "translation": "Veldu verkefni með sameinuðum myndum og grímum. Hlaða prófunargögnum gefur dæmi. Athugaðu mynd- og merkjarásir áður en mælt er."
-    },
-    {
-      "table": "ui",
       "key": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
       "source": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
       "source_sha256": "c279a49ea9a53c428e8a4db0e4740f6bdfd25ea34fccbf92f32e0ec3603582d5",
@@ -1907,13 +1830,6 @@
       "source": "Select the saved compatible checkpoint in Mask.",
       "source_sha256": "e728ebc34eecea176cd1c0292a03c313fea3f405905ac93b531880cb8c41397e",
       "translation": "Veldu vistaða samrýmanlega vistunarpunktinn í Grímur."
-    },
-    {
-      "table": "ui",
-      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
-      "translation": "Veldu FASTQ-skrárnar þínar og samsvarandi strikamerkjaviðmið. Hlaða prófunargögnum gefur dæmi. Athugaðu viðmið dálka, raða og leiðara áður en varpað er."
     },
     {
       "table": "ui",
@@ -1973,20 +1889,6 @@
     },
     {
       "table": "ui",
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "translation": "Skráðu þig inn í {label} í glugganum sem opnaðist. spaCR tekur eftir því þegar þú ert búin/n."
-    },
-    {
-      "table": "ui",
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "translation": "Innskráning í {label} lauk ekki innan {minutes} mínútna. Ýttu á Skrá inn til að reyna aftur."
-    },
-    {
-      "table": "ui",
       "key": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
       "source": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
       "source_sha256": "0386f78d235909cfa5ae06c876ef6f91690c42f21c189eca9f20144eecc1f80a",
@@ -2022,31 +1924,10 @@
     },
     {
       "table": "ui",
-      "key": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
-      "translation": "Starplast {installed} er uppsett. Útgáfa {latest} er í boði á PyPI. Uppfæra með pip áður en opnað er?"
-    },
-    {
-      "table": "ui",
-      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
-      "translation": "Byrjaðu á myndaverkefni. Notaðu Hlaða prófunargögnum í Grímur fyrir dæmi, eða veldu myndamöppuna þína. Athugaðu úthlutun rása áður en keyrt er."
-    },
-    {
-      "table": "ui",
       "key": "Stop this montage and queued selections after the current read finishes.",
       "source": "Stop this montage and queued selections after the current read finishes.",
       "source_sha256": "3864a8c7159432852cd9b7ceb65e734357dff8ece7c85ea8d42432691f02ed91",
       "translation": "Stöðva þessa myndasamstæðu og val í biðröð eftir að núverandi lestri lýkur."
-    },
-    {
-      "table": "ui",
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "translation": "Hætti að bíða eftir innskráningunni. Ýttu á Skrá inn til að hefja hana aftur, eða á Lokið þegar þú hefur skráð þig inn."
     },
     {
       "table": "ui",
@@ -2421,17 +2302,10 @@
     },
     {
       "table": "ui",
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "translation": "Skipunin sem spaCR keyrir. Afritaðu hana til að keyra hana sjálf/ur í skipanalínu í staðinn."
-    },
-    {
-      "table": "ui",
-      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source_sha256": "ebb593b82afa1a40521a11f6e0d27f24059ad63ef3a0aff1c5cffefb33ed1e10",
-      "translation": "Skýringarmynd hólfanna tengir svipgerðir í myndgreiningu við orðaforða um staðsetningu innan frumu sem notaður er í Starplast. ToxoDB veitir samhengi gena og erfðamengis, en UniProt leggur til skýringar á próteinum. hyperLOPIT-kortið veitir tilraunagögn um staðsetningu Toxoplasma-próteina; auðkennt frumulíffæri hér er leiðarvísir að þeim orðaforða, ekki spá fyrir valið gen né sönnun á orsök svipgerðar."
+      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source_sha256": "486cc736ebc04f37f783b8e95fe4dff7c6a8c3f1795d4213c8712c82f6dbe554",
+      "translation": "Skýringarmynd hólfanna tengir svipgerðir í myndgreiningu við orðaforða um staðsetningu innan frumu sem notaður er í ParaScape. ToxoDB veitir samhengi gena og erfðamengis, en UniProt leggur til skýringar á próteinum. hyperLOPIT-kortið veitir tilraunagögn um staðsetningu Toxoplasma-próteina; auðkennt frumulíffæri hér er leiðarvísir að þeim orðaforða, ekki spá fyrir valið gen né sönnun á orsök svipgerðar."
     },
     {
       "table": "ui",
@@ -2628,13 +2502,6 @@
       "source": "The side of one tile, in pixels. Comfortably larger than one object and smaller than the scale the illumination varies on; a tile the size of one object equalises the object against itself.",
       "source_sha256": "e06f724c273503648709fcf95234306da12f793623dd1f460cbb1ff28ba65565",
       "translation": "Hlið eins reits, í pixlum. Vel stærri en einn hlutur og minni en kvarðinn sem lýsingin breytist á; reitur á stærð við einn hlut jafnar hlutinn gagnvart sjálfum sér."
-    },
-    {
-      "table": "ui",
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "translation": "Ekki var hægt að hefja innskráninguna héðan. Keyrðu skipunina hér að neðan í skipanalínu og ýttu svo á Lokið."
     },
     {
       "table": "ui",
@@ -2883,24 +2750,10 @@
     },
     {
       "table": "ui",
-      "key": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source_sha256": "e457bc3cf0b529f5fc157c1fadd1fa1a6e14824255bbd1aad7ab0fd2fb6b4473",
-      "translation": "Uppfæra Starplast með pip frá PyPI í sérstöku umhverfi þess í {path}. Lokaðu öllum opnum Starplast-gluggum áður en uppfært er. Starplast er í alfaútgáfu; niðurhal og diskanotkun ráðast af útgáfunni. Pökkum spaCR er ekki breytt."
-    },
-    {
-      "table": "ui",
-      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
-      "translation": "Notaðu Hlaða prófunargögnum innan einingar til að hlaða dæmaverkefni hennar. Leiðaryfirferðir á Heimaskjánum útskýra hvar á að byrja og hvernig einingarnar senda gögn sín á milli."
-    },
-    {
-      "table": "ui",
-      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
-      "translation": "Notaðu Mælingu til að flytja út myndskurði hluta. Veldu verkefnið sem inniheldur sameinuðu myndirnar og grímurnar, virkjaðu svo vistun myndskurða og veldu gerð hlutar."
+      "key": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source_sha256": "ec2ce02efb53ca414003af40ffc41d8edd734e24f7baccf140040b879c9dc92a",
+      "translation": "Uppfæra ParaScape með pip frá PyPI í sérstöku umhverfi þess í {path}. Lokaðu öllum opnum ParaScape-gluggum áður en uppfært er. ParaScape er í alfaútgáfu; niðurhal og diskanotkun ráðast af útgáfunni. Pökkum spaCR er ekki breytt."
     },
     {
       "table": "ui",
@@ -3065,13 +2918,6 @@
     },
     {
       "table": "ui",
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "translation": "Meðan ítarleg annálaskráning er virk (flipinn Einingar) er DEBUG alltaf skrifað í annálaskrárnar, svo þessi rofi helst virkur. Slökktu á ítarlegri annálaskráningu til að velja sjálf/ur. Þínu eigin vali er haldið fyrir þegar þú gerir það."
-    },
-    {
-      "table": "ui",
       "key": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
       "source": "Write the conditions and OK ticks to figure_annotations.csv in the source folder. The Figure-mode run reads it.",
       "source_sha256": "d8229a4be8729ffabea08e0fcef6064cffc85a7787d02f745473556d886e6738",
@@ -3202,13 +3048,6 @@
       "source": "merged/*.npy in the project; channels and integer label planes share each field array.",
       "source_sha256": "dd31724bc9249a234a1d470a40044ced540a2f1a45f87f971fa0130c34fd22e8",
       "translation": "merged/*.npy í verkefninu; rásir og heiltölumerkjaplön deila fylki hvers sjónsviðs."
-    },
-    {
-      "table": "ui",
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "translation": "npm fékk ekki að skrifa í alþjóðlegu möppuna sína. Keyrðu `npm config set prefix ~/.local` einu sinni í skipanalínu svo npm setji upp í möppu sem þú átt, og ýttu svo á Reyna aftur."
     },
     {
       "table": "ui",
@@ -3404,6 +3243,208 @@
         "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
         "translation": "Keyra CPU-aðferðina sem valin er undir Greiningaraðferð á alla myndina og merkja það sem hún finnur, með tilliti til lágmarksflatarmálsins hér að ofan. Allt sem aðferðin les er í þeim flokki: reiknirit stigsins, leiðréttingin, mýkingin, hvor hliðin er hluturinn, fylling gata, skipting pars sem snertist og brottfelling þess sem ramminn skar. Ef Cellpose eða bakendi er valinn fellur þessi hnappur aftur á Otsu, því þeir hafa eigin hnapp fyrir Hlutagreiningu."
       }
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled' er sögulega pakkaða skellulíkanið. Því er haldið svo hægt sé að endurgera gamla keyrslu; það missir af um þriðjungi skellnanna á myndum úr greinum. toxoplasma_plaque_v2 er núverandi líkan.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "translation": "4PL er samhverft um miðpunkt sinn. Raunveruleg ósamhverfa er til, og 4PL tekur hana upp í tilfært EC50; 5PL mátar hana með einum stika í viðbót, þarf einum styrk fleiri og segir til um hvort sá stiki hafi átt rétt á sér.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
+      "translation": "Nefndu þetta sniðmát — eitthvað sem þú myndir segja upphátt, eins og „Toxo PVM, 40×“:",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "Í Grímur skaltu velja myndamöppuna fyrir tímaröðina þína. Virkjaðu Tímaraðir og stilltu svo tímalýsigögn og rakningarstillingar.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "Opnaðu myndskurðaverkefni í Merkingu. Hlaða prófunargögnum gefur dæmi. Veldu merkingadálkinn og merktu dæmigerða hluti.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "Veldu verkefni með sameinuðum myndum og grímum. Hlaða prófunargögnum gefur dæmi. Athugaðu mynd- og merkjarásir áður en mælt er.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "Veldu FASTQ-skrárnar þínar og samsvarandi strikamerkjaviðmið. Hlaða prófunargögnum gefur dæmi. Athugaðu viðmið dálka, raða og leiðara áður en varpað er.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "Byrjaðu á myndaverkefni. Notaðu Hlaða prófunargögnum í Grímur fyrir dæmi, eða veldu myndamöppuna þína. Athugaðu úthlutun rása áður en keyrt er.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "Notaðu Hlaða prófunargögnum innan einingar til að hlaða dæmaverkefni hennar. Leiðaryfirferðir á Heimaskjánum útskýra hvar á að byrja og hvernig einingarnar senda gögn sín á milli.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "Notaðu Mælingu til að flytja út myndskurði hluta. Veldu verkefnið sem inniheldur sameinuðu myndirnar og grímurnar, virkjaðu svo vistun myndskurða og veldu gerð hlutar.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "translation": "Ljúktu innskráningu í {label} í glugganum sem opnaðist og ýttu svo á Lokið."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "translation": "Býðst til að setja upp GitHub CLI og skráir þig svo inn. Án þess virkar samt að skrá mál -- það opnast í þeim vafra sem þú ert þegar innskráð/ur í."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "translation": "Opnar nýskráningarsíðu GitHub í vafranum þínum. Komdu svo aftur hingað til að setja upp GitHub CLI og skrá þig inn."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "translation": "Skráðu þig inn í {label} í glugganum sem opnaðist. spaCR tekur eftir því þegar þú ert búin/n."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "translation": "Innskráning í {label} lauk ekki innan {minutes} mínútna. Ýttu á Skrá inn til að reyna aftur."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "translation": "Hætti að bíða eftir innskráningunni. Ýttu á Skrá inn til að hefja hana aftur, eða á Lokið þegar þú hefur skráð þig inn."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "translation": "Skipunin sem spaCR keyrir. Afritaðu hana til að keyra hana sjálf/ur í skipanalínu í staðinn."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "translation": "Ekki var hægt að hefja innskráninguna héðan. Keyrðu skipunina hér að neðan í skipanalínu og ýttu svo á Lokið."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "translation": "npm fékk ekki að skrifa í alþjóðlegu möppuna sína. Keyrðu `npm config set prefix ~/.local` einu sinni í skipanalínu svo npm setji upp í möppu sem þú átt, og ýttu svo á Reyna aftur."
+      }
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "Rísandi arpeggio sem leysist upp á grunntón tóntegundarinnar þegar keyrslu einingar lýkur með árangri, fyrir þegar spaCR er í öðrum glugga.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "Stuttur, hljóðlátur plokkaður tónn í tóntegund hljóðasettsins þegar þú ýtir á hnapp, rofa, flipa, lista eða sleða: staðfesting á að ýtt var, meira fundin en heyrð.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "Bætir DEBUG-skilaboðum spaCR við annálaskrárnar í ~/.spacr/logs. Það leyfir einnig cellpose að greina frá hvaða líkani það hlóð, og það skráir hvaða hnappa þú ýttir á. Sú slóð er það sem gerir villuskýrslu þess virði að lesa hana.\n\nRæsing spaCR og opnun skjáa þess tók ekki lengri tíma með þetta virkt. Þetta var mælt á einni vinnustöð með því að opna allar einingar, einu sinni með þetta virkt og einu sinni óvirkt. Heimaskjárinn var tilbúinn á um 4 sekúndum eftir kalda ræsingu í báðum tilvikum. Hægasta einingin opnaðist á um 7 sekúndum í báðum tilvikum. Keyrslur vinnsluferla voru ekki tímamældar.\n\nStjórnborðið sýnir áfram aðeins þau stig sem þú kveikir á fyrir það í flipanum Annálar. Þessi rofi rekur ekki hvert fallakall. Sá rakari er sérstakt tól fyrir forritara og ekkert hér kveikir á honum.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "translation": "Meðan ítarleg annálaskráning er virk (flipinn Einingar) er DEBUG alltaf skrifað í annálaskrárnar, svo þessi rofi helst virkur. Slökktu á ítarlegri annálaskráningu til að velja sjálf/ur. Þínu eigin vali er haldið fyrir þegar þú gerir það.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:09:12.178670+00:00",
+  "status": "MECHANICAL VERIFICATION OBLIGATIONS PREPARED; A/B artifacts pending, no translation verification completed",
+  "Home_accepted_receipt": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n615_english_truth_proposals_2026-10-13/home-accepted-future-english.json",
+    "sha256": "c30d17f08d8740e4863635bba3b5b77de32b7e8eb079e145d0a2ac12381f130a",
+    "size_bytes": 2082
+  },
+  "Home_scope": "Home accepts these source-bound English replacements for implementation AFTER release, not an applied source/catalog change",
+  "approval": {
+    "English_accepted_for_after_release": true,
+    "nine_locale_features_drafts_allowed": true,
+    "locale_translations_approved": false,
+    "canonical_source_catalog_review_edits_allowed": false,
+    "release_done": false
+  },
+  "locales": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "expected_record_count": 18,
+  "expected_roles": [
+    {
+      "role": "dynamic_animation_tooltip",
+      "accepted_field": "tooltip",
+      "target_kind": "runtime",
+      "target_path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "current_target_line": 10629,
+      "approved_future_English": "While a CPU-heavy job such as Measure runs, this policy caps backdrops that are already animating at no more than 30 fps and pauses Spaceout fractals. While a GPU job such as mask generation runs, decorative rendering uses the CPU and GPU-backed Spaceout fractals pause. Your saved animation settings return when the jobs end. Off disables this workload policy; other animation limits still apply.",
+      "approved_future_English_utf8_sha256": "2d88ae8535013bf178f95a59d0405f8a8dafddec1012ee6a965a9a343d772b89",
+      "current_English_source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+      "numeric_constraints": {
+        "cap_value": 30,
+        "interpretation": "upper configured fps cap for already-qualifying backdrops; never guaranteed delivered motion",
+        "no_added_60fps_guarantee": true
+      },
+      "named_UI_references": [
+        "Measure",
+        "Spaceout"
+      ],
+      "source_bound_meaning_checks": [
+        "CPU-heavy enabled policy caps eligible backdrops at no more than30fps and pauses Spaceout fractals.",
+        "GPU job uses CPU decorative rendering and pauses GPU-backed Spaceout fractals; do not promise all animations stop.",
+        "Saved settings return after jobs; Off disables workload policy only, not independent limits."
+      ],
+      "locale_wording_checks_scope": "Literal proper-name/numeric presence and metadata can be checked mechanically; actual corresponding conditional meaning requires qualified semantic review."
+    },
+    {
+      "role": "AmbientWidget_stop_whole_docstring",
+      "accepted_field": "AmbientWidget_stop",
+      "target_kind": "API",
+      "target_symbol": "spacr.qt.widgets.ambient.AmbientWidget.stop",
+      "target_path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "current_target_line": 11063,
+      "approved_future_English": "Stop the animation timer and retire the shading thread.\n\nWhen a shading producer exists and the widget is visible with a\n:class:`_BufferedEngine`, retain its last published frame, if available,\nas the still drawn by :meth:`_paint_still`. This applies regardless of\nwhy :meth:`stop` was called. A hidden widget does not retain that\npublished frame. Stopping does not imply that every other piece of\nrenderer or widget state is released.\n\nA CPU-heavy run does not itself stop a backdrop that otherwise qualifies\nto animate: the workload policy and :func:`spacr.qt.gil_priority.active`\ncan pace it to no more than :data:`_RUN_FPS`. The animation switch,\nvisibility, Reduce motion and minimization still govern whether it runs.",
+      "approved_future_English_utf8_sha256": "4e5653a5655d9e1781c4303b301a4b8703701b2bb4f93885f3424c321ac69f86",
+      "technical_reference_roles": [
+        [
+          "class",
+          "_BufferedEngine"
+        ],
+        [
+          "meth",
+          "_paint_still"
+        ],
+        [
+          "meth",
+          "stop"
+        ],
+        [
+          "func",
+          "spacr.qt.gil_priority.active"
+        ],
+        [
+          "data",
+          "_RUN_FPS"
+        ]
+      ],
+      "required_reference_identifiers": [
+        "_BufferedEngine",
+        "_paint_still",
+        "stop",
+        "spacr.qt.gil_priority.active",
+        "_RUN_FPS"
+      ],
+      "source_bound_meaning_checks": [
+        "Last frame retained only if producer exists, widget visible, BufferedEngine and last published frame available; applies regardless why stop called.",
+        "Hidden widget does not retain published frame; no total-memory-zero or complete-state-release promise.",
+        "CPU-heavy run does not itself stop an otherwise qualifying backdrop; workload and independent gil claim can cap configured rate.",
+        "Animation switch/visibility/Reduce motion/minimization still govern running."
+      ],
+      "locale_wording_checks_scope": "Check preserved technical references/role markup, whole-document coverage metadata and nonblank paragraphs. Cannot prove condition/negation fidelity or native fluency mechanically."
+    }
+  ],
+  "actual_source_bindings_checked": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "size_bytes": 552446,
+      "matches_Home_accepted_source": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "size_bytes": 581838,
+      "matches_Home_accepted_source": true
+    }
+  ],
+  "check_inventory": [
+    {
+      "id": "M01",
+      "check": "Exactly nine API/runtime locales de,es,fr,hi,is,ko,pt,sv,zh_CN for each of two roles:18 unique locale-role pairs; reject missing/duplicate/wrong-locale entries.",
+      "limit": "Does not prove all other translations complete."
+    },
+    {
+      "id": "M02",
+      "check": "Every draft English binding equals exact accepted field and UTF8 SHA; do not hash normalized whitespace or substitute earlier/unapproved tooltip/stop excerpt.",
+      "limit": "Whole stop English is required, not only opening paragraph."
+    },
+    {
+      "id": "M03",
+      "check": "Nonblank string translation for each record and correct locale metadata. pt means Brazilian Portuguese; zh_CN uses API/runtime underscore ID, not tutorial zh-CN alias.",
+      "limit": "Script presence/nonblank cannot establish language fluency, dialect or semantic fidelity."
+    },
+    {
+      "id": "M04",
+      "check": "Tooltip30cap numeric is preserved (equivalent locale decimal-digit spelling may require explicit interpretation); proper UI identifiers Measure/Spaceout retained or explicitly reviewed matching localized UI label. No new60fps/guaranteed-motion claim.",
+      "limit": "Automated token checks flag ambiguity for review; cannot validate translated sentence meaning."
+    },
+    {
+      "id": "M05",
+      "check": "Full stop reference role/target pairs preserved: class_BufferedEngine; meth_paint_still; methstop; funcspacr.qt.gil_priority.active; data_RUN_FPS. Validate exact technical target identifiers and balanced role syntax; no translation of identifiers.",
+      "limit": "Technical reference preservation does not prove retained-frame guard/negation meaning."
+    },
+    {
+      "id": "M06",
+      "check": "Draft source file/accepted receipt/current-source hashes match actual bound files; bind draft JSON and any declared source hashes individually. Do not repeat global4306-file audit.",
+      "limit": "Hash agreement establishes identity only, not behavior tests."
+    },
+    {
+      "id": "M07",
+      "check": "Provenance describes hand-authored/AI-assisted draft and actual review scope accurately; no invented native-speaker approval. Approval records distinguish accepted English from unapproved locale translations.",
+      "limit": "Mechanical/provenance pass is not human semantic acceptance."
+    },
+    {
+      "id": "M08",
+      "check": "Draft is features-only future evidence: source_applied=false, canonical_catalog/review/generator_applied=false or equivalent; implementation gated AFTER release. Helpers English proposal remains unapproved and outside these18 records.",
+      "limit": "No source/catalog changes or translation regeneration authorized."
+    },
+    {
+      "id": "M09",
+      "check": "Compare expected records to actual A/B partition once supplied; union has18 unique pairs, explicit file bindings and original/final receipt hashes. Report every missing/disputed check instead of guessing schema or claiming full completion.",
+      "limit": "Actual artifact paths/schema not supplied yet; no completed verification claimed."
+    },
+    {
+      "id": "S01",
+      "check": "Separate semantic reviewer must assess guard scope, negation, native phrasing/Brazilian Portuguese, restored preferences, UI names and cap versus achieved motion.",
+      "limit": "Outside mechanical acceptance; A/B peer evidence may supply bounded semantic checks but not blanket native quality."
+    }
+  ],
+  "pending_artifacts": {
+    "A": null,
+    "B": null,
+    "schema_unknown": true
+  },
+  "no_actions": {
+    "app_imports_GPU_Qt_tests": false,
+    "implementation_tests": false,
+    "generators_catalog_source_edits": false,
+    "translations_written": false
+  }
+}

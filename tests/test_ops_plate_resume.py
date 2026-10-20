@@ -55,7 +55,7 @@ def test_real_driver_resumes_only_wells_with_requested_reads(
     def run_ops(settings, wells, phases, library):
         assert settings['ops_store_reads'] and not settings['ops_gpu']
         assert tuple(phases) == driver.PHASES
-        assert Path(library).read_text().splitlines() == ['prefix', 'ACGT']
+        assert Path(library).read_text(encoding="utf-8").splitlines() == ['prefix', 'ACGT']
         called.extend(wells)
         with sqlite3.connect(db) as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS ops_reads (plate TEXT, well TEXT)')
@@ -73,7 +73,7 @@ def test_real_driver_resumes_only_wells_with_requested_reads(
     assert driver.main(args) == 0
     assert called == reruns
     assert (results / 'B1.json').read_bytes() == b1_before
-    summary = json.loads((out / 'plate_summary.json').read_text())
+    summary = json.loads((out / 'plate_summary.json').read_text(encoding="utf-8"))
     assert summary['store_reads_wells'] == (['B2'] if requested else [])
     assert summary['failed'] == {}
     if reruns:

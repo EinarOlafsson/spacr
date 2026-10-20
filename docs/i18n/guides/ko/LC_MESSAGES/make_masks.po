@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -52,8 +52,9 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "저장된 정수 마스크는 유지되는 각 점상 객체에 고유한 라벨을 부여합니다. 인접한 중심 창은 겹칠 수 있습니다. 각 정수 좌표 피크는 해당 객체에 예약되며, 다른 공유 픽셀은 가장 가까운 중심에 할당되고 부모 밖의 픽셀은 제외됩니다. 따라서 마스크의 픽셀 수는 요청한 N보다 적을 수 있습니다. 이 마스크는 중심 샘플링용이며 점상 객체의 물리적 경계가 아닙니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
-msgstr "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. 기존 ``corrected`` 열은 참조 구현의 3×3 창 결과를 유지합니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+msgstr "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. ``corrected`` 열에는 참조 구현의 3×3 창 결과가 들어 있습니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
@@ -93,8 +94,108 @@ msgstr "**유지** 또는 **버리기** 로 시야 단위의 선별 판정을 �
 msgid "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area."
 msgstr "**마스크 저장**, **이전 이미지**, **다음 이미지**\\ 는 편집 도구와 함께 상단 작업 행에 있습니다. 창이 좁으면 이 행을 가로로 스크롤하여 보이는 영역 밖의 컨트롤을 사용할 수 있습니다."
 
-msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
-msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask."
+msgstr "**다음 이미지** 뒤에 있는 **이동 시 저장** 은 **유지**, **버리기**, **다음 이미지** 또는 **이전 이미지** 가 다음으로 넘어가기 전에 편집한 마스크를 저장합니다. 기본적으로 꺼져 있으며 세션 간에 기억됩니다. 저장에 실패하면 이미지는 열린 상태로 유지되고 판정은 기록되지 않습니다. **건너뛰기** 는 마스크를 기록하지 않습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on, the electron microscopy test data and the FIB-SEM volumes described under :ref:`mm-tem` and :ref:`mm-volumes`."
+msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트의 시야 표본, 전자현미경 테스트 데이터, 그리고 :ref:`mm-tem` 및 :ref:`mm-volumes` 에 설명된 FIB-SEM 볼륨을 제공합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D volumes in the Mask view"
+msgstr "Mask 보기의 3D 볼륨"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A volume opens in the Mask view, where 2-D fields open. A TIFF stack, an OME-TIFF or an MRC volume (``.mrc``, ``.rec`` or ``.map``) with three spatial axes is recognised as a volume when it is in the folder you open or when you choose **Open 3D image…**. Time, channel and RGB stacks are refused rather than read as depth. An MRC volume needs the optional ``mrcfile`` package. The status line reports the number of slices and the voxel size."
+msgstr "볼륨은 2D 시야가 열리는 Mask 보기에서 열립니다. 세 개의 공간 축을 가진 TIFF 스택, OME-TIFF 또는 MRC 볼륨(``.mrc``, ``.rec`` 또는 ``.map``)은 여는 폴더에 있거나 **Open 3D image…** 를 선택했을 때 볼륨으로 인식됩니다. 시간, 채널 및 RGB 스택은 깊이로 읽히지 않고 거부됩니다. MRC 볼륨에는 선택 패키지 ``mrcfile`` 이 필요합니다. 상태 줄에는 슬라이스 수와 복셀 크기가 표시됩니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **slice slider** at the left of the image steps through the slices; **Page Up** and **Page Down** step too. Every 2-D tool draws on the slice on screen."
+msgstr "이미지 왼쪽의 **슬라이스 슬라이더** 로 슬라이스를 하나씩 이동합니다. **Page Up** 과 **Page Down** 으로도 이동할 수 있습니다. 모든 2D 도구는 화면에 표시된 슬라이스에 그립니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Z** button above the slider is the Z wheel toggle. On (blue), the mouse wheel changes the slice; off, the wheel zooms."
+msgstr "슬라이더 위의 **Z** 버튼은 Z 휠 토글입니다. 켜면(파란색) 마우스 휠로 슬라이스가 바뀌고, 끄면 휠로 확대/축소합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **View** list beside the Mask tab chooses **Default**, **Orthogonal** or **True 3D**. Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through a crosshair; the middle mouse button moves the crosshair. True 3D shows the volume and its objects in three dimensions."
+msgstr "Mask 탭 옆의 **View** 목록에서 **기본값**, **직교** 또는 **True 3D** 를 선택합니다. 기본값은 한 번에 한 슬라이스에 그립니다. 직교는 십자선을 지나는 XZ 및 YZ 측면 보기를 추가하며, 마우스 가운데 버튼으로 십자선을 이동합니다. True 3D는 볼륨과 그 객체를 3차원으로 표시합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The row above the image holds **Object ID** (an existing object to edit, or an unused ID for a new one), **Interpolate slices**, **Assign 3D objects** and **Delete object**."
+msgstr "이미지 위의 행에는 **객체 ID** (편집할 기존 객체 또는 새 객체에 사용할 미사용 ID), **슬라이스 보간**, **3D 객체 할당**, **객체 삭제** 가 있습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Interpolate slices** fills the empty slices between slices where the chosen object is drawn, blending its outline from one to the next. **Assign 3D objects** gives every separate 3D object its own ID: parts of one ID that do not touch in 3D become new objects, so you can draw many objects with one ID and then assign them. **Delete object** removes the chosen object from every slice. Each of these is one undo step."
+msgstr "**슬라이스 보간** 은 선택한 객체가 그려진 슬라이스 사이의 빈 슬라이스를 채우며, 한 슬라이스에서 다음 슬라이스로 윤곽을 혼합합니다. **3D 객체 할당** 은 분리된 각 3D 객체에 고유 ID를 부여합니다. 한 ID 중 3D에서 서로 닿지 않는 부분은 새 객체가 되므로, 하나의 ID로 여러 객체를 그린 다음 할당할 수 있습니다. **객체 삭제** 는 선택한 객체를 모든 슬라이스에서 제거합니다. 각 작업은 한 번의 실행 취소 단계입니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In True 3D, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. The view is a sampled point-cloud preview; the edits and voxel counts use the full image. These keys work while True 3D is shown, and are listed under **Change shortcuts**:"
+msgstr "True 3D에서 객체를 그린 다음 앵커를 드래그하거나, 표면을 선택하여(여러 개는 Ctrl-클릭) 드래그하거나 마우스 휠을 돌립니다. **앵커 밀도** 는 각 가장자리와 표면에 배치되는 앵커 수를 설정하며, **앵커 표시** 로 앵커를 숨깁니다. 이 보기는 샘플링된 포인트 클라우드 미리보기이며, 편집과 복셀 수는 전체 이미지를 사용합니다. 다음 키는 True 3D가 표시된 동안 작동하며 **단축키 변경** 에 나열되어 있습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Key"
+msgstr "키"
+
+msgid "Action"
+msgstr "동작"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+E**"
+msgstr "**Shift+E**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edit: drag anchors and surfaces."
+msgstr "편집: 앵커와 표면을 드래그합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+S**"
+msgstr "**Shift+S**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Spin the view freely."
+msgstr "보기를 자유롭게 회전합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+D**"
+msgstr "**Shift+D**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Draw a new object."
+msgstr "새 객체를 그립니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Shift+X**, **Shift+Y**, **Shift+Z**"
+msgstr "**Shift+X**, **Shift+Y**, **Shift+Z**"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Choose the X, Y or Z drawing plane. Pressed within 1.5 s of **Shift+S**, they choose the spin axis instead."
+msgstr "X, Y 또는 Z 그리기 평면을 선택합니다. **Shift+S** 를 누른 후 1.5 s 안에 누르면 대신 회전 축을 선택합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save mask** or **Ctrl+S** writes the labels to ``masks/<image stem>.tif`` and their editable boundaries to a ``.volume.json`` file beside it; the source volume is never overwritten."
+msgstr "편집은 마스크 복셀 자체를 변경하고, 이미지의 축 순서와 복셀 간격을 유지하며, 다른 객체를 절대 덮어쓰지 않습니다. **마스크 저장** 또는 **Ctrl+S** 는 라벨을 ``masks/<image stem>.tif`` 에, 편집 가능한 경계를 그 옆의 ``.volume.json`` 파일에 기록합니다. 원본 볼륨은 절대 덮어쓰지 않습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Electron micrographs"
+msgstr "전자현미경 사진"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks opens transmission electron micrographs as ``.dm3``, ``.dm4``, ``.mrc`` and ``.rec`` files, with TIFF, PNG and the other image formats. The pixel size in nanometres is read from the file. MRC files need the optional ``mrcfile`` package."
+msgstr "Make Masks는 TIFF, PNG 및 기타 이미지 형식과 함께 투과전자현미경 사진을 ``.dm3``, ``.dm4``, ``.mrc``, ``.rec`` 파일로 엽니다. 나노미터 단위의 픽셀 크기는 파일에서 읽습니다. MRC 파일에는 선택 패키지 ``mrcfile`` 이 필요합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Contrast preset**, under **Lower %** and **Upper %** in the display settings, sets the display in one step. **Electron microscopy (TEM)** windows the image between its 0.5th and 99.5th percentiles, so holes in the section and stain precipitate cannot take the whole range, and turns on **CLAHE** (128 px tiles) under **Image enhancement** to even out uneven section thickness. Membranes stay dark. **Electron microscopy, inverted** also turns on **Invert image**, so dark membranes and organelles are drawn bright and Otsu and the magnifier find them. **Custom** changes nothing, and every value stays editable."
+msgstr "표시 설정의 **하한 %** 및 **상위 백분위수 %** 아래에 있는 **대비 프리셋** 은 표시를 한 번에 설정합니다. **전자현미경 (TEM)** 은 이미지를 0.5번째와 99.5번째 백분위수 사이로 윈도잉하여 절편의 구멍과 염색 침전물이 전체 범위를 차지하지 못하게 하고, 고르지 않은 절편 두께를 보정하기 위해 **이미지 향상** 아래의 **CLAHE** (128 px 타일)를 켭니다. 막은 어둡게 유지됩니다. **전자현미경, 반전** 은 **이미지 반전** 도 켜므로, 어두운 막과 세포소기관이 밝게 그려져 Otsu와 돋보기가 이를 찾을 수 있습니다. **사용자 지정** 은 아무것도 변경하지 않으며 모든 값은 계속 편집할 수 있습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The arrow on **Load test data…** offers **Mitochondria in TEM images (test data)**: ten transmission electron micrographs (about 32 MB, EMPIAR-10982, CC0), with their mitochondria masks in ``ground_truth_masks/``, which the editor does not read. **FIB-SEM volume, 3D (test data)** downloads a FIB-SEM volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and opens it unsegmented in the 3D editor. **FIB-SEM volume with masks, 3D (test data)** opens the same volume with its mitochondria masks, copied once to ``corrected_masks/`` for correction; ``ground_truth_masks/`` stays unchanged. All are cached after the first download."
+msgstr "**테스트 데이터 불러오기...** 의 화살표는 **TEM 이미지의 미토콘드리아 (테스트 데이터)** 를 제공합니다. 이는 투과전자현미경 사진 10장(약 32 MB, EMPIAR-10982, CC0)과 ``ground_truth_masks/`` 에 있는 미토콘드리아 마스크로 구성되며, 편집기는 이 마스크를 읽지 않습니다. **FIB-SEM 볼륨, 3D (테스트 데이터)** 는 HeLa 세포의 FIB-SEM 볼륨(약 25 MB, EMPIAR-10982, CC0)을 다운로드하여 3D 편집기에서 분할되지 않은 상태로 엽니다. **마스크가 있는 FIB-SEM 볼륨, 3D (테스트 데이터)** 는 같은 볼륨을 미토콘드리아 마스크와 함께 열며, 마스크는 수정을 위해 ``corrected_masks/`` 에 한 번 복사됩니다. ``ground_truth_masks/`` 는 변경되지 않습니다. 모든 데이터는 첫 다운로드 후 캐시됩니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "With **Show alpha features** on in Preferences, the magnifier's **Method** list offers **MitoNet (TEM mitochondria)**. MitoNet v1 mini finds mitochondria in electron micrographs with dark membranes; it is not a fluorescence model. The weights are third-party (CC-BY-4.0, Conrad and Narayan, Cell Systems 2023), listed under Third-party in the Model Zoo, and download from Zenodo (110 MB) the first time the method runs. **Minimum area** sets the smallest mitochondrion kept. This method is alpha."
+msgstr "환경설정에서 **알파 기능 표시** 를 켜면 돋보기의 **방법** 목록에 **MitoNet (TEM 미토콘드리아)** 가 표시됩니다. MitoNet v1 mini는 막이 어두운 전자현미경 사진에서 미토콘드리아를 찾으며, 형광 모델이 아닙니다. 가중치는 제3자 제공(CC-BY-4.0, Conrad 및 Narayan, Cell Systems 2023)이며, Model Zoo의 Third-party 아래에 나열되어 있고, 이 방법을 처음 실행할 때 Zenodo에서 다운로드됩니다(110 MB). **최소 면적** 은 유지할 가장 작은 미토콘드리아를 설정합니다. 이 방법은 알파입니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw bounding boxes for YOLO"
@@ -160,9 +261,6 @@ msgstr "캔버스 도구와 탐색"
 
 msgid "Tool"
 msgstr "도구"
-
-msgid "Action"
-msgstr "동작"
 
 msgid "Brush"
 msgstr "브러시"
@@ -348,8 +446,9 @@ msgstr "Cellpose 및 기타 설치된 백엔드"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "해당 모델 컨트롤을 사용합니다. Cellpose는 직경, 흐름 오차 임계값, 세포 확률 임계값, 정규화를 제공합니다. 수락한 레이블과 함께 세포 확률 창과 흐름 창을 검사합니다."
 
-msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
-msgstr "일반 Otsu는 이전 방식의 돋보기 전처리 경로를 유지합니다. 잘라낸 미리보기와 전체 시야 검출이 픽셀 단위로 같다는 보장은 없습니다. 다른 임계값 모드는 요청된 크롭에서 공유 엔진을 실행하지만, 크롭의 히스토그램은 여전히 전체 시야와 다를 수 있습니다. 여러 대표 시야에서 조정하고 최종 전체 이미지 출력을 검사합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+msgstr "일반 Otsu는 별도의 돋보기 전처리 경로를 사용하므로, 잘라낸 미리보기와 전체 시야 검출이 픽셀 단위로 같다는 보장은 없습니다. 다른 임계값 모드는 요청된 크롭에서 공유 엔진을 실행하지만, 크롭의 히스토그램은 여전히 전체 시야와 다를 수 있습니다. 여러 대표 시야에서 조정하고 최종 전체 이미지 출력을 검사합니다."
 
 msgid "Enhancement before and after detection"
 msgstr "검출 전후의 향상"

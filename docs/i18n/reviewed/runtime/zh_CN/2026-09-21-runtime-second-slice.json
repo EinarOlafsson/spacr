@@ -32,24 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "translation": "4PL 曲线关于中点对称。真实数据可能存在不对称性，4PL 会通过偏移 EC50 来吸收这种差异；5PL 则增加一个参数来拟合不对称性，需要多一个浓度点，并评估增加该参数是否有必要。",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
-    },
-    {
-      "table": "ui",
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "translation": "选择您自己的 WAV 文件作为背景音乐，替代 spaCR 的音乐。留空则使用 spaCR 自带音乐。文件不会被上传或复制，而是从原位置读取；Resonance 背景也会随该音乐变化。",
       "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e"
-    },
-    {
-      "table": "ui",
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "translation": "晴朗的夜晚：靛蓝、紫罗兰、冰蓝，以及日落许久后天空仍保留的淡蓝紫色。",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1"
     },
     {
       "table": "ui",
@@ -81,31 +67,10 @@
     },
     {
       "table": "ui",
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "translation": "模块运行成功结束时，播放一个上行琶音，最后落在该调的主音上，即使 spaCR 不在当前窗口也能收到提示。",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e"
-    },
-    {
-      "table": "ui",
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "translation": "按下按钮、开关、选项卡、列表或滑块时，播放与所选音效同调的短促、轻柔拨弦声，确认操作已被接收；声音很轻，以不打扰为宜。",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da"
-    },
-    {
-      "table": "ui",
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "translation": "运行因错误停止时，播放一段较慢的下行音型，使成功完成与失败的提示音明显不同。手动停止运行时不播放声音。",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972"
-    },
-    {
-      "table": "ui",
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "translation": "接近地平线的太阳及其照亮的景物：金色、琥珀色、淡金色和苔藓绿。",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851"
     },
     {
       "table": "ui",
@@ -120,13 +85,6 @@
       "source": "Add field",
       "translation": "添加视野",
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566"
-    },
-    {
-      "table": "ui",
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "translation": "将 spaCR 的 DEBUG 消息写入 ~/.spacr/logs 中的日志文件。此选项还允许 cellpose 报告加载的模型，并记录您按过的按钮。这些记录有助于分析错误报告。\n\n测试中，启用此选项并未延长 spaCR 的启动或界面打开时间。测试在一台工作站上进行，分别在启用和关闭时打开了每个模块。两种情况下，冷启动后 Home 都约在 4 秒内就绪，最慢的模块都约在 7 秒内打开。未测量流程运行时间。\n\nConsole 仍只显示您在 Logging 选项卡中启用的日志级别。此开关不会跟踪每次函数调用；函数调用跟踪器是单独的开发者工具，不会被此设置启用。",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978"
     },
     {
       "table": "ui",
@@ -291,6 +249,54 @@
         "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "4PL 曲线关于中点对称。真实数据可能存在不对称性，4PL 会通过偏移 EC50 来吸收这种差异；5PL 则增加一个参数来拟合不对称性，需要多一个浓度点，并评估增加该参数是否有必要。",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "translation": "晴朗的夜晚：靛蓝、紫罗兰、冰蓝，以及日落许久后天空仍保留的淡蓝紫色。",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "translation": "模块运行成功结束时，播放一个上行琶音，最后落在该调的主音上，即使 spaCR 不在当前窗口也能收到提示。",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "translation": "按下按钮、开关、选项卡、列表或滑块时，播放与所选音效同调的短促、轻柔拨弦声，确认操作已被接收；声音很轻，以不打扰为宜。",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "translation": "接近地平线的太阳及其照亮的景物：金色、琥珀色、淡金色和苔藓绿。",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "translation": "将 spaCR 的 DEBUG 消息写入 ~/.spacr/logs 中的日志文件。此选项还允许 cellpose 报告加载的模型，并记录您按过的按钮。这些记录有助于分析错误报告。\n\n测试中，启用此选项并未延长 spaCR 的启动或界面打开时间。测试在一台工作站上进行，分别在启用和关闭时打开了每个模块。两种情况下，冷启动后 Home 都约在 4 秒内就绪，最慢的模块都约在 7 秒内打开。未测量流程运行时间。\n\nConsole 仍只显示您在 Logging 选项卡中启用的日志级别。此开关不会跟踪每次函数调用；函数调用跟踪器是单独的开发者工具，不会被此设置启用。",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

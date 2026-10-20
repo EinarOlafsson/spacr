@@ -659,7 +659,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the settings to submit; a shallow copy is kept and used instead of a settings file until the path field is edited.",
       "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50",
-      "translation": "inställningarna som ska skickas in; en ytlig kopia sparas och används i stället för en inställningsfil tills sökvägsfältet redigeras."
+      "translation": "inställningarna som ska skickas in; en ytlig kopia sparas och används i stället för en inställningsfil tills sökvägsfältet redigeras.",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "context": "the hide event; passed on unchanged to the base class.",
@@ -683,7 +685,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**The Curve picker offers the asymmetric model and does not choose it.** Four-parameter is what Fit uses until someone says otherwise, and a five-parameter fit says in its own report whether the fifth parameter earned itself. A screen that picked the better-fitting model per group would hand back a plate whose EC50s came from two different models, compared as though they had not.",
       "source_sha256": "88ffdf0cc95f3d1795b6eaee4e9066d4afa3e4a45aaddeb64c23a5c2c638983f",
-      "translation": "**Curve-väljaren erbjuder den asymmetriska modellen men väljer den inte.** Fyrparametersmodellen är vad Fit använder tills någon säger något annat, och en femparametersanpassning anger i sin egen rapport om den femte parametern gjorde sig förtjänt av sin plats. En programvy som valde den bäst anpassade modellen per grupp skulle lämna tillbaka en platta vars EC50s kom från två olika modeller, jämförda som om de inte gjorde det."
+      "translation": "**Curve-väljaren erbjuder den asymmetriska modellen men väljer den inte.** Fyrparametersmodellen är vad Fit använder tills någon säger något annat, och en femparametersanpassning anger i sin egen rapport om den femte parametern gjorde sig förtjänt av sin plats. En programvy som valde den bäst anpassade modellen per grupp skulle lämna tillbaka en platta vars EC50s kom från två olika modeller, jämförda som om de inte gjorde det.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the measurement table; its columns fill the concentration, response, group, laboratory microplate, control, host and second-dose pickers.",
@@ -707,7 +711,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**What it is for.** Giving every object a vector that no label went into. The measured panel says how big a cell is and how bright each stain was; an embedding says what the cell LOOKS like, in a few hundred numbers a pretrained backbone produces without being told what to look for. That is what makes it worth having beside the panel rather than instead of it -- a phenotype nobody thought to measure is in the vector, and is in no column.",
       "source_sha256": "feab472a4a0d56851e6f39e72585f4c4adfa529a7492a0d6a39dda6468fe9204",
-      "translation": "**Vad den är till för.** Att ge varje objekt en vektor som ingen etikett har gått in i. Den uppmätta panelen säger hur stor en cell är och hur ljus varje färgning var; en inbäddning säger hur cellen SER UT, i några hundra tal som ett förtränat backbone-nätverk producerar utan att få veta vad det ska leta efter. Det är det som gör den värd att ha bredvid panelen snarare än i stället för den -- en fenotyp som ingen tänkte på att mäta finns i vektorn, och finns inte i någon kolumn."
+      "translation": "**Vad den är till för.** Att ge varje objekt en vektor som ingen etikett har gått in i. Den uppmätta panelen säger hur stor en cell är och hur ljus varje färgning var; en inbäddning säger hur cellen SER UT, i några hundra tal som ett förtränat backbone-nätverk producerar utan att få veta vad det ska leta efter. Det är det som gör den värd att ha bredvid panelen snarare än i stället för den -- en fenotyp som ingen tänkte på att mäta finns i vektorn, och finns inte i någon kolumn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it needs.** Extracted image regions, and a choice about the channels. The extracted image regions come from the row at the top of the application view, which is :mod:`spacr.crop_loader`: either a ``measurements.db``, narrowed to one object class, one laboratory microplate or any condition its extracted-image-region table supports, or a folder of extracted image region PNGs. Whichever it is, the pixels are read the way every other application view reads them -- :func:`spacr.crops.resolve_crop_source` decides between the extracted image regions already under ``data/`` and cutting them from ``merged/*.npy``, and says which it chose. Nothing has to be prepared first: a laboratory microplate that has been through Measure with extracted image region output on is ready.",
@@ -733,7 +739,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "**What to do next.** Treat the columns as a feature source, not as a result. They are consumed exactly as the measured panel is -- a reduction to see whether the objects separate, a regression against the perturbation, a retrieval to find the objects most like one you picked. Which is also the warning the screen repeats under the table: a single dimension is not a phenotype, and the only honest way to read one of these numbers is through something that takes the whole vector.",
       "source_sha256": "27b053b768ec700ceb0403d50c8e6d31c2753cbd6f9aa1e812bdf94b4ff706e1",
-      "translation": "**Vad du gör härnäst.** Behandla kolumnerna som en särdragskälla, inte som ett resultat. De används exakt som den uppmätta panelen -- en reduktion för att se om objekten separeras, en regression mot perturbationen, en sökning för att hitta de objekt som mest liknar ett som du valde. Det är också den varning som programvyn upprepar under tabellen: en enskild dimension är inte en fenotyp, och det enda ärliga sättet att läsa ett av dessa tal är via något som tar hela vektorn."
+      "translation": "**Vad du gör härnäst.** Behandla kolumnerna som en särdragskälla, inte som ett resultat. De används exakt som den uppmätta panelen -- en reduktion för att se om objekten separeras, en regression mot perturbationen, en sökning för att hitta de objekt som mest liknar ett som du valde. Det är också den varning som programvyn upprepar under tabellen: en enskild dimension är inte en fenotyp, och det enda ärliga sättet att läsa ett av dessa tal är via något som tar hela vektorn.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The extracted image region loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a background execution unit, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
@@ -741,7 +749,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The crop loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a worker thread, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
       "source_sha256": "efa905cc9d85d0b55f405c6708fbb7b889cfca53a9a71fe22c8043374f250fcf",
-      "translation": "Utsnittsinläsaren ovanför kodarreglagen är programvyns ingångspunkt: :mod:`spacr.crop_loader` planerar urvalet, den här programvyn bläddrar igenom det i en arbetstråd, och :meth:`set_crops` -- som tidigare bara gick att nå från Python -- är det som varje slutförd inläsning anropar."
+      "translation": "Utsnittsinläsaren ovanför kodarreglagen är programvyns ingångspunkt: :mod:`spacr.crop_loader` planerar urvalet, den här programvyn bläddrar igenom det i en arbetstråd, och :meth:`set_crops` -- som tidigare bara gick att nå från Python -- är det som varje slutförd inläsning anropar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``False`` runs the embedding and the extracted image region load inline, emitting the same signals in the same order, so a test drives the screen synchronously without the behaviour diverging.",
@@ -773,7 +783,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The stop flag is set FIRST. ``shutdown`` waits a bounded time and then parks a worker that outlasts it, so a load told to stop between pages finishes in one page instead of reading the rest of the plate into an array whose screen has gone.",
       "source_sha256": "940621b8ce4edb757e3bbc40852030570c090827c47dd1a8c8f0ab3ca20226db",
-      "translation": "Stoppflaggan sätts FÖRST. ``shutdown`` väntar en begränsad tid och parkerar sedan en arbetare som överlever den, så att en inläsning som ombeds stoppa mellan sidor avslutas inom en sida i stället för att läsa resten av plattan till en array vars programvy har försvunnit."
+      "translation": "Stoppflaggan sätts FÖRST. ``shutdown`` väntar en begränsad tid och parkerar sedan en arbetare som överlever den, så att en inläsning som ombeds stoppa mellan sidor avslutas inom en sida i stället för att läsa resten av plattan till en array vars programvy har försvunnit.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The :class:`spacr.crop_loader.CropQuery` the controls describe.",
@@ -813,7 +825,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
       "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205",
-      "translation": "En utsnittsinläsning räknas. Den är det överlägset längsta av de två jobben -- en platta med utsnitt från en nätverksmontering tar minuter -- och en programvy som rapporterade sig som ledig under den skulle låta fönstret stängas över en pågående läsning."
+      "translation": "En utsnittsinläsning räknas. Den är det överlägset längsta av de två jobben -- en platta med utsnitt från en nätverksmontering tar minuter -- och en programvy som rapporterade sig som ledig under den skulle låta fönstret stängas över en pågående läsning.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Embedding runner lifecycle documentation corrected in f35b59248ae + efe3784e64a. Replacement exact-source review is2026-10-15-f561-lifecycle-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Whether an extracted image region load is in flight.",
@@ -837,7 +852,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "TWO JOBS, NOT ONE, and the split is the point: planning is a count and a select, so it comes back in milliseconds and the screen can say what was matched -- or why nothing was -- before committing to read a single pixel. Only then does the second job start, and it reports after every page.",
       "source_sha256": "9a32c20722c0e0eac213e341635d0907d9d2eeb9902b22b90c428cb1dabe8931",
-      "translation": "TVÅ JOBB, INTE ETT, och uppdelningen är poängen: planeringen är en räkning och ett urval, så den kommer tillbaka på millisekunder och programvyn kan säga vad som matchades -- eller varför ingenting gjorde det -- innan en enda pixel läses. Först därefter startar det andra jobbet, och det rapporterar efter varje sida."
+      "translation": "TVÅ JOBB, INTE ETT, och uppdelningen är poängen: planeringen är en räkning och ett urval, så den kommer tillbaka på millisekunder och programvyn kan säga vad som matchades -- eller varför ingenting gjorde det -- innan en enda pixel läses. Först därefter startar det andra jobbet, och det rapporterar efter varje sida.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Stop a load between pages, keeping the pages already read.",
@@ -1165,7 +1182,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The SAME list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
       "source_sha256": "d73c9885b1f5c35f67498044a8d03246049409a1173b4aeea479044957075f30",
-      "translation": "SAMMA lista som Masks ``metadata_type`` erbjuder, läst från :func:`spacr.regex_infer._metadata_convention_menu`, så att en platta som Mask kan tolka är en platta som Import kan tolka och de två listorna inte kan glida isär. Mappar kommer först eftersom det var vad Import gjorde innan den kände till någon konvention; leverantörskonventionerna följer i Masks leverantörsordning, var och en märkt med sin leverantör och markerad när spaCR gissar om den."
+      "translation": "SAMMA lista som Masks ``metadata_type`` erbjuder, läst från :func:`spacr.regex_infer._metadata_convention_menu`, så att en platta som Mask kan tolka är en platta som Import kan tolka och de två listorna inte kan glida isär. Mappar kommer först eftersom det var vad Import gjorde innan den kände till någon konvention; leverantörskonventionerna följer i Masks leverantörsordning, var och en märkt med sin leverantör och markerad när spaCR gissar om den.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the choices, ``NAMING_AUTO`` first.",
@@ -1265,7 +1284,7 @@
     },
     {
       "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
       "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
@@ -1321,7 +1340,7 @@
     },
     {
       "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
       "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",
@@ -1463,7 +1482,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "return ``None`` for the panel and leave the card's body empty. The screen fills it with :func:`_fill_hyperparam_card` when the card is first shown, so a module whose search nobody opens does not build and polish its ~130 widgets at open.",
       "source_sha256": "2a689c51c0e247988eaf0b88c222d0589eef8ca2a4113a555b44a0a4de6f2a47",
-      "translation": "returnera ``None`` för panelen och lämna kortets innehåll tomt. Programvyn fyller det med :func:`_fill_hyperparam_card` när kortet visas första gången, så att en modul vars sökning ingen öppnar inte bygger och polerar sina ~130 widgetar vid öppnandet."
+      "translation": "returnera ``None`` för panelen och lämna kortets innehåll tomt. Programvyn fyller det med :func:`_fill_hyperparam_card` när kortet visas första gången, så att en modul vars sökning ingen öppnar inte bygger och polerar sina ~130 widgetar vid öppnandet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "parameter name to value.",
@@ -2534,7 +2555,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Three things stacked, and the order is the order the questions come in:",
       "source_sha256": "ff153ab88987be36b2d7ce5021d193f746d9ea93c35c5d913dbe25d74add3896",
-      "translation": "Tre saker staplade, och ordningen är den ordning som frågorna kommer i:"
+      "translation": "Tre saker staplade, och ordningen är den ordning som frågorna kommer i:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. :class:`spacr.qt.widgets.measure_input_table.MeasureInputTable` -- which file is which image data channel, and which is which object. 2. The Measure module's OWN settings form, built from :class:`spacr.qt.screens.settings_model.SettingsWidgets`. Not a copy of it and not a chosen subset: the same widgets the Measure application view builds, from the same defaults, so a setting that exists there exists here and a setting that gains a control there gains one here without this file being edited. 3. Run, off the main GUI execution path, through :func:`spacr.measure.measure_from_field_table` -- which writes the folders the Mask module would have written and then calls ``measure_crop`` itself. The database and the folder tree are Measure's because Measure makes them.",
@@ -2550,7 +2573,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT IS A ``QDialog``, AND THAT IS WHAT MAKES IT LOOK LIKE spaCR. It used to be a bare ``QWidget`` shown with the ``Qt.Window`` flag, which meant the operating system's own title bar, square corners, an opaque background and minimise/maximise/close buttons -- a window from a different program sitting in the middle of this one. :mod:`spacr.qt.widgets.glass` gives every dialog in the package the translucent card, the rounded corners and the travelling rim, and it recognises a dialog by its TYPE. So the dress is not applied here; being a dialog is.",
       "source_sha256": "c83ae4894af52aae3c2d2afff5cc829069039a6b65dd93b65d15152c96defa71",
-      "translation": "DET ÄR EN ``QDialog``, OCH DET ÄR DET SOM FÅR DEN ATT SE UT SOM spaCR. Den brukade vara en naken ``QWidget`` som visades med flaggan ``Qt.Window``, vilket innebar operativsystemets egen titelrad, fyrkantiga hörn, en ogenomskinlig bakgrund och knappar för minimera/maximera/stäng -- ett fönster från ett annat program mitt i det här. :mod:`spacr.qt.widgets.glass` ger varje dialog i paketet det genomskinliga kortet, de rundade hörnen och den vandrande kanten, och den känner igen en dialog på dess TYP. Utseendet tillämpas alltså inte här; att vara en dialog gör det."
+      "translation": "DET ÄR EN ``QDialog``, OCH DET ÄR DET SOM FÅR DEN ATT SE UT SOM spaCR. Den brukade vara en naken ``QWidget`` som visades med flaggan ``Qt.Window``, vilket innebar operativsystemets egen titelrad, fyrkantiga hörn, en ogenomskinlig bakgrund och knappar för minimera/maximera/stäng -- ett fönster från ett annat program mitt i det här. :mod:`spacr.qt.widgets.glass` ger varje dialog i paketet det genomskinliga kortet, de rundade hörnen och den vandrande kanten, och den känner igen en dialog på dess TYP. Utseendet tillämpas alltså inte här; att vara en dialog gör det.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Its actions are at the bottom right, in the order every spaCR dialog uses: the thing you came to do in the accent colour (Measure, ``PrimaryButton``), and the way out in red beside it (Close, ``DangerButton``). Escape is the other way out, and closes rather than hides -- see :meth:`reject`.",
@@ -2866,7 +2891,7 @@
     },
     {
       "context": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
-      "label": "spacr.qt.widgets.glass.glass#2",
+      "label": "spacr.qt.widgets.glass.glass#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
       "source_sha256": "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e",
@@ -3468,7 +3493,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "dict as :meth:`plot_state` returns it; keys it lacks keep their current value. Nothing applies when it is not a dict or no table is loaded.",
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
-      "translation": "dict så som :meth:`plot_state` returnerar den; nycklar som saknas behåller sitt aktuella värde. Ingenting tillämpas när det inte är en dict eller när ingen tabell är inläst."
+      "translation": "dict så som :meth:`plot_state` returnerar den; nycklar som saknas behåller sitt aktuella värde. Ingenting tillämpas när det inte är en dict eller när ingen tabell är inläst.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "key-value mapping as :meth:`workspace_state` returns it; its ``\"runs\"`` plot states are merged in and its ``\"path\"`` is loaded again when it still exists. A non-key-value mapping applies nothing.",
@@ -3588,7 +3616,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the close event; passed on unchanged to the base class after the workers are shut down.",
       "source_sha256": "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04",
-      "translation": "stängningshändelsen; skickas vidare oförändrad till basklassen efter att arbetarna har stängts av."
+      "translation": "stängningshändelsen; skickas vidare oförändrad till basklassen efter att arbetarna har stängts av.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Row-exclusion path, restore and lifecycle documentation corrected in ae9fe9df94b. Replacement exact-source review is2026-10-15-row-exclusion-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "anything :func:`source_paths` accepts: a processing-session folder, its ``measurements`` folder, a ``.db`` file, or a list of them.",
@@ -3900,7 +3931,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "ONE WIDGET, TWO OWNERS. A segmentation preview has four things worth looking at: the image with the outlines on it, the label masks alone, the flow field the masks were pooled from, and the cell probability the flow was thresholded at. Mask generation's live preview showed three of them through a dropdown; the plaque preview showed its own four through tabs, drawn by its own code. This module is the one place both can draw them from, so that a change to how a cell probability is coloured reaches both previews at once.",
       "source_sha256": "23edbf6a4e9531d947e2b1cefbfc35acf7368c6a86644d2f947c00c7c63dd07b",
-      "translation": "EN WIDGET, TVÅ ÄGARE. En segmenteringsförhandsvisning har fyra saker som är värda att titta på: bilden med konturerna på, etikettmaskerna för sig, flödesfältet som maskerna samlades ur, och cellsannolikheten som flödet trösklades vid. Maskgenereringens direktförhandsvisning visade tre av dem via en rullgardinsmeny; plackförhandsvisningen visade sina egna fyra via flikar, ritade av sin egen kod. Den här modulen är det enda ställe som båda kan rita dem från, så att en ändring av hur en cellsannolikhet färgas når båda förhandsvisningarna på en gång."
+      "translation": "EN WIDGET, TVÅ ÄGARE. En segmenteringsförhandsvisning har fyra saker som är värda att titta på: bilden med konturerna på, etikettmaskerna för sig, flödesfältet som maskerna samlades ur, och cellsannolikheten som flödet trösklades vid. Maskgenereringens direktförhandsvisning visade tre av dem via en rullgardinsmeny; plackförhandsvisningen visade sina egna fyra via flikar, ritade av sin egen kod. Den här modulen är det enda ställe som båda kan rita dem från, så att en ändring av hur en cellsannolikhet färgas når båda förhandsvisningarna på en gång.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The widget knows arrays, not modules. It is handed an image, label masks, flow pictures and cell probability maps -- each either one array or one per object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here names the Mask module, Cellpose settings or a plaque.",
@@ -3908,7 +3941,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE WIDGET KNOWS ARRAYS, NOT MODULES. It is handed an image, label masks, flow pictures and cell probability maps -- each either one array or one per object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here names the Mask module, Cellpose settings or a plaque.",
       "source_sha256": "73126bf99b9a4ee19e74a0ccb04e35f7d2ed4efd87428e521b30fa5b7001d496",
-      "translation": "WIDGETEN KÄNNER TILL ARRAYER, INTE MODULER. Den får en bild, etikettmasker, flödesbilder och cellsannolikhetskartor -- var och en antingen en array eller en per objekt -- och ritar den av :data:`VIEWS` som är vald. Ingenting här namnger Mask-modulen, Cellpose-inställningar eller ett plack."
+      "translation": "WIDGETEN KÄNNER TILL ARRAYER, INTE MODULER. Den får en bild, etikettmasker, flödesbilder och cellsannolikhetskartor -- var och en antingen en array eller en per objekt -- och ritar den av :data:`VIEWS` som är vald. Ingenting här namnger Mask-modulen, Cellpose-inställningar eller ett plack.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "What an owner can change. The default renderers draw a plain overlay, categorical masks, the flows as Cellpose hands them and the probability on the magma scale. An owner with its own idea of an outline -- the live preview's colour choice and thickness -- registers a renderer for that view with :meth:`SegmentationViews.set_renderer` and keeps the other three. A renderer answers with a picture, with a sentence to show in the picture's place, or with ``None`` for the widget's own \"nothing yet\" sentence.",
@@ -3916,7 +3951,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "WHAT AN OWNER CAN CHANGE. The default renderers draw a plain overlay, categorical masks, the flows as Cellpose hands them and the probability on the magma scale. An owner with its own idea of an outline -- the live preview's colour choice and thickness -- registers a renderer for that view with :meth:`SegmentationViews.set_renderer` and keeps the other three. A renderer answers with a picture, with a sentence to show in the picture's place, or with ``None`` for the widget's own \"nothing yet\" sentence.",
       "source_sha256": "9e1ba76a10b44b4b3b23b6204855d096d06de5a02a8bc6675fb1b0ce997ddbf7",
-      "translation": "VAD EN ÄGARE KAN ÄNDRA. Standardrenderarna ritar ett enkelt överlägg, kategoriska masker, flödena så som Cellpose lämnar dem och sannolikheten på magma-skalan. En ägare med en egen uppfattning om en kontur -- direktförhandsvisningens val av färg och tjocklek -- registrerar en renderare för den vyn med :meth:`SegmentationViews.set_renderer` och behåller de andra tre. En renderare svarar med en bild, med en mening att visa i bildens ställe, eller med ``None`` för widgetens egen mening \"nothing yet\"."
+      "translation": "VAD EN ÄGARE KAN ÄNDRA. Standardrenderarna ritar ett enkelt överlägg, kategoriska masker, flödena så som Cellpose lämnar dem och sannolikheten på magma-skalan. En ägare med en egen uppfattning om en kontur -- direktförhandsvisningens val av färg och tjocklek -- registrerar en renderare för den vyn med :meth:`SegmentationViews.set_renderer` och behåller de andra tre. En renderare svarar med en bild, med en mening att visa i bildens ställe, eller med ``None`` för widgetens egen mening \"nothing yet\".",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The canvas is pluggable. An owner that already has a canvas with a ruler and a hover line on it (the live preview's ``_ZoomView``) hands it in; otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and saves on a right click like every other picture in the program.",
@@ -3924,7 +3961,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "THE CANVAS IS PLUGGABLE. An owner that already has a canvas with a ruler and a hover line on it (the live preview's ``_ZoomView``) hands it in; otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and saves on a right click like every other picture in the program.",
       "source_sha256": "1307cb97112239c8e143a983363574d13fd6013433056103ee0de9fd2d47a3ab",
-      "translation": "RITYTAN ÄR UTBYTBAR. En ägare som redan har en rityta med en linjal och en hovringslinje på (direktförhandsvisningens ``_ZoomView``) lämnar in den; annars byggs en :class:`PictureCanvas`, som anpassar, zoomar, panorerar och sparar vid högerklick som alla andra bilder i programmet."
+      "translation": "RITYTAN ÄR UTBYTBAR. En ägare som redan har en rityta med en linjal och en hovringslinje på (direktförhandsvisningens ``_ZoomView``) lämnar in den; annars byggs en :class:`PictureCanvas`, som anpassar, zoomar, panorerar och sparar vid högerklick som alla andra bilder i programmet.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The perceptual scale the probability is drawn on.",
@@ -4652,7 +4691,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the screen open, and stopping it closes the screen as before.",
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
-      "translation": "REGISTRERAS, så att vägledningen vid första starten inte hälsar en återkommande användare som en ny. Medan ett installationsprogram körs tillfrågas användaren först (:meth:`_may_close`): att låta det fortsätta lämnar fönstret öppet, och att stoppa det stänger fönstret som tidigare."
+      "translation": "REGISTRERAS, så att vägledningen vid första starten inte hälsar en återkommande användare som en ny. Medan ett installationsprogram körs tillfrågas användaren först (:meth:`_may_close`): att låta det fortsätta lämnar fönstret öppet, och att stoppa det stänger fönstret som tidigare.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the mouse move event; its position, mapped into the card, is what the rim flows towards. It is then passed on to the base class.",
@@ -4681,6 +4722,8 @@
     {
       "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "retired": "2026-10-16",
+      "retired_reason": "The current docstring no longer contains this paragraph; no replacement block exists. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
       "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",

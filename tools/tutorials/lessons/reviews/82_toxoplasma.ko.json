@@ -1,13 +1,29 @@
 {
   "lesson": "82_toxoplasma",
-  "english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+  "english_sha256": "dcc70fed94df66f7694d0d07128c5d22b869a518d284d5ba5cd9f4ca911c7be9",
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scenes 3 and 5 revised for N678 (interactive diagram; Plaque Assay tutorial title); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      3,
+      5
+    ],
+    "previous_english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+    "previous_review_sha256": "11f6be8ba8653607734cfbf716d5448d3d89239f1690d1df2b6e59c988a29724",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   },
   "language": "ko",
   "title": "생물체 Toxoplasma: 가이드, 도식, 어세이",
@@ -21,9 +37,9 @@
   "scenes": [
     "Home에서 Organism 카테고리를 선택한 다음 Toxoplasma를 선택하세요. 이 페이지에는 생물체 가이드, 대화형 세포 도식, 사용 가능한 Toxoplasma 어세이 경로가 함께 있습니다. 분석을 선택하기 전에 둘러보세요.",
     "먼저 정보 창의 소개부터 읽으세요. 각 창은 따로 스크롤되며, 구분선을 드래그하면 가이드나 분석 타일에 더 많은 공간을 줄 수 있습니다.",
-    "도식은 직접 살펴보라고 있는 것입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
+    "도식은 대화형입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
     "Plaque Assay는 플라크를 세고 면적을 측정합니다. Recruitment는 기생충을 포함한 액포에서 마커의 농축을 측정하며, Replication Assay는 액포당 기생충 수를 셉니다. 측정하려는 양과 필요한 입력에 따라 분석법을 선택하세요.",
-    "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Analysis 튜토리얼에서 전체 작업 흐름을 설명합니다.",
+    "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Assay 튜토리얼에서 전체 작업 흐름을 설명합니다.",
     "Toxoplasma 안내로 돌아가 정보 패널을 참고 자료까지 스크롤합니다. ToxoDB, Toxoplasma의 hyperLOPIT 아틀라스, UniProt 및 NCBI Taxonomy는 생물 관련 자료로 연결됩니다. 링크는 브라우저에서 열립니다. 안내 자체는 데이터베이스 검색이나 단백질 위치 예측을 수행하지 않습니다.",
     "생물체 가이드는 분석 테이블을 생성하지 않습니다. 이미지 준비, 분할 또는 측정을 위해 Home으로 돌아간 다음 준비된 입력에 맞는 어세이를 선택하세요. 각 어세이에는 자체 요구 사항과 연결된 단계별 설명이 있습니다."
   ]

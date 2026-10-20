@@ -1,15 +1,16 @@
 """Measure throughput and memory use to recommend a worker count.
 
-WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core
-count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one
-thing that is never the binding constraint on a measurement run: a field is
-hundreds of megabytes decompressed, and eight workers on a 16-core laptop
-with 16 GB will swap long before they saturate the CPU. The number that
-matters is how much MEMORY one worker needs for one representative field, and
-that is a property of the plate and the machine, not of the core count.
+spaCR's worker defaults are arithmetic on the core count --
+``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. On a measurement run the
+core count is rarely the limiting factor: a field is hundreds of megabytes
+decompressed, and eight workers on a 16-core laptop with 16 GB will swap long
+before they saturate the CPU. The limiting quantity is usually the memory one
+worker needs for one representative field, which depends on the plate and the
+machine, not on the core count.
 
-So: run the real work over a few fields, watch peak RSS and peak VRAM, and
-divide what is available by what one worker actually took.
+The benchmark therefore runs the real work over a few fields, records peak
+RSS and peak VRAM, and divides the available memory by the memory one worker
+used.
 
 **This measures; it does not tune.** It returns a recommendation and the
 evidence behind it, and never writes a setting. A benchmark that silently
@@ -29,13 +30,13 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence
 
 @dataclass(frozen=True)
 class Measurement:
-    """What one benchmark run observed.
+    """Item count, wall time and peak memory observed in one benchmark run.
 
     :param items: how many representative units were processed.
     :param seconds: wall clock for all of them.
     :param peak_rss_bytes: the highest resident set size seen, for the whole
         process. Not per worker -- the benchmark runs serially on purpose, so
-        this IS one worker's requirement.
+        this is one worker's requirement.
     :param peak_vram_bytes: peak CUDA allocation, or ``None`` when there is
         no CUDA device. ``None`` and ``0`` are different answers: one means
         "not measured", the other "measured, and it used none".
@@ -64,7 +65,7 @@ class Measurement:
 
     @property
     def work_rss_bytes(self) -> int:
-        """What the WORK needed, above the interpreter that was already there."""
+        """Return peak RSS minus baseline RSS: the memory used by the work."""
         return max(0, int(self.peak_rss_bytes) - int(self.baseline_rss_bytes))
 
 
@@ -137,11 +138,10 @@ def _reset_vram() -> None:
 
 
 def available_memory_bytes() -> int:
-    """Memory this machine can actually give to workers.
+    """Return ``MemAvailable`` from ``/proc/meminfo`` in bytes, or 0 if unreadable.
 
-    ``MemAvailable`` from ``/proc/meminfo`` rather than total: total includes
-    what is already in use, and sizing workers against it is how a run gets
-    OOM-killed at field 900.
+    Available rather than total memory is used because total includes memory
+    already in use; sizing workers against it can exhaust memory mid-run.
     """
     try:
         with open("/proc/meminfo", encoding="utf-8") as handle:
@@ -155,11 +155,10 @@ def available_memory_bytes() -> int:
 
 def benchmark(work: Callable[[Any], Any], items: Sequence[Any], *,
               warmup: int = 1) -> Measurement:
-    """Run ``work`` over ``items`` serially and record what it cost.
+    """Run ``work`` over ``items`` serially and record time and peak memory.
 
-    SERIALLY ON PURPOSE. The question is what ONE worker needs, and running
-    them in parallel measures the sum while hiding the per-worker figure that
-    the recommendation divides by.
+    Items run serially because the recommendation divides by what one worker
+    needs; a parallel run would measure the sum and hide that figure.
 
     :param work: callable invoked once for every warm-up and measured item;
         its return value is ignored because only resource use is measured.
@@ -209,12 +208,12 @@ def recommend_workers(measurement: Optional[Measurement] = None, *,
                       available_bytes: Optional[int] = None,
                       reserve_bytes: int = 2 * 1024 ** 3,
                       maximum: int = 32) -> Recommendation:
-    """How many workers this machine can actually feed.
+    """Recommend a worker count from cores, free memory and measured usage.
 
     The rule, in order:
 
     1. Never more than ``cores``. More workers than cores is contention.
-    2. Never more than ``available memory - reserve`` divided by what ONE
+    2. Never more than ``available memory - reserve`` divided by what one
        worker measurably needed. This is the term the core-count defaults
        omit, and it is usually the binding one.
     3. Never fewer than 1, and never more than ``maximum``.
@@ -222,8 +221,8 @@ def recommend_workers(measurement: Optional[Measurement] = None, *,
     :param reserve_bytes: memory left for everything that is not a worker --
         the GUI, the page cache the readers depend on, and the operating
         system. Defaults to 2 GiB.
-    :returns: a :class:`Recommendation` carrying the reason, so a number a
-        user disagrees with can be argued with rather than just overridden.
+    :returns: a :class:`Recommendation` carrying the reason, which states
+        the limit that set the worker count.
     """
     cores = int(cores if cores is not None else (os.cpu_count() or 1))
     cores = max(1, cores)
@@ -267,7 +266,7 @@ def recommend_workers(measurement: Optional[Measurement] = None, *,
 
 def format_report(measurement: Measurement,
                   recommendation: Recommendation) -> str:
-    """The benchmark as a few lines a user can read and paste into an issue.
+    """Format a benchmark and its recommendation as plain text lines.
 
     :param measurement: observed serial benchmark costs and throughput.
     :param recommendation: worker recommendation derived from those costs.

@@ -177,13 +177,14 @@ class TestEveryModuleThatHasThem:
     """"all moduals that have the three" is the part that decays."""
 
     @pytest.mark.parametrize("app_key", ["mask", "measure", "regression"])
-    def test_the_console_folds_on_each(self, app, app_key):
+    def test_the_console_folds_on_each(self, app, app_key, qtbot):
         from spacr.qt.screens.app_screen import AppScreen
 
         # BUILT, NOT TRIED. A module that will not build is the failure this
         # is looking for, and swallowing it into a skip would report the
         # missing fold as "nothing to check here".
         screen = AppScreen(app_key)
+        qtbot.addWidget(screen)
         folder = getattr(screen, "_console_folder", None)
         assert folder is not None, (
             f"{app_key} has a console with no fold; two panels that fold and "
@@ -204,10 +205,11 @@ class TestEveryModuleThatHasThem:
         assert screen._console.isVisibleTo(screen)
 
     @pytest.mark.parametrize("app_key", ["mask", "regression"])
-    def test_the_system_card_folds_on_each(self, app, app_key):
+    def test_the_system_card_folds_on_each(self, app, app_key, qtbot):
         from spacr.qt.screens.app_screen import AppScreen
 
         screen = AppScreen(app_key)
+        qtbot.addWidget(screen)
         card = getattr(screen, "_usage_card", None)
         assert card is not None and card.folder is not None
         _click(card.title_label)

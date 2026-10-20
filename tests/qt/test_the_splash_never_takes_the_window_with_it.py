@@ -141,6 +141,8 @@ def host_with_splash(qapp, monkeypatch):
     host.resize(500, 400)
     host._loading_screen = qt_app.MainWindow._install_loading_screen(host)
     assert host._loading_screen is not None
+    host.released = []
+    host._release_the_startup_dialogs = lambda: host.released.append(1)
     yield host
     host.deleteLater()
 
@@ -190,3 +192,5 @@ def test_a_splash_already_gone_still_ends_the_preload(host_with_splash):
     qt_app.MainWindow._on_preload_done(host_with_splash)
 
     assert host_with_splash._loading_screen is None
+    assert host_with_splash.released == [1], (
+        "the held startup dialogs must still be let through")

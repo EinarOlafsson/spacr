@@ -358,7 +358,7 @@ def test_a_set_fraction_threshold_still_draws_the_sweep(tmp_path, capsys):
 
     from spacr import ml
 
-    source = _pathlib.Path(ml.__file__).read_text()
+    source = _pathlib.Path(ml.__file__).read_text(encoding="utf-8")
     # The explanation is gone, because the thing it explained is gone.
     assert "sweep graph is not drawn" not in source
     # Both branches draw, and both keep what they drew with the run.

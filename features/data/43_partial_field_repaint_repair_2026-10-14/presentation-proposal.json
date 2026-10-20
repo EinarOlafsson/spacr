@@ -1,0 +1,22 @@
+{
+  "worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-ci701-popup-contract-20261013",
+  "head": "3ff7f096534cafcbbdd5e48139b2abf42cf353cd",
+  "merged_root": "73aa3b9b8859d871043c2922e2e486d324518a84",
+  "source": "spacr/qt/widgets/ambient.py",
+  "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+  "patch_sha256": "449b1befb1cd2c631eff0ae92ad6711190d367266419e2ada87c89b2df6423f1",
+  "source_mutations": "Only private ambient.py proposal; no tests/artifacts/other app files changed.",
+  "tests_or_GUI_run": false,
+  "push": false,
+  "design": "One <=48MiB RGB32 raster of existing paint_base+engine.blit on second same-frame partial expose, actual painter device DPR, immutable frame retained with identity/cacheKey; whole/fresh/ineligible paths remain existing renderer.",
+  "invalidation": "republish/rebuild/stop/hide/wallpaper/card changes, watched parent resize/screen move; key handles direct widget size/DPR/frame/mode/base changes on next paint.",
+  "limitation": "No new resizeEvent override; direct widget resize invalidates by changed key on next paint rather than eagerly freeing before that paint. Root may require stronger immediate event hook.",
+  "required_generator_review": "New private AmbientWidget._paint_partial_frame docstring, no public docstring/signature/user text changes. Before final integration run normal documentation source extraction/freshness to establish whether private symbol changes any generated API source; never hand-edit artifacts.",
+  "required_tests": "Root/qt_ci owning original timing plus exact pixel/key/lifetime/fresh-frame/eligibility/resize/DPR/zoom/ruler cohort; no threshold change.",
+  "root_review": "Approved for validation only; allocation/configuration now inside exception fallback, direct producer start and graphics-frame reset explicitly clear cache.",
+  "source_frozen_for_qt_cohort": true,
+  "format_guard": "Only RGB32/ARGB32/ARGB32_Premultiplied actual QImage paint surfaces. QWidget route checks active QPaintEngine.paintDevice() and ordinary screen depth24/32; RGB30/64-bit/float/unknown surfaces fail closed. No pixels converted/inspected and no ephemeral backend device retained.",
+  "scope_limit": "Native HDR/unsupported backend wrappers get original path. Exact fractional-DPR/device-origin parity pending Qt owning tests; no performance/pixel acceptance claimed.",
+  "documentation": "Root documentation audit confirms new direct private helper changes no public API/nested inventory/locale records; no extra helper-only generators required.",
+  "parity_correction": "One exact copied event QRegion and device transform in cache key; identical logical clip on build. Fractional DPR, nonidentity world transform, nonuniform/sheared/projective/nonintegral device phase fall back. Explicit user clip must equal eventregion; nonempty native systemClip must equal deviceTransform.map(eventregion); unknown/no clip falls back. Native equality/performance pending owning tests."
+}

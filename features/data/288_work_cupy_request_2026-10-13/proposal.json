@@ -1,0 +1,191 @@
+{
+  "status": "Read-only plan for Work-owned validation of unchanged source; no run started. Work schedules the existing tests through its own GPU turn when recording-free.",
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "compatible_preserved_hosted_candidate": "9af7f3dc12579a5a8f48f5083ab117f965e83e6a",
+  "files": [
+    {
+      "path": "spacr/ops_accel.py",
+      "bytes": 12908,
+      "sha256": "57e9181b5784a4aac225580878664ae341fdcbca7476dd6b8b0ffd126a1ecde0",
+      "git_blob": "20597ea5df36627182e2fc309cb6c4171080123e",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": "tests/test_the_ops_primitives_agree_on_every_backend.py",
+      "bytes": 14816,
+      "sha256": "82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd",
+      "git_blob": "5c17e62585dccf3904bfc780d053d9b9016e0e93",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": "tools/gpu_turn.sh",
+      "bytes": 2334,
+      "sha256": "a567cfd80b5f9eb79bdbb3f369bd778ff6ebac7f1ada83e179c5f572a0f7e6bc",
+      "git_blob": "b94903366f77898118a94ddb3d52099bf13b633c",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": "tools/run_capped.sh",
+      "bytes": 1640,
+      "sha256": "875c64c77a75e9caa15b0366e1fde38ce5ac2917c58dee7916eba94185d8846a",
+      "git_blob": "a7f0f969b2ef47456e1773db09b6aa4d1381a709",
+      "identical_9af_eb72": true
+    },
+    {
+      "path": ".coveragerc",
+      "bytes": 460,
+      "sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "git_blob": "9bca1308ba6e1b1e32fb4a638a3a29389f6fc669",
+      "identical_9af_eb72": true
+    }
+  ],
+  "coverage_evidence": "/mnt/wd4tb/scratch/ci-home-audit-20261013/coverage-union-38477246153-attempt1-20261013T233919Z/report-resumed/coverage.json",
+  "coverage_version": "7.15.4",
+  "coverage_summary": {
+    "covered_lines": 127,
+    "num_statements": 147,
+    "percent_covered": 84.72906403940887,
+    "percent_covered_display": "84.73",
+    "missing_lines": 20,
+    "excluded_lines": 0,
+    "percent_statements_covered": 86.39455782312925,
+    "percent_statements_covered_display": "86.39",
+    "num_branches": 56,
+    "num_partial_branches": 3,
+    "covered_branches": 45,
+    "missing_branches": 11,
+    "percent_branches_covered": 80.35714285714286,
+    "percent_branches_covered_display": "80.36"
+  },
+  "missing_lines": [
+    176,
+    177,
+    178,
+    179,
+    181,
+    226,
+    227,
+    228,
+    229,
+    298,
+    299,
+    300,
+    301,
+    302,
+    303,
+    304,
+    306,
+    307,
+    308,
+    310
+  ],
+  "missing_branches": [
+    [
+      175,
+      176
+    ],
+    [
+      177,
+      178
+    ],
+    [
+      177,
+      179
+    ],
+    [
+      225,
+      226
+    ],
+    [
+      227,
+      228
+    ],
+    [
+      227,
+      229
+    ],
+    [
+      297,
+      298
+    ],
+    [
+      299,
+      300
+    ],
+    [
+      299,
+      301
+    ],
+    [
+      302,
+      303
+    ],
+    [
+      302,
+      310
+    ]
+  ],
+  "owning_testfile": "tests/test_the_ops_primitives_agree_on_every_backend.py",
+  "minimum_real_GPU_nodeids": [
+    "tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_windowed_maximum_agrees[cupy]",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_matmul_agrees[cupy]",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_nearest_neighbour_agrees[cupy]"
+  ],
+  "skip_conditions": [
+    "CuPy parametrizations call accelerated_backends(gpu=True); no usable _cupy => pytest.skip(this machine has no usable cupy backend)",
+    "_cupy returns None for gpu=False, import failure, or getDeviceCount exception",
+    "The 3 parity cases are not @pytest.mark.gpu; global 1500MiB guard does not apply. Work owner must confirm >=1500MiB free after leasing and no recording/encoding/upload/training conflicts.",
+    "No monkeypatched CuPy kernels in the selected 3 cases. Successful tests force backend=cupy, so they cannot silently fall back. CuPy or CUDA incompatibility must remain skip/failure, never a fake pass."
+  ],
+  "fixtures": {
+    "windowed_maximum": "97x61 float32; size7; NumPy/scipy reference atol1e-6",
+    "matmul": "40x6 @ 6x9 float32; NumPy reference atol1e-5",
+    "nearest_neighbour": "500x2 source,300x2 target; exact indices and atol1e-2 distances; one bounded chunk, maximum broadcast delta1,200,000bytes"
+  },
+  "budget": {
+    "host_memory_cap": "6G",
+    "workers": 1,
+    "pytest_parallelism": "-n0",
+    "test_execution_timeout_seconds": 180,
+    "termination_grace_seconds": 15,
+    "GPU_turn_guards": "default360s idle and600s gap unchanged; queue remains background and owner monitored, not permission to start during a recording",
+    "GPU_memory": "Tiny arrays (dominant raw broadcast1.2MB), plus CUDA/CuPy/Torch context/library allocations not measured; owner minimum1500MiB headroom; no claimed device memory cap."
+  },
+  "expected_union_after_3_real_passes": {
+    "new_missing_lines_covered": 17,
+    "new_missing_branches_covered": 8,
+    "residual_missing_lines": [
+      178,
+      228,
+      300
+    ],
+    "residual_missing_branches": [
+      [
+        177,
+        178
+      ],
+      [
+        227,
+        228
+      ],
+      [
+        299,
+        300
+      ]
+    ],
+    "statements": "144/147",
+    "branches": "53/56",
+    "combined_fraction": "197/203",
+    "combined_percent": 97.04433497536947,
+    "interpretation": "prediction only until actual GPU JSON/raw DB union; exceeds literal90% but does not claim100% or current hosted gate altered"
+  },
+  "required_before_start": [
+    "Root/Work communicate the GPU turn and recording schedule; never overlap capture, encoding/upload, or protected jobs.",
+    "Existing Work environment must contain compatible CuPy/CUDA and pytest-cov; use pinned coverage7.15.4 for later hosted diagnostic comparison. No package installs or capture-tool changes implied.",
+    "Work checkout must have exact listed source/test hashes; record actual full Work HEAD and package/environment versions. No Work source/test changes required.",
+    "Run on Work host only in background, own idle GPU lease, default gpu_turn timing guards. Confirm GPU memory headroom inside lease.",
+    "Require actualexit0, XML3PASS0SKIP0FAIL0ERROR, real device/model/driver/CuPy evidence, raw coverage DB and JSON. A3SKIP result leaves F288 unchanged.",
+    "Keep actual GPU coverage as separate Work evidence. Do not forge hosted shard IDs or claim hosted CI used GPU. Any later honest diagnostic union must check module byte identity and cite both runs; do not edit baseline/exemption ceilings."
+  ],
+  "proposed_background_command": "CUDA_VISIBLE_DEVICES=\"${SPACR_WORK_CUDA_DEVICE:?Work owner must select its own idle device}\" QT_QPA_PLATFORM=offscreen PYTEST_QT_API=pyside6 SPACR_NO_GL=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 COVERAGE_FILE=\"${SPACR_WORK_SCRATCH:?}/.coverage-f288-real-cupy\" tools/gpu_turn.sh f288-ops-real-cupy-20261013 timeout --signal=TERM --kill-after=15s 180s tools/run_capped.sh 6G \"${SPACR_WORK_PYTHON:?Work owner must select existing CuPy-capable environment}\" -m pytest -n 0 'tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_windowed_maximum_agrees[cupy]' 'tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_matmul_agrees[cupy]' 'tests/test_the_ops_primitives_agree_on_every_backend.py::test_every_backends_nearest_neighbour_agrees[cupy]' --cov=spacr.ops_accel --cov-branch --cov-report=\"json:${SPACR_WORK_SCRATCH}/f288-real-cupy-coverage.json\" --cov-report=term-missing --junitxml=\"${SPACR_WORK_SCRATCH}/f288-real-cupy.xml\" -rA > \"${SPACR_WORK_SCRATCH}/f288-real-cupy.log\" 2>&1\ntask_status=$?\nprintf '%s\\n' \"$task_status\" > \"${SPACR_WORK_SCRATCH}/f288-real-cupy.exit\"\nexit \"$task_status\"\n"
+}

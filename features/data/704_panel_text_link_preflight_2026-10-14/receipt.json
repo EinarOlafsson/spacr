@@ -1,0 +1,100 @@
+{
+  "schema": "spacr.readme-panel-link-preflight-receipt.v1",
+  "source_commit": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "scope": "Preparation only; README link item remains unfinished. No app/source/generated/test/site/Git mutations or generator/render/check/test invocation.",
+  "source_bindings": 83,
+  "binding_mismatches": [],
+  "counts": {
+    "cover": 1,
+    "button": 18,
+    "panel": 48,
+    "generated-panel": 7,
+    "row-panel": 10,
+    "model-score-heading": 1,
+    "model-score-card": 8
+  },
+  "each_english_picture_mapped": 93,
+  "prose_table_list_panels": 65,
+  "unlinked_prose_table_list_panels": 46,
+  "all_ten_locale_route_counts": {
+    "en": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "sv": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "de": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "es": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "zh_CN": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "pt": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "hi": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "ko": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "is": {
+      "text_pictures": 92,
+      "unlinked": 46
+    },
+    "fr": {
+      "text_pictures": 92,
+      "unlinked": 46
+    }
+  },
+  "mapping_errors": [],
+  "key_implementation_seams": [
+    "tools/build_readme_images.py:Output",
+    "_panel_markup/_rows_markup",
+    "convert_generated",
+    "build/check",
+    "tools/build_model_cards.py:render_card/render_index",
+    "tools/build_score_cards.py:shared accessible chart content"
+  ],
+  "constraints": [
+    "Shared/third-party destinations need owned readable continuations preserving original detail URLs.",
+    "Eight model-card pages and score heading index are existing owned unique destinations; change through normal generators.",
+    "Phone/desktop chart wording differs; preserve both visuals and put complete accessible text first; responsive variants remain an option, not selected/implemented.",
+    "Lexical destination inspection is not rendered first-content proof.",
+    "No item-complete, current-output-render, hosted-page, or test-pass claim."
+  ],
+  "artifacts": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/readme-link-preflight/inventory.json",
+      "sha256": "7d9fa9c5f79db42a594a11ffc8ad6fab9342383570defcc74a33b71cb8943e02",
+      "bytes": 234582
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/readme-link-preflight/panel-map.md",
+      "sha256": "1a05c0e40155a9514012f6bfceb4497d10709fe6802bbb75f7397bd5c9c505cf",
+      "bytes": 27863
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/readme-link-preflight/implementation-plan.md",
+      "sha256": "f6ea7e015bad8cd8d79a7e5becb5b40598d5b2464057f9ab079a53ac037af62c",
+      "bytes": 12035
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/readme-link-preflight/inventory.py",
+      "sha256": "e1ee0a58128989fe74524a454a7192c7f52c6d9c9ec31ae9788bde89b423852f",
+      "bytes": 14249
+    }
+  ],
+  "source_worktree_status_at_end": ""
+}

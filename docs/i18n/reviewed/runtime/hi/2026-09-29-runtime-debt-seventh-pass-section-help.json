@@ -34,13 +34,6 @@
     },
     {
       "table": "categories",
-      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
-      "translation": "प्लेट सीधे क्लाउड संग्रहण से पढ़ें: क्रेडेंशियल, एंडपॉइंट और स्थानीय कैश, और वह क्लाउड फ़ोल्डर जिसमें रन पूरा होने पर माप कॉपी होते हैं। स्थानीय डिस्क की प्लेट के लिए इसे न छुएँ।"
-    },
-    {
-      "table": "categories",
       "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
@@ -66,6 +59,16 @@
       "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
       "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
       "translation": "हर ऑब्जेक्ट के लिए मापन के कौन-से परिवार गणना होते हैं (तीव्रता, आकृति, बनावट, अरीय वितरण और सह-स्थानीयकरण) और उनसे पढ़े जाने वाले परीक्षण, जैसे कॉन्फ़्लुएंसी, कोशिका चक्र, घाव भराव, जीवनक्षमता और घटना तक का समय। अधिक फ़ीचर का अर्थ है चौड़ी तालिका और लंबा रन।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "प्लेट सीधे क्लाउड संग्रहण से पढ़ें: क्रेडेंशियल, एंडपॉइंट और स्थानीय कैश, और वह क्लाउड फ़ोल्डर जिसमें रन पूरा होने पर माप कॉपी होते हैं। स्थानीय डिस्क की प्लेट के लिए इसे न छुएँ।",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

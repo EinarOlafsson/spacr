@@ -174,7 +174,9 @@
       "source_sha256": "37c0c1dc05cbbf7424583dadb899ae43a65eb41fad4f697724cbb06f21e40a13",
       "context": "A suggestion is judged, not relabelled. An extracted image region Suggest proposed a class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y`` confirms it (it becomes an ordinary label and wears a green tick); a right-click or ``N`` rejects it (it goes back to unanswered and wears a red cross); ``U`` undoes either. The bar above the structured-data name legend says so, and counts what the page and the column hold. Each judgement is written to the ``<column>_verdict`` column as ``+c`` or ``-c``, so it survives a restart, and the next Suggest round is handed the rejections to train on. See :meth:`AnnotateScreen._judge` and :func:`spacr.suggest.verdict_column`.",
       "translation": "建议会被评判，而不是被重新标记。Suggest 为其建议了类别的裁剪图，会在虚线圆环旁边带有一个琥珀色的 ``?`` 徽标。单击或按 ``Y`` 表示确认（它会成为普通标签并带上绿色对勾）；右键单击或按 ``N`` 表示拒绝（它会回到未回答状态并带上红色叉号）；``U`` 可撤销以上任一操作。按键图例上方的栏会说明这一点，并统计本页和本列中的内容。每次评判都会写入 ``<column>_verdict`` 列，形式为 ``+c`` 或 ``-c``，因此重启后仍然保留，下一轮 Suggest 也会获得这些拒绝结果用于训练。参见 :meth:`AnnotateScreen._judge` 和 :func:`spacr.suggest.verdict_column`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#9",
@@ -182,7 +184,9 @@
       "source_sha256": "6d3bec89fd0c2c09a6cd0b4c5706eb49ce0b8c3b25be9f1dedcd2314aaf773b9",
       "context": "A page is what fits. The grid holds exactly the extracted image regions that fit the room the extracted image region pane gives it, at the extracted image region size the settings ask for, and it never scrolls: opening the console, folding a pane, changing the GUI scale or resizing the window recomputes the page and pushes the rest to the next one, the page counter follows, and the first extracted image region on application view stays where it was. See :func:`grid_that_fits` and :meth:`AnnotateScreen._refit_grid`.",
       "translation": "一页就是能放下的内容。网格恰好容纳按照设置所要求的裁剪图尺寸、在裁剪图窗格所给空间中能放下的裁剪图，而且永远不会滚动：打开控制台、折叠窗格、更改 GUI 缩放比例或调整窗口大小，都会重新计算页面并把其余内容推到下一页，页码也会随之更新，而界面上的第一个裁剪图保持在原来的位置。参见 :func:`grid_that_fits` 和 :meth:`AnnotateScreen._refit_grid`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate.badge_colors#1",
@@ -290,7 +294,9 @@
       "source_sha256": "f8c83ffb7986082749047ff21dd12062f24a20cbf55c50636ed405fdd603ad0e",
       "context": "The body's own visibility stays its owner's. The fold hides an inner holder, never the body, so unfolding cannot show a panel its owner hid or build a panel that is built on first show. The other way round, the section follows its body: while the owner keeps the body hidden the whole section -- heading included -- is hidden too, and it comes back when the owner shows the body. Only the body's hidden flag is read for that, so nothing is shown, measured or built to find out.",
       "translation": "“主体自身的可见性仍由其所有者决定。”折叠隐藏的是内部容器，而不是主体本身，因此展开时不会显示所有者已隐藏的面板，也不会构建首次显示时才构建的面板。反过来，区块会跟随其主体：当所有者保持主体隐藏时，整个区块（包括标题）也会隐藏，并在所有者显示主体时重新出现。为此只读取主体的隐藏标志，因此不会为了判断而显示、测量或构建任何内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom#1",
@@ -298,7 +304,9 @@
       "source_sha256": "79e103e46d1472b1eabcd2263ef44b7b0047ac7be0ad8337be0a993d70e2badb",
       "context": "A folded panel given more room than its heading needs -- the last pane in a splitter, a section stretched by its column -- used to lay its heading out in the middle of that room, which is the reported bug (\"when i collapse the console it collapses to the middle\"). A stretch put ABOVE the heading while it is folded takes the spare room instead.",
       "translation": "折叠后的面板如果获得了超过其标题所需的空间——分隔器中的最后一个窗格、被其所在列拉伸的区块——以前会把标题布置在该空间的中间，这正是所报告的缺陷（“当我折叠控制台时，它折叠到了中间”）。折叠时在标题“上方”放置一个伸缩项，由它占据多余的空间。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.apply_column_text_scale#0",
@@ -330,7 +338,9 @@
       "source_sha256": "d0f984c6994fa1872f93dc61262278c81e5cc6445abc0348026002ca39cff8c4",
       "context": "WHY. The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own text -- \"step 2 of 3\", \"45%\", \"312 MB / 690 MB (45%)\" -- draws a 13 px caption into those 8 px, so only the top half of each glyph reaches the application view, and at 50 % GUI scale the track is 4 px and almost nothing does. A caption such as \"step 1 of 3\" or \"10%\" is cut off.",
       "translation": "原因。主题把每个 ``QProgressBar`` 绘制为 8 px 高的轨道（``height: 8px; max-height: 8px``，见 :mod:`spacr.qt.theme`）。同时绘制自身文字的进度条——\"step 2 of 3\"、\"45%\"、\"312 MB / 690 MB (45%)\"——会把 13 px 的文字画进这 8 px 中，因此每个字形只有上半部分能显示出来；而在 50 % 的 GUI 缩放下轨道只有 4 px，几乎什么都显示不出来。像 \"step 1 of 3\" 或 \"10%\" 这样的文字会被截断。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
@@ -420,7 +430,9 @@
       "source_sha256": "2b47680e338a06f4bfb7cda42e28be77e43555b5e7733afdc01ca945cff257a3",
       "context": "It belongs to the window, not the widget that asked. A dialog inherits the style sheet of every widget above it, and Plaque Assay asks from its preview, whose own scale slider re-states the application sheet at that preview's scale: at 150 % Install and Cancel were 59 px tall, not the 40 px of every other button. Parented to ``parent.window()`` it is themed like every other dialog and still centred on, and modal to, the window that opened it.",
       "translation": "“它属于窗口，而不属于发起请求的控件”。对话框会继承其上方每个控件的样式表，而 Plaque Assay 是从其预览中发起请求的，该预览自己的缩放滑块会按该预览的缩放比例重新声明应用程序样式表：在 150 % 时，Install 和 Cancel 高 59 px，而不是其他所有按钮的 40 px。以 ``parent.window()`` 为父对象后，它的主题与其他所有对话框一致，同时仍居中于打开它的窗口，并对该窗口保持模态。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog#7",
@@ -502,7 +514,9 @@
       "source_sha256": "eef8deb4d5d40c142f2c8a6a69d7f86a5d11ab505ca5d407ef9c8cfbb07ccc70",
       "context": "A window opened from the preview is not the preview. A dialog parented to the panel is a window of its own, yet Qt cascades the panel's scaled sheet into it, and the walk found it among the panel's children: at 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every other dialog. Such a window and everything in it are kept at 100 %, and the window's own sheet re-states, at 100 %, the sizes it would otherwise inherit scaled -- set as it is polished, so before it is first laid out.",
       "translation": "“从预览中打开的窗口不属于预览”。以面板为父对象的对话框本身是一个独立窗口，但 Qt 会把面板的缩放样式表级联到其中，而遍历也会在面板的子对象中找到它：在 150 % 时，某个设置对话框的按钮高 59 px，而不是其他所有对话框的 40 px。这样的窗口及其中的所有内容都保持在 100 %，并且该窗口自身的样式表会在 100 % 下重新声明原本会以缩放形式继承的尺寸——在其 polish 时设置，因此在首次布局之前生效。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.psf_controls#1",
@@ -510,7 +524,9 @@
       "source_sha256": "8097f7099e1f6af666327bd36ba6df4f0313e405703fa7deff5fa791c88b5431",
       "context": "The calibration fills itself. A microscope objective, camera and fluorophore chooser, or \"Infer from images…\", fills magnification, numerical aperture, refractive index, emission wavelength, camera pixel, image pixel size and Gaussian FWHM, each microscope field of view saying where its value came from. Only the operation and the objective row are shown; the rest sits in a fold that starts collapsed and remembers being opened.",
       "translation": "校准会自动填充。显微镜物镜、相机和荧光团选择器，或 \"Infer from images…\"，会填入放大倍数、数值孔径、折射率、发射波长、相机像素、图像像素大小和高斯 FWHM，每个字段都会说明其值的来源。只显示操作和物镜这一行；其余内容位于一个初始折叠、并会记住曾被展开的折叠区中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.zoom_view#1",
@@ -642,7 +658,9 @@
       "source_sha256": "2b4c477edd721e3ec0897e4354525fb16634855fc3c9c7e4a109eaccbe4495d8",
       "context": "1. A suggestion is never confusable with a decision. Suggestions are stored as their own values -- a suggested 1 becomes 11 -- so nothing that reads the annotation column can mistake one for a human's answer, and a processing session that goes wrong is undone by deleting a value rather than by remembering which rows were touched. 2. a suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not when the model is confident, not on a repeat execution. A human's labels are the ground truth the model was fitted on; losing one silently would cost hours and would not be noticed until a processing session came out wrong. 3. no confidence floor, so the order carries the doubt. Every unannotated extracted image region gets a suggestion, sorted most-confident first, and the reviewer stops where they stop agreeing. A threshold would make that decision for them, with a number nobody chose. 4. a judgement is recorded, not inferred. Confirming a suggestion turns it into an ordinary label and rejecting one clears it -- and both are written down beside the column, in ``<column>_verdict``, as the class that was confirmed (``+c``) or rejected (``-c``). A rejection is information the next round can train on -- \"not class 1\" is an example of class 2 in a two-class column -- where a NULL would have been silence. The verdict column is added the first time a source is opened, so tables made before it existed gain it without a migration step.",
       "translation": "1. “建议绝不会与决定混淆。”建议以其自身的值存储——建议的 1 变为 11——因此读取标注列的任何代码都不会把建议误认为人工的答案，而一次出错的运行只需删除一个值即可撤销，无需记住改动过哪些行。2. “建议绝不会覆盖标注。”写入操作带有 ``IS NULL``。模型置信度高时不会，重新运行时也不会。人工标签是模型拟合所依据的参考标注；悄无声息地丢失一个会耗费数小时，而且要到某次运行结果出错时才会被发现。3. “没有置信度下限，因此由排序承载不确定性。”每个未标注的裁剪图都会得到一条建议，按置信度从高到低排序，审阅者在不再认同之处停下即可。阈值会替他们做出这个决定，而且用的是一个无人选择的数字。4. “判定是被记录的，而不是推断的”。确认一条建议会把它变为普通标签，拒绝则会清除它——两者都会记录在该列旁边的 ``<column>_verdict`` 中，记为被确认（``+c``）或被拒绝（``-c``）的类别。拒绝是下一轮训练可以利用的信息——在二分类列中，\"not class 1\" 就是类别 2 的一个样本——而 NULL 则什么也不表达。判定列会在首次打开数据源时添加，因此在它出现之前创建的表无需迁移步骤即可获得该列。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.utils.fill_holes_in_mask#1",
@@ -650,7 +668,9 @@
       "source_sha256": "fc89df908c0e223a67870157f8dd6ce29e5f5f532766387cab53f2c41c3c7a2d",
       "context": "Delegates to :func:`spacr.qt.mask_engine.fill_label_holes`, the one hole filler for label images. This used to run ``ndimage.label`` over the mask first, which made every pair of touching objects one object: with Cellpose ``fill_in`` on (its default in Apply), a microscope field of view of 74 adjacent cells was saved as 8. Now no object is merged or renumbered, and a hole takes the id of the object that encloses it.",
       "translation": "委托给 :func:`spacr.qt.mask_engine.fill_label_holes`，即标签图像唯一的孔洞填充器。过去会先对掩膜运行 ``ndimage.label``，这会把每一对相互接触的对象合并为一个对象：在开启 Cellpose 的 ``fill_in``（Apply 中的默认设置）时，一个含有 74 个相邻细胞的视野被保存为 8 个。现在不会合并或重新编号任何对象，孔洞会获得包围它的对象的编号。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

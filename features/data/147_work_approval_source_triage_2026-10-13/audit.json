@@ -1,0 +1,341 @@
+{
+  "schema": 1,
+  "created_at": "2026-10-14T01:50:14.256691+00:00",
+  "review_kind": "Codex AI bounded read-only issue147 source trace and proposed acceptance plan",
+  "status": "Source-supported missing chat approval channel; reported native failure unreproduced, no fix applied",
+  "issue": {
+    "url": "https://github.com/EinarOlafsson/spacr/issues/147",
+    "title": "In-app assistant: tool approval required but no approval prompt is shown",
+    "state": "OPEN",
+    "comment_count": 0,
+    "reported_environment": "spaCR1.5.1.4,macOSDarwin25.6.0,Qt/PySide6 in-app assistant",
+    "provider_name_version_configuration": "not supplied in issue; not measured",
+    "read_command": [
+      "gh",
+      "issue",
+      "view",
+      "147",
+      "--repo",
+      "EinarOlafsson/spacr",
+      "--json",
+      "number,title,body,url,state,comments,createdAt,updatedAt"
+    ],
+    "snapshot": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/issue147_source_trace_20261013/issue147-github.json",
+      "sha256": "012402892ca766b7622c21e075ecf0209aca3a554a06a2c7c8b3965cd8789a60",
+      "bytes": 1347
+    }
+  },
+  "source_worktree": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013",
+  "source_read_HEAD": "9cf67b0775a36b59a5ee70c86ad6c9eb1c174610",
+  "released_reference": {
+    "tag": "v1.5.1.4",
+    "resolved_commit": "b83756011a17b570f349d0c38696f909124da172",
+    "scope": "Repository release source reference only; user installed artifact/build not byte-verified."
+  },
+  "findings": [
+    {
+      "id": "147-S1",
+      "source": [
+        "spacr/qt/ai/providers.py:570",
+        "spacr/qt/ai/providers.py:607",
+        "spacr/qt/ai/providers.py:714",
+        "spacr/qt/ai/providers.py:748",
+        "spacr/qt/ai/providers.py:779"
+      ],
+      "fact": "Chat invokes claude -p PROMPT, codex exec PROMPT, gemini -p PROMPT plus model/speed args. Shared process uses stdoutPIPE/stderrSTDOUT, inherited env/cwd and stdin=None in current provider calls. This is not a GUI-owned interactive approval channel or chat pseudo-terminal. Optional stdin_text helper writes once then closes; it is not a response bridge.",
+      "qualification": "stdin=None inherits launch context; do not say it is DEVNULL or universally unavailable. Actual provider CLI/version/config/policy decides tool behavior and remains unknown."
+    },
+    {
+      "id": "147-S2",
+      "source": [
+        "spacr/qt/ai/worker.py:30",
+        "spacr/qt/ai/worker.py:88",
+        "spacr/qt/widgets/console_panel.py:2067",
+        "spacr/qt/widgets/console_panel.py:2152",
+        "spacr/qt/widgets/ai_chat_panel.py:692",
+        "spacr/qt/widgets/ai_chat_panel.py:706"
+      ],
+      "fact": "Worker exposes connecting/streaming/text/finished only; there is no approval-request ID/event or allow/deny reply API in this inspected chat route. ConsolePanel ignores stages; AIChatPanel labels only connecting/streaming. Streaming is emitted before iteration of lazy provider generator starts subprocess or receives data.",
+      "impact": "A blocked approval or no-newline prompt can remain presented as ordinary streaming/working instead of an actionable unavailable-permission state."
+    },
+    {
+      "id": "147-S3",
+      "source": [
+        "spacr/qt/ai/providers.py:392",
+        "spacr/qt/ai/providers.py:635",
+        "tests/qt/test_ai_providers_offline.py:115"
+      ],
+      "fact": "Exact leading Permission deny rule, Permission allow rule and Permission ask rule lines are discarded before display/failure-tail collection. Offline contract explicitly asserts this filtering.",
+      "qualification": "Issue body says approval required; that literal does not match these prefixes. No evidence identifies actual suppressed vendor line. Treat this as a diagnostic classification risk, not proven cause of reported failure; preserve harmless reminder filtering separately from real requests/denials."
+    },
+    {
+      "id": "147-S4",
+      "source": [
+        "spacr/qt/ai/providers.py:635",
+        "spacr/qt/ai/providers.py:647",
+        "spacr/qt/ai/worker.py:100",
+        "spacr/qt/widgets/console_panel.py:2270",
+        "spacr/qt/widgets/ai_chat_panel.py:743"
+      ],
+      "fact": "Line reader blocks until newline/EOF; cleanup wait timeout occurs after output iteration ends, not an overall generation/approval deadline. Natural nonzero exit becomes ProviderFailed; exit0 text is an ordinary answer, with no structured approval-unavailable category.",
+      "qualification": "A model saying approval is required is not proof of an actual CLI approval event. Existing cancellation terminates tracked child; it cannot approve tools or prove their execution."
+    },
+    {
+      "id": "147-S5",
+      "source": [
+        "spacr/qt/ai/prompts.py:46",
+        "spacr/qt/ai/prompts.py:57",
+        "spacr/qt/ai/settings.py:31",
+        "spacr/qt/ai/settings.py:92"
+      ],
+      "fact": "Default chat/error prompts contain no explicit disclosure that this GUI chat transport cannot present/respond to tool approval. SPEED_MAP/provider_args adds model selection only. Custom prompt is permitted and can differ.",
+      "impact": "No source-level capability notice prevents assistant from asking for a nonexistent GUI prompt repeatedly. This is an implementation gap aligned with the reported expectation, not a measured deterministic model response."
+    },
+    {
+      "id": "147-S6",
+      "source": [
+        "spacr/qt/ai/pty_sign_in.py:172",
+        "tests/qt/test_ai_sign_in_happens_inside_spacr.py:57"
+      ],
+      "fact": "A separate POSIX pseudo-terminal SignInDialog and local stand-in tests exist for provider login. Chat stream implementations do not route through it.",
+      "qualification": "Login GUI existence does not establish tool-approval support; no login/auth/provider command was executed during this review."
+    }
+  ],
+  "owning_contracts": {
+    "tests/qt/test_ai_providers_offline.py:115": "Exact permission-noise suppression expected.",
+    "tests/qt/test_ai_providers_offline.py:138": "stdoutPIPE,mergedstderr,stdinNone,environmentlayering; no approval channel.",
+    "tests/qt/test_ai_providers_offline.py:160": "One-shot helper stdin text then close; not bidirectional approvals.",
+    "tests/qt/test_ai_providers_offline.py:325–437": "Exact providerargv/model/cancellation-registration shapes tested with fakePopen.",
+    "tests/qt/test_ai_providers_offline.py:568–684": "Only connecting/streaming/text/completion/errors/cancel generic worker outcomes.",
+    "tests/qt/test_ai_chat_panel_offline.py:847–955": "Genericcancel,stagenames,success/failure/history; no approval-specific GUI contract in inspected sections.",
+    "tests/qt/test_an_ai_stream_that_cannot_be_ended_stays_findable.py:82–109": "Registry/reaping/failure tail safety preserved; no toolapproval acceptance.",
+    "tests/qt/test_ai_sign_in_happens_inside_spacr.py:57": "Localstand-in POSIX loginPTY acceptance only, not chat tools."
+  },
+  "owning_contract_limit": "These assertions were inspected, not executed. This bounded review does not certify whole-test-suite absence of every possible approval-related test.",
+  "future_acceptance_plan": [
+    {
+      "id": "147-A1",
+      "proposed_contract": "Maintainer chooses explicit unsupported-interactive-tools fallback for current chat or a reviewed vendor-protocol approval bridge. Advertise actual selected-provider capabilities; never disable approvals or silently auto-approve to remove the prompt.",
+      "proof_needed": "Exact released provider version/argv/config and capability receipt; unknown capability fails to actionable manual guidance."
+    },
+    {
+      "id": "147-A2",
+      "proposed_contract": "Offline stand-in emits approval-required/denied in separate cases: structured supported request, prose answer, stderr, no final newline, child waits for stdin, natural exit0/nonzero.",
+      "proof_needed": "GUI accurately identifies available capability or unavailable manual action, stops fake streaming indefinitely, does not declare a tool executed, and does not invent a shown dialog."
+    },
+    {
+      "id": "147-A3",
+      "proposed_contract": "If approval bridge is implemented, exact request ID/command/context and bounded allowed responses are surfaced; allow/deny/dialog-dismissal, duplicate/stale request and transport failure must be distinct.",
+      "proof_needed": "User approval binds only presented request; denied/dismissed request never executes. No network or real package/report mutation needed for owning fake-child tests."
+    },
+    {
+      "id": "147-A4",
+      "proposed_contract": "Supported fallback communicates no GUI tool-approval path to model and user, supplies command for deliberate manual execution, and prevents repeated instructions to approve nonexistent prompt.",
+      "proof_needed": "Current CLI auth instructions remain distinct; blocked gh issue create/pip install suggestions never automatically run. No unverified provider flags are added."
+    },
+    {
+      "id": "147-A5",
+      "proposed_contract": "Classify reminder noise separately from real permission denial/request; add future contract around current exactprefix filter without dropping genuine approval state.",
+      "proof_needed": "Preserve relevant actionable diagnostics; unrelated permission-rule reminders may stay filtered. No claim issue147 exact line was filtered."
+    },
+    {
+      "id": "147-A6",
+      "proposed_contract": "Cancel, timeout, window-close and shutdown unblock delayed/no-newline stand-in, leave failure/partial output out of successful assistant history and preserve existing child tracking/reaping safety.",
+      "proof_needed": "Focused owning offline tests assert process/thread exit and state transitions; timeout must be real transport deadline if UI claims cancellation."
+    },
+    {
+      "id": "147-A7",
+      "proposed_contract": "Native macOS1.5.1.4 reported case needs separately authorized reproduction on actual source plus recorded provider binary/version/effective policy/stdinTTY/argv/environment roles.",
+      "proof_needed": "Use harmless local stand-in or explicit nondestructive test first. Current Linux read-only trace is not macOS reproduction or proof all gh/pip commands require approval. Do not request credentials/private configuration dumps or run authentication."
+    },
+    {
+      "id": "147-A8",
+      "proposed_contract": "Final changed English/capability notices need source-bound truthful approval before existing nine-locale extraction/review; preserve public report consent and sensitive CLI/chat privacy distinction.",
+      "proof_needed": "Issue147 fix does not create account-free provider or anonymous chat/ZIP guarantee; freeze lift and Home ownership required for app/tests/translation changes."
+    }
+  ],
+  "release_source_comparison": [
+    {
+      "git_path": "spacr/qt/ai/providers.py",
+      "current_whole_file_sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "released_whole_file_sha256": "6141875328c8ef7b3b66efb4a2c831ecde3219e950a7750c0b66979058ec7835",
+      "whole_file_equal": false,
+      "selected_functions": [
+        {
+          "function": "ChatProvider.cancel_stream",
+          "current_line": 358,
+          "released_line": 358,
+          "current_code_AST_sha256": "a7243be9eeaea18edaa1b4026883cf2839d8c72b854471e0a7dc152892752820",
+          "released_code_AST_sha256": "a7243be9eeaea18edaa1b4026883cf2839d8c72b854471e0a7dc152892752820",
+          "same_code_AST_ignoring_function_docstrings": true
+        },
+        {
+          "function": "ChatProvider.stream_chat",
+          "current_line": 382,
+          "released_line": 382,
+          "current_code_AST_sha256": "3ce6cffa0ce73c615db820e45897e708f705d22245b5fcd3c37be17edcc51b0b",
+          "released_code_AST_sha256": "3ce6cffa0ce73c615db820e45897e708f705d22245b5fcd3c37be17edcc51b0b",
+          "same_code_AST_ignoring_function_docstrings": true
+        },
+        {
+          "function": "_stream_process",
+          "current_line": 570,
+          "released_line": 570,
+          "current_code_AST_sha256": "ce1bc8603bf1f5e06ddc2cf5d69677487ec8478cd9404ad7470e85075f749083",
+          "released_code_AST_sha256": "ce1bc8603bf1f5e06ddc2cf5d69677487ec8478cd9404ad7470e85075f749083",
+          "same_code_AST_ignoring_function_docstrings": true
+        },
+        {
+          "function": "ClaudeCliProvider.stream_chat",
+          "current_line": 701,
+          "released_line": 701,
+          "current_code_AST_sha256": "e69961a9c70c168f5a0fd4c0a62e3a57d92d00a21ff55dcdd461ff47fc2d2214",
+          "released_code_AST_sha256": "e69961a9c70c168f5a0fd4c0a62e3a57d92d00a21ff55dcdd461ff47fc2d2214",
+          "same_code_AST_ignoring_function_docstrings": true
+        },
+        {
+          "function": "CodexCliProvider.stream_chat",
+          "current_line": 736,
+          "released_line": 736,
+          "current_code_AST_sha256": "78e898901d9f274842c9c23748d17ace02c621adf6b8ea35e609fc63cfb33513",
+          "released_code_AST_sha256": "78e898901d9f274842c9c23748d17ace02c621adf6b8ea35e609fc63cfb33513",
+          "same_code_AST_ignoring_function_docstrings": true
+        },
+        {
+          "function": "GeminiCliProvider.stream_chat",
+          "current_line": 767,
+          "released_line": 767,
+          "current_code_AST_sha256": "3cfb3f389d2f1189990fb1bb0e919dc053024a24a72468333c3f6e3135f86a91",
+          "released_code_AST_sha256": "3cfb3f389d2f1189990fb1bb0e919dc053024a24a72468333c3f6e3135f86a91",
+          "same_code_AST_ignoring_function_docstrings": true
+        }
+      ]
+    },
+    {
+      "git_path": "spacr/qt/ai/worker.py",
+      "current_whole_file_sha256": "a7bd58589d1c7458504f898ec20d866b138ca81190335d959b56a143c4754cd2",
+      "released_whole_file_sha256": "72d3a7a61fcfa63ac763d43694095a9695d76b136597ae49d4547e6a34a995ac",
+      "whole_file_equal": false,
+      "selected_functions": [
+        {
+          "function": "StreamWorker.run",
+          "current_line": 69,
+          "released_line": 69,
+          "current_code_AST_sha256": "dd0cfd796ad28b476f523798dcce5068ed17e9b706aeb34eb6fafb585ac1c618",
+          "released_code_AST_sha256": "dd0cfd796ad28b476f523798dcce5068ed17e9b706aeb34eb6fafb585ac1c618",
+          "same_code_AST_ignoring_function_docstrings": true
+        }
+      ]
+    },
+    {
+      "git_path": "spacr/qt/widgets/console_panel.py",
+      "current_whole_file_sha256": "46e4b66be978b3e202bebe71422c9ed7a533ceba0b33cd74be77c40ad5fb1bcd",
+      "released_whole_file_sha256": "ecc7ef588ecb486b7bd064a1d4a532eeb861c6737bbb321ccfdb5a9b9fd8224d",
+      "whole_file_equal": false,
+      "selected_functions": [
+        {
+          "function": "ConsolePanel._on_stage",
+          "current_line": 2152,
+          "released_line": 2122,
+          "current_code_AST_sha256": "08bc1e2ff90c3c39d6376d6963e26f43bc02d69c85bb2d45d11f97f0483d03c6",
+          "released_code_AST_sha256": "08bc1e2ff90c3c39d6376d6963e26f43bc02d69c85bb2d45d11f97f0483d03c6",
+          "same_code_AST_ignoring_function_docstrings": true
+        },
+        {
+          "function": "ConsolePanel._on_stream_finished",
+          "current_line": 2247,
+          "released_line": 2217,
+          "current_code_AST_sha256": "d8f83a2361fb4183bd364e75449018c50bd3440cede178d381a609b05e95bc03",
+          "released_code_AST_sha256": "d8f83a2361fb4183bd364e75449018c50bd3440cede178d381a609b05e95bc03",
+          "same_code_AST_ignoring_function_docstrings": true
+        }
+      ]
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/providers.py",
+      "sha256": "0c9e7fc44945e48636a0e0f0a6b557280448f17863a846f7c4d7b3e49a456f90",
+      "bytes": 32016,
+      "git_path": "spacr/qt/ai/providers.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/worker.py",
+      "sha256": "a7bd58589d1c7458504f898ec20d866b138ca81190335d959b56a143c4754cd2",
+      "bytes": 7522,
+      "git_path": "spacr/qt/ai/worker.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/prompts.py",
+      "sha256": "8950ac9969aca575e8f7a91604231e07365c70835e5983599889b83a5163f5b6",
+      "bytes": 3612,
+      "git_path": "spacr/qt/ai/prompts.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/settings.py",
+      "sha256": "858107ff2d7bbc64bdd5391563f875b064dfb163b690115fc81a2098cb88c189",
+      "bytes": 8804,
+      "git_path": "spacr/qt/ai/settings.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/pty_sign_in.py",
+      "sha256": "734be20556f96934ea1609946ae62ca9eb424286e586ce8f783895503552a2f6",
+      "bytes": 9912,
+      "git_path": "spacr/qt/ai/pty_sign_in.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/console_panel.py",
+      "sha256": "46e4b66be978b3e202bebe71422c9ed7a533ceba0b33cd74be77c40ad5fb1bcd",
+      "bytes": 96307,
+      "git_path": "spacr/qt/widgets/console_panel.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ai_chat_panel.py",
+      "sha256": "2048c010239e21244b77704d4e48a4ebb608f5277334078f9cb5a9f0749f6a29",
+      "bytes": 33621,
+      "git_path": "spacr/qt/widgets/ai_chat_panel.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_ai_providers_offline.py",
+      "sha256": "1c34fdf4784a4d477328f6502c8f456f4743fa6f6de1dc8dcb2e43c6d2dc5baf",
+      "bytes": 27952,
+      "git_path": "tests/qt/test_ai_providers_offline.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_ai_chat_panel_offline.py",
+      "sha256": "9889a199aa2ad17dceb9cacfecdcf6ff971b2930269f106ca4fa2ce316b6e866",
+      "bytes": 46448,
+      "git_path": "tests/qt/test_ai_chat_panel_offline.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_ai_sign_in_happens_inside_spacr.py",
+      "sha256": "51f87fdb5badaa55374e6d485ee9c8034ccbf88975efbe8fcfe5533afa1cfa6b",
+      "bytes": 6751,
+      "git_path": "tests/qt/test_ai_sign_in_happens_inside_spacr.py",
+      "matches_read_source_commit": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/qt/test_an_ai_stream_that_cannot_be_ended_stays_findable.py",
+      "sha256": "7cc04d3052e18d92e29f218302da030c7ff499fd419fda97351797cd76b6a747",
+      "bytes": 3147,
+      "git_path": "tests/qt/test_an_ai_stream_that_cannot_be_ended_stays_findable.py",
+      "matches_read_source_commit": true
+    }
+  ],
+  "privacy_and_scope": "Only existing issue read via gh and stdlib/git source reads. No issue comments/reports, CLI provider/login/tool execution, GUI, GPU, packages or env mutation. No vendor flags/installed versions invented. Native behavior and causality require owner-authorized measurement.",
+  "no_actions": {
+    "tests_installer_providers_auth_tools_GUI_GPU": false,
+    "app_tests_catalog_env_package_changes": false,
+    "push_comments_reports": false
+  }
+}

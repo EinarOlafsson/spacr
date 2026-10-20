@@ -369,6 +369,35 @@ def test_the_apply_half_keeps_the_live_preview_declared_for_it(workbench):
     assert getattr(workbench.train_screen, "_settings_search", None) is not None
 
 
+def test_the_hidden_apply_preview_builds_only_when_it_is_requested(workbench):
+    host = workbench.apply_screen._registry_preview
+    assert not host.panel_is_built()
+    assert host.card.isHidden()
+    workbench.apply_screen._settings_model.set_value_for_key("diameter", 44)
+
+    host.toggle.setChecked(True)
+
+    assert host.panel_is_built()
+    assert not host.card.isHidden()
+    assert host.panel._diameter.value() == pytest.approx(44)
+    assert host.panel._module == APPLY_KEY
+    panel = host.panel
+    host.toggle.setChecked(False)
+    host.toggle.setChecked(True)
+    assert host.panel is panel
+
+
+def test_reading_the_apply_preview_builds_it_without_opening_its_card(workbench):
+    host = workbench.apply_screen._registry_preview
+    assert not host.panel_is_built()
+
+    assert host.panel._module == APPLY_KEY
+
+    assert host.panel_is_built()
+    assert host.card.isHidden()
+    assert not host._primed
+
+
 def test_both_halves_still_run_headless_under_their_own_keys():
     """Merging two screens may not merge two pipelines: a cluster job and a
     settings CSV written for either module have to keep working."""

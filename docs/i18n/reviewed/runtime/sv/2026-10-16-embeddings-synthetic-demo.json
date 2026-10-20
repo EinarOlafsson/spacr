@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical translation and independent AI technical peer review; normal runtime gates required; no native-speaker signoff",
+  "review": "The bundled 24 geometric images demonstrate a CPU workflow only. Preserve ResNet-18 and all placeholders; action placeholders use the existing translated control captions. These are not microscopy data or biological validation results.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Load synthetic demo",
+      "source": "Load synthetic demo",
+      "source_sha256": "4f66010271a0c5381e208fc4bb8c433e554c8064705420e38cecad55997b736d",
+      "translation": "Läs in syntetiskt exempel"
+    },
+    {
+      "table": "ui",
+      "key": "Loading synthetic demo crops…",
+      "source": "Loading synthetic demo crops…",
+      "source_sha256": "5d6b1c5b4558c7a846817b81df2c5a2d1b7e39ecbce762f3d078452b29669580",
+      "translation": "Läser in syntetiska exempelutsnitt…"
+    },
+    {
+      "table": "ui",
+      "key": "Loading synthetic demo crops was stopped.",
+      "source": "Loading synthetic demo crops was stopped.",
+      "source_sha256": "949482ca3dcd21bbdae8b7ac34bf9ccb3da790b4241fcac22f1ca25bb827592c",
+      "translation": "Inläsningen av syntetiska exempelutsnitt stoppades."
+    },
+    {
+      "table": "ui",
+      "key": "Synthetic shapes demonstrate the workflow only. Their labels and scores are not biological validation.",
+      "source": "Synthetic shapes demonstrate the workflow only. Their labels and scores are not biological validation.",
+      "source_sha256": "aa9872aa2bb079c4f8f6099cf0869adfb52da07627d59c9069ec84825a06f63c",
+      "translation": "Syntetiska former visar endast arbetsflödet. Deras etiketter och poäng utgör inte biologisk validering."
+    },
+    {
+      "table": "ui",
+      "key": "Loaded 24 synthetic crops and labels. Press {embed}, then choose {classifier} and {run}. Example files: {folder}",
+      "source": "Loaded 24 synthetic crops and labels. Press {embed}, then choose {classifier} and {run}. Example files: {folder}",
+      "source_sha256": "d1269fd205de0a244a827eaf68aa303b4d78c4f7a18ae0e7ff01af38f86fc327",
+      "translation": "24 syntetiska utsnitt och etiketter har lästs in. Tryck på {embed}, välj sedan {classifier} och {run}. Exempelfiler: {folder}"
+    }
+  ]
+}

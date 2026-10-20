@@ -1,0 +1,26 @@
+{
+  "read.exit": {
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  "read.log.gz": {
+    "bytes": 1980,
+    "sha256": "55212cd0d83a1587088bb78c5bf23e570da3ad94b69fa10922748b6a6d1374bf"
+  },
+  "read.py": {
+    "bytes": 5138,
+    "sha256": "9b99196a320f3da331cd2b67fd947e9d88714cadf13e387461812ea3dca76c1f"
+  },
+  "receipt.json.gz": {
+    "bytes": 83651,
+    "sha256": "00c96c099b5dbb52c41280a4c4cb73ac282e430bfe53ca6fff9cc642ec080a13"
+  },
+  "run.sh": {
+    "bytes": 741,
+    "sha256": "42877ea1c61e21c028aac42d88ae86e0397dde18bef5c8b91c6e00c7cb6a5623"
+  },
+  "summary.json": {
+    "bytes": 13824,
+    "sha256": "baf6e484da56c4ffea130fcc8215338537bf3676eec6fd08d8bf12e2b96786f8"
+  }
+}

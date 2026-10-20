@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "status": "source_only_proposal_not_executed",
+  "lesson": "04_platform_installers",
+  "purpose": "Home CI owner current-published02 test selector; no04 retarget and no runtime change",
+  "generated_utc": "2026-10-15T20:02:53.765486+00:00",
+  "report_source_commit": "f9fc7b8479bb18d92347f4232d575a49b1c1d11a",
+  "target": "tests/test_docs_media_budget.py",
+  "preimage": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/tests/test_docs_media_budget.py",
+    "bytes": 33941,
+    "sha256": "1cdc24bda291c77bdce4c16e6472bd3134cbeed894adfe469f23898a81db58c5"
+  },
+  "proposed": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector-proposal/test_docs_media_budget.py.proposed",
+    "bytes": 34017,
+    "sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5"
+  },
+  "patch": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson04-selective-20261015/docs-media-selector-proposal/current-published02-selector.patch",
+    "bytes": 1158,
+    "sha256": "081c00d3f60d5d3348b26f64c5022489bccf8c5c0f493624d6b295889d61edf2"
+  },
+  "selector_receipt": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_current_publication_selector_2026-10-15/receipt.json",
+    "bytes": 2850,
+    "sha256": "800acc64ec82422fb3b256b2007de93ebb8b3704f0f18ed9edaadab2100e435f"
+  },
+  "owner_relay": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/ci_tutorial_publication_selector_relay_2026-10-15/receipt.json",
+    "bytes": 1276,
+    "sha256": "4d07c784bdbbf6b7aa45556cb7c3fe53adb253fefe5859a194a62e86bd3f7581"
+  },
+  "current_checkpoint_root": "features/data/n676_install_selective_completed_2026-10-15/export/checkpoint",
+  "current_media_revision": "b62bcc2d85b3c54162485f7e6116cf04c0bf0dc3",
+  "current_manifest_sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439",
+  "selected_nodes": [
+    "tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster",
+    "tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock"
+  ],
+  "source_checks": {
+    "exactly_two_checkpoint_selector_expressions_changed": true,
+    "every_assert_AST_identical": true,
+    "AST_parse_only": true,
+    "relay_bound_manifest_receipt_checkpoint_hostedchecks_index_bytes_match": true,
+    "current_player_and_css_match_selected_published_manifest": true,
+    "index_media_root_and_asset_cache_keys_match_receipt": true,
+    "all_old_receipts_unchanged": true,
+    "ROOT_REPORT_sources_unchanged": true
+  },
+  "current_asset_bindings": {
+    "app_v2.js": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/source/_extra/tutorials/app_v2.js",
+      "bytes": 102935,
+      "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159"
+    },
+    "styles.css": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/source/_extra/tutorials/styles.css",
+      "bytes": 35608,
+      "sha256": "48d77dd48b09ebbdbdb3a66983b0dd0b2c25d32f9d8717a030cba0485b12a7e3"
+    }
+  },
+  "owner_validation_command": "python -m pytest -q tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock",
+  "limits": [
+    "No tests or application code executed; no PASS/CI/deployment/browser/readback claim.",
+    "Portable patch must apply only if its exact preimage SHA matches the owner tree; no historical receipt rewritten.",
+    "Completed02 remains current until actual04 final publication replaces it. Source-only receipt fallback path remains unchanged; current published JS/CSS exactly match02 manifest, so this selector needs no source-only exemption."
+  ]
+}

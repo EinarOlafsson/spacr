@@ -5,7 +5,7 @@ entry points are deliberately exposed in Sphinx, localization and Help search.
 This policy does not expose private helpers within those modules.
 """
 
-EXPLICIT_MODULES = frozenset({"spacr._starplast"})
+EXPLICIT_MODULES = frozenset({"spacr._parascape"})
 
 
 def documented_tree(names):

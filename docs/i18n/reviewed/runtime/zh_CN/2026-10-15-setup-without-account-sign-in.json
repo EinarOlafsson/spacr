@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_scope": "Claude AI technical review (Opus 5.5); adapted directly from the reviewed English and the existing translation for the installer privacy dialog after first-run setup stopped offering GitHub, Claude, GPT/Codex and Gemini sign-in; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "spaCR privacy choices",
+      "source": "spaCR privacy choices",
+      "source_sha256": "e8108070bc92465570c121abbc23ccee070234cf6c77da046de04851d255e19f",
+      "translation": "spaCR 隐私选项"
+    },
+    {
+      "table": "ui",
+      "key": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source": "Anonymised error reports are on by default. They are filed as public GitHub issues by spaCR's relay, with no account needed, and never include paths, names, IP addresses, emails, tokens, logs, images or your content. spaCR AI (free) is also on by default. Turn reports off in Preferences → AI → AI Error report. The terms of use, Sections 5.6–5.7 and 6, give the details.",
+      "source_sha256": "4c828e0655b6d27121f2d7373e49acd08909ce93d05e7c4067d08e7b56071764",
+      "translation": "匿名错误报告默认开启。它们由 spaCR 的中继以公开 GitHub issue 的形式提交，无需账户，且绝不包含路径、名称、IP 地址、电子邮件、令牌、日志、图像或您的内容。spaCR AI（免费）同样默认开启。可在“偏好设置”→ AI → AI Error report 中关闭报告。详情见使用条款第 5.6–5.7 节和第 6 节。"
+    }
+  ]
+}

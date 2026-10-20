@@ -257,7 +257,9 @@
       "source_sha256": "08771361e72d3f2bfd40c047879bbfb263d6b2b1a1dc17edb4536214611cf87d",
       "context": "That is the whole point of the placeholder: the sweep panel is expensive and a user who never opens this screen never pays for it.",
       "translation": "Genau darum geht es beim Platzhalter: Das Sweep-Panel ist teuer, und ein Nutzer, der diese Ansicht nie öffnet, bezahlt nie dafür.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.space#0",
@@ -321,7 +323,9 @@
       "source_sha256": "9c8cb6c8332077a881ac9cda988e0ad0f39b02282da60ea6db77df966026dad7",
       "context": "A view and not a filter: every column is still in the CSV. The order is settings, then what went in, then what came out -- a hit count means little without the size of the design it came from, and two trials differing only by a filtration cutoff can fit completely different data.",
       "translation": "EINE ANSICHT UND KEIN FILTER: Jede Spalte steht weiterhin in der CSV. Die Reihenfolge ist Einstellungen, dann was hineinging, dann was herauskam -- eine Trefferzahl bedeutet wenig ohne die Größe des Designs, aus dem sie stammt, und zwei Versuche, die sich nur in einem Filtrationsschwellenwert unterscheiden, können völlig unterschiedliche Daten fitten.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._sweep_finished#0",

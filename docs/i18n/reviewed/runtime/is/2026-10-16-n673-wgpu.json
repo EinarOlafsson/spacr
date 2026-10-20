@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "N673 wgpu follow-up: the Render backend tooltip names Vulkan, Metal and Direct3D 12; the render detail line names the graphics API; the fallback and GPU-off notes. Vulkan, Metal and Direct3D 12 are identity text; placeholders kept exactly.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "What draws the 3D view. Auto uses the graphics card through Vulkan, Metal or Direct3D 12 when it can, then OpenGL, then the CPU.",
+      "source": "What draws the 3D view. Auto uses the graphics card through Vulkan, Metal or Direct3D 12 when it can, then OpenGL, then the CPU.",
+      "source_sha256": "07498643ad7eba41a332b98be7823efc440b497b55fe2328a9aaa9cf1301bd1e",
+      "translation": "Það sem teiknar þrívíddarsýnina. Sjálfvirkt notar skjákortið gegnum Vulkan, Metal eða Direct3D 12 þegar hægt er, síðan OpenGL og annars CPU-örgjörvann."
+    },
+    {
+      "table": "ui",
+      "key": "Drawn on the GPU ({api}, {name}) at {percent}% scale, from every voxel.",
+      "source": "Drawn on the GPU ({api}, {name}) at {percent}% scale, from every voxel.",
+      "source_sha256": "9710b16e6ec85fd94327d7a940e3c7f8d28944bab660ee5095b38e20b08b78dd",
+      "translation": "Teiknað á GPU ({api}, {name}) í {percent}% kvarða, úr hverri voxlu."
+    },
+    {
+      "table": "ui",
+      "key": "Drawn on the GPU ({api}, {name}) at {percent}% scale, from 1 voxel in {n} along the most reduced axis.",
+      "source": "Drawn on the GPU ({api}, {name}) at {percent}% scale, from 1 voxel in {n} along the most reduced axis.",
+      "source_sha256": "29baebf1ae5916545dbc609490b74007b081376afae8c527c30f70779927ca2b",
+      "translation": "Teiknað á GPU ({api}, {name}) í {percent}% kvarða, úr 1 voxlu af hverjum {n} eftir mest minnkaða ásnum."
+    },
+    {
+      "table": "ui",
+      "key": "{backend} is unavailable ({reason}); drawing with {fallback} instead.",
+      "source": "{backend} is unavailable ({reason}); drawing with {fallback} instead.",
+      "source_sha256": "e8a01a1cc5813eb84071aa46d55fb624c42f6805b053e44ccd63bca6fa8173a3",
+      "translation": "{backend} er ekki tiltækt ({reason}); teiknað með {fallback} í staðinn."
+    },
+    {
+      "table": "ui",
+      "key": "GPU rendering is turned off ({reason}); drawing on the CPU.",
+      "source": "GPU rendering is turned off ({reason}); drawing on the CPU.",
+      "source_sha256": "74d71899b3fcf0ad6238b99cdc9b06974cf5b558608ef27d38eb335a9fcbaebc",
+      "translation": "Slökkt er á GPU-myndgerð ({reason}); teiknað á CPU."
+    },
+    {
+      "table": "ui",
+      "key": "Vulkan",
+      "source": "Vulkan",
+      "source_sha256": "705cf66058dbc5f928db85fa069818070963d5429712aad9a43700138fb52371",
+      "translation": "Vulkan"
+    },
+    {
+      "table": "ui",
+      "key": "Metal",
+      "source": "Metal",
+      "source_sha256": "ecf783a585cbdf9274c4dc944727f6b8e7ad3f9de6f4eebc2d1bb8f69def3625",
+      "translation": "Metal"
+    },
+    {
+      "table": "ui",
+      "key": "Direct3D 12",
+      "source": "Direct3D 12",
+      "source_sha256": "f6a2a0ab0ccd4ef81dbbb9732f76c941173891f10744c3ed763d0226a11ecddb",
+      "translation": "Direct3D 12"
+    }
+  ]
+}

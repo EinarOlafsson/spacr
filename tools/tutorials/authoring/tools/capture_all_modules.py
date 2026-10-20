@@ -334,7 +334,7 @@ def main() -> int:
     parser.add_argument("--only", nargs="*")
     parser.add_argument("--output-root", type=Path, default=PRODUCTION)
     parser.add_argument("--theme", choices=("dark",), default="dark")
-    parser.add_argument("--backdrop", choices=("blobs",), default="blobs")
+    parser.add_argument("--backdrop", choices=("data_art_impulse_lens",), default="data_art_impulse_lens")
     args = parser.parse_args()
 
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")

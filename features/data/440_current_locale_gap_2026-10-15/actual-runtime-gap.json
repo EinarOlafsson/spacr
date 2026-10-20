@@ -1,0 +1,612 @@
+{
+  "public_base": "20a4313bcd9d58bc9267c1b80d3b51c02206635d",
+  "picker_source_sha256": "0d9cbbe50a56bd66ef5addcdb57e830317e8cac00c84e6125eea91f245d338e5",
+  "sources": {
+    "tooltip:cellposeSAM": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+    "tooltip:spaCR": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+    "tooltip:spaCR community": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+    "tooltip:bioimage.io": "Cellpose models published on bioimage.io, read through its artifact API.",
+    "tooltip:cellpose3": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+    "heading:spaCR community": "spaCR community",
+    "warning:0": "Community uploads are not vetted",
+    "warning:1": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?"
+  },
+  "languages": {
+    "sv": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose Modeller published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "Uppladdningar från användare är inte granskade",
+        "actual_tr": "Uppladdningar från användare är inte granskade",
+        "has_translation": true,
+        "exact_target": "Uppladdningar från användare är inte granskade"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "Dessa modeller laddas upp av andra spaCR-användare via knappen Lägg till.\n\nIngen har kontrollerat vad modellerna är, vilka data de tränades på eller om de redovisade resultaten är riktiga. Kontrollsummorna visar bara att en fil inte har ändrats sedan den laddades upp. De visar varken att modellen är bra eller att det är säkert att anförtro den dina data.\n\nVisa dem ändå?",
+        "actual_tr": "Dessa modeller laddas upp av andra spaCR-användare via knappen Lägg till.\n\nIngen har kontrollerat vad modellerna är, vilka data de tränades på eller om de redovisade resultaten är riktiga. Kontrollsummorna visar bara att en fil inte har ändrats sedan den laddades upp. De visar varken att modellen är bra eller att det är säkert att anförtro den dina data.\n\nVisa dem ändå?",
+        "has_translation": true,
+        "exact_target": "Dessa modeller laddas upp av andra spaCR-användare via knappen Lägg till.\n\nIngen har kontrollerat vad modellerna är, vilka data de tränades på eller om de redovisade resultaten är riktiga. Kontrollsummorna visar bara att en fil inte har ändrats sedan den laddades upp. De visar varken att modellen är bra eller att det är säkert att anförtro den dina data.\n\nVisa dem ändå?"
+      }
+    },
+    "de": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose Modelle published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "Gemeinschafts-Uploads werden nicht überprüft",
+        "actual_tr": "Gemeinschafts-Uploads werden nicht überprüft",
+        "has_translation": true,
+        "exact_target": "Gemeinschafts-Uploads werden nicht überprüft"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "Diese Modelle wurden von anderen spaCR-Nutzern über die Schaltfläche Hinzufügen hochgeladen.\n\nNiemand hat geprüft, um welche Modelle es sich handelt, womit sie trainiert wurden oder ob ihre angegebenen Kennzahlen stimmen. Die Prüfsummen belegen nur, dass sich eine Datei seit dem Upload nicht verändert hat -- nicht ihre Qualität oder die Sicherheit bei der Verwendung mit Ihren Daten.\n\nTrotzdem anzeigen?",
+        "actual_tr": "Diese Modelle wurden von anderen spaCR-Nutzern über die Schaltfläche Hinzufügen hochgeladen.\n\nNiemand hat geprüft, um welche Modelle es sich handelt, womit sie trainiert wurden oder ob ihre angegebenen Kennzahlen stimmen. Die Prüfsummen belegen nur, dass sich eine Datei seit dem Upload nicht verändert hat -- nicht ihre Qualität oder die Sicherheit bei der Verwendung mit Ihren Daten.\n\nTrotzdem anzeigen?",
+        "has_translation": true,
+        "exact_target": "Diese Modelle wurden von anderen spaCR-Nutzern über die Schaltfläche Hinzufügen hochgeladen.\n\nNiemand hat geprüft, um welche Modelle es sich handelt, womit sie trainiert wurden oder ob ihre angegebenen Kennzahlen stimmen. Die Prüfsummen belegen nur, dass sich eine Datei seit dem Upload nicht verändert hat -- nicht ihre Qualität oder die Sicherheit bei der Verwendung mit Ihren Daten.\n\nTrotzdem anzeigen?"
+      }
+    },
+    "es": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose Modelos published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "Los archivos subidos por la comunidad no se verifican",
+        "actual_tr": "Los archivos subidos por la comunidad no se verifican",
+        "has_translation": true,
+        "exact_target": "Los archivos subidos por la comunidad no se verifican"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "Otros usuarios de spaCR han subido estos modelos mediante el botón Añadir.\n\nNadie ha comprobado qué son, con qué datos se entrenaron ni si los resultados que declaran son reales. Sus sumas de comprobación solo demuestran que el archivo no ha cambiado desde que se subió; no demuestran su calidad ni que sea seguro confiarle sus datos.\n\n¿Desea mostrarlos de todos modos?",
+        "actual_tr": "Otros usuarios de spaCR han subido estos modelos mediante el botón Añadir.\n\nNadie ha comprobado qué son, con qué datos se entrenaron ni si los resultados que declaran son reales. Sus sumas de comprobación solo demuestran que el archivo no ha cambiado desde que se subió; no demuestran su calidad ni que sea seguro confiarle sus datos.\n\n¿Desea mostrarlos de todos modos?",
+        "has_translation": true,
+        "exact_target": "Otros usuarios de spaCR han subido estos modelos mediante el botón Añadir.\n\nNadie ha comprobado qué son, con qué datos se entrenaron ni si los resultados que declaran son reales. Sus sumas de comprobación solo demuestran que el archivo no ha cambiado desde que se subió; no demuestran su calidad ni que sea seguro confiarle sus datos.\n\n¿Desea mostrarlos de todos modos?"
+      }
+    },
+    "zh_CN": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose 模型 published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "社区上传内容未经审核",
+        "actual_tr": "社区上传内容未经审核",
+        "has_translation": true,
+        "exact_target": "社区上传内容未经审核"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "这些模型由其他 spaCR 用户通过“添加”按钮上传。\n\n尚无人核实模型是什么、用什么数据训练，或所报告的数值是否真实。校验和只能证明文件自上传以来未发生变化，不能证明模型质量，也不能证明可以放心地让它处理您的数据。\n\n仍要显示这些模型吗？",
+        "actual_tr": "这些模型由其他 spaCR 用户通过“添加”按钮上传。\n\n尚无人核实模型是什么、用什么数据训练，或所报告的数值是否真实。校验和只能证明文件自上传以来未发生变化，不能证明模型质量，也不能证明可以放心地让它处理您的数据。\n\n仍要显示这些模型吗？",
+        "has_translation": true,
+        "exact_target": "这些模型由其他 spaCR 用户通过“添加”按钮上传。\n\n尚无人核实模型是什么、用什么数据训练，或所报告的数值是否真实。校验和只能证明文件自上传以来未发生变化，不能证明模型质量，也不能证明可以放心地让它处理您的数据。\n\n仍要显示这些模型吗？"
+      }
+    },
+    "fr": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose Modèles published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "Les modèles déposés par la communauté ne sont pas vérifiés",
+        "actual_tr": "Les modèles déposés par la communauté ne sont pas vérifiés",
+        "has_translation": true,
+        "exact_target": "Les modèles déposés par la communauté ne sont pas vérifiés"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "Ces modèles sont déposés par d'autres utilisateurs de spaCR via le bouton Ajouter.\n\nPersonne n'a vérifié leur nature, leurs données d'entraînement ni l'exactitude des mesures annoncées. Leurs sommes de contrôle prouvent seulement qu'un fichier n'a pas changé depuis son dépôt, pas sa qualité ni la sécurité de son utilisation avec vos données.\n\nLes afficher quand même ?",
+        "actual_tr": "Ces modèles sont déposés par d'autres utilisateurs de spaCR via le bouton Ajouter.\n\nPersonne n'a vérifié leur nature, leurs données d'entraînement ni l'exactitude des mesures annoncées. Leurs sommes de contrôle prouvent seulement qu'un fichier n'a pas changé depuis son dépôt, pas sa qualité ni la sécurité de son utilisation avec vos données.\n\nLes afficher quand même ?",
+        "has_translation": true,
+        "exact_target": "Ces modèles sont déposés par d'autres utilisateurs de spaCR via le bouton Ajouter.\n\nPersonne n'a vérifié leur nature, leurs données d'entraînement ni l'exactitude des mesures annoncées. Leurs sommes de contrôle prouvent seulement qu'un fichier n'a pas changé depuis son dépôt, pas sa qualité ni la sécurité de son utilisation avec vos données.\n\nLes afficher quand même ?"
+      }
+    },
+    "pt": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose Modelos published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "Uploads da comunidade não são verificados",
+        "actual_tr": "Uploads da comunidade não são verificados",
+        "has_translation": true,
+        "exact_target": "Uploads da comunidade não são verificados"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "Estes modelos são enviados por outros usuários de spaCR pelo botão Adicionar.\n\nNinguém verificou o que são, com quais dados foram treinados ou se os números informados são reais. As somas de verificação demonstram apenas que o arquivo não mudou desde o envio — não demonstram sua qualidade nem que seja seguro confiar seus dados a ele.\n\nMostrar mesmo assim?",
+        "actual_tr": "Estes modelos são enviados por outros usuários de spaCR pelo botão Adicionar.\n\nNinguém verificou o que são, com quais dados foram treinados ou se os números informados são reais. As somas de verificação demonstram apenas que o arquivo não mudou desde o envio — não demonstram sua qualidade nem que seja seguro confiar seus dados a ele.\n\nMostrar mesmo assim?",
+        "has_translation": true,
+        "exact_target": "Estes modelos são enviados por outros usuários de spaCR pelo botão Adicionar.\n\nNinguém verificou o que são, com quais dados foram treinados ou se os números informados são reais. As somas de verificação demonstram apenas que o arquivo não mudou desde o envio — não demonstram sua qualidade nem que seja seguro confiar seus dados a ele.\n\nMostrar mesmo assim?"
+      }
+    },
+    "hi": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose मॉडल published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "समुदाय के अपलोड जाँचे नहीं गए हैं",
+        "actual_tr": "समुदाय के अपलोड जाँचे नहीं गए हैं",
+        "has_translation": true,
+        "exact_target": "समुदाय के अपलोड जाँचे नहीं गए हैं"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "ये मॉडल spaCR के अन्य उपयोगकर्ताओं ने जोड़ें बटन से अपलोड किए हैं।\n\nकिसी ने नहीं जाँचा कि ये क्या हैं, किस पर प्रशिक्षित हुए, या इनकी बताई संख्याएँ असली हैं या नहीं। इनके चेकसम केवल यह सिद्ध करते हैं कि अपलोड के बाद फ़ाइल बदली नहीं है -- यह नहीं कि वह अच्छी है, और यह भी नहीं कि उस पर आपके डेटा के लिए भरोसा करना सुरक्षित है।\n\nफिर भी दिखाएँ?",
+        "actual_tr": "ये मॉडल spaCR के अन्य उपयोगकर्ताओं ने जोड़ें बटन से अपलोड किए हैं।\n\nकिसी ने नहीं जाँचा कि ये क्या हैं, किस पर प्रशिक्षित हुए, या इनकी बताई संख्याएँ असली हैं या नहीं। इनके चेकसम केवल यह सिद्ध करते हैं कि अपलोड के बाद फ़ाइल बदली नहीं है -- यह नहीं कि वह अच्छी है, और यह भी नहीं कि उस पर आपके डेटा के लिए भरोसा करना सुरक्षित है।\n\nफिर भी दिखाएँ?",
+        "has_translation": true,
+        "exact_target": "ये मॉडल spaCR के अन्य उपयोगकर्ताओं ने जोड़ें बटन से अपलोड किए हैं।\n\nकिसी ने नहीं जाँचा कि ये क्या हैं, किस पर प्रशिक्षित हुए, या इनकी बताई संख्याएँ असली हैं या नहीं। इनके चेकसम केवल यह सिद्ध करते हैं कि अपलोड के बाद फ़ाइल बदली नहीं है -- यह नहीं कि वह अच्छी है, और यह भी नहीं कि उस पर आपके डेटा के लिए भरोसा करना सुरक्षित है।\n\nफिर भी दिखाएँ?"
+      }
+    },
+    "ko": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose 모델 published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "커뮤니티 업로드는 검증되지 않았습니다",
+        "actual_tr": "커뮤니티 업로드는 검증되지 않았습니다",
+        "has_translation": true,
+        "exact_target": "커뮤니티 업로드는 검증되지 않았습니다"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "이 모델들은 다른 spaCR 사용자가 추가 버튼으로 업로드한 것입니다.\n\n모델이 무엇인지, 무엇으로 학습했는지, 보고된 숫자가 사실인지 아무도 확인하지 않았습니다. 체크섬은 업로드 이후 파일이 바뀌지 않았다는 것만 증명할 뿐 -- 모델이 좋다거나 데이터를 맡겨도 안전하다는 것을 증명하지 않습니다.\n\n그래도 표시할까요?",
+        "actual_tr": "이 모델들은 다른 spaCR 사용자가 추가 버튼으로 업로드한 것입니다.\n\n모델이 무엇인지, 무엇으로 학습했는지, 보고된 숫자가 사실인지 아무도 확인하지 않았습니다. 체크섬은 업로드 이후 파일이 바뀌지 않았다는 것만 증명할 뿐 -- 모델이 좋다거나 데이터를 맡겨도 안전하다는 것을 증명하지 않습니다.\n\n그래도 표시할까요?",
+        "has_translation": true,
+        "exact_target": "이 모델들은 다른 spaCR 사용자가 추가 버튼으로 업로드한 것입니다.\n\n모델이 무엇인지, 무엇으로 학습했는지, 보고된 숫자가 사실인지 아무도 확인하지 않았습니다. 체크섬은 업로드 이후 파일이 바뀌지 않았다는 것만 증명할 뿐 -- 모델이 좋다거나 데이터를 맡겨도 안전하다는 것을 증명하지 않습니다.\n\n그래도 표시할까요?"
+      }
+    },
+    "is": {
+      "tooltip:cellposeSAM": {
+        "source": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "source_sha256": "e2f959e14685dfa505448ad2d321d2b235b5219d55b09708f7130d42509a9e5e",
+        "compiled_ui": null,
+        "actual_tr": "The stock Cellpose-SAM weights, which Cellpose downloads and verifies for itself.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR": {
+        "source": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "source_sha256": "e411a9bdab572699c12f473e021e724112800582bf149c61c6e34778876e2c4d",
+        "compiled_ui": null,
+        "actual_tr": "Models trained by the spaCR maintainer and by spaCR users, each with the scorecard it was measured against.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:spaCR community": {
+        "source": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "source_sha256": "2fec778353b3e51fc153375954d507ab3da5848c126302f30dbbaf408a56fc90",
+        "compiled_ui": null,
+        "actual_tr": "Models uploaded by other spaCR users through the Add button. Nobody has checked what they are, what they were trained on, or whether their reported scores are real.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "tooltip:bioimage.io": {
+        "source": "Cellpose models published on bioimage.io, read through its artifact API.",
+        "source_sha256": "0fd2f241c4a25a092fc771c42cd44de40518ae6c7dd3e1ae3ca801cf6b1ed8d1",
+        "compiled_ui": null,
+        "actual_tr": "Cellpose Líkön published on bioimage.io, read through its artifact API.",
+        "has_translation": true,
+        "exact_target": null
+      },
+      "tooltip:cellpose3": {
+        "source": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "source_sha256": "aa2a59afa889bb2c71530605282e193753e157be261e78f0965ae86714a115b1",
+        "compiled_ui": null,
+        "actual_tr": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 and nuclei — and the backend that runs them.",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "heading:spaCR community": {
+        "source": "spaCR community",
+        "source_sha256": "58fc182fe64462cfa3e2d2d8daf411e5745fdbafe62829c36001230bf929544d",
+        "compiled_ui": null,
+        "actual_tr": "spaCR community",
+        "has_translation": false,
+        "exact_target": null
+      },
+      "warning:0": {
+        "source": "Community uploads are not vetted",
+        "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+        "compiled_ui": "Upphleðslur samfélagsins eru ekki yfirfarnar",
+        "actual_tr": "Upphleðslur samfélagsins eru ekki yfirfarnar",
+        "has_translation": true,
+        "exact_target": "Upphleðslur samfélagsins eru ekki yfirfarnar"
+      },
+      "warning:1": {
+        "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+        "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+        "compiled_ui": "Þessum líkönum er hlaðið upp af öðrum notendum spaCR með hnappnum Bæta við.\n\nEnginn hefur athugað hvað þau eru, á hverju þau voru þjálfuð eða hvort tölurnar sem þau gefa upp séu raunverulegar. Gátsummur þeirra sanna aðeins að skrá hafi ekki breyst síðan henni var hlaðið upp -- ekki að hún sé góð, og ekki að henni sé treystandi fyrir gögnunum þínum.\n\nSýna þau samt?",
+        "actual_tr": "Þessum líkönum er hlaðið upp af öðrum notendum spaCR með hnappnum Bæta við.\n\nEnginn hefur athugað hvað þau eru, á hverju þau voru þjálfuð eða hvort tölurnar sem þau gefa upp séu raunverulegar. Gátsummur þeirra sanna aðeins að skrá hafi ekki breyst síðan henni var hlaðið upp -- ekki að hún sé góð, og ekki að henni sé treystandi fyrir gögnunum þínum.\n\nSýna þau samt?",
+        "has_translation": true,
+        "exact_target": "Þessum líkönum er hlaðið upp af öðrum notendum spaCR með hnappnum Bæta við.\n\nEnginn hefur athugað hvað þau eru, á hverju þau voru þjálfuð eða hvort tölurnar sem þau gefa upp séu raunverulegar. Gátsummur þeirra sanna aðeins að skrá hafi ekki breyst síðan henni var hlaðið upp -- ekki að hún sé góð, og ekki að henni sé treystandi fyrir gögnunum þínum.\n\nSýna þau samt?"
+      }
+    }
+  },
+  "source_wiring": "_SourceHeading uses raw source-name QLabel; SourceStrip copies _SOURCE_TOOLTIPS raw strings, only extra Third-party heading explicitly tr. Actual central dialog Show filter can translate known static strings, but missing current compiled source cannot be translated. Warningtitle/body currentcompiled, no invented failure there.",
+  "scope": "Read-only AST and actual compiled runtime metadata; no widgets/QtApp/tests/models/provider/network/globalcollector or tools/source edits."
+}

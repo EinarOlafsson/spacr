@@ -29,6 +29,7 @@ import os
 import sqlite3
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 
 import numpy as np
@@ -126,6 +127,8 @@ def _stop_before_the_machine_does() -> None:
     import threading
 
     if _MEMORY_CEILING_GB <= 0:            # explicitly disabled
+        return
+    if not hasattr(os, "sysconf"):         # Windows: no page size, no per-process statm to read
         return
     ceiling = _memory_ceiling_bytes()
 
@@ -505,6 +508,13 @@ def pytest_configure(config):
     # the subprocess in `test_sound_is_silent_until_asked`, which a patched
     # attribute would not.
     os.environ[_SOUND_CACHE_ENV] = str(_DOT_SPACR_SANDBOX / "sounds")
+
+    # Item 700: anonymised error reports and the hosted AI provider post to
+    # spaCR's relay. No test may reach it: `SPACR_NO_NETWORK` turns both off
+    # for the whole run, child processes included, and
+    # `_isolated_dot_spacr_store` also replaces the transport. A test of
+    # either feature deletes the variable and installs its own fake.
+    os.environ["SPACR_NO_NETWORK"] = "1"
 
     global _QSETTINGS_ACTIVE
     if _qsettings_module() is None:
@@ -934,6 +944,22 @@ def _isolated_dot_spacr_store(monkeypatch):
         monkeypatch.setattr(
             plate_queue, "_queue_path",
             lambda: _DOT_SPACR_SANDBOX / "queue.json", raising=False)
+    # Item 700: the anonymised-report switch, notice flag, install id and
+    # queue get a folder per test, and the transport refuses to connect.
+    try:
+        from spacr import crashreport
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        reports = _DOT_SPACR_SANDBOX / "anonymous_reports" / uuid.uuid4().hex
+        monkeypatch.setattr(crashreport, "_reports_dir", lambda: reports,
+                            raising=False)
+
+        def _no_relay(request, timeout):
+            raise OSError("tests never reach spaCR's relay")
+
+        monkeypatch.setattr(crashreport, "_open_url", _no_relay,
+                            raising=False)
     yield
 
 
@@ -1244,6 +1270,71 @@ def pytest_runtest_setup(item):
 # finalisation. ``pytest_sessionfinish`` then RE-ARMS, so a shutdown that is
 # honestly slow is measured from the point the reporting plugins have finished
 # rather than from the last test.
+
+_WORKER_TIMEOUT_STDERR = pytest.StashKey()
+
+
+def _worker_timeout_stderr(config):
+    """Retain uncaptured stderr before a worker's first thread timeout."""
+    stream = config.stash.get(_WORKER_TIMEOUT_STDERR, None)
+    if stream is not None:
+        return stream
+    from contextlib import nullcontext
+
+    capture = config.pluginmanager.getplugin("capturemanager")
+    disabled = capture.global_and_fixture_disabled() if capture else nullcontext()
+    with disabled:
+        try:
+            try:
+                descriptor = sys.stderr.fileno()
+            except (AttributeError, ValueError):
+                descriptor = sys.__stderr__.fileno()
+            stream = os.fdopen(os.dup(descriptor), "w", buffering=1,
+                               encoding="utf-8", errors="backslashreplace")
+        except (AttributeError, ValueError, OSError):
+            return None
+    config.stash[_WORKER_TIMEOUT_STDERR] = stream
+    config.add_cleanup(stream.close)
+    return stream
+
+
+@pytest.hookimpl(optionalhook=True, tryfirst=True)
+def pytest_timeout_set_timer(item, settings):
+    """Send an xdist thread timeout's existing report to retained stderr.
+
+    execnet discards worker stdout, where pytest-timeout's terminal writer
+    normally prints. A forked child can keep the worker's transport open even
+    after its timeout exits, hiding both the diagnostic and the worker death.
+    Only the expiry callback changes its output stream; pytest-timeout keeps
+    its debugger detection, capture flush, stack formatting and failure exit.
+    """
+    if settings.method != "thread" or not hasattr(item.config, "workerinput"):
+        return None
+    stream = _worker_timeout_stderr(item.config)
+    if stream is None:
+        return None
+    from pytest_timeout import timeout_timer
+
+    def expired():
+        writer = item.config.get_terminal_writer()
+        original = writer._file
+        try:
+            writer._file = stream
+            timeout_timer(item, settings)
+        finally:
+            writer._file = original
+
+    timer = _threading.Timer(settings.timeout, expired)
+    timer.name = f"pytest_timeout {item.nodeid}"
+
+    def cancel():
+        timer.cancel()
+        timer.join()
+
+    item.cancel_timeout = cancel
+    timer.start()
+    return True
+
 
 SHUTDOWN_WATCHDOG_ENV = "SPACR_PYTEST_SHUTDOWN_WATCHDOG_S"
 

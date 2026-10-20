@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "학습/테스트 누수 감사"
 
-msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "관련된 크롭이 평가 경계의 양쪽에 모두 나타나면 분류기 정확도는 유효하지 않습니다. spaCR은 적합 전에 영구적인 ``train/``/``test/`` 분할, 일반 학습/검증 홀드아웃, 모든 외부 및 내부 교차 검증 경계, 교차 검증 분할 전체를 감사합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "관련된 크롭이 평가 경계의 양쪽에 모두 나타나면 홀드아웃 정확도 추정치는 독립 데이터에서의 성능을 과대평가합니다. spaCR은 적합 전에 영구적인 ``train/``/``test/`` 분할, 일반 학습/검증 홀드아웃, 모든 외부 및 내부 교차 검증 경계, 교차 검증 분할 전체를 감사합니다."
 
 msgid "What is verified"
 msgstr "검증 항목"
@@ -61,8 +62,9 @@ msgstr "일반 검증도 그룹을 고려합니다. ``cv_group_by='well'`` 은 �
 msgid "Run the audit directly"
 msgstr "감사 직접 실행"
 
-msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
-msgstr "이 명령은 JSON을 출력하며, 분할이 검증되면 ``0``, 누수나 검증할 수 없는 식별 정보가 발견되면 ``1``, 데이터 세트를 감사할 수 없으면 ``2`` 로 종료합니다. ``--no-content-hash`` 는 I/O를 줄이지만 이름이 바뀐 복사본은 검출할 수 없습니다. ``--allow-unverifiable`` 은 기존 데이터 세트를 진단하기 위한 것이며, 그 성능 추정치를 신뢰할 수 있게 만들지는 않습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
+msgstr "이 명령은 JSON을 출력하며, 분할이 검증되면 ``0``, 누수나 검증할 수 없는 식별 정보가 발견되면 ``1``, 데이터 세트를 감사할 수 없으면 ``2``\\ 로 종료합니다. ``--no-content-hash``\\ 는 I/O를 줄이지만 이름이 바뀐 복사본은 검출할 수 없습니다. ``--allow-unverifiable``\\ 은 기존 데이터 세트를 진단하기 위한 것이며, 그 성능 추정치는 여전히 학습 데이터와 독립적이지 않습니다."
 
 msgid "Classify settings"
 msgstr "분류 설정"
@@ -103,8 +105,9 @@ msgstr "분류기 평가, 보정, 분할 누수 진단입니다."
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "이 모듈은 모델과 무관하며 레이블, 확률, 폴드 ID, 표본 경로를 사용합니다. 따라서 딥러닝 교차 검증과 향후의 고전적 머신러닝 파이프라인이 같은 평가 번들을 쓸 수 있고, Qt 워크벤치는 하나의 안정적인 산출물 형식을 표시할 수 있습니다."
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "관련된 각 표본 계열이 하나의 폴드에만 속한다는 교차 검증 전체 차원의 증명입니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr "모든 교차 검증 폴드의 누수를 감사한 결과입니다."
 
 msgid "Parameters"
 msgstr "매개변수"
@@ -208,11 +211,13 @@ msgstr "경로별 선택적 클래스로, 경로마다 값 하나입니다. 폴�
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "폴드 경계를 넘을 수 없는 식별 수준입니다. ``none``, ``field``, ``well`` 또는 ``plate`` 입니다. 웰 단위로 묶은 분할은 같은 플레이트가 양쪽에 있는 것은 허용하지만 같은 웰은 절대 허용하지 않습니다."
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
-msgstr "파일 내용(CONTENT)도 비교하여 이름이 다른 바이트 동일 복사본을 잡아냅니다. 파일마다 한 번씩 읽어야 합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
+msgstr "파일 내용도 비교하여 이름이 다른 바이트 동일 복사본을 감지합니다. 파일마다 한 번씩 읽어야 합니다."
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
-msgstr "검증 불가(UNVERIFIABLE)를 심각한 문제로 처리합니다. 그렇지 않으면 요청된 식별 정보를 담지 않은 파일 이름이나 해시를 계산할 수 없는 파일은 경고에 그칩니다. 따라서 이 값을 False로 두면 깨끗한 보고서라도 아무도 확인할 수 없었던 누수를 숨길 수 있습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
+msgstr "검증할 수 없는 샘플을 심각한 문제로 처리합니다. 그렇지 않으면 요청된 식별 정보를 담지 않은 파일 이름이나 해시를 계산할 수 없는 파일은 경고에 그치므로, 이 값이 False이면 통과한 보고서에도 누수가 확인되지 않은 샘플이 포함될 수 있습니다."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "``passed`` 가 False인 보고서를 반환하는 대신 :class:`LeakageError` 를 발생시킵니다."

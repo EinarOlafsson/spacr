@@ -334,7 +334,9 @@ def test_both_column_settings_get_a_csv_field_not_a_bare_text_box(panel):
     for key in ("dependent_variable", "filter_column"):
         widget = panel._widgets[key]
         assert isinstance(widget, _CsvColumnField), key
-        assert widget.button.text() == "CSV"
+        # F576 (a247746ec): the columns may come from a measurement store
+        # other than a CSV, so the button names what it offers.
+        assert widget.button.text() == "Columns"
         # The row contract: every settings field carries its own key, and
         # `attach_api_tooltip` is what puts it there.
         assert widget.property("settingKey") == key

@@ -1,42 +1,38 @@
-"""A label-free embedding for every object, beside the measured features.
+"""Compute label-free image embeddings per object, beside the measured features.
 
-WHY THIS EXISTS. spaCR's two existing ways of turning an image into numbers
-both require you to already know what you are looking for. The measured panel
-in :mod:`spacr.measure` computes a fixed, hand-designed set -- intensity,
-shape, texture, distances -- so it finds only what somebody thought to name.
-The supervised path in :mod:`spacr.deep_spacr` fine-tunes a backbone against
-annotations, so it finds only what somebody thought to annotate. A screen
-whose real hit is "the vacuole is subtly mislocalised in a way we have no
-column for" returns nothing, and returns it confidently. The cost of that gap
-is invisible, which is exactly why it is worth a module.
+spaCR's other two routes from image to numbers both depend on prior
+choices. The measured panel in :mod:`spacr.measure` computes a fixed,
+hand-designed set -- intensity, shape, texture, distances -- so it captures
+only named properties. The supervised path in :mod:`spacr.deep_spacr`
+fine-tunes a backbone against annotations, so it captures only annotated
+classes. A phenotype with no corresponding column or annotation (for
+example a subtle vacuole mislocalisation) is not detected by either route.
 
-THE CHANNEL DECISION, SETTLED HERE RATHER THAN IMPLICITLY. Pretrained
-encoders expect three channels. spaCR images routinely have four or five,
-with no RGB meaning at all -- a DAPI channel is not "red". Two ways out, and
-the choice is recorded here rather than inherited from whatever the first
-backbone happened to want:
+Channel handling is an explicit choice. Pretrained encoders expect three
+channels; spaCR images often have four or five, with no RGB meaning (a DAPI
+channel is not "red"). Two policies are available, and the choice is recorded
+in the spec rather than inherited from a backbone:
 
-  PER-CHANNEL, THEN CONCATENATE (:data:`CHANNEL_PER_CHANNEL`, the default).
+  Per-channel, then concatenate (:data:`CHANNEL_PER_CHANNEL`, the default).
   Each channel is encoded on its own and the vectors are joined. Channel
-  identity SURVIVES: dimension 517 belongs to channel 2 and to nothing else,
-  so :mod:`spacr.attribution_columns` can say which stain a hit came from and
+  identity is preserved: dimension 517 belongs to channel 2 only, so
+  :mod:`spacr.attribution_columns` can report which stain a hit came from and
   a reader can drop a channel without re-embedding. Costs N forward passes.
 
-  PROJECT TO THREE (:data:`CHANNEL_PROJECT`). One pass over a fixed
-  channel-to-RGB mapping. Cheaper, and irreversible: once channels are mixed,
-  no downstream column can be attributed to a stain, and a screen cannot ask
-  "was this the parasite channel or the host one?".
+  Project to three (:data:`CHANNEL_PROJECT`). One pass over a fixed
+  channel-to-RGB mapping. Cheaper, but irreversible: once channels are mixed,
+  no downstream column can be attributed to a stain, so a screen cannot tell
+  whether a difference came from the parasite or the host channel.
 
-The default is per-channel because THE ATTRIBUTION IS THE POINT. An embedding
-that finds an unnamed phenotype and cannot say which stain carried it has
-moved the problem rather than solved it. Projection stays available for the
-case where forward passes actually bind.
+Per-channel is the default because it keeps stain attribution: an embedding
+that detects a phenotype without identifying the stain that carries it is of
+limited use. Projection remains available when the number of forward passes
+is the limiting cost.
 
-WHAT THIS MODULE DOES NOT DO. It does not crop -- it takes the crops
-:mod:`spacr.crops` already produces. It does not write to the database. It
-returns a float32 matrix keyed by object id, which is exactly the shape the
-downstream already consumes: UMAP, the regression family, hit calling and
-the AnnData export do not care where a numeric column came from.
+Scope: this module does not crop -- it takes the crops :mod:`spacr.crops`
+produces -- and does not write to the database. It returns a float32 matrix
+keyed by object id, the same shape that UMAP, the regression family, hit
+calling and the AnnData export already consume.
 """
 from __future__ import annotations
 
@@ -93,7 +89,7 @@ DEFAULT_POOL = "avg"
 
 @dataclass(frozen=True)
 class EmbeddingSpec:
-    """How to embed, recorded so a matrix can say where it came from.
+    """Embedding configuration, recorded with each matrix as its provenance.
 
     For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four
     explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B),
@@ -158,7 +154,7 @@ class EmbeddingSpec:
             _check_channel_scale(self)
 
     def fingerprint(self) -> str:
-        """A short digest of everything that changes the numbers.
+        """Return a 16-character digest of the fields that affect the values.
 
         Two matrices with the same fingerprint were produced the same way.
         A scorecard can quote it, and a cached matrix can be invalidated by
@@ -258,10 +254,10 @@ def embedding_column_names(per_channel_dims: int, channels: Sequence[int],
                            policy: str = CHANNEL_PER_CHANNEL) -> Tuple[str, ...]:
     """Names for the columns a run produces.
 
-    THE CHANNEL IS IN THE NAME under the per-channel policy -- ``emb_c2_017``
-    -- which is what makes attribution possible later without carrying a
-    separate map beside the matrix. Under projection there is no channel to
-    name, and the name says so rather than implying one.
+    Under the per-channel policy the channel is part of the name --
+    ``emb_c2_017`` -- so attribution needs no separate map beside the
+    matrix. Under projection the names use ``rgb`` instead of a channel
+    index, because no column belongs to one channel.
 
     :param per_channel_dims: dimensions one forward pass produces.
     :param channels: channel indices, in encoding order.
@@ -278,10 +274,11 @@ def embedding_column_names(per_channel_dims: int, channels: Sequence[int],
 
 
 def channel_of_column(column: str) -> Optional[int]:
-    """Which channel a column came from, or ``None`` if it cannot be said.
+    """Return the channel index a column came from, or ``None``.
 
-    ``None`` for a projected column is the honest answer rather than a
-    guess: the channels were mixed and no dimension belongs to one stain.
+    A projected column returns ``None`` because the channels were mixed and
+    no dimension belongs to one stain. Names without the embedding prefix
+    also return ``None``.
 
     :param column: an embedding column name.
     """
@@ -368,11 +365,17 @@ _CELL_DINO_FACTORIES = {
     "cell_dino_hpa_vitl16": (4, 224),
     "cell_dino_hpa_vitl14": (4, 518),
     "cell_dino_cp_vits8": (5, 128),
+    "channel_adaptive_dino_vitl16": (0, 224),
 }
+_CHANNEL_ADAPTIVE = "channel_adaptive_dino_vitl16"
 
 
 def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
-    """Require an official factory, local digest and ordered source planes."""
+    """Require an official factory, local digest and ordered source planes.
+
+    Channel-Adaptive DINO takes any number of distinct planes; the other
+    factories take exactly their declared width.
+    """
     if not spec.checkpoint_path:
         raise EmbeddingError(
             "Choose a local official Cell-DINO checkpoint before embedding; "
@@ -385,6 +388,8 @@ def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
         raise EmbeddingError("Choose an official Cell-DINO factory before embedding")
     width, size = _CELL_DINO_FACTORIES[factory]
     channels = spec.channels
+    if not width and isinstance(channels, (tuple, list)) and channels:
+        width = len(channels)
     if (spec.channel_policy != CHANNEL_PROJECT
             or not isinstance(channels, (tuple, list))
             or len(channels) != width
@@ -396,6 +401,182 @@ def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
             f"{factory} needs {width} distinct, explicit crop channel "
             "indices in the declared model-input order")
     return width, size
+
+
+_OPEN_DINOV2 = "vit_small_patch14_dinov2.lvd142m"
+_CELL_DINO_ENV = "SPACR_CELL_DINO_CHECKPOINT"
+_CELL_DINO_PATCHES = {(4, 16): "cell_dino_hpa_vitl16",
+                      (4, 14): "cell_dino_hpa_vitl14",
+                      (5, 8): "cell_dino_cp_vits8",
+                      (1, 16): _CHANNEL_ADAPTIVE}
+_CELL_DINO_SEEN: Dict[Tuple[str, int, int], Dict[str, str]] = {}
+
+
+def _cell_dino_folder() -> str:
+    """The folder searched for official Cell-DINO checkpoints.
+
+    Every ``*.pth`` or ``*.pt`` file in ``cell_dino`` under spaCR's model
+    cache is offered; ``$SPACR_CELL_DINO_CHECKPOINT`` naming a file overrides
+    the choice.
+    """
+    from .model_zoo import _model_cache_root
+
+    return str(_model_cache_root() / "cell_dino")
+
+
+def _cell_dino_entry(chosen: str, verify: bool = False) -> Dict[str, str]:
+    """Describe one checkpoint file without loading its weights.
+
+    The factory is read from the patch-embedding shape of the plain model
+    state, which is memory-mapped rather than loaded.
+
+    :param chosen: the file.
+    :param verify: also compute its SHA-256; cached per path, size and
+        modification time.
+    :returns: ``path`` with either ``factory`` (and ``sha256`` when
+        verified) or ``problem``.
+    """
+    path = os.path.realpath(os.path.expanduser(chosen))
+    try:
+        status = os.stat(path)
+    except OSError:
+        return {"path": path, "problem": "missing"}
+    if not stat.S_ISREG(status.st_mode):
+        return {"path": path, "problem": "unreadable"}
+    key = (path, status.st_size, status.st_mtime_ns)
+    found = _CELL_DINO_SEEN.get(key)
+    if found is None:
+        found = {"path": path}
+        try:
+            import torch
+
+            state = torch.load(path, map_location="cpu", weights_only=True,
+                               mmap=True)
+            shape = tuple(state["patch_embed.proj.weight"].shape)
+            factory = _CELL_DINO_PATCHES.get((shape[1], shape[-1]))
+        except Exception:
+            factory = None
+        if factory:
+            found["factory"] = factory
+        else:
+            found["problem"] = "unreadable"
+        _CELL_DINO_SEEN[key] = found
+    if verify and "factory" in found and "sha256" not in found:
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        found["sha256"] = digest.hexdigest()
+    return dict(found)
+
+
+def _cell_dino_checkpoints() -> List[Dict[str, str]]:
+    """Every installed Cell-DINO checkpoint, in file-name order.
+
+    ``$SPACR_CELL_DINO_CHECKPOINT`` is listed first when it names a file
+    outside the folder.
+    """
+    folder = _cell_dino_folder()
+    try:
+        names = sorted(name for name in os.listdir(folder)
+                       if name.lower().endswith((".pth", ".pt")))
+    except OSError:
+        names = []
+    paths = [os.path.join(folder, name) for name in names]
+    chosen = os.environ.get(_CELL_DINO_ENV, "").strip()
+    if chosen and os.path.realpath(os.path.expanduser(chosen)) not in {
+            os.path.realpath(path) for path in paths}:
+        paths.insert(0, chosen)
+    return [_cell_dino_entry(path) for path in paths]
+
+
+def _find_cell_dino(verify: bool = False, available: int = 0,
+                    preferred: str = "") -> Dict[str, str]:
+    """Pick the installed Cell-DINO checkpoint to use, without a network.
+
+    ``$SPACR_CELL_DINO_CHECKPOINT`` wins, then ``preferred`` when it is still
+    installed and readable. Otherwise the best fit for ``available`` crop
+    channels: five takes the Cell Painting ViT-S/8; four takes an HPA model,
+    a single-cell (``hpa_sc``) one first; any other count takes
+    Channel-Adaptive DINO. Failing those, the first readable file.
+
+    :param verify: also compute the chosen file's SHA-256.
+    :param available: how many channels the crops have; ``0`` if unknown.
+    :param preferred: the file the user chose last.
+    :returns: ``{}`` when no file is installed; else ``path`` with either
+        ``factory`` (and ``sha256`` when verified) or ``problem``.
+    """
+    chosen = os.environ.get(_CELL_DINO_ENV, "").strip()
+    if chosen:
+        return _cell_dino_entry(chosen, verify)
+    entries = _cell_dino_checkpoints()
+    if not entries:
+        return {}
+    readable = [entry for entry in entries if entry.get("factory")]
+    wanted = os.path.realpath(os.path.expanduser(preferred)) if preferred else ""
+    pick = next((entry for entry in readable if entry["path"] == wanted), None)
+    if pick is None:
+        if available == 5:
+            order = ("cell_dino_cp_vits8",)
+        elif available == 4:
+            order = ("cell_dino_hpa_vitl16", "cell_dino_hpa_vitl14")
+        elif available > 0:
+            order = (_CHANNEL_ADAPTIVE,)
+        else:
+            order = ()
+        fits = [entry for factory in order for entry in sorted(
+            (entry for entry in readable if entry["factory"] == factory),
+            key=lambda entry: "hpa_sc" not in os.path.basename(entry["path"]))]
+        pick = (fits or readable or entries)[0]
+    return _cell_dino_entry(pick["path"], verify)
+
+
+def _dino_choice(channels: Optional[Sequence[int]], available: int, *,
+                 channel_policy: str = CHANNEL_PROJECT, batch_size: int = 64,
+                 device: Optional[str] = None, verify: bool = True,
+                 preferred: str = "") -> Tuple[EmbeddingSpec, Dict[str, str]]:
+    """Official Cell-DINO when it is installed and mapped, else open DINOv2.
+
+    Channel-Adaptive DINO needs no mapping: without one it encodes every
+    crop channel separately, in order.
+
+    :param channels: crop channel per Cell-DINO input plane, in model order.
+    :param available: how many channels the crops have.
+    :param preferred: the checkpoint file the user chose last.
+    :returns: the spec to run and what was decided: ``model`` is
+        ``cell_dino`` or ``dinov2``, with ``reason`` (``absent``,
+        ``unmapped`` or ``unreadable``) when Cell-DINO is not used.
+    """
+    found = _find_cell_dino(verify=verify, available=available,
+                            preferred=preferred)
+    note = dict(found)
+    factory = found.get("factory")
+    if factory:
+        width = _CELL_DINO_FACTORIES[factory][0]
+        planes = tuple(channels or ())
+        if not width:
+            if not planes or any(not 0 <= plane < available for plane in planes):
+                planes = tuple(range(available))
+            width = len(planes) or 1
+        if (len(planes) == width and len(set(planes)) == width and all(
+                isinstance(plane, (int, np.integer))
+                and not isinstance(plane, (bool, np.bool_))
+                and 0 <= plane < available for plane in planes)):
+            spec = EmbeddingSpec(
+                backbone="cell_dino", channel_policy=CHANNEL_PROJECT,
+                channels=tuple(int(plane) for plane in planes),
+                batch_size=batch_size, device=device,
+                cell_dino_factory=factory, checkpoint_path=found["path"],
+                checkpoint_sha256=found.get("sha256"))
+            note.update(model="cell_dino", planes=str(width))
+            return spec, note
+        note.update(reason="unmapped", planes=str(width))
+    else:
+        note["reason"] = "unreadable" if found.get("problem") else "absent"
+    note.update(model="dinov2", backbone=_OPEN_DINOV2,
+                folder=_cell_dino_folder())
+    return EmbeddingSpec(backbone=_OPEN_DINOV2, channel_policy=channel_policy,
+                         batch_size=batch_size, device=device), note
 
 
 def _scaled(plane: np.ndarray, scale: Optional[float]) -> np.ndarray:
@@ -577,8 +758,7 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         callers leave it ``None``.
     :returns: an :class:`EmbeddingResult`.
     :raises EmbeddingError: on a shape or channel problem, before any model
-        is loaded -- a download is a slow way to find out the array was
-        wrong.
+        is loaded, so an invalid array does not trigger a model download.
     """
     spec = spec or EmbeddingSpec()
     array, channels = _prepare(crops, spec)
@@ -658,7 +838,7 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
         """Encode one three-channel stack, in batches, under no_grad.
 
         Batched here rather than by the caller because the batch size belongs
-        to the DEVICE, not to the channel policy: the per-channel policy calls
+        to the device, not to the channel policy: the per-channel policy calls
         this once per channel and each call must fit the same GPU.
 
         :param stack: ``(n, height, width, 3)`` float32 in [0, 1].
@@ -781,7 +961,12 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
         model.eval().to(device)
 
         def run(stack: np.ndarray) -> np.ndarray:
-            """Encode declared Cell-DINO planes at the official crop size."""
+            """Encode declared Cell-DINO planes at the official crop size.
+
+            Each plane of each crop is centred and scaled to unit standard
+            deviation after resizing, as the official evaluation transform
+            does.
+            """
             out: List[np.ndarray] = []
             with torch.no_grad():
                 for start in range(0, stack.shape[0], spec.batch_size):
@@ -792,6 +977,9 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
                         chunk = torch.nn.functional.interpolate(
                             chunk, size=(size, size), mode="bilinear",
                             align_corners=False)
+                    chunk = chunk - chunk.mean((-2, -1), keepdim=True)
+                    chunk = chunk / (chunk.std((-2, -1), unbiased=False,
+                                               keepdim=True) + 1e-7)
                     out.append(forward(model, chunk).detach().float().cpu().numpy())
             return np.concatenate(out, axis=0)
 
@@ -877,11 +1065,20 @@ def _cell_dino_model(spec: EmbeddingSpec, torch: Any):
             f"loaded strictly: {exc}") from exc
     patch_embed = getattr(model, "patch_embed", None)
     projection = getattr(patch_embed, "proj", None)
-    if getattr(projection, "in_channels", None) != width:
+    adaptive = spec.cell_dino_factory == _CHANNEL_ADAPTIVE
+    if getattr(projection, "in_channels", None) != (1 if adaptive else width):
         raise EmbeddingError("Cell-DINO factory has an unexpected input width")
 
     def forward(net, x):
-        """Return the official DINOv2 head output for each declared crop."""
+        """Return the official DINOv2 head output for each declared crop.
+
+        Channel-Adaptive DINO encodes each plane on its own and returns the
+        class tokens of every plane side by side, as its official
+        bag-of-channels evaluation does.
+        """
+        if adaptive:
+            return net.get_intermediate_layers(
+                x, 1, return_class_token=True)[-1][1]
         return net(x)
 
     return model, forward
@@ -1351,6 +1548,434 @@ def _dino_pretrain(crops: Any, path: str, *, arch: str = "resnet18",
             "seconds": time.time() - began}
 
 
+def _dino_classifier_from_config(config: Mapping[str, Any]):
+    """Rebuild an own-DINO classifier without reading a checkpoint or network.
+
+    :param config: primitive constructor settings including ordered source
+        channels, recorded scaling, resize, policy and encoder freezing.
+    :returns: trainable torch module accepting raw ``NCHW`` selected planes.
+    :raises EmbeddingError: settings or input violate the recorded contract.
+    """
+    import copy
+    import torch
+    import timm
+    from .qt.i18n import tr
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier contract."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    config = copy.deepcopy(dict(config))
+    try:
+        for name in ("in_chans", "size", "num_classes"):
+            value = config[name]
+            if type(value) is not int or value < 1:
+                refuse()
+        if type(config["freeze_encoder"]) is not bool:
+            refuse()
+        if type(config["normalize_features"]) is not bool:
+            refuse()
+        scales = config["scale"]
+        channels = config["source_channels"]
+        if (not isinstance(scales, (list, tuple)) or not scales
+                or not isinstance(channels, (list, tuple))
+                or len(channels) != len(scales)
+                or any(type(c) is not int or c < 0 for c in channels)
+                or len(set(channels)) != len(channels)
+                or any(type(s) not in (int, float) or not np.isfinite(s)
+                       or s < 0 or s > np.finfo(np.float32).max for s in scales)):
+            refuse()
+        policy = config["channel_policy"]
+        if policy not in CHANNEL_POLICIES:
+            refuse()
+        if config["in_chans"] != (len(scales) if policy == CHANNEL_PROJECT else 1):
+            refuse()
+        arch = config["arch"]
+        if not isinstance(arch, str) or arch not in timm.list_models():
+            refuse()
+        digest = config["source_sha256"]
+        if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            refuse()
+    except (KeyError, TypeError, OverflowError) as exc:
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible.")) from exc
+    kwargs = {"pretrained": False, "num_classes": 0,
+              "in_chans": config["in_chans"]}
+    if arch.startswith(("vit", "deit")):
+        kwargs.update(img_size=config["size"], dynamic_img_size=True)
+    backbone = timm.create_model(arch, **kwargs)
+    width = int(backbone.num_features)
+    input_channels = len(scales)
+    if policy == CHANNEL_PER_CHANNEL:
+        width *= input_channels
+
+    class Classifier(torch.nn.Module):
+        """Own-DINO encoder with immutable preprocessing and a trainable head."""
+
+        def __init__(self):
+            """Attach recorded scaling, teacher encoder and an untrained head."""
+            super().__init__()
+            self.encoder = backbone
+            self.head = torch.nn.Linear(width, config["num_classes"])
+            self.model_name = "own_dino"
+            self.num_classes = config["num_classes"]
+            self.image_size = config["size"]
+            self._own_dino_config = copy.deepcopy(config)
+            self.register_buffer("channel_scale", torch.tensor(
+                scales, dtype=torch.float32).reshape(1, input_channels, 1, 1))
+            self.encoder.requires_grad_(not config["freeze_encoder"])
+            self.train(True)
+
+        def train(self, mode=True):
+            """Keep a frozen teacher in evaluation mode while training its head."""
+            super().train(mode)
+            if config["freeze_encoder"]:
+                self.encoder.eval()
+            return self
+
+        def features(self, images):
+            """Scale selected raw NCHW planes and return recorded encoder features."""
+            if (not isinstance(images, torch.Tensor) or images.ndim != 4
+                    or images.shape[1] != input_channels
+                    or min(images.shape) < 1 or images.is_complex()
+                    or images.dtype == torch.bool):
+                refuse()
+            images = images.to(dtype=self.channel_scale.dtype)
+            if not torch.isfinite(images).all():
+                refuse()
+            scale = self.channel_scale
+            images = torch.where(scale > 0, images / torch.where(
+                scale > 0, scale, torch.ones_like(scale)), 0).clamp(0, 1)
+            batch = images.shape[0]
+            if policy == CHANNEL_PER_CHANNEL:
+                images = images.reshape(batch * input_channels, 1,
+                                        images.shape[-2], images.shape[-1])
+            if images.shape[-2:] != (self.image_size, self.image_size):
+                images = torch.nn.functional.interpolate(
+                    images, size=(self.image_size, self.image_size),
+                    mode="bilinear", align_corners=False)
+            features = self.encoder(images)
+            if policy == CHANNEL_PER_CHANNEL:
+                features = features.reshape(batch, -1)
+            if config["normalize_features"]:
+                features = torch.nn.functional.normalize(features, dim=1)
+            return features
+
+        def forward(self, images):
+            """Scale selected raw NCHW planes and return class logits."""
+            return self.head(self.features(images))
+
+    return Classifier()
+
+
+def _dino_classifier_from_checkpoint(path: str, *, num_classes: int,
+                                     source_channels: Sequence[int],
+                                     freeze_encoder: bool = True,
+                                     normalize_features: bool = True):
+    """Create a headed classifier from a locally supplied own-DINO teacher.
+
+    :param path: local checkpoint, decoded strictly with ``weights_only=True``.
+    :param num_classes: positive output width; the new head is untrained.
+    :param source_channels: caller declaration of physical-channel order matching
+        the saved scale. Historical DINO files do not prove that declaration.
+    :param freeze_encoder: freeze teacher parameters and running statistics.
+    :param normalize_features: L2-normalize concatenated features before the head.
+    :returns: trainable module; no source file is changed or downloaded.
+    :raises EmbeddingError: checkpoint does not describe compatible DINO weights.
+    """
+    import torch
+    from .qt.i18n import tr
+
+    with open(path, "rb", buffering=0) as stream:
+        before = os.fstat(stream.fileno())
+        before_hash = hashlib.sha256()
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            before_hash.update(chunk)
+        digest = before_hash.hexdigest()
+        stream.seek(0)
+        state = torch.load(stream, map_location="cpu", weights_only=True)
+        stream.seek(0)
+        after_hash = hashlib.sha256()
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            after_hash.update(chunk)
+        after = os.fstat(stream.fileno())
+        identity = lambda status: (
+            status.st_dev, status.st_ino, status.st_size,
+            status.st_mtime_ns, status.st_ctime_ns)
+        if identity(before) != identity(after) or after_hash.hexdigest() != digest:
+            raise EmbeddingError(tr(
+                "Own-DINO classifier settings, checkpoint or input are incompatible."))
+    if (not isinstance(state, Mapping) or not isinstance(state.get("setup"), Mapping)
+            or not isinstance(state.get("teacher"), Mapping)):
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+    setup = state["setup"]
+    config = {name: setup.get(name) for name in
+              ("arch", "in_chans", "size", "channel_policy")}
+    config.update(scale=state.get("scale"), source_channels=list(source_channels),
+                  num_classes=num_classes, freeze_encoder=freeze_encoder,
+                  normalize_features=normalize_features, source_sha256=digest)
+    weights = state["teacher"]
+    if any(not isinstance(value, torch.Tensor) or
+           (value.is_floating_point() and not torch.isfinite(value).all())
+           or value.is_complex() for value in weights.values()):
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+    model = _dino_classifier_from_config(config)
+    model.encoder.load_state_dict(weights, strict=True)
+    return model
+
+
+def _dino_finetune_classifier(crops: Any, checkpoint_path: str, output_path: str,
+                               *, labels: Sequence[Any], groups: Sequence[Any],
+                               source_channels: Sequence[int],
+                               freeze_encoder: bool = True,
+                               normalize_features: bool = True,
+                               epochs: int = 20, batch_size: int = 32,
+                               lr: float = 1e-4, holdout: float = 0.2,
+                               seed: int = 0, device: str = "cpu",
+                               progress: Optional[Callable] = None,
+                               cancelled: Optional[Callable] = None) -> Dict[str, Any]:
+    """Fine-tune a local own-DINO teacher on explicitly labelled raw crops.
+
+    :param crops: full raw ``NHWC`` stack; inputs are never modified.
+    :param checkpoint_path: locally supplied, restricted-load DINO teacher.
+    :param output_path: new best-classifier artifact; existing files refuse.
+    :param labels: one nonblank class per crop, in crop order.
+    :param groups: one known acquisition-well identity per crop; whole groups
+        are held out and every class must occur on both sides.
+    :param source_channels: ordered physical indices selecting raw planes and
+        declaring the order represented by the teacher's saved scaling.
+    :param freeze_encoder: train only the new head when true, otherwise both.
+    :param normalize_features: L2-normalize features before the classifier head.
+    :param epochs: positive supervised epoch count, independent of pretraining.
+    :param batch_size: positive number of labelled crops per optimizer step.
+    :param lr: finite positive AdamW learning rate.
+    :param holdout: fraction passed to the existing grouped split utility.
+    :param seed: nonnegative CPU shuffle and initialization seed.
+    :param device: explicitly selected torch device; CPU by default.
+    :param progress: optional ``(epoch, epochs, train_loss, validation_loss)``.
+    :param cancelled: optional predicate checked before each training batch.
+    :returns: best artifact path, classes, actual split provenance and losses.
+    :raises EmbeddingError: invalid data, settings or teacher configuration.
+    :raises InterruptedError: cancellation; no result artifact is published.
+    """
+    import tempfile
+    import torch
+    from .qt.i18n import tr
+    from .classifier_evaluation import grouped_split
+    from .torch_artifacts import atomic_torch_save, make_model_artifact
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier contract."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    for value in (epochs, batch_size):
+        if type(value) is not int or value < 1:
+            refuse()
+    if type(seed) is not int or seed < 0:
+        refuse()
+    if type(lr) not in (int, float) or not np.isfinite(lr) or lr <= 0:
+        refuse()
+    channels = tuple(source_channels)
+    array = np.asarray(crops)
+    if (array.ndim != 4 or min(array.shape) < 1
+            or array.dtype.kind not in "uif" or not np.isfinite(array).all()
+            or not channels or len(set(channels)) != len(channels)
+            or any(type(c) is not int or c < 0 or c >= array.shape[-1]
+                   for c in channels)):
+        refuse()
+    if (len(labels) != len(array) or len(groups) != len(array)
+            or any(value is None or str(value).strip().casefold() in
+                   ("", "nan", "none", "unknown", "<na>")
+                   for value in list(labels) + list(groups))):
+        refuse()
+    if os.path.exists(output_path) or os.path.realpath(output_path) == os.path.realpath(checkpoint_path):
+        refuse()
+    classes = sorted({str(value) for value in labels})
+    if len(classes) < 2:
+        refuse()
+    targets = np.asarray([classes.index(str(value)) for value in labels], dtype=np.int64)
+    train_indices, validation_indices, split = grouped_split(
+        [str(value) for value in groups], targets, holdout, seed, group_by="well")
+    selected = np.array(array[..., channels].transpose(0, 3, 1, 2),
+                        dtype=np.float32, copy=True)
+    if not np.isfinite(selected).all():
+        refuse()
+    tensor = torch.from_numpy(selected)
+    target_tensor = torch.from_numpy(targets)
+    with torch.random.fork_rng(devices=[]):
+        torch.random.default_generator.manual_seed(seed)
+        model = _dino_classifier_from_checkpoint(
+            checkpoint_path, num_classes=len(classes), source_channels=channels,
+            freeze_encoder=freeze_encoder, normalize_features=normalize_features)
+    model.to(torch.device(device))
+    optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=lr)
+    generator = torch.Generator().manual_seed(seed)
+    history = []
+    best_loss = float("inf")
+
+    def stop_if_requested():
+        """Stop between batches when the caller requests cancellation."""
+        if cancelled is not None and cancelled():
+            raise InterruptedError(tr("Classifier training stopped."))
+
+    output_parent = os.path.dirname(os.path.abspath(output_path))
+    os.makedirs(output_parent, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".spacr-own-dino-", dir=output_parent) as staging:
+        staged_path = os.path.join(staging, "best.pt")
+        for epoch in range(1, epochs + 1):
+            stop_if_requested()
+            model.train()
+            total_loss = 0.0
+            shuffled = train_indices[torch.randperm(len(train_indices), generator=generator).numpy()]
+            for begin in range(0, len(shuffled), batch_size):
+                stop_if_requested()
+                indices = shuffled[begin:begin + batch_size]
+                images = tensor[indices].to(device)
+                targets_batch = target_tensor[indices].to(device)
+                optimizer.zero_grad(set_to_none=True)
+                loss = torch.nn.functional.cross_entropy(model(images), targets_batch)
+                if not torch.isfinite(loss):
+                    refuse()
+                loss.backward()
+                optimizer.step()
+                total_loss += float(loss.detach().cpu()) * len(indices)
+            model.eval()
+            validation_loss = 0.0
+            with torch.no_grad():
+                for begin in range(0, len(validation_indices), batch_size):
+                    stop_if_requested()
+                    indices = validation_indices[begin:begin + batch_size]
+                    loss = torch.nn.functional.cross_entropy(
+                        model(tensor[indices].to(device)), target_tensor[indices].to(device))
+                    if not torch.isfinite(loss):
+                        refuse()
+                    validation_loss += float(loss.cpu()) * len(indices)
+            stop_if_requested()
+            train_loss = total_loss / len(train_indices)
+            validation_loss /= len(validation_indices)
+            history.append({"epoch": epoch, "train_loss": train_loss,
+                            "validation_loss": validation_loss})
+            if validation_loss < best_loss:
+                best_loss = validation_loss
+                payload = make_model_artifact(
+                    model, epoch=epoch, metrics=history[-1], best_metric=best_loss,
+                    include_rng=False, classes=classes,
+                    channels=[str(c) for c in channels],
+                    preprocessing={"raw_channel_last": True,
+                                   "scaling_in_model": True,
+                                   "source_channel_order_is_caller_declared": True})
+                payload["grouped_split"] = split.to_dict()
+                payload["train_groups"] = sorted({str(groups[i]) for i in train_indices})
+                payload["validation_groups"] = sorted({str(groups[i]) for i in validation_indices})
+                stop_if_requested()
+                atomic_torch_save(payload, staged_path)
+            if progress is not None:
+                progress(epoch, epochs, train_loss, validation_loss)
+        stop_if_requested()
+        os.link(staged_path, output_path)
+    return {"path": os.fspath(output_path), "classes": classes,
+            "split": split.to_dict(), "loss": history}
+
+
+
+def _dino_classifier_apply(crops: Any, path: str, *, batch_size: int = 32,
+                           device: str = "cpu") -> Dict[str, Any]:
+    """Apply a saved own-DINO classifier to full raw channel-last crops.
+
+    Saved source-channel order selects physical planes once. Scaling, resize
+    and feature normalization remain inside the reconstructed classifier;
+    this route does not use teacher embedding preprocessing or estimate scales.
+
+    :param crops: nonempty finite numeric raw ``NHWC`` stack, never modified.
+    :param path: local classifier artifact, decoded from the same regular-file
+        stream that supplies its before/after SHA-256 and identity checks.
+    :param batch_size: positive crop count per inference batch.
+    :param device: explicit torch device; CPU by default.
+    :returns: ``features``, ``logits``, ``probabilities``, ``predictions``, saved
+        ``classes`` and ``source_channels``, and the loaded artifact's
+        ``checkpoint_sha256``. Arrays preserve crop order; probability columns
+        and predicted labels follow saved class order.
+    :raises EmbeddingError: incompatible crops, artifact metadata or changed file.
+    """
+    import torch
+    from .qt.i18n import tr
+    from .torch_artifacts import load_model_artifact
+
+    def refuse():
+        """Refuse an incompatible own-DINO classifier application."""
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible."))
+
+    array = np.asarray(crops)
+    if (type(batch_size) is not int or batch_size < 1
+            or array.ndim != 4 or min(array.shape) < 1
+            or array.dtype.kind not in "uif" or not np.isfinite(array).all()):
+        refuse()
+    try:
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            os.close(descriptor)
+            refuse()
+        with os.fdopen(descriptor, "rb") as handle:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+            handle.seek(0)
+            model, payload = load_model_artifact(
+                handle, map_location="cpu", strict=True, weights_only=True)
+            handle.seek(0)
+            after_digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                after_digest.update(chunk)
+            after = os.fstat(handle.fileno())
+            identity = lambda status: (
+                status.st_dev, status.st_ino, status.st_size,
+                status.st_mtime_ns, status.st_ctime_ns)
+            if identity(before) != identity(after) or digest.digest() != after_digest.digest():
+                refuse()
+    except OSError as exc:
+        raise EmbeddingError(tr(
+            "Own-DINO classifier settings, checkpoint or input are incompatible.")) from exc
+    config = getattr(model, "_own_dino_config", None)
+    classes = payload.get("classes")
+    if (not isinstance(config, Mapping) or payload.get("legacy") is not False
+            or not isinstance(classes, (list, tuple))
+            or len(classes) != config.get("num_classes")
+            or any(not isinstance(value, str) or not value.strip() for value in classes)
+            or len(set(classes)) != len(classes)):
+        refuse()
+    channels = config["source_channels"]
+    if any(channel >= array.shape[-1] for channel in channels):
+        refuse()
+    model.eval().to(torch.device(device))
+    features = []
+    logits = []
+    with torch.inference_mode():
+        for begin in range(0, len(array), batch_size):
+            selected = np.array(array[begin:begin + batch_size, ..., channels].transpose(
+                0, 3, 1, 2), dtype=np.float32, copy=True)
+            if not np.isfinite(selected).all():
+                refuse()
+            encoded = model.features(torch.from_numpy(selected).to(device))
+            output = model.head(encoded)
+            if not torch.isfinite(encoded).all() or not torch.isfinite(output).all():
+                refuse()
+            features.append(encoded.detach().float().cpu().numpy())
+            logits.append(output.detach().float().cpu())
+    joined = torch.cat(logits)
+    probabilities = torch.softmax(joined, dim=1).numpy()
+    return {"features": np.concatenate(features), "logits": joined.numpy(),
+            "probabilities": probabilities,
+            "predictions": [classes[index] for index in joined.argmax(dim=1).tolist()],
+            "classes": list(classes), "source_channels": list(channels),
+            "checkpoint_sha256": digest.hexdigest()}
+
+
 def _dino_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     """The teacher backbone of a :func:`_dino_pretrain` checkpoint, as an encoder.
 
@@ -1423,6 +2048,10 @@ def _backbone_scorecards(crops: Any, labels: Sequence[Any],
     import pandas as pd
 
     array = np.asarray(crops, dtype=np.float32)
+    if array.ndim != 4 or len(labels) != len(array):
+        from .qt.i18n import tr
+        raise EmbeddingError(tr(
+            "Provide a four-dimensional crop stack and one label per crop."))
     keys = [f"crop{i}" for i in range(array.shape[0])]
     named = dict(zip(keys, labels))
     rows = []
@@ -1466,7 +2095,9 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
     Feature columns default to the embedding columns when the table has any,
     else to every numeric column other than the well and label columns.
     Cells with a missing feature are dropped. Every cell of a well must carry
-    the same label.
+    the same label. A well identifier cannot span contradictory nonblank
+    plate, row or column metadata. Missing metadata does not establish that
+    the identifier names an independent acquisition well.
 
     :param frame: one row per cell.
     :param well_column: column naming each cell's well.
@@ -1512,8 +2143,36 @@ def _mil_bags(frame: Any, *, well_column: str = _MIL_WELL_COLUMN,
         raise ValueError(
             f"{label_column} must hold two classes, one of them {positive!r}")
     bags, labels, wells, rows = [], [], [], []
-    matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    with np.errstate(over="ignore", invalid="ignore"):
+        matrix = kept[feature_columns].to_numpy(dtype=np.float32)
+    if not np.isfinite(matrix).all():
+        from .qt.i18n import tr
+
+        raise ValueError(tr("Multiple-instance feature values must remain finite when converted to float32."))
+    if any(str(column).startswith(EMBEDDING_PREFIX) for column in feature_columns):
+        for column in ("_embedding_fingerprint", "_embedding_weights_sha256"):
+            if column not in kept.columns:
+                continue
+            identities = kept[column].dropna().astype(str).str.strip().drop_duplicates()
+            identities = identities[identities.ne("") & identities.str.casefold().ne("unknown")]
+            if column == "_embedding_weights_sha256":
+                identities = identities[identities.str.fullmatch(r"[0-9a-fA-F]{64}")].str.lower()
+            else:
+                identities = identities.map(
+                    lambda value: value.lower() if re.fullmatch(r"[0-9a-fA-F]{16}", value) else value)
+            if identities.nunique() > 1:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Selected embedding features have conflicting known encoder fingerprints or weights."))
+    acquisition = [column for column in ('plateID', 'rowID', 'columnID')
+                   if column in kept.columns]
     for well, group in kept.groupby(well_column, sort=True):
+        for column in acquisition:
+            known = group[column].dropna().astype(str).str.strip()
+            if known[known.ne('')].nunique() > 1:
+                from .qt.i18n import tr
+
+                raise ValueError(tr("Well identifier {well} spans different acquisition wells; use complete, unique well identifiers.", well=well))
         seen = group[label_column].unique()
         if len(seen) != 1:
             raise ValueError(f"well {well!r} carries more than one label")
@@ -1811,26 +2470,38 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     :param labels: optional well labels: a table, or a path to one, with a
         ``wellID`` or ``well`` column and ``label_column``. Its wells may be
         named ``<plate>_<row>_<column>``, ``<row>_<column>`` or
-        ``<row><column>``; the spelling that matches most cells is used.
+        ``<row><column>``; each key resolves independently. Short keys
+        must identify exactly one plate/well, and duplicate/alias labels
+        for the same well must agree.
         Cells of an unlabelled well keep an empty label.
     :param label_column: the label column of ``labels``.
     :returns: one row per crop with a stored embedding.
     :raises ValueError: when the database has no stored embeddings, none
-        joins a crop, or ``labels`` has no well or label column.
+        joins a crop, ``labels`` has no well or label column, labels
+        conflict or a short well key is ambiguous across plates.
     """
     import pandas as pd
 
     from . import tabular
-    from .active_learning import _stored_embedding_frame
+    from .active_learning import _EMBEDDING_TABLE
     from .agreement import PNG_TABLE
 
-    stored = _stored_embedding_frame(db_path)
+    stored = None
+    if os.path.exists(str(db_path)):
+        try:
+            stored = tabular.read_database(
+                db_path, _EMBEDDING_TABLE, canonicalise=False, report=None,
+                repair_plate_ids=False, migrate=False, read_only=True)[0]
+        except ValueError as error:
+            if str(error) != f"Table not found in database: {_EMBEDDING_TABLE}":
+                raise
     if stored is None or stored.empty:
         raise ValueError(
             f"{db_path} has no stored crop embeddings (no crop_embedding "
             "table with rows)")
     crops = tabular.read_table(db_path, table=PNG_TABLE, canonicalise=False,
-                               report=None, repair_plate_ids=False)
+                               report=None, repair_plate_ids=False,
+                               migrate=False, read_only=True)
     keep = [c for c in ("prcfo", "png_path", "plateID", "rowID", "columnID",
                         "fieldID") if c in crops.columns]
     if "prcfo" not in keep:
@@ -1839,16 +2510,44 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     crops["prcfo"] = crops["prcfo"].astype(str)
     stored = stored.copy()
     stored["prcfo"] = stored["prcfo"].astype(str)
+    from .qt.i18n import tr
+
+    stored = stored.drop_duplicates()
+    repeated = stored["prcfo"].duplicated(keep=False)
+    if repeated.any():
+        key = stored.loc[repeated, "prcfo"].iloc[0]
+        raise ValueError(tr("Stored embeddings disagree for object key {key}.", key=key))
+    repeated = crops["prcfo"].duplicated(keep=False)
+    for key, group in crops.loc[repeated].groupby("prcfo", sort=False):
+        for column in ("plateID", "rowID", "columnID", "fieldID", "png_path"):
+            if column not in group.columns:
+                continue
+            values = group[column].dropna()
+            known = values[values.astype(str).str.strip().ne("")]
+            if column != "png_path" and known.astype(str).str.strip().nunique() > 1:
+                raise ValueError(tr("Crop acquisition metadata disagrees for object key {key}.", key=key))
+            if not known.empty:
+                crops.at[group.index[0], column] = known.iloc[0]
     frame = crops.drop_duplicates("prcfo").merge(stored, on="prcfo",
-                                                 how="inner")
+                                                 how="inner", validate="one_to_one")
     if frame.empty:
         raise ValueError(f"no stored embedding in {db_path} joins a crop")
-    parts = frame["prcfo"].str.split("_")
-    for column, at in (("plateID", 0), ("rowID", 1), ("columnID", 2),
-                       ("fieldID", 3)):
+    from .schema import parse_prcfo
+
+    parsed = {}
+    for column in ("plateID", "rowID", "columnID", "fieldID"):
         if column not in frame.columns:
-            frame[column] = parts.str[at]
-    frame["object"] = parts.str[-1]
+            frame[column] = None
+        missing = frame[column].isna() | frame[column].astype(str).str.strip().eq("")
+        for index in frame.index[missing]:
+            if index not in parsed:
+                key = frame.at[index, "prcfo"]
+                try:
+                    parsed[index] = parse_prcfo(key).field.to_dict()
+                except (TypeError, ValueError) as error:
+                    raise ValueError(tr("Cannot recover acquisition metadata from object key {key}.", key=key)) from error
+            frame.at[index, column] = parsed[index][column]
+    frame["object"] = frame["prcfo"].str.rsplit("_", n=1).str[-1]
     frame.insert(1, _MIL_WELL_COLUMN, frame["plateID"].astype(str) + "_"
                  + frame["rowID"].astype(str) + "_"
                  + frame["columnID"].astype(str))
@@ -1860,11 +2559,32 @@ def _mil_frame_from_db(db_path: str, labels: Any = None, *,
     for column in (well_column, label_column):
         if column not in labels.columns:
             raise ValueError(f"the well-label table has no {column!r} column")
-    named = dict(zip(labels[well_column].astype(str), labels[label_column]))
+    named = {}
+    for key, label in zip(labels[well_column], labels[label_column]):
+        if pd.isna(key) or pd.isna(label):
+            continue
+        key = str(key)
+        if key in named and named[key] != label:
+            raise ValueError(tr("The well-label table assigns conflicting labels to {well}.", well=key))
+        named[key] = label
     row, col = frame["rowID"].astype(str), frame["columnID"].astype(str)
-    spellings = (frame[_MIL_WELL_COLUMN], row + "_" + col, row + col)
-    best = max(spellings, key=lambda keys: int(keys.isin(named).sum()))
-    frame[label_column] = best.map(named)
+    full_wells = set(frame[_MIL_WELL_COLUMN])
+    aliases = {}
+    for full, short, compact in zip(frame[_MIL_WELL_COLUMN], row + "_" + col, row + col):
+        for alias in (short, compact):
+            aliases.setdefault(alias, set()).add(full)
+    resolved = {}
+    for key, label in named.items():
+        matches = {key} if key in full_wells else aliases.get(key, set())
+        if len(matches) > 1:
+            raise ValueError(tr("Well label {well} is ambiguous across plates; use the full plate_row_column identifier.", well=key))
+        if not matches:
+            continue
+        full = next(iter(matches))
+        if full in resolved and resolved[full] != label:
+            raise ValueError(tr("The well-label table assigns conflicting labels to {well}.", well=full))
+        resolved[full] = label
+    frame[label_column] = frame[_MIL_WELL_COLUMN].map(resolved)
     return frame
 
 
@@ -1878,17 +2598,18 @@ ENCODER_KEY_PREFIX = "encoder:"
 def encoder_key(spec: "EmbeddingSpec") -> str:
     """The stable id for one encoder configuration.
 
-    BACKBONE AND POLICY TOGETHER, because they are jointly what makes two
-    runs' dimensions mean the same thing. The same backbone under
+    The key combines backbone and channel policy, because both determine
+    what a dimension represents. The same backbone under
     :data:`CHANNEL_PER_CHANNEL` and :data:`CHANNEL_PROJECT` produces columns
-    that are the same width, the same dtype and not remotely the same
-    quantity -- one is per-stain, the other is a mixture. A key that named
-    only the backbone would let those two be compared silently.
+    of the same width and dtype that measure different quantities -- one is
+    per-stain, the other a mixture -- so a key naming only the backbone
+    would allow them to be compared.
 
     :param spec: the run's configuration. Only ``backbone`` and
-        ``channel_policy`` reach the key: everything else on the spec --
-        batch size, device, crop size -- changes how long the run takes and
-        not what a dimension means.
+        ``channel_policy`` reach the key. Other fields that change the
+        values, such as ``channels``, ``normalize`` and ``channel_scale``,
+        are covered by :meth:`EmbeddingSpec.fingerprint`; batch size and
+        device are in neither.
     """
     return f"{ENCODER_KEY_PREFIX}{spec.backbone}/{spec.channel_policy}"
 

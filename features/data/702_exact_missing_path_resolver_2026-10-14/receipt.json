@@ -1,0 +1,41 @@
+{
+  "scope": "N702 exact missing laptop path resolver component; parent partial",
+  "baseline": {
+    "failed": 5,
+    "passed": 3,
+    "exit": 1
+  },
+  "owning": {
+    "passed": 111,
+    "seconds": 18.93,
+    "exit": 0
+  },
+  "final_uri_closure": {
+    "passed": 26,
+    "seconds": 7.24,
+    "exit": 0
+  },
+  "overlapping_cohorts_not_summed": true,
+  "sha256": {
+    "spacr/model_zoo.py": "d46927426e93de32ed10e50fa7db1f7cfcf6091ab8dee06a779ec7579a7b3531",
+    "tests/test_n702_missing_laptop_model_path.py": "9bfdc18a0d02d546aaf7a29e1850bca0599b50ad0e6f3e363c2addab5391a486",
+    "tests/test_missing_model_downloads.py": "531997ab9f4bd39b8987f47b4ee308bb477c65e4bdf9cf55aecd25e326b972db",
+    "/mnt/wd4tb/scratch/n702-path-20261014/baseline.log": "581f2bb739c03662bafe1172f40c4bc827659882792f5e0969fbe84ec946434a",
+    "/mnt/wd4tb/scratch/n702-path-20261014/owning.log": "f876e78c8ec008be8520eff38e8e78dc102474cd4333e2c0cf36fa1f5b82abf6",
+    "/mnt/wd4tb/scratch/n702-path-20261014/owning.xml": "a22bb29a354203c9cf3d8fe9be594787343bdb8aad696491a5c652f7d20562c1",
+    "/mnt/wd4tb/scratch/n702-path-20261014/closure.log": "8e44005cca57bdd5ebd3e31c777ef4b6150080aa9b492f57dff3eadce120ecd2",
+    "/mnt/wd4tb/scratch/n702-path-20261014/closure.xml": "2ad5117844bdd2abc7cdd541052ddfdc2c1ec942ef78d4b9d7cc270b098b3e86"
+  },
+  "remaining": [
+    "Pinned identity export/invalidation",
+    "Offline metadata and weights controls",
+    "Contextual unknown/ambiguous copy errors",
+    "All-model entrypoint coverage",
+    "Process coalescing",
+    "Docs/translations/native acceptance"
+  ],
+  "limits": [
+    "Offline native temp mirror and controlled stubs",
+    "No full CI or live network/GPU"
+  ]
+}

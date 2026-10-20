@@ -1,0 +1,35 @@
+{
+  "status": "PRIVATE BLOCKED: exact six source files adopted, missing owner prerequisite; no passing acceptance",
+  "base": "98db7ac93e5ba4e5adc14c7a885939b40b35d344",
+  "actual_tests": {
+    "collected": 60,
+    "passed": 35,
+    "failed": 25,
+    "skipped": 0,
+    "seconds": 3.71,
+    "exit": 1
+  },
+  "single_failure_cause": "ImportError: complete_native_duration missing from native_live_timing",
+  "required_owner_packet": {
+    "file": "tools/tutorials/native_live_timing.py",
+    "current_blob": "1d37097497ad78e59c6a0eccb777010fb4f7debe",
+    "current_sha256": "97565538fe70e1f49e06ac61da23373cdde853a576f3589977d6880e16583e5f",
+    "requested": "Approve isolated exact author import+helper proposal rather than full historical planner patch. No source has been changed outside original six-file grant.",
+    "consumer": "retained_visual_refresh._checked_home, import line241/call line300; compares complete_native_duration(receipt,30) to retained frame_count / 30.",
+    "packet_search": "Current completed04 portable source/patch manifests contain the import and call but do not export native_live_timing.py or a definition of complete_native_duration.",
+    "recovered_exact_author_source": {
+      "packet": "features/data/n676_complete_native_clips_fix_2026-10-14/e257c1f3c-complete-native-clips.patch",
+      "sha256": "3fe5b809a441af028f021a4d5e3db103ae6f218dbabfba8e7013e8e384951927",
+      "old_blob": "1d37097497ad78e59c6a0eccb777010fb4f7debe",
+      "full_author_successor_blob": "481c57de0a9e9473183ac644353c68d651ca534c",
+      "minimal_proposal_sha256": "7844401ee73d2babe719263cefe0291fb6c3fb888e29006ba7eae2fe839741a6",
+      "scope": "Exact author Fraction import and unchanged complete_native_duration only; no planner/math/default changes; pending seventh-file grant."
+    }
+  },
+  "limits": [
+    "No source fixes or fixture changes made after terminal failure.",
+    "No encoding/browser/render/capture/upload/model/network ran.",
+    "Historical owner226 browser evidence remains historical, not fresh Root acceptance.",
+    "CI completed04 media selectors untouched."
+  ]
+}

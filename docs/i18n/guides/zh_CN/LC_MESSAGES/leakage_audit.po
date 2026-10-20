@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "训练/测试泄漏审查"
 
-msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "当相关的裁剪图出现在评估边界两侧时，分类器准确率是无效的。在拟合之前，spaCR 会审查永久性的 ``train/``/``test/`` 划分、普通的训练/验证留出、每个外层和内层交叉验证边界，以及整个交叉验证分区。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "当相关的裁剪图出现在评估边界两侧时，留出准确率估计会高估模型在独立数据上的性能。在拟合之前，spaCR 会审查永久性的 ``train/``/``test/`` 划分、普通的训练/验证留出、每个外层和内层交叉验证边界，以及整个交叉验证分区。"
 
 msgid "What is verified"
 msgstr "验证内容"
@@ -61,8 +62,9 @@ msgstr "普通验证同样考虑分组。``cv_group_by='well'`` 使用与交叉�
 msgid "Run the audit directly"
 msgstr "直接运行审查"
 
-msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
-msgstr "该命令输出 JSON，验证通过的划分退出码为 ``0``，发现泄漏或无法验证的标识时为 ``1``，无法审查数据集时为 ``2``。``--no-content-hash`` 可减少 I/O，但无法检测重命名的副本。``--allow-unverifiable`` 用于诊断旧版数据集；它并不能使其性能估计变得可信。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
+msgstr "该命令输出 JSON，验证通过的划分退出码为 ``0``，发现泄漏或无法验证的标识时为 ``1``，无法审查数据集时为 ``2``。``--no-content-hash`` 可减少 I/O，但无法检测重命名的副本。``--allow-unverifiable`` 用于诊断旧版数据集；其性能估计仍然不独立于训练数据。"
 
 msgid "Classify settings"
 msgstr "分类设置"
@@ -103,8 +105,9 @@ msgstr "分类器评估、校准以及划分泄漏诊断。"
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "该模块与模型无关：它使用标签、概率、折 ID 和样本路径。因此，深度学习交叉验证和未来的经典机器学习流程都可以写入相同的评估文件集，Qt 工作台可以显示一种稳定的产物格式。"
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "整个交叉验证范围内每个相关样本族只属于一个折的证明。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr "对每个交叉验证折进行泄漏审计的结果。"
 
 msgid "Parameters"
 msgstr "参数"
@@ -208,11 +211,13 @@ msgstr "每个路径可选的类别，每个路径一个值。仅用于描述各
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "不得跨越折边界的标识层级——``none``、``field``、``well`` 或 ``plate``。按孔分组的划分允许同一孔板出现在两侧，但绝不允许同一个孔。"
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
-msgstr "同时比较文件内容（CONTENT），以便发现名称不同但字节完全相同的副本。每个文件需读取一次。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
+msgstr "同时比较文件内容，以便发现名称不同但字节完全相同的副本。每个文件需读取一次。"
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
-msgstr "将无法验证（UNVERIFIABLE）视为严重问题。否则，未编码所请求标识的文件名或无法计算哈希的文件只会产生警告——因此若将其保持为 False，一份干净的报告仍可能隐藏无人能够检查的泄漏。"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
+msgstr "将无法验证的样本视为严重问题。否则，未编码所请求标识的文件名或无法计算哈希的文件只会产生警告，因此若此项为 False，一份通过的报告可能包含未检查泄漏的样本。"
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "抛出 :class:`LeakageError`，而不是返回 ``passed`` 为 False 的报告。"

@@ -12,7 +12,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr._starplast.install_starplast.line#0",
+      "label": "spacr._parascape.install_parascape.line#0",
       "source": "Persist all subprocess output and send the latest line to Qt.",
       "source_sha256": "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e",
       "context": "Persist all subprocess output and send the latest line to Qt.",
@@ -20,7 +20,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr._starplast.upgrade_starplast.line#0",
+      "label": "spacr._parascape.upgrade_parascape.line#0",
       "source": "Persist pip diagnostics and update the progress display.",
       "source_sha256": "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c",
       "context": "Persist pip diagnostics and update the progress display.",
@@ -385,7 +385,9 @@
       "source_sha256": "a1b53c091ffca9692af902f98bc8b69045bbe8a5447b9e16a35d12337c284fb2",
       "context": "A retry run has no watermark to advance -- the folder is already format 2 apart from the named leftovers -- so it rewrites the finished marker with a shorter ``unconverted`` list instead.",
       "translation": "Una ejecución de reintento no tiene marca de agua que avanzar -- la carpeta ya está en formato 2 salvo los restos nombrados --, así que en su lugar reescribe el marcador de finalización con una lista ``unconverted`` más corta.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.crops.migrate_crop_folder._todo#0",
@@ -404,7 +406,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.curation_queue.order_items.easy_key#0",
+      "label": "spacr.curation_queue.order_items.easy_key#1",
       "source": "one field.",
       "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
       "context": "one field.",
@@ -412,7 +414,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.curation_queue.order_items.easy_key#1",
+      "label": "spacr.curation_queue.order_items.easy_key#2",
       "source": "its ``easy`` sort key, populated drafts first.",
       "source_sha256": "91a61af4b01fa9e2705da488437d064fa53b668fca37534e31b4305c320b9027",
       "context": "its ``easy`` sort key, populated drafts first.",
@@ -785,7 +787,9 @@
       "source_sha256": "c4e83c9ea6fcfd27d4f4a3c274db0ca8a7eaf98255eee25714e173743276f2c0",
       "context": "The error is held-out and the selection is not. Whether a penalty predicts well is a question about unseen microplate sample positions; whether it selects anything is a question about the fit the caller will get, which is fitted on every well. Reading selection off the folds instead picked a penalty at which four fifths of the microplate sample positions kept a gene and all of them together kept none -- measured on the tsg101 screening experiment, where it chose 0.000183 and the full fit was empty.",
       "translation": "EL ERROR SE MIDE CON DATOS RESERVADOS Y LA SELECCIÓN NO. Si una penalización tiene buena capacidad predictiva es una pregunta sobre pocillos no vistos; si selecciona algo es una pregunta sobre EL AJUSTE QUE OBTENDRÁ EL LLAMADOR, que se ajusta con todos los pocillos. Leer la selección en los pliegues eligió una penalización con la que cuatro quintas partes de los pocillos conservaban un gen y todos juntos ninguno -- medido en el cribado tsg101, donde eligió 0.000183 y el ajuste completo quedó vacío.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.illumination._lenient_profile_json._value#0",
@@ -1345,7 +1349,9 @@
       "source_sha256": "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034",
       "context": "Whatever JSON can hold, and a string for everything else.",
       "translation": "Lo que JSON puede contener, y una cadena para todo lo demás.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_qc.condition_number._ratio#0",
@@ -1697,7 +1703,9 @@
       "source_sha256": "5ce367b860a85b651d5d8b81c991aff07f9371ee827d5836db12627f63fdcde3",
       "context": "Refuse a missing or unset path, saying what it was needed FOR.",
       "translation": "Rechaza una ruta ausente o sin establecer, indicando PARA QUÉ se necesitaba.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.validate._check_required_paths._require_file#1",

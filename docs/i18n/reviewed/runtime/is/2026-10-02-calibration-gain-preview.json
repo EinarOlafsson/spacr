@@ -10,13 +10,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Calculate reference-well gains without running Measure or changing files.",
-      "source": "Calculate reference-well gains without running Measure or changing files.",
-      "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
-      "translation": "Reiknaðu leiðréttingarstuðla út frá viðmiðunarbrunnum án þess að keyra Measure eða breyta skrám."
-    },
-    {
-      "table": "ui",
       "key": "Calculating calibration gains…",
       "source": "Calculating calibration gains…",
       "source_sha256": "0e3e64a2616fc53a6d970615ca7a9240a6883c892b3ad6d2eaa5b11052316381",
@@ -63,13 +56,6 @@
       "source": "Gain",
       "source_sha256": "4e125a3ef68a00b029459c9aa8aa94aa07e74cc54188ffef7f60f38f016e61ca",
       "translation": "Stuðull"
-    },
-    {
-      "table": "ui",
-      "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
-      "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
-      "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
-      "translation": "Stuðlarnir byggjast á hliðrun myndavélar og viðmiðunarbrunnum; myndir og mæligögn breytast ekki."
     },
     {
       "table": "ui",
@@ -136,17 +122,30 @@
     },
     {
       "table": "ui",
-      "key": "The first plate by name is the reference.",
-      "source": "The first plate by name is the reference.",
-      "source_sha256": "9330ed298c868c1e172f2bb044de20850754da1e5e18bf08f9a0343fadb5d51c",
-      "translation": "Fyrsta platan í röð eftir heiti er viðmiðunarplatan."
-    },
-    {
-      "table": "ui",
       "key": "Turn off Test mode to preview gains for all source fields.",
       "source": "Turn off Test mode to preview gains for all source fields.",
       "source_sha256": "a3723287033d400bf6ce0fca5d3c1341beac8178ad007b734abe911669828190",
       "translation": "Slökktu á prófunarham til að forskoða stuðla fyrir öll sjónsvið í upprunamöppunni."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Calculate reference-well gains without running Measure or changing files.",
+      "source": "Calculate reference-well gains without running Measure or changing files.",
+      "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+      "translation": "Reiknaðu leiðréttingarstuðla út frá viðmiðunarbrunnum án þess að keyra Measure eða breyta skrám.",
+      "retired": "2026-10-15 F580: exact prior GUI caption absent from normal canonical source snapshot; superseded by session-aware preview. Original source and target preserved.",
+      "retirement_canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7"
+    },
+    {
+      "table": "ui",
+      "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+      "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+      "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+      "translation": "Stuðlarnir byggjast á hliðrun myndavélar og viðmiðunarbrunnum; myndir og mæligögn breytast ekki.",
+      "retired": "2026-10-15 F580: exact prior GUI caption absent from normal canonical source snapshot; superseded by session-aware preview. Original source and target preserved.",
+      "retirement_canonical_snapshot_sha256": "8d084109dc7aa838c844a4cb574194a1b960252e93207dca25770547b9309da7"
     }
   ]
 }

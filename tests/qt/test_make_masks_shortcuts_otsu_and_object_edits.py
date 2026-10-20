@@ -148,7 +148,16 @@ def test_the_shortcuts_sit_right_of_the_three_views(screen, qtbot):
         "the shortcuts are to the RIGHT of Mask / Cell probability / Flows")
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
         "Mask", "Cell probability", "Flows"]
-    assert panel.isVisible() and panel.width() == mm.SHORTCUTS_WIDTH
+    shortcut_pane = screen._view_pane.pane("Shortcuts")
+    assert shortcut_pane.minimum == mm.SHORTCUTS_WIDTH
+    assert panel.isVisible() and panel.width() >= mm.SHORTCUTS_WIDTH
+    initial_width = panel.width()
+    sizes = screen._view_pane.sizes()
+    screen._view_pane.setSizes([sizes[0] - 80, sizes[1] + 80])
+    QApplication.processEvents()
+    assert panel.width() > initial_width
+    assert panel.mapTo(screen, panel.rect().topLeft()).x() > (
+        tabs.mapTo(screen, tabs.rect().topRight()).x())
 
 
 def test_every_hint_is_on_the_screen_with_its_keys_and_its_sentence(
@@ -159,7 +168,7 @@ def test_every_hint_is_on_the_screen_with_its_keys_and_its_sentence(
     QApplication.processEvents()
     shown = {label.text() for label in
              screen._shortcut_panel.findChildren(QLabel)}
-    assert "Shortcuts" in shown
+    assert any("Shortcut" in text for text in shown)  # the fold arrow leads the title (707)
     for keys, does in mm.SHORTCUT_HINTS:
         assert keys in shown, f"no row for {keys!r}"
         assert does in shown, f"{keys!r} has no sentence"
@@ -176,16 +185,17 @@ def test_the_settings_toggle_does_not_take_the_shortcuts_away(screen, qtbot):
     screen.show()
     qtbot.waitExposed(screen)
     QApplication.processEvents()
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     QApplication.processEvents()
-    assert not screen._settings_scroll.isVisibleTo(screen._body_splitter)
+    assert not screen.settings_shown()
     assert screen._shortcut_panel.isVisibleTo(screen._body_splitter)
 
 
 def test_shift_or_alt_drag_pans_as_the_list_says(screen):
-    """'Shift or Alt + drag — Pan, from any tool'."""
-    for modifier, (to_x, to_y) in ((Qt.ShiftModifier, (20, 20)),
-                                   (Qt.AltModifier, (44, 44))):
+    """Alt pans from Brush; Shift pans from Erase as the hints describe."""
+    for modifier, (to_x, to_y), mode in ((Qt.ShiftModifier, (20, 20), mm.MODE_ERASE),
+                                         (Qt.AltModifier, (44, 44), mm.MODE_BRUSH)):
+        screen._set_mode(mode)
         screen._on_reset_zoom()
         wheel(screen, 32, 32, 120)
         wheel(screen, 32, 32, 120)
@@ -553,7 +563,7 @@ def test_dilate_and_shrink_are_one_undo_step_each(screen):
     kinds = [entry.kind for entry in screen._log.edits]
     assert kinds[-2:] == ["dilate", "shrink"]
     assert screen._log.edits[-1].detail["step"] == 1
-    assert screen._btn_undo.isEnabled()
+    assert screen._act_undo.isEnabled()
     screen._on_undo()
     screen._on_undo()
     np.testing.assert_array_equal(screen._canvas.mask, before)

@@ -1,0 +1,15 @@
+{
+  "first_attempt": "Source preflight refusal, before normal loaders or any catalog write",
+  "elapsed_seconds": 6.87,
+  "status": 1,
+  "canonical_counts": {
+    "setting_labels": 1252,
+    "setting_tooltips": 1274,
+    "categories": 242,
+    "ui": 8000,
+    "installer": 79,
+    "module_summaries": 77
+  },
+  "evidence_limit": "The second exact-key diagnostic mistakenly reused run.log; first full raw file is overwritten. Original trace/time was observed in tool transcript and parent read; this is a retrospective factual disposition, not a reconstructed raw log.",
+  "second_attempt": "Raw diagnostic-run.log and missing-owned.json preserved; exact same source/UI ownership refusal resolved to compact News and Models."
+}

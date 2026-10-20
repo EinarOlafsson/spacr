@@ -1,0 +1,2 @@
+field,object_type,n_objects,severity,flags,note
+nd024_A01_1_1,nucleus,0,fail,unreadable_mask,"mask must be a 2-D label image, got shape (11, 768, 1280)"

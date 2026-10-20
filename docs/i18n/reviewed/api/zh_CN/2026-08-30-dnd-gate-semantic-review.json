@@ -273,14 +273,18 @@
       "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
       "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "context": "Walk a dropped folder ONCE and return the folder-metadata report.",
-      "translation": "仅遍历一次拖放的文件夹，并返回文件夹元数据报告。"
+      "translation": "仅遍历一次拖放的文件夹，并返回文件夹元数据报告。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
       "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
       "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
       "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
-      "translation": "可安全地在工作线程中运行：普通数据输入，普通数据输出，不涉及 Qt。重点是只遍历一次。它取代了对同一目录树的三次遍历——``detect_folder_metadata`` 执行一次，``plan_folder_extraction`` 执行另一次并再次调用 ``detect_folder_metadata`` 进行第三次遍历——这些操作以前都在 GUI 线程上的拖放事件内执行。"
+      "translation": "可安全地在工作线程中运行：普通数据输入，普通数据输出，不涉及 Qt。重点是只遍历一次。它取代了对同一目录树的三次遍历——``detect_folder_metadata`` 执行一次，``plan_folder_extraction`` 执行另一次并再次调用 ``detect_folder_metadata`` 进行第三次遍历——这些操作以前都在 GUI 线程上的拖放事件内执行。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#2",

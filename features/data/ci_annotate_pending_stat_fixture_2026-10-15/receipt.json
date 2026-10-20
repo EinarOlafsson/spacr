@@ -1,0 +1,93 @@
+{
+  "status": "TEST_FIXTURE_DETERMINISTIC_PENDING_IO_ACCEPTANCE_ROOT_PEER_PENDING",
+  "test": "tests/qt/test_the_annotate_screen_never_stats_its_last_source.py::test_browsing_from_the_settings_dialog_does_not_wait_on_the_field",
+  "input_head": "410a02f0bfa392362a1f08219ec671f41b4e98b6",
+  "source_proof": {
+    "approved_proposal_patch_sha256": "fb29f20b6c5564cb1dcf3f3c5ebb9fccf24d4353109e1b9d8829bf2f4775480e",
+    "tested_file_exact_approved_proposal_bytes": true,
+    "test_preimage_sha256": "6d9608d79a7e02a61dcc9fc8b415735b5b539797d0f015b7b7eca46be29770b6",
+    "test_final_sha256": "88a2378c5651cd18a56f034da45d665714ce4f81c8877b6d74ed55efaabcff95",
+    "outside_target_signature_and_body_module_AST_exact": true,
+    "global_SLOW_S8_and_shared_cache_fixture_AST_exact": true,
+    "original_elapsed_lt1_and_cwd_assert_ASTs_exact": true,
+    "cancel_field_assertion_changes_only_expected_unique_input_identifier": true,
+    "actual_product_worker_untouched": true,
+    "no_real_VOUCHING_or_VOUCHED_mutations_in_new_fixture": true,
+    "only_scoped_pending_I_O_wrappers_and_bounded_release_join": true
+  },
+  "production_sha256": {
+    "spacr/qt/screens/annotate.py": "37f6c5b631cff5bbea8b73752851fae971b4fb779db147fd8f27159a1586da5e",
+    "spacr/qt/path_probe.py": "7a617ca9623c977c14f00801a78290d8a9bff0667d8217c2c7772022050178e4"
+  },
+  "separate_results": {
+    "actual_hosted5727": {
+      "run": 38774384694,
+      "job": 116568856311,
+      "result": "FAILwrongstartingdirectory; responsivenesselapsed<1alreadyPASS",
+      "sameworker": "gw1",
+      "first_sleeping_node_terminal": "2026-10-15T18:10:22.043517Z",
+      "target_terminal": "2026-10-15T18:10:30.960146Z",
+      "limits": "Noactualworkercompletionidentity. Raceinterpretation is source/order-supported, not proven exactcausalhistory."
+    },
+    "cold_local_original_once": {
+      "actual_exit": 0,
+      "passed": 1,
+      "seconds": 5.23,
+      "skipped": 0,
+      "no_forced_failure_or_retry": true
+    },
+    "approved_controlled_fixture_once": {
+      "actual_exit": 0,
+      "passed": 1,
+      "seconds": 1.99,
+      "skipped": 0
+    }
+  },
+  "fixture_behavior": "Uniqueprivatepath armedafter dialogconstruction. Real _pick_src/vouched_dir/vouch_later/daemonworker remain; onlymatching isdir/exists calls waiton Event forSLOW_S8max. OriginalGUIlt1/fallback/cancel remain, realoffGUIentered/pending verified before alwaysrelease, observedworkers joinedwithin common8sbudget. No oldglobalASLEEPpath or clearing/bypassingrealVOUCHING.",
+  "static_checks": "FatalRuffPASS/gitdiffcheckPASS. FullRuff retains exactly5preexistingI001code/messagefindings; no unrelatedstylechanges.",
+  "resource": {
+    "pid": 3032752,
+    "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68292.scope",
+    "memory_max": "4294967296",
+    "memory_swap_max": "0",
+    "cpus_allowed": [
+      0
+    ],
+    "pyside6": "6.12.0",
+    "qt": "6.12.0"
+  },
+  "network": {
+    "baseline": {
+      "blocked_network_events": []
+    },
+    "final": {
+      "blocked_network_events": []
+    }
+  },
+  "limits": "Onlyoriginaltargetran oncebefore/onceafter. Noactualannotation/userdata/liveapp/protectedjob/model/inference/networksuccess, productfix, exacthostcause/fullCI/nativeplatform/wholeitemclaim. Noothernodes/source/writer/collector changed.",
+  "files": {
+    "ruff-baseline.json": "92cbdbf0a1ed8d6d1f71af05ecd2c31165a9a4a444ec976276a41c2b7f553cca",
+    "pytest-driver.py": "2265152ff02055e9a2750c5b587dd29e7ac6429e0c72699d3cfbd3c8f63e031c",
+    "final.xml": "bea31937fb76a75a64280f03b5bd9fd2bcd11f18fad302ec2014367fcfd749d5",
+    "hosted-same-worker-terminal-events.txt": "1da85be9489a58218fd6d26a578ae41bff8761c3cbe514f744116c93e854e8d3",
+    "baseline.log": "109e307f7abbb0dd8c1d4a96c1d6b35c7d79ce7608118dd0e132b706936185a6",
+    "ruff-final.json": "c571dbed27fca1b7a367650c379b0f9c145c8718371e50cd5f70b4e87f395d62",
+    "ruff-full.log": "a6c7be7bc8fb5f11c5b525f1813233707e413c070fb5f14cc1c42c8c288d4a6b",
+    "hosted-failure-excerpt.txt": "e6616a465d60fce401ec7a1e657d484fd0b41533bc18c51631b9e80ba52cde45",
+    "input-pins.json": "50b0c8823cfbbd5126f4e0076589deff1ed5f5336d31152bf6f4b9982207397d",
+    "baseline-network.json": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+    "proposed.patch": "fb29f20b6c5564cb1dcf3f3c5ebb9fccf24d4353109e1b9d8829bf2f4775480e",
+    "final.log": "57591c5f736d68d2a76ef0874f4480c8ecbf8714418b3ff7d6a33998c93558ca",
+    "source-proof.json": "e4445bf248286c0cfa5195e3d1e0831d93b6d54a69e15ce3097f8b89035394f0",
+    "final-startup.json": "9237bdd62f5ebbca248e394e88e2d50c96a3c8279e70cd4583fffe0df7049b09",
+    "baseline.xml": "6a6ce30a75c9b6333611f994a648ed80544e718eb0509e6882897f2dfdde3d64",
+    "baseline.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "ruff-fatal.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "final-network.json": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+    "test-only.patch": "d6bb09965c967300a136b72755f075e000029ffe9148db52e4eac2d674d497ea",
+    "run.sh": "3df70cf2fc148fc3804d3b431442342fff5df652560ac3e28690ce240308cf28",
+    "baseline-startup.json": "b76856c847fed886ccee7797db4e8d1bb002712073bd5889ddaf090106083009",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "proposal.json": "eb876dca07f997845195b82812770a39a4d52cd192ad291bbfa674cbcd5e7463"
+  }
+}

@@ -1,0 +1,197 @@
+Final release-note factual review: eb72a1a85f5c3a3324f295ab18ad730aea7d5570
+Draft SHA256: cc1cab6a8cf705da3c83e1e95335d96f0a3d75cecf338029367583b4a25b18a7
+36 bullets: New 10, Improved 14, Fixed 8, Alpha 4. The alpha introduction is a separate statement.
+Assessment counts: {'material_narrowing_needed': 3, 'supported': 28, 'supported_with_precision_note': 5}.
+Three material scope corrections are recommended before publication. No source or draft was changed.
+
+L5 — 3D editing: supported
+Production provides the three view modes, slice navigation and whole-volume save; owning tests exercise edits, side views, True 3D and round trips. No pending automatic-diameter or label-binding work is implied.
+Evidence: spacr/qt/screens/make_masks.py:8899, spacr/qt/mask_engine.py:6071
+Owning tests: tests/qt/test_692_three_d_mask_drawing.py
+
+L6 — TEM images: supported
+DM3/DM4 and MRC readers and the Make Masks open path are present; optional-reader dependencies remain ordinary installation requirements.
+Evidence: spacr/qt/mask_engine.py:95, spacr/io.py:10078
+Owning tests: tests/test_690_tem_readers_and_pixel_size.py, tests/qt/test_690_make_masks_tem.py
+
+L7 — FIB-SEM example: supported
+The named example, 3D labels and CLI alias are source-bound. Primary EMPIAR-10982 and CC0 provenance were independently checked by root; this review does not extend the scientific claim beyond that dataset.
+Evidence: spacr/qt/mask_engine.py:5990, spacr/example_archives.py:440, spacr/cli_download.py:207
+Owning tests: tests/test_692_fibsem_example_dataset.py, tests/qt/test_692_three_d_mask_drawing.py
+
+L8 — Hide judged fields: supported
+The release contains N701 per-folder queue filtering and the owning layout tests. The CLI option is checked separately in the inventory below.
+Evidence: spacr/qt/screens/make_masks.py:9964, spacr/cli_make_masks.py:152, spacr/curation_queue.py:1482
+Owning tests: tests/qt/test_701_make_masks_hide_judged_fields.py
+
+L9 — Settings export: supported
+The central module settings forms and Distributed Jobs snapshot export are covered. Read every settings form as the spaCR module forms, rather than arbitrary third-party dialogs.
+Evidence: spacr/qt/screens/app_screen.py:1975, spacr/qt/screens/distributed_jobs.py:534
+Owning tests: tests/qt/test_n693_export_settings_from_every_form.py, tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py, tests/test_n693_write_settings_file.py
+
+L10 — Accessibility: supported
+All five named accessibility controls are present.
+Evidence: spacr/qt/preferences.py:5377
+Owning tests: tests/qt/test_655_accessibility_preferences.py
+
+L11 — Startup sequence: supported_with_precision_note
+The normal enabled startup animation has these timings and defers the named dialogs. Reduced motion uses a plain fade; disabled or skipped startup does not promise the full sequence.
+Suggested: When the startup animation is enabled, its microscopy-tile logo holds for at least 2 s and longer while loading, then breaks apart over 4 s; Reduce motion uses a fade.
+Evidence: spacr/qt/widgets/loading_screen.py:176, spacr/qt/widgets/loading_screen.py:180, spacr/qt/app.py:174
+Owning tests: tests/qt/test_694_photomosaic_blow_away_startup_screen.py, tests/qt/test_695_startup_sequence_and_borderless_window.py, tests/qt/test_695_startup_dialogs_deferred.py
+
+L12 — Gate Editor controls: supported
+Rebindable mode, plane and spin actions and overlapping-element selection are present.
+Evidence: spacr/qt/widgets/gate_editor.py:337, spacr/qt/screens/gate_editor.py:471
+Owning tests: tests/qt/test_gate_editor_mode_keys_and_overlap_picker.py
+
+L13 — Model card viewer: supported
+Three-page cards, remote fetching, cached copies and bundled offline fallback are implemented.
+Evidence: spacr/model_cards.py:4, spacr/qt/widgets/model_card_viewer.py:186
+Owning tests: tests/test_model_cards_data.py, tests/qt/test_model_card_viewer.py, tests/qt/test_model_card_viewer_behaviour.py
+
+L14 — Tutorial CLI: supported
+The console entry opens the authoritative online lesson URL.
+Evidence: setup.py:225, spacr/qt/tutorial/__main__.py:85
+Owning tests: tests/test_tutorial_cli.py
+
+L18 — Well and plaque defaults: supported
+Figure-mode v2 and the Model Zoo/README v3 recommendation are distinct and correctly described. Source model facts support the cropped published-figure domain for v2; no universal v3 superiority is asserted.
+Evidence: spacr/settings.py:6763, spacr/settings.py:6761, spacr/model_zoo.py:1140, README.rst:484
+Owning tests: tests/test_model_cards_are_current.py
+
+L19 — Nine rescored cards: supported_with_precision_note
+All nine PV/plaque card JSONs carry the six named metrics and matching stock cpsam/cpsam_v2 comparisons on each model's recorded held-out subset. This is not a common cross-model benchmark or proof of independence at plate/acquisition/paper level; documented ground-truth lineage and reconstructed historical splits still apply.
+Suggested: ...comparing each model with its matching stock Cellpose-SAM base on that model's recorded held-out subset.
+Evidence: features/data/model_rescore_curated_gt_2026-10-11/receipt.json:1, README.rst:483
+Owning tests: tests/test_model_cards_data.py, tests/test_model_cards_are_current.py
+
+L20 — Sixteen dropdown settings: supported
+The owning matrix has 17 app/key pairs and 16 unique setting keys because spatial_platform appears in two apps; persisted values and unknown historical values are preserved.
+Evidence: spacr/settings_spec.py:338
+Owning tests: tests/qt/test_closed_vocabularies_are_dropdowns.py
+
+L21 — Regression response dropdown: supported
+Numeric CSV response choices and the missing-pred explanation are implemented and tested.
+Evidence: spacr/qt/screens/settings_model.py:869
+Owning tests: tests/qt/test_issue144_response_dropdown.py
+
+L22 — Measure plate folder lists: supported
+Owning tests exercise pasted plate-folder lists and source-path handling.
+Evidence: spacr/measure.py:1
+Owning tests: tests/test_src_path_lists_issues_138_139.py
+
+L23 — Relative Classify databases: supported
+Relative database resolution and the complete searched path in missing-database errors are covered.
+Evidence: spacr/io.py:5868
+Owning tests: tests/test_issue_143_relative_database_path.py
+
+L24 — Mixed-model stop and fallback: supported
+Cancellation propagates as cancellation, nested-design preflight gives actionable setting guidance, and optimizers fall back. This does not guarantee every mixed-model fit will succeed.
+Evidence: spacr/ml.py:1365, spacr/ml.py:1195
+Owning tests: tests/test_mixed_model_design_checks_and_fallbacks.py
+
+L25 — Backdrop CPU and ripples: supported_with_precision_note
+Production reduces paint work through sparse blending/reused scratch; root's CPU comparison reports median 11.35 to 6.24 ms, with 80 output combinations checked. Outward-only close ripples and 200% scaling have owning tests. Smoothness is comparative evidence, not a no-stall native-display guarantee.
+Suggested: Backdrop paint work is reduced on Mask screens and in Spaceout, and colour waves use less CPU. ...
+Evidence: spacr/qt/widgets/ambient.py:1
+Owning tests: tests/qt/test_mask_screen_field_frame_costs_near_home_20261012.py, tests/qt/test_spaceout_field_holds_its_budget_at_1440p_20261012.py, tests/qt/test_n670_close_ripples_and_intensity_20261012.py
+
+L26 — Dynamic animation: supported
+The enabled policy detects registered CPU-heavy jobs, caps active backdrop timers at 30 fps and pauses Spaceout fractals. This is policy behavior, not a measured constant frame-rate promise or arbitrary system-load detector.
+Evidence: spacr/qt/widgets/ambient.py:12353
+Owning tests: tests/qt/test_animation_defaults_ripples_and_dynamic_gpu_n684.py
+
+L27 — Preferences reuse and apply: supported
+Dialog reuse, sliced appearance application and in-place Home opacity refresh are in source. The explicit unresolved cold first-Apply caveat correctly preserves the Work-host finding; the held Workbench patch is not claimed as shipped.
+Evidence: spacr/qt/preferences.py:8948
+Owning tests: tests/qt/test_preferences_open_and_close_stay_smooth.py, tests/qt/test_preferences_apply_stays_smooth.py
+
+L28 — Preferences-free background paint: supported
+The frame path uses the theme cache instead of loading Preferences repeatedly.
+Evidence: spacr/qt/screens/app_screen.py:2621
+Owning tests: tests/qt/test_cov_s2_app_screen_backdrops.py
+
+L29 — Saved-mask size: supported_with_precision_note
+The actual owner is the segmentation pipeline, commit 7825913e64: both Cellpose generators return working-scale 2-D labels to field dimensions by nearest-neighbour sampling before saving; both reuse checks regenerate masks whose dimensions differ. Records size can imply separate physical-calibration metadata, which is a different conditional TEM feature. The dimensions claim is supported.
+Suggested: Saved segmentation masks keep their field’s dimensions, and masks of a different size are regenerated before reuse.
+Evidence: spacr/object.py:323, spacr/io.py:4294, spacr/utils.py:1750
+Owning tests: tests/test_masks_come_back_at_the_field_size.py, tests/test_a_mask_is_checked_before_it_is_reused.py
+
+L30 — Image README, deck and languages: supported
+The image README/deck and nine additional README/interface language catalogs exist. This statement does not assert that all API documentation or every localization entry is independently translated; documentation publication records intentional API fallback separately.
+Evidence: README.rst:85, docs/source/_static/deck/slides.json:1, tools/build_readme_deck.py:1, spacr/qt/i18n.py:1
+Owning tests: tests/test_readme_is_built_from_images.py, tests/test_the_readme_deck_builds_a_flip_through_viewer.py
+
+L31 — Apptainer release publication: material_narrowing_needed
+SIF publication is conditional on successful Docker publication. The workflow explicitly allows the release to succeed without SIFs if this optional job fails, so each release is an overpromise before actual asset verification.
+Suggested: Release automation builds and publishes Apptainer (SIF) images after successful Docker builds.
+Evidence: .github/workflows/release.yml:319, .github/workflows/apptainer-images.yml:1
+Owning tests: tests/test_the_apptainer_image_is_the_docker_image.py
+
+L35 — Two-second usage stalls: material_narrowing_needed
+The specific blocking telemetry/paint mechanism was removed: NVML is reused and bars schedule paints. Source and owning behavior cannot prove that all module screens never stall every two seconds for other reasons.
+Suggested: Module usage polling no longer starts nvidia-smi: GPU usage is read through NVML, and usage bars redraw with the next frame.
+Evidence: spacr/qt/screens/app_screen.py:12826, spacr/qt/widgets/usage_bar.py:136
+Owning tests: tests/qt/test_module_screen_timers_do_not_stall_20261012.py
+
+L36 — Palette typing during rebuild: supported
+Reentrant typing during fill retains the typed key and avoids deleting the active list widget.
+Evidence: spacr/qt/command_palette.py:1
+Owning tests: tests/qt/test_the_palette_survives_typing_into_a_rebuild.py, tests/qt/test_the_palette_survives_keys_typed_inside_its_fill.py
+
+L37 — Regression thread error: supported_with_precision_note
+The identified fix prevents workspace collection on a worker from constructing an unopened Regression panel. The current sentence is true but gives little scope.
+Suggested: Saving a Regression workspace no longer builds unopened results widgets on a worker thread.
+Evidence: spacr/qt/screens/app_screen.py:1
+Owning tests: tests/qt/test_a_workspace_save_never_builds_a_panel.py
+
+L38 — Linked image without box ledger: material_narrowing_needed
+The suppression specifically requires MODE_BOX not to be active. Linked sources with a box ledger, unsupported box editing and actual annotation failures still warn.
+Suggested: Outside Box mode, Make Masks opens and saves a linked image with no box ledger without the Cannot load box annotations popup.
+Evidence: spacr/qt/screens/make_masks.py:13417
+Owning tests: tests/qt/test_make_masks_yolo_boxes_failures.py
+
+L39 — Download and graphics retirement: supported
+Closing callers detach or retain a live worker safely instead of destroying a running thread; resource-cleanup hooks release animated graphics before exit. This is lifetime correctness, not proof that every network download completes or all native GPU platforms were exercised.
+Evidence: spacr/qt/screens/model_zoo.py:1, spacr/qt/resource_cleanup.py:1
+Owning tests: tests/qt/test_model_zoo_picker_closes_catalogue_jobs.py, tests/qt/test_model_install_completion.py, tests/qt/test_the_backdrop_releases_its_gpu_context_before_exit_20261013.py
+
+L40 — Run, Templates and figure UI work: supported
+First-run pipeline imports are worker work, Templates CSV parsing avoids the torch-heavy utils import, and arriving figure PNG/thumbnail decode occurs on the producing worker. The claim does not guarantee every UI operation is free of heavy work.
+Evidence: spacr/qt/first_run.py:1, spacr/qt/screens/app_screen.py:12100, spacr/qt/bridge.py:1618, spacr/qt/widgets/figure_queue.py:663
+Owning tests: tests/qt/test_the_first_run_imports_its_pipeline_off_the_gui_thread.py, tests/qt/test_a_settings_csv_is_read_without_importing_torch.py, tests/qt/test_an_arriving_figure_is_decoded_off_the_gui_thread_20261013.py
+
+L41 — Source-owned version: supported
+Imported source ownership takes precedence over unrelated installed distribution metadata.
+Evidence: spacr/version.py:1
+Owning tests: tests/test_version_prefers_the_imported_source.py
+
+L42 — F01/F02 and class sidecars: supported
+F01/F02 classification and sidecar exclusion are covered by explicit owning cases.
+Evidence: spacr/qt/folder_metadata.py:75, spacr/utils.py:4939
+Owning tests: tests/test_cov_2_folder_metadata.py, tests/test_cov_utils_loss_building.py
+
+L48 — MitoNet alpha: supported
+The backend and alpha registry are present; no native GPU or scientific acceptance claim is added.
+Evidence: spacr/settings.py:7358, spacr/qt/screens/make_masks.py:4336
+Owning tests: tests/test_691_mitonet_backend.py, tests/qt/test_691_mitonet_make_masks.py
+
+L49 — Spatial submodule alpha: supported
+The two submodules and alpha gating are registered and tested.
+Evidence: spacr/settings.py:7649
+Owning tests: tests/test_spatial_submodules.py, tests/qt/test_spatial_submodules_alpha.py
+
+L50 — Separate ParaScape app: supported
+The renamed separate application has dedicated install/update/launch integration. Root has separately verified the actual PyPI 0.0.1.0 publication; this is not a new platform runtime acceptance test.
+Evidence: spacr/qt/parascape.py:1, spacr/_parascape.py:1
+Owning tests: tests/test_parascape_environment.py, tests/qt/test_parascape_launcher.py
+
+L51 — Alpha species: supported
+Non-Toxoplasma organism pages are registered as alpha species; Toxoplasma is not in that registry.
+Evidence: spacr/settings.py:7716
+Owning tests: source/metadata inspection; no new test run
+
+
+Additional worker lifetime source: spacr/qt/model_install.py:170 and spacr/qt/widgets/model_zoo_picker.py:570, exact source hashes in JSON.
+Final benchmark reports EDGE_PARITY160PASS and CPU COST_MS baseline 11.352, optimized 6.238; owning test log reports 106 passed in 8.91s and recorded exit 0. Earlier exploratory validate.log/bench*.log describe discarded implementations and are not the final performance evidence. This review did not rerun any benchmark or test.

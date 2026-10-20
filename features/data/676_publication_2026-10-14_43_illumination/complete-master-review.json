@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-14T23:57:07.072337+00:00",
+  "scope": "Four actual decoded full-frame samples from corrected complete native master; sample-only content review, not full-film motion/audio/native acceptance.",
+  "status": "sampled_visual_review_pass",
+  "timing": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/production/43_illumination/video/native-live-timings.json",
+    "sha256": "1e10f2f8dc2385cad33db9cce115a6e76eb32752c95c414c6c11779f15903c7e",
+    "bytes": 28642
+  },
+  "master": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/production/43_illumination/video/43_illumination_silent.mp4",
+    "sha256": "ae0757eb75453bd10db3116086e85495ae4a0d3d14bb89ec4ccabaeb20e8f0f5",
+    "bytes": 187888259
+  },
+  "complete_native_clips": true,
+  "duration_seconds": 329.00000000000006,
+  "narration_scene_count": 14,
+  "unique_visual_count": 12,
+  "declared_playback_speed": 1,
+  "declared_looped_or_stretched": false,
+  "samples": [
+    {
+      "scene": 2,
+      "master_seconds": 40.4,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/complete-master-review-images/source_configured.png",
+        "sha256": "c86fa02af228b42fabc29d7a2d2325b143bd50274ac773bab8dc326ae5fe30b6",
+        "bytes": 3458140
+      },
+      "observation": "Full Source path ends /plate1/merged; focus has moved to Channels.",
+      "visual_sample_pass": true
+    },
+    {
+      "scene": 10,
+      "master_seconds": 204.9,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/complete-master-review-images/qc_three_panels.png",
+        "sha256": "4a7c2256815fb52ac1b1672024f374d184fd71a10c33c844c0f3754f1acfaa4d",
+        "bytes": 3028746
+      },
+      "observation": "Actual exported PNG in viewer shows estimated field, before/after radial profiles and corrected image.",
+      "visual_sample_pass": true
+    },
+    {
+      "scene": 13,
+      "master_seconds": 270.7,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/complete-master-review-images/return_to_illumination.png",
+        "sha256": "e8e82fadde89a3a3826c3641af0e3e02ccb13c6137e437497513386b0e52bd69",
+        "bytes": 4151713
+      },
+      "observation": "Viewer closed; original Illumination settings and run console visible.",
+      "visual_sample_pass": true
+    },
+    {
+      "scene": 14,
+      "master_seconds": 328.8,
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/complete-master-review-images/apply_terminal.png",
+        "sha256": "806ddf2751a595ef9c274da8138b55178f70f4014916042cf7bed805ef8ec0fb",
+        "bytes": 3361625
+      },
+      "observation": "Measure search illumination, correction ON, complete saved NPZ path, degree 4 and dark 0 visible.",
+      "visual_sample_pass": true
+    }
+  ],
+  "audio_unchanged": {
+    "previous_timing": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson43-r34/failed-223-render/video/native-live-timings.json",
+      "sha256": "6cf3a938a1e51fed8f413146dff4b753b229f7645ce028cb08751cf196c9d240",
+      "bytes": 27863
+    },
+    "all_50_source_track_dictionaries_exactly_unchanged": true,
+    "actual_50_audio_and_50_timing_sidecar_hash_errors": [],
+    "audio_QA_receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-43-r34-20261014/production/43_illumination/audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json",
+      "sha256": "cf82bca1d50ade7d8a13445f7c23f42831bdc323f9b0bdb78d7c09e0b54ec839",
+      "bytes": 9036
+    },
+    "new_audio_decode_or_listening": false
+  },
+  "limits": [
+    "No unrelated notice, invented pointer or cropping observed in these four samples.",
+    "Full native smoothness gates, browser playback verification, publication and remote deployment are separate checks.",
+    "Prior failed 223-second master and samples preserved."
+  ],
+  "source_or_media_edits": false
+}

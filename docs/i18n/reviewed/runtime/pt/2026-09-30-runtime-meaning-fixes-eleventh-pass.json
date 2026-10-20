@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "Add score CSVs…",
-      "source": "Add score CSVs…",
-      "source_sha256": "e76b9926676144e1acac97a8521d1a02dca534446f894d385107da7044294179",
-      "translation": "Adicionar CSVs de pontuação…"
-    },
-    {
-      "table": "ui",
       "key": "Annotation set ready",
       "source": "Annotation set ready",
       "source_sha256": "14f9ffa1d859a6e546d49aae7e759f7627c1f41919443fa4caf668e1be9cf2cb",
@@ -633,13 +626,6 @@
       "source": "Saved runs carry",
       "source_sha256": "a597a64911c848243865e9d2f859530e56727e886ea14391420bb8a73fa76732",
       "translation": "As execuções salvas contêm"
-    },
-    {
-      "table": "ui",
-      "key": "Score CSV",
-      "source": "Score CSV",
-      "source_sha256": "48c82938541b39e8312955b2b276942fdb1f924fbcc0a38150b51cd46687e012",
-      "translation": "CSV de pontuação"
     },
     {
       "table": "ui",
@@ -3671,6 +3657,30 @@
       "source": "Steering",
       "source_sha256": "d0271c9db7c81d89b88bd9a9f46d9292aeaace64a073a14fa8452a9f89fadc45",
       "translation": "Direção"
+    }
+  ],
+  "retired_records": [
+    {
+      "date": "2026-10-10",
+      "reason": "F576 named store tables: Regression paired inputs now accept SQLite, DuckDB, Parquet and PostgreSQL tables, so the CSV-only caption is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Add score CSVs…",
+        "source": "Add score CSVs…",
+        "source_sha256": "e76b9926676144e1acac97a8521d1a02dca534446f894d385107da7044294179",
+        "translation": "Adicionar CSVs de pontuação…"
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "reason": "F576 named store tables: Regression paired inputs now accept SQLite, DuckDB, Parquet and PostgreSQL tables, so the CSV-only caption is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Score CSV",
+        "source": "Score CSV",
+        "source_sha256": "48c82938541b39e8312955b2b276942fdb1f924fbcc0a38150b51cd46687e012",
+        "translation": "CSV de pontuação"
+      }
     }
   ]
 }

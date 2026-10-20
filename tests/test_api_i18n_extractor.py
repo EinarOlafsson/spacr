@@ -41,11 +41,32 @@ builder = importlib.import_module("build_documentation_i18n")
 # With live_preview.BOUND_ROWS (2026-09-26) it moved bc6cd219 -> c894d34b; the
 # previous-surface digest below, without the added set, is unchanged.
 _NEW_VISIBLE_DIGEST = (
-    "c894d34b5cd1ee4d4341e82d42a1358d515f8db623a6c21fd165e5aba153fdb0"
+    "283580f3b6bd6b66c98e6aa26c44c37d49696e9940d7ce39cac7e0ca2cb5cda7"
 )
 _PREVIOUS_VISIBLE_DIGEST = (
-    "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70"
+    "d756bd8ed64b13f473eee9905cdee6a394866efc00b09cd2725f8ead4e4a4195"
 )
+_N696_ASSIGNMENT_ARRIVALS = {
+    'spacr.qt.widgets.object_settings_grid.AUTO_TEXT': (
+        'What an unset value reads as. ``None`` means "work it out" for most of\n'
+        'these, and an empty cell would read as "nobody has filled this in yet",\n'
+        'which is a different claim. An object diameter is the exception: its\n'
+        '``None`` is the magnification default, drawn greyed (item 696).'
+    ),
+}
+_N673_WGPU_ASSIGNMENTS = frozenset({
+    'spacr.doctor.WGPU_MACHINES',
+    'spacr.doctor.WGPU_MIN_PYTHON',
+    'spacr.install_profile.NO_WGPU_OVERRIDE',
+    'spacr.install_profile.NO_WGPU_OVERRIDE_NAME',
+    'spacr.layers.GPU_RENDER_OFF_ENV',
+    'spacr.layers.WGPU_BACKENDS',
+    'spacr.qt.screens.make_masks.VOLUME_BACKENDS',
+    'spacr.qt.screens.make_masks.VOLUME_BACKEND_API',
+    'spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS',
+})
+_LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION",
+                         "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS"}
 _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT",
     "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS",
@@ -62,6 +83,19 @@ _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
     "spacr.qt.widgets.live_preview.BOUND_ROWS",
 })
+def _spatial_arrivals() -> dict[str, str]:
+    """F534's 22 documented symbols, one named contract (2026-10-11).
+
+    run_spatial_masks / run_spatial_map, the ops_settings registration and
+    default helpers, the shared PageFold surface of map_barcodes and the two
+    Spatial switches. Six are documented constants, so the assignment checks
+    subtract them exactly as the historical digests require.
+    """
+    return json.loads((ROOT / "tests" / "data" / "release_contracts"
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text(
+            encoding="utf-8"))
+
+
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
 
@@ -249,40 +283,71 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # against 6ae5e1b36: +1 / -0.
     # ViewGate.__post_init__ is the one new documented special method.
     # PSF validates its immutable kernel in one further documented member.
-    assert len(dunders) == 215
+    # 215 -> 216 on 2026-10-10: EditableVolumeGate.__post_init__ (item 672),
+    # the validator that refuses an open, self-intersecting or degenerate
+    # mesh -- a contract a reader meets on the API page.
+    assert "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__" in dunders
+    # 216 -> 217 on 2026-10-16: VolumeLens.__post_init__ (item 673 speed
+    # follow-up), the validator that refuses a magnifier cube with no size
+    # or a zoom below 1.
+    assert "spacr.layers.VolumeLens.__post_init__" in dunders
+    assert len(dunders) == 217
+    # It is counted here and left out of the historical fingerprints below,
+    # which it would otherwise move.
+    dunders = dunders - {"spacr.layers.VolumeLens.__post_init__"}
+    # The historical digests below describe the surface without it.
+    dunders = dunders - {
+        "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__"}
     psf_validator = "spacr.point_spread.PSF.__post_init__"
     assert psf_validator in dunders
     # The exact Make Masks animation registry is one new documented value.
     # Removing it reproduces the previous visible-member digest exactly.
-    # Starplast's package identity is the only further assignment. Removing
+    # ParaScape's package identity is the only further assignment. Removing
     # it recovers the previous fingerprint, independently of the count.
     # 23 -> 32 on 2026-09-25: exactly _ASSIGNMENTS_ADDED_2026_09_25 (+9 / -0
     # by set difference against af6d77376). The historical digests below are
     # checked on the surface without them.
     # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
     # 34 -> 35 on 2026-09-26 with live_preview.BOUND_ROWS (+1 / -0 against
-    # 4f6c58418).
+    # 4f6c58418). _parascape.MINIMUM_VERSION (2026-10-12) is subtracted with its contract.
+    spatial_arrivals = _spatial_arrivals()
+    assert len(spatial_arrivals) == 22
+    assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
+    assert not spatial_arrivals.keys() & dunders
+    assert _N696_ASSIGNMENT_ARRIVALS.keys() <= assignments
+    assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
+        _N696_ASSIGNMENT_ARRIVALS
+    )
+    wgpu_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert len(wgpu_arrivals) == 20
+    assert wgpu_arrivals.keys() & assignments == _N673_WGPU_ASSIGNMENTS
+    assert {key: docs[key] for key in _N673_WGPU_ASSIGNMENTS} == {
+        key: wgpu_arrivals[key] for key in _N673_WGPU_ASSIGNMENTS}
+    assignments = (assignments - spatial_arrivals.keys()
+                   - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys()
+                   - _N673_WGPU_ASSIGNMENTS)
     assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
     assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
-    assert "spacr._starplast.PYPI_PACKAGE" in assignments
+    assert "spacr._parascape.PYPI_PACKAGE" in assignments
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
-    ) == "adb64fcaf42611b6ef69aad5c07735f04f8957bdf078448a4bc3022c1cffe335"
+    ) == "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
-           if key != "spacr._starplast.PYPI_PACKAGE")]
-    ) == "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
+           if key != "spacr._parascape.PYPI_PACKAGE")]
+    ) == "3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e"
     assert "spacr.qt.widgets.make_masks_help.ANIMATIONS" in assignments
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
            if key not in {"spacr.qt.widgets.make_masks_help.ANIMATIONS",
-                          "spacr._starplast.PYPI_PACKAGE"})]
-    ) == "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9"
+                          "spacr._parascape.PYPI_PACKAGE"})]
+    ) == "aa7adc1a4f67f506b55961f8e83c8bf091e98bda0a605a2a9fc8c3cfca141f13"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -1244,7 +1309,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 474 adds six module/class/method entries and four documented registries.
     # All ten have source-bound records in the nine locale catalogs.
     # Removing the four registry IDs reproduces the previous visible digest.
-    # Starplast contributes fourteen entries; diagram interactions add two.
+    # ParaScape contributes fourteen entries; diagram interactions add two.
     # All sixteen and the three changed entries have nine-language catalogs.
     # Removing REPOSITORY restores the prior visible-member digest exactly;
     # features/data/411_external_app_api_2026-09-22.json records the audit.
@@ -1383,25 +1448,415 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-07: +1/-0, the nested Preferences background picker:
     # _build_the_dialog._pick_ambient_background. Exact source/prose delta
     # retains every prior contract; all nine normal catalogs carry its review.
-    expected = 13_215
-    import json
+    # 2026-10-10 item 684: +3/-0, MainWindow.snap_window,
+    # AmbientWidget.set_click_ripples and the nested Preferences helper
+    # _build_the_dialog._density_follows_theme; all nine API catalogs were
+    # regenerated with tools/build_documentation_i18n.py first.
+    # 2026-10-15 item 700: +0/-28, the first-run setup drops its AI-assistant
+    # and GitHub sign-in pages. Retired: the cli_setup_panel module with
+    # CliSetupPanel and its nine members (cancel, copy_command, done, install,
+    # is_busy, shutdown, sign_in, sign_in_failed, tool_label); the
+    # provider_marks module with ProviderMark and its six members (event,
+    # is_chosen, mousePressEvent, paintEvent, set_chosen, sizeHint), claude_path, gemini_path, github_path, gpt_path, mark_for
+    # and the nested _parse_svg_path.num, _svg_arc.ang and _svg_arc.pt; and
+    # SetupSlides.provider_status. Nothing added.
+    # 2026-10-19: +0/-1, FoldButton.paintEvent retired: the verdict dot is a
+    # native paint layer, so a field frame no longer re-enters Python for it.
+    # (AiToggleLabel.paintEvent, also retired, was a 2026-10-15 arrival.)
+    # 2026-10-19 item 600: -14 with ChannelSortDialog and RegexWindow
+    # (spacr.qt.widgets.channel_sort_dialog) deleted.
+    expected = 13_175
     worker_arrivals = json.loads((Path(__file__).resolve().parent
-        / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
+        / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
     assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(home_ui_arrivals) == 10
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
     hidden_close = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts"
-        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text(encoding="utf-8"))["API_arrivals"]
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
-    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) - len(builder.API_DOC_ALIASES)
+    # 2026-10-10, items 672/673: the editable 3D gate volume and the native
+    # 3D Make Masks session arrive as one exact contract of 32 documented
+    # symbols (EditableVolumeGate and its members, VolumeAnchor,
+    # GateCanvas.volume_surface_at, VolumeMaskSession and its members,
+    # load_volume_image_and_mask, save_volume_mask,
+    # MakeMasksScreen.open_volume and three nested geometry helpers).
+    volume_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
+    assert len(volume_arrivals) == 32
+    assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    assert not volume_arrivals.keys() & (
+        worker_arrivals.keys() | home_ui_arrivals.keys())
+    # 2026-10-11 item 685: the four model-zoo helpers of 9d48eefa6
+    # (default_version_index, hf_repo_of, is_alternative, is_spacr_owned) are
+    # one named arrival contract; all nine API catalogs were regenerated first.
+    zoo_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(zoo_arrivals) == 4
+    assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
+    # 2026-10-11 item 690: the TEM readers and pixel size (spacr.io), the
+    # pixel_size_nm (mask_engine) and the TEM test data
+    # loaders (make_masks_demo) are one named arrival contract.
+    tem_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "690_tem_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(tem_arrivals) == 10
+    assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
+    assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
+    # 2026-10-11 item 691: MitoNet's weights, post-processing and runner and
+    # the Third-party test in spacr.model_zoo are one named arrival contract.
+    mitonet_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(mitonet_arrivals) == 4
+    assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
+    assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
+    drawing_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(drawing_arrivals) == 8
+    assert {key: docs[key] for key in drawing_arrivals} == drawing_arrivals
+    assert not drawing_arrivals.keys() & (zoo_arrivals.keys() | volume_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **drawing_arrivals}
+    apply_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(apply_arrivals) == 8
+    assert {key: docs[key] for key in apply_arrivals} == apply_arrivals
+    assert not apply_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **apply_arrivals}
+    a11y_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(a11y_arrivals) == 15
+    assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
+    assert not a11y_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
+    in_container_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(in_container_arrivals) == 2
+    assert {key: docs[key] for key in in_container_arrivals} == in_container_arrivals
+    assert not in_container_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **in_container_arrivals}
+    export_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "693_export_settings_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(export_arrivals) == 3
+    assert {key: docs[key] for key in export_arrivals} == export_arrivals
+    assert not export_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    response_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "144_regression_response_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(response_arrivals) == 3
+    assert {key: docs[key] for key in response_arrivals} == response_arrivals
+    assert not response_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **response_arrivals}
+    splash_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(splash_arrivals) == 21
+    assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
+    assert not splash_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
+    sequence_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(sequence_arrivals) == 5
+    assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
+    assert not sequence_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}
+    tutorial_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"]
+    assert len(tutorial_arrivals) == 3
+    assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
+    assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
+    # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
+    model_card_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "model_cards_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(model_card_arrivals) == 27
+    assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
+    assert not model_card_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
+    debounce_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(debounce_arrivals) == 4
+    assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
+    assert not debounce_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
+    # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
+    warm_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(warm_arrivals) == 1
+    assert {key: docs[key] for key in warm_arrivals} == warm_arrivals
+    assert not warm_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **warm_arrivals}
+    # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
+    quit_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(quit_arrivals) == 3
+    assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
+    assert not quit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
+    # 2026-10-14: Item 700 client: anonymised error reports through spaCR's relay, the first-run notice and the hosted AI provider; one named contract.
+    client700_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text(encoding="utf-8"))
+    assert len(client700_arrivals) == 55
+    assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
+    assert not client700_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **client700_arrivals}
+    # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
+    s700_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(s700_arrivals) == 20
+    assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
+    assert not s700_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
+    # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
+    n673_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(n673_arrivals) == 8
+    assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
+    assert not n673_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
+    # 2026-10-16: Item 673 speed follow-up: GPU volume renderer, render scale, surface finishes, magnifier cube and True 3D render settings; one named contract.
+    n673g_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert len(n673g_arrivals) == 23
+    assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
+    assert not n673g_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
+    # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
+    n673w_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert len(n673w_arrivals) == 20
+    assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
+    assert not n673w_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
+    demo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_embedding_demo_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert set(demo_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.work",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_demo_crops.finished",
+    }
+    assert {key: docs[key] for key in demo_arrivals} == demo_arrivals
+    assert not demo_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **demo_arrivals}
+    measure_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "705_volume_measure_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert set(measure_arrivals) == {
+        "spacr.measure._write_volume_measurements.write",
+        "spacr.measure.measure_volume_rows",
+        "spacr.measure.measure_volume_rows.report",
+        "spacr.qt.screens.make_masks.MakeMasksScreen._start_volume_measurement.measure",
+        "spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog",
+        *("spacr.qt.widgets.organize_for_measure.MeasureVolumeDialog." + name
+          for name in ("accept", "add_channel", "add_row", "remove_row", "requests")),
+    }
+    assert {key: docs[key] for key in measure_arrivals} == measure_arrivals
+    assert not measure_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **measure_arrivals}
+    # 2026-10-17: Item 706: the Object detection 3D switch's volume Cellpose call and whole-volume label replacement; one named contract.
+    detect3d_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "706_object_detection_3d_api_arrivals_2026-10-17.json").read_text(encoding="utf-8"))
+    assert set(detect3d_arrivals) == {
+        "spacr.qt.mask_engine.VolumeMaskSession.replace_labels",
+        "spacr.qt.screens.make_masks.cellpose_detect_volume",
+    }
+    assert {key: docs[key] for key in detect3d_arrivals} == detect3d_arrivals
+    assert not detect3d_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **detect3d_arrivals}
+    # 2026-10-17: Item 560 DINOv2 drop-in: the annotated cell example's download, read and finish helpers; one named contract.
+    dino_drop_in_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_dinov2_drop_in_api_arrivals_2026-10-17.json").read_text(encoding="utf-8"))
+    assert set(dino_drop_in_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._load_cell_example.fetched",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.work",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._read_cell_example.finished",
+    }
+    assert {key: docs[key] for key in dino_drop_in_arrivals} == dino_drop_in_arrivals
+    assert not dino_drop_in_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dino_drop_in_arrivals}
+    # 2026-10-18: Item 560 Cell-DINO checkpoint picker: the dialog's installed-checkpoint helper; one named contract.
+    cell_dino_picker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "560_cell_dino_checkpoints_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert set(cell_dino_picker_arrivals) == {
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.use_installed",
+    }
+    assert {key: docs[key] for key in cell_dino_picker_arrivals} == cell_dino_picker_arrivals
+    assert not cell_dino_picker_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cell_dino_picker_arrivals}
+    # 2026-10-17: Item 703: background update staging, the native update/uninstall helpers and the Preferences uninstall entry; one named contract.
+    n703_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "703_background_update_and_uninstall_api_arrivals_2026-10-17.json").read_text(encoding="utf-8"))
+    assert len(n703_arrivals) == 17
+    assert {key: docs[key] for key in n703_arrivals} == n703_arrivals
+    assert not n703_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n703_arrivals}
+    lineage_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "708_label_time_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert set(lineage_arrivals) == {
+        *("spacr.qt.mask_engine." + name for name in (
+            "assign_lineage_label", "assign_object_label", "assign_tracked_object",
+            "divide_lineage_cell", "load_mask_lineage", "load_mask_metadata",
+            "merge_lineage_states", "new_lineage_cell", "prune_lineage_frame",
+            "rename_lineage_cell", "restore_lineage_state", "validate_lineage")),
+        "spacr.qt.screens.make_masks.MakeMasksScreen._prepare_label_assignment.commit",
+    }
+    assert {key: docs[key] for key in lineage_arrivals} == lineage_arrivals
+    assert not lineage_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **lineage_arrivals}
+    # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
+    s370_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(s370_arrivals) == 3
+    assert {key: docs[key] for key in s370_arrivals} == s370_arrivals
+    assert not s370_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **s370_arrivals}
+    # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
+    note_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "install_cleanup_note_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
+    assert len(note_arrivals) == 1
+    assert {key: docs[key] for key in note_arrivals} == note_arrivals
+    assert not note_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **note_arrivals}
+    # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
+    thread_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "thread_retire_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(thread_arrivals) == 3
+    assert {key: docs[key] for key in thread_arrivals} == thread_arrivals
+    assert not thread_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thread_arrivals}
+    # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
+    dna_rain_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(dna_rain_arrivals) == 1
+    assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
+    assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(launcher_arrivals) == 3
+    assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
+    assert not launcher_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
+    ssh_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "699_ssh_connection_worker_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
+    assert len(ssh_arrivals) == 1
+    assert {key: docs[key] for key in ssh_arrivals} == ssh_arrivals
+    assert not ssh_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **ssh_arrivals}
+    late_reviewed_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "reviewed_api_surface_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    # 2026-10-19: 19, AiToggleLabel.paintEvent retired (native focus layer).
+    assert len(late_reviewed_arrivals) == 19
+    assert {key: docs[key] for key in late_reviewed_arrivals} == (
+        late_reviewed_arrivals
+    )
+    assert not late_reviewed_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **late_reviewed_arrivals}
+    classifier_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "561_classifier_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(classifier_arrivals) == 19
+    assert {key: docs[key] for key in classifier_arrivals} == classifier_arrivals
+    assert not classifier_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **classifier_arrivals}
+    figure_workspace_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "180_session_figure_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(figure_workspace_arrivals) == 2
+    assert {key: docs[key] for key in figure_workspace_arrivals} == (
+        figure_workspace_arrivals
+    )
+    assert not figure_workspace_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **figure_workspace_arrivals}
+    # 2026-10-18 item 712: the timelapse test movies' download, folder and
+    # loader in make_masks_demo and the archive checksum pin in
+    # example_archives; one named contract.
+    timelapse_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "712_timelapse_test_data_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert set(timelapse_arrivals) == {
+        "spacr.example_archives.check_archive_sha256",
+        *("spacr.qt.make_masks_demo." + name for name in (
+            "download_timelapse_example", "load_the_timelapse_test_data",
+            "timelapse_example_folder")),
+    }
+    assert {key: docs[key] for key in timelapse_arrivals} == timelapse_arrivals
+    assert not timelapse_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **timelapse_arrivals}
+    help_changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
+    help_arrivals = help_changes["added"]
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        "spacr.qt.screens.regression.HitsOpener.press",
+    }
+    assert {key: docs[key] for key in help_arrivals} == help_arrivals
+    assert not help_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    publication_key = "spacr.qt.screens.regression.open_publication_figure"
+    assert help_changes["changed"] == {publication_key: {
+        "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+        "after": docs[publication_key],
+    }}
+    assert docs[publication_key].startswith(
+        help_changes["changed"][publication_key]["before"] + "\n\n")
+    zoo_arrivals = {**zoo_arrivals, **help_arrivals}
+    approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert set(approval_preferences_arrivals) == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert {key: docs[key] for key in approval_preferences_arrivals} == (
+        approval_preferences_arrivals
+    )
+    assert not approval_preferences_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
+    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -1449,7 +1904,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_175
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1511,7 +1966,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monke
 
     # THE DOT IS LOAD-BEARING. `spacr.qt.tutorial` is the ignored PACKAGE;
     # `spacr.qt.tutorials` is a different, rendered module beside it -- the
-    # four-function lookup a screen uses to find its lesson. A bare
+    # lookup a screen and spacr-tutorial use to find a lesson. A bare
     # startswith("spacr.qt.tutorial") catches the sibling by prefix and
     # reports a rendered public module as a boundary leak.
     assert not any(
@@ -1790,7 +2245,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monke
     # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,390,
     # post-filter 10,931 -> 11,166, boundary 224 -> 224. Both halves moved
     # by exactly 235, so every arrival is rendered.
-    # The sixteen Starplast/diagram additions occur on both sides; the
+    # The sixteen ParaScape/diagram additions occur on both sides; the
     # independently measured non-rendered boundary remains 224.
     # The nine ruler entries are rendered; the excluded set is unchanged.
     # Re-measured both sides on 2026-09-23: 11,740 before filtering and
@@ -1805,8 +2260,15 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monke
     with monkeypatch.context() as unfiltered:
         unfiltered.setattr(builder, '_is_rendered_autoapi_entry', lambda *args, **kwargs: True)
         raw = builder.public_docstrings()
+    # 2026-10-12: 224 -> 211. The spacr.qt.tutorial bucket fell from 16 to
+    # 3 (the package, its __main__ and main) when the still-frame renderer
+    # was deleted; spacr-tutorial now opens the online lessons.
     assert set(docs) <= set(raw)
-    assert len(set(raw) - set(docs)) == 224
+    assert len(set(raw) - set(docs)) == 211
+    assert sorted(key for key in set(raw) - set(docs)
+                  if key.startswith("spacr.qt.tutorial")) == [
+        "spacr.qt.tutorial", "spacr.qt.tutorial.__main__",
+        "spacr.qt.tutorial.__main__.main"]
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
@@ -1831,6 +2293,7 @@ def test_documented_dunders_exclude_init_private_and_package_forwarders():
         "spacr.qt.dialogs.detach_all_dialogs._Filter.__init__",
         "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.__init__",
         "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__",
+        "spacr.embeddings._dino_classifier_from_config.Classifier.__init__",
         "spacr.embeddings._dino_network.Head.__init__",
         "spacr.embeddings._mil_fit._Attention.__init__",
         "spacr.embeddings._subcell_model.Pooled.__init__",
@@ -1883,14 +2346,37 @@ class FromNew:
 
 def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     docs = builder.public_docstrings()
-    assignment_keys = _visible_assignment_docs()
+    # F534's six documented constants are the named arrival contract.
+    assignment_keys = (_visible_assignment_docs()
+                       - _spatial_arrivals().keys())
 
-    # Four organism registries, Starplast's URL/package identity and the
+    # Four organism registries, ParaScape's URL/package identity and the
     # Make Masks animation registry add seven to the original sixteen; the
     # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
     # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
-    # live_preview.BOUND_ROWS (2026-09-26).
-    assert len(assignment_keys) == 35
+    # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
+    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13);
+    # 46 with the nine wgpu backend constants of item 673 (2026-10-16), which
+    # arrive through their dated contract.
+    assert _N696_ASSIGNMENT_ARRIVALS.keys() <= assignment_keys
+    assert {key: docs[key] for key in _N696_ASSIGNMENT_ARRIVALS} == (
+        _N696_ASSIGNMENT_ARRIVALS
+    )
+    wgpu_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    wgpu_assignments = {
+        "spacr.doctor.WGPU_MACHINES", "spacr.doctor.WGPU_MIN_PYTHON",
+        "spacr.install_profile.NO_WGPU_OVERRIDE",
+        "spacr.install_profile.NO_WGPU_OVERRIDE_NAME",
+        "spacr.layers.GPU_RENDER_OFF_ENV", "spacr.layers.WGPU_BACKENDS",
+        "spacr.qt.screens.make_masks.VOLUME_BACKENDS",
+        "spacr.qt.screens.make_masks.VOLUME_BACKEND_API",
+        "spacr.qt.screens.make_masks.VOLUME_WGPU_BACKENDS",
+    }
+    assert wgpu_assignments == assignment_keys & wgpu_arrivals.keys()
+    assert {key: docs[key] for key in wgpu_assignments} == {
+        key: wgpu_arrivals[key] for key in wgpu_assignments}
+    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 46
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

@@ -13,17 +13,19 @@ import logging
 import os
 import sys
 import threading
+from . import _after
 
 from . import timing as _timing
 import traceback
 from typing import Dict, List, Optional, Tuple
 
-from PySide6.QtCore import (QEvent, QObject, Qt,
+from PySide6.QtCore import (QEvent, QObject, QSize, Qt,
                             QThread, Signal)
 from PySide6.QtGui import (QAction, QColor, QIcon, QKeySequence,
                            QPalette)
 from PySide6.QtWidgets import (
     QApplication,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -32,6 +34,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
+    QScrollArea,
     QStackedWidget,
     QStatusBar,
     QToolButton,
@@ -53,12 +56,15 @@ LOG = logging.getLogger(__name__)
 
 _OPEN_FRESH = [False]
 
+_MAIN_WINDOW_MINIMUM = (1200, 640)
+_MAIN_WINDOW_OPENING = (1200, 720)
+
 #: Published documentation root. `docs/source/conf.py` copies everything in
 #: `docs/source/_extra/` verbatim into the site root (`html_extra_path`), so
 #: `docs/source/_extra/tutorials/index.html` publishes at `<root>/tutorials/`
 #: — plural. The Help menu pointed at the singular `/tutorial/` for its whole
-#: life, which is a 404: no page has ever been served from that path, and
-#: `spacr/qt/tutorial/` (the local MP4 renderer) is an unrelated module.
+#: life, which is a 404: no page has ever been served from that path.
+#: `spacr-tutorial` (`spacr/qt/tutorial/`) opens this same library.
 DOCS_BASE_URL = "https://einarolafsson.github.io/spacr"
 DOCS_URL = f"{DOCS_BASE_URL}/index.html"
 TUTORIALS_URL = f"{DOCS_BASE_URL}/tutorials/"
@@ -194,6 +200,172 @@ def _open_at_the_measured_width(window) -> bool:
         return False
 
 
+def _fit_to_the_work_area(window, screen=None, lower_minimum=True) -> bool:
+    """Fit ``window`` inside its screen's work area and say whether it moved.
+
+    The work area excludes the taskbar, dock and panels, about 1280 x 680 on
+    a 1280 x 720 display. A larger minimum is lowered unless
+    ``lower_minimum`` is False, a larger window shrinks, a placed window
+    moves back on screen, and a maximised, full-screen or unplaced window
+    keeps its place.
+    """
+    try:
+        if screen is None:
+            screen = window.screen()
+        if screen is None:
+            return False
+        work = screen.availableGeometry()
+        if work.isEmpty():
+            return False
+        frame = window.frameGeometry()
+        inner = window.geometry()
+        border_w = max(0, frame.width() - inner.width())
+        border_h = max(0, frame.height() - inner.height())
+        room = work.size()
+        room.setWidth(max(1, room.width() - border_w))
+        room.setHeight(max(1, room.height() - border_h))
+        if lower_minimum:
+            window.setMinimumSize(window.minimumSize().boundedTo(room))
+        if window.isMaximized() or window.isFullScreen():
+            return False
+        size = inner.size().boundedTo(room)
+        changed = size != inner.size()
+        if changed:
+            window.resize(size)
+        placed = (window.isVisible()
+                  or window.testAttribute(Qt.WidgetAttribute.WA_Moved))
+        if placed:
+            width, height = size.width() + border_w, size.height() + border_h
+            x = max(work.left(), min(frame.x(), work.right() + 1 - width))
+            y = max(work.top(), min(frame.y(), work.bottom() + 1 - height))
+            if (x, y) != (frame.x(), frame.y()):
+                window.move(x, y)
+                changed = True
+        return changed
+    except Exception:
+        LOG.debug("could not fit the window to its screen", exc_info=True)
+        return False
+
+
+_ROOMY_SCREEN = (1500, 900)
+
+_CRAMPED_SCREENS = frozenset({
+    "batch", "data_manager", "dose_response", "foreign", "gate_editor",
+    "graph_builder", "investigate_hit", "plate_view", "power", "profiler",
+    "tabulate", "train_compare",
+})
+
+
+class _CrampedScroll(QScrollArea):
+    """A module screen's content, which scrolls only on a small screen.
+
+    At :data:`_ROOMY_SCREEN` logical pixels or more the content is laid out
+    in exactly the screen's rectangle, as it was before it was wrapped.
+    Smaller, it keeps at least its minimum size and scrolls, so a 1280 x 720
+    display reaches every control instead of squeezing them out of sight.
+    """
+
+    def __init__(self, content: QWidget, parent: QWidget):
+        """Hold ``content`` inside ``parent`` with no frame or background."""
+        super().__init__(parent)
+        self.setObjectName("CrampedScreenScroll")
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        self.setWidgetResizable(False)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.viewport().setAutoFillBackground(False)
+        self.setAutoFillBackground(False)
+        content.setAutoFillBackground(False)
+        self.setWidget(content)
+        self._fit_pending = False
+
+    def resizeEvent(self, event) -> None:
+        """Lay the content out again for the new size."""
+        super().resizeEvent(event)
+        self._fit_content()
+
+    def eventFilter(self, watched, event) -> bool:
+        """Refit when the content's minimum changes."""
+        if (watched is self.widget()
+                and event.type() == QEvent.Type.LayoutRequest):
+            self._queue_fit()
+        return super().eventFilter(watched, event)
+
+    def _queue_fit(self) -> None:
+        """Refit on the next turn of the event loop, once."""
+        if not self._fit_pending:
+            self._fit_pending = True
+            _after(0, self, self._fit_content)
+
+    def _fit_content(self) -> None:
+        """Fill the screen, or keep the content's minimum and scroll."""
+        self._fit_pending = False
+        content = self.widget()
+        if content is None:
+            return
+        size = self.size()
+        if (size.width() >= _ROOMY_SCREEN[0]
+                and size.height() >= _ROOMY_SCREEN[1]):
+            off = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            self.setHorizontalScrollBarPolicy(off)
+            self.setVerticalScrollBarPolicy(off)
+            if content.size() != size:
+                content.resize(size)
+            return
+        need = content.minimumSizeHint().expandedTo(content.minimumSize())
+        bar = self.verticalScrollBar().sizeHint().width()
+        width, height = size.width(), size.height()
+        tall = need.height() > height
+        wide = need.width() > width - (bar if tall else 0)
+        tall = tall or need.height() > height - (bar if wide else 0)
+        room_w = width - (bar if tall else 0)
+        room_h = height - (bar if wide else 0)
+        as_needed = Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        off = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        self.setHorizontalScrollBarPolicy(as_needed if wide else off)
+        self.setVerticalScrollBarPolicy(as_needed if tall else off)
+        target = QSize(max(room_w, need.width()), max(room_h, need.height()))
+        if content.size() != target:
+            content.resize(target)
+
+
+def _scroll_when_cramped(screen: QWidget) -> bool:
+    """Move ``screen``'s layout into a :class:`_CrampedScroll` inside it."""
+    layout = screen.layout()
+    if layout is None or screen.findChild(_CrampedScroll) is not None:
+        return False
+    content = QWidget()
+    content.setObjectName("CrampedScreenContent")
+    content.setLayout(layout)
+    outer = QVBoxLayout(screen)
+    outer.setContentsMargins(0, 0, 0, 0)
+    outer.setSpacing(0)
+    outer.addWidget(_CrampedScroll(content, screen))
+    return True
+
+
+def _show_at_launch(window) -> None:
+    """Show the main window the way it opens at startup.
+
+    Borderless (the default, item 695) it is maximised: it fills the work
+    area of its screen -- the available geometry, without the taskbar, dock
+    or panels -- in one window that is not in full-screen mode, and Restore
+    returns it to the size it opened at. A minimum size larger than that
+    work area is lowered to fit it. Framed, it is shown at the size it
+    opened at, as before.
+
+    :param window: the main window, built and not yet shown.
+    """
+    _fit_to_the_work_area(window)
+    if not window._borderless:
+        window.show()
+    else:
+        window.showMaximized()
+    follow = getattr(window, "_follow_the_work_area", None)
+    if follow is not None:
+        follow()
+
+
 def install_the_spaceout_fractal(screen) -> bool:
     """Put the spaceout fractal behind ``screen``, if this is spaceout.
 
@@ -327,6 +499,8 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
         if event.button() != Qt.MouseButton.LeftButton:
             return False
+        if not getattr(self._window, "_borderless", True):
+            return False
         try:
             if watched.actionAt(event.position().toPoint()) is not None:
                 return False
@@ -429,8 +603,9 @@ class _PipelinePreloader:
     single 1408 ms freeze -- 94% of it in the two modules that pull torch,
     and no amount of yielding breaks up one 2.3-second import. On a worker
     thread the same 4.2 seconds gives 224 ticks and a longest freeze of
-    185 ms, which is the GIL during a C-extension import and is not
-    avoidable by any threading.
+    185 ms, which is the GIL during a C-extension import. The largest of
+    those, PyTorch mapping its own libraries, is taken out of the lock
+    first (:func:`spacr.qt.gil_priority._open_torch_libraries`).
 
     The original docstring's reason for staying on the GUI thread was
     concurrent Qt/CUDA/OpenGL initialisation. That is answered by
@@ -487,7 +662,7 @@ class _PipelinePreloader:
         self._thread = threading.Thread(
             target=self._work, name="spacr-preload", daemon=True)
         self._thread.start()
-        self._poll = QTimer()
+        self._poll = QTimer(QApplication.instance())
         self._poll.setInterval(40)
         self._poll.timeout.connect(self._drain)
         self._poll.start()
@@ -496,6 +671,10 @@ class _PipelinePreloader:
         """Import every module, one at a time, holding the heavy lock."""
         import importlib
 
+        from .gil_priority import _open_torch_libraries
+
+        with HEAVY_IMPORT_LOCK:
+            _open_torch_libraries()
         for module in self._MODULES:
             try:
                 with HEAVY_IMPORT_LOCK:
@@ -518,8 +697,10 @@ class _PipelinePreloader:
         if not self._done.is_set():
             return
         if self._poll is not None:
-            self._poll.stop()
-            self._poll = None
+            poll, self._poll = self._poll, None
+            poll.stop()
+            poll.deleteLater()
+            del poll
         if self._on_done is not None:
             try:
                 self._on_done()
@@ -731,7 +912,7 @@ _META_TARGETS: Tuple[Tuple[str, str, str], ...] = (
 def registered_metadata(field: str) -> dict:
     """``{app key: value}`` for one :data:`APP_META` field, empty ones dropped.
 
-    The PULL half of the seam. A side table calls this at the end of its
+    The pull half of the seam. A side table calls this at the end of its
     own import to absorb every app that registered before it existed::
 
         _app = sys.modules.get("spacr.qt.app")
@@ -982,8 +1163,11 @@ def register_app(key: str, name: str, desc: str, section: str, *,
         screen that has signals to connect — and is given whichever of
         the two it accepts. Omit it and the app gets the generic
         settings-driven ``AppScreen``, like every pipeline module.
-    :param stage: optional :data:`STAGES` member. Omitted means stable,
-        which is also what deleting the entry later means.
+    :param stage: optional :data:`STAGES` member. If omitted, no explicit
+        stage entry is written. Missing entries read as stable until
+        :func:`spacr.qt.maturity.apply` assigns alpha to unassessed apps
+        without a declaration. Already affirmed stable apps remain stable.
+        Omitting or deleting an entry is not a stability assessment.
     :param title: header shown at the top of the app's own screen.
         Defaults to ``name``; give it only when the screen wants the
         longer form ("Illumination Correction" over a tile that reads
@@ -1090,8 +1274,8 @@ def registered_factory(key: str):
     callable, and this is where the stand-in ends: asking for the factory
     imports the screen and returns the module's own function.
 
-    That is deliberate, and it is what makes laziness invisible to everything
-    downstream. :func:`_call_screen_factory` decides whether to pass
+    Code downstream of this function therefore never sees the stand-in.
+    :func:`_call_screen_factory` decides whether to pass
     ``app_key`` and ``host`` by reading the factory's signature, and a
     stand-in's signature is its own, not the real one's; a test that asserts
     the registered factory ``is`` the module's function would likewise be
@@ -1197,7 +1381,7 @@ STAGES = (STAGE_ALPHA, STAGE_BETA, STAGE_STABLE)
 #: Signing an app off is deleting its line here. Nothing else moves: the
 #: app is already filed under what it does.
 APP_STAGE = {
-    "classify_merged": STAGE_ALPHA,
+
     "align":           STAGE_ALPHA,
     "convert":         STAGE_ALPHA,
     "foreign":         STAGE_ALPHA,
@@ -1226,7 +1410,7 @@ for _row in _BUILTIN_APPS:
         register_app(
             *_row,
             factory=LazyScreenFactory("spacr.qt.screens.organism_screen", "OrganismScreen"),
-            stage=STAGE_ALPHA,
+            stage=STAGE_STABLE if _row[0] == "toxoplasma" else STAGE_ALPHA,
             cli_note="Open the organism page in the spaCR GUI; run its assays by their module keys.",
             api_module="qt/screens/organism_screen")
     else:
@@ -1366,16 +1550,14 @@ _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
 def dock_rows() -> List[Tuple[str, str, str, str]]:
     """The dock's TOP-LEVEL rows: Home's tiles, then Help, in that order.
 
-    ONE RULE: a row is a dock host if, and only if, Home draws a tile for
+    A row is a dock host if, and only if, Home draws a tile for
     it. Everything else in the registry reaches the dock as an indented
     child under its fold host, or under one of the Help modules, and
     nothing appears twice.
 
-    THIS USED TO RETURN ALL OF :data:`APPS`, and the result was a dock that
-    did not match the Home screen: modules belonging to Help sat outside it,
-    and modules that should have been nested under a host were listed flat.
-    The dock is meant to mimic the screen module
-    tiles ... everything else is nested and in help dropdown."
+    The rows therefore match the Home screen: modules that belong to Help
+    are listed under Help, and a module folded into a host is nested under
+    that host instead of being listed at the top level.
 
     Measured before the change: 36 top-level dock rows against 19 Home
     tiles, and NINE keys drawn twice -- ``convert``, ``external_masks``,
@@ -1392,13 +1574,13 @@ def dock_rows() -> List[Tuple[str, str, str, str]]:
     already encodes below -- 330's note records one bug from a duplicated
     list and the retired-section map records another.
 
-    WHY HELP IS NOT A REAL SECTION: see :data:`SECTION_HELP`. A section is
+    Help is not a section (see :data:`SECTION_HELP`). A section is
     Home's categorisation and every Help module is tileless, so Help would
     be a tab with nothing on it. The dock has no such constraint.
 
     The dock walks these rows in order and starts a new heading whenever
-    the section changes, so grouping IS ordering here -- a row out of place
-    draws its heading a second time.
+    the section changes, so rows of one section must be adjacent: a row out
+    of place draws its heading a second time.
     """
     helpers = {row[0] for row in _HELP_MODULES}
     tiles = {row[0] for row in tiled_apps()}
@@ -1419,11 +1601,11 @@ def app_is_visible(key: str) -> bool:
     packaging and headless callers. If preferences cannot be read, preserve
     the historical all-modules-visible behaviour.
 
-    NOT A TILE CHECK. This answers "is the user allowed to reach this
-    module", which is the maturity preference and nothing else. A folded
-    module is still reachable -- from its host's button, from Help, and
-    from the command palette -- so it is still VISIBLE; it just has no
-    tile. Use :func:`tiled_apps` for the tile question.
+    This is not a tile check. It answers whether the user may reach this
+    module, which depends only on the maturity preference. A folded module
+    is still reachable -- from its host's button, from Help, and from the
+    command palette -- so it is visible here although it has no tile. Use
+    :func:`tiled_apps` to ask whether a module has a tile.
 
     This function did briefly answer both, and the command palette is
     what caught it: filtering :data:`TILELESS_APPS` out here took nine
@@ -1489,10 +1671,9 @@ _EXTRA_FOLD_HOSTS: Tuple[str, ...] = (
 def folded_children() -> Dict[str, Tuple[str, ...]]:
     """``host key -> the module keys folded onto its masthead``.
 
-    ONE MAPPING, read from the hosts themselves, so the dock, the menu
-    bar and the fold strips cannot disagree about what belongs where.
-    Each host declares its own `FOLDED_APPS`; that tuple is the truth
-    and this only collects them.
+    One mapping, read from the hosts themselves, so the dock, the menu
+    bar and the fold strips use the same assignment. Each host declares
+    its own `FOLDED_APPS`; this function only collects those tuples.
 
     The dock and the spaCR menu both draw the nested structure from this,
     showing a folded module one level below the host it belongs to.
@@ -1708,8 +1889,8 @@ def tiled_apps(
 ) -> List[Tuple[str, str, str, str]]:
     """The ``APPS`` rows that get a TILE, in registry order.
 
-    ``APPS`` is what EXISTS; this is what Home DRAWS. The two stopped
-    being the same thing when modules began folding into hosts -- a
+    ``APPS`` lists every registered app; this lists the apps Home draws
+    a tile for. The two differ because modules fold into hosts -- a
     folded module keeps its registry row (it still has a screen, an
     icon, a section and a key to navigate to) and loses only its tile,
     because it is now reached from a button on its host or from the Help
@@ -1754,10 +1935,10 @@ def section_members(
 ) -> List[Tuple[str, str, str, str]]:
     """The ``APPS`` rows a category's tab shows, in registry order.
 
-    TILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what
-    its label COUNTS, so a module with no tile must be out of both --
-    otherwise the label reads "Results & QC (7)" over three tiles, which
-    is a count of something the user cannot see.
+    Apps without a tile are not members. The result is what the tab
+    draws and what its label counts, so a module with no tile is left
+    out of both; otherwise the label would read "Results & QC (7)" over
+    three tiles.
 
     An explicit ``apps`` list is filtered too. A caller passing its own
     rows is asking "which of these belong to this section", and a
@@ -1867,18 +2048,14 @@ def _icon_for_app(key: str) -> Optional[QIcon]:
 class Sidebar(Dock):
     """The application's navigation dock.
 
-    The behaviour lives in :class:`spacr.qt.widgets.dock.Dock`, rewritten on
-    2026-09-03 after four rounds of fixes to the old one had not settled it.
-    This is only the binding to the registry, and it keeps the old NAME
+    The behaviour lives in :class:`spacr.qt.widgets.dock.Dock`. This class
+    only binds it to the registry, and it keeps the name ``Sidebar``
     because the theme's ``#Sidebar`` rules, the tutorial highlighter, the
     home-variant generators and the tests all reach the dock by it.
 
-    What used to be here was 1,095 lines of ``_DockRow`` and ``Sidebar``:
-    a translucent slab painted in ``paintEvent`` (the "black box" four
-    commits chased), a per-row icon-size model that relaid the column out
-    under the pointer, a name drawn only while hovered, and a folded second
-    level with its own expand state. See the module docstring of
-    :mod:`spacr.qt.widgets.dock` for what replaced each one.
+    The module docstring of :mod:`spacr.qt.widgets.dock` lists the parts of
+    the earlier ``_DockRow``/``Sidebar`` implementation and what replaced
+    each one.
 
     :param parent: parent widget; ownership only.
     """
@@ -1931,6 +2108,7 @@ CHROME_PAD = 0.18
 CHROME_HOVER = {
     "CloseWindow": "#DC3C3C",
     "FullScreenToggle": "#3C82DC",
+    "MaximiseWindow": "#3C82DC",
     "MinimiseWindow": "#3C82DC",
 }
 
@@ -2627,13 +2805,19 @@ def _say_where_the_paint_diagnostic_went(window, screen, files) -> None:
 
 
 def _opened_module_screen(window, requested: str, host: str):
-    """Return the requested form, including OPS inside its Mask Generation host."""
-    screen = getattr(window, "_screens", {}).get(host)
-    if requested == "ops" and screen is not None:
-        from .screens.mask import ops_page
+    """Return the requested form, including a page fold inside its host.
 
-        installed = ops_page(screen)
-        return installed.page if installed else None
+    OPS and the spatial submodules open as pages on their host's page strip
+    (:func:`spacr.qt.screens.map_barcodes.page_fold_host`), so asking for one
+    of them answers with that page, or None while it is not open.
+    """
+    screen = getattr(window, "_screens", {}).get(host)
+    if screen is not None and requested != host:
+        from .screens.map_barcodes import page_fold, page_fold_host
+
+        if page_fold_host(requested) == host:
+            installed = page_fold(screen, requested)
+            return installed.page if installed else None
     return screen
 
 
@@ -2765,6 +2949,10 @@ class _ScreenPrewarm(QObject):
             return "modal"
         if getattr(self._window, "_opening_a_screen", False):
             return "opening"
+        from .widgets.loading_screen import blow_away_running
+
+        if blow_away_running():
+            return "startup animation"
         return ""
 
     def _slice(self) -> None:
@@ -2823,6 +3011,49 @@ def _time_monotonic() -> float:
 
 
 
+def _a_modal_dialog_is_open() -> bool:
+    """Whether a modal dialog is open in this application right now.
+
+    Asks Qt directly rather than through this module's ``QApplication``
+    name, which tests replace with stand-ins.
+
+    :returns: ``True`` while a modal dialog is open.
+    """
+    from PySide6.QtWidgets import QApplication as _Application
+
+    return _Application.activeModalWidget() is not None
+
+
+def _end_the_event_loop(app) -> None:
+    """End the session after the main window accepted its close.
+
+    On macOS ``quit()`` asks Cocoa to terminate. When a termination is
+    already under way -- Dock Quit, logging out, an Apple Event -- Cocoa
+    closes the main window, this runs inside it, and the second terminate
+    makes AppKit call ``exit()`` while Python still runs: PySide then
+    crashes in its static destructors (seen on every such quit on
+    2026-10-19). ``exit(0)`` only leaves the event loop, so ``exec`` returns
+    and Python shuts down normally, once however often this is reached.
+    Other platforms keep ``quit()``.
+
+    :param app: the application.
+    """
+    leave = getattr(app, "exit", None) if sys.platform == "darwin" else None
+    if leave is None:
+        app.quit()
+        return
+    if getattr(app, "_spacr_leaving", False):
+        return
+    try:
+        app._spacr_leaving = True
+    except AttributeError:
+        pass
+    close_all = getattr(app, "closeAllWindows", None)
+    if close_all is not None:
+        close_all()
+    leave(0)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -2861,11 +3092,18 @@ class MainWindow(QMainWindow):
         self.setPalette(startup_palette)
         self.setAutoFillBackground(True)
         self.setWindowTitle("spaCR")
-        self.setMinimumSize(1200, 720)
-        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, True)
+        self.setMinimumSize(*_MAIN_WINDOW_MINIMUM)
+        self.resize(*_MAIN_WINDOW_OPENING)
+        from .preferences import get_borderless_window
+
+        self._borderless = get_borderless_window()
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, self._borderless)
 
         self._build_menu_bar()
         self._install_fullscreen_button()
+        if not self._borderless:
+            for button in self._frame_marks():
+                button.hide()
 
         self._stack = QStackedWidget()
         self._stack.currentChanged.connect(
@@ -2950,6 +3188,8 @@ class MainWindow(QMainWindow):
 
 
         from PySide6.QtCore import QTimer
+        self._startup_deferred = []
+        self._blowing_cover = None
         self._loading_screen = self._install_loading_screen()
         self._preloader = _PipelinePreloader(
             on_step=self._on_preload_step, on_done=self._on_preload_done)
@@ -2959,11 +3199,16 @@ class MainWindow(QMainWindow):
         if get_preload_policy() != "eager":
             self._preloader = None
             if self._loading_screen is not None:
-                try:
-                    self._loading_screen.close()
-                except Exception:                            # noqa: BLE001
-                    pass
-                self._loading_screen = None
+                from .widgets.loading_screen import will_blow_away
+
+                if will_blow_away(self._loading_screen):
+                    _after(0, self, self._on_preload_done)
+                else:
+                    try:
+                        self._loading_screen.close()
+                    except Exception:                        # noqa: BLE001
+                        pass
+                    self._loading_screen = None
         elif self._loading_screen is None:
             QTimer.singleShot(1500, self._preloader.start)
         else:
@@ -2998,25 +3243,80 @@ class MainWindow(QMainWindow):
             from PySide6.QtCore import QTimer
 
             from .first_run import maybe_show_tour
-            from .install_consent import maybe_show_installer_consent
+            from .install_consent import (maybe_show_anonymous_report_notice,
+                                          maybe_show_installer_consent)
             from .preferences import in_safe_mode
             self._tour_timer = QTimer(self)
             self._tour_timer.setSingleShot(True)
             self._tour_timer.timeout.connect(
-                lambda: maybe_show_tour(self))
+                lambda: self._after_the_startup_sequence(
+                    lambda: maybe_show_tour(self)))
             self._consent_timer = QTimer(self)
             self._consent_timer.setSingleShot(True)
 
             def _finish_installer_onboarding():
-                """Show the installer consent, then start the tour after it closes."""
-                maybe_show_installer_consent(self)
-                self._tour_timer.start(500)
+                """Show installer consent, optional cache review, report notice and tour.
 
-            self._consent_timer.timeout.connect(_finish_installer_onboarding)
+                Background cache inspection finishes before the choices open.
+                The tour waits for the anonymised-report notice to close.
+                """
+                maybe_show_installer_consent(self)
+                self._maybe_offer_installation_cache_review()
+
+            self._consent_timer.timeout.connect(
+                lambda: self._after_the_startup_sequence(
+                    _finish_installer_onboarding))
             if not in_safe_mode():
                 self._consent_timer.start(250)
         except Exception:
             pass
+
+    def _startup_sequence_running(self) -> bool:
+        """Whether the startup logo sequence still covers the window.
+
+        True while a cover that will blow its mosaic away is waiting for
+        loading to end, or is holding and blowing away. False when the
+        sequence is off (preference, Reduce motion, SPACR_NO_SPLASH, the
+        offscreen platform), skipped, or finished.
+        """
+        from shiboken6 import isValid
+
+        from .widgets.loading_screen import will_blow_away
+
+        cover = getattr(self, "_blowing_cover", None)
+        if cover is not None:
+            if isValid(cover) and cover._state != "done":
+                return True
+            self._blowing_cover = None
+        screen = getattr(self, "_loading_screen", None)
+        return screen is not None and isValid(screen) and will_blow_away(screen)
+
+    def _after_the_startup_sequence(self, action) -> None:
+        """Run ``action`` now, or when the startup sequence has ended.
+
+        Dialogs and popups scheduled at launch go through here so none opens
+        over the logo. Deferred actions run in the order they were handed in,
+        when the sequence finishes or a click or key skips it. With the
+        sequence off the action runs at once, at the time it always did.
+
+        :param action: a zero-argument callable that opens the dialog.
+        """
+        if self._startup_sequence_running():
+            self._startup_deferred.append(action)
+            return
+        action()
+
+    def _release_the_startup_dialogs(self) -> None:
+        """Open, in order, every dialog held back by the startup sequence."""
+        self._blowing_cover = None
+        held, self._startup_deferred = self._startup_deferred, []
+        for action in held:
+            if self._closing:
+                return
+            try:
+                action()
+            except Exception:                                # noqa: BLE001
+                LOG.exception("a held startup dialog failed")
 
     def _install_loading_screen(self):
         """Cover the window with a loading screen when a display is active.
@@ -3029,9 +3329,12 @@ class MainWindow(QMainWindow):
             app = QApplication.instance()
             if app is not None and app.platformName() == "offscreen":
                 return None
-            from .widgets.loading_screen import LoadingScreen
+            from .widgets.loading_screen import (LoadingScreen,
+                                                 mosaic_splash_wanted)
             screen = LoadingScreen(parent=self)
             screen.setGeometry(self.rect())
+            if mosaic_splash_wanted():
+                screen.show_mosaic()
             screen.raise_()
             screen.show()
             return screen
@@ -3052,26 +3355,36 @@ class MainWindow(QMainWindow):
             self._loading_screen = None
 
     def _on_preload_done(self) -> None:
-        """Take the loading screen down and hand the window over."""
+        """Take the loading screen down and hand the window over.
+
+        A cover showing the photomosaic blows it away and takes itself down
+        when the last tile has gone; any other cover is hidden at once.
+        """
         screen = getattr(self, "_loading_screen", None)
         self._loading_screen = None
         if screen is None:
             return
+        from .widgets.loading_screen import will_blow_away
+
         try:
+            if will_blow_away(screen) and screen.blow_away(
+                    self._release_the_startup_dialogs):
+                self._blowing_cover = screen
+                return
             screen.hide()
             screen.deleteLater()
         except RuntimeError:
             pass
+        self._release_the_startup_dialogs()
 
     def resizeEvent(self, event):
         """Keep the loading screen covering the whole window, and erase the
         menu bar's old band.
 
-        EVERY RESIZE, not only a state change. Dragging an edge moves the
-        corner buttons without changing the window state, so `changeEvent`
-        never fires -- and the marks are redrawn at their new x over the
-        old ones. That is the "sometimes" in the report: it is not
-        intermittent, it is every resize that is not a fullscreen toggle.
+        This runs on every resize, not only on a state change. Dragging an
+        edge moves the corner buttons without changing the window state, so
+        `changeEvent` does not fire, and without this the marks would be
+        redrawn at their new x over the old ones.
 
         :param event: the resize event, passed to the base class; the new
             geometry is read from the window itself.
@@ -3122,6 +3435,14 @@ class MainWindow(QMainWindow):
         minimise.clicked.connect(self.showMinimized)
         row.addWidget(minimise)
         self._minimise_button = minimise
+
+        maximise = _ChromeButton(corner, self._maximise_mark,
+                                 CHROME_HOVER["MaximiseWindow"])
+        maximise.setObjectName("MaximiseWindow")
+        maximise.setToolTip(tr("Maximise, or restore the size before"))
+        maximise.clicked.connect(self._toggle_maximised)
+        row.addWidget(maximise)
+        self._maximise_button = maximise
 
         button = _ChromeButton(corner, self._fullscreen_icon,
                                CHROME_HOVER["FullScreenToggle"])
@@ -3217,6 +3538,80 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     @staticmethod
+    def _maximise_icon(size: int = CHROME_ICON_PX, colour=None,
+                       restore: bool = False):
+        """A square, or two overlapping squares when it restores.
+
+        :param size: the box, in pixels.
+        :param colour: the mark's colour; grey when ``None``.
+        :param restore: draw the restore mark, for a maximised window.
+        """
+        from PySide6.QtCore import QPointF, QRectF
+        from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
+
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
+        pen.setWidthF(size * CHROME_PEN)
+        painter.setPen(pen)
+        pad = size * CHROME_PAD
+        span = size - 2.0 * pad
+        if restore:
+            step = span * 0.25
+            painter.drawPolyline([QPointF(pad + step, pad + step),
+                                  QPointF(pad + step, pad),
+                                  QPointF(pad + span, pad),
+                                  QPointF(pad + span, pad + span - step),
+                                  QPointF(pad + span - step, pad + span - step)])
+            painter.drawRect(QRectF(pad, pad + step, span - step, span - step))
+        else:
+            painter.drawRect(QRectF(pad, pad, span, span))
+        painter.end()
+        return QIcon(pixmap)
+
+    def _maximise_mark(self, size: int = CHROME_ICON_PX, colour=None):
+        """The maximise mark for the window's state now.
+
+        :param size: the box, in pixels.
+        :param colour: the mark's colour; grey when ``None``.
+        :returns: the restore mark while the window is maximised.
+        """
+        return self._maximise_icon(size, colour, restore=self.isMaximized())
+
+    def _frame_marks(self):
+        """The marks a platform frame also has: minimise, maximise, close."""
+        return (self._minimise_button, self._maximise_button,
+                self._close_button)
+
+    def _set_borderless(self, on: bool) -> None:
+        """Switch between the borderless window and a framed one; remembered.
+
+        Borderless, the menu bar is the title bar and its marks minimise,
+        maximise and close the window. Framed, the platform's frame does
+        that, so those marks are hidden and the bar no longer drags or
+        resizes; the full-screen mark stays. The window keeps its state.
+
+        :param on: ``True`` for borderless.
+        """
+        from .preferences import set_borderless_window
+
+        on = bool(on)
+        set_borderless_window(on)
+        self._borderless = on
+        for button in self._frame_marks():
+            button.setVisible(on)
+        if bool(self.windowFlags() & Qt.WindowType.FramelessWindowHint) == on:
+            return
+        state = self.windowState()
+        shown = self.isVisible()
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, on)
+        if shown:
+            self.setWindowState(state)
+            self.show()
+
+    @staticmethod
     def _fullscreen_icon(size: int = CHROME_ICON_PX, colour=None):
         """The four-corner expand mark, drawn rather than shipped."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
@@ -3250,7 +3645,8 @@ class MainWindow(QMainWindow):
             otherwise ``False``.
         """
         try:
-            bar = self.menuBar() if not self.isFullScreen() else None
+            bar = (self.menuBar() if not self.isFullScreen()
+                   and getattr(self, "_borderless", True) else None)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the menu bar could not be asked for during an event",
                       exc_info=True)
@@ -3259,11 +3655,7 @@ class MainWindow(QMainWindow):
             kind = event.type()
             if (kind == QEvent.Type.MouseButtonDblClick
                     and event.button() == Qt.MouseButton.LeftButton):
-                minimum = getattr(self, "_snap_minimum", None)
-                if minimum is not None:
-                    self.setMinimumSize(minimum)
-                    self._snap_minimum = None
-                self.showNormal() if self.isMaximized() else self.showMaximized()
+                self._toggle_maximised()
                 return True
             if (kind == QEvent.Type.MouseButtonPress
                     and event.button() == Qt.MouseButton.LeftButton
@@ -3273,10 +3665,7 @@ class MainWindow(QMainWindow):
                 minimum = getattr(self, "_snap_minimum", None)
                 if self.isMaximized() or minimum is not None:
                     fraction = event.position().x() / max(1, self.width())
-                    self.showNormal()
-                    if minimum is not None:
-                        self.setMinimumSize(minimum)
-                        self._snap_minimum = None
+                    self._leave_snap()
                     self.move(event.globalPosition().toPoint().x()
                               - int(self.width() * fraction),
                               event.globalPosition().toPoint().y()
@@ -3304,8 +3693,10 @@ class MainWindow(QMainWindow):
     def _snap_to_screen_edge(self, point) -> bool:
         """Snap a completed title drag to the screen containing ``point``.
 
-        The top enters fullscreen; the other three edges use halves of the
-        available desktop. Ordinary releases leave the window where it is.
+        The top maximises to the work area, the sides take halves and the
+        bottom takes the lower half (:meth:`snap_window`). Full screen is not
+        a drag target; it stays on F11, the corner mark and the Window menu.
+        Ordinary releases leave the window where it is.
 
         :param point: released pointer position in global logical pixels.
         :returns: whether an edge target was applied.
@@ -3316,59 +3707,198 @@ class MainWindow(QMainWindow):
         desktop = screen.availableGeometry()
         if not desktop.adjusted(-12, -12, 12, 12).contains(point):
             return False
-        edge = None
-        target = desktop.__class__(desktop)
+        direction = None
         if point.y() <= desktop.top() + 12:
-            edge = "top"
-            minimum = getattr(self, "_snap_minimum", None)
-            if minimum is not None:
-                self.setMinimumSize(minimum)
-                self._snap_minimum = None
-            self.showFullScreen()
+            direction = "up"
         elif point.x() <= desktop.left() + 12:
-            edge = "left"
-            target.setWidth(desktop.width() // 2)
+            direction = "left"
         elif point.x() >= desktop.right() - 12:
-            edge = "right"
-            target.setLeft(desktop.left() + desktop.width() // 2)
+            direction = "right"
         elif point.y() >= desktop.bottom() - 12:
-            edge = "bottom"
-            target.setTop(desktop.top() + desktop.height() // 2)
-        if edge is None:
+            direction = "down"
+        if direction is None:
             from .widgets.ambient import field_ripple_for_widget
 
             field_ripple_for_widget(self)
             return False
-        if edge != "top":
-            self.showNormal()
-            if getattr(self, "_snap_minimum", None) is None:
-                self._snap_minimum = self.minimumSize()
-            minimum = self._snap_minimum
-            self.setMinimumSize(min(minimum.width(), target.width()),
-                                min(minimum.height(), target.height()))
-            self.setGeometry(target)
-        if edge != "top":
-            from .widgets.ambient import field_ripple_for_widget
+        return self.snap_window(direction, screen=screen)
 
-            field_ripple_for_widget(self, edge=edge)
-        return True
+    _SNAP_RIPPLE_EDGES = {"left": "left", "right": "right",
+                          "up": "top", "down": "bottom"}
 
-    def toggle_fullscreen(self, *_args) -> bool:
-        """Enter or leave true fullscreen. Returns whether it is now full."""
+    def snap_window(self, edge, screen=None) -> bool:
+        """Snap the window to one side of a screen's work area.
+
+        ``"up"`` maximises (the platform's own maximised state, inside the
+        work area that excludes the taskbar, dock or panels); ``"left"`` and
+        ``"right"`` take the left or right half and ``"down"`` the lower half
+        of :meth:`QScreen.availableGeometry`. Full screen is a separate
+        state (:meth:`toggle_fullscreen`) and is left first if it is on.
+        Work areas are in logical pixels, so display scaling is Qt's.
+
+        The size before the first snap is kept in ``_snap_restore`` and comes
+        back when the window is dragged off its tile or restored.
+
+        On Wayland a client cannot place its own top-level window: the half
+        tiles are applied as a size and the compositor decides the position,
+        so they report ``False``. Maximising is a state request every
+        compositor honours. Dragging the title bar on Wayland goes through
+        ``startSystemMove`` and the compositor's own snapping instead.
+
+        :param edge: ``"left"``, ``"right"``, ``"up"`` or ``"down"``.
+        :param screen: the screen to snap on; defaults to the window's own.
+        :returns: whether the requested geometry was applied.
+        """
+        ripple = self._SNAP_RIPPLE_EDGES.get(edge)
+        if ripple is None:
+            return False
+        if screen is None:
+            screen = self.screen()
+        if screen is None:
+            return False
+        desktop = screen.availableGeometry()
+        if desktop.isEmpty():
+            return False
+        if getattr(self, "_snap_restore", None) is None:
+            if self.isFullScreen() or self.isMaximized():
+                before = self.normalGeometry()
+            else:
+                before = self.geometry()
+            self._snap_restore = before if before.isValid() else None
         if self.isFullScreen():
             self.showNormal()
+        if ripple == "top":
+            minimum = getattr(self, "_snap_minimum", None)
+            if minimum is not None:
+                self.setMinimumSize(minimum)
+                self._snap_minimum = None
+            already = self.isMaximized()
+            if not already:
+                current = self.screen()
+                if current is not None and current is not screen:
+                    self.move(desktop.topLeft())
+                self.showMaximized()
+            else:
+                from .widgets.ambient import field_ripple_for_widget
+
+                field_ripple_for_widget(self, edge=ripple)
+            return self.isMaximized()
+        target = desktop.__class__(desktop)
+        if ripple == "left":
+            target.setWidth(desktop.width() // 2)
+        elif ripple == "right":
+            target.setLeft(desktop.left() + desktop.width() // 2)
+        else:
+            target.setTop(desktop.top() + desktop.height() // 2)
+        if self.isMaximized():
+            self.showNormal()
+        if getattr(self, "_snap_minimum", None) is None:
+            self._snap_minimum = self.minimumSize()
+        minimum = self._snap_minimum
+        self.setMinimumSize(min(minimum.width(), target.width()),
+                            min(minimum.height(), target.height()))
+        self.setGeometry(target)
+        from .widgets.ambient import field_ripple_for_widget
+
+        field_ripple_for_widget(self, edge=ripple)
+        if QApplication.platformName().lower().startswith("wayland"):
+            return False
+        return self.geometry() == target
+
+    def _leave_snap(self, place: bool = False) -> None:
+        """Return a maximised or tiled window to its size before the snap.
+
+        :param place: also put it back where it was. A drag passes ``False``
+            because the pointer decides where the window goes.
+        """
+        self.showNormal()
+        minimum = getattr(self, "_snap_minimum", None)
+        if minimum is not None:
+            self.setMinimumSize(minimum)
+            self._snap_minimum = None
+        restore = getattr(self, "_snap_restore", None)
+        self._snap_restore = None
+        if restore is not None and restore.isValid():
+            if place:
+                self.setGeometry(restore)
+            else:
+                self.resize(restore.size())
+        _fit_to_the_work_area(self, lower_minimum=False)
+
+    def toggle_fullscreen(self, *_args) -> bool:
+        """Enter or leave true fullscreen. Returns whether it is now full.
+
+        Leaving returns to the state before: maximised, a tile, or the
+        ordinary window. Independent of the top snap, which maximises.
+        """
+        if self.isFullScreen():
+            before = getattr(self, "_before_fullscreen", None) or (False, None, None)
+            self._before_fullscreen = None
+            maximised, geometry, minimum = before
+            if maximised:
+                self.setWindowState(
+                    (self.windowState() & ~Qt.WindowState.WindowFullScreen)
+                    | Qt.WindowState.WindowMaximized)
+                self.show()
+            else:
+                self.showNormal()
+                if minimum is not None and geometry is not None:
+                    self._snap_minimum = minimum
+                    self.setMinimumSize(min(minimum.width(), geometry.width()),
+                                        min(minimum.height(), geometry.height()))
+                if geometry is not None and geometry.isValid():
+                    self.setGeometry(geometry)
         else:
             minimum = getattr(self, "_snap_minimum", None)
+            maximised = self.isMaximized()
+            geometry = None if maximised else self.geometry()
+            self._before_fullscreen = (maximised, geometry, minimum)
             if minimum is not None:
                 self.setMinimumSize(minimum)
                 self._snap_minimum = None
             self.showFullScreen()
         return self.isFullScreen()
 
+    def _follow_the_work_area(self) -> None:
+        """Fit the window again whenever its screen or work area changes."""
+        try:
+            handle = self.windowHandle()
+            if handle is None:
+                return
+            if not getattr(self, "_follows_screen_changes", False):
+                handle.screenChanged.connect(self._on_screen_changed)
+                self._follows_screen_changes = True
+            self._watch_the_screen(handle.screen())
+        except Exception:
+            LOG.debug("could not follow the screen's work area",
+                      exc_info=True)
+
+    def _watch_the_screen(self, screen) -> None:
+        """Refit when ``screen``'s work area changes, connecting it once."""
+        if screen is None:
+            return
+        watched = getattr(self, "_watched_screens", None)
+        if watched is None:
+            watched = self._watched_screens = set()
+        if id(screen) in watched:
+            return
+        watched.add(id(screen))
+        screen.availableGeometryChanged.connect(self._on_work_area_changed)
+
+    def _on_screen_changed(self, screen) -> None:
+        """The window moved to another screen: fit it there."""
+        self._watch_the_screen(screen)
+        self._on_work_area_changed()
+
+    def _on_work_area_changed(self, *_args) -> None:
+        """Fit the window to the screen it is on, on the next turn."""
+        _after(0, self, lambda: _fit_to_the_work_area(self))
+
     def changeEvent(self, event):               # noqa: N802 - Qt naming
         """Re-lay the menu bar when the window state changes.
 
-        A menu opens where the BAR SAYS its action is. Going fullscreen
+        A menu opens at the rectangle the menu bar holds for its action.
+        Going fullscreen
         resizes the bar and its corner widget in one step, and a menu
         opened before the layout has caught up is placed against the
         previous action rectangle -- which is how pressing spaCR drops a
@@ -3385,13 +3915,17 @@ class MainWindow(QMainWindow):
         try:
             from PySide6.QtCore import QTimer
 
+            mark = getattr(self, "_maximise_button", None)
+            if mark is not None:
+                mark._show(mark._lit)
             QTimer.singleShot(0, self._relay_the_menu_bar)
             current = self.windowState()
             previous = event.oldState() if hasattr(event, "oldState") else current
-            if current & (Qt.WindowFullScreen | Qt.WindowMaximized) & ~previous:
-                from .widgets.ambient import field_ripple_for_widget
-
-                QTimer.singleShot(0, self, lambda: QTimer.singleShot(
+            ambient = sys.modules.get(f"{__package__}.widgets.ambient")
+            if (ambient is not None and current
+                    & (Qt.WindowFullScreen | Qt.WindowMaximized) & ~previous):
+                field_ripple_for_widget = ambient.field_ripple_for_widget
+                _after(0, self, lambda: _after(
                     0, self, lambda: field_ripple_for_widget(self, edge="top")
                     if not self.isMinimized() and (self.isFullScreen() or self.isMaximized())
                     else None))
@@ -3680,10 +4214,26 @@ class MainWindow(QMainWindow):
         act_about = QAction("About spaCR", self)
         act_about.triggered.connect(self._show_about)
         help_menu.addAction(act_about)
+        from .widgets.loading_screen import replay_startup_animation
+
+        act_replay = QAction(tr("Show startup animation"), self)
+        act_replay.setObjectName("ShowStartupAnimationAction")
+        act_replay.setStatusTip(tr(
+            "Play the spaCR logo and its blow-away again, inside this "
+            "window, as at startup. A click or a key skips it."))
+        act_replay.setMenuRole(QAction.MenuRole.NoRole)
+        act_replay.triggered.connect(
+            lambda _checked=False: replay_startup_animation(self))
+        help_menu.addAction(act_replay)
+        self._act_replay_startup = act_replay
         help_menu.addSeparator()
         act_update = QAction("Check for updates…", self)
         act_update.triggered.connect(self._check_for_updates)
         help_menu.addAction(act_update)
+        act_cache_review = QAction(tr("Review installation caches…"), self)
+        act_cache_review.setObjectName("ReviewInstallationCachesAction")
+        act_cache_review.triggered.connect(self._review_installation_caches)
+        help_menu.addAction(act_cache_review)
         act_whats_new = QAction(tr("What's new…"), self)
         act_whats_new.setObjectName("WhatsNewAction")
         act_whats_new.triggered.connect(lambda: self._show_whats_new(None))
@@ -3725,6 +4275,8 @@ class MainWindow(QMainWindow):
                     return (focus.undo, focus.redo,
                             focus.isUndoAvailable, focus.isRedoAvailable)
                 if inside and isinstance(focus, (QTextEdit, QPlainTextEdit)):
+                    if focus.isReadOnly():
+                        return None
                     document = focus.document()
                     return (focus.undo, focus.redo,
                             document.isUndoAvailable, document.isRedoAvailable)
@@ -3740,8 +4292,8 @@ class MainWindow(QMainWindow):
         if (getattr(screen, "_history", None) is not None
                 and getattr(screen, "_box_history", None) is not None
                 and hasattr(screen, "_on_undo") and hasattr(screen, "_on_redo")):
-            undo = getattr(screen, "_btn_undo", None)
-            redo = getattr(screen, "_btn_redo", None)
+            undo = getattr(screen, "_act_undo", None)
+            redo = getattr(screen, "_act_redo", None)
             if undo is not None and redo is not None:
                 return (screen._on_undo, screen._on_redo,
                         undo.isEnabled, redo.isEnabled)
@@ -3801,6 +4353,7 @@ class MainWindow(QMainWindow):
             return
         app_menu.insertAction(quit_action, minimise)
         app_menu.insertAction(quit_action, maximise)
+        app_menu.insertAction(quit_action, self._act_borderless)
         app_menu.insertSeparator(quit_action)
 
     def _build_window_menu(self, bar):
@@ -3861,6 +4414,39 @@ class MainWindow(QMainWindow):
         act_full.triggered.connect(self.toggle_fullscreen)
         self._act_fullscreen = act_full
         menu.addAction(act_full)
+
+        act_borderless = QAction(tr("Borderless window"), self)
+        act_borderless.setObjectName("BorderlessWindowAction")
+        act_borderless.setCheckable(True)
+        act_borderless.setChecked(getattr(self, "_borderless", True))
+        act_borderless.setStatusTip(tr(
+            "On: no title bar; spaCR opens filling the screen, and the menu "
+            "bar moves the window while its marks minimise, maximise and "
+            "close it. Off: the platform's own framed window. Remembered."))
+        act_borderless.setMenuRole(QAction.MenuRole.NoRole)
+        act_borderless.toggled.connect(self._set_borderless)
+        menu.addAction(act_borderless)
+        self._act_borderless = act_borderless
+
+        snaps = (("left", tr("Snap left"), "SnapLeftAction",
+                  tr("Fill the left half of this screen's work area.")),
+                 ("right", tr("Snap right"), "SnapRightAction",
+                  tr("Fill the right half of this screen's work area.")),
+                 ("up", tr("Snap up"), "SnapUpAction",
+                  tr("Maximise to this screen's work area. Full screen is "
+                     "separate.")),
+                 ("down", tr("Snap down"), "SnapDownAction",
+                  tr("Fill the lower half of this screen's work area.")))
+        self._act_snaps = {}
+        for edge, label, name, tip in snaps:
+            action = QAction(label, self)
+            action.setObjectName(name)
+            action.setStatusTip(tip)
+            action.setMenuRole(QAction.MenuRole.NoRole)
+            action.triggered.connect(
+                lambda _checked=False, edge=edge: self.snap_window(edge))
+            menu.addAction(action)
+            self._act_snaps[edge] = action
 
         act_jobs = QAction(tr("Jobs"), self)
         act_jobs.setObjectName("ShowJobsAction")
@@ -3931,8 +4517,16 @@ class MainWindow(QMainWindow):
         button they replace is a single control.
         """
         if self.isMaximized():
-            self.showNormal()
+            if getattr(self, "_snap_restore", None) is not None:
+                self._leave_snap(place=True)
+            else:
+                self.showNormal()
+                _fit_to_the_work_area(self, lower_minimum=False)
         else:
+            minimum = getattr(self, "_snap_minimum", None)
+            if minimum is not None:
+                self.setMinimumSize(minimum)
+                self._snap_minimum = None
             self.showMaximized()
         return self.isMaximized()
 
@@ -4182,12 +4776,18 @@ class MainWindow(QMainWindow):
         dialog carries nine tabs and a result that opened it on whichever
         one it happened to start with has answered half the question.
 
-        Found by OBJECT NAME rather than by tab index or caption. An index
-        moves whenever a tab is added, and a caption is translated -- a
+        The tab is found by object name rather than by index or caption. An
+        index moves whenever a tab is added, and a caption is translated -- a
         Korean interface would have matched nothing. Every page sets its own
         ``PreferencesTab*`` name, and ``tools/build_help_search_index.py``
         reads those same names out of this dialog's source, so the two ends
         of the hand-off are the same string by construction.
+
+        The dialog is usually built already
+        (:func:`spacr.qt.preferences._warm_the_preferences`), and the window
+        redraws after the close only when something it draws from changed:
+        the build, the first show and the unconditional redraw each held the
+        GUI thread for longer than a frame.
 
         :param tab: the page's object name, e.g. ``"PreferencesTabTheme"``;
             ``""`` opens the dialog as it opens from the menu.
@@ -4195,12 +4795,15 @@ class MainWindow(QMainWindow):
         :returns: True when the named tab was found and shown.
         """
         try:
-            from .preferences import PreferencesDialog
+            from .preferences import (PreferencesDialog,  # noqa: F401
+                                      _a_preferences_for,
+                                      _put_the_preferences_away,
+                                      _the_window_needs_refreshing)
         except Exception as e:
             self.statusBar().showMessage(
                 f"Preferences unavailable: {e}", 5000)
             return False
-        dialog = PreferencesDialog(self)
+        dialog = _a_preferences_for(self)
         found = False
         if tab:
             try:
@@ -4209,8 +4812,12 @@ class MainWindow(QMainWindow):
                 found = show_tab(dialog, tab, label)
             except Exception:
                 LOG.exception("could not open Preferences on %r", tab)
+            if label:
+                dialog._reusable = False
         dialog.exec()
-        self.refresh_theme()
+        if _the_window_needs_refreshing(dialog):
+            self.refresh_theme()
+        _put_the_preferences_away(self, dialog)
         return found
 
     def refresh_theme(self) -> None:
@@ -4276,6 +4883,57 @@ class MainWindow(QMainWindow):
         except Exception:
             LOG.debug("could not apply the alpha gate", exc_info=True)
 
+    #: What the window draws from (the names of
+    #: :data:`spacr.qt.preferences._WINDOW_SIGNATURE_NAMES`) whose change
+    #: takes the whole of :meth:`refresh_theme`: Home rebuilt, every icon
+    #: re-inked, the tree retranslated. Everything else in the signature is
+    #: drawn by the sheet, read at paint, or redrawn in place by
+    #: :meth:`refresh_after_preferences`.
+    REBUILT_FOR = frozenset({
+        "language", "theme_choice", "effective_theme", "cell_variant",
+        "backdrop_off", "font_scale", "gui_scale", "runtime_text_scale",
+        "font_weight", "show_alpha", "show_beta", "show_alpha_features",
+        "show_alpha_species", "ambient_enabled", "ambient_animation",
+        "ambient_palette", "spaceout",
+    })
+
+    def refresh_after_preferences(self, changed) -> str:
+        """Redraw what a Preferences Apply changed, and nothing else.
+
+        THE APPLY THAT CHANGED ONE SLIDER REBUILT HOME. Page opacity is in
+        the window's signature, so moving it ran :meth:`refresh_theme` --
+        Home rebuilt (2.1-2.6 s on a loaded box), the tree retranslated
+        (0.3 s), every alpha gate walked -- while the only things on Home
+        that had taken the opacity were three rules, which
+        :meth:`HomePage.refresh_pane_surfaces` sets again in place.
+
+        :param changed: names from the window's signature whose values
+            changed (:func:`spacr.qt.preferences._window_changes`).
+        :returns: ``"rebuilt"``, ``"in place"`` or ``"nothing"``, so a test
+            can say which.
+        """
+        changed = frozenset(changed)
+        if not changed:
+            return "nothing"
+        if changed & self.REBUILT_FOR:
+            self.refresh_theme()
+            return "rebuilt"
+        if changed & {"dock_mode", "dock_width"}:
+            try:
+                self.apply_dock_mode()
+                self._backdrop_the_dock_column()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not move the dock", exc_info=True)
+        if "pane_opacity" in changed:
+            refresh = getattr(getattr(self, "_startup", None),
+                              "refresh_pane_surfaces", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("Home kept its old opacity", exc_info=True)
+        return "in place"
+
     def refresh_language(self) -> None:
         """Apply the persisted language to existing static UI text."""
         try:
@@ -4286,14 +4944,14 @@ class MainWindow(QMainWindow):
 
 
     def _open_organism_module(self, key: str) -> None:
-        """Open an organism assay or its separate Starplast application.
+        """Open an organism assay or its separate ParaScape application.
 
         :param key: a module route from the organism catalogue.
         """
-        if key == 'starplast':
-            from .starplast import open_starplast
+        if key == 'parascape':
+            from .parascape import open_parascape
 
-            open_starplast(self)
+            open_parascape(self)
         else:
             self.open_module(key)
 
@@ -4313,7 +4971,7 @@ class MainWindow(QMainWindow):
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
-            action.setVisible(key == 'starplast' or app_is_visible(key))
+            action.setVisible(key == 'parascape' or app_is_visible(key))
         for key, menu in getattr(self, '_organism_menus', {}).items():
             menu.menuAction().setVisible(app_is_visible(key))
 
@@ -4339,6 +4997,9 @@ class MainWindow(QMainWindow):
         Both the network call and an accepted ``pip`` upgrade run on
         :class:`_UpdateWorker`; only dialogs and status updates run here.
         """
+        if getattr(self, "_uninstall_coordinator", None) is not None:
+            self.statusBar().showMessage(tr("An uninstall operation is already running."), 4000)
+            return
         if getattr(self, "_frozen_update_handshake", None) is not None:
             self.statusBar().showMessage(tr("An update operation is already running."), 4000)
             return
@@ -4368,6 +5029,19 @@ class MainWindow(QMainWindow):
         self._start_update_worker(
             "check", check, self._on_update_check_done)
 
+    def _prune_retained_runtime_copies(self) -> None:
+        """Keep one rollback copy of this runtime once the window is up, on a background thread.
+
+        Each update keeps the runtime it replaced (about 3 GB); this launch has confirmed the new one,
+        so older committed copies go. See :func:`spacr.install_cleanup._prune_runtime_transactions`.
+        """
+        if self._closing:
+            return
+        import threading
+
+        threading.Thread(target=_prune_retained_runtime_copies_quietly, name="spacr-runtime-prune",
+                         daemon=True).start()
+
     def _maybe_show_whats_new(self) -> None:
         """Show what changed when this launch runs a newer version than the last.
 
@@ -4385,14 +5059,18 @@ class MainWindow(QMainWindow):
         if not previous or self._closing:
             return
         if not get_refresh_news():
-            self._show_whats_new(previous)
+            self._after_the_startup_sequence(
+                lambda: self._show_whats_new(previous))
             return
         from spacr.updater import fetch_release_notes
 
         worker = _UpdateWorker("whats-new", fetch_release_notes, self)
         worker.succeeded.connect(
-            lambda releases: self._show_whats_new(previous, releases))
-        worker.failed.connect(lambda *_: self._show_whats_new(previous))
+            lambda releases: self._after_the_startup_sequence(
+                lambda: self._show_whats_new(previous, releases)))
+        worker.failed.connect(
+            lambda *_: self._after_the_startup_sequence(
+                lambda: self._show_whats_new(previous)))
         worker.finished.connect(worker.deleteLater)
         worker.start()
         self._whats_new_worker = worker
@@ -4551,7 +5229,7 @@ class MainWindow(QMainWindow):
         try:
             from spacr.updater import editable_install_location
         except ImportError as exc:
-            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=str(exc)))
+            QMessageBox.warning(self, tr("Updates"), tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(exc))))
             return
         checkout = editable_install_location()
         if checkout:
@@ -4562,10 +5240,23 @@ class MainWindow(QMainWindow):
                    "No package upgrade was performed.", path=checkout))
             return
         from .bridge import registry
-        if registry().is_busy():
+        runs = registry()
+        if runs._of_kind("analysis"):
             QMessageBox.information(
                 self, tr("Updates"),
                 tr("Finish or stop the active analyses before updating spaCR."))
+            return
+        if runs._of_kind("package_install"):
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("A package is being installed into this spaCR environment. "
+                   "Wait for it to finish before updating spaCR."))
+            return
+        if runs._of_kind("model_download"):
+            QMessageBox.information(
+                self, tr("Updates"),
+                tr("A model download is in progress. Wait for it to finish, or "
+                   "cancel it in the Jobs window, before updating spaCR."))
             return
 
         msg = (f"A new version is available.\n\n"
@@ -4647,12 +5338,12 @@ class MainWindow(QMainWindow):
                    "finishes shutting down; restart spaCR after it stops."))
 
     def _on_old_installs_found(self, records) -> None:
-        """Show what step 1 found, then run steps 2 and 3 in that order.
+        """Prepare the selected replacement without upgrading a live runtime.
 
-        Installer-made copies are removed; environments the user made are
-        offered with tick boxes. When the running spaCR is itself an
-        installer-made copy it cannot delete itself, so a helper process
-        finishes the update after this window closes.
+        Installer-made copies keep their replacement adapters. A dedicated
+        pip environment uses an authenticated shutdown handoff and preserves
+        other installations; unsupported environments are refused before any
+        package mutation.
 
         :param records: installations from
             :func:`spacr.install_cleanup.find_old_installs`.
@@ -4660,58 +5351,102 @@ class MainWindow(QMainWindow):
         if self._closing:
             LOG.debug("Discarding the old-install list during shutdown")
             return
-        from spacr import install_cleanup, updater
+        from spacr import install_cleanup
 
         records = list(records or ())
-        ticked = ()
-        online_macos = install_cleanup._macos_online_update_record(records) is not None
-        if not online_macos and any(
-                r.kind == "installer" or (r.kind == "environment" and not r.running)
-                for r in records):
-            ticked = self._confirm_old_installs(records)
-            if ticked is None:
-                return
         version = getattr(self, "_update_version", None) or ""
-        if any(r.kind == "installer" and r.running for r in records):
-            plan = install_cleanup.start_update_helper(
-                records, version, ticked=ticked)
-            if not plan.get("command"):
-                QMessageBox.warning(
-                    self, "Updates",
-                    tr("Upgrade unavailable: {error}",
-                       error=self._removal_reason_text(
-                           str(plan.get("error")))))
-                return
-            if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1"} and plan.get("handshake"):
-                from PySide6.QtCore import QTimer
-
-                self._frozen_update_plan = plan
-                try:
-                    self._frozen_update_handshake = install_cleanup._FrozenUpdateHandshake(plan)
-                except Exception as error:
-                    QMessageBox.warning(
-                        self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
-                    return
-                self._frozen_update_timer = QTimer(self)
-                self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
-                self._frozen_update_timer.start(250)
-                self._poll_frozen_update()
-                return
-            QMessageBox.information(
-                self, "Updates",
-                tr("spaCR will close, remove the older copies, install "
-                   "{version} and start again.", version=version))
-            self.close()
-            return
         self._start_update_worker(
-            "upgrade",
-            lambda: install_cleanup.run_update_sequence(
-                lambda: updater.run_pip_upgrade(target_version=version),
-                records=records, ticked=ticked),
-            self._on_update_sequence_done)
+            "prepare", lambda: install_cleanup.start_update_helper(
+                records, version, ticked=()), self._on_update_plan_prepared)
+
+    def _on_update_plan_prepared(self, plan):
+        """Handle a prepared update plan on the GUI thread.
+
+        :param plan: Result of the owned background preparation operation.
+        """
+        from spacr import install_cleanup
+
+        if self._closing:
+            if plan.get("handshake"):
+                try:
+                    handshake_type = (install_cleanup._WindowsPipHandshake
+                                      if plan.get("adapter") in {"pip-private-windows-v1", "windows-online-uv-v1", "windows-frozen-nsis-v1"}
+                                      else install_cleanup._FrozenUpdateHandshake)
+                    handshake_type(plan).cancel()
+                except Exception:
+                    LOG.exception("Could not disarm a late update plan; no shutdown approval was issued")
+            return
+        version = str(plan.get("version") or "")
+        if not plan.get("command"):
+            QMessageBox.warning(
+                self, "Updates",
+                tr("Upgrade unavailable: {error}",
+                   error=self._removal_reason_text(
+                       str(plan.get("error")))))
+            return
+        if plan.get("adapter") in {"macos-frozen-v1", "macos-online-uv-v1", "windows-online-uv-v1", "pip-private-posix-v1", "pip-private-windows-v1", "linux-deb-v1", "windows-frozen-nsis-v1"} and (plan.get("handshake") or plan.get("adapter") == "windows-frozen-nsis-v1"):
+            from PySide6.QtCore import QTimer
+            from PySide6.QtWidgets import QProgressDialog
+
+            self._frozen_update_plan = plan
+            try:
+                handshake_type = (install_cleanup._WindowsPipHandshake
+                                  if plan.get("adapter") in {"pip-private-windows-v1", "windows-online-uv-v1", "windows-frozen-nsis-v1"}
+                                  else install_cleanup._FrozenUpdateHandshake)
+                self._frozen_update_handshake = handshake_type(plan)
+            except Exception as error:
+                QMessageBox.warning(
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
+                return
+            self._frozen_update_timer = QTimer(self)
+            self._frozen_update_timer.timeout.connect(self._poll_frozen_update)
+            self._frozen_update_timer.start(250)
+            self._update_progress = QProgressDialog(
+                tr("Preparing spaCR {version}…", version=version), tr("Cancel"), 0, 0, self)
+            self._update_progress.setWindowTitle(tr("Updates"))
+            self._update_progress.setWindowModality(Qt.NonModal)
+            self._update_progress.setAutoClose(False)
+            self._update_progress.canceled.connect(self._cancel_frozen_update)
+            self._update_progress.show()
+            self._poll_frozen_update()
+            return
+        QMessageBox.warning(
+            self, tr("Updates"),
+            tr("This installation cannot stage a verified update. Nothing was changed."))
+        return
+
+    def _hide_update_progress(self):
+        """Close progress without treating verified readiness as cancellation."""
+        progress = getattr(self, "_update_progress", None)
+        if progress is not None:
+            progress.blockSignals(True)
+            progress.close()
+            progress.deleteLater()
+            self._update_progress = None
+
+    def _save_pip_update_restart(self):
+        """Preserve current module settings before approving update activation."""
+        from spacr import restart_state
+
+        try:
+            screen = self._stack.currentWidget()
+            module = str(getattr(screen, "app_key", "") or "__home__")
+            model = getattr(screen, "_settings_model", None)
+            settings = model.collect() if model is not None else {}
+            saved = restart_state.save(module=module, settings=settings)
+        except Exception:
+            saved = None
+        if saved is None:
+            QMessageBox.warning(
+                self, tr("Updates"),
+                tr("The current settings could not be saved. The update was cancelled and this window will stay open."))
+            return False
+        self._frozen_update_restart_saved = True
+        return True
 
     def _cancel_frozen_update(self):
         """Disarm preparation before an ordinary close, cancellation or refusal."""
+        self._hide_update_progress()
         handshake = getattr(self, "_frozen_update_handshake", None)
         timer = getattr(self, "_frozen_update_timer", None)
         if timer is not None:
@@ -4723,6 +5458,11 @@ class MainWindow(QMainWindow):
                 LOG.exception("Could not publish update cancellation; no shutdown approval was issued")
         self._frozen_update_handshake = None
         self._frozen_update_plan = None
+        if getattr(self, "_frozen_update_restart_saved", False):
+            from spacr import restart_state
+
+            restart_state.discard()
+            self._frozen_update_restart_saved = False
 
     def _poll_frozen_update(self):
         """Keep the GUI alive until verified staging, then approve only accepted closure."""
@@ -4738,22 +5478,34 @@ class MainWindow(QMainWindow):
                 return
             if status["state"] == "error":
                 raise RuntimeError(status["error"])
+            if _a_modal_dialog_is_open():
+                return
             self._frozen_update_timer.stop()
-            if self._frozen_update_plan.get("adapter") == "macos-online-uv-v1":
-                message = tr(
-                    "This will reinstall spaCR in its current environment. "
-                    "spaCR will close before the update starts. "
-                    "It will reopen automatically after the update succeeds.")
-            else:
-                message = tr("spaCR will close, remove the older copies, install "
-                             "{version} and start again.",
-                             version=self._frozen_update_plan["version"])
-            answer = QMessageBox.information(
-                self, "Updates", message, QMessageBox.Ok | QMessageBox.Cancel)
+            self._hide_update_progress()
+            message = tr(
+                "spaCR {version} is ready. Restart to use the update. "
+                "Your data and caches will be kept.",
+                version=self._frozen_update_plan["version"])
+            from PySide6.QtCore import QTimer
+
+            keep_alive = QTimer()
+            keep_alive.setInterval(30000)
+            report = getattr(handshake, "progress", None)
+            if callable(report):
+                keep_alive.timeout.connect(report)
+                keep_alive.start()
+            try:
+                answer = self._confirm_update_restart(message)
+            finally:
+                keep_alive.stop()
+                keep_alive.deleteLater()
             if answer != QMessageBox.Ok or self._closing:
                 self._cancel_frozen_update()
                 return
             handshake.check()
+            if not self._save_pip_update_restart():
+                self._cancel_frozen_update()
+                return
             self._frozen_update_closing = True
             try:
                 accepted = self.close()
@@ -4764,13 +5516,22 @@ class MainWindow(QMainWindow):
                 return
             self._frozen_update_handshake = None
             self._frozen_update_plan = None
+            self._frozen_update_restart_saved = False
         except Exception as error:
             self._cancel_frozen_update()
             if self._closing:
                 LOG.exception("Frozen update shutdown approval failed; the installed app is retained")
             else:
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
+
+    def _confirm_update_restart(self, message):
+        """Offer an explicit Restart action only after update preparation succeeds."""
+        box = QMessageBox(QMessageBox.Information, tr("Updates"), message,
+                          QMessageBox.Ok | QMessageBox.Cancel, self)
+        box.button(QMessageBox.Ok).setText(tr("Restart"))
+        box.setDefaultButton(QMessageBox.Cancel)
+        return box.exec()
 
     def _confirm_old_installs(self, records):
         """List the copies an update removes, with a tick box per environment.
@@ -4859,6 +5620,10 @@ class MainWindow(QMainWindow):
             return tr("needs administrator rights; run: {command}",
                       command=why[len(prefix):])
         reasons = {
+            "This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed.":
+                tr("This environment needs its package manager; spaCR cannot replace it safely. Nothing was changed."),
+            "The running spaCR is newer than the requested release. Nothing was changed.":
+                tr("The running spaCR is newer than the requested release. Nothing was changed."),
             "needs administrator rights; delete it as an administrator":
                 tr("needs administrator rights; delete it as an "
                    "administrator"),
@@ -4884,6 +5649,20 @@ class MainWindow(QMainWindow):
                 tr("no Python outside the installation could be found to "
                    "finish the update; run the new installer instead"),
         }
+        marker = "Traceback (most recent call last):"
+        if marker in why:
+            from pathlib import Path
+            sentence = why.split(marker, 1)[0].rstrip().rstrip(":").strip()
+            last = next((line.strip() for line in reversed(why.splitlines()) if line.strip()), "")
+            cause = last.split(": ", 1)[1] if ": " in last and last.split(": ", 1)[0].endswith(("Error", "Exception")) else last
+            summary = ": ".join(part for part in (sentence, cause) if part)
+            LOG.warning("Update failed:\n%s", why)
+            report = Path.home() / ".spacr" / "logs" / "update.log"
+            if not report.is_file():
+                from spacr.logging_util import log_path
+
+                report = log_path()
+            return tr("{summary}\n\nThe full report is in {path}.", summary=summary, path=str(report))
         return reasons.get(why, why)
 
     def _on_update_worker_failed(self, operation: str, details: str) -> None:
@@ -4930,10 +5709,9 @@ class MainWindow(QMainWindow):
             event.ignore()
             self._closing = False
             return
-        from .screens.app_screen import AppScreen
         seen_screens = set()
         for screen in list(getattr(self, "_screens", {}).values()):
-            if not isinstance(screen, AppScreen) or id(screen) in seen_screens:
+            if not isinstance(screen, QWidget) or id(screen) in seen_screens:
                 continue
             seen_screens.add(id(screen))
             try:
@@ -4957,7 +5735,19 @@ class MainWindow(QMainWindow):
             except Exception as error:
                 self._cancel_frozen_update()
                 QMessageBox.warning(
-                    self, "Updates", tr("Upgrade unavailable: {error}", error=str(error)))
+                    self, "Updates", tr("Upgrade unavailable: {error}", error=self._removal_reason_text(str(error))))
+                event.ignore()
+                self._closing = False
+                return
+        approve_uninstall = getattr(self, "_approve_uninstall_close", None)
+        if approve_uninstall is not None:
+            try:
+                if approve_uninstall() is not True:
+                    event.ignore()
+                    self._closing = False
+                    return
+            except Exception as error:
+                QMessageBox.warning(self, tr("Uninstall stopped"), str(error))
                 event.ignore()
                 self._closing = False
                 return
@@ -4974,14 +5764,244 @@ class MainWindow(QMainWindow):
         if event.isAccepted():
             app = QApplication.instance()
             if app is not None:
-                app.quit()
+                _end_the_event_loop(app)
 
     _UPDATE_WORKER_WAIT_MS = 5000
+
+    def _continue_installer_onboarding(self):
+        """Show the report notice after cache review, then resume the tour timer."""
+        if self._closing:
+            return
+        from .install_consent import maybe_show_anonymous_report_notice
+
+        notice = maybe_show_anonymous_report_notice(self)
+        if notice is None:
+            self._tour_timer.start(500)
+        else:
+            notice.finished.connect(self._resume_the_tour)
+
+    def _resume_the_tour(self, _result=None) -> None:
+        """Start the tour once the anonymous-report notice has closed.
+
+        A bound method rather than a lambda, so Qt drops the connection if
+        this window goes before the notice does.
+
+        :param _result: the notice's dialog result; unused.
+        """
+        self._tour_timer.start(500)
+
+    def _maybe_offer_installation_cache_review(self):
+        """Offer default-off cache choices once per installed release/profile.
+
+        Frozen packages and installer-profile environments qualify. Source
+        checkouts without an installer profile proceed directly to onboarding.
+        A failed preview is not recorded as reviewed. The Help action remains
+        available after keeping files or reviewing the current release.
+        """
+        from spacr.install_profile import read_profile
+        from .install_consent import _settings
+
+        profile = read_profile()
+        if not getattr(sys, "frozen", False) and not profile:
+            self._continue_installer_onboarding()
+            return
+        version = self._resolve_version()
+        if not version or version == "dev":
+            self._continue_installer_onboarding()
+            return
+        token = version + "|" + str((profile or {}).get("created_utc", ""))
+        store = _settings()
+        if (store.value("installer/cache_reviewed_install", "") == token
+                or getattr(self, "_cache_cleanup_busy", False)):
+            self._continue_installer_onboarding()
+            return
+        self._cache_cleanup_install_token = token
+        self._cache_cleanup_after = self._continue_installer_onboarding
+        self._review_installation_caches()
+
+    def _finish_cache_cleanup_review(self, reviewed=False):
+        """Release review state and continue startup after the dialog closes.
+
+        :param reviewed: Whether the prepared choices were actually displayed.
+        """
+        self._cache_cleanup_busy = False
+        self._cache_cleanup_guard = None
+        token = getattr(self, "_cache_cleanup_install_token", None)
+        self._cache_cleanup_install_token = None
+        after = getattr(self, "_cache_cleanup_after", None)
+        self._cache_cleanup_after = None
+        if self._closing:
+            return
+        if reviewed and token:
+            from .install_consent import _settings
+
+            store = _settings()
+            store.setValue("installer/cache_reviewed_install", token)
+            store.sync()
+        if after is not None:
+            after()
+
+    def _review_installation_caches(self):
+        """Prepare a fresh manual cache review without inspecting files on the GUI thread."""
+        if self._closing:
+            return
+        if getattr(self, "_cache_cleanup_busy", False):
+            self.statusBar().showMessage(tr("A cache review is already running."), 4000)
+            return
+        from contextlib import contextmanager
+        import uuid
+
+        @contextmanager
+        def guard(paths):
+            """Hold the application's run lock and refuse registered active work.
+
+            :param paths: Independently derived candidate cache directories.
+            :yields: ``None`` while application-local cleanup is allowed, or
+                the existing cache refusal. This does not prove other processes idle.
+            """
+            from pathlib import Path
+            from spacr import run_journal
+
+            with run_journal._ACTIVE_RUNS_LOCK:
+                refusal = next((reason for path in paths
+                                if (reason := run_journal._cache_refusal(Path(path)))), None)
+                yield refusal
+
+        operation = uuid.uuid4().hex
+        self._cache_cleanup_guard = guard
+        self._cache_cleanup_busy = True
+
+        def prepare():
+            """Inspect the fresh operation's caches inside the background worker.
+
+            :returns: Immutable preview with the live application-local run guard.
+            """
+            from spacr import install_cleanup
+
+            return install_cleanup.preview_optional_cleanup(operation, guard=guard)
+
+        self._start_cache_cleanup_worker("preview", prepare)
+
+    def _start_cache_cleanup_worker(self, operation, fn):
+        """Retain one preview or selected-cache action until its worker finishes.
+
+        :param operation: ``preview`` or ``apply`` for the manual review.
+        :param fn: Zero-argument background operation; never a GUI callable.
+        """
+        self._cache_cleanup_result = None
+        self._cache_cleanup_error = None
+        worker = _UpdateWorker(operation, fn, self)
+        self._cache_cleanup_worker = worker
+        worker.succeeded.connect(self._on_cache_cleanup_succeeded)
+        worker.failed.connect(self._on_cache_cleanup_failed)
+        worker.finished.connect(self._on_cache_cleanup_finished)
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+
+    def _on_cache_cleanup_succeeded(self, result):
+        """Store a worker result until its thread has actually finished.
+
+        :param result: Immutable preview or selected-cache outcome.
+        """
+        if self.sender() is getattr(self, "_cache_cleanup_worker", None):
+            self._cache_cleanup_result = result
+
+    def _on_cache_cleanup_failed(self, operation, details):
+        """Keep failure diagnostics until the worker can be safely retired.
+
+        :param operation: Background preview or apply operation name.
+        :param details: Diagnostic traceback retained in the application log.
+        """
+        if self.sender() is getattr(self, "_cache_cleanup_worker", None):
+            self._cache_cleanup_error = details
+            LOG.error("Cache review %s failed:\n%s", operation, details)
+
+    def _on_cache_cleanup_finished(self):
+        """Retire the worker before opening a dialog or starting the next phase."""
+        worker = self.sender()
+        if worker is not getattr(self, "_cache_cleanup_worker", None):
+            return
+        operation = worker.operation
+        result = self._cache_cleanup_result
+        failed = self._cache_cleanup_error is not None
+        self._cache_cleanup_worker = None
+        if self._closing:
+            self._finish_cache_cleanup_review()
+            return
+        if failed:
+            QMessageBox.warning(self, tr("Optional cache cleanup"), tr(
+                "Cache review could not finish. Check the log for details."))
+            self._finish_cache_cleanup_review()
+            return
+        if operation == "preview":
+            self._on_cache_cleanup_preview_ready(result)
+        else:
+            self._on_cache_cleanup_applied(result)
+
+    def _on_cache_cleanup_preview_ready(self, preview):
+        """Ask about prepared folders; keeping or cancelling starts no action.
+
+        :param preview: Operation-bound inventory prepared by the background worker.
+        """
+        from .install_consent import _choose_optional_cleanup
+
+        try:
+            choices = _choose_optional_cleanup(preview, self)
+        except Exception:
+            LOG.exception("Could not display the optional cache review")
+            if not self._closing:
+                QMessageBox.warning(self, tr("Optional cache cleanup"), tr(
+                    "Cache review could not finish. Check the log for details."))
+            self._finish_cache_cleanup_review()
+            return
+        if not choices or self._closing:
+            self._finish_cache_cleanup_review(reviewed=not self._closing)
+            return
+        guard = self._cache_cleanup_guard
+
+        def apply():
+            """Revalidate and apply only the explicit current-dialog selection.
+
+            :returns: Action outcome with a refusal reason or removed counts and any private retained paths.
+            """
+            from spacr import install_cleanup
+
+            return install_cleanup.apply_optional_cleanup(preview, choices, guard=guard)
+
+        self._start_cache_cleanup_worker("apply", apply)
+
+    def _on_cache_cleanup_applied(self, outcome):
+        """Report removed counts and actual retained paths after background cleanup.
+
+        :param outcome: Guarded action result containing counts and retained folders.
+        """
+        if self._closing:
+            self._finish_cache_cleanup_review()
+            return
+        message = tr("Cached files removed: {count}.", count=int(outcome.get("removed", 0)))
+        retained = list(dict.fromkeys(row["retained_path"] for row in outcome.get("folders", ())
+                                      if row.get("retained_path")))
+        if retained:
+            message += "\n\n" + tr("Some files were kept at:\n{paths}", paths="\n".join(retained))
+        elif not outcome.get("ok"):
+            if outcome.get("reason") == "active":
+                message += "\n\n" + tr("A run is in progress. Try again when it has finished.")
+            else:
+                message += "\n\n" + tr(
+                    "Cleanup did not complete. Review the folders again before trying cleanup.")
+        notice = QMessageBox(self)
+        notice.setWindowTitle(tr("Optional cache cleanup"))
+        notice.setIcon(QMessageBox.Information)
+        notice.setTextFormat(Qt.PlainText)
+        notice.setText(message)
+        notice.setStandardButtons(QMessageBox.Ok)
+        notice.exec()
+        self._finish_cache_cleanup_review(reviewed=True)
 
     def _release_update_workers(self) -> None:
         """Wait for the updater threads, and detach any that will not stop.
 
-        Both workers are children of this window, and Qt aborts the whole
+        These workers are children of this window, and Qt aborts the whole
         process when a running QThread is destroyed with its parent. A news
         fetch has no overall deadline (the socket timeout does not cover name
         resolution), so it can outlast the wait. A worker still running after
@@ -4991,7 +6011,7 @@ class MainWindow(QMainWindow):
         """
         from .bridge import drain_thread
 
-        for attribute in ("_update_worker", "_news_worker"):
+        for attribute in ("_update_worker", "_news_worker", "_cache_cleanup_worker"):
             worker = getattr(self, attribute, None)
             if worker is None:
                 continue
@@ -5073,13 +6093,11 @@ class MainWindow(QMainWindow):
                     back on — a control that silently does nothing is
                     worse than one that is greyed out.
 
-        THERE IS NO REVEAL-ON-HOVER MODE. It slid the dock in OVER the
-        page, so the home screen's module tiles sat underneath it and did
-        not move aside, and it needed a second container behind the dock's
-        own panel to be legible over whatever it covered. Both were the
-        complaint. The drawer object still exists and is kept closed and
-        disabled, because it also carries the keyboard path that the
-        "All apps" action uses.
+        There is no reveal-on-hover mode: a dock that slides in over the
+        page covers the Home tiles, and needs a second container behind its
+        panel to stay legible. The drawer object still exists and is kept
+        closed and disabled, because it also carries the keyboard path that
+        the "All apps" action uses.
 
         Idempotent, and safe to call before the menu exists.
         """
@@ -5188,16 +6206,14 @@ class MainWindow(QMainWindow):
     def toggle_app_drawer(self) -> None:
         """Put keyboard focus on the app dock. The menu and Ctrl+Shift+A path.
 
-        THE DOCK NO LONGER SLIDES, so there is nothing to open: it is a
-        permanent column when the preference is ``locked``. What the action
-        still has to do is get a keyboard user INTO it, because a column you
-        can only reach by tabbing through the page is one that is hard to
-        reach at all.
+        The dock does not slide, so there is nothing to open: it is a
+        permanent column when the preference is ``locked``. The action moves
+        keyboard focus to its first row, so a keyboard user does not have to
+        tab through the page to reach it.
 
-        A no-op when the dock is hidden -- the user asked for it not to be
-        there, and a shortcut that overrules a preference is a bug. The
-        action is disabled in that mode anyway, so this is the second half
-        of a belt and braces rather than the only guard.
+        A no-op when the dock is hidden, so the shortcut does not override
+        the preference. The action is also disabled in that mode; this check
+        is a second guard.
         """
         if getattr(self, "_dock_mode", "locked") != "locked":
             return
@@ -5215,14 +6231,12 @@ class MainWindow(QMainWindow):
     def resume_after_restart(self) -> str:
         """Reopen the module a Force restart saved. Returns its key, or "".
 
-        TAKEN, NOT READ: `restart_state.take` deletes the state as it hands it
-        over, so a crash on the way back up cannot leave spaCR reopening the
-        same wedged module on every launch afterwards -- which would turn one
-        bad afternoon into a permanently broken installation.
+        The state is taken, not read: `restart_state.take` deletes it as it
+        hands it over, so a crash during startup cannot make spaCR reopen the
+        same failing module on every later launch.
 
-        THE SETTINGS ARE APPLIED, THE RUN IS NOT STARTED. 142 C: the runs do
-        not come back, only the configuration, and starting one unasked would
-        be the opposite of what somebody who just force-restarted wants.
+        The settings are applied and the run is not started: only the
+        configuration is restored, not the runs.
         """
         from ..restart_state import take
 
@@ -5263,12 +6277,14 @@ class MainWindow(QMainWindow):
         return found
 
     @staticmethod
-    def _collect_screen(screen) -> dict:
+    def _collect_screen(screen, *, strict=False) -> dict:
         """Return a screen's current settings, or an empty mapping."""
         model = getattr(screen, "_settings_model", None)
         try:
             return dict((model.collect() if model is not None else {}) or {})
         except Exception:                                    # noqa: BLE001
+            if strict:
+                raise
             LOG.debug("could not collect settings", exc_info=True)
             return {}
 
@@ -5276,7 +6292,7 @@ class MainWindow(QMainWindow):
         """Return the visible module key and its settings."""
         screen = self._stack.currentWidget()
         key = str(getattr(screen, "app_key", "") or "")
-        return key, (self._collect_screen(screen) if key else {})
+        return key, (self._collect_screen(screen, strict=True) if key else {})
 
     def _start_settings_autosave(self) -> None:
         """Start the timer that keeps the session and drafts current.
@@ -5297,9 +6313,13 @@ class MainWindow(QMainWindow):
     def _autosave_settings(self) -> bool:
         """Store the session and every open module's settings as drafts.
 
-        Nothing is written when nothing changed since the last autosave.
+        Nothing is written when nothing changed since the last autosave. The
+        settings are copied here and stored by the settings writer thread
+        (:func:`spacr.restart_state._write_later`), so a slow disk never
+        holds the GUI; a snapshot that fails to store is offered again on
+        the next tick.
 
-        :returns: whether anything was written.
+        :returns: whether a snapshot was handed to the writer.
         """
         import json
 
@@ -5307,17 +6327,42 @@ class MainWindow(QMainWindow):
 
         if getattr(self, "_closing", False):
             return False
-        drafts = {key: self._collect_screen(screen)
-                  for key, screen in self._open_app_screens().items()}
-        module, settings = self._current_session()
+        try:
+            drafts = {key: self._collect_screen(screen, strict=True)
+                      for key, screen in self._open_app_screens().items()}
+            module, settings = self._current_session()
+        except Exception:
+            LOG.debug("could not collect settings for autosave", exc_info=True)
+            return False
         fingerprint = json.dumps([module, drafts], sort_keys=True,
                                  default=str)
-        if fingerprint == getattr(self, "_last_autosave", ""):
+        if fingerprint in (getattr(self, "_last_autosave", ""),
+                           getattr(self, "_autosave_queued", "")):
             return False
-        self._last_autosave = fingerprint
-        restart_state._save_session(module, settings)
-        restart_state._save_drafts(drafts)
+        settings = restart_state._jsonable(settings)
+        drafts = restart_state._jsonable(drafts)
+        self._autosave_queued = fingerprint
+        restart_state._write_later(functools.partial(
+            MainWindow._store_autosave, self, fingerprint, module, settings,
+            drafts))
         return True
+
+    def _store_autosave(self, fingerprint, module, settings, drafts) -> None:
+        """Store one autosave snapshot on the settings writer thread.
+
+        A failure leaves :attr:`_last_autosave` unchanged, so the next tick
+        offers the same settings again.
+        """
+        from .. import restart_state
+
+        try:
+            session_saved = restart_state._save_session(module, settings)
+            drafts_saved = restart_state._save_drafts(drafts)
+            if session_saved and drafts_saved:
+                self._last_autosave = fingerprint
+        finally:
+            if getattr(self, "_autosave_queued", "") == fingerprint:
+                self._autosave_queued = ""
 
     def _end_session_cleanly(self) -> None:
         """Record where the user left off and drop the crash drafts."""
@@ -5326,10 +6371,11 @@ class MainWindow(QMainWindow):
         timer = getattr(self, "_settings_autosave_timer", None)
         if timer is not None:
             timer.stop()
+        restart_state._flush_writes()
         try:
             module, settings = self._current_session()
-            restart_state._save_session(module, settings)
-            restart_state._clear_drafts()
+            if restart_state._save_session(module, settings) or not module:
+                restart_state._clear_drafts()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not record the session on close", exc_info=True)
 
@@ -5438,7 +6484,7 @@ class MainWindow(QMainWindow):
         box.addButton(tr("Discard"), QMessageBox.ButtonRole.RejectRole)
         box.buttonClicked.connect(self._on_drafts_answered)
         self._drafts_box = box
-        box.open()
+        self._after_the_startup_sequence(box.open)
 
     def _on_drafts_answered(self, button) -> None:
         """Restore the drafts on Restore; forget them otherwise."""
@@ -5478,9 +6524,8 @@ class MainWindow(QMainWindow):
         A module folded into a host keeps its key everywhere a key is
         saved: a run journal, the force-restart record, ``spacr-qt
         <app>`` in somebody's shell history. That key no longer names a
-        screen, and navigating to it anyway BUILDS one -- an orphan page
-        with no sidebar row, no tile and no way back to it, which is the
-        second front door the fold exists to remove.
+        screen, and navigating to it directly would build one -- an orphan
+        page with no sidebar row, no tile and no way back to it.
 
         So the key is resolved to the host that took it over, and the
         fold it names is switched on: asking for Timelapse is asking for
@@ -5503,23 +6548,20 @@ class MainWindow(QMainWindow):
         """Press ``host_key``'s switch for ``folded_key``, if it has one.
 
         Driven through the button so the control shows the state the form
-        has. OPS uses its actions-row switch; category folds use the masthead
-        strip. A host without a corresponding switch is left unchanged.
+        has. Page folds (OPS, and the spatial submodules on Mask Generation
+        and Map Barcodes) use their actions-row switch; category folds use
+        the masthead strip. A host without a corresponding switch is left
+        unchanged.
         """
         screen = self._screens.get(host_key)
         if screen is None:
             return
-        if host_key == "mask" and folded_key == "ops":
-            switch = getattr(screen, "_ops_switch", None)
-            if switch is not None:
-                if switch.isChecked():
-                    from .screens.mask import ops_page
+        from .screens.map_barcodes import page_fold, page_fold_host
 
-                    installed = ops_page(screen)
-                    if installed is not None:
-                        installed.set_shown(True)
-                else:
-                    switch.setChecked(True)
+        if page_fold_host(folded_key) == host_key:
+            installed = page_fold(screen, folded_key)
+            if installed is not None:
+                installed.show_page()
             return
         try:
             from .screens.mask import fold_set
@@ -5722,15 +6764,50 @@ class MainWindow(QMainWindow):
             return
         self.rebuild_app_screen(key, values)
 
+    def _after_the_modal_closes(self, name: str, *args) -> None:
+        """Call method ``name`` with ``args`` once no modal dialog is open.
+
+        Rebuilding a screen while a modal dialog is open can reparent or
+        delete the dialog's parent inside its own ``exec()``; on macOS that
+        crashed in AppKit's modal cleanup. One timer owned by this window
+        looks every 200 ms, so a pending call is dropped if the window goes
+        first. The call is kept as a method name rather than a closure over
+        this window, so the timer never holds the window's last reference.
+
+        :param name: the name of a method of this window.
+        :param args: positional arguments for that method.
+        """
+        from PySide6.QtCore import QTimer
+
+        pending = self.__dict__.setdefault("_calls_after_modal", [])
+        pending.append((name, args))
+        timer = self.__dict__.get("_modal_watch_timer")
+        if timer is None:
+            timer = QTimer(self)
+            timer.setInterval(200)
+            timer.timeout.connect(self._run_when_no_modal)
+            self._modal_watch_timer = timer
+        if not timer.isActive():
+            timer.start()
+
+    def _run_when_no_modal(self) -> None:
+        """Make the calls kept by ``_after_the_modal_closes`` once no modal is open."""
+        if _a_modal_dialog_is_open():
+            return
+        self._modal_watch_timer.stop()
+        pending, self._calls_after_modal = self._calls_after_modal, []
+        for name, args in pending:
+            getattr(self, name)(*args)
+
     def rebuild_app_screen(self, key: str, values=None) -> None:
         """Build ``key``'s screen again, carrying ``values`` across.
 
         :param key: the app whose screen is to be rebuilt.
         :param values: settings to apply to the new screen.
 
-        WHY A WHOLE SCREEN. Which settings a form holds depends on a few of
-        its own values -- the organelle count, and whether an object's
-        channel names a plane -- so a committed change to one of those means
+        The whole screen is rebuilt because which settings a form holds
+        depends on a few of its own values -- the organelle count, and
+        whether an object's channel names a plane -- so a committed change to one of those means
         a different form, not a changed one. Rebuilding is the same path
         every module open already takes.
 
@@ -5742,6 +6819,9 @@ class MainWindow(QMainWindow):
 
         from .screens.app_screen import AppScreen
 
+        if _a_modal_dialog_is_open():
+            self._after_the_modal_closes("rebuild_app_screen", key, values)
+            return
         gc.unfreeze()
         old = self._screens.get(key)
         old_preset_owned = {}
@@ -5901,7 +6981,7 @@ class MainWindow(QMainWindow):
         if getattr(self, "_opening_a_screen", False):
             from PySide6.QtCore import QTimer
 
-            QTimer.singleShot(0, self, lambda: self._on_nav_selected(key))
+            _after(0, self, lambda: self._on_nav_selected(key))
             return
         interaction_started = _timing.interval_started("navigation", key)
         if key == "__home__":
@@ -6238,6 +7318,15 @@ class MainWindow(QMainWindow):
         that case, where re-running the whole of `_theme_screen` would
         re-apply the stylesheet to the tree for nothing.
 
+        A screen in a window that already has its backdrop
+        (:meth:`window_backdrop`) builds none, as an `AppScreen` does: it
+        clears its surfaces and the window's one shows through. A second
+        field laid over the first ticked on its own timer, so every field
+        beat reached the compositor as two whole-window repaints. Measured
+        offscreen at 2560x1440 with Make Masks open: 60 window flushes a
+        second against 30 on Home, and on the capture host 105 painted
+        frames a second against 58.
+
         Never raises: a module opens with or without its decoration.
         """
         try:
@@ -6249,6 +7338,10 @@ class MainWindow(QMainWindow):
                 theme_background_path,
             )
             if not get_ambient_enabled():
+                return
+            if self.window_backdrop() is not None:
+                screen._uses_window_backdrop = True
+                screen._surrendered_its_backdrop = True
                 return
             from .widgets.ambient import (install_ambient,
                                           _the_heavy_import_lock_is_free)
@@ -6346,6 +7439,8 @@ class MainWindow(QMainWindow):
             return
         own = getattr(screen, "_ambient", None)
         if own is None:
+            own = self._a_screen_backdrop_built_beside_the_window_one(screen)
+        if own is None:
             if getattr(screen, "_surrendered_its_backdrop", False):
                 screen._uses_window_backdrop = True
                 self._stop_painting_over_the_window_backdrop(screen)
@@ -6381,6 +7476,29 @@ class MainWindow(QMainWindow):
                 clear()
         except Exception:                                    # noqa: BLE001
             pass
+
+    @staticmethod
+    def _a_screen_backdrop_built_beside_the_window_one(screen):
+        """The backdrop :meth:`_install_screen_backdrop` gave ``screen``, or None.
+
+        That installer keeps no ``_ambient`` on the screen, so a screen
+        themed before the window had its backdrop (the dock backdrop waits
+        for the heavy-import lock) kept its own field for good. It is the
+        screen's direct `AmbientWidget` child that is not already retiring.
+
+        :param screen: a screen in the stack.
+        :returns: the backdrop to retire, or None.
+        """
+        try:
+            from .widgets.ambient import AmbientWidget
+
+            for child in list(screen.children()):
+                if (isinstance(child, AmbientWidget)
+                        and not child.property("spacrRetiringBackdrop")):
+                    return child
+        except Exception:                                    # noqa: BLE001
+            return None
+        return None
 
     def _stop_painting_over_the_window_backdrop(self, screen) -> None:
         """Clear a screen's surfaces and repaint it, now that it defers again.
@@ -6495,6 +7613,11 @@ class MainWindow(QMainWindow):
         stack's CURRENT page. The pages that are not showing are marked
         instead, and sheeted on their own `showEvent` before they are
         painted.
+
+        A child that is a window of its own -- a dialog parented here, such
+        as Preferences -- is not chrome: the sheet reaches it as a window,
+        and a hidden one that asked to wait for its show
+        (:data:`spacr.qt.theme.SHEETED_WHEN_SHOWN`) waits.
         """
         from PySide6.QtCore import Qt
 
@@ -6506,7 +7629,8 @@ class MainWindow(QMainWindow):
             return [self]
 
         roots = [kid for kid in self.findChildren(
-            QWidget, options=Qt.FindDirectChildrenOnly) if kid is not central]
+            QWidget, options=Qt.FindDirectChildrenOnly)
+            if kid is not central and not kid.isWindow()]
         roots.extend(kid for kid in central.findChildren(
             QWidget, options=Qt.FindDirectChildrenOnly) if kid is not stack)
 
@@ -6718,6 +7842,8 @@ class MainWindow(QMainWindow):
                 from .screens.map_barcodes import install_folds_on
 
                 install_folds_on(screen)
+                if key in _CRAMPED_SCREENS:
+                    _scroll_when_cramped(screen)
                 return screen
         finally:
             _screens_package._categories_wait_to_be_opened = waited
@@ -6962,6 +8088,11 @@ def _use_open_sans(app, weight: str = "") -> str:
     Only these two weights are offered. Bold and SemiBold remain registered,
     so a stylesheet that asks for emphasis still gets it; what changes is
     what everything else defaults to.
+
+    THE SAME FONT IS NOT SET AGAIN. Every Apply and Save in Preferences
+    writes the weight, and ``QApplication.setFont`` sends a font change to
+    every widget whether or not the font differs: about a second of
+    relayout on a loaded box for a weight nobody touched.
     """
     from PySide6.QtGui import QFont, QFontDatabase
 
@@ -6983,26 +8114,67 @@ def _use_open_sans(app, weight: str = "") -> str:
     existing = app.font()
     if existing.pointSizeF() > 0:
         font.setPointSizeF(existing.pointSizeF())
+    if (existing.family() == font.family()
+            and existing.weight() == font.weight()
+            and existing.pointSizeF() == font.pointSizeF()):
+        return font.family()
     app.setFont(font)
     return font.family()
 
 
+#: The families of ``resources/font/glyphs``, in the order Qt asks them.
+SYMBOL_FONT_FAMILIES = ("spaCR Glyphs Math", "spaCR Glyphs Latin",
+                        "spaCR Glyphs Sans", "spaCR Glyphs Symbols",
+                        "spaCR Glyphs Noto Sans CJK JP")
+
+#: The families the application's style sheets ask for by name.
+_SYMBOLS_STAND_IN_FOR = ("Open Sans", "Segoe UI", "Helvetica Neue",
+                         "sans-serif")
+
+
 def _load_bundled_fonts() -> None:
-    """Register the bundled Open Sans TTFs with :class:`QFontDatabase`.
+    """Register the bundled fonts with :class:`QFontDatabase`.
 
     Idempotent — the fonts are only loaded once even if called
     multiple times (Qt tracks the file path).
+
+    OPEN SANS HAS NO ARROWS, TRIANGLES OR CHECK MARKS, and for each one the
+    interface draws Qt asked fontconfig which of the system's families could,
+    again at every new pixel size: about 40 ms a glyph a size on a machine
+    with 2,464 families, most of a column's Ctrl + wheel restyle. The
+    symbol fonts in ``resources/font/glyphs`` (built by
+    ``tools/build_glyph_fonts.py``) hold exactly those glyphs, cut from the
+    fonts that drew them before, and are named here as substitutes of every
+    family the style sheets ask for, so Qt finds each one in a font it has
+    already registered.
+
+    THE ORDER OF THE OPEN SANS FILES IS THE DIRECTORY'S, UNSORTED, as it
+    always was. The sheets ask for weight 500, which Open Sans does not
+    have; Qt settles the tie between Regular and SemiBold by the order the
+    files were registered, and sorting them turned every 500 from SemiBold
+    into Regular.
     """
-    from PySide6.QtGui import QFontDatabase
+    from PySide6.QtGui import QFont, QFontDatabase
     package_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    fonts_dir = os.path.join(
-        package_dir, "resources", "font", "open_sans", "static"
-    )
+    font_root = os.path.join(package_dir, "resources", "font")
+    fonts_dir = os.path.join(font_root, "open_sans", "static")
     if not os.path.isdir(fonts_dir):
         return
-    for name in os.listdir(fonts_dir):
-        if name.lower().endswith((".ttf", ".otf")):
-            QFontDatabase.addApplicationFont(os.path.join(fonts_dir, name))
+    symbols_dir = os.path.join(font_root, "glyphs")
+    folders = [fonts_dir]
+    if os.path.isdir(symbols_dir):
+        folders.append(symbols_dir)
+    for folder in folders:
+        for name in os.listdir(folder):
+            if name.lower().endswith((".ttf", ".otf")):
+                QFontDatabase.addApplicationFont(os.path.join(folder, name))
+    if len(folders) < 2:
+        return
+    for family in _SYMBOLS_STAND_IN_FOR:
+        have = {name.lower() for name in QFont.substitutes(family)}
+        QFont.insertSubstitutions(family, [
+            name for name in SYMBOL_FONT_FAMILIES
+            if name.lower() not in have])
 
 
 
@@ -7137,15 +8309,54 @@ def _module_source_mentions_pyside(original, module) -> bool:
     return original(module)
 
 
-def _start_settings_prewarm() -> threading.Thread:
+_HEAVY_WARM_GATE = threading.Event()
+_HEAVY_WARM_AFTER_HOME_MS = 1500
+_HEAVY_WARM_FROM = "spacr.settings_advisor"
+
+
+def _open_the_heavy_warm_after_home() -> None:
+    """Let the warm thread import the numerical stack once Home is usable.
+
+    Home must come up without pandas, scipy, matplotlib or scikit-image, so
+    the warm holds those back till Home reports it is painted and then has
+    been left alone for a moment. With timing off there is no Home record, so
+    a fixed delay after launch stands in for it; the thread also starts them
+    anyway after its own timeout.
+    """
+    from PySide6.QtCore import QTimer
+
+    if _timing.ENABLED:
+        _timing.subscribe_readiness(_open_the_heavy_warm_on_home)
+    else:
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS * 2, _HEAVY_WARM_GATE.set)
+
+
+def _open_the_heavy_warm_on_home(entry: dict) -> None:
+    """Open the warm gate a moment after Home's readiness record arrives."""
+    from PySide6.QtCore import QTimer
+
+    if entry.get("detail") == "__home__":
+        _timing.unsubscribe_readiness(_open_the_heavy_warm_on_home)
+        QTimer.singleShot(_HEAVY_WARM_AFTER_HOME_MS, _HEAVY_WARM_GATE.set)
+
+
+def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
     """Own the path-notification QObject on the GUI thread before importing.
 
     Settings imports reach ``path_probe`` through the file-list widgets.
     Its process-wide signal source must outlive the temporary import thread
     and deliver redraw callbacks on the GUI thread. Only its lightweight
     initialization runs here; the slow settings imports remain background work.
+
+    :param wait_for_home: hold the numerical stack back till
+        :func:`_open_the_heavy_warm_after_home` opens the gate; the default
+        imports everything at once, for callers that join the thread.
     """
+    global _HEAVY_WARM_GATE
     _importlib.import_module("spacr.qt.path_probe")
+    gate = _HEAVY_WARM_GATE = threading.Event()
+    if not wait_for_home:
+        gate.set()
 
     def warm():
         """Import the remaining settings dependencies without building widgets."""
@@ -7158,7 +8369,19 @@ def _start_settings_prewarm() -> threading.Thread:
         try:
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery"):
+                        "spacr.qt.imagery", "spacr.settings_advisor",
+                        "pandas", "scipy.linalg", "scipy.stats",
+                        "matplotlib.figure", "matplotlib.font_manager",
+                        "skimage.data", "skimage.draw", "skimage.filters",
+                        "skimage.measure", "skimage.morphology"):
+                if mod == _HEAVY_WARM_FROM:
+                    gate.wait(60)
+                    try:
+                        from .widgets.ambient import _import_numba
+                        _import_numba()
+                    except ImportError:
+                        LOG.debug("numba is not available to prewarm",
+                                  exc_info=True)
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
@@ -7276,6 +8499,19 @@ def _register_the_glyph_font() -> None:
 _ICON_WARM_AFTER_MS = 1500
 
 
+def _prune_retained_runtime_copies_quietly() -> None:
+    """Prune older retained update copies off the GUI thread; a failure only leaves them in place."""
+    try:
+        from spacr.install_cleanup import _prune_runtime_transactions_after_launch
+
+        _prune_runtime_transactions_after_launch()
+    except Exception:                                            # noqa: BLE001
+        LOG.debug("Retained runtime copies were not pruned", exc_info=True)
+
+#: Delay before older retained update copies are pruned: well after the window is confirmed up.
+_RETAINED_RUNTIME_PRUNE_AFTER_MS = 60_000
+
+
 def _start_icon_prewarm() -> Optional[threading.Thread]:
     """Re-ink the bundled app icons on a worker thread, for the active theme.
 
@@ -7316,9 +8552,33 @@ def _queue_ambient_compilation() -> None:
     QTimer.singleShot(0, _complete_ambient_startup)
 
 
+def _tear_down_before_finalization() -> None:
+    """Stop the backdrop shading threads once the event loop has returned.
+
+    ``aboutToQuit`` does this already; this covers a loop that returned
+    without it, before anything is left to interpreter finalization. Each
+    shading thread is joined and releases its moderngl/EGL context on
+    itself (:func:`spacr.qt.widgets.ambient._retire_shading_threads`). On
+    a real-GPU capture host the process otherwise ended with SIGSEGV
+    ("<no Python frame>") after a clean quit, with ``moderngl.mgl`` and
+    ``glcontext.egl`` loaded.
+    """
+    try:
+        from .widgets.ambient import _retire_shading_threads
+
+        _retire_shading_threads()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not stop the backdrop shading threads", exc_info=True)
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
+    update_launch = None
+    if os.environ.get("SPACR_UPDATE_LAUNCH"):
+        from spacr.install_cleanup import _begin_update_launch, _finish_update_launch
+
+        update_launch = _begin_update_launch()
     if argv is None:
         argv = sys.argv[1:]
     from ..logging_util import _apply_portable_mode
@@ -7373,7 +8633,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     _app_name, _app_display_name = name_the_application()
 
-    app = QApplication(sys.argv[:1])
+    app = QApplication([_app_name] if sys.platform == "darwin" else sys.argv[:1])
     try:
         from .gui_scale import apply_saved_gui_scale
         apply_saved_gui_scale()
@@ -7497,7 +8757,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
         )
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)
-    win.show()
+    _show_at_launch(win)
+    if update_launch is not None:
+        from PySide6.QtCore import QTimer
+
+        _after(0, win, lambda: win._after_the_startup_sequence(
+            lambda: _finish_update_launch(update_launch)
+            if win.isVisible() and not win._closing else None))
 
     install_the_dialog_filters(app)
 
@@ -7510,13 +8776,18 @@ def launch(argv: Optional[list[str]] = None) -> int:
     from .preferences import in_safe_mode
 
     if not in_safe_mode():
+        from .preferences import _warm_the_preferences
+
+        _warm_the_preferences(win)
         _start_the_font_cache_in_a_child()
-        _start_settings_prewarm()
+        _start_settings_prewarm(wait_for_home=True)
+        _open_the_heavy_warm_after_home()
         from PySide6.QtCore import QTimer
 
         QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, win._maybe_show_whats_new)
+        QTimer.singleShot(_RETAINED_RUNTIME_PRUNE_AFTER_MS, win._prune_retained_runtime_copies)
         win._start_the_screen_prewarm()
 
     def _drain_ai():
@@ -7527,8 +8798,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
         not only the consoles.
         """
         try:
-            from .job_runner import shutdown_all
-            shutdown_all()
+            from .bridge import retire_live_work
+            retire_live_work()
         except Exception:
             LOG.debug("Could not drain the job runners", exc_info=True)
         from .widgets.console_panel import ConsolePanel
@@ -7553,6 +8824,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _TimingQTimer.singleShot(0, _timing.event_loop_started)
     try:
         code = app.exec()
+        _tear_down_before_finalization()
         try:
             from .crash_recovery import note_a_clean_shutdown
 

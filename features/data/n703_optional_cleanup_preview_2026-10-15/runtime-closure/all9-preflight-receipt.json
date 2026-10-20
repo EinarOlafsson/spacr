@@ -1,0 +1,47 @@
+{
+  "source_pins": {
+    "spacr/install_cleanup.py": "3448c838e77cb9a4fb6c95127fce2c733645c546124b86282f72a8ddcf100837",
+    "spacr/qt/app.py": "0d0c6109143feadec12a1dafaebae79839f1ccd46a9f918c5efaf89e6c2b81ca",
+    "spacr/qt/install_consent.py": "0885af8ba73fbd3b2376b25f78077a01a708bebc587be86ac6c7a65ad822c77a",
+    "tools/build_i18n_catalogs.py": "e534cb131ccbdcf630632ff37e6ad5b2450f6fe8c60066f6c96a6790e2e6c697",
+    "tools/i18n_caption_arrivals.py": "cc58853ad7e1a17944805587dba2e6cd06dcdc08c66faf8501e42f06f4cc1f37"
+  },
+  "locales": {
+    "sv": {
+      "ok": false,
+      "errors": "rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-installer-cleanup-preview.json\n...and 1 more reviewed runtime problems in sv:\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/sv/2026-10-15-installer-cleanup-preview.json"
+    },
+    "de": {
+      "ok": false,
+      "errors": "rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-installer-cleanup-preview.json\n...and 1 more reviewed runtime problems in de:\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/de/2026-10-15-installer-cleanup-preview.json"
+    },
+    "es": {
+      "ok": false,
+      "errors": "rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-installer-cleanup-preview.json\n...and 1 more reviewed runtime problems in es:\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/es/2026-10-15-installer-cleanup-preview.json"
+    },
+    "zh_CN": {
+      "ok": false,
+      "errors": "conflicting reviewed runtime targets for 'Backgrounds'\n...and 2 more reviewed runtime problems in zh_CN:\n  rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-installer-cleanup-preview.json\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/zh_CN/2026-10-15-installer-cleanup-preview.json"
+    },
+    "pt": {
+      "ok": false,
+      "errors": "rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/pt/2026-10-15-installer-cleanup-preview.json\n...and 1 more reviewed runtime problems in pt:\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/pt/2026-10-15-installer-cleanup-preview.json"
+    },
+    "hi": {
+      "ok": false,
+      "errors": "conflicting reviewed runtime targets for 'Backgrounds'\n...and 2 more reviewed runtime problems in hi:\n  rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/hi/2026-10-15-installer-cleanup-preview.json\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/hi/2026-10-15-installer-cleanup-preview.json"
+    },
+    "ko": {
+      "ok": false,
+      "errors": "conflicting reviewed runtime targets for 'Backgrounds'\n...and 2 more reviewed runtime problems in ko:\n  rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/ko/2026-10-15-installer-cleanup-preview.json\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/ko/2026-10-15-installer-cleanup-preview.json"
+    },
+    "is": {
+      "ok": false,
+      "errors": "rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/is/2026-10-15-installer-cleanup-preview.json\n...and 1 more reviewed runtime problems in is:\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/is/2026-10-15-installer-cleanup-preview.json"
+    },
+    "fr": {
+      "ok": false,
+      "errors": "rejected reviewed runtime target ui/Hugging Face: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-installer-cleanup-preview.json\n...and 1 more reviewed runtime problems in fr:\n  rejected reviewed runtime target ui/Torch: /mnt/wd4tb/spacr-worktrees/codex-n703-debian-adapter-20261015/docs/i18n/reviewed/runtime/fr/2026-10-15-installer-cleanup-preview.json"
+    }
+  }
+}

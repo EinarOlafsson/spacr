@@ -68,7 +68,7 @@ class Screen:
 
 @dataclass(frozen=True)
 class Verdict:
-    """How an annotation did against a known truth.
+    """Coverage, precision and recall of one annotation against known assignments.
 
     :param coverage: fraction of cells receiving a non-abstaining annotation.
     :param precision: fraction of annotated cells assigned to the correct
@@ -116,10 +116,12 @@ def synthesise(*,
     :param fraction_bias: multiply the reported fractions by this, then
         renormalise. 1.8 reproduces what `normalised_share` documents on a
         screen after thresholding.
-    :param fraction_threshold: drop guides below this share BEFORE
+    :param fraction_threshold: drop guides below this share before
         renormalising.
-    :param classifier_accuracy: the score is flipped toward the wrong tail
-        this often. Values closer to 1 produce better-separated classes.
+    :param classifier_accuracy: probability that a cell's score keeps its
+        sign; each score is negated with probability
+        ``1 - classifier_accuracy``. Values closer to 1 produce
+        better-separated classes.
     :returns: the :class:`Screen`.
     """
     rng = np.random.default_rng(int(seed))
@@ -299,8 +301,10 @@ def order_sensitivity(run: Callable[[Sequence[Tuple[str, float]]], Sequence[str]
     """Measure sensitivity of a sequential method to ranking order.
 
     :param run: takes a ranking and returns one guide name per cell.
-    :param ranking: the honest order.
-    :returns: ``{"changed": share of cells that differ, "repeats": n}``.
+    :param ranking: the unperturbed reference order.
+    :returns: ``{"changed": mean share of cells that differ, "worst": largest
+        share, "repeats": n}``, counting only repeats whose output length
+        matches the reference.
 
     Each repeat randomly swaps adjacent ranking entries, preserving the broad
     confidence order while perturbing ties and near-ties. The returned mean

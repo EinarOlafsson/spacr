@@ -184,7 +184,7 @@ def test_pixel_units_are_written_as_no_unit_and_read_back_as_pixels(tmp_path):
     """NGFF has no pixel unit, so px writes nothing and nothing reads as px."""
     image = write_ome_zarr(tmp_path / "px.zarr", np.zeros((4, 4), np.uint8))
 
-    attrs = json.loads((tmp_path / "px.zarr" / ".zattrs").read_text())
+    attrs = json.loads((tmp_path / "px.zarr" / ".zattrs").read_text(encoding="utf-8"))
     axes = attrs["multiscales"][0]["axes"]
     assert all("unit" not in axis for axis in axes)
 
@@ -231,7 +231,7 @@ def test_the_pyramid_has_the_levels_shapes_and_scales_the_rule_implies(tmp_path)
     assert [lv.shape for lv in image.levels] == [(3, 8, 9), (3, 4, 5), (3, 2, 3)]
     assert [lv.path for lv in image.levels] == ["0", "1", "2"]
 
-    attrs = json.loads((tmp_path / "p.zarr" / ".zattrs").read_text())
+    attrs = json.loads((tmp_path / "p.zarr" / ".zattrs").read_text(encoding="utf-8"))
     datasets = attrs["multiscales"][0]["datasets"]
     scales = [d["coordinateTransformations"][0]["scale"] for d in datasets]
     assert scales == [[2.0, 0.65, 1.3 / 2], [2.0, 1.3, 1.3], [2.0, 2.6, 2.6]]
@@ -550,7 +550,7 @@ def test_dimension_separator_round_trips_both_ways(tmp_path, separator):
     image = write_ome_zarr(out, data, chunks=(3, 3),
                            dimension_separator=separator)
 
-    meta = json.loads((out / "0" / ".zarray").read_text())
+    meta = json.loads((out / "0" / ".zarray").read_text(encoding="utf-8"))
     assert meta["dimension_separator"] == separator
     assert (out / "0" / ("0.0" if separator == "." else "0/0")).is_file()
     assert np.array_equal(image.read(0), data)
@@ -619,7 +619,7 @@ def test_chunk_memory_order_round_trips(tmp_path, order):
     out = tmp_path / f"order{order}.zarr"
     image = write_ome_zarr(out, data, chunks=(2, 3), order=order)
 
-    assert json.loads((out / "0" / ".zarray").read_text())["order"] == order
+    assert json.loads((out / "0" / ".zarray").read_text(encoding="utf-8"))["order"] == order
     assert np.array_equal(image.read(0), data)
     assert np.array_equal(image.read(0, {"y": (2, 4), "x": (0, 3)}),
                           data[2:4, 0:3])
@@ -647,7 +647,7 @@ def test_big_endian_dtype_round_trips_byte_order_and_all(tmp_path):
     data = (np.arange(4 * 5, dtype=">u2").reshape(4, 5) * 1000).astype(">u2")
     image = write_ome_zarr(tmp_path / "be.zarr", data, levels=2)
 
-    assert json.loads((tmp_path / "be.zarr" / "0" / ".zarray").read_text())[
+    assert json.loads((tmp_path / "be.zarr" / "0" / ".zarray").read_text(encoding="utf-8"))[
         "dtype"] == ">u2"
     assert image.dtype == np.dtype(">u2")
     back = image.read(0)
@@ -679,7 +679,7 @@ def test_float_arrays_and_a_nan_fill_value_survive(tmp_path):
     image = write_ome_zarr(tmp_path / "f.zarr", data, chunks=(2, 2),
                            fill_value=float("nan"))
 
-    assert json.loads((tmp_path / "f.zarr" / "0" / ".zarray").read_text())[
+    assert json.loads((tmp_path / "f.zarr" / "0" / ".zarray").read_text(encoding="utf-8"))[
         "fill_value"] == "NaN"
     assert np.array_equal(image.read(0), data)
 
@@ -692,7 +692,7 @@ def test_every_stdlib_codec_round_trips_without_the_extra(tmp_path, codec):
                            compressor=codec, chunks=(4, 4))
 
     stored = json.loads(
-        (tmp_path / f"c_{codec}.zarr" / "0" / ".zarray").read_text())
+        (tmp_path / f"c_{codec}.zarr" / "0" / ".zarray").read_text(encoding="utf-8"))
     assert (stored["compressor"] or {}).get("id") == codec
     assert image.levels[0].compressor == codec
     assert np.array_equal(image.read(0), data)
@@ -934,7 +934,7 @@ def test_a_non_empty_directory_that_is_not_a_group_is_not_deleted(tmp_path):
 
     with pytest.raises(OmeZarrError, match="not empty"):
         write_ome_zarr(out, np.zeros((4, 4), np.uint8))
-    assert (out / "precious.csv").read_text() == "keep me"
+    assert (out / "precious.csv").read_text(encoding="utf-8") == "keep me"
 
 
 def test_an_impossible_axis_layout_is_refused_before_anything_is_written(tmp_path):
@@ -1297,11 +1297,11 @@ def test_an_inf_fill_value_round_trips_through_json(tmp_path):
     data = np.zeros((2, 2), dtype=np.float32)
     write_ome_zarr(tmp_path / "inf.zarr", data, fill_value=float("-inf"),
                    write_empty_chunks=True)
-    assert json.loads((tmp_path / "inf.zarr" / "0" / ".zarray").read_text())[
+    assert json.loads((tmp_path / "inf.zarr" / "0" / ".zarray").read_text(encoding="utf-8"))[
         "fill_value"] == "-Infinity"
 
     write_ome_zarr(tmp_path / "half.zarr", data, fill_value=0.5)
-    assert json.loads((tmp_path / "half.zarr" / "0" / ".zarray").read_text())[
+    assert json.loads((tmp_path / "half.zarr" / "0" / ".zarray").read_text(encoding="utf-8"))[
         "fill_value"] == 0.5
 
 
@@ -1311,7 +1311,7 @@ def test_a_boolean_array_round_trips(tmp_path):
     data[1:3, 1:3] = True
     image = write_ome_zarr(tmp_path / "mask.zarr", data, downsample="stride",
                            levels=2)
-    assert json.loads((tmp_path / "mask.zarr" / "0" / ".zarray").read_text())[
+    assert json.loads((tmp_path / "mask.zarr" / "0" / ".zarray").read_text(encoding="utf-8"))[
         "fill_value"] is False
     assert np.array_equal(image.read(0), data)
     assert image.read(1).dtype == np.dtype(bool)
@@ -1685,7 +1685,7 @@ def test_writing_onto_a_path_that_is_a_file_is_refused(tmp_path):
     target.write_text("hello", encoding="utf-8")
     with pytest.raises(OmeZarrError, match="is a directory"):
         write_ome_zarr(target, np.zeros((2, 2), np.uint8))
-    assert target.read_text() == "hello"
+    assert target.read_text(encoding="utf-8") == "hello"
 
 
 def test_an_empty_directory_is_written_into_without_complaint(tmp_path):
@@ -1716,7 +1716,7 @@ def test_uncompressed_chunks_are_written_verbatim(tmp_path, stored):
     out = tmp_path / f"stored_{stored}.zarr"
     image = write_ome_zarr(out, data, compressor=stored, chunks=(4, 4))
 
-    assert json.loads((out / "0" / ".zarray").read_text())["compressor"] is None
+    assert json.loads((out / "0" / ".zarray").read_text(encoding="utf-8"))["compressor"] is None
     assert (out / "0" / "0" / "0").read_bytes() == data.tobytes()
     assert np.array_equal(image.read(0), data)
 

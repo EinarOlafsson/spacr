@@ -310,7 +310,7 @@ def test_cv_pipeline_events_follow_real_orchestrator_calls(
         lambda *a, **k: (operations.append("training") or str(model_path)),
     )
     monkeypatch.setattr(io, "_save_progress", lambda *a, **k: None)
-    monkeypatch.setattr(io, "_copy_missclassified", lambda *_args: None)
+    monkeypatch.setattr(io, "_copy_misclassified", lambda *_args: None)
     monkeypatch.setattr(
         io,
         "generate_dataset",

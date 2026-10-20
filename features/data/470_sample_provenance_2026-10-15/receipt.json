@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-15",
+  "scope": "F470 sample builder preparatory safeguards only",
+  "owning": {
+    "passed": 4,
+    "deselected": 5,
+    "seconds": 13.03,
+    "exit": 0
+  },
+  "source_sha256": "e62ec793329442916074dbb7a3039c42326089629086fdec80da60351643d880",
+  "proved": [
+    "Parent SQLite opened URI mode=ro; parent DB and crop bytes unchanged",
+    "New samples record original byte SHA-256 and size with NULL real labels",
+    "Parent real judgements not inherited",
+    "Existing legacy labels keep NULL fingerprint; no retrospective backfill",
+    "Rerun preserves existing judgement and original sample hash even when current pixels change",
+    "Existing larger-round sampler preservation still works"
+  ],
+  "limits": [
+    "Sample-creation fingerprint is NOT annotation-time binding",
+    "No legacy label transfer or pixel-identity proof from path overlap",
+    "No live/private data, annotations, models or GPU jobs touched",
+    "Classifier reader fingerprint enforcement remains follow-up",
+    "No whole F470 biological/curation acceptance"
+  ]
+}

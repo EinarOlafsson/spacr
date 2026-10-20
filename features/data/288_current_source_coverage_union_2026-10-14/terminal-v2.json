@@ -1,0 +1,12 @@
+{
+  "unit": "codex-f288-current-a744-union-v2-20261014",
+  "actual_service_properties": "Result=success\nExecMainStatus=0\nControlGroup=\nMemoryPeak=2867200\nMemoryMax=536870912\nMemorySwapMax=0\nActiveState=active\nSubState=exited\n",
+  "cgroup_files_if_retained": {},
+  "actual_worker_exit": 0,
+  "scope": "Current source-bound local logical floor diagnostic, not new hosted CI or hardware acceptance.",
+  "resource_note": "MemoryMax/MemorySwapMax are configured kernel cgroup limits. Reported terminal MemoryPeak is retained verbatim; it is not independently sampled workload maximum.",
+  "diagnostic_sha256": "72fe020ba87af1c1d86f7138addd1ca0cd1b9ad27c6c51219f114c6b5afe08da",
+  "normal_report_sha256": "9b014c2861da567b1f0b54a37820c0e7e5e65a632cc3611d4dc24f944f562bca",
+  "journal_sha256": "fb1eedcb7ba0b917aea48a4fd1a2f7b1139ec178fa4f0ee94be2b9f4b0c07785",
+  "failed_first_setup_preserved": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f288-current-a744-union-plan-20261014/failed-first-launch-terminal.json"
+}

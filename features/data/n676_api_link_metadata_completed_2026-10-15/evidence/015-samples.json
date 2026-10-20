@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "lesson": "06_api",
+  "source_master": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+  "source_master_manifest_sha256": "090735b9b233339cbff894391e723b5c5376b0387c22a1a2634160733e398aeb",
+  "container_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_type": "video",
+        "width": 3840,
+        "height": 2160,
+        "r_frame_rate": "30/1",
+        "duration": "102.700000",
+        "nb_frames": "3081"
+      }
+    ],
+    "format": {
+      "duration": "102.700000",
+      "size": "3255467"
+    }
+  },
+  "samples": [
+    {
+      "scene": 2,
+      "requested_seconds": 21.38,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-02-mid.png",
+        "bytes": 1543697,
+        "sha256": "fcd01445344b456819fe420fd9ad2027c0b5052fd19daf561f3781e81e89f8c6"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "21.380000000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-02-mid.png"
+      ]
+    },
+    {
+      "scene": 3,
+      "requested_seconds": 39.5725,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-03-mid.png",
+        "bytes": 415447,
+        "sha256": "5560ebbe5caabb63ef90453cae00bb1b04f0b837e00310b89c67ab1a50598371"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "39.572500000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-03-mid.png"
+      ]
+    },
+    {
+      "scene": 4,
+      "requested_seconds": 56.114999999999995,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-04-mid.png",
+        "bytes": 153660,
+        "sha256": "b21a7974f469fc66f2d6f116159149b46f66c9a48cb413f2151515db08cbfa20"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "56.115000000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-04-mid.png"
+      ]
+    },
+    {
+      "scene": 5,
+      "requested_seconds": 73.68,
+      "clock_source": "Current published English af_heart midpoint; scene-interior sample, not exact frame/boundary proof.",
+      "image": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-05-mid.png",
+        "bytes": 884930,
+        "sha256": "2010a0d1e66aa57032645f7c77c110e5ff3ca37508d5f8867498d83324418170"
+      },
+      "command": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-threads",
+        "1",
+        "-ss",
+        "73.680000000",
+        "-i",
+        "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/media_host/06_api/video/06_api_silent.mp4",
+        "-frames:v",
+        "1",
+        "-threads",
+        "1",
+        "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/published-master-four-samples/scene-05-mid.png"
+      ]
+    }
+  ],
+  "limits": "Four bounded seeks only; no full media decode/nativecapture or source assembly acceptance."
+}

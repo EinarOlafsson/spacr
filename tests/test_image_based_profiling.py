@@ -387,7 +387,7 @@ def test_a_measure_run_writes_profiles_other_tools_read(tmp_path, capsys):
     printed = capsys.readouterr().out
     assert "Profiles: 20 wells, 3 treatments" in printed
     out = tmp_path / "p1" / "measurements" / "profiles"
-    summary = json.loads((out / "profiling_summary.json").read_text())
+    summary = json.loads((out / "profiling_summary.json").read_text(encoding="utf-8"))
     assert summary["plates"] == ["p1", "p2"]
     assert summary["treatments_scored"] == 2
     exported = read_table(str(out / "well_profiles_feature_select.csv"),
@@ -395,7 +395,7 @@ def test_a_measure_run_writes_profiles_other_tools_read(tmp_path, capsys):
     assert {"Metadata_Plate", "Metadata_Well",
             "Metadata_treatment"} <= set(exported.columns)
     assert "cell_area" in exported.columns
-    gct = (out / "consensus_profiles.gct").read_text().splitlines()
+    gct = (out / "consensus_profiles.gct").read_text(encoding="utf-8").splitlines()
     assert gct[0] == "#1.3" and gct[1].split("\t")[:2] == ["5", "3"]
     mapped = read_table(str(out / "map_activity.csv"), report=None)
     assert set(mapped["treatment"]) == {"hit", "dud"}

@@ -227,11 +227,12 @@ def method_label(method) -> str:
 def estimate_pi0(p_values, *, lambdas: Sequence[float] | None = None) -> float:
     """Estimate the proportion of true null hypotheses (Storey's pi0).
 
-    Uses the smoothed bootstrap-free spline-free estimator: pi0(lambda) is
-    computed over a grid and the estimate is taken at the largest lambda whose
-    value is stable, then clipped to (0, 1]. With few tests the grid collapses
-    and the estimator returns 1.0, which makes the q-values fall back to
-    Benjamini-Hochberg -- the conservative answer, not an error.
+    pi0(lambda) = #{p > lambda} / (m * (1 - lambda)) is computed over a grid
+    of lambda values (default 0.05 to 0.95 in steps of 0.05); the estimate is
+    the minimum over the upper half of the grid (lambda at or above the grid
+    median), clipped to (0, 1]. With fewer than 20 finite P values, an empty
+    grid, or a non-positive estimate, the function returns 1.0, which makes
+    the q-values equal to Benjamini-Hochberg adjusted P values.
 
     :param p_values: raw P values; non-finite entries are excluded.
     """
@@ -284,6 +285,93 @@ def storey_qvalue(p_values, *, pi0: float | None = None):
     return out
 
 
+def _holm(p_values, alpha=0.05):
+    """Holm's step-down correction, computed here instead of in statsmodels.
+
+    The result is bit-for-bit what ``statsmodels.stats.multitest.multipletests``
+    returns for ``method='holm'``: the same sort, the same step-down rejection
+    at ``alpha / (n - i)``, the running maximum of ``p * (n - i)`` capped at 1,
+    and the input order restored. statsmodels runs a full ``gc.collect()``
+    inside its Holm branch, which on a pipeline worker walks the GUI's heap
+    with the interpreter lock held; this does not.
+
+    :param p_values: one-dimensional P values; NaNs behave as in statsmodels.
+    :param alpha: family-wise error rate for the rejection call.
+    :returns: ``(reject, p_adjusted)`` in the input order.
+    """
+    pvals = np.asarray(p_values)
+    ntests = len(pvals)
+    order = np.argsort(pvals)
+    pvals = np.take(pvals, order)
+    steps = np.arange(ntests, 0, -1)
+    notreject = pvals > alpha / steps
+    first = np.nonzero(notreject)[0]
+    notreject[(first.min() if first.size else ntests):] = True
+    reject = ~notreject
+    corrected = np.maximum.accumulate(pvals * steps)
+    corrected[corrected > 1] = 1
+    corrected_in_order = np.empty_like(corrected)
+    corrected_in_order[order] = corrected
+    reject_in_order = np.empty_like(reject)
+    reject_in_order[order] = reject
+    return reject_in_order, corrected_in_order
+
+
+def _is_holm(method) -> bool:
+    """Whether ``method`` names Holm's step-down correction."""
+    try:
+        return canonical_method(method) == "holm"
+    except ValueError:
+        return False
+
+
+def _multipletests(p_values, method, alpha=0.05):
+    """``(reject, p_adjusted)`` from statsmodels, with Holm done by :func:`_holm`.
+
+    :param p_values: one-dimensional P values.
+    :param method: a statsmodels method name or a spaCR alias.
+    :param alpha: error rate for the rejection call.
+    :returns: ``(reject, p_adjusted)`` in the input order.
+    """
+    if _is_holm(method):
+        return _holm(p_values, alpha=alpha)
+    from statsmodels.stats.multitest import multipletests
+
+    reject, corrected, _, _ = multipletests(p_values, alpha=alpha,
+                                            method=method)
+    return reject, corrected
+
+
+def _posthoc_dunn(data, val_col, group_col, p_adjust=None):
+    """``scikit_posthocs.posthoc_dunn`` with a Holm adjustment done by :func:`_holm`.
+
+    scikit-posthocs adjusts the upper triangle with statsmodels and mirrors
+    it; for Holm the same is done here on its unadjusted matrix, so the frame
+    is identical without statsmodels' collection.
+
+    :param data: long-format frame.
+    :param val_col: value column.
+    :param group_col: grouping column.
+    :param p_adjust: correction name, or ``None`` for raw P values.
+    :returns: the symmetric P-value frame scikit-posthocs returns.
+    """
+    import pandas as pd
+    import scikit_posthocs as sp
+
+    if not p_adjust or not _is_holm(p_adjust):
+        return sp.posthoc_dunn(data, val_col=val_col, group_col=group_col,
+                               p_adjust=p_adjust)
+    raw = sp.posthoc_dunn(data, val_col=val_col, group_col=group_col,
+                          p_adjust=None)
+    values = raw.to_numpy(dtype=float, copy=True)
+    upper = np.triu_indices(values.shape[0], 1)
+    lower = np.tril_indices(values.shape[0], -1)
+    values[upper] = _holm(values[upper])[1]
+    values[lower] = np.transpose(values)[lower]
+    np.fill_diagonal(values, 1)
+    return pd.DataFrame(values, index=raw.index, columns=raw.columns)
+
+
 def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
     """Return ``(adjusted, rejected)`` for one multiple-testing family.
 
@@ -323,10 +411,8 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
         rejected[finite] = q < alpha
         return adjusted, rejected
 
-    from statsmodels.stats.multitest import multipletests
-
-    call, corrected, _, _ = multipletests(
-        observed, alpha=alpha, method=spec.statsmodels_name
+    call, corrected = _multipletests(
+        observed, spec.statsmodels_name, alpha=alpha
     )
     adjusted[finite] = corrected
     rejected[finite] = call
@@ -336,35 +422,33 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
 def critical_p_value(p_values, method="fdr_bh", alpha=0.05):
     """The largest RAW P value ``method`` calls at ``alpha``, or ``None``.
 
-    THE NUMBER THAT LETS A CONTINUOUS AXIS SHOW A DISCRETE CALL. A volcano
-    drawn against the raw P value cannot put the adjusted P on its y-axis
-    without inheriting the step function BH's cumulative minimum creates --
-    but it does not have to. Every correction here is monotone in the raw P
-    within a family, so the set it calls is always a lower set: there is a
-    rank ``k`` such that every test with ``p <= p_(k)`` is called and every
-    test above it is not. One horizontal line at ``-log10(p_(k))`` therefore
-    divides the plot EXACTLY as the correction does, on an axis with no steps
-    anywhere.
+    The threshold lets a plot with a raw-P axis show the corrected call. A
+    volcano with the adjusted P on its y-axis inherits the step function
+    created by the cumulative minimum in Benjamini-Hochberg. Every correction
+    here is monotone in the raw P within a family, so the called set is a
+    lower set: there is a rank ``k`` such that every test with
+    ``p <= p_(k)`` is called and every test above it is not. One horizontal
+    line at ``-log10(p_(k))`` on the raw-P axis therefore separates the
+    called tests exactly as the correction does.
 
     For Benjamini-Hochberg this is the textbook identity
 
         q_(i) <= alpha   if and only if   p_(i) <= alpha * i / n
 
-    taken at the largest ``i`` that satisfies it. Computed here from the
-    correction's own rejection call rather than from that formula, so the
-    line cannot disagree with the colours beside it and the same one function
-    answers for all thirteen methods rather than for one.
+    taken at the largest ``i`` that satisfies it. The value is computed from
+    the correction's own rejection call rather than from that formula, so
+    the line agrees with the point colours and the same function serves all
+    thirteen methods in :data:`METHODS`.
 
-    THE LINE IS NOT ``alpha``. Drawing it at ``-log10(0.05)`` is the mistake
-    this replaces: that is the *uncorrected* threshold, it is far higher than
-    the corrected one, and a reader measuring against it reads far too much
-    of the screen as called.
+    The threshold is not ``alpha``. A line at ``-log10(0.05)`` marks the
+    *uncorrected* threshold, which is higher than the corrected one, so more
+    tests appear above it than the correction calls.
 
-    ``None`` WHEN NOTHING IS CALLED, and it is not a failure. There is then
-    no ``k`` and no line, and saying so is a finding; drawing one at
-    ``alpha`` instead would claim a threshold the procedure never reached.
+    ``None`` is returned when the correction calls no test. There is then no
+    ``k`` and no line to draw; a line at ``alpha`` would show a threshold
+    the procedure did not reach.
 
-    :param p_values: the raw P values of ONE multiple-testing family.
+    :param p_values: the raw P values of one multiple-testing family.
     :param method: any spelling :func:`canonical_method` accepts.
     :param alpha: the level the correction targets.
     :returns: the raw-P threshold as a float, or ``None``.

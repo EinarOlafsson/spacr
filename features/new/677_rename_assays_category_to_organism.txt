@@ -2,7 +2,7 @@
 RENAME THE ASSAYS CATEGORY TO ORGANISM
 ================================================================================
 
-Status:    REOPENED 2026-10-08 — heading done; first-run navigation help translation still missing.
+Status:    COMPLETE 100% 2026-10-10 — compact first-run Organism tour paragraph owned in all nine languages
 Requested: 2026-10-08 — "cahnge the assays category to organism"
 Owner:     Home/root implementation; workstation runtime translations/tutorials
 
@@ -75,3 +75,13 @@ paragraph still owns nine compact targets in i18n.py:140. This is a real remaini
 rename translation, not a failure of the already-fixed heading. Preserve both
 historical receipts; normal owner must review/replace the exact help source and
 retain all other compact ownership guards before final item closure.
+
+2026-10-10 — Compact wording owners closed. spacr.qt.i18n._ROWS now owns the
+first-run tour paragraph "Primary modules are grouped here into Core, Data,
+Tools and Organism; ..." (replacing the retired Assays wording) in all nine
+languages, naming the sections as the sidebar shows them in each language.
+The Make Masks shortcut caption "Box tool" also gained its compact row.
+test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned now
+reports only "spaCR blobs" (an ambient palette name owned by the animation
+lane, N684), so the Organism scope is clean. tests/qt/test_cov_w2_6_first_run.py
+and the caption ratchet PASS.

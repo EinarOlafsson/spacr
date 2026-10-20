@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import io
 import os
+import urllib.error
 
 import pytest
 
@@ -91,7 +92,7 @@ def test_the_refusal_says_nothing_was_installed_or_removed(tmp_path,
 def test_a_release_with_no_sums_file_still_installs(tmp_path, monkeypatch):
     """An older release published none, and must stay installable."""
     target = tmp_path / "installer.run"
-    _serve(monkeypatch, PAYLOAD, OSError("404"))
+    _serve(monkeypatch, PAYLOAD, urllib.error.HTTPError(URL, 404, "not published", None, None))
     ic._download(URL, str(target))
     assert target.read_bytes() == PAYLOAD
 

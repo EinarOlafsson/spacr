@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "Expliquer les modèles CV et examiner les résultats positifs"
 
-msgid "spaCR separates three questions that are easy to blur together:"
-msgstr "spaCR distingue trois questions faciles à confondre :"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR provides three separate analyses that answer different questions:"
+msgstr "spaCR propose trois analyses distinctes qui répondent à des questions différentes :"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "les cartes d’activation ou d’occlusion montrent **où** un modèle de vision a porté son attention ;"
@@ -40,8 +41,9 @@ msgstr "Le dernier résultat est une preuve faiblement supervisée, pas un code-
 msgid "Explain CV Model"
 msgstr "Expliquer le modèle CV"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "Le module s’ouvre depuis l’en-tête de **Classification** plutôt que depuis une tuile propre, à côté de **Évaluation du classificateur** : tous deux cherchent ce qu’un classifieur entraîné a réellement fait."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "Le module s’ouvre depuis l’en-tête de **Classification** plutôt que depuis une tuile propre, à côté de **Évaluation du classificateur** : tous deux analysent un classifieur entraîné existant et ses prédictions enregistrées."
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "Choisissez le fichier ``measurements.db`` exact et un CSV existant de prédictions CV par objet. Le module ne réexécute jamais le classifieur d’origine et ne le remplace pas silencieusement. Il joint les prédictions un à un aux objets mesurés et exclut de la matrice de caractéristiques du substitut les identifiants, les colonnes de prédiction et de classe, les scores, les annotations et les exclusions définies par l’utilisateur."
@@ -73,8 +75,9 @@ msgstr "Depuis l’en-tête de **Régression**, ouvrez **Liste des résultats**,
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "Fournissez la base de données de mesures, le CSV d’origine des prédictions par objet et le CSV des fractions de guides par puits. Les jointures utilisent des clés explicites d’objet et de plaque/ligne/colonne. Des clés d’objet en double ou des fractions puits/guide en double arrêtent l’exécution."
 
-msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "La première sortie est une file d’examen honnête : les cellules des puits contenant la cible, classées dans le sens de l’effet de la régression, avec la fraction du guide ciblant au niveau du puits affichée à côté. Le modèle d’attribution facultatif ensuite :"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "La première sortie est une file d’examen : les cellules des puits contenant la cible, classées dans le sens de l’effet de la régression, avec la fraction du guide ciblant au niveau du puits affichée à côté. Le modèle d’attribution facultatif ensuite :"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "traite les puits comme des sacs et les cellules comme des instances ;"

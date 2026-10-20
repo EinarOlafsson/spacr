@@ -1,10 +1,10 @@
 """The published TSG101 screen, as separately downloadable pieces.
 
-WHY PIECES. The screen is four plates of about 8 GB of crops each plus a
-half-gigabyte database each -- 33 GB in total. Almost nobody wants all of it:
-the regression measurement and cell functions read the DATABASES, and the crops
-are only needed when something has to display an image. Shipping it as one
-download would make trying one function cost 33 GB.
+The screen is four plates of about 8 GB of crops each plus a half-gigabyte
+database each -- 33 GB in total. The regression, measurement and cell
+functions read only the databases; the crops are needed only to display
+images. A single archive would require a 33 GB download to try one
+function.
 
 So each plate's database and each plate's crop folder is its own archive, and
 :class:`ScreenAsset` says how big each one is BEFORE it is fetched. The picker
@@ -44,8 +44,8 @@ class ScreenAsset:
     :param archive: the ``.tar`` in :data:`SCREEN_REPO`.
     :param plate: which plate it belongs to.
     :param kind: ``"measurements"`` or ``"crops"``.
-    :param bytes: the archive's size, so the picker can say what a tick costs
-        before it is paid.
+    :param bytes: the archive's size in bytes, shown by the picker before
+        the archive is downloaded.
     :param unpacks_to: the path inside the plate folder the archive fills, used
         to tell an already-downloaded piece from one that is missing.
     """
@@ -69,9 +69,9 @@ class ScreenAsset:
     def is_present(self, folder) -> bool:
         """Whether this piece is already unpacked under ``folder``.
 
-        Checks what the archive WRITES, not the folder it writes into: every
-        piece shares one plate directory, so the directory existing says
-        nothing about which pieces are in it.
+        Checks the files the archive writes, not the folder it writes into:
+        every piece shares one plate directory, so the directory's existence
+        does not show which pieces are in it.
 
         :param folder: plate directory under which this asset would unpack.
         :returns: whether the database file exists, or the crop directory
@@ -123,10 +123,10 @@ def assets_for(kind: Optional[str] = None,
 def published_archives(repo: str = SCREEN_REPO, *, timeout: float = 8.0):
     """The archive names actually present in ``repo``, or ``None``.
 
-    ``None`` means "could not tell" -- offline, or the hub did not answer --
-    and is DELIBERATELY different from an empty set. A caller that treated a
-    failed lookup as "nothing is published" would grey out every row and leave
-    the user with a picker that offers nothing and explains nothing.
+    ``None`` means the lookup failed -- offline, or the hub did not answer --
+    and is distinct from an empty set, which means the repository has no
+    archives. A caller that treated a failed lookup as an empty set would
+    disable every row of the picker without explanation.
 
     :param repo: Hugging Face dataset repository to inspect.
     :param timeout: give up rather than hold a dialog open on a slow network.
@@ -162,11 +162,10 @@ def total_size(assets) -> int:
 
 
 def human_size(count: int) -> str:
-    """``1234567`` as ``1.2 MB``.
+    """Format a byte count with decimal units, e.g. ``1234567`` as ``1.2 MB``.
 
-    Decimal units, matching what a download manager and a disk vendor both
-    report -- a user comparing this figure with either should not have to
-    know which of two conventions each of us picked.
+    Decimal units (1 KB = 1000 B) match what download managers and disk
+    vendors report.
 
     :param count: byte count to format.
     :returns: decimal-unit size from bytes through terabytes, with one decimal

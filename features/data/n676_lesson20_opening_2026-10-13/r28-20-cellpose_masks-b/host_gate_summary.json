@@ -1,0 +1,38 @@
+{
+  "clips": {
+    "02_actual_train_and_apply_tabs": {
+      "passed": false,
+      "reasons": [
+        "choppy (capture loss): 26.9 distinct fps < 27.9 [capture loss in second(s) [0, 4, 5, 6, 7, 8, 9, 13]; 3 of 81 unchanged frames fall in the app's 1 paint stalls]"
+      ],
+      "distinct_fps": 26.92,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 50.0,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 166.02,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        13
+      ],
+      "loadavg": [
+        11.38525390625,
+        10.10986328125
+      ],
+      "file": "02_actual_train_and_apply_tabs.gate.json"
+    }
+  },
+  "failed": [
+    "02_actual_train_and_apply_tabs"
+  ],
+  "passed": false
+}

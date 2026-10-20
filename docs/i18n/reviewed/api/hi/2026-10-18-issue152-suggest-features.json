@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.active_learning.annotation_coverage#7",
+      "source_sha256": "eb8e87e40c1228638c7ed50f596036ffda96a54a09dfd4086c37b21dc675e7a0",
+      "source": "the Annotate screen's own filter on the key, read the way the grid reads it (AND, OR, NOT, case-insensitive terms). Every count below it, ``n_rows`` included, is over the crops that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "context": "the Annotate application view's own filter on the structured-data name, read the way the grid reads it (AND, OR, NOT, case-insensitive terms). Every count below it, ``n_rows`` included, is over the extracted image regions that matched — a denominator taken from the whole table would put the numerator and the denominator on two different populations. ``n_rows_unfiltered`` keeps the total, and a note says how many were excluded.",
+      "translation": "कुंजी पर Annotate दृश्य का अपना फ़िल्टर, जिसे वैसे ही पढ़ा जाता है जैसे ग्रिड उसे पढ़ता है (AND, OR, NOT, बड़े-छोटे अक्षरों का भेद किए बिना शब्द)। इसके नीचे की हर गिनती, ``n_rows`` सहित, केवल उन निकाले गए छवि क्षेत्रों पर है जो मेल खाते हैं — पूरी तालिका से लिया गया हर, अंश और हर को दो अलग-अलग आबादियों पर रख देगा। ``n_rows_unfiltered`` कुल संख्या रखता है, और एक टिप्पणी बताती है कि कितने बाहर रखे गए।"
+    },
+    {
+      "label": "spacr.active_learning.build_queue#14",
+      "source_sha256": "0c12a9527a2ca7d996ce14b24151417f2d4ff407ab447992eaadc84f15e5e5ed",
+      "source": "the Annotate screen's ``image_type`` filter on ``png_path`` (e.g. ``'cell'`` or ``'cell AND NOT pathogen'``), read the way the grid reads it: AND, OR, NOT and parentheses, each term matched without regard to case.",
+      "context": "the Annotate application view's ``image_type`` filter on ``png_path`` (e.g. ``'cell'`` or ``'cell AND NOT pathogen'``), read the way the grid reads it: AND, OR, NOT and parentheses, each term matched without regard to case.",
+      "translation": "Annotate दृश्य का ``image_type`` फ़िल्टर, जो ``png_path`` पर लगता है (उदाहरण ``'cell'`` या ``'cell AND NOT pathogen'``), जिसे वैसे ही पढ़ा जाता है जैसे ग्रिड उसे पढ़ता है: AND, OR, NOT और कोष्ठक, और हर शब्द बड़े-छोटे अक्षरों का भेद किए बिना मिलाया जाता है।"
+    },
+    {
+      "label": "spacr.active_learning.crops_for_object_keys#11",
+      "source_sha256": "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
+      "source": "the Annotate image filter on the crop key, read the way the grid reads it (AND, OR, NOT, case-insensitive terms).",
+      "context": "the Annotate image filter on the extracted-image-region key, read the way the grid reads it (AND, OR, NOT, case-insensitive terms).",
+      "translation": "निकाले गए छवि क्षेत्र की कुंजी पर Annotate का चित्र फ़िल्टर, जिसे वैसे ही पढ़ा जाता है जैसे ग्रिड उसे पढ़ता है (AND, OR, NOT, बड़े-छोटे अक्षरों का भेद किए बिना शब्द)।"
+    },
+    {
+      "label": "spacr.active_learning.retrain_round#15",
+      "source_sha256": "9cd6e3e6bf6967d7813524ee433f9496cb4c49804fecc31651622975a55a1d6c",
+      "source": "the Annotate image filter on the crop key, read the way the grid reads it (AND, OR, NOT, case-insensitive terms).",
+      "context": "the Annotate image filter on the extracted-image-region key, read the way the grid reads it (AND, OR, NOT, case-insensitive terms).",
+      "translation": "निकाले गए छवि क्षेत्र की कुंजी पर Annotate का चित्र फ़िल्टर, जिसे वैसे ही पढ़ा जाता है जैसे ग्रिड उसे पढ़ता है (AND, OR, NOT, बड़े-छोटे अक्षरों का भेद किए बिना शब्द)।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#5",
+      "source_sha256": "50cdd854a2adde80ccef5cb67792eacef83a6e781f992348ba774ca19940808f",
+      "source": "object tables to take features from; missing ones are skipped, and ``None`` means the tables of the object types the crops show. A crop's own table (``nucleus`` for a nucleus crop) gives the object's own row, a parent table (``cell`` or ``cytoplasm``) the row of the cell it lies in, and any other table the mean of the rows inside that cell. A crop is kept when its own table is selected and holds its row, or, when its own table is not selected, when any selected table describes it.",
+      "context": "object tables to take features from; missing ones are skipped, and ``None`` means the tables of the object types the extracted image regions show. An extracted image region's own table (``nucleus`` for a nucleus extracted image region) gives the object's own row, a parent table (``cell`` or ``cytoplasm``) the row of the cell it lies in, and any other table the mean of the rows inside that cell. An extracted image region is kept when its own table is selected and holds its row, or, when its own table is not selected, when any selected table describes it.",
+      "translation": "वे वस्तु तालिकाएँ जिनसे फ़ीचर लिए जाते हैं; जो मौजूद नहीं हैं उन्हें छोड़ दिया जाता है, और ``None`` का अर्थ है उन वस्तु प्रकारों की तालिकाएँ जिन्हें निकाले गए छवि क्षेत्र दिखाते हैं। किसी क्षेत्र की अपनी तालिका (केंद्रक क्षेत्र के लिए ``nucleus``) वस्तु की अपनी पंक्ति देती है, एक मूल तालिका (``cell`` या ``cytoplasm``) उस कोशिका की पंक्ति देती है जिसमें वह स्थित है, और कोई भी दूसरी तालिका उस कोशिका के भीतर की पंक्तियों का माध्य देती है। कोई क्षेत्र तब रखा जाता है जब उसकी अपनी तालिका चुनी गई हो और उसमें उसकी पंक्ति हो, या, जब उसकी अपनी तालिका नहीं चुनी गई हो, तब जब कोई चुनी गई तालिका उसका वर्णन करती हो।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#6",
+      "source_sha256": "88b18e7d2f25c210f77d83db98f036e96b1c5c476b08fb8e6c2a8fc5f544e5a3",
+      "source": "a cell holding more nuclei than this gets no mean nucleus features; ``None`` sets no limit.",
+      "context": "a cell holding more nuclei than this gets no mean nucleus features; ``None`` sets no limit.",
+      "translation": "इससे अधिक केंद्रकों वाली कोशिका को कोई माध्य केंद्रक फ़ीचर नहीं मिलता; ``None`` कोई सीमा नहीं रखता।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#7",
+      "source_sha256": "708fc9f97cef8e5c591cc6207af56c516816452257a0e4795525601029cfe273",
+      "source": "a cell holding more pathogens than this gets no mean pathogen features; ``None`` sets no limit.",
+      "context": "a cell holding more pathogens than this gets no mean pathogen features; ``None`` sets no limit.",
+      "translation": "इससे अधिक रोगजनकों वाली कोशिका को कोई माध्य रोगजनक फ़ीचर नहीं मिलता; ``None`` कोई सीमा नहीं रखता।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#8",
+      "source_sha256": "c1c7877c9f138610ea04e46afe57495cac8e44bdd455f7277ef02c985568db9f",
+      "source": "keep only the features of these channel groups, ``channel_<n>`` and ``none`` for features no single channel enters (area, shape); ``None`` keeps every channel.",
+      "context": "keep only the features of these channel groups, ``channel_<n>`` and ``none`` for features no single channel enters (area, shape); ``None`` keeps every channel.",
+      "translation": "केवल इन चैनल समूहों के फ़ीचर रखें, ``channel_<n>`` और उन फ़ीचरों के लिए ``none`` जिनमें कोई एक चैनल शामिल नहीं होता (क्षेत्रफल, आकृति); ``None`` हर चैनल रखता है।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#9",
+      "source_sha256": "a544768f0f2433f29f5988e2c3cf403dc7ebacc56b3596a525c442db4144a966",
+      "source": "keep only these feature families, as named in :data:`spacr.feature_dict.FEATURE_FAMILIES` (``intensity``, ``morphology``, ``texture`` and so on); ``None`` keeps every family.",
+      "context": "keep only these feature families, as named in :data:`spacr.feature_dict.FEATURE_FAMILIES` (``intensity``, ``morphology``, ``texture`` and so on); ``None`` keeps every family.",
+      "translation": "केवल ये फ़ीचर परिवार रखें, जिनके नाम :data:`spacr.feature_dict.FEATURE_FAMILIES` में हैं (``intensity``, ``morphology``, ``texture`` आदि); ``None`` हर परिवार रखता है।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#10",
+      "source_sha256": "cb5da37bb1f043a0e89fe3d0ad83a3b64c4c42079041301d1bd88e89e003a48e",
+      "source": "numeric features indexed by ``png_path``.",
+      "context": "numeric features indexed by ``png_path``.",
+      "translation": "``png_path`` से अनुक्रमित संख्यात्मक फ़ीचर।"
+    },
+    {
+      "label": "spacr.active_learning.round_features#11",
+      "source_sha256": "a7972a1a00a26ce5a9a7b7342e3ccea30e2b327e11b9461bf0190b26cc4f5114",
+      "source": "when none of the object tables can be read, when the channel and family selection leaves no feature column, or when crops and measured objects exist and not one crop matches an object; the last names a crop key and an object key.",
+      "context": "when none of the object tables can be read, when the channel and family selection leaves no feature column, or when extracted image regions and measured objects exist and not one extracted image region matches an object; the last names an extracted image region structured-data name and an object identifier.",
+      "translation": "जब कोई भी वस्तु तालिका पढ़ी न जा सके, जब चैनल और परिवार का चयन कोई फ़ीचर स्तंभ न छोड़े, या जब निकाले गए छवि क्षेत्र और मापी गई वस्तुएँ मौजूद हों पर एक भी क्षेत्र किसी वस्तु से मेल न खाए; अंतिम स्थिति में एक क्षेत्र कुंजी और एक वस्तु कुंजी बताई जाती है।"
+    }
+  ]
+}

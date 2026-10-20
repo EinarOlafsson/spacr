@@ -43,11 +43,11 @@ def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inp
     assert 'pixels to answers' not in ' '.join(reviews['80_image_analysis_pathways']['scenes'])
     reference = reviews['79_module_inputs_outputs']
     prose = ' '.join(reference['scenes'])
-    from spacr.settings import _alpha_species_names
-    hidden = set(_alpha_species_names('apps'))
+    from spacr.settings import _alpha_names
+    hidden = set(_alpha_names('apps'))
     for key, module in data['modules'].items():
         if key in hidden:
-            continue  # alpha-species chapters are left out of lesson 79 (634)
+            continue  # alpha species (634) and alpha modules are left out of lesson 79
         assert module['name'] in prose
         if module.get('api_entry'):
             assert module['api_entry'] in prose

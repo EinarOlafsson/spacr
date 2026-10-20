@@ -766,7 +766,10 @@
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
       "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "translation": "Ce que propose la boîte du modèle de plages : les modèles de plages du zoo, puis ``bundled``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
@@ -774,7 +777,10 @@
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
       "context": "setting values, newest zoo model first.",
       "translation": "valeurs de réglage, le modèle du zoo le plus récent en premier.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.plaque_pass#0",
@@ -1014,7 +1020,9 @@
       "source_sha256": "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
       "context": "Looks where the processing session looks: the path itself, the zoo entry's own path, ``~/.spacr/models`` and the processing session's model cache under ``<src>/plaque_figures/models``.",
       "translation": "Cherche là où cherche l’exécution : le chemin lui-même, le chemin propre de l’entrée du zoo, ``~/.spacr/models`` et le cache de modèles de l’exécution sous ``<src>/plaque_figures/models``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "N644 active shared model cache replaces the fixed ~/.spacr/models path; 2026-10-15 source-bound replacement is recorded separately. Original review and target retained unchanged."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.resolve_detector#2",
@@ -1296,7 +1304,9 @@
       "source_sha256": "8002df1aa881f4bf52016412cb593be5165d31e5b2ef26a2b3da7a100655ddf7",
       "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
       "translation": "Lu depuis les données du paquet à chaque appel ; le dossier contient une poignée de petits fichiers et n’est lu que lorsque Experiment Design construit son menu. Un fichier qui ne s’analyse pas est ignoré au lieu de lever une exception : un modèle défectueux ne doit pas retirer les autres du menu.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plate_layout.plate_templates#2",
@@ -1844,7 +1854,9 @@
       "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
       "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
       "translation": "CE QU’IL MET À L’ÉCHELLE, EN DIRECT, SANS REDÉMARRAGE. Tout ce qui, dans l’aperçu, a été dimensionné en pixels par spaCR :",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#3",
@@ -1892,7 +1904,9 @@
       "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
       "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
       "translation": "La base propre de chaque valeur est mémorisée sur le widget, de sorte que la mise à l’échelle part toujours de la taille demandée par le code et ne se cumule jamais. Une taille que le code redéfinit plus tard devient la nouvelle base. À 100 %, rien n’est touché -- ni feuille, ni taille, ni propriété -- donc un aperçu à son échelle par défaut est l’aperçu qu’il était avant l’existence de ce module.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#9",
@@ -2734,7 +2748,10 @@
       "source_sha256": "91982ec19bf5272331678043dc74904f31e0761968259f7c37cd4b8fedccc42c",
       "context": "key-value mapping as :meth:`plot_state` returns it; structured-data names it lacks keep their current value. Nothing applies when it is not a key-value mapping or no table is loaded.",
       "translation": "dictionnaire tel que le renvoie :meth:`plot_state` ; les clés absentes conservent leur valeur actuelle. Rien n’est appliqué si ce n’est pas un dictionnaire ou si aucune table n’est chargée.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Regression workspace-state contracts expanded in 2b5ba2553db plus1cd00114b270. Replacement exact-source review is2026-10-15-n180-regression-state.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel.apply_workspace_state#2",
@@ -2854,7 +2871,10 @@
       "source_sha256": "2c15de80058dba9c9551d82b14cf764d4ef1b5623fbd0fa58ffe69cdf5651a04",
       "context": "the close event; passed on unchanged to the base class after the workers are shut down.",
       "translation": "l’événement de fermeture ; transmis tel quel à la classe de base après l’arrêt des workers.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Row-exclusion path, restore and lifecycle documentation corrected in ae9fe9df94b. Replacement exact-source review is2026-10-15-row-exclusion-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source#2",
@@ -3166,7 +3186,9 @@
       "source_sha256": "23edbf6a4e9531d947e2b1cefbfc35acf7368c6a86644d2f947c00c7c63dd07b",
       "context": "One widget, two owners. A segmentation preview has four things worth looking at: the image with the outlines on it, the label masks alone, the flow microscope field of view the masks were pooled from, and the cell probability the flow was thresholded at. Mask generation's live preview showed three of them through a dropdown; the plaque preview showed its own four through tabs, drawn by its own code. This module is the one place both can draw them from, so that a change to how a cell probability is coloured reaches both previews at once.",
       "translation": "UN WIDGET, DEUX PROPRIÉTAIRES. Un aperçu de segmentation a quatre choses qui méritent d’être regardées : l’image avec les contours dessus, les masques d’étiquettes seuls, le champ de flux à partir duquel les masques ont été regroupés, et la probabilité de cellule à laquelle le flux a été seuillé. L’aperçu en direct de la génération de masques en montrait trois via une liste déroulante ; l’aperçu Plaque montrait ses propres quatre via des onglets, dessinés par son propre code. Ce module est l’unique endroit à partir duquel les deux peuvent les dessiner, de sorte qu’un changement dans la façon de colorer une probabilité de cellule atteint les deux aperçus à la fois.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#2",
@@ -3174,7 +3196,9 @@
       "source_sha256": "73126bf99b9a4ee19e74a0ccb04e35f7d2ed4efd87428e521b30fa5b7001d496",
       "context": "The widget knows arrays, not modules. It is handed an image, label masks, flow pictures and cell probability maps -- each either one array or one per object -- and draws whichever of :data:`VIEWS` is chosen. Nothing in here names the Mask module, Cellpose settings or a plaque.",
       "translation": "LE WIDGET CONNAÎT DES TABLEAUX, PAS DES MODULES. On lui fournit une image, des masques d’étiquettes, des images de flux et des cartes de probabilité de cellule -- chacun sous forme d’un tableau unique ou d’un tableau par objet -- et il dessine celle des :data:`VIEWS` qui est choisie. Rien ici ne nomme le module Mask, les réglages Cellpose ou une plage de lyse.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#3",
@@ -3182,7 +3206,9 @@
       "source_sha256": "9e1ba76a10b44b4b3b23b6204855d096d06de5a02a8bc6675fb1b0ce997ddbf7",
       "context": "What an owner can change. The default renderers draw a plain overlay, categorical masks, the flows as Cellpose hands them and the probability on the magma scale. An owner with its own idea of an outline -- the live preview's colour choice and thickness -- registers a renderer for that view with :meth:`SegmentationViews.set_renderer` and keeps the other three. A renderer answers with a picture, with a sentence to show in the picture's place, or with ``None`` for the widget's own \"nothing yet\" sentence.",
       "translation": "CE QU’UN PROPRIÉTAIRE PEUT MODIFIER. Les rendus par défaut dessinent une superposition simple, des masques catégoriels, les flux tels que Cellpose les fournit et la probabilité sur l’échelle magma. Un propriétaire qui a sa propre idée d’un contour -- le choix de couleur et l’épaisseur de l’aperçu en direct -- enregistre un rendu pour cette vue avec :meth:`SegmentationViews.set_renderer` et conserve les trois autres. Un rendu répond par une image, par une phrase à afficher à la place de l’image, ou par ``None`` pour la phrase \"nothing yet\" propre au widget.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views#4",
@@ -3190,7 +3216,9 @@
       "source_sha256": "1307cb97112239c8e143a983363574d13fd6013433056103ee0de9fd2d47a3ab",
       "context": "The canvas is pluggable. An owner that already has a canvas with a ruler and a hover line on it (the live preview's ``_ZoomView``) hands it in; otherwise a :class:`PictureCanvas` is built, which fits, zooms, pans and saves on a right click like every other picture in the program.",
       "translation": "LE CANEVAS EST INTERCHANGEABLE. Un propriétaire qui dispose déjà d’un canevas avec une règle et une ligne de survol (le ``_ZoomView`` de l’aperçu en direct) le fournit ; sinon, un :class:`PictureCanvas` est construit, qui s’ajuste, zoome, se déplace et enregistre sur clic droit comme toutes les autres images du programme.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP#0",
@@ -3918,7 +3946,9 @@
       "source_sha256": "21b573e04a2ccab52e860d982f3e7fedabde66ee7b9553c9a1bd9573ca8d6c91",
       "context": "RECORDED, so first-run guidance does not greet a returning user as a new one. While an installer is running the user is asked first (:meth:`_may_close`): keeping it running leaves the application view open, and stopping it closes the application view as before.",
       "translation": "ENREGISTRÉ, afin que le guide de premier lancement n’accueille pas un utilisateur qui revient comme un nouvel utilisateur. Pendant qu’un installateur s’exécute, l’utilisateur est d’abord consulté (:meth:`_may_close`) : le laisser s’exécuter garde la vue ouverte, et l’arrêter ferme la vue comme auparavant.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.mouseMoveEvent#1",
@@ -3946,6 +3976,8 @@
     },
     {
       "label": "spacr.qt.widgets.setup_slides.SetupSlides.reject#3",
+      "retired": "2026-10-16",
+      "retired_reason": "The current docstring no longer contains this paragraph; no replacement block exists. Historical translation retained.",
       "source": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the screen open.",
       "source_sha256": "1eda2cf0c28e073f1515d8d31e44e8486932be66e55d31fe698222c0ba7f4b18",
       "context": "While an installer is running the user is asked first, as :meth:`accept` asks; keeping it running leaves the application view open.",

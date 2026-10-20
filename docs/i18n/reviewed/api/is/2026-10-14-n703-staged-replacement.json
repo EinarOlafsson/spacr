@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "N703: exactly three rewritten paragraphs. Directly authored from current English after normal MT inverted cache/model preservation in German and Spanish. All untouched paragraphs retain existing reviewed/history evidence. This record does not certify native installer behavior.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#1",
+      "source": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "source_sha256": "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
+      "context": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "translation": "Netuppsetningarforritin undirbúa og sannprófa nýja keyrsluumhverfið áður en eldri afrit forritsins eru fjarlægð. Þau varðveita núverandi uppsetningu meðan undirbúningur stendur yfir og endurheimta fyrra keyrsluumhverfið ef nýja umhverfið stenst ekki sannprófun. Uppfærsluhjálpin sannprófar túlkinn sem skjáborðsræsingin notar og forritið sem raunverulega er hlaðið inn áður en önnur afrit eru fjarlægð eða endurræsingar er óskað. :func:`run_update_sequence` er áfram grunnferlið fyrir fjarlægingu sem sérstaklega kallaðar hreinsiskipanir nota.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
+      "context": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "translation": "Forritskóði, ræsiforrit, flýtileiðir, valmyndarfærslur og skráningar fyrir fjarlægingu afrits sem uppsetningarforrit bjó til eru fjarlægð. Þekkt skyndiminni, líkön, prófunargögn, stilltar notandastaðsetningar og færslur sem tilheyra ekki forritinu í rótarmöppum netkeyrsluumhverfisins eru varðveitt. Rótarmappan getur verið áfram til að geyma þessar skrár. Debian-pakki er fjarlægður með pakkastjóra; ef skortur á stjórnandaréttindum kemur í veg fyrir það er tilkynnt að þeirra sé þörf. Úr umhverfi sem notandinn bjó til er aðeins spaCR-pakkinn fjarlægður og aðeins þegar ``ticked``; umhverfið sjálft helst. Afrit sem er sótt úr frumkóðageymslu er látið ósnert.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+      "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "translation": "Hefðbundna skiptiferlið sækir og keyrir nýja uppsetningarforritið sem undirbýr uppsetninguna, sannprófar raunverulegan túlk þess og innhlaðið forrit, fjarlægir síðan önnur afrit og ræsir forritið. Ef uppsetning eða sannprófun mistekst er fyrra afritið sem virkaði ekki fjarlægt. Mistök við fjarlægingu annarra afrita eru skráð án þess að forritið sé ræst aftur.",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
+    }
+  ]
+}

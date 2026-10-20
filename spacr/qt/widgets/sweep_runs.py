@@ -9,20 +9,16 @@ Runs are recorded when they start and updated when they finish. Saved sweep
 tables can be loaded alongside in-session records; switching rows announces a
 single active run to every dependent view.
 
-NOTHING ON THIS TAB TOUCHES A RUN FOLDER FROM THE GUI THREAD. Measured on one
-workstation: one ``os.path.exists`` on a path under
-``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had NOT
-RETURNED AFTER TWENTY SECONDS. Every row here carries a folder the user
-chose, and this panel used to walk, stat, read and delete those folders in
-the click that asked for it: the chooser's start directory, the sweep table
-read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete
-confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace``
-while the row menu was being built. Each of those is a frozen application
-with no traceback for as long as the mount takes to wake -- reported as
-"opening map barcodes crashes spacr", as hover flicker, and as glimpses of
-other screens. They run on a :class:`spacr.qt.job_runner.JobRunner` now, and
-the one bare existence question left -- which folder to open the chooser in
--- is answered from :mod:`spacr.qt.path_probe`'s cache.
+Nothing on this tab touches a run folder from the GUI thread. On one
+workstation a single ``os.path.exists`` on a path under ``/nas_mnt`` -- an
+``autofs`` mount whose share was asleep -- did not return within twenty
+seconds. Every row here carries a folder the user chose, so walking,
+stat-ing, reading and deleting those folders (the sweep table read on a tab
+change, ``describe_folder``'s ``os.walk`` inside the delete confirmation,
+``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row
+menu is built) run on a :class:`spacr.qt.job_runner.JobRunner`. The one
+remaining existence check -- which folder to open the chooser in -- is
+answered from :mod:`spacr.qt.path_probe`'s cache.
 """
 
 from __future__ import annotations
@@ -278,17 +274,16 @@ def _readable_size(total: int) -> str:
 def save_run_states(folders, app_key: str = "") -> tuple:
     """Write a workspace bundle for each of ``folders``.
 
-    WORKER ONLY -- :meth:`SweepRunsPanel._apply_run_menu` submits it. The
+    Worker only -- :meth:`SweepRunsPanel._apply_run_menu` submits it. The
     ``isdir`` below and the write after it are both on a folder the user
-    chose, and doing either in the menu's own click is the freeze the module
-    docstring describes.
+    chose, and doing either in the menu's own click would cause the freeze
+    the module docstring describes.
 
-    ASKED FOR, SO IT IS WRITTEN. `workspace.save_for_run` returns None when
-    the `runs/save_workspace` preference is off, which is right for the
-    automatic save at the end of a run and wrong here: a user who chose "Save
-    the state" from a menu has asked, and a menu item that silently does
-    nothing is worse than one that is absent. The mode is forced on for this
-    call only, and the preference is not written.
+    The state is written even when saving is turned off.
+    `workspace.save_for_run` returns None when the `runs/save_workspace`
+    preference is off, which applies to the automatic save at the end of a
+    run; here the user chose "Save the state" from a menu. The mode is forced
+    on for this call only, and the preference is not written.
 
     :param folders: run folders to save.
     :returns: ``(saved, failures)`` -- the folders that got a bundle, and
@@ -644,11 +639,11 @@ class SweepRunsPanel(QWidget):
     def load(self, folder) -> bool:
         """Read ``sweep_results.csv`` from a sweep's destination folder.
 
-        THE READ IS NOT DONE HERE. This is reached from a tab change
+        The read is not done here. This is reached from a tab change
         (`AppScreen._on_results_tab_changed`) with the sweep destination the
         user typed, and both the ``isfile`` and the ``read_csv`` block for as
-        long as that folder takes to answer -- which on one ``/nas_mnt`` was
-        twenty seconds of frozen application. The path work
+        long as that folder takes to answer -- on one ``/nas_mnt`` share,
+        twenty seconds. The path work
         below is pure string manipulation; everything that touches the disk
         goes to a worker and comes back to :meth:`_table_arrived`.
 
@@ -1243,11 +1238,10 @@ class SweepRunsPanel(QWidget):
     def describe_folder(folder: str) -> str:
         """What is in a run folder, in the words a decision needs.
 
-        "12 figures, 4 CSVs, 31 MB". A user deciding whether to destroy an
-        overnight fit needs to see WHAT they are destroying, and a folder
-        path alone is not that.
+        For example "12 figures, 4 CSVs, 31 MB", so a user deciding whether
+        to delete a run sees what the folder holds, not only its path.
 
-        WORKER ONLY -- it walks the whole run folder and stats every file in
+        Worker only -- it walks the whole run folder and stats every file in
         it. Never call it from menu-build or paint code.
 
         :param folder: path of the run folder to walk; an empty or missing
@@ -1283,7 +1277,7 @@ class SweepRunsPanel(QWidget):
         return ", ".join(parts) + f", {_readable_size(total)}"
 
     def remove_runs(self, records) -> int:
-        """Take rows off the table. THE FOLDERS ON DISK ARE UNTOUCHED.
+        """Take rows off the table. The folders on disk are untouched.
 
         The safe half, and the default gesture. It needs no confirmation
         because it is recoverable -- :meth:`reload` reads the folder again --
@@ -1330,11 +1324,10 @@ class SweepRunsPanel(QWidget):
         return count
 
     def delete_runs_from_disk(self, records, confirm=None) -> int:
-        """Delete the run FOLDERS, then take the rows off the table.
+        """Delete the run folders, then take the rows off the table.
 
-        NOT RECOVERABLE, so it takes a confirmation naming the folder and
-        saying what is in it, and there is no undo offered -- an undo that
-        cannot honour itself is worse than none.
+        Deletion cannot be undone, so it takes a confirmation naming the
+        folder and saying what is in it, and no undo is offered.
 
         :param records: run-row mappings whose distinct, existing ``folder``
             paths are candidates for deletion. A running record refuses the

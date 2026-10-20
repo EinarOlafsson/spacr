@@ -91,6 +91,21 @@ def test_labels_scores_and_splits_on_degenerate_input():
         {"nucleus_major_axis_length": [np.nan]})) == 64
 
 
+def test_scores_skip_an_absent_phase_and_splits_hold_out_whole_fields():
+    scores = m._phase_scores(["G1", "G1", "G2"], ["G1", "G2", "G2"],
+                             phases=("G1", "S", "G2"))
+    assert scores["n"] == 3
+    assert set(scores["f1"]) == {"G1", "G2"}
+    assert scores["macro_f1"] == pytest.approx(2 / 3)
+    groups = [f"f{i}" for i in range(5) for _ in range(3)]
+    held = m._field_split(groups, fraction=0.2, seed=1)
+    assert held.sum() == 3
+    assert len({g for g, h in zip(groups, held) if h}) == 1
+    assert np.array_equal(held, m._field_split(groups, fraction=0.2, seed=1))
+    with pytest.raises(ValueError, match="nonnegative integer"):
+        m._measurement_channel_index([1, 2])
+
+
 def test_xgboost_on_one_field_trains_on_everything_it_has():
     pytest.importorskip("xgboost")
     table, truth = _nucleus_table(n=200)

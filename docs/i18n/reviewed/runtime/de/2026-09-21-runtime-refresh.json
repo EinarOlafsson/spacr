@@ -163,13 +163,6 @@
       "translation": "Abstand in Pixeln, den ein Read außerhalb einer Kerngrenze liegen darf, um noch diesem Kern zugeordnet zu werden. Auf der Referenzplatte erfassten 10 Pixel 98 % der detektierten Spots und 3 Pixel 67 %. Die größere Entfernung ordnete 28 % mehr Objekten einen Barcode zu, bei etwas höherer Reinheit, weil die Reads um den Rand statt im Inneren liegen. Ein zu großer Wert ordnet Reads einem Nachbarkern zu. Standard 10."
     },
     {
-      "key": "ops_library",
-      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
-      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
-      "table": "setting_tooltips",
-      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None."
-    },
-    {
       "key": "ops_raster_overlap",
       "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
       "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
@@ -182,13 +175,6 @@
       "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
       "table": "setting_tooltips",
       "translation": "Gibt an, wie viel heller ein Spot als seine Umgebung sein muss, um als Read zu zählen. Ein niedrigerer Wert findet mehr Reads und mehr Störsignale; dies zeigt sich durch eine sinkende Übereinstimmung mit der Bibliothek, nicht durch eine Fehlermeldung. Ein höherer Wert verliert echte Reads und lässt zu wenige für eine Mehrheitsentscheidung je Kern übrig. Standard 315, der Wert des Referenzlaufs für diese Platte."
-    },
-    {
-      "key": "ops_store_reads",
-      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
-      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
-      "table": "setting_tooltips",
-      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False."
     },
     {
       "key": "ops_window_overlap",
@@ -296,25 +282,11 @@
       "translation": "<b>Fehler als GitHub-Issues melden</b><br><span style='color:gray;'>Berichte gehen an das öffentliche spaCR-Repository auf GitHub; Pfade, Namen und Zugangsdaten werden unkenntlich gemacht. Bei always (Standard) erstellt ein fehlgeschlagener Lauf seinen Bericht automatisch einmal pro Fehler, sofern unten eine Anmeldung bei GitHub besteht. Bei ask erscheint unter der Konsole die Schaltfläche \"File as issue\". Der Bericht wird erst gesendet, wenn Sie in der Vorschau auf Bericht senden klicken. Ändern unter Hilfe → spaCR erneut einrichten….</span>"
     },
     {
-      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
-      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
-      "table": "ui",
-      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist."
-    },
-    {
       "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
       "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
       "table": "ui",
       "translation": "Eine eigene WAV-Datei als Hintergrundmusik anstelle der Musik von spaCR. Für die spaCR-Musik leer lassen. Es wird nichts hochgeladen oder kopiert: Die Datei wird an ihrem Speicherort gelesen; auch die Bewegung des Resonance-Hintergrunds richtet sich nach ihr."
-    },
-    {
-      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
-      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
-      "table": "ui",
-      "translation": "Eine klare Nacht: Indigo, Violett, Eisblau und das blasse Immergrünblau, das der Himmel lange nach Sonnenuntergang behält."
     },
     {
       "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
@@ -345,32 +317,11 @@
       "translation": "Ein ruhiges Stück in Endlosschleife in der Tonart des Klangsets: Flächenklänge, ein gezupftes Arpeggio mit punktiertem Achtel-Echo, ein weicher Subbass sowie leise Bassdrum-Schläge auf jeder Zählzeit und ein Shaker, die je nach Arrangement einsetzen und aussetzen. Unabhängig von den übrigen Klängen, sodass Rückmeldungen auch ohne Musik möglich sind. Bei den Stufen Laptop und Extra Performance pausiert es."
     },
     {
-      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
-      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
-      "table": "ui",
-      "translation": "Ein aufsteigendes Arpeggio, das sich bei erfolgreichem Abschluss eines Modullaufs auf den Grundton auflöst -- hörbar auch dann, wenn spaCR in einem anderen Fenster ist."
-    },
-    {
-      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
-      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
-      "table": "ui",
-      "translation": "Ein kurzer, leiser Zupfton in der Tonart des Klangsets beim Betätigen einer Schaltfläche, eines Schalters, einer Registerkarte, Liste oder eines Schiebereglers. Er bestätigt dezent, dass die Eingabe angekommen ist."
-    },
-    {
       "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
       "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
       "table": "ui",
       "translation": "Eine langsamere absteigende Tonfolge, wenn ein Lauf mit einem Fehler endet. So klingen erfolgreiche und fehlgeschlagene Läufe unterschiedlich. Wenn Sie einen Lauf selbst stoppen, bleibt er stumm."
-    },
-    {
-      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
-      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
-      "table": "ui",
-      "translation": "Eine Sonne nahe am Horizont und die Materie, durch die sie scheint: Gold, Bernstein, helles Gold und Moos."
     },
     {
       "key": "Add a model",
@@ -385,13 +336,6 @@
       "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
       "table": "ui",
       "translation": "Feld hinzufügen"
-    },
-    {
-      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
-      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
-      "table": "ui",
-      "translation": "Ergänzt die Protokolldateien in ~/.spacr/logs um DEBUG-Meldungen von spaCR. Außerdem meldet cellpose, welches Modell geladen wurde, und betätigte Schaltflächen werden protokolliert. Diese Informationen machen einen Fehlerbericht aussagekräftig.\n\nIn der Messung dauerte das Starten von spaCR und das Öffnen seiner Ansichten mit dieser Option nicht länger. Auf einer Workstation wurde jedes Modul einmal mit und einmal ohne die Option geöffnet. Home war nach einem Kaltstart in beiden Fällen nach etwa 4 Sekunden bereit. Das langsamste Modul öffnete sich jeweils nach etwa 7 Sekunden. Laufzeiten der Pipelines wurden nicht gemessen.\n\nDie Konsole zeigt weiterhin nur die auf der Registerkarte Protokollierung aktivierten Meldungsstufen. Dieser Schalter zeichnet nicht jeden Funktionsaufruf auf. Das dafür vorgesehene Entwicklerwerkzeug wird hier nicht eingeschaltet."
     },
     {
       "key": "Add…",
@@ -716,13 +660,6 @@
       "translation": "Datenbank oder Zuschnittordner suchen"
     },
     {
-      "key": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source": "Finish signing in to {label} in the window that opened, then press Done.",
-      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
-      "table": "ui",
-      "translation": "Schließen Sie die Anmeldung bei {label} im geöffneten Fenster ab und klicken Sie dann auf Fertig."
-    },
-    {
       "key": "Five-parameter logistic (asymmetric)",
       "source": "Five-parameter logistic (asymmetric)",
       "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736",
@@ -840,13 +777,6 @@
       "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e",
       "table": "ui",
       "translation": "{name} installieren?"
-    },
-    {
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
-      "table": "ui",
-      "translation": "{label} wird installiert..."
     },
     {
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
@@ -1059,13 +989,6 @@
       "translation": "Standardmäßig ausgeschaltet. Solange die Option aus ist, lädt spaCR keine Audiobibliothek und spielt nichts ab. Bei aktivierter Option gibt spaCR die unten eingeschalteten Klänge über die Standard-Audioausgabe Ihres Rechners wieder."
     },
     {
-      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
-      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
-      "table": "ui",
-      "translation": "Bietet die Installation der GitHub CLI an und meldet Sie anschließend an. Auch ohne sie lassen sich Issues erstellen -- sie öffnen sich im Browser, in dem Sie bereits angemeldet sind."
-    },
-    {
       "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
       "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
@@ -1120,13 +1043,6 @@
       "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
       "table": "ui",
       "translation": "{name} wird geöffnet"
-    },
-    {
-      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
-      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
-      "table": "ui",
-      "translation": "Öffnet die Registrierungsseite von GitHub im Browser. Kehren Sie anschließend hierher zurück, um die GitHub CLI zu installieren und sich anzumelden."
     },
     {
       "key": "Otsu",
@@ -1290,13 +1206,6 @@
       "translation": "Kurzbefehle"
     },
     {
-      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
-      "table": "ui",
-      "translation": "Zeigt oder verbirgt alle Einstellungen gemeinsam: Pinsel, Zauberstab, Anzeige, automatischer Filter, Objektoperationen, Otsu, Objekterkennung und Live-Lupe. Die Bildfläche übernimmt den frei werdenden Platz."
-    },
-    {
       "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
@@ -1323,27 +1232,6 @@
       "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca",
       "table": "ui",
       "translation": "Verkleinern"
-    },
-    {
-      "key": "Sign in",
-      "source": "Sign in",
-      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
-      "table": "ui",
-      "translation": "Anmelden"
-    },
-    {
-      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
-      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
-      "table": "ui",
-      "translation": "Melden Sie sich bei {label} im geöffneten Fenster an. spaCR bemerkt, wenn Sie fertig sind."
-    },
-    {
-      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
-      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
-      "table": "ui",
-      "translation": "Die Anmeldung bei {label} wurde nicht innerhalb von {minutes} Minuten abgeschlossen. Klicken Sie auf Anmelden, um es erneut zu versuchen."
     },
     {
       "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
@@ -1381,13 +1269,6 @@
       "translation": "Wird gestartet…"
     },
     {
-      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
-      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
-      "table": "ui",
-      "translation": "Das Warten auf die Anmeldung wurde beendet. Klicken Sie auf Anmelden, um erneut zu beginnen, oder nach erfolgter Anmeldung auf Fertig."
-    },
-    {
       "key": "Stopping after this page…",
       "source": "Stopping after this page…",
       "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
@@ -1395,25 +1276,11 @@
       "translation": "Wird nach dieser Seite gestoppt…"
     },
     {
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
-      "table": "ui",
-      "translation": "Installationsprogramm wird gestoppt…"
-    },
-    {
       "key": "Test on my folder",
       "source": "Test on my folder",
       "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
       "table": "ui",
       "translation": "An meinem Ordner testen"
-    },
-    {
-      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
-      "table": "ui",
-      "translation": "Der von spaCR ausgeführte Befehl. Kopieren Sie ihn, um ihn stattdessen selbst in einem Terminal auszuführen."
     },
     {
       "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
@@ -1428,20 +1295,6 @@
       "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
       "table": "ui",
       "translation": "Die Dateien"
-    },
-    {
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
-      "table": "ui",
-      "translation": "Der Installer konnte nicht ausgeführt werden: {error}"
-    },
-    {
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
-      "table": "ui",
-      "translation": "Die letzten Farben am Himmel -- Rosa und Magenta über mattem Gold, dazu das Pflaumenviolett des Horizonts kurz vor Einbruch der Dunkelheit."
     },
     {
       "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
@@ -1463,13 +1316,6 @@
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3",
       "table": "ui",
       "translation": "Der Bericht wurde gesendet: {url}"
-    },
-    {
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
-      "table": "ui",
-      "translation": "Das Anmelden konnte von hier aus nicht gestartet werden. Führen Sie den Befehl unten in einem Terminal aus und drücken Sie dann Fertig."
     },
     {
       "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
@@ -1561,13 +1407,6 @@
       "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777",
       "table": "ui",
       "translation": "Testet jede Konvention am Quellordner und ordnet sie nach der Anzahl lesbarer Namen. Dies liefert nur einen Bericht; Ihre Einstellung wird nicht automatisch geändert."
-    },
-    {
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
-      "table": "ui",
-      "translation": "Unter der Oberfläche: Seegrün, Mint und das Petrol, das als letzte Farbe bleibt, wenn alle warmen Farbtöne absorbiert wurden."
     },
     {
       "key": "Uninstall",
@@ -1689,13 +1528,6 @@
       "translation": "Modellgewichte für die Segmentierung dieses Felds und des Lupenfensters im Cellpose-Modus. Die Liste umfasst die auf diesem Rechner installierte Cellpose-Version sowie alle Cellpose-Modelle im Model Zoo. Noch nicht heruntergeladene Modelle sind ausgegraut; ihre Auswahl lädt sie herunter und aktiviert sie."
     },
     {
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
-      "table": "ui",
-      "translation": "Bei ausführlicher Protokollierung (Registerkarte Module) wird DEBUG immer in die Protokolldateien geschrieben; dieser Schalter bleibt deshalb eingeschaltet. Deaktivieren Sie die ausführliche Protokollierung, um selbst zu wählen. Ihre eigene Auswahl bleibt dafür gespeichert."
-    },
-    {
       "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "source_sha256": "147130125966f3373bbf16413f3447b8e93d5e59819f787418670ec517373fe9",
@@ -1794,13 +1626,6 @@
       "translation": "jede Platte"
     },
     {
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
-      "table": "ui",
-      "translation": "npm durfte nicht in seinen globalen Ordner schreiben. Führen Sie einmal `npm config set prefix ~/.local` in einem Terminal aus, damit npm in einen Ordner in Ihrem Besitz installiert. Klicken Sie dann auf Erneut versuchen."
-    },
-    {
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438",
@@ -1855,20 +1680,6 @@
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e",
       "table": "ui",
       "translation": "{key} ist im Formular dieses Moduls nicht vorhanden."
-    },
-    {
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
-      "table": "ui",
-      "translation": "{label} ist installiert."
-    },
-    {
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
-      "table": "ui",
-      "translation": "{label} ist angemeldet und bereit."
     },
     {
       "key": "{name} in {where}",
@@ -2115,6 +1926,252 @@
         "table": "ui",
         "translation": "Verhalten eines neuen Objekts an Stellen, an denen die Maske bereits ein Objekt enthält. Clip übernimmt nur seine unmarkierten Pixel, sodass vorhandene Objekte keine Pixel verlieren. Skip lässt jedes Objekt aus, das ein vorhandenes berührt. Replace lässt das neue Objekt alle von ihm bedeckten Pixel übernehmen. Unter Bereich unter dem Mauszeiger zeigt die Vorschau das Ergebnis dieser Regel: Was ein Klick hinzufügen würde, erscheint deckend; was er entfernen würde, erscheint transparent."
       }
+    },
+    {
+      "key": "ops_library",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "table": "setting_tooltips",
+      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None."
+    },
+    {
+      "key": "ops_store_reads",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "table": "setting_tooltips",
+      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False."
+    },
+    {
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "table": "ui",
+      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist."
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source": "Finish signing in to {label} in the window that opened, then press Done.",
+        "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+        "table": "ui",
+        "translation": "Schließen Sie die Anmeldung bei {label} im geöffneten Fenster ab und klicken Sie dann auf Fertig."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+        "table": "ui",
+        "translation": "{label} wird installiert..."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+        "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+        "table": "ui",
+        "translation": "Bietet die Installation der GitHub CLI an und meldet Sie anschließend an. Auch ohne sie lassen sich Issues erstellen -- sie öffnen sich im Browser, in dem Sie bereits angemeldet sind."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+        "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+        "table": "ui",
+        "translation": "Öffnet die Registrierungsseite von GitHub im Browser. Kehren Sie anschließend hierher zurück, um die GitHub CLI zu installieren und sich anzumelden."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in",
+        "source": "Sign in",
+        "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+        "table": "ui",
+        "translation": "Anmelden"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+        "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+        "table": "ui",
+        "translation": "Melden Sie sich bei {label} im geöffneten Fenster an. spaCR bemerkt, wenn Sie fertig sind."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+        "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+        "table": "ui",
+        "translation": "Die Anmeldung bei {label} wurde nicht innerhalb von {minutes} Minuten abgeschlossen. Klicken Sie auf Anmelden, um es erneut zu versuchen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+        "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+        "table": "ui",
+        "translation": "Das Warten auf die Anmeldung wurde beendet. Klicken Sie auf Anmelden, um erneut zu beginnen, oder nach erfolgter Anmeldung auf Fertig."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+        "table": "ui",
+        "translation": "Installationsprogramm wird gestoppt…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+        "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+        "table": "ui",
+        "translation": "Der von spaCR ausgeführte Befehl. Kopieren Sie ihn, um ihn stattdessen selbst in einem Terminal auszuführen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+        "table": "ui",
+        "translation": "Der Installer konnte nicht ausgeführt werden: {error}"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+        "table": "ui",
+        "translation": "Das Anmelden konnte von hier aus nicht gestartet werden. Führen Sie den Befehl unten in einem Terminal aus und drücken Sie dann Fertig."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+        "table": "ui",
+        "translation": "npm durfte nicht in seinen globalen Ordner schreiben. Führen Sie einmal `npm config set prefix ~/.local` in einem Terminal aus, damit npm in einen Ordner in Ihrem Besitz installiert. Klicken Sie dann auf Erneut versuchen."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+        "table": "ui",
+        "translation": "{label} ist installiert."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+        "table": "ui",
+        "translation": "{label} ist angemeldet und bereit."
+      }
+    },
+    {
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "table": "ui",
+      "translation": "Zeigt oder verbirgt alle Einstellungen gemeinsam: Pinsel, Zauberstab, Anzeige, automatischer Filter, Objektoperationen, Otsu, Objekterkennung und Live-Lupe. Die Bildfläche übernimmt den frei werdenden Platz.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
+    },
+    {
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "table": "ui",
+      "translation": "Eine klare Nacht: Indigo, Violett, Eisblau und das blasse Immergrünblau, das der Himmel lange nach Sonnenuntergang behält.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "table": "ui",
+      "translation": "Ein aufsteigendes Arpeggio, das sich bei erfolgreichem Abschluss eines Modullaufs auf den Grundton auflöst -- hörbar auch dann, wenn spaCR in einem anderen Fenster ist.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "table": "ui",
+      "translation": "Ein kurzer, leiser Zupfton in der Tonart des Klangsets beim Betätigen einer Schaltfläche, eines Schalters, einer Registerkarte, Liste oder eines Schiebereglers. Er bestätigt dezent, dass die Eingabe angekommen ist.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "table": "ui",
+      "translation": "Eine Sonne nahe am Horizont und die Materie, durch die sie scheint: Gold, Bernstein, helles Gold und Moos.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "table": "ui",
+      "translation": "Ergänzt die Protokolldateien in ~/.spacr/logs um DEBUG-Meldungen von spaCR. Außerdem meldet cellpose, welches Modell geladen wurde, und betätigte Schaltflächen werden protokolliert. Diese Informationen machen einen Fehlerbericht aussagekräftig.\n\nIn der Messung dauerte das Starten von spaCR und das Öffnen seiner Ansichten mit dieser Option nicht länger. Auf einer Workstation wurde jedes Modul einmal mit und einmal ohne die Option geöffnet. Home war nach einem Kaltstart in beiden Fällen nach etwa 4 Sekunden bereit. Das langsamste Modul öffnete sich jeweils nach etwa 7 Sekunden. Laufzeiten der Pipelines wurden nicht gemessen.\n\nDie Konsole zeigt weiterhin nur die auf der Registerkarte Protokollierung aktivierten Meldungsstufen. Dieser Schalter zeichnet nicht jeden Funktionsaufruf auf. Das dafür vorgesehene Entwicklerwerkzeug wird hier nicht eingeschaltet.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "table": "ui",
+      "translation": "Die letzten Farben am Himmel -- Rosa und Magenta über mattem Gold, dazu das Pflaumenviolett des Horizonts kurz vor Einbruch der Dunkelheit.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "table": "ui",
+      "translation": "Unter der Oberfläche: Seegrün, Mint und das Petrol, das als letzte Farbe bleibt, wenn alle warmen Farbtöne absorbiert wurden.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "table": "ui",
+      "translation": "Bei ausführlicher Protokollierung (Registerkarte Module) wird DEBUG immer in die Protokolldateien geschrieben; dieser Schalter bleibt deshalb eingeschaltet. Deaktivieren Sie die ausführliche Protokollierung, um selbst zu wählen. Ihre eigene Auswahl bleibt dafür gespeichert.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

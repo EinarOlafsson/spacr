@@ -4,21 +4,21 @@ Once a preview session has made more than one mask, the masks and the
 field can be ticked, given an opacity and put in a stacking order, and the
 composite is drawn in a panel beside the preview's other views.
 
-TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the
-picture a user sees can be checked pixel by pixel against a hand
-calculation. :class:`MaskComparisonDialog` is the popup that chooses what
-goes into it. Neither knows about the Mask module; the live preview hands
-in its session's masks and its field, and draws the answer.
+The module has two parts. :func:`composite` is the arithmetic, on plain
+arrays, so the picture a user sees can be checked pixel by pixel against a
+hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what
+goes into it. Neither knows about the Mask module; the live preview hands in
+its session's masks and its field, and draws the answer.
 
-THE ARITHMETIC IS "OVER", LAYER BY LAYER, FROM THE BOTTOM. The canvas
+Layers are composited with the "over" operator, bottom first. The canvas
 starts black. Each ticked layer, bottom first, is laid on with its opacity
 ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does
 not, ``out`` is left alone. An image covers every pixel; a mask covers its
-objects only, so the background of a mask never dims what is under it.
-The result is rounded to the nearest whole grey level.
+objects only, so the background of a mask never dims what is under it. The
+result is rounded to the nearest whole grey level.
 
-THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the
-stack first, the way every drawing program does, and :meth:`chosen` hands
+The stacking order reads like a layer list. The popup lists the top of the
+stack first, as most drawing programs do, and :meth:`chosen` hands
 the layers back bottom first, the order :func:`composite` lays them on.
 """
 from __future__ import annotations
@@ -111,7 +111,7 @@ class MaskComparisonDialog(QDialog):
     ``QDialog``, so spaCR's card and rim reach it the way they reach every
     other popup.
 
-    :param layers: the choices, TOP OF THE STACK FIRST.
+    :param layers: the choices, top of the stack first.
     :param parent: parent widget; ownership only.
     """
 
@@ -215,5 +215,5 @@ class MaskComparisonDialog(QDialog):
         return [replace(layer) for layer in self._layers]
 
     def chosen(self) -> List[Layer]:
-        """The ticked layers, BOTTOM FIRST, ready for :func:`composite`."""
+        """The ticked layers, bottom first, ready for :func:`composite`."""
         return [layer for layer in reversed(self.listed()) if layer.ticked]

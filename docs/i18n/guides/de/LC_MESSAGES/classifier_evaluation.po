@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Classifier evaluation workbench"
 msgstr "Werkbank zur Klassifikatorauswertung"
 
-msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead, because judging a classifier is the sentence after training one. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
-msgstr "Die Kreuzvalidierung von Klassifikatoren behält jede Out-of-Fold-Wahrscheinlichkeit, statt einen Fold auf eine einzige Genauigkeitszahl zu reduzieren. Die Werkbank hat keine eigene Kachel: Sie wird aus der Kopfleiste von **Klassifizieren** geöffnet, denn die Beurteilung eines Klassifikators ist der Schritt nach seinem Training. Klicken Sie dort auf **Klassifikatorauswertung** und legen Sie einen Modell- bzw. Ergebnisordner auf der Seite ab. Die Suche läuft im Hintergrund und findet jede ``evaluation_manifest.json`` unterhalb dieses Ordners."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Classifier cross-validation retains every out-of-fold probability instead of reducing a fold to one accuracy number. The workbench has no tile of its own: it opens from the **Classify** masthead. Press **Classifier Evaluation** there and drop a model/results folder onto the page. The scan runs in the background and finds every ``evaluation_manifest.json`` below that folder."
+msgstr "Die Kreuzvalidierung von Klassifikatoren behält jede Out-of-Fold-Wahrscheinlichkeit, statt einen Fold auf eine einzige Genauigkeitszahl zu reduzieren. Die Werkbank hat keine eigene Kachel: Sie wird aus der Kopfleiste von **Klassifizieren** geöffnet. Klicken Sie dort auf **Klassifikatorauswertung** und legen Sie einen Modell- bzw. Ergebnisordner auf der Seite ab. Die Suche läuft im Hintergrund und findet jede ``evaluation_manifest.json`` unterhalb dieses Ordners."
 
 msgid "The workbench shows:"
 msgstr "Die Werkbank zeigt:"
@@ -67,8 +68,9 @@ msgstr "Gruppierte und verschachtelte Kreuzvalidierung"
 msgid "``cross_validation_folds`` controls the outer folds and ``cv_group_by`` keeps related fields, wells, or plates together. The default is well-grouped CV. Set ``nested_cv_inner_folds`` to two or more to enable true nested CV."
 msgstr "``cross_validation_folds`` steuert die äußeren Folds, und ``cv_group_by`` hält zusammengehörige Bildfelder, Wells oder Platten zusammen. Die Voreinstellung ist eine nach Wells gruppierte Kreuzvalidierung. Setzen Sie ``nested_cv_inner_folds`` auf zwei oder mehr, um eine echte verschachtelte Kreuzvalidierung zu aktivieren."
 
-msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This is fast and useful for routine comparisons, but can give a slightly optimistic estimate when many choices are made against that fold."
-msgstr "Bei der gewöhnlichen Kreuzvalidierung wird der äußere Validierungs-Fold für die Auswahl des Checkpoints und für die gemeldete Leistung verwendet. Das ist schnell und für Routinevergleiche nützlich, kann aber eine leicht optimistische Schätzung ergeben, wenn viele Entscheidungen anhand dieses Folds getroffen werden."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "In ordinary CV, the outer validation fold is used for checkpoint selection and reported performance. This requires fewer training runs than nested CV, but the estimate can be optimistically biased when many choices are made against that fold."
+msgstr "Bei der gewöhnlichen Kreuzvalidierung wird der äußere Validierungs-Fold für die Auswahl des Checkpoints und für die gemeldete Leistung verwendet. Das erfordert weniger Trainingsläufe als eine verschachtelte Kreuzvalidierung, die Schätzung kann jedoch optimistisch verzerrt sein, wenn viele Entscheidungen anhand dieses Folds getroffen werden."
 
 msgid "In nested CV, each outer training partition is split again. Models select checkpoints only against an inner validation fold; the untouched outer fold is used once for final scoring. The inner models form an ensemble for that outer fold. This costs ``cross_validation_folds * nested_cv_inner_folds`` training runs, but keeps model selection separate from performance estimation."
 msgstr "Bei der verschachtelten Kreuzvalidierung wird jede äußere Trainingspartition erneut aufgeteilt. Modelle wählen Checkpoints nur anhand eines inneren Validierungs-Folds aus; der unberührte äußere Fold wird einmal für die abschließende Bewertung verwendet. Die inneren Modelle bilden für diesen äußeren Fold ein Ensemble. Dies kostet ``cross_validation_folds * nested_cv_inner_folds`` Trainingsläufe, hält aber die Modellauswahl von der Leistungsschätzung getrennt."
@@ -76,8 +78,9 @@ msgstr "Bei der verschachtelten Kreuzvalidierung wird jede äußere Trainingspar
 msgid "Leakage protection"
 msgstr "Schutz vor Leakage"
 
-msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises an actionable error before model fitting. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
-msgstr "Vor dem Training prüft spaCR exakte Pfade, Augmentierungsfamilien, Objekte und die konfigurierte Gruppierungsebene auf beiden Seiten jeder Aufteilung. Mit ``evaluation_fail_on_leakage=True`` (Voreinstellung) löst jede geschützte Überlappung vor der Modellanpassung einen Fehler mit Handlungshinweis aus. Augmentierungen werden nach der Aufteilung erzeugt, sodass transformierte Kopien nicht in einen zurückgehaltenen Fold gelangen können."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Before training, spaCR checks exact paths, augmentation families, objects and the configured grouping level on both sides of every split. With ``evaluation_fail_on_leakage=True`` (the default), any protected overlap raises ``LeakageError`` before model fitting; the message lists the overlap counts per level. Augmentations are generated after splitting so transformed copies cannot enter a held-out fold."
+msgstr "Vor dem Training prüft spaCR exakte Pfade, Augmentierungsfamilien, Objekte und die konfigurierte Gruppierungsebene auf beiden Seiten jeder Aufteilung. Mit ``evaluation_fail_on_leakage=True`` (Voreinstellung) löst jede geschützte Überlappung vor der Modellanpassung ``LeakageError`` aus; die Meldung listet die Anzahl der Überlappungen pro Ebene auf. Augmentierungen werden nach der Aufteilung erzeugt, sodass transformierte Kopien nicht in einen zurückgehaltenen Fold gelangen können."
 
 msgid "Temperature calibration"
 msgstr "Temperaturkalibrierung"

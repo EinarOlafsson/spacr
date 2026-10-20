@@ -34,7 +34,9 @@
       "source_sha256": "68fcf0be6e95d447179c88cdaf96cde4fe0d3cfac9558a064380e3d5500f1a2a",
       "context": ":func:`method_applicability` for every registered method, by name.",
       "translation": "등록된 모든 방법에 대한 :func:`method_applicability` 결과이며, 이름별로 제공됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.architecture_kind#0",
@@ -42,7 +44,9 @@
       "source_sha256": "216352c3f8a763c41a3026a2e82665a4dd11d48c07aae937435e440b87f4d8f3",
       "context": "Classify a backbone into what the attribution families can use.",
       "translation": "백본을 귀속 계열들이 사용할 수 있는 종류로 분류합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.architecture_kind#1",
@@ -74,7 +78,9 @@
       "source_sha256": "7bee3a802a9a6a4dd59dbb6013aed91af68e2995f37c1dd152c1c958eee4dfdd",
       "context": ":func:`method_applicability` for a ``cam_type`` setting value.",
       "translation": ":func:`method_applicability` 를 ``cam_type`` 설정 값에 대해 적용한 결과입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.cam_type_applicability#1",
@@ -130,7 +136,9 @@
       "source_sha256": "e524e886fe1a31bb50d721eeb276302421da04a4fb462a81a2ba7199fb7b44da",
       "context": "Every ``cam_type`` the Activation Maps settings can name, in menu order.",
       "translation": "Activation Maps 설정이 지정할 수 있는 모든 ``cam_type`` 이며, 메뉴 순서를 따릅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.chefer_relevance#0",
@@ -138,7 +146,9 @@
       "source_sha256": "bc950ccd085fd63f98634e57fca78f0662962ef4dc9d32bdbffe24282f4edb95",
       "context": "Class-specific transformer relevance (Chefer, Gur & Wolf 2021).",
       "translation": "클래스별 트랜스포머 관련성입니다(Chefer, Gur & Wolf 2021).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.chefer_relevance#1",
@@ -210,7 +220,9 @@
       "source_sha256": "74c143460065431729d6cab15c0c6ac52215b6ab9de2c107c6947b36fae2b374",
       "context": "Whether a registered method can give a meaningful map for this backbone.",
       "translation": "등록된 방법이 이 백본에 대해 의미 있는 지도를 줄 수 있는지 여부입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.method_applicability#1",
@@ -242,7 +254,9 @@
       "source_sha256": "15be02ac3dd27b2ace560b802cfb6402fbae914fe62570d3e6e75469767cbaf2",
       "context": "The registry method a ``cam_type`` names, or None for a legacy one.",
       "translation": "``cam_type`` 이 가리키는 레지스트리 방법이며, 레거시 방법이면 None 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.attribution.resolve_cam_type#1",
@@ -274,7 +288,9 @@
       "source_sha256": "918cf3e023827915ba1ada30e3debc2b406b0cc1dab0ae6fc13925e4e2776aa4",
       "context": "Remove one object whole: every element holding ``label`` becomes 0.",
       "translation": "객체 하나를 통째로 제거합니다. ``label`` 을 가진 모든 요소가 0 이 됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.curation.MaskCuration.delete_object#1",
@@ -316,7 +332,9 @@
       "source_sha256": "a130dcf219352204403416f544f49f6ada45888dde0228df34121f28c3d394b1",
       "context": "Draw the permuted residual against laboratory microplate position, one row per block.",
       "translation": "순열된 잔차를 플레이트 위치에 대해 그리며, 블록마다 한 행씩 그립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#1",
@@ -324,7 +342,9 @@
       "source_sha256": "00e560bd83aeacfeaeac75702e507610c4f9219d532dc1ecd38bccfaa5c5e788",
       "context": "the residuals that were permuted.",
       "translation": "순열된 잔차입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#10",
@@ -332,7 +352,9 @@
       "source_sha256": "9f149917ae6736dad86f2a8144ba2da03b23b41c4c789e694ac447004c6ec36d",
       "context": "A gradient across the laboratory microplate is what this shows and no other panel does. Residuals-vs-fitted shows spread and Q-Q shows shape; neither shows that row A sits above row P inside one laboratory microplate, which is exactly what makes the microplate sample positions in that laboratory microplate not swappable.",
       "translation": "플레이트 전체에 걸친 기울기, 이것이 바로 이 그림만 보여 주고 다른 어떤 패널도 보여 주지 않는 것입니다. 잔차 대 적합값 그림은 퍼짐을, Q-Q 그림은 형태를 보여 주지만, 어느 쪽도 한 플레이트 안에서 행 A 가 행 P 보다 높게 놓인다는 것을 보여 주지 않으며, 바로 그 점 때문에 해당 플레이트의 웰들은 서로 교환할 수 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.plot_residual_by_position#2",
@@ -396,7 +418,9 @@
       "source_sha256": "ccb70107e3ca853a8ab6c0a0cb4f53909f0731252de90510b2eb568ec180a0e4",
       "context": "Write the permutation run's QC into ``<destination>/regression_qc/``.",
       "translation": "순열 실행의 QC 를 ``<destination>/regression_qc/`` 에 씁니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.permutation_qc.write_permutation_qc#1",
@@ -470,7 +494,9 @@
       "source_sha256": "5d02c5e3b497010c47bdef7fb0434371db7f91084d20524a141abe02108cf64d",
       "context": "The folders Figure mode reads for ``src``, in reading order.",
       "translation": "Figure 모드가 ``src`` 에 대해 읽는 폴더들이며, 읽는 순서를 따릅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.figure_folders#1",
@@ -956,10 +982,10 @@
     },
     {
       "label": "spacr.qt.organisms.ORGANISMS#1",
-      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
-      "source_sha256": "82832c2a46f1a1c9f982c197d15fc93d90c3d9ef8cfa5732314ffd7225a507b4",
-      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
-      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections`` 에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links`` 에는 표시 레이블과 URL 의 쌍이 들어 있습니다. ``modules`` 에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 자체 파이프라인이 없는 생물 특이적 분석을 뜻합니다. ``workflows`` 는 그러한 타일의 아이콘 키를, 그 판독값을 측정하는 기존 모듈, 열 때 적용되는 설정 프리셋, 사용 방법에 대한 메모에 매핑합니다. ``None`` 타일 중 ``workflows`` 에 없는 것은 Coming soon 입니다. ``starplast`` 는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "cf8e6751da9db404ab186e6bdb1dc1717d006580421624421f6f374bf5b259d6",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``parascape`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections`` 에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links`` 에는 표시 레이블과 URL 의 쌍이 들어 있습니다. ``modules`` 에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 자체 파이프라인이 없는 생물 특이적 분석을 뜻합니다. ``workflows`` 는 그러한 타일의 아이콘 키를, 그 판독값을 측정하는 기존 모듈, 열 때 적용되는 설정 프리셋, 사용 방법에 대한 메모에 매핑합니다. ``None`` 타일 중 ``workflows`` 에 없는 것은 Coming soon 입니다. ``parascape`` 는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
       "review_basis": "written from the English (no current MT draft)",
       "retired": true,
       "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
@@ -1144,7 +1170,9 @@
       "source_sha256": "0c3ad3552d6d5f86522bcb500ecb5ed91473f58914a3be8de7443a23b9fa9431",
       "context": "It lives in a :class:`DiameterDialog`, opened from the Model zoo popup, so the last measurement is kept on the application view it was made for and shown again the next time the popup opens: closing a window is not a reason to measure twice.",
       "translation": "이 패널은 Model zoo 팝업에서 열리는 :class:`DiameterDialog` 안에 있으므로, 마지막 측정값은 그것이 만들어진 화면에 보관되었다가 다음에 팝업이 열릴 때 다시 표시됩니다. 창을 닫았다고 두 번 측정할 이유는 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_dialog#0",
@@ -1176,7 +1204,9 @@
       "source_sha256": "eef42107a5013005e126f8ea142ea70fa02274265a1cfe4d3b6d3bf356cbc3bd",
       "context": "the dialog, or None when the screen has no diameter setting or the popup could not be built. Never throws: a Model zoo that opens without this button's popup is better than one that does not open.",
       "translation": "대화 상자이며, 화면에 직경 설정이 없거나 팝업을 만들 수 없으면 None 입니다. 예외를 발생시키지 않습니다. 이 버튼의 팝업 없이 열리는 Model zoo 가 아예 열리지 않는 것보다 낫기 때문입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.diameter_screen_of#0",
@@ -1238,6 +1268,8 @@
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-controls.json. Historical translation retained.",
       "source": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
       "source_sha256": "0e071f2a19694cb5607a794eccf08a076cc61a1ec3dc7796a9a724cbf32429b0",
       "context": "The button is placed after the other actions in the part of the row that scrolls. The Magnifier and the settings toggle are pinned outside it, so nothing added here can come between them or push them out of sight.",
@@ -1320,10 +1352,10 @@
     },
     {
       "label": "spacr.qt.screens.organism_screen#3",
-      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "source_sha256": "f692528df9f9c6e05be0dbe36c197d0d40844c50405a184520563729094986c1",
-      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. Starplast opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
-      "translation": "Home > Toxoplasma 를 열고 Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay 또는 Replication Assay 를 선택하십시오. 선택한 모듈이 입력 선택기, 설정, 미리 보기, Run 컨트롤을 제공합니다. 예제가 있으면 Test data 컨트롤을 사용하십시오. Plaque Assay 는 이미지로 시작하며, 다른 분석은 해당 측정 테이블과 객체 관계를 사용합니다. 실행하기 전에 각 모듈의 입력 도움말을 따르고, 그다음 선택한 출력 폴더에서 결과를 여십시오. Starplast 는 Toxoplasma 지식 지도를 살펴보는 별도의 애플리케이션을 열며, 처음 실행할 때 설치를 제안합니다. Gliding motility 는 감염 QC 를 끈 상태로 Motility Assay 를 엽니다. Egress, Bradyzoite conversion, Host cell damage 는 Coming soon 으로 표시되며 비활성화되어 있습니다.",
+      "source": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before running, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "source_sha256": "fa59d6c776f5143afeda0752e74eec805a678674558bda44a36ee64d6a0d9c07",
+      "context": "Open Home > Toxoplasma and choose Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay or Replication Assay. The selected module provides its input selectors, settings, preview and Run controls. Use its Test data control when an example is available. Plaque Assay starts with images; the other assays use the corresponding measurement tables and object relationships. Follow each module's input help before executing, then open the results in its selected output folder. ParaScape opens a separate application for exploring the Toxoplasma knowledge map; its first launch offers installation. Gliding motility opens the Motility Assay with infection QC off. Egress, Bradyzoite conversion and Host cell damage say Coming soon and are disabled.",
+      "translation": "Home > Toxoplasma 를 열고 Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay 또는 Replication Assay 를 선택하십시오. 선택한 모듈이 입력 선택기, 설정, 미리 보기, Run 컨트롤을 제공합니다. 예제가 있으면 Test data 컨트롤을 사용하십시오. Plaque Assay 는 이미지로 시작하며, 다른 분석은 해당 측정 테이블과 객체 관계를 사용합니다. 실행하기 전에 각 모듈의 입력 도움말을 따르고, 그다음 선택한 출력 폴더에서 결과를 여십시오. ParaScape 는 Toxoplasma 지식 지도를 살펴보는 별도의 애플리케이션을 열며, 처음 실행할 때 설치를 제안합니다. Gliding motility 는 감염 QC 를 끈 상태로 Motility Assay 를 엽니다. Egress, Bradyzoite conversion, Host cell damage 는 Coming soon 으로 표시되며 비활성화되어 있습니다.",
       "review_basis": "written from the English (no current MT draft)"
     },
     {
@@ -1602,7 +1634,9 @@
       "source_sha256": "46b9fefd90e27ab69e88f7019f6e19912340faff06a381decc3d81292e15f514",
       "context": "The width the column wears: the one the user dragged, else fitting.",
       "translation": "열이 사용하는 너비입니다. 사용자가 끌어서 맞춘 너비이며, 없으면 맞춤 너비입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.column_width#1",
@@ -2686,7 +2720,9 @@
       "source_sha256": "0be25596494e43d96924f2dd9e25e173e0d1ac6e391c66e539358f5ff8b1ff4a",
       "context": "Build the list, the editor area, the conscience and Upload.",
       "translation": "목록, 편집기 영역, 양심 문구, Upload 를 만듭니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.ContributeDialog#2",
@@ -2982,7 +3018,9 @@
       "source_sha256": "2a53e3b695da3ab5e877273e266aceed6dc3824d172f618c8d06d33b1e4defc9",
       "context": "Which importance measures apply to a model, and why the others do not.",
       "translation": "어떤 중요도 척도가 모델에 적용되는지, 나머지는 왜 적용되지 않는지를 나타냅니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.importance_method_availability#1",
@@ -3014,7 +3052,9 @@
       "source_sha256": "e89260c6458b51990a7848aecec2613fbb123e9422ad354675fa14c0e705ceb9",
       "context": "Rank the features of any fitted tabular machine-learning classification model or regressor.",
       "translation": "적합된 임의의 표 형식 분류기 또는 회귀기의 특징 순위를 매깁니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.surrogate.rank_feature_importance#1",
@@ -3142,7 +3182,9 @@
       "source_sha256": "9bf0a721bee209ee7c2f38344206ff0aca4f9a67b2311f03504634967c799463",
       "context": "optional separate folder for adjusted masks. None preserves the historical in-place behavior. A separate folder keeps all source masks byte-identical, and every selected microscope field of view is rebuilt from its source on each invocation, including after interrupted work. In place, each adjusted mask's SHA-256 is recorded in :data:`ADJUSTED_CELLS_LEDGER` as it lands, and a mask whose bytes still match its record is left alone on the next run: adjusting an adjusted mask merges it again, so a repeat execution used to change the result every time. A cell mask segmented again no longer matches and is adjusted afresh.",
       "translation": "조정된 마스크를 위한 선택적 별도 폴더입니다. None 이면 기존의 제자리 수정 동작을 유지합니다. 별도 폴더를 사용하면 모든 원본 마스크가 바이트 단위로 동일하게 유지되며, 선택된 모든 시야를 호출할 때마다 원본에서 다시 생성합니다. 작업이 중단된 뒤에도 마찬가지입니다. 제자리 수정에서는 조정된 각 마스크의 SHA-256 이 기록되는 즉시 :data:`ADJUSTED_CELLS_LEDGER` 에 저장되며, 바이트가 여전히 그 기록과 일치하는 마스크는 다음 실행에서 그대로 둡니다. 조정된 마스크를 다시 조정하면 또 병합되므로, 예전에는 재실행할 때마다 결과가 바뀌었습니다. 다시 분할된 세포 마스크는 더 이상 일치하지 않으므로 새로 조정됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

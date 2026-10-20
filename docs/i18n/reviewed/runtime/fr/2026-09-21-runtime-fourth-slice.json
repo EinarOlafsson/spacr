@@ -11,20 +11,6 @@
     },
     {
       "table": "ui",
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "translation": "Le programme d'installation n'a pas pu être exécuté : {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
-    },
-    {
-      "table": "ui",
-      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
-      "translation": "Les dernières couleurs du ciel : rose et magenta sur un or poudré, avec la teinte prune que prend l'horizon juste avant la nuit.",
-      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f"
-    },
-    {
-      "table": "ui",
       "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
       "translation": "La documentation publiée n'est pas accessible à partir d'ici, donc c'est la description stockée avec le code sur cette machine.",
@@ -43,13 +29,6 @@
       "source": "The report was sent: {url}",
       "translation": "Le rapport a été envoyé : {url}",
       "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3"
-    },
-    {
-      "table": "ui",
-      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
-      "translation": "La connexion n'a pas pu commencer à partir d'ici. Exécutez la commande ci-dessous dans un terminal, puis appuyez sur Terminé.",
-      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
     },
     {
       "table": "ui",
@@ -141,13 +120,6 @@
       "source": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
       "translation": "Tester toutes les conventions sur le dossier source et les classer selon le nombre de noms reconnus. Cette action fournit seulement un compte rendu : elle ne modifie pas le réglage à votre place.",
       "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777"
-    },
-    {
-      "table": "ui",
-      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
-      "translation": "Sous la surface : vert marin, menthe et bleu-vert, dernière couleur restante une fois toutes les couleurs chaudes absorbées.",
-      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9"
     },
     {
       "table": "ui",
@@ -263,13 +235,6 @@
     },
     {
       "table": "ui",
-      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
-      "translation": "Lorsque la journalisation détaillée est activée (onglet Modules), les messages DEBUG sont toujours écrits dans les fichiers journaux : ce réglage reste donc activé. Désactivez la journalisation détaillée pour le régler vous-même. Votre choix personnel est conservé pour ce moment.",
-      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2"
-    },
-    {
-      "table": "ui",
       "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
       "translation": "Écrire les tableaux fusionnés décrits par ce tableau et les mesurer avec le module Measure lui-même. Les dossiers de sortie et la base de données de mesures sont ceux produits par une exécution de Measure.",
@@ -368,13 +333,6 @@
     },
     {
       "table": "ui",
-      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
-      "translation": "npm n'a pas pu écrire dans son dossier global. Exécutez une fois `npm config set prefix ~/.local` dans un terminal pour que npm installe dans un dossier qui vous appartient, puis appuyez sur Réessayer.",
-      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
-    },
-    {
-      "table": "ui",
       "key": "path to a folder of crop PNGs",
       "source": "path to a folder of crop PNGs",
       "translation": "chemin vers un dossier de vignettes PNG",
@@ -428,20 +386,6 @@
       "source": "{key} is not on this module's form.",
       "translation": "{key} n'est pas sur le formulaire de ce module.",
       "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "translation": "{label} est installé.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
-    },
-    {
-      "table": "ui",
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "translation": "La connexion à {label} est établie et prête à l'emploi.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
     },
     {
       "table": "ui",
@@ -590,6 +534,80 @@
         "translation": "Comportement d'un nouvel objet là où le masque contient déjà un objet. Clip ne conserve que ses pixels non étiquetés : aucun objet existant ne perd de pixel. Skip ignore tout objet touchant un objet existant. Replace laisse le nouvel objet prendre tous les pixels qu'il recouvre. Sous Région sous la souris, la zone montre le résultat de cette règle : ce qu'un clic ajouterait apparaît en plein et ce qu'il retirerait apparaît en transparence.",
         "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
       }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "translation": "Le programme d'installation n'a pas pu être exécuté : {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+        "translation": "La connexion n'a pas pu commencer à partir d'ici. Exécutez la commande ci-dessous dans un terminal, puis appuyez sur Terminé.",
+        "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+        "translation": "npm n'a pas pu écrire dans son dossier global. Exécutez une fois `npm config set prefix ~/.local` dans un terminal pour que npm installe dans un dossier qui vous appartient, puis appuyez sur Réessayer.",
+        "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "translation": "{label} est installé.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "translation": "La connexion à {label} est établie et prête à l'emploi.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
+      }
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "translation": "Les dernières couleurs du ciel : rose et magenta sur un or poudré, avec la teinte prune que prend l'horizon juste avant la nuit.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "translation": "Sous la surface : vert marin, menthe et bleu-vert, dernière couleur restante une fois toutes les couleurs chaudes absorbées.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "translation": "Lorsque la journalisation détaillée est activée (onglet Modules), les messages DEBUG sont toujours écrits dans les fichiers journaux : ce réglage reste donc activé. Désactivez la journalisation détaillée pour le régler vous-même. Votre choix personnel est conservé pour ce moment.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

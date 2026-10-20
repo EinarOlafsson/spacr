@@ -84,7 +84,7 @@ def _make_run(tmp_path, with_hashes=False):
         pass
     if with_hashes:
         mp = run.dir / "manifest.json"
-        m = json.loads(mp.read_text())
+        m = json.loads(mp.read_text(encoding="utf-8"))
         m["model_hashes"] = {"cyto": "abc123"}
         mp.write_text(json.dumps(m))
     return run.dir

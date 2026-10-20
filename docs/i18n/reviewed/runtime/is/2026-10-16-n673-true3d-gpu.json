@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review": "N673 True 3D speed follow-up: Render backend list, Render scale slider, mask surface Finish list, 3D magnifier cube and the render detail line. Finish names inside the Finish tooltip match the translated option names; Auto matches the existing translation; OpenGL is identity text.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A cube that shows the volume inside it magnified and dims everything outside it. It follows the pointer; Shift+wheel changes its size and Ctrl+wheel its zoom. M turns it on and off.",
+      "source": "A cube that shows the volume inside it magnified and dims everything outside it. It follows the pointer; Shift+wheel changes its size and Ctrl+wheel its zoom. M turns it on and off.",
+      "source_sha256": "943d91631146627cf81acff17b34c21d565c2436431573c8c487683c6a6b9c3a",
+      "translation": "Teningur sem sýnir rúmmálið innan í sér stækkað og deyfir allt utan hans. Hann fylgir bendlinum; Shift+hjól breytir stærð hans og Ctrl+hjól aðdrætti hans. M kveikir og slekkur á honum."
+    },
+    {
+      "table": "ui",
+      "key": "Render backend",
+      "source": "Render backend",
+      "source_sha256": "a88818151ff57b80313cf29cba7e7d1cb8d9a14bf1fc77733f18273c1dee281c",
+      "translation": "Myndgerðarvél"
+    },
+    {
+      "table": "ui",
+      "key": "Render scale",
+      "source": "Render scale",
+      "source_sha256": "2dee7435d0fe9e0e3cec56b406c9467d520710ac655997de644b83838de26191",
+      "translation": "Myndgerðarkvarði"
+    },
+    {
+      "table": "ui",
+      "key": "How much of the full resolution the 3D view is drawn at, along each axis. Turning the view draws coarser and sharpens to this when it stops.",
+      "source": "How much of the full resolution the 3D view is drawn at, along each axis. Turning the view draws coarser and sharpens to this when it stops.",
+      "source_sha256": "2f2170cd8d8fc7daf09e3b264b590c36c0b868ea5fb506902dc82da1b3f889d3",
+      "translation": "Hve stór hluti fullrar upplausnar er notaður til að teikna þrívíddarsýnina, eftir hverjum ás. Á meðan sýninni er snúið er teiknað grófar og skerpt upp í þetta gildi þegar hún stöðvast."
+    },
+    {
+      "table": "ui",
+      "key": "OpenGL",
+      "source": "OpenGL",
+      "source_sha256": "28a0ec0b7b0fd31b4681eb4f73035509013404bf62783a948b330cc3f42576b4",
+      "translation": "OpenGL"
+    },
+    {
+      "table": "ui",
+      "key": "CPU (software)",
+      "source": "CPU (software)",
+      "source_sha256": "049ca440058ed4c8f561f49ce1c5c929e4f37a9f2088d9106d232f3f73c1f626",
+      "translation": "CPU (hugbúnaður)"
+    },
+    {
+      "table": "ui",
+      "key": "GPU rendering is unavailable ({reason}); drawing on the CPU.",
+      "source": "GPU rendering is unavailable ({reason}); drawing on the CPU.",
+      "source_sha256": "8f106923dca0d4be13d309914347973eb8b50f1df44f8951891aed0003c52859",
+      "translation": "GPU-myndgerð er ekki tiltæk ({reason}); teiknað á CPU."
+    },
+    {
+      "table": "ui",
+      "key": "Surface finish",
+      "source": "Surface finish",
+      "source_sha256": "de8b41ec84df8ebe9a6de2e6c731798682310f68b743ff7ba90396df99eaf96c",
+      "translation": "Yfirborðsáferð"
+    },
+    {
+      "table": "ui",
+      "key": "How the mask surfaces catch the light: Matte is dull, Satin has a soft sheen, Glossy a sharp white highlight and Metallic a highlight in the object's own colour.",
+      "source": "How the mask surfaces catch the light: Matte is dull, Satin has a soft sheen, Glossy a sharp white highlight and Metallic a highlight in the object's own colour.",
+      "source_sha256": "7a36d02d774c77e0a7ac2dd108bde11cddd7f17b0ca403634ac0509b2bbc7a07",
+      "translation": "Hvernig yfirborð grímanna grípur ljósið: Matt er dauft, Satín hefur mjúkan gljáa, Gljáandi skarpan hvítan glampa og Málmkennt glampa í eigin lit hlutarins."
+    },
+    {
+      "table": "ui",
+      "key": "Matte",
+      "source": "Matte",
+      "source_sha256": "07d8eb6678c99a1d6cf84e00fe48e236992ca330aef0d7352ffa75c3d8dcebb8",
+      "translation": "Matt"
+    },
+    {
+      "table": "ui",
+      "key": "Satin",
+      "source": "Satin",
+      "source_sha256": "0bb6e61ef2b0be59d27785286ad5c9cfe0da1f146d461bacc93c2d8d42b3b381",
+      "translation": "Satín"
+    },
+    {
+      "table": "ui",
+      "key": "Glossy",
+      "source": "Glossy",
+      "source_sha256": "9a12a6011724e76ef6d1208907a3eef7284f92573eb1ed7e4aab744cc5cf9eb0",
+      "translation": "Gljáandi"
+    },
+    {
+      "table": "ui",
+      "key": "Metallic",
+      "source": "Metallic",
+      "source_sha256": "5d08f304a03e1fedc20358f8f233e38a0dd68652286fa116c44d598ec56593cd",
+      "translation": "Málmkennt"
+    },
+    {
+      "table": "ui",
+      "key": "Drawn on the CPU at {percent}% scale, from every voxel.",
+      "source": "Drawn on the CPU at {percent}% scale, from every voxel.",
+      "source_sha256": "76edb564881eb7424e41e9366f0fee06026e06a9f8c2a1a23dbffd7a0cfdaaa2",
+      "translation": "Teiknað á CPU í {percent}% kvarða, úr hverri voxlu."
+    },
+    {
+      "table": "ui",
+      "key": "Drawn on the CPU at {percent}% scale, from 1 voxel in {n} along the most reduced axis.",
+      "source": "Drawn on the CPU at {percent}% scale, from 1 voxel in {n} along the most reduced axis.",
+      "source_sha256": "f6fc72f518813b6434e5f74b66c763d0908772ae0f7b48aaf873202df79a0b45",
+      "translation": "Teiknað á CPU í {percent}% kvarða, úr 1 voxlu af hverjum {n} eftir mest minnkaða ásnum."
+    }
+  ]
+}

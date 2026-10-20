@@ -180,8 +180,8 @@ def choose_anchor(tables: Sequence[str]) -> str:
         comes from the order of :data:`OBJECT_TABLES`, not from the order
         given here, so putting ``nucleus`` first does not make it the anchor
         while ``cell`` is also in the sequence.
-    :raises FilterError: nothing to anchor on. Naming the tables that WERE
-        found is the difference between a fixable message and a shrug.
+    :raises FilterError: nothing to anchor on. The message names the tables
+        that were found.
     """
     for name in OBJECT_TABLES:
         if name in tables:
@@ -380,7 +380,7 @@ def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
 
 
 def png_crop_type(db_path: str) -> Optional[str]:
-    """WHICH OBJECT the crops in ``png_list`` are pictures of.
+    """Return the object type that the crops in ``png_list`` show.
 
     :param db_path: measurements database whose ``png_list`` schema is read.
 
@@ -388,9 +388,9 @@ def png_crop_type(db_path: str) -> Optional[str]:
     ``cell_id``, ``pathogen_id``, ``organelle_id`` -- so the crop mode a run
     used is recoverable from the schema rather than having to be remembered.
 
-    This is what makes a crop path attachable to the right row. Without it
-    the label is just an integer, and matching integers across object types
-    hands nucleus 2 the crop of CELL 2.
+    The type is needed to attach a crop path to the right row: the label
+    alone is an integer, and matching integers across object types would
+    give nucleus 2 the crop of cell 2.
 
     :returns: ``'cell'``, ``'pathogen'``, ... or None when there is no
         ``png_list``, no recognised id column, or no crops at all.
@@ -605,7 +605,7 @@ def build_relationships_frame(db_path: str) -> pd.DataFrame:
 
 def ensure_relationships_table(db_path: str, *,
                                rebuild: bool = False) -> pd.DataFrame:
-    """The relationships table, built on demand if the mask step never did.
+    """Return the relationships table, building it if the mask step did not.
 
     "if the relationships table does not exist when attempting to make the
     filters table, then the relationships table gets generated first." A user
@@ -618,7 +618,7 @@ def ensure_relationships_table(db_path: str, *,
     :param rebuild: derive the table again from the object tables and replace
         whatever is stored. Relationships are never refreshed on their own, so
         a stored table built before the masks changed stays stale until this
-        is passed -- which is exactly what :func:`write_relationships` does.
+        is passed, as :func:`write_relationships` does.
     """
     if not rebuild and RELATIONSHIPS_TABLE in table_names(db_path):
         with _connect(db_path) as db:
@@ -889,7 +889,7 @@ def ensure_filters_table(db_path: str, *, rebuild: bool = False) -> pd.DataFrame
 
 
 def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
-    """The filters table as a COPY of the relationships table.
+    """Build the filters table as a copy of the relationships table.
 
     "to make the filters table this the relationships table should be the
     base (it should be copied) and filters added." A copy rather than a merge
@@ -897,8 +897,8 @@ def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
     there is one definition of what an object is rather than two that can
     drift.
 
-    :param db_path: the measurement database. Despite being a build step this
-        can WRITE: the relationships table it copies is created on demand when
+    :param db_path: the measurement database. Although this is a build step,
+        it can write: the relationships table it copies is created on demand when
         the mask step never wrote one. An existing one is used as it stands --
         pass through :func:`write_relationships` first if the masks have
         changed since it was written.
@@ -980,8 +980,8 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
     :param gate_name: names the column.
     :param rebuild: rebuild the identity table first, discarding gate columns.
     :param object_type: which kind of object ``frame`` holds -- the name of
-        the measurement table it was read from. GIVE IT WHENEVER YOU KNOW
-        IT. ``filters`` holds cells, nuclei and pathogens side by side, and
+        the measurement table it was read from. Pass it whenever it is
+        known. ``filters`` holds cells, nuclei and pathogens side by side, and
         ``object_label`` is unique within a field only for ONE kind: a merge
         that leaves the type out writes a gate drawn on nucleus 2 onto cell
         2 as well, which is the same wrong answer
@@ -1033,10 +1033,10 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
 
 def gate_mask_over_table(db_path: str, table: str, gates, gate_name: str,
                          ) -> Tuple[pd.DataFrame, np.ndarray]:
-    """Apply a gate to EVERY object, reading only the columns it needs.
+    """Apply a gate to every object in a table, reading only the columns it needs.
 
-    The point of the sampling setting is that a user gates on a fraction of a
-    large table; the point of this is that the export does not. The gate's own
+    The sampling setting lets a user draw a gate on a fraction of a large
+    table; this function applies the gate to all rows for export. The gate's own
     columns plus the identity columns are read in full -- a handful out of
     hundreds, so this stays cheap even where reading the whole table is not.
 
@@ -1099,7 +1099,7 @@ def combination_label(memberships: Sequence[bool], names: Sequence[str]) -> str:
 
 def annotate_from_gates(frame: pd.DataFrame, gates, names: Sequence[str], *,
                         mode: str = "binary") -> pd.Series:
-    """Label every object from SEVERAL gates at once.
+    """Label every object from several gates at once.
 
     ``binary``
         1 when the object is inside EVERY chosen gate, 0 otherwise. The
@@ -1213,7 +1213,7 @@ ROWID_ALIASES: Tuple[str, ...] = ("_rowid_", "rowid", "oid")
 def rowid_expression(columns: Iterable[str]) -> Optional[str]:
     """Which spelling of the implicit row id this table leaves usable.
 
-    **This is not hypothetical.** Every spaCR measurement table has a column
+    Every spaCR measurement table has a column
     called ``rowID`` -- the row of the plate -- and SQLite matches column
     names case-insensitively, so ``rowid`` in a query means THAT column. It
     holds 'A'..'P', and ``'A' % 5`` is ``0`` in SQLite, so a sampling clause
@@ -1222,8 +1222,8 @@ def rowid_expression(columns: Iterable[str]) -> Optional[str]:
     which is indistinguishable from the read being slow for another reason.
 
     :param columns: the table's own column names, typically from
-        :func:`column_names`. Compared case-insensitively, which is the whole
-        point: it is ``rowID`` that shadows ``rowid``. Pass the columns of the
+        :func:`column_names`. Compared case-insensitively, because it is
+        ``rowID`` that shadows ``rowid``. Pass the columns of the
         table about to be queried -- an alias is only unusable relative to a
         particular table.
     :returns: the first alias not shadowed by a real column, or ``None`` for
@@ -1240,10 +1240,10 @@ def sampling_clause(fraction: float, rowid: str = "_rowid_") -> str:
     """A SQL fragment taking roughly ``fraction`` of the rows.
 
     Systematic on the row id, not ``ORDER BY RANDOM()``: random ordering sorts
-    the whole table before discarding most of it, which costs MORE than
-    reading everything and is the opposite of the point. Modulo on the row id
-    is an index scan and is also reproducible -- the same 20% every time, so a
-    gate drawn on Monday sits on the same cloud on Tuesday.
+    the whole table before discarding most of it, which costs more than
+    reading everything. Modulo on the row id needs one pass and no sort, and
+    is reproducible -- the same rows are selected every time, so a gate
+    redrawn later sits on the same cloud of objects.
 
     The bias this trades for is that row id order is insertion order, i.e.
     roughly well by well. For drawing a gate on a cloud of a million objects
@@ -1269,10 +1269,9 @@ def read_sampled(db_path: str, table: str, *, fraction: float = 1.0,
                  limit: Optional[int] = None) -> pd.DataFrame:
     """Read ``table``, optionally taking only a fraction of its rows.
 
-    Sampling happens in SQL where it can, because the point is to not read
-    the rows. A table that shadows every row id alias is read whole and
-    sampled afterwards -- slower, but correct, and it says so in the log
-    rather than quietly returning everything.
+    Sampling happens in SQL where possible, so the skipped rows are not
+    read. A table that shadows every row id alias is read whole and
+    sampled afterwards, which is slower and is logged.
 
     :param db_path: path to the SQLite measurement database, opened read-only.
     :param table: the table to read. Its name is quoted as one SQLite
@@ -1310,7 +1309,7 @@ def read_sampled(db_path: str, table: str, *, fraction: float = 1.0,
 
 
 def row_count(db_path: str, table: str) -> int:
-    """How many objects the table has -- what a sample is a fraction OF.
+    """Return the number of rows in ``table``, the total a sample fraction applies to.
 
     :param db_path: path to the SQLite measurement database, opened read-only.
     :param table: goes into the query as a quoted name, so it must be a table

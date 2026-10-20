@@ -325,6 +325,8 @@
     },
     {
       "label": "spacr.qt.bridge.PipelineWorker.run._capture_show#1",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-api-current-volume-rendering.json. Historical translation retained.",
       "source": "Agg's savefig touches no Qt, so the expensive part happens off the GUI thread and the GUI only does a file move and a pixmap load -- which is what stops it hanging while figures stream in.",
       "source_sha256": "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
       "context": "Agg's savefig touches no Qt, so the expensive part happens off the main GUI execution path and the GUI only does a file move and a pixmap load -- which is what stops it hanging while figures stream in.",
@@ -569,7 +571,9 @@
       "source_sha256": "1e021fa46c4f049c96d82956bb5b320537598c0bb15f464c019fda08c1404e6b",
       "context": "The stat is here, on the worker, because it is the part that blocks on a slow mount. A path that is not a file yet is not an error -- it is one somebody is halfway through typing -- so it answers with nothing to offer rather than throwing, which would put a refusal in the status line for every keystroke.",
       "translation": "STAT 호출은 여기, worker에 있습니다. 느린 마운트에서 막히는 부분이기 때문입니다. 아직 파일이 아닌 경로는 오류가 아닙니다 -- 누군가 입력하는 중입니다 -- 따라서 오류를 발생시키는 대신 제안할 것이 없다고 답합니다. 오류를 발생시키면 키를 누를 때마다 상태 줄에 거부가 표시될 것입니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work#0",
@@ -841,7 +845,9 @@
       "source_sha256": "543562b5678b4fa41698c59cd657c105d1e211e83a85f2353cbcf60e4ada51f5",
       "context": "The flag is cleared FIRST so a draw that schedules another does not lose it.",
       "translation": "플래그를 먼저 지우므로 다른 그리기를 예약하는 그리기가 이를 잃지 않습니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.cancel_pending_draw#0",
@@ -857,7 +863,9 @@
       "source_sha256": "b3a541d2b27562bdaf6c8a9556f596f0989d3bd5e4fd80cf7d74045e20a3f581",
       "context": "Ask for a redraw on the OWNED timer rather than a static one.",
       "translation": "정적 타이머가 아니라 소유한 타이머로 다시 그리기를 요청합니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.draw_idle#1",

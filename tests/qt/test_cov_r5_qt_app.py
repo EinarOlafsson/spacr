@@ -382,6 +382,8 @@ def test_a_backdrop_that_will_not_install_costs_only_the_backdrop(
     monkeypatch.setattr(preferences_mod, "get_ambient_enabled", lambda: True)
     monkeypatch.setattr(preferences_mod, "get_ambient_theme", lambda: "aurora")
     monkeypatch.setattr(ambient_mod, "install_ambient", _install)
+    monkeypatch.setattr(win, "window_backdrop", lambda: None)
+    monkeypatch.setattr(ambient_mod, "_the_heavy_import_lock_is_free", lambda: True)
 
     screen = QWidget()
     with caplog.at_level(logging.ERROR, logger="spacr.qt.app"):
@@ -653,16 +655,18 @@ def test_a_job_runner_registry_that_will_not_drain_still_lets_the_consoles_go(
         launched, monkeypatch, caplog):
     """Quitting with a job in flight is what aborts the process.
 
-    ``aboutToQuit`` drains the runners and then every console panel. The
-    two are independent, and the drain that runs first is the one reaching
-    into a registry of live threads -- so if it throws, the consoles it was
-    standing in front of must still be shut down, or the crash it exists to
-    prevent happens anyway.
+    ``aboutToQuit`` retires the live work (every job runner, registered run
+    and loose QThread, through :func:`spacr.qt.bridge.retire_live_work`) and
+    then shuts down every console panel. The two are independent, and the
+    drain that runs first is the one reaching into a registry of live
+    threads -- so if it throws, the consoles it was standing in front of
+    must still be shut down, or the crash it exists to prevent happens
+    anyway.
     """
-    from spacr.qt import job_runner
+    from spacr.qt import bridge
 
     drained: list = []
-    monkeypatch.setattr(job_runner, "shutdown_all",
+    monkeypatch.setattr(bridge, "retire_live_work",
                         lambda: drained.append("drained"))
     assert app_mod.launch([]) == 0
     quit_handlers = launched["shims"][0].aboutToQuit.callbacks
@@ -671,7 +675,7 @@ def test_a_job_runner_registry_that_will_not_drain_still_lets_the_consoles_go(
     assert drained == ["drained"]
 
     monkeypatch.setattr(
-        job_runner, "shutdown_all",
+        bridge, "retire_live_work",
         lambda: (_ for _ in ()).throw(RuntimeError("the runner list is gone")))
     consoles: list = []
     from spacr.qt.widgets import console_panel
@@ -735,7 +739,7 @@ def test_a_timing_report_that_was_written_says_where_it_went(
     assert app_mod.launch([]) == 0
     printed = capsys.readouterr().out
     assert f"spaCR timing report written to {target}" in printed
-    assert target.read_text().startswith("spaCR timing report")
+    assert target.read_text(encoding="utf-8").startswith("spaCR timing report")
 
     # Timing off: nothing is written, so nothing is announced.
     monkeypatch.setattr(app_mod._timing, "write_report", lambda: "")

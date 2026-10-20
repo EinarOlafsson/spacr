@@ -23,15 +23,17 @@ import tempfile
 import unicodedata
 from collections import Counter
 from difflib import SequenceMatcher
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
+import build_readme_images
 import nested_helper_docs
 
 from build_i18n_catalogs import (
     MODEL_ROOT_CANDIDATES,
     MODEL_ROOT_ENV,
-    NATIVE_LANGUAGE_NAMES,
+    NATIVE_LANGUAGE_NAMES,  # noqa: F401 -- re-exported for the catalog tests
     default_model_root,
     _COMPUTE_RUN_SOURCE,
     _COMPUTE_THREAD_SOURCE,
@@ -71,7 +73,6 @@ from build_i18n_catalogs import (
 from readme_i18n import (
     WORKFLOW_MODULE_ALT_TEMPLATES,
     localize_hardware_markup,
-    localize_internal_references,
     localize_workflow_markup,
 )
 
@@ -2970,6 +2971,20 @@ API_TRANSLATION_CONTEXT.update({
     "Fold-to-fold sd for a ``'mean'`` series, else ``None``.":
         "Standard deviation across folds for a ``'mean'`` series; otherwise "
         "``None``.",
+    (
+        "The first press used to build the screen's whole results panel in "
+        "one go, a freeze of over a second. It is now built one step per "
+        "event-loop turn (see ``AppScreen._build_owed_part_in_steps``) and "
+        "the tab is raised when it is finished. With the panel built, or on "
+        "a screen that defers nothing, this is :meth:`open`."
+    ): (
+        "The first press used to build the application view's whole results "
+        "panel in one go, a freeze of over a second. It is now built one "
+        "step per event-loop turn (see ``AppScreen._build_owed_part_in_steps``) "
+        "and the tab is brought to the front when construction is finished. "
+        "With the panel built, or on an application view that defers nothing, "
+        "this is :meth:`open`."
+    ),
 })
 
 # The project summary is the first prose a reader sees on GitHub and contains
@@ -3526,14 +3541,9 @@ REVIEWED_README_HEADINGS = {
         "Acknowledgments",
     )
 }
+# "Docker installation" left on 2026-10-10: Docker became one of the routes
+# listed at the top of "Install spaCR", and its own section went with it.
 REVIEWED_README_HEADINGS.update({
-    "Docker installation": {
-        "sv": "Installation med Docker", "de": "Installation mit Docker",
-        "es": "Instalación con Docker", "zh_CN": "使用 Docker 安装",
-        "pt": "Instalação com Docker", "hi": "Docker से इंस्टॉलेशन",
-        "ko": "Docker로 설치", "is": "Uppsetning með Docker",
-        "fr": "Installation avec Docker",
-    },
     "Try spaCR": {
         "sv": "Prova spaCR", "de": "spaCR ausprobieren",
         "es": "Probar spaCR", "zh_CN": "试用 spaCR",
@@ -3608,8 +3618,47 @@ def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
     return reviewed
 
 
+README_CITING_BEGIN = ".. spacr-citing-papers-begin"
+README_CITING_END = ".. spacr-citing-papers-end"
+
+
+def _citing_block_span(text: str) -> tuple[int, int] | None:
+    """Return the character span between the citing-papers markers."""
+    start, end = text.find(README_CITING_BEGIN), text.find(README_CITING_END)
+    if start < 0 or end < start:
+        return None
+    return start + len(README_CITING_BEGIN), end
+
+
+def _keep_citing_papers(readme: str, localized: str, previous: str | None) -> str:
+    """Rebuild the citing-papers list without machine translation.
+
+    Paper titles are not machine translated (2026-10-11): each English entry
+    keeps the line the previous localized README already had for the same
+    URL -- a reviewed translation, or the English title -- and a paper new to
+    the English list arrives with its English title.
+    """
+    source_span, target_span = _citing_block_span(readme), _citing_block_span(localized)
+    if source_span is None or target_span is None:
+        return localized
+    url = re.compile(r"<(https?://[^>]+)>`_")
+    kept: dict[str, str] = {}
+    if previous is not None and (previous_span := _citing_block_span(previous)):
+        for line in previous[previous_span[0]:previous_span[1]].splitlines():
+            if (match := url.search(line)) is not None:
+                kept[match.group(1)] = line
+    lines = []
+    for line in readme[source_span[0]:source_span[1]].split("\n"):
+        match = url.search(line)
+        lines.append(kept.get(match.group(1), line) if match else line)
+    return (localized[:target_span[0]] + "\n".join(lines)
+            + localized[target_span[1]:])
+
+
 REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
-_CURRENT_README_TEXT = (ROOT / "README.rst").read_text(encoding="utf-8")
+# The README's wording lives in packaging/readme_source.yaml since the README
+# became images (2026-10-12); its RST rendering is what reviewers bound to.
+_CURRENT_README_TEXT = build_readme_images.source_rst("en")
 _CURRENT_README_PROSE = re.sub(r"\s+", " ", _CURRENT_README_TEXT)
 RETIRED_README_EVIDENCE_BLOCKS = {
     source: translations
@@ -3633,63 +3682,54 @@ REVIEWED_README_ALT_TEXT = {
         "Windows 10/11: spaCR {version} herunterladen",
         "macOS 11+ (Intel und Apple Silicon): spaCR {version} herunterladen",
         "64-Bit-Linux: spaCR {version} herunterladen",
-        "Ältere spaCR-Installationsprogramme",
     ),
     "es": (
         "Flujo de trabajo y organización de resultados de spaCR",
         "Windows 10/11: descargar spaCR {version}",
         "macOS 11+ (Intel y Apple silicon): descargar spaCR {version}",
         "Linux de 64 bits: descargar spaCR {version}",
-        "Instaladores anteriores de spaCR",
     ),
     "fr": (
         "Flux de travail spaCR et organisation des sorties",
         "Windows 10/11 : télécharger spaCR {version}",
         "macOS 11+ (Intel et Apple Silicon) : télécharger spaCR {version}",
         "Linux 64 bits : télécharger spaCR {version}",
-        "Anciens programmes d’installation de spaCR",
     ),
     "hi": (
         "spaCR कार्यप्रवाह और आउटपुट संगठन",
         "Windows 10/11 के लिए spaCR {version} डाउनलोड करें",
         "macOS 11+ (Intel और Apple Silicon) के लिए spaCR {version} डाउनलोड करें",
         "64-बिट Linux के लिए spaCR {version} डाउनलोड करें",
-        "spaCR के पुराने इंस्टॉलर",
     ),
     "is": (
         "Verkflæði spaCR og skipulag úttaks",
         "Sækja spaCR {version} fyrir Windows 10/11",
         "Sækja spaCR {version} fyrir macOS 11+ (Intel og Apple Silicon)",
         "Sækja spaCR {version} fyrir 64-bita Linux",
-        "Eldri spaCR-uppsetningarforrit",
     ),
     "ko": (
         "spaCR 작업 흐름 및 출력 구성",
         "Windows 10/11용 spaCR {version} 다운로드",
         "macOS 11+ (Intel 및 Apple Silicon)용 spaCR {version} 다운로드",
         "64비트 Linux용 spaCR {version} 다운로드",
-        "이전 spaCR 설치 프로그램",
     ),
     "pt": (
         "Fluxo de trabalho e organização das saídas do spaCR",
         "Baixar o spaCR {version} para Windows 10/11",
         "Baixar o spaCR {version} para macOS 11+ (Intel e Apple Silicon)",
         "Baixar o spaCR {version} para Linux de 64 bits",
-        "Instaladores anteriores do spaCR",
     ),
     "sv": (
         "spaCR:s arbetsflöde och struktur för utdata",
         "Hämta spaCR {version} för Windows 10/11",
         "Hämta spaCR {version} för macOS 11+ (Intel och Apple Silicon)",
         "Hämta spaCR {version} för 64-bitars Linux",
-        "Äldre spaCR-installationsprogram",
     ),
     "zh_CN": (
         "spaCR 工作流程及输出结构",
         "下载适用于 Windows 10/11 的 spaCR {version}",
         "下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR {version}",
         "下载适用于 64 位 Linux 的 spaCR {version}",
-        "旧版 spaCR 安装程序",
     ),
 }
 
@@ -3760,15 +3800,15 @@ REVIEWED_README_RESOURCE_ALT_TEXT = {
 }
 
 REVIEWED_README_BADGE_ALT_TEXT = {
-    "de": ("API-Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "conda-forge-Downloads", "conda-forge-Datum der letzten Veröffentlichung", "PyPI-Downloads", "Linux, macOS und Windows", "spaCR zitieren", "spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage", "spaCR"),
-    "es": ("Documentación de la API", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "Descargas de conda-forge", "Fecha de la última versión en conda-forge", "Descargas de PyPI", "Linux, macOS y Windows", "Citar spaCR", "Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos", "spaCR"),
-    "fr": ("Documentation de l’API", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "Téléchargements conda-forge", "Date de la dernière version conda-forge", "Téléchargements PyPI", "Linux, macOS et Windows", "Citer spaCR", "Classement des téléchargements PyPI de spaCR sur les 30 derniers jours complets", "spaCR"),
-    "hi": ("API दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "conda-forge डाउनलोड", "conda-forge की नवीनतम रिलीज़ की तिथि", "PyPI डाउनलोड", "Linux, macOS और Windows", "spaCR को उद्धृत करें", "पिछले 30 पूरे दिनों में spaCR की PyPI डाउनलोड रैंकिंग", "spaCR"),
-    "is": ("API-skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "conda-forge-niðurhal", "Dagsetning nýjustu útgáfu á conda-forge", "PyPI-niðurhal", "Linux, macOS og Windows", "Vitna í spaCR", "Röðun spaCR eftir PyPI-niðurhali síðustu 30 heilu dagana", "spaCR"),
-    "ko": ("API 문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "conda-forge 다운로드", "conda-forge 최신 릴리스 날짜", "PyPI 다운로드", "Linux, macOS, Windows", "spaCR 인용", "최근 30일간 spaCR의 PyPI 다운로드 순위", "spaCR"),
-    "pt": ("Documentação da API", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "Downloads no conda-forge", "Data da versão mais recente no conda-forge", "Downloads no PyPI", "Linux, macOS e Windows", "Citar o spaCR", "Classificação de downloads do spaCR no PyPI nos últimos 30 dias completos", "spaCR"),
-    "sv": ("API-dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "conda-forge-nedladdningar", "Datum för senaste conda-forge-versionen", "PyPI-nedladdningar", "Linux, macOS och Windows", "Citera spaCR", "spaCR:s PyPI-nedladdningsranking de senaste 30 hela dygnen", "spaCR"),
-    "zh_CN": ("API 文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "conda-forge 下载量", "conda-forge 最新发布日期", "PyPI 下载量", "Linux、macOS 和 Windows", "引用 spaCR", "spaCR 在过去 30 个完整日的 PyPI 下载量排名", "spaCR"),
+    "de": ("API-Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "conda-forge-Version", "conda-forge-Datum der letzten Veröffentlichung", "PyPI-Downloads", "Linux, macOS und Windows", "spaCR zitieren", "spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage", "spaCR-Website", "Codecov-Testabdeckung", "Docker-Images auf GHCR", "spaCR"),
+    "es": ("Documentación de la API", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Versión en conda-forge", "Fecha de la última versión en conda-forge", "Descargas de PyPI", "Linux, macOS y Windows", "Citar spaCR", "Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos", "Sitio web de spaCR", "Cobertura de pruebas en Codecov", "Imágenes de Docker en GHCR", "spaCR"),
+    "fr": ("Documentation de l’API", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Version conda-forge", "Date de la dernière version conda-forge", "Téléchargements PyPI", "Linux, macOS et Windows", "Citer spaCR", "Classement des téléchargements PyPI de spaCR sur les 30 derniers jours complets", "Site web de spaCR", "Couverture de tests Codecov", "Images Docker sur GHCR", "spaCR"),
+    "hi": ("API दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "conda-forge संस्करण", "conda-forge की नवीनतम रिलीज़ की तिथि", "PyPI डाउनलोड", "Linux, macOS और Windows", "spaCR को उद्धृत करें", "पिछले 30 पूरे दिनों में spaCR की PyPI डाउनलोड रैंकिंग", "spaCR वेबसाइट", "Codecov परीक्षण कवरेज", "GHCR पर Docker इमेज", "spaCR"),
+    "is": ("API-skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "conda-forge-útgáfa", "Dagsetning nýjustu útgáfu á conda-forge", "PyPI-niðurhal", "Linux, macOS og Windows", "Vitna í spaCR", "Röðun spaCR eftir PyPI-niðurhali síðustu 30 heilu dagana", "Vefsíða spaCR", "Prófunarþekja á Codecov", "Docker-myndir á GHCR", "spaCR"),
+    "ko": ("API 문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "conda-forge 버전", "conda-forge 최신 릴리스 날짜", "PyPI 다운로드", "Linux, macOS, Windows", "spaCR 인용", "최근 30일간 spaCR의 PyPI 다운로드 순위", "spaCR 웹사이트", "Codecov 테스트 커버리지", "GHCR의 Docker 이미지", "spaCR"),
+    "pt": ("Documentação da API", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Versão no conda-forge", "Data da versão mais recente no conda-forge", "Downloads no PyPI", "Linux, macOS e Windows", "Citar o spaCR", "Classificação de downloads do spaCR no PyPI nos últimos 30 dias completos", "Site do spaCR", "Cobertura de testes no Codecov", "Imagens Docker no GHCR", "spaCR"),
+    "sv": ("API-dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "conda-forge-version", "Datum för senaste conda-forge-versionen", "PyPI-nedladdningar", "Linux, macOS och Windows", "Citera spaCR", "spaCR:s PyPI-nedladdningsranking de senaste 30 hela dygnen", "spaCR:s webbplats", "Testtäckning på Codecov", "Docker-avbildningar på GHCR", "spaCR"),
+    "zh_CN": ("API 文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "conda-forge 版本", "conda-forge 最新发布日期", "PyPI 下载量", "Linux、macOS 和 Windows", "引用 spaCR", "spaCR 在过去 30 个完整日的 PyPI 下载量排名", "spaCR 网站", "Codecov 测试覆盖率", "GHCR 上的 Docker 镜像", "spaCR"),
 }
 
 # Workflow tiles keep their canonical module names so visual navigation, GUI
@@ -3777,13 +3817,13 @@ REVIEWED_README_BADGE_ALT_TEXT = {
 REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
 
 README_BADGE_SUBSTITUTIONS = (
-    "Docs", "Tutorials", "PyPI", "Python", "Test counts", "Qt", "Source",
-    "Issues", "License", "Preprint", "DOI", "Release", "Conda",
-    "Conda Downloads", "Release date", "PyPI Downloads", "Platforms",
-    "Cite", "PyPI rank",
+    "Docs", "Tutorials", "PyPI", "Python", "Test counts", "Qt",
+    "Issues", "License", "Preprint", "DOI", "Conda",
+    "Release date", "PyPI Downloads", "Platforms",
+    "Cite", "PyPI rank", "Website", "Coverage", "Docker",
 )
 README_INSTALLER_SUBSTITUTIONS = (
-    "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
+    "InstallerWindows", "InstallerMacOS", "InstallerLinux",
 )
 README_RESOURCE_SUBSTITUTIONS = (
     "DataBioStudies", "DataHuggingFace", "DataNCBI", "DataSpaCRPower",
@@ -3791,6 +3831,17 @@ README_RESOURCE_SUBSTITUTIONS = (
 )
 README_WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 README_WORKFLOW_END = ".. spacr-workflow-end"
+README_MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
+README_MODEL_ZOO_END = ".. spacr-model-zoo-end"
+
+
+def _model_zoo_block_span(text: str) -> tuple[int, int] | None:
+    """Return the character span between the model-zoo markers."""
+    start = text.find(README_MODEL_ZOO_BEGIN)
+    end = text.find(README_MODEL_ZOO_END)
+    if start < 0 or end < start:
+        return None
+    return start + len(README_MODEL_ZOO_BEGIN), end
 
 
 def _readme_substitution_alt_text(text: str, names: Iterable[str]) -> list[str]:
@@ -4317,17 +4368,20 @@ def translatable_blocks(
         # headings and accessibility actions are localized deterministically
         # after prose reconstruction; sending rows or substitutions through a
         # model can corrupt their RST delimiters and links.
-        if line.strip() == README_WORKFLOW_BEGIN:
+        if line.strip() in (README_WORKFLOW_BEGIN, README_MODEL_ZOO_BEGIN):
+            block_end = (README_WORKFLOW_END
+                         if line.strip() == README_WORKFLOW_BEGIN
+                         else README_MODEL_ZOO_END)
             literal = [line]
             index += 1
             while (
                 index < len(lines)
-                and lines[index].strip() != README_WORKFLOW_END
+                and lines[index].strip() != block_end
             ):
                 literal.append(lines[index])
                 index += 1
             if index >= len(lines):
-                raise ValueError("README workflow block has no end marker")
+                raise ValueError(f"README block {line.strip()} has no end marker")
             literal.append(lines[index])
             index += 1
             layout.append(("raw_lines", literal))
@@ -5795,7 +5849,14 @@ def _reviewed_api_overlay(
 
 def write_language(
     docs: Mapping[str, str], language: str, translations: Mapping[str, str],
+    *, preserve_other_symbols: bool = False,
 ) -> None:
+    """Write generated records, optionally retaining all unrelated evidence.
+
+    A scoped source change supplies only its regenerated documents. Historical
+    records outside that scope keep their original text and model-input hashes;
+    they are not rebound to a context that was never executed.
+    """
     if language == "zh_CN":
         non_normalized = [
             key for key, value in translations.items()
@@ -5819,6 +5880,14 @@ def write_language(
         if key not in API_DOC_ALIASES
     }
     _materialize_alias_records(docs, symbols)
+    if preserve_other_symbols:
+        path = API_DIR / f"{language}.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("schema") != 2 or payload.get("language") != language:
+            raise ValueError(f"invalid existing API catalog for {language}")
+        payload["symbols"].update(symbols)
+        _write_json(path, payload)
+        return
     payload = {
         "schema": 2,
         "language": language,
@@ -6480,6 +6549,70 @@ def repair_api_translations(
     return repaired
 
 
+def _readme_picker_links_to_index(readme: str) -> bool:
+    """Require the generated picker itself to link its picture to README.md."""
+    begins = list(re.finditer(r"(?m)^\.\. spacr-language-picker-begin[ \t]*$", readme))
+    ends = list(re.finditer(r"(?m)^\.\. spacr-language-picker-end[ \t]*$", readme))
+    if len(begins) != 1 or len(ends) != 1 or begins[0].end() >= ends[0].start():
+        return False
+    block = readme[begins[0].end():ends[0].start()]
+    raw = re.fullmatch(
+        r"\s*\.\. raw:: html[ \t]*\n[ \t]*\n(?P<html>(?:[ \t]+[^\n]*(?:\n|$))*)\s*",
+        block,
+    )
+    if raw is None:
+        return False
+
+    class Picker(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.valid = True
+            self.stack = []
+            self.counts = Counter()
+
+        def handle_starttag(self, tag, attrs):
+            parents = {"div": None, "a": "div", "picture": "a",
+                       "source": "picture", "img": "picture"}
+            parent = self.stack[-1] if self.stack else None
+            if tag not in parents or parent != parents[tag]:
+                self.valid = False
+                return
+            self.counts[tag] += 1
+            if tag == "a" and [value for name, value in attrs if name == "href"] != ["README.md"]:
+                self.valid = False
+            if tag == "img" and not any(name == "src" and value for name, value in attrs):
+                self.valid = False
+            if tag not in {"source", "img"}:
+                self.stack.append(tag)
+
+        def handle_startendtag(self, tag, attrs):
+            self.handle_starttag(tag, attrs)
+            if tag not in {"source", "img"}:
+                self.valid = False
+
+        def handle_endtag(self, tag):
+            if not self.stack or self.stack[-1] != tag:
+                self.valid = False
+            else:
+                self.stack.pop()
+
+        def handle_data(self, data):
+            if data.strip():
+                self.valid = False
+
+        def unknown_decl(self, data):
+            self.valid = False
+
+    picker = Picker()
+    try:
+        picker.feed(raw.group("html"))
+        picker.close()
+    except AssertionError:
+        return False
+    return (picker.valid and not picker.stack
+            and all(picker.counts[tag] == 1 for tag in ("div", "a", "picture", "img")))
+
+
 def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
     languages = tuple(languages)
     if "zh_CN" in languages:
@@ -6495,10 +6628,6 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         r"\b[^:]*:)"
     )
     rst_link_pattern = re.compile(r"`[^`\n]+\s+<([^>\n]+)>`_")
-    readme_protected_pattern = re.compile(
-        r"``[^`]+``|" + _RST_ROLE_PATTERN + r"|"
-        r"https?://[^\s)>}\]]+"
-    )
 
     def protected_values(
         text: str, pattern: re.Pattern[str] = _PROTECT_RE,
@@ -6553,7 +6682,6 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         ):
             failures.append(f"{label}: leaked protection token")
 
-    readme_source = README_SOURCE.read_text(encoding="utf-8")
     english_path = API_DIR / "en.json"
     try:
         english_payload = json.loads(english_path.read_text(encoding="utf-8"))
@@ -6831,70 +6959,24 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 "translation-model control tokens "
                 f"({', '.join(model_artifact_errors[:5])})"
             )
+        # THE TRANSLATED README IS BUILT, NOT TRANSLATED, since 2026-10-12.
+        # tools/build_readme_images.py draws it from
+        # docs/i18n/readme/source/<lang>.yaml, block for block against the
+        # English source; the gate is that build's own structure and
+        # currency check, and the picker hop back to the language index.
         readme_path = README_DIR / f"README.{language}.rst"
         if not readme_path.is_file():
             failures.append(f"{language}: translated README is missing")
         else:
+            failures.extend(
+                f"{language}/README: {problem}" for problem in
+                build_readme_images.check_structure(language)
+                + build_readme_images.check([language]))
             readme = readme_path.read_text(encoding="utf-8")
-            if len(readme) < 10_000:
-                failures.append(f"{language}: translated README is too short")
-            contract_readme = readme.replace(
-                "<../../../README.rst>", "<README.rst>"
-            ).replace(
-                "<../TRANSLATION_MODELS.md>",
-                "<docs/i18n/TRANSLATION_MODELS.md>",
-            ).replace(
-                " image:: ../../../spacr/resources/",
-                " image:: spacr/resources/",
-            ).replace(
-                'src="../../../spacr/resources/',
-                'src="spacr/resources/',
-            ).replace(
-                "<../../source/", "<docs/source/",
-            ).replace(
-                ":target: ../../source/", ":target: docs/source/",
-            ).replace(
-                "<../REVIEW_SCOPE_", "<docs/i18n/REVIEW_SCOPE_",
-            )
-            contract_readme = re.sub(
-                r"<README\.([A-Za-z_]+)\.rst>",
-                r"<docs/i18n/readme/README.\1.rst>",
-                contract_readme,
-            )
-            # AND THE LANGUAGE INDEX, which the regex above cannot reach
-            # because it is Markdown rather than RST. 361 turned the picker
-            # into a dropdown pointing at that index, and the reverse
-            # rewrite was not told: every localized README then read as a
-            # link the English source does not have, which is what made
-            # "RST link targets changed" fire for all nine locales at once.
-            contract_readme = contract_readme.replace(
-                "<README.md>", "<docs/i18n/readme/README.md>"
-            )
-            syntax_contract(
-                readme_source,
-                contract_readme,
-                f"{language}/README",
-                readme_protected_pattern,
-            )
-            source_images = re.findall(r'<(?:a|img)\b[^>]*>', readme_source)
-            target_images = re.findall(r'<(?:a|img)\b[^>]*>', contract_readme)
-            if [re.sub(r'\s+alt="[^"]*"', '', tag) for tag in source_images] != [
-                re.sub(r'\s+alt="[^"]*"', '', tag) for tag in target_images
-            ]:
-                failures.append(f"{language}/README: HTML image/link attributes changed")
-            # THE WAY BACK TO ENGLISH, AS 361 LEFT IT. This gate used to
-            # require the localized README to name ../../../README.rst
-            # directly. 361 replaced the row of per-language links with a
-            # dropdown, so a localized README now names the language INDEX
-            # and the index names English -- the way back is two hops, not
-            # one, and the gate was checking for a link the design had
-            # deliberately removed. It checks the hop that exists, and that
-            # the index still completes it, because a picker that leads
-            # nowhere is the failure this was written to catch.
             index_path = README_DIR / "README.md"
             index = (index_path.read_text(encoding="utf-8")
                      if index_path.is_file() else "")
-            if "<README.md>" not in readme:
+            if not _readme_picker_links_to_index(readme):
                 failures.append(
                     f"{language}: the language picker link is broken")
             elif "../../../README.rst" not in index:
@@ -6950,14 +7032,22 @@ def main() -> int:
     parser.add_argument("--threads", type=int, default=8)
     args = parser.parse_args()
 
+    if args.rebuild_readme:
+        # Retired 2026-10-12 with the image README. The README's words are
+        # in packaging/readme_source.yaml and each translation's in
+        # docs/i18n/readme/source/<lang>.yaml, block for block;
+        # tools/build_readme_images.py draws and writes the READMEs.
+        print("--rebuild-readme is retired: translate "
+              "docs/i18n/readme/source/<lang>.yaml, then run "
+              "tools/build_readme_images.py", file=sys.stderr)
+        return 2
     docs = public_docstrings()
     if args.audit or args.audit_english:
         return audit(docs, () if args.audit_english else args.languages)
 
     if args.sources_only:
-        if not args.rebuild_readme:
-            _write_english_api_manifest(docs)
-            print(f"wrote English API manifest: symbols={len(docs)}")
+        _write_english_api_manifest(docs)
+        print(f"wrote English API manifest: symbols={len(docs)}")
         return 0
     if args.repair_api_blocks:
         # Keep the previous English manifest available until every locale has
@@ -6971,187 +7061,27 @@ def main() -> int:
         print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
 
-    readme = README_SOURCE.read_text(encoding="utf-8")
-    readme_links: list[tuple[str, str, str]] = []
-    for index, match in enumerate(re.finditer(
-        r"`([^`<>]+?)\s+<([^>]+)>`_", readme
-    )):
-        label, target = match.group(1), match.group(2)
-        # The language picker deliberately shows every language in its own
-        # spelling. All other prose labels (not their destinations) belong to
-        # the translated GitHub page.
-        if target == "README.rst" or target.startswith(
-            "docs/i18n/readme/README."
-        ):
-            continue
-        key = f"__readme_link_{index}__"
-        readme_links.append((key, label, target))
     for language in args.languages:
-        pending = {}
-        if not args.rebuild_readme:
-            reusable = {} if args.force else _reviewed_api_overlay(
-                docs, reusable_api_translations(docs, language), language,
-            )
-            pending = {
-                key: source for key, source in docs.items()
-                if key not in reusable
-            }
-            translated = dict(reusable)
-            if pending:
-                translated.update(
-                    _translate_api_documents(
-                        pending, language, args.model_root, args,
-                        reuse_history=not args.force,
-                    )
-                )
-            write_language(docs, language, translated)
-
-        readme_path = README_DIR / f"README.{language}.rst"
-        rebuild_readme = (
-            args.force or args.rebuild_readme or not readme_path.is_file()
+        reusable = {} if args.force else _reviewed_api_overlay(
+            docs, reusable_api_translations(docs, language), language,
         )
-        if rebuild_readme:
-            documents = {"__readme__": readme}
-            documents.update({key: label for key, label, _target in readme_links})
-            readme_translation = _translate_documents(
-                documents, language, args.model_root, args,
-            )
-            README_DIR.mkdir(parents=True, exist_ok=True)
-            localized_readme = readme_translation["__readme__"]
-            localized_readme = localized_readme.replace(
-                "Languages:", f"{LANGUAGE_PICKER_LABELS[language]}:", 1
-            )
-            # AND THE LANGUAGE'S OWN NAME BESIDE THE GLOBE, which is a
-            # separate substitution from the word "Languages" and was
-            # missing until 2026-09-02. The English source reads
-            # "Languages: (globe) English (caret)"; the label above was
-            # localized and the NAME was not, so every rebuild quietly put
-            # "English" in the picker of all nine translated READMEs -- a
-            # Hindi reader arriving at README.hi.rst was told they were
-            # reading English. The endonyms had been correct since
-            # 2026-08-11 and no rebuild had been run against them since.
-            #
-            # `NATIVE_LANGUAGE_NAMES` is the same table the installers use,
-            # imported rather than restated: a second copy is a second thing
-            # to keep in step, which is the fault the `LANGUAGE_PICKER_LABELS`
-            # mirror already documents a few lines up.
-            localized_readme = re.sub(
-                r"\U0001F310\s*[^\u25BE<`]*\u25BE",
-                f"\U0001F310 {NATIVE_LANGUAGE_NAMES[language]} \u25BE",
-                localized_readme, count=1,
-            )
-            localized_readme = _localize_readme_link_labels(
-                localized_readme,
-                language,
-                readme_links,
-                readme_translation,
-            )
-            localized_readme = localized_readme.replace(
-                "docs/i18n/readme/README.", "README."
-            ).replace(
-                "docs/i18n/TRANSLATION_MODELS.md", "../TRANSLATION_MODELS.md"
-            ).replace(
-                "<README.rst>", "<../../../README.rst>"
-            ).replace(
-                " image:: spacr/resources/",
-                " image:: ../../../spacr/resources/",
-            ).replace(
-                'src="spacr/resources/',
-                'src="../../../spacr/resources/',
-            ).replace(
-                " image:: docs/source/", " image:: ../../source/",
-            ).replace(
-                "<docs/source/", "<../../source/",
-            ).replace(
-                ":target: docs/source/", ":target: ../../source/",
-            ).replace(
-                "<docs/i18n/REVIEW_SCOPE_", "<../REVIEW_SCOPE_",
-            )
-            localized_readme = _localize_workflow_alt_text(
-                localized_readme, language,
-            )
-            # Image directives retain their raw options during translation.
-            # Apply source-bound alt text as well as the reviewed prose.
-            for source_alt, targets in REVIEWED_README_EVIDENCE_BLOCKS.items():
-                if language in targets:
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}\n",
-                        f"   :alt: {targets[language]}\n",
-                    )
-            # AFTER the band headings are localized, not before: the
-            # workflow pass renames four of them, and a reference has to
-            # be aimed at the heading as it finally reads.
-            localized_readme = localize_internal_references(
-                readme, localized_readme,
-            )
-            for source_text, target_text in (
-                REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()
-            ):
-                localized_readme = localized_readme.replace(
-                    source_text, target_text
+        pending = {
+            key: source for key, source in docs.items()
+            if key not in reusable
+        }
+        translated = dict(reusable)
+        if pending:
+            translated.update(
+                _translate_api_documents(
+                    pending, language, args.model_root, args,
+                    reuse_history=not args.force,
                 )
-            module_names = (
-                "Mask", "Measure", "Annotate", "Classify",
-                "Map Barcodes", "Regression",
             )
-            module_name_iter = iter(module_names)
-            localized_readme = re.sub(
-                r"(?m)^- \*\*[^*\n]+\*\*\s*",
-                lambda _match, names=module_name_iter: (
-                    f"- **{next(names)}** "
-                ),
-                localized_readme,
-                count=len(module_names),
-            )
-            version_match = re.search(
-                r"Download spaCR ([^ ]+) for Windows", readme
-            )
-            if version_match:
-                canonical_badge_alt = [
-                    *_readme_substitution_alt_text(
-                        readme, README_BADGE_SUBSTITUTIONS,
-                    ),
-                    _readme_logo_alt_text(readme),
-                ]
-                for source_alt, target_alt in zip(
-                    canonical_badge_alt,
-                    REVIEWED_README_BADGE_ALT_TEXT[language],
-                ):
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
-                    )
-                # Workflow tiles are localized above by marker-delimited
-                # generated markup, so additions to the Home registry cannot
-                # shift these named installer and resource definitions.
-                canonical_installer_alt = _readme_substitution_alt_text(
-                    readme, README_INSTALLER_SUBSTITUTIONS,
-                )
-                localized_alt = [
-                    value.format(version=version_match.group(1))
-                    for value in REVIEWED_README_ALT_TEXT[language][1:]
-                ]
-                for source_alt, target_alt in zip(
-                    canonical_installer_alt, localized_alt,
-                ):
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
-                    )
-                for source_alt, target_alt in zip(
-                    _readme_substitution_alt_text(
-                        readme, README_RESOURCE_SUBSTITUTIONS,
-                    ),
-                    REVIEWED_README_RESOURCE_ALT_TEXT[language],
-                ):
-                    localized_readme = localized_readme.replace(
-                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
-                    )
-            readme_path.write_text(localized_readme + "\n", encoding="utf-8")
+        write_language(docs, language, translated)
         print(
             f"wrote {language}: API={len(docs)} "
-            f"translated={len(pending)} README={int(rebuild_readme)}"
+            f"translated={len(pending)}"
         )
-    if args.rebuild_readme:
-        return 0
     # Every locale needs the previous English to prove unchanged paragraphs.
     # Publish the new manifest only after all locale writes have succeeded.
     _write_english_api_manifest(docs)
@@ -7236,16 +7166,16 @@ REVIEWED_README_BLOCKS_ARCHIVE = {
 # decision recorded in instruction 316; not a native-speaker review.
 # ============================================================================
 REVIEWED_README_BLOCKS.update({
-    'Images, masks, crops, measurements, annotations, predictions, barcodes and well identifiers live in one SQLite project.': {
-        'sv': 'Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.',
-        'de': 'Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.',
-        'es': 'Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.',
-        'zh_CN': '图像、掩膜、裁剪图像块、测量值、标注、预测、条形码和微孔标识符都存放在同一个 SQLite 项目中。',
-        'pt': 'Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.',
-        'hi': 'छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।',
-        'ko': '이미지, 마스크, 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자가 하나의 SQLite 프로젝트에 저장됩니다.',
-        'is': 'Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.',
-        'fr': 'Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identifiants de puits résident dans un seul projet SQLite.',
+    "Images, masks and crops are files on disk. Measurements, annotations and model predictions are tables in the project's ``measurements.db`` SQLite database.": {
+        'sv': 'Bilder, masker och bildutsnitt är filer på disk. Mätningar, annoteringar och modellprediktioner är tabeller i projektets SQLite-databas ``measurements.db``.',
+        'de': 'Bilder, Masken und Bildausschnitte sind Dateien auf der Festplatte. Messungen, Annotationen und Modellvorhersagen sind Tabellen in der SQLite-Datenbank ``measurements.db`` des Projekts.',
+        'es': 'Las imágenes, máscaras y recortes son archivos en disco. Las mediciones, anotaciones y predicciones del modelo son tablas de la base de datos SQLite ``measurements.db`` del proyecto.',
+        'zh_CN': '图像、掩膜和裁剪图像块是磁盘上的文件。测量值、标注和模型预测是项目 SQLite 数据库 ``measurements.db`` 中的表。',
+        'pt': 'Imagens, máscaras e recortes são arquivos em disco. Medições, anotações e previsões do modelo são tabelas do banco de dados SQLite ``measurements.db`` do projeto.',
+        'hi': 'छवियाँ, मास्क और क्रॉप डिस्क पर फ़ाइलें हैं। मापन, एनोटेशन और मॉडल पूर्वानुमान परियोजना के SQLite डेटाबेस ``measurements.db`` में तालिकाएँ हैं।',
+        'ko': '이미지, 마스크, 크롭은 디스크에 있는 파일입니다. 측정값, 주석, 모델 예측은 프로젝트의 SQLite 데이터베이스 ``measurements.db``\\ 에 있는 테이블입니다.',
+        'is': 'Myndir, grímur og myndúrklippur eru skrár á diski. Mælingar, merkingar og spár líkana eru töflur í SQLite-gagnagrunni verkefnisins, ``measurements.db``.',
+        'fr': 'Les images, masques et vignettes sont des fichiers sur disque. Les mesures, annotations et prédictions du modèle sont des tables de la base de données SQLite ``measurements.db`` du projet.',
     },
     'Runs as a desktop application or headlessly on a workstation, server or cluster.': {
         'sv': 'Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.',

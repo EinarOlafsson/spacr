@@ -1393,10 +1393,16 @@ class TestPanelSettings:
     def test_a_bad_field_kind_is_rejected_loudly(self, qtbot, monkeypatch):
         """The compartment table is hand-written; a typo in the ``kind``
         column must fail at construction rather than silently skip a knob."""
+        from PySide6.QtWidgets import QApplication
+
         monkeypatch.setattr(LP, "COMPARTMENT_FIELDS",
                             (("min_area", "Min area", "wobble", None),))
+        before = set(QApplication.topLevelWidgets())
         with pytest.raises(ValueError, match="wobble"):
             LP.LivePreviewPanel()
+        for half_built in set(QApplication.topLevelWidgets()) - before:
+            if isinstance(half_built, LP.LivePreviewPanel):
+                qtbot.addWidget(half_built)
 
     def test_tooltips_fall_back_when_spacr_descriptions_are_unavailable(
             self, qtbot, monkeypatch):
@@ -1466,8 +1472,9 @@ class TestRecomputeOnSettingsChange:
         # Tighten the minimum area — the small object must disappear and
         # Cellpose must NOT be asked again.
         p._compartment_widgets["cell"]["min_area"].setValue(50)
+        qtbot.waitUntil(
+            lambda: int((p._masks["cell"] > 0).sum()) == 256, timeout=5000)
         assert len(calls) == 1
-        assert int((p._masks["cell"] > 0).sum()) == 256
         assert not p._masks["cell"][2:5, 2:5].any()      # the 9 px one is gone
         assert (p._masks["cell"][10:26, 10:26] > 0).all()
         # The raw Cellpose output is untouched — that is what makes the
@@ -1476,7 +1483,9 @@ class TestRecomputeOnSettingsChange:
 
         # And relaxing it again brings the object back.
         p._compartment_widgets["cell"]["min_area"].setValue(0)
-        assert int((p._masks["cell"] > 0).sum()) == 9 + 256
+        qtbot.waitUntil(
+            lambda: int((p._masks["cell"] > 0).sum()) == 9 + 256,
+            timeout=5000)
         assert len(calls) == 1
 
     def test_the_status_line_reports_the_object_count(self, qtbot,
@@ -1495,7 +1504,9 @@ class TestRecomputeOnSettingsChange:
         self._run(qtbot, p)
         assert p._status.text().startswith("Found cell=2.")
         p._compartment_widgets["cell"]["min_area"].setValue(50)
-        assert p._status.text().startswith("Found cell=1.")
+        qtbot.waitUntil(
+            lambda: p._status.text().startswith("Found cell=1."),
+            timeout=5000)
 
     def test_toggling_a_checkbox_filter_also_recomputes(self, qtbot,
                                                         monkeypatch, gray_tif):
@@ -1513,7 +1524,8 @@ class TestRecomputeOnSettingsChange:
         self._run(qtbot, p)
         assert int(p._masks["cell"].max()) == 2
         p._compartment_widgets["cell"]["remove_border_objects"].setChecked(True)
-        assert int(p._masks["cell"].max()) == 1
+        qtbot.waitUntil(lambda: int(p._masks["cell"].max()) == 1,
+                        timeout=5000)
         assert len(calls) == 1
 
     def test_recompute_is_a_no_op_before_any_run(self, qtbot, gray_tif):
@@ -1988,12 +2000,12 @@ class TestPropagation:
             assert seen[-1]["cell_diameter"] == pytest.approx(30.0)
 
             p._diameter.setValue(55.0)
-            assert len(seen) > 1
+            qtbot.waitUntil(lambda: len(seen) > 1, timeout=5000)
             assert seen[-1]["cell_diameter"] == pytest.approx(55.0)
 
             p._compartment_widgets["nucleus"]["min_area"].setValue(77)
-            assert LP._bound_from_filters(
-                seen[-1], "nucleus", "min_area") == 77
+            qtbot.waitUntil(lambda: LP._bound_from_filters(
+                seen[-1], "nucleus", "min_area") == 77, timeout=5000)
 
             n = len(seen)
             dlg._propagate_btn.setChecked(False)
@@ -2027,7 +2039,8 @@ class TestPropagation:
             dlg._propagate_btn.setChecked(True)
             assert len(seen) == 1
             p._diameter.setValue(21.0)               # good sources still wired
-            assert seen[-1]["cell_diameter"] == pytest.approx(21.0)
+            qtbot.waitUntil(lambda: seen[-1]["cell_diameter"]
+                            == pytest.approx(21.0), timeout=5000)
             n = len(seen)
             dlg._propagate_btn.setChecked(False)
             p._diameter.setValue(9.0)

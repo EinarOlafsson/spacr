@@ -11,10 +11,11 @@ Design notes
 * One instance is shared across the whole main window; the user's
   chat context persists as they switch between Mask/Measure/etc.
 * Streaming is done in a QThread via `spacr.qt.ai.worker.StreamWorker`.
-  The worker reference is stored on `self` — if we let Python drop it,
-  Qt may never deliver the finished signal.
-* There is NO "already streaming" guard. If a stream is in flight, the
-  Send button turns into Cancel so the user can always recover.
+  The worker reference is stored on `self`; if Python garbage-collected it,
+  Qt might never deliver the finished signal.
+* While a stream is in flight, the Send button turns into Cancel, and a
+  message submitted from the input box is refused with a status-line
+  notice rather than starting a second stream.
 """
 from __future__ import annotations
 
@@ -155,7 +156,7 @@ class _ProvidersDialog(QDialog):
             col.addWidget(self._make_provider_row(p))
 
         note = QLabel(
-            "Once a CLI is installed <em>and</em> you're logged in, hit "
+            "Once a CLI is installed <em>and</em> you're logged in, press "
             "<b>Refresh</b> below and it will appear in the provider "
             "dropdown."
         )
@@ -181,7 +182,8 @@ class _ProvidersDialog(QDialog):
         speed_label = QLabel(
             "<b>Response speed</b><br>"
             "<span style='color:gray;'>Same three levels for every provider. "
-            "Faster = snappier + cheaper; Deep = more thorough reasoning.</span>"
+            "Each level selects one of the provider's models: Fast the "
+            "smallest and quickest, Deep the largest.</span>"
         )
         speed_label.setTextFormat(Qt.RichText)
         col.addWidget(speed_label)
@@ -648,7 +650,7 @@ class AIChatPanel(QWidget):
         if self._thread is not None:
             set_translatable_text(
                 self._status,
-                "A response is already streaming — hit Cancel to interrupt.",
+                "A response is already streaming — press Cancel to interrupt.",
             )
             return
         self._input.clear()

@@ -1,0 +1,22 @@
+[
+  {
+    "domain": "distributed_execution",
+    "msgid": "Model checkpoints on the execution target",
+    "msgstr": "Points de contrôle du modèle sur la cible d’exécution"
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames.",
+    "msgstr": "Les paramètres exportés conservent le chemin du modèle ainsi que toute clé du catalogue, version de l’éditeur et empreinte SHA-256 enregistrées. Les fichiers existants dont l’identité est enregistrée doivent correspondre à cette empreinte. Les fichiers manquants sont résolus uniquement à partir de l’identité exacte enregistrée ou, sans identité enregistrée, d’une clé ou d’un nom de fichier exacts du catalogue ; aucune substitution par correspondance approximative n’est effectuée. Les modèles sont mis en cache sous le répertoire personnel de spaCR (normalement ``~/.spacr/models``), sauf si ``SPACR_MODEL_CACHE`` désigne un autre répertoire. Les processus partagent un verrou de téléchargement et vérifient les points de contrôle en cache avant de les télécharger. Sur un nœud hors ligne, définissez ``SPACR_MODEL_DOWNLOAD=off`` avant d’exécuter ``spacr-run`` : les métadonnées et les poids des modèles ne sont pas téléchargés. Les fichiers locaux existants et les modèles vérifiés en cache restent utilisables ; pour un modèle connu absent du cache, l’empreinte et le chemin de cache où le copier sont indiqués. Les demandes inconnues sont refusées clairement. Les chemins personnalisés n’obtiennent pas une identité de catalogue de confiance grâce à leur nom de fichier."
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command.",
+    "msgstr": "utiliser une session SSH persistante et vérifiée avec des invites graphiques d’authentification interactive au clavier, plutôt que la commande OpenSSH externe."
+  },
+  {
+    "domain": "distributed_execution",
+    "msgid": "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden.",
+    "msgstr": "paramètres de remplacement SSH non secrets, comme l’utilisateur, le port, le chemin du fichier d’identité et l’hôte de rebond ; les mots de passe et codes à usage unique sont interdits."
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "recorded_at_utc": "2026-10-14T07:01:52.085083+00:00",
+  "scope": "All final staged tracked text checked by invoking all three existing assertion functions unchanged; no new pytest run or Qt slot used. Earlier normal owning pytest remains 3 passed exit0.",
+  "checks": [
+    {
+      "existing_test_function": "test_no_tracked_path_names_the_former_application",
+      "status": "pass"
+    },
+    {
+      "existing_test_function": "test_no_tracked_text_names_the_former_application",
+      "status": "pass"
+    },
+    {
+      "existing_test_function": "test_a_former_name_is_found_in_any_letter_case",
+      "status": "pass"
+    }
+  ],
+  "changes_features_only": true,
+  "changed_files": 71,
+  "spacr_tree": "e619efd9a9e1baf146ac1e7e342e3ae31cb0bce3",
+  "candidate_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "tests_tools_workflows_packaging_unchanged": true,
+  "branding_test_sha256": "c7523ca26df55d9f539e00a8503362895a9d661b2a8a326c2e448fe682770361"
+}

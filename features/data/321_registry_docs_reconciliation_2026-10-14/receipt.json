@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "item": 321,
+  "kind": "Current registry/documentation acceptance; no new product behavior",
+  "source_commit": "cb42505b4b9e55065b6aff29a4059aedc2daf023",
+  "validation": {
+    "passed": 56,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 3.82,
+    "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 6G python -m pytest tests/test_the_readme_describes_the_build_that_ships.py tests/test_the_api_homepage_shows_the_module_structure.py -q"
+  },
+  "findings": [
+    "Current README/API grids match the shared module registry and generated sections.",
+    "Folded modules keep their documented host and function-specific destinations.",
+    "No stale App_ substitution or missing registry tile defect appeared in the owning cohort."
+  ],
+  "limitations": [
+    "These tests exercise registry/tiled_apps contracts; they do not reproduce the native post-registration Home view.",
+    "Work reported a separate maturity-classification problem hiding Toxoplasma on actual Home; that runtime-source dependency belongs to Original Home and is not resolved by this receipt.",
+    "No full docs build, hosted publication or runtime classification edit was performed."
+  ]
+}

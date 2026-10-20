@@ -175,6 +175,7 @@ def test_v1_v2_mask_parity(_synthetic_pair):
 
     # --- v2 -------------------------------------------------------------
     from spacr.pipeline_v2 import run_v2
+    from spacr.qt.mask_engine import object_filter_area_floor
     t0 = time.time()
     run_v2(
         src=v2_dir,
@@ -186,7 +187,10 @@ def test_v1_v2_mask_parity(_synthetic_pair):
         metadata_type="cellvoyager",
         cellprob_threshold=v1_settings["cell_cellprob_threshold"],
         flow_threshold=v1_settings["cell_flow_threshold"],
-        min_size=v1_settings["cell_min_area"],
+        # 2026-10-12: cell_min_area is retired into object_filters; the engine
+        # passes the cell 'area' floor as Cellpose min_size (core.py), so v2
+        # receives exactly the value v1 applies.
+        min_size=object_filter_area_floor(v1_settings, "cell"),
         resample=True,
         postprocess_settings=v1_settings,
         object_type="cell",

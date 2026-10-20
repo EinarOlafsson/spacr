@@ -1,0 +1,121 @@
+{
+  "captured_utc": "2026-10-15T19:00:55.276735+00:00",
+  "scope": "One fresh read-only GitHub workflow/job metadata snapshot, no repeated polling or mutation",
+  "current_public_source": "d9f7a95e711a7730d05e67cff49697c0a3a35ab9",
+  "observations": [
+    {
+      "snapshot": "compat-current",
+      "headSha": "d9f7a95e711a7730d05e67cff49697c0a3a35ab9",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38790006792",
+      "status": "in_progress",
+      "conclusion": "",
+      "jobs": {
+        "success": 1,
+        "in_progress": 8
+      },
+      "failed_jobs": [],
+      "raw_sha256": "952f89ad37218fbd9de89b6b914972802cdb807b48126fb8503656c8d6e31aa2"
+    },
+    {
+      "snapshot": "docs-current",
+      "headSha": "d9f7a95e711a7730d05e67cff49697c0a3a35ab9",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38790006605",
+      "status": "pending",
+      "conclusion": "",
+      "jobs": {},
+      "failed_jobs": [],
+      "raw_sha256": "6a6515d18b561274e0a52b6844804bbcdf55770f79a3199afe1af8adee92d049"
+    },
+    {
+      "snapshot": "tests-current",
+      "headSha": "d12fe074a699ffca43a1d0c25664c5f4d07f1b58",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38789870594",
+      "status": "pending",
+      "conclusion": "",
+      "jobs": {},
+      "failed_jobs": [],
+      "raw_sha256": "dbc550355f8d4196b0de8a2b08ec70481ad79bfb36fe701022c2ad84c6a06924"
+    },
+    {
+      "snapshot": "compat-3ed",
+      "headSha": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38783166432",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "jobs": {
+        "success": 13,
+        "cancelled": 4
+      },
+      "failed_jobs": [],
+      "raw_sha256": "7acb1b4db8e82ecb601b3aa33d2cc0989513fda273168f0621603455de2f892a"
+    },
+    {
+      "snapshot": "tests-5727",
+      "headSha": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/38774384694",
+      "status": "in_progress",
+      "conclusion": "",
+      "jobs": {
+        "success": 5,
+        "failure": 12,
+        "in_progress": 10
+      },
+      "failed_jobs": [
+        {
+          "id": 116568855732,
+          "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 0 of 3"
+        },
+        {
+          "id": 116568855931,
+          "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 0 of 3"
+        },
+        {
+          "id": 116568856167,
+          "name": "Coverage shard 2 of 12"
+        },
+        {
+          "id": 116568856169,
+          "name": "Coverage shard 7 of 12"
+        },
+        {
+          "id": 116568856180,
+          "name": "Coverage shard 3 of 12"
+        },
+        {
+          "id": 116568856207,
+          "name": "Network / Network (ubuntu-24.04, py3.12)"
+        },
+        {
+          "id": 116568856246,
+          "name": "Coverage shard 10 of 12"
+        },
+        {
+          "id": 116568856249,
+          "name": "Coverage shard 11 of 12"
+        },
+        {
+          "id": 116568856257,
+          "name": "Coverage shard 9 of 12"
+        },
+        {
+          "id": 116568856300,
+          "name": "Coverage shard 1 of 12"
+        },
+        {
+          "id": 116568856311,
+          "name": "Coverage shard 6 of 12"
+        },
+        {
+          "id": 116568856354,
+          "name": "Coverage shard 5 of 12"
+        }
+      ],
+      "raw_sha256": "553b979701770c7086de68ba042f8aa8b7ceadc51849d96c0e86ce2b1486ec4d"
+    }
+  ],
+  "current_actionable_failure": "None observed on d9f compat/docs or latestd12 test source; pending/running is not acceptance. No completedfailedcurrentjob existed tofetch.",
+  "older_3ed": "Cancelled after13successful+4cancelledjobs; not a green compatibility claim and not newfailure. No cancellation action performed by this agent.",
+  "old_5727": "Stillactivewith12failedjobs; exactsourcepredates currentpublishedandmanytargetedrepairs. Existingfailurelog/ownerpackets remain separate; no all-current equivalence or newsoftwareconclusion inferred.",
+  "operations": "gh run list+fivegh run view read-only queries once. No dispatch/retry/build/pytest/productionedit/model/networktest. Ghusedexistingauth, no secrets printed.",
+  "limits": "Snapshot only; statuses can change. FinalfullCI/release remains coordinator-controlled."
+}

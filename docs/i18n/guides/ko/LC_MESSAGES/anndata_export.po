@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -82,6 +82,7 @@ msgstr "명시적인 함수 인수는 :func:`spacr.anndata_export.export_anndata
 msgid "Follow the video"
 msgstr "동영상 따라 하기"
 
-msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. The normal exporter handles entirely missing metadata directly. If writing a replacement fails, an existing completed output is preserved."
-msgstr "`AnnData 동영상 <tutorials/#lesson=59_anndata_export>`__ 은 다운로드 가능한 측정 예제를 사용하여 이 컨트롤을 차례로 설명합니다. 결합 내보내기, 세포 전용 및 핵 전용 내보내기를 보여 주고 누락값 정책을 비교합니다. 일반 내보내기 도구는 완전히 누락된 메타데이터를 직접 처리합니다. 대체 파일 쓰기에 실패하면 기존의 완성된 출력이 보존됩니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The `AnnData video <tutorials/#lesson=59_anndata_export>`__ walks through these controls using the downloadable measurement example. It shows joined, cell-only and nucleus-only exports and compares the missing-value policies. Object metadata columns that are entirely missing are stored as empty categorical columns in ``obs``; no placeholder value is written. If writing a replacement fails, an existing completed output is preserved."
+msgstr "`AnnData 동영상 <tutorials/#lesson=59_anndata_export>`__\\ 은 다운로드 가능한 측정 예제를 사용하여 이 컨트롤을 차례로 설명합니다. 결합 내보내기, 세포 전용 및 핵 전용 내보내기를 보여 주고 누락값 정책을 비교합니다. 값이 완전히 누락된 객체 메타데이터 열은 ``obs``\\ 에 빈 범주형 열로 저장되며, 자리 표시자 값은 기록되지 않습니다. 대체 파일 쓰기에 실패하면 기존의 완성된 출력이 보존됩니다."
 

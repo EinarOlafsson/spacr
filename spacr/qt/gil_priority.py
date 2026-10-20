@@ -23,6 +23,7 @@ import sys
 import threading
 import weakref
 from contextlib import contextmanager
+from typing import Optional
 
 LOG = logging.getLogger("spacr.qt.gil_priority")
 
@@ -98,6 +99,300 @@ def responsive_gui():
         release()
 
 
+#: PyTorch's shared libraries :func:`_open_torch_libraries` maps, in the order
+#: ``torch/__init__.py`` loads them, as ``(file in torch/lib, global)``.
+_TORCH_LIBRARIES = (("libtorch_global_deps.so", True),
+                    ("libtorch_cpu.so", False),
+                    ("libtorch_cuda.so", False))
+
+#: The CUDA libraries ``torch/__init__.py`` loads after its global library
+#: when its CUDA runtime came from a wheel, as ``(folder under nvidia,
+#: pattern)``.
+_TORCH_WHEEL_CUDA_LIBRARIES = (("cuda_nvrtc", "libnvrtc.so.*[0-9]"),
+                               ("nvjitlink", "libnvJitLink.so.*[0-9]"))
+
+_TORCH_LIBRARIES_TRIED = False
+
+
+def _dlopen_without_the_lock():
+    """The C library's ``dlopen``, called through ctypes.
+
+    A ctypes call to a foreign function releases the interpreter lock for
+    the length of the call, which neither ``import`` nor ``ctypes.CDLL``
+    does: both hold it while the dynamic linker maps and relocates.
+    """
+    import ctypes
+
+    function = ctypes.CDLL(None).dlopen
+    function.restype = ctypes.c_void_p
+    function.argtypes = (ctypes.c_char_p, ctypes.c_int)
+    return function
+
+
+def _wheel_cuda_library(folder: str, pattern: str) -> Optional[str]:
+    """The first ``nvidia/<folder>/lib/<pattern>`` on ``sys.path``.
+
+    The search ``torch._preload_cuda_deps`` makes, so the file is the one
+    PyTorch would load.
+
+    :param folder: the package folder under ``nvidia``.
+    :param pattern: the library's glob pattern.
+    """
+    import glob
+    import os
+
+    for entry in sys.path:
+        root = os.path.join(entry, "nvidia")
+        if not os.path.exists(root):
+            continue
+        found = (glob.glob(os.path.join(root, folder, "lib", pattern))
+                 or glob.glob(os.path.join(entry, folder, "lib", pattern)))
+        if found:
+            return found[0]
+    return None
+
+
+def _open_wheel_cuda_libraries(dlopen, maps_path: str = "/proc/self/maps") -> bool:
+    """Map NVRTC and nvJitLink as PyTorch does after its global library.
+
+    Only when the CUDA runtime that library brought in came from a wheel,
+    which is PyTorch's own condition; otherwise there is nothing to do.
+
+    :param dlopen: from :func:`_dlopen_without_the_lock`.
+    :param maps_path: the process's memory map, read for that condition.
+    :returns: False when a library PyTorch would load could not be found.
+    """
+    import os
+
+    try:
+        with open(maps_path) as maps:
+            if "nvidia/cuda_runtime/lib/libcudart.so" not in maps.read():
+                return True
+    except OSError:
+        return False
+    for folder, pattern in _TORCH_WHEEL_CUDA_LIBRARIES:
+        path = _wheel_cuda_library(folder, pattern)
+        if path is None or not dlopen(os.fsencode(path), os.RTLD_NOW):
+            return False
+    return True
+
+
+def _open_torch_libraries() -> bool:
+    """Map PyTorch's shared libraries with the interpreter lock released.
+
+    IMPORTING TORCH HOLDS THE LOCK FOR A THIRD OF A SECOND IN ONE C CALL.
+    ``import torch`` maps ``libtorch_cpu`` and ``libtorch_cuda`` (1.3 GB)
+    while it holds the interpreter lock: 300-340 ms in which no other thread
+    runs Python. The GUI thread needs the lock for every event a Python
+    object handles, so lesson 08's Measure run froze the window for 326 ms
+    when its worker imported torch half a second after Run.
+
+    This maps the same files first, in the order and with the flags
+    ``torch/__init__.py`` uses (``libtorch_global_deps`` global; the
+    wheel's NVRTC and nvJitLink when the CUDA runtime came from a wheel, as
+    PyTorch does next; then ``libtorch_cpu`` and ``libtorch_cuda``), through
+    ctypes calls to ``dlopen``, which release the lock. The import that
+    follows finds them mapped. Torch itself is not imported, and the process
+    ends up with the libraries PyTorch would have loaded, from the same
+    files.
+
+    Linux only, once per process, and only while torch is installed and not
+    yet imported. A build without ``libtorch_cuda`` maps the rest. Anything
+    unexpected stops it and leaves the rest to ``import torch``. Call it on
+    a worker thread.
+
+    Returns
+    -------
+    bool
+        True when every library the build has was mapped here.
+    """
+    global _TORCH_LIBRARIES_TRIED
+    with _LOCK:
+        if _TORCH_LIBRARIES_TRIED or "torch" in sys.modules:
+            return False
+        _TORCH_LIBRARIES_TRIED = True
+    if not sys.platform.startswith("linux"):
+        return False
+    try:
+        import importlib.util
+        import os
+
+        spec = importlib.util.find_spec("torch")
+        if spec is None or not spec.origin:
+            return False
+        lib = os.path.join(os.path.dirname(spec.origin), "lib")
+        dlopen = _dlopen_without_the_lock()
+        for index, (name, is_global) in enumerate(_TORCH_LIBRARIES):
+            path = os.path.join(lib, name)
+            if not os.path.isfile(path):
+                if index == 0:
+                    return False
+                continue
+            mode = os.RTLD_NOW | (os.RTLD_GLOBAL if is_global else 0)
+            if not dlopen(os.fsencode(path), mode):
+                return False
+            if index == 0 and not _open_wheel_cuda_libraries(dlopen):
+                return False
+        return True
+    except Exception:                                 # noqa: BLE001
+        LOG.debug("could not map the torch libraries early", exc_info=True)
+        return False
+
+
+def _hub_rebuild_objects(hub) -> None:
+    """Index ``hub``'s object watchers' kinds and their geometry watches."""
+    from PySide6.QtCore import QEvent
+
+    geometry_kinds = {QEvent.Type.Move, QEvent.Type.Resize,
+                      QEvent.Type.Show, QEvent.Type.Hide}
+    kinds = set()
+    geometry = {}
+    for key, chain in hub._objects.items():
+        for entry in chain:
+            kinds.update(entry[1])
+            if entry[1] & geometry_kinds and (len(entry) < 5 or entry[4]):
+                geometry[key] = entry[3]
+    hub._object_kinds = frozenset(kinds)
+    hub._geometry_watched = geometry
+
+
+def _hub_add_object(hub, watched, watcher, kinds, replay=True) -> None:
+    """Ask ``watcher`` first about ``watched``'s events of ``kinds``."""
+    from shiboken6 import getCppPointer
+
+    key = getCppPointer(watched)[0]
+    chain = [entry for entry in hub._objects.get(key, [])
+             if entry[0]() is not watcher]
+    if key not in hub._objects:
+        watched.destroyed.connect(
+            lambda *_args, key=key: _hub_drop_object(hub, key))
+    chain.insert(0, [weakref.ref(watcher), frozenset(kinds), True,
+                     weakref.ref(watched), bool(replay)])
+    hub._objects[key] = chain
+    _hub_rebuild_objects(hub)
+
+
+def _hub_discard_object(hub, watched, watcher) -> bool:
+    """Stop ``hub`` asking ``watcher`` about ``watched``."""
+    from shiboken6 import getCppPointer
+
+    try:
+        key = getCppPointer(watched)[0]
+    except (RuntimeError, TypeError):
+        return False
+    chain = hub._objects.get(key)
+    if not chain:
+        return False
+    kept = []
+    found = False
+    for entry in chain:
+        if entry[0]() is watcher:
+            entry[2] = False
+            found = True
+        else:
+            kept.append(entry)
+    if kept:
+        hub._objects[key] = kept
+    else:
+        hub._objects.pop(key, None)
+    _hub_rebuild_objects(hub)
+    return found
+
+
+def _hub_drop_object(hub, key) -> None:
+    """Forget every watch on an object that has been destroyed."""
+    chain = hub._objects.pop(key, None)
+    for entry in chain or ():
+        entry[2] = False
+    if chain is not None:
+        _hub_rebuild_objects(hub)
+
+
+def _hub_object_watchers(hub, watched) -> tuple:
+    """The live watchers of ``watched``, in the order they are asked."""
+    from shiboken6 import getCppPointer, isValid
+
+    try:
+        chain = hub._objects.get(getCppPointer(watched)[0], ())
+    except (RuntimeError, TypeError):
+        return ()
+    return tuple(watcher for watcher in
+                 (entry[0]() for entry in chain if entry[2])
+                 if watcher is not None and isValid(watcher))
+
+
+def _hub_ask_object_watchers(hub, watched, event, kind) -> bool:
+    """Hand ``event`` to ``watched``'s watchers of ``kind``."""
+    from shiboken6 import getCppPointer, isValid
+
+    try:
+        chain = hub._objects.get(getCppPointer(watched)[0])
+    except (RuntimeError, TypeError):
+        return False
+    if not chain:
+        return False
+    for entry in tuple(chain):
+        if not entry[2] or kind not in entry[1]:
+            continue
+        watcher = entry[0]()
+        if watcher is None or not isValid(watcher):
+            continue
+        try:
+            if watcher.eventFilter(watched, event):
+                return True
+        except Exception:
+            sys.excepthook(*sys.exc_info())
+    return False
+
+
+def _hub_geometry_before(hub) -> list:
+    """Where each geometry-watched widget is, before a paint pass.
+
+    Two calls a widget, because this runs on every frame of the field.
+    """
+    states = []
+    for ref in tuple(hub._geometry_watched.values()):
+        widget = ref()
+        if widget is None:
+            continue
+        try:
+            states.append((widget, widget.isHidden(), widget.geometry()))
+        except (AttributeError, RuntimeError):
+            continue
+    return states
+
+
+def _hub_geometry_after(hub, states) -> None:
+    """Tell the watchers what moved during a paint pass they missed.
+
+    A paint pass runs with the hub off the application, so a move, resize,
+    show or hide sent from inside a paint is not heard as it happens. Each
+    is made again from the widget's state and handed to the watchers that
+    asked for it, once.
+    """
+    for widget, hidden, geometry in states:
+        try:
+            now_hidden, now = widget.isHidden(), widget.geometry()
+        except RuntimeError:
+            continue
+        if now_hidden == hidden and now == geometry:
+            continue
+        from PySide6.QtGui import (QHideEvent, QMoveEvent, QResizeEvent,
+                                   QShowEvent)
+
+        events = []
+        if now_hidden != hidden:
+            events.append(QHideEvent() if now_hidden else QShowEvent())
+        if now.topLeft() != geometry.topLeft():
+            events.append(QMoveEvent(now.topLeft(), geometry.topLeft()))
+        if now.size() != geometry.size():
+            events.append(QResizeEvent(now.size(), geometry.size()))
+        for event in events:
+            kind = event.type()
+            if kind in hub._object_kinds:
+                _hub_ask_object_watchers(hub, widget, event, kind)
+
+
 _HUB_ATTRIBUTE = "_spacr_application_event_hub"
 _HUB_CLASS = None
 
@@ -130,12 +425,32 @@ def _application_event_hub_class():
     then dropped, as Qt drops a destroyed filter. An
     exception in one watcher goes to ``sys.excepthook``, as PySide sends an
     exception raised in an event filter, and the rest are still asked.
+
+    A FRAME IS PAINTED WITHOUT IT. Over the animated field every widget on
+    screen is sent a paint event on every frame -- 163 on Home and 179 on
+    Make Masks at 2560x1440 -- and an application filter is asked about
+    each, though no watcher reads a paint. So when the update request that
+    paints a widget's window reaches the hub, and no watcher acts on an
+    event a repaint sends (a paint, a move, a resize or an update request),
+    the hub steps off the application, hands the request on to the window
+    itself, and steps back on when the window has painted: every filter on
+    the window and every other application filter still hears the request,
+    once, and nothing the watchers asked for passes while the hub is off.
+    A request for anything that is not a widget goes the usual way.
+    Measured offscreen, cheapest GUI-thread CPU of a synchronous field frame
+    (median of six interleaved rounds): 0.65 ms of 4.8 on Home and 0.67 of
+    6.8 on Make Masks.
     """
     global _HUB_CLASS
     if _HUB_CLASS is not None:
         return _HUB_CLASS
-    from PySide6.QtCore import QObject
+    from PySide6.QtCore import QCoreApplication, QEvent, QObject
     from shiboken6 import isValid
+
+    update_request = QEvent.Type.UpdateRequest
+    paint_pass_kinds = frozenset({
+        update_request, QEvent.Type.Paint, QEvent.Type.Move,
+        QEvent.Type.Resize, QEvent.Type.UpdateLater})
 
     class _ApplicationEventHub(QObject):
         """The one application event filter the watchers share."""
@@ -145,6 +460,10 @@ def _application_event_hub_class():
             super().__init__(parent)
             self._entries = []
             self._by_kind = {}
+            self._paints_unheard = True
+            self._objects = {}
+            self._object_kinds = frozenset()
+            self._geometry_watched = {}
 
         def _rebuild(self) -> None:
             """Index the live watchers by event type, newest first."""
@@ -154,6 +473,7 @@ def _application_event_hub_class():
                     by_kind.setdefault(kind, []).append(entry)
             self._by_kind = {kind: tuple(chain)
                              for kind, chain in by_kind.items()}
+            self._paints_unheard = not paint_pass_kinds.intersection(by_kind)
 
         def add(self, watcher, kinds) -> None:
             """Ask ``watcher`` first about every event of ``kinds``."""
@@ -186,11 +506,29 @@ def _application_event_hub_class():
         def eventFilter(self, watched, event):
             """Hand ``event`` to the watchers that asked for its type."""
             try:
-                chain = self._by_kind.get(event.type())
+                kind = event.type()
+                chain = self._by_kind.get(kind)
             except (AttributeError, RuntimeError, TypeError, ValueError):
                 return False
+            if kind == update_request and self._paints_unheard:
+                app = self.parent()
+                if app is not None and watched.isWidgetType():
+                    if (kind in self._object_kinds
+                            and _hub_ask_object_watchers(self, watched, event, kind)):
+                        return True
+                    moved = (_hub_geometry_before(self)
+                             if self._geometry_watched else None)
+                    app.removeEventFilter(self)
+                    try:
+                        QCoreApplication.sendEvent(watched, event)
+                    finally:
+                        app.installEventFilter(self)
+                        if moved:
+                            _hub_geometry_after(self, moved)
+                    return True
             if not chain:
-                return False
+                return (kind in self._object_kinds
+                        and _hub_ask_object_watchers(self, watched, event, kind))
             dead = False
             try:
                 for entry in chain:
@@ -205,7 +543,8 @@ def _application_event_hub_class():
                             return True
                     except Exception:
                         sys.excepthook(*sys.exc_info())
-                return False
+                return (kind in self._object_kinds
+                        and _hub_ask_object_watchers(self, watched, event, kind))
             finally:
                 if dead:
                     self._forget_the_dead()
@@ -286,6 +625,126 @@ def _watch_application_events(app, watcher, kinds) -> bool:
     return True
 
 
+def _watch_object_events(watched, watcher, kinds, replay=True) -> bool:
+    """Call ``watcher.eventFilter`` for ``watched``'s events of ``kinds``.
+
+    The replacement for ``watched.installEventFilter(watcher)`` with a
+    Python filter that never acts on a paint. Over the animated field every
+    widget on screen is painted on every frame, and Qt asks a widget's own
+    filters about each paint: lesson 13's Regression screen re-entered
+    Python 233 times per 3840x2160 frame, and during a run each re-entry
+    waits behind the pipeline's hold on the interpreter lock. Behind the
+    application hub the watcher hears only the kinds it names, in the same
+    call that already asks the application's watchers, and a paint pass
+    never reaches it; a move, resize, show or hide sent from inside a paint
+    is told afterwards. It is asked after the application's own watchers
+    and before the object's remaining Qt filters, which is where Qt asks an
+    application filter.
+
+    ``kinds`` must name every event type the filter can act on and must
+    not include ``Paint`` or ``UpdateRequest``: such a filter is installed
+    on ``watched`` directly, as before.
+
+    :param watched: the object to watch.
+    :param watcher: a ``QObject`` with an ``eventFilter``.
+    :param kinds: the ``QEvent.Type`` values it acts on.
+    :param replay: whether a move, resize, show or hide made inside a paint
+        is told afterwards. Every frame of the field checks each widget
+        watched this way, so a watcher that is told the next change anyway
+        passes ``False``.
+    :returns: ``True`` when the watcher is now watching.
+    """
+    if watched is None or watcher is None:
+        return False
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    kinds = frozenset(kinds)
+    hub = None
+    if not kinds & {QEvent.Type.Paint, QEvent.Type.UpdateRequest}:
+        hub = _application_event_hub(QCoreApplication.instance())
+    if hub is None:
+        watched.installEventFilter(watcher)
+        return True
+    _hub_add_object(hub, watched, watcher, kinds, replay)
+    return True
+
+
+def _show_paint_layer(owner, attribute: str, pixmap) -> None:
+    """Show ``pixmap`` over ``owner`` in a plain child label, or hide it.
+
+    A widget that drew a decoration in a Python ``paintEvent`` was asked
+    for it on every frame of the window's field, a re-entry into Python
+    each time. Drawn once into a pixmap and shown by a ``QLabel`` with no
+    Python methods, it is painted by Qt alone, after the owner's own paint
+    as the ``paintEvent`` drew it, and with the same pixels: an opaque
+    colour drawn with coverage onto a transparent pixmap and then blended
+    onto the owner is the same 8-bit sum as drawing it on the owner.
+
+    :param owner: the widget the decoration belongs to.
+    :param attribute: where on ``owner`` the label is kept.
+    :param pixmap: the decoration at ``owner``'s size and pixel ratio, or
+        ``None`` to hide it.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QLabel
+
+    layer = owner.__dict__.get(attribute)
+    if pixmap is None or pixmap.isNull():
+        if layer is not None:
+            layer.hide()
+        return
+    if layer is None:
+        layer = QLabel(owner)
+        layer.setObjectName("spacrPaintLayer")
+        layer.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        layer.setFocusPolicy(Qt.NoFocus)
+        layer.setStyleSheet("QLabel#spacrPaintLayer { background: transparent;"
+                            " border: none; padding: 0px; margin: 0px; }")
+        layer.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        layer.setContentsMargins(0, 0, 0, 0)
+        layer.setAccessibleName("")
+        owner.__dict__[attribute] = layer
+    layer.setGeometry(owner.rect())
+    layer.setPixmap(pixmap)
+    layer.raise_()
+    layer.show()
+
+
+def _blank_layer_pixmap(owner):
+    """A transparent pixmap at ``owner``'s size and pixel ratio."""
+    import math
+
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QPixmap
+
+    ratio = owner.devicePixelRatioF()
+    pixmap = QPixmap(max(1, math.ceil(owner.width() * ratio)),
+                     max(1, math.ceil(owner.height() * ratio)))
+    pixmap.setDevicePixelRatio(ratio)
+    pixmap.fill(Qt.transparent)
+    return pixmap
+
+
+def _stop_watching_object_events(watched, watcher) -> bool:
+    """Undo :func:`_watch_object_events`; ``True`` if it was watching."""
+    if watched is None or watcher is None:
+        return False
+    from PySide6.QtCore import QCoreApplication
+
+    hub = _application_event_hub(QCoreApplication.instance(), create=False)
+    found = False
+    if hub is not None:
+        try:
+            found = _hub_discard_object(hub, watched, watcher)
+        except RuntimeError:
+            found = False
+    try:
+        watched.removeEventFilter(watcher)
+    except RuntimeError:
+        pass
+    return found
+
+
 def _stop_watching_application_events(app, watcher) -> bool:
     """Undo :func:`_watch_application_events`; ``True`` if it was watching.
 
@@ -317,3 +776,101 @@ def _application_watchers(app) -> tuple:
         return hub.watchers()
     except RuntimeError:
         return ()
+
+
+def _widget_state(widget) -> tuple:
+    """What a watcher could have heard change about ``widget``."""
+    from PySide6.QtCore import Qt
+
+    return (widget.isVisible(), widget.testAttribute(Qt.WA_WState_Polished),
+            widget.pos(), widget.size(), widget.isEnabled(),
+            widget.parent())
+
+
+def _what_was_unheard(before, after) -> list:
+    """The events a watcher missed about a widget, as fresh events.
+
+    The style, palette and font changes a style sheet sends are told about
+    every widget under it, whether its own changed or not, because a sheet
+    sends a style change to each of them; everything else only when the
+    widget's state shows it happened.
+
+    :param before: the widget's :func:`_widget_state` before, or ``None``
+        when it was built under the sheet.
+    :param after: its :func:`_widget_state` now.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtGui import QHideEvent, QMoveEvent, QResizeEvent, QShowEvent
+
+    events = [QEvent(QEvent.StyleChange), QEvent(QEvent.PaletteChange),
+              QEvent(QEvent.FontChange)]
+    was = before or (False, False, after[2], after[3], after[4], None)
+    if after[1] and not was[1]:
+        events.append(QEvent(QEvent.Polish))
+    if after[0] != was[0]:
+        events.append(QShowEvent() if after[0] else QHideEvent())
+    if after[2] != was[2]:
+        events.append(QMoveEvent(after[2], was[2]))
+    if after[3] != was[3]:
+        events.append(QResizeEvent(after[3], was[3]))
+    if after[4] != was[4]:
+        events.append(QEvent(QEvent.EnabledChange))
+    if after[5] is not was[5]:
+        events.append(QEvent(QEvent.ParentChange))
+    return events
+
+
+@contextmanager
+def _restyle_unheard(app, root):
+    """Put a style sheet on ``root`` without the hub hearing each event.
+
+    A sheet set on a container sends every widget under it a style change,
+    a palette change and a font change, and the hub is asked about each:
+    about 1,000 crossings into Python, 7 ms of the 25 ms a sheet on the
+    Mask column takes, though no watcher acts on most of them. So the hub
+    steps off the application while the block runs, as it does for a
+    repaint, and when it is back the watchers are told what they would have
+    heard about the widgets under ``root``: every style, palette and font
+    change, and each show, hide, move, resize, polish, enable or re-parent
+    the widgets' state shows happened. Each watcher still hears each such
+    event once; it hears them after the sheet is on rather than during it.
+    Without a hub this only runs the block.
+
+    :param app: the application.
+    :param root: the widget the sheet goes on.
+    :yields: nothing.
+    """
+    hub = _application_event_hub(app, create=False)
+    if hub is None or root is None:
+        yield
+        return
+    from PySide6.QtWidgets import QWidget
+
+    widgets = [root] + list(root.findChildren(QWidget))
+    before = {id(widget): _widget_state(widget) for widget in widgets}
+    app.removeEventFilter(hub)
+    try:
+        yield
+    finally:
+        app.installEventFilter(hub)
+        _tell_the_watchers(hub, root, before)
+
+
+def _tell_the_watchers(hub, root, before) -> None:
+    """Hand ``hub`` what it missed under ``root``; see
+    :func:`_restyle_unheard`. Only events some watcher asked for are made.
+    """
+    from PySide6.QtWidgets import QWidget
+    from shiboken6 import isValid
+
+    if not isValid(root):
+        return
+    wanted = set(hub._by_kind) | set(getattr(hub, "_object_kinds", ()))
+    if not wanted:
+        return
+    for widget in [root] + list(root.findChildren(QWidget)):
+        events = _what_was_unheard(before.get(id(widget)),
+                                   _widget_state(widget))
+        for event in events:
+            if event.type() in wanted:
+                hub.eventFilter(widget, event)

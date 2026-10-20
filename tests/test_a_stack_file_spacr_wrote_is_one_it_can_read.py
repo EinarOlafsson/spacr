@@ -767,7 +767,7 @@ def test_a_v2_mask_run_on_a_macos_volume_completes(
     assert (plate / "merged" / f"._{stacks[0]}").exists(), (
         "the emulated volume wrote no sidecar beside the v2 stack, so this "
         "test is not exercising the scorecard's listing")
-    card = (plate / "qc" / "segmentation_qc_cell.csv").read_text()
+    card = (plate / "qc" / "segmentation_qc_cell.csv").read_text(encoding="utf-8")
     assert "._" not in card
 
 

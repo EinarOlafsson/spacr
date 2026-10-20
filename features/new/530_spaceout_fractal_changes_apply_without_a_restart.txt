@@ -98,3 +98,29 @@ NOTE 2026-09-25 (built)
   it +15 -- the count bump needs a catalog regeneration, out of this lane).
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_fractal_changes_apply_without_a_restart.py pass.
+
+2026-10-14 — Current nightly software acceptance (Home-B)
+All 110 selected tests pass on c2080b4542c in 23.44 s, zero failures/skips,
+CPU/offscreen, 6G cap, two workers. The existing implementation remains intact.
+Exact command, source hashes and compressed terminal evidence are recorded in
+features/data/530_current_live_settings_2026-10-14/receipt.json.
+
+This supersedes the historical 2026-09-25 supersampling caveat: N531 already
+made supersampling a construction-time setting that rebuilds the running
+backdrop. The current classification covers all 30 saved settings:
+  LIVE, rebuild backdrop only: pattern, backend, quality, scale,
+    supersampling, max_iterations, precision_digits.
+  LIVE, runtime controls: speed, dream, variable_speed, speed_min, speed_max,
+    speed_period, pointer_gravity, pointer_size, pointer_strength,
+    magnifier_size, zoom_rate.
+  LIVE, frame-read or derived values: render_scale, path, steering, max_depth,
+    seconds_per_decade, base_iterations, iterations_per_decade, initial_scale,
+    steering_strength, steering_interval_decades, steering_duration,
+    candidate_count. Steering expands into the individual steering values.
+  RESTART-ONLY: none; the conditional restart popup is therefore unnecessary.
+
+The cohort checks runtime values, real CPU target sizes/sample grids, shader
+sample grids and backend routing with Python vispy stand-ins, rebuild state
+preservation/failure/defer behavior, and the actual Preferences Save action.
+This verifies the original software acceptance; it does not claim new native
+GPU timing, N674 aesthetic approval, or whole-release acceptance.

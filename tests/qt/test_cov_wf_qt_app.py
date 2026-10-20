@@ -15,6 +15,7 @@ happened" is asserted against a case where something did.
 from __future__ import annotations
 
 import logging
+import sys
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QPointF, QSize, Qt
@@ -436,8 +437,10 @@ def test_a_theme_refresh_skips_screens_that_cannot_hide_immature_apps(win):
     asks before it calls, and a screen that has the hook still gets it.
     """
     asked = _Recorder()
-    plain = object()
-    win._screens = {"with-hook": asked, "without-hook": plain}
+    hooked = QWidget(win)
+    hooked.refresh_maturity_visibility = asked.refresh_maturity_visibility
+    plain = QWidget(win)
+    win._screens = {"with-hook": hooked, "without-hook": plain}
     win.refresh_theme()
     assert asked.names() == ["refresh_maturity_visibility"]
     assert not hasattr(plain, "refresh_maturity_visibility")
@@ -484,11 +487,13 @@ def test_closing_the_window_quits_the_application_exactly_once(win,
     first = QCloseEvent()
     win.closeEvent(first)
     assert first.isAccepted() is True
-    assert quits.names() == ["quit"]
+    # macOS leaves the loop without asking Cocoa to terminate (app._end_the_event_loop).
+    ended = ["closeAllWindows", "exit"] if sys.platform == "darwin" else ["quit"]
+    assert quits.names() == ended
 
     holder["instance"] = None
     win.closeEvent(QCloseEvent())
-    assert quits.names() == ["quit"], "no application, nothing to quit"
+    assert quits.names() == ended, "no application, nothing to quit"
 
 
 # --- the dock, the drawer and the backdrop ---------------------------------

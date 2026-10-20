@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-15",
+  "baseline": "391dda3ab454e95b23b8104d0827b8ebc13ccfc5",
+  "scope": "Only _mil_bags contradictory observed acquisition identity refusal",
+  "source_boundary": "Every other top-level embeddings.py AST node unchanged; no UMAP/render/UI/schema/renaming edits",
+  "counterexample": "Actual16cell/8nativewell input silently merged into4bags, everybag spanning2plates; no training, original input unchanged",
+  "before": {
+    "failed": 11,
+    "passed": 7,
+    "deselected": 20,
+    "seconds": 5.72,
+    "exit": 1
+  },
+  "after": {
+    "passed": 18,
+    "deselected": 20,
+    "seconds": 2.59,
+    "exit": 0
+  },
+  "existing_legacy_labels": {
+    "passed": 1,
+    "seconds": 2.34,
+    "exit": 0
+  },
+  "native_contract": [
+    "Known contradictory nonblank plate/row/column observations within selectedwell refuse",
+    "Full/customwellIDs, validmultiplefields and feature-excludedrows preserved",
+    "Mixednull/blank/partialmetadata still detects known contradiction",
+    "Absent/incomplete metadata is NOT independence proof; legacyidentifier behavior preserved"
+  ],
+  "translation": {
+    "technical_exact_source_reviews": 9,
+    "hashes_and_well_placeholders": "PASS9",
+    "normal_owner_extraction_candidate_runtime_generation": "PASS all9exact reviewed lookups, normal candidate gates and writers; actual9localized helper callbacks included in50PASS",
+    "review_kind": "AI technical self-review, no native/human signoff; independent parent source review requested"
+  },
+  "not_claimed": [
+    "Real-screen/biological responder accuracy",
+    "Model training, checkpoints, GPU",
+    "WholeF562/CI/release acceptance"
+  ],
+  "source_sha256": {
+    "spacr/embeddings.py": "2e3bbad8aeddd755b3b049083f0df5cbf8e9c9f4b2db5fb4547fe27da4c7f821",
+    "tests/test_multiple_instance_learning.py": "1bf4571eb63b33d7aaa99a21feb556aa491b2d22bcc3232225bd9adab97ff72f",
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-mil-direct-well-identity.json": "4d8f082a5837aeffc9b3408afd82400e43a882faba97f21aa22afc598d206c34",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-mil-direct-well-identity.json": "6d4473872f2ddcefc1538f866216953250ac801999008e93b06fb5e910300c1a",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-mil-direct-well-identity.json": "ecd245197e9666cfc1a19d3829ccb715f55f1f0ba9086845d6b71bf22580e4fa",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-mil-direct-well-identity.json": "50c3927c12e585e8785bb5cdb16b9c43be3eb3c29ca28711bce5c2f90e8d25ad",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-mil-direct-well-identity.json": "02a86ba6f4611aa011eeca3dfc11dc64716df23ce71bf56be8e3ec273ece4a65",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-mil-direct-well-identity.json": "6d9620bf49536e001845cc58ddf1bdb9049883d94fe339fb61a4d8f159101cd4",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-mil-direct-well-identity.json": "627ec401e4554f7785222a694c8d8a32b2e2b618bcfbf6ef296b98d40fd992fa",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-mil-direct-well-identity.json": "f1f19379353a2887ba90bd8bf1cbb77a07204aa958cea62e6bb248812c591d03",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-mil-direct-well-identity.json": "a95c343a4850bcea87db41e5dbafb0b1124d6bdd03193bc43e21bb339f56076e"
+  },
+  "parent_peer_source_review": "Parent approved exact d2826a4ae76 _mil_bags observed-metadata contradiction refusal; no source blocker, no biological/translation-native acceptance claim.",
+  "owner_extractor": "7933c1772c6f82563f7f598f03c1c79832849687 (private cherry58ce72bd94b), exact _mil_bags only, no N698 parents",
+  "normal_runtime_writer": {
+    "exit": 0,
+    "owned_rows_per_locale": 1,
+    "unrelated_source_current_targets_preserved_per_locale": 10574,
+    "languages": 9,
+    "english_audit_UI": 7732
+  },
+  "actual_owning_callbacks_and_owner_extractor": {
+    "passed": 50,
+    "deselected": 20,
+    "seconds": 6.56,
+    "exit": 0,
+    "actual_locale_callbacks": 9,
+    "model_training": false
+  },
+  "normal_full_nine_runtime_and_arrival_audit": {
+    "normal_full_nine_runtime_audit_exit": 0,
+    "normal_arrivals": {
+      "baseline": 9833,
+      "added": 892,
+      "retired": 150,
+      "changed": 29
+    }
+  },
+  "F535_API_source_scope_evidence": "Reused actual normal public_docstrings()/visibility/English inventory audit from named N698 private tree; raw script/log/sourcecommit retained. Documentation tool hash matches this tree. No rendered _phases_by_torch target; no orphan API reviews invented. Parent accepted canonical evidence.",
+  "pending": "Normal push; all owned source/runtime/actual locale callback closure complete. Parent F562/scientific/fullCI acceptance remains partial.",
+  "final_concurrent_merge": {
+    "normal_operation": "write_english, audit(sources,()), normal refresh_arrival_contract; source snapshot only caches repeated canonical lookups and original rechecked before/after",
+    "incoming": "93474c76ea0f2918b5990a1940f1da00a859b79d",
+    "locale_proof": {
+      "sv": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "de": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "es": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "zh_CN": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "pt": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "hi": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "ko": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "is": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      },
+      "fr": {
+        "own_exact_reviewed_rows": 1,
+        "unrelated_current_targets_preserved": 10575
+      }
+    },
+    "normal_arrivals": {
+      "baseline": 9833,
+      "added": 893,
+      "retired": 150,
+      "changed": 29
+    },
+    "reviewed_helper_AST_unchanged": true,
+    "full_nine_runtime_audit_scope": "Executed before this final incoming owner merge (7732UI); incoming targets preserved exactly, normal current English audit7733UI and normal current immutable arrivals refreshPASS893added150retired29changed. No repeated50cohort or globalCI claim."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "baseline_sha256": "f3d0fc4c9fcf1c8ce3f1b720fba565dd407415f5f9057092ac82c42dfb4fcbe2",
+  "source_sha256": "4ede677ca18da78e872fc26c5c6110faaac3fb3e37fc6ff1f64dba89cf0cf60c",
+  "changed_only": [
+    "_ssh_lookup"
+  ],
+  "all_other_original_bodies_equal": true,
+  "all_signatures_and_docstrings_equal": true,
+  "normal_enabled_nested_entry_count": 0,
+  "normal_nested_entries_and_body_equal": true,
+  "tr_calls_equal": true,
+  "new_API_runtime_arrivals": [],
+  "method": "Actual normal nested inventory/entries with actual enabled rollout intersection on one exact source file; AST signatures/prose/tr/body comparison. No full collector/app import.",
+  "top_level_visibility": "Existing private _ssh_lookup name is not in unchanged explicit module __all__; signature/docstring unchanged. No new named definitions.",
+  "rollout_note": "Current actual tools/nested_helper_docs.py ENABLED_MODULES excludes spacr.remote_execution, so active entries0 before/after; prior Include proof reported measurement entry1. This proof distinguishes active rollout from measurement."
+}

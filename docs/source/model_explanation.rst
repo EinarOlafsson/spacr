@@ -1,7 +1,7 @@
 Explain CV models and investigate hits
 ======================================
 
-spaCR separates three questions that are easy to blur together:
+spaCR provides three separate analyses that answer different questions:
 
 * activation or occlusion maps show **where** a vision model attended;
 * the **Explain CV Model** module shows which measured morphology can
@@ -17,8 +17,8 @@ Explain CV Model
 ----------------
 
 The module opens from the **Classify** masthead rather than from a tile of its
-own, next to **Classifier Evaluation**: both ask what a trained classifier
-actually did.
+own, next to **Classifier Evaluation**: both analyse an existing trained
+classifier and its saved predictions.
 
 Choose the exact ``measurements.db`` and an existing per-object CV prediction
 CSV. The module never reruns or silently substitutes the original classifier.
@@ -58,7 +58,7 @@ Supply the measurements database, the original per-object prediction CSV, and
 the per-well guide-fraction CSV. Joins use explicit object and plate/row/column
 keys. Duplicate object keys or duplicate well/guide fractions stop the run.
 
-The first output is an honest review queue: cells in target-containing wells
+The first output is a review queue: cells in target-containing wells
 ranked in the regression's effect direction, with the well-level target-guide
 fraction shown beside them. The optional attribution model then:
 

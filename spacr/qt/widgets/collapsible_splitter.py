@@ -57,10 +57,10 @@ THE THREE PIECES, AND WHAT SLICE C REUSES
 :class:`FocusCollapse`
     The automatic half. Some widgets are FOCUS widgets (a live preview, the
     figures panel): while any of them is on screen, the TARGET panes collapse
-    (console, System, the buttons, the settings column), and when the last
-    one goes they come back. It never fights the user: a target the user
-    expands by hand is PINNED open and left alone until the VIEW ends. See
-    the class for what a view is.
+    (console, System, the buttons, the settings column), and when the last one
+    goes they come back. It does not override the user: a target the user
+    expands by hand is pinned open and left alone until the view ends. See the
+    class for what a view is.
 
 :func:`lock_folded_to_bottom`
     For a folded panel that is NOT in a splitter (a section in a scroll area,
@@ -85,6 +85,13 @@ from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import (QSizePolicy, QSpacerItem, QSplitter,
                                QSplitterHandle, QWidget)
+from ..gil_priority import _stop_watching_object_events, _watch_object_events
+
+#: What a pane's own watch reads: its hide, and a pane shown or hidden.
+_PANE_KINDS = frozenset((QEvent.Hide, QEvent.ShowToParent, QEvent.HideToParent))
+
+#: What a body or focus-widget watch reads.
+_VISIBILITY_KINDS = frozenset((QEvent.ShowToParent, QEvent.HideToParent))
 from shiboken6 import isValid
 
 from ..i18n import tr
@@ -114,6 +121,11 @@ CLICK_SLOP_PX = 3
 
 #: Preferences key prefix for the remembered pane sizes.
 _EXTENTS_PREFIX = "layout/panes"
+
+#: How long a held handle rests before the sizes are written, in ms.
+#: Writing rewrites the whole preferences file, 5-7 ms, which every move of
+#: a drag paid; letting go writes at once.
+_EXTENTS_SAVE_MS = 300
 
 
 def _alive(widget) -> bool:
@@ -177,11 +189,10 @@ def lock_folded_to_bottom(container: QWidget, folder,
                           orientation=Qt.Vertical) -> None:
     """Keep ``container``'s heading at the bottom of its room while folded.
 
-    A folded panel given more room than its heading needs -- the last pane
-    in a splitter, a section stretched by its column -- used to lay its
-    heading out in the middle of that room, which is the reported bug
-    ("when i collapse the console it collapses to the middle"). A stretch
-    put ABOVE the heading while it is folded takes the spare room instead.
+    A folded panel given more room than its heading needs -- the last pane in a
+    splitter, a section stretched by its column -- would otherwise lay its
+    heading out in the middle of that room. A stretch put above the heading
+    while it is folded takes the spare room instead.
 
     :param container: the widget whose layout holds the heading (first) and
         the body.
@@ -247,22 +258,21 @@ def _hidden_by_owner(widget) -> bool:
 class FoldSection(QWidget):
     """A body under a clickable heading; folded, the heading sits at the bottom.
 
-    Requested: "any sections inside the figures or live preview
-    containers should also be colapseable ... evey GUI element be it a figure
-    or a table". This is the one way a section inside a screen gets a fold
-    control, so every one of them looks and behaves alike: an arrow and a
-    name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder`
-    the console and System use), a click folds it, and a folded section is
-    its heading locked to the BOTTOM of whatever room it is given
-    (:func:`lock_folded_to_bottom`).
+    Requested: "any sections inside the figures or live preview containers
+    should also be colapseable ... evey GUI element be it a figure or a table".
+    This is the one way a section inside a screen gets a fold control, so every
+    one of them looks and behaves alike: an arrow and a name above the body
+    (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System
+    use), a click folds it, and a folded section is its heading locked to the
+    bottom of whatever room it is given (:func:`lock_folded_to_bottom`).
 
-    THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner
-    holder, never the body, so unfolding cannot show a panel its owner hid
-    or build a panel that is built on first show. The other
-    way round, the section follows its body: while the owner keeps the body
-    hidden the whole section -- heading included -- is hidden too, and it
-    comes back when the owner shows the body. Only the body's hidden flag is
-    read for that, so nothing is shown, measured or built to find out.
+    The body's own visibility stays under its owner's control. The fold hides
+    an inner holder, never the body, so unfolding cannot show a panel its owner
+    hid or build a panel that is built on first show. The other way round, the
+    section follows its body: while the owner keeps the body hidden the whole
+    section -- heading included -- is hidden too, and it comes back when the
+    owner shows the body. Only the body's hidden flag is read for that, so
+    nothing is shown, measured or built to find out.
 
     :param body: the section's content. Re-parented into the section.
     :param name: stable English name; the heading shows it translated.
@@ -326,7 +336,7 @@ class FoldSection(QWidget):
                                     shut_by_default=bool(folded))
         lock_folded_to_bottom(self, self.folder, Qt.Vertical)
         if self._follow_body:
-            body.installEventFilter(self)
+            _watch_object_events(body, self, _VISIBILITY_KINDS)
             if body_hidden:
                 self.setVisible(False)
 
@@ -454,6 +464,8 @@ class _PaneHandle(QSplitterHandle):
     def edge_pane(self) -> Optional[Pane]:
         """The EDGE pane this handle is the strip of, if any."""
         splitter = self.splitter()
+        if getattr(splitter, "_panes", None) is None:
+            return None
         finder = getattr(splitter, "_edge_pane_beside", None)
         return finder(self) if callable(finder) else None
 
@@ -490,6 +502,7 @@ class _PaneHandle(QSplitterHandle):
         """Remember where a press began, to tell a click from a drag."""
         self._pressed_at = event.position().toPoint()
         self._dragged = False
+        self.splitter()._held = True
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:                 # noqa: N802
@@ -508,6 +521,8 @@ class _PaneHandle(QSplitterHandle):
         dragged = (self._pressed_at is not None and self._dragged
                    and event.button() == Qt.LeftButton)
         self._pressed_at = None
+        self.splitter()._held = False
+        self.splitter()._flush_extents()
         pane = self.edge_pane() if clicked else None
         if pane is not None:
             self.splitter().toggle_pane(pane.name, by_user=True)
@@ -519,12 +534,12 @@ class _PaneHandle(QSplitterHandle):
     def paintEvent(self, _event) -> None:                    # noqa: N802
         """Draw the one-pixel line and, beside an EDGE pane, its arrow."""
         try:
-            from ..theme import active_palette
+            from ..theme import _painting_palette
 
-            palette = active_palette()
+            palette = _painting_palette()
         except Exception:                                    # noqa: BLE001
             palette = {}
-        hovered = self.underMouse() or self._pressed_at is not None
+        hovered = self.underMouse() or getattr(self, "_pressed_at", None) is not None
         line = QColor(palette.get("accent" if hovered else "border_soft",
                                   "#4c8dff" if hovered else "#3a3f4b"))
         painter = QPainter(self)
@@ -587,8 +602,14 @@ class CollapsibleSplitter(QSplitter):
         self._stored = get_pane_extents(self._persist_key)
         self._laid_out = False
         self._rebalance_queued = False
+        self._held = False
+        self._extents_timer = QTimer(self)
+        self._extents_timer.setSingleShot(True)
+        self._extents_timer.setInterval(_EXTENTS_SAVE_MS)
+        self._extents_timer.timeout.connect(self._save_extents)
         self.setHandleWidth(GRIP_PX)
         self.splitterMoved.connect(self._on_moved)
+        _watch_object_events(self, self, _PANE_KINDS)
 
     def createHandle(self):                                  # noqa: N802
         """Every handle is a :class:`_PaneHandle`."""
@@ -637,7 +658,7 @@ class CollapsibleSplitter(QSplitter):
                     fold_key, hint)
         self._panes.append(pane)
         self.setStretchFactor(self.indexOf(widget), max(0, int(stretch)))
-        widget.installEventFilter(self)
+        _watch_object_events(widget, self, _PANE_KINDS)
         if folder is not None:
             folder.add_listener(partial(self._folder_moved, pane))
             lock_folded_to_bottom(widget, folder, self.orientation())
@@ -911,9 +932,9 @@ class CollapsibleSplitter(QSplitter):
             if old is widget or not _alive(old):
                 continue
             if self.indexOf(old) < 0 and widget.isAncestorOf(old):
-                old.removeEventFilter(self)
+                _stop_watching_object_events(old, self)
                 pane.widget = widget
-                widget.installEventFilter(self)
+                _watch_object_events(widget, self, _PANE_KINDS)
                 self.setStretchFactor(self.indexOf(widget),
                                       max(0, pane.stretch))
         self._sync_flags()
@@ -927,7 +948,9 @@ class CollapsibleSplitter(QSplitter):
         :returns: False, so the event goes on as usual.
         """
         kind = event.type()
-        if kind in (QEvent.ShowToParent, QEvent.HideToParent):
+        if kind == QEvent.Hide and watched is self:
+            self._flush_extents()
+        elif kind in (QEvent.ShowToParent, QEvent.HideToParent):
             pane = self._pane_of(watched)
             if pane is not None:
                 if (kind == QEvent.ShowToParent and pane.focus
@@ -1049,7 +1072,7 @@ class CollapsibleSplitter(QSplitter):
         """A new width can wrap a row onto another line; make room for it.
 
         A resize of the window is not a drag -- no handle is held -- so
-        re-fitting here fights nobody.
+        re-fitting here does not interfere with a drag.
 
         :param event: the resize event.
         """
@@ -1117,7 +1140,7 @@ class CollapsibleSplitter(QSplitter):
             elif stretch <= 0 and wraps and (refit or fresh or small):
                 rigid[i] = max(wraps, self._along(widget.minimumSizeHint()))
             elif stretch <= 0:
-                rigid[i] = max(want, natural if fresh else 0)
+                rigid[i] = want
             else:
                 elastic[i] = max(1, want)
         if total <= 0:
@@ -1153,7 +1176,8 @@ class CollapsibleSplitter(QSplitter):
 
         Never rebalances. A drag is the user placing the handle, and moving
         anything they did not move while they hold it is the fight item 471
-        rules out.
+        rules out. While a handle is held the sizes are written once it is
+        let go or rests, not on every move.
         """
         sizes = self.sizes()
         for i, size in enumerate(sizes):
@@ -1172,14 +1196,28 @@ class CollapsibleSplitter(QSplitter):
                 continue
             if not pane.is_collapsed() and size > 0:
                 pane.extent = size
-        self._save_extents()
+        if self._held:
+            self._extents_timer.start()
+        else:
+            self._save_extents()
 
     def extents(self) -> dict:
         """``{pane name: size to open at}`` for every registered pane."""
         return {p.name: p.extent for p in self._panes if p.extent > 0}
 
+    def _flush_extents(self) -> None:
+        """Write the dragged sizes now when a write is waiting.
+
+        Called when a handle is let go and when the splitter is hidden, so a
+        window closed in the middle of a drag keeps the sizes.
+        """
+        timer = getattr(self, "_extents_timer", None)
+        if _alive(timer) and timer.isActive():
+            self._save_extents()
+
     def _save_extents(self) -> None:
         """Store the dragged sizes under this splitter's key."""
+        self._extents_timer.stop()
         if self._persist_key:
             set_pane_extents(self._persist_key, self.extents())
 
@@ -1192,24 +1230,24 @@ class FocusCollapse(QObject):
     auto-collapse, and the settings collapse to the left", and the same
     whenever figures appear.
 
-    FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the
-    TARGET panes (:meth:`target`) are collapsed, and when the last is hidden
+    Focus widgets are watched (:meth:`watch`); while any of them is shown the
+    target panes (:meth:`target`) are collapsed, and when the last is hidden
     the targets this collapsed are opened again. A target that was already
     collapsed -- by the user, or remembered from last session -- is left
     exactly as it is, both ways.
 
-    NEVER FIGHTS THE USER. A target the user opens by hand (clicking its
-    heading or its handle, or dragging it open) is PINNED: nothing here
-    collapses it again until the view ends. A target the user collapses by
-    hand is theirs too, and is not re-opened when the focus goes.
+    Changes made by hand are kept. A target the user opens by hand (clicking
+    its heading or its handle, or dragging it open) is pinned: nothing here
+    collapses it again until the view ends. A target the user collapses by hand
+    is theirs too, and is not re-opened when the focus goes.
 
-    A VIEW is one visit to one screen: it begins when the screen is shown
+    A view is one visit to one screen: it begins when the screen is shown
     (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden
     because the user went to another screen (:meth:`end_view`, from its
-    ``hideEvent``). Minimising the window does not end it -- the owner
-    passes only non-spontaneous events. Pins last for the view: returning to
-    the screen with its live preview still open collapses the surroundings
-    again, which is what a fresh arrival at that layout would get.
+    ``hideEvent``). Minimising the window does not end it -- the owner passes
+    only non-spontaneous events. Pins last for the view: returning to the
+    screen with its live preview still open collapses the surroundings again,
+    which is what a fresh arrival at that layout would get.
 
     :param parent: owner, normally the screen.
     """
@@ -1236,7 +1274,7 @@ class FocusCollapse(QObject):
         if widget is None or widget in self._triggers:
             return
         self._triggers.append(widget)
-        widget.installEventFilter(self)
+        _watch_object_events(widget, self, _VISIBILITY_KINDS)
         self.refresh()
 
     def target(self, splitter: CollapsibleSplitter, name: str) -> None:
@@ -1354,7 +1392,7 @@ class FocusCollapse(QObject):
         self.refresh(force=True)
 
     def end_view(self) -> None:
-        """The user left the screen: their pins for this view are spent."""
+        """The user left the screen: the pins of this view are cleared."""
         self._pinned.clear()
 
 

@@ -569,6 +569,26 @@ def test_loaded_masks_skip_segmentation_entirely(qtbot, frame_dir, mask_dir,
     assert sig.args[0].n_tracks == 2
 
 
+def _live_thread_identity() -> dict:
+    """Capture the executing OS and Qt thread while its wrapper is live.
+
+    Comparing stored ``QThread`` wrappers by ``is`` failed in the full
+    serial Qt run (N47): the wrapper recorded inside the handler was already
+    invalid by the time it was compared, although the handler had run on the
+    GUI thread. The native and Qt identities are read while live instead.
+    """
+    import threading
+
+    from shiboken6 import getCppPointer
+
+    thread = QThread.currentThread()
+    return {
+        "python_ident": threading.get_ident(),
+        "native_id": threading.get_native_id(),
+        "qt_pointer": getCppPointer(thread)[0],
+    }
+
+
 def test_completion_handler_runs_on_the_gui_thread(qtbot, frame_dir,
                                                    counted_segmentation):
     from spacr.qt.widgets.timelapse_preview import TimelapsePreviewPanel
@@ -577,13 +597,13 @@ def test_completion_handler_runs_on_the_gui_thread(qtbot, frame_dir,
     seen = {}
 
     def _record(_stats):
-        seen["thread"] = QThread.currentThread()
+        seen["thread"] = _live_thread_identity()
 
     panel.preview_ready.connect(_record)
     panel.load_sequence(frame_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000):
         panel.run_preview()
-    assert seen["thread"] is panel.thread(), \
+    assert seen["thread"] == _live_thread_identity(), \
         "the completion handler ran off the GUI thread"
 
 
@@ -1175,11 +1195,11 @@ def test_motility_completion_handler_runs_on_the_gui_thread(qtbot, plate_dir):
     qtbot.addWidget(panel)
     seen = {}
     panel.preview_ready.connect(
-        lambda _s: seen.__setitem__("thread", QThread.currentThread()))
+        lambda _s: seen.__setitem__("thread", _live_thread_identity()))
     panel.load_folder(plate_dir)
     with qtbot.waitSignal(panel.preview_ready, timeout=8000):
         panel.run_preview()
-    assert seen["thread"] is panel.thread()
+    assert seen["thread"] == _live_thread_identity()
 
 
 def test_motility_worker_emits_errors_instead_of_raising(qtbot):

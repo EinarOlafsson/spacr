@@ -1,0 +1,138 @@
+{
+  "schema": "spacr-preview-cache-p1-unchanged-diagnostics-v1",
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "private_head": "9c258e4a7f23275748204b6218ae2a8233db2d0b",
+  "private_tree": "33415e485abaf4089a61bc8ebc317019f3037f4a",
+  "sources": [
+    {
+      "path": "spacr/qt/widgets/live_preview.py",
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "bytes": 269226,
+      "exact_candidate": true
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "bytes": 581838,
+      "exact_candidate": true
+    },
+    {
+      "path": "tests/qt/test_module_screen_timers_do_not_stall_20261012.py",
+      "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e",
+      "bytes": 18118,
+      "exact_candidate": true
+    }
+  ],
+  "baseline": {
+    "actual_exit": 1,
+    "passed": 9,
+    "failed": 1,
+    "seconds": 26.31,
+    "failed_nodes": [
+      "tests.qt.test_module_screen_timers_do_not_stall_20261012::test_the_mask_preview_pictures_are_cached_at_the_size_shown"
+    ],
+    "ratio": 0.8949149881246096,
+    "cached_reported_ms": 0.98,
+    "uncached_reported_ms": 1.1,
+    "bound_unchanged": 0.75,
+    "evidence": [
+      {
+        "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline-launch.json",
+        "sha256": "f3618ca53d4eff2abccdeda0ae7a3909524dce01b43031546367c7fa20b1c184",
+        "bytes": 710
+      },
+      {
+        "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.log",
+        "sha256": "81cdbb77dac805c26638fcb1a4826b6d8f9531a6b593cbc29e05f7e5034fadad",
+        "bytes": 6003
+      },
+      {
+        "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.xml",
+        "sha256": "9881199b3f090c81904f18ef5528cf816fafe702c56ee949609b322d0e8b2907",
+        "bytes": 5234
+      },
+      {
+        "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.exit",
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "bytes": 2
+      },
+      {
+        "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/baseline.sh",
+        "sha256": "246cd7beaddcd4c19e4b582f0c8ef1b578b2b2d0bba524f6ce44b34de2a1e965",
+        "bytes": 675
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "kind": "diagnostic",
+      "acceptance": false,
+      "actual_exit": 0,
+      "evidence": [
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/diagnostic.json",
+          "sha256": "acc62b21f9a545e93045b2f8d11f6d9b2da9db0725cdd406b6111d427e859c11",
+          "bytes": 21897
+        },
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/diagnostic.log",
+          "sha256": "6f9fb3cc1f255b969e312a0ca3334a2f8cb18d56a8d8558c102269f8fdf758e0",
+          "bytes": 1593
+        },
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/diagnostic.xml",
+          "sha256": "f4f6547b20151dfc8519023bafcb89cc3b44d26d5738e5a6feb1f877da8eab75",
+          "bytes": 405
+        },
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/diagnostic.exit",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      ]
+    },
+    {
+      "kind": "ownership-diagnostic",
+      "acceptance": false,
+      "actual_exit": 0,
+      "evidence": [
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/ownership-diagnostic.json",
+          "sha256": "6cde0081fb8e46d6bbe1008ad8439ee1cbfbbd2f2643ee6750560aa4aa174b5c",
+          "bytes": 29755
+        },
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/ownership-diagnostic.log",
+          "sha256": "4e8d0f5bd8e9b9df653cacda304a2a5756729791bb468e8560975d1669631dcc",
+          "bytes": 1604
+        },
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/ownership-diagnostic.xml",
+          "sha256": "ff7689c0ea204f7fef70ee75c0732d9716498f86883c88777143a5f1f1c25891",
+          "bytes": 407
+        },
+        {
+          "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/ownership-diagnostic.exit",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      ]
+    }
+  ],
+  "ownership_and_counts_summary": "Exactly one visible active-Mask panel, both viewports1221x586 in actual2560x1440 window, offscreen800x800/DPR1; each2048square picture fits583square. Three-second settling keeps dimensions. Counting subclass only in separate post-test count phase: warmed cached0/0 versus uncached12/12 item.paint calls over12frames; restored original native items before all cost/pixel controls.",
+  "field_summary": "Active _DataArtEngine/_FrameProducer; held1087x588 frame, no composed/cards path. Timer stop alone does not stop producer. Empty same-region repaint cost is a large fraction of total cached/uncached cost.",
+  "pixel_parity": "Cached/uncached viewport raw-pixel hashes match for both original views in both diagnostics.",
+  "rejected_shortcuts": [
+    "No threshold adjustment, skip, retry-until-pass or synthetic uncached slowdown.",
+    "Wrong/hidden panel, clamped requested window, stale layout and repeated item-cache regeneration were not substantiated.",
+    "4x QPixmapCache limit, paired median alone or picture-only ROI are not demonstrated cures."
+  ],
+  "proposed_actual_fix": "Parent assigned colour_wave a source-only bounded presentation raster for repeated partial paints of exactly the same held buffered frame, conservative opaque/no-wallpaper/no-corner/no-card eligibility; retain original whole-viewport0.75 benefit gate plus pixel/key/lifetime/fresh-frame tests.",
+  "instrumentation_limit": "First diagnostic plugin bytes were extended in place after terminal completion to add requested ownership/count/settled controls; only the second executed plugin version is retained here. Both immutable source/test snapshots and original outcomes/logs remain preserved; neither diagnostic pass is accepted as a repair.",
+  "current_state": "No production or owning-test edits by this reviewer; waiting reviewed source proposal. Sole Home test slot currently idle and reserved for coherent repair validation.",
+  "retained_second_plugin": {
+    "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/preview-cache-p1/diagnostic-plugin-v2.py.txt",
+    "sha256": "ad437415c8e5262897167872ff575d827e659a743d0b890826035b339a3cfb75",
+    "bytes": 8062
+  }
+}

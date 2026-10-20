@@ -34,7 +34,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from .. import path_probe
-from .sortable_table import install_sorting, table_item
+from ..i18n import tr
+from .sortable_table import (_retire_table_cells, _spare_items,
+                             _spare_table_item, _wipe,
+                             install_sorting, table_item)
 
 LOG = logging.getLogger(__name__)
 
@@ -137,7 +140,11 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     """Propose visible score/count/database rows by filename tokens.
 
     A proposal is never authoritative: the editable table is the contract the
-    user confirms. Unique best matches are used; ties remain unpaired.
+    user confirms. Each score first takes its unique best match among unused
+    count paths. Remaining count paths then fill score rows without a count,
+    in input order, including rows whose token matches were tied or absent.
+    Database matches require a unique best match without an input-order
+    fallback; any databases left unmatched receive separate rows.
 
     ``databases`` is keyword-only and defaults to nothing, so the two-argument
     call every existing caller makes still means what it did. A database is
@@ -146,9 +153,9 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     listed on its own row rather than being dropped or guessed onto row 0.
 
     :param scores: score CSV paths; each starts a row, in the order given.
-    :param counts: count CSV paths; each is paired with the score whose
-        filename tokens it uniquely matches best, unmatched ones fill score
-        rows still missing a count, and any left over get rows of their own.
+    :param counts: count CSV paths, in fallback pairing order. Score rows
+        select unique best filename-token matches first; remaining paths fill
+        score rows still missing a count, and any left over get their own rows.
     """
     unused = set(range(len(counts)))
     count_tokens = [_pair_tokens(path) for path in counts]
@@ -180,11 +187,12 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
 
 
 def _number_unlabelled_plates(rows: list[dict]) -> list[dict]:
-    """Give every row without a parsed plate name one generated from its order.
+    """Name unlabelled score/count pairs from their row positions.
 
-    `plate 1`, `plate 2`, in row order. The rule is that a name shared by the
-    files is used when there is one, and a row whose files carry no name gets
-    one generated from its position instead.
+    A row containing both a score and a count receives `plate 1`, `plate 2`,
+    or another position-based label when its plate cell is blank. Existing
+    labels are preserved. A row missing either source keeps its blank label,
+    including database-only rows without a parsed plate name.
 
     NUMBERED BY ROW, NOT BY A COUNTER OVER THE UNLABELLED. A table whose
     second row is parsed as `plate7` would otherwise run `plate 1`, `plate7`,
@@ -200,7 +208,7 @@ def _number_unlabelled_plates(rows: list[dict]) -> list[dict]:
     widget and survives this, exactly as a manually placed database does.
 
     :param rows: proposed rows, in the order they will be shown.
-    :returns: the same rows, with blank plate cells filled in.
+    :returns: the same rows, with blank plate cells filled for score/count pairs.
     """
     for position, row in enumerate(rows, start=1):
         if row.get("score") and row.get("count") and not row.get("plate"):
@@ -265,12 +273,13 @@ def side_for_header(path) -> str:
 
 
 class PairedFileTableWidget(QWidget):
-    """Editable one-row-per-plate score / count / database input contract.
+    """Editable one-row-per-plate score/count input and measurement link.
 
-    A row is ONE PLATE: its score CSV, its count CSV, and the measurements
-    database that plate's per-object tables live in. All three columns are
+    A row is ONE PLATE: its score and count source paths, optional named
+    tables within those sources, and the separate measurements database
+    that plate's per-object tables live in. The source paths are
     filled BY ADDITION -- every arrival re-proposes the whole table from
-    filename tokens -- so databases dropped in the opposite order to the CSVs
+    filename tokens -- so databases dropped in the opposite order to the files
     still land on the right plates. That is the rule, and the
     third column obeys it rather than keeping a list of its own.
 
@@ -282,7 +291,7 @@ class PairedFileTableWidget(QWidget):
     :param value: the table already saved, one entry per plate. Everything
         that arrives afterwards RE-PROPOSES the whole table from filename
         tokens rather than appending, which is what lets databases dropped in
-        the opposite order to the CSVs still land on the right plates.
+        the opposite order to the source files still land on the right plates.
     :param parent: parent widget.
     """
 
@@ -304,11 +313,12 @@ class PairedFileTableWidget(QWidget):
         self._pinned: dict[str, dict] = {}
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.table = QTableWidget(0, 5, self)
+        self.table = QTableWidget(0, 7, self)
         install_sorting(self.table)
         self.table.setHorizontalHeaderLabels(
-            ["Plate / proposal", "Score CSV", "Count CSV",
-             "Measurements DB", "Plate rule"])
+            ["Plate / proposal", tr("Score source"), tr("Count source"),
+             "Measurements DB", "Plate rule", tr("Score table"),
+             tr("Count table")])
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.itemChanged.connect(lambda *_: self.value_changed.emit())
         self._fit_columns_to_their_headers()
@@ -318,9 +328,13 @@ class PairedFileTableWidget(QWidget):
         self.status.setProperty("role", "hint")
         layout.addWidget(self.status)
         buttons = QHBoxLayout()
-        add_scores = QPushButton("Add score CSVs…", self)
-        add_counts = QPushButton("Add count CSVs…", self)
+        add_scores = QPushButton(tr("Add score tables…"), self)
+        add_counts = QPushButton(tr("Add count tables…"), self)
         add_databases = QPushButton("Add measurements DBs…", self)
+        add_score_stores = QPushButton(tr("Add score store folder…"), self)
+        add_count_stores = QPushButton(tr("Add count store folder…"), self)
+        add_score_stores.setObjectName("ALPHA_FEATURES576")
+        add_count_stores.setObjectName("ALPHA_FEATURES576")
         add_row = QPushButton("Add empty pair", self)
         up = QPushButton("↑", self)
         down = QPushButton("↓", self)
@@ -328,12 +342,17 @@ class PairedFileTableWidget(QWidget):
         add_scores.clicked.connect(lambda: self._pick("score"))
         add_counts.clicked.connect(lambda: self._pick("count"))
         add_databases.clicked.connect(lambda: self._pick("database"))
+        add_score_stores.clicked.connect(
+            lambda: self._pick_store_folder("score"))
+        add_count_stores.clicked.connect(
+            lambda: self._pick_store_folder("count"))
         add_row.clicked.connect(lambda: self._append_row({}))
         up.clicked.connect(lambda: self._move(-1))
         down.clicked.connect(lambda: self._move(1))
         remove.clicked.connect(self._remove)
-        for button in (add_scores, add_counts, add_databases, add_row, up,
-                       down, remove):
+        for button in (add_scores, add_counts, add_databases,
+                       add_score_stores, add_count_stores, add_row, up, down,
+                       remove):
             buttons.addWidget(button)
         buttons.addStretch(1)
         layout.addLayout(buttons)
@@ -341,11 +360,22 @@ class PairedFileTableWidget(QWidget):
         self.table.setAcceptDrops(False)
         self.set_value(value)
 
+    def _refresh_alpha_visibility(self) -> None:
+        """Apply the preference to named-table controls and their columns."""
+        from ..preferences import _apply_alpha_widgets, _is_alpha_visible
+
+        _apply_alpha_widgets(self)
+        visible = _is_alpha_visible("widgets", "ALPHA_FEATURES576")
+        for column in (self.SCORE_TABLE_COLUMN, self.COUNT_TABLE_COLUMN):
+            self.table.setColumnHidden(column, not visible)
+
     #: Column index of each side in the table, so a drop lands where the user
     #: aimed it rather than in whichever input the router reached first.
     SIDE_COLUMNS = {"score": 1, "count": 2, "database": 3}
 
     RULE_COLUMN = 4
+    SCORE_TABLE_COLUMN = 5
+    COUNT_TABLE_COLUMN = 6
 
     #: The Download buttons that sit above this table, and the column each one
     #: fills. The second half of the same request: align each button to its respective columns below in the table that would be perfect."
@@ -460,6 +490,7 @@ class PairedFileTableWidget(QWidget):
             the base class first.
         """
         super().showEvent(event)
+        self._refresh_alpha_visibility()
         try:
             self.align_download_buttons()
         except Exception:                                     # noqa: BLE001
@@ -592,10 +623,46 @@ class PairedFileTableWidget(QWidget):
         """
         if typed is None:
             typed = self._plate_labels_the_user_typed()
+        previous = self.get_value()
         rows = suggest_file_pairs(self._scores, self._counts,
                                   databases=self._databases)
-        for row in rows:
-            label = typed.get((row.get("score"), row.get("count")))
+        qualified = [row for row in previous
+                     if row.get("score_table") or row.get("count_table")]
+        if qualified:
+            restored = []
+            used = set()
+            for row in rows:
+                matches = [(index, prior)
+                           for index, prior in enumerate(qualified)
+                           if index not in used
+                           and prior.get("score") == row.get("score")
+                           and prior.get("count") == row.get("count")]
+                if not matches:
+                    partial = [(index, prior)
+                               for index, prior in enumerate(qualified)
+                               if index not in used and (
+                                   prior.get("score") == row.get("score")
+                                   and not prior.get("count") or
+                                   prior.get("count") == row.get("count")
+                                   and not prior.get("score"))]
+                    if len(partial) == 1:
+                        matches = partial
+                if matches:
+                    for index, prior in matches:
+                        used.add(index)
+                        keep = dict(row)
+                        keep.update(prior)
+                        for side in ("score", "count", "database"):
+                            keep[side] = prior.get(side) or row.get(side)
+                        restored.append(keep)
+                else:
+                    restored.append(row)
+            restored.extend(prior for index, prior in enumerate(qualified)
+                            if index not in used)
+            rows = restored
+        keys = [(row.get("score"), row.get("count")) for row in rows]
+        for row, key in zip(rows, keys):
+            label = typed.get(key) if keys.count(key) == 1 else None
             if label:
                 row["plate"] = label
         self.set_value(self._apply_pinned(rows))
@@ -661,10 +728,11 @@ class PairedFileTableWidget(QWidget):
         return None
 
     def _anchor_for_row(self, row: int) -> dict:
-        """The path a row's other cells are resolved against.
+        """Remember a row's plate label and source paths for database pinning.
 
         :param row: the row's position.
-        :returns: the anchor path, or None when the row has none yet.
+        :returns: a dict with ``plate``, ``score`` and ``count`` keys; blank
+            cells have the value ``None``.
         """
         return {key: self._cell(row, column) or None
                 for key, column in (("plate", 0),
@@ -678,6 +746,9 @@ class PairedFileTableWidget(QWidget):
         :param column: the column's position.
         :returns: the text, empty when the cell is blank.
         """
+        editor = self.table.cellWidget(row, column)
+        if isinstance(editor, QLineEdit):
+            return editor.text().strip()
         item = self.table.item(row, column)
         return item.text().strip() if item else ""
 
@@ -700,11 +771,11 @@ class PairedFileTableWidget(QWidget):
 
         With no row, the database is offered to the token pairing first, so
         ``plate2/measurements/measurements.db`` finds plate 2 wherever that
-        row happens to be. Only when nothing in its path names a plate does
-        it fall back to the first row that has no database -- and the
-        returned sentence, also shown under the table, NAMES that row. A
-        database attached to row 0 in silence is a plate's measurements
-        quietly credited to another plate.
+        row happens to be when its tokens match uniquely. If pairing leaves
+        the database on its own row, it is attached to the first row without
+        a database, if one exists. This fallback also applies when the path
+        contains a plate name that did not produce a unique match. The
+        returned sentence, also shown under the table, names the chosen row.
 
         Returns the sentence, so a caller with a console logs the same words
         the user is reading.
@@ -750,13 +821,15 @@ class PairedFileTableWidget(QWidget):
             self._refresh_status(message)
             return message
         self.table.blockSignals(True)
+        self._park_row(index)
         self.table.removeRow(index)
         self.table.blockSignals(False)
         target = self._first_row_without_database()
         self._place_database(target, database)
         message = self._describe_row(target, database, "attached to")
-        message += (" It is the first row with no database: nothing in the "
-                    "file's path named a plate.")
+        message += " " + tr(
+            "This row was the first without a database. Filename matching "
+            "did not attach the database to a plate row.")
         self.value_changed.emit()
         self._refresh_status(message)
         return message
@@ -816,21 +889,32 @@ class PairedFileTableWidget(QWidget):
         column = self.SIDE_COLUMNS["database"]
         replaced = self._cell(row, column)
         self.table.blockSignals(True)
-        self.table.setItem(row, column, self._database_item(database))
+        existing = self.table.item(row, column)
+        if existing is None:
+            self.table.setItem(row, column, self._database_item(database))
+        else:
+            self._database_item(database, existing)
         self.table.blockSignals(False)
         if replaced and replaced != database:
             self._pinned.pop(replaced, None)
         self._pinned[database] = self._anchor_for_row(row)
         return replaced if replaced != database else ""
 
-    @staticmethod
-    def _database_item(value: str) -> QTableWidgetItem:
+    def _database_item(self, value: str, item=None) -> QTableWidgetItem:
         """One table cell holding a database path.
 
         :param value: the path.
+        :param item: a cell to rewrite in place instead of making one.
         :returns: the cell.
         """
-        item = table_item(str(value))
+        if item is None:
+            item = _spare_table_item(self.table, str(value), make=table_item)
+        else:
+            item.setText(str(value))
+            if hasattr(item, "_init_sort_key"):
+                item._init_sort_key(str(value))
+            item.setData(Qt.ForegroundRole, None)
+            item.setData(Qt.ToolTipRole, None)
         if value and not path_probe.exists(str(value), wait=True):
             item.setForeground(Qt.red)
             item.setToolTip(f"{value}\n\nThis database is not on disk right "
@@ -849,7 +933,8 @@ class PairedFileTableWidget(QWidget):
         label = f"{plate} (row {row + 1})" if plate else f"row {row + 1}"
         return f"{os.path.basename(database)} {verb} {label}."
 
-    def _refresh_status(self, message: str = "") -> None:
+    def _refresh_status(self, message: str = "", *,
+                        check_paths: bool = True) -> None:
         """Put one line in the status area.
 
         :param message: the line.
@@ -861,22 +946,38 @@ class PairedFileTableWidget(QWidget):
             noun = "row" if len(rows) == 1 else "rows"
             parts.append(f"{len(attached)} of {len(rows)} plate {noun} "
                          "carry a measurements database.")
-        missing = self.missing_databases()
+        if check_paths:
+            missing = self._missing_databases_cache = self.missing_databases()
+        else:
+            missing = getattr(self, '_missing_databases_cache', [])
         if missing:
             named = "; ".join(
                 f"{plate or f'row {number}'}: {path}"
                 for number, plate, path in missing)
             parts.append(f"NOT ON DISK — {named}. Fix or clear these before "
                          "the run: they are read after it starts.")
+        unnamed = []
+        for number, row in enumerate(rows, start=1):
+            for side in ('score', 'count'):
+                path = str(row.get(side) or '').lower()
+                if (path.startswith(('postgresql://', 'postgres://'))
+                        or path.endswith(('.db', '.sqlite', '.sqlite3',
+                                          '.duckdb', '.ddb', '.parquetdb'))):
+                    if not row.get(f'{side}_table'):
+                        unnamed.append(f'{side} {number}')
+        if unnamed:
+            parts.append(tr("Name the table for {sources} before running.",
+                            sources=', '.join(unnamed)))
         self.status.setText(" ".join(parts) or self._EMPTY_STATUS)
 
 
     @staticmethod
     def _dropped(event):
-        """Whether a drag carries files this table can take.
+        """Return the local file paths carried by a drag.
 
         :param event: the Qt drag event.
-        :returns: True when droppable.
+        :returns: local paths in URL order, or an empty list when no local
+            file URLs are present. Paths are not checked for existence here.
         """
         mime = event.mimeData()
         if not mime.hasUrls():
@@ -914,10 +1015,10 @@ class PairedFileTableWidget(QWidget):
         A DATABASE is decided by its extension and never by aim: a ``.db``
         dropped on the score column is a mis-aim, not a request to fit the
         regression on a sqlite file, and a CSV dropped on the database column
-        is likewise still a CSV. What aim adds for a database is the ROW --
-        dropping it on a plate's row attaches it to THAT plate, which is the
-        one thing the token pairing cannot know when the file is called
-        ``measurements.db`` like everybody else's.
+        is likewise still a CSV. A database dropped in the database column
+        on an existing row is explicitly attached to that row. A drop over
+        another column or outside an existing row uses automatic attachment,
+        including the fallback described by :meth:`attach_database`.
 
         :param event: the drop event; its local file URLs and drop position
             are read, and it is ignored when it carries no usable paths.
@@ -956,11 +1057,31 @@ class PairedFileTableWidget(QWidget):
             title, filters = ("Add measurements databases",
                               "Databases (*.db *.sqlite *.sqlite3)")
         else:
-            title, filters = f"Add {side} CSVs", "Tables (*.csv *.tsv *.txt)"
+            title = (tr("Add score tables") if side == "score"
+                     else tr("Add count tables"))
+            tables = ("Tables (*.csv *.tsv *.txt *.parquet *.feather "
+                      "*.xlsx *.db *.sqlite *.sqlite3 *.duckdb "
+                      "*.ddb);;All files (*)")
+            if side == "score":
+                tables = (tr("Classify and ML scores (*_result.csv "
+                             "*results.csv)") + ";;" + tables)
+            title, filters = title, tables
         paths, _ = QFileDialog.getOpenFileNames(self, title, "", filters)
         if not paths:
             return
         self.add_paths_for_side(paths, side)
+
+    def _pick_store_folder(self, side: str) -> None:
+        """Add a Parquet store folder to the selected input side."""
+        path = QFileDialog.getExistingDirectory(
+            self, tr("Add score store folder") if side == "score"
+            else tr("Add count store folder"))
+        if not path:
+            return
+        if not path.lower().endswith('.parquetdb'):
+            self.status.setText(tr("Choose a .parquetdb store folder."))
+            return
+        self.add_paths_for_side([path], side)
 
     def _append_row(self, row: dict) -> None:
         """Add one row to the table.
@@ -971,12 +1092,24 @@ class PairedFileTableWidget(QWidget):
         self.table.insertRow(index)
         values = (row.get("plate") or "", row.get("score") or "",
                   row.get("count") or "", row.get("database") or "",
-                  row.get("rule") or "resolved at run")
+                  row.get("rule") or "resolved at run",
+                  row.get("score_table") or "",
+                  row.get("count_table") or "")
         for column, value in enumerate(values):
+            if column in (self.SCORE_TABLE_COLUMN, self.COUNT_TABLE_COLUMN):
+                edit = QLineEdit(self.table)
+                edit.setObjectName("ALPHA_FEATURES576")
+                edit.setText(str(value))
+                edit.setPlaceholderText(tr("Table name for store"))
+                edit.textChanged.connect(lambda *_: self.value_changed.emit())
+                edit.textChanged.connect(
+                    lambda *_: self._refresh_status(check_paths=False))
+                self.table.setCellWidget(index, column, edit)
+                continue
             if column == self.SIDE_COLUMNS["database"]:
                 item = self._database_item(value)
             else:
-                item = table_item(str(value))
+                item = _spare_table_item(self.table, str(value), make=table_item)
             if column == self.RULE_COLUMN:
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(index, column, item)
@@ -991,12 +1124,13 @@ class PairedFileTableWidget(QWidget):
         :param value: the rows, as the settings dict carries them.
         """
         self.table.blockSignals(True)
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         for row in value or []:
             if isinstance(row, dict):
                 self._append_row(row)
         self.table.blockSignals(False)
         self._refresh_status()
+        self._refresh_alpha_visibility()
 
     def get_value(self) -> list[dict]:
         """Every row, in the shape the settings dict wants.
@@ -1008,10 +1142,17 @@ class PairedFileTableWidget(QWidget):
             score = self._cell(index, self.SIDE_COLUMNS["score"])
             count = self._cell(index, self.SIDE_COLUMNS["count"])
             database = self._cell(index, self.SIDE_COLUMNS["database"])
-            if score or count or database:
-                rows.append({"plate": self._cell(index, 0) or None,
-                             "score": score or None, "count": count or None,
-                             "database": database or None})
+            score_table = self._cell(index, self.SCORE_TABLE_COLUMN)
+            count_table = self._cell(index, self.COUNT_TABLE_COLUMN)
+            if score or count or database or score_table or count_table:
+                row = {"plate": self._cell(index, 0) or None,
+                       "score": score or None, "count": count or None,
+                       "database": database or None}
+                if score_table:
+                    row["score_table"] = score_table
+                if count_table:
+                    row["count_table"] = count_table
+                rows.append(row)
         return rows
 
     def _move(self, offset: int) -> None:
@@ -1045,8 +1186,38 @@ class PairedFileTableWidget(QWidget):
 
         :param typed: labels from :meth:`_labels_before_a_change`.
         """
+        current = self.get_value()
+        if any(row.get("score_table") or row.get("count_table")
+               for row in current):
+            keys = [(row.get("score"), row.get("count")) for row in current]
+            for position, row in enumerate(current, start=1):
+                key = (row.get("score"), row.get("count"))
+                if keys.count(key) > 1:
+                    continue
+                row["plate"] = typed.get(key) or (
+                    f"plate {position}" if row.get("score")
+                    and row.get("count") else None)
+            self.set_value(current)
+            self._rebuild_sides()
+            return
         self._rebuild_sides()
         self._repropose(typed)
+
+    def _park_row(self, row: int) -> None:
+        """Take a row's cells out and keep them for reuse, so removing it deletes none.
+
+        :param row: the row about to be removed.
+        """
+        spare = _spare_items(self.table)
+        blocked = self.table.blockSignals(True)
+        try:
+            for column in range(self.table.columnCount()):
+                item = self.table.item(row, column)
+                if item is not None:
+                    _wipe(self.table, item)
+                    spare.append(self.table.takeItem(row, column))
+        finally:
+            self.table.blockSignals(blocked)
 
     def _remove(self) -> None:
         """Remove the selected row."""
@@ -1056,6 +1227,7 @@ class PairedFileTableWidget(QWidget):
         for row in rows:
             self._pinned.pop(self._cell(row, self.SIDE_COLUMNS["database"]),
                              None)
+            self._park_row(row)
             self.table.removeRow(row)
         if rows:
             self._repropose_after_a_change(typed)
@@ -1146,6 +1318,7 @@ class FilePathListWidget(QWidget):
         self._single = bool(single)
         self._allow_folders = bool(allow_folders) and not self._single
         self._last_directory = ""
+        self._pending_path_drops = []
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -1244,8 +1417,9 @@ class FilePathListWidget(QWidget):
             iterable of paths; surrounding quotes and placeholder values are
             dropped.
         """
+        self._pending_path_drops.clear()
         before = self.paths()
-        self._list.clear()
+        self._retire_items()
         paths = self._coerce(value)
         for path in (paths[-1:] if self._single else paths):
             self._append(path)
@@ -1317,7 +1491,7 @@ class FilePathListWidget(QWidget):
             chosen = os.path.abspath(os.path.expanduser(incoming[-1]))
             if chosen == (self.paths() or [None])[0]:
                 return 0
-            self._list.clear()
+            self._retire_items()
             self._append(chosen)
             self._refresh_hint()
             self.value_changed.emit()
@@ -1339,7 +1513,12 @@ class FilePathListWidget(QWidget):
 
     def _folder_members(self, folder: str) -> List[str]:
         """Matching files one level inside ``folder``, sorted for stable order."""
-        extensions = _KIND_EXTENSIONS.get(self._kind, ())
+        return self._folder_members_for_kind(folder, self._kind)
+
+    @staticmethod
+    def _folder_members_for_kind(folder: str, kind: str) -> List[str]:
+        """Return sorted matching files using a captured kind without a widget."""
+        extensions = _KIND_EXTENSIONS.get(kind, ())
         try:
             names = sorted(os.listdir(folder))
         except OSError:
@@ -1359,7 +1538,9 @@ class FilePathListWidget(QWidget):
         resolved = os.path.abspath(os.path.expanduser(str(path)))
         if resolved in set(self.paths()):
             return False
-        item = QListWidgetItem(self._display_text(resolved))
+        spare = _spare_items(self._list)
+        item = spare.pop() if spare else QListWidgetItem()
+        item.setText(self._display_text(resolved))
         item.setData(Qt.UserRole, resolved)
         if path_probe.exists(resolved):
             item.setToolTip(resolved)
@@ -1376,6 +1557,20 @@ class FilePathListWidget(QWidget):
         name = os.path.basename(path)
         return f"{parent}/{name}" if parent else name
 
+    def _retire_items(self, row=None) -> None:
+        """Take rows out of the list and keep their items, deleting none.
+
+        :param row: the one row to take out; every row when omitted.
+        """
+        spare = _spare_items(self._list)
+        if row is None:
+            self._list.clearSelection()
+            self._list.setCurrentItem(None)
+        rows = range(self._list.count() - 1, -1, -1) if row is None else (row,)
+        for index in rows:
+            _wipe(self._list, self._list.item(index))
+            spare.append(self._list.takeItem(index))
+
     def remove_selected(self) -> None:
         """Drop the selected paths.
 
@@ -1385,7 +1580,7 @@ class FilePathListWidget(QWidget):
         rows = sorted((self._list.row(item) for item in self._list.selectedItems()),
                       reverse=True)
         for row in rows:
-            self._list.takeItem(row)
+            self._retire_items(row)
         if rows:
             self._refresh_hint()
             self.value_changed.emit()
@@ -1393,8 +1588,9 @@ class FilePathListWidget(QWidget):
 
     def clear(self) -> None:
         """Drop every path, and say so only if there was anything to drop."""
+        self._pending_path_drops.clear()
         if self._list.count():
-            self._list.clear()
+            self._retire_items()
             self._refresh_hint()
             self.value_changed.emit()
             self.contents_changed.emit()
@@ -1547,9 +1743,53 @@ class FilePathListWidget(QWidget):
         if not paths:
             event.ignore()
             return
-        self.add_paths(paths)
+        if self._single:
+            self.add_paths(paths)
+        else:
+            self._queue_dropped_paths(paths)
         event.acceptProposedAction()
 
+    def _queue_dropped_paths(self, paths) -> None:
+        """Expand dropped paths on the owned scanner and deliver in drop order."""
+        from ..dnd_handlers import _scanner_for
+
+        incoming = self._coerce(paths)
+        kind = self._kind
+        slot = {"paths": None}
+        self._pending_path_drops.append(slot)
+
+        def collect():
+            """Resolve folder members on a worker without touching widgets."""
+            resolved = []
+            try:
+                for raw in incoming:
+                    path = os.path.abspath(os.path.expanduser(raw))
+                    if os.path.isdir(path):
+                        resolved.extend(FilePathListWidget._folder_members_for_kind(path, kind))
+                    else:
+                        resolved.append(path)
+            except Exception as error:
+                LOG.error("%s", error, exc_info=True)
+            return resolved
+
+        def landed(resolved):
+            """Append ready drops on the GUI thread unless their contents were replaced."""
+            slot["paths"] = resolved
+            while self._pending_path_drops and self._pending_path_drops[0]["paths"] is not None:
+                ready = self._pending_path_drops.pop(0)
+                added = sum(int(self._append(path)) for path in ready["paths"])
+                if added:
+                    self._refresh_hint()
+                    self.value_changed.emit()
+                    self.contents_changed.emit()
+
+        scanner = _scanner_for(self)
+        try:
+            if scanner is None or not scanner.submit(collect, landed):
+                landed([])
+        except Exception as error:
+            LOG.error("%s", error, exc_info=True)
+            landed([])
 
     def pick_files(self) -> int:
         """Open the file dialog and take what is chosen.

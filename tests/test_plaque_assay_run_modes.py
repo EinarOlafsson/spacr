@@ -34,7 +34,7 @@ def test_the_default_model_is_the_current_plaque_model():
     from spacr.settings import get_analyze_plaque_settings
 
     settings = get_analyze_plaque_settings({})
-    assert settings["plaque_model"] == "toxoplasma_plaque_v2"
+    assert settings["plaque_model"] == "toxoplasma_plaque_v5"
     assert settings["plaque_mode"] == "plaque"
 
 
@@ -43,7 +43,7 @@ def test_a_cellpose3_refusal_becomes_advice():
                          "CP3 models are not compatible with CP4.")
     explained = sm.explain_cellpose3(refusal, "bundled")
     assert isinstance(explained, sm.Cellpose3Checkpoint)
-    assert "toxoplasma_plaque_v2" in str(explained)
+    assert "toxoplasma_plaque_v5" in str(explained)
     other = ValueError("something else")
     assert sm.explain_cellpose3(other, "x") is other
 

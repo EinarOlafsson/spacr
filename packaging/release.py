@@ -59,14 +59,6 @@ README_ICONS = (
     ("Linux", "linux", "64-bit Linux"),
 )
 README_ICON_ORDER = ("Linux", "MacOS", "Windows")
-LEGACY_ICON = ("Legacy", "legacy", "Earlier spaCR installers")
-# GitHub renders this committed RST page directly, so the archive remains
-# reachable from the nightly README even while the public Sphinx site is only
-# deployed from main.
-INSTALLER_ARCHIVE_URL = (
-    "https://github.com/EinarOlafsson/spacr/blob/nightly/"
-    "docs/source/installers.rst"
-)
 
 #: Where the generated download archive is written. It is a page of the
 #: published Sphinx site (``docs/source`` -> ``docs/_build/html`` ->
@@ -90,6 +82,79 @@ def read_version(setup_path: Path) -> str:
     if not match:
         raise ValueError(f"Could not find VERSION in {setup_path}")
     return match.group(3)
+
+
+def collect_frozen_installers(
+    source: Path, destination: Path, version: str, source_commit: str,
+) -> list[Path]:
+    """Select checksummed native payloads built from the exact release commit.
+
+    Native smoke jobs gate this command in the release workflow. Build logs,
+    portable archives and standalone helper executables remain CI artifacts;
+    Native installers and the mandatory-phase Windows update payload are
+    copied into the public asset folder.
+    """
+    if not PROJECT_RELEASE_PATTERN.fullmatch(version):
+        raise ValueError("A numeric release version is required")
+    if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise ValueError("An immutable release source commit is required")
+    expected = [
+        ("windows", f"spaCR-{version}-setup.exe"),
+        ("windows", f"spaCR-{version}-update.exe"),
+        ("macos", f"spaCR-{version}.dmg"),
+        ("debian", f"spacr_{version}_amd64.deb"),
+    ]
+    selected = []
+    for platform, filename in expected:
+        root = source / f"legacy-build-{platform}"
+        metadata = root / "acceptance"
+        for name, value in (("source-commit.txt", source_commit), ("version.txt", version)):
+            path = metadata / name
+            if path.is_symlink() or not path.is_file() or path.read_text().strip() != value:
+                raise ValueError(f"Native {platform} {name} does not match the release")
+        allowed = {name for owner, name in expected if owner == platform}
+        if platform == "windows":
+            allowed.update({f"spaCR-{version}-windows.zip", "spacr-update-helper.exe"})
+        elif platform == "macos":
+            allowed.add("spacr-update-helper")
+        dist = root / "dist"
+        if root.is_symlink() or metadata.is_symlink() or dist.is_symlink():
+            raise ValueError("Native build directories must not be symbolic links")
+        if {path.name for path in dist.iterdir()} - allowed:
+            raise ValueError(f"Unexpected native {platform} payload or version")
+        payload = dist / filename
+        if payload.is_symlink() or not payload.is_file() or payload.stat().st_size == 0:
+            raise ValueError(f"Missing regular native {platform} installer")
+        manifest = metadata / "SHA256SUMS"
+        if manifest.is_symlink() or not manifest.is_file():
+            raise ValueError(f"Missing native {platform} checksums")
+        checksums = {}
+        for line in manifest.read_text().splitlines():
+            match = re.fullmatch(r"([0-9a-f]{64})  (.+)", line)
+            if match is None or match[2] in checksums:
+                raise ValueError(f"Invalid native {platform} checksum manifest")
+            checksums[match[2]] = match[1]
+        key = f"dist/{filename}" if platform == "debian" else filename
+        digest = hashlib.sha256()
+        with payload.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        if checksums.get(key) != digest.hexdigest():
+            raise ValueError(f"Native {platform} installer checksum mismatch")
+        target = destination / filename
+        if target.exists() or target.is_symlink():
+            raise ValueError(f"Native release destination already exists: {filename}")
+        selected.append((payload, target, digest.hexdigest()))
+    destination.mkdir(parents=True, exist_ok=True)
+    for payload, target, expected_digest in selected:
+        digest = hashlib.sha256()
+        with payload.open("rb") as incoming, target.open("xb") as outgoing:
+            for block in iter(lambda: incoming.read(1024 * 1024), b""):
+                outgoing.write(block)
+                digest.update(block)
+        if digest.hexdigest() != expected_digest:
+            raise ValueError(f"Native installer changed during collection: {payload.name}")
+    return [target for _payload, target, _digest in selected]
 
 
 def read_package_version(package_version_path: Path) -> str:
@@ -328,17 +393,96 @@ def bump_release(
             citation_text, "version", new, citation_path)
         citation_text = _replace_citation_field(
             citation_text, "date-released", released, citation_path)
+        # The tag is cut from this file, and Zenodo mints the new version
+        # DOI only after that release exists. Leaving the previous DOI here
+        # tagged v1.5.1.4 as "this release, spaCR 1.5.1.3"; the concept DOI
+        # is correct for every version until sync-release-metadata records
+        # the minted one.
+        if CITATION_VERSION_DOI_ENTRY.search(citation_text):
+            citation_text = _citation_version_doi(
+                citation_text, new, ZENODO_CONCEPT_DOI,
+                CITATION_PENDING_DOI_DESCRIPTION, citation_path)
+        elif re.search(r'^doi:', citation_text, re.MULTILINE):
+            citation_text = _replace_citation_field(
+                citation_text, "doi", ZENODO_CONCEPT_DOI, citation_path)
 
     setup_path.write_text(updated_setup, encoding="utf-8")
     citation_path.write_text(citation_text, encoding="utf-8")
     if package_version_path is not None:
         package_version_path.write_text(updated_package, encoding="utf-8")
-    restamp_info_deck(setup_path.parent, new)
+    for step in BUMP_ARTEFACT_STEPS:
+        step(setup_path.parent, new)
+    # The images are pushed by the release this bump starts; a tree without
+    # the README (a test fixture, an sdist) has no pages to update.
+    if (setup_path.parent / "README.rst").is_file():
+        sync_docker_tags(setup_path.parent, new)
     return verify_release_metadata(
         setup_path,
         citation_path,
         package_version_path=package_version_path,
     )
+
+
+#: The published container image. Its version tag appears on these pages
+#: besides the English and nine translated READMEs; a bump and
+#: ``sync-published`` rewrite all of them, so no page advertises an image a
+#: release left behind. Only the version changes: ``-cuda12.4`` and ``-cpu``
+#: suffixes are kept.
+DOCKER_IMAGE = "ghcr.io/einarolafsson/spacr"
+DOCKER_TAG_PAGES = (
+    Path("docs") / "source" / "installer_guide.rst",
+    Path("packaging") / "apptainer" / "README.md",
+)
+DOCKER_TAG_PATTERN = re.compile(
+    rf"(?<![\w.-]){re.escape(DOCKER_IMAGE)}:(\d+(?:\.\d+)+)(?![\w.])")
+
+
+def docker_tag_pages(root: Path) -> tuple[Path, ...]:
+    """Return every page that names a versioned :data:`DOCKER_IMAGE` tag.
+
+    The READMEs' sources come too: the README's Docker commands are code
+    blocks that ``tools/build_readme_images.py`` copies from
+    ``packaging/readme_source.yaml`` and ``docs/i18n/readme/source``, so a
+    tag moved in the README alone would be put back by the next build.
+    """
+    readme = root / "README.rst"
+    sources = (root / "packaging" / "readme_source.yaml",
+               *(root / "docs" / "i18n" / "readme" / "source" / f"{code}.yaml"
+                 for code in LOCALIZED_README_CODES))
+    return (readme, *_localized_readmes(readme, None),
+            *(path for path in sources if path.is_file()),
+            *(root / page for page in DOCKER_TAG_PAGES))
+
+
+def docker_tag_versions(text: str) -> set[str]:
+    """Return the image versions ``text`` advertises."""
+    return {match.group(1) for match in DOCKER_TAG_PATTERN.finditer(text)}
+
+
+def sync_docker_tags(root: Path, version: str) -> list[Path]:
+    """Point every Docker command and tag on the release pages at ``version``.
+
+    Every page is checked before any is written: a page that names no tag
+    means its wording moved away from the pattern, which would otherwise
+    leave it advertising an old image without anyone noticing.
+
+    :param root: the repository root.
+    :param version: the release whose images the pages should name.
+    :returns: the pages that changed.
+    """
+    Version(version)
+    updates = {}
+    for path in docker_tag_pages(root):
+        text = path.read_text(encoding="utf-8")
+        if not docker_tag_versions(text):
+            raise ValueError(f"{path} names no {DOCKER_IMAGE} version tag")
+        updated = DOCKER_TAG_PATTERN.sub(
+            lambda match: f"{DOCKER_IMAGE}:{version}", text)
+        if updated != text:
+            updates[path] = updated
+    for path, text in updates.items():
+        path.write_text(text, encoding="utf-8")
+    return list(updates)
 
 
 def restamp_info_deck(root: Path, version: str) -> str | None:
@@ -384,6 +528,55 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.stamp_title(deck, version)
+
+
+#: Modules ``tools/build_readme_images.py`` needs to draw; ``--check`` needs
+#: none of them.
+README_IMAGE_MODULES = ("fontTools", "brotli", "uharfbuzz", "yaml")
+
+
+def rebuild_readme_images(root: Path, version: str) -> bool:
+    """Redraw the README's images after :func:`restamp_info_deck`.
+
+    The README's cover is drawn from the deck's title slide, so a bump that
+    restamped the slide and left the README alone shipped a cover with the
+    old version, which the release CI's README check then refused. Like the
+    deck, a tree without the tool or the README is left alone, and a
+    missing drawing module, or a failed build, is reported rather than
+    allowed to stop the release.
+
+    :param root: the repository root.
+    :param version: the release being bumped to; unused, kept for the step
+        signature.
+    :returns: whether the images were rebuilt.
+    """
+    import importlib.util
+    import subprocess
+
+    del version
+    tool = root / "tools" / "build_readme_images.py"
+    if not tool.is_file() or not (root / "README.rst").is_file():
+        return False
+    missing = [name for name in README_IMAGE_MODULES
+               if importlib.util.find_spec(name) is None]
+    if missing:
+        print(f"README images: {', '.join(missing)} not installed here; run "
+              f"python tools/build_readme_images.py where they are.",
+              file=sys.stderr)
+        return False
+    result = subprocess.run([sys.executable, str(tool)], cwd=str(root),
+                            capture_output=True, text=True)
+    if result.returncode:
+        print(f"README images: tools/build_readme_images.py failed "
+              f"({result.returncode}); run it by hand.\n{result.stderr[-2000:]}",
+              file=sys.stderr)
+        return False
+    return True
+
+
+#: What :func:`bump_release` regenerates after writing the new version, in
+#: order: the deck's title slide, then the README images drawn from it.
+BUMP_ARTEFACT_STEPS = (restamp_info_deck, rebuild_readme_images)
 
 
 def offline_bundle_name(version: str, platform: str, torch_backend: str) -> str:
@@ -442,7 +635,7 @@ def _readme_links(version: str, branch: str) -> str:
     # immutable GitHub release assets rather than mutable branch contents.
     del branch
     references = " ".join(
-        f"|Installer{key}|" for key in (*README_ICON_ORDER, LEGACY_ICON[0]))
+        f"|Installer{key}|" for key in README_ICON_ORDER)
     lines = [README_BEGIN, "", references, ""]
     for (key, platform, alt), (label, suffix) in zip(README_ICONS, PLATFORMS):
         name = f"spaCR-{version}-{suffix}"
@@ -453,14 +646,6 @@ def _readme_links(version: str, branch: str) -> str:
             f"   :alt: Download spaCR {version} for {alt or label}",
             f"   :target: {url}",
         ])
-    legacy_key, legacy_stem, legacy_alt = LEGACY_ICON
-    lines.extend([
-        f".. |Installer{legacy_key}| image:: "
-        f"{README_ICON_ROOT}/{legacy_stem}.png",
-        f"   :width: {README_ICON_WIDTH}",
-        f"   :alt: {legacy_alt}",
-        f"   :target: {INSTALLER_ARCHIVE_URL}",
-    ])
     lines.extend(["", README_END])
     return "\n".join(lines)
 
@@ -966,6 +1151,34 @@ RECIPE_SHA256 = re.compile(
     re.MULTILINE)
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 DOI_PATTERN = re.compile(r"^10\.\d{4,9}/\S+$")
+#: The version-DOI description once Zenodo has minted it, and while it has not.
+#: Both name the release, so CITATION_VERSION_DOI_ENTRY finds either.
+CITATION_VERSION_DOI_DESCRIPTION = (
+    "Version DOI: this release, spaCR {version}. Cite this to point at the "
+    "exact code a result came from.")
+CITATION_PENDING_DOI_DESCRIPTION = (
+    "Version DOI: pending for spaCR {version}. Zenodo mints it after the "
+    "GitHub release; until then this is the concept DOI.")
+
+
+def citation_doi_is_pending(text: str, citation_path: Path = Path("CITATION.cff")) -> bool:
+    """Whether ``CITATION.cff`` still waits for its release's version DOI."""
+    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
+                    "version-DOI identifier", citation_path)
+    return entry.group("before").startswith("Version DOI: pending for ")
+
+
+def _citation_version_doi(text: str, version: str, doi: str, description: str,
+                          citation_path: Path) -> str:
+    """Set the top-level ``doi:`` and the version-DOI entry for ``version``."""
+    text = _replace_citation_field(text, "doi", doi, citation_path)
+    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
+                    "version-DOI identifier", citation_path)
+    described = description.format(version=version)
+    start = entry.start("before")
+    return (text[:entry.start("value")] + doi
+            + text[entry.end("value"):start] + described
+            + text[entry.end("after"):])
 
 
 class MetadataNotReady(RuntimeError):
@@ -1143,12 +1356,8 @@ def updated_citation_text(
     text = _replace_citation_field(text, "version", version, citation_path)
     text = _replace_citation_field(
         text, "date-released", metadata["released"], citation_path)
-    text = _replace_citation_field(text, "doi", doi, citation_path)
-    entry = _single(CITATION_VERSION_DOI_ENTRY, text,
-                    "version-DOI identifier", citation_path)
-    return (text[:entry.start("value")] + doi
-            + text[entry.end("value"):entry.start("named")] + version
-            + text[entry.end("named"):])
+    return _citation_version_doi(text, version, doi,
+                                 CITATION_VERSION_DOI_DESCRIPTION, citation_path)
 
 
 def updated_recipe_text(
@@ -1246,6 +1455,12 @@ def main() -> int:
     collect_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
     collect_parser.add_argument("--branch", default="main")
 
+    frozen_parser = subparsers.add_parser("collect-frozen")
+    frozen_parser.add_argument("--source", type=Path, required=True)
+    frozen_parser.add_argument("--destination", type=Path, required=True)
+    frozen_parser.add_argument("--version", dest="release_version", required=True)
+    frozen_parser.add_argument("--source-commit", required=True)
+
     index_parser = subparsers.add_parser(
         "index", help="regenerate the installer archive page from GitHub")
     index_parser.add_argument(
@@ -1292,6 +1507,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "version":
         print(read_version(args.setup))
+    elif args.command == "collect-frozen":
+        for path in collect_frozen_installers(
+                args.source, args.destination, args.release_version, args.source_commit):
+            print(path)
     elif args.command == "bump":
         print(bump_release(
             args.setup,
@@ -1320,6 +1539,10 @@ def main() -> int:
                     if args.releases else fetch_releases())
         if args.command == "sync-published":
             for path in sync_published_installer_links(args.root, releases):
+                print(path)
+            # The images are built from the same tag as the installers.
+            version, _assets = published_installer_version(releases)
+            for path in sync_docker_tags(args.root, version):
                 print(path)
         else:
             site_html = None

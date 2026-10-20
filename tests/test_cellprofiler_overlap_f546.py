@@ -294,7 +294,7 @@ def test_worker_capture_reaches_real_sqlite_without_changing_pipeline_or_pixels(
         """Run one original module through CellProfiler's existing hook."""
         def load(self, path):
             """Read the same user pipeline without rewriting it."""
-            assert Path(path).read_text() == 'original pipeline'
+            assert Path(path).read_text(encoding="utf-8") == 'original pipeline'
 
         def add_pathnames_to_file_list(self, files):
             """Accept the real TIFFs exported by Measure."""
@@ -334,5 +334,5 @@ def test_worker_capture_reaches_real_sqlite_without_changing_pipeline_or_pixels(
     frame = read_table(str(database), table='cellprofiler_cells', canonicalise=False)
     assert frame['prcfo'].tolist() == ['plate1_r1_c1_f1_o17']
     assert frame['cp_AreaShape_Area'].tolist() == [16]
-    assert pipeline_path.read_text() == 'original pipeline'
+    assert pipeline_path.read_text(encoding="utf-8") == 'original pipeline'
     assert source.read_bytes() == source_bytes

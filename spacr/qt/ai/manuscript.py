@@ -2,12 +2,12 @@
 
 :mod:`spacr.methods_export` builds the run digest, writes the prompt, and
 checks a draft's numbers against the digest. This module is the half that
-talks to a model, and it deliberately does NOT open a second client: it uses
+talks to a model, and it does not open a second client: it uses
 the same :class:`spacr.qt.ai.providers.ChatProvider` objects the AI console
 already streams through, so a user who authenticated once has authenticated
 for this too, and a provider added there is available here the same day.
 
-Two behaviours are the whole point of the module:
+The module has two behaviours:
 
 **A draft that invents a number is not returned as a draft.** The model's
 output goes straight into :func:`spacr.methods_export.check_draft`. If it
@@ -16,14 +16,14 @@ one of the caveats the run recorded — the draft is marked ``ok=False``, the
 offending numbers are named in :attr:`ManuscriptDraft.problems`, the model's
 text is preserved in :attr:`ManuscriptDraft.rejected` so a human can look at
 it, and the sections handed back are the deterministic ones from the digest.
-That is what makes "every number in the output comes from the digest" a
-property of the system rather than a hope about the model.
+Every number in a returned section therefore appears in the digest.
 
-**No key configured is an answer, not a traceback.** :func:`availability`
+**A missing provider does not raise.** :func:`availability`
 says exactly what is missing and what to type to fix it, and
 :func:`generate_sections` returns a complete draft anyway — the deterministic
 renderers need no model at all. A user with no CLI installed still gets their
-methods section; it is just written by spaCR instead of by a model.
+methods section, written by spaCR's deterministic renderer instead of by a
+model.
 """
 from __future__ import annotations
 
@@ -33,7 +33,8 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from ...methods_export import (Verification, check_draft, render_methods,
                                render_prompt, render_results)
-from .providers import ChatProvider, configured_providers, list_providers
+from .providers import (HOSTED_PROVIDER_NAME, ChatProvider,
+                        configured_providers, list_providers)
 
 __all__ = [
     "Availability",
@@ -59,8 +60,7 @@ class Availability:
     :param providers: the names of the ones that are.
     :param message: one paragraph for the user. When ``ok`` is False it names
         every provider, whether its CLI is installed, and the command to
-        install or log in — because "no AI configured" with no next step is
-        the same as a traceback for anyone who wanted to use it.
+        install or log in.
     """
 
     ok: bool
@@ -79,7 +79,8 @@ def availability() -> Availability:
     is a ``PATH`` lookup and :meth:`is_logged_in` is best-effort.
     """
     try:
-        ready = configured_providers()
+        ready = [provider for provider in configured_providers()
+                 if provider.name != HOSTED_PROVIDER_NAME]
     except Exception as exc:                          # noqa: BLE001
         LOG.info("provider discovery failed", exc_info=True)
         return Availability(

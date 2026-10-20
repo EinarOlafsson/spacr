@@ -1,0 +1,11 @@
+Looking in links: /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/wheelhouse, /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/wheelhouse
+Processing /mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/artifacts/spacr-1.5.1.4-py3-none-any.whl (from spacr==1.5.1.4)
+Requirement already satisfied: packaging>=21.3 in /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages (from spacr==1.5.1.4->spacr==1.5.1.4) (26.3)
+Requirement already satisfied: numpy<3.0,>=1.26.4 in /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages (from spacr==1.5.1.4->spacr==1.5.1.4) (2.5.2)
+Requirement already satisfied: pandas<4.0,>=2.2.1 in /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages (from spacr==1.5.1.4->spacr==1.5.1.4) (3.0.5)
+Requirement already satisfied: scipy<2.0,>=1.12.0 in /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages (from spacr==1.5.1.4->spacr==1.5.1.4) (1.18.1)
+Requirement already satisfied: cellpose<5.0,>=4.0.7 in /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages (from spacr==1.5.1.4->spacr==1.5.1.4) (4.2.1.1)
+Requirement already satisfied: scikit-image<0.28,>=0.22.0 in /home/olafsson/anaconda3/envs/spacr_new/lib/python3.12/site-packages (from spacr==1.5.1.4->spacr==1.5.1.4) (0.26.0)
+INFO: pip is looking at multiple versions of spacr to determine which version is compatible with other requirements. This could take a while.
+ERROR: Could not find a version that satisfies the requirement PyWavelets<2,>=1.4 (from spacr) (from versions: none)
+ERROR: No matching distribution found for PyWavelets<2,>=1.4

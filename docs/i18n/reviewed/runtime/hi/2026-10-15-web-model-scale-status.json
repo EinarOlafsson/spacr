@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "computed at the model scale (resample off), not the image size",
+      "source": "computed at the model scale (resample off), not the image size",
+      "source_sha256": "f718da0368097ff3495ed348a926d147765a46d39a7aaec4c2314af051b141ec",
+      "translation": "मॉडल के पैमाने पर गणना की गई (resample off), छवि के आकार पर नहीं"
+    }
+  ]
+}

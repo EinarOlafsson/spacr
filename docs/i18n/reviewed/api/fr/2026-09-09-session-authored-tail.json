@@ -8,7 +8,9 @@
       "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
       "translation": "combien de vignettes non annotées tirer au hasard et ajuster comme la classe MANQUANTE lorsqu'une seule classe a été annotée. ``None`` (valeur par défaut) refuse à la place, comme auparavant.",
-      "rebound_from": "spacr.active_learning.retrain_round#26"
+      "rebound_from": "spacr.active_learning.retrain_round#26",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.checkpoint.CheckpointStore#13",
@@ -22,14 +24,18 @@
       "source_sha256": "dad43e0a552e5659deb0d505a6df7d393a9d778d4a16fd6e56d4e7568508ab7e",
       "source": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means LOAD IMAGES, which is the default everywhere the question is asked.",
       "context": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means load images, which is the default everywhere the question is asked.",
-      "translation": "Toutes les graphies de :data:`CROP_SOURCE_ALIASES` se résolvent, si bien qu'un fichier de réglages provenant de n'importe quel panneau livré par spaCR répond à cette question. Non renseigné signifie charger les images, ce qui est la valeur par défaut partout où la question se pose."
+      "translation": "Toutes les graphies de :data:`CROP_SOURCE_ALIASES` se résolvent, si bien qu'un fichier de réglages provenant de n'importe quel panneau livré par spaCR répond à cette question. Non renseigné signifie charger les images, ce qui est la valeur par défaut partout où la question se pose.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.example_archives.ExampleSet.is_present#1",
       "source_sha256": "55a44c3718b64f71f16d70d9020408a1ae98a848adb27b57f740b288c52c52a3",
       "source": "Every marker has to match. A half-unpacked set -- a transfer that died between the images and the database -- is therefore reported as absent, which is the answer that gets it repaired.",
       "context": "Every marker has to match. A half-unpacked set -- a transfer that died between the images and the database -- is therefore reported as absent, which is the answer that gets it repaired.",
-      "translation": "Chaque marqueur doit correspondre. Un jeu à moitié décompressé -- un transfert interrompu entre les images et la base de données -- est donc signalé comme manquant, ce qui est la réponse qui le fait réparer."
+      "translation": "Chaque marqueur doit correspondre. Un jeu à moitié décompressé -- un transfert interrompu entre les images et la base de données -- est donc signalé comme manquant, ce qui est la réponse qui le fait réparer.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.flowview.events.StageStarted#1",
@@ -43,7 +49,9 @@
       "source_sha256": "807d91ea27431b01cef720cfc674102b5d27a216da3f24f1467a4b62a58c986d",
       "source": "an exact tie is broken AT RANDOM, and the generator is seeded: spaCR runs are reproducible, and a coin flip that landed differently on a re-run would annotate the same screen two ways.",
       "context": "an exact tie is broken at random, and the generator is seeded: spaCR runs are reproducible, and a coin flip that landed differently on a re-run would annotate the same screen two ways.",
-      "translation": "une égalité parfaite est tranchée au hasard, et le générateur est initialisé avec une graine : les exécutions de spaCR sont reproductibles, et un tirage au sort qui tomberait autrement à la reprise annoterait le même criblage de deux façons."
+      "translation": "une égalité parfaite est tranchée au hasard, et le générateur est initialisé avec une graine : les exécutions de spaCR sont reproductibles, et un tirage au sort qui tomberait autrement à la reprise annoterait le même criblage de deux façons.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.illumination.validate_segmentation_illumination_resume#7",
@@ -100,14 +108,18 @@
       "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
       "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
       "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
-      "translation": "Supprimer comme Annuler passent tous deux par ici et AUCUN des deux n'envoie d'événement de fermeture — ``QDialog.done`` masque le widget —, de sorte que c'est ici, et non dans ``closeEvent``, que doit vivre le démontage d'une boîte de dialogue modale. Qt interrompt le processus sur-le-champ si un ``QThread`` en cours d'exécution est détruit avec son propriétaire, et l'exploration des fichiers peut encore ne pas avoir fini au moment de l'annulation."
+      "translation": "Supprimer comme Annuler passent tous deux par ici et AUCUN des deux n'envoie d'événement de fermeture — ``QDialog.done`` masque le widget —, de sorte que c'est ici, et non dans ``closeEvent``, que doit vivre le démontage d'une boîte de dialogue modale. Qt interrompt le processus sur-le-champ si un ``QThread`` en cours d'exécution est détruit avec son propriétaire, et l'exploration des fichiers peut encore ne pas avoir fini au moment de l'annulation.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.foreign.object_label#1",
       "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
       "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
       "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
-      "translation": "Aucun utilisateur ne voit de lettre, demandé en toutes lettres le 2026-09-02 : \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Les emplacements sont stockés avec une lettre -- ``organelle``, ``organelleb``, ``organellec`` -- parce qu'un nom de rôle est le préfixe de chaque nom de réglage qu'il possède et que ``organelle2`` ne peut pas faire l'aller-retour par une clé ``prcfo`` sans entrer en collision avec l'objet ÉTIQUETÉ 2. C'est une décision de stockage et elle n'a rien à faire à l'écran, où un emplacement est un NUMÉRO : Organelle 1, Organelle 2."
+      "translation": "Aucun utilisateur ne voit de lettre, demandé en toutes lettres le 2026-09-02 : \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Les emplacements sont stockés avec une lettre -- ``organelle``, ``organelleb``, ``organellec`` -- parce qu'un nom de rôle est le préfixe de chaque nom de réglage qu'il possède et que ``organelle2`` ne peut pas faire l'aller-retour par une clé ``prcfo`` sans entrer en collision avec l'objet ÉTIQUETÉ 2. C'est une décision de stockage et elle n'a rien à faire à l'écran, où un emplacement est un NUMÉRO : Organelle 1, Organelle 2.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
@@ -188,14 +200,18 @@
       "source_sha256": "ad798692c75a931f7d9712a54c9059b4c60de253e1296721a2c1868083db9fb1",
       "source": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and a plane-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
       "context": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and an image layer-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
-      "translation": "Deux exécuteurs de tâches, et la séparation porte deux charges : le travail en attente sur le premier est ce qui signale \"a plate is still being scanned\", et lire un nombre de plans n'est pas un balayage de plaque ; et le second est marqué comme non visible pour que la bannière d'exécution de l'accueil n'annonce pas une lecture que personne n'a lancée."
+      "translation": "Deux exécuteurs de tâches, et la séparation porte deux charges : le travail en attente sur le premier est ce qui signale \"a plate is still being scanned\", et lire un nombre de plans n'est pas un balayage de plaque ; et le second est marqué comme non visible pour que la bannière d'exécution de l'accueil n'annonce pas une lecture que personne n'a lancée.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
       "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
       "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
       "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
-      "translation": "Le reste est CONSERVÉ, non écarté : :meth:`settings` le renvoie inchangé à côté des clés propres au tableau, de sorte que ce widget peut modifier un coin d'un fichier de réglages sans retenir le fichier entier."
+      "translation": "Le reste est CONSERVÉ, non écarté : :meth:`settings` le renvoie inchangé à côté des clés propres au tableau, de sorte que ce widget peut modifier un coin d'un fichier de réglages sans retenir le fichier entier.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.UmapDisplaySettings#3",

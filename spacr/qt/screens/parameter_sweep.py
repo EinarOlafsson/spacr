@@ -593,7 +593,7 @@ def _make_screen(app_key=None, host=None):
         def _show(self, frame):
             """Put the results in the table, useful columns first.
 
-            A VIEW AND NOT A FILTER: every column is still in the CSV. The order is
+            The table is a view, not a filter: every column is still in the CSV. The order is
             settings, then what went in, then what came out -- a hit count means
             little without the size of the design it came from, and two trials
             differing only by a filtration cutoff can fit completely different data.
@@ -766,8 +766,8 @@ def _lazy_sweep_panel_class():
         def showEvent(self, event):                      # noqa: N802
             """Build the real panel the first time the screen is shown.
 
-            That is the whole point of the placeholder: the sweep panel is expensive
-            and a user who never opens this screen never pays for it.
+            The placeholder defers that cost: the sweep panel is expensive to
+            build, and it is not built if the screen is never opened.
             """
             self.panel()
             super().showEvent(event)

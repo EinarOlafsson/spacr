@@ -261,20 +261,6 @@
       "translation": "Síðulok — ýttu á Enter til að hlaða inn næsta skammti."
     },
     {
-      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
-      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
-      "table": "ui",
-      "translation": "Allar línur í skránni: teiknaðir ferlar, viðmiðunarlínur, áslínur og kvarðastrik. Tölurnar við kvarðastrikin eru texti og fylgja textalitnum."
-    },
-    {
-      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
-      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
-      "table": "ui",
-      "translation": "Allur texti í skránni: titillinn, ásamerkingar, tölurnar við kvarðastrikin og skýringarnar."
-    },
-    {
       "key": "Exact resolved settings",
       "source": "Exact resolved settings",
       "source_sha256": "2fc0e5a579e1690fafb3bd4c7d1755cb936787a18030fdec5500349552e4a176",
@@ -779,13 +765,6 @@
       "translation": "Síðan á bak við myndina. Gegnsætt tekur við því sem myndin er sett á, sem er yfirleitt það sem glæra þarf."
     },
     {
-      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
-      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
-      "table": "ui",
-      "translation": "Hundraðshlutamarkið sem varpast á svart. Hækkaðu það til að bæla meiri bakgrunn; 0 heldur daufasta dílnum."
-    },
-    {
       "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
       "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
@@ -1031,5 +1010,31 @@
       "translation": "−log₁₀ af y-dálkinum"
     }
   ],
-  "schema": 1
+  "schema": 1,
+  "retired_records": [
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "Hundraðshlutamarkið sem varpast á svart. Hækkaðu það til að bæla meiri bakgrunn; 0 heldur daufasta dílnum.",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "Allar línur í skránni: teiknaðir ferlar, viðmiðunarlínur, áslínur og kvarðastrik. Tölurnar við kvarðastrikin eru texti og fylgja textalitnum.",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "Allur texti í skránni: titillinn, ásamerkingar, tölurnar við kvarðastrikin og skýringarnar.",
+      "retired": "2026-10-15: exact old source is no longer canonical after N678 figure-export factual corrections c1be6383a7c; superseded by 2026-10-15-figure-export-factual.json. Original bytes archived beside this review."
+    }
+  ]
 }

@@ -1,0 +1,10 @@
+{
+  "source_sha256": "ebb6b3d8faf237c1ee207a1d649cef859c9fb66ae1c750489a17839f72846bab",
+  "actual_counterexample": "Actual classifier accepts NaN/+Inf and writes all40 synthetic objects live; -Inf writes all40 dead. Finite100 yields declared30live/10dead. Raw nucleus table and original frame unchanged; separate private per-case results only.",
+  "baseline": "18 FAIL/10 PASS/9 locale deselected in4.19s",
+  "initial_guard_owning": "25 PASS/6 FAIL/9 locale deselected in10.22s; precise finite refusal works, but late parser follows normal schema-migrating read_table and changes DB bytes. Raw failures preserved.",
+  "final_affected": "9 PASS/30 deselected in10.08s; only6 actual dead/live nonfinite cutoff DB-byte cases plus3 relevant valid finite/cell/morphology controls repeated.22 unchanged passing parser cases not rerun.",
+  "final_ordering": "Existing parser call moved immediately after local tabular import before database listing/read; all other statement order unchanged and parser called once. Invalid cutoff now takes precedence over DB-content errors and performs no DB migration/output replacement.",
+  "limits": "Finite negative/zero/large/string cuts and blank/None/auto conventions preserved; no automatic threshold/calibration/biological algorithm changes, no model/GPU/biological acceptance claim.",
+  "closure": "Coalesced F537+F540 nine-language ordinary generation/full-nine audit/arrival and actual localized callbacks pending exact owner extractor."
+}

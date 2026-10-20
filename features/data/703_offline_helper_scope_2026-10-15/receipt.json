@@ -1,0 +1,60 @@
+{
+  "status": "PASS: offline Help resolves documented declarations inside lexical control-flow blocks",
+  "source_baseline_commit": "8f6aec59ff65c0689856a9981b735fe318b2285d",
+  "source_proof": {
+    "baseline_ref": "8f6aec59f",
+    "source": "spacr/qt/help_search.py",
+    "before_sha256": "ff7eefc9931bf1765d2488c773cfd41d1fc66c3a28a6a3d3ee36383f7799e8bd",
+    "after_sha256": "dbc3da84d595a80fdacb858a403195eae3cdf8e3614c49526ea68efa77091b41",
+    "only_existing_function_body_changed": "local_docstring",
+    "all_other_ast_equal": true,
+    "public_docstring_unchanged": true,
+    "all_comments_unchanged": true,
+    "new_definitions": 0,
+    "no_new_runtime_captions": true,
+    "test_file": "tests/qt/test_help_local_docstring_lexical_scope.py",
+    "test_sha256": "47dc162e3b59bba9fb16dbf21cada1d90cd5e40e17854ca134edf02feeb05e8a"
+  },
+  "baseline": {
+    "exit": 1,
+    "failed": 12,
+    "passed": 2,
+    "pytest_seconds": 2.46,
+    "actual_failure": "MainWindow.__init__._finish_installer_onboarding returned empty prose because its declaration is inside try; synthetic control-flow cases reproduced the same gap."
+  },
+  "after": {
+    "exit": 0,
+    "passed": 19,
+    "pytest_seconds": 2.49,
+    "cohort": "14 new lexical-scope cases plus five existing Help local-prose/link/no-import/error-handling assertions."
+  },
+  "behavior": "Within each requested lexical scope, traverse structural control-flow children in source order. Do not descend into an unmatched function, asynchronous function or class. Continue to parse source only without importing or evaluating the target.",
+  "coverage": [
+    "Real onboarding helper inside existing app constructor try block",
+    "if and else",
+    "try body, exception handler and finally",
+    "with, for, while and match",
+    "Explicit asynchronous/class/nested function qualification",
+    "Refusal to find same-name declarations in unrelated function/class scopes",
+    "Existing enabled-helper prose/links, localized links, scientific-module non-import, absent module/symbol and malformed source"
+  ],
+  "resources": "Both runs serialized through the shared heavy.lock, capped2G, one numeric thread, hidden CUDA, offscreen Qt6.12 and private XDG config. Final run queued behind the coalesced runtime producer; no timeout/cap/test assertion change.",
+  "artifacts": {
+    "baseline.sh": "07590c7e680ec733c692ff92cc1f67dbbfd4265db10149b6f6c6b4d3f0621b36",
+    "baseline.time": "7b5f7ef2282340c0dc19f337309b4cde9549bf3392f4793d43dc1e79098b3587",
+    "baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "after.sh": "467cad887f4f632dc587787fe8f43922a32e3161dbc8dec60ae7311c69ad5b2f",
+    "after.time": "4f501f36231d524dad6f5dbdb7bc4aaec9c91cb828b2a333133e0da55473b302",
+    "after.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "source-proof.json": "680d8356a99bcb2ecec9d0ea088e9a2ff4f604ba53fef1f4ea40a5defb27425c",
+    "baseline.log.gz": {
+      "raw_sha256": "70d6f2d907713fa740c68e03c7870333b723d020fbb1dadb440bce160324a8e0",
+      "gzip_sha256": "80ed54002e7e315d34586848fdf6e301e6da5bc5729682878d0d45054e49570a"
+    },
+    "after.log.gz": {
+      "raw_sha256": "3752944a58492032a759495284db594afa2d8c3d7c59ef4c0b40a730d3c984b2",
+      "gzip_sha256": "da2639f0ce442f19c913493480cfd95f362292e31fb3dc41b9f52bb81efe16c0"
+    }
+  },
+  "scope": "Only help_search.py existing local_docstring body and dedicated tests changed. Public docstrings/comments and every other executable AST are identical; no API/caption arrivals, app/installer changes, generators, network, installation or cleanup."
+}

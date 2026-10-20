@@ -1,0 +1,11 @@
+{
+  "verifier": "_verified_model_reference(entry,path,*,requested_value=None,cancelled=None)",
+  "verifier_context": "Background worker only; descriptor hash bounded to initial regular-file size, no descriptor retained. Return immutable private capsule orNone(custom/untrusted/stock). Known mismatched/missing/changing bytes ModelZooError; DownloadCancelled() internal typed cancellation, no generic empty popup.",
+  "requested_value": "Exact raw path by default; existing same-kind prefix may wrap SAME actualpath, using existing prefix parsers. Arbitrary unrelated requested path refuses.",
+  "attachment": "_attach_model_reference(module,settings,name,capsule) -> independent full settings with ordinary schema1 JSON metadata. No hashes/network; oldpins validatefirst, verified marker and trusted conjunction/currentkind/request/currentstatidentity checked. Rawdict/forgedcapsule/stalefile/settings refuse.",
+  "capsule": "Frozen _VerifiedModelReference(record:immutable tuplepairs,path:absolute string,identity:dev/inode/size/mtime_ns/ctime_ns,private marker); accidental misuse boundary, not cryptographic or same-process adversary protection.",
+  "version": "Only raw trusted declared version/unspecified preserved; ModelEntry default/storage version is not publisher evidence.",
+  "gui_owner": "Easy/Home-B shared UI lane owns ModelZooPicker actual background verification+completed downloadpath association, separate chosenreference frombackwardcompatiblechosenpath, primaryAppScreen settings field thenattach/set_hidden_value; no UI edits in this commit.",
+  "api_runtime": "0new targets per actual normal scoped nested4/public visibility/originalAST/trliteral proof. No collector/writer executed.",
+  "source_sha256": "4703612184e6c9e16239ff6c43110c2dd574fd23f1ec48b7a61e6032e352f67b"
+}

@@ -6,8 +6,8 @@ Status:    DONE 2026-08-20 (evidence 537828811) — see the closing sections. He
            2026-08-25: it still read "not started" long after the tile
            shipped and reached the figure grid.
 Requested: 2026-08-16 - "also if the grna or guide is a toxoplasma gene then i
-           would love to have behaviour like in starplast
-           (/mnt/firecuda2/Claude/repo/starplast/) where if you click a gene
+           would love to have behaviour like in parascape
+           (/mnt/firecuda2/Claude/repo/parascape/) where if you click a gene
            all the information for that gene is pulled up. so in the
            interactive regression, when a gene is clicked a tile should appear
            with all the information on that gene."
@@ -24,16 +24,16 @@ plot answers "which guides moved"; it cannot answer "what IS TGGT1_231640",
 which is the question a user actually has at that moment, and today they
 answer it by leaving spaCR for a browser.
 
-starplast already does this and is the reference implementation
-(/mnt/firecuda2/Claude/repo/starplast/). Read it before designing anything:
-`starplast/identity.py` resolves gene ids, `starplast/interactions.py` has
-`gene_attributes`, `starplast/annotations.py` holds the per-gene annotation
-store, and `starplast/analysis_panel.py` is the panel that displays it.
+parascape already does this and is the reference implementation
+(/mnt/firecuda2/Claude/repo/parascape/). Read it before designing anything:
+`parascape/identity.py` resolves gene ids, `parascape/interactions.py` has
+`gene_attributes`, `parascape/annotations.py` holds the per-gene annotation
+store, and `parascape/analysis_panel.py` is the panel that displays it.
 Take the pattern, and take the parts that are genuinely portable.
 
-THESE FOUR NAMES ARE STARPLAST'S, NOT SPACR'S, and none of them will ever be
+THESE FOUR NAMES ARE PARASCAPE'S, NOT SPACR'S, and none of them will ever be
 in this tree; `gene_attributes` is at
-starplast/starplast/interactions.py:159. spaCR's own answer is
+parascape/parascape/interactions.py:159. spaCR's own answer is
 `GeneTilePanel` (`spacr/qt/widgets/gene_tile.py`), with `gene_panel.py`
 beside it, driven by tests/qt/test_the_gene_tile_is_on_the_grid.py and
 test_gene_tile_i18n.py.

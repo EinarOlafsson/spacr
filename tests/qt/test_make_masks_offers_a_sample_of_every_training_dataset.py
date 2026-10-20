@@ -403,7 +403,8 @@ def test_load_test_data_offers_every_training_dataset_on_its_menu(
     menu = button.split_menu()
     assert menu is not None
     keys = set(screen._test_data_actions)
-    assert keys == {"test_data"} | {d.key for d in md.datasets_for("mask")}
+    assert keys == {"test_data", "tem", "fibsem", "fibsem_masks", "timelapse_yeast",
+                    "timelapse_bacteria", "timelapse_mammalian"} | {d.key for d in md.datasets_for("mask")}
     picked = []
     monkeypatch.setattr(md, "open_a_training_dataset",
                         lambda s, pick=None, **_k: picked.append(pick(s)))

@@ -114,7 +114,9 @@
       "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
       "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
       "translation": "因此，这里的阈值算法仅仅是阈值水平的名称，别无其他。每种算法都是 :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` 或 :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS` 中的一行，而阈值水平周围的一切——平滑、阈值校正、亮侧或暗侧、孔洞填充、分水岭拆分、边界规则、最小面积——都是 Otsu 已经使用过的代码。选择 Li 而不是 Otsu，只会改变一个数字的来源，其他什么都不变，而这正是它应当改变的全部内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes#3",
@@ -130,7 +132,9 @@
       "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
       "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
       "translation": "这里没有什么，以及原因。不再单独提供局部均值和局部高斯阈值：它们就是 Adaptive 阈值模式，该模式使用块大小和偏移量运行细胞器引擎的 ``adaptive`` 分支。也不再单独提供局部 Otsu：它是普通 Otsu 模式中的 \"Local threshold (uneven illumination)\" 开关，由整幅图像检测使用。其他命名阈值会忽略已保存的局部 Otsu 和类别数设置；只有 Multi-Otsu 在两种范围下都使用所选的类别数和波段。普通 Otsu 保留其旧式的放大镜预处理，而其他阈值则在请求的裁剪区域上使用整幅图像引擎。Niblack 使用 ``T = m - k*s``；Sauvola 使用 ``T = m*(1 + k*(s/R - 1))``，其中 ``m`` 和 ``s`` 为局部均值和标准差。引擎提供的 float32 值不会重新缩放其范围，因此 scikit-image 中 Sauvola 的默认 ``R`` 为 1。这两个公式不同，改变强度尺度可能会改变 Sauvola 的结果。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#0",
@@ -178,7 +182,9 @@
       "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
       "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
       "translation": "在寻找极大值之前进行的高斯模糊，以像素为单位。它与图像增强链的去噪是分开的，后者在检测器看到图像之前就已经运行：之所以单独设置这一项，是因为让一个对象只有一个中心所需的模糊，通常远强于任何人希望用来测量对象边缘的模糊，而传播正是在同一幅模糊图像上测量边缘的。除非视野确实噪声很大，否则请关闭增强链的去噪，否则两种模糊会叠加。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#4",
@@ -602,7 +608,9 @@
       "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
       "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
       "translation": "同一条增强链也会进入掩膜生成。图像步骤——``detect`` 之前的所有内容——由 :func:`chain_settings` 写成 Mask 设置，每个 ``enhance_<field>`` 键对应一个 :data:`SETTINGS_FIELDS` 条目，并由 :func:`spacr.psf_pipeline.prepare_chain` 读回；V1 和 V2 Mask 流程以及 Mask Live 预览会在照明校正之后、归一化之前，即 PSF 原本运行的阶段，将其应用到每个所选的分割通道上。形态学操作和拆分作用于检测器的标签，属于 Make Masks 自己的功能；板运行中的 Cellpose 标签不会被它们改变形状。Mask 设置中的 ``remove_background``、``background`` 和 ``signal_to_noise`` 是之后由归一化应用的逐通道强度下限，而 :func:`spacr.object._preprocess_batch` 是细胞器批次自己的滚球和 CLAHE 处理；两者都不在这里配置。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.Chain#0",
@@ -946,7 +954,9 @@
       "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
       "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
       "translation": "形态学操作和拆分都涉及“哪些像素属于同一个对象”这一问题，因此两者都针对整个检测结果进行：标签被读作前景，调整形状后再重新标记。因此 ID 会改变，但在这里没有任何代价——Make Masks 会对粘贴到掩膜中的每个对象重新编号（:func:`spacr.qt.mask_engine._paste_region_objects`）。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.finish#2",
@@ -1098,7 +1108,9 @@
       "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
       "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
       "translation": "只记录实际运行的步骤及其运行顺序，这样条目说明的是做了什么，而不是在其周围列出十四个默认值；没有启用任何步骤的处理链只记录那个处于关闭状态的开关。之所以写出顺序，是因为顺序使条目足以复现掩膜：相同的步骤换一种顺序就会得到另一个掩膜。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.provenance#2",
@@ -1876,7 +1888,9 @@
       "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
       "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
       "translation": "整个 GUI 的缩放比例，实时应用：一个系数作用于 spaCR 设置的所有尺寸（471）。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#1",
@@ -1884,7 +1898,9 @@
       "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
       "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
       "translation": "这是什么。偏好设置中的 \"GUI scale\"（10 % 到 200 %，默认 100 %）会缩放控件尺寸、固定尺寸、边距、间距、样式表中的尺寸（包括字体和内边距）、图标、分割器尺寸以及图的 dpi——而且是在 spaCR 运行期间进行，无需重新启动。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#10",
@@ -1892,7 +1908,9 @@
       "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
       "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
       "translation": "哪些内容不会实时跟随。缩放无法察觉那些不经过设置方法的尺寸：控件在固定像素坐标处自行绘制的文字和形状、控件按自己计算出的数值缩放的像素图、带有显式大小的 ``setFont``、``move``/``setGeometry`` 的位置、表头分区尺寸、返回常量的 Python ``sizeHint`` 重写、主题样式表没有重新声明的 Fusion 样式自身的度量，以及 pyqtgraph 的坐标轴文字。根据字体度量计算出的尺寸已经被字体缩放过一次，又会被设置方法再缩放一次——这是缩放层可能过度缩小的唯一情形。主窗口本身的尺寸保持不变，因此多出来的空间会留给内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#2",
@@ -1900,7 +1918,9 @@
       "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
       "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
       "translation": "如何在不改动 1,420 个调用点的情况下实现。在 2026-09-22 的 nightly 版本中，对 ``spacr/qt`` 下的 328 个模块进行统计：181 个文件中约有 1,420 个硬编码的几何调用（470 个 ``setContentsMargins``、489 个 ``setSpacing``、179 个 ``setMinimumWidth/Height``、67 个 ``setMaximumWidth/Height``、74 个 ``setFixed*``、30 个 ``setMinimumSize``、56 个 ``QSize``、64 个 ``resize``、6 个 ``setIconSize``），以及 64 个文件中样式表文本里的 486 个 ``px`` 字面量。逐个手工改写意味着要修改每个界面，而且以后新增的每个尺寸都必须记得这样做。因此，:func:`install_scaling_layer`——在第一个控件创建之前由 :func:`spacr.qt.app.launch` 调用一次——直接替换 Qt 类上的设置方法本身（``QWidget`` 的尺寸设置方法和 ``setStyleSheet``、各布局的边距和间距设置方法、每个 ``setIconSize``、``QSplitter.setSizes``）。每个替换后的方法",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#3",
@@ -1932,7 +1952,9 @@
       "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
       "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
       "translation": "缩放比例的改变（:func:`set_gui_scale_live`）会遍历每个存活的控件和布局，按新的比例重新应用每个记住的值，并要求各窗口重新布局。之后创建的控件会在创建时即被缩放。分割器的各窗格保持其在界面上所占的空间——缩小的是其中的内容——而 ``sizes()`` 以 100 % 单位作答，因此切片 B 所持久保存的尺寸在缩放比例改变后仍然有效。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#7",
@@ -1940,7 +1962,9 @@
       "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
       "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
       "translation": "它如何与字体缩放组合。字体缩放保持不变：它会把字体大小写入主题的样式表。该样式表与其他样式表一样经过 ``setStyleSheet`` 的替换方法，因此字体大小最终为基准值 x 字体缩放 x GUI 缩放。50 % 的 GUI 加上 200 % 的字体，得到的是半尺寸的控件，而界面上的文字保持通常大小。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#8",
@@ -1948,7 +1972,9 @@
       "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
       "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
       "translation": "用户自己设置的 ``QT_SCALE_FACTOR`` 不会被改动，它会像 Qt 一贯的那样在外层相乘。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#9",
@@ -1956,7 +1982,9 @@
       "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "保留或还原。GUI 缩放或字体缩放的每次更改都会立即生效，然后询问“是否保留这些设置？”（:class:`KeepOrRevertDialog`），并倒计时 15 s；倒计时结束、按 Esc 或关闭对话框都会恢复旧值。该对话框不受缩放影响，并自行设置文字大小，因此在 10 % GUI 和 10 % 字体下都能阅读。``Ctrl+Alt+0``（:func:`reset_every_scale`）仍然是后备手段。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale.add_listener#0",
@@ -2388,7 +2416,9 @@
       "source_sha256": "83691142b03ecee2e2b46f9e6e684a603dec02860e3649182bfe6d29f05265ad",
       "context": "Everything in spaCR that is addressable by name, and how to rank it.",
       "translation": "spaCR 中所有可以按名称定位的内容，以及它们的排序方式。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#1",
@@ -2396,7 +2426,9 @@
       "source_sha256": "ed4d2f4fa51ab5cf5bfaa6175840c53f952cdfc43224c7312e105bace83a59ad",
       "context": "The search field beside the Help menu is only as good as this: a user who knows what a thing is CALLED should reach it without knowing which module owns it or which collapsed heading it was filed under.",
       "translation": "帮助菜单旁边的搜索框的好坏完全取决于此：知道某个东西叫什么名字的用户，应当能够找到它，而无需知道它属于哪个模块，或者它被归在哪个折叠的标题下。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#10",
@@ -2404,7 +2436,9 @@
       "source_sha256": "c1752a04b729ad11dc31364bb0613cf40639a5e6d949525823263e09bd6a3aee",
       "context": "Adding a kind is registering a provider, not editing a switch. A provider is ``() -> Iterable[HelpEntry]``; :func:`register_provider` adds one and :func:`build_index` calls each of them behind its own guard, so a provider that raises costs its own rows and nothing else. What a result DOES when it is opened is registered the same way, in :mod:`spacr.qt.help_search`.",
       "translation": "添加一种类型就是注册一个提供者，而不是编辑一个分支语句。提供者是 ``() -> Iterable[HelpEntry]``；:func:`register_provider` 添加一个提供者，:func:`build_index` 在各自的保护下调用每个提供者，因此抛出异常的提供者只会损失自己的行，不会影响其他任何内容。结果被打开时所执行的操作也以同样的方式注册，位于 :mod:`spacr.qt.help_search` 中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#11",
@@ -2412,7 +2446,9 @@
       "source_sha256": "3adc1919bf67507e81691ffe20f6780b575a65e36a075720f40e6e64005d5349",
       "context": "Importing this costs nothing; building the index costs a second. Every registry is imported inside the provider that reads it, so the module itself pulls in neither Qt nor ``spacr.settings``. Building it measured 1.1 s and 13,000 rows on this tree, which is far too much for the main GUI execution path -- :mod:`spacr.qt.help_search` runs :func:`build_index` on a worker and this module stays testable without a display.",
       "translation": "导入本模块没有任何开销；构建索引需要一秒钟。每个注册表都在读取它的提供者内部导入，因此本模块本身既不引入 Qt，也不引入 ``spacr.settings``。在当前代码树上构建索引实测耗时 1.1 s、共 13,000 行，这对 GUI 线程来说太多了——:mod:`spacr.qt.help_search` 在工作线程上运行 :func:`build_index`，而本模块在没有显示器的情况下也能测试。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#2",
@@ -2420,7 +2456,9 @@
       "source_sha256": "1eda1db60f808fe0b5d175d31445e252db152fbf487029c67ff21d26b3dab3b0",
       "context": "The index is never a hand list. Every row here is derived from something that already decides the answer:",
       "translation": "索引绝不是手工列表。这里的每一行都源自某个已经决定了答案的来源：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index#3",
@@ -2476,7 +2514,9 @@
       "source_sha256": "9493a94b5d36037593b5216649265a1ad8e8d941e5b266d2bf0b6277cc792afe",
       "context": "A setting that cannot be found is then a fact about a generator rather than about whether somebody remembered to add a row, which is the whole argument of the instruction.",
       "translation": "这样一来，找不到某个设置就是生成器的问题，而不是有没有人记得添加一行的问题，这正是这条原则的全部论据。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#0",
@@ -2500,7 +2540,9 @@
       "source_sha256": "160936f13dc63126e120ac6bad4bf5ba6bde38eb9a0fb49f861d05cf0a65a08e",
       "context": "Why a template and not the finished string. ``subtitle`` and ``description`` are what the search MATCHES on, so they stay English: the query and the haystack have to be in one language, and the index is built once per session while the interface language can change after it. What the user READS is rendered from the template at the moment a row is drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up by the next keystroke and this module still imports no Qt and no catalog. \"API reference\" is the subtitle of ten thousand of the rows; a finished English string here is a wholly English result list for every reader who does not work in English.",
       "translation": "为什么使用模板而不是最终字符串。``subtitle`` 和 ``description`` 是搜索进行匹配的对象，因此保持英文：查询与被搜索的内容必须使用同一种语言，而索引在每个会话中只构建一次，界面语言却可能在此之后改变。用户读到的内容是在绘制某一行时由模板渲染出来的，由 :func:`rendered_subtitle` 和 :func:`rendered_description` 在传入 :func:`spacr.qt.i18n.tr` 的情况下完成——因此语言切换会在下一次按键时生效，而本模块仍然不导入 Qt，也不导入任何目录。\"API reference\" 是其中上万行的副标题；如果这里使用最终的英文字符串，对于每个不使用英文工作的读者来说，结果列表就会完全是英文。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#2",
@@ -2524,7 +2566,9 @@
       "source_sha256": "4bae203d75769918522607f1371e020bca05f06dffe38cdb8c560ee592c04996",
       "context": "what it does, in the language the user thinks in. It is matched on, which is what makes \"touching\" find ``merge_edge_pathogen_cells``.",
       "translation": "它的作用，用用户思考时所用的语言表述。它会参与匹配，这正是 \"touching\" 能找到 ``merge_edge_pathogen_cells`` 的原因。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.help_index.HelpEntry#5",
@@ -2703,7 +2747,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#3",
       "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
       "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",
       "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
@@ -2828,7 +2872,10 @@
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
       "context": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "translation": "计数 CSV 路径；每个路径会与其文件名标记唯一最佳匹配的评分配对，未匹配的路径会填入尚缺计数的评分行，剩余的各自单独成行。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.flow.FlowHost.heightForWidth#1",
@@ -4075,7 +4122,9 @@
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
       "context": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "translation": "``\"spin\"`` 或 ``\"draw\"``；其他任何值都视为 ``\"spin\"``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled#3",
@@ -4477,7 +4526,9 @@
       "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
       "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
       "translation": "“它能实时缩放什么，无需重启。”预览中所有由 spaCR 以像素指定尺寸的内容：",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#3",
@@ -4525,7 +4576,9 @@
       "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
       "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
       "translation": "每个值自身的基准值都记录在控件上，因此缩放总是基于代码所请求的尺寸，永远不会累积。代码之后再次设置的尺寸会成为新的基准值。在 100 % 时完全不做任何改动（没有样式表、没有尺寸、没有属性），因此默认缩放下的预览与本模块出现之前完全相同。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#9",

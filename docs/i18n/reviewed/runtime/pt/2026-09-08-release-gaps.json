@@ -7,7 +7,7 @@
       "key": "regression_panel_manifest",
       "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
       "source": "Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
-      "translation": "Painéis de publicação construídos depois de os CSV de regressão serem escritos. None ignora-os. Forneça um mapeamento, ou um caminho para um ficheiro JSON/YAML, que declare para cada painel a sua fonte de resultados, o fenótipo, o nível de gene/gRNA e o tipo de gráfico; os pacotes são gravados em publication_panels/. É um campo estruturado e não de uma só linha, pelo que é definido a partir de um script ou de um ficheiro de definições guardado, e não na GUI. Valor predefinido: None."
+      "translation": "Painéis de publicação construídos depois de os CSV de regressão serem escritos. None ignora-os. Forneça um mapeamento, ou um caminho para um arquivo JSON/YAML, que declare para cada painel a sua fonte de resultados, o fenótipo, o nível de gene/gRNA e o tipo de gráfico; os pacotes são gravados em publication_panels/. É um campo estruturado e não de uma só linha, pelo que é definido a partir de um script ou de um arquivo de definições guardado, e não na GUI. Valor padrão: None."
     }
   ]
 }

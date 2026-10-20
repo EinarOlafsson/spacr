@@ -366,7 +366,7 @@ def test_visualize_smooth_grad_reuses_existing_save_dir(tmp_path, rng):
 
     names = sorted(p.name for p in save_dir.iterdir())
     assert names == ["keep_me.txt", "smooth_grad_b.png"]
-    assert (save_dir / "keep_me.txt").read_text() == "previous run"
+    assert (save_dir / "keep_me.txt").read_text(encoding="utf-8") == "previous run"
 
 
 def test_visualize_smooth_grad_handles_image_size_mismatch(tmp_path, rng,

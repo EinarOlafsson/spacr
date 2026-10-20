@@ -1,0 +1,1251 @@
+{
+  "schema": 1,
+  "lesson": 20,
+  "reviewed_at_utc": "2026-10-13T23:59:49.385584+00:00",
+  "status": "conditional English narration draft technical review; three wording refinements proposed; fresh final-app clips and final narration acceptance pending",
+  "review_provenance": {
+    "reviewer": "Codex AI technical review",
+    "human_review_claimed": false,
+    "native_speaker_review_claimed": false,
+    "methods": [
+      "read-only JSON and source inspection",
+      "SHA256 streaming of bound evidence files",
+      "saved representative start-frame visual inspection",
+      "read-only NumPy/TIFF shape, label-count and array inspection",
+      "comparison with existing independent-reference receipt; no model execution"
+    ],
+    "no_audio_synthesis_or_review": true,
+    "no_translation": true,
+    "no_video_decoding_or_recording": true,
+    "no_GUI_or_GPU_use": true
+  },
+  "canonical_english": {
+    "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/20_cellpose_masks.json",
+    "raw_sha256": "0006d6b09d0f4b004fec18bb598e6b9e09c6ad3c39a485e04b7353a1eefe0fa5",
+    "canonical_json_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+    "canonical_json_serialization": "json.dumps(sort_keys=True, ensure_ascii=False), default separators",
+    "compact_canonical_json_sha256": "8b285728a21515c06412f51eee164539dc0bc1d14f457b3fb6372570c1f3c543",
+    "draft_source_sha256_matches_raw": true
+  },
+  "raw_draft": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-preflight/narration-draft.json",
+    "sha256": "753038ea20e14881969cd68bd3160e198eb6905c2870c383ac59e1b8c13d37f8",
+    "declared_status": "draft until recording and gate review finish",
+    "unchanged_by_review": true
+  },
+  "staging_status": {
+    "canonical_english_revision_applied": false,
+    "raw_draft_modified": false,
+    "new_narration_audio_generated": false,
+    "translations_updated": false,
+    "narration_review_hashes_repinned": false,
+    "new_revision_staged": false,
+    "new_revision_rendered": false,
+    "publication_approved_by_this_review": false,
+    "lesson20_published": false,
+    "primary_recording_provenance": {
+      "commit": "29552bae7919e5e10fec6e0fb84386346fd940ad",
+      "version": "1.5.1.4",
+      "module": "cellpose_masks",
+      "download_requested": false,
+      "dataset_cache": "/tmp/spacr-tutorial-current/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": false,
+      "selected_scenes": "02_actual_train_and_apply_tabs,04_setting_src,05_setting_model_name,14_actual_inference_outcome,15_actual_mask_and_flow_figures,17_actual_preview_image_picker,20_actual_preview_result,20a_actual_zoomed_preview,22_native_filter_reduces_objects,22b_actual_zoomed_filtered_preview,23b_actual_zoomed_restored_preview",
+      "status": "gate_failed",
+      "gate_failed_clips": [
+        "02_actual_train_and_apply_tabs"
+      ]
+    },
+    "raw_scientific_acceptance": false,
+    "raw_pipeline_accepted": true,
+    "primary_opening_historical_gate": {
+      "passed": false,
+      "distinct_fps": 26.96,
+      "reasons": [
+        "choppy (capture loss): 27.0 distinct fps < 27.9 [capture loss in second(s) [0, 2, 4, 5, 6, 7, 8, 9]; 1 of 80 unchanged frames fall in the app's 1 paint stalls]"
+      ]
+    },
+    "note": "The four draft scenes have historical passing clip gates. The primary recording remains gate_failed and its raw scientific_acceptance.accepted remains false. This review is not a new clip gate or complete lesson acceptance."
+  },
+  "scenes": [
+    {
+      "visual": "15_actual_mask_and_flow_figures",
+      "canonical_scene_index_0_based": 4,
+      "scene_number_1_based": 5,
+      "before_matches_canonical": true,
+      "exact_canonical_original": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
+      "raw_draft_after": "The masks subfolder inside Source contains a same-stem mask TIFF for each image. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
+      "proposed_revised_text": "The masks subfolder inside Source contains a same-stem mask TIFF for each image. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel displays a single-channel view of the model output.",
+      "proposed_differs_from_raw_draft": true,
+      "reasons": [
+        "The recorded scene selects the last saved three-panel figure; it does not open the masks directory. Same-stem output TIFFs are byte-bound in the private output folder.",
+        "The displayed flow array is a 512 x 512 uint8 scalar slice. Current plot.py selects flows[0][:,:,0] and renders it with jet; the verifier checks flows[0][...,0]. Calling this a single-channel model-output view avoids implying a vector-direction view."
+      ],
+      "saved_start_frame_review": "Saved starting poster displays the native three-panel figure: original image, red mask overlay and jet-colored scalar Flows panel. No file manager or directory-opening view.",
+      "frame_sha256": "44d3bc984847b7ccb42cca8e4937b590139d8fa5100dddc24cafcf23c7be29fb",
+      "original_clip": {
+        "video": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.mp4",
+        "video_sha256": "fac278da68484dca575263f384ec79dc841137226a52445fba22edd9671a6b2b",
+        "native": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.native.mp4",
+        "native_sha256": "8741f7c9718c7cfee62b35ca1f4267d56669308ad3d31411188fae71f0de0b6f",
+        "receipt": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.capture.json",
+        "receipt_sha256": "c16c839bec6acbcca71a1b3e13704fe36fa18357596ac145b345d76616ae57d0",
+        "historical_gate_passed": true,
+        "historical_gate_distinct_fps": 28.95,
+        "receipt_full_decode_passed": true,
+        "receipt_actions": [],
+        "host_actions": [],
+        "adapter_bypasses": [],
+        "duration_seconds": 28.534
+      },
+      "sentence_plan": {
+        "comparison": "exact sentences from canonical English to proposed revision; no audio or translation performed",
+        "operations": [
+          {
+            "operation": "replace",
+            "canonical_sentence_indices_1_based": [
+              1,
+              2
+            ],
+            "proposed_sentence_indices_1_based": [
+              1
+            ],
+            "exact_canonical_sentences": [
+              "Open the masks subfolder inside Source.",
+              "Each image has a same-stem mask TIFF."
+            ],
+            "proposed_sentences": [
+              "The masks subfolder inside Source contains a same-stem mask TIFF for each image."
+            ]
+          },
+          {
+            "operation": "equal",
+            "canonical_sentence_indices_1_based": [
+              3
+            ],
+            "proposed_sentence_indices_1_based": [
+              2
+            ],
+            "exact_canonical_sentences": [
+              "Inspect the figures beside the original images, paying attention to missed objects and joined cells."
+            ],
+            "proposed_sentences": [
+              "Inspect the figures beside the original images, paying attention to missed objects and joined cells."
+            ]
+          },
+          {
+            "operation": "replace",
+            "canonical_sentence_indices_1_based": [
+              4
+            ],
+            "proposed_sentence_indices_1_based": [
+              3
+            ],
+            "exact_canonical_sentences": [
+              "The flow panel shows model directions used for segmentation."
+            ],
+            "proposed_sentences": [
+              "The flow panel displays a single-channel view of the model output."
+            ]
+          }
+        ],
+        "changed_proposed_sentences": [
+          {
+            "proposed_sentence_index_1_based": 1,
+            "text": "The masks subfolder inside Source contains a same-stem mask TIFF for each image.",
+            "sha256_utf8": "3ce84b9b77eef63c926ca22c4114c8d423818f78a389d898dfbc42e043062451"
+          },
+          {
+            "proposed_sentence_index_1_based": 3,
+            "text": "The flow panel displays a single-channel view of the model output.",
+            "sha256_utf8": "a3ab71d0c5b404e188d680f2b71f07aa403652b3fc198c81c3ecc953b5e6ece8"
+          }
+        ],
+        "exact_reuse_sentences": [
+          {
+            "proposed_sentence_index_1_based": 2,
+            "canonical_sentence_index_1_based": 3,
+            "text": "Inspect the figures beside the original images, paying attention to missed objects and joined cells.",
+            "sha256_utf8": "3c2fe8cf18c63fbf147eebd0a7b7d608dbc0c66a51f2430ffe260ac34ba9ec3e"
+          }
+        ]
+      }
+    },
+    {
+      "visual": "17_actual_preview_image_picker",
+      "canonical_scene_index_0_based": 5,
+      "scene_number_1_based": 6,
+      "before_matches_canonical": true,
+      "exact_canonical_original": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
+      "raw_draft_after": "Collapse the other result cards to give the preview more room. Turn on Live preview and choose an image with the image picker. Browse to the supplied example image.",
+      "proposed_revised_text": "Collapse the Figures card to give the preview more room. Turn on Live preview and choose the supplied example image with the image picker.",
+      "proposed_differs_from_raw_draft": true,
+      "reasons": [
+        "Saved starting frames show Console and System already folded; the global physical-input trace has one CardTitle fold before the Settings handle and preview toggle. Naming Figures avoids claiming multiple cards are actively closed.",
+        "The driver and physical trace select cell_pair_02.tif by typing its absolute path in the live picker. This wording does not claim a particular folder-navigation gesture. Live settings occur in the following scene."
+      ],
+      "saved_start_frame_review": "Saved starting poster precedes the folds and picker: Figures expanded, Console and System folded. This poster alone does not establish subsequent picker timing.",
+      "frame_sha256": "cc9c9127e6d20822bfc1b7a77e37bb765250d3eebe210f7a61a8690b69450e78",
+      "original_clip": {
+        "video": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.mp4",
+        "video_sha256": "fb173c4619b0c64f6708ab18ae1af16f61b1c8e4e6db2838962f71954cb55ae4",
+        "native": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.native.mp4",
+        "native_sha256": "39f838cb07edad1da801ecb791bfbe5b9dd02e0623ada577177ab013702a9777",
+        "receipt": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.capture.json",
+        "receipt_sha256": "06e0ff57571bb447dd670c1ab4a2714dd59f0d279275526da0441617fc7a6615",
+        "historical_gate_passed": true,
+        "historical_gate_distinct_fps": 29.4,
+        "receipt_full_decode_passed": true,
+        "receipt_actions": [],
+        "host_actions": [],
+        "adapter_bypasses": [],
+        "duration_seconds": 31.734
+      },
+      "sentence_plan": {
+        "comparison": "exact sentences from canonical English to proposed revision; no audio or translation performed",
+        "operations": [
+          {
+            "operation": "replace",
+            "canonical_sentence_indices_1_based": [
+              1,
+              2,
+              3
+            ],
+            "proposed_sentence_indices_1_based": [
+              1,
+              2
+            ],
+            "exact_canonical_sentences": [
+              "Turn on Live preview and choose an image with the image picker.",
+              "Open Live settings and check the channel and normalization controls.",
+              "Collapse Console and System to give the preview more room if needed."
+            ],
+            "proposed_sentences": [
+              "Collapse the Figures card to give the preview more room.",
+              "Turn on Live preview and choose the supplied example image with the image picker."
+            ]
+          }
+        ],
+        "changed_proposed_sentences": [
+          {
+            "proposed_sentence_index_1_based": 1,
+            "text": "Collapse the Figures card to give the preview more room.",
+            "sha256_utf8": "683d81d3d9d8e582042176b2dee86b13de267e5696e297727c6d829e1862647f"
+          },
+          {
+            "proposed_sentence_index_1_based": 2,
+            "text": "Turn on Live preview and choose the supplied example image with the image picker.",
+            "sha256_utf8": "44be319389b302140e7aaa3acad42e79fb57ab3830aa4b324f06fb9b663fe310"
+          }
+        ],
+        "exact_reuse_sentences": []
+      }
+    },
+    {
+      "visual": "20_actual_preview_result",
+      "canonical_scene_index_0_based": 6,
+      "scene_number_1_based": 7,
+      "before_matches_canonical": true,
+      "exact_canonical_original": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
+      "raw_draft_after": "Check the channel and normalization in Live settings, then run the preview. Preview and Apply process these images differently, so boundaries and counts can differ. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
+      "proposed_revised_text": "Open the selected image, check the channel and normalization in Live settings, then run the preview. Preview and Apply use different preprocessing in this example, so boundaries and counts can differ. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
+      "proposed_differs_from_raw_draft": true,
+      "reasons": [
+        "The scene begins inside the still-open image picker; acceptance of the selected image precedes opening Live settings and setting channel 0, lower percentile 2 and upper percentile 99, closing the dialog and running preview.",
+        "The successful independent reference attributes the saved preview to raw-image Cellpose defaults and the saved batch to Apply preprocessing. Recorded counts are 95 and 94 respectively, with no ground-truth accuracy claim. Re-evaluate this sentence on fresh final-app output if preprocessing changes."
+      ],
+      "saved_start_frame_review": "Saved starting poster shows Choose preview image dialog with cell_pair_02.tif selected. Subsequent controls and run are supported by driver, physical-input trace and resulting arrays; no intermediate Live-settings poster is present.",
+      "frame_sha256": "8d934dce4b2f4354589284ef6b8fa255ff884f3674bfc1b4161b27ad2304b99c",
+      "original_clip": {
+        "video": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.mp4",
+        "video_sha256": "69d66542001a5f304b653e4009bf8cf584e2b4cef643276b406f6672b25d6474",
+        "native": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.native.mp4",
+        "native_sha256": "7c03a6e5393082b2c52c1054dc262cfd2975859db502036f27918f5e26cecc84",
+        "receipt": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.capture.json",
+        "receipt_sha256": "da32e864e28806594b6adbb8c5ce322c905d5cabae9b447d5ee529ba25eed1e5",
+        "historical_gate_passed": true,
+        "historical_gate_distinct_fps": 28.7,
+        "receipt_full_decode_passed": true,
+        "receipt_actions": [],
+        "host_actions": [],
+        "adapter_bypasses": [],
+        "duration_seconds": 25.367
+      },
+      "sentence_plan": {
+        "comparison": "exact sentences from canonical English to proposed revision; no audio or translation performed",
+        "operations": [
+          {
+            "operation": "replace",
+            "canonical_sentence_indices_1_based": [
+              1,
+              2
+            ],
+            "proposed_sentence_indices_1_based": [
+              1,
+              2
+            ],
+            "exact_canonical_sentences": [
+              "Compare the preview with the saved batch mask.",
+              "Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts."
+            ],
+            "proposed_sentences": [
+              "Open the selected image, check the channel and normalization in Live settings, then run the preview.",
+              "Preview and Apply use different preprocessing in this example, so boundaries and counts can differ."
+            ]
+          },
+          {
+            "operation": "equal",
+            "canonical_sentence_indices_1_based": [
+              3
+            ],
+            "proposed_sentence_indices_1_based": [
+              3
+            ],
+            "exact_canonical_sentences": [
+              "Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement."
+            ],
+            "proposed_sentences": [
+              "Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement."
+            ]
+          }
+        ],
+        "changed_proposed_sentences": [
+          {
+            "proposed_sentence_index_1_based": 1,
+            "text": "Open the selected image, check the channel and normalization in Live settings, then run the preview.",
+            "sha256_utf8": "e631d483459c92bbeb04de2df29df334a2c63cc9ff5e63f9abd0013cb5031652"
+          },
+          {
+            "proposed_sentence_index_1_based": 2,
+            "text": "Preview and Apply use different preprocessing in this example, so boundaries and counts can differ.",
+            "sha256_utf8": "6af22f62ae06ec0222140df210ab08a3897ac8b0a1d15d1abb86cdaa703ba896"
+          }
+        ],
+        "exact_reuse_sentences": [
+          {
+            "proposed_sentence_index_1_based": 3,
+            "canonical_sentence_index_1_based": 3,
+            "text": "Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
+            "sha256_utf8": "7cbf8faaf5ba6c56dec4384151cad301a82681c46e036ae96a8e41655602a40a"
+          }
+        ]
+      }
+    },
+    {
+      "visual": "20a_actual_zoomed_preview",
+      "canonical_scene_index_0_based": 7,
+      "scene_number_1_based": 8,
+      "before_matches_canonical": true,
+      "exact_canonical_original": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
+      "raw_draft_after": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries in the enlarged view.",
+      "proposed_revised_text": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries in the enlarged view.",
+      "proposed_differs_from_raw_draft": false,
+      "reasons": [
+        "The global trace records four real wheel notches and scientific observations record a shared zoom factor of 1.728 on both canvases. The driver has no zoom-out action in this scene. The starting poster precedes the wheel gesture, so it alone does not prove the enlarged view."
+      ],
+      "saved_start_frame_review": "Saved starting poster shows the selected image and the 95-object preview mask in two canvases before the wheel gesture. Enlarged-view evidence comes from driver, physical-input trace and recorded shared zoom observation.",
+      "frame_sha256": "eb4c57d5231a615fbf589f8ce82ee1f41330cbdd8a0f0f4d86d2b9221523e372",
+      "original_clip": {
+        "video": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.mp4",
+        "video_sha256": "b5f350a3ed16514fe3cfd445aa6abcf034a89d8fe28103fbbd4fb9e3324ead93",
+        "native": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.native.mp4",
+        "native_sha256": "78d75a73fef000a9e93c72ebdd7afcde0f29bf2581b9da34b21f98ac3a0f205f",
+        "receipt": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.capture.json",
+        "receipt_sha256": "3f25f04dc0050a3ccdbb2c8c75fde98b9815689a961f283e63ffa0b4808910df",
+        "historical_gate_passed": true,
+        "historical_gate_distinct_fps": 29.7,
+        "receipt_full_decode_passed": true,
+        "receipt_actions": [],
+        "host_actions": [],
+        "adapter_bypasses": [],
+        "duration_seconds": 19.734
+      },
+      "sentence_plan": {
+        "comparison": "exact sentences from canonical English to proposed revision; no audio or translation performed",
+        "operations": [
+          {
+            "operation": "equal",
+            "canonical_sentence_indices_1_based": [
+              1
+            ],
+            "proposed_sentence_indices_1_based": [
+              1
+            ],
+            "exact_canonical_sentences": [
+              "Use the mouse wheel to enlarge an area on both preview canvases."
+            ],
+            "proposed_sentences": [
+              "Use the mouse wheel to enlarge an area on both preview canvases."
+            ]
+          },
+          {
+            "operation": "replace",
+            "canonical_sentence_indices_1_based": [
+              2
+            ],
+            "proposed_sentence_indices_1_based": [
+              2
+            ],
+            "exact_canonical_sentences": [
+              "Inspect touching objects and dim boundaries, then zoom back out to check the complete field."
+            ],
+            "proposed_sentences": [
+              "Inspect touching objects and dim boundaries in the enlarged view."
+            ]
+          }
+        ],
+        "changed_proposed_sentences": [
+          {
+            "proposed_sentence_index_1_based": 2,
+            "text": "Inspect touching objects and dim boundaries in the enlarged view.",
+            "sha256_utf8": "970ab45e6fdfb3698898803903ec2639a324dc87236b3c603b7b95539db37acb"
+          }
+        ],
+        "exact_reuse_sentences": [
+          {
+            "proposed_sentence_index_1_based": 1,
+            "canonical_sentence_index_1_based": 1,
+            "text": "Use the mouse wheel to enlarge an area on both preview canvases.",
+            "sha256_utf8": "f28486b8ca4316d6c045b6a6b46cb80c5862a761885445df35c49ad6210a57fa"
+          }
+        ]
+      }
+    }
+  ],
+  "changed_sentence_summary": {
+    "changed_proposed_sentence_count": 7,
+    "exact_reuse_sentence_count": 3,
+    "scene_count": 4,
+    "scope": "Only listed changed sentences become candidates for later synthesis and translation after final English approval; unchanged exact sentences can reuse existing evidence subject to its normal freshness checks."
+  },
+  "physical_input_trace": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/logs/adapter.jsonl",
+    "clock": "recorded global monotonic t; precise per-clip frame alignment not established here",
+    "selected_events": [
+      {
+        "t": 1067308.132442432,
+        "kind": "click",
+        "point": [
+          442,
+          547
+        ],
+        "widget": "QWidget",
+        "name": "qt_scrollarea_viewport"
+      },
+      {
+        "t": 1067337.378492226,
+        "kind": "click",
+        "point": [
+          1406,
+          374
+        ],
+        "widget": "QLabel",
+        "name": "CardTitle"
+      },
+      {
+        "t": 1067341.049501471,
+        "kind": "click",
+        "point": [
+          288,
+          829
+        ],
+        "widget": "_PaneHandle",
+        "name": "qt_splithandle_"
+      },
+      {
+        "t": 1067344.086823259,
+        "kind": "click",
+        "point": [
+          976,
+          365
+        ],
+        "widget": "QToolButton",
+        "name": "SettingsPreviewToggle"
+      },
+      {
+        "t": 1067348.52423434,
+        "kind": "click",
+        "point": [
+          2429,
+          491
+        ],
+        "widget": "FlatButton",
+        "name": "FlatPreviewControl"
+      },
+      {
+        "t": 1067349.691831909,
+        "kind": "key",
+        "key": "a",
+        "op": "press",
+        "modifiers": [
+          "Control_L"
+        ]
+      },
+      {
+        "t": 1067365.070420537,
+        "kind": "type",
+        "text": "/tmp/spacr-tutorial-current/cellpose_apply_runs/REAL-stock-model-h0anblmy/cell_pair_02.tif"
+      },
+      {
+        "t": 1067370.411841221,
+        "kind": "pick-suggestion",
+        "popup": "QListView"
+      },
+      {
+        "t": 1067371.018526113,
+        "kind": "key",
+        "key": "Return",
+        "op": "press",
+        "modifiers": []
+      },
+      {
+        "t": 1067372.778358145,
+        "kind": "click",
+        "point": [
+          1318,
+          533
+        ],
+        "widget": "QPushButton",
+        "name": ""
+      },
+      {
+        "t": 1067374.739906784,
+        "kind": "click",
+        "point": [
+          1139,
+          462
+        ],
+        "widget": "QSpinBox",
+        "name": ""
+      },
+      {
+        "t": 1067375.376092876,
+        "kind": "key",
+        "key": "a",
+        "op": "press",
+        "modifiers": [
+          "Control_L"
+        ]
+      },
+      {
+        "t": 1067375.620280022,
+        "kind": "type",
+        "text": "0"
+      },
+      {
+        "t": 1067375.835383009,
+        "kind": "key",
+        "key": "Tab",
+        "op": "press",
+        "modifiers": []
+      },
+      {
+        "t": 1067377.055224826,
+        "kind": "click",
+        "point": [
+          1139,
+          760
+        ],
+        "widget": "QDoubleSpinBox",
+        "name": ""
+      },
+      {
+        "t": 1067377.680083409,
+        "kind": "key",
+        "key": "a",
+        "op": "press",
+        "modifiers": [
+          "Control_L"
+        ]
+      },
+      {
+        "t": 1067377.976411362,
+        "kind": "type",
+        "text": "2"
+      },
+      {
+        "t": 1067378.171113095,
+        "kind": "key",
+        "key": "Tab",
+        "op": "press",
+        "modifiers": []
+      },
+      {
+        "t": 1067378.744197863,
+        "kind": "key",
+        "key": "a",
+        "op": "press",
+        "modifiers": [
+          "Control_L"
+        ]
+      },
+      {
+        "t": 1067379.179658194,
+        "kind": "type",
+        "text": "99"
+      },
+      {
+        "t": 1067379.370904937,
+        "kind": "key",
+        "key": "Tab",
+        "op": "press",
+        "modifiers": []
+      },
+      {
+        "t": 1067381.565502783,
+        "kind": "click",
+        "point": [
+          1766,
+          1019
+        ],
+        "widget": "QPushButton",
+        "name": ""
+      },
+      {
+        "t": 1067384.299672283,
+        "kind": "click",
+        "point": [
+          1117,
+          533
+        ],
+        "widget": "QPushButton",
+        "name": ""
+      },
+      {
+        "t": 1067395.882120326,
+        "kind": "wheel",
+        "notches": -4,
+        "point": [
+          2128,
+          875
+        ],
+        "modifiers": []
+      }
+    ],
+    "interpretation": "Figure selection, one card fold, Settings splitter handle, Live preview toggle, picker selection, image acceptance, Live-settings channel/percentiles edits, dialog close, Run, then wheel -4. Empty per-clip actions arrays do not erase this separately recorded global trace."
+  },
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cellpose_masks.py",
+      "sha256": "e9b6d1392569aa4b02c05fe4a77c6ee2d84174dfe290f48bf9c54952ba4af4e0",
+      "recording_inventory_sha256": "e9b6d1392569aa4b02c05fe4a77c6ee2d84174dfe290f48bf9c54952ba4af4e0",
+      "matches_recording_inventory": true,
+      "binding_scope": "recording inventory and current bytes"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_ui.py",
+      "sha256": "f3adc7da710a9f1d317a30c2f90b0ba036917b847b8a8761d5b423a78266c345",
+      "recording_inventory_sha256": "f3adc7da710a9f1d317a30c2f90b0ba036917b847b8a8761d5b423a78266c345",
+      "matches_recording_inventory": true,
+      "binding_scope": "recording inventory and current bytes"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_ui_drv_e.py",
+      "sha256": "ce7e1a14de46d4897861e5a095bda1bbe7d59fa94fcc70ced0bb8f178dbe129c",
+      "recording_inventory_sha256": "ce7e1a14de46d4897861e5a095bda1bbe7d59fa94fcc70ced0bb8f178dbe129c",
+      "matches_recording_inventory": true,
+      "binding_scope": "recording inventory and current bytes"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py",
+      "sha256": "b1a2aaa643787f87ec5a1166a0205a0b9f88cf4bc17440e30de04f88513b43ba",
+      "recording_inventory_sha256": "b1a2aaa643787f87ec5a1166a0205a0b9f88cf4bc17440e30de04f88513b43ba",
+      "matches_recording_inventory": true,
+      "binding_scope": "recording inventory and current bytes"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/human_input.py",
+      "sha256": "bedddf66de9e0bbb14370ecc44d08fa07f372c7bffff10c839355d942eff5e58",
+      "recording_inventory_sha256": "bedddf66de9e0bbb14370ecc44d08fa07f372c7bffff10c839355d942eff5e58",
+      "matches_recording_inventory": true,
+      "binding_scope": "recording inventory and current bytes"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/live_preview.py",
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "recording_inventory_sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "matches_recording_inventory": true,
+      "binding_scope": "recording inventory and current bytes"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/plot.py",
+      "sha256": "b0bd0aca369d9f48d19a2d49058f811969e066ec821b5c3b5e3d250a694fc088",
+      "recording_inventory_sha256": null,
+      "matches_recording_inventory": null,
+      "binding_scope": "current frozen CH bytes; not enumerated in recording inventory"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/verify_cellpose_apply.py",
+      "sha256": "79f8cd031794ed4d472cbc9936a2b4b9bdfbffc7c71f1eff6f596ba41a6da7a9",
+      "recording_inventory_sha256": null,
+      "matches_recording_inventory": null,
+      "binding_scope": "current frozen CH bytes; not enumerated in recording inventory"
+    }
+  ],
+  "scientific_evidence": {
+    "scope": "input/output attribution, not segmentation accuracy",
+    "ground_truth_used": false,
+    "accuracy_validated": false,
+    "synthetic": false,
+    "published": false,
+    "independent_reference_accepted": true,
+    "successful_verifier_receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/verification_run_retry.json",
+      "exit_code": 0,
+      "reference_sha256": "d379d7a839c6d6ab0b8ec377851a494c66a8459ba5d54bd922d24752c50c1bc8",
+      "reference_absent_at_start": true,
+      "dependencies_unchanged": true,
+      "started_at": "2026-10-13T22:18:19.213549+00:00",
+      "finished_at": "2026-10-13T22:18:26.531883+00:00",
+      "dependencies_checked_now": [
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/scientific_acceptance.json",
+          "sha256": "85dfa285d66a7e62d78c391da62d79f91d0088a0e96685c92cfe15ed86fe40a5",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/configured_settings.json",
+          "sha256": "a0b0744b2f5a315bd8b349c268dd6c3766d5fb75684a98b6cd7efb68d9998e84",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/exact-source.json",
+          "sha256": "1e27e272d4f59c6f39a1ad08dc3ddaf6c3e6ce67ba2e9137375d1d76f0839091",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/frames.json",
+          "sha256": "6e7a39df2d22e00d87ac6535975322c07317165adda28fe7ca9823b966faf410",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/provenance.json",
+          "sha256": "f05614d697d72f8f45d5bf9cc4dc92d2e355a793b6a6138add287b0cb99e9b37",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/preview_cell.npy",
+          "sha256": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/preview_cell_filtered.npy",
+          "sha256": "47f299a8a8563f0e6a4f9e51a85bff15092d240cd97222af5bacafc486046d15",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/preview_cell_restored.npy",
+          "sha256": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_00_arrays.npz",
+          "sha256": "f7a67c9d284b50a98fab9606b11127cb3236b0da0eab2156553943c4a0f3f33a",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_01_arrays.npz",
+          "sha256": "87fd719e7740ce9432e815d535fb6fd31d1c2dd3e783600956607854c9ed5ce1",
+          "matches_receipt": true
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_02_arrays.npz",
+          "sha256": "64170c0aa574bad64ce9b7e4831dd33176223091ccad644355e2906f7e34f8ee",
+          "matches_receipt": true
+        }
+      ]
+    },
+    "first_verifier_receipt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/verification_run.json",
+      "exit_code": 1,
+      "reference_sha256": null,
+      "note": "First invocation failed. Only retry exit 0 binds the resulting reference."
+    },
+    "mask_checks_read_only": [
+      {
+        "image": "cell_pair_01.tif",
+        "mask_dtype": "uint16",
+        "mask_shape": [
+          512,
+          512
+        ],
+        "positive_label_count": 9,
+        "reference_exact_mask_equal": true,
+        "reference_checked_pixels": 262144,
+        "nonnegative": true
+      },
+      {
+        "image": "cell_pair_02.tif",
+        "mask_dtype": "uint16",
+        "mask_shape": [
+          512,
+          512
+        ],
+        "positive_label_count": 94,
+        "reference_exact_mask_equal": true,
+        "reference_checked_pixels": 262144,
+        "nonnegative": true
+      },
+      {
+        "image": "cell_pair_03.tif",
+        "mask_dtype": "uint16",
+        "mask_shape": [
+          512,
+          512
+        ],
+        "positive_label_count": 46,
+        "reference_exact_mask_equal": true,
+        "reference_checked_pixels": 262144,
+        "nonnegative": true
+      }
+    ],
+    "figure_array_checks_read_only": [
+      {
+        "file": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_00_arrays.npz",
+        "source_image": "cell_pair_01.tif",
+        "reference_exact_values_checked": {
+          "original": 262144,
+          "overlay": 786432,
+          "flow": 262144
+        },
+        "arrays": {
+          "original": {
+            "shape": [
+              512,
+              512
+            ],
+            "dtype": "float64",
+            "min": 0.0,
+            "max": 1.0
+          },
+          "overlay": {
+            "shape": [
+              512,
+              512,
+              3
+            ],
+            "dtype": "uint8",
+            "min": 0.0,
+            "max": 255.0
+          },
+          "flow": {
+            "shape": [
+              512,
+              512
+            ],
+            "dtype": "uint8",
+            "min": 0.0,
+            "max": 254.0
+          }
+        }
+      },
+      {
+        "file": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_01_arrays.npz",
+        "source_image": "cell_pair_02.tif",
+        "reference_exact_values_checked": {
+          "original": 262144,
+          "overlay": 786432,
+          "flow": 262144
+        },
+        "arrays": {
+          "original": {
+            "shape": [
+              512,
+              512
+            ],
+            "dtype": "float64",
+            "min": 0.0,
+            "max": 1.0
+          },
+          "overlay": {
+            "shape": [
+              512,
+              512,
+              3
+            ],
+            "dtype": "uint8",
+            "min": 0.0,
+            "max": 255.0
+          },
+          "flow": {
+            "shape": [
+              512,
+              512
+            ],
+            "dtype": "uint8",
+            "min": 0.0,
+            "max": 255.0
+          }
+        }
+      },
+      {
+        "file": "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_02_arrays.npz",
+        "source_image": "cell_pair_03.tif",
+        "reference_exact_values_checked": {
+          "original": 262144,
+          "overlay": 786432,
+          "flow": 262144
+        },
+        "arrays": {
+          "original": {
+            "shape": [
+              512,
+              512
+            ],
+            "dtype": "float64",
+            "min": 0.0,
+            "max": 1.0
+          },
+          "overlay": {
+            "shape": [
+              512,
+              512,
+              3
+            ],
+            "dtype": "uint8",
+            "min": 0.0,
+            "max": 255.0
+          },
+          "flow": {
+            "shape": [
+              512,
+              512
+            ],
+            "dtype": "uint8",
+            "min": 0.0,
+            "max": 255.0
+          }
+        }
+      }
+    ],
+    "flow_display": {
+      "underlying_array": "flows[0][...,0] for the recorded 3-D model-output visualization; 512 x 512 uint8 scalar array in each saved figure",
+      "display_colormap": "jet",
+      "source_basis": "current frozen plot.py lines 6086-6090 and verify_cellpose_apply.py line 61; source files not enumerated in raw exact-source inventory are explicitly marked above",
+      "proposed_claim": "single-channel view of the model output",
+      "does_not_claim": "physical directions, an interpretive color-direction legend or segmentation accuracy"
+    },
+    "preview_default_reference": {
+      "checked_pixels": 262144,
+      "objects": 95,
+      "exact_mask_equal": true,
+      "differs_from_batch": true,
+      "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+    },
+    "observed_preview_vs_batch": {
+      "input": "cell_pair_02.tif",
+      "preview_positive_labels": 95,
+      "batch_positive_labels": 94,
+      "mask_arrays_equal": false,
+      "different_label_values_pixel_count": 148904,
+      "label_difference_count_scope": "array inequality only; label IDs differ and this is not an accuracy or boundary-quality metric",
+      "current_recorded_live_controls": {
+        "model": "cpsam",
+        "diameter": 30.0,
+        "flow_threshold": 0.4,
+        "cellprob": 0.0,
+        "object_types": [
+          "cell"
+        ],
+        "cell_channel": 0,
+        "nucleus_channel": 1,
+        "normalise": true,
+        "lo_pct": 2.0,
+        "hi_pct": 99.0,
+        "outline_thickness": 1,
+        "outline_colour": "color (random)",
+        "display_channel": null,
+        "fov": "cell_pair_02.tif"
+      }
+    },
+    "recorded_zoom": {
+      "scene": "20a_actual_zoomed_preview",
+      "factor": 1.728,
+      "viewport_height": 334,
+      "viewport_width": 692,
+      "both_canvases_match": true
+    }
+  },
+  "coverage_limits": [
+    "Saved representative start posters were visually inspected as AI technical review. No full-video decoding, listening or complete frame-to-narration timing certification occurred.",
+    "There is no saved 19_explicit_preview_channel_and_percentiles poster in this capture. Intermediate control actions are supported by the recorded driver, global physical trace, saved settings observations and resulting arrays.",
+    "The independent reference attributes outputs from this recorded source/app state; it does not establish segmentation accuracy or approve the full lesson. No reference/model execution was performed for this review.",
+    "Physical-input events use the global monotonic clock. The review does not establish an exact per-frame synchronization map for all actions.",
+    "This is a conditional draft for lesson20 only. Fresh final-app behavior may require revised text, especially if preview/Apply preprocessing changes."
+  ],
+  "remaining_acceptance_dependencies": [
+    "Finish the Home app fix/release and release the recording hold before any recording tools are run.",
+    "Record fresh final-app source clips in the authorized single-lesson app session; require corrected gates and accepted scientific evidence with exact canonical English and source/native/video/receipt/gate bindings.",
+    "Recheck actual final-app figure, picker, Live-settings and zoom ordering against new clips, including whether preview/Apply preprocessing still differs. Do not transfer the current 94/95 output claim to new results without evidence.",
+    "Approve final English wording and scene alignment against new accepted clips before synthesizing or translating only the changed sentences; retain exact unchanged-sentence evidence subject to normal freshness checks.",
+    "Complete required language/audio reviews, accepted stage composition, render and publication checks after the fresh recording and narration dependencies are satisfied. No such approval is issued by this report."
+  ],
+  "source_hashes": {
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/20_cellpose_masks.json": {
+      "sha256": "0006d6b09d0f4b004fec18bb598e6b9e09c6ad3c39a485e04b7353a1eefe0fa5",
+      "size_bytes": 5144
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-preflight/narration-draft.json": {
+      "sha256": "753038ea20e14881969cd68bd3160e198eb6905c2870c383ac59e1b8c13d37f8",
+      "size_bytes": 2307
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/frames.json": {
+      "sha256": "6e7a39df2d22e00d87ac6535975322c07317165adda28fe7ca9823b966faf410",
+      "size_bytes": 233649
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/provenance.json": {
+      "sha256": "f05614d697d72f8f45d5bf9cc4dc92d2e355a793b6a6138add287b0cb99e9b37",
+      "size_bytes": 742
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/scientific_acceptance.json": {
+      "sha256": "85dfa285d66a7e62d78c391da62d79f91d0088a0e96685c92cfe15ed86fe40a5",
+      "size_bytes": 7557
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/independent_reference.json": {
+      "sha256": "d379d7a839c6d6ab0b8ec377851a494c66a8459ba5d54bd922d24752c50c1bc8",
+      "size_bytes": 2117
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/exact-source.json": {
+      "sha256": "1e27e272d4f59c6f39a1ad08dc3ddaf6c3e6ce67ba2e9137375d1d76f0839091",
+      "size_bytes": 54675
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/verification_run.json": {
+      "sha256": "be1883896bf9a637e34a870549d2a5c3c667f779072d28764ff0c7acd7466261",
+      "size_bytes": 3172
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/verification_run_retry.json": {
+      "sha256": "9f6978cba13f6fbd02cbb4a7278de92e69d1d8dc4fe32fec0738c7e0621af1e8",
+      "size_bytes": 3349
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/configured_settings.json": {
+      "sha256": "a0b0744b2f5a315bd8b349c268dd6c3766d5fb75684a98b6cd7efb68d9998e84",
+      "size_bytes": 585
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/logs/adapter.jsonl": {
+      "sha256": "9559837ac6871541f1941f64c8869da04d62c4a110d0130e8782ec9928ea7bed",
+      "size_bytes": 8961
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/preview_cell.npy": {
+      "sha256": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+      "size_bytes": 1048704
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/preview_cell_filtered.npy": {
+      "sha256": "47f299a8a8563f0e6a4f9e51a85bff15092d240cd97222af5bacafc486046d15",
+      "size_bytes": 1048704
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/preview_cell_restored.npy": {
+      "sha256": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+      "size_bytes": 1048704
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_00_arrays.npz": {
+      "sha256": "f7a67c9d284b50a98fab9606b11127cb3236b0da0eab2156553943c4a0f3f33a",
+      "size_bytes": 598285
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_01_arrays.npz": {
+      "sha256": "87fd719e7740ce9432e815d535fb6fd31d1c2dd3e783600956607854c9ed5ce1",
+      "size_bytes": 1109125
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_02_arrays.npz": {
+      "sha256": "64170c0aa574bad64ce9b7e4831dd33176223091ccad644355e2906f7e34f8ee",
+      "size_bytes": 1034309
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cellpose_masks.py": {
+      "sha256": "e9b6d1392569aa4b02c05fe4a77c6ee2d84174dfe290f48bf9c54952ba4af4e0",
+      "size_bytes": 22851
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_ui.py": {
+      "sha256": "f3adc7da710a9f1d317a30c2f90b0ba036917b847b8a8761d5b423a78266c345",
+      "size_bytes": 33026
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_ui_drv_e.py": {
+      "sha256": "ce7e1a14de46d4897861e5a095bda1bbe7d59fa94fcc70ced0bb8f178dbe129c",
+      "size_bytes": 2771
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_host_adapter.py": {
+      "sha256": "b1a2aaa643787f87ec5a1166a0205a0b9f88cf4bc17440e30de04f88513b43ba",
+      "size_bytes": 24274
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/human_input.py": {
+      "sha256": "bedddf66de9e0bbb14370ecc44d08fa07f372c7bffff10c839355d942eff5e58",
+      "size_bytes": 25514
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/qt/widgets/live_preview.py": {
+      "sha256": "c9f46aa77e2817626567e12c5834342adbc80b1b52c225eb8537d17e432f86b9",
+      "size_bytes": 269226
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/spacr/plot.py": {
+      "sha256": "b0bd0aca369d9f48d19a2d49058f811969e066ec821b5c3b5e3d250a694fc088",
+      "size_bytes": 428618
+    },
+    "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/verify_cellpose_apply.py": {
+      "sha256": "79f8cd031794ed4d472cbc9936a2b4b9bdfbffc7c71f1eff6f596ba41a6da7a9",
+      "size_bytes": 5176
+    },
+    "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": {
+      "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/cellpose_apply_runs/REAL-stock-model-h0anblmy/cell_pair_01.tif": {
+      "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/cellpose_apply_runs/REAL-stock-model-h0anblmy/masks/cell_pair_01.tif": {
+      "sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": {
+      "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/cellpose_apply_runs/REAL-stock-model-h0anblmy/cell_pair_02.tif": {
+      "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/cellpose_apply_runs/REAL-stock-model-h0anblmy/masks/cell_pair_02.tif": {
+      "sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": {
+      "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/cellpose_apply_runs/REAL-stock-model-h0anblmy/cell_pair_03.tif": {
+      "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/cellpose_apply_runs/REAL-stock-model-h0anblmy/masks/cell_pair_03.tif": {
+      "sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89",
+      "size_bytes": 524544
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_00.png": {
+      "sha256": "581d15923722033169010d34034f30b86fe123c2f0a3856037d8ea44d3cdaecf",
+      "size_bytes": 643721
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_01.png": {
+      "sha256": "d87f06bc388094eff99a32236ae8bbd2b45ea66756664dd7822e189c8dd67837",
+      "size_bytes": 1724183
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/batch_figure_02.png": {
+      "sha256": "7cb8ce0d4ebadeadde811c143af4a7b566fe26e5a4ba66a42e67592857c9d057",
+      "size_bytes": 1528688
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.png": {
+      "sha256": "44d3bc984847b7ccb42cca8e4937b590139d8fa5100dddc24cafcf23c7be29fb",
+      "size_bytes": 5533567
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.mp4": {
+      "sha256": "fac278da68484dca575263f384ec79dc841137226a52445fba22edd9671a6b2b",
+      "size_bytes": 11827094
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.native.mp4": {
+      "sha256": "8741f7c9718c7cfee62b35ca1f4267d56669308ad3d31411188fae71f0de0b6f",
+      "size_bytes": 11684416
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.capture.json": {
+      "sha256": "c16c839bec6acbcca71a1b3e13704fe36fa18357596ac145b345d76616ae57d0",
+      "size_bytes": 75547
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.host.json": {
+      "sha256": "24fc9856e74730662dab902871960cfef6707cd898a11eb266a6eda10d5a824a",
+      "size_bytes": 11234
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.pointer.json": {
+      "sha256": "be763b5ec7b85373928bb28844a462392579a437f07d9ccc01ec3f18e8dae951",
+      "size_bytes": 10191
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/15_actual_mask_and_flow_figures.gate.json": {
+      "sha256": "845938920d1afe58f02d301e350d6934923b6e2d4013102529f013f7e505b71d",
+      "size_bytes": 1985
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.png": {
+      "sha256": "cc9c9127e6d20822bfc1b7a77e37bb765250d3eebe210f7a61a8690b69450e78",
+      "size_bytes": 5608485
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.mp4": {
+      "sha256": "fb173c4619b0c64f6708ab18ae1af16f61b1c8e4e6db2838962f71954cb55ae4",
+      "size_bytes": 24299690
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.native.mp4": {
+      "sha256": "39f838cb07edad1da801ecb791bfbe5b9dd02e0623ada577177ab013702a9777",
+      "size_bytes": 16017155
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.capture.json": {
+      "sha256": "06e0ff57571bb447dd670c1ab4a2714dd59f0d279275526da0441617fc7a6615",
+      "size_bytes": 83894
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.host.json": {
+      "sha256": "0c98b0d2279b86fc6499da3eb92e112a07f52a62c8c0145c334166484317534d",
+      "size_bytes": 12481
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.pointer.json": {
+      "sha256": "868d8c8a327b210af0a0b5086b40d167e0566bc274820c8b28178d418757ec9b",
+      "size_bytes": 60712
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/17_actual_preview_image_picker.gate.json": {
+      "sha256": "b93a01caec754bfc5883677632e6689932957bd0cbd26711f41ae8a7aea6c52f",
+      "size_bytes": 2018
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.png": {
+      "sha256": "8d934dce4b2f4354589284ef6b8fa255ff884f3674bfc1b4161b27ad2304b99c",
+      "size_bytes": 2791944
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.mp4": {
+      "sha256": "69d66542001a5f304b653e4009bf8cf584e2b4cef643276b406f6672b25d6474",
+      "size_bytes": 20079606
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.native.mp4": {
+      "sha256": "7c03a6e5393082b2c52c1054dc262cfd2975859db502036f27918f5e26cecc84",
+      "size_bytes": 13343031
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.capture.json": {
+      "sha256": "da32e864e28806594b6adbb8c5ce322c905d5cabae9b447d5ee529ba25eed1e5",
+      "size_bytes": 67262
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.host.json": {
+      "sha256": "166c69f666fb16965494b9734959f5ca9435fda46eb58d8e4b28b62d186864ac",
+      "size_bytes": 9928
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.pointer.json": {
+      "sha256": "fbd195867ba8f3916832d04c9ba52c56dadbf96ccb397aff3eab153d6d86edda",
+      "size_bytes": 50350
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20_actual_preview_result.gate.json": {
+      "sha256": "c575a97eb37bebaa2ec2b94d2af68b12146989591e548d93e6ded35681726f70",
+      "size_bytes": 1908
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.png": {
+      "sha256": "eb4c57d5231a615fbf589f8ce82ee1f41330cbdd8a0f0f4d86d2b9221523e372",
+      "size_bytes": 3879716
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.mp4": {
+      "sha256": "b5f350a3ed16514fe3cfd445aa6abcf034a89d8fe28103fbbd4fb9e3324ead93",
+      "size_bytes": 11200967
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.native.mp4": {
+      "sha256": "78d75a73fef000a9e93c72ebdd7afcde0f29bf2581b9da34b21f98ac3a0f205f",
+      "size_bytes": 8726736
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.capture.json": {
+      "sha256": "3f25f04dc0050a3ccdbb2c8c75fde98b9815689a961f283e63ffa0b4808910df",
+      "size_bytes": 52561
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.host.json": {
+      "sha256": "cfe3807f3034cff9728e4c8f86881fceb2bf8dba967e20085d112936e41e753e",
+      "size_bytes": 7773
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.pointer.json": {
+      "sha256": "f9676f42aaa65ad4b630d19a01c101540b2722d9bb76e8ea8bf90409da18fc14",
+      "size_bytes": 13040
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/20a_actual_zoomed_preview.gate.json": {
+      "sha256": "b1df4f096a5383e62fd1a5245d0ddea1307b1090c350cee1ba73d1c7fea5cc60",
+      "size_bytes": 1774
+    },
+    "/media/carruthers/mnt3/claude/n676_stages/host/r28-20-cellpose_masks/captures/cellpose_masks/02_actual_train_and_apply_tabs.gate.json": {
+      "sha256": "f451379a49dce9d898a5b94059a836ba670f007f59d3724150b353dd8ad4e54a",
+      "size_bytes": 2179
+    }
+  }
+}

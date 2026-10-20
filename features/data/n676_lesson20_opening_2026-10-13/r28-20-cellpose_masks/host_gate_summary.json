@@ -1,0 +1,258 @@
+{
+  "clips": {
+    "02_actual_train_and_apply_tabs": {
+      "passed": false,
+      "reasons": [
+        "choppy (capture loss): 27.0 distinct fps < 27.9 [capture loss in second(s) [0, 2, 4, 5, 6, 7, 8, 9]; 1 of 80 unchanged frames fall in the app's 1 paint stalls]"
+      ],
+      "distinct_fps": 26.96,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 50.7,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 166.51,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "loadavg": [
+        3.80419921875,
+        5.109375
+      ],
+      "file": "02_actual_train_and_apply_tabs.gate.json"
+    },
+    "04_setting_src": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.71,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 240.27,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        5.109375,
+        5.67236328125
+      ],
+      "file": "04_setting_src.gate.json"
+    },
+    "05_setting_model_name": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.77,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 35.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 232.76,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        5.67236328125,
+        6.39208984375
+      ],
+      "file": "05_setting_model_name.gate.json"
+    },
+    "15_actual_mask_and_flow_figures": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.95,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.9,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 270.67,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        5,
+        6,
+        8
+      ],
+      "loadavg": [
+        6.4873046875,
+        6.18115234375
+      ],
+      "file": "15_actual_mask_and_flow_figures.gate.json"
+    },
+    "17_actual_preview_image_picker": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.4,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 49.8,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 194.08,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0
+      ],
+      "loadavg": [
+        6.18115234375,
+        6.673828125
+      ],
+      "file": "17_actual_preview_image_picker.gate.json"
+    },
+    "14_actual_inference_outcome": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.31,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 45.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 201.22,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        21,
+        22,
+        23,
+        24
+      ],
+      "loadavg": [
+        5.94091796875,
+        6.4873046875
+      ],
+      "file": "14_actual_inference_outcome.gate.json"
+    },
+    "20a_actual_zoomed_preview": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.7,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.7,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 228.23,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [],
+      "loadavg": [
+        6.87890625,
+        7.115234375
+      ],
+      "file": "20a_actual_zoomed_preview.gate.json"
+    },
+    "20_actual_preview_result": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.7,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 43.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 178.44,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        7,
+        20
+      ],
+      "loadavg": [
+        6.673828125,
+        6.87890625
+      ],
+      "file": "20_actual_preview_result.gate.json"
+    },
+    "22_native_filter_reduces_objects": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.64,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 37.2,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 163.84,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        3,
+        13,
+        14,
+        16,
+        22
+      ],
+      "loadavg": [
+        7.115234375,
+        7.93603515625
+      ],
+      "file": "22_native_filter_reduces_objects.gate.json"
+    },
+    "22b_actual_zoomed_filtered_preview": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 28.97,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.4,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 211.01,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        5,
+        8
+      ],
+      "loadavg": [
+        7.93603515625,
+        7.79638671875
+      ],
+      "file": "22b_actual_zoomed_filtered_preview.gate.json"
+    },
+    "23b_actual_zoomed_restored_preview": {
+      "passed": true,
+      "reasons": [],
+      "distinct_fps": 29.22,
+      "fps": 30,
+      "min_fps": 27.9,
+      "cursor_max_step_px": 36.8,
+      "cursor_bound_px": 76.8,
+      "cursor_found_fraction": 1.0,
+      "top_bar_hidden": true,
+      "app_painted_fps": 208.89,
+      "app_freeze_seconds": [],
+      "capture_loss_seconds": [
+        0,
+        3
+      ],
+      "loadavg": [
+        7.79638671875,
+        7.07275390625
+      ],
+      "file": "23b_actual_zoomed_restored_preview.gate.json"
+    }
+  },
+  "failed": [
+    "02_actual_train_and_apply_tabs"
+  ],
+  "passed": false,
+  "accepted_near_miss": []
+}

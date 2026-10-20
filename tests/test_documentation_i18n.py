@@ -16,6 +16,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.readme_source_words import readme_words
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 #: 9,434 -> 9,596 on 2026-09-04. 368's public half: every public method in
@@ -189,15 +191,15 @@ TOOLS = ROOT / "tools"
 # English is refreshed; the locale inventory and source-hash assertions below
 # remain strict and still report the unfinished translated catalog rebuild.
 # 474: ten organism API entries, translated and source-bound in all nine locales.
-# +27 Starplast/ruler/diagram entries, then +22 flowchart/secondary entries.
+# +27 ParaScape/ruler/diagram entries, then +22 flowchart/secondary entries.
 # Source subtraction is recorded in the two dated 411 API receipts.
 # +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
 # +9 held-out validation module/functions/reporting helpers in all locales.
 # +12 inference/cursor/help/schema entries. English and Help are refreshed;
 # all locale key/hash checks remain strict while translations are completed.
 # +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
-# Starplast update APIs add five entries; the retired Demos label removes one.
-# Exact added/removed sets: features/data/411_starplast_demos_api_2026-09-23.json.
+# ParaScape update APIs add five entries; the retired Demos label removes one.
+# Exact added/removed sets: features/data/411_parascape_demos_api_2026-09-23.json.
 # Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
 # Growth, asynchronous review and fallback delta: 411_growth_and_async_api_2026-09-23.json.
 # Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
@@ -266,7 +268,17 @@ TOOLS = ROOT / "tools"
 # A further 15 Apply, blinking, popup-wave and renderer contracts enter
 # the same dated source-reviewed inventory; none of the prior rows retire.
 # One further nested background picker enters with unchanged existing prose.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_215
+# 2026-10-10 item 684 (bd22c05bd): +3/-0, MainWindow.snap_window,
+# AmbientWidget.set_click_ripples and the nested Preferences helper
+# _build_the_dialog._density_follows_theme, as test_api_i18n_extractor
+# already counts; all 13,215 prior symbols unchanged.
+# 2026-10-15 item 700: +0/-28, the cli_setup_panel and provider_marks
+# modules and SetupSlides.provider_status leave with the first-run AI and
+# GitHub pages. The named inverse below retains the prior historical floor.
+# 2026-10-19: -1, FoldButton.paintEvent retired (native verdict-dot layer).
+# 2026-10-19 item 600: +0/-14, ChannelSortDialog and RegexWindow leave
+# spacr.qt.widgets.channel_sort_dialog; the example-set check stays.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_203
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
@@ -1573,6 +1585,20 @@ def test_hard_tail_contexts_retain_the_complete_semantic_contract(
     assert all(fragment in matches[0] for fragment in required_fragments)
 
 
+def test_hits_tab_context_preserves_gui_raise_meaning():
+    import build_documentation_i18n as builder
+
+    changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
+    source = builder.translatable_blocks(changes["added"][
+        "spacr.qt.screens.regression.HitsOpener.press"])[0][1]
+    contextual = builder._api_translation_source(source)
+    assert "the tab is brought to the front when construction is finished" in contextual
+    assert "exception" not in contextual
+    assert "one step per event-loop turn" in contextual
+    assert builder._syntax_preserved(source, contextual)
+
+
 def test_docstring_reflow_preserves_rst_roles_fields_and_inline_code():
     from build_documentation_i18n import rebuild_document, translatable_blocks
 
@@ -2210,12 +2236,12 @@ def test_github_summary_has_reviewed_domain_translations():
     )
 
     reviewed_sources = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_domain_review_sources_2026_10_09.json").read_text())
+        / "readme_domain_review_sources_2026_10_09.json").read_text(encoding="utf-8"))
     assert set(REVIEWED_README_BLOCKS) == set(reviewed_sources)
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
     }
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     canonical_blocks, _layout = translatable_blocks(canonical)
     canonical_normalized = re.sub(r"\s+", " ", canonical)
     for source, reviewed in REVIEWED_README_BLOCKS.items():
@@ -2242,10 +2268,9 @@ def test_github_summary_has_reviewed_domain_translations():
                 # reviewed wording may be absorbed into a larger reviewed
                 # paragraph rather than appearing as a standalone value.
                 continue
-            localized = (
+            localized = readme_words(
                 ROOT / "docs" / "i18n" / "readme"
-                / f"README.{language}.rst"
-            ).read_text(encoding="utf-8")
+                / f"README.{language}.rst")
             contract_localized = localized.replace(
                 "<../TRANSLATION_MODELS.md>",
                 "<docs/i18n/TRANSLATION_MODELS.md>",
@@ -2267,8 +2292,10 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "CRISPR-skim" in joined["is"]
     # The reviewed "Try spaCR" heading was added by the
     # 2026-09-27 source-current README pass.
-    assert len(REVIEWED_README_HEADINGS) == 18
-    assert "Docker installation" in REVIEWED_README_HEADINGS
+    # 17 since 2026-10-10: Docker is now a route in "Install spaCR" rather
+    # than a section of its own.
+    assert len(REVIEWED_README_HEADINGS) == 17
+    assert "Docker installation" not in REVIEWED_README_HEADINGS
     assert "Try spaCR" in REVIEWED_README_HEADINGS
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
@@ -2301,7 +2328,7 @@ def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
     records = payload["records"]
     assert len(records) == 16
     canonical, _layout = translatable_blocks(
-        (ROOT / "README.rst").read_text(encoding="utf-8")
+        readme_words()
     )
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -2962,9 +2989,9 @@ def test_window_wide_shortcut_keys_keep_keyboard_sense():
 
     source = builder.public_docstrings()["spacr.qt.shortcuts"]
     blocks, _layout = builder.translatable_blocks(source)
-    shortcut = next(block for block in blocks if block.startswith("Every window-wide key"))
+    shortcut = next(block for block in blocks if block.startswith("Declared window-wide key sequences"))
     context = builder._api_translation_source(shortcut)
-    assert "Every window-wide key can be rebound." in context
+    assert "Declared window-wide key sequences can be rebound." in context
     assert "a key typed there" in context
     assert "structured-data name" not in context
     assert _syntax_preserved(shortcut, context)
@@ -3084,7 +3111,7 @@ def test_translation_cache_atomically_removes_rejected_checkpoint(tmp_path):
     path.write_text(json.dumps({"api-block-v7\0Source": "Source"}))
     baseline = {"api-block-v7\0Source": "Source"}
     _merge_write_translation_cache(path, {}, baseline)
-    assert json.loads(path.read_text()) == {}
+    assert json.loads(path.read_text(encoding="utf-8")) == {}
     assert baseline == {}
 
 
@@ -3295,22 +3322,296 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
     assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
-        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(home_ui_arrivals) == 10
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
     hidden_close = json.loads((ROOT / "tests/data/release_contracts"
-        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text(encoding="utf-8"))["API_arrivals"]
     assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
     assert {key: docs[key] for key in hidden_close} == hidden_close
     assert hidden_close.keys() <= home_ui_arrivals.keys()
-    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
-        "The public documentation inventory changed. Regenerate every API "
-        "catalog, review the diff, and update "
+    # 2026-10-10: N672/N673's 32 editable-volume arrivals are one exact named
+    # contract, as in the extractor and docstring inventory tests; the ratchet
+    # counts the surface before them.
+    volume_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text(encoding="utf-8"))
+    assert len(volume_arrivals) == 32
+    assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    # 2026-10-11: N685's four model-zoo helpers (9d48eefa6: default_version_index,
+    # hf_repo_of, is_alternative, is_spacr_owned) are one named contract; the
+    # ratchet is unchanged.
+    zoo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(zoo_arrivals) == 4
+    assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
+    tem_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "690_tem_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(tem_arrivals) == 10
+    assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
+    # F534's 22 spatial-submodule symbols (2026-10-11), one named contract.
+    spatial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(spatial_arrivals) == 22
+    assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
+    assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
+    # N691's 4 MitoNet symbols in spacr.model_zoo (2026-10-11).
+    mitonet_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(mitonet_arrivals) == 4
+    assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
+    assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
+    drawing_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text(encoding="utf-8"))
+    assert len(drawing_arrivals) == 8
+    assert {key: docs[key] for key in drawing_arrivals} == drawing_arrivals
+    assert not drawing_arrivals.keys() & (zoo_arrivals.keys() | volume_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **drawing_arrivals}
+    apply_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(apply_arrivals) == 8
+    assert {key: docs[key] for key in apply_arrivals} == apply_arrivals
+    assert not apply_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **apply_arrivals}
+    a11y_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(a11y_arrivals) == 15
+    assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
+    assert not a11y_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
+    in_container_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(in_container_arrivals) == 2
+    assert {key: docs[key] for key in in_container_arrivals} == in_container_arrivals
+    assert not in_container_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **in_container_arrivals}
+    export_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "693_export_settings_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(export_arrivals) == 3
+    assert {key: docs[key] for key in export_arrivals} == export_arrivals
+    assert not export_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    response_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "144_regression_response_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(response_arrivals) == 3
+    assert {key: docs[key] for key in response_arrivals} == response_arrivals
+    assert not response_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **response_arrivals}
+    splash_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(splash_arrivals) == 21
+    assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
+    assert not splash_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
+    sequence_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(sequence_arrivals) == 5
+    assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
+    assert not sequence_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}
+    # 2026-10-12: spacr-tutorial opens the online lessons; the three
+    # spacr.qt.tutorials arrivals are one named contract.
+    tutorial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"]
+    assert len(tutorial_arrivals) == 3
+    assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
+    assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
+    # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
+    model_card_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "model_cards_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(model_card_arrivals) == 27
+    assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
+    assert not model_card_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
+    debounce_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(debounce_arrivals) == 4
+    assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
+    assert not debounce_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
+    # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
+    warm_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(warm_arrivals) == 1
+    assert {key: docs[key] for key in warm_arrivals} == warm_arrivals
+    assert not warm_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **warm_arrivals}
+    # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
+    quit_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(quit_arrivals) == 3
+    assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
+    assert not quit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
+    # 2026-10-14: Item 700 client: anonymised error reports through spaCR's relay, the first-run notice and the hosted AI provider; one named contract.
+    client700_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "700_anonymous_reports_client_api_arrivals_2026-10-14.json").read_text(encoding="utf-8"))
+    assert len(client700_arrivals) == 55
+    assert {key: docs[key] for key in client700_arrivals} == client700_arrivals
+    assert not client700_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **client700_arrivals}
+    # 2026-10-15: Item 700: spaCR AI summary scrubbing, saved explanations and question cache keys; one named contract.
+    s700_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "700_ai_summary_and_saved_answers_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(s700_arrivals) == 20
+    assert {key: docs[key] for key in s700_arrivals} == s700_arrivals
+    assert not s700_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **s700_arrivals}
+    # 2026-10-15: Item 673: napari-like True 3D view (3-D volume rendering in spacr.layers and its ray helper); one named contract.
+    n673_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_napari_true3d_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(n673_arrivals) == 8
+    assert {key: docs[key] for key in n673_arrivals} == n673_arrivals
+    assert not n673_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673_arrivals}
+    # 2026-10-16: Item 673 speed follow-up: GPU volume renderer, render scale, surface finishes, magnifier cube and True 3D render settings; one named contract.
+    n673g_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_true3d_gpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert len(n673g_arrivals) == 23
+    assert {key: docs[key] for key in n673g_arrivals} == n673g_arrivals
+    assert not n673g_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673g_arrivals}
+    # 2026-10-16: Item 673 wgpu follow-up: Vulkan/Metal/Direct3D 12 renderer, adapter listing, GPU-off switch, backend chain, doctor row and the without-wgpu update override; one named contract.
+    n673w_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_wgpu_api_arrivals_2026-10-16.json").read_text(encoding="utf-8"))
+    assert len(n673w_arrivals) == 20
+    assert {key: docs[key] for key in n673w_arrivals} == n673w_arrivals
+    assert not n673w_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **n673w_arrivals}
+    # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
+    s370_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
+    assert len(s370_arrivals) == 3
+    assert {key: docs[key] for key in s370_arrivals} == s370_arrivals
+    assert not s370_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **s370_arrivals}
+    # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
+    note_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "install_cleanup_note_api_arrival_2026-10-14.json").read_text(encoding="utf-8"))
+    assert len(note_arrivals) == 1
+    assert {key: docs[key] for key in note_arrivals} == note_arrivals
+    assert not note_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **note_arrivals}
+    # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
+    thread_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "thread_retire_api_arrivals_2026-10-13.json").read_text(encoding="utf-8"))
+    assert len(thread_arrivals) == 3
+    assert {key: docs[key] for key in thread_arrivals} == thread_arrivals
+    assert not thread_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thread_arrivals}
+    # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
+    dna_rain_arrivals = json.loads((ROOT / "tests/data"
+        / "release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(dna_rain_arrivals) == 1
+    assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
+    assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_arrivals = json.loads((ROOT / "tests/data"
+        / "release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text(encoding="utf-8"))
+    assert len(launcher_arrivals) == 3
+    assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
+    assert not launcher_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
+    # Reuse the exact named arrivals already bound by the extractor contract.
+    for filename, count in (
+        ("699_ssh_connection_worker_api_arrival_2026-10-14.json", 1),
+        # 2026-10-19: 19, AiToggleLabel.paintEvent retired; the focus ring
+        # is a native paint layer.
+        ("reviewed_api_surface_arrivals_2026-10-15.json", 19),
+        ("560_embedding_demo_api_arrivals_2026-10-16.json", 2),
+        ("705_volume_measure_api_arrivals_2026-10-16.json", 10),
+        ("706_object_detection_3d_api_arrivals_2026-10-17.json", 2),
+        ("560_dinov2_drop_in_api_arrivals_2026-10-17.json", 3),
+        ("560_cell_dino_checkpoints_api_arrivals_2026-10-18.json", 1),
+        ("703_background_update_and_uninstall_api_arrivals_2026-10-17.json", 17),
+        ("708_label_time_api_arrivals_2026-10-16.json", 13),
+        ("561_classifier_api_arrivals_2026-10-15.json", 19),
+        ("180_session_figure_api_arrivals_2026-10-15.json", 2),
+        ("712_timelapse_test_data_api_arrivals_2026-10-18.json", 4),
+    ):
+        arrivals = json.loads((ROOT / "tests/data/release_contracts"
+                              / filename).read_text(encoding="utf-8"))
+        assert len(arrivals) == count
+        assert {key: docs[key] for key in arrivals} == arrivals
+        assert not arrivals.keys() & (
+            zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+            | home_ui_arrivals.keys() | volume_arrivals.keys()
+        )
+        zoo_arrivals = {**zoo_arrivals, **arrivals}
+    help_changes = json.loads((ROOT / "tests/data/release_contracts"
+        / "411_help_api_changes_2026-10-18.json").read_text(encoding="utf-8"))
+    help_arrivals = help_changes["added"]
+    assert set(help_arrivals) == {
+        "spacr.qt.preferences._count_store_moves.set_path",
+        "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work",
+        "spacr.qt.screens.regression.HitsOpener.press",
+    }
+    assert {key: docs[key] for key in help_arrivals} == help_arrivals
+    assert not help_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    publication_key = "spacr.qt.screens.regression.open_publication_figure"
+    assert help_changes["changed"] == {publication_key: {
+        "before": "Build the Volcano Explorer seeded from ``screen``'s results panel.",
+        "after": docs[publication_key],
+    }}
+    assert docs[publication_key].startswith(
+        help_changes["changed"][publication_key]["before"] + "\n\n")
+    zoo_arrivals = {**zoo_arrivals, **help_arrivals}
+    approval_preferences_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_approval_and_cached_preferences_api_arrivals_2026-10-18.json").read_text(encoding="utf-8"))
+    assert set(approval_preferences_arrivals) == {
+        "spacr.qt.ai.prompts.tool_approval_note",
+        "spacr.qt.ai.providers.ClaudeCliProvider.allow_once",
+        "spacr.qt.ai.providers.describe_tool_call",
+        "spacr.qt.ai.providers.tool_rule",
+        "spacr.qt.preferences._count_store_writes.write",
+        "spacr.qt.preferences._remembered.read",
+    }
+    assert {key: docs[key] for key in approval_preferences_arrivals} == (
+        approval_preferences_arrivals
+    )
+    assert not approval_preferences_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **approval_preferences_arrivals}
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "700_retired_setup_api_inverse_2026-10-15.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "0881044e8b310515e2434b1046fe94a02d769b47"
+    assert retirement["source_blob"] == "f86aef1b5123a1eae9c978011e0a54f9ff4dfd63"
+    assert retirement["source_path"] == "docs/source/_static/i18n/api/en.json"
+    retired_setup = retirement["retired"]
+    assert len(retired_setup) == 28
+    assert hashlib.sha256(json.dumps(
+        retired_setup, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "5df7d5da3b7cce98b3a0231d968642b2868d09e92d9e797157a4cb728aaec731"
+    assert not retired_setup.keys() & (docs.keys() | zoo_arrivals.keys())
+    uncataloged = sorted(docs.keys() - json.loads(
+        (ROOT / "docs/source/_static/i18n/api/en.json").read_text(encoding="utf-8")
+    )["symbols"].keys())
+    assert len((docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+                - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_setup.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+        "The public documentation inventory changed. Symbols in the source "
+        f"but not in the English API catalog: {uncataloged}. A new documented "
+        "callable needs, in the same commit, a dated arrival contract in "
+        "tests/data/release_contracts listed beside the other contracts in "
+        "this test, test_api_i18n_extractor and test_docstring_correctness, "
+        "nine-locale reviewed records under docs/i18n/reviewed/api, and a "
+        "regenerated catalog (tools/build_documentation_i18n.py "
+        "--sources-only, then --repair-api-blocks). For an intended "
+        "removal, regenerate every API catalog and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
     )
     expected = set(docs)
@@ -3848,6 +4149,42 @@ def test_semantic_gate_mandatory_negative_controls():
     )
 
 
+def test_dye_stain_as_smudge_is_a_hard_failure_in_nine_locales():
+    from build_i18n_catalogs import (
+        _semantic_false_friends,
+        _translation_candidate_valid,
+    )
+
+    source = "Per channel (one pass per stain)"
+    cases = {
+        "de": ("Pro Kanal (ein Durchlauf pro Fleck)", "Pro Kanal (ein Durchlauf pro Färbung)"),
+        "es": ("Por canal (una pasada por mancha)", "Por canal (una pasada por tinción)"),
+        "fr": ("Par canal (une passe par tache)", "Par canal (une passe par coloration)"),
+        "pt": ("Por canal (uma passagem por mancha)", "Por canal (uma passagem por coloração)"),
+        "sv": ("Per kanal (ett pass per fläck)", "Per kanal (ett pass per färgning)"),
+        "is": ("Á rás (ein umferð á hvern blett)", "Á rás (ein umferð á hverja litun)"),
+        "zh_CN": ("按通道(每种斑点一遍)", "按通道(每种染色一遍)"),
+        "ko": ("채널별(얼룩마다 한 번)", "채널별(염색마다 한 번)"),
+        "hi": ("प्रति चैनल (हर दाग के लिए एक पास)", "प्रति चैनल (हर अभिरंजक के लिए एक पास)"),
+    }
+    for language, (bad, good) in cases.items():
+        assert "dye-stain-as-smudge" in _semantic_false_friends(
+            source, bad, language,
+        ), language
+        assert "dye-stain-as-smudge" not in _semantic_false_friends(
+            source, good, language,
+        ), language
+        assert not _translation_candidate_valid(source, bad, language)
+    for blob_source, target, language in (
+        ("DoG blobs", "DoG-Flecken", "de"),
+        ("Stained nuclei appear as bright spots.", "Gefärbte Kerne erscheinen als helle Flecken.", "de"),
+        ("Slowly drifting colour blobs.", "Manchas de color que se desplazan lentamente.", "es"),
+    ):
+        assert "dye-stain-as-smudge" not in _semantic_false_friends(
+            blob_source, target, language,
+        )
+
+
 def test_ko_zh_additional_semantic_families_and_negative_controls():
     from build_i18n_catalogs import _semantic_false_friends
 
@@ -4213,9 +4550,10 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
     # this test noticing: it was still comparing the nine against each
     # other. The row a reader sees is the English one, so that is what the
     # nine are held to.
-    expected = (ROOT / "README.rst").read_text(
-        encoding="utf-8").splitlines()[0]
-    assert expected.startswith("|Platforms|") and expected.endswith(
+    expected = readme_words().splitlines()[0]
+    # |Website| leads the row since N687 (2026-10-10); |Coverage| follows
+    # |Test counts| since N688.
+    assert expected.startswith("|Website|") and expected.endswith(
         "|PyPI rank|"), expected
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
         assert path.read_text(encoding="utf-8").splitlines()[0] == expected, (
@@ -4233,7 +4571,11 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         _readme_substitution_alt_text,
     )
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
+    # 20 since the maintainer's 2026-10-11 badge clean-up removed |Source|,
+    # |Release| (installers) and |Conda Downloads|.
+    # 23 since 2026-10-10: |Docker| joined, after |Website| (N687) and
+    # |Coverage| (N688) made it 22 the same day.
     # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
     # the logo's. It was 14 -- 13 plus the logo -- from the bioRxiv preprint
     # badge until conda-forge downloads and release date, PyPI downloads and
@@ -4241,9 +4583,11 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
     )) + int(bool(_readme_logo_alt_text(canonical))) == 20
+    # 3 since 2026-10-12, when the maintainer removed the "Earlier spaCR
+    # installers" button; the archive page is no longer linked from here.
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
-    )) == 4
+    )) == 3
     assert len(_readme_substitution_alt_text(
         canonical, README_RESOURCE_SUBSTITUTIONS,
     )) == 5
@@ -4269,9 +4613,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     assert not any("Plasmodium" in alt or "Candida" in alt for alt in canonical_alt)
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
-        text = (readme_root / f"README.{language}.rst").read_text(
-            encoding="utf-8"
-        )
+        text = readme_words(readme_root / f"README.{language}.rst")
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
         alt_text += [unescape(value) for value in re.findall(r'\balt="([^"]+)"', text)]
         workflow = text.partition(
@@ -4379,7 +4721,7 @@ def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
     """The actual workflow producer uses the accepted live navigation text."""
     import importlib.util
     fixture = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_workflow_languages_2026_10_08.json").read_text())
+        / "readme_workflow_languages_2026_10_08.json").read_text(encoding="utf-8"))
     spec = importlib.util.spec_from_file_location(
         "readme_organism_visuals", ROOT / "packaging/generate_readme_visuals.py")
     assert spec is not None and spec.loader is not None
@@ -4396,46 +4738,62 @@ def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
 
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
 def test_visual_regeneration_preserves_complete_native_hardware_block(language, monkeypatch, tmp_path):
-    """Regeneration retains every accepted native byte outside changed workflow prose."""
+    """Regeneration is stable, and the drawn table keeps its native legend.
+
+    The hardware block is one image since 2026-10-12, drawn by
+    tools/build_readme_images.py; its alt text reads the table out with the
+    legend's three labels in the README's own language
+    (``readme_i18n.HARDWARE_LEGEND_LABELS``).
+    """
+    pytest.importorskip("uharfbuzz", reason="drawing the README images needs uharfbuzz")
     import importlib.util
-    fixture = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_workflow_languages_2026_10_08.json").read_text())
-    expected = fixture["languages"][language]
-    native_block = expected["accepted_hardware_block"]
-    canonical = native_block.replace(expected["hardware_legend"], fixture["source_hardware_legend"])
+    from readme_i18n import HARDWARE_LEGEND_LABELS
+
     spec = importlib.util.spec_from_file_location(
         "readme_hardware_visuals", ROOT / "packaging/generate_readme_visuals.py")
     assert spec is not None and spec.loader is not None
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
-    monkeypatch.setattr(generator, "_hardware_table", lambda: canonical.strip("\n") + "\n")
+    monkeypatch.setattr(generator.build_readme_images, "IMAGE_DIR",
+                        tmp_path / "images")
     path = tmp_path / f"README.{language}.rst"
-    before = "Before\n.. spacr-hardware-begin\n" + native_block + ".. spacr-hardware-end\nAfter\n"
-    path.write_text(before)
+    path.write_text("Before\n\n.. spacr-hardware-begin\n\n"
+                    ".. spacr-hardware-end\n\nAfter\n", encoding="utf-8")
     assert generator._write_the_hardware_table(path)
-    assert path.read_text() == before
+    first = path.read_text(encoding="utf-8")
     assert generator._write_the_hardware_table(path)
-    assert path.read_text() == before
+    assert path.read_text(encoding="utf-8") == first
+    assert first.startswith("Before\n") and first.endswith("After\n")
+    for label in HARDWARE_LEGEND_LABELS[language]:
+        assert label in first, label
+    committed = (ROOT / "docs/i18n/readme" / f"README.{language}.rst").read_text(
+        encoding="utf-8")
+    block = first.partition(".. spacr-hardware-begin")[2].partition(
+        ".. spacr-hardware-end")[0]
+    assert block in committed
 
 
 def test_readme_builder_reuses_the_same_source_bound_visual_targets():
     """The translation builder and visual producer share accepted target authority."""
     import build_documentation_i18n as builder
     fixture = json.loads((ROOT / "tests/data/release_contracts"
-        / "readme_workflow_languages_2026_10_08.json").read_text())
+        / "readme_workflow_languages_2026_10_08.json").read_text(encoding="utf-8"))
     sample = fixture["source_heading"] + "\n^^^^^^^^\n\n" + fixture["source_note"] + "\n\n" + fixture["source_hardware_legend"] + "\n"
     for language, expected in fixture["languages"].items():
         translated = builder._localize_workflow_alt_text(sample, language)
         assert expected["heading"] in translated
         assert expected["note"] in translated
-        assert expected["hardware_legend"] in translated
+        from readme_i18n import HARDWARE_LEGEND_LABELS
+
+        for label in HARDWARE_LEGEND_LABELS[language]:
+            assert label in translated, (language, label)
         assert builder.REVIEWED_README_BLOCKS[fixture["source_heading"]][language] == expected["heading"]
         assert builder.REVIEWED_README_BLOCKS[fixture["source_note"]][language] == expected["note"]
         assert builder.REVIEWED_README_BLOCKS[re.sub(r"\s+", " ", fixture["source_hardware_legend"])][language] == expected["hardware_legend"]
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
         text = path.read_text(encoding="utf-8")
         for marker in ("**", "``"):
@@ -4466,7 +4824,7 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
         "Cellpose", "SQLite", "FASTQ", "AnnData", "CUDA", "Hugging Face",
         "torchvision",
     }
-    canonical_readme = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical_readme = readme_words()
     protected_terms = {
         term for term in protected_vocabulary if term in canonical_readme
     }
@@ -4484,18 +4842,22 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
     }
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in known_context_errors:
-        text = (readme_root / f"README.{language}.rst").read_text(
-            encoding="utf-8"
-        )
-        module_lines = re.findall(r"(?m)^- \*\*([^*\n]+)\*\* .+$", text)
-        assert module_lines[:6] == expected_modules
+        text = readme_words(readme_root / f"README.{language}.rst")
+        # Paired with the English bullets by position: since 2026-10-10 the
+        # install routes are bold bullets too, and they are translated.
+        bullet = r"(?m)^- \*\*([^*\n]+)\*\*"
+        canonical_labels = re.findall(bullet, canonical_readme)
+        labels = re.findall(bullet, text)
+        assert len(labels) == len(canonical_labels), language
+        assert [label for label, source in zip(labels, canonical_labels)
+                if source in expected_modules] == expected_modules
         missing_terms = sorted(term for term in protected_terms if term not in text)
         assert not missing_terms, f"{language} changed protected terms: {missing_terms}"
         assert not any(error in text for error in known_context_errors[language])
 
 
 def test_localized_readmes_preserve_urls_code_and_table_shape():
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     canonical_urls = sorted(re.findall(r"https?://[^\s>`]+", canonical))
     code_pattern = re.compile(
         r"(?m)^\.\. code-block:: [^\n]+\n\n((?: {3}[^\n]*(?:\n|$))+)",
@@ -4518,16 +4880,15 @@ def test_reviewed_readme_headings_match_the_canonical_source_and_locales():
         translatable_blocks,
     )
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     source_blocks, _ = translatable_blocks(canonical)
     assert "Animated setting guidance" in REVIEWED_README_HEADINGS
     assert "Animated settings guidance" not in REVIEWED_README_HEADINGS
     for source, localized_headings in REVIEWED_README_HEADINGS.items():
         assert source_blocks.count(source) == 1
         for language, heading in localized_headings.items():
-            localized = (
-                ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst"
-            ).read_text(encoding="utf-8")
+            localized = readme_words(
+                ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst")
             assert heading in localized, (source, language, heading)
 
 
@@ -4546,7 +4907,7 @@ def test_localized_readmes_have_as_many_sections_as_the_english_one():
     """
     from readme_i18n import _HEADING
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    canonical = readme_words()
     expected = [m.group("title") for m in _HEADING.finditer(canonical)]
     for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
             "README.*.rst")):
@@ -4561,9 +4922,7 @@ def test_localized_readmes_have_as_many_sections_as_the_english_one():
 def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():
     readme_root = ROOT / "docs" / "i18n" / "readme"
     readmes = {
-        language: (readme_root / f"README.{language}.rst").read_text(
-            encoding="utf-8"
-        )
+        language: readme_words(readme_root / f"README.{language}.rst")
         for language in ("de", "es", "hi", "ko", "pt", "sv", "zh_CN")
     }
 

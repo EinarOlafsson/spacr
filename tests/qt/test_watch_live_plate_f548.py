@@ -80,6 +80,31 @@ def test_mask_watch_fills_wells_as_fields_finish(qtbot, tmp_path, monkeypatch):
         plate.close()
 
 
+def test_a_refresh_after_watch_reset_cannot_restore_old_results(
+        qtbot, tmp_path, monkeypatch):
+    from spacr.qt import preferences
+    from spacr.qt.screens.plate_view import _WatchLivePlate
+
+    monkeypatch.setattr(preferences, "_is_alpha_visible", lambda *_: True)
+    _ledger(tmp_path, {"plate1_A01_0001_001": {"status": "done"}})
+    plate = _WatchLivePlate()
+    qtbot.addWidget(plate)
+    plate.begin(str(tmp_path), "mask")
+    assert plate._grid.well_count(1, 1) == 1
+    assert plate._timer.isActive()
+
+    plate.reset()
+    _ledger(tmp_path, {"plate2_B02_0001_001": {"status": "done"}})
+    plate._timer.timeout.emit()
+
+    assert plate.is_active() is False
+    assert not plate._timer.isActive()
+    assert plate.isHidden()
+    assert plate._wells == {}
+    assert plate._plate.currentText() == "plate1"
+    assert plate._grid.well_count(2, 2) == 0
+
+
 def test_live_plate_keeps_last_commit_when_snapshots_are_unreadable(
         qtbot, tmp_path, monkeypatch):
     from spacr.qt import preferences

@@ -1,0 +1,68 @@
+{
+  "base": "f8260ead02bc57b5253aefbde852f1c0d349ac89",
+  "hosted_run": 38699600639,
+  "scope": "Only dependency profile/recipe consistency with existing setup.py declarations",
+  "source_proof": {
+    ".github/constraints/minimum-py39.txt": {
+      "before_sha256": "0cc157e6ea27d982f81e4b90e504b8df0bd768bd7fda495d8c5f64270686386d",
+      "after_sha256": "395c425412ea45a8a3afdac9afdd7db7878c6dcde72de6b2273a83bf982ba18f",
+      "only_added_lines": [
+        "paramiko==3.5\n",
+        "markdown-it-py==2.2\n",
+        "readme-renderer==43\n"
+      ],
+      "all_prior_bytes_unchanged": true
+    },
+    "conda-forge/recipe/recipe.yaml": {
+      "before_sha256": "4b37f63ac639cecf62a7e4122413893b8e04e2c1520318418a13862eb6eb8a0c",
+      "after_sha256": "59df560f74518b39cc91462d99bc93568ac67f3bd68e3830bb2ed9fa51f93f7f",
+      "only_added_lines": [
+        "    - paramiko >=3.5,<5\n"
+      ],
+      "all_prior_bytes_unchanged": true
+    }
+  },
+  "baseline": {
+    "failed": 2,
+    "seconds": 0.38,
+    "minimum_missing": [
+      "markdown-it-py",
+      "paramiko",
+      "readme-renderer"
+    ],
+    "conda_missing": [
+      "paramiko"
+    ]
+  },
+  "intermediate": {
+    "failed": 1,
+    "passed": 5,
+    "seconds": 0.48,
+    "remaining_missing": [
+      "markdown-it-py",
+      "readme-renderer"
+    ],
+    "note": "Initial summary omitted two dev extras; corrected from full retained raw baseline before additional authorized fix."
+  },
+  "final_affected_minimum_and_guards": {
+    "passed": 4,
+    "seconds": 0.35
+  },
+  "final_conda_evidence": "Two conda metadata/floor checks passed in intermediate5; subsequent changes only add minimum-profile dev pins, conda/setup/test bytes unchanged. No duplicate rerun.",
+  "distinct_metadata_contracts_pass": 6,
+  "resource": "Background capped2G; pytest --noconftest with plugin auto loading disabled; AST/packaging/YAML only",
+  "unchanged": [
+    "setup.py",
+    "all dependency floors",
+    "all existing dependency lines",
+    "all tests",
+    "workflows",
+    "spacr production code"
+  ],
+  "limits": [
+    "Metadata contract checks only; no resolver or actual minimum-install certification",
+    "No conda build/native package acceptance",
+    "No package installation, new environment, network or upload",
+    "No full hosted CI claim"
+  ]
+}

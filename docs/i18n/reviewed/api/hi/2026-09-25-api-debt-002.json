@@ -26,7 +26,9 @@
       "source_sha256": "c9b8abe78b419bb3892111c9a5cc7e2f4fa7af17bd7400d54d3f972534d2e882",
       "context": "The enhancement chain travels the same route. Make Masks' chain (:mod:`spacr.qt.detect_chain`) is written into a settings file as the ``enhance_*`` structured-data names and read back here by :func:`prepare_chain`, with the ``psf_*`` settings folded in as the chain's PSF stage, so one plate run applies exactly the steps a curator tuned, in the chain's own order: background, PSF, denoise, contrast, sharpen. The session applies it per selected channel at the stage the PSF already ran -- after illumination correction and before normalization -- and its provenance goes into the same ``psf/segmentation_application.json`` record, so a changed chain is refused on resume the way a changed kernel is. With no chain step on, a processing session is byte for byte what it was before the chain existed.",
       "translation": "एन्हांसमेंट शृंखला भी उसी मार्ग से जाती है। Make Masks की शृंखला (:mod:`spacr.qt.detect_chain`) सेटिंग्स फ़ाइल में ``enhance_*`` कुंजियों के रूप में लिखी जाती है और यहाँ :func:`prepare_chain` द्वारा वापस पढ़ी जाती है, ``psf_*`` सेटिंग्स को शृंखला के PSF चरण के रूप में शामिल करके, ताकि एक प्लेट रन ठीक वही चरण लागू करे जिन्हें क्यूरेटर ने समायोजित किया, शृंखला के अपने क्रम में: पृष्ठभूमि, PSF, शोर हटाना, कंट्रास्ट, शार्पन। सत्र इसे हर चुने गए चैनल पर उसी चरण में लागू करता है जहाँ PSF पहले से चलता था -- प्रदीप्ति सुधार के बाद और सामान्यीकरण से पहले -- और इसका उद्गम उसी ``psf/segmentation_application.json`` रिकॉर्ड में जाता है, ताकि बदली हुई शृंखला रिज़्यूम पर वैसे ही अस्वीकार हो जैसे बदला हुआ कर्नेल। कोई शृंखला चरण चालू न होने पर रन बाइट-दर-बाइट वैसा ही है जैसा शृंखला के अस्तित्व से पहले था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.PSFPlan#0",
@@ -384,7 +386,9 @@
       "source_sha256": "246def0f041c1409feda629fdfd446c2485402f36d7075ac4382faa4a2d4747d",
       "context": "The commands are not here. Each tool's ``install_methods`` in :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from, and :func:`plan_install` picks the first of those rows whose programs are on ``PATH``. The command the Install button runs and the command the application view shows are therefore one definition.",
       "translation": "कमांड यहाँ नहीं हैं। हर टूल के ``install_methods``, जो :mod:`spacr.qt.ai.providers` में हैं, वे पंक्तियाँ हैं जिनसे उसका ``install_hint`` बनता है, और :func:`plan_install` उन पंक्तियों में से पहली चुनता है जिसके प्रोग्राम ``PATH`` पर हों। इसलिए Install बटन जो कमांड चलाता है और पेज जो कमांड दिखाता है, वे एक ही परिभाषा हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.cli_install#3",
@@ -1167,7 +1171,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.ai.providers#6",
+      "label": "spacr.qt.ai.providers#7",
       "source": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` a screen shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
       "source_sha256": "5e39a047e529c1f881b126d604183a6aa1aeaf05947e692118f706eb62fbbd7a",
       "context": "How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds one row per way of installing it on each operating system, and both the ``install_hint`` an application view shows and the command :mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI is described the same way by :class:`GitHubCli`, which shares the :class:`CommandLineTool` interface without being a chat provider.",
@@ -1932,7 +1936,9 @@
       "source_sha256": "c836fe76e6e33d73dd33ddefe4073b45da80df259f86ec9a7e9f27693cefb428",
       "context": "The exception's class name is prefixed only when it says something. The console writes this text after \"[AI error] \", so for a :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message is written to be read there, down to the sign-in command to execute -- the prefix turned a sentence the user could act on into \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\". Every other exception keeps its class, which is often the only thing naming what went wrong: a bare ``[Errno 2] No such file or directory`` does not say it is a FileNotFoundError.",
       "translation": "अपवाद के क्लास का नाम केवल तभी आगे जोड़ा जाता है जब वह कुछ बताता हो। कंसोल यह पाठ \"[AI error] \" के बाद लिखता है, इसलिए :class:`~spacr.qt.ai.providers.ProviderFailed` के लिए -- जिसका पूरा संदेश वहीं पढ़े जाने के लिए लिखा गया है, चलाए जाने वाले साइन-इन कमांड तक -- उपसर्ग ने ऐसे वाक्य को, जिस पर उपयोगकर्ता कार्रवाई कर सकता था, \"[AI error] ProviderFailed: claude stopped with exit status 1: ...\" में बदल दिया। हर अन्य अपवाद अपना क्लास बनाए रखता है, जो अक्सर यह बताने वाली एकमात्र चीज़ होती है कि क्या गलत हुआ: अकेला ``[Errno 2] No such file or directory`` नहीं बताता कि यह FileNotFoundError है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.worker.make_stream_thread#6",
@@ -2222,10 +2228,12 @@
       "source_sha256": "0c5897d28eb2fad004dd0d40a004debc1fa060de3ae2fe8980d1d9df73276c0a",
       "context": "Found by object name rather than by tab index or caption. An index moves whenever a tab is added, and a caption is translated -- a Korean interface would have matched nothing. Every page sets its own ``PreferencesTab*`` name, and ``tools/build_help_search_index.py`` reads those same names out of this dialog's source, so the two ends of the hand-off are the same string by construction.",
       "translation": "टैब सूचकांक या शीर्षक के बजाय ऑब्जेक्ट नाम से खोजा जाता है। टैब जुड़ने पर सूचकांक खिसक जाता है, और शीर्षक का अनुवाद होता है -- कोरियाई इंटरफ़ेस में कुछ भी मेल नहीं खाता। हर पेज अपना ``PreferencesTab*`` नाम सेट करता है, और ``tools/build_help_search_index.py`` इस डायलॉग के स्रोत से वही नाम पढ़ता है, इसलिए हस्तांतरण के दोनों सिरे बनावट से ही एक ही स्ट्रिंग हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#3",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
       "source": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
       "source_sha256": "9f0052a9a81d8400f82fe320962b33352ae44ceba660115cd408ae2c43690541",
       "context": "the page's object name, e.g. ``\"PreferencesTabTheme\"``; ``\"\"`` opens the dialog as it opens from the menu.",
@@ -2233,7 +2241,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#4",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
       "source": "the row caption to mark; ``\"\"`` marks nothing.",
       "source_sha256": "a3be99ebb93ec0073e762e4d98cc1514803b5d9afc5d14cf2e3f7e96730eadc0",
       "context": "the row caption to mark; ``\"\"`` marks nothing.",
@@ -2241,7 +2249,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.app.MainWindow.show_preferences_on#5",
+      "label": "spacr.qt.app.MainWindow.show_preferences_on#6",
       "source": "True when the named tab was found and shown.",
       "source_sha256": "fa71c9df699d90297223a68741f5e590e7d1d8a1ffbbcc24733a1234014615f7",
       "context": "True when the named tab was found and shown.",
@@ -2408,7 +2416,9 @@
       "source_sha256": "b29baa686269577add3c782ea181a66af78eba381f7ab23a010f3fb86973fe92",
       "context": "Its own folder per set. Both ship ``measurements/measurements.db``, as the Annotate example in the shared plate does, so each unpacks beside that plate (:func:`spacr.example_archives.example_set_folder`) rather than into it.",
       "translation": "हर सेट का अपना फ़ोल्डर। दोनों ``measurements/measurements.db`` के साथ आते हैं, जैसे साझा प्लेट में Annotate उदाहरण आता है, इसलिए हर एक उस प्लेट के भीतर नहीं, बल्कि उसके बगल में अनपैक होता है (:func:`spacr.example_archives.example_set_folder`)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples#4",
@@ -2416,7 +2426,9 @@
       "source_sha256": "b6338a495d3d9a48ca16156bcb0ad2777c11978e41c0920a600f5543e9b08937",
       "context": "The same pattern as the other examples. One uncompressed ``.tar`` streamed to a ``.part`` file on a background execution unit behind the shared progress dialog, unpacked through the tar data filter, ``<dataset>`` in the settings replaced with where it landed, and cached: a second press uses the copy on disk.",
       "translation": "अन्य उदाहरणों वाला ही पैटर्न। एक असंपीड़ित ``.tar``, जिसे साझा प्रगति डायलॉग के पीछे वर्कर थ्रेड पर एक ``.part`` फ़ाइल में स्ट्रीम किया जाता है, tar डेटा फ़िल्टर से अनपैक किया जाता है, सेटिंग्स में ``<dataset>`` को उसके पहुँचने के स्थान से बदला जाता है, और कैश किया जाता है: दूसरी बार दबाने पर डिस्क पर मौजूद प्रति उपयोग होती है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.assay_examples.download_assay_example#0",
@@ -2768,7 +2780,9 @@
       "source_sha256": "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
       "context": "So the threshold algorithms here are names of a level and nothing else. Each is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the level -- the smoothing, the threshold correction, the bright or dark side, filling holes, the watershed split, the border rule, the minimum area -- is the code Otsu already went through. Choosing Li instead of Otsu changes where one number comes from and nothing else, which is exactly what it should change.",
       "translation": "इसलिए यहाँ के थ्रेशोल्ड एल्गोरिदम केवल एक स्तर के नाम हैं, और कुछ नहीं। हर एक :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` या :data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS` में एक पंक्ति है, और स्तर के आसपास सब कुछ -- चिकनाई, थ्रेशोल्ड सुधार, चमकीला या अँधेरा पक्ष, छिद्र भरना, watershed विभाजन, सीमा नियम, न्यूनतम क्षेत्रफल -- वही कोड है जिससे Otsu पहले से गुज़रता था। Otsu के बजाय Li चुनने से केवल यह बदलता है कि एक संख्या कहाँ से आती है, और कुछ नहीं, और ठीक यही बदलना चाहिए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes#3",
@@ -2784,7 +2798,9 @@
       "source_sha256": "4288a6aafe7cfcc155385e59e3aaff0dc88c435d9f0fc20979690afd09b78dcb",
       "context": "What is not here, AND WHY. Local MEAN and local GAUSSIAN thresholding are not offered again: they are the Adaptive threshold mode, which runs the organelle engine's ``adaptive`` branch with a block size and an offset. Local OTSU is not offered again either: it is the \"Local threshold (uneven illumination)\" switch in plain Otsu mode, used by whole-image detection. Other named thresholds ignore saved Local Otsu and class-count settings; Multi-Otsu alone uses the selected class count and band in both scopes. Plain Otsu retains its legacy magnifier preprocessing, while the other thresholds use the whole-image engine on the requested extracted image region. Niblack uses ``T = m - k*s``; Sauvola uses ``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and standard deviation. The engine supplies float32 values without rescaling their range, so scikit-image's default Sauvola ``R`` is 1. These formulas are different, and changing the intensity scale can change Sauvola's result.",
       "translation": "यहाँ क्या नहीं है, और क्यों। स्थानीय MEAN और स्थानीय GAUSSIAN थ्रेशोल्डिंग फिर से प्रस्तुत नहीं की जाती: वे Adaptive threshold मोड हैं, जो ऑर्गेनेल इंजन की ``adaptive`` शाखा को ब्लॉक आकार और ऑफ़सेट के साथ चलाता है। स्थानीय OTSU भी फिर से प्रस्तुत नहीं किया जाता: यह साधारण Otsu मोड में \"Local threshold (uneven illumination)\" स्विच है, जिसे पूरी-छवि पहचान उपयोग करती है। अन्य नामित थ्रेशोल्ड सहेजी गई Local Otsu और वर्ग-संख्या सेटिंग्स को अनदेखा करते हैं; केवल Multi-Otsu दोनों दायरों में चुनी गई वर्ग संख्या और बैंड का उपयोग करता है। साधारण Otsu अपनी पुरानी मैग्निफ़ायर प्रीप्रोसेसिंग बनाए रखता है, जबकि अन्य थ्रेशोल्ड अनुरोधित क्रॉप पर पूरी-छवि इंजन का उपयोग करते हैं। Niblack ``T = m - k*s`` का उपयोग करता है; Sauvola ``T = m*(1 + k*(s/R - 1))`` का उपयोग करता है, जहाँ ``m`` और ``s`` स्थानीय माध्य और मानक विचलन हैं। इंजन float32 मानों को उनकी सीमा रीस्केल किए बिना देता है, इसलिए scikit-image का डिफ़ॉल्ट Sauvola ``R`` 1 है। ये सूत्र अलग हैं, और तीव्रता पैमाना बदलने से Sauvola का परिणाम बदल सकता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#0",
@@ -2832,7 +2848,9 @@
       "source_sha256": "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
       "context": "the Gaussian blur before the maxima are found, in pixels. separate from the image enhancement chain's denoise, which has already run by the time a detector sees the image: this one exists because the blur that makes one object have one centre is usually far stronger than the blur anyone wants the object's EDGE measured through, and the propagation measures the edge on the same blurred image. Leave the chain's denoise off unless the microscope field of view is genuinely noisy, or the two blurs compound.",
       "translation": "अधिकतम बिंदु खोजने से पहले गाउसियन धुंधलापन, पिक्सेल में। यह छवि एन्हांसमेंट शृंखला के शोर हटाने से अलग है, जो डिटेक्टर के छवि देखने तक पहले ही चल चुका होता है: यह इसलिए मौजूद है क्योंकि एक ऑब्जेक्ट को एक केंद्र देने वाला धुंधलापन आमतौर पर उस धुंधलेपन से कहीं अधिक होता है जिससे कोई ऑब्जेक्ट का किनारा मापना चाहेगा, और प्रसार किनारे को इसी धुंधली छवि पर मापता है। जब तक फ़ील्ड वास्तव में शोरयुक्त न हो, शृंखला का शोर हटाना बंद रखें, अन्यथा दोनों धुंधलापन जुड़ जाते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.cpu_modes.CpuParams#4",
@@ -3256,7 +3274,9 @@
       "source_sha256": "70e64ca0b72f05175a26ba1386fa2282c6f6d73249836c192107aea0adf96ed5",
       "context": "The same chain reaches mask generation. The image steps -- everything before ``detect`` -- are written as Mask settings by :func:`chain_settings`, one ``enhance_<field>`` structured-data name per :data:`SETTINGS_FIELDS` entry, and read back by :func:`spacr.psf_pipeline.prepare_chain`, which the V1 and V2 Mask workflows and the Mask Live preview apply to every selected segmentation image data channel after illumination correction and before normalization, at the stage the PSF already ran. Morphology and split act on a detector's labels and are Make Masks' own; a plate processing session's Cellpose labels are not reshaped by them. The Mask settings ``remove_background``, ``background`` and ``signal_to_noise`` are per-image data channel intensity floors applied by normalization afterwards, and :func:`spacr.object._preprocess_batch` is the organelle batches' own rolling ball and CLAHE; neither is configured here.",
       "translation": "वही शृंखला मास्क निर्माण तक पहुँचती है। छवि चरण -- ``detect`` से पहले का सब कुछ -- :func:`chain_settings` द्वारा Mask सेटिंग्स के रूप में लिखे जाते हैं, एक ``enhance_<field>`` कुंजी प्रति :data:`SETTINGS_FIELDS` प्रविष्टि, और :func:`spacr.psf_pipeline.prepare_chain` द्वारा वापस पढ़े जाते हैं, जिसे V1 और V2 Mask पाइपलाइन और Mask Live पूर्वावलोकन हर चुने गए सेगमेंटेशन चैनल पर प्रदीप्ति सुधार के बाद और सामान्यीकरण से पहले लागू करते हैं, उसी चरण में जहाँ PSF पहले से चलता था। आकृति-विज्ञान और विभाजन डिटेक्टर के लेबलों पर काम करते हैं और Make Masks के अपने हैं; प्लेट रन के Cellpose लेबल इनसे नहीं बदलते। Mask सेटिंग्स ``remove_background``, ``background`` और ``signal_to_noise`` प्रति-चैनल तीव्रता निचली सीमाएँ हैं जिन्हें बाद में सामान्यीकरण लागू करता है, और :func:`spacr.object._preprocess_batch` कोशिकांग बैचों का अपना rolling ball और CLAHE है; इनमें से कोई भी यहाँ कॉन्फ़िगर नहीं होता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.Chain#0",
@@ -3600,7 +3620,9 @@
       "source_sha256": "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
       "context": "Morphology and the split are both questions about which pixels are one object, so both are asked of the detection as a whole: the labels are read as a foreground, reshaped, and labelled again. The ids therefore change, which costs nothing here -- Make Masks renumbers every object it pastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).",
       "translation": "आकृति-विज्ञान और विभाजन दोनों इस प्रश्न से जुड़े हैं कि कौन-से पिक्सेल एक ऑब्जेक्ट हैं, इसलिए दोनों पूरी पहचान से पूछे जाते हैं: लेबलों को अग्रभूमि के रूप में पढ़ा जाता है, नया आकार दिया जाता है, और फिर से लेबल किया जाता है। इसलिए id बदल जाती हैं, जिसकी यहाँ कोई कीमत नहीं -- Make Masks मास्क में चिपकाए गए हर ऑब्जेक्ट को फिर से क्रमांकित करता है (:func:`spacr.qt.mask_engine._paste_region_objects`)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.finish#2",
@@ -3752,7 +3774,9 @@
       "source_sha256": "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
       "context": "Only the steps that ran, plus the order they ran in, so an entry says what was done rather than listing fourteen defaults around it; a chain with nothing on records nothing but the switch that was off. The order is written out because it is what makes the entry enough to reproduce the mask: the same steps in another order are another mask.",
       "translation": "केवल वे चरण जो चले, साथ में उनके चलने का क्रम, ताकि प्रविष्टि बताए कि क्या किया गया, न कि उसके आसपास चौदह डिफ़ॉल्ट सूचीबद्ध करे; कुछ भी चालू न होने वाली शृंखला केवल बंद स्विच दर्ज करती है। क्रम इसलिए लिखा जाता है क्योंकि वही प्रविष्टि को मास्क पुनरुत्पादित करने के लिए पर्याप्त बनाता है: किसी अन्य क्रम में वही चरण एक अलग मास्क हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.detect_chain.provenance#2",
@@ -4530,7 +4554,9 @@
       "source_sha256": "900aa4f1c61ba978bc58bbb8974e49f399076110abeb57b0d9b64e2e98334146",
       "context": "The whole-GUI scale, applied live: one factor for every size spaCR sets (471).",
       "translation": "पूरे GUI का पैमाना, लाइव लागू: spaCR द्वारा सेट किए जाने वाले हर आकार के लिए एक गुणक (471)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#1",
@@ -4538,7 +4564,9 @@
       "source_sha256": "9ab613242a15c75c9efb61bf7209c349195e6183113fe75db1d987169d8082b3",
       "context": "What it is. \"GUI scale\" in Preferences (10 % to 200 %, default 100 %) scales widget sizes, fixed sizes, margins, spacing, style-sheet sizes (fonts and paddings included), icons, splitter sizes and figure dpi -- and it does so while spaCR runs, with no restart.",
       "translation": "यह क्या है। Preferences में \"GUI scale\" (10 % से 200 %, डिफ़ॉल्ट 100 %) विजेट आकार, निश्चित आकार, मार्जिन, अंतराल, स्टाइल-शीट आकार (फ़ॉन्ट और पैडिंग सहित), आइकन, स्प्लिटर आकार और चित्र dpi को स्केल करता है -- और यह spaCR के चलते हुए, बिना पुनः आरंभ के, करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#10",
@@ -4546,7 +4574,9 @@
       "source_sha256": "369ad5c26f2b4f62d573919be1998e7e6cce2f3f94e067f038ee597f1c8a2dc5",
       "context": "What does not follow live. Sizes the scale cannot see because they do not pass through a setter: text and shapes a widget paints itself at fixed pixel coordinates, pixmaps a widget scales to a number it computed, ``setFont`` with an explicit size, ``move``/``setGeometry`` positions, header section sizes, a Python ``sizeHint`` override that returns a constant, the Fusion style's own metrics that the theme sheet does not restate, and pyqtgraph's axis text. Sizes computed from font metrics are already scaled once by the font and are scaled again by the setter -- the one way the layer can over-shrink. The main window's own size is left alone, so the gained room goes to the content.",
       "translation": "जो लाइव अनुसरण नहीं करता। वे आकार जिन्हें पैमाना देख नहीं सकता क्योंकि वे किसी सेटर से नहीं गुज़रते: निश्चित पिक्सेल निर्देशांकों पर विजेट द्वारा स्वयं पेंट किया गया पाठ और आकृतियाँ, विजेट द्वारा स्वयं गणना की गई संख्या पर स्केल किए गए pixmap, स्पष्ट आकार वाला ``setFont``, ``move``/``setGeometry`` स्थितियाँ, हेडर खंड आकार, स्थिरांक लौटाने वाला Python ``sizeHint`` ओवरराइड, Fusion स्टाइल की अपनी मीट्रिक जिन्हें थीम शीट दोबारा नहीं बताती, और pyqtgraph का अक्ष पाठ। फ़ॉन्ट मीट्रिक से गणना किए गए आकार फ़ॉन्ट द्वारा पहले ही एक बार स्केल होते हैं और सेटर द्वारा फिर से स्केल होते हैं -- यही एकमात्र तरीका है जिससे परत अधिक सिकोड़ सकती है। मुख्य विंडो का अपना आकार छोड़ दिया जाता है, ताकि मिली जगह सामग्री को जाए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#2",
@@ -4554,7 +4584,9 @@
       "source_sha256": "0d511c0418e05b0c00ad63ba750390f99f5936fa708fd2bc1335f47e3e6e10d7",
       "context": "HOW, without touching 1,420 call sites. Counted on nightly 2026-09-22 across the 328 modules under ``spacr/qt``: about 1,420 hard-coded geometry calls in 181 files (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) and 486 ``px`` literals in style-sheet text in 64 files. Routing each by hand is a change to every application view, and every size added later would have to remember it. Instead :func:`install_scaling_layer` -- called once from :func:`spacr.qt.app.launch` before the first widget exists -- replaces the setters themselves on the Qt classes (``QWidget``'s size setters and ``setStyleSheet``, the layouts' margin and spacing setters, every ``setIconSize``, ``QSplitter.setSizes``). Each replacement",
       "translation": "कैसे, 1,420 कॉल स्थलों को छुए बिना। nightly 2026-09-22 पर ``spacr/qt`` के अंतर्गत 328 मॉड्यूल में गिना गया: 181 फ़ाइलों में लगभग 1,420 हार्ड-कोडेड ज्यामिति कॉल (470 ``setContentsMargins``, 489 ``setSpacing``, 179 ``setMinimumWidth/Height``, 67 ``setMaximumWidth/Height``, 74 ``setFixed*``, 30 ``setMinimumSize``, 56 ``QSize``, 64 ``resize``, 6 ``setIconSize``) और 64 फ़ाइलों में स्टाइल-शीट पाठ में 486 ``px`` लिटरल। हर एक को हाथ से बदलना हर पेज में बदलाव है, और बाद में जोड़े गए हर आकार को इसे याद रखना पड़ता। इसके बजाय :func:`install_scaling_layer` -- पहला विजेट बनने से पहले :func:`spacr.qt.app.launch` से एक बार कॉल किया जाता है -- Qt क्लासों पर स्वयं सेटर बदल देता है (``QWidget`` के आकार सेटर और ``setStyleSheet``, लेआउट के मार्जिन और अंतराल सेटर, हर ``setIconSize``, ``QSplitter.setSizes``)। हर प्रतिस्थापन",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#3",
@@ -4586,7 +4618,9 @@
       "source_sha256": "d84fd2775db6aeb4df1d57fe95c34937090217ed98fdb4f6e311146ff2c1f2c4",
       "context": "A change of scale (:func:`set_gui_scale_live`) walks every live widget and layout, puts every remembered value back at the new scale, and asks the windows to lay out again. A widget built later is scaled as it is built. A splitter's panes keep the room they have on application view -- what shrinks is what is inside them -- and ``sizes()`` answers in 100 % units, so the sizes slice B persists survive a change of scale.",
       "translation": "पैमाने का परिवर्तन (:func:`set_gui_scale_live`) हर जीवित विजेट और लेआउट से गुज़रता है, हर याद रखे गए मान को नए पैमाने पर वापस रखता है, और विंडो से फिर से लेआउट करने को कहता है। बाद में बना विजेट बनते समय ही स्केल होता है। स्प्लिटर के पैन पेज पर अपनी जगह बनाए रखते हैं -- जो सिकुड़ता है वह उनके भीतर की सामग्री है -- और ``sizes()`` 100 % इकाइयों में उत्तर देता है, इसलिए slice B द्वारा सहेजे गए आकार पैमाने के परिवर्तन के बाद भी बचे रहते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#7",
@@ -4594,7 +4628,9 @@
       "source_sha256": "287e0858d3fba78f1d04aa7e07f4ec1c4ea505daba323c8fa39878b2f4c7ba35",
       "context": "How it composes with font scale. Font scale stays where it is: it writes the font sizes into the theme's style sheet. That sheet goes through the ``setStyleSheet`` replacement like any other, so a font size ends up as base x font scale x GUI scale. 50 % GUI at 200 % font is half-size widgets with text the usual size on application view.",
       "translation": "फ़ॉन्ट पैमाने के साथ यह कैसे मिलता है। फ़ॉन्ट पैमाना जहाँ है वहीं रहता है: यह फ़ॉन्ट आकार थीम की स्टाइल शीट में लिखता है। वह शीट किसी भी अन्य की तरह ``setStyleSheet`` प्रतिस्थापन से गुज़रती है, इसलिए फ़ॉन्ट आकार अंततः आधार x फ़ॉन्ट पैमाना x GUI पैमाना होता है। 200 % फ़ॉन्ट पर 50 % GUI का अर्थ है आधे आकार के विजेट और पेज पर सामान्य आकार का पाठ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#8",
@@ -4602,7 +4638,9 @@
       "source_sha256": "798a0fa963dec6277795c908e1e884dd28bcf9391920062b7b414e0024db05d1",
       "context": "A user's own ``QT_SCALE_FACTOR`` is not touched and multiplies on the outside, as Qt always has.",
       "translation": "उपयोगकर्ता का अपना ``QT_SCALE_FACTOR`` छुआ नहीं जाता और बाहर से गुणा होता है, जैसा Qt हमेशा करता आया है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale#9",
@@ -4610,7 +4648,9 @@
       "source_sha256": "94fd01a0e5fdf4cd1e11dafd9821daa322aa5ff7629981afcd7e67eb53b54aee",
       "context": "Keep or revert. Every change of GUI scale or font scale applies at once and then asks \"Keep these settings?\" (:class:`KeepOrRevertDialog`), counting down 15 s; the countdown, Esc and closing the dialog all put the old values back. The dialog is exempt from the scale and sets its own text size, so it is readable at 10 % GUI and 10 % font alike. ``Ctrl+Alt+0`` (:func:`reset_every_scale`) remains the backup.",
       "translation": "रखें या वापस लें। GUI पैमाने या फ़ॉन्ट पैमाने का हर परिवर्तन तुरंत लागू होता है और फिर पूछता है \"Keep these settings?\" (:class:`KeepOrRevertDialog`), 15 s की उलटी गिनती के साथ; उलटी गिनती, Esc और डायलॉग बंद करना, सभी पुराने मान वापस रख देते हैं। डायलॉग पैमाने से मुक्त है और अपना पाठ आकार स्वयं सेट करता है, इसलिए यह 10 % GUI और 10 % फ़ॉन्ट दोनों पर पठनीय है। ``Ctrl+Alt+0`` (:func:`reset_every_scale`) बैकअप बना रहता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.gui_scale.add_listener#0",

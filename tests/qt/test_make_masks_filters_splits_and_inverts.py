@@ -574,7 +574,7 @@ def test_the_warning_is_not_inside_the_settings_panel(screen):
     """The Settings toggle hides that panel; the magnifier goes on inverting."""
     screen._cp_invert.setChecked(True)
     assert not screen._settings_scroll.isAncestorOf(screen._invert_warning)
-    screen._btn_settings.setChecked(False)
+    screen._set_settings_shown(False)
     assert not screen._invert_warning.isHidden()
 
 

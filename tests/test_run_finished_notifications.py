@@ -490,7 +490,7 @@ def test_a_secret_without_a_keyring_goes_to_a_mode_600_file(tmp_path,
 
     assert run_journal._store_notify_secret("ntfy_token", "tk-1") == "file"
     assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
-    assert json.loads(path.read_text()) == {"ntfy_token": "tk-1"}
+    assert json.loads(path.read_text(encoding="utf-8")) == {"ntfy_token": "tk-1"}
     assert run_journal._load_notify_secret("ntfy_token") == "tk-1"
     assert run_journal._load_notify_secret("smtp_password") == ""
     assert run_journal._store_notify_secret("ntfy_token", "") == "forgotten"

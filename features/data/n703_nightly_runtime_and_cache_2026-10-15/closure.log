@@ -1,0 +1,21 @@
+bringing up nodes...
+bringing up nodes...
+
+......................F.......F............................              [100%]
+=================================== FAILURES ===================================
+_ test_changed_same_size_source_invalidates_old_cache_without_deleting_it[True] _
+[gw0] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_runtime_source_timestamp_collision_703.py:26: in test_changed_same_size_source_invalidates_old_cache_without_deleting_it
+    assert prime.returncode == 0 and prime.stdout.strip() == '1.5.1.4'
+E   assert (1 == 0)
+E    +  where 1 = CompletedProcess(args=['/mnt/wd4tb/scratch/n703-nightly-runtime-update-20261015/closure-tmp/popen-gw0/test_changed_sam... call last):\n  File "<string>", line 1, in <module>\nAttributeError: module \'spacr.qt\' has no attribute \'main\'\n').returncode
+_ test_changed_same_size_source_invalidates_old_cache_without_deleting_it[False] _
+[gw1] linux -- Python 3.12.13 /home/olafsson/anaconda3/envs/spacr/bin/python
+tests/test_runtime_source_timestamp_collision_703.py:26: in test_changed_same_size_source_invalidates_old_cache_without_deleting_it
+    assert prime.returncode == 0 and prime.stdout.strip() == '1.5.1.4'
+E   assert (1 == 0)
+E    +  where 1 = CompletedProcess(args=['/mnt/wd4tb/scratch/n703-nightly-runtime-update-20261015/closure-tmp/popen-gw1/test_changed_sam... call last):\n  File "<string>", line 1, in <module>\nAttributeError: module \'spacr.qt\' has no attribute \'main\'\n').returncode
+=========================== short test summary info ============================
+FAILED tests/test_runtime_source_timestamp_collision_703.py::test_changed_same_size_source_invalidates_old_cache_without_deleting_it[True]
+FAILED tests/test_runtime_source_timestamp_collision_703.py::test_changed_same_size_source_invalidates_old_cache_without_deleting_it[False]
+2 failed, 57 passed in 41.94s

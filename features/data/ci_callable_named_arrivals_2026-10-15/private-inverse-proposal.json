@@ -1,0 +1,34 @@
+{
+  "prior_accepted_source_sha256": "8683003b65259befc8e9f5879b4bcee06a4733b9319091a9b43a157050542dee",
+  "proposed_source_sha256": "a2e742d40768254f30efdd66ad7e68733b133e1a7d720f90f3031621da53611c",
+  "patch_sha256": "db39a3d15ce2812c190792f99417630580433f450f7f603325e186ee5c28cabf",
+  "private_sources": {
+    "spacr.crop_loader.CropPlan": {
+      "_source": "_source: Any = field(default=None, repr=False, compare=False)"
+    },
+    "spacr.model_zoo.ModelEntry": {
+      "_curated_card": "_curated_card: bool = _dc_field(default=False, compare=False, repr=False)"
+    },
+    "spacr.ome_zarr.OmeZarrImage": {
+      "_store": "_store: Any = field(default=None, repr=False, compare=False)"
+    },
+    "spacr.ops_stitch.StitchedWell": {
+      "_residuals": "_residuals: Optional[np.ndarray] = field(default=None, repr=False)"
+    },
+    "spacr.run_journal.Run": {
+      "_path_candidates": "_path_candidates: List[Tuple[str, Path, bool]] = field(default_factory=list, repr=False)",
+      "_baseline": "_baseline: Dict[str, Tuple[int, int]] = field(default_factory=dict, repr=False)",
+      "_start_cpu_s": "_start_cpu_s: float = field(default_factory=time.process_time, repr=False)",
+      "_ledgers": "_ledgers: List[Dict[str, Any]] = field(default_factory=list, repr=False)"
+    },
+    "spacr.runctx.RunContext": {
+      "_resource_sampler": "_resource_sampler: Any = field(default=None, repr=False)"
+    }
+  },
+  "actual_helper_delta": {
+    "private_count": 9,
+    "symbols": 6
+  },
+  "additional_function_parameter": "spacr.torch_artifacts.load_model_artifact weights_only bool=False (F561)",
+  "scope": "Onlyfirsttestbody addendum, previous21arrivals retained; actualsource9privatefielddeclarations+native stdlibdataclass projections proveacceptedoptionalconstructorargs,sourcefunctionexactweights_onlydefault/doc/signature; normalizeONLYexact9+1 copiedhistoricalrows. Fullactualcachedinventory/ghosthelper controls untouched. Allfrozenoriginalasserts/digests/numericalpins retained."
+}

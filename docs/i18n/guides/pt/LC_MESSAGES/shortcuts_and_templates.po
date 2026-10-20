@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -28,14 +28,17 @@ msgstr "Atalhos de teclado"
 msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
 msgstr "Pressione **F1** ou **?** para abrir a folha de referência de atalhos. Ela lista as teclas que funcionam em qualquer lugar da janela, como **Ctrl+K** para a paleta de comandos, **Ctrl+P** para as Preferências, **Ctrl+F** para pesquisar nas configurações do módulo atual e **F11** para tela cheia, seguidas das teclas da tela em que você está."
 
-msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "Para alterar uma tecla, escolha **Alterar atalhos…** na folha de referência. A janela **Alterar atalhos** tem uma linha por ação da janela inteira, com sua tecla **Padrão** e o **Atalho** em uso. Clique em um atalho e pressione a nova tecla, ou limpe-o para deixar a ação sem tecla. **Restaurar padrões** restaura a tecla padrão de todas as linhas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "Para alterar uma tecla, escolha **Alterar atalhos…** na folha de referência. A janela **Alterar atalhos** tem uma linha por ação, com sua tecla **Padrão** e o **Atalho** em uso. Clique em um atalho e pressione a nova tecla, ou limpe-o para deixar a ação sem tecla. **Restaurar padrões** restaura a tecla padrão de todas as linhas."
 
-msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
-msgstr "Se uma tecla já é usada por outra ação, ou por uma tecla de uma das telas, a linha abaixo da tabela indica as ações que a compartilham, e **Salvar** fica indisponível até que o conflito seja resolvido. As teclas salvas valem imediatamente, também para os itens de menu correspondentes, e a folha de referência as mostra. Elas são guardadas com suas preferências e lidas da mesma forma no Linux, no macOS e no Windows."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "If a key is already used by another action that is active at the same time, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Se uma tecla já é usada por outra ação que está ativa ao mesmo tempo, a linha abaixo da tabela indica as ações que a compartilham, e **Salvar** fica indisponível até que o conflito seja resolvido. As teclas salvas valem imediatamente, também para os itens de menu correspondentes, e a folha de referência as mostra. Elas são guardadas com suas preferências e lidas da mesma forma no Linux, no macOS e no Windows."
 
-msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
-msgstr "Teclas que pertencem a uma única tela, como as teclas de rotulagem de Anotação ou as teclas de edição de Criar máscaras, aparecem na folha de referência, mas não podem ser alteradas."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Keys that belong to one screen, such as Annotate's labelling keys, the Make Masks editing keys and the field browser's keys, have their own rows, with the screen named in the **Scope** column. A screen key may match a key of another screen, but not a window-wide key or another key on the same screen. Changed screen keys apply at once to screens that are open and to screens opened later, and the screen's key legend shows them."
+msgstr "As teclas que pertencem a uma tela, como as teclas de rotulagem do Annotate, as teclas de edição do Make Masks e as teclas do navegador de campos, têm suas próprias linhas, com a tela indicada na coluna **Âmbito**. Uma tecla de tela pode coincidir com uma tecla de outra tela, mas não com uma tecla da janela inteira nem com outra tecla da mesma tela. As teclas de tela alteradas valem imediatamente para as telas abertas e para as telas abertas depois, e a legenda de teclas da tela as mostra."
 
 msgid "Settings templates"
 msgstr "Modelos de configuração"
@@ -61,6 +64,10 @@ msgstr "**Renomear…** dá um novo nome ao modelo selecionado. Um nome já usad
 
 msgid "**Delete** removes the selected template."
 msgstr "**Apagar** remove o modelo selecionado."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Export settings…** on a module screen saves the form as a settings CSV without running it; see :ref:`settings-files-from-the-gui`."
+msgstr "**Exportar configurações…** em uma tela de módulo salva o formulário como um CSV de configurações sem executá-lo; consulte :ref:`settings-files-from-the-gui`."
 
 msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
 msgstr "Os modelos são armazenados em ``~/.spacr/recipes/<module>/``, um arquivo JSON por modelo. Defina a variável de ambiente ``SPACR_RECIPE_DIR`` para mantê-los em outra pasta, por exemplo uma pasta compartilhada do laboratório."

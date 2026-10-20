@@ -1,0 +1,289 @@
+{
+  "scope": "Published26-foreign-track seed plus retained current English verified by English24 QA; foreign owning render and final50 QA still required",
+  "baseline_manifest_sha256": "daf0d6db958a00487a7dd3764637ded51d664826fb50d77e51629db7261e6009",
+  "files": [
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/en/af_heart.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/en/af_heart.m4a",
+      "published_sha256": "9947dd7fe1848119e3307d6c2ba29fac6044da43320ae40f49ac834423cdfac9",
+      "target_sha256": "70198a64777588ba5345b5e7fbf0475f275aaf177f851ee953a532e6ad34a251",
+      "action": "retained current English after actual English24 current-profile QA",
+      "english_qa_sha256": "ff682969708d2e27957077c295814242bb15fe1d81b2bc0a44fcec607d9926b9"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/en/af_heart.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/en/af_heart.json",
+      "published_sha256": "0e8854a1cd18a7cf6666412fa24ea7f48295a7f41a1ce36315df03fc15c343ab",
+      "target_sha256": "8b2a152d1832116fb9903be612ff486e72907add900221ff15aadd14f303789a",
+      "action": "retained current English after actual English24 current-profile QA",
+      "english_qa_sha256": "ff682969708d2e27957077c295814242bb15fe1d81b2bc0a44fcec607d9926b9"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/es/ef_dora.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/es/ef_dora.m4a",
+      "published_sha256": "1f48a292a38fa1be67036457d43ec8f736ce197e79edef7470fa46b5989e3541"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/es/ef_dora.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/es/ef_dora.json",
+      "published_sha256": "da35639b79d3bf0822a947bcca38912d08a4a3555732504940b099b6f3817786"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/es/em_alex.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/es/em_alex.m4a",
+      "published_sha256": "6e1e49963bf39a6ce89a40af7cea8fac5010822c7aa63f6e721cb6dade4a1894"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/es/em_alex.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/es/em_alex.json",
+      "published_sha256": "6d6c99a5f8717261fc0a8d1302ef97ab5743b7755ddce5d330274bfc4cc21118"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/es/em_santa.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/es/em_santa.m4a",
+      "published_sha256": "2ece545973b4b5aa564669055abbf4865007052910840822737571229a5b88c4"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/es/em_santa.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/es/em_santa.json",
+      "published_sha256": "8a0e52cffedf757c65256f5db628ae006beadb31cbfd940f3012952306614c90"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/fr/ff_siwis.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/fr/ff_siwis.m4a",
+      "published_sha256": "98b6405b765861752bc5833817e9eaa902d9a3bfe88494629bfa9e1196f2ca3d"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/fr/ff_siwis.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/fr/ff_siwis.json",
+      "published_sha256": "b215cdb1d77c08c7da4f02a50db5af3f1bfd0a84ddab5d67ae6703eeeb034330"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hf_alpha.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hf_alpha.m4a",
+      "published_sha256": "1e5fcbefc9d26fe01219e4e84108f9ed7bef6e1b1c6ca9a4ebdb4e999ca1dc97"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hf_alpha.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hf_alpha.json",
+      "published_sha256": "74d4a2ee7dffc0efe7b86d9a86d698afc06207a804eb403b2ab495f0f9533002"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hf_beta.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hf_beta.m4a",
+      "published_sha256": "1dc9b7b7bdd142172e582cacfae25ce4c63394a81fde6f85186a7bd10fc6aeba"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hf_beta.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hf_beta.json",
+      "published_sha256": "89777e058c350b3659633281b71a8bb3cf8d921e4fde6d85fb613758d7846a9a"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hm_omega.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hm_omega.m4a",
+      "published_sha256": "8c975e3d8227f463c8ddaed72a75c34365798f4840e49bffa44b8a794d130db5"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hm_omega.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hm_omega.json",
+      "published_sha256": "a221c9e7abdf476cebf4f4ac2c2a2ac3d21729132066a4f2d43198f6cb83a915"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hm_psi.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hm_psi.m4a",
+      "published_sha256": "dba1d139b127c8c3a7834e263cfdf23c943ee374873cb6c4ba0d4a4614b1be5e"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/hi/hm_psi.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/hi/hm_psi.json",
+      "published_sha256": "c80d71aafa6bf379e953f98c28523c70ce9aaebbcab1047cc1726e5e81240184"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/it/if_sara.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/it/if_sara.m4a",
+      "published_sha256": "30d1482b3ab075fba6130d0c3847ad85f4b8732dec403fdc281cdd1f79462f5e"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/it/if_sara.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/it/if_sara.json",
+      "published_sha256": "ebde3f1090603229f0e3ad7bd3a88e382b00c6574c75508a02ed39ea38df3a1c"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/it/im_nicola.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/it/im_nicola.m4a",
+      "published_sha256": "3f76f31621df411b5b8a630201036176f9564130e6db70a28b31661be95815a5"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/it/im_nicola.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/it/im_nicola.json",
+      "published_sha256": "fcccda91cc078b713f5be8c37279be2594ee1c319ab1a728a5b8e9a060596cba"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_alpha.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_alpha.m4a",
+      "published_sha256": "be0cc77bff0ad38ebfdf5001a5a55d9f7f1b893563c7acaf5bb787aa74a4b67d"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_alpha.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_alpha.json",
+      "published_sha256": "8a638d7b515f0391aaae1b5d05897c18488d06cd8d3d226ec5d07452cef199d9"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_gongitsune.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_gongitsune.m4a",
+      "published_sha256": "afda21ede37eefebe165880c5c089f4ead873419ccf693cc0dbdaf0b4eb332c8"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_gongitsune.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_gongitsune.json",
+      "published_sha256": "15061aa167f4d65cc7ac1f36e967229bb13fefd67300997f07f6df22414a3ff9"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_nezumi.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_nezumi.m4a",
+      "published_sha256": "8e026ff9508e804383392a4a22fb38c28f4766f000ca4ff090ce2226e5141759"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_nezumi.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_nezumi.json",
+      "published_sha256": "a292e9290c6a98f783687ec19f1662588c789ffff7f2294af7f9b85c08d08eda"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_tebukuro.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_tebukuro.m4a",
+      "published_sha256": "d72be6378ce5d5bafdbe1888743a440c6f5f1da2e5faad0ac60ff7cb4e5ed2eb"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jf_tebukuro.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jf_tebukuro.json",
+      "published_sha256": "8813f0bcb0f0b8adc0acb16dcf1ea7284732d828314e45085263446e1494ba65"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jm_kumo.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jm_kumo.m4a",
+      "published_sha256": "82bed1c22b067de18ee5bb5a5627d431267e010627bb695aa4cb5240d48321ae"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/ja/jm_kumo.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/ja/jm_kumo.json",
+      "published_sha256": "d69bec31190729707d0286c17547f6dc4d419d638c020336ad255aefbe81b3ea"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/pt-BR/pf_dora.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/pt-BR/pf_dora.m4a",
+      "published_sha256": "e6e5fa855b2ee3a12f700073135022719fc071f655e7e45ffeb36298c128dbf0"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/pt-BR/pf_dora.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/pt-BR/pf_dora.json",
+      "published_sha256": "cd0bf1e169833abcdd5ee2de45cefcbff5b62f760812c6274078d0e821731d15"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/pt-BR/pm_alex.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/pt-BR/pm_alex.m4a",
+      "published_sha256": "4d5b1358ff13c9d011b30d19b199c6e72246a079a6ca950c0e350710d608a7f0"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/pt-BR/pm_alex.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/pt-BR/pm_alex.json",
+      "published_sha256": "234ff0cd314887fd9f318a42d6c552970629cb3fb5c02ed002fefe8ab54c692f"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/pt-BR/pm_santa.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/pt-BR/pm_santa.m4a",
+      "published_sha256": "9c74ac6317c4d7b72d77303180d24e19463d0a76909c144afbbb4b160f43b6cc"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/pt-BR/pm_santa.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/pt-BR/pm_santa.json",
+      "published_sha256": "2ad0e547ba4774c5e43ea627a50cbbb37ce87f6507eda92371adfe445d47e9b2"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaobei.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaobei.m4a",
+      "published_sha256": "77dec0b2243099ded87dfe9ee3a7ea41613cc33d84b2b727c926964b4fa5a3b2"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaobei.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaobei.json",
+      "published_sha256": "33e1802eef6cc81bc318d95decf49f68a19420b0e2286d220bdc916226eb2319"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaoni.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaoni.m4a",
+      "published_sha256": "de451027ed88f889e242acaac29a458c8f1f7910088e74a0172462cef6952f56"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaoni.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaoni.json",
+      "published_sha256": "3c6512d22bd2cd78e0af1f802d9c66cdd35bbd3cf1b75e26f5a60d3284b5c984"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaoxiao.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaoxiao.m4a",
+      "published_sha256": "3a8d99d1e31d956eb2a7ec0c5290c7fd1ee0ceabfcb85f0a39c417e83757b13b"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaoxiao.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaoxiao.json",
+      "published_sha256": "c91b4340524ea81a565dec89821f8f7e7a3cfa268aff9c903ac7aecd48944643"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaoyi.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaoyi.m4a",
+      "published_sha256": "e82cb446b2918211ee779f7e71122254ed3a90cfdceb5b3c449da9cbaab1f027"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zf_xiaoyi.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zf_xiaoyi.json",
+      "published_sha256": "29fc5f0440d4a32abaeba2020f438225a846590a9df3bc39de6102ec12c3b268"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunjian.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunjian.m4a",
+      "published_sha256": "e336614bfd9eae9a388dc01165dc473dc0ee52976ce623ba3a5a8365581f1040"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunjian.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunjian.json",
+      "published_sha256": "9c69e4506e00c773fab282ce6001c55189b79cefdd35a577bf34f529b179186a"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunxi.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunxi.m4a",
+      "published_sha256": "d588987ceb35e8bc2ddce29c59a478c00a1ead706833646b223b023cb3bcc0d3"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunxi.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunxi.json",
+      "published_sha256": "0f12e0c853a65441db1023d0276d37e1ed50a278ea0e2bbaf5261fca59e256ca"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunxia.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunxia.m4a",
+      "published_sha256": "05e60bfdaa52d92430a443aec1899f9a15ce88eca2a4e37b1d80cc61383b5bf2"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunxia.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunxia.json",
+      "published_sha256": "e87c466eaf9a298500878d92c0f557b01bcc3a15ac28dd85e51f6db664ddaa33"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunyang.m4a",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunyang.m4a",
+      "published_sha256": "642b0ba7b3a22160938dd3cdaaa32718b063570e9f671fdd4e1b779b1e6a1ac9"
+    },
+    {
+      "source": "/media/carruthers/mnt3/claude/n676_stages/host/stage-09-r41-20261014/release-candidate-append-q6mh6nzw/media_host/11_classify_ml/audio/zh-CN/zm_yunyang.json",
+      "target": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio/zh-CN/zm_yunyang.json",
+      "published_sha256": "c8ed5a9b0d6c04222a9b2ab52fc50f90e32a73fc46a35fb490ce06064ad2ea0f"
+    }
+  ],
+  "validated_current_english_qa": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/voices-11-r54-20261015/production/11_classify_ml/audio-checks.en.json",
+    "sha256": "ff682969708d2e27957077c295814242bb15fe1d81b2bc0a44fcec607d9926b9"
+  },
+  "new_synthesis": false,
+  "native_speaker_signoff": false,
+  "publication_eligible": false
+}

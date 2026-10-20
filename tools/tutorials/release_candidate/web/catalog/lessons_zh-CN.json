@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "从左到右浏览 Home 中所有当前模块，然后通过 Mask 学习通用控件，并调整导航、帮助和外观。",
       "objectives": [
-        "识别当前 Core、Data、Tools 和 Organism 各行中的所有模块。",
+        "识别当前 Core、Data 和 Tools 各行中的所有模块。",
         "通过 Mask 认识通用设置、预览、操作和输出。",
         "返回 Home，使用搜索并排列面板。",
         "选择外观和性能设置。"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home 是起点。每行从左往右查看，依次为 Core、Data、Tools 和 Organism。每个磁贴打开对应模块。左侧栏提供相同入口，Home 返回此概览。",
+          "narration": "Home 是起点。每行从左往右查看，依次为 Core、Data 和 Tools。每个磁贴打开对应模块。左侧栏提供相同入口，Home 返回此概览。",
           "hold_after": 0.7,
-          "speech_text": "主页 是起点。每行从左往右查看，依次为 Core、Data、Tools 和 Organism。每个磁贴打开对应模块。左侧栏提供相同入口，主页 返回此概览。"
+          "speech_text": "主页 是起点。每行从左往右查看，依次为 Core、Data 和 Tools。每个磁贴打开对应模块。左侧栏提供相同入口，主页 返回此概览。"
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate 可检查对象裁剪图像，并为示例记录经过审核的标签。"
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify 从审核过的标签学习，使用图像或表格方法为其他对象评分。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify 从审核过的标签学习，使用图像或表格方法为其他对象评分。"
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes 读取测序数据，计数并识别导向序列或条形码。",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import 为项目结构准备输入的显微镜文件及其元数据。"
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings 将对象裁剪图像编码为数值特征，用于探索和比较。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings 将对象裁剪图像编码为数值特征，用于探索和比较。"
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare 汇集保存的运行结果，便于检查差异。",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare 汇集保存的运行结果，便于检查差异。"
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design 在实验前安排条件、孔位和样本标识。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design 在实验前安排条件、孔位和样本标识。"
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design 在规划比较时探索样本量和统计功效假设。",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design 在规划比较时探索样本量和统计功效假设。"
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response 拟合不同浓度下的响应，同时明确选定的测量终点和对照。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response 拟合不同浓度下的响应，同时明确选定的测量终点和对照。"
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC 汇集质量检查，指出已有和缺失的证据。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC 汇集质量检查，指出已有和缺失的证据。"
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image 优麦普 投影对象特征，以探索相似对象并检查代表性裁剪图像。"
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor 在真实数据列上定义筛选范围。将筛选范围转成标签前，请审核选中的对象。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "门控编辑器 在真实数据列上定义筛选范围。将筛选范围转成标签前，请审核选中的对象。"
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder 从测量表创建图表，可配置列和分组。",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder 从测量表创建图表，可配置列和分组。"
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。"
         },
         {
           "visual": "06_mask_host",
@@ -902,7 +818,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁，Popup wave frequency 则在 spaCR field 中从打开的弹窗发出波纹。Field ripples 独立于鼠标引力，控制点击、打开或关闭容器以及窗口贴靠屏幕边缘时产生的波纹。关闭它也会停止弹窗的自动波纹。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。",
+          "narration": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁。Field ripples 独立于鼠标引力，设置点击、打开或关闭容器、弹窗以及窗口贴靠屏幕边缘时产生的波纹强度；设为零会关闭波纹，包括弹窗的自动波纹。Click ripples 决定点击背景时是否发出波纹。Popup wave frequency 设置每分钟从打开的弹窗向 spaCR field 扩散的波纹数量。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +826,7 @@
             1200,
             1500
           ],
-          "speech_text": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁，Popup wave frequency 则在 斯佩克尔 field 中从打开的弹窗发出波纹。Field ripples 独立于鼠标引力，控制点击、打开或关闭容器以及窗口贴靠屏幕边缘时产生的波纹。关闭它也会停止弹窗的自动波纹。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。"
+          "speech_text": "点击 Animation 选择主窗口背景及其调色板。Animation colours 设置 Custom colours 的主色和强调色；Animation background 选择独立的背景，Theme colour 则恢复页面主题颜色。Detail 控制绘制分辨率。Speed、Size 和 Density 改变运动效果及元素数量。Mouse gravity radius 设置鼠标的影响范围，零表示关闭。Dot blinking 控制白色闪烁。Field ripples 独立于鼠标引力，设置点击、打开或关闭容器、弹窗以及窗口贴靠屏幕边缘时产生的波纹强度；设为零会关闭波纹，包括弹窗的自动波纹。Click ripples 决定点击背景时是否发出波纹。Popup wave frequency 设置每分钟从打开的弹窗向 斯佩克尔 field 扩散的波纹数量。Settings animation speed、Settings animation size、Settings animation detail 和 Settings animation density 只改变 Settings backdrop。Settings backdrop darkness 控制表单文字的可读性。"
         },
         {
           "visual": "13h_preferences_apply",
@@ -1289,7 +1205,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1715,7 +1654,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
+          "narration": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在三个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
           "focus": [
             360,
             380,
@@ -1724,11 +1663,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。"
+          "speech_text": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在三个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。"
         },
         {
           "visual": "20_suggestions",
-          "narration": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
+          "narration": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上尚未标注的裁剪图像会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
           "focus": [
             350,
             250,
@@ -1736,11 +1675,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。"
+          "speech_text": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上尚未标注的裁剪图像会带上问号标记。网格上方的栏会统计还有多少建议待判断。"
         },
         {
           "visual": "21_judged",
-          "narration": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
+          "narration": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答在 Next 保存前都仍是待保存的更改；拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
           "focus": [
             350,
             250,
@@ -1748,7 +1687,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。"
+          "speech_text": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答在 Next 保存前都仍是待保存的更改；拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。"
         },
         {
           "visual": "17_generate_database_entry",
@@ -1775,7 +1714,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2179,7 +2141,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2560,12 +2545,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear masks会先请求确认，再删除当前图像中的所有掩膜。",
+          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear all objects会先请求确认，再删除当前图像中的所有对象。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear masks会先请求确认，再删除当前图像中的所有掩膜。"
+          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear all objects会先请求确认，再删除当前图像中的所有对象。"
         },
         {
           "visual": "01b_test_data_menu",
@@ -8719,7 +8704,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16258,13 +16266,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，从所选标签列中学习。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。",
+          "narration": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，基于所选标签列训练模型。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，从所选标签列中学习。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。"
+          "speech_text": "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，基于所选标签列训练模型。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。"
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16610,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "示意图可以随意探索。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。",
+          "narration": "示意图是交互式的。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。",
           "hold_after": 0.7,
-          "speech_text": "示意图可以随意探索。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。"
+          "speech_text": "示意图是交互式的。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。"
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16622,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。",
+          "narration": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Assay教程介绍完整流程。",
           "hold_after": 0.7,
-          "speech_text": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Analysis教程介绍完整流程。"
+          "speech_text": "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Assay教程介绍完整流程。"
         },
         {
           "visual": "05_references",

@@ -374,3 +374,75 @@ tooltip default-claim census 899 -> 901; flow page, consumer map, API
 targets, Help index and the 02 notebook regenerated.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_measure_wound_preview.py, test_scratch_wound_closure.py pass.
+
+2026-10-15 — Strict wound-plane indices (partial correctness component):
+Actual _wound_plane now refuses negative, fractional, nonfinite, Boolean,
+complex, nonscalar and out-of-range indices before pixel selection, including
+mask dimensions and the saved default channel. Integral saved strings and
+Python/NumPy scalars retain exact selection; source arrays remain unchanged.
+Final-source owning index cohort: 63 PASS, 33 deselected, 3.12 s, exit 0.
+Nine source-bound technical translation review inputs pass normal candidate
+gates; owner extraction and actual runtime publication remain separate.
+Receipt: features/data/536_plane_indices_2026-10-15/. Existing alpha gating
+retained. This does not resolve the assay accuracy limits recorded above.
+
+2026-10-15 — Coherent source and actual runtime callback closure:
+Home-B exact scoped extractor891ab9ab36f plus normal nine-locale writer
+publish the three F470/F536 diagnostics, preserving every one of 10,566
+unrelated current targets per locale. Normal English audit PASS (7,726 UI).
+Finite combined cohort121PASS,37unrelateddeselected,5.10s,exit0, including
+45 actual helper error callbacks across all nine locales. Root peer-reviewed
+each exact helper source and found no blocker; this is source review only.
+Receipt: data/470_536_current_runtime_2026-10-15/. Scientific/legacy/annotation-
+time/native limitations above remain. Foreign N700 global caption/full-audit
+failures and later F549 owner runtime refresh are separate; no global green
+CI, release acceptance, gate waiver or whole-feature completion is claimed.
+Final ordinary merge retains exact public owner extractor/test superset.
+Normal English-only generator resolves generated conflict and passes current
+English audit (7,729 UI); all27 own target/hash pairs and every unrelated
+source-current target are preserved. Full writer actually refuses two later
+foreign F549 microscope_positions targets; raw failure and per-locale missing
+lists are retained. This source publication leaves global caption/release
+acceptance open; unchanged121 are not needlessly rerun.
+
+2026-10-15 Original Home — wound calibration source prepared privately
+Optional spatial pixel size and hours per frame now require positive finite
+values before preview/table image I/O; direct wound-series physical scale uses
+the same documented private helper. None/empty retain uncalibrated units and
+valid positive numerical results stay unchanged. The untouched source had
+23 failing boundary cases and five passing valid/blank controls; final owning
+cohort30PASS,18runtime-locale cases deliberately pending. Actual normal API
+inventory13,484 independently excludes both the new helper and prose-changed
+settings checker, so no orphan API target is created. Runtime caption extraction,
+independent nine-locale target peer, ordinary writer/audit/arrival and actual
+locale callbacks remain pending; this is not standalone publication acceptance.
+Evidence: data/536_calibration_boundary_2026-10-15/. Biological calibration,
+whole F536 and final global CI/release limits remain separate.
+
+2026-10-15 Original Home — wound calibration runtime closure
+The owner-scoped literal extractor and independently reviewed diagnostic now
+ship through the normal nine-locale writer. Full nine-language runtime audit
+passes with7,934UI sources; all10,778 unrelated current targets per locale are
+preserved. Normal arrivals report9,833baseline/1,097added/151retired/31changed.
+Actual preview/table error callbacks pass18checks across all nine locales,
+without directory I/O or pixel mutation on invalid metadata. Seven frozen
+source/tool/test/API file hashes and fresh original canonical equality pass.
+The prior30owning checks and actual API visibility census are not repeated.
+The old13,484canonical count is historical; unrelated AI/Live English API
+additions were preserved and both private wound targets remain absent, with
+source/tool bytes unchanged. No orphan API generation. Evidence:
+data/536_calibration_boundary_2026-10-15/. This closes the software calibration
+boundary and its runtime localization only; biological calibration, whole F536
+and final global CI/release remain separate.
+
+2026-10-15 Original Home — preserve current HintBar runtime publication
+While this source waited for the CI publication window, Home-B published real
+HintBar runtime additions and reviewed-source retirements. The old wholecatalog
+byte proof correctly refused before staging/push. A single necessary normal
+merged nine-locale writer, full runtime audit and arrivals refresh now pass
+against pinned public7ca1994091554a6d9f16a2c628be868640307b86, retaining every
+incoming current target and the exact reviewed wound diagnostic. Prior30owning
+and18actual localized checks are unchanged and not repeated. The original
+closure receipt remains historical; merged-runtime-receipt.json and the final
+publication proof bind the current generated outputs. Scope remains software
+calibration metadata/localization, not biological or whole-feature acceptance.

@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "reviewed_commit": "22f74e455e4e5b284340037dec23fec9cebd3081",
+  "source_commit": "efe3784e64a6a527a5ca557ccd2dbffc45272052",
+  "source_files_sha256": {
+    "spacr/qt/screens/embeddings.py": "9fda21401f1777bf049b0ccbf11015e38f0e22c19fcb9b972ae46e50040d5785"
+  },
+  "alpha_registry_dependency": "e4458d409d6",
+  "reviewer": "Home-B website_686_687; independent of both source and translation-target authors",
+  "review_kind": "Independent AI technical semantic review; no human or native-speaker signoff",
+  "scope": "45 committed source/translation pairs: five changed blocks in two public API symbols, nine locales",
+  "decision": "All 45 PASS without target corrections",
+  "source_binding": "Final cancellation repair changed private handling only; both public rendered docstrings still exactly equal the independently reviewed f35b592 source bodies. Actual final source AST docstrings and full file hash verified.",
+  "review_files_sha256": {
+    "docs/i18n/reviewed/api/sv/2026-10-15-f561-lifecycle-contracts.json": "0a49ff800d145eec5b131a65e9490c95a05026879f5a1d78fb25442cb487bd93",
+    "docs/i18n/reviewed/api/de/2026-10-15-f561-lifecycle-contracts.json": "149520876a91303052643e60b7bbf8209a63aa5a70fbc18c58ab9da6c9c53f92",
+    "docs/i18n/reviewed/api/es/2026-10-15-f561-lifecycle-contracts.json": "878fe1845aa2031aedb200ee0decb3dc4b3f27806c24d51dffc203dab5b9c6f9",
+    "docs/i18n/reviewed/api/fr/2026-10-15-f561-lifecycle-contracts.json": "74e62d2b1296d20367ce002e19ca89255f27d52f7cbc4fc6183c11cc7f7c9364",
+    "docs/i18n/reviewed/api/pt/2026-10-15-f561-lifecycle-contracts.json": "819e6c3996694677d7702f0683c99e24fa241135040c77b60082323a533c8439",
+    "docs/i18n/reviewed/api/is/2026-10-15-f561-lifecycle-contracts.json": "fe934080d9ebc0a69f4f8f118aa53f96885c705db6b56f726dca43f906c4188d",
+    "docs/i18n/reviewed/api/zh_CN/2026-10-15-f561-lifecycle-contracts.json": "7113903f238607a019e24ad6de1d17dbb24ee452cf0ebc9b8171bd712435d4f3",
+    "docs/i18n/reviewed/api/hi/2026-10-15-f561-lifecycle-contracts.json": "2048b735bd1e16e5ad8c19da940378cb3d21425595a98b9f696e48600049381d",
+    "docs/i18n/reviewed/api/ko/2026-10-15-f561-lifecycle-contracts.json": "de5abc07ea9b53f8fbeb06cc8982ee2be3744b8e85806b089c31acd7dee55569"
+  },
+  "coverage": [
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#0",
+      "source_sha256": "503d857aa83baa8cdaaefdcc6a1bddc221033e1c4fc1b428a560bc53219cb6de",
+      "context_sha256": "bf89ba6600a5433def77648af0ff21cb9c67ac483b0fc988658088c17fe5d065",
+      "technical_semantics": "Busy includes crop loading, embedding and DINO pretraining.",
+      "targets": {
+        "sv": {
+          "translation_sha256": "4e88db9ed8a1bdfb94c42092013d35aa399903221ded629cf5dbca63c79d7fa5",
+          "decision": "PASS"
+        },
+        "de": {
+          "translation_sha256": "d7c8a175d78e8cbf77612ef49d68dac0cff7f4b6d28956bc6f743689b7542f14",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "bf6768ed34fec2af24c2bfb3e1e2b8c0991fa26ab67ec2c79eff8470c80d5e3f",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "d81ecd033c0c1631fe98c8d5efff0c0331b8a5ee328ad9da2510add75a9a08dd",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "83819c4ef159e50ce89073c6533ae65a8d4b1227135312f1e9e5617458e149b9",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "65c9293dbc7d6033285b23b2af136093c4b62a69f142ab059d3b7fb73e71c09b",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "7a94750c538b143e9f1a5d63b55fb26debbcb696acf4de470dade9709a5dc388",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "96d5e7332f83a0ceea8df29ddf42b3531fb5a3cd1b00d71d1441ed153a3941f6",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "2cbad3c0c3d513f8bc8598ebcabe844719695b3579199b132c1036d9de1326ea",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy#1",
+      "source_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+      "context_sha256": "72d0349a4907b943d590d282e08367fee566c7572e753f3cb57fdf8c0b9859cc",
+      "technical_semantics": "The separate DINO worker remains busy until retirement even after final result delivery.",
+      "targets": {
+        "sv": {
+          "translation_sha256": "a079b5ed1d639004277326be6d456a4fbb3c84fe786aef26c703c77ad9231099",
+          "decision": "PASS"
+        },
+        "de": {
+          "translation_sha256": "a22cb2e91f6307e519b871edf042033d7ce627258295cb9d74159506e3fb7000",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "da1ea58bdc5b13b283da5fc90c9cc451a5b5e4ca9a66f277cb32dde94b7b4a71",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "0175af18c568b6c617a3ba5b58db790106a860426d26e98ef58b913a7a938227",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "3afc1158b735d84fbfbe92dc38cc9e7ccf7898bcb1381c129fbf9c42d0db0675",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "8cd342a42cccbdf5c30f15778777408046763578c7e064a8e032222d72ced810",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "34d8e95350a09b99ad25817826bfe97d6be7d39950c9e597f3d04455a27cf95b",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "4627e964842e67770dab3a502e5a150aab56d0ab117dc92b046e478bdb528015",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "dbdc945ffd4dd04c1cb37dc43e732e9bd3d17b16c209ed3fca19ec7985a003fa",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#0",
+      "source_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+      "context_sha256": "a07e5b94f71b6bf393f5e27c23c626156a84438a2127dc94247c85ed0de89d11",
+      "technical_semantics": "Discard pending results and drain both runners before widget removal.",
+      "targets": {
+        "sv": {
+          "translation_sha256": "3a1042e80aef5d832d7caabd625613c800ddb4573a05689f3905455e0179f466",
+          "decision": "PASS"
+        },
+        "de": {
+          "translation_sha256": "9e6e6109c54856d3cfde4c658374b854ac71a404733a5be07c47d8b7a64cc44b",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "af155b2483e10dd0ffdb8b5cc36953fb13ec9306528223281e8c9e58f9011041",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "bc0271a1314c2ab19dc68c5c5e87af37ff4d425c986df90cf4e5d576d7408bd7",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "c49746027292ceaeca0faf488f9a8db1d586556114b161fe62341421c205f577",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "426e27ca20576d945936f47ceca192a9e2b75ca524d8b6ea780979500aba0104",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "f820105a115112c6a0b631711cf49becfd2fab8b7f70f94466c9f82d6fc4741d",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "6a6b5f343f1756f167ebac1168f07cde5af382a249545a36e36124b7755860d7",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "61f834aa48a95c64852552d81eb13a7da2f6a3a353fe4dd830bbfaf36f928d82",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#1",
+      "source_sha256": "faf25d8d8e7ec939da6a4b293c9eba01a50118c8bd52dbb6e94535e1077ce073",
+      "context_sha256": "dc8984a0772acbe6fa05f1014241b462faca9a8104a04bf160fbb045badc9d3c",
+      "technical_semantics": "Set crop stop first; ignore later DINO progress; each shutdown waits a bounded interval then parks surviving workers. Parked training may finish checkpoint writes without updating the closed screen; no forced termination.",
+      "targets": {
+        "sv": {
+          "translation_sha256": "c261fb80d5b91e4939d1840e837562315060e22bc14f6e615894860932c29bdd",
+          "decision": "PASS"
+        },
+        "de": {
+          "translation_sha256": "e246b1fd1b084b068caae91dd3a612c36686f64d4fd952c8072185f0637f22b1",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "4754ee1d4e57b1eeac7ee7aaf6d35862ce0e0318b1936a10206b494a80f0303e",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "71a26fe408c3f0928594c1f6a520c83a648d949ec8b4b89a387e0c54409c1748",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "8b5309e5a779f4ffebaada64a67f1944f6451ca540b640ffe4ed6f843e02b04e",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "4272c8fceedda9ccb0e4bd169a93b304a07e1ee6ee9396a982bcbca3c1afce8e",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "056f1a4a23fccd31fb79d9db6787dfce57c9905485b70920659f762f0a7bac76",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "0d9fa8a27b0d3bde9581e7ba7c616de1746753e624b5aebff3ece3ce856fe927",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "0bb09cd8984cce8fc4261b9ef3ca78e36b663e4746de9afcfd661758af9a038d",
+          "decision": "PASS"
+        }
+      }
+    },
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent#2",
+      "source_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+      "context_sha256": "5171c55d01722312bb40472dbfa45229c3c132fa74e3e13854bf41e660d7b1bd",
+      "technical_semantics": "Pass Qt close event to base unchanged; accept close even when a worker must be parked.",
+      "targets": {
+        "sv": {
+          "translation_sha256": "0fe6733380ec24adc4b18a6d801c06e22fbbf6a70f3befdc7575bf83d69f3c83",
+          "decision": "PASS"
+        },
+        "de": {
+          "translation_sha256": "d3fa666eb5531c6eb74cc0012152c5c691a45a9ca657a5f6b1d4f8ef42b9885c",
+          "decision": "PASS"
+        },
+        "es": {
+          "translation_sha256": "07a113a95e05c9dcc2bce220b96438eca76292f54d16beda1743beb2a17dd576",
+          "decision": "PASS"
+        },
+        "fr": {
+          "translation_sha256": "d7d24731a3fc391007ef54752d61688ec963c76ddeb87f489f54ae78cc355096",
+          "decision": "PASS"
+        },
+        "pt": {
+          "translation_sha256": "60f9da6af7a4e437191a6dcf65ab85854313d2ac5289156e39ef0f12d2294b0e",
+          "decision": "PASS"
+        },
+        "is": {
+          "translation_sha256": "bd57e923f8b5081be09403c73ae9d82b072c8ec5b6436e54236a00a8b0fe8a2e",
+          "decision": "PASS"
+        },
+        "zh_CN": {
+          "translation_sha256": "ebcd6da9a4460dab77137ad9c617bc141087049f0237f0636f0ee996ad664e7a",
+          "decision": "PASS"
+        },
+        "hi": {
+          "translation_sha256": "2881df47f18b926ecedf967f2b55fb7146d5ff78bf593d5a287c4bdfec1a9a15",
+          "decision": "PASS"
+        },
+        "ko": {
+          "translation_sha256": "7220bc32350e41aa9f936756cbb3fd1c48f8672d20953d3e9c6aba7330919c55",
+          "decision": "PASS"
+        }
+      }
+    }
+  ],
+  "code_review_receipt": "features/data/561_dino_controls_peer_review_2026-10-15/receipt.json",
+  "checks": "Every final committed source/context/translation equals its frozen independently read draft. Normal source/context/inline/selected-loader gates were run by the author; no duplicate collector, writer or tests by reviewer.",
+  "limitations": [
+    "Only changed API blocks covered; no native-speaker linguistic acceptance claimed.",
+    "Parked workers may continue in the process; no guarantee of completing a checkpoint after full process exit is implied.",
+    "No model decoding, backend training, scientific/GPU/native platform acceptance or whole F561 completion inferred."
+  ]
+}

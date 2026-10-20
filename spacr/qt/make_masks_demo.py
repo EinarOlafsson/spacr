@@ -39,8 +39,18 @@ from typing import Callable, List, Optional
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 
-from .hf_download import (DownloadResult, _TarExampleWorker,
-                          download_toxo_mito_demo, explain_download_failure)
+from ..example_archives import (EXAMPLE_ARCHIVES, FIBSEM_EXAMPLE_REPO,
+                                TEM_EXAMPLE_REPO,
+                                TIMELAPSE_BACTERIA_EXAMPLE_REPO,
+                                TIMELAPSE_MAMMALIAN_EXAMPLE_REPO,
+                                TIMELAPSE_YEAST_EXAMPLE_REPO,
+                                example_set_folder)
+from .hf_download import (
+    DownloadResult,
+    _TarExampleWorker,
+    download_toxo_mito_demo,
+    explain_download_failure,
+)
 from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.make_masks_demo")
@@ -48,13 +58,27 @@ LOG = logging.getLogger("spacr.qt.make_masks_demo")
 __all__ = [
     "MAKE_MASKS_EXAMPLE_ARCHIVE",
     "MAKE_MASKS_EXAMPLE_REPO",
+    "TEM_EXAMPLE_ARCHIVE",
+    "TEM_EXAMPLE_REPO",
+    "FIBSEM_EXAMPLE_ARCHIVE",
+    "FIBSEM_EXAMPLE_REPO",
+    "download_fibsem_example",
     "download_make_masks_example",
+    "fibsem_example_folder",
+    "load_the_fibsem_test_data",
+    "download_tem_example",
     "install_test_data_button",
     "is_present",
     "listed_files",
+    "load_the_tem_test_data",
     "load_the_test_data",
     "make_masks_example_folder",
     "open_the_test_data",
+    "tem_example_folder",
+    "TIMELAPSE_EXAMPLE_REPOS",
+    "download_timelapse_example",
+    "load_the_timelapse_test_data",
+    "timelapse_example_folder",
 ]
 
 #: The Hugging Face dataset repository the ten fields are published in.
@@ -67,6 +91,24 @@ MAKE_MASKS_EXAMPLE_REPO = "einarolafsson/spacr-example-make-masks"
 
 #: The one archive that repository ships, and the one file the button fetches.
 MAKE_MASKS_EXAMPLE_ARCHIVE = "spacr-example-make-masks.tar"
+
+#: The archive of the TEM test data: ten transmission electron micrographs
+#: with mitochondria masks (:data:`spacr.example_archives.TEM_EXAMPLE_REPO`).
+TEM_EXAMPLE_ARCHIVE = EXAMPLE_ARCHIVES[TEM_EXAMPLE_REPO]
+
+FIBSEM_EXAMPLE_ARCHIVE = EXAMPLE_ARCHIVES[FIBSEM_EXAMPLE_REPO]
+
+FIBSEM_VOLUME = "hela_fibsem.tif"
+
+#: The three timelapse test movies, by kind: one public movie each of budding
+#: yeast, bacteria and mammalian cells, with masks in every frame and their
+#: lineage embedded in the mask TIFFs. Each kind is also the
+#: ``spacr-download timelapse_<kind>`` example set.
+TIMELAPSE_EXAMPLE_REPOS = {
+    "yeast": TIMELAPSE_YEAST_EXAMPLE_REPO,
+    "bacteria": TIMELAPSE_BACTERIA_EXAMPLE_REPO,
+    "mammalian": TIMELAPSE_MAMMALIAN_EXAMPLE_REPO,
+}
 
 #: The file in the dataset that lists what a complete copy contains. It is the
 #: LAST member of the archive, so a transfer that died part-way leaves no
@@ -88,6 +130,49 @@ def make_masks_example_folder() -> Path:
     """
     return (Path.home() / ".cache" / "spacr" / "example_data"
             / "make_masks_toxo_pv")
+
+
+def tem_example_folder() -> Path:
+    """Where the TEM test data is unpacked and cached.
+
+    ``~/.cache/spacr/example_data/make_masks_tem``, the folder
+    :data:`spacr.example_archives.EXAMPLE_SETS` names for the ``tem`` set, so
+    ``spacr-download tem`` and the button share one cache.
+
+    :returns: the folder. It is not created here.
+    """
+    return (Path.home() / ".cache" / "spacr" / "example_data"
+            / "make_masks_tem")
+
+
+def fibsem_example_folder() -> Path:
+    """Where the FIB-SEM test volume is unpacked and cached.
+
+    ``~/.cache/spacr/example_data/make_masks_fibsem``, the folder
+    :data:`spacr.example_archives.EXAMPLE_SETS` names for the ``fibsem`` set,
+    so ``spacr-download fibsem`` and the menu share one cache.
+
+    :returns: the folder. It is not created here.
+    """
+    return (Path.home() / ".cache" / "spacr" / "example_data"
+            / "make_masks_fibsem")
+
+
+def timelapse_example_folder(kind: str) -> Path:
+    """Where one timelapse test movie is unpacked and cached.
+
+    ``~/.cache/spacr/example_data/make_masks_timelapse_<kind>``, the folder
+    :data:`spacr.example_archives.EXAMPLE_SETS` names for the
+    ``timelapse_<kind>`` set, so ``spacr-download`` and the menu share one
+    cache.
+
+    :param kind: ``yeast``, ``bacteria`` or ``mammalian``.
+    :returns: the folder. It is not created here.
+    :raises KeyError: for any other kind.
+    """
+    if kind not in TIMELAPSE_EXAMPLE_REPOS:
+        raise KeyError(kind)
+    return example_set_folder(f"timelapse_{kind}")
 
 
 def listed_files(folder) -> List[str]:
@@ -140,6 +225,68 @@ class _MakeMasksTarWorker(_TarExampleWorker):
 
     repo = MAKE_MASKS_EXAMPLE_REPO
     archive = MAKE_MASKS_EXAMPLE_ARCHIVE
+
+
+class _TemTarWorker(_TarExampleWorker):
+    """Fetches the TEM test data: ten micrographs and their mitochondria."""
+
+    repo = TEM_EXAMPLE_REPO
+    archive = TEM_EXAMPLE_ARCHIVE
+
+
+class _FibsemTarWorker(_TarExampleWorker):
+    """Fetches the FIB-SEM test volume and its mitochondria labels."""
+
+    repo = FIBSEM_EXAMPLE_REPO
+    archive = FIBSEM_EXAMPLE_ARCHIVE
+
+
+def download_fibsem_example(parent, dest, on_done: Callable[
+        [Optional[DownloadResult], str], None]) -> None:
+    """Fetch the FIB-SEM test volume behind the shared progress dialog.
+
+    :param parent: the widget the progress dialog belongs to.
+    :param dest: the folder the archive unpacks into.
+    :param on_done: called on the GUI thread as ``on_done(result, error)``,
+        as :func:`download_make_masks_example` calls it.
+    """
+    download_toxo_mito_demo(
+        parent, Path(dest), on_done,
+        worker_factory=_FibsemTarWorker,
+        title=tr("Downloading the Make Masks FIB-SEM test data"))
+
+
+def download_timelapse_example(parent, dest, on_done: Callable[
+        [Optional[DownloadResult], str], None], kind: str) -> None:
+    """Fetch one timelapse test movie behind the shared progress dialog.
+
+    :param parent: the widget the progress dialog belongs to.
+    :param dest: the folder the archive unpacks into.
+    :param on_done: called on the GUI thread as ``on_done(result, error)``,
+        as :func:`download_make_masks_example` calls it.
+    :param kind: ``yeast``, ``bacteria`` or ``mammalian``.
+    """
+    repo = TIMELAPSE_EXAMPLE_REPOS[kind]
+    worker = type("_TimelapseTarWorker", (_TarExampleWorker,),
+                  {"repo": repo, "archive": EXAMPLE_ARCHIVES[repo]})
+    download_toxo_mito_demo(
+        parent, Path(dest), on_done, worker_factory=worker,
+        title=tr("Downloading the Make Masks timelapse test data"))
+
+
+def download_tem_example(parent, dest, on_done: Callable[
+        [Optional[DownloadResult], str], None]) -> None:
+    """Fetch the TEM test data behind the shared progress dialog.
+
+    :param parent: the widget the progress dialog belongs to.
+    :param dest: the folder the archive unpacks into.
+    :param on_done: called on the GUI thread as ``on_done(result, error)``,
+        as :func:`download_make_masks_example` calls it.
+    """
+    download_toxo_mito_demo(
+        parent, Path(dest), on_done,
+        worker_factory=_TemTarWorker,
+        title=tr("Downloading the Make Masks TEM test data"))
 
 
 def download_make_masks_example(parent, dest, on_done: Callable[
@@ -203,8 +350,134 @@ def load_the_test_data(screen, *, ask=None, folder=None) -> bool:
     """
     folder = (Path(folder) if folder is not None
               else make_masks_example_folder())
+    return _load_example(screen, folder, ask if ask is not None
+                         else download_make_masks_example)
+
+
+def load_the_tem_test_data(screen, *, ask=None, folder=None) -> bool:
+    """Open the TEM test data in Make Masks, downloading it first when needed.
+
+    The same sequence as :func:`load_the_test_data` -- cache check, button
+    disabled while the download runs, the first image by name, a failure
+    said with its reason -- for the ten micrographs of
+    :data:`TEM_EXAMPLE_REPO`, cached in :func:`tem_example_folder`.
+
+    :param screen: the Make Masks screen to open the data in.
+    :param ask: replaces :func:`download_tem_example`, for tests.
+    :param folder: replaces :func:`tem_example_folder`, for tests.
+    :returns: whether this call opened the data.
+    """
+    folder = Path(folder) if folder is not None else tem_example_folder()
+    return _load_example(screen, folder, ask if ask is not None
+                         else download_tem_example)
+
+
+def load_the_fibsem_test_data(screen, *, with_masks=False, ask=None,
+                              folder=None) -> bool:
+    """Open the FIB-SEM test volume in the 3-D mask editor.
+
+    The same sequence as :func:`load_the_test_data`, downloading
+    :data:`FIBSEM_EXAMPLE_REPO` into :func:`fibsem_example_folder` when it is
+    not cached. Without masks the volume opens unsegmented, its drafts saved
+    in ``masks/``. With masks, the published labels are copied once into
+    ``corrected_masks/`` and open there for correction, so
+    ``ground_truth_masks/`` is never overwritten.
+
+    :param screen: the Make Masks screen whose 3-D editor opens the volume.
+    :param with_masks: open the volume with its mitochondria labels loaded.
+    :param ask: replaces :func:`download_fibsem_example`, for tests.
+    :param folder: replaces :func:`fibsem_example_folder`, for tests.
+    :returns: whether this call opened the volume.
+    """
+    folder = Path(folder) if folder is not None else fibsem_example_folder()
+    return _load_example(screen, folder, ask if ask is not None
+                         else download_fibsem_example,
+                         opener=lambda target, chosen: _open_fibsem(
+                             target, chosen, with_masks))
+
+
+def load_the_timelapse_test_data(screen, kind: str, *, ask=None,
+                                 folder=None) -> bool:
+    """Open a timelapse test movie with its masks and lineage loaded.
+
+    The same sequence as :func:`load_the_test_data`, downloading
+    ``timelapse_<kind>`` into :func:`timelapse_example_folder` when it is not
+    cached. The published masks are copied once into ``masks/``, the folder
+    the editor reads and writes, so ``ground_truth_masks/`` is never
+    overwritten. Their embedded lineage opens with the first frame, so the
+    divisions are on the lineage menu and Time can be switched on at once.
+
+    :param screen: the Make Masks screen to open the movie in.
+    :param kind: ``yeast``, ``bacteria`` or ``mammalian``.
+    :param ask: replaces :func:`download_timelapse_example`, for tests. It is
+        called as ``ask(screen, folder, on_done)``.
+    :param folder: replaces :func:`timelapse_example_folder`, for tests.
+    :returns: whether this call opened the movie.
+    """
+    folder = (Path(folder) if folder is not None
+              else timelapse_example_folder(kind))
+    download = ask if ask is not None else (
+        lambda parent, dest, on_done: download_timelapse_example(
+            parent, dest, on_done, kind))
+    return _load_example(screen, folder, download, opener=_open_timelapse)
+
+
+def _open_timelapse(screen, folder) -> bool:
+    """Open an unpacked timelapse movie on its first frame, masks loaded."""
+    import shutil
+
+    folder = Path(folder)
+    if not is_present(folder):
+        screen._warn(
+            tr("Test data not loaded"),
+            tr("The downloaded test data is incomplete: {path}",
+               path=str(folder)))
+        return False
+    masks = folder / "masks"
+    masks.mkdir(parents=True, exist_ok=True)
+    for truth in sorted((folder / "ground_truth_masks").glob("*.tif")):
+        if not (masks / truth.name).exists():
+            shutil.copyfile(truth, masks / truth.name)
+    if not screen._open_folder(str(folder), masks_dir=str(masks)):
+        return False
+    _say(screen, tr("Timelapse test data opened with its lineage. Turn on Time "
+                    "to follow cells and divisions across frames."))
+    return True
+
+
+def _open_fibsem(screen, folder, with_masks: bool) -> bool:
+    """Open the unpacked FIB-SEM volume, with a working copy of its labels."""
+    import shutil
+
+    folder = Path(folder)
+    if not is_present(folder):
+        screen._warn(
+            tr("Test data not loaded"),
+            tr("The downloaded test data is incomplete: {path}",
+               path=str(folder)))
+        return False
+    masks = folder / ("corrected_masks" if with_masks else "masks")
+    if with_masks and not (masks / FIBSEM_VOLUME).exists():
+        masks.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(folder / "ground_truth_masks" / FIBSEM_VOLUME,
+                        masks / FIBSEM_VOLUME)
+    return screen._open_volume_with(str(folder / FIBSEM_VOLUME),
+                                    masks_dir=str(masks)) is not None
+
+
+def _load_example(screen, folder: Path, download, opener=None) -> bool:
+    """Open ``folder`` when complete, else download it with ``download``.
+
+    :param screen: the Make Masks screen.
+    :param folder: where the set is cached.
+    :param download: called as ``download(screen, folder, on_done)``.
+    :param opener: called as ``opener(screen, folder)`` to open the set;
+        :func:`open_the_test_data` when omitted.
+    :returns: whether this call opened the data.
+    """
+    opener = opener or open_the_test_data
     if is_present(folder):
-        return open_the_test_data(screen, folder)
+        return opener(screen, folder)
 
     button = getattr(screen, "_btn_test_data", None)
     if button is not None:
@@ -227,9 +500,8 @@ def load_the_test_data(screen, *, ask=None, folder=None) -> bool:
                 tr("The test data could not be downloaded: {detail}",
                    detail=error))
             return
-        open_the_test_data(screen, folder)
+        opener(screen, folder)
 
-    download = ask if ask is not None else download_make_masks_example
     try:
         download(screen, folder, _done)
     except Exception as exc:                                 # noqa: BLE001

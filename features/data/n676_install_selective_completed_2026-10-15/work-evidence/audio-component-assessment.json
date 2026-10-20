@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "lesson": "02_install_spacr",
+  "component": "AUDIO only",
+  "decision": "KEEP",
+  "repair_required": false,
+  "affected_tracks": [],
+  "affected_utterances": [],
+  "findings": [],
+  "source_commit": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "candidate_root": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/release-manifest.json",
+    "bytes": 1179215,
+    "sha256": "8065f31b9a758cd0a823efbeb8e631cbc740c1c88ca0ea21d7a41e08eab2dcd4"
+  },
+  "technical_evidence": {
+    "reused_existing_owning_qa": {
+      "path": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/production/02_install_spacr/audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json",
+      "bytes": 9037,
+      "sha256": "65fcf59a753c69bf32fcd2ad545f7bacd6c15c7c63c7fbf479159aa0812da255"
+    },
+    "owning_qa_passed": true,
+    "exact_audio_sha_matches": 50,
+    "historical_sidecars_byte_identical_to_current": 50,
+    "historical_qa_current_runtime_freshness_claim": "Historical report explicitly claims current-runtime freshness at its original production epoch; this assessment does not claim new synthesis or a new all50 runtime QA.",
+    "default_waveform_and_raw_cache_inspection": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/default-audio-cache-inspection.json",
+      "bytes": 107013,
+      "sha256": "676e0d3baaf3f3937df9ca5aaef71ce0f894906b78d48859551aa62cd8b4c1eb"
+    },
+    "default_track": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_heart.m4a",
+      "bytes": 1705701,
+      "sha256": "8dc31a4b1fb3255b47ab50fd0a4d3be075ffec775b632dad8f103a6e092b1669"
+    },
+    "default_sidecar": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/media_host/02_install_spacr/audio/en/af_heart.json",
+      "bytes": 74121,
+      "sha256": "a956c09ed15c5866f1ddf446dbcf729f5b40a137cfb87786c228b138ca854266"
+    },
+    "default_finite_full_AAC_decode": true,
+    "default_decoded_duration_seconds": 274.2613333333333,
+    "default_declared_duration_seconds": 274.23,
+    "decoded_minus_declared_seconds": 0.03133333333329347,
+    "default_utterances_exact_cache_inputs_pcm_hash_phonemes": 52,
+    "default_trim_matches_sidecar_within2ms": true,
+    "minimum_head700ms_normalized_correlation": 0.9571166647493082,
+    "minimum_tail700ms_normalized_correlation": 0.9708645951748067,
+    "default_render_fingerprint_recomputed": true,
+    "default_pronunciation_profile_matches_current_source": true,
+    "codec_padding_interpretation": "31.333ms additional decoded duration is compatible with AAC frame padding; no shortened track observed.",
+    "caption_and_all50_metadata_peer": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/caption-component-assessment.json",
+      "bytes": 40121,
+      "sha256": "93a868c6aa37030723e99cd468b8fe4a58f6cb29c6c6ce112f95501b9a912652"
+    },
+    "published_installation_command_compatibility_addendum": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/caption-published-route-compatibility-addendum.json",
+      "bytes": 4519,
+      "sha256": "9859226d5d6681301782aa60b26c1f5df7755b908287c462a9a6c80d6c4a23f7"
+    },
+    "reused_actual_playback_receipts": [
+      {
+        "receipt": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/candidate-browser-checks.json",
+          "bytes": 127523,
+          "sha256": "8a93b860a66720db2c89546483c1c3c024adaa79f8fff06376c5e6e06e8d2bcb"
+        },
+        "published_check": false,
+        "lesson_result": {
+          "lesson": "02_install_spacr",
+          "audio_sha256": "8dc31a4b1fb3255b47ab50fd0a4d3be075ffec775b632dad8f103a6e092b1669",
+          "clocks": {
+            "audio": 33.275015,
+            "video": 46.637101,
+            "expected": 46.311981574519244,
+            "width": 2560,
+            "height": 1440,
+            "error": null,
+            "requested_audio_time": 32.01,
+            "seek_elapsed_seconds": 1.5053047249093652,
+            "hosted_web_copy": "http://127.0.0.1:40517/media_host/02_install_spacr/web/02_install_spacr_silent.mp4"
+          },
+          "chapter_text_matches_audio": true,
+          "native_caption_reloads": 2,
+          "sentence_cue_checks": [],
+          "passed": true
+        }
+      },
+      {
+        "receipt": {
+          "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-23-r60-20261015/release-candidate-append-7ew0avek/checks/published-media-browser-checks.json",
+          "bytes": 134406,
+          "sha256": "9e9f28c40630e7cd2086737a7a895d3ede1cfff1d6fb7e6e08ee106ae9ff296b"
+        },
+        "published_check": false,
+        "lesson_result": {
+          "lesson": "02_install_spacr",
+          "audio_sha256": "8dc31a4b1fb3255b47ab50fd0a4d3be075ffec775b632dad8f103a6e092b1669",
+          "clocks": {
+            "audio": 32.934956,
+            "video": 46.114466,
+            "expected": 45.78904559831018,
+            "width": 2560,
+            "height": 1440,
+            "error": null,
+            "requested_audio_time": 32.01,
+            "seek_elapsed_seconds": 1.5059277559630573,
+            "hosted_web_copy": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7adc8b69d40e491cc5d1a2b4464af80b48264f14/02_install_spacr/web/02_install_spacr_silent.mp4"
+          },
+          "chapter_text_matches_audio": true,
+          "native_caption_reloads": 2,
+          "sentence_cue_checks": [],
+          "passed": true
+        }
+      }
+    ],
+    "new_inspection_script": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/inspect_default_audio.py",
+      "bytes": 7120,
+      "sha256": "ade20d370dd55d86415a6d7f1ce8fc761d1c6b2e334a49f0f5d297e224bef1b4"
+    },
+    "inspection_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/default-audio-inspection.log",
+      "bytes": 421,
+      "sha256": "2c846ec214ff5efdde3c1bcc57853346d3f981f1ccff61962c1ea1a2dba3b398"
+    },
+    "own_RAM_lease_removed": true
+  },
+  "scope": {
+    "new_full_track_decodes": 1,
+    "new_decoded_voice": "en/af_heart",
+    "new_raw_cache_pairs_verified": 52,
+    "other49_audio_decode_QA": "Reused exact-hash historical passed50 owning report; all50 historical sidecars byte-identical and audio SHA values exactly match current manifest/metadata. C23 immutable upload/readback previously verified actual published media bytes.",
+    "metadata_text_clock_coverage": "Caption peer checks50tracks/850scenes/1690sentence rows/current canonical and13 official reviews; reused rather than duplicated.",
+    "playback_coverage": "Existing representative af_heart lesson route checks only; no new browser run or all50 auditory playback."
+  },
+  "human_listening_performed": false,
+  "native_speaker_acceptance": false,
+  "perceptual_word_or_phoneme_completeness_verified": false,
+  "limits": [
+    "No supported hearing/perception tool was available; KEEP is a technical component assessment, not listening approval.",
+    "Raw-cache and AAC waveform correlation do not establish complete initial consonants or perceptual quality. Quiet discarded raw prefixes or constant mastering delay alone are not clipping proof.",
+    "Historical source-freeze receipt was absent at the single known expected location; no further search. Exact historical/current sidecar and audio hash identity is independently bound.",
+    "No synthesis, source/asset edits, model loading/download, ASR, video decode, browser rerun, GPU work, paid/provider fallback or network bulk transfer.",
+    "Video scene07 content assessment is owned separately; this AUDIO KEEP does not accept missing visual instructions."
+  ]
+}

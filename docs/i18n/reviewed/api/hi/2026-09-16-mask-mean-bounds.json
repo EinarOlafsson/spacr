@@ -16,15 +16,6 @@
       "translation": "सभी ``.npz`` बैचों में, जो ``src`` के अंतर्गत हैं, Cellpose-SAM का उपयोग करके एक वस्तु के छवि चैनल का सेगमेंटेशन करें।"
     },
     {
-      "label": "spacr.object.generate_cellpose_masks_sam#1",
-      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
-      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
-      "translation": "पहले से प्रशिक्षित ``cpsam`` मॉडल लोड करता है; यदि ``<object_type>_model_name`` (या ``pathogen_model``) उपयोगकर्ता द्वारा प्रशिक्षित चेकपॉइंट का नाम देता है, तो उस चेकपॉइंट को लोड करता है। पहले से बैचों में बाँटी गई प्रत्येक ``.npz`` फ़ाइल पर क्रमशः काम करता है, 2-D मास्कों पर परिमाप-आधारित विलय तथा क्षेत्रफल/किनारे के आधार पर फ़िल्टरिंग लागू करता है, और वैकल्पिक रूप से वस्तुओं को उनके अपने चैनल की मूल छवि में निरपेक्ष औसत तीव्रता के आधार पर फ़िल्टर करता है। फिर वैकल्पिक रूप से टाइम-लैप्स छवियों में वस्तुओं को ट्रैक करता है, प्रत्येक छवि के लिए ``.npy`` मास्क सहेजता है, और वस्तु-प्रकार के अनुसार गिनती को रन के SQLite डेटाबेस में दर्ज करता है। टाइम-स्टैक आर्काइव में प्रत्येक समय-बिंदु के लिए एक फ़ाइलनाम होना चाहिए, चाहे घोषित समय-अक्ष की स्थिति कोई भी हो; मूल छवि का प्रत्येक फ़ाइलनाम उस समय-बिंदु के ``(Z, Y, X, C)`` आयतन या उसकी ``(Y, X, C)`` छवि को पहचानता है, यदि श्रृंखला समतल ``TYX`` हो।",
-      "retired": true,
-      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded."
-    },
-    {
       "label": "spacr.object.generate_cellpose_masks_sam#3",
       "source": "Directory containing the pre-batched ``.npz`` image stacks.",
       "source_sha256": "29a1be2f9f32ead343bd5c3da14a47365d88f0bd7ef59e19650b57b940afc727",
@@ -98,27 +89,6 @@
       "translation": "यदि कोई ऑपरेशन सक्षम नहीं है, तो मूल ``masks`` बिना बदलाव के लौटाए जाते हैं; अन्यथा फ़िल्टर किए गए मास्क ऐरे की सूची लौटाई जाती है (प्रत्येक FOV के लिए एक)।"
     },
     {
-      "label": "spacr.object_roles.split_role_setting#1",
-      "source": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
-      "source_sha256": "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
-      "context": "The inverse of :func:`role_setting`, and the reason a suffix rename can cost six lines instead of 3,522. Every role is a single word with no underscore, so partitioning on the FIRST one separates the role from the suffix without scanning the 702 organelle slots.",
-      "translation": ":func:`role_setting` का उलटा ऑपरेशन; इसी कारण किसी प्रत्यय का नाम बदलने के लिए 3,522 पंक्तियों के बजाय छह पंक्तियाँ पर्याप्त हो सकती हैं। प्रत्येक भूमिका बिना अंडरस्कोर वाला एक ही शब्द है, इसलिए पहले अंडरस्कोर पर विभाजन करने से भूमिका और प्रत्यय अलग हो जाते हैं, बिना 702 कोशिकांग स्लॉटों को जाँचे।"
-    },
-    {
-      "label": "spacr.object_roles.split_role_setting#2",
-      "source": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
-      "source_sha256": "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
-      "context": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
-      "translation": "यह :func:`role_setting` वाला सत्यापन नहीं है: यह ``ALL_ROLES`` की किसी भी भूमिका को स्वीकार करता है, जिसमें ``cytoplasm`` भी शामिल है। इसे सेगमेंट करने के बजाय अन्य परिणामों से निकाला जाता है, फिर भी यह ``cytoplasm_min_size`` घोषित करता है। यहाँ केवल सेगमेंट की जाने वाली भूमिकाओं को स्वीकार करने पर यह बिना किसी सूचना के छूट जाएगा।"
-    },
-    {
-      "label": "spacr.object_roles.split_role_setting#3",
-      "source": "A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A key with no underscore has no role, so it can never match a suffix rule.",
-      "source_sha256": "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
-      "context": "A bare structured-data name is not a role structured-data name, and that matters: ``FT``, ``CP_prob``, ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their own right in the standalone apply/test-model submodules. A structured-data name with no underscore has no role, so it can never match a suffix rule.",
-      "translation": "बिना भूमिका-उपसर्ग वाली कुंजी भूमिका-कुंजी नहीं होती, और यह अंतर महत्वपूर्ण है: ``FT``, ``CP_prob``, ``Signal_to_noise`` और ``flow_threshold`` स्वतंत्र मॉडल लागू करने/परीक्षण करने वाले उप-मॉड्यूलों में अपने आप में सक्रिय सेटिंग्स हैं। जिस कुंजी में अंडरस्कोर नहीं है, उसकी कोई भूमिका नहीं होती, इसलिए वह कभी किसी प्रत्यय-नियम से मेल नहीं खा सकती।"
-    },
-    {
       "label": "spacr.pipeline_v2.stream_masks_from_stack#3",
       "source": "C-axis indices selected out of each assembled stack before it is handed to Cellpose — taken modulo the channel count and de-duplicated in order. It is NOT forwarded as Cellpose's ``channels=`` argument; ``[0, 0]`` therefore yields a single plane, not a grayscale pair. The first selected channel is the object's own channel for absolute mean-intensity filtering.",
       "source_sha256": "981286e57fbc8c1233dc6f0904dd716f2b532cf74a6f7b51603c94b908de41a4",
@@ -182,39 +152,11 @@
       "translation": "सटीक मिलान को प्राथमिकता मिलती है। क्रमांकित कोशिकांग स्लॉट साझा स्लॉट-नाम मैपिंग के माध्यम से अपने प्राथमिक स्लॉट का ऐनिमेशन दोबारा उपयोग कर सकता है; अज्ञात सेटिंग्स और अक्षरों के बड़े/छोटे रूप में भिन्न नामों को फिर भी असंबंधित सहायता नहीं मिलती।"
     },
     {
-      "label": "spacr.settings.surviving_setting_name#0",
-      "source": "What ``key`` is called TODAY, following renames to the end.",
-      "source_sha256": "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
-      "context": "What ``key`` is called TODAY, following renames to the end.",
-      "translation": "नाम बदलने की पूरी शृंखला के अंत तक जाने के बाद ``key`` का वर्तमान नाम।"
-    },
-    {
-      "label": "spacr.settings.surviving_setting_name#1",
-      "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
-      "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
-      "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
-      "translation": "तीनों उपयोगकर्ताओं के लिए एक ही नाम-रिज़ॉल्वर: रन के समय सेटिंग्स का समेकन, doctor निदान उपकरण का संदेश, और Qt पैनल में लोड करना।"
-    },
-    {
-      "label": "spacr.settings.surviving_setting_name#2",
-      "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
-      "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
-      "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
-      "translation": "पहले ये तीनों इस प्रश्न का अलग-अलग उत्तर देते थे। रन केवल नाम-परिवर्तन तालिका देखता था, doctor निदान उपकरण केवल हटाई गई सेटिंग्स की तालिका देखता था, और केवल Qt पैनल कोशिकांग प्रत्यय-नियम जानता था। इसलिए किसी जनरेट की गई कोशिकांग कुंजी को पैनल स्थानांतरित कर सकता था, जबकि उसी समय रन उसे अनदेखा कर देता था और निदान उपकरण उसका उल्लेख भी नहीं करता था।"
-    },
-    {
       "label": "spacr.settings.surviving_setting_name#3",
       "source": "A setting may have been renamed more than once. Older files need every hop resolved so their values reach the name the current run reads.",
       "source_sha256": "509a6b36ae6e224372e0a0d743b88307807e051ef011b77589754aa0f9a303b1",
       "context": "A setting may have been renamed more than once. Older files need every hop resolved so their values reach the name the current processing session reads.",
       "translation": "किसी सेटिंग का नाम एक से अधिक बार बदला गया हो सकता है। पुरानी फ़ाइलों के लिए नाम-परिवर्तन की शृंखला का हर चरण हल करना आवश्यक है, ताकि उनके मान उस नाम तक पहुँचें जिसे वर्तमान रन पढ़ता है।"
-    },
-    {
-      "label": "spacr.settings.surviving_setting_name#4",
-      "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
-      "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
-      "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
-      "translation": "सेटिंग अभी सक्रिय है या नहीं, यह केवल शृंखला के अंतिम नाम पर जाँचा जाता है। हर चरण पर जाँच करने से वैध शृंखला का मध्यवर्ती नाम अस्वीकार हो जाएगा, क्योंकि मध्यवर्ती नाम परिभाषा के अनुसार अब सक्रिय नहीं होता। यदि पुरानी कुंजी स्वयं अभी सक्रिय है, तो उसका नाम बदलने से इनकार करना प्रत्यय-नियम को काम कर रही सेटिंग हटाने से रोकता है; सात ``_size`` कुंजियाँ सक्रिय हैं और उन्हें बदला नहीं जाना चाहिए।"
     },
     {
       "label": "spacr.settings.surviving_setting_name#5",

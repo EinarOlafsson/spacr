@@ -1,15 +1,14 @@
-"""Volcano Explorer — open a finished regression and interrogate its plot.
+"""Volcano Explorer — open a finished regression and inspect its volcano plot.
 
-A regression run leaves a volcano PDF. That file answers "what was
-significant" and nothing else: which guide is that dot, what would it look
-like coloured by compartment, does the axis label match the correction that
-was actually applied, and can I have it as a vector figure at the size the
-journal asked for.
+A regression run leaves a volcano PDF. That file shows what was significant. It
+does not show which guide a point is, colour points by compartment, confirm
+that the axis label matches the correction applied, or export a vector figure
+at a chosen size.
 
 This screen opens a results folder (or a single results CSV) and hands it to
 :class:`spacr.qt.widgets.volcano_explorer.VolcanoExplorer`, which draws the
-plot through the same renderer the pipeline used -- so what is on screen is
-the plot, not a preview of it.
+plot through the same renderer the pipeline used -- so the plot on screen is
+the pipeline's plot, not an approximation.
 
 It is deliberately a *reader*. It runs no analysis and writes nothing back
 into the results folder; exports go wherever the user chooses. That means it
@@ -75,9 +74,8 @@ _RESULT_FILENAMES = (
 def find_results_table(path):
     """Return the results CSV to plot for ``path``, or None.
 
-    Accepts the CSV itself, a regression output folder, or a parent holding
-    one -- the three things a user actually has to hand when they want to look
-    at a volcano again.
+    Accepts the CSV itself, a regression output folder, or a parent folder
+    holding one.
 
     :param path: a results CSV, a regression output folder, or a folder
         searched recursively for one; ``~`` is expanded.

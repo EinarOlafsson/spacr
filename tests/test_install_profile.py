@@ -63,7 +63,6 @@ def test_write_and_read_profile_roundtrip_atomically(tmp_path, monkeypatch):
         "collected": False,
         "share_diagnostics": False,
         "report_issues": False,
-        "sign_in_now": False,
     }
 
 
@@ -79,13 +78,11 @@ def test_consent_choices_roundtrip_explicitly(tmp_path, monkeypatch):
         consent_collected=True,
         share_diagnostics=True,
         report_issues=True,
-        sign_in_now=True,
     )
     assert install_profile.read_profile(target)["consent"] == {
         "collected": True,
         "share_diagnostics": True,
         "report_issues": True,
-        "sign_in_now": True,
     }
 
 

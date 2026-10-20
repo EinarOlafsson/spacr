@@ -656,7 +656,10 @@
       "source_sha256": "c9ac856460759e28637d0b04edc0c94c2038fd8e2f6d8565a54636058c12621f",
       "context": "What the plaque model box offers: zoo plaque models, then ``bundled``.",
       "translation": "प्लाक मॉडल बॉक्स क्या प्रस्तुत करता है: zoo प्लाक मॉडल, फिर ``bundled``।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.plaque_model_choices#2",
@@ -664,7 +667,10 @@
       "source_sha256": "944439dbb28b43685d91e2e73e2d4bb103602a1ac30cb3e214e935796e88ef07",
       "context": "setting values, newest zoo model first.",
       "translation": "सेटिंग मान, सबसे नया zoo मॉडल पहले।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.plaque_pass#0",
@@ -904,7 +910,9 @@
       "source_sha256": "d5e190177a0a5a301396a4da9e9da11f7fd81df9ebebe30ed6707b1e51cbc2dc",
       "context": "Looks where the processing session looks: the path itself, the zoo entry's own path, ``~/.spacr/models`` and the processing session's model cache under ``<src>/plaque_figures/models``.",
       "translation": "वहीं देखता है जहाँ रन देखता है: स्वयं पथ, zoo प्रविष्टि का अपना पथ, ``~/.spacr/models`` और ``<src>/plaque_figures/models`` के अंतर्गत रन का मॉडल कैश।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N644 active shared model cache replaces the fixed ~/.spacr/models path; 2026-10-15 source-bound replacement is recorded separately. Original review and target retained unchanged."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.resolve_detector#2",
@@ -1186,7 +1194,9 @@
       "source_sha256": "8002df1aa881f4bf52016412cb593be5165d31e5b2ef26a2b3da7a100655ddf7",
       "context": "Read from package data on every call; the folder holds a handful of small files and is only read when Experiment Design builds its menu. A file that does not parse is skipped rather than raised: one bad template must not take the others off the menu.",
       "translation": "हर कॉल पर पैकेज डेटा से पढ़ा जाता है; फ़ोल्डर में कुछ छोटी फ़ाइलें हैं और यह केवल तब पढ़ा जाता है जब Experiment Design अपना मेनू बनाता है। जो फ़ाइल पार्स नहीं होती, उस पर त्रुटि उठाने के बजाय उसे छोड़ दिया जाता है: एक खराब टेम्पलेट को बाकी को मेनू से नहीं हटाना चाहिए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plate_layout.plate_templates#2",
@@ -1734,7 +1744,9 @@
       "source_sha256": "505294fbae7c9bda8a18a586e3e566ad0b9ce95ae9f03bdd48ced95d0c28935e",
       "context": "What it scales, LIVE, without a restart. Everything inside the preview that spaCR sized in pixels:",
       "translation": "यह क्या स्केल करता है, लाइव, बिना पुनरारंभ के। पूर्वावलोकन के भीतर वह सब कुछ जिसका आकार spaCR ने पिक्सेल में तय किया:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#3",
@@ -1782,7 +1794,9 @@
       "source_sha256": "486ee91ca372d7c6eb3d76e29b516c8d246805b79f1b12d8d160abf65710d9fb",
       "context": "Each value's own base is remembered on the widget, so scaling is always from the size the code asked for and never compounds. A size the code sets again later becomes the new base. At 100 % nothing is touched at all -- no sheet, no size, no property -- so a preview at its default scale is the preview it was before this module existed.",
       "translation": "हर मान का अपना आधार विजेट पर याद रखा जाता है, इसलिए स्केलिंग हमेशा उसी आकार से होती है जो कोड ने माँगा था और कभी संचित नहीं होती। कोड द्वारा बाद में फिर से सेट किया गया आकार नया आधार बन जाता है। 100 % पर कुछ भी नहीं छुआ जाता -- न शीट, न आकार, न प्रॉपर्टी -- इसलिए डिफ़ॉल्ट स्केल पर पूर्वावलोकन वही है जो इस मॉड्यूल के अस्तित्व से पहले था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.preview_scale#9",

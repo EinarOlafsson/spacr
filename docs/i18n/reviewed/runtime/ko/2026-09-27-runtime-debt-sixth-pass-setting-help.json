@@ -76,31 +76,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "intensity_calibration",
-      "source": "Calibrate intensities across imaging sessions before measuring: each plate is one session, the beads or reference wells imaged on every plate are measured, and every plate's intensity channels are scaled so its reference wells match the first plate's. This corrects exposure, lamp and detector drift between days at the image level, unlike batch correction of tables. The gains are recorded in measurements.db:intensity_rescale. Default False.",
-      "source_sha256": "2a0bb710f1b278e5440c1034f00e07fff92f82d110e722ad0b3f2f249a23f6df",
-      "translation": "측정 전에 촬영 세션 간 강도를 보정합니다. 각 플레이트가 한 세션이며, 모든 플레이트에서 촬영한 비드나 기준 웰을 측정하고, 기준 웰이 첫 번째 플레이트와 같아지도록 각 플레이트의 강도 채널을 조정합니다. 표의 배치 보정과 달리 이미지 수준에서 날짜 간 노출, 광원, 검출기 드리프트를 보정합니다. 이득은 measurements.db:intensity_rescale에 기록됩니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "intensity_calibration_offset",
       "source": "The camera's dark offset, in the intensity units Measure works in, removed before the reference statistic and kept when scaling: a pixel becomes offset + (value - offset) x gain. Read it from a dark frame; 100 is common on sCMOS cameras. Leave 0 when images are already offset-corrected. Default 0.",
       "source_sha256": "44817c7b242d1370f93d13777898ede908aa1f06f89d26cc2c9ae0e839e7ddf3",
       "translation": "카메라의 암전류 오프셋으로, Measure가 쓰는 강도 단위이며 기준 통계량 전에 빼고 척도 조정 시 유지합니다. 픽셀은 오프셋 + (값 - 오프셋) x 이득이 됩니다. 암 프레임에서 읽으세요. sCMOS 카메라에서는 100이 흔합니다. 이미지가 이미 오프셋 보정되어 있으면 0으로 두세요. 기본값 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_statistic",
-      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
-      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
-      "translation": "intensity_calibration_offset 값을 뺀 뒤 각 기준 시야의 강도를 요약하는 방식입니다. foreground: 어두운 배경의 드문 비드용으로, Otsu 임계값 위 픽셀의 중앙값입니다. median: 균일하게 염색된 기준 웰용으로, 모든 픽셀의 중앙값입니다. 각 플레이트는 기준 시야들의 중앙값을 씁니다. 기본값 foreground."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "intensity_calibration_wells",
-      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
-      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
-      "translation": "보정 시료가 있는 웰로, 모든 플레이트에서 같은 시료로 촬영합니다. 형광 비드나 기준 염색이며, 예: ['A01'] 또는 ['A01', 'P24']. 모든 플레이트는 이 웰에 시야가 하나 이상 있어야 하며, 없으면 실행이 멈춥니다. 다른 웰처럼 측정되고 보정됩니다. 기본값 None."
     },
     {
       "table": "setting_tooltips",
@@ -320,6 +299,24 @@
       "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
       "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
       "translation": "계보 트리에서 각 세포의 색을 정하는 값입니다. generation_time, generation, start_frame, n_frames 또는 세포의 프레임에 걸쳐 평균한 궤적 표의 숫자 열 이름입니다. 알 수 없는 이름은 메시지와 함께 generation_time으로 대체됩니다. timelapse_lineage 설정이 켜져 있지 않으면 무시됩니다. 기본값 generation_time."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field's intensity is summarised, after subtracting intensity_calibration_offset. foreground: the median of the pixels above an Otsu threshold, for sparse beads on a dark background. median: the median of all pixels, for a uniformly stained reference well. Each plate uses the median over its reference fields. Default foreground.",
+      "source_sha256": "18898b95481b93445deb13c8b4ed3fd3b873d79d2e872f90a228810591cd6410",
+      "translation": "intensity_calibration_offset 값을 뺀 뒤 각 기준 시야의 강도를 요약하는 방식입니다. foreground: 어두운 배경의 드문 비드용으로, Otsu 임계값 위 픽셀의 중앙값입니다. median: 균일하게 염색된 기준 웰용으로, 모든 픽셀의 중앙값입니다. 각 플레이트는 기준 시야들의 중앙값을 씁니다. 기본값 foreground.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "The wells holding the calibration sample, imaged on every plate with the same sample: fluorescent beads or a reference stain, such as ['A01'] or ['A01', 'P24']. Every plate must have at least one field in them, or the run stops. They are measured and calibrated like any other well. Default None.",
+      "source_sha256": "7b5a101a3b0932d0cae21d7a63b7360ff2b381787ec937ce269a9b0d77df6c19",
+      "translation": "보정 시료가 있는 웰로, 모든 플레이트에서 같은 시료로 촬영합니다. 형광 비드나 기준 염색이며, 예: ['A01'] 또는 ['A01', 'P24']. 모든 플레이트는 이 웰에 시야가 하나 이상 있어야 하며, 없으면 실행이 멈춥니다. 다른 웰처럼 측정되고 보정됩니다. 기본값 None.",
+      "retired": "2026-10-15 F580 source 6a1b51bfd7 superseded this exact source; retained with its original target. Replacement: 2026-10-15-f580-session-controls-home-b.json",
+      "replacement_source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075"
     }
   ],
   "retirement_2026_10_01_colony_dilution": "The colony dilution help now describes UTF-8 CSV input, exact filename precedence and validation. Prior source-bound review is retained as history, not reused for changed text.",

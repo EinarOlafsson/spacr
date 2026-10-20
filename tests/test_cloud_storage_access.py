@@ -76,7 +76,7 @@ def _write_plate(root: Path) -> dict:
                       Axis.space("x", 0.5, "micrometer")],
                 levels=2, channel_names=("DAPI", "GFP"), chunks=CHUNKS)
             attrs_path = well / field / ".zattrs"
-            attrs = json.loads(attrs_path.read_text())
+            attrs = json.loads(attrs_path.read_text(encoding="utf-8"))
             attrs["multiscales"][0]["axes"][1].pop("unit")
             attrs_path.write_text(json.dumps(attrs))
             arrays[(f"{row}{column}", field)] = data
@@ -166,7 +166,7 @@ def test_only_the_chosen_fields_are_fetched_and_only_once(plate_in_memory,
                                      report=None)
     assert again["fetched"] == 0 and again["reused"] == 1
     assert chunk_reads == []
-    record = json.loads((dest / "spacr_cloud_source.json").read_text())
+    record = json.loads((dest / "spacr_cloud_source.json").read_text(encoding="utf-8"))
     assert record["fields"]["B03/F001"]["z_projected"] is True
     assert record["fields"]["B03/F001"]["spacing"] == (
         "y 0.5 micrometer, x 0.5 micrometer")
@@ -353,7 +353,7 @@ def test_a_plate_served_over_http_stages_without_leaking_secrets(
     assert len(list(Path(local).glob("*.tif"))) == 2
     assert chunk_reads and all("/B/3/0/0/" in p for p in chunk_reads)
     printed = capsys.readouterr().out
-    manifest = (Path(local) / "spacr_cloud_source.json").read_text()
+    manifest = (Path(local) / "spacr_cloud_source.json").read_text(encoding="utf-8")
     for text in (printed, manifest, local):
         assert "hunter2" not in text and "topsecret" not in text
     with pytest.raises(ome_zarr._CloudStorageError, match="cannot be listed"):

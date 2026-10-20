@@ -52,7 +52,24 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
     not -- and the map has to describe both."""
     everything = sc.mapped()
     assert everything[:len(sc.SHORTCUTS)] == sc.SHORTCUTS
-    assert set(sc.SCREEN_SHORTCUTS).issubset(set(everything))
+    # 656: a key shared by several screens (Left/Right) is listed once per
+    # screen, because each screen now holds its own rebindable copy of it.
+    annotate_navigation = {
+        "Left": "Move focus left", "Right": "Move focus right",
+        "PageUp": "Previous page", "Alt+Left": "Previous page",
+        "PageDown": "Next page", "Alt+Right": "Next page",
+    }
+    assert {(spec.keys, annotate_navigation.get(spec.keys, spec.label)
+             if spec.category == "Annotate" else spec.label)
+            for spec in sc.SCREEN_SHORTCUTS} <= {
+        (spec.keys, spec.label) for spec in everything}
+    assert set(annotate_navigation.items()) <= {
+        (spec.keys, spec.label) for spec in everything
+        if spec.category == "Annotate"}
+    for scope in ("Annotate", "Make Masks", "Field browser"):
+        assert {"Left", "Right"} <= {
+            spec.keys for spec in everything[len(sc.SHORTCUTS):]
+            if spec.category == scope}
     assert all(spec.scope != sc.EVERYWHERE for spec in sc.SCREEN_SHORTCUTS)
 
 
@@ -374,11 +391,15 @@ def test_the_palette_key_opens_the_palette(monkeypatch, window):
             opened.append(parent)
 
         def exec(self):
+            opened.append("exec")
             return 0
+
+        def deleteLater(self):
+            opened.append("released")
 
     monkeypatch.setattr(command_palette, "CommandPalette", FakePalette)
     sc._open_palette(window)
-    assert opened == [window]
+    assert opened == [window, "exec", "released"]
 
 
 def test_a_palette_that_cannot_be_built_is_not_a_crash(monkeypatch, window,

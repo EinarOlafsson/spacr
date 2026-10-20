@@ -209,13 +209,6 @@
     },
     {
       "table": "ui",
-      "key": "Organize for Measure…",
-      "source": "Organize for Measure…",
-      "source_sha256": "d974f10b181bb5f1de05d91e9a56207c6f6bd1bbdc38ee5a144af949144c2876",
-      "translation": "Raða fyrir Measure…"
-    },
-    {
-      "table": "ui",
       "key": "Pick the source folder",
       "source": "Pick the source folder",
       "source_sha256": "d9e706f0a3f36712b3d336afb876850a58d2432aa6ba3d78931dd9141cde0431",
@@ -444,6 +437,16 @@
       "source": "{rows} row(s) in {channels} channel(s) and {masks} mask column(s); {missing} row(s) incomplete.",
       "source_sha256": "af1ee5165cf4e18c480394308bcd4d1b413e29f89a7151f7e3ff92f9c81afc30",
       "translation": "{rows} lína(ur) í {channels} rás(um) og {masks} grímudálki(um); {missing} lína(ur) ófullgerð(ar)."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Organize for Measure…",
+      "source": "Organize for Measure…",
+      "source_sha256": "d974f10b181bb5f1de05d91e9a56207c6f6bd1bbdc38ee5a144af949144c2876",
+      "translation": "Raða fyrir Measure…",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

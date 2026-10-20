@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T01:26:08.052314+00:00",
+  "status": "SCOPED CONSISTENCY APPROVED; static source review, not privacy or execution acceptance",
+  "final_audit": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_anonymous_payload_provider_audit_20261013/audit.json",
+    "sha256": "39d1b7937b237062145a73c9c8955b392008da4663dd89dc836019a4acdea41f",
+    "size_bytes": 30922
+  },
+  "independent_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/n700_issue_report_flows_peerreview_20261013.json",
+    "sha256": "cc9c2ea91ec352b79c797ca28bc388ccd54d8ebe170f90f1021d0c08f4e09845",
+    "size_bytes": 9268
+  },
+  "reviewed_gap_ids": [
+    "N700-R1",
+    "N700-R3",
+    "N700-R4",
+    "N700-R5",
+    "N700-R9"
+  ],
+  "reviewed_gap_records": [
+    {
+      "id": "N700-R1",
+      "priority": "high",
+      "source": "issue_report.py:sanitize_settings219-240;build_report594-604",
+      "fact": "Only top-level sensitivekey values and strings/liststrings are sanitized. Nested dicts, list-of-dicts, tuples/objects and their repr are retained then printed into body; public_report strips paths only.",
+      "planted_input": {
+        "pipeline": {
+          "password": "N700_SYNTHETIC_SECRET_A",
+          "note": "PATIENT_N700_FAKE_042"
+        },
+        "steps": [
+          {
+            "access_key": "N700_SYNTHETIC_SECRET_B"
+          }
+        ]
+      },
+      "impact": "Nested secrets/identifiers can reach public automatic report.",
+      "future_acceptance": "Strict allowlist drops arbitrary settings; any optional reviewedsettings flow recursivelysanitizes bothkeys/values and refusesunknownobjects."
+    },
+    {
+      "id": "N700-R3",
+      "priority": "high",
+      "source": "issue_preview.py:__init__title_edit83-84,_refresh_body118-128,approved_report273-279;app_screen.py10025-10034",
+      "fact": "Default strictpath toggle applies tobody only. AppScreen passes ordinary build_report topreview; title can retain nonhome paths. approved_report returns editedtitle/body unchanged, and submit_report doesnot apply finalsanitizer.",
+      "future_acceptance": "Automaticpayload stays typed. Manualpublicflow performs finalsanitation/validation and displays exactfinaltitle/body beforeSend; never silently senddifferentbytes than reviewedpreview."
+    },
+    {
+      "id": "N700-R4",
+      "priority": "high",
+      "source": "issue_preview.py:_show_diagnosis237-262,_refresh_body118-128",
+      "fact": "For a newly appended nonempty diagnosis, _show_diagnosis appends to original _source_body then replacesbody_edit rather than currentediteddraft; userremoved identifiers/edits can reappear. Empty/duplicate analysis returnswithoutrebuilding. Path toggles also rebuildfrom_source_body.",
+      "future_acceptance": "Planted test removesidentifier fromeditor, completesdiagnosis/togglespaths, and verifiesidentifier neverreintroduced. Preserve editeddraft; sanitization changes invalidate oldapproval."
+    },
+    {
+      "id": "N700-R5",
+      "priority": "high",
+      "source": "console_panel.py:open_error_flow2308-2346,_console_context_for_question1984-2039;providers.py:_format_conversation667-686,CLIstreammethods690-788",
+      "fact": "show_raw=False changesdisplayonly; rawtraceback ishanded toselectedprovider through wrappedprompt. Error/freeformquestions accumulate _ai_messages; the three registeredCLI implementations flattenfullhistory into argv andinherit os.environ/cwd. This codeaudit observes theprovider seam, notanactualnetworktransfer oraguarantee that everyexternallyconfiguredCLI usesaremotemodel.",
+      "future_acceptance": "Hostederror route receives onlynew typedsummary; hostedchat is a separate explicitcloudtext flow. No automatic transfer of priorCLIhistory/rawconsole/customprompt on fallback; do not claim hiddenerror isredacted."
+    },
+    {
+      "id": "N700-R9",
+      "priority": "medium",
+      "source": "issue_preview.py:_on_diagnose135-198;worker.py:cancel/run;providers.py:ChatProvider.cancel_stream,_stream_process",
+      "fact": "A freshDiagnose request canstart theselectedprovider beforepublicSend; anexistingresult maybereusedwithoutanewrequest. Its explicitbutton intentionallybypasses thevolunteerAI toggle. Cancel callsdialog.reject and timeout/_end_diagnosing stopsdialogpolling only; neither cancelsconsole/providertransport. Noactualprovider/cloudexecution occurred inthisaudit.",
+      "future_acceptance": "Separatecloud disclosure/optout and actualnetworkcancellation/deadlines; failed/quota/cancelledpartialmodeloutput neveraccepted asdiagnosis or auto-filed."
+    }
+  ],
+  "verdict": "Qualified R1/R3/R4/R5/R9 agree with independently read source. R4 explicitly conditions editor replacement on first new nonempty analysis and excludes duplicate-section early return. R5 identifies selected-provider seam, not observed remote transfer. R9 distinguishes fresh/reused/blocked diagnosis and volunteer-toggle behavior; cancellation/timeout is dialog polling only.",
+  "additional_source_confirmation": {
+    "binding": {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/ai/issue_preview.py",
+      "sha256": "bb07744b8595346bd92c07aec463aaec75f2ff3f40fc08097706b89c18d21bed",
+      "size_bytes": 11698
+    },
+    "line_spans": [
+      [
+        104,
+        112
+      ],
+      [
+        135,
+        198
+      ],
+      [
+        210,
+        235
+      ]
+    ],
+    "fact": "Cancel invokes reject only. Fresh Diagnose calls open_error_flow with raw traceback and show_raw=False; existing-analysis/no-provider/running-thread/empty-traceback guards may prevent new request. _end_diagnosing stops timer/reset button; no console.cancel_ai call in dialog."
+  },
+  "scope_limit": "Only these five claims checked. Other source gaps, hosted allowlist/provider integration proposal, planted-data plans, native behavior and transport execution are not independently accepted by this addendum. No broad hashing/test/GUI/network/GPU work occurred.",
+  "no_changes": true
+}

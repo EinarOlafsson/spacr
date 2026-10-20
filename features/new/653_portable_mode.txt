@@ -37,3 +37,30 @@ LEFT
   Existing portable/lock/storage/purge cohort:27PASS1.45s, Qt6.12/pytest8.4.2,
   hidden CUDA/offscreen/8G. AI technical structural review, not native-speaker
   signoff or a new cross-platform native acceptance claim.
+
+2026-10-14 — portable instance/project lock location repaired (Home):
+The lock directory alone still used the ordinary ~/.spacr path, bypassing
+both a custom SPACR_HOME and the portable marker. It now uses the existing
+_spacr_home resolver; explicit SPACR_LOCK_DIR retains precedence. Native
+temporary-directory regressions failed for both custom and marker-selected
+homes before the one-line fix; the explicit-lock override already passed.
+The final finite lock/recovery/portable owning cohort passed 58 cases in
+8.21 seconds (actual exit 0), including real QLockFile acquisition/release
+and existing second-process stale/current lock checks. No captions, public
+signatures or docstrings changed. No user directories were read or changed
+by the new tests, and no native macOS/Windows claim or full CI is made.
+Evidence: data/653_portable_lock_location_2026-10-14/receipt.json.
+
+2026-10-14 — portable proxy/certificate preferences location repaired (Home):
+The updater's network.json resolver likewise bypassed SPACR_HOME and portable
+mode, reading/writing ordinary-home preferences instead. It now uses the
+already imported _spacr_home resolver; SPACR_NETWORK_CONFIG remains the
+highest-priority explicit file override. Both configured-home and launcher-
+marker native temporary-file cases failed before the one-line repair; the
+explicit override guard already passed. The final finite network/preference/
+portable cohort passed 33 tests in 10.27 seconds (actual exit 0). Tests verify
+round-trip settings and zero ordinary-home writes; apply-network is disabled
+in new tests, and existing provider tests use offline stubs. No migration or
+change to existing ordinary-home installations is claimed. Captions, public
+signatures and docstrings are unchanged. No live proxy, user data or GPU.
+Evidence: data/653_portable_network_location_2026-10-14/receipt.json.

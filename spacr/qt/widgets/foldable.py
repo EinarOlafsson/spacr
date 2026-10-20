@@ -104,7 +104,10 @@ class Folder:
         heading.unsetCursor()
         self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
-        heading.installEventFilter(self._filter)
+        from ..gil_priority import _watch_object_events
+
+        _watch_object_events(heading, self._filter,
+                             (QEvent.MouseButtonRelease,))
         heading.setProperty("i18nSkipText", True)
         heading.retranslate_dynamic_content = self._retranslate
         self._repaint()
@@ -172,9 +175,9 @@ class Folder:
     def alert(self, note: str = "!") -> None:
         """Mark the folded strip as having something to say.
 
-        A FOLDED CONSOLE THAT RECEIVES AN ERROR SAYS SO. Silence from a panel
-        the user folded is indistinguishable from silence from a panel with
-        nothing in it, and the first is the one that matters.
+        A folded console that receives an error is marked, because otherwise
+        a folded panel with new content looks the same as a folded panel with
+        nothing in it.
         """
         if not self._shut:
             return

@@ -1,0 +1,266 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "pass",
+  "source_peer_passed": true,
+  "technical_translation_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_at_utc": "2026-10-15T21:18:17.219846+00:00",
+  "draft_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/draft-manifest.json",
+    "bytes": 16931,
+    "sha256": "ed32512b9af94b78c5ed34ae052bef587a24b4f260abc08cd4b996747345b023"
+  },
+  "English": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/05_home.json",
+    "bytes": 12628,
+    "sha256": "d57ea978b09a03132fad3f1d97dc83eabcb2403e607adb55deaaa4ef94ef2800"
+  },
+  "English_normalized_sha256": "f8908880aff368137b2883715d0e2ea4caf7f694a18426d3da1b567451455b38",
+  "counts": {
+    "languages": 13,
+    "translated_text_fields_reviewed": 39,
+    "narrations_per_review": 31,
+    "unchanged_narrations_per_review": 30
+  },
+  "rows": [
+    {
+      "locale": "da",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.da.json",
+        "bytes": 15821,
+        "sha256": "14537044785d4684a59fc650fd52d7a149303ad82417a147220df111307c9b24"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.da.json",
+        "bytes": 14871,
+        "sha256": "81cb9824f20993410ecddb36996b416587c76a898a1bfd24fe9d827d9126b0c3"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "de",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.de.json",
+        "bytes": 16595,
+        "sha256": "f94a5580b83c08970a05eb8c15e5ef6ac53637203dd19dc85c99c2dcfb9335f1"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.de.json",
+        "bytes": 15604,
+        "sha256": "a889be892d8cfc3751704445d0fac6923d6d93f9c338ace54afba321d9118bde"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "es",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.es.json",
+        "bytes": 16411,
+        "sha256": "351ff8c42e4547db083743ceab9d82cf9ccb0a57912ba0e14090028febebe1c1"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.es.json",
+        "bytes": 15396,
+        "sha256": "62c3a52fcd7bfc1076c7b3870dd41c4eb21b04840f75015906aeb6d89a2af216"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "fr",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.fr.json",
+        "bytes": 16941,
+        "sha256": "7393d8c985be53701c0c232311bf83992328f31f8c4b2ce88e5298bc7b8e4f79"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.fr.json",
+        "bytes": 15908,
+        "sha256": "f599dce84aa0f365ae4a945c4c161260992193c94f3ab22be7e8cb4842f87581"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "hi",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.hi.json",
+        "bytes": 25128,
+        "sha256": "ecc469781647f8c2777e5f5b87580cb2339702fbbbba99d24c5810bc1eef84cc"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.hi.json",
+        "bytes": 24020,
+        "sha256": "0f94e3337d886f7d371d5404501c455b8a046c70f9c2fad5f4facac8a39a06a3"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "is",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.is.json",
+        "bytes": 15943,
+        "sha256": "be413249b27f1b7bb89b34b29e936a33262f43938413e35250d56ddb43e6e53b"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.is.json",
+        "bytes": 14995,
+        "sha256": "235bb07aeaa2e75640a0f9414bffe969b6b63d882fc6aaca4c56ae2e82fe6d64"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "it",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.it.json",
+        "bytes": 16271,
+        "sha256": "c1876f9448a93a9e5df8cf81702e88836c0bff4e374188fc020ae297df94c9bd"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.it.json",
+        "bytes": 15279,
+        "sha256": "8a712dd704e53c488eefa06f00097d9dd869362f5562f5bc7bd90ed0c2f2c550"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "ja",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.ja.json",
+        "bytes": 17780,
+        "sha256": "90d80909abc840398404b161554420b72e83206f0ebf49eed7be4a08551fe882"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.ja.json",
+        "bytes": 16773,
+        "sha256": "d481ab3e06376f632f967de3e692d7f82304a5bc14592062e19c20eac3418c39"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "ko",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.ko.json",
+        "bytes": 16781,
+        "sha256": "5c7d5ca3e2e912f650b94220541a14dc49cf0464ec8d857847166ee14a835bfa"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.ko.json",
+        "bytes": 15795,
+        "sha256": "d05e63b0c99b7b9b4ba484be10ed0bc0e6725088ab26baac4ce1f2ff4531893f"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "nb",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.nb.json",
+        "bytes": 15719,
+        "sha256": "ea7779ddb0de801b62ca315328442c9293ffed2f959cf51ff4bd5b2846df900e"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.nb.json",
+        "bytes": 14772,
+        "sha256": "1e5ebd8c0a914bf6e5858654bd91fd5ae310e3ec8fe4a6d89db77e074f66428d"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "pt-BR",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.pt-BR.json",
+        "bytes": 16079,
+        "sha256": "5f75ee16fbb1a8da30a7c9d829651ab8d9700cedb1adce33d7b41404f79f3485"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.pt-BR.json",
+        "bytes": 15094,
+        "sha256": "2dacfcc1ac449b771348d3492952569ffd975b7d56f788a4c9180088da541bb0"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "sv",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.sv.json",
+        "bytes": 15897,
+        "sha256": "7a5c3893d78110d2dddf6ebbb00d537f7e0d7e7b0a44aa3053d47a213d317df5"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.sv.json",
+        "bytes": 14946,
+        "sha256": "c570dc65ffa62e0bf83e36011a71743d1383abada84c6f2762c39ff77efe9afb"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    },
+    {
+      "locale": "zh-CN",
+      "draft": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/drafts/05_home.zh-CN.json",
+        "bytes": 14762,
+        "sha256": "667cde596b9ccbd56e8769da7c48e8872e5211c570fdcc2f71fddd3e386a3129"
+      },
+      "preimage": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-draft/preimages/05_home.zh-CN.json",
+        "bytes": 13776,
+        "sha256": "b57261d78cd19c2a64426ec45fd0f81c8eebb6a62982809a7d68d2c2034056ec"
+      },
+      "technical_meaning_passed": true,
+      "only_three_text_fields_changed": true,
+      "other30_narrations_and_allother_fields_exact": true,
+      "history_preserved": true
+    }
+  ],
+  "technical_findings": [
+    "All13 descriptions preserve overview/category tabs, shared module controls learned through Mask, and navigation/help/appearance.",
+    "All13 first objectives preserve the exact five visible UI label identities Home/Core/Data/Tools/Organism.",
+    "All13 overview narrations preserve grouping, category filtering, tile→named module, sidebar route equivalence and Home→overview, without introducing alpha/Spaceout instructions.",
+    "Only description/objective1/scene1 prose changed; the old review object is preserved under truthful AI draft metadata and all other30 narrations remain exact."
+  ],
+  "claims": {
+    "native_speaker_signoff": false,
+    "human_listening": false,
+    "ROOT_reviews_applied": false,
+    "audio_generated": false
+  },
+  "limits": [
+    "Independent AI technical/semantic source review of39 translated fields; not a native-speaker or audio listening acceptance.",
+    "Draft metadata intentionally still says independent_peer_review:false pending root adoption/binding to this separate peer.",
+    "No source/review application, translation regeneration, model/audio/browser/test execution by this peer."
+  ]
+}

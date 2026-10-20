@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-14T01:12:05.257003+00:00",
+  "review_kind": "IndependentCodexAI boundedsource/prosepeerreview",
+  "reviewed_advisory": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lightweight-english-truth-advisory-corrected-20261013.json",
+    "sha256": "423f0ad6b976f253baa545a4f4a5690f5e77c587c75cabe7b690f455ed94c6ac",
+    "bytes": 31358
+  },
+  "reviewed_source_checkout": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013",
+  "observed_source_head": "71d9841e991cfbf36de9847770f70ac4536d3bda",
+  "reviewed_source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "bytes": 552446
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "bytes": 581838
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/docs/notes/release_notes_1.5.1.5.md",
+      "sha256": "ab19724ca00b9a3d65fe819eadddaa65c5d169f88e40962210283eb4fa75dc5c",
+      "bytes": 3799
+    }
+  ],
+  "reviewed_proposal_texts": {
+    "tooltip": "While a CPU-heavy job such as Measure runs, this policy caps backdrops that are already animating at no more than 30 fps and pauses Spaceout fractals. While a GPU job such as mask generation runs, decorative rendering uses the CPU and GPU-backed Spaceout fractals pause. Your saved animation settings return when the jobs end. Off disables this workload policy; other animation limits still apply.",
+    "stop": "Stop the animation timer and retire the shading thread.\n\nWhen a shading producer exists and the widget is visible with a\n:class:`_BufferedEngine`, retain its last published frame, if available,\nas the still drawn by :meth:`_paint_still`. This applies regardless of\nwhy :meth:`stop` was called. A hidden widget does not retain that\npublished frame. Stopping does not imply that every other piece of\nrenderer or widget state is released.\n\nA CPU-heavy run does not itself stop a backdrop that otherwise qualifies\nto animate: the workload policy and :func:`spacr.qt.gil_priority.active`\ncan pace it to no more than :data:`_RUN_FPS`. The animation switch,\nvisibility, Reduce motion and minimization still govern whether it runs.",
+    "release_bullets": [
+      "Field backgrounds on Mask screens and in Spaceout use frame-rate caps of up to 60 fps. Workload pacing can lower the cap for active backdrops to 30 fps. Actual frame rates depend on the display and load. Ripples from a closed window run outward only, and the ripple slider scales waves up to 200 %.",
+      "Preferences includes changes intended to reduce delays when opening, applying and closing.",
+      "The README is rebuilt from images, and the slide deck is rebuilt to match. README and interface localization catalogs are available in nine languages."
+    ]
+  },
+  "findings": [
+    {
+      "area": "tooltip",
+      "verdict": "supported_conditional_policy_wording",
+      "source_basis": [
+        "AmbientWidget._rate uses min(_fps,_RUN_FPS) whenpaced; MAX_FPS/FIELD_FPS60,_RUN_FPS30",
+        "_follow_the_run pacesforgil_priority.active ORenabledCPUworkpolicy; _should_run stillrequiresanimationon/visible/noReduceMotion/notminimized",
+        "blocks_gpu guardsenabledCPU/GPU work; _hold_fractals pausesallSpaceoutfractalsforCPU,onlyGPU-backedforGPU; preferencesnotoverwritten",
+        "Turningpolicyoff leavesindependentgil_priority/visibility/motionguards"
+      ],
+      "quality_limit": "No guaranteeofdeliveredmotion, achieved30/60fps or measuredsmoothness. Thisispolicywording, notperformanceacceptance."
+    },
+    {
+      "area": "stop_docstring",
+      "verdict": "visible_BufferedEngine_conditions_match",
+      "exact_conditions": {
+        "producer_required": true,
+        "visible_required": true,
+        "buffered_engine_required": true,
+        "last_frame_required_if_available": true,
+        "hidden_frame_not_retained": true
+      },
+      "source_basis": "stop computes _holds_still fromisVisible andisinstance(_engine,_BufferedEngine), keep=_last_frame onlyifproducerexistsandholds_still, _still=NoneifkeepNone, clears_last_frame/composed. Conditiondoesnotcheckwhy stopwascalled.",
+      "quality_limit": "Docdraft doesnotclaimzero totalmemory,state release, immediateworkertermination or historicalcostnumbers. _retire_producer invokesproducer.stop; no timingmeasurement performed."
+    },
+    {
+      "area": "release_three_bullets",
+      "verdict": "bounded_advisory_supported",
+      "details": [
+        "Fieldwording statescaps anddisplay/loaddependence,notconstant60fps or guaranteedmotion; unchangedrippleclauses remainoutsideindependentreview",
+        "Preferences wording isintent-only, notmeasuredfaster/no-freeze guarantee; actualshippedchange stillrequiresHomeconfirmation",
+        "Languagewording statescatalogavailability, not native-speaker/complete semanticquality. README/deck rebuiltclauses arepreservedoriginals, not independentlycertified"
+      ],
+      "quality_limit": "Advisoryremainsunapproved; no source/performance/translation/localizednotes acceptance."
+    },
+    {
+      "area": "remaining_release_bullets",
+      "verdict": "explicitly_unreviewed",
+      "bullet_total": 31,
+      "proposals": 3,
+      "unreviewed": 28,
+      "exact_partition_matches": true,
+      "quality_limit": "Retainedoriginalperformance assertions inthese28bullets areunreviewedhistoricaltext, notendorsedbythispeerreview."
+    }
+  ],
+  "source_excerpts": [
+    {
+      "line": 659,
+      "text": "FIELD_FPS = 60"
+    },
+    {
+      "line": 668,
+      "text": "_RUN_FPS = 30"
+    },
+    {
+      "line": 670,
+      "text": "MAX_FPS = 60"
+    },
+    {
+      "line": 2451,
+      "text": "def _rate(self, curtain: Curtain) -> float:"
+    },
+    {
+      "line": 10964,
+      "text": "def _rate(self) -> int:"
+    },
+    {
+      "line": 10973,
+      "text": "return min(self._fps, _RUN_FPS) if self._run_paced else self._fps"
+    },
+    {
+      "line": 11020,
+      "text": "paced = bool(active() or _animation_paused_for_work())"
+    },
+    {
+      "line": 11086,
+      "text": "self._holds_still = bool(self.isVisible()"
+    },
+    {
+      "line": 11088,
+      "text": "keep = (self._last_frame if producer is not None and self._holds_still"
+    },
+    {
+      "line": 11107,
+      "text": "self._still = None if keep is None else (self._still_key(size), keep)"
+    },
+    {
+      "line": 11192,
+      "text": "def _should_run(self) -> bool:"
+    },
+    {
+      "line": 11202,
+      "text": "if not self._animating or not self.isVisible():"
+    },
+    {
+      "line": 11206,
+      "text": "if get_reduce_motion():"
+    },
+    {
+      "line": 11209,
+      "text": "if window is not None and window.isMinimized():"
+    },
+    {
+      "line": 11607,
+      "text": "if not self._animating or not self.isVisible():"
+    },
+    {
+      "line": 12415,
+      "text": "def blocks_gpu(self) -> bool:"
+    },
+    {
+      "line": 12417,
+      "text": "return self.enabled and (self.cpu_busy or self.gpu_busy)"
+    },
+    {
+      "line": 12483,
+      "text": "def _hold_fractals(self) -> None:"
+    },
+    {
+      "line": 12487,
+      "text": "wanted = (self.pauses_animation()"
+    }
+  ],
+  "verdict": "AcceptedasconditionalHome-reviewadvisory only; no remainingguaranteedmotion/achieved60fps/no-freeze/zero-memory/native-qualityclaim inreviewedproposals; noEnglishapplicationorperformanceapproval",
+  "translation_inventory_rescanned": false,
+  "tests_or_runtime_or_GUI_or_GPU": false,
+  "source_catalog_review_edits": false,
+  "limits": [
+    "Reviewedonlythreeproposedreleasebullets andtooltip/stop;28remainingbullets explicitlyunreviewed",
+    "No independentreadme/deck/ripple/translation-content review",
+    "ActualfinalHome behavior/experimentalperformance remainsunverified"
+  ]
+}

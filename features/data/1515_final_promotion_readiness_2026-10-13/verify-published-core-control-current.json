@@ -1,0 +1,16 @@
+{
+  "checked_at_utc": "2026-10-14T02:23:57.129071+00:00",
+  "candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "release_commit": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "release_ref": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "python_source_files": 669,
+  "changed_python_source_files": [],
+  "core_file_sha256": {
+    "setup.py": "4dc21bd2aed6278c52e42ebf05d59d1c803b218532fd1a07d98464213e01a608",
+    "spacr/_version.py": "0f8601b7d00cdec6e0e3a0f62bac5f0fc1715183c4a4b6229f241b29540eb455",
+    "CITATION.cff": "0e8c268c80c67c5b8aa3661567febd0a9c7874beabd284ff80e89419de9ec3a8"
+  },
+  "verified_source_equivalence_except_version": true,
+  "problems": [],
+  "scope": "Tagged Python source and exact core version literals; not artifact, installer, citation or runtime acceptance."
+}

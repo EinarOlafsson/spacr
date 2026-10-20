@@ -305,7 +305,9 @@
       "source_sha256": "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582",
       "context": "A radar is a polygon, not an axis. This was the last figure on the explanation path that could not move to the screen's renderer, on the grounds that pyqtgraph has no polar view -- which is true and was never the obstacle: each label takes an angle, each value a radius, and `FastPlot.add_radar` draws its own rings because a radar read against a square grid is unreadable.",
       "translation": "UM RADAR É UM POLÍGONO, NÃO UM EIXO. Esta era a última figura no caminho de explicação que não podia passar para o renderizador da vista, sob o argumento de que o pyqtgraph não tem vista polar -- o que é verdade e nunca foi o obstáculo: cada rótulo recebe um ângulo, cada valor um raio, e `FastPlot.add_radar` desenha os seus próprios anéis porque um radar lido contra uma grade quadrada é ilegível.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.interpret_vision_model.extract_compartment_channel#0",
@@ -505,7 +507,9 @@
       "source_sha256": "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
       "context": "A per-well positive count is not comparable between microplate sample positions of different size: ``process_scores`` sums the response for the count models, so a well of 2000 cells contributes roughly four times the count of a well of 500 at the identical underlying rate. Modelling that count without ``offset(log(Ntotal))`` asks the covariates to explain well size, and any covariate correlated with it comes back as a hit. Measured on a 400-well simulation with a nuisance covariate that drives well size and nothing else, and a true rate coefficient of +1.5: without the offset the nuisance term came back at +1.88 with p = 0, ahead of the real effect; with it, +0.002 with p = 0.90.",
       "translation": "Uma CONTAGEM POSITIVA por poço não é comparável entre poços de tamanhos diferentes: ``process_scores`` soma a resposta para os modelos de contagem, então um poço de 2000 células contribui com cerca de quatro vezes a contagem de um poço de 500 com a mesma taxa subjacente. Modelar essa contagem sem ``offset(log(Ntotal))`` pede às covariáveis que expliquem o tamanho do poço, e qualquer covariável correlacionada com ele volta como acerto. Medido numa simulação de 400 poços com uma covariável de ruído que determina o tamanho do poço e nada mais, e um coeficiente de taxa verdadeiro de +1.5: sem o offset, o termo de ruído voltou com +1.88 e p = 0, à frente do efeito real; com ele, +0.002 e p = 0.90.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_model._poisson_offset#2",
@@ -553,7 +557,9 @@
       "source_sha256": "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
       "context": "OLS on a design whose COVARIATES carry a spline basis.",
       "translation": "OLS sobre um desenho cujas COVARIÁVEIS carregam uma base de splines.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_model._spline#1",
@@ -569,7 +575,9 @@
       "source_sha256": "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538",
       "context": "A column is treated as a covariate when it is CONTINUOUS and is not a guide or gene term -- an indicator has nothing to bend through, and expanding one would spend degrees of freedom on nothing.",
       "translation": "Uma coluna é tratada como covariável quando é CONTÍNUA e não é um termo de guia ou de gene -- um indicador não tem por onde se curvar, e expandi-lo gastaria graus de liberdade em nada.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.regression_model._wls#0",
@@ -1305,7 +1313,9 @@
       "source_sha256": "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
       "context": "ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY ARE THE DATA, so these series keep distinct hues -- but they come from the published palette in a fixed order rather than from seaborn's 100-colour 'deep' ramp reordered by an index list. A hundred hues is a hundred series nobody can tell apart, and the eighth one was a pastel that vanished on the dark ground.",
       "translation": "UMA LINHA POR COLUNA MEDIDA É UM CASO EM QUE AS CATEGORIAS SÃO REALMENTE OS DADOS, então estas séries mantêm matizes distintos -- mas eles vêm da paleta publicada numa ordem fixa, e não da escala 'deep' de 100 cores do seaborn reordenada por uma lista de índices. Cem matizes são cem séries que ninguém consegue distinguir, e a oitava era um pastel que sumia no fundo escuro.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#2",
@@ -1337,7 +1347,9 @@
       "source_sha256": "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
       "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each row's own value. Default ``1``.",
       "translation": "um NÚMERO de placa, não um nome de coluna. Qualquer valor exceto ``None`` reescreve cada ``plateID`` como ``plate<plate>``; ``None`` mantém o valor próprio de cada linha. Padrão ``1``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#3",
@@ -1409,7 +1421,9 @@
       "source_sha256": "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
       "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each CSV's own value. Default ``1``.",
       "translation": "um NÚMERO de placa, não um nome de coluna. Qualquer valor exceto ``None`` reescreve cada ``plateID`` como ``plate<plate>``; ``None`` mantém o valor próprio de cada CSV. Padrão ``1``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#5",
@@ -1449,7 +1463,9 @@
       "source_sha256": "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
       "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every row's ``plateID`` to ``plate<plate>``, discarding the laboratory microplate the CSV itself recorded; ``None`` keeps the CSV's own value and raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.",
       "translation": "um NÚMERO de placa, não um nome de coluna. Qualquer valor exceto ``None`` reescreve o ``plateID`` de cada linha como ``plate<plate>``, descartando a placa que o próprio CSV registrou; ``None`` mantém o valor próprio do CSV e lança ``KeyError`` se ele não tiver coluna ``plateID``. Padrão ``1``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.submodules.generate_score_heatmap.group_cv_score#3",

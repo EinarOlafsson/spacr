@@ -56,7 +56,7 @@ def test_actual_controls_preview_and_convert_show_mismatch_report(qtbot, prefs, 
     assert not inputs[1].exists()
     assert screen.run_convert()
     receipt = inputs[1] / 'plate_barcode_linkage/complete.json'
-    assert json.loads(receipt.read_text())['mismatches'] == 1
+    assert json.loads(receipt.read_text(encoding="utf-8"))['mismatches'] == 1
     summary = screen._summary.toPlainText()
     assert 'well_not_in_lims' in summary and 'A02' in summary
     assert 'plate_map_lims.csv' in summary and 'plate_barcode_mismatches.csv' in summary
@@ -143,7 +143,7 @@ def test_inline_preflight_failure_preserves_existing_bundle(qtbot, prefs, inputs
     marker.write_text('existing')
     assert screen.preview() and not screen.can_convert()
     assert 'already exists' in screen._summary.toPlainText()
-    assert marker.read_text() == 'existing'
+    assert marker.read_text(encoding="utf-8") == 'existing'
     assert not list(inputs[1].glob('*.tif'))
 
 

@@ -1,0 +1,2967 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-14T00:48:50.350347+00:00",
+  "source_checkout": "/media/carruthers/mnt3/claude/spacr-capture-host",
+  "source_commit": "29552bae7919e5e10fec6e0fb84386346fd940ad",
+  "cached_origin_nightly_commit": "b00b678c878b538f65b08d63970907e8843cd0e4",
+  "catalog_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+      "exists": true,
+      "sha256": "5202f0c033157cd0223e02ddb4fc9c2e8186b97d62b188800cf595ab2c858cc7",
+      "bytes": 7167
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_b.json",
+      "exists": true,
+      "sha256": "8f08f2a7dacb6d7aad363d1ee76855c925539a9738b26184a9f6e9dfdbca213e",
+      "bytes": 8684
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_c.json",
+      "exists": true,
+      "sha256": "a943452ebc1677da0e4d30e1ff5d8f23e1bc186886a6b20873b83476de44973a",
+      "bytes": 14405
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_d.json",
+      "exists": true,
+      "sha256": "481ec38f2e9827fab019ac68a24939fe697da3b14f2d4e235eace478455835c3",
+      "bytes": 13623
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_e.json",
+      "exists": true,
+      "sha256": "a9c4102e608dbf57406c72c3a6018984ec5e37ae515153ef24d09712ec029f59",
+      "bytes": 3047
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_f.json",
+      "exists": true,
+      "sha256": "ca0ef7801c8f5f766d30b4f89536d84f2d0bf3131cc322023f84b5975ec99092",
+      "bytes": 8192
+    }
+  ],
+  "baseline_inventory": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/remake_inventory_20261013.json",
+    "exists": true,
+    "sha256": "344cb43f3f707cd7e9a15cf52a03dda08642a0733049379544f211cae151e4eb",
+    "bytes": 327755
+  },
+  "global_handoff": {
+    "path": "/media/carruthers/mnt3/claude/HANDOFF_WS_to_codex_2026-10-13.md",
+    "exists": true,
+    "sha256": "3f2eae3bbed558eca9142d87d586aa2e909258d2fec5c7d78066323b3d1e412e",
+    "bytes": 18301
+  },
+  "current_home_handoff_binding": {
+    "git_path": "features/HANDOFF.md",
+    "commit": "b00b678c878b538f65b08d63970907e8843cd0e4",
+    "sha256": "9d22e3d3103c484dc2d77160b16d2929d9176f880177904566fcd3a39f7acf22"
+  },
+  "home_transfer_handoff_binding": {
+    "git_path": "features/HANDOFF_2026-10-13_claude_home_to_codex.md",
+    "commit": "b00b678c878b538f65b08d63970907e8843cd0e4",
+    "sha256": "f3a22d45e959e43777701b2707c2fab3f055126c2e4527667d171fbf9132143d"
+  },
+  "freeze_scope": "Home20:15/20:39source-test-canonical publicationfreeze persists; primaryCI38488240863 pending; no release-done inference",
+  "lessons": {
+    "10_classify_cv": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/10_classify_cv.json",
+        "exists": true,
+        "sha256": "8d05eba762736b20495c47d4754716393b4fc2a786b3f2dfd0932640e2119e75",
+        "bytes": 6216
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+          "name": "classify_cv_gui",
+          "env": {},
+          "run_native": [],
+          "capture": [
+            "--module",
+            "classify_merged",
+            "--download",
+            "--run",
+            "--settings-tour",
+            "--ai-controls",
+            "--classifier-family",
+            "cv",
+            "--platform",
+            "xcb"
+          ],
+          "note": "gui_18_source_folder_choice only shows in the --classifier-family ml run; for cv the existing-split run is the one that picks the folder (see next entry). Unsure which of the two covers 24_batch_figure/23_batch_finished; both run them."
+        },
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+          "name": "classify_cv_existing_split",
+          "env": {},
+          "run_native": [],
+          "capture": [
+            "--module",
+            "classify_merged",
+            "--download",
+            "--run",
+            "--settings-tour",
+            "--ai-controls",
+            "--classifier-existing-split",
+            "<STAGE>/classify_canonical_split_v2",
+            "--platform",
+            "xcb"
+          ],
+          "note": "From capture_classify_existing.py. <STAGE> is the integrator stage. The split must be produced first by the terminal run: python tools/tutorials/capture_classify_preparation.py --stage <STAGE> --source <STAGE>/annotate_fresh/example_data/plate1 --destination <STAGE>/classify_canonical_split_v2 (prepare_01..03 scenes, terminal capture, not host-mode)."
+        },
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+          "name": "classify_prepare_terminal",
+          "env": {
+            "SPACR_TUTORIAL_CV_SOURCE": "<STAGE>/annotate_fresh/example_data/plate1",
+            "SPACR_TUTORIAL_CV_DESTINATION": "<STAGE>/classify_canonical_split_v2"
+          },
+          "run_native": [],
+          "capture": [],
+          "note": "Terminal-only (capture_classify_preparation.py --inside); prepare_01..03 scenes. Not a capture_refresh run; capture list intentionally empty."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_classify_preparation.py",
+          "exists": true,
+          "sha256": "719f7928b710d79fe2f8f3a63c488f62f8f839104111ae8240ca37d721edbd27",
+          "bytes": 6332
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/classify_split_evidence.py",
+          "exists": true,
+          "sha256": "90d39ed6b1e4e26f2ea4e38625da87c5bef67f76dc48afd7d9b23a555808ba4f",
+          "bytes": 8409
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/prepare_classify_split.py",
+          "exists": true,
+          "sha256": "0ae0a0e3d2b1353017ba96f57ecd74d924a969a680a13b290294058cdfb94768",
+          "bytes": 8597
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "candidate_split": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2",
+          "manifest": {
+            "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/tutorial_input_manifest.json",
+            "exists": true,
+            "sha256": "eda97b129b9cefbecef50f18bc6c38c2981866fbeef5c22bc0849c7367dd1a57",
+            "bytes": 79584
+          },
+          "manifest_accepted": true,
+          "records": 64,
+          "sample_counts": {
+            "train": 32,
+            "test": 32
+          },
+          "train_test_well_overlap": [],
+          "database": {
+            "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+            "exists": true,
+            "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+            "bytes": 30629888
+          },
+          "database_matches_expected_source_hash": true,
+          "all64source_target_marker_and_database_checks_pass": true,
+          "records_checked": [
+            {
+              "identity": "plate1_r12_c1_f11_o51",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_11_1_51.png",
+                "exists": true,
+                "sha256": "c10675b64e45e5f87409b7adf8802b8638dea3df770b9fcf69b3013c845fbb27",
+                "bytes": 20670
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f11_o51.png",
+                "exists": true,
+                "sha256": "c10675b64e45e5f87409b7adf8802b8638dea3df770b9fcf69b3013c845fbb27",
+                "bytes": 20670
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f20_o50",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_20_1_50.png",
+                "exists": true,
+                "sha256": "fd698ddb145aafddd8a25f6bc8f0009c8396371a7567039f849738e63a9c5a4f",
+                "bytes": 96501
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f20_o50.png",
+                "exists": true,
+                "sha256": "fd698ddb145aafddd8a25f6bc8f0009c8396371a7567039f849738e63a9c5a4f",
+                "bytes": 96501
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f11_o45",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_11_1_45.png",
+                "exists": true,
+                "sha256": "cccc3b8051f8325128cf969e5dfc9902c8e9394619fc0e64f4e87aed59402f8b",
+                "bytes": 89063
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f11_o45.png",
+                "exists": true,
+                "sha256": "cccc3b8051f8325128cf969e5dfc9902c8e9394619fc0e64f4e87aed59402f8b",
+                "bytes": 89063
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f17_o12",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_17_1_12.png",
+                "exists": true,
+                "sha256": "855991d136a1d4ae134eaffa92dd9733ea2c8e0f824576d707141d1a1c2cc05e",
+                "bytes": 46536
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f17_o12.png",
+                "exists": true,
+                "sha256": "855991d136a1d4ae134eaffa92dd9733ea2c8e0f824576d707141d1a1c2cc05e",
+                "bytes": 46536
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f12_o52",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_12_1_52.png",
+                "exists": true,
+                "sha256": "2e72c0f45d98eb1a58b9170f7bd279903cc923f35207da411bfdcd829ea71540",
+                "bytes": 135987
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f12_o52.png",
+                "exists": true,
+                "sha256": "2e72c0f45d98eb1a58b9170f7bd279903cc923f35207da411bfdcd829ea71540",
+                "bytes": 135987
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f9_o53",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_9_1_53.png",
+                "exists": true,
+                "sha256": "5657d0282b024c03013d4f5e0b81c4b544f8b41eac5bbc7201dcbec4995b075f",
+                "bytes": 181271
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f9_o53.png",
+                "exists": true,
+                "sha256": "5657d0282b024c03013d4f5e0b81c4b544f8b41eac5bbc7201dcbec4995b075f",
+                "bytes": 181271
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f10_o2",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_10_1_2.png",
+                "exists": true,
+                "sha256": "a3f939dc89797ce3f78185ed6cb020f6293d297ce03460b4a75e92ee0567f9c1",
+                "bytes": 102042
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f10_o2.png",
+                "exists": true,
+                "sha256": "a3f939dc89797ce3f78185ed6cb020f6293d297ce03460b4a75e92ee0567f9c1",
+                "bytes": 102042
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f10_o29",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_10_1_29.png",
+                "exists": true,
+                "sha256": "7dc49943249347cca0e13f52130eadc8a5a82dda7dae5834a9af4f0d950dd155",
+                "bytes": 50503
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r12_c1_f10_o29.png",
+                "exists": true,
+                "sha256": "7dc49943249347cca0e13f52130eadc8a5a82dda7dae5834a9af4f0d950dd155",
+                "bytes": 50503
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "bf6d49c44920c975a9be5c4f41b0031aa37f2a64839eb81779965cb7de46132e",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f12_o39",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_12_1_39.png",
+                "exists": true,
+                "sha256": "4a336e5fbb77829ba485578cd5e8359d03a8524d1cc3e75dcd40aaae22816dc8",
+                "bytes": 87904
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f12_o39.png",
+                "exists": true,
+                "sha256": "4a336e5fbb77829ba485578cd5e8359d03a8524d1cc3e75dcd40aaae22816dc8",
+                "bytes": 87904
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f21_o35",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_21_1_35.png",
+                "exists": true,
+                "sha256": "89375ef6a1f2605823f4916d0364085d901ca88b232273de88eb0506ebf859b7",
+                "bytes": 98755
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f21_o35.png",
+                "exists": true,
+                "sha256": "89375ef6a1f2605823f4916d0364085d901ca88b232273de88eb0506ebf859b7",
+                "bytes": 98755
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f21_o70",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_21_1_70.png",
+                "exists": true,
+                "sha256": "681f1a251a20a589e6b5a2bcac3a3bf0584da4df046ca1934e8ead954172ab30",
+                "bytes": 126344
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f21_o70.png",
+                "exists": true,
+                "sha256": "681f1a251a20a589e6b5a2bcac3a3bf0584da4df046ca1934e8ead954172ab30",
+                "bytes": 126344
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "1789baa5ee553e67dff85d0d81a081988381c6289d88d178c736468167245465",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f9_o59",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_9_1_59.png",
+                "exists": true,
+                "sha256": "02f41dc23fb137b13b9806958dc64221c1d444343d88037bb0679373b5f2cbe2",
+                "bytes": 68935
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f9_o59.png",
+                "exists": true,
+                "sha256": "02f41dc23fb137b13b9806958dc64221c1d444343d88037bb0679373b5f2cbe2",
+                "bytes": 68935
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f18_o39",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_18_1_39.png",
+                "exists": true,
+                "sha256": "e1625c617fc32e8cbb376f7319f36f5065932430c4c1cde7377babf8fa51eae5",
+                "bytes": 75420
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f18_o39.png",
+                "exists": true,
+                "sha256": "e1625c617fc32e8cbb376f7319f36f5065932430c4c1cde7377babf8fa51eae5",
+                "bytes": 75420
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f14_o51",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_14_1_51.png",
+                "exists": true,
+                "sha256": "8a6c1ed5c11bc9099a4b2ac6ef97a0cc5e070b714fab205e188cfc8f6e4bfe6b",
+                "bytes": 108926
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f14_o51.png",
+                "exists": true,
+                "sha256": "8a6c1ed5c11bc9099a4b2ac6ef97a0cc5e070b714fab205e188cfc8f6e4bfe6b",
+                "bytes": 108926
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f11_o20",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_11_1_20.png",
+                "exists": true,
+                "sha256": "3f776a28080ae7714f83c1f9cc48c2db3fdcea168eadb3ed9d1833305307785b",
+                "bytes": 131371
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f11_o20.png",
+                "exists": true,
+                "sha256": "3f776a28080ae7714f83c1f9cc48c2db3fdcea168eadb3ed9d1833305307785b",
+                "bytes": 131371
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "1789baa5ee553e67dff85d0d81a081988381c6289d88d178c736468167245465",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c1_f9_o38",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_9_1_38.png",
+                "exists": true,
+                "sha256": "0fecbeb82fcdc9e00ce6bb2053e321831131f6160ae3795194fa170bd9b79ede",
+                "bytes": 97263
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r12_c1_f9_o38.png",
+                "exists": true,
+                "sha256": "0fecbeb82fcdc9e00ce6bb2053e321831131f6160ae3795194fa170bd9b79ede",
+                "bytes": 97263
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "6b67db0779efaf1760c36ef3545aa7ccabca5c1c3ed590e5cd232d6d3ac61228",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f21_o26",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_21_1_26.png",
+                "exists": true,
+                "sha256": "4851d8af7ffd56c8b09c33c04c4dfb375114e63d0c8714fac19ed6ee691d3d71",
+                "bytes": 64382
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f21_o26.png",
+                "exists": true,
+                "sha256": "4851d8af7ffd56c8b09c33c04c4dfb375114e63d0c8714fac19ed6ee691d3d71",
+                "bytes": 64382
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f16_o35",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_16_1_35.png",
+                "exists": true,
+                "sha256": "6783d1f070404123d3ebe576eaa0581754c3bdee4f9afc39abe49120874a5ef9",
+                "bytes": 27656
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f16_o35.png",
+                "exists": true,
+                "sha256": "6783d1f070404123d3ebe576eaa0581754c3bdee4f9afc39abe49120874a5ef9",
+                "bytes": 27656
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f13_o42",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_13_1_42.png",
+                "exists": true,
+                "sha256": "3ee808959a6f9725c83da59880c150d4be8904cf8cce9eff024d6973f1c4fc67",
+                "bytes": 123606
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f13_o42.png",
+                "exists": true,
+                "sha256": "3ee808959a6f9725c83da59880c150d4be8904cf8cce9eff024d6973f1c4fc67",
+                "bytes": 123606
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f10_o3",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_10_1_3.png",
+                "exists": true,
+                "sha256": "44289f8735251297d083e2fe3b96457284689e4e50532ca8f83e7f4606765e83",
+                "bytes": 82599
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f10_o3.png",
+                "exists": true,
+                "sha256": "44289f8735251297d083e2fe3b96457284689e4e50532ca8f83e7f4606765e83",
+                "bytes": 82599
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f17_o20",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_17_1_20.png",
+                "exists": true,
+                "sha256": "c558d787228511d8e6f88f695a2e3876c1ecb130a3a15de02345e51c0f2059c1",
+                "bytes": 157178
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f17_o20.png",
+                "exists": true,
+                "sha256": "c558d787228511d8e6f88f695a2e3876c1ecb130a3a15de02345e51c0f2059c1",
+                "bytes": 157178
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f16_o36",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_16_1_36.png",
+                "exists": true,
+                "sha256": "9e4c33bd2a51d95d4cc42d4d4fb9ef2eddb1366455f3f2275f0fd5fabc6cf032",
+                "bytes": 71715
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f16_o36.png",
+                "exists": true,
+                "sha256": "9e4c33bd2a51d95d4cc42d4d4fb9ef2eddb1366455f3f2275f0fd5fabc6cf032",
+                "bytes": 71715
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f11_o11",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_11_1_11.png",
+                "exists": true,
+                "sha256": "db7862d8de9793362105cf60a850fe29f093189eb5b75c826461fb5f08361e46",
+                "bytes": 20181
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f11_o11.png",
+                "exists": true,
+                "sha256": "db7862d8de9793362105cf60a850fe29f093189eb5b75c826461fb5f08361e46",
+                "bytes": 20181
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f18_o47",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/plate1_L02_18_1_47.png",
+                "exists": true,
+                "sha256": "a190131f60f418b5591a5121e6fb5211e939836c944c73377414a14a511c0166",
+                "bytes": 91138
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r12_c2_f18_o47.png",
+                "exists": true,
+                "sha256": "a190131f60f418b5591a5121e6fb5211e939836c944c73377414a14a511c0166",
+                "bytes": 91138
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f1_o22",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_1_1_22.png",
+                "exists": true,
+                "sha256": "c61c75e2d2622c1d818222c30f526ada9361398b91506fc2cd191d42570a30a7",
+                "bytes": 135500
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f1_o22.png",
+                "exists": true,
+                "sha256": "c61c75e2d2622c1d818222c30f526ada9361398b91506fc2cd191d42570a30a7",
+                "bytes": 135500
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f10_o4",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_10_1_4.png",
+                "exists": true,
+                "sha256": "e76ffd0fa6283029bff77ce4fe4bf096bf2cd06d5fbe1ce5700aabb0b6acbe2e",
+                "bytes": 155848
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f10_o4.png",
+                "exists": true,
+                "sha256": "e76ffd0fa6283029bff77ce4fe4bf096bf2cd06d5fbe1ce5700aabb0b6acbe2e",
+                "bytes": 155848
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f19_o16",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_19_1_16.png",
+                "exists": true,
+                "sha256": "e73f55ec43686a6591e12acae56935cd7bebfe554e71d7ec946d36fadb457411",
+                "bytes": 118017
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f19_o16.png",
+                "exists": true,
+                "sha256": "e73f55ec43686a6591e12acae56935cd7bebfe554e71d7ec946d36fadb457411",
+                "bytes": 118017
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f18_o28",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_18_1_28.png",
+                "exists": true,
+                "sha256": "753ca0b14d9b7ea14a6c37d7320754a6d0cbfb10b4171098f5761c3f217ba7d1",
+                "bytes": 81905
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f18_o28.png",
+                "exists": true,
+                "sha256": "753ca0b14d9b7ea14a6c37d7320754a6d0cbfb10b4171098f5761c3f217ba7d1",
+                "bytes": 81905
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "e3ef2781a1550b180c377e61dd5e481c0ba1df6e8aea2a54b70b6af43e6cdcf4",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f16_o22",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_16_1_22.png",
+                "exists": true,
+                "sha256": "5299d3f81a047e69b1783bd6ced8b4425547ed118999df40b7e16d333583c41e",
+                "bytes": 161119
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f16_o22.png",
+                "exists": true,
+                "sha256": "5299d3f81a047e69b1783bd6ced8b4425547ed118999df40b7e16d333583c41e",
+                "bytes": 161119
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f20_o43",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_20_1_43.png",
+                "exists": true,
+                "sha256": "2008c90d7b7c35c47dbc324c25432acdaa355b245f75430f6f08070a52a88942",
+                "bytes": 115681
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f20_o43.png",
+                "exists": true,
+                "sha256": "2008c90d7b7c35c47dbc324c25432acdaa355b245f75430f6f08070a52a88942",
+                "bytes": 115681
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "3292332c4e34cae2b85e7bb8e4e25357cf0b7c9a9c3ef4d1b42a25fb4cda069d",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f18_o40",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_18_1_40.png",
+                "exists": true,
+                "sha256": "9ea08684f85a90c7d180d5dff82613d1b47e53ce8efc23f6efd19c9200b3ccc7",
+                "bytes": 139274
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f18_o40.png",
+                "exists": true,
+                "sha256": "9ea08684f85a90c7d180d5dff82613d1b47e53ce8efc23f6efd19c9200b3ccc7",
+                "bytes": 139274
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "e3ef2781a1550b180c377e61dd5e481c0ba1df6e8aea2a54b70b6af43e6cdcf4",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r12_c2_f14_o10",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_14_1_10.png",
+                "exists": true,
+                "sha256": "435a5860a3fce104b52c9672a316c12feaf2f9314c9afed6ed06617926c1bf17",
+                "bytes": 95992
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r12_c2_f14_o10.png",
+                "exists": true,
+                "sha256": "435a5860a3fce104b52c9672a316c12feaf2f9314c9afed6ed06617926c1bf17",
+                "bytes": 95992
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "de43dc703760e89ae21cf0c9317c9c8c7075cbeedc0baa903d9044c02f03f455",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f12_o32",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_12_1_32.png",
+                "exists": true,
+                "sha256": "5351242368672df50096da13050f1eefad956cdaa43ecb7d7d6576ceddbc92ae",
+                "bytes": 145332
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f12_o32.png",
+                "exists": true,
+                "sha256": "5351242368672df50096da13050f1eefad956cdaa43ecb7d7d6576ceddbc92ae",
+                "bytes": 145332
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f1_o32",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_1_1_32.png",
+                "exists": true,
+                "sha256": "416cce069fbf939a146afc7f17348c273af0f9a2ec85a87235570de8be6b3afc",
+                "bytes": 189208
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f1_o32.png",
+                "exists": true,
+                "sha256": "416cce069fbf939a146afc7f17348c273af0f9a2ec85a87235570de8be6b3afc",
+                "bytes": 189208
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f10_o31",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_10_1_31.png",
+                "exists": true,
+                "sha256": "2363c331bb9cc1a6217cef299db581e37a0aa311b9bab48dad29bd7944f0d067",
+                "bytes": 151724
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f10_o31.png",
+                "exists": true,
+                "sha256": "2363c331bb9cc1a6217cef299db581e37a0aa311b9bab48dad29bd7944f0d067",
+                "bytes": 151724
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f13_o57",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_13_1_57.png",
+                "exists": true,
+                "sha256": "72e3d3895cd01ca80515decbc2c739310c4b9338bf34d50770b5c5f481cfb201",
+                "bytes": 191653
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f13_o57.png",
+                "exists": true,
+                "sha256": "72e3d3895cd01ca80515decbc2c739310c4b9338bf34d50770b5c5f481cfb201",
+                "bytes": 191653
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f9_o11",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_9_1_11.png",
+                "exists": true,
+                "sha256": "d45ad76d2271c30de03a218c444634ebf65547167f362b263542de63e3f52809",
+                "bytes": 96182
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f9_o11.png",
+                "exists": true,
+                "sha256": "d45ad76d2271c30de03a218c444634ebf65547167f362b263542de63e3f52809",
+                "bytes": 96182
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f18_o20",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_18_1_20.png",
+                "exists": true,
+                "sha256": "348d185e33c4a66eae587c0852c9cb6188ca6abded5161340c6f10ebe588bfe4",
+                "bytes": 112567
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f18_o20.png",
+                "exists": true,
+                "sha256": "348d185e33c4a66eae587c0852c9cb6188ca6abded5161340c6f10ebe588bfe4",
+                "bytes": 112567
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f16_o12",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_16_1_12.png",
+                "exists": true,
+                "sha256": "2692706400fb1829f373ad9ddbb1aaf834c6a52686b7d7bdf759abd4abc338ce",
+                "bytes": 148066
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f16_o12.png",
+                "exists": true,
+                "sha256": "2692706400fb1829f373ad9ddbb1aaf834c6a52686b7d7bdf759abd4abc338ce",
+                "bytes": 148066
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f20_o1",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/plate1_E01_20_1_1.png",
+                "exists": true,
+                "sha256": "3354c1054e0aced4126b4881c92ae75d3ce77923c07512b5a93baae7f90dd051",
+                "bytes": 115841
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_1/plate1_r5_c1_f20_o1.png",
+                "exists": true,
+                "sha256": "3354c1054e0aced4126b4881c92ae75d3ce77923c07512b5a93baae7f90dd051",
+                "bytes": 115841
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f9_o31",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_9_1_31.png",
+                "exists": true,
+                "sha256": "3a7e4f3eab9b66fb91f945efad13dc7078c3f64d44195de52a0e0a6059d2cb9a",
+                "bytes": 90011
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f9_o31.png",
+                "exists": true,
+                "sha256": "3a7e4f3eab9b66fb91f945efad13dc7078c3f64d44195de52a0e0a6059d2cb9a",
+                "bytes": 90011
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f10_o8",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/plate1_E01_10_1_8.png",
+                "exists": true,
+                "sha256": "2d9133f43e809ad2ccab83b4e6d351afa1ddc571d8ec76f4882c0f271ff18762",
+                "bytes": 66500
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f10_o8.png",
+                "exists": true,
+                "sha256": "2d9133f43e809ad2ccab83b4e6d351afa1ddc571d8ec76f4882c0f271ff18762",
+                "bytes": 66500
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "768c0402e1393d42476d207c16469a42d04ca74b36aa823debb3115f72433bf4",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f18_o14",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_18_1_14.png",
+                "exists": true,
+                "sha256": "0fe476b201c47e695c33acc5bd4d2369dc9f0f8673185068d6a5b32ad419f83b",
+                "bytes": 123405
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f18_o14.png",
+                "exists": true,
+                "sha256": "0fe476b201c47e695c33acc5bd4d2369dc9f0f8673185068d6a5b32ad419f83b",
+                "bytes": 123405
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f9_o43",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_9_1_43.png",
+                "exists": true,
+                "sha256": "eab0f026517f1c359ae5dc5ef58a47fcde6bd1778e68b9a8e1a8bc82d8a560b3",
+                "bytes": 109769
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f9_o43.png",
+                "exists": true,
+                "sha256": "eab0f026517f1c359ae5dc5ef58a47fcde6bd1778e68b9a8e1a8bc82d8a560b3",
+                "bytes": 109769
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f20_o78",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_20_1_78.png",
+                "exists": true,
+                "sha256": "ab3c01ef1ea69e1a13f1978f127ddd41f15933551a6261be91f9514f352aee4a",
+                "bytes": 49152
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f20_o78.png",
+                "exists": true,
+                "sha256": "ab3c01ef1ea69e1a13f1978f127ddd41f15933551a6261be91f9514f352aee4a",
+                "bytes": 49152
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f1_o30",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_30.png",
+                "exists": true,
+                "sha256": "1ee5f563530af7959e05d640c18905dde686da309228d8211717fb34e079c758",
+                "bytes": 83113
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f1_o30.png",
+                "exists": true,
+                "sha256": "1ee5f563530af7959e05d640c18905dde686da309228d8211717fb34e079c758",
+                "bytes": 83113
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f1_o16",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_16.png",
+                "exists": true,
+                "sha256": "08ab608005bb6279a58b6eb749f30167c06c0e72e1a3ca39463d854262e2bbdd",
+                "bytes": 89364
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f1_o16.png",
+                "exists": true,
+                "sha256": "08ab608005bb6279a58b6eb749f30167c06c0e72e1a3ca39463d854262e2bbdd",
+                "bytes": 89364
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "a99631b0953f68220c93898fa8fa3151a3ade281a9fb69214561604ec35c1b23",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c1_f21_o39",
+              "split": "test",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/plate1_E01_21_1_39.png",
+                "exists": true,
+                "sha256": "1c8834ee9af29accdd63b157c187ede9843b2e492c093cd255b091add5810420",
+                "bytes": 140685
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/test/infected_2/plate1_r5_c1_f21_o39.png",
+                "exists": true,
+                "sha256": "1c8834ee9af29accdd63b157c187ede9843b2e492c093cd255b091add5810420",
+                "bytes": 140685
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E01/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "768c0402e1393d42476d207c16469a42d04ca74b36aa823debb3115f72433bf4",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f18_o1",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_18_1_1.png",
+                "exists": true,
+                "sha256": "38a57c9495211489542e1942fa6d8f8c415d69f806ae26db7058185110f2b654",
+                "bytes": 31902
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f18_o1.png",
+                "exists": true,
+                "sha256": "38a57c9495211489542e1942fa6d8f8c415d69f806ae26db7058185110f2b654",
+                "bytes": 31902
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f17_o22",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_17_1_22.png",
+                "exists": true,
+                "sha256": "f513247ec0c2c665b3ce5db6f10478577cac1c9b51b3d11e2256ce8149958fb8",
+                "bytes": 119426
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f17_o22.png",
+                "exists": true,
+                "sha256": "f513247ec0c2c665b3ce5db6f10478577cac1c9b51b3d11e2256ce8149958fb8",
+                "bytes": 119426
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f16_o4",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_16_1_4.png",
+                "exists": true,
+                "sha256": "c3ed9451a8f21b8e7e38af6398797e568d0b2b9de71dece537d43ce0734b8cb7",
+                "bytes": 21743
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f16_o4.png",
+                "exists": true,
+                "sha256": "c3ed9451a8f21b8e7e38af6398797e568d0b2b9de71dece537d43ce0734b8cb7",
+                "bytes": 21743
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f18_o48",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_18_1_48.png",
+                "exists": true,
+                "sha256": "8c3f131079f043fbe162cad3f4f3a708adb2ed07fcf46cc3b5af2af5858f8bd6",
+                "bytes": 73147
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f18_o48.png",
+                "exists": true,
+                "sha256": "8c3f131079f043fbe162cad3f4f3a708adb2ed07fcf46cc3b5af2af5858f8bd6",
+                "bytes": 73147
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f19_o35",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_19_1_35.png",
+                "exists": true,
+                "sha256": "ca6a4ad7268f6454392afbba92d0a187c2df58ab7291ec9f1904eb58c6338920",
+                "bytes": 14690
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f19_o35.png",
+                "exists": true,
+                "sha256": "ca6a4ad7268f6454392afbba92d0a187c2df58ab7291ec9f1904eb58c6338920",
+                "bytes": 14690
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f11_o2",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_11_1_2.png",
+                "exists": true,
+                "sha256": "ac336ac816bb101f05d75323b8383e735d3caed7c4f6c55db7968aa4e9285258",
+                "bytes": 35639
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f11_o2.png",
+                "exists": true,
+                "sha256": "ac336ac816bb101f05d75323b8383e735d3caed7c4f6c55db7968aa4e9285258",
+                "bytes": 35639
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f12_o48",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_12_1_48.png",
+                "exists": true,
+                "sha256": "56eced7bf4fd58a4428cf45504deaf1c09627fd440a0ef103efdca5200997864",
+                "bytes": 108128
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f12_o48.png",
+                "exists": true,
+                "sha256": "56eced7bf4fd58a4428cf45504deaf1c09627fd440a0ef103efdca5200997864",
+                "bytes": 108128
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f14_o3",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/plate1_E02_14_1_3.png",
+                "exists": true,
+                "sha256": "00af0619201c544c340c92b1037a08e1f48fcc25b955b92e7311b816b2fa44cb",
+                "bytes": 23838
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_1/plate1_r5_c2_f14_o3.png",
+                "exists": true,
+                "sha256": "00af0619201c544c340c92b1037a08e1f48fcc25b955b92e7311b816b2fa44cb",
+                "bytes": 23838
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "065b6b6638503db041a656fd1cfc18604c0e56220daa76f87436adda8f6e68df",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f13_o35",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_13_1_35.png",
+                "exists": true,
+                "sha256": "76bd192affe63fd530b54a4c628e43c1d7cced3d754478dd121c73f13356cff8",
+                "bytes": 160359
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f13_o35.png",
+                "exists": true,
+                "sha256": "76bd192affe63fd530b54a4c628e43c1d7cced3d754478dd121c73f13356cff8",
+                "bytes": 160359
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f13_o45",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_13_1_45.png",
+                "exists": true,
+                "sha256": "fa335ad021774061c5a9db3b60bd0d9b220f6970a25aa4b16be6fd1882bbd020",
+                "bytes": 109487
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f13_o45.png",
+                "exists": true,
+                "sha256": "fa335ad021774061c5a9db3b60bd0d9b220f6970a25aa4b16be6fd1882bbd020",
+                "bytes": 109487
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f18_o75",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_18_1_75.png",
+                "exists": true,
+                "sha256": "7b33bd88197a2be139a9517693f79b96dee5307c2640d14bbdea7d99fe7b61b3",
+                "bytes": 60322
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f18_o75.png",
+                "exists": true,
+                "sha256": "7b33bd88197a2be139a9517693f79b96dee5307c2640d14bbdea7d99fe7b61b3",
+                "bytes": 60322
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f13_o28",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_13_1_28.png",
+                "exists": true,
+                "sha256": "9ccc7cecf03898318445c06641f0fd34e8e16391b406789d5023ec5a85775e48",
+                "bytes": 187617
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f13_o28.png",
+                "exists": true,
+                "sha256": "9ccc7cecf03898318445c06641f0fd34e8e16391b406789d5023ec5a85775e48",
+                "bytes": 187617
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "4926890864de1a707b38f1844a68ab2131a2d26ff84150edac9b4b35cf82212f",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f11_o28",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_11_1_28.png",
+                "exists": true,
+                "sha256": "6b007184ffb65495518454d54cf8e76f4cae34a6d6eb8636620027481c3ed442",
+                "bytes": 107645
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f11_o28.png",
+                "exists": true,
+                "sha256": "6b007184ffb65495518454d54cf8e76f4cae34a6d6eb8636620027481c3ed442",
+                "bytes": 107645
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f17_o9",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_17_1_9.png",
+                "exists": true,
+                "sha256": "c38969b16e36deb71095b16ad97988b43134ecd8bc807f85c95b0a0e7160c1b6",
+                "bytes": 150221
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f17_o9.png",
+                "exists": true,
+                "sha256": "c38969b16e36deb71095b16ad97988b43134ecd8bc807f85c95b0a0e7160c1b6",
+                "bytes": 150221
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f18_o59",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_18_1_59.png",
+                "exists": true,
+                "sha256": "e475e27be892abc6a1f9837913e76a47f0129d675e9ce73faf673aec9954f654",
+                "bytes": 107826
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f18_o59.png",
+                "exists": true,
+                "sha256": "e475e27be892abc6a1f9837913e76a47f0129d675e9ce73faf673aec9954f654",
+                "bytes": 107826
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "5199e14812ac218cbb09fb71a7938745aa7375669f06a79522ff25a7a2f1d306",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            },
+            {
+              "identity": "plate1_r5_c2_f14_o31",
+              "split": "train",
+              "source": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_14_1_31.png",
+                "exists": true,
+                "sha256": "59fc0a7f5c61e159c88dfa5180d48115ea5ee323e0c4c2b79f4caece07a86f85",
+                "bytes": 99755
+              },
+              "target": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split_v2/train/infected_2/plate1_r5_c2_f14_o31.png",
+                "exists": true,
+                "sha256": "59fc0a7f5c61e159c88dfa5180d48115ea5ee323e0c4c2b79f4caece07a86f85",
+                "bytes": 99755
+              },
+              "marker": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/.spacr_crop_format.json",
+                "exists": true,
+                "sha256": "c023e7eb0760c6518df3ca115c6f15b243708feaa79259cfd60c09ff9a84b166",
+                "bytes": 331
+              },
+              "source_and_target_match_recorded_hash": true,
+              "marker_matches_recorded_hash": true,
+              "database_label_well_match": true,
+              "recorded_absolute_target_exists": false
+            }
+          ],
+          "scientific_scope": "64example crops preserve source annotation labels and actualwell metadata; copied infected_1/infected_2 labels are not independently validated infectiongroundtruth. Balanceddemo cannot estimate populationprevalence; filenameparser remains unrepaired.",
+          "stale_absolute_manifest_paths": true,
+          "biological_labels_independently_validated": false
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "Should the fresh lesson demonstrate preparation from raw Annotate source, or reuse a newly staged identity-bound split? Existing manifest cannot pass exact target-path checks after relocation without explicit provenance handling."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Preserve current original split and manifest",
+        "Design a fresh stage mapping and record its genuine preparation terminal route; do not rewrite originalmanifest",
+        "Bind all64image/marker hashes and actual wells in new stage before fitting"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "55_image_scatter": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/55_image_scatter.json",
+        "exists": true,
+        "sha256": "e237fcfbbb1c5a600e151023699cd48460c77bb7906e29e5b2e51a3171b652d5",
+        "bytes": 4468
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_d.json",
+          "name": "image_scatter",
+          "env": {},
+          "run_native": [
+            "--inputs",
+            "<INPUTS_DIR with example_data (lineage_data.prepare source) >"
+          ],
+          "capture": [
+            "--module",
+            "image_scatter",
+            "--capture-name",
+            "image-scatter-d1"
+          ],
+          "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). capture_refresh prepares image_scatter_state itself; the capture name must be new."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lineage_data.py",
+          "exists": true,
+          "sha256": "ad1e4a57cb3e02036419398c48ce51b5a4ac7a91adb97e57348845d975c7c996",
+          "bytes": 3922
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_image_scatter.py",
+          "exists": true,
+          "sha256": "50a424f7dee0c8e817a0d9d56f931c7f4ce73c8b9b356cf930b931dfb010a52b",
+          "bytes": 13202
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "candidate_input_tree": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh",
+          "database": {
+            "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/measurements/measurements.db",
+            "exists": true,
+            "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+            "bytes": 30629888
+          },
+          "expected_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "database_hash_matches": true,
+          "database_unchanged_after_readonly_queries": true,
+          "tables": [
+            "annotation_round_log",
+            "annotation_rounds",
+            "cell",
+            "cytoplasm",
+            "intensity_rescale",
+            "nucleus",
+            "object_counts",
+            "pathogen",
+            "pivoted_counts",
+            "png_list",
+            "run_status",
+            "settings",
+            "settings_history"
+          ],
+          "png_list_columns": [
+            "png_path",
+            "file_name",
+            "plateID",
+            "rowID",
+            "columnID",
+            "fieldID",
+            "prcfo",
+            "cell_id",
+            "annotate",
+            "al_prob_0",
+            "al_prob_1",
+            "infected",
+            "tutorial_demo_01",
+            "tutorial_demo_02",
+            "tutorial_demo_03",
+            "tutorial_demo_04",
+            "tutorial_demo_05",
+            "tutorial_demo_06"
+          ],
+          "png_rows": 2341,
+          "candidate_crops": 2341,
+          "all2341referenced_crops_exist": true,
+          "escaping_or_unmappable_paths": [],
+          "sample_crop_hashes": [
+            {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+              "exists": true,
+              "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+              "bytes": 152033
+            },
+            {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+              "exists": true,
+              "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+              "bytes": 126492
+            },
+            {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+              "exists": true,
+              "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+              "bytes": 101733
+            }
+          ],
+          "crop_validation_scope": "All2341path identities/existence checked; only3crop byteshashed; no claim of allcrop byteidentity"
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "Can the established Annotate inputtree be explicitly selected for these catalogplaceholders after freeze? It meets DBidentity/crop-location prerequisites but freshdriver copies and full2341crop hashes remain execution requirements."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Use existing actual Annotate tree as candidate only; do not re-download or synthesize",
+        "Require fresh native driver provenance/fullcrop preservation checks and user-route capture"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "56_lineage": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/56_lineage.json",
+        "exists": true,
+        "sha256": "f3aa14168f3470744b1d8b0fbe39e5a664e7b3364bb06ce935132011d22285a3",
+        "bytes": 5204
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_d.json",
+          "name": "lineage",
+          "env": {},
+          "run_native": [
+            "--inputs",
+            "<INPUTS_DIR with example_data>"
+          ],
+          "capture": [
+            "--module",
+            "lineage",
+            "--capture-name",
+            "lineage-d1"
+          ],
+          "note": "Needs the downloaded Mask/Annotate example at <stage>/annotate_fresh/example_data/plate1 (measurements.db, merged/*.npy); prepare it once with the Annotate download run and pass that tree via --inputs (exact path not recorded in earlier receipts). Fresh capture name required (lineage_state)."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lineage_data.py",
+          "exists": true,
+          "sha256": "ad1e4a57cb3e02036419398c48ce51b5a4ac7a91adb97e57348845d975c7c996",
+          "bytes": 3922
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_lineage.py",
+          "exists": true,
+          "sha256": "ced513967abc7512d8c1d795d276e39ffee6f46a1914bf59241f1c3299ad931c",
+          "bytes": 20932
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "candidate_input_tree": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh",
+          "database": {
+            "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/measurements/measurements.db",
+            "exists": true,
+            "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+            "bytes": 30629888
+          },
+          "expected_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "database_hash_matches": true,
+          "database_unchanged_after_readonly_queries": true,
+          "tables": [
+            "annotation_round_log",
+            "annotation_rounds",
+            "cell",
+            "cytoplasm",
+            "intensity_rescale",
+            "nucleus",
+            "object_counts",
+            "pathogen",
+            "pivoted_counts",
+            "png_list",
+            "run_status",
+            "settings",
+            "settings_history"
+          ],
+          "png_list_columns": [
+            "png_path",
+            "file_name",
+            "plateID",
+            "rowID",
+            "columnID",
+            "fieldID",
+            "prcfo",
+            "cell_id",
+            "annotate",
+            "al_prob_0",
+            "al_prob_1",
+            "infected",
+            "tutorial_demo_01",
+            "tutorial_demo_02",
+            "tutorial_demo_03",
+            "tutorial_demo_04",
+            "tutorial_demo_05",
+            "tutorial_demo_06"
+          ],
+          "png_rows": 2341,
+          "candidate_crops": 2341,
+          "all2341referenced_crops_exist": true,
+          "escaping_or_unmappable_paths": [],
+          "sample_crop_hashes": [
+            {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+              "exists": true,
+              "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+              "bytes": 152033
+            },
+            {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+              "exists": true,
+              "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+              "bytes": 126492
+            },
+            {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/annotate_fresh/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+              "exists": true,
+              "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+              "bytes": 101733
+            }
+          ],
+          "crop_validation_scope": "All2341path identities/existence checked; only3crop byteshashed; no claim of allcrop byteidentity"
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "Can the established Annotate inputtree be explicitly selected for these catalogplaceholders after freeze? It meets DBidentity/crop-location prerequisites but freshdriver copies and full2341crop hashes remain execution requirements."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Use existing actual Annotate tree as candidate only; do not re-download or synthesize",
+        "Require fresh native driver provenance/fullcrop preservation checks and user-route capture"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "31_external_masks": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/31_external_masks.json",
+        "exists": true,
+        "sha256": "7ee27b5ecdd37819f9326e4e90534b289a64039307adc2ae352de8bcf1ec79f7",
+        "bytes": 6500
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_b.json",
+          "name": "external_masks",
+          "env": {},
+          "run_native": [
+            "--inputs",
+            "<prepared dir with captures-free copy of the preserved Foreign inputs>"
+          ],
+          "capture": [
+            "--module",
+            "external_masks",
+            "--capture-name",
+            "external_masks_final_console",
+            "--external-input-root",
+            "<stage-relative dir of byte-identical Foreign TIFF copies, e.g. foreign_inputs>",
+            "--timeout",
+            "1800"
+          ],
+          "note": "Needs stage/captures/foreign_release_v2/{inputs.json,scientific_acceptance.json} (the Foreign lesson capture) and the two retained TIFF pairs (fov01/fov02) under --external-input-root. Use --external-preview-only for a preview-only run. UNSURE where the foreign capture is staged (captures/ cannot come through --inputs)."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_external_masks.py",
+          "exists": true,
+          "sha256": "b2f478912212d80eb2f882f4512f5f885f64087c3a39bba34d941e5c825171d4",
+          "bytes": 59041
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/run_native_capture.py",
+          "exists": true,
+          "sha256": "0d16cdc9713fcac24148d791adaea96c38c420c4ac97ff91afba4e92a9e96ff1",
+          "bytes": 15623
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "manifest": {
+            "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/foreign_release/captures/foreign_release_v2/inputs.json",
+            "exists": true,
+            "sha256": "6b7c7218e6b9e896731be185df24dd49c892fef03f4af93b9cf4e23f1241df09",
+            "bytes": 2202
+          },
+          "historical_acceptance": {
+            "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/foreign_release/captures/foreign_release_v2/scientific_acceptance.json",
+            "exists": true,
+            "sha256": "f8815c93184317009d0993721df3935526d99c85d3934121908d7eb277c0dbca",
+            "bytes": 851
+          },
+          "historical_accepted": true,
+          "rows": 103,
+          "pairs": [
+            {
+              "neutral_stem": "fov01",
+              "original_stem": "plate1_E01_1_1",
+              "objects": 44,
+              "shape": [
+                1994,
+                1994
+              ],
+              "planes": [
+                1,
+                4
+              ],
+              "files": {
+                "source": {
+                  "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy",
+                  "exists": true,
+                  "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+                  "bytes": 55664632
+                },
+                "image": {
+                  "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov01_C1.tif",
+                  "exists": true,
+                  "sha256": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+                  "bytes": 7952328
+                },
+                "mask": {
+                  "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov01_cell_mask.tif",
+                  "exists": true,
+                  "sha256": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee",
+                  "bytes": 7952328
+                }
+              },
+              "all_recorded_hashes_match": true
+            },
+            {
+              "neutral_stem": "fov02",
+              "original_stem": "plate1_L02_9_1",
+              "objects": 59,
+              "shape": [
+                1994,
+                1994
+              ],
+              "planes": [
+                1,
+                4
+              ],
+              "files": {
+                "source": {
+                  "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_9_1.npy",
+                  "exists": true,
+                  "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+                  "bytes": 55664632
+                },
+                "image": {
+                  "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov02_C1.tif",
+                  "exists": true,
+                  "sha256": "e9ae8fe15224699a3148a5459649fa9cdc6bf5dd5f9a2b0bcfae45713c39a6f0",
+                  "bytes": 7952328
+                },
+                "mask": {
+                  "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov02_cell_mask.tif",
+                  "exists": true,
+                  "sha256": "03574376bfcdadb4543b59538deaa7e1c2a0d9f7bbd643ffce6ee2cfe5c59b52",
+                  "bytes": 7952328
+                }
+              },
+              "all_recorded_hashes_match": true
+            }
+          ],
+          "all_retained_source_image_mask_hashes_match": true,
+          "scientific_scope": "Two real fields44/59objects; neutralnames are demonstrationcoordinates, not recovered acquisitionwells; no physicalcalibration",
+          "stage_input_conflict": "Existing foreign_release preparedtree contains captures/; run_native.copy_inputs refuses it; original manifest also names stale absolute paths"
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "What stage wiring will carry accepted Foreign provenance and exact two TIFF pairs without importing captures/ as preparedinputs or rewriting originals?"
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Preserve originalinputs/acceptance bytes",
+        "Provide explicit captures-free pair tree and separate source-bound receipt ingress in futurestage; require independently verified preservation"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "21_model_compare": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/21_model_compare.json",
+        "exists": true,
+        "sha256": "3ef30508d8d207064adf72979b584a72134475a00f857583b86371af3f8ba17c",
+        "bytes": 3810
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+          "name": "model_compare_gui",
+          "env": {
+            "SPACR_TUTORIAL_MODEL_FIELDS": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks"
+          },
+          "run_native": [],
+          "capture": [
+            "--module",
+            "model_compare",
+            "--model-compare-api-introduction",
+            "--platform",
+            "xcb"
+          ],
+          "note": "gui_02_model_parameters. The api_* scenes are terminal captures (capture_model_compare_api.py --inside) on <STAGE>/model_compare_1507_inputs, not host-mode. gui_00_home from the shared openings run."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_model_compare.py",
+          "exists": true,
+          "sha256": "88bd02f64daa1d550a587f2cdd59063217dcceee5ac4fea6068bc12c304736e3",
+          "bytes": 3955
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "candidate_fields": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+          "audited_field_checks": [
+            {
+              "file": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif",
+                "exists": true,
+                "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+                "bytes": 524544
+              },
+              "expected_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+              "matches_expected": true
+            },
+            {
+              "file": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif",
+                "exists": true,
+                "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+                "bytes": 524544
+              },
+              "expected_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+              "matches_expected": true
+            },
+            {
+              "file": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif",
+                "exists": true,
+                "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+                "bytes": 524544
+              },
+              "expected_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+              "matches_expected": true
+            }
+          ],
+          "source_audit": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/evidence/2026-09-09_model_zoo_provenance_and_assembly_audit.json",
+            "exists": true,
+            "sha256": "5e83252915f2885b484f16becc88d202af8b4e01bddd3a51c877eda8fc615415",
+            "bytes": 7942
+          },
+          "allthree_match": true,
+          "unfixed_catalog_fields_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+          "cached_models_directory": "/home/carruthers/.cellpose/models",
+          "model_file_exists": {
+            "cpsam": true,
+            "cpsam_v2": true
+          },
+          "model_weight_identity_validation": "not_read_or_loaded; nohashclaimfromfilename",
+          "driver_additional_paths": {
+            "train_images": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images",
+            "source_merged": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged"
+          },
+          "driver_hardcoded_paths_remain": true,
+          "training_crops_reused": true,
+          "heldout_validation": false,
+          "scientific_scope": "Same threecrops used in training provenance; imagebyte/sourceidentity demonstration only, not heldoutmodelvalidation or accuracyproof."
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "21GUIroute only loads fields and does not compare; terminalAPIscenes require their own workflow. Confirm intended scientific scope."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Use proven fieldbyte candidates; defer canonicalcatalog/source pathchanges until freezeends",
+        "Verify actualcached modelhash/architecture and every additional source/trainimage dependency before benchmark"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "22_model_zoo": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/22_model_zoo.json",
+        "exists": true,
+        "sha256": "69c1f5874db5d57a7271c5a201dee910a9831eb49e17f2983eda72712eec41df",
+        "bytes": 5307
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_a.json",
+          "name": "model_zoo_benchmark",
+          "env": {
+            "SPACR_TUTORIAL_MODEL_FIELDS": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+            "SPACR_TUTORIAL_MODEL_DIRECTORY": "/home/olafsson/.cellpose/models"
+          },
+          "run_native": [
+            "--cuda",
+            "--ro-bind=/home/olafsson/.cellpose/models=.cellpose/models"
+          ],
+          "capture": [
+            "--module",
+            "model_zoo",
+            "--model-zoo-additions",
+            "--platform",
+            "xcb"
+          ],
+          "note": "Scenes 01b..11 and 03b/03c (needs network) and 09b..12 (uses <STAGE>/mask_src). Cellpose bind path and the --ro-bind target syntax are guesses: SOURCE=RELATIVE per run_native_capture; the app reads $SPACR_TUTORIAL_MODEL_DIRECTORY, so check which one the neutral account sees. Inputs under /mnt/firecuda2 must also be reachable (derived/cellpose_masks, derived/train_cellpose, test_datasets/spacr/tutorials/merged)."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_model_zoo.py",
+          "exists": true,
+          "sha256": "1b8de66970514f6a831d1749df76c0b2512bf35ebcab21314affc06a037d8cd4",
+          "bytes": 28562
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "candidate_fields": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+          "audited_field_checks": [
+            {
+              "file": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif",
+                "exists": true,
+                "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+                "bytes": 524544
+              },
+              "expected_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+              "matches_expected": true
+            },
+            {
+              "file": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif",
+                "exists": true,
+                "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+                "bytes": 524544
+              },
+              "expected_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+              "matches_expected": true
+            },
+            {
+              "file": {
+                "path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif",
+                "exists": true,
+                "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+                "bytes": 524544
+              },
+              "expected_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+              "matches_expected": true
+            }
+          ],
+          "source_audit": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/evidence/2026-09-09_model_zoo_provenance_and_assembly_audit.json",
+            "exists": true,
+            "sha256": "5e83252915f2885b484f16becc88d202af8b4e01bddd3a51c877eda8fc615415",
+            "bytes": 7942
+          },
+          "allthree_match": true,
+          "unfixed_catalog_fields_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks",
+          "cached_models_directory": "/home/carruthers/.cellpose/models",
+          "model_file_exists": {
+            "cpsam": true,
+            "cpsam_v2": true
+          },
+          "model_weight_identity_validation": "not_read_or_loaded; nohashclaimfromfilename",
+          "driver_additional_paths": {
+            "train_images": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images",
+            "source_merged": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged"
+          },
+          "driver_hardcoded_paths_remain": true,
+          "training_crops_reused": true,
+          "heldout_validation": false,
+          "scientific_scope": "Same threecrops used in training provenance; imagebyte/sourceidentity demonstration only, not heldoutmodelvalidation or accuracyproof."
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "22alsohardcodes trainimages/source paths and originalmodeldirectory; which exact checkpoint identities and mapped paths will the finalhost use? Fileexistence is not modelidentity."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Use proven fieldbyte candidates; defer canonicalcatalog/source pathchanges until freezeends",
+        "Verify actualcached modelhash/architecture and every additional source/trainimage dependency before benchmark"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "71_investigate_hit": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/71_investigate_hit.json",
+        "exists": true,
+        "sha256": "f33588911d88b1d0383c98b5616dfa7811906a04fe38c5965347519a7ca35621",
+        "bytes": 7747
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_d.json",
+          "name": "investigate_hit",
+          "env": {},
+          "run_native": [
+            "--inputs",
+            "<INPUTS_DIR containing Investigate_Hit_real_screen_example.zip at the stage root>"
+          ],
+          "capture": [
+            "--module",
+            "regression",
+            "--investigate-hit-example"
+          ],
+          "note": "Run must use a fresh stage (driver refuses an existing <stage>/tutorial). Zip built by build_investigate_hit_example.py."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_investigate_hit.py",
+          "exists": true,
+          "sha256": "35d5024b52051be68e18a159000bfa5a20d56f33859fdd605205e0d974517814",
+          "bytes": 13191
+        },
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/build_investigate_hit_example.py",
+          "exists": true,
+          "sha256": "11bec79658c2b184895dafaf557a2b865636c76ebca8c8d2ee31b579cb6276b5",
+          "bytes": 13501
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "archive": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/docs/source/_extra/tutorials/examples/Investigate_Hit_real_screen_example.zip",
+            "exists": true,
+            "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464",
+            "bytes": 1995731
+          },
+          "manifest_member": "Investigate_Hit_real_screen_example/example_manifest.json",
+          "manifest_sha256": "a6bf46d23fd179c18c7187e5bde5215b1aa0200f102a1108f77aaef7b8459dc2",
+          "manifest_digest_semantics": "canonical JSON digest, not raw member SHA256",
+          "manifest_scope": {
+            "purpose": "Investigate Hit tutorial example; real screen data only",
+            "synthetic_data": false,
+            "cells": 8915,
+            "wells": 52
+          },
+          "gene": "225160",
+          "required_members": [
+            {
+              "member": "Investigate_Hit_real_screen_example/cv_predictions.csv",
+              "bytes": 562163,
+              "sha256": "0d2a9d86079ace12b3f5cc365e81c95ad5c40fd650ffd994852fe3c3ab2b5093"
+            },
+            {
+              "member": "Investigate_Hit_real_screen_example/measurements/measurements.db",
+              "bytes": 1425408,
+              "sha256": "8a55d7e5fc998f6c0bda91437729ddbe74a7aba1e01f926f14200f1213d88cf9"
+            },
+            {
+              "member": "Investigate_Hit_real_screen_example/regression_run/results/guide_permutation/regression_data.csv",
+              "bytes": 192321,
+              "sha256": "3cee24356bfa81a33882dc76a6a107e35345421feecf9c7866a8169c0516ea76"
+            },
+            {
+              "member": "Investigate_Hit_real_screen_example/regression_run/results/guide_permutation/results_gene.csv",
+              "bytes": 70531,
+              "sha256": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132"
+            }
+          ],
+          "archive_crc_error": null,
+          "driver_requires_archive_at_stage_root": true,
+          "missing_input_tree": "Archive exists inside canonicaldocs; no dedicated prepared inputdirectory containing only the ZIP has been created"
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "Is this bundled real8915cell/52well screen example the intended unchanged source for the future fresh lesson71? Archive is existing but no newrun scientific acceptance was established."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Stage a byte-identical archive in a fresh privateinputtree after authorized preflight; do not rebuildexample",
+        "Preserve real-data labels and source provenance; no synthetic replacement"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "75_regression_diagnostics": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/75_regression_diagnostics.json",
+        "exists": true,
+        "sha256": "98419b6c6a3a555f1a702d03c179a0ca05b6774dd56df29c8e21ea6bd0e4b739",
+        "bytes": 4247
+      },
+      "catalog_entries": [
+        {
+          "catalog": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/host_jobs_d.json",
+          "name": "regression_diagnostics",
+          "env": {},
+          "run_native": [
+            "--inputs",
+            "<INPUTS_DIR with regression_runs/<project>/ holding results/*/diagnostics>"
+          ],
+          "capture": [
+            "--module",
+            "regression_diagnostics",
+            "--diagnostics-from",
+            "<STAGE>/regression_runs/<completed project>"
+          ],
+          "note": "Host path records only 02 and 03; the viewer scenes stay Xvfb. The project must be inside <stage>/regression_runs."
+        }
+      ],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_diagnostics.py",
+          "exists": true,
+          "sha256": "1e6f1d237ac40369cb928863df2f045e221201408c23869f972b9c1dacde4dbb",
+          "bytes": 12387
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "project": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys",
+          "diagnostics_folder": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics",
+          "files": {
+            "design_identifiability.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/design_identifiability.png",
+              "exists": true,
+              "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+              "bytes": 167591
+            },
+            "design_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/design_diagnostics.png",
+              "exists": true,
+              "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+              "bytes": 348426
+            },
+            "inference_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/inference_diagnostics.png",
+              "exists": true,
+              "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+              "bytes": 199162
+            },
+            "diagnostic_summary.csv": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-1vixptys/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+              "exists": true,
+              "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+              "bytes": 2830
+            }
+          },
+          "all_required_panels_exist": true,
+          "summary_columns": [
+            "section",
+            "metric",
+            "value"
+          ],
+          "failed_panel_metrics": [],
+          "scientific_identity": "Panel/schema/no_error completeness only; candidatepending completed-run journal/provenance binding; notprovedcompletedrunfromfilename.",
+          "completed_run_journal_bound": false
+        },
+        {
+          "project": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv",
+          "diagnostics_folder": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics",
+          "files": {
+            "design_identifiability.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/design_identifiability.png",
+              "exists": true,
+              "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+              "bytes": 167591
+            },
+            "design_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/design_diagnostics.png",
+              "exists": true,
+              "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+              "bytes": 348426
+            },
+            "inference_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/inference_diagnostics.png",
+              "exists": true,
+              "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+              "bytes": 199162
+            },
+            "diagnostic_summary.csv": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-99jf6twv/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+              "exists": true,
+              "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+              "bytes": 2830
+            }
+          },
+          "all_required_panels_exist": true,
+          "summary_columns": [
+            "section",
+            "metric",
+            "value"
+          ],
+          "failed_panel_metrics": [],
+          "scientific_identity": "Panel/schema/no_error completeness only; candidatepending completed-run journal/provenance binding; notprovedcompletedrunfromfilename.",
+          "completed_run_journal_bound": false
+        },
+        {
+          "project": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv",
+          "diagnostics_folder": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics",
+          "files": {
+            "design_identifiability.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_identifiability.png",
+              "exists": true,
+              "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+              "bytes": 167591
+            },
+            "design_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_diagnostics.png",
+              "exists": true,
+              "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+              "bytes": 348426
+            },
+            "inference_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/inference_diagnostics.png",
+              "exists": true,
+              "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+              "bytes": 199162
+            },
+            "diagnostic_summary.csv": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+              "exists": true,
+              "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+              "bytes": 2830
+            }
+          },
+          "all_required_panels_exist": true,
+          "summary_columns": [
+            "section",
+            "metric",
+            "value"
+          ],
+          "failed_panel_metrics": [],
+          "scientific_identity": "Panel/schema/no_error completeness only; candidatepending completed-run journal/provenance binding; notprovedcompletedrunfromfilename.",
+          "completed_run_journal_bound": false
+        },
+        {
+          "project": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2",
+          "diagnostics_folder": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics",
+          "files": {
+            "design_identifiability.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/design_identifiability.png",
+              "exists": true,
+              "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+              "bytes": 167591
+            },
+            "design_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/design_diagnostics.png",
+              "exists": true,
+              "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+              "bytes": 348426
+            },
+            "inference_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/inference_diagnostics.png",
+              "exists": true,
+              "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+              "bytes": 199162
+            },
+            "diagnostic_summary.csv": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-c6i_hph2/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+              "exists": true,
+              "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+              "bytes": 2830
+            }
+          },
+          "all_required_panels_exist": true,
+          "summary_columns": [
+            "section",
+            "metric",
+            "value"
+          ],
+          "failed_panel_metrics": [],
+          "scientific_identity": "Panel/schema/no_error completeness only; candidatepending completed-run journal/provenance binding; notprovedcompletedrunfromfilename.",
+          "completed_run_journal_bound": false
+        },
+        {
+          "project": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj",
+          "diagnostics_folder": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics",
+          "files": {
+            "design_identifiability.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/design_identifiability.png",
+              "exists": true,
+              "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+              "bytes": 167591
+            },
+            "design_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/design_diagnostics.png",
+              "exists": true,
+              "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+              "bytes": 348426
+            },
+            "inference_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/inference_diagnostics.png",
+              "exists": true,
+              "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+              "bytes": 199162
+            },
+            "diagnostic_summary.csv": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-gyzayttj/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+              "exists": true,
+              "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+              "bytes": 2830
+            }
+          },
+          "all_required_panels_exist": true,
+          "summary_columns": [
+            "section",
+            "metric",
+            "value"
+          ],
+          "failed_panel_metrics": [],
+          "scientific_identity": "Panel/schema/no_error completeness only; candidatepending completed-run journal/provenance binding; notprovedcompletedrunfromfilename.",
+          "completed_run_journal_bound": false
+        },
+        {
+          "project": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj",
+          "diagnostics_folder": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics",
+          "files": {
+            "design_identifiability.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/design_identifiability.png",
+              "exists": true,
+              "sha256": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+              "bytes": 167591
+            },
+            "design_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/design_diagnostics.png",
+              "exists": true,
+              "sha256": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+              "bytes": 348426
+            },
+            "inference_diagnostics.png": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/inference_diagnostics.png",
+              "exists": true,
+              "sha256": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+              "bytes": 199162
+            },
+            "diagnostic_summary.csv": {
+              "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_runs/regression_runs/example-oxxx3xqj/results/guide_permutation/diagnostics/diagnostic_summary.csv",
+              "exists": true,
+              "sha256": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+              "bytes": 2830
+            }
+          },
+          "all_required_panels_exist": true,
+          "summary_columns": [
+            "section",
+            "metric",
+            "value"
+          ],
+          "failed_panel_metrics": [],
+          "scientific_identity": "Panel/schema/no_error completeness only; candidatepending completed-run journal/provenance binding; notprovedcompletedrunfromfilename.",
+          "completed_run_journal_bound": false
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "Which existing completedregression project is the intended lesson75input? Require allthreepanels and nonerror diagnostic_summary; hostviewer scenes04\u201307 stillrequire a real GNOME route.",
+        "Which completed-run journal/result-source binding establishes the exact scientificrun identity for the selected bundle? No completedrunjournal wasboundinthisaudit."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Select project by scientific provenance and boundoutputhashes",
+        "Stage under freshstage/regression_runs and explicitlybind actual projectpath; placeholdercannotrun",
+        "Implement/use realhostviewer route after sourcefreeze; do not reuseXvfb scenes"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "01_pypi_github": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/01_pypi_github.json",
+        "exists": true,
+        "sha256": "a9b2c6286ca623128da907ed39bd1e1e4a11689695a3f8285a9e9cadf09e990f",
+        "bytes": 3357
+      },
+      "catalog_entries": [],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_installation_sources.py",
+          "exists": true,
+          "sha256": "96f970060867d78108deaaa6f3ec13a1204042cb5040b744a3ffce01aa721bb7",
+          "bytes": 6738
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "driver": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_installation_sources.py",
+            "exists": true,
+            "sha256": "96f970060867d78108deaaa6f3ec13a1204042cb5040b744a3ffce01aa721bb7",
+            "bytes": 6738
+          },
+          "catalog_entry_count": 0,
+          "existing_published_route": true
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "External PyPI/GitHub/conda-forge pages require currentversion/network checks and realbrowser route, absent hostcatalog; no local dataset solves this."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Retain existinglessonroute and Englishsource; coordinate exactbrowser/terminal remit withHome before implementation"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "02_install_spacr": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/02_install_spacr.json",
+        "exists": true,
+        "sha256": "21c4a3dacc742874bf86dafe61ded87f22cfd4df8ea171a56220b80570a9f85d",
+        "bytes": 6683
+      },
+      "catalog_entries": [],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_install_nightly.py",
+          "exists": true,
+          "sha256": "cccd1077bf65a0fb07a831ad7434747f490987a34a4ce5b59455dbc2a649d1df",
+          "bytes": 4034
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "driver": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_install_nightly.py",
+            "exists": true,
+            "sha256": "cccd1077bf65a0fb07a831ad7434747f490987a34a4ce5b59455dbc2a649d1df",
+            "bytes": 4034
+          },
+          "catalog_entry_count": 0,
+          "existing_published_route": true,
+          "driver_scope": "capture_install_nightly handles04appscenecompanion, not a proved02installation workflow"
+        },
+        {
+          "existing_installation_driver": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_pip_installation.py",
+            "exists": true,
+            "sha256": "3b29b13ff0e46304aa5fac5a4aec31ef19009d23bc225a3a4e6bdce08b6ba2fc",
+            "bytes": 22926
+          },
+          "scope": "Candidate installationterminal code; exact merged02pip/Conda scenes notverified by this audit"
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "Installation/removal terminal scenes need private disposable environment execution authority and stage-bound evidence; current noenvchanges rule means cannotprepare/runthese."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Retain existinglessonroute and Englishsource; coordinate exactbrowser/terminal remit withHome before implementation"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    },
+    "06_api": {
+      "source": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/lessons/06_api.json",
+        "exists": true,
+        "sha256": "a7a67a5ed3103d5fca855e03397c1ae0a461cbd9cfa0ad8ecb1e79e868a13d0b",
+        "bytes": 3584
+      },
+      "catalog_entries": [],
+      "driver_bindings": [
+        {
+          "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cli.py",
+          "exists": true,
+          "sha256": "26cb43edea4822804b821a9004ca9bd7ce7f27750027be720450a29e10c3bb12",
+          "bytes": 9941
+        }
+      ],
+      "candidate_evidence": [
+        {
+          "driver": {
+            "path": "/media/carruthers/mnt3/claude/spacr-capture-host/tools/tutorials/capture_cli.py",
+            "exists": true,
+            "sha256": "26cb43edea4822804b821a9004ca9bd7ce7f27750027be720450a29e10c3bb12",
+            "bytes": 9941
+          },
+          "catalog_entry_count": 0,
+          "existing_published_route": true,
+          "settings_dependency": {
+            "path": "/media/carruthers/mnt3/claude/n676_stages/host/inputs/regression_release/captures/regression_release/batch_settings.json",
+            "exists": true,
+            "sha256": "aab7ad77f188c0dc4a6f64eedd6237720964d2add6f66edc7011a627864c172e",
+            "bytes": 4033
+          },
+          "required_stage_settings_path": "captures/regression_release/batch_settings.json",
+          "scope": "Existing CLI terminaldriver matches01_version/02_list/03_describe/05_report_api/06_dry_run; freshstage/settings binding unresolved"
+        }
+      ],
+      "remaining_questions_for_Home": [
+        "What supported real terminal/host workflow replaces uncataloged06? Existingcapture_cli requires previouslybound Regression batch settings under stage/captures/regression_release; preparedinputscannot carry captures/ implicitly."
+      ],
+      "next_metadata_or_staging_actions_after_freeze": [
+        "Retain existinglessonroute and Englishsource; coordinate exactbrowser/terminal remit withHome before implementation"
+      ],
+      "readiness": "not_recording_ready; evidence only, no catalog edits or data preparation authorized here"
+    }
+  },
+  "limits": [
+    "Read-onlylocal metadata audit; no queue/data/archive extraction/model loading/GUI/tests/network",
+    "Historical acceptance manifests are retained provenance, notfreshscientific orsmoothnessacceptance",
+    "In-memory oldpath-to-existinglocalcandidate association only; originalpaths/catalogs/manifests unchanged",
+    "Candidate existence/hashschema cannot prove finalstageworkflow without independentattribution",
+    "NoNAS/plaquequeues/sharedcheckout accessed; no newlesson recording or43preparation"
+  ],
+  "summary": {
+    "lessons_audited": 11,
+    "cv64bytes_labels_wells_match": true,
+    "annotate_database_identity_matches": true,
+    "annotate_2341crop_paths_exist": true,
+    "foreign_six_hashes_match": true,
+    "model_three_field_hashes_match": true,
+    "investigate_archive_crc_ok": true,
+    "diagnostic_candidates": 6,
+    "uncataloged_workflows": [
+      "01_pypi_github",
+      "02_install_spacr",
+      "06_api"
+    ],
+    "diagnostic_complete_noerror_candidates_pending_run_provenance": 6
+  }
+}

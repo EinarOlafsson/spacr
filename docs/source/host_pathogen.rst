@@ -1,7 +1,7 @@
 Host–Pathogen Analysis
 ========================
 
-From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**.
+From **Home → Organism → Toxoplasma**, open **Host–Pathogen Analysis**.
 This module combines vacuole-level marker recruitment with host and well
 summaries. For vacuole recruitment on its own, use
 :doc:`Recruitment <recruitment>`.
@@ -9,7 +9,7 @@ summaries. For vacuole recruitment on its own, use
 Try the real microscopy test data
 ----------------------------------------
 
-#. Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis** and select
+#. Open **Home → Organism → Toxoplasma → Host–Pathogen Analysis** and select
    **Load test data…**. The download is approximately 114 MB.
 #. Enable **Live** beside the bottom action controls, then select
    **Run preview**. Choose either measured field and select vacuoles in the
@@ -113,7 +113,7 @@ Unlinked vacuoles and missing, invalid or zero host-reference intensities yield
 unknown marker states. Joint marker fractions include unknown vacuoles in
 their denominator; replication fractions use only vacuoles with counts.
 Host infection fractions describe retained measured host cells. These
-denominators answer different questions and should be reported explicitly.
+fractions use different denominators, so report each denominator explicitly.
 
 For scripted use, see :func:`spacr.host_pathogen.analyze_host_pathogen` and
 :func:`spacr.host_pathogen.summarize_tables`. The headless module name is

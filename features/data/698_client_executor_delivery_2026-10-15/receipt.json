@@ -1,0 +1,87 @@
+{
+  "scope": "Actual installed SDK offline only; HTTP mocked, socket connections forbidden, no server/inference/model",
+  "sdk_version": "2.5.0",
+  "config_protocol": "sse_v3",
+  "source_space": "66f5bfc5b0f036b8c110183fa967626dd0ee509b",
+  "source_pins": {
+    "client.py": "8489ea7213955558c0e8bc80c0e28449431fbe218282e70b845b153eeb62342b",
+    "utils.py": "1a76e0968c7936507a0bdc00e6ab32b128fe073eb6a1bbb29eeddbbe402cbde6",
+    "config.json": "337857b288f6b8954f73c5296dd492d21e44b5f716e71cddd8e9480488ae1029",
+    "api-info.json": "18cfa7089ee1824e4d37e4cc5a6acc6204c32c633d8ef9f873d8dc36d8a66857"
+  },
+  "cases": [
+    {
+      "workers": 1,
+      "scenario": "success",
+      "queue_join_posts": 1,
+      "cancel_posts": 0,
+      "stream_entries": 0,
+      "outcome": "TIMEOUT",
+      "queued_internal_tasks": 3,
+      "assertions": "PASS",
+      "seconds": 0.3789283389924094
+    },
+    {
+      "workers": 1,
+      "scenario": "error",
+      "queue_join_posts": 1,
+      "cancel_posts": 0,
+      "stream_entries": 0,
+      "outcome": "TIMEOUT",
+      "queued_internal_tasks": 3,
+      "assertions": "PASS",
+      "seconds": 0.39113840099889785
+    },
+    {
+      "workers": 1,
+      "scenario": "cancel",
+      "queue_join_posts": 1,
+      "cancel_posts": 1,
+      "stream_entries": 0,
+      "cancel_return": true,
+      "outcome": "TIMEOUT",
+      "queued_internal_tasks": 3,
+      "assertions": "PASS",
+      "seconds": 0.378256700001657
+    },
+    {
+      "workers": 4,
+      "scenario": "success",
+      "queue_join_posts": 1,
+      "cancel_posts": 0,
+      "stream_entries": 1,
+      "outcome": "DELIVERED",
+      "value": {
+        "offline_result": 42
+      },
+      "assertions": "PASS",
+      "seconds": 0.07345630403142422
+    },
+    {
+      "workers": 4,
+      "scenario": "error",
+      "queue_join_posts": 1,
+      "cancel_posts": 1,
+      "stream_entries": 1,
+      "outcome": "APP_ERROR",
+      "message": "offline-diagnostic-error",
+      "assertions": "PASS",
+      "seconds": 0.07457728800363839
+    },
+    {
+      "workers": 4,
+      "scenario": "cancel",
+      "queue_join_posts": 1,
+      "cancel_posts": 3,
+      "stream_entries": 1,
+      "cancel_return": true,
+      "outcome": "CANCELLED",
+      "assertions": "PASS",
+      "seconds": 0.07385371706914157
+    }
+  ],
+  "elapsed_seconds": 1.3718434919137508,
+  "actual_exit": 0,
+  "limits": "Proves local max_workers1 delivery starvation; doesnotprove server artifact completion or GPUstop for historical calls.",
+  "interpretation": "SDKmax_workers1provenlocaldeliverydeadlock; nohostedservercompletion/GPUstopclaim; noserverfixneededforthisdefect"
+}

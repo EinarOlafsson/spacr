@@ -2,18 +2,19 @@
 
 Why this exists
 ---------------
-``diameter`` is the most consequential Cellpose knob spaCR exposes and it is
-the one users guess at. Under Cellpose 4 (``cpsam``) the constructor argument
-``diam_mean=`` is ignored, but ``CellposeModel.eval(diameter=...)`` is very
-much alive: it rescales the input by ``30.0 / diameter`` so objects land near
-the network's ~30 px working size. Feed it a value two-fold off and every
-downstream mask, count and measurement inherits the error. So a defensible
-starting number is worth a few seconds of arithmetic.
+``diameter`` has the largest effect on the masks of all the Cellpose settings
+spaCR exposes, and it is often guessed. Under Cellpose 4 (``cpsam``) the
+constructor argument ``diam_mean=`` is ignored, but
+``CellposeModel.eval(diameter=...)`` is still applied: it rescales the input
+by ``30.0 / diameter`` so objects land near the network's ~30 px working size.
+A value two-fold off propagates into every downstream mask, count and
+measurement. This module computes a starting value from image statistics in a
+few seconds.
 
 Design constraint: this module must be usable *before* committing to a
 segmentation run, which means it may not cost what a segmentation run costs.
-It therefore imports **no torch and no cellpose** — that is a tested property,
-not an aspiration (see ``tests/test_diameter_estimator.py``). It reuses
+It therefore imports **no torch and no cellpose**, which
+``tests/test_diameter_estimator.py`` checks. It reuses
 :mod:`spacr.validate` for filename-metadata parsing, which is the other
 deliberately dependency-light module in the package (``spacr.utils``, where
 ``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and
@@ -31,7 +32,7 @@ For each requested object channel, on each sampled field:
 1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily
    smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination
    gradients. The sigma is deliberately far larger than any plausible object
-   so that flattening removes vignetting without eating the objects — the
+   so that flattening removes vignetting without removing the objects — the
    opposite trade-off (a tight rolling ball) shrinks what it is trying to
    measure.
 2. **Reject noise.** Compare the structural amplitude of the flattened plane
@@ -39,12 +40,12 @@ For each requested object channel, on each sampled field:
    ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise
    plane scores below 1; a plane with real objects scores in the tens. Below
    ``min_snr`` the field is discarded rather than thresholded, because Otsu
-   will happily bisect pure noise and hand back a confident-looking number.
+   returns a threshold even for pure noise, and the resulting size looks valid.
 3. **Threshold and label.** Otsu, fill holes, label, drop components that
-   touch the image border (truncated, so their size is a lie) and components
-   that are absurd (equivalent diameter below ``min_object_diameter``, or area
-   above ``max_object_fraction`` of the field). Sizes are equivalent
-   diameters, ``2 * sqrt(area / pi)``.
+   touch the image border (truncated, so their size is too small) and
+   components that are absurd (equivalent diameter below
+   ``min_object_diameter``, or area above ``max_object_fraction`` of the
+   field). Sizes are equivalent diameters, ``2 * sqrt(area / pi)``.
 4. **Drop specks, then take the median.** A textured or punctate stain
    (a mitochondrial cell stain, a parasite marker) thresholds into a few
    whole objects plus hundreds of 4-10 px specks, and a plain median counts
@@ -67,25 +68,23 @@ For each requested object channel, on each sampled field:
    ``-EDT`` splits the fused foreground back into objects whose equivalent
    diameters are measured the same way.
 
-Both estimates are always computed, and choosing between them is where the
-care goes. The watershed estimate is taken when the transform resolved
-something *and* either the threshold path kept nothing at all, or the field is
-dense enough for fusion to be the explanation (foreground at or above
-``fused_fraction``) *and* the transform resolves at least five times as many
-objects. A count disagreement alone is therefore never fusion — a hollow,
-membrane-only object is one correct component by area but shatters into dozens
-of arcs under the distance transform, so a bare ratio test would discard the
-right answer in favour of the wall thickness, which is the same silent
-collapse entered from the other side. A high foreground fraction alone is not
-fusion either — a dense but well-separated field can reach 30% foreground and
-still be measured correctly by thresholding — so on its own it only brings the
-confidence down while the threshold estimate stands. An empty threshold result
-*is* taken as fusion on its own, with no density check, because no threshold
-estimate is left to stand; if the transform resolved nothing either, no
-estimate is returned for that channel. When fusion is not declared and the two
-estimates disagree by more than 1.5-fold, the confidence is downgraded and the
-note says so, because that disagreement is the honest signal that neither
-number should be trusted blind.
+Both estimates are always computed, and one of them is chosen as follows. The
+watershed estimate is taken when the transform resolved something *and* either
+the threshold path kept nothing at all, or the field is dense enough for fusion
+to be the explanation (foreground at or above ``fused_fraction``) *and* the
+transform resolves at least five times as many objects. A count disagreement
+alone is therefore never fusion — a hollow, membrane-only object is one correct
+component by area but shatters into dozens of arcs under the distance
+transform, so a bare ratio test would discard the right answer in favour of the
+wall thickness. A high foreground fraction alone is not fusion either — a dense
+but well-separated field can reach 30% foreground and still be measured
+correctly by thresholding — so on its own it only brings the confidence down
+while the threshold estimate stands. An empty threshold result *is* taken as
+fusion on its own, with no density check, because no threshold estimate is left
+to stand; if the transform resolved nothing either, no estimate is returned for
+that channel. When fusion is not declared and the two estimates disagree by
+more than 1.5-fold, the confidence is downgraded and the note says so, because
+that disagreement indicates that neither number is reliable on its own.
 
 Public API
 ----------
@@ -105,8 +104,8 @@ screen: it reads the channels off the settings form with
 :func:`channels_from_settings`, calls :func:`estimate_diameters` on a worker
 thread, and shows one row per object type carrying the proposal *and its
 evidence* — the 10th-90th percentile range, how many objects it was pooled
-from, how many fields contributed, the method and the confidence. A proposal
-without those is just a different guess. Nothing is written into
+from, how many fields contributed, the method and the confidence. Nothing
+is written into
 ``<object>_diameter`` until the user presses **Use**, and
 :attr:`DiameterEstimate.usable` is checked first, so the NaN an unmeasurable
 channel returns cannot reach a settings field.
@@ -166,7 +165,7 @@ SPECK_MAX_AREA_SHARE = 0.15
 
 @dataclass
 class DiameterEstimate:
-    """One proposed diameter, with everything needed to disbelieve it.
+    """One proposed diameter with its range, counts, method and confidence.
 
     :param object_type: ``'cell'``, ``'nucleus'``, ``'pathogen'`` or
         ``'organelle'``.

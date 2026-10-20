@@ -70,7 +70,23 @@ def test_importing_does_not_duplicate_the_plate(name, corpus, tmp_path):
         f"{name}: {result.written - result.linked} images were copied")
     assert result.bytes_saved > 0
     for path in result.destination.iterdir():
-        assert path.is_symlink(), f"{path.name} is a real file"
+        assert path.is_symlink() or path.stat().st_nlink > 1, f"{path.name} is a real file"
+
+
+def test_without_symlinks_the_plate_is_hard_linked_not_copied(corpus, tmp_path, monkeypatch):
+    """Windows without the symbolic-link privilege (found natively 2026-10-19) copied every image."""
+    import os
+
+    def refused(*args, **kwargs):
+        raise OSError(1314, "A required privilege is not held by the client")
+
+    monkeypatch.setattr(os, "symlink", refused)
+    name = next(n for n, _ in BUILDERS if n not in NEEDS_TILE_DECISION)
+    plan = plan_import(corpus[name].root, mapping=ANSWERS.get(name))
+    result = apply_import(plan, tmp_path / name)
+    assert result.linked == result.written and result.bytes_saved > 0
+    for path in result.destination.iterdir():
+        assert not path.is_symlink() and path.stat().st_nlink > 1
 
 
 def test_a_plan_with_problems_is_refused(corpus, tmp_path):

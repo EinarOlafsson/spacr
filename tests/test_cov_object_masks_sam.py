@@ -273,7 +273,7 @@ def test_basic_run_writes_masks_counts_and_uses_cpu_model(tmp_path, fake_model,
     assert kw["batch_size"] == 3
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    assert kw["diameter"] is None
+    assert kw["diameter"] == 120.0, "item 696: _get_diam(20, 'cell')"
     assert kw["progress"] is True
     assert kw["min_size"] == 0          # cell_min_area default
     assert kw["resample"] is True       # _get_object_settings('cell')
@@ -704,9 +704,10 @@ def test_timelapse_lineage_and_events_run_after_tracking(
     calls = []
     monkeypatch.setattr(TL, "_run_lineage_step",
                         lambda src, name, obj, mode, settings, *, frame_sources,
-                        label_stack:
+                        label_stack, images=None:
                         calls.append(("lineage", obj, mode,
-                                      len(frame_sources), len(label_stack))))
+                                      len(frame_sources), len(label_stack),
+                                      None if images is None else len(images))))
     monkeypatch.setattr(TL, "_run_event_features_step",
                         lambda src, name, obj, stack, images, mode, settings:
                         calls.append(("events", obj, mode)))
@@ -715,5 +716,6 @@ def test_timelapse_lineage_and_events_run_after_tracking(
     settings = _tl_settings(src, batch_size=2, timelapse_mode="trackpy",
                             timelapse_lineage=True, timelapse_events=True)
     O.generate_cellpose_masks_sam(str(src), settings, "cell")
-    assert calls == [("lineage", "cell", "trackpy", 2, 2),
+    # F537 (ccccb694d) hands the lineage step the frames' images as well.
+    assert calls == [("lineage", "cell", "trackpy", 2, 2, 2),
                      ("events", "cell", "trackpy")]

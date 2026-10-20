@@ -1,0 +1,29 @@
+{
+  "lesson": "06_api",
+  "english_sha256": "5182c3efe47b1f6fa83911262a5b2b4eea6d619af5ea77044974276de96774f1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "API Python et commandes par lots",
+  "description": "Trouvez une fonction d’analyse, chargez des paramètres enregistrés, vérifiez les entrées et lancez spaCR depuis un terminal.",
+  "objectives": [
+    "Trouver les commandes par lots installées et leurs fonctions Python.",
+    "Examiner la signature d’une fonction et sa référence d’API.",
+    "Vérifier les paramètres enregistrés avant de lancer une analyse."
+  ],
+  "prerequisite": "Installez spaCR et activez son environnement Python. Suivez le tutoriel Regression pour préparer des tables appariées de scores et de comptages et enregistrer les paramètres d’analyse. Utilisez vos propres chemins de fichiers dans les commandes.",
+  "scenes": [
+    "Activez l’environnement Python dans lequel vous avez installé spaCR. Importez spacr et affichez sa version avec la commande indiquée. Conservez la version avec vos notes d’analyse afin de pouvoir reproduire plus tard la même exécution.",
+    "Lancez spacr-run avec tiret tiret list pour trouver les commandes par lots disponibles. La liste affiche la clé de chaque commande et sa fonction Python. Choisissez la commande adaptée à votre tâche, comme mask, measure ou regression. Utilisez l’application de bureau pour les tâches interactives, comme l’étiquetage d’images dans Annotate.",
+    "Lancez spacr-run avec tiret tiret describe suivi de regression. Lisez les entrées requises, les valeurs par défaut et le nom de la fonction. Ici, la commande par lots appelle perform_regression dans spacr.ml. Ouvrez cette fonction dans la référence d’API pour lire ses paramètres et les résultats renvoyés.",
+    "En Python, importez la fonction dont vous avez besoin et examinez sa signature. Cet exemple importe build_report depuis spacr.report. Cherchez le même nom dans la référence d’API, préparez les arguments requis et appelez la fonction depuis votre script ou votre notebook.",
+    "Enregistrez les paramètres de votre flux de travail du module, puis transmettez le fichier avec tiret tiret settings. Ajoutez tiret tiret dry-run pour vérifier la configuration et les chemins d’entrée. Dans cet exemple Regression, les paramètres associent les scores de phénotype aux comptages de guides de chaque plaque. Lisez les messages et corrigez les entrées manquantes avant de continuer.",
+    "Pour exécuter l’analyse, lancez la même commande sans tiret tiret dry-run. Suivez la console jusqu’à la fin de la commande, puis inspectez les sorties décrites dans le tutoriel et la page d’API de ce module. Conservez avec les résultats le fichier de paramètres, les tables d’entrée, la version du paquet et le journal de la console."
+  ]
+}

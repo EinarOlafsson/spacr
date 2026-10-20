@@ -305,6 +305,34 @@ def lost_coverage(
     return sorted(lost), reasons
 
 
+def discarded_child_coverage(
+    batch_files: Sequence[str], discarded: Sequence[str],
+) -> tuple[list[str], list[dict[str, Any]]]:
+    """Every file of a batch whose child-process coverage was discarded.
+
+    Every worker returned its data, yet a process the batch started left a
+    data file coverage cannot read.  coverage.py's ``sigterm = True`` handler
+    saves again when SIGTERM lands while the process is already saving at
+    exit (``multiprocessing.Pool.__exit__`` terminates workers that have just
+    been told to stop), and the inner save renames the file before the outer
+    one has written its schema row, so the file is final-named and
+    unreadable.  Its lines are gone and nothing records which test started
+    that process, so every file of the batch is re-run on its own.
+    """
+    files = sorted(batch_files)
+    return files, [{
+        "worker": None,
+        "error": "a child process left unreadable coverage data ("
+                 + ", ".join(discarded) + "), most likely SIGTERM during its "
+                 "own exit-time save",
+        "exit_status": None,
+        "exit_kind": None,
+        "exit": None,
+        "running": [],
+        "files": files,
+    }]
+
+
 def _coverage_options(source: str) -> list[str]:
     return [
         f"--cov={source}",
@@ -499,6 +527,12 @@ def _run_batch(
     lost, reasons = lost_coverage(
         read_ledger(ledger_path), relative, int(result.returncode),
     )
+    discarded = [
+        path.name for path in
+        _discard_unreadable_process_data(args.data_dir, data_name + ".")
+    ]
+    if discarded and not lost:
+        lost, reasons = discarded_child_coverage(relative, discarded)
     entry: dict[str, Any] = {
         "batch": number,
         "exit_code": int(result.returncode),
@@ -507,10 +541,7 @@ def _run_batch(
         "lost_files": lost,
         "recovered_files": [],
         "unrecovered_files": [],
-        "discarded_data_files": [
-            path.name for path in
-            _discard_unreadable_process_data(args.data_dir, data_name + ".")
-        ],
+        "discarded_data_files": discarded,
     }
     if not lost:
         return entry

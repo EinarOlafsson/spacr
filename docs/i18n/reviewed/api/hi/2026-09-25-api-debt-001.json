@@ -26,7 +26,9 @@
       "source_sha256": "9e2408d10fc55d9d3733ae711b7e57e09051ee0a9cfaa3170139ec21f81592e7",
       "context": "This is the whole of what the FEATURES button adds to Measure: it turns a table of hand-picked files into ``stack/``, ``masks/`` and ``merged/`` exactly as :func:`spacr.core.preprocess_generate_masks` would have left them, down to the image layer-layout manifest, so the run that follows is an ORDINARY measure run and not a second code path that has to be kept in step with this one.",
       "translation": "FEATURES बटन Measure में बस इतना ही जोड़ता है: यह हाथ से चुनी गई फ़ाइलों की तालिका को ``stack/``, ``masks/`` और ``merged/`` में ठीक वैसे बदलता है जैसे :func:`spacr.core.preprocess_generate_masks` उन्हें छोड़ता, समतल-लेआउट मैनिफ़ेस्ट तक, ताकि इसके बाद का रन एक सामान्य Measure रन हो, न कि कोई दूसरा कोड पथ जिसे इसके साथ तालमेल में रखना पड़े।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.measure.write_field_table_project#2",
@@ -114,7 +116,9 @@
       "source_sha256": "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821",
       "context": "sequence of mappings with ``'score'`` and ``'count'`` table paths (either may be empty), as returned by :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'`` is overwritten with the resolved plate label.",
       "translation": "``'score'`` और ``'count'`` तालिका पथों वाली मैपिंग का अनुक्रम (कोई भी खाली हो सकता है), जैसा :func:`normalize_regression_input_pairs` लौटाता है। हर मैपिंग का ``'plate'`` हल किए गए प्लेट लेबल से अधिलेखित किया जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: item 576 rewrote this docstring block when classification and regression moved to the alternate measurement stores; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ml.ml_analysis#15",
@@ -346,7 +350,9 @@
       "source_sha256": "d39c9c27d783d1465ee8471afbd90ca487c1a59c4f04ba350dade9fe77ac2ee1",
       "context": "These are shown only when the user asks for them, because an unreviewed checkpoint sitting beside a measured one invites the reader to treat them alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes from the uploader's own submission record -- it proves the file has not changed since it was uploaded, NOT that it is any good.",
       "translation": "ये केवल तभी दिखाए जाते हैं जब उपयोगकर्ता इन्हें माँगे, क्योंकि मापे गए चेकपॉइंट के बगल में रखा बिना समीक्षा वाला चेकपॉइंट पाठक को दोनों को एक जैसा मानने के लिए प्रेरित करता है। हर पंक्ति में :data:`COMMUNITY_WARNING` होता है, और चेकसम अपलोडर के अपने सबमिशन रिकॉर्ड से आता है -- यह सिद्ध करता है कि अपलोड के बाद फ़ाइल नहीं बदली, यह नहीं कि वह अच्छी है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.community_entries#2",
@@ -434,7 +440,9 @@
       "source_sha256": "478831c6b48fd43c4fb86099730e5f88470a0a5ab3065546620d53945a888b84",
       "context": "A backend absent from the zoo teaches nobody that it exists, so each one is listed, and its ``source`` says where it stands -- ``installed``, ``installable``, ``installing`` or ``not installable here`` -- with the reason as its first note and its licence on the row. Installing one builds it an environment of its own under ``~/.spacr/backends`` and leaves spaCR's own environment alone.",
       "translation": "zoo से अनुपस्थित बैकएंड किसी को नहीं सिखाता कि वह मौजूद है, इसलिए हर एक सूचीबद्ध किया जाता है, और उसका ``source`` बताता है कि वह किस स्थिति में है -- ``installed``, ``installable``, ``installing`` या ``not installable here`` -- पहली टिप्पणी के रूप में कारण और पंक्ति पर उसके लाइसेंस के साथ। किसी एक को इंस्टॉल करने से ``~/.spacr/backends`` के अंतर्गत उसका अपना एनवायरनमेंट बनता है और spaCR का अपना एनवायरनमेंट अछूता रहता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#0",
@@ -450,7 +458,9 @@
       "source_sha256": "3127ce8df40eaf57f7cd93dea6f22d66c9c47921b1a66a4b3c1af979325c79f5",
       "context": "A paragraph of prose is what a tooltip used to show, and a reader comparing two models had to parse two paragraphs to find two numbers. The same table the model card prints answers that at a glance. Falls back to the prose when an entry publishes no metrics, because an empty table is worse than a sentence.",
       "translation": "पहले टूलटिप गद्य का एक अनुच्छेद दिखाता था, और दो मॉडलों की तुलना करने वाले पाठक को दो संख्याएँ खोजने के लिए दो अनुच्छेद पढ़ने पड़ते थे। मॉडल कार्ड द्वारा छापी जाने वाली वही तालिका एक नज़र में उत्तर देती है। जब कोई प्रविष्टि कोई मेट्रिक प्रकाशित नहीं करती तो गद्य पर लौटता है, क्योंकि खाली तालिका एक वाक्य से बदतर है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#2",
@@ -458,7 +468,9 @@
       "source_sha256": "f04e6e5a7c635c420e7eb8986df382c4121bb29936e69dc8f58513d463783c9e",
       "context": "Metrics that hold none of the scorecard's structured-data names -- a free-form note, a training loss under a name of its own -- are not a scorecard either, and return nothing too: a table of eleven \"not recorded\" rows would replace a two-line note that said something.",
       "translation": "जिन मेट्रिक्स में स्कोरकार्ड की कोई कुंजी नहीं है -- कोई मुक्त-रूप टिप्पणी, अपने ही नाम से कोई प्रशिक्षण loss -- वे भी स्कोरकार्ड नहीं हैं, और वे भी कुछ नहीं लौटाते: ग्यारह \"not recorded\" पंक्तियों वाली तालिका उस दो-पंक्ति टिप्पणी की जगह ले लेती जिसमें कुछ कहा गया था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#3",
@@ -466,7 +478,9 @@
       "source_sha256": "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
       "context": "a catalogue entry, or anything with ``metrics`` and a name.",
       "translation": "कैटलॉग प्रविष्टि, या ``metrics`` और नाम वाली कोई भी चीज़।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.scorecard_html#4",
@@ -474,7 +488,9 @@
       "source_sha256": "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef",
       "context": "the HTML table, or ``\"\"`` when there is no scorecard to show.",
       "translation": "HTML तालिका, या दिखाने को कोई स्कोरकार्ड न होने पर ``\"\"``।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "F370 source983947 changes this exact selected API block or its position; original source/context/target and provenance retained. Replacement records are source-bound to the final builtin scorecard presentation."
     },
     {
       "label": "spacr.model_zoo.source_of#0",
@@ -490,7 +506,9 @@
       "source_sha256": "0cd8ff147ebdbdf605e3415daeb5d09d354140bf0ddd12a73efd5f9b4642d541",
       "context": "Decided from the row, never from a list of names kept somewhere else: a hand-written list goes stale the first time a model is added, and the failure it produces is a model that is in the catalogue and under no heading, which is a model nobody can see.",
       "translation": "पंक्ति से ही तय किया जाता है, कहीं और रखी नामों की सूची से कभी नहीं: हाथ से लिखी सूची पहला मॉडल जुड़ते ही पुरानी पड़ जाती है, और उससे होने वाली विफलता ऐसा मॉडल है जो कैटलॉग में है पर किसी शीर्षक के अंतर्गत नहीं, यानी ऐसा मॉडल जिसे कोई नहीं देख सकता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.model_zoo.source_of#2",
@@ -498,18 +516,22 @@
       "source_sha256": "7bd57cae83aa0f8052fef8fef08f131964c8b75623e59ccbc524499e1db85b99",
       "context": "The order of the tests is the rule, and it matters in one place: a Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto, cyto2, cyto3, nuclei -- and the backend package that executes them.",
       "translation": "परीक्षणों का क्रम ही नियम है, और यह एक जगह मायने रखता है: bioimage.io पर प्रकाशित Cellpose 3 चेकपॉइंट bioimage.io पंक्ति है, Cellpose 3 पंक्ति नहीं। ``cellpose3`` का अर्थ बैकएंड के अपने मॉडल हैं -- cyto, cyto2, cyto3, nuclei -- और उन्हें चलाने वाला बैकएंड पैकेज।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.model_zoo.source_of#3",
+      "label": "spacr.model_zoo.source_of#4",
       "source": "A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "source_sha256": "bea6df5a6a9787453b84f474e9de42f1b6f56b211c802b832fa12d45b3721832",
       "context": "A row that matches nothing is filed under ``spaCR`` and said out loud. It is the fallback rather than a sixth heading because a model under the wrong heading is a nuisance and a model under no heading is a bug the user experiences as a missing model.",
       "translation": "किसी से मेल न खाने वाली पंक्ति ``spaCR`` के अंतर्गत दर्ज की जाती है और यह स्पष्ट रूप से बताया जाता है। यह छठा शीर्षक नहीं बल्कि फ़ॉलबैक है, क्योंकि गलत शीर्षक के अंतर्गत मॉडल एक असुविधा है और बिना शीर्षक का मॉडल एक बग है जिसे उपयोगकर्ता गायब मॉडल के रूप में अनुभव करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.model_zoo.source_of#4",
+      "label": "spacr.model_zoo.source_of#5",
       "source": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
       "source_sha256": "370d34f89a83bd0f6e26fe1a879a04ac840ee9cefc84cf084a995792383642cf",
       "context": "any zoo row -- a :class:`ModelEntry`, or anything with ``kind``, ``source`` and ``uri``.",
@@ -517,7 +539,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.model_zoo.source_of#5",
+      "label": "spacr.model_zoo.source_of#6",
       "source": "one of :data:`ZOO_SOURCES`.",
       "source_sha256": "114ce8d91c5246ab5425f5e989c6f1cbc54133d435b8edab97e44036a59f93ec",
       "context": "one of :data:`ZOO_SOURCES`.",
@@ -538,7 +560,9 @@
       "source_sha256": "562dc59f42e75e2dff8502e60b00f58d17571d012575869480bb7350d7387348",
       "context": "These are not spaCR's files and carry no checksum of ours: Cellpose downloads and verifies them, and the name IS the path -- passing \"cpsam\" to Cellpose resolves it. They are listed so that the zoo answers \"what can I segment with\" rather than \"what has Einar trained\", which is the question a new user actually has.",
       "translation": "ये spaCR की फ़ाइलें नहीं हैं और इनमें हमारा कोई चेकसम नहीं है: Cellpose इन्हें डाउनलोड और सत्यापित करता है, और नाम ही पथ है -- Cellpose को \"cpsam\" देने पर वह इसे हल कर लेता है। इन्हें इसलिए सूचीबद्ध किया जाता है ताकि zoo \"मैं किससे सेगमेंट कर सकता हूँ\" का उत्तर दे, न कि \"what has Einar trained\" का, क्योंकि नए उपयोगकर्ता का वास्तविक प्रश्न पहला है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object.generate_cellpose_masks#2",
@@ -596,7 +620,9 @@
       "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
       "context": "Say what each object in a mask is, after any segmenter has made it.",
       "translation": "किसी भी सेगमेंटर द्वारा बनाए जाने के बाद, मास्क में हर ऑब्जेक्ट क्या है, यह बताएँ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#1",
@@ -612,7 +638,9 @@
       "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
       "context": "Two ways in:",
       "translation": "प्रवेश के दो रास्ते:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#3",
@@ -636,7 +664,9 @@
       "source_sha256": "3e8db2fd2102133bbd7a82b25d0ad21761b28ba87f9ecd857121080448ceb2fe",
       "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so an adapter around a torch module or a scikit-learn estimator can supply it. Two applications are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "translation": "हेड क्या है। हेड एक प्रशिक्षित क्लासिफ़ायर है: उसे क्रॉप का एक बैच दिया जाता है और वह हर एक के लिए एक वर्ग और एक प्रायिकता लौटाता है। यह बेस क्लास नहीं बल्कि एक प्रोटोकॉल है, इसलिए torch मॉड्यूल या scikit-learn एस्टिमेटर के चारों ओर बना एडैप्टर इसे दे सकता है। दो अनुप्रयोग नियोजित हैं -- प्रति रिक्तिका परजीवी, और हर ऑब्जेक्ट क्या है -- और PV वाला व्यवहार में तीन हेड है, जो Hoechst, परजीवी रंजक और CellMask पर अलग-अलग प्रशिक्षित हैं, ताकि कोई प्लेट जो भी रंजक उसमें है उससे गिन सके।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier#6",
@@ -652,7 +682,9 @@
       "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
       "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
       "translation": "ID कभी फिर से क्रमांकित नहीं किए जाते। यहाँ सब कुछ उन्हीं लेबल id पर आधारित है जिनके साथ मास्क आया, और यह जो भी मास्क लौटाता है वह उन्हें बनाए रखता है। `canonical_labels`, जो `mask_engine` में है, बताता है कि फिर से क्रमांकित करने की क्या कीमत है: मापन, क्रॉप और ट्रैक सभी उन्हीं id पर आधारित हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.ParasiteCountHead#0",
@@ -724,7 +756,9 @@
       "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
       "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
       "translation": "बिन एक प्रदर्शन विकल्प है, प्रशिक्षित नहीं। हेड अनुमान लगाता है कि उसे कितने परजीवी दिखते हैं; यह केवल उस संख्या को दिखाने का तरीका है। यह इसलिए मायने रखता है कि नीचे का नियम बदल सकता है -- या हर रिपोर्ट के लिए किसी अलग नियम से बदला जा सकता है -- बिना कुछ भी दोबारा प्रशिक्षित किए।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#2",
@@ -732,7 +766,9 @@
       "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
       "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
       "translation": "बराबरी नीचे जाती है, और 12 ऐसा ही मामला है: यह 8 से चार दूर है और 16 से भी चार। 12 वाली रिक्तिका आठ पूरे कर चुकी है और सोलह की ओर आधे रास्ते में है, इसलिए इसे उस दौर के रूप में रिपोर्ट किया जाता है जो पूरा हुआ, न कि जो नहीं हुआ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.bin_parasite_count#3",
@@ -868,7 +904,9 @@
       "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
       "context": "What can be said about every object without a trained head at all.",
       "translation": "प्रशिक्षित हेड के बिना हर ऑब्जेक्ट के बारे में क्या कहा जा सकता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.describe_objects#1",
@@ -1182,7 +1220,9 @@
       "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
       "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
       "translation": "कोई भी फ़ोल्डर दोनों हिस्सों का पैरेंट हो सकता है, और हर सेटिंग फिर भी अपना हिस्सा पढ़ती है: ``genotype_source`` केवल चक्र वाले नामों को सूचीबद्ध करता है और ``phenotype_source`` केवल बिना चक्र वाले नामों को, और जिस फ़ीनोटाइप अधिग्रहण में चक्र वाले नाम हों उसके लिए उन पर लौटता है। इसलिए दोनों को ``20200202_6W-LaC024A`` की ओर इंगित करने से प्लेट चलती है, बजाय इसके कि 1,281 फ़ीनोटाइप फ़ील्ड और 333 सीक्वेंसिंग फ़ील्ड एक ही अधिग्रहण के रूप में दर्ज हों -- :func:`_index_tiles` देखें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_engine.run_ops#4",
@@ -1214,7 +1254,9 @@
       "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
       "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
       "translation": "वेल-फ़्रेम पिक्सेल में ``(top, left, bottom, right)``, सभी समावेशी -- ``bottom`` और ``right`` वह अंतिम पंक्ति और स्तंभ हैं जिन पर मास्क है, इसलिए इसकी ऊँचाई ``bottom - top + 1`` है। यह docstring 2026-09-19 तक अनन्य कहता था जबकि कोड हमेशा समावेशी रहा है (`_label_extents` ``np.maximum`` से घटाता है), जिससे इससे विस्तार मापने वाले हर व्यक्ति को हर दिशा में एक पिक्सेल का नुकसान हुआ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#0",
@@ -1230,7 +1272,9 @@
       "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
       "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
       "translation": "यह इनकार संदेश क्यों नहीं है। :func:`_unseen_report` सबसे बड़े समूह और उपाय का नाम देता है, जो एक पंक्ति पढ़ने वाले ऑपरेटर को चाहिए। वेल A1 के रन से बस इतना ही बचा था: 54 समूह हटाए गए और रिपोर्ट ने एक बॉक्स और एक गिनती रखी, इसलिए रन ने जो प्रश्न उठाया -- क्या ये बिना समकक्ष वाले Cellpose टुकड़े हैं, या ऐसी कटी हुई आकृतियाँ जिनका पूरा अवलोकन जोड़ से छूट गया? -- उसका उत्तर बाद में वेल को फिर से सेगमेंट किए बिना नहीं दिया जा सकता था। ये रिकॉर्ड उस उत्तर का सस्ता आधा हिस्सा हैं, जो अवलोकनों के स्मृति में रहते ही लिखे जाते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#2",
@@ -1238,7 +1282,9 @@
       "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
       "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
       "translation": "दूसरा आधा :func:`spacr.ops_engine.run_ops` का है, जो हर बॉक्स की तुलना उन ऑब्जेक्ट से करता है जिन्हें क्रमांकित किया गया था: जिस इनकार के ऊपर कोई क्रमांकित ऑब्जेक्ट हो, वह छूटा हुआ जोड़ है, और जिसके चारों ओर खाली वेल फ़्रेम हो, वह एक टुकड़ा है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ops_objects.unseen_records#3",
@@ -1390,7 +1436,9 @@
       "source_sha256": "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
       "context": "What ``method`` suits, as one sentence a picker can show.",
       "translation": "``method`` किसके लिए उपयुक्त है, एक वाक्य के रूप में जिसे चयनकर्ता दिखा सके।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.organelle_types.method_guidance#1",
@@ -1478,7 +1526,9 @@
       "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
       "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
       "translation": "नाम बदली गई कुंजी हटाई नहीं जाती, बल्कि स्थानांतरित की जाती है: 2026-09-19 को ``img_size`` ``crop_size`` बन गया, और आकार चुनने वाला सहेजा गया रन उसे बनाए रखता है। नाम-परिवर्तन :func:`spacr.settings.surviving_setting_name` से पढ़ा जाता है, जो सेटिंग्स फ़ाइलों द्वारा उपयोग किया जाने वाला रिज़ॉल्वर है, और केवल उसी कुंजी पर लागू होता है जिसे यह पैनल प्रस्तुत करता है। जब किसी ब्लॉब में दोनों हों, तो नया नाम जीतता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_graph.ModuleGraph.next_of#1",
@@ -1616,7 +1666,9 @@
       "source_sha256": "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
       "context": "The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises it. It is NOT sent through the run's historical loader (``_load_normalized_images_and_labels`` with ``background=200``): on an 8-bit extracted image region that loader saturated every pixel to 1.0 -- measured on ``malnio__2.tif``, min = max = 1.0 in every image data channel -- so the run found no plaques while the preview, reading the image as it is, found 67. One function for both is what keeps them from disagreeing again.",
       "translation": "छवि Cellpose को जैसी है वैसी ही जाती है, RGB या ग्रे, और Cellpose उसे सामान्यीकृत करता है। इसे रन के ऐतिहासिक लोडर (``_load_normalized_images_and_labels``, ``background=200`` के साथ) से नहीं भेजा जाता: 8-bit क्रॉप पर वह लोडर हर पिक्सेल को 1.0 पर संतृप्त कर देता था -- ``malnio__2.tif`` पर मापा गया, हर चैनल में min = max = 1.0 -- इसलिए रन को कोई प्लाक नहीं मिला जबकि छवि को जैसी है वैसी पढ़ने वाले पूर्वावलोकन को 67 मिले। दोनों के लिए एक ही फ़ंक्शन उन्हें फिर से असहमत होने से रोकता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque.segment_plaque_image#2",
@@ -1809,7 +1861,9 @@
       "source_sha256": "b9e152549e74720d4aa677824a2577c685566897e6d622017e007846f2e53ad0",
       "context": "The condition is the hard part, and it is read two independent ways, always both, because two readings that agree are evidence and one is a guess:",
       "translation": "स्थिति ही कठिन भाग है, और इसे दो स्वतंत्र तरीकों से पढ़ा जाता है, हमेशा दोनों, क्योंकि सहमत दो पठन साक्ष्य हैं और एक पठन अनुमान है:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#3",
@@ -1841,7 +1895,9 @@
       "source_sha256": "e93230681245cc4f813ccd82421b2051861e805bb8420aeaf5985b34b3d56512",
       "context": "SIZES. A plaque area in pixels depends on the paper's printing, so every plaque also carries its area relative to the median plaque in the same panel, and an area in mm^2 only when there is a ruler: a scale bar read in or under the image (its length from the label beside it, or from the legend's \"scale bar, 1 mm\"), or a whole microplate sample position of a laboratory microplate format the settings or the legend state. A stated magnification is recorded but is never a ruler, because a printed figure has been rescaled since the picture was taken. Rows with no ruler say their sizes are in pixels.",
       "translation": "आकार। पिक्सेल में प्लाक क्षेत्रफल शोधपत्र की छपाई पर निर्भर करता है, इसलिए हर प्लाक के साथ उसी पैनल के माध्यिका प्लाक के सापेक्ष उसका क्षेत्रफल भी होता है, और mm^2 में क्षेत्रफल केवल तब जब कोई पैमाना हो: छवि में या उसके नीचे पढ़ा गया स्केल बार (उसकी लंबाई बगल के लेबल से, या लेजेंड के \"scale bar, 1 mm\" से), या सेटिंग्स या लेजेंड में बताए गए प्लेट फ़ॉर्मैट का पूरा वेल। बताया गया आवर्धन दर्ज किया जाता है पर कभी पैमाना नहीं माना जाता, क्योंकि छपे चित्र को तस्वीर लेने के बाद से रीस्केल किया गया है। बिना पैमाने वाली पंक्तियाँ बताती हैं कि उनके आकार पिक्सेल में हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#7",
@@ -1849,7 +1905,9 @@
       "source_sha256": "d3f1d637c2b1c018abf771c7f9310736fc1171e3eeb4127ac902360c9712c6c4",
       "context": "DUPLICATES. A figure is identified by its paper (the DOI when there is one) and its image hash. The same image seen again -- the same bytes, or the same pixels in another file format, under another name or another paper, such as a preprint and its published version -- is measured once and recorded in the ``duplicates`` table against the copy that was measured. A paper already measured from one source (Europe PMC) is not measured again from another (its PDF). An image that merely LOOKS the same (a near-identical perceptual hash, as a re-encoded or resized copy would have) is recorded as a possible duplicate and still measured, because on figures that is a resemblance, not a proof.",
       "translation": "डुप्लिकेट। चित्र की पहचान उसके शोधपत्र (उपलब्ध हो तो DOI) और उसके छवि हैश से होती है। वही छवि दोबारा दिखने पर -- वही बाइट, या किसी अन्य फ़ाइल फ़ॉर्मैट में वही पिक्सेल, किसी अन्य नाम या अन्य शोधपत्र के अंतर्गत, जैसे प्रीप्रिंट और उसका प्रकाशित संस्करण -- एक बार मापी जाती है और ``duplicates`` तालिका में मापी गई प्रति के सामने दर्ज की जाती है। एक स्रोत (Europe PMC) से पहले मापा गया शोधपत्र दूसरे स्रोत (उसकी PDF) से फिर नहीं मापा जाता। जो छवि केवल एक जैसी दिखती है (लगभग समान perceptual हैश, जैसा दोबारा एन्कोड की गई या आकार बदली गई प्रति का होता) उसे संभावित डुप्लिकेट के रूप में दर्ज किया जाता है और फिर भी मापा जाता है, क्योंकि चित्रों पर यह समानता है, प्रमाण नहीं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#8",
@@ -1857,7 +1915,9 @@
       "source_sha256": "50a1e664ffd77bee0330eeaf2f96f65df2a7cc880a567ee003de372746390f1c",
       "context": "TEXT. A PDF's own text layer is used for legends and labels before any OCR; OCR is asked only when the text layer has nothing near the plaque images, which is what a figure pasted into the PDF as one picture looks like.",
       "translation": "पाठ। लेजेंड और लेबल के लिए किसी भी OCR से पहले PDF की अपनी पाठ परत का उपयोग होता है; OCR तभी माँगा जाता है जब पाठ परत में प्लाक छवियों के पास कुछ न हो, और PDF में एक ही तस्वीर के रूप में चिपकाया गया चित्र ऐसा ही दिखता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers#9",
@@ -2579,7 +2639,9 @@
       "source_sha256": "e36b7770a70a4c93fd4236fa9502c357b54bae1c48de358417a163b8508022c6",
       "context": "Ask at the terminal for a legend nobody could fetch.",
       "translation": "टर्मिनल पर उस लेजेंड के लिए पूछें जिसे कोई प्राप्त नहीं कर सका।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.console_legend_prompt#1",
@@ -2675,7 +2737,9 @@
       "source_sha256": "89bca07c87b373de37b4f7f41175f0a7ac98d01f74e21453d1cf2a4bfe68197a",
       "context": "The images come from the ``supplementaryFiles`` bundle, which carries the main figures as well as the supplements; one file per figure survives, the largest, because journals also ship thumbnails and a detector shown a thumbnail has not been asked the question. Legends come from the full-text XML.",
       "translation": "छवियाँ ``supplementaryFiles`` बंडल से आती हैं, जिसमें मुख्य चित्र और पूरक दोनों होते हैं; प्रति चित्र एक फ़ाइल बचती है, सबसे बड़ी, क्योंकि जर्नल थंबनेल भी भेजते हैं और थंबनेल दिखाए गए डिटेक्टर से असली प्रश्न पूछा ही नहीं गया। लेजेंड पूर्ण-पाठ XML से आते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.fetch_figures#2",
@@ -2995,7 +3059,9 @@
       "source_sha256": "b76a7b49e3f4a48f3459c5998d43d05deb181232c09f5f74eaff887c652f4b36",
       "context": "Nothing here stops to ask. Legends come from ``legends`` (default ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``, the paper from ``<src>/paper.json``, and a person's edits and approvals from ``annotations`` (default ``<src>/figure_annotations.csv``), which the Figure preview writes. With ``confirm_each`` on, only approved images are measured and the rest are counted as waiting. A figure measured again replaces its earlier rows; the same image under a second name is measured once and recorded as a duplicate -- the copy with a legend is the one measured, since figures with legends are taken first.",
       "translation": "यहाँ कुछ भी पूछने के लिए नहीं रुकता। लेजेंड ``legends`` से आते हैं (डिफ़ॉल्ट ``<src>/legends.csv``), PDF की पाठ परत ``<src>/text_layer.json`` से, शोधपत्र ``<src>/paper.json`` से, और किसी व्यक्ति के संपादन और स्वीकृतियाँ ``annotations`` से (डिफ़ॉल्ट ``<src>/figure_annotations.csv``), जिसे Figure पूर्वावलोकन लिखता है। ``confirm_each`` चालू होने पर केवल स्वीकृत छवियाँ मापी जाती हैं और बाकी प्रतीक्षारत गिनी जाती हैं। दोबारा मापा गया चित्र अपनी पिछली पंक्तियाँ बदल देता है; दूसरे नाम के अंतर्गत वही छवि एक बार मापी जाती है और डुप्लिकेट के रूप में दर्ज होती है -- लेजेंड वाली प्रति मापी जाती है, क्योंकि लेजेंड वाले चित्र पहले लिए जाते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.measure_figure_folder#10",
@@ -3293,7 +3359,9 @@
       "source_sha256": "570d557c65923a1ff3a0ccf73c81d3b169d0e46efb9d68f03fd6b1982537000b",
       "context": "Say what kind of reference a user typed.",
       "translation": "बताएँ कि उपयोगकर्ता ने किस प्रकार का संदर्भ टाइप किया।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.parse_reference#1",
@@ -3397,7 +3465,9 @@
       "source_sha256": "9de13c605de361ef665e570b8194ef7a1de462fdd5c813f1c8ba5cd6c9799fc9",
       "context": ":func:`spacr.plaque.detect_wells`, answered by the reader's environment.",
       "translation": ":func:`spacr.plaque.detect_wells`, जिसका उत्तर रीडर का एनवायरनमेंट देता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.reader_detect#1",
@@ -3717,7 +3787,9 @@
       "source_sha256": "a67cb99a1183a4e5b6944053731c0d7444eddfa69fe15d9c05ad4369b96fba04",
       "context": "**panel** -- a panel letter above and to the left of the grid's top-left corner, within one image size of it. Further than that is another panel's letter, and no letter is better than the wrong one.",
       "translation": "**पैनल** -- ग्रिड के ऊपरी-बाएँ कोने के ऊपर और बाईं ओर, उससे एक छवि आकार के भीतर कोई पैनल अक्षर। इससे आगे किसी दूसरे पैनल का अक्षर है, और कोई अक्षर न होना गलत अक्षर से बेहतर है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.plaque_papers.text_near#6",
@@ -4125,7 +4197,9 @@
       "source_sha256": "138767e16e686607015814fc68d8d96c8320f38b21c5af9b1d61033108a1a3f8",
       "context": "deconvolution iterations, integer 1..200, default20.",
       "translation": "डीकनवोल्यूशन पुनरावृत्तियाँ, पूर्णांक 1..200, डिफ़ॉल्ट 20।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.point_spread.apply_psf#6",
@@ -4717,7 +4791,9 @@
       "source_sha256": "216ac8e6db5a6819d1fb3a669f68f303e06d4a147dcbaea99a7073137a5bf5e8",
       "context": "Compare active PSF behavior rather than dormant form parameters.",
       "translation": "निष्क्रिय फ़ॉर्म पैरामीटर के बजाय सक्रिय PSF व्यवहार की तुलना करें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.measurement_resume_settings#1",
@@ -4741,7 +4817,9 @@
       "source_sha256": "f69d6eeda42c8039b6728af03880c5b17750c07b25b247d216f04adb6f500667",
       "context": "fresh settings with inactive PSF knobs removed and one captured material signature. Legacy measurements have the original signature None.",
       "translation": "नई सेटिंग्स, जिनसे निष्क्रिय PSF नियंत्रण हटाए गए हैं और जिनमें एक कैप्चर किया गया सामग्री हस्ताक्षर है। पुराने मापनों का मूल हस्ताक्षर None है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_measurement.prepare_measurement_psf#0",

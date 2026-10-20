@@ -191,10 +191,15 @@ def test_the_value_round_trips_and_names_an_existing_checkpoint(tmp_path):
     assert value == f"cellpose_dino:{path}"
     assert SB._cellpose_dino_value(value) == value
     assert SB._cellpose_dino_model(value) == str(path)
-    with pytest.raises(FileNotFoundError, match="not there"):
-        SB._cellpose_dino_model(f"cellpose_dino:{tmp_path / 'gone'}")
-    with pytest.raises(FileNotFoundError):
+    requested = f"cellpose_dino:{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as error:
+        SB._cellpose_dino_model(requested)
+    assert str(error.value) == zoo._model_resolution_context(
+        requested, setting="model_name", kinds=("cellpose_dino",))
+    with pytest.raises(zoo.ModelZooError) as error:
         SB._cellpose_dino_model("cellpose_dino:")
+    assert str(error.value) == zoo._model_resolution_context(
+        "cellpose_dino:", setting="model_name", kinds=("cellpose_dino",))
 
 
 def test_a_run_knows_when_an_object_chose_cellpose_dino():
@@ -220,14 +225,22 @@ def test_load_backend_builds_the_remote_model_on_the_checkpoint(tmp_path,
     assert again.model == str(path)
 
 
-def test_load_backend_refuses_what_it_cannot_run(tmp_path):
+def test_load_backend_refuses_what_it_cannot_run(tmp_path, monkeypatch):
     path = _checkpoint(tmp_path)
     with pytest.raises(ImportError, match="Cellpose-DINO is not installed"):
         SB._load_backend("cellpose_dino", model_name=f"cellpose_dino:{path}")
     _finish(tmp_path)
-    with pytest.raises(FileNotFoundError):
+    def forbidden(*args, **kwargs):
+        pytest.fail("A missing DINO checkpoint must not be acquired or constructed")
+
+    monkeypatch.setattr(zoo, "fetch", forbidden)
+    requested = f"cellpose_dino:{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as refused:
         SB._load_backend("cellpose_dino",
-                         model_name=f"cellpose_dino:{tmp_path / 'gone'}")
+                         model_name=requested)
+    assert "model_name" in str(refused.value)
+    assert repr(requested) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
     with pytest.raises(ValueError, match="single 2-D planes"):
         SB._load_backend("cellpose_dino", model_name=str(path),
                          z_plan=object())
@@ -531,7 +544,11 @@ def test_the_dino_masks_function_makes_v1s_sam_call():
     O._cellpose_dino_masks(model, images[:1], {}, "pathogen", min_size=1,
                            default_diameter=30)
     assert model.calls[1]["resample"] is False
-    assert model.calls[1]["diameter"] is None
+    assert model.calls[1]["diameter"] == 30.0
+    O._cellpose_dino_masks(model, images[:1], {"pathogen_diameter": "auto"},
+                           "pathogen", min_size=1, default_diameter=30)
+    assert model.calls[2]["diameter"] is None
+    assert model.calls[2]["resample"] is False
 
 
 def test_v2_segments_a_cellpose_dino_model_exactly_as_v1_does(tmp_path,

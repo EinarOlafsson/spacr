@@ -57,7 +57,7 @@ def test_a_gate_editor_file_is_locked_by_its_gates_not_its_bytes(journal):
     assert set(lock["gates"]) == {label} and not lock["files"]
     assert set(lock["gates"][label]["gates"]) == {"big", "bright"}
 
-    gates.write_text(json.dumps(json.loads(gates.read_text()), indent=4,
+    gates.write_text(json.dumps(json.loads(gates.read_text(encoding="utf-8")), indent=4,
                                 sort_keys=True))
     same = rj.check_analysis_lock(_settings(journal, gating=str(gates)),
                                   app_key="ml_analyze")
@@ -116,7 +116,7 @@ def test_a_model_recorded_during_the_run_is_checked_against_the_lock(journal):
                      models={"cellpose_cyto": str(model)})
     with rj.open_run("ml_analyze", _settings(journal)) as same:
         same.record_model("cellpose_cyto", model)
-    manifest = json.loads((same.dir / "manifest.json").read_text())
+    manifest = json.loads((same.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["analysis_lock"]["status"] == "verified"
 
     other = journal / "nuclei.pt"
@@ -126,7 +126,7 @@ def test_a_model_recorded_during_the_run_is_checked_against_the_lock(journal):
         assert run._analysis_lock["status"] == "verified"
         run.record_model("cellpose_cyto", model)
         run.record_model("nucleus", other)
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     lock = manifest["analysis_lock"]
     assert lock["status"] == "deviation"
     assert [d["key"] for d in lock["deviations"]] == [
@@ -148,7 +148,7 @@ def test_a_model_the_lock_does_not_name_is_listed_not_judged(journal):
     model.write_bytes(b"weights")
     with rj.open_run("ml_analyze", _settings(journal)) as run:
         run.record_model("cellpose_cyto", model)
-    lock = json.loads((run.dir / "manifest.json").read_text())["analysis_lock"]
+    lock = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))["analysis_lock"]
     assert lock["status"] == "verified"
     assert lock["uncovered_models"] == ["cellpose_cyto"]
     assert "not covered by the lock: cellpose_cyto" in lock["summary"]

@@ -27,13 +27,6 @@
     },
     {
       "table": "ui",
-      "key": "Add score CSVs…",
-      "source": "Add score CSVs…",
-      "source_sha256": "e76b9926676144e1acac97a8521d1a02dca534446f894d385107da7044294179",
-      "translation": "Ajouter des CSV de scores…"
-    },
-    {
-      "table": "ui",
       "key": "Annotate cells",
       "source": "Annotate cells",
       "source_sha256": "316677a23dbeeb6a446bd77808d363d637fe309c5a24ff7eeae88cd12da04307",
@@ -612,13 +605,6 @@
       "source": "Scale-location",
       "source_sha256": "eaae97847600f227fdcd250896229c095215c11697530efa51b0a1e325186068",
       "translation": "Échelle-position"
-    },
-    {
-      "table": "ui",
-      "key": "Score CSV",
-      "source": "Score CSV",
-      "source_sha256": "48c82938541b39e8312955b2b276942fdb1f924fbcc0a38150b51cd46687e012",
-      "translation": "CSV de scores"
     },
     {
       "table": "ui",
@@ -3356,6 +3342,30 @@
       "source": "Organelle 4 — Unet threshold",
       "source_sha256": "30085d1d322653210595f3b89040a96f954f6b955fd6b71050617e5a5fe1febc",
       "translation": "Organelle 4 — Seuil Unet"
+    }
+  ],
+  "retired_records": [
+    {
+      "date": "2026-10-10",
+      "reason": "F576 named store tables: Regression paired inputs now accept SQLite, DuckDB, Parquet and PostgreSQL tables, so the CSV-only caption is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Add score CSVs…",
+        "source": "Add score CSVs…",
+        "source_sha256": "e76b9926676144e1acac97a8521d1a02dca534446f894d385107da7044294179",
+        "translation": "Ajouter des CSV de scores…"
+      }
+    },
+    {
+      "date": "2026-10-10",
+      "reason": "F576 named store tables: Regression paired inputs now accept SQLite, DuckDB, Parquet and PostgreSQL tables, so the CSV-only caption is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Score CSV",
+        "source": "Score CSV",
+        "source_sha256": "48c82938541b39e8312955b2b276942fdb1f924fbcc0a38150b51cd46687e012",
+        "translation": "CSV de scores"
+      }
     }
   ]
 }

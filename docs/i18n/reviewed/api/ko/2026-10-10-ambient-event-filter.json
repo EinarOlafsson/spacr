@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "the event; resize, window-state, hide, show, move and application view-change types are acted on. Every event is passed on unfiltered: the filter returns False instead of calling the base class, because as an application-wide filter it can be handed a wrapper of the wrong type for an object being deleted, which made the base-class call raise and then crash the process.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.eventFilter#2",
+      "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on. Every event is passed on unfiltered: the filter returns False instead of calling the base class, because as an application-wide filter it can be handed a wrapper of the wrong type for an object being deleted, which made the base-class call raise and then crash the process.",
+      "source_sha256": "e04b3905fe70c05ac26ead6c52be89e8a2d4245423025f5d3ffbcb11680f9430",
+      "translation": "이벤트입니다. 크기 조정, 창 상태, 숨기기, 표시, 이동, 화면 변경 유형을 처리합니다. 모든 이벤트는 필터링되지 않고 전달됩니다. 필터는 기본 클래스를 호출하는 대신 False 를 반환하는데, 애플리케이션 전체 필터로서 삭제 중인 객체에 대해 잘못된 유형의 래퍼를 받을 수 있고, 그 경우 기본 클래스 호출이 예외를 일으킨 뒤 프로세스가 비정상 종료되었기 때문입니다."
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-14T12:33:15.873235+00:00",
+  "status": "bounded_final_delta_consistent_no_remaining_corrections",
+  "scope": "Static JSON/hash/precision-delta comparison only; no new sources, providers, tests or runtime",
+  "bindings": {
+    "protocol-matrix-proposal.json": {
+      "sha256": "1b80c94daacf30f99952de5df1d5d5d6ba2013c42852d5762cde229f0fc89f96",
+      "bytes": 39269
+    },
+    "local-version-evidence.json": {
+      "sha256": "b8d09e5c17017670796be88963b67d32cea035c0e9cccd1e85307a07ca6ff0bb",
+      "bytes": 2728
+    },
+    "artifact-manifest.json": {
+      "sha256": "b90911ca50a519b7a548e8e3ff05727e6ef5f8dd4760c4cf10a759170bd1d0a2",
+      "bytes": 414
+    },
+    "n147_protocol_semantic_peer_20261014.json": {
+      "sha256": "958272f9eae0b1a3af48b730a1dce9bbcf8336e2f7ae6099bc357bb4926d3613",
+      "bytes": 19968
+    },
+    "protocol-matrix-proposal-corrected.json": {
+      "sha256": "918ff78303bd0da722f648153897f0779e44c6697e91b98d4a79ab08c5a43507",
+      "bytes": 42583
+    },
+    "precision-delta.json": {
+      "sha256": "fe8c82dc003adef29bf9c092f93921f9cd1196c8a6b9591dd59f17616d6c4eb1",
+      "bytes": 1244
+    }
+  },
+  "changed_json_paths": [
+    "/correction_provenance",
+    "/current_source_findings/3/consequence",
+    "/current_source_findings/3/fact",
+    "/official_sources/PY1",
+    "/proposed_adapter_boundaries/10",
+    "/protocol_matrix/1/cancel",
+    "/protocol_matrix/2/platform_qualification",
+    "/protocol_matrix/4/cancel"
+  ],
+  "checks": {
+    "original_three_packet_files_preserved": true,
+    "original_peer_preserved": true,
+    "exact_R1_fact_consequence_applied": true,
+    "exact_R2_platform_qualification_applied_twice": true,
+    "both_legacy_route_cancel_summaries_are_requests_unknown": true,
+    "primary_PY1_reference_added": true,
+    "all_source_bindings_unchanged": true,
+    "all_six_row_ids_version_scopes_current_route_flags_unchanged": true,
+    "no_unrelated_changes": true,
+    "delta_original_corrected_hashes_match": true
+  },
+  "remaining_precise_corrections": [],
+  "acceptance_limit": "Corrected source-only future preparation may be published; no installed CLI/SDK support, provider protocol conformance, native cancellation, descendant termination, issue reproduction or source-hold clearance."
+}

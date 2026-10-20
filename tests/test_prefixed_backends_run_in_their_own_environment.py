@@ -233,8 +233,11 @@ def test_the_model_is_a_name_the_default_or_a_path_that_exists(
     folder = tmp_path / "my_model"
     folder.mkdir()
     assert SB._prefixed_model(name, f"{prefix}{folder}") == str(folder)
-    with pytest.raises(FileNotFoundError, match="no file or folder"):
-        SB._prefixed_model(name, f"{prefix}{tmp_path / 'gone'}")
+    requested = f"{prefix}{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as error:
+        SB._prefixed_model(name, requested)
+    assert str(error.value) == zoo._model_resolution_context(
+        requested, setting="model_name", kinds=(name,))
     assert SB._prefixed_model_ok(prefix) is True
     assert SB._prefixed_model_ok(f"{prefix}{folder}") is True
     assert SB._prefixed_model_ok(f"{prefix}nope") is False
@@ -273,13 +276,21 @@ def test_load_backend_builds_the_remote_model(tmp_path, capsys):
     assert default.model == "2D_versatile_fluo"
 
 
-def test_load_backend_refuses_what_it_cannot_run(tmp_path):
+def test_load_backend_refuses_what_it_cannot_run(tmp_path, monkeypatch):
     with pytest.raises(ImportError, match="StarDist is not installed"):
         SB._load_backend("stardist", model_name="stardist:")
     _finish(tmp_path, "stardist")
-    with pytest.raises(FileNotFoundError):
+    def forbidden(*args, **kwargs):
+        pytest.fail("A missing prefixed checkpoint must not be acquired")
+
+    monkeypatch.setattr(zoo, "fetch", forbidden)
+    requested = f"stardist:{tmp_path / 'gone'}"
+    with pytest.raises(zoo.ModelZooError) as refused:
         SB._load_backend("stardist",
-                         model_name=f"stardist:{tmp_path / 'gone'}")
+                         model_name=requested)
+    assert "model_name" in str(refused.value)
+    assert repr(requested) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
     with pytest.raises(ValueError, match="single 2-D planes"):
         SB._load_backend("stardist", model_name="stardist:", z_plan=object())
 
@@ -380,10 +391,16 @@ def test_prefixed_masks_makes_v1s_call_and_returns_the_probability():
         min_size=5, default_diameter=17, probabilities=True)
     [call] = calls
     assert call["shapes"] == [(20, 24, 1)]
-    assert call["min_size"] == 5 and call["diameter"] is None
+    assert call["min_size"] == 5 and call["diameter"] == 17.0
     assert call["resample"] is True and call["normalize"] is False
     assert probability[0].shape == (20, 24)
     assert float(probability[0].max()) == 0.25
+    O._prefixed_masks(
+        model, [np.zeros((20, 24), np.float32)],
+        dict(settings, nucleus_diameter="auto"), "nucleus",
+        min_size=5, default_diameter=17)
+    assert calls[1]["diameter"] is None
+    assert calls[1]["resample"] is True
 
 
 # ===========================================================================

@@ -1,0 +1,302 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "Exact current N699 interface and backend prose, authored and checked with its normal syntax/semantic validators. Does not certify real server or native platform behavior.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A private-key file cannot be used as SSH configuration.",
+      "source": "A private-key file cannot be used as SSH configuration.",
+      "source_sha256": "f2d0d306a24d033688b0be5d26587d4cc937f8b6572ef0977f912c0597727e6f",
+      "translation": "En privatnyckelfil kan inte användas som SSH-konfiguration."
+    },
+    {
+      "table": "ui",
+      "key": "Authenticate in spaCR (keyboard-interactive / MFA)",
+      "source": "Authenticate in spaCR (keyboard-interactive / MFA)",
+      "source_sha256": "52e895ec360fcc83eb7ad57fc174ebc718d2b2c102e2d6540d4a514f05a7c71f",
+      "translation": "Autentisera i spaCR (tangentbordsinteraktivt / MFA)"
+    },
+    {
+      "table": "ui",
+      "key": "Choose ProxyJump or ProxyCommand, not both.",
+      "source": "Choose ProxyJump or ProxyCommand, not both.",
+      "source_sha256": "7daf44f615c1ea941fd51418c02e0e11f8e1598033113ec39660b87a612da365",
+      "translation": "Välj antingen ProxyJump eller ProxyCommand."
+    },
+    {
+      "table": "ui",
+      "key": "Choose SSH settings folder",
+      "source": "Choose SSH settings folder",
+      "source_sha256": "d8aeb40039e8588dbfc2f453e9d77458b62d0a86e7c7775ad17facea732868ba",
+      "translation": "Välj mapp för SSH-inställningar"
+    },
+    {
+      "table": "ui",
+      "key": "Choose folder…",
+      "source": "Choose folder…",
+      "source_sha256": "6e8eb2b02596d8b000a0d091d155251a80a93f3d4d72e03f8d3b4cb39a6de359",
+      "translation": "Välj katalog…"
+    },
+    {
+      "table": "ui",
+      "key": "Find my SSH settings",
+      "source": "Find my SSH settings",
+      "source_sha256": "0161bd572061e59f339c62a3d227ce8b5ced7acdb78d0aebb963cc2716febe64",
+      "translation": "Hitta mina SSH-inställningar"
+    },
+    {
+      "table": "ui",
+      "key": "From SSH settings",
+      "source": "From SSH settings",
+      "source_sha256": "355d67a7974a87a0544900d6838c6e664452cad6e3e53371535bc130609606c8",
+      "translation": "Från SSH-inställningarna"
+    },
+    {
+      "table": "ui",
+      "key": "Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP.",
+      "source": "Great Lakes may ask for a Kerberos password and Okta verification. spaCR shows server prompts verbatim and stores no password or OTP.",
+      "source_sha256": "33dc4ddada2f3683ca663511333cbf701016fd4266aea022841028a7c3766f5c",
+      "translation": "Great Lakes kan be om ett Kerberos-lösenord och Okta-verifiering. spaCR visar serverns frågor ordagrant och lagrar inget lösenord eller någon engångskod."
+    },
+    {
+      "table": "ui",
+      "key": "No SSH aliases or public host names were found.",
+      "source": "No SSH aliases or public host names were found.",
+      "source_sha256": "db3a7808a38f24294eb5380fea85f49bc695a97bd4936c7a3c9347edeb99b23d",
+      "translation": "Inga SSH-alias eller offentliga värdnamn hittades."
+    },
+    {
+      "table": "ui",
+      "key": "Non-secret SSH settings. Review imported paths and routing before connecting.",
+      "source": "Non-secret SSH settings. Review imported paths and routing before connecting.",
+      "source_sha256": "4ae31bcacd087953ff0723c6a6589b6726bef6b00c3c7e368f49bc5bf69de444",
+      "translation": "SSH-inställningar utan hemligheter. Granska importerade sökvägar och anslutningsvägar före anslutning."
+    },
+    {
+      "table": "ui",
+      "key": "Password:",
+      "source": "Password:",
+      "source_sha256": "569b2482a687d9aa4dd67be6a8e4c171621dd01ac251455cfe56b2cc8d1b25d6",
+      "translation": "Lösenord:"
+    },
+    {
+      "table": "ui",
+      "key": "Private-key passphrase:",
+      "source": "Private-key passphrase:",
+      "source_sha256": "05a629125c2c226210e2c7ea175fb2aa6e5b4e9331645a0f51d0d5f50e03a951",
+      "translation": "Lösenfras för privat nyckel:"
+    },
+    {
+      "table": "ui",
+      "key": "Profiles store connection settings, never passwords or OTPs. SSH prompts stay in this session.",
+      "source": "Profiles store connection settings, never passwords or OTPs. SSH prompts stay in this session.",
+      "source_sha256": "bacf2b46749309cd8f35e74153da91f4fbd3f66229025f79e09aa3a4deb298df",
+      "translation": "Profiler lagrar anslutningsinställningar, aldrig lösenord eller engångskoder. SSH-frågor stannar i den här sessionen."
+    },
+    {
+      "table": "ui",
+      "key": "Remote command returned a non-zero exit status.",
+      "source": "Remote command returned a non-zero exit status.",
+      "source_sha256": "1591390b82fd6ffe34d5d1b96cce761cfaa53ae68d94fbb9d756a96abf7a4cd8",
+      "translation": "Fjärrkommandot returnerade en annan avslutningskod än noll."
+    },
+    {
+      "table": "ui",
+      "key": "SSH Include cycle or file limit exceeded.",
+      "source": "SSH Include cycle or file limit exceeded.",
+      "source_sha256": "fd36d34de635fb573f18f876f9047466c1e0c20ba2acef8ffcdad28f353593de",
+      "translation": "En SSH Include-cykel eller filgräns har överskridits."
+    },
+    {
+      "table": "ui",
+      "key": "SSH authentication",
+      "source": "SSH authentication",
+      "source_sha256": "13f9507e6224d78779fd0be6ca766c3a6dd904511a7a9dcb663b72b36f2dace8",
+      "translation": "SSH-autentisering"
+    },
+    {
+      "table": "ui",
+      "key": "SSH authentication must run in the background.",
+      "source": "SSH authentication must run in the background.",
+      "source_sha256": "2ec30916ead81b3e663ad4d364e43c0038f0df2be917428690540a1428800d4b",
+      "translation": "SSH-autentisering måste köras i bakgrunden."
+    },
+    {
+      "table": "ui",
+      "key": "SSH authentication needs an open spaCR window.",
+      "source": "SSH authentication needs an open spaCR window.",
+      "source_sha256": "9a8c51d5403c11f9476d4133679288dd9093239dd2f3291dcce85d31d56a74a7",
+      "translation": "SSH-autentisering behöver ett öppet spaCR-fönster."
+    },
+    {
+      "table": "ui",
+      "key": "SSH authentication was cancelled or timed out.",
+      "source": "SSH authentication was cancelled or timed out.",
+      "source_sha256": "6fc98c5eb861374922545a63066493dc5560bcf7632a7e648601165dc80c1306",
+      "translation": "SSH-autentiseringen avbröts eller tog för lång tid."
+    },
+    {
+      "table": "ui",
+      "key": "SSH command output exceeded the capture limit.",
+      "source": "SSH command output exceeded the capture limit.",
+      "source_sha256": "8a8f98733d9940381f14a9dfc2f6385ed2959e02b1d53a8079bf68c7a2d3e7e7",
+      "translation": "SSH-kommandots utdata överskred insamlingsgränsen."
+    },
+    {
+      "table": "ui",
+      "key": "SSH command timed out; it was not submitted again.",
+      "source": "SSH command timed out; it was not submitted again.",
+      "source_sha256": "2e8cfcc249fe55674607084bc890a4ef81349f0fc92b335769307771ac8919af",
+      "translation": "SSH-kommandot tog för lång tid; det skickades inte igen."
+    },
+    {
+      "table": "ui",
+      "key": "SSH configuration file is too large.",
+      "source": "SSH configuration file is too large.",
+      "source_sha256": "aa63770f9749489c6ad0bc7da12057e23e794c3d67e1776a0e7462eb4def4d5c",
+      "translation": "SSH-konfigurationsfilen är för stor."
+    },
+    {
+      "table": "ui",
+      "key": "SSH connection or authentication failed ({error}); test the connection to retry.",
+      "source": "SSH connection or authentication failed ({error}); test the connection to retry.",
+      "source_sha256": "3744f0cfc2d8a70074b14d6c5df5a413dfa7aea944ee218c60fbb27576311583",
+      "translation": "SSH-anslutning eller autentisering misslyckades ({error}); testa anslutningen för att försöka igen."
+    },
+    {
+      "table": "ui",
+      "key": "SSH connection test failed.",
+      "source": "SSH connection test failed.",
+      "source_sha256": "496e7bf46c79ab83aece8b388a8405354e4f23a0c6f6ffbf363a8db106fb9f77",
+      "translation": "SSH-anslutningstestet misslyckades."
+    },
+    {
+      "table": "ui",
+      "key": "SSH connection test passed.",
+      "source": "SSH connection test passed.",
+      "source_sha256": "2487228e9e2c6279a02272d871a4e72964f012dca6d008bdf15454f1fa5952e7",
+      "translation": "SSH-anslutningstestet lyckades."
+    },
+    {
+      "table": "ui",
+      "key": "SSH host key is unknown or changed; verify it with your administrator before connecting.",
+      "source": "SSH host key is unknown or changed; verify it with your administrator before connecting.",
+      "source_sha256": "b25f3d799ebb6ee597844ca8b4c25f89d8d33d962fdecda73acb4e365ad3d592",
+      "translation": "SSH-värdnyckeln är okänd eller ändrad; kontrollera den med administratören före anslutning."
+    },
+    {
+      "table": "ui",
+      "key": "SSH host name",
+      "source": "SSH host name",
+      "source_sha256": "3d7e2437abd60c0e1965fcaf59d7b8be4733fe2f07a33ea6deb21c93b0e21806",
+      "translation": "SSH-värdnamn"
+    },
+    {
+      "table": "ui",
+      "key": "SSH identity file",
+      "source": "SSH identity file",
+      "source_sha256": "82187b001ca8aa2bc677ad3fa2f43ee942fae82c147d5373fd324973bede8145",
+      "translation": "SSH-identitetsfil"
+    },
+    {
+      "table": "ui",
+      "key": "SSH interactive authentication must be a boolean.",
+      "source": "SSH interactive authentication must be a boolean.",
+      "source_sha256": "2afcc94a96bfdb9dfc33788bd0c87155f65d18469e79c2e6c265c3ac55e2277d",
+      "translation": "Interaktiv SSH-autentisering måste anges som ett booleskt värde."
+    },
+    {
+      "table": "ui",
+      "key": "SSH jump host",
+      "source": "SSH jump host",
+      "source_sha256": "d2485b18f883185e14b629bdf2a3c215ba8df88c42bcd3c35a3f00b424948547",
+      "translation": "SSH-hoppvärd"
+    },
+    {
+      "table": "ui",
+      "key": "SSH jump-host cycle or hop limit exceeded.",
+      "source": "SSH jump-host cycle or hop limit exceeded.",
+      "source_sha256": "0a31b745b83537a5b7c64fbe79282a70f49459c928d45db2b75b59efd5cf3300",
+      "translation": "En SSH-hoppvärdscykel eller hoppgräns har överskridits."
+    },
+    {
+      "table": "ui",
+      "key": "SSH known-hosts file is too large.",
+      "source": "SSH known-hosts file is too large.",
+      "source_sha256": "bd94a5f50735ff3e8961d1ed42af39798eb5a5b8d48bc10946c6d6b1bff50a45",
+      "translation": "SSH-filen med kända värdar är för stor."
+    },
+    {
+      "table": "ui",
+      "key": "SSH options must contain only supported non-secret connection fields.",
+      "source": "SSH options must contain only supported non-secret connection fields.",
+      "source_sha256": "9766dded9f418eb5d338fe9be18e582eed474a8938879dfbac29aaa2a1eb6219",
+      "translation": "SSH-alternativ får endast innehålla anslutningsfält utan hemligheter som stöds."
+    },
+    {
+      "table": "ui",
+      "key": "SSH port",
+      "source": "SSH port",
+      "source_sha256": "9ffa7382ddafa4998c3cfa1696f0a515ee50e7b3dac5b830df67f2ec7555b8b7",
+      "translation": "SSH-port"
+    },
+    {
+      "table": "ui",
+      "key": "SSH port must be between 1 and 65535.",
+      "source": "SSH port must be between 1 and 65535.",
+      "source_sha256": "0c530995a5bfada006cc5ea9eca913b0c024a7f9082d61213364faba548bca8e",
+      "translation": "SSH-porten måste vara mellan 1 och 65535."
+    },
+    {
+      "table": "ui",
+      "key": "SSH settings",
+      "source": "SSH settings",
+      "source_sha256": "bfccc5d4f64bf4578bd668b7286d30710695926928bd79c569095cbc9cc2f96a",
+      "translation": "SSH-inställningar"
+    },
+    {
+      "table": "ui",
+      "key": "SSH settings could not be read. Choose a folder containing a readable config file.",
+      "source": "SSH settings could not be read. Choose a folder containing a readable config file.",
+      "source_sha256": "14a0b888c7ae7b9aaf31585d0129caba91f95ee6029156e97e35243ff83168a9",
+      "translation": "SSH-inställningarna kunde inte läsas. Välj en mapp med en läsbar config-fil."
+    },
+    {
+      "table": "ui",
+      "key": "SSH settings imported. Conditional Match blocks are not evaluated; review the connection before testing.",
+      "source": "SSH settings imported. Conditional Match blocks are not evaluated; review the connection before testing.",
+      "source_sha256": "8f296d31d962e61a5bb9a8a34f0b2d035323ac3c04455817b10d0bddf08f1edb",
+      "translation": "SSH-inställningarna har importerats. Villkorliga Match-block utvärderas inte; granska anslutningen före testning."
+    },
+    {
+      "table": "ui",
+      "key": "SSH user",
+      "source": "SSH user",
+      "source_sha256": "cc0d7b2833f363b06eee9e810d240d7624ebda75816d65bee4022839caafd29e",
+      "translation": "SSH-användare"
+    },
+    {
+      "table": "ui",
+      "key": "Test connection",
+      "source": "Test connection",
+      "source_sha256": "5bcf311b19d80c5645ce05f5fd36fc449412a6571ceb229fd483e9c415865912",
+      "translation": "Testa anslutning"
+    },
+    {
+      "table": "ui",
+      "key": "Testing SSH connection…",
+      "source": "Testing SSH connection…",
+      "source_sha256": "17892654902a6340e47503526a1d91609422aafc8bfd5b2b45cc96b381a451a3",
+      "translation": "Testar SSH-anslutningen…"
+    },
+    {
+      "table": "ui",
+      "key": "{stage} failed: {error}",
+      "source": "{stage} failed: {error}",
+      "source_sha256": "de4778db49da342a61f3181d5ead880a4eea8ad2ec9ca282db7027e51507ff14",
+      "translation": "{stage} misslyckades: {error}"
+    }
+  ]
+}

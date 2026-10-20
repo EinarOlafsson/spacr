@@ -65,6 +65,5 @@ def install_make_masks_help(screen):
     retarget_field_tooltips(screen)
     for widget in screen.findChildren(QWidget):
         if widget.property('apiTooltipHtml') and widget.property('apiTooltipDisplayRole') != 'metadata':
-            widget.removeEventFilter(event_filter)
-            widget.installEventFilter(event_filter)
+            event_filter.watch(widget)
     return count

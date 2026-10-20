@@ -15,7 +15,7 @@
       "spacr.point_spread.PSFResult",
       "spacr.psf_measurement.measurement_psf_signature",
       "spacr.qt.screens.organism_screen",
-      "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent",
+      "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent",
       "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy"
     ]
   },

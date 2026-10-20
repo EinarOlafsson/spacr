@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Borderless window",
+      "source": "Borderless window",
+      "source_sha256": "139c9e4adb3940a8d44494f7d85d221b463a14d5aff788027e1ede9a1294de68",
+      "translation": "테두리 없는 창"
+    },
+    {
+      "table": "ui",
+      "key": "Maximise, or restore the size before",
+      "source": "Maximise, or restore the size before",
+      "source_sha256": "5b2bad893bec0ff6171e75d8a8f506b47ca3b3980ab1e42b61aa16cfbf35bfee",
+      "translation": "최대화하거나 이전 크기로 복원"
+    },
+    {
+      "table": "ui",
+      "key": "On: no title bar; spaCR opens filling the screen, and the menu bar moves the window while its marks minimise, maximise and close it. Off: the platform's own framed window. Remembered.",
+      "source": "On: no title bar; spaCR opens filling the screen, and the menu bar moves the window while its marks minimise, maximise and close it. Off: the platform's own framed window. Remembered.",
+      "source_sha256": "2c9f8b123a462ffc7de74f8690786d111a55658c4121cf14ab9386ee8d78d3be",
+      "translation": "켜짐: 제목 표시줄이 없고 spaCR가 모니터를 가득 채워 열리며, 메뉴 표시줄이 창을 옮기고 그 표시가 창을 최소화, 최대화, 닫습니다. 꺼짐: 플랫폼 자체의 테두리가 있는 창. 기억됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Play the spaCR logo and its blow-away again, inside this window, as at startup. A click or a key skips it.",
+      "source": "Play the spaCR logo and its blow-away again, inside this window, as at startup. A click or a key skips it.",
+      "source_sha256": "ef2df77b77337a2c6813cd11a1275df4eed4a9d5cc4a3d8ae59d086479e844e6",
+      "translation": "spaCR 로고와 그것이 날아가는 장면을 시작할 때처럼 이 창 안에서 다시 재생합니다. 클릭하거나 키를 누르면 건너뜁니다."
+    },
+    {
+      "table": "ui",
+      "key": "Show startup animation",
+      "source": "Show startup animation",
+      "source_sha256": "f01d719079d5eedc948bde480ad6131169e167fffdecaf9ac29f1e423621b560",
+      "translation": "시작 애니메이션 표시"
+    }
+  ]
+}

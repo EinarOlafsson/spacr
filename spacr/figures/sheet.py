@@ -1,13 +1,10 @@
-"""The whole regression as one publication-ready figure.
+"""Lay out the regression results as one multi-panel figure.
 
-Not a gallery of separate pictures at separate sizes. One sheet, laid out the
-way a journal figure is: 6-12 panels, bold upper-case letters top-left,
-reading order matching the argument, related panels adjacent and sharing
-scales, and more white space between groups than within them -- which is the
-only hierarchy cue the published figures use.
+The sheet is laid out like a journal figure: 6-12 panels, bold upper-case
+letters top-left, reading order matching the argument, related panels adjacent
+and sharing scales, and more white space between groups than within them.
 
-READING ORDER IS THE ARGUMENT, and it is why the panel order is fixed rather
-than alphabetical or whatever the dict happened to hold:
+The panel order is fixed and follows the reading order:
 
     A  volcano                what the screen found
     B  strongest effects      which genes, and how sure
@@ -17,9 +14,7 @@ than alphabetical or whatever the dict happened to hold:
     F  p-value distribution   whether the correction means anything
     G  q-q                    whether the model was entitled to say it
 
-A reader who stops after B has the result. One who reads to G knows whether
-to believe it. A sheet ordered any other way asks them to take the result on
-trust and audit it afterwards, which is not how anyone reads a figure.
+Panels A and B give the result; panels C to G show whether it can be trusted.
 """
 
 from __future__ import annotations
@@ -58,9 +53,7 @@ class Sheet:
     def legend(self) -> str:
         """The figure legend, panel by panel.
 
-        Generated from the panels themselves rather than written twice: a
-        legend maintained by hand beside the code that draws the figure is a
-        legend that describes last month's figure.
+        Generated from the panels themselves, so it matches the drawn figure.
         """
         lines = []
         for letter, panel in zip(string.ascii_uppercase, self.panels):
@@ -101,9 +94,8 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
         the selection in the GUI.
     :returns: a :class:`Sheet`.
 
-    Panels whose data is absent are SKIPPED AND NAMED, never drawn as an
-    empty frame. A blank box in a figure sheet reads as a panel that failed,
-    which is worse than a gap and much worse than a sentence saying why.
+    Panels whose data is absent are skipped and listed with the reason, never
+    drawn as an empty frame.
     """
     import matplotlib.pyplot as plt
 
@@ -127,7 +119,7 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
         rows, columns = _grid(len(supported), width)
         figure = plt.figure(figsize=(WIDTHS[width],
                                      max(rows, 1) * CELL_HEIGHT))
-        axes = figure.subplots(rows, columns, squeeze=False).ravel()
+        axes = figure.subplots(max(rows, 1), columns, squeeze=False).ravel()
         from .bundle import _register_figure_data
 
         drawn: List[Panel] = []
@@ -197,9 +189,9 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
 
 
 def attach(figure, panel) -> None:
-    """Hang a panel's name, data and groups on its figure.
+    """Attach a panel's name, data and groups to its figure.
 
-    THE FIGURE HAS TO CARRY THEM because that is all the export sees. A user
+    The figure carries them because the export sees only the figure. A user
     right-clicks a picture in the queue and asks to save it; nothing at that
     point knows which frame it came from or what was compared, unless the
     figure itself does.

@@ -1,12 +1,12 @@
-"""The Graph Builder screen — a table, a filter, and a chart you drag together.
+"""The Graph Builder screen: a table, a filter and a chart built by drag and drop.
 
 Assembles three things that already exist into one surface:
 
 * :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones
   and the canvas;
 * :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data
-  Filter, unchanged, because a filter that narrows *every* view is worth more
-  than a private one that narrows this chart;
+  Filter, unchanged, so the filter narrows every linked view and not only
+  this chart;
 * :mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells
   in the UMAP and on the plate map, and a lasso there highlights them here.
 
@@ -43,12 +43,10 @@ gate that can be saved and re-applied.
 The screen goes into the app registry through
 :func:`spacr.qt.app.register_app` rather than through a row in the table
 inside ``app.py``, and its styling goes through
-:func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen
-built in parallel with five others is a new file rather than a merge conflict
-in two thousand-line ones.
+:func:`spacr.qt.theme.register_widget_qss`. Both seams let a screen be added
+as a new file without editing ``app.py`` or ``theme.py``.
 
-:func:`register` is **not** called at import — read its docstring for why, and
-for the one line plus four side-table entries that finish the wiring. The
+:func:`register` is **not** called at import — read its docstring for why. The
 screen itself is complete: build it with :func:`make_graph_builder_screen`,
 hand it a frame, and everything below works.
 """
@@ -229,8 +227,8 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         the screen in normal use.
     :param parent: parent widget; ownership only.
     :param threaded: ``False`` runs every table read inline instead of on the
-        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
-        CALL; a user needs the window to keep painting while a large table
+        job runner's thread. A test needs the result on the line after the
+        call; a user needs the window to keep painting while a large table
         loads. The jobs are the same either way -- they still register, and a
         file that cannot be read still comes back through
         :meth:`_on_frame_loaded` as a :class:`_Loaded` carrying a ``problem``
@@ -395,24 +393,23 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Load a CSV or one table of a SQLite measurement database.
 
-        NOTHING HERE TOUCHES THE FILE. The read has always run on a worker
-        thread -- ``SELECT * FROM cell`` into pandas measures 1.5 s for a
-        200 000-row measurement table on a warm local SSD -- but listing the
-        tables was kept inline on the argument that one ``sqlite_master``
-        query costs 0.4 ms. That argument holds only for a disk that answers.
-        Measured on one workstation, a single ``stat``
-        under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep --
-        had not returned after TWENTY SECONDS, and ``sqlite3.connect`` opens
-        the file before it can read a byte of ``sqlite_master``. A user
-        picking a measurements.db off a sleeping share, or dropping a project
-        folder that resolves onto one, froze the whole window with no
-        traceback: a stalled event loop is not a crash.
+        Nothing here touches the file on the GUI thread. The read runs on a
+        worker thread -- ``SELECT * FROM cell`` into pandas measures 1.5 s for
+        a 200 000-row measurement table on a warm local SSD -- and listing the
+        tables runs there too, even though one ``sqlite_master`` query costs
+        0.4 ms, because that cost holds only for a disk that answers. Measured
+        on one workstation, a single ``stat`` under ``/nas_mnt`` -- an
+        ``autofs`` mount whose share was asleep -- had not returned after
+        twenty seconds, and ``sqlite3.connect`` opens the file before it can
+        read a byte of ``sqlite_master``. Picking a measurements.db off a
+        sleeping share, or dropping a project folder that resolves onto one,
+        would freeze the whole window with no traceback.
 
         So the listing goes to the worker with the read, as one job, and the
         picker is populated by :meth:`_on_frame_loaded` when the answer
-        arrives. A ``path_probe`` pre-flight would not have helped: it answers
+        arrives. A ``path_probe`` pre-flight would not help: it answers
         optimistically from cache, and it is the ``connect`` itself that
-        parks.
+        blocks.
 
         Returns as soon as the job is dispatched; :meth:`_on_frame_loaded`
         finishes on the GUI thread, whether the file read or not -- a failure
@@ -440,10 +437,9 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
 
             The two halves fail separately on purpose. A listing that fails
             means the file is not a database and there is nothing to offer;
-            a READ that fails, on one table of a database whose other tables
+            a read that fails, on one table of a database whose other tables
             listed fine, must still leave the picker populated -- that is how
-            the user reaches the table that does read. Inline, that fell out
-            of the order the old code ran in; here it has to be said.
+            the user reaches the table that does read.
             """
             try:
                 names = [] if is_text else table_names(source)
@@ -795,22 +791,18 @@ def register() -> bool:
     import; and a registration that happens later is one that some
     importer's snapshot of the registry predates.
 
-    That used to be fatal as well as untidy, because ``SECTIONS`` was
-    *rebound* rather than mutated, so a late registration into the
-    previously empty Explore section was invisible to every module that had
-    already imported the name. It is a list mutated in place now, so a late
-    registration is seen everywhere — but registering from one deterministic
-    point is still what keeps the app inventory the same on every import
-    path, and the ledgers that check it honest.
+    ``SECTIONS`` is a list mutated in place, so a late registration is seen
+    everywhere; registering from one deterministic point still keeps the app
+    inventory the same on every import path, and keeps the ledgers that
+    check it consistent.
 
     The row itself -- the key, the name, the blurb, the section, the "no
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
-    :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    :func:`spacr.qt.app.register_app` distributes those into the four
+    registry tables, and this function only names the row. The app can
+    therefore be registered without importing this module: the launch reads
+    the table, and the screen is imported when somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call
         again: a module imported twice, or a test that re-imports it, must

@@ -59,7 +59,7 @@ def _catalogue_rows():
 def test_the_five_sources_are_named_and_two_of_them_are_on_by_default():
     """The maintainer named the five and said which two start on."""
     assert mz.ZOO_SOURCES == ("cellposeSAM", "spaCR", "spaCR community",
-                              "bioimage.io", "cellpose3")
+                              "bioimage.io", "cellpose3", "Third-party")
     assert mz.DEFAULT_ZOO_SOURCES == ("cellposeSAM", "spaCR")
 
 

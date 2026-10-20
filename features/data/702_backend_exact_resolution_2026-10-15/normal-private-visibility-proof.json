@@ -1,0 +1,49 @@
+{
+  "scope": "Actual ordinary scoped public/nested metadata and visibility predicates for two private modules; no fullcanonical/fullAPI collector/model/test/writer.",
+  "public_docs": {
+    "spacr/_segmentation_backends.py": {
+      "normal_rendered_public_docs_unchanged": true,
+      "count": 1,
+      "docs_sha256": {
+        "spacr._segmentation_backends": "689f744f62a9f84f0bbb651e471cae209f47348dfedcfc990a018b9a5c256ef9"
+      }
+    },
+    "spacr/_mask_workers.py": {
+      "normal_rendered_public_docs_unchanged": true,
+      "count": 1,
+      "docs_sha256": {
+        "spacr._mask_workers": "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153"
+      }
+    }
+  },
+  "normal_nested_entries_unchanged": 8,
+  "actual_changed_owner_visibility": {
+    "spacr/_segmentation_backends.py": {
+      "_cellpose3_model": {
+        "normal_public_name": false,
+        "normal_rendered_entry": false
+      },
+      "_prefixed_model": {
+        "normal_public_name": false,
+        "normal_rendered_entry": false
+      },
+      "_cellpose_dino_model": {
+        "normal_public_name": false,
+        "normal_rendered_entry": false
+      }
+    },
+    "spacr/_mask_workers.py": {
+      "_resolved_backend_model": {
+        "normal_public_name": false,
+        "normal_rendered_entry": true
+      }
+    }
+  },
+  "new_API_targets": 0,
+  "new_runtime_targets": 0,
+  "source_boundary": "Only exact three backend helper functions and _mask_workers._resolved_backend_model changed; _prepare_mask_model/remainingAST unchanged from actual acceptedHard prerequisite.",
+  "source_sha256": {
+    "spacr/_segmentation_backends.py": "df4670eb40392b4965ecde2d01aed8ab1d7f9eb55bd1a948f71be7f4404950af",
+    "spacr/_mask_workers.py": "9b8ed0baf692fc741e79bde865b1542a1f7acc30a7979d797408ec40753e832d"
+  }
+}

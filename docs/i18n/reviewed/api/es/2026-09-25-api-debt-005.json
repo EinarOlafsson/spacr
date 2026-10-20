@@ -953,7 +953,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the settings to submit; a shallow copy is kept and used instead of a settings file until the path field is edited.",
       "source_sha256": "9effe83b4a5f5cb452ad556f3c043084b5b335640f06c016c353b212cf59dc50",
-      "translation": "los ajustes que se envían; se guarda una copia superficial y se usa en lugar de un archivo de ajustes hasta que se edita el campo de ruta."
+      "translation": "los ajustes que se envían; se guarda una copia superficial y se usa en lugar de un archivo de ajustes hasta que se edita el campo de ruta.",
+      "retired": true,
+      "retired_reason": "2026-10-14: N702 GUI model-pin source now documents deep snapshots and reserved hidden identities. Original source, target and review retained; new current-source AI review is separate."
     },
     {
       "context": "the hide event; passed on unchanged to the base class.",
@@ -977,7 +979,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**The Curve picker offers the asymmetric model and does not choose it.** Four-parameter is what Fit uses until someone says otherwise, and a five-parameter fit says in its own report whether the fifth parameter earned itself. A screen that picked the better-fitting model per group would hand back a plate whose EC50s came from two different models, compared as though they had not.",
       "source_sha256": "88ffdf0cc95f3d1795b6eaee4e9066d4afa3e4a45aaddeb64c23a5c2c638983f",
-      "translation": "**El selector Curve ofrece el modelo asimétrico y no lo elige.** Fit usa el de cuatro parámetros hasta que alguien diga lo contrario, y un ajuste de cinco parámetros indica en su propio informe si el quinto parámetro estaba justificado. Una pantalla que eligiera el modelo que mejor se ajusta por grupo devolvería una placa cuyos EC50s procederían de dos modelos distintos, comparados como si no fuera así."
+      "translation": "**El selector Curve ofrece el modelo asimétrico y no lo elige.** Fit usa el de cuatro parámetros hasta que alguien diga lo contrario, y un ajuste de cinco parámetros indica en su propio informe si el quinto parámetro estaba justificado. Una pantalla que eligiera el modelo que mejor se ajusta por grupo devolvería una placa cuyos EC50s procederían de dos modelos distintos, comparados como si no fuera así.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the measurement table; its columns fill the concentration, response, group, laboratory microplate, control, host and second-dose pickers.",
@@ -1001,7 +1005,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**What it is for.** Giving every object a vector that no label went into. The measured panel says how big a cell is and how bright each stain was; an embedding says what the cell LOOKS like, in a few hundred numbers a pretrained backbone produces without being told what to look for. That is what makes it worth having beside the panel rather than instead of it -- a phenotype nobody thought to measure is in the vector, and is in no column.",
       "source_sha256": "feab472a4a0d56851e6f39e72585f4c4adfa529a7492a0d6a39dda6468fe9204",
-      "translation": "**Para qué sirve.** Dar a cada objeto un vector en el que no ha entrado ninguna etiqueta. El panel medido dice lo grande que es una célula y lo brillante que era cada tinción; un embedding dice qué ASPECTO tiene la célula, en unos pocos cientos de números que produce una red troncal preentrenada sin que se le diga qué buscar. Eso es lo que hace que merezca la pena tenerlo junto al panel y no en su lugar -- un fenotipo que a nadie se le ocurrió medir está en el vector, y no está en ninguna columna."
+      "translation": "**Para qué sirve.** Dar a cada objeto un vector en el que no ha entrado ninguna etiqueta. El panel medido dice lo grande que es una célula y lo brillante que era cada tinción; un embedding dice qué ASPECTO tiene la célula, en unos pocos cientos de números que produce una red troncal preentrenada sin que se le diga qué buscar. Eso es lo que hace que merezca la pena tenerlo junto al panel y no en su lugar -- un fenotipo que a nadie se le ocurrió medir está en el vector, y no está en ninguna columna.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**What it needs.** Extracted image regions, and a choice about the channels. The extracted image regions come from the row at the top of the application view, which is :mod:`spacr.crop_loader`: either a ``measurements.db``, narrowed to one object class, one laboratory microplate or any condition its extracted-image-region table supports, or a folder of extracted image region PNGs. Whichever it is, the pixels are read the way every other application view reads them -- :func:`spacr.crops.resolve_crop_source` decides between the extracted image regions already under ``data/`` and cutting them from ``merged/*.npy``, and says which it chose. Nothing has to be prepared first: a laboratory microplate that has been through Measure with extracted image region output on is ready.",
@@ -1027,7 +1033,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "**What to do next.** Treat the columns as a feature source, not as a result. They are consumed exactly as the measured panel is -- a reduction to see whether the objects separate, a regression against the perturbation, a retrieval to find the objects most like one you picked. Which is also the warning the screen repeats under the table: a single dimension is not a phenotype, and the only honest way to read one of these numbers is through something that takes the whole vector.",
       "source_sha256": "27b053b768ec700ceb0403d50c8e6d31c2753cbd6f9aa1e812bdf94b4ff706e1",
-      "translation": "**Qué hacer después.** Tratar las columnas como una fuente de características, no como un resultado. Se consumen exactamente igual que el panel medido -- una reducción para ver si los objetos se separan, una regresión frente a la perturbación, una búsqueda para encontrar los objetos más parecidos a uno que haya elegido. Lo cual es también la advertencia que la pantalla repite bajo la tabla: una sola dimensión no es un fenotipo, y la única forma honesta de leer uno de estos números es mediante algo que tome el vector completo."
+      "translation": "**Qué hacer después.** Tratar las columnas como una fuente de características, no como un resultado. Se consumen exactamente igual que el panel medido -- una reducción para ver si los objetos se separan, una regresión frente a la perturbación, una búsqueda para encontrar los objetos más parecidos a uno que haya elegido. Lo cual es también la advertencia que la pantalla repite bajo la tabla: una sola dimensión no es un fenotipo, y la única forma honesta de leer uno de estos números es mediante algo que tome el vector completo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The extracted image region loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a background execution unit, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
@@ -1035,7 +1043,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The crop loader above the encoder controls is the screen's entry point: :mod:`spacr.crop_loader` plans the selection, this screen pages through it on a worker thread, and :meth:`set_crops` -- which used to be reachable only from Python -- is what each finished load calls.",
       "source_sha256": "efa905cc9d85d0b55f405c6708fbb7b889cfca53a9a71fe22c8043374f250fcf",
-      "translation": "El cargador de recortes situado sobre los controles del codificador es el punto de entrada de la pantalla: :mod:`spacr.crop_loader` planifica la selección, esta pantalla la recorre página a página en un hilo de trabajo, y :meth:`set_crops` -- al que antes solo se podía llegar desde Python -- es lo que llama cada carga terminada."
+      "translation": "El cargador de recortes situado sobre los controles del codificador es el punto de entrada de la pantalla: :mod:`spacr.crop_loader` planifica la selección, esta pantalla la recorre página a página en un hilo de trabajo, y :meth:`set_crops` -- al que antes solo se podía llegar desde Python -- es lo que llama cada carga terminada.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``False`` runs the embedding and the extracted image region load inline, emitting the same signals in the same order, so a test drives the screen synchronously without the behaviour diverging.",
@@ -1067,7 +1077,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The stop flag is set FIRST. ``shutdown`` waits a bounded time and then parks a worker that outlasts it, so a load told to stop between pages finishes in one page instead of reading the rest of the plate into an array whose screen has gone.",
       "source_sha256": "940621b8ce4edb757e3bbc40852030570c090827c47dd1a8c8f0ab3ca20226db",
-      "translation": "La marca de parada se establece PRIMERO. ``shutdown`` espera un tiempo acotado y luego aparca un proceso de trabajo que lo supere, de modo que una carga a la que se le pide parar entre páginas termina en una página en lugar de leer el resto de la placa en una matriz cuya pantalla ya no existe."
+      "translation": "La marca de parada se establece PRIMERO. ``shutdown`` espera un tiempo acotado y luego aparca un proceso de trabajo que lo supere, de modo que una carga a la que se le pide parar entre páginas termina en una página en lugar de leer el resto de la placa en una matriz cuya pantalla ya no existe.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The :class:`spacr.crop_loader.CropQuery` the controls describe.",
@@ -1091,7 +1103,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A crop load counts. It is the longer of the two jobs by far -- a plate of crops off a network mount is minutes -- and a screen that reported itself idle through it would let the window close over a live read.",
       "source_sha256": "b8e2e77632f19d7a19db34206bb1e7e08b1c4aa99a49255de62b4cecdc2a8205",
-      "translation": "Una carga de recortes cuenta. Es con diferencia el más largo de los dos trabajos -- una placa de recortes desde un montaje de red son minutos --, y una pantalla que se declarara inactiva durante ella dejaría que la ventana se cerrara sobre una lectura en curso."
+      "translation": "Una carga de recortes cuenta. Es con diferencia el más largo de los dos trabajos -- una placa de recortes desde un montaje de red son minutos --, y una pantalla que se declarara inactiva durante ella dejaría que la ventana se cerrara sobre una lectura en curso.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Embedding runner lifecycle documentation corrected in f35b59248ae + efe3784e64a. Replacement exact-source review is2026-10-15-f561-lifecycle-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Plan the selection, then read it a page at a time.",
@@ -1107,7 +1122,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "TWO JOBS, NOT ONE, and the split is the point: planning is a count and a select, so it comes back in milliseconds and the screen can say what was matched -- or why nothing was -- before committing to read a single pixel. Only then does the second job start, and it reports after every page.",
       "source_sha256": "9a32c20722c0e0eac213e341635d0907d9d2eeb9902b22b90c428cb1dabe8931",
-      "translation": "DOS TRABAJOS, NO UNO, y la división es lo importante: planificar es un recuento y un select, así que vuelve en milisegundos y la pantalla puede decir qué coincidió -- o por qué no coincidió nada -- antes de comprometerse a leer un solo píxel. Solo entonces empieza el segundo trabajo, que informa después de cada página."
+      "translation": "DOS TRABAJOS, NO UNO, y la división es lo importante: planificar es un recuento y un select, así que vuelve en milisegundos y la pantalla puede decir qué coincidió -- o por qué no coincidió nada -- antes de comprometerse a leer un solo píxel. Solo entonces empieza el segundo trabajo, que informa después de cada página.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Stop a load between pages, keeping the pages already read.",
@@ -1403,7 +1420,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The SAME list Mask's ``metadata_type`` offers, read from :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can parse is a plate Import can parse and the two lists cannot drift. Folders come first because they are what Import did before it knew any convention; the vendor conventions follow in Mask's vendor order, each labelled with its vendor and marked when spaCR is guessing about it.",
       "source_sha256": "d73c9885b1f5c35f67498044a8d03246049409a1173b4aeea479044957075f30",
-      "translation": "La MISMA lista que ofrece el ``metadata_type`` de Mask, leída de :func:`spacr.regex_infer._metadata_convention_menu`, de modo que una placa que Mask puede analizar es una placa que Import puede analizar y las dos listas no pueden divergir. Las carpetas van primero porque son lo que hacía Import antes de conocer ninguna convención; las convenciones de fabricantes siguen en el orden de fabricantes de Mask, cada una etiquetada con su fabricante y marcada cuando spaCR está haciendo suposiciones sobre ella."
+      "translation": "La MISMA lista que ofrece el ``metadata_type`` de Mask, leída de :func:`spacr.regex_infer._metadata_convention_menu`, de modo que una placa que Mask puede analizar es una placa que Import puede analizar y las dos listas no pueden divergir. Las carpetas van primero porque son lo que hacía Import antes de conocer ninguna convención; las convenciones de fabricantes siguen en el orden de fabricantes de Mask, cada una etiquetada con su fabricante y marcada cuando spaCR está haciendo suposiciones sobre ella.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the choices, ``NAMING_AUTO`` first.",
@@ -1503,7 +1522,7 @@
     },
     {
       "context": "a JSON data-selection boundary file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#2",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates#3",
       "review_basis": "MT draft edited in AI review",
       "source": "a JSON gate file written by :meth:`save_gates`. A file that cannot be read is reported on the source line and gives False.",
       "source_sha256": "4a7eb94f53d1bdecfea7b156456a9a711558e0adb6d3aa5e6e48c98c86f89495",
@@ -1559,7 +1578,7 @@
     },
     {
       "context": "the file to write the data-selection filtering strategy to, as JSON; an existing file is overwritten.",
-      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#1",
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates#2",
       "review_basis": "MT draft edited in AI review",
       "source": "the file to write the gating strategy to, as JSON; an existing file is overwritten.",
       "source_sha256": "65f2f6b7a80b4a3ef408cabccf1d2abe6d5213b1f14a72e6e9e3ffb860872b6f",
@@ -1701,7 +1720,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "return ``None`` for the panel and leave the card's body empty. The screen fills it with :func:`_fill_hyperparam_card` when the card is first shown, so a module whose search nobody opens does not build and polish its ~130 widgets at open.",
       "source_sha256": "2a689c51c0e247988eaf0b88c222d0589eef8ca2a4113a555b44a0a4de6f2a47",
-      "translation": "devuelve ``None`` para el panel y deja vacío el cuerpo de la tarjeta. La pantalla lo rellena con :func:`_fill_hyperparam_card` cuando la tarjeta se muestra por primera vez, de modo que un módulo cuya búsqueda nadie abre no construye ni pule sus ~130 widgets al abrirse."
+      "translation": "devuelve ``None`` para el panel y deja vacío el cuerpo de la tarjeta. La pantalla lo rellena con :func:`_fill_hyperparam_card` cuando la tarjeta se muestra por primera vez, de modo que un módulo cuya búsqueda nadie abre no construye ni pule sus ~130 widgets al abrirse.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "parameter name to value.",
@@ -2772,7 +2793,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Three things stacked, and the order is the order the questions come in:",
       "source_sha256": "ff153ab88987be36b2d7ce5021d193f746d9ea93c35c5d913dbe25d74add3896",
-      "translation": "Tres cosas apiladas, y el orden es el orden en que llegan las preguntas:"
+      "translation": "Tres cosas apiladas, y el orden es el orden en que llegan las preguntas:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "1. :class:`spacr.qt.widgets.measure_input_table.MeasureInputTable` -- which file is which image data channel, and which is which object. 2. The Measure module's OWN settings form, built from :class:`spacr.qt.screens.settings_model.SettingsWidgets`. Not a copy of it and not a chosen subset: the same widgets the Measure application view builds, from the same defaults, so a setting that exists there exists here and a setting that gains a control there gains one here without this file being edited. 3. Run, off the main GUI execution path, through :func:`spacr.measure.measure_from_field_table` -- which writes the folders the Mask module would have written and then calls ``measure_crop`` itself. The database and the folder tree are Measure's because Measure makes them.",
@@ -2788,7 +2811,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "IT IS A ``QDialog``, AND THAT IS WHAT MAKES IT LOOK LIKE spaCR. It used to be a bare ``QWidget`` shown with the ``Qt.Window`` flag, which meant the operating system's own title bar, square corners, an opaque background and minimise/maximise/close buttons -- a window from a different program sitting in the middle of this one. :mod:`spacr.qt.widgets.glass` gives every dialog in the package the translucent card, the rounded corners and the travelling rim, and it recognises a dialog by its TYPE. So the dress is not applied here; being a dialog is.",
       "source_sha256": "c83ae4894af52aae3c2d2afff5cc829069039a6b65dd93b65d15152c96defa71",
-      "translation": "ES UN ``QDialog``, Y ESO ES LO QUE LE DA EL ASPECTO DE spaCR. Antes era un ``QWidget`` sin más, mostrado con la marca ``Qt.Window``, lo que suponía la barra de título del propio sistema operativo, esquinas cuadradas, un fondo opaco y botones de minimizar/maximizar/cerrar -- una ventana de otro programa en medio de este. :mod:`spacr.qt.widgets.glass` da a cada diálogo del paquete la tarjeta translúcida, las esquinas redondeadas y el borde en movimiento, y reconoce un diálogo por su TIPO. Así que el aspecto no se aplica aquí; lo que se aplica es ser un diálogo."
+      "translation": "ES UN ``QDialog``, Y ESO ES LO QUE LE DA EL ASPECTO DE spaCR. Antes era un ``QWidget`` sin más, mostrado con la marca ``Qt.Window``, lo que suponía la barra de título del propio sistema operativo, esquinas cuadradas, un fondo opaco y botones de minimizar/maximizar/cerrar -- una ventana de otro programa en medio de este. :mod:`spacr.qt.widgets.glass` da a cada diálogo del paquete la tarjeta translúcida, las esquinas redondeadas y el borde en movimiento, y reconoce un diálogo por su TIPO. Así que el aspecto no se aplica aquí; lo que se aplica es ser un diálogo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Its actions are at the bottom right, in the order every spaCR dialog uses: the thing you came to do in the accent colour (Measure, ``PrimaryButton``), and the way out in red beside it (Close, ``DangerButton``). Escape is the other way out, and closes rather than hides -- see :meth:`reject`.",
@@ -2804,7 +2829,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE SETTINGS THE TABLE DECIDES ARE SHOWN AND DISABLED rather than hidden. ``cell_mask_dim`` is not a question once the table says which column holds the cell masks, but a user who has read the Measure documentation comes here looking for it, and a control that is missing reads as a feature that is missing. Shown, filled in, and not editable says the table already answered it. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` is the list, and it is derived from the plane order rather than written out again here.",
       "source_sha256": "5e3814c4025a3b17e8b89ca036e3cf49aba6a8e9396e0f98b227048ce87482d8",
-      "translation": "LOS AJUSTES QUE DECIDE LA TABLA SE MUESTRAN DESACTIVADOS en lugar de ocultarse. ``cell_mask_dim`` deja de ser una pregunta una vez que la tabla dice qué columna contiene las máscaras de células, pero un usuario que ha leído la documentación de Measure viene aquí a buscarlo, y un control que falta se interpreta como una función que falta. Mostrado, rellenado y no editable dice que la tabla ya lo respondió. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` es la lista, y se deriva del orden de los planos en lugar de volver a escribirse aquí."
+      "translation": "LOS AJUSTES QUE DECIDE LA TABLA SE MUESTRAN DESACTIVADOS en lugar de ocultarse. ``cell_mask_dim`` deja de ser una pregunta una vez que la tabla dice qué columna contiene las máscaras de células, pero un usuario que ha leído la documentación de Measure viene aquí a buscarlo, y un control que falta se interpreta como una función que falta. Mostrado, rellenado y no editable dice que la tabla ya lo respondió. :data:`spacr.measure.FIELD_TABLE_DECIDED_KEYS` es la lista, y se deriva del orden de los planos en lugar de volver a escribirse aquí.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Table, Measure's settings, and a processing session that goes through Measure.",
@@ -2892,7 +2919,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Qt ABORTS THE PROCESS if a running ``QThread`` is destroyed, and this window is closable while a measure run -- minutes of work -- is in flight. :func:`spacr.qt.job_runner.shutdown_all` covers the application quitting; it does not cover one window being closed.",
       "source_sha256": "066f94a545e8a5d4f0dad71984e3916d729a5017dab57df2239e57ae4ce7b7dd",
-      "translation": "Qt ABORTA EL PROCESO si se destruye un ``QThread`` en ejecución, y esta ventana se puede cerrar mientras hay en curso una ejecución de medición -- minutos de trabajo. :func:`spacr.qt.job_runner.shutdown_all` cubre el cierre de la aplicación; no cubre que se cierre una sola ventana."
+      "translation": "Qt ABORTA EL PROCESO si se destruye un ``QThread`` en ejecución, y esta ventana se puede cerrar mientras hay en curso una ejecución de medición -- minutos de trabajo. :func:`spacr.qt.job_runner.shutdown_all` cubre el cierre de la aplicación; no cubre que se cierre una sola ventana.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt close event.",
@@ -2916,7 +2945,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The same call the run makes, so what this returns is what would happen rather than a second opinion about it.",
       "source_sha256": "712188e34a5efaa50140f29a2986190b51cef69e2e20377e1da3211fb7db6cb1",
-      "translation": "La misma llamada que hace la ejecución, así que lo que esto devuelve es lo que ocurriría y no una segunda opinión al respecto."
+      "translation": "La misma llamada que hace la ejecución, así que lo que esto devuelve es lo que ocurriría y no una segunda opinión al respecto.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Stop the run whichever way the window is dismissed.",
@@ -2932,7 +2963,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE HOOK IS ``done`` AND NOT ``reject``, and not ``closeEvent`` alone. Escape reaches ``reject``, which hides the window WITHOUT a close event, and that would leave a measure run -- minutes of work, on a thread -- going behind a window nobody can see; a running ``QThread`` destroyed at exit aborts the process. Overriding ``reject`` to close instead looks like the fix and is a loop: ``QDialog.closeEvent`` itself calls ``reject``.",
       "source_sha256": "33a5fc7e3409b4e4f15a0b8d6c615c56c77d2569ed4bfe8060f6783f3e5e41c9",
-      "translation": "EL GANCHO ES ``done`` Y NO ``reject``, y no ``closeEvent`` por sí solo. Escape llega a ``reject``, que oculta la ventana SIN evento de cierre, y eso dejaría una ejecución de medición -- minutos de trabajo, en un hilo -- funcionando detrás de una ventana que nadie ve; un ``QThread`` en ejecución destruido al salir aborta el proceso. Sobrescribir ``reject`` para que cierre parece la solución y es un bucle: el propio ``QDialog.closeEvent`` llama a ``reject``."
+      "translation": "EL GANCHO ES ``done`` Y NO ``reject``, y no ``closeEvent`` por sí solo. Escape llega a ``reject``, que oculta la ventana SIN evento de cierre, y eso dejaría una ejecución de medición -- minutos de trabajo, en un hilo -- funcionando detrás de una ventana que nadie ve; un ``QThread`` en ejecución destruido al salir aborta el proceso. Sobrescribir ``reject`` para que cierre parece la solución y es un bucle: el propio ``QDialog.closeEvent`` llama a ``reject``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Qt's dialog code, passed straight on.",
@@ -3492,7 +3525,10 @@
       "review_basis": "MT draft kept after AI review",
       "source": "Right-click a picture and save it, as a PNG or as a PDF.",
       "source_sha256": "a648252226ebca801af3ba2f23cc8035cafe6ae34980f4dcee43ded12181d5a3",
-      "translation": "Haga clic derecho en una imagen y guárdela, como PNG o como PDF."
+      "translation": "Haga clic derecho en una imagen y guárdela, como PNG o como PDF.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "\"here the user should be able to right click on the images to save them as png or pdf\" -- the maintainer, 2026-09-24 (item 505)",
@@ -3511,7 +3547,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A picture on screen is often the thing somebody wants in a slide an hour later, and the route to it was a screenshot of a window, at the window's resolution, with the surrounding chrome in it. This saves THE PICTURE, at the resolution it was rendered at rather than the size it happens to be shown at, into a file of the user's choosing.",
       "source_sha256": "e790835e1bc841edb8e98bae98ca2f407262ea6ec94c1080f578de17f115249b",
-      "translation": "Una imagen en pantalla es a menudo lo que alguien quiere en una diapositiva una hora después, y el camino para conseguirla era una captura de pantalla de una ventana, a la resolución de la ventana, con el marco de la interfaz alrededor. Esto guarda LA IMAGEN, a la resolución a la que se representó y no al tamaño al que se esté mostrando, en un archivo que elige el usuario."
+      "translation": "Una imagen en pantalla es a menudo lo que alguien quiere en una diapositiva una hora después, y el camino para conseguirla era una captura de pantalla de una ventana, a la resolución de la ventana, con el marco de la interfaz alrededor. Esto guarda LA IMAGEN, a la resolución a la que se representó y no al tamaño al que se esté mostrando, en un archivo que elige el usuario.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Two formats, and the PDF is not a PNG with a different extension. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
@@ -3520,7 +3559,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "TWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster dropped into a PDF satisfies the file name and nothing else; a figure panel is a page, and a page has a size in millimetres. :func:`save_picture` gives the PDF a page the image's own shape and tells the writer the resolution Preferences carries, so the picture lands at the size it was measured at and prints at that resolution.",
       "source_sha256": "e5dfebda32e1c3002c3fc6ea020427889f6c999e6e426903b6efc849052ca2f8",
-      "translation": "DOS FORMATOS, Y EL PDF NO ES UN PNG CON OTRA EXTENSIÓN. Un ráster metido en un PDF cumple con el nombre del archivo y nada más; un panel de figura es una página, y una página tiene un tamaño en milímetros. :func:`save_picture` da al PDF una página con la forma propia de la imagen e indica al escritor la resolución que figura en Preferencias, de modo que la imagen queda al tamaño al que se midió y se imprime a esa resolución."
+      "translation": "DOS FORMATOS, Y EL PDF NO ES UN PNG CON OTRA EXTENSIÓN. Un ráster metido en un PDF cumple con el nombre del archivo y nada más; un panel de figura es una página, y una página tiene un tamaño en milímetros. :func:`save_picture` da al PDF una página con la forma propia de la imagen e indica al escritor la resolución que figura en Preferencias, de modo que la imagen queda al tamaño al que se midió y se imprime a esa resolución.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
@@ -3529,7 +3571,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The resolution and the default format are the ones the Figures preferences already own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and :func:`spacr.qt.preferences.get_figure_format` -- so a user who has already said \"300 DPI, PDF\" is not asked a second time in different words.",
       "source_sha256": "b53ac41d6f89dab369a0bdc50657ef521b9dfbbc754fc558a28464ca9bdf645e",
-      "translation": "La resolución y el formato predeterminado son los que ya tienen las preferencias de Figures -- :func:`spacr.qt.preferences.get_figure_png_dpi` y :func:`spacr.qt.preferences.get_figure_format` --, de modo que a un usuario que ya ha dicho \"300 DPI, PDF\" no se le pregunta una segunda vez con otras palabras."
+      "translation": "La resolución y el formato predeterminado son los que ya tienen las preferencias de Figures -- :func:`spacr.qt.preferences.get_figure_png_dpi` y :func:`spacr.qt.preferences.get_figure_format` --, de modo que a un usuario que ya ha dicho \"300 DPI, PDF\" no se le pregunta una segunda vez con otras palabras.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Whatever was handed over, as a :class:`QImage`, or ``None``.",
@@ -3561,7 +3606,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Ask for a path. ``\"\"`` when the user walked away.",
       "source_sha256": "9c05f0c72d4dc7e7cec245361960ec83120b40844e0dfbc5683de71e31e567e1",
-      "translation": "Pide una ruta. ``\"\"`` cuando el usuario desistió."
+      "translation": "Pide una ruta. ``\"\"`` cuando el usuario desistió.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "The suffix is put back if the user drops it. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
@@ -3569,7 +3617,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one would otherwise be written as a PNG whatever filter was selected, which is how \"save as PDF\" quietly produces a raster.",
       "source_sha256": "9ca817d52ad3995cbdefaa1ec7984dcb11e056f5b330fad1005e8bc12459e28e",
-      "translation": "EL SUFIJO SE VUELVE A PONER SI EL USUARIO LO QUITA. Un nombre tecleado sin sufijo se escribiría de otro modo como PNG fuera cual fuera el filtro seleccionado, que es como \"save as PDF\" produce en silencio un ráster."
+      "translation": "EL SUFIJO SE VUELVE A PONER SI EL USUARIO LO QUITA. Un nombre tecleado sin sufijo se escribiría de otro modo como PNG fuera cual fuera el filtro seleccionado, que es como \"save as PDF\" produce en silencio un ráster.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the widget the save dialog is parented to.",
@@ -3681,7 +3732,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "called when the menu is used; returns the ``QPixmap`` or ``QImage`` to write. Called AT SAVE TIME rather than now, so the menu always writes the picture currently on screen.",
       "source_sha256": "ee0b4d017bf8c28eb913a0813489f3640edd2d635ac11aad2cc1e2999f3b55db",
-      "translation": "se llama cuando se usa el menú; devuelve el ``QPixmap`` o ``QImage`` que se escribe. Se llama EN EL MOMENTO DE GUARDAR y no ahora, de modo que el menú siempre escribe la imagen que está en pantalla en ese momento."
+      "translation": "se llama cuando se usa el menú; devuelve el ``QPixmap`` o ``QImage`` que se escribe. Se llama EN EL MOMENTO DE GUARDAR y no ahora, de modo que el menú siempre escribe la imagen que está en pantalla en ese momento.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
@@ -3689,7 +3743,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the file name offered, without a suffix. A callable is asked at save time, so a view whose contents change -- Overlay one moment, Flows the next -- offers the name of what is on it now.",
       "source_sha256": "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
-      "translation": "el nombre de archivo ofrecido, sin sufijo. Un invocable se consulta en el momento de guardar, de modo que una vista cuyo contenido cambia -- Overlay en un momento, Flows al siguiente -- ofrece el nombre de lo que contiene ahora."
+      "translation": "el nombre de archivo ofrecido, sin sufijo. Un invocable se consulta en el momento de guardar, de modo que una vista cuyo contenido cambia -- Overlay en un momento, Flows al siguiente -- ofrece el nombre de lo que contiene ahora.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Source documentation corrected in7b35494ba06. Replacement exact-source review is2026-10-15-picture-export-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "asked first; ``True`` means the right button belongs to something else at this moment and no menu is shown. The live preview's ruler is cleared with a right-click while it is active, and a menu appearing over that would take a tool away to add a file dialog nobody asked for.",
@@ -3861,7 +3918,7 @@
     },
     {
       "context": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
-      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#1",
+      "label": "spacr.qt.widgets.pivot_builder.DropWell.set_columns#2",
       "review_basis": "MT draft edited in AI review",
       "source": "the column names to hold, in order; empty names are dropped and the rest converted to strings.",
       "source_sha256": "39389b4a6eacde9237afd0366ab10772af118d5f1494f20ba04b4354aa15eeff",
@@ -4035,7 +4092,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Plaque Assay reads two kinds of folder, and the Mask preview it used to borrow fitted neither:",
       "source_sha256": "1ab63210ebdec42427551e75b200a38afc556643e7db7f0768b10e0504d72581",
-      "translation": "Plaque Assay lee dos tipos de carpeta, y la vista previa de Mask que tomaba prestada no se ajustaba a ninguno:"
+      "translation": "Plaque Assay lee dos tipos de carpeta, y la vista previa de Mask que tomaba prestada no se ajustaba a ninguno:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "**Plaque mode** -- a folder of cropped plaque images. The processing session segments every image and writes one table of per-image values and one of per-plaque values. All there is to check before executing is the mask, so the preview segments one image with the model and thresholds the processing session will use and draws the plaque outlines, with the count and mean area.",
@@ -4083,7 +4142,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The box weight that means: pick one from the figure's size.",
       "source_sha256": "70276fbbbba3d1530667cabb961d54da3ea2de7216072090f119e8782535ab7f",
-      "translation": "El grosor de caja que significa: elegir uno según el tamaño de la figura."
+      "translation": "El grosor de caja que significa: elegir uno según el tamaño de la figura.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The views of the plaque picture, the ones Mask generation's live preview offers: :data:`spacr.qt.widgets.segmentation_views.VIEWS`.",
@@ -4115,7 +4176,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Changing it redraws what is already segmented; nothing is run again. Every width is in IMAGE pixels: the outlines are grown on the image array and the boxes are painted into the pixmap before it is shown, so a line keeps its share of the picture as the view is zoomed and in a saved picture, the way the outlines always did.",
       "source_sha256": "1d4e81f8e58a6649ef207f6f6de28b66942d99656c1a1fa731c7855d7f8ed42b",
-      "translation": "Cambiarlo vuelve a dibujar lo que ya está segmentado; no se vuelve a ejecutar nada. Todos los anchos están en píxeles de IMAGEN: los contornos se engrosan sobre el array de la imagen y las cajas se pintan en el pixmap antes de mostrarlo, de modo que una línea conserva su proporción de la imagen al hacer zoom en la vista y en una imagen guardada, como siempre hicieron los contornos."
+      "translation": "Cambiarlo vuelve a dibujar lo que ya está segmentado; no se vuelve a ejecutar nada. Todos los anchos están en píxeles de IMAGEN: los contornos se engrosan sobre el array de la imagen y las cajas se pintan en el pixmap antes de mostrarlo, de modo que una línea conserva su proporción de la imagen al hacer zoom en la vista y en una imagen guardada, como siempre hicieron los contornos.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'outlines'`` or ``'fill'``.",
@@ -4219,7 +4282,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Answer step 1's four questions about one label stack, as a table.",
       "source_sha256": "d7d714bc19106056d13301c04349ffd88ce58821810a03447281e351f163e28d",
-      "translation": "Responde a las cuatro preguntas del paso 1 sobre una pila de etiquetas, en forma de tabla."
+      "translation": "Responde a las cuatro preguntas del paso 1 sobre una pila de etiquetas, en forma de tabla.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "label stack, ``(T, Y, X)`` or a sequence of 2-D frames.",
@@ -4307,7 +4372,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Only CONSECUTIVE frames are measured. A label that reappears after a gap contributes nothing here, because the distance it covered is not a per-frame displacement and averaging it in would inflate the number this module exists to report.",
       "source_sha256": "ab8589d475d5cb99c7451d646dfd9023a696d6be444f874ed53fcef503969140",
-      "translation": "Solo se miden fotogramas CONSECUTIVOS. Una etiqueta que reaparece tras un hueco no aporta nada aquí, porque la distancia que recorrió no es un desplazamiento por fotograma, e incluirla en el promedio inflaría el número que este módulo existe para notificar."
+      "translation": "Solo se miden fotogramas CONSECUTIVOS. Una etiqueta que reaparece tras un hueco no aporta nada aquí, porque la distancia que recorrió no es un desplazamiento por fotograma, e incluirla en el promedio inflaría el número que este módulo existe para notificar.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the table :func:`label_frames` returns.",
@@ -4507,7 +4574,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``0`` when no check failed, ``1`` when one did. A failure here is a statement about the ANNOTATION, not about this program: it means the data does not support what the timeflows plan assumes about it.",
       "source_sha256": "1cb80d344e5f0fa3ff22515423dc8188da107933b3b0d8c126d97f24a1b5d41f",
-      "translation": "``0`` cuando ninguna comprobación ha fallado, ``1`` cuando alguna sí. Un fallo aquí es una afirmación sobre la ANOTACIÓN, no sobre este programa: significa que los datos no respaldan lo que el plan de timeflows supone sobre ellos."
+      "translation": "``0`` cuando ninguna comprobación ha fallado, ``1`` cuando alguna sí. Un fallo aquí es una afirmación sobre la ANOTACIÓN, no sobre este programa: significa que los datos no respaldan lo que el plan de timeflows supone sobre ellos.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "List every label that disappears and comes back, and judge each one.",
@@ -4515,7 +4584,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "List every label that disappears and comes back, and judge each one.",
       "source_sha256": "effe95766867420a1dafe473f34ef83b0030dfef1eedafa58f759737b0b82efb",
-      "translation": "Enumera cada etiqueta que desaparece y vuelve, y evalúa cada una."
+      "translation": "Enumera cada etiqueta que desaparece y vuelve, y evalúa cada una.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A recycled id -- the same number given to an unrelated object after the first one left -- is the defect the whole plan is exposed to, and it looks exactly like a tracking gap from one frame. What separates them is distance: a real object that was missed for a frame is found again near where it was, and usually still overlapping its own mask. So each gap is reported with the distance covered per missing frame, the overlap between the mask before the gap and the mask after it, and the distance a continuous object in the same data covers in one frame.",
@@ -4597,7 +4668,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NEVER CALL THIS ON THE GUI THREAD. It opens a socket. Home's News panel asks for it through the same :class:`_UpdateWorker` the manual update check runs on, after the page has been shown.",
       "source_sha256": "de60a093fa7422504f54f0cf3c0f4f2c6ba6bb971e8627f7d2dd2be6e6c5108a",
-      "translation": "NUNCA LLAME A ESTO EN EL HILO DE LA GUI. Abre un socket. El panel Noticias de Inicio lo solicita a través del mismo :class:`_UpdateWorker` en el que se ejecuta la comprobación manual de actualizaciones, después de que se haya mostrado la página."
+      "translation": "NUNCA LLAME A ESTO EN EL HILO DE LA GUI. Abre un socket. El panel Noticias de Inicio lo solicita a través del mismo :class:`_UpdateWorker` en el que se ejecuta la comprobación manual de actualizaciones, después de que se haya mostrado la página.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Unauthenticated, because the alternative is a token the user does not have. That means the shared, per-address rate limit, which is why the answer is cached for a day and why every failure is silent: the bundled ``spacr/resources/release_notes.json`` remains the offline source of truth and an empty list simply leaves it alone.",
@@ -4677,11 +4750,13 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Upgrade this interpreter, optionally to the exact version offered.",
       "source_sha256": "716f0d92e66421e44c210fe4c4860a5d1f4a82e8cf2b5606bed912d0e0d884de",
-      "translation": "Actualiza este intérprete, opcionalmente a la versión exacta ofrecida."
+      "translation": "Actualiza este intérprete, opcionalmente a la versión exacta ofrecida.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "allow prerelease packages.",
-      "label": "spacr.updater.upgrade_command#1",
+      "label": "spacr.updater.upgrade_command#2",
       "review_basis": "MT draft edited in AI review",
       "source": "allow prerelease packages.",
       "source_sha256": "236f872425636136cba7eb2b1e2fb20b992d9a1c2ead34303a68bd8f6b813188",
@@ -4689,7 +4764,7 @@
     },
     {
       "context": "explicit version selected by the update check.",
-      "label": "spacr.updater.upgrade_command#2",
+      "label": "spacr.updater.upgrade_command#3",
       "review_basis": "MT draft edited in AI review",
       "source": "explicit version selected by the update check.",
       "source_sha256": "0119142e2f9eb666b758ce08fc10fea20c19072dc7236201c1246bf30a1bd7fa",
@@ -4735,7 +4810,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``True`` when the mask folder is missing or any expected stack filename lacks a complete mask. Unrelated masks cannot substitute for a missing field and do not force complete fields to run again.",
       "source_sha256": "5dadff50f6442e6ef52e8a7c898b5efbef64f77db5b8fc0ee16e8276f69d6ff4",
-      "translation": "``True`` cuando falta la carpeta de máscaras o cuando algún nombre de archivo de pila esperado no tiene una máscara completa. Las máscaras no relacionadas no pueden sustituir a un campo que falta y no obligan a volver a procesar los campos completos."
+      "translation": "``True`` cuando falta la carpeta de máscaras o cuando algún nombre de archivo de pila esperado no tiene una máscara completa. Las máscaras no relacionadas no pueden sustituir a un campo que falta y no obligan a volver a procesar los campos completos.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``'lasso'`` or ``'ridge'``.",

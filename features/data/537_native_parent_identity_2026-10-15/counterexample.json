@@ -1,0 +1,60 @@
+{
+  "source_sha256": "b9f49af257f6c0dfb96c74d2a69e0a0f91667aff57a2d30568c2bad6a643cd63",
+  "cases": [
+    {
+      "case": "small",
+      "declared_exact_parent": 1,
+      "observation": {
+        "parent_values": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "native_child_source": [
+          "declared-native",
+          "declared-native"
+        ],
+        "ancestry_parent": 1
+      },
+      "original_table_and_parent_mapping_bytes_exact": true
+    },
+    {
+      "case": "large_integer",
+      "declared_exact_parent": 9007199254740993,
+      "observation": {
+        "error": "ValueError",
+        "message": "declared-native: non-integer parent for track 9007199254740995"
+      },
+      "original_table_and_parent_mapping_bytes_exact": true
+    },
+    {
+      "case": "large_integer_string",
+      "declared_exact_parent": 9007199254740993,
+      "observation": {
+        "error": "ValueError",
+        "message": "declared-native: non-integer parent for track 9007199254740995"
+      },
+      "original_table_and_parent_mapping_bytes_exact": true
+    },
+    {
+      "case": "large_even_control",
+      "declared_exact_parent": 9007199254740994,
+      "observation": {
+        "parent_values": [
+          0,
+          0,
+          9007199254740994,
+          9007199254740994
+        ],
+        "native_child_source": [
+          "declared-native",
+          "declared-native"
+        ],
+        "ancestry_parent": 9007199254740994
+      },
+      "original_table_and_parent_mapping_bytes_exact": true
+    }
+  ],
+  "limits": "Read-only actual native-parent table helper and downstream lineage on synthetic declared metadata. No native tracker, model, production file, algorithm or source change."
+}

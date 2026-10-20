@@ -390,9 +390,9 @@ def _drag_class():
             """Move the window when its holder's empty space is dragged.
 
             :param holder: the widget that owns the empty space, and the
-                QObject parent. NOT the window and not the scroll area:
-                putting the contents in a scroll area moved the empty space
-                to this holder, which is the whole point of the class.
+                QObject parent; not the window and not the scroll area.
+                When the contents are in a scroll area, the empty space
+                belongs to this holder.
             """
             super().__init__(holder)
             self._holder = holder
@@ -771,7 +771,7 @@ def detach_all_dialogs(app) -> bool:
             def eventFilter(self, obj, event):    # noqa: N802 - Qt naming
                 """Forward the two events the detacher acts on, and no others.
 
-                THE TEST IS HERE AS WELL AS INSIDE because this method is
+                The test is made here as well as in the detacher because this method is
                 what Qt calls for every event in the application, and a
                 Python call that returns False is not free at 94,431 of
                 them per module open. The detacher makes the same test for

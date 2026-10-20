@@ -1,0 +1,17 @@
+{
+  "base": "e63990cd27",
+  "test_before_sha256": "a46334c871b58355ac5498870c0d9b82fc56649e21ad09ceb43bc6a70a33ef77",
+  "test_after_sha256": "c59253ba62b881e45197c004d985a68786d3a50366a35b16f34115775526d199",
+  "changed_definitions": [
+    "_dataclass_constructor_parameters",
+    "_local_generated_fields",
+    "test_generated_constructor_models_resist_signature_evasions"
+  ],
+  "all_other_test_module_ast_exact": true,
+  "ratchet_counts_hashes_and_ghost_allowlist_unchanged": true,
+  "production_unchanged": true,
+  "baseline": "2FAIL14.17s: actual ModelEntry private accepted argument wrongly ghosted; new synthetic case also demonstrates issue",
+  "final": "2PASS12.35s; actual stdlib dataclass inspect.signature accepts _internal and refuses init=False _hidden",
+  "behavior": "include private fields only in dataclass constructor modeling; keep existing namedtuple defaults/private filtering and ClassVar/init=False exclusions",
+  "limits": "targeted existing fixture+ghost test, not full doc inventory/CI or production change"
+}

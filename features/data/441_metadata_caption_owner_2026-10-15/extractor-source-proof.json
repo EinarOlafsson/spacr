@@ -1,0 +1,22 @@
+{
+  "source_sha256": "71d68927c2845c68a05398889e53573ec0f91c807c63acd52b77acf611b4df51",
+  "patch_sha256": "3b7e7dd0aeb0ba69ab10a144659d44a24171cf115d3f6fd2a278f531ad824d1b",
+  "test_sha256": "43e55742b00e0274d212e4cd3c0b0a78b93ad43ecd0f84ff9dad71a15eca4ffd",
+  "all_prior_builder_AST_exact_after_removing_new_helper_and_onlynew_call": true,
+  "source_boundary": "Exact screens/settings_model.py top-level _MetadataTypeField ownmethod self._say first argument references to four named module constants only; nested functions/classes/lambdas/otherreceivers/unrelatedconstant/files excluded.",
+  "normalization": "Existing _literal_strings/_looks_translatable and .strip unchanged; exacttr(raw) whitespace resolver preserves leading3spaces around normalized [provisional] row. Other6tr(CONSTANT) templates remain ordinarygeneric ownership.",
+  "baseline": "Corrected actualproductionextractor tinyfixture1FAIL2PASS0.96s. Earlier3FAIL1.62s from missing empty backend fixture files preserved separately; not productbaseline.",
+  "owning": "65PASS1.45s actualnew3boundarycases +existing62backendcaptionowner cases. Actualsource10template mirrorintegration singlecase additional run pending terminal; no unchanged65rerun.",
+  "actual9callback_prepared_sha256": "8c8f53c31ff6445dc3b6aef010ae93ac759e83ee3d4a4da12941957d5bd386a2",
+  "final_argument_boundary": "Only direct known ast.Name or direct ast.Or fallback elements; Calls/Lambdas/computed/nested expressions excluded.",
+  "staged_tests": {
+    "initial_fixture_error": "3FAIL1.62 missing required empty backend fixture files, not productbaseline",
+    "corrected_original_baseline": "1FAIL2PASS0.96s",
+    "first_owning": "65PASS1.45s (3new+62existing)",
+    "actual_current10_template_mirror": "1PASS1.06s on firsthelper",
+    "computed_argument_negative_baseline": "1FAIL0.93s",
+    "final_affected": "4PASS1.19s allfourchanged-owning nodes including actualsource10; unchanged62notrepeated"
+  },
+  "actual_nine_consumer_status": "PREPARED_ONLY_NOT_RUN_pendingnormal90catalogs",
+  "prepared_callback_whitespace_note": "Prepared-only expected formatting restores existing normal raw-template leading/trailing whitespace, including3spaceprovisional suffix and4spaceranking row. No consumer run yet; no product/extractor/target change."
+}

@@ -1,0 +1,22 @@
+{
+  "tests/test_missing_model_downloads.py": {
+    "old_sha256": "531997ab9f4bd39b8987f47b4ee308bb477c65e4bdf9cf55aecd25e326b972db",
+    "new_sha256": "86946dacebfec824edaa874124863849b44a17d029ebc5f38c30ff6a85831bee",
+    "only_changed_function_bodies": [
+      "remote_model",
+      "test_prefixed_model_validation_does_not_download"
+    ],
+    "all_original_assertions_identical": true,
+    "all_other_ast_and_target_signatures_decorators_identical": true
+  },
+  "tests/test_submodules_plaque_well_integration.py": {
+    "old_sha256": "4471b68fc05cd0efbc66332a7e145e07593da0fd9b773a9344e35c94df0bfb08",
+    "new_sha256": "2f8274f5581ba65b7df0f55d97302bb8cdc4669ebdbd355c25461ccde77b74a5",
+    "only_changed_function_bodies": [
+      "test_true_fetches_the_default_well_detector",
+      "test_a_plaque_model_zoo_key_is_fetched"
+    ],
+    "all_original_assertions_identical": true,
+    "all_other_ast_and_target_signatures_decorators_identical": true
+  }
+}

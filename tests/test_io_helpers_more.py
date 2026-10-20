@@ -207,15 +207,14 @@ def test_save_figure(tmp_path):
     plt.close(fig)
 
 
-def test_copy_missclassified(tmp_path, rng):
+def test_copy_misclassified(tmp_path, rng):
     """The per-file frame from test_model_performance names the column
-    ``filename`` (see deep_spacr.test_model_core), not ``path`` — the old
-    fixture used ``path`` and the swallowed skip hid the KeyError.
+    ``filename`` (see deep_spacr.test_model_core), not ``path``.
 
-    The layout mirrors the real ``test/<class>/`` tree so both the 'pc' and
-    'nc' destination branches get exercised.
+    The layout mirrors the real ``test/<class>/`` tree; each misclassified
+    crop lands under ``misclassified/<its true class folder>``.
     """
-    from spacr.io import _copy_missclassified
+    from spacr.io import _copy_misclassified
     from PIL import Image
     root = tmp_path / "run"
     paths = []
@@ -225,16 +224,42 @@ def test_copy_missclassified(tmp_path, rng):
         p = d / f"o{i}.png"
         Image.fromarray(rng.integers(0, 255, (8, 8, 3)).astype(np.uint8)).save(p)
         paths.append(str(p))
-    # rows 1 and 2 are misclassified
     df = pd.DataFrame({"filename": paths,
                        "true_label": [0, 0, 1, 1],
                        "predicted_label": [0, 1, 0, 1]})
-    _copy_missclassified(df)
-    assert (root / "missclassified" / "nc" / "o1.png").is_file()
-    assert (root / "missclassified" / "pc" / "o2.png").is_file()
-    # correctly-classified images are left alone
-    assert not (root / "missclassified" / "pc" / "o0.png").exists()
-    assert not (root / "missclassified" / "nc" / "o3.png").exists()
+    _copy_misclassified(df)
+    assert (root / "misclassified" / "nc" / "o1.png").is_file()
+    assert (root / "misclassified" / "pc" / "o2.png").is_file()
+    assert not (root / "misclassified" / "pc" / "o0.png").exists()
+    assert not (root / "misclassified" / "nc" / "o3.png").exists()
+    assert not (root / "missclassified").exists()
+
+
+def test_misclassified_crops_go_under_their_true_class_folder(tmp_path):
+    """Regression (2026-10-10): with classes c1/c2 every misclassified crop
+    went to ``test/missclassified/nc`` -- the folder was misspelled, and the
+    pc/nc bucket came from a substring of the whole path rather than the
+    crop's class folder, so a path containing "pc" anywhere also misfiled."""
+    from spacr import io as spacr_io
+
+    root = tmp_path / "npc_screen" / "test"
+    paths = []
+    for cls in ("c1", "c2"):
+        (root / cls).mkdir(parents=True)
+        path = root / cls / f"{cls}.png"
+        path.write_bytes(cls.encode())
+        paths.append(str(path))
+    df = pd.DataFrame({"filename": paths, "true_label": [0, 1],
+                       "predicted_label": [1, 0]})
+    spacr_io._copy_misclassified(df)
+    assert (root / "misclassified" / "c1" / "c1.png").read_bytes() == b"c1"
+    assert (root / "misclassified" / "c2" / "c2.png").read_bytes() == b"c2"
+    assert not (root / "missclassified").exists()
+    assert not (root / "misclassified" / "nc").exists()
+    assert not (root / "misclassified" / "pc").exists()
+    assert spacr_io._copy_missclassified is spacr_io._copy_misclassified
+    assert spacr_io.MISCLASSIFIED_FOLDER == "misclassified"
+    assert spacr_io.LEGACY_MISCLASSIFIED_FOLDER == "missclassified"
 
 
 def test_create_movies_from_npy_per_channel(tmp_path, rng):

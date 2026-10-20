@@ -8,10 +8,10 @@ layouts. The crop mask plane and channels come from :class:`spacr.crops.CropSpec
 or, by default, the run's ``measurements.db`` metadata.
 
 Image reads run through :class:`spacr.qt.job_runner.JobRunner` and only the
-GUI-thread completion handler updates widgets. Converting at most 300 crops to
-``QPixmap`` remains on the GUI thread because QPixmap is not transferable
-across threads; the recorded 224-pixel thumbnail conversion takes about
-21 milliseconds for 300 crops.
+GUI-thread completion handler updates widgets. The montage cap limits the
+selected objects and defaults to :data:`spacr.cell_montage.MAX_OBJECTS`
+(2,000). Converting image arrays to ``QPixmap`` occurs on the GUI thread;
+image loading and crop selection occur in the worker.
 
 The tab stays visible when crops are unavailable and reports the reason in its
 status, tooltip, and disabled action. Crop-source discovery is cached after a
@@ -23,13 +23,13 @@ from __future__ import annotations
 import logging
 import os
 from concurrent.futures import CancelledError
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from threading import Event
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
@@ -218,11 +218,10 @@ def parse_channels(text: str) -> Optional[Tuple[int, ...]]:
 def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
     """Turn a clicked coefficient into ``(name, level, effect)``.
 
-    The join is on the KEY and the parse is
-    :func:`spacr.hits.guide_of` / :func:`spacr.hits.gene_of`, which is the
-    same rule the volcano, the gene tile and the metadata join already use --
-    a fourth copy of "which gene is this term" is how two surfaces start
-    naming different guides for one dot.
+    The join is on the KEY and the parse is :func:`spacr.hits.guide_of` /
+    :func:`spacr.hits.gene_of`, which is the same rule the volcano, the gene
+    tile and the metadata join already use -- so every surface names the same
+    guide for one point.
 
     :param key: the ``feature`` the panel emitted, e.g.
         ``fraction:grna[233460_1]`` or ``gene_fraction:gene[233460]``.
@@ -230,8 +229,8 @@ def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
         allowed and yields ``None`` for the effect rather than raising.
     :returns: the gene or guide name, ``'grna'`` or ``'gene'``, and the fitted
         coefficient. The name is ``''`` for a term that names neither -- an
-        Intercept or a row/column nuisance term -- which is a real answer and
-        the reason the montage is refused for it.
+        Intercept or a row/column nuisance term -- and the montage is refused
+        for it.
     """
     from ...hits import gene_of, guide_of
 
@@ -259,11 +258,11 @@ def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
 def intercept_from_frame(frame) -> Optional[float]:
     """The fitted intercept out of the coefficient table, or ``None``.
 
-    The other baseline the score window can be centred on. Under the
-    well-level model the intercept IS the score of a well carrying none of
-    the guide, which is the same quantity the screen median estimates -- so
-    offering both is offering the model's answer beside the data's, and the
-    caption says which produced the picture.
+    The other baseline the score window can be centred on. Under the well-level
+    model the intercept is the score of a well carrying none of the guide, the
+    same quantity the screen median estimates -- so the two are the model's and
+    the data's estimates of one baseline, and the caption says which produced
+    the picture.
 
     :param frame: the coefficient table. Every spelling statsmodels and this
         project use is accepted (``Intercept``, ``(Intercept)``, ``const``),
@@ -296,19 +295,16 @@ def intercept_from_frame(frame) -> Optional[float]:
 
 
 def well_tab_label(well, guides, name="", level="gene"):
-    """The tab's own name: THE WELL AND THE gRNA, both.
+    """The tab's name: the well and the gRNA.
 
-    A gene with several guides pulls the same well more than once, so two
-    tabs called ``p1_r3_c7`` are indistinguishable -- and the whole point of
-    a tab that outlives the selection is comparing one gene's cells with
-    another's, which a label naming only the well makes impossible.
+    A gene with several guides pulls the same well more than once, so two tabs
+    called ``p1_r3_c7`` are indistinguishable -- and a tab that outlives the
+    selection is used to compare one gene's cells with another's.
 
-    THE COEFFICIENT IS NAMED TOO WHEN THE GUIDE ALONE DOES NOT IDENTIFY IT.
-    Driving the real tab found the case: the guide-level coefficient
-    ``GRA14_1``, and the GENE ``GRA14`` shown one guide at a time, both open
-    a tab for ``GRA14_1`` in the same well -- and they are DIFFERENT montages
-    with different effects, different windows and different cells. Both read
-    ``plate1_r1_c1 \u00b7 GRA14_1`` and nothing on the tab bar told them apart.
+    The coefficient is also named when the guide alone does not identify it.
+    The guide-level coefficient ``GRA14_1`` and the gene ``GRA14`` shown one
+    guide at a time both open a tab for ``GRA14_1`` in the same well, and they
+    are different montages with different effects, windows and cells.
 
     :param well: the well key as the plan spells it.
     :param guides: the guides this montage covers.
@@ -343,13 +339,13 @@ class MontageRequest:
     :param name: the gene or guide the coefficient names.
     :param effect: its fitted coefficient.
     :param level: ``'gene'`` or ``'grna'``.
-    :param results_path: the results CSV, or the folder holding it. Either
-        way ``regression_data.csv`` in that FOLDER is what is read -- see
-        :func:`spacr.cell_montage.read_well_guide_fractions`, which refuses
-        the two obvious wrong CSVs by name.
+    :param results_path: the results CSV, or the folder holding it. Either way
+        ``regression_data.csv`` in that folder is what is read -- see
+        :func:`spacr.cell_montage.read_well_guide_fractions`, which refuses the
+        two obvious wrong CSVs by name.
     :param databases: the ``measurements.db`` files attached to the run's
         input table.
-    :param count_csvs: the COUNT CSVs from the same input table. The fallback
+    :param count_csvs: the count CSVs from the same input table. The fallback
         source of the per-well guide fractions, and the reason a run folder is
         no longer required: a fraction is ``count / well total``, which these
         files carry outright. Used only when ``results_path`` yields nothing
@@ -415,25 +411,25 @@ class MontageLoad:
         nothing for a row.
     :param sources: ``{experiment root: description}`` -- which crop source
         drew each plate, in words.
-    :param error: why there is no montage, or ``''``. A SENTENCE, not an
+    :param error: why there is no montage, or ``''``. A sentence, not an
         exception: a tab that cannot be filled has to say why and stay on
         screen.
     :param unavailable: ``True`` when the reason is a permanent property of
         this run -- no crop source anywhere -- rather than a bad request.
         That is what lets the button grey itself out afterwards instead of
         inviting the same click again.
-    :param shapes: the crop shapes EVERY plate's route can actually cut. A
-        shape one plate cannot produce is not offered, because a montage in
-        which some crops follow the mask and some do not is a montage whose
-        pictures are not comparable.
+    :param shapes: the crop shapes every plate's route can cut. A shape one
+        plate cannot produce is not offered, because a montage in which some
+        crops follow the mask and some do not is a montage whose pictures are
+        not comparable.
     :param shape_reason: why a shape is missing from ``shapes``, for the
         disabled entry's tooltip.
-    :param objects: EVERY object row the load read, not just the ones the
-        plans selected. The Compare panel's wider contrasts (187 B) need the
-        cells the montage did NOT pick -- "against every other well" has
-        nothing on its other side without them -- and the join that makes
-        every database measurement reachable (187 A) is keyed on these rows.
-        A reference, not a copy: the frame is already in memory.
+    :param objects: Every object row the load read, not just the ones the plans
+        selected. The Compare panel's wider contrasts (187 B) need the cells
+        the montage did not pick -- "against every other well" has nothing on
+        its other side without them -- and the join that makes every database
+        measurement reachable (187 A) is keyed on these rows. A reference, not
+        a copy: the frame is already in memory.
     :param counts: the per-well guide fractions this load resolved. Carried
         for the same reason: naming a control (184) is a question about the
         COUNT data, and the panel cannot answer it from object rows.
@@ -454,9 +450,9 @@ class MontageLoad:
     def ok(self) -> bool:
         """True when at least one plan came back, empty or not.
 
-        An EMPTY plan is a success: it carries the wells that reported the
-        guide, the window that admitted nothing and the caption that says so,
-        which is an answer. Only a missing plan is a failure.
+        An empty plan is a success: it carries the wells that reported the
+        guide, the window that admitted nothing and the caption that says so.
+        Only a missing plan is a failure.
         """
         return bool(self.plans) and not self.error
 
@@ -808,10 +804,14 @@ def _load(request, step):
             request=request, error=f"Could not select the montage: {error}")
 
     images: List[Tuple[Any, ...]] = []
+    crop_sources: List[Tuple[Any, ...]] = []
     for number, plan in enumerate(plans, 1):
         step(tr('Reading crops for montage {number} of {total}…',
                 number=number, total=len(plans)))
-        images.append(_cut(plan, sources, request, troubles, step=step))
+        per_crop = [None] * len(plan.rows())
+        images.append(_cut(plan, sources, request, troubles, step=step,
+                           provenance=per_crop))
+        crop_sources.append(tuple(per_crop))
 
     notes = tuple(route_notes) + tuple(f"NOTE {t}" for t in troubles)
     if notes:
@@ -826,12 +826,14 @@ def _load(request, step):
         for candidate in CROP_SHAPES:
             if not why and not req.offers(candidate):
                 why = req.why_not(candidate)
-    return MontageLoad(request=request, plans=tuple(plans),
-                       images=tuple(images), sources=described,
-                       shapes=tuple(s for s in CROP_SHAPES
-                                    if s in (offered or set())),
-                       shape_reason=why,
-                       objects=objects, counts=counts)
+    loaded = MontageLoad(request=request, plans=tuple(plans),
+                         images=tuple(images), sources=described,
+                         shapes=tuple(s for s in CROP_SHAPES
+                                      if s in (offered or set())),
+                         shape_reason=why,
+                         objects=objects, counts=counts)
+    object.__setattr__(loaded, "_crop_sources", tuple(crop_sources))
+    return loaded
 
 
 def _with_notes(plan, notes: Tuple[str, ...]):
@@ -847,7 +849,8 @@ def _with_notes(plan, notes: Tuple[str, ...]):
 
 
 def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
-         troubles: List[str], *, step=None) -> Tuple[Any, ...]:
+         troubles: List[str], *, step=None,
+         provenance=None) -> Tuple[Any, ...]:
     """Cut every crop one plan names, bucketed by plate.
 
     Bucketed because ``MergedCropSource.get_many`` opens each ``.npy`` once
@@ -856,6 +859,7 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
     crops arrive one field at a time.
 
     :param step: optional cancellable stage callback before each source read.
+    :param provenance: optional list receiving one source recipe per crop.
     """
     rows = plan.rows()
     out: List[Any] = [None] * len(rows)
@@ -869,6 +873,32 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
         if choice is None:
             troubles.append(f"{root} has no crop source; its objects are blank")
             continue
+        snapshots = {}
+        if provenance is not None:
+            for position in positions:
+                try:
+                    row = rows[position]
+                    if choice.source.kind == "png":
+                        from ...crops import crop_format_for_png
+                        path = choice.source.resolve(row)
+                        recipe = {"op": "read_crop_png",
+                                  "path": os.path.abspath(path),
+                                  "format": int(crop_format_for_png(
+                                      path, choice.source.db_path))}
+                    elif choice.source.kind == "merged":
+                        spec = choice.source.spec_for(row)
+                        path = spec.merged_path
+                        recipe = {"op": "merged_crop", "spec": asdict(spec)}
+                        recipe["spec"]["merged_path"] = os.path.abspath(path)
+                    else:
+                        continue
+                    info = os.stat(path)
+                    snapshots[position] = {
+                        "path": os.path.abspath(path), "step": recipe,
+                        "size": int(info.st_size),
+                        "mtime_ns": int(info.st_mtime_ns)}
+                except (OSError, ValueError, TypeError, AttributeError):
+                    LOG.debug("could not describe the crop source", exc_info=True)
         try:
             crops = choice.source.get_many([rows[i] for i in positions])
         except Exception as error:                              # noqa: BLE001
@@ -879,6 +909,15 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
             continue
         for position, crop in zip(positions, crops):
             out[position] = crop
+            record = snapshots.get(position)
+            if provenance is not None and crop is not None and record is not None:
+                try:
+                    info = os.stat(record["path"])
+                    if (info.st_size == record["size"]
+                            and info.st_mtime_ns == record["mtime_ns"]):
+                        provenance[position] = record
+                except OSError:
+                    continue
     return tuple(out)
 
 
@@ -887,12 +926,11 @@ def montage_figure(plans: Sequence[Any], images: Sequence[Sequence[Any]],
                    columns: int = 8):
     """Draw the montage as one matplotlib figure, caption and all.
 
-    The caption is not decoration and is not optional: it is what stops a
-    reader taking these for genotyped cells, and
-    :meth:`~spacr.cell_montage.MontagePlan.caption` always ends with the
-    sentence that says membership is inferred from a well-level fraction.
-    A figure without it is the one output this feature must never produce, so
-    it is drawn from the plan rather than passed in.
+    The caption is always drawn.
+    :meth:`~spacr.cell_montage.MontagePlan.caption` ends with the sentence
+    stating that membership is inferred from a well-level fraction, so the
+    cells are not read as genotyped. It is drawn from the plan rather than
+    passed in.
 
     :param plans: the plans to draw, in order.
     :param images: the crops for each plan.
@@ -949,8 +987,8 @@ class _Thumb(QLabel):
     """Display a clickable crop with the annotation app's tile styling.
 
     Shared tile chrome supplies rounded clipping and the resting, state, and
-    hover rings. Activating the thumbnail opens the provenance details already
-    summarized by its tooltip.
+    hover rings. Mouse or keyboard activation opens the provenance details
+    already summarized by its tooltip and accessible name.
     """
 
     #: (tooltip). Emitted on a left click so the view can show the detail.
@@ -973,8 +1011,13 @@ class _Thumb(QLabel):
             colour and it is theme-aware.
         """
         super().__init__(parent)
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
         self._pixmap = pixmap
         self.setToolTip(tooltip)
+        self.setAccessibleName(tooltip)
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setAlignment(Qt.AlignCenter)
         self.setFixedSize(int(size or THUMBNAIL_PX), int(size or THUMBNAIL_PX))
         self.setFrameShape(QFrame.NoFrame)
@@ -1002,26 +1045,42 @@ class _Thumb(QLabel):
         return (self.highlight or resting_border_color()), current_ring_color()
 
     def paintEvent(self, event):            # noqa: N802 - Qt naming
-        """Draw the crop with one ring, recoloured on hover rather than doubled.
+        """Draw one ring, recoloured while hovered or keyboard focused.
 
         ``current=False`` and the colour swapped instead: a picked cell keeps
-        its blue everywhere the cursor is not, which is the whole of show-all --
-        the point there is to compare the cells carrying the inference against
-        the ones that do not.
+        its blue when neither hovered nor focused. This preserves the
+        distinction between cells carrying the inference and those that do
+        not when they are at rest.
 
         :param event: the paint event.
         """
-        from .tile_chrome import paint_tile
+        from .tile_chrome import paint_tile, stroke_ring
 
         ring, hover = self._colours()
+        strong = self._strong_focus_ring if self.hasFocus() else None
         painter = QPainter(self)
         try:
             paint_tile(painter, float(self.width()), float(self.height()),
                        self._pixmap,
-                       border_colour=(hover if self._hovered else ring),
+                       border_colour=("" if strong else
+                                      hover if self._hovered or self.hasFocus()
+                                      else ring),
                        ring_colour="", current=False)
+            if strong:
+                width, colour = strong
+                stroke_ring(painter, colour, width, width / 2,
+                            float(self.width()), float(self.height()))
         finally:
             painter.end()
+
+    def changeEvent(self, event):
+        """Refresh the cached outline without reading preferences on paint."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
 
 
     def enterEvent(self, event):            # noqa: N802 - Qt naming
@@ -1052,6 +1111,28 @@ class _Thumb(QLabel):
             self.clicked.emit(self.toolTip())
         else:
             super().mousePressEvent(event)
+
+    def focusInEvent(self, event):
+        """Show the existing current-cell ring on keyboard focus."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Restore the resting ring when focus leaves this crop."""
+        super().focusOutEvent(event)
+        self.update()
+
+    def keyPressEvent(self, event):
+        """Open the focused crop's provenance with Enter or Space."""
+        if (self.hasFocus()
+                and (event.modifiers() == Qt.NoModifier
+                     or (event.key() == Qt.Key_Enter
+                         and event.modifiers() == Qt.KeypadModifier))
+                and event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space)):
+            self.clicked.emit(self.toolTip())
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 class _WellTab(QWidget):
@@ -1388,12 +1469,12 @@ def _tooltip(row) -> str:
 
 
 def candidate_colour() -> str:
-    """The border a likely cell wears, in the annotation app's own palette.
+    """The border colour of a likely cell, in the annotation app's own palette.
 
-    Class 1 -- the first annotation colour -- because these ARE the panel's
-    first class of thing: the cells consistent with the coefficient. Theme
-    aware, because `label_to_hex` is: the same hue deepens against a light
-    tile so it stays readable, which is issue #6.
+    Class 1 -- the first annotation colour -- because these are the panel's
+    first class: the cells consistent with the coefficient. Theme aware,
+    because `label_to_hex` is: the same hue deepens against a light tile so it
+    stays readable, which is issue #6.
     """
     try:
         from ..annotate_engine import label_to_hex
@@ -1479,10 +1560,8 @@ class CellMontageView(QWidget):
 
     Connect :meth:`set_coefficient` to the panel's existing selection --
     ``RegressionResultsPanel.table.key_selected``, which is the funnel every
-    plot and the table already pass through. There is deliberately no second
-    selection mechanism here: a montage of a different gene from the one the
-    volcano is ringing is exactly the plausible-and-wrong output this feature
-    is most at risk of.
+    plot and the table already pass through. There is no second selection
+    mechanism, so the montage shows the same gene as the volcano and the table.
 
     :param frame_provider: called with no arguments for the coefficient
         table, which is where the fitted effect for a clicked key comes from.
@@ -1536,14 +1615,11 @@ class CellMontageView(QWidget):
         """Build the montage tab.
 
         Every piece of state a control reads is created before any signal is
-        connected: a widget whose controls are live before its state exists is
-        the crash that took the application down at launch, and the rule has its
-        own test file.
+        connected: a control that fires before its state exists raises at
+        launch, and a dedicated test file checks the rule.
 
         The controls sit in a flow rather than a row, so they wrap before they
-        clip -- the four buttons alone measure over 550 px, and squeezing a
-        required selector down to a few pixels was what met the nominal minimum
-        before.
+        clip -- the four buttons alone measure over 550 px.
 
         :param frame_provider: called for the coefficient table.
         :param results_provider: called for the run's results path.
@@ -1579,6 +1655,7 @@ class CellMontageView(QWidget):
         self._effect: Optional[float] = None
         self._plans: Tuple[Any, ...] = ()
         self._images: Tuple[Tuple[Any, ...], ...] = ()
+        self._crop_sources: Tuple[Tuple[Any, ...], ...] = ()
         #: The load signature the crops in `_images` answer, or None.
         self._loaded_signature = None
         self._sources: Dict[str, str] = {}
@@ -1810,7 +1887,7 @@ class CellMontageView(QWidget):
                 self._tabs.tabBar().setTabButton(fixed, side, None)
         install_close_marks(self._tabs)
         self._tabs.setTabToolTip(
-            0, "The whole montage in words: the wells, the window, the "
+            0, "A text summary of the montage: the wells, the window, the "
                "arithmetic and every setting that decided which cells these "
                "are. The pictures are in the per-well tabs beside it.")
         layout.addWidget(self._tabs, 1)
@@ -1831,15 +1908,15 @@ class CellMontageView(QWidget):
 
 
     def set_coefficient(self, key: str) -> None:
-        """A coefficient was picked. THE SLOT TO CONNECT ``key_selected`` TO.
+        """Handle a picked coefficient; ``key_selected`` connects to this slot.
 
         Takes the feature string and nothing else, so the volcano, the Q-Q,
         the effect-rank plot and the coefficient table all reach it by the
         same one route the gene tile already uses.
 
-        It does NOT load. A montage is seconds of disk for a click whose usual
-        purpose is to read a row, so the selection arms the button and the
-        user asks for the pictures.
+        It does not load. A montage is seconds of disk for a click whose usual
+        purpose is to read a row, so the selection arms the button and the user
+        asks for the pictures.
 
         :param key: the ``feature`` the panel emitted.
         """
@@ -1959,10 +2036,9 @@ class CellMontageView(QWidget):
     def reason(self) -> str:
         """Why the montage cannot be built right now, or ``''``.
 
-        The rule: a control that cannot do anything is greyed
-        out AND SAYS WHY. Every branch here is a sentence a user can act on,
-        and the order is the order the inputs are needed in, so the first
-        missing thing is the one named.
+        A control that cannot act is greyed out and states why. Every branch
+        here returns a sentence a user can act on, and the order is the order
+        the inputs are needed in, so the first missing thing is the one named.
         """
         if self._pending is not None:
             return "A montage is loading."
@@ -2001,12 +2077,11 @@ class CellMontageView(QWidget):
         return self._unavailable
 
     def count_csvs(self) -> Tuple[str, ...]:
-        """The COUNT CSVs attached to the run's input table.
+        """The count CSVs attached to the run's input table.
 
-        THE SAME PROVIDER THE DATABASES COME FROM. The input table's rows are
-        ``{"plate", "score", "count", "database"}``, so the counts were always
-        one field away -- which is why requiring a run folder for the guide
-        fractions was never necessary, only unexamined.
+        Read from the same provider as the databases. The input table's rows
+        are ``{"plate", "score", "count", "database"}``, so no run folder is
+        needed for the guide fractions.
         """
         if self._database_provider is None:
             return ()
@@ -2024,11 +2099,11 @@ class CellMontageView(QWidget):
         return tuple(out)
 
     def score_csvs(self) -> Tuple[str, ...]:
-        """The SCORE CSVs attached to the run's input table.
+        """The score CSVs attached to the run's input table.
 
         The same provider and the same rows as :meth:`count_csvs` -- the input
         table's rows are ``{"plate", "score", "count", "database"}``, so the
-        scores were always one field away too.
+        scores come from the same rows.
 
         A database whose ``png_list`` has no ``pred`` column is not necessarily
         a screen without scores:
@@ -2266,6 +2341,7 @@ class CellMontageView(QWidget):
             return
         self._plans = result.plans
         self._images = result.images
+        self._crop_sources = getattr(result, "_crop_sources", ())
         self._loaded_signature = self._load_signature()
         self._sources = dict(result.sources)
         self._shown_key = self._key
@@ -2438,10 +2514,9 @@ class CellMontageView(QWidget):
     def picked_groups(self) -> dict:
         """``{gene: the object index values this tab picked for it}``.
 
-        THE PICKER'S OWN ANSWER, read off the plans rather than recomputed --
-        `montage_candidate` is the column `select_montage` marks, so
-        whichever mode is in force (rank, attributed, assigned,
-        multivariate) this is what the montage actually drew.
+        Read off the plans rather than recomputed -- `montage_candidate` is the
+        column `select_montage` marks, so whichever mode is in force (rank,
+        attributed, assigned, multivariate) this is what the montage drew.
         """
         out: dict = {}
         for plan in self.plans():
@@ -2459,20 +2534,21 @@ class CellMontageView(QWidget):
 
 
     def workspace_state(self) -> dict:
-        """The montage the session had open, as data.
+        """Return montage choices and any saved comparison controls as data.
 
-        THE SETTINGS AND THE CHOICE, NOT THE PIXELS. A montage is tens of
-        megabytes of crops that the run's own images regenerate exactly; what
-        cannot be regenerated is which coefficient was on screen, how the
-        cells were picked, and how they were drawn. Those are what go in.
+        Settings and the selected coefficient are saved, not crop pixels.
+        Picked groups record which cells the current montage selected; they
+        are not replayed as input to the picker. Rebuilding uses the current
+        run files, settings and picker implementation.
 
-        The picked groups ride along as a RECORD, not as an input --
-        `picked_groups()` is what the picker chose given these settings, and
-        restoring the settings reproduces it. Written down because a reader
-        of a saved run wants to know which cells the claim rested on without
-        re-running anything.
+        The comparison contributes its controls when its panel already
+        exists. Otherwise a comparison restored before the panel was built
+        is retained as plain data. Collecting state never creates the panel
+        or computes a comparison.
         """
-        return {
+        from copy import deepcopy
+
+        state = {
             "coefficient": str(self._key or ""),
             "level": str(self._level or ""),
             "results_path": self._results_path(),
@@ -2483,50 +2559,90 @@ class CellMontageView(QWidget):
                               for gene, values in self.picked_groups().items()},
             "montage_shown": bool(self._plans),
         }
+        panel = self._graph_panel
+        comparison = (panel.workspace_state() if panel is not None else
+                      self.__dict__.get("_comparison_workspace_state"))
+        if isinstance(comparison, dict):
+            state["comparison"] = deepcopy(comparison)
+        return state
 
     def apply_workspace_state(self, state) -> bool:
-        """Put the montage's settings back. Does NOT rebuild it.
+        """Restore montage and comparison controls without computing images.
 
-        Returns whether anything was applied.
+        Recognized state cancels the pending montage and queued coefficient
+        loads. Control signals are blocked while settings are restored, so
+        an existing montage does not automatically reload or redraw. Crop
+        choices are applied for the next explicit build; its existing well
+        tabs retain their own captions and images.
 
-        DELIBERATELY NOT REBUILT. Loading the crops is the slow half -- the
-        first montage of a run reads images off disk for seconds -- and a
-        restore that started it would freeze a window the user had just
-        opened to look around in. The settings are put back and the button is
-        there; 155's "the montage says how it chose" is on screen either way.
+        Comparison controls are passed to an existing panel without a
+        refresh. If no panel exists, they remain plain data until an explicit
+        montage build or Compare action creates it. Restoring never creates
+        a comparison panel, starts a measurement join, or computes a graph.
 
-        :param state: mapping as saved with the workspace; its
-            ``picture_settings``, ``widgets``, ``picture_mode`` and
-            ``coefficient`` entries are each applied when present, and a
-            non-dict applies nothing.
+        :param state: saved mapping; recognized entries are
+            ``picture_settings``, ``widgets``, ``picture_mode``,
+            ``coefficient`` and ``comparison``. A non-dict applies nothing.
+        :returns: whether recognized state was applied or retained for later.
         """
         if not isinstance(state, dict):
             return False
-        applied = False
-        picture = state.get("picture_settings")
-        if isinstance(picture, dict):
-            from ...picture_settings import drop_retired
+        from copy import deepcopy
+        from PySide6.QtCore import QSignalBlocker
 
-            picture, notes = drop_retired(picture)
-            for note in notes:
-                LOG.info("saved picture settings: %s", note)
-            self._picture_settings = dict(picture)
-            self._write_back(self._picture_settings)
-            applied = True
+        picture = state.get("picture_settings")
         widgets = state.get("widgets")
-        if isinstance(widgets, dict):
-            self._write_back(widgets)
-            applied = True
+        comparison = state.get("comparison")
         mode = state.get("picture_mode")
-        if mode:
-            index = self._source.findData(mode)
-            if index >= 0:
-                self._source.setCurrentIndex(index)
-                applied = True
+        mode_index = self._source.findData(mode) if mode else -1
         key = state.get("coefficient")
-        if key:
-            self.set_coefficient(str(key))
-            applied = True
+        crop_state = (isinstance(picture, dict) or isinstance(widgets, dict)
+                      or mode_index >= 0 or bool(key))
+        if not crop_state and not isinstance(comparison, dict):
+            return False
+        self._cancel_loading()
+        self._queue.clear()
+        blockers = [QSignalBlocker(getattr(self, name))
+                    for name in self._MIRRORED.values()]
+        applied = False
+        previous_restore = self.__dict__.get("_restoring_workspace", False)
+        self._restoring_workspace = True
+        try:
+            if crop_state:
+                self._drop_montage()
+                self._unavailable = ""
+            if isinstance(picture, dict):
+                from ...picture_settings import drop_retired
+
+                picture, notes = drop_retired(picture)
+                for note in notes:
+                    LOG.info("saved picture settings: %s", note)
+                self._picture_settings = dict(picture)
+                self._write_back(self._picture_settings)
+                applied = True
+            if isinstance(widgets, dict):
+                self._write_back(widgets)
+                applied = True
+            if mode_index >= 0:
+                self._source.setCurrentIndex(mode_index)
+                applied = True
+            if key:
+                self.set_coefficient(str(key))
+                applied = True
+            if isinstance(comparison, dict):
+                comparison = deepcopy(comparison)
+                if self._graph_panel is None:
+                    self._comparison_workspace_state = comparison
+                    applied = True
+                else:
+                    applied = (self._graph_panel.apply_workspace_state(
+                        comparison) or applied)
+            self._refresh_controls()
+            self._announce()
+        finally:
+            self._restoring_workspace = previous_restore
+            for blocker in blockers:
+                blocker.unblock()
         return applied
 
     def compare_a_measurement(self, *_args):
@@ -2590,7 +2706,7 @@ class CellMontageView(QWidget):
 
     def remember_inventory(self, source=None, objects=None) -> None:
         """Keep what the last load resolved, so the settings window can offer
-        THIS screen's mask planes and object columns rather than free text."""
+        this screen's mask planes and object columns rather than free text."""
         if source is not None:
             self._last_source = source
         if objects is not None:
@@ -2671,9 +2787,9 @@ class CellMontageView(QWidget):
         """Write the montage as a figure, honouring the format preference.
 
         :param path: where to write. ``None`` asks. The extension is left to
-            :func:`spacr.plot.save_figure`, which corrects it to the format
-            the user chose -- naming one here is how a PNG ends up in a file
-            called ``.pdf``, which is a complaint this project has had twice.
+            :func:`spacr.plot.save_figure`, which corrects it to the format the
+            user chose -- naming one here could put a PNG in a file called
+            ``.pdf``.
         :returns: the path written, or ``None``.
         """
         if not self._plans:
@@ -2696,6 +2812,26 @@ class CellMontageView(QWidget):
 
         figure = montage_figure(self._plans, self._images,
                                 columns=max(self._columns, 4))
+        from ...plot import _figure_integrity_enabled, _tag_panel
+        if _figure_integrity_enabled() and self._crop_sources:
+            artists = iter(artist for axes in figure.axes
+                           for artist in axes.images)
+            for crops, records in zip(self._images, self._crop_sources):
+                for crop, record in zip(crops, records):
+                    if crop is None:
+                        continue
+                    artist = next(artists)
+                    if record is None:
+                        continue
+                    try:
+                        info = os.stat(record["path"])
+                    except OSError:
+                        continue
+                    if (info.st_size != record["size"]
+                            or info.st_mtime_ns != record["mtime_ns"]):
+                        continue
+                    _tag_panel(artist, source=record["path"],
+                               steps=(record["step"],))
         written = save_figure(figure, path, close=True)
         self._set_status(f"{self._summary()} — saved to {written}")
         return written
@@ -2859,7 +2995,8 @@ class CellMontageView(QWidget):
         Built on the first montage rather than at construction: the panel
         needs the object rows and the picker's groups, and a tab that said
         "nothing yet" would be a second way of saying what the Summary tab
-        already says.
+        already says. Saved comparison controls are handed over here, once,
+        before refreshing the graph for this explicit build or Compare action.
         """
         rows = self.rows_to_compare()
         groups = self.picked_groups()
@@ -2880,6 +3017,10 @@ class CellMontageView(QWidget):
         else:
             self._graph_panel.set_data(rows, groups,
                                        settings=self.picture_settings())
+        pending = self.__dict__.pop("_comparison_workspace_state", None)
+        if isinstance(pending, dict):
+            if self._graph_panel.apply_workspace_state(pending):
+                self._graph_panel.refresh()
 
     def annotate_the_cells(self, *_args):
         """Open annotation strategies for the cells in the current montage.
@@ -3040,7 +3181,8 @@ class CellMontageView(QWidget):
             if not self._name:
                 self._set_status(self.NOTHING_SELECTED)
             else:
-                run = self.loaded_run_name()
+                run = ("" if self.__dict__.get("_restoring_workspace", False)
+                       else self.loaded_run_name())
                 selection = self.selected_coefficients()
                 more = (f" {len(selection)} coefficients are selected; this "
                         f"grid is one of them."
@@ -3061,6 +3203,7 @@ class CellMontageView(QWidget):
         must not survive it.
         """
         self._plans, self._images, self._sources = (), (), {}
+        self._crop_sources = ()
         self._loaded_signature = None
         self._shown_key = ""
         self._caption.setPlainText("")
@@ -3210,7 +3353,7 @@ class CellMontageView(QWidget):
                 self._columns)
         if refused:
             captions.append(
-                f"{len(refused)} well tab(s) were NOT opened -- "
+                f"{len(refused)} well tab(s) were not opened -- "
                 f"{', '.join(refused[:6])}"
                 + (" and others" if len(refused) > 6 else "")
                 + f" -- because {MAX_WELL_TABS} well tabs are already open. "
@@ -3247,14 +3390,9 @@ class CellMontageView(QWidget):
     def clear(self) -> None:
         """Empty every open well tab's grid, leaving the tabs standing.
 
-        PUBLIC BECAUSE IT IS CALLED FROM OUTSIDE, which it was already: the
-        Regression screen empties this view when the loaded run changes,
-        because a montage answering a coefficient from the previous run's
-        table means nothing under the new one. It called ``clear()`` -- the
-        obvious name, and the name the well tabs themselves use -- and got an
-        AttributeError every time, reported by a user on 2026-09-02 (issue
-        116) whose Cells tab kept showing the run before the one he had just
-        loaded.
+        Public because the Regression screen calls it to empty this view when
+        the loaded run changes: a montage for a coefficient from the previous
+        run's table does not apply to the new one (issue 116).
         """
         self._cancel_loading()
         self._queue.clear()
@@ -3291,7 +3429,7 @@ class CellMontageView(QWidget):
         and a merged-source montage is seconds long -- so leaving the screen
         mid-load is not a rare case. ``JobRunner.shutdown`` drops the results
         and waits a bounded time rather than joining on the GUI thread, which
-        is the freeze it exists to remove.
+        would freeze the window.
         """
         self._cancel_loading()
         self._queue.clear()

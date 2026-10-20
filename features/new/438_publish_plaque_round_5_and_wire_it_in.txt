@@ -210,3 +210,41 @@ theirs at the repo root, so the URL hf_uri() would build 404s. Verified: HEAD
 200, 1.22 GB, and the published sha256 matches the local file byte for byte.
 
 VERIFIED 2026-10-04: toxoplasma_plaque_v1/v2 rows present; test_model_zoo passes; 1 referenced test files pass.
+
+
+================================================================================
+RE-SCORE ON CURATED GROUND TRUTH, DRAFTED (2026-10-11)
+================================================================================
+
+All nine published PV and plaque models plus stock cpsam and cpsam_v2 were
+re-scored on the curated ground truth through the spaCR pipeline calls
+(spacr.model_zoo.benchmark for PV, spacr.plaque.segment_plaque_image for plaque).
+Receipt: features/data/model_rescore_curated_gt_2026-10-11/receipt.json (counts
+per source, manifest hashes, tables, decisions, caveats). Full tables and
+per-field results: /media/carruthers/mnt3/claude/gt_rescore_20261011/scores/.
+
+Maintainer decisions applied: the 98 round-3 PV fields with no ledger row are
+included (labelled, shown with and without); 3 plaque literature fields marked
+done and Discard and the 11 Gel Doc set-aside wells are excluded; PV v5 is
+marked as leaked (trained or validated on 29 of 39 curated PV literature
+hold-out fields and 3 of 11 anchor wells) and scored only on fields it never
+saw; defaults do not change (PV v4, plaque v4).
+
+Model card drafts exist for all nine repositories
+(/media/carruthers/mnt3/claude/gt_rescore_20261011/cards/<repo>/README.draft.md,
+next to the downloaded README.current.md). NOTHING HAS BEEN UPLOADED to Hugging
+Face and nothing was pushed. Zoo notes in spacr/model_zoo.py carry a dated
+re-score line per row; the metrics dicts are untouched.
+
+Plaque common subset unseen by v1 to v4 (n = 114), F1 at IoU 0.5: plaque_v1 0.402; plaque_v2 0.360; plaque_v3 0.548; plaque_v4 0.534.
+Without the v3-seeded Gel Doc truth (n = 81) no model differs from v4. The
+263-field set seen counts are v1 54, v2 178, v3 137, v4 0; GRA8 Plate1 (hold-out
+of v3) is the same physical plate as ReimagedPlate1 (training data of v4).
+
+2026-10-17: plaque v5 (toxoplasma_plaque_v5, round 7, cpsam_v2 on the curated 2026-10-15 set) trained to 100 epochs; the final epoch ships by the maintainer's rule (epoch 40 led validation F1 only).
+2026-10-17: 153 test fields, object F1 v5 0.816, v4 0.725, v3 0.741, stock 0.227; 81 fields unseen by v3/v4: 0.803, 0.661, 0.684, 0.451. Card, binding and zoo entry added.
+2026-10-17: maintainer made v5 the default (v3 recommended for Gel Doc wells, v4 selectable); 9-locale reviewed captions updated.
+2026-10-17: REMAINING: HF upload of einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7 (main), then push; v4's HF card pages still say default; web models.json needs regenerating.
+2026-10-19: verified on HF: cpsam-r7@e29ee85 weights/cpsam_plaque_r7 sha256 9243917b...8a1, matching the zoo row and the local checkpoint; v4's HF card (cpsam-r6@94e9989) already says v5 is the default.
+2026-10-19: web models.json regenerated with tools.web_mask_generator.provision from public Hub metadata (18/18 LFS checksums match; v4 now pinned at 94e9989, sources rebound).
+2026-10-19: browser ONNX toxoplasma_plaque_v5-a03c569178f1.onnx exported (torch vs onnxruntime check passed) and uploaded with browser-manifest.json to dataset einarolafsson/models web-onnx/ (commit 52aa66e6). Nothing remains for 438.

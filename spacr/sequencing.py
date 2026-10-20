@@ -42,11 +42,11 @@ and reference orientation, then run the full mapping and pass the resulting
 ``count_data``.  :func:`barecodes_reverse_complement` can make an
 opposite-orientation copy of a reference CSV.
 
-There are three easy ways to obtain plausible but incomplete output.  The
+Three behaviours can produce plausible but incomplete output.  The
 anchor match is exact and a wrong regex silently rejects reads; reference
 sequences are compared in their stored orientation; and a sequence within
 ``barcode_mismatches`` of two references remains unassigned instead of being
-guessed.  Finally, read-level HDF5 output can be much larger than the count
+guessed.  Separately, read-level HDF5 output can be much larger than the count
 tables, and high compression may spend more time saving than decoding, so
 disable ``save_h5`` unless those individual annotations are needed.
 """
@@ -59,6 +59,7 @@ from multiprocessing import cpu_count, Queue, Process
 from .resource_log import _parallel_pool as Pool
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 import numpy as np
 from . import schema
 from .runctx import run_context
@@ -240,11 +241,9 @@ def save_unique_combinations_to_csv(unique_combinations, csv_file):
     """Append per-barcode-combination counts to a CSV, summing duplicates.
 
     The columns to group by are the frame's own, every column except the
-    count. They used to be the three this module decoded, named here as a
-    literal, which is one of the two places a run had to hold exactly three
-    barcodes. Reading them off the frame is not a loosening: the frame comes
-    from the groupby that produced it, so its columns ARE the combination
-    being counted, whether that is one barcode or six.
+    count, so any number of barcodes is supported. The frame comes from the
+    groupby that produced it, so its columns are the combination being
+    counted, whether that is one barcode or six.
 
     :param unique_combinations: DataFrame holding one column per barcode and
         a numeric ``count`` column.
@@ -275,12 +274,10 @@ def save_qc_df_to_csv(qc_df, qc_csv_file):
 
     Both frames are put on a positional index before they are added. The
     incoming row is labelled ``NaN_Counts`` and is written with
-    ``index=False``, so the copy read back from disk is labelled ``0``:
-    ``DataFrame.add`` aligned those two labels to nothing, took the union,
-    and the file gained a ROW per chunk instead of accumulating. A run of
-    five chunks reported five sets of totals and no total; the QC column a
-    reader would check for dropped reads was one chunk's worth, whichever
-    landed last.
+    ``index=False``, so the copy read back from disk is labelled ``0``;
+    without the positional index ``DataFrame.add`` would not align the two
+    labels and the file would gain one row per chunk instead of one summed
+    row of totals.
 
     :param qc_df: numeric QC metrics (e.g. missing counts, total reads).
     :param qc_csv_file: destination CSV path.
@@ -369,11 +366,10 @@ def process_chunk(chunk_data):
     window with the named-group ``regex``, and maps every barcode it holds to
     a name through that barcode's own reference table.
 
-    THE CHUNK ARRIVES IN ONE OF TWO SHAPES. A tuple is the historical one and
-    decodes the three barcodes this module has always decoded, a plate
-    column, a guide and a plate row, from three reference CSV paths. A
-    mapping carries a barcode set instead and decodes however many barcodes
-    that set holds, one or ten, writing a sequence column and a name column
+    The chunk has one of two shapes. A tuple is the original form and
+    decodes three barcodes, a plate column, a guide and a plate row, from
+    three reference CSV paths. A mapping carries a barcode set instead and
+    decodes however many barcodes that set holds, writing a sequence column and a name column
     for each of them.
 
     The regex must name a group for every barcode being decoded, and the run
@@ -909,9 +905,8 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     :param fill_na: fill unmapped IDs with raw barcode sequences.
     :param barcode_set: the barcodes to decode, as a
         :class:`spacr.settings.BarcodeSet` of any size. None decodes the
-        three barcodes spaCR shipped from the three reference CSVs above,
-        which is what every run did before a set could be given; a set is
-        used instead of them.
+        three barcodes spaCR shipped from the three reference CSVs above;
+        a set is used instead of them.
     :returns: None.
     """
     from .utils import count_reads_in_fastq, print_progress
@@ -1038,9 +1033,8 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     :param fill_na: fill unmapped IDs with raw barcode sequences.
     :param barcode_set: the barcodes to decode, as a
         :class:`spacr.settings.BarcodeSet` of any size. None decodes the
-        three barcodes spaCR shipped from the three reference CSVs above,
-        which is what every run did before a set could be given; a set is
-        used instead of them.
+        three barcodes spaCR shipped from the three reference CSVs above;
+        a set is used instead of them.
     :returns: None.
     """
     from .utils import count_reads_in_fastq, print_progress
@@ -1426,42 +1420,34 @@ def graph_sequencing_stats(settings):
         ``log_x`` and ``log_y``.
     :returns: the fraction threshold closest to the target unique count.
 
-    ``calibrate_fraction_threshold`` IS DELIBERATELY NOT READ HERE, and the
-    reason is structural rather than a division of labour.
+    ``calibrate_fraction_threshold`` is not read by this function.
 
-    THE TWO ARE DIFFERENT QUESTIONS. ``target_unique_count`` asks how many
-    gRNAs a well should end up with and answers it from the counts; the
-    calibration asks which cut-off makes imaging and sequencing agree and
-    answers it from the control wells. Both numbers are worth having and the
-    run reports both -- so "both" is the right answer about REPORTING. It is
-    the wrong answer about the SWITCH, for three checkable reasons.
+    The two settings answer different questions. ``target_unique_count`` sets
+    how many gRNAs a well should end up with and is answered from the counts;
+    the calibration finds the cut-off at which imaging and sequencing agree
+    and is answered from the control wells. The run reports both numbers, but
+    the switch is read only in ``ml._perform_regression``, for three reasons.
 
-    ONE: THE INPUTS ARE NOT HERE. The calibration needs the imaging side -- a
-    per-cell classifier score, the well each cell is in, and the plate design
-    naming the pure positive- and negative-control blocks. None of those is
-    in this function's contract, which is the count tables and nothing else.
-    Reading the switch here would either demand keys this function has never
-    documented, or quietly fall back to the counts answer whenever they are
-    absent -- a switch that appears honoured while nothing happened, which is
-    the failure the calibration wiring was already once filed for.
+    First, the calibration needs imaging inputs -- a per-cell classifier
+    score, the well each cell is in, and the plate design naming the pure
+    positive- and negative-control blocks. This function receives only the
+    count tables, so reading the switch here would require undocumented keys
+    or a silent fallback to the counts-based answer when they are absent.
 
-    TWO: IT WOULD COLLAPSE THE COMPARISON THE RUN EXISTS TO SHOW. In
-    ``ml._perform_regression`` the calibration runs FIRST. When it succeeds
-    ``fraction_threshold`` is no longer ``None``, so this function is never
-    asked for a threshold at all -- it is asked to DRAW, through
-    ``ml._draw_the_threshold_sweep``, whose whole job is to print the
-    calibrated number beside this sweep's own independent pick. A sweep that
-    also read the switch would hand back the calibrated number, and the run
-    would print it twice as though two methods had agreed.
+    Second, in ``ml._perform_regression`` the calibration runs first. When it
+    succeeds ``fraction_threshold`` is no longer ``None``, so this function is
+    not asked for a threshold; the sweep is only drawn, through
+    ``ml._draw_the_threshold_sweep``, which prints the calibrated number
+    beside this sweep's independent pick. If the sweep also read the switch,
+    it would return the calibrated number and both printed values would be
+    the same.
 
-    THREE: ONE READER, ONE WRITER. The switch is read exactly once, where the
-    score table is already loaded and the sweep can actually be run. A second
-    reader in a module that cannot run it could only disagree with the first.
+    Third, the switch is read in one place, where the score table is loaded
+    and the calibration can run; a second reader could disagree with it.
 
-    What this function DOES owe the reader is the source of the number it
-    returns, which it now prints: a screen that asked for the calibration and
-    could not have it falls through to this threshold, and a bare number gives
-    no way to tell which of the two questions was answered.
+    This function prints that its returned threshold comes from
+    ``target_unique_count``, because a screen that asked for the calibration
+    and could not have it falls back to this threshold.
     """
     from .utils import correct_metadata_column_names, correct_metadata
 
@@ -1552,7 +1538,7 @@ def graph_sequencing_stats(settings):
         fig_file_path = save_figure(fig, fig_file_path,
                                     bbox_inches='tight')
         print(f"Saved {fig_file_path}")
-        plt.show()
+        _show_if_interactive()
 
         return closest_threshold['fraction_threshold']
 

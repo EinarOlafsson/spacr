@@ -1,4 +1,4 @@
-"""Process-wide linked selection and filter, so the views stop being islands.
+"""Process-wide selection and filter shared by every linked view.
 
 :mod:`spacr.selection` holds the logic and knows nothing about Qt. This module
 is the thin part that makes it *shared*: one object per process that every open
@@ -12,8 +12,7 @@ The views are constructed independently by ``AppScreen`` as the user opens
 tabs; none of them owns another, and there is no common parent below the main
 window to hang a shared model off. A process-wide accessor is the same shape
 :func:`spacr.qt.bridge.registry` already uses for run state, for the same
-reason, and it means a view added later joins the conversation by importing one
-function.
+reason, and a view added later subscribes by importing one function.
 
 The subscription rule
 ---------------------
@@ -25,7 +24,7 @@ destroyed page alive as a receiver — the exact leak
 connect bound methods and drop them on close.
 
 :class:`LinkedView` is that rule written down once. A view joins with three
-lines rather than re-deriving the echo-suppression and disconnect dance::
+lines rather than re-implementing echo suppression and disconnection::
 
     class UmapView(LinkedView, QWidget):          # 1. mix it in, FIRST
         def __init__(self, parent=None):
@@ -52,7 +51,7 @@ wrong" — that is a jump to another view, not a change of shared state, so it
 travels as a one-shot :class:`~spacr.selection.ObjectRequest` through
 :func:`open_objects` instead.
 
-The point of routing it is that neither end imports the other. A scatter plot
+Routed this way, neither end imports the other. A scatter plot
 that wants a crop shown, and a confusion matrix that wants a cell's errors
 shown, both call :func:`open_objects`; the Annotate screen calls
 :func:`register_object_opener` once. Neither plot has to know Annotate exists,
@@ -147,8 +146,8 @@ class LinkedSelection(QObject):
         """The active filter. Mutate through :meth:`set_filter`, not in place.
 
         Returned rather than copied because a copy per read would be wasteful
-        on a hot path, but mutating it directly will not emit — which is the
-        one way to get views showing different populations.
+        on a hot path. Mutating it directly emits no signal, so the linked
+        views would then show different populations.
         """
         return self._filter
 
@@ -170,9 +169,9 @@ class LinkedSelection(QObject):
     def clear_filter(self) -> None:
         """Drop the shared filter, showing every row again.
 
-        BROADCAST, like any other filter change: every linked view is showing
-        a subset because of this filter, so clearing it silently would leave
-        them all filtered by something no longer there.
+        Emits ``filter_changed`` like any other filter change: every linked
+        view is showing a subset because of this filter, and without the
+        signal they would stay filtered by a filter that no longer exists.
         """
         self.set_filter(DataFilter())
 
@@ -220,9 +219,9 @@ class LinkedSelection(QObject):
     def visible(self, frame: pd.DataFrame) -> pd.DataFrame:
         """``frame`` narrowed by the active filter.
 
-        The one call a view needs to honour the filter. Selection is deliberately
-        NOT applied — a selection highlights, it does not hide, and a view that
-        dropped unselected rows would make the lasso destructive.
+        The one call a view needs to honour the filter. The selection is not
+        applied: a selection highlights rows and does not hide them, so a lasso
+        never removes rows from a view.
 
         :param frame: the rows to narrow; the active filter's ``apply`` is
             called on it.
@@ -233,7 +232,7 @@ class LinkedSelection(QObject):
                                fn: ObjectOpener) -> Optional[ObjectOpener]:
         """Offer to open objects of ``kind``, and return whoever had it before.
 
-        Registering a kind that is already taken REPLACES it, because that is
+        Registering a kind that is already taken replaces it, because that is
         what re-opening a screen looks like: the second Annotate is the live
         one and the first is on its way out. The displaced opener is returned
         rather than dropped so a caller that wants to chain or restore it can.
@@ -335,7 +334,7 @@ class LinkedSelection(QObject):
         data is — in a worker, off the event loop — and routed later on the
         GUI thread, without that hop having to re-list every argument.
 
-        The request is NOT published as the shared selection. Opening a subset
+        The request is not published as the shared selection. Opening a subset
         somewhere and highlighting it everywhere are separate acts, and doing
         both here would wipe the lasso the user opened it from. A receiver
         that wants both publishes :meth:`~spacr.selection.ObjectRequest.as_selection`.
@@ -371,7 +370,7 @@ class LinkedView:
     win over anything Qt happens to name the same.
 
     The three lines of the contract are in the module docstring. What the
-    mixin buys over hand-wiring, beyond the typing:
+    mixin provides over hand-wiring, beyond the typing:
 
     * **Echo suppression.** :meth:`publish_selection` stamps the view's own
       name, and the subscriber drops selections carrying it. Without that,
@@ -558,7 +557,7 @@ def register_object_opener(kind: str, fn: ObjectOpener) -> Optional[ObjectOpener
         unregister_object_opener("annotate", self.open_object_request)
 
     where ``open_object_request(request: ObjectRequest) -> Any`` is the one
-    method it has to grow. Everything the caller wanted to say is on the
+    method it has to implement. Everything the caller wanted to say is on the
     request: ``request.keys`` (an Index of
     :data:`~spacr.selection.OBJECT_KEY_COLUMNS` keys, in the caller's order,
     de-duplicated), ``request.reason`` (put it in the header),
@@ -640,8 +639,8 @@ def open_objects(keys: Any, *, reason: str, kind: str = DEFAULT_OPEN_KIND,
     :raises TypeError: ``keys`` is not something that names objects.
 
     An empty ``keys`` is not an error: a confusion-matrix cell with no errors
-    in it is a real answer, and the destination showing "0 objects · <reason>"
-    beats an exception every caller has to guard.
+    in it is a valid request, and the destination shows "0 objects · <reason>"
+    instead of every caller having to guard against an exception.
     """
     return linked_selection().open_objects(
         keys, reason=reason, kind=kind, source=source, timelapse=timelapse,

@@ -170,7 +170,9 @@
       "source_sha256": "f222dfd579604639ea1be03958180542182f5d8d6067ae15c7456f53c881b158",
       "context": "Spectral unmixing comes first. With ``unmix`` on, a bleed-through matrix is estimated from the single-stain control microplate sample positions ``unmix_controls`` names and every raw microscope field of view is unmixed across all its image data channels before illumination correction, the PSF and the chain; the matrix joins the same record. Measure estimates its own over the measured image data channels and unmixes each microscope field of view before its preprocessing hooks, recording the matrix in the saved processing-session settings and ``measurements/bleed_through.json``.",
       "translation": "LA SÉPARATION SPECTRALE PASSE EN PREMIER. Lorsque ``unmix`` est activé, une matrice de contamination entre canaux est estimée à partir des puits témoins à marquage unique désignés par ``unmix_controls``, puis chaque champ brut est séparé sur tous ses canaux avant la correction d'illumination, la PSF et la chaîne ; la matrice rejoint le même enregistrement. Mesure estime sa propre matrice sur les canaux mesurés et sépare chaque champ avant ses étapes de prétraitement, en enregistrant la matrice dans les réglages d'exécution sauvegardés et dans ``measurements/bleed_through.json``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.psf_pipeline.processing_requested#2",

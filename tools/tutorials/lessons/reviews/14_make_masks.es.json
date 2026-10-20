@@ -1,53 +1,68 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "f7d8a4854392dcb98935540a41defeba405d63c6fe0741dea0b09a40852884ad",
+  "english_sha256": "2fad722d12e28d43e02b94640f1db29f375d2566b6f2971ccfc0e4d2b5e9b663",
   "review": {
-    "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior accepted captions retained outside two appended clauses and two new Wand scenes; Codex authored and technically reviewed additions.",
-    "date": "2026-10-06",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Single Wand button, default addition, Ctrl removal, tolerance/pixel limit, undoing practice edits, and Clear confirmation/placement. Current capture, audio and publication remain required.",
+    "scope": "Scene 1 revised: the button is Clear all objects and it removes every object in the current image; the other 60 scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      1
+    ],
+    "previous_english_sha256": "f7d8a4854392dcb98935540a41defeba405d63c6fe0741dea0b09a40852884ad",
+    "previous_review_sha256": "c619d14faaaf26f67e9f507dd438e6ca4f053f6ce676d0e5c256746506306370",
     "previous_review": {
       "kind": "AI technical review (Codex), no native-speaker signoff",
-      "translator": "Prior translations retained exactly outside the changed tool clause, objective and added merge scene; Codex authored and technically reviewed the changes.",
+      "translator": "Prior accepted captions retained outside two appended clauses and two new Wand scenes; Codex authored and technically reviewed additions.",
       "date": "2026-10-06",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false,
-      "scope": "Left divides, right merges, first crossed identity, unchanged background, Undo and saved-group persistence. Native recording/audio/publication remain required.",
+      "scope": "Single Wand button, default addition, Ctrl removal, tolerance/pixel limit, undoing practice edits, and Clear confirmation/placement. Current capture, audio and publication remain required.",
       "previous_review": {
         "kind": "AI technical review (Codex), no native-speaker signoff",
-        "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
-        "date": "2026-10-05",
+        "translator": "Prior translations retained exactly outside the changed tool clause, objective and added merge scene; Codex authored and technically reviewed the changes.",
+        "date": "2026-10-06",
         "independent_peer_review": false,
         "native_speaker_signoff": false,
         "listening_review": false,
-        "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
+        "scope": "Left divides, right merges, first crossed identity, unchanged background, Undo and saved-group persistence. Native recording/audio/publication remain required.",
         "previous_review": {
           "kind": "AI technical review (Codex), no native-speaker signoff",
-          "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+          "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
           "date": "2026-10-05",
           "independent_peer_review": false,
           "native_speaker_signoff": false,
           "listening_review": false,
-          "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+          "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
           "previous_review": {
-            "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-            "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-            "date": "2026-09-30",
+            "kind": "AI technical review (Codex), no native-speaker signoff",
+            "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+            "date": "2026-10-05",
             "independent_peer_review": false,
             "native_speaker_signoff": false,
-            "listening_review": false
+            "listening_review": false,
+            "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+            "previous_review": {
+              "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+              "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+              "date": "2026-09-30",
+              "independent_peer_review": false,
+              "native_speaker_signoff": false,
+              "listening_review": false
+            },
+            "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
           },
-          "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+          "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
         },
-        "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
+        "previous_english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4"
       },
-      "previous_english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4"
-    },
-    "previous_english_sha256": "3eb02f7d2684faf2cd1a880b189d41a0f5737aa4f268230f8fc93b7e7148f3a5"
+      "previous_english_sha256": "3eb02f7d2684faf2cd1a880b189d41a0f5737aa4f268230f8fc93b7e7148f3a5"
+    }
   },
   "language": "es",
   "title": "Make Masks: editar etiquetas y preparar imágenes de entrenamiento",
@@ -61,7 +76,7 @@
   ],
   "prerequisite": "Prepara una carpeta de imágenes bidimensionales con TIFF de etiquetas de instancia correspondientes en una subcarpeta masks. Cada máscara usa el nombre base del archivo de imagen. Trabaja sobre una copia cuando practiques ediciones y recortes. El ejemplo usa imágenes de ER y máscaras de células del proyecto de microscopía descargable de Measure.",
   "scenes": [
-    "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear masks, justo a la izquierda de Discard, pide confirmación antes de eliminar todas las máscaras de la imagen actual.",
+    "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado. Clear all objects, justo a la izquierda de Discard, pide confirmación antes de eliminar todos los objetos de la imagen actual.",
     "Load test data abre diez imágenes de ejemplo de Toxoplasma. Su flecha también ofrece una muestra de cada conjunto de entrenamiento con el que aprendió un modelo publicado, con sus máscaras, para que veas cómo son unos buenos pares de entrenamiento.",
     "Haz clic en Open folder y selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados.",
     "El editor carga la imagen y su máscara correspondiente desde la subcarpeta masks. Las etiquetas de colores identifican objetos individuales. Comprueba que los contornos siguen los bordes de la imagen. Si falta una máscara asociada, empieza con una máscara vacía y dibuja los objetos que necesites.",

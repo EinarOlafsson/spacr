@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 import textwrap
@@ -402,10 +403,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert "spacr/qt/gui_scale.py" in shipped
     assert "spacr/qt/widgets/preview_scale.py" in shipped
     added_since_608 = {
-        'spacr/_starplast.py', 'spacr/qt/cpu_modes.py', 'spacr/qt/detect_chain.py',
+        'spacr/_parascape.py', 'spacr/qt/cpu_modes.py', 'spacr/qt/detect_chain.py',
         'spacr/qt/organelle_modes.py', 'spacr/qt/organisms.py',
         'spacr/qt/screens/organism_screen.py', 'spacr/qt/secondary_masks.py',
-        'spacr/qt/starplast.py', 'spacr/qt/widgets/image_ruler.py',
+        'spacr/qt/parascape.py', 'spacr/qt/widgets/image_ruler.py',
         'spacr/qt/widgets/organism_diagram.py', 'spacr/qt/widgets/primary_mask_selector.py',
         'spacr/qt/widgets/sample_project.py', 'spacr/qt/widgets/workflow_diagram.py',
         'spacr/qt/widgets/zoom_view.py',
@@ -446,9 +447,31 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         'spacr/qt/widgets/calibration_preview.py',
         'spacr/qt/mask_thumbnail_quality.py',
         'spacr/qt/widgets/collapse_arrow.py',
+        # 662 -> 664 on 2026-10-13, +2/-0: the model cards (e84e5a9a1).
+        # spacr/model_cards.py builds a card per model and
+        # spacr/qt/widgets/model_card_viewer.py shows it; both are installed
+        # Python and belong in the denominator. The tools/ scripts added the
+        # same day (build_glyph_fonts, build_readme_images, build_score_cards,
+        # build_splash_mosaic, build_plaque_all_queue) are not under spacr/
+        # and never entered it.
+        'spacr/model_cards.py',
+        'spacr/qt/widgets/model_card_viewer.py',
     }
     assert added_since_608 <= shipped
-    assert len(shipped) == 608 + len(added_since_608) == 664
+    # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
+    # lessons, and the still-frame renderer it used,
+    # spacr/qt/tutorial/engine.py and spacr/qt/tutorial/scripts.py, left the
+    # package (their baseline entries retired with --retire-module).
+    # 664 -> 662 on 2026-10-15, +0/-2: the first-run setup no longer
+    # offers AI providers or GitHub sign-in, so the provider marks and the
+    # install-and-sign-in panel it drew them with left the package.
+    retired_since_608 = {'spacr/qt/tutorial/engine.py',
+                         'spacr/qt/tutorial/scripts.py',
+                         'spacr/qt/widgets/cli_setup_panel.py',
+                         'spacr/qt/widgets/provider_marks.py'}
+    assert not retired_since_608 & shipped
+    assert (len(shipped) == 608 + len(added_since_608)
+            - len(retired_since_608) == 662)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -685,8 +708,16 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     data_dir = tmp_path / "coverage-data"
     written: dict[str, Path] = {}
 
-    def fake_run(command, *, env, check):
+    recoveries: list[list[str]] = []
+
+    def fake_run(command, *, env, check, timeout=None):
         basename = Path(env["COVERAGE_FILE"])
+        if coverage_runner.LEDGER_ENV not in env:
+            recoveries.append(list(command))
+            data = CoverageData(basename=str(basename))
+            data.add_lines({"spacr/example.py": {2}})
+            data.write()
+            return subprocess.CompletedProcess(command, 0)
         readable = basename.with_name(f"{basename.name}.readable")
         data = CoverageData(basename=str(readable))
         data.add_lines({"spacr/example.py": {1}})
@@ -729,6 +760,73 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     assert record["batches"][0]["discarded_data_files"] == [
         written["incomplete"].name
     ]
+    # No worker was lost, yet a child's lines are gone and nothing says which
+    # test started it, so every file of the batch is re-run on its own and
+    # the gate sees a recovered loss rather than an unexplained discard.
+    batch = record["batches"][0]
+    assert batch["lost_files"] == ["tests/test_one.py"]
+    assert written["incomplete"].name in batch["lost"][0]["error"]
+    assert [outcome["file"] for outcome in batch["recovered_files"]] == [
+        "tests/test_one.py"
+    ]
+    assert batch["unrecovered_files"] == []
+    assert len(recoveries) == 1 and "tests/test_one.py" in recoveries[0]
+
+
+def test_sigterm_during_the_exit_save_leaves_a_final_named_unreadable_file(
+    tmp_path,
+):
+    """The shell CI discarded (38138189866, 38151063008), made on purpose.
+
+    coverage's ``sigterm = True`` handler saves again when SIGTERM lands
+    inside the exit-time save.  The inner save renames the file to its final
+    ``.H<hash>h`` name and the process dies before the outer save writes the
+    schema row, so the file has the final name and no ``coverage_schema``
+    row: "isn't a coverage data file: " with an empty reason.
+    """
+    pytest.importorskip("coverage")
+    coverage_runner = _load_coverage_runner()
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (tmp_path / "rc").write_text(
+        "[run]\nparallel = True\nsigterm = True\n", encoding="utf-8",
+    )
+    (tmp_path / "child.py").write_text(textwrap.dedent(
+        """
+        import os
+        import signal
+        import coverage.sqlitedb as sqlitedb
+
+        executescript = sqlitedb.SqliteDb.executescript
+
+        def schema_then_sigterm(self, script):
+            executescript(self, script)
+            if "coverage_schema" in script and not os.environ.get("ONCE"):
+                os.environ["ONCE"] = "1"
+                os.kill(os.getpid(), signal.SIGTERM)
+
+        sqlitedb.SqliteDb.executescript = schema_then_sigterm
+        total = sum(range(10))
+        """
+    ), encoding="utf-8")
+    environment = os.environ.copy()
+    environment["COVERAGE_FILE"] = str(data_dir / ".coverage")
+    for name in ("COVERAGE_PROCESS_START", "COVERAGE_PROCESS_CONFIG"):
+        environment.pop(name, None)
+    finished = subprocess.run(
+        [sys.executable, "-m", "coverage", "run", "--rcfile",
+         str(tmp_path / "rc"), str(tmp_path / "child.py")],
+        cwd=tmp_path, env=environment, capture_output=True, timeout=120,
+    )
+
+    assert finished.returncode != 0
+    shells = sorted(data_dir.glob(".coverage.*"))
+    assert len(shells) == 1
+    assert shells[0].name.endswith("h") and ".H" in shells[0].name
+    assert coverage_runner._unreadable(shells[0]) is not None
+    assert coverage_runner._unreadable(shells[0]).endswith(
+        "isn't a coverage data file: "
+    )
 
 
 def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
@@ -779,7 +877,9 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 652 -> 664 on 2026-10-02 (item 43): the twelve modules named in the
     # denominator test, the same +12 as `shipped`; the gate's own inventory
     # returns 664. Moved with the workflow in one commit.
-    assert "--expected-file-count 664" in combine_script
+    # 664 -> 662 on 2026-10-15: the setup screen's provider marks and
+    # install-and-sign-in panel left the package, the same -2 as `shipped`.
+    assert "--expected-file-count 662" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

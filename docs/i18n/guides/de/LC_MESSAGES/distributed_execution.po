@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-15 15:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -34,8 +34,9 @@ msgstr "Ein Ausführungsprofil beschreibt, *wie Rechenleistung erreicht wird*, n
 msgid "``SSH workstation``"
 msgstr "``SSH workstation``"
 
-msgid "Uploads the small resolved settings JSON over SSH, starts ``spacr-run`` in a durable background process and records its exit code."
-msgstr "Lädt die kleine JSON-Datei mit den aufgelösten Einstellungen per SSH hoch, startet ``spacr-run`` in einem dauerhaften Hintergrundprozess und verzeichnet dessen Exit-Code."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Uploads the resolved settings JSON over SSH, starts ``spacr-run`` as a detached background process (output redirected to a log, stdin closed) so it continues if the SSH connection drops, and records its exit code."
+msgstr "Lädt die JSON-Datei mit den aufgelösten Einstellungen per SSH hoch, startet ``spacr-run`` als abgekoppelten Hintergrundprozess (Ausgabe in ein Protokoll umgeleitet, stdin geschlossen), sodass er weiterläuft, wenn die SSH-Verbindung abbricht, und verzeichnet dessen Exit-Code."
 
 msgid "``Slurm cluster``"
 msgstr "``Slurm cluster``"
@@ -46,8 +47,9 @@ msgstr "Lädt die Einstellungen hoch, übermittelt ein ``sbatch``-Skript, fragt 
 msgid "``Cloud / custom command``"
 msgstr "``Cloud / custom command``"
 
-msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a safe job identifier and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
-msgstr "Führt konfigurierte Argumentvorlagen für Übermitteln/Status/Abbrechen aus. Dies unterstützt Cloud-CLIs und standortspezifische Scheduler, ohne Zugangsdaten von Anbietern in spaCR einzubetten. Der Befehl muss eine sichere Auftragskennung ausgeben, und der Statusbefehl sollte einen üblichen Zustand wie ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` oder ``CANCELLED`` ausgeben."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Runs configured submit/status/cancel argument templates. This supports cloud CLIs and site-specific schedulers without embedding vendor credentials in spaCR. The command must print a job identifier containing only letters, digits and ``_.:+-``, and the status command should print a conventional state such as ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` or ``CANCELLED``."
+msgstr "Führt konfigurierte Argumentvorlagen für Übermitteln/Status/Abbrechen aus. Dies unterstützt Cloud-CLIs und standortspezifische Scheduler, ohne Zugangsdaten von Anbietern in spaCR einzubetten. Der Befehl muss eine Auftragskennung ausgeben, die nur Buchstaben, Ziffern und ``_.:+-`` enthält, und der Statusbefehl sollte einen üblichen Zustand wie ``PENDING``, ``RUNNING``, ``SUCCEEDED``, ``FAILED`` oder ``CANCELLED`` ausgeben."
 
 msgid "Configure SSH keys, cloud authentication and VPN access outside spaCR. Test the same connection in a terminal before submitting a long run."
 msgstr "Konfigurieren Sie SSH-Schlüssel, Cloud-Authentifizierung und VPN-Zugang außerhalb von spaCR. Testen Sie dieselbe Verbindung in einem Terminal, bevor Sie eine lange Ausführung übermitteln."
@@ -63,6 +65,33 @@ msgstr "Wenn sich die Mount-Pfade unterscheiden, legen Sie eine *Local dataset r
 
 msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
 msgstr "Einstellungen können auf den Bildschirm Verteilte Aufträge gezogen, mit **Durchsuchen** ausgewählt oder in jedem gewöhnlichen Modul direkt mit **Remote übermitteln…** übergeben werden."
+
+msgid "Settings files from the GUI"
+msgstr "Einstellungsdateien aus der GUI"
+
+msgid "Every module screen with **Import settings…** has **Export settings…** next to it. It saves the values currently in the form, exactly what **Run** would use, to a CSV you choose. Nothing runs: the source folder is not listed or opened, so a form set up for a slow network share is saved at once. The dialog suggests ``<module>_settings.csv`` in the source folder."
+msgstr "Jeder Modulbildschirm mit **Einstellungen importieren…** hat daneben **Einstellungen exportieren…**. Es speichert die Werte, die gerade im Formular stehen, genau das, was **Ausführen** verwenden würde, in einer CSV Ihrer Wahl. Es wird nichts ausgeführt: Der Quellordner wird weder aufgelistet noch geöffnet, sodass ein Formular, das für eine langsame Netzfreigabe eingerichtet ist, sofort gespeichert wird. Der Dialog schlägt ``<module>_settings.csv`` im Quellordner vor."
+
+msgid "The file has the layout spaCR writes into ``<src>/settings/`` at the start of every run: a ``Key,Value`` header and one row per setting, with lists in Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset values. Paths are saved exactly as the form shows them. A ``.json`` copy with the same settings is written beside it. **Import settings…** reads the file back to the same form values, and the command line runs it unchanged::"
+msgstr "Die Datei hat das Layout, das spaCR zu Beginn jedes Laufs in ``<src>/settings/`` schreibt: eine Kopfzeile ``Key,Value`` und eine Zeile pro Einstellung, mit Listen in Python-Form (``[0, 1, 2]``), ``True``/``False`` und leeren Zellen für nicht gesetzte Werte. Pfade werden genau so gespeichert, wie das Formular sie zeigt. Daneben wird eine ``.json``-Kopie mit denselben Einstellungen geschrieben. **Einstellungen importieren…** liest die Datei zu denselben Formularwerten zurück, und die Befehlszeile führt sie unverändert aus::"
+
+msgid "From Python, ``spacr.cli.load_settings_file`` reads it and ``spacr.cli.write_settings_file`` writes one. When the cluster mounts the data under another path, change ``src`` with ``--set src=/cluster/projects/plate-A`` or use the dataset roots of an execution profile."
+msgstr "Aus Python liest ``spacr.cli.load_settings_file`` sie und ``spacr.cli.write_settings_file`` schreibt eine. Wenn der Cluster die Daten unter einem anderen Pfad einhängt, ändern Sie ``src`` mit ``--set src=/cluster/projects/plate-A`` oder verwenden Sie die Datensatz-Wurzeln eines Ausführungsprofils."
+
+msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
+msgstr "Nach **Remote übermitteln…** speichert **Einstellungs-CSV speichern…** auf dem Bildschirm Verteilte Aufträge den erhaltenen Schnappschuss als dieselbe Datei. Das Übermitteln selbst bleibt unverändert."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Model checkpoints on the execution target"
+msgstr "Modellprüfpunkte auf dem Ausführungsziel"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Exported settings keep the model path and any recorded zoo key, publisher version and SHA-256. Existing pinned files must match that checksum. Missing files resolve only to the exact recorded identity, or an exact zoo key/filename when unpinned; no fuzzy substitution is made. Models are cached below the spaCR home directory (normally ``~/.spacr/models``), unless ``SPACR_MODEL_CACHE`` selects another directory. Processes share a download lock and verify cached checkpoints before downloading. On an offline node set ``SPACR_MODEL_DOWNLOAD=off`` before ``spacr-run``: model metadata and weights are not downloaded. Existing local files and verified cached models remain usable; an uncached known model reports the checksum and cache path to copy. Unknown requests fail clearly. Custom paths do not gain a trusted catalogue identity from their filenames."
+msgstr "Exportierte Einstellungen behalten den Modellpfad sowie einen gegebenenfalls aufgezeichneten Zoo-Schlüssel, die Herausgeberversion und SHA-256 bei. Vorhandene Dateien mit aufgezeichneter Identität müssen dieser Prüfsumme entsprechen. Fehlende Dateien werden nur anhand der exakt aufgezeichneten Identität aufgelöst oder, wenn keine Identität aufgezeichnet ist, anhand eines exakten Zoo-Schlüssels beziehungsweise Dateinamens; es erfolgt keine unscharfe Ersetzung. Modelle werden unterhalb des spaCR-Basisverzeichnisses zwischengespeichert (normalerweise ``~/.spacr/models``), sofern ``SPACR_MODEL_CACHE`` kein anderes Verzeichnis festlegt. Prozesse teilen sich eine Downloadsperre und prüfen zwischengespeicherte Prüfpunkte vor dem Herunterladen. Setzen Sie auf einem Offline-Knoten vor ``spacr-run`` die Variable ``SPACR_MODEL_DOWNLOAD=off``: Modellmetadaten und Gewichte werden dann nicht heruntergeladen. Vorhandene lokale Dateien und verifizierte zwischengespeicherte Modelle bleiben verwendbar; für ein bekanntes, nicht zwischengespeichertes Modell werden die Prüfsumme und der Cache-Pfad zum Kopieren angegeben. Unbekannte Anforderungen werden klar abgelehnt. Benutzerdefinierte Pfade erhalten durch ihre Dateinamen keine vertrauenswürdige Katalogidentität."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Jobs and nodes that share one model cache download a missing model once. The first job holds a lock file in the cache and refreshes it while it downloads; the others wait, then reuse the verified file. A lock that a crashed node left behind is removed after ``SPACR_MODEL_LOCK_STALE_SECONDS`` without a refresh (600 by default). When ``SPACR_MODEL_DOWNLOAD=off`` stops a run, the error ends with a shell command that downloads the checkpoint to the cache path and checks its SHA-256. Run it on a machine with network access that sees the same folder, or run it elsewhere and copy the file to that path."
+msgstr "Aufträge und Knoten, die sich einen Modell-Cache teilen, laden ein fehlendes Modell nur einmal herunter. Der erste Auftrag hält eine Sperrdatei im Cache und erneuert sie während des Downloads; die anderen warten und verwenden dann die verifizierte Datei. Eine Sperre, die ein abgestürzter Knoten hinterlassen hat, wird nach ``SPACR_MODEL_LOCK_STALE_SECONDS`` ohne Erneuerung entfernt (standardmäßig 600). Wenn ``SPACR_MODEL_DOWNLOAD=off`` einen Lauf anhält, endet die Fehlermeldung mit einem Shell-Befehl, der den Checkpoint in den Cache-Pfad herunterlädt und seine SHA-256-Prüfsumme kontrolliert. Führen Sie ihn auf einem Rechner mit Netzwerkzugang aus, der denselben Ordner sieht, oder führen Sie ihn anderswo aus und kopieren Sie die Datei an diesen Pfad."
 
 msgid "Command-line workflow"
 msgstr "Workflow über die Befehlszeile"
@@ -219,6 +248,18 @@ msgstr "optionaler regulärer Ausdruck, der aus der Übermittlungsausgabe eine b
 
 msgid "recommended client polling interval, from 2 through 3600 seconds."
 msgstr "empfohlenes Abfrageintervall des Clients, von 2 bis 3600 Sekunden."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "non-secret SSH configuration overrides, such as user, port, identity-file path and jump host; passwords and OTPs are forbidden."
+msgstr "nicht geheime SSH-Konfigurationsüberschreibungen, etwa Benutzer, Port, Pfad zur Identitätsdatei und Sprunghost; Passwörter und Einmalcodes sind verboten."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "use a verified persistent SSH session with GUI keyboard-interactive prompts instead of the external OpenSSH command."
+msgstr "eine verifizierte, dauerhafte SSH-Sitzung mit grafischen Abfragen zur tastaturinteraktiven Authentifizierung statt des externen OpenSSH-Befehls verwenden."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "remember the login password, never one-time codes or push answers, in the operating-system keychain; off by default."
+msgstr "das Anmeldepasswort, niemals Einmalcodes oder Push-Antworten, im Schlüsselbund des Betriebssystems speichern; standardmäßig deaktiviert."
 
 msgid "Construct and validate a profile from JSON-compatible data."
 msgstr "Erstellt und validiert ein Profil aus JSON-kompatiblen Daten."

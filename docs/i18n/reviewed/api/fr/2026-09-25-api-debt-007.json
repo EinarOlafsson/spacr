@@ -176,7 +176,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Qt's own answer is a style hint, ``SH_ToolTip_WakeUpDelay``, which most styles set to about 700 ms and which nothing in spaCR was choosing. Tooltips therefore arrived while the pointer was still travelling, and left the instant it moved off the widget -- too fast to read, and impossible to reach if the text ran long.",
       "source_sha256": "fd35fd0958c30a1060b1956ca0bdb828edf722ea42804a7e4c30d1db76bb1e84",
-      "translation": "La réponse propre de Qt est une indication de style, ``SH_ToolTip_WakeUpDelay``, que la plupart des styles fixent à environ 700 ms et que rien dans spaCR ne choisissait. Les infobulles arrivaient donc pendant que le pointeur se déplaçait encore, et partaient dès qu’il quittait le widget -- trop vite pour être lues, et impossibles à atteindre si le texte était long."
+      "translation": "La réponse propre de Qt est une indication de style, ``SH_ToolTip_WakeUpDelay``, que la plupart des styles fixent à environ 700 ms et que rien dans spaCR ne choisissait. Les infobulles arrivaient donc pendant que le pointeur se déplaçait encore, et partaient dès qu’il quittait le widget -- trop vite pour être lues, et impossibles à atteindre si le texte était long.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is sent again after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
@@ -184,7 +186,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "A table, a header or a list answers from ``Qt::ToolTipRole`` inside its own ``event``, not from a ``toolTip()`` any filter can read. When nothing in the parent chain has a tooltip, the event is SENT AGAIN after the wait, with the filter standing aside, so those still appear -- and appear on the same two-second rule as everything else.",
       "source_sha256": "38a34a85d3d3beaefeaabfe003d3fa229831a51e83d66bc280edbd0549b6cd5d",
-      "translation": "Une table, un en-tête ou une liste répond depuis ``Qt::ToolTipRole`` à l’intérieur de son propre ``event``, et non depuis un ``toolTip()`` qu’un filtre pourrait lire. Lorsque rien dans la chaîne des parents n’a d’infobulle, l’événement est RENVOYÉ après l’attente, le filtre se tenant à l’écart, de sorte que ces infobulles apparaissent quand même -- et selon la même règle des deux secondes que tout le reste."
+      "translation": "Une table, un en-tête ou une liste répond depuis ``Qt::ToolTipRole`` à l’intérieur de son propre ``event``, et non depuis un ``toolTip()`` qu’un filtre pourrait lire. Lorsque rien dans la chaîne des parents n’a d’infobulle, l’événement est RENVOYÉ après l’attente, le filtre se tenant à l’écart, de sorte que ces infobulles apparaissent quand même -- et selon la même règle des deux secondes que tout le reste.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`tooltips_enabled` is the preference switch, on by default. Cleared, the ``ToolTip`` event is swallowed and no tooltip is shown anywhere.",
@@ -200,7 +204,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "This module installs ONE event filter on ``QApplication`` and takes the decision away from the style:",
       "source_sha256": "ce5122ac263cc0d8e6acaf67d011e0961af57200bba92ec7f22f6ed4fb626ebd",
-      "translation": "Ce module installe UN SEUL filtre d’événements sur ``QApplication`` et retire la décision au style :"
+      "translation": "Ce module installe UN SEUL filtre d’événements sur ``QApplication`` et retire la décision au style :",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a tooltip appears after :data:`SHOW_DELAY_MS` of hovering, not before;",
@@ -258,7 +264,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Qt PROPAGATES a tooltip event to the parent widget when the widget under the pointer has no tooltip of its own, which is how a card explains itself while the pointer is on the label written on it. The text is therefore resolved with :func:`tooltip_text_for`, up the parent chain, exactly as Qt would have.",
       "source_sha256": "a1b6fff96412015d46d9e7b16cbc02c56d2706325d23d8ee3649a546c5854cd5",
-      "translation": "Qt PROPAGE un événement d’infobulle au widget parent lorsque le widget sous le pointeur n’a pas d’infobulle propre, et c’est ainsi qu’une carte s’explique pendant que le pointeur est sur l’étiquette écrite dessus. Le texte est donc résolu avec :func:`tooltip_text_for`, en remontant la chaîne des parents, exactement comme Qt l’aurait fait."
+      "translation": "Qt PROPAGE un événement d’infobulle au widget parent lorsque le widget sous le pointeur n’a pas d’infobulle propre, et c’est ainsi qu’une carte s’explique pendant que le pointeur est sur l’étiquette écrite dessus. Le texte est donc résolu avec :func:`tooltip_text_for`, en remontant la chaîne des parents, exactement comme Qt l’aurait fait.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Install the application-wide tooltip filter. Idempotent.",
@@ -314,7 +322,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "This is not a convenience: it is the behaviour being preserved. Qt PROPAGATES a tooltip event up the parent chain, so a label with no tooltip of its own inside a card that has one shows the card's. A filter that read ``widget.toolTip()`` alone and then swallowed the event would break every one of those -- a card explains itself until the pointer lands on the text written on it, and then it stops.",
       "source_sha256": "524b3473132577b2a7fb015cfc6aa9682495d87e808c5a19e4c80fa072af391b",
-      "translation": "Ce n’est pas une commodité : c’est le comportement préservé. Qt PROPAGE un événement d’infobulle en remontant la chaîne des parents, de sorte qu’une étiquette sans infobulle propre à l’intérieur d’une carte qui en a une affiche celle de la carte. Un filtre qui lirait seulement ``widget.toolTip()`` puis absorberait l’événement casserait tous ces cas -- une carte s’explique jusqu’à ce que le pointeur arrive sur le texte écrit dessus, puis cesse."
+      "translation": "Ce n’est pas une commodité : c’est le comportement préservé. Qt PROPAGE un événement d’infobulle en remontant la chaîne des parents, de sorte qu’une étiquette sans infobulle propre à l’intérieur d’une carte qui en a une affiche celle de la carte. Un filtre qui lirait seulement ``widget.toolTip()`` puis absorberait l’événement casserait tous ces cas -- une carte s’explique jusqu’à ce que le pointeur arrive sur le texte écrit dessus, puis cesse.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the hovered widget, or ``None``; its ``toolTip()`` is read, then each parent's up to and including its window (at most 64 levels).",
@@ -370,7 +380,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "When the \"Verbose logging\" preference is on, spaCR's Python loggers are dialled up to DEBUG and the log files keep those records. The active ConsolePanel shows only the levels switched on for the console on the Logging tab of Preferences. That puts a detailed trail on disk, which is what you want when triaging a bug report.",
       "source_sha256": "8d0988c45c798e6fc097f1b476a6a9cf0961757d909b657667272f2ed90a3be9",
-      "translation": "Lorsque la préférence \"Verbose logging\" est activée, les loggers Python de spaCR sont réglés sur DEBUG et les fichiers journaux conservent ces enregistrements. Le ConsolePanel actif n’affiche que les niveaux activés pour la console dans l’onglet Logging des Préférences. Cela laisse une trace détaillée sur le disque, ce qu’il faut pour trier un rapport de bogue."
+      "translation": "Lorsque la préférence \"Verbose logging\" est activée, les loggers Python de spaCR sont réglés sur DEBUG et les fichiers journaux conservent ces enregistrements. Le ConsolePanel actif n’affiche que les niveaux activés pour la console dans l’onglet Logging des Préférences. Cela laisse une trace détaillée sur le disque, ce qu’il faut pour trier un rapport de bogue.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "numeric logging levels the console should show; anything outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are lowered to the lowest level kept.",
@@ -782,7 +794,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the change event; it goes to the base class first, and only an ``ApplicationPaletteChange`` is acted on.",
       "source_sha256": "aa54bb5e05554286344b2b03d7a939687a189ea51f745fcc1865259ba1bd8882",
-      "translation": "l’événement de changement ; il passe d’abord par la classe de base, et seul un ``ApplicationPaletteChange`` est pris en compte."
+      "translation": "l’événement de changement ; il passe d’abord par la classe de base, et seul un ``ApplicationPaletteChange`` est pris en compte.",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English docstring dropped this sentence (nightly field-composite work); kept as evidence, not loaded."
     },
     {
       "context": "the object the event is for — the parent (whose resize this widget follows) or the watched top-level window.",
@@ -798,7 +812,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the event; resize, window-state, hide, show, move and screen-change types are acted on, and every event is still passed on to the base-class filter.",
       "source_sha256": "6ff0a579fba4ae17006e0cef8935e93fe31b80c0a4dd2af180c6e519a363670a",
-      "translation": "l’événement ; les types redimensionnement, état de fenêtre, masquage, affichage, déplacement et changement d’écran sont pris en compte, et chaque événement est quand même transmis au filtre de la classe de base."
+      "translation": "l’événement ; les types redimensionnement, état de fenêtre, masquage, affichage, déplacement et changement d’écran sont pris en compte, et chaque événement est quand même transmis au filtre de la classe de base.",
+      "retired": true,
+      "retired_reason": "2026-10-10: 38563d379 rewrote this block (the filter now returns False instead of calling the base class); kept verbatim as evidence, not loaded. Replaced by 2026-10-10-ambient-event-filter.json."
     },
     {
       "context": "the focus event; it is ignored and focus is cleared.",
@@ -1100,7 +1116,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The louder of what is playing and the idle breath, so a quiet passage never takes the picture below what silence would have drawn. That is the rule that makes \"it idles beautifully in silence\" and \"it reacts to the music\" the same code path.",
       "source_sha256": "1b9ca8cabf17d189946645c05b5677dc8214f77ba99a494185bd769f2ec5ea05",
-      "translation": "Le plus fort entre ce qui est en train de jouer et la respiration au repos, de sorte qu’un passage calme ne fait jamais descendre l’image sous ce qu’aurait dessiné le silence. C’est la règle qui fait de « il tourne magnifiquement au repos dans le silence » et « il réagit à la musique » le même chemin de code."
+      "translation": "Le plus fort entre ce qui est en train de jouer et la respiration au repos, de sorte qu’un passage calme ne fait jamais descendre l’image sous ce qu’aurait dessiné le silence. C’est la règle qui fait de « il tourne magnifiquement au repos dans le silence » et « il réagit à la musique » le même chemin de code.",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Every grain as ``(x, y, brightness)`` in pixels.",
@@ -1744,7 +1763,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "mapping as saved with the workspace; its ``picture_settings``, ``widgets``, ``picture_mode`` and ``coefficient`` entries are each applied when present, and a non-dict applies nothing.",
       "source_sha256": "68792493ae194a7e1b15482a8401d2652fed9839e930b9047caffb4e98d8ef8e",
-      "translation": "mappage tel qu’enregistré avec l’espace de travail ; ses entrées ``picture_settings``, ``widgets``, ``picture_mode`` et ``coefficient`` sont chacune appliquées si elles sont présentes, et un objet qui n’est pas un dictionnaire n’applique rien."
+      "translation": "mappage tel qu’enregistré avec l’espace de travail ; ses entrées ``picture_settings``, ``widgets``, ``picture_mode`` et ``coefficient`` sont chacune appliquées si elles sont présentes, et un objet qui n’est pas un dictionnaire n’applique rien.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Montage comparison workspace protocol updated in c5e7b630762; new panel methods from b7df416dac1. Replacement exact-source review is2026-10-15-n180-graph-state.json; original source and translation retained as historical evidence."
     },
     {
       "context": "Cancel the active montage and queued selections without blocking.",
@@ -2146,7 +2168,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on screen, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
-      "translation": ":class:`FocusCollapse` La moitié automatique. Certains widgets sont des widgets de FOCUS (un aperçu en direct, le panneau des figures) : tant que l’un d’eux est affiché, les panneaux CIBLES se replient (console, System, les boutons, la colonne des réglages), et quand le dernier disparaît ils reviennent. Il ne contrarie jamais l’utilisateur : une cible que l’utilisateur déplie à la main est ÉPINGLÉE ouverte et laissée tranquille jusqu’à la fin de la VUE. Voir la classe pour ce qu’est une vue."
+      "translation": ":class:`FocusCollapse` La moitié automatique. Certains widgets sont des widgets de FOCUS (un aperçu en direct, le panneau des figures) : tant que l’un d’eux est affiché, les panneaux CIBLES se replient (console, System, les boutons, la colonne des réglages), et quand le dernier disparaît ils reviennent. Il ne contrarie jamais l’utilisateur : une cible que l’utilisateur déplie à la main est ÉPINGLÉE ouverte et laissée tranquille jusqu’à la fin de la VUE. Voir la classe pour ce qu’est une vue.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":func:`lock_folded_to_bottom` For a folded panel that is NOT in a splitter (a section in a scroll area, a figure tile in a column): keeps its heading at the bottom of whatever room its layout gives it, which is the \"auto lock to the bottom\" rule on its own. :class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card` Slice C's use of the three above inside the screens: a heading that folds a table, a figure, a side panel; the same heading in a splitter, so the section also trades room with its neighbours by dragging; and the same fold on a titled card. Folding never shows or builds a panel its owner keeps hidden.",
@@ -2740,7 +2764,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the editor type: ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` or ``\"choice\"``.",
       "source_sha256": "7d3411946e5ca1c3d77cd60742e0eef9fc22c88f2b2d818e9fdfbad71c1f7ace",
-      "translation": "le type d’éditeur : ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` ou ``\"choice\"``."
+      "translation": "le type d’éditeur : ``\"int\"``, ``\"float\"``, ``\"bool\"``, ``\"text\"`` ou ``\"choice\"``.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "UMAP source documentation corrected inc00a087e749. Replacement exact-source review is2026-10-15-umap-tier-prose.json; original source and translation retained as historical evidence."
     },
     {
       "context": "lower bound for a numeric editor (unused otherwise).",
@@ -3078,7 +3105,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The ``(elev, azim, roll)`` that make matplotlib draw this frame.",
       "source_sha256": "2c98212f7aa857adfd2c58116ae7bba41f0b7848d02070006f228444772028e7",
-      "translation": "Les ``(elev, azim, roll)`` qui font dessiner ce repère par matplotlib."
+      "translation": "Les ``(elev, azim, roll)`` qui font dessiner ce repère par matplotlib.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
@@ -3086,7 +3116,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``elev`` is kept inside ``[-90, 90]`` so the vertical never flips; the roll then carries whatever turn about the line of sight the frame has. Looking straight down (or up) the azimuth is free, so it is chosen to make the roll zero.",
       "source_sha256": "5cc82e3179c9c66dfe72bb34c1381de4f63ad9cc78a3034ff26fcefb2367d71d",
-      "translation": "``elev`` est maintenu dans ``[-90, 90]`` afin que la verticale ne se retourne jamais ; le roulis porte alors toute rotation du repère autour de la ligne de visée. En regardant droit vers le bas (ou vers le haut), l’azimut est libre ; il est donc choisi de façon à annuler le roulis."
+      "translation": "``elev`` est maintenu dans ``[-90, 90]`` afin que la verticale ne se retourne jamais ; le roulis porte alors toute rotation du repère autour de la ligne de visée. En regardant droit vers le bas (ou vers le haut), l’azimut est libre ; il est donc choisi de façon à annuler le roulis.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "Camera/layout source documentation corrected in8f0fc8f4655+9b9314e184d. Replacement exact-source review is2026-10-15-volume-column-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "the screen's right-pointing axis.",
@@ -3680,7 +3713,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHAT IS NEW HERE IS THE TIE. Two views of the same region are only worth putting side by side if they stay in register: a curator comparing a field with its enhanced self is looking for a difference between them, and a difference in where the two are pointing is the one difference that is not information. :meth:`ZoomableImageView.link_to` makes a group of views share one zoom and one scroll position, so zooming or panning any of them moves all of them.",
       "source_sha256": "e3759b16af110478c707466e391ce24156752daacb5274420796b039ba32a84c",
-      "translation": "CE QUI EST NOUVEAU ICI, C’EST LA LIAISON. Deux vues de la même région ne valent la peine d’être placées côte à côte que si elles restent alignées : un curateur qui compare un champ avec sa version améliorée cherche une différence entre les deux, et une différence dans l’endroit où les deux vues pointent est la seule différence qui n’est pas une information. :meth:`ZoomableImageView.link_to` fait partager à un groupe de vues un même zoom et une même position de défilement, de sorte que zoomer ou déplacer l’une d’elles les déplace toutes."
+      "translation": "CE QUI EST NOUVEAU ICI, C’EST LA LIAISON. Deux vues de la même région ne valent la peine d’être placées côte à côte que si elles restent alignées : un curateur qui compare un champ avec sa version améliorée cherche une différence entre les deux, et une différence dans l’endroit où les deux vues pointent est la seule différence qui n’est pas une information. :meth:`ZoomableImageView.link_to` fait partager à un groupe de vues un même zoom et une même position de défilement, de sorte que zoomer ou déplacer l’une d’elles les déplace toutes.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The tie is on the VIEW and not on the window, because what has to match is the transform and the two scroll bars -- the things a view owns. Views in a group must show images of the same size for the tie to mean anything; the compare window builds both of its pictures from one region, so they do.",
@@ -4184,7 +4219,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "WHY IT IS NOT VERBOSE LOGGING. Verbose logging only decides which log records are kept, so it has no account of memory to give. The function tracer that it once installed fired on every call and every return, and it cost twenty times the startup. An account taken through a tracer would describe the traced program rather than the real one, which is exactly the program nobody wants measured. So this samples instead: one psutil read a second, on a daemon thread that is never the GUI thread, on an otherwise unperturbed run. Three states rather than a checkbox, because the useful default is not \"off\" -- the most valuable resource data comes from runs nobody expected to fail.",
       "source_sha256": "715e7bba577cca74f4db01602cf13f13c38a93b6df50cd2e5cffa60314af4426",
-      "translation": "POURQUOI CE N’EST PAS LA JOURNALISATION VERBEUSE. La journalisation verbeuse décide seulement quels enregistrements de journal sont conservés ; elle n’a donc aucun bilan mémoire à fournir. Le traceur de fonctions qu’elle installait autrefois se déclenchait à chaque appel et à chaque retour, et multipliait par vingt le temps de démarrage. Un bilan établi à travers un traceur décrirait le programme tracé plutôt que le vrai, c’est-à-dire précisément le programme que personne ne veut mesurer. Ce module échantillonne donc à la place : une lecture psutil par seconde, sur un thread démon qui n’est jamais le thread de la GUI, pendant une exécution par ailleurs non perturbée. Trois états plutôt qu’une case à cocher, parce que la valeur par défaut utile n’est pas \"off\" -- les données de ressources les plus précieuses viennent d’exécutions dont personne ne prévoyait l’échec."
+      "translation": "POURQUOI CE N’EST PAS LA JOURNALISATION VERBEUSE. La journalisation verbeuse décide seulement quels enregistrements de journal sont conservés ; elle n’a donc aucun bilan mémoire à fournir. Le traceur de fonctions qu’elle installait autrefois se déclenchait à chaque appel et à chaque retour, et multipliait par vingt le temps de démarrage. Un bilan établi à travers un traceur décrirait le programme tracé plutôt que le vrai, c’est-à-dire précisément le programme que personne ne veut mesurer. Ce module échantillonne donc à la place : une lecture psutil par seconde, sur un thread démon qui n’est jamais le thread de la GUI, pendant une exécution par ailleurs non perturbée. Trois états plutôt qu’une case à cocher, parce que la valeur par défaut utile n’est pas \"off\" -- les données de ressources les plus précieuses viennent d’exécutions dont personne ne prévoyait l’échec.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "restrict the scan to these stems. Defaults to every ``.npy`` in ``src`` whose name does not start with a dot: a macOS ``._`` sidecar ends in ``.npy`` too and is not a field.",
@@ -4400,7 +4437,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``size outliers`` The fraction of objects whose equivalent diameter falls outside ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Median and MAD, not mean and standard deviation: five pieces of debris inflate a standard deviation until nothing is an outlier any more, which is the exact case this check exists to catch (``tests/test_seg_qc.py`` contrasts the two). *k* = 5 is deliberately loose — real size distributions are lognormal and heavier tailed than Gaussian, so 3 sigma flags a few percent of a perfectly good field. The flag fires when more than ``seg_qc_outlier_fraction`` (0.15) of objects are out there. Heavy tails, mixed populations and segmentation defects can all trigger it; the flag does not identify which is present. Border objects are excluded from every size statistic, exactly as ``diameter._region_diameters`` excludes them, because a truncated object's area is a lie.",
       "source_sha256": "d65e3ce83f5552156fa5b1a158de427c80d62edd762783e41d61282bde4123c5",
-      "translation": "``size outliers`` La fraction des objets dont le diamètre équivalent tombe en dehors de ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Médiane et MAD, pas moyenne et écart-type : cinq débris gonflent un écart-type jusqu’à ce que plus rien ne soit aberrant, ce qui est exactement le cas que ce contrôle existe pour détecter (``tests/test_seg_qc.py`` met les deux en contraste). *k* = 5 est volontairement large — les distributions de tailles réelles sont log-normales, à queues plus lourdes que la gaussienne, si bien que 3 sigma signalent quelques pour cent d’un champ parfaitement correct. Le signalement se déclenche lorsque plus de ``seg_qc_outlier_fraction`` (0.15) des objets sont dans ce cas. Des queues lourdes, des populations mixtes et des défauts de segmentation peuvent tous le déclencher ; le signalement n’indique pas lequel est en cause. Les objets en bordure sont exclus de toutes les statistiques de taille, exactement comme ``diameter._region_diameters`` les exclut, car la surface d’un objet tronqué est trompeuse."
+      "translation": "``size outliers`` La fraction des objets dont le diamètre équivalent tombe en dehors de ``median ± seg_qc_outlier_mad * 1.4826 * MAD``. Médiane et MAD, pas moyenne et écart-type : cinq débris gonflent un écart-type jusqu’à ce que plus rien ne soit aberrant, ce qui est exactement le cas que ce contrôle existe pour détecter (``tests/test_seg_qc.py`` met les deux en contraste). *k* = 5 est volontairement large — les distributions de tailles réelles sont log-normales, à queues plus lourdes que la gaussienne, si bien que 3 sigma signalent quelques pour cent d’un champ parfaitement correct. Le signalement se déclenche lorsque plus de ``seg_qc_outlier_fraction`` (0.15) des objets sont dans ce cas. Des queues lourdes, des populations mixtes et des défauts de segmentation peuvent tous le déclencher ; le signalement n’indique pas lequel est en cause. Les objets en bordure sont exclus de toutes les statistiques de taille, exactement comme ``diameter._region_diameters`` les exclut, car la surface d’un objet tronqué est trompeuse.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``FLAG_GUIDANCE`` / ``explain_flag(flag)`` Every flag in :data:`FLAGS` in plain language: what it means for the measurements, possible explanations, and what to inspect. Where uneven illumination is one possible cause, the entry says so and points at :mod:`spacr.illumination`, which estimates the lamp profile from the laboratory microplate's own microscope fields of view and divides it out. ``parse_field_name(name)`` / ``FieldAddress`` ``plate1_E07_3`` → laboratory microplate ``plate1``, microplate sample position ``E07``, row ``E``, column 7. Naming the laboratory microplate and the microplate sample positions is the difference between \"3 laboratory microplates failed\" and something a user can go and look at. ``diagnose(field_qcs)`` → ``[Finding]`` Per-laboratory microplate, per-flag findings that name the laboratory microplate and the microplate sample positions, plus the positional ones no single microscope field of view can see: a laboratory microplate whose object count or object size steps between one half of the rows (or columns) and the other. These patterns warrant checking illumination, experimental layout, treatment and biology; they do not establish a cause. ``read_digest(src)`` → ``QCDigest`` The cheap path: locate ``qc/segmentation_qc_*.csv`` under a project, parse it, roll it up, diagnose it, and compare each card's mtime against its mask stack so a card written before the last re-mask is reported as out of date rather than believed. Scores nothing. ``score_digest(src)`` → ``QCDigest`` The expensive path, for the user who asks for it explicitly: score the mask stacks under a project, write the cards, return the same digest. ``format_digest(digest)`` The printable version.",
@@ -4416,7 +4455,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``measure_crop`` is the expensive step in spaCR: it opens every mask, cuts every object out of every channel, computes hundreds of features per object and writes them to SQLite. On a full plate that is hours. A plate whose segmentation collapsed — a channel out of focus, a diameter two-fold wrong, a confluent monolayer that fused into slabs — costs exactly the same hours and then produces a measurement table that has to be thrown away. The failure is obvious from the masks alone; nobody looks, because looking means opening a thousand ``.npy`` files by hand. Mask statistics can highlight suspicious fields, but cannot establish their cause or validate biological interpretation.",
       "source_sha256": "9fa81e077e40b40a89f53761f3e99d04ba9b18c181f9ba514a71f568f2676148",
-      "translation": "``measure_crop`` est l’étape coûteuse de spaCR : elle ouvre chaque masque, découpe chaque objet dans chaque canal, calcule des centaines de caractéristiques par objet et les écrit dans SQLite. Sur une plaque complète, cela prend des heures. Une plaque dont la segmentation s’est effondrée — un canal flou, un diamètre faux d’un facteur deux, une monocouche confluente fusionnée en blocs — coûte exactement les mêmes heures, puis produit une table de mesures qu’il faut jeter. L’échec est évident à partir des seuls masques ; personne ne regarde, car regarder signifie ouvrir un millier de fichiers ``.npy`` à la main. Les statistiques de masques peuvent mettre en évidence des champs suspects, mais ne peuvent ni en établir la cause ni valider une interprétation biologique."
+      "translation": "``measure_crop`` est l’étape coûteuse de spaCR : elle ouvre chaque masque, découpe chaque objet dans chaque canal, calcule des centaines de caractéristiques par objet et les écrit dans SQLite. Sur une plaque complète, cela prend des heures. Une plaque dont la segmentation s’est effondrée — un canal flou, un diamètre faux d’un facteur deux, une monocouche confluente fusionnée en blocs — coûte exactement les mêmes heures, puis produit une table de mesures qu’il faut jeter. L’échec est évident à partir des seuls masques ; personne ne regarde, car regarder signifie ouvrir un millier de fichiers ``.npy`` à la main. Les statistiques de masques peuvent mettre en évidence des champs suspects, mais ne peuvent ni en établir la cause ni valider une interprétation biologique.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every microscope field of view against a handful of robust statistics, and prints a scorecard naming microscope fields of view that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop microscope fields of view. Deciding which microscope fields of view to keep is the user's call and it needs the evidence, not a filter.",
@@ -4424,7 +4465,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "So this module looks. It reads the label masks that :mod:`spacr.object` has just written, scores every field against a handful of robust statistics, and prints a scorecard naming fields that exceed configured thresholds. It changes nothing: ``seg_qc='report'`` (the default) surfaces the flags, it does not silently drop fields. Deciding which fields to keep is the user's call and it needs the evidence, not a filter.",
       "source_sha256": "ab0bb091dc8bcf12fca98f63d0abda9a65ad5e924427d6cd581658bd394dbda0",
-      "translation": "Ce module regarde donc. Il lit les masques d’étiquettes que :mod:`spacr.object` vient d’écrire, évalue chaque champ selon quelques statistiques robustes, et affiche une fiche d’évaluation nommant les champs qui dépassent les seuils configurés. Il ne modifie rien : ``seg_qc='report'`` (la valeur par défaut) fait apparaître les signalements, il n’écarte pas silencieusement des champs. Décider quels champs conserver revient à l’utilisateur, qui a besoin des éléments de preuve, pas d’un filtre."
+      "translation": "Ce module regarde donc. Il lit les masques d’étiquettes que :mod:`spacr.object` vient d’écrire, évalue chaque champ selon quelques statistiques robustes, et affiche une fiche d’évaluation nommant les champs qui dépassent les seuils configurés. Il ne modifie rien : ``seg_qc='report'`` (la valeur par défaut) fait apparaître les signalements, il n’écarte pas silencieusement des champs. Décider quels champs conserver revient à l’utilisateur, qui a besoin des éléments de preuve, pas d’un filtre.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``object count`` and its deviation from the laboratory microplate median ``count_ratio`` is ``n_objects / plate_median``; outside ``[seg_qc_count_ratio, 1/seg_qc_count_ratio]`` (0.25 to 4-fold) the microscope field of view is flagged. Such a difference may reflect treatment, infection, seeding, acquisition or segmentation. Inspect the experimental layout and images; the count ratio alone cannot distinguish those explanations.",
@@ -4556,7 +4599,7 @@
     },
     {
       "context": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
-      "label": "spacr.sra.fetch_reads#3",
+      "label": "spacr.sra.fetch_reads#4",
       "review_basis": "MT draft edited in AI review",
       "source": "the archive file to stream; its ``url`` is read and its ``filename`` names the output.",
       "source_sha256": "a0b8039c0c54a23a0b5c5f3ad0f02168ece538a7b9e4f95023e029fe5a596075",
@@ -4564,7 +4607,7 @@
     },
     {
       "context": "folder the ``.fastq.gz`` file is written into; created if missing.",
-      "label": "spacr.sra.fetch_reads#4",
+      "label": "spacr.sra.fetch_reads#5",
       "review_basis": "MT draft edited in AI review",
       "source": "folder the ``.fastq.gz`` file is written into; created if missing.",
       "source_sha256": "ff2efdc656370509b1b8deac5cd4a18149e8de2514fe7f6da5da7be81fc8bf94",
@@ -4736,7 +4779,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER WHOLE, with no geometry, so it is still analysed and simply has no ruler. A warning that says \"passed through whole\" and then skips the image passes nothing through: when some images in a folder split and others did not, the others would contribute no crop and no row and nothing would say they had existed. The all-or-nothing case -- where the function falls back to ``src`` -- is the only one that would behave as the message promised.",
       "source_sha256": "3122a0ebcf75cde893aa1a58cd56beb816577906d9077af0e00417a246eaea92",
-      "translation": "UNE IMAGE DANS LAQUELLE LE DÉTECTEUR NE TROUVE RIEN EST COPIÉE ENTIÈRE DANS LE DOSSIER DE DÉCOUPE, sans géométrie, de sorte qu’elle est quand même analysée et n’a simplement pas de règle. Un avertissement qui dit \"passed through whole\" puis ignore l’image ne transmet rien : lorsque certaines images d’un dossier sont découpées et d’autres non, ces dernières ne fourniraient aucune vignette ni aucune ligne, et rien n’indiquerait qu’elles ont existé. Le cas tout-ou-rien -- où la fonction se replie sur ``src`` -- est le seul qui se comporterait comme le message le promettait."
+      "translation": "UNE IMAGE DANS LAQUELLE LE DÉTECTEUR NE TROUVE RIEN EST COPIÉE ENTIÈRE DANS LE DOSSIER DE DÉCOUPE, sans géométrie, de sorte qu’elle est quand même analysée et n’a simplement pas de règle. Un avertissement qui dit \"passed through whole\" puis ignore l’image ne transmet rien : lorsque certaines images d’un dossier sont découpées et d’autres non, ces dernières ne fourniraient aucune vignette ni aucune ligne, et rien n’indiquerait qu’elles ont existé. Le cas tout-ou-rien -- où la fonction se replie sur ``src`` -- est le seul qui se comporterait comme le message le promettait.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Fine-tune Cellpose-SAM with native paired images and instance-label masks.",

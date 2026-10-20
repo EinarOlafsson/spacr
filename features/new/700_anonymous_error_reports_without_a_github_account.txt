@@ -1,0 +1,379 @@
+================================================================================
+ANONYMISED ERROR REPORTS WITHOUT A GITHUB ACCOUNT (ON BY DEFAULT)
+================================================================================
+
+Status:    new 2026-10-13
+Requested: maintainer, 2026-10-13: "instead of having the user need to login
+           to github to send error messages, can i create a github account for
+           spacr called spacr_first_responder that auto logs in in the
+           background and sends issues to github. this way the user would not
+           need to make an account. there would be an on by default setting
+           stating send anonymized error reports. all user metadata would have
+           to be removed, but i think spacr already does that in the current
+           setup."
+Owner:     Home (build, relay); maintainer (create/install the GitHub App,
+           approve the privacy wording)
+Related:   spacr/crashreport.py (existing redaction), the report-filing flow
+           (tests test_the_report_files_itself, test_a_failed_run_offers_the_
+           report_it_promised), Preferences privacy settings.
+
+--------------------------------------------------------------------------------
+DESIGN (security constraint)
+--------------------------------------------------------------------------------
+
+A GitHub token must NOT ship inside spaCR: anything in the installed package
+can be extracted, and a leaked token would let anyone open or spam issues as
+the bot (or more, depending on scope). So:
+
+- The repository owner creates a private GitHub App (for example
+  spacr-first-responder), with Issues: read/write and automatic Metadata: read,
+  installed only on EinarOlafsson/spacr. A separate bot account's fine-grained
+  PAT cannot write to another personal owner's repository, even as collaborator.
+- The App private key lives only in a relay's secret store. The relay signs
+  a JWT and obtains a short-lived, repository-scoped installation access token;
+  neither key nor token reaches spaCR. Cloudflare Worker is the proposed host.
+- spaCR posts the redacted report to the relay over HTTPS; the relay
+  validates the payload (schema, size cap), rate-limits per install id and
+  globally, de-duplicates by error signature (adds a +1 comment to an
+  existing issue instead of opening a new one), then opens the issue as the
+  bot with a "user-report" label.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. Preferences > Privacy: "Send anonymised error reports" ON by default, with
+   a one-line explanation and a "What is sent" link that shows an example
+   report. First run shows a short notice with the toggle so the default is
+   disclosed (needed for GDPR-style consent); turning it off is one click.
+2. Redaction, building on crashreport.py: remove user names, home paths,
+   host names, IPs, e-mail addresses, project/plate/file names, settings
+   values that are paths, environment variables and tokens; keep spaCR
+   version, OS family, Python/Qt/torch versions, GPU class, module, error
+   type and a path-free traceback. Unit tests with planted personal data.
+3. A random install id (not tied to the machine) for rate limiting only.
+4. The user can still view the exact text before sending (a "Review" link)
+   and can still file manually through GitHub as today.
+5. Offline or relay errors: queue up to N reports locally and retry later;
+   never block or slow the app.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- A forced exception produces one bot-filed issue with no personal data; a
+  second identical one adds a +1 comment, not a new issue.
+- No token or secret appears anywhere in the spaCR package or repo.
+- The setting defaults to on, is disclosed on first run, and off sends
+  nothing (verified with a network-blocking test).
+
+--------------------------------------------------------------------------------
+2026-10-13 21:00 EDT — OWNER SETUP AND ACCOUNT-FREE CLOUD AI REQUEST
+--------------------------------------------------------------------------------
+
+Maintainer confirmed automatic error reports/issues, not coding-agent prompts,
+and requested a linked step-by-step guide plus hosted AI error diagnosis for
+users with no Claude/Codex/Gemini account. Source research corrects the earlier
+separate-bot fine-grained PAT recipe to the repository-owner GitHub App above.
+Official evidence and setup guide: features/data/700_cloud_routes_setup_2026-10-13/.
+
+Proposed fallback uses the same maintainer-owned Cloudflare Worker with an AI
+binding. Users need no provider account or shared embedded credential. Start
+with a free-access catalog model, evaluating Qwen3 30B and Qwen2.5 Coder 32B
+on real redacted spaCR errors; do not promise Claude/Codex quality or autonomous
+coding/tool access. A custom spaCR system prompt is separate from custom weights.
+
+Stay on Workers Free: AI's shared 10,000-neuron daily quota fails when exhausted;
+do not enable a paid model, paid fallback or prepaid credits. Enforce bounded
+input/output, atomic global budget, per-install/IP fairness and durable issue
+deduplication. Random install IDs are forgeable and not authentication.
+Cloud diagnosis and public issue posting are separate actions/settings; explain
+each destination. Send only the strictly sanitized allowlisted report, never
+the existing crashreport ZIP that deliberately retains absolute paths/logs.
+Reuse and strengthen the existing public-report sanitizers with planted-data
+tests; verify opt-out produces zero network calls.
+
+Current spaCR AI registers three CLI providers only. Hosted provider, relay,
+database schema, consent UI, redaction tests, quota handling and native/client
+acceptance are not implemented or deployed. Owner account/App/binding setup
+can proceed while CI remains frozen; application changes wait for release.
+
+
+2026-10-13 — MAINTAINER HARD PREREQUISITE: ZERO COST TO MAINTAINER
+GitHub reporting and the hosted AI fallback must cost the maintainer zero.
+Use an owner-created GitHub App (no purchased Marketplace app/subscription),
+Workers Free, D1 Free and only free-access AI catalog models. No paid plan,
+credits, rented GPU, paid fallback, domain purchase or automatic upgrade.
+Verify the owner account's actual plan before deployment; do not downgrade
+unrelated services. Refuse deployment if the configuration cannot meet this
+requirement. Free allowances are shared and finite; quota exhaustion queues
+bounded reports or refuses diagnosis with a clear message, never incurs
+overage charges. This is not an unlimited-service or perpetual-provider-pricing
+promise. Deployment/integration remain unimplemented and not cost-verified
+against an owner account yet. Current official pricing links are in the guide.
+
+2026-10-14 01:18 EDT — Home accepts 14 exact future notices for preparatory
+design English and isolated nine-locale proposal drafts only:
+data/700_home_future_notice_design_acceptance_2026-10-14/. Thirty current
+source/proposal bindings and all 14 text hashes independently verified.
+Historical UI activation gates remain: real validated client/relay behavior,
+current owner plan/model/resource verification, every display predicate and
+strict $0/no-paid policy. Canonical source/catalog/review/generator/deployment
+remain held. This is not certification of configured/free/deployed resources;
+no original text/approval flag was rewritten and no actual service is active.
+
+2026-10-14 — Cloudflare owner walkthrough corrected after actual dashboard
+feedback. Maintainer signed in with GitHub, authorized Workers & Pages for
+spacr, and reached Git build/deploy fields. That deployment integration is
+separate from the reporting Issues-write GitHub App. No Worker entry point or
+Wrangler configuration exists in current spacr source; do not deploy the
+desktop repository or invent a root folder. Updated setup-guide.txt explains
+these fields, a basic placeholder/template path (dashboard labels qualified),
+Free-plan verification, exact AI/D1 binding names and runtime versus build
+secrets. Credential loading waits for the final relay. No service, resources,
+owner plan, inference or error-report delivery was verified or activated.
+
+2026-10-14 09:21 EDT — Maintainer deployed the named placeholder at
+https://spacr-first-responder.einar-olafsson.workers.dev/ . Home read-only GET
+verified HTTP 200, text/plain and exact Hello World! response. This establishes
+the resource/address only; no report, inference, credential upload, owner-plan
+verification or spaCR activation occurred. Guide now starts with this current
+state and the next dashboard AI-binding click. The public link is not the
+Cloudflare settings page. Reporting GitHub App and Free-only checks remain
+separate, and Home still owns the missing relay/client implementation.
+
+2026-10-14 — Maintainer supplied reporting App/Client/installation IDs and
+D1 database UUID; recorded in data/700_cloud_routes_setup_2026-10-13/
+owner-resource-identifiers.json. AI binding is visible in screenshot. Workers
+Free plan and DB-to-spacr-support binding remain unconfirmed because supplied
+template retained alternatives. Home asked those two checks; no private key,
+authentication, inference or actual relay activation occurred.
+
+2026-10-14 — Maintainer confirmed Workers plans shows Free and DB points
+to spacr-support. Owner resource identifiers updated; AI binding was already
+visible in screenshot. These are owner dashboard confirmations, not Home
+account authentication or model eligibility/end-to-end certification. No
+private key, inference or issue submission occurred; actual relay/client
+implementation and eligible model verification remain pending.
+
+2026-10-14 — OWNERSHIP CHANGE (maintainer request): the Claude Home session
+(spacr-44) now owns ALL implementation of item 700: the Cloudflare relay
+(services/spacr-first-responder/) and the spaCR client (crash reporting,
+setting on by default, hosted AI diagnosis). Codex: do not write code,
+proposals, notices or evidence for 700; leave this item to Claude. Owner
+identifiers in data/700_cloud_routes_setup_2026-10-13/owner-resource-
+identifiers.json are the inputs.
+
+2026-10-14 — MAINTAINER DECISIONS (Claude Home owns the build):
+- spaCR AI (hosted, free) is ON by default; no AI choice in the startup
+  window. Preferences > AI switches between spaCR AI (free), Claude, GPT
+  (Codex) and Gemini.
+- Cloudflare's free allocation (10,000 neurons/day) is per ACCOUNT, shared by
+  all models. Per install per UTC day: 5 questions on the best model, then 10
+  on a cheaper light model; when the shared pool runs low (below 40%) everyone
+  is served the light model; hard cap 9,000 neurons/day; refuse, never pay.
+- Error reports: 5 per install per day (global 200), filed to GitHub with an
+  AI summary written by the user's own AI if connected (their tokens), else by
+  spaCR AI's light model charged to their allowance, else without a summary.
+- Allowances are shown in the AI panel and in the first-run notice.
+
+2026-10-14 — BUILT (client side, Claude Home, branch client-700). spaCR now
+builds, queues and sends the anonymised report and asks the hosted model;
+the relay (services/spacr-first-responder/) is a separate worktree and is
+not part of this note. Contract matched exactly: base URL
+https://spacr-first-responder.einar-olafsson.workers.dev (constant
+spacr.crashreport.REPORT_RELAY_URL; SPACR_REPORT_RELAY overrides it with an
+https or local http address); POST /report and POST /diagnose with the
+snake_case fields schema_version, install_id, spacr_version, os, python, qt,
+torch, gpu, module, exception_type, message, frames[{file, function, line}],
+optional user_note, dry_run, and question (diagnose only).
+- spacr/crashreport.py: public_summary (allowlist only, message <=300 chars
+  through scrub_public_text, <=40 innermost frames as basenames, files outside
+  spaCR/Python/site-packages shown as <user-code>, body <=16 KB), install_id
+  (random UUID in <spaCR home>/anonymous_reports/state.json), urllib sender
+  with an 8 s timeout, queue (20 reports, 7 days; dropped on success or 4xx,
+  kept on 429, 5xx or network error; flushed after a success and at start),
+  diagnose_remotely (RelayRefused reason quota/network/error),
+  SPACR_NO_NETWORK and safe mode send nothing, install_excepthook also
+  queues the summary. The local ZIP bundle is never sent.
+- Preferences: "Send anonymised error reports" (on by default) with
+  "What is sent…" showing example_public_summary of a planted fake error.
+- First start: one non-modal notice (install_consent.AnonymousReportNotice),
+  shown once, with the switch; the tour waits for it to close.
+- A failed run sends the summary on the background runner (settings path
+  errors excluded) and prints "Reported anonymously as issue #N" or "will
+  retry later"; File as issue and its preview are unchanged.
+- Hosted AI: providers.HostedProvider "spaCR hosted (no account needed)",
+  default when no vendor CLI is configured (default_provider), labelled as
+  generated advice, quota refusal as a plain sentence; manuscripts never use
+  it.
+- Tests: tests/test_700_anonymous_error_reports.py and
+  tests/qt/test_700_anonymous_reports_qt.py (planted personal data, exact
+  schema and caps, default on, notice once, off = zero sockets, queue rules,
+  non-blocking send, provider default, 429 text). tests/conftest.py sets
+  SPACR_NO_NETWORK and replaces the transport for every test.
+Still open: the relay itself, its deployment and an end-to-end forced
+exception against the live relay; translations of the new strings (WS lane).
+
+2026-10-14 — BUILT, daily allowances (client side, maintainer's new rules):
+5 reports per install per UTC day; hosted AI 5 best-model then 10
+light-model questions per day, light for everyone when the shared pool is
+low. Client reads GET /allowance?install_id= (fetch_allowance, consumes
+nothing), /report 200 allowance, /diagnose 200 tier + allowance, and 429
+{refused: "quota", scope}. The AI console shows "4 of 5 best-model questions
+left today · then 10 on the light model · resets at <local time>" while the
+hosted provider is selected (fetched on selection, refreshed after each
+answer), tags light answers "[light model]", and gives the install/global
+quota sentences plus the own-CLI hint. A report refused for quota stays
+queued, nothing is posted until 00:00 UTC, and the console says "Will report
+after the daily limit resets". The first-run notice states both allowances.
+
+2026-10-14 — BUILT, AI defaults and report summaries (client side):
+- The AI is on at launch with "spaCR AI (free)". The first-run setup no
+  longer asks for an AI provider (setup_screen.questions has no ai_provider
+  row, so neither the dialog nor the slides draw that step).
+- Preferences → AI: four switches, "spaCR AI (free, daily allowance)",
+  "Claude", "GPT (Codex)", "Gemini", one line each on what it needs; a
+  switch applies at once to every open console (apply_provider_choice); a
+  CLI that is not set up is saved and spaCR AI keeps answering; the
+  allowance line shows only for spaCR AI.
+- Reports carry an AI summary: a private CLI writes it locally from the
+  sanitized summary with a fixed prompt (cause and where in spaCR, <=1200
+  chars, no personal data), 30 s limit, scrubbed, sent as ai_summary
+  (<=2000); spaCR AI sends summarize: true for the relay's light model; a
+  failure, timeout or used allowance files the report without one. Console:
+  "Reported as issue #N (with AI summary)" or "(without AI summary: daily AI
+  allowance used)". Response field ai_summary_source is read.
+- The first-run notice says reports include an AI-written summary, made with
+  the user's own AI when one is connected.
+
+2026-10-14 — BUILT, every failure handled (client side). The maintainer's
+Mask run refused for a missing channel produced no AI message and no report:
+outside strict mode spacr.errors.raise_if_strict only logs the refusal and
+the pipeline returns, so the run read as finished. AppScreen now watches the
+spacr.errors logger for the length of a run; a refusal turns the end of the
+run into "✗ The run did not start: <message>" and a user_error failure.
+- Preferences → AI → "AI Error report" replaces the on/off switch: Summarize
+  and send all errors (default) / … with code context / Summarize all
+  errors, send only faults / Summarize all errors, send nothing / Send all
+  errors, no AI summary / Send only faults, no AI summary / Off. Faults are
+  unexpected exceptions; ConfigurationError and its subclasses and
+  settings-path errors are user errors. Code context adds frames[].code
+  (<=160 chars, scrubbed) for spaCR frames only. The first-run notice points
+  to the setting; its switch maps to "all"/"off".
+- Summarize choices: one AI call per failure (spaCR AI via /diagnose with a
+  fixed question, or the user's CLI), shown as "spaCR AI: …" and reused as
+  the issue's ai_summary. No allowance gives a one-line note and the report
+  is still filed per the choice. The gh-based automatic filing steps aside
+  when the relay files the report.
+- Usage bar under the chat box: spaCR AI shows neurons_left/share_neurons
+  with "{pct}% of your share left · {n} users sharing today · resets
+  {time}" (+ "· light model"), or "Daily share used. Errors are still
+  reported without an AI summary."; refreshed off the GUI thread on provider
+  switch and after answers. Vendor CLIs: no reliable free non-interactive
+  usage source was found (Claude Code shows plan limits only inside an
+  interactive session, /usage and the status-line JSON; `claude -p --output-
+  format json` reports the call's own cost; Codex shows limits only in its
+  interactive /status; Gemini's /stats is interactive and per session), so
+  the bar is hidden and the line names the account and who sets its limits.
+- /report gains kind ("fault" | "user_error") and frames[].code; the
+  allowance gains ai.neurons_left, share_neurons, share_pct, active_users,
+  tier_now and pool_pct_left.
+
+2026-10-15 — CI repairs after the CI run on 8baeaeb22.
+- "light model" read as "light mode" to the theme-naming guard; the
+  user-facing text now says "lighter model" (providers, notice, console
+  tag, now through tr()), and the catalogs were rebuilt.
+- 38 new captions are registered as reviewed arrivals in the caption
+  contract, with AI-reviewed records in nine languages
+  (docs/i18n/reviewed/runtime/*/2026-10-14-700-error-reports-and-spacr-ai.json,
+  no native-speaker signoff); the two retired provider-question captions
+  are recorded as retirements.
+- "AI Error report" carries its explanation on its label; the console's
+  allowance poll uses spacr.qt._after (PySide6 6.6); the setup alignment
+  test offers the provider question back, as the slide tests do; the
+  settings flow page was regenerated.
+- crashreport, providers and install_consent are back at 100% coverage
+  and the console's new lines are covered.
+
+2026-10-15 — BUILT, spaCR AI console entry, every problem, richer issues
+(relay 0.2.4, deployed). The maintainer's Mask run with no channel and a
+missing src, "Summarize and send all errors":
+- spaCR AI is its own console section: a "spaCR AI" heading in spaCR teal
+  (palette chip_class) directly under the error, with working dots while
+  the answer is written; the answer replaces them, its Markdown drawn
+  (bold headings on their own lines, one line per step). Quota and failure
+  notes land in the same entry (ConsolePanel.begin_ai_entry/fill_ai_entry).
+- AI text keeps https://einarolafsson.github.io/spacr/ and
+  github.com/EinarOlafsson/spacr through the scrubber (keep_docs_urls) and
+  keeps its line breaks (scrub_public_lines); every other URL is <URL>.
+- Reports send the sidebar screen name (screen, e.g. "Mask"); the relay
+  prompt names it exactly and knows Mask (batch Cellpose masks) from Make
+  Masks (manual editor).
+- A refused run lists every settings problem: the bridge publishes the
+  validate_settings errors the run started with, and the console says
+  "✗ The run did not start:" with a numbered list; the report message (up
+  to 800 chars for user_error, client and relay) lists them with paths
+  removed. raise_if_strict records its call stack, so the refusal's call
+  site is the report's frames.
+- Issues: Error (with screen), Problems (n), Console error (scrubbed,
+  error_text <=1500, dropped by the relay if it looks personal), Traceback
+  or "Where the run was refused", Environment, then the AI summary under
+  its own heading. A +1 comment carries this occurrence's error sections in
+  a <details> block.
+- The retired "spaCR AI: {text}{light}" caption was removed from the nine
+  AI-reviewed record files and the catalogs rebuilt.
+
+2026-10-15 — BUILT, AI answer cache and likely-cause grouping (relay 0.2.5,
+deployed; /health reports 0.2.5 with cache stats):
+- One D1 table ai_cache (key, kind error|question, text, model, tier,
+  cause_slug, spacr_minor, created, last_used, hits, bytes; index on hits,
+  last_used) replaces ai_explanations (dropped). Reads by primary key only
+  (live EXPLAIN QUERY PLAN: sqlite_autoindex_ai_cache_1 (key=?)). Error keys
+  are the signature (a user error's includes its problem list); questions
+  are q: + SHA-256 of the normalised question + screen|module + spaCR
+  major.minor; more than 500 characters of question and pasted context are
+  never cached. A hit answers cached:true with no model call, neurons, share
+  or active-user mark. AI_CACHE_MAX_ROWS 20000, AI_CACHE_MAX_BYTES 60 MB,
+  AI_CACHE_TTL_DAYS 30; another major.minor asks again. ai_cache_meta keeps
+  the running counts; every 50th insert or past a cap, expired rows go and
+  then about 10% by hits, last_used. A closed issue drops its error entries.
+- A plain question may come with no exception or module (the hosted chat's
+  questions without a traceback were refused with a 400).
+- spaCR keeps up to 200 answers for 30 days on this computer for errors and
+  for a fresh short question (StreamWorker), whatever the provider.
+- The AI ends error answers with CAUSE: <slug>; issues get cause:<slug>
+  labels, a "Same likely cause" section, and the oldest open issue per cause
+  (D1 ai_causes) gets one comment per new signature. Signatures never merge.
+
+2026-10-15 — BUILT, first-run setup without AI-provider or GitHub pages
+(maintainer: the start window's AI-assistant and GitHub sign-in pages are
+redundant now that reports go through the relay and spaCR AI (free) is on):
+- Setup slides are Language, Theme, How it runs, Terms of use, Done. "The
+  assistant" (Claude/GPT/Gemini marks, AI on at launch) and "When something
+  breaks" (issue filing, logs, GitHub sign-in) are gone, with every provider,
+  install and GitHub sign-in path of the slides; setup_screen.questions()
+  asks only language, theme, colour-blind mode, performance and the
+  reproducibility hash. The grouped setup form drops the same two groups.
+- spacr/qt/widgets/cli_setup_panel.py and provider_marks.py left the package
+  (only the slides used them; baseline entry retired with --retire-module,
+  shipped pin 664 -> 662). Preferences -> AI keeps its own Providers dialog.
+- Installer consent (Qt dialog, Unix terminal/zenity, Windows NSIS/PowerShell,
+  macOS native window) no longer offers "Set up GitHub, Claude, GPT/Codex, and
+  Gemini"; spacr.install_profile still accepts and ignores --sign-in-now so
+  older installers keep working.
+- Terms of use 4.3 (existing profiles accept again once): Section 5.6
+  anonymised error reports on by default, what is and is never sent, relay to
+  a public issue on EinarOlafsson/spacr with no GitHub account; 5.7 the "AI
+  Error report" choices and how to turn reports off; Section 6 spaCR AI (free)
+  on by default through the relay on Cloudflare Workers AI, daily fair share,
+  reusable saved answers, generated advice may be wrong, relay keeps counters,
+  saved answers and issue links but no personal data, saved answers expire
+  after 30 days, own Claude/GPT/Gemini via Preferences -> AI. The agreement
+  stays English-only by design (spacr/qt/terms_i18n registers no locale).
+- Two new installer-dialog captions carry AI-reviewed records in nine
+  languages (no native-speaker signoff); captions of the removed pages are
+  retired from the reviewed records and catalogs.
+
+2026-10-18 (maintainer): spaCR AI never says an answer is saved or cached; a reused answer renders exactly like a fresh one (same text, heading, styling, no badge or status line). The cache, counters and metadata stay internal; the privacy statement of 30-day saved-answer retention stays.
+- Done: console heading "spaCR AI (saved answer)" and its tr() string removed, nine reviewed records archived under docs/i18n/retired/runtime and retired. Relay unchanged (cached flag is internal; no relay deploy needed).

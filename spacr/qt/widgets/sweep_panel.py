@@ -1,16 +1,14 @@
-"""One button: every gene against every measurement.
+"""Panel that sweeps every gene against every measurement.
 
-The engine is :mod:`spacr.gene_measurement_sweep`; this is
-the thin panel over it, and it is thin on purpose -- the three corrections
-that make the answer trustworthy (identifiers excluded, Benjamini-Hochberg
-across the grid, circularity reported per row) live in the engine so a
-settings CSV, a macro and this button cannot disagree about them.
+The engine is :mod:`spacr.gene_measurement_sweep`; this is a thin panel over
+it. The three corrections the sweep applies (identifiers excluded,
+Benjamini-Hochberg across the grid, circularity reported per row) live in the
+engine, so a settings CSV, a macro and this button apply them identically.
 
-IT RUNS OFF THE GUI THREAD, and the reason is today's crash rather than
-politeness: a regression built Qt widgets on its own worker and the process
-segfaulted somewhere else entirely. So the worker here touches NO widget and
-returns plain data, and the figure is rendered by matplotlib's Agg canvas
-which has no Qt object to own.
+The sweep runs off the GUI thread. Qt widgets built on a worker thread can
+crash the process, so the worker touches no widget and returns plain data,
+and the figure is rendered by matplotlib's Agg canvas, which owns no Qt
+object.
 """
 from __future__ import annotations
 
@@ -24,7 +22,8 @@ from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox,
                                QDoubleSpinBox, QFileDialog, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _spare_table_item)
 
 LOG = logging.getLogger("spacr.qt.sweep_panel")
 
@@ -46,11 +45,10 @@ __all__ = ["SweepPanel", "sweep_inputs"]
 def sweep_inputs(cells, counts, *, score_column: str = "pred", scores=None):
     """``(wells, fractions, plates, scores)`` from a merged frame and counts.
 
-    THE PLATE NAMES ARE CANONICALISED ON BOTH SIDES. A score CSV of the real
+    The plate names are canonicalised on both sides. A score CSV of the real
     screen says `pplate1` where its measurements database says `plate1`, so an
-    un-canonicalised join matches no well at all -- and the resulting all-NaN
-    circularity column reads as "nothing here is circular", which is the most
-    confident possible way to say nothing.
+    un-canonicalised join matches no well at all, and the resulting all-NaN
+    circularity column would read as "nothing here is circular".
 
     :param cells: the merged per-object frame with ``plateID``, ``rowID``
         and ``columnID`` (or ``prc``); its numeric columns are averaged per
@@ -191,8 +189,7 @@ class SweepPanel(QWidget):
         self.drop_columns.setPlaceholderText("column names, comma separated")
         self.drop_columns.setToolTip(
             "Measurement columns to keep out of the sweep, by name and comma "
-            "separated. Naming the two or three that are wrong is easier "
-            "than listing the seven hundred that are not.")
+            "separated.")
         leave_out.addWidget(self.drop_columns, 1)
 
         leave_out.addWidget(QLabel("genes or guides"))
@@ -374,7 +371,7 @@ class SweepPanel(QWidget):
         """
         keep = self.rows()
         self.table.setSortingEnabled(False)
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         shown = keep.head(2000)
         self.table.setRowCount(len(shown))
         for row, (_index, entry) in enumerate(shown.iterrows()):
@@ -386,7 +383,7 @@ class SweepPanel(QWidget):
                       str(int(entry["n_wells"])),
                       f"{entry['effective_wells']:.0f}"]
             for column, text in enumerate(values):
-                self.table.setItem(row, column, table_item(text))
+                self.table.setItem(row, column, _spare_table_item(self.table, text))
         self.table.setSortingEnabled(True)
         if len(keep) > len(shown):
             self.status.setText(
@@ -501,10 +498,9 @@ class SweepPanel(QWidget):
     def show_picture(self, *_args):
         """Draw the chosen view in its own window. Returns the dialog, or None.
 
-        A WINDOW RATHER THAN A PANE, because the Measurements tab is already
-        four sections in a side panel -- "there are to many elements in the
-        measurements tab" -- and a heatmap of forty measurements needs more
-        width than that column has.
+        A window rather than a pane, because the Measurements tab already
+        holds four sections in a side panel, and a heatmap of forty
+        measurements needs more width than that column has.
         """
         from PySide6.QtWidgets import QDialog, QVBoxLayout
 

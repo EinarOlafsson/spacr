@@ -1,0 +1,48 @@
+{
+  "lesson": "15_image_umap",
+  "source_commit": "fd327f85139930118be1e92509a8771bf2fedea4",
+  "status": "reviewed source; fresh capture next",
+  "native_acceptance": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1367,
+      "sha256": "01827b0a8bc7e34563a817108b397d4800f6e902de7dc960597783e51db1fb8b"
+    },
+    {
+      "path": "a49481167-public-umap-recorder.patch.gz",
+      "bytes": 3467,
+      "sha256": "e9000fe4b4528ea0763fb65920119df839c5eddebe8d7135f1e01a3a15f7db3d"
+    },
+    {
+      "path": "fd327f851-public-umap-narration.patch.gz",
+      "bytes": 18290,
+      "sha256": "c527c47a19a9872b83cb532b38070531200d108087e5c69e7ad85f2a5acdc409"
+    },
+    {
+      "path": "owning-tests.txt",
+      "bytes": 1050,
+      "sha256": "327447a7ada5a891939db5806278bc9b26b7795032f62cf670cdd29fc502aaf6"
+    },
+    {
+      "path": "public-tour-recorder-fix.json.gz",
+      "bytes": 1884,
+      "sha256": "3d0fab21e89f65515d2fd98a927f03b45d192cac47a931c0c3f209e0dd938a8a"
+    },
+    {
+      "path": "public-umap-recorder-independent-source-peer.json.gz",
+      "bytes": 1276,
+      "sha256": "cd9fd129d7451034d26d625b37cb9c98ef7323323740a7dd0acb5f20c623b5bd"
+    },
+    {
+      "path": "two-scene-English-translation-changes.json.gz",
+      "bytes": 7243,
+      "sha256": "e1f126d231f58d4022627fe871066acad1cbd1682dcb079909441d635712be3c"
+    },
+    {
+      "path": "two-scene-independent-technical-peer.json.gz",
+      "bytes": 1691,
+      "sha256": "4bca4305888838463da1748b3c384f822e89a89ea4d7c5df1b24e148e90c99b6"
+    }
+  ]
+}

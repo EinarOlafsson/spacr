@@ -1,0 +1,454 @@
+{
+  "spacr.qt.ai.providers.explain_failure": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.explain_failure#0",
+      "source": "Have the active AI explain a failure once, for the console and the issue.",
+      "source_sha256": "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+      "context": "Have the active AI explain a failure once, for the console and the issue.",
+      "context_sha256": "ad7cc225f90cb372cca7e2e7c84e7dd2818883369b4e9408f66115b7f00f087c",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.explain_failure#1",
+      "source": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the GUI thread.",
+      "source_sha256": "bd98b7f9865a2d9fdea51da602e8a141bedd9cce2a20decd137961d2201263e4",
+      "context": "spaCR AI (free) asks the relay's ``/diagnose`` with the anonymised summary and :data:`spacr.crashreport.EXPLAIN_QUESTION`; a vendor CLI answers :func:`spacr.crashreport.ai_summary_prompt` here (:func:`write_report_summary`). The same text is shown in the console and sent as the report's ``ai_summary``, so a failure costs one AI call. Blocks, so call it off the main GUI execution path.",
+      "context_sha256": "724bd0fc9c91c0ae6178a07a281b6e725ba8afb2dbd86b5fc0ae3dfcfb145b41",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.explain_failure#2",
+      "source": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "source_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "context": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "context_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.explain_failure#3",
+      "source": "the active provider, or ``None``.",
+      "source_sha256": "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+      "context": "the active provider, or ``None``.",
+      "context_sha256": "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.explain_failure#4",
+      "source": "seconds a vendor CLI may take; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "source_sha256": "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+      "context": "seconds a vendor CLI may take; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "context_sha256": "5424d075b417d26cf094bfda8c0e1a5f55dc9b89894c2d94c0f3a900350bc722",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 5,
+      "label": "spacr.qt.ai.providers.explain_failure#5",
+      "source": "``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``, plus ``\"saved\": \"local\"`` when the answer was saved on this computer (no AI call, no network) or ``\"relay\"`` when the relay reused one.",
+      "source_sha256": "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+      "context": "``{\"text\": explanation or \"\", \"tier\": \"best\"|\"light\"|\"\", \"refused\": \"\" or \"quota\"|\"network\"|\"error\"|\"none\"}``, plus ``\"saved\": \"local\"`` when the answer was saved on this computer (no AI call, no network) or ``\"relay\"`` when the relay reused one.",
+      "context_sha256": "f739a99d4a900440a2ea08d864d905586720381157d9c4004477829d6b12de91",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 6,
+      "label": "spacr.qt.ai.providers.explain_failure#6",
+      "source": "An error explained before is not explained again: the answer saved on this computer (:func:`spacr.crashreport.saved_explanation`) comes first, for every provider, and each new answer is saved.",
+      "source_sha256": "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8",
+      "context": "An error explained before is not explained again: the answer saved on this computer (:func:`spacr.crashreport.saved_explanation`) comes first, for every provider, and each new answer is saved.",
+      "context_sha256": "7ea7e26255aa7c895df0363947439ecc1f2f02cf8f0dd21c81d0dfecee41a0d8",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.hosted_allowance_text": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.hosted_allowance_text#0",
+      "source": "One line saying how many free hosted-AI questions are left today.",
+      "source_sha256": "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+      "context": "One line saying how many free hosted-AI questions are left today.",
+      "context_sha256": "bee336bbb797c24319cc8ca52ddfa3244ad881dd13d90355f840d939e2f9fdfd",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.hosted_allowance_text#1",
+      "source": "what :func:`spacr.crashreport.fetch_allowance` returns, or ``None`` when it is not known.",
+      "source_sha256": "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+      "context": "what :func:`spacr.crashreport.fetch_allowance` returns, or ``None`` when it is not known.",
+      "context_sha256": "67c75aa943bcbc53989c492e966a56ebed2de7a572cedd7a99bd1fd62a9eacdc",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.hosted_allowance_text#2",
+      "source": "the translated line, or ``\"\"`` when nothing is known.",
+      "source_sha256": "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66",
+      "context": "the translated line, or ``\"\"`` when nothing is known.",
+      "context_sha256": "2959ccb8ea4f960cc26e35e76df42f51521efeec6fb41f848e9c5d0b370a1a66",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.hosted_cli_hint": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.hosted_cli_hint#0",
+      "source": "The hint that a user's own CLI gives unlimited answers.",
+      "source_sha256": "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+      "context": "The hint that a user's own CLI gives unlimited answers.",
+      "context_sha256": "f860e21ca6ca624724f1755491d8b40a61d5d33fe049acb2619e99cb7a2b078d",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.hosted_cli_hint#1",
+      "source": "the translated sentence.",
+      "source_sha256": "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6",
+      "context": "the translated sentence.",
+      "context_sha256": "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.hosted_daily_allowance_text": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.hosted_daily_allowance_text#0",
+      "source": "The free allowance of spaCR AI, as Preferences states it.",
+      "source_sha256": "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+      "context": "The free allowance of spaCR AI, as Preferences states it.",
+      "context_sha256": "6b0bb9782451fb0f3a1e80541d2d3a66804e2b71186720bbf7e21db702f1da55",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.hosted_daily_allowance_text#1",
+      "source": "the translated sentence.",
+      "source_sha256": "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6",
+      "context": "the translated sentence.",
+      "context_sha256": "179034997500fecb2638a2e3e0864feedf59a6a68034c41a078bb822bcd85ca6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.hosted_provider": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.hosted_provider#0",
+      "source": "Return spaCR's hosted provider.",
+      "source_sha256": "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370",
+      "context": "Return spaCR's hosted provider.",
+      "context_sha256": "643933d4f7257b504c2d976e4af944c27ad1e3b937470e61871a0cae85460370",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.hosted_refusal_message": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#0",
+      "source": "The sentence shown when the hosted provider gives no advice.",
+      "source_sha256": "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+      "context": "The sentence shown when the hosted provider gives no advice.",
+      "context_sha256": "1d9fac53ab51f8b426bdcf539632df428109b24cf04e65b72b20a564364bffc5",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#1",
+      "source": "``\"quota\"``, ``\"network\"`` or anything else.",
+      "source_sha256": "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+      "context": "``\"quota\"``, ``\"network\"`` or anything else.",
+      "context_sha256": "94486732b2e81ea20a46bfb88587f738fd097e1f71f121d8c41bc532617a78e6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#2",
+      "source": "for a quota refusal, ``\"install\"`` (this install's daily questions are used), ``\"global\"`` (spaCR's shared free capacity is) or ``\"ip\"``.",
+      "source_sha256": "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+      "context": "for a quota refusal, ``\"install\"`` (this install's daily questions are used), ``\"global\"`` (spaCR's shared free capacity is) or ``\"ip\"``.",
+      "context_sha256": "88d76e8acd6186585d0cfa24e0dff23502fb3b96dbafdd980037db2198661b55",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#3",
+      "source": "when the limit resets; defaults to the next 00:00 UTC.",
+      "source_sha256": "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+      "context": "when the limit resets; defaults to the next 00:00 UTC.",
+      "context_sha256": "875374cdad4ca8f069f4f3a4d8099cd80878a1985f789f570efa199e67a4611b",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.hosted_refusal_message#4",
+      "source": "the translated sentence; a quota refusal also carries :func:`hosted_cli_hint`.",
+      "source_sha256": "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914",
+      "context": "the translated sentence; a quota refusal also carries :func:`hosted_cli_hint`.",
+      "context_sha256": "bcc2d966bcc24b4d4ed311c2197e9d0450076cf7a808f5619157d0eec9c63914",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.local_reset_time": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.local_reset_time#0",
+      "source": "The time the free allowances reset, in this computer's local time.",
+      "source_sha256": "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+      "context": "The time the free allowances reset, in this computer's local time.",
+      "context_sha256": "3ec75c1e4585e36a5e49216a7d02d249986a4c6a09eb5e6226c371b2be2d2c2f",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.local_reset_time#1",
+      "source": "an aware datetime or an ISO-8601 string; defaults to the next 00:00 UTC.",
+      "source_sha256": "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+      "context": "an aware datetime or an ISO-8601 string; defaults to the next 00:00 UTC.",
+      "context_sha256": "22bb30577faef9973ae6c3e55905d2c3d3eef9ba096877ae8f80825d551cb267",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.local_reset_time#2",
+      "source": "``HH:MM``, followed by the weekday when it is not today.",
+      "source_sha256": "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916",
+      "context": "``HH:MM``, followed by the weekday when it is not today.",
+      "context_sha256": "964e43a7953e87f03f8eb045c7cceab068d95da7403559c95969209258dec916",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.question_cache_key": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.question_cache_key#0",
+      "source": "The key a fresh question's answer is saved under on this computer.",
+      "source_sha256": "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+      "context": "The key a fresh question's answer is saved under on this computer.",
+      "context_sha256": "e28b64d8bded6b39ea33ed192b025c4c897576eb7664fda3ad9d7bb298549c25",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.question_cache_key#1",
+      "source": "Only the first question of a conversation is saved, and only when the question and whatever was pasted with it (console context, code, traceback) stay within :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The key is :func:`spacr.crashreport.question_key` of the question and the active app; it is the same for every provider.",
+      "source_sha256": "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+      "context": "Only the first question of a conversation is saved, and only when the question and whatever was pasted with it (console context, code, traceback) stay within :data:`spacr.crashreport.QUESTION_CACHE_CONTEXT_MAX` characters. The key is :func:`spacr.crashreport.question_key` of the question and the active app; it is the same for every provider.",
+      "context_sha256": "3ca648fdcee288b74d8923fa3514adad78ee5751a72b69586eb1e96750529835",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.question_cache_key#2",
+      "source": "conversation history as ``{role, content}`` dicts.",
+      "source_sha256": "69388d176540fe771c0695e09aad7cd9085a60e08c44e2306bdd418f531232a3",
+      "context": "conversation history as ``{role, content}`` key-value mappings.",
+      "context_sha256": "bf2c86071a129d90cdcb7969d9aa6567af3a20d43a13721f8b8c4a3dfc3b5c88",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.question_cache_key#3",
+      "source": "the key, or ``\"\"`` when the answer must not be saved.",
+      "source_sha256": "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86",
+      "context": "the key, or ``\"\"`` when the answer must not be saved.",
+      "context_sha256": "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.usage_bar": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.usage_bar#0",
+      "source": "What the usage bar under the AI chat box shows for a provider.",
+      "source_sha256": "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+      "context": "What the usage bar under the AI chat box shows for a provider.",
+      "context_sha256": "24333b7aee4dcc40213c530869b081870948173ad87be0c058a7d815e582e543",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.usage_bar#1",
+      "source": "For spaCR AI (free) the bar is the user's share of today's shared free capacity, ``neurons_left / share_neurons``, from the relay's dynamic allowance. For a vendor CLI there is no reliable usage source (:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.",
+      "source_sha256": "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+      "context": "For spaCR AI (free) the bar is the user's share of today's shared free capacity, ``neurons_left / share_neurons``, from the relay's dynamic allowance. For a vendor CLI there is no reliable usage source (:data:`CLI_USAGE_TEXT`), so the bar is hidden and only a line is shown.",
+      "context_sha256": "abf4cc29750e043ce7b0a678ef5365fcf268d4300ea287b79bd31e29f0ac582a",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.usage_bar#2",
+      "source": "the selected provider's name, or ``None``.",
+      "source_sha256": "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+      "context": "the selected provider's name, or ``None``.",
+      "context_sha256": "40116a74d5a90992300f5c91942105b07c0aea6f3ab32ce039d7391730c4b0b6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.usage_bar#3",
+      "source": "what :func:`spacr.crashreport.fetch_allowance` returned, for spaCR AI.",
+      "source_sha256": "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+      "context": "what :func:`spacr.crashreport.fetch_allowance` returned, for spaCR AI.",
+      "context_sha256": "32ef863a644a0c2c2060f39837a2979ab146196a3fd651717f0bd5e390db15af",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.usage_bar#4",
+      "source": "``(percent or None to hide the bar, translated text)``.",
+      "source_sha256": "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8",
+      "context": "``(percent or None to hide the bar, translated text)``.",
+      "context_sha256": "e86bdab970b4c3a1975f1d29262555e69548315910467fb3c690e338e6b23bb8",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.with_ai_summary": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.with_ai_summary#0",
+      "source": "Return the report with the AI summary its provider allows.",
+      "source_sha256": "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+      "context": "Return the report with the AI summary its provider allows.",
+      "context_sha256": "ffe17686b3fc90fc5c889ae69cf17101985604ec3718ccad51765bf6e56828d6",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.with_ai_summary#1",
+      "source": "spaCR AI (free) asks the relay to write it (``summarize: true``, charged to the user's light-model allowance). A vendor CLI writes it here (:func:`write_report_summary`) and it travels as ``ai_summary``. With no provider, or when the CLI gives nothing, the report is unchanged.",
+      "source_sha256": "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+      "context": "spaCR AI (free) asks the relay to write it (``summarize: true``, charged to the user's light-model allowance). A vendor CLI writes it here (:func:`write_report_summary`) and it travels as ``ai_summary``. With no provider, or when the CLI gives nothing, the report is unchanged.",
+      "context_sha256": "9b8fd8924a9831e0f1c13029bba9fca82b7c12546c870044557a56288d0643aa",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.with_ai_summary#2",
+      "source": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "source_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "context": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "context_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.with_ai_summary#3",
+      "source": "the active provider, or ``None``.",
+      "source_sha256": "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+      "context": "the active provider, or ``None``.",
+      "context_sha256": "15b4cb17546b1effbadb29ef18c1045837faf3b8acf06151d43d888726e1ddc9",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.with_ai_summary#4",
+      "source": "a new summary dict.",
+      "source_sha256": "02b60c6a60beb4f41286fcff30e5fd3f8cc2a9d33c3aa4f96666fae1136ad480",
+      "context": "a new summary key-value mapping.",
+      "context_sha256": "f3fe46cfac7035372fa57ffe4c16cb344ba65ea55c45b095aef654c8a5f8bcd1",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ],
+  "spacr.qt.ai.providers.write_report_summary": [
+    {
+      "index": 0,
+      "label": "spacr.qt.ai.providers.write_report_summary#0",
+      "source": "Have the user's own AI summarise an anonymised report, or return ``\"\"``.",
+      "source_sha256": "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+      "context": "Have the user's own AI summarise an anonymised report, or return ``\"\"``.",
+      "context_sha256": "408cdf38190d6e94fac43b2f634b450c72cb15026dec53c3ba89b3851c38474b",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 1,
+      "label": "spacr.qt.ai.providers.write_report_summary#1",
+      "source": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It runs on a thread of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the GUI thread.",
+      "source_sha256": "4316497ce7fa874d6ef3f0d3ac98265e07ce9ad4d8a3d18b26899a4eba8a49d1",
+      "context": "The provider is given :func:`spacr.crashreport.ai_summary_prompt` and nothing else. It executes on an independent execution path of its own and is stopped after ``timeout`` seconds; a failure, a timeout or an empty answer gives ``\"\"``, and the report is then filed without a summary. Blocks, so call it off the main GUI execution path.",
+      "context_sha256": "2a97c7b6a34686ebdcf9e5867ee658da5fcb13a313d0a71336d13ab00e42cb6d",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 2,
+      "label": "spacr.qt.ai.providers.write_report_summary#2",
+      "source": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "source_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "context": "a summary from :func:`spacr.crashreport.public_summary`.",
+      "context_sha256": "917d177fe93bac100a9796a71b258ee59b571e1853f6ae7640e31eeb8eec03bc",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 3,
+      "label": "spacr.qt.ai.providers.write_report_summary#3",
+      "source": "a vendor CLI provider, or ``None``.",
+      "source_sha256": "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+      "context": "a vendor CLI provider, or ``None``.",
+      "context_sha256": "e9ce85adc79bf0a3e31186b2a5716390fe72169a9a61bf72d047245c2735baa4",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 4,
+      "label": "spacr.qt.ai.providers.write_report_summary#4",
+      "source": "seconds to wait; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "source_sha256": "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+      "context": "seconds to wait; defaults to :data:`spacr.crashreport.AI_SUMMARY_TIMEOUT_S`.",
+      "context_sha256": "d8b64ab2f6f472a429a5d6f60fe10c490fe7613e3197d3ac94c4fadab77eb838",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    },
+    {
+      "index": 5,
+      "label": "spacr.qt.ai.providers.write_report_summary#5",
+      "source": "the summary text, scrubbed and cut to :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS`.",
+      "source_sha256": "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c",
+      "context": "the summary text, scrubbed and cut to :data:`spacr.crashreport.MAX_AI_SUMMARY_CHARS`.",
+      "context_sha256": "700fe5c737e9d8961f2d863481e673d91d54818949fad952dfc52fd207d2410c",
+      "status": "AUTHOR_EXACT_CURRENT_BLOCK_ALL9",
+      "reused_targets": {}
+    }
+  ]
+}

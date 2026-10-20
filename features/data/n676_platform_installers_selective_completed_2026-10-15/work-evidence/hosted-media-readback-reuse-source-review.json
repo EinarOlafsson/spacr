@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "lesson": "04_platform_installers",
+  "status": "source_plan_conditionally_supported_no_runtime_acceptance",
+  "source_peer_passed": true,
+  "blocking_findings": [],
+  "reviewed_at_utc": "2026-10-15T20:38:44.054332+00:00",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/publish_release_candidate.py",
+      "bytes": 24203,
+      "sha256": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/validate_candidate.py",
+      "bytes": 6403,
+      "sha256": "cbc98c4c9884ba65160121dac3d3e58ef2d5470d307cfe873071f9f4062cbd75"
+    }
+  ],
+  "existing_API": "publish_release_candidate.resume_receipt(root, branch, tag, checked)",
+  "API_semantics": {
+    "network_mutations": false,
+    "writes_new_candidate_publication_receipt": true,
+    "checks_existing_tag_resolves_readback_commit": true,
+    "checks_branch_one_commit_on_current_main": true,
+    "checks_readback_pass_counts_failure_lists": true,
+    "checks_remote_contains_candidate_paths": true,
+    "does_not_check_old_new_media_SHA_size_equality": true,
+    "does_not_require_verified_candidate_or_hash_actualbytes_itself": true
+  },
+  "required_before_resume": [
+    "New K6 candidate freshly built with truthful source and manifest; actual owning validate(include_hosted_media=True) verifies exact local bytes.",
+    "New candidate all84 browser routes, placeholder mutation checks and coherent checkpoint must pass exact new manifest.",
+    "Persist independently reviewable equality proof of COMPLETE old/new hosted dictionaries keyed path with bytes andSHA, plus exact5370count/8693151860bytes; reject any addition/removal/change.",
+    "Bind old9ac6 manifest and old successful immutable80a4 receipt/readback with actual path/bytes/SHA. Old checked object passed unchanged; original receipt is never rewritten.",
+    "Existing original branch/tag resolve same immutable commit under resume existing guards; no upload/create/ref mutation.",
+    "New coherent receipt must bind new manifest and preserve provenance that media readback was performed for the identical old hosted map. Bind equality proof/source receipt in new evidence; then new Pages84/record/export normally."
+  ],
+  "limits": [
+    "Source-only review; new K6 candidate/equality proof/resume/readback/remote checks not executed or accepted here.",
+    "resume-receipt is insufficient alone; count/path checks cannot establish SHA equality without the explicit full-map and actual-local-byte validation.",
+    "Current remote main changing may cause existing branch-history guard to fail closed; no guard relaxation approved.",
+    "No new full8GB remote download or upload is logically required after complete exact-map equality and immutable old readback binding."
+  ]
+}

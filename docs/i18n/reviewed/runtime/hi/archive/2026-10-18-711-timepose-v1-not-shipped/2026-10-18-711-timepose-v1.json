@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-reviewed translation (Claude, direct exact-source translation and technical self-review); no native-speaker signoff",
+  "review_method": "Direct translation of the two Timepose v1 (alpha) Timelapse settings and the preview note added for item 711. Preserve timelapse_mode, timepose_v1, spaCR, Timepose, Hugging Face, DIC and False.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "timepose_invert",
+      "source": "Timepose invert",
+      "source_sha256": "74bdc242792900cf046acfe85fe6923266b4ee1a805d96680a303bce2795350d",
+      "translation": "Timepose उलटें"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timepose_own_masks",
+      "source": "Timepose own masks",
+      "source_sha256": "4367b1b9ec6d42e8fdef472f48f69cab0ab3fc1fafc32dc7f5cd42c5f2ec2be7",
+      "translation": "Timepose अपने मास्क"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_invert",
+      "source": "With timelapse_mode='timepose_v1', invert the image intensities before Timepose reads them. Turn on for brightfield, phase-contrast and DIC movies; leave off for fluorescence. Default False.",
+      "source_sha256": "ff107161f82b8c6e1017d359efa3d920e61a075df829d2beca777aadb716d66d",
+      "translation": "timelapse_mode='timepose_v1' होने पर Timepose द्वारा पढ़े जाने से पहले छवि की तीव्रताओं को उलट देता है। ब्राइटफ़ील्ड, फ़ेज़-कॉन्ट्रास्ट और DIC फ़िल्मों के लिए चालू करें; फ़्लोरेसेंस के लिए बंद रखें। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timepose_own_masks",
+      "source": "With timelapse_mode='timepose_v1', replace the masks spaCR segmented with Timepose's own segmentation before linking. Off links spaCR's masks. Default False.",
+      "source_sha256": "04c1d4704b2bb471d6e30e3921279da779850b19f80203b55186204cdd537c3f",
+      "translation": "timelapse_mode='timepose_v1' होने पर लिंक करने से पहले spaCR द्वारा विभाजित मास्क को Timepose के अपने विभाजन से बदल देता है। बंद होने पर spaCR के मास्क लिंक होते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "ui",
+      "key": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source": "Timepose v1 (alpha) tracks in the full Timelapse run. Set timelapse_mode to timepose_v1 in the settings. It needs a Hugging Face account with access to its private model, so this preview does not offer it.",
+      "source_sha256": "3d007207093b0dbc637a8da1e99cc7257e9031eab3a98ad1aacb2d2bb83b8a32",
+      "translation": "Timepose v1 (अल्फ़ा) पूर्ण Timelapse रन में ट्रैक करता है। सेटिंग्स में timelapse_mode को timepose_v1 पर सेट करें। इसके लिए ऐसे Hugging Face खाते की आवश्यकता है जिसे इसके निजी मॉडल तक पहुँच हो, इसलिए यह पूर्वावलोकन इसे प्रदान नहीं करता।"
+    }
+  ]
+}

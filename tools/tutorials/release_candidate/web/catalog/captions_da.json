@@ -491,7 +491,7 @@
       "section": "spaCR",
       "description": "Gennemgå alle aktuelle moduler på Home fra venstre mod højre. Lær derefter de fælles betjeningselementer med Mask, og tilpas navigation, hjælp og udseende.",
       "objectives": [
-        "Identificere alle moduler i de aktuelle rækker Core, Data, Tools og Organism.",
+        "Identificere alle moduler i de aktuelle rækker Core, Data og Tools.",
         "Bruge Mask til at genkende fælles indstillinger, forhåndsvisninger, handlinger og resultater.",
         "Vende tilbage til Home, bruge søgning og arrangere panelerne.",
         "Vælge indstillinger for udseende og ydeevne."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er udgangspunktet. Læs hver række fra venstre mod højre: Core, Data, Tools og Organism. Hver flise åbner sit modul. Sidepanelet giver de samme indgange, og Home vender tilbage til oversigten.",
+          "narration": "Home er udgangspunktet. Læs hver række fra venstre mod højre: Core, Data og Tools. Hver flise åbner sit modul. Sidepanelet giver de samme indgange, og Home vender tilbage til oversigten.",
           "hold_after": 0.7
         },
         {
@@ -537,17 +537,6 @@
           ]
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify lærer fra gennemgåede etiketter og scorer andre objekter med billedbaserede eller tabelbaserede metoder.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ]
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes læser sekvensdata for at tælle og identificere guider eller stregkoder.",
           "hold_after": 0.7,
@@ -581,17 +570,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings koder objektudsnit som numeriske egenskaber til udforskning og sammenligning.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare samler gemte resultater fra kørsler, så du kan undersøge forskelle.",
           "hold_after": 0.7,
@@ -603,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design placerer betingelser, brønde og prøveidentiteter før et eksperiment.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design undersøger antagelser om stikprøvestørrelse og statistisk styrke ved planlagte sammenligninger.",
           "hold_after": 0.7,
@@ -622,28 +589,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response tilpasser respons på tværs af koncentrationer og holder det valgte endepunkt og kontrollerne tydelige.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC samler kvalitetskontroller og viser, hvilken dokumentation der findes eller mangler.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -680,17 +625,6 @@
           ]
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor definerer udvalg på faktiske datakolonner. Gennemgå objekterne, før et udvalg bliver til etiketter.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ]
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder laver grafer fra måletabeller med valgbare kolonner og grupperinger.",
           "hold_after": 0.7,
@@ -699,17 +633,6 @@
           ],
           "related_lessons": [
             "58_graph_builder"
-          ]
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Rækken Organism indeholder Toxoplasma. Den åbner en organismevejledning, en interaktiv tegning og de tilgængelige Toxoplasma-analyser. Den særskilte Toxoplasma-vejledning gennemgår siden.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
           ]
         },
         {
@@ -810,7 +733,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klik på Animation for at vælge hovedbaggrunden og dens palet. Animation colours indstiller hoved- og accentfarverne for Custom colours; Animation background vælger en uafhængig baggrund, og Theme colour gendanner sidens tema. Detail styrer gengivelsesopløsningen. Speed, Size og Density ændrer bevægelsen og antallet af elementer. Mouse gravity radius angiver musens påvirkningsområde; nul slår det fra. Dot blinking styrer hvide blink, og Popup wave frequency starter bølger fra åbne popupvinduer i spaCR field. Field ripples styrer bølger fra klik, åbning eller lukning af beholdere og placering af vinduet ved skærmkanten, uafhængigt af musens påvirkning. Slå det fra for også at stoppe de automatiske popupbølger. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density ændrer kun Settings backdrop. Settings backdrop darkness styrer formularens læsbarhed.",
+          "narration": "Klik på Animation for at vælge hovedbaggrunden og dens palet. Animation colours indstiller hoved- og accentfarverne for Custom colours; Animation background vælger en uafhængig baggrund, og Theme colour gendanner sidens tema. Detail styrer gengivelsesopløsningen. Speed, Size og Density ændrer bevægelsen og antallet af elementer. Mouse gravity radius angiver musens påvirkningsområde; nul slår det fra. Dot blinking styrer hvide blink. Field ripples angiver styrken af bølger fra klik, åbning eller lukning af beholdere, popupvinduer og placering af vinduet ved skærmkanten, uafhængigt af musens påvirkning; nul slår bølgerne fra, også de automatiske popupbølger. Click ripples bestemmer, om et klik på baggrunden sender en bølge. Popup wave frequency angiver, hvor mange bølger pr. minut der spredes fra et åbent popupvindue ud i spaCR field. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density ændrer kun Settings backdrop. Settings backdrop darkness styrer formularens læsbarhed.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -1171,7 +1094,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1564,7 +1510,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i fire brønde, og Next gemmer dem.",
+          "narration": "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i tre brønde, og Next gemmer dem.",
           "focus": [
             360,
             380,
@@ -1576,7 +1522,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og hvert udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
+          "narration": "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og de umærkede udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
           "focus": [
             350,
             250,
@@ -1587,7 +1533,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar bliver registreret, afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
+          "narration": "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar afventer lagring, indtil Next gemmer dem; afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
           "focus": [
             350,
             250,
@@ -1618,7 +1564,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2001,7 +1970,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2355,7 +2347,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Fra Home åbner du Make Masks under Tools. Knapperne nederst til venstre henter billeder ind: Open folder, Organize for Measure og Load test data. Til højre bestemmer Discard, Keep, Skip og Upload data, hvad der sker med hvert synsfelt, når det er redigeret. Clear masks, lige til venstre for Discard, beder om bekræftelse, før alle masker i det aktuelle billede fjernes.",
+          "narration": "Fra Home åbner du Make Masks under Tools. Knapperne nederst til venstre henter billeder ind: Open folder, Organize for Measure og Load test data. Til højre bestemmer Discard, Keep, Skip og Upload data, hvad der sker med hvert synsfelt, når det er redigeret. Clear all objects, lige til venstre for Discard, beder om bekræftelse, før alle objekter i det aktuelle billede fjernes.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -8092,7 +8084,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15092,7 +15107,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate viser objektudsnit, så du kan tilføje gennemgåede etiketter. Classify lærer fra den valgte etiketkolonne ved hjælp af udsnitsbilleder eller målte egenskaber. Hold evalueringsobjekter adskilt fra træningsobjekter, og før scorekolonnen og objektidentiteterne videre til senere analyser.",
+          "narration": "Annotate viser objektudsnit, så du kan tilføje gennemgåede etiketter. Classify træner en model på den valgte etiketkolonne ved hjælp af udsnitsbilleder eller målte egenskaber. Hold evalueringsobjekter adskilt fra træningsobjekter, og før scorekolonnen og objektidentiteterne videre til senere analyser.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15430,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Diagrammet er til at udforske. Hold markøren over en cellekomponent, så vises dens beskrivelse. Vælg flere for at holde dem fremhævet, og Clear components nulstiller billedet.",
+          "narration": "Diagrammet er interaktivt. Hold markøren over en cellekomponent, så vises dens beskrivelse. Vælg flere for at holde dem fremhævet, og Clear components nulstiller billedet.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15440,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Klik på Plaque Assay for at åbne analyseskærmen. Indstillingspanelet angiver billedkilden, masker og detektionsmuligheder. Load test data giver et eksempel. Kontrollér input og forhåndsvisning, før du starter Run; vejledningen Plaque Analysis beskriver hele arbejdsgangen.",
+          "narration": "Klik på Plaque Assay for at åbne analyseskærmen. Indstillingspanelet angiver billedkilden, masker og detektionsmuligheder. Load test data giver et eksempel. Kontrollér input og forhåndsvisning, før du starter Run; vejledningen Plaque Assay beskriver hele arbejdsgangen.",
           "hold_after": 0.7
         },
         {

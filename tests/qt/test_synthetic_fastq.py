@@ -94,7 +94,7 @@ def test_generate_barcode_csv_rejects_a_mismatched_number_of_entries(tmp_path: P
     # wording described.
     out = generate_barcode_csv(
         tmp_path / "z.csv", ["a", "b"], ["ACGTACGT", "ACGTACGTAC"])
-    assert out.read_text().splitlines()[1:] == ["a,ACGTACGT", "b,ACGTACGTAC"]
+    assert out.read_text(encoding="utf-8").splitlines()[1:] == ["a,ACGTACGT", "b,ACGTACGTAC"]
 
 
 # ---------------------------------------------------------------------------

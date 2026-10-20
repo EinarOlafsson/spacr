@@ -248,7 +248,7 @@ def test_clear_logs_deletes_only_recognised_closed_logs(home):  # noqa: F811
     deleted, emptied, freed, refused = rj._clear_logs(plan)
     assert (deleted, emptied, freed, refused) == (4, 0, 1000, [])
     assert not any(path.exists() for path in (daily, crash, verbose, run_log))
-    assert unrelated.read_text() == "not a log"
+    assert unrelated.read_text(encoding="utf-8") == "not a log"
 
 
 def test_clear_logs_plan_tolerates_an_unreadable_log_folder(home, monkeypatch):  # noqa: F811

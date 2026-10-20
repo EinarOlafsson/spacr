@@ -234,7 +234,7 @@ def test_every_registry_module_has_a_lesson_or_a_registered_gap():
     from spacr.qt.tutorials import has_tutorial
 
     source = (Path(__file__).resolve().parents[2] /
-              'docs/source/_extra/tutorials/module_navigation.js').read_text()
+              'docs/source/_extra/tutorials/module_navigation.js').read_text(encoding="utf-8")
     navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
     gaps = navigation['missing_tutorials']
     registered = {row['app_key'] for row in gaps}

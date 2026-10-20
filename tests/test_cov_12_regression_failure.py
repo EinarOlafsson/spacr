@@ -66,7 +66,7 @@ def test_a_report_that_cannot_be_written_returns_none_rather_than_raising(
     out = regression_failure.write_failure_report(
         blocker / 'run', RuntimeError('out of memory'), stage='fitting')
     assert out is None
-    assert blocker.read_text() == 'not a directory'
+    assert blocker.read_text(encoding="utf-8") == 'not a directory'
 
 
 def test_no_destination_folder_is_reported_as_no_file_written(tmp_path):

@@ -1,0 +1,10 @@
+{
+  "base_sha256": {
+    "spacr/qt/widgets/object_settings_grid.py": "9caa0afca39d68d263907fa52367a944d8067c256a17363b4a54c773ba637305",
+    "spacr/qt/screens/app_screen.py": "45fe3390a5f61aaaac3b612248d130fd40170cd2b71276b8cf1fbbc6fe6d4e2f"
+  },
+  "patch_sha256": "425c438442e690fc7ca87615daeb92316969be15bbccef89cafbadeffcaed7fb",
+  "claim": "Only existing ObjectSettingsGrid.choose_model_for and AppScreen._mount_the_object_grid, no ObjectGridBinding edits. Explicit private callback delegates actual owned widget to same already accepted provenance transaction; existing binding follows widget signals; standalone legacy chooser unchanged. All docs/signatures/literals unchanged.",
+  "baseline": "actualMaskgrid exportsnative selectedpathbutnotverifiedpin:1FAIL3.91s",
+  "normal_generation": "No new runtime/API literal or doc changes; prove normal owning-method doc/signature inventory unchanged after any approved edit. No collector/writer expected."
+}

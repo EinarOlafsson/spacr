@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import atexit
 import gc
+import importlib
 import io
 import logging
 import os
@@ -28,7 +29,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal
 
-from spacr.qt.gil_priority import responsive_gui
+from spacr.qt.gil_priority import _open_torch_libraries, responsive_gui
 from spacr.cancellation import (
     CancellationToken,
     PipelineCancelled,
@@ -39,6 +40,14 @@ from spacr.cancellation import (
 from ..figures.style import figure_style, theme_target
 
 LOG = logging.getLogger(__name__)
+
+#: Carries the settings problems a run was started with to whoever watches
+#: (AppScreen, so a refused run can list every problem, not only the one
+#: that stopped it). Never propagates, so nothing reaches the console twice.
+SETTINGS_PROBLEMS_LOG = logging.getLogger("spacr.qt.settings_problems")
+SETTINGS_PROBLEMS_LOG.propagate = False
+SETTINGS_PROBLEMS_LOG.setLevel(logging.INFO)
+SETTINGS_PROBLEMS_LOG.addHandler(logging.NullHandler())
 
 
 class _StreamRedirector(io.TextIOBase):
@@ -199,7 +208,10 @@ class _ThreadStreamRouter(io.TextIOBase):
         :param value: the text.
         :returns: how many characters were accepted.
         """
-        return self._target().write(value)
+        try:
+            return self._target().write(value)
+        except ValueError:
+            return 0
 
     def flush(self) -> None:
         """Flush this thread's redirector, tolerating one that has gone away."""
@@ -223,7 +235,10 @@ class _ThreadStreamRouter(io.TextIOBase):
         :returns: the real stream's answer, and ``False`` for a stream that
             does not implement it -- a router is never itself a terminal.
         """
-        return bool(getattr(self.original, "isatty", lambda: False)())
+        try:
+            return bool(getattr(self.original, "isatty", lambda: False)())
+        except ValueError:
+            return False
 
 
 _STREAM_ROUTER_LOCK = threading.RLock()
@@ -345,7 +360,7 @@ APP_KEY_ATTR = "__spacr_app_key__"
 
 
 class PauseGate:
-    """A latch a worker thread waits on, so a pause is a *pause*.
+    """A latch a worker thread waits on at a checkpoint while paused.
 
     **Why this is not connected to every pipeline.** Pausing a
     running job can only mean one of two things:
@@ -354,22 +369,22 @@ class PauseGate:
       means possibly mid-``np.save`` of a mask (``spacr.object`` writes
       ``.npy`` without a tmp+rename) or between the several ``INSERT``\\ s
       that make up one measured field. Both leave exactly the
-      half-written artefact ``spacr.resume`` exists to clean up. That is
-      not a pause, it is corruption with a friendly label.
+      half-written artefact ``spacr.resume`` exists to clean up, so this
+      is not a safe pause.
     * let the pipeline reach a boundary where nothing is half-written,
       and hold it there. That requires the pipeline to *ask*, which is
       what :func:`checkpoint` is for.
 
-    Only the second is honest, and it cannot be bolted on from outside:
-    a gate can be *set* from the GUI thread, but if nothing ever *reads*
-    it the button does nothing. Pause therefore remains disabled until an
+    Only the second leaves no half-written output, and it needs the
+    pipeline's cooperation: a gate can be *set* from the GUI thread, but
+    if nothing ever *reads* it the button does nothing. Pause therefore remains disabled until an
     entry point opts in via :func:`pausable`. Stop is a separate contract:
     :mod:`spacr.cancellation` is polled by shipped workflows at durable
     boundaries and never claims to suspend an in-progress write.
 
     Thread-safety: :meth:`pause` / :meth:`resume` are called from the GUI
-    thread; :meth:`wait_if_paused` blocks the worker thread. That is the
-    whole contract — a :class:`threading.Event` does the rest.
+    thread; :meth:`wait_if_paused` blocks the worker thread. A
+    :class:`threading.Event` holds the paused state.
     """
 
     def __init__(self) -> None:
@@ -439,9 +454,9 @@ def checkpoint() -> None:
 def pausable(fn: Callable) -> Callable:
     """Mark an entry point as honouring :func:`checkpoint`.
 
-    Setting this on a function that does *not* actually call
-    :func:`checkpoint` is how you ship a Pause button that lies, so the
-    marker is deliberately explicit rather than inferred.
+    Setting this on a function that does *not* call :func:`checkpoint`
+    enables a Pause button that has no effect, so the marker is set
+    explicitly rather than inferred.
 
     :param fn: the entry-point callable to mark; it is returned, and an object
         that cannot take attributes is returned unmarked.
@@ -615,6 +630,10 @@ class RunHandle(QObject):
         #: seconds, so without this Home flashes "<module> usage - running"
         #: on and off for as long as a module screen is open.
         self.user_visible = bool(getattr(worker, "user_visible", True))
+        #: "analysis" for a run that writes results (see
+        #: :attr:`blocks_shutdown`), "housekeeping" for read-only UI work.
+        #: The update check refuses only while an analysis is registered.
+        self.kind = "analysis" if self.blocks_shutdown else "housekeeping"
         worker.line_ready.connect(self._on_line)
 
     @property
@@ -705,7 +724,7 @@ class RunHandle(QObject):
 
 
 class RunRegistry(QObject):
-    """Every job started through :func:`make_thread`, while it runs.
+    """Track jobs created by :func:`make_thread` until their handles retire.
 
     Deliberately tiny: a list plus a ``changed`` signal. It exists so
     that a surface which is *not* the screen that started the job — the
@@ -747,8 +766,25 @@ class RunRegistry(QObject):
             self.changed.emit()
 
     def active(self) -> List[RunHandle]:
-        """Handles for the jobs running right now, oldest first."""
+        """Return registered handles in registration order.
+
+        The list includes unstarted jobs and stopped threads awaiting
+        retirement; it does not filter by whether a thread is running.
+        """
         return list(self._handles)
+
+    def _of_kind(self, *kinds: str) -> List[RunHandle]:
+        """Registered handles of the given kinds, in registration order.
+
+        A handle that names no kind counts as an analysis, so an unknown job
+        is never mistaken for housekeeping.
+
+        :param kinds: "analysis", "housekeeping", "package_install",
+            "model_download" or "external".
+        :returns: the matching handles, started or not.
+        """
+        return [handle for handle in self._handles
+                if getattr(handle, "kind", "analysis") in kinds]
 
     def is_busy(self) -> bool:
         """Whether any run is still registered.
@@ -847,6 +883,7 @@ class _ExternalJobHandle(QObject):
         refuse to close the window.
     :param user_visible: whether the job is shown to the user at all.
     :param stop_on_quit: whether closing spaCR cancels the job.
+    :param kind: "package_install", "model_download" or "external".
     :param parent: parent object, or ``None``.
     """
 
@@ -854,7 +891,7 @@ class _ExternalJobHandle(QObject):
 
     def __init__(self, app_key: str, cancel: Optional[Callable[[str], Any]] = None,
                  *, blocks_shutdown: bool = False, user_visible: bool = True,
-                 stop_on_quit: bool = True, parent=None):
+                 stop_on_quit: bool = True, kind: str = "external", parent=None):
         """Describe one running external job.
 
         :param app_key: what the job is called.
@@ -862,10 +899,12 @@ class _ExternalJobHandle(QObject):
         :param blocks_shutdown: whether it vetoes closing the window.
         :param user_visible: whether it is listed.
         :param stop_on_quit: whether closing spaCR cancels it.
+        :param kind: what the job is, for the update check.
         :param parent: parent object, or ``None``.
         """
         super().__init__(parent)
         self.app_key = app_key or "job"
+        self.kind = str(kind or "external")
         self.worker = None
         self.thread = None
         self.worker_count = 1
@@ -936,8 +975,8 @@ def _track_external_job(app_key: str,
 
     :param app_key: what the job is called in the Jobs window.
     :param cancel: called with the reason on Cancel, or ``None``.
-    :param options: ``blocks_shutdown``, ``user_visible`` and
-        ``stop_on_quit`` for the handle.
+    :param options: ``blocks_shutdown``, ``user_visible``,
+        ``stop_on_quit`` and ``kind`` for the handle.
     :returns: the registered handle.
     """
     reg = registry()
@@ -1009,6 +1048,155 @@ def _drain_parked_threads_at_exit() -> None:
             "Their QThread wrappers are about to be destroyed, which Qt "
             "treats as fatal. Whatever they are inside did not answer a "
             "stop request.", still_running)
+
+
+#: The total budget for asking in-flight work to stop when the process ends,
+#: in milliseconds. Threads still running after it are parked, and the parked
+#: drain gives them :data:`PARKED_EXIT_WAIT_MS` more.
+EXIT_STOP_BUDGET_MS = 2000
+
+
+def _park_still_running(pairs) -> int:
+    """Park every ``(thread, worker)`` pair whose thread is still running.
+
+    :param pairs: ``(thread, worker)`` pairs to check.
+    :returns: how many were parked.
+    """
+    parked = 0
+    for thread, worker in pairs:
+        if thread_has_stopped(thread):
+            continue
+        with _PARKED_LOCK:
+            if not any(entry[0] is thread for entry in _PARKED_THREADS):
+                _PARKED_THREADS.append((thread, worker))
+                parked += 1
+    return parked
+
+
+def retire_live_work(timeout_ms: int = EXIT_STOP_BUDGET_MS) -> int:
+    """Stop every job runner and registered run within one shared budget.
+
+    The application's ``aboutToQuit`` drain and the interpreter's exit hook
+    both end here. ``aboutToQuit`` only fires when an event loop quits, so a
+    process that builds windows and then simply ends (a script, a test
+    subprocess, a capture run that returns early) never sees it, and the
+    QThreads its widgets started are destroyed during interpreter teardown
+    while they still run. Qt treats that as fatal. Whatever cannot stop in
+    the budget is parked, never terminated.
+
+    :param timeout_ms: total wait budget across every runner and run.
+    :returns: how many threads are still running afterwards.
+    """
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+
+    def remaining() -> int:
+        """What is left of the shared budget, in milliseconds."""
+        return max(0, int((deadline - time.monotonic()) * 1000))
+
+    runners = sys.modules.get(__package__ + ".job_runner")
+    if runners is not None:
+        try:
+            runners.shutdown_all(remaining())
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not shut down the job runners", exc_info=True)
+    if _REGISTRY is not None:
+        try:
+            handles = _REGISTRY.active()
+            _REGISTRY.cancel_all(timeout_ms=remaining(),
+                                 reason="application exit")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not cancel the registered runs", exc_info=True)
+        else:
+            _park_still_running(
+                (getattr(handle, "thread", None),
+                 getattr(handle, "worker", None))
+                for handle in handles if isinstance(handle, RunHandle))
+    _stop_loose_qthreads(remaining())
+    return prune_parked_threads()
+
+
+def _loose_qthreads() -> List[Any]:
+    """Every running QThread this process created and nothing has parked.
+
+    A screen that subclasses QThread itself (the updater's news fetch, a
+    model download, a folder scan) is neither a job runner nor a registered
+    run, so the two drains above never see it. It is found here instead,
+    among the Python-created QThread wrappers that are still alive. The
+    GUI thread and threads Qt adopted are skipped: neither is ours to stop.
+    ``type()`` rather than ``isinstance``: the heap holds lazy module proxies
+    whose ``__class__`` warns or imports when asked, and this runs while the
+    interpreter is on its way out.
+    """
+    import gc
+
+    try:
+        from shiboken6 import Shiboken
+    except ImportError:
+        return []
+    current = QThread.currentThread()
+    with _PARKED_LOCK:
+        parked = [entry[0] for entry in _PARKED_THREADS]
+    found: List[Any] = []
+    for candidate in gc.get_objects():
+        if not issubclass(type(candidate), QThread):
+            continue
+        try:
+            if (candidate is current or candidate == current
+                    or not Shiboken.isValid(candidate)
+                    or not Shiboken.createdByPython(candidate)
+                    or not candidate.isRunning()):
+                continue
+        except RuntimeError:
+            continue
+        if any(candidate is entry for entry in parked + found):
+            continue
+        found.append(candidate)
+    return found
+
+
+def _stop_loose_qthreads(timeout_ms: int) -> int:
+    """Ask every loose QThread to stop, wait within ``timeout_ms``, park the rest.
+
+    A thread that outlasts the budget is taken off its parent before it is
+    parked: a parent widget destroyed at exit takes its QThread children
+    with it whatever Python still holds, and that is the abort.
+
+    :param timeout_ms: the shared wait budget, in milliseconds.
+    :returns: how many were parked.
+    """
+    threads = _loose_qthreads()
+    for thread in threads:
+        try:
+            thread.requestInterruption()
+            thread.quit()
+        except RuntimeError:
+            pass
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    stubborn = []
+    for thread in threads:
+        remaining = max(0, int((deadline - time.monotonic()) * 1000))
+        try:
+            if thread.wait(remaining):
+                continue
+            thread.setParent(None)
+        except RuntimeError:
+            continue
+        stubborn.append((thread, None))
+    return _park_still_running(stubborn)
+
+
+def _retire_live_work_at_exit() -> None:
+    """``atexit`` hook: stop live work, then wait for whatever was parked.
+
+    Registered when this module is imported, which is after PySide6 is, so
+    it runs before PySide6's own teardown destroys the Qt objects.
+    """
+    try:
+        retire_live_work()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not retire the live work at exit", exc_info=True)
+    if parked_thread_count():
+        _drain_parked_threads_at_exit()
 
 
 def _install_parked_exit_hook() -> None:
@@ -1359,9 +1547,9 @@ class PipelineWorker(QObject):
     def supports_pause(self) -> bool:
         """True only when the entry point declares :func:`pausable`.
 
-        No shipped pipeline does, so this is False everywhere today —
-        see :class:`PauseGate` for why that is the honest answer rather
-        than a missing feature.
+        No shipped pipeline does, so this is False everywhere —
+        see :class:`PauseGate` for why Pause stays disabled until a
+        pipeline calls :func:`checkpoint`.
         """
         return bool(getattr(self._fn, PAUSABLE_ATTR, False))
 
@@ -1372,7 +1560,7 @@ class PipelineWorker(QObject):
         True for analysis runs. They write masks, measurements and model
         files, so stopping one anywhere other than a declared safe boundary
         risks the half-written artefact :mod:`spacr.resume` exists to clean
-        up, and the honest response to "close now" is to wait.
+        up, so closing waits for them.
 
         False for the read-only background jobs the UI runs on its own
         behalf — refreshing run history, scanning a model folder, polling a
@@ -1464,8 +1652,10 @@ class PipelineWorker(QObject):
                 """Emit each new figure once, rendering it HERE on the worker thread.
 
                 Agg's savefig touches no Qt, so the expensive part happens off the GUI
-                thread and the GUI only does a file move and a pixmap load -- which is
-                what stops it hanging while figures stream in.
+                thread, and the PNG is decoded here too
+                (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI
+                only moves a file and wraps a picture, which is what stops it hanging
+                while figures stream in.
 
                 Figures marked ``_spacr_live_update`` are re-emitted in place instead,
                 which is how the training monitor refreshes without filling the gallery
@@ -1483,13 +1673,15 @@ class PipelineWorker(QObject):
                         png_path = ""
                         try:
                             import tempfile
-                            from .widgets.figure_queue import render_figure_to_png
+                            from .widgets.figure_queue import (
+                                _decode_display_png, render_figure_to_png)
                             fig_counter[0] += 1
                             tmp = os.path.join(
                                 tempfile.gettempdir(),
                                 f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
                             if render_figure_to_png(fig, tmp):
                                 png_path = tmp
+                                _decode_display_png(tmp)
                         except Exception:
                             png_path = ""
                         worker.figure_ready.emit(fig, png_path)
@@ -1512,13 +1704,15 @@ class PipelineWorker(QObject):
                 png_path = ""
                 try:
                     import tempfile
-                    from .widgets.figure_queue import render_figure_to_png
+                    from .widgets.figure_queue import (
+                        _decode_display_png, render_figure_to_png)
                     fig_counter[0] += 1
                     tmp = os.path.join(
                         tempfile.gettempdir(),
                         f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
                     if render_figure_to_png(fig, tmp):
                         png_path = tmp
+                        _decode_display_png(tmp)
                 except Exception:
                     png_path = ""
                 worker.figure_ready.emit(fig, png_path)
@@ -1568,6 +1762,7 @@ class PipelineWorker(QObject):
         try:
             with installed_token(self.cancel_token), responsive_gui():
                 self.cancel_token.checkpoint()
+                _open_torch_libraries()
                 payload = self._fn(self._settings)
             if journal_run is not None:
                 from spacr.run_journal import _raise_if_incomplete
@@ -1717,6 +1912,11 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
                 found = list(validate_settings(dict(settings), app_key))
             except Exception:                                    # noqa: BLE001
                 found = []
+            errors = [p for p in found
+                      if getattr(p, "severity", "") == "error"]
+            if errors:
+                SETTINGS_PROBLEMS_LOG.info(
+                    "settings problems", extra={"spacr_problems": errors})
             for problem in found:
                 mark = "ERROR" if problem.severity == ERROR else "WARNING"
                 where = f" [{problem.setting}]" if problem.setting else ""
@@ -1814,6 +2014,12 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         if app_key == "ops":
             from spacr.ops_engine import run_ops
             return _ret(log_call(run_ops))
+        if app_key == "spatial_masks":
+            from spacr.ops_engine import run_spatial_masks
+            return _ret(log_call(run_spatial_masks))
+        if app_key == "spatial_map":
+            from spacr.ops_engine import run_spatial_map
+            return _ret(log_call(run_spatial_map))
         if app_key == "convert":
             from spacr.convert import convert_folder
             return _ret(log_call(convert_folder))
@@ -1852,6 +2058,160 @@ def resolve_pipeline_entry(app_key: str) -> Callable[[Dict[str, Any]], Any] | No
         LOG.exception("Could not resolve pipeline entry for %s", app_key)
         return None
     return None
+
+
+#: The module each built-in app's entry point is imported from, as
+#: :func:`resolve_pipeline_entry` imports it. Kept beside it, and checked
+#: against its source by a test, because the two must name the same module.
+_ENTRY_MODULES: Dict[str, str] = {
+    "mask": "spacr.core",
+    "timelapse": "spacr.core",
+    "motility": "spacr.timelapse",
+    "measure": "spacr.measure",
+    "external_masks": "spacr.external_masks",
+    "illumination": "spacr.illumination",
+    "classify_merged": "spacr.classify",
+    "classify": "spacr.deep_spacr",
+    "umap": "spacr.core",
+    "train_cellpose": "spacr.submodules",
+    "cellpose_masks": "spacr.spacr_cellpose",
+    "map_barcodes": "spacr.sequencing",
+    "ml_analyze": "spacr.ml",
+    "regression": "spacr.ml",
+    "recruitment": "spacr.submodules",
+    "activation": "spacr.deep_spacr",
+    "foreign": "spacr.foreign",
+    "align": "spacr.align",
+    "ops": "spacr.ops_engine",
+    "spatial_masks": "spacr.ops_engine",
+    "spatial_map": "spacr.ops_engine",
+    "convert": "spacr.convert",
+    "invasion": "spacr.submodules",
+    "replication": "spacr.submodules",
+    "analyze_plaques": "spacr.submodules",
+    "barcode_qc": "spacr.sequencing_qc",
+    "explain_cv": "spacr.surrogate",
+    "anndata_export": "spacr.anndata_export",
+}
+
+#: One import thread per module, kept after it ends so a module whose import
+#: failed is tried off the GUI thread once and then left to
+#: :func:`resolve_pipeline_entry` to fail exactly as it always has.
+_ENTRY_IMPORTS: Dict[str, threading.Thread] = {}
+
+
+def _module_is_imported(name: str) -> bool:
+    """Whether ``name`` is in :data:`sys.modules` and finished initialising.
+
+    A module another thread is still importing is already in
+    :data:`sys.modules`; importing it from the GUI thread would wait on its
+    import lock for the rest of that import.
+    """
+    module = sys.modules.get(name)
+    if module is None:
+        return False
+    spec = getattr(module, "__spec__", None)
+    return not getattr(spec, "_initializing", False)
+
+
+def _import_the_entry_module(name: str) -> None:
+    """Import ``name`` on the calling thread, never raising.
+
+    Holds the application's heavy-import lock when the application is loaded,
+    as the module preloader does, so the import and an OpenGL context are
+    never brought up together, and shortens the interpreter's switch interval
+    so the GUI thread keeps its turns. A failure is only logged:
+    :func:`resolve_pipeline_entry` repeats the import and reports it.
+
+    When the import brought torch in, its GPU driver is brought up here too.
+    The first ``torch.cuda.is_available()`` of a process initialises the
+    driver, and the run's start asks it on the GUI thread (the animation
+    policy's GPU check); every later call answers at once.
+
+    The cyclic collector is off for the import and what it built is frozen
+    after it, as :func:`spacr.qt.app._freeze_what_survived` does after the
+    other background imports: a full collection over the 2,900 modules torch
+    and the rest bring in otherwise lands on whichever thread allocates next,
+    and that was the GUI thread starting the run, 100-150 ms.
+
+    PyTorch's libraries are mapped first with the interpreter lock released
+    (:func:`spacr.qt.gil_priority._open_torch_libraries`), whether or not
+    this module imports torch: the run that follows does.
+    """
+    app_module = sys.modules.get("spacr.qt.app")
+    lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
+    from .gc_policy import _automatic_collection_paused
+
+    with responsive_gui(), _automatic_collection_paused():
+        if lock is not None:
+            lock.acquire()
+        try:
+            _open_torch_libraries()
+            importlib.import_module(name)
+            torch = sys.modules.get("torch")
+            if torch is not None:
+                torch.cuda.is_available()
+        except Exception:
+            LOG.debug("could not import %s off the GUI thread", name,
+                      exc_info=True)
+        finally:
+            gc.freeze()
+            if lock is not None:
+                lock.release()
+
+
+def _import_the_entry_off_the_gui_thread(
+        app_key: str) -> Optional[threading.Thread]:
+    """Import the module ``app_key``'s entry point comes from, on a worker.
+
+    THE FIRST RUN OF A SESSION USED TO FREEZE THE WINDOW. Pressing Run asked
+    :func:`resolve_pipeline_entry` for the entry point, and for Mask that is
+    ``from spacr.core import ...``: torch, cellpose, pandas, Matplotlib and
+    about 2,900 modules, 3.6 s on the GUI thread the first time and nothing
+    after. A screen calls this first and resolves the entry once the thread
+    has finished, so the import runs while the window keeps painting.
+
+    :param app_key: the app being run.
+    :returns: the importing thread while it is still running, or ``None``
+        when there is nothing to wait for: an app with no built-in entry, a
+        module already imported, or one whose import was tried before.
+    """
+    name = _ENTRY_MODULES.get(app_key)
+    if name is None:
+        return None
+    thread = _ENTRY_IMPORTS.get(name)
+    if thread is None:
+        if _module_is_imported(name):
+            return None
+        thread = threading.Thread(
+            target=_import_the_entry_module, args=(name,),
+            name=f"spacr-entry-import-{name}", daemon=True)
+        _ENTRY_IMPORTS[name] = thread
+        thread.start()
+    return thread if thread.is_alive() else None
+
+
+def _entry_import_pending(app_key: str) -> bool:
+    """Whether resolving ``app_key``'s entry point would still import.
+
+    True for a built-in app whose module is not imported yet and has not
+    been tried, and while :func:`_import_the_entry_off_the_gui_thread` is
+    still importing it.
+
+    :param app_key: the app being run.
+    """
+    name = _ENTRY_MODULES.get(app_key)
+    if name is None:
+        return False
+    thread = _ENTRY_IMPORTS.get(name)
+    if thread is not None:
+        return thread.is_alive()
+    return not _module_is_imported(name)
+
+
+resolve_pipeline_entry.entry_import_pending = _entry_import_pending
+resolve_pipeline_entry.import_off_the_gui_thread = (
+    _import_the_entry_off_the_gui_thread)
 
 
 #: Stack for a pipeline worker thread, in bytes.
@@ -1897,6 +2257,108 @@ def _widen_worker_stack(thread: "QThread") -> None:
         pass
 
 
+_GUI_CALL_TIMEOUT_S = 10.0
+
+_GUI_CALLS = []
+
+
+class _GuiThreadCalls(QObject):
+    """Runs a callable handed to it from any thread on the thread it lives on.
+
+    Made on the GUI thread by :func:`_install_the_workspace_dispatcher`;
+    :func:`_call_on_the_gui_thread` posts work to it through a queued signal.
+    """
+
+    _asked = Signal(object)
+
+    def __init__(self) -> None:
+        """Connect the queued delivery to :meth:`_answer`."""
+        super().__init__()
+        self._asked.connect(self._answer, Qt.QueuedConnection)
+
+    def _answer(self, job) -> None:
+        """Run one posted job; the job reports its own outcome."""
+        job()
+
+
+def _call_on_the_gui_thread(fn, timeout_s: Optional[float] = None):
+    """Return ``fn()``, computed on the GUI thread.
+
+    On the GUI thread, or with no application or relay, ``fn`` runs in
+    place. From another thread it is posted to the GUI thread and this
+    waits at most ``timeout_s`` (default :data:`_GUI_CALL_TIMEOUT_S`): a
+    GUI thread that is itself waiting on the caller then costs a
+    ``TimeoutError`` rather than a deadlock.
+
+    :raises TimeoutError: when the GUI thread does not answer in time.
+    """
+    from PySide6.QtCore import QCoreApplication
+
+    app = QCoreApplication.instance()
+    relay = _GUI_CALLS[0] if _GUI_CALLS else None
+    if (app is None or relay is None
+            or QThread.currentThread() is app.thread()):
+        return fn()
+    box = {}
+    done = threading.Event()
+    try:
+        relay._asked.emit(functools.partial(_run_the_posted, fn, box, done))
+    except RuntimeError:
+        return fn()
+    wait = _GUI_CALL_TIMEOUT_S if timeout_s is None else float(timeout_s)
+    if not done.wait(wait):
+        raise TimeoutError("the interface did not answer in time")
+    if "error" in box:
+        raise box["error"]
+    return box.get("value")
+
+
+def _run_the_posted(fn, box, done) -> None:
+    """Run ``fn`` on the GUI thread, record its outcome in ``box``, signal."""
+    try:
+        box["value"] = fn()
+    except BaseException as error:                       # noqa: BLE001
+        box["error"] = error
+    finally:
+        done.set()
+
+
+def _install_the_workspace_dispatcher() -> bool:
+    """Read workspace sections on the GUI thread, whoever saves them.
+
+    Call on the GUI thread. Idempotent; returns whether this call installed
+    it.
+    """
+    from spacr import workspace
+
+    if not _GUI_CALLS:
+        _GUI_CALLS.append(_GuiThreadCalls())
+    if workspace._STATE_DISPATCHER is _call_on_the_gui_thread:
+        return False
+    workspace._STATE_DISPATCHER = _call_on_the_gui_thread
+    return True
+
+
+def _import_pyplot_without_pinning_callers() -> None:
+    """Import ``matplotlib.pyplot`` and free the cycles the import leaves.
+
+    Building pyplot's mathtext grammar raises and catches hundreds of
+    pyparsing exceptions. Each traceback is a reference cycle whose frames
+    reach, through ``f_back``, every frame above the import: the screen
+    method that started a job and :func:`make_thread` itself, with the
+    worker, thread and run handle in their locals. Left alone, those
+    objects outlive their owners and are destroyed from inside a later
+    garbage collection. One sweep here, through :func:`spacr._gc.collect`
+    on the GUI thread and before any worker exists, frees the cycles while
+    nothing Qt is held (well under a second, once per process).
+    """
+    import matplotlib.pyplot  # noqa: F401
+
+    from .. import _gc
+
+    _gc.collect()
+
+
 def make_thread(
     fn: Callable[[Dict[str, Any]], Any],
     settings: Dict[str, Any],
@@ -1916,12 +2378,14 @@ def make_thread(
     A caller must hold a strong reference to both until ``thread.finished``:
     a QThread garbage-collected while running takes the process down.
 
-    The job is also added to :func:`registry` for as long as it runs, so
-    surfaces that did not start it (the Home screen) can show what spaCR
-    is doing. Deregistration hangs off ``thread.finished`` — which has
-    the *caller's* affinity — rather than ``worker.finished``, which is
-    emitted on the worker thread and would take the registry (a GUI-thread
-    QObject) with it.
+    A handle is added to :func:`registry` before this function returns,
+    while the thread is still unstarted. It remains registered until
+    ``thread.finished`` invokes the handle's retirement method. Registered
+    handles therefore include jobs awaiting start or retirement; they are not
+    a count of threads currently executing. Surfaces such as Home can use
+    these handles to show jobs they did not start. Retirement is connected to
+    ``thread.finished`` rather than ``worker.finished``, which is emitted
+    before the thread stops.
 
     :param fn: callable invoked as ``fn(settings)`` on the worker thread.
     :param settings: the single argument handed to ``fn``.
@@ -1930,23 +2394,23 @@ def make_thread(
         want to show up on Home under a name of their own.
     :param journal: create a reproducibility record. Disable only for
         read-only UI housekeeping that is not an analysis run.
+    :param user_visible: mark the handle for user-facing job displays.
+        False hides it from displays that filter this flag; the handle is
+        still registered and this option does not cancel or stop the job.
     :param capture_figures: prepare Matplotlib figure interception. Keep true
         for analysis runs; read-only UI jobs which cannot emit figures set it
         false to preserve the operation import boundary.
     :returns: an unstarted ``(QThread, PipelineWorker)`` pair.
     """
     if capture_figures and "matplotlib.pyplot" not in sys.modules:
-        gc_was_enabled = gc.isenabled()
+        from .gc_policy import _automatic_collection_paused
+
         try:
-            if gc_was_enabled:
-                gc.disable()
-            import matplotlib.pyplot  # noqa: F401
+            with _automatic_collection_paused():
+                _import_pyplot_without_pinning_callers()
         except Exception:              # noqa: BLE001
             LOG.debug("matplotlib.pyplot could not be pre-imported",
                       exc_info=True)
-        finally:
-            if gc_was_enabled:
-                gc.enable()
     thread = QThread()
     _widen_worker_stack(thread)
     allocation = apply_worker_budget(settings)
@@ -1965,3 +2429,6 @@ def make_thread(
     reg.register(handle)
     thread.finished.connect(handle.retire)
     return thread, worker
+
+
+atexit.register(_retire_live_work_at_exit)

@@ -1376,6 +1376,35 @@ def test_discarded_data_no_lost_worker_explains_makes_the_run_incomplete(
     ) in text
 
 
+def test_a_discarded_child_file_whose_batch_was_rerun_is_complete(tmp_path):
+    """What tools/run_coverage_batches.py now writes for a child's shell.
+
+    Every file of the batch is listed as lost and re-run on its own, so the
+    measurement is complete and an unchanged module passes.
+    """
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    shell = ".coverage.shard-00.batch-001.host.pid7.XabcXabc.Hxyzh"
+    batch = _batch(lost=[CRASHED], recovered=[CRASHED], discarded=[shell])
+    batch["lost"] = [{
+        "worker": None,
+        "error": f"a child process left unreadable coverage data ({shell})",
+        "running": [],
+        "files": [CRASHED],
+    }]
+    shards = _shard_record(tmp_path / "shards", batches=[batch])
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=1), *shards,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 0, text
+    assert report["measurement_integrity"]["status"] == "complete"
+    assert "INCOMPLETE MEASUREMENT" not in text
+    assert "RECOVERED: coverage shard 0 batch 1: the batch: a child" in text
+
+
 def test_a_baseline_write_refuses_an_incomplete_measurement(tmp_path):
     project = _project(tmp_path / "project")
     baseline = _seed(project, tmp_path, _logic(uncovered_statements=2))

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "peer_review": "Independent Home-B worker reviewed all117 targets;115 accepted, ES/PT worker term clarified against JobRunner QThread implementation.",
+  "normal_generation": {
+    "es": {
+      "changed_symbols": [
+        "spacr.qt.widgets.cell_montage_view"
+      ],
+      "changed_blocks": [
+        2
+      ],
+      "unrelated_records_preserved": 13403,
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "target": "La lectura de imágenes se realiza mediante :class:`spacr.qt.job_runner.JobRunner` y solo el manejador de finalización del hilo de la GUI actualiza los widgets. El límite del mosaico restringe los objetos seleccionados y su valor predeterminado es :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). La conversión de matrices de imagen a ``QPixmap`` se realiza en el hilo de la GUI; la carga de imágenes y la selección de recortes se realizan en el hilo de trabajo."
+    },
+    "pt": {
+      "changed_symbols": [
+        "spacr.qt.widgets.cell_montage_view"
+      ],
+      "changed_blocks": [
+        2
+      ],
+      "unrelated_records_preserved": 13403,
+      "source_sha256": "e41c56ed2ac7a0e2892de57c453c74115298ba8630c716a9133db8e0059c3332",
+      "target": "A leitura das imagens passa por :class:`spacr.qt.job_runner.JobRunner` e somente o manipulador de conclusão na thread da GUI atualiza os widgets. O limite da montagem restringe os objetos selecionados e seu valor padrão é :data:`spacr.cell_montage.MAX_OBJECTS` (2,000). A conversão de matrizes de imagem em ``QPixmap`` ocorre na thread da GUI; o carregamento das imagens e a seleção dos recortes ocorrem na thread de trabalho."
+    }
+  },
+  "source_unchanged_verified": "AST module docstring equals exact earlier normal collector snapshot.",
+  "no_model_decoding": true,
+  "remaining_scope": "Export batch separate; no native-speaker claim."
+}

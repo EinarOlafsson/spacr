@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-15 01:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -26,6 +26,10 @@ msgstr "Medição: pré-visualizar imagens marcadas e verificar planos de másca
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
 msgstr "Abra **Medição** com uma pasta de execução ou sua pasta ``merged``. Se ``src`` apontar para uma das subpastas de saída da placa, como ``measurements`` ou ``masks``, a Medição lê a pasta ``merged`` dessa placa e informa isso no console. Se não houver uma pasta ``merged`` para ler, a Medição não inicia, e sua mensagem indica a pasta ausente e o que definir no lugar. A visualização **Ao vivo** carrega um campo e mostra recortes da máscara de objetos configurada. Use **Configurações de recorte…** para escolher o objeto, os planos de máscara, os canais de imagem, o tamanho dos recortes e os filtros antes de medir todo o experimento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
+msgstr "Com **Mostrar recursos alfa** ativado, a calibração de intensidade aceita uma placa de referência opcional indicada pelo nome em ``intensity_calibration_reference_plate``; deixe o campo em branco para usar a primeira placa por ordem de nome."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

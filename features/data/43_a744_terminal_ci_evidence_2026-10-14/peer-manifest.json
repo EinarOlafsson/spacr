@@ -1,0 +1,10 @@
+{
+  "scope": "Read-only independent current-source diagnostic/archive acceptance; full CI still failed",
+  "files": [
+    {
+      "name": "peer-current-source-diagnostic.json",
+      "bytes": 6486,
+      "sha256": "fd38eb8c8b1c090efb4bbac38895b52dc8db67341f3451a448e897a3e996cfb2"
+    }
+  ]
+}

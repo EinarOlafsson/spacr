@@ -1,0 +1,29 @@
+{
+  "head": "08405c50da40b23fa614cd068485a50313cd61a6",
+  "artifacts": {
+    "docs/source/_static/i18n/api/de.json": "9d67402cd7cf229c0b834fb1002b701baf1998c93c0ee09ac72af5e45d531153",
+    "docs/source/_static/i18n/api/en.json": "a201349bf496a02d1e7512356deb8da1e489d57b2f9169fe984ef106fa72e039",
+    "docs/source/_static/i18n/api/es.json": "9bde796eaeafea2fc085e0b0d538153504a50847b3af186064cef5c38e2afe6c",
+    "docs/source/_static/i18n/api/fr.json": "086bd80b7a3d61aa4f741cb8df5741ce5f777a24c1314328f99769ae21fdfa8f",
+    "docs/source/_static/i18n/api/hi.json": "e819629734bb0efe1bbe2ae31d678c6568f8e81ec60aadec1ad44f91e1e94988",
+    "docs/source/_static/i18n/api/is.json": "31c2aefecd6b22dddcefe7bf430d178f8b4f494b020183af63f516d470822974",
+    "docs/source/_static/i18n/api/ko.json": "d16251d28195a5a1919849ff7d13afc7104ad7cfb17fff21adb953f6519cee6d",
+    "docs/source/_static/i18n/api/pt.json": "ad3d017202862a82b9f1ef384c5fb28e81e88a8f95d520ea75b758adff8a48f6",
+    "docs/source/_static/i18n/api/sv.json": "3ab400f6a6dfaf4fbb26f3fe346d399a064147b123de55aff814122dc65ccb20",
+    "docs/source/_static/i18n/api/zh_CN.json": "772fb6e5c43f2f164fa37192d97fb76f1ea7611bbb778ef689a2d1553cd46217",
+    "spacr/qt/help_api_index.py": "16b4cc60e976eefe15fc309b35f653f342808682f297cda530f885a089d221ee",
+    "spacr/qt/i18n_catalogs/de.py": "b620ffde78b292d7823a38ec284721c880d98ac4af79b6f4b403931139c9a65d",
+    "spacr/qt/i18n_catalogs/en.py": "cdee5ac8bff1ae5fad18369b520aa683beae62f09bb886f9fcc350732729e4cc",
+    "spacr/qt/i18n_catalogs/es.py": "bba434c1e6892aac40c96cfbd9f7f1ac80cf40f466a74ea0e88fdd90bac963d0",
+    "spacr/qt/i18n_catalogs/fr.py": "4e7e0d6ca0575231de843a19af3be1978e560b47b739800c006739ce07099dc8",
+    "spacr/qt/i18n_catalogs/hi.py": "afb2616d03b94e05cab591e67d75d2f986b86c22b122a6492dfb2b25f173f278",
+    "spacr/qt/i18n_catalogs/is.py": "a5bc1aaefbb962c1f5616c0d253b81d66e0f7ccfe770fc66d4b4c87ce5151740",
+    "spacr/qt/i18n_catalogs/ko.py": "6704a35129dad6bb23ba7d6ab9094bd7a0135c613254081ac4974537d0731cf2",
+    "spacr/qt/i18n_catalogs/pt.py": "cead69bd97b9fd3fe6dd067e1b0d71fccc7cbfd7c8e116003d7eb784e0c9b3a6",
+    "spacr/qt/i18n_catalogs/sv.py": "384dabe1633847d152335b6b578899d7c2c9839373ea27a60ca1dc2e83182e28",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "f2b3a2376983f27b3c2175182c20df165ca0b0dbc88a5c3e4a6a6cc38e25b9a9",
+    "tests/data/release_contracts/runtime_caption_arrivals_2026_10_08.json.gz": "0f7e90f4eb53b85712bb83f600d287a6c62151603aab5257cc778acf2ff24d7e"
+  },
+  "before_help": "/mnt/wd4tb/scratch/home-b-n180-figure-producer-20261015/run-1/before-help_api_index.py",
+  "before_help_sha256": "a6f7c7a3ef97da577f6c886206594cc765f255fbcdeda186a5e4b2d9d0245c9a"
+}

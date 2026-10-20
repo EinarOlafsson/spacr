@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "scope": "Independent CI/tool-contract source and existing owning evidence review only; not lesson14 capture/remake/runtime acceptance.",
+  "source_root": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015",
+  "base_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "held_source_commit": "44fc26e58832dd760286725c951d9b0e1f9b9260",
+  "owning_evidence": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/owning-tests.json",
+    "bytes": 5710,
+    "sha256": "2098e065eff2a7182a74c902db117413ce429804d824073d3b8549104ddc8421"
+  },
+  "home_owner_packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/home-owner-packet/manifest.json",
+    "bytes": 2186,
+    "sha256": "2e3561513eb255cc0019e347abbcb4790518e7d644f2f6f3590814f33330db7c"
+  },
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/capture_make_masks.py",
+      "bytes": 41191,
+      "sha256": "333ec1efb25c7b218977332c371d49fdf6303a59939f97b696d19b05fa07439f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py",
+      "bytes": 4406,
+      "sha256": "2033f6d464e0733178e050364720ce799a92a0478ae7737806a4a6c15ed7a9b3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/tests/test_capture_yolo_expected_field.py",
+      "bytes": 2507,
+      "sha256": "55db9a65102603eae2dd6a003b5404ed8bb64d161eb5dc4a42c3d4313135b3a2"
+    }
+  ],
+  "tests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 3.51,
+    "terminal_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/focused-tests-r1.log",
+      "bytes": 977,
+      "sha256": "597912cee18b19828e4b3cde6bc905583732b39bfb79799bb4306d99127455b2"
+    },
+    "junit": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/focused-tests-r1.xml",
+      "bytes": 1684,
+      "sha256": "29aadb51081cfd43bd4c71e92daafbf11bcd418020c97c1ce9e0c1dadeae69f4"
+    },
+    "command": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python",
+      "-c",
+      "import sys;from pathlib import Path;R=Path('/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015');sys.path[:0]=[str(R),str(R/'tools/tutorials'),str(R/'tools/tutorials/tests')];sys.meta_path[:]=[f for f in sys.meta_path if '__editable__' not in (getattr(f,'__module__','') or type(f).__module__)];import spacr;assert Path(spacr.__file__).resolve()==R/'spacr/__init__.py';import pytest;raise SystemExit(pytest.main(sys.argv[1:]))",
+      "-q",
+      "-o",
+      "addopts=",
+      "--basetemp",
+      "/tmp/y14c-8pto55h3/pytest",
+      "--junitxml",
+      "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/focused-tests-r1.xml",
+      "tests/qt/test_make_masks_yolo_reload_after_navigation_20261013.py",
+      "tools/tutorials/tests/test_capture_yolo_expected_field.py"
+    ],
+    "runner": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson14-nav-contract-20261015/run_focused_tests.py",
+      "bytes": 2915,
+      "sha256": "192d107e2e994f2a4195b4908acca6df4d2e62cf9d6cbfd434d7ecf5bd844c04"
+    },
+    "runtime": "8Ghardcap,serialCPUoffscreen/softwareQt,CUDAempty,privateHOME/XDG/shortTMP; worktreeFIRSTsys.path/editablefilter/importidentityassert",
+    "own_lease_removed": true
+  },
+  "unchanged_capture_contract_files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/capture_ui.py",
+      "bytes": 33841,
+      "sha256": "dd51a2f23e2218ad674a50416c31dfa7b72ffb1108b3989aff79008d29e4ed3c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/capture_policy.py",
+      "bytes": 24480,
+      "sha256": "2e30c411e48e827d2557e894da1415bce1c6e7bec9243d346e8e4c5e5d3368d4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/capture_host_mode.py",
+      "bytes": 36136,
+      "sha256": "2fd766f89893da6bea35f1e99b35369c0ff358f6819ab35eed7e62adb480a2fb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/capture_host_adapter.py",
+      "bytes": 24274,
+      "sha256": "b1a2aaa643787f87ec5a1166a0205a0b9f88cf4bc17440e30de04f88513b43ba"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-14-nav-contract-20261015/tools/tutorials/capture_clip_gate.py",
+      "bytes": 21091,
+      "sha256": "997130864aaaab22cbc021faf7848fc25a34e1798b58314693551cae80eba006"
+    }
+  ],
+  "checks": [
+    "Held44fc is exact3path child8ab; actualsourcefiles match frozen owning hashes and Gitblobs. Historical ownerreceipt predates commit and remains byteunchanged.",
+    "ready(expected=None) preserves loading/image readiness and timeout, additionally requires a valid index and requested filename when supplied; Next snapshots desiredfilename before navigation and Prev supplies originalfilename.",
+    "Existing capture_ui.navigate_image async indexwait and all strict capture policy/host/adapter/gate files remain byteidentical tobase; no private app/UI changes.",
+    "Exact unchanged Home2033 Qt/AST contract and synchronous/background MakeMasks save/negative-export/Prev tests retained. Five actualwaiter cases cover queued staleindex/stalefilename plus wrongfilename/loading/missingimage rejection.",
+    "Eight owning cases passed3.51s/footer0/JUnit8; no peer rerun."
+  ],
+  "blocking_issues": [],
+  "limits": [
+    "Source hardening and owning synthetic Qt cases only; no actual native lesson14 success or earlierfailure causality claim.",
+    "No model/GPU/browser/native/tests/source mutation/network/commit/push performed by peer."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

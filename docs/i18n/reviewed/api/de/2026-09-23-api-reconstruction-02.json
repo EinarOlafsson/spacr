@@ -167,7 +167,9 @@
       "label": "spacr.qt.mask_engine.canonical_labels#8",
       "source": "the labels as ``uint16``.",
       "source_sha256": "a89fb9a7a288e2e65c48e4f9c0fc9f7579568abbb0ee1e5c3fbf077f86570623",
-      "translation": "die Objektlabels als ``uint16``."
+      "translation": "die Objektlabels als ``uint16``.",
+      "retired": true,
+      "retired_reason": "N708 rewrote this API block for exact uint32 identities and embedded lineage; the original source-bound review is retained as history."
     },
     {
       "context": "the measurements to test.",
@@ -497,7 +499,9 @@
       "label": "spacr.timeflows_qc#8",
       "source": "WHY A SCRIPT AND NOT A LOOK",
       "source_sha256": "0b3be1d247cfacf94737a69be92a36be245d5c1f3aaba194bf94d711545f6786",
-      "translation": "WARUM EIN SKRIPT STATT EINER SICHTPRÜFUNG"
+      "translation": "WARUM EIN SKRIPT STATT EINER SICHTPRÜFUNG",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``\"mean\"`` or ``\"stride\"``.",

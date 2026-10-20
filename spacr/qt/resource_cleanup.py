@@ -78,7 +78,6 @@ nothing; there is no reassuring dialog. See :meth:`Reclaim.summary`.
 """
 from __future__ import annotations
 
-import gc
 import logging
 import os
 import shutil
@@ -87,6 +86,8 @@ import threading
 import time
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
+
+from .. import _gc
 
 LOG = logging.getLogger("spacr.qt.resource_cleanup")
 
@@ -910,7 +911,7 @@ def clear_ram(*, aggressive: bool = False) -> Reclaim:
         details.extend(_clear_pixmap_cache())
     qt_is_live = _qt_application_is_running()
     if not qt_is_live:
-        collected = gc.collect()
+        collected = _gc.collect()
         if collected:
             details.append(f"{collected} unreachable objects collected")
     after = process_rss()

@@ -3,11 +3,11 @@
 Qt-free. :mod:`spacr.qt.widgets.cli_setup_panel` calls :func:`run_install` on
 a worker thread and shows what it reports; nothing here touches a widget.
 
-THE COMMANDS ARE NOT HERE. Each tool's ``install_methods`` in
+This module defines no install commands. Each tool's ``install_methods`` in
 :mod:`spacr.qt.ai.providers` are the rows its ``install_hint`` is built from,
 and :func:`plan_install` picks the first of those rows whose programs are on
-``PATH``. The command the Install button runs and the command the screen
-shows are therefore one definition.
+``PATH``. The command the Install button runs and the command the screen shows
+are therefore one definition.
 
 What a run reports is a kind (:data:`INSTALLED`, :data:`NO_NETWORK`, ...)
 rather than a sentence, so the screen can say something the user can act on,

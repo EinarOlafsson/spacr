@@ -27,7 +27,7 @@ def _input(tmp_path, multi=False):
 def _bundle(result):
     """Load the immutable completion receipt and generated plate map."""
     directory = Path(result.dst) / 'plate_barcode_linkage'
-    return json.loads((directory / 'complete.json').read_text()), pd.read_csv(directory / 'plate_map_lims.csv', dtype=str)
+    return json.loads((directory / 'complete.json').read_text(encoding="utf-8")), pd.read_csv(directory / 'plate_map_lims.csv', dtype=str)
 
 
 def test_single_plate_sidecar_preserves_zeros_and_records_provenance(tmp_path):

@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-08",
+  "language": "pt",
+  "note": "Four source-bound night-preset descriptions: luminous points for Lantern/Solstice and flowing light for Meridian/Vesper. Palette, musical key/mode and tempo preserved. Original review files archived byte-exact; all surviving active records preserved.",
+  "records": [
+    {
+      "key": "A lit window in the dark: warm orange on near-black, a field of luminous points behind it, and a sound set in G minor at 118 BPM.",
+      "source": "A lit window in the dark: warm orange on near-black, a field of luminous points behind it, and a sound set in G minor at 118 BPM.",
+      "source_sha256": "4cd86a9b7699eb8cd9082527582f168f7bc31d83c8f597f66d12bea8e486a99c",
+      "table": "ui",
+      "translation": "Uma janela iluminada no escuro: laranja quente sobre quase preto, um campo de pontos luminosos ao fundo e um conjunto de sons em sol menor a 118 BPM."
+    },
+    {
+      "key": "A teal horizon line with currents of light bending above it, and a sound set in A Dorian at 124 BPM.",
+      "source": "A teal horizon line with currents of light bending above it, and a sound set in A Dorian at 124 BPM.",
+      "source_sha256": "5596e04013e2a79519bc3f5d630e7aa39b79cff27bfbdcb9f551310c43de3bf2",
+      "table": "ui",
+      "translation": "Uma linha de horizonte turquesa com correntes de luz a curvar-se por cima e um conjunto de sons em lá dórico a 124 BPM."
+    },
+    {
+      "key": "The last colour in the sky: plum and dusty rose, currents of light moving overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source": "The last colour in the sky: plum and dusty rose, currents of light moving overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source_sha256": "7ecad04c63879a6f128530775acc2f42c06e9874cea767718bcff7707a3a2cf1",
+      "table": "ui",
+      "translation": "A última cor do céu: ameixa e rosa apagado, correntes de luz a mover-se por cima e um conjunto de sons suave em mi bemol menor a 114 BPM."
+    },
+    {
+      "key": "The long low light of a year's turn: olive and pale gold, luminous points through it, and a sound set in G Lydian at 112 BPM.",
+      "source": "The long low light of a year's turn: olive and pale gold, luminous points through it, and a sound set in G Lydian at 112 BPM.",
+      "source_sha256": "ead9cba3a82f7a7335c8066940c4fbbf6ec5d4db5b39a248d9243cd68d8ce590",
+      "table": "ui",
+      "translation": "A luz longa e baixa da virada do ano: verde-oliva e ouro pálido, pontos luminosos entre esses tons e um conjunto de sons em sol lídio a 112 BPM."
+    }
+  ],
+  "review_kind": "Direct AI technical/context review; no native-speaker or independent-peer signoff",
+  "schema": 1
+}

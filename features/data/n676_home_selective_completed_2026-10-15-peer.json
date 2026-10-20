@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "pass",
+  "packet_root": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet",
+  "packet_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/packet-manifest.json",
+    "bytes": 155175,
+    "sha256": "adc5747fed3f993c45567b2185f5d3b48df9bb92db9ef714f8976af1e10f6d1b"
+  },
+  "source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "capture_render_voice_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "export_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/export/export-manifest.json",
+    "bytes": 58708,
+    "sha256": "868346da5c614cc69ddddc9e8031d6058b5e36a9842d464089b795abc2603873"
+  },
+  "final_publication_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/final-publication-review.json",
+    "bytes": 4638,
+    "sha256": "463ae12a4769a934033da885f0514c782e382adf701d96fcc75f8f67d76b1cb3"
+  },
+  "counts": {
+    "listed_packet_files": 294,
+    "closed_packet_files_with_manifest": 295,
+    "checkpoint_snapshot_files": 148,
+    "checkpoint_recorded_files": 145,
+    "official_reviews": 13,
+    "source_bound_audio_tracks": 50,
+    "native_clips": 31,
+    "reused_strict_native_clips": 30,
+    "fresh_strict_native_clips": 1,
+    "full_native_frames": 23571,
+    "matrix_steps": 73,
+    "candidate_routes": 84,
+    "prepared_pages_hosted_routes": 84,
+    "uploaded_readback_files": 5370,
+    "uploaded_readback_bytes": 8807787387,
+    "preserved_other_lessons": 83,
+    "historical_remote_extras_outside_candidate_coverage": 2964
+  },
+  "publication_revision": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+  "publication_tag": "n676-selective05-20261015-verified",
+  "terminal_phase_logs": {
+    "upload": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/additional-evidence/78-lesson05-selective-playerfix-20261015-upload.log",
+      "bytes": 144305,
+      "sha256": "a4e781216c92163c709c9ac6a1ec56d4d8788a6b893db52e317e118577f36124"
+    },
+    "pages": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/additional-evidence/79-lesson05-selective-playerfix-20261015-pages.log",
+      "bytes": 1585,
+      "sha256": "4064388bc04299bab1185fa910ca463feaa76791793a20e7f923644b9836cf97"
+    },
+    "verify-pages": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/additional-evidence/80-lesson05-selective-playerfix-20261015-verify-pages.log",
+      "bytes": 3890,
+      "sha256": "45f002e7e2434000dee3fa7bccf32aec0069b54f51e2488fb4306fa04c205c99"
+    },
+    "record": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/completed-publication-packet/additional-evidence/81-lesson05-selective-playerfix-20261015-record.log",
+      "bytes": 543,
+      "sha256": "236f2d3b7841013e59fd9c2ee3a4cab7e8169ce237c9636ddf5bb2dcac6e0752"
+    }
+  },
+  "checks": {
+    "all294_declared_files_exact_size_SHA_and_safe_closed_paths": true,
+    "coherent145_plus3_checkpoint": true,
+    "source_capture_voice_and_player_lineage_truthful": true,
+    "official13_reviews_capture_source_bound": true,
+    "actual73_matrix_84candidate_84hosted_and_record_terminal0_bound": true,
+    "immutable5370_file_metadata_and_downloadSHA_receipt_bound": true,
+    "current31scenes_50voices_and83preservation_evidence_bound": true,
+    "limits_and_no_wholefresh_or_listening_or_liveCI_claims_preserved": true
+  },
+  "blocking_issues": [],
+  "limits": [
+    "Independent actual local closedpacket/hash/schema/evidence review; no repeated browser/network/readback/media decode or full8GBhash.",
+    "Hosted84 verification is preparedPages-tree against immutableHF media, not subsequent PagesCI/liveSpace deployment proof.",
+    "Master visual review is sampled; no fullwatch/human listening/native-speaker/word-completeness acceptance.",
+    "30old strict fullclips plus1fresh Apply; no whollyfresh capture or causalApply product-fix claim."
+  ],
+  "review_notes": [
+    "Initial review final log selector overlapped pages with verify-pages; exact phase basenames resolve it, all actual terminal0. No packet/helper mutation."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

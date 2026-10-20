@@ -517,13 +517,18 @@ def test_the_torch_probe_asks_spacr_about_the_machine_not_torch(monkeypatch):
 
 
 def test_a_probe_that_raises_is_read_as_no_backend(monkeypatch):
-    """A broken install must cost the backend, never the registration."""
+    """A broken install must cost the backend, never the registration.
+
+    CuPy is pinned absent so the answer is the same on a CUDA box with a
+    working CuPy as on CI: only the torch probe is under test here.
+    """
     from spacr import accelerator, ops_register as reg
 
     def explode(*_args, **_kwargs):
         raise RuntimeError("torch was built without CUDA support")
 
     monkeypatch.setattr(accelerator, "is_gpu", explode)
+    monkeypatch.setattr(reg, "_cupy", lambda: None)
 
     assert reg._torch_gpu() is None
     assert reg.available_backends(gpu=True) == ("numpy",)

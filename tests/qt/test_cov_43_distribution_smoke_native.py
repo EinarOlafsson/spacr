@@ -12,6 +12,7 @@ from __future__ import annotations
 import ctypes
 import json
 import sys
+import weakref
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -39,6 +40,8 @@ def _controller(tmp_path, **extra):
     fake._write = lambda: Controller._write(fake)
     fake._finish = lambda code: Controller._finish(fake, code)
     fake._pipeline_failed = lambda error: Controller._pipeline_failed(fake, error)
+    fake._attach_to_the_worker = lambda: Controller._attach_to_the_worker(fake)
+    fake._keep_installer_cleanup = lambda: Controller._keep_installer_cleanup(fake)
     fake._installed_root = Controller._installed_root
     fake._require_installed_origin = Controller._require_installed_origin
     fake.__dict__.update(extra)
@@ -48,16 +51,25 @@ def _controller(tmp_path, **extra):
 def test_a_failed_pipeline_is_written_and_leaves_the_event_loop(tmp_path):
     fake = _controller(tmp_path)
     Controller._pipeline_failed(fake, "the worker died")
-    written = json.loads(fake.output.read_text())
+    written = json.loads(fake.output.read_text(encoding="utf-8"))
     assert written["status"] == "failed" and written["error"] == "the worker died"
     assert fake.phase == "finished"
     assert fake.calls == ["timer stopped", ("exit", 1)]
 
 
 def _frozen_cpu(monkeypatch, tmp_path):
-    """Make this interpreter look like a frozen CPU artifact rooted at /."""
+    """Make this interpreter look like a frozen CPU artifact rooted at /.
+
+    The artifact's own metadata matches its package, so the version check is
+    pinned to agree; a source checkout's older editable install metadata
+    must not decide these cases. The mismatch case below overrides it.
+    """
     import torch
 
+    import spacr
+    import spacr.version
+
+    monkeypatch.setattr(spacr.version, "get_version", lambda: spacr.__version__)
     monkeypatch.setenv("SPACR_DEVICE", "cpu")
     for name in ("CUDA_VISIBLE_DEVICES", "HIP_VISIBLE_DEVICES",
                  "ROCR_VISIBLE_DEVICES"):
@@ -251,7 +263,7 @@ def test_the_system_menu_names_its_one_preferences_and_one_quit(
     assert cocoa.updated and fake.phase == "native-menu-opening"
     assert fake._native_actions == {"preferences": 1, "quit": 4}
     assert scheduled == ["invoke preferences"]
-    assert json.loads(fake.output.read_text())["native_menu"]["selected"]
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["native_menu"]["selected"]
 
 
 @pytest.mark.parametrize("cocoa,match", [
@@ -359,6 +371,8 @@ def test_preferences_are_waited_for_then_photographed_and_closed(
     assert dialog.rejected and fake.phase == "native-menu-closing"
     assert fake.record["native_menu"]["preferences_opened"] is True
     assert fake.record["native_menu"]["dialog_class"] == "_Dialog"
+    assert isinstance(fake._native_preferences_ref, weakref.ReferenceType)
+    assert fake._native_preferences_ref() is dialog
 
 
 @pytest.mark.parametrize("dialog,match", [
@@ -373,11 +387,25 @@ def test_a_wrong_or_unrecorded_preferences_dialog_is_refused(
         Controller._poll_native_menu_check(fake)
 
 
-def test_quit_waits_for_preferences_to_close(monkeypatch, tmp_path):
-    fake = _polling(monkeypatch, tmp_path, "native-menu-ready-to-quit",
-                    _Dialog())
+@pytest.mark.parametrize("visible", [False, True])
+@pytest.mark.parametrize("observed_state", ["same", "other", "gone"])
+def test_quit_waits_for_preferences_to_close(monkeypatch, tmp_path, visible, observed_state):
+    modal = _Dialog(visible=visible)
+    fake = _polling(monkeypatch, tmp_path, "native-menu-ready-to-quit", modal)
+    observed = modal if observed_state == "same" else _Dialog()
+    fake._native_preferences_ref = weakref.ref(observed)
+    if observed_state == "gone":
+        del observed
+        assert fake._native_preferences_ref() is None
     with pytest.raises(RuntimeError, match="did not close before native Quit"):
         Controller._poll_native_menu_check(fake)
+    expected = {"class_name": "_Dialog", "visible": visible,
+                "same_observed_wrapper": None if observed_state == "gone" else observed_state == "same"}
+    assert fake.record["native_menu"]["blocking_modal"] == expected
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["native_menu"]["blocking_modal"] == expected
+    assert fake.phase == "native-menu-ready-to-quit"
+    assert not fake.record["native_menu"].get("quit_dispatched")
+    assert not fake.calls
 
 
 @pytest.mark.parametrize("mode", ["system-menu-on-cocoa",
@@ -395,7 +423,7 @@ def test_quit_goes_through_the_menu_it_was_verified_in(
     assert sent == (["quit"] if mode == "in-window-on-cocoa" else
                     [(4, "performActionForItemAtIndex:", None,
                       (ctypes.c_long, 7))])
-    assert json.loads(fake.output.read_text())["native_menu"][
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["native_menu"][
         "quit_dispatched"] is True
 
 
@@ -585,6 +613,7 @@ def test_only_a_visible_tour_is_skipped_and_a_hidden_window_waits(tmp_path):
     fake.window = SimpleNamespace(findChildren=lambda kind: [hidden, shown],
                                   isVisible=lambda: False)
     fake._provenance = lambda: skipped.append("provenance")
+    fake._keep_installer_cleanup = lambda: pytest.fail("No cleanup action before installed provenance")
     Controller._advance(fake)
     assert skipped == ["skipped", "provenance"]
     assert fake.record["tours_skipped"] == 1
@@ -629,6 +658,66 @@ def test_a_configured_screen_that_drifted_is_refused(tmp_path, change, message):
                                 _expected_src="/smoke")
     Controller._advance(fake)
     assert len(failures) == 1 and message in failures[0]
+
+
+def _clicked_screen(**extra):
+    """A Measure screen whose Run button is enabled and was just clicked."""
+    screen = _screen(
+        _settings_model=SimpleNamespace(
+            collect=lambda: {"src": "/smoke", "n_jobs": 1}),
+        _crop_choice_warnings=lambda settings: [], **extra)
+    screen._btn_run.click = lambda: None
+    return screen
+
+
+def test_a_first_run_still_importing_its_pipeline_is_waited_for(tmp_path):
+    """A session's first Run imports its pipeline off the GUI thread.
+
+    The worker exists only once that import ends, so a click that leaves
+    ``_entry_import`` set is not a Run without a worker: the smoke waits in
+    ``starting`` and attaches on the tick after the import has finished.
+    """
+    connected = []
+    worker = SimpleNamespace(error=SimpleNamespace(connect=connected.append))
+    screen = _clicked_screen(_entry_import=object(), _worker=None)
+    fake, failures = _advancing(tmp_path, "configured", screen=screen,
+                                _expected_src="/smoke")
+    Controller._advance(fake)
+    assert fake.phase == "starting" and not failures
+    assert "real_run_clicked" not in fake.record
+    Controller._advance(fake)
+    assert fake.phase == "starting" and not failures
+    screen._entry_import = None
+    screen._worker = worker
+    Controller._advance(fake)
+    assert fake.phase == "running" and not failures
+    assert fake.record["real_run_clicked"] is True
+    assert connected == [fake._pipeline_failed]
+    assert json.loads(fake.output.read_text(encoding="utf-8"))["real_run_clicked"] is True
+
+
+def test_a_run_whose_worker_is_ready_at_once_goes_straight_to_running(tmp_path):
+    """A warm session starts the worker inside the click itself."""
+    connected = []
+    worker = SimpleNamespace(error=SimpleNamespace(connect=connected.append))
+    fake, failures = _advancing(tmp_path, "configured",
+                                screen=_clicked_screen(_worker=worker),
+                                _expected_src="/smoke")
+    Controller._advance(fake)
+    assert fake.phase == "running" and not failures
+    assert fake.record["module_constructed"] is True
+    assert connected == [fake._pipeline_failed]
+
+
+def test_an_import_that_ends_without_a_worker_is_refused(tmp_path):
+    screen = _clicked_screen(_entry_import=object(), _worker=None)
+    fake, failures = _advancing(tmp_path, "starting", screen=screen)
+    Controller._advance(fake)
+    assert not failures
+    screen._entry_import = None
+    Controller._advance(fake)
+    assert len(failures) == 1
+    assert "did not start a pipeline worker" in failures[0]
 
 
 def test_a_configured_screen_waits_for_its_run_button(tmp_path):
@@ -811,6 +900,10 @@ def test_a_passed_layout_hands_on_to_the_native_menu_when_asked(
     fake = _controller(tmp_path, record={"layout": {"status": "passed"}})
     fake._start_native_menu_check = lambda: fake.calls.append("menu check")
     Controller._finish_layout_check(fake)
+    assert fake.calls == []
+    assert fake.phase == "waiting-installation-review"
+    fake.window = SimpleNamespace()
+    Controller._poll_installation_review(fake)
     assert fake.calls == ["menu check"]
     assert fake.record["visual_layout_status"] == "passed"
 
@@ -831,3 +924,170 @@ def test_a_quit_after_the_smoke_finished_changes_nothing(tmp_path):
     Controller._quitting(fake)
     assert fake.record == {"status": "passed"}
     assert not fake.output.exists()
+
+
+def test_native_menu_waits_for_late_install_review_and_keeps_actual_files(qtbot, monkeypatch, tmp_path):
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication, QDialog, QPushButton, QWidget
+    from spacr import install_cleanup
+    from spacr.qt.install_consent import _InstallerCleanupDialog
+
+    monkeypatch.setenv('SPACR_NATIVE_MENU_SMOKE', '1')
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    parent.show()
+    parent._cache_cleanup_busy = True
+    parent._consent_timer = QTimer(parent)
+    parent._startup_deferred = []
+    parent._startup_sequence_running = lambda: False
+    events = []
+    fake = _controller(tmp_path, window=parent, started=benchmark.time.monotonic(),
+                       record={'layout': {'status': 'passed'}})
+    fake.app.activeModalWidget = QApplication.activeModalWidget
+    fake._start_native_menu_check = lambda: events.append('native menu')
+    fake._keep_installer_cleanup = lambda: Controller._keep_installer_cleanup(fake)
+    fake._poll_installation_review = lambda: Controller._poll_installation_review(fake)
+    Controller._finish_layout_check(fake)
+    assert events == []
+    assert fake.phase == 'waiting-installation-review'
+    Controller._advance(fake)
+    assert events == []
+    sentinel = tmp_path / 'cache bytes'
+    sentinel.write_bytes(b'kept cache contents')
+    preview = {'operation_id': 'actual-dialog', 'snapshot_id': 'observed-preview',
+               'folders': [{'key': 'news', 'path': str(tmp_path), 'size_bytes': 19,
+                            'contents': [{'name': sentinel.name, 'size_bytes': 19}],
+                            'selectable': True}]}
+    dialog = _InstallerCleanupDialog(preview, parent)
+    qtbot.addWidget(dialog)
+    dialog.finished.connect(lambda _result: setattr(parent, '_cache_cleanup_busy', False))
+    monkeypatch.setattr(install_cleanup, 'apply_optional_cleanup',
+                        lambda *args, **kwargs: pytest.fail('Keep must never remove files'))
+    QTimer.singleShot(0, dialog.open)
+    qtbot.waitUntil(lambda: QApplication.activeModalWidget() is dialog)
+    assert dialog.findChild(QPushButton, 'InstallerCleanupKeep').isDefault()
+    Controller._advance(fake)
+    assert not dialog.isVisible()
+    assert dialog.result() == QDialog.DialogCode.Rejected
+    assert events == []
+    assert dialog.choices()['keys'] == []
+    assert sentinel.read_bytes() == b'kept cache contents'
+    assert fake.record['installation_review'] == {'choice': 'keep', 'selected_count': 0}
+    Controller._advance(fake)
+    assert events == ['native menu']
+
+
+@pytest.mark.parametrize("pending", ["consent_timer", "startup", "deferred", "cleanup"])
+def test_installation_review_waits_for_each_real_startup_stage(tmp_path, pending):
+    events = []
+    window = SimpleNamespace(_consent_timer=SimpleNamespace(isActive=lambda: pending == "consent_timer"),
+                             _startup_sequence_running=lambda: pending == "startup",
+                             _startup_deferred=[object()] if pending == "deferred" else [],
+                             _cache_cleanup_busy=pending == "cleanup")
+    fake = _controller(tmp_path, window=window,
+                       _installation_review_started=benchmark.time.monotonic(),
+                       _start_native_menu_check=lambda: events.append("menu"))
+    Controller._poll_installation_review(fake)
+    assert events == []
+    window._consent_timer.isActive = lambda: False
+    window._startup_sequence_running = lambda: False
+    window._startup_deferred.clear()
+    window._cache_cleanup_busy = False
+    Controller._poll_installation_review(fake)
+    assert events == ["menu"]
+
+
+@pytest.mark.parametrize("fault", ["deadline", "unknown_modal"])
+def test_installation_review_refuses_timeout_or_an_unexpected_modal(tmp_path, fault):
+    events = []
+    fake = _controller(tmp_path, window=SimpleNamespace(),
+                       _installation_review_started=benchmark.time.monotonic(),
+                       _start_native_menu_check=lambda: events.append("menu"))
+    if fault == "deadline":
+        fake._installation_review_started -= 31
+    else:
+        fake.app.activeModalWidget = lambda: object()
+    with pytest.raises(RuntimeError, match="deadline|unexpected modal"):
+        Controller._poll_installation_review(fake)
+    assert events == []
+
+
+@pytest.mark.parametrize("fault", ["selected", "remove_enabled", "keep_disabled", "keep_hidden"])
+def test_smoke_never_changes_a_cleanup_choice_or_uses_an_unsafe_keep_button(qtbot, tmp_path, fault):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+    from spacr.qt.install_consent import _InstallerCleanupDialog
+
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    parent.show()
+    preview = {'operation_id': 'actual-dialog', 'folders': [
+        {'key': 'news', 'path': str(tmp_path), 'size_bytes': 0, 'selectable': True}]}
+    dialog = _InstallerCleanupDialog(preview, parent)
+    qtbot.addWidget(dialog)
+    keep = dialog.findChild(QPushButton, 'InstallerCleanupKeep')
+    remove = dialog.findChild(QPushButton, 'InstallerCleanupRemove')
+    dialog.open()
+    qtbot.waitUntil(lambda: QApplication.activeModalWidget() is dialog)
+    if fault == 'selected':
+        dialog._folder_choices[0][1].setCheckState(0, Qt.CheckState.Checked)
+    elif fault == 'remove_enabled':
+        remove.setEnabled(True)
+    elif fault == 'keep_disabled':
+        keep.setEnabled(False)
+    else:
+        keep.hide()
+    before = dialog.choices()
+    fake = _controller(tmp_path, app=QApplication.instance())
+    try:
+        with pytest.raises(RuntimeError, match='default Keep state'):
+            Controller._keep_installer_cleanup(fake)
+        assert dialog.isVisible()
+        assert dialog.choices() == before
+        assert 'installation_review' not in fake.record
+    finally:
+        dialog.reject()
+
+
+@pytest.mark.parametrize('boundary', ['native_quit', 'expired_review'])
+def test_a_cleanup_dialog_cannot_bypass_quit_or_review_deadline(qtbot, tmp_path, monkeypatch, boundary):
+    from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+    from spacr import install_cleanup
+    from spacr.qt.install_consent import _InstallerCleanupDialog
+
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.show()
+    sentinel = tmp_path / 'retained contents'
+    sentinel.write_bytes(b'no cleanup action')
+    dialog = _InstallerCleanupDialog({'operation_id': 'boundary', 'folders': []}, window)
+    qtbot.addWidget(dialog)
+    clicked = []
+    dialog.findChild(QPushButton, 'InstallerCleanupKeep').clicked.connect(lambda: clicked.append('keep'))
+    dialog.open()
+    qtbot.waitUntil(lambda: QApplication.activeModalWidget() is dialog)
+    monkeypatch.setattr(install_cleanup, 'apply_optional_cleanup',
+                        lambda *args, **kwargs: pytest.fail('No boundary may remove files'))
+    phase = 'native-menu-ready-to-quit' if boundary == 'native_quit' else 'waiting-installation-review'
+    fake = _controller(tmp_path, phase=phase, window=window,
+                       started=benchmark.time.monotonic(),
+                       _native_menu_started=benchmark.time.monotonic(),
+                       _installation_review_started=benchmark.time.monotonic() - 31,
+                       record={'native_menu': {'quit_dispatched': False}})
+    fake.app.activeModalWidget = QApplication.activeModalWidget
+    fake._poll_native_menu_check = lambda: Controller._poll_native_menu_check(fake)
+    fake._poll_installation_review = lambda: Controller._poll_installation_review(fake)
+    try:
+        Controller._advance(fake)
+        assert clicked == []
+        assert dialog.isVisible()
+        assert dialog.choices()['keys'] == []
+        assert sentinel.read_bytes() == b'no cleanup action'
+        assert fake.record['status'] == 'failed'
+        expected = ('Preferences did not close before native Quit' if boundary == 'native_quit'
+                    else 'Installation review acceptance exceeded its deadline')
+        assert fake.record['error'] == expected
+        assert fake.record['native_menu']['quit_dispatched'] is False
+        assert 'installation_review' not in fake.record
+    finally:
+        dialog.reject()

@@ -209,6 +209,17 @@ FOLDED = {
     "napari_bridge": "a button on the Make Masks masthead that hands the "
                      "field on screen to napari and reads the corrected "
                      "labels back (spacr.qt.screens.make_masks)",
+    # F534's two alpha batch submodules. PAGE folds, like OPS, but kept out
+    # of their hosts' FOLDED_APPS so the menu does not list them while the
+    # alpha gate is shut; their switches are what make them reachable.
+    "spatial_masks": "the alpha Spatial switch in Mask Generation's actions "
+                     "row, beside OPS, which opens the whole-slide tiled "
+                     "segmentation form as a page on that screen "
+                     "(spacr.qt.screens.mask.PAGE_FOLDS)",
+    "spatial_map": "the alpha Spatial switch in Map Barcodes' actions row, "
+                   "which opens the whole-slide transcript mapping form as a "
+                   "page on that screen "
+                   "(spacr.qt.screens.map_barcodes.PAGE_FOLDS)",
 }
 
 
@@ -357,6 +368,7 @@ def test_every_folded_module_really_is_folded_and_really_is_reachable():
         except Exception:                              # noqa: BLE001
             continue
         hosted |= set(getattr(host, "FOLDED_APPS", ()))
+        hosted |= set(getattr(host, "PAGE_FOLDS", ()))
     hosted |= set(make_masks.FOLD_ORDER)
 
     still_registered = sorted(set(FOLDED) & live)

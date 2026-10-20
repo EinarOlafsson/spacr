@@ -48,7 +48,7 @@ Ordered scope and acceptance gates
    example (ce0c7695c) has two measured fields, verified label-to-database links
    and no invented individual-parasite counts; preserve that dataset in the
    release candidate. Synthetic acceptance images remain software tests only.
-5. Installation/update/readme — PyPI Starplast environment/launch integration,
+5. Installation/update/readme — PyPI ParaScape environment/launch integration,
    verified package updates and graceful restart, system requirements link,
    PyPI-compatible README images, installer catalog synchronization. Build real
    wheel/sdist metadata, render README and check release version consistency.

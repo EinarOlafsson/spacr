@@ -1,0 +1,134 @@
+{
+  "url": "https://pypi.org/pypi/pypdfium2/5.13.0/json",
+  "response_sha256": "49124cf9d750ef87164a65789708d5112f26767434ddaedf4a6dd0be6b4e735f",
+  "requires_python": ">=3.6",
+  "release": "5.13.0",
+  "wheels": [
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-android_23_arm64_v8a.whl",
+      "requires_python": ">=3.6",
+      "sha256": "882f4bbd4b17a335b43603169a14cde9341de12b238acd5c39e690cbca7c4293",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-android_23_armeabi_v7a.whl",
+      "requires_python": ">=3.6",
+      "sha256": "d96929bde3bd64c771ab3558ca1ffd7704cc4d872ab92cd9f8f8b8a20f7f36b8",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-macosx_13_0_arm64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "da5c7b74eebf40b5c1fbe1de01aa1edc8827a79fb1efd999616bc20dcaf77ba4",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-macosx_13_0_x86_64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "2abedfb5c70992b19c780ed58d7f7b929e8ce8ee52c9140158f44317c90ec6c7",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "9ee8c2bb2e68b396ab4a763215ac100dacb6b96d0da5bebeb239a021aecc3a7e",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl",
+      "requires_python": ">=3.6",
+      "sha256": "07f58e91b8c45ca144a1ff3008faf3c73ef8a5e9fb32988831788363288228cd",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl",
+      "requires_python": ">=3.6",
+      "sha256": "46b2f5be9e7ae941ee4216e3d20b66f9dc3d81944a3d57756272de5275204709",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl",
+      "requires_python": ">=3.6",
+      "sha256": "d96beb7f379e6c76d874ca93fcd182ac3168dd499056407070f9927fb1061b8e",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "81df25c1ab4c13ff773102d3cbea1967511d079123b067fc077bd0c4d57d91d8",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_27_s390x.manylinux_2_28_s390x.whl",
+      "requires_python": ">=3.6",
+      "sha256": "d66a32d89fa5b4a2715810171239eb194df4aba604727483ab760512f3c6a851",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-manylinux_2_34_riscv64.manylinux_2_39_riscv64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "b90b0a5ac310bb34db8eb848e58fcab4e201e124e3cf3cb1ccb7b85293e034af",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_aarch64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "ada81c36483cd61d07e32bc7814620ee96256b4f421b913f566861bf91800248",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_armv7l.whl",
+      "requires_python": ">=3.6",
+      "sha256": "3826e521e895648983cb9ee6b934d4bf51552600043984f84e9c2b3b14b696f3",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_i686.whl",
+      "requires_python": ">=3.6",
+      "sha256": "5c029d7163a91f264eafab51fb442a84a33efd9fd83d5a06c0136a7857a3cc8d",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_ppc64le.whl",
+      "requires_python": ">=3.6",
+      "sha256": "be2dccbde0ce7efe334ecd8f348df4308db360756ede4f0821d82dfc9a58caa8",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_riscv64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "bcd81394fe101405e026eedb3e40bef84635c1e5d974dd6036420eb6937753c6",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_s390x.whl",
+      "requires_python": ">=3.6",
+      "sha256": "2ed32ff685f8e05e637c990bedbf5fca66727bf27718d8bc33eeab21ce0630d1",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-musllinux_1_2_x86_64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "9c777edba28d1d5fd15435ed3a78ee2fdb93dd069be37cb53b559bc122793770",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-win32.whl",
+      "requires_python": ">=3.6",
+      "sha256": "d33ee7077db67478b75efe4b5ea9610fb96c5416a0bc4949227f0f59c34dfcd9",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-win_amd64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "47dcca2a8d507b5fd24f94c3c9d48fb379430f097bc20f01beff6c963ffbcedb",
+      "yanked": false
+    },
+    {
+      "filename": "pypdfium2-5.13.0-py3-none-win_arm64.whl",
+      "requires_python": ">=3.6",
+      "sha256": "554a0b23376460af1410e3c915906895e2dac67a086b9e6ccde0643a795d3b0d",
+      "yanked": false
+    }
+  ]
+}

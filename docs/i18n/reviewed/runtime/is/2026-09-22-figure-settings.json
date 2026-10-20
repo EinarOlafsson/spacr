@@ -147,7 +147,7 @@
       "key": "base_model",
       "source": "Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
       "source_sha256": "02df0d545ca4af497d88c2cf7790246e4d258ac618effbc17acc37456abfd057",
-      "translation": "Þjálfa Cellpose: líkanavigtirnar sem þjálfunin byrjar með. 'cpsam' er staðlaða Cellpose-SAM-líkanið; lykill í líkanasafninu, til dæmis 'toxoplasma_plaque_v2', eða slóð að vistuðu líkani heldur áfram frá því líkani. Þannig byggir annað stig fínstillingar á því fyrsta. Upphafslíkanið er skráð með stillingum keyrslunnar. Sjálfgefið 'cpsam'."
+      "translation": "Þjálfa Cellpose: líkanavægin sem þjálfunin byrjar með. 'cpsam' er staðlaða Cellpose-SAM-líkanið; lykill í líkanasafninu, til dæmis 'toxoplasma_plaque_v2', eða slóð að vistuðu líkani heldur áfram frá því líkani. Þannig byggir annað stig fínstillingar á því fyrsta. Upphafslíkanið er skráð með stillingum keyrslunnar. Sjálfgefið 'cpsam'."
     },
     {
       "table": "setting_tooltips",
@@ -281,13 +281,16 @@
       "source": "Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.",
       "source_sha256": "bbe9791694ee60c254cc9012fb5a148ccd7e39879d273364fa4693ac882f4aed",
       "translation": "Myndasamstæðuhamur, textagreining: nota raðmerkinguna vinstra megin við hverja mynd sem hluta af tilraunaskilyrði hennar. Sjálfgefið True."
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "plaque_model",
       "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
       "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16",
-      "translation": "Vistað Cellpose-líkan til hlutaskiptingar á skellum: lykill í líkanasafni sækir líkan við fyrstu notkun og sannreynir gátsummu þess. 'toxoplasma_plaque_v2' er cpsam_plaque_r5, þjálfað á yfirförnu v5-gagnasafni. Skráarslóð velur eigið vistað líkan. 'bundled' er eldra líkanið sem fylgdi pakkanum, vistað Cellpose 3-líkan sem þarf Cellpose 3. Breyting getur breytt öllum skellutalningum, svo skráðar keyrslur ættu að varðveita valda gildið. Sjálfgefið 'toxoplasma_plaque_v2'."
+      "translation": "Vistað Cellpose-líkan til hlutaskiptingar á skellum: lykill í líkanasafni sækir líkan við fyrstu notkun og sannreynir gátsummu þess. 'toxoplasma_plaque_v2' er cpsam_plaque_r5, þjálfað á yfirförnu v5-gagnasafni. Skráarslóð velur eigið vistað líkan. 'bundled' er eldra líkanið sem fylgdi pakkanum, vistað Cellpose 3-líkan sem þarf Cellpose 3. Breyting getur breytt öllum skellutalningum, svo skráðar keyrslur ættu að varðveita valda gildið. Sjálfgefið 'toxoplasma_plaque_v2'.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ]
 }

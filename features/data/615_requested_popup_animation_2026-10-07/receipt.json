@@ -350,7 +350,7 @@
       "bytes": 4806
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/de/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "ef2d9853fe25559f5530cef52e3cf2393d3630e02d6f34a130522383269474e6",
+      "sha256": "60fa90466df751a498efdb088c985029cc3adc9ca539f7c6e6f2ae91e1558118",
       "bytes": 179270
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-fourth-slice.json": {
@@ -362,7 +362,7 @@
       "bytes": 4708
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/es/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "b0868596d6deb96d03bddc27ab16f46647e3d0706f9ffabaf7d92abf662666c8",
+      "sha256": "b723b31cb1fdfc0691d1f2a578123d23862ea778c8935f4513d304dfa25244b7",
       "bytes": 179682
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/fr/2026-09-21-runtime-fourth-slice.json": {
@@ -374,7 +374,7 @@
       "bytes": 4773
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/fr/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "183a5985cd431995104d8ac9977bc9202d96db62b1ee0643315cffb8d88dd434",
+      "sha256": "de0e0d46dfa61c7c7617315c602979fd187629a1e01e0de35df4e324e654838e",
       "bytes": 180723
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/hi/2026-09-22-detection-panel.json": {
@@ -386,7 +386,7 @@
       "bytes": 49255
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "5cb1ce7b23b5e78aaef3fb18d02be3f0be98f4cabe2eb118659dd0851064f8ff",
+      "sha256": "58082fa9989f33922bd4129410dbcbb29f412208dd0b259d5eb033e09fe49548",
       "bytes": 269178
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/is/2026-09-22-detection-panel.json": {
@@ -398,7 +398,7 @@
       "bytes": 35860
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "afee51479ef7ab6d850083dddbb79623eba8b823e71be3610d6d3718b227f59c",
+      "sha256": "0e73a40ab4437eb70352305a3009090601559b59d36323b79e61d1799277be20",
       "bytes": 321393
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/ko/2026-09-22-detection-panel.json": {
@@ -410,7 +410,7 @@
       "bytes": 32941
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/ko/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "e4134989ad05b15afa8eeb934a0e1f4d0d762e8c16ee2d2f3604f694d367221a",
+      "sha256": "9dab827e903eb804ef82c914caf2a777fb9c160ae64c1f3ff17f91cb2b492411",
       "bytes": 310887
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/pt/2026-09-21-runtime-fourth-slice.json": {
@@ -422,7 +422,7 @@
       "bytes": 4684
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/pt/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "b522c34b73f637775e774fbc4e41284fe0d77b3ccd144c3f6cf3c8d6eb19db98",
+      "sha256": "81db4c0fd45f877c80ad2b7818a70650a5be7b718d893607fe43be105b81620d",
       "bytes": 177687
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/sv/2026-09-21-runtime-ui-refresh.json": {
@@ -434,7 +434,7 @@
       "bytes": 4657
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/sv/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "40223899c021586bb0a89a055e1a043701e451a79eba8fa0ba7f7019c4c1472b",
+      "sha256": "2f5eec753eb09d19c9d570d4c1627cbc666a41a54057f2de17e2b17b5038efd4",
       "bytes": 174287
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/zh_CN/2026-09-21-runtime-seventh-slice.json": {
@@ -446,11 +446,11 @@
       "bytes": 4438
     },
     "original-runtime-reviews-r1/docs/i18n/reviewed/runtime/zh_CN/2026-09-25-runtime-debt-messages.json": {
-      "sha256": "97d83f632e5322d6d679d97f60b05e37d5623b929f0106b887678e8858e36bad",
+      "sha256": "c98636155516a26968a0db9b9304cf0e758d2d32404facbaeab3d6a2669dfa9b",
       "bytes": 163678
     },
     "original-runtime-reviews-r1/receipt.json": {
-      "sha256": "6760071e677058dcb4ea46a55510793e7195b9b0c89f72b8bda3ad1cb62ced3d",
+      "sha256": "3c795473005f52251d3197dc8c45be8e41d8b787bbf60de867090cd00318cc53",
       "bytes": 13449
     },
     "render-aurora-r4.py": {
@@ -518,23 +518,23 @@
       "bytes": 4015
     },
     "runtime-seed-r1/spacr/qt/i18n_catalogs/hi.py": {
-      "sha256": "3b45be36502ce20eb93b61c0e8aa5977b395319f3e80ce4eba6e43db6f8df132",
+      "sha256": "6117b4396b8d309fb9733b9c337e221addaa8393cc5f71aba3249a8ce3799ab8",
       "bytes": 4825160
     },
     "runtime-seed-r1/spacr/qt/i18n_catalogs/is.py": {
-      "sha256": "398620e39f4d3ff155f80bd07e6354a3499c7aaa633f0d47f134395e578f8c2f",
+      "sha256": "e08b9a3d86b6bfae16eab0df4b55b5dc03f9a1d94066468f4b930e45686ba63b",
       "bytes": 3380400
     },
     "runtime-seed-r1/spacr/qt/i18n_catalogs/ko.py": {
-      "sha256": "9139e82bfa22c0cff5f54b827ca4c76588830388925f61202e9a90354a8219b8",
+      "sha256": "6de0715ec2c62b537570b572dd1b3af93996e3ff8ff7c4c3329535ab27527173",
       "bytes": 3505768
     },
     "runtime-seed-r1/spacr/qt/i18n_catalogs/sv.py": {
-      "sha256": "f60657215a34fad93a5201bbeaaf0efab2b24e3b91c5342d1996c3e3ca878732",
+      "sha256": "c807add483f074d5533acfd7138735328845cafb0d1fea3dcdbc45f7ee03b3b4",
       "bytes": 3382025
     },
     "runtime-seed-r1/spacr/qt/i18n_catalogs/zh_CN.py": {
-      "sha256": "a93ae4ded496e100261c441f569629ad9d4793fd4af04b1f34d63855c0e1dc52",
+      "sha256": "d14b0f51a3e0d99938a72e669a513e709eb3043a924b0f2e82697cfecfbbd028",
       "bytes": 3210694
     }
   },

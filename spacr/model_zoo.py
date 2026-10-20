@@ -1,13 +1,12 @@
 """Browse, verify, fetch and benchmark spaCR segmentation and classification models.
 
-Why this exists
----------------
-spaCR can run a stock Cellpose model, a Cellpose model somebody on the team
-fine-tuned last year, a classifier checkpoint from a run three folders up, or a
-checkpoint downloaded from Hugging Face. Today the only way to find out which
-of those exist on a machine is ``find / -name '*.pth'``, the only way to know
-what one of them was trained on is to remember, and the only way to know
-whether the copy on disk is the file the author published is to hope.
+Scope
+-----
+spaCR can run a stock Cellpose model, a fine-tuned Cellpose model, a
+classifier checkpoint from a training run, or a checkpoint downloaded from
+Hugging Face. Three questions follow for any machine: which of those models
+are on it, what each one was trained on, and whether the copy on disk is the
+file the author published.
 
 This module answers those three questions and nothing else:
 
@@ -27,8 +26,8 @@ machine with neither installed; only :func:`benchmark` (through
 :func:`spacr.model_compare.segment_with_cellpose`) needs them, and only when it
 is called. ``tests/test_model_zoo.py`` asserts that.
 
-The four things that make this trustworthy rather than merely convenient
-------------------------------------------------------------------------
+Safeguards
+----------
 **Every download is checksummed, and verification happens before use.**
     A checkpoint truncated by a dropped connection, or swapped for a different
     one at the same URL, still loads. It does not raise; it produces silently
@@ -60,9 +59,8 @@ The four things that make this trustworthy rather than merely convenient
 
 **Provenance is recorded, and "unknown" is written out in full.**
     A Cellpose model fine-tuned on 60x confluent HeLa is not interchangeable
-    with one trained on 20x sparse fibroblasts, and no amount of benchmark
-    score makes it so. What a model was trained on is the single most useful
-    thing the zoo can show, so :class:`ModelEntry` carries
+    with one trained on 20x sparse fibroblasts, whatever their benchmark
+    scores. :class:`ModelEntry` therefore carries
     :attr:`~ModelEntry.trained_on` and :attr:`~ModelEntry.trained_by`, both
     recovered from the settings snapshots spaCR already writes beside its
     models (``<file>_settings.csv`` for a Cellpose model,
@@ -74,16 +72,16 @@ The four things that make this trustworthy rather than merely convenient
     opposite of what it means.
 
 **Benchmarks are only comparable inside one field set.**
-    A model's score on your three fields says nothing whatsoever about its
-    score on somebody else's, and a table that sorts the two together invents a
-    ranking out of two unrelated numbers. So every :class:`BenchmarkResult`
+    A model's score on your three fields does not predict its score on
+    somebody else's, and a table that sorts the two together produces a
+    ranking of two unrelated numbers. So every :class:`BenchmarkResult`
     records a :func:`fieldset_id` — a hash of the actual pixels, not the folder
     name — and :func:`rank` **raises** :class:`IncomparableBenchmarks` when
     handed results from more than one field set. :func:`rank_groups` and
     :func:`format_benchmarks` are the supported alternative: they group by
     field set, rank within each group, and label the groups.
 
-And a fifth, smaller one: a model file that is missing, empty, or not a torch
+A model file that is missing, empty, or not a torch
 checkpoint at all fails in :func:`inspect_checkpoint` with a message naming the
 file, before anything tries to load it. The default failure — a ``KeyError`` on
 a state-dict key from deep inside torch — names nothing the user chose.
@@ -130,6 +128,7 @@ See Also:
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import logging
 import os
@@ -174,6 +173,12 @@ __all__ = [
     "ChecksumMismatch",
     "ZOO_SOURCES",
     "DEFAULT_ZOO_SOURCES",
+    "MITONET_KEY",
+    "THIRD_PARTY_MODEL_KEYS",
+    "is_third_party",
+    "mitonet_instances",
+    "mitonet_weights",
+    "segment_mitonet",
     "source_of",
     "group_by_source",
     "entries_from_sources",
@@ -248,7 +253,7 @@ UNKNOWN = "unknown"
 PREFIXED_KINDS = tuple(_name for _name, _spec in _BACKEND_SPECS.items()
                        if _spec.prefix)
 KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
-         "cellpose3", "cellpose_dino") + PREFIXED_KINDS
+         "cellpose3", "cellpose_dino", "mitonet", "timepose") + PREFIXED_KINDS
 #: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
 #: lists so a user learns it exists and can install it from inside spaCR.
 
@@ -366,6 +371,15 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "re-curation; on the current literature set, whose truth leans "
             "toward this model's lineage, it ties stock Cellpose-SAM on "
             "detection (F1 0.403 against 0.400)",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.793 at IoU 0.5 on n'
+            ' = 486 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.783 (95% bootstrap CI 0.710 to '
+            '0.830). Without the 98 paged round-3 fields (n = 65): F1 0.732. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -400,6 +414,17 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "at precision 0.93 against 0.81. For mixed sources, or any phone-"
             "camera image, use toxoplasma_plaque_v2, which round 3 cannot "
             "handle at all (0.249 there)",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.707 at IoU 0.5 on n'
+            ' = 498 of 562 fields (n differs between models); common subset unseen '
+            'by every plaque model, n = 114, F1 0.402 (95% bootstrap CI 0.300 to '
+            '0.504). Without the v3-seeded Gel Doc truth (n = 81): F1 0.472. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+            'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+            '(training data of v4). Default unchanged.',
         ),
     },
     {
@@ -430,6 +455,10 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
         "trained_by": "einarolafsson",
         "notes": (
+            "no longer the default: toxoplasma_plaque_v3 replaced it on "
+            "2026-10-10 (F1 0.844 against 0.799 on 263 held-out fields; this "
+            "model scores 0.013 on Gel Doc wells), and toxoplasma_plaque_v4 "
+            "on 2026-10-11; kept so recorded runs reproduce",
             "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 "
             "(round 3) for microscope-only work, where it scores 0.836 against "
             "this model's 0.808 on PFA-fixed wells and is far more precise; "
@@ -449,6 +478,17 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "the extra curation alone",
             "training data: https://huggingface.co/datasets/einarolafsson/"
             "toxoplasma-plaque-dataset",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.455 at IoU 0.5 on n'
+            ' = 282 of 562 fields (n differs between models); common subset unseen '
+            'by every plaque model, n = 114, F1 0.360 (95% bootstrap CI 0.249 to '
+            '0.472). Without the v3-seeded Gel Doc truth (n = 81): F1 0.406. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+            'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+            '(training data of v4). Default unchanged.',
         ),
     },
     {
@@ -590,6 +630,15 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen",
             "accuracy falls above IoU 0.8 -- suited to counting and area rather "
             "than precise morphometry",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.713 at IoU 0.5 on n'
+            ' = 258 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.761 (95% bootstrap CI 0.691 to '
+            '0.806). Without the 98 paged round-3 fields (n = 65): F1 0.742. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -603,7 +652,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                "weights/cpsam_v2_toxo_r6",
         "sha256":
             "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
-        "metrics": {'n_train': '437 fields', 'train_objects': '15,550', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8602', 'aji': '0.8026', 'dice': '0.9059', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': 'not recorded', 'val_loss': '0.0864', 'best_epoch': '20 / 100'},
+        "metrics": {'n_train': '437 fields', 'train_objects': '15,550', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8602', 'aji': '0.8026', 'dice': '0.9059', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': 'not recorded', 'val_loss': '0.0864', 'best_epoch': 'final epoch 100 / 100 (shipped weights; recorded 2026-10-12)'},
         "display_name": "Toxoplasma PV v3 (round 6)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "the 556 curated PV fields of round 5, split 437 train / "
@@ -622,12 +671,22 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the "
             "anchor wells -- 0.8602 against 0.8648 -- and the PV project still "
             "promotes round 5",
-            "it is the first PV round whose checkpoint was chosen on a held-out "
-            "validation set (108 fields) instead of on the test wells",
+            "the shipped weights are the FINAL epoch 100, not a validation-chosen "
+            "checkpoint: the training records show no checkpoint selection "
+            "(recorded 2026-10-12)",
             "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, "
             "AJI 0.7516, Dice 0.8424",
             "the 11 anchor wells have been held out since round 1, so they are "
             "the only fields no PV round has ever trained on",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.750 at IoU 0.5 on n'
+            ' = 269 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.790 (95% bootstrap CI 0.726 to '
+            '0.835). Without the 98 paged round-3 fields (n = 65): F1 0.754. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
         ),
     },
     {
@@ -654,7 +713,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
          'stock_dice': '0.6431',
          'train_loss': '0.0424',
          'val_loss': '0.0796',
-         'best_epoch': '55 / 100',
+         'best_epoch': 'final epoch 100 / 100 (shipped weights; recorded 2026-10-12)',
          'precision': {'finetuned': 0.8493, 'vanilla': 0.7539, 'delta': 0.09540000000000004},
          'recall': {'finetuned': 0.858, 'vanilla': 0.776, 'delta': 0.08199999999999996},
          'pixel_iou': {'finetuned': 0.8055, 'vanilla': 0.5239, 'delta': 0.28159999999999996},
@@ -690,6 +749,83 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "the drop on the new plate is under investigation: round 7 also "
             "under-fits that plate's own training fields, which points at how "
             "those fields entered training rather than at generalisation",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.761 at IoU 0.5 on n'
+            ' = 209 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.781 (95% bootstrap CI 0.725 to '
+            '0.817). Without the 98 paged round-3 fields (n = 65): F1 0.757. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. Default unchanged.',
+        ),
+    },
+    {
+        "key": "toxoplasma_pv_v5",
+        "name": "cpsam_v2_toxo_r8",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r8",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-pv-segmentation-cpsam-r8/resolve/main/"
+               "weights/cpsam_v2_toxo_r8",
+        "sha256":
+            "a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c",
+        "size_bytes": 1218639811,
+        "metrics": {'n_train': '202 fields',
+         'train_objects': '9,276',
+         'n_test': '50 fields (whole acquisitions/papers held out)',
+         'test_objects': '3,530',
+         'cv': 'no (grouped train/validation/test)',
+         'f1': {'finetuned': 0.7921, 'vanilla': 0.5586, 'delta': 0.2335},
+         'precision': {'finetuned': 0.7531, 'vanilla': 0.4635, 'delta': 0.2896},
+         'recall': {'finetuned': 0.8354, 'vanilla': 0.7028, 'delta': 0.1326},
+         'aji': 'not recorded',
+         'dice': 'not recorded',
+         'stock_f1': '0.5586',
+         'stock_aji': 'not recorded',
+         'stock_dice': 'not recorded',
+         'train_loss': 'see training/epoch_history.json',
+         'val_loss': 'see training/epoch_history.json',
+         'best_epoch': '20 / 100',
+         'holdout': 'retrain_20261009_pv_test',
+         'holdout_version': '2026-10-09',
+         'n_fields': 50,
+         'n_objects': 3530},
+        "display_name": "Toxoplasma PV v5 (round 8, alternative)",
+        "architecture": "Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)",
+        "dataset": "285 curated PV fields (lab fields and published-figure "
+                   "crops), 13,814 vacuoles; 202 train / 33 validation / 50 test "
+                   "grouped by acquisition and paper",
+        "versus_stock": "F1 0.792 against stock cpsam_v2's 0.559 on "
+                        "the 50 held-out fields at IoU 0.5",
+        "trained_on": (
+            "Toxoplasma parasitophorous vacuoles from lab immunofluorescence and "
+            "DsRed fields and published-figure crops. Round 8, cellpose 4.0.9, "
+            "best of 100 epochs (epoch 20), base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "ALTERNATIVE, NOT BETTER: on the 15 test fields round 7 never saw it "
+            "scores F1 0.536 against toxoplasma_pv_v4's "
+            "0.525 -- a tie; prefer toxoplasma_pv_v4",
+            "35 of the 50 test fields were in round 7's training or validation "
+            "set, so the all-field comparison (0.792 against 0.851) favours "
+            "toxoplasma_pv_v4 and is not a fair test",
+            "weak on published-figure crops (F1 0.440 on 14 literature fields), "
+            "as is every PV model",
+            'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+            'defaults; receipt '
+            'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+            'strict hold-out, fields this model never saw, F1 0.733 at IoU 0.5 on n'
+            ' = 481 of 655 fields (n differs between models); common subset unseen '
+            'by every pv model, n = 163, F1 0.633 (95% bootstrap CI 0.544 to '
+            '0.695). Without the 98 paged round-3 fields (n = 65): F1 0.665. '
+            'Earlier numbers in this row are superseded by this re-score where they'
+            ' differ. LEAKED: this model trained or validated on 29 of 39 curated '
+            'PV literature hold-out fields and 3 of 11 anchor wells, so its earlier'
+            ' hold-out scores are not hold-out scores; the re-score uses only the '
+            'fields it never saw. Default unchanged.',
         ),
     },
     {
@@ -748,7 +884,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                "weights/nuclei_from_cellmask_best",
         "sha256":
             "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
-        "metrics": {'n_train': 'not recorded', 'train_objects': 'not recorded', 'n_test': '453', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8881', 'aji': '0.7916', 'dice': '0.8774', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
+        "metrics": {'n_train': 'not recorded', 'train_objects': 'not recorded', 'n_test': '453', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8881', 'aji': '0.7916', 'dice': '0.8774', 'stock_f1': '0.201', 'stock_aji': '0.286', 'stock_dice': '0.449', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Cross-channel nuclei-from-cellmask",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "nuclei predicted from the HOST CELL MASK channel alone; "
@@ -815,6 +951,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+        "metrics": {'n_train': '2567', 'train_objects': 'not recorded', 'n_test': '463', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.569', 'aji': '0.421', 'dice': '0.546', 'stock_f1': '0.002', 'stock_aji': '0.006', 'stock_dice': '0.016', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Toxoplasma from Hoechst (cross-channel)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "Toxoplasma PV masks predicted from the HOECHST channel alone; "
@@ -913,7 +1050,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': '0.18370248939254452',
                  'val_loss': 'see monitored NAS history; final epoch not measured',
                  'best_epoch': 'final checkpoint, 100 epochs; no best-epoch selection'},
-     'display_name': 'Toxoplasma Plaque v3 (Gel Doc r5 candidate)',
+     'display_name': 'Toxoplasma Plaque v3 (Gel Doc r5, alternative)',
      'architecture': 'Cellpose-SAM (cpsam, Cellpose 4.0.9)',
      'dataset': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
                 'wells; 100 epochs; fixed physical-plate/source groups',
@@ -922,10 +1059,136 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
                    'wells; 100 epochs; fixed physical-plate/source groups',
      'trained_by': 'einarolafsson',
-     'notes': ['Candidate, not promoted; independent literature uncertainty gate did not pass.',
+     'notes': ['Recommended alternative for Gel Doc wells: on the 153 test fields of the curated 2026-10-15 set it scores '
+               'object F1 0.954 on Gel Doc wells against 0.868 for the default toxoplasma_plaque_v5 (0.741 against 0.816 overall).',
+               'Alternative since 2026-10-11, when toxoplasma_plaque_v4 (base cpsam_v2) became the default by the maintainer\'s choice. '
+               'This model scores higher: on 263 held-out fields F1 0.844 against v4 0.815, and 0.913 against 0.804 on Gel Doc wells, '
+               'through spacr.plaque.segment_plaque_image. Kept so recorded runs reproduce.',
+               'Default 2026-10-10 to 2026-10-11: F1 0.844 against toxoplasma_plaque_v2 0.799, and 0.913 against 0.013 on Gel Doc wells '
+               '(features/data/model_compare_2026-10-10).',
+               'Its own release gate on independent literature crops did not pass at the time (literature F1 about 0.54 for every model).',
                'Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041.',
                'Stock not measured; comparison baseline is incumbent r3.',
-               'Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.']},
+               'Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.',
+               'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+               'defaults; receipt '
+               'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+               'strict hold-out, fields this model never saw, F1 0.732 at IoU 0.5 on n'
+               ' = 232 of 562 fields (n differs between models); common subset unseen '
+               'by every plaque model, n = 114, F1 0.548 (95% bootstrap CI 0.449 to '
+               '0.645). Without the v3-seeded Gel Doc truth (n = 81): F1 0.444. '
+               'Earlier numbers in this row are superseded by this re-score where they'
+               ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+               'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+               '(training data of v4). Default unchanged.']},
+    {'key': 'toxoplasma_plaque_v4',
+     'name': 'cpsam_plaque_r6',
+     'remote_name': 'cpsam_plaque_r6',
+     'kind': 'cellpose',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6',
+     'sha256': '744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f',
+     'size_bytes': 1218641683,
+     'metrics': {'f1': {'finetuned': 0.8154, 'vanilla': None, 'delta': None},
+                 'precision': {'finetuned': 0.8252, 'vanilla': None, 'delta': None},
+                 'recall': {'finetuned': 0.8058, 'vanilla': None, 'delta': None},
+                 'holdout': 'retrain_20261009_plaque_test',
+                 'holdout_version': '2026-10-09',
+                 'n_fields': 263,
+                 'n_objects': 12792,
+                 'n_train': '335 fields; 5 reviewed skips excluded',
+                 'train_objects': '16467',
+                 'n_test': '263 fields: 3 held-out Gel Doc plates plus the r5 evaluation split',
+                 'test_objects': '12792',
+                 'cv': 'no',
+                 'aji': 'not recorded',
+                 'dice': 'not recorded',
+                 'stock_f1': 'not measured with spacr.plaque.segment_plaque_image',
+                 'stock_aji': 'not measured',
+                 'stock_dice': 'not measured',
+                 'train_loss': 'see training/epoch_history.json',
+                 'val_loss': 'see training/epoch_history.json',
+                 'best_epoch': '140 / 190'},
+     'display_name': 'Toxoplasma Plaque v4 (round 6, cpsam_v2)',
+     'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.0.9)',
+     'dataset': '663 curated plaque fields from four domains (published-figure wells, Gel Doc '
+                'wells, lab plates, staged literature crops), 32,717 plaques; 335 train / 65 '
+                'validation / 263 test',
+     'versus_stock': 'F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU '
+                     '0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer',
+     'trained_on': 'Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plates '
+                   'and staged literature crops; round 6 splits, best of 190 epochs (epoch 140), '
+                   'base cpsam_v2',
+     'trained_by': 'einarolafsson',
+     'notes': ['No longer the default: toxoplasma_plaque_v5 replaced it on 2026-10-17 (object F1 '
+               '0.816 against 0.725 on the 153 curated test fields); kept selectable so recorded runs reproduce.',
+               'The default plaque model 2026-10-11 to 2026-10-17, by the maintainer\'s rule that spaCR '
+               'models build on cpsam_v2. It scores below toxoplasma_plaque_v3 on the same 263 '
+               'held-out fields, through spacr.plaque.segment_plaque_image: F1 0.815 against 0.844, '
+               'lower on every source (Gel Doc 0.804 against 0.913); v3 stays selectable.',
+               'Fine-tuned from cpsam_v2 (2026-10-10). It replaces the first round-6 weights, '
+               'fine-tuned from first-generation cpsam (sha256 00f4a86b...a0c171), which remain in '
+               'the repository history.',
+               'Above toxoplasma_plaque_v2 overall (0.799) and on Gel Doc wells, where v2 scores 0.013.',
+               'Published-figure literature crops stay hard (F1 0.530).',
+               'Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, '
+               'defaults; receipt '
+               'features/data/model_rescore_curated_gt_2026-10-11/receipt.json): '
+               'strict hold-out, fields this model never saw, F1 0.765 at IoU 0.5 on n'
+               ' = 329 of 562 fields (n differs between models); common subset unseen '
+               'by every plaque model, n = 114, F1 0.534 (95% bootstrap CI 0.440 to '
+               '0.625). Without the v3-seeded Gel Doc truth (n = 81): F1 0.459. '
+               'Earlier numbers in this row are superseded by this re-score where they'
+               ' differ. 263-field set seen counts: v1 54, v2 178, v3 137, v4 0; GRA8 '
+               'Plate1 (hold-out of v3) is the same physical plate as ReimagedPlate1 '
+               '(training data of v4). Default unchanged.']},
+    {'key': 'toxoplasma_plaque_v5',
+     'name': 'cpsam_plaque_r7',
+     'remote_name': 'cpsam_plaque_r7',
+     'kind': 'cellpose',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/weights/cpsam_plaque_r7',
+     'sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
+     'size_bytes': 1218648776,
+     'metrics': {'f1': {'finetuned': 0.8157, 'vanilla': 0.2268, 'delta': 0.5889},
+                 'holdout': 'plaque_curated_20261015_test',
+                 'holdout_version': '2026-10-15',
+                 'n_fields': 153,
+                 'n_objects': 6540,
+                 'n_train': '1201 fields + 153 validation',
+                 'train_objects': '49360',
+                 'n_test': '153 fields',
+                 'test_objects': '6540',
+                 'cv': 'no',
+                 'train_loss': 'see training/run_config.json',
+                 'val_loss': 'see training/run_config.json',
+                 'best_epoch': '100 / 100 (final epoch kept)'},
+     'display_name': 'Toxoplasma Plaque v5 (round 7, cpsam_v2, default)',
+     'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)',
+     'dataset': '1,507 curated plaque fields of 2026-10-15 (Gel Doc wells, lab plates, published '
+                'figures, earlier curation rounds); 1,201 train / 153 validation / 153 test',
+     'versus_stock': 'F1 0.816 (stock cpsam_v2 0.227) on the 153 held-out test fields at IoU 0.5; '
+                     'toxoplasma_plaque_v4 0.725 and toxoplasma_plaque_v3 0.741 on the same fields',
+     'trained_on': 'Toxoplasma plaques from Gel Doc wells, lab plates, published figures and earlier '
+                   'curation rounds (curated dataset of 2026-10-15); 100 epochs, final epoch kept, '
+                   'base cpsam_v2',
+     'trained_by': 'einarolafsson',
+     'notes': ['The default plaque model since 2026-10-17, by the maintainer\'s choice; '
+               'toxoplasma_plaque_v3 is the recommended alternative for Gel Doc wells and '
+               'toxoplasma_plaque_v4 stays selectable.',
+               'Scored 2026-10-17 on the 153 test fields of the curated 2026-10-15 dataset '
+               '(spacr.plaque.segment_plaque_image, defaults): object F1 0.816 (95% bootstrap CI '
+               '0.778 to 0.848), v4 0.725, v3 0.741, stock cpsam_v2 0.227. On the 81 test fields '
+               'neither v3 nor v4 saw: v5 0.803, v4 0.661, v3 0.684. AJI is level with v4 '
+               '(0.737 against 0.744); Gel Doc wells 0.868 against v4 0.901 and v3 0.954.',
+               'The final epoch 100 ships by the maintainer\'s rule: an earlier checkpoint replaces '
+               'it only if better on every metric in every domain. Epoch 40 led on validation '
+               'object F1 (0.766 against 0.750) but trailed on boundary F1 (0.700 against 0.711), '
+               'AJI (0.661 against 0.667) and Dice (0.857 against 0.869); on test it scored F1 0.823.',
+               'Training ran 100 epochs; indices 91 to 99 were resumed from epoch 90 after a power '
+               'cut, with the same schedule and seeds (optimizer moments restarted at LR 2e-8).']},
     {'key': 'toxoplasma_well_detector_v3',
      'name': 'yolo_welldetect_v4_geldoc.pt',
      'remote_name': 'yolo_welldetect_v4_geldoc.pt',
@@ -958,7 +1221,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'train_loss': 'box/class/DFL losses in epoch_history.csv',
                  'val_loss': 'box/class/DFL losses in epoch_history.csv',
                  'best_epoch': 'validation-selected best.pt; see training checkpoint metadata'},
-     'display_name': 'Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)',
+     'display_name': 'Toxoplasma Well Detector v3 (YOLO11 Gel Doc, default)',
      'architecture': 'YOLO11n (fine-tuned from detector v3)',
      'dataset': '452 reviewed training images; 124 validation images; physical plate and figure '
                 'groups; 150 epochs; YOLO11n v3 initialization',
@@ -967,11 +1230,73 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': '452 reviewed training images; 124 validation images; physical plate and figure '
                    'groups; 150 epochs; YOLO11n v3 initialization',
      'trained_by': 'einarolafsson',
-     'notes': ['Candidate, not promoted: clean incumbent-validation mAP50-95 regresses.',
+     'notes': ['The default well detector since 2026-10-12, by the maintainer\'s choice. On the 73 clean '
+               'incumbent-validation images its mAP50-95 is lower than the incumbent\'s; on the 3 Gel Doc '
+               'validation plates it is higher.',
                'Gel Doc plates selected best.pt, so their scores are validation rather than '
                'independent test.',
                'Distinct from the YOLO26 checkpoint also historically called detector v4.',
                'Locates wells, not plaques; one class plaque_well (0).']},
+    {
+        "key": "mitonet_mini_v1",
+        "name": "MitoNet_v1_mini.pth",
+        "kind": "mitonet",
+        "third_party": True,
+        "uri": "https://zenodo.org/records/6861565/files/"
+               "MitoNet_v1_mini.pth?download=1",
+        "sha256":
+            "6554a42fbdcb70a46700f20281b1a5f1ae2f4140a63f519193046c7c9a9f2f4c",
+        "size_bytes": 110074368,
+        "metrics": {'n_train': 'CEM-MitoLab (EMPIAR-11037), about 22,000 '
+                               '2-D EM images, per the authors',
+                    'train_objects': 'not recorded here',
+                    'n_test': '10 TEM fields of spacr-example-tem '
+                              '(EMPIAR-10982 TEM benchmark)',
+                    'test_objects': '195 mitochondria',
+                    'cv': 'no; the benchmark is its held-out test set',
+                    'f1': '0.823 at IoU 0.5 (TP 142, FP 8, FN 53)',
+                    'aji': 'not recorded',
+                    'dice': '0.842 (foreground pixels)',
+                    'stock_f1': 'cpsam 0.467 on the same fields',
+                    'stock_aji': 'not recorded',
+                    'stock_dice': 'cpsam 0.50',
+                    'train_loss': 'not recorded',
+                    'val_loss': 'not recorded',
+                    'best_epoch': 'not recorded'},
+        "display_name": "MitoNet v1 mini (TEM mitochondria, third-party)",
+        "architecture": "Panoptic-DeepLab style network (empanada), "
+                        "TorchScript; spaCR's own post-processing",
+        "dataset": "CEM-MitoLab, 2-D electron micrographs with every "
+                   "mitochondrion outlined (Conrad and Narayan 2023)",
+        "versus_stock": "F1 0.823 against cpsam's 0.467 on the ten "
+                        "spacr-example-tem fields at IoU 0.5",
+        "trained_on": (
+            "CEM-MitoLab: 2-D TEM and volume-EM images of mitochondria from "
+            "many tissues and labs, curated by the empanada authors "
+            "(Conrad and Narayan, Cell Systems 14:58-71, 2023)"
+        ),
+        "trained_by": "Ryan Conrad and Kedar Narayan (empanada, NCI)",
+        "licence": "CC-BY-4.0",
+        "code_licence": "BSD-3-Clause",
+        "citation": (
+            "Conrad R, Narayan K. Instance segmentation of mitochondria in "
+            "electron microscopy images with a generalist deep learning "
+            "model trained on a diverse dataset. Cell Systems "
+            "14(1):58-71.e5, 2023. doi:10.1016/j.cels.2022.12.006"
+        ),
+        "notes": (
+            "third-party weights from Zenodo record 6861565, licensed "
+            "CC-BY-4.0: cite Conrad and Narayan, Cell Systems 2023, "
+            "doi:10.1016/j.cels.2022.12.006",
+            "the empanada code is BSD-3-Clause; spaCR runs the TorchScript "
+            "weights with its own port of the post-processing and does not "
+            "need empanada-dl",
+            "Make Masks offers it as the MitoNet (TEM mitochondria) "
+            "detection method; the weights download on first use",
+            "trained by the lab that made the benchmark it is scored on, "
+            "though that benchmark is its held-out test set",
+        ),
+    },
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -1016,12 +1341,74 @@ _VERSION_RE = re.compile(r"^(?P<base>.+)_v(?P<n>\d+)$")
 
 
 
+_CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d',
+                          'field_ids_sha256': 'c0759011907c85b3a5fc0d0c1ebfa31ac4c8fd196a29427d8ac80c7e00f47ab5',
+                          'full_card_sha256': '5467b6e446000c87cc61b34802aa4a212c8e8238f283f5fe13fa68afbf65df11',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam.json',
+                          'resource_sha256': '31d63e888366c0bf70048977efc191bba51bc38e06d0c2f846a9dd36c3335888',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/resolve/main/cpsam_plaque_r3?download=true'},
+ 'toxoplasma_plaque_v2': {'checkpoint_sha256': '0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600',
+                          'field_ids_sha256': 'cb872aac8934e014943e40e42c420f1335f1e815415f553210360c6b80b07fc3',
+                          'full_card_sha256': '92e2362a345b8e27cf1595ac11e532126fe92d9dedd321445e6f06b05799684c',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r5.json',
+                          'resource_sha256': 'a541533956c3c570dfb85155839eb568951d76dfe87b63bf3727c487281a2d21',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/weights/cpsam_plaque_r5?download=true'},
+ 'toxoplasma_plaque_v3': {'checkpoint_sha256': '8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c',
+                          'field_ids_sha256': 'de6aa3f20249d5f8d7e3fd8cafae08f74f2a823983b36692b73de2fdd7c05424',
+                          'full_card_sha256': '19af073e0a5c752df94dc4943ed66f2927d2351fffa745d070c3da7faf7e4806',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r5-geldoc.json',
+                          'resource_sha256': 'd9ecd22d0582c4b9668c802964e3e236254c6674afe95616375263c5ce2ef09a',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/weights/cpsam_plaque_r5_geldoc'},
+ 'toxoplasma_plaque_v4': {'checkpoint_sha256': '744aee3f71efa68f6a369a6f91fe5850dc61e35f3dc20d53dda2c04fce17b35f',
+                          'field_ids_sha256': '5e3dfefe23a2bc51877dc3cb72999b21b1d0b3e4fb393e5d9d2b2bcce686f86f',
+                          'full_card_sha256': '6860674346b819da2045a8a887d39dfc6d343b0250cf748b74d86b4414e2c94a',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r6.json',
+                          'resource_sha256': '7dbefae4de57bf749fd9efe164b375288fcd65a0ca5c3198905d30600a03691f',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/main/weights/cpsam_plaque_r6'},
+ 'toxoplasma_plaque_v5': {'checkpoint_sha256': '9243917beefbc3d1c8d997d56c1980b811ffef9ee075dac60b099aec715fa8a1',
+                          'field_ids_sha256': '981166ee8b999dad4b15deb0ea6a31c4dd5cd75713ae015650afc598d9cabc70',
+                          'full_card_sha256': '33d7064088e3890a1a702b45a36c2d5aceb79667ab34318e39352d8ec4cc207d',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-r7.json',
+                          'resource_sha256': 'e8943595cd5ba25b4a5d6aa31410d48cd028e4ed63acf3744a88a051e740b2d7',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r7/resolve/main/weights/cpsam_plaque_r7'},
+ 'toxoplasma_pv_v1': {'checkpoint_sha256': '182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0',
+                      'field_ids_sha256': '8192aa87281f8da7d1a4fd7884472e83f57c344b059953db0aa94e359b46a046',
+                      'full_card_sha256': 'a74e00d9d0c0d4f7560a7650618243d393431a1bee78f43047f38c57b5e5edd5',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam.json',
+                      'resource_sha256': '504429f98ee4d86824bb9aedd4291d799be2f5a272d542961c32b09f158f368c',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/resolve/main/cpsam_v2_toxo_r2?download=true'},
+ 'toxoplasma_pv_v2': {'checkpoint_sha256': '17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f',
+                      'field_ids_sha256': 'cb581da5ded17152fb834d7b3c24af0c1ad0ce6f472cc292fa81ede122b4a9ff',
+                      'full_card_sha256': '41015c1eea6fd3366205c121208272d931ccb9954f24b48b90c34fd01533fe69',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r5.json',
+                      'resource_sha256': '4a763040ef118e1e940033723c93ec2750e7880b56eb47f5eb8da703b847235f',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/resolve/main/cpsam_v2_toxo_r5?download=true'},
+ 'toxoplasma_pv_v3': {'checkpoint_sha256': '146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e',
+                      'field_ids_sha256': 'b0196c1902fc479d76aa8df2afbc2c4046088413557ba09c96a1b3363618c1fb',
+                      'full_card_sha256': '544e2321dd7af7b996af19e4ae16f5270e727279d0516ad36b932cd323ac3aad',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r6.json',
+                      'resource_sha256': 'd8621a89fc25ff18801aebf32b8caf75a8af06045feba5b97d9833baa751f84a',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/resolve/main/weights/cpsam_v2_toxo_r6'},
+ 'toxoplasma_pv_v4': {'checkpoint_sha256': '621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2',
+                      'field_ids_sha256': 'd0a6542dd6647b7c1b46742151596d850ec5f2c5dfd0b30fe6582be7684988d8',
+                      'full_card_sha256': '76ebd4a89abb9f98e65b668ce811d85e0cc5a6e5380de8cc168f7705c2b23c3a',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r7.json',
+                      'resource_sha256': '0c92b1167245b2a6ae901d26623761269ed1d65ed0c109b5c0da91a797b50ff5',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/weights/cpsam_v2_toxo_r7'},
+ 'toxoplasma_pv_v5': {'checkpoint_sha256': 'a1d7f1a978cf4925ec60db486a00eea33e87e6fc5a6b0d0f34c6db5f132d5c1c',
+                      'field_ids_sha256': 'ff26b2e63f147aaa48da545addadab32505d8417654e7f5d9000ee54187b149d',
+                      'full_card_sha256': '73b49ea573201d9d2d1e51513398dc9917ff10cbee792bae2a499d18c81ceed2',
+                      'resource': 'toxoplasma-pv-segmentation-cpsam-r8.json',
+                      'resource_sha256': '34c9df8121b591b5c5c8d0b8566dea5a8294fdb1c26197df7a42180db9d4d40f',
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/weights/cpsam_v2_toxo_r8'}}
+
+
 class ModelZooError(Exception):
     """Base class for every refusal in this module."""
 
 
 class ChecksumMismatch(ModelZooError):
-    """What arrived is not what the catalogue published. Nothing was installed."""
+    """Downloaded bytes do not match the published digest; nothing was installed."""
 
 
 class ModelUnreadable(ModelZooError):
@@ -1029,7 +1416,7 @@ class ModelUnreadable(ModelZooError):
 
 
 class DownloadCancelled(ModelZooError):
-    """The caller cancelled a fetch. Nothing was left at the destination."""
+    """Raised when the caller cancels a fetch; nothing is left at the destination."""
 
 
 class IncomparableBenchmarks(ModelZooError):
@@ -1039,7 +1426,7 @@ class IncomparableBenchmarks(ModelZooError):
 
 @dataclass(frozen=True)
 class ModelEntry:
-    """One model the zoo knows about, wherever it lives.
+    """Record of one model: its location, checksum and provenance.
 
     Frozen because an entry is a *record of a file at a moment* — the hash, the
     size and the provenance describe those bytes. Changing one in place would
@@ -1081,6 +1468,9 @@ class ModelEntry:
     :param licence: the licence the model or package is published under, as
         its publisher states it (an SPDX identifier where there is one), or
         ``''`` when none is recorded.
+    :param _curated_card: Internal presentation marker set only after the
+        builtin declaration, checkpoint and packaged card match reviewed
+        identities. Serialized catalogue fields do not enable this marker.
     """
 
     key: str
@@ -1099,13 +1489,13 @@ class ModelEntry:
     verified: bool = False
     settings_path: str = ""
     licence: str = ""
+    _curated_card: bool = _dc_field(default=False, compare=False, repr=False)
 
     def __post_init__(self):
         """Fill in the provenance fields and validate the kind.
 
         A blank ``trained_on`` or ``trained_by`` reads as "no constraints", so
-        it is replaced with an explicit unknown -- the field has to say so out
-        loud rather than by omission.
+        it is replaced with :data:`UNKNOWN`.
 
         :raises ValueError: if ``kind`` is not one of the known model kinds.
         """
@@ -1130,10 +1520,10 @@ class ModelEntry:
     def scorecard_known(self) -> bool:
         """True when this model says how accurate it is.
 
-        The accuracy twin of :attr:`provenance_known`, which 370 asks for by
-        name. A model with no numbers did not score zero, and a table of
-        empty cells reads as the second -- so the absence is a state to
-        report rather than a gap to render.
+        The accuracy counterpart of :attr:`provenance_known`. A model with no
+        metrics did not score zero, but a table of empty cells reads as zero,
+        so the absence is reported as a state rather than shown as blank
+        cells.
         """
         from .scorecard import scorecard_is_present
 
@@ -1143,10 +1533,10 @@ class ModelEntry:
     def scorecard_holdout(self) -> str:
         """``name @ version`` of the hold-out set, or ``""``.
 
-        A SCORECARD WITHOUT ITS SET IS A NUMBER WITHOUT A UNIT. Two people
-        quoting an F1 for the same model have said nothing to each other
-        unless they scored the same masks, so the set travels with the
-        numbers into every surface that shows them.
+        Scores from different hold-out sets are not comparable: two F1
+        values for the same model agree only if they were computed on the
+        same masks. The set name and version are therefore shown with the
+        numbers.
         """
         metrics = self.metrics or {}
         name = str(metrics.get("holdout") or "").strip()
@@ -1158,17 +1548,20 @@ class ModelEntry:
     def scorecard_lines(self) -> List[str]:
         """The scorecard as display lines, or the sentence saying there is none.
 
-        ONE SOURCE, FOUR RENDERINGS. The tooltip, the API page, the Zoo screen
-        and the Hugging Face table all render THIS, so they cannot disagree --
-        366 found six README tiles pointing at three different API pages, and
-        that is what happens when a number is written down in more than one
-        place.
+        Trusted builtin cards show all six accepted matched-stock measurements
+        and their dataset and counts; their boundary F1 uses a two-pixel
+        tolerance. Other entries keep :func:`spacr.scorecard.headline` applied
+        to their fine-tuned and vanilla values, followed by the recorded
+        hold-out set. One-pixel measurements retain their original meaning.
+        Without a scorecard the list holds :data:`spacr.scorecard.NO_SCORECARD`.
         """
         from .scorecard import NO_SCORECARD, headline
 
         if not self.scorecard_known:
             return [NO_SCORECARD]
         metrics = self.metrics or {}
+        if self._curated_card:
+            return _curated_scorecard_lines(metrics)
         finetuned = {k: v.get("finetuned") for k, v in metrics.items()
                      if isinstance(v, dict)}
         baseline = {k: v.get("vanilla") for k, v in metrics.items()
@@ -1187,12 +1580,12 @@ class ModelEntry:
             no hash at all — nothing can be checked, and :func:`fetch` refuses
             such an entry unless the caller overrides it.
         ``'published'``
-            a hash came with the entry but the bytes are not here yet, so it is
-            a promise about what will arrive.
+            a hash came with the entry but the bytes are not here yet; it is
+            the digest the download will be checked against.
         ``'recorded'``
-            the honest middle: the hash of the file on disk is known, but
-            nobody published one to compare it against. It proves the file has
-            not changed *since we looked*, and nothing more.
+            the hash of the file on disk is known, but no published digest
+            exists to compare it against. It shows only that the file has not
+            changed since the hash was recorded.
         ``'verified'``
             the bytes on disk were compared with a published digest and match.
         """
@@ -1234,7 +1627,13 @@ class ModelEntry:
         return f"https://huggingface.co/{parts[0]}/{parts[1]}"
 
     def describe(self) -> str:
-        """The multi-line provenance card shown next to a selected model."""
+        """The multi-line provenance card shown next to a selected model.
+
+        Trusted builtin cards show the six accepted measurements and explicit
+        evaluation identity. Their historical evaluations and source digests
+        remain in the entry's data without cluttering this presentation.
+        Other entries retain their original complete metadata description.
+        """
         lines = [
             f"{self.name}  [{self.kind} · {self.source} · v{self.version}]",
             f"  path       {self.path or '(not downloaded)'}",
@@ -1253,7 +1652,12 @@ class ModelEntry:
             lines.append(f"  model card {card}")
         if self.settings_path:
             lines.append(f"  provenance {self.settings_path}")
+        if self._curated_card:
+            lines.extend("  " + line for line in self.scorecard_lines())
         for name, value in sorted(self.metrics.items()):
+            if self._curated_card and name not in (
+                    "n_train", "train_objects", "cv", "train_loss", "val_loss", "best_epoch"):
+                continue
             lines.append(f"  {name:<10} {value}")
         for note in self.notes:
             lines.append(f"  ! {note}")
@@ -1295,7 +1699,7 @@ def _human_bytes(size: Any) -> str:
 
 
 def sha256_file(path: Any, chunk_size: int = 1 << 20) -> str:
-    """Hex SHA-256 of a file, read in chunks so a 2 GB checkpoint is not RAM.
+    """Hex SHA-256 of a file, read in chunks so the whole file is never in memory.
 
     :param path: the file.
     :param chunk_size: bytes per read.
@@ -1729,6 +2133,12 @@ def _runs_under(root: Path) -> Dict[str, Any]:
 
 
 
+def _model_cache_root() -> Path:
+    """Return spaCR's shared checkpoint cache, including an explicit relocation."""
+    configured = os.environ.get("SPACR_MODEL_CACHE", "").strip()
+    return Path(configured).expanduser() if configured else _spacr_home() / "models"
+
+
 def package_model_root() -> Path:
     """``<spacr>/resources/models`` — where the bundled pack lives.
 
@@ -1739,7 +2149,7 @@ def package_model_root() -> Path:
 
 
 def default_local_roots() -> List[Path]:
-    """Folders worth scanning when the caller has not named one.
+    """Default folders to scan for models when the caller names none.
 
     The bundled pack, the Cellpose user folder, and spaCR's own model cache.
     Only the ones that exist come back.
@@ -1747,7 +2157,7 @@ def default_local_roots() -> List[Path]:
     roots = [
         package_model_root(),
         Path.home() / ".cellpose" / "models",
-        _spacr_home() / "models",
+        _model_cache_root(),
     ]
     return [r for r in roots if r.is_dir()]
 
@@ -1875,7 +2285,7 @@ def hf_uri(repo_id: str, filename: str, repo_type: str = "dataset") -> str:
     :func:`spacr.qt.hf_download._download_one` build, kept in one place so the
     zoo cannot drift away from the downloader spaCR already ships.
 
-    THE TWO REPO KINDS HAVE DIFFERENT URLS, which is not cosmetic: a dataset
+    The two repository kinds have different URLs: a dataset
     file lives under ``/datasets/<repo>/resolve/...`` and a model file under
     ``/<repo>/resolve/...``. Asking for one at the other's URL returns a 404
     page, and a downloader that does not check the content type writes that
@@ -1929,6 +2339,69 @@ def _entry_from_mapping(data: Mapping[str, Any],
     )
 
 
+def _builtin_entry_from_mapping(record: Mapping[str, Any]) -> ModelEntry:
+    """Attach an accepted card only to its exact trusted builtin checkpoint.
+
+    The declaration object, download URI, checkpoint digest and packaged card
+    digest must all match the reviewed bindings. Custom declarations and changed
+    files retain their original measurements. The earlier evaluation remains
+    available in ``historical_scorecards``; no score is recalculated.
+
+    :param record: One declaration from ``BUNDLED_REMOTE_MODELS``.
+    :returns: Its model entry, with an approved matched-stock evaluation when bound.
+    """
+    from copy import deepcopy
+
+    entry = _entry_from_mapping(record)
+    binding = _CURATED_SCORECARD_BINDINGS.get(entry.key)
+    if (binding is None or not any(record is raw for raw in BUNDLED_REMOTE_MODELS)
+            or entry.source != "remote" or entry.path
+            or entry.uri != binding["uri"]
+            or entry.sha256 != binding["checkpoint_sha256"]):
+        return entry
+    from . import model_cards
+
+    try:
+        payload = (model_cards._CARD_DIR / binding["resource"]).read_bytes()
+    except OSError:
+        return entry
+    if hashlib.sha256(payload).hexdigest() != binding["resource_sha256"]:
+        return entry
+    card = json.loads(payload)
+    scores = card["scores"]
+    rows = {row["key"]: row for row in scores["rows"]}
+    holdout = scores["holdout"]
+    metrics = {key: deepcopy(value) for key, value in entry.metrics.items()
+               if key in ("n_train", "train_objects", "cv", "train_loss", "val_loss", "best_epoch")}
+    for key, source in (("f1", "object_f1"), ("boundary_f1_2px", "boundary_f1"),
+                        ("precision", "precision"), ("recall", "recall"),
+                        ("aji", "aji"), ("dice", "dice")):
+        row = rows[source]
+        mine, stock = row["this"], row["stock"]
+        metrics[key] = {"finetuned": mine, "vanilla": stock,
+                        "delta": None if stock is None else mine - stock}
+    counts = scores.get("counts", {}).get("this", {})
+    for key, source in (("true_positives", "tp"), ("false_positives", "fp"),
+                        ("false_negatives", "fn")):
+        if source in counts:
+            metrics[key] = counts[source]
+    metrics.update({"holdout": holdout.get("set", "gt_rescore_20261011"),
+                    "holdout_version": "strict hold-out, pooled",
+                    "n_fields": holdout["n_fields"], "n_objects": holdout["n_objects"],
+                    "n_test": str(holdout["n_fields"]) + " fields",
+                    "test_objects": str(holdout["n_objects"]),
+                    "historical_scorecards": [{"metrics": deepcopy(entry.metrics)}],
+                    "scorecard_provenance": {"schema": "spacr-approved-curated-card-v1",
+                        "stock_model": scores["stock_model"], "boundary_tolerance_px": 2,
+                        "holdout": deepcopy(holdout), "checkpoint_uri": entry.uri,
+                        "checkpoint_sha256": entry.sha256,
+                        "resource_sha256": binding["resource_sha256"],
+                        "full_card_sha256": binding["full_card_sha256"],
+                        "field_ids_sha256": binding["field_ids_sha256"],
+                        "field_ids_included": False}})
+    return replace(entry, metrics=metrics, _curated_card=True)
+
+
 _SHARED_CATALOGUE_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "entries": ()}
 
 #: Set while a background refresh is in flight, so a screen that opens twice
@@ -1969,7 +2442,7 @@ def _refresh_shared_catalogue_in_background(uri: Optional[str],
     def run() -> None:
         """Fetch the catalogue off the GUI thread, and always release the flag.
 
-        The `finally` is the whole point: `_SHARED_CATALOGUE_FETCHING` is what
+        The flag is cleared in a `finally` block. `_SHARED_CATALOGUE_FETCHING`
         stops a second refresh being started while this one is in flight, so a
         fetch that raises must still clear it or no later refresh can ever
         begin.
@@ -1992,43 +2465,48 @@ def shared_catalogue(uri: Optional[str] = None, *,
     :param uri: override the catalogue location.
     :param timeout: seconds to wait for the request.
     :param force: ignore the cache and re-fetch.
-    :param block: whether to wait for the network. ``None`` -- the default,
-        and what an unthinking caller gets -- waits everywhere EXCEPT Qt's
-        GUI thread, where it answers from the cache and refreshes on a daemon
-        thread. ``True`` waits wherever it is called, which only a caller that
+    :param block: whether to wait for the network. ``None`` (the default)
+        waits everywhere except Qt's GUI thread, where it answers from the
+        cache and refreshes on a daemon thread. ``True`` waits wherever it is called, which only a caller that
         knows it is on a worker or in a CLI may ask for. ``False`` never
         waits.
     :returns: the entries, or ``()`` when the catalogue cannot be read.
 
-    NEVER FETCHES ON THE GUI THREAD, and that is not an optimisation. This is
-    reached from ``spacr.settings.downloaded_zoo_models`` while a settings
+    It does not fetch on Qt's GUI thread. This function is reached from ``spacr.settings.downloaded_zoo_models`` while a settings
     panel is being built, so it ran inside ``MainWindow._on_nav_selected``
     with nothing able to paint or answer the compositor. Measured
     with the catalogue host non-routable (10.255.255.1, the shape of a down
     VPN or a captive portal -- the connect neither completes nor is refused):
     opening the Mask module took **32.2 s**, all of it a GUI thread stuck in
-    ``urlopen``. GNOME asks a window whether it is alive after five, so what
-    the user sees is spaCR's "force quit" dialog, which is how this was
-    reported. With the fetch moved off the thread the same open is 2.4 s.
+    ``urlopen``. GNOME asks a window whether it is alive after five seconds,
+    so the user saw GNOME's "force quit" dialog. With the fetch moved off the
+    thread the same open took 2.4 s.
 
     The cost of not waiting is a first module open whose Cellpose dropdown
     lists the bundled and local models but not the community ones; the
     background refresh means the second one has them.
 
-    NEVER RAISES, and that is deliberate. This runs when a user opens a module
-    that offers a model list, and the list is useful without it: the bundled
+    It does not raise. This runs when a user opens a module that offers a
+    model list, and the list is useful without the community rows: the bundled
     entries and any local models are still there. A laptop on a train, a lab
     behind a proxy and a Hugging Face outage all produce the same thing -- a
     shorter list and a log line -- rather than a module that will not open.
 
-    The failure that WOULD be silent and harmful is a corrupt or hostile
-    catalogue, so entries that do not parse are dropped individually, and an
+    A corrupt or hostile catalogue is the failure that would go unnoticed,
+    so entries that do not parse are dropped individually, and an
     entry without a ``sha256`` still cannot be installed by :func:`fetch`
     without an explicit override. A catalogue row is a claim about where a file
     lives; the checksum is what makes it a claim about which file.
+
+    A row's own ``source`` field is dropped: every row here is ``shared``,
+    and which heading it lands under is :func:`source_of`'s decision, made
+    from its checksum and the repository it is fetched from.
     """
     import time
 
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+            "0", "off", "false", "no"):
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
     target = uri or REMOTE_CATALOGUE_URI
     now = time.time()
     if (not force and float(_SHARED_CATALOGUE_CACHE["fetched_at"]) > 0
@@ -2058,6 +2536,8 @@ def shared_catalogue(uri: Optional[str] = None, *,
     records = payload.get("models") if isinstance(payload, Mapping) else payload
     entries: List[ModelEntry] = []
     for record in (records or ()):
+        if isinstance(record, Mapping):
+            record = {k: v for k, v in record.items() if k != "source"}
         try:
             entries.append(_entry_from_mapping(record, source="shared"))
         except Exception as exc:                            # noqa: BLE001
@@ -2087,11 +2567,11 @@ def publish_model(local_path: Any, repo_id: str, *,
     """Upload a model to Hugging Face and return its catalogue row.
 
     :param local_path: the checkpoint to upload.
-    :param repo_id: ``<user>/<repo>`` -- YOUR OWN account.
+    :param repo_id: ``<user>/<repo>`` -- a repository under your own account.
     :param key: the short name spaCR will offer the model under.
     :param kind: one of :data:`KINDS`.
-    :param trained_on: what the model was trained on. Say it properly: this is
-        the only thing another lab has to decide whether it applies to them.
+    :param trained_on: what the model was trained on. Other labs read this
+        field to decide whether the model applies to their images.
     :param trained_by: who trained it, and roughly when.
     :param private: keep the repo private. A private model cannot be fetched by
         other spaCR users, so it is off by default.
@@ -2099,14 +2579,12 @@ def publish_model(local_path: Any, repo_id: str, *,
     :returns: the catalogue row, with the sha256 filled in.
     :raises ImportError: when ``huggingface_hub`` is not installed.
 
-    THE CHECKSUM IS COMPUTED HERE, from the file that was actually uploaded,
-    which is the whole reason this exists as a function rather than as
-    instructions in a README. :func:`fetch` refuses an entry it cannot verify,
-    so a row written by hand without a hash produces a model nobody can install
-    without disabling the check -- which is what the one pre-existing bundled
-    entry does, and it is a hole rather than a precedent.
+    The checksum is computed here, from the file that was actually uploaded.
+    :func:`fetch` refuses an entry it cannot verify, so a row written by hand
+    without a hash produces a model nobody can install without disabling the
+    check.
 
-    Publishing does NOT distribute the model on its own: add the returned row
+    Publishing does not distribute the model on its own: add the returned row
     to the shared catalogue (:data:`REMOTE_CATALOGUE_URI`) and every spaCR user
     sees it within :data:`CATALOGUE_CACHE_SECONDS`.
     """
@@ -2165,7 +2643,8 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
         ]}
 
     ``sha256`` is the field that decides whether the entry is usable without an
-    explicit override, so a catalogue is worth exactly as much as its hashes.
+    explicit override: :func:`fetch` refuses an entry without one unless
+    ``require_checksum=False`` is passed.
 
     :param path: the JSON file.
     :returns: the entries.
@@ -2213,10 +2692,9 @@ def stock_cellpose_entries() -> List["ModelEntry"]:
     """Every model the installed Cellpose can fetch for itself.
 
     These are not spaCR's files and carry no checksum of ours: Cellpose
-    downloads and verifies them, and the name IS the path -- passing "cpsam"
-    to Cellpose resolves it. They are listed so that the zoo answers "what can
-    I segment with" rather than "what has Einar trained", which is the
-    question a new user actually has.
+    downloads and verifies them, and the name is the path -- passing "cpsam"
+    to Cellpose resolves it. They are listed so that the zoo shows every model
+    the user can segment with, not only the models trained for spaCR.
     """
     import sys
 
@@ -2790,8 +3268,8 @@ INSTALLABLE_BACKENDS = {
 def installable_backend_entries() -> List["ModelEntry"]:
     """Every optional segmentation backend, in whatever state it is here.
 
-    A backend absent from the zoo teaches nobody that it exists, so each one
-    is listed, and its ``source`` says where it stands -- ``installed``,
+    Each backend is listed whether or not it is installed, and its
+    ``source`` says where it stands -- ``installed``,
     ``installable``, ``installing`` or ``not installable here`` -- with the
     reason as its first note and its licence on the row. Installing one
     builds it an environment of its own under ``~/.spacr/backends`` and
@@ -2836,7 +3314,7 @@ def community_entries(allow_network: bool = False,
     checkpoint sitting beside a measured one invites the reader to treat them
     alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes
     from the uploader's own submission record -- it proves the file has not
-    changed since it was uploaded, NOT that it is any good.
+    changed since it was uploaded, not that the model performs well.
 
     Cache-first for the same reason as the bioimage.io listing: catalogue()
     must not reach the network.
@@ -2916,7 +3394,8 @@ def community_entries(allow_network: bool = False,
 #: as captions: :func:`source_of` returns one of them, and the picker
 #: remembers which are on by this spelling. Renaming one is a migration.
 ZOO_SOURCES: Tuple[str, ...] = (
-    "cellposeSAM", "spaCR", "spaCR community", "bioimage.io", "cellpose3")
+    "cellposeSAM", "spaCR", "spaCR community", "bioimage.io", "cellpose3",
+    "Third-party")
 
 #: The headings a user who has never touched them sees turned on.
 #:
@@ -2942,23 +3421,194 @@ _SPACR_OWN_SOURCES = ("remote", "bundled", "local")
 _COMMUNITY_SOURCES = ("shared", "community")
 
 
+#: Hugging Face accounts whose repositories hold spaCR's own models.
+#:
+#: A shared or community row whose download URL lives in one of these
+#: accounts is a model the maintainer trained and uploaded, and is listed
+#: under spaCR whatever its key. :data:`COMMUNITY_REPO` is the one exception:
+#: it belongs to the same account but is the inbox the Add button fills, so
+#: what is in it was uploaded by somebody else.
+SPACR_HF_OWNERS: Tuple[str, ...] = (HF_MODELS_REPO.split("/", 1)[0],)
+
+_HF_REPO_PART = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def hf_repo_of(uri: Any) -> str:
+    """The ``owner/repo`` a Hugging Face download URL points into, or ``''``.
+
+    Read from the URL a row is FETCHED from, never from a ``trained_by`` or
+    ``owner`` field a catalogue row can claim for itself: the bytes come from
+    this repository, so it is the only owner that cannot be borrowed.
+
+    Strict on purpose. Only ``https://huggingface.co/<owner>/<repo>/...`` and
+    ``https://huggingface.co/datasets/<owner>/<repo>/...`` qualify; another
+    host, a port, user info, ``..`` or percent-escapes in the path give
+    ``''``, so ``huggingface.co.example.org/einarolafsson/...`` is nobody's.
+
+    :param uri: a download URL.
+    :returns: ``owner/repo`` or ``''``.
+    """
+    from urllib.parse import urlsplit
+
+    try:
+        parts = urlsplit(str(uri or "").strip())
+    except ValueError:
+        return ""
+    if parts.scheme != "https" or parts.netloc.lower() != "huggingface.co":
+        return ""
+    path = parts.path
+    if ".." in path or "%" in path or "\\" in path:
+        return ""
+    segments = path.split("/")[1:]
+    if segments[:1] == ["datasets"]:
+        segments = segments[1:]
+    if len(segments) < 2:
+        return ""
+    owner, repo = segments[0], segments[1]
+    if not (_HF_REPO_PART.match(owner) and _HF_REPO_PART.match(repo)):
+        return ""
+    return f"{owner}/{repo}"
+
+
+def is_spacr_owned(entry: Any) -> bool:
+    """Whether a row's file lives in a repository owned by the einarolafsson account.
+
+    :param entry: any zoo row.
+    :returns: True when :func:`hf_repo_of` its ``uri`` is in an account named
+        by :data:`SPACR_HF_OWNERS` and is not :data:`COMMUNITY_REPO`.
+    """
+    repo = hf_repo_of(getattr(entry, "uri", "")).lower()
+    if not repo or repo == COMMUNITY_REPO.lower():
+        return False
+    owners = {owner.lower() for owner in SPACR_HF_OWNERS}
+    return repo.split("/", 1)[0] in owners
+
+
+def _is_spacr_published(entry: Any) -> bool:
+    """Whether a shared or community row is a checkpoint spaCR publishes.
+
+    Item 685: the Toxoplasma plaque model also travels in the shared
+    catalogue, where it was filed under spaCR community. A row is spaCR's
+    own when its key AND its checksum match a
+    :data:`BUNDLED_REMOTE_MODELS` record, so an upload that merely borrows
+    a key stays a community row. :func:`is_spacr_owned` is the other way
+    in: a file in a repository owned by the einarolafsson account.
+
+    :param entry: any zoo row.
+    :returns: True for the very file a bundled record names.
+    """
+    key = str(getattr(entry, "key", "") or "")
+    sha = str(getattr(entry, "sha256", "") or "").strip().lower()
+    if not key or not sha:
+        return False
+    return any(str(record.get("key") or "") == key
+               and str(record.get("sha256") or "").strip().lower() == sha
+               for record in BUNDLED_REMOTE_MODELS)
+
+
+def _record_is_alternative(record: Mapping[str, Any]) -> bool:
+    """Whether a bundled record marks itself as an alternative.
+
+    An explicit ``alternative`` field wins; otherwise the record's
+    ``display_name`` saying "alternative" marks it, so moving a model's
+    default status means editing its own record and nothing else.
+    """
+    if "alternative" in record:
+        return bool(record.get("alternative"))
+    return "alternative" in str(record.get("display_name") or "").lower()
+
+
+#: Keys of published models that are offered beside a default rather than
+#: instead of it. They are listed under spaCR like any other, but a model
+#: family's row opens on its default version, not on the alternative.
+ALTERNATIVE_MODEL_KEYS: frozenset = frozenset(
+    str(record.get("key") or "") for record in BUNDLED_REMOTE_MODELS
+    if _record_is_alternative(record))
+
+
+THIRD_PARTY_MODEL_KEYS: frozenset = frozenset(
+    str(record.get("key") or "") for record in BUNDLED_REMOTE_MODELS
+    if record.get("third_party"))
+
+
+def is_third_party(entry: Any) -> bool:
+    """Whether a row is a published model that spaCR did not train.
+
+    Item 691. Such a row is offered by spaCR, with its download and checksum
+    in :data:`BUNDLED_REMOTE_MODELS`, but its weights belong to someone else
+    and carry their own licence and citation, so it is listed under
+    ``Third-party`` rather than ``spaCR``.
+
+    :param entry: any zoo row.
+    :returns: True for a key in :data:`THIRD_PARTY_MODEL_KEYS` or a row of
+        kind ``mitonet``.
+    """
+    return (str(getattr(entry, "key", "") or "") in THIRD_PARTY_MODEL_KEYS
+            or str(getattr(entry, "kind", "") or "") == "mitonet")
+
+
+def is_alternative(entry: Any) -> bool:
+    """Whether a row is a published alternative rather than a default.
+
+    :param entry: any zoo row.
+    :returns: True for a key in :data:`ALTERNATIVE_MODEL_KEYS`.
+    """
+    return str(getattr(entry, "key", "") or "") in ALTERNATIVE_MODEL_KEYS
+
+
+def _record_is_candidate(record: Mapping[str, Any]) -> bool:
+    """Whether a bundled record marks itself as an unpromoted candidate."""
+    if "candidate" in record:
+        return bool(record.get("candidate"))
+    return bool(re.search(r"\bcandidate\b",
+                          str(record.get("display_name") or "").lower()))
+
+
+_CANDIDATE_MODEL_KEYS: frozenset = frozenset(
+    str(record.get("key") or "") for record in BUNDLED_REMOTE_MODELS
+    if _record_is_candidate(record))
+
+
+def default_version_index(pairs: Sequence[Tuple[str, Any]]) -> int:
+    """Which version a model family's row opens on.
+
+    The newest version that is neither an alternative nor a candidate, so
+    publishing either never changes what a family's row hands out by
+    default. The README and the website's model cards use the same rule.
+
+    :param pairs: ``(label, entry)`` pairs, newest first.
+    :returns: an index into ``pairs``; 0 when every version is an
+        alternative or a candidate, or there are none.
+    """
+    for index, (_label, entry) in enumerate(pairs):
+        if not is_alternative(entry) and str(
+                getattr(entry, "key", "") or "") not in _CANDIDATE_MODEL_KEYS:
+            return index
+    return 0
+
+
 def source_of(entry: Any) -> str:
     """Which of :data:`ZOO_SOURCES` this row belongs under.
 
-    Decided FROM THE ROW, never from a list of names kept somewhere else: a
-    hand-written list goes stale the first time a model is added, and the
-    failure it produces is a model that is in the catalogue and under no
-    heading, which is a model nobody can see.
+    Decided from the row's own ``source``, ``kind`` and ``uri``, never from a
+    separate list of names: such a list goes stale the first time a model is
+    added, and a model missing from it appears in the catalogue under no
+    heading, where nobody can see it.
 
     The order of the tests is the rule, and it matters in one place: a
     Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not
-    a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,
+    a Cellpose 3 one. ``cellpose3`` means the backend's own models -- cyto,
     cyto2, cyto3, nuclei -- and the backend package that runs them.
 
-    A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It
-    is the fallback rather than a sixth heading because a model under the
-    wrong heading is a nuisance and a model under no heading is a bug the
-    user experiences as a missing model.
+    A shared or community row is spaCR's when it is the file a bundled
+    record names (key and checksum) or when it is fetched from a repository
+    owned by the einarolafsson account (:func:`is_spacr_owned`). Anything else
+    uploaded by somebody else stays under ``spaCR community``.
+
+    A row that matches nothing is filed under ``spaCR`` and a warning is
+    logged. It is the fallback rather than a sixth heading because a model
+    under the wrong heading is still visible, while a model under no heading
+    appears to the user as a missing model.
 
     :param entry: any zoo row -- a :class:`ModelEntry`, or anything with
         ``kind``, ``source`` and ``uri``.
@@ -2967,7 +3617,12 @@ def source_of(entry: Any) -> str:
     source = str(getattr(entry, "source", "") or "")
     kind = str(getattr(entry, "kind", "") or "")
     uri = str(getattr(entry, "uri", "") or "")
+    if str(getattr(entry, "key", "") or "") in THIRD_PARTY_MODEL_KEYS and (
+            source not in _COMMUNITY_SOURCES or _is_spacr_published(entry)):
+        return "Third-party"
     if source in _COMMUNITY_SOURCES:
+        if _is_spacr_published(entry) or is_spacr_owned(entry):
+            return "spaCR"
         return "spaCR community"
     if source == "bioimage.io" or "bioimage" in uri.lower():
         return "bioimage.io"
@@ -2975,6 +3630,8 @@ def source_of(entry: Any) -> str:
         return "cellpose3"
     if kind == "cellpose" and source == "stock":
         return "cellposeSAM"
+    if is_third_party(entry):
+        return "Third-party"
     if (kind == "backend" or kind in PREFIXED_KINDS
             or source in _SPACR_OWN_SOURCES):
         return "spaCR"
@@ -3024,7 +3681,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     configured, the JSON catalogue named by ``catalogue_path`` or the
     :data:`CATALOGUE_ENV_VAR` environment variable.
 
-    Local apart from one thing, and the exception used to be undocumented:
+    Local apart from one thing:
     with ``remote`` on, this also asks :func:`shared_catalogue` for the
     community rows, which is a network call. It works offline either way --
     that fetch never raises -- and it never blocks Qt's GUI thread, which
@@ -3058,7 +3715,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
     if remote:
         have = {(e.key, e.name) for e in entries}
         for record in BUNDLED_REMOTE_MODELS:
-            entry = _entry_from_mapping(record)
+            entry = _builtin_entry_from_mapping(record)
             if (entry.key, entry.name) not in have:
                 entries.append(entry)
                 have.add((entry.key, entry.name))
@@ -3151,35 +3808,604 @@ def resolve(key_or_path: Any,
 
 
 
-def _ensure_model_file(requested, *, kinds=(), download=True):
+def _model_input_kinds(module, settings):
+    """Describe file-model consumers without loading a model or inspecting paths."""
+    key = getattr(module, "key", str(module))
+    result = {}
+    if key in {"mask", "timelapse", "make_masks"}:
+        from .object_roles import SEGMENTED_ROLES
+        from ._segmentation_backends import (_backend_name, _cellpose3_choice,
+                                             _cellpose_dino_choice, _prefixed_backend)
+
+        for name in [*(f"{role}_model_name" for role in SEGMENTED_ROLES), "pathogen_model"]:
+            if name not in settings:
+                continue
+            value = settings.get(name)
+            backend = (_prefixed_backend(value)
+                       or ("cellpose3" if _cellpose3_choice(value) is not None else None)
+                       or ("cellpose_dino" if _cellpose_dino_choice(value) is not None else None)
+                       or _backend_name(settings.get("segmentation_backend")))
+            result[name] = (backend,) if backend in KINDS else ()
+        result['real_object_classifier'] = ('classifier',)
+    elif key == "train_cellpose":
+        result = {"base_model": ("cellpose",)}
+    elif key == "cellpose_masks":
+        result = {"model_name": ("cellpose",), "custom_model": ("cellpose",)}
+    elif key == "analyze_plaques":
+        result = {"plaque_model": ("cellpose",), "well_detection": ("detector",),
+                  "figure_detector": ("detector",)}
+    elif key in {"classify", "classify_merged", "train_only", "activation"}:
+        if key == "classify_merged":
+            from .classify import resolve_family
+
+            if resolve_family(settings) != "cv":
+                return {}
+        result = {name: ("classifier",) for name in
+                  ("model_path", "custom_model_path", "resume_checkpoint")}
+    elif key == "ops":
+        result = {"cellpose_model": ("cellpose",)}
+    elif key == "spatial_masks":
+        result = {"spatial_cellpose_model": ("cellpose",)}
+    return {name: kinds for name, kinds in result.items() if name in settings}
+
+
+def _capture_model_metadata(module, settings):
+    """Pin explicit trusted catalogue selections without file or network I/O."""
+    from copy import deepcopy
+
+    kinds = _model_input_kinds(module, settings)
+    metadata = _validate_model_metadata(settings, model_kinds=kinds)
+    result = deepcopy(settings)
+    records = metadata["settings"] if metadata is not None else {}
+    for name, accepted in kinds.items():
+        requested = settings[name]
+        if name in records or not isinstance(requested, str) or not requested.strip():
+            continue
+        if "/" in requested or "\\" in requested or requested.startswith("~"):
+            continue
+        matches = []
+        for raw in BUNDLED_REMOTE_MODELS:
+            if requested != raw.get("key") or raw.get("kind", "cellpose") not in accepted:
+                continue
+            pin = _model_reference_from_record(requested, raw)
+            if pin not in matches:
+                matches.append(pin)
+        if len(matches) > 1:
+            _bad_model_metadata(name, "one exact catalogue identity")
+        if matches:
+            records[name] = matches[0]
+    if records or metadata is not None:
+        result["model_metadata"] = {"schema_version": 1, "settings": records}
+    return result
+
+
+_MODEL_REFERENCE_VERIFIED = object()
+_MODEL_REFERENCE_STAT_FIELDS = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
+
+
+@dataclass(frozen=True)
+class _VerifiedModelReference:
+    """Immutable background verification result, retaining no open descriptor.
+
+    :param record: immutable existing-schema key/value pairs.
+    :param path: absolute local file whose bytes were verified.
+    :param identity: device, inode, size and nanosecond modification/change times.
+    :param _verification: private verifier marker preventing accidental raw-pin
+        attachment; this is not a same-process adversary or authentication boundary.
+    """
+
+    record: Tuple[Tuple[str, Any], ...]
+    path: str
+    identity: Tuple[int, ...]
+    _verification: Any = _dc_field(default=None, repr=False, compare=False)
+
+
+def _verified_model_reference(entry, path, *, requested_value=None, cancelled=None):
+    """Verify a selected trusted file in a worker and preserve its exact request.
+
+    :param entry: selected ModelEntry; custom, stock or untrusted entries remain
+        unpinned rather than being identified from their filenames.
+    :param path: actual local file, read in bounded chunks on one held descriptor.
+    :param requested_value: exact setting value, normally ``str(path)``; an
+        existing matching backend prefix may wrap that same path.
+    :param cancelled: optional cooperative callback checked between reads.
+    :returns: immutable verified result, or None for an untrusted selection.
+    :raises ModelZooError: for conflicting identity, unreadable/changed bytes or
+        a request which does not name the selected file.
+    :raises DownloadCancelled: when cancellation is requested; no result is issued.
+    """
+    import stat
+
+    if not isinstance(entry, ModelEntry) or entry.source == "stock":
+        return None
+    matches = [raw for raw in BUNDLED_REMOTE_MODELS
+               if raw.get("key", raw.get("name")) == entry.key
+               and raw.get("name") == entry.name
+               and raw.get("kind", "cellpose") == entry.kind
+               and raw.get("sha256") == entry.sha256
+               and re.fullmatch(r"[0-9a-f]{64}", str(raw.get("sha256") or ""))]
+    if not matches:
+        return None
+    local_value = os.fspath(path)
+    requested = local_value if requested_value is None else requested_value
+    if requested != local_value:
+        from ._segmentation_backends import (
+            _cellpose3_choice, _cellpose_dino_choice, _prefixed_choice,
+        )
+
+        selected = (_cellpose3_choice(requested) if entry.kind == "cellpose3"
+                    else _cellpose_dino_choice(requested) if entry.kind == "cellpose_dino"
+                    else _prefixed_choice(entry.kind, requested)
+                    if entry.kind in PREFIXED_KINDS else None)
+        if selected != local_value:
+            _bad_model_metadata("requested_value", str(local_value))
+    record = _model_reference_from_record(requested, matches[0])
+    _match_model_reference(record)
+    actual_path = Path(path).expanduser().absolute()
+    expected = record["sha256"]
+    try:
+        with os.fdopen(os.open(actual_path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)), "rb") as handle:
+            before = os.fstat(handle.fileno())
+            if not stat.S_ISREG(before.st_mode) or before.st_size <= 0:
+                _bad_model_metadata(str(path), f"sha256={expected}")
+            digest = hashlib.sha256()
+            total = 0
+            while True:
+                if cancelled is not None and cancelled():
+                    raise DownloadCancelled()
+                chunk = handle.read(min(1024 * 1024, before.st_size - total + 1))
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > before.st_size:
+                    _bad_model_metadata(str(path), f"sha256={expected}")
+                digest.update(chunk)
+            after = os.fstat(handle.fileno())
+            current = actual_path.stat()
+            identity = tuple(getattr(before, key) for key in _MODEL_REFERENCE_STAT_FIELDS)
+            if (total != before.st_size or digest.hexdigest() != expected
+                    or tuple(getattr(after, key) for key in _MODEL_REFERENCE_STAT_FIELDS) != identity
+                    or tuple(getattr(current, key) for key in _MODEL_REFERENCE_STAT_FIELDS) != identity):
+                _bad_model_metadata(str(path), f"sha256={expected}")
+            if cancelled is not None and cancelled():
+                raise DownloadCancelled()
+    except OSError:
+        _bad_model_metadata(str(path), f"sha256={expected}")
+    return _VerifiedModelReference(tuple(record.items()), str(actual_path), identity,
+                                   _MODEL_REFERENCE_VERIFIED)
+
+
+def _attach_model_reference(module, settings, name, verified):
+    """Attach one verified picker result to a copied matching settings payload.
+
+    :param module: actual consuming module key.
+    :param settings: current settings; existing pins are validated before merging.
+    :param name: selected setting, whose request and consumer kind must still match.
+    :param verified: verifier-produced immutable result, never a raw supplied dict.
+    :returns: independent settings with one ordinary JSON-schema pin attached.
+    :raises ModelZooError: for stale input/file identity, forged result, invalid
+        existing pins or incompatible current consumer. No hashing occurs here.
+    """
+    from copy import deepcopy
+
+    kinds = _model_input_kinds(module, settings)
+    metadata = _validate_model_metadata(settings, model_kinds=kinds)
+    if (not isinstance(verified, _VerifiedModelReference)
+            or verified._verification is not _MODEL_REFERENCE_VERIFIED):
+        _bad_model_metadata(name, "model_metadata")
+    record = dict(verified.record)
+    candidate = {**settings, "model_metadata": {"schema_version": 1, "settings": {name: record}}}
+    _validate_model_metadata_structure(candidate, model_kinds=kinds)
+    _match_model_reference(record)
+    try:
+        current = Path(verified.path).stat()
+    except OSError:
+        _bad_model_metadata(name, f"sha256={record['sha256']}")
+    if tuple(getattr(current, key) for key in _MODEL_REFERENCE_STAT_FIELDS) != verified.identity:
+        _bad_model_metadata(name, f"sha256={record['sha256']}")
+    result = deepcopy(settings)
+    pins = metadata["settings"] if metadata is not None else {}
+    pins[name] = record
+    result["model_metadata"] = {"schema_version": 1, "settings": pins}
+    return result
+
+
+def _bad_model_metadata(field, expected):
+    """Raise a translated diagnostic naming the incompatible metadata field."""
+    from .qt.i18n import tr
+
+    raise ModelZooError(tr("Bad settings") + f": {field} ({expected})")
+
+
+def _validate_model_metadata_structure(settings, *, model_kinds=None):
+    """Validate recorded identities against their exact original setting values."""
+    from copy import deepcopy
+
+    if not isinstance(settings, Mapping):
+        _bad_model_metadata("settings", "mapping")
+    if "model_metadata" not in settings:
+        return None
+    metadata = settings["model_metadata"]
+    if not isinstance(metadata, dict) or set(metadata) != {"schema_version", "settings"}:
+        _bad_model_metadata("model_metadata", "schema_version, settings")
+    if type(metadata["schema_version"]) is not int or metadata["schema_version"] != 1:
+        _bad_model_metadata("model_metadata.schema_version", "1")
+    records = metadata["settings"]
+    if not isinstance(records, dict):
+        _bad_model_metadata("model_metadata.settings", "mapping")
+    required = {"requested_value", "key", "version", "version_status", "sha256", "kind", "filename"}
+    for name, record in records.items():
+        field = f"model_metadata.settings[{name!r}]"
+        if not isinstance(name, str) or not name.strip():
+            _bad_model_metadata(field, "setting key")
+        if not isinstance(record, dict) or set(record) != required:
+            _bad_model_metadata(field, ", ".join(sorted(required)))
+        for key in required - {"version"}:
+            if not isinstance(record[key], str) or not record[key].strip():
+                _bad_model_metadata(f"{field}.{key}", "string")
+        if not isinstance(settings.get(name), str) or settings[name] != record["requested_value"]:
+            _bad_model_metadata(f"{field}.requested_value", f"settings[{name!r}]")
+        if not re.fullmatch(r"[0-9a-f]{64}", record["sha256"]):
+            _bad_model_metadata(f"{field}.sha256", "[0-9a-f]{64}")
+        if record["version_status"] == "declared":
+            if not isinstance(record["version"], str) or not record["version"].strip():
+                _bad_model_metadata(f"{field}.version", "string")
+        elif record["version_status"] != "unspecified" or record["version"] is not None:
+            _bad_model_metadata(f"{field}.version_status/version", "declared/string | unspecified/null")
+        filename = record["filename"]
+        if ("\x00" in filename or re.split(r"[/\\]", filename)[-1] in {"", "."}
+                or filename.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:", filename)
+                or "://" in filename or ".." in re.split(r"[/\\]", filename)):
+            _bad_model_metadata(f"{field}.filename", "relative catalogue filename")
+        if record["kind"] not in KINDS:
+            _bad_model_metadata(f"{field}.kind", " | ".join(KINDS))
+        if model_kinds is not None:
+            accepted = model_kinds.get(name, ())
+            if isinstance(accepted, str):
+                accepted = (accepted,)
+            if record["kind"] not in accepted:
+                _bad_model_metadata(f"{field}.kind", f"{name}: {tuple(accepted)}")
+    return deepcopy(metadata)
+
+
+def _validate_model_metadata(settings, *, model_kinds=None):
+    """Check bindings and reject contradictions with the bundled trusted index."""
+    metadata = _validate_model_metadata_structure(settings, model_kinds=model_kinds)
+    if metadata is not None:
+        known = {row.get("key") or row.get("name") for row in BUNDLED_REMOTE_MODELS}
+        for record in metadata["settings"].values():
+            if record["key"] in known:
+                _match_model_reference(record)
+    return metadata
+
+
+def _invalidate_model_metadata(settings, keys):
+    """Remove valid pins for explicit edits without changing the input payload."""
+    from copy import deepcopy
+
+    metadata = _validate_model_metadata(settings)
+    result = deepcopy(settings)
+    if metadata is not None:
+        for key in keys:
+            metadata["settings"].pop(key, None)
+        result["model_metadata"] = metadata
+    return result
+
+
+def _model_reference_from_record(requested, record):
+    """Build a pin from a trusted raw catalogue row without inferring a version."""
+    if not isinstance(record, Mapping):
+        _bad_model_metadata("catalogue", "mapping")
+    declared = record.get("version")
+    if declared is not None and not isinstance(declared, str):
+        _bad_model_metadata("catalogue.version", "string | null")
+    version = declared if declared and declared.strip() else None
+    result = {"requested_value": requested, "key": record.get("key") or record.get("name"),
+              "version": version, "version_status": "declared" if version is not None else "unspecified",
+              "sha256": record.get("sha256"), "kind": record.get("kind", "cellpose"),
+              "filename": record.get("name")}
+    _validate_model_metadata_structure({"model": requested, "model_metadata": {
+        "schema_version": 1, "settings": {"model": result}}})
+    return result
+
+
+def _match_model_reference(record, catalogue_records=None):
+    """Select a conjunction of raw trusted identity fields without first-match fallback."""
+    if not isinstance(record, Mapping):
+        _bad_model_metadata("model_metadata", "mapping")
+    _validate_model_metadata_structure({"model": record.get("requested_value"), "model_metadata": {
+        "schema_version": 1, "settings": {"model": record}}})
+    matches = []
+    rows = BUNDLED_REMOTE_MODELS if catalogue_records is None else catalogue_records
+    for candidate in rows:
+        if candidate.get("key", candidate.get("name")) != record["key"]:
+            continue
+        pin = _model_reference_from_record(record["requested_value"], candidate)
+        if pin == record and pin not in matches:
+            matches.append(pin)
+        elif pin != record:
+            _bad_model_metadata(f"model_metadata[{record['key']!r}]", "catalogue identity")
+    if len(matches) != 1:
+        _bad_model_metadata(f"model_metadata[{record['key']!r}]", "one exact catalogue identity")
+    return matches[0]
+
+
+def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
+    """Verify recorded local bytes or acquire the exact trusted recorded identity."""
+    metadata = _validate_model_metadata(settings)
+    if metadata is None or name not in metadata["settings"]:
+        return None
+    record = metadata["settings"][name]
+    if kinds and record["kind"] not in kinds:
+        _bad_model_metadata(f"model_metadata.settings[{name!r}].kind", ", ".join(kinds))
+    try:
+        requested = Path(record["requested_value"]).expanduser()
+    except RuntimeError:
+        requested = None
+    if requested is not None and requested.is_file():
+        actual = sha256_file(requested)
+        if actual != record["sha256"]:
+            _bad_model_metadata(
+                f"{name}={record['requested_value']!r}; {record['key']} {record['version']!r}; {requested}",
+                f"sha256={record['sha256']}; actual={actual}")
+        return requested
+    _match_model_reference(record)
+    raw = next(row for row in BUNDLED_REMOTE_MODELS
+               if row.get("key", row.get("name")) == record["key"]
+               and _model_reference_from_record(record["requested_value"], row) == record)
+    resolved = _ensure_catalogue_model_file(
+        _entry_from_mapping(raw), download=download, setting=name,
+        requested=record['requested_value'], publisher_version=record['version'])
+    if resolved is None:
+        _bad_model_metadata(name, f"{record['key']} sha256={record['sha256']}")
+    resolved = Path(resolved)
+    if resolved.is_file():
+        actual = sha256_file(resolved)
+        if actual != record["sha256"]:
+            if not download:
+                return versioned_path(resolved.parent, resolved.name)
+            _bad_model_metadata(
+                f"{name}={record['requested_value']!r}; {record['key']} {record['version']!r}; {resolved}",
+                f"sha256={record['sha256']}; actual={actual}")
+    elif download:
+        _bad_model_metadata(str(resolved), f"sha256={record['sha256']}")
+    return resolved
+
+
+def _planning_model_entries():
+    """Bounded trusted declarations for planning without providers or network."""
+    return [_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
+
+
+def _resolution_model_entries(download):
+    """Select declared metadata without executing providers on an offline node.
+
+    :param download: false retains the existing bundled-only pure planning index.
+    :returns: online catalogue entries, or offline bundled/local/cached declarations
+        in first-key/name order without provider calls or metadata transport.
+    """
+    if not download:
+        return _planning_model_entries()
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() not in (
+            "0", "off", "false", "no"):
+        return catalogue(remote=True)
+    entries = _planning_model_entries()
+    path = os.environ.get(CATALOGUE_ENV_VAR, "")
+    if path and os.path.isfile(path):
+        entries.extend(load_catalogue_file(path))
+    entries.extend(_SHARED_CATALOGUE_CACHE["entries"])
+    selected = []
+    have = set()
+    for entry in entries:
+        identity = (entry.key, entry.name)
+        if identity not in have and entry.name not in RETIRED_MODEL_NAMES:
+            selected.append(entry)
+            have.add(identity)
+    return selected
+
+
+def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, original_request=None):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
     Local paths win. Unknown identifiers return None for the caller's
     existing stock-model or missing-path handling. With download=False,
     return the intended cache path without fetching checkpoint bytes.
     A Qt GUI-thread caller must use the model picker for a missing model.
+    Optional ``setting`` names the actual input field in a successful-download log.
+    ``original_request`` preserves a caller's unmodified prefix/target string in
+    that log; None uses the lookup request. It never changes identity selection.
     """
     text = os.fspath(requested).strip() if requested is not None else ""
     if not text:
         return None
-    local = Path(text).expanduser()
-    if local.is_file():
+    try:
+        local = Path(text).expanduser()
+    except RuntimeError:
+        local = None
+    if local is not None and local.is_file():
         return local
-    if os.sep in text or text.startswith("~"):
+    if "://" in text:
         return None
-    entry = next((item for item in catalogue(remote=True)
-                  if item.key == text or item.name == text), None)
-    if entry is None:
+    path_like = "/" in text or "\\" in text or text.startswith("~")
+    identifier = Path(text.replace("\\", "/")).name if path_like else text
+    entries = _resolution_model_entries(download)
+    matches = [item for item in entries
+               if item.key == identifier or item.name == identifier
+               or (path_like and Path(item.name).name == identifier)]
+    if len(matches) > 1:
+        from .qt.i18n import tr
+
+        choices = "\n".join(
+            f"{item.key}@{item.version} [sha256={item.sha256}]" for item in matches)
+        raise ModelZooError(
+            tr("{name} · {n} matches", name=repr(text), n=len(matches))
+            + ":\n" + choices)
+    if not matches:
         return None
+    entry = matches[0]
     if kinds and entry.kind not in kinds:
         raise ModelZooError(
             f"{text!r} is a {entry.kind} model; this operation requires "
             f"one of {', '.join(kinds)}")
+    return _ensure_catalogue_model_file(
+        entry, download=download, setting=setting,
+        requested=text if original_request is None else original_request,
+        publisher_version=next((row.get("version") for row in BUNDLED_REMOTE_MODELS
+                                if row.get("key", row.get("name")) == entry.key
+                                and row.get("name") == entry.name
+                                and row.get("kind", "cellpose") == entry.kind
+                                and row.get("sha256") == entry.sha256
+                                and _entry_from_mapping(row).uri == entry.uri), Ellipsis))
+
+
+def _model_resolution_context(requested, *, setting, kinds=()):
+    """Describe an unresolved input using only trusted declared candidate identities.
+
+    :param requested: original missing request, retained verbatim in the diagnostic.
+    :param setting: actual setting or direct API parameter name supplied by its caller.
+    :param kinds: accepted model kinds; other declarations are excluded.
+    :returns: localized setting/request context and exact declared keys, versions and hashes.
+    """
+    from .qt.i18n import tr
+
+    choices = [
+        f"{row.get('key', row.get('name'))}@{row.get('version')!r} "
+        f"[sha256={row.get('sha256')}]"
+        for row in BUNDLED_REMOTE_MODELS
+        if not kinds or row.get("kind", "cellpose") in kinds]
+    return tr(
+        "Model setting {setting}: no existing checkpoint or exact model-zoo identity matches {requested}. Available compatible zoo identities: {candidates}.",
+        setting=setting, requested=repr(requested), candidates="\n".join(choices) or "[]")
+
+
+_MODEL_LOCK_STALE_ENV = "SPACR_MODEL_LOCK_STALE_SECONDS"
+_MODEL_LOCK_STALE_SECONDS = 600.0
+
+
+def _model_lock_stale_seconds() -> float:
+    """Seconds an unrefreshed download lock lasts before another node reclaims it.
+
+    :returns: ``SPACR_MODEL_LOCK_STALE_SECONDS`` when it is a number of at
+        least one second, otherwise 600.
+    """
+    try:
+        value = float(os.environ.get(_MODEL_LOCK_STALE_ENV, "").strip()
+                      or _MODEL_LOCK_STALE_SECONDS)
+    except ValueError:
+        return _MODEL_LOCK_STALE_SECONDS
+    return value if value >= 1.0 else _MODEL_LOCK_STALE_SECONDS
+
+
+def _refresh_model_download_lock(path, stop, interval) -> None:
+    """Touch a held download lock until ``stop`` is set.
+
+    Waiting jobs on other nodes read the changing modification time as proof
+    that the download is still running.
+
+    :param path: the lock file.
+    :param stop: ``threading.Event`` set when the download ends.
+    :param interval: seconds between touches.
+    """
+    while not stop.wait(interval):
+        try:
+            os.utime(path)
+        except OSError:
+            return
+
+
+def _model_lock_signature(path):
+    """Identity and modification time of a lock file, or None when it is absent."""
+    try:
+        info = os.stat(path)
+    except OSError:
+        return None
+    return info.st_dev, info.st_ino, info.st_mtime_ns, info.st_size
+
+
+def _acquire_model_download_lock(lock, lock_path, label) -> None:
+    """Hold the download lock for one model, waiting for another job or node.
+
+    Qt reclaims a lock left by a dead process on this host. A lock written on
+    another host cannot be checked that way, so its holder refreshes the lock
+    file's modification time while it downloads. A lock that stays unchanged
+    for ``SPACR_MODEL_LOCK_STALE_SECONDS`` (600 by default) of this node's own
+    clock is taken as left by a crashed node and removed. Clocks of different
+    nodes are never compared.
+
+    :param lock: an unlocked ``QLockFile`` for ``lock_path``.
+    :param lock_path: the lock file in the shared model cache.
+    :param label: model key named in the waiting log line.
+    :raises OSError: EACCES when the lock cannot be written, EBUSY for any
+        other lock failure.
+    """
+    import errno
+    from PySide6.QtCore import QLockFile
+
+    stale_after = _model_lock_stale_seconds()
+    poll = max(50, min(1000, int(stale_after * 250)))
+    seen = None
+    since = time.monotonic()
+    announced = False
+    while not lock.tryLock(poll):
+        if lock.error() != QLockFile.LockFailedError:
+            code = errno.EACCES if lock.error() == QLockFile.PermissionError else errno.EBUSY
+            raise OSError(code, os.strerror(code), str(lock_path))
+        if not announced:
+            LOG.info("Waiting for another job to finish downloading model %s (lock %s)",
+                     label, lock_path)
+            announced = True
+        signature = _model_lock_signature(lock_path)
+        if signature != seen:
+            seen, since = signature, time.monotonic()
+        elif signature is not None and time.monotonic() - since >= stale_after:
+            LOG.warning("Removing download lock %s: unchanged for %.0f s, its holder stopped",
+                        lock_path, stale_after)
+            lock.removeStaleLockFile()
+            seen, since = None, time.monotonic()
+
+
+def _manual_model_copy_command(entry, cached) -> str:
+    """Shell command that places one verified checkpoint where an offline node looks.
+
+    Run it on a machine that reaches the model's source and shares the cache
+    folder with the node, or run it elsewhere and copy the file to the same
+    path.
+
+    :param entry: the selected catalogue entry.
+    :param cached: the cache path the node checks.
+    :returns: a one-line POSIX shell command that downloads and checks SHA-256.
+    """
+    import shlex
+
+    target = shlex.quote(str(cached))
+    uri = str(entry.uri or "")
+    if uri.startswith(("http://", "https://")):
+        get = f"curl -fL -o {target} {shlex.quote(uri)}"
+    else:
+        source = uri[len("file://"):] if uri.startswith("file://") else uri
+        get = f"cp {shlex.quote(source)} {target}"
+    check = shlex.quote(f"{str(entry.sha256 or '').lower()}  {cached}")
+    return (f"mkdir -p {shlex.quote(str(Path(cached).parent))} && {get} "
+            f"&& echo {check} | sha256sum -c -")
+
+
+def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requested=None,
+                                 publisher_version=Ellipsis):
+    """Acquire one identity under the cache lock and report successful contextual downloads.
+
+    :param entry: exact selected catalogue entry.
+    :param download: permit acquisition; false retains pure planning behavior.
+    :param setting: actual input field, or None when the caller has no field context.
+    :param requested: original path/key, preserved independently of the effective path.
+    :param publisher_version: raw recorded version, including None when unspecified;
+        Ellipsis uses the selected entry version without inferring one from storage suffixes.
+    :returns: verified existing or acquired path, or None for a non-acquirable entry.
+    """
     if entry.path and Path(entry.path).is_file():
         return Path(entry.path)
     if not entry.uri:
         return None
-    destination = _spacr_home() / "models"
+    destination = _model_cache_root()
     cached = destination / Path(entry.name).name
     if cached.is_file():
         if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
@@ -3191,12 +4417,65 @@ def _ensure_model_file(requested, *, kinds=(), download=True):
                 return version
     if not download:
         return cached
+    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
+            "0", "off", "false", "no"):
+        from .qt.i18n import tr
+
+        raise ModelUnreadable(tr(
+            "Automatic model downloads are disabled by SPACR_MODEL_DOWNLOAD. "
+            "Copy verified model {model} (sha256 {sha256}) to {path}.",
+            model=entry.key, sha256=entry.sha256, path=str(cached))
+            + "\n" + _manual_model_copy_command(entry, cached))
     if _on_the_qt_gui_thread():
         raise ModelUnreadable(
-            f"{text!r} is not cached. Download it in Model Zoo, or run "
+            f"{entry.key!r} is not cached. Download it in Model Zoo, or run "
             f"the operation through spacr-run or Python without a GUI.")
-    LOG.info("Downloading requested model %s into %s", entry.key, destination)
-    return fetch(entry, destination)
+    from PySide6.QtCore import QLockFile
+
+    destination.mkdir(parents=True, exist_ok=True)
+    identity = hashlib.sha256(
+        f"{cached.name}\0{str(entry.sha256 or '').lower()}".encode("utf-8")).hexdigest()
+    lock_path = destination / f".model-{identity}.lock"
+    lock = QLockFile(str(lock_path))
+    lock.setStaleLockTime(0)
+    _acquire_model_download_lock(lock, lock_path, entry.key)
+    stop = threading.Event()
+    heartbeat = threading.Thread(
+        target=_refresh_model_download_lock, name="spacr-model-lock-heartbeat",
+        args=(lock_path, stop, min(30.0, _model_lock_stale_seconds() / 4)), daemon=True)
+    heartbeat.start()
+    try:
+        if cached.is_file() and entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+            return cached
+        if entry.sha256:
+            for version in sorted(destination.glob(
+                    f"{cached.stem}_v*{cached.suffix}")):
+                if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                    return version
+        LOG.info("Downloading requested model %s into %s", entry.key, destination)
+        try:
+            acquired = fetch(entry, destination)
+        except ChecksumMismatch as error:
+            if setting is None:
+                raise
+            version = (f"ModelEntry.version={entry.version!r}"
+                       if publisher_version is Ellipsis else repr(publisher_version))
+            context = f"{setting}={requested!r}; {entry.key} {version} sha256={entry.sha256}"
+            raise ChecksumMismatch(context + "\n" + str(error)) from error
+        if setting is not None:
+            from .qt.i18n import tr
+
+            version = (f"ModelEntry.version={entry.version!r}"
+                       if publisher_version is Ellipsis else repr(publisher_version))
+            LOG.info(tr(
+                "{setting}: {requested} was not found here; downloaded zoo model {key} {version} (sha256 {sha256}) to {path}.",
+                setting=setting, requested=requested, key=entry.key,
+                version=version, sha256=entry.sha256, path=str(acquired)))
+        return acquired
+    finally:
+        stop.set()
+        heartbeat.join()
+        lock.unlock()
 
 
 def versioned_path(dest: Any, filename: str) -> Path:
@@ -3224,7 +4503,7 @@ def versioned_path(dest: Any, filename: str) -> Path:
     n = int(match.group("n")) if match else 1
 
     candidate = folder / p.name
-    while candidate.exists():
+    while candidate.exists() or candidate.is_symlink():
         n += 1
         candidate = folder / f"{base}_v{n}{suffix}"
     return candidate
@@ -3336,7 +4615,7 @@ def fetch(entry: ModelEntry, dest: Any,
           timeout: int = DEFAULT_TIMEOUT) -> Path:
     """Download a model, verify it, and only then put it where it belongs.
 
-    The order is the whole point:
+    The steps run in this order:
 
     1. bytes stream into a temporary file **inside** ``dest``, so the rename in
        step 4 is a same-filesystem ``os.replace`` and therefore atomic;
@@ -3356,8 +4635,8 @@ def fetch(entry: ModelEntry, dest: Any,
     :param expected_sha256: digest to require, overriding
         :attr:`ModelEntry.sha256`.
     :param require_checksum: refuse to install when no digest is known. True by
-        default — a download nobody can check is exactly the thing this module
-        exists to stop being routine. Pass False to accept one knowingly; the
+        default, so an unverifiable download needs an explicit opt-in. Pass
+        False to accept one knowingly; the
         entry :func:`install` returns then reports ``verified=False``.
     :param opener: ``fn(uri) -> chunks`` or ``fn(uri) -> (chunks, total)``;
         defaults to :func:`open_uri`.
@@ -3372,6 +4651,10 @@ def fetch(entry: ModelEntry, dest: Any,
     :raises DownloadCancelled: ``cancel()`` returned True.
     :raises ModelZooError: no URI, or no checksum with ``require_checksum``.
     """
+    if entry.kind == "timepose":
+        record = _timepose_record(entry.key)
+        folder = _timepose_files(entry.key, dest=Path(dest) / "timepose")
+        return folder / record["weights"]
     if not entry.uri:
         raise ModelZooError(
             f"{entry.name} has no uri to fetch it from (source={entry.source})")
@@ -3476,11 +4759,23 @@ def _claim(temp: Path, folder: Path, name: str) -> Path:
     while True:
         target = versioned_path(folder, name)
         try:
-            os.close(os.open(str(target),
-                             os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644))
+            descriptor = os.open(str(target),
+                                 os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
         except FileExistsError:
             continue
-        os.replace(str(temp), str(target))
+        try:
+            created = os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+        try:
+            os.replace(str(temp), str(target))
+        except BaseException:
+            try:
+                if os.path.samestat(target.lstat(), created):
+                    target.unlink()
+            except OSError:
+                pass
+            raise
         return target
 
 
@@ -3490,8 +4785,8 @@ def install(entry: ModelEntry, dest: Any, **kwargs: Any) -> ModelEntry:
     The returned entry carries the digest of the bytes that were actually
     written — not the one the catalogue claimed — and
     :attr:`ModelEntry.verified` is True only when the two were compared and
-    matched. Provenance from the catalogue entry is carried over, because that
-    is the whole reason for having had a catalogue.
+    matched. Provenance (``trained_on``, ``trained_by``), metrics and licence
+    are carried over from the catalogue entry.
 
     :param entry: the remote entry.
     :param dest: destination directory.
@@ -3531,11 +4826,12 @@ def download_bundled_models(**kwargs: Any) -> str:
     reimplemented here, so there is one code path that fills
     ``resources/models`` and one place to fix when the repo moves.
 
-    It is also the unverified path: that function has no checksum, writes
-    straight to the destination filename, and skips the whole pull when the
-    folder is non-empty. Prefer a catalogue entry with a hash and
-    :func:`install`; this exists so the zoo can offer the legacy pack rather
-    than pretend it does not exist.
+    The downloader stages the whole pack in a temporary sibling directory
+    and atomically renames the completed directory into place after every
+    download succeeds. It does not verify published checksums and trusts an
+    existing non-empty cache without checking its completeness or origin.
+    Prefer a catalogue entry with a hash and :func:`install` when checksum
+    verification is required.
 
     ``spacr.utils`` imports torch, so it is imported here and not at module
     level. Nothing else in this module reaches for it.
@@ -3581,7 +4877,8 @@ class BenchmarkResult:
     :param fieldset: :func:`fieldset_id` of the images — a hash of the pixels,
         so two runs over the same three fields share it and two runs over
         different fields never do, whatever the folders were called.
-    :param fieldset_label: the same thing for a human.
+    :param fieldset_label: a human-readable description of the field set:
+        the field count, the source folder and the first field names.
     :param rows: one :class:`FieldBenchmark` per field, in field order.
     :param seconds: wall-clock seconds the model spent segmenting.
     :param honoured: the parameters that reached the model.
@@ -3660,8 +4957,8 @@ class BenchmarkResult:
 
         A quality-control verdict on this model's own masks — it says the masks
         are not obviously broken, not that they are right. There is no ground
-        truth in a benchmark (see the module docstring), so this is as close to
-        a score as the zoo will produce.
+        truth in a benchmark (see the module docstring), so the zoo reports no
+        accuracy score.
         """
         scored = [r for r in self.rows if r.severity != "-"]
         if not scored:
@@ -3691,8 +4988,8 @@ def fieldset_id(names: Sequence[str], images: Sequence[Any]) -> str:
     are the same benchmark input. So the id hashes each array's bytes, shape and
     dtype together with its name.
 
-    This is what makes :func:`rank` able to refuse. Without it, two benchmarks
-    run on different data are two numbers, and two numbers always sort.
+    :func:`rank` uses this id to refuse results from different field sets;
+    without it, benchmarks run on different data would be sorted together.
 
     :param names: field names, in order.
     :param images: the arrays, in the same order.
@@ -3924,7 +5221,7 @@ def compare_entries(entry_a: ModelEntry, entry_b: ModelEntry,
                     settings_a: Optional[Mapping[str, Any]] = None,
                     settings_b: Optional[Mapping[str, Any]] = None,
                     **kwargs: Any):
-    """Put two zoo entries head to head on the same fields.
+    """Compare two zoo entries on the same fields.
 
     Straight delegation to :func:`spacr.model_compare.compare_models` — the
     metrics, the split/merge attribution and the "neither model is ground
@@ -4006,9 +5303,9 @@ def rank(results: Sequence[BenchmarkResult],
 
     A model's numbers on your three fields say nothing about its numbers on
     somebody else's: different cell density, different exposure, different
-    magnification. Sorting results from two field sets into one list produces a
-    ranking that looks exactly like a real one and means nothing, which is the
-    failure this function exists to prevent. So it refuses.
+    magnification. Sorting results from two field sets into one list would
+    produce a ranking that looks valid but compares unrelated numbers, so this
+    function raises instead.
 
     :param results: benchmarks, all from the same field set.
     :param key: one of :data:`RANK_KEYS`.
@@ -4036,7 +5333,7 @@ def rank(results: Sequence[BenchmarkResult],
 def rank_groups(results: Sequence[BenchmarkResult],
                 key: str = DEFAULT_RANK_KEY
                 ) -> Dict[str, List[BenchmarkResult]]:
-    """Rank inside each field set, keeping the sets apart. The safe alternative.
+    """Rank inside each field set, keeping the sets apart.
 
     :param results: benchmarks from any number of field sets.
     :param key: one of :data:`RANK_KEYS`.
@@ -4079,14 +5376,53 @@ SCORECARD_ROWS = (
 )
 
 
+def _curated_scorecard_rows():
+    """Name the six approved measurements without changing one-pixel semantics.
+
+    :returns: Translated labels paired with exact approved metric keys.
+    """
+    from .qt.i18n import tr
+
+    return ((tr("F1 @ IoU 0.5"), "f1"), (tr("Boundary F1 (2 px)"), "boundary_f1_2px"),
+            (tr("Precision"), "precision"), (tr("Recall"), "recall"),
+            (tr("AJI"), "aji"), (tr("Dice"), "dice"))
+
+
+def _curated_scorecard_lines(metrics):
+    """Render the accepted six-row evaluation and its explicit holdout identity.
+
+    :param metrics: Measurements attached by the trusted builtin constructor.
+    :returns: Six matched-stock lines followed by dataset, counts and tolerance.
+    """
+    from .qt.i18n import tr
+
+    lines = []
+    for label, key in _curated_scorecard_rows():
+        row = metrics[key]
+        if row["vanilla"] is None:
+            lines.append(tr("{metric}: {value:.4f}", metric=label, value=row["finetuned"]))
+        else:
+            lines.append(tr("{metric}: {value:.4f} (stock {stock:.4f}, difference {delta:+.4f})",
+                            metric=label, value=row["finetuned"], stock=row["vanilla"],
+                            delta=row["delta"]))
+    provenance = metrics["scorecard_provenance"]
+    lines.append(tr("Evaluation: {dataset}; {fields} fields, {objects} objects; boundary tolerance {pixels} px; stock {stock}.",
+                    dataset=metrics["holdout"], fields=metrics["n_fields"], objects=metrics["n_objects"],
+                    pixels=provenance["boundary_tolerance_px"], stock=provenance["stock_model"]))
+    return lines
+
+
 def scorecard_html(entry) -> str:
     """The model's scorecard as an HTML table, for a tooltip.
 
-    A paragraph of prose is what a tooltip used to show, and a reader
-    comparing two models had to parse two paragraphs to find two numbers.
-    The same table the model card prints answers that at a glance. Falls back
-    to the prose when an entry publishes no metrics, because an empty table is
-    worse than a sentence.
+    The table is the same one the model card prints, so two models' numbers
+    can be compared without reading prose. When an entry publishes no
+    metrics this returns ``""``, and the Zoo screen's tooltip shows the
+    entry's prose description instead.
+
+    Trusted builtin cards include all six accepted matched-stock rows and
+    their evaluation identity; boundary F1 uses a two-pixel tolerance.
+    Other entries keep their published fields and existing interpretation.
 
     Metrics that hold none of the scorecard's keys -- a free-form note, a
     training loss under a name of its own -- are not a scorecard either, and
@@ -4097,7 +5433,12 @@ def scorecard_html(entry) -> str:
     :returns: the HTML table, or ``""`` when there is no scorecard to show.
     """
     metrics = dict(getattr(entry, "metrics", None) or {})
-    if not any(key in metrics for _label, key in SCORECARD_ROWS):
+    detector_rows = tuple((label, key) for label, key in
+                          (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
+                          if key in metrics)
+    curated = bool(getattr(entry, "_curated_card", False))
+    display_rows = (_curated_scorecard_rows() if curated else SCORECARD_ROWS + detector_rows)
+    if not any(key in metrics for _label, key in display_rows):
         return ""
     name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")
             or getattr(entry, "key", ""))
@@ -4107,10 +5448,7 @@ def scorecard_html(entry) -> str:
             return "not recorded"
         return value if str(value).strip() else "not recorded"
     rows = []
-    detector_rows = tuple((label, key) for label, key in
-                          (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
-                          if key in metrics)
-    for label, key in SCORECARD_ROWS + detector_rows:
+    for label, key in display_rows:
         stock = metrics.get(f"stock_{key}", "") if key in ("f1", "aji", "dice") else ""
         value = metrics.get(key, "")
         if isinstance(value, Mapping):
@@ -4131,8 +5469,154 @@ def scorecard_html(entry) -> str:
             "<tr><th align='left'></th><th align='right'>this model</th>"
             "<th align='right'>stock</th></tr>"
             + "".join(rows) + "</table>"
+            + ("<p>" + html.escape(_curated_scorecard_lines(metrics)[-1]) + "</p>"
+               if curated else "")
             + (f"<p>{trained[:200]}</p>" if trained else "")
             + (f"<p>{card}</p>" if card else ""))
+
+
+_UNRECORDED_PREFIXES = ("not recorded", "not applicable", "not measured")
+
+
+def _recorded_text(value: Any) -> str:
+    """A recorded metric string, or ``""`` when it says nothing was measured."""
+    if isinstance(value, Mapping) or value is None or isinstance(value, bool):
+        return ""
+    text = str(value).strip()
+    if not text or text.lower().startswith(_UNRECORDED_PREFIXES):
+        return ""
+    return text
+
+
+def scorecard_state(entry: Any) -> str:
+    """How far a model's scorecard has come, as one word.
+
+    ``"reviewed"``
+        a trusted builtin card: six matched-stock measurements on the
+        curated hold-out set, bound to the exact published checkpoint.
+    ``"held_out"``
+        structured measurements on a named hold-out set, not yet a reviewed
+        card.
+    ``"recorded"``
+        numbers recorded with the model when it was published, kept as
+        written; no reviewed held-out comparison yet.
+    ``"not_evaluated"``
+        no measurement at all.
+
+    :param entry: a :class:`ModelEntry`, or anything with ``metrics``.
+    :returns: one of the four words above.
+    """
+    if getattr(entry, "_curated_card", False):
+        return "reviewed"
+    metrics = dict(getattr(entry, "metrics", None) or {})
+    from .scorecard import scorecard_is_present
+
+    if scorecard_is_present(metrics):
+        return "held_out"
+    if any(_recorded_text(metrics.get(key)) for key in ("f1", "aji", "dice", "mAP50", "mAP50_95")):
+        return "recorded"
+    return "not_evaluated"
+
+
+def scorecard_state_text(entry: Any) -> str:
+    """The sentence a spaCR model's tooltip and card give for an unfinished scorecard.
+
+    Only models spaCR publishes get one; a stock, third-party or local model
+    keeps its own description.
+
+    :param entry: a zoo row.
+    :returns: the translated sentence for a ``"recorded"`` or
+        ``"not_evaluated"`` :func:`scorecard_state`, else ``""``.
+    """
+    if not (_is_spacr_published(entry) or is_spacr_owned(entry)):
+        return ""
+    state = scorecard_state(entry)
+    from .qt.i18n import tr
+
+    if state == "not_evaluated":
+        return tr("Scorecard: not yet evaluated. No held-out comparison against the "
+                  "stock model has been measured for this model.")
+    if state == "recorded":
+        return tr("Scorecard: these numbers were recorded with the model when it was "
+                  "published; a reviewed held-out comparison against the stock model "
+                  "is not yet available.")
+    return ""
+
+
+def _scorecard_state_html(entry: Any) -> str:
+    """:func:`scorecard_state_text` as an HTML paragraph, or ``""``."""
+    text = scorecard_state_text(entry)
+    return f"<p><i>{html.escape(text)}</i></p>" if text else ""
+
+
+def _number_or_none(text: str) -> Optional[float]:
+    """``float(text)`` for a plain number, else ``None``."""
+    try:
+        return float(text)
+    except (TypeError, ValueError):
+        return None
+
+
+def scorecard_export_rows(entries: Optional[Iterable[Any]] = None) -> List[Dict[str, Any]]:
+    """Every model's scorecard as long-format rows, one per metric.
+
+    The matched-stock export: the measurement, the stock model's value on
+    the same fields and their difference, with the evaluation set and its
+    counts. Values are copied from the entries, never recomputed. A model
+    with no measurement still gets one row, whose ``state`` says so.
+
+    :param entries: zoo rows; defaults to every builtin declaration, bound
+        as the Model Zoo binds it.
+    :returns: dicts with the keys ``key``, ``name``, ``state``, ``metric``,
+        ``this_model``, ``stock``, ``difference``, ``baseline``,
+        ``evaluation_set``, ``evaluation_version``, ``n_fields``,
+        ``n_objects``, ``boundary_tolerance_px`` and ``sha256``.
+    """
+    if entries is None:
+        entries = [_builtin_entry_from_mapping(record) for record in BUNDLED_REMOTE_MODELS]
+    rows: List[Dict[str, Any]] = []
+    for entry in entries:
+        metrics = dict(getattr(entry, "metrics", None) or {})
+        state = scorecard_state(entry)
+        base = {"key": str(getattr(entry, "key", "") or ""),
+                "name": str(getattr(entry, "name", "") or ""), "state": state}
+        tail = {"sha256": str(getattr(entry, "sha256", "") or "")}
+        provenance = metrics.get("scorecard_provenance") or {}
+        evaluation = {"baseline": str(provenance.get("stock_model") or ""),
+                      "evaluation_set": str(metrics.get("holdout") or ""),
+                      "evaluation_version": str(metrics.get("holdout_version") or ""),
+                      "n_fields": metrics.get("n_fields", ""),
+                      "n_objects": metrics.get("n_objects", "")}
+        found: List[Dict[str, Any]] = []
+        if state in ("reviewed", "held_out"):
+            names = ([key for _label, key in _curated_scorecard_rows()] if state == "reviewed"
+                     else [key for key, value in metrics.items() if isinstance(value, Mapping)
+                           and value.get("finetuned") is not None])
+            for name in names:
+                value = metrics[name]
+                found.append({"metric": name, "this_model": value.get("finetuned"),
+                              "stock": value.get("vanilla"), "difference": value.get("delta"),
+                              "boundary_tolerance_px": (provenance.get("boundary_tolerance_px", "")
+                                                        if name == "boundary_f1_2px" else "")})
+        elif state == "recorded":
+            evaluation["n_fields"] = _recorded_text(metrics.get("n_test"))
+            evaluation["n_objects"] = _recorded_text(metrics.get("test_objects"))
+            for name in ("f1", "aji", "dice", "mAP50", "mAP50_95"):
+                mine = _recorded_text(metrics.get(name))
+                if not mine:
+                    continue
+                stock = _recorded_text(metrics.get(f"stock_{name}"))
+                a, b = _number_or_none(mine), _number_or_none(stock)
+                found.append({"metric": name, "this_model": a if a is not None else mine,
+                              "stock": b if b is not None else stock,
+                              "difference": (round(a - b, 6) if a is not None and b is not None
+                                             else None),
+                              "boundary_tolerance_px": ""})
+        if not found:
+            found.append({"metric": "", "this_model": None, "stock": None,
+                          "difference": None, "boundary_tolerance_px": ""})
+        rows.extend({**base, **row, **evaluation, **tail} for row in found)
+    return rows
 
 
 def format_zoo(entries: Sequence[ModelEntry]) -> str:
@@ -4193,9 +5677,9 @@ def format_benchmarks(results: Sequence[BenchmarkResult],
     """Render benchmarks **grouped by field set**, ranked only within a group.
 
     Two models benchmarked on different fields appear under two headers with a
-    line saying the two blocks cannot be compared. That is the alternative to
-    :func:`rank`'s refusal, and it is the only way this module will ever put
-    incomparable numbers on the same page.
+    line saying the two blocks cannot be compared. This is the alternative to
+    :func:`rank`'s refusal, and the only function in this module that shows
+    results from different field sets together.
 
     :param results: benchmarks, from any number of field sets.
     :param key: one of :data:`RANK_KEYS`.
@@ -4246,3 +5730,498 @@ def format_benchmarks(results: Sequence[BenchmarkResult],
                  "is not an accuracy: there is no ground truth here. To put "
                  "two models against each other, use compare_entries().")
     return "\n".join(lines)
+
+
+MITONET_KEY = "mitonet_mini_v1"
+
+_MITONET_MEAN = 0.57571
+_MITONET_STD = 0.12765
+_MITONET_STRIDE = 128
+_MITONET_TILE = 1024
+_MITONET_HALO = 128
+_MITONET_MODELS: Dict[str, Any] = {}
+_MITONET_VERIFIED: Dict[str, Tuple[int, int]] = {}
+_MITONET_LOCK = threading.Lock()
+
+
+def _mitonet_record() -> Mapping[str, Any]:
+    """The :data:`BUNDLED_REMOTE_MODELS` record of :data:`MITONET_KEY`."""
+    return next(record for record in BUNDLED_REMOTE_MODELS
+                if record.get("key") == MITONET_KEY)
+
+
+def _verified_once(path: Path, sha256: str) -> bool:
+    """Whether ``path`` holds the bytes ``sha256`` names, hashing it once.
+
+    The digest of a file that matched is remembered by its size and change
+    time, so a second segmentation does not read 110 MB again.
+    """
+    try:
+        stat = path.stat()
+    except OSError:
+        return False
+    stamp = (int(stat.st_size), int(stat.st_mtime_ns))
+    if _MITONET_VERIFIED.get(str(path)) == stamp:
+        return True
+    if sha256_file(path) != sha256:
+        return False
+    _MITONET_VERIFIED[str(path)] = stamp
+    return True
+
+
+def mitonet_weights(dest: Any = None, download: bool = True,
+                    opener: Optional[Callable[[str], Any]] = None,
+                    progress: Optional[Callable[[int, int], None]] = None,
+                    cancel: Optional[Callable[[], bool]] = None) -> Path:
+    """The MitoNet v1 mini weights on this machine, downloaded on first use.
+
+    The file is the TorchScript checkpoint of Zenodo record 6861565
+    (CC-BY-4.0; cite Conrad and Narayan, Cell Systems 2023). It is cached
+    in the folder the Model Zoo downloads into, ``~/.spacr/models`` unless
+    ``dest`` names another, and a cached copy is used only when its sha256
+    is the published one. A download goes through :func:`fetch`, so it is
+    checksummed and written atomically.
+
+    :param dest: the folder to look in and download into.
+    :param download: fetch the weights when no verified copy is here.
+    :param opener: passed to :func:`fetch`; tests replace the network.
+    :param progress: passed to :func:`fetch`.
+    :param cancel: passed to :func:`fetch`.
+    :returns: the path of the verified weights.
+    :raises ModelUnreadable: when no verified copy is here and ``download``
+        is False.
+    :raises ChecksumMismatch: when the downloaded bytes are not the
+        published ones.
+    """
+    entry = _entry_from_mapping(_mitonet_record())
+    folder = Path(dest).expanduser() if dest is not None else _model_cache_root()
+    cached = folder / entry.name
+    candidates = [cached]
+    if folder.is_dir():
+        candidates.extend(sorted(folder.glob(
+            f"{cached.stem}_v*{cached.suffix}")))
+    for path in candidates:
+        if path.is_file() and _verified_once(path, entry.sha256):
+            return path
+    if not download:
+        raise ModelUnreadable(
+            f"the MitoNet weights are not in {folder}; they download from "
+            f"{entry.uri} on first use")
+    LOG.info("Downloading %s into %s", entry.name, folder)
+    path = fetch(entry, folder, opener=opener, progress=progress,
+                 cancel=cancel)
+    _verified_once(path, entry.sha256)
+    return path
+
+
+def _mitonet_model(path: Path, device: str) -> Any:
+    """The TorchScript network at ``path`` on ``device``, loaded once."""
+    import torch
+
+    key = f"{path}|{device}"
+    with _MITONET_LOCK:
+        model = _MITONET_MODELS.get(key)
+        if model is None:
+            model = torch.jit.load(str(path), map_location=device).eval()
+            _MITONET_MODELS[key] = model
+    return model
+
+
+def _mitonet_input(image: Any) -> np.ndarray:
+    """``image`` as one float32 plane on MitoNet's 0..1 scale.
+
+    An 8-bit image is divided by 255, as the network was trained; a float
+    image already within 0..1 is kept; anything else is stretched from its
+    0.5th to its 99.5th percentile. A colour or multichannel image is
+    averaged over its last axis.
+    """
+    array = np.asarray(image)
+    if array.ndim == 3 and array.shape[-1] <= 4:
+        array = array.mean(axis=-1) if array.dtype != np.uint8 else (
+            array.mean(axis=-1).astype(np.uint8))
+    if array.ndim != 2:
+        raise ValueError(
+            f"MitoNet segments one 2-D image, not shape {array.shape}")
+    if array.dtype == np.uint8:
+        return array.astype(np.float32) / 255.0
+    plane = array.astype(np.float32)
+    finite = plane[np.isfinite(plane)]
+    if not finite.size:
+        return np.zeros(plane.shape, np.float32)
+    if np.issubdtype(array.dtype, np.floating) and finite.min() >= 0.0 \
+            and finite.max() <= 1.0:
+        return np.nan_to_num(plane, nan=0.0)
+    low, high = np.percentile(finite, (0.5, 99.5))
+    if high <= low:
+        return np.zeros(plane.shape, np.float32)
+    return np.clip((np.nan_to_num(plane, nan=low) - low) / (high - low),
+                   0.0, 1.0).astype(np.float32)
+
+
+def _mitonet_heads(model: Any, plane: np.ndarray, device: str
+                   ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Run the network once over ``plane``: probability, centres, offsets.
+
+    The plane is padded by reflection to a multiple of 128 pixels, the
+    network's stride, and the outputs are cut back to the plane's size.
+    """
+    import torch
+
+    height, width = plane.shape
+    pad_h, pad_w = -height % _MITONET_STRIDE, -width % _MITONET_STRIDE
+    mode = "reflect" if min(height, width) > 1 else "edge"
+    padded = np.pad((plane - _MITONET_MEAN) / _MITONET_STD,
+                    ((0, pad_h), (0, pad_w)), mode=mode).astype(np.float32)
+    with torch.no_grad():
+        out = model(torch.from_numpy(padded)[None, None].to(device))
+    logits = out["sem_logits"]
+    if logits.shape[1] == 1:
+        semantic = torch.sigmoid(logits)[0, 0]
+    else:
+        semantic = torch.softmax(logits, dim=1)[0, 1]
+    semantic = semantic[:height, :width].float().cpu().numpy()
+    centres = out["ctr_hmp"][0, 0, :height, :width].float().cpu().numpy()
+    offsets = out["offsets"][0, :, :height, :width].float().cpu().numpy()
+    return semantic, centres, offsets
+
+
+def _tile_starts(size: int, tile: int) -> List[int]:
+    """Where the tiles along an axis of ``size`` pixels begin."""
+    return list(range(0, max(1, size), tile)) if size > tile else [0]
+
+
+def mitonet_instances(semantic: Any, centres: Any, offsets: Any, *,
+                      threshold: float = 0.5,
+                      centre_threshold: float = 0.1,
+                      centre_window: int = 7,
+                      min_size: int = 64,
+                      chunk: int = 1 << 16) -> np.ndarray:
+    """Turn MitoNet's three output heads into labelled mitochondria.
+
+    The post-processing of empanada's Panoptic-DeepLab models, ported so
+    spaCR does not depend on empanada-dl. A pixel is mitochondrion when
+    ``semantic`` reaches ``threshold``. Instance centres are the local
+    maxima of ``centres`` in a ``centre_window`` square that reach
+    ``centre_threshold``. Each mitochondrion pixel votes, through its
+    ``offsets`` (row, column), for the place its centre is, and joins the
+    nearest centre found. Instances smaller than ``min_size`` pixels are
+    dropped and the rest are numbered 1..n in raster order of their
+    centres.
+
+    :param semantic: (rows, columns) foreground probability.
+    :param centres: (rows, columns) centre heatmap.
+    :param offsets: (2, rows, columns) offsets from each pixel to its
+        centre, in pixels, rows first.
+    :param threshold: the foreground probability cut.
+    :param centre_threshold: the lowest heatmap value a centre may have.
+    :param centre_window: the side of the square a centre is the maximum of.
+    :param min_size: the smallest instance kept, in pixels.
+    :param chunk: foreground pixels assigned per step, which bounds memory.
+    :returns: an int32 label image shaped like ``semantic``.
+    """
+    from scipy import ndimage
+
+    semantic = np.asarray(semantic, dtype=np.float32)
+    centres = np.asarray(centres, dtype=np.float32)
+    offsets = np.asarray(offsets, dtype=np.float32)
+    if semantic.ndim != 2 or centres.shape != semantic.shape or \
+            offsets.shape != (2,) + semantic.shape:
+        raise ValueError(
+            "semantic and centres must be (rows, columns) and offsets "
+            "(2, rows, columns) of the same size")
+    labels = np.zeros(semantic.shape, np.int32)
+    foreground = semantic >= float(threshold)
+    pooled = ndimage.maximum_filter(
+        centres, size=max(1, int(centre_window)), mode="constant",
+        cval=-np.inf)
+    peaks = np.argwhere((centres == pooled)
+                        & (centres >= float(centre_threshold)))
+    if not len(peaks) or not foreground.any():
+        return labels
+    peaks = peaks.astype(np.float32)
+    rows, cols = np.nonzero(foreground)
+    owner = np.empty(rows.size, np.int64)
+    peak_norm = (peaks ** 2).sum(axis=1)
+    step = max(1, int(chunk))
+    for start in range(0, rows.size, step):
+        r = rows[start:start + step]
+        c = cols[start:start + step]
+        votes = np.stack([r + offsets[0, r, c], c + offsets[1, r, c]], 1)
+        distance = (peak_norm[None, :] - 2.0 * votes @ peaks.T)
+        owner[start:start + step] = distance.argmin(axis=1)
+    counts = np.bincount(owner, minlength=len(peaks))
+    keep = counts >= max(1, int(min_size))
+    number = np.zeros(len(peaks), np.int32)
+    number[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    labels[rows, cols] = number[owner]
+    return labels
+
+
+def segment_mitonet(image: Any, weights: Any = None, *,
+                    threshold: float = 0.5,
+                    centre_threshold: float = 0.1,
+                    min_size: int = 64,
+                    device: Optional[str] = None,
+                    tile: int = _MITONET_TILE,
+                    halo: int = _MITONET_HALO,
+                    on_tile: Optional[Callable[[int, int], None]] = None
+                    ) -> np.ndarray:
+    """Segment the mitochondria of a TEM image with MitoNet v1 mini.
+
+    The network runs over tiles of ``tile`` pixels with ``halo`` pixels of
+    context on every side, so a large field never needs the whole image on
+    the network at once, and the three heads are stitched before
+    :func:`mitonet_instances` turns them into labels. MitoNet was trained
+    on electron micrographs with dark membranes; it is not a fluorescence
+    model.
+
+    :param image: a 2-D image (8-bit is read as the network was trained;
+        see :func:`mitonet_weights` for where the weights come from).
+    :param weights: the TorchScript file; None uses :func:`mitonet_weights`,
+        which downloads it on first use.
+    :param threshold: passed to :func:`mitonet_instances`.
+    :param centre_threshold: passed to :func:`mitonet_instances`.
+    :param min_size: passed to :func:`mitonet_instances`.
+    :param device: a torch device; None uses CUDA when torch sees it and
+        the CPU otherwise.
+    :param tile: the side of the core of one tile, in pixels.
+    :param halo: the context around each tile's core, in pixels.
+    :param on_tile: called as ``on_tile(done, total)`` after each tile; an
+        exception it raises stops the run.
+    :returns: an int32 label image shaped like the image's plane.
+    """
+    import torch
+
+    plane = _mitonet_input(image)
+    if device is None:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+    path = Path(weights) if weights is not None else mitonet_weights()
+    model = _mitonet_model(path, str(device))
+    height, width = plane.shape
+    tile = max(_MITONET_STRIDE, int(tile))
+    halo = max(0, int(halo))
+    starts = [(y, x) for y in _tile_starts(height, tile)
+              for x in _tile_starts(width, tile)]
+    if len(starts) == 1:
+        semantic, centres, offsets = _mitonet_heads(model, plane, device)
+        if on_tile is not None:
+            on_tile(1, 1)
+    else:
+        semantic = np.zeros((height, width), np.float32)
+        centres = np.zeros((height, width), np.float32)
+        offsets = np.zeros((2, height, width), np.float32)
+        for done, (y0, x0) in enumerate(starts, 1):
+            y1, x1 = min(height, y0 + tile), min(width, x0 + tile)
+            top, left = max(0, y0 - halo), max(0, x0 - halo)
+            bottom, right = min(height, y1 + halo), min(width, x1 + halo)
+            part = _mitonet_heads(model, plane[top:bottom, left:right],
+                                  device)
+            core = (slice(y0 - top, y1 - top), slice(x0 - left, x1 - left))
+            semantic[y0:y1, x0:x1] = part[0][core]
+            centres[y0:y1, x0:x1] = part[1][core]
+            offsets[:, y0:y1, x0:x1] = part[2][(slice(None),) + core]
+            if on_tile is not None:
+                on_tile(done, len(starts))
+    return mitonet_instances(semantic, centres, offsets,
+                             threshold=threshold,
+                             centre_threshold=centre_threshold,
+                             min_size=min_size)
+
+
+TIMEPOSE_CONTRACT = "spacr.timepose/1"
+_TIMEPOSE_VERIFIED: Dict[str, Tuple[int, int]] = {}
+_TIMEPOSE_MODELS: Dict[Tuple[str, str, str], Any] = {}
+_TIMEPOSE_LOCK = threading.Lock()
+
+
+class _TimeposeAccessError(ModelZooError):
+    """No Hugging Face token, or the token's account cannot read the repository."""
+
+
+def _timepose_record(key: str) -> Mapping[str, Any]:
+    """The :data:`BUNDLED_REMOTE_MODELS` record of a Timepose release.
+
+    Every Timepose version is one record of kind ``timepose``: its repository,
+    pinned revision, the sha256 of every file and the adapter module that
+    exposes ``load_model`` and ``segment_track_movie``. A new version needs
+    only a new record.
+
+    :param key: the zoo key, also the ``timelapse_mode`` choice it is
+        offered as.
+    :raises ModelZooError: for a key that is not a Timepose release.
+    """
+    for record in BUNDLED_REMOTE_MODELS:
+        if record.get("key") == key and record.get("kind") == "timepose":
+            return record
+    from .qt.i18n import tr
+    raise ModelZooError(tr("{key} is not a Timepose model in the model zoo.",
+                           key=key))
+
+
+def _timepose_verified(path: Path, sha256: str) -> bool:
+    """Whether ``path`` holds the pinned bytes, hashing each file once."""
+    try:
+        stat = path.stat()
+    except OSError:
+        return False
+    stamp = (int(stat.st_size), int(stat.st_mtime_ns))
+    if _TIMEPOSE_VERIFIED.get(str(path)) == stamp:
+        return True
+    if sha256_file(path) != sha256:
+        return False
+    _TIMEPOSE_VERIFIED[str(path)] = stamp
+    return True
+
+
+def _timepose_access_failure(error: BaseException) -> bool:
+    """Whether a Hugging Face error means no token or no access."""
+    if type(error).__name__ in ("GatedRepoError", "RepositoryNotFoundError",
+                                "LocalTokenNotFoundError"):
+        return True
+    response = getattr(error, "response", None)
+    return getattr(response, "status_code", None) in (401, 403, 404)
+
+
+def _timepose_token(token: Optional[str] = None) -> Optional[str]:
+    """The Hugging Face token: ``token``, else the one huggingface_hub finds."""
+    if token:
+        return token
+    try:
+        from huggingface_hub import get_token
+    except ImportError:
+        return os.environ.get("HF_TOKEN") or None
+    return get_token()
+
+
+def _timepose_files(key: str, dest: Any = None,
+                    token: Optional[str] = None,
+                    downloader: Optional[Callable[..., Any]] = None,
+                    progress: Optional[Callable[[int, int], None]] = None
+                    ) -> Path:
+    """Download a Timepose release once and verify every file against its pin.
+
+    The files go to ``<cache>/timepose/<key>/<revision>``. A file whose sha256
+    is not the pinned one is deleted and nothing is loaded from the release.
+
+    :param key: the zoo key.
+    :param dest: the cache root; spaCR's model cache by default.
+    :param token: a Hugging Face token; the logged-in one by default.
+    :param downloader: ``hf_hub_download``-compatible callable; tests pass a
+        fake one.
+    :param progress: ``fn(done_files, total_files)``.
+    :returns: the folder holding the verified release.
+    :raises _TimeposeAccessError: with no token, or no access to the private
+        repository.
+    :raises ChecksumMismatch: when a downloaded file is not the pinned one.
+    """
+    from .qt.i18n import tr
+    record = _timepose_record(key)
+    root = Path(dest).expanduser() if dest is not None else _model_cache_root() / "timepose"
+    folder = root / key / str(record["revision"])[:12]
+    files = dict(record["files"])
+    missing = [name for name, sha in sorted(files.items())
+               if not _timepose_verified(folder / name, sha)]
+    if not missing:
+        return folder
+    found = _timepose_token(token)
+    if downloader is None:
+        if not found:
+            raise _TimeposeAccessError(tr(
+                "{name} is in a private Hugging Face repository ({repo}). Sign "
+                "in with an account that has been given access: run `hf auth "
+                "login` or set HF_TOKEN, then run again.",
+                name=record.get("display_name", key), repo=record["repo_id"]))
+        from huggingface_hub import hf_hub_download
+        downloader = hf_hub_download
+    folder.mkdir(parents=True, exist_ok=True)
+    for done, name in enumerate(missing, 1):
+        try:
+            downloader(repo_id=record["repo_id"], filename=name,
+                       revision=record["revision"], repo_type="model",
+                       local_dir=str(folder), token=found)
+        except Exception as error:
+            if _timepose_access_failure(error):
+                raise _TimeposeAccessError(tr(
+                    "Your Hugging Face account cannot read {repo}, the private "
+                    "repository of {name}. Ask the spaCR maintainer for "
+                    "access, or choose another timelapse_mode.",
+                    name=record.get("display_name", key),
+                    repo=record["repo_id"])) from error
+            raise
+        path = folder / name
+        if not _timepose_verified(path, files[name]):
+            try:
+                path.unlink()
+            except OSError:
+                pass
+            raise ChecksumMismatch(tr(
+                "{file} of {name} does not match its pinned sha256 and was "
+                "deleted; nothing from this download was run.",
+                file=name, name=record.get("display_name", key)))
+        if progress is not None:
+            progress(done, len(missing))
+    return folder
+
+
+def _timepose_device(device: Any = None) -> str:
+    """``'cuda'`` when asked for or automatic with a GPU present, else ``'cpu'``."""
+    text = str(device or "automatic").lower()
+    if text not in ("automatic", "auto", "none"):
+        return text
+    try:
+        import torch
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except ImportError:
+        return "cpu"
+
+
+def _load_timepose(key: str, device: Any = None,
+                   token: Optional[str] = None, dest: Any = None,
+                   downloader: Optional[Callable[..., Any]] = None
+                   ) -> Tuple[Any, Any]:
+    """The adapter module and loaded model of a Timepose release.
+
+    The adapter ships with the weights and is imported only after every file
+    matched its pin. It must declare :data:`TIMEPOSE_CONTRACT` and expose
+    ``load_model(folder, device)`` and ``segment_track_movie(model, images,
+    invert=..., masks=...)``, which returns ``masks`` (T, Y, X) and ``edges``
+    ``[t, parent_label, child_label]``.
+
+    :returns: ``(adapter, model)``, cached per key, revision and device.
+    """
+    import importlib
+    import importlib.util
+    import sys
+
+    from .qt.i18n import tr
+    record = _timepose_record(key)
+    device = _timepose_device(device)
+    cache_key = (key, str(record["revision"]), device)
+    with _TIMEPOSE_LOCK:
+        if cache_key in _TIMEPOSE_MODELS:
+            return _TIMEPOSE_MODELS[cache_key]
+        folder = _timepose_files(key, dest=dest, token=token,
+                                 downloader=downloader)
+        package, _, module_name = str(record["entry"]).partition(".")
+        alias = f"_spacr_{key}_{str(record['revision'])[:12]}"
+        if alias not in sys.modules:
+            spec = importlib.util.spec_from_file_location(
+                alias, folder / package / "__init__.py",
+                submodule_search_locations=[str(folder / package)])
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[alias] = module
+            try:
+                spec.loader.exec_module(module)
+            except Exception:
+                sys.modules.pop(alias, None)
+                raise
+        adapter = (importlib.import_module(f"{alias}.{module_name}")
+                   if module_name else sys.modules[alias])
+        if getattr(adapter, "CONTRACT", None) != record["contract"]:
+            raise ModelZooError(tr(
+                "{name} does not provide the interface this spaCR expects "
+                "({contract}); update spaCR.", name=record.get("display_name", key),
+                contract=record["contract"]))
+        model = adapter.load_model(str(folder), device)
+        _TIMEPOSE_MODELS[cache_key] = (adapter, model)
+        return adapter, model

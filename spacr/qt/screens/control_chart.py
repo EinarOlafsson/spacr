@@ -1,20 +1,19 @@
-"""B9 — Control Charts: is the control still the control, plate after plate?
+"""Control Charts screen: chart one control value per plate to detect drift.
 
-A screening campaign is dozens of plates run over weeks, and the one assumption
-holding the whole analysis up is that the controls are the same thing every
-time. Hit calling, plate normalisation and Z' all measure against them, so when
-the controls drift, everything downstream is already wrong and nothing says so
-— the analysis normalises to whatever controls it is handed.
+A screening campaign is dozens of plates run over weeks, and the analysis
+assumes that the controls behave the same way every time. Hit calling, plate
+normalisation and Z' all measure against them, so when the controls drift,
+every downstream result shifts with them without any warning — the analysis
+normalises to whatever controls it is handed.
 
-This screen is the picture that says so. One control value per plate along run
-order, limits estimated from a stated baseline and applied forward, every
-Nelson rule that fires marked on the plate it fired on and named in words
-underneath.
+This screen plots one control value per plate along run order, with limits
+estimated from a stated baseline and applied forward, and every Nelson rule
+that fires marked on the plate it fired on and named in words underneath.
 
 Everything numeric comes from :mod:`spacr.qt.widgets.control_chart`, which has
-no Qt in it and carries the argument for every decision — most of all the one
-the module turns on, that sigma comes from the average moving range over d2 and
-never from the standard deviation of the series, because the SD is inflated by
+no Qt in it and documents the reasoning for every decision — most of all the
+central one, that sigma comes from the average moving range over d2 and never
+from the standard deviation of the series, because the SD is inflated by
 exactly the drift the chart exists to detect. This file draws that result and
 nothing else: no statistic is computed here, so the chart on screen and the
 chart in a report cannot disagree.
@@ -27,10 +26,10 @@ Assembles:
   it opens there;
 * :class:`spacr.qt.job_runner.JobRunner` — the read *and* the chart run off the
   GUI thread; a campaign table is object rows, and grouping a few hundred
-  thousand of them per redraw is a frozen window;
+  thousand of them per redraw on the GUI thread would freeze the window;
 * the owned-timer matplotlib canvas from
-  :mod:`spacr.qt.widgets.graph_builder`, imported rather than copied because
-  two copies of a segfault fix is one copy too many.
+  :mod:`spacr.qt.widgets.graph_builder`, imported rather than copied so its
+  segfault fix exists in one place.
 
 :func:`register` is not called at import; read its docstring.
 """
@@ -51,8 +50,10 @@ from PySide6.QtWidgets import (
     QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
-from ..i18n import tr
-from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
+from ..i18n import set_translatable_text, tr
+from ..widgets.measurements_example import (
+    _CONTROL_CHART_NEGATIVE, _CONTROL_CHART_POSITIVE, _CONTROL_CHART_VALUE,
+    _install_control_chart_test_data_button)
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
@@ -113,7 +114,9 @@ RULE_SETS: Tuple[Tuple[str, Tuple[int, ...]], ...] = (
 )
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _reuse_list_items, _spare_table_item, install_sorting,
+)
 from ..app_catalog import declared_app, register_declared
 
 #: Object names of the hit-scoring option (item 570). It ships as an alpha
@@ -443,10 +446,8 @@ class ControlChartScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of per-well values")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
-        example = install_test_data_button(
-            self, head, lambda _folder, db: self.load_path(
-                str(db), table=EXAMPLE_TABLE),
-            say=self._source.setText)
+        example = _install_control_chart_test_data_button(
+            self, head, self._open_test_data, say=self._source.setText)
         example.setObjectName("ControlChartTestDataButton")
 
         export = QPushButton("Export points…", self)
@@ -571,7 +572,7 @@ class ControlChartScreen(QWidget):
         self._order.setObjectName("ControlChartOrder")
         self._order.setToolTip(
             "The run order or date. Leave empty and the order is inferred "
-            "from the plate id — which every run-based rule then rests on.")
+            "from the plate id, and every run-based rule uses that order.")
         self._order.currentTextChanged.connect(self._on_control_changed)
         form.addRow("Run order", self._order)
 
@@ -815,6 +816,43 @@ class ControlChartScreen(QWidget):
         layout.addWidget(self.sar_table, 1)
         return body
 
+    def _open_test_data(self, table) -> None:
+        """Chart the CPJUMP1 example: DMSO wells, cell number, plate by plate.
+
+        The table is small (9,131 wells), so it is read here rather than on
+        the worker, and the pickers are set before the one recompute: plate
+        ``plate``, run order ``run_order``, measurement
+        ``Cells_Number_Object_Number``, control ``well_type`` = ``negcon``,
+        with ``poscon_cp`` and ``negcon`` offered for Z'.
+
+        :param table: the example's ``control_chart_wells.csv``.
+        """
+        frame = pd.read_csv(table)
+        self._path = str(table)
+        self._table_picker.clear()
+        self._table_picker.setVisible(False)
+        self._frame = frame
+        self._loading = True
+        try:
+            self._refill_pickers(frame)
+            self._plate.setCurrentText("plate")
+            self._order.setCurrentText("run_order")
+            self._value.setCurrentText(_CONTROL_CHART_VALUE)
+            self._control_column.setCurrentText("well_type")
+            self._refill_levels(frame)
+            for row in range(self._levels.count()):
+                item = self._levels.item(row)
+                item.setSelected(item.text() == _CONTROL_CHART_NEGATIVE)
+            self._positive.setCurrentText(_CONTROL_CHART_POSITIVE)
+            self._negative.setCurrentText(_CONTROL_CHART_NEGATIVE)
+        finally:
+            self._loading = False
+        set_translatable_text(
+            self._source, "{name} · {rows} rows × {columns} columns",
+            name=os.path.basename(str(table)), rows=f"{len(frame):,}",
+            columns=len(frame.columns))
+        self.recompute()
+
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Chart ``frame``. The one call a host needs.
 
@@ -887,13 +925,13 @@ class ControlChartScreen(QWidget):
         column = self._control_column.currentText()
         wanted = self._selected_levels()
         self._levels.blockSignals(True)
-        self._levels.clear()
         levels: List[str] = []
         if column and column in frame.columns:
             levels = sorted({str(v) for v in frame[column].dropna().unique()})
-            for level in levels[:200]:
-                item = QListWidgetItem(level, self._levels)
-                item.setSelected(level in wanted)
+        for level, item in zip(levels[:200], _reuse_list_items(
+                self._levels, len(levels[:200]))):
+            item.setText(level)
+            item.setSelected(level in wanted)
         self._levels.blockSignals(False)
         for box in (self._positive, self._negative):
             previous = box.currentText()
@@ -936,9 +974,9 @@ class ControlChartScreen(QWidget):
     def spec(self) -> ControlChartSpec:
         """The spec the form describes.
 
-        :raises ControlChartError: for a form that cannot mean anything — the
-            same refusals the engine makes, at the same point, with the same
-            messages.
+        :raises ControlChartError: for an incomplete or inconsistent form —
+            the same refusals the engine makes, at the same point, with the
+            same messages.
         """
         rules = self._rules.currentData() or RULES_DEFAULT
         column = self._control_column.currentText() or None
@@ -1027,7 +1065,7 @@ class ControlChartScreen(QWidget):
         frame = self._frame
         if frame is None or not self._hit_score.isChecked():
             self._hit_result = None
-            self.hit_table.setRowCount(0)
+            _retire_table_cells(self.hit_table)
             self.hit_summary.setText(tr(
                 "Turn on hit scoring and name the negative control."))
             return
@@ -1056,6 +1094,7 @@ class ControlChartScreen(QWidget):
         self.hit_summary.setText(result.report())
         shown = hits.head(_MAX_HIT_ROWS)
         self.hit_table.setSortingEnabled(False)
+        _retire_table_cells(self.hit_table)
         self.hit_table.setRowCount(len(shown))
         for row, (_index, record) in enumerate(shown.iterrows()):
             for column, (key, _label) in enumerate(_HIT_COLUMNS):
@@ -1066,7 +1105,8 @@ class ControlChartScreen(QWidget):
                             f"{value:.3g}")
                 else:
                     text = "" if value is None else str(value)
-                self.hit_table.setItem(row, column, table_item(text))
+                self.hit_table.setItem(
+                    row, column, _spare_table_item(self.hit_table, text))
         self.hit_table.setSortingEnabled(True)
         self.hit_table.resizeColumnsToContents()
         self._recompute_chemistry()
@@ -1077,7 +1117,7 @@ class ControlChartScreen(QWidget):
         :param message: the reason.
         """
         self._hit_result = None
-        self.hit_table.setRowCount(0)
+        _retire_table_cells(self.hit_table)
         self.hit_summary.setText(message)
         self._recompute_chemistry()
 
@@ -1304,11 +1344,12 @@ class ControlChartScreen(QWidget):
         self.anomaly_table.setSortingEnabled(False)
         self.anomaly_figure.patch.set_alpha(0.0)
         if result is None:
-            self.anomaly_table.setRowCount(0)
+            _retire_table_cells(self.anomaly_table)
             self.anomaly_figure.clear()
             self.anomaly_canvas.draw_idle()
             return
         shown = result.ranked_wells().head(_MAX_HIT_ROWS)
+        _retire_table_cells(self.anomaly_table)
         self.anomaly_table.setRowCount(len(shown))
         for row, (_index, record) in enumerate(shown.iterrows()):
             for column, (key, _label) in enumerate(_ANOMALY_COLUMNS):
@@ -1326,7 +1367,8 @@ class ControlChartScreen(QWidget):
                     text = f"{value:.3g}"
                 else:
                     text = str(value)
-                self.anomaly_table.setItem(row, column, table_item(text))
+                self.anomaly_table.setItem(
+                    row, column, _spare_table_item(self.anomaly_table, text))
         self.anomaly_table.setSortingEnabled(True)
         self.anomaly_table.resizeColumnsToContents()
         _draw_anomaly_review(self.anomaly_figure, result)
@@ -1452,7 +1494,7 @@ class ControlChartScreen(QWidget):
         self.chem_figure.patch.set_alpha(0.0)
         if chemistry is None:
             self.chem_figure.clear()
-            self.sar_table.setRowCount(0)
+            _retire_table_cells(self.sar_table)
         else:
             _draw_hit_structures(self.chem_figure, chemistry)
             from ...figures.bundle import _register_figure_data
@@ -1468,6 +1510,7 @@ class ControlChartScreen(QWidget):
         """
         shown = sar.head(_MAX_HIT_ROWS)
         self.sar_table.setSortingEnabled(False)
+        _retire_table_cells(self.sar_table)
         self.sar_table.setRowCount(len(shown))
         for row, (_index, record) in enumerate(shown.iterrows()):
             for column, (key, _label) in enumerate(_SAR_COLUMNS):
@@ -1481,7 +1524,8 @@ class ControlChartScreen(QWidget):
                     text = f"{value:.3g}"
                 else:
                     text = str(value)
-                self.sar_table.setItem(row, column, table_item(text))
+                self.sar_table.setItem(
+                    row, column, _spare_table_item(self.sar_table, text))
         self.sar_table.setSortingEnabled(True)
         self.sar_table.resizeColumnsToContents()
 
@@ -1506,6 +1550,7 @@ class ControlChartScreen(QWidget):
 
         :param result: the computed chart.
         """
+        _retire_table_cells(self.violations)
         self.violations.setRowCount(len(result.violations))
         for row, violation in enumerate(result.violations):
             for column, text in enumerate((
@@ -1513,7 +1558,8 @@ class ControlChartScreen(QWidget):
                     ", ".join(violation.plates),
                     RULE_DETECTS[violation.rule],
                     violation.describe())):
-                self.violations.setItem(row, column, table_item(text))
+                self.violations.setItem(
+                    row, column, _spare_table_item(self.violations, text))
         self.violations.resizeColumnsToContents()
 
     def _show_refusal(self, message: str) -> None:
@@ -1521,7 +1567,7 @@ class ControlChartScreen(QWidget):
         self._result = None
         self.canvas.set_result(None, message=message)
         self.report.setPlainText(message)
-        self.violations.setRowCount(0)
+        _retire_table_cells(self.violations)
         self.failed.emit(message)
 
     def _on_job_failed(self, message: str) -> None:
@@ -1673,11 +1719,10 @@ def register() -> bool:
     The row itself -- the key, the name, the blurb, the section, the "no
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
-    :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    :func:`spacr.qt.app.register_app` distributes those into the four
+    registry tables, and this function only names the row. The app can
+    therefore be registered without importing this module: the launch reads
+    the table, and the screen is imported when somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call again:
         a module imported twice, or a test that re-imports it, must not raise

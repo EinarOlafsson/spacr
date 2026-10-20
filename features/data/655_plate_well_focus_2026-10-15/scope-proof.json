@@ -1,0 +1,29 @@
+{
+  "base_commit": "db808733c0",
+  "source_sha256": "3d0d0709d9a53d8dca23ee190cbcfc853ea119c34a7fe712b3467950cbab0a26",
+  "baseline_sha256": "d5faebe1855cd792b1b313b05c92370245d23e55f45dcbf5da3e8067298f5e6f",
+  "precise_new_paint_cache_removal_restores_full_module_AST": true,
+  "all_existing_docstrings_comments_mouse_selection_methods_unchanged": true,
+  "actual_public_symbol_calls": {
+    "spacr.qt.widgets.plate_map_picker._Well.changeEvent": false,
+    "spacr.qt.widgets.plate_map_picker._Well.focusInEvent": false,
+    "spacr.qt.widgets.plate_map_picker._Well.focusOutEvent": false,
+    "spacr.qt.widgets.plate_map_picker._Well.paintEvent": false
+  },
+  "scoped_helper_inventory_unchanged": true,
+  "existing_helper_count": 1,
+  "helper_location_change_only": [
+    {
+      "key": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis",
+      "before": [
+        551,
+        572
+      ],
+      "after": [
+        592,
+        613
+      ]
+    }
+  ],
+  "scope": "Actual normal visibility and one-file helper inventory only; no full collector, target import or generation."
+}

@@ -326,6 +326,12 @@ def test_real_xenium_button_assignment_writes_expected_counts(qtbot, monkeypatch
         return run(dict(request, anndata=False), **kwargs)
 
     monkeypatch.setattr(ops_engine, '_st_run', observed)
+    # The job's first figure export imports spacr.plot, and with it torch and
+    # seaborn: 3-4 s on a cold interpreter, which alone used up the 5 s budget
+    # below while the job itself takes about 1 s (measured 2026-10-11; nothing
+    # hangs). Import it here so the budget times the button's job, not the
+    # import.
+    import spacr.plot  # noqa: F401
     qtbot.mouseClick(panel.assign_button, Qt.LeftButton)
     _idle(qtbot, panel)
     assert panel.summary is not None, panel.status.text()

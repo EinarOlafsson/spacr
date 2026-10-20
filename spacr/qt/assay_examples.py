@@ -12,12 +12,14 @@ All four read ``<src>/measurements/measurements.db`` and apply the settings
 shipped in their archive. :data:`spacr.example_archives.EXAMPLE_SETS` describes
 the same datasets for the GUI and ``spacr-download``.
 
-ITS OWN FOLDER PER SET. Both ship ``measurements/measurements.db``, as the
-Annotate example in the shared plate does, so each unpacks beside that plate
+Each set has its own folder. Each set ships
+``measurements/measurements.db``, as the Annotate example in the shared plate
+does, so each unpacks beside that plate
 (:func:`spacr.example_archives.example_set_folder`) rather than into it.
 
-THE SAME PATTERN AS THE OTHER EXAMPLES. One uncompressed ``.tar`` streamed to
-a ``.part`` file on a worker thread behind the shared progress dialog,
+The download follows the pattern of the other examples: one uncompressed
+``.tar`` streamed to a ``.part`` file on a worker thread behind the shared
+progress dialog,
 unpacked through the tar data filter, ``<dataset>`` in the settings replaced
 with where it landed, and cached: a second press uses the copy on disk.
 """

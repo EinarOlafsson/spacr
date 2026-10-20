@@ -37,10 +37,12 @@ so users can also drop a settings CSV on any screen to load it.
 """
 from __future__ import annotations
 
+import heapq
 import logging
 import os
 import threading
 import time
+from functools import partial
 from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -345,6 +347,91 @@ def _scan_then(screen, fn: Callable[[], Any],
             LOG.debug("falling back to an inline folder scan", exc_info=True)
     landed(guarded())
     return False
+
+
+def _nothing() -> None:
+    """The worker half of :func:`_later`: there is nothing to do there."""
+    return None
+
+
+def _later(screen, step: Callable[[], None]) -> None:
+    """Run ``step`` on the GUI thread on a later turn, as part of the scan.
+
+    The report of a dropped folder writes the console, opens an editor and
+    fills a table. Done in one go that was one event-loop turn long enough
+    to stall the window; split, each part is its own turn. The step goes
+    round the scanner as an empty job, so :func:`scan_is_busy` keeps
+    answering True until it has run, exactly as it would for the walk.
+
+    :param step: what to do next, on the GUI thread.
+    """
+    _scan_then(screen, _nothing, lambda _nothing_found: step())
+
+
+def _now_or_later(screen, defer: bool, step: Callable[[], None]) -> None:
+    """Run ``step`` now, or on a later turn of a drop's scan (:func:`_later`).
+
+    :param defer: True on the drop path; the synchronous report entry points
+        keep doing everything in the one call they promise.
+    :param step: what to do, on the GUI thread.
+    """
+    if defer:
+        _later(screen, step)
+    else:
+        step()
+
+
+def _custom_regex(screen) -> str:
+    """The pattern typed into the screen's ``custom_regex`` field, or ``""``."""
+    try:
+        w = screen._settings_model._widgets.get("custom_regex")
+        if w is not None and hasattr(w, "text"):
+            return (w.text() or "").strip()
+    except Exception:
+        pass
+    return ""
+
+
+def _scan_and_detect(path, custom: str) -> Dict[str, Any]:
+    """:func:`scan_mask_folder`, plus the regex verdict on what it sampled.
+
+    The pattern search and validation are pure functions of the sampled
+    names, so they run on the worker with the listing instead of on the GUI
+    thread when the report lands. ``custom`` is what the field held when the
+    drop was dispatched; the report redoes the verdict if it has changed.
+
+    :param path: the dropped folder.
+    :param custom: the custom pattern at dispatch, or ``""``.
+    """
+    from . import regex_detect as rd
+    from . import regex_editor  # noqa: F401
+    from .widgets import metadata_table  # noqa: F401
+
+    scan = scan_mask_folder(path)
+    filenames = list(scan.get("names") or ())
+    if filenames:
+        scan["detected"] = (custom, _regex_verdict(rd, filenames, custom))
+    return scan
+
+
+def _regex_verdict(rd, filenames: list, custom: str) -> tuple:
+    """``(pattern, label, n_matches, records, missed, warnings)`` for names.
+
+    :param rd: :mod:`spacr.qt.regex_detect`.
+    :param filenames: the sampled file names.
+    :param custom: a custom pattern to apply, or ``""`` to detect one.
+    """
+    if custom:
+        records, missed = rd.apply_regex(filenames, custom)
+        pattern, label = custom, "custom"
+        n_matches = len(records)
+    else:
+        pattern, label, n_matches = rd.auto_detect_regex(filenames)
+        records, missed = ([], filenames[:]) \
+                          if pattern is None \
+                          else rd.apply_regex(filenames, pattern)
+    warnings = rd.validate_records(records, multichannel=True)
+    return pattern, label, n_matches, records, missed, warnings
 
 
 def scan_is_busy(screen) -> bool:
@@ -728,14 +815,11 @@ def scan_mask_container(path) -> Dict[str, Any]:
     multi-page ``.tif`` / ``.npz``, described once and turned into the rows
     the metadata table shows. No Qt, no widgets, plain data out.
 
-    It is here rather than inside ``apply`` because describing a container is
-    a FILE OPEN, and the drop that started this exercise was a file open on a
-    sleeping ``autofs`` share that had not returned after twenty seconds. The
-    branch used to defer itself with ``QTimer.singleShot(0, ...)`` under the
-    comment "reads a header, not a tree" -- true about the amount of data and
-    beside the point about the wait, because a single-shot timer runs its
-    callback ON the GUI thread with the event loop stopped. It only moved the
-    freeze one turn later, which is why it was never traced back to here.
+    It is here rather than inside ``apply`` because describing a container
+    opens the file, and a file open on a sleeping ``autofs`` share was
+    observed not to return within twenty seconds. Deferring the call with
+    ``QTimer.singleShot(0, ...)`` does not help: the callback still runs on
+    the GUI thread and blocks the event loop.
 
     :param path: the dropped container file.
     :returns: ``{"found": bool, "summary": str, "rows": [...],
@@ -762,13 +846,11 @@ def scan_mask_container(path) -> Dict[str, Any]:
 
 
 def scan_folder_structure(path) -> Dict[str, Any]:
-    """Walk a dropped folder ONCE and return the folder-metadata report.
+    """Walk a dropped folder once and return the folder-metadata report.
 
-    Worker-safe: plain data in, plain data out, nothing Qt. The single walk
-    is the point. This replaced three walks of the same tree —
-    ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another
-    and called ``detect_folder_metadata`` again for a third — all on the GUI
-    thread, all inside the drop event.
+    Worker-safe: plain data in, plain data out, nothing Qt. The tree is
+    walked once, for both ``detect_folder_metadata`` and
+    ``plan_folder_extraction``, and not on the GUI thread.
 
     The probe is pulled off the *same* lazy generator the planner then drains,
     so a folder whose layout is not recognisable costs 30 files, not a
@@ -784,8 +866,8 @@ def scan_folder_structure(path) -> Dict[str, Any]:
 
     out: Dict[str, Any] = {"labels": (), "rows": [], "error": ""}
     try:
-        walk = fm.iter_image_files(path)
-        probe = list(islice(walk, _FOLDER_PROBE))
+        walk = fm._iter_image_paths(path)
+        probe = [Path(p) for p in islice(walk, _FOLDER_PROBE)]
         template = fm.detect_folder_metadata(path, files=probe)
     except Exception:
         return out
@@ -794,8 +876,11 @@ def scan_folder_structure(path) -> Dict[str, Any]:
         return out
     out["labels"] = tuple(labels)
     try:
+        shown = heapq.nsmallest(
+            ip._PREVIEW_ROWS, chain((os.fspath(p) for p in probe), walk),
+            key=ip._path_order)
         out["rows"] = ip.plan_folder_extraction(
-            path, files=chain(probe, walk), template=template)
+            path, files=[Path(p) for p in shown], template=template)
     except Exception as exc:
         out["error"] = str(exc) or exc.__class__.__name__
     return out
@@ -830,12 +915,12 @@ class MaskDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """A folder with images at the top level, or one readable image file.
 
-        A CONTAINER FILE IS ASKED, NOT ASSUMED. `describe_file` decides
-        whether a `.czi` or `.nd2` can actually be read, because the suffix
-        says what a file claims to be and the reader says what it is.
+        A container file is checked, not assumed. `describe_file` decides
+        whether a `.czi` or `.nd2` can be read, because the suffix only says
+        what a file claims to be.
 
-        Answered from `_facts`, which is the ONE walk this drop pays for --
-        the question above is exactly what `scan_mask_drop` already settled.
+        Answered from `_facts`, the single directory walk this drop makes;
+        `scan_mask_drop` has already answered the question above.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
@@ -912,8 +997,9 @@ class MaskDropHandler(DropHandler):
         if not facts.get("is_file"):
             _scan_then(
                 screen,
-                lambda: scan_mask_folder(path),
-                lambda scan: _render_mask_report(path, screen, scan),
+                partial(_scan_and_detect, path, _custom_regex(screen)),
+                lambda scan: _render_mask_report(path, screen, scan,
+                                                 defer=True),
                 lambda exc: _log(
                     screen, f"[drop] could not read {path}: {exc}\n"),
             )
@@ -998,7 +1084,8 @@ def _render_container_report(path, screen, scan: Dict[str, Any]) -> None:
         _log(screen, f"[drop] metadata preview unavailable: {e}\n")
 
 
-def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
+def _render_mask_report(path: Path, screen, scan: Dict[str, Any],
+                        defer: bool = False) -> None:
     """Write the filename-regex report for a finished :func:`scan_mask_folder`.
 
     The GUI-thread half of a folder drop: it reads and writes settings
@@ -1016,23 +1103,13 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
         return
     total_images = int(scan.get("total") or 0)
 
-    custom = ""
-    try:
-        w = screen._settings_model._widgets.get("custom_regex")
-        if w is not None and hasattr(w, "text"):
-            custom = (w.text() or "").strip()
-    except Exception:
-        pass
-
-    if custom:
-        records, missed = rd.apply_regex(filenames, custom)
-        pattern, label = custom, "custom"
-        n_matches = len(records)
+    custom = _custom_regex(screen)
+    detected = scan.get("detected")
+    if detected is not None and detected[0] == custom:
+        pattern, label, n_matches, records, missed, warnings = detected[1]
     else:
-        pattern, label, n_matches = rd.auto_detect_regex(filenames)
-        records, missed = ([], filenames[:]) \
-                          if pattern is None \
-                          else rd.apply_regex(filenames, pattern)
+        pattern, label, n_matches, records, missed, warnings = \
+            _regex_verdict(rd, filenames, custom)
 
     _log(screen,
          f"[drop] mask · folder = {path}\n"
@@ -1045,7 +1122,6 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
         table = rd.tabulate_records(records, max_rows=10)
         _log(screen, table + "\n")
 
-    warnings = rd.validate_records(records, multichannel=True)
     if warnings:
         for w in warnings:
             _log(screen, f"⚠ {w}\n")
@@ -1054,15 +1130,17 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
                      "pattern that matches your filenames live. Use the "
                      "Auto-detect button or edit the pattern manually — or use "
                      "the folder-structure option above.\n")
-        _open_regex_editor(filenames, pattern or "", screen)
+        _now_or_later(screen, defer, lambda: _open_regex_editor(
+            filenames, pattern or "", screen))
     else:
         _log(screen, "✓ All required fields captured "
                      "(wellID / fieldID, chanID).\n")
         _log(screen, "→ Confirm the parsed columns above match your naming "
                      "before running. Edit the pattern if a column is "
                      "holding the wrong value.\n")
-        _open_regex_editor(filenames, pattern or "", screen,
-                           confirming=True, fallback=pattern)
+        _now_or_later(screen, defer, lambda: _open_regex_editor(
+            filenames, pattern or "", screen,
+            confirming=True, fallback=pattern))
 
 
 def _set_screen_setting(screen, key: str, value) -> bool:
@@ -1127,8 +1205,11 @@ def _render_folder_structure(path, screen, result: Dict[str, Any]) -> None:
     from . import ingest_preview as ip
     _log(screen, f"[drop] folder-structure plan — "
                  f"{ip.summarize_rows(rows)}\n")
-    _open_metadata_table(rows, path, screen)
+    _later(screen, lambda: _open_metadata_table(rows, path, screen))
 
+
+#: Rows the metadata table opens with; the rest are added on later turns.
+_FIRST_ROWS = 20
 
 #: Fallback owner for metadata dialogs whose screen cannot hold a reference.
 #: Entries are removed again when the dialog emits ``finished``.
@@ -1148,7 +1229,7 @@ def _open_metadata_table(rows, dst, screen) -> None:
         _log(screen, f"[drop] wrote metadata map → {csv_path}\n")
 
     dst = Path(dst)
-    if dst.is_dir() or dst.suffix.lower() != ".csv":
+    if dst.suffix.lower() != ".csv" or dst.is_dir():
         dst = dst / "filename_map.csv"
 
     try:
@@ -1157,7 +1238,10 @@ def _open_metadata_table(rows, dst, screen) -> None:
         return
     try:
         parent = screen if hasattr(screen, "window") else None
-        dlg = MetadataTableDialog(rows, dst, on_apply=_on_apply, parent=parent)
+        dlg = MetadataTableDialog(rows[:_FIRST_ROWS], dst,
+                                  on_apply=_on_apply, parent=parent)
+        if len(rows) > _FIRST_ROWS:
+            dlg.panel._append_later(rows[_FIRST_ROWS:])
     except Exception as e:
         _log(screen, f"[drop] could not open metadata table: {e}\n")
         return
@@ -1286,10 +1370,9 @@ class MeasureDropHandler(DropHandler):
         """
         Set `src` to the PLATE folder, not to `merged/` inside it.
 
-        ONE STRING FOR ONE PLACE. This used to drill into `merged`, while
-        auto-chaining filled the same field with the plate -- so dropping a
-        folder and letting the chain fill it produced two different strings
-        for one plate, and settings files written the two ways did not match.
+        Auto-chaining fills the same field with the plate folder, so a drop
+        and the chain write the same string for one plate, and settings
+        files written either way match.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -1328,9 +1411,7 @@ class AnnotateDropHandler(DropHandler):
         return False
 
     def error_message(self, path: Path) -> str:
-        """Name the file's path AND which module writes it, so a user who has
-        not run Measure yet learns what is missing rather than that they are
-        wrong.
+        """Name the expected file's path and the module that writes it.
 
         :param path: the dropped file or folder.
         :returns: the sentence shown when the drop is refused.
@@ -1343,7 +1424,7 @@ class AnnotateDropHandler(DropHandler):
         """
         Resolve a dropped database to the plate folder that owns it.
 
-        TWO LEVELS UP, BUT ONLY FROM `measurements/`. The canonical layout is
+        The plate is two levels up only from `measurements/`. The canonical layout is
         `<plate>/measurements/measurements.db`, so climbing two levels finds
         the plate -- but `can_accept` also allows a loose `.db`, and climbing
         blindly from one of those would name a folder that has nothing to do
@@ -1368,7 +1449,7 @@ class ClassifyDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """A plate folder holding measurements, crops, or a training set.
 
-        THREE SHAPES BECAUSE THERE ARE TWO WORKFLOWS. Classify trains on
+        Three layouts are accepted for two workflows. Classify trains on
         measured features or on image crops, and the crops arrive either as
         `data/` from Measure or as `train/` from Annotate.
 
@@ -1397,9 +1478,9 @@ class ClassifyDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Add the plate to `src`, which Classify holds as a LIST.
 
-        APPENDED, NOT REPLACED. Classify compares plates, so a second drop
-        that overwrote the first would make the comparison impossible to set
-        up by the gesture the rest of the application uses for it.
+        The plate is appended, not replaced. Classify compares plates, so a
+        second drop adds a plate to the list instead of overwriting the
+        first.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -1767,6 +1848,12 @@ def plaque_selection_folder(images: Sequence[Path],
                       f"{index:04d}_{image.name}"):
             if label.lower() not in taken:
                 break
+        else:
+            ordinal = 2
+            label = f"{index:04d}_{ordinal}_{image.name}"
+            while label.lower() in taken:
+                ordinal += 1
+                label = f"{index:04d}_{ordinal}_{image.name}"
         taken.add(label.lower())
         link = dest / label
         try:
@@ -2022,12 +2109,11 @@ class MapBarcodesDropHandler(DropHandler):
         run can hold thousands of files and the question is only whether
         there is one.
 
-        THE NAME IS ASKED BEFORE THE FILESYSTEM. The usual drop here is a
-        ``.fastq.gz``, and its name settles it, so the common case touches
-        the disk not at all. Only a folder has to be listed, and that listing
-        waits at most :data:`DECISION_BUDGET_S` -- dropping a sequencing
-        folder from a sleeping network share is the exact gesture that was
-        reported as "opening map barcodes crashes spacr".
+        The name is checked before the filesystem. The usual drop here is a
+        ``.fastq.gz``, and its name settles it, so the common case does not
+        touch the disk. Only a folder has to be listed, and that listing
+        waits at most :data:`DECISION_BUDGET_S`, so a folder on a sleeping
+        network share cannot block the window.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
@@ -2050,14 +2136,13 @@ class MapBarcodesDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Point `src` at the folder and, for a dropped file, `fastq` at it.
 
-        TWO FIELDS FROM ONE DROP. Dropping the FASTQ itself is the precise
-        gesture and fills both; dropping the folder leaves the file unset,
-        because which of several reads was meant is not something to guess.
+        One drop can fill two fields. Dropping the FASTQ itself fills both;
+        dropping the folder leaves the file unset, because the folder may
+        hold several read files.
 
-        WHICH OF THE TWO IT IS COMES FROM THE NAME, not from a stat. The
-        `is_file()` that stood here asked the filesystem a question the
-        filename had already answered -- on the GUI thread, immediately after
-        `can_accept` had asked it too.
+        Whether the path is a file is decided from its name, not from a
+        filesystem call, so the GUI thread does not query the disk a second
+        time after `can_accept`.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -2082,7 +2167,7 @@ class MapBarcodesDropHandler(DropHandler):
 class MeasurementsDropHandler(DropHandler):
     """Accept a database, its measurements folder, or its plate folder.
 
-    Where the screen takes its inputs ONE ROW PER PLATE -- today only
+    Where the screen takes its inputs one row per plate -- today only
     Regression, through the ``paired_data`` table -- the database is attached
     to a plate row instead of setting ``src``. That is not an app-key special
     case: it follows the shape of the screen, so any panel that grows a
@@ -2262,7 +2347,7 @@ class SourceDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """Any folder, or a data file in a format the standard screens read.
 
-        Deliberately broad: this is the FALLBACK policy, and refusing here
+        Deliberately broad: this is the fallback policy, and refusing here
         would leave a screen with no drop behaviour at all rather than a
         generic one.
 
@@ -2648,9 +2733,9 @@ class ExternalMasksDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Append to the inputs list, and refuse loudly if the screen has none.
 
-        APPEND, NOT REPLACE. The mapper pairs images with masks, so a drop
-        that replaced the list would undo the pairing the previous drop just
-        contributed to.
+        The paths are appended, not replaced. The mapper pairs images with
+        masks, so a drop that replaced the list would discard the files the
+        previous drop added.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -2788,9 +2873,9 @@ class ForeignProjectDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Route the drop to whichever of the module's inputs it fits.
 
-        A CSV IS READ BEFORE IT IS PLACED. A mapping and a measurement table
-        are both CSVs, and only the header says which -- so the header is
-        checked rather than the extension trusted.
+        A CSV is read before it is placed. A mapping and a measurement table
+        are both CSVs, and only the header says which, so the header is
+        checked rather than the extension.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -2855,8 +2940,8 @@ class AlignDropHandler(DropHandler):
         return "Align & Stitch needs a folder containing microscopy tiles."
 
     def apply(self, path: Path, screen) -> None:
-        """Point `src` at the folder. A dropped FILE gives its parent, because
-        stitching one tile is not a thing you can ask for.
+        """Point `src` at the folder. A dropped file gives its parent, because
+        Align stitches the tiles of a folder, not a single tile.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -2868,22 +2953,22 @@ class AlignDropHandler(DropHandler):
 class ImageImportDropHandler(DropHandler):
     """Point Import Images at a dropped folder, or at a file's folder.
 
-    A FOLDER IS THE UNIT, and a dropped file is normalised to the one holding
-    it, because the module reads what VARIES ACROSS a folder to work out what
-    the names mean. One file has no variance and would say nothing; the
-    folder it came out of is what the user meant to hand over anyway.
+    The module reads folders, and a dropped file is normalised to the folder
+    holding it, because the module reads what varies across a folder's file
+    names to work out what the names mean. A single file name has nothing to
+    compare against.
 
     A JSON file is a saved plan, not an acquisition: dropping one reloads the
-    answers from a previous import, which is the gesture that makes next
-    week's plate one press.
+    answers from a previous import, so the same naming can be applied to a
+    later plate.
     """
 
     def can_accept(self, path: Path) -> bool:
         """Any folder, any image file, or a saved import plan.
 
         Wider than the other handlers on purpose: this module is where a
-        folder goes to be UNDERSTOOD, so refusing one for not looking like
-        images yet would refuse the case it exists for.
+        folder goes to have its naming parsed, so a folder is accepted even
+        when it does not yet look like images.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
@@ -2983,13 +3068,12 @@ class PlateQueueDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Queue every plate the drop names.
 
-        TWO SHAPES, ONE GESTURE. A CSV is a plate LIST and each row becomes
-        an item; a folder is ONE plate and each settings snapshot in it
-        becomes an item.
+        A CSV is a list of plates and each row becomes an item; a folder is
+        one plate and each settings snapshot in it becomes an item.
 
-        A PARTIAL DROP IS REPORTED. One unreadable snapshot among several
-        used to report plain success, so that plate quietly never reached the
-        queue and the user found out when the run they expected was missing.
+        A partial drop is reported: snapshots that cannot be read are
+        skipped and named in the console, and a folder with no readable
+        snapshot raises :class:`ValueError`.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -3047,7 +3131,7 @@ class BatchDropHandler(DropHandler):
     """Load queue files or add dropped settings snapshots as jobs."""
 
     def accepts_multiple(self) -> bool:
-        """Yes: a batch is many jobs, so many drops is the natural gesture.
+        """Accept several items in one drop; each one can add a job.
 
         :returns: True to be called once per item on a multi-drop.
         """
@@ -3075,9 +3159,9 @@ class BatchDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Load a saved queue, or add each settings snapshot as a job.
 
-        A QUEUE REPLACES, SNAPSHOTS ADD. A JSON or YAML file IS the queue and
-        loading it is the whole gesture; a CSV or a folder contributes jobs to
-        the queue that is already there.
+        A queue replaces, snapshots add. A JSON or YAML file is a whole queue
+        and replaces the current one; a CSV or a folder adds jobs to the
+        queue that is already there.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -3139,7 +3223,7 @@ class ModelZooDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """Any folder, a checkpoint file, or an image file.
 
-        THE FOLDER IS NOT INSPECTED HERE. Which of the two kinds it is --
+        The folder is not inspected here. Which of the two kinds it is --
         checkpoints or benchmark fields -- is decided in `apply`, because
         deciding it twice would walk the directory twice.
 
@@ -3163,10 +3247,10 @@ class ModelZooDropHandler(DropHandler):
     def apply(self, path: Path, screen) -> None:
         """Scan checkpoints, or take the folder as benchmark fields.
 
-        THE CHEAP ANSWER FIRST. A dropped checkpoint, or one at the top level
-        of the dropped folder, is one directory listing that stops at the
-        first hit -- and that is what a real model folder looks like, so the
-        common drop stays fully synchronous.
+        The fast check runs first. A dropped checkpoint, or one at the top
+        level of the dropped folder, needs one directory listing that stops
+        at the first hit; model folders usually have this layout, so the
+        common drop stays synchronous.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -3205,9 +3289,9 @@ class ResultsDatabaseDropHandler(DatabaseDropHandler):
     def apply(self, path: Path, screen) -> None:
         """Open the database through whichever setter this screen offers.
 
-        TWO SPELLINGS, ONE HANDLER. Plate Viewer and Annotator Agreement name
-        the same act differently, and a handler per spelling would be two
-        copies of this policy that could disagree about what a database is.
+        Plate Viewer and Annotator Agreement name the setter differently
+        (``set_database`` and ``open_database``), so one handler tries both
+        instead of keeping two copies of this policy.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.
@@ -3444,9 +3528,8 @@ class LayoutDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """Accept a direct hit, or a folder the vocabulary resolves unambiguously.
 
-        AMBIGUOUS IS A REFUSAL, not a guess. A folder that could serve two of
-        the kinds this screen asks for has no right answer here, and picking
-        one would be wrong half the time and silent both times --
+        An ambiguous folder is refused, not guessed. A folder that could
+        serve two of the kinds this screen asks for has no single answer, so
         `suggest_alternatives` offers the choices instead.
 
         :param path: the dropped file or folder.
@@ -3544,10 +3627,10 @@ class ProjectFolderDropHandler(LayoutDropHandler):
     def deliver(self, screen, value: str, target) -> None:
         """Call the first setter this screen actually offers.
 
-        SEVERAL SPELLINGS, ONE POLICY. Screens name the act of taking a
-        project differently, and a handler per spelling would be copies of
-        this policy that could drift about what a project is. A screen with
-        none of them is a wiring error and says so rather than failing quietly.
+        Screens name the setter that takes a project differently, so one
+        handler tries each name in ``setters`` instead of one handler per
+        name. A screen with none of them is a wiring error, and the handler
+        raises instead of doing nothing.
 
         :param screen: the screen to wire the drop into.
         :param value: the resolved path, as text.
@@ -3626,9 +3709,9 @@ class RunHistoryDropHandler(ProjectFolderDropHandler):
     def apply(self, path: Path, screen) -> None:
         """Refresh, then select the run the dropped folder belongs to.
 
-        REFRESH FIRST. A run finished after this screen was opened is not in
-        the list yet, and selecting it would fail for a folder that plainly
-        exists -- which reads as a bug rather than as a stale list.
+        The list is refreshed first: a run that finished after this screen
+        was opened is not in the list yet, and selecting it would otherwise
+        fail for a folder that exists.
 
         The refusal names both ways out, because a run can be missing from
         the list either by not being there or by being filtered out of it.
@@ -3665,9 +3748,8 @@ class TableDropHandler(LayoutDropHandler):
     def deliver(self, screen, value: str, target) -> None:
         """Ask which table, then load it.
 
-        A CANCELLED CHOOSER IS NOT A FAILURE. The user changed their mind
-        about a drop; loading something anyway, or raising, would both be
-        worse than doing nothing.
+        A cancelled table chooser is not a failure: nothing is loaded and
+        nothing is raised.
 
         :param screen: the screen to wire the drop into.
         :param value: the resolved path, as text.
@@ -3899,7 +3981,7 @@ class MethodsSourcesDropHandler(LayoutDropHandler):
     def apply(self, path: Path, screen) -> None:
         """Fill whichever of the four source fields this path fits.
 
-        SORTED BY WHAT THE PATH IS, not by drop order, so the same four files
+        Paths are sorted by what they are, not by drop order, so the same four files
         land in the same four fields however they are dropped.
 
         :param path: the dropped file or folder.
@@ -3991,11 +4073,10 @@ class SubmissionSettingsDropHandler(LayoutDropHandler):
                 ".json file, or a plate folder with settings/*.csv in it.")
 
     def apply(self, path: Path, screen) -> None:
-        """Submit the snapshot, ASKING when the folder holds more than one.
+        """Submit the snapshot, asking which one when the folder holds several.
 
-        A plate with several snapshots has no right answer, and picking the
-        first would submit a run the user did not choose -- expensively, and
-        without saying which one it took.
+        A plate with several snapshots has no single answer, and picking the
+        first would submit a run the user did not choose.
 
         :param path: the dropped file or folder.
         :param screen: the screen to wire the drop into.

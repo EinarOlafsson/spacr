@@ -75,10 +75,21 @@ def test_checkpoint_files_are_signed_for_every_backend(tmp_path, root, value, ba
     assert again == signature
 
 
-def test_missing_checkpoints_and_cellpose_sam_are_refused(tmp_path, root):
-    with pytest.raises(ValueError, match='Cellpose-DINO'):
-        _resolved_backend_model({'cell_model_name': 'cellpose_dino:/no/such'},
+def test_missing_checkpoints_and_cellpose_sam_are_refused(tmp_path, root, monkeypatch):
+    from spacr import model_zoo
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('A missing checkpoint must not be acquired or constructed')
+
+    monkeypatch.setattr(model_zoo, 'fetch', forbidden)
+    monkeypatch.setattr(sb, '_load_backend', forbidden)
+    requested = 'cellpose_dino:/no/such'
+    with pytest.raises(model_zoo.ModelZooError) as refused:
+        _resolved_backend_model({'cell_model_name': requested},
                                 'cell', root=root)
+    assert 'cell_model_name' in str(refused.value)
+    assert repr(requested) in str(refused.value)
+    assert 'Available compatible zoo identities: [].' in str(refused.value)
     with pytest.raises(ValueError, match='_prepare_mask_model'):
         _resolved_backend_model({'cell_model_name': 'cpsam'}, 'cell', root=root)
     with pytest.raises(ValueError, match='Unsupported'):
@@ -149,11 +160,11 @@ def test_dispatch_accepts_every_backend_with_a_contract(tmp_path, monkeypatch, c
 
     mw._generate_masks_in_parallel(str(masks), run, 'nucleus', plan, segmenter=_stub_segment)
 
-    calls = [line.split() for line in (masks.parent / 'calls.log').read_text().splitlines()]
+    calls = [line.split() for line in (masks.parent / 'calls.log').read_text(encoding="utf-8").splitlines()]
     assert sorted(name for _, name in calls) == [f'batch{i}.npz' for i in range(4)]
     assert {device for device, _ in calls} == {'0', '1'}
     assert len(list((masks / 'nucleus_mask_stack').glob('*.npy'))) == 8
-    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text())
+    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text(encoding="utf-8"))
     assert ledger['status'] == 'finalized' and len(ledger['completed']) == 4
     assert backend in capsys.readouterr().out
 

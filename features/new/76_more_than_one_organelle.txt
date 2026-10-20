@@ -764,3 +764,18 @@ hash), and tools/build_instruction_index.py. The settings, i18n, docstring and
 API-catalog suites are still to run.
 
 VERIFIED 2026-10-04: 11 referenced test files pass on nightly (test_numbered_background_help_is_translated.py, test_the_external_mask_table_numbers_its_organelles.py, test_a_fifth_organelle_mask_imports_into_its_own_slot.py, ...).
+
+2026-10-15 — NONFINITE COUNTS RETAIN THE DOCUMENTED SLOT FALLBACK
+An unrepresentable count such as inf or1e309 raised OverflowError instead of
+the existing unparseable-value fallback, preventing the actual Mask defaults
+factory from opening that mapping. The count helper now catches only that
+additional conversion error and derives the count from already-declared
+slots. Original raw request, channel/diameter answers and experiment value
+remain available for correction; native JSON source bytes are unchanged.
+This does not make an invalid raw setting runnable. Existing finite parsing,
+fractional truncation, clamping/MAX, role vocabulary and settings remain.
+Native baseline10FAIL7PASS1.68s; final27PASS1.46s includes10actual regressions,
+7new positive controls and10existing count/factory/schema checks under2G.
+No new caption, helper/API prose, scientific behavior or Qt widget change.
+Exact source peer and raw evidence:
+features/data/76_nonfinite_organelle_count_2026-10-15/.

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -37,8 +37,9 @@ msgstr "Coloque as imagens de treinamento em uma pasta e suas máscaras na subpa
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "Cada máscara deve ter a mesma altura e largura que sua imagem. Use rótulos de objeto inteiros: zero para o fundo e um número positivo diferente para cada objeto. O nome de um arquivo de máscara pode coincidir com o da imagem ou acrescentar ``_masks`` antes da extensão, como ``field_01_masks.tif``. Mantenha uma única máscara correspondente por imagem."
 
-msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
-msgstr "Use Criar máscaras para inspecionar e corrigir os contornos dos objetos antes do treinamento. Reserve campos separados para a validação. Você pode reutilizar um projeto antigo que contenha ``train/images`` e ``train/masks`` selecionando esse projeto como origem."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
+msgstr "Use Criar máscaras para inspecionar e corrigir os contornos dos objetos antes do treinamento. Reserve campos separados para a validação. Um projeto que contenha ``train/images`` e ``train/masks`` também pode ser selecionado como origem."
 
 msgid "Choose inputs and settings"
 msgstr "Escolher entradas e configurações"
@@ -97,8 +98,9 @@ msgstr "``learning_rate``"
 msgid "0.00001"
 msgstr "0.00001"
 
-msgid "Size of the model's training updates."
-msgstr "Tamanho das atualizações do modelo durante o treinamento."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Optimizer step size."
+msgstr "Tamanho do passo do otimizador."
 
 msgid "``weight_decay``"
 msgstr "``weight_decay``"

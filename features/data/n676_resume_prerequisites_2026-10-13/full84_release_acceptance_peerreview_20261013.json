@@ -1,0 +1,367 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-14T01:07:58.376613+00:00",
+  "review_kind": "Independent Codex AI boundedread-only peerreview",
+  "reviewed_report": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/full84_release_acceptance_readonly_20261013.json",
+    "sha256": "5a0a5baa53ccc549b87f58803b3a8e4ad7652a783092f2e43047de9ff2af5654",
+    "bytes": 19065
+  },
+  "source_commit": "fcf4055999a6b5a40fd1875496189bc03709389a",
+  "reviewed_source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/compose_capture_set.py",
+      "sha256": "236ce08e6a52c4732eff5b3adfb5cac5282b2967bc39d5ddd57199072d728cf1",
+      "bytes": 8064
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/stage_lesson.py",
+      "sha256": "cc8e1cef0e248ff3631f3def5a4192d588b0c2ca93a33033bfdef229a51ace58",
+      "bytes": 15558
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/build_module_stage_with_acceptance.py",
+      "sha256": "6e90c2d7cdb9eaf6c4880e0a8602267ec2959d9dc48340bc21900b0d04db06a9",
+      "bytes": 13585
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/validate_cellpose_host.py",
+      "sha256": "79432a740d10f48543732f578f5dfa78de16895132460489626bbf80b0124344",
+      "bytes": 32303
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_release_candidate.py",
+      "sha256": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+      "bytes": 32024
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/publish_release_candidate.py",
+      "sha256": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967",
+      "bytes": 24203
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_completed_matrix.py",
+      "sha256": "0bbdcc895b85a5ccaaf4354773fe67ada8b2cca86cc3a1bb95e04c231bd0d77c",
+      "bytes": 10071
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_staged_lesson.py",
+      "sha256": "3a2e7cdfd7ffa49592ec58cbff4399fe5037e20e2882d275ccd614f90a471cad",
+      "bytes": 30347
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_staged_audio.py",
+      "sha256": "0f2258073768537f50524810d9832289f02f3fd0a0599fe3e1aac8df2f7cd821",
+      "bytes": 3468
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/docs/source/_extra/tutorials/catalog/lessons_en.json",
+      "sha256": "3c95ea72d68484628391d5e76c0b512eb2a59e585f7f30c8b8aa1fe163e3b05a",
+      "bytes": 672357
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/authoring/catalog/lessons_en.json",
+      "sha256": "d4cd668f2f143556f6e2165337ab93d11fe133d7c7c70c503b4a7854940562bf",
+      "bytes": 276841
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/authoring/tools/render_all_voices.py",
+      "sha256": "50e4dee58264862cd29ddcec0a4ddd58c4a5973db6fcf7af4f4650294ecda463",
+      "bytes": 44725
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/browser_matrix_ch.py",
+      "sha256": "6f5b7c7af5e73104fe56fe0005949d911530f5dc81318e35ff9b121b1733105a",
+      "bytes": 2348
+    }
+  ],
+  "matched_claimed_source_binding_count": 12,
+  "baseline_manifest_binding": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-04-r23/release-candidate-append-ieltxi1i/release-manifest.json",
+    "sha256": "8dd2e98facc69ea62721498db0b3b30f9b38c760b9d7bd65fa36795c850e8660",
+    "bytes": 1136143
+  },
+  "findings": [
+    {
+      "id": "generic_composition_boundary",
+      "verdict": "verified",
+      "documented_helper_behavior": "compose checks source equality/selectedsceneexistence andcopies/hashchecks poster,handoffvideo,capturereceipt; clipreceipt requires full_decode_passed andnoaudio. Genericstage checks completeprovenance and4Khandoffdecode. Neitherindependentlyreads selectednativegatequality orbinds/copiesnative+gate+host+pointer+watchdogfiles.",
+      "lesson20_exception": "stage_lesson.require_cellpose_acceptance plusguardedbuilder/validator require schema/scopedEnglish/source/native/gateacceptance; keepsoriginalexternalbindings evenwhen genericcomposer doesnotcopythese evidencefiles.",
+      "requirement_basis": "Maintainer gate/oneappbase requirements documented inAGENTS17/globalhandoff; universalprestage reconciliation is theaudit recommendation to satisfythem, notanexistinggenerichelper implementation."
+    },
+    {
+      "id": "publication_deployment_boundary",
+      "verdict": "verified",
+      "documented_helper_behavior": "verify --published serves specifiedlocal Pagesdirectory via127.0.0.1, testsimmutablehostedmedia andlabelsresult beforePagesdeploy withpublishedfalse. record() verifiesboundlocalindex/report/manifest/readback thenwrites pages_tree_ready=true, media_uploaded=true,published=false. NoactualPages deployment triggeredbyrecord.",
+      "actual_live_checker": "verify_live_mobile readsLIVE URL/index/media andteststouchcontrols. Its optional --lessons parameter controlscoverage; noexecutionhere. Actualdeployment/run/commit provenance remainsseparateevidence.",
+      "requirement_basis": "Actualdeployed84route acceptance followsfullgoal andpublicationcontext; localhelper labels explicitlydisclaimdeployment. It is notproofthatexistingdeploymentfailed."
+    },
+    {
+      "id": "inventory_boundary",
+      "verdict": "verified_with_precision_clarification",
+      "public_count": 84,
+      "authoring_count": 73,
+      "public_only_ids": [
+        "02_install_spacr",
+        "74_import_images",
+        "75_regression_diagnostics",
+        "76_ops",
+        "77_embeddings",
+        "78_spacr_screens",
+        "79_module_inputs_outputs",
+        "80_image_analysis_pathways",
+        "81_sequencing_pathways",
+        "82_toxoplasma",
+        "85_host_pathogen",
+        "86_alpha_organism_modules",
+        "87_alpha_features"
+      ],
+      "authoring_only_ids": [
+        "02_conda_install",
+        "03_pip_install"
+      ],
+      "explanation": "13publicIDs absentfromoldauthoring, while2oldinstalleraliases remainauthoring-only; difference84-73=11 doesnotmeanonly11publicroutes missing. Reportpublic-onlylist iscorrect; retain exact84IDs ratherthanoldauthoringinventory.",
+      "requirement_basis": "Exactpubliccatalog identity isdirectmetadataevidence; perlessonfreshremake acceptance isseparate."
+    },
+    {
+      "id": "voice_coverage_boundary",
+      "verdict": "verified_with_additional_quantification",
+      "preserved_renderer_languages": 8,
+      "preserved_renderer_voices": 50,
+      "published_planned_voice_count_distribution": {
+        "50": 9,
+        "27": 75
+      },
+      "baseline_manifest_audio_track_count_distribution": {
+        "50": 9,
+        "27": 75
+      },
+      "baseline_manifest_tracks": 2475,
+      "baseline_manifest_ready_routes": 84,
+      "meaning": "Ninepublishedlessons have50manifesttracks;75have27. Existing84-routebrowserchecks useEnglishaf_heart, notall50voices. Thisdoesnotinvalidatehistoricalpublication; it showsthat84routeplayback isnotfull50voiceremake acceptance. Fullmatrix helperexpects50forthese futurechangedlessonstages.",
+      "scope_limit": "Countsread fromcatalog/manifestentries, notfreshdecoderun orrehashof2475audioassets."
+    },
+    {
+      "id": "browser_matrix_boundary",
+      "verdict": "verified",
+      "documented_helper_behavior": "check_completed_matrix reconciles50audio tracks and14master browsercases,not56webcases orspecialcue/boundaryreport. browser_matrix_ch runs1cue+14master+50webvoices+6webcaptions+1reconciliation=72serialcommands.",
+      "cue_preservation": "verify_staged_lesson appends -sentence-cues tospecialreport directory, so ordinaryEnglishmaster reportdoesnotoverwriteit. Preserveall reportbindings ratherthancompleted-matrixalone.",
+      "requirement_basis": "72command coverage isliteralcurrentwrapper behavior; needboundfinishedreceipt isreviewrecommendation."
+    },
+    {
+      "id": "claim_limits",
+      "verdict": "appropriate",
+      "meaning": "Originalreport marks acceptance_or_goal_completion_asserted=false and limits itselftochecklist/scopegaps. Itdoesnotassertall84lackallchecks. Scientificvalidator/technicalaudio explicitlyexcludeaccuracy/GT/listening/native-speaker/wholeclipnarrationacceptance.",
+      "minor_wording_note": "Full84 scenechecklist shouldreconciledeclaredrepeatedvisualuses andrealbrowser/terminal/referenceguidance roles; lesson20unique-scene constraints are not automaticallyeverylessonconstraints."
+    }
+  ],
+  "source_evidence": {
+    "compose_capture_set.py": {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/compose_capture_set.py",
+        "sha256": "236ce08e6a52c4732eff5b3adfb5cac5282b2967bc39d5ddd57199072d728cf1",
+        "bytes": 8064
+      },
+      "excerpts": [
+        {
+          "line": 37,
+          "text": "frames, inputs, source_identity = {}, [], None"
+        },
+        {
+          "line": 48,
+          "text": "if source_identity is None:"
+        },
+        {
+          "line": 49,
+          "text": "source_identity = identity['sha256']"
+        },
+        {
+          "line": 51,
+          "text": "if set(identity['sha256']) != set(source_identity):"
+        },
+        {
+          "line": 54,
+          "text": "if source_identity[name] != digest}"
+        },
+        {
+          "line": 80,
+          "text": "files = [(frame['image'], frame['sha256'])]"
+        },
+        {
+          "line": 87,
+          "text": "or not receipt.get('full_decode_passed')"
+        },
+        {
+          "line": 96,
+          "text": "pending.append((path, relative, expected))"
+        },
+        {
+          "line": 97,
+          "text": "frame['composition_source'] = {'capture': str(source.resolve()),"
+        },
+        {
+          "line": 100,
+          "text": "unknown = set(aliases) - {frame['composition_source']['visual'] for frame in frames.values()}"
+        },
+        {
+          "line": 114,
+          "text": "{'sha256': {name: digest for name, digest in source_identity.items()"
+        }
+      ]
+    },
+    "stage_lesson.py": {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/stage_lesson.py",
+        "sha256": "cc8e1cef0e248ff3631f3def5a4192d588b0c2ca93a33033bfdef229a51ace58",
+        "bytes": 15558
+      },
+      "excerpts": [
+        {
+          "line": 58,
+          "text": "def require_cellpose_acceptance(lesson, capture, frames):"
+        },
+        {
+          "line": 124,
+          "text": "if (gate.get('app_freeze_seconds') or gate.get('app_slow_seconds')"
+        },
+        {
+          "line": 135,
+          "text": "and not gate.get('app_unknown_seconds')"
+        },
+        {
+          "line": 176,
+          "text": "require_cellpose_acceptance(lesson, capture, frames)"
+        },
+        {
+          "line": 200,
+          "text": "or not receipt.get('full_decode_passed')"
+        }
+      ]
+    },
+    "verify_release_candidate.py": {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_release_candidate.py",
+        "sha256": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+        "bytes": 32024
+      },
+      "excerpts": [
+        {
+          "line": 98,
+          "text": "server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),"
+        },
+        {
+          "line": 102,
+          "text": "origin = f'http://127.0.0.1:{server.server_port}'"
+        },
+        {
+          "line": 313,
+          "text": "'passed': True, 'published': False}"
+        },
+        {
+          "line": 315,
+          "text": "result.update(scope='Pages tree playback against the pinned hosted media, before the Pages deploy',"
+        },
+        {
+          "line": 334,
+          "text": "def verify_live_mobile(url, *, width=390, height=844, lessons=MOBILE_LESSONS,"
+        },
+        {
+          "line": 473,
+          "text": "parser.add_argument('--lessons', default=','.join(MOBILE_LESSONS), help='Comma-separated lessons for --live-mobile')"
+        },
+        {
+          "line": 494,
+          "text": "server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),"
+        },
+        {
+          "line": 496,
+          "text": "print(f'Local preview: http://127.0.0.1:{server.server_port}/web/', flush=True)"
+        }
+      ]
+    },
+    "publish_release_candidate.py": {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/publish_release_candidate.py",
+        "sha256": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967",
+        "bytes": 24203
+      },
+      "excerpts": [
+        {
+          "line": 394,
+          "text": "def record(root):"
+        },
+        {
+          "line": 416,
+          "text": "checkpoint.update(release_hold=False, media_uploaded=True, pages_tree_ready=True, published=False,"
+        },
+        {
+          "line": 419,
+          "text": "publication_note='Media revision uploaded and read back; docs.yml publishes '"
+        }
+      ]
+    },
+    "check_completed_matrix.py": {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/check_completed_matrix.py",
+        "sha256": "0bbdcc895b85a5ccaaf4354773fe67ada8b2cca86cc3a1bb95e04c231bd0d77c",
+        "bytes": 10071
+      },
+      "excerpts": [
+        {
+          "line": 48,
+          "text": "def reconcile_audio(reports, lesson, expected, hashes):"
+        },
+        {
+          "line": 129,
+          "text": "tracks = reconcile_audio([read(path) for path in reports], lesson_id, expected, hashes)"
+        },
+        {
+          "line": 131,
+          "text": "cases = [(language, voices[0], None) for language, voices in inventory.items()]"
+        },
+        {
+          "line": 135,
+          "text": "path = stage / 'browser' / lesson_id / tag / 'playback-checks.json'"
+        },
+        {
+          "line": 157,
+          "text": "'scene_count': len(english['scenes']), 'unique_final_tracks': len(tracks),"
+        },
+        {
+          "line": 177,
+          "text": "print(f\"{args.lesson}: {result['unique_final_tracks']} final tracks, \""
+        }
+      ]
+    },
+    "verify_staged_lesson.py": {
+      "binding": {
+        "path": "/media/carruthers/mnt3/claude/spacr-capture-integration-20261013/tools/tutorials/verify_staged_lesson.py",
+        "sha256": "3a2e7cdfd7ffa49592ec58cbff4399fe5037e20e2882d275ccd614f90a471cad",
+        "bytes": 30347
+      },
+      "excerpts": [
+        {
+          "line": 240,
+          "text": "tag += '-sentence-cues'"
+        },
+        {
+          "line": 241,
+          "text": "output = DEFAULT_STAGE / ('browser-web' if args.web_rendition else 'browser') / args.lesson / tag"
+        },
+        {
+          "line": 411,
+          "text": "evidence['native_boundary_clock_checks']=check_native_boundary_playback(page,read(native_path),spoken)"
+        }
+      ]
+    }
+  },
+  "verdict": "Accepted as bounded pipeline/checklist evidence with precisionclarifications above; no universalremakequality, deploymentorfullgoalcompletion claim",
+  "tests_or_pipeline_executed": false,
+  "network_or_GUI_or_GPU": false,
+  "original_evidence_or_source_edits": false,
+  "limits": [
+    "Only namedhelper boundaries andliteralmetadata reviewed; no broadmediahashing/decoding",
+    "No livewebsite/deployment/remoteversion verification",
+    "Additionalvoicequantification ismetadata, notaudioqualityortranslationacceptance"
+  ]
+}

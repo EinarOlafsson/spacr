@@ -1,0 +1,132 @@
+{
+  "video": "/tmp/spacr-tutorial-current/captures/cellpose_masks/02_actual_train_and_apply_tabs.native.mp4",
+  "size": [
+    2560,
+    1440
+  ],
+  "fps": 30.0,
+  "duration_s": 26.367,
+  "frames": 791,
+  "passed": false,
+  "reasons": [
+    "choppy (capture loss): 27.0 distinct fps < 27.9 [capture loss in second(s) [0, 2, 4, 5, 6, 7, 8, 9]; 1 of 80 unchanged frames fall in the app's 1 paint stalls]"
+  ],
+  "limits": {
+    "min_fps": 27.9,
+    "change_level": 10,
+    "change_pixels": 4,
+    "cursor_box": 72,
+    "peak_per_frame": 0.02,
+    "jump_margin": 1.5,
+    "min_cursor_found": 0.9,
+    "top_bar_height": 32,
+    "top_bar_every": 10
+  },
+  "field_window_s": null,
+  "distinct_fps": 26.96,
+  "distinct_fraction": 0.8987,
+  "longest_unchanged_run_frames": 27,
+  "distinct_per_second": [
+    27,
+    30,
+    26,
+    30,
+    21,
+    19,
+    27,
+    20,
+    20,
+    6,
+    30,
+    29,
+    30,
+    30,
+    29,
+    29,
+    29,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    28,
+    30
+  ],
+  "app_painted_per_second": [
+    91.0,
+    65.8,
+    75.1,
+    76.3,
+    66.7,
+    127.8,
+    165.9,
+    102.1,
+    60.3,
+    95.7,
+    201.8,
+    236.2,
+    230.4,
+    84.7,
+    188.2,
+    239.8,
+    217.5,
+    237.4,
+    241.2,
+    233.2,
+    247.8,
+    237.3,
+    240.3,
+    233.1,
+    221.0,
+    209.4
+  ],
+  "app_freeze_seconds": [],
+  "app_slow_seconds": [],
+  "capture_loss_seconds": [
+    0,
+    2,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "app_stall_windows_s": [
+    [
+      13.493,
+      13.692
+    ]
+  ],
+  "app_stall_video_offset_s": 0.4,
+  "unchanged_frames": 80,
+  "unchanged_frames_in_app_stalls": 1,
+  "exact_md5_distinct_fraction": 0.9595,
+  "cursor": {
+    "found_fraction": 1.0,
+    "shapes_seen": [
+      "left_ptr@32"
+    ],
+    "max_step_px": 50.7,
+    "p95_step_px": 32.3,
+    "bound_px": 76.8,
+    "jumps": [],
+    "jump_count": 0
+  },
+  "top_bar": {
+    "hidden": true,
+    "sampled_frames": 80,
+    "visible_in": [],
+    "first_sample": {
+      "frame": 0,
+      "visible": false,
+      "black_fraction": 0.0074,
+      "top_rows_black": 0.0,
+      "text_pixels": 0,
+      "below_black_fraction": 0.0
+    }
+  },
+  "adapter_bypasses": []
+}

@@ -224,6 +224,12 @@ def test_spawned_simulation_pool_spills_and_commits_after_separate_retry_queues(
             results = pool.starmap_async(_simulation_in_child,
                 [(index, options) for index in range(3)]).get(timeout=40)
             assert results == [(0, 0.1), (1, 0.1), (2, 0.1)]
+            # As sim.run_multiple_simulations does: join the workers so their
+            # queue feeder threads flush. Leaving the block alone terminates
+            # them, and a worker killed mid-put can hold the queue's write
+            # lock, so the sentinel below never arrives (CI run 38059494502).
+            pool.close()
+            pool.join()
         writer.finish()
     finally:
         if not writer._finished and writer._thread is not None:
@@ -313,7 +319,7 @@ def test_exhausted_final_retry_retains_data_and_full_original_traceback(tmp_path
     assert isinstance(outcomes[0][2].__cause__, sqlite3.OperationalError)
     spool = Path(writer.endpoint.folder) / (ticket + '.pkl')
     assert spool.exists()
-    evidence = Path(str(spool) + '.error.json').read_text()
+    evidence = Path(str(spool) + '.error.json').read_text(encoding="utf-8")
     assert 'in busy' in evidence and 'database is locked' in evidence
 
 

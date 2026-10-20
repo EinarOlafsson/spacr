@@ -1,11 +1,11 @@
 """Draw an ROI on the layer canvas, and hand it to Measure.
 
-The two halves of item ``B14``. :mod:`spacr.roi` is the half that runs in a
-measurement worker — the geometry, the keep/drop rule and the environment route
-that gets both into a ``spawn`` pool. This is the half that needs a mouse: a
-pen that turns clicks into a :class:`spacr.layers.Shape`, and a panel that
-turns the shapes layer into a :class:`spacr.roi.RoiSet` and switches the
-measurement filter on.
+The ROI feature is split across two modules. :mod:`spacr.roi` is the half that
+runs in a measurement worker — the geometry, the keep/drop rule and the
+environment route that gets both into a ``spawn`` pool. This is the half that
+needs a mouse: a pen that turns clicks into a :class:`spacr.layers.Shape`, and
+a panel that turns the shapes layer into a :class:`spacr.roi.RoiSet` and
+switches the measurement filter on.
 
 The pen draws into the model, not onto the widget
 -------------------------------------------------
@@ -22,12 +22,12 @@ same region on a full-resolution mask.
 The panel says whether it will actually work
 --------------------------------------------
 
-Switching the filter on is one call, and the thing worth putting on screen is
-not that it succeeded but whether it will reach the processes that do the
-measuring. A filter registered in the GUI process alone is a silent no-op in
-every ``spawn`` worker: the run finishes, the numbers are for the whole field,
-and nothing says so. :func:`spacr.roi.worker_delivery_status` answers that in
-advance and the panel shows its answer, warning-coloured when it is "no".
+Switching the filter on is one call. The panel shows whether the filter will
+reach the worker processes that do the measuring: a filter registered only in
+the GUI process has no effect in a ``spawn`` worker, and the run then measures
+whole fields without a warning. :func:`spacr.roi.worker_delivery_status`
+reports this in advance, and the panel shows the result in the warning colour
+when the filter will not reach the workers.
 """
 from __future__ import annotations
 

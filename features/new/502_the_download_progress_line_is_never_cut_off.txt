@@ -57,14 +57,14 @@ SITES (line numbers after merging nightly 9525d9a25)
         "45.0 MB / 100.0 MB (45%)" (it had no number at all before)
     spacr/qt/screens/make_masks.py:11207       magnifier, count_below,
         "about N s left · NN%"
-    spacr/qt/starplast.py:94, 150-153          installer, now "step N of M · NN%"
+    spacr/qt/parascape.py:94, 150-153          installer, now "step N of M · NN%"
     spacr/qt/screens/batch.py:283              "5 / 12 jobs · 41%"
     spacr/qt/screens/convert.py:385            "NN%"
     spacr/qt/screens/foreign.py:591            "NN%"
   setTextVisible(False) on busy-only bars:
     spacr/qt/screens/parameter_sweep.py:244, data_manager.py:512,
     app_screen.py:6866, image_import.py:603, make_masks.py:6019,
-    spacr/qt/widgets/sra_picker.py:157, spacr/qt/starplast.py:221
+    spacr/qt/widgets/sra_picker.py:157, spacr/qt/parascape.py:221
   hf_download.py's _DownloadDialog was already right and is unchanged.
 
 MEASURED (offscreen, 1366x768 window or the dialog at its own size, the
@@ -77,7 +77,7 @@ width / text advance / label height / font height / bar height:
   model zoo screen  162/161 18/18 bar 8      75/74  9/8 bar 4   "312.0 MB / 690.0 MB (45%)"
   make masks dl     154 text, 18/18 bar 8    71 text, 9/8 bar 4 (count below)
   magnifier         122 text, 18/18 bar 8    56 text, 9/8 bar 4 (count below)
-  starplast         99/99 18/18 bar 8        46/46  9/8 bar 4   "step 2 of 3 · 33%"
+  parascape         99/99 18/18 bar 8        46/46  9/8 bar 4   "step 2 of 3 · 33%"
   batch             99/98 18/18 bar 8        46/45  9/8 bar 4   "5 / 12 jobs · 41%"
   convert, import   26/26 18/18 bar 8        12/12  9/8 bar 4   "45%"
 PNGs: /tmp/spacr-502-scratch/<site>_<100|50>_{window,line}.png, 36 files;
@@ -91,7 +91,7 @@ TESTS
   setTextVisible(False) -- and the guard's own positive control). 24 passed.
   Related files after the merge, one process: 649 passed (backend install,
   translations, model zoo picker/screen, hf_download incl. the two download
-  dialog tests, Starplast, Batch, Convert, Import, SRA, GUI scale, clipping
+  dialog tests, ParaScape, Batch, Convert, Import, SRA, GUI scale, clipping
   sweep, Make Masks, live magnifier, 471c folds, module coverage ratchet,
   comment rule).
 

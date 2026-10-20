@@ -457,14 +457,18 @@ def test_a_user_trained_checkpoint_reaches_cellpose(tmp_path, fake_cellpose):
 
 
 def test_a_checkpoint_path_that_is_not_there_stops_the_run(tmp_path, fake_cellpose):
+    from spacr.model_zoo import ModelZooError
+
     src = tmp_path / "stack"
     _write_npz(src, n=2, c=3)
     settings = _settings(src, pathogen_channel=2,
                          pathogen_model=str(tmp_path / "gone" / "model.pth"))
 
-    with pytest.raises(FileNotFoundError) as excinfo:
+    with pytest.raises(ModelZooError) as excinfo:
         O.generate_cellpose_masks(str(src), settings, "pathogen")
-    assert "cpsam" in str(excinfo.value), "the message must name the safe fallback"
+    assert repr(settings["pathogen_model"]) in str(excinfo.value)
+    assert "stock weights were not substituted" in str(excinfo.value)
+    assert fake_cellpose["model"] is None
     assert _mask_files(src, "pathogen") == []
 
 
@@ -1277,9 +1281,10 @@ def test_timelapse_lineage_and_events_run_after_tracking(
     calls = []
     monkeypatch.setattr(TL, "_run_lineage_step",
                         lambda src, name, obj, mode, settings, *, frame_sources,
-                        label_stack:
+                        label_stack, images=None:
                         calls.append(("lineage", name, obj, mode,
-                                      len(frame_sources), len(label_stack))))
+                                      len(frame_sources), len(label_stack),
+                                      None if images is None else len(images))))
     monkeypatch.setattr(TL, "_run_event_features_step",
                         lambda src, name, obj, stack, images, mode, settings:
                         calls.append(("events", name, obj, mode, len(stack))))
@@ -1287,5 +1292,6 @@ def test_timelapse_lineage_and_events_run_after_tracking(
     _write_npz(src, n=3)
     O.generate_cellpose_masks(str(src), _tl(src, timelapse_lineage=True,
                                             timelapse_events=True), "nucleus")
-    assert calls == [("lineage", "batch1", "nucleus", "trackpy", 3, 3),
+    # F537 (ccccb694d) hands the lineage step the frames' images as well.
+    assert calls == [("lineage", "batch1", "nucleus", "trackpy", 3, 3, 3),
                      ("events", "batch1", "nucleus", "trackpy", 3)]

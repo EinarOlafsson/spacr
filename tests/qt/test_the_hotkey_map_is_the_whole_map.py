@@ -29,6 +29,10 @@ pytestmark = pytest.mark.qt
 #: Every call that binds a key.
 BINDING = {"QShortcut", "setShortcut", "addShortcut", "setShortcuts"}
 
+#: The per-screen binder (656). Its second argument is the screen's name,
+#: not a key, so only its third -- the default key -- is read.
+SCREEN_BINDER = "_bind_screen_key"
+
 
 def _qt_root() -> pathlib.Path:
     import spacr.qt
@@ -61,9 +65,13 @@ def _bound_keys() -> dict:
             if not isinstance(node, ast.Call):
                 continue
             name = getattr(node.func, "id", getattr(node.func, "attr", ""))
-            if name not in BINDING:
+            if name == SCREEN_BINDER:
+                inners = [n for arg in node.args[2:3] for n in ast.walk(arg)]
+            elif name in BINDING:
+                inners = list(ast.walk(node))
+            else:
                 continue
-            for inner in ast.walk(node):
+            for inner in inners:
                 spelling = ""
                 if isinstance(inner, ast.Constant) \
                         and isinstance(inner.value, str) \

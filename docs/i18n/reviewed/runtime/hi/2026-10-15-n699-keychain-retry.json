@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "Claude AI technical review (Opus 5.5); translated directly from the English for item 699's SSH keychain option, denied/timed-out second-factor messages, Retry sign-in and read-only discovery help; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "SSH keychain storage must be a boolean.",
+      "source": "SSH keychain storage must be a boolean.",
+      "source_sha256": "c849d399024f153e96060044366fec64a939e7938c175f656629a654d4e5d7f8",
+      "translation": "SSH कीचेन संग्रहण एक बूलियन मान होना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source": "The login or second-factor request was denied (for example, a rejected push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source_sha256": "7fe1c1d6a51cdd931080e93507264b717ec42611fcf860650b1a6f0978692e22",
+      "translation": "लॉगिन या दूसरे फ़ैक्टर का अनुरोध अस्वीकृत हुआ (उदाहरण के लिए, अस्वीकार किया गया पुश)। कुछ भी नहीं चलाया गया; दोबारा कोशिश करने के लिए फिर से साइन इन करें या कनेक्शन जाँचें चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source": "The login or second-factor request timed out (for example, an unanswered push). Nothing was run; choose Retry sign-in or Test connection to try again.",
+      "source_sha256": "b93db088c6530a0bebc76ba7f978cde8206806c5767d4ffebc97968361450f4f",
+      "translation": "लॉगिन या दूसरे फ़ैक्टर के अनुरोध का समय समाप्त हो गया (उदाहरण के लिए, बिना उत्तर का पुश)। कुछ भी नहीं चलाया गया; दोबारा कोशिश करने के लिए फिर से साइन इन करें या कनेक्शन जाँचें चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G.",
+      "source": "Reads your SSH config file and the files it includes, the system-wide SSH config, the .ssh folder in your Windows user profile, and known_hosts. Read-only: spaCR never changes SSH files, never reads private keys and never runs ssh -G.",
+      "source_sha256": "65ebbd5134abc6d80f8901ecd08a6697d8b2797da4e57f6dc13eeb2372c55fc3",
+      "translation": "आपकी SSH कॉन्फ़िग फ़ाइल और उसमें शामिल फ़ाइलें, पूरे सिस्टम का SSH कॉन्फ़िग, आपकी Windows उपयोगकर्ता प्रोफ़ाइल का .ssh फ़ोल्डर और known_hosts पढ़ता है। केवल पढ़ना: spaCR कभी SSH फ़ाइलें नहीं बदलता, कभी निजी कुंजियाँ नहीं पढ़ता और कभी ssh -G नहीं चलाता।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose another folder that holds an SSH config or known_hosts file.",
+      "source": "Choose another folder that holds an SSH config or known_hosts file.",
+      "source_sha256": "c58d3bb13f16ccd7dcef1fc9165db044ed0ceffd166545d859338f9b349b6aa0",
+      "translation": "कोई दूसरा फ़ोल्डर चुनें जिसमें SSH config या known_hosts फ़ाइल हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Remember my password in the system keychain",
+      "source": "Remember my password in the system keychain",
+      "source_sha256": "9a9c237fe6ea219166bdc39df69382734940c40dbe4794562c839c204c7e9587",
+      "translation": "मेरा पासवर्ड सिस्टम कीचेन में याद रखें"
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.",
+      "source": "Off by default. Stores only the login password in the operating-system keychain, never one-time codes or push answers.",
+      "source_sha256": "44fdf3740ab3d8d39a06b31dd4cf82f16c0dd3d5cee4c4e42bd8787f0bb2afe4",
+      "translation": "डिफ़ॉल्ट रूप से बंद। ऑपरेटिंग सिस्टम कीचेन में केवल लॉगिन पासवर्ड सहेजता है, कभी एक-बार वाले कोड या पुश उत्तर नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "Install the keyring package to store the password in the system keychain.",
+      "source": "Install the keyring package to store the password in the system keychain.",
+      "source_sha256": "54628479d8c85a45f230c501cc56ba9f138cca89da35e357b79c179a1e268646",
+      "translation": "पासवर्ड को सिस्टम कीचेन में सहेजने के लिए keyring पैकेज इंस्टॉल करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Retry sign-in",
+      "source": "Retry sign-in",
+      "source_sha256": "0338e01471b811839ef94a905b7867985fdb52293676988ae284d9b834ba56d0",
+      "translation": "फिर से साइन इन करें"
+    }
+  ]
+}

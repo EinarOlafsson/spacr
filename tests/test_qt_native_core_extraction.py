@@ -32,7 +32,7 @@ def test_cancelled_qt_or_coverage_run_preserves_only_bounded_native_evidence(
     workflow, job, run_name, recover_name, upload_name, condition,
 ):
     yaml = pytest.importorskip('yaml')
-    steps = yaml.safe_load((Path(__file__).resolve().parents[1] / workflow).read_text())[
+    steps = yaml.safe_load((Path(__file__).resolve().parents[1] / workflow).read_text(encoding="utf-8"))[
         'jobs'][job]['steps']
     by_name = {step['name']: (index, step) for index, step in enumerate(steps)
                if 'name' in step}
@@ -74,7 +74,7 @@ def test_intentional_cancel_skips_aggregates_without_waiving_real_failures(
 ):
     yaml = pytest.importorskip('yaml')
     jobs = yaml.safe_load((Path(__file__).resolve().parents[1] /
-                           '.github/workflows/tests.yml').read_text())['jobs']
+                           '.github/workflows/tests.yml').read_text(encoding="utf-8"))['jobs']
     combine = jobs['coverage-combine']
     release = jobs['release-gate']
     assert combine['if'] == release['if'] == 'always() && !cancelled()'
@@ -333,7 +333,7 @@ def _identity(tmp_path):
         'time_ns': time.time_ns() - 1_000_000, 'source_sha': 'source',
         'root': str(tmp_path), 'executable': str(executable),
         'executable_sha256': collector._sha256(executable),
-        'boot_id': collector.Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+        'boot_id': collector.Path('/proc/sys/kernel/random/boot_id').read_text(encoding="utf-8").strip(),
         'process_start_ticks': '123',
     }
 
@@ -416,7 +416,7 @@ def test_empty_ordinary_session_does_not_enumerate_foreign_reports(tmp_path, mon
     monkeypatch.setattr(collector, '_apport_reports', forbidden)
     monkeypatch.setattr(collector, '_candidate_files', forbidden)
     assert collector.main(['--ordinary', '--evidence-dir', str(evidence)]) == 0
-    report = (evidence / 'native-core-backtrace.txt').read_text()
+    report = (evidence / 'native-core-backtrace.txt').read_text(encoding="utf-8")
     assert 'unfinished_owned_processes=0' in report
     assert 'No regular ELF core was available' in report
 
@@ -435,6 +435,11 @@ def test_extracted_core_is_removed_after_gdb_success_or_timeout(tmp_path, monkey
     monkeypatch.setattr(collector.sys, 'executable', str(executable))
     monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
     monkeypatch.setattr(collector, '_ordinary_core', lambda *args: (temporary, temporary))
+    library_path = str(tmp_path / "library 'quoted' with spaces") + ':/inferior/lib'
+    monkeypatch.setenv('LD_LIBRARY_PATH', library_path)
+    monkeypatch.setenv('PYTHONHOME', '/foreign/python')
+    monkeypatch.setenv('PYTHONPATH', '/foreign/modules')
+    parent_environment = os.environ.copy()
 
     def command(argv, **kwargs):
         if argv[0] == 'git':
@@ -443,6 +448,17 @@ def test_extracted_core_is_removed_after_gdb_success_or_timeout(tmp_path, monkey
         assert argv[-2:] == [str(executable), str(temporary)]
         assert kwargs['timeout'] == collector.GDB_TIMEOUT_SECONDS
         assert kwargs['preexec_fn'] is collector._cap_backtrace_file
+        assert kwargs['env'] == {key: value for key, value in parent_environment.items()
+                                 if key not in {'LD_LIBRARY_PATH', 'PYTHONHOME', 'PYTHONPATH'}}
+        library_command = argv[argv.index('python import gdb; gdb.set_parameter(' +
+                                         "'solib-search-path', " + repr(library_path) + ')')]
+        parameters = {}
+        fake_gdb = type('Gdb', (), {'set_parameter': lambda _self, key, value:
+                                  parameters.__setitem__(key, value)})()
+        monkeypatch.setitem(sys.modules, 'gdb', fake_gdb)
+        exec(library_command.removeprefix('python '), {})
+        assert parameters == {'solib-search-path': library_path}
+        assert os.environ == parent_environment
         kwargs['stdout'].write(b'owned C++ trace\n')
         if timeout:
             raise subprocess.TimeoutExpired(argv, kwargs['timeout'])
@@ -451,10 +467,82 @@ def test_extracted_core_is_removed_after_gdb_success_or_timeout(tmp_path, monkey
     monkeypatch.setattr(collector.subprocess, 'run', command)
     assert collector.main(['--ordinary', '--evidence-dir', str(evidence)]) == 0
     assert not temporary.exists()
-    report = (evidence / 'native-core-backtrace.txt').read_text()
+    report = (evidence / 'native-core-backtrace.txt').read_text(encoding="utf-8")
     assert ('gdb_timeout=90s' if timeout else 'gdb_exit=0') in report
     assert 'owned C++ trace' in report
     assert len(report.encode()) <= collector.MAX_BACKTRACE_BYTES
+
+
+@pytest.mark.parametrize('line_break', ['\n', '\r'])
+def test_gdb_library_search_refuses_command_line_breaks(monkeypatch, line_break):
+    monkeypatch.setenv('LD_LIBRARY_PATH', '/inferior/lib' + line_break + 'quit')
+    with pytest.raises(ValueError, match='line break'):
+        collector._gdb_environment()
+
+
+def test_refused_debugger_environment_removes_extracted_core_and_finishes_report(tmp_path, monkeypatch):
+    executable, evidence, session = _identity(tmp_path)
+    temporary = tmp_path / 'qt-native-owned.elf'
+    temporary.write_bytes(_native_note_core(3456, executable))
+    (evidence / 'process-3456.jsonl').write_text(json.dumps(session) + '\n')
+    monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
+    monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
+    monkeypatch.setenv('GITHUB_SHA', 'source')
+    monkeypatch.setenv('LD_LIBRARY_PATH', '/inferior/lib\nquit')
+    before = os.environ.copy()
+    monkeypatch.setattr(collector.sys, 'executable', str(executable))
+    monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
+    monkeypatch.setattr(collector, '_ordinary_core', lambda *args: (temporary, temporary))
+
+    def command(argv, **kwargs):
+        assert argv[0] == 'git', 'Refused debugger environment must never launch GDB'
+        return subprocess.CompletedProcess(argv, 0, stdout='source\n')
+
+    monkeypatch.setattr(collector.subprocess, 'run', command)
+    assert collector.main(['--ordinary', '--evidence-dir', str(evidence)]) == 0
+    assert not temporary.exists()
+    assert os.environ == before
+    report = (evidence / 'native-core-backtrace.txt').read_text(encoding="utf-8")
+    assert report.endswith('gdb_environment_refused=GDB library search path contains a line break\n')
+    assert 'source_sha=source' in report
+    assert 'command=gdb' not in report
+    assert len(report.encode()) <= collector.MAX_BACKTRACE_BYTES
+
+
+def test_real_gdb_keeps_embedded_python_and_inferior_search_separate(tmp_path, monkeypatch):
+    gdb = shutil.which('gdb')
+    library = Path(sys.base_prefix) / 'lib' / f'libpython{sys.version_info.major}.{sys.version_info.minor}.so.1.0'
+    if not gdb or not library.is_file():
+        pytest.skip('GDB and a foreign shared Python runtime are required')
+    clean_environment = {key: value for key, value in os.environ.items()
+                         if key not in {'LD_LIBRARY_PATH', 'PYTHONHOME', 'PYTHONPATH'}}
+    base = [gdb, '-q', '-nx', '-nh', '-batch']
+    identity = subprocess.run(base + ['-ex', 'python import sys; print("ABI="+str(sys.version_info[:2]))'],
+                              env=clean_environment, capture_output=True, text=True, timeout=10)
+    if f'ABI={sys.version_info[:2]}' not in identity.stdout:
+        pytest.skip('Foreign Python does not share the system GDB Python ABI')
+    contaminated = dict(clean_environment, LD_LIBRARY_PATH=str(library.parent))
+    failure = subprocess.run(base + ['-ex', 'python import math'], env=contaminated,
+                             capture_output=True, text=True, timeout=10)
+    if "No module named 'math'" not in failure.stderr:
+        pytest.skip('Available foreign runtime does not reproduce the missing system extension')
+    assert failure.returncode != 0
+    search = str(library.parent) + ':' + str(tmp_path / "spaces 'quotes' \\slashes")
+    monkeypatch.setenv('LD_LIBRARY_PATH', search)
+    monkeypatch.setenv('PYTHONHOME', '/foreign/python')
+    monkeypatch.setenv('PYTHONPATH', '/foreign/modules')
+    before = os.environ.copy()
+    environment, commands = collector._gdb_environment()
+    probe = ('python import math, hashlib, gdb; '
+             'assert gdb.parameter("solib-search-path") == ' + repr(search) + '; '
+             'assert hashlib.sha256(b"probe").hexdigest() == '
+             '"ba9c736f19e7f60b7f6764adb0b7908c0a2b394e09b6c09863528c7f2bc86095"; '
+             'print("embedded imports and inferior search passed")')
+    result = subprocess.run(base + commands + ['-ex', probe], env=environment,
+                            capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'embedded imports and inferior search passed' in result.stdout
+    assert os.environ == before
 
 
 @pytest.mark.parametrize('pattern,soft,expected', [('core.%p', 0, False),
@@ -478,7 +566,7 @@ def test_core_route_records_disabled_or_unsupported_production_without_claiming_
     monkeypatch.setattr(Path, 'read_text', read)
     monkeypatch.setattr(collector.resource, 'getrlimit', lambda kind: (soft, 1024))
     collector._record_core_route(tmp_path, evidence)
-    receipt = json.loads((evidence / 'core-route.json').read_text())
+    receipt = json.loads((evidence / 'core-route.json').read_text(encoding="utf-8"))
     assert receipt['core_pattern'] == pattern
     assert receipt['core_limit_soft_bytes'] == soft
     assert receipt['route_verified'] is expected
@@ -705,7 +793,9 @@ def test_qthread_fault_reports_only_a_bounded_python_wrapper_class(
     assert 'controlled library' not in ''.join(messages)
 
 
-def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch):
+@pytest.mark.parametrize('library_path', [None, '', "/inferior/library 'quoted' with spaces:/inferior/lib"],
+                         ids=['unset', 'empty', 'inherited'])
+def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch, library_path):
     import json
 
     executable, evidence, session = _identity(tmp_path)
@@ -715,15 +805,26 @@ def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, mon
     monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
     monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
     monkeypatch.setenv('GITHUB_SHA', 'source')
+    if library_path is None:
+        monkeypatch.delenv('LD_LIBRARY_PATH', raising=False)
+    else:
+        monkeypatch.setenv('LD_LIBRARY_PATH', library_path)
+    monkeypatch.setenv('PYTHONHOME', '/foreign/python')
+    monkeypatch.setenv('PYTHONPATH', '/foreign/modules')
+    parent_environment = os.environ.copy()
     monkeypatch.setattr(collector.sys, 'executable', str(executable))
     monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
     monkeypatch.setattr(collector, '_candidate_files', lambda *args: iter([(core, core.stat().st_size)]))
     monkeypatch.setattr(collector, '_apport_reports', lambda *args: [])
     expected = ['gdb', '-q', '-nx', '-nh', '-batch',
                 '-iex', 'set auto-load safe-path /dev/null',
-                '-iex', 'set debuginfod enabled off', '-ex', 'set pagination off',
-                '-ex', 'info proc', '-ex', 'info threads', '-ex', 'thread apply all bt 24',
-                str(executable), str(core)]
+                '-iex', 'set debuginfod enabled off']
+    if library_path:
+        expected.extend(['-iex', "python import gdb; gdb.set_parameter('solib-search-path', " +
+                         repr(library_path) + ')'])
+    expected.extend(['-ex', 'set pagination off', '-ex', 'info proc',
+                     '-ex', 'info threads', '-ex', 'thread apply all bt 24',
+                     str(executable), str(core)])
 
     def command(argv, **kwargs):
         if argv[0] == 'git':
@@ -731,10 +832,13 @@ def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, mon
         assert argv == expected
         assert kwargs['timeout'] == 90
         assert kwargs['preexec_fn'] is collector._cap_backtrace_file
+        assert kwargs['env'] == {key: value for key, value in parent_environment.items()
+                                 if key not in {'LD_LIBRARY_PATH', 'PYTHONHOME', 'PYTHONPATH'}}
         kwargs['stdout'].write(b'unchanged serial trace\n')
         return subprocess.CompletedProcess(argv, 0)
 
     monkeypatch.setattr(collector.subprocess, 'run', command)
     assert collector.main(['--evidence-dir', str(evidence)]) == 0
+    assert os.environ == parent_environment
     assert core.exists()
     assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 ** 2

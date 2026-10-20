@@ -79,8 +79,8 @@ class CustomFeature:
 def discover_features() -> List[CustomFeature]:
     """Walk :func:`features_dir` and return every public callable found.
 
-    Silently skips files that fail to import — the offending path is
-    logged at INFO and users see a warning in the Console.
+    Files whose names start with ``_`` are skipped. A file that fails to import
+    is skipped, and its path and the error are logged at INFO level.
     """
     hits: List[CustomFeature] = []
     for py in sorted(features_dir().glob("*.py")):

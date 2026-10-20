@@ -112,11 +112,11 @@ def test_built_english_publication_declares_its_mode_and_current_api():
 
     root = Path(os.environ.get("SPACR_DOCS_BUILD_DIR", TOOLS.parent / "docs/_build/html"))
     from docs_version import source_version
-    assert f'spaCR {source_version(TOOLS.parent)} documentation' in (root / "index.html").read_text()
+    assert f'spaCR {source_version(TOOLS.parent)} documentation' in (root / "index.html").read_text(encoding="utf-8")
     for module in ("image_quality", "host_pathogen", "object", "timeflows_model"):
         page = root / "api/spacr" / module / "index.html"
         parser = Scripts()
-        parser.feed(page.read_text())
+        parser.feed(page.read_text(encoding="utf-8"))
         assert len(parser.api) == 1
         assert parser.api[0]["data-api-language"] == "english"
         assert parser.api[0]["data-api-catalog-version"]

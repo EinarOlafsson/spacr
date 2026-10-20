@@ -528,7 +528,7 @@ def test_merge_split_objects_processes_every_mask_in_place(tmp_path):
         assert out.dtype == np.uint16
         assert sorted(np.unique(out).tolist()) == [0, 1]
         assert int(np.sum(out > 0)) == 120
-    assert (mask_dir / "README.md").read_text().startswith("ignored")
+    assert (mask_dir / "README.md").read_text(encoding="utf-8").startswith("ignored")
     assert [c[0] for c in calls] == [0, 1]
     assert {c[1] for c in calls} == {2}
     assert {c[3] for c in calls} == {"merge_cell"}

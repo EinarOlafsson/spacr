@@ -1,14 +1,12 @@
-"""``N4`` — every project on disk in one place: stage, size, last run, staleness.
+"""Find spaCR projects on disk and summarise each one's stage, size, last run and staleness.
 
-Until now the only way to see the shape of your work was to navigate by
-folder. Which plates have been measured? Which finished last week and have
-since had their masks re-run underneath them? Which one is the 400 GB that
-filled the disk? Each of those questions had an answer somewhere in spaCR and
-none of them had a *list*.
+The summaries answer questions such as which plates have been measured, which
+finished projects have had their masks re-run since, and which project uses
+the most disk space, as one list across all project folders.
 
-This module is that list, and it is deliberately thin: everything it reports
-already existed, and re-deriving any of it would be how the browser and the
-rest of spaCR start disagreeing.
+Every value is read from an existing spaCR function (listed below) rather
+than computed again here, so the browser reports the same values as the rest
+of spaCR.
 
 ======================  =====================================================
 What the browser shows  Where the answer comes from
@@ -40,16 +38,15 @@ what to run next        :func:`spacr.chaining.next_steps`, so an offer here
 The project the registry has never seen
 ---------------------------------------
 
-This is the case the browser exists for and the one that is easy to get
-wrong. A user copies a colleague's plate folder onto the machine and opens
-spaCR: a browser that lists only what spaCR itself recorded shows them
-nothing, which is worse than useless because it looks like an answer.
+A user may copy a colleague's plate folder onto the machine and open spaCR.
+A browser that listed only what spaCR itself recorded would show nothing for
+that folder, and an empty list would look like a valid result.
 
 So a project is found on disk (:func:`discover`, :func:`looks_like_project`)
 rather than read out of a registry, and an unrecorded one appears with
 everything the filesystem can answer — stage, size, files, last write — and
-with :attr:`ProjectSummary.known` False. What it must NOT do is report
-"0 stale", which reads as *clean*. With no provenance there is nothing to
+with :attr:`ProjectSummary.known` False. It is not reported as "0 stale",
+which would read as *clean*. With no provenance there is nothing to
 compare against, so staleness is **unknown**, and
 :attr:`ProjectSummary.staleness_known` is the flag that says so.
 :meth:`ProjectSummary.staleness_note` puts it in words for a table cell.
@@ -215,13 +212,13 @@ def _location(port: "_ports.Port") -> str:
 
 
 def evidence_ports(module: str) -> Tuple["_ports.Port", ...]:
-    """The produced ports whose existence PROVES ``module`` ran here.
+    """Return the produced ports whose presence on disk shows that ``module`` ran here.
 
-    The naive reading of "stage reached" — every declared output that is on
-    disk — is wrong, and wrong in a way a user would notice immediately.
-    ``ml_analyze`` declares one output, ``measurements/measurements.db``,
-    which ``mask`` created and ``measure`` filled. On that reading, a project
-    that has only been segmented reports classical ML as complete.
+    Counting every declared output that is on disk as "stage reached" gives
+    wrong stages. ``ml_analyze`` declares one output,
+    ``measurements/measurements.db``, which ``mask`` created and ``measure``
+    filled. On that reading, a project that has only been segmented would
+    report classical ML as complete.
 
     So a produced port counts as evidence only when nothing EARLIER in
     :func:`pipeline_order` already explains the same location with a
@@ -231,7 +228,7 @@ def evidence_ports(module: str) -> Tuple["_ports.Port", ...]:
     ``measurements-db`` apart in one file — "mask creating the file does not
     make the measurements in it current".
 
-    Two consequences worth stating rather than discovering:
+    This has two consequences:
 
     * ``measure`` is left with only its optional ``data/`` crops, because
       mask wrote the database first. A measured project whose crops were
@@ -241,7 +238,7 @@ def evidence_ports(module: str) -> Tuple["_ports.Port", ...]:
     * A module with no evidence ports at all (``ml_analyze``) has no on-disk
       signature whatsoever. :attr:`ModuleState.detectable` is False for it,
       so the browser can say "no way to tell without a run record" instead of
-      the flatly wrong "not run".
+      the incorrect "not run".
 
     Modules that declare an identical set of outputs are interchangeable
     (``mask`` and ``timelapse`` share theirs literally — ``ports.py`` passes
@@ -427,8 +424,7 @@ def discover(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
     """Find project folders under ``roots``.
 
     Descent **stops at a project**: a project's ``merged/`` holds ``.npy``
-    files and would otherwise be reported as a project of its own, which is
-    both wrong and the kind of wrong that fills a table with noise.
+    files and would otherwise be reported as a separate project.
 
     :param roots: folders to search. A root that is itself a project is
         returned as one.
@@ -557,7 +553,7 @@ class ProjectSummary:
     :param last_run_utc: the same instant, ISO-8601, or ``""``.
     :param last_run_source: :data:`SOURCE_REGISTRY` or
         :data:`SOURCE_FILESYSTEM` — *which* question was answered. They are
-        not the same claim and a browser that blurs them is lying by omission.
+        different claims, so the browser reports which one applies.
     :param stale: results that no longer match their inputs.
     :param missing: registered results whose file is gone.
     :param next_steps: modules that could run next, ready ones first, as
@@ -636,11 +632,12 @@ class ProjectSummary:
         return "current"
 
     def note(self) -> str:
-        """The one thing about this project worth saying in a table.
+        """Return the highest-priority note for this project's table row, or ``""``.
 
-        Ordered by what a user has to act on: a folder that is gone, then a
-        project spaCR has no record of, then results that no longer match,
-        then a large pile of bytes nobody claims.
+        Checked in this order: a folder that is gone, then a project spaCR has
+        no record of, then recorded results no longer on disk, then results
+        that no longer match their inputs, then unregistered bytes making up
+        more than half of the project's size.
         """
         if not self.exists:
             return "folder is gone"
@@ -727,10 +724,10 @@ def _next_steps(stage: str, project: str,
 def scan(root: Any, *, registry: Optional[Registry] = None,
          usage: Optional[ProjectUsage] = None,
          with_next_steps: bool = True) -> ProjectSummary:
-    """Summarise one project. The whole of :mod:`spacr.projects` in one call.
+    """Summarise one project folder as a :class:`ProjectSummary`.
 
     :param root: the project root. It does not have to be a project, and it
-        does not have to be in the registry — that is the point.
+        does not have to be in the registry.
     :param registry: an open registry to read through. Omit and the project's
         own is opened when a file exists; a project with none is summarised
         anyway, with :attr:`ProjectSummary.known` False.
@@ -740,9 +737,9 @@ def scan(root: Any, *, registry: Optional[Registry] = None,
     :param with_next_steps: compute what could run next. Off skips one
         :func:`spacr.ports.check_ready` per successor, which is the only part
         of this that globs a second time.
-    :returns: a :class:`ProjectSummary`. Never raises for a folder that is
-        missing, unreadable or not a project: "there is nothing here" is an
-        answer a browser has to be able to show.
+    :returns: a :class:`ProjectSummary`. Does not raise for a folder that is
+        missing, unreadable or not a project; the summary reports that state
+        so the browser can show it.
     """
     project = os.path.abspath(os.path.expanduser(os.fspath(root)))
     name = os.path.basename(project.rstrip(os.sep)) or project
@@ -816,7 +813,7 @@ def browse(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
            limit: int = 500,
            with_next_steps: bool = True,
            on_progress: Optional[Any] = None) -> Tuple[ProjectSummary, ...]:
-    """Find every project under ``roots`` and summarise each. The browser.
+    """Find every project under ``roots`` and summarise each one.
 
     :param roots: folders to search, or the projects themselves.
     :param depth: how deep to look; see :func:`discover`.
@@ -824,9 +821,10 @@ def browse(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
         shared-registry case. Omit and each project's own is used.
     :param limit: stop after this many projects.
     :param with_next_steps: passed to :func:`scan`.
-    :param on_progress: optional ``fn(done, total, root)``, called on the
-        calling thread after each project. A GUI passes something that only
-        touches its own counters — this runs on a worker thread.
+    :param on_progress: optional ``fn(done, total, root)``, called after
+        each project on the thread that runs :func:`browse`; an exception it
+        raises is logged and ignored. The GUI runs :func:`browse` on a worker
+        thread, so its callback only updates its own counters.
     :returns: summaries, most recently run first, then by name. A project
         nobody has run sorts last, which is where a browser wants it.
     """

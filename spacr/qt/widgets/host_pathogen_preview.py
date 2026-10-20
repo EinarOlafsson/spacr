@@ -17,7 +17,7 @@ from ..i18n import tr
 from ..job_runner import JobRunner
 from .live_preview import _ZoomView, numpy_to_qpixmap
 from .preview_contract import LivePreviewContract, PREVIEW_RUN_TEXT, PREVIEW_CANCEL_TEXT
-from .sortable_table import install_sorting, table_item
+from .sortable_table import install_sorting, table_item, _retire_table_cells, _spare_table_item
 
 
 class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
@@ -241,13 +241,13 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
                             (f'channel_{channel}_state', tr('Channel {n} state', n=channel))])
         self._table.blockSignals(True)
         self._table.setSortingEnabled(False)
-        self._table.clear()
+        _retire_table_cells(self._table, headers=True)
         self._table.setColumnCount(len(columns))
         self._table.setHorizontalHeaderLabels([caption for _, caption in columns])
         self._table.setRowCount(min(500, len(vacuoles)))
         for row, (_, values) in enumerate(vacuoles.iloc[:500].iterrows()):
             for column, (key, _) in enumerate(columns):
-                item = table_item(_text(values[key]))
+                item = _spare_table_item(self._table, _text(values[key]))
                 item.setData(Qt.UserRole, int(values['vacuole_id']))
                 self._table.setItem(row, column, item)
         self._table.resizeColumnsToContents()
@@ -285,7 +285,7 @@ class HostPathogenPreviewPanel(LivePreviewContract, QWidget):
         """Discard results, table selection and image overlays without changing the analysis settings."""
         self._result = None
         self._selected = None
-        self._table.setRowCount(0)
+        _retire_table_cells(self._table)
         self._view.scene().clear()
         self._view._pixmap_item = None
         self._details.clear()

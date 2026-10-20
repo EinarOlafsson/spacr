@@ -39,7 +39,7 @@ def _parts(path: str) -> List[str]:
 
 
 def candidate_roots(root: Optional[str]) -> Tuple[str, ...]:
-    """Every folder ``root`` could mean, nearest first.
+    """Return the candidate root folders derived from ``root``, nearest first.
 
     :param root: plate, screen, measurements folder, or database path to
         normalize into candidate roots; ``None`` yields no candidates.
@@ -125,7 +125,7 @@ def _reroot_with_prefix(path: Optional[str], src_root: Optional[str]
 
 @dataclass(frozen=True)
 class RerootReport:
-    """What one re-rooting pass did, INCLUDING what it could not do.
+    """Result of one re-rooting pass: how many paths moved and how many did not.
 
     The last two fields are the reason this is a record and not a bare count.
     A path with no recognisable structure under the root is returned unchanged
@@ -161,24 +161,24 @@ class RerootReport:
 
     @property
     def partial(self) -> bool:
-        """Some of this column resolved and some did not.
+        """True when some paths in this column moved and some stayed unresolved.
 
-        THE DISTINCTION THAT DECIDES WHETHER TO SHOUT. A column where nothing
-        resolved and nothing existed is a ROUTE THAT IS NOT ON THIS MACHINE --
-        a screen with PNG crops and no ``merged/`` folder has 60,816 unplaceable
-        ``path_name`` values and is completely healthy. A column where most
-        paths resolved and a few did not is the actionable partial-failure
-        case.
+        This separates a partial failure from a route whose files are not on
+        this machine. A column where nothing moved usually belongs to such a
+        route -- a screen with PNG crops and no ``merged/`` folder has 60,816
+        unplaceable ``path_name`` values and is healthy (see :attr:`absent`).
+        A column where most paths resolved and a few did not is the partial
+        failure that a caller should report.
         """
         return bool(self.moved) and bool(self.unresolved)
 
     @property
     def absent(self) -> bool:
-        """Nothing in this column could be placed, and nothing already was."""
+        """True when no path in this column moved and at least one stayed unresolved."""
         return not self.moved and bool(self.unresolved)
 
     def describe(self) -> str:
-        """One line for a caller to print, or "" when there is nothing to say."""
+        """Return one line for a caller to print, or ``""`` when nothing moved or failed."""
         parts: List[str] = []
         if self.moved:
             parts.append(f"re-rooted {self.moved:,} {self.column} value(s) "
@@ -195,7 +195,7 @@ class RerootReport:
 
 
 def reroot_column(frame, column: str, src_root: Optional[str]):
-    """Re-root one path column of ``frame`` IN THE FRAME, never on disk.
+    """Re-root one path column of ``frame`` in place; files on disk are not changed.
 
     :param frame: any DataFrame; a missing column is not an error, because the
         PNG route and the merged route carry different ones and a caller
@@ -273,3 +273,295 @@ def source_root_for_database(db_path: str) -> str:
     if not db_path:
         return ""
     return os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+
+
+_QUOTE_FOLDS = {
+    "\u201c": '"', "\u201d": '"', "\u201e": '"', "\u201f": '"',
+    "\u2033": '"', "\u00ab": '"', "\u00bb": '"', "\uff02": '"',
+    "\u2018": "'", "\u2019": "'", "\u201a": "'", "\u201b": "'",
+    "\u2032": "'", "\u2039": "'", "\u203a": "'", "\uff07": "'",
+    "\u00a0": " ", "\u2007": " ", "\u202f": " ",
+    "\u200b": "", "\u200c": "", "\u200d": "", "\u2060": "", "\ufeff": "",
+}
+
+_PATH_START = None
+
+_QUOTED_ITEMS = None
+
+
+def _fold_path_quotes(text: str) -> str:
+    """``text`` with typographic quotes made straight and invisible spaces removed.
+
+    Word, Pages, Notes and Excel turn ``"`` into ``“ ”`` and ``'`` into
+    ``‘ ’`` as they are typed; a path list copied from them carries those
+    characters, and no-break or zero-width spaces besides.
+
+    :param text: the pasted text.
+    :returns: the same text with straight ASCII quotes and plain spaces.
+    """
+    return "".join(_QUOTE_FOLDS.get(char, char) for char in str(text))
+
+
+def _path_start_pattern():
+    """The compiled pattern for text that begins an absolute or home path."""
+    global _PATH_START
+    if _PATH_START is None:
+        import re
+        _PATH_START = re.compile(
+            r"""^\s*["']?\s*(?:~|/|\\\\|[A-Za-z]:[\\/]|\.{1,2}[\\/]"""
+            r"""|[A-Za-z][A-Za-z0-9+.-]*://)""")
+    return _PATH_START
+
+
+def _quoted_items_pattern():
+    """The compiled patterns for a line made only of quoted items."""
+    global _QUOTED_ITEMS
+    if _QUOTED_ITEMS is None:
+        import re
+        item = r"""\s*(?:"[^"]*"|'[^']*')\s*"""
+        _QUOTED_ITEMS = (
+            re.compile(rf"^{item}(?:[,;]?{item})*[,;]?\s*$"),
+            re.compile(r'''"([^"]*)"|'([^']*)\''''))
+    return _QUOTED_ITEMS
+
+
+def _clean_path_item(text: str) -> str:
+    """One pasted path with its wrapping removed and ``~`` expanded.
+
+    Strips surrounding whitespace, a trailing comma or semicolon, a stray
+    opening or closing bracket that has no partner in the item, and the
+    quotes around it, straight or curly. Brackets and quotes inside the path
+    are kept.
+
+    :param text: one path as it was pasted.
+    :returns: the bare path, or ``""`` when nothing but wrapping was pasted.
+    """
+    item = _fold_path_quotes(text).strip()
+    previous = None
+    while item != previous:
+        previous = item
+        item = item.strip().rstrip(",;").strip()
+        inner = item[1:-1].strip()
+        if (item[:1] in "[(" and item[-1:] in "])" and len(inner) > 1
+                and inner[0] in "'\"" and inner[-1] in "'\""):
+            item = inner
+        if item.startswith(("[", "(")) and not any(c in item for c in "])"):
+            item = item[1:]
+        if item.endswith(("]", ")")) and not any(c in item for c in "[("):
+            item = item[:-1]
+        if item[:1] in ("'", '"'):
+            item = item[1:]
+        if item[-1:] in ("'", '"'):
+            item = item[:-1]
+    return os.path.expanduser(item) if item else ""
+
+
+def _literal_paths(text: str) -> Optional[List[str]]:
+    """The strings of a JSON or Python list literal, or ``None``.
+
+    Only text that opens with a bracket or a quote is read. A Python literal
+    that turns a Windows separator into a control character (``"C:\\new"``)
+    is refused, so the quoted items are then read as written.
+    """
+    head = text.lstrip("[( \t\r\n")
+    if not head.startswith(("'", '"')):
+        return None
+    import ast
+    import json
+    import warnings
+
+    attempts = [(json.loads, text), (json.loads, f"[{text}]")]
+    attempts += [(ast.literal_eval, text), (ast.literal_eval, f"[{text}]")]
+    for reader, candidate in attempts:
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                value = reader(candidate)
+        except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+            continue
+        if isinstance(value, str):
+            value = [value]
+        if not (isinstance(value, (list, tuple))
+                and all(isinstance(item, str) for item in value)):
+            continue
+        if any(ord(char) < 32 for item in value for char in item):
+            continue
+        if len(_quoted_items_pattern()[1].findall(text)) != len(value):
+            continue
+        return list(value)
+    return None
+
+
+def _unescape(item: str) -> str:
+    """A quoted item with doubled backslashes halved when it was escaped.
+
+    A doubled backslash at the very start is a UNC share as typed; one
+    anywhere else means the whole item was written with Python or JSON
+    escapes.
+    """
+    if "\\\\" in item[1:]:
+        return item.replace("\\\\", "\\")
+    return item
+
+
+def _split_line(line: str, exists) -> List[str]:
+    """One pasted line as the paths it names, split at commas only between paths.
+
+    A comma splits the line when the text after it starts an absolute, home,
+    UNC, drive-letter, relative ``./`` or URL path, or when every piece exists
+    on disk. Any other comma belongs to the path it sits in.
+    """
+    whole = _clean_path_item(line)
+    if not whole:
+        return []
+    if exists(whole):
+        return [whole]
+    exact, quoted = _quoted_items_pattern()
+    if exact.match(line):
+        return [_unescape(_clean_path_item(a or b)) for a, b in quoted.findall(line)]
+    if "," not in line:
+        return [whole]
+    pieces = line.split(",")
+    cleaned = [_clean_path_item(piece) for piece in pieces]
+    if all(item and exists(item) for item in cleaned):
+        return cleaned
+    starts = _path_start_pattern()
+    out: List[str] = []
+    current = pieces[0]
+    for piece in pieces[1:]:
+        if starts.match(piece) and not exists(_clean_path_item(f"{current},{piece}")):
+            out.append(current)
+            current = piece
+        else:
+            current = f"{current},{piece}"
+    out.append(current)
+    return [item for item in (_clean_path_item(piece) for piece in out) if item]
+
+
+def _parse_path_list(value, exists=None) -> List:
+    """Every path a pasted ``src`` names, as a list.
+
+    One reader for every setting that takes one or more folders or files, so
+    the GUI, the command line and the API agree on what a pasted value means.
+    It accepts:
+
+    * one path, with spaces, commas or brackets in it;
+    * a JSON or Python list, with straight or curly quotes, single or double,
+      and a trailing comma;
+    * paths one per line, or separated by commas;
+    * stray brackets, surrounding whitespace and quotes around each path.
+
+    Text that exists on disk exactly as pasted is always one path. A comma
+    only separates two paths when what follows it starts a path (``/``,
+    ``~``, ``C:\\``, ``\\\\server``, ``./`` or ``s3://``) or every piece
+    exists. Curly quotes become straight ones and ``~`` is expanded.
+
+    :param value: a string, a path-like object, a list or tuple of them, or
+        ``None``. List entries that are not strings are kept as they are, so
+        a validator can name them.
+    :param exists: the existence test, :func:`os.path.exists` by default.
+    :returns: the paths, in order, without repeats; empty for ``None`` or
+        blank text.
+    """
+    exists = exists or os.path.exists
+    if value is None:
+        return []
+    if isinstance(value, os.PathLike):
+        value = os.fspath(value)
+    if isinstance(value, (list, tuple)):
+        items: List = []
+        for entry in value:
+            if isinstance(entry, os.PathLike):
+                entry = os.fspath(entry)
+            if isinstance(entry, str):
+                items.extend(_parse_path_list(entry, exists))
+            else:
+                items.append(entry)
+        return _unique(items)
+    if not isinstance(value, str):
+        return [value]
+    raw = value.strip()
+    if not raw:
+        return []
+    as_typed = os.path.expanduser(raw)
+    if exists(as_typed):
+        return [as_typed]
+    text = _fold_path_quotes(raw).strip()
+    whole = _clean_path_item(text)
+    if whole and exists(whole):
+        return [whole]
+    literal = _literal_paths(text)
+    if literal is not None:
+        return _unique([item for item in map(_clean_path_item, literal) if item])
+    if _literal_of_other_values(text):
+        return [raw]
+    body = text
+    wrapped = body.startswith(("[", "(")) and body.endswith(("]", ")"))
+    if wrapped:
+        body = body[1:-1]
+    items = []
+    for line in body.replace("\r", "\n").split("\n"):
+        items.extend(_split_line(line, exists))
+    if (wrapped and len(items) == 1
+            and not _path_start_pattern().match(items[0])):
+        return [whole]
+    return _unique(items)
+
+
+def _literal_of_other_values(text: str) -> bool:
+    """True when ``text`` is a list literal holding something besides strings.
+
+    ``[1, 2, 3]`` names no folders; it is passed on as typed so the
+    validator can say so.
+    """
+    if not text.startswith(("[", "(")):
+        return False
+    import ast
+
+    try:
+        value = ast.literal_eval(text)
+    except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+        return False
+    return (isinstance(value, (list, tuple))
+            and any(not isinstance(item, str) for item in value))
+
+
+def _unique(items: Sequence) -> List:
+    """``items`` in order with repeated strings dropped."""
+    seen = set()
+    out: List = []
+    for item in items:
+        if isinstance(item, str):
+            if item in seen:
+                continue
+            seen.add(item)
+        out.append(item)
+    return out
+
+
+def _describe_missing_paths(paths: Iterable[str], exists=None) -> List[str]:
+    """One line per missing path, saying whether its parent folder exists.
+
+    A missing parent usually means an unmounted drive or share; a present
+    parent usually means a typo in the last folder name.
+
+    :param paths: the paths to check.
+    :param exists: the existence test, :func:`os.path.exists` by default.
+    :returns: one ``"<path> (...)"`` line per path that does not exist.
+    """
+    from .qt.i18n import tr
+
+    exists = exists or os.path.exists
+    lines = []
+    for path in paths:
+        if not isinstance(path, str) or exists(path):
+            continue
+        parent = os.path.dirname(os.path.normpath(path))
+        if parent and exists(parent):
+            note = tr("its parent folder {parent} exists, so check the last "
+                      "folder name for a typo", parent=parent)
+        else:
+            note = tr("its parent folder {parent} does not exist either; "
+                      "is the drive or share mounted?", parent=parent or path)
+        lines.append(f"  {path} ({note})")
+    return lines

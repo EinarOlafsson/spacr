@@ -1,19 +1,17 @@
-"""``N4`` — the Project Browser: every project on disk, in one table.
+"""Project Browser: every spaCR project under the search folders, in one table.
 
-Navigating by folder is how spaCR has always been used, and it is why nobody
-can answer "which plates have been measured?", "which one is the 400 GB?" or
-"which results no longer match the masks under them?" without opening six
-windows. This screen is that answer as a list.
+The table answers questions such as "which plates have been measured?",
+"which one is the 400 GB?" or "which results no longer match the masks under
+them?" without opening each project folder.
 
 It computes nothing. Every column comes from :mod:`spacr.projects`, which in
 turn assembles :func:`spacr.data_manager.scan_project` (the size and the
 unaccounted-for bytes), :func:`spacr.ports.declared_outputs` (the stage),
 :meth:`spacr.artifacts.Registry.is_stale` (what is out of date) and
-:func:`spacr.chaining.next_steps` (what could run next). A browser with its
-own opinion about any of those is a browser that disagrees with the screen
-the user opens next.
+:func:`spacr.chaining.next_steps` (what could run next), so the browser
+reports the same values as the screens that compute them.
 
-Two things about it are load-bearing rather than cosmetic.
+The browser has three properties that its design depends on.
 
 **A project the registry has never seen is still listed.** Projects are found
 by walking the disk, so a folder copied from a colleague appears the moment
@@ -24,7 +22,7 @@ against, so the state column says "unknown — nothing recorded" and the note
 says why.
 
 **The scan never blocks the window.** Walking a plate folder is tens of
-thousands of ``stat`` calls, and doing it on the GUI thread is a frozen
+thousands of ``stat`` calls, and doing it on the GUI thread would freeze the
 application for however long the filesystem takes. Everything goes through
 :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are
 **bound methods** — read that module's docstring for what a closure connected
@@ -34,17 +32,16 @@ registry on its own, so nothing here has to drive it.
 **And neither does opening the screen, nor opening its folder chooser.**
 Two things here take a path the user typed on some *other* screen: the search
 folders :func:`make_project_browser_screen` seeds from the recent-source list,
-and the folder the "Add folder…" dialog starts in. Both used to be settled
-with an ``os.path.isdir`` on the GUI thread. Measured on one workstation, one
-such folder was under an ``autofs`` mount whose
-share was asleep and a single ``isdir`` on it had not returned after TWENTY
-SECONDS — which is not a slow screen, it is the whole application frozen with
-no traceback, and it was reported as "opening the project browser crashes
-spacr". Both now ask :mod:`spacr.qt.path_probe`, which answers from a cache
-and stats in the background. Those two are the whole inventory: the walk
-runs on a worker, and every column, note and detail line the screen draws is
-rendered from the frozen :class:`spacr.projects.ProjectSummary` that walk
-already returned, so filling the table and the detail pane reads nothing.
+and the folder the "Add folder…" dialog starts in. Neither is checked with
+``os.path.isdir`` on the GUI thread: measured on one workstation, one such
+folder was under an ``autofs`` mount whose share was asleep, and a single
+``isdir`` on it had not returned after twenty seconds, freezing the whole
+application with no traceback. Both ask :mod:`spacr.qt.path_probe`, which
+answers from a cache and stats in the background. Those two are the whole
+inventory: the walk runs on a worker, and every column, note and detail line
+the screen draws is rendered from the frozen
+:class:`spacr.projects.ProjectSummary` that walk already returned, so filling
+the table and the detail pane reads nothing.
 
 :func:`register` is **not** called at import; read its docstring.
 """
@@ -66,7 +63,8 @@ from .. import path_probe
 from ..theme import SPACING, mark_surface
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (_retire_table_cells, _reuse_list_items,
+                                      _spare_table_item, install_sorting)
 from ..app_catalog import declared_app, register_declared
 
 LOG = logging.getLogger("spacr.qt.screens.project_browser")
@@ -261,8 +259,8 @@ class ProjectBrowserScreen(QWidget):
 
         The dialog opens on a folder the probe cache has already confirmed
         rather than simply on the last one searched; :meth:`_start_directory`
-        says why that distinction is the difference between a chooser and a
-        frozen window.
+        explains why: checking an unconfirmed folder could block the GUI
+        thread.
         """
         path = QFileDialog.getExistingDirectory(
             self, "Search this folder for spaCR projects",
@@ -327,16 +325,16 @@ class ProjectBrowserScreen(QWidget):
 
     def _refresh_root_list(self) -> None:
         """Rebuild the list of scanned root folders."""
-        self._root_list.clear()
-        for path in self._roots:
-            self._root_list.addItem(QListWidgetItem(path))
+        items = _reuse_list_items(self._root_list, len(self._roots))
+        for item, path in zip(items, self._roots):
+            item.setText(path)
 
     def rescan(self) -> None:
         """Walk the search folders again, off the GUI thread."""
         roots = list(self._roots)
         if not roots:
             self._summaries = ()
-            self._table.setRowCount(0)
+            _retire_table_cells(self._table)
             self._detail.setPlainText("")
             self._status.setText("Add a folder to search for projects.")
             self.scanned.emit(0)
@@ -403,6 +401,7 @@ class ProjectBrowserScreen(QWidget):
         from ...data_manager import human_bytes
 
         self._table.setSortingEnabled(False)
+        _retire_table_cells(self._table)
         self._table.setRowCount(len(self._summaries))
         for row, summary in enumerate(self._summaries):
             cells = (
@@ -415,7 +414,7 @@ class ProjectBrowserScreen(QWidget):
                 summary.note(),
             )
             for column, text in enumerate(cells):
-                item = table_item(str(text))
+                item = _spare_table_item(self._table, str(text))
                 if column == 0:
                     item.setToolTip(summary.root)
                     item.setData(Qt.UserRole, summary.root)
@@ -608,11 +607,10 @@ def register() -> bool:
     The row itself -- the key, the name, the blurb, the section, the "no
     headless run" sentence, the API doc link and the nine translations of the
     display name -- is declared in :mod:`spacr.qt.app_catalog`.
-    :func:`spacr.qt.app.register_app` distributes those into the four tables
-    each used to need a hand-edit in, and this function's whole job is to name
-    which row. That is what lets the app be registered without importing this
-    module at all: the launch reads the table, and the screen is imported when
-    somebody opens it.
+    :func:`spacr.qt.app.register_app` distributes those into the four
+    registry tables, and this function only names the row. The app can
+    therefore be registered without importing this module: the launch reads
+    the table, and the screen is imported when somebody opens it.
 
     :returns: ``True`` if this call is what registered it. Safe to call
         again: a module imported twice, or a test that re-imports it, must

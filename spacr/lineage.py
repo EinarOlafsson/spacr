@@ -1,15 +1,15 @@
-"""``V9`` ``B20`` — cell → nucleus → pathogen, as the tree it already is.
+"""Build cell → nucleus → pathogen object trees from measurement tables.
 
 Every object table in ``measurements.db`` is flat, and the relationships
 between them are already stored: :mod:`spacr.schema` gives ``nucleus`` and
 ``pathogen`` a ``cell_id`` pointing at the cell they sit inside
-(:data:`spacr.schema.CHILD_OBJECT_TABLES`). Nothing has ever *shown* that.
-"Cell 41 in field 3 has one nucleus and four pathogens, and one of those
-pathogens has an area that would be impossible inside that nucleus" is a
-question the database can answer and the GUI could not ask.
+(:data:`spacr.schema.CHILD_OBJECT_TABLES`). This module assembles those links
+into a tree, so a question such as "cell 41 in field 3 has one nucleus and
+four pathogens, and one of those pathogens has an area that would be
+impossible inside that nucleus" can be answered by inspecting one cell.
 
-This module is the answer, in plain pandas with no Qt, so the tree can be
-built in a notebook and tested without a display.
+It uses plain pandas with no Qt, so the tree can be built in a notebook and
+tested without a display.
 
 Why a tree and not a join
 -------------------------
@@ -32,8 +32,8 @@ publishes something every other view already understands. A child's parent is
 resolved *within its own field*: ``cell_id`` is a label, not a key, and label
 7 exists in every field on the plate.
 
-The shared key carries the object type — this module is why
------------------------------------------------------------
+The shared key carries the object type
+--------------------------------------
 
 :data:`spacr.selection.OBJECT_KEY_COLUMNS` used to be the field plus the
 object label, with no table in it, so a nucleus labelled 1 and a pathogen
@@ -90,7 +90,7 @@ ID_SEPARATOR = ":"
 
 
 class LineageError(ValueError):
-    """A set of tables that cannot be assembled into a lineage.
+    """Raised when a set of tables cannot be assembled into a lineage.
 
     Raised rather than returning an empty forest: "this cell has no children"
     and "the cell table has no object_label column so nothing could be
@@ -160,7 +160,7 @@ def node_key(row: Mapping[str, Any],
 
 @dataclass(frozen=True)
 class LineageNode:
-    """One object and everything inside it.
+    """One object and the objects it contains.
 
     :param key: shared typed object key used by spaCR's other views and
         selections.
@@ -218,7 +218,7 @@ class LineageNode:
 
         **As long as the subtree**, now that the shared key carries the object
         type. It used not to be: a nucleus 1 and a pathogen 1 inside the same
-        cell were one key, de-duplicating was the only honest thing to do
+        cell were one key, de-duplicating was required
         (sending the same key twice would draw the same crop twice), and four
         objects opened as three. :meth:`key_collisions` is the check that this
         no longer happens — it returns nothing on a typed forest.
@@ -234,8 +234,7 @@ class LineageNode:
     def key_collisions(self) -> Dict[str, Tuple[str, ...]]:
         """``{shared key: the tables that share it}``, for the ones that do.
 
-        **Empty on a correctly keyed forest** — that is now the assertion this
-        method exists to make, not a hope. Non-empty means this subtree holds
+        **Empty on a correctly keyed forest.** Non-empty means this subtree holds
         objects that every other view will treat as one: the crop grid shows
         one of them, and which one depends on the order ``png_list`` happens
         to be in. That was the ordinary case before the object type went into
@@ -309,8 +308,7 @@ def build_forest(frames: Mapping[str, pd.DataFrame], *,
         label order.
     :raises LineageError: when the root table is absent or unusable. A
         missing *child* table is not an error — a run that measured cells and
-        not pathogens produces a forest of childless cells, which is the
-        truth about that run.
+        not pathogens produces a forest of childless cells.
 
     Childless roots are kept. A cell with no pathogens in an infection assay
     is the negative control working, and a tree that dropped it would show
@@ -547,9 +545,9 @@ def forest_key_collisions(forest: Sequence[LineageNode]
 def describe_forest(forest: Sequence[LineageNode]) -> str:
     """The shape of a whole forest in words.
 
-    Says the thing a tree of ten thousand rows cannot: how many parents have
-    nothing inside them. In an infection assay that number *is* the readout,
-    and having to count it by scrolling is how it gets estimated instead.
+    Reports what a tree of ten thousand rows does not show at a glance: how
+    many parents have nothing inside them. In an infection assay that number
+    is the readout.
 
     :param forest: root nodes as returned by :func:`build_forest`. The first
         root's table is taken as the root table; an empty forest gets a

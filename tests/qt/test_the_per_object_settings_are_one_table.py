@@ -224,6 +224,9 @@ def test_an_unset_value_reads_as_auto_and_not_as_blank(grid):
             index = model.index(row, column)
             question = model.question_at(row)
             obj = model.objects()[column]
+            if question == "diameter" and obj in ("cell", "nucleus",
+                                                  "pathogen"):
+                continue
             if model.asks(question, obj) and model.value_at(question, obj) is None:
                 assert model.data(index, Qt.DisplayRole) == AUTO_TEXT
                 return
@@ -499,25 +502,25 @@ class TestAnUnsetChannelSaysOffNotAuto:
         assert "channel" not in grid.questions()
         assert "cell_channel" in grid.settings()
 
-    def test_an_unset_diameter_still_reads_auto(self, grid):
-        """Most questions DO mean "work it out" -- a diameter of None is
-        Cellpose estimating it. Only the channel is a switch."""
+    def test_an_unset_background_still_reads_auto(self, grid):
+        """Most questions DO mean "work it out". Only the channel is a
+        switch. (Item 696: an unset object diameter is the exception and
+        shows its magnification default, see
+        test_696_the_diameter_field_takes_auto.py.)"""
         from PySide6.QtCore import Qt
-        question = next(q for q in grid.questions()
-                        if "diameter" in q and grid._model.asks(q, "cell"))
-        row = grid.questions().index(question)
+        row = grid.questions().index("background")
         col = grid.objects().index("cell")
-        grid.set_value(question, "cell", "")
+        grid.set_value("background", "cell", "")
         assert grid._model.data(grid._model.index(row, col),
                                 Qt.DisplayRole) == "auto"
 
     def test_typing_either_word_back_clears_the_cell(self, grid):
-        # 2026-09-29 (item 592): measured on the diameter, since the
-        # channel is no longer a cell.
+        # 2026-09-29 (item 592), measured on the background since item 696
+        # made "auto" a value of its own for the diameter.
         for word in ("off", "auto", "AUTO", ""):
-            grid.set_value("diameter", "cell", "2")
-            assert grid.set_value("diameter", "cell", word) is True
-            assert grid.settings()["cell_diameter"] is None
+            grid.set_value("background", "cell", "2")
+            assert grid.set_value("background", "cell", word) is True
+            assert grid.settings()["cell_background"] is None
 
     def test_every_cell_carries_the_help(self, grid):
         """Asked for: "all the rows need to have tooltips".

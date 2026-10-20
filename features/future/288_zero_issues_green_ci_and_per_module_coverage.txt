@@ -4661,10 +4661,10 @@ compact dictionary rather than that external inventory. This does not claim
 full catalog coverage or green CI. Receipt:
 features/data/288_section_heading_translations_2026-09-22.json.
 
-2026-09-23 — IMPLEMENTATION: TWO STARPLAST MODULES NOW EXCEED THE FLOOR
+2026-09-23 — IMPLEMENTATION: TWO PARASCAPE MODULES NOW EXCEED THE FLOOR
 The last completed CI35807838039 artifact10730121853 reports11modules below
 90percent and71ratchet failures at6006a0608. That is historical evidence,
-not a current-head verdict. Rechecking the current two Starplast modules
+not a current-head verdict. Rechecking the current two ParaScape modules
 reproduced their gaps:86.89percent installer and83.62percent Qt launcher,
 14passing existing tests.
 
@@ -4679,11 +4679,11 @@ threads drive the cancellation/lifecycle cases. Worker outcome branches are
 also checked directly, without starting a native thread.
 
 35tests pass in7.62seconds under8GiB/no-swap/offscreen CPU limits. Measured
-combined statement/branch coverage: spacr/_starplast.py98.91percent and
-spacr/qt/starplast.py97.74percent. Runtime behavior/code, baseline, exemptions,
+combined statement/branch coverage: spacr/_parascape.py98.91percent and
+spacr/qt/parascape.py97.74percent. Runtime behavior/code, baseline, exemptions,
 exclusions and coverage threshold are unchanged. No repeated multi-GB install
 or new desktop-acceptance claim. Receipt:
-features/data/288_starplast_boundary_coverage_2026-09-23.json.
+features/data/288_parascape_boundary_coverage_2026-09-23.json.
 This closes these two measured floor gaps, not the remaining modules, ratchet
 regressions, translation backlog or full green-CI requirement.
 
@@ -5760,3 +5760,109 @@ ratchet changed. CurrentGitHub open issues[]; currentrequired/fullserial still
 pending. Root verifies7payloads/2sourcebindings/oldreporthash, integrated owning
 51PASS/3CuPySKIP. See data/288_current_floor_deficit_cpu_2026-10-08/deficit-table.json
 and data/43_288_current_cpu_root_readback_2026-10-09/receipt.json.
+
+2026-10-13 20:03 EDT — Current complete union and genuine missing-path repairs
+    Hosted 38477246153 and an independent strict 12/12-source-bound union
+    reproduce 664-module coverage: the earlier source-default deficit is
+    repaired, with only model_zoo.py180->181 and console_panel.py261-262
+    newly over the unchanged allowances. Real owning regressions pass11 and
+    63 cases and cover these exact paths. Source-identical local augmentation
+    of the preserved hosted union passes the existing gate with zero module
+    regressions. No baseline, threshold, denominator or exemption changed.
+    Existing ops_accel below-floor CUDA exemption remains; actual Work CuPy
+    coverage and literal90% completion remain outstanding. Full hosted CI
+    also remains pending. Parent stays OPEN. Evidence:
+    data/43_home_ci_followup_2026-10-13/local-coverage-diagnostic.json.
+
+2026-10-13 20:39 EDT — Work unchanged-source real CuPy parity requested
+    Three existing forced-CuPy parity cases cover successful GPU primitives
+    with real arrays. Source/test hashes match both currenteb72 and preserved
+    9af. Work schedules its own background GPU turn without recording overlap;
+    Home does not query/use GPU. Require three actual passes, zero skips, raw
+    coverage and device/source provenance. Honest union is predicted to exceed
+    literal90%, not yet measured. No source/tests/exemption changed. Request:
+    data/288_work_cupy_request_2026-10-13/. Parent remains OPEN.
+
+
+2026-10-13 — Exact eb72 hosted coverage gate PASS, full CI still pending.
+Run38488240863 attempt1, gate job115632673777, bound report artifact11863920785:
+all12 shards pass;664/664 shipped modules checked;0 failed/unconfirmed modules,
+0 integrity issues,104 improved and456 at100%. Baseline/exemption blobs are
+unchanged. Literal ops_accel is84.73%, below90 and covered by its pre-existing
+three-CuPy-kernel floor exemption. Genuine Work device parity/coverage remains
+pending; never treat the gate label as proof of literal90% for that module.
+Receipt/report: features/data/288_hosted_eb72_coverage_acceptance_2026-10-13/.
+F288 remains OPEN until full CI and the genuine device-dependent target are
+actually accepted. No baseline/exemption changes or Home GPU use occurred.
+
+
+2026-10-13 22:01 EDT — Genuine CuPy target accepted; full CI still pending.
+Work9cf67b0775 runs the three existing forced-CuPy cases on RTX3090Ti:
+3PASS/0SKIP, actual scheduler/outer exit0, all19artifact and frozen source
+bindings independently checked, no mocks or substitute kernels. Original
+coverage7.16 rawSQLite and its analysis agree. Home7.15 reader independently
+reproduces the exact denominator/arcs and normal source-bound union with
+preserved originalCPU data plus genuine local model/console coverage.
+
+Literal ops_accel is97.04%:144/147 statements,53/56 branches,0excludedlines;
+all664 modules above90% floor,0regressions/unconfirmed/integrityissues.
+Remaining3lines/arcs are unavailable-backend refusals, not unexecutedCuPy
+kernels. This is explicitly LOCAL mixed-collector diagnostic evidence, not
+a new hosted artifact/shard identity. Baseline/exemption remain unchanged,
+original DBs untouched and no Home GPU or new pytest execution occurred.
+Recording-free scheduling is corroborated by timed Work owner attestations,
+not an invented process snapshot. Root acceptance/proofs are in
+features/data/288_real_cupy_source_bound_acceptance_2026-10-13/. F288 remains
+OPEN until current fullCI is actually green and its remaining requirements
+are checked; the literal90% device target is now satisfied for this source.
+
+
+2026-10-14 00:30 EDT — eb72 full CI failed; new source repair ready.
+    All12 coverage shards and hosted ratchet passed on eb72, but independent
+    Qt2preview ratio and aggregate gate failed. Home's real repeated-partial
+    repaint repair covers every98new statement/34branch without ceiling,
+    exclusion or test-limit changes. Fresh fullCI must verify currentwhole
+    module/source; old shifted ambient coverage is not combined/relabelled.
+    The accepted real CuPy97.04% union remains historical/source-bound; its
+    unchanged primitive sources are not an invented new hosted artifact.
+    F288 remainsOPEN, including open146/147 and fullCI requirements.
+    Evidence:data/43_partial_field_repaint_repair_2026-10-14/.
+
+2026-10-14 02:59 EDT — Current A744 source-bound coverage diagnostic completed.
+Normal all-12 hosted CPU combination plus ONLY the genuine source-identical
+Work Ops GPU data yields actual Ops 144/147 statements and 53/56 branches
+(97.04%). All 667 non-Ops measured files retain identical normalized per-file
+context/arcs and tracers; current ambient remains 6416/6416 statements plus
+1716/1716 branches. The current normal report's 663 other shipped modules and
+the normal Ops report imply all 664 literal floors. This is a logical local
+diagnostic, not a newly generated full normal ratchet, hosted CI or device run.
+Original 400 input files/source bindings retained; V2 actual exit 0 under
+512 MiB/zero-swap cap, initial basename setup failure also preserved.
+Proof: data/288_current_source_coverage_union_2026-10-14/.
+Actual full run 38512120776 is FAILED: 24 pass / 6 fail, metadata scanner and
+dark opaque-field pixel equality are independent causes. Numerical coverage
+passes but its job fails the all-shards-tests dependency. Original timing gate
+passes; pixel diagnosis and fresh full CI remain required. Issues 146/147 and
+whole F288 acceptance remain OPEN; no baseline, exemption or exclusion edits.
+
+2026-10-15 Original — current hosted-failure repair batch published through d12fe074a6.
+Reproduced and repaired the documentation fixture dependency, Toggle failure
+injection, live-run workspace fixture, Pages content/redirect routing test,
+installer cleanup sorting, asynchronous model-picker fixtures, cancellation
+cleanup behavior fixture, channel warning expectation, private dataclass
+constructor audit and typed Qt Enter-event crash fixture. Each finite targeted
+run and independent source/evidence peer is preserved under features/data/ci_*.
+Normal notebook generation updated only activation_maps checkpoint settings.
+No ratchet ceiling, historical debt, assertion exemption, provider refusal,
+model-trust check or dialog-safety guard was relaxed. No full-suite/release CI
+was dispatched; local staged passes do not establish hosted green/coverage.
+Remaining actual owner dependencies include N700 test hygiene, F561 reviewed
+input fixture path, README source contracts and current tutorial publication
+selectors. HF cell-mask E2E emptiness remains under source-only diagnosis.
+Whole N43/F288 and release acceptance remain OPEN.
+
+2026-10-19: being done for 1.5.1.5 (the 2026-10-16 deferral is lifted); N43 keeps the coverage gates and ratchets as they are.
+2026-10-19: per-module ratchet tests (tests/**/test_cov_288_*_20261019.py): layers, object, timelapse, model_zoo (0fbdeeea2); active_learning, 0 statements/1 branch left (ffb547e77); qt/app, 115 of CI's 154 missing statements (25f982d52).
+2026-10-19: classifier_evaluation and ambient, every CI-missing statement and branch (90641edcc); ops_accel, prefs, folder_metadata, restart_state, run_journal, install_consent, layer_viewer, ortho_view, batch, train_compare, figure_grid_view, metadata_table, sortable_table, import_workbench, timelapse_preview (cf15e7ebe).
+2026-10-19: app_screen runs beside, removed runs, trials, workspace restore, anonymous report, advisor and dialogs (ca0866490, 705a76fac); local uncovered 193 -> 64 statements, 103 -> 53 branches (baseline 113/64).
+2026-10-19: REMAINING: the next hosted coverage run confirms the ratchets; the zero-issues parent stays open until full CI is green.

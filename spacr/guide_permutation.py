@@ -236,15 +236,16 @@ def guide_freedman_lane_test(
 ) -> pd.DataFrame:
     """Test marginal guide associations across one or more support families.
 
-    THE METHOD, IN FULL
-    -------------------
+    Method
+    ------
 
     Let ``n`` be the number of wells and ``G`` the number of guides. For well
     ``i``, ``y_i`` is the phenotype and ``x_ig`` is guide ``g``'s read
     fraction. ``Z`` is the ``n x q`` nuisance design: indicator columns for
     the block (normally ``plateID``) and for each column in
     ``nuisance_columns`` (normally ``rowID`` and ``columnID``). A
-    rank-deficient ``Z`` is REFUSED rather than pseudo-inverted, because a
+    rank-deficient ``Z`` raises ``ValueError`` rather than being
+    pseudo-inverted, because a
     nuisance basis that cannot be inverted is a design question, not a
     numerical one.
 
@@ -262,25 +263,25 @@ def guide_freedman_lane_test(
 
         t_g = (x~_g . y~) / (||x~_g|| ||y~||)
 
-    the cosine between the two residualised vectors -- that is, the PARTIAL
-    CORRELATION of ``x_g`` and ``y`` given ``Z``. It is scale-free in both
+    the cosine between the two residualised vectors -- that is, the partial
+    correlation of ``x_g`` and ``y`` given ``Z``. It is scale-free in both
     arguments, so guides are directly comparable without standardisation. A
     zero-norm residual on either side is refused by name rather than
     returned as a zero correlation.
 
     With ``statistic='rank'`` the phenotype is ranked (average ranks for
-    ties) BEFORE the projection, so ``M`` removes the block from the RANKS
+    ties) before the projection, so ``M`` removes the block from the ranks
     and ``t_g`` is a Spearman-type partial correlation.
 
     **3. Freedman--Lane.** For permutation ``b``, with ``P_b`` shuffling rows
-    only WITHIN a block::
+    only within a block::
 
         y_b  = y^ + P_b y~        y~_b = M y_b
         t_g_b = (x~_g . y~_b) / (||x~_g|| ||y~_b||)
 
     Three things this does that a naive shuffle does not. The nuisance fit
     is added back before re-projecting, so the reference distribution is
-    "no guide effect GIVEN Z" rather than "no structure at all". The
+    "no guide effect given Z" rather than "no structure at all". The
     denominator is recomputed per permutation, because ``M P_b y~`` does not
     preserve norm and a fixed one would let the null drift with the shuffle.
     And the shuffle is confined to a block, because permuting across plates
@@ -290,8 +291,8 @@ def guide_freedman_lane_test(
 
         p_g = (1 + #{b : |t_g_b| >= |t_g| - eps}) / (B + 1)
 
-    The ``+1`` in both places is not a fudge: including the observed
-    configuration in its own reference set is what makes the test EXACT,
+    The ``+1`` in both places includes the observed configuration in its
+    own reference set, which makes the test exact,
     giving ``P(p <= alpha) <= alpha`` under the null for any ``B``. It also
     sets a floor of ``1 / (B + 1)`` -- with the default 200,000
     permutations, 5e-06. A guide at the floor is one no permutation reached,
@@ -330,10 +331,10 @@ def guide_freedman_lane_test(
     :param outcome_column: numeric phenotype column in ``outcomes`` to test.
     :param statistic: ``'pearson'`` (default) or ``'rank'``.
 
-        THE INFERENCE WAS ALWAYS DISTRIBUTION-FREE; THE STATISTIC WAS NOT.
-        The permutation builds its own null, so the P value needs no
-        assumption -- but the quantity being permuted is a partial
-        CORRELATION, and a correlation is a least-squares object: one
+        The permutation inference is distribution-free, but the default
+        statistic is not robust. The permutation builds its own null, so the
+        P value needs no distributional assumption -- but the quantity being
+        permuted is a partial correlation, a least-squares quantity: one
         extreme well moves it, exactly as it moves a regression
         coefficient.
 
@@ -342,17 +343,15 @@ def guide_freedman_lane_test(
         monotone rather than linear, and bounded in its response to an
         outlier because a rank cannot be extreme.
 
-        WHY IT MATTERS HERE, measured on a real screen: the residuals came
-        back with excess kurtosis +8.89 and skew +1.64, with 455 of 1,781
-        observations above the leverage guide and a maximum Cook's distance
-        of 1.01. That is a design where a handful of wells move a
-        least-squares statistic, and ranking is the cheapest defence.
+        On one real screen the residuals had excess kurtosis +8.89 and skew
+        +1.64, with 455 of 1,781 observations above the leverage guide and
+        a maximum Cook's distance of 1.01; in such a design a few wells move
+        a least-squares statistic, and ranking limits that influence.
 
-        IT COSTS NOTHING IN SPEED, which is why it is offered and a robust
-        regression is not. Both are one matrix product, so 200,000
-        permutations stay feasible; a quantile or Huber fit would need one
-        fit per guide per permutation -- here 789 x 200,000 -- which is not
-        a slower option, it is a different program.
+        Ranking adds no cost per permutation, which is why it is offered and
+        a robust regression is not. Both statistics are one matrix product,
+        so 200,000 permutations stay feasible; a quantile or Huber fit would
+        need one fit per guide per permutation -- here 789 x 200,000.
     """
     statistic = str(statistic or "pearson").strip().lower()
     if statistic not in ("pearson", "rank"):
@@ -776,7 +775,7 @@ def plot_guide_permutation_volcano(
 
 def gene_fraction_matrix(fractions: pd.DataFrame,
                          gene_of_guide: Mapping[str, str]) -> pd.DataFrame:
-    """Sum each gene's guide columns into ONE column per gene.
+    """Sum each gene's guide columns into one column per gene.
 
     This is exactly the quantity the parametric gene fit regresses on:
     :func:`spacr.ml.check_and_clean_data` defines ``gene_fraction`` as the sum
@@ -816,7 +815,7 @@ def prepare_long_gene_data(
     block_column: str = "plateID",
     nuisance_columns: Sequence[str] | None = None,
 ):
-    """Well-by-GENE fractions, the well table, and how many guides each gene has.
+    """Well-by-gene fractions, the well table, and each gene's guide count.
 
     :param data: long regression table containing well, guide, gene, fraction,
         and phenotype columns.
@@ -874,25 +873,25 @@ def gene_freedman_lane_test(
     gene_metadata: pd.DataFrame | None = None,
     **kwargs,
 ) -> pd.DataFrame:
-    """Test each GENE's guides as a SET, against the same permutation null.
+    """Test each gene's guides as one set, against the same permutation null.
 
-    The design asks the nonparametric path for a gene pass beside its
-    guide pass. The gene's regressor is the SUM of its guides' fractions --
+    This is the gene-level counterpart of the guide-level permutation test.
+    The gene's regressor is the sum of its guides' fractions --
     one column, one test, one degree of freedom -- residualized against the
     same block/nuisance design and permuted with the same Freedman--Lane
     scheme. Passing the same ``random_state`` as the guide pass makes the
-    permutations literally identical, because the permuted object is the
+    permutations identical, because the permuted object is the
     residual of the same outcome against the same nuisance design.
 
-    IT IS NOT A COMBINATION OF PER-GUIDE P VALUES, and that is deliberate.
-    Fisher's and Stouffer's methods both assume the p-values being combined
+    The test does not combine per-guide P values. Fisher's and Stouffer's methods both assume the p-values being combined
     are independent, and two guides measured in the same wells are not: they
     share the well's phenotype, the well's plate effect and the well's cells.
     Combining them would report a confidence the design cannot support.
 
-    WHAT A ONE-DEGREE-OF-FREEDOM SET TEST CANNOT SEE, and the reason
-    ``guides_in_gene`` travels with every row: a gene whose guides push the
-    phenotype in OPPOSITE directions cancels in the sum, exactly as it does in
+    A one-degree-of-freedom set test cannot detect guides with opposite
+    effects, which is why ``guides_in_gene`` is reported on every row: a
+    gene whose guides push the phenotype in opposite directions cancels in
+    the sum, exactly as it does in
     the parametric ``y ~ gene_fraction:gene`` fit that this mirrors. Such a
     gene is not evidence of no effect; it is evidence the guides disagree, and
     the guide-level table is where that shows. A gene resting on one guide
@@ -905,8 +904,9 @@ def gene_freedman_lane_test(
     :param outcome_column: numeric phenotype column to test.
     :param gene_metadata: the per-gene guide counts, joined onto the result.
     :param kwargs: forwarded to :func:`guide_freedman_lane_test`.
-    :returns: one row per gene per minimum-wells family, BH-corrected WITHIN
-        the gene family and never pooled with the guide family.
+    :returns: one row per gene per minimum-wells family, corrected for
+        multiple testing within the gene family and never pooled with the
+        guide family.
     """
     result = guide_freedman_lane_test(
         gene_fractions, outcomes, outcome_column, **kwargs)
@@ -942,16 +942,17 @@ def analyse_long_gene_table(
     random_state: int = 0,
     **kwargs,
 ) -> pd.DataFrame:
-    """The gene pass over spaCR's saved ``regression_data.csv``.
+    """Run the gene-level test on spaCR's saved ``regression_data.csv``.
 
     :param data: long well-guide-gene regression table to analyse.
     :param outcome_columns: phenotype column name or names to test.
 
-    The counterpart of :func:`analyse_long_guide_table`. Its BH correction is
-    computed over GENES ONLY: two families, never one. Pooling them would be
-    wrong twice over -- the same wells produce both, and a gene's regressor is
-    literally the sum of its guides' regressors, so they are not independent;
-    and doubling the family size costs power for no protection.
+    The counterpart of :func:`analyse_long_guide_table`. Its multiple-testing
+    correction is computed over genes only, as a family separate from the
+    guides. Pooling the two families is avoided because the same wells
+    produce both and a gene's regressor is the sum of its guides'
+    regressors, so they are not independent, and doubling the family size
+    would reduce power without added protection.
     """
     gene_fractions, outcomes, gene_metadata = prepare_long_gene_data(
         data,

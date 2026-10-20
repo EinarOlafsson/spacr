@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "source_commit": "9f386d9c0ebe9d48a2598c694f45ddbe360f6908",
+  "tests_commit": "dbbaaf7bbb6e48b27f112853fad23760529e7d69",
+  "tested_head": "6db63785426d963552842651f98188c22f62499b",
+  "source_file": "tools/build_documentation_i18n.py",
+  "source_sha256": "440903672f940dffca8e020abe9343a271f285ff01d2679c289444a5ebdc593b",
+  "test_sha256": "f420b6f7bd596082eb83438e9904ce80729f1abff3a9a5fdef55c355b0270b1d",
+  "before": "6 failed,16 passed in1.11s; UI-owned actual-audit fixtures",
+  "after": "22 passed in0.85s; exit0",
+  "contract": [
+    "Exactly one complete standalone ordered picker marker pair and raw HTML body.",
+    "Balanced generated picture/image inside a single exact README.md anchor; duplicate href and outside links cannot satisfy it.",
+    "Existing README structure/currentness and English-index checks remain unchanged."
+  ],
+  "actual_translated_readme_probe": {
+    "result": "PASS all9 checked-in translated picker bodies through the new helper; no full API audit or generator",
+    "files": {
+      "docs/i18n/readme/README.de.rst": "f960612085ecb0215970b2a420ca42f9d4d7edaff6ffa913c1b8ed818aeed496",
+      "docs/i18n/readme/README.es.rst": "0a2c0266496ef253c326af218b6869e155276990d1c4f0ea3a53a7ab87dc32b3",
+      "docs/i18n/readme/README.fr.rst": "50dbb1c78e8e22ffc08766d3e11920a547c9d9ad05a2ba4102801f1c5c08d3cd",
+      "docs/i18n/readme/README.hi.rst": "7c3d06d0735d2f060532a571b0e9a0b5f797f6b74d1c2b3a7ceacc5afbb8a1c6",
+      "docs/i18n/readme/README.is.rst": "9e21a2e35dcbbf057bfea3f08c666e56da320e2c1537961ee4b97fb6ad53d63f",
+      "docs/i18n/readme/README.ko.rst": "b413c16f75f67c9dbbea1d972d3e164a228c230e92d723247e0837c3e3f231ab",
+      "docs/i18n/readme/README.pt.rst": "39f7f38072034acc261beaf8bfc77f3cec052803c4e7eba28a8045602d8294cd",
+      "docs/i18n/readme/README.sv.rst": "d14d66e5742d3f0e999a8a61ff3d89de346e14e67b636ef3444decf1468b709c",
+      "docs/i18n/readme/README.zh_CN.rst": "f0a55843bfa7e6ec5149e5ad4a22c5c7a87b4511cf31a44f73bf69d6dc58a7ee"
+    }
+  },
+  "limits": [
+    "Scoped actual audit fixtures replace unrelated API inventories and image freshness checks; those production gates remain intact.",
+    "Original Home must resume its ordinary existing nine-language audit; no broad audit claimed here."
+  ],
+  "evidence_sha256": {
+    "after.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "after.log.gz": "756e2ff77ccb9c3362a2d53671b7d1bb86130dd14fb95b36216b241d6772bf1a",
+    "after.time": "cb0a9bf730e70526274cf6b53751d1de2f2055971c5e460c924b97518c5d1a3e"
+  }
+}

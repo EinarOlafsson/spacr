@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "scope": "Exactly one retained Icelandic module paragraph repair. No Python source, prior172 review records or generated catalogs changed.",
+  "source_commit": "35aa6c146f3b30eedab48f198166d32ba4e67ff0",
+  "source_file": {
+    "path": "spacr/qt/job_runner.py",
+    "sha256": "ab734fb22124a354a3d5357a32ad3010a9f68a970bafe2cd4e8055ca82458706"
+  },
+  "catalog_baseline": "ba0a0a8948922e474d612cd3bdce9f38e81cf1af",
+  "old_catalog": {
+    "path": "docs/source/_static/i18n/api/is.json",
+    "sha256": "2055b9e4f117d16f00993dd561ed59eda2644b502b46bf8c8353589a4a28f13f",
+    "record": {
+      "source_blocks_sha256": [
+        "f442cfec0c08ddd71264193932b78e337dd3dbdf330a7b6b38e8f2a1d222bc5c",
+        "4196eb0fc3448452ffdd1474fa6d9fcd1aec512183f979623d9cb2875f6ddd83",
+        "5b35c540a85ee04b577f56ebf7803077454062617d6e23a3a8c71fc1113685c5",
+        "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
+        "ac37321b9f04137a4597d4e18330ab830fea36eeb139043632d2250406ce1db6",
+        "35459c9d59856122a87e062b581e4055eab02cf6ba3e89cc06ef8affd6c24267",
+        "bc320654e9236f092354dfdf4a48f3679a560a8fd8f3256c71db5124f4550c3a",
+        "a3b9d83c75a585f9630ccb48a693bc732ee24fea0f6b3a3c2357eb3d4afbd993"
+      ],
+      "source_sha256": "ef279b22872ef65edf0387969c89ca9dba19ecc717bfa5727e00509fe99d65af",
+      "text": "Keyra kallanlegt fall utan GUI-þráðarins og afhenda niðurstöðu þess á GUI-þræðinum.\n\nÁætlunar sýningar eins og ``DbBrowserScreen``, ``PlateViewScreen`` og ``ReportScreen`` áður hver hafði eigin kopi af þessu logic, og kopiir eru mismunandi: tveir tengjast ``thread.finished`` til *closure*, sem aldrei taka upp vinnu (sjá :meth:`_retire_finished_jobs`). Þessar mælikar fylgja reglum einu sinni, fyrir hvaða umsókn sýningu sem flytja vinnu frá helstu GUI framkvæmd stefnu.\n\nReglurnar eru:\n\n* ``PipelineWorker.finished`` er geymt **á bakgrunni útgáfu einkefni**. A loka tengd við það er kallað þar. Touching widget frá það er óþekkt hegðun. Það eina öryggi sem slott á þessu merki getur gert er að útgáfa aftur ``Signal`` þar sem viðkomandi er tengd aðferð á heiminum GUI útgáfur hlut - Qt þá skipuleggja samtal á heimi útgáf GUI.\n* **QObject viðkomandi þörf.** Connect ``QThread.finished`` til aðferð á QObject sem er hluti af GUI lóð. Að loka er óvæn. PySide6 veitir QThread sjálfan sig sem viðfangandi loka. :func:`spacr.qt.bridge.make_thread` er fyrst tengdur ``thread.finished -> thread.deleteLater``. Slots virkar í tengslum orði. DeferredDelete er því lagt fram áður en loka callback. Qt fjarlægir kvikmyndun eftir að eyðileggja viðkomandi sínu. Þá er vinnu enn aðgerð og ``active_jobs()`` ná aldrei null.\n* Stærri tengsl á bæði QThread og vinnandi verður að halda til ``thread.finished``. A QThread skammt samlað meðan á því að framkvæma abort ferlið.\n* Afhending niðurstaðna og losun þráðatilvísana eru aðskildar. :meth:`cancel` hreinsar afhendingar í bið strax; síðbúin verklok senda þá ekkert ``job_finished`` merki. Yfirferð lokinna þráða losar áfram tilvísanir í þræðina óháð þessu.\n\nVerk á þráðum fara í gegnum ``make_thread``, birtast því í sameiginlegri :func:`spacr.qt.bridge.registry` fyrir ferlið og virkja bakgrunnsvirknivísinn (:mod:`spacr.qt.widgets.activity_spinner`). Bein keyrsla fer fram hjá þessari skráningu og breytir ekki upptekinni stöðu keyrslustjórans.",
+      "translation_source_blocks_sha256": [
+        "dcdc4c7885888d598e472129494ded92b6ab9df1834c2ebf6ee2ba0c8a7d5f1c",
+        "a80b94ff03948af31dc3e3a8d3ecb9c535b15696a1a8c59be7578c3ad8784223",
+        "5b35c540a85ee04b577f56ebf7803077454062617d6e23a3a8c71fc1113685c5",
+        "da0963d1bc57319ebdcf93a8b98919a0b2cac1cd514a258e088d764319a035e8",
+        "881e8b01d32db2658fbcde0c99b69443140de833e47aa3495931c050f43cbbcb",
+        "b86b36add38a7d26b9ed0067cbab9205d54f947de1cbea68b2546c8bfa9d0b10",
+        "c356486475a946e8ae08dca26b30de3019d43b9df0acd91ce144633696431d98",
+        "fe223a792c8da64bf1240ef6d7d3f55037822b715327e13c5a0f0c76c584d9ae"
+      ]
+    }
+  },
+  "record": {
+    "label": "spacr.qt.job_runner#3",
+    "source": "``PipelineWorker.finished`` is emitted **on the worker thread**. A closure connected to it is invoked there. Touching a widget from it is undefined behaviour. The only safe thing a slot on that signal may do is re-emit a ``Signal`` whose receiver is a bound method of a GUI-thread object -- Qt then queues the call onto the GUI thread.",
+    "context": "``PipelineWorker.finished`` is emitted **on the background execution unit**. A closure connected to it is invoked there. Touching a widget from it is undefined behaviour. The only safe thing a slot on that signal may do is re-emit a ``Signal`` whose receiver is a bound method of a main GUI execution path object -- Qt then schedules the call onto the main GUI execution path.",
+    "source_sha256": "12242295ad613ffd3ec1eef1e6e7573a9704accd994554b2d0860ea6a91d451b",
+    "translation": "``PipelineWorker.finished`` er sent **á vinnuþræðinum**. Fallslokun (closure) sem er tengd við merkið er kölluð á þeim þræði. Að vinna með viðmótshlut þaðan hefur óskilgreinda hegðun. Eina örugga aðgerðin sem afgreiðslufall (slot) á þessu merki má framkvæma er að senda aftur ``Signal`` þar sem viðtakandinn er bundin aðferð hlutar á GUI-þræðinum. Qt setur þá kallið í biðröð til keyrslu á GUI-þræðinum.",
+    "review_basis": "AI technical correction of signal emission on the worker thread, closure invocation there, undefined widget access, and queued delivery to a GUI-thread bound-method receiver. Independent technical peer requested; no human/native-speaker claim."
+  },
+  "before_translation": "``PipelineWorker.finished`` er geymt **á bakgrunni útgáfu einkefni**. A loka tengd við það er kallað þar. Touching widget frá það er óþekkt hegðun. Það eina öryggi sem slott á þessu merki getur gert er að útgáfa aftur ``Signal`` þar sem viðkomandi er tengd aðferð á heiminum GUI útgáfur hlut - Qt þá skipuleggja samtal á heimi útgáf GUI.",
+  "before_sha256": "97ecf300fc1f5807334c42a644b58117a87022a172710ff085c070fee29ac42f",
+  "after_sha256": "ef9174025eeb223a0bcbb8edf1dc96f8cac29061ae1998d4f5f2281c28d87dc6",
+  "normal_gates": {
+    "source_candidate": "PASS",
+    "context_candidate": "PASS",
+    "actual_inline_markup": "PASS",
+    "combined_current_review_loader": "PASS using unchanged normal selected-module loader over symlinked current Icelandic review files plus this new input; no active same-label record found",
+    "retirements": 0
+  },
+  "tools": {
+    "tools/build_documentation_i18n.py": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+    "tools/build_guide_i18n.py": "668514ab91ba38a66fcda26e1709377806d6191fee4bcb828528b03b973b0877",
+    "tools/build_i18n_catalogs.py": "af63469004b439e3174f3bd42896806795801cba2865cb1f15b380abe58f19ff"
+  },
+  "review_type": "Author AI technical review; independent UI agent semantic peer pending final input binding; no native-speaker claim",
+  "generation": "None; no canonical capture, API writer, decoder or model loaded."
+}

@@ -1,0 +1,42 @@
+{
+  "scope": "Actual normal reviewed_runtime_translations schema/source-hash/context/semantic/syntax/script/identity gates over isolated proposed inputs; canonical source argument is the exact scoped AST-owned literal set filtered by normal eligibility. This is not a full canonical inventory or publication acceptance.",
+  "source_count": 9,
+  "checks": {
+    "sv": {
+      "status": "PASS",
+      "count": 9
+    },
+    "de": {
+      "status": "PASS",
+      "count": 9
+    },
+    "es": {
+      "status": "PASS",
+      "count": 9
+    },
+    "zh_CN": {
+      "status": "PASS",
+      "count": 9
+    },
+    "pt": {
+      "status": "PASS",
+      "count": 9
+    },
+    "hi": {
+      "status": "PASS",
+      "count": 9
+    },
+    "ko": {
+      "status": "PASS",
+      "count": 9
+    },
+    "is": {
+      "status": "PASS",
+      "count": 9
+    },
+    "fr": {
+      "status": "PASS",
+      "count": 9
+    }
+  }
+}

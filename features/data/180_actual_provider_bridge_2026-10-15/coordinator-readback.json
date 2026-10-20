@@ -1,0 +1,8 @@
+{
+  "public_base": "998886e39596c2a353210fe0f7764c7d0cc61e20",
+  "source_and_executed_artifact_hashes_verified": true,
+  "result": "Actual full registry bridge PASS6.78s/exit0, no provider injection/filtering, constructor refresh suppressed. All source files exact to latest published baseline.",
+  "scope": "Bridge acceptance only; queued regression views without live-path loading, Graph controls via actual built provider, unvisited providers stay deferred and close unregisters. No new source defect or implementation tick.",
+  "saved_workspace_snapshot": "Retained only in original scratch path; hash in receipt, not copied into repository.",
+  "reviewer": "Home-B coordinator, independent of probe author"
+}

@@ -1,0 +1,11 @@
+{
+  "status": "Exact one-target wording correction proposed; no validator/source/canonical mutation",
+  "source": "Optional existing local diffusion checkpoint to reuse without training. Requires the diffusion generator and its expected SHA-256. The saved architecture, channels, preprocessing, classifier and condition identities must match the current run. Missing, legacy or incompatible metadata is refused; spaCR does not train a replacement. Blank keeps the existing training route. Default blank.",
+  "source_sha256": "175f83b4923dfed3cfea90341560ee68d82709f08ce7bad4899c476bd49000df",
+  "old_target": "Point de contrôle de diffusion local existant, facultatif, à réutiliser sans entraînement. Nécessite le générateur de diffusion et son SHA-256 attendu. L’architecture, les canaux, le prétraitement, le classificateur et les identités des conditions enregistrés doivent correspondre à l’exécution actuelle. Les métadonnées absentes, dans un ancien format ou incompatibles sont refusées ; spaCR n’entraîne aucun remplacement. Laisser vide conserve le parcours d’entraînement existant. Par défaut : vide.",
+  "old_target_sha256": "ab5e9f9e38193ca3cb53a9de571007accf9abbcfa55bc5d9d3cc8089d3a61c42",
+  "proposed_target": "Point de contrôle de diffusion local existant, facultatif, à réutiliser sans entraînement. Nécessite le générateur de diffusion et son SHA-256 attendu. L’architecture, les canaux, le prétraitement, le classificateur et les identités des conditions enregistrés doivent correspondre à l’exécution actuelle. Les métadonnées absentes, dans un ancien format ou incompatibles sont refusées ; spaCR n’entraîne aucun remplacement. Laisser vide conserve la voie d’entraînement existante. Par défaut : vide.",
+  "proposed_target_sha256": "1339495847155a4672dc78ea6341a29489bf32be58a71c12a5c660ade955e21f",
+  "reason": "Existing _COMPUTE_RUN_SOURCE + French parcours→exécution context rule triggers correctly under current source. Voie explicitly names the training route without ambiguous run/course noun.",
+  "diagnosis": "Exact source AST regex evaluated standalone; no _contextualize/review-recursive invocation, collector or model load."
+}

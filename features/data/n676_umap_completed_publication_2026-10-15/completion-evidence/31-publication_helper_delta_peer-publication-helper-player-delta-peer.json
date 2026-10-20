@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "source_peer_passed": true,
+  "created_utc": "2026-10-15T12:25:49.811564+00:00",
+  "scope": "Read-only source review of external publication-helper player-W/native-arrival-T guards; no export/assembly/publication execution",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/export_published15_checkpoint.py",
+      "bytes": 22909,
+      "sha256": "7db50354c8372be5ae925f81fafed480dfc8f5f67655a5aef29dd1311359e5dd"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/assemble_completed_publication_packet.py",
+      "bytes": 13470,
+      "sha256": "a0d1b6e1446b78e7d8bf1cba043335eaf303b85fb229689cef11ff35686ba9d5"
+    }
+  ],
+  "actual_player_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-fix-evidence.json",
+    "bytes": 1975,
+    "sha256": "b08665a9674f6718a49d8b7bc1d25630421180311833574f8dc54cbd1a933b6a"
+  },
+  "actual_player_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson15-r58/player-readiness-final-independent-peer.json",
+    "bytes": 4274,
+    "sha256": "6d1beff2b3864075926ec6cd4428aff35c2d2bd482a938d4b6df88bdeef69173"
+  },
+  "actual_player_commit": "c6f4ccdf8fd03e10164c1b6972bcf3b686381c07",
+  "findings_resolved": [
+    "Exporter now accepts actual sealed source_peer_passed schema and requires source_commit W, exact two file hashes and actual targeted-test binding",
+    "Pytest footer parser preserves strict terminal0/count semantics while accepting actual standard elapsed suffix (0:01:19)",
+    "Native-arrival T requires exact full-file native_ids anchor replacement adding15 once; other source edits remain rejected"
+  ],
+  "checks": [
+    "W parent is capture a672; exact authoring JS and owning readiness test are the only W paths",
+    "T must be direct child of W and differ only by exact15 arrival whitelist addition",
+    "Actual capturedfd327/a672 perclip commits,502-file capture inventory,app tree,profile,2371inputs,English/13reviews remain separately bound",
+    "Actual future candidate/readback/Pages84/record required before export; no placeholder future success",
+    "Export retains148 coherent files, all13 review receipts and83 otherlesson objects/media; assembler retains exact release manifest/master/timing/sample androotartifact bindings",
+    "Player manifest role/peer/tests are copied as actual artifacts andlinked to exported evidence; actual11 pass footer parses without ratchet relaxation"
+  ],
+  "static_witness": {
+    "ast_parse": "passed; scripts not imported/executed",
+    "actual_player_peer_and_manifest_hash_maps_match": true,
+    "actual_targeted_test_footer_matches": true,
+    "actual_native_ids_preimage_anchor_unique": true
+  },
+  "limits": [
+    "No candidate/HF/Pages/record/export execution or acceptance is inferred from this source review",
+    "No media decoding,8GB rehash,models,source edits,tests,network or publication by reviewer",
+    "Earlier pre-player helper review remains preserved; this receipt covers only the bounded W/T additions and actualschema fixes"
+  ]
+}

@@ -1,19 +1,18 @@
 """Embeddings — a label-free vector for every object, beside the measured panel.
 
-A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models
-expose Python interfaces. This screen also accepts an explicitly mapped,
-digest-verified local official Cell-DINO checkpoint.
+The upstream Cell-DINO, OpenPhenom and SubCell models expose Python
+interfaces; this screen runs them without code. It also accepts an explicitly
+mapped, digest-verified local official Cell-DINO checkpoint.
 
-The engine serves this lab. The screen offers that embedding without any
-Python.
+The screen runs the same embedding engine, :mod:`spacr.embeddings`, that the
+Python API exposes, without requiring any Python.
 
 **What it is for.** Giving every object a vector that no label went into.
 The measured panel says how big a cell is and how bright each stain was;
-an embedding says what the cell LOOKS like, in a few hundred numbers a
-pretrained backbone produces without being told what to look for. That is
-what makes it worth having beside the panel rather than instead of it --
-a phenotype nobody thought to measure is in the vector, and is in no
-column.
+an embedding describes what the cell looks like, in a few hundred numbers a
+pretrained backbone produces without being told what to look for. It
+complements the panel rather than replacing it: a phenotype that no
+measured column captures can still be represented in the vector.
 
 **What it needs.** Crops, and a choice about the channels. The crops come
 from the row at the top of the screen, which is :mod:`spacr.crop_loader`:
@@ -40,33 +39,32 @@ object identity and cannot use this action.
 **What to do next.** Treat the columns as a feature source, not as a
 result. They are consumed exactly as the measured panel is -- a reduction
 to see whether the objects separate, a regression against the perturbation,
-a retrieval to find the objects most like one you picked. Which is also the
-warning the screen repeats under the table: a single dimension is not a
-phenotype, and the only honest way to read one of these numbers is through
-something that takes the whole vector.
+a retrieval to find the objects most like one you picked. The screen repeats
+the corresponding warning under the table: a single dimension is not a
+phenotype, and these numbers can only be interpreted through an analysis
+that uses the whole vector.
 
 All the arithmetic is in :mod:`spacr.embeddings` and none is here. This module
 is the surface, and three of the engine's decisions shape it:
 
-**THE CHANNEL POLICY IS THE FIRST CONTROL, NOT A BURIED OPTION.** 386 calls
-the channel problem "the design problem" and warns against letting it be
-decided implicitly by whatever the backbone wants. Per-channel encoding keeps
-the channel in every column name and costs N forward passes; projection mixes
-the channels into three and costs one. Those produce columns of identical
-width and dtype that mean entirely different things, so the screen makes the
-choice explicit and says what each one costs.
+**The channel policy is the first control on the screen.** How channels are
+combined must not be decided implicitly by whatever the backbone expects.
+Per-channel encoding keeps the channel in every column name and costs N
+forward passes; projection mixes the channels into three and costs one. Those
+produce columns of identical width and dtype that mean entirely different
+things, so the screen makes the choice explicit and says what each one costs.
 
-**A DIMENSION IS NOT A PHENOTYPE, and the screen says so where a user will
-read it.** The table shows the first few dimensions because a user needs to
-see that something happened; the caption says they are meaningless
-individually. Presenting `emb_c2_017 = 0.43` without that sentence invites
-exactly the reading the family cannot survive.
+**A single dimension is not a phenotype, and the screen states this under the
+table.** The table shows the first few dimensions so the user can see that
+the embedding ran; the caption says they are not interpretable individually.
+Showing `emb_c2_017 = 0.43` without that caption invites reading one
+dimension as a phenotype.
 
-**THE ENCODER IS A MODEL, so it is named with its checksum.** The run summary
-carries the model-zoo entry from :func:`spacr.embeddings.encoder_entry` --
-backbone, policy and the digest of the weights on this machine -- because two
-runs' dimension 17 are the same number and not the same thing unless all
-three match.
+**The encoder is identified with the checksum of its weights.** The run
+summary carries the model-zoo entry from
+:func:`spacr.embeddings.encoder_entry` -- backbone, policy and the digest of
+the weights on this machine -- because two runs' dimension 17 are the same
+number and not the same thing unless all three match.
 
 The embedding runs off the GUI thread through
 :class:`spacr.qt.job_runner.JobRunner`, like every other compute in the Qt
@@ -84,11 +82,11 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QStackedWidget,
-    QTableWidget, QVBoxLayout, QWidget,
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFileDialog, QFormLayout,
+    QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QSpinBox,
+    QStackedWidget, QTableWidget, QVBoxLayout, QWidget,
 )
 
 from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
@@ -99,7 +97,10 @@ from ..widgets.measurements_example import install_test_data_button
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import FoldSection
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    SORT_KEY_ROLE, _retire_table_cells, _spare_table_item, install_sorting,
+    table_item,
+)
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.embeddings")
@@ -112,6 +113,7 @@ __all__ = ["EmbeddingsScreen", "make_embeddings_screen", "register",
 
 #: The registry key. Chosen once and never renamed.
 APP_KEY = "embeddings"
+_CELL_DINO_CHOICE_KEY = "embeddings/cell_dino_checkpoint"
 
 #: How many dimensions the preview table shows. Enough to see that the run
 #: produced numbers, few enough that nobody mistakes the table for the result
@@ -204,8 +206,7 @@ class EmbeddingsScreen(QWidget):
 
     The crop loader above the encoder controls is the screen's entry point:
     :mod:`spacr.crop_loader` plans the selection, this screen pages through
-    it on a worker thread, and :meth:`set_crops` -- which used to be
-    reachable only from Python -- is what each finished load calls.
+    it on a worker thread, and each finished load calls :meth:`set_crops`.
 
     :param parent: the usual Qt parent.
     :param threaded: ``False`` runs the embedding and the crop load inline,
@@ -220,6 +221,9 @@ class EmbeddingsScreen(QWidget):
 
     #: A load finished, carrying how many crops it put on the screen.
     crops_loaded = Signal(int)
+
+    _dino_progress = Signal(int, int, int, float)
+    _classifier_progress = Signal(int, int, int, float, float)
 
     def __init__(self, parent=None, *, threaded: bool = True):
         """Build the screen: the controls above, the preview table below."""
@@ -237,6 +241,7 @@ class EmbeddingsScreen(QWidget):
         self._stop = threading.Event()
         self._loading = False
         self._read_path = ""
+        self._demo_active = False
         self._subcell_channels: Optional[tuple[int, int, int, int]] = None
         self._cell_dino_factory = ""
         self._cell_dino_channels: Optional[tuple[int, ...]] = None
@@ -246,6 +251,33 @@ class EmbeddingsScreen(QWidget):
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
         self.crops_progress.connect(self._on_crops_progress)
+        self._dino_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._dino_jobs.job_failed.connect(self._on_dino_failed)
+        self._dino_jobs.job_finished.connect(self._on_dino_finished)
+        self._dino_progress.connect(self._on_dino_progress)
+        self._dino_running = False
+        self._dino_closed = False
+        self._dino_generation = 0
+        self._classifier_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._classifier_jobs.job_failed.connect(self._on_classifier_failed)
+        self._classifier_jobs.job_finished.connect(self._on_classifier_finished)
+        self._classifier_progress.connect(self._on_classifier_progress)
+        self._classifier_running = False
+        self._classifier_generation = 0
+        self._classifier_crop_generation = 0
+        self._classifier_stop = threading.Event()
+        self._classifier_apply_jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._classifier_apply_jobs.job_failed.connect(self._on_classifier_application_failed)
+        self._classifier_apply_jobs.job_finished.connect(self._on_classifier_application_finished)
+        self._classifier_apply_jobs.busy_changed.connect(self._sync_classifier_application_controls)
+        self._classifier_apply_running = False
+        self._classifier_apply_delivery = False
+        self._classifier_apply_generation = 0
+        self._classifier_apply_crop_generation = 0
+        self._classifier_application_result = None
+        self._classifier_retire_timer = QTimer(self)
+        self._classifier_retire_timer.setInterval(25)
+        self._classifier_retire_timer.timeout.connect(self._sync_classifier_application_controls)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -295,6 +327,25 @@ class EmbeddingsScreen(QWidget):
             self, picker, lambda _folder, db: self._use_example_database(db),
             say=lambda text: self._status.setText(text))
         example.setObjectName("EmbeddingsTestDataButton")
+        self._demo_button = QPushButton(tr("Load synthetic demo"), self)
+        self._demo_button.setObjectName("EmbeddingsDemoButton")
+        self._demo_button.setToolTip(tr(
+            "Load 24 generated shapes with labels. DINOv2 runs on the CPU; "
+            "pretrained weights download only if not cached."))
+        self._demo_button.clicked.connect(self._load_demo_crops)
+        picker.addWidget(self._demo_button)
+        self._cell_example_button = QPushButton(tr("Load cell example"), self)
+        self._cell_example_button.setObjectName("EmbeddingsCellExampleButton")
+        self._cell_example_button.setToolTip(tr(
+            "Load the example plate's annotated single-cell crops with their "
+            "labels and run DINOv2 on the CPU. The plate downloads once, "
+            "about 280 MB."))
+        self._cell_example_button.clicked.connect(self._load_cell_example)
+        picker.addWidget(self._cell_example_button)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._demo_button)
+        _apply_alpha_widgets(self._cell_example_button)
         outer.addLayout(picker)
 
         selection = QHBoxLayout()
@@ -396,6 +447,7 @@ class EmbeddingsScreen(QWidget):
         self._add_dino_button(controls)
         self._add_use_for_pickers(controls)
         outer.addLayout(controls)
+        outer.addWidget(self._dino_in_use)
 
         self._save_similar = QPushButton(tr("Save for Similar crops"), self)
         self._save_similar.setObjectName("EmbeddingsSaveForSimilarity")
@@ -458,6 +510,13 @@ class EmbeddingsScreen(QWidget):
         self._foundation = QComboBox(self)
         self._foundation.setObjectName("EmbeddingsFoundationPicker")
         self._foundation.addItem(tr("None (use the backbone)"), "")
+        self._foundation.addItem(tr("DINOv2 (Cell-DINO when installed)"),
+                                 "dino_auto")
+        self._foundation.setItemData(1, tr(
+            "Runs official Cell-DINO when its checkpoint is installed and "
+            "its planes are mapped; otherwise the open DINOv2 ViT-S/14. The "
+            "line below the controls says which one is in use."),
+            Qt.ItemDataRole.ToolTipRole)
         for name, info in _FOUNDATION_MODELS.items():
             self._foundation.addItem(tr(info["label"]), name)
         self._foundation.setToolTip(tr(
@@ -482,6 +541,9 @@ class EmbeddingsScreen(QWidget):
         self._cell_dino_button.setObjectName("EmbeddingsCellDinoConfigButton")
         self._cell_dino_button.clicked.connect(self._choose_cell_dino)
         controls.addWidget(self._cell_dino_button)
+        self._dino_in_use = QLabel("", self)
+        self._dino_in_use.setObjectName("EmbeddingsDinoInUseLabel")
+        self._dino_in_use.setWordWrap(True)
         self._foundation.currentIndexChanged.connect(
             self._sync_subcell_controls)
         self._sync_subcell_controls()
@@ -493,9 +555,10 @@ class EmbeddingsScreen(QWidget):
         from ..preferences import _get_show_alpha_features
 
         selected = self._foundation.currentData() == "subcell_rybg"
-        cell_dino = self._foundation.currentData() == "cell_dino"
+        auto = self._foundation.currentData() == "dino_auto"
+        cell_dino = auto or self._foundation.currentData() == "cell_dino"
         project = self._policy.findData("project")
-        if selected or cell_dino:
+        if selected or (cell_dino and not auto):
             if self._policy_before_subcell is None:
                 self._policy_before_subcell = str(self._policy.currentData())
             self._policy.setCurrentIndex(project)
@@ -526,10 +589,73 @@ class EmbeddingsScreen(QWidget):
         self._subcell_button.setVisible(selected and alpha_on)
         self._subcell_button.setProperty(
             "_spacr_alpha_hid", bool(selected and not alpha_on))
-        self._cell_dino_button.setEnabled(cell_dino and count >= 4)
+        self._cell_dino_button.setEnabled(cell_dino and count >= 1)
         self._cell_dino_button.setVisible(cell_dino and alpha_on)
         self._cell_dino_button.setProperty(
             "_spacr_alpha_hid", bool(cell_dino and not alpha_on))
+        self._dino_in_use.setText(self._dino_sentence(
+            self._dino_note(verify=False)) if auto else "")
+        self._dino_in_use.setVisible(auto and alpha_on)
+        self._dino_in_use.setProperty(
+            "_spacr_alpha_hid", bool(auto and not alpha_on))
+
+    def _dino_note(self, verify: bool = True):
+        """Decide between installed Cell-DINO and open DINOv2 for these crops."""
+        from ...embeddings import CHANNEL_PROJECT, EmbeddingSpec, _dino_choice
+
+        crops = getattr(self, "_crops", None)
+        available = 0 if crops is None else int(crops.shape[-1])
+        batch = int(self._batch.value()) if hasattr(self, "_batch") else 64
+        device = "cpu" if self._demo_active else None
+        if self._cell_dino_checkpoint and not self._cell_dino_mapping_error(
+                self._cell_dino_factory, self._cell_dino_channels, available,
+                self._cell_dino_checkpoint, self._cell_dino_digest):
+            return EmbeddingSpec(
+                backbone="cell_dino", channel_policy=CHANNEL_PROJECT,
+                channels=self._cell_dino_channels, batch_size=batch,
+                device=device, cell_dino_factory=self._cell_dino_factory,
+                checkpoint_path=self._cell_dino_checkpoint,
+                checkpoint_sha256=self._cell_dino_digest), {
+                    "model": "cell_dino", "factory": self._cell_dino_factory,
+                    "path": self._cell_dino_checkpoint}
+        from ..preferences import _settings
+
+        remembered = str(_settings().value(_CELL_DINO_CHOICE_KEY, "") or "")
+        return _dino_choice(
+            self._cell_dino_channels, available,
+            channel_policy=str(self._policy.currentData()),
+            batch_size=batch, device=device, verify=verify,
+            preferred=self._cell_dino_checkpoint or remembered)
+
+    def _dino_sentence(self, choice) -> str:
+        """Say which DINO model runs and, for DINOv2, why not Cell-DINO."""
+        spec, note = choice
+        if note["model"] == "cell_dino":
+            digest = (spec.checkpoint_sha256 or "")[:12]
+            return tr(
+                "In use: official Cell-DINO ({factory}), checkpoint {name}"
+                "{digest}.").format(
+                    factory=note["factory"],
+                    name=os.path.basename(note["path"]),
+                    digest=(" · " + digest + "…") if digest else "")
+        if note["reason"] == "unmapped":
+            why = tr(
+                "Cell-DINO checkpoint {name} is installed, but its {planes} "
+                "input planes are not mapped to crop channels. Map them with "
+                "{button}").format(button=tr("Checkpoint and channels…"),
+                    name=os.path.basename(note["path"]),
+                    planes=note["planes"])
+        elif note["reason"] == "unreadable":
+            why = tr(
+                "{path} is not a readable official Cell-DINO model state.").format(
+                    path=note["path"])
+        else:
+            why = tr(
+                "No official Cell-DINO checkpoint is installed. Meta grants "
+                "access by request; put the file in {folder} to use it.").format(
+                    folder=note["folder"])
+        return tr("In use: open DINOv2 ViT-S/14 (general-image weights).") + (
+            " " + why)
 
     def _subcell_mapping_error(
             self, channels: tuple[object, ...] | None,
@@ -630,6 +756,8 @@ class EmbeddingsScreen(QWidget):
         if factory not in _CELL_DINO_FACTORIES:
             return tr("Choose an official Cell-DINO model factory.")
         width = _CELL_DINO_FACTORIES[factory][0]
+        if not width and isinstance(channels, tuple) and channels:
+            width = len(channels)
         if (not isinstance(channels, tuple) or len(channels) != width
                 or any(not isinstance(channel, int)
                        or isinstance(channel, bool) for channel in channels)):
@@ -649,7 +777,8 @@ class EmbeddingsScreen(QWidget):
 
     def _cell_dino_dialog(self) -> QDialog:
         """Configure a pinned official factory, local weights and input order."""
-        from ...embeddings import _CELL_DINO_FACTORIES
+        from ...embeddings import (_CELL_DINO_FACTORIES, _CHANNEL_ADAPTIVE,
+                                   _cell_dino_checkpoints)
 
         crops = getattr(self, "_crops", None)
         available = 0 if crops is None else int(crops.shape[-1])
@@ -673,7 +802,24 @@ class EmbeddingsScreen(QWidget):
                         "cell_dino_hpa_vitl14")
         factory.addItem(tr("Cell Painting ViT-S/8 · five planes · 128 pixels"),
                         "cell_dino_cp_vits8")
+        factory.addItem(tr("Channel-Adaptive DINO ViT-L/16 · any planes · "
+                           "224 pixels"), _CHANNEL_ADAPTIVE)
         factory.setCurrentIndex(max(factory.findData(self._cell_dino_factory), 0))
+        installed = QComboBox(dialog)
+        installed.setObjectName("EmbeddingsCellDinoInstalled")
+        installed.addItem(tr("Choose installed checkpoint…"), "")
+        for entry in _cell_dino_checkpoints():
+            model = (factory.itemText(factory.findData(entry["factory"]))
+                     if entry.get("factory") else
+                     tr("not a readable Cell-DINO model state"))
+            installed.addItem(os.path.basename(entry["path"]) + " · " + model,
+                              entry["path"])
+            if not entry.get("factory"):
+                installed.model().item(installed.count() - 1).setEnabled(False)
+        installed.setCurrentIndex(max(installed.findData(os.path.realpath(
+            os.path.expanduser(self._cell_dino_checkpoint)))
+            if self._cell_dino_checkpoint else 0, 0))
+        form.addRow(tr("Installed checkpoint"), installed)
         form.addRow(tr("Official model"), factory)
         path = QLineEdit(dialog)
         path.setObjectName("EmbeddingsCellDinoCheckpointPath")
@@ -698,6 +844,18 @@ class EmbeddingsScreen(QWidget):
         digest.setObjectName("EmbeddingsCellDinoDigest")
         digest.setText(self._cell_dino_digest)
         form.addRow(tr("Expected SHA-256"), digest)
+
+        def use_installed() -> None:
+            """Fill the file and its detected model; the digest is read on OK."""
+            chosen = str(installed.currentData() or "")
+            entry = next((item for item in _cell_dino_checkpoints()
+                          if item["path"] == chosen), {})
+            if entry.get("factory"):
+                path.setText(chosen)
+                factory.setCurrentIndex(factory.findData(entry["factory"]))
+                digest.clear()
+
+        installed.currentIndexChanged.connect(use_installed)
         planes = []
         plane1 = QComboBox(dialog)
         plane1.setObjectName("EmbeddingsCellDinoPlane1")
@@ -722,15 +880,27 @@ class EmbeddingsScreen(QWidget):
             form.addRow(tr("Input plane {number}").format(number=index + 1),
                         selector)
 
+        adaptive_note = QLabel(tr(
+            "Channel-Adaptive DINO encodes every crop channel on its own; "
+            "no mapping is needed."), dialog)
+        adaptive_note.setObjectName("EmbeddingsCellDinoAdaptiveNote")
+        adaptive_note.setWordWrap(True)
+
         def sync_width() -> None:
-            """The fifth plane belongs only to the Cell Painting factory."""
-            visible = factory.currentData() == "cell_dino_cp_vits8"
-            form.labelForField(plane5).setVisible(visible)
-            plane5.setVisible(visible)
+            """Show the planes the chosen factory takes; none when adaptive."""
+            adaptive = factory.currentData() == _CHANNEL_ADAPTIVE
+            for selector in planes:
+                visible = not adaptive and (
+                    selector is not plane5
+                    or factory.currentData() == "cell_dino_cp_vits8")
+                form.labelForField(selector).setVisible(visible)
+                selector.setVisible(visible)
+            adaptive_note.setVisible(adaptive)
 
         factory.currentIndexChanged.connect(sync_width)
         sync_width()
         layout.addLayout(form)
+        layout.addWidget(adaptive_note)
         problem = QLabel("", dialog)
         problem.setObjectName("EmbeddingsCellDinoProblem")
         problem.setWordWrap(True)
@@ -741,11 +911,18 @@ class EmbeddingsScreen(QWidget):
 
         def accept_mapping() -> None:
             """Keep only plain configuration values after the form closes."""
+            from ...embeddings import _cell_dino_entry
+
             selected = str(factory.currentData() or "")
             width = _CELL_DINO_FACTORIES.get(selected, (0, 0))[0]
             chosen = tuple(plane.currentData() for plane in planes[:width])
             current = getattr(self, "_crops", None)
             count = 0 if current is None else int(current.shape[-1])
+            if selected == _CHANNEL_ADAPTIVE:
+                chosen = tuple(range(count))
+            if not digest.text().strip() and path.text().strip():
+                digest.setText(_cell_dino_entry(
+                    path.text().strip(), verify=True).get("sha256", ""))
             reason = self._cell_dino_mapping_error(
                 selected, chosen, count, path.text().strip(),
                 digest.text().strip())
@@ -756,10 +933,15 @@ class EmbeddingsScreen(QWidget):
             self._cell_dino_channels = chosen
             self._cell_dino_checkpoint = path.text().strip()
             self._cell_dino_digest = digest.text().strip().lower()
+            from ..preferences import _settings
+
+            _settings().setValue(_CELL_DINO_CHOICE_KEY, os.path.realpath(
+                os.path.expanduser(self._cell_dino_checkpoint)))
             self._status.setText(tr(
                 "Cell-DINO checkpoint and input-plane order saved. "
                 "The file digest will be checked before model loading."))
             dialog.accept()
+            self._sync_subcell_controls()
 
         actions.accepted.connect(accept_mapping)
         actions.rejected.connect(dialog.reject)
@@ -767,11 +949,25 @@ class EmbeddingsScreen(QWidget):
 
     def _choose_cell_dino(self) -> None:
         """Open the Cell-DINO form and dispose its widgets on close."""
+        if not self._cell_dino_checkpoint:
+            from ...embeddings import _find_cell_dino
+            from ..preferences import _settings
+
+            crops = getattr(self, "_crops", None)
+            found = _find_cell_dino(
+                verify=True,
+                available=0 if crops is None else int(crops.shape[-1]),
+                preferred=str(_settings().value(_CELL_DINO_CHOICE_KEY, "") or ""))
+            if found.get("factory"):
+                self._cell_dino_factory = found["factory"]
+                self._cell_dino_checkpoint = found["path"]
+                self._cell_dino_digest = found.get("sha256", "")
         dialog = self._cell_dino_dialog()
         try:
             dialog.exec()
         finally:
             dialog.deleteLater()
+        self._sync_subcell_controls()
 
     def _add_use_for_pickers(self, controls) -> None:
         """Alpha controls that score the embedding and feed it onward.
@@ -831,9 +1027,14 @@ class EmbeddingsScreen(QWidget):
                 tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
         if not path:
             return ""
-        frame = read_table(str(path), report=None)
-        column = "label" if "label" in frame.columns else frame.columns[0]
-        values = frame[column].tolist()
+        try:
+            frame = read_table(str(path), report=None)
+            column = "label" if "label" in frame.columns else frame.columns[0]
+            values = frame[column].tolist()
+        except (OSError, ValueError, IndexError, ImportError) as error:
+            self._status.setText(tr(
+                "Could not read the label table: {error}", error=str(error)))
+            return ""
         embedded = getattr(self, "_frame", None)
         if embedded is not None and len(values) != len(embedded):
             self._status.setText(tr(
@@ -1133,10 +1334,21 @@ class EmbeddingsScreen(QWidget):
         dialog.show()
 
     def _add_dino_button(self, controls) -> None:
-        """The alpha button that pretrains a backbone on the loaded crops."""
+        """Group the alpha checkpoint picker, epoch control and training progress."""
         from ..preferences import _apply_alpha_widgets
 
-        self._dino = QPushButton(tr("Pretrain on these crops…"), self)
+        self._dino_controls = QWidget(self)
+        self._dino_controls.setObjectName("EmbeddingsDinoControls")
+        layout = QVBoxLayout(self._dino_controls)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["sm"])
+        buttons = QHBoxLayout()
+        self._dino_checkpoint = QPushButton(
+            tr("Use own DINO checkpoint…"), self._dino_controls)
+        self._dino_checkpoint.setObjectName("EmbeddingsDinoCheckpointButton")
+        self._dino_checkpoint.clicked.connect(self._choose_dino_checkpoint)
+        buttons.addWidget(self._dino_checkpoint)
+        self._dino = QPushButton(tr("Pretrain on these crops…"), self._dino_controls)
         self._dino.setObjectName("EmbeddingsDinoPretrainButton")
         self._dino.setToolTip(tr(
             "Self-supervised (DINO) pretraining of a ResNet-18 on the loaded "
@@ -1146,9 +1358,161 @@ class EmbeddingsScreen(QWidget):
             "checkpoint is offered in the Foundation model picker. Slow "
             "without a GPU. Default 20 epochs from random weights at 64 "
             "px."))
-        self._dino.clicked.connect(lambda: self._pretrain_dino())
-        controls.addWidget(self._dino)
-        _apply_alpha_widgets(self._dino)
+        self._dino.clicked.connect(
+            lambda: self._pretrain_dino(epochs=self._dino_epochs.value()))
+        buttons.addWidget(self._dino)
+        layout.addLayout(buttons)
+        settings = QHBoxLayout()
+        label = QLabel(tr("Epochs:"), self._dino_controls)
+        self._dino_epochs = QSpinBox(self._dino_controls)
+        self._dino_epochs.setObjectName("EmbeddingsDinoEpochs")
+        self._dino_epochs.setRange(1, 10000)
+        self._dino_epochs.setValue(20)
+        self._dino_epochs.setAccessibleName(tr("Epochs"))
+        self._dino_epochs.setToolTip(tr(
+            "Train up to this total number of epochs, including epochs "
+            "already saved in the checkpoint."))
+        label.setBuddy(self._dino_epochs)
+        settings.addWidget(label)
+        settings.addWidget(self._dino_epochs)
+        self._dino_progress_bar = QProgressBar(self._dino_controls)
+        self._dino_progress_bar.setObjectName("EmbeddingsDinoProgress")
+        self._dino_progress_bar.setAccessibleName(tr("Pretraining progress"))
+        self._dino_progress_bar.setRange(0, 20)
+        self._dino_progress_bar.setValue(0)
+        self._dino_progress_bar.setTextVisible(False)
+        settings.addWidget(self._dino_progress_bar)
+        layout.addLayout(settings)
+        self._dino_progress_label = QLabel(tr("Pretraining progress"), self._dino_controls)
+        self._dino_progress_label.setObjectName("EmbeddingsDinoProgressCaption")
+        self._dino_progress_label.setWordWrap(True)
+        self._dino_progress_label.setTextFormat(Qt.PlainText)
+        self._dino_progress_label.setBuddy(self._dino_progress_bar)
+        layout.addWidget(self._dino_progress_label)
+        classifier = QHBoxLayout()
+        self._classifier_train = QPushButton(tr("Train classifier…"), self._dino_controls)
+        self._classifier_train.setObjectName("EmbeddingsDinoClassifierButton")
+        self._classifier_train.clicked.connect(self._choose_dino_classifier)
+        classifier.addWidget(self._classifier_train)
+        self._classifier_cancel = QPushButton(tr("Stop classifier"), self._dino_controls)
+        self._classifier_cancel.setObjectName("EmbeddingsDinoClassifierStop")
+        self._classifier_cancel.setEnabled(False)
+        self._classifier_cancel.clicked.connect(self._cancel_dino_classifier)
+        classifier.addWidget(self._classifier_cancel)
+        self._classifier_progress_bar = QProgressBar(self._dino_controls)
+        self._classifier_progress_bar.setObjectName("EmbeddingsDinoClassifierProgress")
+        self._classifier_progress_bar.setAccessibleName(tr("Classifier training progress"))
+        self._classifier_progress_bar.setRange(0, 20)
+        self._classifier_progress_bar.setValue(0)
+        self._classifier_progress_bar.setTextVisible(False)
+        layout.addLayout(classifier)
+        layout.addWidget(self._classifier_progress_bar)
+        self._classifier_progress_label = QLabel(tr("Classifier training progress"), self._dino_controls)
+        self._classifier_progress_label.setObjectName("EmbeddingsDinoClassifierProgressCaption")
+        self._classifier_progress_label.setWordWrap(True)
+        self._classifier_progress_label.setTextFormat(Qt.PlainText)
+        self._classifier_progress_label.setBuddy(self._classifier_progress_bar)
+        layout.addWidget(self._classifier_progress_label)
+        application = QHBoxLayout()
+        self._classifier_apply = QPushButton(tr("Apply saved classifier…"), self._dino_controls)
+        self._classifier_apply.setObjectName("EmbeddingsDinoClassifierApply")
+        self._classifier_apply.clicked.connect(lambda: self._apply_dino_classifier())
+        application.addWidget(self._classifier_apply)
+        self._classifier_apply_cancel = QPushButton(tr("Cancel classifier result"), self._dino_controls)
+        self._classifier_apply_cancel.setObjectName("EmbeddingsDinoClassifierApplyCancel")
+        self._classifier_apply_cancel.setToolTip(tr(
+            "Discard this application result. The model may finish its current work; "
+            "it is not forcibly stopped."))
+        self._classifier_apply_cancel.setEnabled(False)
+        self._classifier_apply_cancel.clicked.connect(self._cancel_classifier_application)
+        application.addWidget(self._classifier_apply_cancel)
+        self._classifier_results = QPushButton(tr("Classifier results…"), self._dino_controls)
+        self._classifier_results.setObjectName("EmbeddingsDinoClassifierResults")
+        self._classifier_results.setEnabled(False)
+        self._classifier_results.clicked.connect(self._show_classifier_application)
+        application.addWidget(self._classifier_results)
+        layout.addLayout(application)
+        controls.addWidget(self._dino_controls)
+        _apply_alpha_widgets(self._dino_controls)
+
+    def _select_dino_checkpoint(self, path: str) -> None:
+        """Select a checkpoint path without loading it, reusing an existing entry."""
+        from ...embeddings import _DINO_PREFIX
+
+        canonical = os.path.normcase(os.path.realpath(path))
+        index = -1
+        for candidate in range(self._foundation.count()):
+            data = str(self._foundation.itemData(candidate) or "")
+            if data.startswith(_DINO_PREFIX) and os.path.normcase(
+                    os.path.realpath(data[len(_DINO_PREFIX):])) == canonical:
+                index = candidate
+                break
+        if index < 0:
+            self._foundation.addItem(
+                tr("Own DINO: {name}").format(name=os.path.basename(path)),
+                _DINO_PREFIX + path)
+            index = self._foundation.count() - 1
+        self._foundation.setCurrentIndex(index)
+
+    def _choose_dino_checkpoint(self) -> None:
+        """Choose an existing spaCR DINO checkpoint path for the next Embed."""
+        if (self._dino_running or self._classifier_running or self._dino_closed
+                or self._classifier_apply_running or self._classifier_apply_jobs.active_jobs()):
+            return
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Choose a spaCR DINO checkpoint"), "",
+            tr("PyTorch checkpoints (*.pt)"))
+        if not path:
+            return
+        if not os.path.isfile(path):
+            self._status.setText(tr(
+                "Choose an existing spaCR DINO checkpoint file."))
+            return
+        self._select_dino_checkpoint(str(path))
+        self._status.setText(tr("Checkpoint selected. Press Embed to use it."))
+
+    def _set_dino_running(self, running: bool) -> None:
+        """Keep training controls unavailable while this screen owns a DINO run."""
+        self._dino_running = bool(running)
+        self._sync_classifier_application_controls()
+
+    def _set_training_progress_text(self, bar, label, text: str) -> None:
+        """Keep progress text visible outside the slim bar and accessible on it."""
+        bar.setFormat(text)
+        bar.setAccessibleDescription(text)
+        label.setText(text)
+
+    def _on_dino_progress(self, generation: int, epoch: int,
+                         total: int, loss: float) -> None:
+        """Apply reports on the GUI thread only while their run is current."""
+        if (self._dino_closed or not self._dino_running
+                or generation != self._dino_generation):
+            return
+        self._dino_progress_bar.setRange(0, max(1, total))
+        self._dino_progress_bar.setValue(epoch)
+        self._set_training_progress_text(
+            self._dino_progress_bar, self._dino_progress_label, tr(
+            "Epoch {epoch}/{total} — loss {loss:.3f}").format(
+                epoch=epoch, total=total, loss=loss))
+
+    def _on_dino_failed(self, message: str) -> None:
+        """Restore this run's controls and retain its error instead of late progress."""
+        if self._dino_closed:
+            return
+        self._set_dino_running(False)
+        self._set_training_progress_text(
+            self._dino_progress_bar, self._dino_progress_label, tr("Pretraining failed."))
+        self._status.setText(str(message))
+
+    def _on_dino_finished(self, ok: bool) -> None:
+        """Restore controls after cancellation without clearing a newer pending run."""
+        if (ok or self._dino_closed or not self._dino_running
+                or self._dino_jobs.pending_jobs()):
+            return
+        self._set_dino_running(False)
+        self._set_training_progress_text(
+            self._dino_progress_bar, self._dino_progress_label, tr("Pretraining stopped."))
+        self._status.setText(tr("Pretraining stopped."))
 
     def _pretrain_dino(self, path: str = "", *, epochs: int = 20) -> str:
         """Pretrain a backbone on the loaded crops and offer it as an encoder.
@@ -1161,6 +1525,9 @@ class EmbeddingsScreen(QWidget):
         :param epochs: epochs to train up to.
         :returns: the checkpoint path, or ``''`` when nothing was started.
         """
+        if (self._dino_running or self._classifier_running or self._dino_closed
+                or self._classifier_apply_running or self._classifier_apply_jobs.active_jobs()):
+            return ""
         crops = getattr(self, "_crops", None)
         if crops is None:
             self._status.setText(tr("Load crops first."))
@@ -1173,38 +1540,571 @@ class EmbeddingsScreen(QWidget):
             return ""
         path = str(path)
         policy = str(self._policy.currentData())
+        self._dino_generation += 1
+        generation = self._dino_generation
+        emit = self._dino_progress.emit
+        self._set_dino_running(True)
+        self._dino_progress_bar.setRange(0, max(1, int(epochs)))
+        self._dino_progress_bar.setValue(0)
+        self._set_training_progress_text(
+            self._dino_progress_bar, self._dino_progress_label, tr("Starting pretraining…"))
         self._status.setText(tr("Pretraining on {n} crops…").format(
             n=crops.shape[0]))
+
+        def _progress(epoch, total, loss):
+            """Relay backend reports without touching widgets on the worker thread."""
+            try:
+                emit(generation, int(epoch), int(total), float(loss))
+            except RuntimeError:
+                pass
 
         def work():
             """Train off the GUI thread."""
             from ...embeddings import _dino_pretrain
 
             return _dino_pretrain(crops, path, channel_policy=policy,
-                                  epochs=epochs, pretrained=False)
+                                  epochs=epochs, pretrained=False,
+                                  progress=_progress)
 
-        self._jobs.submit(work, self._on_dino_done)
+        def _done(summary):
+            """Accept only a completion belonging to this screen's current run."""
+            if not self._dino_closed and generation == self._dino_generation:
+                self._on_dino_done(summary)
+
+        try:
+            self._dino_jobs.submit(work, _done)
+        except Exception as exc:
+            self._on_dino_failed(str(exc))
+            return ""
         return path
 
     def _on_dino_done(self, summary) -> None:
         """Offer the new checkpoint in the picker and choose it."""
-        from ...embeddings import _DINO_PREFIX
-
+        if self._dino_closed:
+            return
         self._dino_summary = dict(summary)
-        data = _DINO_PREFIX + str(summary["path"])
-        index = self._foundation.findData(data)
-        if index < 0:
-            self._foundation.addItem(
-                tr("Own DINO: {name}").format(
-                    name=os.path.basename(str(summary["path"]))), data)
-            index = self._foundation.count() - 1
-        self._foundation.setCurrentIndex(index)
+        self._select_dino_checkpoint(str(summary["path"]))
         loss = summary["loss"][-1] if summary["loss"] else float("nan")
+        epochs = int(summary["epochs"])
+        self._on_dino_progress(self._dino_generation, epochs, epochs, loss)
+        self._set_dino_running(False)
         self._status.setText(tr(
             "Pretrained {epochs} epochs (last loss {loss:.3f}). The "
             "checkpoint is chosen in the Foundation model picker; press "
             "Embed to use it.").format(epochs=int(summary["epochs"]),
                                        loss=loss))
+
+    def _dino_classifier_dialog(self) -> QDialog:
+        """Configure supervised training without reading a checkpoint or starting work."""
+        dialog = QDialog(self)
+        dialog.setObjectName("EmbeddingsDinoClassifierDialog")
+        dialog.setWindowTitle(tr("Train an own-DINO classifier"))
+        layout = QVBoxLayout(dialog)
+        instruction = QLabel(tr(
+            "Choose a table with one row per loaded crop, in the same order, "
+            "and columns 'label' and 'acquisition_group'. Blank labels are "
+            "excluded. Each labelled crop needs its known acquisition-well "
+            "identity; complete groups are held out for validation."), dialog)
+        instruction.setWordWrap(True)
+        layout.addWidget(instruction)
+        form = QFormLayout()
+        table_row = QHBoxLayout()
+        table = QLineEdit(dialog)
+        table.setObjectName("EmbeddingsDinoClassifierTable")
+        table.setAccessibleName(tr("Training labels and acquisition groups"))
+        browse = QPushButton(tr("Browse…"), dialog)
+        browse.setObjectName("EmbeddingsDinoClassifierTableBrowse")
+
+        def choose_table():
+            """Choose an explicit row-aligned label and acquisition-group table."""
+            path, _filter = QFileDialog.getOpenFileName(
+                dialog, tr("Choose training labels and acquisition groups"),
+                table.text(), tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+            if path:
+                table.setText(path)
+
+        browse.clicked.connect(choose_table)
+        table_row.addWidget(table)
+        table_row.addWidget(browse)
+        form.addRow(tr("Training table"), table_row)
+        channels = QLineEdit(dialog)
+        channels.setObjectName("EmbeddingsDinoClassifierChannels")
+        channels.setAccessibleName(tr("Teacher channel order"))
+        channels.setToolTip(tr(
+            "Enter unique zero-based physical crop channels, separated by commas, "
+            "in the order represented by the teacher's saved scaling. This order "
+            "must be known; historical teacher checkpoints do not prove it."))
+        form.addRow(tr("Teacher channel order"), channels)
+        epochs = QSpinBox(dialog)
+        epochs.setObjectName("EmbeddingsDinoClassifierEpochs")
+        epochs.setRange(1, 10000)
+        epochs.setValue(20)
+        form.addRow(tr("Supervised epochs"), epochs)
+        batch = QSpinBox(dialog)
+        batch.setObjectName("EmbeddingsDinoClassifierBatch")
+        batch.setRange(1, 4096)
+        batch.setValue(32)
+        form.addRow(tr("Batch size"), batch)
+        rate = QDoubleSpinBox(dialog)
+        rate.setObjectName("EmbeddingsDinoClassifierLearningRate")
+        rate.setDecimals(7)
+        rate.setRange(0.0000001, 1.0)
+        rate.setValue(0.0001)
+        form.addRow(tr("Learning rate"), rate)
+        holdout = QDoubleSpinBox(dialog)
+        holdout.setObjectName("EmbeddingsDinoClassifierHoldout")
+        holdout.setRange(0.01, 0.99)
+        holdout.setSingleStep(0.05)
+        holdout.setValue(0.2)
+        form.addRow(tr("Validation fraction"), holdout)
+        seed = QSpinBox(dialog)
+        seed.setObjectName("EmbeddingsDinoClassifierSeed")
+        seed.setRange(0, 2147483647)
+        form.addRow(tr("Split and training seed"), seed)
+        freeze = QCheckBox(tr("Freeze the encoder; train only the classifier head"), dialog)
+        freeze.setObjectName("EmbeddingsDinoClassifierFreeze")
+        freeze.setChecked(True)
+        form.addRow(freeze)
+        normalize = QCheckBox(tr("Normalize features before the classifier head"), dialog)
+        normalize.setObjectName("EmbeddingsDinoClassifierNormalize")
+        normalize.setChecked(True)
+        form.addRow(normalize)
+        form.addRow(tr("Training device"), QLabel(tr("CPU"), dialog))
+        layout.addLayout(form)
+        error = QLabel(dialog)
+        error.setWordWrap(True)
+        layout.addWidget(error)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,
+            parent=dialog)
+        buttons.button(QDialogButtonBox.StandardButton.Ok).setText(tr("Train"))
+        buttons.button(QDialogButtonBox.StandardButton.Ok).setObjectName("EmbeddingsDinoClassifierStart")
+        buttons.rejected.connect(dialog.reject)
+
+        def start():
+            """Retain the form when a path or metadata validation refuses the run."""
+            path = self._train_dino_classifier(
+                table_path=table.text(), source_channels=channels.text(),
+                epochs=epochs.value(), batch_size=batch.value(), lr=rate.value(),
+                holdout=holdout.value(), seed=seed.value(),
+                freeze_encoder=freeze.isChecked(), normalize_features=normalize.isChecked())
+            if path:
+                dialog.accept()
+            else:
+                error.setText(self._status.text())
+
+        buttons.accepted.connect(start)
+        layout.addWidget(buttons)
+        return dialog
+
+    def _choose_dino_classifier(self) -> None:
+        """Open supervised settings only when this screen has no DINO work in flight."""
+        if (self._dino_running or self._classifier_running or self._dino_closed
+                or self._classifier_apply_running or self._classifier_apply_jobs.active_jobs()):
+            return
+        dialog = self._dino_classifier_dialog()
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
+
+    def _set_classifier_running(self, running: bool) -> None:
+        """Keep pretraining and classifier actions mutually exclusive while working."""
+        self._classifier_running = bool(running)
+        self._set_dino_running(self._dino_running)
+        self._classifier_cancel.setEnabled(
+            self._classifier_running and not self._dino_closed
+            and not self._classifier_stop.is_set())
+
+    def _cancel_dino_classifier(self) -> None:
+        """Request a cooperative stop at the trainer's next batch boundary."""
+        if self._classifier_running:
+            self._classifier_stop.set()
+            self._classifier_cancel.setEnabled(False)
+            self._status.setText(tr("Stopping classifier training…"))
+
+    def _on_classifier_progress(self, generation: int, epoch: int, total: int,
+                                train_loss: float, validation_loss: float) -> None:
+        """Apply only the current run's reports to its original crop selection."""
+        if (self._dino_closed or not self._classifier_running
+                or generation != self._classifier_generation
+                or self._classifier_crop_generation != self._crop_generation):
+            return
+        self._classifier_progress_bar.setRange(0, max(1, total))
+        self._classifier_progress_bar.setValue(epoch)
+        self._set_training_progress_text(
+            self._classifier_progress_bar, self._classifier_progress_label, tr(
+            "Epoch {epoch}/{total} — training {train:.3f}, validation {validation:.3f}").format(
+                epoch=epoch, total=total, train=train_loss, validation=validation_loss))
+
+    def _on_classifier_failed(self, message: str) -> None:
+        """Restore controls after an error without changing a newer crop selection."""
+        if self._dino_closed:
+            return
+        self._set_classifier_running(False)
+        if self._classifier_crop_generation == self._crop_generation:
+            self._set_training_progress_text(
+            self._classifier_progress_bar, self._classifier_progress_label, tr("Classifier training stopped."))
+            self._status.setText(str(message))
+
+    def _on_classifier_finished(self, ok: bool) -> None:
+        """Handle pre-start cancellation that finishes without an error callback."""
+        if (ok or self._dino_closed or not self._classifier_running
+                or self._classifier_jobs.pending_jobs()):
+            return
+        self._on_classifier_failed(tr("Classifier training stopped."))
+
+    def _train_dino_classifier(self, path: str = "", *, table_path: str = "",
+                               source_channels: str = "", epochs: int = 20,
+                               batch_size: int = 32, lr: float = 1e-4,
+                               freeze_encoder: bool = True,
+                               normalize_features: bool = True,
+                               holdout: float = 0.2, seed: int = 0) -> str:
+        """Train on explicitly labelled raw crops using the selected own teacher.
+
+        Rows with blank labels are excluded before calling the backend. Every
+        retained row must carry an explicit acquisition group. Crop planes are
+        not sliced or scaled by the GUI; the trainer uses the declared physical
+        channel order and the teacher's saved scale. The existing logistic
+        regression route and its labels are untouched.
+
+        :param path: new classifier artifact; asks for a path when empty.
+        :param table_path: row-aligned table with label and acquisition_group columns.
+        :param source_channels: comma-separated ordered physical channel indices.
+        :param epochs: supervised epochs, independent of pretraining progress.
+        :param batch_size: labelled crops per optimizer step.
+        :param lr: optimizer learning rate.
+        :param freeze_encoder: train only the head when true.
+        :param normalize_features: normalize encoder features before the head.
+        :param holdout: grouped validation fraction, checked by the backend.
+        :param seed: split and initialization seed.
+        :returns: output path when submitted, otherwise an empty string.
+        """
+        from ...embeddings import _DINO_PREFIX
+        from ...tabular import read_table, table_format
+
+        if (self._dino_closed or self._dino_running or self._classifier_running
+                or self._dino_jobs.active_jobs() or self._classifier_jobs.active_jobs()
+                or self._classifier_apply_running or self._classifier_apply_jobs.active_jobs()):
+            return ""
+        crops = getattr(self, "_crops", None)
+        if crops is None:
+            self._status.setText(tr("Load crops first."))
+            return ""
+        selection = str(self._foundation.currentData() or "")
+        checkpoint_path = selection[len(_DINO_PREFIX):] if selection.startswith(_DINO_PREFIX) else ""
+        if not checkpoint_path or not os.path.isfile(checkpoint_path):
+            self._status.setText(tr("Choose an existing own-DINO teacher checkpoint first."))
+            return ""
+        try:
+            channels = tuple(int(value.strip()) for value in source_channels.split(","))
+            if (not channels or len(set(channels)) != len(channels)
+                    or any(value < 0 or value >= crops.shape[-1] for value in channels)):
+                raise ValueError
+        except (TypeError, ValueError):
+            self._status.setText(tr("Enter unique physical channel indices in the teacher's saved order."))
+            return ""
+        try:
+            if not table_path:
+                raise ValueError(tr("Choose the training label and acquisition-group table."))
+            options = ({"dtype": str, "keep_default_na": False}
+                       if table_format(str(table_path)) not in ("parquet", "feather") else {})
+            frame = read_table(str(table_path), canonicalise=False, report=None,
+                               repair_plate_ids=False, **options)
+            if (not frame.columns.is_unique
+                    or not {"label", "acquisition_group"}.issubset(frame.columns)):
+                raise ValueError(tr("The training table needs 'label' and 'acquisition_group' columns."))
+            if len(frame) != len(crops):
+                raise ValueError(tr("The training table must have one row per loaded crop, in crop order."))
+            indices, labels, groups = [], [], []
+            for index, (label, group) in enumerate(zip(frame["label"], frame["acquisition_group"])):
+                if pd.isna(label) or not str(label).strip():
+                    continue
+                if (pd.isna(group) or str(group).strip().casefold()
+                        in ("", "nan", "none", "unknown", "<na>")):
+                    raise ValueError(tr("Every labelled crop needs a known acquisition-group identity."))
+                indices.append(index)
+                labels.append(str(label).strip())
+                groups.append(str(group).strip())
+            if len(set(labels)) < 2 or len(set(groups)) < 2:
+                raise ValueError(tr("Choose labelled crops from at least two classes and two acquisition groups."))
+        except Exception as exc:
+            self._status.setText(str(exc))
+            return ""
+        if not path:
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Save the trained classifier as"), "", tr("PyTorch checkpoints (*.pt)"))
+        if not path:
+            return ""
+        path = str(path)
+        if os.path.exists(path) or os.path.realpath(path) == os.path.realpath(checkpoint_path):
+            self._status.setText(tr("Choose a new classifier file; existing files are not replaced."))
+            return ""
+        self._classifier_generation += 1
+        generation = self._classifier_generation
+        self._classifier_crop_generation = self._crop_generation
+        self._classifier_stop = threading.Event()
+        stop = self._classifier_stop
+        emit = self._classifier_progress.emit
+        labels, groups, indices = tuple(labels), tuple(groups), tuple(indices)
+        self._set_classifier_running(True)
+        self._classifier_progress_bar.setRange(0, max(1, int(epochs)))
+        self._classifier_progress_bar.setValue(0)
+        self._set_training_progress_text(
+            self._classifier_progress_bar, self._classifier_progress_label, tr("Starting classifier training…"))
+        self._status.setText(tr("Training on {n} labelled crops…").format(n=len(indices)))
+
+        def progress(epoch, total, train_loss, validation_loss):
+            """Relay worker progress without reading or changing GUI widgets."""
+            try:
+                emit(generation, int(epoch), int(total), float(train_loss), float(validation_loss))
+            except RuntimeError:
+                pass
+
+        def cancelled():
+            """Honor both the application's worker cancellation and the local stop."""
+            from ..bridge import checkpoint
+            checkpoint()
+            return stop.is_set()
+
+        def work():
+            """Filter the frozen row selection before calling the real trainer on raw planes."""
+            from ...embeddings import _dino_finetune_classifier
+            return _dino_finetune_classifier(
+                crops[list(indices)], checkpoint_path, path, labels=labels, groups=groups,
+                source_channels=channels, freeze_encoder=freeze_encoder,
+                normalize_features=normalize_features, epochs=epochs,
+                batch_size=batch_size, lr=lr, holdout=holdout, seed=seed,
+                device="cpu", progress=progress, cancelled=cancelled)
+
+        def done(summary):
+            """Publish actual artifact metadata only to the run's original crop selection."""
+            if self._dino_closed or generation != self._classifier_generation:
+                return
+            self._set_classifier_running(False)
+            if self._classifier_crop_generation != self._crop_generation:
+                return
+            self._dino_classifier_summary = dict(summary)
+            self._status.setText(tr("Classifier saved to {path}. Classes: {classes}.").format(
+                path=summary["path"], classes=", ".join(summary["classes"])))
+
+        try:
+            self._classifier_jobs.submit(work, done)
+        except Exception as exc:
+            self._on_classifier_failed(str(exc))
+            return ""
+        return path
+
+    def _sync_classifier_application_controls(self, *_args) -> None:
+        """Keep application and training mutually exclusive until worker retirement."""
+        active = bool(self._classifier_apply_jobs.active_jobs())
+        if active and not self._dino_closed:
+            self._classifier_retire_timer.start()
+        else:
+            self._classifier_retire_timer.stop()
+        busy = self._classifier_apply_running or active
+        enabled = not (self._dino_running or self._classifier_running or self._dino_closed or busy)
+        for widget in (self._dino, self._dino_checkpoint, self._dino_epochs, self._classifier_train):
+            widget.setEnabled(enabled)
+        self._classifier_apply.setEnabled(enabled and not self._loading)
+        self._classifier_apply_cancel.setEnabled(
+            self._classifier_apply_running and self._classifier_apply_delivery and not self._dino_closed)
+
+    def _cancel_classifier_application(self) -> None:
+        """Discard result delivery without claiming to interrupt model computation."""
+        if not self._classifier_apply_running:
+            return
+        self._classifier_apply_delivery = False
+        self._classifier_apply_generation += 1
+        self._classifier_apply_running = False
+        self._classifier_apply_jobs.cancel()
+        self._sync_classifier_application_controls()
+        if not self._dino_closed:
+            self._status.setText(tr("Classifier result cancelled; background computation may finish."))
+
+    def _on_classifier_application_failed(self, message: str) -> None:
+        """Restore controls and report errors only to the original crop selection."""
+        deliver = (self._classifier_apply_delivery and not self._dino_closed
+                   and self._classifier_apply_crop_generation == self._crop_generation)
+        self._classifier_apply_running = False
+        self._classifier_apply_delivery = False
+        self._sync_classifier_application_controls()
+        if deliver and not self._loading:
+            self._status.setText(str(message))
+
+    def _on_classifier_application_finished(self, ok: bool) -> None:
+        """Restore the form after cancellation before the adapter starts."""
+        if not ok and self._classifier_apply_running and not self._classifier_apply_jobs.pending_jobs():
+            self._on_classifier_application_failed(tr("Classifier application stopped."))
+
+    def _apply_dino_classifier(self, path: str = "", *, batch_size: int | None = None) -> str:
+        """Apply a saved classifier to raw crops through its dedicated adapter.
+
+        Features, logits, probabilities and class labels retain backend order.
+        Teacher selection, logistic labels and existing embedding results are
+        untouched. Cancelling suppresses delivery; it does not interrupt the
+        adapter's computation.
+        """
+        if (self._dino_closed or self._loading or self._dino_running or self._classifier_running
+                or self._classifier_apply_running or self._classifier_apply_jobs.active_jobs()
+                or self._dino_jobs.active_jobs() or self._classifier_jobs.active_jobs()):
+            return ""
+        crops = getattr(self, "_crops", None)
+        if crops is None:
+            self._status.setText(tr("Load crops first."))
+            return ""
+        if not path:
+            recent = getattr(self, "_dino_classifier_summary", {}).get("path", "")
+            path, _filter = QFileDialog.getOpenFileName(
+                self, tr("Choose a saved own-DINO classifier"), str(recent),
+                tr("PyTorch checkpoints (*.pt)"))
+        if not path:
+            return ""
+        path = str(path)
+        batch = self._batch.value() if batch_size is None else batch_size
+        self._classifier_apply_generation += 1
+        generation = self._classifier_apply_generation
+        self._classifier_apply_crop_generation = self._crop_generation
+        crop_generation = self._crop_generation
+        self._classifier_apply_running = True
+        self._classifier_apply_delivery = True
+        self._sync_classifier_application_controls()
+        self._status.setText(tr("Applying classifier to {n} crops…").format(n=len(crops)))
+
+        def work():
+            """Apply the actual artifact to unchanged full raw channel-last crops."""
+            from ...embeddings import _dino_classifier_apply
+            answer = _dino_classifier_apply(crops, path, batch_size=batch, device="cpu")
+            features = np.asarray(answer["features"])
+            classes = list(answer["classes"])
+            if (features.ndim != 2 or features.shape[0] != len(crops)
+                    or np.shape(answer["logits"]) != (len(crops), len(classes))
+                    or np.shape(answer["probabilities"]) != (len(crops), len(classes))
+                    or len(answer["predictions"]) != len(crops)):
+                raise ValueError(tr("Classifier output is not aligned with the loaded crops."))
+            return dict(answer, path=path)
+
+        def finished(answer):
+            """Retain outputs only for the still-current, uncancelled crop selection."""
+            if self._dino_closed or generation != self._classifier_apply_generation:
+                return
+            self._classifier_apply_running = False
+            self._classifier_apply_delivery = False
+            self._sync_classifier_application_controls()
+            if crop_generation != self._crop_generation or self._loading:
+                return
+            self._classifier_application_result = answer
+            self._classifier_results.setEnabled(True)
+            self._status.setText(tr(
+                "Applied classifier to {n} crops. Classes: {classes}. Open Classifier results to inspect or export.").format(
+                    n=len(answer["predictions"]), classes=", ".join(answer["classes"])))
+
+        try:
+            self._classifier_apply_jobs.submit(work, finished)
+        except Exception as exc:
+            self._on_classifier_application_failed(str(exc))
+            return ""
+        return path
+
+    def _show_classifier_application(self):
+        """Inspect actual classifier outputs separately from teacher embeddings."""
+        answer = self._classifier_application_result
+        if answer is None:
+            return None
+        dialog = QDialog(self)
+        dialog.setObjectName("EmbeddingsDinoClassifierResultDialog")
+        dialog.setWindowTitle(tr("Classifier results"))
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        layout = QVBoxLayout(dialog)
+        provenance = QLabel(tr("Artifact: {path}\nSHA-256: {digest}\nPhysical channels: {channels}").format(
+            path=answer["path"], digest=answer["checkpoint_sha256"],
+            channels=", ".join(map(str, answer["source_channels"]))), dialog)
+        provenance.setWordWrap(True)
+        provenance.setTextFormat(Qt.PlainText)
+        provenance.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(provenance)
+        picker = QComboBox(dialog)
+        picker.setObjectName("EmbeddingsDinoClassifierResultView")
+        for label, key in ((tr("Predictions"), "predictions"), (tr("Features"), "features"),
+                           (tr("Logits"), "logits"), (tr("Probabilities"), "probabilities")):
+            picker.addItem(label, key)
+        layout.addWidget(picker)
+        table = QTableWidget(dialog)
+        table.setObjectName("EmbeddingsDinoClassifierResultTable")
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        layout.addWidget(table)
+        note = QLabel(tr("Preview shows up to {rows} crops and {columns} columns; export includes all values.").format(
+            rows=50, columns=PREVIEW_DIMENSIONS), dialog)
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        save = QPushButton(tr("Export classifier results…"), dialog)
+        save.setObjectName("EmbeddingsDinoClassifierExport")
+        save.clicked.connect(lambda: self._save_classifier_application(answer=answer))
+        layout.addWidget(save)
+
+        def show_view():
+            """Render the selected real output without rerunning or changing the model."""
+            key = picker.currentData()
+            values = np.asarray(answer[key])
+            if key == "predictions":
+                values = values.reshape(-1, 1)
+                headers = [tr("Prediction")]
+            elif key == "features":
+                headers = [f"feature_{index}" for index in range(values.shape[1])]
+            else:
+                headers = list(answer["classes"])
+            rows, columns = min(len(values), 50), min(values.shape[1], PREVIEW_DIMENSIONS)
+            table.setRowCount(rows)
+            table.setColumnCount(columns)
+            table.setHorizontalHeaderLabels(headers[:columns])
+            table.setVerticalHeaderLabels([str(index) for index in range(rows)])
+            for row in range(rows):
+                for column in range(columns):
+                    value = values[row, column]
+                    text = str(value) if key == "predictions" else f"{float(value):.6g}"
+                    table.setItem(row, column, table_item(text, key=None if key == "predictions" else float(value)))
+
+        picker.currentIndexChanged.connect(show_view)
+        show_view()
+        dialog.resize(750, 500)
+        dialog.show()
+        return dialog
+
+    def _save_classifier_application(self, path: str = "", *, answer=None) -> str:
+        """Export complete ordered outputs and actual artifact provenance via tabular."""
+        answer = self._classifier_application_result if answer is None else answer
+        if answer is None:
+            return ""
+        if not path:
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Export classifier results"), "", tr("CSV tables (*.csv)"))
+        if not path:
+            return ""
+        path = str(path)
+
+        def work():
+            """Write every output column with saved class names and channel provenance."""
+            from ...tabular import write_table
+            columns = {"crop_index": np.arange(len(answer["predictions"])),
+                       "prediction": answer["predictions"]}
+            for index, label in enumerate(answer["classes"]):
+                columns[f"probability:{label}"] = np.asarray(answer["probabilities"])[:, index]
+                columns[f"logit:{label}"] = np.asarray(answer["logits"])[:, index]
+            for index in range(np.shape(answer["features"])[1]):
+                columns[f"feature_{index}"] = np.asarray(answer["features"])[:, index]
+            frame = pd.DataFrame(columns)
+            frame["checkpoint_path"] = answer["path"]
+            frame["checkpoint_sha256"] = answer["checkpoint_sha256"]
+            frame["source_channels"] = ",".join(map(str, answer["source_channels"]))
+            return write_table(frame, path, canonicalise=False, index=False)
+
+        def finished(saved):
+            """Report the exported snapshot only while its source result is current."""
+            if not self._dino_closed and self._classifier_application_result is answer:
+                self._status.setText(tr("Classifier results saved to {path}.").format(path=saved))
+
+        self._jobs.submit(work, finished)
+        return path
 
     def _fill_backbones(self) -> None:
         """Offer the engine's default first, and never an empty list."""
@@ -1268,6 +2168,131 @@ class EmbeddingsScreen(QWidget):
         self._path.setText(str(database))
         self._on_path_changed()
 
+    def _load_demo_crops(self) -> None:
+        """Load the bundled generic shapes through the ordinary crop reader."""
+        if self._loading or self._dino_closed:
+            return
+        self._stop.clear()
+        self._set_loading(True)
+        self._status.setText(tr("Loading synthetic demo crops…"))
+        stop = self._stop
+
+        def work():
+            """Unpack and read the small local example off the GUI thread."""
+            from ...crop_loader import (CROP_SOURCE_FOLDER, CropQuery,
+                                        load_crops, plan_crops)
+            from ...example_archives import _prepare_embeddings_example
+
+            example = _prepare_embeddings_example()
+            plan = plan_crops(CropQuery(
+                source=CROP_SOURCE_FOLDER, path=str(example["crops"])))
+            record = {}
+            crops = load_crops(plan, cancelled=stop.is_set, record=record)
+            return example, plan, crops, record
+
+        def finished(answer):
+            """Select the CPU example and attach its row-aligned labels."""
+            if self._dino_closed:
+                return
+            if stop.is_set():
+                self._stopped(tr("Loading synthetic demo crops was stopped."))
+                return
+            example, plan, crops, record = answer
+            self._where.setCurrentIndex(self._where.findData(plan.query.source))
+            self._path.setText(str(example["crops"]))
+            self._filter.clear()
+            self._limit.setValue(DEFAULT_CROP_LIMIT)
+            self._select_dino_example()
+            self._plan = plan
+            self._on_crops_read((crops, record), demo=example)
+
+        self._jobs.submit(work, finished)
+
+    def _select_dino_example(self) -> None:
+        """Pick the CPU DINO choice, one projected pass and small batches."""
+        self._foundation.setCurrentIndex(self._foundation.findData("dino_auto"))
+        self._policy.setCurrentIndex(self._policy.findData("project"))
+        self._batch.setValue(8)
+
+    def _load_cell_example(self) -> None:
+        """Load the example plate's annotated cells and their labels.
+
+        The plate is fetched once into the shared example folder; the crops
+        annotated ``infected`` 1 or 2 load in database order, and a
+        label table with one row per crop is written beside the plate.
+        """
+        from ..widgets.measurements_example import (example_measurements_db,
+                                                    example_measurements_folder)
+
+        if self._loading or self._dino_closed:
+            return
+        database = example_measurements_db()
+        if database.is_file():
+            self._read_cell_example(database)
+            return
+        self._cell_example_button.setEnabled(False)
+        self._status.setText(tr("Fetching test data…"))
+
+        def fetched(result, error) -> None:
+            """Read the plate once it is on disk, or say why it is not."""
+            self._cell_example_button.setEnabled(not self._loading)
+            if result is None or not database.is_file():
+                self._status.setText(tr(
+                    "The test data could not be downloaded: {detail}",
+                    detail=error or tr("unknown error")))
+                return
+            self._read_cell_example(database)
+
+        from ..hf_download import download_annotate_example
+
+        download_annotate_example(self, example_measurements_folder(), fetched)
+
+    def _read_cell_example(self, database) -> None:
+        """Read the annotated example crops off the GUI thread."""
+        self._stop.clear()
+        self._set_loading(True)
+        self._status.setText(tr("Loading the annotated example cells…"))
+        stop = self._stop
+
+        def work():
+            """Plan, read and label the annotated crops."""
+            from ...crop_loader import CropQuery, load_crops, plan_crops
+            from ...example_archives import example_plate_folder
+            from ...tabular import write_table
+
+            plan = plan_crops(CropQuery(
+                source=CROP_SOURCE_DATABASE, path=str(database),
+                object_type="cell", where="infected IN (1, 2)", limit=0))
+            record = {}
+            crops = load_crops(plan, cancelled=stop.is_set, record=record)
+            labels = [str(int(row["infected"])) for row in plan.rows]
+            folder = example_plate_folder().parent / "embeddings_cell_example"
+            path = folder / "labels.csv"
+            write_table(pd.DataFrame({
+                "prcfo": [row.get("prcfo") for row in plan.rows],
+                "label": labels}), path)
+            return plan, crops, record, {"folder": folder, "labels": path,
+                                         "cells": True}
+
+        def finished(answer):
+            """Select the CPU DINO choice and attach the annotations."""
+            if self._dino_closed:
+                return
+            if stop.is_set():
+                self._stopped(tr("Loading the annotated example cells was "
+                                 "stopped."))
+                return
+            plan, crops, record, example = answer
+            self._where.setCurrentIndex(self._where.findData(plan.query.source))
+            self._path.setText(str(database))
+            self._filter.setText(plan.query.where)
+            self._limit.setValue(max(1, plan.count))
+            self._select_dino_example()
+            self._plan = plan
+            self._on_crops_read((crops, record), demo=example)
+
+        self._jobs.submit(work, finished)
+
     def crop_source(self) -> str:
         """Which kind of place the crops come from."""
         return str(self._where.currentData() or CROP_SOURCE_DATABASE)
@@ -1328,7 +2353,7 @@ class EmbeddingsScreen(QWidget):
         def work():
             """Ask the database what it holds. Two cheap indexed reads.
 
-            THE STAT IS HERE, on the worker, because it is the part that
+            The stat runs here, on the worker, because it is the part that
             blocks on a slow mount. A path that is not a file yet is not an
             error -- it is one somebody is halfway through typing -- so it
             answers with nothing to offer rather than raising, which would
@@ -1391,11 +2416,10 @@ class EmbeddingsScreen(QWidget):
     def load_crops(self) -> None:
         """Plan the selection, then read it a page at a time.
 
-        TWO JOBS, NOT ONE, and the split is the point: planning is a count
-        and a select, so it comes back in milliseconds and the screen can
-        say what was matched -- or why nothing was -- before committing to
-        read a single pixel. Only then does the second job start, and it
-        reports after every page.
+        The load runs as two jobs. Planning is a count and a select, so it
+        comes back in milliseconds and the screen can say what was matched --
+        or why nothing was -- before committing to read a single pixel. Only
+        then does the second job start, and it reports after every page.
         """
         if self._loading:
             self.stop_loading()
@@ -1442,13 +2466,16 @@ class EmbeddingsScreen(QWidget):
         self._load.setEnabled(True if loading else bool(
             str(self._path.text()).strip()))
         for widget in (self._where, self._path, self._browse, self._object,
-                       self._plate, self._filter, self._limit):
+                       self._plate, self._filter, self._limit,
+                       self._demo_button, self._cell_example_button,
+                       self._test_data_button):
             widget.setEnabled(not loading)
         self._run.setEnabled(
             False if loading else getattr(self, "_crops", None) is not None)
         self._save_similar.setEnabled(
             not loading and self._result_identity is not None
             and self._result is not None)
+        self._sync_classifier_application_controls()
         if not loading:
             self._on_source_changed()
 
@@ -1496,7 +2523,7 @@ class EmbeddingsScreen(QWidget):
         """One page in. Runs on the GUI thread, however it was emitted."""
         self._status.setText(f"Loaded {done:,} of {total:,} crops…")
 
-    def _on_crops_read(self, answer) -> None:
+    def _on_crops_read(self, answer, *, demo=None) -> None:
         """Hand the stack to the screen and say what it cost."""
         crops, record = answer
         self._crop_record = dict(record)
@@ -1514,6 +2541,30 @@ class EmbeddingsScreen(QWidget):
                     os.path.abspath(os.path.expanduser(plan.query.path)),
                     tuple(str(key) for key in keys))
         self._status.setText(self._loaded_sentence(record))
+        if demo is not None:
+            self._demo_active = True
+            self._caveat.setText(DIMENSION_CAVEAT + " " + (tr(
+                "These example cells carry the plate's own 'infected' "
+                "annotation (classes 1 and 2). They show the workflow on "
+                "real crops; so few labels are not a scientific "
+                "comparison.") if demo.get("cells") else tr(
+                "Synthetic shapes demonstrate the workflow only. Their "
+                "labels and scores are not biological validation.")))
+            if self._choose_labels(str(demo["labels"])):
+                if demo.get("cells"):
+                    self._status.setText(tr(
+                        "Loaded {count} annotated example cells and their "
+                        "labels. Press {embed}, then choose {classifier} and "
+                        "{run}. Labels: {path}").format(
+                            count=int(crops.shape[0]), embed=tr("Embed"),
+                            classifier=tr("Classifier"), run=tr("Run"),
+                            path=demo["labels"]))
+                else:
+                    self._status.setText(tr(
+                        "Loaded 24 synthetic crops and labels. Press {embed}, then "
+                        "choose {classifier} and {run}. Example files: {folder}").format(
+                            embed=tr("Embed"), classifier=tr("Classifier"),
+                            run=tr("Run"), folder=demo["folder"]))
         self.crops_loaded.emit(int(crops.shape[0]))
 
     def _loaded_label(self, record) -> str:
@@ -1594,7 +2645,7 @@ class EmbeddingsScreen(QWidget):
         That layout is what :mod:`spacr.crops` produces and what
         :func:`spacr.embeddings.embed_array` documents.
 
-        :param crops: the object stack, channels LAST. Not copied: the
+        :param crops: the object stack, channels last. Not copied: the
             screen keeps this array and hands it to the backbone, so a
             caller that mutates it afterwards changes what gets embedded.
         :raises ValueError: when the stack is not four-dimensional.
@@ -1605,11 +2656,22 @@ class EmbeddingsScreen(QWidget):
                 f"crops are (objects, height, width, channels); got shape "
                 f"{crops.shape}. spacr.crops produces this stack, and "
                 f"spacr.embeddings.embed_array expects channels last.")
+        if self._classifier_running:
+            self._classifier_stop.set()
+            self._classifier_cancel.setEnabled(False)
+        self._cancel_classifier_application()
+        self._classifier_application_result = None
+        self._classifier_results.setEnabled(False)
         self._crops = crops
+        if self._demo_active:
+            self._labels = {}
+        self._demo_active = False
+        self._caveat.setText(DIMENSION_CAVEAT)
         self._crop_generation += 1
         self._crop_identity = None
         self._result_identity = None
         self._result = None
+        self._frame = None
         self._result_encoder = None
         self._save_similar.setEnabled(False)
         self._scale_record = {}
@@ -1644,6 +2706,9 @@ class EmbeddingsScreen(QWidget):
         from ...embeddings import CHANNEL_PROJECT, EmbeddingError, EmbeddingSpec
 
         foundation = str(self._foundation.currentData() or "")
+        device = "cpu" if self._demo_active else None
+        if foundation == "dino_auto":
+            return self._dino_note()[0]
         if foundation == "subcell_rybg":
             if self._subcell_channels is None:
                 raise EmbeddingError(tr(
@@ -1654,6 +2719,7 @@ class EmbeddingsScreen(QWidget):
                 channel_policy=CHANNEL_PROJECT,
                 channels=self._subcell_channels,
                 batch_size=int(self._batch.value()),
+                device=device,
                 normalize=False,
             )
         if foundation == "cell_dino":
@@ -1669,6 +2735,7 @@ class EmbeddingsScreen(QWidget):
                 channel_policy=CHANNEL_PROJECT,
                 channels=self._cell_dino_channels,
                 batch_size=int(self._batch.value()),
+                device=device,
                 cell_dino_factory=self._cell_dino_factory,
                 checkpoint_path=self._cell_dino_checkpoint,
                 checkpoint_sha256=self._cell_dino_digest,
@@ -1677,6 +2744,7 @@ class EmbeddingsScreen(QWidget):
             backbone=foundation or str(self._backbone.currentText()).strip(),
             channel_policy=str(self._policy.currentData()),
             batch_size=int(self._batch.value()),
+            device=device,
         )
 
     def embed(self) -> None:
@@ -1704,11 +2772,13 @@ class EmbeddingsScreen(QWidget):
             if reason:
                 self._status.setText(reason)
                 return
-        spec = self.spec()
+        auto = self._foundation.currentData() == "dino_auto"
+        spec = None if auto else self.spec()
         record = self._scale_record
         generation = self._crop_generation
         identity = self._crop_identity
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
+        choose = self._dino_note
 
         def work():
             """Run the backbone off the GUI thread.
@@ -1720,9 +2790,10 @@ class EmbeddingsScreen(QWidget):
             from ...embeddings import _embed_plate, encoder_entry
 
             try:
-                result = _embed_plate(crops, spec, record=record)
-                entry = encoder_entry(getattr(result, "spec", None) or spec)
-                return result, entry, ""
+                run = choose() if auto else (spec, None)
+                result = _embed_plate(crops, run[0], record=record)
+                entry = encoder_entry(getattr(result, "spec", None) or run[0])
+                return result, entry, run
             except Exception as exc:
                 return None, None, f"{type(exc).__name__}: {exc}"
 
@@ -1731,12 +2802,16 @@ class EmbeddingsScreen(QWidget):
             if generation != self._crop_generation:
                 return
             result, entry, error = answer
-            if error:
+            if isinstance(error, str):
                 if not self._loading:
                     self._status.setText(error)
                 return
             self._result_identity = identity
             self._on_embedded(result, entry=entry)
+            if error[1] is not None and not self._loading:
+                self._dino_in_use.setText(self._dino_sentence(error))
+                self._status.setText(
+                    self._status.text() + " " + self._dino_sentence(error))
 
         self._jobs.submit(work, finished)
 
@@ -1814,6 +2889,7 @@ class EmbeddingsScreen(QWidget):
         self._pages.setCurrentWidget(self._table)
         self._table.setSortingEnabled(False)
         try:
+            _retire_table_cells(self._table, headers=True)
             self._table.setRowCount(0)
             self._table.setColumnCount(len(columns))
             self._table.setHorizontalHeaderLabels(columns)
@@ -1821,7 +2897,10 @@ class EmbeddingsScreen(QWidget):
             for row in range(rows):
                 for index, column in enumerate(columns):
                     value = float(frame.iloc[row][column])
-                    item = table_item(f"{value:.4f}", key=value)
+                    item = _spare_table_item(
+                        self._table, f"{value:.4f}",
+                        make=lambda text, key=value: table_item(text, key=key))
+                    item.setData(SORT_KEY_ROLE, float(value))
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                     self._table.setItem(row, index, item)
         finally:
@@ -1866,28 +2945,48 @@ class EmbeddingsScreen(QWidget):
 
 
     def is_busy(self) -> bool:
-        """Whether a run is in flight.
+        """Whether crop loading, embedding, training or classifier application is in flight.
 
-        A crop load counts. It is the longer of the two jobs by far -- a
-        plate of crops off a network mount is minutes -- and a screen that
-        reported itself idle through it would let the window close over a
-        live read.
+        Includes the training and application runners until their workers have retired,
+        even after their final results have reached the screen.
         """
-        return bool(self._jobs.active_jobs()) or self._loading
+        return (bool(self._jobs.active_jobs()) or self._loading
+                or self._dino_running or bool(self._dino_jobs.active_jobs())
+                or self._classifier_running or bool(self._classifier_jobs.active_jobs())
+                or self._classifier_apply_running or bool(self._classifier_apply_jobs.active_jobs()))
 
     def closeEvent(self, event):            # noqa: N802 - Qt name
-        """Let the job runner stop its thread before the widget goes.
+        """Discard pending results and drain all runners before the widget goes.
 
-        The stop flag is set FIRST. ``shutdown`` waits a bounded time and
-        then parks a worker that outlasts it, so a load told to stop between
-        pages finishes in one page instead of reading the rest of the plate
-        into an array whose screen has gone.
+        Crop loading and classifier training are asked to stop first; further
+        training progress is ignored.
+        Each ``shutdown`` waits a bounded time, then parks any worker that
+        outlasts it. A parked training worker can finish writing its checkpoint
+        without updating this closed GUI view; it is not forcibly terminated.
 
         :param event: Qt's close event, passed to the base class unchanged.
-            Never ignored -- a screen that refuses to close because a run is
-            in flight would trap the window, so the run is stopped instead.
+            The close is accepted even if a worker must be parked.
         """
         self._stop.set()
+        self._classifier_stop.set()
+        self._dino_closed = True
+        self._cancel_classifier_application()
+        self._classifier_generation += 1
+        self._set_classifier_running(False)
+        self._dino_generation += 1
+        self._set_dino_running(False)
+        try:
+            self._classifier_apply_jobs.shutdown()
+        except Exception:
+            pass
+        try:
+            self._classifier_jobs.shutdown()
+        except Exception:
+            pass
+        try:
+            self._dino_jobs.shutdown()
+        except Exception:
+            pass
         try:
             self._jobs.shutdown()
         except Exception:                    # noqa: BLE001
@@ -1918,8 +3017,7 @@ def register() -> bool:
     ``SECTION_DATA``, beside the other things that turn a table into numbers.
     An embedding is a feature source, not an analysis: it produces columns
     that the reductions, the regressions and the hit calling then consume
-    exactly as they consume the measured panel -- which is the whole point of
-    386 step 5.
+    exactly as they consume the measured panel.
     """
     from ..app import register_app
 

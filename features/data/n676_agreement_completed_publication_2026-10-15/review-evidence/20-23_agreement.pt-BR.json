@@ -1,0 +1,33 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Annotator Agreement: comparar rodadas de anotação independentes",
+  "description": "Escolha colunas de anotação, compare a concordância e inspecione os recortes em que os rótulos diferem.",
+  "objectives": [
+    "Abrir o banco de dados de exemplo e selecionar duas rodadas de anotação.",
+    "Ler a concordância por pares e a matriz de confusão.",
+    "Inspecionar as discordâncias e comparar três rodadas de anotação."
+  ],
+  "prerequisite": "Extraia o exemplo do Annotator Agreement indicado e mantenha o banco de dados junto com as imagens dos recortes. Ele contém dezesseis imagens do exemplo do Annotate e três colunas de rótulos didáticos artificiais, DEMO_A, DEMO_B e DEMO_C. Na sua própria análise, use anotações das mesmas imagens coletadas de forma independente.",
+  "scenes": [
+    "Na tela Home, abra Annotate e escolha Annotator Agreement. Use esta ferramenta para comparar rótulos coletados em rodadas de anotação separadas. Os resultados ajudam a encontrar imagens que precisam de revisão.",
+    "Abra o banco de dados de exemplo. Mantenha as pastas de recortes extraídas ao lado dele para que as pré-visualizações das imagens carreguem. As colunas DEMO contêm rótulos didáticos artificiais; use suas próprias colunas de anotação independentes ao avaliar a concordância num estudo.",
+    "Selecione pelo menos duas colunas de anotação na lista. Neste exemplo, comece com DEMO A e DEMO B. Confira os nomes das colunas para comparar as rodadas certas.",
+    "Clique em Compute agreement. As duas rodadas selecionadas compartilham doze recortes rotulados. Outros três recortes têm rótulo em apenas uma rodada, e um não tem nenhum. A concordância por pares usa os recortes rotulados nas duas rodadas.",
+    "Leia os resultados por pares. As rodadas concordam em nove de doze recortes, o que dá setenta e cinco por cento de concordância e um kappa de Cohen de zero vírgula cinco. Leia esses valores junto com o número de rótulos compartilhados; uma amostra pequena dá uma estimativa incerta.",
+    "Abra a matriz de confusão. As linhas representam DEMO A e as colunas representam DEMO B. A diagonal contém os rótulos coincidentes: cinco para a classe um e quatro para a classe dois. As células fora da diagonal contêm as três discordâncias.",
+    "Selecione uma discordância para ver o recorte e os rótulos atribuídos em cada rodada. Compare a imagem com as suas definições de classe. Para mudar um rótulo depois da revisão, volte ao Annotate.",
+    "Adicione DEMO C e clique de novo em Compute agreement. A tabela por pares agora mostra os três pares. Cada par usa seus rótulos compartilhados, enquanto o resumo geral usa os recortes rotulados nas três rodadas selecionadas.",
+    "Leia o kappa de Fleiss geral e o resumo da concordância unânime. Este exemplo dá um kappa de Fleiss de cerca de zero vírgula seis seis três. Revise também a lista de discordâncias: ela pode incluir um recorte que tem rótulos em apenas duas das três rodadas.",
+    "Para voltar a um único par, selecione só A e B e clique em Compute agreement. Os resultados ficam nesta visualização de comparação; suas colunas de anotação continuam no banco de dados de origem. Continue no Annotate para coletar outra rodada independente ou revisar as discordâncias encontradas."
+  ]
+}

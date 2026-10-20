@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "item": "N678",
+  "base_commit": "0118cabd4019d9cf9e7c7021babcaeab3e33706d",
+  "source_path": "spacr/qt/widgets/picture_export.py",
+  "before_sha256": "aa4af7393c19e337cc8d415c9b1cecace4095b4f5924920e9c96b11cf432104a",
+  "after_sha256": "2047ec0004c6ddb9d27c5514a98c236411d271f7106af245f78c12f667d84956",
+  "scope": "One picture-export module; five proven factual docstring corrections, nine docstrings retained. No runtime caption or behavior changes.",
+  "changed": [
+    {
+      "symbol": "spacr.qt.widgets.picture_export",
+      "before": "Right-click a picture and save it, as a PNG or as a PDF.\n\nA picture on screen is often the thing somebody wants in a slide an hour\nlater, and the route to it was a screenshot of a window, at the window's\nresolution, with the surrounding chrome in it. This saves THE PICTURE, at\nthe resolution it was rendered at rather than the size it happens to be\nshown at, into a file of the user's choosing.\n\nTWO FORMATS, AND THE PDF IS NOT A PNG WITH A DIFFERENT EXTENSION. A raster\ndropped into a PDF satisfies the file name and nothing else; a figure panel\nis a page, and a page has a size in millimetres. :func:`save_picture` gives\nthe PDF a page the image's own shape and tells the writer the resolution\nPreferences carries, so the picture lands at the size it was measured at and\nprints at that resolution.\n\nThe resolution and the default format are the ones the Figures preferences\nalready own -- :func:`spacr.qt.preferences.get_figure_png_dpi` and\n:func:`spacr.qt.preferences.get_figure_format` -- so a user who has already\nsaid \"300 DPI, PDF\" is not asked a second time in different words.",
+      "after": "Save a rendered picture as a PNG or a one-page PDF.\n\nExports use the supplied ``QImage`` or ``QPixmap`` rather than capturing\nthe surrounding widget. PNG preserves the image's pixel dimensions and\nrecords the selected resolution as dots-per-metre metadata. PDF embeds\nthe raster image on a page; it does not convert pixels into vector artwork.\n\nPDF page dimensions are computed from the image's pixel dimensions and\nexport DPI, with a minimum of one millimetre for each dimension. The image\nfills the page with zero margins. This sets the printed size without using\nmicroscope pixel calibration.\n\nDefault resolution and filename suffix come from\n:func:`spacr.qt.preferences.get_figure_png_dpi` and\n:func:`spacr.qt.preferences.get_figure_format`. The right-click menu's\nexplicit PNG or PDF choice determines the final export format.",
+      "implementation_evidence": "_save_pdf calls QPainter.drawImage with the supplied raster; physical page dimensions use pixel count/export DPI, not microscopy calibration. _save_png copies pixels and sets dots-per-metre metadata. Menu choice ultimately controls suffix in save_as."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export._save_png",
+      "before": "Write the raster, carrying the resolution in the file's own header.\n\n``setDotsPerMeterX`` is not decoration: a PNG with no resolution in it\nis imported at 72 DPI by every layout program there is, and the figure\nthen arrives four times too big and has to be scaled by hand.",
+      "after": "Write PNG pixels with horizontal and vertical resolution metadata.\n\nA copy receives the requested DPI converted to integer dots per metre.\nIf setting the metadata fails, writing the pixel image is still attempted.",
+      "implementation_evidence": "Implementation stamps integer dots-per-metre on a copy and still attempts save after a metadata error; it establishes no universal default DPI of external layout programs."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export._save_pdf",
+      "before": "Write a one-page PDF the image's own shape, at ``dpi``.\n\nThe page is sized from the pixels and the resolution rather than fixed,\nso a tall field is a tall page and nothing is stretched or letterboxed.",
+      "after": "Draw a raster image across a one-page PDF at the selected DPI.\n\nWidth and height are computed from pixels divided by DPI, converted to\nmillimetres, and independently clamped to at least one millimetre. The\nimage is drawn over the resulting page with zero margins.",
+      "implementation_evidence": "Width and height each use max(1.0, pixels / dpi * 25.4), then drawImage fills the page with zero margins. The old unconditional no-stretch claim omitted this independent clamp."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.ask_where_to_save",
+      "before": "Ask for a path. ``\"\"`` when the user walked away.\n\nTHE SUFFIX IS PUT BACK IF THE USER DROPS IT. A name typed without one\nwould otherwise be written as a PNG whatever filter was selected, which\nis how \"save as PDF\" quietly produces a raster.\n\n:param parent: the widget the save dialog is parented to.\n:param stem: the file name offered, without a suffix; cleaned by\n    :func:`suggested_name`.",
+      "after": "Ask for an output path; return ``\"\"`` when the dialog is cancelled.\n\nIf the chosen name has no suffix, append ``.pdf`` or ``.png`` according\nto the selected file filter. An existing suffix is retained here;\n:func:`save_as` subsequently enforces the format chosen in the menu.\n\n:param parent: the widget the save dialog is parented to.\n:param stem: the file name offered, without a suffix; cleaned by\n    :func:`suggested_name`.",
+      "implementation_evidence": "QFileDialog cancellation returns empty; no-suffix choice follows selected filter; existing suffix is returned as supplied, with final menu enforcement performed by save_as. PDF also contains raster pixels, so 'PDF rather than raster' was misleading."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.install_picture_save",
+      "before": "Give ``view`` a right-click menu that saves what it is showing.\n\n:param view: the widget the user right-clicks.\n:param picture: called when the menu is used; returns the ``QPixmap`` or\n    ``QImage`` to write. Called AT SAVE TIME rather than now, so the\n    menu always writes the picture currently on screen.\n:param stem: the file name offered, without a suffix. A callable is\n    asked at save time, so a view whose contents change -- Overlay one\n    moment, Flows the next -- offers the name of what is on it now.\n:param unless: asked first; ``True`` means the right button belongs to\n    something else at this moment and no menu is shown. The live\n    preview's ruler is cleared with a right-click while it is active,\n    and a menu appearing over that would take a tool away to add a file\n    dialog nobody asked for.\n:returns: whether the menu was installed.",
+      "after": "Give ``view`` a right-click menu that saves what it is showing.\n\n:param view: the widget the user right-clicks.\n:param picture: called before the context menu opens; returns the\n    ``QPixmap`` or ``QImage`` to write. The returned image is used after\n    the format and path dialogs; the callback is not called again\n    immediately before writing.\n:param stem: the file name offered, without a suffix. A callable is\n    called after the format is selected and before the path dialog opens.\n:param unless: asked first; ``True`` means the right button belongs to\n    something else at this moment and no menu is shown. The live\n    preview's ruler is cleared with a right-click while it is active,\n    and a menu appearing over that would take a tool away to add a file\n    dialog nobody asked for.\n:returns: whether the menu was installed.",
+      "implementation_evidence": "Nested _menu calls picture() before choose_format, calls a callable stem after format selection, then calls save_as. The picture callback is not repeated after format/path dialogs."
+    }
+  ],
+  "retained": [
+    {
+      "symbol": "spacr.qt.widgets.picture_export.picture_dpi",
+      "docstring_sha256": "31184e6b646d2e54eca59756bc13806871d77f2cfc4c9a6670912e7a79d7e8a9",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.preferred_suffix",
+      "docstring_sha256": "fb4cc0b527bdf675d55bbf82e6b1d0b5f24ee4b87166070d7cb64586ef82834a",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.as_image",
+      "docstring_sha256": "b0a87f9d1d84974e09b82c8ad18d6ce0fa970a9827a47009038da73e7bc8c4ee",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.save_picture",
+      "docstring_sha256": "8d4f950962b96a8167ca88ebe3c9ece90a207553a8008787e4774e8116b3a43e",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.suggested_name",
+      "docstring_sha256": "122786b25e00f1aaa79b21cbc4180338dfb0c968843c45624777d42cefdc37ee",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.build_menu",
+      "docstring_sha256": "acbbba0e2d9c723a50a65e521ad034998755f696090a465432da0595ca2d9caf",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.choose_format",
+      "docstring_sha256": "fcb57796255c721124571f8fcc829e7fa3b246659bbdf90d34fa31c50b16e3ba",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.save_as",
+      "docstring_sha256": "06182537bf69536fcaa48401b37d3351f470d2af00c4bc1e210900e89193b2f7",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    },
+    {
+      "symbol": "spacr.qt.widgets.picture_export.install_picture_save._menu",
+      "docstring_sha256": "b8009fd437a87894067079b0f12ff9d0cef4665c822e5484cb47ffe6e0571dbf",
+      "decision": "Retained: inspected description matches the corresponding implementation within this factual scope."
+    }
+  ],
+  "rendered_api_dependencies": [
+    "spacr.qt.widgets.picture_export",
+    "spacr.qt.widgets.picture_export.ask_where_to_save",
+    "spacr.qt.widgets.picture_export.install_picture_save"
+  ],
+  "private_documentation_only": [
+    "spacr.qt.widgets.picture_export._save_png",
+    "spacr.qt.widgets.picture_export._save_pdf"
+  ],
+  "validation": {
+    "syntax_compile": "PASS, compile() without importing Qt or producing bytecode files",
+    "complete_executable_ast_after_removing_docstrings": "IDENTICAL",
+    "documented_symbol_keys": "UNCHANGED",
+    "pytest": "Not run: prose-only correction, exact executable AST unchanged; no duplicate export tests required."
+  },
+  "limitations": [
+    "API extraction, nine-locale review and normal catalog generation belong to the API lane and remain pending for the three rendered symbols.",
+    "No claim of rendered/hosted documentation or native Qt acceptance from this source-only correction.",
+    "This bounded ledger does not complete N678 or review all repository prose."
+  ]
+}

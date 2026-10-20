@@ -81,7 +81,9 @@
       "source_sha256": "f05c6fda7888e848639dc31c1b975dc2a512d37858c400ad2ae253fa3f564284",
       "context": "This body is the reason the module exists: it executes on a worker, where an `autofs` mount taking twenty seconds to wake costs nobody a frozen window. `OSError` is an answer of \"no\", not a failure -- a path that cannot be stat-ed is a path the user cannot use either.",
       "translation": "Dieser Rumpf ist der Grund, warum das Modul existiert: Er läuft in einem Worker, wo ein `autofs`-Mount, der zwanzig Sekunden zum Aufwachen braucht, niemandem ein eingefrorenes Fenster beschert. `OSError` ist die Antwort \"no\" (nein), kein Fehler -- ein Pfad, für den kein stat möglich ist, ist auch ein Pfad, den der Nutzer nicht verwenden kann.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.regex_detect.tabulate_records._row#0",
@@ -137,7 +139,9 @@
       "source_sha256": "fdfb8393c4bb63e015a1537aaec7d60e52e87fa62e1adfbd0a7f0c8b81835d31",
       "context": "The cache comparison comes with it rather than staying behind: the structured-data name it compares IS the walk of the disk, so leaving the comparison on the main GUI execution path would leave the walk there too.",
       "translation": "Der Cache-Vergleich kommt mit, statt zurückzubleiben: Der Schlüssel, den er vergleicht, IST der Durchlauf über die Festplatte, also würde ein Vergleich im GUI-Thread auch den Durchlauf dort belassen.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.queue.QueueScreen.wire_add_current._on_click#0",
@@ -465,14 +469,16 @@
       "source_sha256": "eae7e57ce3beb335f61f3f318b07ecb87a9d83830e04616ca56ff92093c755c3",
       "context": "Project points into the frame, in PIXEL coordinates.",
       "translation": "Projiziert Punkte in den Rahmen, in PIXEL-Koordinaten.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_search_viewer.axis_frame.projected#1",
       "source": "The vertical is negated because screen y grows downward and the data's does not -- without it the plot is drawn upside down and still looks plausible.",
       "source_sha256": "e5bc817dcf687c0723b6b0e315b83fe1c2c8d1b2c0de1b313ed942c1e16e9741",
       "context": "The vertical is negated because screen y grows downward and the data's does not -- without it the plot is drawn upside down and still looks plausible.",
-      "translation": "Die Vertikale wird umgekehrt, weil y auf dem Screening nach unten wächst und in den Daten nicht -- ohne das wird der Plot auf dem Kopf gezeichnet und sieht trotzdem plausibel aus.",
+      "translation": "Die Vertikale wird umgekehrt, weil y auf dem Bildschirm nach unten wächst und in den Daten nicht -- ohne das wird der Plot auf dem Kopf gezeichnet und sieht trotzdem plausibel aus.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

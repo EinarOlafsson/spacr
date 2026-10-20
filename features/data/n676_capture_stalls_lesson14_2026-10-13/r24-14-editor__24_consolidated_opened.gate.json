@@ -1,0 +1,124 @@
+{
+  "video": "/tmp/spacr-tutorial-current/captures/make_masks/24_consolidated_opened.native.mp4",
+  "size": [
+    2560,
+    1440
+  ],
+  "fps": 30.0,
+  "duration_s": 20.4,
+  "frames": 612,
+  "passed": false,
+  "reasons": [
+    "choppy (app freeze + capture loss): 23.5 distinct fps < 27.9 [app freeze in second(s) [2, 3, 4]; capture loss in second(s) [0, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18]]"
+  ],
+  "limits": {
+    "min_fps": 27.9,
+    "change_level": 10,
+    "change_pixels": 4,
+    "cursor_box": 72,
+    "peak_per_frame": 0.02,
+    "jump_margin": 1.5,
+    "min_cursor_found": 0.9,
+    "top_bar_height": 32,
+    "top_bar_every": 10
+  },
+  "field_window_s": null,
+  "distinct_fps": 23.52,
+  "distinct_fraction": 0.784,
+  "longest_unchanged_run_frames": 39,
+  "distinct_per_second": [
+    23,
+    28,
+    21,
+    0,
+    1,
+    24,
+    26,
+    27,
+    30,
+    29,
+    27,
+    27,
+    26,
+    26,
+    26,
+    26,
+    23,
+    24,
+    26,
+    28
+  ],
+  "app_painted_per_second": [
+    121.0,
+    91.4,
+    23.7,
+    1.6,
+    21.2,
+    103.9,
+    103.5,
+    105.9,
+    115.9,
+    121.9,
+    124.8,
+    108.2,
+    117.6,
+    117.2,
+    110.9,
+    109.9,
+    99.1,
+    111.7,
+    121.6,
+    113.0
+  ],
+  "app_freeze_seconds": [
+    2,
+    3,
+    4
+  ],
+  "app_slow_seconds": [],
+  "capture_loss_seconds": [
+    0,
+    5,
+    6,
+    7,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "app_stall_windows_s": [],
+  "app_stall_video_offset_s": 0.0,
+  "unchanged_frames": 132,
+  "unchanged_frames_in_app_stalls": 0,
+  "exact_md5_distinct_fraction": 0.8873,
+  "cursor": {
+    "found_fraction": 1.0,
+    "shapes_seen": [
+      "left_ptr@32"
+    ],
+    "max_step_px": 37.2,
+    "p95_step_px": 0.0,
+    "bound_px": 76.8,
+    "jumps": [],
+    "jump_count": 0
+  },
+  "top_bar": {
+    "hidden": true,
+    "sampled_frames": 62,
+    "visible_in": [],
+    "first_sample": {
+      "frame": 0,
+      "visible": false,
+      "black_fraction": 0.0074,
+      "top_rows_black": 0.0,
+      "text_pixels": 0,
+      "below_black_fraction": 0.0
+    }
+  },
+  "adapter_bypasses": []
+}

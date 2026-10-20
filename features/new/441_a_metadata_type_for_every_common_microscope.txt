@@ -376,3 +376,89 @@ WHAT IS LEFT
     catalog), so this adds to a known backlog rather than breaking a green.
 
 VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-15 — PRIVATE microscope dynamic-text localization repaired.
+The older all-catalogue-debt note is only partly current: six static templates
+already have normalnine-language rows, but ten provisional/example/folder/count/
+ranking templates were missing. _MetadataTypeField now translates before
+formatting original filenames/counts and retains raw report values for language
+redraw through the existing dynamic-content hook. Storedkeys, vendorlabels,
+regex/table/examples, worker lifetime and inputfiles are unchanged. Actual
+source-mechanics baseline7FAIL2.38s becomes19PASS2.88s (7new+12existing);
+an independent genericcombo lifecycle concern is not reproduced by one actual
+tree fr/en/fr check1PASS2.03s on unchangedsource. No unnecessaryskip fix.
+These are20distinct staged cases, not one20-case run or normalcatalog/native-
+language acceptance. Independent source/API peer finds0newAPI/10nestedunchanged.
+Source remains private pending precise_saycaption extraction,90reviewedtargets,
+normalninecatalog/audit/arrival and actuallocalizedwidget consumers. No new
+microscope patterns, vendor claims, Import behavior or Work media scope added.
+Evidence:data/441_metadata_dynamic_localization_2026-10-15/receipt.json.
+
+2026-10-15 — PRIVATE provisional warning and no-match wording made truthful.
+Only two module caption values change. The no-match message begins with No
+rather than the Python literal None, preserving the normal translation gate.
+The provisional warning now asks users to check the example and test their
+folder; it does not falsely claim EVOS manual or Zeiss constructed examples
+came from observed public datasets without vendor documentation. Identifiers,
+other14captions, the wholeclass/worker/regex/vendor/data behavior are unchanged.
+ActualEnglishwidget baseline3FAIL1.86 becomes currentfocused11PASS2.24s;
+independent exactsource/API peer confirms0newAPIarrivals.18runtime records
+require ordinary source/hashrebinding; no catalog/wholeitem acceptance claimed.
+Literal two-REAL-example gaps remain unresolved, without assumed maintainer
+waiver or invented filenames. Evidence:data/441_provisional_warning_truth_2026-10-15/.
+
+2026-10-15 — Private Cytation evidence amendment: two additional Phase Contrast names from pinned upstream bioformats2raw BioTekTest real-world-derived cases now carry the explicit channel/wavelength sanitization caveat. Original example, pattern and provisional status retained; all other18 records/all19 patterns unchanged. New provenance baseline1FAIL1.15s becomes9focusedPASS8.07s (78unrelated deselected). See features/data/441_cytation_sourced_examples_2026-10-15/. No whole-item completion: EVOS/ScanR matching raw-name and Zeiss observed-output evidence remains incomplete; normal nine-locale UI closure is separately pending.
+
+2026-10-15 — Dynamic metadata labels and normal nine-locale software closure
+The field preserves persisted convention IDs while its example, verification,
+status and ranking text retranslates when the actual language preference
+changes. Ten source messages have90 independently reviewed targets. Normal
+coherent generation coalesces those with nine already-peered web model-scale
+translations; all99 pass ordinary loader/source/context/candidate gates,
+normal full nine-language runtime audit and fresh actual canonical equality.
+All10,993 unrelated values/source hashes per locale remain exact; baseline
+9,833 is immutable (arrivals1,324added/33changed/153retired).
+Actual nine compiled-widget cases PASS9/2.63s via real temporary persisted
+preferences, same widgets/stable IDs/ranking data and input-byte preservation.
+An initial Qt abort happened before any case under the wrong runner; exact
+evidence and the controlled established-environment correction are retained.
+Normal source-only API visibility/nested-helper projections are unchanged,
+so no API writer was required. Earlier19 mechanical/extractor checks are
+retained evidence, not retested or summed into the nine-locale acceptance.
+Scope remains bounded: vendor/raw-example completeness is not claimed. The
+two Cytation upstream examples disclose sanitization; the observed EVOS save
+filename lacks Z and is rejected rather than inventing a slice. No guessed
+second acquired filename or whole-item closure. See data/441_698_translation_batch_2026-10-15/,
+data/441_actual_compiled_metadata_consumers_2026-10-15/ and
+data/441_evos_primary_followup_2026-10-15/.
+
+2026-10-15 — Vendor-documented EVOS names without Z are accepted safely.
+The original request explicitly accepts vendor documentation; downloaded raw
+images or microscope execution are not extra prerequisites. Two exact M7000
+manual literals now parse, including the Next filename shown on printed p.41
+without a Z segment. The optional slice remains None, never an invented Z0.
+ArrayScan excludes this EVOS variant instead of silently claiming it.
+Actual baseline7FAIL/8PASS becomes29PASS/7.54s, including the real filename
+reader, Import metadata, a disposable TIFF through actual Mask preprocessing,
+unchanged input bytes, malformed-name refusals, overlap and old-four controls.
+All public/private definition signatures/docstrings and literal tr identities
+remain exact; no API/runtime target or generated writer is needed for this
+bounded parser repair. Vendor-document confirmation is not a claim of native
+device or acquired-directory testing; mixed unknown/known-Z aggregation was
+not tested. Whole-item filename provenance limits remain, particularly the
+ScanR inferred suffix and Zeiss macro-derived examples. Evidence:
+data/441_evos_documented_optional_z_2026-10-15/ and
+data/441_original_contract_current_disposition_2026-10-15/.
+
+2026-10-15 — ScanR second reported stem and combined acceptance.
+A second first-person acquisition-user stem (KNIME topic2119) is now shown
+with its TIFF suffix explicitly marked inferred, just like the prior Alexa
+example. Both sources omit their extension; these are not claimed to be
+observed complete TIFF filenames. ScanR remains provisional; its pattern,
+groups and every unrelated convention remain unchanged. Actual provenance
+baseline1FAIL/9PASS becomes10PASS/7.00s. Independent source/log peer accepted.
+After combining EVOS and ScanR, the exact five own-example, cross-convention
+and provenance checks PASS5/0.62s, zero skips/network events; all ten catalogs
+remain byte-identical. These are staged overlapping checks, not39 distinct
+cases. See data/441_scanr_sourced_stems_2026-10-15/ and
+data/441_combined_evos_scanr_acceptance_2026-10-15/.

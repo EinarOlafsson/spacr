@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "CV मॉडल समझाएँ और हिट की जाँच करें"
 
-msgid "spaCR separates three questions that are easy to blur together:"
-msgstr "spaCR तीन ऐसे प्रश्नों को अलग करता है जिन्हें आपस में मिलाना आसान है:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR provides three separate analyses that answer different questions:"
+msgstr "spaCR तीन अलग-अलग विश्लेषण प्रदान करता है जो अलग-अलग प्रश्नों का उत्तर देते हैं:"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "सक्रियण या अवरोधन मानचित्र दिखाते हैं कि दृष्टि मॉडल ने **कहाँ** ध्यान दिया;"
@@ -40,8 +41,9 @@ msgstr "अंतिम परिणाम कमज़ोर पर्यवे
 msgid "Explain CV Model"
 msgstr "CV मॉडल समझाएँ"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "यह मॉड्यूल अपनी अलग टाइल के बजाय **वर्गीकरण** शीर्षपट्टी से, **वर्गीकारक मूल्यांकन** के बगल में खुलता है: दोनों पूछते हैं कि प्रशिक्षित वर्गीकारक ने वास्तव में क्या किया।"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "यह मॉड्यूल अपनी अलग टाइल के बजाय **वर्गीकरण** शीर्षपट्टी से, **वर्गीकारक मूल्यांकन** के बगल में खुलता है: दोनों किसी मौजूदा प्रशिक्षित वर्गीकारक और उसकी सहेजी गई भविष्यवाणियों का विश्लेषण करते हैं।"
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "सटीक ``measurements.db`` और मौजूदा प्रति-ऑब्जेक्ट CV पूर्वानुमान CSV चुनें। मॉड्यूल मूल वर्गीकारक को कभी दोबारा नहीं चलाता और न ही चुपचाप बदलता है। यह पूर्वानुमानों को मापे गए ऑब्जेक्ट से एक-से-एक जोड़ता है और पहचानकर्ताओं, पूर्वानुमान/वर्ग स्तंभों, स्कोर, एनोटेशन और उपयोगकर्ता बहिष्करणों को सरोगेट विशेषता मैट्रिक्स से बाहर रखता है।"
@@ -73,8 +75,9 @@ msgstr "**प्रतिगमन** शीर्षपट्टी से **ह
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "मापन डेटाबेस, मूल प्रति-ऑब्जेक्ट पूर्वानुमान CSV और प्रति-कूप गाइड-अंश CSV दें। जोड़ स्पष्ट ऑब्जेक्ट और प्लेट/पंक्ति/स्तंभ कुंजियों का उपयोग करते हैं। डुप्लिकेट ऑब्जेक्ट कुंजियाँ या डुप्लिकेट कूप/गाइड अंश रन को रोक देते हैं।"
 
-msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "पहला आउटपुट एक ईमानदार समीक्षा कतार है: लक्ष्य वाले कूपों की कोशिकाएँ प्रतिगमन की प्रभाव दिशा में क्रमबद्ध होती हैं, और उनके बगल में कूप-स्तरीय लक्ष्य-गाइड अंश दिखाया जाता है। इसके बाद वैकल्पिक एट्रिब्यूशन मॉडल:"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "पहला आउटपुट एक समीक्षा कतार है: लक्ष्य वाले कूपों की कोशिकाएँ प्रतिगमन की प्रभाव दिशा में क्रमबद्ध होती हैं, और उनके बगल में कूप-स्तरीय लक्ष्य-गाइड अंश दिखाया जाता है। इसके बाद वैकल्पिक एट्रिब्यूशन मॉडल:"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "कूपों को बैग और कोशिकाओं को उदाहरण मानता है;"

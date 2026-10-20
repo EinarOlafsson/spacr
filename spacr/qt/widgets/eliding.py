@@ -4,28 +4,28 @@ The widgets render an ellipsis when space is limited and expose the complete
 text in a tooltip. Stable size hints prevent layouts from oscillating between
 full and shortened text.
 
-PROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit
+Progress line: :class:`ProgressLine` is a slim progress bar whose numbers sit
 beside it, where nothing can cut them.
 
-WHY. The theme draws every ``QProgressBar`` as an 8 px track
-(``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also
-paints its own text -- "step 2 of 3", "45%", "312 MB / 690 MB (45%)" -- draws
-a 13 px caption into those 8 px, so only the top half of each glyph reaches
-the screen, and at 50 % GUI scale the track is 4 px and almost nothing does.
-A caption such as "step 1 of 3" or "10%" is cut off.
+The theme draws every ``QProgressBar`` as an 8 px track (``height: 8px;
+max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also paints its own
+text -- "step 2 of 3", "45%", "312 MB / 690 MB (45%)" -- draws a 13 px caption
+into those 8 px, so only the top half of each glyph reaches the screen, and at
+50 % GUI scale the track is 4 px and almost nothing does. A caption such as
+"step 1 of 3" or "10%" is cut off.
 
-THE DESIGN is "thin bar + label":
+The design is "thin bar + label":
 
     [████████░░░░░░░░░░░░]  step 2 of 3 · 45%
     Downloading torch… 312 MB of 690 MB · 4.2 MB/s · 1 min 30 s left
 
 * the bar paints no text at all and stays the slim track the theme draws;
-* the COUNT beside it (the step and the percentage, the numbers a person is
-  watching) is a plain label that is never elided -- its horizontal size
-  policy is ``Minimum``, so a layout cannot give it less than its text needs;
-* an optional DETAIL line below carries the part that changes and can be
-  long (a file name, a speed, a time left); that part elides, and
-  :meth:`ProgressLine.displayed_text` reports what is really painted.
+* the count beside it (the step and the percentage, the numbers a person is
+  watching) is a plain label that is never elided -- its horizontal size policy
+  is ``Minimum``, so a layout cannot give it less than its text needs;
+* an optional detail line below carries the part that changes and can be long
+  (a file name, a speed, a time left); that part elides, and
+  :meth:`ProgressLine.displayed_text` reports what is painted.
 
 No size here is computed from font metrics and then handed to a size setter,
 so the GUI-scale layer (:mod:`spacr.qt.gui_scale`) scales each size once: the
@@ -104,7 +104,7 @@ class ElidingLabel(QLabel):
         return QSize(max(base.width(), self.required_width()), base.height())
 
     def minimumSizeHint(self) -> QSize:        # noqa: N802
-        """Allow shrinking to a few characters so the parent can cap us."""
+        """Allow shrinking to a few characters so the parent layout can limit the width."""
         base = super().minimumSizeHint()
         fm = QFontMetrics(self.font())
         m = self.contentsMargins()
@@ -113,7 +113,7 @@ class ElidingLabel(QLabel):
                      base.height())
 
     def resizeEvent(self, event) -> None:      # noqa: N802
-        """Re-elide whenever the layout hands us a different width.
+        """Re-elide whenever the layout assigns a different width.
 
         :param event: the resize event, passed to the base class; the text is
             then re-fitted to the label's new width.
@@ -220,7 +220,7 @@ class ElidingPushButton(QPushButton):
         return QSize(min(base.width(), chrome + floor), base.height())
 
     def resizeEvent(self, event) -> None:      # noqa: N802
-        """Re-elide whenever the layout hands us a different width.
+        """Re-elide whenever the layout assigns a different width.
 
         :param event: the resize event, passed to the base class; the label is
             then re-fitted to the button's new width.
@@ -434,7 +434,7 @@ class ProgressLine(QWidget):
         return self.detail.full_text() if self.detail is not None else ""
 
     def displayed_text(self) -> str:
-        """What is really painted: the count, then the detail as elided.
+        """What is painted: the count, then the detail as elided.
 
         Hidden parts are left out, so a test compares against the screen.
         """

@@ -117,7 +117,9 @@ def test_cancel_before_final_write_keeps_no_new_proposals(qtbot, tmp_path, monke
         stored = values(path)
         assert stored['first'] == (None, .8)
         assert stored['second'][0] is None
-        assert stored['earlier'][0] is None
+        assert stored['earlier'][0] == suggest.SUGGESTION_OFFSET + 2, (
+            'a cancelled run puts the earlier proposals back (issue #152)')
+        assert worker.earlier_kept is True
         assert stored['human'][0] == 1
     finally:
         release.set()
@@ -134,7 +136,9 @@ def test_midwrite_error_rolls_back_proposals_but_not_earlier_phases(tmp_path, mo
     stored = values(path)
     assert stored['first'] == (None, .8), 'proposal rolled back, earlier fit score retained'
     assert stored['second'][0] is None
-    assert stored['earlier'][0] is None, 'clearing old proposals is an earlier committed phase'
+    assert stored['earlier'][0] == suggest.SUGGESTION_OFFSET + 2, (
+        'a failed run puts the earlier proposals back (issue #152)')
+    assert worker.earlier_kept is True
     assert stored['human'][0] == 1
 
 

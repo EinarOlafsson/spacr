@@ -63,11 +63,11 @@ def organelle_index(role: str) -> int:
     :returns: The one-based slot encoded by ``role``.
     :raises ValueError: if ``role`` is not an organelle slot.
 
-    ANSWERED FROM THE LETTER, not from a list of the slots that happen to
-    segment today. The suffix IS the number -- organelle, organelleb,
-    organellec -- so a slot the schema has no mask plane for still has a
-    name, and a settings file carrying seven slots renders as
-    "Organelle 5" rather than as "Organellee".
+    The index is computed from the role's letter suffix, not from a list of
+    the slots that currently segment. The suffix encodes the number --
+    organelle, organelleb, organellec -- so a slot the schema has no mask
+    plane for still has a number, and a settings file carrying seven slots
+    renders as "Organelle 5" rather than as "Organellee".
     """
     from .organelle_types import organelle_number
 
@@ -311,22 +311,23 @@ def withdrawn_setting_reason(key: str):
 
 
 def split_role_setting(key: str):
-    """``organellezz_min_area`` -> ``("organellezz", "min_area")``.
+    """Split ``key`` into ``(role, suffix)``, or ``None`` if it names no role.
 
-    The inverse of :func:`role_setting`, and the reason a suffix rename can
-    cost six lines instead of 3,522. Every role is a single word with no
-    underscore, so partitioning on the FIRST one separates the role from the
-    suffix without scanning the 702 organelle slots.
+    The inverse of :func:`role_setting`: ``organellezz_min_area`` ->
+    ``("organellezz", "min_area")``. Every role is a single word with no
+    underscore, so partitioning on the first underscore separates the role
+    from the suffix without scanning the 702 organelle slots.
 
-    NOT :func:`role_setting`'s validation: this accepts any role in
+    Unlike :func:`role_setting`, this accepts any role in
     ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than
     segmented and still declares ``cytoplasm_min_size``. Restricting to
     segmented roles here would silently skip it.
 
-    A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``,
-    ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their
-    own right in the standalone apply/test-model submodules. A key with no
-    underscore has no role, so it can never match a suffix rule.
+    Keys such as ``FT``, ``CP_prob``, ``Signal_to_noise`` and
+    ``flow_threshold`` are settings in their own right in the standalone
+    apply/test-model submodules. A key with no underscore, or whose text
+    before the first underscore is not in ``ALL_ROLES``, returns ``None``, so
+    it never matches a suffix rule.
 
     :param key: a settings key.
     :returns: ``(role, suffix)``, or ``None`` when ``key`` names no role.

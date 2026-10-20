@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T02:07:01.716969+00:00",
+  "status": "SOURCE-BOUND TECHNICAL ENGLISH PROPOSALS; Home approval required, no source/catalog/review changes",
+  "assignment": {
+    "git_commit": "be80f0938",
+    "git_path": "features/HANDOFF.md",
+    "blob_sha256": "01af9bd8d69ed1e58944652f32959eacd9bfa069ef46337067ddddf7d7c0b06c",
+    "full_2137_section": "## 2026-10-13 21:37 EDT \u2014 Home: hosted gate green; source audits and future English accepted\n\nExact eb72 CI: all12coverage and all3minimum-dependency shards pass. Hosted\ncoverage/ratchet gate now passes with baseline/exemption unchanged. SixFast/Qt\njobs remain; full green, main promotion and release are still pending.\n\nN698/N699 source audits and N689 live deployment proof are recorded in dated\nfeatures/data folders. Home independently rechecked22SSH/docs and49website/\ndesktop bindings. Private site raw code stays scratch-only. HF automatic\nnightly is proven live; legacyPages remains combined974.7MB with no HFredirect,\nso N689 is partial until main promotion/deployment. Great Lakes policy is\nKerberos+Okta; SSH discovery must not execute Match exec via ssh -G.\n\nHeld MakeMasks dirty identity optimization breaks the legacy persisted hash\nin138small synthetic cases. A bounded eight-byte C-order stream matches every\nlegacy byte/hash, including strides/endian/wide values; observed conversion\nchunks max512KiB. This is standalone CPU proof, not app/ledger/performance or\nshutdown acceptance. Held source/tests remain unchanged.\n\nWork: exact future tooltip/whole AmbientWidget.stop English drafts are accepted\nfor AFTER release in n615_english_truth_proposals_2026-10-13/\nhome-accepted-future-english.json. Prepare nine-locale drafts in feature receipts now if\nuseful; do not alter source/catalogs/reviews/generators during this freeze.\nAlso draft truthful helper descriptions for pauses_animation and\n_animation_paused_for_work, which still say every animation pauses.\n\nHome prepared notes now distinguish configured30fps caps/fractal pauses and\nfigure detector v2 versus highlighted well v3. Full36-bullet source review is in\nprogress; the older tracked31-bullet notes are not the publication draft.\nCuPy request remains Work-owned with approved direct existing collector; no\nHome GPU use. Release is NOT done; no later tutorial recording is authorized.\n\n"
+  },
+  "source_bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "sha256": "6bcfc724f3dd6c2633cb7c11edadc8b88718ad192a7ce833304933bdebf2e9e0",
+      "size_bytes": 581838
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/gil_priority.py",
+      "sha256": "be7b27d6b90d16dc2a53376f80e201f14606f60d811b672a8893b5f144814e7f",
+      "size_bytes": 22417
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/preferences.py",
+      "sha256": "aa9555ba881a8dd7fc6c19fbf4c1c26da6406c12f8b9ebb0bd4c08cc05a83abe",
+      "size_bytes": 552446
+    }
+  ],
+  "already_accepted_related_English": {
+    "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n615_english_truth_proposals_2026-10-13/home-accepted-future-english.json",
+    "sha256": "c30d17f08d8740e4863635bba3b5b77de32b7e8eb079e145d0a2ac12381f130a",
+    "size_bytes": 2082
+  },
+  "proposals": [
+    {
+      "symbol": "spacr.qt.widgets.ambient._animation_paused_for_work",
+      "line": 12533,
+      "end_line": 12536,
+      "current_exact_docstring": "Whether CPU-heavy analysis currently pauses every animation.",
+      "current_docstring_utf8_sha256": "40ada0a27327a8ea84a3c8576eb3475330e9330fe73af8e8b946719fb205d2af",
+      "current_docstring_source_expression": "\"\"\"Whether CPU-heavy analysis currently pauses every animation.\"\"\"",
+      "exact_return_expression": "return bool(policy is not None and policy.pauses_animation())",
+      "proposed_docstring": "Whether an existing workload policy requests CPU-work animation pacing.\n\nReturn False if the policy has not been created, is disabled, or does\nnot report CPU-heavy work. This query does not create the policy.\n:meth:`AmbientWidget._follow_the_run` uses True to cap a qualifying\nbackdrop at no more than :data:`_RUN_FPS`, rather than to stop it.\nThat caller can also request the same cap independently through\n:func:`spacr.qt.gil_priority.active`. The animation switch, visibility,\nReduce motion and minimization still decide whether the backdrop runs;\nthis flag does not inspect those conditions.\n\nGPU-only work is handled separately by :func:`_decorative_gpu_blocked`\nand the policy's Spaceout fractal holds, not by this CPU-work flag.\n\n:returns: True only for an existing enabled policy with CPU work marked busy.",
+      "proposed_docstring_utf8_sha256": "7f8af4fb97a913d233f12329b41f78b57a7b93d5e0f2049b512dc9a30cc25e8a",
+      "Home_approved": false,
+      "source_or_catalog_applied": false
+    },
+    {
+      "symbol": "spacr.qt.widgets.ambient._AnimationResourcePolicy.pauses_animation",
+      "line": 12411,
+      "end_line": 12413,
+      "current_exact_docstring": "Whether CPU-heavy work currently pauses every animation.",
+      "current_docstring_utf8_sha256": "8080ca3938c8d8e261554770cf39a85c00c4ba027ac19eb40befd906d9408357",
+      "current_docstring_source_expression": "\"\"\"Whether CPU-heavy work currently pauses every animation.\"\"\"",
+      "exact_return_expression": "return self.enabled and self.cpu_busy",
+      "proposed_docstring": "Whether the enabled workload policy reports CPU-heavy work.\n\nTrue means both :attr:`enabled` and :attr:`cpu_busy` are set. It is a\nCPU-work policy flag, not a statement that every animation has stopped.\nBackdrop callers use it to cap their configured rate at no more than\n:data:`_RUN_FPS`; the policy also holds eligible Spaceout fractals.\nGPU-only work does not set this flag. :meth:`blocks_gpu` reports the\nseparate decorative GPU restriction; the policy uses that decision\nto hold eligible GPU-backed Spaceout fractals.\n\n:returns: True only while this policy is enabled and CPU work is marked busy.",
+      "proposed_docstring_utf8_sha256": "b3d37ed531ff6740cd94687ab34e77ba8aefcd463b5efd05f39f1be12c8f126f",
+      "Home_approved": false,
+      "source_or_catalog_applied": false
+    }
+  ],
+  "caller_evidence": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        10964,
+        10973
+      ],
+      "fact": "AmbientWidget._rate returns min(configured_fps,_RUN_FPS) only when run_paced; _RUN_FPS=30 at668 is a configured cap, not achieved motion."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        11011,
+        11024
+      ],
+      "fact": "_follow_the_run paces for gil_priority.active OR CPU-policy helper, so policy Off does not disable independent pipeline pacing."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        11192,
+        11223
+      ],
+      "fact": "_should_run tests animation switch/visibility/Reduce motion/minimized state; _sync_run_state follows rate before deciding start/stop. Helpers do not themselves inspect these guards."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        12411,
+        12417
+      ],
+      "fact": "pauses_animation returns enabled AND cpu_busy; blocks_gpu separately returns enabled AND(cpu_busy ORgpu_busy). GPU-only work therefore does not make CPU flagTrue."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        12474,
+        12506
+      ],
+      "fact": "Policyapply only calls _hold_fractals while blocks_gpuTrue; eligible unpaused live fractals held for CPU flag or GPU backend, tracked for release. Do not imply every animation or every fractal is always paused."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        12509,
+        12536
+      ],
+      "fact": "Policycreation requires QApplication. Wrapper reads _RESOURCE_POLICY directly and never creates it; False if absent."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        1833,
+        1847
+      ],
+      "fact": "Decorative engine refuses GPU during policy block; independent external-compute and backend checks also exist. CPU and GPU work both block decorative GPU; policyOff alone does not promise unrestricted rendering."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/gil_priority.py",
+      "lines": [
+        77,
+        80
+      ],
+      "fact": "active means at least one worker responsiveness claim, independent of Dynamic animation switch."
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/spacr/qt/widgets/ambient.py",
+      "lines": [
+        12390,
+        12403
+      ],
+      "fact": "Policy enabled initializes from saved preference; errors fallbackTrue; job resource classification feeds cached busyflags. No external CPU load monitor implied."
+    }
+  ],
+  "scope_limits": [
+    "Only these two helper docstrings proposed; do not change function names/return logic or classify measured performance.",
+    "No guarantee of delivered30fps/60fps, continuous motion, no freezing or zero resource use.",
+    "CPU classification/flag scope and all visibility/motion/off controls remain unchanged. GPU-only behavior described through separate policy path, not added to CPUflag definition.",
+    "Home accepted tooltip/whole stop English for post-release implementation, but these new helper drafts still require separate Home acceptance.",
+    "No extraction/generator/translation/test/Qt/import/GPU execution performed; future source/type/catalog hashes must bind approved final wording after freeze."
+  ],
+  "no_changes": true,
+  "correction_provenance": {
+    "original_preserved": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_animation_helper_english_proposals_20261013.json",
+      "sha256": "8e01d4c82846a3efd877cf2557942a38492a476bf449db65da3686bcc702dfa4",
+      "size_bytes": 10244
+    },
+    "scoped_peer": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n615_animation_helper_english_proposals_peerreview_20261013.json",
+      "sha256": "fc894f42512a29410fac710b65d0326ca378f4fbfbc33eb4ba8d6a938508ef30",
+      "size_bytes": 7570
+    },
+    "change": "Pure blocks_gpu predicate reports decorative GPU restriction; policy callers perform eligible GPU-backed Spaceout holds. Wrapper unchanged.",
+    "created_at_utc": "2026-10-14T02:27:21.005733+00:00"
+  }
+}

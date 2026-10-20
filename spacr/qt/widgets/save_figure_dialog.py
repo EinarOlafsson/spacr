@@ -11,9 +11,9 @@ width of its lines, the colour of its text, the shape of its page, and what
 kind of file it is. Everything else a figure can be told belongs to the PLOT
 and lives on the plot's own right-click menu, where it reaches the screen and
 every export at once; a value inherited from there is shown here rather than
-offered a second time. Matplotlib figures have no such plot menu, so their
-dialog also offers an export-only text scale to keep type proportional when
-the output page is resized.
+offered a second time. Matplotlib figures also have a live figure-settings
+menu. This dialog additionally offers an export-only text scale for the
+detached Matplotlib copy when the output page is resized.
 """
 import logging
 from typing import Optional
@@ -23,6 +23,8 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
                                QDoubleSpinBox, QFileDialog, QFormLayout,
                                QHBoxLayout, QLabel, QPushButton,
                                QSpinBox, QVBoxLayout, QWidget)
+
+from ..i18n import tr
 
 LOG = logging.getLogger("spacr.qt.save_figure")
 
@@ -88,10 +90,8 @@ def _show_integrity_notice(parent, report, chosen: str, sidecar):
 _SIZE_REASON = ("set on the plot's right-click menu, under Canvas: it is one "
                 "page size, read by every export this plot makes")
 
-#: Why a vector file has no resolution to set. PDF and SVG carry paths and
-#: text rather than pixels, so the page size is the whole answer.
-_RESOLUTION_REASON = ("PDF and SVG are true vector: the page size is the "
-                      "whole answer and there is no resolution to set")
+_RESOLUTION_REASON = ("PDF and SVG can contain raster images. This dialog "
+                      "disables resolution editing for these formats.")
 
 #: What the resolution does when the file IS pixels, in one sentence. The
 #: resolution decides the count and the graph shape decides the proportion,
@@ -173,7 +173,6 @@ FORMATS = (("png", "PNG image"), ("pdf", "PDF document"),
 FAST_PLOT_FORMATS = (("png", "PNG image"), ("pdf", "PDF document"),
                      ("svg", "SVG image"))
 
-#: The formats that hold paths rather than pixels, and so have no resolution.
 VECTOR_FORMATS = ("pdf", "svg")
 
 #: Ink for the TEXT in the file: the title, the axis labels, the tick
@@ -275,12 +274,13 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
     figure : matplotlib.figure.Figure or None
         Figure copy to modify. ``None`` is accepted for preview fallbacks.
     ink : str, optional
-        Color applied to titles, labels, ticks, spines, legends, and text --
-        text and lines together, which is what a paper-or-slide preset
-        means. An empty string preserves the existing colors.
+        Color applied to axes titles, axis labels, tick labels, legend entries,
+        axes text, spines, and tick marks. Figure-level text, legend titles,
+        and plotted data lines are unchanged. An empty string preserves the
+        existing colors.
     text_colour : str, optional
-        Color for TEXT only: the title, the axis labels, the tick numbers
-        and the legend. Overrides ``ink`` for that half.
+        Color for the axes text elements listed under ``ink``. Overrides
+        ``ink`` for those elements.
     line_colour : str, optional
         Color for LINES only: the spines and the tick marks. Overrides
         ``ink`` for that half.
@@ -378,8 +378,8 @@ class SaveFigureDialog(QDialog):
     the text colour, and the shape of the page -- and three more say what the
     file IS: its format, resolution and page size. Everything else belongs on
     the plot's own right-click menu, where it applies to the screen and every
-    export at once. A Matplotlib figure has no equivalent live menu, so its
-    dialog also offers an export-only text scale.
+    export at once. Matplotlib figures also have a live figure-settings menu;
+    this dialog provides an additional text scale for the export copy.
 
     A SETTING INHERITED FROM THE PLOT IS SHOWN, NOT EXPLAINED. The page size
     a pyqtgraph plot writes onto is set on that menu; this dialog displays
@@ -431,9 +431,8 @@ class SaveFigureDialog(QDialog):
 
         self.line_colour = self._colour_box(
             LINE_INKS,
-            "Every line in the file: the plotted curves, the reference "
-            "lines, the axis spines and the tick marks. The numbers beside "
-            "the ticks are text and follow the text colour.")
+            tr("Line colour affects axes spines and tick marks in Matplotlib "
+               "exports; fast plots also recolour plotted lines."))
         form.addRow("line colour", self.line_colour)
 
         self.line_width = QDoubleSpinBox()
@@ -442,15 +441,16 @@ class SaveFigureDialog(QDialog):
         self.line_width.setSingleStep(0.5)
         self.line_width.setSpecialValueText("as drawn")
         self.line_width.setToolTip(
-            "Pen width in pixels for every line. A line that reads well on "
-            "screen is often too thin once the figure is a column wide.")
+            tr("Line width applies only to fast-plot exports, in pixels. "
+               "Matplotlib exports keep their existing line widths."))
         self.line_width.valueChanged.connect(self.refresh)
         form.addRow("line width", self.line_width)
 
         self.ink = self._colour_box(
             INKS,
-            "Every piece of text in the file: the title, the axis labels, "
-            "the numbers beside the ticks and the legend.")
+            tr("Text colour affects axes titles, labels, tick labels, legend "
+               "entries and axes annotations. Matplotlib figure titles and "
+               "legend titles keep their existing colours."))
         form.addRow("text colour", self.ink)
 
         if not self._fast:
@@ -638,17 +638,16 @@ class SaveFigureDialog(QDialog):
     def _format_changed(self, *_args) -> None:
         """Light the resolution for a raster format and grey it for vector.
 
-        THE FORMAT DECIDES, NOT THE KIND OF PLOT. Vector output has no
-        resolution to set; a PNG's resolution is the number that decides how
-        big the file really is, and that is true of a pyqtgraph plot exactly
-        as it is of a Matplotlib one.
+        This dialog disables resolution editing for PDF and SVG. Fast-plot
+        exports omit the DPI keyword in those formats. Matplotlib exports
+        still pass the stored DPI to savefig, where it can determine the
+        resolution of rasterized artists embedded in a vector file.
         """
         vector = self._suffix() in VECTOR_FORMATS
         self.dpi.setEnabled(not vector)
         self.dpi.setToolTip(
-            _RESOLUTION_REASON if vector else
-            "Dots per inch in the written file. 300 is the usual journal "
-            "minimum; the screen never needs more than about 150.")
+            tr(_RESOLUTION_REASON) if vector else
+            tr("Resolution in dots per inch for PNG and TIFF exports."))
         self._page_changed()
 
     def _suffix(self) -> str:
@@ -733,8 +732,8 @@ class SaveFigureDialog(QDialog):
         else:
             self._size_note.setText("")
         if self._suffix() in VECTOR_FORMATS:
-            self._resolution_note.setText(_RESOLUTION_REASON)
-            self._resolution_note.setToolTip(_RESOLUTION_REASON)
+            self._resolution_note.setText(tr(_RESOLUTION_REASON))
+            self._resolution_note.setToolTip(tr(_RESOLUTION_REASON))
             self._fit_page_notes()
             return
         pixels = self._raster_pixels()
@@ -819,8 +818,9 @@ class SaveFigureDialog(QDialog):
         self._clear_holder()
         if self._preview is None:
             self._holder.addWidget(QLabel(
-                "This figure cannot be previewed, so it will be written "
-                "exactly as it appears on screen."))
+                tr("This figure cannot be previewed. It will be saved using "
+                   "its current styling, the selected resolution and "
+                   "background transparency, and a tight crop.")))
             self._canvas = None
             return None
         self._canvas = _canvas_class()(self._preview)

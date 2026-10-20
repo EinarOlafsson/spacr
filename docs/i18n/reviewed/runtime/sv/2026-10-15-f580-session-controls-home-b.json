@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical authoring; independent technical peer required; no native-speaker acceptance",
+  "note": "Exact eighteen owner sources; normal scoped source-context gates, no catalog generation. Backend API scope is separate.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_sessions",
+      "source": "Intensity calibration sessions",
+      "source_sha256": "16b22df97d123d7674258d42bc21da15ae7232c29b23899e0a3418f6f9b9a8fe",
+      "translation": "Sessioner för intensitetskalibrering"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_session_column",
+      "source": "Intensity calibration session column",
+      "source_sha256": "a80d3d9f2420d69bb745368d3c92f8f7f938c0cb4e63bb86ea252c3f9a5ed2eb",
+      "translation": "Sessionskolumn för intensitetskalibrering"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_beads",
+      "source": "Intensity calibration beads",
+      "source_sha256": "9405b6cf24464bb4fba30c4c001fbc0a4b3cff51bed895c949e2a2f4846bbb55",
+      "translation": "Pärlor för intensitetskalibrering"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intensity_calibration_reference_session",
+      "source": "Intensity calibration reference session",
+      "source_sha256": "ed04bcb0bb822b28e89d54883a66d62e641810b2cfd4a057064e456b5996ec90",
+      "translation": "Referenssession för intensitetskalibrering"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_sessions",
+      "source": "Optional local CSV assigning acquisition sessions independently of plates. Use an exact filename column, including each merged NPY or selected reference TIFF/NPY suffix, and the selected session column. Every current sample and reference file must have one unique nonblank assignment. Blank keeps one session per plate. Default blank.",
+      "source_sha256": "08cd55779c5d03d76acb25963de2544f9d2c394d7d47e26477fab05176208ef1",
+      "translation": "Valfri lokal CSV som tilldelar bildtagningssessioner oberoende av plattor. Använd en kolumn med exakt namnet filename, med varje sammanslagen NPY-fil eller vald TIFF/NPY-referensfil inklusive filändelse, samt den valda sessionskolumnen. Varje aktuell prov- och referensfil måste ha en unik, icke-tom tilldelning. Tomt behåller en session per platta. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_session_column",
+      "source": "Exact column name in the sessions CSV that identifies an acquisition session. All fields in a session share reference gains and must use compatible measurement intensity planes and working units. Default session.",
+      "source_sha256": "e4e76ffd9698db5dad44fc412796a9a544b030b92022d9a23e320aece366b753",
+      "translation": "Exakt kolumnnamn i sessions-CSV-filen som identifierar en bildtagningssession. Alla bildfält i en session delar referensförstärkningar och måste använda kompatibla intensitetsplan för mätning och arbetsenheter. Standard: session."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_beads",
+      "source": "Optional local folder of bead or reference-well images, replacing reference images inside the measured folder. Filenames keep the plate, well and field identity; selected reference wells still apply. NPY files use the merged channel and mask layout. TIFF files contain only intensity channels with explicit spatial and channel axes. No time or ambiguous page-axis interpretation is guessed. Default blank.",
+      "source_sha256": "73a0d10ebfa1f4fa976b485f6275a53b64153fe953b1e69a00e27a788573d4a8",
+      "translation": "Valfri lokal mapp med bilder av pärlor eller referensbrunnar som ersätter referensbilder i den uppmätta mappen. Filnamnen behåller identiteten för platta, brunn och bildfält; valda referensbrunnar gäller fortfarande. NPY-filer använder den sammanslagna kanal- och masklayouten. TIFF-filer innehåller endast intensitetskanaler med uttryckliga rums- och kanalaxlar. Ingen tolkning av tid eller tvetydiga sidaxlar gissas. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_session",
+      "source": "Exact acquisition session identifier to use as the gain reference. Blank uses the first session by name, or the sole session on the explicitly selected reference plate. If both plate and session are selected they must agree. A plate assigned to multiple sessions requires this choice. Default blank.",
+      "source_sha256": "4351129f2ba4044916e605f3724ac2e771b2e9b8b02ecc3fe7fa0de278c44a87",
+      "translation": "Exakt identifierare för den bildtagningssession som ska användas som förstärkningsreferens. Tomt använder den första sessionen i namnordning, eller den enda sessionen på den uttryckligen valda referensplattan. Om både platta och session väljs måste de stämma överens. En platta som tilldelats flera sessioner kräver detta val. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration",
+      "source": "Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.",
+      "source_sha256": "702ffd4ce775c916ec9780f57ae711c3a9f5356166e5e4746492b2c53f594a86",
+      "translation": "Kalibrerar intensiteter före mätning med pärlor eller referensbrunnar som avbildats i varje bildtagningssession. Som standard är varje platta en session. En valfri sessions-CSV tilldelar bildfält oberoende av plattor; en extern pärlmapp kan tillhandahålla referensbilderna. Förstärkningarna anpassas till vald referenssession eller referensplatta; tomma val behåller standarden första i namnordning. Den befintliga förstärkningsmetoden med kameraförskjutning är oförändrad. Förstärkningar och referensinnehållets identiteter registreras i measurements.db:intensity_rescale. Standard: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_wells",
+      "source": "Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
+      "source_sha256": "ba442ddfeee750ee95bef3aa8d84e5695c94f2096ea9f60ae249b4f71e479075",
+      "translation": "Brunnar med samma kalibreringsprov i varje bildtagningssession, till exempel ['A01'] eller ['A01', 'P24']. Referenser hämtas från den valda externa pärlmappen, annars från den uppmätta sammanslagna mappen. Varje uppmätt session måste ha ett användbart referensbildfält. Referensbrunnar i källan mäts som alla andra brunnar. Standard: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_reference_plate",
+      "source": "Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.",
+      "source_sha256": "dbd6b6c5b747713e74988222d44808553c5a5457fff552940411b2be58f6b405",
+      "translation": "Exakt identifierare för referensplattan från sammanslagna filnamn, till exempel plate2. Utan sessions-CSV behåller tomt den första plattan i namnordning. Med uttryckliga sessioner måste plattan tillhöra en enda session, eller kombineras med en exakt referenssession på den plattan. Den valda plattan måste finnas i den uppmätta körningen. Standard: tomt."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "intensity_calibration_statistic",
+      "source": "How each reference field intensity is summarised after subtracting intensity_calibration_offset. foreground is the median above Otsu for sparse beads on a dark background; median uses all pixels for a uniformly stained reference well. Each acquisition session uses the median over its reference fields. Default foreground.",
+      "source_sha256": "960f87000ab4e94953da9a190fbe089940b308f47b3d55857caf2e231cf370fe",
+      "translation": "Hur varje referensbildfälts intensitet sammanfattas efter att intensity_calibration_offset har dragits bort. foreground är medianen över Otsu-tröskeln för glesa pärlor på mörk bakgrund; median använder alla pixlar för en jämnt färgad referensbrunn. Varje bildtagningssession använder medianen över sina referensbildfält. Standard: foreground."
+    },
+    {
+      "table": "ui",
+      "key": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "source": "A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.",
+      "source_sha256": "c6967ffcf38f504cda53950e761e763ddab2cbebd105941a106d50a6a1c4f767",
+      "translation": "Vald platta och session måste stämma överens; en platta med flera sessioner kräver en uttrycklig referenssession."
+    },
+    {
+      "table": "ui",
+      "key": "Calculate reference gains without running Measure or changing files.",
+      "source": "Calculate reference gains without running Measure or changing files.",
+      "source_sha256": "be4a09ad55655e55ce64049fb3e9a870bfb7b1cff2d6463b6c7bca4a9e8e0f1e",
+      "translation": "Beräkna referensförstärkningar utan att köra Measure eller ändra filer."
+    },
+    {
+      "table": "ui",
+      "key": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "source": "Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.",
+      "source_sha256": "973e2a3ce64774cc9df8ce115a18b5695832b3f076087394cebd6465c43423d0",
+      "translation": "Förstärkningarna använder kameraförskjutningen och valda referensbrunnar eller externa referensbilder; bilder och mätningar ändras inte."
+    },
+    {
+      "table": "ui",
+      "key": "Reference session",
+      "source": "Reference session",
+      "source_sha256": "d1d160f73ec75460812a8bf9d281186be164e58b4d78b99197ab97dd0e50e83d",
+      "translation": "Referenssession"
+    },
+    {
+      "table": "ui",
+      "key": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "source": "With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.",
+      "source_sha256": "f8bc368ce01c00cae1bea2b07fc8bf3ad23d1eda0f5a12bb1a104458a9205643",
+      "translation": "Med sessionsindata lämnas referenssessionen tom för att använda den första sessionen i namnordning, eller den enda sessionen på den valda referensplattan."
+    },
+    {
+      "table": "ui",
+      "key": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "source": "Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.",
+      "source_sha256": "614932f4055382a3a955146471454b82d2a214a2d72613bf1e586901a3e54a85",
+      "translation": "Utan sessionsindata används den valda referensplattan; lämna tomt för att använda den första plattan i namnordning."
+    }
+  ]
+}

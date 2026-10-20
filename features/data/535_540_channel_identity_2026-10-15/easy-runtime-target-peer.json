@@ -1,0 +1,109 @@
+{
+  "reviewer": "Original Home easy independent AI technical peer",
+  "decision": "APPROVE all9 exact frozen runtime targets",
+  "proposed_source_sha256": "7dbd0cd39563df943820181b35fbd9b4807b147effee2ed8184098d7835ac5d1",
+  "source": "Measurement channels must be nonnegative integer indices.",
+  "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+  "technical_findings": [
+    "All nine express nonnegative integer channel indices/numbers, admitting zero; none changes this to strictly positive or one-based ordering.",
+    "Measurement-channel identity terminology is retained, not calibration, channel sorting, stain accuracy or biological quality.",
+    "No omitted numeric qualifier, inverted negation, placeholder/identifier loss or unsupported biological claim found.",
+    "Only exact reviewed targets/source hashes approved; owner normal source/candidate/localization/runtime checks remain required."
+  ],
+  "records": [
+    {
+      "language": "sv",
+      "file": "docs/i18n/reviewed/runtime/sv/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "8b16182c25f3732cfd243b365e83aceae4f836bbd2c16a0e9918ff89f293c756",
+      "record_sha256": "81f71fde5fc67b89af5d6de0ece62fc2bfe729d8497aba9084b6550fa536774a",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "Mätkanaler måste anges med icke-negativa heltalsindex.",
+      "target_sha256": "d6c887812f27fbd681ded7aa3298fa8126c66de63dc7e69819be01a3623ee7c3",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "de",
+      "file": "docs/i18n/reviewed/runtime/de/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "468c1bf003a68414b1a36a2c756abcd8c8caed4ccaf3aa4db3347b2de1e09f37",
+      "record_sha256": "c6478f65945d4bfca2840c9e96b2d24075cb14132798b14f72651a8b8706c9f1",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "Messkanäle müssen durch nichtnegative ganzzahlige Indizes angegeben werden.",
+      "target_sha256": "83a89e6abc261805deef76558107804a82322dc5780f2d120af61f3b7365ca2c",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "es",
+      "file": "docs/i18n/reviewed/runtime/es/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "f816766310f6f0c7a3f05a8598a9eeb7bc6592b39aee43ca1018e8710627217d",
+      "record_sha256": "bdc91e50c4014946effb42462fffb2e49168044b71e18f706c4cf5a554959bc8",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "Los canales de medición deben ser índices enteros no negativos.",
+      "target_sha256": "c313745050ffa9000b1c3fbcfb1e9d2d257061512ae5c06cd0ded322b6d28605",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "zh_CN",
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "c463f840c183f7cfa09b8379ac02c9a82acd36586def48a4a799243de620221c",
+      "record_sha256": "94ee9200c371c342ce2a6cc5cab4a92bca592abf4f53c8a52f383877e087cede",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "测量通道必须使用非负整数索引。",
+      "target_sha256": "9bccf7be50e99be64b41d4bd724fc6dc3a16a56959877bd2598399ed76552fc3",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "fr",
+      "file": "docs/i18n/reviewed/runtime/fr/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "574136e7a79eb93e319321630e6b3c27696bf41a69fcba3604e6023a642c62a0",
+      "record_sha256": "07aa0485f8608820e4faa91b4c85f114935aac5d13e106b5300adf2a9b518fbb",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "Les canaux de mesure doivent être des indices entiers non négatifs.",
+      "target_sha256": "db7e0ddb40838db7e3e1736a29013bb3c144ced2dd79347d051e203d321977c6",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "pt",
+      "file": "docs/i18n/reviewed/runtime/pt/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "a926c91975e153139e7e9a5d4e801101598721c2df0c2d2ed16f1192311c3c6d",
+      "record_sha256": "78eb6f54fc4d2d46865a5905de1ad1fbbf9fc0ee384fd20ca614c489f28be49e",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "Os canais de medição devem ser índices inteiros não negativos.",
+      "target_sha256": "75597800a45bc1765f1923ae36b3873f5163ce875fd938c2cddec95c9b26b66d",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "hi",
+      "file": "docs/i18n/reviewed/runtime/hi/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "0fcc62094d8aa605a810ef1ce1f9066de839cd7b30783c780e1acf5f3070b005",
+      "record_sha256": "9aea049b8025790453dc1df657a9c541a49dee78e91f6a8169b0b4fff5000fd4",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "मापन चैनलों के सूचकांक गैर-ऋणात्मक पूर्णांक होने चाहिए।",
+      "target_sha256": "f1cd8371093e780126eac2f0fe43632318a1033cfd2117705d5417db5814f626",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "ko",
+      "file": "docs/i18n/reviewed/runtime/ko/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "7553bf4b2af2bb59c71770df92c4b02156c6882d76b33134b3b92f97fa506795",
+      "record_sha256": "1d66b0f45551944e3b371ceacf2f2d5ca773ea0a5c5340c9f94c3af98b8371ed",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "측정 채널은 음이 아닌 정수 인덱스여야 합니다.",
+      "target_sha256": "55547a39ee89ff4afe20f297f77d42b1b58fab1b7210d9994ebcd89ac5d07a60",
+      "decision": "approve exact technical meaning"
+    },
+    {
+      "language": "is",
+      "file": "docs/i18n/reviewed/runtime/is/2026-10-15-measured-channel-identity.json",
+      "file_sha256": "d4fbb3b0ca4b568e84f1d5abc8aeec84543b0e104151e309731446b2071ddfaf",
+      "record_sha256": "c84a35a736f977577cc44dd90178f200faea108f267c057de52fbd478e4c9485",
+      "source_sha256": "ace580c499074c0ed1bac139b80403b86a7ffbce177f3d834ff59fe3fb52f1b7",
+      "target": "Rásanúmer mælinga verða að vera heiltölur sem eru ekki neikvæðar.",
+      "target_sha256": "c65c3204903087127fe91c4fa507e55ba09a64b484598b6b17a5bc6af6064540",
+      "decision": "approve exact technical meaning"
+    }
+  ],
+  "limits": [
+    "Independent AI technical peer review, no human/native-speaker signoff.",
+    "No translation generation, source/record edits, model/network/Qt/tests performed for this peer."
+  ]
+}

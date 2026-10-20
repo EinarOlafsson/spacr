@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "PASS exact-byte restoration and backend freeze",
+  "bindings": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/capture_plaque.py",
+      "sha256": "2ea41dc7e6fcf8eb5449078843b53a2ab439ecde47b62418f7c915f58cd21963",
+      "bytes": 21714,
+      "matches_frozen_passed_bytes": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_capture_plaque_completion.py",
+      "sha256": "529f919c9ed124e7ac902cd8cceb41ecc741b569510b53be5a9230933bfb083d",
+      "bytes": 4421,
+      "matches_frozen_passed_bytes": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/spacr/submodules.py",
+      "sha256": "b7cccbc1d4fdf39118f730ea2f368b3b23662e02c9091136600850cabe9e6998",
+      "bytes": 280413,
+      "matches_frozen_passed_bytes": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tests/test_plaque_equivalent_diameter_api.py",
+      "sha256": "f936e84d608a042911711f9ae909aadc960008a5a34102a564d1302c3b5937fd",
+      "bytes": 2849,
+      "matches_frozen_passed_bytes": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24-r43/completion-tests.log",
+      "sha256": "48077a91fd09bad82489316e0a6798addc9359af39a4629034f12b2c407cdd47",
+      "unchanged": true
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson24-r43/final-diameter-tests.log",
+      "sha256": "683fa99019bcf32276181b14d19c81a9385ec743c0834b5dcead7d3bad05ef2c",
+      "unchanged": true
+    }
+  ],
+  "bounded_conclusion": "Recorder and completion tests exactly match independently reviewed initial33-pass version; backend and regression exactly match final3-pass version. No retest needed for these unchanged bytes. Download/oldLive-preview experiments remain external only.",
+  "lesson24": "BLOCKED current owned-preview adapter mismatch; turn44 not queued; useful tested fixes do not imply whole24 acceptance.",
+  "runtime_performed": false,
+  "source_edits_performed": false
+}

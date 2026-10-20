@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Explain CV models and investigate hits"
 msgstr "CV 모델 설명과 히트 조사"
 
-msgid "spaCR separates three questions that are easy to blur together:"
-msgstr "spaCR은 혼동하기 쉬운 세 가지 질문을 구분합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR provides three separate analyses that answer different questions:"
+msgstr "spaCR은 서로 다른 질문에 답하는 세 가지 별도 분석을 제공합니다:"
 
 msgid "activation or occlusion maps show **where** a vision model attended;"
 msgstr "활성화 맵이나 가림 맵은 비전 모델이 **어디에** 주목했는지 보여 줍니다."
@@ -40,8 +41,9 @@ msgstr "마지막 결과는 약한 지도 학습에 기반한 증거이지 세�
 msgid "Explain CV Model"
 msgstr "CV 모델 설명"
 
-msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both ask what a trained classifier actually did."
-msgstr "이 모듈은 자체 타일 없이 **분류** 헤더에서 **분류기 평가** 옆에 열립니다. 둘 다 학습된 분류기가 실제로 무엇을 했는지 묻습니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The module opens from the **Classify** masthead rather than from a tile of its own, next to **Classifier Evaluation**: both analyse an existing trained classifier and its saved predictions."
+msgstr "이 모듈은 자체 타일 없이 **분류** 헤더에서 **분류기 평가** 옆에 열립니다. 둘 다 기존에 학습된 분류기와 저장된 예측을 분석합니다."
 
 msgid "Choose the exact ``measurements.db`` and an existing per-object CV prediction CSV. The module never reruns or silently substitutes the original classifier. It joins predictions one-to-one to measured objects and excludes identifiers, prediction/class columns, scores, annotations, and user exclusions from the surrogate feature matrix."
 msgstr "정확한 ``measurements.db`` 와 기존의 객체별 CV 예측 CSV를 선택합니다. 이 모듈은 원래 분류기를 다시 실행하거나 몰래 다른 것으로 바꾸지 않습니다. 예측을 측정된 객체와 일대일로 결합하고, 식별자, 예측/클래스 열, 점수, 어노테이션, 사용자 제외 항목을 대리 모델의 특징 행렬에서 제외합니다."
@@ -73,8 +75,9 @@ msgstr "**회귀** 헤더에서 **히트 목록** 을 열고, 정확한 유전�
 msgid "Supply the measurements database, the original per-object prediction CSV, and the per-well guide-fraction CSV. Joins use explicit object and plate/row/column keys. Duplicate object keys or duplicate well/guide fractions stop the run."
 msgstr "측정 데이터베이스, 원래의 객체별 예측 CSV, 웰별 가이드 비율 CSV를 제공합니다. 결합에는 명시적인 객체 키와 플레이트/행/열 키가 사용됩니다. 객체 키가 중복되거나 웰/가이드 비율이 중복되면 실행이 중지됩니다."
 
-msgid "The first output is an honest review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
-msgstr "첫 번째 출력은 있는 그대로의 검토 대기열입니다. 표적이 포함된 웰의 세포를 회귀 효과 방향으로 정렬하고, 그 옆에 웰 수준 표적 가이드 비율을 표시합니다. 이어서 선택적 기여도 모델은 다음을 수행합니다."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The first output is a review queue: cells in target-containing wells ranked in the regression's effect direction, with the well-level target-guide fraction shown beside them. The optional attribution model then:"
+msgstr "첫 번째 출력은 검토 대기열입니다. 표적이 포함된 웰의 세포를 회귀 효과 방향으로 정렬하고, 그 옆에 웰 수준 표적 가이드 비율을 표시합니다. 이어서 선택적 기여도 모델은 다음을 수행합니다:"
 
 msgid "treats wells as bags and cells as instances;"
 msgstr "웰을 가방(bag)으로, 세포를 인스턴스로 취급합니다."

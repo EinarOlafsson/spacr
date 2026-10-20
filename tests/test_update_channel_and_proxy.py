@@ -104,7 +104,7 @@ def test_saved_choice_wins_and_clearing_it_restores_the_environment(tmp_path, mo
     bundle.write_text("x")
     monkeypatch.setenv("HTTPS_PROXY", "http://env:1")
     updater._write_network_config("http://saved:2", str(bundle))
-    assert json.loads((tmp_path / "network.json").read_text())["proxy"] == "http://saved:2"
+    assert json.loads((tmp_path / "network.json").read_text(encoding="utf-8"))["proxy"] == "http://saved:2"
     assert os.environ["HTTPS_PROXY"] == "http://saved:2"
     assert os.environ["PIP_CERT"] == str(bundle)
     updater._write_network_config("", "")

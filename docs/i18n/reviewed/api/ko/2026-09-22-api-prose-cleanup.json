@@ -188,7 +188,9 @@
       "label": "spacr.timeflows_model.ctc_pairs#0",
       "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
       "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-      "translation": "하나의 Cell Tracking Challenge 영상에서 얻은 연속 프레임 학습 쌍."
+      "translation": "하나의 Cell Tracking Challenge 영상에서 얻은 연속 프레임 학습 쌍.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers.",

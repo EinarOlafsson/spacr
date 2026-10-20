@@ -49,6 +49,22 @@ def test_render_scale_changes_the_frame_that_is_shaded(qapp, saved):
     assert half[0] == pytest.approx(native[0] * 0.5, rel=0.25)
 
 
+def test_saved_ultra_quality_reaches_the_actual_renderer(qapp, saved):
+    from spacr.qt.widgets import ambient
+
+    P.set_fractal_settings(pattern='orbit', backend='cpu', quality='ultra')
+    P.apply_quality_preset('ultra')
+    values = P.get_fractal_settings()
+    widget = ambient._build_the_spaceout_fractal(values)
+    try:
+        assert values['quality'] == 'ultra'
+        assert 'CPU/ultra' in widget.stats_text()
+    finally:
+        widget.shutdown()
+        widget.deleteLater()
+        qapp.processEvents()
+
+
 def test_the_pixel_ceiling_is_the_screen_not_a_fixed_number(qapp, saved):
     """It stopped at 1,250,000 pixels whatever the settings said, so past a
     point raising the scale did nothing and there was no way to tell."""

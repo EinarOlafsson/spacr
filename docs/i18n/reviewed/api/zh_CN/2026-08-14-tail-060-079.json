@@ -16,7 +16,9 @@
       "source_sha256": "6e227bea1a82f0c3e78b01508f310b39375df4b3f89f3f0a5f8048286e90e235",
       "source": "**Seventeen backends predict differently.** :data:`spacr.ml.REGRESSION_TYPES` spans statsmodels results (``OLS``, ``WLS``, ``RLM``, four GLM families, ``QuantReg``, ``MixedLM``, ``BetaModel``), scikit-learn estimators (``Lasso``, ``Ridge``, ``ElasticNet``, ``LinearSVC``) and the horseshoe fitter. :func:`predict` is the one call that works on all of them, and :func:`response_scale` names what came back — because a GLM-binomial returns a probability, a Poisson GLM returns a rate, and ``LinearSVC.predict`` returns a CLASS LABEL, which would draw a step function and look like a finding. The hinge backend is profiled through ``decision_function`` for exactly that reason, and the scale says so.",
       "context": "**Seventeen backends predict differently.** :data:`spacr.ml.REGRESSION_TYPES` spans statsmodels results (``OLS``, ``WLS``, ``RLM``, four GLM families, ``QuantReg``, ``MixedLM``, ``BetaModel``), scikit-learn estimators (``Lasso``, ``Ridge``, ``ElasticNet``, ``LinearSVC``) and the horseshoe fitter. :func:`predict` is the one call that works on all of them, and :func:`response_scale` names what came back — because a GLM-binomial returns a probability, a Poisson GLM returns a rate, and ``LinearSVC.predict`` returns a class label, which would draw a step function and look like a finding. The hinge backend is profiled through ``decision_function`` for exactly that reason, and the scale says so.",
-      "translation": "**十七种后端的预测方式不同。** :data:`spacr.ml.REGRESSION_TYPES` 包含 statsmodels 结果（``OLS``、``WLS``、``RLM``、四个 GLM 家族、``QuantReg``、``MixedLM``、``BetaModel``）、scikit-learn 估计器（``Lasso``、``Ridge``、``ElasticNet``、``LinearSVC``）以及马蹄先验拟合器。:func:`predict` 是适用于全部后端的统一调用，:func:`response_scale` 则说明返回值的尺度——因为二项 GLM 返回概率，Poisson GLM 返回发生率，而 ``LinearSVC.predict`` 返回类别标签；后者会画出阶梯函数，看起来像一个真实发现。正因如此，合页损失后端通过 ``decision_function`` 进行剖析，尺度字段也会明确说明。"
+      "translation": "**十七种后端的预测方式不同。** :data:`spacr.ml.REGRESSION_TYPES` 包含 statsmodels 结果（``OLS``、``WLS``、``RLM``、四个 GLM 家族、``QuantReg``、``MixedLM``、``BetaModel``）、scikit-learn 估计器（``Lasso``、``Ridge``、``ElasticNet``、``LinearSVC``）以及马蹄先验拟合器。:func:`predict` 是适用于全部后端的统一调用，:func:`response_scale` 则说明返回值的尺度——因为二项 GLM 返回概率，Poisson GLM 返回发生率，而 ``LinearSVC.predict`` 返回类别标签；后者会画出阶梯函数，看起来像一个真实发现。正因如此，合页损失后端通过 ``decision_function`` 进行剖析，尺度字段也会明确说明。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.projects.pipeline_order#1",
@@ -44,14 +46,18 @@
       "source_sha256": "481e21e1fb6436e049d9640750460acbd9fa06b512be9a9d9792b7ac8523fb06",
       "source": "Crop PNGs are not ordinary images. Anything spaCR wrote before the BGR fix has the first stain in the *blue* channel, and a 16-bit single-channel crop opened with ``convert('RGB')`` is clipped to solid white by PIL. Both are corrected by :func:`spacr.qt.annotate_engine.load_crop_image`, which is therefore the only door used here — a hover preview showing different colours from the annotation grid is worse than no hover preview, because both look plausible.",
       "context": "Extracted image region PNGs are not ordinary images. Anything spaCR wrote before the BGR fix has the first stain in the *blue* image data channel, and a 16-bit single-image data channel extracted image region opened with ``convert('RGB')`` is clipped to solid white by PIL. Both are corrected by :func:`spacr.qt.annotate_engine.load_crop_image`, which is therefore the only door used here — a hover preview showing different colours from the annotation grid is worse than no hover preview, because both look plausible.",
-      "translation": "提取图像区域 PNG 不是普通图像。spaCR 在 BGR 修复之前写出的文件，会把第一种染色放在*蓝色*图像数据通道中；而用 ``convert('RGB')`` 打开 16 位单图像数据通道提取区域时，PIL 会把它截断成纯白。:func:`spacr.qt.annotate_engine.load_crop_image` 会同时校正这两个问题，因此这里所有读取都必须经过该入口——若悬停预览与标注网格显示不同颜色，比没有悬停预览更糟，因为两者看起来都可能合理。"
+      "translation": "提取图像区域 PNG 不是普通图像。spaCR 在 BGR 修复之前写出的文件，会把第一种染色放在*蓝色*图像数据通道中；而用 ``convert('RGB')`` 打开 16 位单图像数据通道提取区域时，PIL 会把它截断成纯白。:func:`spacr.qt.annotate_engine.load_crop_image` 会同时校正这两个问题，因此这里所有读取都必须经过该入口——若悬停预览与标注网格显示不同颜色，比没有悬停预览更糟，因为两者看起来都可能合理。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.folder_metadata.iter_image_files#1",
       "source_sha256": "5a6e01fc0bcb990a4a7664e3bce3e11aa66dc5ed0a221b6a153e254324451426",
       "source": "**Lazy, and that is the whole point.** The drop handlers need two things from a dropped folder — a small probe to guess the layout from, and (only if the guess succeeds) the full file list to plan an extraction. Pulling both off one generator means the tree is traversed once; abandoning the generator after the probe means a folder with no layout to detect is never fully walked at all. The previous shape returned lists, and the same tree was walked three times per drop.",
       "context": "**File iteration is deferred until needed.** Drag-and-drop handlers need a small layout probe from a dropped folder and, only after a successful probe, the complete file list for extraction planning. Both come from one generator, so the folder tree is traversed once. Abandoning the generator after a failed probe avoids a complete traversal. The previous list-based design traversed the same tree three times for each drop operation.",
-      "translation": "**仅在需要时才迭代文件。** 拖放处理器需要从放入的文件夹获取少量文件以探测布局；只有探测成功后，才需要完整文件列表来规划提取。两者都来自同一个生成器，因此文件夹树只遍历一次。探测失败后放弃生成器，可避免完整遍历。旧的列表式设计会为每次拖放把同一棵树遍历三次。"
+      "translation": "**仅在需要时才迭代文件。** 拖放处理器需要从放入的文件夹获取少量文件以探测布局；只有探测成功后，才需要完整文件列表来规划提取。两者都来自同一个生成器，因此文件夹树只遍历一次。探测失败后放弃生成器，可避免完整遍历。旧的列表式设计会为每次拖放把同一棵树遍历三次。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ingest_preview.plan_container_extraction#1",
@@ -79,35 +85,45 @@
       "source_sha256": "3016617123d996dc0a88daff1456d3be0f5ab3c8c3a6894a37f58d51d01533b6",
       "source": "**Keyset paging, not OFFSET.** Each chunk asks for ``rowid > <last rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes SQLite walk (and throw away) every skipped row, so chunk 500 of a 400 k-row table would cost 500× chunk 1 — the \"fast\" version would get slower the further you scrolled. Only tables with no usable key (views, composite-primary-key ``WITHOUT ROWID`` tables) fall back to ``OFFSET``, and those are small by construction.",
       "context": "**Use keyset paging instead of OFFSET.** Fetch each chunk with ``rowid > <last rowid seen>`` and ``ORDER BY rowid``. ``LIMIT ? OFFSET ?`` makes SQLite scan every skipped row, so chunk 500 costs about 500× as much as chunk 1 and the \"fast\" version gets slower. Small views and composite-key ``WITHOUT ROWID`` tables have no usable row key and use ``OFFSET`` as a fallback.",
-      "translation": "**采用键集分页，而不是 OFFSET。** 每个数据块通过 ``rowid > <last rowid seen>`` 和 ``ORDER BY rowid`` 获取。``LIMIT ? OFFSET ?`` 会让 SQLite 扫描所有跳过的行，因此第 500 块的成本约为第 1 块的 500×，所谓 \"fast\" 版本会随着滚动越来越慢。小型视图和使用复合主键的 ``WITHOUT ROWID`` 表没有可用行键，因此回退到 ``OFFSET``。"
+      "translation": "**采用键集分页，而不是 OFFSET。** 每个数据块通过 ``rowid > <last rowid seen>`` 和 ``ORDER BY rowid`` 获取。``LIMIT ? OFFSET ?`` 会让 SQLite 扫描所有跳过的行，因此第 500 块的成本约为第 1 块的 500×，所谓 \"fast\" 版本会随着滚动越来越慢。小型视图和使用复合主键的 ``WITHOUT ROWID`` 表没有可用行键，因此回退到 ``OFFSET``。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.db_browser#14",
       "source_sha256": "a37121c2ccaa4f51c709b917392c74958bad54785a841d587455b83acced42a2",
       "source": "1. :func:`spacr.qt.preferences.get_db_browser_editable` must be on — it is off by default and lives in Preferences, not on this screen. 2. The database must have been chosen explicitly in this session (``set_database(..., explicit=True)``). 3. The user must tick \"Edit mode\" *and* confirm; ticking alone does nothing. 4. The row must be addressable by ``rowid`` or a primary key. Without one, the edit is refused — an UPDATE matching on column values can hit many rows, which on a measurements table is silent mass corruption. The write also probes ``COUNT(*)`` for the row address first and rolls back unless ``rowcount == 1``. 5. The typed text must be coercible to the column's declared type. SQLite will cheerfully store ``'abc'`` in an INTEGER column; :func:`coerce_for_column` refuses instead.",
       "context": "Editing is allowed only when all five checks pass. 1. :func:`spacr.qt.preferences.get_db_browser_editable` is enabled in Preferences; it is off by default and is not on this screen. 2. This session explicitly selected the database with ``set_database(..., explicit=True)``. 3. The user selected \"Edit mode\" *and* confirmed it; selection alone does nothing. 4. The row has ``rowid`` or a primary-key identifier. Otherwise refuse the edit: matching column values could silently update many measurement rows. Before writing, probe ``COUNT(*)`` and roll back unless ``rowcount == 1``. 5. The text converts to the declared column type. SQLite accepts ``'abc'`` in an INTEGER column, but :func:`coerce_for_column` must refuse it.",
-      "translation": "只有五项检查全部通过才允许编辑。1. 在 Preferences 中启用 :func:`spacr.qt.preferences.get_db_browser_editable`；它默认关闭，而且不在此应用视图上。2. 本会话使用 ``set_database(..., explicit=True)`` 显式选择了数据库。3. 用户选择“编辑模式”*并且*确认；仅选择不会产生任何操作。4. 行具有 ``rowid`` 或主键标识符；否则拒绝编辑，因为按列值匹配可能静默更新许多测量行。写入前先查询 ``COUNT(*)``，除非 ``rowcount == 1``，否则回滚。5. 文本可以转换为列声明的类型。SQLite 会接受在 INTEGER 列中保存 ``'abc'``，但 :func:`coerce_for_column` 必须拒绝。"
+      "translation": "只有五项检查全部通过才允许编辑。1. 在 Preferences 中启用 :func:`spacr.qt.preferences.get_db_browser_editable`；它默认关闭，而且不在此应用视图上。2. 本会话使用 ``set_database(..., explicit=True)`` 显式选择了数据库。3. 用户选择“编辑模式”*并且*确认；仅选择不会产生任何操作。4. 行具有 ``rowid`` 或主键标识符；否则拒绝编辑，因为按列值匹配可能静默更新许多测量行。写入前先查询 ``COUNT(*)``，除非 ``rowcount == 1``，否则回滚。5. 文本可以转换为列声明的类型。SQLite 会接受在 INTEGER 列中保存 ``'abc'``，但 :func:`coerce_for_column` 必须拒绝。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.dose_response#3",
       "source_sha256": "e1a538c597381e7af615d2a4a7882dca155a5e85f3a1bc4be0a29f6c29d2dbc2",
       "source": "**Refusals and one-sided bounds are rows, not silence.** A plate where three compounds fit and the fourth is cytotoxic at the top dose has four rows. The cytotoxic one says ``refused`` and carries the engine's message; a compound whose midpoint sits past the highest dose says ``unbounded`` and carries ``EC50 > 30 µM``, with an empty EC50 cell. Dropping either from the table would turn \"we checked and the answer is no\" into \"no data\", which is the one reading the numbers cannot survive.",
       "context": "**Refusals and one-sided bounds are rows, not silence.** A laboratory microplate where three compounds fit and the fourth is cytotoxic at the top dose has four rows. The cytotoxic one says ``refused`` and carries the engine's message; a compound whose midpoint sits past the highest dose says ``unbounded`` and carries ``EC50 > 30 µM``, with an empty EC50 cell. Dropping either from the table would turn \"we checked and the answer is no\" into \"no data\", which is the one reading the numbers cannot survive.",
-      "translation": "**拒绝结果和单侧界限都应成为表中行，而不是沉默。** 若一块微孔板上三个化合物拟合成功，第四个在最高剂量下具有细胞毒性，则结果应有四行。细胞毒性化合物标记为 ``refused`` 并携带引擎消息；中点超过最高剂量的化合物标记为 ``unbounded``，携带 ``EC50 > 30 µM``，且 EC50 单元格为空。删除任何一行，都会把“已经检查，答案是否定的”变成 \"no data\"，这会使数字无法正确解读。"
+      "translation": "**拒绝结果和单侧界限都应成为表中行，而不是沉默。** 若一块微孔板上三个化合物拟合成功，第四个在最高剂量下具有细胞毒性，则结果应有四行。细胞毒性化合物标记为 ``refused`` 并携带引擎消息；中点超过最高剂量的化合物标记为 ``unbounded``，携带 ``EC50 > 30 µM``，且 EC50 单元格为空。删除任何一行，都会把“已经检查，答案是否定的”变成 \"no data\"，这会使数字无法正确解读。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.pipeline_graph#1",
       "source_sha256": "3e861deab6c2821d4d70f1ea38fa318a241ac54658bc591ed386fc34bedf1d33",
       "source": "A spaCR project accumulates files faster than anyone can hold in their head: masks, a measurements database, crops, model weights, predictions, regression tables, figures. Some of those were made from each other. Some were made from a *previous* version of each other, because the mask step was re-run with a different diameter on Tuesday and nothing downstream was. Nothing in the GUI showed that, and a stale number does not look stale — it looks like a number.",
       "context": "A spaCR project accumulates files faster than anyone can hold in their head: masks, a measurements database, extracted image regions, model weights, predictions, regression tables, figures. Some of those were made from each other. Some were made from a *previous* version of each other, because the mask step was executed again with a different diameter on Tuesday and nothing downstream was. Nothing in the GUI showed that, and a stale number does not look stale — it looks like a number.",
-      "translation": "spaCR 项目积累文件的速度远超人能记忆：掩模、测量数据库、提取图像区域、模型权重、预测、回归表和图形。其中一些由另一些生成；另一些则来自对方的*旧版本*，例如周二用不同直径重新执行了掩模步骤，却没有更新任何下游结果。GUI 过去不会显示这种情况，而过期数值看起来并不像过期——它只像一个普通数值。"
+      "translation": "spaCR 项目积累文件的速度远超人能记忆：掩模、测量数据库、提取图像区域、模型权重、预测、回归表和图形。其中一些由另一些生成；另一些则来自对方的*旧版本*，例如周二用不同直径重新执行了掩模步骤，却没有更新任何下游结果。GUI 过去不会显示这种情况，而过期数值看起来并不像过期——它只像一个普通数值。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.plate_view.PlateViewScreen.recompute#3",
       "source_sha256": "d6d6d33e43b246acec31704f9be79500673ef622ae15cba63f2f1c766684efd4",
       "source": "That was made safe rather than assumed safe: ``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was threaded, and this is the same promise.",
       "context": "That was made safe rather than assumed safe: ``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was with worker execution, and this is the same promise.",
-      "translation": "这里通过实现保证安全，而不是假定安全：``threaded=False``（``test_plate_view.py`` 和 ``test_plate_view_linked_filter.py`` 中的每项测试都用它构造应用视图）会通过 :meth:`_run_job` 内联运行任务，因此这些调用方仍得到完全相同的旧语义。需要知道网格已就绪的调用方会等待 :meth:`active_jobs`，正如 ``render_plate`` 的调用方已经在做的那样——自数据库读取改为工作进程执行以来，``render_plate`` 返回的含义一直是“已经启动，尚未完成”，这里保持同一约定。"
+      "translation": "这里通过实现保证安全，而不是假定安全：``threaded=False``（``test_plate_view.py`` 和 ``test_plate_view_linked_filter.py`` 中的每项测试都用它构造应用视图）会通过 :meth:`_run_job` 内联运行任务，因此这些调用方仍得到完全相同的旧语义。需要知道网格已就绪的调用方会等待 :meth:`active_jobs`，正如 ``render_plate`` 的调用方已经在做的那样——自数据库读取改为工作进程执行以来，``render_plate`` 返回的含义一直是“已经启动，尚未完成”，这里保持同一约定。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.power#4",

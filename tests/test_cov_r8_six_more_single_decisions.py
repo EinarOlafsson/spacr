@@ -245,11 +245,11 @@ class TestTheChannelOrderSidecar:
         sidecar = tmp_path / "channel_order.json"
         sidecar.write_text(json.dumps({"channels": ["dapi", "gfp"]}))
 
-        meta = json.loads(sidecar.read_text())
+        meta = json.loads(sidecar.read_text(encoding="utf-8"))
         meta["mask_channels"] = ["cell_mask"]
         sidecar.write_text(json.dumps(meta, indent=2))
 
-        assert json.loads(sidecar.read_text())["mask_channels"] == \
+        assert json.loads(sidecar.read_text(encoding="utf-8"))["mask_channels"] == \
             ["cell_mask"]
 
     def test_a_stage_that_produced_nothing_writes_no_sidecar(self, tmp_path):

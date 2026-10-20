@@ -1,0 +1,12 @@
+{
+  "language": "ko",
+  "source": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "source_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "context": "A fourth, :class:`HostedProvider`, needs no CLI and no account: it asks spaCR's relay, which answers with a free hosted model, and it is the default when none of the three is installed and signed in (:func:`default_provider`).",
+  "context_sha256": "8edaac55540b63385aa21dc664338a88fa38ef6f988f1f6a2d9429836ffbd46c",
+  "translation": "네 번째 제공자는 :class:`HostedProvider` 입니다. CLI도 계정도 필요하지 않습니다. spaCR의 릴레이에 요청하면 무료 호스팅 모델로 응답하며, 앞의 세 제공자 중 설치되어 있고 로그인도 된 제공자가 하나도 없을 때 기본값으로 사용됩니다 (:func:`default_provider`).",
+  "translation_sha256": "36840f3486b5d6857661270c0349e271765b4e0d708f59695890e4b733b50c48",
+  "label": null,
+  "label_status": "Pending CI exact current block inventory; no guessed label",
+  "review_kind": "AI technical draft; independent technical review pending; no human or native-speaker signoff"
+}

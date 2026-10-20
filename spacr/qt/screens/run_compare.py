@@ -4,14 +4,14 @@ Pick a project, pick two of its runs, and the screen answers the three
 questions that follow a re-run:
 
 1. **What did I change?** The settings diff, grouped under the same
-   headings the settings panel groups them by, showing only what moved.
-   Two hundred keys are not a diff; two keys under *Cellpose* are.
+   headings the settings panel groups them by, showing only what moved,
+   so two changed keys under *Cellpose* are not lost among two hundred.
 2. **What came out?** Objects, wells and fields per plate and overall.
    A run that produced 12% fewer cells has a problem, and this is where
    it is visible first.
-3. **Which hits moved?** Appeared, vanished, and — just as importantly —
-   changed rank. A hit list whose membership is stable but whose top ten
-   reshuffles every run is not a stable result.
+3. **Which hits moved?** Appeared, vanished, and changed rank. A hit list
+   whose membership is stable but whose top ten reshuffles every run is not a
+   stable result.
 
 All three come from :mod:`spacr.run_compare`, which is headless: this
 file picks the runs and draws the tables and knows nothing else. The run
@@ -24,7 +24,7 @@ copy of what produced the numbers somebody is asking about.
 subtract perfectly well and produce a table that looks exactly like a
 regression report. When :func:`spacr.run_compare.comparability` raises a
 blocker the tables stay empty and the banner says why, with a *Compare
-anyway* button for the user who knows better. Warnings — a different
+anyway* button that overrides the blocker. Warnings — a different
 spaCR version above all — are shown with the tables rather than instead
 of them, because a version change explains a count change on its own.
 """
@@ -74,7 +74,7 @@ APP_TRANSLATIONS = _ROW.translations
 
 from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.toggle import Toggle
-from ..widgets.sortable_table import install_sorting, tree_item
+from ..widgets.sortable_table import _reuse_tree_items, install_sorting
 
 #: Column layouts, so the tests and the drawing code cannot disagree.
 _SETTINGS_COLUMNS = ("Setting", "A", "B", "Change")
@@ -225,8 +225,8 @@ class RunCompareScreen(QWidget):
         self._force_button = QPushButton("Compare anyway")
         self._force_button.setToolTip(
             "Produce the three tables despite the blocker above. The "
-            "numbers will be subtracted; whether that means anything is "
-            "on you.")
+            "numbers are subtracted, but whether the difference is "
+            "meaningful is not checked.")
         self._force_button.clicked.connect(self._on_force)
         self._force_button.setVisible(False)
         banner_row.addWidget(self._force_button)
@@ -241,8 +241,8 @@ class RunCompareScreen(QWidget):
         options = QHBoxLayout()
         self._show_all = Toggle("Show unchanged settings")
         self._show_all.setToolTip(
-            "Off, the settings tab shows only what differs — which is the "
-            "question. On, it shows every key both runs set, so you can "
+            "Off, the settings tab shows only what differs. On, it shows "
+            "every key both runs set, so you can "
             "confirm that something you expected to change did not.")
         self._show_all.toggled.connect(self._on_show_all)
         options.addWidget(self._show_all)
@@ -439,7 +439,7 @@ class RunCompareScreen(QWidget):
     def _clear_tables(self) -> None:
         """Empty the three result tables while retaining journal evidence."""
         for tree in (self._settings_tree, self._counts_tree, self._hits_tree):
-            tree.clear()
+            _reuse_tree_items(tree, 0)
         for index, label in enumerate(("Settings", "Counts", "Hits")):
             self._tabs.setTabText(index, label)
 
@@ -501,67 +501,93 @@ def _tree(columns: Tuple[str, ...]) -> QTreeWidget:
     return tree
 
 
+def _put(item: QTreeWidgetItem, texts) -> QTreeWidgetItem:
+    """Write ``texts`` into ``item``'s columns, one per column.
+
+    :param item: a wiped, reused tree item.
+    :param texts: the cell strings, left to right.
+    :returns: ``item``.
+    """
+    for column, text in enumerate(texts):
+        item.setText(column, text)
+    return item
+
+
+def _leaves(parent: QTreeWidgetItem, rows) -> None:
+    """Write ``rows`` (lists of cell texts) as ``parent``'s childless children.
+
+    :param parent: the group row.
+    :param rows: one list of cell strings per child.
+    """
+    for child, texts in zip(_reuse_tree_items(parent, len(rows)), rows):
+        _reuse_tree_items(child, 0)
+        _put(child, texts)
+
+
 def _fill_settings(tree: QTreeWidget, comparison: RunComparison) -> None:
     """Draw the settings diff, one top-level row per category."""
-    tree.clear()
     diff = comparison.settings
     if diff is None:
+        _reuse_tree_items(tree, 0)
         return
     if diff.identical and not diff.include_same:
-        tree.addTopLevelItem(tree_item(["No setting changed.", "", "", ""]))
+        only = _reuse_tree_items(tree, 1)[0]
+        _reuse_tree_items(only, 0)
+        _put(only, ["No setting changed.", "", "", ""])
         return
-    for block in diff.categories:
-        header = tree_item([
+    headers = _reuse_tree_items(tree, len(diff.categories))
+    for header, block in zip(headers, diff.categories):
+        _put(header, [
             block.category,
             "", "",
             f"{len(block)} changed, {block.n_same} unchanged",
         ])
-        tree.addTopLevelItem(header)
-        for row in block.rows + block.same:
-            header.addChild(tree_item([
-                row.key, _render(row.a_val), _render(row.b_val), row.kind,
-            ]))
+        _leaves(header, [
+            [row.key, _render(row.a_val), _render(row.b_val), row.kind]
+            for row in block.rows + block.same])
         header.setExpanded(bool(block.rows))
 
 
 def _fill_counts(tree: QTreeWidget, comparison: RunComparison) -> None:
     """Draw the count diff: overall, then one group per plate."""
-    tree.clear()
     diff = comparison.counts
     if diff is None:
+        _reuse_tree_items(tree, 0)
         return
     if not diff.available:
-        tree.addTopLevelItem(tree_item([diff.note or "No counts.",
-                                        "", "", "", ""]))
+        only = _reuse_tree_items(tree, 1)[0]
+        _reuse_tree_items(only, 0)
+        _put(only, [diff.note or "No counts.", "", "", "", ""])
         return
     groups: List[Tuple[str, Tuple[Any, ...]]] = [("Overall", diff.overall())]
     groups += [(f"Plate {plate}", diff.for_plate(plate))
                for plate in diff.plates]
-    for label, rows in groups:
-        if not rows:
-            continue
+    groups = [(label, rows) for label, rows in groups if rows]
+    headers = _reuse_tree_items(tree, len(groups))
+    for header, (label, rows) in zip(headers, groups):
         moved = sum(1 for row in rows if row.changed)
-        header = tree_item([label, "", "", "",
-                            f"{moved} of {len(rows)} moved"])
-        tree.addTopLevelItem(header)
+        _put(header, [label, "", "", "",
+                      f"{moved} of {len(rows)} moved"])
+        cells = []
         for row in rows:
             pct = "—" if row.pct is None else f"{row.pct:+.1f}%"
             delta = "—" if row.delta is None else f"{row.delta:+,}"
-            header.addChild(tree_item([
-                row.metric, _number(row.a), _number(row.b), delta, pct,
-            ]))
+            cells.append([row.metric, _number(row.a), _number(row.b),
+                          delta, pct])
+        _leaves(header, cells)
         header.setExpanded(True)
 
 
 def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
     """Draw the hit-list diff: appeared, vanished, then rank churn."""
-    tree.clear()
     diff = comparison.hits
     if diff is None:
+        _reuse_tree_items(tree, 0)
         return
     if not diff.available:
-        tree.addTopLevelItem(tree_item([diff.note or "No hit list.",
-                                        "", "", "", "", ""]))
+        only = _reuse_tree_items(tree, 1)[0]
+        _reuse_tree_items(only, 0)
+        _put(only, [diff.note or "No hit list.", "", "", "", "", ""])
         return
     groups = (
         ("Appeared", diff.appeared),
@@ -569,19 +595,20 @@ def _fill_hits(tree: QTreeWidget, comparison: RunComparison) -> None:
         ("Changed rank", diff.moved),
         ("Held rank", diff.held),
     )
-    for label, changes in groups:
-        if not changes:
-            continue
-        header = tree_item([label, "", "", str(len(changes)), "", ""])
-        tree.addTopLevelItem(header)
+    groups = [(label, changes) for label, changes in groups if changes]
+    headers = _reuse_tree_items(tree, len(groups))
+    for header, (label, changes) in zip(headers, groups):
+        _put(header, [label, "", "", str(len(changes)), "", ""])
+        cells = []
         for change in changes:
             move = ("—" if change.rank_delta is None
                     else f"{-change.rank_delta:+d}")
-            header.addChild(tree_item([
+            cells.append([
                 change.key,
                 _number(change.a_rank), _number(change.b_rank), move,
                 _score(change.a_score), _score(change.b_score),
-            ]))
+            ])
+        _leaves(header, cells)
         header.setExpanded(label != "Held rank")
 
 
@@ -610,14 +637,13 @@ def register() -> bool:
     """Add Run Compare to the app registry. Idempotent.
 
     Called at import time so that importing this module is all it takes
-    for the app to exist — the registration seam from ``1a5ac2ab``. It
-    returns rather than raises on a duplicate key so a re-import (a
-    reloaded module, a test that cleared the registry) is a no-op instead
-    of taking the import down.
+    for the app to exist. It returns rather than raises on a duplicate key
+    so a re-import (a reloaded module, a test that cleared the registry) is
+    a no-op instead of failing the import.
 
     It is also named in ``spacr.qt.app._SELF_REGISTERING_APPS`` and in
-    :data:`spacr.qt.SELF_REGISTERING_MODULES`, which is belt and braces
-    rather than a mistake: the first is what makes the row exist under a
+    :data:`spacr.qt.SELF_REGISTERING_MODULES`. The redundancy is
+    deliberate: the first is what makes the row exist under a
     bare ``import spacr.qt.app`` — an inventory that depended on whether
     something else had imported this module is an inventory that fails on
     whichever file pytest collected first — and the second is the launch

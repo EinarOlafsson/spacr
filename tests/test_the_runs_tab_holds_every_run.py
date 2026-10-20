@@ -87,9 +87,16 @@ def screen(qtbot, monkeypatch):
     The worker is faked rather than skipped: `_on_run` is the method that has
     to record the run, and a test that called the recorder directly would
     pass with the wiring cut.
+
+    The pipeline module is imported first, so Run starts at once as every
+    Run after a session's first does (the first imports it off the GUI
+    thread and resumes when it is in).
     """
+    import importlib
+
     from spacr.qt.screens.app_screen import AppScreen
 
+    importlib.import_module("spacr.ml")
     widget = AppScreen("regression")
     qtbot.addWidget(widget)
     monkeypatch.setattr("spacr.qt.screens.app_screen.make_thread",
@@ -455,8 +462,11 @@ def test_a_screen_without_a_runs_tab_still_runs(qtbot, monkeypatch):
     """Every module screen goes through the same `_on_run`; only the
     regression screens have the tab. Recording must not be a crash for the
     other twenty-seven."""
+    import importlib
+
     from spacr.qt.screens.app_screen import AppScreen
 
+    importlib.import_module("spacr.core")
     widget = AppScreen("mask")
     qtbot.addWidget(widget)
     monkeypatch.setattr("spacr.qt.screens.app_screen.make_thread",

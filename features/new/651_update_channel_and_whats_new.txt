@@ -35,3 +35,11 @@ IMPLEMENTATION
   source-bound "Update channel" and "What's new…" captions. Existing
   mocked-network Python and Qt tests verify channel and release-note logic;
   this note makes no claim of a new native cross-platform recording.
+
+2026-10-15 01:35 EDT — N703 private-runtime Nightly execution regression repaired
+The existing Nightly selector can offer canonical dev/prerelease releases;
+its dedicated POSIX pip/macOS online update backend now accepts, pins and
+exactly verifies those selected versions instead of numeric-only refusal.
+Current focused59-case source acceptance and retained failure receipts are in
+features/data/n703_nightly_runtime_and_cache_2026-10-15/. This is bounded backend
+repair, not fresh GUI/native cross-platform or whole-channel acceptance.

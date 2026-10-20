@@ -1,0 +1,13 @@
+{
+  "normal_driver_sha256": "55543051e11bd965fceb47b22b5229813cb6303430f52b7ad8c7debd2afdedb7",
+  "worker_prefix_sha256": "7083e581b3b1088ce3846192f28b31bc2f54c589eefae86b5773cee8d59b34a9",
+  "original_worker_sha256": "2d4a030081cec0cb2ea813dfd5edf2b289c6243ab7ca11638cf839d672548fe1",
+  "profiled_worker_sha256": "402a0da1a8cca5e6aad01b41d37557b8af04a4cb799ad987e46c09edf5ce0058",
+  "normal_worker_suffix_exact": true,
+  "runs": 1,
+  "timeout_s": 30,
+  "offscreen": true,
+  "record_only": false,
+  "release_acceptance": false,
+  "diagnostic_only": true
+}

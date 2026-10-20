@@ -74,7 +74,7 @@ REQUIRED_REAL_COVERAGE = 0.99
 def _real_columns() -> list[tuple[str, str, str]]:
     """``(database, table, column)`` for every column of the real fixture."""
     rows = []
-    for line in REAL_COLUMNS_FILE.read_text().splitlines():
+    for line in REAL_COLUMNS_FILE.read_text(encoding="utf-8").splitlines():
         if not line.strip() or line.startswith("#"):
             continue
         db, table, column = line.split("\t")

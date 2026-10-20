@@ -7,14 +7,18 @@
       "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
       "source": "One all-at-once answer returned by a UI or a saved setting.",
       "context": "One all-at-once answer returned by a UI or a saved setting.",
-      "translation": "Eitt heildstætt svar sem UI eða vistuð stilling skilar."
+      "translation": "Eitt heildstætt svar sem UI eða vistuð stilling skilar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.multiple_testing.estimate_pi0#1",
       "source_sha256": "8445465571a6e5d66ffe404d8ec3fc5bc1ccad79d93c8fe632adb56aaf7d32e3",
       "source": "Uses the smoothed bootstrap-free spline-free estimator: pi0(lambda) is computed over a grid and the estimate is taken at the largest lambda whose value is stable, then clipped to (0, 1]. With few tests the grid collapses and the estimator returns 1.0, which makes the q-values fall back to Benjamini-Hochberg -- the conservative answer, not an error.",
       "context": "Uses the smoothed bootstrap-free spline-free estimator: pi0(lambda) is computed over a grid and the estimate is taken at the largest lambda whose value is stable, then clipped to (0, 1]. With few tests the grid collapses and the estimator returns 1.0, which makes the q-values fall back to Benjamini-Hochberg -- the conservative answer, not an error.",
-      "translation": "Notar sléttaða metilinn án bootstrap og án splína: pi0(lambda) er reiknað á grind og matið tekið við stærsta lambda þar sem gildið er stöðugt, síðan skorið við bilið (0, 1]. Þegar prófin eru fá fellur grindin saman og metillinn skilar 1.0; þá nota q-gildin Benjamini-Hochberg sem varaleið -- varfærna niðurstöðu, ekki villu."
+      "translation": "Notar sléttaða metilinn án bootstrap og án splína: pi0(lambda) er reiknað á grind og matið tekið við stærsta lambda þar sem gildið er stöðugt, síðan skorið við bilið (0, 1]. Þegar prófin eru fá fellur grindin saman og metillinn skilar 1.0; þá nota q-gildin Benjamini-Hochberg sem varaleið -- varfærna niðurstöðu, ekki villu.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_diagnostics.write_diagnostic_suite#1",

@@ -2,14 +2,12 @@
 Format Converter — vendor microscopy files into Yokogawa TIFFs, with the
 mapping on screen before anything is written.
 
-The screen exists because the conversion step is where a screen silently
-goes wrong. Rename 384 wells' worth of ND2 into
-``plate1_A01_T0001F001L01A01Z01C01.tif`` and the filenames stop carrying
-any trace of where they came from; get the well assignment wrong and
-nobody finds out until the hit list is being followed up, weeks later.
-So this screen does two things :func:`spacr.io.convert_to_yokogawa` never
-did: it shows the source → target table *before* writing, and it emits a
-map file that turns every converted name back into the original one.
+Converting renames files, for example ND2 files to
+``plate1_A01_T0001F001L01A01Z01C01.tif``, and the new names no longer show
+which source file they came from, so a wrong well assignment can go unnoticed.
+This screen therefore does two things :func:`spacr.io.convert_to_yokogawa` does
+not: it shows the source → target table *before* writing, and it emits a map
+file that turns every converted name back into the original one.
 
 Layout::
 
@@ -32,11 +30,11 @@ Layout::
 
 Design notes:
 
-* **The preview is the product.** :func:`spacr.convert.scan` and
-  :func:`spacr.convert.plan` write nothing at all; ``Convert`` is a
-  separate press. A plan with a blocking error (two sources colliding on
-  one output name) leaves ``Convert`` disabled — the fix is upstream, in
-  the folder layout, not in a "yes, overwrite" button.
+* **Preview before writing.** :func:`spacr.convert.scan` and
+  :func:`spacr.convert.plan` write nothing at all; ``Convert`` is a separate
+  press. A plan with a blocking error (two sources colliding on one output
+  name) leaves ``Convert`` disabled — the fix is upstream, in the folder
+  layout, not in a "yes, overwrite" button.
 * **Everything heavy is in** :mod:`spacr.convert`, which imports neither
   torch nor cellpose, so this stays a view and the logic is testable
   headless.

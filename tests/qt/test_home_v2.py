@@ -703,24 +703,62 @@ def test_the_categories_are_the_ones_that_were_asked_for():
 
 
 def test_every_app_has_a_stage_and_it_is_written_down_once():
-    """``APP_STAGE`` is the only record of how finished an app is.
+    """The static signoff table omits stable; explicit registrations may declare it."""
+    import ast
+    from pathlib import Path
 
-    It replaced ``STAGED_FROM``, which recorded the opposite thing: what
-    subject an app had been taken *out of*. Nothing is taken out of
-    anything now, so the table only has to say what is not signed off —
-    and signing an app off is deleting its line.
-    """
+    from spacr.qt import app as app_mod
     from spacr.qt.app import APP_STAGE, STAGES, app_stage
 
-    assert set(APP_STAGE.values()) == {"alpha", "beta"}, (
-        "a stable app has a line in APP_STAGE — 'stable' is the absence "
-        "of one, or the table grows a second way to say the same thing")
+    declarations = [node for node in ast.parse(Path(app_mod.__file__).read_text(encoding="utf-8")).body
+                    if isinstance(node, ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == "APP_STAGE"
+                            for target in node.targets)]
+    assert len(declarations) == 1
+    table = declarations[0].value
+    assert isinstance(table, ast.Dict)
+    assert all(isinstance(key, ast.Constant) and isinstance(key.value, str)
+               for key in table.keys)
+    declared_keys = [key.value for key in table.keys]
+    assert len(declared_keys) == len(set(declared_keys)), "APP_STAGE repeats a static app key"
+    assert all(isinstance(value, ast.Name) and value.id in {"STAGE_ALPHA", "STAGE_BETA"}
+               for value in table.values), (
+        "the static APP_STAGE table records only alpha/beta; signoff removes its line")
+    assert set(APP_STAGE.values()) <= set(STAGES)
     keys = {row[0] for row in APPS}
     assert set(APP_STAGE) <= keys, (
         f"APP_STAGE names apps that do not exist: {set(APP_STAGE) - keys}")
     for key in keys:
         assert app_stage(key) in STAGES
     assert app_stage("no such app") == "stable"
+
+
+def test_declared_stable_registration_survives_maturity_while_undeclared_defaults_alpha():
+    import spacr.qt
+    from spacr.qt import maturity
+    from spacr.qt.app import (APP_STAGE, SECTION_DATA, STAGE_ALPHA, STAGE_STABLE,
+                              app_stage, register_app, unregister_app)
+
+    spacr.qt.register_self_registering_modules()
+    declared = "home_stage_declared_stable_probe"
+    undeclared = "home_stage_unassessed_probe"
+    for key in (declared, undeclared):
+        unregister_app(key)
+    try:
+        register_app(declared, "Stable Probe", "Explicitly declared stable", SECTION_DATA,
+                     stage=STAGE_STABLE)
+        register_app(undeclared, "Unassessed Probe", "No maturity declaration", SECTION_DATA)
+        assert APP_STAGE[declared] == STAGE_STABLE
+        assert undeclared not in APP_STAGE
+        changed = maturity.apply(keys=(declared, undeclared))
+        assert declared not in changed
+        assert undeclared in changed
+        assert APP_STAGE[declared] == app_stage(declared) == STAGE_STABLE
+        assert APP_STAGE[undeclared] == app_stage(undeclared) == STAGE_ALPHA
+        assert maturity.apply(keys=(declared, undeclared)) == []
+    finally:
+        for key in (declared, undeclared):
+            unregister_app(key)
 
 
 def test_home_is_the_first_tab_and_holds_everything(home):
@@ -858,8 +896,9 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
 # 634: Plasmodium and Candida are alpha species (Show alpha species).
+# Toxoplasma left on 2026-10-12: its page shows with Show alpha and Show
+# alpha species both off, so it is a stable tile.
 ALPHA_MODULES = {
-    "toxoplasma",
     "host_pathogen",
     # `model_zoo` and `model_compare` stood at the front of this line until
     # they became buttons on the Make Masks masthead. A stage is a property
@@ -904,13 +943,6 @@ ALPHA_MODULES = {
     # reason and is folded onto Image UMAP now, so it left this list with
     # its row.
     "tabulate",
-    # And the merged Classify screen, registered 2026-08-06 (2d4da7df).
-    # It arrived alpha ON PURPOSE, and ``APP_STAGE`` says why: "stable" is
-    # the ABSENCE of a line there, so omitting it would have claimed a
-    # maturity it has not earned — it dispatches to two pipelines that ARE
-    # trusted, but the merged screen itself has not been run on real data.
-    # Signing it off means deleting its line there and here.
-    "classify_merged",
     # Post-classifier interpretation and post-regression cell investigation.
     # Both are reachable and tested, but have not yet been trusted end to end
     # on an independent production run, so they arrive alpha on purpose.

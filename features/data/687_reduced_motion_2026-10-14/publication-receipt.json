@@ -1,0 +1,142 @@
+{
+  "verified_at": "2026-10-15T02:07:59.785Z",
+  "source_repository": "EinarOlafsson/site-src",
+  "source_commit": "e33c81e244cfbad30e95a7657c1ad6c3f547ac22",
+  "source_run": "https://github.com/EinarOlafsson/site-src/actions/runs/38669177349",
+  "source_run_conclusion": "success",
+  "public_repository": "EinarOlafsson/EinarOlafsson.github.io",
+  "public_commit": "bd0f63712ca6b7852cddbc778db011d35272909a",
+  "pages_run": "https://github.com/EinarOlafsson/EinarOlafsson.github.io/actions/runs/38669241478",
+  "pages_run_conclusion": "success",
+  "manifest": {
+    "spacr": {
+      "version": "1.5.1.4",
+      "release": "v1.5.1.4",
+      "assetsFingerprint": "dc7c2ef5be890403948842dbd42c1163a621f2e15f9df7367fd246fb91d0c6d4",
+      "versionDoi": "10.5281/zenodo.23266544",
+      "conceptDoi": "10.5281/zenodo.21343316"
+    },
+    "parascape": {
+      "version": "0.0.1.0"
+    },
+    "built": "2026-10-15T02:06:24Z",
+    "trigger": "push"
+  },
+  "checks": {
+    "live_css_matches_validated_source": true,
+    "reduced_motion": true,
+    "startup_target_fallback": true,
+    "lazy_strip_and_priority_hero_all_10_locales": true,
+    "three_current_installers_all_10_locales": true,
+    "release_asset_fingerprint_matches": true,
+    "protected_pages_still_encrypted": true
+  },
+  "records": [
+    {
+      "path": "/assets/css/site.css",
+      "status": 200,
+      "bytes": 48968,
+      "sha256": "f6ce82076ba0ef281c1d083724872c660230a48b6fc209fc6c750aa8abd2bf17"
+    },
+    {
+      "path": "/build.json",
+      "status": 200,
+      "bytes": 358,
+      "sha256": "9d520e8c4498c33d39f97deeddc52c12a2aed043e4c0776a4c41f074dfae60a1"
+    },
+    {
+      "path": "/projects/spacr/",
+      "status": 200,
+      "bytes": 126695,
+      "sha256": "5e01ca2c96ef5b7e8087213e7f6b3df39bea8f242058fb6a28e42a31fb00f32f"
+    },
+    {
+      "path": "/projects/spacr/de/",
+      "status": 200,
+      "bytes": 136694,
+      "sha256": "c3f4b7377544edcfedc5f7908c4e89529d30437df69fe52bce7e2856647c69f9"
+    },
+    {
+      "path": "/projects/spacr/es/",
+      "status": 200,
+      "bytes": 138450,
+      "sha256": "be7b9dbc174bcc9f6f26997991b33c75ba659635a345695225136a4e14a50356"
+    },
+    {
+      "path": "/projects/spacr/fr/",
+      "status": 200,
+      "bytes": 140366,
+      "sha256": "396bf64a1b46e558e11cda8c514853996985d67eec07ae7eb275a610e78ce082"
+    },
+    {
+      "path": "/projects/spacr/is/",
+      "status": 200,
+      "bytes": 134628,
+      "sha256": "45636658bcf211706543859c6dfd3566471e0eee175f6f0e8953563ebd3cf25c"
+    },
+    {
+      "path": "/projects/spacr/hi/",
+      "status": 200,
+      "bytes": 193428,
+      "sha256": "b53dd94ac4bfeafb90d7012b245182cfc4e582980e6abe4d669704a314288d7b"
+    },
+    {
+      "path": "/projects/spacr/pt/",
+      "status": 200,
+      "bytes": 136392,
+      "sha256": "cbc7b82c91103320e019c8d251f15aabb708eec9b60a1d1087bf1f81feb6775c"
+    },
+    {
+      "path": "/projects/spacr/ko/",
+      "status": 200,
+      "bytes": 137073,
+      "sha256": "88bb09cf5f3a9529174decf7ec9b8cc59d472195e9fba14069b70d37f5d985df"
+    },
+    {
+      "path": "/projects/spacr/sv/",
+      "status": 200,
+      "bytes": 132335,
+      "sha256": "b7c992273fd9d08eb896e33ed9b0844a0dd2e6b7211f127c4313e17c728dae7e"
+    },
+    {
+      "path": "/projects/spacr/zh-CN/",
+      "status": 200,
+      "bytes": 127046,
+      "sha256": "dfb3e643bcb707b9a3056f506a0d7aff17850db83775017f3d4321b85161185e"
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 9000,
+      "sha256": "641c3f671cf6c908a5dbf6d1a07da61ea9e1679976c84c9aa5aca35aee7e349c"
+    },
+    {
+      "path": "/projects/parascape/",
+      "status": 200,
+      "bytes": 14027,
+      "sha256": "4d7130ae45cf95521576ab55eb149083874e814b7f82739922d79abc8633d53b"
+    },
+    {
+      "path": "/projects/timepose/",
+      "status": 200,
+      "bytes": 75507,
+      "sha256": "197f705152886e48d6541df5570e39fa39faa000df5e7d7ade26e46fc4ef01cf"
+    },
+    {
+      "path": "/projects/cellect/",
+      "status": 200,
+      "bytes": 62163,
+      "sha256": "f63e3c713f26f1cd730e1315617b54410ba82aec448551cb21a18b2a8bc145cc"
+    }
+  ],
+  "remaining_acceptance": [
+    "Mobile Lighthouse performance >=90 and accessibility >=95 on each required page remain unproven; one hosted PageSpeed request returned HTTP429 quota0 and was not retried.",
+    "60fps midrange laptop acceptance remains unproven."
+  ],
+  "prior_validation": [
+    "11 release regression tests pass",
+    "19 startup/browser fallback cases pass",
+    "23 reduced-motion/first-view cases pass",
+    "Full 123-file site build and 75 protected-word leak scan pass"
+  ]
+}

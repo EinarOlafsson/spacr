@@ -1,19 +1,17 @@
 """Pre-flight validation of a spaCR settings dict.
 
-Every crash this module exists to prevent was, in practice, a twenty-line
-check away: an ``organelle_channel`` one past the end of a three-channel
-plate, a ``src`` that points at the plate folder instead of ``plate/merged``,
-a ``cell_mask_dim`` beyond the last plane of the merged array, an integer
-that came back from a settings CSV as the string ``"4"``. Each of those costs
-a full GPU run to discover.
+The checks catch errors such as an ``organelle_channel`` one past the end of a
+three-channel plate, a ``src`` that points at the plate folder instead of
+``plate/merged``, a ``cell_mask_dim`` beyond the last plane of the merged
+array, an integer that came back from a settings CSV as the string ``"4"``.
+Each would otherwise be found only after a full GPU run.
 
 The module is deliberately dependency-light: it imports nothing from spaCR
 except :mod:`spacr.settings` (which itself imports only ``os`` and ``ast``),
-and it touches ``numpy`` only lazily, to read the *header* of a single
-``.npy`` file. No torch, no cellpose, no image decoding. Importing and
-running it costs well under a second, which is the whole point — it is what
-``dry_run`` uses to answer "would this run work?" before anything is
-allocated, loaded or written.
+and it touches ``numpy`` only lazily, to read the *header* of a single ``.npy``
+file. No torch, no cellpose, no image decoding. Importing and running it takes
+well under a second; ``dry_run`` uses it to answer "would this run work?"
+before anything is allocated, loaded or written.
 
 Public API
 ----------
@@ -24,7 +22,7 @@ Public API
 ``format_report(problems, settings, app_key)``
     Human-readable report; errors first, each with its fix line.
 ``describe_plan(settings, app_key)``
-    "Here is what would actually happen" summary.
+    Summary of what the run would do.
 
 Rules are derived from the code that consumes the settings, not invented:
 each check names its source in a comment.
@@ -63,7 +61,7 @@ class Problem:
     :param setting: the settings key at fault, or ``""`` when the problem is
         about the dataset rather than a single key.
     :param message: what is wrong, phrased in the user's terms.
-    :param fix: what to actually do about it.
+    :param fix: the corrective action.
     """
 
     severity: str
@@ -79,8 +77,8 @@ class Problem:
     def __str__(self) -> str:
         """The problem and its fix, on two lines.
 
-        The setting's name leads when there is one, so a reader scanning a list of
-        problems sees WHICH setting each belongs to before the message.
+        The setting's name leads when there is one, so a reader scanning a list
+        of problems sees which setting each belongs to before the message.
         """
         head = f"[{self.setting}] {self.message}" if self.setting else self.message
         return f"{head}\n    fix: {self.fix}"
@@ -100,6 +98,8 @@ APP_FUNCTIONS: Dict[str, str] = {
     "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
     "ops": "spacr.ops_engine.run_ops",
+    "spatial_masks": "spacr.ops_engine.run_spatial_masks",
+    "spatial_map": "spacr.ops_engine.run_spatial_map",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
     "ml_analyze": "spacr.ml.generate_ml_scores",
@@ -161,6 +161,8 @@ ALT_SRC_KEYS: Dict[str, str] = {
     "foreign": "images",
     "external_masks": "inputs",
     "ops": "genotype_source",
+    "spatial_masks": "spatial_source",
+    "spatial_map": "spatial_source",
 }
 
 CHANNEL_KEYS: Tuple[str, ...] = tuple(
@@ -588,7 +590,7 @@ def _source_key(app: str) -> str:
 
 
 def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
-    """The app's source folder(s), mirroring spacr.utils.normalize_src_path."""
+    """The app's source folder(s), read by spacr.portable_paths._parse_path_list."""
     src = settings.get(_source_key(app))
     if app == "external_masks":
         values = src if isinstance(src, (list, tuple)) else [src]
@@ -607,20 +609,10 @@ def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
                 roots.append(
                     os.path.dirname(value) if os.path.isfile(value) else value)
         return list(dict.fromkeys(roots))
-    if isinstance(src, (list, tuple)):
-        return list(src)
-    if isinstance(src, str):
-        stripped = src.strip()
-        if stripped.startswith("[") and stripped.endswith("]"):
-            import ast
+    if isinstance(src, (list, tuple, str)):
+        from .portable_paths import _parse_path_list
 
-            try:
-                parsed = ast.literal_eval(stripped)
-            except (ValueError, SyntaxError):
-                return [src]
-            if isinstance(parsed, list):
-                return parsed
-        return [src]
+        return _parse_path_list(src) or ([src] if isinstance(src, str) else [])
     return [src]
 
 
@@ -727,8 +719,12 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         if not isinstance(inv.src, str) or not inv.src:
             continue
         if not inv.exists:
+            from .portable_paths import _describe_missing_paths
+
+            described = _describe_missing_paths([inv.src])
             problems.append(Problem(
-                ERROR, key, f"{key} does not exist: {inv.src}",
+                ERROR, key,
+                f"{key} does not exist: {(described or [inv.src])[0].strip()}",
                 "Check the path for typos, and that the drive or share is mounted."))
             continue
         if inv.is_db_file:
@@ -908,6 +904,12 @@ def _type_name(expected: Any) -> str:
     return getattr(expected, "__name__", str(expected))
 
 
+def _a_type_name(expected: Any) -> str:
+    """:func:`_type_name` after the article it takes, "an int" or "a float"."""
+    name = _type_name(expected)
+    return f"{'an' if name[:1].lower() in 'aeiou' else 'a'} {name}"
+
+
 _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
     "src": (str, list),
     "normalize": (bool, list),
@@ -929,29 +931,28 @@ def coerce_expected_types(settings: Dict[str, Any],
     meant to satisfy, so converting them to it is restoring what the settings
     already claim to be -- not reinterpreting them.
 
-    Doing it HERE, once, at the boundary, rather than at each point of use, is
-    what stops the next consumer from being the one that crashes: mask
-    generation died inside Cellpose on ``diameter > 0`` with
-    ``cell_diameter='60.0'``, and the same file had already been reported,
-    three times, as an error the user was told to fix by hand -- for a value
-    that was perfectly well-formed.
+    Converting once, at the boundary, rather than at each point of use keeps
+    consumers from failing on string values; for example,
+    ``cell_diameter='60.0'`` would otherwise fail inside Cellpose on ``diameter
+    > 0``.
 
-    CONSERVATIVE BY CONSTRUCTION. Only ``bool``, ``int`` and ``float`` are
-    converted, only from a string, only when the conversion is exact, and
-    never when ``str`` is itself an accepted type for the key. Anything that
-    does not convert cleanly is left exactly as it was, for
-    :func:`validate_settings` to report.
+    The conversion is conservative. Only ``bool``, ``int`` and ``float`` are
+    converted, only from a string, only when the conversion is exact, and never
+    when ``str`` is itself an accepted type for the key. Anything that does not
+    convert cleanly is left exactly as it was, for :func:`validate_settings` to
+    report.
 
     :param settings: the settings mapping.
     :param app: the pipeline, for the same per-app type overrides
         :func:`_check_types` honours.
     :returns: a new dict; the input is not modified.
     """
+    from .object_settings_table import _canonical_diameters
     from .settings import expected_types
 
     per_app = _APP_TYPE_OVERRIDES.get(app, {})
-    out = dict(settings)
-    for key, value in settings.items():
+    out = _canonical_diameters(dict(settings))
+    for key, value in out.items():
         if not isinstance(value, str) or key not in expected_types:
             continue
         text = value.strip()
@@ -990,10 +991,12 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """
     from .settings import expected_types
 
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS
+
     per_app = _APP_TYPE_OVERRIDES.get(app, {})
     problems: List[Problem] = []
     for key, value in settings.items():
-        if key not in expected_types:
+        if key not in expected_types or key in _OBJECT_DIAMETER_KEYS:
             continue
         expected = per_app.get(
             key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
@@ -1006,7 +1009,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
             problems.append(Problem(
                 WARNING, key,
                 f"{key}={value} is a bool but is declared as {_type_name(expected)}.",
-                f"Set {key} to a {_type_name(expected)} value."))
+                f"Set {key} to {_a_type_name(expected)} value."))
             continue
         if isinstance(value, int) and not isinstance(value, bool) and float in types and int not in types:
             continue
@@ -1019,7 +1022,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
                 ERROR, key,
                 f"{key}={value!r} is a {type(value).__name__}, but "
                 f"{_type_name(expected)} is expected.",
-                f"Set {key} to a {_type_name(expected)}.{hint}"))
+                f"Set {key} to {_a_type_name(expected)}.{hint}"))
     return problems
 
 
@@ -1282,7 +1285,7 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     value changes nothing whatever its name.
     """
     known = (_known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
-             | _module_default_keys(app))
+             | _module_default_keys(app) | {"model_metadata"})
     try:
         from .plugins import get_app as _get_plugin_app
         plugin = bool(app) and _get_plugin_app(app) is not None
@@ -1377,8 +1380,36 @@ def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Proble
     return []
 
 
+def _check_object_diameters(settings: Dict[str, Any]) -> List[Problem]:
+    """Each object diameter is a positive number, 0, "auto" or blank (item 696).
+
+    0 and "auto" are the same answer, Cellpose estimating the size; blank is
+    the magnification default. Anything else stops the run here rather than
+    inside Cellpose.
+    """
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS, _diameter_setting
+
+    problems: List[Problem] = []
+    for key in sorted(_OBJECT_DIAMETER_KEYS):
+        if key not in settings:
+            continue
+        value = settings[key]
+        try:
+            _diameter_setting(value)
+        except ValueError:
+            problems.append(Problem(
+                ERROR, key,
+                f"{key}={value!r} is not a diameter.",
+                "Give the expected object size in pixels, 0 or auto to let "
+                "Cellpose estimate it, or leave it blank to use the "
+                "magnification default."))
+    return problems
+
+
 def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
     """Diameters, percentiles, thresholds and batch sizes are in usable ranges."""
+    from .object_settings_table import _OBJECT_DIAMETER_KEYS
+
     problems: List[Problem] = []
 
     for key, value in settings.items():
@@ -1386,7 +1417,8 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
             continue
         number = _numeric(value)
 
-        if number is not None and (key.endswith("_diameter") or key == "diameter"):
+        if (number is not None and key not in _OBJECT_DIAMETER_KEYS
+                and (key.endswith("_diameter") or key == "diameter")):
             if number <= 0:
                 problems.append(Problem(
                     ERROR, key, f"{key}={value} must be greater than zero.",
@@ -1470,12 +1502,24 @@ def _check_numeric_list(key: str, value: Sequence[Any]) -> List[Problem]:
     return problems
 
 
+def _has_planned_model_pin(settings, key, kinds):
+    """Test recorded model availability without discovery or weight acquisition."""
+    if "model_metadata" not in settings:
+        return False
+    from .model_zoo import ModelZooError, _resolve_pinned_model_file
+
+    try:
+        return _resolve_pinned_model_file(settings, key, kinds=kinds, download=False) is not None
+    except (ModelZooError, OSError):
+        return False
+
+
 def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
     """App-specific inputs that must already exist on disk."""
     problems: List[Problem] = []
 
     def _require_file(key: str, purpose: str, fix: str) -> None:
-        """Refuse a missing or unset path, saying what it was needed FOR.
+        """Refuse a missing or unset path, saying what it was needed for.
 
         Both the purpose and the fix are carried into the message: "not set" on
         its own tells a user what happened and not what to do about it.
@@ -1486,6 +1530,8 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, key, f"{key} is not set, but {purpose}.", fix))
             return
         if isinstance(value, str) and not os.path.isfile(value):
+            if key == "model_path" and _has_planned_model_pin(settings, key, ("classifier",)):
+                return
             if key == "model_path":
                 from .model_zoo import ModelZooError, _ensure_model_file
                 try:
@@ -1572,7 +1618,8 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
 
     custom_model = settings.get("custom_model")
     if isinstance(custom_model, str) and custom_model.strip():
-        if not os.path.exists(custom_model):
+        if not os.path.exists(custom_model) and not _has_planned_model_pin(
+                settings, "custom_model", ("cellpose",)):
             from .model_zoo import ModelZooError, _ensure_model_file
             try:
                 downloadable = _ensure_model_file(
@@ -1686,10 +1733,23 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
 
     if app in MASK_APPS:
         if all(settings.get(k) is None for k in CHANNEL_KEYS):
+            named = ", ".join(
+                f"{k}=None" for k in CHANNEL_KEYS[:4])
+            acquired = settings.get("channels")
+            if isinstance(acquired, (list, tuple)) and acquired:
+                allowed = ", ".join(str(c) for c in acquired)
+                choice = f"one of the acquired channel indices {allowed} (channels)"
+                example = acquired[0]
+            else:
+                choice = "a zero-based acquisition-channel index"
+                example = 0
             problems.append(Problem(
                 ERROR, "cell_channel",
-                "no segmentation channel is set: every registered object channel is None.",
-                "Set at least one *_channel setting to an acquisition-channel index."))
+                f"no segmentation channel is set: {named} and every other "
+                f"object channel is None.",
+                f"Set at least one of these settings to {choice}, for example "
+                f"cell_channel={example} for the cell stain; leave the others "
+                f"None to skip those objects."))
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
             from .settings import CELLPOSE_MODEL_CHOICES
@@ -1699,14 +1759,15 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 model = model.strip()
                 looks_like_a_path = (
                     os.sep in model or model.endswith((".pth", ".pt")))
-                if looks_like_a_path and not os.path.isfile(model):
+                pinned = _has_planned_model_pin(settings, "pathogen_model", ())
+                if looks_like_a_path and not os.path.isfile(model) and not pinned:
                     problems.append(Problem(
                         ERROR, "pathogen_model",
                         f"pathogen_model={model!r} names a checkpoint that "
                         f"is not there.",
                         "Point it at an existing .pth/.pt file, or drop the "
                         "setting to segment pathogens with stock cpsam."))
-                elif not looks_like_a_path and model != stock_model:
+                elif not looks_like_a_path and model != stock_model and not pinned:
                     problems.append(Problem(
                         WARNING, "pathogen_model",
                         f"pathogen_model={model!r} is not a checkpoint on "
@@ -1830,6 +1891,18 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
 
     app = _normalize_app(app_key)
     problems: List[Problem] = []
+    if "model_metadata" in settings:
+        from .model_zoo import (ModelZooError, _model_input_kinds,
+                                _resolve_pinned_model_file, _validate_model_metadata)
+        from .qt.i18n import tr
+
+        try:
+            kinds = _model_input_kinds(app, settings)
+            metadata = _validate_model_metadata(settings, model_kinds=kinds)
+            for name in metadata["settings"]:
+                _resolve_pinned_model_file(settings, name, kinds=kinds[name], download=False)
+        except (ModelZooError, OSError) as exc:
+            return [Problem(ERROR, "model_metadata", str(exc), tr("Choose a settings file"))]
     try:
         from .plugins import get_app as _get_plugin_app
         known_plugin_app = _get_plugin_app(app) is not None
@@ -1848,6 +1921,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_unknown_keys(settings, app))
     problems.extend(_check_retired_keys(settings))
     problems.extend(_check_numeric_sanity(settings))
+    problems.extend(_check_object_diameters(settings))
     problems.extend(_check_required_paths(settings, app))
     problems.extend(_check_app_specific(settings, app))
     try:
@@ -2092,15 +2166,20 @@ def _describe_inputs(inventories: Sequence[_Inventory]) -> str:
 
 def _describe_objects(settings: Dict[str, Any], app: str) -> List[str]:
     """One line per object type the run would work on."""
+    from .object_settings_table import _DIAMETER_OBJECTS, _diameter_used_text
+
     lines: List[str] = []
     for name in OBJECT_NAMES:
         if app == "mask":
             channel = settings.get(f"{name}_channel")
             if channel is None:
                 continue
-            diameter = settings.get(f"{name}_diameter")
             detail = f"{name}: channel {channel}"
-            if diameter is not None:
+            diameter = settings.get(f"{name}_diameter")
+            if name in _DIAMETER_OBJECTS:
+                detail += ", diameter " + _diameter_used_text(
+                    diameter, settings.get('magnification', 40), name)
+            elif diameter is not None:
                 detail += f", diameter {diameter} px"
             else:
                 detail += f", diameter from magnification {settings.get('magnification', 20)}x"
@@ -2292,32 +2371,31 @@ def _gpu_line() -> Optional[str]:
 
 
 def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
-    """Project what the run would COST, without running it.
+    """Estimate the run's resource needs, without running it.
 
-    The second half of the dry-run card. :func:`describe_plan` says what
-    would happen; this says whether this machine can see it through, which
-    is the question that actually stops a run at three in the morning.
+    The second half of the dry-run card. :func:`describe_plan` says what would
+    happen; this estimates whether this machine has the memory and disk space
+    for it.
 
     :param settings: the settings dict about to be handed to a pipeline.
     :param app_key: which pipeline, as for :func:`validate_settings`.
     :returns: the card as a single string, no trailing newline.
 
-    WHAT IS MEASURED, NOT GUESSED: the bytes already on disk, the shape and
-    dtype of one real array, the free memory, and the free space on the
-    volume that would be written to. Every one is read off the machine.
+    Measured: the bytes already on disk, the shape and dtype of one real array,
+    the free memory, and the free space on the volume that would be written to.
+    Every one is read off the machine.
 
-    WHAT IS DERIVED, AND SAID TO BE: memory is reported as a FLOOR --
-    ``n_jobs`` workers each holding one field is the least the run can use,
-    before a single working copy. A floor is defensible and still catches
-    the case that matters, which is eight workers holding a 900 MB field
-    each on a 16 GB laptop. The measured peak is what
+    Derived: memory is reported as a lower bound -- ``n_jobs`` workers each
+    holding one field is the least the run can use, before a single working
+    copy. A lower bound still catches cases such as eight workers holding a 900
+    MB field each on a 16 GB laptop. The measured peak is what
     :func:`spacr.benchmark.benchmark` reports, and this card says so rather
     than inventing a multiplier for it.
 
-    WHAT IS REFUSED: the size of the PNG crop tree. It is objects times crop
-    modes, and the object count is the thing the run exists to discover. The
-    card names it as unbounded rather than producing a number that would be
-    wrong by an order of magnitude either way.
+    Not estimated: the size of the PNG crop tree. It is objects times crop
+    modes, and the object count is what the run measures. The card names it as
+    unbounded rather than producing a number that would be wrong by an order of
+    magnitude either way.
     """
     if not isinstance(settings, dict):
         return "Resources unavailable: settings is not a dict."

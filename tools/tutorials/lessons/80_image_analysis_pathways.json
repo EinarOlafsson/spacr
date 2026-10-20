@@ -47,7 +47,7 @@
     },
     {
       "visual": "module_annotate",
-      "narration": "Annotate displays object crops so you can add reviewed labels. Classify learns from the selected label column, using crop images or measured features. Keep evaluation objects separate from training objects and carry the score column and object identities into later analyses.",
+      "narration": "Annotate displays object crops so you can add reviewed labels. Classify trains a model on the selected label column, using crop images or measured features. Keep evaluation objects separate from training objects and carry the score column and object identities into later analyses.",
       "hold_after": 0.7,
       "related_lessons": [
         "09_annotate",

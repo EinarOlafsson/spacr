@@ -281,13 +281,16 @@
       "source": "Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.",
       "source_sha256": "bbe9791694ee60c254cc9012fb5a148ccd7e39879d273364fa4693ac882f4aed",
       "translation": "Mode figures, détection de texte : utiliser l’étiquette de ligne imprimée à gauche de chaque image comme partie de sa condition. Valeur par défaut True."
-    },
+    }
+  ],
+  "retired_records": [
     {
       "table": "setting_tooltips",
       "key": "plaque_model",
       "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
       "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16",
-      "translation": "Point de contrôle Cellpose utilisé pour segmenter les plages : une clé du catalogue de modèles télécharge, à la première utilisation, un point de contrôle dont la somme de contrôle est vérifiée. 'toxoplasma_plaque_v2' correspond à cpsam_plaque_r5, entraîné sur le jeu v5 vérifié. Un chemin de fichier sélectionne un point de contrôle personnalisé. 'bundled' désigne l’ancien modèle fourni avec le paquet : un point de contrôle Cellpose 3 qui nécessite Cellpose 3. Le changer peut modifier tous les comptages de plages ; les exécutions enregistrées doivent donc conserver la valeur choisie. Valeur par défaut 'toxoplasma_plaque_v2'."
+      "translation": "Point de contrôle Cellpose utilisé pour segmenter les plages : une clé du catalogue de modèles télécharge, à la première utilisation, un point de contrôle dont la somme de contrôle est vérifiée. 'toxoplasma_plaque_v2' correspond à cpsam_plaque_r5, entraîné sur le jeu v5 vérifié. Un chemin de fichier sélectionne un point de contrôle personnalisé. 'bundled' désigne l’ancien modèle fourni avec le paquet : un point de contrôle Cellpose 3 qui nécessite Cellpose 3. Le changer peut modifier tous les comptages de plages ; les exécutions enregistrées doivent donc conserver la valeur choisie. Valeur par défaut 'toxoplasma_plaque_v2'.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "scope": "One source update and read-only startup/schema acceptance, not inference or whole item acceptance",
+  "space_commit": "66f5bfc5b0f036b8c110183fa967626dd0ee509b",
+  "parent_commit": "f457356bbffa1c3166f01ea3e7a40c6ab44fca35",
+  "published_source_commit": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+  "app_sha256": "fcdff972b046bed4e968ea38b6b98cec9babbcc4e48aa23d0390800e371fc9fd",
+  "changed_paths": [
+    "tools/web_mask_generator/app.py"
+  ],
+  "commit_attempts": 1,
+  "full_payloads_verified": 1183,
+  "foreign_payloads_unchanged": 1182,
+  "attributes_unchanged": true,
+  "original_updater": "exit1 STOPPED_NO_RETRY: expected200 but immutable resolve returned307; originalreceiptpreserved",
+  "separate_readback": "PASS same-host307\u2192200, exactpublicbytes; nosecondcommit",
+  "observer": "One allowed observer stopped atfirst guard assertion; rawfailurefieldsnotretained, causeUNKNOWN; norestart",
+  "separate_terminal_metadata": "Actualinfo/runtime exact66f5 RUNNING, domainREADY/freezero-a10g/twoflags",
+  "schema": "PASS8families17versions24orderedinputs2outputs;channelsallowcustomTrueall8",
+  "runtime_log": "1209bytes;packing609M/listening;readstreamConnectionErrorretained;nofull-logcompletenessclaim",
+  "inference_calls_after_update": 0,
+  "prior_smoke": "Originalf457onecalltimeout/serverpreprocessingfailurepreserved separately",
+  "next": "One deliberatepostfixtechnicalsmokeproposalnotexecuted; rootreviewrequired",
+  "limits": [
+    "Noall17modelacceptance/science/desktopparity/GPUplacementclaim.",
+    "Nowebsiteactivation/release/fullCIclaim."
+  ]
+}

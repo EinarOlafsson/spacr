@@ -1,0 +1,539 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-14T12:29:23.548673+00:00",
+  "review_kind": "Independent Codex AI HIGH semantic source/proposal review, not human/native acceptance",
+  "status": "Four precise text/contract corrections required before the proposal is presented as semantically reconciled; no schema shape change or implementation requested",
+  "proposal_root": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014",
+  "proposal_bindings": {
+    "design.txt": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/design.txt",
+      "sha256": "5ef11e99725b73bf3acb9b0fb6cd6005d26e455a2678abe81e21e39827dc0b05",
+      "bytes": 14200
+    },
+    "model-metadata.schema.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/model-metadata.schema.json",
+      "sha256": "af14290a4fad5cf8152d6a6e27ae856b90f7714ccc17acfd11b8f37b8f1ac7a8",
+      "bytes": 2240
+    },
+    "compatibility.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/compatibility.json",
+      "sha256": "81d0f4278dd269b58080a95aa8110967abeb17a805dfba01d9ae59cdf8eb3f9c",
+      "bytes": 5673
+    },
+    "fixture-index-final.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/fixture-index-final.json",
+      "sha256": "5a41a50af0c19bb5afcb19fee6aeea2ed7ad1bcc3f5c1e68783a95ae8cc62907",
+      "bytes": 4278
+    },
+    "opaque-type-source-witness.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/opaque-type-source-witness.json",
+      "sha256": "086ef86e9b52e57df9e49cf04dcdad3f3cf1aee5058aa18d11a2c5fb91aadc48",
+      "bytes": 1607
+    },
+    "catalogue-version-observation.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/catalogue-version-observation.json",
+      "sha256": "979d2535a4d72beeca15e03e8b5d565af3c333b8a8c078c9bf8040bfad56b311",
+      "bytes": 5303
+    },
+    "source-bindings.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/source-bindings.json",
+      "sha256": "a3177f4e94be6b7bd04e421f3e99c31ba93d61c1ce7f8706ba4fd24543c7c1d8",
+      "bytes": 12742
+    },
+    "source-excerpts.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/source-excerpts.json",
+      "sha256": "a7d921566ee5858a645806397b410a908a1e998f7f633c6eb1a5b565b4649016",
+      "bytes": 116968
+    },
+    "artifact-manifest-final.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/artifact-manifest-final.json",
+      "sha256": "c3a6721f54ecdeb6c27307a73326a3841c5958065c8b79d1446d027b69923ef6",
+      "bytes": 5557
+    },
+    "static-fixture-review.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/static-fixture-review.json",
+      "sha256": "e13fef3dcb9a351df0b64b71524448f32a1a5c6b3b754797db65a5510177d3d6",
+      "bytes": 3329
+    },
+    "fixtures/valid_missing_builtin_unspecified_version.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/fixtures/valid_missing_builtin_unspecified_version.json",
+      "sha256": "e1848120a3b3211e36684d06e50978bc6bc3b5daaf5a002d9534c375f1f0952a",
+      "bytes": 578
+    },
+    "fixtures/valid_synthetic_declared_001.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/fixtures/valid_synthetic_declared_001.json",
+      "sha256": "06a81f0f89f14b1007e408041374b4807ae9755b8aedffcc85fc107981a40761",
+      "bytes": 597
+    },
+    "fixtures/valid_legacy_without_metadata.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/fixtures/valid_legacy_without_metadata.json",
+      "sha256": "fdf006d6be4bd92f684f12f006491b1ee9df51f73e3bc65cc923d96b7b415718",
+      "bytes": 102
+    },
+    "fixtures/invalid_ambiguous_normalized_version.json": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/n702_model_reference_schema_20261014/fixtures/invalid_ambiguous_normalized_version.json",
+      "sha256": "2cfb3043d8786a8ae29e5bdb4d42d1d57eecba3c653dabaf7ddd56d85ec80237",
+      "bytes": 536
+    }
+  },
+  "candidate": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "source_bindings_from_bound_packet": [
+    {
+      "path": "spacr/cli.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "2e1152bc617993ea614411c748c5f1b332f7356f",
+      "sha256": "1c582d8d550ed053c3a798c2b63909dbd0e1fe6bfa872568b90f4ef49fa11969",
+      "bytes": 95368,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/tabular.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "e0e25a87c0f9a380ff18c989394047ef0c351838",
+      "sha256": "bef3e21199bf49dc54b140103549bbb25bcda6b6ca6909d2f2a9a0af3d82836a",
+      "bytes": 54215,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/utils.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "4bb2eb9ff3683971b0180aef3d2b2dd88e28a068",
+      "sha256": "d4a8cb44069c7e1ab9cc98d55b948fa1f84b0a015e0c77b3a1139524d715af5d",
+      "bytes": 467263,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "659a82460bad44b8c5edf2c98109cb9950d7c48d",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7",
+      "bytes": 590758,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/qt/screens/settings_model.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "6a5f82a594e45722e294ab5385d422d2068910fe",
+      "sha256": "2ab88fa13e51e564672ce6c2e746301d94d62ef93d5b31d66f03d98e0957ea4c",
+      "bytes": 570330,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/qt/screens/distributed_jobs.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "6c3c8b2e85400aa7c8c7d55aab56390036560a3b",
+      "sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463",
+      "bytes": 45480,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/validate.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "2e9697bf48e43404c3bd71e10d3d60110ac47691",
+      "sha256": "a606ce2ce2bad7f0fb332cf84072075b83fa6c9d9f4dcf217ec68383e4789710",
+      "bytes": 109170,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "1e5ad076d89b692edb27b75f064846f7b61e5782",
+      "sha256": "37604c621694769fdad5c8f41dd98054b3f2c90f45ebbfd9cbdfe71015425456",
+      "bytes": 57445,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/batch.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "5e186fa3361f47d25bf331c93741ce26c994940c",
+      "sha256": "e862d2b9a27003529158036f709aef115017616753709f5f7890c9ed2e246350",
+      "bytes": 74963,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "revision": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+      "git_blob": "6cae5241914579ab1ab0f08a3d2ae5ecb5d7db5f",
+      "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+      "bytes": 229147,
+      "report_observed_revision": "37f73c05f978d202f6cfc3d2b3f005cff27dd784",
+      "matches_report_observed_revision": true
+    }
+  ],
+  "reviewed_excerpt_bindings": [
+    {
+      "path": "spacr/cli.py",
+      "symbol": "_parse_csv_value",
+      "line": 929,
+      "end_line": 964,
+      "sha256": "d3f0ae91ced8b9035b7f927a9ec1179994ddf92f5198edda6ac20c7a0a8c4159"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "_load_settings_csv",
+      "line": 967,
+      "end_line": 1000,
+      "sha256": "fa64c2f5060cd66d99f53a7627ed6bbe680ddbb354b3a4aead88966c2e2ab417"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "_settings_csv_cell",
+      "line": 1048,
+      "end_line": 1069,
+      "sha256": "830e7ff13f2d2aa8a3c2762f1399a0ec8aa351245027443e2a329836477238a7"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "_settings_json_value",
+      "line": 1072,
+      "end_line": 1091,
+      "sha256": "f790700ce54bcdf9717311401ca5b7a00e2ef8f2b636f2850e383b1999cab2e3"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "write_settings_file",
+      "line": 1094,
+      "end_line": 1136,
+      "sha256": "d385956db973f75c963b7710229b34995c4af6469f46dfc77fdc0bc55afc6bed"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "coerce_value",
+      "line": 1223,
+      "end_line": 1312,
+      "sha256": "0e66a0e6def986218c9ced55945b7e38230856dfa2fd7823aab6b5f369c310f1"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "apply_overrides",
+      "line": 1328,
+      "end_line": 1368,
+      "sha256": "ba462b6115664f662691209a8d599e525fd8271a2a7c9913cb8275f651062cc5"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "_under_todays_names",
+      "line": 1371,
+      "end_line": 1431,
+      "sha256": "2e49e6ffbd8d7d4a5fac2010539944f5521a2eb889f995ce2120c3697e0e04ae"
+    },
+    {
+      "path": "spacr/cli.py",
+      "symbol": "resolve_settings",
+      "line": 1434,
+      "end_line": 1459,
+      "sha256": "87bd643d5611c9df1ad8451ce6e262cd3b76d391c508e7ab1de0547225f3eca1"
+    },
+    {
+      "path": "spacr/tabular.py",
+      "symbol": "_parse_setting_value",
+      "line": 272,
+      "end_line": 305,
+      "sha256": "48e449f00914ec20c342f3b0ee8562af83d82910efd8b1b70ba22a14f2b740ae"
+    },
+    {
+      "path": "spacr/utils.py",
+      "symbol": "load_settings",
+      "line": 1337,
+      "end_line": 1388,
+      "sha256": "c87871b2647caaf1ab16d33789d35b1beab8497293f2abe99178bbd5c8965fb6"
+    },
+    {
+      "path": "spacr/utils.py",
+      "symbol": "save_settings",
+      "line": 1521,
+      "end_line": 1571,
+      "sha256": "76501daa21dfd355c8e8a08661c8bcfa7baf03e9a2cbff50b8274490963665b8"
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "symbol": "export_settings_csv",
+      "line": 1994,
+      "end_line": 2023,
+      "sha256": "91283d53a078368e3a40189a6688afe0f967855887714b029acd36c3ba388881"
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "symbol": "_on_import_settings",
+      "line": 12033,
+      "end_line": 12057,
+      "sha256": "d6803e31bcb8d55b53c2f173d09035d8b1dba5e7993fb8b1b95e1f5a2ad07bb0"
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "symbol": "_on_export_settings",
+      "line": 12059,
+      "end_line": 12083,
+      "sha256": "3ac07631d14fec6e5e56dd3ecae506709f5a45e8b45a199d651f07e502f8424e"
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "symbol": "_load_settings_csv",
+      "line": 12100,
+      "end_line": 12129,
+      "sha256": "0f1829437b0d208b899cdfbf37e667da37fbb440daaaf2cf370e66c273f2e2f5"
+    },
+    {
+      "path": "spacr/qt/screens/app_screen.py",
+      "symbol": "_apply_each_setting",
+      "line": 12639,
+      "end_line": 12656,
+      "sha256": "4cbbef56a19c52cb83513d8319a77f266a185ab431ab76f4da1882f6854787a6"
+    },
+    {
+      "path": "spacr/qt/screens/settings_model.py",
+      "symbol": "collect",
+      "line": 10947,
+      "end_line": 10964,
+      "sha256": "30e8a24f9ef093242aedb25d1b4421a102750f1f3e0375def228d6315ae31945"
+    },
+    {
+      "path": "spacr/qt/screens/settings_model.py",
+      "symbol": "set_hidden_value",
+      "line": 11080,
+      "end_line": 11113,
+      "sha256": "a9744bb6649f29f98ae5822761906ad2c45be8d36a1d8e7f7a62eb832381f041"
+    },
+    {
+      "path": "spacr/qt/screens/distributed_jobs.py",
+      "symbol": "configure_submission",
+      "line": 617,
+      "end_line": 636,
+      "sha256": "d20986d53653a6f003abaf51e29265964f9cf22ef8721fd627894f0f07dd79d7"
+    },
+    {
+      "path": "spacr/qt/screens/distributed_jobs.py",
+      "symbol": "_save_snapshot_csv",
+      "line": 648,
+      "end_line": 674,
+      "sha256": "3f650796d8e9749fa1164ba1b9f1081d9639a6514c0da56e4fc537020fab7238"
+    },
+    {
+      "path": "spacr/validate.py",
+      "symbol": "_check_unknown_keys",
+      "line": 1258,
+      "end_line": 1313,
+      "sha256": "f245ae3365b794f5ef21c3a69ef9d13f4eccd001a749704ddc8397a21401a96d"
+    },
+    {
+      "path": "spacr/validate.py",
+      "symbol": "_check_required_paths",
+      "line": 1467,
+      "end_line": 1599,
+      "sha256": "4ed1b235493220a309b9f4d51d81a288f8c487a93de3b482f4953d27f253b33d"
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "symbol": "_map_path_string",
+      "line": 618,
+      "end_line": 644,
+      "sha256": "5111eaae674dfa279a559510bff91709ef72e0995bebafcc90aca66f2965617c"
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "symbol": "map_settings_paths",
+      "line": 647,
+      "end_line": 678,
+      "sha256": "9731163a13ac2d2f8e72af5ce39d41dbf63f82b82f25cdb78728667c4bac2414"
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "symbol": "submit",
+      "line": 986,
+      "end_line": 1032,
+      "sha256": "498b8e67a1bc4fe66f2305ca432099f23561483cd0ee59b2bc7fe78720f27ba6"
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "symbol": "submit",
+      "line": 1099,
+      "end_line": 1141,
+      "sha256": "a68903de1f147728924444ad3e0cd6fc17b83207c29189a78e04243b5a981dc0"
+    },
+    {
+      "path": "spacr/remote_execution.py",
+      "symbol": "submit",
+      "line": 1399,
+      "end_line": 1456,
+      "sha256": "7af618cae4c48194e312ac2f417f78d4a313c47bfa864934f56e176d25925f95"
+    },
+    {
+      "path": "spacr/batch.py",
+      "symbol": "resolve_job_settings",
+      "line": 764,
+      "end_line": 786,
+      "sha256": "995208be64efa6ac1c5444c13ef79c78d0ae518e7937ea6ffcac535bf18f2f6c"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "hf_uri",
+      "line": 2137,
+      "end_line": 2166,
+      "sha256": "609b07cdbb1f0f55fb1cb4df666ca69c4dc8e5e3cfdb5532ed52d06aa892f8eb"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "_entry_from_mapping",
+      "line": 2169,
+      "end_line": 2200,
+      "sha256": "e3d5005765f19535b88e5d6122913f2f10f21b36fc2c028a7b82399428c3892f"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "shared_catalogue",
+      "line": 2257,
+      "end_line": 2341,
+      "sha256": "77d4a025e9ca69c149d9d1b2cda53b651feede5fbce362b889d4dd6e8b242013"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "catalogue",
+      "line": 3467,
+      "end_line": 3563,
+      "sha256": "0bc032ec84ec5f2d3aded6e1d1e4606c206f7c809fd60fa0bd92eea900fae22b"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "resolve",
+      "line": 3566,
+      "end_line": 3602,
+      "sha256": "3f28101d7900c51672a4a16dbaa076e9710441f695beefa13cf8e2105c9bb279"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "_ensure_model_file",
+      "line": 3606,
+      "end_line": 3651,
+      "sha256": "247daf5930050c1706bb927d0b63dea91836da86b0f93c52d92a4f9060672ce7"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "versioned_path",
+      "line": 3654,
+      "end_line": 3682,
+      "sha256": "b65b801a2826da7f11ef5de6909341fb1cb1173e31c375735afdb18b2494ea70"
+    },
+    {
+      "path": "spacr/model_zoo.py",
+      "symbol": "fetch",
+      "line": 3781,
+      "end_line": 3911,
+      "sha256": "01582e0fb8dcfeaabf6fca84401b345ef1323af2586bb4f00c3153af96564ba1"
+    }
+  ],
+  "scope": [
+    "Read complete design, structural schema, compatibility matrix, final fixture index, opaque type witness and catalogue-version observation.",
+    "Read selected bound A744 excerpts for CSV literals/JSON writer, CLI coercion/migration/override layering, GUI import/hidden collect, shallow distributed snapshots, recursive remote mapping, batch settings, catalogue normalization/refresh/selection, local-first missing-file resolution and atomic checksum fetch.",
+    "Compared version/default provenance, nested opaque strings, hidden/deep-copy flow, invalidation ordering, paired remote mapping, exact missing-weight resolution, offline metadata and legacy claims.",
+    "Read fixture/structural-review records as existing evidence; did not rerun the 151 mechanical checks or execute a schema validator."
+  ],
+  "consistent_scoped_conclusions": [
+    "The design truthfully distinguishes an explicit trusted raw publisher declaration from ModelEntry normalizer/default1 and storage collision suffixes. It does not silently invent historical version lineage.",
+    "The nested Python-literal metadata object preserves version001/all-digit hashes as strings in the inspected CLI and tabular source branches: direct already-parsed dictionary values return before recursive scalar coercion. This is a source-only conclusion, not current parser execution.",
+    "The object schema correctly separates declared string versus unspecified null and structural checks from relational/catalogue/file verification. Syntax-conforming recorded labels are not proof of publisher authenticity.",
+    "Reserved hidden-default/type paths and slot retention are real integration seams. The current form collect/defaults and set_hidden_value branches do not establish existing model_metadata support; proposed preservation and edit invalidation remain work to implement.",
+    "The shallow DistributedJobs snapshot and batch inline dict paths justify copying nested metadata before mutation. Submit identity capture and exported snapshot parity are future requirements, not implemented guarantees.",
+    "Exact conjunct matching, wrong-hash preservation, no fuzzy/latest replacement, backend/sentinel/directory distinctions and post-resolution scientific/state checks are conservative and source-qualified.",
+    "Off/planning must prohibit catalogue traffic as well as weights: current catalogue(remote=True,block=False) can start a refresh; remote=False omits relevant rows and may still run plugin providers. The proposed pure index is required and not present.",
+    "The proposal correctly preserves legacy explicit local paths and distinguishes current unique catalogue selection from historical reproducibility. No real weights, acquisitions, native mapping, locking/coalescing or backend/scientific validation are proven by static fixtures."
+  ],
+  "required_precise_fixes": [
+    {
+      "id": "N702-R1",
+      "severity": "required contract precision",
+      "locations": [
+        "design.txt:105",
+        "compatibility.json route remote_execution.map_settings_paths/submit",
+        "spacr/remote_execution.py:618",
+        "spacr/remote_execution.py:647",
+        "spacr/remote_execution.py:1399"
+      ],
+      "finding": "The current mapper recursively treats every absolute or expanded-home string as a path, including metadata record values. Schema-valid opaque versions and keys can be path-like. The design simultaneously keeps current pairing and requires identity fields unchanged, but does not prescribe a field-aware exception. A declared opaque version /local-root/releases/001 would be rewritten when local_root is /local-root, without any change in publisher identity.",
+      "replace_or_add": "Replace the remote mapping paragraph with: Map ordinary settings using the existing path rule. Handle model_metadata as a reserved object: deep-copy each record and map only its requested_value with the same rule used for that record’s registered model setting. Never path-map key, version, version_status, sha256, kind or filename, even when their strings resemble absolute paths or expanded-home paths. Validate the original binding before mapping and the paired binding after mapping. Preserve the original exported payload separately; the mapped requested_value describes the effective mapped request. Paths outside the root and unsupported cross-platform paths remain unchanged; no Windows re-rooting guarantee is made.",
+      "future_static_or_owning_case_not_run": "One path-like opaque declared version/key remains byte-identical while the top-level request and requested_value move together. No update of hash/name/kind/status and no mutation of original payload."
+    },
+    {
+      "id": "N702-R2",
+      "severity": "required validation order",
+      "locations": [
+        "design.txt:118",
+        "design.txt:126",
+        "design.txt:142",
+        "compatibility.json route cli.resolve_settings/apply_overrides + batch.resolve_job_settings",
+        "spacr/cli.py:1328",
+        "spacr/cli.py:1371",
+        "spacr/cli.py:1434",
+        "spacr/batch.py:764",
+        "spacr/qt/screens/app_screen.py:12033"
+      ],
+      "finding": "The design says explicitly overridden records are removed after overrides, but stale imported metadata always fails. Final reconciliation alone could discard a pre-existing stale record or let an override restore its text, masking the invalid input. The input-validation boundary must precede any override invalidation or GUI application.",
+      "replace_or_add": "Add before the CLI layering paragraph: On every file import and inline-settings input, first validate the supplied metadata’s structure, recorded provenance constraints and requested_value binding against that supplied payload under its original setting names. A pre-existing stale, conflicting or malformed record is an input error, even if a later --set or GUI edit would remove it or make the value match. Preserve that original payload and work on a deep copy. Then perform proven one-to-one migration of the setting and its identity together, rejecting conflicting identities; overlay the migrated file onto defaults; coerce all explicit overrides and track every overridden model key; invalidate only the previously valid records for those keys, even if repeated overrides return to the old text; finally validate remaining/rebuilt bindings and module/backend compatibility. Apply this sequence to CLI, batch file/inline settings and GUI import. Rebuild only as a logged fresh exact trusted selection, never as repair of invalid imported evidence.",
+      "future_static_or_owning_case_not_run": "A stale imported record plus --set targeting that model still rejects before invalidation; a valid imported record plus repeated overrides ending at its original text loses the old pin; unrelated valid pins survive. Migration operates on a copy and cannot mutate original inline-job evidence."
+    },
+    {
+      "id": "N702-R3",
+      "severity": "required legacy wording",
+      "locations": [
+        "design.txt:54",
+        "design.txt:69",
+        "design.txt:175",
+        "design.txt:179",
+        "catalogue-version-observation.json",
+        "fixtures/valid_legacy_without_metadata.json",
+        "fixtures/valid_missing_builtin_unspecified_version.json",
+        "spacr/model_zoo.py:2169"
+      ],
+      "finding": "Legacy selection says to pin the selected current declared entry, but the actual builtin target in the legacy fixture has no raw version declaration. The phrase can be read as requiring a publisher version or treating normalizer default1 as declared, both inconsistent with the explicit declared/unspecified contract.",
+      "replace_or_add": "Replace Hash pin the selected current declared entry before acquisition with: Before acquisition, pin the uniquely selected trusted current catalogue entry’s exact key, filename, kind and checksum. Copy a nonblank opaque version unchanged only when the trusted raw record explicitly declares it; otherwise record version_status=unspecified and version=null. Do not infer a release from ModelEntry.version=1 or filename/key/cache suffixes. Log that the legacy input supplied no historical identity and this choice identifies current catalogue bytes, not proven past laptop bytes. Any genuinely model-bound conflicting or ambiguous legacy version evidence still requires reconciliation.",
+      "future_static_or_owning_case_not_run": "The legacy cpsam_v2_toxo_r7 input can select its unique builtin row without inventing version1; synthetic trusted explicitly declared1 remains distinct from unspecified null."
+    },
+    {
+      "id": "N702-R4",
+      "severity": "required offline cache qualification",
+      "locations": [
+        "design.txt:151",
+        "design.txt:162",
+        "design.txt:201",
+        "design.txt:208",
+        "spacr/model_zoo.py:3606",
+        "spacr/model_zoo.py:2257",
+        "spacr/model_zoo.py:3467"
+      ],
+      "finding": "Absent-path selection requires a trusted catalogue conjunction, while the later statement exact cached bytes work offline omits that condition. It leaves hash-only cache discovery versus trusted identity resolution unspecified. Settings pin labels are explicitly not download-source authority.",
+      "replace_or_add": "Replace If exact bytes are cached they work offline with: If the requested path is absent, offline cache reuse requires an exact complete identity match from the bounded trusted offline catalogue or a deliberately persisted trusted cache-provenance record, plus verification of the cached file’s checksum. A hash-only cached file without that trusted identity record does not establish catalogue-verified labels and must not silently satisfy this missing-path selector. Report the missing trusted metadata and exact copy requirements without any catalogue or weight traffic. The separate supplied-local-file route remains available: matching pinned bytes deliberately supplied at the effective requested path may be used with labels marked recorded rather than catalogue-verified, unless trusted available evidence contradicts them.",
+      "future_static_or_owning_case_not_run": "Missing requested path + trusted exact offline identity + matching cache is a cache hit with no network; absent trusted identity does not become a hit by filename/hash alone; copied matching file at requested path takes the explicitly qualified local route."
+    }
+  ],
+  "open_Home_policy_choices_before_implementation": [
+    {
+      "id": "H1",
+      "choice": "Explicitly accept the refinement from preliminary all-string version wording to version_status plus unspecified null, or require a genuine publisher declaration before unversioned catalogue rows are pin-eligible. A normalizer default1 cannot satisfy either provenance choice.",
+      "not_a_source_defect": "The draft openly proposes the refinement; this peer does not grant Home policy approval."
+    },
+    {
+      "id": "H2",
+      "choice": "Name the trusted raw/local/persisted catalogue and cache-provenance authorities, freshness policy and allowed SPACR_MODEL_DOWNLOAD values. Off remains non-overridable and metadata settings remain identity constraints, not acquisition URL authority.",
+      "not_a_source_defect": "No trust-store format or acquisition policy is implemented by the schema."
+    },
+    {
+      "id": "H3",
+      "choice": "Finalize per-module model-input/backend registry, one-to-one migration map and treatment of retained inactive records. An inactive valid record may be retained only while its setting survives unchanged; it must not be consumed under an incompatible backend or trigger acquisition. Explicitly identify legacy sidecar/version fields that are model-bound rather than treating unrelated version settings as checkpoint lineage.",
+      "not_a_source_defect": "The draft recognizes these boundaries but no exhaustive registry/migration policy is delivered."
+    }
+  ],
+  "limitations": [
+    "No application, parser, schema/test code, model loader or evidence-generation helper executed. Only stdlib reads/hashes/JSON artifact writing.",
+    "No network, provider/model process, download, install, GUI/GPU, shared-tree/source/catalog edit or push.",
+    "Original proposal/fixtures/manifests remain unchanged. The receipt is bound to the original design5ef11 and final manifestc3a672, not any forthcoming corrected artifact.",
+    "No blocking opaque-CSV type or default-version provenance contradiction found beyond the exact four contract seams stated. This is bounded semantic review, not whole-library compatibility acceptance."
+  ]
+}

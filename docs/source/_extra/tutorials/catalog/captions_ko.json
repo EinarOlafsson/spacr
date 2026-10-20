@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home의 현재 모든 모듈을 왼쪽에서 오른쪽으로 살펴봅니다. 그런 다음 Mask로 공통 조작 요소를 배우고 탐색, 도움말, 모양을 조정합니다.",
+      "description": "Home 개요와 범주 탭을 살펴본 다음, Mask로 모듈의 공통 조작 방법을 익히고 탐색, 도움말, 모양을 조정합니다.",
       "objectives": [
-        "현재 Core, Data, Tools, Organism 행의 모든 모듈을 식별합니다.",
+        "Home, Core, Data, Tools, Organism 탭을 사용해 모듈을 찾습니다.",
         "Mask로 공통 설정, 미리보기, 동작, 출력을 파악합니다.",
         "Home으로 돌아가 검색을 사용하고 패널을 배치합니다.",
         "모양과 성능 설정을 선택합니다."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home이 시작점입니다. 각 행을 왼쪽부터 읽으세요. Core, Data, Tools, Organism 순서입니다. 각 타일은 해당 모듈을 엽니다. 왼쪽 사이드바에도 같은 경로가 있으며 Home으로 이 개요에 돌아옵니다.",
+          "narration": "Home이 시작점입니다. 개요에서는 모듈을 Core, Data, Tools, Organism으로 묶어 보여 줍니다. 범주 탭으로 표시 범위를 좁힐 수 있습니다. 각 타일은 해당 이름의 모듈을 엽니다. 사이드바에서도 같은 경로를 이용할 수 있으며, Home을 선택하면 개요로 돌아옵니다.",
           "hold_after": 0.7
         },
         {
@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify는 검토된 레이블에서 학습하고 이미지 또는 표 기반 방법으로 다른 객체의 점수를 계산합니다.",
+          "narration": "Classify는 검토된 레이블로 모델을 학습시키고 크롭 이미지나 측정된 특징을 사용해 다른 객체의 점수를 계산합니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -581,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings는 잘라낸 객체 이미지를 탐색과 비교에 사용할 수치 특징으로 인코딩합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare는 저장된 실행 결과를 모아 차이를 살펴봅니다.",
           "hold_after": 0.7,
@@ -603,17 +592,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design은 실험 전에 조건, 웰, 시료 식별 정보를 배치합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design은 비교를 계획할 때 표본 크기와 통계적 검정력에 관한 가정을 살펴봅니다.",
           "hold_after": 0.7,
@@ -622,28 +600,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response는 농도별 반응을 적합하며 선택한 측정 지표와 대조군을 명확히 유지합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC는 품질 검사를 모아 어떤 근거가 있고 어떤 근거가 없는지 알려줍니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -677,17 +633,6 @@
           ],
           "related_lessons": [
             "15_image_umap"
-          ]
-        },
-        {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor는 실제 데이터 열에 선택 범위를 정의합니다. 선택 범위를 레이블로 바꾸기 전에 선택된 객체를 검토하세요.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
           ]
         },
         {
@@ -810,7 +755,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Animation을 클릭해 주 배경과 팔레트를 선택합니다. Animation colours는 Custom colours의 기본색과 강조색을 정합니다. Animation background는 독립적인 배경을 선택하며, Theme colour는 페이지 테마의 색상으로 되돌립니다. Detail은 렌더링 해상도를 제어합니다. Speed, Size, Density는 움직임과 요소 수를 바꿉니다. Mouse gravity radius는 마우스의 영향 범위를 정하며, 영으로 설정하면 꺼집니다. Dot blinking은 흰색 깜빡임을 제어하고, Popup wave frequency는 spaCR field에서 열린 팝업을 시작점으로 파동을 만듭니다. Field ripples는 클릭, 컨테이너 열기 또는 닫기, 창을 화면 가장자리에 맞추는 동작으로 생기는 파동을 마우스 인력과 독립적으로 제어합니다. 끄면 팝업에서 자동으로 생기는 파동도 멈춥니다. Settings animation speed, Settings animation size, Settings animation detail 및 Settings animation density는 Settings backdrop만 변경합니다. Settings backdrop darkness는 양식의 가독성을 제어합니다.",
+          "narration": "Animation을 클릭해 주 배경과 팔레트를 선택합니다. Animation colours는 Custom colours의 기본색과 강조색을 정합니다. Animation background는 독립적인 배경을 선택하며, Theme colour는 페이지 테마의 색상으로 되돌립니다. Detail은 렌더링 해상도를 제어합니다. Speed, Size, Density는 움직임과 요소 수를 바꿉니다. Mouse gravity radius는 마우스의 영향 범위를 정하며, 영으로 설정하면 꺼집니다. Dot blinking은 흰색 깜빡임을 제어합니다. Field ripples는 클릭, 컨테이너 열기 또는 닫기, 팝업, 창을 화면 가장자리에 맞추는 동작으로 생기는 파동의 세기를 마우스 인력과 독립적으로 설정하며, 영으로 설정하면 팝업의 자동 파동을 포함해 파동이 꺼집니다. Click ripples는 배경을 클릭할 때 파동을 보낼지 정합니다. Popup wave frequency는 열린 팝업에서 spaCR field로 퍼지는 분당 파동 수를 설정합니다. Settings animation speed, Settings animation size, Settings animation detail 및 Settings animation density는 Settings backdrop만 변경합니다. Settings backdrop darkness는 양식의 가독성을 제어합니다.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -861,11 +806,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout 모드의 Preferences에는 독립적인 여덟 효과를 위한 spaCR field 항목이 있습니다. 각 효과를 따로 켜거나 끌 수 있습니다. 일반적인 모양과 설정 창 애니메이션 항목도 계속 사용할 수 있습니다. Apply는 변경을 미리 보고 Keep은 적용을 확정하며 Revert는 이전 선택으로 되돌립니다.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -962,12 +902,11 @@
             650
           ],
           "narration": "spaCR을 설치한 Python 환경을 활성화하세요. 표시된 명령으로 spacr를 가져오고 버전을 출력하세요. 나중에 같은 실행을 재현할 수 있도록 버전을 분석 노트와 함께 기록해 두세요.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -989,11 +928,11 @@
             900
           ],
           "narration": "spacr-run --describe regression을 실행하세요. 필수 입력, 기본값, 함수 이름을 읽으세요. 여기서 배치 명령은 spacr.ml의 perform_regression을 호출합니다. API 참조에서 그 함수를 열어 매개변수와 반환 결과를 읽으세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1026,11 +965,11 @@
             900
           ],
           "narration": "분석을 실행하려면 --dry-run 없이 같은 명령을 실행하세요. 명령이 끝날 때까지 콘솔을 지켜본 뒤, 그 모듈의 튜토리얼과 API 페이지에 설명된 출력을 확인하세요. 설정 파일, 입력 표, 패키지 버전, 콘솔 로그를 결과와 함께 보관하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -1171,7 +1110,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1564,7 +1526,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest는 아직 답하지 않은 크롭에 라벨을 제안하므로, 먼저 여러 웰에서 두 클래스의 예시를 제공하세요. 여기서는 네 개 웰에서 각 클래스의 크롭 몇 개를 라벨링하고 Next로 저장합니다.",
+          "narration": "Suggest는 아직 답하지 않은 크롭에 라벨을 제안하므로, 먼저 여러 웰에서 두 클래스의 예시를 제공하세요. 여기서는 세 개 웰에서 각 클래스의 크롭 몇 개를 라벨링하고 Next로 저장합니다.",
           "focus": [
             360,
             380,
@@ -1576,7 +1538,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Suggest를 열고 Suggest for the images on this page를 선택합니다. 라운드는 몇 초면 끝나고, 이제 페이지의 모든 크롭에 물음표 배지가 붙습니다. 그리드 위의 막대는 판정할 제안이 몇 개 남았는지 셉니다.",
+          "narration": "Suggest를 열고 Suggest for the images on this page를 선택합니다. 라운드는 몇 초면 끝나고, 이제 페이지의 라벨이 없는 크롭에 물음표 배지가 붙습니다. 그리드 위의 막대는 판정할 제안이 몇 개 남았는지 셉니다.",
           "focus": [
             350,
             250,
@@ -1587,7 +1549,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "제안된 크롭을 클릭하거나 Y를 눌러 확정하고, 오른쪽 클릭하거나 N을 눌러 거절합니다. 두 답 모두 기록되며 거절은 다음 라운드 학습에 쓰이고, 나머지를 확인한 뒤에는 Confirm the rest of the page로 한 번에 처리합니다.",
+          "narration": "제안된 크롭을 클릭하거나 Y를 눌러 확정하고, 오른쪽 클릭하거나 N을 눌러 거절합니다. 두 답 모두 Next로 저장하기 전까지는 저장되지 않은 변경 사항으로 남으며 거절은 다음 라운드 학습에 쓰이고, 나머지를 확인한 뒤에는 Confirm the rest of the page로 한 번에 처리합니다.",
           "focus": [
             350,
             250,
@@ -1618,7 +1580,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2001,7 +1986,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2355,7 +2363,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다. Discard 바로 왼쪽의 Clear masks는 현재 이미지의 모든 마스크를 제거하기 전에 확인을 요청합니다.",
+          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다. Discard 바로 왼쪽의 Clear all objects는 현재 이미지의 모든 객체를 제거하기 전에 확인을 요청합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2885,7 +2893,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "축소 방법으로 UMAP을 고르세요. 각 점은 그래프의 두 좌표로 객체 하나를 나타냅니다. 선형 투영과 특징 적재값이 필요하면 연결된 도구에서 PCA를 살펴볼 수 있습니다.",
+          "narration": "축소 방법으로 UMAP을 고르세요. 각 점은 그래프의 두 좌표로 객체 하나를 나타냅니다.",
           "hold_after": 0.7
         },
         {
@@ -2934,19 +2942,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "선택한 특징을 직접 비교하려면 Image UMAP 머리글에서 Image Scatter를 열고, 선형 투영이 필요하면 PCA를 여세요. 입력 설정과 저장되는 출력은 연결된 튜토리얼에서 이어서 확인하세요.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "완성된 임베딩을 검토하고 선택한 객체의 잘라낸 이미지를 비교하세요. 각 점의 출처를 추적할 수 있도록 입력 측정값, 선택한 설정, 저장된 결과를 함께 보관하세요.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3698,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Source 안의 masks 하위 폴더를 여세요. 각 이미지에는 같은 이름의 마스크 TIFF가 있습니다. 원본 이미지 옆의 그림을 확인하며 놓친 객체와 붙은 세포에 주의하세요. 흐름 패널은 모델이 분할에 쓰는 방향을 보여 줍니다.",
+          "narration": "Source 안의 masks 하위 폴더에는 각 이미지에 대해 같은 이름의 마스크 TIFF가 들어 있습니다. 원본 이미지 옆의 그림을 확인하며 놓친 객체와 붙은 세포에 주의하세요. 흐름 패널은 모델이 분할에 쓰는 방향을 보여 줍니다.",
           "focus": [
             1000,
             450,
@@ -3709,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live preview를 켜고 이미지 선택기로 이미지를 고르세요. Live settings를 열고 채널과 정규화 컨트롤을 확인하세요. 필요하면 Console과 System을 접어 미리 보기 공간을 넓히세요.",
+          "narration": "미리 보기 공간을 넓히려면 나머지 결과 카드를 접으세요. Live preview를 켜고 이미지 선택기로 이미지를 고르세요. 제공된 예제 이미지를 찾아 선택하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "미리 보기를 배치로 저장된 마스크와 비교하세요. 이 예제에서는 미리 보기와 Apply의 처리 경로가 달라서 경계와 개수가 다를 수 있습니다. 배치 출력이 측정에 적합한지 판단할 때는 저장된 TIFF를 검토하세요.",
+          "narration": "Live settings에서 채널과 정규화를 확인한 다음 미리 보기를 실행하세요. 미리 보기와 Apply는 이 이미지들을 다르게 처리하므로 경계와 개수가 다를 수 있습니다. 배치 출력이 측정에 적합한지 판단할 때는 저장된 TIFF를 검토하세요.",
           "focus": [
             1000,
             1160,
@@ -3725,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "마우스 휠로 두 미리 보기 캔버스의 한 영역을 확대하세요. 맞닿은 객체와 흐린 경계를 확인한 뒤 다시 축소해 전체 시야를 점검하세요.",
+          "narration": "마우스 휠로 두 미리 보기 캔버스의 한 영역을 확대하세요. 확대한 화면에서 맞닿은 객체와 흐린 경계를 확인하세요.",
           "focus": [
             1010,
             1280,
@@ -3768,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4180,7 +4229,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5332,7 +5404,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6031,7 +6126,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6176,7 +6294,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6472,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7047,7 +7211,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7277,7 +7464,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8041,7 +8251,7 @@
         },
         {
           "visual": "08_exported_qc_system_viewer",
-          "narration": "추정된 조명 필드에서 밝기가 부드럽게 변하는지, 세포 모양의 원치 않는 구조가 없는지 확인하세요. 보정은 암전류 오프셋을 뺀 뒤 평균이 1인 이 필드로 나눕니다.",
+          "narration": "추정된 조명 필드에서 밝기가 부드럽게 변하는지, 세포 모양의 원치 않는 구조가 없는지 확인하세요. 보정은 다크 오프셋을 뺀 뒤 평균이 1인 이 필드로 나눕니다.",
           "focus": [
             400,
             680,
@@ -8092,7 +8302,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8264,7 +8497,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8447,7 +8703,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15092,7 +15371,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate는 객체 크롭 이미지를 표시하여 검토된 라벨을 추가할 수 있게 합니다. Classify는 크롭 이미지나 측정된 특징을 사용해 선택한 라벨 열에서 학습합니다. 평가 객체와 학습 객체를 분리하고 점수 열과 객체 식별 정보를 후속 분석에 전달하세요.",
+          "narration": "Annotate는 객체 크롭 이미지를 표시하여 검토된 라벨을 추가할 수 있게 합니다. Classify는 크롭 이미지나 측정된 특징을 사용해 선택한 라벨 열로 모델을 학습시킵니다. 평가 객체와 학습 객체를 분리하고 점수 열과 객체 식별 정보를 후속 분석에 전달하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15694,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "도식은 직접 살펴보라고 있는 것입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
+          "narration": "도식은 대화형입니다. 세포 구성 요소에 포인터를 올리면 설명이 나타납니다. 여러 개를 선택하면 강조 표시가 유지되고, Clear components를 누르면 그림이 초기화됩니다.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15704,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Analysis 튜토리얼에서 전체 작업 흐름을 설명합니다.",
+          "narration": "Plaque Assay를 클릭하여 분석 화면을 엽니다. 설정 패널에서 이미지 원본, 마스크 및 검출 옵션을 지정합니다. Load test data는 예제를 제공합니다. Run을 시작하기 전에 입력과 미리보기를 확인하세요. Plaque Assay 튜토리얼에서 전체 작업 흐름을 설명합니다.",
           "hold_after": 0.7
         },
         {

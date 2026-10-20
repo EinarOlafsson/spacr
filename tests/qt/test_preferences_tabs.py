@@ -42,6 +42,11 @@ CONTROLS = {
     "AmbientSize": "Appearance",
     "AmbientDensity": "Appearance",
     "AmbientGravityRadius": "Appearance",
+    "AccessibilityHighContrast": "Appearance",
+    "AccessibilityTextSize": "Appearance",
+    "AccessibilityReduceMotion": "Appearance",
+    "AccessibilityStrongFocus": "Appearance",
+    "AccessibilityShortcuts": "Appearance",
     "AmbientBlinkPercent": "Appearance",
     "FieldPopupWaveFrequency": "Appearance",
     "PopupBackdrop": "Appearance",
@@ -86,7 +91,7 @@ CONTROLS = {
     # The Providers button opens the dialog that carries the rest of the AI
     # settings (response speed, system prompt, console-awareness), so those
     # moved with it rather than being left unreachable.
-    "AiProvider": "AI",
+    "AiProviderChoice": "AI",
     "AiProvidersButton": "AI",
 }
 
@@ -279,6 +284,9 @@ def test_the_performance_tab_reads_as_one_subject(dialog):
     box — somebody reaching for it has a window that will not close, and
     making them save preferences on the way out is one more thing between
     them and leaving.
+
+    Uninstall joined them on 2026-10-16 (item 703): the maintainer asked for
+    it on Performance, beside Quit, and like Quit it stays out of Save/Cancel.
     """
     tab = EXPECTED_TABS.index("Performance")
     page = _tabs(dialog).widget(tab)
@@ -286,11 +294,12 @@ def test_the_performance_tab_reads_as_one_subject(dialog):
                if b.objectName()]
     assert set(buttons) == {"ClearRamButton", "ClearVramButton",
                             "ClearCpuButton", "CheckDiskButton",
-                            "QuitSpacrButton"}
+                            "QuitSpacrButton", "UninstallSpacrButton"}
     quit_button = page.findChild(QPushButton, "QuitSpacrButton")
     button_box = dialog.findChild(QDialogButtonBox)
     assert not button_box.isAncestorOf(quit_button), (
         "force quit was moved in with Save/Cancel")
+    assert not button_box.isAncestorOf(page.findChild(QPushButton, "UninstallSpacrButton"))
     assert page.findChild(QComboBox, "PerformanceLevel") is not None
     note = page.findChild(QLabel, "PerformanceLevelNote")
     assert note is not None and note.wordWrap()
@@ -575,8 +584,10 @@ def test_a_late_part_that_will_not_go_transparent_is_only_logged(
 
 
 #: The categories of the Appearance tab, in order, and a control in each.
+#: Accessibility joined them on 2026-10-12 (item 655).
 APPEARANCE_CATEGORIES = (("Theme", "PaneOpacity"),
-                         ("Animation", "AmbientSpeed"))
+                         ("Animation", "AmbientSpeed"),
+                         ("Accessibility", "AccessibilityReduceMotion"))
 
 
 def test_theme_and_animation_are_categories_of_appearance(dialog):

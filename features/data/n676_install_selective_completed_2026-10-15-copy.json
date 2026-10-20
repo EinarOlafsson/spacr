@@ -1,0 +1,3354 @@
+{
+  "schema": 1,
+  "status": "checked_copy_completed_no_stage_commit_push",
+  "lesson": "02_install_spacr",
+  "report_head": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+  "fetched_origin_head": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+  "home_base": "c3e0dc532",
+  "root_source_head": "50da1bd9bfd59f9042019a1e20b602fcfae86c24",
+  "packet_manifest_sha256": "64ed3869bd34efafd9ed46b9d4362c80d098a19d0a408802c138fb8abba910f8",
+  "final_review": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/final-publication-review.json",
+    "bytes": 4676,
+    "sha256": "9dbe77717fa58f9de1e16f40890c290a6b24f05ebfb59234f1f27db57faa4b3e"
+  },
+  "packet_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/completed-publication-packet-independent-peer.json",
+    "bytes": 5543,
+    "sha256": "693c030cb73cd333ae6aec28d64d9c441fc998540d60963a4c93d5bf97d55f4a"
+  },
+  "adjacent_peer_path": "/media/carruthers/mnt3/claude/spacr-lesson20-report-20261013/features/data/n676_install_selective_completed_2026-10-15-peer.json",
+  "docs_files": {
+    "TUTORIAL_MEDIA_NOTICE.md": {
+      "bytes": 577,
+      "sha256": "98f4beeba0d78e025629de745073b763c135be06219a1530565c0ebe61a82f8b"
+    },
+    "app_v2.js": {
+      "bytes": 102935,
+      "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159"
+    },
+    "catalog/captions_da.json": {
+      "bytes": 697693,
+      "sha256": "62d0b264efb3564bf1e71e2c731deda841e689f94ba00dadce2997cd47e6b2f3"
+    },
+    "catalog/captions_de.json": {
+      "bytes": 744668,
+      "sha256": "66a72441413588402e397456b60bef236b996549654ff7336a1462fc01738115"
+    },
+    "catalog/captions_is.json": {
+      "bytes": 702456,
+      "sha256": "df70792658f8a4e41f7f193580c827b5c800ec171360378c1f5c609b263b881e"
+    },
+    "catalog/captions_ko.json": {
+      "bytes": 739161,
+      "sha256": "ede10fc1f5534c382cdaf212de98e85ce9966ab2d86c8822d66b2c2c7ce849fe"
+    },
+    "catalog/captions_nb.json": {
+      "bytes": 693544,
+      "sha256": "6a3a7c81695c821851cefb8702b3c49f36c9c9384f25f8e2f2b3e590a0678013"
+    },
+    "catalog/captions_sv.json": {
+      "bytes": 702450,
+      "sha256": "15cfd9e0c3f91b70015ce2141019a246845b48668d9e3e2cdc340bbc0e5fbf36"
+    },
+    "catalog/lessons_en.json": {
+      "bytes": 674671,
+      "sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112"
+    },
+    "catalog/lessons_es.json": {
+      "bytes": 1105076,
+      "sha256": "d683bc9ec4ccd2df8a94fb51b4d5e197bff259d1bc0d5d90b60d1347705eef47"
+    },
+    "catalog/lessons_fr.json": {
+      "bytes": 1148821,
+      "sha256": "23faac04b34a4688b8adf2f19c53c515f9f70bf49d358d0a2faf2e416fe37f8c"
+    },
+    "catalog/lessons_hi.json": {
+      "bytes": 1833449,
+      "sha256": "0e361a267ee30e1fb92fc45eaf1771024b5ddd54027f0b4ef65d4b01a82c9302"
+    },
+    "catalog/lessons_it.json": {
+      "bytes": 1093713,
+      "sha256": "282966c194535ece06c49a156416ee51e75dd41ef43278cb6fd752f8edb2c7e0"
+    },
+    "catalog/lessons_ja.json": {
+      "bytes": 1223315,
+      "sha256": "727b87dfa705ca6b2a6a51f6730b34502c5d407e18b53703451b0ed704301987"
+    },
+    "catalog/lessons_pt-BR.json": {
+      "bytes": 1087847,
+      "sha256": "ad6851ce435de9864bfb7c6558612d221e59afa802db384c7fbcfe568c057b9b"
+    },
+    "catalog/lessons_zh-CN.json": {
+      "bytes": 949379,
+      "sha256": "d24bad1ede2ff4933515101572149df66f784cc14dcc65c8195311211289ecce"
+    },
+    "examples/Agreement_artificial_labels_real_crops.zip": {
+      "bytes": 2143021,
+      "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c"
+    },
+    "examples/Align_Stitch_nine_tiles.zip": {
+      "bytes": 33292958,
+      "sha256": "bd606bb0652b7473299349455aebaecc05aa7c10699ed98a7604375e3fded94f"
+    },
+    "examples/AnnData_API_workaround.zip": {
+      "bytes": 3788,
+      "sha256": "5a26c0553b9763b5eccf2de0ab6e5a36b5accc9683d6b6ff03ed28ec71b05f9d"
+    },
+    "examples/AnnData_API_workaround_README.txt": {
+      "bytes": 3056,
+      "sha256": "0f7552186032db74356e521d18f214f6fe40825046054bf8c74fe5e949525c6f"
+    },
+    "examples/Apply_Cellpose_stock_example.zip": {
+      "bytes": 1056789,
+      "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db"
+    },
+    "examples/Cellpose_training_images_masks.zip": {
+      "bytes": 3437727,
+      "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6"
+    },
+    "examples/Classify_existing_split_example.zip": {
+      "bytes": 5324,
+      "sha256": "869da240b9ddf831784cdc7d4ee04f524b4d583a3972f3c4a9d4a48fac9bac86"
+    },
+    "examples/Control_Charts_SYNTHETIC_campaign.csv": {
+      "bytes": 10394,
+      "sha256": "b1f4f2789f953bf4340b720cdd1eed0861733594822e27b3c0d9a5c706a8fe1f"
+    },
+    "examples/Curate_SYNTHETIC_practice.zip": {
+      "bytes": 8260,
+      "sha256": "784511f7de8059f16cd068ca1f429d8f1ffaf64061edcd327ced721c0964d931"
+    },
+    "examples/Embeddings_API_example.zip": {
+      "bytes": 4746,
+      "sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11"
+    },
+    "examples/Graph_Builder_real_measurements.zip": {
+      "bytes": 15079923,
+      "sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8"
+    },
+    "examples/Hit_List_real_results_companion.zip": {
+      "bytes": 59303,
+      "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb"
+    },
+    "examples/Investigate_Hit_real_screen_example.zip": {
+      "bytes": 1995731,
+      "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464"
+    },
+    "examples/Layer_Viewer_real_image_mask.zip": {
+      "bytes": 5493647,
+      "sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81"
+    },
+    "examples/Lineage_real_containment_review.zip": {
+      "bytes": 51192,
+      "sha256": "ed24d5e54635c00573ea7b2a1fb3139b5b8094128f98959407d00e6e92fc3828"
+    },
+    "examples/Mask_overlay_API_workaround.zip": {
+      "bytes": 4724,
+      "sha256": "f10f7f40daecef4b4813f18986efc08c0f3ed5f3891e874d40226c093e1e6eff"
+    },
+    "examples/Model_Compare_saved_masks_example.zip": {
+      "bytes": 452803,
+      "sha256": "ee5906497c667eb3b6b8a2930f337c4b6015f92aa53a07c124a46f8abf632277"
+    },
+    "examples/Power_recorded_simulation_review.zip": {
+      "bytes": 5112,
+      "sha256": "ec23021f83c1c782e10629089e52c00b7d4292ba2adc3d19f8b0936c0c2c9ef0"
+    },
+    "examples/REAL_evaluation_known_overlap.zip": {
+      "bytes": 199726,
+      "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4"
+    },
+    "examples/Run_Compare_real_snapshots.zip": {
+      "bytes": 5783785,
+      "sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453"
+    },
+    "examples/SRR33531217_barcode_references.zip": {
+      "bytes": 30824,
+      "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf"
+    },
+    "examples/SYNTHETIC_dose_response_examples.csv": {
+      "bytes": 4730,
+      "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d"
+    },
+    "examples/SYNTHETIC_invasion_example.zip": {
+      "bytes": 60593,
+      "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014"
+    },
+    "examples/SYNTHETIC_motility_tracks.zip": {
+      "bytes": 2345013,
+      "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7"
+    },
+    "examples/SYNTHETIC_napari_example.zip": {
+      "bytes": 132405,
+      "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c"
+    },
+    "examples/SYNTHETIC_plaque_example.zip": {
+      "bytes": 1549864,
+      "sha256": "7355b6d79e4afd03bdfa79118e0a76c03db514d8549c69702ad0c4e60b3d1619"
+    },
+    "examples/SYNTHETIC_profiler_example.zip": {
+      "bytes": 6231,
+      "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83"
+    },
+    "examples/SYNTHETIC_replication_example.zip": {
+      "bytes": 35013,
+      "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7"
+    },
+    "examples/SYNTHETIC_timelapse_preview.zip": {
+      "bytes": 1050432,
+      "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868"
+    },
+    "examples/SYNTHETIC_training_runs.zip": {
+      "bytes": 13438,
+      "sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0"
+    },
+    "examples/Train_Cellpose_API_example.zip": {
+      "bytes": 2264580,
+      "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469"
+    },
+    "examples/Volcano_real_guide_family.zip": {
+      "bytes": 63894,
+      "sha256": "9656373d2b8844e62e59c679e0197b2b83c0538a0de4e7c63f2496b13621b077"
+    },
+    "examples/anndata_missing_metadata_example.py": {
+      "bytes": 6314,
+      "sha256": "47b3281847726548ac7617023bf756f5e3d94cf35417e68e0edf9de30625e919"
+    },
+    "favicon.svg": {
+      "bytes": 465,
+      "sha256": "1c80967dbe79a7c57d6dad598e9dd7945518c62a851a48bf1ad8d35c51c21953"
+    },
+    "fonts/OpenSans-Regular.ttf": {
+      "bytes": 130832,
+      "sha256": "6530480277da62efde047eb26e78a7e532d1cfaeec91603e68d63876b9669f0d"
+    },
+    "index.html": {
+      "bytes": 15935,
+      "sha256": "228eafc0ff28288885a775c65f665453354ef427bbf667bbe4fe9775aa55f041"
+    },
+    "lesson_catalog.js": {
+      "bytes": 530174,
+      "sha256": "c6eea97d41f182617ed537a6c2bc14d74cab4abbeec9ca579f9bf3e1de42b3ff"
+    },
+    "logo_spacr.png": {
+      "bytes": 185454,
+      "sha256": "269fe8f2d7040ad1241c6f5110e5f1fa5cd1426141837edb7ad1d3ffde390761"
+    },
+    "module_navigation.js": {
+      "bytes": 17258,
+      "sha256": "2c7be98cfc53904745aee1e40b9bdd7d3102c60b9b61bd9b8e2fd9817191a855"
+    },
+    "production/01_pypi_github/audio/en/af_heart.json": {
+      "bytes": 6006,
+      "sha256": "59fa862c0c3d0862417b62c443d64fb601ff497968db92c3cd5954143ce4442c"
+    },
+    "production/01_pypi_github/audio/en/af_heart.m4a": {
+      "bytes": 512710,
+      "sha256": "00f5c34265a2d06c2bcf7ab8ec794815a2781dc970c9c832bcc3ee7962c5fd79"
+    },
+    "production/01_pypi_github/audio/es/ef_dora.json": {
+      "bytes": 6667,
+      "sha256": "67a50320f68fe1b89ab1abfbb6ef6209657b18abdcfbfb0c2a0f8e015713433c"
+    },
+    "production/01_pypi_github/audio/es/ef_dora.m4a": {
+      "bytes": 528074,
+      "sha256": "66e5a202deb496f4a2976b01780e625e182c701c82008a498729a4201743e6a6"
+    },
+    "production/01_pypi_github/audio/es/em_alex.json": {
+      "bytes": 6500,
+      "sha256": "1a1bd7487916a73893ebc4a5cc44c63d0d3241011fb810a703dda1a144c48219"
+    },
+    "production/01_pypi_github/audio/es/em_alex.m4a": {
+      "bytes": 533205,
+      "sha256": "7284f8e365d154a633391236a0c76eec851f231c52fc0a1f59c35ec38eb02dbf"
+    },
+    "production/01_pypi_github/audio/es/em_santa.json": {
+      "bytes": 6622,
+      "sha256": "5a843e5ff881ccdc4691a8ec76ae85a33d5ddb80a47c346a404c02a3a0d8c962"
+    },
+    "production/01_pypi_github/audio/es/em_santa.m4a": {
+      "bytes": 532477,
+      "sha256": "713bd840113c50dc2071f5c38faa05778b88ed1cdc3c206bc225e83b1cfe9845"
+    },
+    "production/01_pypi_github/audio/fr/ff_siwis.json": {
+      "bytes": 6552,
+      "sha256": "3ac20204e5f67d2c11649b027e3350a8efa368f6b2d81a716864ab389b3fe61d"
+    },
+    "production/01_pypi_github/audio/fr/ff_siwis.m4a": {
+      "bytes": 540532,
+      "sha256": "4ecbf9d7a78d771ff340666e5c166622d1241bbb2471072eb2f5d86cf879ae7d"
+    },
+    "production/01_pypi_github/audio/hi/hf_alpha.json": {
+      "bytes": 10426,
+      "sha256": "5df2e1cb5d4e9628ccf0e63493fb0ab4faafaa302a205eb336b52463f1d3398e"
+    },
+    "production/01_pypi_github/audio/hi/hf_alpha.m4a": {
+      "bytes": 634101,
+      "sha256": "970373e84c45c44b39e32ba3a7c7a0176b3e0b66fd860574336f0e152d376a28"
+    },
+    "production/01_pypi_github/audio/hi/hf_beta.json": {
+      "bytes": 10191,
+      "sha256": "9631b5f3400ae4920de06e8599234ed81ea5a0fc7af38ea7b9ac4aab35426a0b"
+    },
+    "production/01_pypi_github/audio/hi/hf_beta.m4a": {
+      "bytes": 562431,
+      "sha256": "b55f47d70a89dbb408f9f25d391fd7637f607f5824ef7d42c2cc920b68465150"
+    },
+    "production/01_pypi_github/audio/hi/hm_omega.json": {
+      "bytes": 10378,
+      "sha256": "db7790a1cfa3ef14380af1a3050dd51971a9b9693dbc536f81dea44e1b13043d"
+    },
+    "production/01_pypi_github/audio/hi/hm_omega.m4a": {
+      "bytes": 663157,
+      "sha256": "8588e886fd3339d35efc5a215b633a7881627e47e44ae47363d66eed1e164c44"
+    },
+    "production/01_pypi_github/audio/hi/hm_psi.json": {
+      "bytes": 10205,
+      "sha256": "6ac60ed4588cfd0886afa0597d1f8ebf2d9ad012de19aeecb8a178661857454d"
+    },
+    "production/01_pypi_github/audio/hi/hm_psi.m4a": {
+      "bytes": 670758,
+      "sha256": "bf905d473b79d6ce51834d4b1d83b06cbf8b393b698d93c3a2f6142695835ba6"
+    },
+    "production/01_pypi_github/audio/it/if_sara.json": {
+      "bytes": 6338,
+      "sha256": "066fcc059b8d9d87f6ab63dbbb125acf54147530b6365d7a1536d98a42164f94"
+    },
+    "production/01_pypi_github/audio/it/if_sara.m4a": {
+      "bytes": 541564,
+      "sha256": "c8d1f64a66690d8170a1b447fb174a547ca1c74f475eefc18c0e04779a20edc5"
+    },
+    "production/01_pypi_github/audio/it/im_nicola.json": {
+      "bytes": 6410,
+      "sha256": "47d68f2b745ae45ff3a82da0b56ff2a58422b22b7666f725dbc91b48a51848db"
+    },
+    "production/01_pypi_github/audio/it/im_nicola.m4a": {
+      "bytes": 583629,
+      "sha256": "1fe410c86f8648db80d1980298e310161ce18d2224bf29cc60212d9878d4f907"
+    },
+    "production/01_pypi_github/audio/ja/jf_alpha.json": {
+      "bytes": 7070,
+      "sha256": "09e745c674233630a08aaff6bde5027b1aaea74f890580663e75168aa499e9bb"
+    },
+    "production/01_pypi_github/audio/ja/jf_alpha.m4a": {
+      "bytes": 643656,
+      "sha256": "4eadbdaff1acdf959eb46dcac4d8b194bc1fe1f13f9e02e2050af22bc425e569"
+    },
+    "production/01_pypi_github/audio/ja/jf_gongitsune.json": {
+      "bytes": 7028,
+      "sha256": "123caf9fd403784642d9a8e9d16a8d2246e97276b93089785dc814144091451a"
+    },
+    "production/01_pypi_github/audio/ja/jf_gongitsune.m4a": {
+      "bytes": 786293,
+      "sha256": "9a07178ef675849467d3eb3b26b3e793138935df36eef48c20e1625e4935f8ef"
+    },
+    "production/01_pypi_github/audio/ja/jf_nezumi.json": {
+      "bytes": 7131,
+      "sha256": "d8c1ae0f413d9630a3021bfd2c946cf7f77fda95b4377d99d0e653e8fb688e31"
+    },
+    "production/01_pypi_github/audio/ja/jf_nezumi.m4a": {
+      "bytes": 839309,
+      "sha256": "7403bb1b44b561e3aa4bfd82b620ed5afa98764d79802c0fd7569ec7b8578b73"
+    },
+    "production/01_pypi_github/audio/ja/jf_tebukuro.json": {
+      "bytes": 7107,
+      "sha256": "0f094f385ff4821899c2e3969e54164ebec1cf09057e38d436446c510ddb2b5a"
+    },
+    "production/01_pypi_github/audio/ja/jf_tebukuro.m4a": {
+      "bytes": 776354,
+      "sha256": "f20276dca41d1549ab5267a92abe0aa816f3a766b0a26bdb46cc6c822b90051b"
+    },
+    "production/01_pypi_github/audio/ja/jm_kumo.json": {
+      "bytes": 7151,
+      "sha256": "915dcd3a3b813b2d52d0feaeb17e7a08c0530177abb11ddff7197748a9eea662"
+    },
+    "production/01_pypi_github/audio/ja/jm_kumo.m4a": {
+      "bytes": 692271,
+      "sha256": "70f5950659f98bb400582ffb48e833bd441f9881bfdc67d472f7a61e690a8124"
+    },
+    "production/01_pypi_github/audio/pt-BR/pf_dora.json": {
+      "bytes": 6833,
+      "sha256": "dc6aeaa1344b13f168a1c202d0183c07a505e6e577ce4eac06ce01c2b3bd96e8"
+    },
+    "production/01_pypi_github/audio/pt-BR/pf_dora.m4a": {
+      "bytes": 515179,
+      "sha256": "8da349b8b850817fb1224514b5f5787bea52b4058ef0e53be18d6a7d4f40d3f1"
+    },
+    "production/01_pypi_github/audio/pt-BR/pm_alex.json": {
+      "bytes": 6691,
+      "sha256": "c937b3465548807db7b479c3ca6f932b2fb141c0559da85fbc1a4d62f373bd67"
+    },
+    "production/01_pypi_github/audio/pt-BR/pm_alex.m4a": {
+      "bytes": 516500,
+      "sha256": "63db0cd96bbfe67d344f98d91d5c3011e83c7e463068a85388ab908e1ce15e4b"
+    },
+    "production/01_pypi_github/audio/pt-BR/pm_santa.json": {
+      "bytes": 6843,
+      "sha256": "686f4bb8cd6e43cbe9823b0e6f22a64be454d2a14f5b51bfe242d6d51b611cab"
+    },
+    "production/01_pypi_github/audio/pt-BR/pm_santa.m4a": {
+      "bytes": 526383,
+      "sha256": "d5ad31082a9113e1c79eea8b4a09cd87fcadc62a9b950f9d0c4692c27ce5d459"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaobei.json": {
+      "bytes": 6237,
+      "sha256": "f34fd075bd4106756d1ea9f7d8855a4357fe4c4898b6e03b4d93a11167cf7884"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaobei.m4a": {
+      "bytes": 531379,
+      "sha256": "c1a5115eb2d3ec3517a2d8e75fa8a1c2b6056029c940ce3201f8922e73389219"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaoni.json": {
+      "bytes": 6238,
+      "sha256": "f4d91ba978641dbd14c4c607727512fb7ae1d9590fd61bfd310d7d819fe39fd4"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaoni.m4a": {
+      "bytes": 474697,
+      "sha256": "93135e5c2fbb85e51544805c99816fe6bd371969ec622e93b04169d22570bb9c"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaoxiao.json": {
+      "bytes": 6089,
+      "sha256": "8afafab2ddd7fc19887708ed185c8a01916afb9ae79eede53d5766e532805971"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaoxiao.m4a": {
+      "bytes": 465436,
+      "sha256": "477bacd93b997e249a10ebc0aee5a9d23e9c9c438026818396aa31a4ad5d146c"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaoyi.json": {
+      "bytes": 6115,
+      "sha256": "3922bb05283c431e1012f3e6795c7e1e0e9dc765ef37f023778511a4301ab42d"
+    },
+    "production/01_pypi_github/audio/zh-CN/zf_xiaoyi.m4a": {
+      "bytes": 450495,
+      "sha256": "23311f328fa19870c05a61f279c6791ed4155f519a205e1182a01fa51441eadb"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunjian.json": {
+      "bytes": 6235,
+      "sha256": "c7696f7302eb1e8255f70b7768f90a5433afbfd367e210248cd3a2b01df2e8bd"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunjian.m4a": {
+      "bytes": 455244,
+      "sha256": "d3f91034a2ced7583e3039a1462aa946fe5126aae6ccbe14a83aeb977a8a46f6"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunxi.json": {
+      "bytes": 6225,
+      "sha256": "635f03a98555a76acf295cbb48290b8da3b1c4bd42fb5d249ddaef952679d005"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunxi.m4a": {
+      "bytes": 429081,
+      "sha256": "075b664499bb76b20c60213aefbdb2f2ca9cb9a5dd67998d7e87da2cfc3a75ed"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunxia.json": {
+      "bytes": 6282,
+      "sha256": "54d10d332005bfb661485dd9fb535f3e77ba7a455f75865a2d772634e2ff0fa5"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunxia.m4a": {
+      "bytes": 480251,
+      "sha256": "fa5b61b84f3cafbd534e18da8a1e278129fa977cc1b8eff8d4ddf2e19d4c7b73"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunyang.json": {
+      "bytes": 6111,
+      "sha256": "77e0b141903a723bdb5194161d209923b5afacab1f86373a7b0465764c578792"
+    },
+    "production/01_pypi_github/audio/zh-CN/zm_yunyang.m4a": {
+      "bytes": 421822,
+      "sha256": "3dde17ef189042f77a32a93fb1350c92511b2fde199fa9dbfbc0972b3c228e56"
+    },
+    "production/01_pypi_github/poster.jpg": {
+      "bytes": 339982,
+      "sha256": "e1f501ee1f6fa2e146e2c5d7555b0f1b85205f17a3f9de46ff5235c542414f1f"
+    },
+    "production/02_install_spacr/poster.jpg": {
+      "bytes": 247568,
+      "sha256": "631877cafaa3df65b993be9b73ca4888808aafd07f858d066dbc3b90c8f229b8"
+    },
+    "production/04_platform_installers/audio/en/af_alloy.json": {
+      "bytes": 6600,
+      "sha256": "9f3d7a01c9c6c3f2e5dcb1b8c49880f696bfc639bbb3b79d5c4160769c593b63"
+    },
+    "production/04_platform_installers/audio/en/af_alloy.m4a": {
+      "bytes": 531726,
+      "sha256": "5495d3fd11d4190106cd5a6b31563ee24d4e667b80b3d3d268fcc21d2e317ef3"
+    },
+    "production/04_platform_installers/audio/en/af_aoede.json": {
+      "bytes": 6607,
+      "sha256": "ab959cc2e247d2d09c2072c7dec0e0b9baf63192a76915af5918031483a4db2e"
+    },
+    "production/04_platform_installers/audio/en/af_aoede.m4a": {
+      "bytes": 567190,
+      "sha256": "7827b9fd1a281931f79ab0687e2f71d4b245cddbee22f6aec30999a310a7cbc4"
+    },
+    "production/04_platform_installers/audio/en/af_bella.json": {
+      "bytes": 6554,
+      "sha256": "7e883c2be253f1a78db0ed6facc215e0f3484326dad976346dbe3b295bcfb3f6"
+    },
+    "production/04_platform_installers/audio/en/af_bella.m4a": {
+      "bytes": 590682,
+      "sha256": "1e33fd087bbbd24d3b25481bbae8ddd54067ba9cf641d5eec8077064f9efef2a"
+    },
+    "production/04_platform_installers/audio/en/af_heart.json": {
+      "bytes": 6600,
+      "sha256": "63b5993b50a4c1e52de581c8decec1793d0dad7548e628d3ea3b6182c1750b34"
+    },
+    "production/04_platform_installers/audio/en/af_heart.m4a": {
+      "bytes": 566086,
+      "sha256": "e8302d1d0f56f29ddcbabd29f76042be7056d5f3b3d184c266d4cfb17ef54dab"
+    },
+    "production/04_platform_installers/audio/en/af_jessica.json": {
+      "bytes": 6629,
+      "sha256": "4eb7ad4d4a466befa8dad6fe96e1f8619736ac47af9ace11dfd3cc900992836f"
+    },
+    "production/04_platform_installers/audio/en/af_jessica.m4a": {
+      "bytes": 500474,
+      "sha256": "84864c80e0296ae5d793bfddc943947c72a624600c82e3ba130c01060db02efe"
+    },
+    "production/04_platform_installers/audio/en/af_kore.json": {
+      "bytes": 6499,
+      "sha256": "9fb9d6fffff394d9a40eca3108086d2d47be880f70bca8ef716569dffe03f9c9"
+    },
+    "production/04_platform_installers/audio/en/af_kore.m4a": {
+      "bytes": 584553,
+      "sha256": "14735cefc672bcf6b1c75c85620385db79910b62d0ad1221289bdab0980e4c1f"
+    },
+    "production/04_platform_installers/audio/en/af_nicole.json": {
+      "bytes": 6651,
+      "sha256": "9642e5a5b20dd5ba1c36ff87bcda66383eecf44f03e86530af45ed9cb795f58a"
+    },
+    "production/04_platform_installers/audio/en/af_nicole.m4a": {
+      "bytes": 847925,
+      "sha256": "0485e49d86463eae404ea07f8e24ad1f26df6345f85ee175794758bc361f20b5"
+    },
+    "production/04_platform_installers/audio/en/af_nova.json": {
+      "bytes": 6604,
+      "sha256": "a5d09810a40dcc31bb25f63d46fe92fbcd11260197d9378d62575cd2a5dc3361"
+    },
+    "production/04_platform_installers/audio/en/af_nova.m4a": {
+      "bytes": 518399,
+      "sha256": "174dbc02a6f1b80bf440e7272f3e8224ac7ade008020435f37e51133f7eba4c0"
+    },
+    "production/04_platform_installers/audio/en/af_river.json": {
+      "bytes": 6520,
+      "sha256": "ef589611f0dcf7802b281295b192a91ffaeb512f4fc2691b6f25a50d5f52df25"
+    },
+    "production/04_platform_installers/audio/en/af_river.m4a": {
+      "bytes": 488809,
+      "sha256": "4e2eb98b38262ab393743d45763046eb4449b3f68f1fd78720dc84a99d30c3c9"
+    },
+    "production/04_platform_installers/audio/en/af_sarah.json": {
+      "bytes": 6628,
+      "sha256": "99a1c20cd230f176a1d09eba41846be245b534f6248e679fe51c3b2be44c7dd9"
+    },
+    "production/04_platform_installers/audio/en/af_sarah.m4a": {
+      "bytes": 570727,
+      "sha256": "8fed7755617b5f109cccee223cc03efcbe48e6fc032eee2b7101a7d865d8a389"
+    },
+    "production/04_platform_installers/audio/en/af_sky.json": {
+      "bytes": 6624,
+      "sha256": "a14a1f4b49cf0cf9d26f416bffbd6c0e1207bb817a92ecf16b3787e6e1d8d018"
+    },
+    "production/04_platform_installers/audio/en/af_sky.m4a": {
+      "bytes": 549731,
+      "sha256": "3e86dfad9509a63f0031c2d9661e1a1b68ded760192771763fcb0396d4cd3a49"
+    },
+    "production/04_platform_installers/audio/en/am_adam.json": {
+      "bytes": 6653,
+      "sha256": "9f6b69dfa2f73a82695f2d298673efaac974f8fa904f4ed9e5b69336eba991fe"
+    },
+    "production/04_platform_installers/audio/en/am_adam.m4a": {
+      "bytes": 553897,
+      "sha256": "69e191986cb7aef0d4676e3759d87638a85aa5d683b1ceb32e4140686f86bd4b"
+    },
+    "production/04_platform_installers/audio/en/am_echo.json": {
+      "bytes": 6597,
+      "sha256": "29bed35d12f84e868d37a36772302b7646485bcde89b371d11f216ae54028cd2"
+    },
+    "production/04_platform_installers/audio/en/am_echo.m4a": {
+      "bytes": 528500,
+      "sha256": "55ce232bae04d7055c8a598dcbcf246040cbe472ef01262fb814482604f5551b"
+    },
+    "production/04_platform_installers/audio/en/am_eric.json": {
+      "bytes": 6652,
+      "sha256": "592060d9bb38f1468c14ec78e0d82176a913286594395159872968d89ef9b379"
+    },
+    "production/04_platform_installers/audio/en/am_eric.m4a": {
+      "bytes": 491350,
+      "sha256": "79fee49c996d7af8e1981aa01c5fc6a1a11417261620bad20a8db755c6b49d2e"
+    },
+    "production/04_platform_installers/audio/en/am_fenrir.json": {
+      "bytes": 6646,
+      "sha256": "659717f1268332ff88df0af6f297c5c3ed62de9aae55b4a5112e0046a1a5c7c4"
+    },
+    "production/04_platform_installers/audio/en/am_fenrir.m4a": {
+      "bytes": 572808,
+      "sha256": "0ba13622357ea027a6d6da83fcdf619e53add38e0a42ef339b688fec0851c5cd"
+    },
+    "production/04_platform_installers/audio/en/am_liam.json": {
+      "bytes": 6651,
+      "sha256": "828e02141d8114bace7880ba142dbd47fae1595f7b8be5654e483a50b0fd0390"
+    },
+    "production/04_platform_installers/audio/en/am_liam.m4a": {
+      "bytes": 512973,
+      "sha256": "0e70c3536e7f4eb45530c78a0a9c4e6b09ee17d8137cfd48ba118f361a2dec5d"
+    },
+    "production/04_platform_installers/audio/en/am_michael.json": {
+      "bytes": 6604,
+      "sha256": "ebfcc7420acc95b6b3b9552a9b35a9033b8f1779702392ea755f56c9062b706a"
+    },
+    "production/04_platform_installers/audio/en/am_michael.m4a": {
+      "bytes": 624059,
+      "sha256": "33506ea508920d300d6f7f7cc75ef5ca07b797c6b4577929b00212da53fcca6b"
+    },
+    "production/04_platform_installers/audio/en/am_onyx.json": {
+      "bytes": 6612,
+      "sha256": "20c8bb824a09aeba3db0f90df0baec7e19103cefc83bc484c540cf57b8533a40"
+    },
+    "production/04_platform_installers/audio/en/am_onyx.m4a": {
+      "bytes": 530693,
+      "sha256": "311a4518ed1b6e3612a7ab1a7e83fbdcef926cbded281ec2b7c39b517e8f2056"
+    },
+    "production/04_platform_installers/audio/en/am_puck.json": {
+      "bytes": 6607,
+      "sha256": "edd17ec92dff0177dbeff92fd3ab0544eec36df0192c801c036cd26666b2f71f"
+    },
+    "production/04_platform_installers/audio/en/am_puck.m4a": {
+      "bytes": 565665,
+      "sha256": "96be984cb2b797b52f4756dd66fa5a62f30e74cb185be848f0f458d6030a8164"
+    },
+    "production/04_platform_installers/audio/en/am_santa.json": {
+      "bytes": 6510,
+      "sha256": "6dc6d7de6fae39dbd099d428f5bb34026ce99db9da91fe4a3bffa5976d51bc3f"
+    },
+    "production/04_platform_installers/audio/en/am_santa.m4a": {
+      "bytes": 579185,
+      "sha256": "97bd1da9431cdc40473646317bb3de8f07992ffc455fd7eeb3fb6b2500fe97f2"
+    },
+    "production/04_platform_installers/audio/en/bf_alice.json": {
+      "bytes": 6533,
+      "sha256": "7ec6c63b4228e497feeb0ae2bee6562e05d6b1dec34b40d4e157f0e81c950b26"
+    },
+    "production/04_platform_installers/audio/en/bf_alice.m4a": {
+      "bytes": 549101,
+      "sha256": "2f8d092df7c41fd56247e77eda4bffa1e7d9ec5288ffce249a1b2ebab72cfd75"
+    },
+    "production/04_platform_installers/audio/en/bf_emma.json": {
+      "bytes": 6577,
+      "sha256": "252e693f5f8d4907f1b464cde8b78a9aa81a70762d912043df150c78414a6714"
+    },
+    "production/04_platform_installers/audio/en/bf_emma.m4a": {
+      "bytes": 549802,
+      "sha256": "7195da0df571078674cc2c375187af52c3235bcad8d0a1fe8f0843458e7b8029"
+    },
+    "production/04_platform_installers/audio/en/bf_isabella.json": {
+      "bytes": 6618,
+      "sha256": "cdd8f57185de5621503c1b5aebfda94b29bf174091e47223c89e856a61a86f87"
+    },
+    "production/04_platform_installers/audio/en/bf_isabella.m4a": {
+      "bytes": 547202,
+      "sha256": "605831883333442fee6222d5e39859e420bc43417e581990c785cdc90a05b873"
+    },
+    "production/04_platform_installers/audio/en/bf_lily.json": {
+      "bytes": 6493,
+      "sha256": "9e6b2a7555a0ec7e810d207bdf9c8622aeefd03e37c1df0c8de226e2e52b3493"
+    },
+    "production/04_platform_installers/audio/en/bf_lily.m4a": {
+      "bytes": 541409,
+      "sha256": "5ca2558cec5d4a7544e3486b31ab3ab520a8bf51ae8aded00532b4926fe60df5"
+    },
+    "production/04_platform_installers/audio/en/bm_daniel.json": {
+      "bytes": 6530,
+      "sha256": "c46c9c298456a3a018da30fd2662c659713dd95ed746f193a562245710fa7713"
+    },
+    "production/04_platform_installers/audio/en/bm_daniel.m4a": {
+      "bytes": 540201,
+      "sha256": "75568279b1cae79662f65099aff9ad3591fa17b3d116120314de7221f7c71a63"
+    },
+    "production/04_platform_installers/audio/en/bm_fable.json": {
+      "bytes": 6655,
+      "sha256": "3ba3360d48f4e442be1d325906112df5c0fab10cb902551890b450b13579e0c0"
+    },
+    "production/04_platform_installers/audio/en/bm_fable.m4a": {
+      "bytes": 524781,
+      "sha256": "b75166b1b9e7043d4d5427dce838a57fa390d8b64c4a079d25c360a69f8b2164"
+    },
+    "production/04_platform_installers/audio/en/bm_george.json": {
+      "bytes": 6637,
+      "sha256": "033194340b930560d97760f694bad67585737f2ca79dfefd8efac46855a292a5"
+    },
+    "production/04_platform_installers/audio/en/bm_george.m4a": {
+      "bytes": 602121,
+      "sha256": "5fa907a05f829679fcfe6e5265ea15c6ea6faae9d679110c082ce43a1d4557eb"
+    },
+    "production/04_platform_installers/audio/en/bm_lewis.json": {
+      "bytes": 6510,
+      "sha256": "782c70029443550ae30977f6b49b15a8f450dbd88a2898dc7af6e77f8d4073f3"
+    },
+    "production/04_platform_installers/audio/en/bm_lewis.m4a": {
+      "bytes": 604863,
+      "sha256": "aea7d83fae309e20a529a8397b1b8d76bd46c41d03edebd9f2a2d356b0b7c0c9"
+    },
+    "production/04_platform_installers/audio/es/ef_dora.json": {
+      "bytes": 7070,
+      "sha256": "891285a759d2ece256d2bf215e6f0bffdcf7b0c141cb824179831850b10c0855"
+    },
+    "production/04_platform_installers/audio/es/ef_dora.m4a": {
+      "bytes": 556590,
+      "sha256": "d526b85d4d2b96ff63f1f305869f6fc60a4df7eabbd36f8b4fa0a2976a023a49"
+    },
+    "production/04_platform_installers/audio/es/em_alex.json": {
+      "bytes": 7031,
+      "sha256": "1c4c958cf45fd5f6b357c1a014c04129bf7a390d4e2e0cc6405d108e663034e1"
+    },
+    "production/04_platform_installers/audio/es/em_alex.m4a": {
+      "bytes": 558164,
+      "sha256": "e465edcc17b131e17691b45d3d04cd549926f755f5bb475cfe0aa35ee657e3ac"
+    },
+    "production/04_platform_installers/audio/es/em_santa.json": {
+      "bytes": 6959,
+      "sha256": "1fe8c4c75f80cbe173faa8467b152bd2a8e44ef508e5b650741b47d807755d8e"
+    },
+    "production/04_platform_installers/audio/es/em_santa.m4a": {
+      "bytes": 554567,
+      "sha256": "f0161502339389625a59c82724ea9cdf9e8cfdffccbf5523bdc8cb57e2286fd9"
+    },
+    "production/04_platform_installers/audio/fr/ff_siwis.json": {
+      "bytes": 7133,
+      "sha256": "509f2a63d2e36ccb21de738cc8d0750561182f0639aa324b9fbeb6f1c27fa3a0"
+    },
+    "production/04_platform_installers/audio/fr/ff_siwis.m4a": {
+      "bytes": 589803,
+      "sha256": "d3f500aef8c1e5e054e66da5b19d961ce11d40581dd8d6ad71186972ee15934a"
+    },
+    "production/04_platform_installers/audio/hi/hf_alpha.json": {
+      "bytes": 10796,
+      "sha256": "adc971ee9ac17c88b7a7e8533b37a15611b9707ff2adb5637e2f5c189fa11803"
+    },
+    "production/04_platform_installers/audio/hi/hf_alpha.m4a": {
+      "bytes": 639269,
+      "sha256": "311ab189a905b53187111339a274f46575e08f57db172e67f88ada74d612e18b"
+    },
+    "production/04_platform_installers/audio/hi/hf_beta.json": {
+      "bytes": 10771,
+      "sha256": "93c7b469f052035382ef84f286ba244e5516ba41fb340f4e334c835dd1fcb364"
+    },
+    "production/04_platform_installers/audio/hi/hf_beta.m4a": {
+      "bytes": 577855,
+      "sha256": "28fb4150ca4a3524c8e42d122f048901ea43901bdf64fed829b65f2bedebb938"
+    },
+    "production/04_platform_installers/audio/hi/hm_omega.json": {
+      "bytes": 10776,
+      "sha256": "9e76efaf5d36cb2a9729c12c1fd03017c46ba75e1b73c4d87874383b9fee0230"
+    },
+    "production/04_platform_installers/audio/hi/hm_omega.m4a": {
+      "bytes": 673326,
+      "sha256": "4a8676d65b249530c8b1fd0278e080a5e2ece70c283cad3fe1ec0517c5a449da"
+    },
+    "production/04_platform_installers/audio/hi/hm_psi.json": {
+      "bytes": 10752,
+      "sha256": "be20bb31f492c795ca15733ed3dbb4abf931deecef2ce9744256f22c3c92fde7"
+    },
+    "production/04_platform_installers/audio/hi/hm_psi.m4a": {
+      "bytes": 673763,
+      "sha256": "dfa081919a0a1fd1884b9565b1a365eed1ed0828b63e83929ac16edfed0dc5c1"
+    },
+    "production/04_platform_installers/audio/it/if_sara.json": {
+      "bytes": 6689,
+      "sha256": "fad16904cd290a400401f61fb4f8d9dac3582fdf9161773d066ba5b34d01e986"
+    },
+    "production/04_platform_installers/audio/it/if_sara.m4a": {
+      "bytes": 565151,
+      "sha256": "185e009706cc9840d259d1079797d29e1794856f8179a9ebb07e70fc2d6d2164"
+    },
+    "production/04_platform_installers/audio/it/im_nicola.json": {
+      "bytes": 6883,
+      "sha256": "a054f2f98594f58b488dc2d78499f84c32647e0de49adb9b62e1f69882936631"
+    },
+    "production/04_platform_installers/audio/it/im_nicola.m4a": {
+      "bytes": 626366,
+      "sha256": "8649eabd53442a90986352b089d27e19c8189e0c19ecccc84046598a2423ab48"
+    },
+    "production/04_platform_installers/audio/ja/jf_alpha.json": {
+      "bytes": 7150,
+      "sha256": "827c5178917d0abd67afb3231a88a820752f2e5a15fd2610aa8582fd38933b9b"
+    },
+    "production/04_platform_installers/audio/ja/jf_alpha.m4a": {
+      "bytes": 596113,
+      "sha256": "6b7763e15c61b930fa8b17ce36bdb364728f046bc3df1863b74712f68f91464a"
+    },
+    "production/04_platform_installers/audio/ja/jf_gongitsune.json": {
+      "bytes": 7124,
+      "sha256": "79b71cd6c58004113ec5c6445b99cad1fc90b3977945fd6c74fec35404fb73f5"
+    },
+    "production/04_platform_installers/audio/ja/jf_gongitsune.m4a": {
+      "bytes": 750169,
+      "sha256": "e5db8fcfe135578d06bf30d294b28d8a275dc7bdbae02b417444e27adff33ddd"
+    },
+    "production/04_platform_installers/audio/ja/jf_nezumi.json": {
+      "bytes": 7132,
+      "sha256": "1c12facf71213178508105cc54e62bf115aee1420db5290fbffe0c7d5366372f"
+    },
+    "production/04_platform_installers/audio/ja/jf_nezumi.m4a": {
+      "bytes": 785087,
+      "sha256": "da3a4929436a7a7f5ecc388f4c8f4467160b057332d64da3da77e17301ba8f25"
+    },
+    "production/04_platform_installers/audio/ja/jf_tebukuro.json": {
+      "bytes": 7089,
+      "sha256": "c7c7d1b29451e0326863447a5e5b0c3b2094146d499b5f4f228c9264e15607eb"
+    },
+    "production/04_platform_installers/audio/ja/jf_tebukuro.m4a": {
+      "bytes": 730069,
+      "sha256": "29ce2630623d936706b5c140f3acfa4f9e4ef6b16485c3fd1ae8d5129bfb4b0d"
+    },
+    "production/04_platform_installers/audio/ja/jm_kumo.json": {
+      "bytes": 7132,
+      "sha256": "a5bdd45a826abfb30628a3a6ebc76ebd0fcc500c3d07aa672dfeab2794de1a83"
+    },
+    "production/04_platform_installers/audio/ja/jm_kumo.m4a": {
+      "bytes": 663252,
+      "sha256": "06745ebb3ef2ee0fff44ba4032d4667981a5c7aac3cd1eff2955da3039e29303"
+    },
+    "production/04_platform_installers/audio/pt-BR/pf_dora.json": {
+      "bytes": 7086,
+      "sha256": "acde99c866012c41c5429a3a27cc9450ee7bbaac3fd108bdf286e03da289db8f"
+    },
+    "production/04_platform_installers/audio/pt-BR/pf_dora.m4a": {
+      "bytes": 532697,
+      "sha256": "66fe5ce57cc75b20053900889b0bad1645187a12dff5505c5e7e12cf052eb275"
+    },
+    "production/04_platform_installers/audio/pt-BR/pm_alex.json": {
+      "bytes": 7054,
+      "sha256": "7b588f932be702e2aaa16be52178a29ef86b64d176ee8ad80622421f26f09988"
+    },
+    "production/04_platform_installers/audio/pt-BR/pm_alex.m4a": {
+      "bytes": 532967,
+      "sha256": "5c5c99d9b72e53efda4a0624fc538d0a878b5c31fb7a4df0f299f928580eebde"
+    },
+    "production/04_platform_installers/audio/pt-BR/pm_santa.json": {
+      "bytes": 7103,
+      "sha256": "b605bb8f95b89dce0f401b7dd13398ef5ccfae75c2f05cb044adcff423b3ae1d"
+    },
+    "production/04_platform_installers/audio/pt-BR/pm_santa.m4a": {
+      "bytes": 550541,
+      "sha256": "50f59bd3c5deaead121581b824dfab87b44bc7e477e9cd3615957d4ea60d0645"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaobei.json": {
+      "bytes": 6513,
+      "sha256": "6a7b398e256a46466d48e9c6f8efc5f24a9b2a039fbc0d0e476f5a2aab4fbc76"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaobei.m4a": {
+      "bytes": 554376,
+      "sha256": "9f8cebed1f1e263af4dc901ca9935cf44eb1a700a42e649e9b7598ed34a4d5f7"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaoni.json": {
+      "bytes": 6549,
+      "sha256": "1dda57fa7889e9fbd4441e0d8c942437318055950be8c0b3806b86c58dd2e730"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaoni.m4a": {
+      "bytes": 483321,
+      "sha256": "5283cec4f57401fe08ee3fcf775332e50fa515e50fe6000e906ba0c67d981eab"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaoxiao.json": {
+      "bytes": 6565,
+      "sha256": "a445dc76bcef8e01331126e993fe9b7870222ed70f1dad47a859900de648f97e"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaoxiao.m4a": {
+      "bytes": 474260,
+      "sha256": "042078151e659a5987d24074cd630938fd9833a732ef27674ad5c9b0bb8a9ef2"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaoyi.json": {
+      "bytes": 6543,
+      "sha256": "c5aeb6b55835963d4f9e510c54e60d337f08735c05b8a3bd5bacd6e92a690f69"
+    },
+    "production/04_platform_installers/audio/zh-CN/zf_xiaoyi.m4a": {
+      "bytes": 473787,
+      "sha256": "ed46c2720de22df8550b2ba6e45e6e53e9a89c0ad604e66f6c75c2663822ac4b"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunjian.json": {
+      "bytes": 6511,
+      "sha256": "26024f8bbf1ce3add247da529d3c92a9b300873c312e66d58c5bd63dd89f3cd8"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunjian.m4a": {
+      "bytes": 472093,
+      "sha256": "53ff2bbb30e618210378e70af4f9bcef62474d00e817abd300fbc14d77966825"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunxi.json": {
+      "bytes": 6443,
+      "sha256": "e90e88bb7830b4620221400387b061ab6be0d89178eccdfde4cc2878e8c2d5b7"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunxi.m4a": {
+      "bytes": 449116,
+      "sha256": "e0da7dd4b14cf673d9320216f839a4143b54e4bfd52e137b2e2a9ccafcde534b"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunxia.json": {
+      "bytes": 6605,
+      "sha256": "b0ac2e0c3b0a26d77024dddb3bdda8c771c05d3222f4a08bf5091b3e8db2bfd9"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunxia.m4a": {
+      "bytes": 498991,
+      "sha256": "abd96e17cf0cc9dd471e0bc8f08fae17ce5b6e116077f7f5a8b8d3349e2fae7c"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunyang.json": {
+      "bytes": 6590,
+      "sha256": "d90deccba9e0a8da2f6bf47afc892cfc30c7a188cddf45982d62c3682a1374ee"
+    },
+    "production/04_platform_installers/audio/zh-CN/zm_yunyang.m4a": {
+      "bytes": 436059,
+      "sha256": "3947af9811cfaf7103c96ca27e5a574cc13a1f309b6657debb8d7c868cb58cde"
+    },
+    "production/04_platform_installers/poster.jpg": {
+      "bytes": 273806,
+      "sha256": "550a168e688544c366e83a98b5a1b38ac0b954c4d0417bc9f9fc6ada3e66656c"
+    },
+    "production/05_home/audio/en/af_alloy.json": {
+      "bytes": 1741,
+      "sha256": "8b3ca8347bc3145a9d2141e806c4159f411303977d3cc38f73382fbba9e19014"
+    },
+    "production/05_home/audio/en/af_alloy.m4a": {
+      "bytes": 275381,
+      "sha256": "b160e555d5ad22585db738b90662689168ce987fc83c07d5c543c2e3dd3ff748"
+    },
+    "production/05_home/audio/en/af_aoede.json": {
+      "bytes": 1762,
+      "sha256": "58ce291c452cc00dc3c313799dea6d8cb55b7dace67b6b41d26187a4eebf6325"
+    },
+    "production/05_home/audio/en/af_aoede.m4a": {
+      "bytes": 291352,
+      "sha256": "d76341bae8a2cf676c45e003e4ef927e3e283e42f5073d193a43a9b47bb5b2e6"
+    },
+    "production/05_home/audio/en/af_bella.json": {
+      "bytes": 1704,
+      "sha256": "0cc19c7417e2cd819f637875095df82a35bd8868eeb4bf89f52e455f53b2a38e"
+    },
+    "production/05_home/audio/en/af_bella.m4a": {
+      "bytes": 303504,
+      "sha256": "8b5aafd3e8a0367b490c9b844a4efbf156b223841d534bcee8fe48a7ea977723"
+    },
+    "production/05_home/audio/en/af_heart.json": {
+      "bytes": 1713,
+      "sha256": "d18a8d8e185e6886093a9962dc14154d1657b3182af9ef30f5bbf5469280f383"
+    },
+    "production/05_home/audio/en/af_heart.m4a": {
+      "bytes": 381852,
+      "sha256": "b723afb58f06efc1048bf9cbfad3ad1e7b9dcb08d21be540a565bd65b5da4cb4"
+    },
+    "production/05_home/audio/en/af_jessica.json": {
+      "bytes": 1824,
+      "sha256": "bbb17cb6d822314b664be27cf8b41fe0ab57b95c94c9f8ed9276c5bc2fa3e5a3"
+    },
+    "production/05_home/audio/en/af_jessica.m4a": {
+      "bytes": 255342,
+      "sha256": "29bf5b49db7b03d5ed20a14bd68a2ad57e5ad6841685e24701b829f9c4a3af5b"
+    },
+    "production/05_home/audio/en/af_kore.json": {
+      "bytes": 1691,
+      "sha256": "3b26acd8bb8a0c4ac7fa170d7bdc2f2015ed128f00f1a740063602ea3d3b1db8"
+    },
+    "production/05_home/audio/en/af_kore.m4a": {
+      "bytes": 296240,
+      "sha256": "1a38f643b8773583b4dea7a8e1b0d463e3300ecc03e4b1d7619db9c731e3c107"
+    },
+    "production/05_home/audio/en/af_nicole.json": {
+      "bytes": 1649,
+      "sha256": "3e65294f68e626865650124a1efaf74071188e6a99435db8ecfa1421962592cc"
+    },
+    "production/05_home/audio/en/af_nicole.m4a": {
+      "bytes": 434528,
+      "sha256": "dd0ce9233c45d7e92718ee9f75b03cce6866df7caf3f4df8de8529295e5c328e"
+    },
+    "production/05_home/audio/en/af_nova.json": {
+      "bytes": 1786,
+      "sha256": "7153eff3b382c468429fee2a591281fe5a18f35a0ce88edd9728db1dd32450ac"
+    },
+    "production/05_home/audio/en/af_nova.m4a": {
+      "bytes": 353834,
+      "sha256": "978ab0c0e5376fda606e8beb4ee0f209bfa567b822803e3af2f366bca3b3afe4"
+    },
+    "production/05_home/audio/en/af_river.json": {
+      "bytes": 1696,
+      "sha256": "1c8a071ddd6d78b3642fcb744cd985ce58c699f2257d92cd46874d03b01e7bdf"
+    },
+    "production/05_home/audio/en/af_river.m4a": {
+      "bytes": 253162,
+      "sha256": "6c87f74589c65cd9676fb5973ea77718535d6aac4b42217f38427bc00f27e991"
+    },
+    "production/05_home/audio/en/af_sarah.json": {
+      "bytes": 1620,
+      "sha256": "943326581733e1f3dcd0663507a606e149856e76b483f25c6f378dde7a631897"
+    },
+    "production/05_home/audio/en/af_sarah.m4a": {
+      "bytes": 293859,
+      "sha256": "2e9bf4aa31507bf0b570b46e1c645daad96ca2f83886726df4af7e5e0d4228c6"
+    },
+    "production/05_home/audio/en/af_sky.json": {
+      "bytes": 1806,
+      "sha256": "1ed4446d8ab3781f965d1c471a3565db07cefd6b78c3863551b09808a2f85eee"
+    },
+    "production/05_home/audio/en/af_sky.m4a": {
+      "bytes": 285538,
+      "sha256": "d672f9d04e2cc5dbef4c7a9ffdfd6cc89fe5c5877b7416d03986bb5b88ebc635"
+    },
+    "production/05_home/audio/en/am_adam.json": {
+      "bytes": 1815,
+      "sha256": "b110877141b07fe7afdffc5aeecf4916ed50caa509a44ac06b04c2d9b8afe9df"
+    },
+    "production/05_home/audio/en/am_adam.m4a": {
+      "bytes": 281833,
+      "sha256": "926e1cf272653aa184ab62a505ba39ac4996c009c75eaaff1d92072555c403c1"
+    },
+    "production/05_home/audio/en/am_echo.json": {
+      "bytes": 1737,
+      "sha256": "e7b936dba87aba661e860ab695fdd2c37f21a4bc9ef25f3155ff541f0420dfd6"
+    },
+    "production/05_home/audio/en/am_echo.m4a": {
+      "bytes": 276961,
+      "sha256": "e6b7b4dde4dc985d0db2aefa10a9e1f6376bf405f13e25336e71dab229161d9e"
+    },
+    "production/05_home/audio/en/am_eric.json": {
+      "bytes": 1738,
+      "sha256": "0308e33b9cec5fa61fd5bcab7598ce12e1e4c7c8dd97f9a5dcbb7723704e0dc4"
+    },
+    "production/05_home/audio/en/am_eric.m4a": {
+      "bytes": 255476,
+      "sha256": "dcb010b6440989f7615c25c900583006393953727b001d74b675ac6f590e1ab5"
+    },
+    "production/05_home/audio/en/am_fenrir.json": {
+      "bytes": 1645,
+      "sha256": "57599bd946c905815893337358e99ecb45bd1feb3ca06062ef02a0d66c0ac52b"
+    },
+    "production/05_home/audio/en/am_fenrir.m4a": {
+      "bytes": 382153,
+      "sha256": "0480acfc18df599f1d24ca85f92eec720779812ec8e95b22f0b6d92b6053822b"
+    },
+    "production/05_home/audio/en/am_liam.json": {
+      "bytes": 1774,
+      "sha256": "07b6bac6fcfe38a7e6637c598ffff963569237c3e59f7f032e4daf10525ae254"
+    },
+    "production/05_home/audio/en/am_liam.m4a": {
+      "bytes": 267050,
+      "sha256": "90aa7591e9c6c6d029aa1cd6ebebf1df9cdcbba876e249890aacaf950bf752bf"
+    },
+    "production/05_home/audio/en/am_michael.json": {
+      "bytes": 1739,
+      "sha256": "372f9fd925e2b83c12af14866c151eb2c81fecc4d425d3e89c2f7222bd5ee7c7"
+    },
+    "production/05_home/audio/en/am_michael.m4a": {
+      "bytes": 315897,
+      "sha256": "cb22615fd445b1ca1e77b680505c171890d3d0d87a10e434c079a0b6898aa439"
+    },
+    "production/05_home/audio/en/am_onyx.json": {
+      "bytes": 1769,
+      "sha256": "d5825a3e80cd5648b6c821f3c455e28e9fee5636ab70083e6f28931e3323eeb2"
+    },
+    "production/05_home/audio/en/am_onyx.m4a": {
+      "bytes": 274922,
+      "sha256": "198ebcea8226b5040d14272f67ab00d978d1fa31de0127ca52b3b14146dd3abc"
+    },
+    "production/05_home/audio/en/am_puck.json": {
+      "bytes": 1650,
+      "sha256": "340711c334ec2e0da3004e0eb50cdfdf5084963091160d276cf4d59be1258992"
+    },
+    "production/05_home/audio/en/am_puck.m4a": {
+      "bytes": 288439,
+      "sha256": "0e12c4f4fc42f4d40e6a573a07be7f420580e215e30bffb69150e9aee1931a0c"
+    },
+    "production/05_home/audio/en/am_santa.json": {
+      "bytes": 1681,
+      "sha256": "5781406f205de699dbe3ddbf9283313809e429fd7ffe47b76a6b45207c7fe155"
+    },
+    "production/05_home/audio/en/am_santa.m4a": {
+      "bytes": 300999,
+      "sha256": "3abd9b28284a791c42782a6b2ca361ae9c8c533e584023f78549f876bd5ec821"
+    },
+    "production/05_home/audio/en/bf_alice.json": {
+      "bytes": 1701,
+      "sha256": "3d4fdec70f7f358001b424331d25df3ca37948dbeea18fe8f55cb11b13202af2"
+    },
+    "production/05_home/audio/en/bf_alice.m4a": {
+      "bytes": 279277,
+      "sha256": "e950906b819fcd857ad0b3a157ff616059e05b61c9cddf19c82e18f70fc8bce9"
+    },
+    "production/05_home/audio/en/bf_emma.json": {
+      "bytes": 1806,
+      "sha256": "ea8f62f3b17e4c478615057245d0695f112194a6092558ef11992719406eabe1"
+    },
+    "production/05_home/audio/en/bf_emma.m4a": {
+      "bytes": 275991,
+      "sha256": "34f4b286f5621cebb39f37f09ff00ce8797c82178660b558c283e5118900c95d"
+    },
+    "production/05_home/audio/en/bf_isabella.json": {
+      "bytes": 1811,
+      "sha256": "76d4a3f340fc5c7bda267e2affd2ff15936f8698f0f72eb5ef8b7c9bb9e29fac"
+    },
+    "production/05_home/audio/en/bf_isabella.m4a": {
+      "bytes": 278297,
+      "sha256": "14f09000575cf74774bafd27c9ed28cd239733731a4a082c8306d792335bd7d1"
+    },
+    "production/05_home/audio/en/bf_lily.json": {
+      "bytes": 1690,
+      "sha256": "6b8b7c194a20fb0891376b4e6b6d806a845f9d4acdc9f114d070a1b9dac7030a"
+    },
+    "production/05_home/audio/en/bf_lily.m4a": {
+      "bytes": 282491,
+      "sha256": "a040ec007ad3f133d9951487ede15f16ac5ac4f4f8b26558abfc44793fb67834"
+    },
+    "production/05_home/audio/en/bm_daniel.json": {
+      "bytes": 1688,
+      "sha256": "3e5c8438ac91bb819a5adcee4575230bf86a55ab4940f732f74d5dc4e333fc8b"
+    },
+    "production/05_home/audio/en/bm_daniel.m4a": {
+      "bytes": 272412,
+      "sha256": "ad9be01374c8fc4deb4b1e8f403652639ece180ccb39a5b95257dd80324eb4fc"
+    },
+    "production/05_home/audio/en/bm_fable.json": {
+      "bytes": 1759,
+      "sha256": "baae45d39f1ae88d2fa99c9e08eadb2bbca949c1f25b1f993edda95fa7148005"
+    },
+    "production/05_home/audio/en/bm_fable.m4a": {
+      "bytes": 273776,
+      "sha256": "60b12e92cca4d1d01dd2eca452d4ab387ccd1131a7d4e4f04c0a1a3b7dc313d8"
+    },
+    "production/05_home/audio/en/bm_george.json": {
+      "bytes": 1676,
+      "sha256": "14ea00632fa5104ea5b327c6ff1a91c4378f83ee57a8c1688ee72050c2e2b10a"
+    },
+    "production/05_home/audio/en/bm_george.m4a": {
+      "bytes": 323140,
+      "sha256": "ddaa365b732097362b636ac429ea5c66f7ea10fb06a42c1b6a74daf6ddb7e57c"
+    },
+    "production/05_home/audio/en/bm_lewis.json": {
+      "bytes": 1755,
+      "sha256": "828f34dfb719636a35a45c2d145f8e84f7dc3c440df8b6ed966c075d08dc7eca"
+    },
+    "production/05_home/audio/en/bm_lewis.m4a": {
+      "bytes": 318251,
+      "sha256": "3c57f80e00fb47a91c5f326a1a1f5220b014817d92481b7d5bf46c73ed8bd493"
+    },
+    "production/05_home/audio/es/ef_dora.json": {
+      "bytes": 1800,
+      "sha256": "0396516d884767ad2fb25130fb83835e3c2f8ab70c6c1ad257ff0c5e1e6c4e6c"
+    },
+    "production/05_home/audio/es/ef_dora.m4a": {
+      "bytes": 299051,
+      "sha256": "4bdf8902d45ed248b4eb14e1c0bff8f2bf50cf35b795e7b7323f66311f03bf83"
+    },
+    "production/05_home/audio/es/em_alex.json": {
+      "bytes": 1816,
+      "sha256": "a7ddb59c3caba5dd5264929ade15cbaabcfb3869c471402900784e6a5003055f"
+    },
+    "production/05_home/audio/es/em_alex.m4a": {
+      "bytes": 294625,
+      "sha256": "a0a35dafe885efe2471d6a83766d3642fc9d065e41f64484f9b5e3acfc34a1f3"
+    },
+    "production/05_home/audio/es/em_santa.json": {
+      "bytes": 1852,
+      "sha256": "d48ce368d7479633ea79d59208a1ca4203b38d467b32d588016c0004b41f9029"
+    },
+    "production/05_home/audio/es/em_santa.m4a": {
+      "bytes": 298426,
+      "sha256": "0df2c7c37120cb7765035d2a4b1bc945121c760264b2cd28e2962faa9b79b85d"
+    },
+    "production/05_home/audio/fr/ff_siwis.json": {
+      "bytes": 1619,
+      "sha256": "5146d5c0443d5383abf5387eea521760262c970bbb27c25fe2d5ded81a040b6e"
+    },
+    "production/05_home/audio/fr/ff_siwis.m4a": {
+      "bytes": 244719,
+      "sha256": "dae3fc7a643577b831e6ce815113984b07ce189177860d73f52d6dea24fcc816"
+    },
+    "production/05_home/audio/hi/hf_alpha.json": {
+      "bytes": 2853,
+      "sha256": "b13132007763943c2bce8ef3223820382c8ef53d9ac876a9072a55b82d01adbb"
+    },
+    "production/05_home/audio/hi/hf_alpha.m4a": {
+      "bytes": 381691,
+      "sha256": "cf9e3b23df258a99c11cd69147360d531b812755a849f79363281f1973535392"
+    },
+    "production/05_home/audio/hi/hf_beta.json": {
+      "bytes": 2910,
+      "sha256": "2950cd81a5c23c05d052bfc4f470412d5a530f8ac50e23fd1f2808d276a0a27c"
+    },
+    "production/05_home/audio/hi/hf_beta.m4a": {
+      "bytes": 341447,
+      "sha256": "9cad3f4c9dd7d55b8f6ab3bf053c5b989c663c588fbebd116e48da69be15a3e9"
+    },
+    "production/05_home/audio/hi/hm_omega.json": {
+      "bytes": 2977,
+      "sha256": "a080b66863f07f0748d97079b498d9b1649b91cac783ae33813ed0248f27a1ee"
+    },
+    "production/05_home/audio/hi/hm_omega.m4a": {
+      "bytes": 393088,
+      "sha256": "b8b5e9443ae9e368f96f37844944e80e4200c3caab52783627151033c7f7b3d2"
+    },
+    "production/05_home/audio/hi/hm_psi.json": {
+      "bytes": 2951,
+      "sha256": "24f88f936d20311fd5deae0f037d811b10d04cb4f5046bf252748c75f82de555"
+    },
+    "production/05_home/audio/hi/hm_psi.m4a": {
+      "bytes": 398565,
+      "sha256": "de23e5cba3c29a1e94bc44f74e16c903b2d7a4ecd055444e4ef29c3ae2ee5264"
+    },
+    "production/05_home/audio/it/if_sara.json": {
+      "bytes": 1875,
+      "sha256": "0bc7d978edb0284abf3541404d97eae6c602b21c74d0d6746246a6828bfa690e"
+    },
+    "production/05_home/audio/it/if_sara.m4a": {
+      "bytes": 321080,
+      "sha256": "e2d3884f543c68ab931b946e018c4fab1b7f072f4abba0451571c6168e0508b8"
+    },
+    "production/05_home/audio/it/im_nicola.json": {
+      "bytes": 1797,
+      "sha256": "04c0e042ec180c17f1a1b51a32beb99c6b83046128ecdccecc05b328dbd3d1c7"
+    },
+    "production/05_home/audio/it/im_nicola.m4a": {
+      "bytes": 340130,
+      "sha256": "78ddface3a52d28239cc50b33dce1e3faabd24b4df1ff107388bff10225f50e3"
+    },
+    "production/05_home/audio/ja/jf_alpha.json": {
+      "bytes": 2013,
+      "sha256": "f8b085e103fb468c3274d9435ff6bd83f779fdb0be56aa7487fee76938ff4cbf"
+    },
+    "production/05_home/audio/ja/jf_alpha.m4a": {
+      "bytes": 355408,
+      "sha256": "aa0a40efbc779b234c43273bb17e1929a05afa43723f9422299ae395aad20ab2"
+    },
+    "production/05_home/audio/ja/jf_gongitsune.json": {
+      "bytes": 2046,
+      "sha256": "ad8e79581d6983c7896fe5af1be99800838a18cc290ed86c85fc65e65eb6bde0"
+    },
+    "production/05_home/audio/ja/jf_gongitsune.m4a": {
+      "bytes": 431936,
+      "sha256": "d6fb56f872df29e705eb59bf599a39cbd806bad51d9e119205cbb6f7f72d2018"
+    },
+    "production/05_home/audio/ja/jf_nezumi.json": {
+      "bytes": 2034,
+      "sha256": "1656cbe72d445de153c69e64bad37e8bdbd01747ce7baccfc2046a3fea14c3bf"
+    },
+    "production/05_home/audio/ja/jf_nezumi.m4a": {
+      "bytes": 462177,
+      "sha256": "51e235c201f6751fc1a5aa26c4116c1116dafa44e82e672cd5c491811b641d6f"
+    },
+    "production/05_home/audio/ja/jf_tebukuro.json": {
+      "bytes": 1972,
+      "sha256": "4d170727237069b1cc1e640ae1090ed16333942225efe62081cadb320f341952"
+    },
+    "production/05_home/audio/ja/jf_tebukuro.m4a": {
+      "bytes": 433183,
+      "sha256": "c8d933def8334b661525233474ade7dae387a0dc16ec9ebffb64d5c58c6a3c89"
+    },
+    "production/05_home/audio/ja/jm_kumo.json": {
+      "bytes": 2090,
+      "sha256": "9f88adbf996d6aec943b595230ab08aa84450456e61a9eed8d9baa468f24dd62"
+    },
+    "production/05_home/audio/ja/jm_kumo.m4a": {
+      "bytes": 382882,
+      "sha256": "17c8c913082fef6087c67415690a00d8961f22cf4c3d0e7d6b10ae609ffb5868"
+    },
+    "production/05_home/audio/pt-BR/pf_dora.json": {
+      "bytes": 1820,
+      "sha256": "06bdee7daea26d53c0392339c2048b59991f6b8f034ca9aa73ee2b36e5b34721"
+    },
+    "production/05_home/audio/pt-BR/pf_dora.m4a": {
+      "bytes": 276572,
+      "sha256": "98d2ebef4cc8fee7ab297ffe0f04265e55db0513824be66342406b229c1d271f"
+    },
+    "production/05_home/audio/pt-BR/pm_alex.json": {
+      "bytes": 1818,
+      "sha256": "4292fcb02565909917f49a308e099d1ce9c603ed0c626ab7f988fe49fed0c68c"
+    },
+    "production/05_home/audio/pt-BR/pm_alex.m4a": {
+      "bytes": 285829,
+      "sha256": "420a6285f5ad3843e332c706950b51d499bdf15f0711e158636e2425f0dd1598"
+    },
+    "production/05_home/audio/pt-BR/pm_santa.json": {
+      "bytes": 1730,
+      "sha256": "4009d14a9b0ae01d35a8e0a580a6b22d9824bb24e17e82518fef2f95481aca51"
+    },
+    "production/05_home/audio/pt-BR/pm_santa.m4a": {
+      "bytes": 286057,
+      "sha256": "c703095fae3eeed5ac5dc910bfc1426ccdb47a46f0ea7e82f68e98b40efbdb3f"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaobei.json": {
+      "bytes": 1602,
+      "sha256": "04022828b8b5c9332d313c32356a0bbd2dc8bcf7b4c6941fcb8316f30c171a86"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaobei.m4a": {
+      "bytes": 310054,
+      "sha256": "c867ca1723825d4c8575be00b34a4750eaff93c255e64617d4fbe195936e1b5c"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaoni.json": {
+      "bytes": 1565,
+      "sha256": "c9465d58b02c0b456d24394fdc2f546132972328f3a4147671f376c33d7e8ebf"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaoni.m4a": {
+      "bytes": 270897,
+      "sha256": "c71b27a831f942b6a7b79b04b32cd5def5ecea4e51dca791651d085c92f49e81"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaoxiao.json": {
+      "bytes": 1604,
+      "sha256": "64d86a5e53a2fad35692738c208133581d56ca42dabdf7902108678503e54cf7"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaoxiao.m4a": {
+      "bytes": 273386,
+      "sha256": "2971f661494ec5597ea47e628b053f6441f302f35c8c3209193e1af87da66d9f"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaoyi.json": {
+      "bytes": 1555,
+      "sha256": "cd84b5edf6ff508c44177dbc674c73bc96c7f50ebe0b484f0873f721d68a394c"
+    },
+    "production/05_home/audio/zh-CN/zf_xiaoyi.m4a": {
+      "bytes": 267651,
+      "sha256": "738930c63785b1b4dcd30c98c338e01513247ede15b882c6933e2865f3085ce7"
+    },
+    "production/05_home/audio/zh-CN/zm_yunjian.json": {
+      "bytes": 1533,
+      "sha256": "92d3e9feeb7bf6fa0811ecd888fa96274fd8d7d29656abf354e46c0e8f2c0c8c"
+    },
+    "production/05_home/audio/zh-CN/zm_yunjian.m4a": {
+      "bytes": 264312,
+      "sha256": "b447f18bffa834303c2081930a15ab5ec6afc1129fb404fbe690210befe763a3"
+    },
+    "production/05_home/audio/zh-CN/zm_yunxi.json": {
+      "bytes": 1594,
+      "sha256": "82954d888c89546417d6cf4cdad2f5f3818b053878e377a078387af9ec8520df"
+    },
+    "production/05_home/audio/zh-CN/zm_yunxi.m4a": {
+      "bytes": 251870,
+      "sha256": "a8ff841df18b5d1e919e1e1d338f8a045a2d395bb87bdda4456e9a70117ef109"
+    },
+    "production/05_home/audio/zh-CN/zm_yunxia.json": {
+      "bytes": 1584,
+      "sha256": "4075e221dc588e493411de8e23552db35704b02361140d010d19cc57edee7ece"
+    },
+    "production/05_home/audio/zh-CN/zm_yunxia.m4a": {
+      "bytes": 281904,
+      "sha256": "fbf00817a2ecbbd803352cb46ad60ab5ea103838c180778f3c0df7e9e39c0436"
+    },
+    "production/05_home/audio/zh-CN/zm_yunyang.json": {
+      "bytes": 1657,
+      "sha256": "49da65c081f51c0be92a20f2051fce938e6538e54ffcb194e8bd2cead6140ad4"
+    },
+    "production/05_home/audio/zh-CN/zm_yunyang.m4a": {
+      "bytes": 247019,
+      "sha256": "ef383e764a02238749af9d39cbf2850d22f87fa8abd2fe3d16129077a6edcf58"
+    },
+    "production/05_home/poster.jpg": {
+      "bytes": 774822,
+      "sha256": "555995a5c7d97724eb14b5a4fd9eaa03385bdd73cb2a7383cbc7df73dd64ee10"
+    },
+    "production/06_api/poster.jpg": {
+      "bytes": 102619,
+      "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb"
+    },
+    "production/07_mask/poster.jpg": {
+      "bytes": 780163,
+      "sha256": "54a4fcc3126388e9c50ac39ca3ba22a5b6ed749f05b126a84f20b2afccd1f373"
+    },
+    "production/08_measure/poster.jpg": {
+      "bytes": 711509,
+      "sha256": "e34fb8cb25065a9d9203dbaf8df2ea2f9e96c5017267eea82158fbfc903f9101"
+    },
+    "production/09_annotate/poster.jpg": {
+      "bytes": 776795,
+      "sha256": "2f3d32727afcda99da46b55851eb37480d59cd3c53309231453c3c144547cf3a"
+    },
+    "production/10_classify_cv/poster.jpg": {
+      "bytes": 137434,
+      "sha256": "db263e7817c5f9b5ee8df0b1a9511dd3018853a24b74e0b8e7e24129245914ae"
+    },
+    "production/11_classify_ml/poster.jpg": {
+      "bytes": 799025,
+      "sha256": "90e064bcdce8664c98bc176a7d872e437bbd5741dff1a4b3eb2407fb73b9c597"
+    },
+    "production/12_map_barcodes/poster.jpg": {
+      "bytes": 198403,
+      "sha256": "a69282a30979f3579b638da597d400c8051f68b28245e988ac66e0c4051100cb"
+    },
+    "production/13_regression/poster.jpg": {
+      "bytes": 187999,
+      "sha256": "fe466873a25c0f127dc7c196bd5e694c4910dd5bb085e0634672dd339955acf4"
+    },
+    "production/14_make_masks/poster.jpg": {
+      "bytes": 1147640,
+      "sha256": "c5131e276b88a4f53c780137870f49d7c4729ed7e2734acbc958ee436eeb2641"
+    },
+    "production/15_image_umap/poster.jpg": {
+      "bytes": 786346,
+      "sha256": "5c947b3bed47c1b49bd2d8deedfdf755e8df1f86907b6641f38dfd0c256adb45"
+    },
+    "production/16_activation/poster.jpg": {
+      "bytes": 174536,
+      "sha256": "759063b05891adf31d6f0ea0b8dfc7b48df45234ccd45c0f2c261e2a373864f2"
+    },
+    "production/17_timelapse/poster.jpg": {
+      "bytes": 234308,
+      "sha256": "6be7eb3fe2e78e9c5c6eace6fd702b2faa04414e81f4781094c8659174c9bcf2"
+    },
+    "production/18_motility/poster.jpg": {
+      "bytes": 149472,
+      "sha256": "da03a3d1836d74b60eb43c9b741a61aea2896d86aee4eed9995f480b32f25ca3"
+    },
+    "production/19_train_cellpose/poster.jpg": {
+      "bytes": 214034,
+      "sha256": "7fa4dfba73bd37cd818f822553a7b2d156a09e4704c1088c9fa9612a37a98097"
+    },
+    "production/20_cellpose_masks/poster.jpg": {
+      "bytes": 213330,
+      "sha256": "26a9063bab0df488fc5d46b45c5e42aa0da6be2fc986663395ef0feeaaca9e0f"
+    },
+    "production/21_model_compare/poster.jpg": {
+      "bytes": 132909,
+      "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544"
+    },
+    "production/22_model_zoo/poster.jpg": {
+      "bytes": 132909,
+      "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544"
+    },
+    "production/23_agreement/poster.jpg": {
+      "bytes": 755182,
+      "sha256": "a8cb835d009d5121bfa9a7de9654eea662c25214ff8700bfd2ee22d40c67f070"
+    },
+    "production/24_plaque/poster.jpg": {
+      "bytes": 129592,
+      "sha256": "fe91f2a818e8a02710bb35f9a0ccc442ba694a47a3ee9a9218ac38d6789d4971"
+    },
+    "production/25_recruitment/poster.jpg": {
+      "bytes": 185095,
+      "sha256": "70890f743ba3a43393429879f094d26cc1710ed18da2cf20239248f5b23b1d40"
+    },
+    "production/26_invasion/poster.jpg": {
+      "bytes": 145387,
+      "sha256": "69118eb98c791779a6c2b4ef6dd77c564ac8b3e0bdbaefec52641e0a4f38e354"
+    },
+    "production/27_replication/poster.jpg": {
+      "bytes": 140838,
+      "sha256": "1ecf99797194c8d055bf3c76c0ba0633706261f93cb0c78497b54fc708ac326f"
+    },
+    "production/28_training_runs/poster.jpg": {
+      "bytes": 233583,
+      "sha256": "9ca64e7988afd2c11cfb0ddb468527ff4b4bcd2a766f8c3c5015231aa5a679b0"
+    },
+    "production/29_report/poster.jpg": {
+      "bytes": 192061,
+      "sha256": "28d2ac09fbb0a1e5cd68b753849c5f4ef199a387ad168b4c1420af27e23ff790"
+    },
+    "production/30_plate_queue/poster.jpg": {
+      "bytes": 207099,
+      "sha256": "f275d7b4d91948bc991ca1c1d9cf5364100d0d37bc65b69ce783268d4220be36"
+    },
+    "production/31_external_masks/poster.jpg": {
+      "bytes": 250982,
+      "sha256": "3b07ef8acef8bcd462b9fee783b0f50808bbd01750d63dee7550147d9928a1ec"
+    },
+    "production/32_align_stitch/poster.jpg": {
+      "bytes": 152401,
+      "sha256": "549f87a53314ceec1d5ac57e4c6d92ce238a7c474f0b8d52b6cf016553c465e4"
+    },
+    "production/33_plate_viewer/poster.jpg": {
+      "bytes": 129107,
+      "sha256": "ad152e8524e748522ecd24c91081a607098836f6b849ef9dfab2fffa347c772f"
+    },
+    "production/34_database/poster.jpg": {
+      "bytes": 157682,
+      "sha256": "817456b8dfccbc6a0e28f07a7fc2f4a670e41e04c2d8f00ec90e62c48426b049"
+    },
+    "production/35_converter/poster.jpg": {
+      "bytes": 196330,
+      "sha256": "bdf1520c7b7b42098b31ddf59e4bbb749cb38d7b8621cbd7aed6be0ad9b92ce0"
+    },
+    "production/36_import/poster.jpg": {
+      "bytes": 177827,
+      "sha256": "a8a194ee13814ef4d37dd01de02d25f2210670cb4f9d43a7befa9b86eeb9ebf2"
+    },
+    "production/37_batch/poster.jpg": {
+      "bytes": 401988,
+      "sha256": "2398146f1e1811deeb1b18ad26b4c7c2ea3f0a45610b979a9033d8f6af5a65f4"
+    },
+    "production/38_distributed_jobs/poster.jpg": {
+      "bytes": 387230,
+      "sha256": "d6973c5db863a996399b63fbc41f27f28a9852f38b66f8bdd10fdfaa48e63b8e"
+    },
+    "production/39_classifier_evaluation/poster.jpg": {
+      "bytes": 171820,
+      "sha256": "7a5b40f5564cea50a12c875d27b0bf2cb78730f7abe08acdc7a4a420f22431e7"
+    },
+    "production/40_run_history/poster.jpg": {
+      "bytes": 189158,
+      "sha256": "7c12f5ac147e9002d4b51bf284d9c7f2a97f76d1598f1ec053d9a651ac716d1e"
+    },
+    "production/41_classify/poster.jpg": {
+      "bytes": 132567,
+      "sha256": "d57718b6c1b2c6c3053ddc39db9539eca813438a39c4ab5772dee1576baaba6a"
+    },
+    "production/42_curate/poster.jpg": {
+      "bytes": 151365,
+      "sha256": "68a297fb16140119c9335141e0b2d5c85ee4a7c9b5dc156c8f5dcbac349f3f3b"
+    },
+    "production/43_illumination/poster.jpg": {
+      "bytes": 774412,
+      "sha256": "c61e07df57f39665743117ff842d3562ccaee419691c546795ccf7ff83183b8c"
+    },
+    "production/44_data_manager/poster.jpg": {
+      "bytes": 188466,
+      "sha256": "5bf676c8a3ec44927d5c014c3e155d64a5e725a011d4130eeb0739b6164202f8"
+    },
+    "production/45_project_browser/poster.jpg": {
+      "bytes": 187004,
+      "sha256": "fccec2ddbd4613fbfd19b5ada4b1474f3b9cf0ca6f1ddf32afabba8d65e9ff14"
+    },
+    "production/46_napari_bridge/poster.jpg": {
+      "bytes": 137212,
+      "sha256": "f6f7225b0e72fb9d5c5bfb62887451cfc61f1af0db60854353c4303374ae8665"
+    },
+    "production/47_barcode_qc/poster.jpg": {
+      "bytes": 172929,
+      "sha256": "b26617e27c3c28386b996bb7b29fa0ced9b1a2a63fce592fffbeaec352ec7481"
+    },
+    "production/48_hit_list/poster.jpg": {
+      "bytes": 237748,
+      "sha256": "ff4c2314cbd17eb6f453054349a0e2ec766935c1c78c470bc4c8bfb942a142bf"
+    },
+    "production/49_methods_results/poster.jpg": {
+      "bytes": 247357,
+      "sha256": "d361cd6e50a69910ee9eeb5de3d93872950af1919b308088bd7e1004e9d2285c"
+    },
+    "production/50_run_compare/poster.jpg": {
+      "bytes": 134364,
+      "sha256": "70d7e493cbd5792445b470922c0390b79ba2416cda03164c0600aed0482228cb"
+    },
+    "production/51_control_charts/poster.jpg": {
+      "bytes": 109896,
+      "sha256": "6c4d630758a8c2fed488776ec4314a1609a49490e492d479ed89c2d77a527d62"
+    },
+    "production/52_pipeline_graph/poster.jpg": {
+      "bytes": 187214,
+      "sha256": "bac50eb945a0f5cdad467a5cd951d115ee0a934984434898099078a77faf2c17"
+    },
+    "production/53_prediction_profiler/poster.jpg": {
+      "bytes": 195880,
+      "sha256": "f446ab44ed60619f4524e7b38bb2898cebf59ffe7a2c3d2cf9986506004bff34"
+    },
+    "production/54_qc_dashboard/poster.jpg": {
+      "bytes": 137321,
+      "sha256": "be0645d6ed8ec8c0631ebd90cfd6c76e5d368ded1b5793dd6325e66c1c320637"
+    },
+    "production/55_image_scatter/poster.jpg": {
+      "bytes": 157695,
+      "sha256": "f6a36ee7d302ffdb5ed95a3cfe03cd239cd887a0f2cf9ef892de444226067a90"
+    },
+    "production/56_lineage/poster.jpg": {
+      "bytes": 143131,
+      "sha256": "f5c9902c9b229536a7a1dd96c1a2f9163c98cb26652511c1b602b0fe2b0c308c"
+    },
+    "production/57_layer_viewer/poster.jpg": {
+      "bytes": 113750,
+      "sha256": "977f37f2c7302039938abbfdb45725366c09101eaa6b5be356623c889fcad62f"
+    },
+    "production/58_graph_builder/poster.jpg": {
+      "bytes": 130707,
+      "sha256": "71b095598c4a412b9727a1102e1fdeebf26f995b3ebc15f3e6d2ec48e858eab6"
+    },
+    "production/59_anndata_export/poster.jpg": {
+      "bytes": 150006,
+      "sha256": "266488d0d670c6a7474f2cce2c8fdec99bfd2d819891794f47aa88030f014b76"
+    },
+    "production/60_pca/poster.jpg": {
+      "bytes": 189822,
+      "sha256": "e498aa7029dc783530ecca0b9f43b60dba725a2c9b8533fc10cb5b5a51b4d3ec"
+    },
+    "production/61_tabulate/poster.jpg": {
+      "bytes": 134955,
+      "sha256": "470f80bbda4ecfa6b165d6d02aeb03954f224cdd2170158e5756a5528a27ddca"
+    },
+    "production/62_feature_dictionary/poster.jpg": {
+      "bytes": 190646,
+      "sha256": "cf2f0b393d01aefb3d43a96f68886cba6ff3e56500ca3d621e2fde2afbf1430d"
+    },
+    "production/63_small_multiples/poster.jpg": {
+      "bytes": 109547,
+      "sha256": "9411cc6ac9bd9751372ff015ad47fc397303e7ca0e4ffcf081dd96a02d993f5f"
+    },
+    "production/64_gate_editor/poster.jpg": {
+      "bytes": 151054,
+      "sha256": "c44715f362b9b1861018e1ef83660ff72d60878df3ebc44ff3ce476eb9820c68"
+    },
+    "production/65_feature_explorer/poster.jpg": {
+      "bytes": 182823,
+      "sha256": "c8331b094072c0b94cf7122130630ba1ce883b57eae0c2af294893538e232bf6"
+    },
+    "production/66_outliers/poster.jpg": {
+      "bytes": 115728,
+      "sha256": "a2d7edc16f2990c719684aa8383ec566bcabeba64f2780f25168d8e293d5ccea"
+    },
+    "production/67_experiment_design/poster.jpg": {
+      "bytes": 189784,
+      "sha256": "ea2cae5a74ef28f4d21b46bf2f0c239e3a757c0dddf9368d13fdfdd897d987ec"
+    },
+    "production/68_power_design/poster.jpg": {
+      "bytes": 262034,
+      "sha256": "b4fd4f4086f0eb386252ee287b886775d2f923ee74b115aa500f830077508f8b"
+    },
+    "production/69_dose_response/poster.jpg": {
+      "bytes": 133378,
+      "sha256": "18dad3accf934b7f9adf6a549493c1acdd567d8e60ad30e5fafa15add8ef553c"
+    },
+    "production/70_explain_cv/poster.jpg": {
+      "bytes": 171824,
+      "sha256": "7b549953917cca1dfa353996fdddcdbc8a3bd0c1de840d0c6534163943220f01"
+    },
+    "production/71_investigate_hit/poster.jpg": {
+      "bytes": 183048,
+      "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6"
+    },
+    "production/72_volcano_explorer/poster.jpg": {
+      "bytes": 237311,
+      "sha256": "4733058879b0dc4794195fff98ba26d8b59951d2a7b88355fd38b045ce7ff3dd"
+    },
+    "production/73_parameter_sweep/poster.jpg": {
+      "bytes": 186096,
+      "sha256": "6af58cf103b65c157520899107c3762452cdf9a77d041f2157173dd360c4b84f"
+    },
+    "production/74_import_images/poster.jpg": {
+      "bytes": 136808,
+      "sha256": "23ce7ba1cf589dcc6784bea2a163a261c1b62977c54040eaa214c6a090c9dd53"
+    },
+    "production/75_regression_diagnostics/poster.jpg": {
+      "bytes": 197967,
+      "sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126"
+    },
+    "production/76_ops/poster.jpg": {
+      "bytes": 173421,
+      "sha256": "a02aa503b0fb24aaff2154798ec54fa0a18dd9e08be06d19aeb1dbefc273a9bc"
+    },
+    "production/77_embeddings/poster.jpg": {
+      "bytes": 134187,
+      "sha256": "64e935afa6a63883a3da8e5bb356afaa775b81a0f382e7f8cc47d44f59a3518e"
+    },
+    "production/78_spacr_screens/poster.jpg": {
+      "bytes": 174673,
+      "sha256": "653862a236952ceb334d8e5451c8c499183ccf716e9ebf3d78e9ca49fcb4f820"
+    },
+    "production/79_module_inputs_outputs/poster.jpg": {
+      "bytes": 175849,
+      "sha256": "fa4d060389e4105196e5ad9865f7d6de363a5de251e742a16d6d98cb9d3fd07a"
+    },
+    "production/80_image_analysis_pathways/poster.jpg": {
+      "bytes": 1178102,
+      "sha256": "5e3b42fc3fa4dbf3e018980937a3225b3de03b6ce170b404139e5db96872550d"
+    },
+    "production/81_sequencing_pathways/poster.jpg": {
+      "bytes": 179129,
+      "sha256": "3202ea4ef5629231456da0629e2bf0161533382cc4f26021018bb7954677b28d"
+    },
+    "production/82_toxoplasma/poster.jpg": {
+      "bytes": 1188374,
+      "sha256": "cc9c98942ed575e1f9091fab7dc14358aa0511cb0d1cd95ee3773f22bab92ee5"
+    },
+    "production/85_host_pathogen/poster.jpg": {
+      "bytes": 171994,
+      "sha256": "088b29d1931da776d8e97943c8e9d60f09a396bb5ea673c68fd0d1db55c6dd52"
+    },
+    "production/86_alpha_organism_modules/poster.jpg": {
+      "bytes": 137977,
+      "sha256": "9e726caa32c7defe69c352103230c3d5d655cbebc6ad1d4eeff8a222e9da7702"
+    },
+    "production/87_alpha_features/poster.jpg": {
+      "bytes": 448580,
+      "sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb"
+    },
+    "styles.css": {
+      "bytes": 35608,
+      "sha256": "48d77dd48b09ebbdbdb3a66983b0dd0b2c25d32f9d8717a030cba0485b12a7e3"
+    },
+    "translation-compatibility.json": {
+      "bytes": 135754,
+      "sha256": "f405ccf4f0d4b9c428996d33ebdf3c0e1898ec78d7a12f86c75b6898bf9f199c"
+    },
+    "voice_catalog.js": {
+      "bytes": 4947,
+      "sha256": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+    }
+  },
+  "packet_files": {
+    "additional-evidence/00-lesson02-selective-20261015-02_install_spacr-completed-matrix-lesson02-selective-20261015.log": {
+      "bytes": 655,
+      "sha256": "a685c0f92afcfb6c8c9c511936330fbef48422ab3480e076502b621aa22789d4"
+    },
+    "additional-evidence/01-lesson02-selective-20261015-02_install_spacr-cues-lesson02-selective-20261015.log": {
+      "bytes": 19684,
+      "sha256": "0bd450ed491b137bb0d6e9a1814c107dc820e6b78372792ff4f8c143463f841e"
+    },
+    "additional-evidence/02-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-da-lesson02-selective-20261015.log": {
+      "bytes": 1733,
+      "sha256": "a5e67c5218d2624712e020011c5c1cd7eb9c26fb4640f8ee85cef99893bfd9c6"
+    },
+    "additional-evidence/03-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-de-lesson02-selective-20261015.log": {
+      "bytes": 1734,
+      "sha256": "38cb6767fe9549d08882bfbbc1b415f5bea6b673092b1f198e15a35104481130"
+    },
+    "additional-evidence/04-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-is-lesson02-selective-20261015.log": {
+      "bytes": 1734,
+      "sha256": "eb9af1b41cbf2b0a9063cb9f11e2ce41bf4a733037358587d3023fd98c7d0242"
+    },
+    "additional-evidence/05-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-ko-lesson02-selective-20261015.log": {
+      "bytes": 1734,
+      "sha256": "ed23fc53e7662010115e3e3e91fdf3603b2da804897b4b71c2d4443e41c257e9"
+    },
+    "additional-evidence/06-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-nb-lesson02-selective-20261015.log": {
+      "bytes": 1734,
+      "sha256": "ee553aa6048394c265a45ac1a388cb754aa59a8d5e03b8e8ec23087100ad896b"
+    },
+    "additional-evidence/07-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-sv-lesson02-selective-20261015.log": {
+      "bytes": 1734,
+      "sha256": "2bb5134ddd160a293af86861716f2b823a15a7427f0804db41e7dec9ebed545a"
+    },
+    "additional-evidence/08-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-lesson02-selective-20261015.log": {
+      "bytes": 1543,
+      "sha256": "860d4a902e9a83c0b98068f281590b06d645e3b9beaa8fde576b92fdd55ad56a"
+    },
+    "additional-evidence/09-lesson02-selective-20261015-02_install_spacr-master-es-ef_dora-lesson02-selective-20261015.log": {
+      "bytes": 1592,
+      "sha256": "cda5d763b2a6e3dea03258585f31dd1ba8e3c42767b4dd2ac398f9629a037487"
+    },
+    "additional-evidence/10-lesson02-selective-20261015-02_install_spacr-master-fr-ff_siwis-lesson02-selective-20261015.log": {
+      "bytes": 1593,
+      "sha256": "b5824295d55f187f46749ae5a2bce7e9ffe7c8a44389cdc012dfc86ef76c5bc7"
+    },
+    "additional-evidence/11-lesson02-selective-20261015-02_install_spacr-master-hi-hf_alpha-lesson02-selective-20261015.log": {
+      "bytes": 1595,
+      "sha256": "6aea2db13812721083b0a3384119116ceace670cd8cbe15fe86df3bdb9c3fe4f"
+    },
+    "additional-evidence/12-lesson02-selective-20261015-02_install_spacr-master-it-if_sara-lesson02-selective-20261015.log": {
+      "bytes": 1593,
+      "sha256": "0eedcf7df87f9da37a712ce1346f022764f60f8a43e8a253f1997611b242d4de"
+    },
+    "additional-evidence/13-lesson02-selective-20261015-02_install_spacr-master-ja-jf_alpha-lesson02-selective-20261015.log": {
+      "bytes": 1595,
+      "sha256": "1d4d5c92e68afd40a1c6e668cc3cffc0b36fc822689fac67be0d53f97a8db115"
+    },
+    "additional-evidence/14-lesson02-selective-20261015-02_install_spacr-master-pt-BR-pf_dora-lesson02-selective-20261015.log": {
+      "bytes": 1599,
+      "sha256": "1ed53ab6e8ee8455931b44c33d491bdab8e9e3583c34cf36fda3220ce2bc0ed3"
+    },
+    "additional-evidence/15-lesson02-selective-20261015-02_install_spacr-master-zh-CN-zf_xiaobei-lesson02-selective-20261015.log": {
+      "bytes": 1603,
+      "sha256": "8034e06de5dad0995332374687839e64317be13b60f0f414f2b36fc8df9bf521"
+    },
+    "additional-evidence/16-lesson02-selective-20261015-02_install_spacr-web-en-af_aoede-lesson02-selective-20261015.log": {
+      "bytes": 1717,
+      "sha256": "4632afa487e32b182d34e7ef7c64cb572b3b8472cc7a33d257a1d9ee2d84359f"
+    },
+    "additional-evidence/17-lesson02-selective-20261015-02_install_spacr-web-en-af_bella-lesson02-selective-20261015.log": {
+      "bytes": 1717,
+      "sha256": "a69094e20e0794e5f1323b8b306a1d37e0af39bc207c4d353a82a133905c06fc"
+    },
+    "additional-evidence/18-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-da-lesson02-selective-20261015.log": {
+      "bytes": 1907,
+      "sha256": "a7b231a62d04a6bb2dbd3c71634c07483010aea64ecfbc56ca75acb5a36c82e1"
+    },
+    "additional-evidence/19-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-de-lesson02-selective-20261015.log": {
+      "bytes": 1907,
+      "sha256": "2da298c14670764201dbe02a64daa4003ed63d54c446860987f7a52350aac181"
+    },
+    "additional-evidence/20-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-is-lesson02-selective-20261015.log": {
+      "bytes": 1907,
+      "sha256": "4b12192cbb9f42ade3f5c725b65896c9021f4d48f3aff8319fb003d50d9b0bb5"
+    },
+    "additional-evidence/21-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-ko-lesson02-selective-20261015.log": {
+      "bytes": 1906,
+      "sha256": "e9365f3df47c09538d122cfec4d2d4af8dff285372d7bef484272727a9f64ddd"
+    },
+    "additional-evidence/22-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-nb-lesson02-selective-20261015.log": {
+      "bytes": 1907,
+      "sha256": "c660e03c52929091f558460a9662fb62b5655e9e81a2f70059cf81868e6a4121"
+    },
+    "additional-evidence/23-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-sv-lesson02-selective-20261015.log": {
+      "bytes": 1907,
+      "sha256": "b8969fcf9330a40c6cebe5b6fd47fd2007ee58ad65c9549ba0e628058036afe2"
+    },
+    "additional-evidence/24-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "5f876448d6bfa1a1fc6eaa7efec3ddbfb7c485e9f15b4463951236bc148e5691"
+    },
+    "additional-evidence/25-lesson02-selective-20261015-02_install_spacr-web-en-af_jessica-lesson02-selective-20261015.log": {
+      "bytes": 1721,
+      "sha256": "6fcaa05d9dfd4de342f46922cfb93fa2e79d6049d7b52c54fb291e96f0781ff4"
+    },
+    "additional-evidence/26-lesson02-selective-20261015-02_install_spacr-web-en-af_river-lesson02-selective-20261015.log": {
+      "bytes": 1717,
+      "sha256": "976db39279256a6a36dafc25c5e2072d9773a867dfea2b217632f7b0f59a4028"
+    },
+    "additional-evidence/27-lesson02-selective-20261015-02_install_spacr-web-en-af_sarah-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "161889e2ebe9dc50c716dae0650b81d0b64912a7e40e261b561805b56ed219c6"
+    },
+    "additional-evidence/28-lesson02-selective-20261015-02_install_spacr-web-en-af_sky-lesson02-selective-20261015.log": {
+      "bytes": 1711,
+      "sha256": "6249566c2529fa118143c35b9a4323ba6cecb0dcf0f38031f79c4efe4f8039d6"
+    },
+    "additional-evidence/29-lesson02-selective-20261015-02_install_spacr-web-en-am_adam-lesson02-selective-20261015.log": {
+      "bytes": 1714,
+      "sha256": "b026856a5a11af4d3c0c526a94faa21f92c6a4362d77885517277e0e564d4ea9"
+    },
+    "additional-evidence/30-lesson02-selective-20261015-02_install_spacr-web-en-am_echo-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "3dc2d0f2ef2aa974ab528118092c94c6d62a25ee2ddec11c95485d56478a4144"
+    },
+    "additional-evidence/31-lesson02-selective-20261015-02_install_spacr-web-en-am_eric-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "1b104222235b557c9e9a895498e307efef6f251aabd8f385112eaed4525abaa5"
+    },
+    "additional-evidence/32-lesson02-selective-20261015-02_install_spacr-web-en-am_fenrir-lesson02-selective-20261015.log": {
+      "bytes": 1718,
+      "sha256": "44fffccf0e75ff6a32c990780e109a42da57cb55ed3118ea80bcc963cb04be63"
+    },
+    "additional-evidence/33-lesson02-selective-20261015-02_install_spacr-web-en-am_liam-lesson02-selective-20261015.log": {
+      "bytes": 1714,
+      "sha256": "27f44878050189fe44a2f9390b9421e6523eb1633a8ff63aa366df0c13998b19"
+    },
+    "additional-evidence/34-lesson02-selective-20261015-02_install_spacr-web-en-am_michael-lesson02-selective-20261015.log": {
+      "bytes": 1721,
+      "sha256": "0ae9e5af6c45a249c4215eca58b9abac7ea040fa5ed362fa105d520fddf36284"
+    },
+    "additional-evidence/35-lesson02-selective-20261015-02_install_spacr-web-en-am_onyx-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "afe3a7fde5a4bc66a0c339895804b2460093f90d96c660e8687cc8663bc7dba5"
+    },
+    "additional-evidence/36-lesson02-selective-20261015-02_install_spacr-web-en-am_puck-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "eae3065d1066989d96c4ec039b3288d8dc5d65d31b3469af35e4e1befb41d687"
+    },
+    "additional-evidence/37-lesson02-selective-20261015-02_install_spacr-web-en-am_santa-lesson02-selective-20261015.log": {
+      "bytes": 1716,
+      "sha256": "4347c1eeee323254caf60c9531f742f71259e2ac2f2d2d6748247b57dc31e958"
+    },
+    "additional-evidence/38-lesson02-selective-20261015-02_install_spacr-web-en-bf_alice-lesson02-selective-20261015.log": {
+      "bytes": 1717,
+      "sha256": "3b7bbee1dad2cfa11cc7b602a0d088781a64d895c5bffcb748c420b6d1839aa4"
+    },
+    "additional-evidence/39-lesson02-selective-20261015-02_install_spacr-web-en-bf_emma-lesson02-selective-20261015.log": {
+      "bytes": 1715,
+      "sha256": "7c4d023c27b4c76fdce717f7e95b3c5786ed3189e64105e56046accb1d5ff55f"
+    },
+    "additional-evidence/40-lesson02-selective-20261015-02_install_spacr-web-en-bf_isabella-lesson02-selective-20261015.log": {
+      "bytes": 1723,
+      "sha256": "bf8ec1c75b54bde8eac488ec5d936607f46d640b016ee219cc81e0138fac9ca0"
+    },
+    "additional-evidence/41-lesson02-selective-20261015-02_install_spacr-web-en-bf_lily-lesson02-selective-20261015.log": {
+      "bytes": 1713,
+      "sha256": "8003177b2b5a772056adc2952a12dd2691e3967919b5e40671ff22ef491a68c2"
+    },
+    "additional-evidence/42-lesson02-selective-20261015-02_install_spacr-web-en-bm_daniel-lesson02-selective-20261015.log": {
+      "bytes": 1719,
+      "sha256": "4593d5301bae989477ee5e6a576b873a729e14559cf1328acb48732a1170e53c"
+    },
+    "additional-evidence/43-lesson02-selective-20261015-02_install_spacr-web-en-bm_fable-lesson02-selective-20261015.log": {
+      "bytes": 1716,
+      "sha256": "2e890e33806339fefea6c766fc07fe15652a24f72b9f92df6980d257b7cee573"
+    },
+    "additional-evidence/44-lesson02-selective-20261015-02_install_spacr-web-en-bm_george-lesson02-selective-20261015.log": {
+      "bytes": 1718,
+      "sha256": "ec85d1c322cc41d2eb3a0091dd389c0c4b8ef759301032b3639ade31098aea14"
+    },
+    "additional-evidence/45-lesson02-selective-20261015-02_install_spacr-web-en-bm_lewis-lesson02-selective-20261015.log": {
+      "bytes": 1716,
+      "sha256": "05f1cb8375a7e832b64ea840191fb9d1f0341f01943fcba0890e176080128bb4"
+    },
+    "additional-evidence/46-lesson02-selective-20261015-02_install_spacr-web-es-ef_dora-lesson02-selective-20261015.log": {
+      "bytes": 1765,
+      "sha256": "bcf0625f4d74d10e04bdacd67fa42ec66f9519800745837b483d014bc74b6193"
+    },
+    "additional-evidence/47-lesson02-selective-20261015-02_install_spacr-web-es-em_alex-lesson02-selective-20261015.log": {
+      "bytes": 1766,
+      "sha256": "6cef1e978940a7d93cd68ea28b7d89e84ffbc8cabf5095076eb4e6f26a1e2e7b"
+    },
+    "additional-evidence/48-lesson02-selective-20261015-02_install_spacr-web-es-em_santa-lesson02-selective-20261015.log": {
+      "bytes": 1768,
+      "sha256": "3d9cfae4e1b7eec788ceb3d81a7be684bd6b7a36c622d07bb4447ad21dcfc2c0"
+    },
+    "additional-evidence/49-lesson02-selective-20261015-02_install_spacr-web-fr-ff_siwis-lesson02-selective-20261015.log": {
+      "bytes": 1766,
+      "sha256": "e5c2ab2e3a109b7b4ae8515f8caa7a0bf60cf5db3d6c887f183528e155abf732"
+    },
+    "additional-evidence/50-lesson02-selective-20261015-02_install_spacr-web-hi-hf_alpha-lesson02-selective-20261015.log": {
+      "bytes": 1768,
+      "sha256": "83206fb538b5bc72afcdc9253f8e094b74efb81650c75a52cf5b10082768c960"
+    },
+    "additional-evidence/51-lesson02-selective-20261015-02_install_spacr-web-hi-hf_beta-lesson02-selective-20261015.log": {
+      "bytes": 1765,
+      "sha256": "1c42709cfda9f6c4a6add1db00f4adc47a4cff94fcbe2d05f30250c0fab95355"
+    },
+    "additional-evidence/52-lesson02-selective-20261015-02_install_spacr-web-hi-hm_omega-lesson02-selective-20261015.log": {
+      "bytes": 1769,
+      "sha256": "04ced15a34655bc88d5f2cb5ec1c4a6bfc8c54b6bccaded967f30fd866f4d71a"
+    },
+    "additional-evidence/53-lesson02-selective-20261015-02_install_spacr-web-hi-hm_psi-lesson02-selective-20261015.log": {
+      "bytes": 1765,
+      "sha256": "87ed9f0507a58ee0b7d16b023f0339d4cc68f8aa8a8bd20568c0961f233bb436"
+    },
+    "additional-evidence/54-lesson02-selective-20261015-02_install_spacr-web-it-if_sara-lesson02-selective-20261015.log": {
+      "bytes": 1766,
+      "sha256": "7f4d5ed0d79398e71ad0b9ed4983491d95a9d7c671c69cef9c76aa96ab5a5468"
+    },
+    "additional-evidence/55-lesson02-selective-20261015-02_install_spacr-web-it-im_nicola-lesson02-selective-20261015.log": {
+      "bytes": 1769,
+      "sha256": "3face481952e5b24836d11ac0d2fcb453398e5d78a202410c0f5a729ed7baf27"
+    },
+    "additional-evidence/56-lesson02-selective-20261015-02_install_spacr-web-ja-jf_alpha-lesson02-selective-20261015.log": {
+      "bytes": 1768,
+      "sha256": "ff5be105044b71520f816e35e7e7a073c9525e0df2c1b2ab3f8caf4dc28e6694"
+    },
+    "additional-evidence/57-lesson02-selective-20261015-02_install_spacr-web-ja-jf_gongitsune-lesson02-selective-20261015.log": {
+      "bytes": 1779,
+      "sha256": "9ef4e1062b89f16a7f92fd6414610609530e88477c0ee502da7af001b371b542"
+    },
+    "additional-evidence/58-lesson02-selective-20261015-02_install_spacr-web-ja-jf_nezumi-lesson02-selective-20261015.log": {
+      "bytes": 1768,
+      "sha256": "970f2fe31275479605d079a6d0acbea39c0c356788972b6d129dea555c5bf914"
+    },
+    "additional-evidence/59-lesson02-selective-20261015-02_install_spacr-web-ja-jf_tebukuro-lesson02-selective-20261015.log": {
+      "bytes": 1774,
+      "sha256": "0bbbd54b4f0135e9910d9950d787eb8d2726fbb7152f8a5399112c5a0d7c47cb"
+    },
+    "additional-evidence/60-lesson02-selective-20261015-02_install_spacr-web-ja-jm_kumo-lesson02-selective-20261015.log": {
+      "bytes": 1767,
+      "sha256": "00831190c7882c6ca2a58a9465d9fbd4a695c85b266afea6f552246ead3c5ba3"
+    },
+    "additional-evidence/61-lesson02-selective-20261015-02_install_spacr-web-pt-BR-pf_dora-lesson02-selective-20261015.log": {
+      "bytes": 1772,
+      "sha256": "dbf3ad7908b5ccf9746215978d91878eac76670df29f0ed99a94535c0d320432"
+    },
+    "additional-evidence/62-lesson02-selective-20261015-02_install_spacr-web-pt-BR-pm_alex-lesson02-selective-20261015.log": {
+      "bytes": 1771,
+      "sha256": "d5471b5e59eab119a5f864e5a0c2566ebf9d4cf6073c1f85279d539114c2d4f9"
+    },
+    "additional-evidence/63-lesson02-selective-20261015-02_install_spacr-web-pt-BR-pm_santa-lesson02-selective-20261015.log": {
+      "bytes": 1772,
+      "sha256": "3b3ac8fcb85a64caa450ec64b7c0b18bba93d96acdba82da77871eaf7a566b42"
+    },
+    "additional-evidence/64-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaobei-lesson02-selective-20261015.log": {
+      "bytes": 1776,
+      "sha256": "6f579cd69a41ffc51578c7e873a492c923b45e8cdc9adea9554ad1da89cf25b7"
+    },
+    "additional-evidence/65-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoni-lesson02-selective-20261015.log": {
+      "bytes": 1775,
+      "sha256": "afb40b997cfd2a5e622e2356747ee62bd303b612d5816186075629d143970174"
+    },
+    "additional-evidence/66-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoxiao-lesson02-selective-20261015.log": {
+      "bytes": 1779,
+      "sha256": "429bcc1bc1b300493d92bd46474ec772ddb64dd975fa7335fddfd8da2b6b2017"
+    },
+    "additional-evidence/67-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoyi-lesson02-selective-20261015.log": {
+      "bytes": 1775,
+      "sha256": "0977c151d3635250ae98b903bcc471a90f3fb4fda0f2f5987f250908e32fee09"
+    },
+    "additional-evidence/68-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunjian-lesson02-selective-20261015.log": {
+      "bytes": 1777,
+      "sha256": "f507acff1c0c1e33c198c45cea0f600744321b3c99556ae31a7e4bfdf573de41"
+    },
+    "additional-evidence/69-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunxi-lesson02-selective-20261015.log": {
+      "bytes": 1774,
+      "sha256": "3455e2945f64d04ab7f2a0ecd4325889e93ba1eac127baddb9eb49290f5dde24"
+    },
+    "additional-evidence/70-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunxia-lesson02-selective-20261015.log": {
+      "bytes": 1774,
+      "sha256": "7b69b539c79db01d27d51c5dc84b93d3191897846df5e0a30ed48ac487911420"
+    },
+    "additional-evidence/71-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunyang-lesson02-selective-20261015.log": {
+      "bytes": 1778,
+      "sha256": "fde25a3608c7101d5178b366b7c548c53dd64847786f274f2ec100304153b2b1"
+    },
+    "additional-evidence/72-lesson02-selective-20261015-browser-matrix.log": {
+      "bytes": 5195,
+      "sha256": "74e898a2f173353de5d95d5141f285c5c4b46858fc76cf9955d34b042ca88749"
+    },
+    "additional-evidence/73-lesson02-selective-20261015-candidate.log": {
+      "bytes": 867,
+      "sha256": "03fbb4c38be36c7c14e86cf4d9480e0bbf9b1f0a81ea659971e60889ad1d96d2"
+    },
+    "additional-evidence/74-lesson02-selective-20261015-checkpoint.log": {
+      "bytes": 592,
+      "sha256": "0dcd681a340dc46e124e83f8546e69fc7864e510d39d0b97a43e7be75e9bf375"
+    },
+    "additional-evidence/75-lesson02-selective-20261015-export.log": {
+      "bytes": 2627,
+      "sha256": "3052b03f21bc9d525f78cb101bb69d47457362a4dc8035bd487baec402da76a9"
+    },
+    "additional-evidence/76-lesson02-selective-20261015-finish.log": {
+      "bytes": 846,
+      "sha256": "4d3e72a1b3178144d4832e3839cc7fa517857631166638fd7ff8b2fcb00e96a6"
+    },
+    "additional-evidence/77-lesson02-selective-20261015-pages.log": {
+      "bytes": 1613,
+      "sha256": "c1c91338ab810ae61c869e39c480b9f7348136306d6713a74e9868348c95abe5"
+    },
+    "additional-evidence/78-lesson02-selective-20261015-placeholder.log": {
+      "bytes": 490,
+      "sha256": "fa8a6a589a907deb9e8a4c372b67590e483b599953c164f239d85dff63289a90"
+    },
+    "additional-evidence/79-lesson02-selective-20261015-record.log": {
+      "bytes": 534,
+      "sha256": "4a8d307c85436026ea86a7cbb02d629a953b666b568b9415f15eafa6860f49eb"
+    },
+    "additional-evidence/80-lesson02-selective-20261015-retained-audio-qa.log": {
+      "bytes": 1780,
+      "sha256": "e4fc5a364f1aec49980779b846d384659fb46e244c472c725f8490a623fd781c"
+    },
+    "additional-evidence/81-lesson02-selective-20261015-upload.log": {
+      "bytes": 25677,
+      "sha256": "6ac4059b7b40926b1fe0961206b26a0c3015037836d080498f026608d6df9604"
+    },
+    "additional-evidence/82-lesson02-selective-20261015-verify-candidate.log": {
+      "bytes": 3764,
+      "sha256": "4d10408f081f04ed33b4a37d92d46584828eb10c80ed5ad21f1f0b3a48bf9fa0"
+    },
+    "additional-evidence/83-lesson02-selective-20261015-verify-pages.log": {
+      "bytes": 3881,
+      "sha256": "30906013ddf61471ea840b5b4bcfb78d59b5c1641cbd1ab4732a0415cc0f9b98"
+    },
+    "export/checkpoint/candidate-browser-checks.json": {
+      "bytes": 127520,
+      "sha256": "e707e5888d5a1c4cdd37bf7d35007cce13be3321e2874624ca823bc598120b84"
+    },
+    "export/checkpoint/checkpoint.json": {
+      "bytes": 26430,
+      "sha256": "5e3738ed8ea17837d898c79bcf02ecf2e74a473fa3ce18c56024af1a9eef2a44"
+    },
+    "export/checkpoint/placeholder-mutation-checks.json": {
+      "bytes": 510,
+      "sha256": "82911c9c78e8a8ca86586184627103cea2432ae6fad2193e0e308360e7191414"
+    },
+    "export/checkpoint/publication-receipt.json": {
+      "bytes": 141480,
+      "sha256": "36d6ed5e9d733361887697647f380d67f27dadff5150564ac37538cd04f34c18"
+    },
+    "export/checkpoint/published-media-browser-checks.json": {
+      "bytes": 134422,
+      "sha256": "8fbe78efb2a42478526383ab227b9cce5ac02c31d3d5c0d5aeeb402d4f6721fd"
+    },
+    "export/checkpoint/release-manifest.json": {
+      "bytes": 1179996,
+      "sha256": "98d88a909b3eeaf14f829297d965461e62a07dff7dfd25ce50d2c2bc15a25439"
+    },
+    "export/checkpoint/web/TUTORIAL_MEDIA_NOTICE.md": {
+      "bytes": 577,
+      "sha256": "98f4beeba0d78e025629de745073b763c135be06219a1530565c0ebe61a82f8b"
+    },
+    "export/checkpoint/web/app_v2.js": {
+      "bytes": 102935,
+      "sha256": "8d628ce33e0976464f60490e20e0feb57fc07d3989ec1c520cc5891f404e6159"
+    },
+    "export/checkpoint/web/catalog/captions_da.json": {
+      "bytes": 697693,
+      "sha256": "62d0b264efb3564bf1e71e2c731deda841e689f94ba00dadce2997cd47e6b2f3"
+    },
+    "export/checkpoint/web/catalog/captions_de.json": {
+      "bytes": 744668,
+      "sha256": "66a72441413588402e397456b60bef236b996549654ff7336a1462fc01738115"
+    },
+    "export/checkpoint/web/catalog/captions_is.json": {
+      "bytes": 702456,
+      "sha256": "df70792658f8a4e41f7f193580c827b5c800ec171360378c1f5c609b263b881e"
+    },
+    "export/checkpoint/web/catalog/captions_ko.json": {
+      "bytes": 739161,
+      "sha256": "ede10fc1f5534c382cdaf212de98e85ce9966ab2d86c8822d66b2c2c7ce849fe"
+    },
+    "export/checkpoint/web/catalog/captions_nb.json": {
+      "bytes": 693544,
+      "sha256": "6a3a7c81695c821851cefb8702b3c49f36c9c9384f25f8e2f2b3e590a0678013"
+    },
+    "export/checkpoint/web/catalog/captions_sv.json": {
+      "bytes": 702450,
+      "sha256": "15cfd9e0c3f91b70015ce2141019a246845b48668d9e3e2cdc340bbc0e5fbf36"
+    },
+    "export/checkpoint/web/catalog/lessons_en.json": {
+      "bytes": 674671,
+      "sha256": "388174ba80733420c884e83c14f86209c5acd7f16ff09608f9e5103d92fdc112"
+    },
+    "export/checkpoint/web/catalog/lessons_es.json": {
+      "bytes": 1105076,
+      "sha256": "d683bc9ec4ccd2df8a94fb51b4d5e197bff259d1bc0d5d90b60d1347705eef47"
+    },
+    "export/checkpoint/web/catalog/lessons_fr.json": {
+      "bytes": 1148821,
+      "sha256": "23faac04b34a4688b8adf2f19c53c515f9f70bf49d358d0a2faf2e416fe37f8c"
+    },
+    "export/checkpoint/web/catalog/lessons_hi.json": {
+      "bytes": 1833449,
+      "sha256": "0e361a267ee30e1fb92fc45eaf1771024b5ddd54027f0b4ef65d4b01a82c9302"
+    },
+    "export/checkpoint/web/catalog/lessons_it.json": {
+      "bytes": 1093713,
+      "sha256": "282966c194535ece06c49a156416ee51e75dd41ef43278cb6fd752f8edb2c7e0"
+    },
+    "export/checkpoint/web/catalog/lessons_ja.json": {
+      "bytes": 1223315,
+      "sha256": "727b87dfa705ca6b2a6a51f6730b34502c5d407e18b53703451b0ed704301987"
+    },
+    "export/checkpoint/web/catalog/lessons_pt-BR.json": {
+      "bytes": 1087847,
+      "sha256": "ad6851ce435de9864bfb7c6558612d221e59afa802db384c7fbcfe568c057b9b"
+    },
+    "export/checkpoint/web/catalog/lessons_zh-CN.json": {
+      "bytes": 949379,
+      "sha256": "d24bad1ede2ff4933515101572149df66f784cc14dcc65c8195311211289ecce"
+    },
+    "export/checkpoint/web/examples/Agreement_artificial_labels_real_crops.zip": {
+      "bytes": 2143021,
+      "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c"
+    },
+    "export/checkpoint/web/examples/Align_Stitch_nine_tiles.zip": {
+      "bytes": 33292958,
+      "sha256": "bd606bb0652b7473299349455aebaecc05aa7c10699ed98a7604375e3fded94f"
+    },
+    "export/checkpoint/web/examples/AnnData_API_workaround.zip": {
+      "bytes": 3788,
+      "sha256": "5a26c0553b9763b5eccf2de0ab6e5a36b5accc9683d6b6ff03ed28ec71b05f9d"
+    },
+    "export/checkpoint/web/examples/AnnData_API_workaround_README.txt": {
+      "bytes": 3056,
+      "sha256": "0f7552186032db74356e521d18f214f6fe40825046054bf8c74fe5e949525c6f"
+    },
+    "export/checkpoint/web/examples/Apply_Cellpose_stock_example.zip": {
+      "bytes": 1056789,
+      "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db"
+    },
+    "export/checkpoint/web/examples/Cellpose_training_images_masks.zip": {
+      "bytes": 3437727,
+      "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6"
+    },
+    "export/checkpoint/web/examples/Classify_existing_split_example.zip": {
+      "bytes": 5324,
+      "sha256": "869da240b9ddf831784cdc7d4ee04f524b4d583a3972f3c4a9d4a48fac9bac86"
+    },
+    "export/checkpoint/web/examples/Control_Charts_SYNTHETIC_campaign.csv": {
+      "bytes": 10394,
+      "sha256": "b1f4f2789f953bf4340b720cdd1eed0861733594822e27b3c0d9a5c706a8fe1f"
+    },
+    "export/checkpoint/web/examples/Curate_SYNTHETIC_practice.zip": {
+      "bytes": 8260,
+      "sha256": "784511f7de8059f16cd068ca1f429d8f1ffaf64061edcd327ced721c0964d931"
+    },
+    "export/checkpoint/web/examples/Embeddings_API_example.zip": {
+      "bytes": 4746,
+      "sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11"
+    },
+    "export/checkpoint/web/examples/Graph_Builder_real_measurements.zip": {
+      "bytes": 15079923,
+      "sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8"
+    },
+    "export/checkpoint/web/examples/Hit_List_real_results_companion.zip": {
+      "bytes": 59303,
+      "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb"
+    },
+    "export/checkpoint/web/examples/Investigate_Hit_real_screen_example.zip": {
+      "bytes": 1995731,
+      "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464"
+    },
+    "export/checkpoint/web/examples/Layer_Viewer_real_image_mask.zip": {
+      "bytes": 5493647,
+      "sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81"
+    },
+    "export/checkpoint/web/examples/Lineage_real_containment_review.zip": {
+      "bytes": 51192,
+      "sha256": "ed24d5e54635c00573ea7b2a1fb3139b5b8094128f98959407d00e6e92fc3828"
+    },
+    "export/checkpoint/web/examples/Mask_overlay_API_workaround.zip": {
+      "bytes": 4724,
+      "sha256": "f10f7f40daecef4b4813f18986efc08c0f3ed5f3891e874d40226c093e1e6eff"
+    },
+    "export/checkpoint/web/examples/Model_Compare_saved_masks_example.zip": {
+      "bytes": 452803,
+      "sha256": "ee5906497c667eb3b6b8a2930f337c4b6015f92aa53a07c124a46f8abf632277"
+    },
+    "export/checkpoint/web/examples/Power_recorded_simulation_review.zip": {
+      "bytes": 5112,
+      "sha256": "ec23021f83c1c782e10629089e52c00b7d4292ba2adc3d19f8b0936c0c2c9ef0"
+    },
+    "export/checkpoint/web/examples/REAL_evaluation_known_overlap.zip": {
+      "bytes": 199726,
+      "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4"
+    },
+    "export/checkpoint/web/examples/Run_Compare_real_snapshots.zip": {
+      "bytes": 5783785,
+      "sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453"
+    },
+    "export/checkpoint/web/examples/SRR33531217_barcode_references.zip": {
+      "bytes": 30824,
+      "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_dose_response_examples.csv": {
+      "bytes": 4730,
+      "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_invasion_example.zip": {
+      "bytes": 60593,
+      "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_motility_tracks.zip": {
+      "bytes": 2345013,
+      "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_napari_example.zip": {
+      "bytes": 132405,
+      "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_plaque_example.zip": {
+      "bytes": 1549864,
+      "sha256": "7355b6d79e4afd03bdfa79118e0a76c03db514d8549c69702ad0c4e60b3d1619"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_profiler_example.zip": {
+      "bytes": 6231,
+      "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_replication_example.zip": {
+      "bytes": 35013,
+      "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_timelapse_preview.zip": {
+      "bytes": 1050432,
+      "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868"
+    },
+    "export/checkpoint/web/examples/SYNTHETIC_training_runs.zip": {
+      "bytes": 13438,
+      "sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0"
+    },
+    "export/checkpoint/web/examples/Train_Cellpose_API_example.zip": {
+      "bytes": 2264580,
+      "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469"
+    },
+    "export/checkpoint/web/examples/Volcano_real_guide_family.zip": {
+      "bytes": 63894,
+      "sha256": "9656373d2b8844e62e59c679e0197b2b83c0538a0de4e7c63f2496b13621b077"
+    },
+    "export/checkpoint/web/examples/anndata_missing_metadata_example.py": {
+      "bytes": 6314,
+      "sha256": "47b3281847726548ac7617023bf756f5e3d94cf35417e68e0edf9de30625e919"
+    },
+    "export/checkpoint/web/favicon.svg": {
+      "bytes": 465,
+      "sha256": "1c80967dbe79a7c57d6dad598e9dd7945518c62a851a48bf1ad8d35c51c21953"
+    },
+    "export/checkpoint/web/fonts/OpenSans-Regular.ttf": {
+      "bytes": 130832,
+      "sha256": "6530480277da62efde047eb26e78a7e532d1cfaeec91603e68d63876b9669f0d"
+    },
+    "export/checkpoint/web/index.html": {
+      "bytes": 15644,
+      "sha256": "44a1813f3f15b9500b0dc9a17b6c21951038ceaf7418da9cf28b49e1d6ef6b38"
+    },
+    "export/checkpoint/web/lesson_catalog.js": {
+      "bytes": 530174,
+      "sha256": "c6eea97d41f182617ed537a6c2bc14d74cab4abbeec9ca579f9bf3e1de42b3ff"
+    },
+    "export/checkpoint/web/logo_spacr.png": {
+      "bytes": 185454,
+      "sha256": "269fe8f2d7040ad1241c6f5110e5f1fa5cd1426141837edb7ad1d3ffde390761"
+    },
+    "export/checkpoint/web/module_navigation.js": {
+      "bytes": 17258,
+      "sha256": "2c7be98cfc53904745aee1e40b9bdd7d3102c60b9b61bd9b8e2fd9817191a855"
+    },
+    "export/checkpoint/web/production/01_pypi_github/poster.jpg": {
+      "bytes": 339982,
+      "sha256": "e1f501ee1f6fa2e146e2c5d7555b0f1b85205f17a3f9de46ff5235c542414f1f"
+    },
+    "export/checkpoint/web/production/02_install_spacr/poster.jpg": {
+      "bytes": 247568,
+      "sha256": "631877cafaa3df65b993be9b73ca4888808aafd07f858d066dbc3b90c8f229b8"
+    },
+    "export/checkpoint/web/production/04_platform_installers/poster.jpg": {
+      "bytes": 273806,
+      "sha256": "550a168e688544c366e83a98b5a1b38ac0b954c4d0417bc9f9fc6ada3e66656c"
+    },
+    "export/checkpoint/web/production/05_home/poster.jpg": {
+      "bytes": 774822,
+      "sha256": "555995a5c7d97724eb14b5a4fd9eaa03385bdd73cb2a7383cbc7df73dd64ee10"
+    },
+    "export/checkpoint/web/production/06_api/poster.jpg": {
+      "bytes": 102619,
+      "sha256": "c4f48312110a0fe5868229d2e7c31091d678951bf19dd817852fa45a5e9e1fdb"
+    },
+    "export/checkpoint/web/production/07_mask/poster.jpg": {
+      "bytes": 780163,
+      "sha256": "54a4fcc3126388e9c50ac39ca3ba22a5b6ed749f05b126a84f20b2afccd1f373"
+    },
+    "export/checkpoint/web/production/08_measure/poster.jpg": {
+      "bytes": 711509,
+      "sha256": "e34fb8cb25065a9d9203dbaf8df2ea2f9e96c5017267eea82158fbfc903f9101"
+    },
+    "export/checkpoint/web/production/09_annotate/poster.jpg": {
+      "bytes": 776795,
+      "sha256": "2f3d32727afcda99da46b55851eb37480d59cd3c53309231453c3c144547cf3a"
+    },
+    "export/checkpoint/web/production/10_classify_cv/poster.jpg": {
+      "bytes": 137434,
+      "sha256": "db263e7817c5f9b5ee8df0b1a9511dd3018853a24b74e0b8e7e24129245914ae"
+    },
+    "export/checkpoint/web/production/11_classify_ml/poster.jpg": {
+      "bytes": 799025,
+      "sha256": "90e064bcdce8664c98bc176a7d872e437bbd5741dff1a4b3eb2407fb73b9c597"
+    },
+    "export/checkpoint/web/production/12_map_barcodes/poster.jpg": {
+      "bytes": 198403,
+      "sha256": "a69282a30979f3579b638da597d400c8051f68b28245e988ac66e0c4051100cb"
+    },
+    "export/checkpoint/web/production/13_regression/poster.jpg": {
+      "bytes": 187999,
+      "sha256": "fe466873a25c0f127dc7c196bd5e694c4910dd5bb085e0634672dd339955acf4"
+    },
+    "export/checkpoint/web/production/14_make_masks/poster.jpg": {
+      "bytes": 1147640,
+      "sha256": "c5131e276b88a4f53c780137870f49d7c4729ed7e2734acbc958ee436eeb2641"
+    },
+    "export/checkpoint/web/production/15_image_umap/poster.jpg": {
+      "bytes": 786346,
+      "sha256": "5c947b3bed47c1b49bd2d8deedfdf755e8df1f86907b6641f38dfd0c256adb45"
+    },
+    "export/checkpoint/web/production/16_activation/poster.jpg": {
+      "bytes": 174536,
+      "sha256": "759063b05891adf31d6f0ea0b8dfc7b48df45234ccd45c0f2c261e2a373864f2"
+    },
+    "export/checkpoint/web/production/17_timelapse/poster.jpg": {
+      "bytes": 234308,
+      "sha256": "6be7eb3fe2e78e9c5c6eace6fd702b2faa04414e81f4781094c8659174c9bcf2"
+    },
+    "export/checkpoint/web/production/18_motility/poster.jpg": {
+      "bytes": 149472,
+      "sha256": "da03a3d1836d74b60eb43c9b741a61aea2896d86aee4eed9995f480b32f25ca3"
+    },
+    "export/checkpoint/web/production/19_train_cellpose/poster.jpg": {
+      "bytes": 214034,
+      "sha256": "7fa4dfba73bd37cd818f822553a7b2d156a09e4704c1088c9fa9612a37a98097"
+    },
+    "export/checkpoint/web/production/20_cellpose_masks/poster.jpg": {
+      "bytes": 213330,
+      "sha256": "26a9063bab0df488fc5d46b45c5e42aa0da6be2fc986663395ef0feeaaca9e0f"
+    },
+    "export/checkpoint/web/production/21_model_compare/poster.jpg": {
+      "bytes": 132909,
+      "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544"
+    },
+    "export/checkpoint/web/production/22_model_zoo/poster.jpg": {
+      "bytes": 132909,
+      "sha256": "190c1fc8abf6f31b984d648b4befc990ebf9552b9f168fb6a21ef2f766cae544"
+    },
+    "export/checkpoint/web/production/23_agreement/poster.jpg": {
+      "bytes": 755182,
+      "sha256": "a8cb835d009d5121bfa9a7de9654eea662c25214ff8700bfd2ee22d40c67f070"
+    },
+    "export/checkpoint/web/production/24_plaque/poster.jpg": {
+      "bytes": 129592,
+      "sha256": "fe91f2a818e8a02710bb35f9a0ccc442ba694a47a3ee9a9218ac38d6789d4971"
+    },
+    "export/checkpoint/web/production/25_recruitment/poster.jpg": {
+      "bytes": 185095,
+      "sha256": "70890f743ba3a43393429879f094d26cc1710ed18da2cf20239248f5b23b1d40"
+    },
+    "export/checkpoint/web/production/26_invasion/poster.jpg": {
+      "bytes": 145387,
+      "sha256": "69118eb98c791779a6c2b4ef6dd77c564ac8b3e0bdbaefec52641e0a4f38e354"
+    },
+    "export/checkpoint/web/production/27_replication/poster.jpg": {
+      "bytes": 140838,
+      "sha256": "1ecf99797194c8d055bf3c76c0ba0633706261f93cb0c78497b54fc708ac326f"
+    },
+    "export/checkpoint/web/production/28_training_runs/poster.jpg": {
+      "bytes": 233583,
+      "sha256": "9ca64e7988afd2c11cfb0ddb468527ff4b4bcd2a766f8c3c5015231aa5a679b0"
+    },
+    "export/checkpoint/web/production/29_report/poster.jpg": {
+      "bytes": 192061,
+      "sha256": "28d2ac09fbb0a1e5cd68b753849c5f4ef199a387ad168b4c1420af27e23ff790"
+    },
+    "export/checkpoint/web/production/30_plate_queue/poster.jpg": {
+      "bytes": 207099,
+      "sha256": "f275d7b4d91948bc991ca1c1d9cf5364100d0d37bc65b69ce783268d4220be36"
+    },
+    "export/checkpoint/web/production/31_external_masks/poster.jpg": {
+      "bytes": 250982,
+      "sha256": "3b07ef8acef8bcd462b9fee783b0f50808bbd01750d63dee7550147d9928a1ec"
+    },
+    "export/checkpoint/web/production/32_align_stitch/poster.jpg": {
+      "bytes": 152401,
+      "sha256": "549f87a53314ceec1d5ac57e4c6d92ce238a7c474f0b8d52b6cf016553c465e4"
+    },
+    "export/checkpoint/web/production/33_plate_viewer/poster.jpg": {
+      "bytes": 129107,
+      "sha256": "ad152e8524e748522ecd24c91081a607098836f6b849ef9dfab2fffa347c772f"
+    },
+    "export/checkpoint/web/production/34_database/poster.jpg": {
+      "bytes": 157682,
+      "sha256": "817456b8dfccbc6a0e28f07a7fc2f4a670e41e04c2d8f00ec90e62c48426b049"
+    },
+    "export/checkpoint/web/production/35_converter/poster.jpg": {
+      "bytes": 196330,
+      "sha256": "bdf1520c7b7b42098b31ddf59e4bbb749cb38d7b8621cbd7aed6be0ad9b92ce0"
+    },
+    "export/checkpoint/web/production/36_import/poster.jpg": {
+      "bytes": 177827,
+      "sha256": "a8a194ee13814ef4d37dd01de02d25f2210670cb4f9d43a7befa9b86eeb9ebf2"
+    },
+    "export/checkpoint/web/production/37_batch/poster.jpg": {
+      "bytes": 401988,
+      "sha256": "2398146f1e1811deeb1b18ad26b4c7c2ea3f0a45610b979a9033d8f6af5a65f4"
+    },
+    "export/checkpoint/web/production/38_distributed_jobs/poster.jpg": {
+      "bytes": 387230,
+      "sha256": "d6973c5db863a996399b63fbc41f27f28a9852f38b66f8bdd10fdfaa48e63b8e"
+    },
+    "export/checkpoint/web/production/39_classifier_evaluation/poster.jpg": {
+      "bytes": 171820,
+      "sha256": "7a5b40f5564cea50a12c875d27b0bf2cb78730f7abe08acdc7a4a420f22431e7"
+    },
+    "export/checkpoint/web/production/40_run_history/poster.jpg": {
+      "bytes": 189158,
+      "sha256": "7c12f5ac147e9002d4b51bf284d9c7f2a97f76d1598f1ec053d9a651ac716d1e"
+    },
+    "export/checkpoint/web/production/41_classify/poster.jpg": {
+      "bytes": 132567,
+      "sha256": "d57718b6c1b2c6c3053ddc39db9539eca813438a39c4ab5772dee1576baaba6a"
+    },
+    "export/checkpoint/web/production/42_curate/poster.jpg": {
+      "bytes": 151365,
+      "sha256": "68a297fb16140119c9335141e0b2d5c85ee4a7c9b5dc156c8f5dcbac349f3f3b"
+    },
+    "export/checkpoint/web/production/43_illumination/poster.jpg": {
+      "bytes": 774412,
+      "sha256": "c61e07df57f39665743117ff842d3562ccaee419691c546795ccf7ff83183b8c"
+    },
+    "export/checkpoint/web/production/44_data_manager/poster.jpg": {
+      "bytes": 188466,
+      "sha256": "5bf676c8a3ec44927d5c014c3e155d64a5e725a011d4130eeb0739b6164202f8"
+    },
+    "export/checkpoint/web/production/45_project_browser/poster.jpg": {
+      "bytes": 187004,
+      "sha256": "fccec2ddbd4613fbfd19b5ada4b1474f3b9cf0ca6f1ddf32afabba8d65e9ff14"
+    },
+    "export/checkpoint/web/production/46_napari_bridge/poster.jpg": {
+      "bytes": 137212,
+      "sha256": "f6f7225b0e72fb9d5c5bfb62887451cfc61f1af0db60854353c4303374ae8665"
+    },
+    "export/checkpoint/web/production/47_barcode_qc/poster.jpg": {
+      "bytes": 172929,
+      "sha256": "b26617e27c3c28386b996bb7b29fa0ced9b1a2a63fce592fffbeaec352ec7481"
+    },
+    "export/checkpoint/web/production/48_hit_list/poster.jpg": {
+      "bytes": 237748,
+      "sha256": "ff4c2314cbd17eb6f453054349a0e2ec766935c1c78c470bc4c8bfb942a142bf"
+    },
+    "export/checkpoint/web/production/49_methods_results/poster.jpg": {
+      "bytes": 247357,
+      "sha256": "d361cd6e50a69910ee9eeb5de3d93872950af1919b308088bd7e1004e9d2285c"
+    },
+    "export/checkpoint/web/production/50_run_compare/poster.jpg": {
+      "bytes": 134364,
+      "sha256": "70d7e493cbd5792445b470922c0390b79ba2416cda03164c0600aed0482228cb"
+    },
+    "export/checkpoint/web/production/51_control_charts/poster.jpg": {
+      "bytes": 109896,
+      "sha256": "6c4d630758a8c2fed488776ec4314a1609a49490e492d479ed89c2d77a527d62"
+    },
+    "export/checkpoint/web/production/52_pipeline_graph/poster.jpg": {
+      "bytes": 187214,
+      "sha256": "bac50eb945a0f5cdad467a5cd951d115ee0a934984434898099078a77faf2c17"
+    },
+    "export/checkpoint/web/production/53_prediction_profiler/poster.jpg": {
+      "bytes": 195880,
+      "sha256": "f446ab44ed60619f4524e7b38bb2898cebf59ffe7a2c3d2cf9986506004bff34"
+    },
+    "export/checkpoint/web/production/54_qc_dashboard/poster.jpg": {
+      "bytes": 137321,
+      "sha256": "be0645d6ed8ec8c0631ebd90cfd6c76e5d368ded1b5793dd6325e66c1c320637"
+    },
+    "export/checkpoint/web/production/55_image_scatter/poster.jpg": {
+      "bytes": 157695,
+      "sha256": "f6a36ee7d302ffdb5ed95a3cfe03cd239cd887a0f2cf9ef892de444226067a90"
+    },
+    "export/checkpoint/web/production/56_lineage/poster.jpg": {
+      "bytes": 143131,
+      "sha256": "f5c9902c9b229536a7a1dd96c1a2f9163c98cb26652511c1b602b0fe2b0c308c"
+    },
+    "export/checkpoint/web/production/57_layer_viewer/poster.jpg": {
+      "bytes": 113750,
+      "sha256": "977f37f2c7302039938abbfdb45725366c09101eaa6b5be356623c889fcad62f"
+    },
+    "export/checkpoint/web/production/58_graph_builder/poster.jpg": {
+      "bytes": 130707,
+      "sha256": "71b095598c4a412b9727a1102e1fdeebf26f995b3ebc15f3e6d2ec48e858eab6"
+    },
+    "export/checkpoint/web/production/59_anndata_export/poster.jpg": {
+      "bytes": 150006,
+      "sha256": "266488d0d670c6a7474f2cce2c8fdec99bfd2d819891794f47aa88030f014b76"
+    },
+    "export/checkpoint/web/production/60_pca/poster.jpg": {
+      "bytes": 189822,
+      "sha256": "e498aa7029dc783530ecca0b9f43b60dba725a2c9b8533fc10cb5b5a51b4d3ec"
+    },
+    "export/checkpoint/web/production/61_tabulate/poster.jpg": {
+      "bytes": 134955,
+      "sha256": "470f80bbda4ecfa6b165d6d02aeb03954f224cdd2170158e5756a5528a27ddca"
+    },
+    "export/checkpoint/web/production/62_feature_dictionary/poster.jpg": {
+      "bytes": 190646,
+      "sha256": "cf2f0b393d01aefb3d43a96f68886cba6ff3e56500ca3d621e2fde2afbf1430d"
+    },
+    "export/checkpoint/web/production/63_small_multiples/poster.jpg": {
+      "bytes": 109547,
+      "sha256": "9411cc6ac9bd9751372ff015ad47fc397303e7ca0e4ffcf081dd96a02d993f5f"
+    },
+    "export/checkpoint/web/production/64_gate_editor/poster.jpg": {
+      "bytes": 151054,
+      "sha256": "c44715f362b9b1861018e1ef83660ff72d60878df3ebc44ff3ce476eb9820c68"
+    },
+    "export/checkpoint/web/production/65_feature_explorer/poster.jpg": {
+      "bytes": 182823,
+      "sha256": "c8331b094072c0b94cf7122130630ba1ce883b57eae0c2af294893538e232bf6"
+    },
+    "export/checkpoint/web/production/66_outliers/poster.jpg": {
+      "bytes": 115728,
+      "sha256": "a2d7edc16f2990c719684aa8383ec566bcabeba64f2780f25168d8e293d5ccea"
+    },
+    "export/checkpoint/web/production/67_experiment_design/poster.jpg": {
+      "bytes": 189784,
+      "sha256": "ea2cae5a74ef28f4d21b46bf2f0c239e3a757c0dddf9368d13fdfdd897d987ec"
+    },
+    "export/checkpoint/web/production/68_power_design/poster.jpg": {
+      "bytes": 262034,
+      "sha256": "b4fd4f4086f0eb386252ee287b886775d2f923ee74b115aa500f830077508f8b"
+    },
+    "export/checkpoint/web/production/69_dose_response/poster.jpg": {
+      "bytes": 133378,
+      "sha256": "18dad3accf934b7f9adf6a549493c1acdd567d8e60ad30e5fafa15add8ef553c"
+    },
+    "export/checkpoint/web/production/70_explain_cv/poster.jpg": {
+      "bytes": 171824,
+      "sha256": "7b549953917cca1dfa353996fdddcdbc8a3bd0c1de840d0c6534163943220f01"
+    },
+    "export/checkpoint/web/production/71_investigate_hit/poster.jpg": {
+      "bytes": 183048,
+      "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6"
+    },
+    "export/checkpoint/web/production/72_volcano_explorer/poster.jpg": {
+      "bytes": 237311,
+      "sha256": "4733058879b0dc4794195fff98ba26d8b59951d2a7b88355fd38b045ce7ff3dd"
+    },
+    "export/checkpoint/web/production/73_parameter_sweep/poster.jpg": {
+      "bytes": 186096,
+      "sha256": "6af58cf103b65c157520899107c3762452cdf9a77d041f2157173dd360c4b84f"
+    },
+    "export/checkpoint/web/production/74_import_images/poster.jpg": {
+      "bytes": 136808,
+      "sha256": "23ce7ba1cf589dcc6784bea2a163a261c1b62977c54040eaa214c6a090c9dd53"
+    },
+    "export/checkpoint/web/production/75_regression_diagnostics/poster.jpg": {
+      "bytes": 197967,
+      "sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126"
+    },
+    "export/checkpoint/web/production/76_ops/poster.jpg": {
+      "bytes": 173421,
+      "sha256": "a02aa503b0fb24aaff2154798ec54fa0a18dd9e08be06d19aeb1dbefc273a9bc"
+    },
+    "export/checkpoint/web/production/77_embeddings/poster.jpg": {
+      "bytes": 134187,
+      "sha256": "64e935afa6a63883a3da8e5bb356afaa775b81a0f382e7f8cc47d44f59a3518e"
+    },
+    "export/checkpoint/web/production/78_spacr_screens/poster.jpg": {
+      "bytes": 174673,
+      "sha256": "653862a236952ceb334d8e5451c8c499183ccf716e9ebf3d78e9ca49fcb4f820"
+    },
+    "export/checkpoint/web/production/79_module_inputs_outputs/poster.jpg": {
+      "bytes": 175849,
+      "sha256": "fa4d060389e4105196e5ad9865f7d6de363a5de251e742a16d6d98cb9d3fd07a"
+    },
+    "export/checkpoint/web/production/80_image_analysis_pathways/poster.jpg": {
+      "bytes": 1178102,
+      "sha256": "5e3b42fc3fa4dbf3e018980937a3225b3de03b6ce170b404139e5db96872550d"
+    },
+    "export/checkpoint/web/production/81_sequencing_pathways/poster.jpg": {
+      "bytes": 179129,
+      "sha256": "3202ea4ef5629231456da0629e2bf0161533382cc4f26021018bb7954677b28d"
+    },
+    "export/checkpoint/web/production/82_toxoplasma/poster.jpg": {
+      "bytes": 1188374,
+      "sha256": "cc9c98942ed575e1f9091fab7dc14358aa0511cb0d1cd95ee3773f22bab92ee5"
+    },
+    "export/checkpoint/web/production/85_host_pathogen/poster.jpg": {
+      "bytes": 171994,
+      "sha256": "088b29d1931da776d8e97943c8e9d60f09a396bb5ea673c68fd0d1db55c6dd52"
+    },
+    "export/checkpoint/web/production/86_alpha_organism_modules/poster.jpg": {
+      "bytes": 137977,
+      "sha256": "9e726caa32c7defe69c352103230c3d5d655cbebc6ad1d4eeff8a222e9da7702"
+    },
+    "export/checkpoint/web/production/87_alpha_features/poster.jpg": {
+      "bytes": 448580,
+      "sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb"
+    },
+    "export/checkpoint/web/styles.css": {
+      "bytes": 35608,
+      "sha256": "48d77dd48b09ebbdbdb3a66983b0dd0b2c25d32f9d8717a030cba0485b12a7e3"
+    },
+    "export/checkpoint/web/translation-compatibility.json": {
+      "bytes": 135754,
+      "sha256": "f405ccf4f0d4b9c428996d33ebdf3c0e1898ec78d7a12f86c75b6898bf9f199c"
+    },
+    "export/checkpoint/web/voice_catalog.js": {
+      "bytes": 4947,
+      "sha256": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+    },
+    "export/export-manifest.json": {
+      "bytes": 71893,
+      "sha256": "b8f4b3cf5f81aca8e0f5ce986219d7736519424c114477aa3dbe856ba492bb84"
+    },
+    "export/review-evidence/00-root-component-decision.json": {
+      "bytes": 2447,
+      "sha256": "bdadcce6515c7ed15348afdb01c6e07e2a745280e6bcd7ddc35b24ea5c701979"
+    },
+    "export/review-evidence/01-scene07-card-visual-acceptance.json": {
+      "bytes": 1935,
+      "sha256": "f99db28091367731527ba42085ba6a77d57123eca020890cc2d2abbef3fb5198"
+    },
+    "export/review-evidence/02-final-selective-visual-review.json": {
+      "bytes": 1850,
+      "sha256": "7b2c1ef1d8ccb9b21c05b26e0e19117b454d76951487370d543bd9167e2651ff"
+    },
+    "export/review-evidence/03-retained-visual-pipeline-owning-tests.json": {
+      "bytes": 3556,
+      "sha256": "e9087b904a5f7b9caf246079de673cd7aa35dd83b1ce3bd600f932bda91b3458"
+    },
+    "export/review-evidence/04-retained-visual-supplement-owning-tests.json": {
+      "bytes": 4710,
+      "sha256": "2dc81dbf6c06a41d01fd2358ea431307883a9434a6c4a8f80ee2426fdb72129e"
+    },
+    "export/review-evidence/05-retained-original-inventory-owning-tests.json": {
+      "bytes": 2323,
+      "sha256": "603a9da75f9c8ef7d3ca281c45bb0caa64c4f5a26091eafdd109cc6aff2426e3"
+    },
+    "export/review-evidence/06-retained-inventory-order-owning-tests.json": {
+      "bytes": 2448,
+      "sha256": "f0789eb81587188fac93411e98cc317538f79ce95b816c572d13006b4e31f9b3"
+    },
+    "export/review-evidence/07-retained-visual-pipeline-independent-source-peer.json": {
+      "bytes": 8249,
+      "sha256": "a3ae738daacc31150abff80e9ec7b180123575654d695bcab20a75305a061725"
+    },
+    "export/review-evidence/08-retained-visual-supplement-independent-source-peer.json": {
+      "bytes": 6828,
+      "sha256": "f58cf2b7219cbb812ac69b0bdda8c2cef2fe247f0d2825e4f75aa150d37afdab"
+    },
+    "export/review-evidence/09-retained-original-inventory-independent-source-peer.json": {
+      "bytes": 4376,
+      "sha256": "8f369f94d900cc6a0de1181bd0f7726ae6d9381b1d97875f813a5d5796e07f4d"
+    },
+    "export/review-evidence/10-retained-inventory-order-independent-source-peer.json": {
+      "bytes": 3275,
+      "sha256": "0e187856e04e50ce789e3da97ce51d4c651b14bedd07e23bfad7e218409a3f1f"
+    },
+    "export/review-evidence/11-retained-visual-tests-r2.log": {
+      "bytes": 205,
+      "sha256": "fe41a2749432d8590885c127567db9ce1ca66d2113b209d13513053720b5a020"
+    },
+    "export/review-evidence/12-retained-visual-tests-r3.log": {
+      "bytes": 285,
+      "sha256": "85e5e560d9aa0574eedb165d8e00694b6bbfce0e2bd1b2ae492372dc3fcf1708"
+    },
+    "export/review-evidence/13-retained-visual-tests-r4.log": {
+      "bytes": 285,
+      "sha256": "010befbc5efc5b3392b35a78649f4f13b6606331cafd5be945eef2c8025a82b5"
+    },
+    "export/review-evidence/14-retained-visual-tests-r5.log": {
+      "bytes": 285,
+      "sha256": "c72bf216a9a0574e398957d2f726c1e6230808665cb92bad210ec263f6e47807"
+    },
+    "export/review-evidence/15-video-component-assessment.json": {
+      "bytes": 25525,
+      "sha256": "9187394c2a1428628cdc48d7ee103ab3c64feccf321c8c859e0dc2f22bf63563"
+    },
+    "export/review-evidence/16-audio-component-assessment.json": {
+      "bytes": 8161,
+      "sha256": "a7e8a972a25e2757d4f1971f0c14723da49df333a0b806a5a4135bea18d92fb7"
+    },
+    "export/review-evidence/17-caption-component-assessment.json": {
+      "bytes": 40121,
+      "sha256": "93a868c6aa37030723e99cd468b8fe4a58f6cb29c6c6ce112f95501b9a912652"
+    },
+    "export/review-evidence/18-pip_conda_01_create.png": {
+      "bytes": 164103,
+      "sha256": "b5b5289e3f6ee5b84c3a033d4ba08f8ecba9b35a4d7918d67316c9812ace9439"
+    },
+    "export/review-evidence/19-scene07-card-render.log": {
+      "bytes": 177,
+      "sha256": "9eeb619f8479dfbedd53bb29b68e003a1d7d1bebc102ad2484a208a1bbaaad7c"
+    },
+    "export/review-evidence/20-provenance.json": {
+      "bytes": 830,
+      "sha256": "e2820cf1dca4fd92b69e121f4140ddfe353298a6a81fb9a54445b151914dffe5"
+    },
+    "export/review-evidence/21-render_installation_route_cards.py": {
+      "bytes": 9336,
+      "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32"
+    },
+    "export/review-evidence/22-playback-checks.json": {
+      "bytes": 918,
+      "sha256": "f5452d9854b9d9acb0660c996375e3598b97d8aafba6e6bf87810c9ff0183ccd"
+    },
+    "export/review-evidence/23-playback-checks.json": {
+      "bytes": 968,
+      "sha256": "320c49d5d7f0f597acc7c0200134395dbb88c9a6bf1f664204257f2bc5547db6"
+    },
+    "export/review-evidence/24-playback-checks.json": {
+      "bytes": 968,
+      "sha256": "21ebb7d6b2ec17f903a48c078df92415e4a9358d3ff15eb6722d3a85d0396fbd"
+    },
+    "export/review-evidence/25-playback-checks.json": {
+      "bytes": 970,
+      "sha256": "4c79bd9b2fec5d524def3f6e3ae4e043eb68511bfe3bac142002aaccc061b4d9"
+    },
+    "export/review-evidence/26-playback-checks.json": {
+      "bytes": 969,
+      "sha256": "69199b13211f4c0e92a82d0a57d7aae8da55125c14aa71be48318ec039dee4ef"
+    },
+    "export/review-evidence/27-playback-checks.json": {
+      "bytes": 972,
+      "sha256": "88d2491555faea778070955acb3e75eaae07a25ffe9968471bc40d87f05c8e56"
+    },
+    "export/review-evidence/28-playback-checks.json": {
+      "bytes": 970,
+      "sha256": "2bc920f603e7c0d0d79cb6838aefecc7fff7e190cf1a034a624828c65e29fed0"
+    },
+    "export/review-evidence/29-playback-checks.json": {
+      "bytes": 973,
+      "sha256": "de08ada87ac7d50500455421bbb77e9ad3ded7dc601ce7b503f0c41eacb70910"
+    },
+    "export/review-evidence/30-playback-checks.json": {
+      "bytes": 1080,
+      "sha256": "c3f0d6e667ff19261994d19cf08ce99f130879750e8ab82079e5ac14831a6069"
+    },
+    "export/review-evidence/31-playback-checks.json": {
+      "bytes": 1081,
+      "sha256": "ba6b58d788be6333ba3d8852bcf37e56653f87b49db6c32aa5654696e39910e9"
+    },
+    "export/review-evidence/32-playback-checks.json": {
+      "bytes": 1081,
+      "sha256": "25fb32bb7fdf0367db74067d3c7ed096f3859d174665cea7d55c025e3f14f9e5"
+    },
+    "export/review-evidence/33-playback-checks.json": {
+      "bytes": 1081,
+      "sha256": "9db603e0773115138d40f184c8b1fc14c185725de51bf95e54a0b0c78af5f865"
+    },
+    "export/review-evidence/34-playback-checks.json": {
+      "bytes": 1081,
+      "sha256": "d6fd0e56c2a325f91f3a76c3235ab6d422c67396e753b6a89af89a3cb805b978"
+    },
+    "export/review-evidence/35-playback-checks.json": {
+      "bytes": 1081,
+      "sha256": "c97dfe507ec99f0463bf5384fdbb4eb9ecf15f5c724be54dcdbe9d9ed416beda"
+    },
+    "export/review-evidence/36-02_install_spacr.da.json": {
+      "bytes": 5637,
+      "sha256": "ee1bc11bda8b3f306974db0a678bc6c5295414930d9f7a5796f518bf680880a4"
+    },
+    "export/review-evidence/37-02_install_spacr.de.json": {
+      "bytes": 6273,
+      "sha256": "1b970f89480cac1885c8061dd95f6abb761daca9311c4c2f63c6418f196dee9c"
+    },
+    "export/review-evidence/38-02_install_spacr.es.json": {
+      "bytes": 5937,
+      "sha256": "68bb546d2aa92a0f4bf24939db794a2e018c7a7fc76e0678dfa548b10d3aa789"
+    },
+    "export/review-evidence/39-02_install_spacr.fr.json": {
+      "bytes": 6388,
+      "sha256": "f2300b0814cb9704eeb742930fedbaa9211968449ff5a8342d820ce8090cb0c5"
+    },
+    "export/review-evidence/40-02_install_spacr.hi.json": {
+      "bytes": 11958,
+      "sha256": "a6a1965a7863c9c463c45699dd4ac7ab4fa1d24cc183c6d9610fc01674849b59"
+    },
+    "export/review-evidence/41-02_install_spacr.is.json": {
+      "bytes": 5865,
+      "sha256": "b312114ec5118246ab775944d40a91ef18eb7d339fd973cd500a6ca48169cead"
+    },
+    "export/review-evidence/42-02_install_spacr.it.json": {
+      "bytes": 5997,
+      "sha256": "81c0bcc1a79e395a514159aaa919f7bc55b88cea0ff5245cd399409db3e14083"
+    },
+    "export/review-evidence/43-02_install_spacr.ja.json": {
+      "bytes": 7640,
+      "sha256": "ad77a5cc033cad5f4750e8f92880978baf2f5de5903723a92fa25129d684fee0"
+    },
+    "export/review-evidence/44-02_install_spacr.ko.json": {
+      "bytes": 6490,
+      "sha256": "880fee9581b6912b27f5527accaab4739762134d7766fd666466b986ef048ec6"
+    },
+    "export/review-evidence/45-02_install_spacr.nb.json": {
+      "bytes": 5640,
+      "sha256": "ba5780c7ca26c4b9957154c1474ca75f121bb4dea2df5932d8aca22c85e0560a"
+    },
+    "export/review-evidence/46-02_install_spacr.pt-BR.json": {
+      "bytes": 5873,
+      "sha256": "b5c23a309caad8009b34929332d46663d145c20c199a9c688dbb44a095064158"
+    },
+    "export/review-evidence/47-02_install_spacr.sv.json": {
+      "bytes": 5677,
+      "sha256": "7c4a78b90419c0ee4e5170d31f78ed37f49515f8a01ad0eda6ee39d50e3ed90f"
+    },
+    "export/review-evidence/48-02_install_spacr.zh-CN.json": {
+      "bytes": 5045,
+      "sha256": "6599810256c6e8172c989674bc4a46e2304cad337fb2bd5f615419a829d63265"
+    },
+    "export/review-evidence/49-02_install_spacr.json": {
+      "bytes": 6683,
+      "sha256": "21c4a3dacc742874bf86dafe61ded87f22cfd4df8ea171a56220b80570a9f85d"
+    },
+    "export/review-evidence/50-retained-visual-refresh.json": {
+      "bytes": 4303,
+      "sha256": "1d8d85c0e428d7d09e0e4fe53dbe52d1ca61d35fbdb97f9b0879eafd994f1e8c"
+    },
+    "export/review-evidence/51-native-live-timings.json": {
+      "bytes": 27713,
+      "sha256": "813a5e275ba32c54198180aedd5673176ea92e96f9b40cdb4dd4d858158b4286"
+    },
+    "export/review-evidence/52-current-video-acceptance.json": {
+      "bytes": 3986,
+      "sha256": "a9ab590592a51e96c134d07e91ec3b91008a227d6a3dcb35985938bcf617a0a0"
+    },
+    "export/review-evidence/53-final-artifact-checks.json": {
+      "bytes": 25263,
+      "sha256": "c05b311ea57cafb2de2178277130de01ace1ca43fd292a2671d57e45db2595d0"
+    },
+    "export/review-evidence/54-scene7-overlay-command.json": {
+      "bytes": 1368,
+      "sha256": "cf6df18dae268716507b1b461fa5964a26d54b2a3af4f7f4c80590d150d0b837"
+    },
+    "export/review-evidence/55-scene7-overlay.log": {
+      "bytes": 114647,
+      "sha256": "beca9d1d8318d5ce4a9bc4fa77fdcb534efe1a9739510a3be12fa02848b0cf6f"
+    },
+    "export/review-evidence/56-scenes.json": {
+      "bytes": 87593,
+      "sha256": "304e06b6b89629b3c6f438f1ffac6d11c73c2f37918afa04119eabc5750bdc6f"
+    },
+    "final-publication-review.json": {
+      "bytes": 4676,
+      "sha256": "9dbe77717fa58f9de1e16f40890c290a6b24f05ebfb59234f1f27db57faa4b3e"
+    },
+    "packet-manifest.json": {
+      "bytes": 197458,
+      "sha256": "64ed3869bd34efafd9ed46b9d4362c80d098a19d0a408802c138fb8abba910f8"
+    },
+    "work-evidence/assemble_completed02_packet.before-path-guards-162141.py": {
+      "bytes": 6964,
+      "sha256": "162141b46ca9a64d246d2b0ae835275b2b32aaed3b38b8039ef03afc133a7b54"
+    },
+    "work-evidence/assemble_completed02_packet.py": {
+      "bytes": 7299,
+      "sha256": "1a695a65cf2392224ff93f6e2d66453f917a0f1d9d7432de5172605e56f98ba0"
+    },
+    "work-evidence/audio-component-assessment.json": {
+      "bytes": 8161,
+      "sha256": "a7e8a972a25e2757d4f1971f0c14723da49df333a0b806a5a4135bea18d92fb7"
+    },
+    "work-evidence/boundary-sampler-compatibility-delta.json": {
+      "bytes": 2532,
+      "sha256": "a7fa18c1a2817acf1cc6d6d23fd34bd49973e69f8bd31ad1110c891b02827f4d"
+    },
+    "work-evidence/browser_matrix.py": {
+      "bytes": 2734,
+      "sha256": "27d12756582a8e6655ee73e37caba375d91d4b81363bb519f187233618b151ec"
+    },
+    "work-evidence/candidate-content-readback.json": {
+      "bytes": 49717,
+      "sha256": "eedc199f2c0625b3ec4e27ff4afd44c4b3a1f914cf97779da0b9cd3f5ee9d129"
+    },
+    "work-evidence/candidate-prepublication-independent-peer.json": {
+      "bytes": 6058,
+      "sha256": "07907becdf9906b799c78c7946a738bdc20819f8e9a0d7b9db5d588bb0be4617"
+    },
+    "work-evidence/caption-component-assessment.json": {
+      "bytes": 40121,
+      "sha256": "93a868c6aa37030723e99cd468b8fe4a58f6cb29c6c6ce112f95501b9a912652"
+    },
+    "work-evidence/caption-published-route-compatibility-addendum.json": {
+      "bytes": 4519,
+      "sha256": "9859226d5d6681301782aa60b26c1f5df7755b908287c462a9a6c80d6c4a23f7"
+    },
+    "work-evidence/completed02-assembler-independent-source-peer.json": {
+      "bytes": 4068,
+      "sha256": "14c8cfc46240997ddc95e8f775575a736426ba1dabf3a1505bc22938e854ecbc"
+    },
+    "work-evidence/completed02-copy-helper-independent-source-peer.json": {
+      "bytes": 3961,
+      "sha256": "3d93a4ca24e19d94c84c06cc88e8857b519aa8e8c6a28bee59acca21057ec826"
+    },
+    "work-evidence/completed02-export-dispatch-independent-source-peer.json": {
+      "bytes": 3875,
+      "sha256": "ce5547bb4df82913ccb42e4d0ed47ad71aa10fad3481105d684e02152da5a6c3"
+    },
+    "work-evidence/config.sh": {
+      "bytes": 1222,
+      "sha256": "1bdcb2e7f74c5bcf459e2027c311c4ec5b1676f5f876f77b9063aa14f7c49701"
+    },
+    "work-evidence/copy-helper-peer-witness-r1.txt": {
+      "bytes": 289,
+      "sha256": "f5f40a144ad6d8bbacf03d027a963cb24c50bbc0fe404c3fb9dc48277cec9999"
+    },
+    "work-evidence/copy_completed02_to_report.before-peer-guard-13f6.py": {
+      "bytes": 8757,
+      "sha256": "13f6ec454b75cc80d1f7c2fe86f46fa8f14a1b0a00f0860b0523e2533cbddb27"
+    },
+    "work-evidence/copy_completed02_to_report.py": {
+      "bytes": 8457,
+      "sha256": "a844690e370729fc995418e340bb8fdcbc8996354742c7de04bc933015e63fac"
+    },
+    "work-evidence/default-audio-cache-inspection.json": {
+      "bytes": 107013,
+      "sha256": "676e0d3baaf3f3937df9ca5aaef71ce0f894906b78d48859551aa62cd8b4c1eb"
+    },
+    "work-evidence/default-audio-inspection.log": {
+      "bytes": 421,
+      "sha256": "2c846ec214ff5efdde3c1bcc57853346d3f981f1ccff61962c1ea1a2dba3b398"
+    },
+    "work-evidence/downstream-USAGE.txt": {
+      "bytes": 3533,
+      "sha256": "1c54a128b476d5fb77edc653f7aa06c88ecc1dac8c3f114572ec04eaa7a5d7c8"
+    },
+    "work-evidence/downstream-source-chain-review.json": {
+      "bytes": 5545,
+      "sha256": "954242c34ef57331db389ec152b16ce187bf38b94451481326cc9bfd284039bf"
+    },
+    "work-evidence/export_completed02_checkpoint.py": {
+      "bytes": 22363,
+      "sha256": "3ba4e1aae813e72ea645f4a62fb2837ecfdcaf544b73d189136b05ce9cb414db"
+    },
+    "work-evidence/extract_boundary_samples.py": {
+      "bytes": 3804,
+      "sha256": "8e88615987099e1e28a9e478909e1a1b994a6f7e454edc4dfafea1fc2053dc3d"
+    },
+    "work-evidence/extract_video_evidence.py": {
+      "bytes": 4221,
+      "sha256": "b6d4af8f4491c93f7252ed416a8d338c714320edc328aca747a7cb723d041b8d"
+    },
+    "work-evidence/final-boundary-samples/command.json": {
+      "bytes": 731,
+      "sha256": "30718b172a5e6d9e4228f517b8ac8cd238e713360e4c1cdcfaec3b9867af7fac"
+    },
+    "work-evidence/final-boundary-samples/ffmpeg.log": {
+      "bytes": 84,
+      "sha256": "08ea441c5e0d672de57eb848b0d7f078ae748c72dab4c2861f69274f5adc428c"
+    },
+    "work-evidence/final-boundary-samples-r2/command.json": {
+      "bytes": 721,
+      "sha256": "0e1ccc1dc3073aa40a5b3e0fa013f345a786444eee2d70b349a16c70d4d2343d"
+    },
+    "work-evidence/final-boundary-samples-r2/ffmpeg.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "work-evidence/final-boundary-samples-r2/frame-04419.png": {
+      "bytes": 327884,
+      "sha256": "2ee87b0343599be7c1064d886814d8b94a6398912ef724fee396ce656651d748"
+    },
+    "work-evidence/final-boundary-samples-r2/frame-04420.png": {
+      "bytes": 431243,
+      "sha256": "0cb01aaa5e3f3e096ecd424c8add14167d630f3a05cd9cb2fecb8f67065cf411"
+    },
+    "work-evidence/final-boundary-samples-r2/frame-05111.png": {
+      "bytes": 433987,
+      "sha256": "7b5d0db70c5f00740d39e749c3e45035e3c4985f1fd72cf9ce13f3d513914deb"
+    },
+    "work-evidence/final-boundary-samples-r2/frame-05112.png": {
+      "bytes": 237130,
+      "sha256": "9de9017f121836d305727dfa0a30d9e8dc2f5c506aa3a1cd51daa5272ed568e7"
+    },
+    "work-evidence/final-boundary-samples-r2/samples.json": {
+      "bytes": 2995,
+      "sha256": "7398ec0ecb5bdc8fecf07d45f9a8e603d61f1f8f936c50e871e2cc7de4fa4c93"
+    },
+    "work-evidence/final-publication-review.json": {
+      "bytes": 4676,
+      "sha256": "9dbe77717fa58f9de1e16f40890c290a6b24f05ebfb59234f1f27db57faa4b3e"
+    },
+    "work-evidence/final-selective-visual-review.json": {
+      "bytes": 1850,
+      "sha256": "7b2c1ef1d8ccb9b21c05b26e0e19117b454d76951487370d543bd9167e2651ff"
+    },
+    "work-evidence/frame-extraction.log": {
+      "bytes": 16,
+      "sha256": "277e40579016204d37005c479c046cfa40dacf55fb341128d55b0cab4fac84c0"
+    },
+    "work-evidence/historical-catalog-inventory-mismatch.json": {
+      "bytes": 12903,
+      "sha256": "6c447776c238e6d0b9ec7636facec5e5ce02a46ad630bd792980e8c8d44728fe"
+    },
+    "work-evidence/inspect_default_audio.py": {
+      "bytes": 7120,
+      "sha256": "ade20d370dd55d86415a6d7f1ce8fc761d1c6b2e334a49f0f5d297e224bef1b4"
+    },
+    "work-evidence/inventory-order-draft-and-dispatch-independent-peer.json": {
+      "bytes": 4699,
+      "sha256": "62ea69f0d32ba1cb5aa391c7852381bf58b7fc65ff9f0edd4ebbfe15986c3820"
+    },
+    "work-evidence/publish_chain.sh": {
+      "bytes": 3347,
+      "sha256": "f76b8ede952f37062909e04d3fb27db94c92f115267cc0f01d8574c04703997f"
+    },
+    "work-evidence/retained-audio-qa-independent-readback.json": {
+      "bytes": 61593,
+      "sha256": "294a4437ba6998d006be28eefcb74238fe53c00535e2852081bb5310869a74ac"
+    },
+    "work-evidence/retained-inventory-order-independent-source-peer.json": {
+      "bytes": 3275,
+      "sha256": "0e187856e04e50ce789e3da97ce51d4c651b14bedd07e23bfad7e218409a3f1f"
+    },
+    "work-evidence/retained-inventory-order-owning-tests.json": {
+      "bytes": 2448,
+      "sha256": "f0789eb81587188fac93411e98cc317538f79ce95b816c572d13006b4e31f9b3"
+    },
+    "work-evidence/retained-original-inventory-independent-source-peer.json": {
+      "bytes": 4376,
+      "sha256": "8f369f94d900cc6a0de1181bd0f7726ae6d9381b1d97875f813a5d5796e07f4d"
+    },
+    "work-evidence/retained-original-inventory-owning-tests.json": {
+      "bytes": 2323,
+      "sha256": "603a9da75f9c8ef7d3ca281c45bb0caa64c4f5a26091eafdd109cc6aff2426e3"
+    },
+    "work-evidence/retained-visual-pipeline-independent-source-peer.json": {
+      "bytes": 8249,
+      "sha256": "a3ae738daacc31150abff80e9ec7b180123575654d695bcab20a75305a061725"
+    },
+    "work-evidence/retained-visual-pipeline-owning-tests.json": {
+      "bytes": 3556,
+      "sha256": "e9087b904a5f7b9caf246079de673cd7aa35dd83b1ce3bd600f932bda91b3458"
+    },
+    "work-evidence/retained-visual-supplement-independent-source-peer.json": {
+      "bytes": 6828,
+      "sha256": "f58cf2b7219cbb812ac69b0bdda8c2cef2fe247f0d2825e4f75aa150d37afdab"
+    },
+    "work-evidence/retained-visual-supplement-owning-tests.json": {
+      "bytes": 4710,
+      "sha256": "2dc81dbf6c06a41d01fd2358ea431307883a9434a6c4a8f80ee2426fdb72129e"
+    },
+    "work-evidence/retained-visual-tests-r1.log": {
+      "bytes": 205,
+      "sha256": "39aecbba43a1316fc4afb1698a6b10314965152367be09f9b9261ea8e249b1b7"
+    },
+    "work-evidence/retained-visual-tests-r2.log": {
+      "bytes": 205,
+      "sha256": "fe41a2749432d8590885c127567db9ce1ca66d2113b209d13513053720b5a020"
+    },
+    "work-evidence/retained-visual-tests-r3.log": {
+      "bytes": 285,
+      "sha256": "85e5e560d9aa0574eedb165d8e00694b6bbfce0e2bd1b2ae492372dc3fcf1708"
+    },
+    "work-evidence/retained-visual-tests-r4.log": {
+      "bytes": 285,
+      "sha256": "010befbc5efc5b3392b35a78649f4f13b6606331cafd5be945eef2c8025a82b5"
+    },
+    "work-evidence/retained-visual-tests-r5.log": {
+      "bytes": 285,
+      "sha256": "c72bf216a9a0574e398957d2f726c1e6230808665cb92bad210ec263f6e47807"
+    },
+    "work-evidence/root-component-decision.json": {
+      "bytes": 2447,
+      "sha256": "bdadcce6515c7ed15348afdb01c6e07e2a745280e6bcd7ddc35b24ea5c701979"
+    },
+    "work-evidence/run_extract_boundary_samples.sh": {
+      "bytes": 450,
+      "sha256": "a6aeb93e8e665951f9872546dc7786f65aa43722586e79c481b5db992278139f"
+    },
+    "work-evidence/run_phase_with_lease.sh": {
+      "bytes": 1177,
+      "sha256": "5058390338212f9987ffbd8b7b7f37fdfcc9f7bbe2b1f9b3b3759f64ae5e2e6f"
+    },
+    "work-evidence/run_retained_visual_tests.py": {
+      "bytes": 2101,
+      "sha256": "b874a0b0626b611727c102cfc7eaba2438eb3fa23fde040400e169b63aa287cd"
+    },
+    "work-evidence/run_stage_and_overlay.sh": {
+      "bytes": 2351,
+      "sha256": "6936dbc97f2a6c9c7e58c894097def5340608ef279ce681cdd6d6f11f95b6936"
+    },
+    "work-evidence/run_tool.py": {
+      "bytes": 3160,
+      "sha256": "bce5705f6a9f5bf297734d31fe338bc519c3ab92ab75cd9ec3b392c2ceb422d2"
+    },
+    "work-evidence/scene07-all-distinct-views.json": {
+      "bytes": 11469,
+      "sha256": "1a61f77b5d265333ccc2de7951c1e4f5463bf0b1c2311726346a7528044bf21d"
+    },
+    "work-evidence/scene07-card-render.log": {
+      "bytes": 177,
+      "sha256": "9eeb619f8479dfbedd53bb29b68e003a1d7d1bebc102ad2484a208a1bbaaad7c"
+    },
+    "work-evidence/scene07-card-visual-acceptance.json": {
+      "bytes": 1935,
+      "sha256": "f99db28091367731527ba42085ba6a77d57123eca020890cc2d2abbef3fb5198"
+    },
+    "work-evidence/scene07-command-reference/frames.json": {
+      "bytes": 238,
+      "sha256": "eaa2c1bcd190221cafb707c050df2ffc90a547e5eae56c797cf26bd2373cd894"
+    },
+    "work-evidence/scene07-command-reference/pip_conda_01_create.png": {
+      "bytes": 164103,
+      "sha256": "b5b5289e3f6ee5b84c3a033d4ba08f8ecba9b35a4d7918d67316c9812ace9439"
+    },
+    "work-evidence/scene07-command-reference/provenance.json": {
+      "bytes": 830,
+      "sha256": "e2820cf1dca4fd92b69e121f4140ddfe353298a6a81fb9a54445b151914dffe5"
+    },
+    "work-evidence/scene07-distinct-view-extraction.log": {
+      "bytes": 16,
+      "sha256": "277e40579016204d37005c479c046cfa40dacf55fb341128d55b0cab4fac84c0"
+    },
+    "work-evidence/scene07-frame-check.log": {
+      "bytes": 16,
+      "sha256": "277e40579016204d37005c479c046cfa40dacf55fb341128d55b0cab4fac84c0"
+    },
+    "work-evidence/scene07-renderer-source-handoff.json": {
+      "bytes": 3964,
+      "sha256": "9ac279b0be82bfa8469fef95f4bee0caeb6e35dca60e0771d8207623d825cb3c"
+    },
+    "work-evidence/scene07-static-visibility-check.json": {
+      "bytes": 3687,
+      "sha256": "a0cfd87e5e1493ba3d44a693b130fcc9852691eacbd5b3781115084290f827cf"
+    },
+    "work-evidence/scene07-visibility-verdict.json": {
+      "bytes": 1966,
+      "sha256": "5d09bfa807587f7919fad95600527799e371e0ecaf4c8210b22d068e416acf02"
+    },
+    "work-evidence/scene7-overlay-r2.log": {
+      "bytes": 1016,
+      "sha256": "708ed49a3af26dd1b78e62a3b3759be5eabab27c32a54f8cdc52d55d9d4b1dc5"
+    },
+    "work-evidence/scene7-stage-r2.log": {
+      "bytes": 294,
+      "sha256": "265b8074ca6deba5a35a3457fa4def1d28679433d04080dc5110bcf1ea85f5e2"
+    },
+    "work-evidence/scene7-stage.log": {
+      "bytes": 1664,
+      "sha256": "cea5411af85ac812cd7d7ec0ef1f42e604bb2daebfd8fc50ea3dfe27f3ef6bd6"
+    },
+    "work-evidence/selective-visual-repair-source-plan.json": {
+      "bytes": 15170,
+      "sha256": "f9dea42c88bf358d529d4e687c619924cd97f83547b445a73c75cd0441a0bcec"
+    },
+    "work-evidence/source-component-evidence-index.json": {
+      "bytes": 13138,
+      "sha256": "c95d3a45d1355d8253d46d2d447b4bdef1f233021f15525f59373569c3b46eb0"
+    },
+    "work-evidence/source-handoff/README.txt": {
+      "bytes": 929,
+      "sha256": "de442a1fded94375be54181e88abe2db5a97462eaecd2df432f97ead5ae0ae4d"
+    },
+    "work-evidence/source-handoff/commit-log.txt": {
+      "bytes": 2096,
+      "sha256": "c62bd0ca9f9c12337105b0a5c3b457114a4c8b1755eda28e585780ff4bbd35d6"
+    },
+    "work-evidence/source-handoff/patches/0001-2a04d64f2541.patch": {
+      "bytes": 62836,
+      "sha256": "917ccd5c2edaaea4ca255c4dc6bde745eb5b799c048d7852b31771a1433e72d5"
+    },
+    "work-evidence/source-handoff/patches/0002-75fb711a6cce.patch": {
+      "bytes": 6336,
+      "sha256": "0dfec53de76eac4c7d3daeded4ef8d11535a4759c159e26318cce0b1d13b29c8"
+    },
+    "work-evidence/source-handoff/patches/0003-14ecf9d1054e.patch": {
+      "bytes": 5308,
+      "sha256": "93f392e655e59dc9d3726e671304f9255fe513fceed370b53af2e13f193697fc"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/build_appended_candidate.py": {
+      "bytes": 38632,
+      "sha256": "b4a2bd94912c48371d37c5881f021acfeab65746026f4779809d065df5d2cc85"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/check_completed_matrix.py": {
+      "bytes": 10671,
+      "sha256": "1a19e390670b84373987f8237e3f12a293aa8d0de7700fa53c4b54e71c63fdaa"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/finish_staged_visual.py": {
+      "bytes": 5319,
+      "sha256": "a58399848441fa2c9d71511c29baac1e211e5ec8dadceeb8c16421ee38e56077"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/render_installation_route_cards.py": {
+      "bytes": 9336,
+      "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/retain_narration.py": {
+      "bytes": 6477,
+      "sha256": "10f956ce0a5cba7d18df1bd339411cd7de9c67e3735e7011b7766b4fefbb1054"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/retained_visual_refresh.py": {
+      "bytes": 10773,
+      "sha256": "9c59acdaee7d9d83f1176f35617b1aa2555248ecbfbcba207c11b01678ecbbc4"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/tests/test_retained_narration.py": {
+      "bytes": 7702,
+      "sha256": "db9c5fc010b19c9689b7a3d30814c6f7d75062a08a2284888366a68fd80fc435"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/tests/test_retained_pipeline_sources.py": {
+      "bytes": 9763,
+      "sha256": "ed883ca41062efcab220b4d1cccdfa6c324932b8c21694b9c98ab9adcbfc28bb"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/tests/test_retained_visual_refresh.py": {
+      "bytes": 17523,
+      "sha256": "f3c49da0c193b380640573a11ab9025ef88d977b9b5a410bf1900fef149f1b88"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/verify_staged_audio.py": {
+      "bytes": 3847,
+      "sha256": "198f487f0e10aeda06ce12df91b368768b72e66f7d8f16210864f40b14234eb9"
+    },
+    "work-evidence/source-handoff/source/tools/tutorials/verify_staged_lesson.py": {
+      "bytes": 40381,
+      "sha256": "5fcdc99028c70db27fa99a30b4bb326e96981d825af676e2fa789e7dcd981c3d"
+    },
+    "work-evidence/source-handoff/source-manifest.json": {
+      "bytes": 11292,
+      "sha256": "5abf7d657895a819bf06869d250b33e7ef3ce3a3b0c60e1424c4e66f1cf7d889"
+    },
+    "work-evidence/sp_tool.sh": {
+      "bytes": 411,
+      "sha256": "83db93f2217ed9c83a6e2104f012507a9f722f23ca9b217766da52769b0d6826"
+    },
+    "work-evidence/stage-r1-failure-and-r2-preparation.json": {
+      "bytes": 3350,
+      "sha256": "36ec7f7eaaf86716839dae68a9e032d37e61185f26a0f02db307dfd0f3f844ed"
+    },
+    "work-evidence/stage_visual_overlay.py": {
+      "bytes": 10644,
+      "sha256": "366246c9aee8cff875bf62ba3c73a18a8648c40ad82ed7f0154e9e70386df742"
+    },
+    "work-evidence/tool.sh": {
+      "bytes": 411,
+      "sha256": "d024698888948c944af28ce0e5f203832406a646108091de6077962415ebf175"
+    },
+    "work-evidence/video-component-assessment.json": {
+      "bytes": 25525,
+      "sha256": "9187394c2a1428628cdc48d7ee103ab3c64feccf321c8c859e0dc2f22bf63563"
+    },
+    "work-evidence/video-evidence-manifest.json": {
+      "bytes": 24555,
+      "sha256": "00232feae35f45638e64a3469a6fa96776476756b6c2eaa41a6dd7cb1a9403d1"
+    },
+    "work-evidence/video-probe.json": {
+      "bytes": 743,
+      "sha256": "2ea039252b90461b2084fdbb87e83a4189403c703e9e635abc1eccded1fbcb84"
+    }
+  },
+  "obsolete_generated_archived": {},
+  "archive": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/report-copy-obsolete-generated-docs",
+  "force_add_whitelist": {
+    "bound_packet_manifest_sha256": "64ed3869bd34efafd9ed46b9d4362c80d098a19d0a408802c138fb8abba910f8",
+    "paths": [
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/00-lesson02-selective-20261015-02_install_spacr-completed-matrix-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/01-lesson02-selective-20261015-02_install_spacr-cues-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/02-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-da-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/03-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-de-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/04-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-is-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/05-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-ko-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/06-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-nb-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/07-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-captions-sv-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/08-lesson02-selective-20261015-02_install_spacr-master-en-af_heart-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/09-lesson02-selective-20261015-02_install_spacr-master-es-ef_dora-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/10-lesson02-selective-20261015-02_install_spacr-master-fr-ff_siwis-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/11-lesson02-selective-20261015-02_install_spacr-master-hi-hf_alpha-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/12-lesson02-selective-20261015-02_install_spacr-master-it-if_sara-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/13-lesson02-selective-20261015-02_install_spacr-master-ja-jf_alpha-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/14-lesson02-selective-20261015-02_install_spacr-master-pt-BR-pf_dora-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/15-lesson02-selective-20261015-02_install_spacr-master-zh-CN-zf_xiaobei-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/16-lesson02-selective-20261015-02_install_spacr-web-en-af_aoede-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/17-lesson02-selective-20261015-02_install_spacr-web-en-af_bella-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/18-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-da-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/19-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-de-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/20-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-is-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/21-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-ko-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/22-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-nb-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/23-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-captions-sv-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/24-lesson02-selective-20261015-02_install_spacr-web-en-af_heart-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/25-lesson02-selective-20261015-02_install_spacr-web-en-af_jessica-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/26-lesson02-selective-20261015-02_install_spacr-web-en-af_river-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/27-lesson02-selective-20261015-02_install_spacr-web-en-af_sarah-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/28-lesson02-selective-20261015-02_install_spacr-web-en-af_sky-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/29-lesson02-selective-20261015-02_install_spacr-web-en-am_adam-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/30-lesson02-selective-20261015-02_install_spacr-web-en-am_echo-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/31-lesson02-selective-20261015-02_install_spacr-web-en-am_eric-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/32-lesson02-selective-20261015-02_install_spacr-web-en-am_fenrir-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/33-lesson02-selective-20261015-02_install_spacr-web-en-am_liam-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/34-lesson02-selective-20261015-02_install_spacr-web-en-am_michael-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/35-lesson02-selective-20261015-02_install_spacr-web-en-am_onyx-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/36-lesson02-selective-20261015-02_install_spacr-web-en-am_puck-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/37-lesson02-selective-20261015-02_install_spacr-web-en-am_santa-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/38-lesson02-selective-20261015-02_install_spacr-web-en-bf_alice-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/39-lesson02-selective-20261015-02_install_spacr-web-en-bf_emma-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/40-lesson02-selective-20261015-02_install_spacr-web-en-bf_isabella-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/41-lesson02-selective-20261015-02_install_spacr-web-en-bf_lily-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/42-lesson02-selective-20261015-02_install_spacr-web-en-bm_daniel-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/43-lesson02-selective-20261015-02_install_spacr-web-en-bm_fable-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/44-lesson02-selective-20261015-02_install_spacr-web-en-bm_george-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/45-lesson02-selective-20261015-02_install_spacr-web-en-bm_lewis-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/46-lesson02-selective-20261015-02_install_spacr-web-es-ef_dora-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/47-lesson02-selective-20261015-02_install_spacr-web-es-em_alex-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/48-lesson02-selective-20261015-02_install_spacr-web-es-em_santa-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/49-lesson02-selective-20261015-02_install_spacr-web-fr-ff_siwis-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/50-lesson02-selective-20261015-02_install_spacr-web-hi-hf_alpha-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/51-lesson02-selective-20261015-02_install_spacr-web-hi-hf_beta-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/52-lesson02-selective-20261015-02_install_spacr-web-hi-hm_omega-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/53-lesson02-selective-20261015-02_install_spacr-web-hi-hm_psi-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/54-lesson02-selective-20261015-02_install_spacr-web-it-if_sara-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/55-lesson02-selective-20261015-02_install_spacr-web-it-im_nicola-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/56-lesson02-selective-20261015-02_install_spacr-web-ja-jf_alpha-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/57-lesson02-selective-20261015-02_install_spacr-web-ja-jf_gongitsune-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/58-lesson02-selective-20261015-02_install_spacr-web-ja-jf_nezumi-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/59-lesson02-selective-20261015-02_install_spacr-web-ja-jf_tebukuro-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/60-lesson02-selective-20261015-02_install_spacr-web-ja-jm_kumo-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/61-lesson02-selective-20261015-02_install_spacr-web-pt-BR-pf_dora-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/62-lesson02-selective-20261015-02_install_spacr-web-pt-BR-pm_alex-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/63-lesson02-selective-20261015-02_install_spacr-web-pt-BR-pm_santa-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/64-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaobei-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/65-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoni-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/66-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoxiao-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/67-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zf_xiaoyi-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/68-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunjian-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/69-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunxi-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/70-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunxia-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/71-lesson02-selective-20261015-02_install_spacr-web-zh-CN-zm_yunyang-lesson02-selective-20261015.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/72-lesson02-selective-20261015-browser-matrix.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/73-lesson02-selective-20261015-candidate.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/74-lesson02-selective-20261015-checkpoint.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/75-lesson02-selective-20261015-export.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/76-lesson02-selective-20261015-finish.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/77-lesson02-selective-20261015-pages.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/78-lesson02-selective-20261015-placeholder.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/79-lesson02-selective-20261015-record.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/80-lesson02-selective-20261015-retained-audio-qa.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/81-lesson02-selective-20261015-upload.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/82-lesson02-selective-20261015-verify-candidate.log",
+      "features/data/n676_install_selective_completed_2026-10-15/additional-evidence/83-lesson02-selective-20261015-verify-pages.log",
+      "features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/11-retained-visual-tests-r2.log",
+      "features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/12-retained-visual-tests-r3.log",
+      "features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/13-retained-visual-tests-r4.log",
+      "features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/14-retained-visual-tests-r5.log",
+      "features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/19-scene07-card-render.log",
+      "features/data/n676_install_selective_completed_2026-10-15/export/review-evidence/55-scene7-overlay.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/default-audio-inspection.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/final-boundary-samples-r2/ffmpeg.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/final-boundary-samples/ffmpeg.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/frame-extraction.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/retained-visual-tests-r1.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/retained-visual-tests-r2.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/retained-visual-tests-r3.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/retained-visual-tests-r4.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/retained-visual-tests-r5.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/scene07-card-render.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/scene07-distinct-view-extraction.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/scene07-frame-check.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/scene7-overlay-r2.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/scene7-stage-r2.log",
+      "features/data/n676_install_selective_completed_2026-10-15/work-evidence/scene7-stage.log"
+    ],
+    "instruction": "Root must explicitly git add -f only these exact declared log paths; verify no declared file omitted before committing."
+  },
+  "limits": [
+    "Copy only exact generated tutorial tree/new selective02 packet/adjacent actual peer; preserve Home updates and all other files.",
+    "No fetching, rebasing, staging, committing, pushing, remote verification or new acceptance performed."
+  ]
+}

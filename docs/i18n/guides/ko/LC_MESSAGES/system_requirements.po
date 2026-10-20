@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-17 21:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -108,6 +108,54 @@ msgstr "CPU 클럭 수치는 대략적인 x86 구매 목표일 뿐 요구 사항
 
 msgid "Use a 64-bit OS and Python environment. The desktop installers target Windows 10/11 x86-64, Linux x86-64 and Intel/Apple-silicon macOS; their advertised OS floor does not guarantee that a newer GPU framework supports that same OS. Python 3.12 is the practical starting point for the broadest spaCR extras. spaCR's declared Python range is 3.9–3.14, excluding 3.14.1, but optional packages and individual hardware backends narrow that range. Current Apple MPS requirements include macOS 14 or later; use the requirements for the specific PyTorch build you install. `Apple's PyTorch requirements <https://developer.apple.com/metal/pytorch/>`_ describe the current native Apple-silicon route."
 msgstr "64비트 OS와 Python 환경을 사용합니다. 데스크톱 설치 프로그램은 Windows 10/11 x86-64, Linux x86-64, Intel/Apple 실리콘 macOS를 대상으로 하며, 명시된 최소 OS 버전이 더 새로운 GPU 프레임워크의 같은 OS 지원을 보장하지는 않습니다. 가장 폭넓은 spaCR 추가 구성 요소를 쓰려면 Python 3.12가 실용적인 출발점입니다. spaCR이 선언한 Python 범위는 3.9–3.14(3.14.1 제외)이지만, 선택적 패키지와 개별 하드웨어 백엔드가 이 범위를 좁힙니다. 현재 Apple MPS 요구 사항에는 macOS 14 이상이 포함되므로, 설치하는 특정 PyTorch 빌드의 요구 사항을 따릅니다. `Apple의 PyTorch 요구 사항 <https://developer.apple.com/metal/pytorch/>`_ 에 현재 Apple 실리콘 기본 경로가 설명되어 있습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **True 3D** view draws through wgpu (Vulkan, Metal or Direct3D 12) where wgpu is installed, and otherwise through OpenGL or the CPU. wgpu needs Python 3.10 or newer on x86-64 or ARM64, and on Linux glibc 2.28 or newer; the :ref:`3D rendering section of the installer guide <wgpu-3d-rendering>` lists who gets it and how to install without it."
+msgstr "**True 3D** 보기는 wgpu가 설치된 경우 wgpu(Vulkan, Metal 또는 Direct3D 12)로 그리고, 그렇지 않으면 OpenGL 또는 CPU로 그립니다. wgpu에는 x86-64 또는 ARM64에서 Python 3.10 이상이 필요하며, Linux에서는 glibc 2.28 이상도 필요합니다. :ref:`설치 가이드의 3D 렌더링 섹션 <wgpu-3d-rendering>` 에 어떤 설치에서 wgpu가 설치되는지와 wgpu 없이 설치하는 방법이 나와 있습니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "3D rendering, in the order Auto tries"
+msgstr "3D 렌더링, Auto가 시도하는 순서"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Platform"
+msgstr "플랫폼"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "True 3D view"
+msgstr "True 3D 보기"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Linux (x86-64, ARM64; glibc 2.28 or newer)"
+msgstr "Linux(x86-64, ARM64; glibc 2.28 이상)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan (wgpu), OpenGL, CPU"
+msgstr "Vulkan(wgpu), OpenGL, CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Windows (x64, ARM64)"
+msgstr "Windows(x64, ARM64)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Vulkan, Direct3D 12 (wgpu), OpenGL, CPU"
+msgstr "Vulkan, Direct3D 12(wgpu), OpenGL, CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "macOS (Intel, Apple silicon)"
+msgstr "macOS(Intel, Apple silicon)"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Metal, Vulkan when available (wgpu), OpenGL, CPU"
+msgstr "Metal, 사용 가능한 경우 Vulkan(wgpu), OpenGL, CPU"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Without wgpu: Python 3.9, other processors, Linux glibc older than 2.28, or an install made without wgpu"
+msgstr "wgpu 없음: Python 3.9, 기타 프로세서, glibc가 2.28보다 오래된 Linux 또는 wgpu 없이 수행한 설치"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "OpenGL, CPU"
+msgstr "OpenGL, CPU"
 
 msgid "GPU support by chip and framework"
 msgstr "칩 및 프레임워크별 GPU 지원"
@@ -327,6 +375,18 @@ msgstr "CUDA 및 CuPy를 사용하는 RAPIDS/cuML"
 
 msgid "Explicit opt-in; CPU fallback when unavailable or when deterministic behavior requires it"
 msgstr "명시적으로 켜야 함; 사용할 수 없거나 결정적 동작이 필요하면 CPU로 대체"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Make Masks True 3D view"
+msgstr "Make Masks True 3D 보기"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "wgpu (Vulkan, Metal or Direct3D 12) where installed, then OpenGL through VisPy"
+msgstr "설치된 경우 wgpu(Vulkan, Metal 또는 Direct3D 12), 그다음 VisPy를 통한 OpenGL"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "CPU drawing when neither is available; Python 3.9 and installs without wgpu start at OpenGL"
+msgstr "둘 다 사용할 수 없으면 CPU로 그림. Python 3.9와 wgpu 없는 설치는 OpenGL부터 시작"
 
 msgid "Measurement tables, image I/O and many classical statistics"
 msgstr "측정 표, 이미지 I/O, 많은 고전 통계"

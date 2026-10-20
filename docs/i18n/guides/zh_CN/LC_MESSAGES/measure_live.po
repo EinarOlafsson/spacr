@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-15 01:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -26,6 +26,10 @@ msgstr "测量：预览勾选的图像并核对掩膜层"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
 msgstr "在 **测量** 中打开运行文件夹或其 ``merged`` 文件夹。如果 ``src`` 指向该板的某个输出子文件夹（例如 ``measurements`` 或 ``masks`` ），测量会读取该板的 ``merged`` 文件夹，并在控制台中说明。如果没有可读取的 ``merged`` 文件夹，测量不会启动，其消息会指出缺失的文件夹以及应改为设置什么。**实时** 视图加载一个视野，并显示从配置的对象掩膜中取得的裁剪图。测量整个实验前，使用 **图像裁剪设置…** 选择对象、掩膜层、图像通道、裁剪尺寸和筛选条件。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With **Show alpha features** enabled, intensity calibration accepts an optional named reference plate in ``intensity_calibration_reference_plate``; leave it blank to use the first plate by name."
+msgstr "启用 **显示 Alpha 功能** 后，强度校准允许在 ``intensity_calibration_reference_plate`` 中选择性地填写参考微孔板的名称；留空则使用按名称排序的第一块微孔板。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

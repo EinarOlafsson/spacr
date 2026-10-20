@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "lesson": "06_api",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-06-links-20261015/release-candidate-append-8eyevzt_/release-manifest.json",
+    "bytes": 1166528,
+    "sha256": "e5d099163ba3a99cf9cba249d07ad5e64609f8ea46ce59213519591655257aba"
+  },
+  "baseline_candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l",
+  "baseline_manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/release-manifest.json",
+    "bytes": 1179634,
+    "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+  },
+  "baseline_publication_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/publication-receipt.json",
+    "bytes": 141431,
+    "sha256": "9f58f30644880ff3faac98e756feba1d33ec3e812c02cf4f3b791b0ea02eef5a"
+  },
+  "reused_readback": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson06-ordered-20261015/baseline-media-readback.json",
+    "bytes": 133772,
+    "sha256": "dc51df0fa7fb9a217c366359a309f0863987ea43cf54c59b1714cb5f06756317"
+  },
+  "media_records_equal": true,
+  "media_files": 5370,
+  "media_bytes": 8807787387,
+  "media_commit": "4e4de22dce9cc5e7f1c86747b6159b538e66f7a1",
+  "media_map_sha256": "e9190fa0c0b0ebed8eeb2f131dd6b3dab23e9141e9e071b9f08f162cfde8d1c1",
+  "fresh_upload": false,
+  "fresh_readback": false,
+  "limits": [
+    "Exact full media_host manifest map equality; existing C05 full immutable download/SHA coverage is reused, not repeated.",
+    "Owning resume-receipt must separately pass current read-only branch/main/tag/tree guards before Pages publication."
+  ]
+}

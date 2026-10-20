@@ -14,13 +14,6 @@
     },
     {
       "table": "ui",
-      "key": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
-      "source": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
-      "source_sha256": "39d0236989856f1c0170d43495754316970125719276d651dfe12a1d11a6c692",
-      "translation": "Stoppa förslagskörningen vid nästa steg. Inga nya förslag skrivs om den stoppas före skrivsteget; tidigare förslag kan redan ha rensats och omgångens poäng kan ha uppdaterats. Dina annoteringar är oförändrade. Visas endast medan en körning pågår."
-    },
-    {
-      "table": "ui",
       "key": "Suggest cancelled before writing new suggestions. Earlier suggestions may have been cleared and round scores may have been updated.",
       "source": "Suggest cancelled before writing new suggestions. Earlier suggestions may have been cleared and round scores may have been updated.",
       "source_sha256": "d578e497f66626cf81509eb531b341dc3c3ef3ba03cdcc3208d50dce45969232",
@@ -102,6 +95,18 @@
       "source": "The suggestions are unaffected.",
       "source_sha256": "417fd23c20fa91f2b6baa60c0f7bda605d6614e8a270d9c34881f459e9591b73",
       "translation": "Förslagen är opåverkade."
+    }
+  ],
+  "retired_records": [
+    {
+      "reason": "2026-10-18, issue #152: a failed or cancelled Suggest run now puts the earlier suggestions back, so the Cancel tooltip says so; the replacement is reviewed in 2026-10-18-issue152-suggest-choice-dialog.json.",
+      "record": {
+        "table": "ui",
+        "key": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
+        "source": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
+        "source_sha256": "39d0236989856f1c0170d43495754316970125719276d651dfe12a1d11a6c692",
+        "translation": "Stoppa förslagskörningen vid nästa steg. Inga nya förslag skrivs om den stoppas före skrivsteget; tidigare förslag kan redan ha rensats och omgångens poäng kan ha uppdaterats. Dina annoteringar är oförändrade. Visas endast medan en körning pågår."
+      }
     }
   ]
 }

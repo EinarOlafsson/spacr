@@ -3,12 +3,24 @@ name: Qt native Coverage0 batch 3 diagnostic replay
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      pixel_context_a744:
+        description: Diagnostic only, original A744 gw0 104-node pixel context
+        type: boolean
+        required: false
+        default: false
+      safe_start_83ed:
+        description: Diagnostic only, original83ed Coverage9 batch5 SafeSpacr child
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   replay:
+    if: github.event_name != 'workflow_dispatch' || !(inputs.pixel_context_a744 || inputs.safe_start_83ed)
     name: Diagnostic only — exact 7a Coverage0 batch 3
     runs-on: ubuntu-24.04
     timeout-minutes: 90
@@ -216,3 +228,236 @@ jobs:
           else
             echo "::error title=Diagnostic replay failed::Original batch failure remains a failure even if lost coverage was recovered."
           fi
+
+  pixel-context:
+    if: github.event_name == 'workflow_dispatch' && inputs.pixel_context_a744 && !inputs.safe_start_83ed
+    name: Diagnostic only — original A744 gw0 104-node pixel context
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      QT_QPA_PLATFORM: offscreen
+      CUDA_VISIBLE_DEVICES: ""
+      PYTHONPATH: ${{ github.workspace }}/source:${{ github.workspace }}/diagnostics/tools/pytest_plugins
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      SPACR_TEST_MEMORY_GB: "6"
+      NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
+      XDG_CACHE_HOME: /tmp/spacr-xdg-cache
+      SPACR_HF_E2E_STUB: "0"
+      PYTHONFAULTHANDLER: "1"
+      SPACR_PYTEST_FILE_SHARD_INDEX: "0"
+      SPACR_PYTEST_FILE_SHARD_COUNT: "1"
+    defaults:
+      run:
+        shell: bash
+        working-directory: source
+    steps:
+      - name: Checkout reviewed diagnostic tools only
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostics
+          persist-credentials: false
+          sparse-checkout: |
+            tools/qt_pixel_context_diagnostic.py
+            tools/qt_pixel_context_a744.json
+            tools/qt_pixel_hosted_a744_constraints.txt
+            tools/pytest_plugins/qt_failure_images.py
+          sparse-checkout-cone-mode: false
+      - name: Checkout immutable original application and assertions
+        uses: actions/checkout@v7
+        with:
+          ref: ff1b2a487d378cfa804c3c1923fb834e0cc17dc2
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12.15"
+          cache: pip
+          cache-dependency-path: diagnostics/tools/qt_pixel_hosted_a744_constraints.txt
+      - name: Install original ordinary Qt system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
+      - name: Install observed original hosted versions on this CPU runner
+        run: |
+          constraint="$GITHUB_WORKSPACE/diagnostics/tools/qt_pixel_hosted_a744_constraints.txt"
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            --constraint "$constraint" torch torchvision
+          python -m pip install --constraint "$constraint" \
+            -e '.[qt,dev,zernike,attribution,btrack,czi]' pytest-timeout
+          python -m pip check
+      - name: Bind original source and observed runtime in a separate process
+        run: |
+          mkdir -p "$RUNNER_TEMP/spacr-pixel-context"
+          python "$GITHUB_WORKSPACE/diagnostics/tools/qt_pixel_context_diagnostic.py" bind \
+            --context "$GITHUB_WORKSPACE/diagnostics/tools/qt_pixel_context_a744.json" \
+            --evidence "$RUNNER_TEMP/spacr-pixel-context"
+      - name: One original 104-node worker context; capture only after failure
+        env:
+          SPACR_TEST_COUNT_DIR: ${{ runner.temp }}/spacr-test-counts
+          SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ runner.temp }}/spacr-qt-native
+          SPACR_QT_PIXEL_FAILURE_DIR: ${{ runner.temp }}/spacr-pixel-context/failures
+        run: |
+          ulimit -S -c 16777216 || true
+          python tools/collect_qt_native_backtrace.py --record-core-route \
+            --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+          mkdir -p "$RUNNER_TEMP/spacr-memory-telemetry"
+          bash tools/ci_memory_telemetry.sh 30 "$RUNNER_TEMP/spacr-memory-telemetry/samples.log" &
+          telemetry_pid=$!
+          trap 'kill "$telemetry_pid" 2>/dev/null || true' EXIT
+          python "$GITHUB_WORKSPACE/diagnostics/tools/qt_pixel_context_diagnostic.py" run \
+            --context "$GITHUB_WORKSPACE/diagnostics/tools/qt_pixel_context_a744.json" \
+            --evidence "$RUNNER_TEMP/spacr-pixel-context"
+      - name: Preserve ordinary native backtrace after failure
+        if: failure() || cancelled()
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python tools/collect_qt_native_backtrace.py --ordinary \
+            --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
+      - name: Retain source/runtime/result/images/counts/native/memory evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qt-pixel-context-a744-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/spacr-pixel-context/
+            ${{ runner.temp }}/spacr-test-counts/
+            ${{ runner.temp }}/spacr-qt-native/process-*.jsonl
+            ${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt
+            ${{ runner.temp }}/spacr-qt-native/core-route.json
+            ${{ runner.temp }}/spacr-memory-telemetry/
+            source/.translation-reports/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 3
+
+  safe-start:
+    if: github.event_name == 'workflow_dispatch' && inputs.safe_start_83ed
+    name: Diagnostic only — original83ed Coverage9 batch5 SafeSpacr child
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    permissions:
+      contents: read
+    env:
+      QT_QPA_PLATFORM: offscreen
+      CUDA_VISIBLE_DEVICES: ""
+      PYTHONPATH: ${{ github.workspace }}/source:${{ github.workspace }}/diagnostics/tools/pytest_plugins/safe_start_83ed
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      SPACR_TEST_MEMORY_GB: "6"
+      SPACR_HF_E2E_STUB: "0"
+      PYTHONFAULTHANDLER: "1"
+    defaults:
+      run:
+        shell: bash
+        working-directory: source
+    steps:
+      - name: Reject mixed diagnostic modes
+        working-directory: ${{ github.workspace }}
+        env:
+          PIXEL_SELECTED: ${{ inputs.pixel_context_a744 }}
+        run: |
+          test "$PIXEL_SELECTED" != "true"
+      - name: Establish private diagnostic paths at runtime
+        working-directory: ${{ github.workspace }}
+        run: |
+          printf 'NUMBA_CACHE_DIR=%s\nSPACR_QT_NATIVE_EVIDENCE_DIR=%s\n' \
+            "$RUNNER_TEMP/spacr-safe-start-numba" \
+            "$RUNNER_TEMP/spacr-safe-start-native" >> "$GITHUB_ENV"
+      - name: Checkout reviewed diagnostics only
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostics
+          persist-credentials: false
+          sparse-checkout: |
+            tools/safe_start_context_diagnostic.py
+            tools/safe_start_83ed_context.json
+            tools/safe_start_83ed_constraints.txt
+            tools/pytest_plugins/safe_start_83ed/sitecustomize.py
+            tools/pytest_plugins/safe_start_83ed/safe_child_evidence.py
+          sparse-checkout-cone-mode: false
+      - name: Checkout immutable original application and tests
+        uses: actions/checkout@v7
+        with:
+          ref: 83edc25dfda63e45191aa6b4b2833ddbb4b850ab
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12.15"
+          cache: pip
+          cache-dependency-path: diagnostics/tools/safe_start_83ed_constraints.txt
+      - name: Install original coverage system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
+      - name: Install source-bound original CPU runtime
+        run: |
+          constraint="$GITHUB_WORKSPACE/diagnostics/tools/safe_start_83ed_constraints.txt"
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            --constraint "$constraint" torch torchvision
+          python -m pip install --constraint "$constraint" \
+            -e '.[dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings]' \
+            pyreadr pytest-timeout coverage pytest-cov
+          python -m pip check
+      - name: Bind exact source and observed versions without a GUI
+        run: |
+          python "$GITHUB_WORKSPACE/diagnostics/tools/safe_start_context_diagnostic.py" bind \
+            --context "$GITHUB_WORKSPACE/diagnostics/tools/safe_start_83ed_context.json" \
+            --evidence "$RUNNER_TEMP/spacr-safe-start-diagnostic"
+      - name: One original covered32-file context with child evidence
+        run: |
+          ulimit -S -c 16777216 || true
+          python tools/collect_qt_native_backtrace.py --record-core-route \
+            --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+          mkdir -p "$RUNNER_TEMP/spacr-safe-start-memory"
+          bash tools/ci_memory_telemetry.sh 30 "$RUNNER_TEMP/spacr-safe-start-memory/samples.log" &
+          telemetry_pid=$!
+          trap 'kill "$telemetry_pid" 2>/dev/null || true' EXIT
+          python "$GITHUB_WORKSPACE/diagnostics/tools/safe_start_context_diagnostic.py" run \
+            --context "$GITHUB_WORKSPACE/diagnostics/tools/safe_start_83ed_context.json" \
+            --evidence "$RUNNER_TEMP/spacr-safe-start-diagnostic"
+      - name: Preserve bounded native backtrace after failure
+        if: failure() || cancelled()
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          GITHUB_SHA: 83edc25dfda63e45191aa6b4b2833ddbb4b850ab
+        run: |
+          python tools/collect_qt_native_backtrace.py --ordinary \
+            --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+      - name: Preserve raw child stacks, stdout, stderr, original JSON and coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: safe-start-83ed-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/spacr-safe-start-diagnostic/
+            ${{ runner.temp }}/spacr-safe-start-native/
+            ${{ runner.temp }}/spacr-safe-start-memory/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 3

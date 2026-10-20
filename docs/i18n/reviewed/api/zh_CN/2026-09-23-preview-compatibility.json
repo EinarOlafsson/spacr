@@ -13,7 +13,9 @@
       "label": "spacr.qt.widgets.preview_contract.preview_cellpose_model#1",
       "source": "``model_type=`` is accepted-and-IGNORED by Cellpose 4 — it logs \"not used in v4.0.1+\" and drops it, leaving ``pretrained_model`` at its ``cpsam`` default. Passing the user's choice there therefore segmented with ``cpsam`` whatever they picked, including a checkpoint they had just trained in spaCR's own Train Cellpose module. :func:`spacr.utils._resolve_cellpose_pretrained` is what the pipeline uses: it maps the legacy pre-SAM names onto ``cpsam`` and says so once, and returns a path unchanged when the name is a fine-tuned checkpoint.",
       "source_sha256": "446b5aa0fbd912e4ec551b941aef286efb7fc8a686cac01cb92e696cce7a0e01",
-      "translation": "Cellpose 4 接受 ``model_type=``，但会忽略其值：它记录 \"not used in v4.0.1+\" 后丢弃该值，使 ``pretrained_model`` 保持默认值 ``cpsam``。因此，将用户的选择传入该参数时，无论用户选择什么，分割都会使用 ``cpsam``，即使用户选择的是刚在 spaCR 自带的 Train Cellpose 模块中训练的检查点。工作流使用 :func:`spacr.utils._resolve_cellpose_pretrained`：它将 SAM 之前的旧模型名称映射到 ``cpsam``，并只提示一次；如果名称指向微调后的检查点，则原样返回路径。"
+      "translation": "Cellpose 4 接受 ``model_type=``，但会忽略其值：它记录 \"not used in v4.0.1+\" 后丢弃该值，使 ``pretrained_model`` 保持默认值 ``cpsam``。因此，将用户的选择传入该参数时，无论用户选择什么，分割都会使用 ``cpsam``，即使用户选择的是刚在 spaCR 自带的 Train Cellpose 模块中训练的检查点。工作流使用 :func:`spacr.utils._resolve_cellpose_pretrained`：它将 SAM 之前的旧模型名称映射到 ``cpsam``，并只提示一次；如果名称指向微调后的检查点，则原样返回路径。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Cellpose and torch are imported inside the call, so importing a preview module cold — as the test suite does — needs no CUDA-capable stack.",

@@ -86,7 +86,9 @@
       "source_sha256": "c390879ae8d79d0cbc295f392c8bc8b28fec7a992819f21f16cb86a3d7470b2d",
       "context": "What a drop on Make Masks is, and everything needed to act on it.",
       "translation": "拖放到 Make Masks 上的内容是什么，以及据此操作所需的一切。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.DropClassification#1",
@@ -174,7 +176,9 @@
       "source_sha256": "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
       "context": "Say what a drop on Make Masks is, without asking or opening anything.",
       "translation": "说明拖放到 Make Masks 上的是什么，不询问也不打开任何内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#1",

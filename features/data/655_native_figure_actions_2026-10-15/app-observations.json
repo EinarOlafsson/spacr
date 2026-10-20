@@ -1,0 +1,20 @@
+{
+  "clear_clicks": 1,
+  "fold_calls": 1,
+  "queue_count": 0,
+  "list_count": 0,
+  "collapsed": true,
+  "expanded": false,
+  "clear_enabled": false,
+  "header_enabled": false,
+  "visible_cells": 0,
+  "workspace": {
+    "cell_width": 230,
+    "collapsed": [
+      [
+        "Native acceptance run",
+        0
+      ]
+    ]
+  }
+}

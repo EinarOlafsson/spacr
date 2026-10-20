@@ -1,0 +1,302 @@
+{
+  "date": "2026-10-15T18:36:23.244772+00:00",
+  "scope": "read-only latest GitHub workflows/completed failed job logs; no dispatch/test/model/source mutation",
+  "source_pins": {
+    "run": "5727b5354de46a2ac24f434afb2e0cb4671028ec",
+    "published_reference": "19ac60d443d397b576978d4126ce7958718ca499",
+    "latest_run_head": "3ed17e347af0bf443134f7c93bb3c8ba4b8811d4"
+  },
+  "failure_nodes": {
+    "coverage7-116568856169.log": [
+      "tests/qt/test_bioimageio_rows_in_the_picker.py::test_use_writes_the_setting_that_routes_it[entry0-cellpose3:{path}]",
+      "tests/qt/test_bioimageio_rows_in_the_picker.py::test_use_writes_the_setting_that_routes_it[entry1-{path}]",
+      "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_every_view_in_the_source_asks_for_the_sorting_contract",
+      "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_nothing_builds_a_bare_table_cell_any_more",
+      "tests/qt/test_regression_results_uncovered_paths.py::test_a_workspace_state_keeps_only_the_runs_it_can_read",
+      "tests/test_hf_e2e_integration.py::test_hf_e2e_mask_stage"
+    ],
+    "coverage10-116568856246.log": [
+      "tests/test_test_suite_hygiene.py::test_no_new_assertion_free_tests"
+    ],
+    "docs-38774384461-failed.log": [
+      "tests/test_built_nested_helper_api.py::test_changing_only_the_rollout_invalidates_sphinx_incremental_state",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_builds_without_helpers_and_keeps_private_api_hidden",
+      "tests/test_built_nested_helper_api.py::test_real_google_style_helpers_render_both_parameter_contracts",
+      "tests/test_built_nested_helper_api.py::test_tabular_and_palette_helpers_render_without_exposing_private_parents"
+    ],
+    "network-116568856207.log": [
+      "tests/test_hf_e2e_integration.py::test_hf_e2e_mask_stage"
+    ],
+    "coverage3-116568856180.log": [
+      "tests/qt/test_toggle_painter_finalization.py::test_painter_is_ended_even_when_a_paint_stage_raises[focus_rect]",
+      "tests/test_docs_media_budget.py::test_docs_workflow_publishes_each_branch_to_its_own_host",
+      "tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster",
+      "tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock"
+    ],
+    "coverage11-116568856249.log": [
+      "tests/qt/test_cellpose_dino_rows_offer_their_backend.py::test_the_preview_zoo_button_asks_for_dino_rows",
+      "tests/qt/test_cellpose_dino_rows_offer_their_backend.py::test_use_writes_the_cellpose_dino_setting",
+      "tests/qt/test_live_preview_panel_keeps_its_footing.py::test_a_zoo_pick_the_list_already_holds_is_selected_once",
+      "tests/test_i18n_reviewed_ui.py::test_reviewed_ui_vocabulary_is_complete_and_pinned",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-de]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-es]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-fr]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-hi]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-is]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-ko]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-pt]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-sv]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[cancelled-zh_CN]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-de]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-es]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-fr]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-hi]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-is]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-ko]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-pt]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-sv]",
+      "tests/test_own_dino_classifier_locales.py::test_installed_own_dino_classifier_refusals[invalid-zh_CN]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[de]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[en]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[es]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[fr]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[hi]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[is]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[ko]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[pt]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[sv]",
+      "tests/test_readme_is_built_from_images.py::test_the_readme_holds_only_images_code_badges_and_markers[zh_CN]"
+    ],
+    "coverage2-116568856167.log": [
+      "tests/qt/test_reference_plate_preview_owner_f580.py::test_preview_explains_explicit_and_blank_reference",
+      "tests/test_593_channel_sorting_edges.py::test_given_roles_are_filtered_and_doubles_refused",
+      "tests/test_coverage_fill_cellpose_gpu_funcs.py::TestIdentifyMasksFinetune::test_channel_selection_per_model[other-Unknown Cellpose model]",
+      "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "tests/test_docstring_correctness.py::test_no_new_public_callable_ghost_parameters",
+      "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "tests/test_notebook_settings.py::test_the_committed_notebooks_match_what_the_tool_generates",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[de]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[en]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[es]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[fr]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[hi]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[is]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[ko]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[pt]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[sv]",
+      "tests/test_readme_panel_text_destinations.py::test_every_panel_opens_rendered_words_before_any_other_content[zh_CN]"
+    ],
+    "coverage5-116568856354.log": [
+      "tests/qt/test_cov_r5_qt_app.py::test_a_backdrop_that_will_not_install_costs_only_the_backdrop",
+      "tests/qt/test_example_datasets_ship_as_one_archive.py::test_a_cancelled_download_leaves_no_part_file",
+      "tests/qt/test_the_preview_uses_the_model_the_run_will_use.py::test_a_model_the_user_picked_survives_an_object_switch",
+      "tests/qt/test_the_preview_uses_the_model_the_run_will_use.py::test_the_preview_offers_only_cellpose_models",
+      "tests/qt/test_umap_interactive_toggle.py::test_umap_has_interactive_toggle_immediately_beside_ai"
+    ]
+  },
+  "test_file_hashes": {
+    "tests/qt/test_bioimageio_rows_in_the_picker.py": {
+      "run": "588d409ec7eb9384daaa1e1fbe0a989d72ea030012c1de63a26b1731745654ce",
+      "published_reference": "588d409ec7eb9384daaa1e1fbe0a989d72ea030012c1de63a26b1731745654ce",
+      "latest_run_head": "588d409ec7eb9384daaa1e1fbe0a989d72ea030012c1de63a26b1731745654ce",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_cellpose_dino_rows_offer_their_backend.py": {
+      "run": "b4495f8e6d199b0399cc54d803ba691b949e5ee4ba6123aded031036d94593c8",
+      "published_reference": "b4495f8e6d199b0399cc54d803ba691b949e5ee4ba6123aded031036d94593c8",
+      "latest_run_head": "b4495f8e6d199b0399cc54d803ba691b949e5ee4ba6123aded031036d94593c8",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_cov_r5_qt_app.py": {
+      "run": "c457e57694bb0502c850d99d60d48c5a7cce6aa48f0230e3239d1496167dd04f",
+      "published_reference": "c457e57694bb0502c850d99d60d48c5a7cce6aa48f0230e3239d1496167dd04f",
+      "latest_run_head": "c457e57694bb0502c850d99d60d48c5a7cce6aa48f0230e3239d1496167dd04f",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_every_table_asks_for_the_sorting_contract.py": {
+      "run": "979316ecf626cab8c44ba5ed44cd2f3583b054ef8538e84e85811021158ec796",
+      "published_reference": "979316ecf626cab8c44ba5ed44cd2f3583b054ef8538e84e85811021158ec796",
+      "latest_run_head": "979316ecf626cab8c44ba5ed44cd2f3583b054ef8538e84e85811021158ec796",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_example_datasets_ship_as_one_archive.py": {
+      "run": "2138373c26d2233acc74f39c24786d0fd827f76db7bef0b75e3e1eaa9d3a8f57",
+      "published_reference": "2138373c26d2233acc74f39c24786d0fd827f76db7bef0b75e3e1eaa9d3a8f57",
+      "latest_run_head": "2138373c26d2233acc74f39c24786d0fd827f76db7bef0b75e3e1eaa9d3a8f57",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_live_preview_panel_keeps_its_footing.py": {
+      "run": "0bef302d635e103f7dfc8ab697de2fd3bf8b2c83604f6ff13994adccddfc3f1b",
+      "published_reference": "0bef302d635e103f7dfc8ab697de2fd3bf8b2c83604f6ff13994adccddfc3f1b",
+      "latest_run_head": "0bef302d635e103f7dfc8ab697de2fd3bf8b2c83604f6ff13994adccddfc3f1b",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_reference_plate_preview_owner_f580.py": {
+      "run": "34547dbf9866a0d558ffbb6bd7fcfe15642f895a64e9afb72a7b264e44376edd",
+      "published_reference": "34547dbf9866a0d558ffbb6bd7fcfe15642f895a64e9afb72a7b264e44376edd",
+      "latest_run_head": "34547dbf9866a0d558ffbb6bd7fcfe15642f895a64e9afb72a7b264e44376edd",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_regression_results_uncovered_paths.py": {
+      "run": "a12ef1609131f0b9f35ab4a2afcc7443cae5e35e7dc7499c423753d8579a820e",
+      "published_reference": "a12ef1609131f0b9f35ab4a2afcc7443cae5e35e7dc7499c423753d8579a820e",
+      "latest_run_head": "a12ef1609131f0b9f35ab4a2afcc7443cae5e35e7dc7499c423753d8579a820e",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_the_preview_uses_the_model_the_run_will_use.py": {
+      "run": "f3bb6c0b8f0221ae108f91f28bf5581dd766e4716e161175e453fecceb8db94c",
+      "published_reference": "f3bb6c0b8f0221ae108f91f28bf5581dd766e4716e161175e453fecceb8db94c",
+      "latest_run_head": "f3bb6c0b8f0221ae108f91f28bf5581dd766e4716e161175e453fecceb8db94c",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_toggle_painter_finalization.py": {
+      "run": "2bf9cb0732d6e29bd0ec947c139b8a1c9fa06900ea45c0070f24176de7e3a412",
+      "published_reference": "2bf9cb0732d6e29bd0ec947c139b8a1c9fa06900ea45c0070f24176de7e3a412",
+      "latest_run_head": "2bf9cb0732d6e29bd0ec947c139b8a1c9fa06900ea45c0070f24176de7e3a412",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/qt/test_umap_interactive_toggle.py": {
+      "run": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+      "published_reference": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+      "latest_run_head": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_593_channel_sorting_edges.py": {
+      "run": "a1cc8d31f52be6be9414672f9b97519b3dbf53c08fcddf3bf7e7c859105d2333",
+      "published_reference": "a1cc8d31f52be6be9414672f9b97519b3dbf53c08fcddf3bf7e7c859105d2333",
+      "latest_run_head": "a1cc8d31f52be6be9414672f9b97519b3dbf53c08fcddf3bf7e7c859105d2333",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_built_nested_helper_api.py": {
+      "run": "b6c4f362e191388dee9f3fd8edab491f303536a53aadddfc3c79aef300e69db0",
+      "published_reference": "b6c4f362e191388dee9f3fd8edab491f303536a53aadddfc3c79aef300e69db0",
+      "latest_run_head": "b6c4f362e191388dee9f3fd8edab491f303536a53aadddfc3c79aef300e69db0",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_coverage_fill_cellpose_gpu_funcs.py": {
+      "run": "7bd328ecbd3da0d76f146bfaa2a38589138681f222cd2e6741d0eae4eaf2e1cb",
+      "published_reference": "7bd328ecbd3da0d76f146bfaa2a38589138681f222cd2e6741d0eae4eaf2e1cb",
+      "latest_run_head": "7bd328ecbd3da0d76f146bfaa2a38589138681f222cd2e6741d0eae4eaf2e1cb",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_docs_media_budget.py": {
+      "run": "f33c6238b96893a245d5925cec89f0f41edae56b496f8ca2eb36ae059b7bdbd3",
+      "published_reference": "f33c6238b96893a245d5925cec89f0f41edae56b496f8ca2eb36ae059b7bdbd3",
+      "latest_run_head": "f33c6238b96893a245d5925cec89f0f41edae56b496f8ca2eb36ae059b7bdbd3",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_docstring_correctness.py": {
+      "run": "a46334c871b58355ac5498870c0d9b82fc56649e21ad09ceb43bc6a70a33ef77",
+      "published_reference": "a46334c871b58355ac5498870c0d9b82fc56649e21ad09ceb43bc6a70a33ef77",
+      "latest_run_head": "a46334c871b58355ac5498870c0d9b82fc56649e21ad09ceb43bc6a70a33ef77",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_hf_e2e_integration.py": {
+      "run": "ca4655fde473c7a34360846846068a3455d47900abe21a44821de8f973fdc2ab",
+      "published_reference": "ca4655fde473c7a34360846846068a3455d47900abe21a44821de8f973fdc2ab",
+      "latest_run_head": "ca4655fde473c7a34360846846068a3455d47900abe21a44821de8f973fdc2ab",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_i18n_reviewed_ui.py": {
+      "run": "21b46f11a80248c5e3063c5d18e94abf424cfb368b99b3bf011920be98c16cbc",
+      "published_reference": "21b46f11a80248c5e3063c5d18e94abf424cfb368b99b3bf011920be98c16cbc",
+      "latest_run_head": "21b46f11a80248c5e3063c5d18e94abf424cfb368b99b3bf011920be98c16cbc",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_notebook_settings.py": {
+      "run": "7e32bc2a073a6a2a1231a6ba87a6152b73c8e137027f7c2e310e7fd54644d28f",
+      "published_reference": "7e32bc2a073a6a2a1231a6ba87a6152b73c8e137027f7c2e310e7fd54644d28f",
+      "latest_run_head": "7e32bc2a073a6a2a1231a6ba87a6152b73c8e137027f7c2e310e7fd54644d28f",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_own_dino_classifier_locales.py": {
+      "run": "ebdfe69512faf5b264f9356285726a560c216aa156a3a7b5afaeddac6335ca9e",
+      "published_reference": "ebdfe69512faf5b264f9356285726a560c216aa156a3a7b5afaeddac6335ca9e",
+      "latest_run_head": "ebdfe69512faf5b264f9356285726a560c216aa156a3a7b5afaeddac6335ca9e",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_readme_is_built_from_images.py": {
+      "run": "aed73b7164b6b8a1c92690717c5c7c517818175d7aeb8ac4a356836d3b06fd3b",
+      "published_reference": "aed73b7164b6b8a1c92690717c5c7c517818175d7aeb8ac4a356836d3b06fd3b",
+      "latest_run_head": "aed73b7164b6b8a1c92690717c5c7c517818175d7aeb8ac4a356836d3b06fd3b",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_readme_panel_text_destinations.py": {
+      "run": "081f2451a2e39a40a0bd426f6105c15edcb72d8e2e4e123649910e6ca20d9078",
+      "published_reference": "081f2451a2e39a40a0bd426f6105c15edcb72d8e2e4e123649910e6ca20d9078",
+      "latest_run_head": "081f2451a2e39a40a0bd426f6105c15edcb72d8e2e4e123649910e6ca20d9078",
+      "test_file_same_run_to_latest": true
+    },
+    "tests/test_test_suite_hygiene.py": {
+      "run": "ed9736f83f069d7c43e965805735a14ce03bed6591356765652d47ab5503871d",
+      "published_reference": "ed9736f83f069d7c43e965805735a14ce03bed6591356765652d47ab5503871d",
+      "latest_run_head": "ed9736f83f069d7c43e965805735a14ce03bed6591356765652d47ab5503871d",
+      "test_file_same_run_to_latest": true
+    }
+  },
+  "log_sha256": {
+    "coverage7-116568856169.log": "f562926c920e30eb07d8230805f446860c311281ffd888713f0d7595b425b63e",
+    "coverage10-116568856246.log": "013e8e3e55455e80460b60ab954ff6f8eb75486a2a44ee52ca4db2a5bd9a37b1",
+    "docs-38774384461-failed.log": "19e711a1737321cb1988761c413feab1631fcf049b7fab22aac247919bdcd2ee",
+    "network-116568856207.log": "707c6f5870e23e8b08c7ad61102941e260746c33340c6dec95bf6c5336c66375",
+    "coverage3-116568856180.log": "cc72ded87c90fb2d8184e61c340968048f5dd43ac7833b20b3cfbca0e38df319",
+    "coverage11-116568856249.log": "3b7b78a20b0d948841769a8963b3a96c120737ba3dabcc612b3176c3509780c9",
+    "coverage2-116568856167.log": "64beef3ac2f4faaaf244a3778b9eb37a3932ca6140f1ed0563ce6e5b028ddcf9",
+    "coverage5-116568856354.log": "ec3be52e8fdd45c7096cc6726ce3cc2316cf74d9544a1b6fd043bc79f96fdf9e"
+  },
+  "warning": "Unchanged test file alone does not prove current production failure. Detailed candidate classification separately source-bound; oldsource results are not current successful CI.",
+  "dispositions": [
+    {
+      "scope": "Latest compat run38783166432 head3ed",
+      "state": "not failed",
+      "evidence": "Python3.9/Python3.12 wheel-only and package metadata jobs succeeded; platform install jobs running/queued at read time",
+      "action": "Await actual outcome; no dispatch/replay"
+    },
+    {
+      "scope": "Latest docs38783166345 head3ed",
+      "state": "pending, no jobs at read time",
+      "action": "No failure can yet be attributed to3ed"
+    },
+    {
+      "scope": "tests/test_built_nested_helper_api.py four nodes, docs38774384461/5727",
+      "state": "confirmed current fixture source gap, Root assigned Hard",
+      "cause": "Fixture copies setup hook but omits required self-contained _omit_unused_viewcode_catalog_version; actual production docs builds succeeded",
+      "action": "Only helper whitelist addition after actual four-node baseline; no conf.py policy edit"
+    },
+    {
+      "scope": "Coverage10 assertion-free3tests",
+      "state": "Claude N700 owner",
+      "evidence": "claude-n700-assertion-free-relay.json exact source/AST/log hashes",
+      "action": "Root relay; no owner-file edits"
+    },
+    {
+      "scope": "tests/test_own_dino_classifier_locales.py18nodes",
+      "state": "Home-B F561 owner dependency/fixture",
+      "cause": "Missing expected review filename2026-10-15-own-dino-classifier.json, not observed model inference failure",
+      "action": "Owner coordinate exact installed normal review path; no duplicated F561 generation"
+    },
+    {
+      "scope": "README counts/layout tests20nodes",
+      "state": "current test source unchanged from hosted; owner-sensitive source-contract check needed",
+      "cause": "Hardcoded page count66 vs observed67 and test expects raw/code but actualparagraph; not runner infrastructure",
+      "action": "Do not raise floor blindly; ask Home-B/README owner which current contract is authoritative"
+    },
+    {
+      "scope": "F580 reference preview +channel_sorting_edges",
+      "state": "stale exact-text expectations likely, not independently reproduced",
+      "cause": "Capitalized standalone sentence now scoped Without session inputs; no mask vs actualno cell mask",
+      "action": "Owner source-sensitive test correction only after approval"
+    },
+    {
+      "scope": "HF E2E maskstage network+coverage7",
+      "state": "actual output acceptance failure, cause unresolved",
+      "cause": "All four cell masks empty; nucleus masks have4objects; cpsam, observeddiameter160/75; do not weaken nonempty condition",
+      "action": "Read exact preprocessing/model/data contract before software change; no networkweights/replay authorized"
+    },
+    {
+      "scope": "Other coverage failures recorded69unique nodes/23files",
+      "state": "untriaged or existing owner receipts unknown",
+      "action": "Full exact nodes/loghashes/test source pins preserved; unchanged tests alone not proof current production unchanged"
+    }
+  ]
+}

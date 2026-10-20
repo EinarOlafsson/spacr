@@ -2,10 +2,10 @@
 
 The panel combines a thumbnail strip, forward/back controls, a position label,
 and a zoomable full-resolution view. Every arriving figure is written to a
-temporary PNG. The newest 100 full-resolution ``QPixmap`` objects remain in
-memory; older entries reload their PNG on demand, while thumbnails stay in
-memory. Clearing the queue or destroying its owner removes the temporary
-directory.
+temporary PNG. Full-resolution ``QPixmap`` objects use a least-recently-used
+cache, limited by the ``ram_cap`` entry count (100 by default). Evicted entries
+reload their PNG on demand, while thumbnails stay in memory. Clearing the
+queue or destroying its owner removes the temporary directory.
 
 In PDF mode, the PNG preview appears immediately and a worker rasterizes the
 vector page at 2,200 pixels before replacing it. This keeps the GUI responsive
@@ -27,8 +27,10 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QIcon, QImage, QPalette, QPixmap
+from PySide6.QtGui import (QAccessible, QAccessibleActionInterface, QColor,
+                           QIcon, QImage, QImageReader, QPainter, QPalette, QPen, QPixmap)
 from PySide6.QtWidgets import (
+    QAccessibleWidget,
     QDialog,
     QFrame,
     QHBoxLayout,
@@ -41,12 +43,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..hidpi import scaled_for
+from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import active_palette
 from .flash import FLASH_MS, Flash
 from .live_preview import _ZoomView
+from .sortable_table import _spare_items, _wipe
 
 LOG = logging.getLogger("spacr.qt.figure_queue")
 
@@ -96,7 +99,8 @@ def figure_text_items(fig):
     rendering worker.
 
     :param fig: Matplotlib figure to inspect.
-    :returns: Text objects in traversal order, with duplicate objects removed.
+    :returns: Text objects in traversal order, omitting missing entries.
+        Repeated references are retained.
     """
     items = []
     for ax in getattr(fig, "axes", ()):
@@ -384,6 +388,49 @@ def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
             _style_figure_colors(fig, bg, fg, text_size, line)
 
 
+#: Longest raster draw, in seconds, of a figure that still goes on the live
+#: canvas. :func:`render_figure_to_png` times the display raster it draws
+#: (usually on the run's worker thread) and :meth:`FigureQueue.show_live_canvas`
+#: reads it: the canvas draws the same figure again ON THE GUI THREAD, at the
+#: canvas size, on its first paint and on every resize. Measured on lesson 08's
+#: Measure run (2560x1440, canvas 2216x975): the three crop figures took
+#: 1.4-3.2 s as worker rasters and held the GUI thread 0.69-0.94 s each in the
+#: canvas. Such a figure is shown as the raster that is already on disk;
+#: everything at or under the limit (an ordinary plot draws in tens of ms)
+#: keeps the live canvas.
+_LIVE_CANVAS_MAX_RASTER_S = 0.2
+
+#: Attribute a figure carries with its last display-raster draw time.
+_RASTER_SECONDS_ATTR = "_spacr_raster_seconds"
+
+
+def _note_raster_seconds(fig, seconds: float) -> None:
+    """Remember how long ``fig``'s display raster took to draw.
+
+    :param fig: the figure just saved.
+    :param seconds: the wall time of that ``savefig``.
+    """
+    try:
+        setattr(fig, _RASTER_SECONDS_ATTR, float(seconds))
+    except (AttributeError, TypeError, ValueError):
+        LOG.debug("could not note a figure's raster time", exc_info=True)
+
+
+def _too_slow_for_the_live_canvas(fig) -> bool:
+    """Whether drawing ``fig`` live would hold the GUI thread too long.
+
+    Judged from its last display raster (:func:`_note_raster_seconds`); a
+    figure never rastered is not judged slow.
+
+    :param fig: the figure about to be shown.
+    """
+    try:
+        seconds = float(getattr(fig, _RASTER_SECONDS_ATTR, 0.0) or 0.0)
+    except (TypeError, ValueError):
+        return False
+    return seconds > _LIVE_CANVAS_MAX_RASTER_S
+
+
 def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
                          write_pdf: Optional[bool] = None) -> bool:
     """Style ``fig`` per the app theme and save it as a display-capped PNG —
@@ -455,9 +502,11 @@ def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
             display_dpi = min(dpi, 200)
         try:
             from ..preferences import figure_bg_is_transparent
+            started = time.perf_counter()
             fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
                         facecolor=bg,
                         transparent=figure_bg_is_transparent(bg))
+            _note_raster_seconds(fig, time.perf_counter() - started)
         except Exception as e:
             if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
                 LOG.info("figure render failed: %s", e)
@@ -560,6 +609,109 @@ FIGURE_RESIZE_DEBOUNCE_MS = 220
 #: strip either upscaled a small picture or threw away a large one.
 THUMB_SIZE = QSize(140, 90)
 
+#: Display rasters decoded on the thread that rendered them, by PNG path, as
+#: ``(image, thumbnail, thumbnail ratio)``; :func:`_decode_display_png` fills
+#: it and :meth:`FigureQueue.add_figure` takes from it. Only the newest
+#: :data:`_DECODED_KEEP` are kept, so a raster nobody adopts is not held.
+_DECODED: "OrderedDict[str, tuple]" = OrderedDict()
+_DECODED_LOCK = threading.Lock()
+_DECODED_KEEP = 3
+
+#: The device pixel ratio the gallery strip last drew thumbnails at, as the
+#: GUI thread last read it, for :func:`_decode_display_png`.
+_THUMB_RATIO = [0.0]
+
+
+class _Ratio:
+    """A stand-in paint device that answers one device pixel ratio."""
+
+    def __init__(self, ratio: float) -> None:
+        """Stand for ``ratio``.
+
+        :param ratio: the device pixel ratio to answer.
+        """
+        self._ratio = float(ratio)
+
+    def devicePixelRatioF(self) -> float:
+        """The ratio this stands for."""
+        return self._ratio
+
+
+def _as_pixmap_image(image: QImage) -> QImage:
+    """``image`` in the format a raster ``QPixmap`` of it holds.
+
+    ``QPixmap`` keeps an ARGB32 picture with no transparent pixel as RGB32
+    and any other ARGB32 picture premultiplied; converting here, off the GUI
+    thread, leaves ``QPixmap.fromImage`` nothing to convert. Other formats
+    are returned as they are and converted by ``fromImage`` as before.
+
+    :param image: a decoded picture.
+    """
+    if image.format() != QImage.Format_ARGB32:
+        return image
+    try:
+        import numpy as np
+
+        row = image.bytesPerLine()
+        pixels = np.frombuffer(image.constBits(), dtype=np.uint8,
+                               count=row * image.height())
+        pixels = pixels.reshape(image.height(), row)[:, :image.width() * 4]
+        alpha = pixels[:, 3::4] if sys.byteorder == "little" else pixels[:, 0::4]
+        opaque = bool((alpha == 255).all())
+    except Exception:                                        # noqa: BLE001
+        return image
+    return image.convertToFormat(QImage.Format_RGB32 if opaque
+                                 else QImage.Format_ARGB32_Premultiplied)
+
+
+def _decode_display_png(png_path: str) -> bool:
+    """Decode a display raster for the gallery, off the GUI thread.
+
+    THE GALLERY DECODED EVERY ARRIVING FIGURE ON THE GUI THREAD. On lesson
+    08's Measure run :meth:`FigureQueue.add_figure` held the GUI thread
+    98-269 ms per figure (23-33 ms with nothing else running), loading the
+    PNG (up to 4034 x 3591 px) and scaling it to the strip thumbnail while
+    the run's worker went on drawing. The bridge calls this on the worker
+    right after :func:`render_figure_to_png`; the GUI thread then only wraps
+    the result. The picture and thumbnail are those the GUI thread would
+    have made from the same file: the same decode, the conversion
+    ``QPixmap`` makes (:func:`_as_pixmap_image`), and the same smooth scale
+    at the ratio the strip last drew at.
+
+    :param png_path: the display raster just written.
+    :returns: True when the decoded picture is waiting for the gallery.
+    """
+    try:
+        image = QImage(str(png_path))
+        if image.isNull():
+            return False
+        image = _as_pixmap_image(image)
+        ratio = float(_THUMB_RATIO[0] or 0.0)
+        thumb = (scaled_for(image, _Ratio(ratio), THUMB_SIZE)
+                 if ratio > 0.0 else None)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not decode %s off the GUI thread", png_path,
+                  exc_info=True)
+        return False
+    with _DECODED_LOCK:
+        _DECODED[str(png_path)] = (image, thumb, ratio)
+        _DECODED.move_to_end(str(png_path))
+        while len(_DECODED) > _DECODED_KEEP:
+            _DECODED.popitem(last=False)
+    return True
+
+
+def _take_decoded(png_path) -> Optional[tuple]:
+    """The picture :func:`_decode_display_png` made of ``png_path``, once.
+
+    :param png_path: the raster's path when it was decoded.
+    :returns: ``(image, thumbnail, ratio)`` or ``None``.
+    """
+    if not png_path:
+        return None
+    with _DECODED_LOCK:
+        return _DECODED.pop(str(png_path), None)
+
 
 class _ClearFiguresLabel(QLabel):
     """Provide a low-chrome destructive control for clearing figures.
@@ -577,6 +729,9 @@ class _ClearFiguresLabel(QLabel):
     def __init__(self, parent=None):
         """Build the word as a focusable control, not a label."""
         super().__init__(tr("Clear figures"), parent)
+        from .figure_grid_view import _strong_focus_style
+
+        self._strong_focus_ring = _strong_focus_style()
         self.setObjectName("FigureQueueClear")
         self.setCursor(Qt.PointingHandCursor)
         self.setFocusPolicy(Qt.StrongFocus)
@@ -599,6 +754,39 @@ class _ClearFiguresLabel(QLabel):
         self.setStyleSheet(
             f"QLabel#FigureQueueClear {{ color: {colour}; "
             "background: transparent; }")
+
+    def paintEvent(self, event):
+        """Keep keyboard focus visible alongside the existing text flash."""
+        super().paintEvent(event)
+        if self.hasFocus():
+            painter = QPainter(self)
+            try:
+                width, colour = self._strong_focus_ring or (
+                    2, self.palette().color(QPalette.Highlight))
+                painter.setPen(QPen(QColor(colour), width))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
+            finally:
+                painter.end()
+
+    def changeEvent(self, event):
+        """Follow the live outline preference while keeping painting cheap."""
+        if event.type() in (QEvent.StyleChange, QEvent.PaletteChange):
+            from .figure_grid_view import _strong_focus_style
+
+            self._strong_focus_ring = _strong_focus_style()
+            self.update()
+        super().changeEvent(event)
+
+    def focusInEvent(self, event):
+        """Repaint when the clear control gains keyboard focus."""
+        super().focusInEvent(event)
+        self.update()
+
+    def focusOutEvent(self, event):
+        """Remove the focus marker when the user moves to another control."""
+        super().focusOutEvent(event)
+        self.update()
 
     def flash(self) -> None:
         """Light the text briefly, then return it to its resting colour."""
@@ -638,10 +826,56 @@ class _ClearFiguresLabel(QLabel):
         :param event: the key event.
         """
         if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
-            self.flash()
-            self.clicked.emit()
+            if not event.isAutoRepeat():
+                self.flash()
+                self.clicked.emit()
+            event.accept()
             return
         super().keyPressEvent(event)
+
+
+class _AccessibleClearFigures(QAccessibleWidget):
+    """Expose the existing clear control as an accessible button."""
+
+    def __init__(self, widget):
+        """Keep normal widget navigation with the control's button role."""
+        super().__init__(widget, QAccessible.Button)
+
+    def text(self, kind):
+        """Use an explicit accessible name or the current translated label."""
+        if kind == QAccessible.Name:
+            widget = self.widget()
+            return widget.accessibleName() or widget.text()
+        return super().text(kind)
+
+    def actionNames(self):
+        """Offer Press and normal widget actions only while enabled."""
+        if not self.widget().isEnabled():
+            return []
+        return [QAccessibleActionInterface.pressAction(), *super().actionNames()]
+
+    def doAction(self, action):
+        """Dispatch an enabled Press through the existing flash and click signal."""
+        widget = self.widget()
+        if not widget.isEnabled():
+            return
+        if action == QAccessibleActionInterface.pressAction():
+            widget.flash()
+            widget.clicked.emit()
+            return
+        super().doAction(action)
+
+
+def _clear_figures_accessible_factory(_key, widget):
+    """Wrap only clear labels and retain the Python wrapper for Qt's cache."""
+    if isinstance(widget, _ClearFiguresLabel):
+        interface = _AccessibleClearFigures(widget)
+        widget._accessible_clear = interface
+        return interface
+    return None
+
+
+QAccessible.installFactory(_clear_figures_accessible_factory)
 
 
 def _close_pyplot_figures(figures) -> None:
@@ -680,10 +914,10 @@ def _release_queue_figures(figures, *_args) -> None:
 class FigureQueue(QWidget):
     """Scrollable, RAM-bounded gallery of pipeline figures.
 
-    :param ram_cap: how many bytes of figures the gallery may hold. Older
-        figures are dropped to stay under it, which is what "RAM-bounded"
-        above means -- a pipeline emitting hundreds of figures must not grow
-        without limit.
+    :param ram_cap: maximum number of full-resolution pixmaps in the RAM
+        cache, 100 by default. Least-recently-used entries are evicted;
+        their PNG files remain available for reloading. This is an entry
+        count, not a byte limit or a limit on all process memory.
     :param parent: parent widget.
     """
 
@@ -694,12 +928,13 @@ class FigureQueue(QWidget):
 
     #: The displayed figure was clicked (not dragged).
     figure_clicked = Signal()
+    _workspace_restored = Signal()
 
     def __init__(self, ram_cap: int = RAM_CAP, parent=None):
         """Build the figure queue.
 
-        :param ram_cap: how many bytes of full-resolution pixmaps to keep in
-            memory; older ones are evicted by least-recent use.
+        :param ram_cap: maximum number of full-resolution pixmaps to cache
+            in memory, 100 by default; entries are evicted by least-recent use.
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)
@@ -719,7 +954,11 @@ class FigureQueue(QWidget):
         self._ram_bytes: Dict[int, int] = {}
         self._tempdir: Optional[Path] = None
         self._current = -1
-        self._jobs = JobRunner(self, app_key="figures")
+        #: The gallery's own renders (vector-page refinements, re-renders
+        #: for a new size): registered, so shutdown waits for them, but not
+        #: runs the user started. As user-visible runs each one built Home a
+        #: run banner on the GUI thread, 124 ms on a figure's arrival.
+        self._jobs = JobRunner(self, app_key="figures", user_visible=False)
         #: index -> the in-flight render's token (an int), or ``"done"`` /
         #: ``"failed"`` once settled. Absent means "may be refined". See
         #: :meth:`_request_pdf_refinement`.
@@ -767,6 +1006,7 @@ class FigureQueue(QWidget):
         self._list.setObjectName("FiguresList")
         self._list.setMinimumWidth(80)
         self._list.setIconSize(THUMB_SIZE)
+        _THUMB_RATIO[0] = device_ratio(self._list)
         self._list.setContextMenuPolicy(Qt.CustomContextMenu)
         self._list.customContextMenuRequested.connect(self._list_context_menu)
         self._list.setSpacing(4)
@@ -1085,8 +1325,8 @@ class FigureQueue(QWidget):
         of duplicating.
 
         ``prerendered_png`` is a PNG the pipeline bridge already rendered in a
-        WORKER thread — when supplied we just adopt it (a fast file move + a
-        cheap QPixmap load) instead of doing the expensive savefig on the GUI
+        WORKER thread. When it is supplied, that file is adopted (a file move
+        and a QPixmap load) instead of running the slower savefig on the GUI
         thread, so the UI stays responsive while many figures stream in.
 
         :param fig: the Matplotlib figure to append; recognised by object
@@ -1116,27 +1356,29 @@ class FigureQueue(QWidget):
 
         png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
         pixmap = None
+        decoded = _take_decoded(prerendered_png)
         if prerendered_png and Path(prerendered_png).is_file():
             try:
                 shutil.move(prerendered_png, str(png_path))
                 src_pdf = _sibling_pdf(prerendered_png)
                 if src_pdf.is_file():
                     shutil.move(str(src_pdf), str(_sibling_pdf(png_path)))
-                pixmap = QPixmap(str(png_path))
+                pixmap = (QPixmap.fromImage(decoded[0]) if decoded is not None
+                          else QPixmap(str(png_path)))
                 if pixmap.isNull():
                     pixmap = None
             except Exception:
                 pixmap = None
         if pixmap is None:
+            decoded = None
             pixmap = self._render_figure(fig, png_path)
         self._png_paths[idx] = str(png_path)
         if pixmap is not None:
             self._cache_pixmap(idx, pixmap)
 
-        item = QListWidgetItem(f"#{idx + 1}")
-        item.setTextAlignment(Qt.AlignCenter)
+        item = self._figure_item(f"#{idx + 1}")
         if pixmap is not None and not pixmap.isNull():
-            item.setIcon(self._thumb_icon(pixmap))
+            item.setIcon(self._thumb_icon(pixmap, decoded))
         self._list.addItem(item)
 
         if self._following_the_tail(idx):
@@ -1159,6 +1401,141 @@ class FigureQueue(QWidget):
         if current is None:
             return True
         return int(current) == new_index - 1
+
+    def workspace_state(self) -> dict:
+        """Record ordered figure files, titles, run sections and the selected slot.
+
+        Queue-owned PNG previews and sibling PDF pages within the current
+        workspace per-file budget are marked for carrying even in reference
+        mode. External files and larger files remain references. Live Python
+        figures and their pickled cache files are never included.
+
+        :returns: plain state for :meth:`apply_workspace_state`, including the
+            workspace's explicit carry inventory.
+        """
+        from ...workspace import CARRY_KEY, default_copy_limit_mb
+
+        limit = default_copy_limit_mb() * 1024 * 1024
+        root = self._tempdir.resolve() if self._tempdir is not None else None
+        figures = []
+        carry = []
+        titles = self.figure_titles()
+        for index in range(self._count):
+            png = str(self._png_paths.get(index) or "")
+            pdf = _sibling_pdf(png) if png else None
+            row = {"png": png, "title": titles[index]}
+            if pdf is not None and pdf.is_file():
+                row["pdf"] = str(pdf)
+            figures.append(row)
+            for key in ("png", "pdf"):
+                path = Path(row[key]) if row.get(key) else None
+                try:
+                    if (root is not None and path is not None
+                            and not path.is_symlink()
+                            and path.resolve().parent == root
+                            and path.is_file() and path.stat().st_size <= limit):
+                        carry.append({"role": "figure", "path": str(path)})
+                except OSError:
+                    pass
+        return {"version": 1, "figures": figures,
+                "runs": [dict(row) for row in self._runs
+                         if 0 <= row["start"] <= self._count],
+                "current": int(self._current), CARRY_KEY: carry}
+
+    def apply_workspace_state(self, state) -> bool:
+        """Restore saved previews without executing or reconstructing figures.
+
+        Available PNG and PDF files are copied into fresh queue-owned storage;
+        the workspace bundle and original files are left untouched. Missing
+        previews retain their slots for the normal unavailable-image display.
+        The workspace restore report separately identifies missing files.
+        Invalid state or invalid image formats leave this queue unchanged.
+
+        :param state: state from :meth:`workspace_state`, with carried paths
+            already resolved by the workspace restorer.
+        :returns: whether the state was accepted. Files exceeding the current
+            per-file copy budget raise an error reported by the restorer.
+        """
+        from ...workspace import default_copy_limit_mb
+
+        if (not isinstance(state, dict) or type(state.get("version")) is not int
+                or state["version"] != 1):
+            return False
+        rows, runs, current = (state.get("figures"), state.get("runs"),
+                               state.get("current"))
+        if (not isinstance(rows, list) or not isinstance(runs, list)
+                or type(current) is not int
+                or not (-1 <= current < len(rows))
+                or (rows and current < 0)):
+            return False
+        for row in rows:
+            if (not isinstance(row, dict) or not isinstance(row.get("title"), str)
+                    or not isinstance(row.get("png"), str)
+                    or Path(row["png"]).suffix.lower() != ".png"
+                    or ("pdf" in row and (not isinstance(row["pdf"], str)
+                        or Path(row["pdf"]).suffix.lower() != ".pdf"))):
+                return False
+        previous = -1
+        for run in runs:
+            if (not isinstance(run, dict) or not isinstance(run.get("label"), str)
+                    or type(run.get("start")) is not int
+                    or not 0 <= run["start"] <= len(rows)
+                    or run["start"] < previous):
+                return False
+            previous = run["start"]
+        limit = default_copy_limit_mb() * 1024 * 1024
+        staged = Path(tempfile.mkdtemp(prefix="spacr_figq_"))
+        paths = {}
+        adopted = False
+        try:
+            for index, row in enumerate(rows):
+                source = Path(row["png"])
+                target = staged / f"fig_{index:05d}.png"
+                paths[index] = str(source)
+                for kind in ("png", "pdf"):
+                    path = Path(row[kind]) if row.get(kind) else None
+                    if path is None or not path.is_file():
+                        continue
+                    if path.stat().st_size > limit:
+                        raise ValueError(tr("Saved figure files exceed the workspace copy limit."))
+                    if kind == "png":
+                        reader = QImageReader(str(path))
+                        if bytes(reader.format()).lower() != b"png" or not reader.canRead():
+                            return False
+                    else:
+                        with path.open("rb") as stream:
+                            if stream.read(5) != b"%PDF-":
+                                return False
+                    destination = target if kind == "png" else _sibling_pdf(target)
+                    shutil.copyfile(path, destination)
+                    paths[index] = str(target)
+            self.clear()
+            self._tempdir = staged
+            adopted = True
+            self._png_paths.update(paths)
+            self._titles.update({index: row["title"] for index, row in enumerate(rows)})
+            self._runs = [{"label": row["label"], "start": row["start"]} for row in runs]
+            self._count = len(rows)
+            for index in range(self._count):
+                item = self._figure_item(f"#{index + 1}")
+                reader = QImageReader(paths[index])
+                if reader.canRead():
+                    ratio = device_ratio(self._list)
+                    target = QSize(round(THUMB_SIZE.width() * ratio),
+                                   round(THUMB_SIZE.height() * ratio))
+                    reader.setScaledSize(QSize.scaled(reader.size(), target,
+                                                     Qt.KeepAspectRatio))
+                    image = reader.read()
+                    if not image.isNull():
+                        item.setIcon(self._thumb_icon(QPixmap.fromImage(image)))
+                self._list.addItem(item)
+            if rows:
+                self.show_index(current)
+            self._workspace_restored.emit()
+            return True
+        finally:
+            if not adopted:
+                shutil.rmtree(staged, ignore_errors=True)
 
     def _note_unseen_figure(self) -> None:
         """Make it visible that figures are still arriving.
@@ -1185,6 +1562,7 @@ class FigureQueue(QWidget):
         first one. Deleting the orphan is what keeps the pairing honest.
         """
         target = Path(self._png_paths[idx])
+        decoded = _take_decoded(prerendered_png)
         try:
             shutil.move(prerendered_png, str(target))
             src_pdf = _sibling_pdf(prerendered_png)
@@ -1196,7 +1574,8 @@ class FigureQueue(QWidget):
                     dst_pdf.unlink()
                 except OSError:
                     LOG.debug("could not drop stale vector page %s", dst_pdf)
-            pixmap = QPixmap(str(target))
+            pixmap = (QPixmap.fromImage(decoded[0]) if decoded is not None
+                      else QPixmap(str(target)))
             if pixmap.isNull():
                 return
             self._pdf_state.pop(idx, None)
@@ -1204,7 +1583,7 @@ class FigureQueue(QWidget):
             pixmap = self._display_pixmap(idx, pixmap)
             item = self._list.item(idx)
             if item is not None:
-                item.setIcon(self._thumb_icon(pixmap))
+                item.setIcon(self._thumb_icon(pixmap, decoded))
             if self._current == idx:
                 self._view.set_pixmap(pixmap)
         except Exception as exc:
@@ -1452,12 +1831,34 @@ class FigureQueue(QWidget):
         """True while a crisp vector-page render has not been delivered yet."""
         return self._jobs.is_busy()
 
+    def _figure_item(self, text: str) -> QListWidgetItem:
+        """A list item for one figure, from the kept ones when there are any.
+
+        :param text: the label to show.
+        :returns: a centred item not yet in the list.
+        """
+        spare = _spare_items(self._list)
+        item = spare.pop() if spare else QListWidgetItem()
+        item.setText(text)
+        item.setTextAlignment(Qt.AlignCenter)
+        return item
+
+    def _retire_list_items(self) -> None:
+        """Empty the list, keeping its items for reuse instead of deleting them."""
+        spare = _spare_items(self._list)
+        self._list.clearSelection()
+        self._list.setCurrentItem(None)
+        while self._list.count():
+            last = self._list.count() - 1
+            _wipe(self._list, self._list.item(last))
+            spare.append(self._list.takeItem(last))
+
     def clear(self) -> None:
         """Drop everything and delete the temp dir."""
         self._shutdown_jobs()
         self._show_raster()
         _close_pyplot_figures(self._figures.values())
-        self._list.clear()
+        self._retire_list_items()
         self._ram.clear()
         self._ram_last_used.clear()
         self._ram_bytes.clear()
@@ -1659,10 +2060,19 @@ class FigureQueue(QWidget):
         so there is never a raster being stretched to fit. It is also what
         makes it fast -- looking at a figure costs no render at all.
 
+        Except for a figure whose display raster took longer than
+        :data:`_LIVE_CANVAS_MAX_RASTER_S` to draw: the canvas would draw it
+        again on the GUI thread, for most of a second, so it stays the
+        raster already on disk, which the view zooms as any picture.
+
         :param fig: the Matplotlib figure to embed in a Qt canvas with its
             navigation toolbar; the canvas already showing it is just redrawn.
         """
         if not self._live_canvas_enabled:
+            return False
+        if _too_slow_for_the_live_canvas(fig):
+            if self._canvas is not None and self._canvas.figure is fig:
+                self._show_raster()
             return False
         try:
             from matplotlib.backends.backend_qtagg import (
@@ -1817,14 +2227,26 @@ class FigureQueue(QWidget):
         self._teardown_canvas()
         self._stack.setCurrentIndex(0)
 
-    def _thumb_icon(self, pixmap) -> QIcon:
+    def _thumb_icon(self, pixmap, decoded: Optional[tuple] = None) -> QIcon:
         """``pixmap`` as a strip thumbnail for the screen the list is on.
 
         Rendered at the list's own icon size in real device pixels, so a
         HiDPI panel shows the figure rather than a doubled-up 140 px render
         of it. All six places that put a picture in the strip come here, so
         the strip cannot drift from :data:`THUMB_SIZE`.
+
+        :param pixmap: the figure's full picture.
+        :param decoded: what :func:`_decode_display_png` made of the same
+            file, whose thumbnail is used when it was scaled at the ratio the
+            list has now.
         """
+        ratio = device_ratio(self._list)
+        _THUMB_RATIO[0] = ratio
+        if decoded is not None:
+            thumb, scaled_ratio = decoded[1], decoded[2]
+            if thumb is not None and not thumb.isNull() \
+                    and scaled_ratio == ratio:
+                return QIcon(QPixmap.fromImage(thumb))
         return QIcon(scaled_for(pixmap, self._list, THUMB_SIZE))
 
     def _preview_target_px(self) -> float:
@@ -2523,9 +2945,9 @@ class _FigureSettingsDialog(QDialog):
         self._size_touched = False
         self._size.valueChanged.connect(self._on_size_changed)
         self._size.setToolTip(
-            "The text size EVERY figure is drawn at. Leave it alone to keep "
-            "each figure the sizes it was drawn with. One figure on its own "
-            "is resized from its right-click menu, under Figure settings.")
+            "The text size used for every figure. Leave it unchanged to keep "
+            "each figure's own text sizes. To resize one figure, use its "
+            "right-click menu, under Figure settings.")
         form.addRow("Text size", self._size)
 
         self._umap_settings = None

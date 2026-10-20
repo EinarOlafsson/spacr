@@ -162,7 +162,7 @@ def test_e2e_real_stage_1_mask(_scratch, _settings_root):
     print(f"[e2e] mask stage completed in {elapsed:.1f}s -> {run.dir}")
     # Journal was written
     assert (run.dir / "manifest.json").exists()
-    manifest = json.loads((run.dir / "manifest.json").read_text())
+    manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["status"] in ("success", "running")
     # At least one mask was produced
     masks_dir = _scratch / "masks"
@@ -224,7 +224,7 @@ def test_e2e_real_stage_3_notebook_export(tmp_path):
     latest = mask_runs[0]
     out = export_run(latest["dir"], out_path=tmp_path / "e2e.ipynb")
     assert out.exists()
-    nb = json.loads(out.read_text())
+    nb = json.loads(out.read_text(encoding="utf-8"))
     # Structural sanity
     assert nb["nbformat"] == 4
     assert len(nb["cells"]) >= 4

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_diameter",
+      "source": "Expected cell diameter in pixels. Cellpose 4 rescales the image by 30/diameter before segmentation, aligning the expected object size with the scale used to train CPSAM. Leave it None (blank) to use the magnification default, 2*magnification+80 px (120 px at 20x, 160 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (a Cellpose 3 size model estimates it; Cellpose-SAM, which has no size model, segments at native scale). spacr.diameter.estimate_diameters estimates a value from the selected fields. Default None.",
+      "source_sha256": "97441f4c715c0baf8287506e18ae6c1839a25a577c9c578eacbe08590ce2b526",
+      "translation": "预期细胞直径，以像素计。Cellpose 4 在分割前按 30/diameter 缩放图像，使对象大小与 CPSAM 的训练尺度一致。 None（留空）使用按放大倍数计算的默认值：2*magnification+80 px（20x 时为 120 px，40x 时为 160 px）。 0 和 'auto' 等价，均保存为 'auto'：Cellpose 自行估计大小（Cellpose 3 的大小模型进行估计；Cellpose-SAM 没有大小模型，因此按原始尺度分割）。 spacr.diameter.estimate_diameters 估计一个值 ，依据所选图像视野. 默认值：None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "magnification",
+      "source": "Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
+      "source_sha256": "75f4913fece9e783402cb243c3025b5ec5aa2167ac591325fba0e0d0333ce8ba",
+      "translation": "物镜放大倍数，仅用于推导预期对象大小：细胞的像素直径为 2*mag+80，细胞核为 0.75*mag+45，病原体为 mag；最小/最大面积限制为 diameter^2/4 和 diameter^2*10。cell_diameter、nucleus_diameter 或 pathogen_diameter 留空时，所有模型（包括 Cellpose-SAM）均按该默认直径分割；显式数字或 'auto' 会覆盖此值。请使用采集时的物镜放大倍数（10、20、40 或 60）。默认值：40。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_diameter",
+      "source": "Expected nucleus diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmentation. None (blank) uses the magnification default, 0.75*magnification+45 px (60 px at 20x, 75 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). spacr.diameter.estimate_diameters estimates a value. Default None.",
+      "source_sha256": "ebbaaf664c1d8005012e1e54af64b0b1e65ca1796ff95bcca7cde5839cb89055",
+      "translation": "预期细胞核直径，以像素计。Cellpose 4 在分割前使用它按 30/diameter 缩放图像。 None（留空）使用按放大倍数计算的默认值：0.75*magnification+45 px（20x 时为 60 px，40x 时为 75 px）。 0 和 'auto' 等价，均保存为 'auto'：Cellpose 自行估计大小（Cellpose-SAM 没有大小模型，因此按原始尺度分割）。 spacr.diameter.estimate_diameters 估计一个值. 默认值：None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_diameter",
+      "source": "Expected pathogen diameter in pixels, used by Cellpose 4 to rescale the image by 30/diameter before segmenting. None (blank) uses the magnification default, magnification px (20 px at 20x, 40 px at 40x). 0 and 'auto' are the same value, stored as 'auto': Cellpose estimates the size itself (Cellpose-SAM segments at native scale). Intracellular parasites are often only a few pixels across at low magnification, where rescaling matters most. spacr.diameter.estimate_diameters proposes a value. Default None.",
+      "source_sha256": "44fefee3323abbcf3a15d7ec6d55f16028fe25c181bcd06b8c8ff4254b540fc7",
+      "translation": "预期病原体直径，以像素计。Cellpose 4 在分割前使用它按 30/diameter 缩放图像。 None（留空）使用按放大倍数计算的默认值：magnification px（20x 时为 20 px，40x 时为 40 px）。 0 和 'auto' 等价，均保存为 'auto'：Cellpose 自行估计大小（Cellpose-SAM 没有大小模型，因此按原始尺度分割）。 低放大倍数下，细胞内寄生虫通常只有几个像素大小，此时缩放影响最大。 spacr.diameter.estimate_diameters 估计一个值. 默认值：None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "robustness_diameter_factors",
+      "source": "Multiples of the object diameter the robustness report tries, one at a time; a blank diameter counts as its magnification default and 0 or 'auto' as Cellpose's nominal 30 pixels. Default [0.75, 1.25].",
+      "source_sha256": "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1",
+      "translation": "稳健性报告逐一尝试的对象直径倍数；留空直径使用按放大倍数计算的默认值，0 或 'auto' 使用 Cellpose 的标称 30 像素。默认值：[0.75, 1.25]。"
+    },
+    {
+      "table": "ui",
+      "key": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates the size (Cellpose-SAM, which has no size model, keeps the native scale). An object diameter left blank opens at its magnification default, as the run uses it.",
+      "source": "(float, px) Expected object diameter. Cellpose-SAM uses it: the image is rescaled by 30/diameter before segmentation, so raising it finds bigger objects and lowering it finds smaller ones. 30 is the no-op (30/30 = 1). 0 and auto are the same value: Cellpose estimates the size (Cellpose-SAM, which has no size model, keeps the native scale). An object diameter left blank opens at its magnification default, as the run uses it.",
+      "source_sha256": "bff4fa1743a64c675883b1b8194ebc7946ac6a6a1397b8a0a971bb6d27fa48d4",
+      "translation": "(float, px) 预期对象直径。Cellpose-SAM 使用此值：分割前按 30/diameter 缩放图像，因此增大此值会寻找更大的对象，减小会寻找更小的对象。30 不改变尺度（30/30 = 1）。0 和 auto 等价：Cellpose 估计大小（Cellpose-SAM 没有大小模型，保留原始尺度）。对象直径留空时，预览会采用运行使用的放大倍数默认直径。"
+    },
+    {
+      "table": "ui",
+      "key": "Pixels. Blank uses the magnification default (shown greyed); 0 or auto lets Cellpose estimate the diameter.",
+      "source": "Pixels. Blank uses the magnification default (shown greyed); 0 or auto lets Cellpose estimate the diameter.",
+      "source_sha256": "b629e1757f940d7d56f13cb80e6e6e0b02ff7cc96a468e98f3fb133ea8c3797d",
+      "translation": "像素。留空使用放大倍数默认值（以灰色显示）；0 或 auto 让 Cellpose 估计直径。"
+    },
+    {
+      "table": "ui",
+      "key": "{value} is not a diameter: type a number of pixels, 0 or auto to let Cellpose estimate it, or clear the cell for the magnification default.",
+      "source": "{value} is not a diameter: type a number of pixels, 0 or auto to let Cellpose estimate it, or clear the cell for the magnification default.",
+      "source_sha256": "91a16c1447ca39216b290fd0d17b841c18b744a02dee707596da075677747732",
+      "translation": "{value} 不是直径：请输入像素数、0 或 auto 以让 Cellpose 估计，或清空此格以使用放大倍数默认值。"
+    }
+  ]
+}

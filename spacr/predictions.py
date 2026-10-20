@@ -6,24 +6,20 @@ Two classifiers in this package score *every object of a whole database*:
   by :func:`spacr.deep_spacr.deep_spacr`; and
 * the classical-ML one --- :func:`spacr.ml.generate_ml_scores`.
 
-Both produce one row per crop, and both used to leave those rows in a CSV next
-to the model. A CSV is not where the rest of spaCR looks: the Annotate app, the
-active-learning queue, ``generate_image_umap``, the plate heatmaps and every
-GUI table read the ``png_list`` table of ``measurements.db``. So the scores have
-to land there, on the row they belong to.
+Both produce one row per crop. The Annotate app, the active-learning queue,
+``generate_image_umap``, the plate heatmaps and every GUI table read the
+``png_list`` table of ``measurements.db``, so the scores are written there, on
+the row they belong to.
 
 Why this is its own module
 --------------------------
-The merge used to live in :mod:`spacr.deep_spacr`, which is an odd home for
-something :mod:`spacr.ml` needs just as much --- importing ``deep_spacr`` pulls
-in torch and torchvision, which the classical-ML path has no use for. The
-obvious alternative, :mod:`spacr.utils`, already owns the database *write*
-helpers (``_append_to_measurements_db``, ``rename_columns_in_db``), but it is
-also 8000 lines and imports most of the package; adding a third database
-concern there would make it harder, not easier, to see that CV and ML share one
-code path. This module is small, imports nothing from spaCR at module scope
-except :mod:`spacr.utils` helpers pulled in lazily, and is what both callers
-import.
+The merge is not in :mod:`spacr.deep_spacr`, because importing ``deep_spacr``
+pulls in torch and torchvision, which the classical-ML path does not use. It is
+not in :mod:`spacr.utils`, which owns the database *write* helpers
+(``_append_to_measurements_db``, ``rename_columns_in_db``) but is 8000 lines
+and imports most of the package. This module is small, imports nothing from
+spaCR at module scope except :mod:`spacr.utils` helpers pulled in lazily, and
+is what both callers import.
 
 The join key
 ------------
@@ -32,11 +28,9 @@ identity in this codebase. :func:`spacr.utils.filepaths_to_database` writes it
 onto every ``png_list`` row, :func:`spacr.io._read_and_merge_data` indexes the
 merged feature frame by it, and :func:`spacr.ml.generate_ml_scores` already
 joins annotations onto features with it. Keying the merge on it means the CV
-and the ML stage land on *the same row*, which is the whole point of letting
-them coexist.
+and the ML stage write to *the same row*.
 
-The previous implementation matched on ``os.path.basename(png_path)``. A
-basename is not an identity:
+A basename such as ``os.path.basename(png_path)`` is not an identity:
 
 * the tar handed to the model is built with
   ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`),
@@ -44,23 +38,21 @@ basename is not an identity:
   --- which is what happens whenever the plate name comes from the source
   folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` ---
   puts two different crops in the archive under one member name; and
-* the old lookup was a plain ``dict`` assignment, so the second of those two
-  crops silently overwrote the first and one of the two plates was scored with
-  the other plate's predictions.
+* a plain ``dict`` assignment would let the second of those two crops silently
+  overwrite the first, scoring one plate with the other plate's predictions.
 
-The second half of that is the real defect, and it is not fixed by changing the
-key: two crops that share a basename share a ``prcfo`` too. So the fix is to
-*detect* the collision. A key that arrives twice with two different values is
-recorded as ambiguous, written nowhere, and counted in the report. A wrong score
-is worse than a missing one.
+Changing the key does not prevent this: two crops that share a basename share a
+``prcfo`` too. The collision is therefore *detected*. A key that arrives twice
+with two different values is recorded as ambiguous, written nowhere, and
+counted in the report. A wrong score is worse than a missing one.
 
 Key selection is measured, not assumed. Candidate keys are built for both sides
 (``prcfo``, then the full ``png_path``, then ``file_name`` --- never a basename
 computed behind the caller's back when a real column exists) and the one that
-actually matches the most rows wins, ties going to the earliest in
-:data:`KEY_PRIORITY`. The chosen key and every count are printed, because a
-merge that matched 3 of 40000 rows used to look exactly like one that matched
-all of them.
+matches the most rows is used, ties going to the earliest in
+:data:`KEY_PRIORITY`. The chosen key and every count are printed, so a merge
+that matched 3 of 40000 rows can be told apart from one that matched all of
+them.
 
 Atomicity
 ---------
@@ -407,11 +399,11 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
     """Parse spaCR crop file names into the metadata ``prcfo`` is built from.
 
     Every consumer of a classifier's results has to answer the same question --
-    which object is this crop? -- and there is exactly one right way to answer
-    it: :func:`spacr.utils._map_wells_png`, the parser
+    which object is this crop? -- answered here by
+    :func:`spacr.utils._map_wells_png`, the parser
     :func:`spacr.utils.filepaths_to_database` used to write these very columns
-    onto ``png_list``. Re-deriving them with the writer's own parser is what
-    guarantees the two sides cannot drift apart.
+    onto ``png_list``. Using the writer's own parser keeps the two sides
+    consistent.
 
     It also recovers what a positional guess gets wrong.
     :func:`spacr.utils.process_vision_results` takes the object id as
@@ -577,9 +569,8 @@ class MergeReport:
         ``(table, column, rows_repaired)`` records.
     :param added_columns: prediction columns newly created in the target table.
 
-    Returned by :func:`merge_prediction_results` and printed by it. Every
-    count is here because a merge that matched three rows of forty thousand
-    used to be indistinguishable from one that matched all of them.
+    Returned by :func:`merge_prediction_results` and printed by it. Every count
+    is reported so a partial merge is visible.
     """
 
     table: str
@@ -686,18 +677,39 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
       holds nothing but 1s and 2s. A three-class model's genuine class 2 is
       indistinguishable from a mangled 0, and guessing would be worse than
       leaving it exactly as it is.
-    * **All or nothing.** One explicit transaction, rolled back on any error.
-      The driver opens one for DML by itself, but not for the ``PRAGMA``/DDL
-      this shares a connection with, and a half-repaired column would be a
-      column in two encodings at once.
+    * **All or nothing.** SQLite, DuckDB and PostgreSQL repair in a
+      transaction; Parquet publishes a complete replacement part snapshot.
+      A half-repaired column would be a column in two encodings at once.
 
-    :param db_path: SQLite file. A missing file is a no-op.
+    :param db_path: SQLite or DuckDB file, Parquet store directory, or
+        PostgreSQL connection string. A missing local store is a no-op.
     :param table: table to migrate. Default ``'png_list'``.
     :param verbose: print each repair.
     :returns: list of ``(table, column, rows_repaired)``.
     """
-    if not os.path.exists(str(db_path)):
+    from .tabular import _backend_of, resolve_path
+
+    backend = _backend_of(db_path)
+    if backend in ('duckdb', 'parquet'):
+        db_path = resolve_path(db_path)
+    if backend != 'postgres' and not os.path.exists(str(db_path)):
         return []
+    if backend in ('duckdb', 'postgres'):
+        repaired = _migrate_sql_store(str(db_path), table, backend)
+        if verbose:
+            for _table, column, count in repaired:
+                print(f"Repaired {count} row(s) of `{_table}`.`{column}`: the "
+                      f"Annotate app's 1/2 class encoding back to the model's 0/1")
+        return repaired
+    if backend == 'parquet':
+        repaired = _merge_parquet_store(
+            None, str(db_path), {}, table, 'auto', None,
+            migration_only=True)
+        if verbose:
+            for _table, column, count in repaired:
+                print(f"Repaired {count} row(s) of `{_table}`.`{column}`: the "
+                      f"Annotate app's 1/2 class encoding back to the model's 0/1")
+        return repaired
 
     repaired: List[Tuple[str, str, int]] = []
     con = sqlite3.connect(str(db_path), timeout=30)
@@ -762,7 +774,9 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
         columns named in ``columns``, plus something to key on: a ``prcfo``
         column, an index named ``prcfo``, or a ``path``/``png_path``/
         ``file_name`` column holding spaCR crop names.
-    :param db_path: SQLite database. A missing file is reported and skipped.
+    :param db_path: SQLite or DuckDB file, Parquet store directory, or
+        PostgreSQL connection string. A missing local store is reported and
+        skipped.
     :param columns: mapping of *database* column name to
         ``(results column, 'REAL' | 'INTEGER')``.
     :param table: target table. Default ``'png_list'``.
@@ -771,12 +785,17 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
     :param timelapse: whether crop names carry a timepoint. ``None`` detects it
         from the presence of a time column on the table.
     :param verbose: print the report.
-    :returns: a :class:`MergeReport`, or ``None`` if the database is missing.
+    :returns: a :class:`MergeReport`, or ``None`` if a local store is missing.
     :raises KeyError: if ``results`` lacks one of the source columns.
-    :raises sqlite3.OperationalError: if ``table`` does not exist.
+    :raises ValueError: if a Parquet table is missing or prediction output
+        would replace a join-key column in an alternate store.
     """
-    db_path = str(db_path)
-    if not os.path.exists(db_path):
+    from .tabular import _backend_of, resolve_path
+
+    backend = _backend_of(db_path)
+    db_path = (resolve_path(db_path) if backend in ('duckdb', 'parquet')
+               else str(db_path))
+    if backend != 'postgres' and not os.path.exists(db_path):
         print(f"Database not found at {db_path}; skipping merge.")
         return None
 
@@ -791,6 +810,19 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
             f"merge_prediction_results: results frame has no column(s) "
             f"{missing}; it carries {list(results.columns)[:12]}"
             + (" ..." if len(results.columns) > 12 else ""))
+
+    if backend in ('duckdb', 'postgres'):
+        report = _merge_sql_store(results, db_path, spec, table, key,
+                                  timelapse, backend)
+        if verbose:
+            print(report.summary())
+        return report
+    if backend == 'parquet':
+        report = _merge_parquet_store(results, db_path, spec, table, key,
+                                      timelapse)
+        if verbose:
+            print(report.summary())
+        return report
 
     repaired = migrate_prediction_columns(db_path, table=table, verbose=False)
 
@@ -814,19 +846,274 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
     return report
 
 
+def _repair_sql_columns(conn, table: str, table_columns: Sequence[str]):
+    """Repair the legacy 1/2 class encoding inside the caller's transaction."""
+    quoted_table = _quote(table)
+    repaired = []
+    for column in ANNOTATE_ENCODED_COLUMNS:
+        if column not in table_columns:
+            continue
+        quoted = _quote(column)
+        values = {row[0] for row in conn.execute(
+            f"SELECT DISTINCT {quoted} FROM {quoted_table} "
+            f"WHERE {quoted} IS NOT NULL").fetchall()}
+        if not values or not values.issubset({1, 2}) or 2 not in values:
+            continue
+        count = conn.execute(
+            f"SELECT COUNT(*) FROM {quoted_table} WHERE {quoted} = 2"
+        ).fetchone()[0]
+        conn.execute(f"UPDATE {quoted_table} SET {quoted} = 0 WHERE {quoted} = 2")
+        repaired.append((table, column, int(count)))
+    return repaired
+
+
+def _migrate_sql_store(db_path, table, backend):
+    """Repair a native SQL store in one transaction, if its table exists."""
+    from .tabular import _duckdb_connect, _postgres_connect
+
+    connect = _duckdb_connect if backend == 'duckdb' else _postgres_connect
+    conn = connect(db_path)
+    try:
+        if backend == 'duckdb':
+            conn.execute('BEGIN TRANSACTION')
+        try:
+            present = {row[0] for row in conn.execute(
+                'SELECT table_name FROM information_schema.tables '
+                'WHERE table_schema = current_schema() '
+                "AND table_type = 'BASE TABLE'").fetchall()}
+            if table in present:
+                quoted = _quote(table)
+                if backend == 'postgres':
+                    conn.execute(f'LOCK TABLE {quoted} IN EXCLUSIVE MODE')
+                columns = [getattr(entry, 'name', None) or entry[0]
+                           for entry in conn.execute(
+                               f'SELECT * FROM {quoted} LIMIT 0').description]
+                repaired = _repair_sql_columns(conn, table, columns)
+            else:
+                repaired = []
+            if backend == 'duckdb':
+                conn.execute('COMMIT')
+            else:
+                conn.commit()
+        except BaseException:
+            if backend == 'duckdb':
+                conn.execute('ROLLBACK')
+            else:
+                conn.rollback()
+            raise
+    finally:
+        conn.close()
+    return repaired
+
+
+def _execute_native_update(conn, sql, params):
+    """Apply one native-store row update inside the caller's transaction."""
+    conn.execute(sql, params)
+
+
+def _merge_sql_store(results, db_path, spec, table, key, timelapse, backend):
+    """Update DuckDB or PostgreSQL rows while holding one native transaction."""
+    from .tabular import _duckdb_connect, _postgres_connect
+
+    connect = _duckdb_connect if backend == 'duckdb' else _postgres_connect
+    conn = connect(db_path)
+    quoted_table = _quote(table)
+    placeholder = '?' if backend == 'duckdb' else '%s'
+    try:
+        if backend == 'duckdb':
+            conn.execute('BEGIN TRANSACTION')
+        else:
+            conn.execute(f'LOCK TABLE {quoted_table} IN EXCLUSIVE MODE')
+        try:
+            table_columns = [getattr(entry, 'name', None) or entry[0]
+                             for entry in conn.execute(
+                                 f'SELECT * FROM {quoted_table} LIMIT 0').description]
+            key_columns = [column for column in table_columns
+                           if column in ('prcfo', 'png_path', 'file_name')
+                           or column in _PRCFO_METADATA
+                           or column in _OBJECT_ID_COLUMNS
+                           or column in ('timeID', 'time_id')]
+            if set(spec) & set(key_columns):
+                raise ValueError('Prediction output cannot replace a join-key column.')
+            query = ', '.join(_quote(column) for column in key_columns)
+            rows = conn.execute(
+                f'SELECT {query} FROM {quoted_table}').fetchall() if query else []
+            db_frame = pd.DataFrame(rows, columns=key_columns)
+            repaired = _repair_sql_columns(conn, table, table_columns)
+            updates, report, order, types = _plan_merge(
+                results, spec, table, key, timelapse, table_columns,
+                db_frame, range(len(db_frame)), repaired)
+            native_types = {'REAL': 'DOUBLE PRECISION',
+                            'INTEGER': 'BIGINT', 'TEXT': 'TEXT'}
+            for column in report.added_columns:
+                sql_type = types[column].upper()
+                if sql_type not in native_types:
+                    raise ValueError(f'Unsupported prediction SQL type: {sql_type!r}')
+                conn.execute(f'ALTER TABLE {quoted_table} ADD COLUMN '
+                             f'{_quote(column)} {native_types[sql_type]}')
+            if updates:
+                assignment = ', '.join(f'{_quote(column)} = {placeholder}'
+                                       for column in order)
+                selector = ' AND '.join(
+                    f'{_quote(column)} IS NOT DISTINCT FROM {placeholder}'
+                    for column in key_columns)
+                sql = f'UPDATE {quoted_table} SET {assignment} WHERE {selector}'
+                for update in updates:
+                    raw = db_frame.iloc[update[-1]]
+                    params = tuple(update[:-1]) + tuple(
+                        _sql_value(raw[column], 'TEXT') for column in key_columns)
+                    _execute_native_update(conn, sql, params)
+            if backend == 'duckdb':
+                conn.execute('COMMIT')
+            else:
+                conn.commit()
+        except BaseException:
+            if backend == 'duckdb':
+                conn.execute('ROLLBACK')
+            else:
+                conn.rollback()
+            raise
+    finally:
+        conn.close()
+    return report
+
+
+def _merge_parquet_store(results, db_path, spec, table, key, timelapse,
+                         migration_only=False):
+    """Publish scored Parquet parts through one active-snapshot replacement."""
+    from bisect import bisect_right
+    import uuid
+
+    from .tabular import (
+        _parquet_manifest, _parquet_part_record, _parquet_parts,
+        _parquet_store_lock, _publish, _publish_parquet_manifest,
+        _require_optional, _PYARROW_MISSING_MESSAGE,
+    )
+
+    arrow = _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+    parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+    if table in ('.', '..') or '/' in table or '\\' in table:
+        raise ValueError(f'Invalid Parquet table name: {table!r}')
+    folder = os.path.join(db_path, table)
+    with _parquet_store_lock(db_path):
+        parts = _parquet_parts(db_path, table)
+        if not parts:
+            if migration_only:
+                return []
+            raise ValueError(f'Table not found in database: {table}')
+        manifest = _parquet_manifest(folder)
+        records = (manifest['active'] if manifest is not None else
+                   [_parquet_part_record(part) for part in parts])
+        retired = manifest['retired'] if manifest is not None else []
+        schemas = [parquet.read_schema(part) for part in parts]
+        table_columns = list(dict.fromkeys(
+            name for schema in schemas for name in schema.names))
+        key_columns = [column for column in table_columns
+                       if column in ('prcfo', 'png_path', 'file_name')
+                       or column in _PRCFO_METADATA
+                       or column in _OBJECT_ID_COLUMNS
+                       or column in ('timeID', 'time_id')]
+        if set(spec) & set(key_columns):
+            raise ValueError('Prediction output cannot replace a join-key column.')
+        key_frames = []
+        offsets = [0]
+        repair_values = set()
+        repair_count = 0
+        for part, part_schema in zip(parts, schemas):
+            present = [column for column in key_columns
+                       if column in part_schema.names]
+            selected = parquet.read_table(part, columns=present).to_pandas()
+            key_frames.append(selected.reindex(columns=key_columns))
+            offsets.append(offsets[-1] + len(selected))
+            if ML_CLASS_COLUMN in part_schema.names:
+                values = parquet.read_table(
+                    part, columns=[ML_CLASS_COLUMN]).column(0).to_pylist()
+                repair_values.update(value for value in values if value is not None)
+                repair_count += sum(value == 2 for value in values)
+        should_repair = (bool(repair_values) and
+                         repair_values.issubset({1, 2}) and 2 in repair_values)
+        repaired = ([(table, ML_CLASS_COLUMN, repair_count)]
+                    if should_repair else [])
+        if migration_only:
+            updates, report, order, types = [], None, [], {}
+        else:
+            db_frame = pd.concat(key_frames, ignore_index=True)
+            updates, report, order, types = _plan_merge(
+                results, spec, table, key, timelapse, table_columns,
+                db_frame, range(len(db_frame)), repaired)
+        if not updates and not should_repair and (
+                migration_only or not report.added_columns):
+            return repaired if migration_only else report
+        sql_to_arrow = {'REAL': arrow.float64(), 'INTEGER': arrow.int64(),
+                        'TEXT': arrow.string()}
+        if not migration_only:
+            for column in report.added_columns:
+                if types[column].upper() not in sql_to_arrow:
+                    raise ValueError(
+                        f'Unsupported prediction SQL type: {types[column]!r}')
+        grouped = [[] for _ in parts]
+        for update in updates:
+            part_index = bisect_right(offsets, update[-1]) - 1
+            grouped[part_index].append((update[-1] - offsets[part_index],
+                                        update[:-1]))
+        staged = []
+        published = False
+        try:
+            for part, part_updates in zip(parts, grouped):
+                source = parquet.read_table(part)
+                changed = source
+                for position, column in enumerate(order):
+                    if column in changed.schema.names:
+                        field = changed.schema.field(column)
+                        values = changed.column(column).to_pylist()
+                    else:
+                        field = arrow.field(column, sql_to_arrow[types[column].upper()])
+                        values = [None] * changed.num_rows
+                    if should_repair and column == ML_CLASS_COLUMN:
+                        values = [0 if value == 2 else value for value in values]
+                    for row, update_values in part_updates:
+                        values[row] = update_values[position]
+                    array = arrow.array(values, type=field.type)
+                    if column in changed.schema.names:
+                        changed = changed.set_column(
+                            changed.schema.get_field_index(column), field, array)
+                    else:
+                        changed = changed.append_column(field, array)
+                if should_repair and ML_CLASS_COLUMN not in order \
+                        and ML_CLASS_COLUMN in changed.schema.names:
+                    field = changed.schema.field(ML_CLASS_COLUMN)
+                    values = changed.column(ML_CLASS_COLUMN).to_pylist()
+                    values = [0 if value == 2 else value for value in values]
+                    changed = changed.set_column(
+                        changed.schema.get_field_index(ML_CLASS_COLUMN),
+                        field, arrow.array(values, type=field.type))
+                staged_part = os.path.join(
+                    folder, f'.spacr-part-{uuid.uuid4().hex}.parquet')
+                _publish(staged_part, lambda pending, value=changed:
+                         parquet.write_table(value, pending))
+                staged.append(staged_part)
+            if (_parquet_manifest(folder) != manifest or
+                    _parquet_parts(db_path, table) != parts or
+                    [_parquet_part_record(part) for part in parts] != records):
+                raise RuntimeError('Parquet target changed while scoring; retry.')
+            next_active = [_parquet_part_record(part) for part in staged]
+            _publish_parquet_manifest(folder, next_active, retired + records)
+            published = True
+        finally:
+            if not published:
+                for part in staged:
+                    if os.path.exists(part):
+                        os.remove(part)
+    return repaired if migration_only else report
+
+
 def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]],
                   table: str, key: str, timelapse: Optional[bool],
                   repaired: Sequence[Tuple[str, str, int]]) -> MergeReport:
     """Do the merge inside an already-open transaction."""
-    from .utils import _time_column
-
     quoted_table = _quote(table)
     cur.execute(f"SELECT * FROM {quoted_table} LIMIT 0")
     table_columns = [d[0] for d in cur.description]
-
-    if timelapse is None:
-        timelapse = _time_column(table_columns) is not None
-
     key_columns = [c for c in table_columns
                    if c in ("prcfo", "png_path", "file_name")
                    or c in _PRCFO_METADATA or c in _OBJECT_ID_COLUMNS
@@ -836,6 +1123,30 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     rows = cur.execute(f"SELECT {select} FROM {quoted_table}").fetchall()
     rowids = [r[0] for r in rows]
     db_frame = pd.DataFrame([r[1:] for r in rows], columns=key_columns)
+
+    updates, report, order, types = _plan_merge(
+        results, spec, table, key, timelapse, table_columns,
+        db_frame, rowids, repaired)
+    for db_col in report.added_columns:
+        cur.execute(f"ALTER TABLE {quoted_table} ADD COLUMN "
+                    f"{_quote(db_col)} {types[db_col]}")
+    if updates:
+        assignments = ", ".join(f"{_quote(c)} = ?" for c in order)
+        _execute_updates(
+            cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
+            updates)
+    return report
+
+
+def _plan_merge(results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]],
+                table: str, key: str, timelapse: Optional[bool],
+                table_columns: Sequence[str], db_frame: pd.DataFrame,
+                rowids: Sequence, repaired: Sequence[Tuple[str, str, int]]):
+    """Plan row updates and counts without depending on a store's SQL dialect."""
+    from .utils import _time_column
+
+    if timelapse is None:
+        timelapse = _time_column(table_columns) is not None
 
     if key == "auto":
         kind, result_keys, db_keys = _choose_key(results, db_frame, timelapse)
@@ -874,12 +1185,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     for row_key in conflicting:
         lookup.pop(row_key, None)
 
-    added = []
-    for db_col in order:
-        if db_col not in table_columns:
-            cur.execute(f"ALTER TABLE {quoted_table} ADD COLUMN "
-                        f"{_quote(db_col)} {types[db_col]}")
-            added.append(db_col)
+    added = [db_col for db_col in order if db_col not in table_columns]
 
     updates = []
     matched_keys = set()
@@ -890,18 +1196,12 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
         updates.append(tuple(values) + (rowids[position],))
         matched_keys.add(row_key)
 
-    if updates:
-        assignments = ", ".join(f"{_quote(c)} = ?" for c in order)
-        _execute_updates(
-            cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
-            updates)
-
     db_key_set = {k for k in db_key_list if k is not None}
     unmatched_results = sum(
         1 for k in key_list
         if k is not None and k not in conflicting and k not in db_key_set)
 
-    return MergeReport(
+    report = MergeReport(
         table=table,
         key=kind,
         columns=tuple(order),
@@ -918,6 +1218,7 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
         repaired=tuple(repaired),
         added_columns=tuple(added),
     )
+    return updates, report, order, types
 
 
 
@@ -928,13 +1229,12 @@ def attach_predictions(objects, results, *,
                        score_col: str = CV_SCORE_COLUMN,
                        class_col: str = CV_CLASS_COLUMN,
                        timelapse: bool = False):
-    """Join prediction columns onto an object frame IN MEMORY.
+    """Join prediction columns onto an object frame in memory.
 
-    THE SAME JOIN AS :func:`merge_prediction_results`, AND NOTHING WRITTEN.
-    `_choose_key` picks the key by MEASURING which one lands on the most rows,
-    so a montage reading scores out of a score CSV and a database that had the
-    same CSV merged into it cannot disagree about which object got which
-    number -- which two separate join implementations eventually would.
+    The same join as :func:`merge_prediction_results`, without writing
+    anything. `_choose_key` picks the key that matches the most rows, so a
+    montage reading scores from a score CSV and a database with the same CSV
+    merged into it assign each object the same score.
 
     This supports projects whose ``png_list`` table has no prediction column
     but whose regression inputs already contain one score row per cell. The
@@ -943,10 +1243,10 @@ def attach_predictions(objects, results, *,
     :param objects: the per-object frame, e.g. `png_list` read back.
     :param results: the score table -- `path`, `pred`, `cv_predictions`, as
         `process_vision_results` and the regression module's score CSVs carry.
-    :returns: ``(frame, matched)`` -- a COPY of ``objects`` with the score and
+    :returns: ``(frame, matched)`` -- a copy of ``objects`` with the score and
         class columns added where they joined, and how many rows matched.
         ``matched`` is 0 when nothing lined up, and the frame comes back
-        without the columns, so a caller can refuse with a real number.
+        without the columns, so a caller can report the count.
     """
     if objects is None or results is None or not len(objects) or not len(results):
         return objects, 0

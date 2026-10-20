@@ -153,7 +153,7 @@ def test_make_masks_unmixes_whole_fields_and_records_the_matrix(plate):
     record = session.configuration['unmixing']
     assert record['matrix'] == [list(row) for row in session.unmixing.matrix]
     written = json.loads((root / 'psf' / 'segmentation_application.json')
-                         .read_text())
+                         .read_text(encoding="utf-8"))
     assert written['configuration']['unmixing'] == record
     assert _configuration(None, [1], 'v1')['processing'] == {'operation': 'none'}
     assert 'unmixing' not in _configuration(None, [1], 'v1')
@@ -179,7 +179,7 @@ def test_measure_records_the_matrix_and_unmixes_in_the_field_dtype(plate):
     assert record == plan.provenance()
     assert record['channels'] == [0, 1]
     saved = json.loads((stack.parent / 'measurements' / 'bleed_through.json')
-                       .read_text())
+                       .read_text(encoding="utf-8"))
     assert saved == record
 
     field = np.load(merged / 'plate1_A01_1.npy')[..., [0, 1]]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import os
 import re
@@ -50,6 +51,39 @@ live = _load("verify_tutorial_live", "tools/verify_tutorial_live.py")
 frames = _load("sample_tutorial_frames", "tools/sample_tutorial_frames.py")
 
 
+def test_catalog_cache_key_preserves_an_unchanged_asset_across_publications():
+    receipt = {"pages": {
+        "cache_key": "tutorial-04-installers-20261013-r23b-verified",
+        "versioned_assets": {
+            "lesson_catalog.js": "tutorial-08-measure-20261013-r26-verified",
+            "module_navigation.js": "tutorial-04-installers-20261013-r23b-verified",
+        },
+    }}
+
+    assert live._catalog_cache_key(receipt) == "tutorial-08-measure-20261013-r26-verified"
+
+
+def test_catalog_cache_key_reads_the_legacy_receipt_without_asset_mapping():
+    receipt = {"pages": {"cache_key": "legacy-catalog-publication"}}
+
+    assert live._catalog_cache_key(receipt) == "legacy-catalog-publication"
+
+
+@pytest.mark.parametrize("mapping, error", [
+    ({}, KeyError),
+    ({"module_navigation.js": "a-new-release"}, KeyError),
+    (None, TypeError),
+])
+def test_catalog_cache_key_rejects_a_present_malformed_asset_mapping(mapping, error):
+    receipt = {"pages": {
+        "cache_key": "a-release-key-cannot-repair-missing-asset-evidence",
+        "versioned_assets": mapping,
+    }}
+
+    with pytest.raises(error):
+        live._catalog_cache_key(receipt)
+
+
 def test_release_audit_parsers_pin_the_current_inventory():
     tutorial_root = ROOT / "docs" / "source" / "_extra" / "tutorials"
     catalog = frames.load_catalog(tutorial_root / "lesson_catalog.js")
@@ -65,7 +99,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     }
     refreshed_scenes = {
         "01_pypi_github": 8, "02_install_spacr": 17,
-        "04_platform_installers": 14, "05_home": 39,
+        "04_platform_installers": 14, "05_home": 33,
         "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
     }
     assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
@@ -75,6 +109,7 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
     # the republished Platform Installers lesson (4014dbdef) has 11 (was 10).
     # Make Masks gains the five item-489 restoration scenes (1101 -> 1106).
+    # The 2026-10-17 re-recorded 05 Home lesson (d7d31509f) has 33 scenes (was 31).
     # Re-record wave 1 (candidate kq8y8lq2): 22 13 (was 7), 32 10 (was 9), 41 12 (was 11), 43 14 (was 13).
     # Re-record wave 2 (candidate me1282u_): 05 19 (was 11), 08 12 (was 11), 09 22 (was 20), 24 19 (was 15).
     # Wave 3 (candidate nmw7tksc): 08 13 (was 12), 14 41 (was 32), 58 23 (was 12), 64 25 (was 22),
@@ -90,12 +125,16 @@ def test_release_audit_parsers_pin_the_current_inventory():
     assert {"07b_wand_add", "07c_wand_ctrl_remove", "08b_merge_demo"} <= {
         scene["visual"] for scene in make_masks["scenes"]
     }
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1166
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1227
+    # The accepted Home revision removes its hidden Spaceout ending.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1160
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1221
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
-    assert live.EXPECTED_CACHE_KEY in (
+    checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text(encoding="utf-8"))
+    cache_key = live._catalog_cache_key(receipt)
+    assert f'src="lesson_catalog.js?v={cache_key}"' in (
         tutorial_root / "index.html"
     ).read_text(encoding="utf-8")
 
@@ -225,7 +264,7 @@ def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_l
         "each module or folded workflow must have exactly one lesson")
     folder = (ROOT / 'docs/source/_extra/tutorials' if catalog_loader is _tutorial_catalog
               else ROOT / 'tools/tutorials/release_candidate/web')
-    source = (folder / 'module_navigation.js').read_text()
+    source = (folder / 'module_navigation.js').read_text(encoding="utf-8")
     navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
     gaps = navigation['missing_tutorials']
     missing = {row['app_key'] for row in gaps}
@@ -430,7 +469,7 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     }
     assert pypi_scenes, "the installation lesson no longer names PyPI"
 
-    compatibility = json.loads((catalog_dir.parent / 'translation-compatibility.json').read_text())
+    compatibility = json.loads((catalog_dir.parent / 'translation-compatibility.json').read_text(encoding="utf-8"))
     registered = {(row['lesson'], row['language']) for row in compatibility['entries']
                   if row['status'] == 'english_fallback' and row['reason']}
     failures, spoken, fallback = [], [], []
@@ -464,8 +503,17 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
 
     published = _tutorial_catalog()
-    manifest = json.loads((ROOT / "tools/tutorials/release_candidate"
-                           / "release-manifest.json").read_text())
+    checkpoint = ROOT / "features/data/n676_api_link_metadata_completed_2026-10-15/checkpoint"
+    receipt = json.loads((checkpoint / "publication-receipt.json").read_text(encoding="utf-8"))
+    manifest_bytes = (checkpoint / "release-manifest.json").read_bytes()
+    assert hashlib.sha256(manifest_bytes).hexdigest() == receipt["manifest_sha256"]
+    readback = receipt["readback"]
+    assert readback["passed"] is True
+    assert readback["commit"] == receipt["commit"]
+    assert readback["downloaded_sha256_matched"] == readback["files_expected"] == receipt["media_files"]
+    index = (catalog_dir.parent / "index.html").read_text(encoding="utf-8")
+    assert f'data-web-root="{receipt["media_root"]}"' in index
+    manifest = json.loads(manifest_bytes)
     media_records = {row["path"]: row for row in manifest["files"]}
     visual_references = {}
     for lesson in published["lessons"]:
@@ -480,10 +528,12 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
             visual_references[lesson["id"]] = visual
             record = media_records["media_host/" + visual]
             assert record["bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
-    native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
-                  "80_image_analysis_pathways", "82_toxoplasma"}
-    original_ids = {"07_mask", "08_measure", "14_make_masks", "18_motility",
-                    "19_train_cellpose", "20_cellpose_masks", "24_plaque",
+    # 14_make_masks became native in N676 phase 1 (2026-10-11).
+    # 07_mask and 08_measure were verified native publications on 2026-10-13:
+    # 438464849 (07 r26b) and 52d5d99bf (08 r26), with dated publication
+    # receipts under features/data/676_publication_2026-10-13_{07_mask,08_measure}.
+    native_ids = {"02_install_spacr", "04_platform_installers", "05_home", "07_mask", "08_measure", "09_annotate", "11_classify_ml", "14_make_masks", "15_image_umap", "20_cellpose_masks", "23_agreement", "28_training_runs", "32_align_stitch", "33_plate_viewer", "35_converter", "38_distributed_jobs", "39_classifier_evaluation", "43_illumination", "44_data_manager", "45_project_browser", "80_image_analysis_pathways", "82_toxoplasma"}
+    original_ids = {"18_motility", "19_train_cellpose", "24_plaque",
                     "74_import_images", "85_host_pathogen", "87_alpha_features"}
     assert visual_references == {
         **{identity: identity + "/video/native-live-timings.json" for identity in native_ids},

@@ -358,6 +358,10 @@ def test_fold_mode_switches_between_per_fold_and_the_labelled_mean(
     assert labels == [f"{cv} · train · mean of 2 folds ±sd",
                       f"{cv} · val · mean of 2 folds ±sd"]
     assert all("mean of 2 folds" in label for label in labels)
+    recipe = screen.figure()._spacr_spec['training_curves']
+    assert [curve['label'] for curve in recipe['curves']] == labels
+    source = screen.figure()._spacr_data
+    assert {'accuracy__sd', 'loss__sd', 'n_folds', 'run_id', 'fold', 'kind'} <= set(source.columns)
 
     assert screen.set_fold_mode("nonsense") is False
     assert "Unknown fold mode" in screen.last_error

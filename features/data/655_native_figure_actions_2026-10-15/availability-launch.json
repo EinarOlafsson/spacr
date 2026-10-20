@@ -1,0 +1,14 @@
+{
+  "memory_bytes": {
+    "MemTotal": 135000322048,
+    "MemAvailable": 102656057344
+  },
+  "used_total_minus_available_bytes": 32344264704,
+  "parent_authorized_native_lane": true,
+  "desktop_idle": {
+    "code": 0,
+    "stdout": "(uint64 5332015,)",
+    "stderr": ""
+  },
+  "recording_encoding_processes": []
+}

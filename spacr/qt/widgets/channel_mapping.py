@@ -5,13 +5,11 @@ Replaces a text box holding ``{'r': 2, 'g': 1, 'b': 0}``. The dict form is
 still what the setting *is* -- this only stops the user having to type a
 Python literal to say something as simple as "555 is my red".
 
-Why three labelled fields rather than one ordered list: the list form
-(``png_dims``) never said which colour it meant. Position 0 was blue because
-of how cv2 interprets an array it is handed, which is not something the
-settings panel could show and not something a user could infer. It got read
-backwards for eleven days and every crop written in that window has its
-nuclear stain in the red channel. A field labelled "R" cannot be read
-backwards.
+Three labelled fields replace one ordered list because the list form
+(``png_dims``) did not say which colour each position meant: position 0 was
+blue because of how cv2 interprets an array, which the settings panel could
+not show and a user could not infer. A misread list writes crops with the
+channels in the wrong colours; a field labelled "R" states its colour.
 """
 from __future__ import annotations
 

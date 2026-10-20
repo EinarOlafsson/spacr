@@ -1,7 +1,7 @@
 {
   "language": "de",
   "lesson": "80_image_analysis_pathways",
-  "english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
   "title": "Bildanalysemodule und ihr Zusammenspiel",
   "section": "Arbeitsabläufe",
   "description": "Folgen Sie den aktuellen Wegen vom Bild zur Messung und wählen Sie Exploration, Beschriftung, Vergleich oder organismusspezifische Analysen.",
@@ -16,7 +16,7 @@
     "Import organisiert eingehende Mikroskopiedateien und Metadaten. Enthält Ihre Aufnahme überlappende Bildkacheln, kann Align & Stitch ein Mosaik mit seinen Koordinatendatensätzen vorbereiten. Bewahren Sie Kanalidentitäten und Quellmetadaten zusammen mit dem Projekt auf.",
     "Mask erzeugt Objektlabels aus Mikroskopiebildern. Mit Make Masks erstellen oder prüfen Sie Masken manuell. Bild-Masken-Paare müssen dieselbe Feldidentität behalten; eine einzelne Maskendatei ist nicht automatisch das kombinierte Projektarray, das Measure benötigt.",
     "Measure liest die vorbereiteten Bilder und Maskenebenen gemeinsam. Es schreibt measurements.db mit Objektidentitäten und Merkmalsspalten und kann Objektausschnitte speichern. Bewahren Sie das Quellprojekt und die Kanalzuordnung zusammen mit diesen Tabellen auf.",
-    "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify lernt anhand der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
+    "Annotate zeigt Objektausschnitte, damit Sie geprüfte Labels hinzufügen können. Classify trainiert ein Modell mit der ausgewählten Labelspalte und verwendet Ausschnittbilder oder gemessene Merkmale. Trennen Sie Evaluierungsobjekte von Trainingsobjekten und übernehmen Sie die Score-Spalte und Objektidentitäten in spätere Analysen.",
     "Embeddings codiert Ausschnitte in numerische Merkmale. Image UMAP projiziert kompatible Merkmale zur Exploration. Prüfen Sie repräsentative Ausschnitte, bevor Sie einem Cluster eine Bedeutung zuweisen; ein Cluster allein ist kein validierter Phänotyp.",
     "Gate Editor wählt Objekte anhand tatsächlicher Merkmalsspalten oder kompatibler Projektionskoordinaten aus. Prüfen Sie die ausgewählten Objekte, bevor Sie Labels schreiben. Diese Labels können zu geprüften Beispielen für Annotate oder Classify werden.",
     "QC berichtet über vorhandene Qualitätsprüfungen und fehlende Evidenz. Run Compare betrachtet gespeicherte Läufe nebeneinander. Graph Builder stellt Messtabellen mit den von Ihnen gewählten Spalten und Gruppierungen grafisch dar.",
@@ -26,11 +26,26 @@
     "Kehren Sie zu Home zurück und wählen Sie den nächsten Schritt anhand der tatsächlich vorhandenen Ausgabe. Nutzen Sie die verknüpften Modullektionen für einen vollständigen Lauf. Bewahren Sie Eingabeidentität, Einstellungen, installierte Version und Ausgabeort zusammen auf, damit der Arbeitsablauf später geprüft werden kann."
   ],
   "review": {
-    "kind": "Direct AI technical/context review, no native-speaker signoff",
-    "translator": "AI technical/context review from the exact current English source",
-    "date": "2026-10-08",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "610e009318de7222121a5c7493801c3a205fb30c9157e574eea440a61ef2c450",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
   }
 }

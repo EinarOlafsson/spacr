@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "reviewer": "Original Home independent technical source peer",
+  "status": "ACCEPT_FINAL_SOURCE",
+  "files": {
+    "spacr/_segmentation_backends.py": {
+      "sha256": "df4670eb40392b4965ecde2d01aed8ab1d7f9eb55bd1a948f71be7f4404950af",
+      "changed_top_level_functions": [
+        "_cellpose3_model",
+        "_cellpose_dino_model",
+        "_prefixed_model"
+      ],
+      "outside_scope_AST_unchanged": true
+    },
+    "spacr/_mask_workers.py": {
+      "sha256": "9b8ed0baf692fc741e79bde865b1542a1f7acc30a7979d797408ec40753e832d",
+      "changed_top_level_functions": [
+        "_resolved_backend_model"
+      ],
+      "outside_scope_AST_unchanged": true
+    }
+  },
+  "patch_sha256": "a5dd328d619ccec24425336de0ee059e4bf449978b9bad2e0dea80f3033e8479",
+  "runtime_findings": [],
+  "documentation_finding": null,
+  "verified_semantics": [
+    "cp3 known stock/blank/cpsam defaults retained; existing local file wins; explicit unknown refuses through shared context",
+    "DINO existing file retained; exact shared acquisition respects kind and raw requested prefix",
+    "prefixed known/default model and existing file/folder precedence retained; exact stripped identifier lookup with raw prefix/#target log",
+    "worker forwards actual computed pathogen override/role key; DINO routes through shared helper",
+    "No new literal tr sources or algorithms added in these four functions"
+  ],
+  "central_baseline_note": "Easy central source4a9e lacks only Root published real_object_classifier registry line relative to author delivery4a490. Preserve incoming Root line during integration; peer accepts no regression of that line.",
+  "evidence_read": [
+    "coherent-affected.log:10PASS6 stale old exception FAIL7.55s",
+    "legacy-six-final.log:6PASS4.72s"
+  ],
+  "limits": [
+    "Source-only independent technical peer, no tests/models/collectors/network run.",
+    "Owning staged evidence retained without summing overlapping cases; normal runtime/API closure and current Root baseline integration remain required.",
+    "Accept only two-file source delta; do not replace Root real_object_classifier registry repair with older whole model_zoo prerequisite."
+  ],
+  "test_sha256": {
+    "tests/test_n702_backend_resolution_context.py": "21d48a63b542c5a46506952daa2cb4151e5133f3ef1ccee9f39870cd8eddb209",
+    "tests/test_cellpose_3_models_are_usable.py": "9d049e4aaf9c022a9e0769eeaadbf8647a18f69aef1e3d932dd8fb5e68d40b13",
+    "tests/test_cellpose_dino_runs_in_its_own_environment.py": "a206ea81134d112b6d4fab9b9c120004f8bc5a4f961a100534936970b311638e",
+    "tests/test_prefixed_backends_run_in_their_own_environment.py": "c536c54dbdfe1a9a548a98563810f30feed3dde6cac8bef05932ca64e30588cc"
+  },
+  "documentation_finding_resolved": "Final opening prose now states exact blank/cpsam defaults and explicit unknown/missing refusal; no extra executable change.",
+  "normal_visibility_proof_sha256": "f838608fb67ada49edaaaa0cea22c574543efedbad7c48bb30557d215f249a6d"
+}

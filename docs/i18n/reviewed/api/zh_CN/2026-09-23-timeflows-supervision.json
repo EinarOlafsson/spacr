@@ -6,7 +6,9 @@
       "label": "spacr.timeflows_model.ctc_pairs#0",
       "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
       "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-      "translation": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。"
+      "translation": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
@@ -61,14 +63,18 @@
       "label": "spacr.timeflows_model.track_masks_from_ctc#0",
       "source": "Full object masks labelled with their TRACK ids.",
       "source_sha256": "1035878158d24fa5f93e2be0247bf14999bdcbf8e640f64d87b7d5055b47f96a",
-      "translation": "以 TRACK 标识标注的完整对象掩膜。"
+      "translation": "以 TRACK 标识标注的完整对象掩膜。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
       "label": "spacr.timeflows_model.track_masks_from_ctc#1",
       "source": "The Cell Tracking Challenge publishes tracking ground truth as MARKERS -- a small blob inside each cell, labelled with its track id in every frame -- and full outlines separately (the silver ``ST/SEG`` masks, labelled per frame). Only one-to-one assignments are retained: the object contains exactly one marker ID and that ID overlaps no other segmented object. Unmarked, merged and split assignments are excluded rather than guessed.",
       "source_sha256": "3fe9e1a47aeea2450b9a54a4d946970ce551dcf6a8eb27c6d07dafb87d7b8770",
-      "translation": "Cell Tracking Challenge 以 MARKERS 形式发布跟踪参考标注：每个细胞内部的一小块区域，在每帧中以其轨迹标识标注。完整轮廓单独发布为逐帧标注的 silver 掩膜 ``ST/SEG``。只保留一对一分配：对象恰好包含一个标记标识，且该标记不与其他分割对象重叠。无标记、合并或分裂的分配会被排除，而不是猜测。"
+      "translation": "Cell Tracking Challenge 以 MARKERS 形式发布跟踪参考标注：每个细胞内部的一小块区域，在每帧中以其轨迹标识标注。完整轮廓单独发布为逐帧标注的 silver 掩膜 ``ST/SEG``。只保留一对一分配：对象恰好包含一个标记标识，且该标记不与其他分割对象重叠。无标记、合并或分裂的分配会被排除，而不是猜测。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "one frame's instance labels, any ids.",
@@ -103,14 +109,18 @@
       "label": "spacr.timeflows_model.train_timeflows#0",
       "source": "Train the time head, then the whole network, on track-labelled pairs.",
       "source_sha256": "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
-      "translation": "在带轨迹标签的帧对上先训练时间预测头，再训练整个网络。"
+      "translation": "在带轨迹标签的帧对上先训练时间预测头，再训练整个网络。",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "label": "spacr.timeflows_model.train_timeflows#1",
       "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
-      "translation": "训练分为两个阶段：主干网络已学会分割，因此在新预测头学习时冻结主干，随后以较低学习率训练整个网络。每对中的两帧先进行相同的数据增强，再计算目标。"
+      "translation": "训练分为两个阶段：主干网络已学会分割，因此在新预测头学习时冻结主干，随后以较低学习率训练整个网络。每对中的两帧先进行相同的数据增强，再计算目标。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",

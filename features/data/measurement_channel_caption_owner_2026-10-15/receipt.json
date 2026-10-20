@@ -1,0 +1,20 @@
+{
+  "scope": "Exactly one additional top-level literal-tr AST owner: measure.py::_measurement_channel_index. No runtime backend source, scientific normalization, API prose or catalog changes.",
+  "baseline": "b460359010b4614f3a8e5261c3d0a804bc4e1f1f",
+  "caption": "Measurement channels must be nonnegative integer indices.",
+  "before": "1 failed, 30 deselected in 1.44s; exact positive caption absent.",
+  "after": "48 passed in 1.62s",
+  "positive_and_exclusion": "Production extractor over synthetic source; exclusion parametrization rejects module captions, unrelated functions, same-named class methods and untranslated internals.",
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 tools/run_capped.sh 2G python -m pytest -q tests/test_runtime_backend_caption_owners.py tests/test_web_caption_extraction_n698.py",
+  "logs": {
+    "measurement-channel-extractor-before.log": {
+      "sha256": "026f898d942bffe3b71be4be8c06900c06864aa05c3951e92796132fb85de8f4",
+      "gzip": "measurement-channel-extractor-before.log.gz"
+    },
+    "measurement-channel-extractor-final.log": {
+      "sha256": "69c79f6618f319e6bf2387782fc7c83c03809e1ae306b174de13f03b7a9947d7",
+      "gzip": "measurement-channel-extractor-final.log.gz"
+    }
+  },
+  "delivery": "Private dependency for Original Home source plus nine reviewed runtime targets and ordinary catalog closure. No standalone publication or whole-feature completion claim."
+}

@@ -174,4 +174,4 @@ def test_a_paper_becomes_a_folder_of_figures_with_its_legends(tmp_path):
     assert out["licence"] == "cc by"
     legends = pp.read_legends(tmp_path / "paper" / pp.LEGENDS_FILE)
     assert legends == {"ppat.g006": "Title.A, one. D, plaque assays."}
-    assert json.loads((tmp_path / "paper" / "paper.json").read_text())["doi"] == "10.1371/x.1"
+    assert json.loads((tmp_path / "paper" / "paper.json").read_text(encoding="utf-8"))["doi"] == "10.1371/x.1"

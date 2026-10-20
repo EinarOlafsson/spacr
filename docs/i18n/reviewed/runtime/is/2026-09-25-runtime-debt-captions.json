@@ -209,10 +209,10 @@
     },
     {
       "table": "ui",
-      "key": "Checking Starplast updates",
-      "source": "Checking Starplast updates",
-      "source_sha256": "a3d65fd99ad08ddac19229db2a089f7c20c9b80d4e9f44a3a94f2b278ec0e8c7",
-      "translation": "Leita að uppfærslum á Starplast"
+      "key": "Checking ParaScape updates",
+      "source": "Checking ParaScape updates",
+      "source_sha256": "e3a791db6e6a17dfd24dc07086bdaa161ab0738d1bb0371a635368169299505e",
+      "translation": "Leita að uppfærslum á ParaScape"
     },
     {
       "table": "ui",
@@ -909,13 +909,6 @@
     },
     {
       "table": "ui",
-      "key": "Installing {label}…",
-      "source": "Installing {label}…",
-      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
-      "translation": "Set upp {label}…"
-    },
-    {
-      "table": "ui",
       "key": "Installing {name}…",
       "source": "Installing {name}…",
       "source_sha256": "9a6d101877ed12a83ba2a41c1c8dd51c53651e601396f20911ea3d0a93f20472",
@@ -1522,6 +1515,20 @@
       "source": "PDF files (*.pdf)",
       "source_sha256": "bbe7181efb2f55f70f42382df2b98087c5fa0cc2202268ece2094798a08296f0",
       "translation": "PDF-skrár (*.pdf)"
+    },
+    {
+      "table": "ui",
+      "key": "ParaScape update available",
+      "source": "ParaScape update available",
+      "source_sha256": "91c6e66181933390caa3590094fb2f695bb7d51ae9c1c7ac7f87a8c92d8d9ce8",
+      "translation": "Uppfærsla á ParaScape í boði"
+    },
+    {
+      "table": "ui",
+      "key": "ParaScape update check unavailable",
+      "source": "ParaScape update check unavailable",
+      "source_sha256": "20a640084194fedd675aca11bef62af5a34220a31e6a826a1d59517725a57937",
+      "translation": "Uppfærsluathugun ParaScape ekki tiltæk"
     },
     {
       "table": "ui",
@@ -2204,31 +2211,10 @@
     },
     {
       "table": "ui",
-      "key": "Starplast update available",
-      "source": "Starplast update available",
-      "source_sha256": "095c5aa897a81cdd664ffb3e43852631a8e3912036e4d5b512c75d6976217c22",
-      "translation": "Uppfærsla á Starplast í boði"
-    },
-    {
-      "table": "ui",
-      "key": "Starplast update check unavailable",
-      "source": "Starplast update check unavailable",
-      "source_sha256": "4c0c531e4d946a89abcd0695be8ef80e041b678f7d9b54165b6577dabff922ca",
-      "translation": "Uppfærsluathugun Starplast ekki tiltæk"
-    },
-    {
-      "table": "ui",
       "key": "Stopping after this page…",
       "source": "Stopping after this page…",
       "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
       "translation": "Stöðva eftir þessa síðu…"
-    },
-    {
-      "table": "ui",
-      "key": "Stopping the installer…",
-      "source": "Stopping the installer…",
-      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
-      "translation": "Stöðva uppsetningarforritið…"
     },
     {
       "table": "ui",
@@ -2463,13 +2449,6 @@
     },
     {
       "table": "ui",
-      "key": "The installer could not be run: {error}",
-      "source": "The installer could not be run: {error}",
-      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
-      "translation": "Ekki tókst að keyra uppsetningarforritið: {error}"
-    },
-    {
-      "table": "ui",
       "key": "The montage load failed: {error}",
       "source": "The montage load failed: {error}",
       "source_sha256": "a976e8b205f4c994c1caff43e505036dcad0733f0122f86279c6bf75d1bf7236",
@@ -2666,10 +2645,10 @@
     },
     {
       "table": "ui",
-      "key": "Upgrade Starplast",
-      "source": "Upgrade Starplast",
-      "source_sha256": "f4970f9850e828d9685b5829ef8927139f4348ef08bb3ea4490926d4b374a6ae",
-      "translation": "Uppfæra Starplast"
+      "key": "Upgrade ParaScape",
+      "source": "Upgrade ParaScape",
+      "source_sha256": "44c7b520742ab6490101d5f80567258e26b94348b118aa9f986ca3482b9722e9",
+      "translation": "Uppfæra ParaScape"
     },
     {
       "table": "ui",
@@ -3177,20 +3156,6 @@
     },
     {
       "table": "ui",
-      "key": "{label} is installed.",
-      "source": "{label} is installed.",
-      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
-      "translation": "{label} er uppsett."
-    },
-    {
-      "table": "ui",
-      "key": "{label} is signed in and ready.",
-      "source": "{label} is signed in and ready.",
-      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
-      "translation": "{label} er innskráð og tilbúið."
-    },
-    {
-      "table": "ui",
       "key": "{model} is not on this machine: {reason}",
       "source": "{model} is not on this machine: {reason}",
       "source_sha256": "c9e481fa074648930c5d1ce628d2fd7b5a660d345dd0c7b79e22ef35fcd39403",
@@ -3258,6 +3223,58 @@
       "source": "{value:g} px/µm",
       "source_sha256": "658a6bdc48239a9930c31cd1b55363fab8c8e82fa835f23f11ab1895f6ffe500",
       "translation": "{value:g} px á µm"
+    }
+  ],
+  "retired_records": [
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Installing {label}…",
+        "source": "Installing {label}…",
+        "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+        "translation": "Set upp {label}…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "Stopping the installer…",
+        "source": "Stopping the installer…",
+        "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+        "translation": "Stöðva uppsetningarforritið…"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "The installer could not be run: {error}",
+        "source": "The installer could not be run: {error}",
+        "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+        "translation": "Ekki tókst að keyra uppsetningarforritið: {error}"
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is installed.",
+        "source": "{label} is installed.",
+        "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+        "translation": "{label} er uppsett."
+      }
+    },
+    {
+      "reason": "2026-10-15, item 700: first-run setup no longer offers AI-provider or GitHub sign-in, so the install-and-sign-in panel that showed this caption (spacr/qt/widgets/cli_setup_panel.py) left the package.",
+      "record": {
+        "table": "ui",
+        "key": "{label} is signed in and ready.",
+        "source": "{label} is signed in and ready.",
+        "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+        "translation": "{label} er innskráð og tilbúið."
+      }
     }
   ]
 }

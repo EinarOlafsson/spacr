@@ -1042,10 +1042,12 @@
       "source_sha256": "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
       "context": "The standard replacement procedure runs three steps in order:",
       "translation": "표준 교체 절차는 세 단계를 순서대로 실행합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#2",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
       "context": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
@@ -1053,7 +1055,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#3",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
@@ -1098,7 +1100,9 @@
       "source_sha256": "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
       "translation": "표준 교체 경로는 새 설치 프로그램을 내려받고, 설치 프로그램이 만든 이전 사본을 제거하고, 새 버전을 설치한 후 시작합니다. 필요한 제거 중 하나라도 실패하면 설치를 건너뛰고 그 이유를 로그에 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "label": "spacr.io.generate_dataset#0",

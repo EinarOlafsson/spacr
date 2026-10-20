@@ -115,19 +115,25 @@ class _RecordingPool:
         pass
 
 
-def _one_field(tmp_path):
-    """Write a single tiny merged field so ``measure_crop`` has work to plan."""
+def _fields(tmp_path, count=32):
+    """Write tiny merged fields so ``measure_crop`` has work to plan.
+
+    One more field than any worker count asked for here: since N47
+    (534f5fcda) the pool is capped at the number of fields, and these tests
+    are about how the requested count resolves, not about that cap.
+    """
     src = tmp_path / 'merged'
     src.mkdir(parents=True)
     data = np.zeros((24, 24, 7), np.uint16)
     data[6:18, 6:18, 4] = 1
     data[9:15, 9:15, 5] = 1
-    np.save(src / 'plate1_A01_f1.npy', data)
+    for field in range(1, count + 1):
+        np.save(src / f'plate1_A01_f{field}.npy', data)
     return src
 
 
 def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None):
-    src = _one_field(tmp_path)
+    src = _fields(tmp_path)
     _RecordingPool.created = []
     monkeypatch.setattr(M, '_parallel_pool', _RecordingPool)
     # These assertions cover resolution of the requested worker count, not

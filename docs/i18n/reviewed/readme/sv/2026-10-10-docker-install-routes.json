@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_method": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "readme_source_sha256": "63a516a394f69be34b0ae4834d0e7785bfa4c14f7d73f1fdb16db21f61b4b099",
+  "scope": "Install spaCR route list (desktop, pip, conda-forge, Docker) and the version-free Docker GPU paragraph. Commands, image tags and URLs retained exactly; the Docker image tags live only in code blocks so release bumps do not stale these records.",
+  "records": [
+    {
+      "label": "route-intro",
+      "source": "Choose an install route:",
+      "source_sha256": "6a4ce7d3f7c3f3740a2979c5ec993319114db2e4e4df1af70061095b45f4a936",
+      "translation": "Välj en installationsväg:"
+    },
+    {
+      "label": "route-desktop",
+      "source": "**Desktop application**: a Linux, macOS or Windows installer with its own Python.",
+      "source_sha256": "53246f61b0a26bf5c40a4f256d913e995d91c5a5104a40ff0ac972287ba73bae",
+      "translation": "**Skrivbordsprogram**: ett installationsprogram för Linux, macOS eller Windows med egen Python."
+    },
+    {
+      "label": "route-pip",
+      "source": "**pip**: ``python -m pip install spacr`` in a Conda environment.",
+      "source_sha256": "2dfafcaca70e4821563131ad4001c79a2319d4651517dca6be148ad622304ec0",
+      "translation": "**pip**: ``python -m pip install spacr`` i en Conda-miljö."
+    },
+    {
+      "label": "route-conda-forge",
+      "source": "**conda-forge**: ``conda install conda-forge::spacr`` in a Conda environment.",
+      "source_sha256": "8c35630058ed4663b3ba7888e7bf77e671c91ccfa446e18957e77d14db1f889a",
+      "translation": "**conda-forge**: ``conda install conda-forge::spacr`` i en Conda-miljö."
+    },
+    {
+      "label": "route-docker",
+      "source": "**Docker**: the command-line pipelines in a Linux container, from the CPU image or the NVIDIA GPU image:",
+      "source_sha256": "eccdd010ad0c126c401385a07559c393823bc8b8cef5d576a826d23490845518",
+      "translation": "**Docker**: kommandoradens bearbetningsflöden i en Linux-container, från CPU-avbildningen eller avbildningen för NVIDIA-GPU:er:"
+    },
+    {
+      "label": "guide",
+      "source": "The `Docker guide <docs/source/installer_guide.rst#container-images>`_ covers GPU setup, data mounts and pipeline commands.",
+      "source_sha256": "76502f22a64844c3642d3c486814b680f46f1f1f947871c4beef346f92eb281a",
+      "translation": "`Docker-guiden <docs/source/installer_guide.rst#container-images>`_ beskriver GPU-inställning, montering av data och kommandon för bearbetningsflödena."
+    }
+  ]
+}

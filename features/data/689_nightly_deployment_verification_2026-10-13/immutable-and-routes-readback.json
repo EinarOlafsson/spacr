@@ -1,0 +1,192 @@
+{
+  "hf-immutable-publication": {
+    "url": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly/resolve/fb5978a399da588064666e903cfe8ed07da30ab0/publication.json",
+    "time_utc": "2026-10-14T01:22:29Z",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/einarolafsson/spacr-docs-nightly/fb5978a399da588064666e903cfe8ed07da30ab0/publication.json",
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Length": "179",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT",
+      "ETag": "\"a95d78d268250e1045a9ceba7d4243cb6f0e55d3\""
+    },
+    "bytes_read": 179,
+    "bounded_truncated": false,
+    "sha256": "4c80e697c79028e01cb4523963a11bf948dea9af1c004bedee3d0e6406fd4479"
+  },
+  "hf-immutable-channels": {
+    "url": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly/resolve/fb5978a399da588064666e903cfe8ed07da30ab0/channels.json",
+    "time_utc": "2026-10-14T01:22:29Z",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/einarolafsson/spacr-docs-nightly/fb5978a399da588064666e903cfe8ed07da30ab0/channels.json",
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Length": "401",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT",
+      "ETag": "\"838e306a1f1e19becb0071d896f03aa3e6e0ed35\""
+    },
+    "bytes_read": 401,
+    "bounded_truncated": false,
+    "sha256": "df4ab1b2daea853aba5ece9960c54d806f5f22b385ed38698c900ec33f071850"
+  },
+  "hf-immutable-index": {
+    "url": "https://huggingface.co/spaces/einarolafsson/spacr-docs-nightly/resolve/fb5978a399da588064666e903cfe8ed07da30ab0/index.html",
+    "time_utc": "2026-10-14T01:22:29Z",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/resolve-cache/spaces/einarolafsson/spacr-docs-nightly/fb5978a399da588064666e903cfe8ed07da30ab0/index.html",
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Length": "238173",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT",
+      "ETag": "\"56326ff99fc6f195d0aac8a6c98982eb438a187a\""
+    },
+    "bytes_read": 238173,
+    "bounded_truncated": false,
+    "sha256": "508425e1d17ea89767af2b6d229c204ad3cc12b68c9efc74cfd1b6a3079c6e8b",
+    "title": "spaCR 1.5.1.4 documentation",
+    "nightly_banner": true,
+    "nightly_redirect_marker": false,
+    "HF_url_present": true
+  },
+  "hf-commit-history": {
+    "url": "https://huggingface.co/api/spaces/einarolafsson/spacr-docs-nightly/commits/main",
+    "time_utc": "2026-10-14T01:22:29Z",
+    "status": 200,
+    "final_url": "https://huggingface.co/api/spaces/einarolafsson/spacr-docs-nightly/commits/main",
+    "headers": {
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Length": "14862",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT",
+      "ETag": "W/\"3a0e-cEPQSjmkpGEgVOrG49uiBwYxfiw\""
+    },
+    "bytes_read": 14862,
+    "bounded_truncated": false,
+    "sha256": "af5ac06446cdd2374be0f9343dfe4d64f0d7bc96bc1d906a35e07c0db1bc6bf5"
+  },
+  "hf-api-route": {
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/api/spacr/index.html",
+    "time_utc": "2026-10-14T01:22:30Z",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/api/spacr/index.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT"
+    },
+    "bytes_read": 67511,
+    "bounded_truncated": false,
+    "sha256": "4328669769bf80cffbd0eb1977ad61572ca23a8e84018821ac1fe9edcd80341a",
+    "title": "spacr - spaCR 1.5.1.4 documentation",
+    "nightly_banner": true,
+    "nightly_redirect_marker": false,
+    "HF_url_present": true
+  },
+  "hf-module-route": {
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/api/spacr/qt/screens/make_masks/index.html",
+    "time_utc": "2026-10-14T01:22:30Z",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/api/spacr/qt/screens/make_masks/index.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT"
+    },
+    "bytes_read": 131073,
+    "bounded_truncated": true,
+    "sha256_of_read_prefix": "c24b9d31e4aaaca55bf17fe855316247aebb88624376a2ccd997ef6371ae10f4",
+    "title": "spacr.qt.screens.make_masks - spaCR 1.5.1.4 documentation",
+    "nightly_banner": true,
+    "nightly_redirect_marker": false,
+    "HF_url_present": true
+  },
+  "hf-guide-route": {
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/distributed_execution.html",
+    "time_utc": "2026-10-14T01:22:30Z",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/distributed_execution.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Date": "Wed, 14 Oct 2026 01:22:30 GMT"
+    },
+    "bytes_read": 120194,
+    "bounded_truncated": false,
+    "sha256": "b5835b9ebc97fb81636b0ff759b175a170c97ed752cb40608665de7eb7036461",
+    "title": "Remote and distributed execution - spaCR 1.5.1.4 documentation",
+    "nightly_banner": true,
+    "nightly_redirect_marker": false,
+    "HF_url_present": true
+  },
+  "hf-localized-guide-route": {
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/i18n/sv/guides/distributed_execution.html",
+    "time_utc": "2026-10-14T01:22:30Z",
+    "status": 404,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/i18n/sv/guides/distributed_execution.html",
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Length": "15",
+      "Date": "Wed, 14 Oct 2026 01:22:31 GMT",
+      "ETag": "W/\"f-mY2VvLxuxB7KhsoOdQTlMTccuAQ\""
+    },
+    "bytes_read": 15,
+    "bounded_truncated": false,
+    "sha256": "f36668ddf22403a332f978057d527cf285b01468bc3431b04094a7bafa6aba59",
+    "title": null,
+    "nightly_banner": false,
+    "nightly_redirect_marker": false,
+    "HF_url_present": false
+  },
+  "hf-tutorial-route": {
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/tutorials/index.html",
+    "time_utc": "2026-10-14T01:22:31Z",
+    "status": 200,
+    "final_url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/tutorials/index.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Date": "Wed, 14 Oct 2026 01:22:31 GMT"
+    },
+    "bytes_read": 16430,
+    "bounded_truncated": false,
+    "sha256": "08187b452830e17d4389e35443675922985865fc68baaef6e4be986b0f3815ae",
+    "title": "spaCR Learning Path",
+    "nightly_banner": true,
+    "nightly_redirect_marker": false,
+    "HF_url_present": true
+  },
+  "hf-child-directory": {
+    "url": "https://einarolafsson-spacr-docs-nightly.static.hf.space/tutorials/",
+    "time_utc": "2026-10-14T01:22:31Z",
+    "status": 200,
+    "final_url": "https://huggingface.co/tutorials",
+    "headers": {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Length": "74831",
+      "Date": "Wed, 14 Oct 2026 01:22:32 GMT",
+      "ETag": "W/\"1244f-X4pl1GZqyyQ2MUcZsNvdQxyke6U\""
+    },
+    "bytes_read": 74831,
+    "bounded_truncated": false,
+    "sha256": "4c56585262ab7d8829b27800cb77444855fe441b05a5711de29f66c968114796",
+    "title": "tutorials (tutorials)",
+    "nightly_banner": false,
+    "nightly_redirect_marker": false,
+    "HF_url_present": false
+  },
+  "pages-legacy-tutorial-route": {
+    "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+    "time_utc": "2026-10-14T01:22:31Z",
+    "status": 200,
+    "final_url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+    "headers": {
+      "Content-Length": "16234",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Mon, 12 Oct 2026 21:36:00 GMT",
+      "ETag": "\"6acd52c0-3f6a\"",
+      "Date": "Wed, 14 Oct 2026 01:22:31 GMT"
+    },
+    "bytes_read": 16234,
+    "bounded_truncated": false,
+    "sha256": "67a702f480a44906b6f42f17022967e51e14e8240728227d04ab458336abe3d5",
+    "title": "spaCR Learning Path",
+    "nightly_banner": true,
+    "nightly_redirect_marker": false,
+    "HF_url_present": false
+  }
+}

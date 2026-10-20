@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "status": "FINAL_ORIGINAL_CONTRACT_LEDGER_AWAITING_COORDINATOR_ACCEPTANCE",
+  "source_pin": "c8eb5cd4493bbf2525617255fa12705442666ad9",
+  "original_contract_path": "features/new/702_cluster_runs_download_a_missing_zoo_model_automatically.txt",
+  "contract_sha256": "88f0eaef1f28e700a3fdb62de0da3306d79c770479ebd38b77e10d02dadab88b",
+  "scope": "Exactly original six WHAT TO DO clauses and four HOW TO KNOW fixtures; no tests/collector/model/network executed for this read-only ledger.",
+  "clauses": [
+    {
+      "id": 1,
+      "disposition": "SOURCE_IMPLEMENTED_AND_SCOPED_ACCEPTANCE_RECORDED",
+      "source": [
+        "model_zoo._ensure_model_file:4149",
+        "model_zoo._resolve_pinned_model_file:4075",
+        "model_zoo._ensure_catalogue_model_file:4223",
+        "utils._resolve_cellpose_pretrained:6575",
+        "_segmentation_backends three private resolvers1099/1210/1308",
+        "deep_spacr._classifier_model_input:261",
+        "object_classifier._real_classifier_bundles:705"
+      ],
+      "proof": "Local-first exact key/filename/pin identity, raw opaque version/SHA, shared cache and successful contextual log after actual acquisition; actual original prefixed request retained separately from lookup. Native file mirrors exercise actual checksum fetch and caller boundaries; CLI journal records actual effective path/SHA while settings retain original request.",
+      "pending": "Two new caption actual localized callback families assigned Easy; no additional original software gap identified."
+    },
+    {
+      "id": 2,
+      "disposition": "SOURCE_IMPLEMENTED_AND_SCOPED_ACCEPTANCE_RECORDED",
+      "source": [
+        "model_zoo._model_resolution_context:4203",
+        "model_zoo._resolve_pinned_model_file two actual SHA refusal fields",
+        "model_zoo._ensure_catalogue_model_file ChecksumMismatch-only wrapper"
+      ],
+      "proof": "Unknown missing names refuse without FNF/default substitution and name actual setting/raw request/compatible keys. Known checksum mismatches keep exact exception type/cause/expectedgot plus truthful selected identity/context; pinned local/returned mismatches keep existing ModelZooError/Bad settings and expectedactual with name/path/key/rawversion. Unknown-identity sentence is not reused for known corruption. Actual six new checksum baselines fail; final9 focused pass5.14s.",
+      "pending": "Checksum-only integrated source has unchanged tr/docs/nested definitions. Easy current canonical-equivalence proof after integration pending at review time."
+    },
+    {
+      "id": 3,
+      "disposition": "SOURCE_IMPLEMENTED_AND_ORIGINAL_OFFLINE_ACCEPTANCE_RECORDED",
+      "source": [
+        "model_zoo._resolution_model_entries:4122",
+        "model_zoo._ensure_catalogue_model_file existing offline copy instruction",
+        "utils._cellpose_stock_preflight (already integrated exact helper/owner)"
+      ],
+      "proof": "SPACR_MODEL_DOWNLOAD0/off/false/no selects only bundled/localJSON/alreadycached pool, avoiding plugin/metadata/weights transport; existing local and verified cache usable. Installed stock cache existence guard applies central/direct/object/training routes. Real provider/transport tripwires and cached/explicitlocal/online controls recorded.",
+      "pending": "No extra live-node/account gate. Stock guard remains intentionally existence-only; no original promise of cryptographic stock model provisioning invented."
+    },
+    {
+      "id": 4,
+      "disposition": "SOURCE_IMPLEMENTED_AND_ACTUAL_GUI_EXPORT_ACCEPTANCE_RECORDED",
+      "source": [
+        "model_zoo._model_input_kinds:3753/_capture_model_metadata:3794/_attach_model_reference:3920",
+        "AppScreen._choose_a_model_for:5097/_on_export_settings:12480",
+        "mounted object grid delegate",
+        "LivePreview._choose_a_preview_model:3808 and verified propagation channel"
+      ],
+      "proof": "Trusted selection SHA checked offGUI; exact key/rawversion/SHA metadata reaches actualCSV/exportload; custom same-basename and forged/unverified pins refuse. Grid all three roles and actual Mask/CellposeMasks preview routes covered; repeated nonmodel tuning retains pins, manual model edits invalidate; transactional refusal/cancel restores priorfields/pins. Realobject classifier registry+singlefile runtime use repaired; existing directory bundles retain prior semantics. Staged GUI counts are not falsely summed as one final cohort.",
+      "pending": "No additional supported field/export bypass identified in assigned source reconciliation."
+    },
+    {
+      "id": 5,
+      "disposition": "SOURCE_IMPLEMENTED_AND_ORIGINAL_TWO_PROCESS_ACCEPTANCE_RECORDED",
+      "source": [
+        "model_zoo._ensure_catalogue_model_file QLockFile lock/recheck/finally"
+      ],
+      "proof": "Actual local child processes resolving same private mirror acquire once; dead-owner/retry/no-overwrite controls. Historical integrated103PASS10.92s receipt available. Current changes insert only context/error handling around unchanged fetch and lock scope, preserving lock semantics.",
+      "pending": "No invented actual cluster/NFS/Windows/GPU acceptance requirement."
+    },
+    {
+      "id": 6,
+      "disposition": "NORMAL_ARTIFACTS_GENERATED_HELP_AND_ACTUAL_CONSUMERS_PENDING",
+      "source": [
+        "docs/source/distributed_execution.rst current model paragraph91",
+        "normal runtime18/API9 records",
+        "702_resolution_normal_artifacts_2026-10-15"
+      ],
+      "proof": "Normal reviewed runtime all9/full9audit and selectedonepublicsymbol9APIaudit passed;10,981 unrelated runtime rows/locale preserved, normal immutable arrivals/fresh original proof. EnglishAPI paragraph changed, so normalHelp is necessary. Root guide ordinary gettext covers136currentmessages/locale,132prior preserved;36 authored targets include18N702 title/paragraph and18preexistingN699 SSH targets, not36N702 targets.",
+      "pending": "Easy runs post-checksum samecanonical proof\u2192normalHelp index\u2192actual18localized unknown/log callbacks. Then Root final source/input/artifact readback, dated wholeitem note/generatedindex and normal nightly push."
+    }
+  ],
+  "genuine_remaining_gaps": [
+    "No additional implementation gap identified beyond already integrated checksum correction.",
+    "Post-checksum canonical/source-equivalence and normalHelp current English API update (Easy active).",
+    "18 actual localized new-caption consumers (Easy assigned; not pre-existing66e tests and not yet executed at ledger time).",
+    "Coordinator coherent final evidence/readback, wholeitem status/index and normal publication."
+  ],
+  "not_additional_original_gates": [
+    "Real cluster credentials/account execution",
+    "Actual downloaded scientific models or GPU inference",
+    "Biological efficacy",
+    "Native visual display acceptance",
+    "Final global CI/release, which remains a separate release gate"
+  ],
+  "evidence_sha256": {
+    "702_resolution_context_2026-10-15/receipt.json": "278631cc95c643fd883d04a7f3797c8a15f4fb3a00568ab885c99bcf3b08ff30",
+    "702_backend_exact_resolution_2026-10-15/receipt.json": "c27edb84a49dc475a843f933645b2e5f620d76bed01213fdb2e54da78be742a1",
+    "702_checksum_failure_context_2026-10-15/receipt.json": "ce804fc946f716ace3fbdfc8e640e12d088432516a73bfbe00787fc99e6443b8",
+    "702_mask_grid_verified_export_2026-10-15/receipt.json": "a3dd5066e6c1ab835d00f1b7b78e92cfd11ad298b8044c2b4f0edb2dd8ab1f27",
+    "702_preview_verified_propagation_2026-10-15/receipt.json": "ddb5334a2a1f197f56d23cc95b225f9a50d91fb6cf4d7fe83d6a096c23a4627e",
+    "702_real_object_file_pin_2026-10-15/receipt.json": "1fdeaf2fd6893b2613ec5fb0bfcd387f12a8c2178f7851dba5579ccd383043df",
+    "702_real_object_file_pin_2026-10-15/context-receipt.json": "43da79efa10420f7c91926684fb8b6afc91c3adca6a1b34bb0097d6c63d47f40",
+    "702_native_cli_model_provenance_2026-10-14/receipt.json": "1f14daf1f439e859b9197bb3f2b839dcc84ce4f52b182b1e845f29ac94af864d",
+    "702_process_download_coalescing_2026-10-14/receipt.json": "75ea9589d24ca80bfc5df27ff88ec2b3194d7125d6c6594dd1cd79042d8ccf06",
+    "702_process_download_coalescing_2026-10-14/integrated-closure.json": "ed92cacfbbdc6430c29ef2307e11bc457e7d963b992b2b8c5032d374572e06d3",
+    "702_699_cluster_guide_2026-10-15/receipt.json": "8630d65895055a0d55cb55219a6e7c7f25901f213190030b28e7d9d06ce49d31",
+    "702_resolution_normal_artifacts_2026-10-15/coalesced-producer-receipt.json.gz": "0bc779f36d9015d28cb81137f866a268bebad1bc623104455abb86716a0f05e8"
+  },
+  "review_limits": "Read-only source/evidence reconciliation. Root alone decides wholeitem completion after pending acceptance; this ledger is not itself a completion tick."
+}

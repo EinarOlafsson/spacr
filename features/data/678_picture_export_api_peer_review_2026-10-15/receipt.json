@@ -1,0 +1,693 @@
+{
+  "schema": 1,
+  "review_kind": "Independent AI technical peer review by Home-B accessibility lane; source and translations authored by other owners. No human or native-speaker signoff.",
+  "review_commit": "959bf0c5eb58414d02e29cd5795b1a0ef93daf1c",
+  "source_commit": "7b35494ba062f98bebf5b9c7b30416e333d35abd",
+  "source_file": "spacr/qt/widgets/picture_export.py",
+  "source_sha256": "2047ec0004c6ddb9d27c5514a98c236411d271f7106af245f78c12f667d84956",
+  "scope": "Read the full source file and all72 exact source/translation pairs across9 locales; compare pixel/raster/PDF/DPI/calibration, independent1mm page minimum, suffix precedence and callback timing semantics.",
+  "pairs_read": 72,
+  "rendered_symbols": 3,
+  "blocks_per_language": 8,
+  "findings": [],
+  "technical_approval": true,
+  "semantic_checks": {
+    "spacr.qt.widgets.picture_export#0": "One rendered picture exported as PNG or one-page PDF; no multipage/vector claim.",
+    "spacr.qt.widgets.picture_export#1": "QImage/QPixmap input is used rather than surrounding-widget capture. PNG retains pixel dimensions and dots-per-metre metadata; PDF embeds raster without vector conversion.",
+    "spacr.qt.widgets.picture_export#2": "Width and height independently use max(1.0,pixels/dpi*25.4) millimetres. Target spans the zero-margin page. No microscope pixel-calibration dependency or aspect-ratio preservation claim is added.",
+    "spacr.qt.widgets.picture_export#3": "Default DPI and suggested suffix originate from their named preferences; final menu PNG/PDF choice takes precedence.",
+    "spacr.qt.widgets.picture_export.ask_where_to_save#0": "Cancelled save dialog returns the exact empty string.",
+    "spacr.qt.widgets.picture_export.ask_where_to_save#1": "Dialog adds selected-filter suffix only when absent, retains an existing suffix here, and save_as later enforces the menu-selected format.",
+    "spacr.qt.widgets.picture_export.install_picture_save#2": "picture() runs before choose_format/menu; its returned image is used later, with no callback refresh immediately before write. No immutable/deep-copy snapshot guarantee is inferred.",
+    "spacr.qt.widgets.picture_export.install_picture_save#3": "Callable stem is evaluated after successful format choice and before save_as opens the path dialog."
+  },
+  "source_anchors": [
+    {
+      "symbol": "picture_dpi",
+      "line": 43,
+      "source_slice_sha256": "849e9cbfeb5eb0cc06286df0ffc6ea13ab298237e9f28c761943dc2a74a13b67"
+    },
+    {
+      "symbol": "preferred_suffix",
+      "line": 57,
+      "source_slice_sha256": "da9398ed391f7fbfded9df174121c8ec8c366123e89e05cf285d8916859c1059"
+    },
+    {
+      "symbol": "as_image",
+      "line": 68,
+      "source_slice_sha256": "7e40e8e0362bc913ebce58dd459766da52e09c02019b75f1018fcff700d3127a"
+    },
+    {
+      "symbol": "_save_png",
+      "line": 155,
+      "source_slice_sha256": "898fc7792f600edb98798639d1ffdbbcbf47f79c2650054248726665ad34aad3"
+    },
+    {
+      "symbol": "_save_pdf",
+      "line": 175,
+      "source_slice_sha256": "9ed42270e2f11b982cb9d68d98e1dacb0b55b955b1c967aba61158f3b7bb30c9"
+    },
+    {
+      "symbol": "ask_where_to_save",
+      "line": 218,
+      "source_slice_sha256": "4be61d6b8478a9bb25bdbead769e31d83587cb8fe800594b6ac1461b90528a5a"
+    },
+    {
+      "symbol": "save_as",
+      "line": 290,
+      "source_slice_sha256": "e96effa3d3514ef4301ab48bdedf77583814a6ae0c615b57370387c688f8a22e"
+    },
+    {
+      "symbol": "install_picture_save",
+      "line": 316,
+      "source_slice_sha256": "1d155fa07cfc58b983cdfea0b536c3531201fb06d4c5d965194277a674cdc2c3"
+    },
+    {
+      "symbol": "_menu",
+      "line": 335,
+      "source_slice_sha256": "30d587bfc9ad08dc77f1d57f71ec3d8158402efe867ac0d5356a297dbf1b64f9"
+    }
+  ],
+  "reviewed_files": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-15-picture-export-prose.json",
+      "sha256": "df224bdb1894ae76a8eae3ec9a7fe8a147bde3ac703e27a6f8d0b06be56f0a61"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-15-picture-export-prose.json",
+      "sha256": "5faada0048381859854c49f1daf8a5ff574250d18885ea07f0e068e97eb4b007"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-15-picture-export-prose.json",
+      "sha256": "19f8d5dc8f106745a5c118e36105a6adff59daca33c9368f8da8971437b78563"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-15-picture-export-prose.json",
+      "sha256": "dac13c49de379886621e96ac0e4209eab64e1cb020b171738eec94a73673d40f"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-15-picture-export-prose.json",
+      "sha256": "14943541da26909c40d94b457dc6dce4bbb357102a3670993d171de7a0ed2f97"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-15-picture-export-prose.json",
+      "sha256": "e9e280cb97fb0e53f7eb766927cf1802d85ac91fb81f568af2a199cc195f5849"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-15-picture-export-prose.json",
+      "sha256": "08233f14b88d465357cb741074820de27451454a17cca4633270df527b3236ab"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-15-picture-export-prose.json",
+      "sha256": "f03c7890b92d9a323ef4f08ab9850bb90f8be6963335182a588304954e103bbc"
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-15-picture-export-prose.json",
+      "sha256": "63ddab89fba56737a7a42be32c1585e0e92addeb2e09a52e0405ea2a0b971b8b"
+    }
+  ],
+  "reviewed_pairs": [
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "713d9d767b669b1f93716944e143c2b77a365c53987fe06a257b454a736a6ba0",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "8b6210f0704fef3637fb9f09327acfeb10d838030613d1f32afa3c12c7029a27",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "ca26732f8dbd58c2ea4f2ca8037c746cdb9e624dbf7aebe8d9277bc1bc151c06",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "a972aa8e12ac4367dfd6154c020756b31f082fc1ad2fab6b0e3266222c9d70f0",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "fc1000f2e9b048a1a0cef41493438be794bc919bfcfaffa8f5aeb7ae0801d9fd",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "54eb60bc8458f7d354b994ee53a547cd3e833c1fff35c4ce1474886c87883ddf",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "c3656793bd6957c6973d8f94daf25460f57d8ae2225e5a42cc61384fdc83c0c7",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "de",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "3590341ddf6119b6fed9ab1f7ccafbd720859a93b8b9d479632a74bed26a9bc3",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "762e5bd78eb7b11501dec453d50c5767420a3d2a13749869d8c577ee1f81b4fe",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "88fcf3945e4cea61c7e85ec2029850ded87a1c2f91a08990b0560436679d93b9",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "ab46ca0272f980d2e63f0ab4fc5e0a0d7fa2c59ffbde594268f889974b417b69",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "1ae30f9b911520373fee6a65866c70d671b1555c43964e87a66f99acdc191b1d",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "20b8c1499b76e0780380bc01cbc9e740d16fdfeb105794d20667af0200323a1d",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "1423388c970b302d5a673bf9c3598b3c58d79d2b32f089515566832798f4914f",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "e5aee70481ef7b6223ed6656daeb27fb87a5d0ea7114539091846e3d694acf75",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "es",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "e353fb49b31b9a44f191d4aa3168843d88eb4d984766bd3f88275e1fb82c8068",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "05b9a7db8453a4b0c126a003fcaf76f3e2654ccabb3e80b170c5a725d7015ad0",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "1f5e4a220d68b18235d965f9e4a3050fac5b83710cb133f9379e2b8ab97f29b4",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "05e43a940a3b06b934621ee30fff68c5aada63c521bdd43f4888b6fbbc9704dc",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "591aa46a6e083e41864238fdf18966f9ceb4852f77882fa34a504bdbc0aaafc7",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "751a12bbcff393fbc375e766b727df2eada0bfb9e700a04a93359c927afe4cee",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "bd282f56565248d5019e1888fdb8dc87f84fbacd24cc150dd738c2e0810bf24b",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "edbccbac1eb766c63cddad361d44e3d163469c2ab3e5be36c42f245dc2d22144",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "fr",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "14665b916a3cd3095c20c46a4dd0596d4b13686c6f94d732d2a11a1690401b50",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "e88e62379e94e2a8416ae19d98b8d2c00bd05914298186ba825e8250fbe6502d",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "ec9c87113f23e098a7d3fbc26eb6e6cbf7ca82e92c89a17aeff7bdb8cf5df7ea",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "951954621a9d7cef32cebcd09f5d07e3e7d1c3c11aa4759d9d21e790b8f1c67c",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "545324ace4baed9531b2db9a48a416a46cc32a05e81025b77aca16f3c6565130",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "723caa04f0458ce69dfb3af70969a54933508b3ed3e42cbf82d071f1ed0594d9",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "abda8211258087101af3a0ea0d603cb08ca3c7f894ac652b9a5a2eca3d458491",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "129acca9005df88e2307d63b0cb082b296f09bfe7570753b9b1a60fd5a1723da",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "hi",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "99abe4f5e1235830436f9480252078e55bdb743361dfa8acc0c984f7881000f1",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "4702fc47f3e1a5a06610873d083986c86a183fdc43bd048930a9edf6ad0dd93d",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "d02a9ba03afcdcc7e459b53eeb4c8e73787d9f570e364f5a874ce58442235969",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "d026655cd84c025abd2c2bd86bc8bbe8b180f3095a5b70e8f0dc51e89b513df0",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "631902ff287dd82e8465726c1de123a0c01e957108a5c954f6b24c10e4c4e7ba",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "2339c1395f87ead7750ab9387a3b5380646249beddc62ac3fa89cab29d160fa9",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "b443b9d6c6acb883e5ddc7cbb85ae2d47d11cf98f4622e0b5f24ae89dd7a4579",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "92dd8df54c1f0b56ce8765687f854b9c4b1e9622754b5b6bda60b8024d1eea20",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "is",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "ceb9160c71dcc9e2224f10a4c683750982aefa62ebf35c58e6fbb6cc69d33a02",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "56bf09c1c058d1b5ab0956cca6bf34bdcc8a0d49ebed2e22df0c75320edcb61c",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "629cbf51b0a5c85ac48ee08a2421b74710c1aa51a955ba44bade15a3a94e046a",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "f4800a8bd9c165839a3ddea2d1340c8fc3ecfb30d02482c1f87a0e0adeb8574f",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "3ae7afd2f381cbde2271ca74d74b492687a0fa89317e63add7afc4cb97947777",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "6d9921880f96089acc85f49f18c7d003eb2067101b11f89bffd145ff7392103d",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "0fb12d181a53b9dd2212e584ba2f433ec074b22797061f75858a46cabf8d3082",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "3100de4afacb10857f677cbc75c65014fb8a6f2f3119c60d7961a6cc79f35f82",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "ko",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "05fd41d99a10f7e41e2d27f0045a686a67c182577de6a71d98811d54ed6f0ecf",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "cc47da3d95256beeb3852c84020bf24b7d0da9d973225512ca936a1ec08b0924",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "fbcd60ea90fcdf644e5f2df19dd40fa4d9e1cb64a671ec3c31f39b44e2b2eac1",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "3c3686cf6920be9f739ff9655a4e08897881af09bacccb07b1dcfeaa7b23a8e5",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "6e88cc57dbf2e083351555be34a24c22d9833e2263c6c6bb2639bf63fdcb76c1",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "74d919d0c48c3797e1586111a6a423fb4c0223e89533158a4284c15002cb7271",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "f3272162833161ecb04b5dbbfbb5e29ef712f9443ab90b0a0c92ce40a158776b",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "e29f41f178cd895dbba20c3fd62a95cd46b37a39b9ac85e0394e6adcf56d07c2",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "pt",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "b6fae6559bd4fdf6a7897bb0ed217128208f406caba7aed2f829db49a64657d8",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "559be91a9623aef10db8c249718aac4a20e363c88c5d8a77e7acf239190a904e",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "3fed8c9c795aef85ad471a0495db972720691fb8245e4f56fe81e525ad6b6060",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "3ea7f308a726b4910ab8d5aef3c0004475c7b8eb4cc82c94fa57351f4545c668",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "53c2f9dea227d71d2c4d7c3f69986136533939462a93b80a7dd7e45b7e9a6001",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "e98040a6f7d073778f456a134368152624dbe021b021d0d21fd6f845abd6876e",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "46b2e294eee9d3a54de6ceff7e9709ec11cdba296c6e7c0f455c50835c9a10d0",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "ad8a767b67718e3f5c281c8e489328b9b1b67c7473bbdcce3039e0a74a7d70ca",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "sv",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "af25463edb1c5b0cc91d089c58f2853bab935cc12c57dc4100354e249630131a",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export#0",
+      "source_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "context_sha256": "32c938b0028aee58ca7020db15e121e03992c9c03c0b0ddb482e55b586970e3e",
+      "target_sha256": "45c984de9d392c128aad4b31db09fa1d255d8686371d89b16fafd7a543f9047b",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export#1",
+      "source_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "context_sha256": "49da5c9eed2ba26367c3658a3cf8746e2a3dd18cedb199c06bb99b788bd28f9d",
+      "target_sha256": "645c1e3bd823676050cea2ed391e6de21e4b6f27c2ac1a6c0ea408176c12e7dc",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export#2",
+      "source_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "context_sha256": "8d836fbf20197d26b7e63d0ae9e30c9754ef51db31efc714e25737724b42c7e8",
+      "target_sha256": "aae3539e0675366f9ed40f835af84ef12eb66d9d60547453e7e83a8bf34f4941",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export#3",
+      "source_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "context_sha256": "5ae5895767011184e7e6a567af001f661748211c34bb2570786e657a51eb2438",
+      "target_sha256": "d6beeb93179057adf2143fa6612cb8f6b54c64197748c5d50beaa600aec33f4c",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#0",
+      "source_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "context_sha256": "624ca61bd51bd3b40de280e7dd4ab9993641dcc25b257af423d7fff43421d4a7",
+      "target_sha256": "40f7561501100fcbd7c1ab57099be1379e99a43d42c139c74b6cf15e20b5d524",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export.ask_where_to_save#1",
+      "source_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "context_sha256": "4ab56a7f9f940a1ef301cb0af1159f4dcf33fb68bdc2a9ae1beb7d4cc5f26b1e",
+      "target_sha256": "600a623c221e0802a9a13ac691aa2e49103cd4f5c0a0e675ad0f19f4605b52b2",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#2",
+      "source_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "context_sha256": "091c1a29e15eff6679b79a7f612dd38c4e69b7bfe792fc7ce70fc89ba319b0c0",
+      "target_sha256": "91fe0bb33edd43ad606e784476967ae745a110162b54a71d1b1f19d905c512b1",
+      "disposition": "Technical semantic comparison approved"
+    },
+    {
+      "language": "zh_CN",
+      "label": "spacr.qt.widgets.picture_export.install_picture_save#3",
+      "source_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "context_sha256": "8a67985c0334cd9a2ddf49974650ef7a411b3eb76d1ec9c5f5d3b203f9a4e046",
+      "target_sha256": "6308e2da3429f5a6a6f1f81460f9ab189209aec768bd31f14789bcde8939515d",
+      "disposition": "Technical semantic comparison approved"
+    }
+  ],
+  "limits": [
+    "Technical source-bound semantic approval only; not native-speaker or native-platform acceptance",
+    "Normal source/context candidate gates were performed by the API owner; this review does not rerun or waive them",
+    "No new collector, test replay, writer, generated catalog edit or source edit",
+    "No full N678 completion claim"
+  ]
+}

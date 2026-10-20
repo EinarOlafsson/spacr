@@ -1,4 +1,4 @@
-"""Read-only preview of Measure's existing plate calibration plan."""
+"""Read-only preview of Measure's plate and acquisition-session calibration plans."""
 from __future__ import annotations
 
 import copy
@@ -8,6 +8,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDialog,
+    QFormLayout,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -19,7 +20,8 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (_retire_table_cells, _spare_table_item,
+                             install_sorting, table_item)
 
 __all__ = ()
 
@@ -35,6 +37,10 @@ class _ButtonPosition(QObject):
 
     def _place(self):
         """Reserve room below the text and move the button there."""
+        parent = self._edit.parentWidget()
+        form = parent.layout() if parent is not None else None
+        if isinstance(form, QFormLayout) and form.rowWrapPolicy() != QFormLayout.WrapLongRows:
+            form.setRowWrapPolicy(QFormLayout.WrapLongRows)
         height = self._button.sizeHint().height()
         self._edit.setTextMargins(0, 0, 0, height + 4)
         self._button.setGeometry(2, self._edit.height() - height - 2,
@@ -48,7 +54,7 @@ class _ButtonPosition(QObject):
         :param event: Qt event being observed.
         :returns: False, preserving normal editor event handling.
         """
-        if event.type() in (QEvent.Resize, QEvent.FontChange, QEvent.StyleChange):
+        if event.type() in (QEvent.Resize, QEvent.FontChange, QEvent.StyleChange, QEvent.ParentChange):
             self._place()
         return False
 
@@ -59,7 +65,7 @@ def _attach_preview(widget, model):
         return
     button = QPushButton(tr('Preview'), widget)
     button.setObjectName('CalibrationPreviewButton')
-    button.setToolTip(tr('Calculate reference-well gains without running Measure or changing files.'))
+    button.setToolTip(tr('Calculate reference gains without running Measure or changing files.'))
     if isinstance(widget, QLineEdit):
         widget.setMinimumHeight(widget.minimumSizeHint().height()
                                 + button.sizeHint().height() + 6)
@@ -106,7 +112,9 @@ def _preview_settings(model):
     """
     keys = {'src', 'timelapse', 'test_mode', 'intensity_calibration',
             'intensity_calibration_wells', 'intensity_calibration_statistic',
-            'intensity_calibration_offset'}
+            'intensity_calibration_offset', 'intensity_calibration_reference_plate',
+            'intensity_calibration_sessions', 'intensity_calibration_session_column',
+            'intensity_calibration_beads', 'intensity_calibration_reference_session'}
     keys.update(key for key in model._defaults if key.endswith('_mask_dim'))
     return copy.deepcopy({key: model._valid_committed_value(key) for key in keys})
 
@@ -175,8 +183,10 @@ class _CalibrationPreview(QDialog):
         layout = QVBoxLayout(self)
         help_label = QLabel(' '.join([
             tr('Preview only: each source folder is planned separately.'),
-            tr('The first plate by name is the reference.'),
-            tr('Gains use the camera offset and reference wells; images and measurements are unchanged.')]), self)
+            tr('Without session inputs, the selected reference plate is used; leave it blank to use the first plate by name.'),
+            tr('With session inputs, leave the reference session blank to use the first session by name, or the only session on the selected reference plate.'),
+            tr('A selected plate and session must agree; a plate with multiple sessions requires an explicit reference session.'),
+            tr('Gains use the camera offset and selected reference wells or external reference images; images and measurements are unchanged.')]), self)
         help_label.setWordWrap(True)
         layout.addWidget(help_label)
         self.table = QTableWidget(0, 7, self)
@@ -222,7 +232,7 @@ class _CalibrationPreview(QDialog):
 
     def _clear(self):
         """Empty the gains table."""
-        self.table.setRowCount(0)
+        _retire_table_cells(self.table)
         self._reports = []
 
     def _check_current(self):
@@ -274,17 +284,30 @@ class _CalibrationPreview(QDialog):
                 self.status.setText(error)
                 return
             self._reports = reports
+            versions = {report['calibration'].get('version', 1) for report in reports}
+            if versions == {2}:
+                identity, reference = tr('Session'), tr('Reference session')
+            elif 2 in versions:
+                identity = tr('Plate') + ' / ' + tr('Session')
+                reference = tr('Reference plate') + ' / ' + tr('Reference session')
+            else:
+                identity, reference = tr('Plate'), tr('Reference plate')
+            self.table.horizontalHeaderItem(1).setText(identity)
+            self.table.horizontalHeaderItem(2).setText(reference)
             for report in reports:
                 plan = report['calibration']
-                for plate, values in sorted(plan['plates'].items()):
+                session_mode = plan.get('version', 1) == 2
+                groups = plan['sessions'] if session_mode else plan['plates']
+                selected = plan['reference_session'] if session_mode else plan['reference_plate']
+                for group, values in sorted(groups.items()):
                     for channel, gain in sorted(values['gain'].items(), key=lambda pair: int(pair[0])):
                         row = self.table.rowCount()
                         self.table.insertRow(row)
-                        cells = [report['source'], plate, plan['reference_plate'], channel,
+                        cells = [report['source'], group, selected, channel,
                                  f'{gain:.8g}', f"{values['reference_statistic'][channel]:.8g}",
                                  str(values['n_reference_fields'])]
                         for column, value in enumerate(cells):
-                            item = table_item(value)
+                            item = _spare_table_item(self.table, value, make=table_item)
                             item.setToolTip(value)
                             self.table.setItem(row, column, item)
             self.status.setText(tr('Preview complete. No images or measurements were changed.'))

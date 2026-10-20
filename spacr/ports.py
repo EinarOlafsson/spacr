@@ -1,10 +1,9 @@
 """Typed input/output ports: what each spaCR module consumes and produces.
 
 Every pipeline module in spaCR reads a folder laid out by the module before
-it and writes a folder the module after it expects.  Until now that contract
-lived only in the code that happened to open the path, so "can Measure run
-here?" could only be answered by starting Measure and watching it fail twenty
-minutes in.
+it and writes a folder the module after it expects.  Without a declared
+contract, whether a module such as Measure can run on a folder is only known
+after the run starts and fails.
 
 This module makes the contract data.  Each module declares:
 
@@ -15,9 +14,9 @@ This module makes the contract data.  Each module declares:
 
 :func:`check_ready` then answers *before a run starts* whether a module can
 run, and when it cannot, says why and what to do about it.  The answer is a
-list of :class:`spacr.validate.Problem` — the same type the settings
-pre-flight returns — so a caller can print both through
-:func:`spacr.validate.format_report`.
+:class:`Readiness` whose ``problems`` are :class:`spacr.validate.Problem`
+instances — the same type the settings pre-flight returns — so a caller can
+print both through :func:`spacr.validate.format_report`.
 
 Path conventions are not invented here.  They are the ones already in the
 code: ``<root>/merged/*.npy`` and ``<root>/measurements/measurements.db``

@@ -160,8 +160,39 @@ def test_the_categories_are_hidden_until_the_switch_is_pressed(host):
 
     strip.button_for("timelapse").setChecked(True)
 
-    assert all(card.isVisibleTo(screen)
-               for card in _sections(screen, "timelapse"))
+    fold = mask_folds.fold_set(screen).folds["timelapse"]
+    held = fold._alpha_held_sections()
+    shown = [card for card in fold.sections if id(card) not in held]
+    assert shown, "the switch revealed no category"
+    assert all(card.isVisibleTo(screen) for card in shown)
+    assert not any(card.isVisibleTo(screen)
+                   for card in fold.sections if id(card) in held), (
+        "an all-alpha category showed with Show alpha features off")
+
+
+def test_alpha_categories_follow_the_show_alpha_features_gate(
+        host, monkeypatch):
+    """Lineage and event detection show with the gate open, not shut.
+
+    Both categories hold only alpha settings, so with Show alpha features
+    off the switch reveals tracking alone; opening the gate and re-deciding
+    brings them back without pressing the switch again.
+    """
+    from spacr.qt import preferences
+
+    screen, strip = host
+    fold = mask_folds.fold_set(screen).folds["timelapse"]
+    monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                        lambda: False)
+    strip.button_for("timelapse").setChecked(True)
+    hidden = {card.title() for card in fold.sections
+              if not card.isVisibleTo(screen)}
+    assert hidden == {"LINEAGE TREES \u0391", "EVENT DETECTION \u0391"}
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                        lambda: True)
+    mask_folds.fold_set(screen)._refresh_alpha()
+    assert all(card.isVisibleTo(screen) for card in fold.sections)
 
 
 def test_the_tracking_categories_are_the_ones_mask_does_not_have(host):

@@ -57,7 +57,7 @@ longer has are removed::
 For a bounded UI refresh, render the complete updated source privately, then
 retain the accepted deck's unrelated pages and animations::
 
-    python tools/build_readme_deck.py updated.pptx --out /private/rendered
+    python tools/build_readme_deck.py --out /private/rendered
     python tools/build_readme_deck.py --refresh-pages 6,12,32,34 \
         --rendered /private/rendered --out /private/checked-deck
 
@@ -83,6 +83,7 @@ from typing import List, Optional, Sequence
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "source" / "_static" / "deck"
 VIEWER = Path(__file__).resolve().parent / "readme_deck_viewer.html"
+PRES = Path(__file__).resolve().parent / "readme_deck"
 
 
 #: LibreOffice's PDF export options for the two PDFs a build makes. The one
@@ -94,6 +95,25 @@ PDF_LOSSLESS = {"ReduceImageResolution": {"type": "boolean", "value": "false"},
 PDF_PUBLISHED = {"ReduceImageResolution": {"type": "boolean", "value": "true"},
                  "MaxImageResolution": {"type": "long", "value": "300"},
                  "Quality": {"type": "long", "value": "90"}}
+
+
+def make_pptx(pres: Path) -> Path:
+    """Build the public deck from its sources in ``pres`` with node.
+
+    :param pres: the deck source folder (``tools/readme_deck`` by default):
+        ``package.json``, ``package-lock.json``, ``scripts/build.js`` and
+        ``images/``.
+    :returns: the written ``spacr_overview.pptx``.
+    """
+    import os
+
+    if not (pres / "scripts" / "build.js").is_file():
+        raise SystemExit(f"no deck sources in {pres}")
+    if not (pres / "node_modules").is_dir():
+        subprocess.run(["npm", "ci"], cwd=pres, check=True)
+    environment = dict(os.environ, PUBLIC="1")
+    subprocess.run(["node", "scripts/build.js"], cwd=pres, check=True, env=environment)
+    return pres / "spacr_overview.pptx"
 
 
 def to_pdf(pptx: Path, work: Path, options: Optional[dict] = None) -> Path:
@@ -180,7 +200,7 @@ def titles(pdf: Path, count: int) -> List[str]:
 
 SETUP = ROOT / "setup.py"
 FONT = (ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
-        / "OpenSans-Regular.ttf")
+        / "OpenSans-Light.ttf")
 _VERSIONED = __import__("re").compile(r"spaCR \d+(?:\.\d+)+")
 
 EMU_NS = {
@@ -555,7 +575,7 @@ def refresh_pages(baseline: Path, rendered: Path, output: Path, numbers: Sequenc
         raise ValueError("Both vector PDFs must contain the complete deck")
     writer = PdfWriter()
     for number, (before, after) in enumerate(zip(original.pages, replacement.pages), 1):
-        if tuple(before.mediabox) != tuple(after.mediabox):
+        if [round(float(v), 1) for v in before.mediabox] != [round(float(v), 1) for v in after.mediabox]:
             raise ValueError("Rendered PDF page geometry changed")
         writer.add_page(after if number in selected else before)
     if original.metadata:
@@ -576,7 +596,10 @@ def refresh_pages(baseline: Path, rendered: Path, output: Path, numbers: Sequenc
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("pptx", type=Path, nargs="?")
+    parser.add_argument("pptx", type=Path, nargs="?",
+                        help="a finished deck; omitted, the deck is built from --pres")
+    parser.add_argument("--pres", type=Path, default=PRES,
+                        help="deck sources (default tools/readme_deck): node scripts and images")
     parser.add_argument("--stamp", action="store_true",
                         help="only redraw the title slide's version line")
     parser.add_argument("--out", type=Path, default=OUT)
@@ -597,7 +620,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         drawn = stamp_title(args.out)
         print(f"title slide: {drawn}" if drawn else "no title line to stamp")
         return 0
-    if args.pptx is None or not args.pptx.is_file():
+    if args.pptx is None:
+        args.pptx = make_pptx(args.pres)
+    if not args.pptx.is_file():
         raise SystemExit(f"no deck at {args.pptx}")
     args.out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="spacr_deck_") as scratch:

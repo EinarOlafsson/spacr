@@ -274,7 +274,7 @@ def test_a_user_block_is_green_in_every_theme(qtbot, as_theme, theme_name):
 def _reads_the_dark_palette(relative: str) -> bool:
     """True when ``relative`` names ``PALETTE`` in code (not in prose)."""
     path = QT_ROOT / relative
-    tree = ast.parse(path.read_text(), str(path))
+    tree = ast.parse(path.read_text(encoding="utf-8"), str(path))
     for node in ast.walk(tree):
         imported = (isinstance(node, ast.ImportFrom)
                     and (node.module or "").endswith("theme")

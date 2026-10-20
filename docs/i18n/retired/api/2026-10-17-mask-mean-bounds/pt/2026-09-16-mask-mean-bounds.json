@@ -1,0 +1,64 @@
+{
+  "language": "pt",
+  "schema": 1,
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Feature 418: all fourteen newly changed translatable API paragraphs, checked against current English source for own-channel whole-object means, raw units, inclusive bounds, independent zero-off, channel order, mask overwrites, slot fallback and rename resolution.",
+    "limitations": "AI-assisted semantic translation and review; not native-speaker human approval. Loader validation and catalog publication are separately verified."
+  },
+  "retained_paragraph_review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Semantic review of unchanged paragraphs retained in the seven feature-418 API symbols. Previous English and locale catalogs were aligned only after exact source hashes, complete source-block hash lists, and block counts agreed; current paragraphs were matched by exact English text, not changed positions.",
+    "added_records": 10,
+    "limitations": "AI-assisted semantic review, not native-speaker human approval. Only material retained-paragraph errors are corrected; the fourteen new-source records above remain unchanged."
+  },
+  "records": [
+    {
+      "label": "spacr.object.generate_cellpose_masks_sam#1",
+      "source": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "source_sha256": "4e378f5852d67604e49d42c5f742f45a092961a6e463e6c2c8bd12390e2c8141",
+      "context": "Loads the ``cpsam`` pretrained model — or, when ``<object_type>_model_name`` (or ``pathogen_model``) names a checkpoint the user trained, that checkpoint — iterates over each pre-batched ``.npz`` file, applies perimeter merging and area/border filtering to 2-D masks, and optionally filters objects by their absolute mean intensity in the original own-image data channel image. It then optionally tracks timelapse objects, saves per-image ``.npy`` masks, and records per-object counts to the run's SQLite database. Time-stack archives must contain one filename per timepoint, regardless of the declared time-axis position; each raw filename identifies that timepoint's ``(Z, Y, X, C)`` volume, or its ``(Y, X, C)`` image for a flat ``TYX`` series.",
+      "translation": "Carrega o modelo pré-treinado ``cpsam`` — ou o checkpoint treinado pelo utilizador quando ``<object_type>_model_name`` (ou ``pathogen_model``) o identifica — percorre cada ficheiro ``.npz`` já organizado em lotes, aplica fusão baseada no perímetro e filtragem por área e borda às máscaras 2-D e, opcionalmente, filtra objetos pela intensidade média em unidades absolutas na imagem original do seu próprio canal. Em seguida, pode rastrear objetos ao longo do tempo, guarda máscaras ``.npy`` por imagem e regista as contagens de objetos na base de dados SQLite da execução. Os arquivos de séries temporais devem conter um nome de ficheiro por instante, independentemente da posição declarada do eixo temporal; cada nome de ficheiro original identifica o volume ``(Z, Y, X, C)`` desse instante, ou a imagem ``(Y, X, C)`` de uma série plana ``TYX``.",
+      "retired": true,
+      "retired_reason": "2026-09-25: the English block this record translated is no longer in the docstring (the :param: pass or a later edit rewrote it); kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#1",
+      "source": "ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's message and the Qt panel's load.",
+      "source_sha256": "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+      "context": "One resolver for all three consumers -- the run's fold, the doctor's message and the Qt panel's load.",
+      "translation": "UM ÚNICO RESOLVEDOR PARA OS TRÊS CONSUMIDORES — a consolidação das definições durante a execução, a mensagem da ferramenta doctor e o carregamento no painel Qt.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#2",
+      "source": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle key could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "source_sha256": "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+      "context": "They used to answer this question three different ways. The run consulted the rename table alone, the doctor the retirement table alone, and the Qt panel was the only one that knew the organelle suffix rule. A generated organelle structured-data name could therefore be migrated by the panel, ignored by the run and unmentioned by the doctor, all at once.",
+      "translation": "Anteriormente, estes três componentes respondiam a esta pergunta de três formas diferentes. A execução consultava apenas a tabela de renomeações, a ferramenta doctor apenas a tabela de definições retiradas, e o painel Qt era o único que conhecia a regra dos sufixos de organelas. Assim, uma chave de organela gerada podia ser migrada pelo painel, ignorada pela execução e omitida da mensagem de doctor, tudo ao mesmo tempo.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.settings.surviving_setting_name#4",
+      "source": "LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old key is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` keys are live and must not be touched.",
+      "source_sha256": "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+      "context": "Liveness is checked at the terminus only. Checking each hop would refuse the middle of a valid chain, because an intermediate name is by definition no longer live. Refusing when the old structured-data name is ITSELF still live is what stops a suffix rule retiring a working setting -- seven ``_size`` structured-data names are live and must not be touched.",
+      "translation": "SÓ NO FIM DA CADEIA SE VERIFICA SE O NOME CONTINUA ATIVO. Verificar cada etapa rejeitaria o meio de uma cadeia válida, porque um nome intermédio já não está ativo, por definição. Recusar a renomeação quando a PRÓPRIA chave antiga ainda está ativa impede que uma regra de sufixo retire uma definição funcional — sete chaves ``_size`` estão ativas e não devem ser alteradas.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    },
+    {
+      "label": "spacr.object_roles.split_role_setting#2",
+      "source": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
+      "source_sha256": "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+      "context": "NOT :func:`role_setting`'s validation: this accepts any role in ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than segmented and still declares ``cytoplasm_min_size``. Restricting to segmented roles here would silently skip it.",
+      "translation": "Não se trata da validação de :func:`role_setting`: esta função aceita qualquer papel em ``ALL_ROLES``, incluindo ``cytoplasm``, que é derivado em vez de segmentado e continua a declarar ``cytoplasm_min_size``. Restringir aqui a aceitação aos papéis segmentados iria ignorá-lo silenciosamente.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded. 2026-10-17: moved unchanged in wording from the active reviewed file to this archive."
+    }
+  ]
+}

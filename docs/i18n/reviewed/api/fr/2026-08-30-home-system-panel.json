@@ -14,7 +14,9 @@
       "label": "spacr.qt.widgets.home.SystemPanel#1",
       "source": "Every reading degrades to a string rather than vanishing — a blank row reads as \"broken\", while ``n/a`` honestly says the lightweight system probe could not measure a device.  Home must not import a model runtime merely to decorate the dashboard.",
       "source_sha256": "69ae0774a06e2a326af5d9dc2695fcb2c2ea973a49e3f53eedb5c8be45dd61b3",
-      "translation": "Chaque mesure est convertie en chaîne au lieu de disparaître — une ligne vide s’affiche comme \"broken\", tandis que ``n/a`` indique honnêtement que la sonde système légère n’a pas pu mesurer un périphérique. L’accueil ne doit pas importer un environnement d’exécution de modèle uniquement pour décorer le tableau de bord."
+      "translation": "Chaque mesure est convertie en chaîne au lieu de disparaître — une ligne vide s’affiche comme \"broken\", tandis que ``n/a`` indique honnêtement que la sonde système légère n’a pas pu mesurer un périphérique. L’accueil ne doit pas importer un environnement d’exécution de modèle uniquement pour décorer le tableau de bord.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

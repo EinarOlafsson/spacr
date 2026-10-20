@@ -25,9 +25,10 @@ def write(path, text):
 def refresh(root, output, state):
     ref = "origin/nightly"
     sha = git(root, "rev-parse", ref).strip()
-    if state.get("source_sha") == sha:
+    renderer = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    if state.get("source_sha") == sha and state.get("renderer_sha256") == renderer:
         return state
-    names = git(root, "ls-tree", "-r", "--name-only", ref, "features/data")
+    names = git(root, "ls-tree", "-r", "--name-only", ref, "features/data", "features/new")
     ledgers = sorted(name for name in names.splitlines()
                      if re.fullmatch(r"features/data/progress_\d{4}-\d{2}-\d{2}_\d{4}\.md", name))
     ledger = git(root, "show", f"{ref}:{ledgers[-1]}")
@@ -50,6 +51,17 @@ def refresh(root, output, state):
         if "100%" in cells[2]:
             rows[number]["done"] = True
     old_done = set(state.get("completed", []))
+    highest = max(map(int, rows), default=0)
+    for path in names.splitlines():
+        match = re.fullmatch(r"features/new/(\d+)_.*\.txt", path)
+        if not match or int(match[1]) <= highest:
+            continue
+        source = git(root, "show", f"{ref}:{path}")
+        owner = re.search(r"^Owner:\s*(.+)$", source, re.M)
+        description = re.search(r"^Description:\s*(.+)$", source, re.M)
+        rows[match[1]] = dict(path=path, owner=owner[1] if owner else "Unassigned",
+                             percent="—", remaining="Unknown", done=False,
+                             description=description[1] if description else source.splitlines()[0])
     for number, row in rows.items():
         source = git(root, "show", f"{ref}:{row['path']}")
         if re.search(r"^Status:\s*(?:COMPLETE|DONE)\s+100%(?:\s|$)", source, re.I | re.M):
@@ -90,7 +102,7 @@ def refresh(root, output, state):
         with (output / "events.log").open("a", encoding="utf-8") as log:
             log.write("Newly completed: " + ", ".join(newly) + "\n\n" + document + "\n")
         print("Completed:", ", ".join(newly), flush=True)
-    state = dict(source_sha=sha, rows=rows, completed=sorted(completed, key=int),
+    state = dict(source_sha=sha, renderer_sha256=renderer, rows=rows, completed=sorted(completed, key=int),
                  updated=stamp, table_sha256=hashlib.sha256(document.encode()).hexdigest())
     write(output / "state.json", json.dumps(state, ensure_ascii=False, indent=2) + "\n")
     return state

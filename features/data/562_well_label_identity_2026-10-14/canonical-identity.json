@@ -1,0 +1,41 @@
+{
+  "item": "F562",
+  "component": "canonical acquisition metadata fallback in read-only MIL join",
+  "status": "backend contract accepted; diagnostic runtime owner integration pending",
+  "base": "4bfa517ed4c88268f70bbe79496d70da235db3c1",
+  "source_sha256": {
+    "spacr/embeddings.py": "dd76f1ba8320765e635855e4cac1c3c487e0fd92da0464e4e3bd8fe6e9b508f3",
+    "tests/test_multiple_instance_learning.py": "72d1d99ab7c9da0c64f6e14164215554bcfd3255675d83823ccfcf4e2e3802d5",
+    "docs/i18n/reviewed/runtime/de/2026-10-14-mil-well-label-identity.json": "9fd2d0b328741d6fef2de66b23647e1a6d0658af3e28a54825fcecdecc1294db",
+    "docs/i18n/reviewed/runtime/es/2026-10-14-mil-well-label-identity.json": "ea24812a687dc77f4ec6cc320048addcae090c371efea243d91723733eba6f37",
+    "docs/i18n/reviewed/runtime/fr/2026-10-14-mil-well-label-identity.json": "fc48be90a6f720296685e71d659734e5917447b9de1984c999c1fda32f38ac3a",
+    "docs/i18n/reviewed/runtime/hi/2026-10-14-mil-well-label-identity.json": "3be43b053a7cadf0718a9a5f7f5b68c0da00835f3e25b84704fddd19dbd69119",
+    "docs/i18n/reviewed/runtime/is/2026-10-14-mil-well-label-identity.json": "538130432311898cc1a64257a823f45d2a040762c518b8ee69991137f5dc8268",
+    "docs/i18n/reviewed/runtime/ko/2026-10-14-mil-well-label-identity.json": "9728e7043a3cbd7af95cbd2e2732c1885a8501ef7501eea1f3b4dac542515249",
+    "docs/i18n/reviewed/runtime/pt/2026-10-14-mil-well-label-identity.json": "6ff5318bf4c5cb50241bf2d8d8318d0c8fa067f322dbbceba6781667d61c9c59",
+    "docs/i18n/reviewed/runtime/sv/2026-10-14-mil-well-label-identity.json": "65b1d22bf6babf759015b8af3ff477d577be0c8194791c9c10e3ae5230af9277",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-14-mil-well-label-identity.json": "f1100bbe239dcd7df3d84b3cc6ae86dbb3eb56c23392116ca8b64a7818245dd5"
+  },
+  "source_boundary": "Only existing _mil_frame_from_db AST hunk; all other top-level AST nodes unchanged",
+  "checks": {
+    "passed": 20,
+    "actual_exit": 0,
+    "seconds": 10.58,
+    "evidence": "/mnt/wd4tb/scratch/f562-well-label-join-20261014/canonical-identity*",
+    "localization": {
+      "unique_sources": 3,
+      "tr_calls": 4,
+      "targets": 27,
+      "languages": 9,
+      "normal_candidate_gate_problems": [],
+      "actual_exit": 0,
+      "evidence": "/mnt/wd4tb/scratch/f562-well-label-join-20261014/identity-review-check.log"
+    }
+  },
+  "limits": [
+    "Actual temp SQLite reads and canonical parser; synthetic identities/data.",
+    "No scientific efficacy/GPU/live-data or whole-feature acceptance.",
+    "Existing alpha gate unchanged; schema, encoder, UMAP and widgets untouched.",
+    "Independent parent translation review and owner canonical extraction/runtime generation pending."
+  ]
+}

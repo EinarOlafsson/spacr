@@ -1,36 +1,26 @@
-"""The three array operations OPS is made of, on whatever hardware there is.
+"""The three array operations OPS uses, run on a GPU when one is available.
 
-The hardware question has a short answer, and it names what to put on the
-card:
-"the per-window affine warp; peak finding and the unmixing matrix
-multiply; cellpose segmentation, which already has a GPU path" -- and,
-for the merge, "ORB detect + Hamming descriptor matching" and "match
-cells: mutual nearest neighbour". Strip the names away and that is three
-primitives: a windowed maximum, a matrix multiply, and a nearest-neighbour
-search. They are collected here rather than spelled out at each call site
-so there is ONE place that knows about devices, and the modules that use
-them go on reading as the science they are.
+The GPU-suitable steps of OPS are the per-window affine warp, peak finding, the
+unmixing matrix multiply and Cellpose segmentation (which has its own GPU
+path), and, for the merge, ORB detection with Hamming descriptor matching and
+mutual-nearest-neighbour cell matching. These reduce to three primitives: a
+windowed maximum, a matrix multiply and a nearest-neighbour search. They are
+collected here so device handling lives in one place.
 
-    BACKEND ORDER: PyTorch first, CuPy second,
-    NumPy always. Torch is already a spaCR dependency through Cellpose, so
-    nothing new is installed, and one code path reaches CUDA, ROCm and
-    Apple MPS.
+    Backend order: PyTorch first, CuPy second, NumPy always. Torch is already a
+    spaCR dependency through Cellpose, so nothing new is installed, and one
+    code path reaches CUDA, ROCm and Apple MPS.
 
-EVERY FUNCTION TAKES AND RETURNS NUMPY, so no caller learns which backend
-ran and no caller has to change when one is added. Every one has a test
-that runs BOTH paths on the same input and asserts they agree -- not "the
-GPU version passes its own test", which is how a fallback quietly becomes
-a second implementation nobody compares.
+Every function takes and returns NumPy arrays, so callers do not depend on
+which backend ran. Each has a test that runs both paths on the same input and
+asserts they agree.
 
-AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case --
-this one also runs structure prediction -- so `ops_gpu=False` refuses a
-device that exists, and a backend that raises at runtime (an
-out-of-memory, a driver that went away) falls through to the next rather
-than failing the plate.
+The GPU may be shared, so `ops_gpu=False` refuses a device that exists, and a
+backend that raises at runtime (an out-of-memory, a driver that went away)
+falls through to the next rather than failing the plate.
 
-    THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in
-    CI, and on the machine whose card is busy, which between them is most
-    of the time this code will ever run.
+    The CPU path is a supported path, not an error path: it runs on laptops, in
+    CI and when the GPU is busy.
 """
 
 from __future__ import annotations
@@ -137,10 +127,10 @@ def maximum_filter(field: np.ndarray, size: int, *, gpu: bool = True,
                    backend: Optional[str] = None) -> np.ndarray:
     """The maximum of each ``size x size`` window, centred on every pixel.
 
-    WHAT PEAK FINDING IS MADE OF. A read is a local maximum of the spot
-    score, and "local" means this. On a well-sized field it is also the
-    most expensive thing in the decode chain, and it is a max-pool --
-    which is the operation a GPU exists to do.
+    Used for peak finding: a read is a local maximum of the spot score, and
+    "local" means this. On a well-sized field it is also the most expensive
+    thing in the decode chain, and it is a max-pool, which GPUs run
+    efficiently.
 
     Edges repeat the border pixel, matching `scipy.ndimage.maximum_filter`
     with ``mode="nearest"``, because the alternative is a rim of false
@@ -202,12 +192,11 @@ def maximum_filter(field: np.ndarray, size: int, *, gpu: bool = True,
 
 def matmul(first: np.ndarray, second: np.ndarray, *, gpu: bool = True,
            backend: Optional[str] = None) -> np.ndarray:
-    """``first @ second``, on the fastest thing available.
+    """``first @ second``, on the first available backend.
 
-    THE UNMIXING IS THIS. Correcting dye bleed-through is one small matrix
-    applied to every spot of every cycle, which is a large multiply by a
-    tiny operand -- the shape that goes to a card well and the shape a
-    Python loop would be absurd for.
+    Used for unmixing: correcting dye bleed-through applies one small matrix to
+    every spot of every cycle, a large multiply by a tiny operand that suits a
+    GPU.
 
     :param first: left operand.
     :param second: right operand.
@@ -251,12 +240,10 @@ def nearest_neighbours(source: np.ndarray, target: np.ndarray, *,
                        chunk: int = CHUNK) -> Tuple[np.ndarray, np.ndarray]:
     """For each row of ``source``, the closest row of ``target``.
 
-    CHUNKED, ALWAYS. A well can carry a hundred thousand nuclei, and the
-    full distance matrix between two such sets is 40 GB -- more than the
-    card and more than the host. Chunking the first set bounds the working
-    set at ``chunk x M`` however large the well is, which is the same
-    argument PART 5 makes about the mosaic: the ceiling must not depend on
-    how much data there is.
+    Always chunked. A well can carry a hundred thousand nuclei, and the full
+    distance matrix between two such sets is 40 GB -- more than the card and
+    more than the host. Chunking the first set bounds the working set at
+    ``chunk x M`` however large the well is.
 
     Ties go to the lower index, on every backend, so a caller that pairs
     mutual nearest neighbours gets the same pairs whatever ran.

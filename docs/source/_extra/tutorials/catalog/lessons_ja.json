@@ -549,9 +549,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Home の現在の全モジュールを左から右へ確認し、Mask で共通の操作項目を学びます。その後、ナビゲーション、ヘルプ、表示を調整します。",
+      "description": "Home の概要とカテゴリタブを確認し、次に Mask を使ってモジュール共通の操作を学び、ナビゲーション、ヘルプ、外観を調整します。",
       "objectives": [
-        "現在の Core、Data、Tools、Organism の各行にあるすべてのモジュールを確認する。",
+        "Home、Core、Data、Tools、Organism の各タブを使ってモジュールを見つけます。",
         "Mask を使って共通の設定、プレビュー、操作、出力を確認する。",
         "Home に戻り、検索を使い、パネルを配置する。",
         "表示とパフォーマンスの設定を選ぶ。"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home が出発点です。各行を左から右へ読みます。Core、Data、Tools、Organism の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、Home でこの一覧に戻れます。",
+          "narration": "Home が出発点です。概要では、モジュールが Core、Data、Tools、Organism に分類されています。カテゴリタブで表示を絞り込めます。各タイルを開くと、その名前のモジュールが開きます。サイドバーにも同じアクセス経路があり、Home を選ぶと概要に戻ります。",
           "hold_after": 0.7,
-          "speech_text": "ホーム が出発点です。各行を左から右へ読みます。Core、Data、Tools、Organism の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、ホーム でこの一覧に戻れます。"
+          "speech_text": "ホーム が出発点です。概要では、モジュールが Core、Data、Tools、Organism に分類されています。カテゴリタブで表示を絞り込めます。各タイルを開くと、その名前のモジュールが開きます。サイドバーにも同じアクセス経路があり、ホーム を選ぶと概要に戻ります。"
         },
         {
           "visual": "home_module_mask",
@@ -602,7 +602,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify は確認済みのラベルから学習し、画像または表の特徴量を使って他の物体にスコアを付けます。",
+          "narration": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -610,7 +610,7 @@
           "related_lessons": [
             "41_classify"
           ],
-          "speech_text": "Classify は確認済みのラベルから学習し、画像または表の特徴量を使って他の物体にスコアを付けます。"
+          "speech_text": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。"
         },
         {
           "visual": "home_module_map_barcodes",
@@ -649,18 +649,6 @@
           "speech_text": "Import は入力する顕微鏡ファイルとメタデータをプロジェクトの構成に合わせて準備します。"
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings は物体の切り抜き画像を数値的な特徴量に変換し、探索や比較に使います。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings は物体の切り抜き画像を数値的な特徴量に変換し、探索や比較に使います。"
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare は保存した複数の実行結果をまとめ、違いを確認します。",
           "hold_after": 0.7,
@@ -673,18 +661,6 @@
           "speech_text": "Run Compare は保存した複数の実行結果をまとめ、違いを確認します。"
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design は実験前に条件、ウェル、試料の識別情報を配置します。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design は実験前に条件、ウェル、試料の識別情報を配置します。"
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design は比較を計画する際の標本数や検出力の仮定を調べます。",
           "hold_after": 0.7,
@@ -695,30 +671,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design は比較を計画する際の標本数や検出力の仮定を調べます。"
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response は濃度ごとの応答を当てはめます。選択した評価項目と対照を明確に保ちます。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response は濃度ごとの応答を当てはめます。選択した評価項目と対照を明確に保ちます。"
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC は品質確認をまとめ、利用できる証拠と不足する証拠を示します。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC は品質確認をまとめ、利用できる証拠と不足する証拠を示します。"
         },
         {
           "visual": "home_module_make_masks",
@@ -755,18 +707,6 @@
             "15_image_umap"
           ],
           "speech_text": "Image ユーマップ は物体の特徴量を投影し、似た物体を探索して代表的な切り抜き画像を確認します。"
-        },
-        {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor は実際のデータ列を使って選択範囲を定義します。ゲートをラベルに変える前に、選ばれた物体を確認してください。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "ゲートエディタ は実際のデータ列を使って選択範囲を定義します。ゲートをラベルに変える前に、選ばれた物体を確認してください。"
         },
         {
           "visual": "home_module_graph_builder",
@@ -902,7 +842,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Popup wave frequency は、spaCR field で開いているポップアップから波を発生させます。Field ripples は、クリック、コンテナの開閉、ウィンドウのスナップによる波を、マウスの引力とは独立して制御します。オフにすると、ポップアップの自動的な波も停止します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。",
+          "narration": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Field ripples は、クリック、コンテナの開閉、ポップアップ、ウィンドウのスナップによる波の強さを、マウスの引力とは独立して設定します。ゼロにすると、ポップアップの自動的な波も含めて波がオフになります。Click ripples は、背景をクリックしたときに波を出すかどうかを決めます。Popup wave frequency は、開いているポップアップから spaCR field に広がる波の毎分の数を設定します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -910,7 +850,7 @@
             1200,
             1500
           ],
-          "speech_text": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Popup wave frequency は、スペーカー field で開いているポップアップから波を発生させます。Field ripples は、クリック、コンテナの開閉、ウィンドウのスナップによる波を、マウスの引力とは独立して制御します。オフにすると、ポップアップの自動的な波も停止します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。"
+          "speech_text": "Animation をクリックして、メインの背景とパレットを選びます。Animation colours は Custom colours の主色とアクセント色を設定します。Animation background は独立した背景を選択し、Theme colour はページのテーマ色に戻します。Detail は描画解像度を制御します。Speed、Size、Density は動きや要素の数を変えます。Mouse gravity radius はマウスの影響範囲を設定し、ゼロで無効になります。Dot blinking は白い点滅を制御します。Field ripples は、クリック、コンテナの開閉、ポップアップ、ウィンドウのスナップによる波の強さを、マウスの引力とは独立して設定します。ゼロにすると、ポップアップの自動的な波も含めて波がオフになります。Click ripples は、背景をクリックしたときに波を出すかどうかを決めます。Popup wave frequency は、開いているポップアップから スペーカー field に広がる波の毎分の数を設定します。Settings animation speed、Settings animation size、Settings animation detail、Settings animation density は Settings backdrop だけを変更します。Settings backdrop darkness はフォームの文字の読みやすさを制御します。"
         },
         {
           "visual": "13h_preferences_apply",
@@ -959,12 +899,6 @@
             1500
           ],
           "speech_text": "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。"
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "Spaceout モードでは、Preferences に spaCR field の八つの独立した効果の操作が表示されます。それぞれを別々にオンまたはオフにできます。通常の外観や設定画面のアニメーションも調整できます。Apply で変更を試し、Keep で採用し、Revert で前の選択に戻します。",
-          "hold_after": 0.7,
-          "speech_text": "Spaceout モードでは、Preferences に スペーカー field の八つの独立した効果の操作が表示されます。それぞれを別々にオンまたはオフにできます。通常の外観や設定画面のアニメーションも調整できます。Apply で変更を試し、Keep で採用し、Revert で前の選択に戻します。"
         }
       ],
       "narration_voices": {
@@ -1061,13 +995,12 @@
             650
           ],
           "narration": "spaCRをインストールしたPython環境を有効にします。表示されているコマンドでspacrをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。",
-          "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
-            "04_platform_installers"
-          ],
           "hold_after": 0.7,
-          "speech_text": "スペーカーをインストールしたPython環境を有効にします。表示されているコマンドでスペーカーをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。"
+          "speech_text": "スペーカーをインストールしたPython環境を有効にします。表示されているコマンドでスペーカーをインポートし、バージョンを表示します。後で同じ実行を再現できるよう、バージョンは解析メモに残しておきましょう。",
+          "related_lessons": [
+            "02_install_spacr",
+            "04_platform_installers"
+          ]
         },
         {
           "visual": "02_list",
@@ -1090,12 +1023,12 @@
             900
           ],
           "narration": "spacr-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがspacr.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。",
+          "hold_after": 0.7,
+          "speech_text": "スペーカー-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがスペーカー.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "スペーカー-runをダッシュ ダッシュ describeに続けてregressionを付けて実行します。必須の入力、既定値、関数名を読みます。ここでは、バッチコマンドがスペーカー.mlのperform_regressionを呼び出しています。その関数をAPIリファレンスで開き、引数と返される結果を確認します。"
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1130,12 +1063,12 @@
             900
           ],
           "narration": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。",
+          "hold_after": 0.7,
+          "speech_text": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。",
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7,
-          "speech_text": "解析を実行するには、ダッシュ ダッシュ dry-runを付けずに同じコマンドを実行します。コマンドが終わるまでコンソールを見守り、その後、そのモジュールのチュートリアルとAPIページに書かれた出力を確認します。設定ファイル、入力の表、パッケージのバージョン、コンソールのログは、結果と一緒に保管してください。"
+          ]
         }
       ],
       "narration_voices": {
@@ -1289,7 +1222,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1715,7 +1671,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは4つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。",
+          "narration": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは3つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。",
           "focus": [
             360,
             380,
@@ -1724,11 +1680,11 @@
           ],
           "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは4つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。"
+          "speech_text": "Suggestは、まだ回答していない切り出し画像にラベルを提案します。まず複数のウェルから両方のクラスの例を与えてください。ここでは3つのウェルで各クラスの切り出し画像をいくつかラベル付けし、Nextで保存します。"
         },
         {
           "visual": "20_suggestions",
-          "narration": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上のすべての切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。",
+          "narration": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上の未ラベルの切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。",
           "focus": [
             350,
             250,
@@ -1736,11 +1692,11 @@
             1150
           ],
           "hold_after": 0.7,
-          "speech_text": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上のすべての切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。"
+          "speech_text": "Suggestを開き、Suggest for the images on this pageを選びます。ラウンドは数秒で終わり、ページ上の未ラベルの切り出し画像に疑問符のバッジが付きます。グリッドの上のバーには、判定が残っている提案の数が表示されます。"
         },
         {
           "visual": "21_judged",
-          "narration": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答も記録され、却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。",
+          "narration": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答もNextで保存するまでは未保存の変更です。却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。",
           "focus": [
             350,
             250,
@@ -1748,7 +1704,7 @@
             700
           ],
           "hold_after": 0.7,
-          "speech_text": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答も記録され、却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。"
+          "speech_text": "提案された切り出し画像をクリックするかYキーで確定し、右クリックするかNキーで却下します。どちらの回答もNextで保存するまでは未保存の変更です。却下は次のラウンドの学習に使われます。残りを確認したら、Confirm the rest of the pageでまとめて確定できます。"
         },
         {
           "visual": "17_generate_database_entry",
@@ -1775,7 +1731,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2179,7 +2158,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2560,12 +2562,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "HomeからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear masksは、現在の画像のすべてのマスクを削除する前に確認を求めます。",
+          "narration": "HomeからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear all objectsは、現在の画像のすべての物体を削除する前に確認を求めます。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "ホームからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear masksは、現在の画像のすべてのマスクを削除する前に確認を求めます。"
+          "speech_text": "ホームからToolsのMake Masksを開きます。左下のボタンで画像を読み込みます。Open folder、Organize for Measure、Load test dataです。右側のDiscard、Keep、Skip、Upload dataで、編集を終えた各フィールドをどう扱うかを決めます。 Discardのすぐ左にあるClear all objectsは、現在の画像のすべての物体を削除する前に確認を求めます。"
         },
         {
           "visual": "01b_test_data_menu",
@@ -3155,9 +3157,9 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "次元削減の方法としてUMAPを選びます。各点は、二つの座標で描かれた一つの物体を表します。線形の射影や特徴量の負荷量が欲しいときは、リンクされたツールでPCAを試せます。",
+          "narration": "次元削減の方法としてUMAPを選びます。各点は、二つの座標で描かれた一つの物体を表します。",
           "hold_after": 0.7,
-          "speech_text": "次元削減の方法としてユーマップを選びます。各点は、二つの座標で描かれた一つの物体を表します。線形の射影や特徴量の負荷量が欲しいときは、リンクされたツールでPCAを試せます。"
+          "speech_text": "次元削減の方法としてユーマップを選びます。各点は、二つの座標で描かれた一つの物体を表します。"
         },
         {
           "visual": "19_setting_n_neighbors",
@@ -3214,20 +3216,38 @@
           "speech_text": "別の点をクリックして、その切り出し画像と比べます。サイドバーには、選択範囲へのラベル付けと、クラスターのラベルを広げる機能もあります。これらの操作は注釈を保存するので、適用する前に目的のラベルと選択範囲を選びます。"
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "選んだ特徴量を直接比べるには、Image UMAPのヘッダーからImage Scatterを開きます。線形の射影にはPCAを開きます。それぞれの入力設定と保存される出力については、リンク先のチュートリアルに進みます。",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "完成した埋め込みを確認し、選んだ物体の切り抜き画像を比較します。入力の測定値、選んだ設定、保存した結果をまとめて保管し、各点を元のデータにたどれるようにします。",
           "hold_after": 0.7,
-          "speech_text": "選んだ特徴量を直接比べるには、Image ユーマップのヘッダーからImage Scatterを開きます。線形の射影にはPCAを開きます。それぞれの入力設定と保存される出力については、リンク先のチュートリアルに進みます。"
+          "speech_text": "完成した埋め込みを確認し、選んだ物体の切り抜き画像を比較します。入力の測定値、選んだ設定、保存した結果をまとめて保管し、各点を元のデータにたどれるようにします。"
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4031,7 +4051,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Sourceの中のmasksサブフォルダーを開きます。各画像には、同じ名前のマスクのTIFFがあります。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。",
+          "narration": "Source内のmasksサブフォルダーには、各画像に対応する同じ名前のマスクのTIFFが入っています。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。",
           "focus": [
             1000,
             450,
@@ -4039,17 +4059,17 @@
             640
           ],
           "hold_after": 0.7,
-          "speech_text": "Sourceの中のmasksサブフォルダーを開きます。各画像には、同じ名前のマスクのTIFFがあります。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。"
+          "speech_text": "Source内のmasksサブフォルダーには、各画像に対応する同じ名前のマスクのTIFFが入っています。元の画像と並べて図を確認し、見落とされた物体や結合した細胞に注意します。フローのパネルは、モデルがセグメンテーションに使う方向を示します。"
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Live previewをオンにし、画像の選択で一枚選びます。Live settingsを開き、チャネルと正規化の設定を確認します。必要ならConsoleとSystemを折りたたんで、プレビューの表示領域を広げます。",
+          "narration": "プレビューの表示領域を広げるため、ほかの結果カードを折りたたみます。Live previewをオンにし、画像の選択で一枚選びます。付属のサンプル画像を探して選びます。",
           "hold_after": 0.7,
-          "speech_text": "Live previewをオンにし、画像の選択で一枚選びます。Live settingsを開き、チャネルと正規化の設定を確認します。必要ならConsoleとSystemを折りたたんで、プレビューの表示領域を広げます。"
+          "speech_text": "プレビューの表示領域を広げるため、ほかの結果カードを折りたたみます。Live previewをオンにし、画像の選択で一枚選びます。付属のサンプル画像を探して選びます。"
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "プレビューを、バッチで保存されたマスクと比べます。この例ではプレビューとApplyの処理経路が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。",
+          "narration": "Live settingsでチャネルと正規化を確認してから、プレビューを実行します。プレビューとApplyではこれらの画像の処理が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。",
           "focus": [
             1000,
             1160,
@@ -4057,11 +4077,11 @@
             610
           ],
           "hold_after": 0.7,
-          "speech_text": "プレビューを、バッチで保存されたマスクと比べます。この例ではプレビューとApplyの処理経路が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。"
+          "speech_text": "Live settingsでチャネルと正規化を確認してから、プレビューを実行します。プレビューとApplyではこれらの画像の処理が異なるため、境界や数が異なることがあります。バッチの出力が測定に使えるかどうかは、保存されたTIFFを確認して判断します。"
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。接している物体やぼやけた境界を確認し、その後縮小して視野全体をチェックします。",
+          "narration": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。拡大した表示で、接している物体やぼやけた境界を確認します。",
           "focus": [
             1010,
             1280,
@@ -4069,7 +4089,7 @@
             455
           ],
           "hold_after": 0.7,
-          "speech_text": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。接している物体やぼやけた境界を確認し、その後縮小して視野全体をチェックします。"
+          "speech_text": "マウスホイールで、二つのプレビュー画面の同じ領域を拡大します。拡大した表示で、接している物体やぼやけた境界を確認します。"
         },
         {
           "visual": "22_native_filter_reduces_objects",
@@ -4108,7 +4128,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4549,7 +4592,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5778,7 +5844,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6524,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6679,7 +6791,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6995,7 +7130,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7610,7 +7768,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7854,7 +8035,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8719,7 +8923,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8904,7 +9131,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -9098,7 +9348,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -16258,13 +16531,13 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列から学習します。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。",
+          "narration": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列でモデルを学習させます。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列から学習します。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。"
+          "speech_text": "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列でモデルを学習させます。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。"
         },
         {
           "visual": "module_embeddings",
@@ -16602,9 +16875,9 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "図は自由に調べられます。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。",
+          "narration": "図はインタラクティブです。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。",
           "hold_after": 0.7,
-          "speech_text": "図は自由に調べられます。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。"
+          "speech_text": "図はインタラクティブです。細胞の構成要素にポインターを合わせると、その説明が表示されます。いくつか選ぶと強調表示が残り、Clear componentsで図が元に戻ります。"
         },
         {
           "visual": "03_assays",
@@ -16614,9 +16887,9 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Analysisのチュートリアルで手順全体を説明しています。",
+          "narration": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Assayのチュートリアルで手順全体を説明しています。",
           "hold_after": 0.7,
-          "speech_text": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Analysisのチュートリアルで手順全体を説明しています。"
+          "speech_text": "Plaque Assayをクリックして解析画面を開きます。設定パネルで画像ソース、マスク、検出オプションを指定します。Load test dataで例を読み込めます。Runを開始する前に入力とプレビューを確認してください。Plaque Assayのチュートリアルで手順全体を説明しています。"
         },
         {
           "visual": "05_references",

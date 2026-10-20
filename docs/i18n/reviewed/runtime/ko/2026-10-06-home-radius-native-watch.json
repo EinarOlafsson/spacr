@@ -30,13 +30,6 @@
       "translation": "경계가 없는 둥근 점들의 풍경에 넓은 진행파가 흐릅니다."
     },
     {
-      "key": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
-      "source": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
-      "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
-      "table": "ui",
-      "translation": "깊은 물 같은 느린 녹흑색: 점 사이를 지나가는 파도와 E단조 116 BPM의 사운드 구성으로, 열 가지 중 서브베이스가 가장 묵직합니다."
-    },
-    {
       "key": "Fine curtains of northern light ripple through softly layered folds.",
       "source": "Fine curtains of northern light ripple through softly layered folds.",
       "source_sha256": "0c92998b1a1f322980df88dca0564ca99e7413a83ec0f192bc9b0e58a9469fb6",
@@ -56,13 +49,6 @@
       "source_sha256": "42b4152ec0eed604e11894f1f31a513a00b56b62a6500000241557f1bf538cfa",
       "table": "ui",
       "translation": "섬세한 입자들이 변화하는 소용돌이와 갈라지는 흐름을 만들며, 마우스 중력을 선택적으로 사용할 수 있습니다."
-    },
-    {
-      "key": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source_sha256": "4b0c37e6d8dd70e22150df78f460eaba29847b33d85649aa7d2a4874a935912c",
-      "table": "ui",
-      "translation": "태양에서 가장 먼 곳: 차가운 보라색, 어둠을 가로지르는 점 파도와 D화성단조 128 BPM의 긴장된 사운드 구성입니다."
     },
     {
       "key": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
@@ -128,6 +114,22 @@
       "source_sha256": "dad7ee5de0f47c634524d3698a855e4dcd4a3db7aee71697b99628a5984dc52e",
       "table": "ui",
       "translation": "한 해의 전환점에 드리운 길고 낮은 빛: 올리브색과 연한 금색, 그 사이의 섬세한 종이 면과 G리디안 112 BPM의 사운드 구성입니다."
+    },
+    {
+      "key": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
+      "table": "ui",
+      "translation": "깊은 물 같은 느린 녹흑색: 점 사이를 지나가는 파도와 E단조 116 BPM의 사운드 구성으로, 열 가지 중 서브베이스가 가장 묵직합니다.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
+    },
+    {
+      "key": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source_sha256": "4b0c37e6d8dd70e22150df78f460eaba29847b33d85649aa7d2a4874a935912c",
+      "table": "ui",
+      "translation": "태양에서 가장 먼 곳: 차가운 보라색, 어둠을 가로지르는 점 파도와 D화성단조 128 BPM의 긴장된 사운드 구성입니다.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",

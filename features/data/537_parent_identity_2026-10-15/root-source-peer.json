@@ -1,0 +1,6 @@
+{
+  "reviewer": "Original Home root",
+  "proposal_sha256": "cad052c52f7ab42c1c0aef8753cff09f6f7d2837f06005877f66a18997edf2e3",
+  "decision": "Approve exact contradiction-only prepass.",
+  "scope": "Known positive, nonself, present parents counted losslessly using int plus exact numeric comparison; no pd.to_numeric float coercion. Preserve original groupby.first sentinel behavior, inferred ancestry/math, input table and prose. Keep >2**53/object/nullable/string controls and actual row-order failure evidence; normal extractor/9review closure required."
+}

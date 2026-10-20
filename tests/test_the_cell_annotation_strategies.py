@@ -575,7 +575,7 @@ def test_a_result_can_be_written_beside_the_run(plate, prepared, tmp_path):
     assert set(written) == {"selection", "holdout", "predictions", "report"}
     selection = pd.read_csv(written["selection"], index_col=0)
     assert set(selection["annotation_role"]) == {"positive", "contrast"}
-    report = (tmp_path / "annotation" / "annotation_report.txt").read_text()
+    report = (tmp_path / "annotation" / "annotation_report.txt").read_text(encoding="utf-8")
     assert "survives" in report
 
 

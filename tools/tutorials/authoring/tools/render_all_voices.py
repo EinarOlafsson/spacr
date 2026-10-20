@@ -260,6 +260,7 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
             ('Dot blinking', 'ドット ブリンキング', '光点闪烁'),
             ('Popup wave frequency', 'ポップアップ ウェーブ フリークエンシー', '弹窗波纹频率'),
             ('Field ripples', 'フィールド リップルズ', '场波纹'),
+            ('Click ripples', 'クリック リップルズ', '点击波纹'),
             ('Detail', 'ディテール', '细节'),
             ('Speed', 'スピード', '速度'),
             ('Size', 'サイズ', '大小'),

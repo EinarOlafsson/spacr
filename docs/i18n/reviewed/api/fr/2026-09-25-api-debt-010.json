@@ -24,7 +24,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE EVENT TYPE IS READ FIRST, and the liveness checks follow it. This filter is on the QApplication, so both `_still_alive` calls used to run for every event in the process -- 94,431 of them during one Regression open, and a profile counted the pair at 839,906 calls in one Mask open. Reading the type of an object whose C++ half has gone raises, which the `except` below already answers with the same `False`, so the order costs nothing and the checks now run only for a context menu.",
       "source_sha256": "2cf2754c5cd7d65efb7123dc8acc721bcfe3670beef69c9fce16d36da6fa543b",
-      "translation": "LE TYPE D’ÉVÉNEMENT EST LU EN PREMIER, et les vérifications de validité viennent ensuite. Ce filtre est installé sur le QApplication, si bien que les deux appels `_still_alive` s’exécutaient auparavant pour chaque événement du processus -- 94,431 d’entre eux pendant une ouverture de Regression, et un profil a compté la paire à 839,906 appels lors d’une ouverture de Mask. Lire le type d’un objet dont la moitié C++ a disparu lève une exception, à laquelle le `except` ci-dessous répond déjà par le même `False`, si bien que cet ordre ne coûte rien et que les vérifications ne s’exécutent plus que pour un menu contextuel."
+      "translation": "LE TYPE D’ÉVÉNEMENT EST LU EN PREMIER, et les vérifications de validité viennent ensuite. Ce filtre est installé sur le QApplication, si bien que les deux appels `_still_alive` s’exécutaient auparavant pour chaque événement du processus -- 94,431 d’entre eux pendant une ouverture de Regression, et un profil a compté la paire à 839,906 appels lors d’une ouverture de Mask. Lire le type d’un objet dont la moitié C++ a disparu lève une exception, à laquelle le `except` ci-dessous répond déjà par le même `False`, si bien que cet ordre ne coûte rien et que les vérifications ne s’exécutent plus que pour un menu contextuel.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "True to stop the event going further.",
@@ -524,7 +526,7 @@
     },
     {
       "context": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
-      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#2",
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_live_canvas#3",
       "review_basis": "MT draft edited in AI review",
       "source": "the Matplotlib figure to embed in a Qt canvas with its navigation toolbar; the canvas already showing it is just redrawn.",
       "source_sha256": "82c3b34db2a34d4467c1d03824c7455dec8c93c9da7386805aa45c5daba9378a",
@@ -648,7 +650,10 @@
       "review_basis": "MT draft edited in AI review",
       "source": "count CSV paths; each is paired with the score whose filename tokens it uniquely matches best, unmatched ones fill score rows still missing a count, and any left over get rows of their own.",
       "source_sha256": "365a7615a3415b6dd40590d99af5845c0e0e567e69ea2a29e37529b5b0e5d6cc",
-      "translation": "chemins CSV de comptages ; chacun est associé au score dont les jetons de nom de fichier lui correspondent le mieux de façon unique, ceux sans correspondance remplissent les lignes de scores auxquelles manque encore un comptage, et ceux qui restent reçoivent leurs propres lignes."
+      "translation": "chemins CSV de comptages ; chacun est associé au score dont les jetons de nom de fichier lui correspondent le mieux de façon unique, ceux sans correspondance remplissent les lignes de scores auxquelles manque encore un comptage, et ceux qui restent reçoivent leurs propres lignes.",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "File pairing/attachment and one-based coordinate source documentation corrected inf419206a0ed+1f930c37d55+409c1060994. Replacement exact-source review is2026-10-15-file-plate-contracts.json; original source and translation retained as historical evidence."
     },
     {
       "context": "available width in pixels, passed to the layout; without a layout the base class answers.",
@@ -1895,7 +1900,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``\"spin\"`` or ``\"draw\"``; anything else is taken as ``\"spin\"``.",
       "source_sha256": "f72e5bb9cc41521088f1760cd19eae2a64dc512b7d8de06b2e741312c4722a1e",
-      "translation": "``\"spin\"`` ou ``\"draw\"`` ; toute autre valeur est prise pour ``\"spin\"``."
+      "translation": "``\"spin\"`` ou ``\"draw\"`` ; toute autre valeur est prise pour ``\"spin\"``.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N672 added an Edit drag mode, so set_drag_mode's parameter text was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` draws it, ``False`` hides it.",
@@ -2771,7 +2778,7 @@
     },
     {
       "context": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
-      "label": "spacr.qt.widgets.glass.glass#2",
+      "label": "spacr.qt.widgets.glass.glass#3",
       "review_basis": "MT draft edited in AI review",
       "source": "the dialog to decorate; it is left alone unless :func:`wants_glass` accepts it.",
       "source_sha256": "32ad184b5d895760a58585e6b97140a9ce6a1c9c468e6f3a054396b3342cd65e",
@@ -3115,7 +3122,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "number of rows actually drawn or, for a binned density, counted.",
       "source_sha256": "8a06086a816664ab0d58f6078eb137ad4ff4bd282fec817c0072e42ddb67d232",
-      "translation": "nombre de lignes effectivement dessinées ou, pour une densité par intervalles, comptées."
+      "translation": "nombre de lignes effectivement dessinées ou, pour une densité par intervalles, comptées.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "vertical end of the rectangle.",
@@ -3403,7 +3412,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE NOTES ARE BUNDLED, and the bundle is what draws. They come from ``spacr/resources/release_notes.json``, which ``tools/build_release_notes.py`` writes from the GitHub releases and which ``.github/workflows/release.yml`` refreshes on every release. This panel is on the first screen the application shows, so making its CONTENT depend on api.github.com would mean a dashboard that is empty offline, throttled behind a shared NAT, and slower to draw than the window it is in. The bundled file therefore remains the offline source of truth and the panel is complete before anything touches a socket.",
       "source_sha256": "3d175c2af7e05e23cdff1e637e4de088049f59552ca8d5a17d5bf78a1cdc6b4b",
-      "translation": "LES NOTES SONT FOURNIES AVEC LE PAQUET, et c’est ce contenu fourni qui est dessiné. Elles proviennent de ``spacr/resources/release_notes.json``, que ``tools/build_release_notes.py`` écrit à partir des versions GitHub et que ``.github/workflows/release.yml`` rafraîchit à chaque version. Ce panneau se trouve sur la première vue qu’affiche l’application, si bien que faire dépendre son CONTENU de api.github.com donnerait un tableau de bord vide hors ligne, bridé derrière un NAT partagé et plus lent à dessiner que la fenêtre qui le contient. Le fichier fourni reste donc la source de vérité hors ligne et le panneau est complet avant que quoi que ce soit ne touche un socket."
+      "translation": "LES NOTES SONT FOURNIES AVEC LE PAQUET, et c’est ce contenu fourni qui est dessiné. Elles proviennent de ``spacr/resources/release_notes.json``, que ``tools/build_release_notes.py`` écrit à partir des versions GitHub et que ``.github/workflows/release.yml`` rafraîchit à chaque version. Ce panneau se trouve sur la première vue qu’affiche l’application, si bien que faire dépendre son CONTENU de api.github.com donnerait un tableau de bord vide hors ligne, bridé derrière un NAT partagé et plus lent à dessiner que la fenêtre qui le contient. Le fichier fourni reste donc la source de vérité hors ligne et le panneau est complet avant que quoi que ce soit ne touche un socket.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "And then it catches up. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a background execution unit, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
@@ -3411,7 +3422,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "AND THEN IT CATCHES UP. The wheel for a release cannot contain its own release note -- the note is written when the GitHub release is published, which is after that wheel is on PyPI -- so a bundled file is always one release behind the build carrying it, and that is what went wrong: \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" So after the page is shown, :attr:`refresh_requested` asks the window to read the public releases list on a worker thread, and :meth:`apply_releases` merges whatever comes back in front of the bundled list. Nothing here opens a socket: the panel only asks, and a fetch that fails, is rate-limited, is switched off in Preferences, or simply finds nothing newer leaves the bundled list exactly as it was drawn.",
       "source_sha256": "7f6316bf6a3bfa3d12730c2cdfce5756db400447c7f2c6c8ad49492ca194ebcb",
-      "translation": "PUIS IL SE MET À JOUR. La wheel d’une version ne peut pas contenir sa propre note de version -- la note est écrite lorsque la version GitHub est publiée, soit après que cette wheel est sur PyPI -- si bien qu’un fichier fourni a toujours une version de retard sur le build qui le porte, et c’est ce qui a posé problème : \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" Une fois la page affichée, :attr:`refresh_requested` demande donc à la fenêtre de lire la liste publique des versions sur un fil d’exécution de travail, et :meth:`apply_releases` fusionne ce qui revient devant la liste fournie. Rien ici n’ouvre de socket : le panneau ne fait que demander, et une récupération qui échoue, est limitée en débit, est désactivée dans les Préférences ou ne trouve simplement rien de plus récent laisse la liste fournie exactement telle qu’elle a été dessinée."
+      "translation": "PUIS IL SE MET À JOUR. La wheel d’une version ne peut pas contenir sa propre note de version -- la note est écrite lorsque la version GitHub est publiée, soit après que cette wheel est sur PyPI -- si bien qu’un fichier fourni a toujours une version de retard sur le build qui le porte, et c’est ce qui a posé problème : \"im on 1.5.1.0 and the news only goes to 1.5.0.7. the news section should always automatically reflect the latest spacr release news.\" Une fois la page affichée, :attr:`refresh_requested` demande donc à la fenêtre de lire la liste publique des versions sur un fil d’exécution de travail, et :meth:`apply_releases` fusionne ce qui revient devant la liste fournie. Rien ici n’ouvre de socket : le panneau ne fait que demander, et une récupération qui échoue, est limitée en débit, est désactivée dans les Préférences ou ne trouve simplement rien de plus récent laisse la liste fournie exactement telle qu’elle a été dessinée.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
@@ -3419,7 +3432,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The update check stays a BUTTON. Offering to install something is a decision, so it is still made only when pressed.",
       "source_sha256": "7015b27e0f129bb087b0487648dee0cfe3c8219f8fbda58d67800b70444634a2",
-      "translation": "La vérification de mise à jour reste un BOUTON. Proposer d’installer quelque chose est une décision, qui n’est donc toujours prise que sur appui."
+      "translation": "La vérification de mise à jour reste un BOUTON. Proposer d’installer quelque chose est une décision, qui n’est donc toujours prise que sur appui.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Merge a fetched release list into the list on application view.",
@@ -3435,7 +3450,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Silence is the contract. An empty list, a list of rubbish, or a list that says nothing the bundled file did not already say leaves the panel untouched and says nothing to the reader -- the failure of an unasked-for background fetch is not the reader's problem.",
       "source_sha256": "731c80f592c0abab2c78eb04e554ee7c07bb77da5184d9b92e35fe53674d6001",
-      "translation": "Le silence est la règle. Une liste vide, une liste incohérente ou une liste qui ne dit rien que le fichier fourni ne disait déjà laisse le panneau intact et ne dit rien au lecteur -- l’échec d’une récupération en arrière-plan qu’il n’a pas demandée n’est pas son problème."
+      "translation": "Le silence est la règle. Une liste vide, une liste incohérente ou une liste qui ne dit rien que le fichier fourni ne disait déjà laisse le panneau intact et ne dit rien au lecteur -- l’échec d’une récupération en arrière-plan qu’il n’a pas demandée n’est pas son problème.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "release records from :func:`spacr.updater.fetch_release_notes`, or anything at all.",
@@ -3531,7 +3548,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "AFTER the page exists and ON THE EVENT LOOP, not during construction: the single-shot timer means the emit lands on a later turn than this show, so Home's first paint is never waiting on it. Once per panel, because a page that is shown again -- a tab revisited, a font-scale rebuild -- is not news.",
       "source_sha256": "da720010cd7251e2540c5b20989069b775dec7969b3ed845ece331c1eab32841",
-      "translation": "APRÈS que la page existe et SUR LA BOUCLE D’ÉVÉNEMENTS, pas pendant la construction : le minuteur à déclenchement unique fait que l’émission arrive à un tour ultérieur à cet affichage, si bien que la première peinture de Home ne l’attend jamais. Une fois par panneau, car une page réaffichée -- un onglet revisité, une reconstruction à une autre échelle de police -- n’est pas une nouveauté."
+      "translation": "APRÈS que la page existe et SUR LA BOUCLE D’ÉVÉNEMENTS, pas pendant la construction : le minuteur à déclenchement unique fait que l’émission arrive à un tour ultérieur à cet affichage, si bien que la première peinture de Home ne l’attend jamais. Une fois par panneau, car une page réaffichée -- un onglet revisité, une reconstruction à une autre échelle de police -- n’est pas une nouveauté.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "the Qt show event.",
@@ -3775,7 +3794,7 @@
     },
     {
       "context": "the leave event; passed to the base class and otherwise not read.",
-      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#2",
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.leaveEvent#1",
       "review_basis": "MT draft edited in AI review",
       "source": "the leave event; passed to the base class and otherwise not read.",
       "source_sha256": "a9f47202036c0d9cc517998c2ab6e96b6dee49701443ac7fabe3d90661e5bd56",
@@ -3916,7 +3935,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The table is grouped when a folder is loaded, with the ``metadata_type`` and ``custom_regex`` the Mask form held at that moment. Loading first and choosing the naming second left every file under one column until something else reloaded the folder. The screen calls this when either setting changes. The folder's file names are read off the GUI thread, and nothing is decoded.",
       "source_sha256": "ba35ba6afb40c27af59767dfe437c665f3c50ef78d7c29d0e1a9a3715c269301",
-      "translation": "La table est regroupée au chargement d’un dossier, avec les ``metadata_type`` et ``custom_regex`` que contenait alors le formulaire de Mask. Charger d’abord et choisir le nommage ensuite laissait tous les fichiers sous une seule colonne jusqu’à ce qu’autre chose recharge le dossier. La vue appelle ceci lorsque l’un ou l’autre réglage change. Les noms de fichiers du dossier sont lus hors du thread de la GUI, et rien n’est décodé."
+      "translation": "La table est regroupée au chargement d’un dossier, avec les ``metadata_type`` et ``custom_regex`` que contenait alors le formulaire de Mask. Charger d’abord et choisir le nommage ensuite laissait tous les fichiers sous une seule colonne jusqu’à ce qu’autre chose recharge le dossier. La vue appelle ceci lorsque l’un ou l’autre réglage change. Les noms de fichiers du dossier sont lus hors du thread de la GUI, et rien n’est décodé.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``True`` when a regrouping was started, ``False`` when no image is loaded.",
@@ -3998,7 +4019,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "How many of this session's masks the comparison panel can lay over one another: the last eight, oldest dropped first. Each is a full-size label array, and a panel that kept every run of an afternoon would hold them all in memory for a popup that lists eight comfortably.",
       "source_sha256": "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c",
-      "translation": "Nombre de masques de cette session que le panneau de comparaison peut superposer : les huit derniers, le plus ancien étant abandonné en premier. Chacun est un tableau d’étiquettes pleine taille, et un panneau qui garderait chaque exécution d’un après-midi les conserverait tous en mémoire pour une fenêtre contextuelle qui en liste confortablement huit."
+      "translation": "Nombre de masques de cette session que le panneau de comparaison peut superposer : les huit derniers, le plus ancien étant abandonné en premier. Chacun est un tableau d’étiquettes pleine taille, et un panneau qui garderait chaque exécution d’un après-midi les conserverait tous en mémoire pour une fenêtre contextuelle qui en liste confortablement huit.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Direct image files are returned unchanged. Directory traversal stops as soon as the first sorted match is found instead of materialising and sorting every image in a potentially enormous plate. Files whose names start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes on exFAT and network volumes, sorts before every image and holds none.",
@@ -4160,7 +4183,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "TWO HALVES. :func:`composite` is the arithmetic, on plain arrays, so the picture a user sees can be checked pixel by pixel against a hand calculation. :class:`MaskComparisonDialog` is the popup that chooses what goes into it. Neither knows about the Mask module; the live preview hands in its session's masks and its field, and draws the answer.",
       "source_sha256": "5e6a4bd9dede1be7f833f2b0c7dc1b3ecff48da39d4ec0c8de4e080d9463c093",
-      "translation": "DEUX MOITIÉS. :func:`composite` est l’arithmétique, sur des tableaux simples, de sorte que l’image que voit un utilisateur peut être vérifiée pixel par pixel par rapport à un calcul manuel. :class:`MaskComparisonDialog` est la fenêtre contextuelle qui choisit ce qui y entre. Aucune des deux ne connaît le module Mask ; l’aperçu en direct fournit les masques de sa session et son champ, et dessine la réponse."
+      "translation": "DEUX MOITIÉS. :func:`composite` est l’arithmétique, sur des tableaux simples, de sorte que l’image que voit un utilisateur peut être vérifiée pixel par pixel par rapport à un calcul manuel. :class:`MaskComparisonDialog` est la fenêtre contextuelle qui choisit ce qui y entre. Aucune des deux ne connaît le module Mask ; l’aperçu en direct fournit les masques de sa session et son champ, et dessine la réponse.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The arithmetic is \"OVER\", layer by layer, from the bottom. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
@@ -4168,7 +4193,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE ARITHMETIC IS \"OVER\", LAYER BY LAYER, FROM THE BOTTOM. The canvas starts black. Each ticked layer, bottom first, is laid on with its opacity ``a``: where it covers, ``out = out * (1 - a) + colour * a``; where it does not, ``out`` is left alone. An image covers every pixel; a mask covers its objects only, so the background of a mask never dims what is under it. The result is rounded to the nearest whole grey level.",
       "source_sha256": "c3a684d93217b9a8bdc51ea11f6020da2c46a2d803e8dcec666dc35769ab475f",
-      "translation": "L’ARITHMÉTIQUE EST \"OVER\", COUCHE PAR COUCHE, À PARTIR DU BAS. Le canevas commence noir. Chaque couche cochée, en commençant par le bas, est posée avec son opacité ``a`` : là où elle couvre, ``out = out * (1 - a) + colour * a`` ; là où elle ne couvre pas, ``out`` reste inchangé. Une image couvre chaque pixel ; un masque ne couvre que ses objets, de sorte que le fond d’un masque n’assombrit jamais ce qui se trouve dessous. Le résultat est arrondi au niveau de gris entier le plus proche."
+      "translation": "L’ARITHMÉTIQUE EST \"OVER\", COUCHE PAR COUCHE, À PARTIR DU BAS. Le canevas commence noir. Chaque couche cochée, en commençant par le bas, est posée avec son opacité ``a`` : là où elle couvre, ``out = out * (1 - a) + colour * a`` ; là où elle ne couvre pas, ``out`` reste inchangé. Une image couvre chaque pixel ; un masque ne couvre que ses objets, de sorte que le fond d’un masque n’assombrit jamais ce qui se trouve dessous. Le résultat est arrondi au niveau de gris entier le plus proche.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The stacking order reads like a layer list. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
@@ -4176,7 +4203,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "THE STACKING ORDER READS LIKE A LAYER LIST. The popup lists the top of the stack first, the way every drawing program does, and :meth:`chosen` hands the layers back bottom first, the order :func:`composite` lays them on.",
       "source_sha256": "c70b490aeb3a412244c1ea00715da87239a8b9fc3e90abcf63c19fff5e865406",
-      "translation": "L’ORDRE D’EMPILEMENT SE LIT COMME UNE LISTE DE CALQUES. La fenêtre contextuelle liste d’abord le haut de la pile, comme le fait tout programme de dessin, et :meth:`chosen` rend les couches en commençant par le bas, l’ordre dans lequel :func:`composite` les pose."
+      "translation": "L’ORDRE D’EMPILEMENT SE LIT COMME UNE LISTE DE CALQUES. La fenêtre contextuelle liste d’abord le haut de la pile, comme le fait tout programme de dessin, et :meth:`chosen` rend les couches en commençant par le bas, l’ordre dans lequel :func:`composite` les pose.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "One thing the comparison can draw.",
@@ -4248,7 +4277,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the choices, TOP OF THE STACK FIRST.",
       "source_sha256": "84d7c1979b96259903c3090f1a56ccb8062c45a0cc21bb64f4d53145370eb578",
-      "translation": "les choix, HAUT DE LA PILE EN PREMIER."
+      "translation": "les choix, HAUT DE LA PILE EN PREMIER.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "parent widget; ownership only.",
@@ -4272,7 +4303,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The ticked layers, BOTTOM FIRST, ready for :func:`composite`.",
       "source_sha256": "5a6caa36ebf3359ca3bf711437e6c710c380e1a87ddbc470b01822ebd38fcf11",
-      "translation": "Les couches cochées, BAS EN PREMIER, prêtes pour :func:`composite`."
+      "translation": "Les couches cochées, BAS EN PREMIER, prêtes pour :func:`composite`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every layer as the popup has it now, top of the stack first.",
@@ -4440,7 +4473,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen application. Everything here is a list of strings; the ``isdir`` and ``listdir`` that turn a dropped folder into files run on this widget's own worker (:func:`files_under`), because a drop is a path the user chose and on a microscope rig that is the share the images live on -- one stat under a sleeping ``autofs`` mount was measured at over twenty seconds, on the thread that paints.",
       "source_sha256": "8f2724a512a342fc22df05aa565306f1d1de890f3e5b131a1a2243c38384f6d0",
-      "translation": "SÉPARÉE DE :meth:`add_paths`, et cette séparation est le correctif d’une application figée. Tout ici n’est qu’une liste de chaînes ; les ``isdir`` et ``listdir`` qui transforment un dossier déposé en fichiers s’exécutent sur le worker propre de ce widget (:func:`files_under`), car un dépôt est un chemin choisi par l’utilisateur et, sur un poste de microscope, c’est le partage où résident les images -- un seul stat sous un montage ``autofs`` en veille a été mesuré à plus de vingt secondes, sur le thread qui peint."
+      "translation": "SÉPARÉE DE :meth:`add_paths`, et cette séparation est le correctif d’une application figée. Tout ici n’est qu’une liste de chaînes ; les ``isdir`` et ``listdir`` qui transforment un dossier déposé en fichiers s’exécutent sur le worker propre de ce widget (:func:`files_under`), car un dépôt est un chemin choisi par l’utilisateur et, sur un poste de microscope, c’est le partage où résident les images -- un seul stat sous un montage ``autofs`` en veille a été mesuré à plus de vingt secondes, sur le thread qui peint.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Nothing is added by the time this returns, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
@@ -4448,7 +4483,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read the table from :attr:`table_changed`, not from the line after this.",
       "source_sha256": "8e2d6707e93529a83427142114012cdaad3857344b99280d82aa07e43e507622",
-      "translation": "RIEN N’EST AJOUTÉ AU MOMENT OÙ CECI REVIENT, et c’est voulu. Lisez la table depuis :attr:`table_changed`, pas depuis la ligne qui suit."
+      "translation": "RIEN N’EST AJOUTÉ AU MOMENT OÙ CECI REVIENT, et c’est voulu. Lisez la table depuis :attr:`table_changed`, pas depuis la ligne qui suit.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "files and folders from a drop or a file dialog.",
@@ -4752,7 +4789,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a microscope rig means a network share, and the ``isdir`` is what wakes the automount. :meth:`MeasureInputTable.add_dropped` is the only caller and it runs this on a worker. Looked up through the module global so a test can replace it and see which thread it ran on.",
       "source_sha256": "f36bfc3c1a31cb756f70b118386083e32bffffcc67e99586f5b44c22d22d446c",
-      "translation": "PAS POUR LE THREAD DE LA GUI. Chaque chemin ici est un chemin choisi par l’utilisateur, ce qui, sur un poste de microscope, signifie un partage réseau, et c’est le ``isdir`` qui réveille le montage automatique. :meth:`MeasureInputTable.add_dropped` est le seul appelant et l’exécute sur un worker. Recherchée via la variable globale du module, afin qu’un test puisse la remplacer et voir sur quel thread elle s’est exécutée."
+      "translation": "PAS POUR LE THREAD DE LA GUI. Chaque chemin ici est un chemin choisi par l’utilisateur, ce qui, sur un poste de microscope, signifie un partage réseau, et c’est le ``isdir`` qui réveille le montage automatique. :meth:`MeasureInputTable.add_dropped` est le seul appelant et l’exécute sur un worker. Recherchée via la variable globale du module, afin qu’un test puisse la remplacer et voir sur quel thread elle s’est exécutée.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "what was dropped or chosen.",

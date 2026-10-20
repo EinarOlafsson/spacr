@@ -1,53 +1,68 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "f7d8a4854392dcb98935540a41defeba405d63c6fe0741dea0b09a40852884ad",
+  "english_sha256": "2fad722d12e28d43e02b94640f1db29f375d2566b6f2971ccfc0e4d2b5e9b663",
   "review": {
-    "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior accepted captions retained outside two appended clauses and two new Wand scenes; Codex authored and technically reviewed additions.",
-    "date": "2026-10-06",
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Single Wand button, default addition, Ctrl removal, tolerance/pixel limit, undoing practice edits, and Clear confirmation/placement. Current capture, audio and publication remain required.",
+    "scope": "Scene 1 revised: the button is Clear all objects and it removes every object in the current image; the other 60 scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      1
+    ],
+    "previous_english_sha256": "f7d8a4854392dcb98935540a41defeba405d63c6fe0741dea0b09a40852884ad",
+    "previous_review_sha256": "81122c4ac0f90b390e3fb5fde6eda81abc9fe4af4dd1e0130b2e213bb573a0b4",
     "previous_review": {
       "kind": "AI technical review (Codex), no native-speaker signoff",
-      "translator": "Prior translations retained exactly outside the changed tool clause, objective and added merge scene; Codex authored and technically reviewed the changes.",
+      "translator": "Prior accepted captions retained outside two appended clauses and two new Wand scenes; Codex authored and technically reviewed additions.",
       "date": "2026-10-06",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
       "listening_review": false,
-      "scope": "Left divides, right merges, first crossed identity, unchanged background, Undo and saved-group persistence. Native recording/audio/publication remain required.",
+      "scope": "Single Wand button, default addition, Ctrl removal, tolerance/pixel limit, undoing practice edits, and Clear confirmation/placement. Current capture, audio and publication remain required.",
       "previous_review": {
         "kind": "AI technical review (Codex), no native-speaker signoff",
-        "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
-        "date": "2026-10-05",
+        "translator": "Prior translations retained exactly outside the changed tool clause, objective and added merge scene; Codex authored and technically reviewed the changes.",
+        "date": "2026-10-06",
         "independent_peer_review": false,
         "native_speaker_signoff": false,
         "listening_review": false,
-        "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
+        "scope": "Left divides, right merges, first crossed identity, unchanged background, Undo and saved-group persistence. Native recording/audio/publication remain required.",
         "previous_review": {
           "kind": "AI technical review (Codex), no native-speaker signoff",
-          "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+          "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
           "date": "2026-10-05",
           "independent_peer_review": false,
           "native_speaker_signoff": false,
           "listening_review": false,
-          "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+          "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
           "previous_review": {
-            "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-            "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-            "date": "2026-09-30",
+            "kind": "AI technical review (Codex), no native-speaker signoff",
+            "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+            "date": "2026-10-05",
             "independent_peer_review": false,
             "native_speaker_signoff": false,
-            "listening_review": false
+            "listening_review": false,
+            "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+            "previous_review": {
+              "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+              "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+              "date": "2026-09-30",
+              "independent_peer_review": false,
+              "native_speaker_signoff": false,
+              "listening_review": false
+            },
+            "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
           },
-          "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+          "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
         },
-        "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
+        "previous_english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4"
       },
-      "previous_english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4"
-    },
-    "previous_english_sha256": "3eb02f7d2684faf2cd1a880b189d41a0f5737aa4f268230f8fc93b7e7148f3a5"
+      "previous_english_sha256": "3eb02f7d2684faf2cd1a880b189d41a0f5737aa4f268230f8fc93b7e7148f3a5"
+    }
   },
   "language": "is",
   "title": "Make Masks: breyttu merkingum og undirbúðu þjálfunarmyndir",
@@ -61,7 +76,7 @@
   ],
   "prerequisite": "Útbúðu möppu með tvívíðum myndum og samsvarandi TIFF-skrám með tilvikamerkingum í undirmöppu sem heitir masks. Hver gríma notar sama nafnstofn og myndskráin. Vinndu í afriti þegar þú æfir breytingar og nýja skurði. Dæmið notar ER-myndir og frumugrímur úr niðurhalanlegu smásjárverkefni Measure.",
   "scenes": [
-    "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear masks, beint vinstra megin við Discard, biður um staðfestingu áður en allar grímur í núverandi mynd eru fjarlægðar.",
+    "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear all objects, beint vinstra megin við Discard, biður um staðfestingu áður en allir hlutir í núverandi mynd eru fjarlægðir.",
     "Load test data opnar tíu sýnimyndir af Toxoplasma. Örin á hnappnum býður líka upp á sýnishorn úr hverju þjálfunargagnasafni sem útgefið líkan lærði af, ásamt grímum, svo þú sjáir hvernig góð þjálfunarpör líta út.",
     "Smelltu á Open folder og veldu myndamöppuna. Í þessu dæmi notarðu ER-styrkleikamyndirnar og samsvarandi frumugrímur úr Measure-sýninu. Hafðu stærð myndar og grímu þá sömu og skráarheitin pöruð.",
     "Ritillinn hleður inn myndinni og samsvarandi grímu úr undirmöppunni masks. Litaðar merkingar auðkenna einstaka hluti. Athugaðu hvort útlínurnar fylgi mörkunum í myndinni. Ef fylgigrímu vantar byrjarðu með tóma grímu og teiknar hlutina sem þú þarft.",

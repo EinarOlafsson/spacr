@@ -1,0 +1,274 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Source-bound technical review with independent semantic peer; no native-speaker signoff",
+  "note": "Exact final N703 nine-symbol closure:30 stable blocks,2 corrected return fields,1 Original Hard updater final paragraph. Windows updater paragraph1 is untouched. Historical draft provenance remains separately bound.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#0",
+      "source": "Apply a fresh selected-cache action under the application's live run guard.",
+      "context": "Apply a fresh selected-cache action under the application's live run guard.",
+      "source_sha256": "6e5121a4ddd2e53856e85ecbf78faefa3e71ab4ba100561f9460a92402b4b59f",
+      "translation": "Framkvæma nýja aðgerð á völdum skyndiminnum undir virku keyrsluöryggi forritsins.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#1",
+      "source": "Only a trusted Python context-manager factory can enable execution. The application's caller must hold its established run-registration lock and refuse active work throughout the context. This is an application-local safeguard, not proof that every other process is idle. A separate helper or saved dictionary cannot grant that authority.",
+      "context": "Only a trusted Python context-manager factory can enable execution. The application's caller must hold its established run-registration lock and refuse active work throughout the context. This is an application-local safeguard, not proof that every other process is idle. A separate helper or saved key-value mapping cannot grant that authority.",
+      "source_sha256": "3669ef371c87f57f9137ba998cae21396832c7835d1c71f2bfada45d24a2b764",
+      "translation": "Aðeins traust Python-fall sem býr til samhengisstjóra getur heimilað keyrslu. Kallandi hluti forritsins verður að halda fyrirliggjandi læsingu fyrir skráningu keyrslna og hafna virkri vinnu allan tímann sem samhengið er opið. Þetta er vernd innan forritsins, ekki sönnun þess að allir aðrir ferlar séu óvirkir. Aðskilið hjálparforrit eða vistuð vörpun lykla á gildi getur ekki veitt þá heimild.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#2",
+      "source": "Every selected snapshot is validated before mutation. Each action identity is consumed once in this process. Changed, unknown or locked detached entries remain in private staging; no recursive deletion or overwriting restoration is performed. Models, data and other protected roots cannot be selected. Supported no-follow directory descriptors are required.",
+      "context": "Every selected snapshot is validated before mutation. Each action identity is consumed once in this process. Changed, unknown or locked detached entries remain in private staging; no recursive deletion or overwriting restoration is performed. Models, data and other protected roots cannot be selected. Supported no-follow directory descriptors are required.",
+      "source_sha256": "fbd370e6d4a1b5207d4ee16e9f82ec090aa7bb940588ed47cb2078b8d6c2e6a9",
+      "translation": "Hver valin stöðumynd er staðfest áður en breytingar eru gerðar. Hvert auðkenni aðgerðar er notað einu sinni í þessum ferli. Aðskildar færslur skráakerfisins sem hafa breyst, eru óþekktar eða læstar eru áfram á lokuðu undirbúningssvæði; hvorki er eytt endurkvæmt né endurheimt með yfirskrift. Ekki er hægt að velja líkön, gögn eða aðrar verndaðar rótarmöppur. Stuðningur við möppulýsa sem fylgja ekki tenglum er nauðsynlegur.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#3",
+      "source": "Immutable result of :func:`preview_optional_cleanup`.",
+      "context": "Immutable result of :func:`preview_optional_cleanup`.",
+      "source_sha256": "4a5c25b0f4994e7a51e63794c9bd9e7f20491f660cd48c5b05f2254a6726aeaa",
+      "translation": "Óbreytanleg niðurstaða úr :func:`preview_optional_cleanup`.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#4",
+      "source": "Current operation ID, snapshot ID and explicitly chosen registered cache keys returned by the GUI.",
+      "context": "Current operation ID, snapshot ID and explicitly chosen registered cache structured-data names returned by the GUI.",
+      "source_sha256": "667a22c5b8911720f538d6b4ce360c26e9d7d39c3b8d4d58218c60f89e758217",
+      "translation": "Auðkenni núverandi aðgerðar, auðkenni skyndimyndar og sérstaklega valdir skráðir skyndiminnislyklar sem grafíska viðmótið (GUI) skilar.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#5",
+      "source": "Optional isolated machine adapter used for reinspection.",
+      "context": "Optional isolated machine adapter used for reinspection.",
+      "source_sha256": "46098f5080e146f6e40aeece7b3e3ffdfc61bcc9cf2c24f8c7b10ff823e690e0",
+      "translation": "Valfrjálst einangrað vélarmillistykki sem er notað við endurskoðun.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#6",
+      "source": "Trusted live context-manager factory receiving derived paths; it yields ``None`` only while application-local cleanup is permitted.",
+      "context": "Trusted live context-manager factory receiving derived paths; it yields ``None`` only while application-local cleanup is permitted.",
+      "source_sha256": "d32f58e31d9f2cda2d1e9fe78bb44eb7ffff6b43e9bc8f60f46ed61f5dcf36a9",
+      "translation": "Traust virkt fall sem býr til samhengisstjóra og tekur við afleiddum slóðum; það skilar ``None`` aðeins meðan hreinsun innan forritsins er heimil.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.apply_optional_cleanup#7",
+      "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "context": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+      "translation": "Niðurstaða aðgerðar með ástæðu höfnunar eða talningum fjarlægðra atriða og einkaslóðum sem kunna að hafa verið varðveittar.",
+      "review_basis": "Home-B coordinator author; independent corrected-returns peer8f6aec59f; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#0",
+      "source": "Inspect dedicated caches and offer selection only under a live run guard.",
+      "context": "Inspect dedicated caches and offer selection only under a live run guard.",
+      "source_sha256": "5786ee057f4f0f66be59c5e974c6e86c996350f94dc373320a6a079130a417ca",
+      "translation": "Skoða sérhæfð skyndiminni og aðeins bjóða upp á val undir virkri keyrsluvörn.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#1",
+      "source": "Recognized cache contents are inspected only under the default spaCR home. A bounded relocation manifest may also be read from a configured spaCR home to display retained external paths. External, symlinked, unknown and protected cache contents remain unavailable. Inspection is bounded and never follows links. A trusted live application guard can enable candidates; a saved selection cannot authorize removal. This does not establish that every other application instance is idle.",
+      "context": "Recognized cache contents are inspected only under the default spaCR home. A bounded relocation manifest may also be read from a configured spaCR home to display retained external paths. External, symlinked, unknown and protected cache contents remain unavailable. Inspection is bounded and never follows links. A trusted live application guard can enable candidates; a saved selection cannot authorize removal. This does not establish that every other application instance is idle.",
+      "source_sha256": "3c5d4e8030d9a2c7d2db4ffe906c516d4f5dfa85fa30a4387d00274deff10e14",
+      "translation": "Innihald þekktra skyndiminna er aðeins skoðað undir sjálfgefinni heimamöppu spaCR. Einnig má lesa stærðartakmarkaða flutningsskrá úr stilltri heimamöppu spaCR til að sýna varðveittar ytri slóðir. Innihald ytri, táknrænt tengdra, óþekktra og varinna skyndiminna er áfram óaðgengilegt. Skoðunin er takmörkuð og fylgir aldrei tenglum. Traust virk vörn forritsins getur gert mögulega valkosti valhæfa; vistað val getur ekki heimilað fjarlægingu. Þetta staðfestir ekki að öll önnur tilvik forritsins séu aðgerðalaus.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#2",
+      "source": "Fresh identity supplied by the current installer or update coordinator, independent of saved privacy preferences.",
+      "context": "Fresh identity supplied by the current installer or update coordinator, independent of saved privacy preferences.",
+      "source_sha256": "5e6e850e6f8e2edeadeaf1d92966e684a4bdfd1b699247edbc3f1c1e237b04ea",
+      "translation": "Nýtt auðkenni sem núverandi uppsetningarforrit eða uppfærslustýring leggur til, óháð vistuðum persónuverndarstillingum.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#3",
+      "source": "Optional machine adapter for isolated filesystem checks.",
+      "context": "Optional machine adapter for isolated filesystem checks.",
+      "source_sha256": "99db6adec928e6c8bdf3b956f6025732d49abbfab5d9da594f387cc189db3a75",
+      "translation": "Valfrjálst vélarmillistykki fyrir einangraðar skráakerfisathuganir.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#4",
+      "source": "Optional trusted live context-manager factory receiving derived candidate paths and yielding ``None`` only while cleanup is permitted.",
+      "context": "Optional trusted live context-manager factory receiving derived candidate paths and yielding ``None`` only while cleanup is permitted.",
+      "source_sha256": "af86e577f48a8cf5b8bd0aa11a74c053936d94510de658aad121b9811a6ee6ee",
+      "translation": "Valfrjáls traust virk smiðja samhengisstjóra sem tekur við afleiddum mögulegum slóðum og skilar ``None`` aðeins meðan hreinsun er heimil.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#5",
+      "source": "An immutable operation-bound preview with actual paths, content sizes and a snapshot identity. Without a live guard, removal stays disabled. No file is changed during inspection.",
+      "context": "An immutable operation-bound preview with actual paths, content sizes and a snapshot identity. Without a live guard, removal stays disabled. No file is changed during inspection.",
+      "source_sha256": "2848ae6b90aa1c12d1baf3a752a73e8452230bdd52a100d11d52d4fd532f8428",
+      "translation": "Óbreytanleg forsýning bundin aðgerðinni, með raunverulegum slóðum, stærðum innihalds og auðkenni skyndimyndar. Án virkrar varnar er fjarlæging áfram óvirk. Engri skrá er breytt við skoðunina.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup#6",
+      "source": "The operation identity is empty or invalid.",
+      "context": "The operation identity is empty or invalid.",
+      "source_sha256": "eee4eb314da7f08a92a35d6a402c92d9ab7e35e44e384b0f6977424af03e4506",
+      "translation": "Auðkenni aðgerðarinnar er tómt eða ógilt.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#12",
+      "source": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
+      "context": "A frozen macOS bundle in a user-writable location uses its verified DMG replacement adapter and retains its complete prior bundle. A protocol-marked Debian bundle uses graphical administrator authorization and a root-owned helper outside the installation. Both the replacement and rollback package require published checksums; package and unprivileged runtime verification precede relaunch. Unsupported frozen application families return an error before removing anything; no online-installer fallback is enabled for them.",
+      "source_sha256": "503a62766527bc6b2b9814d1034745f1673ed219bbdd9bbc97c9500c8254e674",
+      "translation": "Frystur macOS-forritspakki á stað þar sem notandinn hefur skrifheimild notar sannreynt millistykki sitt fyrir skipti með DMG og varðveitir allan fyrri pakkann. Debian-pakki með samskiptareglumerkingu notar myndræna stjórnandaheimild og hjálparbúnað í eigu root utan uppsetningarinnar. Bæði pakkinn sem kemur í staðinn og pakkinn fyrir afturköllun krefjast birtra gátsumma; pakkinn og keyrsluumhverfið án aukinna réttinda eru sannreynd áður en forritið er ræst aftur. Óstuddar gerðir frystra forrita skila villu áður en nokkuð er fjarlægt; engin varaleið með netuppsetningarforriti er virk fyrir þær.",
+      "review_basis": "Original Home Hard author; Original Home root independent target peer, exact unchanged final paragraph12; technical review only, no native-speaker claim.",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#0",
+      "source": "Show installer consent, optional cache review, report notice and tour.",
+      "context": "Show installer consent, optional cache review, report notice and tour.",
+      "source_sha256": "fe1453becad4258604accd38a185f84edb38b15a21afe40cb6169e821caabb40",
+      "translation": "Birta beiðni um samþykki við uppsetningu, valfrjálsa yfirferð skyndiminna, tilkynningu um skýrslur og kynnisferð.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding#1",
+      "source": "Background cache inspection finishes before the choices open. The tour waits for the anonymised-report notice to close.",
+      "context": "Background cache inspection finishes before the choices open. The tour waits for the anonymised-report notice to close.",
+      "source_sha256": "e6c5f94cda2fdf3e6c096015f14071994308a2fadbca7f5f3c43e0dbbf3e80ca",
+      "translation": "Skoðun skyndiminna í bakgrunni lýkur áður en valkostirnir opnast. Kynnisferðin bíður þar til tilkynningunni um nafnlausar skýrslur er lokað.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#0",
+      "source": "Return an absolute display path using the writer's tilde rule.",
+      "context": "Return an absolute display path using the writer's tilde rule.",
+      "source_sha256": "62f86e6cfbaca7ab1c2747bf8e058ebe451d39d00c4428274760c8749fc5c7a5",
+      "translation": "Skila algildri slóð til birtingar samkvæmt tildu-reglu þess hugbúnaðarhluta sem skrifar.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#1",
+      "source": "Configured or default path text.",
+      "context": "Configured or default path text.",
+      "source_sha256": "2b3b84fb6cc2c7551f74c71dd32d5c424627260aed279a360ea59c1d9600705e",
+      "translation": "Texti stilltrar eða sjálfgefinnar slóðar.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#2",
+      "source": "Whether this writer expands a leading user-home marker.",
+      "context": "Whether this writer expands a leading user-home marker.",
+      "source_sha256": "ae0d503d3f39aa2dae2407637bc6461aa509a655c1f60004b95b19f9b9bc5108",
+      "translation": "Hvort hugbúnaðarhlutinn sem skrifar leysir upp heimamöppumerki fremst í slóð.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.normalized#3",
+      "source": "Absolute path text without inspecting cache contents.",
+      "context": "Absolute path text without inspecting cache contents.",
+      "source_sha256": "a2c78c59db5dfb8c315b20be282f31fc722d6cb810dab92f6d5430f336ee0100",
+      "translation": "Algildur slóðatexti án þess að skoða innihald skyndiminnis.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#0",
+      "source": "Resolve a retained cache path with external override precedence.",
+      "context": "Resolve a retained cache path with external override precedence.",
+      "source_sha256": "da0c22aaf8e08ca8e6830fb30e9165da4b542d92bbd0eac5db644f2da6a0c5f6",
+      "translation": "Finna slóð varðveitts skyndiminnis þannig að ytri yfirskrift hafi forgang.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#1",
+      "source": "Registered cache environment-variable name.",
+      "context": "Registered cache environment-variable name.",
+      "source_sha256": "f6ebb21cf2729a094a52d0069178b076ae1b6028286a6ce06022e3f0b9755c37",
+      "translation": "Skráð heiti umhverfisbreytu skyndiminnis.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#2",
+      "source": "Fallback when neither environment nor relocation supplies it.",
+      "context": "Fallback when neither environment nor relocation supplies it.",
+      "source_sha256": "1dd9356c8e10ab374914def8811bf93e58e625dd1f0784335dc953b7b8b428a4",
+      "translation": "Varagildi þegar hvorki umhverfið né flutningsstillingin gefur upp gildi.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.install_cleanup.preview_optional_cleanup.retained_path#3",
+      "source": "Normalized display path; its protected contents are not scanned.",
+      "context": "Normalized display path; its protected contents are not scanned.",
+      "source_sha256": "c7371737d0d42b07383d50810a30e48541a0be0bc4baf74fa73a15622c94b80c",
+      "translation": "Stöðluð slóð til birtingar; verndað innihald hennar er ekki skannað.",
+      "review_basis": "Home-B documentation author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#0",
+      "source": "Hold the application's run lock and refuse registered active work.",
+      "context": "Hold the application's run lock and refuse registered active work.",
+      "source_sha256": "c85985e8731472a174bb474a808cbf7f57a7f31620877a85407f32c89f38fd50",
+      "translation": "Halda keyrslulás forritsins og hafna hreinsun ef skráð virk vinna er í gangi.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#1",
+      "source": "Independently derived candidate cache directories.",
+      "context": "Independently derived candidate cache directories.",
+      "source_sha256": "15de6eb69fd57ab4af4cf46abff34f696e58c62528882c2dab4d659669d38c29",
+      "translation": "Mögulegar skyndiminnismöppur sem eru ákvarðaðar sjálfstætt.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.guard#2",
+      "source": "``None`` while application-local cleanup is allowed, or the existing cache refusal. This does not prove other processes idle.",
+      "context": "``None`` while application-local cleanup is allowed, or the existing cache refusal. This does not prove other processes idle.",
+      "source_sha256": "3a7ca2f40bd4bd0ff57a0741b54d8dd7857b7ee563a5c1c94df4c05df22453c7",
+      "translation": "``None`` meðan staðbundin hreinsun innan forritsins er leyfð, eða fyrirliggjandi höfnun skyndiminnisaðgerðar. Þetta sannar ekki að aðrir ferlar séu aðgerðalausir.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.prepare#0",
+      "source": "Inspect the fresh operation's caches inside the background worker.",
+      "context": "Inspect the fresh operation's caches inside the background worker.",
+      "source_sha256": "e576b57ec058d6f80d75912ec181eb7a9b662343b2cb3021ad9476b518b80f14",
+      "translation": "Skoða skyndiminni nýju aðgerðarinnar í vinnuþræðinum í bakgrunni.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._review_installation_caches.prepare#1",
+      "source": "Immutable preview with the live application-local run guard.",
+      "context": "Immutable preview with the live application-local run guard.",
+      "source_sha256": "f1b21a0639b8dd09b17cec878317c40fdc2447ffc143fad3f277c8f3bf87b775",
+      "translation": "Óbreytanleg forsýning útbúin með virkri keyrsluvörn innan forritsins.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply#0",
+      "source": "Revalidate and apply only the explicit current-dialog selection.",
+      "context": "Revalidate and apply only the explicit current-dialog selection.",
+      "source_sha256": "8f1d428a2f1e7a4d5588a5f9acafe1191fa74ac22b9181dc5b42f47c1abcc88f",
+      "translation": "Staðfesta aftur og beita aðeins skýru vali í núverandi glugga.",
+      "review_basis": "Home-B website author; independent stable270 peer76c352c3e; technical review only, no native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.app.MainWindow._on_cache_cleanup_preview_ready.apply#1",
+      "source": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "context": "Action outcome with a refusal reason or removed counts and any private retained paths.",
+      "source_sha256": "dc3504cbeb32ae63c2bea805ec37b5268455e1b252acc5a0997b50debd3c9e68",
+      "translation": "Niðurstaða aðgerðar með ástæðu höfnunar eða talningum fjarlægðra atriða og einkaslóðum sem kunna að hafa verið varðveittar.",
+      "review_basis": "Home-B coordinator author; independent corrected-returns peer8f6aec59f; technical review only, no native-speaker claim."
+    }
+  ]
+}

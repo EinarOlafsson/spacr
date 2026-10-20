@@ -5,6 +5,11 @@ spaCR presents its terms during setup and records the accepted
 version explicitly; acceptance of an earlier version is not carried forward.
 The record is stored with the other setup values under the ``onboarding/``
 prefix.
+
+Version 4.3 rewrites Sections 5 and 6 for item 700: anonymised error reports
+are on by default and filed by spaCR's relay with no GitHub account, spaCR AI
+(free) answers through that relay, and a user's own Claude, GPT or Gemini is
+chosen in Preferences, so a profile that accepted 4.2 is asked again.
 """
 from __future__ import annotations
 
@@ -41,7 +46,7 @@ from typing import Dict, Tuple
 #: asked again.
 LOG = logging.getLogger(__name__)
 
-TERMS_VERSION = "4.2"
+TERMS_VERSION = "4.3"
 
 #: What the licence is called, and where the whole of it can be read.
 #:
@@ -160,17 +165,15 @@ TERMS: Tuple[str, ...] = (
     "Software, subject to the licence granted in Section 2.",
 
     "5. DIAGNOSTIC DATA AND HOW IT MAY BE USED",
-    "5.1 The Software contains no telemetry, no background upload and no "
-    "analytics. Apart from the automatic error reports described in "
-    "Section 5.6, Diagnostic Data is transmitted only as the result of an "
-    "action You take.",
-    "5.2 Where You elect to send a bug report, or one is filed "
-    "automatically under Section 5.6, and You do not clear the setting "
-    "\u201cInclude recent logs in a report\u201d, You grant the Licensor a "
-    "perpetual, worldwide, "
-    "royalty-free licence to use the Diagnostic Data contained in that "
-    "report for the purposes of diagnosing faults, improving the Software, "
-    "and any other purpose connected with its development.",
+    "5.1 The Software contains no analytics and never uploads Your "
+    "Content. Apart from the anonymised error reports described in Section "
+    "5.6 and the spaCR AI requests described in Section 6, Diagnostic Data "
+    "is transmitted only as the result of an action You take.",
+    "5.2 Where You elect to send a bug report, or an anonymised error "
+    "report is sent under Section 5.6, You grant the Licensor a perpetual, "
+    "worldwide, royalty-free licence to use the Diagnostic Data contained "
+    "in that report for the purposes of diagnosing faults, improving the "
+    "Software, and any other purpose connected with its development.",
     "5.3 Where You upload image data or trained models to a Shared "
     "Resource, You grant the Licensor a perpetual, worldwide, "
     "royalty-free licence to use that material to develop the Software "
@@ -180,48 +183,81 @@ TERMS: Tuple[str, ...] = (
     "5.4 The licences in Sections 5.2 and 5.3 are non-exclusive. They do "
     "not transfer ownership, and they do not limit what You may do with the "
     "same material.",
-    "5.5 A bug report filed through the Software is PUBLISHED as an issue "
-    "on the public spaCR repository, github.com/EinarOlafsson/spacr, under "
-    "Your GitHub account. It contains the error's traceback, the settings "
-    "of the run that failed, and the versions of the Software, Python, the "
-    "operating system and principal libraries. Before it is sent, "
-    "credential-shaped values, database file names, and this computer's "
-    "login and host names are replaced with placeholders, and so are file "
-    "and folder names unless You restore them in a preview. Public issues "
-    "are world-readable, "
-    "indexed and mirrored, and cannot be reliably unpublished. The log is "
-    "never published: any log accompanying a report is written to a file "
-    "on Your equipment, and the issue records the path rather than the "
-    "contents. Sending that file is a separate act You take.",
-    "5.6 AUTOMATIC ERROR REPORTS. The setting “One-click issue "
-    "filing” has three values. With “always”, WHICH IS THE "
-    "DEFAULT, the Software files the report described in Section 5.5 "
-    "automatically when a run fails, without showing it to You first. It "
-    "files each distinct error once: where an open issue already carries "
-    "the same error, the report is added to that issue as a comment instead "
-    "of opening a new one. Automatic filing uses the GitHub command line "
-    "tool’s sign-in or a GITHUB_TOKEN on Your equipment; without one, "
-    "nothing is filed automatically. With “ask”, a report is shown "
-    "to You in an editable preview and is sent only when You press Send "
-    "report. With “never”, no report is sent. BY ACCEPTING THIS "
-    "AGREEMENT WITH THE SETTING AT “always”, YOU AGREE TO THE "
-    "AUTOMATIC FILING OF THESE REPORTS. You may change the setting at any "
-    "time under Help > Set spaCR up again…, on the page “When "
-    "something breaks”, or stop all reports by turning off “Report "
-    "errors as GitHub issues” in the AI Console’s settings.",
-    "5.7 You are responsible for the content of anything You elect to send "
-    "or allow to be sent automatically. The Software redacts "
-    "credential-shaped values and file paths on a best efforts basis; it "
-    "cannot identify material that is confidential for reasons particular "
-    "to Your work.",
+    "5.5 A bug report You choose to file yourself under Your own GitHub "
+    "account is PUBLISHED as an issue on the public spaCR repository, "
+    "github.com/EinarOlafsson/spacr. Before it is sent, credential-shaped "
+    "values, database file names, and this computer's login and host names "
+    "are replaced with placeholders, and so are file and folder names "
+    "unless You restore them in a preview. Public issues are "
+    "world-readable, indexed and mirrored, and cannot be reliably "
+    "unpublished. The log is never published: any log accompanying a "
+    "report is written to a file on Your equipment, and sending that file "
+    "is a separate act You take.",
+    "5.6 ANONYMISED ERROR REPORTS ARE ON BY DEFAULT. When a run fails, is "
+    "refused for its settings, or the Software crashes, the Software sends "
+    "an anonymised summary of the error so that it can be fixed without "
+    "You having to report it. The summary holds the versions of the "
+    "Software, Python and its principal libraries, the operating system "
+    "family, the type of GPU, the screen and module in use, the error type, "
+    "the error message with personal details removed, a call stack that "
+    "names files without their folders, an AI-written summary of the "
+    "likely cause, and a random install identifier that is not derived "
+    "from Your equipment and is used only to share the free allowance "
+    "fairly. The following are NEVER sent: file and folder paths, file "
+    "names, user, login and host names, IP addresses, e-mail addresses, "
+    "tokens and other credentials, logs, settings values, environment "
+    "variables, images, and any other part of Your Content. The summary is "
+    "sent over an encrypted connection to spaCR's relay, which files it as "
+    "a PUBLIC issue on the GitHub repository EinarOlafsson/spacr, or adds "
+    "it as a comment to an open issue for the same error. The relay files "
+    "it under its own name, so You need no GitHub account. Public issues "
+    "are world-readable, indexed and mirrored, and cannot be reliably "
+    "unpublished.",
+    "5.7 Under Preferences → AI, the setting “AI Error "
+    "report” chooses what happens to an error: summarize and send all "
+    "errors (the default), with or without code context from the "
+    "Software's own source; summarize all errors and send only faults in "
+    "the Software; summarize all errors and send nothing; send without an "
+    "AI summary; or “Off”. Its “What is sent…” "
+    "button shows an example report. To stop all error reports, choose "
+    "“Off” or “Summarize all errors, send nothing” "
+    "there, or turn off “Send anonymised error reports” in the "
+    "notice shown when spaCR first starts. BY ACCEPTING THIS AGREEMENT "
+    "WITHOUT TURNING REPORTS OFF, YOU AGREE TO THE SENDING OF THESE "
+    "ANONYMISED REPORTS.",
+    "5.8 You are responsible for the content of anything You elect to send "
+    "or allow to be sent automatically. The Software removes personal "
+    "details, credential-shaped values and file paths on a best efforts "
+    "basis; it cannot identify material that is confidential for reasons "
+    "particular to Your work.",
 
-    "6. THIRD PARTY SERVICES",
-    "6.1 The Software can be configured to send a question to a third party "
-    "coding assistant. Such requests are made through that vendor's own "
-    "command line tool under Your own account and are governed by that "
-    "vendor's terms. The Licensor does not receive Your credentials and is "
-    "not a party to those communications.",
-    "6.2 The Software queries public package indexes to determine whether a "
+    "6. spaCR AI AND THIRD PARTY SERVICES",
+    "6.1 spaCR AI (free) is ON BY DEFAULT. It explains errors in the "
+    "console and answers questions You ask the assistant, and it needs no "
+    "account. Your question, the error summary described in Section 5.6 "
+    "and the name of the screen in use are sent to spaCR's relay, which "
+    "has them answered by a model running on Cloudflare Workers AI. "
+    "Cloudflare processes them under its own terms.",
+    "6.2 spaCR AI is shared among all its users. Each install receives a "
+    "daily fair share of the free capacity: after it is used, answers come "
+    "from a lighter model, and then stop for the rest of the day. An "
+    "answer to the same error or to the same short question may be saved "
+    "and given again to any user, without asking the model again.",
+    "6.3 An answer from spaCR AI, or from any coding assistant, is "
+    "machine-generated advice. It may be incomplete or wrong, and You are "
+    "responsible for checking it before You act on it.",
+    "6.4 The relay keeps usage counters per random install identifier, "
+    "saved answers and links to the issues it has filed. It keeps no "
+    "personal data: no names, e-mail addresses, IP addresses, file paths "
+    "or Your Content. Saved answers expire after 30 days.",
+    "6.5 You may use Your own Claude, GPT (Codex) or Gemini assistant "
+    "instead: choose it under Preferences → AI → Provider, and "
+    "use the Providers… button there to install its command line tool "
+    "and sign in. Requests are then made through that vendor's own command "
+    "line tool under Your own account and are governed by that vendor's "
+    "terms; they do not pass through spaCR's relay. The Licensor does not "
+    "receive Your credentials and is not a party to those communications.",
+    "6.6 The Software queries public package indexes to determine whether a "
     "newer release exists. Such queries transmit no information about You "
     "or Your Content.",
 
@@ -323,10 +359,10 @@ def terms_text(language: str | None = None) -> str:
         the profile's current language. A locale with no translated
         presentation gets the English, which is always correct here.
 
-    THE ENGLISH IS THE AGREEMENT. Section 11.4 says so: a translation is a
-    convenience and the English governs. So a missing or partial translation
-    is never an error condition -- it falls back and the document a profile
-    accepts is unchanged, which is why `record_agreement` stores
+    The English text is the agreement: section 11.4 states that a translation
+    is a convenience and the English governs. So a missing or partial
+    translation is never an error condition -- it falls back and the document a
+    profile accepts is unchanged, which is why `record_agreement` stores
     `TERMS_VERSION` and nothing about the language on screen.
     """
     if language is None:

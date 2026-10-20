@@ -1,0 +1,446 @@
+{
+  "schema": 1,
+  "lesson": "05_home",
+  "status": "pass",
+  "source_commit": "8ab0b4f421baf9e6318c9f9f0d08ccd73241113b",
+  "capture_and_voice_source_commit": "87ffcb60cab0eca8772cb1ffaccc12f3f4f48be9",
+  "candidate": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l",
+  "manifest": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/release-manifest.json",
+    "bytes": 1179634,
+    "sha256": "ced803ebdd5e93a6ada3fead48a3c6595afd77ef05d104dc0bd43e87a210bd2a"
+  },
+  "browser_matrix": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/logs/browser-matrix-lesson05-selective-playerfix-20261015.json",
+    "bytes": 21659,
+    "sha256": "b09d47af62b859a3255e5f694db5a32aa7016808cfb16ea92bf645f4b593e858"
+  },
+  "matrix_steps": 73,
+  "matrix_playback_JSON_results": 72,
+  "matrix_step_logs": [
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-cues-lesson05-selective-playerfix-20261015.log",
+      "bytes": 31220,
+      "sha256": "3da5ab7fedcfd1ef884f7e10a96664ecff6f4d20bad419ac9d922368b5d510a9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1599,
+      "sha256": "400b5f5bda34d9d46a643cfc23acd3c66e99d966db59c8d3742cae3b6e1435aa"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-es-ef_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1647,
+      "sha256": "9052a67c65ce77c414269a93e6aec80263909a2ecb35621743364fc3f7e15a32"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-fr-ff_siwis-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1651,
+      "sha256": "ccf2b963b9270ff79c6b01ecad0cb9f754f23c291c3c83a8258a30ade91b2382"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-hi-hf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1650,
+      "sha256": "e6ecf39b7c404b496131b69dc60ab96382d73167bf28af1439299102b4f5c8eb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-it-if_sara-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1648,
+      "sha256": "9b0c06e75133af61327cf9fa68f7d4c09c7892886410678115661ce485ca65f9"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1654,
+      "sha256": "6c2c64500e7a0892488f629205a1125a4a97cddbeacfa7c0488b27fd2887a8fc"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-ja-jf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1649,
+      "sha256": "c9683b1b2b512a6eb637741fc53f31427b10f96995917843147aa952a0f25a1f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1661,
+      "sha256": "9ce8e43fac0cd334d9e5c40bd6edd53f1ab81558e88318c889117ea0205c6e50"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1790,
+      "sha256": "b3ef70b75c9553c8bf055820ec90bd8c747a2b80472445c257b6f4d6fb94cdf4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1790,
+      "sha256": "cfe93b559baefaf62fe94bd3e03d4c405a5333d9935bd2fea90734f38bdd20da"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1780,
+      "sha256": "a6584357a2c10eeaa0a642e56e9242cf6dcc283c553b99beee0d9f81414791bb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1782,
+      "sha256": "73b0e7f555708323bfced1320511024b85b450355752fc69e85d02ae269e3a9c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1790,
+      "sha256": "eed640f623903e00950737b2b04a8b02cbb4d203347f78f76c9ece8144d7b230"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-master-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1782,
+      "sha256": "139753b9fd540c2c2a37988ad45c3b3de3b2d9cf9058691be27793b593885ce8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1764,
+      "sha256": "eb7c7bae244e67ecb9afa97740b7bf137f8ce2ae28617da2b1af9d0ab729ccea"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_aoede-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1765,
+      "sha256": "d414109a71a68e607501c3cd7791b61286e9697541773ed6264f200c64b126f0"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_bella-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "0bf19939bfc31dd790a1aa07e9cd3219cb8a570679ced9f8cb18962389aa554d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_jessica-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1776,
+      "sha256": "587a243cfb7261c910b81d873d2bdfffc08f2a99e02b4b2e2e9e4fae96031c14"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_river-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1765,
+      "sha256": "6199d0c8dc259130d5f3e8b76e69d9b503595ef4f03eff72d68ef06d2a4544ab"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_sarah-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "253825f277ba214a4de99912ecd446822296e6fbab64331b767ce01e84804991"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_sky-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1769,
+      "sha256": "63743ae10d25703c12dbac3f96ae4c1e91b40fd369af267a3073fbc6d4d6eb41"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_adam-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1769,
+      "sha256": "d0cd2405fa817e9149e4fba3687558b60d3d973262e9bb326dbbf3b1ad0365d6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_echo-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1771,
+      "sha256": "2096b9f77ce013693b6465a4b5ede502ec93d6a4fa0509e29a4e62bf7ab8b76f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_eric-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1771,
+      "sha256": "92ed0e0a757284c97a0a5240c2ca9ce6bde8054ac4d3d598fa7f48b46aeb53e4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_fenrir-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1773,
+      "sha256": "49ec538a7e22930789dd83058fdc787f30037eadd944b6fc0ab877dec796ca53"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_liam-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1771,
+      "sha256": "154cfb2ceea8eda4449f3c7c34d6512bd9dd5b043c9c702bba16f8cac742642d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_michael-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1776,
+      "sha256": "b72807558cc90c29cdc9cf536137006602f66f282ed77b9c9c2a952039c72d7f"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_onyx-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1763,
+      "sha256": "da04f6a9bcf2b11d5ac5e94881e1ce9f887c5d61f82086166f94e33c94baa914"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_puck-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1760,
+      "sha256": "33b3c50ebc14482f8aba99c7b4ec54f35ebb37ed275d69f1e001a617e90a4733"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-am_santa-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1764,
+      "sha256": "256fe4e71d0aa550ed78b0e1b293880a68f182e33deabd635c4a1aa36dd1bad6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_alice-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1773,
+      "sha256": "b62a27580621550878134a66629ec7bfcde205dd5fa25e150b6f3b55567a9dea"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_emma-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1770,
+      "sha256": "d168574356191d1c1150fba81383589211f05b6dc77c6e7acad6ccda8d497760"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_isabella-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1777,
+      "sha256": "48df75edfdd4f58b1d5cd915abdc6744d5106cb7b0a14bda55ac9803d5415d8c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bf_lily-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1770,
+      "sha256": "7fff48f1d055329e8f32d5c561c53375be6911aefe917be2d8ddc4eb85707f06"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_daniel-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1766,
+      "sha256": "aee0b5f4f7914aab2dc0ae586d7799ea38518630297ef55b73a03f78f453d5f2"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_fable-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "e44433f2abf93e22631569049eea7e5dadd4a2fc050483567f92507e9decb714"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_george-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1774,
+      "sha256": "c2585cadfee52bf7461432ebed5f6e89cdc5fd8c8c3741242a0dbcf36314cf26"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-bm_lewis-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1772,
+      "sha256": "57fb6a883cc52aa2e01361508abee8f977ff8fc84aea66bba1d17b4a10e7752d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-ef_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1813,
+      "sha256": "aaddf5a121dabaf1769aecd95394793a5f342b7f522ee464f4f6f7728f47b724"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-em_alex-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1822,
+      "sha256": "cb1da36463e5d95774a5799be3601e435aef9ebcf5cc9358074da78ab5e336bf"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-es-em_santa-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1824,
+      "sha256": "e47cbc1e5e48feb67e7da6a7b4a896bf48ff5229998b2d0fa2eba81cdd8364f3"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-fr-ff_siwis-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1824,
+      "sha256": "cac5ae8b6d6c30e0af4828d26a9b4975c7fd6844792f73a54ff8d6dbc7f9cd5c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1823,
+      "sha256": "5732e87707a92dbcfa9e26a1bc6c7470a30001a35102246a5f087ae9aedb2cc8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hf_beta-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "e2da7edfb182b15d5ef1a08e9803e2fa6fdc1062e76d28e1083646fc90440014"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hm_omega-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "99aba19a900a9e5ec197f470a758f890f399ac7b689a08cdcceb666bf1e1aeef"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-hi-hm_psi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1820,
+      "sha256": "dfe9b9b3ce926b450e661e629c23cceb0f7f52cdb2d37e34a5e16e7800b49e39"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-it-if_sara-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1822,
+      "sha256": "b40750865b4d426d03634a909ec6f62917231d22ed7cf92335f9050166f03d06"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-it-im_nicola-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1825,
+      "sha256": "00c90394f8a530752e37d6c46e9df78203e06619f31e3c550c0cd4da9ef6663d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pf_dora-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1828,
+      "sha256": "ba2d9c44d28e5321f24c11b28e3514512e0ad4826c5d6cff6365568186980d7b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_alex-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1820,
+      "sha256": "95dfd3936783c6fd9875ab5eb8aa12499be4a4ae8bb4e95678130942023b5aed"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-pt-BR-pm_santa-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1829,
+      "sha256": "a665474082922b56098dd277c23053afe20c33f00b47fdac99a648c3a212dcfb"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_alpha-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1822,
+      "sha256": "4957028a50d050e54b4551f5fb575348d6461102aad4b650d1d3ac826cdb83c8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_gongitsune-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "963a39b157c6af337364d671fbbc07accf8d7714b08ca5f5ea2229ff6145b600"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_nezumi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1824,
+      "sha256": "77a368f8f5556f98b6f11b74a2e62a4894093b7c683898c4d4712d3ede8cb66e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jf_tebukuro-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1830,
+      "sha256": "09dcfb14d7b367f76e2d694db8ee3931dc3c9cfc1f4cadae27ff5051b14a5ebe"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-ja-jm_kumo-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1821,
+      "sha256": "2e870b0c53553c059b9e2dc9c9744f08aa5a1b74434d04d2df4acb1b6aaf6eba"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaobei-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1834,
+      "sha256": "f19b51d27ef6f4b79aaa5a4fbebe853708ca9fc44f8d6f5517611ba86ebd985b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoni-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1831,
+      "sha256": "4e88a511f52167cdd4c545b32b7228a3debae8745b6c6b21d385140f6a17d5c8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoxiao-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1834,
+      "sha256": "55d335abe1e9274ca4a36074c87e47095f406710bc86269c4d7f0cb54ce2100d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zf_xiaoyi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1832,
+      "sha256": "8d0bb93c829bba4b830a000bdd4f3d8be8ab091575910f8a915f500e173e2698"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunjian-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1834,
+      "sha256": "6042cef4581f5de99e56970b9664e7e24640ffca7720339f5fbf298a5ac44154"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxi-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1830,
+      "sha256": "8595fa7144afcb9f788dfcf7ebb19495acd39a42fc5a3800e4bced672a84a983"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunxia-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1832,
+      "sha256": "798eeb697afd3a9fee021d218b6ccdc563a6e8acee30326aca5be759405403c1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-zh-CN-zm_yunyang-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1833,
+      "sha256": "53de9a7c35e960dd3916b52e8420984afce8768a86395b96d7d663a63079792e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-da-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1963,
+      "sha256": "26207a1badfec8f7e1d3b8040f6054fbfb112e82bf0525b1051ee2eb5894b9f8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-de-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1955,
+      "sha256": "37445a40a0139bfd6b6b0a3dfb48dd7224a512f371e27f510f1864cabfb29e5b"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-is-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1955,
+      "sha256": "764d2144dd5d123cf28d8a5e4f928ffc5eff41abec5913f16f538b115d8100d1"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-ko-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1963,
+      "sha256": "dd5a7e9b708d09e14d215cb0c769913e406f461c4900bd41de8a2c26cc831e40"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-nb-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1963,
+      "sha256": "a253d681d34ff2d2738913d6fd9a1d11ff38f14a3e15f781365321599267c2b6"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-web-en-af_heart-captions-sv-lesson05-selective-playerfix-20261015.log",
+      "bytes": 1955,
+      "sha256": "98904b510a939c8105a2394994bf69f0d0cda2880769c6926e25d217dcbfc8a4"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-preserve-interval-boundary-eof-lesson05-selective-playerfix-20261015.log",
+      "bytes": 294884,
+      "sha256": "32a9102691d75e62dec262d3c946558abee8021b2f0092810ea59382aefd7b4d"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-05_home-completed-matrix-lesson05-selective-playerfix-20261015.log",
+      "bytes": 510,
+      "sha256": "77edfba7d474133b0e49ccf00254b0d048e497f842945c798310cad7afd05e40"
+    }
+  ],
+  "candidate_browser84": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/checks/candidate-browser-checks.json",
+    "bytes": 127553,
+    "sha256": "1ee33884c8a5c4253861bf1ffd3583831fd9be5b3db329c60ac55005e73453dd"
+  },
+  "placeholder_mutations": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/host/stage-05-selective-20261015/release-candidate-append-ln3oto4l/checks/placeholder-mutation-checks.json",
+    "bytes": 510,
+    "sha256": "52287fd0d57ba7d2086f6555df5e6c21610bcb97d9b113787a3eb9925eb31900"
+  },
+  "prepublication_checkpoint": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/release_candidate/checkpoint.json",
+    "bytes": 25855,
+    "sha256": "bb78c39be1b842876966230408f9f7c19e76d44e0ec53e69a61574aac71701cf"
+  },
+  "owning_phase_logs": {
+    "browser-matrix": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-browser-matrix.log",
+      "bytes": 5418,
+      "sha256": "3a696f5d4c83d294a9b15cf796867abf26d80b4208726c4b38b53b48adf0cd8c"
+    },
+    "verify-candidate": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-verify-candidate.log",
+      "bytes": 3773,
+      "sha256": "27c794ff6694d61d1d45a1ea28bd0466c32029dd266e347fac00455024c5773d"
+    },
+    "placeholder": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-placeholder.log",
+      "bytes": 499,
+      "sha256": "fd801cf1b7a78cf2cfe4aa2347d3992b617e3900ce6ec1cb0f33d83559387fe3"
+    },
+    "checkpoint": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/logs/lesson05-selective-playerfix-20261015-checkpoint.log",
+      "bytes": 601,
+      "sha256": "17ce71d16e56ef839bec6aa06f3d69c36494bc7a63ff21ee8a1be1d596a9b70f"
+    }
+  },
+  "candidate_preservation_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/candidate-preservation-independent-peer.json",
+    "bytes": 28271,
+    "sha256": "c0368ee34570b2fdd11ebad5c384edf06a47f185b1ef796b8f4a6f755941eb97"
+  },
+  "checks": {
+    "matrix73_unique_runs_logs_terminal0_source8ab": true,
+    "all72_playback_results_pass_current_player": true,
+    "dedicated_sentence_cues_and_full_native_boundary_present": true,
+    "candidate84_exact_unique_routes_pass": true,
+    "placeholder_two_observed_red_and_baseline_pass": true,
+    "checkpoint145_unique_entries_same_manifest_candidate": true
+  },
+  "blocking_issues": [],
+  "upload_status": "pending; parent actual upload active, receipt not inspected or accepted here",
+  "pages_record_export_publication_accepted": false,
+  "limits": [
+    "Independent existing sealed JSON/log/source association only; no browser/test/media hashing/decode/network repeated.",
+    "145 checkpoint inventory bound, not a repeated full checkpoint file rehash; final record/export coherence remains future.",
+    "Matrix and84route checks do not imply every complete clip watched for every voice, human listening, native-speaker or liveSpace acceptance."
+  ],
+  "owned_jobs_or_leases_remaining": false
+}

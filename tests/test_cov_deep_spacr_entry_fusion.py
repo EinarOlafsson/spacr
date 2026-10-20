@@ -237,8 +237,9 @@ def test_deep_spacr_apply_only_reuses_existing_tar_for_every_src(tmp_path, ds_st
 def test_deep_spacr_relative_tar_regenerated_and_missing_model_skips(tmp_path,
                                                                      ds_stubs,
                                                                      capsys):
-    """A non-absolute tar_path is regenerated; a missing model skips inference."""
+    """A non-absolute tar_path is regenerated; a missing model refuses inference."""
     from spacr.deep_spacr import deep_spacr
+    from spacr.model_zoo import ModelZooError
 
     tar = tmp_path / "ds.tar"
     tar.write_bytes(b"tar")
@@ -253,15 +254,19 @@ def test_deep_spacr_relative_tar_regenerated_and_missing_model_skips(tmp_path,
         "tar_path": os.path.join("relative", "ds.tar"),
         "model_path": str(missing_model),
     }
-    deep_spacr(settings)
+    with pytest.raises(ModelZooError) as refused:
+        deep_spacr(settings)
 
     assert len(ds_stubs.gen_ds) == 1             # relative -> regenerated
     assert settings["tar_path"] == str(tar)
-    assert ds_stubs.apply_tar == []              # model missing -> skipped
+    assert ds_stubs.apply_tar == []              # model missing -> refused
     assert ds_stubs.top == []
     assert ds_stubs.merge == []
     out = capsys.readouterr().out
-    assert "not found; skipping model application" in out
+    assert "Generating full dataset tar" in out
+    assert "model_path" in str(refused.value)
+    assert repr(str(missing_model)) in str(refused.value)
+    assert "Available compatible zoo identities: []." in str(refused.value)
 
 
 def test_full_dataset_can_be_generated_without_applying_a_model(
@@ -746,3 +751,30 @@ def test_annotate_filter_vision_remove_train_outside_datasets_folder(tmp_path):
     }
     with pytest.raises(ValueError, match="datasets"):
         annotate_filter_vision(settings)
+
+
+@pytest.mark.parametrize('requested', [None, '', '   '])
+def test_apply_without_a_selected_model_preserves_existing_project_files(
+        tmp_path, ds_stubs, capsys, requested):
+    """An omitted optional model cannot reach inference, export or database writes."""
+    from spacr.deep_spacr import deep_spacr
+
+    tar = tmp_path / 'existing.tar'
+    tar.write_bytes(b'existing reusable inference dataset')
+    database = tmp_path / 'measurements' / 'measurements.db'
+    database.parent.mkdir()
+    database.write_bytes(b'existing measurement database; never opened by this skipped run')
+    before = {path: path.read_bytes() for path in (tar, database)}
+    settings = {
+        'src': str(tmp_path), 'train': False, 'test': False,
+        'generate_training_dataset': False, 'generate_full_dataset': False,
+        'apply_model_to_dataset': True, 'tar_path': str(tar), 'model_path': requested,
+    }
+    assert deep_spacr(settings) is None
+    assert len(ds_stubs.save_settings) == 1
+    assert ds_stubs.gen_train == ds_stubs.train == ds_stubs.gen_ds == []
+    assert ds_stubs.apply_tar == ds_stubs.top == ds_stubs.merge == []
+    assert settings['model_path'] == requested and settings['tar_path'] == str(tar)
+    assert settings['src'] == str(tmp_path)
+    assert {path: path.read_bytes() for path in before} == before
+    assert f'Model path {requested} not found; skipping model application.' in capsys.readouterr().out

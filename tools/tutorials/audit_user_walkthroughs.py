@@ -21,7 +21,7 @@ from pathlib import Path
 from capture_policy import ALPHA_LESSONS
 
 repo = Path(__file__).resolve().parents[2]
-NIGHTLY = 'https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_en.json'
+NIGHTLY = 'https://einarolafsson-spacr-docs-nightly.static.hf.space/tutorials/catalog/lessons_en.json'
 MAIN = 'https://einarolafsson.github.io/spacr/tutorials/catalog/lessons_en.json'
 
 

@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review; independent source-semantic peer review requested; no native-speaker signoff",
+  "note": "Eight changed blocks in six existing symbols from documentation-only source ae9fe9df94b; executable AST and comments unchanged. Normal targeted AST rendering matches owner ledgers and published before bodies. Only owned source currency is claimed; unrelated published English is preserved without a global collector replay. Superseded records retain source/target evidence. Runtime captions belong to the UI owner.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.row_exclusion#5",
+      "source": "``_value_cache`` and ``_column_sources`` are GUI-thread state. Workers return plain data; GUI-thread completion handlers install it. Changing the source clears the value cache before the replacement schema arrives.",
+      "context": "``_value_cache`` and ``_column_sources`` are main GUI execution path state. Workers return plain data; main GUI execution path completion handlers install it. Changing the source clears the value cache before the replacement schema arrives.",
+      "source_sha256": "32de88b350c8269fe17655b563778d3eb4c8a280d793c95453b9fd8aa55c900f",
+      "previous_same_source_indexes": [],
+      "translation": "``_value_cache`` och ``_column_sources`` är tillstånd på GUI-tråden. Arbetstrådar returnerar vanliga data, som slutförandehanterare på GUI-tråden installerar. När källan ändras töms värdecachen innan det nya schemat anländer.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.source_paths#0",
+      "source": "Return the existing database-file paths ``source`` resolves to.",
+      "context": "Return the existing database-file paths ``source`` resolves to.",
+      "source_sha256": "18409b06b2b55101460d174e48285d90cded7e28db25c837a93a169ec94a41d5",
+      "previous_same_source_indexes": [],
+      "translation": "Returnera sökvägarna till befintliga databasfiler som ``source`` pekar ut.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor#5",
+      "source": "how long a column edit waits before it is read. ``0`` schedules the read for a later event-loop turn; edits before that timer fires can still be coalesced.",
+      "context": "how long a column edit waits before it is read. ``0`` schedules the read for a later event-loop turn; edits before that timer fires can still be coalesced.",
+      "source_sha256": "d6dbe68118403214c557afeba108672806e2a4ceaa9af33f5366c07e33bfdb1c",
+      "previous_same_source_indexes": [],
+      "translation": "hur länge en kolumnändring väntar innan den läses. ``0`` schemalägger läsningen till en senare omgång i händelseloopen; ändringar innan timern löser ut kan fortfarande slås samman.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.set_source#1",
+      "source": "In the default threaded mode, returns after dispatching the schema read. Existing column choices and checked values remain visible while it runs, including rules restored before the first source was set. With ``threaded=False``, the reads run inline.",
+      "context": "In the default executed in a worker mode, returns after dispatching the schema read. Existing column choices and checked values remain visible while it runs, including rules restored before the first source was set. With ``threaded=False``, the reads run inline.",
+      "source_sha256": "83dbd00398dc87552d446fe6c460a45e0b4ba0631a56f218c5ac8518a970c269",
+      "previous_same_source_indexes": [],
+      "translation": "I standardläget med arbetstrådar returnerar anropet efter att schemaläsningen har skickats iväg. Befintliga kolumnval och ikryssade värden förblir synliga medan den körs, inklusive regler som återställts innan den första källan angavs. Med ``threaded=False`` körs läsningarna direkt i anropet.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown#0",
+      "source": "Cancel pending results and drain both runners with bounded waits.",
+      "context": "Cancel pending results and drain both runners with bounded waits.",
+      "source_sha256": "95762b24932f0db659a4ccafdb82b868c26b491a558b4f81d9f168984a577915",
+      "previous_same_source_indexes": [],
+      "translation": "Förkasta väntande resultat och avveckla båda jobbkörarna med begränsade väntetider.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.shutdown#1",
+      "source": "Public because a host that owns this editor inside a larger screen can call it directly — Qt delivers a close event to the window, not to every widget inside it, so a screen that wants pending results discarded when the user navigates away must call it. Slow database reads can continue in parked workers without delivering their results to this editor. Idempotent.",
+      "context": "Public because a host that owns this editor inside a larger application view can call it directly — Qt delivers a close event to the window, not to every widget inside it, so an application view that wants pending results discarded when the user navigates away must call it. Slow database reads can continue in parked workers without delivering their results to this editor. Idempotent.",
+      "source_sha256": "a307f39ad4481a09b804d70a39962dc18d6e8657a437dcc8e39813332134b9c0",
+      "previous_same_source_indexes": [],
+      "translation": "Publik så att en värd som äger denna redigerare i en större skärm kan anropa den direkt — Qt skickar en stängningshändelse till fönstret, inte till varje widget i det. En skärm som vill förkasta väntande resultat när användaren navigerar bort måste därför anropa den. Långsamma databasläsningar kan fortsätta i parkerade arbetstrådar utan att leverera resultat till denna redigerare. Idempotent.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent#0",
+      "source": "Cancel result delivery and drain both runners when closing mid-read.",
+      "context": "Cancel result delivery and drain both runners when closing mid-read.",
+      "source_sha256": "786c1fdc31d88d01989592de4761b76a4cbdcce12a679b26c21bd2eca2092cc8",
+      "previous_same_source_indexes": [],
+      "translation": "Avbryt resultatleveransen och avveckla båda jobbkörarna vid stängning under en pågående läsning.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    },
+    {
+      "label": "spacr.qt.widgets.row_exclusion.RowExclusionEditor.closeEvent#3",
+      "source": "the close event; passed on unchanged to the base class after both runners have attempted their bounded shutdown.",
+      "context": "the close event; passed on unchanged to the base class after both runners have attempted their bounded shutdown.",
+      "source_sha256": "f0fac7a4d9c1b268a2b2df9ba0f5c12f1deddf6b3fd166959a1a3207cfb1f62b",
+      "previous_same_source_indexes": [],
+      "translation": "stängningshändelsen; skickas oförändrad vidare till basklassen efter att båda jobbkörarna har försökt stänga av inom sina begränsade väntetider.",
+      "review_basis": "Exact-source technical translation review of GUI-only cache ownership and reset, resolved existing database paths, zero-delay event-loop coalescing, restored selections, synchronous versus threaded reads, bounded drain, parked workers without delivery and unchanged close-event forwarding. Protected names, numbers and reference order retained; actual inline markup checked. No native-speaker claim."
+    }
+  ]
+}

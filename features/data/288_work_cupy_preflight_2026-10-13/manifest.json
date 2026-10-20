@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "artifact": "environment-metadata-preflight.json.gz",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/environment-metadata-preflight.json",
+      "bytes": 1565,
+      "sha256": "02a553b096d8ab8a9abf960e2b16891e3bc7a940236b79fab357b35d3eeaedc4",
+      "encoding": "gzip",
+      "decoded": {
+        "original_filename": "environment-metadata-preflight.json",
+        "encoding": "UTF-8 JSON",
+        "bytes": 11306,
+        "sha256": "608c33126808bc7a98bedfba0b47a35ae6e73253043a6548ae529a585138dcf7"
+      }
+    },
+    {
+      "artifact": "prerequisite-blocked-receipt.json",
+      "source": "/media/carruthers/mnt3/claude/n676_stages/work/f288-real-cupy-20261013/prerequisite-blocked-receipt.json",
+      "bytes": 2089,
+      "sha256": "36f57dc35fcc869d6d7cd48db9baf7f33e04d3620e381282d786a040338b54fb"
+    }
+  ],
+  "scope": "CPU metadata preflight only; no GPU execution or coverage evidence",
+  "source_candidate": "eb72a1a85f5c3a3324f295ab18ad730aea7d5570",
+  "archive_scope": "Historical CPU environment metadata, preserved byte-for-byte as a recoverable binary archive. Machine paths are historical evidence, not application branding, operational configuration or current executable recommendations."
+}

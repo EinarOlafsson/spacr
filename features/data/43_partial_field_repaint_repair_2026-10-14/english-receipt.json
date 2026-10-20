@@ -1,0 +1,63 @@
+{
+  "root": "/mnt/firecuda2/Claude/spacr-worktrees/codex-ci701-popup-contract-20261013",
+  "source_hashes": {
+    "spacr/qt/widgets/ambient.py": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40",
+    "tests/qt/test_partial_field_presentation_cache_20261014.py": "51ca9f75212b1bc52006b10d17de062bf7eb24ef1ca4ac26eb5902a2c386b5e6"
+  },
+  "checks": [
+    {
+      "name": "english-api",
+      "command": [
+        "tools/run_capped.sh",
+        "4G",
+        "/home/olafsson/anaconda3/envs/spacr/bin/python",
+        "tools/build_documentation_i18n.py",
+        "--audit-english"
+      ],
+      "started_at_utc": "2026-10-14T04:16:50.259448+00:00",
+      "elapsed_seconds": 14.539,
+      "exit_code": 0,
+      "log": "/mnt/wd4tb/scratch/ci-home-audit-20261013/final-partial-frame-english-checks/english-api.log",
+      "log_sha256": "269f59b680bfc1b57f5051ccd91733a0458cb84d2351419f32d8cea2d12b3059"
+    },
+    {
+      "name": "reviewed-api-evidence",
+      "command": [
+        "tools/run_capped.sh",
+        "4G",
+        "/home/olafsson/anaconda3/envs/spacr/bin/python",
+        "tools/check_reviewed_api_evidence.py"
+      ],
+      "started_at_utc": "2026-10-14T04:17:04.799551+00:00",
+      "elapsed_seconds": 17.593,
+      "exit_code": 1,
+      "log": "/mnt/wd4tb/scratch/ci-home-audit-20261013/final-partial-frame-english-checks/reviewed-api-evidence.log",
+      "log_sha256": "304a581b23559974eb89bf5300c71cd4c5b9458e0cac27c431f99d20e8e79d74"
+    },
+    {
+      "name": "fatal-ruff",
+      "command": [
+        "tools/run_capped.sh",
+        "256M",
+        "/home/olafsson/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "spacr/qt/widgets/ambient.py",
+        "tests/qt/test_partial_field_presentation_cache_20261014.py",
+        "--select",
+        "E9,F63,F7,F82",
+        "--output-format",
+        "json"
+      ],
+      "started_at_utc": "2026-10-14T04:17:22.392912+00:00",
+      "elapsed_seconds": 0.114,
+      "exit_code": 0,
+      "log": "/mnt/wd4tb/scratch/ci-home-audit-20261013/final-partial-frame-english-checks/fatal-ruff.log",
+      "log_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ],
+  "all_passed": false,
+  "no_pytest_or_generator_write_flags": true
+}

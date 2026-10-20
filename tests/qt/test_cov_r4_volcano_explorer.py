@@ -280,11 +280,12 @@ def test_a_split_that_cannot_be_sized_is_left_unset(explorer):
 
 
 def test_the_last_whole_style_that_drew_is_offered_after_the_current_one(
-        explorer):
+        explorer, qtbot):
     """Three chances to keep something on the canvas, in that order. The
     whole of the last style that drew is only worth offering once something
     has drawn."""
     fresh = VolcanoExplorer(pd.DataFrame())
+    qtbot.addWidget(fresh)
     offered = list(fresh._drawable_styles({}))
     assert [style is fresh.style() for style in offered] == [True, False]
 

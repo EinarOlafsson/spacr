@@ -1,27 +1,22 @@
 """Report missing columns and offer the columns that are available.
 
-THE FAILURE THIS REPLACES. A misnamed `dependent_variable` survives every
-early check and dies inside the merge, after the whole score table has been
-read, with a message naming a column the file does not have and saying nothing
-about what it does have. The user then opens the CSV by hand to read its
-header. On a large screen that is minutes of reading to answer a question the
-header row answers instantly.
+Without this check, a misnamed `dependent_variable` passes the early checks
+and fails inside the merge, after the whole score table has been read, with a
+message that names the missing column but not the available ones.
 
-THREE RULES, and each is a different failure this must not blur:
+Three rules apply:
 
-1.  THE HEADER ROW ONLY. `nrows=0`. This runs before the run, sometimes to
-    populate a GUI dropdown on the GUI thread, and a score CSV is hundreds of
-    megabytes.
+1.  Only the header row is read (`nrows=0`). The check runs before the run,
+    sometimes to populate a GUI dropdown on the GUI thread, and a score CSV
+    can be hundreds of megabytes.
 
-2.  A MISSING FILE IS NOT A MISSING COLUMN. The first cannot answer the
-    question; the second answers it with "not that name, one of these". A
-    caller told "column not found" about a path that does not exist goes
-    looking in the wrong place.
+2.  A missing file is reported separately from a missing column. A missing
+    file has no header to compare against; a missing column is reported with
+    the columns that do exist.
 
-3.  THE SUGGESTION IS SEPARATE FROM THE LIST. Near-misses are offered first
-    because `predictions` for `prediction` is the common typo, but the FULL
-    list is always there too -- a suggestion that is wrong and a list that is
-    absent is worse than no suggestion at all.
+3.  Suggestions are given in addition to the full column list. Near-misses
+    are listed first because `predictions` for `prediction` is a common typo,
+    and the full list is always included as well.
 """
 
 from __future__ import annotations
@@ -42,12 +37,12 @@ CUTOFF = 0.6
 
 
 class ColumnNotFound(KeyError):
-    """A named column is absent, and the message says what is present.
+    """Raised when a named column is absent; the message lists those present.
 
     :param message: human-readable explanation returned for the exception.
     :param name: the column that was asked for, kept so a caller can recover
         it without parsing ``message``.
-    :param available: the columns the file does have, IN FILE ORDER. Not
+    :param available: the columns the file does have, in file order. Not
         sorted, because file order is what a user reading the header sees,
         and sorting hides that related columns are grouped together.
 
@@ -88,7 +83,7 @@ def headers(paths) -> Dict[str, List[str]]:
 
     :param paths: one path, a sequence of them, or None.
     :returns: a dict in the order given. A path that does not exist or cannot
-        be parsed is ABSENT from the result rather than mapped to an empty
+        be parsed is absent from the result rather than mapped to an empty
         list -- see rule 2. Use :func:`missing` to ask which those were.
     """
     import pandas as pd
@@ -105,7 +100,7 @@ def headers(paths) -> Dict[str, List[str]]:
 
 
 def missing(paths) -> List[str]:
-    """The paths that could not be read. The other half of :func:`headers`.
+    """Return the paths whose header could not be read by :func:`headers`.
 
     :param paths: one CSV path, a sequence of paths, or None.
     """
@@ -136,8 +131,8 @@ def suggest(name, columns: Iterable[str]) -> List[str]:
     :param name: missing column name for which to find near-matches.
     :param columns: available column names to search.
 
-    Case-insensitive, because `Prediction` for `prediction` is a typo nobody
-    should have to see spelled out.
+    Matching is case-insensitive, so `Prediction` is suggested for
+    `prediction`.
     """
     columns = list(columns)
     if not name:
@@ -150,14 +145,13 @@ def suggest(name, columns: Iterable[str]) -> List[str]:
 
 def describe(name, paths, *, what: str = "column",
              setting: str = "") -> str:
-    """The sentence to print or raise when ``name`` is not there.
+    """Return the message to print or raise when column ``name`` is missing.
 
     :param name: missing column name to explain.
     :param paths: CSV paths whose headers should be reported.
 
     Names the setting, the files that were read, the near-misses and then
-    every column. Long on purpose: this is the message that decides whether
-    the user fixes it in two minutes or re-runs the screen to find out.
+    every column.
     """
     columns = available(paths)
     unreadable = missing(paths)
@@ -195,10 +189,8 @@ def resolve(name, paths, *, what: str = "column", setting: str = "") -> str:
     :raises ColumnNotFound: carrying `.available`, so a GUI can offer the
         list rather than re-reading the files to build it.
 
-    A CASE-INSENSITIVE MATCH IS ACCEPTED AND RETURNED IN THE FILE'S SPELLING.
-    `Predictions` when the file says `predictions` is not a different column,
-    and failing on it teaches a user to distrust the message rather than to
-    fix the name.
+    A case-insensitive match is accepted and returned in the file's spelling:
+    `Predictions` resolves to `predictions` when the file uses that name.
     """
     columns = available(paths)
     if name in columns:
@@ -211,5 +203,55 @@ def resolve(name, paths, *, what: str = "column", setting: str = "") -> str:
                          available=columns)
 
 
-__all__ = ["CUTOFF", "ColumnNotFound", "MAX_SUGGESTIONS", "available",
-           "describe", "headers", "missing", "resolve", "suggest"]
+RESPONSE_EXCLUDED = frozenset({"plateID", "rowID", "columnID", "fieldID",
+                               "objectID", "count"})
+
+
+def numeric_headers(paths, rows: int = 200) -> Dict[str, List[str]]:
+    """``{path: [column, ...]}`` of the numeric columns that can be a response.
+
+    :param paths: one path, a sequence of them, or None.
+    :param rows: how many rows are read to tell a number from a label. The
+        header decides the names and a short sample decides the type, so the
+        cost stays the same for a score file of any size.
+    :returns: a dict in the order given. Identifier columns
+        (:data:`RESPONSE_EXCLUDED`) are left out; an unreadable file is absent.
+    """
+    import pandas as pd
+
+    found: Dict[str, List[str]] = {}
+    for path in _as_paths(paths):
+        if not os.path.isfile(path):
+            continue
+        try:
+            sample = pd.read_csv(path, nrows=rows)
+        except Exception:                           # noqa: BLE001
+            continue
+        found[path] = [
+            column for column in sample.columns
+            if pd.api.types.is_numeric_dtype(sample[column])
+            and column not in RESPONSE_EXCLUDED]
+    return found
+
+
+def pred_guidance() -> str:
+    """The sentence that says where a ``pred`` column comes from."""
+    return ("'pred' is the probability a classifier writes. Classify saves "
+            "it as <date>_<dataset>_<model>_result.csv next to the tar, and "
+            "ML scoring saves it as results/<model>/<features>/results.csv. "
+            "Run Classify, then point the score file at that output.")
+
+
+def pred_missing(paths) -> List[str]:
+    """The readable files among ``paths`` that have no ``pred`` column.
+
+    :param paths: one path, a sequence of them, or None.
+    """
+    return [path for path, names in headers(paths).items()
+            if "pred" not in names]
+
+
+__all__ = ["CUTOFF", "ColumnNotFound", "MAX_SUGGESTIONS",
+           "RESPONSE_EXCLUDED", "available", "describe", "headers",
+           "missing", "numeric_headers", "pred_guidance", "pred_missing",
+           "resolve", "suggest"]

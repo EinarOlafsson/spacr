@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-14T14:47:28.841584+00:00",
+  "status": "no_explicit_Home_SSH_alias_found_in_inspected_standard_configuration",
+  "user_config": {
+    "path": "/home/carruthers/.ssh/config",
+    "exists": false
+  },
+  "system_config": {
+    "path": "/etc/ssh/ssh_config",
+    "exists": true
+  },
+  "source_bindings": [
+    {
+      "path": "/etc/ssh/ssh_config",
+      "sha256": "430210df52a502b2be267a69a3163e80d9fd0a5f3e2a0d3b520408964ff778fd",
+      "bytes": 1650,
+      "origin": "system"
+    }
+  ],
+  "selectively_extracted_directives": [
+    {
+      "path": "/etc/ssh/ssh_config",
+      "line": 19,
+      "directive": "Include",
+      "pattern": "/etc/ssh/ssh_config.d/*.conf",
+      "matched_paths": []
+    },
+    {
+      "path": "/etc/ssh/ssh_config",
+      "line": 21,
+      "directive": "Host",
+      "values": [
+        "*"
+      ],
+      "Host_context": [
+        "*"
+      ],
+      "under_uninterpreted_Match": false
+    }
+  ],
+  "plausible_explicit_Home_Host_blocks": [],
+  "warnings": [],
+  "scope": "Standard user SSH config and system SSH config plus their declared Include files only. No arbitrary filesystem/key/known_hosts scan. Host/HostName/User/Port/Include are exported; Match condition values and all proxy/credential fields are omitted.",
+  "conclusions": [
+    "No hostname/IP/SSH alias inferred from Syncthing device name home.",
+    "Absence of a configured alias does not establish Home lacks SSH or any externally documented route; no usable authenticated/trusted access has been demonstrated here.",
+    "features/HANDOFF Home verification remains primary until maintainer supplies exact trusted host/identity/destination mapping."
+  ],
+  "no_actions": [
+    "No SSH or remote connection, network call, command evaluation, key/credential access, config change or daemon action.",
+    "No private keys, tokens, passwords, ProxyCommand contents, arbitrary Host Match exec clauses or known_hosts entries read/exported."
+  ],
+  "limitations": [
+    "Static parsing is not OpenSSH effective configuration evaluation. First-value precedence, Host patterns, negation and conditional Match/Include runtime semantics are not executed.",
+    "No trust/host-key/authentication/reachability/Home identity proof."
+  ]
+}

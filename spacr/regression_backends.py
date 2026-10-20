@@ -1,8 +1,8 @@
 """Report which regression backends are available in this environment.
 
-:mod:`spacr.regression_spec` says what the backends ARE -- pure data, no
-imports. This module is the only place that asks the environment about them:
-is the package installed, is there a CUDA device, and can this backend fit the
+:mod:`spacr.regression_spec` says what the backends are -- pure data, no
+imports. This module is the only place that asks the environment about them: is
+the package installed, is there a CUDA device, and can this backend fit the
 selected ``regression_type``? Each disabled entry includes its reason; an
 inapplicable control is never hidden or silently substituted.
 
@@ -14,10 +14,9 @@ Installing optional backends
 ----------------------------
 
 Three optional backends cannot be enabled by pressing Install, so this section
-explains why and what
-to do instead. It is written here rather than only in
+explains why and what to do instead. It is written here rather than only in
 :data:`INSTALL_RECIPES` because ``docs/source/api`` is built by sphinx-autoapi
-from this source, and autoapi publishes a module DOCSTRING verbatim while it
+from this source, and autoapi publishes a module docstring verbatim while it
 renders a dict as a truncated repr. The two copies cannot drift:
 ``test_the_module_docstring_carries_every_command_the_gui_shows`` asserts that
 every command in :data:`INSTALL_RECIPES` appears below.
@@ -32,12 +31,11 @@ Python dependencies and R packages explicitly::
     pip install rpy2 polars
     pip install pymer4
 
-This is a heavier ask than the other backends -- a second language runtime, its
-own package library and a compiled bridge between them -- which is said plainly
-so a reader can decide before starting rather than halfway through.
+This is a heavier ask than the other backends: a second language runtime, its
+own package library and a compiled bridge between them.
 
 **cuML needs a different environment.** ``cuml-cu12`` 26.8.0 declares
-``requires_python >= 3.11`` and its recent wheels are cp311 ONLY (25.10, 25.12
+``requires_python >= 3.11`` and its recent wheels are cp311 only (25.10, 25.12
 and 26.2 shipped cp310-cp313; 26.4, 26.6 and 26.8 ship cp311 alone -- the
 window is narrowing)::
 
@@ -51,10 +49,10 @@ compatibility than spaCR's core installation. Its coordinate-descent results
 may also differ from another implementation at the same alpha; treat it as a
 backend choice, not only a speed switch.
 
-**numpyro and gpytorch install cleanly and answer a different question.**
-numpyro samples a posterior with NUTS and gpytorch fits a Gaussian process;
-neither produces the point estimates and standard errors statsmodels does, so
-a reader installing them to go faster has misunderstood what they are for::
+**numpyro and gpytorch install cleanly but produce different outputs.** numpyro
+samples a posterior with NUTS and gpytorch fits a Gaussian process; neither
+produces the point estimates and standard errors statsmodels does, so they are
+not faster replacements for it::
 
     pip install numpyro
     pip install --upgrade 'jax[cuda12]'
@@ -92,17 +90,16 @@ def resolve_backend_name(value) -> str:
     Accepts the canonical name (``'torch'``), the label the combo shows
     (``'torch (GPU)'``), any casing, and ``None``/``''`` for "not chosen".
 
-    THE LABEL IS AN ACCEPTED SPELLING ON PURPOSE. The design requires
-    every entry to read ``(CPU)`` or ``(GPU)``, and both GUIs render a combo's
-    options verbatim -- so the option strings ARE the labels and the value
-    posted back is a label. Normalising here is what keeps the settings CSV
-    written with the short canonical name.
+    The label is accepted as a spelling: the design requires every entry to
+    read ``(CPU)`` or ``(GPU)``, and both GUIs render a combo's options
+    verbatim -- so the option strings are the labels and the value posted back
+    is a label. Normalising here is what keeps the settings CSV written with
+    the short canonical name.
 
     :param value: what was posted.
     :returns: a key of :data:`REGRESSION_BACKENDS`.
-    :raises ValueError: on a name no backend answers to. Naming the valid
-        ones in the message, because a settings CSV with a typo in it is
-        exactly when a bare "invalid" costs the most.
+    :raises ValueError: on a name no backend answers to. The message names the
+        valid ones.
     """
     if value is None:
         return DEFAULT_REGRESSION_BACKEND
@@ -137,7 +134,7 @@ def backend_label(name) -> str:
 
 
 def backend_supports(name, regression_type) -> bool:
-    """Can ``name`` fit ``regression_type``?
+    """Return whether ``name`` can fit ``regression_type``.
 
     ``regression_type=None`` means "auto-selected from the response", which
     only the default backend can answer, since the choice is made after the
@@ -157,10 +154,10 @@ def backend_supports(name, regression_type) -> bool:
 
 
 def package_installed(name) -> bool:
-    """Is a backend's package importable? Does NOT import it.
+    """Return whether a backend's package is importable, without importing it.
 
     ``find_spec`` on a package that is not there raises ``ModuleNotFoundError``
-    for a missing PARENT, which is a different question from the one being
+    for a missing parent, which is a different question from the one being
     asked, so it is caught.
 
     :param name: import package name, or an empty value for a core backend.
@@ -174,7 +171,7 @@ def package_installed(name) -> bool:
 
 
 def cuda_present_without_importing_torch() -> bool:
-    """Is there a CUDA device, decided without paying for ``import torch``?
+    """Return whether a CUDA device is present, without importing torch.
 
     See the module docstring for why this is a driver probe rather than
     ``torch.cuda.is_available()``.
@@ -198,14 +195,11 @@ def backend_status(name, regression_type=None) -> dict:
     :returns: ``{name, label, device, enabled, reason, short_reason, url,
         summary, cost, differs, pip}``. ``reason`` is ``''`` when enabled -- a
         disabled entry always carries the sentence that says why, and it is
-        written to be shown ON the control, not logged.
+        written to be shown on the control, not logged.
 
-    ``short_reason`` IS THE SAME REFUSAL AT COMBO-ENTRY LENGTH, and it exists
-    because a reason nobody can read is a reason nobody has. A greyed-out
-    row in a dropdown says only "not this one"; Qt shows an item tooltip
-    lazily and only while the popup is open, so the sentence was reachable
-    but missable. The short form goes IN the entry's own text and in the box
-    under it, where it cannot be hovered past.
+    ``short_reason`` is the same refusal at combo-entry length. Qt shows an
+    item tooltip lazily and only while the popup is open, so the short form is
+    placed in the entry's own text and in the box under it.
     """
     key = resolve_backend_name(name)
     spec = REGRESSION_BACKENDS[key]
@@ -344,10 +338,9 @@ def describe_backends(regression_type=None, html: bool = True,
                       selected=None, compact: bool = False) -> str:
     """The text the model box shows: every backend, briefly, with its link.
 
-    The design: "the text box should describe all of the packages that
-    are available and what they do, briefly, and link the API for each", and
-    141 D: where a backend cannot agree with statsmodels by construction, the
-    box says what differs.
+    The text describes every available package briefly with a link to its API
+    and, where a backend cannot agree with statsmodels by construction, says
+    what differs.
 
     :param regression_type: greys the entries that cannot fit it, and their
         reason is included.
@@ -355,17 +348,13 @@ def describe_backends(regression_type=None, html: bool = True,
         text). ``False`` gives plain text with the URL inline, for a log.
     :param selected: the backend the panel currently holds. In ``compact``
         mode it is the one written out in full.
-    :param compact: ONE LINE PER BACKEND instead of one paragraph.
+    :param compact: one line per backend instead of one paragraph.
 
-        THE SETTINGS PANEL IS ONE PAGE and the full text is
-        3,101 characters -- about ninety wrapped lines in a settings field,
-        which is not a description, it is a document that happens to be in a
-        combo box's neighbourhood. Compact keeps every backend and every API
-        link and drops what a reader does not need about the seven they did
-        NOT pick: the measured cost of each, and the second and later
-        sentences of each summary. The one they DID pick is written out in
-        full, cost and caveat included, because that is the run they are
-        about to start.
+        The full text is too long for the one-page settings panel. Compact
+        keeps every backend and every API link and drops, for the backends not
+        selected, the measured cost and the second and later sentences of each
+        summary. The selected backend is written out in full, cost and caveat
+        included.
     :returns: one paragraph per backend, or one line per backend under
         ``compact`` with the selected one expanded above them.
     """
@@ -570,11 +559,10 @@ def _cuml_python_supported() -> bool:
 def backend_install_offer(name, regression_type=None):
     """What pressing **Install** on a greyed-out backend entry should do.
 
-    THE ENVIRONMENT IS ASKED FIRST, before spaCR's own wiring, because the
-    answer a user can act on is about their machine. "cuML needs Python 3.11
-    and this is 3.10" is a thing they can go and do; "spaCR routes no fit
-    through it yet" is a thing only spaCR can fix, and saying that instead
-    would hide the part they could have acted on.
+    The environment is checked before spaCR's own wiring, so the message first
+    names what the user can change on their machine ("cuML needs Python 3.11
+    and this is 3.10") rather than what only spaCR can change ("spaCR routes no
+    fit through it yet").
 
     :param name: a backend name or label.
     :param regression_type: what the panel currently asks to fit. Used only
@@ -664,8 +652,8 @@ def availability_entry(name, regression_type=None) -> dict:
     """One backend as the shared hover panel wants it.
 
     The panel (:mod:`spacr.qt.widgets.availability_panel`) takes a mapping so
-    that neither of its two callers has to import Qt to build one, and so
-    that this module keeps its promise not to import torch or PySide6.
+    that neither of its two callers has to import Qt to build one, and so that
+    this module does not import torch or PySide6.
 
     :param name: backend key, label, or alias represented by the entry.
     :returns: ``{key, title, reason, url, offer, enabled}``.

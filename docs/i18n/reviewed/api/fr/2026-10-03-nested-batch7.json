@@ -41,7 +41,9 @@
       "source_sha256": "57fd25665dd161be0d63a2db877677088ef3c765acadb64af13e68bb8abb4344",
       "context": "Bind recovery to actual directory inodes, not mutable app names alone.",
       "translation": "Lie la récupération aux inodes réels des répertoires, pas seulement à des noms d'application modifiables.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.install_cleanup._macos_recover_user_bundle.identity#1",
@@ -161,7 +163,9 @@
       "source_sha256": "18a69af12aa8e371021a6c950926b108b1a66da26b61684db7d052b42dfb5692",
       "context": "the widget that owns the empty space, and the QObject parent. NOT the window and not the scroll area: putting the contents in a scroll area moved the empty space to this holder, which is the whole point of the class.",
       "translation": "le widget qui possède l'espace vide, et le parent QObject. PAS la fenêtre ni la zone de défilement : placer le contenu dans une zone de défilement a déplacé l'espace vide vers ce conteneur, ce qui est toute la raison d'être de la classe.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dialogs._drag_class._DragTheWindowByTheForm.eventFilter#0",
@@ -209,7 +213,9 @@
       "source_sha256": "b060baca2b50abe479014fa82687ab2b1540be82393407c8637aae6b2ce912bd",
       "context": "The test is here as well as inside because this method is what Qt calls for every event in the application, and a Python call that returns False is not free at 94,431 of them per module open. The detacher makes the same test for anyone calling it directly.",
       "translation": "LE TEST EST ICI EN PLUS DE L'INTÉRIEUR, car cette méthode est ce que Qt appelle pour chaque événement de l'application, et un appel Python qui renvoie False n'est pas gratuit à raison de 94,431 par ouverture de module. Le détacheur fait le même test pour quiconque l'appelle directement.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen._start_task._work#0",
@@ -233,7 +239,9 @@
       "source_sha256": "272a015b7b0f6995dee8dbf69e0279ad2043617687f7501839be991539adaee2",
       "context": "Keeping the SELECTION is the point: a list that jumps to the top after a cancel loses the row the user was working with.",
       "translation": "Garder la SÉLECTION est l'essentiel : une liste qui saute en haut après une annulation perd la ligne sur laquelle l'utilisateur travaillait.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh._done#0",
@@ -352,7 +360,7 @@
       "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
       "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
       "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
-      "translation": "La charge utile est le moyen pour une valeur de revenir du travailleur : une valeur renvoyée serait absorbée par l'exécuteur.",
+      "translation": "La charge utile est le moyen pour une valeur de revenir du worker : une valeur renvoyée serait absorbée par l'exécuteur.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -409,7 +417,9 @@
       "source_sha256": "80dd839b940339cbf6dfc055ff80aeda4c545068edc8a7ca77d62511f1051da8",
       "context": "A spin box clamps what it cannot hold, silently. The flow threshold runs -1 to 3 here while Mask ships 100 -- \"accept everything Cellpose proposes\" -- so seeding wrote 3, and propagating then handed 3 back as if the user had chosen it. The value that did not fit is remembered so propagation can return it untouched; see :meth:`_unclamped`.",
       "translation": "UNE ZONE NUMÉRIQUE TRONQUE EN SILENCE CE QU'ELLE NE PEUT PAS CONTENIR. Le seuil de flux va ici de -1 à 3 alors que Mask fournit 100 -- \"accept everything Cellpose proposes\" --, donc l'amorçage a écrit 3, et la propagation a ensuite renvoyé 3 comme si l'utilisateur l'avait choisi. La valeur qui ne tenait pas est mémorisée pour que la propagation puisse la renvoyer intacte ; voir :meth:`_unclamped`.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.live_preview._apply_size_filter._num#0",
@@ -489,7 +499,9 @@
       "source_sha256": "7a0fc7dcaa57c39e4f0305f6db0c89f6224463cbdfc101f4d55bbb5dc24b28f8",
       "context": "Read the preview. background execution unit; touches no widget.",
       "translation": "Lit l'aperçu. FIL DE TRAVAIL ; ne touche aucun widget.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.show_aggregation_rules.preview#1",
@@ -513,7 +525,9 @@
       "source_sha256": "c64026a67feded613ce93a159a397fd24a7772a80d105878d2c508da51c1561f",
       "context": "Report the current stage, if anyone is listening.",
       "translation": "Signale l'étape en cours, si quelqu'un écoute.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_scan_panel.merge_across_databases._stop#0",
@@ -529,7 +543,9 @@
       "source_sha256": "3a31e8400eae846831bab4e8464e4f4b411cf1b1dccd855f85d0e0d047784baa",
       "context": "Checked BETWEEN stages rather than only at the start: a merge across databases runs for minutes, and a cancel that is only noticed at the end is not a cancel.",
       "translation": "Vérifié ENTRE les étapes et pas seulement au début : une fusion entre bases de données dure plusieurs minutes, et une annulation remarquée seulement à la fin n'est pas une annulation.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.regression_summary._assumptions_section.add#0",
@@ -593,7 +609,9 @@
       "source_sha256": "355d23a3e064979b67d838e7a030cd2a4d45f3698141a711aeb496762d407507",
       "context": "Send, and keep what happened.",
       "translation": "Envoie et conserve ce qui s'est passé.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal._iter_files.excluded#0",

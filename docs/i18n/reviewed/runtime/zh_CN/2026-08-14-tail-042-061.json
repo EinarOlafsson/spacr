@@ -25,13 +25,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "png_channel_mapping",
-      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
-      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
-      "translation": "保存的 PNG 中每种颜色对应的源图像数据通道，例如 {'r': 2, 'g': 1, 'b': 0} 表示图像数据通道 2 为红色、1 为绿色、0 为蓝色。此设置明确表达了 png_dims 过去只能暗示的映射。未指定的图像数据通道不会出现在提取图像区域中（不影响测量）；留空的颜色是空图像层。为三种颜色指定同一图像数据通道会写出灰度 PNG。默认值为 {'r': 2, 'g': 1, 'b': 0}，对于标准的 405/488/555 堆栈，会把细胞核染色放在蓝色图像数据通道。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "png_type",
       "source_sha256": "8eb5919bb877e225dc887b7b70a4a791bb8f6be0e9a7f84b36c51c61fc44a642",
       "source": "Object crop type selected from the png_list table when building the training dataset; a row is retained only if its PNG path contains this substring. Use 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png' or 'organelle_png' to train on whole cells, nuclei, parasites, cytoplasm or organelles. It must match a crop_mode saved by measure_crop. Default 'cell_png'.",
@@ -134,6 +127,16 @@
       "source_sha256": "d69e0b1b82c30a50e5c09f4cd7bc1581bee5810c7ecf64b679bba447e8d80770",
       "source": "Method used to collapse z when z_segmentation_mode is 'project'. 'max' retains the brightest value along the stack and is appropriate for sparse fluorescent objects; 'mean' suppresses noise but dilutes signal present in few planes; 'sum' preserves total signal; and 'best_focus' retains only the sharpest plane, which is preferable when one plane is in focus and a maximum-intensity projection would include substantial out-of-focus signal. Ignored by the other modes. Default 'max'.",
       "translation": "当 z_segmentation_mode 为 'project' 时用于折叠 z 的方法。'max' 保留堆栈中的最亮值，适合稀疏荧光对象；'mean' 抑制噪声，但会稀释仅存在于少数图像层中的信号；'sum' 保留总信号；'best_focus' 仅保留最清晰的图像层，适合只有一个图像层对焦且最大强度投影会包含大量离焦信号的情况。其他模式会忽略此项。默认值为 'max'。"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "translation": "保存的 PNG 中每种颜色对应的源图像数据通道，例如 {'r': 2, 'g': 1, 'b': 0} 表示图像数据通道 2 为红色、1 为绿色、0 为蓝色。此设置明确表达了 png_dims 过去只能暗示的映射。未指定的图像数据通道不会出现在提取图像区域中（不影响测量）；留空的颜色是空图像层。为三种颜色指定同一图像数据通道会写出灰度 PNG。默认值为 {'r': 2, 'g': 1, 'b': 0}，对于标准的 405/488/555 堆栈，会把细胞核染色放在蓝色图像数据通道。",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
     }
   ]
 }

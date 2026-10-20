@@ -571,7 +571,7 @@ def test_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
     assert written == "nested/deeper/summary.txt"
     assert os.path.isdir(tmp_path / "nested" / "deeper")
     assert "OLS Regression Results" in (
-        tmp_path / "nested" / "deeper" / "summary.txt").read_text()
+        tmp_path / "nested" / "deeper" / "summary.txt").read_text(encoding="utf-8")
 
     import inspect
     assert "if folder:" not in inspect.getsource(ml.save_summary_to_file)

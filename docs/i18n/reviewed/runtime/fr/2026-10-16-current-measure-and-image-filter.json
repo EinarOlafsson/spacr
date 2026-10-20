@@ -1,0 +1,20 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)",
+      "source": "Images (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)",
+      "source_sha256": "2eb898301cf3ca9cee79ccf07e8b6056e053baede9a07b526d63ff5b55a8a4c4",
+      "table": "ui",
+      "translation": "Fichiers image (*.tif *.tiff *.png *.jpg *.jpeg *.npy *.mrc *.rec *.map)"
+    },
+    {
+      "key": "Measure…",
+      "source": "Measure…",
+      "source_sha256": "0b1a87f2739cca881949ab537992dc313b5d07309a341e6a97f09909daa12be0",
+      "table": "ui",
+      "translation": "Mesurer…"
+    }
+  ],
+  "schema": 1
+}

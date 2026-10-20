@@ -1,0 +1,70 @@
+{
+  "reviewer": "Home-B coordinator independent of Original author",
+  "pairs": [
+    {
+      "locale": "de",
+      "input_sha256": "1e36d0ee80f5c17e4eff3f319a8bcef4d751b6a90819c67e36ccac3144b05e60",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "f3a88d9b0ab40819d52c7d2e9615a1513032f11164f6dac2c3254b82eeccf71b",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "es",
+      "input_sha256": "914d8ac10cdaa1135299d46ea4dc6edbfca8778ee5eaf2085a485f630a8ef879",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "96368fb078847fd751278351e8cec0c74103f4a31e5ace38bb7a25476c2343fe",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "fr",
+      "input_sha256": "3b2f3f870b6bdf8963cb1f8ccfa1e21358c417c58fcd65e9a75284d2ca9da11d",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "06a30fa93bf9cf28b9665f1b1e494c05cd5fa2dabc158e6d3e7910dc81474596",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "hi",
+      "input_sha256": "556bbc4f8202afa51ff133cd3978bfc96669b9022c6f1a548bb659448e1e88e0",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "74876d52ed58692b43d51f0abd1d6781ee07d3df0bf65081fe16f79666aa5798",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "is",
+      "input_sha256": "e93da0a0977fa1e4bd8abf56a5c29ad8d26994c0f1ae95b5a84ba4c73a360ec5",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "61ee1ca3fab3a00fd86e1933973f5445c872e124e9719c33aeb58aef6d068863",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "ko",
+      "input_sha256": "69b33abe9c4dd80943f6dbdde92f6ba7e2b7e43762ab82401fe5cc91841a39c7",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "711942ecb7764b9dfac004fd2e6e71601df997f56c05ba410ecd262f893b61c0",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "pt",
+      "input_sha256": "43ccc393340b376a6f134d7a0ddc4305c8caad86615da66cdb5b0c2e8211393e",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "b2cec4357e7ebd244f5a851f863496f258c8ab99f0a9f78e1ffc3f77f26b15c6",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "sv",
+      "input_sha256": "398eb2cb6bf0a60dcdcfd89f665a6e1f4bdb1b75136a32706aea42ba00e271eb",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "0b8203b3388e47eec86eba2eb033429add216e17beb6616889ea4aabc813c093",
+      "decision": "ACCEPT independent technical/context translation"
+    },
+    {
+      "locale": "zh_CN",
+      "input_sha256": "9d576827e0c1a8b9757d9e05a2e2964a71244494a728cca12e450c0c37233ca3",
+      "source_sha256": "c8ec28c2f5528f9236a61accce53c2bc4d9a65492da2ff79c0f6ad5f8be0d9c9",
+      "target_sha256": "65fdcc0269466e5aeebac1620a1b9dcee7c82fbdbcae7a2a2f25eb2afbc3bf43",
+      "decision": "ACCEPT independent technical/context translation"
+    }
+  ],
+  "decision": "ACCEPT nine exact diagnostic translations, normal source/context loaders pending ownerclosure",
+  "limits": "No native speaker/human approval claimed"
+}

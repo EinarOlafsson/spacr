@@ -1,0 +1,40 @@
+{
+  "original_implementation_commit": "6a1dad59adc9a789968a21ae877d808b3329f852",
+  "current_inference_postprocessing_AST": {
+    "_mitonet_model": {
+      "original_AST_sha256": "f3754b7cd1c3dce236d0ce2a243c9d347c8ba395a590adfe1d0430927eac53d8",
+      "current_AST_sha256": "f3754b7cd1c3dce236d0ce2a243c9d347c8ba395a590adfe1d0430927eac53d8",
+      "identical": true
+    },
+    "_mitonet_input": {
+      "original_AST_sha256": "a9e31c90138aad4483e63753bbbf09d3ea59d9018137215066d2cdc4b5f476d6",
+      "current_AST_sha256": "a9e31c90138aad4483e63753bbbf09d3ea59d9018137215066d2cdc4b5f476d6",
+      "identical": true
+    },
+    "_mitonet_heads": {
+      "original_AST_sha256": "23a818f3fed4bcc0d7979bf1c644d9076fe67a13866ef26e276274a47f21e89f",
+      "current_AST_sha256": "23a818f3fed4bcc0d7979bf1c644d9076fe67a13866ef26e276274a47f21e89f",
+      "identical": true
+    },
+    "mitonet_instances": {
+      "original_AST_sha256": "c76d61e06158fca022196ee6e0b8b47a10c29f683b7515b2ab06d6e374d0f08e",
+      "current_AST_sha256": "c76d61e06158fca022196ee6e0b8b47a10c29f683b7515b2ab06d6e374d0f08e",
+      "identical": true
+    },
+    "segment_mitonet": {
+      "original_AST_sha256": "b109c6bf77e6974990234828402b1eb4d16f885b80b9048a64330d8d43da2754",
+      "current_AST_sha256": "b109c6bf77e6974990234828402b1eb4d16f885b80b9048a64330d8d43da2754",
+      "identical": true
+    }
+  },
+  "ALPHA_FEATURES_691": {
+    "models": [
+      "mitonet_mini_v1"
+    ],
+    "widgets": [
+      "MakeMasksMitoNetSettings",
+      "ModelZooSourceThirdParty"
+    ]
+  },
+  "alpha_entry_source_sha256": "a4cdd8ad5f2ce1364aee04004ae9e6847f075fa619cda1b9ac9dca607be9bf50"
+}

@@ -1,25 +1,24 @@
 """Resume / checkpointing for spaCR's two long batch stages.
 
-A plate is a thousand fields and several hours. When a run dies at field
-900 — a full disk, an OOM-killed worker, a laptop lid — spaCR currently
-throws away all 900 and starts again. This module lets the next
-invocation pick up where the last one stopped.
+A plate can be a thousand fields and several hours. When a run stops at
+field 900 — a full disk, an OOM-killed worker, a closed laptop lid —
+this module lets the next invocation skip the fields already completed
+instead of starting again.
 
-The skipping is the easy half. The half that decides whether resuming is
-*safe* is everything else in here:
+Most of the module decides whether skipping a field is *safe*:
 
 **A file that exists is not a file that finished.**
-``spacr.io._load_and_concatenate_arrays`` writes ``merged/<field>.npy``
-with a bare ``np.save`` straight onto the destination path, so a crash
-mid-write leaves a short, structurally valid-looking ``.npy`` on disk. A
-resume that skips on ``os.path.exists`` would accept that truncated
-field, measure whatever bytes happened to land, and put the result in the
-same table as the good fields. So :func:`completed_fields_in_merged`
+Older versions of ``spacr.io._load_and_concatenate_arrays`` wrote
+``merged/<field>.npy`` with a bare ``np.save`` straight onto the
+destination path, so a crash mid-write left a short, structurally
+valid-looking ``.npy`` on disk. Current versions write merged arrays
+atomically, but files left by earlier runs can still be truncated. A
+resume that skips on ``os.path.exists`` would accept such a field,
+measure whatever bytes happened to land, and put the result in the same
+table as the good fields. So :func:`completed_fields_in_merged`
 *validates*: it parses the ``.npy`` header and checks that the file is
-actually as long as its own shape claims. Anything short is reported as
-rejected and re-queued, never skipped. (io.py now also writes merged
-arrays atomically, so files produced from here on cannot be truncated —
-but the ones already on disk from previous runs can be.)
+as long as its own shape claims. Anything short is reported as rejected
+and re-queued, never skipped.
 
 **Measure appends; therefore a resume must delete first.**
 ``_merge_and_save_to_database`` and ``filepaths_to_database`` both use
@@ -36,27 +35,26 @@ exactly as it was.
 ``conversion_map`` into it, ``align`` writes ``align_coordinates``,
 ``foreign`` writes ``foreign_*``, ``timelapse`` writes its track table —
 all keyed on the same four columns as the measurements, deliberately, so
-that they join. Discovering "tables to clear" structurally therefore
-found all of them, and a resume deleted every pending field's row from
-each: the only record of which vendor file became ``plate1_A01_1``, of
-where each tile was stitched, of somebody else's imported measurements.
-None of it can be recomputed from the database. The tables a resume may
-delete from are now an explicit allow-list,
+that they join. Discovering "tables to clear" by their columns alone
+would therefore find all of them, and clearing a pending field from each
+would delete the only record of which vendor file became
+``plate1_A01_1``, of where each tile was stitched, and of imported
+measurements. None of it can be recomputed from the database. The tables
+a resume may delete from are therefore an explicit allow-list,
 :data:`MEASURE_OWNED_TABLES`, checked both when the list is discovered
 and again per table immediately before the DELETE is prepared.
 
 **Owned by name is not owned in fact, so ownership is decided per row.**
 A name allow-list answers "could measure have written this table?", and
-there is one case where the honest answer to "did it?" is no:
+there is one case where the answer to "did it?" is no:
 ``foreign.run_import`` copies the imported rows into the canonical
 ``cell`` / ``nucleus`` / ``pathogen`` table when nothing of anyone
 else's is there, so that a purely-imported project is readable by every
 spaCR tool. Those rows sit under spaCR's own metadata columns in a table
-on the allow-list, and a resume used to clear them along with the
-pending field.
+on the allow-list, and a table-level rule would clear them along with
+the pending field.
 
-The signal that tells them apart was already in the database and is what
-is read now: ``foreign_columns``, written by every release of the
+The rows are told apart by ``foreign_columns``, written by every release of the
 importer, names each column that importer put in each table. Its
 table-scoped use — ``foreign._importer_owns``, "are this table's columns
 a subset of what the importer recorded?" — has a row-scoped twin, and
@@ -69,23 +67,20 @@ one and half the other and each row is still attributable — which
 matters, because a project that was imported and then measured is
 exactly that. See :func:`measure_rows_clause`.
 
-Row-scoping is what makes the earlier, backed-out attempt's failures
-impossible rather than merely unlikely. That attempt read
-``foreign_import.canonical_table_written`` and refused any delete from a
-table the record claimed: table-scoped, so a field the import never
-covered could not be cleared either and the project could never be
-resumed; unreachable on the flow it existed for; and open on the
-databases most likely to hit the bug, because the first importer wrote
-the copy without that marker. ``foreign_columns`` has none of those
-properties — it is per table, it is per column, and it is as old as the
-importer.
+Ownership is not read from a table-level marker such as
+``foreign_import.canonical_table_written``. A marker that blocks every
+delete from a claimed table would also block clearing fields the import
+never covered, so such a project could never be resumed; and the first
+importer release wrote the canonical copy without that marker.
+``foreign_columns`` is per table and per column, and every importer
+release has written it.
 
-**A copy nobody is going to keep is released, not left to be mixed
-into.** ``measure_crop`` appends, so the moment spaCR measures a field
+**An imported copy is released before measure appends to its table.**
+``measure_crop`` appends, so the moment spaCR measures a field
 into a canonical table an import filled, its rows and theirs sit in the
 same table with nothing marking the seam and every per-well count
 becomes the sum of two populations. :func:`supersede_imported_copies`
-runs before the first insert and hands that copy back — but only when
+runs before the first insert and removes that copy — but only when
 every field it covers is either already measured into that table or
 queued to be measured now, and only after
 :func:`spacr.foreign.release_canonical_copy` has proved, row by row,
@@ -117,8 +112,8 @@ restores the map from the CSV that sits beside the converted images,
 ``foreign.run_import`` restores the imported measurements.
 
 **A field is identified by its well coordinates, never by a name prefix.**
-Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19`` —
-nineteen innocent fields destroyed to clean up one. Every statement in
+Deleting with ``LIKE 'plate1_A01_f1%'`` also matches ``f10`` … ``f19``,
+so clearing one field would delete rows of ten others. Every statement in
 here matches on equality over ``plateID`` / ``rowID`` / ``columnID`` /
 ``fieldID`` (plus ``timeID`` for timelapse), and refuses to touch a table
 that does not carry all four.
@@ -329,6 +324,8 @@ COSMETIC_SETTINGS = frozenset({
     'bleach_correction', 'cellprofiler_pipeline',
     'timelapse_lineage', 'timelapse_lineage_color_by',
     'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h',
+    'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count',
+    'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold',
     'timelapse_events', 'timelapse_events_annotations',
     'timelapse_events_model', 'timelapse_events_window',
     'timelapse_events_threshold', 'timelapse_events_conditions',
@@ -370,13 +367,14 @@ REJECTION_REASONS = frozenset({
 
 
 class ResumeRefused(ConfigurationError):
-    """The requested resume would produce a dataset that is not one dataset.
+    """Raised when resuming would mix fields measured under different settings.
 
     Raised when the fields already on disk were produced under settings
     that differ materially from the current ones. This is a
     :class:`~spacr.errors.ConfigurationError` on purpose: it is a setup
     mistake, not a per-field failure, and continuing past it would append
-    apples to oranges in a single table with nothing to mark the seam.
+    fields measured under different settings to one table with nothing to
+    mark the boundary.
     """
 
 
@@ -404,19 +402,17 @@ def field_identity(field: Any, timelapse: bool = False) -> Dict[str, str]:
 
     :func:`spacr.schema.parse_field_stem` is the parse; this function adds the
     mapping passthrough and the "refuse rather than guess" errors a resume
-    needs. It used to be a hand-rolled copy of ``spacr.utils._map_wells``,
-    because importing ``spacr.utils`` would pull torch and cellpose into every
-    process that merely wants to know whether it can skip a field —
-    :mod:`spacr.schema` is stdlib-only precisely so that reason no longer
-    forces a copy, and ``tests/test_resume.py`` still asserts this module
+    needs. It does not use ``spacr.utils._map_wells``, because importing
+    ``spacr.utils`` would pull torch and cellpose into every process that
+    only needs to know whether it can skip a field; :mod:`spacr.schema` is
+    stdlib-only, and ``tests/test_resume.py`` asserts that this module
     imports nothing heavy.
 
-    The copy had drifted, in the direction that matters most here: it gave
-    ``'plate1_A_3'`` the identity ``('r1', 'c0')`` while ``_map_wells`` wrote
-    ``'error'`` into the database for the same name, so a resume computed a
-    delete key that matched **no** rows and the field was measured twice.
-    ``'AA01'`` was the same story. Both now raise, which
-    :func:`plan_measure_resume` reports rather than silently mis-deleting.
+    A well that cannot be read raises instead of being guessed: for
+    ``'plate1_A_3'``, which names a row but no column, a guessed
+    ``('r1', 'c0')`` would give a delete key that matches **no** stored
+    rows, and the field would be measured twice.
+    :func:`plan_measure_resume` reports the error rather than deleting.
 
     :param field: ``'plate1_A01_3'``, ``'plate1_A01_3.npy'``, or an
         already-parsed identity mapping (returned filtered, so callers can
@@ -585,7 +581,7 @@ def read_npy_header(path: str) -> Dict[str, Any]:
 
 def validate_merged_field(path: str,
                           min_planes: Optional[int] = None) -> Tuple[bool, str]:
-    """Decide whether a ``merged/*.npy`` is a finished field or a crash scar.
+    """Check whether a ``merged/*.npy`` file is a complete, measurable field.
 
     :param path: path to the candidate ``.npy``.
     :param min_planes: when given, the array's last axis must be at least
@@ -664,11 +660,10 @@ def completed_fields_in_merged(src: str,
                                ) -> Set[str]:
     """Field stems in ``src`` whose ``.npy`` is *verified* complete.
 
-    This is the function that stops a resume from turning into corrupt
-    output. It never answers on the strength of ``os.path.exists``: each
+    It never answers on the strength of ``os.path.exists``: each
     candidate's header is parsed and its length checked against its own
-    declared shape, because ``np.save`` writes merged arrays in place and
-    a run killed mid-write leaves a short file behind.
+    declared shape, because older releases wrote merged arrays in place
+    with ``np.save`` and a run killed mid-write left a short file behind.
 
     :param src: the ``merged/`` folder (or any folder of ``.npy`` fields).
     :param min_planes: minimum last-axis size, see
@@ -847,8 +842,7 @@ def importer_written_columns(conn: sqlite3.Connection,
     on, and there the protective answer is the opposite of the one
     :func:`importer_recorded_columns` must give: a database whose
     provenance cannot be read must have its imported rows *preserved*, not
-    deleted as though nobody had claimed them. That was the original bug,
-    and it was still live for exactly the files most exposed to it.
+    deleted as though nobody had claimed them.
 
     :param conn: open connection to ``measurements.db``.
     :param table: table name, e.g. ``'cell'``.
@@ -908,7 +902,7 @@ def measure_rows_clause(conn: sqlite3.Connection,
         measure's. Otherwise a parenthesised ``"col" IS NOT NULL OR …``
         over the columns the importer did not write.
 
-    The residual, stated because it is a real if unreachable one: a
+    One edge case remains, although the measure stage does not produce it: a
     measure row whose every measurement column is NULL is indistinguishable
     from an imported one and is treated as imported — preserved rather
     than cleared. ``_merge_and_save_to_database`` always writes at least
@@ -959,8 +953,8 @@ def discover_field_tables(db_path: str,
     column test alone is not a test of ownership: ``conversion_map``,
     ``align_coordinates`` and ``foreign_*`` all carry the same four
     columns, precisely so that they join to the measurements, and they
-    passed it — which is how a measure resume came to delete three other
-    modules' provenance tables. The name test alone would delete from a
+    pass it, so a resume would delete rows from three other modules'
+    provenance tables. The name test alone would delete from a
     table whose schema is not what this module thinks it is.
 
     Both halves are about the *table*, and a table on this list can still
@@ -1057,9 +1051,9 @@ def completed_fields_in_db(db_path: str,
     "Present" means present in a row **measure wrote**. Rows a foreign
     import copied into a canonical table do not count: a project built
     purely by import has ``cell`` as its only field table and a row in it
-    for every field, so counting them made this function report the whole
-    plate measured, ``measure_crop`` run nothing at all, and the
-    collaborator's numbers stand as spaCR's output. A table holding
+    for every field, so counting them would report the whole plate as
+    measured, ``measure_crop`` would run nothing, and the imported numbers
+    would stand as spaCR's output. A table holding
     nothing but imported rows is left out of the "every table this run
     writes" set entirely, so it cannot make every field look partial
     either; it rejoins the moment measure puts a row in it. See
@@ -1699,9 +1693,8 @@ def check_settings_compatible(recorded: Mapping[str, Any],
     The fields already on disk were produced under ``recorded``. If
     ``current`` differs in anything that affects the numbers, appending
     new fields to them yields a table that is half one experiment and
-    half another, with no column marking the boundary — the single worst
-    outcome this whole module exists to prevent. Better to refuse and
-    make the user say what they meant.
+    half another, with no column marking the boundary, so the resume is
+    refused and the error names every material difference.
 
     :param recorded: settings read back from the previous run.
     :param current: the settings this run would use.
@@ -1727,7 +1720,7 @@ def check_settings_compatible(recorded: Mapping[str, Any],
 
 @dataclass
 class ResumeState:
-    """What a resume decided to do, before it does any of it.
+    """The resume plan: fields to skip, fields to run, and the reasons.
 
     :ivar total: number of candidate fields considered.
     :ivar done: fields verified complete — these are skipped.
@@ -1781,7 +1774,7 @@ class ResumeState:
 
     @property
     def rejected(self) -> Tuple[str, ...]:
-        """Fields that were present but rejected — the important number.
+        """Fields that were present on disk but rejected, and so re-queued.
 
         A truncated ``.npy``, or a field with rows in some tables and not
         others. These would have been silently skipped by an
@@ -1830,9 +1823,9 @@ def plan_resume(all_fields: Iterable[str],
                 src: str = '',
                 db_path: str = '',
                 cleared_rows: int = 0) -> ResumeState:
-    """Work out what to run, what to skip, and record why.
+    """Return a :class:`ResumeState` of fields to run, fields to skip, and why.
 
-    Nothing is done here — that is the point. The plan is computed and
+    Nothing is deleted or run here. The plan is computed and
     reported first, so a resume that is about to skip 900 fields says so
     before it skips them, and a resume that rejected three truncated
     files says that too.
@@ -1971,7 +1964,7 @@ def measurements_db_path(settings: Mapping[str, Any]) -> str:
 
 def plan_measure_resume(settings: Any,
                         verbose: bool = True) -> Optional[ResumeState]:
-    """Plan (and make safe) a resumed ``measure_crop``. The one call measure makes.
+    """Plan a resumed ``measure_crop`` and clear the rows of pending fields.
 
     Returns ``None`` immediately unless ``settings['resume']`` is set, so
     a default run does exactly what it always did.
@@ -1979,8 +1972,8 @@ def plan_measure_resume(settings: Any,
     When resume *is* requested, in order:
 
     1. Read the previous run's settings out of the ``settings`` table in
-       ``measurements.db`` and refuse loudly if anything material
-       differs. **This must happen before**
+       ``measurements.db`` and raise :class:`ResumeRefused` if anything
+       material differs. **This must happen before**
        ``spacr.io._save_settings_to_db`` overwrites that table with the
        current settings — hence the placement of the call in
        ``measure_crop``.

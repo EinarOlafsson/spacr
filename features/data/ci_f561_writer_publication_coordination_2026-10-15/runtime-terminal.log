@@ -1,0 +1,21 @@
+{"canonical_counts": {"setting_labels": 1258, "setting_tooltips": 1280, "categories": 242, "ui": 8073, "installer": 79, "module_summaries": 77}, "seconds": 7.132649710983969}
+sv: all normal reviews and exact identity/source preflight passed
+de: all normal reviews and exact identity/source preflight passed
+es: all normal reviews and exact identity/source preflight passed
+zh_CN: all normal reviews and exact identity/source preflight passed
+pt: all normal reviews and exact identity/source preflight passed
+hi: all normal reviews and exact identity/source preflight passed
+ko: all normal reviews and exact identity/source preflight passed
+is: all normal reviews and exact identity/source preflight passed
+fr: all normal reviews and exact identity/source preflight passed
+sv: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+de: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+es: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+zh_CN: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+pt: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+hi: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+ko: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+is: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+fr: 54 reviewed records exact; all foreign targets/hashes/metadata retained
+verified external runtime catalogs: languages=9 settings=1280 categories=242 ui=8073 modules=77
+PASS: 486 reviewed records, full nine-locale audit, fresh canonical equality and all unrelated preservation

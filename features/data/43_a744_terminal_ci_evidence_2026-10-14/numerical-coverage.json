@@ -1,0 +1,103 @@
+{
+  "run_id": 38512120776,
+  "run_attempt": 1,
+  "head_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/38512120776",
+  "source_bindings": {
+    "spacr/qt/widgets/ambient.py": {
+      "bytes": 587528,
+      "sha256": "599043a6e6da7e68f972b904fd638f59c947f826feb68e6eadb1a93aebab5c40"
+    },
+    "tests/qt/test_partial_field_presentation_cache_20261014.py": {
+      "bytes": 22519,
+      "sha256": "51ca9f75212b1bc52006b10d17de062bf7eb24ef1ca4ac26eb5902a2c386b5e6"
+    },
+    "tests/qt/test_module_screen_timers_do_not_stall_20261012.py": {
+      "bytes": 18118,
+      "sha256": "0dec8a522ffa48938079feeb2353e44f783f55a8e5abc24f9534d36c70e52d1e"
+    },
+    "tests/qt/test_field_paints_opaquely_20261012.py": {
+      "bytes": 15215,
+      "sha256": "9f63f1325ebf182e05d63f8243597230472f405529ea63eebc4c0218a836de5d"
+    },
+    "tools/coverage_baseline.json": {
+      "bytes": 114942,
+      "sha256": "1eeca6d8067ca2677b9fa6cdf67e0c92251a130de4221664a4881c0e1505f523"
+    },
+    "tools/coverage_floor_exemptions.txt": {
+      "bytes": 1751,
+      "sha256": "56d18e518d5397d9601acbeb466557f7ae6e7e932dbf8e1e78989a9096e49c1e"
+    }
+  },
+  "whole_ci_green": false,
+  "release_authorized_by_this_receipt": false,
+  "schema": "spacr-current-hosted-numerical-coverage-proof/v1",
+  "artifact_id": 11874051278,
+  "artifact_name": "spacr-module-coverage-report-38512120776-1",
+  "job_id": 115709006717,
+  "job_conclusion": "failure",
+  "failed_job_step": "Require every coverage shard to have passed its tests",
+  "numerical_status": "pass",
+  "summary": {
+    "failed_modules": 0,
+    "global_issue_count": 0,
+    "improved_modules": 104,
+    "integrity_issue_count": 0,
+    "modules_at_100_percent": 456,
+    "modules_below_100_percent": 208,
+    "modules_below_floor": 1,
+    "modules_checked": 664,
+    "modules_exempt_from_floor": 1,
+    "shipped_modules": 664,
+    "stale_baseline_entries": 0,
+    "stale_exemptions": 0,
+    "unconfirmed_modules": 0
+  },
+  "measurement_integrity": {
+    "checked": true,
+    "issues": [],
+    "loss_kinds": {},
+    "recovered": [],
+    "shard_count": 12,
+    "shards_with_records": 12,
+    "status": "complete"
+  },
+  "ambient": {
+    "path": "spacr/qt/widgets/ambient.py",
+    "status": "pass",
+    "percent": 100.0,
+    "covered_lines": 6416,
+    "num_statements": 6416,
+    "covered_branches": 1716,
+    "num_branches": 1716,
+    "counts": {
+      "excluded_lines": 0,
+      "pragma_no_cover": 0,
+      "uncovered_branches": 0,
+      "uncovered_statements": 0
+    }
+  },
+  "ops_hosted_cpu": {
+    "path": "spacr/ops_accel.py",
+    "status": "pass",
+    "percent": 84.72906403940887,
+    "covered_lines": 127,
+    "num_statements": 147,
+    "covered_branches": 45,
+    "num_branches": 56,
+    "counts": {
+      "excluded_lines": 0,
+      "pragma_no_cover": 0,
+      "uncovered_branches": 11,
+      "uncovered_statements": 20
+    },
+    "below_floor": true
+  },
+  "ops_floor_exemption_unchanged": true,
+  "real_gpu_evidence_scope": "Separate current-source diagnostic; hosted CPU coverage is not relabelled as physical CUDA coverage",
+  "raw_evidence_sha256": {
+    "module-coverage-ratchet.json": "23ca6823f5c6fbdc337ba999dc86309f768ecab6c41a01e2ec9b146ec3c9a240",
+    "coverage.json": "6d64994e8f136d6172c6fb73292cd701985b6ffbca580c623f3af48ba8e2c1d9",
+    "gate.log": "e2ee16185d5c597781c3a70453f1c65b666058a9fe45b2413f1bd025e4744c1d"
+  }
+}

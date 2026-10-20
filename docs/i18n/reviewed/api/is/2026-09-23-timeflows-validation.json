@@ -34,7 +34,9 @@
       "label": "spacr.timeflows_validation.check_pair_holdout#0",
       "source": "Reject validation frames identical to any normalized training input.",
       "source_sha256": "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
-      "translation": "Hafna staðfestingarrömmum sem eru eins og eitthvert staðlað þjálfunarinntak."
+      "translation": "Hafna staðfestingarrömmum sem eru eins og eitthvert staðlað þjálfunarinntak.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Both endpoints participate. Channel filling, channel truncation and float32 conversion follow the model's own input adapter. This detects identical inputs across paths or dtypes, not near-duplicates or different frames of the same biological movie; the CLI separately rejects shared movie paths. Return the validation input fingerprints for provenance.",
@@ -76,7 +78,9 @@
       "label": "spacr.timeflows_validation.score_pair#0",
       "source": "Score source objects after excluding explicitly unknown successors.",
       "source_sha256": "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
-      "translation": "Meta upprunahluti eftir að sérstaklega óþekktir arftakar hafa verið útilokaðir."
+      "translation": "Meta upprunahluti eftir að sérstaklega óþekktir arftakar hafa verið útilokaðir.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared track identities define the true links before target identities are shuffled. An absent target identity means no successor unless the source is in ``unknown_successors``; missing annotations are not detected automatically. An IoU control is added to the supplied prediction arms.",
@@ -132,7 +136,9 @@
       "label": "spacr.timeflows_validation.scramble#0",
       "source": "Relabel target objects without changing their shapes or positions.",
       "source_sha256": "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
-      "translation": "Endurmerkja markhluti án þess að breyta lögun þeirra eða staðsetningu."
+      "translation": "Endurmerkja markhluti án þess að breyta lögun þeirra eða staðsetningu.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "target label array, with zero reserved for background.",
@@ -160,7 +166,9 @@
       "label": "spacr.timeflows_validation.summarise#0",
       "source": "Aggregate object-weighted results with explicit missing-data denominators.",
       "source_sha256": "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
-      "translation": "Sameina niðurstöður vegnar eftir hlutum með skýrum nefnurum fyrir gögn sem vantar."
+      "translation": "Sameina niðurstöður vegnar eftir hlutum með skýrum nefnurum fyrir gögn sem vantar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "per-object records from :func:`score_pair`.",
@@ -181,14 +189,18 @@
       "label": "spacr.timeflows_validation.temporal_assignment_policy#0",
       "source": "Describe the default decoder used by both validation entry points.",
       "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
-      "translation": "Lýsa sjálfgefna afkóðaranum sem báðir inngangspunktar staðfestingar nota."
+      "translation": "Lýsa sjálfgefna afkóðaranum sem báðir inngangspunktar staðfestingar nota.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Score held-out pairs and controls without changing training state.",
       "label": "spacr.timeflows_validation.validate_timeflows#0",
       "source": "Score held-out pairs and controls without changing training state.",
       "source_sha256": "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
-      "translation": "Meta frátekin pör og viðmið án þess að breyta þjálfunarástandi."
+      "translation": "Meta frátekin pör og viðmið án þess að breyta þjálfunarástandi.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "``pairs`` contain normalized frames and full track-label masks. Call :func:`check_pair_holdout` before training to verify exact input separation. The result includes per-object rows and displacement/density strata for the current model, IoU, zero-motion and oracle controls, plus a copied-frame check. Optional ``initial_head`` is a complete snapshot of the head/up parameters and buffers from training start. It is called ``initial_head`` because a resumed model's initial head is not necessarily untrained.",
@@ -258,7 +270,9 @@
       "label": "spacr.timeflows_model.ctc_pairs#0",
       "source": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.",
       "source_sha256": "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-      "translation": "Þjálfunarpör úr samliggjandi römmum einnar Cell Tracking Challenge-myndraðar."
+      "translation": "Þjálfunarpör úr samliggjandi römmum einnar Cell Tracking Challenge-myndraðar.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. With ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
@@ -317,14 +331,18 @@
       "label": "spacr.timeflows_model.train_timeflows#0",
       "source": "Train the time head, then the whole network, on track-labelled pairs.",
       "source_sha256": "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
-      "translation": "Þjálfar fyrst tímalega úttakshlutann og síðan allt netið á pörum með rakningarmerkingum."
+      "translation": "Þjálfar fyrst tímalega úttakshlutann og síðan allt netið á pörum með rakningarmerkingum.",
+      "retired": "2026-10-18",
+      "retired_reason": "2026-10-18: superseded by the direct exact-source retranslation of the API summary paragraph in 2026-10-18-api-summary-retranslation.json; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "label": "spacr.timeflows_model.train_timeflows#1",
       "source": "A two-stage curriculum: the backbone's segmentation is already paid for, so it is frozen while the new head learns, then everything is trained at a low learning rate. Every pair is augmented identically on both frames before its targets are computed.",
       "source_sha256": "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
-      "translation": "Þjálfun í tveimur stigum: grunnnetið hefur þegar lært svæðaskiptingu og er því fryst meðan nýi úttakshlutinn lærir. Síðan er allt netið þjálfað með litlum námshraða. Sömu gagnabreytingar eru gerðar á báðum römmum hvers pars áður en markgildi eru reiknuð."
+      "translation": "Þjálfun í tveimur stigum: grunnnetið hefur þegar lært svæðaskiptingu og er því fryst meðan nýi úttakshlutinn lærir. Síðan er allt netið þjálfað með litlum námshraða. Sömu gagnabreytingar eru gerðar á báðum römmum hvers pars áður en markgildi eru reiknuð.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A training extracted image region keeps supervision only for complete source masks and, when present in the full target frame, complete successor masks. A successor outside the tile is not a disappearance. Absences in the supplied full-frame labels remain supervised; this does not validate those annotations. Unusable extracted image regions are retried up to 32 times per step. Censoring prevents incorrect targets at extracted image region boundaries but removes some fast-motion examples; it does not establish full-motion accuracy.",

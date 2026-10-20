@@ -8,7 +8,7 @@
       "key": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
       "source": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
       "source_sha256": "6a49d414bf9a8b6220d6c9aa0fb5fad0e6dfbdf6f45353f01463013d42a42704",
-      "translation": "Indique a escala da imagem em píxeis por micrómetro e o tempo de formação das placas em horas. Os diâmetros medidos dos poços são guardados em píxeis; um diâmetro físico conhecido do poço permite calibrar a escala da imagem. Estes valores dão significado físico ao tamanho das placas."
+      "translation": "Indique a escala da imagem em pixels por micrómetro e o tempo de formação das placas em horas. Os diâmetros medidos dos poços são guardados em pixels; um diâmetro físico conhecido do poço permite calibrar a escala da imagem. Estes valores dão significado físico ao tamanho das placas."
     },
     {
       "table": "categories",

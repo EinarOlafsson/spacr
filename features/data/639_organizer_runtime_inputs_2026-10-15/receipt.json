@@ -1,0 +1,242 @@
+{
+  "scope": "Input-only normal reviewed loader over 21 exact AST-bound tr literals and isolated review files; no full canonical/global extraction claim",
+  "source_commit": "f5a3f7f28987949794660e0a05fd5d4f7896a65a",
+  "source_files": {
+    "spacr/channel_sorting.py": "6cad184b19b5ad0864a16dd3a389d35d40d039d4f88a921301b3ad8b8828fbba",
+    "spacr/qt/widgets/organize_for_measure.py": "2147e0a136005fda952973e93639d5637cd09fbc017f3d72e82e61871c356985",
+    "spacr/qt/i18n.py": "529d0a9b440215c49c3703d4c9d0bf8eafe37fb907e667a2f41a527795b4dd02"
+  },
+  "tool_files": {
+    "tools/build_i18n_catalogs.py": "fc4290dae27d9cd09672a59eef634e0ecfa96cb4cdff33138b3e0e46a077023f",
+    "tools/i18n_reviewed_ui.py": "6e43324c4743e488086471028b7073b34588a791ab8e55b9ab0409e0149c8fa5"
+  },
+  "source_proof": [
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "There are no complete sets to sort.",
+      "source_sha256": "ab5cc3e790fff95351b911931f7b6ac8b582d63b6112d3eb13eaa78530e7ccee",
+      "lines": [
+        1437
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "{folder} already exists.",
+      "source_sha256": "8d2b3f984a3d477a226caad155cb17144672c6d41ebf2184f3ae41e76280b77c",
+      "lines": [
+        1440
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "Two channels cannot both give the {roles} mask.",
+      "source_sha256": "fc51728d6d03712dc6e62ebec4013c9f9726547111ffd913d7283b0761f16e62",
+      "lines": [
+        1461
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "{image} cannot be read.",
+      "source_sha256": "6fffc4b055697483441ff6ea5f9ebdea3baf506a72b27f41ebdc29058da2ea40",
+      "lines": [
+        1501
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "{image} is {shape}, not a single 2-D plane.",
+      "source_sha256": "fbfc0b41f8f521195ee1a727bfabeacdf22ec767c9d75b6266502c6c82891371",
+      "lines": [
+        1504
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "The mask of {image} is {mask_shape}; the image is {shape}.",
+      "source_sha256": "0b926eaf55f393cde8734f0e51de485d07fcad66b3a8088e7f403789c34ab5da",
+      "lines": [
+        1510
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "The images of set {name} differ in size: {sizes}",
+      "source_sha256": "691a4a0abd78f05b93a39ce6b930a594f328b718bcd92d3c0d848d7029cdd497",
+      "lines": [
+        1515
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "{count} set(s) have no {role} mask in channel {channel}. Those sets cannot be merged when merging is requested.",
+      "source_sha256": "39c0f78f4fc8d24119edfee9df0255fa24d2c4fa560ff82f4537b5fd5870f43c",
+      "lines": [
+        1520
+      ]
+    },
+    {
+      "owner": "channel_sorting.build_plan",
+      "source": "No channel has masks. When merging is requested, stack/ is written but merged/ is not.",
+      "source_sha256": "bf42f6a51726a9ab4200961b3d3fb00688b758a04d4cfedeee77ce3a01c68912",
+      "lines": [
+        1524
+      ]
+    },
+    {
+      "owner": "OrganizeForMeasureDialog._plan_summary",
+      "source": "Move {images} image(s) and {masks} mask(s) into {channels} channel folder(s) under {dest}, as {sets} set(s) in Yokogawa naming. Then build channel stacks and any merged arrays supported by the available masks.",
+      "source_sha256": "315764f9f637a7738ecc5bf0096ef003af20c2ff8c6bccadfe44650306c23013",
+      "lines": [
+        2942
+      ]
+    },
+    {
+      "owner": "OrganizeForMeasureDialog._plan_summary",
+      "source": "Move {images} image(s) into {dest} using Yokogawa names, with {masks} mask(s) in {masks_dir}. Do not write stacks or merged arrays.",
+      "source_sha256": "c8f56c31fa63ca3ba85a1eca9882098ff093f541e091200d079a79b087eadc35",
+      "lines": [
+        2950
+      ]
+    },
+    {
+      "owner": "OrganizeForMeasureDialog._plan_summary",
+      "source": "Mask roles: {roles}",
+      "source_sha256": "ac8848f20042aaf3bb3f55930c77fc36b99cdb9381d42b3394a29dafd8748ebc",
+      "lines": [
+        2960
+      ]
+    },
+    {
+      "owner": "OrganizeForMeasureDialog._plan_summary",
+      "source": "channel {n}: {role}",
+      "source_sha256": "2857fe4857c59e725990874e5dbb61f2c892cb123f1e2b258de29484302caf0f",
+      "lines": [
+        2958
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{sets} complete set(s) across {channels} channel(s).",
+      "source_sha256": "f894ea9bd2168af80d83612f827922d6e445e976dda1fcbb8715a4a9901a7b9d",
+      "lines": [
+        434
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{count} file(s) not matched: {names}",
+      "source_sha256": "829c640e516f17cf82c626d56b4195da6426e267b47a7bc600b0f179c199dc62",
+      "lines": [
+        437
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{count} file(s) have no channel: {names}",
+      "source_sha256": "e0dfdf3db0d009928a9bbf89bc6c084fd081c6bbe4de9accd55ed98fbd8e4467",
+      "lines": [
+        440
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{count} set(s) incomplete: {sets}",
+      "source_sha256": "27f11ca105b35641564e3531019ba9079d1a1552e73a06c3287d41bd6688897b",
+      "lines": [
+        443
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{name} lacks channel(s) {channels}",
+      "source_sha256": "a5be23df7619d320aa8bb408675839d368bbd0093d68819fe037a6b57c16f229",
+      "lines": [
+        445
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{count} duplicate(s): {duplicates}",
+      "source_sha256": "61d6973a919c3f570975a7df052020e4c2dc7bb679e989254bf7de2480a073a2",
+      "lines": [
+        450
+      ]
+    },
+    {
+      "owner": "SetReport",
+      "source": "{name} channel {channel}: {names}",
+      "source_sha256": "78ece7decd55fa4608d24697c1140b186be75d6450f7c33b1450438840703a09",
+      "lines": [
+        453
+      ]
+    },
+    {
+      "owner": "_few",
+      "source": "{shown} and {more} more",
+      "source_sha256": "aa4ef31fdb6216c116f7ab68575576b7ee90d52da7af6675154a6a6e58df09f6",
+      "lines": [
+        471
+      ]
+    }
+  ],
+  "plan_sha256": "c099f46b5b31e3769ab3be48fe75ddfedf4be44be5418499105959a0907828ef",
+  "script_sha256": "388d1cd0946de4e7bd02a90ccd1ea5738eb596c16a97695084d18bc663b1be9d",
+  "normal_scoped_loader": [
+    {
+      "language": "sv",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "de",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "es",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "zh_CN",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "pt",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "hi",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "ko",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "is",
+      "normal_scoped_review_records": 21
+    },
+    {
+      "language": "fr",
+      "normal_scoped_review_records": 21
+    }
+  ],
+  "records": 189,
+  "placeholder_order_followups": 9,
+  "other_accepted_targets_byte_preserved": 180,
+  "files": {
+    "docs/i18n/reviewed/runtime/sv/2026-10-15-n639-organizer-messages.json": "7a8d077b37d8de93a68cdb19572fa32b71dd951c2b83b51430212f0c63524a46",
+    "docs/i18n/reviewed/runtime/de/2026-10-15-n639-organizer-messages.json": "72f0f8c93e2d9a6b660c96b25e55b85e91e2623993ba576fcf5bcaa0deb0d825",
+    "docs/i18n/reviewed/runtime/es/2026-10-15-n639-organizer-messages.json": "4bd32b67e1115f6cc1ea19bb9cc28c9ba56dc7a7e0c40941963a3e4f1059271b",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-15-n639-organizer-messages.json": "731fedaa902db124c07acc2aa870cc685c04b54c3c0eb7bb84fbf34db076bf9d",
+    "docs/i18n/reviewed/runtime/pt/2026-10-15-n639-organizer-messages.json": "359c11b8f0cecb20e89fb007c2fca624cce1e5d0b334d2aa4dd6c060f29b0278",
+    "docs/i18n/reviewed/runtime/hi/2026-10-15-n639-organizer-messages.json": "746dd3a5d570f6b8ecc37ba612342e30f5efdf1f9de283ac249836892e4cdd55",
+    "docs/i18n/reviewed/runtime/ko/2026-10-15-n639-organizer-messages.json": "e62ab6a550097daa6164248751e44cbcba0f2d651713e022c747a09a85c58409",
+    "docs/i18n/reviewed/runtime/is/2026-10-15-n639-organizer-messages.json": "b2aeaa72baeca018ba5a5b91cbe95b71583acf954e11c42af25488779858f797",
+    "docs/i18n/reviewed/runtime/fr/2026-10-15-n639-organizer-messages.json": "050c50c4c723108972e2dca258947a703588213cc20e94c06a43e6f9e7989e9a"
+  },
+  "identical_active_review_overlaps": [],
+  "prior_active_review_files_preserved": 2828,
+  "catalog_writes": false,
+  "full_collector_calls": 0,
+  "remaining": "Coordinator full canonical source ownership, normal all-nine generation/audit/arrivals and actual consumers are separate."
+}

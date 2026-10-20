@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 """Regenerate ``features/00_INDEX.txt`` from the feature files.
 
-TWO LISTS, NEITHER OF THEM A GATE. ``features/new/`` is what spaCR has
-gained; ``features/future/`` is what it might gain next. Asked for on
-2026-09-12, replacing a single instructions list whose items carried
-release-blocking status and so turned a plan into a gate.
+TWO LISTS. ``features/new/`` records requested and implemented features;
+``features/future/`` records the future feature requests. The maintainer
+explicitly made BOTH lists part of the 1.5.1.5 release scope on 2026-10-14.
+Implementation and applicable acceptance must be complete before publication;
+a DONE header alone is not release acceptance.
 
 WHY THIS IS A TOOL AND NOT A DOCUMENT. The index was hand-written on
 2026-08-05 and was nine days stale by 2026-08-14: it listed work that had
@@ -348,7 +349,10 @@ def render(today: str = "") -> str:
         "themselves this week.",
         "",
         f"{len(done_rows)} in features/new, {len(open_rows)} in "
-        f"features/future. NEITHER LIST BLOCKS A RELEASE.",
+        f"features/future. BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5.",
+        "Maintainer requirement: implement every listed item and complete its",
+        "applicable acceptance before publication. Historical DONE headers alone",
+        "do not establish current acceptance; use dated trailing evidence.",
         "",
         "-" * 80,
         "FUTURE FEATURES",

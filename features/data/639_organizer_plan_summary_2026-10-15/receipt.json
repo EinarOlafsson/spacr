@@ -1,0 +1,36 @@
+{
+  "base_commit": "cb4caa2bf3bf3b56e3ad5b3410e15717cb6b2f7d",
+  "source": "spacr/qt/widgets/organize_for_measure.py",
+  "before_sha256": "1fabb1fb7ba4376ae0ce7857d48c2df20bfe6b0dbc45ae2fc4bc9454c00cee3f",
+  "after_sha256": "d102dd36a5d537b6398f32591b181b43764f5d7c546e37d5b3cd6c06dc1a1702",
+  "scope": "One private UI summary helper and two call-site replacements; removing helper and restoring those calls recovers whole previous AST. Existing public docstrings and backend/move behavior unchanged.",
+  "baseline": {
+    "result": "12 failed in 2.12s",
+    "exit": 1
+  },
+  "final": {
+    "result": "60 passed, 21 existing deprecation warnings in 14.12s",
+    "exit": 0
+  },
+  "fixture_fidelity_followup": "Final fixture uses actual immutable SetName instead of a unique string placeholder for the same single set; no assertion or tested plan count changed. Baseline test bytes preserved.",
+  "coverage": "Actual Apply confirmation and status for all four mode/layout routes, with/without masks; literal paths/counts, canonical role IDs, warning/problem order, plan equality and accepted-plan identity.",
+  "visibility": {
+    "normal_function_predicate": false,
+    "normal_nested_inventory_before_after_equal": true,
+    "nested_entries": 2,
+    "scope": "Normal inventory invoked on one copied owner source only; no whole collector, runtime import or API generation."
+  },
+  "runtime_dependency": "Four new GUI literal tr sources in runtime-sources.json; source remains private until reviewed nine-language catalogs and root-owned backend diagnostic localization are coherent.",
+  "remaining": "Root owns layout-neutral no-mask/missing-mask backend warnings and known plan diagnostics. SetReport.summary() shown after regex sorting is a separate plain-English display path. Tutorial remains Work-owned; no whole N639 completion.",
+  "artifacts": {
+    "baseline-test.py.gz": "f614f3682cd151cba0b6193fa3c16fcc53ce1e80f73f38e83b7cb6431b4c6a8c",
+    "run.sh": "4249847b4f50c57d01c3bef693f34afbbf6a5da10256c2cfdb04aa8ce8217d3a",
+    "runtime-sources.json": "80b028469a3afaa363d7b988c01ecbd22992f06d41a8e0fd56c6896384aa9205",
+    "summary-baseline-exit.txt.gz": "d381e5a9b7c1c71b5fb3fef202103bf4b6098ce288f148735de1ecf61d4e3b75",
+    "summary-baseline-run.log.gz": "9d2569565427cfe24bef445a1cab651d03bec05628d41e21bd4ec635fa243de5",
+    "summary-baseline-time.txt.gz": "8aa261f698c8c7397187191af78094aa40ce865dcf1119515963760cd8763618",
+    "summary-final-exit.txt.gz": "cabc3a30b39528db601f65ca3ced008dd775595c901102d08ac8ae8976b29bcf",
+    "summary-final-run.log.gz": "c8310055a7a32d4ab85438401bc085f7b3de2391a8cf02e44a1ada085c4c6f9d",
+    "summary-final-time.txt.gz": "723e3537273503a9f22937aa758e5ced403aaaba4562bdf7f48ef28922e21313"
+  }
+}

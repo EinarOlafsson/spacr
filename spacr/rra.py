@@ -103,8 +103,7 @@ def rank_aggregate(scores, groups, *, alpha: float = DEFAULT_ALPHA,
     :param direction: ``"neg"``, ``"pos"`` or ``"both"``.
     :param n_permutations: draws per distinct guide count.
     :param seed: the permutation seed, so a re-run of the same screen gives
-        the same P values. A screen whose hit list moves between runs of the
-        same data is a screen nobody can act on.
+        the same P values.
     :param correction: any method :mod:`spacr.multiple_testing` accepts.
     :param fdr_alpha: the level the correction targets.
     :returns: a DataFrame, one row per gene, sorted by the strongest

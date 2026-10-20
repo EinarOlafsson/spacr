@@ -11,21 +11,21 @@ The column well is
 :data:`~spacr.qt.widgets.graph_builder.COLUMN_MIME` — the same list, the same
 classification of what is worth offering, and the same payload type, so a
 column dragged in the Graph Builder and a column dragged here are the same
-gesture. The drop targets are different, and that is the only reason there is a
-widget in here at all: a Graph Builder zone holds exactly one column, and a
-pivot axis holds a *nest* of them, outermost first.
+gesture. Only the drop targets differ, which is why this module has its own
+widget: a Graph Builder zone holds exactly one column, and a pivot axis holds a
+*nest* of them, outermost first.
 
-What the grid shows, and what it refuses to
--------------------------------------------
+What the grid shows
+-------------------
 **Every cell prints its n**, under the statistics, whether or not ``n`` was
-ticked. An aggregate over 4 objects and one over 4 000 are three digits either
-way, and the only thing that tells them apart is the number this panel refuses
-to hide. Cells at or below :data:`~spacr.qt.widgets.pivot_spec.LOW_N` are drawn
-muted, so a table can be scanned for "which of these am I allowed to believe".
+ticked. An aggregate over 4 objects and one over 4 000 look alike, and only the
+count tells them apart. Cells at or below
+:data:`~spacr.qt.widgets.pivot_spec.LOW_N` are drawn muted, so a table can be
+scanned for cells that rest on few objects.
 
 **An empty cell is blank, not zero.** The rule and its reasoning are in
-:mod:`spacr.qt.widgets.pivot_spec`; the panel's part is not to paper over it
-with a ``0`` because a ``QTableWidgetItem`` would rather have a number.
+:mod:`spacr.qt.widgets.pivot_spec`; the panel leaves such a cell blank instead
+of writing ``0`` into it.
 
 Plotting the result
 -------------------
@@ -59,7 +59,9 @@ from .pivot_spec import (
     WELL_HIERARCHY, PivotError, PivotResult, PivotSpec, format_value, pivot,
 )
 from .toggle import Toggle
-from .sortable_table import install_sorting, table_item
+from .sortable_table import (
+    install_sorting, table_item, _retire_table_cells, _reuse_list_items,
+    _spare_items, _spare_table_item, _wipe)
 
 LOG = logging.getLogger("spacr.qt.pivot")
 
@@ -101,15 +103,14 @@ class DropWell(QWidget):
 
     A list rather than a single-slot zone, because a pivot axis is a *nest*:
     ``plateID`` then ``rowID`` then ``columnID`` is three keys on one axis and
-    the order is the hierarchy. Drop order is that order, which is the only
-    rule that needs no explanation at the moment a user drags something.
+    the order is the hierarchy. Drop order is that order.
 
     Removing is Delete, Backspace or a double-click. There is no drag-out: a
     column dragged from here to another well would have to decide whether it
     was a move or a copy, and getting that wrong silently loses an axis.
 
     :param axis: which pivot axis this well holds. Must be a key of
-        :data:`AXIS_LABELS`; anything else RAISES here rather than drawing a
+        :data:`AXIS_LABELS`; anything else raises here rather than drawing a
         well nothing can be dropped into.
     :param parent: parent widget.
     """
@@ -162,9 +163,10 @@ class DropWell(QWidget):
                      for i in range(self._list.count()))
 
     def set_columns(self, columns) -> None:
-        """Replace the contents. Silent when nothing changes — the panel
-        recomputes on every emission and a redundant pass over a million rows
-        is a visible pause for no visible difference.
+        """Replace the contents; no signal is emitted when nothing changes.
+
+        The panel recomputes on every emission, and a redundant pass over a
+        million rows causes a visible pause.
 
         :param columns: the column names to hold, in order; empty names are
             dropped and the rest converted to strings.
@@ -172,9 +174,8 @@ class DropWell(QWidget):
         wanted = tuple(str(c) for c in columns if c)
         if wanted == self.columns():
             return
-        self._list.clear()
-        for name in wanted:
-            self._add(name)
+        for name, item in zip(wanted, _reuse_list_items(self._list, len(wanted))):
+            self._fill_item(item, name)
         self.changed.emit()
 
     def clear(self) -> None:
@@ -187,10 +188,20 @@ class DropWell(QWidget):
         :param name: the column name; also stored on the item, so the well can
             be read back without parsing its labels.
         """
-        item = QListWidgetItem(name)
+        item = _spare_items(self._list).pop() if _spare_items(self._list) else QListWidgetItem()
+        self._fill_item(item, name)
+        self._list.addItem(item)
+
+    @staticmethod
+    def _fill_item(item, name: str) -> None:
+        """Write one column's text, key and tooltip onto a well item.
+
+        :param item: the list item to write.
+        :param name: the column name.
+        """
+        item.setText(name)
         item.setData(Qt.UserRole, name)
         item.setToolTip(f"{name}\nDelete or double-click to remove it.")
-        self._list.addItem(item)
 
     def _on_dropped(self, name: str) -> None:
         """Accept a dropped column, unless the well already holds it.
@@ -211,7 +222,8 @@ class DropWell(QWidget):
             can change between the request and its delivery.
         """
         if 0 <= row < self._list.count():
-            self._list.takeItem(row)
+            _wipe(self._list, self._list.item(row))
+            _spare_items(self._list).append(self._list.takeItem(row))
             self.changed.emit()
 
 
@@ -325,7 +337,7 @@ class PivotTable(QTableWidget):
 
     @property
     def truncated_cells(self) -> int:
-        """Cells the grid refused to build. Non-zero means export, not scroll."""
+        """Cells the grid did not build; non-zero means export to see them."""
         return self._truncated
 
     def cell_text(self, row: int, col: int) -> str:
@@ -355,7 +367,7 @@ class PivotTable(QTableWidget):
         :param result: the pivot result, or None to clear.
         """
         self._result = result
-        self.clear()
+        _retire_table_cells(self, headers=True)
         self._truncated = 0
         if result is None:
             self.setRowCount(0)
@@ -373,7 +385,7 @@ class PivotTable(QTableWidget):
 
         if result.n_cells > MAX_RENDERED_CELLS:
             self._truncated = result.n_cells
-            note = table_item(
+            note = _spare_table_item(self,
                 f"{result.n_cells:,} cells is past the {MAX_RENDERED_CELLS:,} "
                 f"this grid draws — narrow the axes, or export the CSV.")
             self.setRowCount(1)
@@ -387,11 +399,11 @@ class PivotTable(QTableWidget):
         for r in range(n_rows):
             for i, key in enumerate(key_columns):
                 text = (result.row_levels[r][i] if result.row_keys else "all")
-                item = table_item(str(text))
+                item = _spare_table_item(self, str(text))
                 item.setToolTip(f"{key} = {text}")
                 self.setItem(r, i, item)
             for c in range(n_cols):
-                item = table_item(self._body_text(result, r, c))
+                item = _spare_table_item(self, self._body_text(result, r, c))
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 item.setToolTip(self._tooltip(result, r, c))
                 smallest = self._smallest_n(result, r, c)

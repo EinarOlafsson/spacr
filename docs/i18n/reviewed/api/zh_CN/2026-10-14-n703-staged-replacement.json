@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "N703: exactly three rewritten paragraphs. Directly authored from current English after normal MT inverted cache/model preservation in German and Spanish. All untouched paragraphs retain existing reviewed/history evidence. This record does not certify native installer behavior.",
+  "records": [
+    {
+      "label": "spacr.install_cleanup#1",
+      "source": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "source_sha256": "c69d2213cc1c807a6dadc31dc1b04d6f145c9343410907c73ab1993b37206a2d",
+      "context": "The online installers stage and validate the new runtime before retiring old application copies. They preserve the current installation during staging and restore its previous runtime if the replacement fails verification. The update helper verifies the desktop interpreter and imported application before retiring other copies or requesting a restart. :func:`run_update_sequence` remains the low-level removal procedure used by explicit cleanup commands.",
+      "translation": "在线安装程序先准备并验证新的运行环境，然后再移除旧的应用副本。准备过程中会保留当前安装；如果替换后的环境未通过验证，则恢复此前的运行环境。更新助手会先验证桌面启动所用的解释器和实际导入的应用，再移除其他副本或请求重新启动。:func:`run_update_sequence` 仍是显式清理命令使用的底层移除过程。",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.remove_install#1",
+      "source": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "source_sha256": "7da39e2c8302b6b2a8a053ced3618ac8bcdb9fc075e159c29e133210687b3ef8",
+      "context": "An installer-made copy's application code, launchers, shortcuts, menu entries and uninstall registrations are removed. Known caches, models, test data, configured user locations and non-application entries in online runtime roots are kept. Its root can remain to hold those files. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
+      "translation": "由安装程序创建的副本，其应用代码、启动器、快捷方式、菜单项和卸载注册信息会被移除。已知的缓存、模型、测试数据、已配置的用户位置以及在线运行环境根目录内不属于应用的条目会被保留。根目录可以继续存在以存放这些文件。Debian 软件包通过软件包管理器移除；如果缺少管理员权限导致移除受阻，则会报告需要管理员权限。对于用户自行创建的环境，仅卸载 spaCR 软件包，并且仅在 ``ticked`` 时执行；环境本身会保留。源代码检出目录会被跳过。",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff"
+    },
+    {
+      "label": "spacr.install_cleanup.start_update_helper#3",
+      "source": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "source_sha256": "a34a384b2a3920e06dc0536714b29690ccc944252081175f9854267246bd572a",
+      "context": "The standard replacement path downloads and runs the new staged installer, verifies its actual interpreter and imported application, then retires other copies and starts it. Failed installation or verification does not remove the previous working copy. A failed retirement is logged without relaunch.",
+      "translation": "标准替换过程会下载并运行新的安装程序以准备安装，验证其实际解释器和导入的应用，然后移除其他副本并启动应用。安装或验证失败时，不会移除此前可正常工作的副本。移除其他副本失败时会记录错误，但不会重新启动应用。",
+      "review_basis": "AI technical review (Codex), written from current English and checked for exact staging/verification/retirement order, failure preservation and retained-vs-removed data semantics; no human or native-speaker signoff",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
+    }
+  ]
+}

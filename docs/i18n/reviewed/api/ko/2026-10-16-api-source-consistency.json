@@ -1,0 +1,20 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "the key, or ``\"\"`` when the answer must not be saved.",
+      "label": "spacr.crashreport.question_key#5",
+      "source": "the key, or ``\"\"`` when the answer must not be saved.",
+      "source_sha256": "1f0dc14b914d2ddcbbad0d1a3027f8067b5a49f5c483fd6e2dd53069ed211a86",
+      "translation": "키이며, 답변을 저장하면 안 되는 경우 ``\"\"`` 입니다."
+    },
+    {
+      "context": "the answer.",
+      "label": "spacr.crashreport.split_cause#1",
+      "source": "the answer.",
+      "source_sha256": "c25598ce29eb49f0eb16db61102477ce0725079b4035506ba3c89f44d01470ab",
+      "translation": "답입니다."
+    }
+  ],
+  "schema": 1
+}

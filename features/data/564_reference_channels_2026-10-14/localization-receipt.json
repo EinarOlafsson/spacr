@@ -1,0 +1,44 @@
+{
+  "item": "F564",
+  "component": "source-bound reference-channel diagnostic translation inputs",
+  "sources_unique": 6,
+  "tr_call_sites": 8,
+  "records": 54,
+  "languages": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "source_sha256": {
+    "spacr/attribution.py": "5feb0d79f47630e82c3f0308ede453dce38e5628418fc789dd8b8034351e7085",
+    "docs/i18n/reviewed/runtime/de/2026-10-14-counterfactual-reference-channels.json": "1c3fd2afca4acbe4c97135048fb2ecd2aeb28047b83e1f2e989cc5c5fa3fd9c6",
+    "docs/i18n/reviewed/runtime/es/2026-10-14-counterfactual-reference-channels.json": "7f0dbd43c5cf0b80050d0ca70b88ed4ed06c24ea850731ae60f37b5f3fa56af0",
+    "docs/i18n/reviewed/runtime/fr/2026-10-14-counterfactual-reference-channels.json": "37131c2f917aac0cff7b725f430c2d4fd405e956844225e8c2b59d73c710ad2a",
+    "docs/i18n/reviewed/runtime/hi/2026-10-14-counterfactual-reference-channels.json": "2884ea41de4b0ae1c801359851239b9c37a5cb1d9e459bb1d3dde68062906a2f",
+    "docs/i18n/reviewed/runtime/is/2026-10-14-counterfactual-reference-channels.json": "972bceabaf85d724fe70ec10608bb1d83d16d372af0bf57c20304a2d94523d55",
+    "docs/i18n/reviewed/runtime/ko/2026-10-14-counterfactual-reference-channels.json": "edd45e3a9df4738b6923ecb8559c5eaa6c238f31507c58c2f072b026b7c4cb8b",
+    "docs/i18n/reviewed/runtime/pt/2026-10-14-counterfactual-reference-channels.json": "7f3963884772b81ae6f46ee98c668359d1217fffb6bed3f2dc8560253d473f2d",
+    "docs/i18n/reviewed/runtime/sv/2026-10-14-counterfactual-reference-channels.json": "febc5f2f0f19608ffe7c0e9d63e63403dddb359b36fd8c56f3042d259804810f",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-14-counterfactual-reference-channels.json": "d23693102ca4bfcf4bcfe203d8b42cb1f32030cd80c5f01e9dfd42b3c53830b8"
+  },
+  "checks": {
+    "actual_exit": 0,
+    "normal_contextualization_idempotent": true,
+    "normal_candidate_rejection_reasons": [],
+    "evidence": "/mnt/wd4tb/scratch/f564-reference-channels-20261014/review-check.log"
+  },
+  "review": "Direct exact-source AI technical review by hard_overnight; independent parent review requested; no native signoff",
+  "owner_request": "/mnt/wd4tb/scratch/home-b-coordination-20261014/F564_SCOPED_EXTRACTION_REQUEST.txt",
+  "pending": [
+    "Home-B owner-scoped canonical extraction",
+    "Independent parent technical review",
+    "Normal generated runtime catalogs and final runtime audit"
+  ],
+  "no_generated_catalog_edits": true
+}

@@ -1,0 +1,9 @@
+{
+  "old_session": 91237,
+  "old_flock_pid": 2216976,
+  "terminal_exit": 143,
+  "no_probe_executed": true,
+  "reason": "Official Qt AtSpiAdaptor handles individual Value property Get calls, not GetAll. Cancelled childless queued wrapper before any application/display/reader execution, and corrected only the read helper.",
+  "source": "https://raw.githubusercontent.com/qt/qtbase/dev/src/gui/accessible/linux/atspiadaptor.cpp",
+  "assertions_unchanged": true
+}

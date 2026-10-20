@@ -1,0 +1,982 @@
+{
+  "docstring_contracts": {
+    "path": "tests/test_docstring_correctness.py",
+    "sha256": "9ad75ea5dedf15e8f78fba0cc9ce479ba7f6039d5c6f505c6faf0ec3b6062953",
+    "present": {
+      "test_no_new_public_callable_lacks_a_docstring": [
+        {
+          "line": 3526,
+          "text": "def test_no_new_public_callable_lacks_a_docstring():"
+        }
+      ],
+      "test_no_docstring_names_a_parameter_that_does_not_exist": [
+        {
+          "line": 1313,
+          "text": "def test_no_docstring_names_a_parameter_that_does_not_exist():"
+        }
+      ],
+      "test_no_new_undocumented_required_public_parameters": [
+        {
+          "line": 2911,
+          "text": "# `test_no_new_undocumented_required_public_parameters` does not move."
+        },
+        {
+          "line": 4915,
+          "text": "def test_no_new_undocumented_required_public_parameters():"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "prose_guard": {
+    "path": "tests/test_user_facing_docstrings.py",
+    "sha256": "25b4acd8845f0eb706c0a6bd036f89257eee7ccf7ca3ea02781ecf17fd21293e",
+    "present": {
+      "test_public_docstrings_do_not_expose_internal_task_history": [
+        {
+          "line": 50,
+          "text": "def test_public_docstrings_do_not_expose_internal_task_history():"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "translation_contracts": {
+    "path": "tests/test_translation_correctness.py",
+    "sha256": "e7ef80f649a778c5ae5d77508e4a8b13f78e8447492b98fa0c61a43bbc84504a",
+    "present": {
+      "test_every_runtime_translation_keeps_its_placeholders": [
+        {
+          "line": 164,
+          "text": "def test_every_runtime_translation_keeps_its_placeholders():"
+        }
+      ],
+      "test_no_runtime_translation_loses_a_protected_term": [
+        {
+          "line": 179,
+          "text": "def test_no_runtime_translation_loses_a_protected_term():"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "docs_workflow": {
+    "path": ".github/workflows/docs.yml",
+    "sha256": "dd3fea3e769b524efc5a4209787b593b0fdb3f83302fc61fb9c4514360ba19ae",
+    "present": {
+      "report_translation_compatibility.py": [
+        {
+          "line": 96,
+          "text": ".publisher/tools/report_translation_compatibility.py \\"
+        }
+      ],
+      "--english-required": [
+        {
+          "line": 97,
+          "text": "--english-required --output translation-compatibility.json"
+        }
+      ],
+      "SPACR_DOCS_BUILT": [
+        {
+          "line": 157,
+          "text": "SPACR_DOCS_BUILT: \"1\""
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "docs_index": {
+    "path": "docs/source/index.rst",
+    "sha256": "e16e1bd7c47d9bc5420a931771d228ae734c9df6d37acf3bef399a6dcf679c00",
+    "present": {
+      "Website:": [
+        {
+          "line": 11,
+          "text": "Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_"
+        }
+      ],
+      "_generated/workflow_grid.rst": [
+        {
+          "line": 91,
+          "text": ".. include:: _generated/workflow_grid.rst"
+        }
+      ],
+      "settings_flow": [
+        {
+          "line": 155,
+          "text": "settings_flow"
+        }
+      ]
+    },
+    "absent": {
+      "module_audit": true
+    }
+  },
+  "checkpoint": {
+    "path": "spacr/checkpoint.py",
+    "sha256": "a4615139eb63e877e0392e0b965fe5a58e0d2bacb698a5a3b5b5b1af5039c3c3",
+    "present": {
+      "class CheckpointStore": [
+        {
+          "line": 141,
+          "text": "class CheckpointStore:"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "resume": {
+    "path": "spacr/resume.py",
+    "sha256": "c285ed6d17f0e83fcf3a9d3fa173fbe30c631e96b0fde398b32979fa51ddb6d3",
+    "present": {
+      "def plan_measure_resume": [
+        {
+          "line": 1965,
+          "text": "def plan_measure_resume(settings: Any,"
+        }
+      ],
+      "def clear_field_rows": [
+        {
+          "line": 1162,
+          "text": "def clear_field_rows(db_path: str,"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "control_hover": {
+    "path": "spacr/qt/screens/control_chart.py",
+    "sha256": "1798a5aed3c3b758b5535fcbbb13bba8c103f4f50dbb35955f0786b11c6f9256",
+    "present": {
+      "setProperty(\"settingKey\", \"control_levels\")": [
+        {
+          "line": 596,
+          "text": "self._levels.setProperty(\"settingKey\", \"control_levels\")"
+        }
+      ],
+      "retarget_field_tooltips(self)": [
+        {
+          "line": 549,
+          "text": "retarget_field_tooltips(self)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "settings_hover": {
+    "path": "spacr/qt/screens/settings_model.py",
+    "sha256": "a7b6524177769279021d23176eb0eefaeed18d153df81c862fd5a56665c17b35",
+    "present": {
+      "def retarget_field_tooltips": [
+        {
+          "line": 12615,
+          "text": "def retarget_field_tooltips(root: QWidget) -> int:"
+        }
+      ],
+      "SETTING_API_TARGETS": [
+        {
+          "line": 4000,
+          "text": "from spacr.qt.screens.setting_api_targets import SETTING_API_TARGETS"
+        },
+        {
+          "line": 4003,
+          "text": "row = SETTING_API_TARGETS.get(key)"
+        },
+        {
+          "line": 4160,
+          "text": "from .setting_api_targets import (SETTING_API_TARGETS,"
+        },
+        {
+          "line": 4161,
+          "text": "SETTING_API_TARGETS_BY_MODULE)"
+        }
+      ],
+      "def api_docs_url": [
+        {
+          "line": 4251,
+          "text": "def api_docs_url("
+        }
+      ],
+      "_has_a_flow_section(key)": [
+        {
+          "line": 4305,
+          "text": "and _has_a_flow_section(key)):"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "tooltip_layout": {
+    "path": "spacr/qt/widgets/hover_tooltip.py",
+    "sha256": "4d24bce6111199962f0cbceb261f489968362739a01c43f2aca7b29eb5cc4ccd",
+    "present": {
+      "Qt.AlignJustify": [
+        {
+          "line": 463,
+          "text": "self._label.setAlignment(Qt.AlignJustify | Qt.AlignTop)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "hint_layout": {
+    "path": "spacr/qt/widgets/hint_bar.py",
+    "sha256": "033db275dd109f1823f5e9b582ac4836b9779db17208af9192664eaed035ccd6",
+    "present": {
+      "Qt.AlignJustify": [
+        {
+          "line": 113,
+          "text": "self.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)"
+        },
+        {
+          "line": 136,
+          "text": "self._view.setAlignment(Qt.AlignJustify)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "preferences_help": {
+    "path": "spacr/qt/preferences.py",
+    "sha256": "2928504a1032a1891397c4fe2fa8e7f53dac299397e457739d4628da7524cee7",
+    "present": {
+      "hints = HintBar": [
+        {
+          "line": 12018,
+          "text": "hints = HintBar(parent=dlg)"
+        }
+      ],
+      "explain_every_row(dlg)": [
+        {
+          "line": 12037,
+          "text": "explain_every_row(dlg)"
+        }
+      ],
+      "_everything_explains_itself_in_the_strip(dlg, hints)": [
+        {
+          "line": 12038,
+          "text": "_everything_explains_itself_in_the_strip(dlg, hints)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "readme_generation": {
+    "path": "packaging/generate_readme_visuals.py",
+    "sha256": "fad163af1330586fb9e0164959d970875cd4d1c52d55388dc42bfdea59b38a58",
+    "present": {
+      "def _capabilities_for": [
+        {
+          "line": 660,
+          "text": "def _capabilities_for(**kwargs) -> \"dict[str, bool]\":"
+        }
+      ],
+      "def _hardware_table": [
+        {
+          "line": 679,
+          "text": "def _hardware_table() -> str:"
+        }
+      ],
+      "tiled_apps": [
+        {
+          "line": 498,
+          "text": "from spacr.qt.app import tiled_apps"
+        },
+        {
+          "line": 505,
+          "text": "return [row for row in tiled_apps() if row[0] not in alpha]"
+        }
+      ],
+      "LANGUAGE_PICKER_PAGE": [
+        {
+          "line": 55,
+          "text": "LANGUAGE_PICKER_PAGE = ROOT / \"docs\" / \"i18n\" / \"readme\" / \"README.md\""
+        },
+        {
+          "line": 1827,
+          "text": "LANGUAGE_PICKER_PAGE.parent.mkdir(parents=True, exist_ok=True)"
+        },
+        {
+          "line": 1828,
+          "text": "LANGUAGE_PICKER_PAGE.write_text(_language_picker_page(), encoding=\"utf-8\")"
+        },
+        {
+          "line": 1829,
+          "text": "print(LANGUAGE_PICKER_PAGE.relative_to(ROOT))"
+        }
+      ],
+      "github_alignment": [
+        {
+          "line": 1463,
+          "text": "github_alignment: bool = False,"
+        },
+        {
+          "line": 1483,
+          "text": ":param github_alignment: emit raw HTML image substitutions whose middle"
+        },
+        {
+          "line": 1517,
+          "text": "if github_alignment:"
+        },
+        {
+          "line": 1526,
+          "text": "if github_alignment:"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "readable_generation": {
+    "path": "tools/build_readme_images.py",
+    "sha256": "14143a6c936ea34e3d9e026cbb2038cc1539d33f7ad92726e2a4c16c45e9d348",
+    "present": {
+      "def readable_page": [
+        {
+          "line": 1506,
+          "text": "def readable_page(blocks: list[dict], language: str, *,"
+        }
+      ],
+      "_readable_target": [
+        {
+          "line": 1474,
+          "text": "def _readable_target(language: str, name: str) -> str:"
+        },
+        {
+          "line": 1708,
+          "text": "_readable_target(language, name))"
+        },
+        {
+          "line": 1735,
+          "text": "_readable_target(language, row_name)))"
+        }
+      ],
+      "def _write_pages": [
+        {
+          "line": 2125,
+          "text": "def _write_pages(language: str, pages: dict, *, prefix: str = \"\") -> None:"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "readme_hardware": {
+    "path": "README.rst",
+    "sha256": "5fa42f845cd836420153df64bac5800b0d6baa5bef83445717ddbf887bcab833",
+    "present": {
+      "444.5 s": [
+        {
+          "line": 128,
+          "text": "<div><a href=\"docs/readme_text/en/hardware-support-2.md\"><picture><source media=\"(min-width: 1280px)\" srcset=\"docs/readme_images/en/hardware-support-2.desktop.svg\"><img src=\"docs/readme_images/en/hard"
+        }
+      ],
+      "3.2 s": [
+        {
+          "line": 128,
+          "text": "<div><a href=\"docs/readme_text/en/hardware-support-2.md\"><picture><source media=\"(min-width: 1280px)\" srcset=\"docs/readme_images/en/hardware-support-2.desktop.svg\"><img src=\"docs/readme_images/en/hard"
+        }
+      ],
+      "historical example": [
+        {
+          "line": 128,
+          "text": "<div><a href=\"docs/readme_text/en/hardware-support-2.md\"><picture><source media=\"(min-width: 1280px)\" srcset=\"docs/readme_images/en/hardware-support-2.desktop.svg\"><img src=\"docs/readme_images/en/hard"
+        }
+      ],
+      "docs/readme_text/en/hardware-support-2.md": [
+        {
+          "line": 128,
+          "text": "<div><a href=\"docs/readme_text/en/hardware-support-2.md\"><picture><source media=\"(min-width: 1280px)\" srcset=\"docs/readme_images/en/hardware-support-2.desktop.svg\"><img src=\"docs/readme_images/en/hard"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "usable_cuda": {
+    "path": "spacr/accelerator.py",
+    "sha256": "7d781fd7ffeeacabb9db82b8ac86ac8f7f36703017b7328b1068aaf895debc9b",
+    "present": {
+      "gpu and found.is_cuda": [
+        {
+          "line": 816,
+          "text": "(\"UMAP / t-SNE / clustering\", gpu and found.is_cuda,"
+        },
+        {
+          "line": 817,
+          "text": "\"on the GPU via cuML\" if gpu and found.is_cuda"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "metadata": {
+    "path": "pyproject.toml",
+    "sha256": "f5aa8190ce8dba5575fb99c9ec3882def9ced69cc272ffe2c5dec55238931733",
+    "present": {
+      "license = \"BSD-3-Clause\"": [
+        {
+          "line": 79,
+          "text": "license = \"BSD-3-Clause\""
+        }
+      ],
+      "Website = \"https://einarolafsson.github.io/projects/spacr/\"": [
+        {
+          "line": 148,
+          "text": "Website = \"https://einarolafsson.github.io/projects/spacr/\""
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "license": {
+    "path": "LICENSE",
+    "sha256": "cb4f671e392ee5229fa2c1909fbbf748b1db36702ed5e0624f3f34117007881c",
+    "present": {
+      "BSD 3-Clause License": [
+        {
+          "line": 1,
+          "text": "BSD 3-Clause License"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "flow_helpers": {
+    "path": "tools/settings_flow.py",
+    "sha256": "519787ddd12dee91b10339ab66f6dc40683027fdc49fdd6cce34957c3b6957bf",
+    "present": {
+      "def _literal_key_helpers": [
+        {
+          "line": 543,
+          "text": "def _literal_key_helpers(modules) -> dict:"
+        }
+      ],
+      "key_helpers = _literal_key_helpers": [
+        {
+          "line": 630,
+          "text": "key_helpers = _literal_key_helpers(modules)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "consumer_helpers": {
+    "path": "tools/build_setting_consumer_map.py",
+    "sha256": "59b27d2b7698f0645313d2d7263ca0bb9ba964f6e641ad5a73b8299c7af87dfb",
+    "present": {
+      "_flow_helpers()._literal_key_helpers": [
+        {
+          "line": 622,
+          "text": "self.key_helpers = _flow_helpers()._literal_key_helpers({self.module: node})"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "report_types": {
+    "path": "tools/report_translation_compatibility.py",
+    "sha256": "a4321bd120638daa5b7886b5b0b5417a347f9fe021cfd3c8f34adb60f4ea448d",
+    "present": {
+      "isinstance(text, str)": [
+        {
+          "line": 37,
+          "text": "if not isinstance(text, str) or not text.strip():"
+        }
+      ],
+      "translation incompatibilities are report-only": [
+        {
+          "line": 107,
+          "text": "\"policy\": \"translation incompatibilities are report-only\","
+        }
+      ],
+      "args.english_required": [
+        {
+          "line": 163,
+          "text": "if args.english_required and any("
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "report_regression": {
+    "path": "tests/test_docs_channels.py",
+    "sha256": "048492a8e417f0b03f595aa8162d6f5a9deaad6313ea5fa971394aeb7a05e2c9",
+    "present": {
+      "test_cli_reports_null_api_text_as_incompatible_without_blocking_english": [
+        {
+          "line": 488,
+          "text": "def test_cli_reports_null_api_text_as_incompatible_without_blocking_english("
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "comment_guard": {
+    "path": "tests/test_strip_comments_tool.py",
+    "sha256": "2eccacd18ebcc8c02fe39c4cfcabb89f9a9893ace6b08ab361bca81b2e20f11d",
+    "present": {
+      "test_the_package_carries_no_ordinary_comment": [
+        {
+          "line": 107,
+          "text": "def test_the_package_carries_no_ordinary_comment():"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "strip_safety": {
+    "path": "tools/strip_comments.py",
+    "sha256": "56be07091985b372710bf8583a8d8ceb44c270293e933b682a9f4d876abcf37e",
+    "present": {
+      "ast.dump": [
+        {
+          "line": 118,
+          "text": "if ast.dump(ast.parse(text)) != ast.dump(ast.parse(new_text)):"
+        }
+      ],
+      "--apply": [
+        {
+          "line": 27,
+          "text": "python tools/strip_comments.py spacr --apply"
+        },
+        {
+          "line": 140,
+          "text": "mode.add_argument(\"--apply\", action=\"store_true\", help=\"rewrite the files\")"
+        }
+      ],
+      "--check": [
+        {
+          "line": 25,
+          "text": "python tools/strip_comments.py spacr            # same as --check"
+        },
+        {
+          "line": 26,
+          "text": "python tools/strip_comments.py spacr --check    # exit 1 if comments remain"
+        },
+        {
+          "line": 139,
+          "text": "mode.add_argument(\"--check\", action=\"store_true\", help=\"report only; exit 1 if comments remain (default)\")"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "protected_terms": {
+    "path": "tools/build_i18n_catalogs.py",
+    "sha256": "62a6ebc0839eb88ee6e352ba888c9af2c345ea24a52bf6e5561c8958b15ec91c",
+    "present": {
+      "\"Metal\", \"MPS\", \"ROCm\", \"DirectML\", \"Apple Silicon\"": [
+        {
+          "line": 460,
+          "text": "\"Metal\", \"MPS\", \"ROCm\", \"DirectML\", \"Apple Silicon\","
+        }
+      ],
+      "cache.update(committed)": [
+        {
+          "line": 5759,
+          "text": "cache.update(committed)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "api_history": {
+    "path": "tools/build_documentation_i18n.py",
+    "sha256": "6f3a86f5ce51672dcf11b420f6c1a14a7d1e7fec9f5b353676749ac4b5e530ad",
+    "present": {
+      "def _proven_api_history": [
+        {
+          "line": 6224,
+          "text": "def _proven_api_history("
+        }
+      ],
+      "_committed_english_api_symbols": [
+        {
+          "line": 6117,
+          "text": "def _committed_english_api_symbols() -> dict[str, object]:"
+        },
+        {
+          "line": 6269,
+          "text": "# catalog was built from; see _committed_english_api_symbols."
+        },
+        {
+          "line": 6271,
+          "text": "committed_english_symbols = _committed_english_api_symbols()"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "nested_rendering": {
+    "path": "tools/nested_helper_docs.py",
+    "sha256": "7f2c3557ba5041ad3f8489b4ce38bce97521a6e5b176361f4982036c02585237",
+    "present": {
+      "ENABLED_MODULES": [
+        {
+          "line": 25,
+          "text": "ENABLED_MODULES: frozenset[str] = frozenset({"
+        },
+        {
+          "line": 403,
+          "text": "translation must pass ``ENABLED_MODULES`` explicitly, including when empty."
+        },
+        {
+          "line": 435,
+          "text": "if not ENABLED_MODULES:"
+        },
+        {
+          "line": 437,
+          "text": "return entries(inventory(root, ignore_patterns=ignore_patterns), modules=ENABLED_MODULES)"
+        }
+      ],
+      "register_sphinx_directive": [
+        {
+          "line": 489,
+          "text": "def register_sphinx_directive(app) -> None:"
+        }
+      ],
+      "rendered_docstring": [
+        {
+          "line": 447,
+          "text": "env.filters[\"spacr_helper_docstring\"] = rendered_docstring"
+        },
+        {
+          "line": 450,
+          "text": "def rendered_docstring(entry: HelperEntry, app) -> str:"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "api_projection": {
+    "path": "docs/source/conf.py",
+    "sha256": "a27ce52389bcad8946c5f9750ba3d6eaf305a9971f502be50008faa0cb75297d",
+    "present": {
+      "_api_visibility.documented_tree": [
+        {
+          "line": 30,
+          "text": "_source_api_projection = _api_visibility.documented_tree(_api_i18n.public_docstrings())"
+        }
+      ],
+      "spacr_source_api_projection": [
+        {
+          "line": 188,
+          "text": "spacr_source_api_projection = _source_api_projection"
+        },
+        {
+          "line": 189,
+          "text": "spacr_source_api_projection_sha256 = hashlib.sha256("
+        },
+        {
+          "line": 200,
+          "text": "if app is not None and app.config.spacr_source_api_projection:"
+        },
+        {
+          "line": 334,
+          "text": "name, obj, getattr(app.config, 'spacr_source_api_projection', frozenset()))"
+        }
+      ],
+      "_nested_helper_docs.register_sphinx_directive": [
+        {
+          "line": 381,
+          "text": "_nested_helper_docs.register_sphinx_directive(app)"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "no_demos": {
+    "path": "spacr/qt/i18n.py",
+    "sha256": "f9416268933e1d763279e2755e7317a48fd494630288d87b89a66e1ed080d754",
+    "present": {},
+    "absent": {
+      "\"Open Demos menu\"": true,
+      "\"Demos menu\"": true
+    }
+  },
+  "coverage_workflow": {
+    "path": ".github/workflows/tests.yml",
+    "sha256": "be16aa5642c4bc3e1711794ce7bb07071997667a15b2c11de461b7676decfd88",
+    "present": {
+      "codecov/codecov-action@v7": [
+        {
+          "line": 648,
+          "text": "uses: codecov/codecov-action@v7"
+        }
+      ],
+      "fail_ci_if_error: false": [
+        {
+          "line": 656,
+          "text": "fail_ci_if_error: false"
+        }
+      ],
+      "use_oidc:": [
+        {
+          "line": 655,
+          "text": "use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "coverage_policy": {
+    "path": "codecov.yml",
+    "sha256": "dee5f4fdbaf4bca1d060e49c701f531620f3d32eab7dcfcb9bc1474174bf6d09",
+    "present": {
+      "informational: true": [
+        {
+          "line": 13,
+          "text": "informational: true"
+        },
+        {
+          "line": 16,
+          "text": "informational: true"
+        }
+      ],
+      "comment: false": [
+        {
+          "line": 35,
+          "text": "comment: false"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "docs_publisher": {
+    "path": "tools/publish_docs_channels.py",
+    "sha256": "6bbaadaa9fe87ba2ecf3f95f3ebd3e4f0eb04268040889b76afc3e008055a359",
+    "present": {
+      "PAGES_LIMIT = 900 * 1000 * 1000": [
+        {
+          "line": 28,
+          "text": "PAGES_LIMIT = 900 * 1000 * 1000"
+        }
+      ],
+      "license: bsd-3-clause": [
+        {
+          "line": 305,
+          "text": "license: bsd-3-clause"
+        }
+      ],
+      "api.create_commit": [
+        {
+          "line": 352,
+          "text": "info = api.create_commit("
+        }
+      ],
+      "parent_commit=parent": [
+        {
+          "line": 353,
+          "text": "repo_id=space, repo_type=\"space\", operations=operations, parent_commit=parent,"
+        }
+      ],
+      "def verify_nightly": [
+        {
+          "line": 358,
+          "text": "def verify_nightly(site: Path, url: str = NIGHTLY_URL, attempts: int = 30,"
+        }
+      ],
+      "def assemble_main": [
+        {
+          "line": 239,
+          "text": "def assemble_main(main: Path, output: Path, base_path: str = \"/spacr\","
+        }
+      ],
+      "def write_nightly_stub": [
+        {
+          "line": 212,
+          "text": "def write_nightly_stub(output: Path, base: str, nightly_url: str) -> None:"
+        }
+      ]
+    },
+    "absent": {}
+  },
+  "readme_outputs": {
+    "readmes": [
+      {
+        "path": "README.rst",
+        "sha256": "5fa42f845cd836420153df64bac5800b0d6baa5bef83445717ddbf887bcab833",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.de.rst",
+        "sha256": "f960612085ecb0215970b2a420ca42f9d4d7edaff6ffa913c1b8ed818aeed496",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.es.rst",
+        "sha256": "0a2c0266496ef253c326af218b6869e155276990d1c4f0ea3a53a7ab87dc32b3",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.fr.rst",
+        "sha256": "50dbb1c78e8e22ffc08766d3e11920a547c9d9ad05a2ba4102801f1c5c08d3cd",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.hi.rst",
+        "sha256": "7c3d06d0735d2f060532a571b0e9a0b5f797f6b74d1c2b3a7ceacc5afbb8a1c6",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.is.rst",
+        "sha256": "9e21a2e35dcbbf057bfea3f08c666e56da320e2c1537961ee4b97fb6ad53d63f",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.ko.rst",
+        "sha256": "b413c16f75f67c9dbbea1d972d3e164a228c230e92d723247e0837c3e3f231ab",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.pt.rst",
+        "sha256": "39f7f38072034acc261beaf8bfc77f3cec052803c4e7eba28a8045602d8294cd",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.sv.rst",
+        "sha256": "d14d66e5742d3f0e999a8a61ff3d89de346e14e67b636ef3444decf1468b709c",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      },
+      {
+        "path": "docs/i18n/readme/README.zh_CN.rst",
+        "sha256": "f0a55843bfa7e6ec5149e5ad4a22c5c7a87b4511cf31a44f73bf69d6dc58a7ee",
+        "nightly_coverage_badge": true,
+        "language_menu": true,
+        "deck_back_page": 57
+      }
+    ],
+    "readable_pages": {
+      "de": 66,
+      "en": 66,
+      "es": 66,
+      "fr": 66,
+      "hi": 66,
+      "is": 66,
+      "ko": 66,
+      "pt": 66,
+      "sv": 66,
+      "zh_CN": 66
+    },
+    "hardware_context_images": [
+      "docs/readme_images/de/hardware-support-2.desktop.svg",
+      "docs/readme_images/de/hardware-support-2.svg",
+      "docs/readme_images/en/hardware-support-2.desktop.svg",
+      "docs/readme_images/en/hardware-support-2.svg",
+      "docs/readme_images/es/hardware-support-2.desktop.svg",
+      "docs/readme_images/es/hardware-support-2.svg",
+      "docs/readme_images/fr/hardware-support-2.desktop.svg",
+      "docs/readme_images/fr/hardware-support-2.svg",
+      "docs/readme_images/hi/hardware-support-2.desktop.svg",
+      "docs/readme_images/hi/hardware-support-2.svg",
+      "docs/readme_images/is/hardware-support-2.desktop.svg",
+      "docs/readme_images/is/hardware-support-2.svg",
+      "docs/readme_images/ko/hardware-support-2.desktop.svg",
+      "docs/readme_images/ko/hardware-support-2.svg",
+      "docs/readme_images/pt/hardware-support-2.desktop.svg",
+      "docs/readme_images/pt/hardware-support-2.svg",
+      "docs/readme_images/sv/hardware-support-2.desktop.svg",
+      "docs/readme_images/sv/hardware-support-2.svg",
+      "docs/readme_images/zh_CN/hardware-support-2.desktop.svg",
+      "docs/readme_images/zh_CN/hardware-support-2.svg"
+    ]
+  },
+  "deck_outputs": {
+    "manifest_sha256": "b8ad5201082ac0bb4ef2f673ff7e0c42e2cbaa5cd6b49144e26ac4e9f391cb31",
+    "count": 57,
+    "jpg_count": 57,
+    "dimensions": [
+      [
+        3200,
+        1800
+      ]
+    ]
+  },
+  "tutorial_retirement": {
+    "retired_path_exists": false,
+    "scope": "Read-only absence of the old package script, not verification of Work-owned tutorial media."
+  },
+  "editorial_ledgers": {
+    "features/data/678_factual_review_2026-10-10/a1-core.json": {
+      "sha256": "a473015ab8f3f4e71581ea07f7f654bbfb96af8eb20bfc63a7a67a726e0af2e4",
+      "recorded_changes": 24,
+      "recorded_skips": 10
+    },
+    "features/data/678_factual_review_2026-10-10/a10-api-docstrings-g3.json": {
+      "sha256": "5b5ea95a0046e43c1b6996f60cedf29b23ebaa6dbbf7114949193713e0e8515d",
+      "recorded_changes": 724,
+      "recorded_skips": 2
+    },
+    "features/data/678_factual_review_2026-10-10/a11-api-docstrings-g4.json": {
+      "sha256": "f4a5595f650a2dbe840d217c6cf19c3d447001c952cff56e1abc8cfc7d6120a5",
+      "recorded_changes": 600,
+      "recorded_skips": 4
+    },
+    "features/data/678_factual_review_2026-10-10/a12-qt-ui-and-docstrings.json": {
+      "sha256": "6e9fdd4ebe5f27cae70969fc64e368d5a02c0c3be41cb89755367a6b62f47b32",
+      "recorded_changes": 1701,
+      "recorded_skips": 35
+    },
+    "features/data/678_factual_review_2026-10-10/a13-home-stale-translation-ids.json": {
+      "sha256": "0526719ff38c9e393cf6c8b9ff0aae4411ca13802eeeda0ecb19a2c661b995a1",
+      "recorded_changes": 0,
+      "recorded_skips": 0
+    },
+    "features/data/678_factual_review_2026-10-10/a2-workflows.json": {
+      "sha256": "7d500e5bdeae51b3a6537dfa4ec7b18c3b6352039e58502fb6c22dd2cded73c1",
+      "recorded_changes": 0,
+      "recorded_skips": 3
+    },
+    "features/data/678_factual_review_2026-10-10/a3-install-tables.json": {
+      "sha256": "c91f290fe5e2e95c46b7d903de30b6e72fc7fa4891f16f70c01f9964d21de09b",
+      "recorded_changes": 9,
+      "recorded_skips": 4
+    },
+    "features/data/678_factual_review_2026-10-10/a4-guides1.json": {
+      "sha256": "743ba8181cfbd1d343248512fb85570f3dabd4693c00f39be4aaa10e538ec41c",
+      "recorded_changes": 16,
+      "recorded_skips": 3
+    },
+    "features/data/678_factual_review_2026-10-10/a5-guides2.json": {
+      "sha256": "dd042e65a49c2b484f0f3d65258ccc86d140e731c62360b82f6f267bc0617d3c",
+      "recorded_changes": 17,
+      "recorded_skips": 4
+    },
+    "features/data/678_factual_review_2026-10-10/a6-narration.json": {
+      "sha256": "e9fdbadf08c84b7944ed00a70b5e5d7f52d6844e79174a53f7afa8cc58473465",
+      "recorded_changes": 66,
+      "recorded_skips": 11
+    },
+    "features/data/678_factual_review_2026-10-10/a7-settings-tooltips.json": {
+      "sha256": "6fe3df7b18e6b1bc813943675beff7520b0107b4b57dd3bddbfe0f8b0ee337f4",
+      "recorded_changes": 44,
+      "recorded_skips": 1
+    },
+    "features/data/678_factual_review_2026-10-10/a8-api-docstrings-g1.json": {
+      "sha256": "d69cf2475557cf2d60874937290795d1d763c79fe87a91f3d0707b60dbb60677",
+      "recorded_changes": 696,
+      "recorded_skips": 9
+    },
+    "features/data/678_factual_review_2026-10-10/a9-api-docstrings-g2.json": {
+      "sha256": "c9e0fb4f75b20680f5ce6162f59abc0270d20ee9509426257c978bcc55e290ae",
+      "recorded_changes": 556,
+      "recorded_skips": 7
+    }
+  }
+}

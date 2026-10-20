@@ -14,7 +14,14 @@ import http.server
 import json
 import re
 import threading
+import sys
 from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parents[2]
+for _path in (str(_ROOT), str(_ROOT / 'tools'), str(Path(__file__).resolve().parent)):
+    if _path in sys.path:
+        sys.path.remove(_path)
+sys.path[:0] = [str(_ROOT), str(_ROOT / 'tools'), str(Path(__file__).resolve().parent)]
 
 from playwright.sync_api import sync_playwright
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
@@ -30,6 +37,9 @@ def check_related_links(actual, expected):
 
 def check_native_boundary_playback(page, visual, spoken):
     """Measure actual media clocks across a recorded scene boundary at normal speed."""
+    if (visual.get('complete_native_clips') is True
+            or visual.get('preserve_visual_intervals') is True):
+        return check_complete_native_boundary_playback(page, visual, spoken)
     candidates = [i for i in range(len(visual['scenes']) - 1)
                   if visual['scenes'][i].get('native_live_video')
                   and visual['scenes'][i + 1].get('native_live_video')]
@@ -40,6 +50,13 @@ def check_native_boundary_playback(page, visual, spoken):
     page.evaluate('(target) => seekTo(target)', target)
     page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.paused', timeout=15000)
     page.evaluate('''() => {
+        window.__narrationInterruptions=[];
+        if (!window.__narrationListeners) {
+            window.__narrationListeners=true;
+            for (const type of ['pause','seeking','waiting','stalled'])
+                elements.audio.addEventListener(type, () => window.__narrationInterruptions.push(
+                    {type, audio:elements.audio.currentTime, video:elements.video.currentTime}));
+        }
         window.__actualNativeTrace=[];
         window.__actualNativeTimer=setInterval(()=>window.__actualNativeTrace.push({
             audio:elements.audio.currentTime, video:elements.video.currentTime,
@@ -49,6 +66,12 @@ def check_native_boundary_playback(page, visual, spoken):
     }''')
     page.wait_for_timeout(3500)
     trace=page.evaluate('window.__actualNativeTrace')
+    interruptions=page.evaluate('window.__narrationInterruptions')
+    if interruptions:
+        # The narration is the master clock: a picture skip at a scene
+        # boundary must never pause or seek it (a paused output stream drops
+        # the first word of the next sentence on real audio hardware).
+        raise AssertionError({'narration_interrupted_at_boundary': interruptions})
     page.evaluate('clearInterval(window.__actualNativeTimer)')
     settled=[]
     for row in trace:
@@ -68,7 +91,156 @@ def check_native_boundary_playback(page, visual, spoken):
     if not pairs or any(abs((b['video']-a['video'])-(b['audio']-a['audio']))>=.2 for a,b in pairs):
         raise AssertionError('Recorded elapsed motion differs from narration elapsed time')
     return {'checked_boundary_after_scene':index+1,'trace':settled,'actual_video_speed':1,
+            'narration_never_paused_at_boundary':True,
             'independent_staged_timing_comparison':True,'native_animation_stretched_or_looped':False}
+
+
+def check_complete_native_trace(trace, events, visual, spoken, index, final=False):
+    """Check measured wall/video/audio clocks, including the real recorded tail."""
+    scene = visual['scenes'][index]
+    speech = spoken['scenes'][index]
+    start, end = float(scene['speech_start']), float(scene['scene_end'])
+    audio_end = float(speech['speech_end'])
+    tail_start = start + audio_end - float(speech['speech_start'])
+    if end - tail_start < .8:
+        raise AssertionError('Complete native check needs a measurable narration tail')
+    if len(trace) < 20 or events:
+        raise AssertionError({'insufficient_trace_or_video_interruption': events})
+    for row in trace:
+        if (row['rate'] != 1 or row['audioRate'] != 1 or row['error']
+                or row['seeking'] or row['correcting']):
+            raise AssertionError({'invalid_complete_native_clock': row})
+        if row['video'] < end - .15 and (row['videoPaused'] or row['videoEnded']):
+            raise AssertionError({'native_video_stopped_before_boundary': row})
+    # Sampling jitter is allowed; skipping the native tail, even via a seek that
+    # finishes between samples, is not. Measure against the independent wall clock.
+    for left, right in zip(trace, trace[1:]):
+        elapsed = (right['wall'] - left['wall']) / 1000
+        expected_elapsed = min(elapsed, max(0, end - left['video'])) if right['videoEnded'] else elapsed
+        if abs((right['video'] - left['video']) - expected_elapsed) >= .25:
+            raise AssertionError({'native_video_jump_or_stall': [left, right]})
+    first = trace[0]
+    for row in trace[1:]:
+        elapsed = (row['wall'] - first['wall']) / 1000
+        expected_elapsed = min(elapsed, max(0, end - first['video'])) if row['videoEnded'] else elapsed
+        if abs((row['video'] - first['video']) - expected_elapsed) >= .5:
+            raise AssertionError({'native_video_not_running_at_wall_clock_speed': row})
+    tail = [row for row in trace if tail_start + .35 < row['video'] < end - .2]
+    if len(tail) < 5 or tail[-1]['video'] - tail[0]['video'] < .2:
+        raise AssertionError('Recorded tail was skipped or not observed')
+    if any(not row['audioPaused'] or abs(row['audio'] - audio_end) >= .35 for row in tail):
+        raise AssertionError({'narration_not_held_at_speech_end': tail})
+    if max(row['audio'] for row in tail) - min(row['audio'] for row in tail) > .1:
+        raise AssertionError('Narration advanced during the native tail')
+    before = [row for row in trace if row['video'] < tail_start - .15 and not row['audioPaused']]
+    if not before:
+        raise AssertionError('Narration was not observed playing before its tail')
+    if final:
+        if not any(row['videoEnded'] and abs(row['video'] - end) < .15 for row in trace):
+            raise AssertionError('Final native EOF was skipped or never reached')
+    else:
+        following = spoken['scenes'][index + 1]
+        resumed = [row for row in trace if end + .25 < row['video'] < end + 1.4
+                   and not row['audioPaused']]
+        if len(resumed) < 5:
+            raise AssertionError('Next narration did not resume at the visual boundary')
+        for row in resumed:
+            expected = float(following['speech_start']) + row['video'] - end
+            if abs(row['audio'] - expected) >= .5:
+                raise AssertionError({'next_narration_wrong_offset': row, 'expected': expected})
+    return {'checked_boundary_after_scene': index + 1, 'trace': trace,
+            'selected_visual_tail_observed': True,
+            'recorded_tail_observed': scene.get('native_live_video') is True,
+            'narration_paused_for_recorded_tail': scene.get('native_live_video') is True,
+            'next_narration_resumed': not final,
+            'final_visual_eof_observed': final,
+            'final_native_eof_observed': final and scene.get('native_live_video') is True,
+            'actual_video_speed': 1, 'native_animation_stretched_or_looped': False}
+
+
+def check_complete_native_boundary_playback(page, visual, spoken):
+    """Observe uninterrupted native video, narration rest/resume, and final EOF."""
+    preserve = visual.get('preserve_visual_intervals') is True
+    candidates = [i for i in range(len(visual['scenes']) - 1)
+                  if visual['scenes'][i].get('native_live_video')
+                  and (preserve or visual['scenes'][i + 1].get('native_live_video'))
+                  and float(visual['scenes'][i]['duration'])
+                  - (float(spoken['scenes'][i]['speech_end'])
+                     - float(spoken['scenes'][i]['speech_start'])) > .8]
+    if not candidates or (not preserve and not visual['scenes'][-1].get('native_live_video')):
+        raise ValueError('Complete native verification needs a boundary and final recorded tail')
+    index = max(candidates, key=lambda i: float(visual['scenes'][i]['duration'])
+                - (float(spoken['scenes'][i]['speech_end'])
+                   - float(spoken['scenes'][i]['speech_start'])))
+    results = []
+    for current, final in [(index, False), (len(visual['scenes']) - 1, True)]:
+        scene, speech = visual['scenes'][current], spoken['scenes'][current]
+        speech_length = float(speech['speech_end']) - float(speech['speech_start'])
+        target = float(scene['speech_start']) + max(0, speech_length - .7)
+        # One explicit test setup seek is allowed before observation. During the
+        # measured tail/boundary interval all video seeks and pauses are failures.
+        page.evaluate("""async target => {
+            elements.video.pause();
+            elements.video.currentTime = target;
+            await new Promise(resolve => {
+                if (!elements.video.seeking) resolve();
+                else elements.video.addEventListener('seeked', resolve, {once:true});
+            });
+            syncCompleteNativeNarration(true);
+            await elements.video.play();
+        }""", target)
+        page.wait_for_function('target => !videoClockCorrectionPending && !elements.video.seeking && '
+                               '!elements.audio.paused && !elements.video.paused && '
+                               'elements.video.readyState >= 3 && elements.video.currentTime > target + .15',
+                               arg=target, timeout=15000)
+        page.evaluate("""() => {
+            window.__completeNativeTrace=[];
+            window.__completeNativeEvents=[];
+            window.__completeNativeObserve=true;
+            if (!window.__completeNativeListeners) {
+                window.__completeNativeListeners=true;
+                for (const type of ['seeking','pause','waiting','stalled'])
+                    elements.video.addEventListener(type, () => {
+                        if (window.__completeNativeObserve && !elements.video.ended)
+                            window.__completeNativeEvents.push({type,video:elements.video.currentTime});
+                    });
+            }
+            window.__completeNativeTimer=setInterval(() => window.__completeNativeTrace.push({
+                wall:performance.now(), audio:elements.audio.currentTime,
+                video:elements.video.currentTime, rate:elements.video.playbackRate,
+                audioRate:elements.audio.playbackRate, audioPaused:elements.audio.paused,
+                videoPaused:elements.video.paused, videoEnded:elements.video.ended,
+                seeking:elements.video.seeking, correcting:videoClockCorrectionPending,
+                error:elements.video.error?.message || elements.audio.error?.message || null
+            }),50);
+        }""")
+        try:
+            timeout = int((float(scene['scene_end']) - target + 6) * 1000)
+            if final:
+                page.wait_for_function('elements.video.ended', timeout=timeout)
+            else:
+                page.wait_for_function('end => elements.video.currentTime > end + 1.2',
+                                       arg=float(scene['scene_end']), timeout=timeout)
+            trace = page.evaluate('window.__completeNativeTrace')
+            if final:
+                # An ended event may occur between the final periodic sample
+                # and this read. Capture the actual EOF state, never synthesize it.
+                trace.append(page.evaluate("""() => ({wall:performance.now(),
+                    audio:elements.audio.currentTime,video:elements.video.currentTime,
+                    rate:elements.video.playbackRate,audioRate:elements.audio.playbackRate,
+                    audioPaused:elements.audio.paused,videoPaused:elements.video.paused,
+                    videoEnded:elements.video.ended,seeking:elements.video.seeking,
+                    correcting:videoClockCorrectionPending,
+                    error:elements.video.error?.message || elements.audio.error?.message || null})"""))
+            events = page.evaluate('window.__completeNativeEvents')
+        finally:
+            page.evaluate('clearInterval(window.__completeNativeTimer); window.__completeNativeObserve=false')
+        results.append(check_complete_native_trace(trace, events, visual, spoken, current, final))
+    return {'complete_native_clips': visual.get('complete_native_clips') is True,
+            'preserve_visual_intervals': visual.get('preserve_visual_intervals') is True,
+            'boundary': results[0], 'final_tail': results[1],
+            'actual_video_speed': 1, 'independent_wall_clock_comparison': True,
+            'native_animation_stretched_or_looped': False}
 
 
 def find_host_lesson(lessons, navigation, host_key):
@@ -151,7 +323,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             pass
 
 
-def main():
+def main(argv=None):
     global DEFAULT_STAGE, WORKSPACE
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE,
@@ -164,13 +336,17 @@ def main():
                         help='Check every native English caption at its recorded speech midpoint')
     parser.add_argument('--retained-media', action='store_true',
                         help='Require unchanged original catalogs and media, with no staged override')
+    parser.add_argument('--retain-visual-from', type=Path,
+                        help='Check a bounded visual refresh against this published baseline')
     parser.add_argument('--web-rendition', action='store_true',
                         help='Check the verified private 1440p copy, preserving original browser reports')
     parser.add_argument('--candidate-player', action='store_true',
                         help='Serve the exact private authoring player source, including native timing and lesson redirects; no publication')
     parser.add_argument('--native-boundary-clocks', action='store_true',
                         help='Measure actual normal-speed media clocks across a recorded scene boundary')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.retain_visual_from is not None and args.retained_media:
+        parser.error('A visual refresh cannot also retain unchanged whole media')
     if args.sentence_cues and (args.language != 'en' or args.caption_language):
         parser.error('--sentence-cues requires English narration and its native captions')
     DEFAULT_STAGE = args.stage.resolve()
@@ -200,8 +376,12 @@ def main():
         item['poster'] = f"{item['id']}/poster.jpg"
         item['silent'] = f"{item['id']}/video/{item['id']}_silent.mp4"
         if item['id'] == args.lesson:
-            from native_live_timing import checked_native_timing
-            native_timings = checked_native_timing(DEFAULT_STAGE, item['id'])
+            if args.retain_visual_from is not None:
+                from retained_visual_refresh import checked_retained_visual_timing
+                native_timings = checked_retained_visual_timing(DEFAULT_STAGE, item['id'], args.retain_visual_from)
+            else:
+                from native_live_timing import checked_native_timing
+                native_timings = checked_native_timing(DEFAULT_STAGE, item['id'])
             if native_timings is not None:
                 if not args.candidate_player:
                     raise ValueError('Native footage acceptance requires the source-bound candidate player')

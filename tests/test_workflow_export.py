@@ -31,7 +31,7 @@ def recorded(tmp_path, monkeypatch):
 
 
 def _settings(folder):
-    return {p.stem: json.loads(p.read_text())
+    return {p.stem: json.loads(p.read_text(encoding="utf-8"))
             for p in sorted((folder / "settings").glob("*.json"))}
 
 
@@ -46,11 +46,11 @@ def test_every_plate_of_a_run_becomes_one_job_with_the_run_settings(
         "plate_1": "/data/plate 1", "plate2": "/data/plate2",
         "plate2_2": "/other/plate2"}
     assert all(v["cell_channel"] == 1 for v in jobs.values())
-    text = main.read_text()
+    text = main.read_text(encoding="utf-8")
     assert "rule spacr_mask:" in text
     assert "{params.spacr_run} mask --settings {input}" in text
     assert 'glob_wildcards("settings/{plate}.json")' in text
-    config = (tmp_path / "wf" / "config.yaml").read_text()
+    config = (tmp_path / "wf" / "config.yaml").read_text(encoding="utf-8")
     assert 'image: "docker://ghcr.io/einarolafsson/spacr:' in config
     assert 'spacr_run: "spacr-run"' in config
 
@@ -64,10 +64,10 @@ def test_nextflow_export_runs_the_module_per_settings_file(recorded, tmp_path):
     assert main.name == "main.nf"
     assert [v["src"] for v in _settings(tmp_path / "nf").values()] == [
         "/x/p1", "/x/p2"]
-    text = main.read_text()
+    text = main.read_text(encoding="utf-8")
     assert "process SPACR_MASK" in text
     assert "${params.spacr_run} mask --settings ${settings}" in text
-    config = (tmp_path / "nf" / "nextflow.config").read_text()
+    config = (tmp_path / "nf" / "nextflow.config").read_text(encoding="utf-8")
     assert 'image        = "spacr:local"' in config
     assert 'spacr_run    = "python -m spacr.cli"' in config
     assert "apptainer" in config and "slurm" in config
@@ -171,7 +171,7 @@ def test_explicit_convert_resume_input_cannot_be_silently_relocated(
     run = recorded("convert", original)
     with pytest.raises(ValueError, match="explicit resume checkpoint"):
         cli_repro._export_workflow(run, tmp_path / engine, engine)
-    assert checkpoint.read_text() == '{"retained": true}'
+    assert checkpoint.read_text(encoding="utf-8") == '{"retained": true}'
     assert not (tmp_path / engine).exists()
     single = cli_repro._workflow_plates(original, ["/a/plate"], module="convert")
     assert single["plate"]["checkpoint_path"] == str(checkpoint)

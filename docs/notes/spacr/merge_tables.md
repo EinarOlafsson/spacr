@@ -258,9 +258,9 @@ def group_variance_share(frame: pd.DataFrame,
 
 Diagnostics: is the projection about what the user thinks it is about?
 
-Both of these come from starplast, which built the same picker for a different table and learned two things worth not re-learning:
+Both of these come from parascape, which built the same picker for a different table and learned two things worth not re-learning:
 
-a group can be named as an input and contribute almost nothing starplast caught one carrying 1.1% -- and nobody notices, because a projection always produces a picture; a projection can separate objects on WHETHER THEY WERE MEASURED rather than on what was measured, and that reads as a phenotype.
+a group can be named as an input and contribute almost nothing parascape caught one carrying 1.1% -- and nobody notices, because a projection always produces a picture; a projection can separate objects on WHETHER THEY WERE MEASURED rather than on what was measured, and that reads as a phenotype.
 
 The second matters more in spaCR than it did there. A cell with no pathogen has NaN for every pathogen measurement, and `reduce_dimensions` median-fills rather than dropping the row -- deliberately, because dropping loses every measurement the object DID have. But a median fill puts all the uninfected cells at the same point on those axes, so an embedding can split infected from uninfected on missingness alone. That split is real, reproducible, and not a phenotype.
 

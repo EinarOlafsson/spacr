@@ -18,13 +18,6 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
-      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
-      "translation": "브러시, 마술봉, 표시, 자동 필터, 객체 작업, Otsu, 객체 검출, 실시간 확대경 설정을 한 그룹으로 표시하거나 숨깁니다. 숨겨서 확보한 너비는 캔버스가 사용합니다."
-    },
-    {
-      "table": "ui",
       "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
       "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
@@ -199,6 +192,14 @@
         "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
         "translation": "마스크에 이미 객체가 있는 곳에서 새 객체를 처리하는 방식입니다. 잘라내기는 새 객체의 레이블 없는 픽셀만 유지하여 기존 객체가 픽셀을 잃지 않게 합니다. 건너뛰기는 기존 객체에 닿는 새 객체를 통째로 제외합니다. 교체는 새 객체가 덮는 모든 픽셀을 차지하게 합니다. 마우스 아래 영역의 미리보기 상자에는 이 규칙의 결과가 나타납니다. 클릭으로 추가될 부분은 불투명하게, 제거될 부분은 흐리게 표시됩니다."
       }
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "브러시, 마술봉, 표시, 자동 필터, 객체 작업, Otsu, 객체 검출, 실시간 확대경 설정을 한 그룹으로 표시하거나 숨깁니다. 숨겨서 확보한 너비는 캔버스가 사용합니다.",
+      "retired": "2026-10-16, item 707: Make Masks layout request; this caption left the screen (vvvv export moved to Preferences -> Plugins -> Export to vvvv, Open 3D image merged into Open File / Folder, Organize for Measure renamed Measure, Prev image renamed Previous, the Settings button and Upload data's accessible name removed, the brush label is now formatted)."
     }
   ]
 }

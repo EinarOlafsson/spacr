@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
@@ -49,8 +49,9 @@ msgstr "Lotukeyrsla athugar milli verka. Á meðan undirferli ``spacr-run`` er v
 msgid "Stop first asks how to stop. **Finish current work** requests cancellation and waits for the current unit; if the run has not reached a boundary after five minutes, the question is asked again. The console reports ``Stopped safely`` when the boundary is reached, and the reproducibility manifest records ``status: cancelled`` rather than a failure traceback."
 msgstr "Stöðvun spyr fyrst hvernig á að stöðva. **Finish current work** biður um afturköllun og bíður eftir núverandi einingu; ef keyrslan hefur ekki náð mörkum eftir fimm mínútur er spurningin spurð aftur. Stjórnborðið tilkynnir ``Stopped safely`` þegar mörkunum er náð og endurtakanleikaskráin skráir ``status: cancelled`` frekar en rakningu villu."
 
-msgid "**Force stop** gives the window back at once. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
-msgstr "**Force stop** skilar glugganum strax. Vinnsluþráður sem svarar ekki -- yfirleitt einn sem er inni í löngu Cellpose- eða PyTorch-kalli -- er lagður til hliðar frekar en stöðvaður: tilvísunum í hann er haldið og hann klárast í bakgrunni, þannig að allt sem hann er að skrifa getur orðið hálfskrifað. **Force restart** vistar eininguna og stillingar hennar, ræsir síðan spaCR aftur og opnar þá einingu á ný."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Force stop** returns control to the window immediately. A worker that does not respond -- typically one inside a long Cellpose or PyTorch call -- is parked rather than terminated: its references are kept and it finishes in the background, so anything it is writing may be left half-written. **Force restart** saves the module and its settings, then starts spaCR again and reopens that module."
+msgstr "**Force stop** skilar stjórninni strax til gluggans. Vinnsluþráður sem svarar ekki -- yfirleitt einn sem er inni í löngu Cellpose- eða PyTorch-kalli -- er lagður til hliðar frekar en stöðvaður: tilvísunum í hann er haldið og hann klárast í bakgrunni, þannig að allt sem hann er að skrifa getur orðið hálfskrifað. **Force restart** vistar eininguna og stillingar hennar, ræsir síðan spaCR aftur og opnar þá einingu á ný."
 
 msgid "Shutdown behavior"
 msgstr "Hegðun við lokun"
@@ -64,8 +65,9 @@ msgstr "``PipelineWorker.finished`` kallar beint á ``QThread.quit`` vegna þess
 msgid "API usage"
 msgstr "Notkun API"
 
-msgid "Headless and plugin pipelines use the same small API::"
-msgstr "Vinnslukeðjur án myndræns viðmóts og viðbóta nota sama litla API::"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Headless and plugin pipelines use the same API::"
+msgstr "Vinnslukeðjur án myndræns viðmóts og viðbóta nota sama API::"
 
 msgid "Calling ``checkpoint()`` outside a managed GUI worker is a no-op. Code that catches broad ``Exception`` values must re-raise :class:`spacr.cancellation.PipelineCancelled`; treating it as a failed field would defeat the worker's distinct cancellation status."
 msgstr "Kall á ``checkpoint()`` utan stýrðs GUI-vinnsluþráðar gerir ekkert. Kóði sem grípur víðtæk ``Exception``-gildi verður að kasta :class:`spacr.cancellation.PipelineCancelled` aftur; ef farið er með hana sem misheppnað sjónsvið eyðileggur það aðgreinda afturköllunarstöðu vinnsluþráðarins."
@@ -73,8 +75,9 @@ msgstr "Kall á ``checkpoint()`` utan stýrðs GUI-vinnsluþráðar gerir ekkert
 msgid "Stress coverage"
 msgstr "Álagsprófanir"
 
-msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy a stubborn worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
-msgstr "``tests/qt/test_threading_cancellation_audit.py`` prófar fimmtíu hraðar Start/Stop-lotur, lokun alls skráningarsafnsins, endurtekna afturköllun, lokun skjás á meðan hann er virkur og synjun um að eyða þrjóskum vinnsluþræði. ``tests/test_cancellation.py`` staðfestir einangrun þráða, sömuáhrif (idempotence), varanleika fyrir afturköllun, raðir sem hægt er að halda áfram með og stöðvun virks undirferlis í lotu."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "``tests/qt/test_threading_cancellation_audit.py`` exercises fifty rapid Start/Stop cycles, registry-wide shutdown, repeated cancellation, screen close while active, and refusal to destroy an unresponsive worker. ``tests/test_cancellation.py`` verifies thread isolation, idempotence, durability-before-cancel, resumable queues, and termination of an active batch subprocess."
+msgstr "``tests/qt/test_threading_cancellation_audit.py`` prófar fimmtíu hraðar Start/Stop-lotur, lokun alls skráningarsafnsins, endurtekna afturköllun, lokun skjás á meðan hann er virkur og synjun um að eyða vinnsluþræði sem svarar ekki. ``tests/test_cancellation.py`` staðfestir einangrun þráða, sömuáhrif (idempotence), varanleika fyrir afturköllun, raðir sem hægt er að halda áfram með og stöðvun virks undirferlis í lotu."
 
 msgid "Cooperative cancellation for long-running spaCR pipelines."
 msgstr "Samvinnuþýð afturköllun fyrir langvinnar spaCR-vinnslukeðjur."
@@ -118,8 +121,9 @@ msgstr "Þetta er eðlileg niðurstaða stýriflæðis, ekki villa í vinnsluke�
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "Skila hvort kallandi vinnsluþráður hafi afturköllunarbeiðni í bið."
 
-msgid "Stop at this safe boundary when requested; otherwise do nothing."
-msgstr "Stöðva við þessi öruggu mörk þegar beðið er um það; annars gera ekkert."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
+msgstr "Kasta :class:`PipelineCancelled` ef beðið var um afturköllun á tóka þessa þráðar."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "Köll utan stýrðs vinnsluþráðar gera vísvitandi ekkert, svo sömu föll vinnslukeðjunnar virka í gegnum GUI, CLI, fartölvur og prófanir."

@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Train/test leakage audit"
 msgstr "Audit des fuites entre entraînement et test"
 
-msgid "Classifier accuracy is invalid when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
-msgstr "L’exactitude d’un classifieur n’est pas valide lorsque des vignettes liées se trouvent des deux côtés d’une frontière d’évaluation. spaCR audite, avant l’ajustement, la partition permanente ``train/``/``test/``, la mise de côté ordinaire entraînement/validation, chaque frontière externe et interne de validation croisée et la partition de validation croisée dans son ensemble."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A held-out accuracy estimate overstates performance on independent data when related crops occur on both sides of an evaluation boundary. spaCR audits the permanent ``train/``/``test/`` split, the ordinary train/validation holdout, every outer and inner CV boundary, and the CV partition as a whole before fitting."
+msgstr "Une estimation d’exactitude sur données mises de côté surestime la performance sur des données indépendantes lorsque des vignettes liées se trouvent des deux côtés d’une frontière d’évaluation. spaCR audite, avant l’ajustement, la partition permanente ``train/``/``test/``, la mise de côté ordinaire entraînement/validation, chaque frontière externe et interne de validation croisée et la partition de validation croisée dans son ensemble."
 
 msgid "What is verified"
 msgstr "Ce qui est vérifié"
@@ -61,8 +62,9 @@ msgstr "La validation ordinaire tient aussi compte des groupes. ``cv_group_by='w
 msgid "Run the audit directly"
 msgstr "Exécuter l’audit directement"
 
-msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; it does not make their performance estimate trustworthy."
-msgstr "La commande affiche du JSON et se termine avec ``0`` pour une partition vérifiée, ``1`` lorsqu’une fuite ou des identités invérifiables sont trouvées, et ``2`` lorsque le jeu de données ne peut pas être audité. ``--no-content-hash`` réduit les E/S mais ne peut pas détecter les copies renommées. ``--allow-unverifiable`` est destiné au diagnostic d’anciens jeux de données ; il ne rend pas leur estimation de performance digne de confiance."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The command prints JSON and exits ``0`` for a verified split, ``1`` when leakage or unverifiable identities are found, and ``2`` when the dataset cannot be audited. ``--no-content-hash`` reduces I/O but cannot detect renamed copies. ``--allow-unverifiable`` is intended for diagnosing legacy datasets; their performance estimate is still not independent of the training data."
+msgstr "La commande affiche du JSON et se termine avec ``0`` pour une partition vérifiée, ``1`` lorsqu’une fuite ou des identités invérifiables sont trouvées, et ``2`` lorsque le jeu de données ne peut pas être audité. ``--no-content-hash`` réduit les E/S mais ne peut pas détecter les copies renommées. ``--allow-unverifiable`` est destiné au diagnostic d’anciens jeux de données ; leur estimation de performance n’est toujours pas indépendante des données d’entraînement."
 
 msgid "Classify settings"
 msgstr "Paramètres de Classification"
@@ -103,8 +105,9 @@ msgstr "Évaluation des classifieurs, calibration et diagnostics de fuite entre 
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "Le module est indépendant du modèle : il consomme des étiquettes, des probabilités, des identifiants de pli et des chemins d’échantillons. La validation croisée en apprentissage profond et les futurs pipelines de ML classique peuvent donc écrire le même ensemble d’évaluation, et l’atelier Qt peut afficher un format d’artefact stable unique."
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "Preuve, sur l’ensemble de la validation croisée, que chaque famille d’échantillons liés appartient à un seul pli."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr "Résultat de l’audit de fuite de chaque pli de validation croisée."
 
 msgid "Parameters"
 msgstr "Paramètres"
@@ -208,11 +211,13 @@ msgstr "classe facultative par chemin, une valeur par chemin. Sert uniquement à
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "niveau d’identité qui ne doit pas franchir une frontière de pli -- ``none``, ``field``, ``well`` ou ``plate``. Une partition groupée par puits autorise la même plaque des deux côtés, mais jamais le même puits."
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
-msgstr "compare aussi le CONTENU des fichiers, de sorte qu’une copie identique octet par octet sous un autre nom est détectée. Coûte une lecture par fichier."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
+msgstr "compare aussi le contenu des fichiers, de sorte qu’une copie identique octet par octet sous un autre nom est détectée. Coûte une lecture par fichier."
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
-msgstr "traite ce qui est INVÉRIFIABLE comme critique. Un nom de fichier qui ne code pas l’identité demandée, ou un fichier dont l’empreinte ne peut pas être calculée, n’est sinon qu’un avertissement -- laisser cette option à False signifie donc qu’un rapport propre peut encore masquer une fuite que personne n’a pu vérifier."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
+msgstr "traite les échantillons invérifiables comme critiques. Un nom de fichier qui ne code pas l’identité demandée, ou un fichier dont l’empreinte ne peut pas être calculée, n’est sinon qu’un avertissement ; avec cette option à False, un rapport réussi peut donc inclure des échantillons dont la fuite n’a pas été vérifiée."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."
 msgstr "lève :class:`LeakageError` au lieu de renvoyer un rapport dont ``passed`` vaut False."

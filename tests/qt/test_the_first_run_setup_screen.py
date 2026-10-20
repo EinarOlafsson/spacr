@@ -115,7 +115,7 @@ class TestTheGrouping:
     def test_the_questions_are_grouped(self):
         from spacr.qt.widgets.setup_dialog import GROUPS
 
-        assert len(GROUPS) >= 3
+        assert len(GROUPS) >= 2
 
     def test_look_comes_first(self):
         """Language and theme change what the NEXT screen looks like."""
@@ -129,7 +129,7 @@ class TestTheGrouping:
 
         asked = {q[0] for q in questions()}
         grouped = {k for _, keys in GROUPS for k in keys}
-        assert grouped <= asked | {"module_visibility", "github_login"}
+        assert grouped <= asked
 
     def test_every_question_is_in_a_group(self):
         """A question with no group would be built and never shown."""
@@ -199,21 +199,13 @@ class TestItAsksOnlyWhenItShould:
 
 class TestTheProviderQuestion:
 
-    def test_it_removes_itself_when_nothing_is_installed(self, monkeypatch):
-        """Asking somebody to choose between providers none of which are
-        installed is asking a question with no true answers."""
+    def test_no_ai_github_or_error_report_question_is_asked(self):
+        """Item 700: a new user starts on spaCR AI (free) with anonymised
+        error reports on; the provider, GitHub and reporting are chosen in
+        Preferences, never at first run."""
         from spacr.qt import setup_screen
 
-        monkeypatch.setattr(setup_screen, "_provider_choices", lambda: [])
-        assert "ai_provider" not in {q[0] for q in setup_screen.questions()}
-
-    def test_whatever_is_available_is_the_default(self, monkeypatch):
-        """A machine with two CLIs today may have one tomorrow, and a pinned
-        name that is gone is worse than no preference."""
-        from spacr.qt import setup_screen
-
-        monkeypatch.setattr(setup_screen, "_provider_choices",
-                            lambda: [("", "whatever is available"),
-                                     ("claude", "claude")])
-        found = {q[0]: q for q in setup_screen.questions()}
-        assert found["ai_provider"][4][0][0] == ""
+        assert not hasattr(setup_screen, "_provider_choices")
+        asked = {q[0] for q in setup_screen.questions()}
+        assert asked.isdisjoint({"ai_provider", "ai_default", "issue_prompt",
+                                 "share_logs", "github_login"})

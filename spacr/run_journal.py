@@ -121,24 +121,23 @@ def runs_root() -> Path:
 def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
     """Delete journalled run folders. Returns ``(deleted, refused)``.
 
-    THIS REMOVES FILES, so every guard below is load-bearing rather than
-    defensive habit:
+    This removes files, so the following guards apply:
 
-    * A path is deleted only if, once resolved, it is strictly INSIDE
+    * A path is deleted only if, once resolved, it is strictly inside
       :func:`runs_root`. A record's ``dir`` is read from a manifest on
       disk, and a manifest is a file a user can edit; ``../../..`` in one
       must not reach anything. Resolving first is what makes the check
       real -- comparing unresolved strings passes for a symlink that
       points anywhere.
-    * ``runs_root()`` ITSELF is refused. "Delete everything" is a loop
+    * ``runs_root()`` itself is refused. "Delete everything" is a loop
       over children, never a removal of the root, so a caller that
       computes an empty selection cannot take the journal with it.
-    * The run OPEN ON THIS THREAD is refused: deleting the folder a run
+    * The run open on this thread is refused: deleting the folder a run
       is still writing into leaves it failing on its next write with an
       error that names nothing.
     * A path that is not a directory is refused rather than unlinked.
 
-    Refusals are RETURNED, not raised. Deleting fifty runs where one is
+    Refusals are returned, not raised. Deleting fifty runs where one is
     live should delete forty-nine and say which one it kept -- an
     exception at that point has already deleted an unknown number and
     tells the caller nothing about which.
@@ -149,11 +148,12 @@ def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
     import shutil
 
     root = runs_root().resolve()
-    live = ""
+    with _ACTIVE_RUNS_LOCK:
+        live = set(_ACTIVE_RUN_DIRS)
     try:
         run = current_run()
         if run is not None and getattr(run, "dir", None):
-            live = str(Path(run.dir).resolve())
+            live.add(str(Path(run.dir).resolve()))
     except Exception:                                       # noqa: BLE001
         LOG.debug("Could not identify the running run", exc_info=True)
 
@@ -173,7 +173,8 @@ def delete_runs(directories: Iterable[Any]) -> Tuple[int, List[str]]:
         if not target.is_dir():
             refused.append(f"{target}: not a run folder")
             continue
-        if live and str(target) == live:
+        if any(target == active or target in active.parents
+               or active in target.parents for active in map(Path, live)):
             refused.append(f"{target.name}: still running")
             continue
         try:
@@ -196,6 +197,15 @@ def _new_run_dir(app_key: str) -> Path:
     (d / "outputs").mkdir(exist_ok=True)
     return d
 
+
+
+def _spacr_version() -> str:
+    """Return the running spaCR version, preferring a checkout's own literal."""
+    try:
+        from .version import get_version
+        return get_version()
+    except Exception:
+        return _pkg_version("spacr")
 
 
 @lru_cache(maxsize=None)
@@ -274,7 +284,7 @@ _ENV_VERSIONS = (
 def _env_snapshot() -> Dict[str, Any]:
     """Capture host and complete package versions for reproduction."""
     snapshot: Dict[str, Any] = {
-        "spacr":         _pkg_version("spacr"),
+        "spacr":         _spacr_version(),
         "spacr_git":     _git_hash(),
         "python":        sys.version.split()[0],
         "platform":      platform.platform(),
@@ -326,8 +336,10 @@ def _pip_lock_text(packages: Dict[str, str]) -> str:
     distributions' metadata when pip cannot be run, so a lockfile is always
     written.
     """
-    frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
-                         "--all", "--disable-pip-version-check"])
+    frozen = None
+    if not getattr(sys, "frozen", False):
+        frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
+                             "--all", "--disable-pip-version-check"])
     if frozen:
         return frozen if frozen.endswith("\n") else frozen + "\n"
     lines = ["# pip freeze was unavailable; read from package metadata."]
@@ -352,7 +364,7 @@ def _conda_lock_text() -> Optional[str]:
     return _run_quiet([conda, "list", "--explicit", "--prefix", prefix])
 
 
-_ENV_LOCK_MEMO: Dict[str, Dict[str, Optional[str]]] = {}
+_ENV_LOCK_MEMO: Dict[str, Tuple[Dict[str, Optional[str]], bool]] = {}
 _ENV_LOCK_MEMO_GUARD = threading.Lock()
 
 
@@ -367,30 +379,38 @@ def _environment_lock_texts(digest: str,
     """
     with _ENV_LOCK_MEMO_GUARD:
         cached = _ENV_LOCK_MEMO.get(digest)
-        if cached is not None:
-            return cached
+        if cached is not None and cached[1]:
+            return cached[0]
         store = runs_root().parent / "env_locks" / digest[:32]
         pip_file = store / _PIP_LOCK_NAME
         conda_file = store / _CONDA_LOCK_NAME
-        texts: Dict[str, Optional[str]]
-        if pip_file.is_file():
-            texts = {
-                "pip": pip_file.read_text(encoding="utf-8"),
-                "conda": (conda_file.read_text(encoding="utf-8")
-                          if conda_file.is_file() else None),
-            }
-        else:
+        texts = cached[0] if cached is not None else None
+        saved = False
+        if texts is None:
+            try:
+                if pip_file.is_file():
+                    pip_text = pip_file.read_text(encoding="utf-8")
+                    conda_text = (conda_file.read_text(encoding="utf-8")
+                                  if conda_file.is_file() else None)
+                    if pip_text.strip() and (conda_text is None or conda_text.strip()):
+                        texts = {"pip": pip_text, "conda": conda_text}
+                        saved = True
+            except (OSError, UnicodeError):
+                pass
+        if texts is None:
             texts = {"pip": _pip_lock_text(packages),
                      "conda": _conda_lock_text()}
+        if not saved:
             try:
                 store.mkdir(parents=True, exist_ok=True)
                 if texts["conda"]:
                     _atomic_write_text(conda_file, texts["conda"])
                 _atomic_write_text(pip_file, texts["pip"] or "")
+                saved = True
             except OSError as exc:
                 LOG.warning("Could not save the environment lock in %s: %s",
                             store, exc)
-        _ENV_LOCK_MEMO[digest] = texts
+        _ENV_LOCK_MEMO[digest] = (texts, saved)
         return texts
 
 
@@ -742,6 +762,9 @@ class Run:
     :ivar stdout_path: captured standard-output log path, when one is attached.
     :ivar error_traceback: formatted exception traceback for failed or
         cancelled runs; empty for successful runs.
+    :ivar diameters: per object, the diameter it was segmented with, e.g.
+        ``"120 px (magnification 20x default)"`` or ``"auto (Cellpose
+        estimated 57.3 px)"`` (item 696).
     """
     app_key: str
     settings: Dict[str, Any]
@@ -761,6 +784,10 @@ class Run:
     stages: List[Dict[str, Any]] = field(default_factory=list)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
+    diameters: Dict[str, str] = field(default_factory=dict, init=False)
+    _diameter_estimates: Dict[str, List[float]] = field(
+        default_factory=dict, init=False, repr=False,
+    )
     _path_candidates: List[Tuple[str, Path, bool]] = field(
         default_factory=list, repr=False,
     )
@@ -998,7 +1025,7 @@ class Run:
         """Whether to hash inputs and outputs for this run.
 
         Off unless the settings say otherwise. Hashing every file under
-        every path-valued setting is proportional to the DATA, not to the
+        every path-valued setting is proportional to the data, not to the
         run: on a plate of raw images it is minutes of reading before the
         first mask is made, and it happens whether or not anybody will ever
         compare the digests.
@@ -1183,6 +1210,7 @@ class Run:
             "provenance_warnings": self.provenance_warnings,
             "warnings":       self.run_warnings,
             "stages":         self.stages,
+            "diameters":      self.diameters,
             "performance":    performance,
             "n_settings":    len(self.settings),
             "traceback":     self.error_traceback or None,
@@ -1201,7 +1229,7 @@ class Run:
             self.dir / "settings.json",
             json.dumps(self.settings, indent=2, default=str, sort_keys=True),
         )
-        with open(self.dir / "settings.csv", "w", newline="") as f:
+        with open(self.dir / "settings.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(["Key", "Value"])
             for k, v in self.settings.items():
@@ -1252,6 +1280,40 @@ class Run:
 
 
 _RUN_LOCAL = threading.local()
+_ACTIVE_RUN_DIRS: Set[str] = set()
+_ACTIVE_RUNS_LOCK = threading.RLock()
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_ACTIVE_RUNS_LOCK._at_fork_reinit)
+
+
+def _record_diameter(object_type: str, used: str,
+                     estimate: Optional[float] = None) -> None:
+    """Note on the open run which diameter ``object_type`` was segmented with.
+
+    Written into ``manifest.json`` under ``diameters`` (item 696). Each
+    estimate Cellpose returns for a batch is kept, and the object's entry
+    states their median, so a run of many batches names one diameter.
+    Without an open run this does nothing.
+
+    :param object_type: the object, e.g. ``'cell'``.
+    :param used: what was used, as
+        :func:`spacr.object_settings_table._diameter_used_text` words it.
+    :param estimate: Cellpose's estimate for one batch, in pixels.
+    """
+    run = current_run()
+    if run is None:
+        return
+    if estimate is None:
+        if object_type not in run._diameter_estimates:
+            run.diameters[object_type] = str(used)
+        return
+    estimates = run._diameter_estimates.setdefault(object_type, [])
+    estimates.append(float(estimate))
+    ordered = sorted(estimates)
+    middle = len(ordered) // 2
+    median = (ordered[middle] if len(ordered) % 2
+              else (ordered[middle - 1] + ordered[middle]) / 2)
+    run.diameters[object_type] = f"auto (Cellpose estimated {median:.4g} px)"
 
 
 def current_run() -> Optional["Run"]:
@@ -1318,42 +1380,49 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     macro = begin_recording(app_key, run.settings, run_dir=run.dir)
     prev_active = current_run()
     _RUN_LOCAL.active = run
+    active_path = str(run.dir.resolve())
+    with _ACTIVE_RUNS_LOCK:
+        _ACTIVE_RUN_DIRS.add(active_path)
     try:
-        yield run
-        _raise_if_incomplete(run)
-        if run.status == "running":
-            run.status = "success"
-    except BaseException as e:
-        import traceback as _tb
-        run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
-                      else "failed")
-        run.error_traceback = "".join(
-            _tb.format_exception(type(e), e, e.__traceback__)
-        )
-        raise
+        try:
+            yield run
+            _raise_if_incomplete(run)
+            if run.status == "running":
+                run.status = "success"
+        except BaseException as e:
+            import traceback as _tb
+            run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
+                          else "failed")
+            run.error_traceback = "".join(
+                _tb.format_exception(type(e), e, e.__traceback__)
+            )
+            raise
+        finally:
+            _RUN_LOCAL.active = prev_active
+            run.end_ts = time.time()
+            try:
+                run._capture_final_provenance()
+            except Exception as exc:
+                warning = f"final output provenance failed: {exc}"
+                run.provenance_warnings.append(warning)
+                LOG.exception(warning)
+            try:
+                run._snapshot_log_tail()
+                run._write_manifest()
+            except Exception:
+                LOG.exception("Could not finalize run manifest in %s", run.dir)
+            try:
+                from .workspace import save_for_run
+                save_for_run(run.dir, run.settings, app_key=run.app_key)
+            except Exception:
+                LOG.exception("Could not save the workspace for %s", run.dir)
+            finish_recording(macro, status=run.status, settings=run.settings)
+            LOG.info("run closed [%s] in %.1fs → %s",
+                      run.status, run.end_ts - run.start_ts, run.dir)
+            _notify_run_finished(run)
     finally:
-        _RUN_LOCAL.active = prev_active
-        run.end_ts = time.time()
-        try:
-            run._capture_final_provenance()
-        except Exception as exc:
-            warning = f"final output provenance failed: {exc}"
-            run.provenance_warnings.append(warning)
-            LOG.exception(warning)
-        try:
-            run._snapshot_log_tail()
-            run._write_manifest()
-        except Exception:
-            LOG.exception("Could not finalize run manifest in %s", run.dir)
-        try:
-            from .workspace import save_for_run
-            save_for_run(run.dir, run.settings, app_key=run.app_key)
-        except Exception:
-            LOG.exception("Could not save the workspace for %s", run.dir)
-        finish_recording(macro, status=run.status, settings=run.settings)
-        LOG.info("run closed [%s] in %.1fs → %s",
-                  run.status, run.end_ts - run.start_ts, run.dir)
-        _notify_run_finished(run)
+        with _ACTIVE_RUNS_LOCK:
+            _ACTIVE_RUN_DIRS.discard(active_path)
 
 
 
@@ -1880,7 +1949,7 @@ def _dispatch_notification(message: Dict[str, Any],
     results: Dict[str, str] = {}
 
     def work() -> None:
-        """Send, and keep what happened."""
+        """Send the notification and store its results."""
         try:
             results.update(_send_notification(message, notify))
         except Exception:
@@ -1981,9 +2050,9 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     (for non-negative ``limit``), so startup cost does not grow with the
     size of the journal.
 
-    PASS ``None`` FOR "EVERY RUN", never a negative number. The truncation
+    Pass ``None`` for every run, never a negative number. The truncation
     at the end is ``all_entries[:limit]``, so ``limit=-1`` reads the whole
-    journal and then hands back all but the OLDEST entry -- observed
+    journal and then hands back all but the oldest entry -- observed
     2026-09-03 on an 11,027-run journal, which returned 11,026. A folder with no ``manifest.json`` is skipped
     quietly; one whose manifest cannot be parsed is skipped with a
     logged warning.
@@ -2434,7 +2503,7 @@ def values_equal(a: Any, b: Any) -> bool:
     Compares :func:`_normalize_value` output structurally, falling back
     to a ``repr`` comparison for exotic values whose ``__eq__`` refuses
     to produce a bool (numpy-style elementwise comparison, etc.) — and
-    to "not equal" if even that blows up. A settings comparison must
+    to "not equal" if that also fails. A settings comparison must
     never be the thing that raises.
     """
     try:
@@ -2459,8 +2528,8 @@ def resolve_run_dir(ref: Any) -> Path:
     * a run-id — the folder basename, e.g.
       ``"2026-07-23_214737_b66bae6b__mask"`` — resolved under
       :func:`runs_root`,
-    * an unambiguous *prefix* of a run-id (``"2026-07-23_2147"``), handy
-      from a shell.
+    * an unambiguous *prefix* of a run-id (``"2026-07-23_2147"``), which
+      shortens command-line use.
 
     :raises FileNotFoundError: when nothing matches, or when a prefix
         matches more than one run.
@@ -2584,7 +2653,7 @@ def diff_runs(run_a: Any, run_b: Any) -> Dict[str, Any]:
         }
 
     ``changed`` holds only keys present in *both* runs whose values
-    actually differ, sorted by key — those are the knobs someone turned.
+    actually differ, sorted by key — those are the settings that were changed.
     Values are compared structurally, not by ``repr``
     (see :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``"[1, 2]"``
     (as CSV round-trips it) ``== [1, 2]``, and ``"None" == None``.
@@ -2905,7 +2974,7 @@ def _read_blinding_key(key_id: str) -> Dict[str, Any]:
 
 def start_blinding(items: Iterable[Any], *, scope: str, src: Any = "",
                    seed: Optional[int] = None) -> Dict[str, Any]:
-    """Shuffle ``items`` under coded names and keep the key away from them.
+    """Shuffle ``items`` under coded names and store the key separately.
 
     Blind scoring: the person scoring sees each item only by its code
     (``B0001``, ``B0002`` and so on, numbered in the shuffled order) and in
@@ -3829,6 +3898,67 @@ def _prune_root(kind: str) -> Path:
     raise ValueError(f"unknown storage kind: {kind!r}")
 
 
+def _small_journal_mapping(path: Path) -> Optional[Dict[str, Any]]:
+    """Read at most one MiB of a regular journal JSON marker, or refuse it."""
+    try:
+        if path.is_symlink() or not path.is_file():
+            return None
+        with path.open("rb") as stream:
+            payload = stream.read(1024 * 1024 + 1)
+        if len(payload) > 1024 * 1024:
+            return None
+        data = json.loads(payload)
+        return data if isinstance(data, dict) else None
+    except (OSError, ValueError, RecursionError):
+        return None
+
+
+def _journal_prune_evidence(entry: Path) -> bool:
+    """Admit validated manifests or a conservative native bootstrap layout."""
+    manifest = entry / "manifest.json"
+    if manifest.exists() or manifest.is_symlink():
+        data = _small_journal_mapping(manifest)
+        if data is None:
+            return False
+        schema = data.get("schema_version")
+        if "schema_version" in data and (type(schema) is not int or schema not in {1, 2, 3}):
+            return False
+        if not isinstance(data.get("app_key"), str) or not data["app_key"].strip():
+            return False
+        if not isinstance(data.get("status"), str) or data["status"] not in {"running", "success", "failed", "cancelled"}:
+            return False
+        try:
+            datetime.fromisoformat(data["start_utc"])
+        except (KeyError, TypeError, ValueError):
+            return False
+        return True
+    match = re.fullmatch(r"(\d{4}-\d{2}-\d{2}_\d{6})_[0-9a-f]{8}__([A-Za-z0-9_.-]+)", entry.name)
+    if match is None or match[2].strip("._") != match[2]:
+        return False
+    try:
+        datetime.strptime(match[1], "%Y-%m-%d_%H%M%S")
+        children = list(entry.iterdir())
+        for child in children:
+            if child.is_symlink():
+                return False
+            if child.name == "outputs":
+                if not child.is_dir() or any(child.iterdir()):
+                    return False
+            elif child.name == _ENV_LOCK_FOLDER:
+                if not child.is_dir() or any(
+                        item.is_symlink() or not item.is_file()
+                        or item.name not in {_PIP_LOCK_NAME, _CONDA_LOCK_NAME}
+                        for item in child.iterdir()):
+                    return False
+            elif child.name not in {"settings.json", "settings.csv"} or not child.is_file():
+                return False
+        if not children or all(child.is_dir() and not any(child.iterdir()) for child in children):
+            return True
+        return _small_journal_mapping(entry / "settings.json") is not None
+    except (OSError, ValueError):
+        return False
+
+
 def _is_prunable_name(kind: str, entry: Path) -> bool:
     """Whether ``entry`` is something pruning may consider for ``kind``.
 
@@ -3841,12 +3971,12 @@ def _is_prunable_name(kind: str, entry: Path) -> bool:
     """
     name = entry.name
     if kind == "logs":
-        return (name.startswith("spacr") and ".log" in name
+        return (re.fullmatch(r"spacr.*\.log(?:\.\d+)?", name) is not None
                 and entry.is_file() and not entry.is_symlink())
     if kind == "run_logs":
         return ((name.endswith(".jsonl") or name.endswith(".resources.json"))
                 and entry.is_file() and not entry.is_symlink())
-    return entry.is_dir() and not entry.is_symlink()
+    return entry.is_dir() and not entry.is_symlink() and _journal_prune_evidence(entry)
 
 
 def _protected_storage() -> Set[str]:
@@ -3856,7 +3986,9 @@ def _protected_storage() -> Set[str]:
     every log file a logging handler holds open, and the fatal-signal stack
     file the GUI keeps open.
     """
-    protected: Set[str] = set()
+    with _ACTIVE_RUNS_LOCK:
+        protected: Set[str] = set(_ACTIVE_RUN_DIRS)
+    protected.update(Path(path).name for path in tuple(protected))
     try:
         run = current_run()
         if run is not None and getattr(run, "dir", None):
@@ -3930,7 +4062,8 @@ def _prune_plan(kind: str, keep_days: float, cap_mb: float, *,
         children = []
     for entry in children:
         try:
-            if not _is_prunable_name(kind, entry):
+            protected_run = kind == "run_folders" and _is_protected(entry, protected)
+            if not protected_run and not _is_prunable_name(kind, entry):
                 continue
         except OSError:
             continue
@@ -3970,14 +4103,17 @@ def _prune(plan: Dict[str, Any]) -> Tuple[int, int, List[str]]:
     for raw, size in plan.get("delete", ()):
         entry = Path(raw)
         try:
-            if entry.resolve().parent != root or not _is_prunable_name(kind, entry):
+            if entry.resolve().parent != root:
+                refused.append(f"{entry.name}: not in {root}")
+                continue
+            if _is_protected(entry, protected):
+                refused.append(f"{entry.name}: in use")
+                continue
+            if not _is_prunable_name(kind, entry):
                 refused.append(f"{entry.name}: not in {root}")
                 continue
         except OSError as error:
             refused.append(f"{entry.name}: {error}")
-            continue
-        if _is_protected(entry, protected):
-            refused.append(f"{entry.name}: in use")
             continue
         if _tree_stats(entry)[1] >= float(plan["cutoff"]):
             refused.append(f"{entry.name}: changed since it was listed")
@@ -4111,7 +4247,7 @@ def _clear_logs(plan: Dict[str, Any]) -> Tuple[int, int, int, List[str]]:
 
 _CACHE_LOCATIONS_FILE = "cache_locations.json"
 _CACHE_ROWS = (
-    ("models", "spaCR models", ""),
+    ("models", "spaCR models", "SPACR_MODEL_CACHE"),
     ("cellpose", "Cellpose models", "CELLPOSE_LOCAL_MODELS_PATH"),
     ("huggingface", "Hugging Face", "HF_HOME"),
     ("torch", "Torch", "TORCH_HOME"),
@@ -4129,9 +4265,12 @@ def _read_cache_locations() -> Dict[str, str]:
     """Return ``{environment variable: folder}`` for every relocated cache."""
     try:
         data = json.loads(_cache_locations_path().read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RecursionError):
         return {}
-    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        return {}
+    return {key: value for key, value in data.items()
+            if isinstance(value, str) and value.strip() and "\x00" not in value}
 
 
 def _apply_cache_locations() -> int:
@@ -4140,8 +4279,9 @@ def _apply_cache_locations() -> int:
     A variable already set in the environment wins over the record.
     """
     applied = 0
+    cache_variables = {variable for _key, _label, variable in _CACHE_ROWS if variable}
     for name, folder in _read_cache_locations().items():
-        if name and folder and not os.environ.get(name):
+        if name in cache_variables and folder and not os.environ.get(name):
             os.environ[name] = folder
             applied += 1
     return applied
@@ -4193,8 +4333,14 @@ def _disk_caches() -> List[Dict[str, Any]]:
 def _cache_refusal(folder: Path) -> Optional[str]:
     """Return why ``folder`` must not be emptied or moved, or ``None``.
 
+    Mutation entry points hold the run-registration lock while calling this.
+
     :param folder: a cache folder.
     """
+    if _ACTIVE_RUN_DIRS or current_run() is not None:
+        from .qt.i18n import tr
+
+        return tr("A run is in progress. Try again when it has finished.")
     try:
         target = folder.resolve()
     except OSError as error:
@@ -4216,23 +4362,24 @@ def _clear_cache(key: str) -> Tuple[int, List[str]]:
     :param key: a key of :data:`_CACHE_ROWS`.
     :returns: ``(entries removed, refusals)``.
     """
-    folder = _cache_folder(key)
-    if not folder.is_dir():
-        return 0, []
-    why = _cache_refusal(folder)
-    if why:
-        return 0, [why]
-    removed, refused = 0, []
-    for child in list(folder.iterdir()):
-        try:
-            if child.is_symlink() or not child.is_dir():
-                child.unlink()
-            else:
-                shutil.rmtree(child)
-            removed += 1
-        except OSError as error:
-            refused.append(f"{child.name}: {error}")
-    return removed, refused
+    with _ACTIVE_RUNS_LOCK:
+        folder = _cache_folder(key)
+        if not folder.is_dir():
+            return 0, []
+        why = _cache_refusal(folder)
+        if why:
+            return 0, [why]
+        removed, refused = 0, []
+        for child in list(folder.iterdir()):
+            try:
+                if child.is_symlink() or not child.is_dir():
+                    child.unlink()
+                else:
+                    shutil.rmtree(child)
+                removed += 1
+            except OSError as error:
+                refused.append(f"{child.name}: {error}")
+        return removed, refused
 
 
 def _relocate_cache(key: str, parent: Any) -> Path:
@@ -4251,33 +4398,80 @@ def _relocate_cache(key: str, parent: Any) -> Path:
     env = dict((k, v) for k, _label, v in _CACHE_ROWS).get(key)
     if not env:
         raise ValueError(f"{key}: this cache has no setting to move it with")
-    recorded = _read_cache_locations()
-    outside = os.environ.get(env, "").strip()
-    if outside and outside != recorded.get(env, ""):
-        raise ValueError(f"{env} is set outside spaCR; change it there")
-    source = _cache_folder(key)
-    target = Path(str(parent)).expanduser().resolve() / f"spacr-{key}"
-    why = _cache_refusal(source) if source.exists() else None
-    if why:
-        raise ValueError(why)
-    if target.exists() and any(target.iterdir()):
-        raise ValueError(f"{target} already holds files")
-    src = source.resolve() if source.exists() else source
-    if src == target or src in target.parents or target in src.parents:
-        raise ValueError(f"{target} overlaps {src}")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    if source.is_dir():
-        if target.exists():
-            target.rmdir()
-        shutil.move(str(source), str(target))
-    else:
-        target.mkdir(parents=True, exist_ok=True)
-    recorded[env] = str(target)
-    path = _cache_locations_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
-    os.environ[env] = str(target)
-    return target
+    with _ACTIVE_RUNS_LOCK:
+        recorded = _read_cache_locations()
+        outside = os.environ.get(env, "").strip()
+        if outside and outside != recorded.get(env, ""):
+            raise ValueError(f"{env} is set outside spaCR; change it there")
+        source = _cache_folder(key)
+        target = Path(str(parent)).expanduser().resolve() / f"spacr-{key}"
+        why = _cache_refusal(source)
+        if why:
+            raise ValueError(why)
+        if target.exists() and any(target.iterdir()):
+            raise ValueError(f"{target} already holds files")
+        src = source.resolve() if source.exists() else source
+        if src == target or src in target.parents or target in src.parents:
+            raise ValueError(f"{target} overlaps {src}")
+        path = _cache_locations_path()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        had_source = source.is_dir()
+        had_target = target.exists()
+        copied_source = False
+        if had_source:
+            if had_target:
+                import stat
+
+                target_mode = stat.S_IMODE(target.stat().st_mode)
+                target.rmdir()
+            try:
+                try:
+                    os.rename(source, target)
+                except OSError as error:
+                    import errno
+
+                    if error.errno != errno.EXDEV:
+                        raise
+                    with tempfile.TemporaryDirectory(prefix=".spacr-cache-move-", dir=target.parent) as staging:
+                        staged = Path(staging) / "cache"
+                        shutil.copytree(source, staged, symlinks=True, copy_function=shutil.copy2)
+                        os.replace(staged, target)
+                    copied_source = True
+            except BaseException:
+                if had_target and not target.exists():
+                    target.mkdir(mode=target_mode)
+                raise
+        else:
+            target.mkdir(parents=True, exist_ok=True)
+        recorded[env] = str(target)
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+        except OSError:
+            if copied_source:
+                LOG.warning("Cache retained at %s", target, exc_info=True)
+            elif had_source:
+                try:
+                    if source.exists():
+                        raise FileExistsError(str(source))
+                    target.rename(source)
+                    if had_target and not target.exists():
+                        target.mkdir(mode=target_mode)
+                except OSError:
+                    LOG.warning("Cache retained at %s", target, exc_info=True)
+            elif not had_target:
+                try:
+                    target.rmdir()
+                except OSError:
+                    LOG.warning("Cache retained at %s", target, exc_info=True)
+            raise
+        os.environ[env] = str(target)
+        if copied_source:
+            try:
+                shutil.rmtree(source)
+            except OSError:
+                LOG.warning("Cache retained at %s", source, exc_info=True)
+        return target
 
 
 try:

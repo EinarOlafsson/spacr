@@ -53,9 +53,9 @@ def _watch_one_stall(tmp_path, monkeypatch, seconds=3.0, echo=False):
         while time.monotonic() < deadline:
             app.processEvents()
             time.sleep(0.02)
-            if log.exists() and "WHERE THAT STALL SPENT" in log.read_text():
+            if log.exists() and "WHERE THAT STALL SPENT" in log.read_text(encoding="utf-8"):
                 break
-        return log.read_text() if log.exists() else ""
+        return log.read_text(encoding="utf-8") if log.exists() else ""
     finally:
         # THE WATCHER OUTLIVES THIS TEST UNLESS IT IS STOPPED, and the
         # `qapp` it is installed on is session-scoped, so what leaks here
@@ -246,3 +246,56 @@ def test_the_stack_is_echoed_to_stderr_and_a_broken_stream_costs_nothing(
         "a stderr that refused the write took the log entry with it")
     assert "WHERE THAT STALL SPENT ITS TIME" in broken, (
         "the summary went with it too")
+
+
+@pytest.mark.slow
+def test_the_watch_keeps_no_frame_of_the_gui_thread(tmp_path, monkeypatch, qapp):
+    """A frame the watcher keeps keeps that call's locals alive, off-thread.
+
+    The watcher used to hold its last frame across its sleep. A QPainter made
+    in a paintEvent then outlived the paint and was destroyed on the
+    watcher's thread: "QBackingStore::endPaint() called with active painter"
+    and then a segmentation fault in the next repaint (lesson 14's harness
+    sampler, 4 crashes in 6 runs). The object a stalled call held must be
+    gone as soon as the call returns.
+    """
+    import gc
+    import weakref
+
+    from spacr.qt import stall_watch
+
+    monkeypatch.setattr(stall_watch, "LOG_PATH", tmp_path / "stalls.log")
+    monkeypatch.setattr(stall_watch, "POLL_SECONDS", 0.05)
+    app = QApplication.instance()
+    watcher = stall_watch.watch_this_application(app, stall_seconds=0.2, echo=False)
+    left = []
+
+    class Held:
+        pass
+
+    def stall():
+        held = Held()
+        left.append(weakref.ref(held))
+        time.sleep(0.6)
+
+    was_enabled = gc.isenabled()
+    gc.disable()
+    try:
+        QTimer.singleShot(20, stall)
+        deadline = time.monotonic() + 3.0
+        while not left and time.monotonic() < deadline:
+            app.processEvents()
+            time.sleep(0.01)
+        assert left, "the stall never ran"
+        assert (tmp_path / "stalls.log").exists() and "GUI THREAD STALLED" in (
+            tmp_path / "stalls.log").read_text(encoding="utf-8"), "the watch did not sample the stall"
+        assert left[0]() is None, "the watcher still holds the stalled call's frame"
+    finally:
+        if was_enabled:
+            gc.enable()
+        if watcher is not None:
+            watcher.stop()
+            watcher.join(1.0)
+        timer = getattr(app, "_spacr_stall_timer", None)
+        if timer is not None:
+            timer.stop()

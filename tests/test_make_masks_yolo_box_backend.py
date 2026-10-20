@@ -66,7 +66,7 @@ def test_new_field_defaults_and_saved_boxes_bind_to_original_bytes(tmp_path):
     assert loaded == {"classes": ["cell", "nucleus"],
                       "boxes": [(1, 10.0, 10.0, 40.0, 30.0)],
                       "source_sha256": fresh["source_sha256"]}
-    record = json.loads(path.read_text())["images"][source.name]
+    record = json.loads(path.read_text(encoding="utf-8"))["images"][source.name]
     assert record["shape"] == [50, 100]
     assert record["source_sha256"] == fresh["source_sha256"]
 
@@ -159,9 +159,9 @@ def test_export_writes_only_labels_and_stable_class_metadata(tmp_path):
     labels = tmp_path / "field.txt"
     assert engine.export_yolo_boxes(labels, [(1, 0, 0, 10, 10)], (20, 20),
                                     ["cell", "nucleus"]) == str(labels)
-    assert labels.read_text().splitlines() == ["1 0.25 0.25 0.5 0.5"]
+    assert labels.read_text(encoding="utf-8").splitlines() == ["1 0.25 0.25 0.5 0.5"]
     meta = tmp_path / engine.YOLO_CLASSES_NAME
-    assert json.loads(meta.read_text()) == {"classes": ["cell", "nucleus"]}
+    assert json.loads(meta.read_text(encoding="utf-8")) == {"classes": ["cell", "nucleus"]}
     assert source.read_bytes() == before
     assert engine.export_yolo_boxes(labels, [], (20, 20),
                                     ["cell", "nucleus"]) == str(labels)
@@ -208,7 +208,7 @@ def test_export_failed_replace_keeps_existing_labels_and_cleans_temp(tmp_path,
     with pytest.raises(OSError, match="label replace failed"):
         engine.export_yolo_boxes(labels, [], (10, 10), ["object", "nucleus"])
     assert labels.read_bytes() == original
-    assert json.loads((tmp_path / engine.YOLO_CLASSES_NAME).read_text()) == {
+    assert json.loads((tmp_path / engine.YOLO_CLASSES_NAME).read_text(encoding="utf-8")) == {
         "classes": ["object", "nucleus"]}
     assert not list(tmp_path.glob(".field.txt.*.tmp"))
 
@@ -284,7 +284,7 @@ def test_busy_project_lock_preserves_both_fields_after_retry(tmp_path,
     assert not writer.is_alive() and not errors
     engine.save_yolo_boxes(tmp_path, "second.tif", (10, 10),
                            [(0, 3, 3, 5, 5)], ["object"])
-    ledger = json.loads((tmp_path / engine.YOLO_ANNOTATIONS_NAME).read_text())
+    ledger = json.loads((tmp_path / engine.YOLO_ANNOTATIONS_NAME).read_text(encoding="utf-8"))
     assert set(ledger["images"]) == {"first.tif", "second.tif"}
     assert not (tmp_path / (engine.YOLO_ANNOTATIONS_NAME + ".lock")).exists()
 
@@ -295,7 +295,7 @@ def test_abandoned_or_unsafe_project_lock_is_not_stolen(tmp_path):
     lock.write_text("other writer")
     with pytest.raises(ValueError, match="busy"):
         engine.save_yolo_boxes(tmp_path, "field.tif", (10, 10), [], ["object"])
-    assert lock.read_text() == "other writer"
+    assert lock.read_text(encoding="utf-8") == "other writer"
     assert not (tmp_path / engine.YOLO_ANNOTATIONS_NAME).exists()
 
 
@@ -337,8 +337,8 @@ def test_busy_export_folder_cannot_interleave_class_maps(tmp_path,
     assert first.is_file() and not second.exists()
     engine.export_yolo_boxes(second, [(1, 2, 2, 4, 4)], (10, 10),
                              ["cell", "nucleus"])
-    assert first.read_text().startswith("0 ")
-    assert second.read_text().startswith("1 ")
-    assert json.loads((tmp_path / engine.YOLO_CLASSES_NAME).read_text()) == {
+    assert first.read_text(encoding="utf-8").startswith("0 ")
+    assert second.read_text(encoding="utf-8").startswith("1 ")
+    assert json.loads((tmp_path / engine.YOLO_CLASSES_NAME).read_text(encoding="utf-8")) == {
         "classes": ["cell", "nucleus"]}
     assert not (tmp_path / (engine.YOLO_CLASSES_NAME + ".lock")).exists()

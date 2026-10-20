@@ -65,7 +65,7 @@ def _ingested(tmp_path):
 
 def test_a_damaged_receipt_is_refused_on_reuse(tmp_path):
     receipt = _ingested(tmp_path)
-    data = json.loads(receipt.read_text())
+    data = json.loads(receipt.read_text(encoding="utf-8"))
     receipt.write_text(json.dumps(dict(data, version=2)))
     with pytest.raises(ValueError, match="unsupported format"):
         io._preprocess_volume_tiffs(_settings(tmp_path))

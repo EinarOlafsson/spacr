@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "item": 323,
+  "status": "pending translation review; English fallback retained",
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "policy": "N323 requests new table/prose strings in the N316 translation-review queue, not machine-drafted. Existing accepted legend translations are unchanged.",
+  "source_file": "packaging/readme_source.yaml",
+  "rows": [
+    {
+      "source": "CPU execution is supported and can be slower. In one measurement on an Intel iMac (Core i5-10500, AMD Radeon Pro 5300 4 GB), Cellpose-SAM took 444.5 s on the CPU and 3.2 s on Metal for one 256×256 image, using torch 2.2.2, Python 3.12.11 and macOS 26.5.2. This is a historical example, not a speed guarantee. GPU acceleration requires a usable backend and compatible libraries. See the `recorded hardware measurement <features/new/319_use_non_nvidia_accelerators_where_they_exist.txt>`_.",
+      "source_sha256": "05ae24fc75ca8a55af14f7a67698745a80826275efc65595e7143c539de0f5ff",
+      "translation": null
+    },
+    {
+      "source": "Hardware",
+      "source_sha256": "7975300f01bc46f86e52e528b29955be87a361f05f2fb96e14629bc0a5495d03",
+      "translation": null
+    },
+    {
+      "source": "UMAP / clustering",
+      "source_sha256": "81b146fe2ff5d39135d11eb7ee4cc4b9a9491f597575d76131881d9d466a4774",
+      "translation": null
+    },
+    {
+      "source": "AMD on Linux (ROCm)",
+      "source_sha256": "f4646af94c7bda0e03e34b5a4ee08eef1a2452ba2cf9319f191c2c0d89359a70",
+      "translation": null
+    },
+    {
+      "source": "AMD in an Intel Mac (Metal)",
+      "source_sha256": "c2a0175dda0158f5a46b88229d28438eb1cb8442ad23e9afc75483906d628f28",
+      "translation": null
+    },
+    {
+      "source": "Apple Silicon (Metal)",
+      "source_sha256": "7da3a1af1b51a8acb128ca4e2e6eb058991451bc667e488df57a30e39c56c2c8",
+      "translation": null
+    },
+    {
+      "source": "No GPU",
+      "source_sha256": "cd39efc4365d7f391084f47f495ef4bfb19c381be32f1e5c88f588157521dbc9",
+      "translation": null
+    }
+  ]
+}

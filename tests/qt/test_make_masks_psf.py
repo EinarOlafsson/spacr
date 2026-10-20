@@ -294,7 +294,7 @@ def test_psf_detection_never_recomputes_on_gui_and_records_kernel(screen, qtbot,
     screen._on_save()
     saved = list(folder.glob('masks/*.curation.json'))
     assert len(saved) == 1
-    ledger = json.loads(saved[0].read_text())
+    ledger = json.loads(saved[0].read_text(encoding="utf-8"))
     assert ledger['edits'][-1]['detail']['enhancement']['psf'] == receipt
 
 

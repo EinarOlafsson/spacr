@@ -1216,7 +1216,9 @@
       "source_sha256": "2b93eaa65cb9a4b028d0aef08f5b23396a4ed63deb5e6beb3a08029ce5a91a81",
       "context": ":class:`FocusCollapse` The automatic half. Some widgets are FOCUS widgets (a live preview, the figures panel): while any of them is on application view, the TARGET panes collapse (console, System, the buttons, the settings column), and when the last one goes they come back. It never fights the user: a target the user expands by hand is PINNED open and left alone until the VIEW ends. See the class for what a view is.",
       "translation": ":class:`FocusCollapse` 自动的那一半。某些控件是“焦点”控件（实时预览、图形面板）：只要其中任何一个显示在界面上，“目标”窗格（控制台、System、按钮、设置栏）就会折叠，当最后一个焦点控件消失时它们会恢复。它绝不与用户作对：用户手动展开的目标会被“固定”为展开状态，并在“视图”结束之前保持不变。关于视图的含义，参见该类。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter#5",
@@ -1608,7 +1610,9 @@
       "source_sha256": "84be84c7c86506dcd9deff0f7024ec00f8ee9428bcb7fc185487d5ca8791c5b7",
       "context": "A resize of the window is not a drag -- no handle is held -- so re-fitting here fights nobody.",
       "translation": "调整窗口大小并不是拖动——没有按住任何拖动柄——因此在这里重新适配不会与任何人冲突。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter.resizeEvent#2",
@@ -1706,7 +1710,9 @@
       "source_sha256": "f4a2f6d632b03ace56472deaa47950f33783c373e49345177648daa9dd33b2b1",
       "context": "FOCUS widgets are watched (:meth:`watch`); while ANY of them is shown the TARGET panes (:meth:`target`) are collapsed, and when the last is hidden the targets this collapsed are opened again. A target that was already collapsed -- by the user, or remembered from last session -- is left exactly as it is, both ways.",
       "translation": "“焦点”控件会被监视（:meth:`watch`）；只要其中“任何一个”显示，“目标”窗格（:meth:`target`）就会被折叠，当最后一个焦点控件隐藏时，被此机制折叠的目标会重新展开。原本就已折叠的目标——由用户折叠，或从上次会话中记住——无论哪个方向都保持原样。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#3",
@@ -1714,7 +1720,9 @@
       "source_sha256": "d2f77e3c7ce4f96edd278a717f67d79143f6db40d7d566061c40a51cf6619bde",
       "context": "Never fights the user. A target the user opens by hand (clicking its heading or its handle, or dragging it open) is PINNED: nothing here collapses it again until the view ends. A target the user collapses by hand is theirs too, and is not re-opened when the focus goes.",
       "translation": "“绝不与用户作对。”用户手动展开的目标（点击其标题或拖动柄，或将其拖开）会被“固定”：在该视图结束之前，这里不会再次折叠它。用户手动折叠的目标同样由用户决定，焦点消失时不会重新展开。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#4",
@@ -1722,7 +1730,9 @@
       "source_sha256": "8ec9ecfa22f3d1b94eadb17b0dcc3f2df5a8db6b5d3465f5be7345c23c20e4ff",
       "context": "A view is one visit to one application view: it begins when the application view is shown (:meth:`begin_view`, from its ``showEvent``) and ends when it is hidden because the user went to another application view (:meth:`end_view`, from its ``hideEvent``). Minimising the window does not end it -- the owner passes only non-spontaneous events. Pins last for the view: returning to the application view with its live preview still open collapses the surroundings again, which is what a fresh arrival at that layout would get.",
       "translation": "一个“视图”是对某个界面的一次访问：它在界面显示时开始（:meth:`begin_view`，来自其 ``showEvent``），在用户转到另一个界面而使其隐藏时结束（:meth:`end_view`，来自其 ``hideEvent``）。最小化窗口不会结束视图——所有者只传递非自发事件。固定状态在视图期间有效：返回到仍开着实时预览的界面时，会再次折叠周围区域，这与新进入该布局时的情况相同。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#5",
@@ -1754,7 +1764,9 @@
       "source_sha256": "ec2e7c8c97967fb17a7ba974f4ad32378dfd7e8b73aba09edb4a366cfd031376",
       "context": "The user left the screen: their pins for this view are spent.",
       "translation": "用户离开了该界面：其在此视图中的固定状态失效。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse.eventFilter#0",
@@ -2904,7 +2916,9 @@
       "source_sha256": "697b9a175bc9a9a884b4b8970dd987b01d4446d84c280e448097f3b47862d7df",
       "context": "key-value mapping saved by :meth:`workspace_state`; only its ``sources`` list is read, and anything that is not a key-value mapping, or has no sources, returns False.",
       "translation": "由 :meth:`workspace_state` 保存的字典；只读取其 ``sources`` 列表，任何不是字典或没有来源的内容都返回 False。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "N180 explicit carried database restoration changed apply_workspace_state parameters in2164d07de80+7c32cd3279f; superseded by2026-10-15-n180-database-restore-home-b.json. Original source/context/target text retained."
     },
     {
       "label": "spacr.qt.widgets.database_set.DatabaseSetWidget.remove_source#2",
@@ -3184,7 +3198,9 @@
       "source_sha256": "98efadcb034381d0b96dc99c19dc1beaf6ab84106523d44991376ba18867a08f",
       "context": "The size is fixed per scale, not per row state. The old dock grew and shrank an icon on hover, which relayed out the whole column under the pointer; that is what :data:`ICON_PX` being one number stops. It still has to follow the interface scale, so the base is recorded on each row and re-derived from there -- see :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is never recomputed from the size the row is already wearing.",
       "translation": "“尺寸按缩放比例固定，而不是按行状态固定。”旧的停靠栏会在悬停时放大和缩小图标，从而导致指针下方的整列重新布局；:data:`ICON_PX` 作为单一数值正是为了阻止这种情况。它仍然必须跟随界面缩放，因此在每一行上记录基准值，并据此重新推导——关于为什么绝不根据行当前的尺寸重新计算，参见 :func:`spacr.qt.preferences._set_scaled_icon_size`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dock.Dock.section_is_open#1",
@@ -3224,7 +3240,9 @@
       "source_sha256": "90ac9ad64db7ee715905d050dfc0dee1df43a9d80986831e7839a231167d43b6",
       "context": "It is nonetheless **not the default**, and that is a decision rather than an oversight. The fifth parameter trades off against the Hill slope — many (slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten concentrations a plate actually carries it is weakly identified, and the profile interval it produces is correspondingly wider. The module therefore offers it, fits it **from the 4PL solution** so the asymmetric search starts at the symmetric answer, and reports an extra-sum-of-squares F test of the one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader can see whether the asymmetry was worth what it cost.",
       "translation": "尽管如此，它**不是默认选项**，这是一个决定而不是疏忽。第五个参数与 Hill 斜率相互抵消——许多（斜率，非对称性）组合画出的曲线几乎相同——因此在一块板实际包含的八到十个浓度上，它很难被识别，所得的轮廓区间也相应更宽。因此，本模块把它作为选项提供，**从 4PL 的解开始**拟合它，使非对称搜索从对称解出发，并在 :attr:`DoseResponseResult.asymmetry_p` 中报告对这一个新增参数的额外平方和 F 检验，以便读者判断非对称性是否值得其代价。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#27",
@@ -3264,7 +3282,9 @@
       "source_sha256": "c4538f3c829789f7d52787b8fbf30cda8d9431e6ef5d271aad5721bc2db7483d",
       "context": "the response **rises at the bottom dose** before falling — hormesis. The advice is emphatically not to drop those doses, because the rise is the finding.",
       "translation": "响应在下降之前**在最低剂量处上升**——这是毒物兴奋效应。此时的建议恰恰是不要舍弃这些剂量，因为这一上升本身就是发现。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response#32",
@@ -3280,7 +3300,9 @@
       "source_sha256": "b58fe65189506a40db2a89a06934aadb3125e6cfd14a840ae2386e9a2012f3cc",
       "context": "The test runs on any series whose low-dose end departs from control against the trend, not only on the ones :func:`monotonicity` refuses — **a hump can carry a fifth of the response span and still sit inside** :data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50 displaced by the hump, and says nothing. Those fits now carry the finding in :attr:`DoseResponseResult.hormesis` and in their caveats.",
       "translation": "该检验针对任何低剂量端逆趋势偏离对照的序列运行，而不只是 :func:`monotonicity` 拒绝的那些——**一个隆起可能占响应跨度的五分之一，却仍然位于** :data:`MAX_REVERSAL` 之内；在这种情况下，当前的拟合会成功，报告一个被隆起偏移了的 EC50，而且对此只字不提。这些拟合现在会在 :attr:`DoseResponseResult.hormesis` 及其注意事项中携带这一发现。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseResult#21",
@@ -3432,7 +3454,9 @@
       "source_sha256": "c649bbc62d764683b27f13d71653696bf3960e5cca9b7aaab962bd27526ec5b5",
       "context": ":data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The asymmetric model is a choice the user makes and never one the data makes for them: it is offered because real asymmetry exists and a 4PL absorbs it into a displaced EC50, and it is not the default because the fifth parameter is weakly identified on the eight or ten concentrations a plate actually carries. A fit that chose 5PL reports whether the extra parameter earned itself — see :attr:`DoseResponseResult.asymmetry_p`.",
       "translation": ":data:`MODEL_4PL`（默认）或 :data:`MODEL_5PL`。非对称模型是由用户做出的选择，绝不由数据替用户决定：提供它是因为真实的非对称性确实存在，而 4PL 会把它吸收到一个被偏移的 EC50 中；它不是默认选项，是因为在一块板实际包含的八到十个浓度上，第五个参数很难被识别。选择 5PL 的拟合会报告额外的参数是否物有所值——参见 :attr:`DoseResponseResult.asymmetry_p`。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.DoseResponseSpec#12",
@@ -3888,7 +3912,9 @@
       "source_sha256": "145fea693db0defae9669687af04ae2111e23e68b96cba9e159647d476d8f912",
       "context": "**That scale factor is the whole point of this function.** Written the way the 5PL usually is —",
       "translation": "**这个缩放因子正是本函数的全部意义所在。** 按 5PL 通常的写法——",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#3",
@@ -3912,7 +3938,9 @@
       "source_sha256": "a1251e1e88117eae1047b7a8adb6043f0ff87bd5f0adebdd50c7ef89af9eae2a",
       "context": "every downstream rule in this module — the boundedness tests, the profile interval, the back-transformed reporting — keeps reading ``log10_ec50`` as the same quantity under both models, and none of them had to learn a second meaning.",
       "translation": "本模块中的每条下游规则——有界性检验、轮廓区间、反变换后的报告——在两种模型下都继续把 ``log10_ec50`` 当作同一个量来读取，它们都不必学习第二种含义。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.five_parameter_logistic#6",
@@ -3952,7 +3980,9 @@
       "source_sha256": "3bea01c7922161566a7b8ebb8719049a77e432da5951f8731ff0f0dd8bddad97",
       "context": "Is the low-dose end of this series stimulated, or is it noise?",
       "translation": "该序列的低剂量端是受到了刺激，还是只是噪声？",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#1",
@@ -4024,7 +4054,9 @@
       "source_sha256": "a841346d577f13b160fc5ab59b6823582b375bbb6da64034f485b55428ffef2d",
       "context": "**The F test is two-sided and the hypothesis is one-sided**, since only a positive stimulation is hormesis. Criterion 1 does the one-sided part by inspection rather than by halving the p value, so the reported p is conservative by about a factor of two. Stated rather than corrected: a conservative p on a screen that already refuses this data is the right direction to be wrong in.",
       "translation": "**F 检验是双侧的，而假设是单侧的**，因为只有正的刺激才是毒物兴奋效应。标准 1 通过直接检查来完成单侧部分，而不是把 p 值减半，因此报告的 p 值大约保守了两倍。这一点被说明而没有被校正：在一个本就拒绝此类数据的筛查中，p 值偏保守正是更可接受的出错方向。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response.hormesis#6",
@@ -4096,7 +4128,9 @@
       "source_sha256": "c8d906546300bc92069194a3156ddef006697415a0fbb0be712d1eba248be3fc",
       "context": "Progress line. :class:`ProgressLine` is a slim progress bar whose numbers sit beside it, where nothing can cut them.",
       "translation": "“进度行。”:class:`ProgressLine` 是一个细长的进度条，其数字位于旁边，不会被任何东西截断。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#3",
@@ -4140,7 +4174,9 @@
       "source_sha256": "020209c1da87a0c48c5abf65a902f4988fe5c0ae95a6f5bff6e019fd2fcd123a",
       "context": "the COUNT beside it (the step and the percentage, the numbers a person is watching) is a plain label that is never elided -- its horizontal size policy is ``Minimum``, so a layout cannot give it less than its text needs;",
       "translation": "旁边的“计数”（步骤和百分比，即人们关注的数字）是一个普通标签，从不省略——其水平尺寸策略为 ``Minimum``，因此布局给它的宽度不会少于其文字所需；",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#8",
@@ -4148,7 +4184,9 @@
       "source_sha256": "5858f3fd7791f06144afa0bd885ce4f346f87ff7126dc3da005546ccf9cd8415",
       "context": "an optional DETAIL line below carries the part that changes and can be long (a file name, a speed, a time left); that part elides, and :meth:`ProgressLine.displayed_text` reports what is really painted.",
       "translation": "下方可选的“详情”行承载会变化且可能很长的部分（文件名、速度、剩余时间）；该部分会被省略显示，而 :meth:`ProgressLine.displayed_text` 会报告实际绘制的内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding#9",
@@ -4260,7 +4298,9 @@
       "source_sha256": "30a3f21a5ded561add182c72e49dfb304e12208e225885cf7dd56818b71522bc",
       "context": "What is really painted: the count, then the detail as elided.",
       "translation": "实际绘制的内容：计数，然后是省略后的详情。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.eliding.ProgressLine.displayed_text#1",

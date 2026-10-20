@@ -13,6 +13,7 @@ library. On Windows the caller falls back to opening a terminal, as before.
 """
 from __future__ import annotations
 
+import codecs
 import os
 import queue
 import re
@@ -40,6 +41,7 @@ __all__ = [
 
 _ANSI = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)"
                    r"|\x1b[@-Z\\-_]")
+_ANSI_PARTIAL = re.compile(r"\x1b(?:\[[0-?]*[ -/]*|\][^\x07\x1b]*(?:\x1b)?|)\Z")
 _URL = re.compile(r"https?://[^\s\"'<>\x1b]+")
 _spawn = subprocess.Popen
 
@@ -92,6 +94,9 @@ class PtySession:
         environ.setdefault("TERM", "xterm-256color")
         self._master = master
         self._queue: "queue.Queue[str]" = queue.Queue()
+        self._ansi_pending = ""
+        self._cr_pending = ""
+        self._output_closed = False
         self._stopped = False
         try:
             self.proc = _spawn(
@@ -107,6 +112,7 @@ class PtySession:
 
     def _pump(self) -> None:
         """Move the terminal's output to the queue until it closes."""
+        decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
         while True:
             try:
                 chunk = os.read(self._master, 4096)
@@ -114,20 +120,38 @@ class PtySession:
                 break
             if not chunk:
                 break
-            self._queue.put(chunk.decode("utf-8", "replace"))
+            text = decoder.decode(chunk)
+            if text:
+                self._queue.put(text)
+        remaining = decoder.decode(b"", final=True)
+        if remaining:
+            self._queue.put(remaining)
+        self._output_closed = True
 
     def read(self) -> str:
         """Everything the command has written since the last call.
 
         :returns: the text, escape sequences removed.
         """
+        closed = getattr(self, "_output_closed", False)
         parts = []
         while True:
             try:
                 parts.append(self._queue.get_nowait())
             except queue.Empty:
                 break
-        return strip_terminal_codes("".join(parts))
+        text = getattr(self, "_ansi_pending", "") + "".join(parts)
+        self._ansi_pending = ""
+        partial = _ANSI_PARTIAL.search(text)
+        if partial and not closed:
+            self._ansi_pending = text[partial.start():]
+            text = text[:partial.start()]
+        text = getattr(self, "_cr_pending", "") + _ANSI.sub("", text)
+        self._cr_pending = ""
+        if text.endswith("\r") and not closed:
+            self._cr_pending = "\r"
+            text = text[:-1]
+        return text.replace("\r\n", "\n").replace("\r", "\n")
 
     def send(self, text: str) -> None:
         """Type ``text`` and press Enter.
@@ -188,6 +212,7 @@ class SignInDialog(QDialog):
         self.setWindowTitle(tr("Sign in to {name}", name=title))
         self._open_url = open_url or (lambda url: QDesktopServices.openUrl(QUrl(url)))
         self._urls: List[str] = []
+        self._url_pending = ""
         self.succeeded: Optional[bool] = None
         layout = QVBoxLayout(self)
         self._intro = QLabel(tr(
@@ -239,13 +264,20 @@ class SignInDialog(QDialog):
         if text:
             self.log.moveCursor(QTextCursor.End)
             self.log.insertPlainText(text)
-            for url in find_urls(text):
-                if url not in self._urls:
-                    self._urls.append(url)
-                    self._link.setText(url)
-                    self.open_btn.setEnabled(True)
-                    if len(self._urls) == 1:
-                        self._open_url(url)
+        pending = self._url_pending + text
+        if code is None:
+            parts = re.split(r"(\s+)", pending)
+            self._url_pending = parts.pop()
+            complete = "".join(parts)
+        else:
+            complete, self._url_pending = pending, ""
+        for url in find_urls(complete):
+            if url not in self._urls:
+                self._urls.append(url)
+                self._link.setText(url)
+                self.open_btn.setEnabled(True)
+                if len(self._urls) == 1:
+                    self._open_url(url)
         if code is not None:
             self._timer.stop()
             self.succeeded = code == 0

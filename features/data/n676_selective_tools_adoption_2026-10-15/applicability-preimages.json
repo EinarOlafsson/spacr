@@ -1,0 +1,177 @@
+{
+  "root_head": "8f7ef2bb35e04aa9f9e91f2fc4d0932303db7fbf",
+  "published_packet_commit": "3e5d4db54b22af6e6ce1e50482c2c94453e88917",
+  "all_manifest_sizes_sha256_pass": true,
+  "initial_preimages": [
+    {
+      "path": "tools/tutorials/build_appended_candidate.py",
+      "current_blob": "165e6a7cec3bfc0f739e556c86c19b88f1ad2273",
+      "required_initial_blob": "165e6a7cec3bfc0f739e556c86c19b88f1ad2273",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "0b29b39f9bfd4904a371b2251c20f8a110ef35a0"
+    },
+    {
+      "path": "tools/tutorials/check_completed_matrix.py",
+      "current_blob": "af10ba40b5db85f4032572c6626360b4130b2bc1",
+      "required_initial_blob": "af10ba40b5db85f4032572c6626360b4130b2bc1",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "98353929f570381bc4b47cac4c9fd1ee9504b8e8"
+    },
+    {
+      "path": "tools/tutorials/finish_staged_visual.py",
+      "current_blob": "43cdf1e7be70ee4670c52a2e5ec3292adf543cfe",
+      "required_initial_blob": "43cdf1e7be70ee4670c52a2e5ec3292adf543cfe",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "341e6e1133a96944368f411908ef3045db679db1"
+    },
+    {
+      "path": "tools/tutorials/render_installation_route_cards.py",
+      "current_blob": "83d664aec4b0a24fd639721d4f1c4dfabd4e535a",
+      "required_initial_blob": "83d664aec4b0a24fd639721d4f1c4dfabd4e535a",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "59055a0f6995fb24406094cad04f976fe460eba6"
+    },
+    {
+      "path": "tools/tutorials/retain_narration.py",
+      "current_blob": "9835030846cf129ba1ea5c3caf59b35c5ca52bb4",
+      "required_initial_blob": "9835030846cf129ba1ea5c3caf59b35c5ca52bb4",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "fce492fde2adc8818a76116fd517f5dabaf6a007"
+    },
+    {
+      "path": "tools/tutorials/retained_visual_refresh.py",
+      "current_blob": null,
+      "required_initial_blob": "0000000000000000000000000000000000000000",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "71a985eeb0e1593f21558b4abe2d211d70eaa7cd"
+    },
+    {
+      "path": "tools/tutorials/tests/test_retained_narration.py",
+      "current_blob": "5030dda4456a2ef56c746791fbd8cbe5f88d5cd9",
+      "required_initial_blob": "5030dda4456a2ef56c746791fbd8cbe5f88d5cd9",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "ca4fef8729553a6ccbeb23dd86f9aec587b2d386"
+    },
+    {
+      "path": "tools/tutorials/tests/test_retained_pipeline_sources.py",
+      "current_blob": null,
+      "required_initial_blob": "0000000000000000000000000000000000000000",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "b6071ac62e67b74353fb531e19c76ae8ceaf9e33"
+    },
+    {
+      "path": "tools/tutorials/tests/test_retained_visual_refresh.py",
+      "current_blob": null,
+      "required_initial_blob": "0000000000000000000000000000000000000000",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "f5cbf4a8feb7cefd5670a9b040bf69b58e213533"
+    },
+    {
+      "path": "tools/tutorials/verify_staged_audio.py",
+      "current_blob": "26e233d32fd2d589adc70c6929c7f79dc66a5076",
+      "required_initial_blob": "26e233d32fd2d589adc70c6929c7f79dc66a5076",
+      "initial_preimage_matches": true,
+      "packet_final_blob": "06e7e4e770c40b2947413ef6788c443ee34b1a9c"
+    },
+    {
+      "path": "tools/tutorials/verify_staged_lesson.py",
+      "current_blob": "3fbbccf8110e29cd1d47c684c590c61033c4239a",
+      "required_initial_blob": "36701a52626cd021bb7ea40caf6494be03ab2b73",
+      "initial_preimage_matches": false,
+      "packet_final_blob": "8c92e1b04ef2e88211d5c15275b5586771e3cddc"
+    }
+  ],
+  "ordered_patch_stages": [
+    {
+      "patch": "0001-2a04d64f2541.patch",
+      "changes": [
+        {
+          "path": "tools/tutorials/build_appended_candidate.py",
+          "preimage_blob": "165e6a7cec3bfc0f739e556c86c19b88f1ad2273",
+          "postimage_blob": "0b29b39f9bfd4904a371b2251c20f8a110ef35a0"
+        },
+        {
+          "path": "tools/tutorials/check_completed_matrix.py",
+          "preimage_blob": "af10ba40b5db85f4032572c6626360b4130b2bc1",
+          "postimage_blob": "98353929f570381bc4b47cac4c9fd1ee9504b8e8"
+        },
+        {
+          "path": "tools/tutorials/finish_staged_visual.py",
+          "preimage_blob": "43cdf1e7be70ee4670c52a2e5ec3292adf543cfe",
+          "postimage_blob": "341e6e1133a96944368f411908ef3045db679db1"
+        },
+        {
+          "path": "tools/tutorials/render_installation_route_cards.py",
+          "preimage_blob": "83d664aec4b0a24fd639721d4f1c4dfabd4e535a",
+          "postimage_blob": "59055a0f6995fb24406094cad04f976fe460eba6"
+        },
+        {
+          "path": "tools/tutorials/retained_visual_refresh.py",
+          "preimage_blob": "0000000000000000000000000000000000000000",
+          "postimage_blob": "71a985eeb0e1593f21558b4abe2d211d70eaa7cd"
+        },
+        {
+          "path": "tools/tutorials/tests/test_retained_pipeline_sources.py",
+          "preimage_blob": "0000000000000000000000000000000000000000",
+          "postimage_blob": "a6f7369e43a46845cd7b8e20d3e66487740e4388"
+        },
+        {
+          "path": "tools/tutorials/tests/test_retained_visual_refresh.py",
+          "preimage_blob": "0000000000000000000000000000000000000000",
+          "postimage_blob": "f5cbf4a8feb7cefd5670a9b040bf69b58e213533"
+        },
+        {
+          "path": "tools/tutorials/verify_staged_audio.py",
+          "preimage_blob": "26e233d32fd2d589adc70c6929c7f79dc66a5076",
+          "postimage_blob": "06e7e4e770c40b2947413ef6788c443ee34b1a9c"
+        },
+        {
+          "path": "tools/tutorials/verify_staged_lesson.py",
+          "preimage_blob": "36701a52626cd021bb7ea40caf6494be03ab2b73",
+          "postimage_blob": "8c92e1b04ef2e88211d5c15275b5586771e3cddc"
+        }
+      ]
+    },
+    {
+      "patch": "0002-75fb711a6cce.patch",
+      "changes": [
+        {
+          "path": "tools/tutorials/retain_narration.py",
+          "preimage_blob": "9835030846cf129ba1ea5c3caf59b35c5ca52bb4",
+          "postimage_blob": "e1f4acb0e9e2b107acfeb1b38071d2f58f1cd2e7"
+        },
+        {
+          "path": "tools/tutorials/tests/test_retained_narration.py",
+          "preimage_blob": "5030dda4456a2ef56c746791fbd8cbe5f88d5cd9",
+          "postimage_blob": "511c5f26c35f72f247a9b4bf422a35352e52e71a"
+        },
+        {
+          "path": "tools/tutorials/tests/test_retained_pipeline_sources.py",
+          "preimage_blob": "a6f7369e43a46845cd7b8e20d3e66487740e4388",
+          "postimage_blob": "9a36ecbd43f3084fcf3ea71238372454ffcdfa0a"
+        }
+      ]
+    },
+    {
+      "patch": "0003-14ecf9d1054e.patch",
+      "changes": [
+        {
+          "path": "tools/tutorials/retain_narration.py",
+          "preimage_blob": "e1f4acb0e9e2b107acfeb1b38071d2f58f1cd2e7",
+          "postimage_blob": "fce492fde2adc8818a76116fd517f5dabaf6a007"
+        },
+        {
+          "path": "tools/tutorials/tests/test_retained_narration.py",
+          "preimage_blob": "511c5f26c35f72f247a9b4bf422a35352e52e71a",
+          "postimage_blob": "ca4fef8729553a6ccbeb23dd86f9aec587b2d386"
+        },
+        {
+          "path": "tools/tutorials/tests/test_retained_pipeline_sources.py",
+          "preimage_blob": "9a36ecbd43f3084fcf3ea71238372454ffcdfa0a",
+          "postimage_blob": "b6071ac62e67b74353fb531e19c76ae8ceaf9e33"
+        }
+      ]
+    }
+  ],
+  "historical_object_lookup": "Stopped own slow historical972 lookup; source-handoff patch index identities used directly. No held14ec gitshow attempted."
+}

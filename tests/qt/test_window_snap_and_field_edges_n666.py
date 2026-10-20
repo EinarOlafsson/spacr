@@ -37,7 +37,18 @@ def feedback(monkeypatch):
     def record(widget, edge=None, rect=None, strength=1.0):
         calls.append((widget, edge, QRect(widget.geometry()), rect, strength))
 
+    def record_column(widget, edge="bottom", strength=1.0):
+        calls.append((widget, edge, QRect(widget.geometry()), None, strength))
+
     monkeypatch.setattr(ambient, "field_ripple_for_widget", record, raising=False)
+    def record_rings(widget, edge, rect, strength, *, vertical, rings=False):
+        calls.append((widget, "rings" if rings else edge, QRect(widget.geometry()),
+                      rect, strength))
+
+    monkeypatch.setattr(ambient, "_field_column_ripple_for_widget", record_column,
+                        raising=False)
+    monkeypatch.setattr(ambient, "_publish_widget_ripple", record_rings,
+                        raising=False)
     return calls
 
 
@@ -63,7 +74,8 @@ def test_snaps_use_current_screen_and_report_the_same_edge(shell, feedback, edge
               "bottom": QPoint(desktop.center().x(), desktop.bottom())}
     assert shell._snap_to_screen_edge(points[edge])
     if edge == "top":
-        assert shell.isFullScreen()
+        assert shell.isMaximized()
+        assert not shell.isFullScreen()
         assert not glass._edges_at(shell, QPoint(1, 1))
     else:
         expected = QRect(desktop)
@@ -281,7 +293,7 @@ def test_section_collapse_feedback_observes_hidden_body(qtbot, feedback):
     assert section._body.isHidden()
     qtbot.waitUntil(lambda: bool(feedback))
     assert feedback[-1][0] is section
-    assert feedback[-1][1] == "bottom"
+    assert feedback[-1][1] == "rings"
     assert feedback[-1][2] == section.geometry()
     feedback.clear()
     section._on_toggle(True)
@@ -430,12 +442,13 @@ def test_fullscreen_and_maximize_restore_normal_minimum_after_a_tile(shell, feed
     assert shell.toggle_fullscreen() is False
 
 
-def test_top_snap_from_a_tile_restores_minimum_before_fullscreen(shell, feedback):
+def test_top_snap_from_a_tile_restores_minimum_before_maximising(shell, feedback):
     shell.setMinimumSize(500, 500)
     desktop = shell.screen().availableGeometry()
     shell._snap_to_screen_edge(QPoint(desktop.left(), desktop.center().y()))
     shell._snap_to_screen_edge(QPoint(desktop.center().x(), desktop.top()))
-    assert shell.isFullScreen()
+    assert shell.isMaximized()
+    assert not shell.isFullScreen()
     assert shell.minimumWidth() == 500
     assert shell._snap_minimum is None
 
@@ -523,3 +536,4 @@ def test_nested_category_publishes_feedback_on_the_completed_event_turn(qtbot, f
     qtbot.waitUntil(lambda: bool(feedback))
     assert section._body.isHidden()
     assert feedback[-1][0] is section
+    assert feedback[-1][1] == "rings"

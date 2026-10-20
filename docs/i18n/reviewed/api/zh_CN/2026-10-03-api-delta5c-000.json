@@ -876,7 +876,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The one call a pipeline makes before ``measure_crop``, and the one the Illumination button on the Measure masthead runs on its own -- the model and its QC figures in minutes, before committing hours to the measure run that will reuse them through ``illumination_model``.",
       "source_sha256": "6e3b695c86c1d9de9628acbe17c8d39d882bff6e9d569aee282f1f2520fcd332",
-      "translation": "工作流在 ``measure_crop`` 之前进行的唯一一次调用，也是 Measure 标题栏上的 Illumination 按钮单独运行的那次调用——几分钟内得到模型及其 QC 图，然后才投入数小时进行测量运行，该运行会通过 ``illumination_model`` 复用它们。"
+      "translation": "工作流在 ``measure_crop`` 之前进行的唯一一次调用，也是 Measure 标题栏上的 Illumination 按钮单独运行的那次调用——几分钟内得到模型及其 QC 图，然后才投入数小时进行测量运行，该运行会通过 ``illumination_model`` 复用它们。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a processing session that never mentions it is measured uncorrected. Being asked to execute with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a processing session button that does nothing, so a verbose call says which switch was not thrown.",
@@ -884,7 +886,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "It does nothing at all -- and returns None -- unless ``settings['illumination_correction']`` is True, which is NOT the shipped default: the correction is opt-in, so a run that never mentions it is measured uncorrected. Being asked to run with the switch off is a no-op worth hearing about rather than a silent one, because from a settings form it looks exactly like a Run button that does nothing, so a verbose call says which switch was not thrown.",
       "source_sha256": "bcd39ee407d791269f359bc1cf6a233b2ed37abbe5e8e61052570482e881baa9",
-      "translation": "除非 ``settings['illumination_correction']`` 为 True（这并不是出厂默认值），否则它什么都不做——并返回 None：校正需要主动启用，因此从未提及它的运行会以未校正的方式测量。在开关关闭时被要求运行，是一个值得告知的空操作，而不应悄无声息，因为从设置表单看，它与一个什么都不做的 Run 按钮完全一样，所以 verbose 调用会说明哪个开关没有打开。"
+      "translation": "除非 ``settings['illumination_correction']`` 为 True（这并不是出厂默认值），否则它什么都不做——并返回 None：校正需要主动启用，因此从未提及它的运行会以未校正的方式测量。在开关关闭时被要求运行，是一个值得告知的空操作，而不应悄无声息，因为从设置表单看，它与一个什么都不做的 Run 按钮完全一样，所以 verbose 调用会说明哪个开关没有打开。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "a ``measure_crop`` settings key-value mapping. Reads ``illumination_correction``, ``illumination_model``, ``illumination_estimator``, ``illumination_degree``, ``illumination_per_plate``, ``illumination_max_fields``, ``illumination_dark``, ``illumination_on_missing``, ``illumination_qc``, ``illumination_vendor_profile``, ``illumination_vendor_channel_map``, plus ``src`` and ``channels``.",
@@ -996,7 +1000,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Types, tooltips and the module description are contributed; **categories deliberately are not**. ``spacr.settings.categories`` is one shared, ordered map that every settings panel walks, and its growth is guarded by an exact-equality test against a hand-kept list. A key contributed at *import* time is in that map only in a session that imported this module, so contributing categories would make that test's result depend on which files pytest was pointed at.",
       "source_sha256": "60b730773d424102a58c358009b24f464f50047cc57d4a3eaa24bd740608a551",
-      "translation": "会提供类型、工具提示和模块说明；**有意不提供类别**。``spacr.settings.categories`` 是一个共享的有序映射，每个设置面板都会遍历它，它的增长受一项与手工维护列表做精确相等比较的测试约束。在*导入*时提供的键只在导入了本模块的会话中才存在于该映射里，因此提供类别会使该测试的结果取决于 pytest 指向了哪些文件。"
+      "translation": "会提供类型、工具提示和模块说明；**有意不提供类别**。``spacr.settings.categories`` 是一个共享的有序映射，每个设置面板都会遍历它，它的增长受一项与手工维护列表做精确相等比较的测试约束。在*导入*时提供的键只在导入了本模块的会话中才存在于该映射里，因此提供类别会使该测试的结果取决于 pytest 指向了哪些文件。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The illumination structured-data names ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the structured-data names that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
@@ -1004,7 +1010,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The illumination keys ARE filed under a heading -- \"Illumination Correction\" in ``spacr.settings.categories`` -- and Measure's panel offers every one of them, because ``measure_crop`` calls :func:`prepare_illumination_correction` itself and these are the keys that call reads. The heading is written in that map by hand for the reason above: it has to exist for every process that groups the Measure settings, not only for one that happened to import this module.",
       "source_sha256": "08f20d0c611135ba736b3864240429187a18b32becfa178faef6a9296a66bc99",
-      "translation": "照明相关的键确实归在一个标题下——``spacr.settings.categories`` 中的 \"Illumination Correction\"——并且 Measure 面板会提供其中每一项，因为 ``measure_crop`` 自己会调用 :func:`prepare_illumination_correction`，而这些正是该调用所读取的键。出于上述原因，该标题是手工写入该映射的：它必须对每个对 Measure 设置进行分组的进程都存在，而不仅仅是对碰巧导入了本模块的进程。"
+      "translation": "照明相关的键确实归在一个标题下——``spacr.settings.categories`` 中的 \"Illumination Correction\"——并且 Measure 面板会提供其中每一项，因为 ``measure_crop`` 自己会调用 :func:`prepare_illumination_correction`，而这些正是该调用所读取的键。出于上述原因，该标题是手工写入该映射的：它必须对每个对 Measure 设置进行分组的进程都存在，而不仅仅是对碰巧导入了本模块的进程。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "re-register over an existing registration.",
@@ -1036,23 +1044,29 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement procedure runs three steps in order:",
       "source_sha256": "8ecae900b7cb0df43a8ac206490707a56ccb80d62976b0ec6c855377f440a4df",
-      "translation": "标准替换流程按顺序运行三个步骤："
+      "translation": "标准替换流程按顺序运行三个步骤：",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
-      "label": "spacr.install_cleanup#3",
+      "label": "spacr.install_cleanup#2",
       "review_basis": "written from the English (no current MT draft)",
       "source": "In-app updates use a different procedure for supported macOS installations. An online installation upgrades spaCR in its existing Python environment using its bundled ``uv`` executable. It keeps the environment, bootstrap files, application launcher, and installed packages that need no update. It verifies the installed spaCR version before restarting the application.",
       "source_sha256": "e8426469166bb47d0ed64d3307e3860609736f807d632a4d7541094d36a4f74c",
-      "translation": "对于受支持的 macOS 安装，应用内更新使用另一种流程。在线安装会使用其捆绑的 ``uv`` 可执行文件，在现有的 Python 环境中升级 spaCR。它会保留环境、引导文件、应用启动器以及无需更新的已安装包。在重启应用之前，它会验证已安装的 spaCR 版本。"
+      "translation": "对于受支持的 macOS 安装，应用内更新使用另一种流程。在线安装会使用其捆绑的 ``uv`` 可执行文件，在现有的 Python 环境中升级 spaCR。它会保留环境、引导文件、应用启动器以及无需更新的已安装包。在重启应用之前，它会验证已安装的 spaCR 版本。",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not execute the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
-      "label": "spacr.install_cleanup#4",
+      "label": "spacr.install_cleanup#3",
       "review_basis": "written from the English (no current MT draft)",
       "source": "A supported frozen macOS application uses a verified DMG replacement and retains its complete previous application bundle. These macOS update paths do not run the standard deletion procedure. Other frozen application families require a supported replacement adapter before an update can start.",
       "source_sha256": "e017a0d3e804e71040c5189f6b6426d8402cab247d827b87e69f69e9b020125a",
-      "translation": "受支持的冻结 macOS 应用使用经过验证的 DMG 替换，并保留其完整的旧应用包。这些 macOS 更新路径不会运行标准删除流程。其他冻结应用系列需要受支持的替换适配器才能开始更新。"
+      "translation": "受支持的冻结 macOS 应用使用经过验证的 DMG 替换，并保留其完整的旧应用包。这些 macOS 更新路径不会运行标准删除流程。其他冻结应用系列需要受支持的替换适配器才能开始更新。",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs. :func:`start_update_helper` runs the appropriate update procedure after spaCR has closed.",
@@ -1076,7 +1090,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The running spaCR must be an installer-made copy. The helper waits for this process to exit before changing the installation.",
       "source_sha256": "73c6e0cf0e7c3ae62170b140c38374edda6d56adc61e7f1aa1122ce69699e5cf",
-      "translation": "正在运行的 spaCR 必须是由安装程序创建的副本。辅助程序会等待此进程退出后再修改安装。"
+      "translation": "正在运行的 spaCR 必须是由安装程序创建的副本。辅助程序会等待此进程退出后再修改安装。",
+      "retired": "2026-10-14",
+      "retired_reason": "N703: this paragraph now documents the private pip staged shutdown adapter. The original review is retained and does not certify the changed English."
     },
     {
       "context": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
@@ -1084,7 +1100,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "For a supported macOS online installation, use the existing bundled ``uv`` and private Python to upgrade spaCR in the same environment. Preserve the environment directory, bootstrap files, application launcher, and installed packages that need no update. Restart only after verifying that the installed version is at least ``version`` and newer than the previous version, when that previous version is known. A failed upgrade or version check does not trigger removal or a replacement installer.",
       "source_sha256": "b467832f1ce31f0ae0eef0f6172494574fcac0d8e0676c2728cc1b3d5c6c36a4",
-      "translation": "对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。"
+      "translation": "对于受支持的 macOS 在线安装，使用现有捆绑的 ``uv`` 和私有 Python 在同一环境中升级 spaCR。保留环境目录、引导文件、应用启动器以及无需更新的已安装包。只有在验证已安装版本至少为 ``version``、并且在已知旧版本时比旧版本更新之后，才重启。升级或版本检查失败不会触发移除，也不会触发替换安装程序。",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
@@ -1092,7 +1110,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The standard replacement path downloads the new installer, removes older installer-made copies, installs the new version, and starts it. If any required removal fails, skip installation and write the reason to the log.",
       "source_sha256": "290baa05b674d6080d2210fb86799bcd19da48bcbf8c4e7a9606a6cf4729eec9",
-      "translation": "标准替换路径会下载新的安装程序，移除旧的由安装程序创建的副本，安装新版本并启动它。如果任何必需的移除失败，则跳过安装，并把原因写入日志。"
+      "translation": "标准替换路径会下载新的安装程序，移除旧的由安装程序创建的副本，安装新版本并启动它。如果任何必需的移除失败，则跳过安装，并把原因写入日志。",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.",
@@ -1618,7 +1638,10 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The Graph Builder screen — a table, a filter, and a chart you drag together.",
       "source_sha256": "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
-      "translation": "Graph Builder 界面——一张表、一个过滤器和一张图表，由你拖放组合在一起。"
+      "translation": "Graph Builder 界面——一张表、一个过滤器和一张图表，由你拖放组合在一起。",
+      "retired": true,
+      "retired_date": "2026-10-17",
+      "retired_reason": "N678 rewrote this API block as objective, factual prose; the replacement exact-source review is in 2026-10-17-678-api-prose.json. The original source and translation remain retained as historical evidence."
     },
     {
       "context": "Assembles three things that already exist into one surface:",
@@ -1634,7 +1657,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":func:`register` is **not** called at import — read its docstring for why, and for the one line plus four side-table entries that finish the wiring. The screen itself is complete: build it with :func:`make_graph_builder_screen`, hand it a frame, and everything below works.",
       "source_sha256": "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae",
-      "translation": ":func:`register` **不会**在导入时调用——请阅读它的文档字符串，了解原因以及完成接线所需的那一行代码和四个附表条目。界面本身是完整的：用 :func:`make_graph_builder_screen` 构建它，给它一个数据框，下面的一切就都能工作。"
+      "translation": ":func:`register` **不会**在导入时调用——请阅读它的文档字符串，了解原因以及完成接线所需的那一行代码和四个附表条目。界面本身是完整的：用 :func:`make_graph_builder_screen` 构建它，给它一个数据框，下面的一切就都能工作。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the drop zones and the canvas;",
@@ -1650,7 +1675,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data Filter, unchanged, because a filter that narrows *every* view is worth more than a private one that narrows this chart;",
       "source_sha256": "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
-      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` —— Local Data Filter，保持不变，因为能缩小*每一个*视图的过滤器，比只缩小这张图表的私有过滤器更有价值；"
+      "translation": ":class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` —— Local Data Filter，保持不变，因为能缩小*每一个*视图的过滤器，比只缩小这张图表的私有过滤器更有价值；",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": ":mod:`spacr.qt.linked_selection` — so a brush here highlights the same cells in the UMAP and on the plate map, and a lasso there highlights them here.",
@@ -1674,7 +1701,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "The screen goes into the app registry through :func:`spacr.qt.app.register_app` rather than through a row in the table inside ``app.py``, and its styling goes through :func:`spacr.qt.theme.register_widget_qss`. Both seams exist so that a screen built in parallel with five others is a new file rather than a merge conflict in two thousand-line ones.",
       "source_sha256": "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
-      "translation": "该界面通过 :func:`spacr.qt.app.register_app` 进入应用注册表，而不是通过 ``app.py`` 内表格中的一行，其样式则通过 :func:`spacr.qt.theme.register_widget_qss` 设置。这两个接口的存在，是为了让与另外五个界面并行开发的界面成为一个新文件，而不是在两个上千行的文件里产生合并冲突。"
+      "translation": "该界面通过 :func:`spacr.qt.app.register_app` 进入应用注册表，而不是通过 ``app.py`` 内表格中的一行，其样式则通过 :func:`spacr.qt.theme.register_widget_qss` 设置。这两个接口的存在，是为了让与另外五个界面并行开发的界面成为一个新文件，而不是在两个上千行的文件里产生合并冲突。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Apply validated labels to the working table while preserving the source.",
@@ -2034,6 +2063,8 @@
     {
       "context": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#0",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Draw the existing tab with its arrow at 75 percent of baseline.",
       "source_sha256": "26103d5586292e4ede82b4b8153296a52efa9ffbce89e105873a5114949ac6bd",
@@ -2829,7 +2860,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "IT OPENS ON THE TOP HITS. Decision 2026-09-25: \"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected wells\", the derived wells are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "source_sha256": "2198232806abac9cd778319cf0d5c723d1a6f8b5e0389091ed635e7ac3011a2b",
-      "translation": "它打开时预选排名靠前的命中。2026-09-25 的决定：\"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\"。回归的结果表给出命中（:func:`spacr.well_scope._top_hits`）；没有结果表时，蒙太奇自身各组的引导 RNA 即为选择。随后群体框从 \"gRNAs + other datapoints in selected wells\" 开始，推导出的孔显示在控件下方，而 \"gRNAs…\" / \"selected wells…\" 可以更改其中任意一项。没有可选内容时从 \"All datapoints\" 开始，因此没有引导 RNA 的面板仍会绘制它以前绘制的内容。"
+      "translation": "它打开时预选排名靠前的命中。2026-09-25 的决定：\"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\"。回归的结果表给出命中（:func:`spacr.well_scope._top_hits`）；没有结果表时，蒙太奇自身各组的引导 RNA 即为选择。随后群体框从 \"gRNAs + other datapoints in selected wells\" 开始，推导出的孔显示在控件下方，而 \"gRNAs…\" / \"selected wells…\" 可以更改其中任意一项。没有可选内容时从 \"All datapoints\" 开始，因此没有引导 RNA 的面板仍会绘制它以前绘制的内容。",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Shared table merging workflow for Graph Builder and Data-selection boundary Editor.",

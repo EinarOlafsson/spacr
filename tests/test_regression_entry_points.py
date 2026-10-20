@@ -770,3 +770,38 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     # And the snapshot beside the results records all six.
     snapshot = pd.read_csv(os.path.join(str(cdir), "settings", "regression.csv"))
     assert set(MISSING_BEFORE) <= set(snapshot["Key"])
+
+
+def test_a_saved_run_keeps_its_own_transform_and_outlier_choice(tmp_path):
+    """The spacr-example-hit settings reproduce under any later default.
+
+    2026-10-10: the hit example was refitted from a hand-built settings dict
+    that left ``transform`` and ``outlier_detection`` out, so it picked up the
+    current defaults (log, outlier pass on; log was requested in 53eca346b)
+    and called a different hit list. The shipped ``settings/regression.csv``
+    names both explicitly -- ``transform`` as an empty cell -- and that
+    explicit choice must survive both the CSV route and the dict route.
+    """
+    from spacr.cli import MODULES, resolve_settings
+    from spacr.settings import get_perform_regression_default_settings
+
+    defaults = get_perform_regression_default_settings({})
+    assert defaults["transform"] == "log"
+    assert defaults["outlier_detection"] is True
+
+    settings_csv = tmp_path / "regression.csv"
+    pd.DataFrame(
+        [("regression_type", "ols"), ("inference", "parametric"),
+         ("transform", ""), ("outlier_detection", "False"),
+         ("min_cells_per_well", "10")],
+        columns=["Key", "Value"],
+    ).to_csv(settings_csv, index=False)
+    resolved = resolve_settings(MODULES[APP_KEY], str(settings_csv))
+    assert resolved["transform"] is None
+    assert resolved["outlier_detection"] is False
+    assert resolved["min_cells_per_well"] == 10
+
+    explicit = get_perform_regression_default_settings(
+        {"transform": None, "outlier_detection": False})
+    assert explicit["transform"] is None
+    assert explicit["outlier_detection"] is False

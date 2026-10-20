@@ -1,8 +1,8 @@
 """
 Streaming mask pipeline (v2).
 
-Replaces the multi-copy disk chain that ``preprocess_generate_masks``
-has run since day one:
+An alternative to the multi-copy disk chain that
+``preprocess_generate_masks`` runs by default (``pipeline_style='v1'``):
 
     originals
        → renamed + split into channel folders
@@ -12,8 +12,8 @@ has run since day one:
        → cellpose → per-field mask npy
        → concatenated into merged/
 
-…with a two-pass streaming pipeline that keeps only what the
-downstream measure module actually reads:
+This module instead runs a two-pass streaming pipeline that keeps only
+what the downstream measure module reads:
 
     Pass 1 — assemble
         walk originals, parse metadata regex, build one npy stack per
@@ -48,9 +48,9 @@ Public API::
     stacks = stream_originals_to_stack(src_folder, mapper, channels=(0,1,2,3))
     stream_masks_from_stack(stacks, model="cyto", diameter=60)
 
-This module is opt-in for one release cycle. Once the follow-up commit
-wires it as the default in :func:`spacr.core.preprocess_generate_masks`
-the whole disk chain above collapses to ``merged/`` alone.
+This module is opt-in: :func:`spacr.core.preprocess_generate_masks` runs
+it when ``pipeline_style='v2'``, and the default ``'v1'`` runs the disk
+chain above.
 """
 from __future__ import annotations
 
@@ -128,8 +128,8 @@ class FilenameMapper:
         regex. Falls back through ``cellvoyager`` → ``yokogawa`` on
         ``metadata_type="auto"``.
 
-        :param src: folder to scan (not recursive; we expect images at
-            the top level as the current spacr layout does).
+        :param src: folder to scan. Not recursive: images are expected at
+            the top level, as in the current spacr layout.
         :param metadata_type: ``"auto"`` / ``"cellvoyager"`` /
             ``"yokogawa"`` / ``"custom"``. When ``"custom"``,
             ``custom_regex`` must be given.
@@ -190,7 +190,7 @@ class FilenameMapper:
         path.parent.mkdir(parents=True, exist_ok=True)
         cols = ["original_path", "plate", "well", "field", "channel",
                 "time", "z", "stack_field_id"]
-        with open(path, "w", newline="") as f:
+        with open(path, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(cols)
             for r in self.records:

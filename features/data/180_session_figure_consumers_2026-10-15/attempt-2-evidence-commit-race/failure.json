@@ -1,0 +1,9 @@
+{
+  "failure": "Producer evidence-only follow-up raced the exact HEAD assertion again.",
+  "exit": 1,
+  "actual_commit": "56fd042d8e2ca96b216dd8cba6425bdfd5e533f1",
+  "expected_head": "ab983f6e0e4a597081b8f7242d7a9dfde352711c",
+  "all_22_output_hashes_matched": true,
+  "product_imports_or_consumer_assertions_reached": false,
+  "correction": "Author and coordinator explicitly freeze full56fd HEAD until terminal; change only expected argument. No assertions weakened."
+}

@@ -34,13 +34,6 @@
     },
     {
       "table": "categories",
-      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
-      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
-      "translation": "Lesa plötuna beint úr skýjageymslu: auðkenni, endapunktur og staðbundið skyndiminni, og skýjamappan sem mælingarnar eru afritaðar í þegar keyrslunni lýkur. Láttu þetta óbreytt fyrir plötu á staðbundnum diski."
-    },
-    {
-      "table": "categories",
       "key": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source": "The folder holding the masked images, the experiment name the measurements are filed under, and the small test run and plots used to check a configuration before committing to a whole plate.",
       "source_sha256": "03814a8777e690d1aad1793b7b81835892878929c1bf04c9ad238edf00c8d79f",
@@ -66,6 +59,16 @@
       "source": "Which families of measurement are computed for every object -- intensity, morphology, texture, radial distribution and colocalisation -- and the assays read from them, such as confluency, cell cycle, wound closure, viability and time to event. More features means a wider table and a longer run.",
       "source_sha256": "3acf56bad6bcc69406fc99cb3a64854cd0070e8578eb7284f3c5920d0707eeab",
       "translation": "Hvaða flokkar mælinga eru reiknaðir fyrir hvern hlut (styrkur, formgerð, áferð, geisladreifing og samstaðsetning) og prófin sem lesin eru úr þeim, svo sem þekjuhlutfall, frumuhringur, lokun sárs, lífvænleiki og tími að atburði. Fleiri eiginleikar þýða breiðari töflu og lengri keyrslu."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "categories",
+      "key": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source": "Read the plate straight from cloud storage: credentials, endpoint and local cache, and the cloud folder the measurements are copied to when the run finishes. Leave it alone for a plate on local disk.",
+      "source_sha256": "34babb31a1abe0efed53f7756c9d2080fae0afb90ed65a68a73f053bdad980ea",
+      "translation": "Lesa plötuna beint úr skýjageymslu: auðkenni, endapunktur og staðbundið skyndiminni, og skýjamappan sem mælingarnar eru afritaðar í þegar keyrslunni lýkur. Láttu þetta óbreytt fyrir plötu á staðbundnum diski.",
+      "retired": "2026-10-17, item 678: English source rewritten as factual app text; superseded by 2026-10-17-678-app-text.json"
     }
   ]
 }

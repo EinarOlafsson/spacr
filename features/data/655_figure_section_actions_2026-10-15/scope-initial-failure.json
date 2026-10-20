@@ -1,0 +1,6 @@
+{
+  "stage": "Read-only metadata evidence harness; after the owning29PASS run",
+  "error": "ValueError: Enabled modules have no eligible helpers: ['spacr.qt.widgets.figure_grid_view']",
+  "cause": "The script incorrectly forced a module with no nested definitions into the enabled-helper selection.",
+  "correction": "Use the actual rollout membership and inventory; no application, normal gate, or test changed."
+}

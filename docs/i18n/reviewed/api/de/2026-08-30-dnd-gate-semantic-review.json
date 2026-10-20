@@ -322,14 +322,18 @@
       "source": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "context": "Walk a dropped folder ONCE and return the folder-metadata report.",
       "source_sha256": "1d10d640ebe530252069f88ee448ed38f6c62019bd872c6528f46c9cee17ea90",
-      "translation": "Durchläuft einen abgelegten Ordner EINMAL und gibt den Bericht zu seinen Ordnermetadaten zurück."
+      "translation": "Durchläuft einen abgelegten Ordner EINMAL und gibt den Bericht zu seinen Ordnermetadaten zurück.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#1",
       "source": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the GUI thread, all inside the drop event.",
       "context": "Worker-safe: plain data in, plain data out, nothing Qt. The single walk is the point. This replaced three walks of the same tree — ``detect_folder_metadata`` did one, ``plan_folder_extraction`` did another and called ``detect_folder_metadata`` again for a third — all on the main GUI execution path, all inside the drop event.",
       "source_sha256": "4a56cc6bd6969abbbaf898c13485dc2a1ca192ae1cf62ebdef06ce201804dddb",
-      "translation": "Worker-sicher: einfache Daten hinein, einfache Daten heraus, keine Qt-Objekte. Entscheidend ist der einzelne Durchlauf. Er ersetzt drei Durchläufe desselben Baums — einen durch ``detect_folder_metadata``, einen weiteren durch ``plan_folder_extraction`` und einen dritten durch dessen erneuten Aufruf von ``detect_folder_metadata`` — alle im GUI-Hauptausführungspfad und innerhalb desselben Ablageereignisses."
+      "translation": "Worker-sicher: einfache Daten hinein, einfache Daten heraus, keine Qt-Objekte. Entscheidend ist der einzelne Durchlauf. Er ersetzt drei Durchläufe desselben Baums — einen durch ``detect_folder_metadata``, einen weiteren durch ``plan_folder_extraction`` und einen dritten durch dessen erneuten Aufruf von ``detect_folder_metadata`` — alle im GUI-Hauptausführungspfad und innerhalb desselben Ablageereignisses.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.dnd_handlers.scan_folder_structure#2",

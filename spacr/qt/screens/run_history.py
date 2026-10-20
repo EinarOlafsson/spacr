@@ -464,6 +464,7 @@ class RunHistoryScreen(QWidget):
         index = self._module.findData(selected_module)
         self._module.setCurrentIndex(max(0, index))
         self._module.blockSignals(False)
+        self._rebuild_rows()
         self._apply_filters()
         if ok:
             self._set_status(f"Loaded {len(self.records)} recorded run(s).")
@@ -498,11 +499,8 @@ class RunHistoryScreen(QWidget):
         }).casefold()
         return all(term in haystack for term in terms)
 
-    def _apply_filters(self, *_args) -> None:
-        """Render records matching the current controls."""
-        visible = [
-            record for record in self.records if self._matches_filters(record)
-        ]
+    def _rebuild_rows(self) -> None:
+        """Write one table row per record; runs only when records change."""
         self._table.setSortingEnabled(False)
         self._table.setRowCount(0)
         palette = active_palette()
@@ -512,7 +510,7 @@ class RunHistoryScreen(QWidget):
             "running": palette["warning"],
             "corrupt": palette["error"],
         }
-        for record in visible:
+        for record in self.records:
             row = self._table.rowCount()
             self._table.insertRow(row)
             performance = record.get("performance") or {}
@@ -541,13 +539,35 @@ class RunHistoryScreen(QWidget):
                         item.setForeground(QBrush(QColor(colour)))
                 self._table.setItem(row, column, item)
         self._table.setSortingEnabled(True)
+
+    def _visible_rows(self) -> List[int]:
+        """Return the table rows that are not hidden, in visual order."""
+        return [
+            row for row in range(self._table.rowCount())
+            if not self._table.isRowHidden(row)
+        ]
+
+    def _apply_filters(self, *_args) -> None:
+        """Show the rows matching the current controls; never touch items."""
+        if self._table.rowCount() != len(self.records):
+            self._rebuild_rows()
+        shown = 0
+        self._table.clearSelection()
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            run_id = str(item.data(Qt.UserRole)) if item is not None else ""
+            record = self._record_by_id.get(run_id)
+            match = record is not None and self._matches_filters(record)
+            self._table.setRowHidden(row, not match)
+            shown += 1 if match else 0
+        visible = self._visible_rows()
         if visible:
-            self._table.selectRow(0)
+            self._table.selectRow(visible[0])
         else:
             self._clear_details()
         if self._loaded_once and not self._busy:
             self._set_status(
-                f"Showing {len(visible)} of {len(self.records)} recorded run(s)."
+                f"Showing {shown} of {len(self.records)} recorded run(s)."
             )
 
     def _selected_record(self) -> Optional[Dict[str, Any]]:
@@ -655,6 +675,8 @@ class RunHistoryScreen(QWidget):
         """
         seen, records = set(), []
         for index in self._table.selectionModel().selectedRows():
+            if self._table.isRowHidden(index.row()):
+                continue
             item = self._table.item(index.row(), 0)
             run_id = str(item.data(Qt.UserRole)) if item is not None else ""
             record = self._record_by_id.get(run_id)
@@ -790,7 +812,7 @@ class RunHistoryScreen(QWidget):
         :returns: whether a matching visible row was selected.
         """
         wanted = Path(run_dir).name
-        for row in range(self._table.rowCount()):
+        for row in self._visible_rows():
             item = self._table.item(row, 0)
             if item is not None and item.data(Qt.UserRole) == wanted:
                 self._table.selectRow(row)

@@ -1,0 +1,38 @@
+{
+  "status": "ACCEPT source/evidence amendment; provisional evidence remains explicitly provisional",
+  "reviewed_commit": "942a39b0f4cae94f3949c7040fde44910e9cc6fe",
+  "base": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "merged_root_commit": "8fa5d1bb8ced57df64f9f3dab1759d512c4a2556",
+  "receipt_sha256": "e14b569e8a12fce114d35d86407ac93294ea29e44ada661e2ceeef650f8a2dd3",
+  "production_sha256": "af4913c48026af80ca17459cf98e4925320dd1768b0bee5c2dd2599d42931a6b",
+  "test_sha256": "87443012d8b78cc9c4e11a7fb0e4b97bd5dc88cd9e94fdef91172d923ab8bd2c",
+  "checks": {
+    "all_evidence_file_hashes_verified": 17,
+    "only_scanr_examples_and_source_fields_changed": true,
+    "all19patterns_and_other18records_exact": true,
+    "ScanR_status_provisional": true,
+    "all_class_function_docstrings_signatures_tr_calls_exact": true,
+    "whole_production_AST_exact_when_prior_table_restored": true,
+    "original_test_executable_AST_exact_with_only_new_test_appended": true,
+    "post_run_test_change_docstrings_only": true,
+    "baseline": "1FAIL/9PASS/5.93s/exit1",
+    "final": "10PASS/7.00s/exit0",
+    "both_network_lists_empty": true,
+    "actual_root_merged_all_other_records_including_Evos_exact": true,
+    "actual_root_merged_utils_bytes_exact_to_accepted_Evos": true,
+    "actual_root_merged_tests_preserve_Evos_executable_AST_plus_exact_ScanR_test": true
+  },
+  "findings": [],
+  "reasoning": [
+    "Two acquisition-user reports supply the exact cited stems; both runnable .tif suffixes are clearly labeled inferred, not observed complete acquisition filenames. OME TIFF listing is used only as a format cross-check.",
+    "The second stem expands only evidence examples. Existing ScanR regex, group meanings, index bases, label/key and provisional status are unchanged.",
+    "No new callable, API documentation, enabled nested helper, or tr literal identity is introduced.",
+    "Actual Root integration8fa5d1 combines only ScanR record with accepted EVOS record and exact original slice guard. Existing test documentation union is prose-only; executable contracts preserve both amendments."
+  ],
+  "limits": [
+    "Independent source/evidence review only; no tests/imports/collectors/writers/network repeated.",
+    "No primary external page refetch or independent acquired-data/device/science acceptance claimed.",
+    "Provisional inferred-suffix examples do not certify complete raw filenames or whole N441 acceptance.",
+    "Merged union test execution is separately owned by Easy; no result inferred here."
+  ]
+}

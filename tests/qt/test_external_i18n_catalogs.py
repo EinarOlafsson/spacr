@@ -1173,9 +1173,10 @@ def test_github_readme_links_every_external_language_page():
     readme = (ROOT / "README.rst").read_text(encoding="utf-8")
     picker_relative = "docs/i18n/readme/README.md"
     assert picker_relative in readme, "README.rst does not link the picker"
-    assert "docs/i18n/TRANSLATION_MODELS.md" in readme
 
     picker = (ROOT / picker_relative).read_text(encoding="utf-8")
+    assert "[TRANSLATION_MODELS.md](../TRANSLATION_MODELS.md)" in picker
+    assert (ROOT / "docs/i18n/TRANSLATION_MODELS.md").is_file()
     for language in LANGUAGES:
         assert f"README.{language}.rst" in picker, (
             f"{language} is not on the picker page, so it is unreachable")

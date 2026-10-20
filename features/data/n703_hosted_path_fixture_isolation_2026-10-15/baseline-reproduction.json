@@ -1,0 +1,25 @@
+{
+  "baseline_source": "9745d2dc78c0330cfe2ac85cb3e53bcc18cdbd60",
+  "hosted_run": 38699600639,
+  "hosted_source": "8fc2aa56",
+  "real_hosted_failure_context": "Workflow adds GITHUB_WORKSPACE to PYTHONPATH; checkout and fake old wheel both version1.5.1.4. Disposable extra metadata directory reproduces that same-version owner exposure without editing source metadata.",
+  "baseline_exit": 1,
+  "original_nodes": [
+    "test_offline_staging_keeps_previous_runtime_and_rolls_back_after_activation[None]",
+    "test_real_pip_transaction_keeps_the_original_until_verified[None]"
+  ],
+  "disposable_mac_prefix_checks": [
+    {
+      "prefix": "/mnt/wd4tb/scratch/n703-hosted-path-fixtures-20261015/baseline-tmp/test_offline_staging_keeps_precurrent/installation/venv",
+      "old_qt_py_exists": false,
+      "old_distribution_metadata_exists": false
+    },
+    {
+      "prefix": "/mnt/wd4tb/scratch/n703-hosted-path-fixtures-20261015/baseline-tmp/test_offline_staging_keeps_pre0/installation/venv",
+      "old_qt_py_exists": false,
+      "old_distribution_metadata_exists": false
+    }
+  ],
+  "baseline_log_sha256": "1de91a6699e5e582c56506d82ef0827d13b45ea6de212a5689a7cd59dc5a9497",
+  "scope": "Only two installation fixture functions; no production source changes; remove inherited PYTHONPATH in monkeypatch lifetime, retain PYTHONPYCACHEPREFIX; assert actual old qt.py bytes and read-only production identity before original tests."
+}

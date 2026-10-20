@@ -40,19 +40,20 @@ def test_failed_copy_preserves_working_state_and_aborts_every_action(qtbot, qt_t
     dialog.show()
     before = (copy.deepcopy(dialog.rows), copy.deepcopy(dialog.row_keys),
               copy.deepcopy(dialog.columns), dialog.table.rowCount(), dialog.table.columnCount())
-    real_copy = fc.shutil.copy2
+    real_copy = fc.shutil.copyfileobj
 
-    def failed_copy(src, dst):
-        if Path(src).name == 'f2_c2.tif':
-            Path(dst).write_bytes(b'incomplete copy')
+    def failed_copy(src, dst, length=0):
+        if Path(src.name).name == 'f2_c2.tif':
+            dst.write(b'incomplete copy')
+            dst.flush()
             raise OSError('deliberate disk failure')
-        return real_copy(src, dst)
+        return real_copy(src, dst, length)
 
     def forbidden(*args, **kwargs):
         pytest.fail('Downstream sorting, teaching or detection ran after an incomplete copy')
 
     with monkeypatch.context() as patch:
-        patch.setattr(fc.shutil, 'copy2', failed_copy)
+        patch.setattr(fc.shutil, 'copyfileobj', failed_copy)
         patch.setattr(ofm.cs, 'parse_names', forbidden)
         patch.setattr(ofm.cs, 'infer_regex', forbidden)
         patch.setattr(ofm.cs, '_teach_step', forbidden)
@@ -82,6 +83,7 @@ def test_failed_copy_preserves_working_state_and_aborts_every_action(qtbot, qt_t
     # Fixing the copy problem and retrying uses a new complete output folder;
     # partial output and its diagnostic manifest remain available for inspection.
     qtbot.mouseClick(dialog.sort_button, Qt.LeftButton)
+    qtbot.waitUntil(lambda: not dialog._sort_busy(), timeout=30000)
     assert dialog.source_edit.text() == str(tmp_path / 'experiment_renamed_2')
     assert not dialog.consolidate_check.isChecked()
     assert 'Consolidation failed' not in dialog.status.text()

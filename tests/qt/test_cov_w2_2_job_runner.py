@@ -367,7 +367,8 @@ def test_every_live_runner_is_asked_to_stop_at_quit(qapp):
     live = Recording(app_key="testing")
     try:
         assert shutdown_all(25) >= 1
-        assert asked_of == [25]
+        assert len(asked_of) == 1 and 0 <= asked_of[0] <= 25, (
+            "each runner is handed what is left of ONE shared budget")
     finally:
         del live
         gc.collect()
@@ -398,7 +399,8 @@ def test_one_runner_that_will_not_stop_does_not_strand_the_others(qapp):
     fine = Willing(app_key="testing")
     try:
         asked = shutdown_all(25)      # must not raise
-        assert reached == [25], "the sweep stopped at the stuck runner"
+        assert len(reached) == 1 and 0 <= reached[0] <= 25, (
+            "the sweep stopped at the stuck runner")
         assert asked >= 1
     finally:
         del stuck, fine

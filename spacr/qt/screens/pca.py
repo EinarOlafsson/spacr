@@ -1,4 +1,4 @@
-"""The PCA screen — hundreds of features, two axes, and which ones did it.
+"""The PCA screen — decompose a measurement table and show the feature loadings.
 
 Assembles four things that already exist:
 
@@ -23,7 +23,7 @@ how much of the table the picture is actually about.
 Filter, then decompose
 ----------------------
 A filter change **recomputes** the decomposition rather than just re-drawing
-it, and that is the interesting decision on this screen. PCA is a property of
+it. PCA is a property of
 a population: the centre, the scale and the component directions are all
 computed from the rows in it. Keeping the old components and dropping the
 filtered points would draw a plot whose axes belong to a population the user is
@@ -80,8 +80,8 @@ class PCAScreen(QWidget):
         use.
     :param parent: parent widget; ownership only.
     :param threaded: ``False`` runs every table read inline instead of on the
-        job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE
-        CALL; a user needs the window to keep painting while a large table
+        job runner's thread. A test needs the result on the line after the
+        call; a user needs the window to keep painting while a large table
         loads. The jobs are the same either way -- they still register, still
         report failure through ``job_failed`` -- so only the waiting differs.
     """

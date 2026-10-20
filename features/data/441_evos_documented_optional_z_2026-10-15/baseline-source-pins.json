@@ -1,0 +1,8 @@
+{
+  "spacr/regex_infer.py": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+  "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+  "spacr/io.py": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+  "spacr/convert.py": "d70cc4f94f5bf1132cf72d816d3428c5afd12367f6393c42e452f71d7e46d22c",
+  "tests/test_evos_documented_optional_z_441.py": "b8c94a51499f0c39f3cecdbf8b5b0d73f1d2200880d63fedc20d67eb9fc3941b",
+  "tests/test_a_metadata_type_for_every_common_microscope.py": "b9bc482ac13720956f2fc67c0469c8067cd23751a1afee493e3dc94e47655bc5"
+}

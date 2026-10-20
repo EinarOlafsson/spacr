@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Sonnet 5.5), no native-speaker signoff",
+  "note": "Reviewed API translations (AI review, same method as delta6c-6e) for item 695: the borderless window preference, the startup replay, the container opacity and the four-second blow-away docstrings.",
+  "records": [
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#0",
+      "source": "Whether the main window is borderless, filling its screen's work area.",
+      "source_sha256": "6696d9463f84d759bd511101da97bcc98e37e471d0c8148b568a544fb80c0559",
+      "context": "Whether the main window is borderless, filling its screen's work area.",
+      "translation": "Si la ventana principal no tiene bordes y ocupa el área de trabajo de su pantalla.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#1",
+      "source": "The Borderless window switch in the spaCR menu and in Help > Window. Off gives the platform's own framed window, opened at the measured width.",
+      "source_sha256": "7babea5116d9784edfa61dc59be402dc6fe7a70e5975897d19b56e15f69a99f9",
+      "context": "The Borderless window switch in the spaCR menu and in Help > Window. Off gives the platform's own framed window, opened at the measured width.",
+      "translation": "El interruptor Ventana sin bordes del menú de spaCR y de Help > Window. Desactivado da la ventana con marco propia de la plataforma, abierta con el ancho medido.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#2",
+      "source": "``True`` unless the switch was turned off; on by default.",
+      "source_sha256": "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857",
+      "context": "``True`` unless the switch was turned off; on by default.",
+      "translation": "``True`` salvo que el interruptor se haya desactivado; activado por defecto.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.preferences.set_borderless_window#0",
+      "source": "Choose a borderless or a framed main window.",
+      "source_sha256": "dd37fe43655dda8492c04f5e5075f2e7f4f0cb93bb72fef976c86fb2053998e4",
+      "context": "Choose a borderless or a framed main window.",
+      "translation": "Elegir una ventana principal sin bordes o con marco.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_borderless_window#1",
+      "source": "``True`` for borderless.",
+      "source_sha256": "fa862288b574333fb21abcd51bc0c637fe970e7015c40064f1024b2b5f34c179",
+      "context": "``True`` for borderless.",
+      "translation": "``True`` para sin bordes.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#10",
+      "source": "how many times slower than the 694 flight each tile flies (lift, flip, spin, travel and fade are stretched alike).",
+      "source_sha256": "c85ce426df60be8aa7904bd784bde2d80f61d256000226a99fcd63aa78e97bbb",
+      "context": "how many times slower than the 694 flight each tile flies (lift, flip, spin, travel and fade are stretched alike).",
+      "translation": "cuántas veces más lento que el vuelo de 694 vuela cada tesela (el despegue, el giro, la rotación, el recorrido y el desvanecimiento se estiran por igual).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#11",
+      "source": "when given, the last tile has gone by then: lives are cut to end there and :attr:`duration` is ``end``.",
+      "source_sha256": "5584f91e8ebc8f359f1bcd8d5c35599d5ecb2e2d69ada108dc89d9b0982eaf40",
+      "context": "when given, the last tile has gone by then: lives are cut to end there and :attr:`duration` is ``end``.",
+      "translation": "cuando se da, la última tesela se ha ido para entonces: las vidas se cortan allí y :attr:`duration` es ``end``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#1",
+      "source": "The logo holds until two seconds after the cover first painted (at once when called later than that), then blows away over four seconds: the black container fades from one to three seconds in and the last tile has gone at four. The cover deletes itself then.",
+      "source_sha256": "6efefcdf4e85f61d1f97a90af92af73062ad47bb2158659a803945de350a2ce3",
+      "context": "The logo holds until two seconds after the cover first painted (at once when called later than that), then blows away over four seconds: the black container fades from one to three seconds in and the last tile has gone at four. The cover deletes itself then.",
+      "translation": "El logotipo se mantiene hasta dos segundos después de que la cubierta se pintó por primera vez (de inmediato si se llama más tarde), y luego se dispersa durante cuatro segundos: el contenedor negro se desvanece del primer al tercer segundo y la última tesela se ha ido a los cuatro. La cubierta se elimina sola entonces.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#3",
+      "source": "play even where :func:`startup_animation_allowed` says no; for the Help replay, tests and previews.",
+      "source_sha256": "ec5380f74a5384036fd4b2782649ecf274594c3e1ff229bdb93f7f21cfd73461",
+      "context": "play even where :func:`startup_animation_allowed` says no; for the Help replay, tests and previews.",
+      "translation": "reproducir incluso donde :func:`startup_animation_allowed` dice que no; para la repetición de Help, las pruebas y las vistas previas.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#4",
+      "source": "hold the logo, then cross-fade it and the container away in one second instead of blowing it away (Reduce motion).",
+      "source_sha256": "5a3404365eb8f1412ef14154c877341c9d2e76b7bb168aa59c816ffd70d94386",
+      "context": "hold the logo, then cross-fade it and the container away in one second instead of blowing it away (Reduce motion).",
+      "translation": "mantener el logotipo y luego fundir él y el contenedor en un segundo en lugar de dispersarlos (Reducir el movimiento).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity#0",
+      "source": "How opaque the black container behind the logo is now.",
+      "source_sha256": "e91e6b0da79dde9b6329bc20ec7b2dfea7b2985138efe7b1b1b70d45fb8954b2",
+      "context": "How opaque the black container behind the logo is now.",
+      "translation": "Cuán opaco es ahora el contenedor negro detrás del logotipo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity#1",
+      "source": "1.0 until a second into the blow-away, then falling monotonically to 0.0 three seconds in (over the one second of the plain cross-fade under Reduce motion); 0.0 once the cover is done.",
+      "source_sha256": "783ca45f2efa090faad6ff940369432be46f4b9971c46a28423261cbeb5bc6cf",
+      "context": "1.0 until a second into the blow-away, then falling monotonically to 0.0 three seconds in (over the one second of the plain cross-fade under Reduce motion); 0.0 once the cover is done.",
+      "translation": "1.0 hasta un segundo después del inicio de la dispersión, luego decreciendo de forma monótona hasta 0.0 a los tres segundos (durante el segundo del fundido simple bajo Reducir el movimiento); 0.0 una vez terminada la cubierta.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#0",
+      "source": "Keep covering the window as it resizes.",
+      "source_sha256": "e3908476e0189f8e05c8b2a3fe72cef3b2c461f2d85f5795ba1027d24df8861a",
+      "context": "Keep covering the window as it resizes.",
+      "translation": "Seguir cubriendo la ventana cuando cambia de tamaño.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#1",
+      "source": "A window that opens maximised is resized after the cover is put over it, and by then the window may have handed the cover to the blow-away and stopped sizing it.",
+      "source_sha256": "928fa536d3b3e02ccb3f9ccfba87e5df30f3e450f4370529a84429b3a24a768b",
+      "context": "A window that opens maximised is resized after the cover is put over it, and by then the window may have handed the cover to the blow-away and stopped sizing it.",
+      "translation": "Una ventana que se abre maximizada cambia de tamaño después de colocarle la cubierta, y para entonces la ventana puede haber entregado la cubierta a la dispersión y dejado de ajustarla.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#2",
+      "source": "the window this covers.",
+      "source_sha256": "d8b4c87947dc5706b037fe6d478e3b06c816b8f51263600de99985df02d04d1c",
+      "context": "the window this covers.",
+      "translation": "la ventana que cubre.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#3",
+      "source": "the event; only a resize is acted on.",
+      "source_sha256": "784c858a3afe115edea340cceee5f0650707ec7a7ceef26311eef17c89574d34",
+      "context": "the event; only a resize is acted on.",
+      "translation": "el evento; solo se actúa sobre un cambio de tamaño.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#4",
+      "source": "``False``, so the window still sees every event.",
+      "source_sha256": "f875ef6e96d7862b203196a9897f64ba5ac6f59bc4fd81d94f0cd3ed628ae6df",
+      "context": "``False``, so the window still sees every event.",
+      "translation": "``False``, para que la ventana siga viendo todos los eventos.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#0",
+      "source": "Whether a blow-away is drawing its frames.",
+      "source_sha256": "4f147dc3159d9379023f03408fc94b1c007df2f2a4e12af5afeb62e5fb65f0ec",
+      "context": "Whether a blow-away is drawing its frames.",
+      "translation": "Si una dispersión está dibujando sus fotogramas.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#1",
+      "source": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the four seconds it runs. While the logo only holds, the window keeps loading underneath it.",
+      "source_sha256": "1d44a287cb158f90eff57bac59c06d910b7126dc6e13ed09117420892ea04bc6",
+      "context": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the four seconds it runs. While the logo only holds, the window keeps loading underneath it.",
+      "translation": "El calentamiento en tiempos muertos pregunta esto y espera, para que sus porciones no quiten fotogramas a la animación en los cuatro segundos que dura. Mientras el logotipo solo se mantiene, la ventana sigue cargando debajo.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#2",
+      "source": "``True`` while any cover that still exists is past its hold and drawing; a cover deleted mid-way, with its window, no longer counts.",
+      "source_sha256": "dcd0b4a50b13145cede04bd05c397d960d9c795f87a8116c3644e117793ac1c0",
+      "context": "``True`` while any cover that still exists is past its hold and drawing; a cover deleted mid-way, with its window, no longer counts.",
+      "translation": "``True`` mientras alguna cubierta que aún existe ha pasado su espera y está dibujando; una cubierta eliminada a mitad, con su ventana, ya no cuenta.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#0",
+      "source": "Play the startup sequence again inside ``window``.",
+      "source_sha256": "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+      "context": "Play the startup sequence again inside ``window``.",
+      "translation": "Reproducir de nuevo la secuencia de inicio dentro de ``window``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#1",
+      "source": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
+      "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "translation": "Help > Show startup animation. El contenedor negro con el logotipo vuelve sobre la ventana, se mantiene dos segundos y se dispersa como al inicio. Se reproduce incluso cuando Preferences > Animación > Animación de inicio está desactivada; bajo Accesibilidad > Reducir el movimiento el logotipo se mantiene y luego se funde en un segundo. Un clic o una tecla la omite. El tamaño, el estado y el foco del teclado de la ventana se dejan como estaban.",
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_date": "2026-10-15",
+      "retired_reason": "The source documentation was corrected in c3b78f277dc; replacement exact-source technical review is in 2026-10-15-figure-startup-prose.json. The original source and translation remain retained as historical evidence."
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",
+      "source": "the window to play it in.",
+      "source_sha256": "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+      "context": "the window to play it in.",
+      "translation": "la ventana en la que se reproduce.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#3",
+      "source": "the cover now playing, or ``None`` when the logo cannot be read or a cover is already over the window.",
+      "source_sha256": "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2",
+      "context": "the cover now playing, or ``None`` when the logo cannot be read or a cover is already over the window.",
+      "translation": "la cubierta que se reproduce ahora, o ``None`` cuando no se puede leer el logotipo o ya hay una cubierta sobre la ventana.",
+      "review_basis": "written from the English"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ from functools import partial
 from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from shiboken6 import isValid
 from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
                                QFrame, QLabel, QPushButton, QScrollArea,
                                QSizePolicy, QTabBar, QTableWidget,
@@ -30,8 +31,10 @@ from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
 from ..i18n import tr
 from ..theme import install_close_marks
 from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _spare_items, _spare_table_item, install_sorting)
 from ..widgets.fold_strip import FoldStrip
+from .. import _after
 
 LOG = logging.getLogger(__name__)
 
@@ -41,6 +44,17 @@ HOST_KEY = "map_barcodes"
 #: Registry keys of the modules folded into it, in the order the strip
 #: draws them.
 FOLDED_APPS: Tuple[str, ...] = ("barcode_qc",)
+
+PAGE_FOLDS: Tuple[str, ...] = ("spatial_map",)
+"""The folds opened as a page by a switch in this screen's actions row.
+
+The arrangement OPS has on Mask Generation, rather than a masthead strip
+button. Spatial Map Barcodes is the batch half of the spatial
+transcriptomics panel: it maps every transcript of a slide onto the fields
+Spatial Mask Generation wrote. It is alpha and stays out of
+:data:`FOLDED_APPS`, which would list it in the menu with the alpha gate
+shut. See :func:`install_spatial_map_switch`.
+"""
 
 #: Opening size of a folded module's window. Wide enough for a settings
 #: form beside a console, which is what every settings-driven module is.
@@ -155,6 +169,16 @@ FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
         "Methods & Results",
         "Draft the methods and results sections from the run, with every "
         "number traced",
+        "alpha"),
+    "spatial_masks": (
+        "Spatial Mask Generation",
+        "Segment a whole Xenium morphology or Visium HD H&E slide in "
+        "overlapping tiles into fields Measure reads.",
+        "alpha"),
+    "spatial_map": (
+        "Spatial Map Barcodes",
+        "Count every Xenium transcript or Visium HD bin into the cells "
+        "Spatial Mask Generation segmented, with infection calls.",
         "alpha"),
 }
 
@@ -615,6 +639,215 @@ class FoldOpener:
         return shown
 
 
+class PageFold(QObject):
+    """An actions-row switch on a host screen and the page it opens.
+
+    The general form of what Mask Generation built for OPS: a folded module
+    with a run entry point of its own is not a set of categories on the
+    host's form but a page on the host's page strip, opened and closed by a
+    switch in the host's actions row. :class:`spacr.qt.screens.mask._OpsPage`
+    is this class for the key ``"ops"``; the spatial submodules are this
+    class for ``"spatial_masks"`` on Mask Generation and ``"spatial_map"``
+    on Map Barcodes.
+
+    A ``QObject`` parented to the host screen with bound-method slots,
+    rather than closures hung off the switch: the page strip's own close
+    mark can take the page down without telling the switch, so something
+    has to be connected to ``tabCloseRequested`` to put the switch back.
+    A closure doing that would keep the host alive through the switch.
+
+    The screen behind the page is built once and kept, the way every
+    other fold's is -- pressing the switch again puts the SAME screen
+    back, with whatever it had loaded still loaded.
+
+    :param screen: the host screen the switch sits on.
+    :param switch: the actions-row toggle.
+    :param key: the folded module's registry key.
+    :param build: called with the main window (or None) and returning the
+        module's screen; the settings-driven screen for ``key`` when omitted.
+    """
+
+    def __init__(self, screen: QWidget, switch, key: str,
+                 build: Optional[Callable[[Optional[QWidget]],
+                                          QWidget]] = None) -> None:
+        """Record the switch and how to build the page, building neither."""
+        super().__init__(screen)
+        self.screen = screen
+        self.switch = switch
+        self.key = str(key)
+        self.opener = FoldOpener(screen, self.key,
+                                 build or partial(build_settings_screen,
+                                                  self.key))
+        self.page: Optional[QWidget] = None
+        self._watching = False
+
+    def set_shown(self, on: bool) -> None:
+        """Open or close the page.
+
+        Never raises: this is a slot on a user's click, and a module that
+        cannot be built must cost its own page and nothing else. A failed
+        open puts the switch back off rather than leaving it lit over
+        nothing.
+
+        :param on: the switch's new state.
+        """
+        if on:
+            try:
+                self.page = self.opener.open()
+            except Exception:
+                LOG.debug("Could not open the %s page", self.key,
+                          exc_info=True)
+                self.page = None
+            if self.page is None:
+                self._restate(False)
+                return
+            self._watch_the_strip()
+            return
+        page = self.page or getattr(self.opener, "window", None)
+        self.page = None
+        if page is None:
+            return
+        try:
+            if not hide_as_page(page, self.screen):
+                page.hide()
+        except Exception:
+            LOG.debug("Could not close the %s page", self.key,
+                      exc_info=True)
+
+    def show_page(self) -> None:
+        """Open the page through the switch, so the switch shows the state.
+
+        What navigation calls when it is asked for this module by key: a
+        switch already on has its page put back rather than being left lit
+        over a page its cross closed.
+        """
+        switch = self.switch
+        if switch is None or switch.isChecked():
+            self.set_shown(True)
+            return
+        switch.setChecked(True)
+
+    def _watch_the_strip(self) -> None:
+        """Follow the page's own close mark, once the strip exists.
+
+        The strip is created by the first page opened on this host, so
+        this cannot be connected in ``__init__``.
+        """
+        if self._watching:
+            return
+        pages = getattr(self.screen, "_fold_pages", None)
+        if pages is None:
+            return
+        try:
+            pages.tabCloseRequested.connect(self._page_closed)
+        except Exception:
+            LOG.debug("Could not follow the page strip for %s", self.key,
+                      exc_info=True)
+            return
+        self._watching = True
+
+    def _page_closed(self, index: int) -> None:
+        """Put the switch back when the page is closed by its own cross.
+
+        :param index: the page the strip is closing.
+        """
+        pages = getattr(self.screen, "_fold_pages", None)
+        if pages is None or self.page is None:
+            return
+        try:
+            ours = pages.indexOf(self.page)
+        except RuntimeError:
+            ours = -1
+        if ours not in (index, -1):
+            return
+        self.page = None
+        self._restate(False)
+
+    def _restate(self, on: bool) -> None:
+        """Move the switch without asking it to open or close anything.
+
+        :param on: the state the switch should show.
+        """
+        switch = self.switch
+        if switch is None or bool(switch.isChecked()) == bool(on):
+            return
+        blocked = switch.blockSignals(True)
+        try:
+            switch.setChecked(on)
+        finally:
+            switch.blockSignals(blocked)
+
+
+def page_fold(screen: Optional[QWidget], key: str) -> Optional[PageFold]:
+    """The page fold for ``key`` installed on ``screen``, or None.
+
+    :param screen: the host screen to inspect.
+    :param key: the folded module's registry key.
+    """
+    folds = getattr(screen, "_page_folds", None) if screen is not None else None
+    fold = folds.get(str(key)) if isinstance(folds, dict) else None
+    return fold if isinstance(fold, PageFold) else None
+
+
+def register_page_fold(screen: QWidget, fold: PageFold) -> PageFold:
+    """Connect ``fold``'s switch and record it on its host screen.
+
+    :param screen: the host screen.
+    :param fold: the page fold to wire.
+    :returns: ``fold``.
+    """
+    fold.switch.toggled.connect(fold.set_shown)
+    folds = getattr(screen, "_page_folds", None)
+    if not isinstance(folds, dict):
+        folds = {}
+        screen._page_folds = folds
+    folds[fold.key] = fold
+    return fold
+
+
+def install_page_fold(screen: QWidget, switch, host_key: str, key: str,
+                      build: Optional[Callable[[Optional[QWidget]],
+                                               QWidget]] = None
+                      ) -> Optional[PageFold]:
+    """Wire an actions-row ``switch`` on ``screen`` to the page for ``key``.
+
+    Idempotent: a second call on the same screen returns the first
+    installation and connects nothing further.
+
+    :param screen: the host screen.
+    :param switch: the toggle to connect.
+    :param host_key: registry key the host screen must carry.
+    :param key: the folded module's registry key.
+    :param build: the module's screen factory; the settings-driven screen
+        for ``key`` when omitted.
+    :returns: the installation, or None when ``screen`` is not the host.
+    """
+    if getattr(screen, "app_key", None) != host_key or switch is None:
+        return None
+    existing = page_fold(screen, key)
+    if existing is not None:
+        return existing
+    return register_page_fold(screen, PageFold(screen, switch, key, build))
+
+
+def page_fold_host(key: str) -> Optional[str]:
+    """The host screen key whose actions row opens ``key`` as a page.
+
+    Read from each host's ``PAGE_FOLDS``, the declaration the switches are
+    built from, so navigation and the switches cannot disagree.
+
+    :param key: a module key.
+    :returns: the host's registry key, or None when ``key`` is no page fold.
+    """
+    from importlib import import_module
+
+    for host_key, module_name in FOLD_HOST_MODULES.items():
+        module = import_module(f"{__package__}.{module_name}")
+        if str(key) in getattr(module, "PAGE_FOLDS", ()):
+            return host_key
+    return None
+
+
 def install_fold_strip(screen: QWidget, host_key: str,
                        folded: Sequence[str],
                        builders: Dict[str, Callable[[Optional[QWidget]],
@@ -848,6 +1081,7 @@ class CategoryFold:
         self.model = None
         self.settings_keys: Tuple[str, ...] = ()
         self._active = False
+        self._section_keys: Dict[int, Tuple[str, ...]] = {}
 
     def mount(self) -> bool:
         """Build the module's categories and put them on the host, hidden.
@@ -893,6 +1127,8 @@ class CategoryFold:
             layout.insertWidget(max(0, layout.count() - 1), section)
             section.setVisible(False)
             self.sections.append(section)
+            self._section_keys[id(section)] = tuple(
+                by_widget[id(widget)] for _label, widget in own)
             mounted_keys.extend(by_widget[id(widget)] for _label, widget in own)
         if not self.sections:
             return False
@@ -963,8 +1199,38 @@ class CategoryFold:
             hide them; coerced with ``bool()``.
         """
         self._active = bool(on)
+        held = self._alpha_held_sections()
         for section in self.sections:
-            section.setVisible(self._active)
+            section.setVisible(self._active and id(section) not in held)
+
+    def _alpha_held_sections(self) -> set:
+        """``id()`` of each mounted category made only of alpha settings.
+
+        While Preferences -> Show alpha features is off such a category stays
+        hidden with the fold on, as its rows do, so its heading does not
+        announce a feature the gate is holding back. A category that also
+        holds ordinary settings keeps its card.
+        """
+        try:
+            from ..preferences import _is_alpha_visible
+            from ...settings import _alpha_names
+
+            if _is_alpha_visible():
+                return set()
+            alpha = set(_alpha_names("settings", self.key))
+            host_key = getattr(self.screen, "app_key", None)
+            if host_key:
+                alpha |= set(_alpha_names("settings", host_key))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the alpha gate for %s", self.key,
+                      exc_info=True)
+            return set()
+        return {marker for marker, keys in self._section_keys.items()
+                if keys and all(key in alpha for key in keys)}
+
+    def _refresh_alpha(self) -> None:
+        """Re-decide the mounted categories after the alpha gate changed."""
+        self.set_active(self._active)
 
     def collect(self) -> Dict[str, object]:
         """Return the settings contributed by this fold.
@@ -1071,6 +1337,11 @@ class CategoryFoldSet:
                 if key in needed and self.is_active(other):
                     self._set_button(other, False)
         self.apply_gates()
+
+    def _refresh_alpha(self) -> None:
+        """Re-decide every fold's categories after the alpha gate changed."""
+        for fold in self.folds.values():
+            fold._refresh_alpha()
 
     def is_active(self, key: str) -> bool:
         """Whether ``key``'s categories are showing and its gate is on.
@@ -2199,6 +2470,11 @@ class BarcodeSearchPanel(QWidget):
             ABSENT: palette.get("fg_muted"),
             INDETERMINATE: palette.get("warning"),
         }
+        for row in range(len(findings), self.findings.rowCount()):
+            for column in range(self.findings.columnCount()):
+                cell = self.findings.takeItem(row, column)
+                if cell is not None:
+                    _spare_items(self.findings).append(cell)
         self.findings.setRowCount(len(findings))
         for row, finding in enumerate(findings):
             cells = (
@@ -2215,7 +2491,7 @@ class BarcodeSearchPanel(QWidget):
             for column, text in enumerate(cells):
                 item = self.findings.item(row, column)
                 if item is None:
-                    item = table_item()
+                    item = _spare_table_item(self.findings)
                     self.findings.setItem(row, column, item)
                 item.setText(str(text))
                 item.setToolTip(str(finding.reason))
@@ -2386,7 +2662,7 @@ class BarcodeSearchPanel(QWidget):
         self._proposal = None
         self._changes = ()
         self._reads_shown = 0
-        self.findings.setRowCount(0)
+        _retire_table_cells(self.findings)
         self.proposal_label.setText("")
         self.reads.clear()
 
@@ -2608,7 +2884,7 @@ class _SpatialPanelLifecycle(QObject):
             if panel is not None:
                 panel._shutdown()
         elif event.type() == QEvent.Close and watched.isVisible():
-            QTimer.singleShot(0, lambda: self._check_closed(watched))
+            _after(0, self, lambda: self._check_closed(watched))
         elif event.type() == QEvent.Show:
             panel = self._panel()
             if panel is not None:
@@ -2619,7 +2895,8 @@ class _SpatialPanelLifecycle(QObject):
         """Shut the panel down if its window really ended up hidden."""
         panel = self._panel()
         try:
-            if panel is not None and not watched.isVisible():
+            if (panel is not None and isValid(watched)
+                    and not watched.isVisible()):
                 panel._shutdown()
         except RuntimeError:
             pass
@@ -2678,9 +2955,10 @@ class _SpatialTranscriptomicsPanel(QWidget):
             jobs.shutdown()
 
         self.destroyed.connect(destroyed)
-        for edit in (self.folder, self.image, self.landmarks):
+        for edit in (self.folder, self.image, self.landmarks, self.crop_window,
+                     self.window_image):
             edit.textChanged.connect(self._load_inputs_changed)
-        for combo in (self.platform, self.bin_um):
+        for combo in (self.platform, self.bin_um, self.window_unit):
             combo.currentIndexChanged.connect(self._load_inputs_changed)
         for spin in (self.min_qv, self.level):
             spin.valueChanged.connect(self._load_inputs_changed)
@@ -2783,6 +3061,29 @@ class _SpatialTranscriptomicsPanel(QWidget):
             "resolution Visium image the masks were segmented on; each level "
             "halves the resolution. Default 0."))
         form.addRow(tr("Image level"), self.level)
+        from PySide6.QtWidgets import QLineEdit
+
+        self.crop_window = QLineEdit(self)
+        self.crop_window.setPlaceholderText(tr("x, y, width, height"))
+        self.crop_window.setToolTip(tr(
+            "Analyse only this part of the platform image: x, y, width and "
+            "height of a rectangle, in the unit chosen below. Only the image "
+            "tiles under it are read, so a full-resolution Xenium morphology "
+            "image (tens of GB) can be the analysis frame. The masks must be "
+            "made from the cropped image. Default empty, the whole image."))
+        form.addRow(tr("Window"), self.crop_window)
+        self.window_unit = QComboBox(self)
+        for value, caption in (("um", "µm"), ("px", "px")):
+            self.window_unit.addItem(caption, value)
+        self.window_unit.setToolTip(tr(
+            "The unit of the window: micrometres on the tissue, or pixels of "
+            "the image at the chosen level. Default µm."))
+        form.addRow(tr("Window unit"), self.window_unit)
+        self.window_image = self._path_row(
+            form, "Save window image",
+            "Optional TIFF file the cropped image is written to on Load, to "
+            "segment it in spaCR. Default empty, nothing written.",
+            save=True)
         self.landmarks = self._path_row(
             form, "Landmarks",
             "Optional table of landmark pairs, with columns source_x, "
@@ -2795,6 +3096,27 @@ class _SpatialTranscriptomicsPanel(QWidget):
                 form, caption,
                 "A spaCR label mask (.npy or image) of this object type, "
                 "made from the image above. Default empty.")
+        self.pathogen_genes = QLineEdit(self)
+        self.pathogen_genes.setPlaceholderText(tr("e.g. CHIKV*"))
+        self.pathogen_genes.setToolTip(tr(
+            "The pathogen's own genes or probes, separated by commas; a name "
+            "ending in * matches every gene starting with it. When given, a "
+            "host cell's infection is read from its count of these "
+            "transcripts and they are left out of the host comparisons. "
+            "Default empty: infection is read from the pathogen and vacuole "
+            "masks."))
+        form.addRow(tr("Pathogen genes"), self.pathogen_genes)
+        self.min_pathogen_transcripts = QSpinBox(self)
+        self.min_pathogen_transcripts.setRange(1, 10000)
+        self.min_pathogen_transcripts.setValue(1)
+        self.min_pathogen_transcripts.setToolTip(tr(
+            "A host cell counts as infected when it holds at least this many "
+            "pathogen-gene transcripts (Visium: UMIs), or, with no pathogen "
+            "genes named, overlaps at least this many pathogen or vacuole "
+            "objects. The value is written into the infection and comparison "
+            "tables. Default 1."))
+        form.addRow(tr("Minimum pathogen transcripts"),
+                    self.min_pathogen_transcripts)
         self.region_mask = self._path_row(
             form, "Region mask",
             "Optional label image of regions; each object is summarised "
@@ -2847,6 +3169,12 @@ class _SpatialTranscriptomicsPanel(QWidget):
             "region_mask": self.region_mask.text().strip(),
             "db": self.db.text().strip(),
             "gene": self.gene.currentText().strip(),
+            "window": self.crop_window.text().strip(),
+            "window_unit": self.window_unit.currentData() or "um",
+            "window_image": self.window_image.text().strip(),
+            "pathogen_genes": self.pathogen_genes.text().strip(),
+            "min_pathogen_transcripts": int(
+                self.min_pathogen_transcripts.value()),
         }
 
     def _load_key(self, request) -> Tuple[object, ...]:
@@ -2857,7 +3185,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         """
         return tuple(request[key] for key in (
             "folder", "platform", "bin_um", "min_qv", "image", "level",
-            "landmarks"))
+            "landmarks", "window", "window_unit", "window_image"))
 
     def load(self, _checked: bool = False) -> bool:
         """Read the platform output, register it and draw the overlay.
@@ -2945,9 +3273,11 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self.assign_button.setEnabled(action is None)
         self.gene.setEnabled(action is None)
         for edit in (self.folder, self.image, self.landmarks, self.region_mask,
-                     self.db, *self.masks.values()):
+                     self.db, self.window_image, *self.masks.values()):
             edit.parentWidget().setEnabled(action != "run")
-        for control in (self.platform, self.bin_um, self.min_qv, self.level):
+        for control in (self.platform, self.bin_um, self.min_qv, self.level,
+                        self.crop_window, self.window_unit, self.pathogen_genes,
+                        self.min_pathogen_transcripts):
             control.setEnabled(action != "run")
 
     def _start_load(self, _checked=False):
@@ -3117,10 +3447,23 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self.summary = summary
         written = ", ".join(f"{kind} {entry['objects']}"
                             for kind, entry in summary["objects"].items())
-        self.status.setText(tr(
+        text = tr(
             "Wrote counts for {objects} objects to {db}; results in "
             "{output}.").format(objects=written, db=summary["db"],
-                                output=summary["output"]))
+                                output=summary["output"])
+        infection = summary.get("infection")
+        if infection:
+            caption = (tr(
+                "{infected} infected and {uninfected} uninfected cells at "
+                "{threshold} or more pathogen transcripts.")
+                if infection["rule"] == "pathogen_genes" else tr(
+                "{infected} infected and {uninfected} uninfected cells at "
+                "{threshold} or more pathogen objects."))
+            text += " " + caption.format(
+                infected=infection["infected"],
+                uninfected=infection["uninfected"],
+                threshold=infection["min_pathogen_transcripts"])
+        self.status.setText(text)
 
 
 def _install_spatial_transcriptomics(screen: QWidget):
@@ -3149,6 +3492,14 @@ def _install_spatial_transcriptomics(screen: QWidget):
             "image and count each gene per cell, nucleus, pathogen and "
             "vacuole."))
         card.setObjectName("MapBarcodesSpatialCard")
+        pointer = QLabel(tr(
+            "This panel previews one image. For a whole slide, switch on "
+            "Spatial in Mask Generation's actions row to segment it in "
+            "tiles, then Spatial in this screen's actions row to count "
+            "every transcript into those masks in one batch run."))
+        pointer.setObjectName("MapBarcodesSpatialBatchPointer")
+        pointer.setWordWrap(True)
+        card.body_layout.addWidget(pointer)
     except Exception:
         LOG.debug("could not build the spatial transcriptomics panel",
                   exc_info=True)
@@ -3218,3 +3569,46 @@ def _spatial_panel_of(screen: QWidget):
         return None
     screen._spatial_panel = panel
     return panel
+
+
+SPATIAL_MAP_KEY: str = PAGE_FOLDS[0]
+"""The registry key of the page the actions-row Spatial switch opens."""
+
+SPATIAL_TOGGLE_TEXT = "Spatial"
+"""What both spatial switches say, on Mask Generation and on Map Barcodes."""
+
+SPATIAL_MAP_TOGGLE_TOOLTIP = (
+    "Show or hide the Spatial Map Barcodes page: count every Xenium "
+    "transcript or Visium HD bin of a whole slide into the cells Spatial "
+    "Mask Generation segmented, with infection calls from pathogen genes. "
+    "Alpha."
+)
+"""What the Map Barcodes Spatial switch says on hover."""
+
+
+def install_spatial_map_switch(screen: QWidget, switch) -> Optional[PageFold]:
+    """Wire Map Barcodes' actions-row Spatial switch to its page.
+
+    The switch is alpha: it is named for the alpha gate here and hidden at
+    once unless Preferences -> Show alpha features is on.
+
+    :param screen: the Map Barcodes screen.
+    :param switch: the toggle to connect.
+    :returns: the installation, or None when this is not the host screen.
+    """
+    if getattr(screen, "app_key", None) != HOST_KEY or switch is None:
+        return None
+    switch.setObjectName("MapBarcodesSpatialMapSwitch")
+    fold = install_page_fold(screen, switch, HOST_KEY, SPATIAL_MAP_KEY)
+    _gate_alpha(switch)
+    return fold
+
+
+def _gate_alpha(widget: QWidget) -> None:
+    """Hide ``widget`` now if the alpha gate is shut.
+
+    :param widget: a widget whose object name is registered as alpha.
+    """
+    from ..preferences import _apply_alpha_widgets
+
+    _apply_alpha_widgets(widget)

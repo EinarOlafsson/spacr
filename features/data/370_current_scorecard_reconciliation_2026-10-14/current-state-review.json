@@ -1,0 +1,1664 @@
+{
+  "schema": "spacr.f370.current-state-reconciliation.v1",
+  "checked_at_utc": "2026-10-14T05:40:44.248688+00:00",
+  "source_commit": "0eac82f2504e9e614e5295f08e5c9453f6327798",
+  "source_worktree": "/mnt/firecuda2/Claude/spacr-worktrees/codex-home-release-1515-20261013",
+  "bindings": {
+    "features/future/370_every_published_model_carries_its_scorecard.txt": {
+      "sha256": "f097b4a9328bf9cdda39c19d4e954dea54f801c5a8d18211330357b17ac82c65",
+      "bytes": 86345,
+      "byte_identical_source_commit": true
+    },
+    "features/HANDOFF.md": {
+      "sha256": "1f7b7a81b04fd4e4b6405dbba806cf85cc03a9cb1e3d204ab926df0f48f24aad",
+      "bytes": 724474,
+      "byte_identical_source_commit": true
+    },
+    "features/data/progress_home_codex_2026-10-13.md": {
+      "sha256": "97b6044f71fa23f546a78486862f1bd72e94f878640ec5eb8889c126a9112ee8",
+      "bytes": 16935,
+      "byte_identical_source_commit": true
+    },
+    "features/data/model_rescore_curated_gt_2026-10-11/receipt.json": {
+      "sha256": "59f3326b1df9ec5dbf48c9d73e1f69cb0bb70e058a8ec512fa46d5260637ecd2",
+      "bytes": 720935,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/README.md": {
+      "sha256": "9466dc2aa9af6e5264979c56752619a95115d500a4134eff9cb0386c18449785",
+      "bytes": 1249,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/scores.json": {
+      "sha256": "2ca7e9d1002711289221f7b7c4b40aaad3bb9f024dfa9847ef2d236d29050249",
+      "bytes": 161172,
+      "byte_identical_source_commit": true
+    },
+    "spacr/model_zoo.py": {
+      "sha256": "ef5e5908875ea116161c6973a1488e6f9635d1b3f6eb5e5ab74c8603aabd7d55",
+      "bytes": 229147,
+      "byte_identical_source_commit": true
+    },
+    "spacr/model_cards.py": {
+      "sha256": "1c890508972d60e0ed40b2ddd13b23379c9b1bc5514b44ef35ce9df9cdc6621d",
+      "bytes": 7407,
+      "byte_identical_source_commit": true
+    },
+    "spacr/settings.py": {
+      "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa",
+      "bytes": 648601,
+      "byte_identical_source_commit": true
+    },
+    "spacr/scorecard.py": {
+      "sha256": "aecd9cfb1fbf452957e7f1c5c74695a314630671d1e192958c438902b0c142bb",
+      "bytes": 49105,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/screens/model_zoo.py": {
+      "sha256": "58eb5aeca04ef136644b242c6115ec1f918a179d31530fd38d19bdff625e3a93",
+      "bytes": 69263,
+      "byte_identical_source_commit": true
+    },
+    "spacr/qt/widgets/model_zoo_picker.py": {
+      "sha256": "047407ae1743d70e13dc77ce53f9a1c84948f07370e342a8d6dae114e8012353",
+      "bytes": 97813,
+      "byte_identical_source_commit": true
+    },
+    "packaging/generate_readme_visuals.py": {
+      "sha256": "fad163af1330586fb9e0164959d970875cd4d1c52d55388dc42bfdea59b38a58",
+      "bytes": 79305,
+      "byte_identical_source_commit": true
+    },
+    "tools/build_model_cards.py": {
+      "sha256": "5859e19ffb0f2cc75528aee11aa7ecf32f17608e035c963c98b1dd6ffac927f7",
+      "bytes": 23897,
+      "byte_identical_source_commit": true
+    },
+    "tools/build_score_cards.py": {
+      "sha256": "bac38c125c20ac63724fea8f579c8aec2cf2bc99297b8fbdbf23ee060b49eb38",
+      "bytes": 32895,
+      "byte_identical_source_commit": true
+    },
+    "docs/source/model_zoo.rst": {
+      "sha256": "b2045883b3b4c1f2fbae92c102210a1edd3fb6ad6ca55f08f5f891924f94e79d",
+      "bytes": 1963,
+      "byte_identical_source_commit": true
+    },
+    "docs/source/_generated/model_zoo_table.rst": {
+      "sha256": "e02d4c2ab093f55dcc065f0b5a5c9e8deeaad3fb7ea00757c81ca373a586f3e4",
+      "bytes": 5883,
+      "byte_identical_source_commit": true
+    },
+    "docs/source/_generated/model_zoo_sections.rst": {
+      "sha256": "596aa8129f39405f9231439d092c9ee85d9ae60d172427d579de01ce0e92e0fd",
+      "bytes": 31060,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_model_cards_data.py": {
+      "sha256": "7289ecb0e85880b04c0ecbd843ddbebed0788b28f9c68bcb205d5129d839bbe7",
+      "bytes": 12485,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_every_model_has_a_score_card.py": {
+      "sha256": "b457e7dadf47215efe4f65c958005bcacbb3fe51144d35c7200fa7a29bd4c6d8",
+      "bytes": 9712,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_model_cards_are_current.py": {
+      "sha256": "90abeb3ebbef8fed1e3adb2ab42f3fdd7526f58eff87f52184da1240a4fc527a",
+      "bytes": 4023,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_the_model_zoo_has_a_page_of_its_own.py": {
+      "sha256": "a1eb37079840ac5c3913744156f588dde71204fff9f9f81d80ae895369b78c30",
+      "bytes": 4702,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_the_scorecard_can_be_drawn.py": {
+      "sha256": "21247413d1fcca8cbe25b479d835501ea95f3fd9eac4e8c78c0e014038c6928c",
+      "bytes": 4544,
+      "byte_identical_source_commit": true
+    },
+    "tests/test_the_scorecard_measures_against_ground_truth.py": {
+      "sha256": "09e76a1b083314c94f298f79ce57b62228c69e5d3259c611fe2a5b916a25fbfa",
+      "bytes": 24603,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_model_card_viewer.py": {
+      "sha256": "fc08be75910071a66d9f76271bd44b367f92f48581516aa8bd5ab0f98633b84d",
+      "bytes": 10809,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_model_card_viewer_behaviour.py": {
+      "sha256": "bc4cfcd1889a75b64a69a7b187bdbc80dfeb2a0a92f8bfaaea9086ef4bacb6f0",
+      "bytes": 11939,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_model_zoo_screen.py": {
+      "sha256": "ff85889c225d3dc8d9f54e0ae1dca29d69b55e13a5ce9ea4590d7a6b2279a5f8",
+      "bytes": 29781,
+      "byte_identical_source_commit": true
+    },
+    "tests/qt/test_model_zoo_picker.py": {
+      "sha256": "39fc248b47e93315a4287e2a330210dce38e36f2bb6148ce57c5f37974af03d4",
+      "bytes": 17575,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.json": {
+      "sha256": "d9ecd22d0582c4b9668c802964e3e236254c6674afe95616375263c5ce2ef09a",
+      "bytes": 4174,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/card.json": {
+      "sha256": "19af073e0a5c752df94dc4943ed66f2927d2351fffa745d070c3da7faf7e4806",
+      "bytes": 14393,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/README.md": {
+      "sha256": "498846be87138dfbf91ea35bd251c7822a63feecb11cf8079b6dea11b3973812",
+      "bytes": 1381,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam-r5.json": {
+      "sha256": "a541533956c3c570dfb85155839eb568951d76dfe87b63bf3727c487281a2d21",
+      "bytes": 4139,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam-r5/card.json": {
+      "sha256": "92e2362a345b8e27cf1595ac11e532126fe92d9dedd321445e6f06b05799684c",
+      "bytes": 15617,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam-r5/README.md": {
+      "sha256": "4fcfb8289714a390be530bddb6d7cb6a0ac46e8505d476efff5f35fc97ab8735",
+      "bytes": 1326,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam-r6.json": {
+      "sha256": "2aa5c558b512a5b888a755ac1bf46fa18609c5bd4effb533363c3bdc6695efd9",
+      "bytes": 4097,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam-r6/card.json": {
+      "sha256": "6860674346b819da2045a8a887d39dfc6d343b0250cf748b74d86b4414e2c94a",
+      "bytes": 20223,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam-r6/README.md": {
+      "sha256": "2fc754dcff2308d850969552a33063e789e33c3e464533199ebce0013316a773",
+      "bytes": 1252,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-plaque-segmentation-cpsam.json": {
+      "sha256": "31d63e888366c0bf70048977efc191bba51bc38e06d0c2f846a9dd36c3335888",
+      "bytes": 4158,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam/card.json": {
+      "sha256": "5467b6e446000c87cc61b34802aa4a212c8e8238f283f5fe13fa68afbf65df11",
+      "bytes": 26819,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-plaque-segmentation-cpsam/README.md": {
+      "sha256": "f8183d28c70cefe50e25c6cff597f169529e6a0ad060e2bf0fbbdb951b977a8d",
+      "bytes": 1313,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r5.json": {
+      "sha256": "4a763040ef118e1e940033723c93ec2750e7880b56eb47f5eb8da703b847235f",
+      "bytes": 4127,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r5/card.json": {
+      "sha256": "41015c1eea6fd3366205c121208272d931ccb9954f24b48b90c34fd01533fe69",
+      "bytes": 18073,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r5/README.md": {
+      "sha256": "4afb847d71d13e2b24b730d69987065a2d3bb8267303b77aa2b075d9d8ef7cb4",
+      "bytes": 1364,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r6.json": {
+      "sha256": "d8621a89fc25ff18801aebf32b8caf75a8af06045feba5b97d9833baa751f84a",
+      "bytes": 4181,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r6/card.json": {
+      "sha256": "544e2321dd7af7b996af19e4ae16f5270e727279d0516ad36b932cd323ac3aad",
+      "bytes": 18355,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r6/README.md": {
+      "sha256": "5813e58ed43122ae4f57542bb0259e27e1a2eac579f83dcd3aca19e1b363fda9",
+      "bytes": 1401,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r7.json": {
+      "sha256": "0c92b1167245b2a6ae901d26623761269ed1d65ed0c109b5c0da91a797b50ff5",
+      "bytes": 4113,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r7/card.json": {
+      "sha256": "76ebd4a89abb9f98e65b668ce811d85e0cc5a6e5380de8cc168f7705c2b23c3a",
+      "bytes": 15167,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r7/README.md": {
+      "sha256": "6721f38b113f45389b7ad348b8c21626a7e591ac79d0dc14c643a91a36b720b7",
+      "bytes": 1314,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam-r8.json": {
+      "sha256": "34c9df8121b591b5c5c8d0b8566dea5a8294fdb1c26197df7a42180db9d4d40f",
+      "bytes": 4459,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r8/card.json": {
+      "sha256": "73b49ea573201d9d2d1e51513398dc9917ff10cbee792bae2a499d18c81ceed2",
+      "bytes": 31635,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam-r8/README.md": {
+      "sha256": "1cf0a652b99913a96d693cc8117596730f2eedf9f85b644391a7debbe7685d5b",
+      "bytes": 1725,
+      "byte_identical_source_commit": true
+    },
+    "spacr/resources/model_cards/toxoplasma-pv-segmentation-cpsam.json": {
+      "sha256": "504429f98ee4d86824bb9aedd4291d799be2f5a272d542961c32b09f158f368c",
+      "bytes": 4137,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam/card.json": {
+      "sha256": "a74e00d9d0c0d4f7560a7650618243d393431a1bee78f43047f38c57b5e5edd5",
+      "bytes": 30384,
+      "byte_identical_source_commit": true
+    },
+    "features/data/gt_rescore_2026-10-11/cards/toxoplasma-pv-segmentation-cpsam/README.md": {
+      "sha256": "425a269ddf93e49f7f393ed3b5542cb3d9ef92de4576cae478867d93709730fd",
+      "bytes": 1346,
+      "byte_identical_source_commit": true
+    }
+  },
+  "state": "PARTIAL: nine curated PV/plaque cards published and Work-attested maintainer-approved; full every-model/four-surface acceptance remains incomplete.",
+  "stale_state": {
+    "canonical_oct11_drafts_only": {
+      "path": "features/future/370_every_published_model_carries_its_scorecard.txt",
+      "line": 1473,
+      "historical_receipt_published": {
+        "hugging_face_upload": false,
+        "git_push": false,
+        "note": "Model card drafts are in gt_rescore_20261011/cards/<repo>/README.draft.md"
+      }
+    },
+    "later_work_upload_approval": {
+      "path": "features/HANDOFF.md",
+      "dated_section": "2026-10-12 11:00 EDT — WS → Home",
+      "line": 1255,
+      "statement": "all9 HF cards uploaded, approved by the maintainer",
+      "evidence_type": "Committed Work owner attestation, not a newly requested approval or an independent PNG pixel review"
+    },
+    "independent_publication_readback": "All9 API metadata200, current commit pinned, page1–3 sibling names present, and all9 pinned README bytes equal delivered card README bytes. Public card JSON is not present in those repository file lists; numeric page pixels were not downloaded/recertified."
+  },
+  "registry_scope": {
+    "declared_entries": 19,
+    "nonalpha_guide_visible_entries": 17,
+    "alpha_registry_entries": [
+      "colony_yolo11n_makrai_v1",
+      "mitonet_mini_v1"
+    ],
+    "curated_three_page_cards": 9,
+    "nonalpha_outside_nine": 8,
+    "not_a_claim_all_registry_entries_are_publicly_uploaded_or_fully_scored": true
+  },
+  "nine_models": [
+    {
+      "key": "toxoplasma_plaque_v3",
+      "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc",
+      "repo_type": "model",
+      "registry_source_line": 1018,
+      "stock_base": "cpsam",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 232,
+        "n_empty_fields": 30,
+        "n_objects": 8379,
+        "fields_by_source": {
+          "plaque_compare263_test": 33,
+          "plaque_gel_doc": 18,
+          "plaque_gel_doc_model_review": 55,
+          "plaque_gel_doc_model_review_heldout": 12,
+          "plaque_literature_holdout": 20,
+          "plaque_pmc_staged": 94
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7321800065695828,
+          "stock": 0.12796323827544262
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.6211189637574451,
+          "stock": 0.2157211415582462
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.6763426721958127,
+          "stock": 0.08271596309756779
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.7980665950590763,
+          "stock": 0.2824919441460795
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.6275208230815109,
+          "stock": 0.1728607043795115
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.8105257618202721,
+          "stock": 0.33368681478266915
+        }
+      ],
+      "current_card_object_F1": 0.7321800065695828,
+      "matched_stock_object_F1": 0.12796323827544262,
+      "registry_metric_F1_different_dataset": {
+        "finetuned": 0.6418703506907545,
+        "vanilla": null,
+        "delta": null
+      },
+      "registry_metric_holdout": "geldoc_heldout_min_size_0",
+      "registry_metric_n_fields": 18,
+      "public_current_revision": "6b8c40324fc3b5ac89e779e90096214fd14f72a3",
+      "public_last_modified": "2026-10-12T19:52:54.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/6b8c40324fc3b5ac89e779e90096214fd14f72a3/README.md",
+      "root_scorecard_csv_present": true,
+      "root_scorecard_chart_present": true,
+      "public_card_json_present": true,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 232,
+      "delivered_field_ids_sha256_canonical_json": "de6aa3f20249d5f8d7e3fd8cafae08f74f2a823983b36692b73de2fdd7c05424",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match.",
+      "existing_root_csv_rows": [
+        {
+          "metric": "f1",
+          "finetuned": "0.6418703506907545",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        },
+        {
+          "metric": "precision",
+          "finetuned": "0.6942528735632184",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        },
+        {
+          "metric": "recall",
+          "finetuned": "0.5968379446640316",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        },
+        {
+          "metric": "ap",
+          "finetuned": "0.4726134585289515",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        },
+        {
+          "metric": "true_positives",
+          "finetuned": "302",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        },
+        {
+          "metric": "false_positives",
+          "finetuned": "133",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        },
+        {
+          "metric": "false_negatives",
+          "finetuned": "204",
+          "vanilla": "",
+          "delta": "",
+          "n_fields": "18",
+          "n_objects": "506",
+          "holdout": "geldoc_heldout_min_size_0",
+          "holdout_version": "20261007T205603"
+        }
+      ],
+      "root_csv_is_current_card_holdout": false
+    },
+    {
+      "key": "toxoplasma_plaque_v2",
+      "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
+      "repo_type": "model",
+      "registry_source_line": 429,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 282,
+        "n_empty_fields": 39,
+        "n_objects": 8130,
+        "fields_by_source": {
+          "plaque_compare263_test": 1,
+          "plaque_gel_doc": 89,
+          "plaque_gel_doc_model_review": 55,
+          "plaque_gel_doc_model_review_heldout": 12,
+          "plaque_literature_holdout": 20,
+          "plaque_pmc_staged": 105
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.4548077568274844,
+          "stock": 0.18908191814691913
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.5678996217189227,
+          "stock": 0.24465002477273834
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.5003691126531817,
+          "stock": 0.20071833126122393
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.41685116851168513,
+          "stock": 0.17872078720787207
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.5144667946109783,
+          "stock": 0.18122514399163323
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.6960703552974518,
+          "stock": 0.3140579570760985
+        }
+      ],
+      "current_card_object_F1": 0.4548077568274844,
+      "matched_stock_object_F1": 0.18908191814691913,
+      "registry_metric_F1_different_dataset": "0.819 literature / 0.876 bigbean / 0.808 patrick / 0.415 malnio",
+      "registry_metric_holdout": null,
+      "registry_metric_n_fields": null,
+      "public_current_revision": "3dd09e1a1128c89157eefe112ee7887736298ec4",
+      "public_last_modified": "2026-10-12T19:52:53.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5/resolve/3dd09e1a1128c89157eefe112ee7887736298ec4/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 282,
+      "delivered_field_ids_sha256_canonical_json": "cb872aac8934e014943e40e42c420f1335f1e815415f553210360c6b80b07fc3",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    },
+    {
+      "key": "toxoplasma_plaque_v4",
+      "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6",
+      "repo_type": "model",
+      "registry_source_line": 1080,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 329,
+        "n_empty_fields": 54,
+        "n_objects": 13915,
+        "fields_by_source": {
+          "plaque_compare263_test": 44,
+          "plaque_gel_doc": 12,
+          "plaque_gel_doc_model_review": 21,
+          "plaque_gel_doc_model_review_heldout": 12,
+          "plaque_literature_holdout": 20,
+          "plaque_pmc_staged": 220
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7647524888904199,
+          "stock": 0.3380247732135861
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.6728967723277129,
+          "stock": 0.35388673647330376
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.7344184200079397,
+          "stock": 0.291082736426866
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.797700323392023,
+          "stock": 0.4030183255479698
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.6619416424025951,
+          "stock": 0.26098010837796465
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.838814491722459,
+          "stock": 0.42911704590170285
+        }
+      ],
+      "current_card_object_F1": 0.7647524888904199,
+      "matched_stock_object_F1": 0.3380247732135861,
+      "registry_metric_F1_different_dataset": {
+        "finetuned": 0.8154,
+        "vanilla": null,
+        "delta": null
+      },
+      "registry_metric_holdout": "retrain_20261009_plaque_test",
+      "registry_metric_n_fields": 263,
+      "public_current_revision": "b1ee8b3df96615ec5eee983e196472a7ab96b9e0",
+      "public_last_modified": "2026-10-12T19:52:56.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r6/resolve/b1ee8b3df96615ec5eee983e196472a7ab96b9e0/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 329,
+      "delivered_field_ids_sha256_canonical_json": "5e3dfefe23a2bc51877dc3cb72999b21b1d0b3e4fb393e5d9d2b2bcce686f86f",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    },
+    {
+      "key": "toxoplasma_plaque_v1",
+      "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam",
+      "repo_type": "model",
+      "registry_source_line": 384,
+      "stock_base": "cpsam",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 498,
+        "n_empty_fields": 51,
+        "n_objects": 19993,
+        "fields_by_source": {
+          "plaque_compare263_test": 33,
+          "plaque_gel_doc": 89,
+          "plaque_gel_doc_model_review": 55,
+          "plaque_gel_doc_model_review_heldout": 12,
+          "plaque_literature_holdout": 20,
+          "plaque_pmc_staged": 289
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.707398266659014,
+          "stock": 0.2581194997684113
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.6794059418457734,
+          "stock": 0.3268825377719477
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.8297986938665589,
+          "stock": 0.20499087752339473
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.616465763017056,
+          "stock": 0.3484219476816886
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.6571894096613181,
+          "stock": 0.2649139420033806
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.819115740928949,
+          "stock": 0.46670781142307854
+        }
+      ],
+      "current_card_object_F1": 0.707398266659014,
+      "matched_stock_object_F1": 0.2581194997684113,
+      "registry_metric_F1_different_dataset": "0.8560 in-domain / 0.8060 literature",
+      "registry_metric_holdout": null,
+      "registry_metric_n_fields": null,
+      "public_current_revision": "dee8a33b6de8f7df05a3095def77aa2435575816",
+      "public_last_modified": "2026-10-12T19:52:52.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam/resolve/dee8a33b6de8f7df05a3095def77aa2435575816/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 498,
+      "delivered_field_ids_sha256_canonical_json": "c0759011907c85b3a5fc0d0c1ebfa31ac4c8fd196a29427d8ac80c7e00f47ab5",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    },
+    {
+      "key": "toxoplasma_pv_v2",
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r5",
+      "repo_type": "model",
+      "registry_source_line": 602,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 258,
+        "n_empty_fields": 42,
+        "n_objects": 5766,
+        "fields_by_source": {
+          "pv_compare50_test": 3,
+          "pv_literature_holdout": 39,
+          "pv_r7_dataset_recuration": 60,
+          "pv_r7_plate_test20": 20,
+          "pv_round3_queue": 136
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7130144605116796,
+          "stock": 0.36382797209815826
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.7340322097241133,
+          "stock": 0.23005947487150036
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.7658303464755077,
+          "stock": 0.25598474683991246
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.6670135275754423,
+          "stock": 0.6286853971557406
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.4506756207360175,
+          "stock": 0.04878078823857382
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.6781863881840309,
+          "stock": 0.11156247283508308
+        }
+      ],
+      "current_card_object_F1": 0.7130144605116796,
+      "matched_stock_object_F1": 0.36382797209815826,
+      "registry_metric_F1_different_dataset": "0.8170 ± 0.036",
+      "registry_metric_holdout": null,
+      "registry_metric_n_fields": null,
+      "public_current_revision": "2cefad046d5f4c4d915a164e8c29dbf9ace3346a",
+      "public_last_modified": "2026-10-12T19:52:58.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r5/resolve/2cefad046d5f4c4d915a164e8c29dbf9ace3346a/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 258,
+      "delivered_field_ids_sha256_canonical_json": "cb581da5ded17152fb834d7b3c24af0c1ad0ce6f472cc292fa81ede122b4a9ff",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    },
+    {
+      "key": "toxoplasma_pv_v3",
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r6",
+      "repo_type": "model",
+      "registry_source_line": 643,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 269,
+        "n_empty_fields": 43,
+        "n_objects": 6443,
+        "fields_by_source": {
+          "pv_anchor11": 7,
+          "pv_compare50_test": 3,
+          "pv_literature_holdout": 39,
+          "pv_r7_dataset_recuration": 64,
+          "pv_r7_plate_test20": 20,
+          "pv_round3_queue": 136
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7504325615885309,
+          "stock": 0.3898822093950913
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.7825569559768666,
+          "stock": 0.2536657464554424
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.7997892518440464,
+          "stock": 0.27942957083277276
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.7068135961508614,
+          "stock": 0.6447307155051994
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.5277595375267197,
+          "stock": 0.05527082891216994
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.7498509075512957,
+          "stock": 0.1235796405524386
+        }
+      ],
+      "current_card_object_F1": 0.7504325615885309,
+      "matched_stock_object_F1": 0.3898822093950913,
+      "registry_metric_F1_different_dataset": "0.8602",
+      "registry_metric_holdout": null,
+      "registry_metric_n_fields": null,
+      "public_current_revision": "f51fc8cdf7c857b88e166163e5317bb470a524be",
+      "public_last_modified": "2026-10-12T19:52:59.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r6/resolve/f51fc8cdf7c857b88e166163e5317bb470a524be/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 269,
+      "delivered_field_ids_sha256_canonical_json": "b0196c1902fc479d76aa8df2afbc2c4046088413557ba09c96a1b3363618c1fb",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    },
+    {
+      "key": "toxoplasma_pv_v4",
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+      "repo_type": "model",
+      "registry_source_line": 691,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 209,
+        "n_empty_fields": 41,
+        "n_objects": 5515,
+        "fields_by_source": {
+          "pv_anchor11": 7,
+          "pv_compare50_test": 3,
+          "pv_literature_holdout": 39,
+          "pv_r7_dataset_recuration": 4,
+          "pv_r7_plate_test20": 20,
+          "pv_round3_queue": 136
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7611462052549666,
+          "stock": 0.3771380892782645
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.8053199803663135,
+          "stock": 0.2228593379355398
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.7686760355029586,
+          "stock": 0.26469511748773883
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.7537624660018133,
+          "stock": 0.6556663644605621
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.5819656489765543,
+          "stock": 0.039576354485982436
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.834775753007006,
+          "stock": 0.09056691644979822
+        }
+      ],
+      "current_card_object_F1": 0.7611462052549666,
+      "matched_stock_object_F1": 0.3771380892782645,
+      "registry_metric_F1_different_dataset": {
+        "finetuned": 0.8536,
+        "vanilla": 0.7648,
+        "delta": 0.08879999999999999
+      },
+      "registry_metric_holdout": "pv_r7_test",
+      "registry_metric_n_fields": 10,
+      "public_current_revision": "01b1083f61b1a004c6d9ef4975777580f9379007",
+      "public_last_modified": "2026-10-12T19:53:01.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/01b1083f61b1a004c6d9ef4975777580f9379007/README.md",
+      "root_scorecard_csv_present": true,
+      "root_scorecard_chart_present": true,
+      "public_card_json_present": true,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 209,
+      "delivered_field_ids_sha256_canonical_json": "d0a6542dd6647b7c1b46742151596d850ec5f2c5dfd0b30fe6582be7684988d8",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match.",
+      "existing_root_csv_rows": [
+        {
+          "metric": "f1",
+          "finetuned": "0.8536",
+          "vanilla": "0.7648",
+          "delta": "0.08879999999999999",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        },
+        {
+          "metric": "precision",
+          "finetuned": "0.8493",
+          "vanilla": "0.7539",
+          "delta": "0.09540000000000004",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        },
+        {
+          "metric": "recall",
+          "finetuned": "0.858",
+          "vanilla": "0.776",
+          "delta": "0.08199999999999996",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        },
+        {
+          "metric": "aji",
+          "finetuned": "0.7755",
+          "vanilla": "0.505",
+          "delta": "0.27049999999999996",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        },
+        {
+          "metric": "dice",
+          "finetuned": "0.8905",
+          "vanilla": "0.6431",
+          "delta": "0.24739999999999995",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        },
+        {
+          "metric": "pixel_iou",
+          "finetuned": "0.8055",
+          "vanilla": "0.5239",
+          "delta": "0.28159999999999996",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        },
+        {
+          "metric": "mAP",
+          "finetuned": "0.4921",
+          "vanilla": "0.362",
+          "delta": "0.1301",
+          "n_fields": "10",
+          "n_objects": "683",
+          "holdout": "pv_r7_test",
+          "holdout_version": "r7-published-truth"
+        }
+      ],
+      "root_csv_is_current_card_holdout": false
+    },
+    {
+      "key": "toxoplasma_pv_v5",
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r8",
+      "repo_type": "model",
+      "registry_source_line": 762,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 481,
+        "n_empty_fields": 111,
+        "n_objects": 16213,
+        "fields_by_source": {
+          "pv_anchor11": 7,
+          "pv_compare50_test": 6,
+          "pv_literature_holdout": 10,
+          "pv_r7_dataset_recuration": 36,
+          "pv_r7_plate_test20": 20,
+          "pv_round3_queue": 402
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7328529490258874,
+          "stock": 0.3831417624521073
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.8197685782091172,
+          "stock": 0.2566785169795216
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.6459048783929999,
+          "stock": 0.27485787836533304
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.8468512921729476,
+          "stock": 0.6322087213964103
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.5846087030070517,
+          "stock": 0.05090396508264559
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.8098308956716249,
+          "stock": 0.11190124652718378
+        }
+      ],
+      "current_card_object_F1": 0.7328529490258874,
+      "matched_stock_object_F1": 0.3831417624521073,
+      "registry_metric_F1_different_dataset": {
+        "finetuned": 0.7921,
+        "vanilla": 0.5586,
+        "delta": 0.2335
+      },
+      "registry_metric_holdout": "retrain_20261009_pv_test",
+      "registry_metric_n_fields": 50,
+      "public_current_revision": "7d7cebb1487a26a085246a3e838d748c627b1f9b",
+      "public_last_modified": "2026-10-12T19:53:02.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/7d7cebb1487a26a085246a3e838d748c627b1f9b/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 481,
+      "delivered_field_ids_sha256_canonical_json": "ff26b2e63f147aaa48da545addadab32505d8417654e7f5d9000ee54187b149d",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    },
+    {
+      "key": "toxoplasma_pv_v1",
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam",
+      "repo_type": "model",
+      "registry_source_line": 339,
+      "stock_base": "cpsam_v2",
+      "holdout": {
+        "rule": "strict: fields this model never saw in training or validation; deduplicated curated ground truth of 2026-10-11 (gt_rescore_20261011)",
+        "n_fields": 486,
+        "n_empty_fields": 108,
+        "n_objects": 14315,
+        "fields_by_source": {
+          "pv_anchor11": 7,
+          "pv_compare50_test": 6,
+          "pv_literature_holdout": 39,
+          "pv_r7_dataset_recuration": 108,
+          "pv_r7_plate_test20": 20,
+          "pv_round3_queue": 306
+        }
+      },
+      "current_card_rows": [
+        {
+          "key": "object_f1",
+          "label": "Object F1 (IoU ≥ 0.5)",
+          "this": 0.7929943502824859,
+          "stock": 0.40160642570281124
+        },
+        {
+          "key": "boundary_f1",
+          "label": "Boundary F1 (outline edges)",
+          "this": 0.8271222931448322,
+          "stock": 0.2583988531963336
+        },
+        {
+          "key": "precision",
+          "label": "Precision",
+          "this": 0.8604004903964038,
+          "stock": 0.2920542205009365
+        },
+        {
+          "key": "recall",
+          "label": "Recall",
+          "this": 0.7353824659448132,
+          "stock": 0.6426825008732099
+        },
+        {
+          "key": "aji",
+          "label": "AJI",
+          "this": 0.5578912919049481,
+          "stock": 0.05166723430300318
+        },
+        {
+          "key": "dice",
+          "label": "Dice",
+          "this": 0.7940608344634016,
+          "stock": 0.11487659009293376
+        }
+      ],
+      "current_card_object_F1": 0.7929943502824859,
+      "matched_stock_object_F1": 0.40160642570281124,
+      "registry_metric_F1_different_dataset": "0.8640",
+      "registry_metric_holdout": null,
+      "registry_metric_n_fields": null,
+      "public_current_revision": "3cee4f5a0b59c79d9b4e23f00cb4565e9c8126b3",
+      "public_last_modified": "2026-10-12T19:52:57.000Z",
+      "public_three_pages_present": true,
+      "pinned_public_readme_equals_delivered_readme": true,
+      "public_readme_url": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam/resolve/3cee4f5a0b59c79d9b4e23f00cb4565e9c8126b3/README.md",
+      "root_scorecard_csv_present": false,
+      "root_scorecard_chart_present": false,
+      "public_card_json_present": false,
+      "current_card_resource_byte_identical_delivered_data": false,
+      "delivered_exact_field_id_count": 486,
+      "delivered_field_ids_sha256_canonical_json": "8192aa87281f8da7d1a4fd7884472e83f57c344b059953db0aa94e359b46a046",
+      "resource_equals_delivered_after_removing_lightweight_omitted_field_ids": true,
+      "card_identity_qualification": "Shipped resource omits the exact field_ids array for size; public Git delivered card JSON retains it. All other semantic fields, six current score rows, counts, stock and holdout metadata must match."
+    }
+  ],
+  "remaining_declared_models": [
+    {
+      "key": "toxoplasma_well_detector_v1",
+      "kind": "detector",
+      "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11",
+      "uri": null,
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "toxoplasma_well_detector_v2",
+      "kind": "detector",
+      "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo26",
+      "uri": "https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo26/resolve/main/weights/best.pt",
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "toxoplasma_from_cellmask_v1",
+      "kind": "cellpose",
+      "repo_id": "einarolafsson/toxoplasma-from-cellmask-cpsam",
+      "uri": null,
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "live_cell_v1",
+      "kind": "cellpose",
+      "repo_id": "einarolafsson/live-cell-segmentation-cpsam",
+      "uri": "https://huggingface.co/einarolafsson/live-cell-segmentation-cpsam/resolve/main/weights/live_cell_v1",
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "nuclei_from_cellmask_v1",
+      "kind": "cellpose",
+      "repo_id": "einarolafsson/cross-channel-nuclei-from-cellmask-cpsam",
+      "uri": "https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam/resolve/main/weights/nuclei_from_cellmask_best",
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "cell_from_hoechst_v1",
+      "kind": "cellpose",
+      "repo_id": "einarolafsson/cross-channel-cell-from-hoechst-cpsam",
+      "uri": "https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam/resolve/main/weights/cell_from_hoechst_best",
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "toxoplasma_from_hoechst_v1",
+      "kind": "cellpose",
+      "repo_id": "einarolafsson/toxoplasma-from-hoechst-cpsam",
+      "uri": null,
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "colony_yolo11n_makrai_v1",
+      "kind": "detector",
+      "repo_id": {
+        "source_expression": "HF_MODELS_REPO"
+      },
+      "uri": "https://huggingface.co/datasets/einarolafsson/models/resolve/main/colony_detector/v1/colony_yolo11n_makrai_v1.pt?download=true",
+      "alpha": true,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "toxoplasma_well_detector_v3",
+      "kind": "detector",
+      "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc",
+      "uri": "https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc/resolve/main/weights/yolo_welldetect_v4_geldoc.pt",
+      "alpha": false,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "mAP50",
+        "mAP50_95",
+        "precision",
+        "recall",
+        "holdout",
+        "holdout_version",
+        "n_fields",
+        "n_objects",
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    },
+    {
+      "key": "mitonet_mini_v1",
+      "kind": "mitonet",
+      "repo_id": null,
+      "uri": "https://zenodo.org/records/6861565/files/MitoNet_v1_mini.pth?download=1",
+      "alpha": true,
+      "current_six_row_curated_three_page_card_present": false,
+      "existing_metric_keys": [
+        "n_train",
+        "train_objects",
+        "n_test",
+        "test_objects",
+        "cv",
+        "f1",
+        "aji",
+        "dice",
+        "stock_f1",
+        "stock_aji",
+        "stock_dice",
+        "train_loss",
+        "val_loss",
+        "best_epoch"
+      ],
+      "scope": "Declared registry entry; this audit did not independently fetch this remaining model repository."
+    }
+  ],
+  "central_hf_dataset_metadata": {
+    "repo": "einarolafsson/models",
+    "repo_type": "dataset",
+    "file": "dataset.metadata",
+    "url": "https://huggingface.co/api/datasets/einarolafsson/models",
+    "raw_path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/models.dataset.metadata.raw",
+    "bytes": 866,
+    "sha256": "01bf387ae2ffff53cf566a08257fe91bcfc3a2d08e66c13f44521496c0232a3e",
+    "http_status": 200,
+    "revision": "d559f7c48c281b605c29b6f125c68fda4fc43f10",
+    "last_modified": "2026-10-09T01:05:26.000Z",
+    "files": [
+      ".gitattributes",
+      "README.md",
+      "catalogue.json",
+      "colony_detector/v1/README.md",
+      "colony_detector/v1/colony_yolo11n_makrai_v1.pt",
+      "scorecards/toxo_pv_v1/scorecard.csv",
+      "scorecards/toxo_pv_v1/scorecard.png",
+      "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+      "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model_settings.csv",
+      "toxo_pv_lumen.CP_model"
+    ],
+    "score_candidates": [
+      "scorecards/toxo_pv_v1/scorecard.csv",
+      "scorecards/toxo_pv_v1/scorecard.png"
+    ]
+  },
+  "gui_source_path_review": {
+    "main_screen": "ModelZooScreen.scan:_job at928 calls zoo.catalogue() off GUI thread; table tooltip at825->_tooltip_for364->scorecard_html4535.",
+    "picker": "ModelZooPicker.refresh1441 calls catalogue(remote=True,block=False) at1451; warm job1343..1369 calls shared_catalogue(block=True) then refresh. Tooltip at1576 uses scorecard_html.",
+    "catalogue_precedence": "catalogue3467 appends discover_local and stock/backend entries first; builtin rows are copied by _entry_from_mapping2169..2197; shared/custom rows are appended only if(key,name) unseen. A downloaded local entry can take precedence; different-key/name community/plugin rows and caller-provided entries can differ.",
+    "concrete_builtin_gap": "Published builtin rows are copied without the card.json overlay. scorecard_html consumes entry.metrics and only F1/AJI/Dice plus training rows; it does not consult current model_cards JSON. Matched precision/recall/boundary F1 and current209-field PVv4 metadata are not provided by this source route.",
+    "native_UI_acceptance": "NOT run; no statement that every actual tooltip always shows old numbers."
+  },
+  "existing_export_gap": {
+    "comparison_example": "PVv4 old root CSV is F1 .8536 vs .7648 on10fields/pv_r7_test/r7-published-truth; approved current card is .761146 vs .377138 on209 strict curated fields. These are different evaluation sets/scorers, not evidence of an unexplained numeric regression.",
+    "plaque_example": "Plaquev3 old root CSV is F1 .641870 on18 GelDoc fields with stock columns blank; approved current card .732180 vs .127963 on232 strict curated fields.",
+    "api_current_artifacts": "Committed model_zoo_table.rst and model_zoo_sections.rst retain old literal headline/table scores alongside dated new re-score notes. API is wired through docs/source/model_zoo.rst includes; current artifacts are not yet an all-current matched-stock table/chart.",
+    "api_broken_target_names_source_metadata": "Current API section links PVv5 and plaquev4 root scorecard.csv/png absent from their pinned remote file lists. Their three pagePNG cards exist at cards/page1.png etc, a different path.",
+    "generator_gap": "packaging.generate_readme_visuals._published_models719 overlays via build_score_cards.rescored198, but committed API outputs have not adopted it. RESCORED_FIELDS maps object_F1/precision/recall/AJI/Dice only, omitting boundary_F1. _model_zoo_sections777 unconditionally uses root scorecard.png/csv when dict scores exist; seven of nine current repositories lack these root artifacts. Regeneration alone cannot finish this contract.",
+    "central_dataset_gap": "einarolafsson/models is DATASET, pinned metadata revisiond559f7c48c281b605c29b6f125c68fda4fc43f10 last modified2026-10-09; only scorecards/toxo_pv_v1 scoreCSV/PNG listed, not a nine-model Oct11 export."
+  },
+  "scientific_scope_preserved": {
+    "accepted_curation_not_repeated": true,
+    "current_card_metrics": [
+      "Object F1 IoU0.5",
+      "Boundary F1 2px",
+      "Precision",
+      "Recall",
+      "AJI",
+      "Dice"
+    ],
+    "stock_matched_fields": "Each shipped card explicitly binds stock base and same per-model strict holdout, field/object counts and pooling rules; different models have different N.",
+    "caveats": [
+      "Small literature n: plaque 20 fields; PV 39 fields, 10 unseen by v5; PV common subset without paged fields 65; plaque common without v3-seeded truth 81.",
+      "Gel Doc model_review truth was seeded with plaque v3 (57 fields accepted unchanged), which favours v3; pmc_staged drafts came from the plaque round-3 lineage.",
+      "PV v1 and plaque v1 splits were reconstructed from code and seeds, not saved lists.",
+      "Strict hold-out removes exact field matches only; no_group columns show plate, acquisition and paper sharing.",
+      "Pooled strict hold-out has different n per model and does not rank models; use the common subsets.",
+      "Defaults settings only (diameter 30, flow 0.4, cell probability 0).",
+      "Source rows are subsets of the earlier 263- and 50-field sets and are not comparable with the 2026-10-09 and 2026-10-10 numbers.",
+      "pmc_staged curation may still be in progress (ledger last written 2026-10-06)."
+    ],
+    "remaining_provenance_acceptance": "Export accepted exact holdout/field-manifest identity, checkpoint+stock version/checksum and scorer/default settings with machine-readable CSV. Receipt binds original scores/weights.json hash, but the actual weight pin table is not in the small delivered card JSON; retrieve original owner evidence, do not invent pins. Confirm whether other requested common metrics are already in saved evaluations; compute only genuinely missing type-appropriate metrics under later authorization, or explain applicability rather than fabricating values."
+  },
+  "next_postrelease_batches": [
+    {
+      "batch": 1,
+      "owner": "Home coordination + Work score owner",
+      "action": "Update F370 dated state from obsolete onlydraft/curation blocker to Partial, preserving historical receipt. Bind nine publication revisions and approval attestation; enumerate remaining eight ordinary/twoalpha entries separately."
+    },
+    {
+      "batch": 2,
+      "owner": "Existing model_zoo/model_cards owner",
+      "action": "Use existing model_cards records and one shared schema/normalization seam, keyed by exact approved model/checkpoint identity, in ModelEntry/catalogue/scorecard tooltip and docs generators. Preserve defaults and unrelated custom/local entries; no new spacr module, no repeated scoring code."
+    },
+    {
+      "batch": 3,
+      "owner": "Work approved publication owner",
+      "action": "Export current accepted six-row and any saved applicable metrics to versioned machine-readable CSV/JSON with counts/holdout/weights/scorer pins and chart derived from same data. Publish/read back only under root authorization; preserve older named-dataset results and label them historical."
+    },
+    {
+      "batch": 4,
+      "owner": "Normal documentation/translation owner",
+      "action": "Regenerate API table+per-model chart sections through existing generator using real published paths, retain all six current rows including BoundaryF1, and normalize README/tooltip/card facts. Normal translation refresh after canonical hold released."
+    },
+    {
+      "batch": 5,
+      "owner": "Science/native acceptance owners",
+      "action": "Source-bound checks for all nine and separate coverage for remaining ordinary/alpha models: exact metric/payload equality, actual ModelZoo and Mask-picker tooltips, stock identity and replay evidence, reachable pinned HF CSV/chart/API links, no-Torch browsing, missing-scorecard truthfulness. Native tests and scientific reruns not performed here."
+    }
+  ],
+  "owning_existing_suites": [
+    "tests/test_model_cards_data.py",
+    "tests/test_every_model_has_a_score_card.py",
+    "tests/test_model_cards_are_current.py",
+    "tests/test_the_model_zoo_has_a_page_of_its_own.py",
+    "tests/test_the_scorecard_can_be_drawn.py",
+    "tests/test_the_scorecard_measures_against_ground_truth.py",
+    "tests/qt/test_model_card_viewer.py",
+    "tests/qt/test_model_card_viewer_behaviour.py",
+    "tests/qt/test_model_zoo_screen.py",
+    "tests/qt/test_model_zoo_picker.py"
+  ],
+  "remaining_acceptance": [
+    "All required surfaces share one current versioned data record per exact model and retain matched stock on same frozen field identities.",
+    "Type-appropriate common metrics/counts/settings/checkpoint and baseline pins exported truthfully; scientific caveats retained, no ranking across per-model unequal holdouts.",
+    "Actual GUI catalogue routes, source/local/custom precedence and both tooltip entry points verified; no-Torch/no-Cellpose browsing remains possible.",
+    "Published CSV/chart bytes and API tables/graphs verified against exact remote revisions, not merely image presence or old notes.",
+    "Remaining eight ordinary entries (and relevant alpha published entries) assessed individually; nine approved PV/plaque cards do not complete every published model."
+  ],
+  "artifacts": [
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam.README.md.raw",
+      "sha256": "425a269ddf93e49f7f393ed3b5542cb3d9ef92de4576cae478867d93709730fd",
+      "bytes": 1346
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r7.metadata.raw.json",
+      "sha256": "b273224bd8b5af5ca5178f441bf3c588da725fab3f49bb1ba543e8e5cfef8683",
+      "bytes": 3430
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r6.README.md.raw",
+      "sha256": "5813e58ed43122ae4f57542bb0259e27e1a2eac579f83dcd3aca19e1b363fda9",
+      "bytes": 1401
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam.metadata.raw.json",
+      "sha256": "32450dec90ebc24d9bb467ce3475ab65496387c549b86b0819f3fd0718c724f4",
+      "bytes": 1220
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.scorecard.csv.raw",
+      "sha256": "90cfc3783dc7559f8df08c81760b6ed25b2e59fe778f74841979dea690f7870e",
+      "bytes": 597
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r8.metadata.raw.json",
+      "sha256": "d7922d5fcb9b26c276f60695e79dd4aa0c63820a1666c389c7a8dd4870f6fc1e",
+      "bytes": 1228
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.scorecard.json.raw",
+      "sha256": "38bfa0e18d55d5e81b7b318e80fad05af03aa09fb8a48b6b3f3c462398e2b8eb",
+      "bytes": 763
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r7.scorecard.csv.raw",
+      "sha256": "12972925c0c2489275b5c9f1fb87437dbb8535e42329554274f3127670a805f1",
+      "bytes": 605
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r5.README.md.raw",
+      "sha256": "4afb847d71d13e2b24b730d69987065a2d3bb8267303b77aa2b075d9d8ef7cb4",
+      "bytes": 1364
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r8.README.md.raw",
+      "sha256": "1cf0a652b99913a96d693cc8117596730f2eedf9f85b644391a7debbe7685d5b",
+      "bytes": 1725
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam.README.md.raw",
+      "sha256": "f8183d28c70cefe50e25c6cff597f169529e6a0ad060e2bf0fbbdb951b977a8d",
+      "bytes": 1313
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r6.metadata.raw.json",
+      "sha256": "fcfdb145d79e757be34bfcdd11b94fb5e59c3c84275b24d9cc07c81b7a73844e",
+      "bytes": 1206
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam.metadata.raw.json",
+      "sha256": "8040b8f67c6fba12999c87cd61862e3876af5ce697c3e53d848b8b29d5896fed",
+      "bytes": 1104
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r7.README.md.raw",
+      "sha256": "6721f38b113f45389b7ad348b8c21626a7e591ac79d0dc14c643a91a36b720b7",
+      "bytes": 1314
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r5.metadata.raw.json",
+      "sha256": "45026ffdfaa40539dbe3fbcab2f46e9f1b6c3de4724f3c9dac387cf2700d980b",
+      "bytes": 1345
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/models.dataset.metadata.raw",
+      "sha256": "01bf387ae2ffff53cf566a08257fe91bcfc3a2d08e66c13f44521496c0232a3e",
+      "bytes": 866
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r7.scorecard.json.raw",
+      "sha256": "132a2a34e0411ca976a00098a1e7e9e0f835c08cb792e64e68446f3a535fbfae",
+      "bytes": 787
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r5.README.md.raw",
+      "sha256": "4fcfb8289714a390be530bddb6d7cb6a0ac46e8505d476efff5f35fc97ab8735",
+      "bytes": 1326
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.README.md.raw",
+      "sha256": "498846be87138dfbf91ea35bd251c7822a63feecb11cf8079b6dea11b3973812",
+      "bytes": 1381
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r5.metadata.raw.json",
+      "sha256": "aa19aa1a6584b0575a972b18545f54fbe5ab51c0affcc5f419c061b591b84036",
+      "bytes": 1453
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r5-geldoc.metadata.raw.json",
+      "sha256": "6a42becea958076da6734bd388c09adc2fd697ab18981a4a6376d677910719a9",
+      "bytes": 1769
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-pv-segmentation-cpsam-r6.metadata.raw.json",
+      "sha256": "c7031dc12e7e3655cc34bc7f911f11140546f27a94833c48e23ad39e18bfed7a",
+      "bytes": 2723
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/toxoplasma-plaque-segmentation-cpsam-r6.README.md.raw",
+      "sha256": "2fc754dcff2308d850969552a33063e789e33c3e464533199ebce0013316a773",
+      "bytes": 1252
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/public-metadata-review.json",
+      "sha256": "15ee10719904b70bcf9052a2c3c6ffbff713517f18e268bdd0aa2e031d033b59",
+      "bytes": 15908
+    },
+    {
+      "path": "/mnt/wd4tb/scratch/codex-home-release-1515-20261013/f370-current-state-review/public-text-review.json",
+      "sha256": "2fc6ec9468f16b9f5c48f49ee6d6f03c80658d6a513c237d9bfe2f97072830a0",
+      "bytes": 10533
+    }
+  ],
+  "no_actions": {
+    "source_changes": false,
+    "app_imports_tests_inference_training_GPU": false,
+    "curation_or_protected_jobs": false,
+    "uploads_or_account_mutations": false,
+    "model_or_weight_downloads": false
+  },
+  "status_at_end": ""
+}

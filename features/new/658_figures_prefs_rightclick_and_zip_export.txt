@@ -2,7 +2,7 @@
 FIGURE PREFERENCES THAT CONTROL EVERY FIGURE; RIGHT-CLICK CHANGE-GRAPH; ONE ZIP
 ================================================================================
 
-Status:    DONE 2026-10-05 — parts A, B and C landed.
+Status:    COMPLETE 100% 2026-10-10 — producer parity audit done; all 185 producers have parity (176 ok, 9 named exemptions)
 Requested: 2026-10-04 — "make sure the figure settings in preferences actually
            control figures in spacr and are comprehensive enough. The user
            should always be able to right click and change parameters for
@@ -401,3 +401,76 @@ PART C — WHAT IS LEFT
 
 2026-10-08 Home current CI follow-up:
 Drawn-row CSV correctness child repaired and tested: single regression sidecars contain exact renderer panel.data rather than fullinput with unusedIntercept; editable ZIP retains fullsource data.csv and separately exports drawn_data.csv. Retyping clears stale drawnrows and failed retype restores olddrawn data. Included in final395PASS current-source cohort; prior focused source-added25 executablelines and touchingarcs observed. API/runtime allmaps unchanged. Workstation preserve this child with private producer-wide training/source export repair; parentN658 remains OPEN.
+
+2026-10-10 — Codex's private 4a6d8aa92 (native training-curve and grouped/
+numeric line recipes: spacr/figures/bundle.py, spacr/plot.py,
+spacr/train_compare.py, spacr/qt/screens/train_compare.py and three new
+recipe test files) ported onto nightly. One conflict in bundle._save_zip was
+resolved by keeping both the newer drawn_data.csv sidecar and Codex's
+canonicalise=False source CSV (the drawn rows are now also written without
+renaming, so the two CSVs share column names). Public callable contracts are
+unchanged. Checks (CUDA hidden, offscreen): the four owning files plus every
+bundle/recipe/drawn test 265 PASS; every figure, plot, graph, training and
+zip test 3,916 PASS. Four figure-writer guards fail identically on nightly
+before this change (raw savefig in plot.py, picture_export.save_picture,
+gene_measurement_sweep ALLOWED entry) and belong to F572. Left: audit the
+remaining figure producers for native export parity; no producer list
+exists yet, so this item stays open.
+
+2026-10-10 — PRODUCER PARITY AUDIT, ITEM COMPLETE
+  Producer list: tools/audit_figure_producers.py walks spacr/ with ast
+  (plt.figure/subplots/subplot_mosaic, Matplotlib Figure( with aliases,
+  seaborn figure-level calls, the house factories, and seaborn axes-level
+  calls or plt.subplot without ax= in a function that makes no figure) and
+  follows each figure through its scope, its class and up to three levels
+  of callers. Per producer it records registers (_register_figure_data),
+  styled_by (_apply_user_style via save_figure, the figure queue render, the
+  shared menu canvas, figure_style rcParams), saved_by (save_figure,
+  _checked_savefig, a guard-listed savefig, or not written / menu Save zip)
+  and menu (figure queue, menu canvas, rendered-picture menu, file only,
+  returned to the API caller). Output:
+  features/data/658_producer_parity_2026-10-10/producers.csv.
+  Counts: 185 producers in 52 modules (142 pyplot, 30 Figure, 13 house
+  factory). On nightly bbd08a495 before this change: 163 ok, 9 exempt, 13
+  missing. Now: 176 ok, 9 exempt, 0 missing. The 9 exemptions are the
+  registration guard's list (two empty-figure factories, _figure_axes,
+  create_results_figure, panels.available scratch, motility preview raster,
+  homogeneity scratch, report.write_pdf pages x2, picture_export.save_picture
+  scratch wrapper); the audit asserts the two lists are the same.
+  Fixed (13):
+  * 8 embedded screens on the shared menu canvas never took the Preferences
+    figure settings (control chart x3, dose response, map barcodes spatial
+    panel, Feature Explorer, PCA scree, volcano). The shared canvas's draw
+    now runs figures.style._style_new_content: the user's settings are
+    applied to each NEW drawing (axes plus data-artist count; spacr-stats
+    brackets and texts do not count), so a right-click edit survives the
+    next repaint. The same hook styles the sweep panel and measurement
+    compare figures that the gene sweep draws with pyplot.
+  * hyperparam trial thumbnails (_trial_figure) and the summary panel
+    (build_panel_figure x3) were rendered pictures with no menu. A
+    right-click on a trial cell or on the summary now opens the shared
+    figure menu on the live figure (figure_settings._show_rendered_figure_menu)
+    and the picture re-renders after each edit; Edit, Change graph type,
+    Statistics and Save zip all work. Left-click still opens the file; a
+    right-click no longer does.
+  * response_distribution.panel styled its own figure with nothing; it now
+    applies _apply_user_style to a figure it makes (never to a caller's).
+  Writer-guard failures (raw savefig in plot.py, picture_export.save_picture,
+  gene_measurement_sweep ALLOWED entry): already resolved on nightly by
+  7d0ab139b and e6a82cb4b, verified correct, not loosened further.
+  _checked_savefig (F572) is a legitimate second writer: it is
+  save_figure's integrity check for writers with their own export rule; it
+  is in ALLOWED with its reason (docstring at the call site), the plot.py
+  check accepts exactly save_figure's and _checked_savefig's raw savefig,
+  the stale gene_measurement_sweep entry is gone because _write routes
+  through _checked_savefig, and save_picture's scratch Figure (a rendered
+  QImage wrapped for the integrity check, written by Qt, never shown) is a
+  named registration exemption. The audit records the sweep's ten figures
+  as saved_by _checked_savefig.
+  Tests: tests/test_every_figure_producer_has_parity.py (7: no producer
+  misses parity; the scan sees known producers; exemptions match the
+  registration guard; synthetic missing registration/style/menu and each
+  credited route; CSV writer and exit status) and
+  tests/qt/test_658_producer_parity_fixes.py (13). No new public API (new
+  helpers private; API surface counts unchanged).
+

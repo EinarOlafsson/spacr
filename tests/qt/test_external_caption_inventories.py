@@ -30,8 +30,8 @@ def test_reachable_svg_descriptions_are_catalogued(builder, qtbot, app_key):
 
 
 def test_installer_phase_sources_match_the_handoff(builder):
-    receipt = json.loads((ROOT / "tests/data/release_contracts/474_starplast_integration_2026-09-22.json").read_text())
-    sources = builder._starplast_progress_sources()
+    receipt = json.loads((ROOT / "tests/data/release_contracts/474_parascape_integration_2026-09-22.json").read_text(encoding="utf-8"))
+    sources = builder._parascape_progress_sources()
     assert sources == set(receipt["dynamic_progress_labels"])
     assert len(sources) == 7
     assert sources <= builder._indirect_runtime_ui_sources()
@@ -53,10 +53,10 @@ def test_shortcut_inventory_tracks_the_actual_make_masks_rows(builder):
 def test_explicit_service_module_does_not_expose_private_helpers(builder):
     from api_visibility import explicit_page_policy, public_symbol
 
-    assert explicit_page_policy("spacr._starplast") is False
-    for name in ("spacr._starplast.apps_root", "spacr._starplast._record",
-                 "spacr._starplast.Path", "spacr._segmentation_backends"):
+    assert explicit_page_policy("spacr._parascape") is False
+    for name in ("spacr._parascape.apps_root", "spacr._parascape._record",
+                 "spacr._parascape.Path", "spacr._segmentation_backends"):
         assert explicit_page_policy(name) is None
-    assert public_symbol("spacr._starplast.apps_root")
-    assert not public_symbol("spacr._starplast._record")
+    assert public_symbol("spacr._parascape.apps_root")
+    assert not public_symbol("spacr._parascape._record")
     assert not public_symbol("spacr._segmentation_backends.install_backend")

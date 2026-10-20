@@ -351,125 +351,50 @@ class TestTheSetupScreen:
             dialog.deleteLater()
 
 
-class TestTheGithubButtonAlwaysDoesSomething:
-    # The "button" is the GitHub LOGO since 2026-08-23 -- "i want the
-    # github button to also be a github logo just like the AI icons work".
-    # The text push button beside it is gone, so what each state offers is
-    # read off the mark's status and tooltip instead of off a caption.
-    def _slides(self, app):
+class TestSetupNeedsNoGithubAccount:
+    @pytest.mark.parametrize("source, cli", [
+        ("gh", "/usr/bin/gh"), ("env", None), ("token", None),
+        (None, "/usr/bin/gh"), (None, None),
+    ])
+    def test_setup_applies_without_probing_an_account(self, app, monkeypatch,
+                                                     source, cli):
+        """First-run setup remains usable regardless of optional GitHub credentials."""
+        import shutil
+
+        from spacr.qt import setup_screen, terms
+        from spacr.qt.ai import github_auth
         from spacr.qt.widgets.setup_slides import SetupSlides
 
-        made = SetupSlides()
-        made.show()
-        for _ in range(20):
+        probes = []
+        original_which = shutil.which
+
+        def auth_source():
+            probes.append("account")
+            return source
+
+        def which(name, *args, **kwargs):
+            if name == "gh":
+                probes.append("cli")
+                return cli
+            return original_which(name, *args, **kwargs)
+
+        monkeypatch.setattr(github_auth, "auth_source", auth_source)
+        monkeypatch.setattr(shutil, "which", which)
+        agreement_before = terms.needs_agreement()
+        slides = SetupSlides()
+        try:
+            slides.show()
             app.processEvents()
-        return made
-
-    def test_it_is_never_disabled(self, app, monkeypatch):
-        """It was greyed in two of its three states, one of them the common
-        one -- `gh` already signed in. A disabled control is what "i cant
-        click the github sign in" looks like from the outside."""
-        from spacr.qt.widgets import setup_slides
-
-        slides = self._slides(app)
-        try:
-            for source in ("gh", "env", "token", None):
-                monkeypatch.setattr(
-                    "spacr.qt.ai.github_auth.auth_source", lambda s=source: s)
-                slides._refresh_github()
-                assert slides._gh_mark.isEnabled(), source
-                assert slides._gh_mark.toolTip().strip(), source
-                assert slides._gh_action in ("login", "install"), source
-        finally:
-            slides.close()
-            slides.deleteLater()
-
-    def test_already_signed_in_offers_to_sign_in_again(self, app,
-                                                       monkeypatch):
-        """A second account, or a token that expired while `auth_source`
-        still finds a stale one. `gh auth login` handles both."""
-        monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source",
-                            lambda: "gh")
-        slides = self._slides(app)
-        try:
-            slides._refresh_github()
-            assert "again" in slides._gh_mark.toolTip().lower()
-            assert slides._gh_mark.status == slides._gh_mark.READY
-            assert slides._gh_action == "login"
-        finally:
-            slides.close()
-            slides.deleteLater()
-
-    def test_a_missing_cli_offers_to_install_it(self, app, monkeypatch):
-        """"The CLI is not installed" beside a dead button tells the user
-        what is wrong and gives them nothing to do about it."""
-        import shutil
-
-        monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source",
-                            lambda: None)
-        monkeypatch.setattr(shutil, "which", lambda name: None)
-        slides = self._slides(app)
-        try:
-            slides._refresh_github()
-            assert "install" in slides._gh_mark.toolTip().lower()
-            assert slides._gh_mark.status == slides._gh_mark.NOT_INSTALLED
-            assert slides._gh_action == "install"
-        finally:
-            slides.close()
-            slides.deleteLater()
-
-    def test_the_install_button_opens_the_install_page(self, app,
-                                                       monkeypatch):
-        import shutil
-
-        from PySide6.QtGui import QDesktopServices
-
-        monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source",
-                            lambda: None)
-        monkeypatch.setattr(shutil, "which", lambda name: None)
-        opened = []
-        monkeypatch.setattr(QDesktopServices, "openUrl",
-                            staticmethod(lambda url: opened.append(url.toString())
-                                         or True))
-        slides = self._slides(app)
-        try:
-            slides._refresh_github()
-            assert slides._sign_in_to_github() is True
-            assert opened and "cli.github.com" in opened[0]
-        finally:
-            slides.close()
-            slides.deleteLater()
-
-    def test_a_logged_out_cli_offers_to_sign_in(self, app, monkeypatch):
-        import shutil
-
-        monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source",
-                            lambda: None)
-        monkeypatch.setattr(shutil, "which", lambda name: "/usr/bin/gh")
-        slides = self._slides(app)
-        try:
-            slides._refresh_github()
-            assert slides._gh_mark.status == slides._gh_mark.SIGNED_OUT
-            assert "sign-in" in slides._gh_mark.toolTip().lower()
-            assert slides._gh_action == "login"
-        finally:
-            slides.close()
-            slides.deleteLater()
-
-    def test_every_state_says_what_it_found(self, app, monkeypatch):
-        """The status line is what makes the button's word make sense."""
-        import shutil
-
-        slides = self._slides(app)
-        try:
-            for source, which in (("gh", "/usr/bin/gh"), (None, None),
-                                  (None, "/usr/bin/gh")):
-                monkeypatch.setattr("spacr.qt.ai.github_auth.auth_source",
-                                    lambda s=source: s)
-                monkeypatch.setattr(shutil, "which", lambda name, w=which: w)
-                slides._refresh_github()
-                assert slides._gh_status.text().strip()
-                assert slides._gh_mark.toolTip().strip()
+            for attribute in ("_gh_mark", "_gh_status", "_gh_action"):
+                assert not hasattr(slides, attribute), attribute
+            answers = slides.answers()
+            assert set(answers) == {question[0] for question in setup_screen.questions()}
+            assert set(answers) == {"language", "theme", "colour_blind",
+                                    "spacr_mode", "hash_inputs"}
+            assert setup_screen.apply(answers) == []
+            assert setup_screen.current() == answers
+            assert terms.needs_agreement() is agreement_before
+            assert probes == []
         finally:
             slides.close()
             slides.deleteLater()

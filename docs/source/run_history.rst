@@ -17,7 +17,8 @@ The dashboard combines:
 Search terms are combined: ``adamw plate_03 warning`` shows only records
 containing all three terms anywhere in settings, paths, warnings, failures or
 environment data. Module and status filters can be applied at the same time.
-Interrupted and corrupt folders stay visible rather than disappearing.
+Interrupted and corrupt run folders remain listed, with status ``running``
+or ``corrupt`` and diagnostic warnings.
 
 Select a row to inspect its details. **Load settings in module** opens the
 original module and propagates the exact recorded settings into its controls;
@@ -31,8 +32,8 @@ journal folders; outputs written into your projects are not touched.
 Storage: pruning and caches
 ---------------------------
 
-**Preferences → Storage** keeps the spaCR home folder from growing without
-bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders
+**Preferences → Storage** sets the limits used when pruning the spaCR home
+folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders
 (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which
 nothing is ever deleted, and **Cap**, a size above which the oldest older
 entries are deleted (**no cap** deletes every older entry). The run in
@@ -47,6 +48,15 @@ the selected cache after asking, and **Move…** moves it into
 variable (for example ``HF_HOME``) is set outside spaCR is not moved.
 Clearing and moving wait until no run is in progress.
 
+The spaCR model cache uses ``SPACR_MODEL_CACHE``. When it is unset or blank,
+models use the ``models`` folder inside the spaCR home returned by
+``_spacr_home()`` (normally ``~/.spacr/models``). An explicit environment
+override takes precedence. Moving this cache through **Storage → Move…**
+persists its new location in ``cache_locations.json`` and reapplies it on
+startup. Newly opened Model Zoo screens and plaque previews use that location.
+The model picker follows the move when its remembered folder matched the old
+cache; a separately chosen custom model folder is preserved.
+
 **Preferences → Logging → Log files** has **Clear all logs…**. It lists the
 daily logs, run logs, crash logs and verbose logs with the number of files
 and their size in each group, and deletes them only after you confirm. A log
@@ -57,8 +67,8 @@ deleted and emptied and how much space was freed.
 Headless search
 ---------------
 
-:func:`spacr.run_journal.search_runs` provides the same resilient records
-without Qt:
+:func:`spacr.run_journal.search_runs` returns the same records as the
+dashboard, including corrupt and interrupted runs, without Qt:
 
 .. code-block:: python
 

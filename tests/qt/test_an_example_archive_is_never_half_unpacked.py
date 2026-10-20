@@ -125,7 +125,7 @@ def test_one_archive_is_streamed_unpacked_and_reported(qapp, tmp_path, serve):
     assert ok is True and error == ""
     assert Path(dataset) == tmp_path / "dest"
     assert Path(settings) == tmp_path / "dest" / "settings"
-    assert (tmp_path / "dest" / "plate1" / "a.txt").read_text() == "one"
+    assert (tmp_path / "dest" / "plate1" / "a.txt").read_text(encoding="utf-8") == "one"
 
 
 def test_the_archive_itself_is_not_left_in_the_folder(qapp, tmp_path, serve):

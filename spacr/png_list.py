@@ -243,7 +243,7 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
     :param verbose: print the number of unusable rows when ``True``.
     :returns: a copy of ``png_df`` with ``path_name``, ``object_label``,
         ``object_type`` and ``object_label_type`` columns, minus the rows
-        that cannot be cut. ``object_type`` is what was ASKED for and is what
+        that cannot be cut. ``object_type`` is what was asked for and is what
         the crop cutter reads to choose a mask plane; ``object_label_type``
         is which object's labels were actually available, and the two differ
         when a png_list written for one crop mode is read for another.

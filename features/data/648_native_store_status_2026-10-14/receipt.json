@@ -1,0 +1,178 @@
+{
+  "item": 648,
+  "scope": "Native QSettings error propagation and unchanged-settings retry closure",
+  "parent_commit": "d69694c6edafd4a192f6458c595e81f08232c86f",
+  "sources": {
+    "spacr/restart_state.py": "5b7483a57634df454f3f09a94b1f1fcfaa41c1d35448792ba897c6242960c258",
+    "spacr/qt/preferences.py": "b3b995a6a4b567d03f12133da7d4696cb65685bd67befe77860409d801ad21ad",
+    "tests/qt/test_n648_autosave_checks_native_store_status.py": "893c8cbc8fd0cf41092534d23e22655c2c9ca1cb4b9423e264f7e15336a51ab5",
+    "tests/test_cov_w3_8_restart_state.py": "c835b9eefe46656355df3a6048ccd041c6d964cd560a0bfec25c1fd57b39f4d2"
+  },
+  "real_native_baseline": {
+    "failed": 8,
+    "exit": 1,
+    "Qt_error": "QSettings.AccessError from actual temporary INI with file as parent, no mocked status/backend"
+  },
+  "owning_covered_cohort": {
+    "passed": 65,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "exit": 0,
+    "seconds": 35.67,
+    "functions": {
+      "spacr/restart_state.py:_write_json": {
+        "covered_lines": 9,
+        "num_statements": 9,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "spacr/restart_state.py:_clear_drafts": {
+        "covered_lines": 9,
+        "num_statements": 9,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "spacr/qt/preferences.py:_DefaultsForReadingRealForWriting.status": {
+        "covered_lines": 1,
+        "num_statements": 1,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      }
+    }
+  },
+  "acceptance": [
+    "Normal and safe-mode session/draft write errors returnFalse",
+    "Normal and safe-mode draft-clear errors returnFalse",
+    "Same actual INI path recovers after blocked parent replaced with directory",
+    "Existing fingerprint retry only advances after both write successes",
+    "File exists and both JSON records match via Qt readback after recovery",
+    "All seven existing captions in nine runtime catalogs source-bound and placeholder-correct",
+    "Existing public signatures/prose/tr calls/storage paths unchanged; private facade status method documented"
+  ],
+  "language_api_contract": {
+    "changed_sources": {
+      "spacr/restart_state.py": {
+        "existing_definitions_signatures_and_prose_identical": true,
+        "tr_calls_identical": true
+      },
+      "spacr/qt/preferences.py": {
+        "existing_definitions_signatures_and_prose_identical": true,
+        "tr_calls_identical": true
+      }
+    },
+    "only_new_definition": [
+      [
+        "spacr/qt/preferences.py",
+        "_DefaultsForReadingRealForWriting.status"
+      ]
+    ],
+    "new_definition_scope": "Direct method of existing private top-level class, no lexical enclosing function; excluded by normal AutoAPI/private-member and nested-helper policies",
+    "normal_catalog_generation_required": false,
+    "N648_existing_captions": [
+      "Restore unsaved settings",
+      "spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?",
+      "Restore",
+      "Discard",
+      "Reopen the last module, settings and folder on start",
+      "Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.",
+      "Session"
+    ],
+    "all_nine_current_source_bound_and_placeholder_correct": {
+      "sv": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "6150d0c2f2b10d1d4c021d68b1a870ab45ee8dd9de71187fe222fc1f231bd5eb"
+      },
+      "de": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "fcd5cf47dd8c17cb9c27256280ea122e7f3cbbedec9ff31a9fea3cd27086108c"
+      },
+      "es": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "3f8ccb160382a525dabe0f60d64ccaacc0156b21669342db5fa438a5c1239f36"
+      },
+      "zh_CN": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "b39463ec9fdf5b435f336f36a46576c28762685f66bbc69c552849bc3998fd6f"
+      },
+      "pt": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "25fcff4da80393e35d3617878fbda42b7112ba64ce51470697845c48dcb00243"
+      },
+      "hi": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "80f22ddb35ee589747f4a5b83ed7f177394fcff049468165d5af2aefcccec7d3"
+      },
+      "ko": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "b6cba122cacd7117c55ed4283d910ec7e55870429b22ca0a620434427a1c6ba6"
+      },
+      "is": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "59097842d970ec845af86cd9f5a87eba2fc2793c1d96d661080ff0aba1fd25ce"
+      },
+      "fr": {
+        "current_source_bound_entries": 7,
+        "placeholders_match": true,
+        "catalog_sha256": "3e0598520e37c0a4693bc9dd2f67a194daa6a514cb33e9ff028cba79a634486e"
+      }
+    },
+    "new_UI_strings": 0,
+    "changed_existing_public_API_signatures": 0
+  },
+  "runtime": "CPU/offscreen Qt6.12;Python3.12.13;6GiB/zero swap;-n2",
+  "limits": [
+    "Actual Linux temporary-INI tests, not new Windows/macOS-native or hard-power-loss acceptance",
+    "No fullCI/release/publication claim; no GPU/data/NAS/active annotation mutations"
+  ],
+  "evidence_sha256": {
+    "native-baseline-launch.json": "a8bb2caa039b43467c590afa68342f6e6791987f20112b9d5c2210513bfe1ee5",
+    "native-baseline.log": "bfee0366d412361a70b1906e6696f1fe8ab1d03cbfa02e688d704c32b7a4bd0d",
+    "native-baseline.xml": "a64aa456318cfd6f484d9265dff6df29ca11a3a7333b4d5498f35b376c5b5488",
+    "native-baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "native-owning-launch.json": "ce044ecf73f7b1b9a8277d10e51bab21b33408418295fd5744ed5a025ffb1378",
+    "native-owning.log": "b1fae450e6a82ac92723542fe9cc136fe03ce28228e646a7bb723ef7c933634e",
+    "native-owning.xml": "e63cd85fc60ad34e1b99f7835731b205e1f53a0aa277f667cb49a4a26c603926",
+    "native-owning.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "native-coverage/.coverage": "391aa6303485e3de9c98c6ffba5d9a20130803b88afc55d1159457099c148141",
+    "native-coverage/status.json": "2fd5a52d8d54ff52d48fabdba77d5e24e06b27ab48daa13062096d744bce6f4c"
+  }
+}

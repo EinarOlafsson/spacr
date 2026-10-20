@@ -144,13 +144,14 @@ def test_generated_api_and_tutorial_contracts_match_the_map():
         assert (workflow.ROOT / relative).read_text(encoding="utf-8") == content, relative
     module_keys = set(data["modules"])
     # Lesson 79 covers every module a user can see with Show alpha species
-    # off; alpha-species organism chapters (634) are left out.
-    from spacr.settings import _alpha_species_names
-    visible = module_keys - set(_alpha_species_names("apps"))
+    # and Show alpha features off; alpha-species organism chapters (634) and
+    # alpha modules (F534's spatial page folds) are left out.
+    from spacr.settings import _alpha_names
+    visible = module_keys - set(_alpha_names("apps"))
     assert set(data["tutorials"]["79_module_inputs_outputs"]["modules"]) == visible
     for key, lesson in data["tutorials"].items():
-        contract = json.loads((workflow.ROOT / f"tools/tutorials/workflows/{key}.json").read_text())
-        script = json.loads((workflow.ROOT / f"tools/tutorials/lessons/{key}.json").read_text())
+        contract = json.loads((workflow.ROOT / f"tools/tutorials/workflows/{key}.json").read_text(encoding="utf-8"))
+        script = json.loads((workflow.ROOT / f"tools/tutorials/lessons/{key}.json").read_text(encoding="utf-8"))
         assert script["app_key"] is None
         if lesson.get("lesson_source") == "authored":
             assert workflow.lesson_document(data, key) == script
@@ -264,17 +265,17 @@ def test_stale_generated_prose_stops_the_docs_build(tmp_path):
     for module in data["modules"].values():
         if module.get("api_entry"):
             file = tmp_path / (module["api_module"].replace(".", "/") + ".py")
-            file.write_text((workflow.ROOT / file.relative_to(tmp_path)).read_text())
+            file.write_text((workflow.ROOT / file.relative_to(tmp_path)).read_text(encoding="utf-8"))
     for key, tutorial in data["tutorials"].items():
         if tutorial.get("lesson_source") == "authored":
             relative = Path(f"tools/tutorials/lessons/{key}.json")
             destination = tmp_path / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text((workflow.ROOT / relative).read_text())
-            for scene in json.loads(destination.read_text())["scenes"]:
+            destination.write_text((workflow.ROOT / relative).read_text(encoding="utf-8"))
+            for scene in json.loads(destination.read_text(encoding="utf-8"))["scenes"]:
                 for link in scene.get("related_lessons", []):
                     relative = Path(f"tools/tutorials/lessons/{link}.json")
-                    (tmp_path / relative).write_text((workflow.ROOT / relative).read_text())
+                    (tmp_path / relative).write_text((workflow.ROOT / relative).read_text(encoding="utf-8"))
     with pytest.raises(ValueError, match="stale workflow artifact"):
         workflow.prepare_jinja(Environment(), root=tmp_path)
 
@@ -295,7 +296,7 @@ def test_authored_lesson_is_validated_but_never_a_workflow_writer_target():
     generated = copy.deepcopy(data)
     generated["tutorials"]["80_image_analysis_pathways"].pop("lesson_source")
     assert relative in workflow.outputs(generated)
-    assert "pixels to answers" in workflow.outputs(generated)[relative]
+    assert "usually run in this order" in workflow.outputs(generated)[relative]
 
 
 @pytest.mark.parametrize("fault,match", [
@@ -339,8 +340,8 @@ def test_unknown_lesson_ownership_is_rejected():
 
 
 def test_installed_resource_is_declared_for_wheels_and_source_archives():
-    assert "resources/module_workflows.json" in (workflow.ROOT / "setup.py").read_text()
-    assert "include spacr/resources/module_workflows.json" in (workflow.ROOT / "MANIFEST.in").read_text()
+    assert "resources/module_workflows.json" in (workflow.ROOT / "setup.py").read_text(encoding="utf-8")
+    assert "include spacr/resources/module_workflows.json" in (workflow.ROOT / "MANIFEST.in").read_text(encoding="utf-8")
 
 
 def test_pipeline_input_explanations_reach_walkthroughs_and_translation_sources():

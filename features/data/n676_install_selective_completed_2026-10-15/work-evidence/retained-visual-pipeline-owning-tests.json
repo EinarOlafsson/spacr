@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "status": "owning_tests_passed_ready_for_independent_source_review",
+  "source_parent": "972ac89c91db8b3842cd75bb30991b8b1af35898",
+  "files": [
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/build_appended_candidate.py",
+      "bytes": 38632,
+      "sha256": "b4a2bd94912c48371d37c5881f021acfeab65746026f4779809d065df5d2cc85"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/retained_visual_refresh.py",
+      "bytes": 10738,
+      "sha256": "f8d1117155f3483cebe65bba5561b0bdfa246ed18f11b65ac6565a9d08ee81e5"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/finish_staged_visual.py",
+      "bytes": 5319,
+      "sha256": "a58399848441fa2c9d71511c29baac1e211e5ec8dadceeb8c16421ee38e56077"
+    },
+    {
+      "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/tests/test_retained_visual_refresh.py",
+      "bytes": 17204,
+      "sha256": "20138c3bca03d4a6b5fb0d298781f292147c06998d7ca5e8d066407de4354f49"
+    }
+  ],
+  "renderer_owner_file": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/render_installation_route_cards.py",
+    "bytes": 9336,
+    "sha256": "6fcbb540232af1a44d19be2fee97b20639832b349569e28cf54d7310bd0a8b32"
+  },
+  "tests": {
+    "passed": 129,
+    "seconds": 1.25,
+    "terminal_exit_status": 0,
+    "log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r2.log",
+      "bytes": 205,
+      "sha256": "fe41a2749432d8590885c127567db9ce1ca66d2113b209d13513053720b5a020"
+    },
+    "earlier_pass_log": {
+      "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson02-selective-20261015/retained-visual-tests-r1.log",
+      "bytes": 205,
+      "sha256": "39aecbba43a1316fc4afb1698a6b10314965152367be09f9b9261ea8e249b1b7"
+    },
+    "cohort": [
+      "test_retained_visual_refresh.py",
+      "test_appended_candidate.py",
+      "test_retained_narration.py",
+      "test_native_live_timing.py",
+      "test_installation_merge.py"
+    ],
+    "cap": "4G",
+    "CPU_only": true,
+    "no_media_encoding_or_rendering": true
+  },
+  "contract": {
+    "receipt": "production/<lesson>/retained-visual-refresh.json",
+    "receipt_kind": "retained_visual_refresh",
+    "finish_flag": "--retain-visual-from <published baseline>",
+    "build_flags": [
+      "--retain-narration 02_install_spacr",
+      "--retain-visual-timing 02_install_spacr"
+    ],
+    "timing_changes_only": [
+      "visual_spec_sha256",
+      "retained_visual_refresh receipt and baseline manifest hashes"
+    ],
+    "provenance_changes_only": [
+      "one nonnative card image/hash and frame origin",
+      "capture_source.completed_capture=False",
+      "capture_source.frame_pixels_modified=True"
+    ],
+    "unchanged": [
+      "all100 narration files",
+      "all14 lesson catalog objects",
+      "all inherited scene clocks",
+      "legacy native Home source video/receipt and29.533s selection"
+    ],
+    "normal_native_live_timing_gate_changed": false
+  },
+  "limits": [
+    "Tests validate bounded source/receipt policy and finish gate dispatch using tiny fixture media; actual card render/overlay/fulldecode/PTS/web/browser/publication remain future root-owned operations.",
+    "No app, audio, canonical, environment, GPU or shared checkout changes; source uncommitted for parent review."
+  ]
+}

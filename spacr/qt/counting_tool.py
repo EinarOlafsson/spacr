@@ -1,4 +1,4 @@
-"""``B13`` — counting by hand on the layer canvas.
+"""Manual counting on the layer canvas.
 
 :mod:`spacr.counting` is the session: the classes, the markers, the undo stack
 and the export, all in plain numpy so the tally can be tested without a
@@ -40,6 +40,7 @@ from ..layers import FieldKey, LayerError, LayerEvent
 from .layer_viewer import CanvasTool, LayerCanvas
 from .theme import register_widget_qss
 from .widgets.preview_controls import FlatButton
+from .widgets.sortable_table import _reuse_list_items
 
 LOG = logging.getLogger(__name__)
 
@@ -160,10 +161,9 @@ class CountingPanel(QWidget):
     :param parent: parent widget; ownership only.
     :param session: an already-built
         :class:`~spacr.counting.CountingSession`. ``None`` builds one from
-        the other arguments, which is the ordinary case; PASSING ONE HANDS THE
-        PANEL A SESSION THAT ALREADY HAS STATE -- a part-finished tally,
-        or one a test wrote directly -- so the panel resumes it instead of
-        starting over.
+        the other arguments, which is the ordinary case. A session passed
+        here may already have state -- a part-finished tally, or one a test
+        wrote directly -- and the panel resumes it instead of starting over.
     """
 
     #: The tally changed. Carries ``{class: count}``.
@@ -374,19 +374,18 @@ class CountingPanel(QWidget):
         counts = self._session.counts()
         self._syncing = True
         try:
-            self.class_list.clear()
-            for entry in self._session.classes:
+            entries = list(self._session.classes)
+            rows = _reuse_list_items(self.class_list, len(entries))
+            for item, entry in zip(rows, entries):
                 n = counts[entry.name]
                 share = self._session.fraction(entry.name)
                 shortcut = f" [{entry.shortcut}]" if entry.shortcut else ""
-                item = QListWidgetItem(
-                    f"{entry.name}{shortcut}   {n}  ({share:.0%})")
+                item.setText(f"{entry.name}{shortcut}   {n}  ({share:.0%})")
                 item.setData(Qt.UserRole, entry.name)
                 item.setToolTip(
                     f"{n} marker(s) of {entry.name}"
                     + (f" — press {entry.shortcut} to count these"
                        if entry.shortcut else ""))
-                self.class_list.addItem(item)
             names = self._session.class_names
             if self._session.active in names:
                 self.class_list.setCurrentRow(names.index(self._session.active))

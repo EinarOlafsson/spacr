@@ -7,14 +7,18 @@
       "source_sha256": "3f925d0a6b9e23114027fcf96551e4f0cb8f3f4beba283edbdabbca274b9a5ca",
       "source": "**2. Units are translated through an explicit table, and an unknown one is refused.** :data:`NGFF_UNIT_TO_SPACR` is the mapping, written out. A unit that is not in it raises :class:`OmeZarrError`. It would be one line to default to ``\"px\"`` instead, and that one line is how a 0.65 µm pixel becomes a 0.65 px pixel and every downstream area comes out wrong by a factor of 10^6 — in a column named ``cell_area`` that still looks entirely reasonable. The error distinguishes the two cases that need different fixes: a unit NGFF has never heard of (the file is wrong), and a legal NGFF unit spaCR has no short token for (convert it, e.g. to ``micrometer``).",
       "context": "**2. Units are translated through an explicit table, and an unknown one is refused.** :data:`NGFF_UNIT_TO_SPACR` is the mapping, written out. A unit that is not in it throws :class:`OmeZarrError`. It would be one line to default to ``\"px\"`` instead, and that one line is how a 0.65 µm pixel becomes a 0.65 px pixel and every downstream area comes out wrong by a factor of 10^6 — in a column named ``cell_area`` that still looks entirely reasonable. The error distinguishes the two cases that need different fixes: a unit NGFF has never heard of (the file is wrong), and a legal NGFF unit spaCR has no short token for (convert it, e.g. to ``micrometer``).",
-      "translation": "**2. Enheter översätts genom en explicit tabell, och en okänd vägras.** :data:`NGFF_UNIT_TO_SPACR` är mappningen, skriven ut. En enhet som inte är i den kastar :class:`OmeZarrError`. Det skulle vara en linje till standard till ``\"px\"`` i stället, och att en rad är hur en 0,65 µm pixel blir en 2,6 px pixel och varje nedströms område kommer ut fel med en faktor på 10 ^ 6 — i en kolumn som heter ``cell_area`` som fortfarande ser helt rimligt. Felet skiljer mellan två fall som behöver olika rättningar: en enhet som NGFF aldrig har hört talas om (filen är fel), och en laglig NGFF-enhet spaCR som inte har någon kort symbol för (konvertera den, till exempel till ``micrometer``)."
+      "translation": "**2. Enheter översätts genom en explicit tabell, och en okänd vägras.** :data:`NGFF_UNIT_TO_SPACR` är mappningen, skriven ut. En enhet som inte är i den kastar :class:`OmeZarrError`. Det skulle vara en linje till standard till ``\"px\"`` i stället, och att en rad är hur en 0,65 µm pixel blir en 2,6 px pixel och varje nedströms område kommer ut fel med en faktor på 10 ^ 6 — i en kolumn som heter ``cell_area`` som fortfarande ser helt rimligt. Felet skiljer mellan två fall som behöver olika rättningar: en enhet som NGFF aldrig har hört talas om (filen är fel), och en laglig NGFF-enhet spaCR som inte har någon kort symbol för (konvertera den, till exempel till ``micrometer``).",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ome_zarr#15",
       "source_sha256": "8b134af1da1fc9ccbfb5b6ccf0ad7bca447f96d27384c2cbb6f8f0d168cfd2fb",
       "source": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` key in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
       "context": "**0.4 is implemented properly** — it is what essentially all real data is in, and it is zarr-format 2. 0.5 (zarr-format 3, metadata under an ``ome`` structured-data name in ``zarr.json``) is *tolerated*: its metadata is parsed in full, and its chunks are decoded for the codec chains the standard library can do (``bytes``/``transpose``/``gzip``/``crc32c``). Anything else routes through the same :func:`require_codec` refusal as v2 does. ``.zgroup`` / ``.zarray`` / ``zarr.json`` and the ``zarr_format`` field are read rather than assumed, and an unsupported ``zarr_format`` is refused by number.",
-      "translation": "**0.4 är korrekt implementerat** — det är formatet för i stort sett alla verkliga data och använder zarr-format 2. 0.5 (zarr-format 3, med metadata lagrade under nyckeln ``ome`` i ``zarr.json``) *tolereras*: dess metadata tolkas fullständigt och dess block avkodas för de kodekkedjor som standardbiblioteket kan hantera (``bytes``/``transpose``/``gzip``/``crc32c``). Allt annat går genom samma vägran i :func:`require_codec` som v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` och fältet ``zarr_format`` läses i stället för att antas, och ett ``zarr_format`` som inte stöds avvisas med sitt nummer."
+      "translation": "**0.4 är korrekt implementerat** — det är formatet för i stort sett alla verkliga data och använder zarr-format 2. 0.5 (zarr-format 3, med metadata lagrade under nyckeln ``ome`` i ``zarr.json``) *tolereras*: dess metadata tolkas fullständigt och dess block avkodas för de kodekkedjor som standardbiblioteket kan hantera (``bytes``/``transpose``/``gzip``/``crc32c``). Allt annat går genom samma vägran i :func:`require_codec` som v2. ``.zgroup`` / ``.zarray`` / ``zarr.json`` och fältet ``zarr_format`` läses i stället för att antas, och ett ``zarr_format`` som inte stöds avvisas med sitt nummer.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ome_zarr.Level#2",
@@ -119,7 +123,9 @@
       "source_sha256": "91e2327728ac8c7a269d26fd7ab054231772f6f54817f108a63f48f3ed653849",
       "source": "Handy for sanity-checking the masks produced by :func:`spacr.core.preprocess_generate_masks` (e.g. compare the cell, nucleus and pathogen masks of the same field, or two runs against each other). Each mask is rendered with a random-color palette so neighbouring objects stay distinguishable.",
       "context": "Handy for sanity-checking the masks produced by :func:`spacr.core.preprocess_generate_masks` (e.g. compare the cell, nucleus and pathogen masks of the same microscope field of view, or two runs against each other). Each mask is rendered with a random-color palette so neighbouring objects stay distinguishable.",
-      "translation": "Praktiskt för att kontrollera de masker som produceras av :func:`spacr.core.preprocess_generate_masks` (till exempel jämföra cell, kärna och patogen masker av samma mikroskop synfält, eller två körningar mot varandra). Varje mask renderas med en slumpmässig färgpalett så att intilliggande objekt förblir urskiljbara."
+      "translation": "Praktiskt för att kontrollera de masker som produceras av :func:`spacr.core.preprocess_generate_masks` (till exempel jämföra cell, kärna och patogen masker av samma mikroskop synfält, eller två körningar mot varandra). Varje mask renderas med en slumpmässig färgpalett så att intilliggande objekt förblir urskiljbara.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.ports.Port#1",
@@ -161,7 +167,9 @@
       "source_sha256": "b29e3f1597423bee4271d197da73e23f34b39e2c1d2d035f1f5bad8eb8cae1f0",
       "source": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
       "context": "Fuzzy match is a plain substring case-insensitive scan — good enough for the ~30 commands the palette will ever hold.",
-      "translation": "Fuzzy-matchning är en vanlig delsträngs- skiftlägesokänslig sökning — tillräckligt bra för ~30 kommandon paletten någonsin kommer att hålla."
+      "translation": "Fuzzy-matchning är en vanlig delsträngs- skiftlägesokänslig sökning — tillräckligt bra för ~30 kommandon paletten någonsin kommer att hålla.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.command_palette.Command#4",
@@ -203,7 +211,9 @@
       "source_sha256": "a2aab2bffad2798812e71df24837c5ea964aaef1afae3351cf4195e8da257197",
       "source": "The threads are asked to stop and are then left to retire themselves; they are *not* joined, because joining on the GUI thread is the freeze this class exists to remove. Their results are dropped on arrival by the generation check, so nothing reaches a handler that may be about to be destroyed.",
       "context": "The independent execution paths are asked to stop and are then left to retire themselves; they are *not* joined, because joining on the main GUI execution path is the freeze this class exists to remove. Their results are dropped on arrival by the generation check, so nothing reaches a handler that may be about to be destroyed.",
-      "translation": "De oberoende exekveringsvägarna uppmanas att stoppa och lämnas sedan att pensionera sig själva; de är *inte* sammanfogade, eftersom sammanfogning på den huvudsakliga GUI exekveringsvägen är den frysning som denna klass existerar för att ta bort. Deras resultat släpps vid ankomsten av generationskontrollen, så ingenting når en hanterare som kan vara på väg att förstöras."
+      "translation": "De oberoende exekveringsvägarna uppmanas att stoppa och lämnas sedan att pensionera sig själva; de är *inte* sammanfogade, eftersom sammanfogning på den huvudsakliga GUI exekveringsvägen är den frysning som denna klass existerar för att ta bort. Deras resultat släpps vid ankomsten av generationskontrollen, så ingenting når en hanterare som kan vara på väg att förstöras.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.mask_engine.erase_object_at#0",
@@ -259,7 +269,9 @@
       "source_sha256": "2aefb4219d26dff0c9900f9d98713f98a63c40ea87c7707434da3b7f0a01ec18",
       "source": "**The scan never blocks the window.** Walking a plate folder is tens of thousands of ``stat`` calls, and doing it on the GUI thread is a frozen application for however long the filesystem takes. Everything goes through :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are **bound methods** — read that module's docstring for what a closure connected to ``thread.finished`` costs. The background activity spinner follows the run registry on its own, so nothing here has to drive it.",
       "context": "**The scan never blocks the window.** Walking a plate folder is tens of thousands of ``stat`` calls, and doing it on the main GUI execution path is a frozen application for however long the filesystem takes. Everything goes through :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are **bound methods** — read that module's docstring for what a closure connected to ``thread.finished`` costs. The background activity spinner follows the processing session registry on its own, so nothing here has to drive it.",
-      "translation": "**Skanningen blockerar aldrig fönstret.** Att gå igenom en plattmapp är tiotusentals ``stat``-anrop, och att göra det på den huvudsakliga GUI-körningsvägen är en frusen applikation så länge filsystemet tar. Allt går genom :class:`spacr.qt.job_runner.JobRunner`, vars slutförande hanterare här är **bundna metoder** — läs den modulen docstring för vad en stängning ansluten till ``thread.finished`` kostar. Bakgrundsaktiviteten spinner följer behandlingssessionsregistret på egen hand, så inget här behöver driva det."
+      "translation": "**Skanningen blockerar aldrig fönstret.** Att gå igenom en plattmapp är tiotusentals ``stat``-anrop, och att göra det på den huvudsakliga GUI-körningsvägen är en frusen applikation så länge filsystemet tar. Allt går genom :class:`spacr.qt.job_runner.JobRunner`, vars slutförande hanterare här är **bundna metoder** — läs den modulen docstring för vad en stängning ansluten till ``thread.finished`` kostar. Bakgrundsaktiviteten spinner följer behandlingssessionsregistret på egen hand, så inget här behöver driva det.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.settings_diff.setting_category#1",
@@ -338,7 +350,7 @@
       "source_sha256": "aa8d9f4db150d0760a7cdbed1669ef33baaa8c647968353849d4899ff7aa2513",
       "source": "table to preselect (e.g. ``png_list`` for annotations).",
       "context": "table to preselect (e.g. ``png_list`` for annotations).",
-      "translation": "tabell som ska förinställas (till exempel ``png_list`` för anteckningar)."
+      "translation": "tabell som ska förinställas (till exempel ``png_list`` för annoteringar)."
     },
     {
       "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_stdout#0",

@@ -1,40 +1,38 @@
 """One object list for a well, sewn across window seams and numbered once.
 
-SEGMENT, SEW, NUMBER -- the three steps between a composite and an object
-table. The compose step gives a mosaic that is built a
-window at a time and never materialised whole; this is what segmentation and
-numbering do on top of it:
+Segment, sew, number -- the three steps between a composite and an object
+table. The compose step gives a mosaic that is built a window at a time and
+never materialised whole; this is what segmentation and numbering do on top of
+it:
 
-* SEGMENT ONCE, on the composite, window by window.
-* SEW THE LABELS ACROSS WINDOW SEAMS. An object straddling a boundary is
-  one object, matched on its well-frame centroid.
-* NUMBER IN THE WELL FRAME, NOT PER WINDOW. Per-window numbering would
-  give two windows an object #1 apiece.
+* Segment once, on the composite, window by window.
+* Sew the labels across window seams. An object straddling a boundary is one
+  object, matched on its well-frame centroid.
+* Number in the well frame, not per window. Per-window numbering would give two
+  windows an object #1 apiece.
 
-THE SEAM PROBLEM IS ALREADY HALF-SOLVED BY THE COMPOSE STEP, and saying how
-avoids
-reinventing it. :func:`spacr.ops_compose.windows_over` tiles with an OVERLAP,
-and its contract is that the overlap exceeds the largest object. So a nucleus
-near a seam is not split between two windows -- it is seen WHOLE by at least
-one of them, and usually twice. The job here is therefore deduplication, not
-reconstruction: find the observations that are the same nucleus and keep the
-one that saw all of it.
+The compose step already handles half of the seam problem:
+:func:`spacr.ops_compose.windows_over` tiles with an overlap, and its contract
+is that the overlap exceeds the largest object. So a nucleus near a seam is not
+split between two windows -- it is seen whole by at least one of them, and
+usually twice. The job here is therefore deduplication, not reconstruction:
+find the observations that are the same nucleus and keep the one that saw all
+of it.
 
-    THAT DISTINCTION IS THE WHOLE DESIGN. Reconstructing an object from two
-    partial masks means deciding how to union pixels across a seam, which is
-    fiddly and lossy. Choosing between two complete masks is neither.
+    Reconstructing an object from two partial masks means deciding how to union
+    pixels across a seam, which is fiddly and lossy. Choosing between two
+    complete masks is neither.
 
-WHICH LEAVES ONE FAILURE THAT MUST NOT BE SILENT: an object larger than the
-overlap, which every window clips. :func:`number` refuses those rather than
-emitting a fragment, because a fragment looks exactly like a small nucleus
-and would be counted as one for the rest of the run.
+One failure remains and is reported: an object larger than the overlap, which
+every window clips. :func:`number` refuses those rather than emitting a
+fragment, because a fragment looks exactly like a small nucleus and would be
+counted as one for the rest of the run.
 
-THE IDS ARE A JOIN KEY, so they are assigned deterministically -- raster
-order on the well-frame centroid -- and not by iteration order over a dict or
-by whichever window happened to be segmented first. The contract is: "This
-id, and the
-centroid beside it, is the join key for every later phase." Two runs over the
-same data must produce the same numbers or nothing downstream can be
+The ids are a join key, so they are assigned deterministically -- raster order
+on the well-frame centroid -- and not by iteration order over a dict or by
+whichever window happened to be segmented first. The contract is: "This id, and
+the centroid beside it, is the join key for every later phase." Two runs over
+the same data must produce the same numbers or nothing downstream can be
 compared.
 """
 from __future__ import annotations
@@ -78,7 +76,7 @@ _CLIP_MARGIN = 2
 
 
 class ObjectsError(ValueError):
-    """An object list that cannot be trusted, with the way out in the text.
+    """Raised for an unusable object list; the message states the remedy.
 
     Raised rather than returned empty for the same reason
     :class:`spacr.ops_compose.ComposeError` is: every one of these is a
@@ -90,28 +88,24 @@ class ObjectsError(ValueError):
 
 @dataclass(frozen=True)
 class WindowObject:
-    """One segmented object as ONE window saw it, in well-frame coordinates.
+    """One segmented object as one window saw it, in well-frame coordinates.
 
     :param window: the window it was segmented in, so a disagreement can be
         traced back to the pixels that produced it.
     :param label: its label value within that window's label image.
     :param clipped: whether its mask touches a window edge that is not also a
-        canvas edge -- meaning this window did NOT see all of it. A clipped
+        canvas edge -- meaning this window did not see all of it. A clipped
         observation is never preferred and never emitted alone.
-    :param centroid_y: row of the object's centroid, in WELL-frame pixels --
+    :param centroid_y: row of the object's centroid, in well-frame pixels --
         not window-frame. Matching across a seam compares centroids from two
         different windows, so they have to be in a frame both agree on.
     :param centroid_x: column of the same centroid, same frame.
     :param area: the mask's pixel count as this window saw it. Smaller than
         the truth whenever ``clipped`` is set, which is what makes it usable
         as the tie-break between two observations of one nucleus.
-    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every
-        one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row
-        and column the mask occupies, so its height is ``bottom - top + 1``.
-        This docstring said exclusive until 2026-09-19 and the code has
-        always been inclusive (`_label_extents` reduces with
-        ``np.maximum``), which cost anyone measuring an extent from it one
-        pixel in each direction.
+    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every one
+        of them inclusive -- ``bottom`` and ``right`` are the last row and
+        column the mask occupies, so its height is ``bottom - top + 1``.
     """
 
     window: Window
@@ -131,13 +125,12 @@ class PlateObject:
     specifies, so the table is written from these without a translation
     layer.
 
-    :param object_id: the well-wide number. Unique across the whole well,
-        which is the entire reason this type exists -- per-window numbering
-        gives two windows an object #1 apiece.
+    :param object_id: the well-wide number, unique across the whole well;
+        per-window numbering would give two windows an object #1 apiece.
     :param centroid_x: column of the centroid, in well-frame pixels.
     :param centroid_y: row of the centroid, same frame.
-    :param area: pixel count of the mask that was kept, which is the
-        UNCLIPPED observation wherever one exists.
+    :param area: pixel count of the mask that was kept, which is the unclipped
+        observation wherever one exists.
     :param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every
         one of them inclusive, as :class:`WindowObject` carries them.
     :param window: the window whose observation was kept, as ``(row, col)``.
@@ -145,6 +138,9 @@ class PlateObject:
         segmented from.
     :param n_observations: how many windows saw this nucleus. Greater than
         one means it sat in an overlap and the observations were sewn.
+    :param label: the kept observation's label in its window's label image,
+        so the object's pixels can be read back from that window. Not an
+        ``ops_objects`` column.
     """
 
     object_id: int
@@ -154,6 +150,7 @@ class PlateObject:
     bbox: Tuple[int, int, int, int]
     window: Tuple[int, int]
     n_observations: int = 1
+    label: int = 0
 
     def row(self) -> Dict[str, object]:
         """One ``ops_objects`` row."""
@@ -179,10 +176,10 @@ def objects_in_window(window: Window, labels: np.ndarray, *,
     :param labels: integer label image, zero is background, as a segmenter
         returns it. Must match the window's shape.
     :param canvas: the well's ``(height, width)``. Used only to tell a window
-        edge that is also the WELL edge -- where an object genuinely ends --
-        from an interior seam, where a touching object is clipped. Omitted,
-        every edge is treated as interior, which is the safe direction: it
-        can only make this function more cautious.
+        edge that is also the well edge -- where an object ends -- from an
+        interior seam, where a touching object is clipped. Omitted, every edge
+        is treated as interior, which is the safe direction: it can only make
+        this function more cautious.
     :raises ObjectsError: when ``labels`` is not the window's shape, because
         every coordinate below would be silently wrong.
     """
@@ -272,10 +269,10 @@ def segment_windows(windows: Iterable[Window],
                     ) -> Tuple[WindowObject, ...]:
     """Run a segmenter over each window and collect the observations.
 
-    THE SEGMENTER IS INJECTED, exactly as ``compose_window`` takes its
+    The segmenter is injected, exactly as ``compose_window`` takes its
     ``read_tile``. This module never imports cellpose, never chooses a model
-    and never decides a diameter -- it is the geometry of doing that window
-    by window, and it is testable on planted labels with no model present.
+    and never decides a diameter -- it is the geometry of doing that window by
+    window, and it is testable on planted labels with no model present.
 
     :param windows: from :func:`spacr.ops_compose.windows_over`.
     :param segment: called with one window, returns its label image. A
@@ -366,12 +363,12 @@ def sew(observations: Sequence[WindowObject], *,
     grouped from two (or four, at a corner) observations; one in a window's
     interior forms a group of one.
 
-    THE CLIPPED ONES ARE THE POINT. An observation whose mask ran into an
-    interior seam did not see the whole nucleus, so its area and centroid are
-    both wrong. It is kept only long enough to be matched to a complete
-    observation of the same nucleus and is then dropped in favour of it. A
-    clipped observation matching nothing complete means no window saw that
-    nucleus whole, which :func:`number` refuses.
+    An observation whose mask ran into an interior seam did not see the whole
+    nucleus, so its area and centroid are both wrong. It is kept only long
+    enough to be matched to a complete observation of the same nucleus and is
+    then dropped in favour of it. A clipped observation matching nothing
+    complete means no window saw that nucleus whole, which :func:`number`
+    refuses.
 
     Two labels of one window are never one object, because a label image does
     not give one nucleus two labels. Two complete observations from different
@@ -926,19 +923,16 @@ def unseen_records(groups: Sequence[Sequence[WindowObject]]
                    ) -> Tuple[Dict[str, object], ...]:
     """One record per group no window saw whole, for a run report.
 
-    WHY THIS IS NOT THE REFUSAL MESSAGE. :func:`_unseen_report` names the
-    LARGEST group and the remedy, which is what an operator reading one line
-    needs. It is also all that survived well A1's run: 54 groups were dropped
-    and the report kept one box and a count, so the question the run raised --
-    are these Cellpose fragments with no counterpart, or clips whose complete
-    observation the join missed? -- could not be answered afterwards without
-    segmenting the well again. These records are the cheap half of that
-    answer, written while the observations are still in memory.
+    :func:`_unseen_report` names only the largest group and the remedy. These
+    records describe every refused group while the observations are still in
+    memory, so a run report can later tell Cellpose fragments with no
+    counterpart from clips whose complete observation the join missed, without
+    segmenting the well again.
 
     The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each
-    box against the objects that WERE numbered: a refusal with a numbered
-    object over it is a join that missed, and one with empty well frame
-    around it is a fragment.
+    box against the objects that were numbered: a refusal with a numbered
+    object over it is a join that missed, and one with empty well frame around
+    it is a fragment.
 
     :param groups: from :func:`sew` -- every group, not only the refused
         ones; the ones with a complete observation are skipped here.
@@ -974,11 +968,11 @@ def number(groups: Sequence[Sequence[WindowObject]], *,
            strict: bool = True) -> Tuple[PlateObject, ...]:
     """One id per object, assigned in the well frame, deterministically.
 
-    RASTER ORDER ON THE WELL-FRAME CENTROID -- top to bottom, then left to
-    right -- rather than the order windows were segmented in. The id is a
-    join key, so two runs over the same data have to produce the same
-    numbers; ordering by anything the scheduler can vary would break that
-    quietly and only in the results.
+    Raster order on the well-frame centroid -- top to bottom, then left to
+    right -- rather than the order windows were segmented in. The id is a join
+    key, so two runs over the same data have to produce the same numbers;
+    ordering by anything the scheduler can vary would break that quietly and
+    only in the results.
 
     Ids start at 1. Zero is background in every label image this came from,
     and an object numbered 0 would be invisible to any downstream mask
@@ -1017,7 +1011,8 @@ def number(groups: Sequence[Sequence[WindowObject]], *,
         PlateObject(object_id=index,
                     centroid_x=one.centroid_x, centroid_y=one.centroid_y,
                     area=one.area, bbox=one.bbox,
-                    window=one.window.offset(), n_observations=count)
+                    window=one.window.offset(), n_observations=count,
+                    label=one.label)
         for index, (one, count) in enumerate(chosen, start=1))
 
 

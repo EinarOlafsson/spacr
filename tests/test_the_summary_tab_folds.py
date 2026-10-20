@@ -273,7 +273,7 @@ def test_save_writes_the_run_s_own_text(view, tmp_path):
     written = view.save_to_file(str(out))
 
     assert written == str(out)
-    assert out.read_text() == SUMMARY
+    assert out.read_text(encoding="utf-8") == SUMMARY
 
 
 def test_saving_nothing_writes_nothing(view, tmp_path):

@@ -15,7 +15,7 @@ import pytest
 
 
 def _source(module):
-    return pathlib.Path(inspect.getsourcefile(module)).read_text()
+    return pathlib.Path(inspect.getsourcefile(module)).read_text(encoding="utf-8")
 
 
 class TestTheSettingsTheSchemaSupplies:

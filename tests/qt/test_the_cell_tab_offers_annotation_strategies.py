@@ -212,16 +212,20 @@ def _measured(seed: int = 0, wells: int = 12, per_well: int = 40):
 def _drop(widget) -> None:
     """Shut a widget's worker down and let Qt free it when it is ready.
 
-    Deliberately NOT `deleteLater` plus a hand-delivered DeferredDelete
-    sweep: destroying widgets out from under the session's own Qt cleanup
-    is how this file learned to segfault in `QApplication.allWidgets()`,
-    in whichever test happened to start next.
+    Close, then `deleteLater`, exactly what pytest-qt's `addWidget` does at
+    teardown; the deletion is delivered by the suite's own
+    `deferred_deletions_flushed` before the next Qt test. Still NOT a
+    hand-delivered DeferredDelete sweep: destroying widgets out from under
+    the session's own Qt cleanup is how this file learned to segfault in
+    `QApplication.allWidgets()`. Closing alone left every montage and panel
+    this file built alive for the rest of the run (N47).
     """
     try:
         widget.shutdown()
     except Exception:                                        # noqa: BLE001
         pass
     widget.close()
+    widget.deleteLater()
 
 
 @pytest.fixture(scope="module")

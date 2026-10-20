@@ -1,4 +1,22 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297": {
+      "source_blocks_sha256": [
+        "47126175e5647f23e846f1774476f4e762f7477243309b5b54a5756520363e22",
+        "4248178e06eb443b6aaadefab988d97d57477638eb3806e4daae5ffbc8d2cf8a"
+      ],
+      "source_sha256": "04f82e9bf0c275c038319985e9f47e9490de4b649a92fff9f1721f856c16c297",
+      "text": "Paint the label and its cached outline while it has keyboard focus.\n\n:param event: paint request, passed to QLabel before drawing the outline."
+    },
+    "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92": {
+      "source_blocks_sha256": [
+        "50e972271dea387c5fba81151e0a4585ac58f85597d60adb36a8ef8e5fe02857",
+        "33df2767f5b4c7dc50824bff9cb8aaf8994abe9400c2ca9d811bec9df095cdfd",
+        "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
+      ],
+      "source_sha256": "0710df7f403cb5357c20a1a67e2adef7afa3df16a3285a504f523da0e3227a92",
+      "text": "Draw the folded module's icon, and its maturity as a rim colour.\n\nThe colour carries information, so it is drawn rather than left to a\nstylesheet: alpha and beta modules are marked, and a reader who\ncannot distinguish the hues still gets the tooltip.\n\n:param event: the Qt paint event."
+    }
+  }
 }

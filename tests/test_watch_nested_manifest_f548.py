@@ -52,7 +52,7 @@ def test_real_convert_map_accepts_exact_nested_companions_and_resumes(converted,
     result = core._watch_folder_and_analyse(_fast(watched), recorder)
     assert len(result['done']) == len(recorder.calls) == 2
     assert not result['incomplete'] and not result['failed']
-    ledger = json.loads(Path(result['ledger']).read_text())
+    ledger = json.loads(Path(result['ledger']).read_text(encoding="utf-8"))
     assert ledger['conversion_map_sha256'] == hashlib.sha256(before[watched / convert.MAP_FILENAME]).hexdigest()
     recorded = {name for entry in ledger['fields'].values() for name in entry['files']}
     assert recorded == {str(path.relative_to(watched)) for path in paths}

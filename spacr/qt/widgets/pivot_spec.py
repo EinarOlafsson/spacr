@@ -1,9 +1,8 @@
 """Tabulate — the pivot table's engine: rows, columns, aggregations, and n.
 
 JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows,
-``gene`` across the columns, tick *mean* and *sd*, and read the table. It is
-the thing people reach for before they plot anything, because a number they can
-copy into a slide is often the whole answer.
+``gene`` across the columns, tick *mean* and *sd*, and read the table. This
+module computes such tables.
 
 Like :mod:`spacr.qt.widgets.graph_spec`, this half is **pure pandas and numpy
 with no Qt** — testable without a display, usable from a notebook, and
@@ -85,7 +84,7 @@ __all__ = [
 
 
 class PivotError(ValueError):
-    """A pivot that cannot mean anything, with the reason in the message."""
+    """Raised when a pivot cannot give a meaningful table; the message says why."""
 
 
 
@@ -240,7 +239,7 @@ class PivotSpec:
     def with_rows(self, rows: Sequence[str]) -> "PivotSpec":
         """A copy with a different set of row groupings.
 
-        A COPY: a spec is a value, so the one a view is already showing is
+        A copy: a spec is a value, so the one a view is already showing is
         never edited underneath it.
 
         :param rows: the columns to group down the rows.
@@ -313,7 +312,7 @@ class PivotSpec:
     def from_dict(cls, payload: Mapping[str, Any]) -> "PivotSpec":
         """Rebuild a spec from plain data.
 
-        UNKNOWN KEYS ARE IGNORED rather than raising, so a spec saved by a
+        Unknown keys are ignored rather than raising, so a spec saved by a
         later version still opens with the parts this one knows.
 
         :param payload: what :meth:`to_dict` produced.

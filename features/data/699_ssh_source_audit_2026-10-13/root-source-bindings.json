@@ -1,0 +1,117 @@
+{
+  "source_bindings_verified": [
+    {
+      "audit": "n699-source-audit.json",
+      "path": "spacr/remote_execution.py",
+      "sha256": "37604c621694769fdad5c8f41dd98054b3f2c90f45ebbfd9cbdfe71015425456"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "spacr/cli_remote.py",
+      "sha256": "7c6f787e28036b6d0e6a361b336876112b12036f339d316db3872d43ea3e8782"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "spacr/qt/screens/distributed_jobs.py",
+      "sha256": "5166e1120b441b88505eaa570c33a0710fe88c1b8728bbf669f4d9def7bd2463"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "spacr/qt/screens/app_screen.py",
+      "sha256": "1b3f78a92ac2fe520bf28b7fc399b3b395c68469610ae850479255ed146addc7"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "spacr/qt/app.py",
+      "sha256": "3e475f8af1694f10e187081ecb3f9c4dcbc1fd187a6d17f7021ff536d74f9cbd"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "spacr/settings.py",
+      "sha256": "cf4dfd11b25956d2ed7e401078822c00994948bdc701b47db8b74272260ce6aa"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "setup.py",
+      "sha256": "4dc21bd2aed6278c52e42ebf05d59d1c803b218532fd1a07d98464213e01a608"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "pyproject.toml",
+      "sha256": "f5aa8190ce8dba5575fb99c9ec3882def9ced69cc272ffe2c5dec55238931733"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "features/new/699_cluster_submit_reads_ssh_config_and_handles_mfa.txt",
+      "sha256": "c53a61faa1797829965253d5322768378be212068d34531a5a04a44c55058ead"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/test_remote_execution.py",
+      "sha256": "fffb591ac194fc49dc5c8c2e6b83b53cd96c31f4e6b6c348f97e7fc2593bdfc9"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/test_cov_w2_4_remote_execution.py",
+      "sha256": "3d8584d34bcd56ee66c669c3881a7ed045b2be372964309c7572f6e1cb51a8bb"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/test_cov_w3_7_cli_remote.py",
+      "sha256": "0fbbeaa48385afae9fbe1cd0fb937dc59dd161cbf21b4c277f0a150c0f5ad452"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/test_cov_s2_remote_entry_point.py",
+      "sha256": "e74272a35c8f16a254bfaadbfabd0a83bd444b7fdbfabb5442bc4796714fdf32"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/qt/test_distributed_jobs_screen.py",
+      "sha256": "c41a59258e943f369870102a36a6e9cce072821b65715398f541cadc9bb78784"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/qt/test_cov_w3_7_distributed_jobs.py",
+      "sha256": "9a43737d10dbbf7756f81550457437f8379022aaf0ffca8b52933574227f804b"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/qt/test_cov_wf_qt_screens_distributed_jobs.py",
+      "sha256": "16f4ea4675ece3c2f9737018106609b955282ca5159b9acf3a5d12bc6b223a4e"
+    },
+    {
+      "audit": "n699-source-audit.json",
+      "path": "tests/qt/test_n693_distributed_jobs_saves_the_snapshot.py",
+      "sha256": "adce680ef68e42ede63f602108d91bb28ce8cc4ba08d0bedd0d9fd9a8ef015a4"
+    },
+    {
+      "audit": "n689-deployment-audit.json",
+      "path": "tools/publish_docs_channels.py",
+      "sha256": "7ae472bc820bc2d239c5eb69fcd3e28b48fd802d4852285e0c7b980057a2e1f3"
+    },
+    {
+      "audit": "n689-deployment-audit.json",
+      "path": ".github/workflows/docs.yml",
+      "sha256": "eaca85c75035879de167b6da1d2648d7e7d018494dcf2c139232403c8a3e6963"
+    },
+    {
+      "audit": "n689-deployment-audit.json",
+      "path": "tests/test_docs_channels.py",
+      "sha256": "c9900825c1ff9860d7fb66f49d5f743fabab5daf59018270ad0a2b710a53fff6"
+    },
+    {
+      "audit": "n689-deployment-audit.json",
+      "path": "tests/test_docs_guide_cache_publication.py",
+      "sha256": "9d4962d857bc313793f71a17c6335ea6dec40d7e1010af449ba5083731ccafcd"
+    },
+    {
+      "audit": "n689-deployment-audit.json",
+      "path": "features/new/689_nightly_docs_on_a_hugging_face_static_space.txt",
+      "sha256": "65b4e446275fd63765ec0718a0059baedb4bd69479d529cf82fdbdcd68b523af"
+    }
+  ],
+  "count": 22,
+  "all_match_at_import": true,
+  "tests_executed": false
+}

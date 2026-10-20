@@ -379,7 +379,8 @@ def _register_figure_data(figure, data, *, x: str = "", y: str = "",
         if kind in ("heatmap", "clustermap") and not (x or y):
             record.setdefault("matrix", True)
         record.update(x=str(x or ""), y=str(y or ""), hue=str(hue or ""),
-                      kind=_HOUSE_KINDS.get(kind, kind))
+                      kind=(kind if kind == "line" and not record.get("house_graph_type")
+                            else _HOUSE_KINDS.get(kind, kind)))
         figure._spacr_image = None
         figure._spacr_data = frame
         figure._spacr_drawn_data = None
@@ -429,6 +430,34 @@ def _capture_view(figure, spec) -> dict:
             != "<colorbar>"]
     if axes:
         ax = axes[0]
+        if spec.get('training_curves'):
+            recipe = dict(spec['training_curves'])
+            recipe['curves'] = []
+            for curve in spec['training_curves']['curves']:
+                curve = dict(curve)
+                for line in ax.lines:
+                    if line.get_label() == curve['label']:
+                        curve.update(color=line.get_color(),
+                                     linestyle=line.get_linestyle(),
+                                     linewidth=line.get_linewidth(),
+                                     alpha=line.get_alpha(),
+                                     marker=line.get_marker(),
+                                     markersize=line.get_markersize())
+                    elif line.get_gid() == 'spacr-training-best:' + curve['label']:
+                        curve['best_style'] = dict(color=line.get_color(),
+                            linestyle=line.get_linestyle(),
+                            linewidth=line.get_linewidth(), alpha=line.get_alpha(),
+                            marker=line.get_marker(), markersize=line.get_markersize())
+                for area in ax.collections:
+                    if area.get_gid() == 'spacr-training-band:' + curve['label']:
+                        curve['band_style'] = dict(color=area.get_facecolor()[0].tolist(),
+                            alpha=area.get_alpha(), linewidth=float(area.get_linewidth()[0]))
+                recipe['curves'].append(curve)
+            recipe['notes'] = [dict(text=text.get_text(), x=text.get_position()[0],
+                                   y=text.get_position()[1], fontsize=text.get_fontsize(),
+                                   alpha=text.get_alpha(), ha=text.get_ha(), va=text.get_va())
+                               for text in ax.texts]
+            out['training_curves'] = recipe
         out.update(title=ax.get_title(), xlabel=ax.get_xlabel(),
                    ylabel=ax.get_ylabel(), xscale=ax.get_xscale(),
                    yscale=ax.get_yscale())
@@ -517,6 +546,44 @@ def _recipe_frame(frame, spec):
     in melted rows.
     """
     data = frame.copy()
+    grouped_line = spec.get("grouped_line")
+    if grouped_line:
+        group = grouped_line["grouping_column"]
+        columns = grouped_line["columns"]
+        data = data.dropna(subset=[group] + columns).copy()
+        representation = grouped_line["representation"]
+        if representation == "well":
+            grouped = ["prc", group]
+        elif representation == "plate":
+            if "plateID" not in data.columns:
+                data[["plateID", "rowID", "columnID"]] = data["prc"].str.split("_", expand=True)
+            grouped = ["plateID"] if group == "plateID" else ["plateID", group]
+        elif representation == "object":
+            grouped = None
+        else:
+            raise ValueError("Invalid grouped line representation")
+        if grouped:
+            data = data.groupby(grouped, observed=False)[columns].agg(
+                grouped_line["summary_func"]).reset_index()
+        data[group] = pd.Categorical(data[group], categories=grouped_line["order"], ordered=True)
+        if grouped_line.get("remove_outliers"):
+            removed = pd.Index([])
+            for value in data[group].unique():
+                group_mask = data[group] == value
+                for column in columns:
+                    values = data.loc[group_mask, column]
+                    lower, upper = values.quantile([0.25, 0.75])
+                    spread = upper - lower
+                    outside = group_mask & ((data[column] < lower - 1.5 * spread)
+                                            | (data[column] > upper + 1.5 * spread))
+                    removed = removed.union(data.index[outside])
+            data = data.drop(removed)
+        if grouped_line["mode"] != "groups":
+            import numpy as np
+
+            for index, name in enumerate(("log_x", "log_y")):
+                if grouped_line[name]:
+                    data[columns[index]] = np.log10(data[columns[index]])
     for column, values in (spec.get("where") or {}).items():
         data = data.loc[data[column].isin(values)]
     plate = spec.get("plate")
@@ -683,7 +750,68 @@ def _draw(figure, frame, spec, *, axes=None):
         else:
             sns.scatterplot(**common)
     elif kind == "line":
-        sns.lineplot(**common)
+        grouped_line = spec.get("grouped_line")
+        training = spec.get('training_curves')
+        if training:
+            import numpy as np
+
+            for curve in training['curves']:
+                selected = data.loc[data[hue] == curve['label']]
+                epochs = pd.to_numeric(selected[x], errors='coerce').to_numpy()
+                values = pd.to_numeric(selected[y], errors='coerce').to_numpy()
+                options = {key: curve[key] for key in (
+                    'color', 'linestyle', 'linewidth', 'alpha', 'marker', 'markersize')
+                    if key in curve}
+                ax.plot(epochs, values, label=curve['label'], **options)
+                sd_column = y + '__sd'
+                if training['band'] and curve['kind'] == 'mean' and sd_column in selected:
+                    sd = pd.to_numeric(selected[sd_column], errors='coerce').to_numpy()
+                    if np.isfinite(sd).any():
+                        ax.fill_between(epochs, values - sd, values + sd,
+                                        **curve.get('band_style', dict(
+                                            color=curve['color'], alpha=0.15, linewidth=0)))
+                if training['mark_best'] and training['direction'] is not None and np.isfinite(values).any():
+                    finite = np.flatnonzero(np.isfinite(values))
+                    pick = np.argmin(values[finite]) if training['direction'] == 'min' else np.argmax(values[finite])
+                    index = finite[pick]
+                    ax.plot([epochs[index]], [values[index]],
+                            **curve.get('best_style', dict(color=curve['color'],
+                                marker='o', linestyle='None', markersize=5,
+                                alpha=curve['alpha'])))
+            for note in training.get('notes', []):
+                options = {key: value for key, value in note.items()
+                           if key not in ('x', 'y', 'text')}
+                ax.text(note['x'], note['y'], note['text'],
+                        transform=ax.transAxes, **options)
+            if training['curves']:
+                ax.grid(True, alpha=0.15)
+                ax.legend(loc='best', fontsize=8, framealpha=0.6)
+        elif grouped_line and grouped_line["mode"] == "groups":
+            summary = (data.groupby(x, observed=False)
+                       .agg(centre=(y, grouped_line["summary_func"]), spread=(y, "std"))
+                       .reindex(grouped_line["order"]).reset_index())
+            ax.errorbar(range(len(summary)), summary["centre"],
+                        yerr=summary["spread"].fillna(0.0), marker="o", linewidth=1,
+                        markersize=6, capsize=3, color=grouped_line["palette"][0])
+            ax.set_xticks(range(len(summary)))
+            ax.set_xticklabels([str(value) for value in summary[x]])
+        elif grouped_line and grouped_line["mode"] == "std_area":
+            summary = data.pivot_table(index=x, values=y, aggfunc=["mean", "std"]).reset_index()
+            summary.columns = [x, "centre", "spread"]
+            color = grouped_line["band_color"]
+            sns.lineplot(data=summary, x=x, y="centre", ax=ax, marker="o",
+                         linewidth=grouped_line["band_width"], markersize=0,
+                         color=color, label="mean_" + y)
+            ax.fill_between(summary[x], summary["centre"] - summary["spread"],
+                            summary["centre"] + summary["spread"], color=color, alpha=0.25)
+        else:
+            options = dict(estimator=None, errorbar=None, sort=False)
+            if grouped_line:
+                options.update(estimator="mean", errorbar=("ci", 95), sort=True,
+                               palette=grouped_line["palette"], marker="o",
+                               linewidth=1, markersize=6, seed=0)
+            options.update(spec.get("line_options") or {})
+            sns.lineplot(**common, **options)
     elif kind == "hex":
         ax.hexbin(data[x], data[y], gridsize=int(spec.get("gridsize", 30)),
                   cmap=spec.get("cmap") or "viridis", mincnt=1)
@@ -1093,6 +1221,10 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
     base = base.strip("._") or "figure"
     stats_spec = dict(spec.get("stats") or {})
     tested, sx, sy = frame, str(spec.get("x") or ""), str(spec.get("y") or "")
+    if spec.get("grouped_line"):
+        statistics_recipe = dict(spec["grouped_line"], remove_outliers=False,
+                                 log_x=False, log_y=False)
+        tested = _recipe_frame(frame, dict(spec, grouped_line=statistics_recipe))
     groups = getattr(figure, "_spacr_groups", None)
     if not (sx or sy) and isinstance(groups, Mapping) and groups:
         sx, sy = "group", "value"
@@ -1112,10 +1244,11 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
             except Exception:
                 LOG.debug("could not write %s", fmt, exc_info=True)
         data = frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
-        write_table(data, os.path.join(folder, "data.csv"))
+        write_table(data, os.path.join(folder, "data.csv"), canonicalise=False)
         drawn = getattr(figure, "_spacr_drawn_data", None)
         if isinstance(drawn, pd.DataFrame):
-            write_table(drawn, os.path.join(folder, "drawn_data.csv"))
+            write_table(drawn, os.path.join(folder, "drawn_data.csv"),
+                        canonicalise=False)
         if spec.get("panels"):
             table, statistics_text = _panel_statistics(frame, spec)
         else:

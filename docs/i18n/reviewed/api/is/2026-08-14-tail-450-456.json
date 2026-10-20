@@ -7,14 +7,18 @@
       "source_sha256": "1d84874381a6a4db4aaab63b21eee36ec3ab2dbd4629741ce55ccecc1c91dd02",
       "source": "Replaces the multi-copy disk chain that ``preprocess_generate_masks`` has run since day one:",
       "context": "Replaces the multi-copy disk chain that ``preprocess_generate_masks`` has run since day one:",
-      "translation": "Kemur í stað margföldu diskakeðjunnar sem ``preprocess_generate_masks`` hefur keyrt frá upphafi:"
+      "translation": "Kemur í stað margföldu diskakeðjunnar sem ``preprocess_generate_masks`` hefur keyrt frá upphafi:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_v2#2",
       "source_sha256": "68c1c62607530574df5efab5bc3c56f07bacf69e2be2242b55dc698305cfdef3",
       "source": "…with a two-pass streaming pipeline that keeps only what the downstream measure module actually reads:",
       "context": "…with a two-pass streaming workflow that keeps only what the downstream measure module actually reads:",
-      "translation": "…með tveggja umferða straumvinnslu sem geymir aðeins það sem Measure-einingin neðar í ferlinu les í raun:"
+      "translation": "…með tveggja umferða straumvinnslu sem geymir aðeins það sem Measure-einingin neðar í ferlinu les í raun:",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.pipeline_v2#3",
@@ -49,7 +53,9 @@
       "source_sha256": "0d72825d4a7e807bdb0ad1ebfb5d33da4c2fb5e1f2772ac71779bde81f2510de",
       "source": "This module is opt-in for one release cycle. Once the follow-up commit wires it as the default in :func:`spacr.core.preprocess_generate_masks` the whole disk chain above collapses to ``merged/`` alone.",
       "context": "This module is opt-in for one release cycle. Once the follow-up commit wires it as the default in :func:`spacr.core.preprocess_generate_masks` the whole disk chain above collapses to ``merged/`` alone.",
-      "translation": "Þessi eining er valkvæð í eina útgáfulotu. Þegar næsta breyting gerir hana að sjálfgefnu leiðinni í :func:`spacr.core.preprocess_generate_masks` fellur öll diskakeðjan hér að ofan saman í aðeins ``merged/``."
+      "translation": "Þessi eining er valkvæð í eina útgáfulotu. Þegar næsta breyting gerir hana að sjálfgefnu leiðinni í :func:`spacr.core.preprocess_generate_masks` fellur öll diskakeðjan hér að ofan saman í aðeins ``merged/``.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ]
 }

@@ -42,7 +42,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QPainter
 from PySide6.QtWidgets import (
-    QButtonGroup, QLabel,
+    QButtonGroup, QFrame, QLabel, QListWidget, QListWidgetItem,
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QFormLayout, QHBoxLayout, QHeaderView, QInputDialog, QLabel, QLineEdit,
     QPushButton,
@@ -58,16 +58,16 @@ from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
     BOX, BoxGate, ELLIPSE, EllipseGate, Handle, WAND,
     GATE_KINDS, POLYGON, RECTANGLE, THRESHOLD, Gate, GateError, GateSet,
-    PolygonGate, RectGate, ThresholdGate,
+    PolygonGate, RectGate, ThresholdGate, EditableVolumeGate,
     CYLINDER, PRISM,
     COMPOSITE,
     CylinderGate, PrismGate, VIEW_LASSO, ViewGate, CompositeGate,
-    _EllipsoidGate, points_in_polygon,
+    _EllipsoidGate, points_in_polygon, _validate_edited_polygon,
 )
 from .toggle import Toggle
 from .volume_view import rotate_about_world, trackball, view_axes
 from ..i18n import tr
-from .sortable_table import install_sorting, tree_item
+from .sortable_table import _reuse_tree_items, install_sorting
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
 
@@ -273,6 +273,83 @@ _FITTED_SHAPES = ("box_handles", "ellipsoid")
 _RECT_SHAPES = ("view_rect",) + _FITTED_SHAPES
 
 
+_TOP_LAYER_BLUE = "#4A9EFF"
+_OVERLAP_INK = "#FFFFFF"
+_LAYER_DEPTH_FRACTION = 0.05
+_OVERLAP_QSS = """
+QFrame#GateOverlapPicker {
+    background: rgba(0, 0, 0, 190);
+    border-radius: 6px;
+}
+QFrame#GateOverlapPicker QLabel {
+    color: #FFFFFF;
+    background: transparent;
+}
+QListWidget#GateOverlapRows {
+    color: #FFFFFF;
+    background: transparent;
+    border: none;
+}
+QListWidget#GateOverlapRows::item:selected {
+    background: rgba(74, 158, 255, 90);
+}
+"""
+
+
+@dataclass(frozen=True)
+class _OverlapHit:
+    """One sheet or anchor under a click, with the layer it sits in.
+
+    :param kind: ``"sheet"`` for a gate area or volume surface, ``"anchor"``
+        for an anchor point.
+    :param gate: the gate the element belongs to.
+    :param ident: the surface group, the anchor role, or ``""`` for a 2D
+        gate area.
+    :param layer: 0 for the layer nearest the user, counting away from it.
+    :param depth: the element's depth under the click; smaller is nearer.
+    :param distance: pixels from the click to an anchor, 0 for a sheet.
+    :param number: the element's 1-based number in its gate, 0 for a 2D area.
+    :param point: an anchor's position in the volume's axis order.
+    """
+
+    kind: str
+    gate: str
+    ident: Any
+    layer: int
+    depth: float
+    distance: float
+    number: int
+    point: Any = None
+
+    @property
+    def key(self) -> Tuple[str, str, Any]:
+        """What identifies the element between two clicks."""
+        return (self.kind, self.gate, self.ident)
+
+
+def _layer_order(hit: _OverlapHit):
+    """Sort key: layer first, then sheets before anchors, then nearest."""
+    return (hit.layer, 0 if hit.kind == "sheet" else 1, hit.depth,
+            hit.distance)
+
+
+class _OverlapList(QListWidget):
+    """The rows of the overlapping-element picker; Escape closes it."""
+
+    dismissed = Signal()
+
+    def keyPressEvent(self, event) -> None:                  # noqa: N802
+        """Close on Escape and leave every other key to the list.
+
+        :param event: the Qt key event.
+        """
+        if event.key() == Qt.Key_Escape:
+            event.accept()
+            self.dismissed.emit()
+            return
+        super().keyPressEvent(event)
+
+
 def _screen_points(ax, points) -> Optional[np.ndarray]:
     """Where 3D data points land on the canvas, in pixels.
 
@@ -430,10 +507,22 @@ class GateCanvas(GraphCanvas):
         #: The handle being pulled in the volume: (gate name, role, start
         #: pixel, gate as it was), or None.
         self._handle_drag = None
+        self._anchor_density = 2
+        self._show_anchors = True
+        self._edit_axis = ''
+        self._selected_surfaces = set()
+        self._surface_gate = None
+        self._surface_drag = None
+        self._edit_drag_projection = None
+        self._editable_boundary_cache = None
         #: The edited gate shown while a handle is pulled, or None.
         self._volume_preview: Optional[Gate] = None
         #: The live highlight of the objects inside a shape being drawn.
         self._live = None
+        self._overlap: List[_OverlapHit] = []
+        self._overlap_choice = 0
+        self._overlap_panel = None
+        self._overlap_rows = None
 
     def paintEvent(self, event) -> None:
         """Keep the plotted 2D or 3D points over one solid rounded surface.
@@ -499,7 +588,15 @@ class GateCanvas(GraphCanvas):
 
         :param gates: the gate set to draw; it replaces the current one.
         """
+        changed_set = gates is not self._gates
         self._gates = gates
+        self._handle_drag = self._surface_drag = self._volume_preview = None
+        self._edit_drag_projection = None
+        if changed_set:
+            self._close_overlap(redraw=False)
+        if changed_set or active != self._surface_gate:
+            self._surface_gate = None
+            self._selected_surfaces.clear()
         self._active = active
         self.render_now()
 
@@ -532,6 +629,10 @@ class GateCanvas(GraphCanvas):
             :func:`getattr`.
         """
         self._settings = settings
+        self._anchor_density = max(1, min(8, int(getattr(settings, 'anchor_density', 2))))
+        self._show_anchors = bool(getattr(settings, 'show_anchors', True))
+        self._handle_drag = self._surface_drag = self._volume_preview = None
+        self._edit_drag_projection = None
         tool = getattr(settings, "default_tool", None)
         if tool and tool in GATE_KINDS and not self._tool:
             self._tool = tool
@@ -747,6 +848,9 @@ class GateCanvas(GraphCanvas):
         :param mode: ``"2D"``, ``"3D"`` or ``"xD"``; anything else is taken
             as ``"2D"``.
         """
+        self._handle_drag = self._surface_drag = self._volume_preview = None
+        self._edit_drag_projection = None
+        self._close_overlap(redraw=False)
         self._mode = mode if mode in ("2D", "3D", "xD") else "2D"
         self._z_column = z_column or self._z_column
         self.render_now()
@@ -1080,9 +1184,13 @@ class GateCanvas(GraphCanvas):
                 inside = gates.mask(frame, gate.name)
             except Exception:
                 continue
+            colour = self.gate_colour(gate.name)
+            if isinstance(gate, EditableVolumeGate) or (self.drag_mode() == 'edit' and self._shows_columns(gate)):
+                mesh = self._editable_boundary(gate)
+                if mesh is not None:
+                    self._draw_editable_volume(ax, mesh, colour)
             if not bool(np.any(inside)):
                 continue
-            colour = self.gate_colour(gate.name)
             if isinstance(gate, BoxGate) and gate.z_column == self._z_column:
                 self._draw_box(ax, gate, colour)
             if isinstance(gate, _EllipsoidGate) and self._shows_columns(gate):
@@ -1215,6 +1323,7 @@ class GateCanvas(GraphCanvas):
                     self._highlight(ax, gate, frame, palette)
                 self._outline(ax, gate, palette)
                 self._draw_handles(ax, gate, palette)
+            self._draw_flat_overlap(ax)
             if self._pending:
                 self._outline_pending(ax, palette)
         self._canvas.draw_idle()
@@ -1366,14 +1475,30 @@ class GateCanvas(GraphCanvas):
         if not self._gate_is_on_these_axes(gate):
             return ()
         try:
-            return self._as_flat(gate).handles(self._view(ax))
+            handles = list(self._as_flat(gate).handles(self._view(ax)))
+            flat = self._as_flat(gate)
+            points = self._gate_points(ax, flat)
+            if not points:
+                return tuple(handles)
+            if isinstance(flat, EllipseGate):
+                positions = [i * len(points) / (8 * self._anchor_density) for i in range(8 * self._anchor_density)]
+            else:
+                positions = [edge + i / (2 * self._anchor_density) for edge in range(len(points)) for i in range(2 * self._anchor_density)]
+            for position in positions:
+                edge = int(position)
+                fraction = position - edge
+                point = np.asarray(points[edge]) + fraction * (np.asarray(points[(edge + 1) % len(points)]) - points[edge])
+                if any(np.linalg.norm(point - (handle.x, handle.y)) <= 1e-10 for handle in handles):
+                    continue
+                handles.append(Handle(float(point[0]), float(point[1]), f"outline:{edge}:{fraction:.17g}"))
+            return tuple(handles)
         except Exception:
             LOG.debug("no handles for %s", gate.name, exc_info=True)
             return ()
 
     def _draw_handles(self, ax, gate: Gate, palette) -> None:
         """Draw ``gate``'s anchors: squares for corners, circles for sides."""
-        handles = self._handles_for(ax, gate)
+        handles = self._handles_for(ax, gate) if self._show_anchors else ()
         if not handles:
             return
         accent = self.gate_colour(gate.name)
@@ -1401,6 +1526,8 @@ class GateCanvas(GraphCanvas):
         :param event: a Matplotlib mouse event; its ``inaxes`` and its ``x``
             and ``y`` display (pixel) coordinates are read.
         """
+        if not self._show_anchors:
+            return None
         ax = getattr(event, "inaxes", None)
         ex, ey = getattr(event, "x", None), getattr(event, "y", None)
         if ax is None or ex is None or ey is None:
@@ -1482,10 +1609,39 @@ class GateCanvas(GraphCanvas):
         if event.inaxes is None or event.xdata is None or event.ydata is None:
             return None
         x, y = float(event.xdata), float(event.ydata)
+        if not np.isfinite((x, y)).all():
+            return None
         if self._resize is not None:
             name, role = self._resize
             try:
-                return self._gates.get(name).with_handle(role, x, y)
+                gate = self._gates.get(name)
+                if role.startswith('outline:'):
+                    _, edge, fraction = role.split(':')
+                    points = self._gate_points(event.inaxes, self._as_flat(gate))
+                    index, amount = int(edge), float(fraction)
+                    original = np.asarray(points[index]) + amount * (np.asarray(points[(index + 1) % len(points)]) - points[index])
+                    if np.array_equal(original, (x, y)):
+                        return gate
+                    if float(fraction) == 0:
+                        points[int(edge)] = (x, y)
+                    else:
+                        points.insert(int(edge) + 1, (x, y))
+                    _validate_edited_polygon(points)
+                    self.depth_requested.emit(tr("Editing an outline anchor commits a piecewise-linear boundary; counts and exports use that same boundary."))
+                    flat = self._as_flat(gate)
+                    polygon = PolygonGate(name=gate.name, parent=gate.parent, x_column=flat.x_column, y_column=flat.y_column, vertices=tuple(points))
+                    if isinstance(gate, (CylinderGate, PrismGate)):
+                        return PrismGate.from_polygon(polygon, gate.axis_column, axis_low=gate.axis_low, axis_high=gate.axis_high)
+                    if isinstance(gate, BoxGate):
+                        return PrismGate.from_polygon(polygon, gate.z_column, axis_low=gate.z_low, axis_high=gate.z_high)
+                    return polygon
+                edited = gate.with_handle(role, x, y)
+                if isinstance(edited, PolygonGate):
+                    _validate_edited_polygon(edited.vertices)
+                return edited
+            except GateError as exc:
+                self.wand_failed.emit(str(exc))
+                return None
             except Exception:
                 LOG.debug("cannot resize %s by %s", name, role, exc_info=True)
                 return None
@@ -1611,23 +1767,30 @@ class GateCanvas(GraphCanvas):
         :param y: the point's y coordinate in data units; tested as the value
             of a two-column gate's second column.
         """
-        probe = pd.DataFrame({})
         hit: Optional[str] = None
         for gate in self.gates.gates:
-            if not self._gate_is_on_these_axes(gate):
-                continue
-            columns = gate.columns
-            if not columns:
-                continue
-            try:
-                probe = pd.DataFrame({columns[0]: [float(x)]})
-                if len(columns) > 1:
-                    probe[columns[1]] = [float(y)]
-                if bool(self._as_flat(gate).mask(probe)[0]):
-                    hit = gate.name
-            except Exception:
-                continue
+            if self._gate_is_on_these_axes(gate) \
+                    and self._flat_contains(gate, x, y):
+                hit = gate.name
         return hit
+
+    def _flat_contains(self, gate: Gate, x: float, y: float) -> bool:
+        """Whether the 2D point ``(x, y)`` lies inside ``gate``.
+
+        :param gate: a gate on the plotted columns.
+        :param x: the first column's value.
+        :param y: the second column's value, read by a two-column gate.
+        """
+        columns = gate.columns
+        if not columns:
+            return False
+        try:
+            probe = pd.DataFrame({columns[0]: [float(x)]})
+            if len(columns) > 1:
+                probe[columns[1]] = [float(y)]
+            return bool(self._as_flat(gate).mask(probe)[0])
+        except Exception:
+            return False
 
     def set_spin_axis(self, axis: str) -> None:
         """Constrain subsequent volume rotation to one data axis, or free it.
@@ -1826,18 +1989,230 @@ class GateCanvas(GraphCanvas):
             return None
         if isinstance(gate, BoxGate) and None in (
                 gate.x_low, gate.x_high, gate.y_low, gate.y_high,
-                gate.z_low, gate.z_high):
+                gate.z_low, gate.z_high) and self.drag_mode() != 'edit':
             return None
-        if isinstance(gate, (BoxGate, _EllipsoidGate, ViewGate)):
+        if isinstance(gate, (BoxGate, _EllipsoidGate, ViewGate, CylinderGate, PrismGate, EditableVolumeGate)):
             return gate
         return None
+
+    def _editable_boundary(self, gate):
+        """Return one bounded reusable boundary preview without committing the gate."""
+        if isinstance(gate, EditableVolumeGate):
+            return gate
+        ax = self.axes_at(0, 0)
+        if ax is None or not self._shows_columns(gate):
+            return None
+        shown = self._plot_columns()
+        bounds = dict(zip(shown, (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())))
+        limits = tuple(tuple(float(v) for v in bounds[column]) for column in gate.columns)
+        cached = self._editable_boundary_cache
+        if cached is not None and cached[0] == gate and cached[1] == limits:
+            return cached[2]
+        try:
+            mesh = EditableVolumeGate.from_gate(gate, limits)
+        except GateError:
+            return None
+        self._editable_boundary_cache = gate, limits, mesh
+        return mesh
+
+    def _draw_editable_volume(self, ax, mesh, colour) -> None:
+        """Paint the same boundary triangles that define edited scientific membership."""
+        from matplotlib.colors import to_rgba
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+        order = [mesh.columns.index(column) for column in self._plot_columns()]
+        points = np.asarray(mesh.vertices)[:, order]
+        faces = points[np.asarray(mesh.faces)]
+        selected = self._selected_surfaces if self._surface_gate == mesh.name else set()
+        under = {hit.ident for hit in self._overlap
+                 if hit.kind == "sheet" and hit.gate == mesh.name}
+        colours = [to_rgba(colour, .22 if group in selected
+                           else .12 if group in under else .045)
+                   for group in mesh.surface_groups]
+        artist = Poly3DCollection(faces, facecolors=colours, edgecolors=to_rgba(colour, .7), linewidths=self._line_width)
+        limits = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+        try:
+            ax.add_collection3d(artist)
+        finally:
+            ax.set_xlim3d(*limits[0])
+            ax.set_ylim3d(*limits[1])
+            ax.set_zlim3d(*limits[2])
+
+    def volume_surface_at(self, event):
+        """Pick the nearest actual boundary triangle after camera rotation.
+
+        :param event: a Matplotlib pointer event in the current volume axes.
+        :returns: ``(gate name, surface identifier)`` or ``None``.
+        """
+        picked = self._surface_depths(event)
+        if picked is None or not picked[2]:
+            return None
+        found = picked[2]
+        return picked[1].name, min(found, key=found.get)
+
+    def _surface_depths(self, event):
+        """Every boundary surface under the pointer, with its nearest depth.
+
+        :param event: a Matplotlib pointer event in the current volume axes.
+        :returns: ``(gate, mesh, {surface: depth}, vertex depths)``, or
+            ``None`` when no editable boundary is under the pointer's axes.
+        """
+        from mpl_toolkits.mplot3d import proj3d
+
+        gate = self._handle_gate()
+        ax = self.axes_at(0, 0)
+        if gate is None or ax is None or event.inaxes is not ax:
+            return None
+        mesh = self._editable_boundary(gate)
+        if mesh is None:
+            return None
+        order = [mesh.columns.index(column) for column in self._plot_columns()]
+        points = np.asarray(mesh.vertices)[:, order]
+        px, py, depth = proj3d.proj_transform(points[:, 0], points[:, 1], points[:, 2], ax.get_proj())
+        pixels = ax.transData.transform(np.column_stack([px, py]))
+        target = np.asarray([event.x, event.y], float)
+        found: Dict[Any, float] = {}
+        for face, group in zip(mesh.faces, mesh.surface_groups):
+            triangle = pixels[list(face)]
+            matrix = np.column_stack([triangle[1] - triangle[0], triangle[2] - triangle[0]])
+            determinant = float(np.linalg.det(matrix))
+            if abs(determinant) < 1e-9:
+                continue
+            u, v = np.linalg.solve(matrix, target - triangle[0])
+            if u < -1e-8 or v < -1e-8 or u + v > 1 + 1e-8:
+                continue
+            distance = float((1 - u - v) * depth[face[0]] + u * depth[face[1]] + v * depth[face[2]])
+            if distance < found.get(group, float('inf')):
+                found[group] = distance
+        return gate, mesh, found, np.asarray(depth, float)
+
+    def _grab_volume_surface(self, event) -> bool:
+        """Select surfaces with Ctrl-click, or start dragging their shared boundary."""
+        if self.drag_mode() != 'edit' or _is_right_button(event):
+            return False
+        found = self.volume_surface_at(event)
+        if found is None:
+            return False
+        name, group = found
+        if self._surface_gate != name:
+            self._selected_surfaces.clear()
+        self._surface_gate = name
+        self.depth_requested.emit(tr("Edit volume surfaces: Ctrl-click selects several. Edit axis constrains motion. Curved gates become piecewise-linear when edited. View-drawn and unbounded gates use the current view's finite depth at the first committed edit."))
+        additive = any(key in str(getattr(event, 'key', '') or '').lower() for key in ('control', 'ctrl'))
+        if additive:
+            if group in self._selected_surfaces:
+                self._selected_surfaces.remove(group)
+            else:
+                self._selected_surfaces.add(group)
+            self.render_now()
+            return True
+        if group not in self._selected_surfaces:
+            self._selected_surfaces = {group}
+        return self._drag_selected_surfaces(event)
+
+    def _drag_selected_surfaces(self, event) -> bool:
+        """Start dragging the selected surfaces of the editable gate.
+
+        :param event: the Matplotlib press event the drag starts from.
+        :returns: True, the press is taken.
+        """
+        gate = self._handle_gate()
+        mesh = self._editable_boundary(gate)
+        indices = {i for face, surface in zip(mesh.faces, mesh.surface_groups) if surface in self._selected_surfaces for i in face}
+        centre = np.asarray(mesh.vertices)[sorted(indices)].mean(axis=0)
+        order = [mesh.columns.index(column) for column in self._plot_columns()]
+        self._surface_drag = (gate, mesh, tuple(self._selected_surfaces), (float(event.x), float(event.y)), centre[order])
+        self._edit_drag_projection = (self._pixels_per_unit(self.axes_at(0, 0), centre[order]), (self._canvas.width(), self._canvas.height()), self._edit_axis)
+        self._last_gesture = 'draw'
+        return True
+
+    def _volume_edit_delta(self, ax, point, drag):
+        """Convert pointer motion to bounded data-axis or screen-plane displacement."""
+        captured = self._edit_drag_projection
+        if captured is not None:
+            jacobian, size, axis = captured
+            if size != (self._canvas.width(), self._canvas.height()) or axis != self._edit_axis:
+                return None
+        else:
+            jacobian = self._pixels_per_unit(ax, point)
+        if jacobian is None:
+            return None
+        spans = np.asarray([max(abs(hi - lo), 1e-12) for lo, hi in (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())])
+        axis = self._edit_axis
+        if axis in ('x', 'y', 'z'):
+            index = ('x', 'y', 'z').index(axis)
+            direction = jacobian[:, index]
+            length = float(direction @ direction)
+            if length * spans[index] ** 2 < 16:
+                self.depth_requested.emit(tr("Rotate the graph to expose that axis before dragging its anchors."))
+                return np.zeros(3)
+            result = np.zeros(3)
+            result[index] = float(drag @ direction) / length
+            return result
+        return (np.linalg.pinv(jacobian * spans) @ drag) * spans
+
+    def _surface_moved(self, event):
+        """Build one validated preview from the original selected shared surfaces."""
+        if self._surface_drag is None:
+            return None
+        gate, mesh, groups, start, point = self._surface_drag
+        drag = np.asarray([event.x - start[0], event.y - start[1]], float)
+        delta = self._volume_edit_delta(self.axes_at(0, 0), point, drag)
+        if delta is None:
+            return None
+        if not np.any(delta):
+            return gate
+        order = [self._plot_columns().index(column) for column in mesh.columns]
+        try:
+            return mesh.moved_surfaces(groups, delta[order])
+        except GateError as exc:
+            self.depth_requested.emit(str(exc))
+            return None
+
+    def _edit_surface_wheel(self, event) -> bool:
+        """Move selected surfaces along the chosen axis or their averaged outward normal."""
+        if self.drag_mode() != 'edit' or not self._selected_surfaces:
+            return False
+        gate = self._handle_gate()
+        if gate is None or self._surface_gate != gate.name:
+            return False
+        mesh = self._editable_boundary(gate)
+        if mesh is None:
+            return False
+        points = np.asarray(mesh.vertices)
+        spans = np.ptp(points, axis=0)
+        axis = self._edit_axis
+        if axis in ('x', 'y', 'z'):
+            normal = np.zeros(3)
+            normal[mesh.columns.index(self._plot_columns()[('x', 'y', 'z').index(axis)])] = 1
+        else:
+            triangles = points[np.asarray([face for face, group in zip(mesh.faces, mesh.surface_groups) if group in self._selected_surfaces])] / spans
+            normal = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0]).sum(axis=0)
+            normalized = (points - points.mean(axis=0)) / spans
+            all_triangles = normalized[np.asarray(mesh.faces)]
+            orientation = np.einsum('ij,ij->i', all_triangles[:, 0], np.cross(all_triangles[:, 1], all_triangles[:, 2])).sum()
+            if orientation < 0:
+                normal = -normal
+            length = np.linalg.norm(normal)
+            if length < 1e-12:
+                return True
+            normal /= length
+        step = float(getattr(event, 'step', 0) or (1 if getattr(event, 'button', '') == 'up' else -1))
+        try:
+            edited = mesh.moved_surfaces(self._selected_surfaces, normal * spans * .025 * step)
+        except GateError as exc:
+            self.depth_requested.emit(str(exc))
+            return True
+        self.gate_edited.emit(edited)
+        return True
 
     def _volume_handles(self, gate: Gate) -> List[Tuple[str, np.ndarray]]:
         """``gate``'s handles as ``(role, point)`` in the volume's axis order.
 
-        A box offers its centre and the middle of each face, an ellipsoid its
-        centre and the tip of each radius, and a gate drawn through the view
-        its centre only, at the middle of the objects it keeps.
+        Edit mode exposes shared anchors across every edge and surface.
+        Density changes only their spacing. Outside Edit, an analytic box
+        offers its centre and face handles, an ellipsoid its centre and
+        radius tips, and a view gate the middle of the objects it keeps.
         """
         shown = self._plot_columns()
 
@@ -1846,6 +2221,10 @@ class GateCanvas(GraphCanvas):
             return np.asarray([values[c] for c in shown], dtype=float)
 
         handles: List[Tuple[str, np.ndarray]] = []
+        if isinstance(gate, EditableVolumeGate) or self.drag_mode() == 'edit':
+            mesh = self._editable_boundary(gate)
+            if mesh is not None:
+                return [(anchor.role, placed(dict(zip(mesh.columns, anchor.point)))) for anchor in mesh.anchors(self._anchor_density)]
         if isinstance(gate, BoxGate):
             sides = {gate.x_column: (gate.x_low, gate.x_high, "x"),
                      gate.y_column: (gate.y_low, gate.y_high, "y"),
@@ -1886,7 +2265,7 @@ class GateCanvas(GraphCanvas):
     def _draw_volume_handles(self, ax) -> None:
         """Draw the selected gate's handles as rings the pointer can grab."""
         gate = self._handle_gate()
-        if gate is None:
+        if gate is None or not self._show_anchors:
             return
         handles = self._volume_handles(gate)
         if not handles:
@@ -1898,6 +2277,7 @@ class GateCanvas(GraphCanvas):
             ax.scatter(points[:, 0], points[:, 1], points[:, 2], s=46,
                        facecolor=colour, edgecolor=active_palette()["fg"],
                        linewidths=1.4, depthshade=False, zorder=10)
+            self._draw_overlap_anchors(ax, dict(handles))
         finally:
             ax.set_xlim3d(*limits[0])
             ax.set_ylim3d(*limits[1])
@@ -1905,12 +2285,14 @@ class GateCanvas(GraphCanvas):
 
     def _grab_volume_handle(self, event) -> bool:
         """Start pulling the handle under the pointer, if there is one."""
-        if not self._in_volume() or _is_right_button(event) \
+        if not self._in_volume() or not self._show_anchors or _is_right_button(event) \
                 or event.inaxes is None:
             return False
         gate = self._handle_gate()
         ax = self.axes_at(0, 0)
         if gate is None or ax is None:
+            return False
+        if isinstance(gate, EditableVolumeGate) and self.drag_mode() != 'edit':
             return False
         handles = self._volume_handles(gate)
         if not handles:
@@ -1925,8 +2307,25 @@ class GateCanvas(GraphCanvas):
         if float(distance[index]) > self.HANDLE_RADIUS_PX * 1.5:
             return False
         role, point = handles[index]
+        return self._start_volume_handle(gate, role, point, x, y)
+
+    def _start_volume_handle(self, gate: Gate, role: str, point, x: float,
+                             y: float) -> bool:
+        """Start pulling one handle of ``gate`` from the pixel ``(x, y)``.
+
+        :param gate: the editable gate the handle belongs to.
+        :param role: the handle's role.
+        :param point: the handle's position in the volume's axis order.
+        :param x: the press's horizontal pixel.
+        :param y: the press's vertical pixel.
+        :returns: True, the press is taken.
+        """
+        ax = self.axes_at(0, 0)
         self._last_gesture = "draw"
         self._handle_drag = (gate.name, role, (x, y), gate, point)
+        self._edit_drag_projection = (self._pixels_per_unit(ax, point), (self._canvas.width(), self._canvas.height()), self._edit_axis) if role.startswith('anchor:') else None
+        if role.startswith('anchor:') and not isinstance(gate, EditableVolumeGate):
+            self.depth_requested.emit(tr("Editing this anchor commits a piecewise-linear volume. View-drawn and unbounded gates use the current view's finite depth."))
         return True
 
     def _pixels_per_unit(self, ax, point) -> Optional[np.ndarray]:
@@ -1964,6 +2363,19 @@ class GateCanvas(GraphCanvas):
             delta = (np.linalg.pinv(jacobian * spans) @ drag) * spans
             return self._moved_gate(gate, dict(zip(shown, delta)), point,
                                     delta)
+        if role.startswith('anchor:'):
+            delta = self._volume_edit_delta(ax, point, drag)
+            if delta is None:
+                return None
+            if not np.any(delta):
+                return gate
+            mesh = self._editable_boundary(gate)
+            order = [shown.index(column) for column in mesh.columns]
+            try:
+                return mesh.with_anchor(role, (np.asarray(point) + delta)[order])
+            except GateError as exc:
+                self.depth_requested.emit(str(exc))
+                return None
         prefix, side = role.split("_")
         column = getattr(gate, f"{prefix}_column")
         direction = jacobian[:, shown.index(column)]
@@ -2022,11 +2434,284 @@ class GateCanvas(GraphCanvas):
         edited = self._handle_moved(event)
         original = self._handle_drag[3] if self._handle_drag else None
         self._handle_drag = None
+        self._edit_drag_projection = None
         self._volume_preview = None
         if edited is None or edited == original:
             self.render_now()
             return
         self.gate_edited.emit(edited)
+
+    def _overlap_hits_at(self, event) -> List[_OverlapHit]:
+        """Every sheet and anchor under the pointer, top layer first.
+
+        A layer is one depth. In 2D it is one gate, the gate drawn last
+        being the top one. In 3D it is the elements whose depth under the
+        click lies within a small part of the gate's own depth range.
+        Inside a layer the sheets come before the anchors.
+
+        :param event: a Matplotlib press event.
+        """
+        if self._in_volume():
+            return self._volume_hits(event)
+        return self._flat_hits(event)
+
+    def _flat_hits(self, event) -> List[_OverlapHit]:
+        """The 2D gate areas and anchors under the pointer, in layer order."""
+        ax = getattr(event, "inaxes", None)
+        ex, ey = getattr(event, "x", None), getattr(event, "y", None)
+        if ax is None or ex is None or ey is None:
+            return []
+        x, y = getattr(event, "xdata", None), getattr(event, "ydata", None)
+        shown = [gate for gate in self._gates.gates
+                 if self._gate_is_on_these_axes(gate)
+                 and self.is_gate_enabled(gate.name)]
+        hits: List[_OverlapHit] = []
+        for layer, gate in enumerate(reversed(shown)):
+            if x is not None and y is not None \
+                    and self._flat_contains(gate, float(x), float(y)):
+                hits.append(_OverlapHit("sheet", gate.name, "", layer,
+                                        float(layer), 0.0, 0))
+            handles = self._handles_for(ax, gate) if self._show_anchors else ()
+            for number, handle in enumerate(handles, 1):
+                try:
+                    px, py = ax.transData.transform((handle.x, handle.y))
+                except Exception:
+                    continue
+                distance = float(np.hypot(px - ex, py - ey))
+                if distance <= self.HANDLE_RADIUS_PX:
+                    hits.append(_OverlapHit("anchor", gate.name, handle.role,
+                                            layer, float(layer), distance,
+                                            number))
+        return sorted(hits, key=_layer_order)
+
+    def _volume_hits(self, event) -> List[_OverlapHit]:
+        """The editable gate's surfaces and anchors under the pointer in Edit."""
+        from mpl_toolkits.mplot3d import proj3d
+
+        if self.drag_mode() != "edit":
+            return []
+        picked = self._surface_depths(event)
+        if picked is None:
+            return []
+        gate, _mesh, found, vertex_depth = picked
+        hits = [_OverlapHit("sheet", gate.name, group, 0, depth, 0.0,
+                            int(group) + 1)
+                for group, depth in found.items()]
+        handles = self._volume_handles(gate) if self._show_anchors else []
+        if handles:
+            ax = self.axes_at(0, 0)
+            points = np.asarray([point for _role, point in handles], float)
+            px, py, depth = proj3d.proj_transform(
+                points[:, 0], points[:, 1], points[:, 2], ax.get_proj())
+            pixels = ax.transData.transform(np.column_stack([px, py]))
+            reach = self.HANDLE_RADIUS_PX * 1.5
+            for number, ((role, point), pixel, near) in enumerate(
+                    zip(handles, pixels, depth), 1):
+                distance = float(np.hypot(pixel[0] - event.x,
+                                          pixel[1] - event.y))
+                if distance <= reach:
+                    hits.append(_OverlapHit("anchor", gate.name, role, 0,
+                                            float(near), distance, number,
+                                            point))
+        tolerance = max(float(np.ptp(vertex_depth)) * _LAYER_DEPTH_FRACTION,
+                        1e-12)
+        layered: List[_OverlapHit] = []
+        layer, start = -1, None
+        for hit in sorted(hits, key=lambda item: item.depth):
+            if start is None or hit.depth - start > tolerance:
+                layer, start = layer + 1, hit.depth
+            layered.append(replace(hit, layer=layer))
+        return sorted(layered, key=_layer_order)
+
+    @staticmethod
+    def _first_choice(hits: List[_OverlapHit]) -> int:
+        """The row a click picks by itself: what it grabbed before the list.
+
+        The nearest anchor when the click is on one, else the nearest sheet.
+        """
+        anchors = [i for i, hit in enumerate(hits) if hit.kind == "anchor"]
+        if anchors:
+            return min(anchors, key=lambda i: (hits[i].distance, hits[i].layer))
+        return min(range(len(hits)),
+                   key=lambda i: (hits[i].layer, hits[i].depth))
+
+    def _press_overlap(self, event) -> bool:
+        """List the overlapping elements under a press and grab the chosen one.
+
+        A press on a single element, or on none, is left to the usual
+        handlers, and a press on nothing closes the list. A press on the same
+        overlap as the open list grabs the row chosen there.
+
+        :param event: a Matplotlib press event.
+        :returns: True when the press grabbed an element from the list.
+        """
+        key = str(getattr(event, "key", "") or "").lower()
+        if _is_right_button(event) or "control" in key or "ctrl" in key:
+            return False
+        hits = self._overlap_hits_at(event)
+        if len(hits) < 2:
+            self._close_overlap()
+            return False
+        keys = [hit.key for hit in hits]
+        listed = [hit.key for hit in self._overlap]
+        if set(keys) == set(listed):
+            choice = keys.index(listed[self._overlap_choice])
+        else:
+            choice = self._first_choice(hits)
+        self._overlap, self._overlap_choice = hits, choice
+        self._show_overlap()
+        return self._grab_overlap(event)
+
+    def _grab_overlap(self, event) -> bool:
+        """Start moving the chosen element exactly as a press on it would.
+
+        :param event: the Matplotlib press event.
+        :returns: True, the press is taken.
+        """
+        hit = self._overlap[self._overlap_choice]
+        if not self._in_volume():
+            if hit.kind == "anchor":
+                self._resize = (hit.gate, hit.ident)
+            else:
+                self._move_name = hit.gate
+                self._move_from = (float(event.xdata), float(event.ydata))
+            return True
+        gate = self._handle_gate()
+        if hit.kind == "anchor":
+            return self._start_volume_handle(gate, hit.ident, hit.point,
+                                             float(event.x), float(event.y))
+        self._surface_gate = hit.gate
+        if hit.ident not in self._selected_surfaces:
+            self._selected_surfaces = {hit.ident}
+        return self._drag_selected_surfaces(event)
+
+    def _choose_overlap(self, index: int) -> None:
+        """Make the element in row ``index`` the one selected and editable.
+
+        :param index: the row, counted from the top layer.
+        """
+        if not 0 <= index < len(self._overlap):
+            return
+        self._overlap_choice = index
+        hit = self._overlap[index]
+        if hit.kind == "sheet" and self._in_volume():
+            self._surface_gate = hit.gate
+            self._selected_surfaces = {hit.ident}
+        rows = self._overlap_rows
+        if rows is not None and rows.currentRow() != index:
+            blocked = rows.blockSignals(True)
+            rows.setCurrentRow(index)
+            rows.blockSignals(blocked)
+        self.render_now()
+
+    def _overlap_caption(self, hit: _OverlapHit) -> str:
+        """The row text naming one element and its gate."""
+        if hit.kind == "anchor":
+            return tr("Anchor {number} · {gate}", number=hit.number,
+                      gate=hit.gate)
+        if hit.number:
+            return tr("Surface {number} · {gate}", number=hit.number,
+                      gate=hit.gate)
+        return tr("Region · {gate}", gate=hit.gate)
+
+    def _ensure_overlap_panel(self) -> QFrame:
+        """The picker in the graph's top-left corner, built on first use."""
+        if self._overlap_panel is not None:
+            return self._overlap_panel
+        panel = QFrame(self)
+        panel.setObjectName("GateOverlapPicker")
+        panel.setStyleSheet(_OVERLAP_QSS)
+        column = QVBoxLayout(panel)
+        gap = SPACING["xs"]
+        column.setContentsMargins(gap, gap, gap, gap)
+        column.setSpacing(gap)
+        column.addWidget(QLabel(tr("Elements under the click"), panel))
+        rows = _OverlapList(panel)
+        rows.setObjectName("GateOverlapRows")
+        rows.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        rows.currentRowChanged.connect(self._choose_overlap)
+        rows.dismissed.connect(self._close_overlap)
+        column.addWidget(rows)
+        self._overlap_panel, self._overlap_rows = panel, rows
+        return panel
+
+    def _show_overlap(self) -> None:
+        """Fill the picker with the listed elements and show it."""
+        panel = self._ensure_overlap_panel()
+        rows = self._overlap_rows
+        blocked = rows.blockSignals(True)
+        rows.clear()
+        for hit in self._overlap:
+            item = QListWidgetItem(self._overlap_caption(hit))
+            item.setForeground(QColor(
+                _TOP_LAYER_BLUE if hit.layer == 0 else _OVERLAP_INK))
+            rows.addItem(item)
+        rows.setCurrentRow(self._overlap_choice)
+        rows.blockSignals(blocked)
+        rows.setFixedHeight(rows.sizeHintForRow(0) * rows.count()
+                            + 2 * rows.frameWidth())
+        rows.setFixedWidth(rows.sizeHintForColumn(0) + 4 * SPACING["xs"])
+        panel.adjustSize()
+        inset = self.layout().contentsMargins()
+        panel.move(inset.left(), inset.top())
+        panel.show()
+        panel.raise_()
+        rows.setFocus(Qt.OtherFocusReason)
+
+    def _close_overlap(self, redraw: bool = True) -> None:
+        """Hide the picker and drop its highlight.
+
+        :param redraw: redraw the graph when something was highlighted.
+        """
+        listed = bool(self._overlap)
+        self._overlap, self._overlap_choice = [], 0
+        if self._overlap_panel is not None:
+            self._overlap_panel.hide()
+        if listed and redraw:
+            self.render_now()
+
+    def _draw_flat_overlap(self, ax) -> None:
+        """Highlight every listed 2D element and draw the chosen one as selected."""
+        from matplotlib.colors import to_rgba
+        from matplotlib.patches import Polygon as MplPolygon
+
+        for index, hit in enumerate(self._overlap):
+            if hit.gate not in self._gates.names:
+                continue
+            chosen = index == self._overlap_choice
+            colour = _TOP_LAYER_BLUE if chosen else self.gate_colour(hit.gate)
+            gate = self._as_flat(self._gates.get(hit.gate))
+            if hit.kind == "sheet":
+                points = self._gate_points(ax, gate)
+                if points:
+                    patch = MplPolygon(
+                        points, closed=True, fill=chosen,
+                        facecolor=to_rgba(colour, .12), edgecolor=colour,
+                        linewidth=2.4 if chosen else 1.6,
+                        linestyle="-" if chosen else "--", zorder=8)
+                    ax.add_patch(patch)
+                    self._artists.append(patch)
+                continue
+            handle = next((h for h in self._handles_for(ax, gate)
+                           if h.role == hit.ident), None)
+            if handle is not None:
+                self._artists.append(ax.plot(
+                    [handle.x], [handle.y], linestyle="none", marker="o",
+                    markersize=11, markeredgewidth=2.0, markeredgecolor=colour,
+                    markerfacecolor=colour if chosen else "none",
+                    zorder=10)[0])
+
+    def _draw_overlap_anchors(self, ax, handles: Dict[str, np.ndarray]) -> None:
+        """Ring every listed volume anchor and fill the chosen one."""
+        for index, hit in enumerate(self._overlap):
+            if hit.kind != "anchor" or hit.ident not in handles:
+                continue
+            chosen = index == self._overlap_choice
+            point = handles[hit.ident]
+            ax.scatter([point[0]], [point[1]], [point[2]], s=130,
+                       facecolor=_TOP_LAYER_BLUE if chosen else "none",
+                       edgecolor=_TOP_LAYER_BLUE, linewidths=2.0,
+                       depthshade=False, zorder=11)
 
     def _volume_press(self, event) -> bool:
         """Start a gesture on the volume: a handle, a polygon vertex or a drag.
@@ -2035,7 +2720,11 @@ class GateCanvas(GraphCanvas):
         """
         if not self._in_volume():
             return False
+        if self._press_overlap(event):
+            return True
         if self._grab_volume_handle(event):
+            return True
+        if self._grab_volume_surface(event):
             return True
         if self._view_polygon_click(event):
             return True
@@ -2053,6 +2742,8 @@ class GateCanvas(GraphCanvas):
         if not self._in_volume():
             return False
         if event.inaxes is None:
+            return True
+        if self.drag_mode() == 'edit' and not _is_right_button(event):
             return True
         drawing = self.drag_mode() == "draw" and not _is_right_button(event)
         self._last_gesture = "draw" if drawing else "spin"
@@ -2086,6 +2777,10 @@ class GateCanvas(GraphCanvas):
             return False
         if self._handle_drag is not None:
             self._drag_volume_handle(event)
+            return True
+        if self._surface_drag is not None:
+            self._volume_preview = self._surface_moved(event)
+            self.render_now()
             return True
         if self._view_polygon:
             self._show_view_polygon(event)
@@ -2168,6 +2863,16 @@ class GateCanvas(GraphCanvas):
         if self._handle_drag is not None:
             self._release_volume_handle(event)
             return True
+        if self._surface_drag is not None:
+            original = self._surface_drag[0]
+            edited = self._surface_moved(event)
+            self._surface_drag = self._volume_preview = None
+            self._edit_drag_projection = None
+            if edited is not None and edited != original:
+                self.gate_edited.emit(edited)
+            else:
+                self.render_now()
+            return True
         if self._lasso is not None:
             self._extend_lasso(event)
             outline, self._lasso = self._lasso_outline(), None
@@ -2215,6 +2920,8 @@ class GateCanvas(GraphCanvas):
             return False
         ax = self.axes_at(0, 0)
         if ax is None or not hasattr(ax, "get_zlim"):
+            return True
+        if self._edit_surface_wheel(event):
             return True
         step = getattr(event, "step", 0) or (
             1 if getattr(event, "button", "") == "up" else -1)
@@ -2623,15 +3330,22 @@ class GateCanvas(GraphCanvas):
         return getattr(self, "_anchor_axis", "z")
 
     def set_drag_mode(self, mode: str) -> None:
-        """``'spin'`` or ``'draw'``. They were competing for one button.
+        """Choose rotation, drawing or explicit boundary editing.
 
-        :param mode: ``"spin"`` or ``"draw"``; anything else is taken as
+        :param mode: ``"spin"``, ``"draw"`` or ``"edit"``; anything else is taken as
             ``"spin"``.
         """
-        self._drag_mode = mode if mode in ("spin", "draw") else "spin"
+        previous = self.drag_mode()
+        self._drag_mode = mode if mode in ("spin", "draw", "edit") else "spin"
+        self._handle_drag = self._surface_drag = self._volume_preview = None
+        self._edit_drag_projection = None
+        if self._drag_mode != "edit":
+            self._close_overlap(redraw=False)
+        if 'edit' in (previous, self._drag_mode):
+            self.render_now()
 
     def drag_mode(self) -> str:
-        """What dragging does right now: spin the view, or draw.
+        """What dragging does right now: spin, draw or edit a volume boundary.
 
         :returns: the mode's name, defaulting to ``spin``.
         """
@@ -2769,6 +3483,8 @@ class GateCanvas(GraphCanvas):
         if self._volume_press(event):
             return
         mid_polygon = self._tool == POLYGON and bool(self._pending)
+        if not mid_polygon and self._press_overlap(event):
+            return
         if not mid_polygon:
             grabbed = self.handle_at(event)
             if grabbed is not None:
@@ -3277,12 +3993,41 @@ class GateTree(QWidget):
 
     def _rebuild(self, current: str) -> None:
         """Rebuild every row from the gates and their counts."""
-        self.tree.clear()
         if self._frame is None:
+            _reuse_tree_items(self.tree, 0)
             return
         stats, unavailable = self._gate_stats()
-        items: Dict[str, QTreeWidgetItem] = {}
+        known: set = set()
+        roots: list = []
+        children: Dict[str, list] = {}
         for gate in self._gates.order():
+            if gate.parent and gate.parent in known:
+                children.setdefault(gate.parent, []).append(gate)
+            else:
+                roots.append(gate)
+            known.add(gate.name)
+        items: Dict[str, QTreeWidgetItem] = {}
+        self._fill_gate_rows(roots, self.tree, children, stats, unavailable,
+                             items)
+        self.tree.expandAll()
+        if current in items:
+            self.tree.setCurrentItem(items[current])
+
+    def _fill_gate_rows(self, gates, parent, children, stats, unavailable,
+                        items) -> None:
+        """Rewrite ``parent``'s child rows for ``gates``, then theirs.
+
+        Rows are the tree's own items, rewritten in place rather than
+        rebuilt, so a refresh deletes none of them.
+
+        :param gates: the gates that are ``parent``'s children, in order.
+        :param parent: the tree, or the item of the parent gate.
+        :param children: gate name to its child gates.
+        :param stats: gate name to its counts.
+        :param unavailable: gate name to why it does not apply.
+        :param items: filled with gate name to its item.
+        """
+        for gate, item in zip(gates, _reuse_tree_items(parent, len(gates))):
             stat = stats.get(gate.name)
             labels = [gate.name, "", "", ""]
             if stat is not None:
@@ -3291,7 +4036,8 @@ class GateTree(QWidget):
                           f"{100.0 * stat.of_total:.1f}%"]
             elif gate.name in unavailable:
                 labels = [gate.name, self.UNAVAILABLE, "", ""]
-            item = tree_item(labels)
+            for column, text in enumerate(labels):
+                item.setText(column, text)
             item.setData(0, Qt.UserRole, gate.name)
             item.setCheckState(0, Qt.Unchecked if gate.name in self._disabled
                                else Qt.Checked)
@@ -3305,15 +4051,9 @@ class GateTree(QWidget):
                 item.setToolTip(1, reason)
             else:
                 item.setToolTip(0, gate.describe())
-            parent_item = items.get(gate.parent) if gate.parent else None
-            if parent_item is None:
-                self.tree.addTopLevelItem(item)
-            else:
-                parent_item.addChild(item)
             items[gate.name] = item
-        self.tree.expandAll()
-        if current in items:
-            self.tree.setCurrentItem(items[current])
+            self._fill_gate_rows(children.get(gate.name, []), item, children,
+                                 stats, unavailable, items)
 
     def _colour_for(self, name: str) -> str:
         """The gate's colour, asked of whoever is drawing it.
@@ -3717,6 +4457,7 @@ class GateEditorPanel(QWidget):
         #: `apply_settings` runs, which is why every read below falls back to
         #: the dataclass default rather than assuming this is set.
         self._settings = None
+        self._spin_chord_from = float("-inf")
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -3846,19 +4587,38 @@ class GateEditorPanel(QWidget):
         self._drag_buttons: Dict[str, QPushButton] = {}
         drag_group = QButtonGroup(self)
         drag_group.setExclusive(True)
-        for mode, tip in (("spin", "Drag to turn the volume."),
-                          ("draw", "Drag to draw the chosen shape on the "
-                                   "chosen plane.")):
-            button = QPushButton(mode.capitalize(), self)
+        captions = {"spin": tr("Spin"), "draw": tr("Draw"), "edit": tr("Edit")}
+        for mode in ("spin", "draw", "edit"):
+            button = QPushButton(captions[mode], self)
+            if mode == 'edit':
+                button.setObjectName("GateVolumeEditButton")
             button.setCheckable(True)
             button.setChecked(mode == "spin")
-            button.setToolTip(tip)
             button.clicked.connect(
                 lambda _checked=False, m=mode: self._on_drag_mode(m))
             fit_to_text(button, padding=14)
             drag_group.addButton(button)
             self._drag_buttons[mode] = button
             volume_tools.addWidget(button)
+
+        self._drag_buttons["spin"].setToolTip("Drag to turn the volume.")
+        self._drag_buttons["draw"].setToolTip(
+            "Drag to draw the chosen shape on the chosen plane.")
+        self._drag_buttons["edit"].setToolTip(
+            "Edit volume anchors and surfaces. Ctrl-click selects multiple "
+            "surfaces; the wheel moves them together. Curved gates become a "
+            "piecewise-linear boundary on the first committed edit.")
+
+        self._edit_axis_picker = QComboBox(self)
+        self._edit_axis_picker.setObjectName("GateVolumeEditAxisPicker")
+        self._edit_axis_picker.addItem(tr("View plane"), '')
+        for axis in ('x', 'y', 'z'):
+            self._edit_axis_picker.addItem(axis.upper(), axis)
+        self._edit_axis_picker.setToolTip(
+            "Constrain anchor and surface movement to a data axis, or drag in "
+            "the view plane. The selected axis also controls wheel movement.")
+        self._edit_axis_picker.currentIndexChanged.connect(lambda _index: setattr(self.canvas, '_edit_axis', self._edit_axis_picker.currentData()))
+        volume_tools.addWidget(self._edit_axis_picker)
 
         self._spin_label = QLabel("spin", self)
         volume_tools.addWidget(self._spin_label)
@@ -3905,7 +4665,6 @@ class GateEditorPanel(QWidget):
         self.canvas.set_volume_shape(self.volume_shape())
         self.canvas.gate_drawn.connect(self._on_gate_drawn)
         self.canvas.wand_failed.connect(self._status.setText)
-        self.canvas.depth_requested.connect(self._status.setText)
         self.canvas.gate_edited.connect(self._on_gate_edited)
         self.canvas.polygon_changed.connect(self._on_polygon_changed)
 
@@ -3921,9 +4680,70 @@ class GateEditorPanel(QWidget):
             self.tree, "Gate table", persist_key=f"{FOLD_KEY}/Gate table",
             stretch=0)
         outer.addWidget(self.body, 1)
+        from .hint_bar import HintBar
+        from ..tooltip_policy import OPT_OUT_PROPERTY
+
+        outer.addWidget(QLabel(tr("Actions"), self))
+        self._action_help = HintBar(parent=self)
+        outer.addWidget(self._action_help)
+        self.canvas.depth_requested.connect(self._action_help.setText)
+        for control in self.findChildren(QPushButton) + [self._edit_axis_picker]:
+            source = control.property('_spacr_i18n_tooltip') or control.toolTip()
+            if self._action_help.explain(control, source):
+                control.setProperty('_spacr_i18n_tooltip', '')
+                control.setProperty(OPT_OUT_PROPERTY, True)
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
         self._install_gate_undo()
+
+    _SPIN_CHORD_SECONDS = 1.5
+
+    def _bind_mode_keys(self, owner: QWidget) -> None:
+        """Bind the Gate Editor's rebindable mode and plane keys on ``owner``.
+
+        The keys answer only while ``owner`` or one of its children has the
+        focus. They follow Make Masks' True 3D: the plane keys pick the spin
+        axis instead when pressed within a moment of the Spin key.
+
+        :param owner: the screen whose focus the keys follow.
+        """
+        from ..shortcuts import _bind_screen_key
+
+        for default, slot in (
+                ("Shift+E", lambda: self._choose_drag_mode("edit")),
+                ("Shift+S", self._arm_spin_chord),
+                ("Shift+D", lambda: self._choose_drag_mode("draw")),
+                ("Shift+X", lambda: self._axis_key("x")),
+                ("Shift+Y", lambda: self._axis_key("y")),
+                ("Shift+Z", lambda: self._axis_key("z"))):
+            _bind_screen_key(owner, "Gate Editor", default, slot)
+
+    def _choose_drag_mode(self, mode: str) -> None:
+        """Press the Spin, Draw or Edit button from the keyboard.
+
+        :param mode: ``"spin"``, ``"draw"`` or ``"edit"``.
+        """
+        self._drag_buttons[mode].click()
+
+    def _arm_spin_chord(self) -> None:
+        """Turn free Spin on and let a plane key pick the axis for a moment."""
+        import time
+
+        self._choose_drag_mode("spin")
+        self._spin_buttons[""].click()
+        self._spin_chord_from = time.monotonic()
+
+    def _axis_key(self, axis: str) -> None:
+        """The drawing plane, or the spin axis straight after the Spin key.
+
+        :param axis: ``"x"``, ``"y"`` or ``"z"``.
+        """
+        import time
+
+        if time.monotonic() - self._spin_chord_from <= self._SPIN_CHORD_SECONDS:
+            self._spin_buttons[axis].click()
+        else:
+            self._on_plane_picked(axis)
 
     def _install_gate_undo(self) -> None:
         """Make every committed gate edit undoable with Ctrl+Z and Ctrl+Shift+Z.
@@ -3974,6 +4794,8 @@ class GateEditorPanel(QWidget):
         :param frame: the rows to gate, or None to clear.
         """
         self._frame = frame
+        self.canvas._handle_drag = self.canvas._surface_drag = self.canvas._volume_preview = None
+        self.canvas._edit_drag_projection = None
         self.canvas.set_frame(frame)
         self.tree.set_gates(self._gates, frame)
         self._refresh_status()
@@ -3983,6 +4805,8 @@ class GateEditorPanel(QWidget):
 
         :param spec: the graph spec for the canvas.
         """
+        self.canvas._handle_drag = self.canvas._surface_drag = self.canvas._volume_preview = None
+        self.canvas._edit_drag_projection = None
         self.canvas.set_spec(spec)
 
     @property
@@ -4151,7 +4975,15 @@ class GateEditorPanel(QWidget):
         gates = self.gates
         gates.add(gate)
         self.canvas.set_gates(gates, active=gate.name)
+        blocked = self.tree.tree.blockSignals(True)
+        try:
+            self.tree.set_gates(gates, self._frame)
+            self.tree.select(gate.name)
+        finally:
+            self.tree.tree.blockSignals(blocked)
+        self.tree._rebuild_thresholds(gate.name)
         self._refresh_status()
+        self.gates_changed.emit()
 
     def _on_gate_drawn(self, gate: Gate) -> None:
         """Name a newly drawn gate and add it to the set.
@@ -4331,6 +5163,7 @@ class GateEditorPanel(QWidget):
             button.setVisible(visible)
         self._volume_shape.setVisible(visible)
         self._box_gate.setVisible(visible)
+        self._edit_axis_picker.setVisible(visible)
         self._drag_label.setVisible(visible)
         for button in self._drag_buttons.values():
             button.setVisible(visible)

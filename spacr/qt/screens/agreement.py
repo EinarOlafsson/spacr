@@ -1,10 +1,10 @@
 """
-Annotator Agreement — how much do two annotation passes actually agree?
+Annotator Agreement — agreement between the annotation columns of one database.
 
-The Annotate app writes one ``INTEGER`` column per pass into
-``png_list``. Two people labelling the same crops therefore leave two
-columns side by side, and the only question that matters before either
-set is used as ground truth is: *do they agree, and where don't they?*
+The Annotate app writes one ``INTEGER`` column per pass into ``png_list``. Two
+people labelling the same crops therefore leave two columns side by side, and
+this screen reports whether they agree, and on which rows they differ, before
+either set is used as ground truth.
 
 Layout::
 
@@ -29,9 +29,8 @@ Design notes:
 
 * **Read-only, structurally.** Every connection goes through
   :mod:`spacr.agreement`. It opens the file with ``file:…?mode=ro`` and
-  ``PRAGMA query_only = ON``, the same approach the Database Browser
-  takes. Adjudicating a disagreement is a job for the Annotate app. This
-  screen only ever looks.
+  ``PRAGMA query_only = ON``, the same approach the Database Browser takes.
+  Disagreements are resolved in the Annotate app; this screen does not write.
 * **Off the GUI thread.** The report reads the whole ``png_list``
   annotation block, so it runs through :func:`spacr.qt.bridge.make_thread`
   like every other spaCR job. Tests pass ``threaded=False``.
@@ -78,7 +77,10 @@ from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .db_browser import resolve_db_path
-from ..widgets.sortable_table import install_sorting, table_item
+from ..widgets.sortable_table import (
+    _retire_table_cells, _reuse_list_items, _spare_table_item, install_sorting,
+    table_item,
+)
 
 __all__ = ["AgreementScreen", "DEFAULT_REVIEW_LIMIT", "format_kappa"]
 
@@ -96,7 +98,7 @@ _KAPPA_HEADERS = ("annotator A", "annotator B", "n compared", "abstentions",
 
 
 def format_kappa(value: Any) -> str:
-    """Render a κ for display — ``"undefined"`` rather than a fake number.
+    """Render a κ for display, or ``"undefined"`` when it is NaN.
 
     :param value: a κ, possibly ``nan``.
     :returns: signed 3-decimal string, or ``"undefined"``.
@@ -123,9 +125,9 @@ def _format_pct(value: Any) -> str:
     return "n/a" if math.isnan(v) else f"{v:.1%}"
 
 
-def _cell(text: str) -> QTableWidgetItem:
-    """A read-only table cell."""
-    item = table_item(text)
+def _cell(text: str, table: Optional[QTableWidget] = None) -> QTableWidgetItem:
+    """A read-only table cell, rewritten from ``table``'s spare cells if given."""
+    item = table_item(text) if table is None else _spare_table_item(table, text)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
 
@@ -235,8 +237,8 @@ class AgreementScreen(QWidget):
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(SPACING["xs"])
-        hint = QLabel("Tick two or more — one annotator cannot disagree "
-                      "with anybody.")
+        hint = QLabel("Tick two or more columns — agreement needs at least "
+                      "two annotators.")
         hint.setObjectName("Caption")
         hint.setWordWrap(True)
         left_layout.addWidget(hint)
@@ -407,7 +409,9 @@ class AgreementScreen(QWidget):
             column was opened.
         """
         self._clear_results()
-        self._columns_list.clear()
+        self._columns_list.blockSignals(True)
+        _reuse_list_items(self._columns_list, 0)
+        self._columns_list.blockSignals(False)
         self._candidates = []
         self._db_path = ""
         try:
@@ -422,11 +426,11 @@ class AgreementScreen(QWidget):
         self._candidates = list(candidates)
         self._path_edit.setText(resolved)
         self._columns_list.blockSignals(True)
-        for name in candidates:
-            item = QListWidgetItem(name)
+        for name, item in zip(candidates, _reuse_list_items(
+                self._columns_list, len(candidates))):
+            item.setText(name)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Unchecked)
-            self._columns_list.addItem(item)
         self._columns_list.blockSignals(False)
         self.database_opened.emit(resolved)
 
@@ -567,12 +571,14 @@ class AgreementScreen(QWidget):
         """
         self._report = None
         self._disagreements = None
-        self._kappa_table.setRowCount(0)
+        _retire_table_cells(self._kappa_table)
+        _retire_table_cells(self._confusion_table, headers=True)
         self._confusion_table.setRowCount(0)
         self._confusion_table.setColumnCount(0)
         self._pair_combo.blockSignals(True)
         self._pair_combo.clear()
         self._pair_combo.blockSignals(False)
+        _retire_table_cells(self._review_table, headers=True)
         self._review_table.setRowCount(0)
         self._review_table.setColumnCount(0)
         self._review_label.setText("Disagreement review")
@@ -592,6 +598,7 @@ class AgreementScreen(QWidget):
         """
         table = self._kappa_table
         table.blockSignals(True)
+        _retire_table_cells(table)
         table.setRowCount(len(report.pairs))
         for r, pair in enumerate(report.pairs):
             cells = (
@@ -604,7 +611,7 @@ class AgreementScreen(QWidget):
                 pair.interpretation,
             )
             for c, text in enumerate(cells):
-                item = _cell(text)
+                item = _cell(text, table)
                 if pair.note:
                     item.setToolTip(pair.note)
                 table.setItem(r, c, item)
@@ -644,23 +651,24 @@ class AgreementScreen(QWidget):
         """Render pair ``index``'s confusion matrix into the grid."""
         table = self._confusion_table
         if self._report is None or not (0 <= index < len(self._report.pairs)):
+            _retire_table_cells(table, headers=True)
             table.setRowCount(0)
             table.setColumnCount(0)
             return
         pair = self._report.pairs[index]
         conf = pair.confusion
         labels = [str(l) for l in conf.index]
-        table.clear()
+        _retire_table_cells(table, headers=True)
         table.setRowCount(len(labels))
         table.setColumnCount(len(labels) + 1)
         table.setHorizontalHeaderLabels(
             [f"{pair.column_a} ↓ / {pair.column_b} →"] +
             [str(l) for l in conf.columns])
         for r, label in enumerate(labels):
-            table.setItem(r, 0, _cell(label))
+            table.setItem(r, 0, _cell(label, table))
             for c in range(len(conf.columns)):
                 value = int(conf.iloc[r, c])
-                item = _cell(f"{value:,}")
+                item = _cell(f"{value:,}", table)
                 if r == c:
                     item.setToolTip("agreement")
                 table.setItem(r, c + 1, item)
@@ -706,7 +714,7 @@ class AgreementScreen(QWidget):
         table = self._review_table
         columns = [report.key] + list(report.columns)
         table.blockSignals(True)
-        table.clear()
+        _retire_table_cells(table, headers=True)
         table.setColumnCount(len(columns))
         table.setHorizontalHeaderLabels(columns)
         table.setRowCount(len(rows))
@@ -714,7 +722,7 @@ class AgreementScreen(QWidget):
             for c, col in enumerate(columns):
                 value = rows[col].iloc[r]
                 text = "—" if value is None else str(value)
-                item = _cell(text)
+                item = _cell(text, table)
                 if c == 0:
                     item.setToolTip(str(value))
                 table.setItem(r, c, item)
@@ -768,7 +776,8 @@ class AgreementScreen(QWidget):
         if path is None:
             self._crop_label.setText(
                 f"Crop not found on disk:\n{raw}\n\n"
-                "The labels above still stand — only the picture is missing.")
+                "The labels above are unaffected — only the image file is "
+                "missing.")
             return False
         pixmap = QPixmap(path)
         if pixmap.isNull():

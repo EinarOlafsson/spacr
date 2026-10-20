@@ -7,12 +7,12 @@ different handling:
   :func:`spacr.submodules.analyze_plaques` has always done;
 * **several wells in one image** -- a whole plate, or a strip. Segmenting that
   directly counts every plaque in every well into one number and loses which
-  well each came from, which is the entire experiment.
+  well each came from.
 
 This module supplies the front half for the second case: find the wells, then
 hand each one to the segmenter separately.
 
-WHY THE WELL IS MEASURED AND NOT JUST CROPPED. Plaque *area* in pixels is a
+The well is measured, not only cropped. Plaque *area* in pixels is a
 property of the microscope, not of the biology. The same plaque imaged at two
 magnifications gives two areas, and a study that pools them is comparing
 optics. A well, by contrast, is a manufactured object of known physical size --
@@ -99,7 +99,7 @@ class Well:
         """The well's diameter in pixels, as the mean of the box sides.
 
         A well is round, so a correct box is square and the two sides agree.
-        The MEAN rather than either side alone is what makes a slightly loose
+        The mean rather than either side alone is what makes a slightly loose
         box degrade gently instead of biasing one way -- and the disagreement
         itself is reported by :attr:`axis_ratio`, so a box that is not square
         is visible rather than silently averaged into a plausible number.
@@ -110,7 +110,7 @@ class Well:
     def axis_ratio(self) -> float:
         """Shorter box side over longer, so 1.0 is square.
 
-        THE HONESTY CHECK ON THE RULER. A well is circular; a box much wider
+        This checks the well used as a length scale. A well is circular; a box much wider
         than it is tall means the detector clipped it at an image edge, or
         merged two wells, or found something that is not a well. Any of those
         makes :attr:`diameter_px` wrong, and since that diameter rescales
@@ -309,8 +309,8 @@ def scale_from_well(well: Well, *,
         well physically is.
     :raises KeyError: if ``plate_format`` is not a known format.
 
-    RETURNS ``None`` RATHER THAN ASSUMING. Without a physical diameter there is
-    no scale, and inventing one -- a default plate format, say -- would convert
+    Returns ``None`` rather than assuming a plate format. Without a
+    physical diameter there is no scale, and inventing one -- a default plate format, say -- would convert
     every area into confident millimetres that are wrong by whatever the real
     plate was. The caller keeps pixels and says so.
     """
@@ -488,7 +488,7 @@ def segment_plaque_image(model: Any, image: np.ndarray,
     """Segment one plaque image the way both Plaque mode's preview and run do.
 
     The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises
-    it. It is NOT sent through the run's historical loader
+    it. It is not sent through the run's historical loader
     (``_load_normalized_images_and_labels`` with ``background=200``): on an
     8-bit crop that loader saturated every pixel to 1.0 -- measured on
     ``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found
@@ -636,7 +636,7 @@ def _find_dish(image: np.ndarray) -> Tuple[Well, str]:
                 best = region
     if best is not None:
         y, x = best.centroid
-        radius = best.equivalent_diameter / 2.0
+        radius = best.equivalent_diameter_area / 2.0
         x, y, radius = x / factor, y / factor, radius / factor
         return Well(int(round(x - radius)), int(round(y - radius)),
                     int(round(x + radius)), int(round(y + radius))), \
@@ -1274,7 +1274,7 @@ def _measure_colonies(labels: np.ndarray, factor: float,
     rows = []
     for region in measure.regionprops(labels):
         area = float(region.area) / factor ** 2
-        diameter = float(region.equivalent_diameter) / factor
+        diameter = float(region.equivalent_diameter_area) / factor
         y, x = region.centroid
         rows.append(dict(
             colony_id=int(region.label), area_px=area, diameter_px=diameter,

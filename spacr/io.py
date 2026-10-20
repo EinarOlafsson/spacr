@@ -11,6 +11,7 @@ from collections import defaultdict, Counter
 from contextlib import contextmanager
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from pathlib import Path
+from typing import Optional
 from matplotlib.animation import FuncAnimation
 try:
     from IPython.display import display
@@ -18,11 +19,12 @@ except Exception:
     def display(*args, **kwargs):
         """Do nothing: IPython is unavailable, so there is nowhere to display to.
 
-        THE FALLBACK IS THE POINT. `IPython.display.display` is imported at
-        module scope, and IPython can be mid-init -- partially imported by
-        another thread -- which makes that import raise. Letting it propagate
-        would make importing this module fail for a reason that has nothing to
-        do with what the module does. spaCR only calls `display` from notebook
+        This no-op is the fallback used when importing
+        `IPython.display.display` fails. It is imported at module scope, and
+        IPython can be mid-init -- partially imported by another thread --
+        which makes that import raise. Letting it propagate would make
+        importing this module fail for a reason that has nothing to do with
+        what the module does. spaCR only calls `display` from notebook
         contexts; the Qt GUI ignores it.
 
         :param args: whatever the caller would have displayed.
@@ -35,6 +37,7 @@ import skimage.measure as measure
 from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
 from io import BytesIO
 from multiprocessing import cpu_count
 from .resource_log import _parallel_pool as Pool
@@ -122,36 +125,34 @@ def migrate_unescaped_plate_names(src, dry_run=False):
     four-component grammar, and ``utils._map_wells`` answered ``('error',) * 5``
     for every field of it. The plate could not be measured at all.
 
-    Nothing in the measurement database needs migrating, because there is
-    none: every frame of such a plate was refused. What DOES need moving is
-    everything upstream of the measurement -- ``stack/``, ``norm_channel_stack/``,
-    ``merged/`` and, above all, ``masks/``, which is hours to days of
-    segmentation. Renaming those makes the plate measurable without
-    re-segmenting it, which is the whole reason this exists rather than a note
-    saying "re-run the plate".
+    Nothing in the measurement database needs migrating, because there is none:
+    every frame of such a plate was refused. What does need moving is
+    everything upstream of the measurement -- ``stack/``,
+    ``norm_channel_stack/``, ``merged/`` and, above all, ``masks/``, which is
+    hours to days of segmentation. Renaming those makes the plate measurable
+    without re-segmenting it.
 
-    THE NEW NAME IS NOT GUESSED. Every stem this module writes ends in three
-    fixed tokens -- well, field, timepoint -- whatever ``timelapse`` is set to,
-    so everything before them is the plate however many underscores it holds.
-    A stem that is already escaped, or whose plate holds no separator, is left
-    alone: the rename is a no-op for every ordinary plate, which is what makes
-    it safe to run over a folder that does not need it.
+    The new name is derived, not guessed: every stem this module writes ends in
+    three fixed tokens -- well, field, timepoint -- whatever ``timelapse`` is
+    set to, so everything before them is the plate however many underscores it
+    holds. A stem that is already escaped, or whose plate holds no separator,
+    is left alone: the rename is a no-op for every ordinary plate, so it is
+    safe to run over a folder that does not need it.
 
     Crops under ``data/`` are not touched. A plate that could not be measured
     has none, and the ``nightly``-only crop names that ``_generate_names``
     mis-escaped came with a ``png_list`` table whose identities are wrong too,
     so there is nothing there to salvage by renaming -- re-run ``measure_crop``.
 
-    PUBLIC, because the person who needs it is a user with an ``exp_1``
-    folder full of masks, and a recovery tool they have to reach past a
-    leading underscore to call is a recovery tool most people will not find.
+    This function is public so that a user with an affected plate folder, such
+    as ``exp_1``, can run it directly.
 
     :param src: the plate source folder, the one holding ``merged/``.
     :param dry_run: report the renames without performing them.
     :returns: list of ``(old_path, new_path)`` pairs, renamed unless
         ``dry_run``.
     :raises FileExistsError: if a destination is already occupied, before
-        anything is moved. A half-applied rename is worse than none.
+        anything is moved.
 
     Example:
         .. code-block:: python
@@ -218,10 +219,10 @@ def process_non_tif_non_2D_images(folder):
     dimensional images (3D/4D/5D) are split into one grayscale TIFF per
     ``(channel, Z, T)`` combination. Bit depth is preserved.
 
-    A file that cannot be read is recorded on a
-    :class:`spacr.errors.RunLedger` and skipped, so one corrupt image
-    does not abort the folder — but the ledger prints a loud summary of
-    everything that was skipped once the folder is done.
+    A file that cannot be read is recorded on a :class:`spacr.errors.RunLedger`
+    and skipped, so one corrupt image does not abort the folder — but the
+    ledger prints a summary of everything that was skipped once the folder is
+    done.
 
     :param folder: Directory containing the input images.
     :returns: the :class:`spacr.errors.RunLedger` for the conversion, so
@@ -239,10 +240,10 @@ def process_non_tif_non_2D_images(folder):
         :param folder: Directory the TIFF is written to. The converter passes
             the folder it is scanning, so planes land beside the
             multi-dimensional file they came from.
-        :param dtype: NumPy dtype the plane is cast to before writing. This
-            cast is the whole of the "bit depth is preserved" promise — pass
-            the dtype ``load_image`` reported for the source rather than a
-            convenient default, or 16-bit data is silently rewritten.
+        :param dtype: NumPy dtype the plane is cast to before writing. Bit
+            depth is preserved only through this cast: pass the dtype
+            ``load_image`` reported for the source rather than a convenient
+            default, or 16-bit data is silently rewritten.
         :param channel: 1-based channel index appended as ``_C``. ``None``
             leaves that part of the suffix off.
         :param z: 1-based Z index appended as ``_Z``; ``None`` omits it.
@@ -993,11 +994,11 @@ class TarImageDataset(Dataset):
     """Image dataset backed by a tar archive, decoded on demand.
 
     A tar written by :func:`generate_dataset` from on-demand crops carries a
-    ``.spacr_crop_format.json`` member -- the same marker
-    :mod:`spacr.crops` writes into a crop folder, travelling with the bytes it
-    describes. It is **not** an image, so it is excluded from the sample list
-    and surfaced as :attr:`crop_format` instead; an archive without one
-    reports None, which is every tar written before this existed.
+    ``.spacr_crop_format.json`` member -- the same marker :mod:`spacr.crops`
+    writes into a crop folder, travelling with the bytes it describes. It is
+    **not** an image, so it is excluded from the sample list and surfaced as
+    :attr:`crop_format` instead; an archive without one, such as a tar written
+    by an older spaCR, reports None.
 
     New datasets default to declared channel order and uint8 narrowing through
     the shared crop decoder. Inference must pass the model's recorded policy;
@@ -1091,10 +1092,10 @@ def load_images_from_paths(images_by_key):
     """Load images grouped by key into NumPy arrays.
 
     :param images_by_key: Mapping of key -> list of image paths.
-    :returns: Mapping of the same keys -> list of ``ndarray`` images.
-        Paths that fail to load are skipped, recorded on a
-        :class:`spacr.errors.RunLedger` and reported in a loud summary,
-        so a short list is never mistaken for a complete one.
+    :returns: Mapping of the same keys -> list of ``ndarray`` images. Paths
+        that fail to load are skipped, recorded on a
+        :class:`spacr.errors.RunLedger` and reported in a summary, so a short
+        list is never mistaken for a complete one.
     """
     images_dict = {}
     ledger = RunLedger('load_images_from_paths')
@@ -1317,6 +1318,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             else:
                 shutil.move(os.path.join(src, filename), move)
     else:
+        print('save_original_images is off: each raw image that went into a '
+              'verified field stack in stack/ is deleted from the source '
+              'folder; this cannot be undone.')
         in_a_stack = {path for key, paths in image_paths_by_key.items()
                       if stem_of[key] in stacked for path in paths}
         for filename in _listdir_visible(src):
@@ -1823,8 +1827,11 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
             if workspace_dir is None:
                 for array_index in range(single_channel.shape[0]):
                     arr_2d = single_channel[array_index]
-                    arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
-                    normalized_stack[array_index, ..., output_column] = arr_2d_normalized
+                    for plane_index in np.ndindex(*arr_2d.shape[:-2]):
+                        normalized_stack[(array_index, *plane_index, Ellipsis, output_column)] = (
+                            exposure.rescale_intensity(
+                                arr_2d[plane_index], in_range=(global_lower, global_upper),
+                                out_range=(0, 1)))
             else:
                 for time_index in range(single_channel.shape[0]):
                     for z_index in range(single_channel.shape[1]):
@@ -2815,11 +2822,11 @@ def select_fields(names, fields):
     def field_of(token):
         """One field's canonical token, so 'f3', '3' and 'F003' are one field.
 
-        NORMALISED THROUGH `schema`, which is the same rule the file names
-        themselves were written by -- matching the raw text instead would
-        make a selection depend on which of three spellings the user typed.
-        Anything schema cannot read is lower-cased and passed through, so a
-        token from a convention it has not met still selects itself.
+        Normalised through `schema`, which is the same rule the file names
+        themselves were written by -- matching the raw text instead would make
+        a selection depend on which of three spellings the user typed. Anything
+        schema cannot read is lower-cased and passed through, so a token from a
+        convention it has not met still selects itself.
         """
         try:
             index = schema.field_index(token)
@@ -4302,7 +4309,9 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
     Returns:
         tuple: A tuple containing the filtered batch (numpy array) and the filtered filenames (list).
     """
-    from .resume import validate_merged_field
+    from .resume import read_npy_header, validate_merged_field
+
+    fields = dict(zip(batch_filenames, batch))
 
     def needs_processing(filename):
         """Report whether a field still has to be generated.
@@ -4321,7 +4330,19 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
         ok, reason = validate_merged_field(path)
         if not ok:
             print(f"{path} is damaged ({reason}); generating it again.")
-        return not ok
+            return True
+        field = getattr(fields.get(filename), "shape", None)
+        if field is not None and len(field) >= 3:
+            try:
+                shape = tuple(read_npy_header(path)["shape"])
+            except Exception:
+                return True
+            if len(shape) == 2 and shape not in (tuple(field[-3:-1]),
+                                                 tuple(field[-2:])):
+                print(f"{path} is {shape}, not its field's "
+                      f"{tuple(field[-3:-1])}; generating it again.")
+                return True
+        return False
 
     existing_files_mask = [
         needs_processing(filename) for filename in batch_filenames]
@@ -4414,9 +4435,8 @@ class TimelapseKeyMismatch(ValueError):
     :func:`spacr.utils._merge_and_save_to_database` onto every object table —
     so a database where one of the two has it and the other does not was
     written by two runs that disagreed about whether the experiment was a
-    timelapse. Joining them without the timepoint silently multiplies every
-    object by the number of frames, which is precisely the failure this
-    exception exists to stop.
+    timelapse. Joining them without the timepoint would silently multiply every
+    object by the number of frames.
     """
 
 
@@ -4518,9 +4538,8 @@ class CropModeMismatch(ValueError):
     and so on; the mapping is :data:`spacr.utils.PNG_OBJECT_ID_COLUMNS`.
     :func:`_read_and_join_tables` anchors on the ``cell`` table, so it needs
     ``cell_id``. A database measured only with nucleus crops does not have that
-    column, and used to fail with ``KeyError: "['cell_id'] not in index"`` --
-    which names neither the table, nor the column's absence, nor the setting
-    that caused it.
+    column; this exception names the missing column, the crop modes present and
+    the ``crop_mode`` setting that would write it.
 
     The cell a nucleus crop belongs to *is* in the crop's file name --
     :func:`spacr.utils._generate_names` writes
@@ -5002,13 +5021,13 @@ def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
     frame_w = max(1, int(round(width * scale)))
 
     def _points(fraction):
-        """A font size in POINTS for a fraction of the frame's short side.
+        """A font size in points for a fraction of the frame's short side.
 
-        Matplotlib sizes text in points and this geometry is in pixels, so
-        the conversion has to use the dpi the writer will actually use --
-        computing it against a default dpi puts the labels at the wrong size
-        in the file while looking right on screen. Floored at 5 pt, below
-        which a label is ink rather than text.
+        Matplotlib sizes text in points and this geometry is in pixels, so the
+        conversion has to use the dpi the writer will actually use -- computing
+        it against a default dpi puts the labels at the wrong size in the file
+        while looking right on screen. Floored at 5 pt, below which a label is
+        not legible.
         """
         return max(5.0, round(min(frame_h, frame_w) * fraction * 72.0 / dpi, 1))
 
@@ -5188,7 +5207,7 @@ def save_object_mask(output_folder, filename, mask, compression='lzw'):
     """Save an integer label mask as a lossless, compressed TIFF.
 
     Masks are saved as TIFF (not .npy) so they're readable by ImageJ/other
-    tools, with lossless compression (default LZW). Object labels are NEVER
+    tools, with lossless compression (default LZW). Object labels are never
     altered — the array is written verbatim as uint16, exactly as recorded in
     the measurements database.
 
@@ -5341,11 +5360,10 @@ def _load_and_concatenate_arrays(
     def add_mask_folder(role, enabled):
         """Queue one object's mask stack, if this run has that object.
 
-        EITHER the caller named a channel dimension for it OR the folder is
-        on disk: a run that segmented an object always has the folder, and a
-        run being re-read from settings may name the object before the
-        folder is written. Requiring both would drop a mask stack that is
-        sitting right there.
+        Either the caller named a channel dimension for it or the folder is on
+        disk: a run that segmented an object always has the folder, and a run
+        being re-read from settings may name the object before the folder is
+        written. Requiring both would drop a mask stack that exists on disk.
 
         :param role: the object, e.g. ``'cell'``.
         :param enabled: that object's channel dimension, or None.
@@ -5515,6 +5533,94 @@ def _load_and_concatenate_arrays(
 
     return
         
+def _export_vvvv_field(root, file_name, masks, image, *, measured=None,
+                       origin='Mask Generation', source_path='',
+                       pixel_size=None):
+    """Write one field's vvvv export for every object mask (item 685, alpha).
+
+    Each object type gets its own export root, ``<root>/<object>``, holding
+    one folder per field as :func:`spacr.qt.mask_engine._export_vvvv` writes
+    it. A mask that cannot be exported (3-D, or ids above 65535) is reported
+    and skipped; the run goes on.
+
+    :param root: the run's vvvv folder for this module.
+    :param file_name: the field's file name; its stem names the folder.
+    :param masks: ``{object: 2-D label image}``.
+    :param image: the field's intensity planes, ``(height, width, channels)``.
+    :param measured: optional ``{object: per-object frame with a label
+        column}``, appended to that object's table.
+    :param origin: the module named in each README.txt.
+    :param source_path: the field's path, recorded in each manifest.
+    :param pixel_size: ``(x, y)`` pixel size in µm, or None.
+    :returns: the folders written.
+    """
+    from .qt.mask_engine import _export_vvvv
+
+    image = None if image is None else np.asarray(image)
+    names = None
+    if image is not None and image.ndim == 3:
+        names = [f'channel_{index}' for index in range(image.shape[-1])]
+    written = []
+    for role, labels in masks.items():
+        labels = np.asarray(labels)
+        try:
+            if labels.ndim != 2:
+                raise ValueError('vvvv export needs a 2-D label image')
+            if not np.issubdtype(labels.dtype, np.integer):
+                labels = np.rint(labels)
+            written.append(_export_vvvv(
+                os.path.join(os.fspath(root), role), file_name,
+                labels.astype(np.int64), image,
+                source_path=source_path, pixel_size=pixel_size,
+                channel_names=names,
+                table=(measured or {}).get(role), origin=origin))
+        except (ValueError, OSError) as exc:
+            print(f'vvvv export skipped {role} in {file_name}: {exc}')
+    return written
+
+
+def _export_vvvv_merged(src, *, pixel_size=None):
+    """Write the vvvv export of every field in ``<src>/merged`` (item 685).
+
+    Used by Mask Generation when ``export_vvvv`` is on. The merged arrays'
+    plane layout sidecar says which planes are intensities and which are
+    object masks; each object is exported to ``<src>/vvvv/mask/<object>``.
+    Without a sidecar nothing is written.
+
+    :param src: the run root holding ``merged/``.
+    :param pixel_size: ``(x, y)`` pixel size in µm, or None.
+    :returns: the folders written.
+    """
+    merged = os.path.join(src, 'merged')
+    layout_path = os.path.join(merged, MERGED_LAYOUT_SIDECAR)
+    if not os.path.isfile(layout_path):
+        print('vvvv export skipped: merged/ has no plane layout')
+        return []
+    with open(layout_path, 'r', encoding='utf-8') as handle:
+        layout = json.load(handle)
+    mask_dims = {str(role): int(dim)
+                 for role, dim in (layout.get('mask_dims') or {}).items()}
+    n_intensity = len(layout.get('intensity_channels') or ())
+    root = os.path.join(src, 'vvvv', 'mask')
+    written = []
+    for name in sorted(_listdir_visible(merged)):
+        if not name.endswith('.npy'):
+            continue
+        path = os.path.join(merged, name)
+        array = np.load(path, mmap_mode='r')
+        if array.ndim != 3:
+            print(f'vvvv export skipped {name}: only 2-D fields are exported')
+            continue
+        masks = {role: np.array(array[..., dim])
+                 for role, dim in mask_dims.items() if dim < array.shape[-1]}
+        image = np.array(array[..., :n_intensity]) if n_intensity else None
+        del array
+        written += _export_vvvv_field(root, name, masks, image,
+                                      source_path=path,
+                                      pixel_size=pixel_size)
+    return written
+
+
 def _results_to_csv(src, df, df_well):
     """
     Save the given dataframes as CSV files in the specified directory.
@@ -5552,9 +5658,9 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     def _plot_and_save(train_df, val_df, column='accuracy', save=False, path=None, dpi=None):
         """Draw one training curve -- train against validation -- and write it.
 
-        One function per COLUMN rather than per figure because the caller
-        asks for accuracy, loss and the rest by name, and every one of them
-        is the same plot of the same two frames.
+        One function per column rather than per figure because the caller asks
+        for accuracy, loss and the rest by name, and every one of them is the
+        same plot of the same two frames.
 
         :param train_df: per-epoch training statistics.
         :param val_df: the same for validation.
@@ -5588,7 +5694,7 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
                 from .plot import save_figure
                 pdf_path = save_figure(plt.gcf(), pdf_path, dpi=dpi)
             else:
-                plt.show()
+                _show_if_interactive()
 
     train_df = pd.read_csv(train_file_path, index_col=0)
     val_df = pd.read_csv(val_file_path, index_col=0)
@@ -5707,11 +5813,11 @@ def _save_progress(dst, train_df, validation_df):
         df (pandas.DataFrame): The DataFrame to save.
         """
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 df.to_csv(f, index=True, header=True)
                 f.flush()
         else:
-            with open(file_path, 'a') as f:
+            with open(file_path, 'a', encoding='utf-8') as f:
                 df.to_csv(f, index=True, header=False)
                 f.flush()
                 
@@ -5728,12 +5834,19 @@ def _save_progress(dst, train_df, validation_df):
 
     return
     
-def _copy_missclassified(df):
-    """Copy every misclassified crop into a ``missclassified`` folder beside its source.
+MISCLASSIFIED_FOLDER = "misclassified"
+LEGACY_MISCLASSIFIED_FOLDER = "missclassified"
 
-    Split into ``pc`` and ``nc`` by what the original path contains, so the
-    two failure directions can be looked at separately -- a model that only
-    ever errs one way is a different problem from one that errs both.
+
+def _copy_misclassified(df):
+    """Copy every misclassified crop into a ``misclassified`` folder beside its source.
+
+    A crop from ``test/<class>/x.png`` goes to ``test/misclassified/<class>/x.png``,
+    named after the class it truly belongs to, so the failure directions can be
+    looked at separately -- a model that only ever errs one way is a different
+    problem from one that errs both. Outputs written before the spelling was
+    corrected sit in ``missclassified`` (:data:`LEGACY_MISCLASSIFIED_FOLDER`);
+    nothing reads either folder back.
 
     :param df: predictions carrying ``true_label``, ``predicted_label`` and
         ``filename``.
@@ -5742,30 +5855,31 @@ def _copy_missclassified(df):
     for _, row in misclassified.iterrows():
         original_path = row['filename']
         filename = os.path.basename(original_path)
-        dest_folder = os.path.dirname(os.path.dirname(original_path))
-        if "pc" in original_path:
-            new_path = os.path.join(dest_folder, "missclassified/pc", filename)
-        else:
-            new_path = os.path.join(dest_folder, "missclassified/nc", filename)
+        class_folder = os.path.dirname(original_path)
+        dest_folder = os.path.dirname(class_folder)
+        new_path = os.path.join(dest_folder, MISCLASSIFIED_FOLDER,
+                                os.path.basename(class_folder), filename)
         os.makedirs(os.path.dirname(new_path), exist_ok=True)
         shutil.copy(original_path, new_path)
     print(f"Copied {len(misclassified)} misclassified images.")
     return
-    
+
+
+_copy_missclassified = _copy_misclassified
+
+
 def _read_db(db_loc, tables):
     """Read tables out of a measurements database as data frames.
 
-    A ``~`` path is expanded HERE, once, for every reader. A ``src``
-    beginning with ``~`` produced a literal ``~/...`` path that the schema
-    migration resolved against the WORKING DIRECTORY and then refused. It is
-    fixed here rather than in the migration, whose own docstring states
-    non-expansion as a deliberate contract.
+    A ``~`` path is expanded and a relative path is made absolute here, once,
+    for every reader, because a read-only SQLite connection is opened through
+    a file URI and a URI can only name an absolute path. A path that names no
+    file raises :class:`FileNotFoundError` with the absolute path it tried.
 
     :param db_loc: the database path.
     :param tables: the table names to read.
     :returns: one data frame per requested table, in the order asked.
     """
-    import gc
     import os
     import pathlib
     import sqlite3
@@ -5777,7 +5891,13 @@ def _read_db(db_loc, tables):
 
     backend = _backend_of(db_loc)
     if backend != 'postgres' and isinstance(db_loc, (str, os.PathLike)):
-        db_loc = os.path.expanduser(os.path.expandvars(os.fspath(db_loc)))
+        db_loc = os.path.abspath(
+            os.path.expanduser(os.path.expandvars(os.fspath(db_loc))))
+        if backend == 'sqlite' and not os.path.isfile(db_loc):
+            raise FileNotFoundError(
+                f"Measurements database not found: {db_loc}. Set src to the "
+                "plate folder that holds measurements/measurements.db, or to "
+                "the database file itself, as a full path.")
     from .utils import correct_metadata
 
     def _quote_identifier(name):
@@ -5895,13 +6015,9 @@ def _read_and_merge_data(
     def _merge_grouped(left, right, right_name="grouped object data"):
         """Merge grouped tables while keeping only one copy of shared acquisition metadata.
 
-        THE JOIN TYPE NOW COMES FROM THE REGISTRY. It used to be inner
-        unconditionally -- pandas' default, since no ``how=`` was passed --
-        and this docstring said the choice was "deliberately left alone"
-        because the decision had not been made. It has since: `object_roles.
-        join_how` records it and `_read_and_join_tables` already reads it, so
-        the two readers of the same tables were disagreeing about which
-        objects exist.
+        The join type comes from the registry: `object_roles. join_how` records
+        it and `_read_and_join_tables` reads the same value, so both readers of
+        these tables agree on which objects exist.
 
             nucleus     INNER   a cell with no nucleus is debris
             png_list    INNER   a cell with no crop cannot be classified
@@ -5909,20 +6025,18 @@ def _read_and_merge_data(
             pathogen    LEFT    an UNINFECTED cell is usually the control
             organelle   LEFT    same reasoning
 
-        Inner for pathogen was the consequential one: it silently conditioned
-        every result on infection, deleting the control population from the
-        denominator without a word.
+        An inner join on pathogen would condition every result on infection and
+        remove the uninfected control population from the denominator.
 
         A ``right_name`` the registry does not know keeps the historical
         inner join rather than being guessed at -- the metadata and stamp
         merges go through here too, and they are not object tables.
 
-        What is NOT defensible is doing it in silence, which is what this
-        used to do. The discontinuity is brutal: on a 100-cell plate where
-        NO crop carries a usable object id, png_list drops out before the
-        join and all 100 cells survive; where exactly ONE does, the merge
-        keeps that one and deletes the other 99. Nothing printed either way,
-        and every shipped caller passes verbose=False.
+        Rows removed by an inner join must not disappear silently. The effect
+        is discontinuous: on a 100-cell plate where no crop carries a usable
+        object id, png_list drops out before the join and all 100 cells
+        survive; where exactly one does, the merge keeps that one and deletes
+        the other 99. Callers pass verbose=False.
 
         So the shortfall is reported, named by table. This is the mirror of
         `_report_fan_out` for the shrinking direction.
@@ -6345,11 +6459,9 @@ def parse_gz_files(folder_path):
     Illumina run, and ``<run>_1.fastq.gz`` from ENA or the SRA. See
     :data:`_MATE_SPELLINGS`.
 
-    A file whose mate cannot be identified contributes NOTHING rather than an
-    empty entry. The previous version created ``{sample: {}}`` for it, which
-    turned an unrecognised filename into a ``KeyError: 'R1'`` several frames
-    later in :func:`spacr.sequencing.generate_barecode_mapping` -- a crash that
-    named neither the file nor the problem.
+    A file whose mate cannot be identified contributes nothing rather than an
+    empty ``{sample: {}}`` entry, which would otherwise cause a ``KeyError:
+    'R1'`` later in :func:`spacr.sequencing.generate_barecode_mapping`.
 
     :param folder_path: Directory containing gzipped FASTQ files.
     :returns: Mapping ``{sample_name: {"R1": path, "R2": path}}``. Samples may
@@ -6513,10 +6625,9 @@ def open_crop_source(settings, src=None, object_type=None, verbose=True):
     before instead of failing on a project that predates ``merged/``.
 
     The run's own crop-shaping settings are forwarded (see
-    :func:`_crop_shape_overrides`), which is what makes "cut fresh at the
-    current crop settings" true rather than a slogan:
-    ``resolve_crop_source`` starts from the ``measure_crop`` snapshot in
-    ``measurements.db`` and lets those override it, so a run that asks for
+    :func:`_crop_shape_overrides`), so crops are cut at the current crop
+    settings: ``resolve_crop_source`` starts from the ``measure_crop`` snapshot
+    in ``measurements.db`` and lets those override it, so a run that asks for
     96 px crops gets 96 px crops out of ``merged/`` even though the folder on
     disk holds 48 px ones.
 
@@ -6562,9 +6673,8 @@ class LazyCropPNG:
     reach for every thumbnail with ``PIL.Image.open(image_paths[i])``.
     ``Image.open`` accepts a path *or* any seekable binary stream, so an
     instance of this class can sit in that list exactly where a path string
-    used to and the plotting code needs no change -- which is the point: the
-    PNG list and the on-demand list have to be interchangeable, or the two
-    sources are not really alternatives.
+    used to and the plotting code needs no change, so the PNG list and the
+    on-demand list are interchangeable.
 
     Nothing is read until something opens the object, so building one per row
     of a large screen costs a small dict and only the handful of thumbnails
@@ -6805,12 +6915,11 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
     def _col(name):
         """One column as a plain list, or a column of None when it is absent.
 
-        PLAIN LISTS RATHER THAN `itertuples`, for two measured reasons: the
+        Plain lists are used rather than `itertuples` for two reasons: the
         joined UMAP frame carries a couple of hundred columns, so building a
         namedtuple per row of it costs more than reading the crops does, and
-        itertuples silently RENAMES any column whose name is not a valid
-        identifier -- which is how a lookup starts missing a column that is
-        plainly there.
+        itertuples silently renames any column whose name is not a valid
+        identifier, so a lookup by the original name would miss it.
 
         :param name: the column, or a falsy value for "this frame has none".
         """
@@ -6819,12 +6928,12 @@ def crop_refs_for_rows(source, df, object_type='cell', name_column=None):
         return [None] * n
 
     def _missing(value):
-        """Whether a cell carries no answer.
+        """Whether a value is missing (None or NaN).
 
-        NaN AS WELL AS None, because a column read out of pandas holds NaN
+        NaN as well as None, because a column read out of pandas holds NaN
         where a row had nothing and `None is not float('nan')`. Testing only
-        for None lets a NaN through as if it were a value, and it then
-        reaches a path name or an object label.
+        for None lets a NaN through as if it were a value, and it then reaches
+        a path name or an object label.
         """
         return value is None or (isinstance(value, float) and np.isnan(value))
 
@@ -7144,11 +7253,11 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
     def _filter(frame, column):
         """Keep the rows whose ``column`` contains any of the wanted terms.
 
-        SUBSTRING AND NOT REGEX (`regex=False`): the terms come from a user
-        naming plates or wells, and a stray `(` or `+` in one of them would
-        otherwise raise out of pandas rather than simply matching nothing.
-        Any term matching is enough -- several terms are alternatives, which
-        is what a user listing them means.
+        Terms match as substrings, not regular expressions (`regex=False`): the
+        terms come from a user naming plates or wells, and a stray `(` or `+`
+        in one of them would otherwise raise out of pandas rather than simply
+        matching nothing. Any term matching is enough -- several terms are
+        alternatives, which is what a user listing them means.
 
         :param frame: the rows to filter.
         :param column: the column to search; an absent one filters nothing,
@@ -7408,8 +7517,8 @@ def class_sampling_weights(counts, mode):
 def expected_sampled_fractions(counts, mode):
     """Class frequencies the loader is expected to realise under ``mode``.
 
-    This is what makes the effect visible before a single epoch runs: the
-    report prints the observed fractions next to these.
+    The class-balance report prints the observed fractions next to these, so
+    the effect of ``mode`` is visible before training.
 
     :param counts: per-class sample counts.
     :param mode: any value of ``CLASS_BALANCE_MODES``.
@@ -7492,12 +7601,12 @@ def format_class_balance_report(summary, class_balance='none', split_name='train
 
 def report_class_balance(labels, classes=None, class_balance='none',
                          split_name='train', verbose=True):
-    """Measure class skew, decide what was done about it, and say so out loud.
+    """Measure class skew, choose the balancing action and report both.
 
-    A silent auto-fix is worse than none: the printed report always names the
-    per-class counts, the imbalance ratio and the concrete action taken, and
-    when ``class_balance='none'`` on skewed data it names the modes that would
-    have helped instead of quietly doing nothing.
+    The printed report always names the per-class counts, the imbalance ratio
+    and the concrete action taken, and when ``class_balance='none'`` on skewed
+    data it names the modes that would have helped instead of quietly doing
+    nothing.
 
     :param labels: integer labels of the split.
     :param classes: ordered class names.
@@ -7647,10 +7756,9 @@ def make_cv_folds(labels, n_splits, groups=None, seed=0):
 def make_validation_holdout(labels, validation_fraction, groups, seed=0):
     """Choose one stratified group fold closest to a requested holdout size.
 
-    The ordinary Classify validation split used to call ``random_split`` and
-    could put crops from one well on both sides even though grouped CV did not.
-    This helper uses the same group-stratified partitioner as CV and selects
-    the candidate fold closest to the requested size and class distribution.
+    This helper uses the same group-stratified partitioner as CV, so a group
+    never straddles the split, and selects the candidate fold closest to the
+    requested size and class distribution.
 
     :param labels: One integer class label per sample, in dataset order; the
         returned indices point back into that same order.
@@ -7663,14 +7771,14 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         lot. Over eight equal groups, 0.05 holds out 0.125 (no finer split is
         available) and 0.7 holds out 0.5 (the two-fold floor); with one
         dominant group — 70 of 100 samples across four groups — those same two
-        requests instead hold out 0.10 and 0.70. A miss that big is no longer
-        silent: whenever the realised share is further than
-        ``max(0.01, 0.1 * validation_fraction)`` from the requested one, a
-        ``UserWarning`` names both numbers and why they differ.
+        requests instead hold out 0.10 and 0.70. Whenever the realised share is
+        further than ``max(0.01, 0.1 * validation_fraction)`` from the
+        requested one, a ``UserWarning`` names both numbers and why they
+        differ.
     :param groups: Group id per sample — well, field, or whatever
-        ``cv_group_by`` names — and required, not optional, because the point
-        of this function is that a group never straddles the split. Needs the
-        same length as ``labels`` and at least two distinct values.
+        ``cv_group_by`` names — and required, not optional, because a group
+        must never straddle the split. Needs the same length as ``labels`` and
+        at least two distinct values.
     :param seed: Seed passed to :func:`make_cv_folds` and used to break ties
         between equally suitable folds. Different seeds can produce different
         holdouts when several partitions satisfy the constraints. The seed has
@@ -7795,12 +7903,11 @@ def summarize_cv_folds(labels, folds, classes=None, groups=None):
 
 def report_cv_folds(labels, folds, classes=None, groups=None, group_by='none',
                     verbose=True):
-    """Print the fold table and every warning the split earned.
+    """Print the fold table and the warnings raised by the split.
 
-    Two failure modes are called out rather than allowed to surface later as
-    mysterious metrics: a class too rare to reach every fold's validation set
-    (its recall is undefined there), and ungrouped folds on object crops
-    (which leak well identity between train and validation).
+    Two failure modes are reported: a class too rare to reach every fold's
+    validation set (its recall is undefined there), and ungrouped folds on
+    object crops (which leak well identity between train and validation).
 
     :param labels: integer labels, one per sample.
     :param folds: list of ``(train_idx, val_idx)``.
@@ -8063,7 +8170,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
     :param verbose: If True, log configuration to stdout.
     :param class_balance: One of ``CLASS_BALANCE_MODES``. ``'none'`` (default)
         leaves sampling untouched; the sampler modes attach a
-        ``WeightedRandomSampler`` to the TRAIN loader only. The skew is
+        ``WeightedRandomSampler`` to the train loader only. The skew is
         reported either way.
     :param seed: Reproducible train/validation split and loader order.
     :param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition
@@ -8191,8 +8298,9 @@ def generate_training_dataset(settings):
 
     New behavior (annotation mode):
 
-      - If a column has only one annotated value (e.g., only '1's), we add a
-        '<column>_random' class using unannotated rows for that column (same size as positives).
+      - If a column has only one annotated value (e.g., only '1's), a
+        '<column>_random' class is added from unannotated rows of that column: as many rows as
+        positives, or every unannotated row when there are fewer; with none, no class is added.
       - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.
 
     ``crop_source`` chooses where the pixels come from. ``'png'`` (and
@@ -8268,9 +8376,9 @@ def generate_training_dataset(settings):
     def _ensure_unique_dir(dst_base):
         """``dst_base``, or the first ``dst_base_N`` that does not exist yet.
 
-        A TRAINING SET IS NEVER WRITTEN OVER ONE THAT IS ALREADY THERE. The
-        folder is the record of what a model was trained on, so reusing the
-        name would leave a model whose training data cannot be reconstructed.
+        An existing training set is never overwritten. The folder is the record
+        of what a model was trained on, so reusing the name would leave a model
+        whose training data cannot be reconstructed.
 
         :param dst_base: the folder that was asked for.
         :returns: a folder path nothing occupies.
@@ -8288,15 +8396,14 @@ def generate_training_dataset(settings):
     def _load_png_table(db_path, object_type='cell'):
         """The per-object crop table, or the measurements standing in for it.
 
-        `png_list` ALONE, deliberately: joining it against the measurement
-        tables would drop every object those tables do not also carry, and a
-        training set is allowed to be a subset of what was measured.
+        Only `png_list` is read: joining it against the measurement tables
+        would drop every object those tables do not also carry, and a training
+        set is allowed to be a subset of what was measured.
 
-        NO `png_list` MEANS NO PNG FOLDER WAS EVER WRITTEN, which is not the
-        same as no data. The objects are still in the measurement table with
-        the same well metadata the class rules select on, so that is read
-        instead -- otherwise a project holding everything it needs reports
-        "0 classes".
+        A missing `png_list` means no PNG folder was written, not that there is
+        no data. The objects are still in the measurement table with the same
+        well metadata the class rules select on, so that is read instead --
+        otherwise a project holding everything it needs reports "0 classes".
 
         :param db_path: the measurements database.
         :param object_type: which object's table to fall back to.
@@ -8326,16 +8433,12 @@ def generate_training_dataset(settings):
     def _fix_path_under_src(src_root, p):
         """Make sure png_path lives under the current src root (portable absolute fix).
 
-        THE RULE ITSELF LIVES IN `spacr.portable_paths` and is shared with the
-        montage, which needs exactly this and used to get none of it -- the
-        rule was a nested local here, reachable only from this generator, so a
-        screen that had moved computer showed the montage 60,816 dead paths
-        while this function resolved every one.
+        The rule lives in `spacr.portable_paths` and is shared with the
+        montage.
 
-        The `/data/` rebuild is now only applied when it lands on a file that
-        EXISTS. Rewriting to somewhere equally absent is strictly worse than
-        leaving the recorded path alone: the copy below then fails naming a
-        folder the user never chose.
+        The `/data/` rebuild is applied only when it resolves to an existing
+        file; otherwise the recorded path is kept, so a failed copy names the
+        recorded folder rather than one the user never chose.
         """
         from .portable_paths import reroot_crop_path
 
@@ -8387,10 +8490,10 @@ def generate_training_dataset(settings):
     def _balance_lists(list_of_lists):
         """Cut every class down to the smallest one, when that was asked for.
 
-        A CLASSIFIER TRAINED ON 9,000 negatives and 300 positives learns to
-        say "negative", so balancing is the ordinary case rather than an
-        exotic one -- but it THROWS AWAY DATA, which is why it is a setting
-        and not a default of this function.
+        A classifier trained on 9,000 negatives and 300 positives is biased
+        toward the majority class, so balancing is the ordinary case; it also
+        discards data, which is why it is a setting and not a default of this
+        function.
 
         Sampled rather than truncated: the first N crops of a class share a
         plate, a well and often a field, so taking them in order would trade
@@ -9108,14 +9211,10 @@ def convert_separate_files_to_yokogawa(folder, regex):
 
     1. A ``wellID`` that **is** a well address keeps it —
        :func:`spacr.convert.normalise_well` reads ``a1``, ``A-01``, ``Q01``
-       (row 17) and ``AA13`` (row 27) alike. Every one of those used to be
-       thrown away and replaced with the next free synthetic id, so a real
-       1536-plate came out relabelled ``A01, A02, …`` with only
-       ``rename_log.csv`` to say what had happened.
-    2. Anything else — ``1``, ``well_left``, a positional number — is
-       handed a synthetic id, in ``_natural_key`` order so the same folder
-       always converts the same way. It used to follow ``os.listdir`` order,
-       which is the filesystem's business and not reproducible.
+       (row 17) and ``AA13`` (row 27) alike.
+    2. Anything else — ``1``, ``well_left``, a positional number — is handed a
+       synthetic id, in ``_natural_key`` order so the same folder always
+       converts the same way.
     3. Each distinct source ``plateID`` gets its own ``plate<N>`` token, so
        well ``A01`` of two source plates stays two wells.
 
@@ -9242,13 +9341,12 @@ def convert_to_yokogawa(folder):
     ``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``
     records the original-to-new mapping.
 
-    A file that cannot be read is skipped so the rest of the folder
-    still converts — but the skip is recorded on a
-    :class:`spacr.errors.RunLedger`, printed as a loud summary at the
-    end, and **stamped into a sibling** ``rename_log.run_status.json``.
-    That sidecar is what lets a later reader (or
-    :func:`spacr.errors.run_is_complete`) tell that the converted
-    folder is missing inputs, instead of quietly analysing a subset.
+    A file that cannot be read is skipped so the rest of the folder still
+    converts — but the skip is recorded on a :class:`spacr.errors.RunLedger`,
+    printed as a summary at the end, and **stamped into a sibling**
+    ``rename_log.run_status.json``. That sidecar is what lets a later reader
+    (or :func:`spacr.errors.run_is_complete`) tell that the converted folder is
+    missing inputs, instead of quietly analysing a subset.
 
     :param folder: Directory of raw images, converted in place.
     :returns: the :class:`spacr.errors.RunLedger` for the conversion.
@@ -9281,9 +9379,7 @@ def convert_to_yokogawa(folder):
         """Return the next free well, filling one plate before the next.
 
         The well ids come from :func:`spacr.convert.well_sequence`, which
-        builds them out of :data:`spacr.schema.PLATE_FORMATS` — one
-        definition instead of the three copies of ``"ABCDEFGHIJKLMNOP"`` and
-        ``range(1, 25)`` this module used to carry.
+        builds them out of :data:`spacr.schema.PLATE_FORMATS`.
 
         The plate format stays 384 here: unlike
         :func:`convert_separate_files_to_yokogawa`, the inputs carry no well
@@ -9681,3 +9777,338 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
             print_progress(i, len(instructions), n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type="cellpose dataset")
 
     print(f"Done. Dataset saved to: {output_root}")
+
+
+#: Electron-microscopy formats Make Masks opens through :func:`read_tem_image`.
+#:
+#: Gatan DigitalMicrograph ``.dm3`` and ``.dm4`` are parsed here, with no
+#: dependency: the readers that exist (``ncempy``, ``rosettasciio``) are GPL
+#: licensed and spaCR is BSD. MRC (``.mrc`` and the IMOD ``.rec``) is read by
+#: ``mrcfile`` (BSD), an optional extra: ``pip install "spacr[tem]"``.
+TEM_EXTS = (".dm3", ".dm4", ".mrc", ".rec")
+
+#: The sentence shown when a TEM reader's optional package is missing.
+#:
+#: The screen passes it through ``tr()`` with ``kind`` and ``package`` filled in.
+MISSING_TEM_READER = ("Reading {kind} files needs the optional {package} "
+                      "package. Install it with: pip install \"spacr[tem]\"")
+
+_DM_TYPES = {2: "<i2", 3: "<i4", 4: "<u2", 5: "<u4", 6: "<f4", 7: "<f8",
+             8: "u1", 9: "i1", 10: "u1", 11: "<i8", 12: "<u8"}
+"""DigitalMicrograph tag type codes and the numpy types they hold."""
+
+_DM_EAGER = 4096
+"""Arrays with at most this many elements are decoded while the tags are
+walked; longer ones, the image data, are kept as an offset and read once."""
+
+_LENGTH_UNITS_NM = {"nm": 1.0, "µm": 1000.0, "μm": 1000.0, "um": 1000.0,
+                    "mm": 1e6, "Å": 0.1, "A": 0.1, "pm": 0.001, "m": 1e9,
+                    "cm": 1e7, "micron": 1000.0}
+"""Length units met in EM and TIFF metadata, in nanometres."""
+
+
+class MissingTEMReader(ImportError):
+    """A TEM file needs an optional package that is not installed.
+
+    ``kind`` holds the extension, such as ``.mrc``, and ``package`` the
+    package that reads it, such as ``mrcfile``, for the screen's message.
+    """
+
+    def __init__(self, kind: str, package: str):
+        """Name the extension and the package it needs.
+
+        :param kind: the file extension.
+        :param package: the missing package.
+        """
+        super().__init__(MISSING_TEM_READER.format(kind=kind, package=package),
+                         name=package)
+        self.kind = kind
+        self.package = package
+
+
+class _DMArray:
+    """A long array inside a DM file: where it starts, its type and length."""
+
+    def __init__(self, offset: int, dtype: str, count: int):
+        """Remember where the array is, without reading it.
+
+        :param offset: byte offset of the first element.
+        :param dtype: numpy type of one element, little-endian.
+        :param count: number of elements.
+        """
+        self.offset = offset
+        self.dtype = np.dtype(dtype)
+        self.count = count
+
+
+class _DMReader:
+    """Walks the tag tree of a DigitalMicrograph 3 or 4 file.
+
+    The layout is the one Gatan documents and every open reader follows: a
+    big-endian header (version, length, byte order), then nested tag groups
+    whose entries are a name and either a group or a typed value. Values are
+    simple numbers, strings, structs, or arrays of numbers or structs, and
+    their bytes are in the order the header names (little-endian in every
+    file written on a PC).
+    """
+
+    def __init__(self, handle):
+        """Read the header of an open binary file.
+
+        :param handle: the file, positioned at its start.
+        :raises ValueError: when it is not a version 3 or 4 DM file.
+        """
+        self.handle = handle
+        self.version = self._be("i4")
+        if self.version not in (3, 4):
+            raise ValueError(f"not a DigitalMicrograph 3 or 4 file "
+                             f"(version {self.version})")
+        self.size_type = "u4" if self.version == 3 else "u8"
+        self._be(self.size_type)
+        little = self._be("i4")
+        self.order = "<" if little == 1 else ">"
+
+    def _be(self, kind: str) -> int:
+        """One big-endian header or tag-structure integer."""
+        dtype = np.dtype(">" + kind)
+        raw = self.handle.read(dtype.itemsize)
+        if len(raw) != dtype.itemsize:
+            raise ValueError("DigitalMicrograph file ends inside a tag")
+        return int(np.frombuffer(raw, dtype)[0])
+
+    def _dtype(self, code: int) -> np.dtype:
+        """The numpy type of DM type ``code``, in the file's byte order."""
+        if code not in _DM_TYPES:
+            raise ValueError(f"unsupported DigitalMicrograph type {code}")
+        return np.dtype(_DM_TYPES[code]).newbyteorder(self.order)
+
+    def _values(self, dtype: np.dtype, count: int):
+        """Read ``count`` values of ``dtype``, or defer a long array."""
+        if count > _DM_EAGER:
+            offset = self.handle.tell()
+            self.handle.seek(dtype.itemsize * count, 1)
+            return _DMArray(offset, dtype.str, count)
+        raw = self.handle.read(dtype.itemsize * count)
+        if len(raw) != dtype.itemsize * count:
+            raise ValueError("DigitalMicrograph file ends inside a value")
+        return np.frombuffer(raw, dtype)
+
+    def group(self) -> dict:
+        """Read one tag group as a dict; unnamed entries are numbered."""
+        self.handle.read(2)
+        count = self._be(self.size_type)
+        out: dict = {}
+        for index in range(count):
+            kind = self.handle.read(1)
+            if not kind or kind[0] == 0:
+                break
+            name_length = self._be("u2")
+            name = self.handle.read(name_length).decode("latin-1") or str(index)
+            if self.version == 4:
+                self._be("u8")
+            if kind[0] == 20:
+                out[name] = self.group()
+            elif kind[0] == 21:
+                out[name] = self.value()
+            else:
+                raise ValueError(f"unknown DigitalMicrograph tag kind {kind[0]}")
+        return out
+
+    def value(self):
+        """Read one typed value: a number, string, struct or array."""
+        if self.handle.read(4) != b"%%%%":
+            raise ValueError("DigitalMicrograph tag lacks its %%%% marker")
+        count = self._be(self.size_type)
+        info = [self._be(self.size_type) for _ in range(count)]
+        code = info[0]
+        if code == 18:
+            raw = self.handle.read(info[1])
+            return raw.decode("latin-1")
+        if code == 15:
+            fields = [info[3 + 2 * i + 1] for i in range(info[2])]
+            return tuple(self._values(self._dtype(f), 1)[0] for f in fields)
+        if code == 20:
+            if info[1] == 15:
+                fields = [info[4 + 2 * i + 1] for i in range(info[3])]
+                length = info[-1]
+                dtype = np.dtype([(f"f{i}", self._dtype(f))
+                                  for i, f in enumerate(fields)])
+                return self._values(dtype, length)
+            return self._values(self._dtype(info[1]), info[2])
+        return self._values(self._dtype(code), 1)[0]
+
+
+def _dm_text(value) -> str:
+    """A DM string, which is stored as a short array of UTF-16 code units."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, np.ndarray) and value.dtype.kind in "iu":
+        return "".join(chr(int(c)) for c in value if int(c))
+    return ""
+
+
+def _nm_per(unit) -> Optional[float]:
+    """How many nanometres one ``unit`` is, or None for a unit of no length."""
+    unit = str(unit or "").strip()
+    return _LENGTH_UNITS_NM.get(unit)
+
+
+def read_dm(path) -> tuple:
+    """Read the main image of a Gatan DigitalMicrograph ``.dm3``/``.dm4``.
+
+    A DM file holds a list of images, the first of which is usually a
+    thumbnail stored as packed RGBA (DM data type 23). Those are skipped and
+    the largest remaining image, the acquisition, is returned.
+
+    :param path: the ``.dm3`` or ``.dm4`` file.
+    :returns: ``(image, meta)``: the 2-D array (rows, columns) in the type
+        the file stores, and a dict with ``pixel_size_nm`` (``None`` when
+        the file is uncalibrated or in reciprocal units), ``unit`` and
+        ``format``.
+    :raises ValueError: for a file that is not DM 3/4, holds no greyscale
+        image (only RGB), holds a complex image, or holds a stack rather than
+        one 2-D image.
+    """
+    path = os.fspath(path)
+    with open(path, "rb") as handle:
+        reader = _DMReader(handle)
+        try:
+            tags = reader.group()
+        except (IndexError, KeyError, UnicodeDecodeError) as exc:
+            raise ValueError(f"malformed DigitalMicrograph tags in {path}: "
+                             f"{exc!r}") from exc
+        images = []
+        for entry in (tags.get("ImageList") or {}).values():
+            data = (entry.get("ImageData") or {}) if isinstance(entry, dict) else {}
+            array = data.get("Data")
+            dims = [int(v) for v in (data.get("Dimensions") or {}).values()]
+            if array is None or not dims or int(data.get("DataType", 0) or 0) == 23:
+                continue
+            count = array.count if isinstance(array, _DMArray) else array.size
+            images.append((count, array, dims, data))
+        if not images:
+            raise ValueError(f"no greyscale image in DigitalMicrograph file {path}")
+        count, array, dims, data = max(images, key=lambda item: item[0])
+        if isinstance(array, _DMArray):
+            handle.seek(array.offset)
+            pixels = np.fromfile(handle, array.dtype, array.count)
+        else:
+            pixels = np.asarray(array)
+    if pixels.dtype.names:
+        raise ValueError(f"complex DigitalMicrograph image in {path} (an FFT "
+                         "or exit wave); Make Masks opens real intensities")
+    if len(dims) != 2 or int(np.prod(dims)) != pixels.size:
+        raise ValueError(f"DigitalMicrograph image of shape {dims} in {path}; "
+                         "Make Masks opens one 2-D image")
+    image = pixels.reshape(dims[1], dims[0])
+    image = image.astype(image.dtype.newbyteorder("="))
+    calibration = ((data.get("Calibrations") or {}).get("Dimension") or {})
+    first = next(iter(calibration.values()), {}) if calibration else {}
+    unit = _dm_text(first.get("Units")) if isinstance(first, dict) else ""
+    scale = float(first.get("Scale", 0) or 0) if isinstance(first, dict) else 0.0
+    factor = _nm_per(unit)
+    pixel_size = (float(f"{scale * factor:.6g}") if factor and scale > 0
+                  else None)
+    return image, {"pixel_size_nm": pixel_size, "unit": unit,
+                   "format": os.path.splitext(path)[1].lower().lstrip(".")}
+
+
+def read_mrc(path) -> tuple:
+    """Read one 2-D image from an MRC file (``.mrc``, IMOD ``.rec``).
+
+    :param path: the file.
+    :returns: ``(image, meta)`` as :func:`read_dm` returns them. MRC stores
+        the voxel size in ångström; it is returned in nanometres, or
+        ``None`` when the header leaves it at zero.
+    :raises MissingTEMReader: when ``mrcfile`` is not installed.
+    :raises ValueError: for a stack or volume of more than one section.
+    """
+    try:
+        import mrcfile
+    except ImportError as exc:
+        raise MissingTEMReader(os.path.splitext(os.fspath(path))[1].lower(),
+                               "mrcfile") from exc
+    with mrcfile.open(os.fspath(path), permissive=True, mode="r") as mrc:
+        data = np.asarray(mrc.data)
+        voxel = float(mrc.voxel_size.x)
+    if data.ndim == 3 and data.shape[0] == 1:
+        data = data[0]
+    if data.ndim != 2:
+        raise ValueError(f"MRC data of shape {data.shape} in {path}; Make "
+                         "Masks opens one 2-D image, so save one section")
+    image = np.array(data, dtype=data.dtype.newbyteorder("="))
+    return image, {"pixel_size_nm": voxel / 10.0 if voxel > 0 else None,
+                   "unit": "nm", "format": "mrc"}
+
+
+def tiff_pixel_size_nm(path) -> Optional[float]:
+    """The physical pixel size a TIFF records, in nanometres, or None.
+
+    A ``pixel_size_nm`` that spaCR wrote into tifffile's JSON description
+    is read first, being exact; then ImageJ's ``unit`` with the resolution
+    tags; then a centimetre resolution unit. An inch unit is a print
+    density, not a calibration, and is ignored, as is an uncalibrated file.
+
+    :param path: the TIFF.
+    """
+    try:
+        with tifffile.TiffFile(os.fspath(path)) as tif:
+            page = tif.pages[0]
+            tag = page.tags.get("XResolution")
+            unit_tag = page.tags.get("ResolutionUnit")
+            imagej = tif.imagej_metadata or {}
+            shaped = (tif.shaped_metadata or ({},))[0] or {}
+    except Exception:
+        return None
+    exact = shaped.get("pixel_size_nm") if isinstance(shaped, dict) else None
+    if isinstance(exact, (int, float)) and exact > 0:
+        return float(exact)
+    if tag is None:
+        return None
+    numerator, denominator = tag.value
+    if not numerator or not denominator:
+        return None
+    per_unit = numerator / denominator
+    factor = _nm_per(imagej.get("unit"))
+    if factor is None:
+        unit = int(unit_tag.value) if unit_tag is not None else 1
+        factor = 1e7 if unit == 3 else None
+    if factor is None or per_unit <= 0:
+        return None
+    return factor / per_unit
+
+
+def read_tem_image(path) -> tuple:
+    """Read a TEM image in any format Make Masks opens, with its pixel size.
+
+    :param path: a ``.dm3``, ``.dm4``, ``.mrc``, ``.rec`` or TIFF file.
+    :returns: ``(image, meta)``, ``meta["pixel_size_nm"]`` being the pixel
+        size in nanometres or ``None``.
+    :raises MissingTEMReader: when an optional reader is not installed.
+    """
+    suffix = os.path.splitext(os.fspath(path))[1].lower()
+    if suffix in (".dm3", ".dm4"):
+        return read_dm(path)
+    if suffix in (".mrc", ".rec"):
+        return read_mrc(path)
+    image = tifffile.imread(os.fspath(path))
+    return image, {"pixel_size_nm": tiff_pixel_size_nm(path), "unit": "nm",
+                   "format": suffix.lstrip(".")}
+
+
+def image_pixel_size_nm(path) -> Optional[float]:
+    """The pixel size an image file records, in nanometres, or None.
+
+    :param path: any image Make Masks opens. DM and MRC files are read
+        for their calibration; TIFFs for their resolution tags; anything
+        else, or a file that cannot be read, has none.
+    """
+    suffix = os.path.splitext(os.fspath(path))[1].lower()
+    try:
+        if suffix in (".tif", ".tiff"):
+            return tiff_pixel_size_nm(path)
+        if suffix in TEM_EXTS:
+            return read_tem_image(path)[1]["pixel_size_nm"]
+    except (OSError, ValueError, ImportError):
+        return None
+    return None

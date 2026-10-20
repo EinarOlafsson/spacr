@@ -1,0 +1,32 @@
+{
+  "review_kind": "independent read-only technical downstream source assessment, no tests/imports/collectors",
+  "reference": "2d78efcb32a6c49789fcbe075c692235ad70d557",
+  "pins": {
+    "spacr/regex_infer.py": "524438ee4ad246283b3e751ab5647a054493ed5f7385a068ca440de76e06b3ce",
+    "spacr/utils.py": "15e523542b2d70c5fab658eccdd6b2b3a563d202fe29fa79b8cc0b3015bf2cae",
+    "spacr/convert.py": "d70cc4f94f5bf1132cf72d816d3428c5afd12367f6393c42e452f71d7e46d22c",
+    "spacr/io.py": "7658d9ce9f95c4ed799696788a7d0cecc0faabde7067ab9e9bae7a53dbf93abe",
+    "tests/test_a_metadata_type_for_every_common_microscope.py": "b9bc482ac13720956f2fc67c0469c8067cd23751a1afee493e3dc94e47655bc5",
+    "features/new/441_a_metadata_type_for_every_common_microscope.txt": "c1f6998b716de673e70a4fe9ddf043d9aaf79b293c75ffe160a869c20aff99b9"
+  },
+  "assessment": "No demonstrated no-Z single-file parser/Import/Mask blocker after exact proposed Noneguard and ArrayScan exclusion. Final source acceptance pending frozen patch.",
+  "trace": {
+    "utils._extract_filename_metadata": "Current None slice group TypeError confirmed fromsource. Proposed shortcircuit preserves None in tuple; no fabricated0/1 acquisition index.",
+    "regex_infer._metadata_match": "Nonparticipating None group omitted; raw othergroups preserved.",
+    "convert._parse_by_convention": "_number returnsNone for absent slice; scan meta.z_index=None.",
+    "convert.plan": "For z_indexNone, enumerates actual source.z TIFF planes with internaloffset and outputindex. Output1 is actualsingle-plane position, not a fabricated filename Z token.",
+    "io._rename_and_organize_image_files": "FOV grouping ignores slice in stem; actual decoded planes folded intoexistingMIP path; no None numeric conversion/sorting.",
+    "io.convert_separate_files_to_yokogawa": "None slice parsedexplicitly/excluded numericset; single no-Z file valid.",
+    "ArrayScan": "Currentsuffix acceptsdocumented no-Z EVOS literal; proposed matching optionalZ negativeguard avoids doubleownership."
+  },
+  "precise_existing_limit": "Legacy separate-fileconverter choosesimages[0] whenunique knownsliceIDs<=1. A mixedunknown+oneknownZ same-region set is not newlycertified safe; no wideningclaim or newfixauthorization fromthisreview.",
+  "not_performed": [
+    "source edits",
+    "tests",
+    "application imports",
+    "collector/writer",
+    "downloads",
+    "realfile acquisition/native microscope",
+    "wholeN441closure"
+  ]
+}

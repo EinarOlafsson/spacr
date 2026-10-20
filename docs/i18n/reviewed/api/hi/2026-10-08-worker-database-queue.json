@@ -6,7 +6,7 @@
       "label": "spacr._mask_workers._run_mask_workers.run_group#0",
       "source": "Join every member of one primary or serial final worker group.",
       "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
-      "translation": "प्राथमिक या क्रमिक अंतिम कार्यकर्ता समूह के प्रत्येक सदस्य के समाप्त होने की प्रतीक्षा करें।"
+      "translation": "प्राथमिक या क्रमिक अंतिम वर्कर समूह के प्रत्येक सदस्य के समाप्त होने की प्रतीक्षा करें।"
     },
     {
       "context": "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer independent execution path's active connection; their commits and closes are deferred until the complete field commits.",
@@ -55,7 +55,7 @@
       "label": "spacr.measure.measure_crop.job_callback#1",
       "source": "index, average duration, surviving labels, figures, error text and an optional queued-write ticket. An integer zero labels value records the original field failure. SQLite success is recorded separately by the writer after committing all scientific rows. Other backends keep their existing synchronous worker verdict.",
       "source_sha256": "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af",
-      "translation": "सूचकांक, औसत अवधि, शेष लेबल, चित्र, त्रुटि पाठ और कार्यसूचीबद्ध लेखन की वैकल्पिक पर्ची। लेबल का पूर्णांक शून्य मान छवि क्षेत्र की मूल विफलता दर्ज करता है। सभी वैज्ञानिक डेटा पंक्तियों का कमिट होने के बाद लेखक SQLite की सफलता अलग से दर्ज करता है। अन्य बैकएंड अपने मौजूदा समकालिक कार्यकर्ता परिणाम को बनाए रखते हैं।"
+      "translation": "सूचकांक, औसत अवधि, शेष लेबल, चित्र, त्रुटि पाठ और कार्यसूचीबद्ध लेखन की वैकल्पिक पर्ची। लेबल का पूर्णांक शून्य मान छवि क्षेत्र की मूल विफलता दर्ज करता है। सभी वैज्ञानिक डेटा पंक्तियों का कमिट होने के बाद लेखक SQLite की सफलता अलग से दर्ज करता है। अन्य बैकएंड अपने मौजूदा समकालिक वर्कर परिणाम को बनाए रखते हैं।"
     },
     {
       "context": "Count each field once, after its actual final outcome.",
@@ -83,7 +83,7 @@
       "label": "spacr.parameter_sweep.run_sweep_parallel#8",
       "source": "The pool uses the ``spawn`` start method because fitted models may import torch and OpenMP runtimes. Only a bounded number of jobs are submitted at once, allowing new submissions to pause when available memory is low. Initial processing workers start ten seconds apart. After every primary trial finishes, explicit resource-overload failures receive one serial retry in their existing trial directories. Original result/error files are retained separately, and the final table has one row per trial with primary failure details and ``overload_retry`` metadata. Invalid inputs, cancellation and unexplained native worker exits are not retried.",
       "source_sha256": "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5",
-      "translation": "पूल ``spawn`` प्रारंभ विधि का उपयोग करता है क्योंकि फ़िट किए गए मॉडल torch और OpenMP रनटाइम आयात कर सकते हैं। एक समय में सीमित संख्या में कार्य भेजे जाते हैं, जिससे उपलब्ध स्मृति कम होने पर नए कार्यों को भेजना रोका जा सकता है। प्रारंभिक प्रसंस्करण कार्यकर्ता दस सेकंड के अंतराल पर शुरू होते हैं। सभी प्राथमिक परीक्षण पूरे होने के बाद, स्पष्ट संसाधन अतिभार से हुई विफलताओं को उनकी मौजूदा परीक्षण निर्देशिकाओं में क्रमिक रूप से एक बार दोबारा आज़माया जाता है। मूल परिणाम और त्रुटि फ़ाइलें अलग से रखी जाती हैं; अंतिम तालिका में प्रत्येक परीक्षण की एक पंक्ति होती है जिसमें प्राथमिक विफलता का विवरण और ``overload_retry`` मेटाडेटा होता है। अमान्य इनपुट, रद्द किए गए कार्य और मूल कार्यकर्ता के अस्पष्ट रूप से समाप्त होने पर पुनःप्रयास नहीं होता।"
+      "translation": "पूल ``spawn`` प्रारंभ विधि का उपयोग करता है क्योंकि फ़िट किए गए मॉडल torch और OpenMP रनटाइम आयात कर सकते हैं। एक समय में सीमित संख्या में कार्य भेजे जाते हैं, जिससे उपलब्ध स्मृति कम होने पर नए कार्यों को भेजना रोका जा सकता है। प्रारंभिक प्रसंस्करण वर्कर दस सेकंड के अंतराल पर शुरू होते हैं। सभी प्राथमिक परीक्षण पूरे होने के बाद, स्पष्ट संसाधन अतिभार से हुई विफलताओं को उनकी मौजूदा परीक्षण निर्देशिकाओं में क्रमिक रूप से एक बार दोबारा आज़माया जाता है। मूल परिणाम और त्रुटि फ़ाइलें अलग से रखी जाती हैं; अंतिम तालिका में प्रत्येक परीक्षण की एक पंक्ति होती है जिसमें प्राथमिक विफलता का विवरण और ``overload_retry`` मेटाडेटा होता है। अमान्य इनपुट, रद्द किए गए कार्य और मूल वर्कर के अस्पष्ट रूप से समाप्त होने पर पुनःप्रयास नहीं होता।"
     },
     {
       "context": "Return the serialized database work list RAM budget in GiB.",
@@ -139,7 +139,7 @@
       "label": "spacr.sim.run_multiple_simulations#1",
       "source": "Processing workers start ten seconds apart and drive :func:`run_and_save` with captured database operations. One parent-owned writer commits each complete simulation and its retry ticket atomically. Explicit resource overloads receive one serial retry after all primary tasks finish; database overloads use the writer's separate final queue. Invalid data and cancellation are not retried. An unsuccessful simulation or final database write raises instead of reporting a successful sweep.",
       "source_sha256": "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
-      "translation": "प्रसंस्करण कार्यकर्ता दस सेकंड के अंतराल पर शुरू होते हैं और संकलित डेटाबेस ऑपरेशनों के साथ :func:`run_and_save` चलाते हैं। मूल प्रक्रिया के नियंत्रण वाला एक लेखक प्रत्येक पूरे सिमुलेशन और उसकी पुनःप्रयास पर्ची का कमिट परमाणु रूप से करता है। सभी प्राथमिक कार्यों के पूरा होने के बाद स्पष्ट संसाधन अतिभार को क्रमिक रूप से एक बार दोबारा आज़माया जाता है; डेटाबेस अतिभार लेखक की अलग अंतिम कार्यसूची का उपयोग करता है। अमान्य डेटा और रद्द किए गए कार्य दोबारा नहीं आज़माए जाते। सिमुलेशन या अंतिम डेटाबेस लेखन विफल होने पर सफल पैरामीटर स्वीप की रिपोर्ट देने के बजाय त्रुटि उत्पन्न होती है।"
+      "translation": "प्रसंस्करण वर्कर दस सेकंड के अंतराल पर शुरू होते हैं और संकलित डेटाबेस ऑपरेशनों के साथ :func:`run_and_save` चलाते हैं। मूल प्रक्रिया के नियंत्रण वाला एक लेखक प्रत्येक पूरे सिमुलेशन और उसकी पुनःप्रयास पर्ची का कमिट परमाणु रूप से करता है। सभी प्राथमिक कार्यों के पूरा होने के बाद स्पष्ट संसाधन अतिभार को क्रमिक रूप से एक बार दोबारा आज़माया जाता है; डेटाबेस अतिभार लेखक की अलग अंतिम कार्यसूची का उपयोग करता है। अमान्य डेटा और रद्द किए गए कार्य दोबारा नहीं आज़माए जाते। सिमुलेशन या अंतिम डेटाबेस लेखन विफल होने पर सफल पैरामीटर स्वीप की रिपोर्ट देने के बजाय त्रुटि उत्पन्न होती है।"
     },
     {
       "context": "Sweep-settings key-value mapping. Must include ``max_workers``. ``database_write_queue_gib`` optionally overrides the saved work list RAM allowance, from zero to 64 GiB; zero buffers serialized packets on disk. Pending packets remain below the dated output folder on interruption.",

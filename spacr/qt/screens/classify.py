@@ -217,7 +217,7 @@ BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
 
 
 class LazyFlowViewSection(CollapsibleSection):
-    """A collapsed Classify footer that pays for FlowView only when opened.
+    """A collapsed Classify footer that builds FlowView only when opened.
 
     The empty ``content`` passed to :class:`CollapsibleSection` is deliberate:
     importing the graphics renderer constructs a sizeable Qt/scientific
@@ -226,8 +226,8 @@ class LazyFlowViewSection(CollapsibleSection):
     expansion.
 
     :param screen: the Classify screen this footer belongs to. Read on the
-        first EXPANSION rather than here, which is the whole point of the
-        class: nothing about FlowView is imported until someone opens it.
+        first expansion rather than here, so nothing about FlowView is imported
+        until the section is opened.
     :param parent: parent widget.
     """
 

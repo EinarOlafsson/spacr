@@ -1,6 +1,6 @@
-"""Register two overlapping tiles by phase correlation, on whatever hardware.
+"""Register two overlapping tiles by phase correlation on CPU or GPU.
 
-WHY PHASE CORRELATION AND NOT FEATURE MATCHING. Both were run
+Phase correlation is used instead of feature matching. Both were run
 on the same pixels -- well A1 cycle 1 of `screenA/20200202_6W-LaC024A`,
 333 tiles of 10X SBS DAPI:
 
@@ -13,40 +13,37 @@ Nuclei at 10X are round blobs. They have no corners, so a corner detector
 finds essentially nothing and the matcher's scores are noise. Phase
 correlation asks a different question -- what single translation makes
 these two fields agree -- and a field of blobs answers it very well.
-Feature matching still earns its keep in ONE place, and it is not this
-one: the phenotype-to-SBS step across magnifications, where scale and
+Feature matching is still used in one other place: the phenotype-to-SBS
+step across magnifications, where scale and
 rotation are real.
 
-THREE THINGS THAT MAKE THE ANSWER RIGHT, all of them learned the hard way
-and all of them measured:
+Three details, each measured, determine whether the result is correct:
 
-  * THE SHIFT COMES BACK WRAPPED. An FFT knows nothing about which way is
+  * The shift comes back wrapped. An FFT has no notion of which way is
     negative: a -213 px shift of a 1480 px tile arrives as +1267. Reading
-    it unwrapped made the first prototype's shifts nonsense while every
-    individual registration was correct. :func:`unwrap` folds anything
+    it without unwrapping gave wrong shifts in an early prototype even
+    though every individual registration was correct. :func:`unwrap` folds anything
     past half a tile into the negative half.
-  * (0,0) IS THE NO-OVERLAP SIGNATURE, not a perfect alignment. Two tiles
-    that do not touch have no translation that makes them agree, and the
-    peak lands at the origin. It is REJECTED rather than believed, which
-    is what the three control pairs in 372's PART 11-B confirmed.
-  * A PEAK IS ONLY A PEAK AGAINST ITS BACKGROUND. The absolute height
+  * A peak at (0,0) indicates no overlap, not a perfect alignment. Two
+    tiles that do not touch have no translation that makes them agree,
+    and the peak lands at the origin. Such a peak is rejected; three
+    control pairs confirmed this behaviour.
+  * A peak is judged against its background. The absolute height
     means nothing; peak/mean does. True neighbours measured 23.6 to 53.1
     and non-neighbours 9.0 to 15.6, so `min_peak_ratio` has real room
     between them.
 
-THE BACKEND IS AN INDIRECTION OVER THE ARRAY MODULE, which is all the
-GPU question is here: this is an FFT, a multiply and an argmax. CuPy
+The backend is an indirection over the array module, because the
+computation is an FFT, a multiply and an argmax. CuPy
 first where it exists, `torch.fft` second -- torch is already a spaCR
 dependency through Cellpose, so it costs nothing to install and reaches
 CUDA, ROCm and Apple MPS through one path -- and NumPy always.
 
-    THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must
-    agree to within a pixel, which is what
+    The CPU path is a tested implementation, not an error path. Both run
+    the same fixture and must agree to within a pixel, which is what
     `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts.
-    A fallback nobody compares is a second implementation, not a
-    fallback.
 
-AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case --
+The GPU is not assumed to be free. A shared GPU is the common case --
 this one also runs structure prediction. `spacr.accelerator` is the seam
 that decides whether there is a usable device at all, `gpu=False` refuses
 one that exists, and a backend that raises at runtime falls through to the
@@ -126,7 +123,7 @@ BACKEND_ORDER: Tuple[str, ...] = ("cupy", "torch", "numpy")
 
 @dataclass(frozen=True)
 class Registration:
-    """What one pair of tiles measured.
+    """Registration result for one pair of tiles.
 
     :ivar dy: rows to move the second tile to land it on the first,
         unwrapped into ``[-height/2, height/2)``.
@@ -156,13 +153,13 @@ def unwrap(value: int, extent: int, about: int = 0) -> int:
 
     A translation of -213 in a 1480 px tile comes back as +1267, because
     the transform is periodic and has no notion of direction. Reading it
-    unwrapped made 372's first prototype's shifts nonsense while every
-    individual registration was correct.
+    without unwrapping gave wrong shifts in an early prototype even though
+    every individual registration was correct.
 
-    ``about`` IS NOT DECORATION AND THE DEFAULT IS THE DANGEROUS CASE.
+    ``about`` matters, and the default is the risky case.
     With ``about=0`` this folds into ``[-extent/2, extent/2)``, which is
     right only when the true shift is smaller than half the axis. It is
-    not, whenever the correlation runs on an overlap STRIP: a 222 px
+    not, whenever the correlation runs on an overlap strip: a 222 px
     strip carrying a true shift of 116 folds to -106, a number that is
     both wrong and plausible. The caller knows roughly where the
     neighbour is -- the raster pitch says so -- so it passes that, and
@@ -214,7 +211,7 @@ def _torch_gpu():
 
 
 def available_backends(gpu: bool = True) -> Tuple[str, ...]:
-    """Which backends this machine can actually run, best first.
+    """Return the backends this machine can run, best first.
 
     :param gpu: False refuses the accelerated ones outright, which is what
         the `gpu` setting means -- a card that exists and is busy with
@@ -320,17 +317,17 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
     :param second: the field to place against it, the same shape.
     :param expected: roughly where the neighbour is, for the unwrap. The
         default of (0, 0) folds into the half-range, which is right for
-        two whole tiles and WRONG for two overlap strips -- see
+        two whole tiles and wrong for two overlap strips -- see
         :func:`unwrap`.
     :param tolerance: how far from ``expected`` a shift may land and still
-        be accepted, in pixels. WHEN IT IS GIVEN, IT IS THE TEST, and the
+        be accepted, in pixels. When given, it is the acceptance test, and the
         peak ratio becomes a recorded number rather than the gate -- see
         the note on :data:`MIN_PEAK_RATIO`.
 
-        A PAIR OF NUMBERS IS ACCEPTED AND IS USUALLY WHAT IS WANTED:
+        A pair of numbers is accepted and is usually the better choice:
         ``(rows, columns)``. The two axes are not the same question -- a
-        true edge is within a pixel or two ALONG the raster and up to the
-        stage's skew ACROSS it -- and one number for both either rejects
+        true edge is within a pixel or two along the raster and up to the
+        stage's skew across it -- and one number for both either rejects
         the skew or admits a neighbour a whole tile away. See
         :data:`SKEW_PX`.
     :param backend: force one; None takes the best available.
@@ -410,9 +407,9 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
                   **kwargs) -> Registration:
     """Register two tiles that touch along one edge, using that edge only.
 
-    CORRELATE THE BAND THAT CAN AGREE, NOT THE TILE. The raster overlaps
-    its fields by about 14 % -- 213 px of 1480 -- so 86 % of a whole-tile
-    correlation is signal that CANNOT match and can only add background
+    Only the overlapping band is correlated, not the whole tile. The raster
+    overlaps its fields by about 14 % -- 213 px of 1480 -- so 86 % of a whole-tile
+    correlation is signal that cannot match and can only add background
     to the surface the peak is judged against. Measured on a blob fixture
     at exactly that overlap::
 
@@ -422,7 +419,7 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
 
     which is also the separation the real acquisition showed (23.6-53.1
     for true neighbours, 9.0-15.6 for controls). The strip has to be
-    WIDER than the overlap and not much wider: 40 % diluted it back to
+    wider than the overlap and not much wider: 40 % diluted it back to
     15.4 and lost the shift again.
 
     :param first: the tile the edge is measured against.
@@ -434,16 +431,16 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
     :param expected_overlap: the overlap in pixels, when the pitch is
         known. It sets the unwrap's expectation, which is what stops a
         true shift larger than half the strip reading as a negative one.
-    :param tolerance: how far ALONG the edge the measured shift may land
+    :param tolerance: how far along the edge the measured shift may land
         from the expected overlap and still be accepted. This is the
         acceptance the real well used; without it the peak ratio decides,
         and the peak ratio cannot decide -- see :data:`MIN_PEAK_RATIO`.
-    :param skew: how far ACROSS it may land. The stage's skew is a real
+    :param skew: how far across it may land. The stage's skew is a real
         ~9 px on the measured plate and is not an error, so this is a
         separate number: one tolerance for both axes rejected 525 of 624
         true adjacencies at 8 px. See :data:`SKEW_PX`.
     :param kwargs: passed to :func:`phase_correlate`.
-    :returns: the registration, in TILE coordinates rather than strip
+    :returns: the registration, in tile coordinates rather than strip
         ones -- the caller asked about two tiles.
     :raises ValueError: on an unknown axis.
     """
@@ -497,7 +494,7 @@ def register_pairs(tiles, pairs: Sequence[Tuple[int, int, str]], *,
     """Register every adjacency a layout offers.
 
     :param tiles: ``site -> 2-D array``, or any callable taking a site.
-        A CALLABLE IS THE POINT for a real well: 333 tiles of 1480 px is
+        A callable is preferable for a real well: 333 tiles of 1480 px is
         more than needs to be resident, and the caller decides what to
         keep.
     :param pairs: what to register, from

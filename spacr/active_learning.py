@@ -26,8 +26,8 @@ Public API
 ``predict_probabilities(model, batches)``
     Optional live-model bridge; the only function that touches torch.
 
-Things this module refuses to get wrong
----------------------------------------
+Design constraints
+------------------
 **A softmax is not a probability.** Everything here is called an
 uncertainty *score*, never a confidence. Modern networks are badly
 calibrated — typically over-confident, and more so the deeper they are
@@ -71,9 +71,8 @@ covers. What that costs is stated plainly in :func:`build_queue`.
 
 **Uncertainty sampling skews toward the majority class.** On a screen
 that is 98 % negative, the decision boundary is mostly populated by
-negatives, so the queue will be too. That is not a bug to hide — it is
-reported as a class-balance table so the annotator can see it and cap or
-rebalance if they want to.
+negatives, so the queue will be too. The queue summary reports this as a
+class-balance table so the annotator can cap or rebalance the queue.
 
 **Determinism.** Same inputs, same seed, same order — including ties.
 Ties break on row index by default; ``seed`` swaps in a seeded
@@ -955,8 +954,10 @@ def build_queue(db_path: str, annotation_column: str = "annotate",
         ``diversity``.
     :param seed: tie-breaking seed; ``None`` breaks ties on row order.
         Either way the result is reproducible.
-    :param image_type: substring filter on ``png_path`` — matches the
-        Annotate screen's own ``image_type`` filter (e.g. ``'cell'``).
+    :param image_type: the Annotate screen's ``image_type`` filter on
+        ``png_path`` (e.g. ``'cell'`` or ``'cell AND NOT pathogen'``), read
+        the way the grid reads it: AND, OR, NOT and parentheses, each term
+        matched without regard to case.
     :returns: DataFrame with ``rank`` (1-based), the key, ``uncertainty``,
         ``predicted_class``, the probability columns and whatever crop
         metadata ``png_list`` has. Empty (with the same columns) when
@@ -1013,7 +1014,7 @@ def build_queue(db_path: str, annotation_column: str = "annotate",
     n_rows = len(frame)
 
     if image_type:
-        keep = frame[key].astype(str).str.contains(str(image_type), regex=False)
+        keep = _image_type_mask(frame[key], image_type)
         n_filtered = int((~keep).sum())
         frame = frame[keep]
         if n_filtered:
@@ -1335,8 +1336,8 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     :param annotation_column: the column the Annotate app writes into.
     :param table: crop table (default ``png_list``).
     :param key: row key (default ``png_path``).
-    :param image_type: substring filter on the key, matching the Annotate
-        screen's own filter. Every count below it, ``n_rows`` included, is
+    :param image_type: the Annotate screen's own filter on the key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms). Every count below it, ``n_rows`` included, is
         over the crops that matched — a denominator taken from the whole
         table would put the numerator and the denominator on two different
         populations. ``n_rows_unfiltered`` keeps the total, and a note says
@@ -1378,7 +1379,7 @@ def annotation_coverage(db_path: str, annotation_column: str = "annotate",
     frame = pd.DataFrame(rows, columns=select)
     n_unfiltered = len(frame)
     if image_type:
-        keep = frame[key].astype(str).str.contains(str(image_type), regex=False)
+        keep = _image_type_mask(frame[key], image_type)
         n_filtered = int((~keep).sum())
         frame = frame[keep]
         if n_filtered:
@@ -1591,7 +1592,8 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
     :param annotation_column: read the existing label too, so an already
         annotated crop renders with its colour rather than blank.
     :param timelapse: the keys carry a timepoint.
-    :param image_type: substring filter on the crop key.
+    :param image_type: the Annotate image filter on the crop key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms).
     :returns: ``[(png_path, annotation or None), …]`` in the keys' order.
     """
     wanted = [str(k) for k in keys]
@@ -1643,9 +1645,10 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
             target.setdefault(
                 "_".join(composed + [f"{object_type}{label}"]), entry)
 
-    for row in rows:
+    kept = _image_type_mask([row[index[key]] for row in rows], image_type)
+    for row, keep in zip(rows, kept):
         path = str(row[index[key]])
-        if image_type and str(image_type) not in path:
+        if not keep:
             continue
         annotation = None
         if has_annotation:
@@ -1698,7 +1701,7 @@ def crops_for_object_keys(db_path: str, keys: Sequence[str], *,
                     untyped_rows.setdefault(candidate, entry)
 
     def _resolve(name: str) -> Optional[Tuple[str, Optional[int]]]:
-        """The escaped spelling first — it is the one a producer emits today."""
+        """Look up ``name`` among escaped keys first, then among raw keys."""
         found = by_escaped_key.get(name)
         return by_key.get(name) if found is None else found
 
@@ -2030,7 +2033,7 @@ def _as_float_or_none(value: Any) -> Optional[float]:
 
 def learning_curve(db_path: str,
                    annotation_column: str = "annotate") -> pd.DataFrame:
-    """Held-out accuracy per round, oldest first — the curve to watch flatten.
+    """Held-out accuracy per round, oldest first.
 
     :param db_path: path to ``measurements.db``.
     :param annotation_column: the column the rounds labelled into.
@@ -2080,7 +2083,7 @@ def learning_curve(db_path: str,
 
 
 class StoppingVerdict:
-    """Whether the last stretch of annotation bought anything measurable.
+    """Stop/continue recommendation from the learning curve, with evidence.
 
     :param stop: the recommendation.
     :param reason: one sentence, in the words the screen shows.
@@ -2124,14 +2127,14 @@ class StoppingVerdict:
                 f"{self.labels_in_window!r})")
 
     def to_dict(self) -> Dict[str, Any]:
-        """A JSON-friendly copy, for a card or a log."""
+        """Return the verdict's fields as a plain dict for JSON or logs."""
         return {name: getattr(self, name) for name in self.__slots__}
 
 
 def should_stop(curve: pd.DataFrame, *, label_window: int = 50,
                 min_gain: float = 0.003,
                 min_rounds: int = 2) -> StoppingVerdict:
-    """Has the last ``label_window`` labels moved held-out accuracy at all?
+    """Recommend whether to stop annotating, from held-out accuracy change.
 
     The rule, in one line: look back over whole rounds until at least
     ``label_window`` new labels have accumulated, and compare held-out
@@ -2389,12 +2392,310 @@ def holdout_report(y_true: Any, probs: Any,
     }
 
 
+def _image_type_mask(paths: Sequence[Any],
+                    image_type: Optional[str]) -> np.ndarray:
+    """Which of ``paths`` the Annotate screen's image filter keeps.
+
+    The grid filters with :func:`spacr.qt.annotate_engine.parse_image_type`:
+    ``AND``, ``OR``, ``NOT`` and parentheses, each term matched with SQLite
+    ``LIKE`` and therefore without regard to ASCII case. A plain
+    case-sensitive substring test here kept a different set of crops from
+    the one the annotator was looking at -- ``Cell`` showed every crop on
+    screen and none to the model, and ``cell AND NOT pathogen`` matched no
+    path at all -- so a round had nothing to fit. The same SQL is evaluated
+    here, so the two can no longer disagree.
+
+    :param paths: crop paths, in order.
+    :param image_type: the filter expression; ``None`` or blank keeps all.
+    :returns: a boolean array, one entry per path.
+    :raises ValueError: on an expression the grid could not read either.
+    """
+    values = ["" if p is None else str(p) for p in paths]
+    if not image_type or not str(image_type).strip():
+        return np.ones(len(values), dtype=bool)
+    from .qt.annotate_engine import parse_image_type
+
+    where, params = parse_image_type(str(image_type))
+    if not where:
+        return np.ones(len(values), dtype=bool)
+    con = sqlite3.connect(":memory:", timeout=30.0)
+    try:
+        con.execute("CREATE TABLE crops (i INTEGER, png_path TEXT)")
+        con.executemany("INSERT INTO crops VALUES (?, ?)", enumerate(values))
+        kept = {row[0] for row in con.execute(
+            f"SELECT i FROM crops WHERE {where}", params)}
+    finally:
+        con.close()
+    return np.fromiter((i in kept for i in range(len(values))), dtype=bool,
+                       count=len(values))
+
+
+_CHILD_CROP_ID_COLUMNS: Tuple[str, ...] = tuple(
+    f"{role}_id" for role in schema.CHILD_OBJECT_TABLES)
+
+#: The channel group of a feature that no single channel enters -- area,
+#: shape, position. Offered beside ``channel_0`` .. ``channel_n`` so a
+#: selection of one channel can keep or leave out the shape features.
+NO_CHANNEL = "none"
+
+#: The object tables a round reads by default, in the order they are merged.
+DEFAULT_FEATURE_TABLES: Tuple[str, ...] = ("cell", "nucleus", "pathogen",
+                                           "cytoplasm")
+
+
+def _parent_cell_token(name: Any) -> Optional[int]:
+    """The parent cell label in a child crop's file name, or ``None``.
+
+    A nucleus, pathogen or organelle crop is written as
+    ``<field>_<cell>_<object>.png``; the cell is the second-last component.
+    ``multi`` and ``none`` -- a crop overlapping several cells or none --
+    name no single cell.
+    """
+    stem = os.path.splitext(os.path.basename(str(name or "")))[0]
+    parts = stem.split(schema.KEY_SEPARATOR)
+    if len(parts) < 2:
+        return None
+    token = parts[-2]
+    return int(token) if token.isdigit() else None
+
+
+def _is_missing(value: Any) -> bool:
+    """``None`` or a float NaN."""
+    return value is None or (isinstance(value, float) and value != value)
+
+
+def _crop_object_keys(crops: pd.DataFrame) -> pd.DataFrame:
+    """What object each ``png_list`` row shows, and how to find its rows.
+
+    ``object_type`` comes from the per-mode id column the row fills
+    (``cell_id``, ``nucleus_id``, ...); a row with none of them is a cell
+    crop, which is what a table without those columns holds. ``own_key`` is
+    the object's own ``prcf_o<label>``: the stored ``prcfo`` after the plate
+    repair (:func:`spacr.schema.canonical_plate_id`) that every object table
+    is read with, so a plate whose name begins with ``pp`` matches.
+    ``parent_key`` is the cell the object belongs to -- the object itself for
+    a cell or cytoplasm crop, and for a child crop the cell
+    :func:`spacr.utils._generate_names` writes second-last in the file name.
+
+    :param crops: ``png_list`` rows carrying ``prcfo`` and, where present,
+        ``file_name``/``png_path`` and the per-mode id columns.
+    :returns: ``object_type``, ``own_key`` and ``parent_key`` per row, on
+        the crops' index; a key is ``None`` where the row names no object.
+    """
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    own = [None if _is_missing(v) or not str(v) else
+           schema.canonical_plate_id(str(v)) for v in crops["prcfo"]]
+    types = ["cell"] * len(crops)
+    for mode, column in PNG_OBJECT_ID_COLUMNS.items():
+        if mode == "cell" or column not in crops.columns:
+            continue
+        filled = crops[column].notna().to_numpy()
+        if "cell_id" in crops.columns:
+            filled = filled & crops["cell_id"].isna().to_numpy()
+        for i in np.flatnonzero(filled):
+            types[i] = mode
+    names = (crops["file_name"] if "file_name" in crops.columns
+             else crops.get("png_path", pd.Series([None] * len(crops),
+                                                  index=crops.index)))
+    parent: List[Optional[str]] = []
+    for i, (kind, key) in enumerate(zip(types, own)):
+        if kind in schema.PARENT_OBJECT_TABLES or not key:
+            parent.append(key)
+            continue
+        cell = _parent_cell_token(names.iloc[i])
+        field, sep, _ = key.rpartition(schema.KEY_SEPARATOR)
+        parent.append(f"{field}{sep}o{cell}"
+                      if cell is not None and sep else None)
+    return pd.DataFrame({
+        "object_type": pd.Series(types, index=crops.index, dtype=object),
+        "own_key": pd.Series(own, index=crops.index, dtype=object),
+        "parent_key": pd.Series(parent, index=crops.index, dtype=object),
+    }, index=crops.index)
+
+
+def _crop_feature_keys(crops: pd.DataFrame) -> pd.Series:
+    """The parent-cell key of each ``png_list`` row.
+
+    The key :func:`spacr.io._read_and_merge_data` puts every object under;
+    see :func:`_crop_object_keys`.
+
+    :param crops: ``png_list`` rows.
+    :returns: one key per row, ``None`` where the row names no single cell.
+    """
+    return _crop_object_keys(crops)["parent_key"].rename(None)
+
+
+def _feature_columns(columns: Iterable[Any],
+                     channels: Optional[Iterable[str]] = None,
+                     families: Optional[Iterable[str]] = None) -> List[str]:
+    """The feature columns a channel and family selection keeps.
+
+    Columns are classified by :func:`spacr.feature_dict.parse_column`, the
+    same classification :mod:`spacr.column_groups` offers in the column
+    picker. Identifier columns (family ``meta``) are never features. A
+    column no single channel enters (area, shape) belongs to the
+    :data:`NO_CHANNEL` group; a column the dictionary cannot classify is in
+    the family ``unknown``.
+
+    :param columns: candidate column names.
+    :param channels: ``channel_<n>`` names and/or :data:`NO_CHANNEL`;
+        ``None`` keeps every channel.
+    :param families: family names; ``None`` keeps every family.
+    :returns: the kept names, in their original order.
+    """
+    from .column_groups import _entry
+
+    channel_set = None if channels is None else {str(c) for c in channels}
+    family_set = None if families is None else {str(f) for f in families}
+    kept = []
+    for column in columns:
+        entry = _entry(column)
+        family = str(getattr(entry, "family", None) or "unknown")
+        if family == "meta":
+            continue
+        channel = getattr(entry, "channel", None)
+        group = NO_CHANNEL if channel is None else f"channel_{int(channel)}"
+        if channel_set is not None and group not in channel_set:
+            continue
+        if family_set is not None and family not in family_set:
+            continue
+        kept.append(column)
+    return kept
+
+
+def _suggest_feature_choices(db_path: str, table: str = PNG_TABLE
+                             ) -> Dict[str, Any]:
+    """What a Suggest round can be fitted on in this database.
+
+    Reads column names only, so it is cheap enough for a dialog to call on
+    every opening.
+
+    :param db_path: path to ``measurements.db``.
+    :param table: the crop table.
+    :returns: ``tables`` (the object tables present, in
+        :data:`spacr.schema.OBJECT_TABLES` order), ``default_tables`` (the
+        tables of the object types the crops show), ``channels`` (channel
+        groups, numerically, then :data:`NO_CHANNEL` when any column has no
+        channel) and ``families`` (sorted).
+    """
+    from .column_groups import _entry
+    from .utils import PNG_OBJECT_ID_COLUMNS
+
+    con = _connect(db_path)
+    try:
+        present = {r[0] for r in con.execute(
+            "SELECT name FROM sqlite_master WHERE type IN ('table','view')"
+        ).fetchall()}
+        tables = [t for t in schema.OBJECT_TABLES if t in present]
+        columns: Dict[str, List[str]] = {
+            t: [r[1] for r in con.execute(
+                f"PRAGMA table_info({_quote_ident(t)})").fetchall()]
+            for t in tables}
+        modes: List[str] = []
+        if table in present:
+            crop_columns = {r[1] for r in con.execute(
+                f"PRAGMA table_info({_quote_ident(table)})").fetchall()}
+            for mode, column in PNG_OBJECT_ID_COLUMNS.items():
+                if column in crop_columns and con.execute(
+                        f"SELECT 1 FROM {_quote_ident(table)} WHERE "
+                        f"{_quote_ident(column)} IS NOT NULL LIMIT 1"
+                ).fetchone():
+                    modes.append(mode)
+    finally:
+        con.close()
+    default = [t for t in tables if t in (modes or ["cell"])]
+    if not default and tables:
+        default = ["cell"] if "cell" in tables else tables[:1]
+    channel_numbers, families, unchannelled = set(), set(), False
+    for names in columns.values():
+        for column in names:
+            entry = _entry(column)
+            family = str(getattr(entry, "family", None) or "unknown")
+            if family == "meta":
+                continue
+            families.add(family)
+            channel = getattr(entry, "channel", None)
+            if channel is None:
+                unchannelled = True
+            else:
+                channel_numbers.add(int(channel))
+    channels = [f"channel_{n}" for n in sorted(channel_numbers)]
+    if unchannelled:
+        channels.append(NO_CHANNEL)
+    return {"tables": tables, "default_tables": default,
+            "channels": channels, "families": sorted(families)}
+
+
+def _key_samples(values: Iterable[Any], n: int = 3) -> str:
+    """Up to ``n`` distinct values, quoted, for an error message."""
+    seen: List[str] = []
+    for value in values:
+        if _is_missing(value):
+            continue
+        text = repr(str(value))
+        if text not in seen:
+            seen.append(text)
+        if len(seen) >= n:
+            break
+    return ", ".join(seen) if seen else "none"
+
+
+def _object_table_features(frame: pd.DataFrame, name: str,
+                           channels: Optional[Iterable[str]],
+                           families: Optional[Iterable[str]]
+                           ) -> Tuple[pd.DataFrame, Optional[pd.Series]]:
+    """One object table as features keyed on each object's own key.
+
+    :param frame: the table, read through :func:`spacr.io._read_db`.
+    :param name: the table name; a feature column that does not already
+        start with ``<name>_`` gets that prefix, so two tables can never
+        share a column.
+    :param channels: passed to :func:`_feature_columns`.
+    :param families: likewise.
+    :returns: ``(features, parents)`` -- numeric features indexed by
+        ``prcf_o<object_label>``, and for a table with a ``cell_id`` link the
+        parent-cell key of every row (``None`` for a parent table).
+    """
+    if "prcf" not in frame.columns or "object_label" not in frame.columns:
+        raise ValueError(
+            f"The {name} table has no 'prcf' and 'object_label' columns, so "
+            f"its rows cannot be matched to crops. Re-run Measure.")
+    labels = pd.to_numeric(frame["object_label"], errors="coerce")
+    keep = labels.notna().to_numpy()
+    frame = frame.loc[keep]
+    labels = labels.loc[keep].astype(np.int64)
+    prcf = frame["prcf"].astype(str).map(schema.canonical_plate_id)
+    own = prcf + "_o" + labels.astype(str)
+    numeric = frame.select_dtypes(include=[np.number])
+    numeric = numeric.drop(columns=[c for c in ("object_label", "cell_id")
+                                    if c in numeric.columns])
+    columns = _feature_columns(numeric.columns, channels, families)
+    features = numeric[columns].copy()
+    features.columns = [c if str(c).startswith(f"{name}_") else f"{name}_{c}"
+                        for c in columns]
+    features.index = own.to_numpy()
+    parents = None
+    if "cell_id" in frame.columns:
+        cell = pd.to_numeric(frame["cell_id"], errors="coerce")
+        parents = pd.Series(
+            [None if c != c else f"{p}_o{int(c)}"
+             for p, c in zip(prcf, cell)], index=own.to_numpy(), dtype=object)
+    duplicated = features.index.duplicated(keep="first")
+    if duplicated.any():
+        features = features.loc[~duplicated]
+        if parents is not None:
+            parents = parents.loc[~duplicated]
+    return features, parents
+
+
 def round_features(db_path: str, table: str = PNG_TABLE,
                    key: str = PNG_KEY,
-                   tables: Sequence[str] = ("cell", "nucleus", "pathogen",
-                                            "cytoplasm"),
-                   nuclei_limit: int = 10,
-                   pathogen_limit: int = 10) -> pd.DataFrame:
+                   tables: Optional[Sequence[str]] = DEFAULT_FEATURE_TABLES,
+                   nuclei_limit: Optional[int] = 10,
+                   pathogen_limit: Optional[int] = 10, *,
+                   channels: Optional[Sequence[str]] = None,
+                   families: Optional[Sequence[str]] = None) -> pd.DataFrame:
     """The measurement features for every crop, indexed by ``png_path``.
 
     The feature matrix an in-screen retrain fits on. Measurement features
@@ -2407,14 +2708,31 @@ def round_features(db_path: str, table: str = PNG_TABLE,
     :param db_path: path to ``measurements.db``.
     :param table: crop table carrying ``png_path`` and ``prcfo``.
     :param key: the crop key column.
-    :param tables: object tables to merge features from; missing ones are
-        skipped.
-    :param nuclei_limit: passed through to :func:`spacr.io._read_and_merge_data`.
-    :param pathogen_limit: likewise.
+    :param tables: object tables to take features from; missing ones are
+        skipped, and ``None`` means the tables of the object types the crops
+        show. A crop's own table (``nucleus`` for a nucleus crop) gives the
+        object's own row, a parent table (``cell`` or ``cytoplasm``) the row
+        of the cell it lies in, and any other table the mean of the rows
+        inside that cell. A crop is kept when its own table is selected and
+        holds its row, or, when its own table is not selected, when any
+        selected table describes it.
+    :param nuclei_limit: a cell holding more nuclei than this gets no mean
+        nucleus features; ``None`` sets no limit.
+    :param pathogen_limit: a cell holding more pathogens than this gets no
+        mean pathogen features; ``None`` sets no limit.
+    :param channels: keep only the features of these channel groups,
+        ``channel_<n>`` and ``none`` for features no single channel enters
+        (area, shape); ``None`` keeps every channel.
+    :param families: keep only these feature families, as named in
+        :data:`spacr.feature_dict.FEATURE_FAMILIES` (``intensity``,
+        ``morphology``, ``texture`` and so on); ``None`` keeps every family.
     :returns: numeric features indexed by ``png_path``.
-    :raises ValueError: when no object table with features could be read.
+    :raises ValueError: when none of the object tables can be read, when
+        the channel and family selection leaves no feature column, or when
+        crops and measured objects exist and not one crop matches an object;
+        the last names a crop key and an object key.
     """
-    from .io import _read_and_merge_data, _read_db
+    from .io import _read_db
 
     con = _connect(db_path)
     try:
@@ -2423,29 +2741,106 @@ def round_features(db_path: str, table: str = PNG_TABLE,
             raise ValueError(
                 f"{table!r} has no 'prcfo' column, so a crop cannot be matched "
                 f"to its measurements. Re-run Measure with save_png=True.")
+        extra = [c for c in ("file_name", "cell_id", *_CHILD_CROP_ID_COLUMNS)
+                 if c in columns and c != key]
+        select = list(dict.fromkeys([key, "prcfo", *extra]))
         rows = con.execute(
-            f"SELECT {_quote_ident(key)}, \"prcfo\" FROM {_quote_ident(table)}"
-        ).fetchall()
+            f"SELECT {', '.join(_quote_ident(c) for c in select)} "
+            f"FROM {_quote_ident(table)}").fetchall()
         available = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type IN ('table','view')"
         ).fetchall()}
     finally:
         con.close()
 
-    wanted = [t for t in tables if t in available]
+    crops = pd.DataFrame(rows, columns=select).dropna(subset=["prcfo"])
+    crops = crops.loc[~crops[key].duplicated(keep="first")]
+    crops = crops.reset_index(drop=True)
+    keys = _crop_object_keys(crops)
+    requested = (sorted(set(keys["object_type"]))
+                 if tables is None else list(tables))
+    wanted = [t for t in requested if t in available]
     if not wanted:
         raise ValueError(
             f"{os.path.basename(str(db_path))} has none of the object tables "
-            f"{', '.join(tables)}, so there are no features to fit on. Run "
+            f"{', '.join(requested)}, so there are no features to fit on. Run "
             f"Measure first, or pass features= explicitly.")
 
-    merged, _ = _read_and_merge_data([str(db_path)], wanted, False,
-                                     nuclei_limit=nuclei_limit,
-                                     pathogen_limit=pathogen_limit)
-    crops = pd.DataFrame(rows, columns=[key, "prcfo"]).dropna(subset=["prcfo"])
-    numeric = merged.select_dtypes(include=[np.number])
-    joined = crops.join(numeric, on="prcfo", how="inner")
-    return joined.drop(columns=["prcfo"]).set_index(key)
+    limits = {"nucleus": nuclei_limit, "pathogen": pathogen_limit}
+    parts: List[pd.DataFrame] = []
+    required = np.zeros(len(crops), dtype=bool)
+    present = np.ones(len(crops), dtype=bool)
+    described = np.zeros(len(crops), dtype=bool)
+    probe: Optional[Tuple[pd.Series, pd.Index]] = None
+    n_objects = 0
+    n_columns = 0
+    object_type = keys["object_type"].to_numpy()
+    own_key = keys["own_key"].to_numpy()
+    parent_key = keys["parent_key"].to_numpy()
+    for name, frame in zip(wanted, _read_db(str(db_path), wanted)):
+        features, parents = _object_table_features(frame, name, channels,
+                                                   families)
+        n_objects += len(features)
+        n_columns += features.shape[1]
+        own_rows = object_type == name
+        if name in schema.PARENT_OBJECT_TABLES:
+            same_cell = np.isin(object_type, schema.PARENT_OBJECT_TABLES)
+            lookup = np.where(same_cell, own_key, parent_key)
+            block = features.reindex(lookup)
+            hit = pd.Index(lookup).isin(features.index)
+        else:
+            if parents is not None:
+                grouped = features.groupby(parents.to_numpy()).mean()
+                limit = limits.get(name)
+                if limit is not None:
+                    counts = parents.value_counts()
+                    grouped = grouped.loc[
+                        counts.reindex(grouped.index).to_numpy()
+                        <= int(limit)]
+            else:
+                grouped = features.iloc[0:0]
+            lookup = np.where(own_rows, own_key, parent_key)
+            block = grouped.reindex(parent_key)
+            block.iloc[own_rows] = features.reindex(
+                own_key[own_rows]).to_numpy()
+            hit = np.where(own_rows,
+                           pd.Index(own_key).isin(features.index),
+                           pd.Index(parent_key).isin(grouped.index))
+        required |= own_rows
+        present &= ~own_rows | hit
+        described |= hit
+        if probe is None:
+            probe = (pd.Series(lookup, dtype=object), features.index)
+        block.index = crops.index
+        parts.append(block)
+
+    if not n_columns:
+        raise ValueError(
+            f"The selected channels and feature families leave no feature "
+            f"column in {', '.join(wanted)}, so there is nothing to fit on. "
+            f"Select more channels or feature families.")
+    matrix = pd.concat(parts, axis=1) if parts else pd.DataFrame(
+        index=crops.index)
+    matrix = matrix.loc[:, ~matrix.columns.duplicated(keep="first")]
+    kept = np.where(required, present, described)
+    if len(crops) and not kept.any():
+        if not n_objects:
+            raise ValueError(
+                f"{table} lists {len(crops):,} crops, but {', '.join(wanted)} "
+                f"hold no measured object, so there are no features to fit "
+                f"on. Check that Measure finished for these plates.")
+        lookup, index = probe
+        raise ValueError(
+            f"None of the {len(crops):,} crops in {table} matches one of the "
+            f"{n_objects:,} measured objects in {', '.join(wanted)}, so "
+            f"there are no features to fit on. A crop is looked up as "
+            f"{_key_samples(lookup)} (from prcfo "
+            f"{_key_samples(crops['prcfo'])}); the measured objects are keyed "
+            f"{_key_samples(index)}. Check that Measure and the crop "
+            f"export ran over the same objects and plates.")
+    matrix.index = crops[key].to_numpy()
+    matrix.index.name = key
+    return matrix.loc[kept]
 
 
 _SIMILAR_K = 100
@@ -2788,7 +3183,8 @@ def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
         When omitted, the crop embeddings stored in the database by
         :func:`_store_crop_embeddings` are used if present, otherwise the
         measurement features from :func:`round_features`.
-    :param image_type: substring filter on the crop key.
+    :param image_type: the Annotate image filter on the crop key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms).
     :param backend: passed to :class:`_SimilarityIndex`.
     :returns: the index.
     :raises ValueError: when no crop has usable features.
@@ -2799,9 +3195,7 @@ def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
         features = round_features(db_path)
         features = features[_similarity_columns(features.columns)]
     if image_type:
-        keep = features.index.astype(str).str.contains(str(image_type),
-                                                       regex=False)
-        features = features.loc[keep]
+        features = features.loc[_image_type_mask(features.index, image_type)]
     return _SimilarityIndex(features, backend=backend)
 
 
@@ -2909,9 +3303,8 @@ def _multi_similarity_index(db_paths: Sequence[str], *,
             features = round_features(path)
             features = features[_similarity_columns(features.columns)]
         if image_type:
-            keep = features.index.astype(str).str.contains(str(image_type),
-                                                           regex=False)
-            features = features.loc[keep]
+            features = features.loc[_image_type_mask(features.index,
+                                                    image_type)]
         features = features.select_dtypes(include=[np.number])
         if features.empty:
             raise ValueError(f"No compatible crops were found in {path}")
@@ -2990,7 +3383,7 @@ def _similarity_agreement(index: _SimilarityIndex, labels: Mapping[Any, Any],
 
 
 class RoundResult:
-    """What one retrain round produced.
+    """Result of one active-learning retrain round.
 
     :param fields: named values for the round fields below; omitted list and
         mapping fields are normalized to empty containers.
@@ -3004,7 +3397,7 @@ class RoundResult:
     :param model_path: where the fitted model was saved, if it was.
     :param card_path: the model card beside it, if one was written.
     :param verdict: the :class:`StoppingVerdict` after this round.
-    :param notes: anything the round wants the annotator to know.
+    :param notes: notes for the annotator recorded during the round.
     """
 
     __slots__ = ("round_index", "n_labels", "n_new_labels", "report",
@@ -3038,7 +3431,7 @@ class RoundResult:
                 f"n_labels={self.n_labels!r}, accuracy={self.accuracy:.4f})")
 
     def summary(self) -> str:
-        """One paragraph: the round, its numbers and what to do next."""
+        """Return a multi-line summary of the round, metrics and verdict."""
         lines = [f"Round {self.round_index}: fitted on {self.n_labels} labels "
                  f"({self.n_new_labels} new), held out "
                  f"{self.report.get('n', 0)}."]
@@ -3084,14 +3477,11 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                   synthetic_negatives: Optional[int] = None,
                   rejections: Optional[Mapping[Any, Any]] = None
                   ) -> RoundResult:
-    """Fit a model on the labels so far, score every crop, close the loop.
+    """Fit a model on the current labels, re-score all crops, log the round.
 
-    This is the half of active learning that has been missing: the queue put
-    the informative crops in front of the annotator, and then nothing
-    happened. Annotating without retraining is not active learning — it is
-    ordinary annotation in a clever order, and the order goes stale after the
-    first few dozen labels because it still reflects a model that has not
-    seen any of them.
+    Without a retrain, the queue order still reflects a model fitted before
+    any of the new labels, so it becomes outdated after the first few dozen
+    labels.
 
     One call does all five things the loop needs:
 
@@ -3125,7 +3515,8 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         :func:`next_round`.
     :param table: crop table.
     :param key: crop key column.
-    :param image_type: substring filter on the crop key.
+    :param image_type: the Annotate image filter on the crop key, read
+        the way the grid reads it (AND, OR, NOT, case-insensitive terms).
     :param write_scores: write the new probabilities back into the database.
     :param save_model: joblib-dump the fitted model beside the database.
     :param model_dir: where to put it; defaults to ``<db dir>/active_learning``.
@@ -3138,36 +3529,31 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         own ``class_weight='balanced'``; ``'downsample'`` cuts every class to
         the size of the smallest BEFORE the grouped split.
 
-        THE TWO ARE NOT THE SAME ANSWER. Reweighting and downsampling produce
-        different probabilities from the same crops, and
-        :func:`spacr.suggest.suggest_from_scores` sorts on those
-        probabilities -- so the round records which was in force, in
-        ``notes`` and on the model card. The smaller
-        class ("if there is class imbalance use the class with fewer").
+        Reweighting and downsampling produce different probabilities from
+        the same crops, and :func:`spacr.suggest.suggest_from_scores` sorts
+        on those probabilities, so the round records the setting in
+        ``notes`` and on the model card. Downsampling keeps the size of the
+        smaller class.
     :param rejections: ``{crop key: rejected class}`` -- suggestions the
-        annotator REJECTED (:func:`spacr.suggest.rejected_suggestions`). In
+        annotator rejected (:func:`spacr.suggest.rejected_suggestions`). In
         a two-class column a rejection of class 1 is an example of class 2,
         and it is fitted as one; a crop that has since been labelled is
         left to its label, and in a column with any other classes the
         rejection cannot be turned into a label and is counted in the notes
-        instead. A rejection is information, not silence: without this the
-        model that proposed the wrong class would be fitted on exactly the
-        same evidence next round and propose it again.
+        instead. Without this, the model that proposed the wrong class would
+        be fitted on the same evidence next round and propose it again.
     :param synthetic_negatives: how many unannotated crops to draw at random
-        and fit as the ABSENT class when only one class has been annotated.
+        and fit as the absent class when only one class has been annotated.
         ``None`` (default) refuses instead, as before.
 
-        THIS IS A DELIBERATE LIE AND THE ROUND SAYS SO. A random draw from
-        the unannotated pool is mostly-negative, not negative, so what comes
-        back is a ranking rather than a verdict; the count reaches the model
-        card, because a card that does not say the negatives were invented
-        describes a model that does not exist. Defined for the binary classes
-        1 and 2 only -- see :func:`_absent_binary_class`.
+        A random draw from the unannotated pool is mostly negative, not
+        negative, so the result is a ranking rather than a classification.
+        The round notes and the model card record how many synthetic
+        negatives were used. Defined for the binary classes 1 and 2 only --
+        see :func:`_absent_binary_class`.
     :returns: a :class:`RoundResult`.
     :raises ValueError: below ``min_labels`` labels, with fewer than two
-        classes annotated — neither is something to paper over with a model
-        that will produce a confident-looking ranking out of nothing — or
-        for an unrecognised ``group_by``.
+        classes annotated, or for an unrecognised ``group_by``.
     """
     notes: List[str] = []
 
@@ -3188,9 +3574,14 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
         con.close()
 
     crops = pd.DataFrame(rows, columns=select)
+    n_crops = len(crops)
     if image_type:
-        crops = crops[crops[key].astype(str).str.contains(
-            str(image_type), regex=False)]
+        crops = crops[_image_type_mask(crops[key], image_type)]
+        if n_crops and crops.empty:
+            raise ValueError(
+                f"The image filter {str(image_type)!r} keeps none of the "
+                f"{n_crops:,} crops in {table}, so nothing can be fitted. "
+                f"Change or clear the Image type filter.")
     crops = crops.set_index(key)
     crops = crops.loc[~crops.index.duplicated(keep="first")]
 
@@ -3202,8 +3593,10 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     if not len(shared):
         raise ValueError(
             f"No crop in {table} has a row in the feature matrix, so nothing "
-            f"can be fitted. Check that Measure and the crop export ran over "
-            f"the same objects.")
+            f"can be fitted: {len(crops):,} crops are keyed "
+            f"{_key_samples(crops.index)}, and the {len(features):,} feature "
+            f"rows are keyed {_key_samples(features.index)}. Check that "
+            f"Measure and the crop export ran over the same objects.")
     crops = crops.loc[shared]
     matrix = features.loc[shared]
 
@@ -3318,8 +3711,10 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
     split_rule = split_provenance.summary()
     notes.append(split_rule)
 
-    model = _build_round_model(model_type, int(seed), len(class_values))
-    model.fit(x[train_idx], y[train_idx])
+    model = _build_round_model(model_type, int(seed), len(class_values),
+                               n_samples=len(train_idx))
+    with _few_threads(len(train_idx)):
+        model.fit(x[train_idx], y[train_idx])
     test_probs = _predict_proba(model, x[test_idx], len(class_values))
     report = holdout_report(y[test_idx], test_probs,
                             [str(v) for v in class_values])
@@ -3435,7 +3830,8 @@ def _model_reweights(model_type: str) -> bool:
     """
     name = str(model_type).lower().replace("-", "_")
     return name in ("logistic_regression", "logistic", "lr",
-                    "random_forest", "rf")
+                    "random_forest", "rf", "gradient_boosting",
+                    "hist_gradient_boosting", "gb")
 
 
 def _rejections_as_labels(rejections: Mapping[Any, Any],
@@ -3523,8 +3919,54 @@ def _downsample_to_smallest(index, labels: List[Any], seed: int):
     return index[keep], [labels[i] for i in keep], dropped
 
 
-def _build_round_model(model_type: str, seed: int, n_classes: int):
-    """The estimator a round fits. Small-data-first, no torch, no GPU."""
+def _leaf_size(n_samples: Optional[int]) -> int:
+    """The smallest leaf a boosted tree may grow on ``n_samples`` rows.
+
+    scikit-learn's default of 20 rows per leaf needs 40 training rows before
+    a tree can make a single split. Annotate fits on a few dozen labels, and
+    a fit with no split predicts the training prior for every crop: every
+    suggestion then comes out as the same class (issue #152). The leaf is
+    therefore a tenth of the rows, between 2 and 20.
+
+    :param n_samples: the training rows, or None for the library default.
+    :returns: the ``min_samples_leaf`` to use.
+    """
+    if n_samples is None:
+        return 20
+    return int(max(2, min(20, int(n_samples) // 10)))
+
+
+def _few_threads(n_rows: int):
+    """Fit small sets on two threads: a pool of every core costs more than it saves.
+
+    On a few hundred labels each boosting iteration takes microseconds, and
+    waking a thread per core for it is what makes the fit slow, more so on a
+    machine that is busy with other work.
+
+    :param n_rows: the training rows.
+    :returns: a context manager.
+    """
+    import contextlib
+
+    if n_rows > 20000:
+        return contextlib.nullcontext()
+    try:
+        from threadpoolctl import threadpool_limits
+    except ImportError:
+        return contextlib.nullcontext()
+    return threadpool_limits(limits=2)
+
+
+def _build_round_model(model_type: str, seed: int, n_classes: int,
+                       n_samples: Optional[int] = None):
+    """The estimator a round fits. Small-data-first, no torch, no GPU.
+
+    :param model_type: the estimator name.
+    :param seed: the random state.
+    :param n_classes: how many classes the fit sees.
+    :param n_samples: the training rows; sizes the boosted trees' leaves
+        (:func:`_leaf_size`).
+    """
     name = str(model_type).lower().replace("-", "_")
     if name in ("logistic_regression", "logistic", "lr"):
         from sklearn.linear_model import LogisticRegression
@@ -3541,7 +3983,9 @@ def _build_round_model(model_type: str, seed: int, n_classes: int):
                                       n_jobs=-1, class_weight="balanced")
     if name in ("gradient_boosting", "hist_gradient_boosting", "gb"):
         from sklearn.ensemble import HistGradientBoostingClassifier
-        return HistGradientBoostingClassifier(random_state=seed)
+        return HistGradientBoostingClassifier(
+            random_state=seed, class_weight="balanced",
+            min_samples_leaf=_leaf_size(n_samples))
     if name in ("xgboost", "xgb"):
         try:
             from xgboost import XGBClassifier

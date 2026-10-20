@@ -476,23 +476,8 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 raise ValueError('No bundled barcode templates were selected through their editors')
             write_json(captures / 'neutral_barcode_templates.json', copied)
         if not scene_captured:
-            if key in ('mask', 'make_masks'):
-                from spacr.qt import preferences as prefs
-                backdrop, density = prefs.get_ambient_animation(), prefs.get_ambient_density()
-                prefs.set_ambient_animation('blobs')
-                prefs.set_ambient_density(2.0)
-                prefs.apply_preferences_to_app(app)
-                window.setProperty('tutorialMaskBlobs', True)
-                settle(.8)
-                try:
-                    capture('module_' + key)
-                finally:
-                    prefs.set_ambient_animation(backdrop)
-                    prefs.set_ambient_density(density)
-                    prefs.apply_preferences_to_app(app)
-                    window.setProperty('tutorialMaskBlobs', False)
-            else:
-                capture('module_' + key)
+            # Mask scenes keep the spaCR field like every other scene (2026-10-10).
+            capture('module_' + key)
         routes.append({'module': key, 'home_host': host_key, 'parent': module['parent'],
                        'tile_text': tile.text() if tile is not None else None,
                        'screen_class': type(screen).__name__,

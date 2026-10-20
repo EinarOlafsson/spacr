@@ -393,7 +393,9 @@
       "source_sha256": "336ac340dba3f68521625f3da09e3e2b6f0645675cde9952d40d61e4dfdb8d06",
       "context": "Zero and negative doses are clamped to a tiny positive number rather than refused: a checkerboard's first row IS zero, and a 4PL has no value there because log10(0) is undefined. The clamp puts them at the curve's own baseline, which is what an untreated microplate sample position measures.",
       "translation": "Núll- og neikvæðir skammtar eru klemmdir við örsmáa jákvæða tölu í stað þess að vera hafnað: fyrsta röð skákborðs ER núll, og 4PL hefur ekkert gildi þar því log10(0) er óskilgreint. Klemman setur þá á eigin grunnlínu ferilsins, sem er það sem ómeðhöndluð hola mælir.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.dose_response._effect_curve.effect#2",
@@ -513,7 +515,9 @@
       "source_sha256": "06dfe340c218dc2140f835fa156f3d6a34efaf4a1eaea23c6c58e9810d2e3aa2",
       "context": "A column of real data contains zeros and negatives, so a log or a divide will legitimately produce inf and nan; the VALUE is what the formula means, and numpy's warning about it is not something a user can act on.",
       "translation": "Dálkur raungagna inniheldur núll og neikvæð gildi, svo lógaritmi eða deiling munu með réttu framleiða inf og nan; GILDIÐ er það sem formúlan merkir, og numpy-viðvörunin um það er ekki eitthvað sem notandi getur brugðist við.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.formula.evaluate.walk#0",

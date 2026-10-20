@@ -1,42 +1,39 @@
-"""Turn a retrained model's scores into labels you can accept or throw away.
+"""Propose labels from a retrained model's scores for review.
 
-Annotating is the slow part of every screen, and the first two hundred crops
-already contain most of what separates the classes. Annotate can already fit a
-model on those and re-rank the queue by uncertainty -- what it could not do is
-WRITE the model's opinion down as a proposed label that a reviewer accepts or
-rejects in bulk. That is all this module adds.
+Annotate can fit a model on the labels so far and re-rank the queue by
+uncertainty. This module writes the model's predictions down as proposed labels
+that a reviewer accepts or rejects in bulk.
 
-IT DELEGATES THE MODEL, DELIBERATELY. :func:`spacr.active_learning.retrain_round`
-already fits on every label, scores on a GROUPED held-out split so the number
-is not an artefact of 190 labels coming from one well, and writes per-class
-probabilities into ``png_list``. Re-fitting here would be a second model with
-a second answer, drifting from the one the queue is ranked by -- and a first
-draft of this file did exactly that before the existing one was found. What is
-new is the three rules below, not the classifier.
+:func:`spacr.active_learning.retrain_round` fits on every label, scores on a
+grouped held-out split so the number is not an artefact of 190 labels coming
+from one well, and writes per-class probabilities into ``png_list``. Re-fitting
+here would be a second model with a second answer, drifting from the one the
+queue is ranked by. What this module adds is the rules below, not the
+classifier.
 
-THREE RULES THAT PROTECT THE ANNOTATIONS
+Rules that protect the annotations
 ========================================
-1. A SUGGESTION IS NEVER CONFUSABLE WITH A DECISION. Suggestions are stored as
+1. A suggestion is never confusable with a decision. Suggestions are stored as
    their own values -- a suggested 1 becomes 11 -- so nothing that reads the
    annotation column can mistake one for a human's answer, and a run that goes
    wrong is undone by deleting a value rather than by remembering which rows
    were touched.
-2. A SUGGESTION NEVER OVERWRITES AN ANNOTATION. Writes carry ``IS NULL``. Not
+2. A suggestion never overwrites an annotation. Writes carry ``IS NULL``. Not
    when the model is confident, not on a re-run. A human's labels are the
    ground truth the model was fitted on; losing one silently would cost hours
    and would not be noticed until a run came out wrong.
-3. NO CONFIDENCE FLOOR, SO THE ORDER CARRIES THE DOUBT. Every unannotated crop
-   gets a suggestion, sorted most-confident first, and the reviewer stops
-   where they stop agreeing. A threshold would make that decision for them,
-   with a number nobody chose.
-4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion
-   turns it into an ordinary label and rejecting one clears it -- and both
-   are written down beside the column, in ``<column>_verdict``, as the class
-   that was confirmed (``+c``) or rejected (``-c``). A rejection is
-   information the next round can train on -- "not class 1" is an example
-   of class 2 in a two-class column -- where a NULL would have been silence.
-   The verdict column is added the first time a source is opened, so tables
-   made before it existed gain it without a migration step.
+3. There is no confidence floor; the order carries the uncertainty. Every
+   unannotated crop gets a suggestion, sorted most-confident first, and the
+   reviewer stops where they stop agreeing. A threshold would make that
+   decision with an arbitrary number.
+4. A judgement is recorded, not inferred. Confirming a suggestion turns it into
+   an ordinary label and rejecting one clears it -- and both are written down
+   beside the column, in ``<column>_verdict``, as the class that was confirmed
+   (``+c``) or rejected (``-c``). A rejection is information the next round can
+   train on -- "not class 1" is an example of class 2 in a two-class column --
+   whereas a NULL would record nothing. The verdict column is added the first
+   time a source is opened, so tables made before it existed gain it without a
+   migration step.
 """
 from __future__ import annotations
 
@@ -157,7 +154,7 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     """Read the last retrain's probabilities and propose a label for each crop.
 
     Reads rather than re-fits, so the suggestion a reviewer sees and the
-    ranking the queue uses come from ONE model. A second fit here would drift
+    ranking the queue uses come from one model. A second fit here would drift
     from it and there would be no way to tell which was right.
 
     :param db_path: path to a ``measurements.db``.
@@ -167,9 +164,10 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
         the values already present in the annotation column, in order, which
         is what the retrain encoded them from.
     :param withhold_rejected: leave out every crop whose suggestion the
-        annotator REJECTED (a negative ``<column>_verdict``), so a rejected
-        crop is not suggested again in a later round. It still trains as an example of the other class
-        (:func:`rejected_suggestions`); it is only not proposed.
+        annotator rejected (a negative ``<column>_verdict``), so a rejected
+        crop is not suggested again in a later round. It still trains as an
+        example of the other class (:func:`rejected_suggestions`); it is only
+        not proposed.
     :returns: a :class:`Suggestions`; its frame is empty when nothing has been
         scored, and ``note`` says why.
     """
@@ -237,6 +235,8 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
         "suggested": [classes[i] for i in best],
         "confidence": probabilities.max(axis=1),
     })
+    for i, name in enumerate(_probability_columns(classes)):
+        out[name] = probabilities[:, i]
     out["stored"] = out["suggested"] + SUGGESTION_OFFSET
     out = out.sort_values("confidence", ascending=False, ignore_index=True)
     return Suggestions(out, scored=len(out), classes=classes)
@@ -245,7 +245,7 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
 def write_suggestions(db_path: str, annotation_column: str,
                       suggestions: pd.DataFrame, *,
                       png_table: str = "png_list") -> int:
-    """Store suggestions, and ONLY where nothing has been annotated.
+    """Store suggestions, only where nothing has been annotated.
 
     The ``IS NULL`` is rule 2 and is not an optimisation.
 
@@ -319,7 +319,7 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     """Accept suggestions as annotations, or clear them away.
 
     Accepting rewrites the offset value to the real class; rejecting sets it
-    back to NULL. Both act ONLY on suggestion values, so a human annotation
+    back to NULL. Both act only on suggestion values, so a human annotation
     caught by the same query is untouched either way.
 
     :param db_path: path to a ``measurements.db``.
@@ -329,11 +329,11 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     :param paths: restrict to these crops; None means every suggestion.
     :returns: how many rows changed.
 
-    A bulk KEEP is a confirmation of every suggestion it keeps, so it is
-    recorded in the verdict column too (when the column exists): the crops
-    then wear the same mark as ones confirmed one at a time, and the count
-    the screen shows agrees with what happened. A bulk THROW is not a
-    judgement -- "I do not want to review these" is not "these are wrong"
+    Keeping all suggestions at once confirms every suggestion it keeps, so it
+    is recorded in the verdict column too (when the column exists): the crops
+    then wear the same mark as ones confirmed one at a time, and the count the
+    screen shows agrees with what happened. Throwing all suggestions away is
+    not a judgement -- "I do not want to review these" is not "these are wrong"
     -- so it records nothing.
     """
     column = f'"{annotation_column}"'
@@ -383,6 +383,61 @@ def pending_suggestions(db_path: str, annotation_column: str, *,
         except sqlite3.Error:
             return 0
     return int(row[0]) if row else 0
+
+
+def _suggestion_snapshot(db_path: str, annotation_column: str, *,
+                         png_table: str = "png_list") -> Dict[str, int]:
+    """The suggestions waiting in ``annotation_column``, as stored.
+
+    Taken before a suggestion run clears them, so a run that fails or is
+    cancelled before it writes can put them back with
+    :func:`_restore_suggestions` instead of leaving the annotator with
+    neither the old proposals nor new ones.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column holding them.
+    :param png_table: the crop table.
+    :returns: ``{png_path: stored value}``; empty when there are none.
+    """
+    with _connect_read_only(db_path) as db:
+        if not _has_column(db, png_table, annotation_column):
+            return {}
+        rows = db.execute(
+            f'SELECT png_path, "{annotation_column}" FROM "{png_table}" '
+            f'WHERE "{annotation_column}" > ?', (SUGGESTION_OFFSET,)
+        ).fetchall()
+    return {str(path): int(value) for path, value in rows
+            if path is not None and value is not None}
+
+
+def _restore_suggestions(db_path: str, annotation_column: str,
+                         snapshot: Dict[str, int], *,
+                         png_table: str = "png_list") -> int:
+    """Put suggestions from :func:`_suggestion_snapshot` back, in one batch.
+
+    Only where the column is still empty: a crop annotated while the run was
+    going keeps its annotation.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column to write into.
+    :param snapshot: ``{png_path: stored value}``.
+    :param png_table: the crop table.
+    :returns: how many rows were put back.
+    """
+    if not snapshot:
+        return 0
+    from .database_concurrency import transaction
+
+    restored = 0
+    with _connect_writable(db_path) as db:
+        with transaction(db):
+            for path, value in snapshot.items():
+                cur = db.execute(
+                    f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
+                    f'WHERE png_path = ? AND "{annotation_column}" IS NULL',
+                    (int(value), str(path)))
+                restored += cur.rowcount
+    return restored
 
 
 VERDICT_SUFFIX = "_verdict"
@@ -515,10 +570,10 @@ def rejected_suggestions(db_path: str, annotation_column: str, *,
                          png_table: str = "png_list") -> Dict[str, int]:
     """The crops whose suggestion was rejected, and the class that was refused.
 
-    Only crops the annotator has NOT since labelled are returned: a label
-    made after a rejection is the stronger statement and is what the fit
-    reads from the column itself, so handing the rejection over as well
-    would count the crop twice.
+    Only crops the annotator has not since labelled are returned: a label made
+    after a rejection is the stronger statement and is what the fit reads from
+    the column itself, so handing the rejection over as well would count the
+    crop twice.
 
     :param db_path: path to a ``measurements.db``.
     :param annotation_column: the column the suggestions were written into.
@@ -546,3 +601,286 @@ def rejected_suggestions(db_path: str, annotation_column: str, *,
         except (TypeError, ValueError):
             continue
     return out
+
+
+def _probability_columns(classes: Sequence[int]) -> List[str]:
+    """The frame columns holding each class's probability, in class order."""
+    return [f"p_{c}" for c in classes]
+
+
+def _default_thresholds(classes: Sequence[int]) -> Dict[str, object]:
+    """Thresholds that suggest the most probable class for every crop.
+
+    :param classes: the class values, in column order.
+    :returns: a threshold set for :func:`_threshold_suggestions`.
+    """
+    return {"threshold": 0.5, "band": False, "low": 0.3, "high": 0.7,
+            "minimum": {str(c): 0.0 for c in classes}, "margin": 0.0}
+
+
+def _threshold_suggestions(frame: pd.DataFrame, classes: Sequence[int],
+                           thresholds: Optional[Dict[str, object]] = None
+                           ) -> np.ndarray:
+    """Which class each crop is suggested as under ``thresholds``.
+
+    Reads only the cached ``p_<class>`` columns, so moving a threshold costs
+    a comparison per crop and never a fit.
+
+    Two classes: the second class is suggested when its probability reaches
+    ``threshold``, else the first. With ``band`` on, only confident crops are
+    suggested: the second class above ``high``, the first below ``low``, and
+    nothing in between. More classes: the most probable class is suggested
+    when its probability reaches that class's ``minimum`` and leads the
+    runner-up by at least ``margin``.
+
+    :param frame: rows from :func:`suggest_from_scores`.
+    :param classes: the class values, in column order.
+    :param thresholds: from :func:`_default_thresholds`, possibly changed.
+    :returns: one value per row, the suggested class or NaN when withheld.
+        A frame without probability columns keeps its own ``suggested``.
+    """
+    classes = list(classes or [])
+    if frame is None or frame.empty:
+        return np.zeros(0, dtype=float)
+    cols = _probability_columns(classes)
+    if not classes or not all(c in frame.columns for c in cols):
+        if "suggested" in frame.columns:
+            return pd.to_numeric(frame["suggested"],
+                                 errors="coerce").to_numpy(dtype=float)
+        return np.full(len(frame), np.nan)
+    rule = dict(_default_thresholds(classes))
+    rule.update(thresholds or {})
+    probs = frame[cols].to_numpy(dtype=float)
+    out = np.full(len(frame), np.nan)
+    values = np.asarray(classes, dtype=float)
+    if len(classes) == 2:
+        second = probs[:, 1]
+        if rule.get("band"):
+            low = float(rule.get("low", 0.3))
+            high = float(rule.get("high", 0.7))
+            out[second > high] = values[1]
+            out[second < low] = values[0]
+        else:
+            cut = float(rule.get("threshold", 0.5))
+            out = np.where(second >= cut, values[1], values[0])
+        return out
+    if len(classes) == 1:
+        return np.full(len(frame), values[0])
+    order = np.argsort(-probs, axis=1)
+    best = order[:, 0]
+    top = probs[np.arange(len(probs)), best]
+    runner = probs[np.arange(len(probs)), order[:, 1]]
+    minimum = rule.get("minimum") or {}
+    floors = np.asarray([float(minimum.get(str(c), 0.0)) for c in classes])
+    keep = (top >= floors[best]) & ((top - runner)
+                                    >= float(rule.get("margin", 0.0)))
+    out[keep] = values[best[keep]]
+    return out
+
+
+def _suggestion_counts(suggested: np.ndarray,
+                       classes: Sequence[int]) -> Dict[str, int]:
+    """How many crops each class is suggested for, and how many are withheld.
+
+    :param suggested: from :func:`_threshold_suggestions`.
+    :param classes: the class values.
+    :returns: ``{str(class): n, ..., "withheld": n}``.
+    """
+    arr = np.asarray(suggested, dtype=float)
+    counts = {str(c): int(np.sum(arr == float(c))) for c in classes}
+    counts["withheld"] = int(np.sum(np.isnan(arr)))
+    return counts
+
+
+def _write_rethresholded(db_path: str, annotation_column: str,
+                         changes: Dict[str, Optional[int]], *,
+                         png_table: str = "png_list") -> int:
+    """Store what a threshold move changed, in one batch.
+
+    A crop whose suggestion was withdrawn goes back to NULL only while it
+    still holds a suggestion; a crop given one is written only while it is
+    NULL or holds a suggestion. So an answer, including a confirmed
+    suggestion, is never touched, which is rule 2.
+
+    :param db_path: path to a ``measurements.db``.
+    :param annotation_column: the column holding the suggestions.
+    :param changes: ``{png_path: class or None}``; a class is stored with
+        :data:`SUGGESTION_OFFSET` added.
+    :param png_table: the crop table.
+    :returns: how many rows changed.
+    """
+    if not changes:
+        return 0
+    from .database_concurrency import transaction
+
+    column = f'"{annotation_column}"'
+    cleared = [(str(p),) for p, v in changes.items() if v is None]
+    given = [(int(v) + SUGGESTION_OFFSET, str(p))
+             for p, v in changes.items() if v is not None]
+    with _connect_writable(db_path) as db:
+        if not _has_column(db, png_table, annotation_column):
+            return 0
+        before = db.total_changes
+        with transaction(db):
+            if cleared:
+                db.executemany(
+                    f'UPDATE "{png_table}" SET {column} = NULL '
+                    f'WHERE png_path = ? AND {column} > {SUGGESTION_OFFSET}',
+                    cleared)
+            if given:
+                db.executemany(
+                    f'UPDATE "{png_table}" SET {column} = ? WHERE png_path = ? '
+                    f'AND ({column} IS NULL OR {column} > '
+                    f'{SUGGESTION_OFFSET})', given)
+        return int(db.total_changes - before)
+
+
+def _suggest_training_set(annotation_column: str, crops: pd.DataFrame,
+                          features: pd.DataFrame, *,
+                          rejections: Optional[Dict[str, int]] = None,
+                          image_type: Optional[str] = None,
+                          key: str = "png_path"):
+    """The labelled rows a Suggest round fits on, as a matrix and labels.
+
+    The same rows :func:`spacr.active_learning.retrain_round` fits on: the
+    human answers in the column (never a suggestion) and, in a two-class
+    column, each rejected suggestion as an example of the other class.
+
+    :param annotation_column: the label column in ``crops``.
+    :param crops: the crop table, with ``key`` and the label column.
+    :param features: the numeric feature matrix, indexed by ``key``.
+    :param rejections: ``{png_path: rejected class}``.
+    :param image_type: the screen's image filter.
+    :param key: the crop key column.
+    :returns: ``(x, labels, feature_names)``; ``labels`` holds class values.
+    """
+    from . import active_learning as al
+
+    frame = crops[[key, annotation_column]].copy()
+    if image_type:
+        frame = frame[al._image_type_mask(frame[key], image_type)]
+    frame = frame.drop_duplicates(subset=key).set_index(key)
+    numeric = features.select_dtypes(include=[np.number])
+    numeric = numeric.loc[~numeric.index.duplicated(keep="first")]
+    shared = frame.index.intersection(numeric.index)
+    frame = frame.loc[shared]
+    raw = frame[annotation_column]
+    mask = raw.notna() & ~raw.map(al._is_suggestion)
+    index = list(frame.index[mask.to_numpy()])
+    labels = [al._class_value(v) for v in raw[mask].to_numpy()]
+    if rejections:
+        keys, extra, _ = al._rejections_as_labels(
+            rejections, sorted(set(labels), key=str), set(index),
+            set(numeric.index))
+        index += keys
+        labels += extra
+    matrix = numeric.loc[index]
+    x = np.nan_to_num(matrix.to_numpy(dtype=float), nan=0.0, posinf=0.0,
+                      neginf=0.0)
+    return x, labels, [str(c) for c in numeric.columns]
+
+
+def _class_weights(labels: Sequence[int]) -> Dict[str, float]:
+    """The ``class_weight="balanced"`` weight of each class in ``labels``."""
+    values, counts = np.unique(np.asarray(labels, dtype=object).astype(str),
+                               return_counts=True)
+    total, k = float(counts.sum()), float(len(counts))
+    return {str(v): (total / (k * float(n)) if n else 0.0)
+            for v, n in zip(values, counts)}
+
+
+def _cross_validated_scorecard(x: np.ndarray, labels: Sequence[int], *,
+                               model_type: str = "gradient_boosting",
+                               seed: int = 0, folds: int = 5
+                               ) -> Dict[str, object]:
+    """Score the Suggest model on the annotator's own labels, by folds.
+
+    Every labelled crop is predicted by a model that did not see it
+    (stratified ``folds``-fold cross-validation), so the scorecard says how
+    the suggestions would have fared on crops the annotator already knows.
+    The reference row is a majority-class baseline: a "model" that suggests
+    the largest class for every crop. A scorecard that does not beat it says
+    the model has learned nothing.
+
+    :param x: the feature matrix, one row per label.
+    :param labels: one class value per row.
+    :param model_type: the estimator name.
+    :param seed: makes the folds and fits reproducible.
+    :param folds: the most folds to use; fewer when a class is small.
+    :returns: ``classes``, per-class ``precision``, ``recall``, ``f1`` and
+        ``support``, ``accuracy``, ``balanced_accuracy``, ``f1_macro``, the
+        baseline's ``baseline_class``, ``baseline_accuracy`` and
+        ``baseline_f1_macro``, the ``confusion`` matrix (rows true, columns
+        predicted), the out-of-fold probabilities ``oof`` with the true
+        class index ``truth``, ``folds`` and a ``note``; on too few labels
+        only ``classes``, ``support`` and ``note``.
+    """
+    from sklearn.metrics import (balanced_accuracy_score, confusion_matrix,
+                                 f1_score, precision_recall_fscore_support)
+    from sklearn.model_selection import StratifiedKFold
+
+    from .active_learning import (_build_round_model, _few_threads,
+                                  _predict_proba)
+
+    classes = sorted({v for v in labels}, key=lambda v: (str(type(v)), v))
+    index = {c: i for i, c in enumerate(classes)}
+    y = np.asarray([index[v] for v in labels], dtype=int)
+    support = [int(np.sum(y == i)) for i in range(len(classes))]
+    card: Dict[str, object] = {"classes": classes, "support": support,
+                               "n": int(len(y))}
+    smallest = min(support) if support else 0
+    if len(classes) < 2 or smallest < 2:
+        card["note"] = ("too few labels to cross-validate: every class needs "
+                        "at least two")
+        return card
+    k = int(max(2, min(int(folds), smallest)))
+    splitter = StratifiedKFold(n_splits=k, shuffle=True,
+                               random_state=int(seed))
+    oof = np.zeros((len(y), len(classes)), dtype=float)
+    with _few_threads(len(y)):
+        for train, test in splitter.split(x, y):
+            model = _build_round_model(model_type, int(seed), len(classes),
+                                       n_samples=len(train))
+            model.fit(x[train], y[train])
+            oof[test] = _predict_proba(model, x[test], len(classes))
+    predicted = oof.argmax(axis=1)
+    labels_idx = list(range(len(classes)))
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        y, predicted, labels=labels_idx, zero_division=0)
+    majority = int(np.argmax(support))
+    baseline = np.full(len(y), majority)
+    card.update({
+        "precision": [float(v) for v in precision],
+        "recall": [float(v) for v in recall],
+        "f1": [float(v) for v in f1],
+        "accuracy": float(np.mean(predicted == y)),
+        "balanced_accuracy": float(balanced_accuracy_score(y, predicted)),
+        "f1_macro": float(f1_score(y, predicted, labels=labels_idx,
+                                   average="macro", zero_division=0)),
+        "baseline_class": classes[majority],
+        "baseline_accuracy": float(np.mean(baseline == y)),
+        "baseline_balanced_accuracy": float(
+            balanced_accuracy_score(y, baseline)),
+        "baseline_f1_macro": float(f1_score(y, baseline, labels=labels_idx,
+                                            average="macro",
+                                            zero_division=0)),
+        "confusion": confusion_matrix(y, predicted,
+                                      labels=labels_idx).tolist(),
+        "oof": oof, "truth": y, "folds": k, "note": "",
+    })
+    return card
+
+
+def _flat_probabilities(frame: pd.DataFrame, classes: Sequence[int]) -> bool:
+    """Whether every crop got the same probabilities, a model that learned nothing.
+
+    :param frame: rows from :func:`suggest_from_scores`.
+    :param classes: the class values.
+    :returns: True when no ``p_<class>`` column varies across crops.
+    """
+    cols = [c for c in _probability_columns(classes) if c in frame.columns]
+    if frame is None or len(frame) < 2 or not cols:
+        return False
+    spread = frame[cols].to_numpy(dtype=float).std(axis=0)
+    return bool(np.all(spread < 1e-9))
+

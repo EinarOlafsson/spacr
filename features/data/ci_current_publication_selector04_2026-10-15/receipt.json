@@ -1,0 +1,76 @@
+{
+  "status": "PASS: exact completed04 current-publication selectors, two original CI nodes only",
+  "base": "083d21924284249cf1ad08b5bb1ff57ca9bbc1c2",
+  "owner_proposal": "features/data/n676_docs_media_selector04_proposal_2026-10-15/proposal.json",
+  "completed_publication_contract": "features/data/n676_current_publication_selector04_2026-10-15/receipt.json",
+  "source_proof": {
+    "base": "083d21924284249cf1ad08b5bb1ff57ca9bbc1c2",
+    "preimage_sha256": "2646b606ba1d25a40a0ffd84d27c9f37726d5fb707f64cbf758b1ec49a3416c5",
+    "proposed_sha256": "5e98ea3160606fa5459063afe9d8da64ecbac85ff5269439181c3a49e5b5b256",
+    "exact_owner_proposal": true,
+    "exact_two_path_expressions": true,
+    "all98_assert_ASTs_exact": true,
+    "outside_selectors_all_text_and_AST_exact": true,
+    "publication_manifest_sha256": "aef7a3aeab1d0c792ee368bc6fe519377fd485f386c536498d2557b1b14fbe5f",
+    "media_revision": "80a4c7222e259d5c437c54705087e000f247085b",
+    "immutable_hosted_readback_expected_and_matched": 5370,
+    "protected_tracked_blobs": 709,
+    "physical_materialization": "Only exact existing Git blobs, no downloads/generation/media edits",
+    "historical02_receipts_unchanged": true
+  },
+  "actual_result": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "seconds": 0.94,
+    "exit": 0,
+    "nodes": [
+      "tests/test_docs_media_budget.py::test_every_lesson_keeps_its_video_and_its_poster",
+      "tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock"
+    ]
+  },
+  "baseline": "No new baseline run. Earlier completed02 selector passed; this is new successor04 acceptance, not a failure repair claim. Historical02 receipts were not changed.",
+  "integrity": {
+    "actual_physical_input_pins": 416,
+    "all_input_bytes_unchanged_before_after": true,
+    "all98_assertion_ASTs_exact": true,
+    "only_two_path_expressions_changed": true,
+    "owner_preimage_and_proposed_exact": true,
+    "product_media_player_work_owner_sources_unchanged": true,
+    "fatal_Ruff_PASS": true,
+    "network_attempts": [],
+    "resource": {
+      "pid": 3073876,
+      "cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/run-u68655.scope",
+      "memory_max": "2147483648",
+      "memory_swap_max": "0",
+      "cpus_allowed": [
+        0
+      ],
+      "pyside6": "6.12.0",
+      "qt": "6.12.0"
+    },
+    "unit_terminal": true
+  },
+  "limits": [
+    "Committed source/receipt bindings and existing completed publication are checked locally; no fresh remote readback or live Pages deployment claim.",
+    "No recording, encoding, media generation, model/GPU, network download, global collector/writer or full CI run.",
+    "Sparse fixtures were materialized only from exact existing083d Git blobs in this private worktree; no committed media/player bytes edited."
+  ],
+  "files": {
+    "pytest-driver.py": "8ada05b3eb0c756dc35c76d1183b9afc3000c6958ea4bb757e853ec54d1ec830",
+    "final.xml": "593d2db0fe73ffd564f83cb696c27588521307a2066f6f5498945c6f70911227",
+    "final.log": "487ad83de5846d6e8debc6d881b0b5259c292095a0a8999e70a586ed8bbf66c3",
+    "source-proof.json": "4268d4338c743002ff6712d8a5040a85a8121fc6c3e02ba4839a0b445bd3e836",
+    "terminal-unit.txt": "2ade8da5e6b2355dcc58c5456bf356d2f9fc92a4c23c17398e8f4d775f5fd8c6",
+    "final-startup.json": "fb41b585939ded45e9919066cf9be169c004fac8d289554bced07bd579628933",
+    "source.patch": "eb84930d8ea26b62ab4afbeb2c40358f8958890f17e029622db4692442996b2b",
+    "ruff-fatal.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "final-network.json": "bea293cfc33f9615b33b280366108c78eada088d578efcefc4458df0c735d212",
+    "run.sh": "0ae3d05a5e24d8af8b399500ec131076253be622b5b3a66f0ee4e659fd493e54",
+    "actual-input-pins.json": "c76984f2f920e88212e5893749ed64a129d9ac080d8b8cbf9c380c9ee5c37eab",
+    "protected-pins.json": "12bffd0cd48e40a5c79c296a261d0fa8a8667b2805c2a655e5157a83a1c01f22",
+    "final.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+}

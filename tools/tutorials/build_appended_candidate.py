@@ -380,8 +380,28 @@ def checked_web_input(stage, identity):
     return video, proof, browser_path
 
 
+def installation_consolidation(identities, refresh_ids, withdraw, listed):
+    """An already consolidated installation refresh has no archives to withdraw."""
+    from lesson_redirects import INSTALL_ID, INSTALL_ARCHIVES
+    if INSTALL_ID not in identities:
+        return False
+    consolidating = INSTALL_ID not in listed or bool(set(INSTALL_ARCHIVES) & set(listed))
+    if consolidating and (not set(INSTALL_ARCHIVES) <= set(withdraw)
+                          or INSTALL_ID not in refresh_ids):
+        raise ValueError('Merged installation requires both archival withdrawals and explicit refresh')
+    return consolidating
+
+
+def selected_visual_timing(stage, identity, baseline, retained_ids):
+    if identity in retained_ids:
+        from retained_visual_refresh import checked_retained_visual_timing
+        return checked_retained_visual_timing(stage, identity, baseline)
+    from native_live_timing import checked_native_timing
+    return checked_native_timing(stage, identity)
+
+
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
-          host_web=False, migrate_web=(), retain_narration=(), withdraw=()):
+          host_web=False, migrate_web=(), retain_narration=(), retain_visual_timing=(), withdraw=()):
     """Create a new private candidate; never upload or modify the published tree.
 
     ``withdraw`` unlists published lessons: they leave every catalog, the
@@ -401,6 +421,10 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     if (len(retained_ids) != len(set(retained_ids))
             or set(retained_ids) - set(refresh_ids)):
         raise ValueError('Retain narration only for unique, explicitly refreshed lessons')
+    retained_visual_ids = list(retain_visual_timing)
+    if (len(retained_visual_ids) != len(set(retained_visual_ids))
+            or set(retained_visual_ids) - set(retained_ids)):
+        raise ValueError('Retain visual timing only with unique retained-narration refreshes')
     validate(baseline, include_hosted_media=True, require_browser=True)
     previous = read(baseline / 'release-manifest.json')
     receipt = read(baseline / 'publication-receipt.json')
@@ -426,10 +450,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                                               if lesson['id'] not in withdraw]}
                 for name, catalog in catalogs.items()}
     from lesson_redirects import INSTALL_ID, INSTALL_ARCHIVES, installation_placeholder
-    installation_merge = INSTALL_ID in identities
+    installation_merge = installation_consolidation(identities, refresh_ids, withdraw, listed)
     if installation_merge:
-        if not set(INSTALL_ARCHIVES) <= set(withdraw) or INSTALL_ID not in refresh_ids:
-            raise ValueError('Merged installation requires both archival withdrawals and explicit refresh')
         catalogs = {name: installation_placeholder(catalog, original_catalogs[name])
                     for name, catalog in catalogs.items()}
     # Routes of the remaining published lessons, after any withdrawal.
@@ -492,11 +514,14 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for lesson in lessons:
         identity = lesson['id']
         source = stage / 'production' / identity
-        from native_live_timing import checked_native_timing
-        native_timings = checked_native_timing(stage, identity)
+        native_timings = selected_visual_timing(stage, identity, baseline, retained_visual_ids)
         if native_timings is not None:
             copy_checked(native_timings, root / 'media_host' / identity / 'video' / native_timings.name,
                          records, root, digest(native_timings))
+        if identity in retained_visual_ids:
+            refresh_receipt = source / 'retained-visual-refresh.json'
+            copy_checked(refresh_receipt, root / 'media_host' / identity / 'video' / refresh_receipt.name,
+                         records, root, digest(refresh_receipt))
         video, proof, browser_path = web_inputs[identity]
         copy_checked(source / 'video' / video.name, root / 'media_host' / identity / 'video' / video.name,
                      records, root, proof['master_sha256'])
@@ -527,8 +552,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                                                len(refresh_ids), replacements=refresh_ids)
     for lesson in js_catalog['lessons']:
         if lesson['id'] in identities:
-            from native_live_timing import checked_native_timing
-            native_timings = checked_native_timing(stage, lesson['id'])
+            native_timings = selected_visual_timing(stage, lesson['id'], baseline, retained_visual_ids)
             if native_timings is not None:
                 lesson['visual_timings'] = f"{lesson['id']}/video/{native_timings.name}"
     if link_lessons:
@@ -579,6 +603,11 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                       resynthesized=False, current_runtime_freshness_claimed=False,
                       baseline_manifest_sha256=digest(baseline / 'release-manifest.json'))
                       for identity in retained_ids},
+                  retained_visual_timing={identity: dict(
+                      receipt_sha256=digest(stage / 'production' / identity / 'retained-visual-refresh.json'),
+                      baseline_manifest_sha256=digest(baseline / 'release-manifest.json'),
+                      replanned=False, fresh_native_capture_claimed=False)
+                      for identity in retained_visual_ids},
                   link_only_updates=list(link_ids),
                   hosted_web_lessons=hosted_web,
                   outstanding_module_tutorials=nav['missing_tutorials'],
@@ -602,6 +631,8 @@ if __name__ == '__main__':
                         help='Refresh an existing lesson alongside the new lessons being appended')
     parser.add_argument('--retain-narration', action='append', default=[],
                         help='Refresh visuals with exact verified baseline narration and lesson objects')
+    parser.add_argument('--retain-visual-timing', action='append', default=[],
+                        help='Use a checked bounded visual refresh with retained narration and published scene clocks')
     parser.add_argument('--host-web', action='store_true',
                         help='Put the selected lessons\' web copies on the media host, not in the Pages tree')
     parser.add_argument('--migrate-web', action='append', default=[],
@@ -614,4 +645,5 @@ if __name__ == '__main__':
     build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
           refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
           host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
+          retain_visual_timing=args.retain_visual_timing,
           withdraw=args.withdraw)

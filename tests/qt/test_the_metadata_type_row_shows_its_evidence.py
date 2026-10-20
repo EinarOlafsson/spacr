@@ -97,10 +97,22 @@ def test_the_example_filename_is_shown_and_provisional_says_so(qapp, plate):
     assert "AssayPlate_Greiner" in field.example.text()
     assert "reconstructed" not in field.example.text()
 
-    field.set_value("evos")
-    assert "scan_R_p2_z1_0_B03f01d0.tif" in field.example.text()
-    assert "reconstructed" in field.example.text(), (
+    from spacr.qt.i18n import tr
+    from spacr.qt.screens.settings_model import RECONSTRUCTED_NOT_DOCUMENTED
+    from spacr.regex_infer import _metadata_convention
+
+    field.set_value("scanr")
+    assert field.get_value() == "scanr"
+    assert _metadata_convention("scanr")["status"] == "provisional"
+    assert "A1--W00001--P00001--Z00000--T00000--Alexa 488.tif" in field.example.text()
+    assert tr(RECONSTRUCTED_NOT_DOCUMENTED) in field.example.text(), (
         "a provisional convention must say so where the choice is made")
+
+    field.set_value("evos")
+    assert field.get_value() == "evos"
+    assert _metadata_convention("evos")["status"] == "confirmed"
+    assert "scan_R_p2_z1_0_B03f01d0.tif" in field.example.text()
+    assert tr(RECONSTRUCTED_NOT_DOCUMENTED) not in field.example.text()
 
 
 def test_testing_the_folder_reports_the_count_and_the_first_failure(

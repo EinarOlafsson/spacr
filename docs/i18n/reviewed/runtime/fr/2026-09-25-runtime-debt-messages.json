@@ -6,13 +6,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
-      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
-      "translation": "'bundled' est l’ancien modèle de plages de lyse fourni avec le paquet. Il est conservé pour pouvoir reproduire une ancienne exécution ; il manque environ un tiers des plages sur les images de la littérature. toxoplasma_plaque_v2 est le modèle actuel."
-    },
-    {
-      "table": "ui",
       "key": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source": "A .pt or .pth file holding a model that takes one channel and returns one channel of logits. HEAVY: the file is loaded and the network is run, which on a CPU is seconds per box and minutes per field.",
       "source_sha256": "6bb03c4c83ee5abfe966cec2eb0878d7f3c36ffc82070615ad7f4abfef8afe6d",
@@ -41,10 +34,10 @@
     },
     {
       "table": "ui",
-      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source_sha256": "c090c47c506dae6de2c1805553b5a319be3d942bcad5b0a36793c316bf4789a7",
-      "translation": "Un plan cellulaire apicomplexe commun, utilisant l’illustration SwissBioPics également employée dans Starplast. Survolez-le pour une description de localisation UniProt et cochez plusieurs compartiments pour les garder en surbrillance. La forme du parasite et l’organisation des organites varient selon l’espèce et le stade du cycle de vie ; il ne s’agit pas d’une reconstruction du stade sanguin. Les attributions hyperLOPIT de Toxoplasma ne sont pas transposées à Plasmodium."
+      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source_sha256": "7b9e5166e7e57a405fb01a52f6d63240635b0e3fd817e9e366772dc51c55759d",
+      "translation": "Un plan cellulaire apicomplexe commun, utilisant l’illustration SwissBioPics également employée dans ParaScape. Survolez-le pour une description de localisation UniProt et cochez plusieurs compartiments pour les garder en surbrillance. La forme du parasite et l’organisation des organites varient selon l’espèce et le stade du cycle de vie ; il ne s’agit pas d’une reconstruction du stade sanguin. Les attributions hyperLOPIT de Toxoplasma ne sont pas transposées à Plasmodium."
     },
     {
       "table": "ui",
@@ -118,10 +111,10 @@
     },
     {
       "table": "ui",
-      "key": "Checking the installed Starplast version and PyPI…",
-      "source": "Checking the installed Starplast version and PyPI…",
-      "source_sha256": "48a0895ff04ff436502899a7660a0a6db27e5817120aeabb4e6c7c8cead566a9",
-      "translation": "Vérification de la version installée de Starplast et de PyPI…"
+      "key": "Checking the installed ParaScape version and PyPI…",
+      "source": "Checking the installed ParaScape version and PyPI…",
+      "source_sha256": "5cfd7f901cd3cd3c269c55118b7f69e2dbe7a3507062a7889ec7c910c2c801ae",
+      "translation": "Vérification de la version installée de ParaScape et de PyPI…"
     },
     {
       "table": "ui",
@@ -251,10 +244,10 @@
     },
     {
       "table": "ui",
-      "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",
-      "translation": "Explorez la cellule apicomplexe à l’aide des étiquettes hyperLOPIT de Toxoplasma de Starplast. Survolez pour une description de localisation, cochez plusieurs compartiments pour les garder en surbrillance, ou utilisez Effacer la sélection pour les réinitialiser. Plusieurs classes partagent une même forme ; les granules denses utilisent la forme générique de granule cytoplasmique. Ribosomes, protéasomes, classes apicales et vésicules d’endomembranes mixtes n’ont pas de forme correspondante ici. L’illustration montre des noms de compartiments, pas des mesures de protéines."
+      "key": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source_sha256": "d15122e91befb1cf9db9139d22e19e767ced9397781bf7e59f2c4387a795d5b9",
+      "translation": "Explorez la cellule apicomplexe à l’aide des étiquettes hyperLOPIT de Toxoplasma de ParaScape. Survolez pour une description de localisation, cochez plusieurs compartiments pour les garder en surbrillance, ou utilisez Effacer la sélection pour les réinitialiser. Plusieurs classes partagent une même forme ; les granules denses utilisent la forme générique de granule cytoplasmique. Ribosomes, protéasomes, classes apicales et vésicules d’endomembranes mixtes n’ont pas de forme correspondante ici. L’illustration montre des noms de compartiments, pas des mesures de protéines."
     },
     {
       "table": "ui",
@@ -412,13 +405,6 @@
     },
     {
       "table": "ui",
-      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
-      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
-      "translation": "Dans Masques, choisissez le dossier d’images de votre série temporelle. Activez Série temporelle, puis configurez les métadonnées temporelles et les paramètres de suivi."
-    },
-    {
-      "table": "ui",
       "key": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source": "Install the plaque figure reader (YOLO and RapidOCR) into an environment of its own under ~/.spacr/backends; spaCR's own packages are not changed.",
       "source_sha256": "7ed2bb7ea88c6fb425a176ad59d85cdbee427d2060ffcb6af3dcd952bf2ecb1e",
@@ -500,13 +486,6 @@
       "source": "Montage loading cancelled; the current disk operation may finish.",
       "source_sha256": "191df9b0b8c069e590ee37a70f7e36a55021e7f2062a69b80cec73b1dc1d241c",
       "translation": "Chargement du montage annulé ; l’opération disque en cours peut se terminer."
-    },
-    {
-      "table": "ui",
-      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
-      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
-      "translation": "Nommez ce modèle — quelque chose que vous diriez à voix haute, comme “Toxo PVM, 40×” :"
     },
     {
       "table": "ui",
@@ -594,13 +573,6 @@
     },
     {
       "table": "ui",
-      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
-      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
-      "translation": "Ouvrez un projet de vignettes dans Annotation. Charger les données de test fournit un exemple. Choisissez la colonne d’annotation et étiquetez des objets représentatifs."
-    },
-    {
-      "table": "ui",
       "key": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source": "Open a module with a settings panel first — a template is a bundle of one module's settings.",
       "source_sha256": "0d906f1d1ba73882206ff7639f594549513c7be78bf3eed1b97dd65e7d02c044",
@@ -626,6 +598,13 @@
       "source": "Panel {letters} was read in {name}, but no legend is known for this figure. Paste the figure legend, or annotate by hand.",
       "source_sha256": "1137981fa023bfda81567633fd2eee30bba3778c7b79e1ad7ba6d97592ac0fd0",
       "translation": "Le panneau {letters} a été lu dans {name}, mais aucune légende n’est connue pour cette figure. Collez la légende de la figure, ou annotez à la main."
+    },
+    {
+      "table": "ui",
+      "key": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source_sha256": "b5accb1ab020b58d357581ec6cbddee67e3d4a924804b7c52851ce445d74e512",
+      "translation": "ParaScape {installed} est installé. La version {latest} est disponible sur PyPI. Mettre à niveau via pip avant l’ouverture ?"
     },
     {
       "table": "ui",
@@ -741,20 +720,6 @@
     },
     {
       "table": "ui",
-      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
-      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
-      "translation": "Sélectionnez un projet avec des images et des masques fusionnés. Charger les données de test fournit un exemple. Vérifiez les canaux d’image et d’étiquettes avant de mesurer."
-    },
-    {
-      "table": "ui",
-      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
-      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
-      "translation": "Sélectionnez vos fichiers FASTQ et les références de codes-barres correspondantes. Charger les données de test fournit un exemple. Vérifiez les références de colonne, de ligne et de guide avant le mappage."
-    },
-    {
-      "table": "ui",
       "key": "Show newer releases than this build in Home's News panel",
       "source": "Show newer releases than this build in Home's News panel",
       "source_sha256": "42110f9ec3498b62bd3f4477d67f3c4adb06398147c6b6015748dfdf51eab127",
@@ -787,20 +752,6 @@
       "source": "Spin about {axis} only: a drag turns the volume about that measurement's axis and leaves it where it is on screen.",
       "source_sha256": "038fc5eae4ccd903146954f46304dd7d82b50df3b495da9405ceda7c937d6829",
       "translation": "Tourner autour de {axis} seulement : un glissement fait tourner le volume autour de l’axe de cette mesure et le laisse à sa place à l’écran."
-    },
-    {
-      "table": "ui",
-      "key": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
-      "translation": "Starplast {installed} est installé. La version {latest} est disponible sur PyPI. Mettre à niveau via pip avant l’ouverture ?"
-    },
-    {
-      "table": "ui",
-      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
-      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
-      "translation": "Commencez par un projet d’images. Utilisez Charger les données de test dans Masques pour un exemple, ou sélectionnez votre dossier d’images. Vérifiez l’attribution des canaux avant l’exécution."
     },
     {
       "table": "ui",
@@ -1119,10 +1070,10 @@
     },
     {
       "table": "ui",
-      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source_sha256": "ebb593b82afa1a40521a11f6e0d27f24059ad63ef3a0aff1c5cffefb33ed1e10",
-      "translation": "Le schéma des compartiments relie les phénotypes d’imagerie au vocabulaire subcellulaire utilisé dans Starplast. ToxoDB fournit le contexte génique et génomique, tandis qu’UniProt fournit les annotations des protéines. L’atlas hyperLOPIT fournit des preuves expérimentales de localisation pour les protéines de Toxoplasma ; un organite mis en surbrillance ici est un guide vers ce vocabulaire, pas une prédiction pour un gène sélectionné ni la preuve de la cause d’un phénotype."
+      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source_sha256": "486cc736ebc04f37f783b8e95fe4dff7c6a8c3f1795d4213c8712c82f6dbe554",
+      "translation": "Le schéma des compartiments relie les phénotypes d’imagerie au vocabulaire subcellulaire utilisé dans ParaScape. ToxoDB fournit le contexte génique et génomique, tandis qu’UniProt fournit les annotations des protéines. L’atlas hyperLOPIT fournit des preuves expérimentales de localisation pour les protéines de Toxoplasma ; un organite mis en surbrillance ici est un guide vers ce vocabulaire, pas une prédiction pour un gène sélectionné ni la preuve de la cause d’un phénotype."
     },
     {
       "table": "ui",
@@ -1441,24 +1392,10 @@
     },
     {
       "table": "ui",
-      "key": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source_sha256": "e457bc3cf0b529f5fc157c1fadd1fa1a6e14824255bbd1aad7ab0fd2fb6b4473",
-      "translation": "Mettre à niveau Starplast via pip depuis PyPI dans son environnement séparé situé dans {path}. Fermez toutes les fenêtres Starplast ouvertes avant la mise à niveau. Starplast est en version alpha ; les téléchargements et l’espace disque dépendent de la version. Les paquets de spaCR ne sont pas modifiés."
-    },
-    {
-      "table": "ui",
-      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
-      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
-      "translation": "Utilisez Charger les données de test dans un module pour charger son projet d’exemple. Les parcours guidés de l’Accueil expliquent par où commencer et comment les modules se transmettent les données."
-    },
-    {
-      "table": "ui",
-      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
-      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
-      "translation": "Utilisez Mesure pour exporter des vignettes d’objets. Sélectionnez le projet contenant les images et masques fusionnés, puis activez l’enregistrement des vignettes et choisissez le type d’objet."
+      "key": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source_sha256": "ec2ce02efb53ca414003af40ffc41d8edd734e24f7baccf140040b879c9dc92a",
+      "translation": "Mettre à niveau ParaScape via pip depuis PyPI dans son environnement séparé situé dans {path}. Fermez toutes les fenêtres ParaScape ouvertes avant la mise à niveau. ParaScape est en version alpha ; les téléchargements et l’espace disque dépendent de la version. Les paquets de spaCR ne sont pas modifiés."
     },
     {
       "table": "ui",
@@ -1633,6 +1570,78 @@
         "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
         "translation": "Exécuter sur toute l’image la méthode CPU choisie sous Méthode de détection et étiqueter ce qu’elle trouve, en respectant l’aire minimale ci-dessus. Tout ce que lit la méthode appartient à cette catégorie : l’algorithme du niveau, la correction, le lissage, le côté correspondant à l’objet, le comblement des trous, la séparation d’une paire en contact et l’élimination de ce que le bord de l’image a coupé. Si Cellpose ou un moteur est choisi, ce bouton se rabat sur Otsu, car ceux-ci ont leur propre bouton Détection d'objets."
       }
+    },
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v2 is the current model.",
+      "source_sha256": "db7ee8989f5c56e67524fae749e115063510fabd7be8d7034b4df4228613aee5",
+      "translation": "'bundled' est l’ancien modèle de plages de lyse fourni avec le paquet. Il est conservé pour pouvoir reproduire une ancienne exécution ; il manque environ un tiers des plages sur les images de la littérature. toxoplasma_plaque_v2 est le modèle actuel.",
+      "retired": "2026-10-10: English source changed when toxoplasma_plaque_v3 became the default plaque model; superseded by 2026-10-10-n615-captions-store-figure-curation.json"
+    },
+    {
+      "table": "ui",
+      "key": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source": "Name this template — something you would say out loud, like “Toxo PVM, 40×”:",
+      "source_sha256": "79d49501a652dd1e5a27267b84f8a9da59281cf7d890173d417c8880c0e470e2",
+      "translation": "Nommez ce modèle — quelque chose que vous diriez à voix haute, comme “Toxo PVM, 40×” :",
+      "retired": "2026-10-11: English source changed in the N678 factual-language review (a625a7dac..7a27b4d2b); superseded by 2026-10-11-n678-captions.json"
+    },
+    {
+      "table": "ui",
+      "key": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source": "In Mask, choose the image folder for your time series. Enable Timelapse, then configure the time metadata and tracking settings.",
+      "source_sha256": "a8b1a6960d4b57cd7c897622cb853c3e692da99dab4422f51acef9f53f1da33e",
+      "translation": "Dans Masques, choisissez le dossier d’images de votre série temporelle. Activez Série temporelle, puis configurez les métadonnées temporelles et les paramètres de suivi.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source": "Open a crop project in Annotate. Load test data provides an example. Choose the annotation column and label representative objects.",
+      "source_sha256": "b3b866619472a4fd694a35045866c8f535cfbd0c6765084288cbd9327e81d4b8",
+      "translation": "Ouvrez un projet de vignettes dans Annotation. Charger les données de test fournit un exemple. Choisissez la colonne d’annotation et étiquetez des objets représentatifs.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source": "Select a project with merged images and masks. Load test data provides an example. Check the image and label channels before measuring.",
+      "source_sha256": "076f6e4a5f81650e7bddc58f386fc0c6519aabd000a9dc74651f9f531c667095",
+      "translation": "Sélectionnez un projet avec des images et des masques fusionnés. Charger les données de test fournit un exemple. Vérifiez les canaux d’image et d’étiquettes avant de mesurer.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source": "Select your FASTQ files and matching barcode references. Load test data provides an example. Check the column, row and guide references before mapping.",
+      "source_sha256": "7c86453d5d933b99e4e62072cc6172205378879f6e2093d4328d4a5c2a62c369",
+      "translation": "Sélectionnez vos fichiers FASTQ et les références de codes-barres correspondantes. Charger les données de test fournit un exemple. Vérifiez les références de colonne, de ligne et de guide avant le mappage.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source": "Start with an image project. Use Load test data within Mask for an example, or select your image folder. Check the channel assignments before running.",
+      "source_sha256": "2a01b32868988b1a91dca2213773c2387d5c681aa3f068fa5ce3051d634f08d9",
+      "translation": "Commencez par un projet d’images. Utilisez Charger les données de test dans Masques pour un exemple, ou sélectionnez votre dossier d’images. Vérifiez l’attribution des canaux avant l’exécution.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source": "Use Load test data within a module to load its example project. Home's pathway walkthroughs explain where to start and how the modules pass data to one another.",
+      "source_sha256": "f443ea3a0550bbe2ce57c0bdb684b4530893cfb818a234da460c8e064615ef23",
+      "translation": "Utilisez Charger les données de test dans un module pour charger son projet d’exemple. Les parcours guidés de l’Accueil expliquent par où commencer et comment les modules se transmettent les données.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
+    },
+    {
+      "table": "ui",
+      "key": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source": "Use Measure to export object crops. Select the project containing the merged images and masks, then enable crop saving and choose the object type.",
+      "source_sha256": "4875a24655bac4495fc6ad1f4511a75f88bf6dcece0e4455d7dfb129b6031d21",
+      "translation": "Utilisez Mesure pour exporter des vignettes d’objets. Sélectionnez le projet contenant les images et masques fusionnés, puis activez l’enregistrement des vignettes et choisissez le type d’objet.",
+      "retired": "2026-10-12: English caption removed with the spacr-tutorial still-frame renderer (spacr/qt/tutorial/scripts.py); spacr-tutorial now opens the online tutorial library. Historical review is not reused for any new text."
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

@@ -539,3 +539,59 @@ def test_the_wound_settings_are_alpha():
     for key in entry["settings"]:
         assert _is_alpha("settings", key)
     assert entry["widgets"] == ("MeasureWoundToggle",)
+
+
+@pytest.mark.parametrize('value', [-1, -0.5, 0.5, float('nan'), float('inf'), True, np.bool_(False), '1.0', 'bad', 3, 1 + 0j, np.array([1]), np.array([1, 2])])
+@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
+def test_wound_plane_invalid_index_refuses_before_any_pixel_selection(value, source):
+    from spacr.measure import _wound_plane
+    class NoPixelSelection:
+        shape = (8, 9, 3)
+        def __getitem__(self, selection):
+            pytest.fail('invalid plane index reached image selection')
+    settings = {'wound_source': source, 'wound_channel': value, 'cell_mask_dim': value}
+    with pytest.raises(ValueError, match='finite, nonnegative whole number'):
+        _wound_plane(NoPixelSelection(), settings)
+
+
+@pytest.mark.parametrize('value', [0, 1, np.int64(2), 1.0, np.float64(2.0), '1', ' +2 '])
+@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
+def test_wound_plane_integral_saved_values_select_exact_pixels_without_mutation(value, source):
+    from spacr.measure import _wound_plane
+    data = np.arange(8 * 9 * 3, dtype=np.uint16).reshape(8, 9, 3)
+    before = data.copy()
+    plane = _wound_plane(data, {'wound_source': source, 'wound_channel': value, 'cell_mask_dim': value})
+    np.testing.assert_array_equal(plane, data[..., int(value)])
+    assert plane.dtype == data.dtype
+    np.testing.assert_array_equal(data, before)
+
+
+@pytest.mark.parametrize('value', [-1, 0.5, True])
+def test_wound_default_channel_selection_is_also_strict(value):
+    from spacr.measure import _wound_plane
+    with pytest.raises(ValueError, match='finite, nonnegative whole number'):
+        _wound_plane(np.zeros((8, 9, 3)), {'channels': [value]})
+
+
+@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
+@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
+def test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic(monkeypatch, language, source):
+    import json
+    from pathlib import Path
+
+    from spacr.measure import _wound_plane
+    from spacr.qt import i18n
+
+    monkeypatch.setattr(i18n, 'current_language', lambda: language)
+
+    class NoPixelSelection:
+        shape = (8, 9, 3)
+
+        def __getitem__(self, selection):
+            pytest.fail('localized index refusal reached image selection')
+
+    review = Path(__file__).resolve().parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-14-wound-plane-index.json'
+    target = json.loads(review.read_text(encoding="utf-8"))['records'][0]['translation']
+    with pytest.raises(ValueError) as error:
+        _wound_plane(NoPixelSelection(), {'wound_source': source, 'wound_channel': 0.5, 'cell_mask_dim': 0.5})
+    assert str(error.value) == target.format(index='0.5', planes=3)

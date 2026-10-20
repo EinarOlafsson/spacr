@@ -7,10 +7,8 @@ Two variants:
     for compatibility with older screens that consume it.
 
 :class:`HTile`
-    Horizontal card — icon on the LEFT, name on top, one-line
-    description underneath. Minimalist look inspired by iOS Settings
-    and the VS Code command palette. This is what the startup screen
-    uses by default.
+    Horizontal card — icon on the LEFT, name on top, one-line description
+    underneath. This is what the startup screen uses by default.
 
 Both emit ``clicked()`` when pressed.
 """
@@ -239,10 +237,9 @@ class Tile(QWidget):
 class HTile(QPushButton):
     """Horizontal card: icon left, name + description right.
 
-    Renders as a full-width row inside a two- or three-column grid.
-    Uses ``font-family: "Open Sans"`` (Regular for the name, Light
-    for the description) and a subtle background that only appears
-    on hover — nothing to distract until you know what you want.
+    Renders as a full-width row inside a two- or three-column grid. Uses
+    ``font-family: "Open Sans"`` (Regular for the name, Light for the
+    description) and a background that appears only on hover.
 
     :param text: primary label (e.g. app name).
     :param description: single-line subtitle (e.g. app tagline).

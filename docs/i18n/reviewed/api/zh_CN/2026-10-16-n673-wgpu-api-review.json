@@ -1,0 +1,293 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "label": "spacr.doctor.check_3d_backends#1",
+      "source": "wgpu (Vulkan, Metal, Direct3D 12) is a default dependency, but a computer without it is a supported install: the view then draws with OpenGL (VisPy) or the CPU. A missing wgpu is therefore a ``PASS``; only a wgpu that is installed and cannot be imported is a ``WARN``.",
+      "source_sha256": "8b11956791f38a4e23ee2f831e5b4c6819337c27b3e53ef09c857cca45f5bd4d",
+      "translation": "wgpu（Vulkan、Metal、Direct3D 12）是默认依赖项，但未安装它的计算机也属于受支持的安装情况：此时视图使用 OpenGL（VisPy）或 CPU 绘制。因此，缺少 wgpu 的结果是 ``PASS``；只有已安装但无法导入的 wgpu 才会得到 ``WARN``。"
+    },
+    {
+      "context": "``probe_gpu=True`` lets wgpu list its adapters, which loads the graphics drivers but draws nothing; it is skipped when ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty, as the True 3D view skips the GPU then.",
+      "label": "spacr.doctor.check_3d_backends#2",
+      "source": "``probe_gpu=True`` lets wgpu list its adapters, which loads the graphics drivers but draws nothing; it is skipped when ``SPACR_NO_GPU_RENDER`` is set or ``CUDA_VISIBLE_DEVICES`` is empty, as the True 3D view skips the GPU then.",
+      "source_sha256": "bc637b236eaa56b418404fdcb02699e855d7295011b712e270206bf20b640fee",
+      "translation": "``probe_gpu=True`` 允许 wgpu 列出其适配器，这会加载图形驱动程序，但不会绘制任何内容；设置了 ``SPACR_NO_GPU_RENDER`` 或 ``CUDA_VISIBLE_DEVICES`` 为空时，会跳过此操作，因为 True 3D 视图此时也不使用 GPU。"
+    },
+    {
+      "context": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) records an install that left wgpu out, so in-app updates leave it out too.",
+      "label": "spacr.install_profile.build_parser#4",
+      "source": "``--without-wgpu`` (``\"0\"`` / ``\"1\"``) records an install that left wgpu out, so in-app updates leave it out too.",
+      "source_sha256": "edd2b6caa23768597c33730155e2562a5e2fdfbd21e09aa99f2d09a71b1a8b24",
+      "translation": "``--without-wgpu``（``\"0\"`` / ``\"1\"``）记录安装时未包含 wgpu，以便应用内更新也继续省略它。"
+    },
+    {
+      "context": "the parser, with ``--path``, ``--requested``, ``--detected``, the consent flags and ``--without-wgpu``.",
+      "label": "spacr.install_profile.build_parser#5",
+      "source": "the parser, with ``--path``, ``--requested``, ``--detected``, the consent flags and ``--without-wgpu``.",
+      "source_sha256": "4ed0871efb158aee3e9898fdb74a439e9810f77931ad61e2d0d705e9503bbd1e",
+      "translation": "解析器，包含 ``--path``、``--requested``、``--detected``、同意标志和 ``--without-wgpu``。"
+    },
+    {
+      "context": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "label": "spacr.install_profile.no_wgpu_override#0",
+      "source": "The uv ``--override`` file that keeps wgpu out, when the install did.",
+      "source_sha256": "6e915bf8a163ef6cdd629f54467df54a4d9adaf60cb01f5cf12221270fa35260",
+      "translation": "uv 的 ``--override`` 文件；如果安装时省略了 wgpu，此文件会使它继续被排除。"
+    },
+    {
+      "context": "a profile from :func:`read_profile`, or ``None``.",
+      "label": "spacr.install_profile.no_wgpu_override#1",
+      "source": "a profile from :func:`read_profile`, or ``None``.",
+      "source_sha256": "7f0680fac5d236f36d4de7238ecf0c86c0e7f120388fea161c00acc60c91a789",
+      "translation": "由 :func:`read_profile` 返回的配置记录，或 ``None``。"
+    },
+    {
+      "context": "where to write the file; defaults to beside the profile.",
+      "label": "spacr.install_profile.no_wgpu_override#2",
+      "source": "where to write the file; defaults to beside the profile.",
+      "source_sha256": "362533b017eb61cf2094b7a12d697e97dd84b6bd129bb91ac3ffeab7fd8d01c7",
+      "translation": "文件写入的位置；默认与配置文件位于同一目录。"
+    },
+    {
+      "context": "the written file when the profile records ``without_wgpu``, else ``None`` (also when the file cannot be written).",
+      "label": "spacr.install_profile.no_wgpu_override#3",
+      "source": "the written file when the profile records ``without_wgpu``, else ``None`` (also when the file cannot be written).",
+      "source_sha256": "2539b0109d0371747e2bdee1aae364986d74d1e251ac9e68923edd157e0e3a3d",
+      "translation": "配置记录标明 ``without_wgpu`` 时写入的文件；否则为 ``None``（文件无法写入时也如此）。"
+    },
+    {
+      "context": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "label": "spacr.install_profile.write_profile#4",
+      "source": "the install left wgpu out (the installers' \"Install without wgpu\" option, or Linux with glibc older than 2.28); recorded so an in-app update leaves it out too (:func:`no_wgpu_override`).",
+      "source_sha256": "038864379b17789f078c632901fe9be0c4d9c44eeff811a401ee2b1251040c3f",
+      "translation": "安装时省略了 wgpu（安装程序的 \"Install without wgpu\" 选项，或 glibc 版本早于 2.28 的 Linux）；记录此状态，以便应用内更新也继续省略它（:func:`no_wgpu_override`）。"
+    },
+    {
+      "context": ":func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).",
+      "label": "spacr.layers.WGPUVolumeRenderer#0",
+      "source": ":func:`render_volume`, ray-marched on the GPU through wgpu (WGSL).",
+      "source_sha256": "c2dd98ecc2dd29cce527c278aece94156886a94ddfa71e8627e8e93f96aa9b00",
+      "translation": ":func:`render_volume`，通过 wgpu（WGSL）在 GPU 上使用射线步进进行渲染。"
+    },
+    {
+      "context": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "label": "spacr.layers.WGPUVolumeRenderer#1",
+      "source": "The third renderer of the same frame: Vulkan, Metal or Direct3D 12 by the adapter it is given. The same rays (:class:`VolumeRays`), renderings, finishes and lens as :func:`render_volume` and :class:`GLVolumeRenderer`; one compute invocation walks one ray. Volumes are read with ``textureLoad`` and interpolated in the shader exactly as :func:`scipy.ndimage.map_coordinates` does (``order=1``, edges repeated), image layers add up, labels layers are laid over them in stack order, and each labels layer writes the object nearest the viewer under each ray for picking. The frame is drawn into a storage buffer, scaled to the picture's size and read back, so it lands under the same matplotlib axes as the CPU's.",
+      "source_sha256": "df87602fa9ec4c3c20c6a9672078f968d0e89ad2282ca16daf356e2dcdb6d565",
+      "translation": "同一帧的第三种渲染器：根据传入的适配器使用 Vulkan、Metal 或 Direct3D 12。它使用的射线（:class:`VolumeRays`）、渲染方式、表面效果和透镜与 :func:`render_volume` 和 :class:`GLVolumeRenderer` 相同；一次计算调用遍历一条射线。体数据通过 ``textureLoad`` 读取，并在着色器中按照与 :func:`scipy.ndimage.map_coordinates` 完全相同的方式插值（``order=1``，重复边界值）。图像图层相加，标签图层按堆叠顺序覆盖在其上，每个标签图层为每条射线记录距离观察者最近的对象，以供对象选取。帧被绘制到存储缓冲区，缩放至图像尺寸后回读，因此会显示在与 CPU 渲染结果相同的 matplotlib 坐标轴中。"
+    },
+    {
+      "context": "A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it, as :class:`GLVolumeRenderer` does.",
+      "label": "spacr.layers.WGPUVolumeRenderer#2",
+      "source": "A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it, as :class:`GLVolumeRenderer` does.",
+      "source_sha256": "7982e7e8cb9341b4386ec24d61f951c3531bf5db1cbd4b2b9d3388efc4af9ccb",
+      "translation": "体数据只上传一次，并以内存标识为键保留；只要每一帧都绘制它，就继续保留，与 :class:`GLVolumeRenderer` 的做法相同。"
+    },
+    {
+      "context": "Ask the adapter for a device with its own largest limits.",
+      "label": "spacr.layers.WGPUVolumeRenderer#4",
+      "source": "Ask the adapter for a device with its own largest limits.",
+      "source_sha256": "8f9d1f6500d919fccb2bf5c12828dbf53a403013e748641d51643b7b16333519",
+      "translation": "向适配器请求一个采用其最大限制值的设备。"
+    },
+    {
+      "context": "Free every volume, buffer and the device.",
+      "label": "spacr.layers.WGPUVolumeRenderer.close#0",
+      "source": "Free every volume, buffer and the device.",
+      "source_sha256": "5c7a7de2b931c0483b52dc1a028ca177a96ca65eed2d343c0ea9e6defeee2eac",
+      "translation": "释放所有体数据、缓冲区以及设备。"
+    },
+    {
+      "context": "The adapter's name, its backend and its largest 3-D texture side.",
+      "label": "spacr.layers.WGPUVolumeRenderer.limits#0",
+      "source": "The adapter's name, its backend and its largest 3-D texture side.",
+      "source_sha256": "25086d94b9b80315930098d8d53fbe49cd5827bb04f2fcd7f00b1d3b8b5b2606",
+      "translation": "适配器的名称、后端以及 3D 纹理的最大边长。"
+    },
+    {
+      "context": "Draw one frame; the same picture as :func:`render_volume`.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#0",
+      "source": "Draw one frame; the same picture as :func:`render_volume`.",
+      "source_sha256": "70a2013676a8d386c2fdd2947a30979964b58a9a1663add195dfeef9f2418f88",
+      "translation": "绘制一帧；图像与 :func:`render_volume` 相同。"
+    },
+    {
+      "context": "the layers, bottom first.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#1",
+      "source": "the layers, bottom first.",
+      "source_sha256": "14cb64571c5f80f106dbba545ce05fe2341052ff03086782b1bb3a1df904e7c7",
+      "translation": "图层，最底层在前。"
+    },
+    {
+      "context": "where to sample, in the layers' array indices.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#2",
+      "source": "where to sample, in the layers' array indices.",
+      "source_sha256": "5a68833be9d4e9d2cd5d6c448c3ac28a6124b42e1041ac4402f14e303110631f",
+      "translation": "采样位置，以图层数组的索引表示。"
+    },
+    {
+      "context": "an object drawn lighter.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#3",
+      "source": "an object drawn lighter.",
+      "source_sha256": "f966b4c17af8888f15b83a7d7d9f82d6a7b9a30237f2fe40217ec200744caaba",
+      "translation": "以更亮的颜色绘制的对象。"
+    },
+    {
+      "context": "physical voxel length along each array axis.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#4",
+      "source": "physical voxel length along each array axis.",
+      "source_sha256": "f330bc9cf061ec48d1f709b73377e5e76ee98b96cf0eb933369b3552b89de5b1",
+      "translation": "沿各数组轴方向的体素物理长度。"
+    },
+    {
+      "context": "a magnifier cube, or ``None``.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#5",
+      "source": "a magnifier cube, or ``None``.",
+      "source_sha256": "2743d26a84c1777382ed737de8712c4367cebfc01a4d335e6070bc1c55dd3e02",
+      "translation": "放大镜立方体，或 ``None``。"
+    },
+    {
+      "context": "``(rows, columns)`` of the picture returned, scaled up from the rays' grid on the GPU; ``None`` keeps the rays' grid.",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#6",
+      "source": "``(rows, columns)`` of the picture returned, scaled up from the rays' grid on the GPU; ``None`` keeps the rays' grid.",
+      "source_sha256": "0a9043e1d517e66b1cb0f97bc382fcc563fd7cf463bd8702c3e07d04e9e1b8af",
+      "translation": "返回图像的 ``(rows, columns)``，由 GPU 上的射线网格放大得到；``None`` 保持原来的射线网格。"
+    },
+    {
+      "context": "``(rgb, picked)``: ``uint8`` colour of ``size`` and the object nearest the viewer under each ray (``int64``, the rays' grid).",
+      "label": "spacr.layers.WGPUVolumeRenderer.render#7",
+      "source": "``(rgb, picked)``: ``uint8`` colour of ``size`` and the object nearest the viewer under each ray (``int64``, the rays' grid).",
+      "source_sha256": "b6f4c0bcba01c984cead4919d8021998e3a2b7b8c0e77a5ee1ad73d1cdf5cd8a",
+      "translation": "``(rgb, picked)``：``uint8`` 类型、尺寸为 ``size`` 的颜色数据，以及每条射线上距离观察者最近的对象（``int64``，采用射线网格）。"
+    },
+    {
+      "context": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "label": "spacr.layers.gpu_render_refusal#0",
+      "source": "Why a 3-D view must not draw on the GPU here, or ``\"\"``.",
+      "source_sha256": "13ff1b338956527418011a1b790b28302b5ccf67840c2570b77c7ab14dbd15dd",
+      "translation": "此处不允许 3D 视图在 GPU 上绘制的原因，或 ``\"\"``。"
+    },
+    {
+      "context": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, any value but ``0`` or empty), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (set to nothing), or ``\"\"`` when the GPU may be used.",
+      "label": "spacr.layers.gpu_render_refusal#1",
+      "source": "``\"SPACR_NO_GPU_RENDER is set\"`` (:data:`GPU_RENDER_OFF_ENV`, any value but ``0`` or empty), ``\"CUDA_VISIBLE_DEVICES is empty\"`` (set to nothing), or ``\"\"`` when the GPU may be used.",
+      "source_sha256": "c1557f4cc874f1e28bdcc5daf187a3af10d957238b2371ec0d713b883deb898d",
+      "translation": "``\"SPACR_NO_GPU_RENDER is set\"``（:data:`GPU_RENDER_OFF_ENV`，取除 ``0`` 或空值之外的任何值）、``\"CUDA_VISIBLE_DEVICES is empty\"``（设置为空值），或者在允许使用 GPU 时返回 ``\"\"``。"
+    },
+    {
+      "context": "A discrete GPU is preferred to an integrated one, and a software rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.",
+      "label": "spacr.layers.wgpu_adapter#1",
+      "source": "A discrete GPU is preferred to an integrated one, and a software rasteriser (``adapter_type`` ``CPU``) comes last, or not at all.",
+      "source_sha256": "a0b6510272d616f54ebcd2f50331a91ad981015e8f574a1cb57800c34b39c220",
+      "translation": "优先选择独立 GPU，而非集成显卡；软件光栅化器（``adapter_type`` ``CPU``）排在最后，或完全不采用。"
+    },
+    {
+      "context": "a key of :data:`WGPU_BACKENDS`.",
+      "label": "spacr.layers.wgpu_adapter#2",
+      "source": "a key of :data:`WGPU_BACKENDS`.",
+      "source_sha256": "ab940514c5d4db0f209bdb261cd4014c1d9068f1fdc42bc3bf7a86eeb94bbc18",
+      "translation": ":data:`WGPU_BACKENDS` 中的一个键。"
+    },
+    {
+      "context": "whether a software rasteriser is accepted.",
+      "label": "spacr.layers.wgpu_adapter#3",
+      "source": "whether a software rasteriser is accepted.",
+      "source_sha256": "4a954ebc020db1be53c03bb425296c6deb6bff5d6daf89d0a652fc3dd0cf2f5a",
+      "translation": "是否接受软件光栅化器。"
+    },
+    {
+      "context": "with a one-line reason when there is none.",
+      "label": "spacr.layers.wgpu_adapter#5",
+      "source": "with a one-line reason when there is none.",
+      "source_sha256": "e784eb68bf47f8bc3321c4ddf1a267e4c641c033aa6fea9d7e9e093dfa2fea8c",
+      "translation": "不存在适配器时，附上一行原因说明。"
+    },
+    {
+      "context": "The graphics adapters wgpu can draw the True 3D view with.",
+      "label": "spacr.layers.wgpu_adapters#0",
+      "source": "The graphics adapters wgpu can draw the True 3D view with.",
+      "source_sha256": "fe49253da26f9b6a6d0b62804952e4cf5038e3b38ef2ffa3d268361d6ca62012",
+      "translation": "wgpu 可以用来绘制 True 3D 视图的图形适配器。"
+    },
+    {
+      "context": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "label": "spacr.layers.wgpu_adapters#1",
+      "source": "wgpu is imported the first time this is asked, never before, so a computer without it pays nothing; it is then remembered.",
+      "source_sha256": "2cdb02e405e9c1ebdeeb068d68b2b6791e6d4331eabbf659ee021f3b2103bcac",
+      "translation": "仅在首次请求此信息时才导入 wgpu，绝不会提前导入，因此未安装它的计算机不会承担这项开销；随后会在内存中保留结果。"
+    },
+    {
+      "context": "a key-value mapping that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a structured-data name never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "label": "spacr.qt.preferences.get_volume_view#1",
+      "source": "a dict that may hold ``backend`` (``auto``, ``vulkan``, ``metal``, ``d3d12``, ``opengl`` or ``cpu``), ``scale`` (the Render scale, 1 to 100) and ``finish`` (the mask surfaces' finish); a key never chosen is absent. The caller checks the values, so a store written by a later version still opens.",
+      "source_sha256": "5a10d40273c87e39a871b830712422664da124f71b866eaeeb2fec37c45bfbaa",
+      "translation": "一个字典，可包含 ``backend``（``auto``、``vulkan``、``metal``、``d3d12``、``opengl`` 或 ``cpu``）、``scale``（渲染比例，1 到 100）和 ``finish``（掩膜表面的效果）；从未选择过的键不会出现。调用方会检查这些值，因此仍能打开由较新版本写入的设置存储。"
+    },
+    {
+      "context": "The GPU backends a choice tries, in order, before the CPU.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#0",
+      "source": "The GPU backends a choice tries, in order, before the CPU.",
+      "source_sha256": "ad781141c364e0b2e5e0570975191cd4f44cfb51dde4ea7bc77297b0b0fe5a00",
+      "translation": "某个选项在使用 CPU 之前依次尝试的 GPU 后端。"
+    },
+    {
+      "context": "Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other GPU choice is tried alone; ``cpu`` tries none.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#1",
+      "source": "Auto prefers wgpu -- Vulkan on Linux and Windows, Metal on macOS, and on Windows Direct3D 12 when Vulkan is missing -- then OpenGL. Any other GPU choice is tried alone; ``cpu`` tries none.",
+      "source_sha256": "96f292bd51a9124264d855e42ce94ab2e250d753306367a0b3af6e9fa5d7783e",
+      "translation": "Auto 优先采用 wgpu -- 在 Linux 和 Windows 上使用 Vulkan，在 macOS 上使用 Metal，而在 Windows 上缺少 Vulkan 时使用 Direct3D 12 -- 然后尝试 OpenGL。其他 GPU 选项只尝试所选的单一后端；``cpu`` 不尝试任何后端。"
+    },
+    {
+      "context": "a key of :data:`VOLUME_BACKENDS`.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#2",
+      "source": "a key of :data:`VOLUME_BACKENDS`.",
+      "source_sha256": "394671030ef87be733409bbac66adf8e886c14b0decd274efd335c8df07ca40c",
+      "translation": ":data:`VOLUME_BACKENDS` 中的一个键。"
+    },
+    {
+      "context": "the backends offered; defaults to :func:`volume_render_backends`.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#3",
+      "source": "the backends offered; defaults to :func:`volume_render_backends`.",
+      "source_sha256": "23a414b6a8cdccb5361548026b3b5853e9c7c756035ac213ccb2573e0f91f6ce",
+      "translation": "可用的后端；默认采用 :func:`volume_render_backends` 的结果。"
+    },
+    {
+      "context": "GPU backend keys, best first.",
+      "label": "spacr.qt.screens.make_masks.volume_backend_chain#5",
+      "source": "GPU backend keys, best first.",
+      "source_sha256": "6f5ca7279131b7b5b3d31f756f623ce45006cc6344d36555445df47bd825a3ab",
+      "translation": "GPU 后端的键，最佳选项在前。"
+    },
+    {
+      "context": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#0",
+      "source": "Why the True 3D view must not draw on the GPU here, or ``''``.",
+      "source_sha256": "9f4ae569cf871d5e81685fbb7333907b1858712f0a7f70351ed47d92b1fd35df",
+      "translation": "此处不允许 True 3D 视图在 GPU 上绘制的原因，或 ``''``。"
+    },
+    {
+      "context": ":func:`spacr.layers.gpu_render_refusal`: ``SPACR_NO_GPU_RENDER`` set, or ``CUDA_VISIBLE_DEVICES`` set and empty, keeps the view on the CPU.",
+      "label": "spacr.qt.screens.make_masks.volume_gpu_refusal#1",
+      "source": ":func:`spacr.layers.gpu_render_refusal`: ``SPACR_NO_GPU_RENDER`` set, or ``CUDA_VISIBLE_DEVICES`` set and empty, keeps the view on the CPU.",
+      "source_sha256": "3dc916385589681e081292b0ffc59486ac787adef4832b619af7856e8544feb9",
+      "translation": ":func:`spacr.layers.gpu_render_refusal`：设置了 ``SPACR_NO_GPU_RENDER``，或者 ``CUDA_VISIBLE_DEVICES`` 已设置且为空时，视图会保持使用 CPU。"
+    },
+    {
+      "context": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "label": "spacr.qt.screens.make_masks.volume_render_backends#1",
+      "source": "``auto`` and ``cpu`` always; ``vulkan``, ``metal`` and ``d3d12`` when wgpu is installed and finds an adapter of that kind (:func:`spacr.layers.wgpu_adapters`, which imports wgpu the first time and never before); ``opengl`` when VisPy (a spaCR dependency) is importable. With the GPU turned off (:func:`volume_gpu_refusal`) only ``auto`` and ``cpu``. Whether a backend really draws is only known when the first frame is drawn; :meth:`_VolumeStage._active_backend` finds out, and Auto falls back along :func:`volume_backend_chain`.",
+      "source_sha256": "60e2f48fcd39dab08fe4f6024740cf91c1f765664cb6cbeffe72a5fdb920bed6",
+      "translation": "始终提供 ``auto`` 和 ``cpu``；安装了 wgpu 且找到相应类型的适配器时提供 ``vulkan``、``metal`` 和 ``d3d12``（:func:`spacr.layers.wgpu_adapters`，仅在首次调用时导入 wgpu，绝不会提前导入）；能够导入 VisPy（spaCR 的依赖项）时提供 ``opengl``。禁用 GPU 时（:func:`volume_gpu_refusal`）仅提供 ``auto`` 和 ``cpu``。只有绘制第一帧时才能知道后端是否确实能绘制；:meth:`_VolumeStage._active_backend` 会进行判断，Auto 则沿 :func:`volume_backend_chain` 尝试备用后端。"
+    },
+    {
+      "context": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "label": "spacr.updater.upgrade_command#1",
+      "source": "An install that left wgpu out (its installer profile records ``without_wgpu``) is upgraded with uv's ``--override`` of :func:`spacr.install_profile.no_wgpu_override`, so the update leaves it out too.",
+      "source_sha256": "a9946bbe0907d70735d911e3509181d5ad71030515170b76b29ef6bc509582d6",
+      "translation": "对于安装时省略了 wgpu 的情况（安装配置记录中记有 ``without_wgpu``），升级时会使用 uv 的 ``--override``（由 :func:`spacr.install_profile.no_wgpu_override` 提供），以便更新后也继续省略它。"
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,443 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "lesson": "05_home",
+  "scope": "Actual current voiceproduction13reviews and14catalog source/text closure, not linguistic/audio acceptance",
+  "English": {
+    "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/05_home.json",
+    "bytes": 12628,
+    "sha256": "d57ea978b09a03132fad3f1d97dc83eabcb2403e607adb55deaaa4ef94ef2800"
+  },
+  "English_normalized_sha256": "f8908880aff368137b2883715d0e2ea4caf7f694a18426d3da1b567451455b38",
+  "voiceproduction_English": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/lesson.en.json",
+    "bytes": 12628,
+    "sha256": "d57ea978b09a03132fad3f1d97dc83eabcb2403e607adb55deaaa4ef94ef2800"
+  },
+  "review_count": 13,
+  "catalog_count": 14,
+  "scenes": 31,
+  "reviews": [
+    {
+      "locale": "da",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.da.json",
+        "bytes": 15990,
+        "sha256": "903a67c51a8639b699c2fd49b5fbb4a7a4c4b686654d8fc72010f4deb11ad932"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.da.json",
+        "bytes": 15990,
+        "sha256": "903a67c51a8639b699c2fd49b5fbb4a7a4c4b686654d8fc72010f4deb11ad932"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "de",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.de.json",
+        "bytes": 16764,
+        "sha256": "b655873079485614bc2b2fa8fa3efa56598b5653b493b7d3cd51415469d31540"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.de.json",
+        "bytes": 16764,
+        "sha256": "b655873079485614bc2b2fa8fa3efa56598b5653b493b7d3cd51415469d31540"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "es",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.es.json",
+        "bytes": 16580,
+        "sha256": "3714047211ad884fa2c0589d468099de957d976d6d17c1af1ef2d947ebb527a2"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.es.json",
+        "bytes": 16580,
+        "sha256": "3714047211ad884fa2c0589d468099de957d976d6d17c1af1ef2d947ebb527a2"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "fr",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.fr.json",
+        "bytes": 17110,
+        "sha256": "8800b259c8056b59654a137d463c48c58120200f4f8701ad61136a412397bbf0"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.fr.json",
+        "bytes": 17110,
+        "sha256": "8800b259c8056b59654a137d463c48c58120200f4f8701ad61136a412397bbf0"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "hi",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.hi.json",
+        "bytes": 25297,
+        "sha256": "c55466b9eba8fc60f4d309ec5201e9100b3ca1e54363cbf1963aec6d914f1938"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.hi.json",
+        "bytes": 25297,
+        "sha256": "c55466b9eba8fc60f4d309ec5201e9100b3ca1e54363cbf1963aec6d914f1938"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "is",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.is.json",
+        "bytes": 16112,
+        "sha256": "057b65a220f839c850086654e8633923133fb231ed20f654d094c056ae61a782"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.is.json",
+        "bytes": 16112,
+        "sha256": "057b65a220f839c850086654e8633923133fb231ed20f654d094c056ae61a782"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "it",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.it.json",
+        "bytes": 16440,
+        "sha256": "dea49a18122151d6056441f510cd5057c5f95e0a44298be9e07d95667dc74232"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.it.json",
+        "bytes": 16440,
+        "sha256": "dea49a18122151d6056441f510cd5057c5f95e0a44298be9e07d95667dc74232"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "ja",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.ja.json",
+        "bytes": 17949,
+        "sha256": "f6246aec9723873369e0f66de36c3e3ae0ea7720b99204830e6f35c4632b90ae"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.ja.json",
+        "bytes": 17949,
+        "sha256": "f6246aec9723873369e0f66de36c3e3ae0ea7720b99204830e6f35c4632b90ae"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "ko",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.ko.json",
+        "bytes": 16950,
+        "sha256": "0ea33f7ec1cc5155a08632ccbbc196f46b907e87434e968cf4a6c8601b3f5a42"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.ko.json",
+        "bytes": 16950,
+        "sha256": "0ea33f7ec1cc5155a08632ccbbc196f46b907e87434e968cf4a6c8601b3f5a42"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "nb",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.nb.json",
+        "bytes": 15888,
+        "sha256": "99555ea533c84bb151099cb888cbdc15665177a2ac44caed19941d4d41d2b10c"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.nb.json",
+        "bytes": 15888,
+        "sha256": "99555ea533c84bb151099cb888cbdc15665177a2ac44caed19941d4d41d2b10c"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "pt-BR",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.pt-BR.json",
+        "bytes": 16248,
+        "sha256": "e1ad4f885df73bfe9d6b162b7a6bf43fbf1ba5166c0d2d13115b99b4bcfb12ac"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.pt-BR.json",
+        "bytes": 16248,
+        "sha256": "e1ad4f885df73bfe9d6b162b7a6bf43fbf1ba5166c0d2d13115b99b4bcfb12ac"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "sv",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.sv.json",
+        "bytes": 16066,
+        "sha256": "5aed36141a85f9aa780701bf4d4b5b106cebe8445d686d44cbaba79397676503"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.sv.json",
+        "bytes": 16066,
+        "sha256": "5aed36141a85f9aa780701bf4d4b5b106cebe8445d686d44cbaba79397676503"
+      },
+      "unchanged30narrations_exact": true
+    },
+    {
+      "locale": "zh-CN",
+      "voiceproduction_review": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/production/05_home/review.zh-CN.json",
+        "bytes": 14931,
+        "sha256": "159d54cdf6cbd524782775e137e34c729734bb72f1a3401c7ed979351d1bc68d"
+      },
+      "ROOT_review": {
+        "path": "/media/carruthers/mnt3/claude/spacr-illumination-performance-20261014/tools/tutorials/lessons/reviews/05_home.zh-CN.json",
+        "bytes": 14931,
+        "sha256": "159d54cdf6cbd524782775e137e34c729734bb72f1a3401c7ed979351d1bc68d"
+      },
+      "unchanged30narrations_exact": true
+    }
+  ],
+  "catalogs": [
+    {
+      "locale": "da",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/captions_da.json",
+        "bytes": 697302,
+        "sha256": "8d97defb6bcbbea34c0f1d0bf5ddd9315a5b37d845946380a16e8e43839e29ac"
+      },
+      "current_lesson_object_normalized_sha256": "be4ab0ef87610cb36cf9370e426b8460b7228f51cf09b020f5b1585a02debb99",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "de",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/captions_de.json",
+        "bytes": 744264,
+        "sha256": "75956a06e6f92ec026a53e157b0a604deee8e5a979a5fa21b3ca2c8ce637681f"
+      },
+      "current_lesson_object_normalized_sha256": "870838223bbfbd23766c8ecd25df1065b634bac4d0a14edb42e10c57881ba9df",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "is",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/captions_is.json",
+        "bytes": 702067,
+        "sha256": "2cd17f61822ff15ecb2ba9f65926fedf2e11dc282362afa831d62d9e105b7edd"
+      },
+      "current_lesson_object_normalized_sha256": "641fc92a71fc20dc921935f58922afefb8cb0c31a3fe1e1436f158a3a145eb36",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "ko",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/captions_ko.json",
+        "bytes": 738748,
+        "sha256": "c7183d5898095600c594658bfd1c32e00f3a91d459426ecb02d432bdd254d078"
+      },
+      "current_lesson_object_normalized_sha256": "b18abb338778980e8bad024be2a83303c7f2bc1e3a6da45726ebd28e01d86e68",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "nb",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/captions_nb.json",
+        "bytes": 693149,
+        "sha256": "ee954e305938c06d70426ed307515808379eaa15cb31849ef3751641ade2a923"
+      },
+      "current_lesson_object_normalized_sha256": "b99bbbb63417db0d2d4270264e410597298a15313a788490f237e1898481ca4b",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "sv",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/captions_sv.json",
+        "bytes": 702075,
+        "sha256": "26a2a79ef9f68bcbcddb22cee365fa5776f48073017d397b341666237194ce69"
+      },
+      "current_lesson_object_normalized_sha256": "d9ebfa0a14ae2e245bd20c8b76910f9ba82b620c8942c02b96053d2fd26936f4",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "en",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_en.json",
+        "bytes": 674302,
+        "sha256": "542679c087a60d01781b4db95a7061db5d5142cfaebc9a124f0f4ef0afc4cd70"
+      },
+      "current_lesson_object_normalized_sha256": "2709ffea0f0df2659716428d79567be106f6ee7568052a90532739b4e25008b1",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "es",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_es.json",
+        "bytes": 1104471,
+        "sha256": "a935d704f564d8619606bc2ed1ca8bc69523133bd8b6b491236c72072a70465b"
+      },
+      "current_lesson_object_normalized_sha256": "8dc22d14d8e68f54906fede66c49adae5f103aaded95532ade271644c5c5ab05",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "fr",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_fr.json",
+        "bytes": 1148195,
+        "sha256": "acf852ac1a2fb60071e2f068ee816ebc7e8a627f3e00e5145eb9920b9aee90b7"
+      },
+      "current_lesson_object_normalized_sha256": "1f8f3fa69fb42c8a8ead104376a892b98f5f15243342c763ed6724cf4cba1ffb",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "hi",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_hi.json",
+        "bytes": 1832339,
+        "sha256": "8885e2670b7acabc6ad8ec1da79fa4c905dd4a0ac7d99b8a03d0d63a4bed5770"
+      },
+      "current_lesson_object_normalized_sha256": "2b47a4fefe244ac2baabebe02e8d38cdb9feb26c8ac8214d07521ca73a7cac42",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "it",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_it.json",
+        "bytes": 1093066,
+        "sha256": "65619fc8fefa9b5fdbbd6b4080f61705a4d7d54ea6e8a77bff6d7e868618c27f"
+      },
+      "current_lesson_object_normalized_sha256": "7e2896111d6a008d85625ded53ff0908a7bd373894245a4546d815abd09ce1d6",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "ja",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_ja.json",
+        "bytes": 1222656,
+        "sha256": "fdd8efa7b9ed930dc72e8a8e08780935d24733ba769fc609d88c82669181c72e"
+      },
+      "current_lesson_object_normalized_sha256": "b0ba6bf1197a75d8dd4d49e5cd0bbe50bdd59273b9367e8c202a2962f17b2434",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "pt-BR",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_pt-BR.json",
+        "bytes": 1087212,
+        "sha256": "193412a8889d2efb20658eda8688b711ef33b11e8cd2032db0097d7be53f3521"
+      },
+      "current_lesson_object_normalized_sha256": "06e6b08d52551ebe30b997cb3d20ded9beaa95f95db97e96d3ededee8f11dd34",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    },
+    {
+      "locale": "zh-CN",
+      "catalog": {
+        "path": "/media/carruthers/mnt3/claude/n676_stages/voices-05-selective-20261015/catalog/lessons_zh-CN.json",
+        "bytes": 948865,
+        "sha256": "8b4d9ea7aa550432a24278bf99519a0368db69d551e4dbdf0247446ee1b7d0fe"
+      },
+      "current_lesson_object_normalized_sha256": "0a0ad49a20d98517e0d8932e003695657944454fcc6fc70566c685451527e072",
+      "current31scene_exact_official_source_projection": true,
+      "Spaceout_active_text_or_scene": false,
+      "other30narrations_exact_oldpublished": true,
+      "generated_fields_ignored_only": [
+        "narration_voices"
+      ]
+    }
+  ],
+  "prior_independent_translation_peer": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-translation-independent-technical-peer.json",
+    "bytes": 12295,
+    "sha256": "a569aaa2cb8b3dcf44e626b4ce0ad9a08215b2940424a3b0c11df31ed707d49a"
+  },
+  "prior_final_source_closure": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-final-source-closure-peer.json",
+    "bytes": 13884,
+    "sha256": "5d223536f8090e5bee7529e76fc832134727c36f34102ee57ac4b5c8afdc4785"
+  },
+  "application_receipt": {
+    "path": "/media/carruthers/mnt3/claude/n676_stages/work/lesson05-selective-20261015/overview-source-application-receipt.json",
+    "bytes": 6265,
+    "sha256": "4c968e85171cf07d37d72af0940b731082eab08c7a05bdc6b2ad80306ff4a104"
+  },
+  "checks": {
+    "current13reviews_byte_exact_ROOT_and_existing_appliedbindings": true,
+    "current14objects_match_officialEnglish_or_translated_lesson": true,
+    "all30unchangedparagraphs_preserved_eachlocale": true,
+    "active31objects_noSpaceout_text_or_scene": true
+  },
+  "limits": [
+    "Existing independenttranslationpeer701a569/sourceclosure5d223 retained; originaldrafter doesnotgrantnewindependentlinguisticapproval.",
+    "Puredata owningprojection/readback only; no audioQA/decode/listening/render/browser/model/test/network execution.",
+    "Master/renderstage andpublishedpacket/progress untouched; no publicationacceptance implied.",
+    "Historicalreviewmetadata notrescannedasactivecaptionprose."
+  ]
+}

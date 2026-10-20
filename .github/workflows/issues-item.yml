@@ -1,0 +1,56 @@
+name: issues-item
+
+# Item 709 ("resolve all open GitHub issues") reopens whenever an issue is
+# added. On every issue event this job rewrites the item's Status line and
+# its open-issue block from the GitHub API with
+# tools/sync_open_issues_item.py, and commits only that file to nightly when
+# it changed. Runs queue rather than cancel, so no event is lost.
+
+on:
+  issues:
+    types: [opened, reopened, closed, deleted, transferred]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: issues-item
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: nightly
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Sync item 709 with the open issues and push to nightly
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ITEM: features/new/709_resolve_all_open_github_issues.txt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin nightly
+            git reset --hard origin/nightly
+            python tools/sync_open_issues_item.py --repo "$GITHUB_REPOSITORY"
+            if git diff --quiet -- "$ITEM"; then
+              echo "Item 709 already matches the open issues."
+              exit 0
+            fi
+            git add -- "$ITEM"
+            git commit -m "709: sync open issues"
+            if git push origin HEAD:nightly; then
+              exit 0
+            fi
+            echo "Push attempt $attempt was rejected; retrying on the new nightly."
+            sleep $((attempt * 5))
+          done
+          exit 1

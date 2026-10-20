@@ -1,0 +1,20 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Forward to Qt, counting a change of folder as a move.",
+      "label": "spacr.qt.preferences._count_store_moves.set_path#0",
+      "source": "Forward to Qt, counting a change of folder as a move.",
+      "source_sha256": "e4488afc653acd19bc8d8ca4d4125e804e415d73574cd9e5794d53f8407f1c17",
+      "translation": "Leite den Aufruf an Qt weiter und zähle eine Änderung des Ordners als Verschiebung."
+    },
+    {
+      "context": "Import the module, logging rather than throwing a failure.",
+      "label": "spacr.qt.screens.settings_model._import_attribution_off_the_gui_thread._work#0",
+      "source": "Import the module, logging rather than raising a failure.",
+      "source_sha256": "4c8f45aa51aee6c1a88297ee544d8e9a31d81f2406f51afa70235fcea51ba33b",
+      "translation": "Importiere das Modul und protokolliere einen Fehler, statt eine Ausnahme auszulösen."
+    }
+  ],
+  "schema": 1
+}

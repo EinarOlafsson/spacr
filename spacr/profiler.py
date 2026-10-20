@@ -1,17 +1,15 @@
 """Evaluate a fitted model by varying one input and plotting its predictions.
 
-A coefficient table answers "which terms matter". It does not answer the
-question anyone actually has in front of a fitted screen model, which is
-*what would this model predict for a well like mine* — and then, having
-seen that, *what happens if this one gRNA's fraction doubles and everything
-else stays where it is*. That is a profile: one input swept across its
-range, every other input pinned at a value the user chose, and the
-prediction plotted against the input that moved.
+A coefficient table shows which terms matter. A profile shows what the
+model predicts for a given well and how that prediction changes when one
+input changes, for example when one gRNA's fraction doubles and every other
+input stays fixed: one input is swept across its range, every other input
+is held at a chosen value, and the prediction is plotted against the swept
+input.
 
-Three things make this harder than it sounds, and this module exists to
-settle all three in one place:
+The module handles three issues:
 
-**Seventeen backends predict differently.** :data:`spacr.ml.REGRESSION_TYPES`
+**The regression backends predict differently.** :data:`spacr.ml.REGRESSION_TYPES`
 spans statsmodels results (``OLS``, ``WLS``, ``RLM``, four GLM families,
 ``QuantReg``, ``MixedLM``, ``BetaModel``), scikit-learn estimators
 (``Lasso``, ``Ridge``, ``ElasticNet``, ``LinearSVC``) and the horseshoe
@@ -199,10 +197,9 @@ def response_scale(model: Any) -> str:
 
     :param model: fitted model or result whose prediction scale is identified.
 
-    Not cosmetic. The same curve means "probability that a well is
-    positive", "positive objects per cell" or "distance from a decision
-    boundary" depending on the backend, and a plot that does not say which
-    invites the wrong reading of all three.
+    Depending on the backend, the same curve is a probability that a well is
+    positive, a count of positive objects per cell, or a distance from a
+    decision boundary; the label states which.
     """
     if isinstance(model, FittedLinear):
         return LINK_SCALES.get(model.link, model.link)
@@ -230,11 +227,11 @@ def response_scale(model: Any) -> str:
 class FittedLinear:
     """A fitted linear predictor rebuilt from coefficients already written.
 
-    Not a re-fit. A regression run writes ``results.csv``, and those numbers
-    ARE the fit; this wraps them so the profiler can be pointed at a run that
-    finished last week without the original object being alive. It quacks
-    like a statsmodels result — ``params`` and ``predict`` — which is exactly
-    the surface :func:`predict` and :func:`profile` need.
+    Not a re-fit. A regression run writes its coefficients to
+    ``results.csv``; this class wraps them so a finished run can be profiled
+    without the original fitted object. It exposes ``params`` and
+    ``predict`` like a statsmodels result, which is the interface
+    :func:`predict` and :func:`profile` use.
 
     :param params: coefficients indexed by design-matrix column name; an
         ``Intercept`` entry is applied to every row.
@@ -431,8 +428,8 @@ class Profile:
         """Change in prediction per unit of the input, end to end.
 
         End to end rather than fitted: for a linear model they are the same
-        number, and for a GLM the end-to-end value is the honest summary of a
-        curve whose local slope changes.
+        number, and for a GLM the end-to-end value summarises a curve whose
+        local slope changes in one number.
         """
         if len(self.values) < 2:
             return float("nan")
@@ -592,9 +589,9 @@ def sensitivity(model: Any, design: pd.DataFrame, *,
     magnitude of the resulting change. Quantiles rather than min/max because
     one outlier well would otherwise decide the ranking.
 
-    This is what turns a three-thousand-column design into something a user
-    can open a profiler on: the list is the answer to "which input should I
-    move first".
+    For a design with thousands of columns, the ranking identifies the
+    inputs with the largest effect on the prediction, which are the ones
+    worth profiling first.
 
     :param model: a fitted object.
     :param design: the design matrix.

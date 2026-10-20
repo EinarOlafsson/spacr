@@ -306,6 +306,8 @@ def test_a_plan_whose_sets_clash_by_name_is_refused(tmp_path):
 
 
 def test_given_roles_are_filtered_and_doubles_refused(tmp_path):
+    from spacr.qt.i18n import tr
+
     folder, sets = _pair_folder(tmp_path)
     plan = cs.build_plan(str(folder), sets,
                          mask_roles={1: "cell", "2": "cell", 9: "nucleus",
@@ -314,7 +316,12 @@ def test_given_roles_are_filtered_and_doubles_refused(tmp_path):
     assert any("cannot both give the cell mask" in p for p in plan.problems)
     text = plan.summary()
     assert "Mask planes: channel 1 -> cell, channel 2 -> cell" in text
-    assert "no mask in channel 2" in text
+    assert not plan.ok
+    assert tr(
+        "{count} set(s) have no {role} mask in channel {channel}. "
+        "Those sets cannot be merged when merging is requested.",
+        count=2, role=tr("cell"), channel=2,
+    ) in text
 
 
 def test_a_plan_with_no_masks_warns_that_merged_is_skipped(tmp_path):
@@ -410,9 +417,15 @@ def test_a_png_is_converted_and_its_original_kept(tmp_path):
     Image.fromarray(np.full((4, 5, 3), 30, np.uint8)).save(source)
     target = tmp_path / "out" / "c.tif"
     target.parent.mkdir()
-    cs._write_converted(str(source), str(target), "rgb", str(tmp_path / "d"))
+    original_bytes = source.read_bytes()
+    saved = Path(cs._write_converted(str(source), str(target), "rgb", str(tmp_path / "d")))
     assert tifffile.imread(str(target)).shape == (4, 5)
-    assert (tmp_path / "d" / "originals" / "c.png").is_file()
+    assert saved.is_file()
+    assert saved.name == source.name
+    assert saved.parent.parent == tmp_path / "d" / "originals"
+    assert saved.parent.name.startswith("spacr-original-")
+    assert saved.read_bytes() == original_bytes
+    assert not source.exists()
 
 
 def test_merging_without_masks_writes_stacks_only(tmp_path):

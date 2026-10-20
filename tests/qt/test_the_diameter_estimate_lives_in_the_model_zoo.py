@@ -132,6 +132,7 @@ def test_the_zoo_finds_the_screen_from_a_control_inside_it(qtbot, quiet_zoo,
 
 def test_a_zoo_opened_anywhere_else_has_no_such_button(qtbot, quiet_zoo):
     picker = mzp.ModelZooPicker(kinds=("cellpose",))
+    qtbot.addWidget(picker)
     try:
         assert picker.diameter_button is None
         assert all(b.text() != "Measure diameters…"

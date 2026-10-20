@@ -1,0 +1,49 @@
+{
+  "status": "RESOLVED: modern ordinary checker PASSED same fresh candidate wheel and sdist",
+  "build_receipt_commit": "19d20b216f97a725fc988147eef43d8eb7d39d53",
+  "source_commit": "b51fb194bb183990ab25c981d70e3030063bf9ac",
+  "candidate_version": "1.5.1.4",
+  "original_system_checker_failure_retained": true,
+  "existing_environment_lookup": "No modern Twine in existing base/spacr_new or known conda/user site-package metadata paths. No package imports or credential lookup used.",
+  "authorized_disposable_checker": {
+    "venv": "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/checker-venv",
+    "creation_command": [
+      "/home/olafsson/anaconda3/envs/spacr_new/bin/python",
+      "-m",
+      "venv",
+      "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/checker-venv"
+    ],
+    "installation_command": [
+      "python",
+      "-m",
+      "pip",
+      "install",
+      "--index-url",
+      "https://pypi.org/simple",
+      "--only-binary=:all:",
+      "twine==6.2.0"
+    ],
+    "ordinary_check_command": [
+      "python",
+      "-m",
+      "twine",
+      "check",
+      "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/artifacts/spacr-1.5.1.4-py3-none-any.whl",
+      "/mnt/wd4tb/scratch/candidate-1514-b51fb194bb-20261015/artifacts/spacr-1.5.1.4.tar.gz"
+    ],
+    "twine_version": "6.2.0",
+    "exit": 0,
+    "both_artifacts_passed": true,
+    "limits": "2G/oneCPU/oneThread/core0; checker waited both established locks; shared environment not modified."
+  },
+  "artifact_sha256_unchanged": {
+    "spacr-1.5.1.4-py3-none-any.whl": "0be5f07cf06de0c5d0273267b9da2036378a8f3ad081596b556f71270fdf84ac",
+    "spacr-1.5.1.4.tar.gz": "b552e71a09f5448ec1e7f53a8c603ed45d3c3fdda39e5dc6db58a15f5b1936db"
+  },
+  "no_rebuild_source_metadata_or_artifact_mutation": true,
+  "no_release_upload_native_model_or_fullCI_claim": true,
+  "logs_sha256": {
+    "checker-install.log": "3f2f328bafa8c161f9ffc56799c03c8bea0903963e3b0a65f351fac34accade1",
+    "checker-twine.log": "4f6d53a3397f7af18bc4a5136ea5c4f99ced1e238a00160d6d6d08460bd69288"
+  }
+}

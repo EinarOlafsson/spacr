@@ -1,0 +1,30 @@
+{
+  "schema": "spacr-publication-ci-receipts/v1",
+  "head_sha": "a744a9fda2b11835f3290cdaf7cf88f5a97f400f",
+  "run_id": 38512120776,
+  "run_attempt": 1,
+  "contains_raw_log_text": false,
+  "contains_private_environment_values": false,
+  "derived_receipts": [
+    {
+      "name": "added-source-coverage.json",
+      "sha256": "3d4d581aa57ceb632450bbab63c4470759c261e9614057ea0967d3227114769e",
+      "bytes": 2569
+    },
+    {
+      "name": "numerical-coverage.json",
+      "sha256": "bcf41d5c82695de3f748d7412a3bbde01de3c705d8f8e9b7c3b663aa1d056582",
+      "bytes": 3440
+    },
+    {
+      "name": "owning-69-cases.json",
+      "sha256": "c0b0e68a69b385c819d92e0870850b81ef6eb6a27147e35ba12dec7ea12d06c3",
+      "bytes": 1903
+    },
+    {
+      "name": "qt2-pixel-failure-and-timing-pass.json",
+      "sha256": "918010374059ed74773d1568f2df1533950d83c204ce4f32654d4e0b110525d3",
+      "bytes": 2845
+    }
+  ]
+}

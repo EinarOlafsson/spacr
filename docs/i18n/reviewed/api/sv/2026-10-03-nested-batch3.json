@@ -233,7 +233,9 @@
       "source_sha256": "3341b6a4ec6ede14b76b4d38be73114629b078b7efacac611d754ff63d4e2acf",
       "context": "Deferred because the list comes from umap, and importing it at build time would pay for it on every screen that never opens this combo.",
       "translation": "Uppskjutet eftersom listan kommer från umap, och att importera den när skärmen byggs skulle kosta på varje vy som aldrig öppnar den här kombinationsrutan.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.image_import.ImageImportScreen.run_import._job#0",
@@ -316,7 +318,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.__init__.check#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check#0",
       "source": "Store the comparison until the worker's finished signal arrives.",
       "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
       "context": "Store the comparison until the worker's finished signal arrives.",
@@ -324,11 +326,11 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.starplast.open_starplast.check#0",
-      "source": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
-      "source_sha256": "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b",
-      "context": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
-      "translation": "Tar hand om den frikopplade barnprocessen och visar fel utan att stänga Starplast när spaCR avslutas.",
+      "label": "spacr.qt.parascape.open_parascape.check#0",
+      "source": "Reap the detached child and show failures without closing ParaScape on spaCR exit.",
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "context": "Reap the detached child and show failures without closing ParaScape on spaCR exit.",
+      "translation": "Tar hand om den frikopplade barnprocessen och visar fel utan att stänga ParaScape när spaCR avslutas.",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

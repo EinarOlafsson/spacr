@@ -44,7 +44,9 @@
       "source_sha256": "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d",
       "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
       "translation": "A proveniência real dos dados de base é preservada: nomes externos nunca se tornam identidades de imagem apenas por serem únicos. As junções um a um, depois de validadas, seguem o mesmo plano tipado para os seus grupos de um único elemento, mantendo efetivas as escolhas explícitas de count e nunique. As identidades dos limites de seleção de dados e dos filtros usam timeID; a grafia original time_id também é preservada, para que um gráfico que selecione time_id continue reproduzível.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification.classify_drop#3",
@@ -55,7 +57,7 @@
       "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
     },
     {
-      "label": "spacr.install_cleanup#8",
+      "label": "spacr.install_cleanup#7",
       "source": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
       "source_sha256": "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3",
       "context": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
@@ -124,7 +126,9 @@
       "source_sha256": "016cea402964e16150069ef03c1d065fdc3fd759b0333c6af70524e2ec09e799",
       "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
       "translation": "O CONTADOR É REPOSTO EM VEZ DE DECREMENTADO. A questão é saber se spaCR está a falhar agora, não quantas vezes falhou desde sempre; um total que só aumentasse acabaria por desativar o fundo numa máquina onde ele funciona. Todos os bloqueios de instância e projeto mantidos por esta janela são libertados primeiro.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.crash_recovery.note_that_a_launch_began#2",
@@ -214,7 +218,9 @@
       "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
       "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
       "translation": "Cada tecla global da janela pode ser reatribuída. A folha de referência inclui um botão \"Change shortcuts…\" que abre uma tabela das ações globais da janela; uma tecla introduzida ali substitui a predefinição, uma tecla já usada por outra ação é indicada como conflito e não pode ser guardada. As alterações são mantidas nas Preferências sob :data:`_KEYMAP_KEY`, na notação portátil do Qt, para que um mapa de teclas guardado numa plataforma seja lido da mesma forma nas outras. Teclas de uma única vista da aplicação, como Annotate, Make Masks ou o navegador de campos, mantêm as predefinições e são listadas como ocupadas.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": "2026-10-10",
+      "retired_reason": "2026-10-10: N656 made per-screen keys rebindable, so the sentence saying they keep their defaults was rewritten; kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.theme#1",
@@ -244,6 +250,8 @@
     },
     {
       "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7",
+      "retired": "2026-10-16",
+      "retired_reason": "The English source block changed; superseded by 2026-10-16-707-api-make-masks-layout-and-collapse-arrow.json. Historical translation retained.",
       "source": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
       "source_sha256": "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c",
       "context": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",

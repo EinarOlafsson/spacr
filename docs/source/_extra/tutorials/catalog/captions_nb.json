@@ -489,9 +489,9 @@
       "series": 1,
       "app_key": null,
       "section": "spaCR",
-      "description": "Gå gjennom alle gjeldende moduler på Home fra venstre mot høyre. Lær deretter de felles kontrollene med Mask, og tilpass navigasjon, hjelp og utseende.",
+      "description": "Utforsk Home-oversikten og kategorifanene, lær deretter modulenes felles kontroller med Mask, og tilpass navigasjon, hjelp og utseende.",
       "objectives": [
-        "Identifisere alle modulene i de gjeldende radene Core, Data, Tools og Organism.",
+        "Finn moduler med fanene Home, Core, Data, Tools og Organism.",
         "Bruke Mask til å kjenne igjen felles innstillinger, forhåndsvisninger, handlinger og resultater.",
         "Gå tilbake til Home, bruke søk og ordne panelene.",
         "Velge innstillinger for utseende og ytelse."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er utgangspunktet. Les hver rad fra venstre mot høyre: Core, Data, Tools og Organism. Hver flis åpner modulen sin. Sidepanelet gir de samme inngangene, og Home går tilbake til oversikten.",
+          "narration": "Home er utgangspunktet. Oversikten grupperer moduler under Core, Data, Tools og Organism. Kategorifanene avgrenser visningen. Hver flis åpner modulen den er oppkalt etter. Sidepanelet gir de samme inngangene, og Home går tilbake til oversikten.",
           "hold_after": 0.7
         },
         {
@@ -538,7 +538,7 @@
         },
         {
           "visual": "home_module_classify_merged",
-          "narration": "Classify lærer fra gjennomgåtte etiketter og gir andre objekter skårer med bildebaserte eller tabellbaserte metoder.",
+          "narration": "Classify trener en modell på gjennomgåtte etiketter og gir andre objekter skårer ut fra utsnittsbilder eller målte egenskaper.",
           "hold_after": 0.7,
           "focus_modules": [
             "classify_merged"
@@ -581,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings koder objektutsnitt som numeriske egenskaper for utforskning og sammenligning.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare samler lagrede resultater fra kjøringer, slik at du kan undersøke forskjeller.",
           "hold_after": 0.7,
@@ -603,17 +592,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design fordeler betingelser, brønner og prøveidentiteter før et eksperiment.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design undersøker antakelser om utvalgsstørrelse og statistisk styrke ved planlagte sammenligninger.",
           "hold_after": 0.7,
@@ -622,28 +600,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response tilpasser respons på tvers av konsentrasjoner og holder det valgte endepunktet og kontrollene tydelige.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC samler kvalitetskontroller og viser hvilke bevis som finnes eller mangler.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -677,17 +633,6 @@
           ],
           "related_lessons": [
             "15_image_umap"
-          ]
-        },
-        {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor definerer utvalg på faktiske datakolonner. Gjennomgå objektene før et utvalg blir til etiketter.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
           ]
         },
         {
@@ -810,7 +755,7 @@
         },
         {
           "visual": "13d_appearance_animation",
-          "narration": "Klikk på Animation for å velge hovedbakgrunnen og paletten. Animation colours stiller inn hoved- og aksentfargene for Custom colours; Animation background velger en uavhengig bakgrunn, og Theme colour gjenoppretter sidens tema. Detail styrer gjengivelsesoppløsningen. Speed, Size og Density endrer bevegelsen og antallet elementer. Mouse gravity radius angir musens påvirkningsområde; null slår det av. Dot blinking styrer hvite blink, og Popup wave frequency starter bølger fra åpne popupvinduer i spaCR field. Field ripples styrer bølger fra klikk, åpning eller lukking av beholdere og plassering av vinduet ved skjermkanten, uavhengig av musens tiltrekning. Når du slår det av, stopper også de automatiske popupbølgene. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density endrer bare Settings backdrop. Settings backdrop darkness styrer skjemaets lesbarhet.",
+          "narration": "Klikk på Animation for å velge hovedbakgrunnen og paletten. Animation colours stiller inn hoved- og aksentfargene for Custom colours; Animation background velger en uavhengig bakgrunn, og Theme colour gjenoppretter sidens tema. Detail styrer gjengivelsesoppløsningen. Speed, Size og Density endrer bevegelsen og antallet elementer. Mouse gravity radius angir musens påvirkningsområde; null slår det av. Dot blinking styrer hvite blink. Field ripples angir styrken på bølger fra klikk, åpning eller lukking av beholdere, popupvinduer og plassering av vinduet ved skjermkanten, uavhengig av musens tiltrekning; null slår av bølgene, også de automatiske popupbølgene. Click ripples bestemmer om et klikk på bakgrunnen sender en bølge. Popup wave frequency angir hvor mange bølger per minutt som sprer seg fra et åpent popupvindu inn i spaCR field. Settings animation speed, Settings animation size, Settings animation detail og Settings animation density endrer bare Settings backdrop. Settings backdrop darkness styrer skjemaets lesbarhet.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -861,11 +806,6 @@
             1200,
             1500
           ]
-        },
-        {
-          "visual": "24_spaceout_field",
-          "narration": "I Spaceout-modus inneholder Preferences spaCR field-kontroller for åtte uavhengige effekter. Slå hver effekt av eller på separat. De vanlige kontrollene for utseende og animasjon i innstillingsvinduet er fortsatt tilgjengelige. Apply forhåndsviser, Keep godtar, og Revert gjenoppretter det tidligere valget.",
-          "hold_after": 0.7
         }
       ],
       "narration_voices": {
@@ -962,12 +902,11 @@
             650
           ],
           "narration": "Aktiver Python-miljøet der du installerte spaCR. Importer spacr og skriv ut versjonen med kommandoen som vises. Ta vare på versjonen sammen med analysenotatene dine, slik at du kan gjenskape den samme kjøringen senere.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "02_conda_install",
-            "03_pip_install",
+            "02_install_spacr",
             "04_platform_installers"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "02_list",
@@ -989,11 +928,11 @@
             900
           ],
           "narration": "Kjør spacr-run --describe regression. Les de obligatoriske inndataene, standardverdiene og funksjonsnavnet. Her kaller batchkommandoen perform_regression i spacr.ml. Åpne funksjonen i API-referansen for å lese parameterne og resultatene den returnerer.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         },
         {
           "visual": "05_report_api",
@@ -1026,11 +965,11 @@
             900
           ],
           "narration": "For å utføre analysen kjører du den samme kommandoen uten --dry-run. Følg konsollen til kommandoen er ferdig, og undersøk deretter utdataene som er beskrevet i modulens veiledning og API-side. Ta vare på innstillingsfilen, inndatatabellene, pakkeversjonen og konsolloggen sammen med resultatene.",
+          "hold_after": 0.7,
           "related_lessons": [
             "13_regression",
             "15_image_umap"
-          ],
-          "hold_after": 0.7
+          ]
         }
       ],
       "narration_voices": {
@@ -1171,7 +1110,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1564,7 +1526,7 @@
         },
         {
           "visual": "19_labels_for_suggest",
-          "narration": "Suggest foreslår merker for utsnittene du ikke har besvart ennå, så gi det først eksempler på begge klassene fra flere brønner. Her merkes noen få utsnitt av hver klasse i fire brønner, og Next lagrer dem.",
+          "narration": "Suggest foreslår merker for utsnittene du ikke har besvart ennå, så gi det først eksempler på begge klassene fra flere brønner. Her merkes noen få utsnitt av hver klasse i tre brønner, og Next lagrer dem.",
           "focus": [
             360,
             380,
@@ -1576,7 +1538,7 @@
         },
         {
           "visual": "20_suggestions",
-          "narration": "Åpne Suggest og velg Suggest for the images on this page. Runden tar noen sekunder, og hvert utsnitt på siden får nå et spørsmålstegn. Linjen over rutenettet teller hvor mange forslag som gjenstår å vurdere.",
+          "narration": "Åpne Suggest og velg Suggest for the images on this page. Runden tar noen sekunder, og de umerkede utsnittene på siden får nå et spørsmålstegn. Linjen over rutenettet teller hvor mange forslag som gjenstår å vurdere.",
           "focus": [
             350,
             250,
@@ -1587,7 +1549,7 @@
         },
         {
           "visual": "21_judged",
-          "narration": "Klikk på et foreslått utsnitt eller trykk Y for å bekrefte det, og høyreklikk eller trykk N for å avvise det. Begge svarene registreres, avvisninger trener neste runde, og Confirm the rest of the page avgjør resten når du har sjekket det.",
+          "narration": "Klikk på et foreslått utsnitt eller trykk Y for å bekrefte det, og høyreklikk eller trykk N for å avvise det. Begge svarene forblir ulagrede til Next lagrer dem; avvisninger trener neste runde, og Confirm the rest of the page avgjør resten når du har sjekket det.",
           "focus": [
             350,
             250,
@@ -1618,7 +1580,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2001,7 +1986,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -2355,7 +2363,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert. Clear masks, rett til venstre for Discard, ber om bekreftelse før alle masker i det gjeldende bildet fjernes.",
+          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert. Clear all objects, rett til venstre for Discard, ber om bekreftelse før alle objekter i det gjeldende bildet fjernes.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2885,7 +2893,7 @@
         },
         {
           "visual": "19_setting_reduction_method",
-          "narration": "Velg UMAP som reduksjonsmetode. Hvert punkt representerer et objekt med to plottede koordinater. Du kan utforske PCA via det koblede verktøyet når du vil ha en lineær projeksjon og egenskapsladninger.",
+          "narration": "Velg UMAP som reduksjonsmetode. Hvert punkt representerer et objekt med to plottede koordinater.",
           "hold_after": 0.7
         },
         {
@@ -2934,19 +2942,37 @@
           "hold_after": 0.7
         },
         {
-          "visual": "27_fold_image_scatter",
-          "narration": "Åpne Image Scatter fra toppfeltet i Image UMAP for å sammenligne valgte egenskaper direkte, eller åpne PCA for en lineær projeksjon. Fortsett med de koblede veiledningene for inndatainnstillingene og de lagrede utdataene deres.",
-          "focus_buttons": "FoldButton",
-          "related_lessons": [
-            "55_image_scatter",
-            "60_pca"
-          ],
+          "visual": "27_review_embedding",
+          "narration": "Se gjennom den ferdige innbyggingen og sammenlign bildeutsnittene av de valgte objektene. Oppbevar inndatamålingene, de valgte innstillingene og de lagrede resultatene samlet, slik at du kan spore hvert punkt tilbake til kilden.",
           "hold_after": 0.7
         }
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -3698,7 +3724,7 @@
         },
         {
           "visual": "15_actual_mask_and_flow_figures",
-          "narration": "Åpne undermappen masks i Source. Hvert bilde har en maske-TIFF med samme filnavnstamme. Undersøk figurene ved siden av originalbildene, og se etter oversette objekter og sammenslåtte celler. Flytpanelet viser retningene modellen bruker til segmenteringen.",
+          "narration": "Undermappen masks i Source inneholder en maske-TIFF med samme filnavnstamme for hvert bilde. Undersøk figurene ved siden av originalbildene, og se etter oversette objekter og sammenslåtte celler. Flytpanelet viser retningene modellen bruker til segmenteringen.",
           "focus": [
             1000,
             450,
@@ -3709,12 +3735,12 @@
         },
         {
           "visual": "17_actual_preview_image_picker",
-          "narration": "Slå på Live preview og velg et bilde med bildevelgeren. Åpne Live settings og kontroller kontrollene for kanal og normalisering. Skjul Console og System for å gi forhåndsvisningen mer plass ved behov.",
+          "narration": "Skjul de andre resultatkortene for å gi forhåndsvisningen mer plass. Slå på Live preview og velg et bilde med bildevelgeren. Bla til det medfølgende eksempelbildet.",
           "hold_after": 0.7
         },
         {
           "visual": "20_actual_preview_result",
-          "narration": "Sammenlign forhåndsvisningen med den lagrede batchmasken. Forhåndsvisningen og Apply bruker ulike behandlingsveier i dette eksemplet, så de kan gi ulike grenser og antall. Undersøk de lagrede TIFF-filene når du vurderer om batchutdataene egner seg for måling.",
+          "narration": "Kontroller kanal og normalisering i Live settings, og kjør deretter forhåndsvisningen. Forhåndsvisningen og Apply behandler disse bildene ulikt, så grenser og antall kan avvike. Undersøk de lagrede TIFF-filene når du vurderer om batchutdataene egner seg for måling.",
           "focus": [
             1000,
             1160,
@@ -3725,7 +3751,7 @@
         },
         {
           "visual": "20a_actual_zoomed_preview",
-          "narration": "Bruk musehjulet til å forstørre et område på begge forhåndsvisningsflatene. Undersøk objekter som berører hverandre og svake grenser, og zoom deretter ut for å kontrollere hele synsfeltet.",
+          "narration": "Bruk musehjulet til å forstørre et område på begge forhåndsvisningsflatene. Undersøk objekter som berører hverandre og svake grenser i den forstørrede visningen.",
           "focus": [
             1010,
             1280,
@@ -3768,7 +3794,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -4180,7 +4229,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -5332,7 +5404,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6031,7 +6126,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6176,7 +6294,30 @@
       "host_app_key": "graph_builder",
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -6472,7 +6613,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7047,7 +7211,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -7277,7 +7464,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8092,7 +8302,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8264,7 +8497,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -8447,7 +8703,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -15092,7 +15371,7 @@
         },
         {
           "visual": "module_annotate",
-          "narration": "Annotate viser objektutsnitt slik at du kan legge til gjennomgåtte etiketter. Classify lærer fra den valgte etikettkolonnen ved hjelp av utsnittsbilder eller målte egenskaper. Hold evalueringsobjekter atskilt fra treningsobjekter, og før poengkolonnen og objektidentitetene videre til senere analyser.",
+          "narration": "Annotate viser objektutsnitt slik at du kan legge til gjennomgåtte etiketter. Classify trener en modell på den valgte etikettkolonnen ved hjelp av utsnittsbilder eller målte egenskaper. Hold evalueringsobjekter atskilt fra treningsobjekter, og før poengkolonnen og objektidentitetene videre til senere analyser.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -15415,7 +15694,7 @@
         },
         {
           "visual": "02_diagram",
-          "narration": "Diagrammet er der for å utforskes. Hold pekeren over en cellekomponent, så vises beskrivelsen. Velg flere for å holde dem uthevet, og Clear components tilbakestiller bildet.",
+          "narration": "Diagrammet er interaktivt. Hold pekeren over en cellekomponent, så vises beskrivelsen. Velg flere for å holde dem uthevet, og Clear components tilbakestiller bildet.",
           "hold_after": 0.7
         },
         {
@@ -15425,7 +15704,7 @@
         },
         {
           "visual": "04_plaque_assay",
-          "narration": "Klikk på Plaque Assay for å åpne analyseskjermen. Innstillingspanelet angir bildekilden, masker og deteksjonsvalg. Load test data gir et eksempel. Kontroller inndata og forhåndsvisning før du starter Run; veiledningen Plaque Analysis beskriver hele arbeidsflyten.",
+          "narration": "Klikk på Plaque Assay for å åpne analyseskjermen. Innstillingspanelet angir bildekilden, masker og deteksjonsvalg. Load test data gir et eksempel. Kontroller inndata og forhåndsvisning før du starter Run; veiledningen Plaque Assay beskriver hele arbeidsflyten.",
           "hold_after": 0.7
         },
         {

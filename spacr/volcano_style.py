@@ -99,14 +99,14 @@ SCALES = _SCALES
 
 @dataclass
 class VolcanoStyle(FigureStyle):
-    """Every knob the volcano exposes. Defaults reproduce the pipeline plot.
+    """All volcano-plot settings. Defaults reproduce the pipeline plot.
 
-    THE GENERAL HALF IS INHERITED (108 point 1). Axes, type, grid, legend,
-    spines and the page come from :class:`spacr.style_base.FigureStyle`, so
-    "font size" is one setting in spaCR rather than one per figure and a
-    house style saved on a volcano can be applied to any other figure that
-    shares those names. What stays here is what only a volcano has: the
-    columns, the thresholds, the marks and the labelling.
+    General settings are inherited: axes, type, grid, legend, spines and the
+    page come from :class:`spacr.style_base.FigureStyle`, so "font size" is
+    one setting in spaCR rather than one per figure, and a house style saved
+    on a volcano can be applied to any other figure that shares those names.
+    This class adds the volcano-specific settings: the columns, the
+    thresholds, the marks and the labelling.
     """
 
     x_column: str = "standardized_marginal_effect"
@@ -464,8 +464,8 @@ def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
     :param results: result rows containing a usable gene or guide column.
     :param style: style whose localization and label columns guide lookup.
     :returns: a numpy array of compartment names, or ``None`` when no column
-        of ``results`` can name a gene and when no table is bundled -- a
-        volcano is still a volcano without compartment colouring.
+        of ``results`` can name a gene or no localization table is bundled;
+        the volcano is then drawn without compartment colouring.
     """
     from .hits import _gene_id_of, gene_of
     from .localisation import table
@@ -490,12 +490,13 @@ def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
 
 def localizations_present(results: pd.DataFrame, style: VolcanoStyle,
                           minimum: int | None = None) -> list:
-    """The compartments this screen actually has, commonest first.
+    """Return the compartments present in ``results``, most common first.
 
-    NOT ALL 27. A menu listing every compartment in the reference table offers
-    choices that would colour nothing, and a choice that colours nothing is
-    indistinguishable from a broken one -- the same threshold
-    :func:`spacr.localisation.present` applies.
+    Only compartments with at least ``minimum`` localized rows (default
+    :data:`spacr.localisation.MIN_GENES`, the threshold
+    :func:`spacr.localisation.present` applies) are listed, not every
+    compartment in the reference table, so the menu offers no choice that
+    would colour no point.
 
     :param results: result rows whose genes or guides are localized.
     :param style: style selecting the localization or fallback label column.
@@ -920,7 +921,7 @@ def validate_style(results: pd.DataFrame, style: VolcanoStyle) -> dict:
 
 def point_details(results: pd.DataFrame, index: int, style: VolcanoStyle
                   ) -> dict:
-    """Everything known about one plotted point, for the click handler.
+    """Return the data row and plotted coordinates of one point.
 
     Returns every column of the row, plus the derived plotted coordinates, so
     the panel can show both what was plotted and what it came from.

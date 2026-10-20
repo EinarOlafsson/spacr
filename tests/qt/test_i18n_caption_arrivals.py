@@ -1,6 +1,7 @@
 """Actual-source negatives for the immutable caption pin arrival adapter."""
 import ast
 import copy
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -16,7 +17,7 @@ from i18n_caption_arrivals import load_arrival_contract, pinned_external_sources
 @pytest.fixture(scope='module')
 def state():
     declarations = {}
-    for node in ast.parse((ROOT/'tests/qt/test_i18n_caption_ratchet.py').read_text()).body:
+    for node in ast.parse((ROOT/'tests/qt/test_i18n_caption_ratchet.py').read_text(encoding="utf-8")).body:
         if isinstance(node,ast.Assign):
             for target in node.targets:
                 if isinstance(target,ast.Name) and target.id in ('EXTERNAL_SOURCE_COUNTS','EXTERNAL_SOURCE_KEY_SHA256'):
@@ -91,6 +92,22 @@ def test_original_historical_source_body_anchor_cannot_be_rewritten(state):
     entry['source_sha256'] = hashlib.sha256(entry['source'].encode()).hexdigest()
     with pytest.raises(AssertionError,match='historical caption bodies changed'):
         project(external,declarations,candidate)
+
+
+def test_refresh_refuses_a_rewritten_baseline_before_changing_the_file(tmp_path, monkeypatch):
+    import i18n_caption_arrivals as arrivals
+
+    candidate = arrivals.load_arrival_contract()
+    entry = next(row for row in candidate['baseline'] if row['table'] == 'SETTING_LABELS')
+    entry['source'] += ' silently repinned'
+    entry['source_sha256'] = hashlib.sha256(entry['source'].encode()).hexdigest()
+    fixture = tmp_path / 'arrivals.json.gz'
+    fixture.write_bytes(gzip.compress(json.dumps(candidate).encode(), mtime=0))
+    before = fixture.read_bytes()
+    monkeypatch.setattr(arrivals, 'FIXTURE', fixture)
+    with pytest.raises(AssertionError, match='historical caption bodies changed'):
+        arrivals.refresh_arrival_contract()
+    assert fixture.read_bytes() == before
 
 
 def test_proof_file_bytes_are_checked_fresh_on_every_validation_call(state,monkeypatch):

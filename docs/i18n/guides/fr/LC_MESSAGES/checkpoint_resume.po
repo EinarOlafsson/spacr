@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Checkpoint and resume"
 msgstr "Points de contrôle et reprise"
 
-msgid "spaCR checkpoints long work only after a safe unit has finished. A checkpoint never means killing a write halfway through: it means that a later invocation can prove which fields, trials, or plate jobs settled and continue after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
-msgstr "spaCR ne crée un point de contrôle pour un long travail qu’après l’achèvement d’une unité sûre. Un point de contrôle ne signifie jamais interrompre une écriture en cours : il signifie qu’une invocation ultérieure peut prouver quels champs, essais ou tâches de plaque sont terminés et poursuivre après eux. Le bouton Qt **Arrêter** utilise les mêmes limites : il demande une annulation coopérative, laisse l’unité sûre en cours se terminer et conserve le point de contrôle pour l’exécution suivante. Voir :doc:`threading_cancellation_audit`."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR writes a checkpoint only after a complete unit of work (a field, trial, or plate job) has finished; a write in progress is not interrupted. A later invocation reads the checkpoint to determine which units completed and continues after them. The Qt **Stop** button uses the same boundaries: it requests cooperative cancellation, lets the current safe unit finish, and retains the checkpoint for the next run. See :doc:`threading_cancellation_audit`."
+msgstr "spaCR n’écrit un point de contrôle qu’après l’achèvement d’une unité de travail complète (un champ, un essai ou une tâche de plaque) ; une écriture en cours n’est pas interrompue. Une invocation ultérieure lit le point de contrôle pour déterminer quelles unités sont terminées et poursuit après elles. Le bouton Qt **Arrêter** utilise les mêmes limites : il demande une annulation coopérative, laisse l’unité sûre en cours se terminer et conserve le point de contrôle pour l’exécution suivante. Voir :doc:`threading_cancellation_audit`."
 
 msgid "Supported workflows"
 msgstr "Workflows pris en charge"
@@ -43,8 +44,9 @@ msgstr "Activez ``resume`` sous **Postprocessing → Exécution et fiabilité**.
 msgid "Format Converter"
 msgstr "Convertisseur de formats"
 
-msgid "Enable the Apple-style **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
-msgstr "Activez l’interrupteur **Reprendre** de style Apple. Le convertisseur écrit ``.spacr_conversion.checkpoint.json`` une fois qu’un champ entier est terminé. La reprise rouvre les métadonnées TIFF de chaque cible avant d’accepter le champ et répare de manière atomique une cible manquante ou corrompue. L’identité de la source et le plan de correspondance complet doivent concorder."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
+msgstr "Activez l’interrupteur **Reprendre**. Le convertisseur écrit ``.spacr_conversion.checkpoint.json`` une fois qu’un champ entier est terminé. La reprise rouvre les métadonnées TIFF de chaque cible avant d’accepter le champ et répare de manière atomique une cible manquante ou corrompue. L’identité de la source et le plan de correspondance complet doivent concorder."
 
 msgid "Image UMAP search"
 msgstr "Recherche UMAP d’images"
@@ -64,8 +66,9 @@ msgstr "Archives de normalisation interrompues"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "Masques vérifie aussi les archives normalisées ``masks/*.npz`` avant la segmentation. Il contrôle l’étendue des membres ZIP, un en-tête numérique ``data.npy`` lisible, un nombre d’octets de pixels déclarés suffisant pour la forme et le type de données, et un nom de fichier par champ du lot. Ce contrôle structurel ne décompresse pas chaque tableau de pixels et n’effectue pas d’analyse CRC complète des pixels."
 
-msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
-msgstr "Les archives endommagées sont mises de côté sous le nom ``<name>.damaged``. Lorsque le prétraitement est désactivé, l’exécution s’arrête et explique comment les récupérer. La même quarantaine empêche aussi une exécution ultérieure d’omettre silencieusement ces champs. Elle est levée par un remplacement valide du même nom, ou par des archives lisibles couvrant chaque champ existant dans ``stack/``. Les anciens tableaux de noms de fichiers à valeurs objet ne peuvent pas prouver cette couverture. L’activation du prétraitement permet de reconstruire les champs récupérables à partir des données sources disponibles ; les archives valides et les éléments mis en quarantaine sont conservés."
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+msgstr "Les archives endommagées sont mises de côté sous le nom ``<name>.damaged``. Lorsque le prétraitement est désactivé, l’exécution s’arrête et explique comment les récupérer. La même quarantaine empêche toujours une exécution ultérieure d’omettre silencieusement ces champs. Elle est levée par un remplacement valide du même nom, ou par des archives lisibles couvrant chaque champ existant dans ``stack/``. Les archives qui stockent les noms de fichiers sous forme de tableaux à valeurs objet ne peuvent pas prouver cette couverture. L’activation du prétraitement permet de reconstruire les champs récupérables à partir des données sources disponibles ; les archives valides et les éléments mis en quarantaine sont conservés."
 
 msgid "Safety rules"
 msgstr "Règles de sécurité"

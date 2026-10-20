@@ -1,0 +1,286 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "AnnData stores NaN values, but ``sc.pp.scale``, ``sc.pp.pca``, ``sc.pp.neighbors`` and most of scvi-tools either propagate NaN across the whole matrix or raise. Every policy therefore reports the missing values it found. Filling with zero is not the default because in spaCR a NaN usually carries meaning: a ``pathogen_*`` column is NaN for a cell with no pathogen in it, a Zernike column is NaN when mahotas was not installed, and a correlation column is NaN when one channel was flat. Zero-filling the first turns \"no pathogen\" into \"a pathogen of zero size\" and puts it into the same distribution as a measured one.",
+      "label": "spacr.anndata_export#7",
+      "source": "AnnData stores NaN values, but ``sc.pp.scale``, ``sc.pp.pca``, ``sc.pp.neighbors`` and most of scvi-tools either propagate NaN across the whole matrix or raise. Every policy therefore reports the missing values it found. Filling with zero is not the default because in spaCR a NaN usually carries meaning: a ``pathogen_*`` column is NaN for a cell with no pathogen in it, a Zernike column is NaN when mahotas was not installed, and a correlation column is NaN when one channel was flat. Zero-filling the first turns \"no pathogen\" into \"a pathogen of zero size\" and puts it into the same distribution as a measured one.",
+      "source_sha256": "960fbb4112cf49a8291d81ef6e7680f8531570631339e72a90b5cd96697989c5",
+      "translation": "AnnData stocke les valeurs NaN, mais ``sc.pp.scale``, ``sc.pp.pca``, ``sc.pp.neighbors`` et la plupart des outils scvi-tools propagent NaN à toute la matrice ou lèvent une exception. Chaque stratégie signale donc les valeurs manquantes trouvées. Le remplissage par zéro n’est pas le comportement par défaut, car dans spaCR un NaN a souvent un sens : une colonne ``pathogen_*`` vaut NaN pour une cellule sans pathogène, une colonne de Zernike vaut NaN lorsque mahotas n’était pas installé et une colonne de corrélation vaut NaN lorsqu’un canal était constant. Remplir la première par zéro transforme \"no pathogen\" (« aucun pathogène ») en « un pathogène de taille nulle » et l’intègre à la même distribution qu’un pathogène mesuré."
+    },
+    {
+      "context": "Every key is always present, so a caller comparing microplate sample positions receives 0 for an absent state rather than a ``KeyError``.",
+      "label": "spacr.bystanders.counts#3",
+      "source": "Every key is always present, so a caller comparing wells receives 0 for an absent state rather than a ``KeyError``.",
+      "source_sha256": "ccdb6b34e614ea7ab7147550ed39ba07b8e14ea5a717d8d2d851e1cd2dd59e18",
+      "translation": "Chaque clé est toujours présente : un appelant qui compare des puits reçoit donc 0 pour un état absent plutôt qu’une exception ``KeyError``."
+    },
+    {
+      "context": "a key-value mapping in the order given. A path that does not exist or cannot be parsed is absent from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
+      "label": "spacr.columns.headers#2",
+      "source": "a dict in the order given. A path that does not exist or cannot be parsed is absent from the result rather than mapped to an empty list -- see rule 2. Use :func:`missing` to ask which those were.",
+      "source_sha256": "b3c1ff62a1d66210497d1499892614af239c39a41d36f3341307c020592e6e48",
+      "translation": "un dictionnaire dans l’ordre fourni. Un chemin inexistant ou impossible à analyser est absent du résultat plutôt qu’associé à une liste vide — voir la règle 2. Utilisez :func:`missing` pour savoir quels chemins sont concernés."
+    },
+    {
+      "context": "Greyed, never removed (INVARIANTS 6): a structured-data name absent from the key-value mapping makes the workflow fall back to its own default, which can differ from the value the module needs, without a warning.",
+      "label": "spacr.crop_source.inapplicable_settings#1",
+      "source": "Greyed, never removed (INVARIANTS 6): a key absent from the dict makes the pipeline fall back to its own default, which can differ from the value the module needs, without a warning.",
+      "source_sha256": "6d8af3ca40fe295afa6aa506429965d0d4c6e60348ff29a1edbf73f76d14d2b3",
+      "translation": "Grisées, jamais supprimées (INVARIANTS 6) : une clé absente du dictionnaire fait revenir le pipeline à sa propre valeur par défaut, qui peut différer de celle requise par le module, sans avertissement."
+    },
+    {
+      "context": "Every marker has to match. A half-unpacked set -- a transfer that died between the images and the database -- is therefore reported as absent and is downloaded again.",
+      "label": "spacr.example_archives.ExampleSet.is_present#1",
+      "source": "Every marker has to match. A half-unpacked set -- a transfer that died between the images and the database -- is therefore reported as absent and is downloaded again.",
+      "source_sha256": "1dabc6eb77d8d8e0c1b47b0e6ea869433cb24de326f1e0d0cfa4f362a6426751",
+      "translation": "Tous les marqueurs doivent correspondre. Un jeu partiellement décompressé — par exemple après l’interruption du transfert entre les images et la base de données — est donc signalé comme absent et téléchargé de nouveau."
+    },
+    {
+      "context": "**Geometric units depend on the run.** A 2-D run measures in pixels, but a 3-D run measures a volume, and with ``voxel_size_z_um`` / ``voxel_size_xy_um`` set it measures in micrometres — under the *same* column names, because :mod:`spacr.measure` deliberately does not rename ``<object>_area`` (renaming would break every downstream selector). Which one a row is in is recorded on the row itself, in ``measurement_units``. So the unit of a geometric column is a :class:`ConditionalUnit`: :func:`describe_database` reads ``measurement_units`` out of the database it is documenting and resolves it, and a caller who has no database says so and gets the condition spelled out instead of a confident guess. See :data:`MEASUREMENT_UNITS`.",
+      "label": "spacr.feature_dict#3",
+      "source": "**Geometric units depend on the run.** A 2-D run measures in pixels, but a 3-D run measures a volume, and with ``voxel_size_z_um`` / ``voxel_size_xy_um`` set it measures in micrometres — under the *same* column names, because :mod:`spacr.measure` deliberately does not rename ``<object>_area`` (renaming would break every downstream selector). Which one a row is in is recorded on the row itself, in ``measurement_units``. So the unit of a geometric column is a :class:`ConditionalUnit`: :func:`describe_database` reads ``measurement_units`` out of the database it is documenting and resolves it, and a caller who has no database says so and gets the condition spelled out instead of a confident guess. See :data:`MEASUREMENT_UNITS`.",
+      "source_sha256": "19e31ac5eb5d7ef0f8165baf32f97b18684bc223585b2d0d917769e801a8fe08",
+      "translation": "**Les unités géométriques dépendent de l’exécution.** Une exécution 2-D mesure en pixels, tandis qu’une exécution 3-D mesure un volume et, lorsque ``voxel_size_z_um`` / ``voxel_size_xy_um`` sont définis, effectue ses mesures en micromètres — sous les *mêmes* noms de colonnes, car :mod:`spacr.measure` ne renomme volontairement pas ``<object>_area`` (un renommage casserait tous les sélecteurs en aval). L’unité utilisée par une ligne est inscrite dans cette ligne, dans ``measurement_units``. L’unité d’une colonne géométrique est donc une :class:`ConditionalUnit` : :func:`describe_database` lit ``measurement_units`` dans la base qu’elle documente et résout cette unité. Un appelant sans base de données l’indique et reçoit une description explicite de la condition plutôt qu’une supposition présentée comme certaine. Voir :data:`MEASUREMENT_UNITS`."
+    },
+    {
+      "context": "**Assumption tests have their own power.** With n = 3, Levene's test has almost no power, so \"p = 0.7\" means the variances could not be compared, not that they are equal. Using that result to select Student's t can report a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records both checks as uninformative, treats the data as not normal, and selects a rank test (Mann-Whitney U, Wilcoxon signed-rank when paired, or Kruskal-Wallis for more than two groups). This loses some power when the assumptions hold and avoids false positives when they do not.",
+      "label": "spacr.figures.stats#4",
+      "source": "**Assumption tests have their own power.** With n = 3, Levene's test has almost no power, so \"p = 0.7\" means the variances could not be compared, not that they are equal. Using that result to select Student's t can report a difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module records both checks as uninformative, treats the data as not normal, and selects a rank test (Mann-Whitney U, Wilcoxon signed-rank when paired, or Kruskal-Wallis for more than two groups). This loses some power when the assumptions hold and avoids false positives when they do not.",
+      "source_sha256": "770989cd2f46f1c487c14621e979ab541323443bbdcddaf83f2234e7f6ae8ac2",
+      "translation": "**Les tests des hypothèses ont leur propre puissance.** Avec n = 3, le test de Levene a une puissance presque nulle : « p = 0.7 » signifie donc que les variances n’ont pas pu être comparées, pas qu’elles sont égales. Utiliser ce résultat pour choisir le test t de Student peut signaler une différence inexistante. En dessous de :data:`MIN_N_FOR_ASSUMPTIONS`, ce module consigne les deux vérifications comme non informatives, considère les données comme non normales et choisit un test de rangs (Mann-Whitney U, rangs signés de Wilcoxon pour des données appariées ou Kruskal-Wallis pour plus de deux groupes). Cela réduit un peu la puissance lorsque les hypothèses sont satisfaites et évite les faux positifs lorsqu’elles ne le sont pas."
+    },
+    {
+      "context": "Returns an empty mapping rather than throwing when the file is absent -- a screen of another organism has no reason to carry it.",
+      "label": "spacr.gene_tile.uniprot_accessions#2",
+      "source": "Returns an empty mapping rather than raising when the file is absent -- a screen of another organism has no reason to carry it.",
+      "source_sha256": "bad5c16612e68e11a71049ee668de67f3426143a3f40b9eb2408443edec301b2",
+      "translation": "Renvoie une correspondance vide au lieu de lever une exception lorsque le fichier est absent — un criblage portant sur un autre organisme n’a aucune raison de le contenir."
+    },
+    {
+      "context": "No other configuration is required. The CPU path remains the default and is used whenever cuML is absent, the interpreter is unsupported, there is no CUDA device, or the caller has not opted in.",
+      "label": "spacr.gpu_reduce#3",
+      "source": "No other configuration is required. The CPU path remains the default and is used whenever cuML is absent, the interpreter is unsupported, there is no CUDA device, or the caller has not opted in.",
+      "source_sha256": "cb105ce16424dbce4fd03984eeb72c92f27bdca6168dcdef5634cea85dcaf6a2",
+      "translation": "Aucune autre configuration n’est nécessaire. Le traitement sur CPU reste le choix par défaut et s’applique lorsque cuML est absent, que l’interpréteur n’est pas pris en charge, qu’aucun périphérique CUDA n’est disponible ou que l’appelant n’a pas activé l’option."
+    },
+    {
+      "context": "The error is held out and the selection is not. Whether a penalty predicts well is a question about unseen microplate sample positions; whether it selects anything is a question about the fit the caller will get, which is fitted on every well. Reading selection off the folds can choose a penalty at which most folds keep a gene while the full fit keeps none (on the tsg101 screening experiment it chose 0.000183 and the full fit was empty).",
+      "label": "spacr.group_lasso.choose_lambda.score#1",
+      "source": "The error is held out and the selection is not. Whether a penalty predicts well is a question about unseen wells; whether it selects anything is a question about the fit the caller will get, which is fitted on every well. Reading selection off the folds can choose a penalty at which most folds keep a gene while the full fit keeps none (on the tsg101 screen it chose 0.000183 and the full fit was empty).",
+      "source_sha256": "d05bb65716d2a85a1ad1b6874c6bd3661555e3dd39315301ef9900f8e9960eb1",
+      "translation": "L’erreur est évaluée sur des données réservées, contrairement à la sélection. La qualité prédictive d’une pénalisation concerne des puits non vus ; le fait qu’elle sélectionne quelque chose concerne l’ajustement que recevra l’appelant, effectué sur tous les puits. Lire la sélection à partir des partitions peut choisir une pénalisation pour laquelle la plupart des partitions conservent un gène alors que l’ajustement complet n’en conserve aucun (sur le criblage tsg101, la valeur choisie était 0.000183 et l’ajustement complet était vide)."
+    },
+    {
+      "context": "``manifest.csv`` -- one row per image file stating its actual well, microscope field of view, image data channel, z and t. It is the last member of the archive, so an interrupted transfer leaves no manifest and the set reads as absent.",
+      "label": "spacr.import_examples#8",
+      "source": "``manifest.csv`` -- one row per image file stating its actual well, field, channel, z and t. It is the last member of the archive, so an interrupted transfer leaves no manifest and the set reads as absent.",
+      "source_sha256": "a207a71d80f8669f643cf2c8011eb3b64706ef30368cb0abc90eab261bf7a7c8",
+      "translation": "``manifest.csv`` — une ligne par fichier image indiquant son puits, son champ, son canal, son z et son t réels. C’est le dernier élément de l’archive : un transfert interrompu ne laisse donc aucun manifeste et le jeu est considéré comme absent."
+    },
+    {
+      "context": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A partly unpacked set reads as absent, so it is downloaded again.",
+      "label": "spacr.import_examples.is_present#3",
+      "source": "``True`` only when the manifest exists and every file it lists for the variant(s) is on disk. A partly unpacked set reads as absent, so it is downloaded again.",
+      "source_sha256": "c5e3b615815ae5b67416f846c3d68c8ecce7708d6fc803353f4f33644ba3c113",
+      "translation": "``True`` uniquement si le manifeste existe et si chaque fichier qu’il répertorie pour la ou les variantes est présent sur le disque. Un jeu partiellement décompressé est considéré comme absent et téléchargé de nouveau."
+    },
+    {
+      "context": "The caller owns the OpenGL context and makes it current around every call; this class creates nothing until the first :meth:`render`. A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it; a frame frees the textures it did not use. A mask edited in place must therefore be handed over as a new array. Hold no GPU object until the first frame.",
+      "label": "spacr.layers.GLVolumeRenderer#2",
+      "source": "The caller owns the OpenGL context and makes it current around every call; this class creates nothing until the first :meth:`render`. A volume is uploaded once and kept, keyed by its memory, for as long as every frame draws it; a frame frees the textures it did not use. A mask edited in place must therefore be handed over as a new array. Hold no GPU object until the first frame.",
+      "source_sha256": "77ef4aac7fc210f6da499eee934aed45ce437caf2adf66d8152edc10f36dc8b7",
+      "translation": "L’appelant possède le contexte OpenGL et le rend courant pour chaque appel ; cette classe ne crée rien avant le premier :meth:`render`. Un volume est chargé une seule fois et conservé, avec sa mémoire comme clé, tant que chaque image le dessine ; chaque image libère les textures qu’elle n’a pas utilisées. Un masque modifié sur place doit donc être fourni sous forme d’un nouveau tableau. Aucun objet GPU n’est conservé avant la première image."
+    },
+    {
+      "context": "The longest strided axis is halved in resolution first, so a thin stack (40 sections of 1,000 x 1,000) keeps its depth while its width is reduced.",
+      "label": "spacr.layers.volume_steps#1",
+      "source": "The longest strided axis is halved in resolution first, so a thin stack (40 sections of 1,000 x 1,000) keeps its depth while its width is reduced.",
+      "source_sha256": "d08468004eebf00c942d2034e4f66b6e7e85226593e1a2e9b18a850a3c74182c",
+      "translation": "La résolution du plus long axe après sous-échantillonnage est divisée par deux en premier, afin qu’une pile mince (40 coupes de 1,000 x 1,000) conserve sa profondeur pendant que sa largeur diminue."
+    },
+    {
+      "context": "the backend that fits the model. ``'statsmodels'`` is the default and produced every existing result; ``'torch'`` fits the same profiled REML objective on the GPU (:mod:`spacr.mixed_gpu`) and returns a result object with the same attributes, so nothing downstream can tell which ran except by asking. A backend that cannot fit ``'mixed'`` here, is not installed, or needs a GPU that is absent is rejected with the reason -- see :func:`_require_backend`.",
+      "label": "spacr.ml.perform_mixed_model#10",
+      "source": "the backend that fits the model. ``'statsmodels'`` is the default and produced every existing result; ``'torch'`` fits the same profiled REML objective on the GPU (:mod:`spacr.mixed_gpu`) and returns a result object with the same attributes, so nothing downstream can tell which ran except by asking. A backend that cannot fit ``'mixed'`` here, is not installed, or needs a GPU that is absent is rejected with the reason -- see :func:`_require_backend`.",
+      "source_sha256": "63c9cf9fc7e59d75d50dcabcc8479339b2b7b279778f3c70e1d7c9ecb3e764d3",
+      "translation": "le moteur qui ajuste le modèle. ``'statsmodels'`` est le choix par défaut et a produit tous les résultats existants ; ``'torch'`` ajuste le même objectif REML profilé sur GPU (:mod:`spacr.mixed_gpu`) et renvoie un objet résultat ayant les mêmes attributs. Les traitements en aval ne peuvent donc pas distinguer le moteur utilisé sans le demander. Un moteur incapable d’ajuster ``'mixed'`` ici, non installé ou nécessitant un GPU absent est refusé avec une explication — voir :func:`_require_backend`."
+    },
+    {
+      "context": "key-value mappings with the keys ``key``, ``name``, ``state``, ``metric``, ``this_model``, ``stock``, ``difference``, ``baseline``, ``evaluation_set``, ``evaluation_version``, ``n_fields``, ``n_objects``, ``boundary_tolerance_px`` and ``sha256``.",
+      "label": "spacr.model_zoo.scorecard_export_rows#3",
+      "source": "dicts with the keys ``key``, ``name``, ``state``, ``metric``, ``this_model``, ``stock``, ``difference``, ``baseline``, ``evaluation_set``, ``evaluation_version``, ``n_fields``, ``n_objects``, ``boundary_tolerance_px`` and ``sha256``.",
+      "source_sha256": "b95f00d5cd3e23c422e9e50bb764f7f845afcb1ce2dd294658c0a53eb92737e7",
+      "translation": "dictionnaires avec les clés ``key``, ``name``, ``state``, ``metric``, ``this_model``, ``stock``, ``difference``, ``baseline``, ``evaluation_set``, ``evaluation_version``, ``n_fields``, ``n_objects``, ``boundary_tolerance_px`` et ``sha256``."
+    },
+    {
+      "context": "pi0(lambda) = #{p > lambda} / (m * (1 - lambda)) is computed over a grid of lambda values (default 0.05 to 0.95 in steps of 0.05); the estimate is the minimum over the upper half of the grid (lambda at or above the grid median), clipped to (0, 1]. With fewer than 20 finite P values, an empty grid, or a non-positive estimate, the function returns 1.0, which makes the q-values equal to Benjamini-Hochberg adjusted P values.",
+      "label": "spacr.multiple_testing.estimate_pi0#1",
+      "source": "pi0(lambda) = #{p > lambda} / (m * (1 - lambda)) is computed over a grid of lambda values (default 0.05 to 0.95 in steps of 0.05); the estimate is the minimum over the upper half of the grid (lambda at or above the grid median), clipped to (0, 1]. With fewer than 20 finite P values, an empty grid, or a non-positive estimate, the function returns 1.0, which makes the q-values equal to Benjamini-Hochberg adjusted P values.",
+      "source_sha256": "5377b611fd5b76776e283bf3d54994d713ab43050f2a7d891e81d92bdb7a57af",
+      "translation": "pi0(lambda) = #{p > lambda} / (m * (1 - lambda)) est calculé sur une grille de valeurs de lambda (par défaut de 0.05 à 0.95 par pas de 0.05) ; l’estimation est le minimum sur la moitié supérieure de la grille (lambda supérieur ou égal à sa médiane), borné à (0, 1]. Avec moins de 20 valeurs P finies, une grille vide ou une estimation non positive, la fonction renvoie 1.0, ce qui rend les valeurs q égales aux valeurs P ajustées par Benjamini-Hochberg."
+    },
+    {
+      "context": "Classify a reference as a DOI, PMC id, PMID or PDF path.",
+      "label": "spacr.plaque_papers.parse_reference#0",
+      "source": "Classify a reference as a DOI, PMC id, PMID or PDF path.",
+      "source_sha256": "8607c09d5c8fc9f5baeccf8dff8ed874bec6bc69c96b1c9c95acdf727aa9495e",
+      "translation": "Classer une référence comme DOI, identifiant PMC, PMID ou chemin de fichier PDF."
+    },
+    {
+      "context": "Self-supervised denoising comes before the chain. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation image data channel is trained by CAREamics, in its own environment, on a sample of the processing session's own raw microscope fields of view -- no clean images are needed -- or read from ``n2v_model``. Each microscope field of view's selected image data channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "label": "spacr.psf_pipeline#4",
+      "source": "Self-supervised denoising comes before the chain. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "source_sha256": "2d3e6ae3aceb68314cd999fda4ea1b6ffff4775e81f972e7cdf66225b384e6ac",
+      "translation": "Le débruitage autosupervisé précède la chaîne de traitement. Lorsque ``n2v_denoise`` est activé, CAREamics entraîne, dans son propre environnement, un modèle Noise2Void (N2V2) par canal de segmentation sur un échantillon des champs bruts de l’exécution — aucune image propre n’est nécessaire — ou le lit depuis ``n2v_model``. Les canaux sélectionnés de chaque champ sont débruités après la correction d’éclairage et avant la PSF et la chaîne, tant que le bruit reste indépendant d’un pixel à l’autre, conformément à l’hypothèse de Noise2Void. Les empreintes des points de contrôle et le journal d’entraînement rejoignent le même enregistrement de provenance."
+    },
+    {
+      "context": "The colours depend on the theme, because contrast does. The original palette was tuned against a dark tile and measures 3.5-12.0 against the colour #1e1e1e. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
+      "label": "spacr.qt.annotate_engine.label_to_hex#2",
+      "source": "The colours depend on the theme, because contrast does. The original palette was tuned against a dark tile and measures 3.5-12.0 against the colour #1e1e1e. Against a light tile (#f5f5f5) the SAME colours measure 1.28-4.34, with five of the first six below the 3.0 readability floor:",
+      "source_sha256": "f5337aba13f927f31bc5550b21b7eadffca02f7e6ff8cfd74a627db083b09f1e",
+      "translation": "Les couleurs dépendent du thème, car le contraste en dépend aussi. La palette d’origine a été ajustée pour une tuile sombre et donne des contrastes de 3.5-12.0 avec la couleur #1e1e1e. Sur une tuile claire (#f5f5f5), les MÊMES couleurs donnent 1.28-4.34, dont cinq des six premières sous le seuil de lisibilité de 3.0 :"
+    },
+    {
+      "context": "**Lazy.** The drop handlers need two things from a dropped folder — a small probe to guess the layout from, and (only if the guess succeeds) the full file list to plan an extraction. Pulling both off one generator means the tree is traversed once; abandoning the generator after the probe means a folder with no layout to detect is never fully walked.",
+      "label": "spacr.qt.folder_metadata.iter_image_files#1",
+      "source": "**Lazy.** The drop handlers need two things from a dropped folder — a small probe to guess the layout from, and (only if the guess succeeds) the full file list to plan an extraction. Pulling both off one generator means the tree is traversed once; abandoning the generator after the probe means a folder with no layout to detect is never fully walked.",
+      "source_sha256": "4db82bc410e79612cfb003c3ebb84a52ad62810fde605912dfbcab8476323d48",
+      "translation": "**Évaluation paresseuse.** Les gestionnaires de dépôt ont besoin de deux choses dans un dossier déposé : un petit échantillon pour en déduire la structure, puis, uniquement si cette déduction réussit, la liste complète des fichiers pour planifier une extraction. Obtenir les deux depuis un seul générateur ne parcourt l’arborescence qu’une fois ; abandonner le générateur après l’échantillon évite de parcourir entièrement un dossier sans structure détectable."
+    },
+    {
+      "context": "True only when the manifest exists and every file it lists is there. A partly unpacked sample counts as absent, so it is downloaded again.",
+      "label": "spacr.qt.ops_stitch_demo.is_present#2",
+      "source": "True only when the manifest exists and every file it lists is there. A partly unpacked sample counts as absent, so it is downloaded again.",
+      "source_sha256": "07679b39f1ced5a370b777262b7448312abbe8051d1e97edf0c9c6c0dc5e0941",
+      "translation": "True uniquement si le manifeste existe et si tous les fichiers qu’il répertorie sont présents. Un exemple partiellement décompressé compte comme absent et est donc téléchargé de nouveau."
+    },
+    {
+      "context": "``auto`` tries :func:`volume_backend_chain`; Vulkan, Metal and Direct3D 12 use :class:`spacr.layers.WGPUVolumeRenderer`, OpenGL uses :class:`spacr.layers.GLVolumeRenderer`, and CPU uses NumPy/SciPy.",
+      "label": "spacr.qt.screens.make_masks.VOLUME_BACKENDS#1",
+      "source": "``auto`` tries :func:`volume_backend_chain`; Vulkan, Metal and Direct3D 12 use :class:`spacr.layers.WGPUVolumeRenderer`, OpenGL uses :class:`spacr.layers.GLVolumeRenderer`, and CPU uses NumPy/SciPy.",
+      "source_sha256": "1106baa2677567bd4c81217c2fe5486356d95ebbc9c33556e8dc99304f8fd2fa",
+      "translation": "``auto`` essaie :func:`volume_backend_chain` ; Vulkan, Metal et Direct3D 12 utilisent :class:`spacr.layers.WGPUVolumeRenderer`, OpenGL utilise :class:`spacr.layers.GLVolumeRenderer` et CPU utilise NumPy/SciPy."
+    },
+    {
+      "context": "The application view is a thin layer over :mod:`spacr.report`, which is headless, read-only and testable without Qt. This file holds the GUI part: pick a folder, show what was found and what was **not**, choose a format, and write the file off the main GUI execution path.",
+      "label": "spacr.qt.screens.report#1",
+      "source": "The screen is a thin layer over :mod:`spacr.report`, which is headless, read-only and testable without Qt. This file holds the GUI part: pick a folder, show what was found and what was **not**, choose a format, and write the file off the GUI thread.",
+      "source_sha256": "e668ca413c35b4db1a3b2851e53d31288ae55eccc07abefc7f46f0db5536db46",
+      "translation": "L’écran est une fine couche au-dessus de :mod:`spacr.report`, qui fonctionne sans interface graphique, en lecture seule, et se teste sans Qt. Ce fichier contient la partie graphique (GUI) : choisir un dossier, montrer ce qui a été trouvé et ce qui **ne l’a pas été**, choisir un format et écrire le fichier hors du thread de l’interface (GUI)."
+    },
+    {
+      "context": "**an Essentials / All switch** — the progressive disclosure. Essentials shows the module's inputs plus the handful of decisions :func:`spacr.qt.screens.settings_model.essential_keys` derives from its curated layout, expanded and ready; All restores every heading, collapsed as before. Essentials is the default on a module's first visit and the choice is remembered per module thereafter.",
+      "label": "spacr.qt.settings_search#5",
+      "source": "**an Essentials / All switch** — the progressive disclosure. Essentials shows the module's inputs plus the handful of decisions :func:`spacr.qt.screens.settings_model.essential_keys` derives from its curated layout, expanded and ready; All restores every heading, collapsed as before. Essentials is the default on a module's first visit and the choice is remembered per module thereafter.",
+      "source_sha256": "e0d2176c52af99b9abf6e48d22c25c3cc25d6a5499327603c16d3822824d6531",
+      "translation": "**un sélecteur Essentials / All** — l’affichage progressif. Essentials présente les entrées du module et les quelques décisions que :func:`spacr.qt.screens.settings_model.essential_keys` déduit de son agencement sélectionné, dépliées et prêtes à l’emploi ; All rétablit tous les titres, repliés comme auparavant. Essentials est le choix par défaut à la première visite d’un module ; le choix est ensuite mémorisé pour chaque module."
+    },
+    {
+      "context": "Tracking needs multi-T frames per (well, microscope field of view). The files use the cellvoyager naming with T01..T<N>, and every frame holds the *same* cells shifted by a few pixels rather than a new random microscope field of view.",
+      "label": "spacr.qt.synthetic.generate_timelapse_demo#1",
+      "source": "Tracking needs multi-T frames per (well, field). The files use the cellvoyager naming with T01..T<N>, and every frame holds the *same* cells shifted by a few pixels rather than a new random field.",
+      "source_sha256": "f22a8fce769dcf2e101cc99a719d77fc3f0bb26cf9ad2fde5842937f5820a65e",
+      "translation": "Le suivi nécessite plusieurs images temporelles T par (puits, champ). Les fichiers utilisent la nomenclature cellvoyager avec T01..T<N>, et chaque image contient les *mêmes* cellules décalées de quelques pixels plutôt qu’un nouveau champ aléatoire."
+    },
+    {
+      "context": "The one exception is a backdrop that stops while it is still on application view -- a CPU-heavy run pausing the animation (:func:`_animation_paused_for_work`), reduced motion, or the animation switched off. Its frame on application view is kept as the still (:meth:`_paint_still`), because every console line and figure the window paints over it asks it for a whole frame again, and shading that frame on the main GUI execution path against the processing session's worker took 250-350 ms on lesson 08's Measure run. Hidden, it keeps nothing.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.stop#2",
+      "source": "The one exception is a backdrop that stops while it is still on screen -- a CPU-heavy run pausing the animation (:func:`_animation_paused_for_work`), reduced motion, or the animation switched off. Its frame on screen is kept as the still (:meth:`_paint_still`), because every console line and figure the window paints over it asks it for a whole frame again, and shading that frame on the GUI thread against the run's worker took 250-350 ms on lesson 08's Measure run. Hidden, it keeps nothing.",
+      "source_sha256": "d0c9bc3895ebbae95c2ef4b915cd9d5e9d45fbb88469836959837bfe78d9363a",
+      "translation": "La seule exception est un arrière-plan qui s’arrête alors qu’il reste visible dans l’interface — une exécution sollicitant fortement le CPU qui suspend l’animation (:func:`_animation_paused_for_work`), des mouvements réduits ou une animation désactivée. Son image visible est conservée comme image fixe (:meth:`_paint_still`), car chaque ligne de console et chaque figure que la fenêtre dessine par-dessus lui redemandent une image entière. Calculer l’ombrage de cette image sur le thread de la GUI, en concurrence avec le thread de travail de l’exécution, prenait 250-350 ms lors de l’exécution de Measure dans la leçon 08. Lorsqu’il est masqué, il ne conserve rien."
+    },
+    {
+      "context": "The two robust constants are *not* interchangeable, and the module keeps them separate. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)``, which makes the limits 41% wider and can hide a drift. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "label": "spacr.qt.widgets.control_chart#14",
+      "source": "The two robust constants are *not* interchangeable, and the module keeps them separate. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)``, which makes the limits 41% wider and can hide a drift. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "source_sha256": "f5344c598d0ace7b754a850cc5fc46dd4fb3944bcdbf36f31628d6be7c1c96b6",
+      "translation": "Les deux constantes robustes ne sont *pas* interchangeables, et le module les conserve séparément. 1.4826 (:data:`MAD_SCALE`) correspond à ``1/Φ⁻¹(0.75)``, le facteur qui rend la MAD d’un échantillon normal une estimation sans biais de son écart-type. Une étendue mobile vaut ``|x_i - x_{i-1}|``, la valeur absolue d’une *différence* entre deux observations ; son échelle est donc ``sqrt(2)·sigma`` et sa médiane ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplier une étendue mobile médiane par 1.4826 surestime sigma d’exactement ``sqrt(2)``, ce qui élargit les limites de 41% et peut masquer une dérive. Les deux constantes sont calculées ici à partir de ``Φ⁻¹(0.75)`` pour la même raison que c4 est calculé à partir de la fonction gamma."
+    },
+    {
+      "context": "``False`` is not an error: a structured-data name can be absent because its point was not plotted (an unusable p-value) or because it is a nuisance term this plot deliberately leaves off. Nothing else is ringed instead.",
+      "label": "spacr.qt.widgets.fast_plots.FastPlot.highlight_key#1",
+      "source": "``False`` is not an error: a key can be absent because its point was not plotted (an unusable p-value) or because it is a nuisance term this plot deliberately leaves off. Nothing else is ringed instead.",
+      "source_sha256": "6e840c0df182237460ff5c0c7d985d5dc23469aeb20de4eb2f8b4109e7a55902",
+      "translation": "``False`` n’est pas une erreur : une clé peut être absente parce que son point n’a pas été tracé (valeur p inutilisable) ou parce qu’il s’agit d’un terme de nuisance que ce graphique omet volontairement. Aucun autre point n’est entouré à sa place."
+    },
+    {
+      "context": "Writing ``object_filters`` into the main panel redraws its object grid, 10 to 30 ms a time. :meth:`flush_propagation` sends a pending push at once; the dialog calls it when an edit finishes or the toggle goes off, so a processing session never starts from stale settings.",
+      "label": "spacr.qt.widgets.live_preview.LivePreviewPanel.schedule_propagation#1",
+      "source": "Writing ``object_filters`` into the main panel redraws its object grid, 10 to 30 ms a time. :meth:`flush_propagation` sends a pending push at once; the dialog calls it when an edit finishes or the toggle goes off, so a run never starts from stale settings.",
+      "source_sha256": "86be236e621943c06ceab38f7d3f0535626ce5ef8c6ab835ff602b7d3f61e20a",
+      "translation": "Écrire ``object_filters`` dans le panneau principal redessine sa grille d’objets, ce qui prend 10 à 30 ms à chaque fois. :meth:`flush_propagation` transmet immédiatement une mise à jour en attente ; la boîte de dialogue l’appelle lorsqu’une modification se termine ou que le commutateur est désactivé, afin qu’une exécution ne démarre jamais avec des paramètres périmés."
+    },
+    {
+      "context": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. So that a velocity is never read in the wrong unit, the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of silently using the 1.78 px/µm default.",
+      "label": "spacr.qt.widgets.motility_preview#3",
+      "source": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. So that a velocity is never read in the wrong unit, the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of silently using the 1.78 px/µm default.",
+      "source_sha256": "b5d194ac3efdebbf6f59ea1713ed3bf3f49f8a489efc51823c0c13956e89d501",
+      "translation": "**Unités.** L’essai convertit les pixels par image en unités physiques avec ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)``, uniquement lorsque *les deux* paramètres sont connus ; sinon, il indique ``px/frame``. Pour éviter de lire une vitesse dans la mauvaise unité, les champs de calibration sont initialement **non renseignés**, chaque vitesse porte son unité et, tant que la calibration est inconnue, le panneau l’indique explicitement au lieu d’utiliser silencieusement la valeur par défaut de 1.78 px/µm."
+    },
+    {
+      "context": "Two job runners, for two reasons: the pending work on the main one is what reports \"a plate is still being scanned\", and an image layer-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel#5",
+      "source": "Two job runners, for two reasons: the pending work on the main one is what reports \"a plate is still being scanned\", and a plane-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
+      "source_sha256": "2e387b7f76dcc48705595c04a1afb6c873dae629617a0de6a9626c1ec60f440e",
+      "translation": "Deux exécuteurs de tâches, pour deux raisons : le travail en attente dans l’exécuteur principal signale « le dossier d’une plaque est encore en cours d’exploration », alors que lire le nombre de plans n’est pas explorer le dossier d’une plaque ; le second est aussi marqué comme non visible par l’utilisateur, afin que la bannière d’exécution de l’accueil n’annonce pas une lecture que l’utilisateur n’a jamais lancée."
+    },
+    {
+      "context": "At level ``\"off\"`` no thread is started and no file is opened, so a thread census taken before and after a run finds no extra thread. Prepare a sampler without starting it.",
+      "label": "spacr.resource_log.ResourceSampler#4",
+      "source": "At level ``\"off\"`` no thread is started and no file is opened, so a thread census taken before and after a run finds no extra thread. Prepare a sampler without starting it.",
+      "source_sha256": "c19f3e1b9bfb4869505493b88ddb9989e0d68b9f892ca9e6dc55588053b6e1c4",
+      "translation": "Au niveau ``\"off\"``, aucun thread n’est lancé et aucun fichier n’est ouvert : un comptage des threads avant et après une exécution ne trouve donc aucun thread supplémentaire. Préparer un échantillonneur sans le démarrer."
+    },
+    {
+      "context": "**One processing-session id, on every log line and every output.** :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per processing session JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, so every log record of the processing session that produced a given file can be retrieved.",
+      "label": "spacr.runctx#2",
+      "source": "**One run id, on every log line and every output.** :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per-run JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, so every log record of the run that produced a given file can be retrieved.",
+      "source_sha256": "fba9ce2b53d233efbc1081279423bd0a3f8700e2a0745e6e4163bdd2a2e93b13",
+      "translation": "**Un identifiant d’exécution dans chaque ligne de journal et chaque sortie.** :func:`run_context` crée un identifiant, l’inscrit dans chaque :class:`logging.LogRecord` créé n’importe où dans le processus, écrit un journal JSONL par exécution que :func:`read_run_log` relit et transmet le *même* identifiant à :func:`spacr.artifacts.register_run_outputs`. Une ligne de journal et une sortie peuvent donc être reliées par ``run_id``, afin de retrouver tous les enregistrements de l’exécution qui a produit un fichier donné."
+    },
+    {
+      "context": "Absence is the common case. ``None``, ``''`` and whitespace all mean \"this project has one application view\", and they become :data:`DEFAULT_SCREEN` rather than throwing — every project that exists today has no application view anywhere in its settings, and demanding one would stop all of them from opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate is a broken structured-data name, but an empty application view is an ordinary single-application view run.",
+      "label": "spacr.schema.screen_id#2",
+      "source": "Absence is the common case. ``None``, ``''`` and whitespace all mean \"this project has one screen\", and they become :data:`DEFAULT_SCREEN` rather than raising — every project that exists today has no screen anywhere in its settings, and demanding one would stop all of them from opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate is a broken key, but an empty screen is an ordinary single-screen run.",
+      "source_sha256": "722236abd6ee69121c5336c802171957c7b9aa8dc2718a87acf9d871700c4f0a",
+      "translation": "L’absence est le cas habituel. ``None``, ``''`` et les espaces signifient tous « ce projet contient une seule campagne expérimentale » et deviennent :data:`DEFAULT_SCREEN` au lieu de lever une exception — aucun projet existant aujourd’hui ne définit de campagne expérimentale dans ses paramètres, et l’exiger empêcherait tous ces projets de s’ouvrir. À l’inverse, :func:`_check_plate` *lève bien* une exception : une plaque vide correspond à une clé invalide, mais un identifiant de campagne expérimentale vide correspond à une exécution ordinaire avec une seule campagne expérimentale."
+    },
+    {
+      "context": "Contents",
+      "label": "spacr.timeflows_baseline#3",
+      "source": "Contents",
+      "source_sha256": "437aea62a5bd6ad4762e494c81b88532809a231477c82bdecf6fd6636908b7ab",
+      "translation": "Table des matières"
+    },
+    {
+      "context": "Is indexed by the column names the measurement writer actually emits: ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent altogether outside a timelapse run) and ``cell_id`` -- the child table's link to its host cell -- not ``pathogen_cell_id``, which no writer produces.",
+      "label": "spacr.timelapse.preprocess_pathogen_data#1",
+      "source": "Keys on the column names the measurement writer actually emits: ``columnID`` (not ``column_name``), ``timeID`` (not ``timeid``, and absent altogether outside a timelapse run) and ``cell_id`` -- the child table's link to its host cell -- not ``pathogen_cell_id``, which no writer produces.",
+      "source_sha256": "58aa8b8436c121d5f6a2cc405478477f090b9482733111f71d0c9fb8a8638420",
+      "translation": "Utilise les noms de colonnes réellement produits par l’outil d’écriture des mesures : ``columnID`` (et non ``column_name``), ``timeID`` (et non ``timeid``, et totalement absent hors d’une série temporelle) et ``cell_id`` — le lien de la table enfant vers sa cellule hôte —, et non ``pathogen_cell_id``, qu’aucun outil d’écriture ne produit."
+    },
+    {
+      "context": "**Backward compatibility.** A settings CSV written before this exists in every user's project folder, and, as INVARIANTS §6 records, a structured-data name *absent* from the key-value mapping means the workflow falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a processing session from an old CSV does exactly what it did before.",
+      "label": "spacr.training_basis#4",
+      "source": "**Backward compatibility.** A settings CSV written before this exists in every user's project folder, and, as INVARIANTS §6 records, a key *absent* from the dict means the pipeline falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a run from an old CSV does exactly what it did before.",
+      "source_sha256": "fd5ca9ee3795dc45cbf6a8d6d98dd1af6a87cad3acb4c91dc5a02b62728c1a84",
+      "translation": "**Rétrocompatibilité.** Le dossier de projet de chaque utilisateur contient un CSV de paramètres écrit avant cette fonctionnalité. Comme l’indique INVARIANTS §6, une clé *absente* du dictionnaire fait revenir le pipeline à sa propre valeur par défaut, qui peut différer de celle de l’interface graphique (GUI), sans le signaler. Chaque renommage est donc ici un alias, pas un remplacement — :func:`normalize_settings` traduit l’ancien nom et l’ancienne base *implicite* vers la nouvelle forme explicite, et une exécution issue d’un ancien CSV se comporte exactement comme auparavant."
+    },
+    {
+      "context": "A 2-D field measures areas in px^2; a 3-D field measures volumes, in voxels or um^3, and writes them into the *same* ``<object>_area`` column, because downstream selectors, models and thresholds read that column by name. Appending both into one table would leave a numeric column that mixes two incompatible quantities with nothing in the row to distinguish them, so the append is refused.",
+      "label": "spacr.utils.MeasurementUnitsMismatch#1",
+      "source": "A 2-D field measures areas in px^2; a 3-D field measures volumes, in voxels or um^3, and writes them into the *same* ``<object>_area`` column, because downstream selectors, models and thresholds read that column by name. Appending both into one table would leave a numeric column that mixes two incompatible quantities with nothing in the row to distinguish them, so the append is refused.",
+      "source_sha256": "fd8e5d10e3a2fe8a2064856e3e5952c804faaa573e6f19c5bbbab477b586222f",
+      "translation": "Un champ 2-D mesure des aires en px^2 ; un champ 3-D mesure des volumes, en voxels ou en um^3, et les écrit dans la *même* colonne ``<object>_area``, car les sélecteurs, modèles et seuils en aval lisent cette colonne par son nom. Ajouter les deux à une même table laisserait une colonne numérique mêlant deux grandeurs incompatibles, sans rien dans les lignes pour les distinguer ; cet ajout est donc refusé."
+    },
+    {
+      "context": "Parameters: df (pd.DataFrame): The input DataFrame. group_col (str): Column name to group by, or a list of column names. Grouping passes ``observed=False``, so unused categories of a Categorical are kept. Rows whose group structured-data name is missing get a ``NaN`` per-row bound, because pandas drops ``NaN`` group structured-data names; they are discarded under 'iqr' and kept under 'zscore'. value_col (str): Column containing values to check for outliers. A name that is not in the frame raises ``KeyError``. method (str): 'iqr' or 'zscore'. Anything else raises ``ValueError``. The two agree on tiny groups: a one-row group has an undefined standard deviation, and since one row cannot be an outlier within its own group it is KEPT under both. threshold (float): Multiplier on the IQR (default 1.5), or the z-score cutoff. Must be >= 0; a negative value inverts the keep-band and raises ``ValueError``, because under 'iqr' it would empty every group with a nonzero IQR. ``0`` under 'zscore' keeps only rows sitting exactly on the group mean. Under 'zscore' an outlier inflates its own group's standard deviation, so the usual cutoffs keep more rows than 'iqr' does on the same data.",
+      "label": "spacr.utils.remove_outliers_by_group#2",
+      "source": "Parameters: df (pd.DataFrame): The input DataFrame. group_col (str): Column name to group by, or a list of column names. Grouping passes ``observed=False``, so unused categories of a Categorical are kept. Rows whose group key is missing get a ``NaN`` per-row bound, because pandas drops ``NaN`` group keys; they are discarded under 'iqr' and kept under 'zscore'. value_col (str): Column containing values to check for outliers. A name that is not in the frame raises ``KeyError``. method (str): 'iqr' or 'zscore'. Anything else raises ``ValueError``. The two agree on tiny groups: a one-row group has an undefined standard deviation, and since one row cannot be an outlier within its own group it is KEPT under both. threshold (float): Multiplier on the IQR (default 1.5), or the z-score cutoff. Must be >= 0; a negative value inverts the keep-band and raises ``ValueError``, because under 'iqr' it would empty every group with a nonzero IQR. ``0`` under 'zscore' keeps only rows sitting exactly on the group mean. Under 'zscore' an outlier inflates its own group's standard deviation, so the usual cutoffs keep more rows than 'iqr' does on the same data.",
+      "source_sha256": "6a5db912a215262693736e2a34643c9573d28ba83583a7a2f4f8005a2bee04ed",
+      "translation": "Paramètres : df (pd.DataFrame) : Le DataFrame d’entrée. group_col (str) : Nom de la colonne de regroupement ou liste de noms de colonnes. Le regroupement passe ``observed=False``, afin de conserver les catégories inutilisées d’un Categorical. Les lignes dont la clé de groupe manque reçoivent une borne par ligne ``NaN``, car pandas élimine les clés de groupe ``NaN`` ; elles sont supprimées avec 'iqr' et conservées avec 'zscore'. value_col (str) : Colonne contenant les valeurs à examiner pour détecter les valeurs aberrantes. Un nom absent du tableau lève ``KeyError``. method (str) : 'iqr' ou 'zscore'. Toute autre valeur lève ``ValueError``. Les deux méthodes concordent pour les très petits groupes : un groupe d’une ligne a un écart-type indéfini et, puisqu’une ligne ne peut pas être aberrante dans son propre groupe, elle est CONSERVÉE par les deux. threshold (float) : Multiplicateur de l’IQR (1.5 par défaut) ou seuil du score z. Doit être >= 0 ; une valeur négative inverse la bande de conservation et lève ``ValueError``, car avec 'iqr' elle viderait tous les groupes dont l’IQR est non nul. ``0`` avec 'zscore' ne conserve que les lignes exactement à la moyenne du groupe. Avec 'zscore', une valeur aberrante augmente l’écart-type de son propre groupe ; les seuils habituels conservent donc plus de lignes que 'iqr' sur les mêmes données."
+    }
+  ],
+  "schema": 1
+}

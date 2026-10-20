@@ -510,7 +510,12 @@ def test_get_object_settings_keeps_the_magnification_diameter_on_bad_input(
     # It falls back to the magnification-derived diameter and SAYS so, rather
     # than segmenting with a diameter of NaN.
     assert got["diameter"] == baseline["diameter"]
-    assert f"{label} diameter must be an integer or float" in capsys.readouterr().out
+    assert got["minimum_size"] == baseline["minimum_size"]
+    assert got["maximum_size"] == baseline["maximum_size"]
+    from spacr.qt.i18n import tr
+    expected = tr('{setting} must be an integer or float, 0 or "auto", '
+                  'got {value}', setting=f"{obj}_diameter", value=repr("thirty"))
+    assert capsys.readouterr().out.strip() == expected
 
 
 def test_get_object_settings_uses_the_magnification_when_no_diameter_is_set():

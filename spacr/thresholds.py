@@ -138,13 +138,13 @@ def coefficient_threshold(values: Sequence[float], method="mad",
     :param values: the control coefficients -- the null.
     :param method: one of :data:`METHODS`, or an alias.
     :param multiplier: how many spreads wide the cut is.
-    :param centre: what to measure from; the MEDIAN of ``values`` by default,
+    :param centre: what to measure from; the median of ``values`` by default,
         which is not moved by one control guide with a real phenotype. This
         screen has one -- `000000_22` is a non-targeting control and the
         strongest effect in the run at +4.37.
     :returns: ``(None, reason)`` when no cut can be made, never a silent 0.
 
-    The sentence is not decoration: a threshold a reader cannot attribute is
+    The sentence is required: a threshold a reader cannot attribute is
     a threshold they cannot report, and it goes on the panel beside the line.
     """
     key = canonical(method)

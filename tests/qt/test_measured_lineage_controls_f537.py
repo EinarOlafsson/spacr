@@ -8,7 +8,9 @@ from PySide6.QtCore import QSettings
 from spacr._lineage_measurements import _write_lineage_sources
 
 _KEYS = ('timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance',
-         'timelapse_lineage_min_division_h')
+         'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry',
+         'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard',
+         'timelapse_lineage_bud_threshold')
 
 
 def test_measure_controls_keep_alpha_gate_and_saved_values(qtbot, tmp_path, monkeypatch):

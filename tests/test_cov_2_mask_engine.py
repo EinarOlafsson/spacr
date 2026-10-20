@@ -2,7 +2,7 @@
 
 Everything here is a file or an array the editor should never have been given:
 a four-channel screenshot dropped in with the plate, a mask saved as floats, a
-label past what a uint16 mask can hold. The screen has no modal dialogs, so a
+label past what a uint32 mask can hold. The screen has no modal dialogs, so a
 refusal has to be an exception carrying the path and the number -- a silent
 truncation would put a mask on disk that no longer keys against the
 measurements made from it.
@@ -249,18 +249,39 @@ def test_a_float_mask_must_hold_whole_non_negative_labels(folder):
     assert mask.max() == 3
 
 
-def test_a_mask_label_past_uint16_is_refused_rather_than_wrapped(folder):
-    """Object 70000 in a uint16 mask would come back as object 4464.
-
-    That is a silent identity swap: two different objects sharing an id.
-    The message carries the offending label so it can be found.
-    """
+def test_a_mask_label_past_uint16_is_preserved_without_wrapping(folder):
+    """Object 70000 stays separate from its old uint16 wrap value, 4464."""
+    original = np.zeros((4, 4), dtype=np.int32)
+    original[1:3, 1:3] = 70000
+    original[3, 3] = 4464
     args = _write(folder, "img.tif", np.zeros((4, 4), dtype=np.uint16),
-                  mask=np.full((4, 4), 70000, dtype=np.int32))
+                  mask=original)
+    path = folder / "masks" / "img.tif"
+    before = path.read_bytes()
+
+    grey, mask = me.load_image_and_mask(*args)
+
+    assert grey.shape == original.shape
+    assert mask.dtype == np.uint32
+    np.testing.assert_array_equal(mask, original)
+    assert path.read_bytes() == before
+
+
+def test_a_mask_label_past_uint32_is_refused_without_rewriting_the_file(folder):
+    """The capacity error identifies the label and leaves its TIFF intact."""
+    original = np.full((4, 4), 2**32, dtype=np.int64)
+    args = _write(folder, "img.tif", np.zeros((4, 4), dtype=np.uint16),
+                  mask=original)
+    path = folder / "masks" / "img.tif"
+    before = path.read_bytes()
+
     with pytest.raises(ValueError) as excinfo:
         me.load_image_and_mask(*args)
-    assert "70000" in str(excinfo.value)
-    assert "uint16 capacity" in str(excinfo.value)
+
+    assert "4294967296" in str(excinfo.value)
+    assert "uint32 capacity" in str(excinfo.value)
+    assert str(path) in str(excinfo.value)
+    assert path.read_bytes() == before
 
 
 # ---------------------------------------------------------------------------
@@ -409,20 +430,37 @@ def test_the_object_filter_measures_a_colour_image_on_its_mean_plane():
     assert (out == 2).any()
 
 
-def test_a_combined_mask_past_uint16_is_refused_with_the_label_that_broke_it():
-    """A detection with more objects than uint16 can hold is not written.
-
-    Casting anyway would wrap the highest ids into low ones and fuse them
-    with existing objects. The message names the label and says what to
-    change, because the fix is a detection setting, not a file.
-    """
+def test_a_combined_mask_past_uint16_widens_without_aliasing_other_labels():
+    """Replacement retains high IDs, low IDs and background pixel for pixel."""
     old = np.zeros((3, 3), dtype=np.uint16)
+    old[0, 0] = 123
+    new = np.zeros((3, 3), dtype=np.int64)
+    new[1, 1] = 70000
+    new[2, 2] = 4464
+    old_before, new_before = old.copy(), new.copy()
+
+    out = me.combine_masks(old, new, mode="replace")
+
+    assert out.dtype == np.uint32
+    np.testing.assert_array_equal(out, new_before)
+    np.testing.assert_array_equal(old, old_before)
+    np.testing.assert_array_equal(new, new_before)
+
+
+def test_a_combined_mask_past_uint32_is_refused_with_the_label_that_broke_it():
+    """The true capacity refusal keeps both input masks intact."""
+    old = np.zeros((3, 3), dtype=np.uint16)
+    old[0, 0] = 123
     huge = np.zeros((3, 3), dtype=np.int64)
-    huge[1, 1] = 70000
+    huge[1, 1] = 2**32
+    old_before, huge_before = old.copy(), huge.copy()
 
     with pytest.raises(ValueError) as excinfo:
         me.combine_masks(old, huge, mode="replace")
 
     message = str(excinfo.value)
-    assert "70000" in message
+    assert "4294967296" in message
+    assert "uint32" in message
     assert "minimum area" in message
+    np.testing.assert_array_equal(old, old_before)
+    np.testing.assert_array_equal(huge, huge_before)

@@ -13,35 +13,45 @@
       "label": "spacr.barcode_search.BarcodeTable.oriented#4",
       "source": "A NON-NUCLEOTIDE TABLE IS REFUSED RATHER THAN MANGLED. Peptide tags and amino-acid barcodes pass through `reverse_complement` unchanged -- it maps only the four bases and N -- so a flipped table would be the same letters reversed, searched for, and never found. Saying no is the honest answer; silently searching for a sequence that cannot match reports \"this reference is absent from the reads\", which is a conclusion about the data rather than about the request.",
       "source_sha256": "1e3ba3e13cf8e2f1c0cf30f9f40267c0ef4d38e8211e4f9f884d86f0f36c4545",
-      "translation": "UNE TABLE NON NUCLÉOTIDIQUE EST REFUSÉE PLUTÔT QUE MUTILÉE. Les étiquettes peptidiques et les codes-barres d’acides aminés traversent `reverse_complement` sans changement -- il ne convertit que les quatre bases et N --, de sorte qu’une table retournée serait faite des mêmes lettres inversées, recherchées et jamais trouvées. Dire non est la réponse honnête ; rechercher en silence une séquence qui ne peut pas correspondre signale « cette référence est absente des lectures », ce qui est une conclusion sur les données et non sur la demande."
+      "translation": "UNE TABLE NON NUCLÉOTIDIQUE EST REFUSÉE PLUTÔT QUE MUTILÉE. Les étiquettes peptidiques et les codes-barres d’acides aminés traversent `reverse_complement` sans changement -- il ne convertit que les quatre bases et N --, de sorte qu’une table retournée serait faite des mêmes lettres inversées, recherchées et jamais trouvées. Dire non est la réponse honnête ; rechercher en silence une séquence qui ne peut pas correspondre signale « cette référence est absente des lectures », ce qui est une conclusion sur les données et non sur la demande.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "The numbers a barcode search judges by, and what each one judges.",
       "label": "spacr.barcode_search.SearchThresholds#0",
       "source": "The numbers a barcode search judges by, and what each one judges.",
       "source_sha256": "c37afe97c98e140c0d99484ebaf720920c5d8e7dbedba3f7b641b9f940a9dadf",
-      "translation": "Les nombres d’après lesquels une recherche de codes-barres juge, et ce que chacun juge."
+      "translation": "Les nombres d’après lesquels une recherche de codes-barres juge, et ce que chacun juge.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "These were module constants. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
       "label": "spacr.barcode_search.SearchThresholds#1",
       "source": "THESE WERE MODULE CONSTANTS. They were chosen against one screen's data, which is exactly the kind of number that is right until someone runs a different assay -- a shorter read, a smaller reference, a library where 10% of reads carrying the barcode is a good day rather than a failure. The values here are those same numbers, so a caller who passes nothing gets the behaviour that already existed; what changes is that the numbers can now be said out loud by someone whose data disagrees with them.",
       "source_sha256": "04a580c281f193258580d1bed1e86b4299fa827a10cf992b41162183fab61e80",
-      "translation": "C’ÉTAIENT DES CONSTANTES DU MODULE. Elles ont été choisies d’après les données d’un seul criblage, et c’est exactement le genre de nombre qui est juste jusqu’à ce que quelqu’un réalise un autre essai -- une lecture plus courte, une référence plus petite, une banque où 10 % de lectures portant le code-barres est un bon jour et non un échec. Les valeurs ici sont ces mêmes nombres, de sorte qu’un appelant qui ne passe rien obtient le comportement qui existait déjà ; ce qui change, c’est que quelqu’un dont les données contredisent ces nombres peut désormais les indiquer explicitement."
+      "translation": "C’ÉTAIENT DES CONSTANTES DU MODULE. Elles ont été choisies d’après les données d’un seul criblage, et c’est exactement le genre de nombre qui est juste jusqu’à ce que quelqu’un réalise un autre essai -- une lecture plus courte, une référence plus petite, une banque où 10 % de lectures portant le code-barres est un bon jour et non un échec. Les valeurs ici sont ces mêmes nombres, de sorte qu’un appelant qui ne passe rien obtient le comportement qui existait déjà ; ce qui change, c’est que quelqu’un dont les données contredisent ces nombres peut désormais les indiquer explicitement.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
       "label": "spacr.barcode_search.SearchThresholds#2",
       "source": "Each field judges a DIFFERENT question, and they are asked in this order: is the sample big enough to say anything, is the hit rate distinguishable from coincidence, is it big enough to map from, and do the hits sit at one place in the read. A verdict of INDETERMINATE names which question it was that could not be answered.",
       "source_sha256": "a3ff9da17ef70f78d92abef3e825c039431035e4452739a05a59e6e4b8d6fffb",
-      "translation": "Chaque champ juge une question DIFFÉRENTE, et elles sont posées dans cet ordre : l’échantillon est-il assez grand pour dire quelque chose, le taux de résultats positifs se distingue-t-il du hasard, est-il assez grand pour en tirer une cartographie, et les résultats positifs se situent-ils au même endroit de la lecture. Un verdict INDETERMINATE indique à quelle question il n’a pas été possible de répondre."
+      "translation": "Chaque champ juge une question DIFFÉRENTE, et elles sont posées dans cet ordre : l’échantillon est-il assez grand pour dire quelque chose, le taux de résultats positifs se distingue-t-il du hasard, est-il assez grand pour en tirer une cartographie, et les résultats positifs se situent-ils au même endroit de la lecture. Un verdict INDETERMINATE indique à quelle question il n’a pas été possible de répondre.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Refuse thresholds that cannot decide anything.",
       "label": "spacr.barcode_search.SearchThresholds.__post_init__#0",
       "source": "Refuse thresholds that cannot decide anything.",
       "source_sha256": "0a8c492b342b72b0feb0e870cf20e3ed3db53acacc5a0b124c0568597f83d963",
-      "translation": "Refuse les seuils qui ne peuvent rien décider."
+      "translation": "Refuse les seuils qui ne peuvent rien décider.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "A threshold out of range does not fail loudly at the point it is set; it produces a report in which every table is PRESENT, or every table is ABSENT, and the processing session looks like it worked. Checking here means the complaint names the setting rather than the data.",
@@ -94,25 +104,29 @@
       "label": "spacr.install_cleanup#2",
       "source": "1. find old spaCR files -- :func:`find_old_installs` 2. delete old spaCR files -- :func:`remove_install` 3. install new spaCR -- :func:`run_update_sequence` runs the install only after step 2 removed every installer-made copy.",
       "source_sha256": "471c87f5e6eb5c2e0cbabd5a8d2cb1e9730f15d540379d91c2ae0973d4c4850a",
-      "translation": "1. trouver les anciens fichiers de spaCR -- :func:`find_old_installs` 2. supprimer les anciens fichiers de spaCR -- :func:`remove_install` 3. installer le nouveau spaCR -- :func:`run_update_sequence` n’exécute l’installation qu’une fois que l’étape 2 a supprimé toutes les copies créées par un programme d’installation."
+      "translation": "1. trouver les anciens fichiers de spaCR -- :func:`find_old_installs` 2. supprimer les anciens fichiers de spaCR -- :func:`remove_install` 3. installer le nouveau spaCR -- :func:`run_update_sequence` n’exécute l’installation qu’une fois que l’étape 2 a supprimé toutes les copies créées par un programme d’installation.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry structured-data name on Windows).",
-      "label": "spacr.install_cleanup#5",
+      "label": "spacr.install_cleanup#4",
       "source": "Removal never runs an old version's own uninstaller, so a copy whose ``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed all the same. Preferences and user data are kept: ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt`` settings (``~/.config/spacr``, the macOS preferences file, and the ``Software\\spacr`` registry key on Windows).",
       "source_sha256": "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
-      "translation": "La suppression n’exécute jamais le programme de désinstallation propre à une ancienne version, de sorte qu’une copie dont ``Uninstall.exe`` ou ``uninstall-spacr.sh`` est absent ou endommagé est supprimée quand même. Les préférences et les données utilisateur sont conservées : ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, le cache de Hugging Face et les réglages ``spacr``/``qt`` (``~/.config/spacr``, le fichier de préférences sous macOS et la clé de registre ``Software\\spacr`` sous Windows)."
+      "translation": "La suppression n’exécute jamais le programme de désinstallation propre à une ancienne version, de sorte qu’une copie dont ``Uninstall.exe`` ou ``uninstall-spacr.sh`` est absent ou endommagé est supprimée quand même. Les préférences et les données utilisateur sont conservées : ``~/.spacr``, ``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, le cache de Hugging Face et les réglages ``spacr``/``qt`` (``~/.config/spacr``, le fichier de préférences sous macOS et la clé de registre ``Software\\spacr`` sous Windows).",
+      "retired": "2026-10-16",
+      "retired_reason": "N703 rewrote this paragraph for verified background updates and confirmed native uninstall; the original source, target and review remain here."
     },
     {
       "context": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
-      "label": "spacr.install_cleanup#6",
+      "label": "spacr.install_cleanup#5",
       "source": "A pip or conda environment the user made is listed but never deleted; the spaCR package is uninstalled from it only when the caller says it was ticked. An editable source checkout is reported and left alone.",
       "source_sha256": "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
       "translation": "Un environnement pip ou conda créé par l’utilisateur est listé mais jamais supprimé ; le paquet spaCR n’en est désinstallé que si l’appelant indique qu’il a été coché. Une copie de travail modifiable des sources est signalée et laissée intacte."
     },
     {
       "context": "The module uses only the standard library and imports nothing from spaCR, so an installer can execute it with its bootstrapped Python before any spaCR exists, and a helper process can execute a copy of it after the executing spaCR has closed",
-      "label": "spacr.install_cleanup#7",
+      "label": "spacr.install_cleanup#6",
       "source": "The module uses only the standard library and imports nothing from spaCR, so an installer can run it with its bootstrapped Python before any spaCR exists, and a helper process can run a copy of it after the running spaCR has closed",
       "source_sha256": "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
       "translation": "Le module n’utilise que la bibliothèque standard et n’importe rien de spaCR, si bien qu’un programme d’installation peut l’exécuter avec le Python qu’il a lui-même installé avant qu’un quelconque spaCR existe, et qu’un processus auxiliaire peut en exécuter une copie après la fermeture du spaCR en cours d’exécution"
@@ -290,7 +304,9 @@
       "label": "spacr.install_cleanup.remove_install#1",
       "source": "An installer-made copy is removed completely: its folder, launchers, shortcuts, menu entries and uninstall registrations. A Debian package is removed through the package manager, and reported as needing administrator rights when that is what stops it. From an environment the user made, only the spaCR package is uninstalled, and only when ``ticked``; the environment itself stays. A source checkout is skipped.",
       "source_sha256": "1343028ba91e05f362b3a215f27684f6a824b7ef602c9c5c5bda06391a555d4f",
-      "translation": "Une copie créée par un programme d’installation est supprimée entièrement : son dossier, ses lanceurs, ses raccourcis, ses entrées de menu et ses enregistrements de désinstallation. Un paquet Debian est supprimé via le gestionnaire de paquets et signalé comme nécessitant des droits d’administrateur quand c’est ce qui bloque la suppression. Dans un environnement créé par l’utilisateur, seul le paquet spaCR est désinstallé, et seulement si ``ticked`` est vrai ; l’environnement lui-même reste en place. Une copie de travail des sources est ignorée."
+      "translation": "Une copie créée par un programme d’installation est supprimée entièrement : son dossier, ses lanceurs, ses raccourcis, ses entrées de menu et ses enregistrements de désinstallation. Un paquet Debian est supprimé via le gestionnaire de paquets et signalé comme nécessitant des droits d’administrateur quand c’est ce qui bloque la suppression. Dans un environnement créé par l’utilisateur, seul le paquet spaCR est désinstallé, et seulement si ``ticked`` est vrai ; l’environnement lui-même reste en place. Une copie de travail des sources est ignorée.",
+      "retired": "2026-10-14",
+      "retired_reason": "2026-10-14: N703 replaces the delete-before-install procedure with staging, actual runtime verification and user-data preservation. This source block was rewritten or removed; the original review is retained verbatim and does not certify the new English."
     },
     {
       "context": "The running copy is not removed here, because on Windows an installation cannot delete itself while it runs: :func:`start_update_helper` removes it after spaCR has closed.",
@@ -341,7 +357,9 @@
       "label": "spacr.install_cleanup.run_update_sequence#0",
       "source": "Find, then delete, then install -- and never install over an old copy.",
       "source_sha256": "4d0869a5ed02684f69757141b04f06f69b43061a7ed72b31cf0d0a7c65d11bbd",
-      "translation": "Trouver, puis supprimer, puis installer -- et ne jamais installer par-dessus une ancienne copie."
+      "translation": "Trouver, puis supprimer, puis installer -- et ne jamais installer par-dessus une ancienne copie.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "Every installer-made copy is removed, the spaCR package is uninstalled from each ticked environment, and only then is ``install`` called. When an installer-made copy could not be removed, ``install`` is not called at all, and the reports say what stopped it.",
@@ -713,14 +731,18 @@
       "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#0",
       "source": "The kind that will actually be drawn.",
       "source_sha256": "20da71f8ba82bae80518ce6cc4d05a9ba6d1e6369cd2f747d8e09f9cc95b863a",
-      "translation": "Le type qui sera réellement dessiné."
+      "translation": "Le type qui sera réellement dessiné.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     },
     {
       "context": "THE PIN, then the setting, then the inference. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
       "label": "spacr.qt.widgets.graph_spec.GraphSpec.resolved_kind#1",
       "source": "THE PIN, THEN THE SETTING, THEN THE INFERENCE. An explicit pin is the user saying \"this chart, now\" and still wins outright. With no pin, the Default Graph Type preference chooses among the forms that fit, and the inference answers when there is no preference or the chosen form cannot be drawn here -- see :func:`_kind_and_note`.",
       "source_sha256": "a99b098682ea2062035c2d71444303d0626bd5e14c0ee5121d4398d291c6c44c",
-      "translation": "L’ÉPINGLE, PUIS LE RÉGLAGE, PUIS L’INFÉRENCE. Une épingle explicite, c’est l’utilisateur qui dit « ce graphique, maintenant », et elle l’emporte toujours d’office. Sans épingle, la préférence Default Graph Type choisit parmi les formes qui conviennent, et l’inférence répond lorsqu’il n’y a pas de préférence ou que la forme choisie ne peut pas être dessinée ici -- voir :func:`_kind_and_note`."
+      "translation": "L’ÉPINGLE, PUIS LE RÉGLAGE, PUIS L’INFÉRENCE. Une épingle explicite, c’est l’utilisateur qui dit « ce graphique, maintenant », et elle l’emporte toujours d’office. Sans épingle, la préférence Default Graph Type choisit parmi les formes qui conviennent, et l’inférence répond lorsqu’il n’y a pas de préférence ou que la forme choisie ne peut pas être dessinée ici -- voir :func:`_kind_and_note`.",
+      "retired": true,
+      "retired_reason": "2026-10-11: the N678 factual-language review (a625a7dac..7a27b4d2b) rewrote this English block; kept verbatim as evidence, not loaded."
     }
   ],
   "schema": 1
